@@ -6,7 +6,7 @@ include $(ROOT)/mak/config.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY
+LOCAL_DEFINES = -DPEGASUS_DEFPM_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARY = DefaultProviderManager
 
@@ -24,8 +24,8 @@ SOURCES = \
 	LocalProviderManager.cpp \
 	Provider.cpp \
 	ProviderFacade.cpp \
-	ProviderModule.cpp \
-	OperationResponseHandler.cpp \
-	SimpleResponseHandler.cpp
+	ProviderModule.cpp 
+#	OperationResponseHandler.cpp \
+#	SimpleResponseHandler.cpp
 
 include $(ROOT)/mak/library.mak

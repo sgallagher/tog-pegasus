@@ -56,7 +56,7 @@
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPILocalProviderManager.h>
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
-#include <Pegasus/ProviderManager2/Default/OperationResponseHandler.h>
+//#include <Pegasus/ProviderManager2/Default/OperationResponseHandler.h>
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 

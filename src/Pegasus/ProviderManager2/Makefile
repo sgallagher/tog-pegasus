@@ -27,6 +27,9 @@ SOURCES = \
 	QueryExpressionFactory.cpp \
 	\
 	SafeQueue.cpp \
-	Lockable.cpp
+	Lockable.cpp \
+	OperationResponseHandler.cpp \
+	SimpleResponseHandler.cpp
+
 
 include $(ROOT)/mak/library.mak

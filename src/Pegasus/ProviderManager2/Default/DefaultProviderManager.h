@@ -52,7 +52,7 @@
 #include <Pegasus/ProviderManager2/ProviderName.h>
 
 #include <Pegasus/ProviderManager2/Default/LocalProviderManager.h>
-#include <Pegasus/ProviderManager2/Default/OperationResponseHandler.h>
+#include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 #include <Pegasus/ProviderManager2/Default/Provider.h>
 
 #include <Pegasus/ProviderManager2/Default/Linkage.h>

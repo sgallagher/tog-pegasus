@@ -42,7 +42,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Destroyer.h>
-#include <Pegasus/ProviderManager/OperationResponseHandler.h>
+#include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 
 #include <Pegasus/Config/ConfigManager.h>
 

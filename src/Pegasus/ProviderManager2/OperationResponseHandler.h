@@ -51,13 +51,13 @@
 #include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/Common/Logger.h>
 
-#include <Pegasus/ProviderManager2/Default/SimpleResponseHandler.h>
+#include <Pegasus/ProviderManager2/SimpleResponseHandler.h>
 
-#include <Pegasus/ProviderManager2/Default/Linkage.h>
+#include <Pegasus/ProviderManager2/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_DEFPM_LINKAGE OperationResponseHandler
+class PEGASUS_PPM_LINKAGE OperationResponseHandler
 {
 public:
     OperationResponseHandler(CIMRequestMessage * request, CIMResponseMessage * response)

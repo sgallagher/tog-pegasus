@@ -40,7 +40,7 @@
 
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Repository/CIMRepository.h>
-#include <Pegasus/ProviderManager2/Default/OperationResponseHandler.h>
+#include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 
 #include <Pegasus/ProviderManager2/CMPI/Linkage.h>
 

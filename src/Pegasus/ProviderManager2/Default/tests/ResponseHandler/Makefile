@@ -5,7 +5,7 @@ DIR = Pegasus/ProviderManager2/Default/tests/ResponseHandler
 LIBRARIES = \
 	pegcommon \
 	pegprovider \
-	DefaultProviderManager
+	pegprovidermanager
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 

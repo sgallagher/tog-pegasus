@@ -49,7 +49,7 @@
 #include <Pegasus/Config/ConfigManager.h>
 
 #include <Pegasus/ProviderManager2/Default/Provider.h>
-#include <Pegasus/ProviderManager2/Default/OperationResponseHandler.h>
+#include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>

@@ -33,7 +33,7 @@
 #include <Pegasus/Common/CIMInstance.h>
 
 #include <Pegasus/Common/ResponseHandler.h>
-#include <Pegasus/ProviderManager2/Default/SimpleResponseHandler.h>
+#include <Pegasus/ProviderManager2/SimpleResponseHandler.h>
 
 PEGASUS_USING_PEGASUS;
 

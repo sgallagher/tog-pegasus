@@ -43,7 +43,7 @@
 #ifdef PEGASUS_USE_23PROVIDER_MANAGER
 #include <Pegasus/ProviderManager/SimpleResponseHandler.h>
 #else
-#include <Pegasus/ProviderManager2/Default/SimpleResponseHandler.h>
+#include <Pegasus/ProviderManager2/SimpleResponseHandler.h>
 #endif
 
 PEGASUS_USING_STD;

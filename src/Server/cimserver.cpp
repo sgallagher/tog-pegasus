@@ -267,7 +267,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
     catch(Exception& e)
     {
 #ifdef PEGASUS_OS_OS400
-	Logger::put(Logger::ERROR_LOG, "", Logger::SEVERE,
+	Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
 		    "Unable to connect to CIM Server.  CIM Server may not be running." );
 	// The server job may still be active but not responding.
 	// Kill the job if it exists.
@@ -319,12 +319,12 @@ void shutdownCIMOM(Uint32 timeoutValue)
 
 	if (e.getCode() == CIM_ERR_INVALID_NAMESPACE)
 	{
-	    Logger::put(Logger::ERROR_LOG, "", Logger::SEVERE,
+	    Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
 		    "Failed to shutdown server: $0", "The repository may be empty.");
 	}
 	else
 	{
-	    Logger::put(Logger::ERROR_LOG, "", Logger::SEVERE,
+	    Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
 			"Failed to shutdown server: $0", e.getMessage());
 	}
 	// Kill the server job.
@@ -625,7 +625,7 @@ int main(int argc, char** argv)
     catch (Exception& e)
     {
 #ifdef PEGASUS_OS_OS400
-	Logger::put(Logger::ERROR_LOG, "", Logger::SEVERE,
+	Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
 			"$0: $1",argv[0] ,e.getMessage());
 #else
         cerr << argv[0] << ": " << e.getMessage() << endl;
@@ -642,7 +642,7 @@ int main(int argc, char** argv)
 #ifndef PEGASUS_LOCAL_DOMAIN_SOCKET
     if (!enableHttpConnection && !enableHttpsConnection)
     {
-        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
             "Neither HTTP nor HTTPS connection is enabled.  "
             "CIMServer will not be started.");
         cerr << "Neither HTTP nor HTTPS connection is enabled.  "
@@ -692,7 +692,7 @@ int main(int argc, char** argv)
             shutdownCIMOM(timeoutValue);
 
 #ifdef PEGASUS_OS_OS400
-	    Logger::put(Logger::ERROR_LOG, "", Logger::INFORMATION,
+	    Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
 			"CIM Server stopped.");  
 #else
             cout << "CIM Server stopped." << endl;
@@ -715,7 +715,7 @@ int main(int argc, char** argv)
     {
 
 #ifdef PEGASUS_OS_OS400
-	Logger::put(Logger::ERROR_LOG, "", Logger::SEVERE,
+	Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
 		    "Error: $0",e.getMessage());  
 #else
 	cout << "Error: " << e.getMessage() << endl;
@@ -788,7 +788,7 @@ int main(int argc, char** argv)
     if (cimserver_initialize() != 0)
     {
 	// do some logging here!
-	Logger::put(Logger::ERROR_LOG, "", Logger::SEVERE,
+	Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
 		    "CIM Server failed to initialize");  
 	exit(-1);
     } 
@@ -841,18 +841,18 @@ int main(int argc, char** argv)
         if (enableHttpConnection)
         {
             server.addAcceptor(false, portNumberHttp, false);
-            Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                         "Listening on HTTP port $0.", portNumberHttp);
         }
         if (enableHttpsConnection)
         {
             server.addAcceptor(false, portNumberHttps, true);
-            Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+            Logger::put(Logger::STANDARD_LOG, Sysmte::CIMSERVER, Logger::INFORMATION,
                         "Listening on HTTPS port $0.", portNumberHttps);
         }
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
         server.addAcceptor(true, 0, false);
-        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                     "Listening on local connection socket.");
 #endif
 
@@ -905,11 +905,11 @@ int main(int argc, char** argv)
 
         // Put server started message to the logger
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                     "Started $0 version $1.",
                     PLATFORM_PRODUCT_NAME, PLATFORM_PRODUCT_VERSION);
 #else
-        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                     "Started $0 version $1.",
                     PEGASUS_NAME, PEGASUS_VERSION);
 #endif
@@ -946,10 +946,10 @@ int main(int argc, char** argv)
 	//
         // Put server shutdown message to the logger
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
             "$0 stopped.", PLATFORM_PRODUCT_NAME);
 #else
-        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
             "$0 stopped.", PEGASUS_NAME);
 #endif
 
@@ -964,7 +964,7 @@ int main(int argc, char** argv)
     catch(Exception& e)
     {
 #ifdef PEGASUS_OS_OS400
-	Logger::put(Logger::STANDARD_LOG, "", Logger::WARNING,
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
 		    "Error: $0", e.getMessage()); 
 #else
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);

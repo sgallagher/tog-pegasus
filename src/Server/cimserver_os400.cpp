@@ -98,7 +98,7 @@ int cimserver_fork(void)
 					    YCMJOB_CCSID_37,
 					    YCMJOB_THREAD_YES))
   {  // QYCMCIMOM Server Failed on Submit Job
-     Logger::put(Logger::ERROR_LOG, "", Logger::SEVERE,
+      Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
 		 "cimserver_os400::cimserver_fork() - SBMJOB failed to start the QYCMCIMOM server program!!");
 
      std::string errCode = rc5;
@@ -184,7 +184,7 @@ int cimserver_initialize(void)
  }
   catch (...)
   {
-      Logger::put(Logger::ERROR_LOG, "", Logger::SEVERE,
+      Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
 		  "cimerver_os400::cimserver_os400_setup() - caught unknown exception\n");
 
       return(-1);
@@ -241,7 +241,7 @@ int cimserver_kill(void)
                          ycmCTLCIMID);
       message.joblogIt(UserError,ycmMessage::Diagnostic);
 
-      Logger::put(Logger::ERROR_LOG, "", Logger::SEVERE,
+      Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
 		  "cimserver_os400::cimserver_kill - FAILED to end the QYCMCIMOM job!!");
 
       return -1; // Note: this return code is ignored by the CIMOM server.

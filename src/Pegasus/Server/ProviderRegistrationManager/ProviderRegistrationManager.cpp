@@ -2532,7 +2532,7 @@ void ProviderRegistrationManager::_addInitialInstancesToTable(
     {
 	Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                       "Exception:: Attempt to add duplicate entry to provider reistration hash table.");
-	Logger::put(Logger::STANDARD_LOG, "ProviderRegistrationManager", Logger::WARNING,
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
                 "The CIM Repository in namespace root/PG_InterOp has been corrupted.");
 	PEG_METHOD_EXIT();
     }

@@ -228,7 +228,7 @@ void UserFileHandler::_Update(
                 if (!_passwordTable.insert(userName,password))
                 {
                     _mutex->unlock();
-                    Logger::put(Logger::ERROR_LOG, "UserManager", 
+                    Logger::put(Logger::ERROR_LOG, System::CIMSERVER, 
 			Logger::SEVERE, 
 			"Error updating user information for : $0.",userName);
                     PEG_METHOD_EXIT();

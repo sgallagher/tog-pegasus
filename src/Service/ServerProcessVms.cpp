@@ -58,6 +58,7 @@ ServerProcess::~ServerProcess() {}
 int ServerProcess::cimserver_fork(void) { return 0; }
 void ServerProcess::cimserver_set_process(void* p) {}
 long ServerProcess::get_server_pid(void) { return 0; }
+void ServerProcess::set_parent_pid(int pid) {}
 int ServerProcess::get_proc(int pid) { return 0; }
 void ServerProcess::cimserver_exitRC(int rc) {}
 int ServerProcess::cimserver_initialize(void) { return 1; }

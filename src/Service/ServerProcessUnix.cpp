@@ -60,6 +60,7 @@ Boolean handleSigUsr1 = false;
 Boolean graveError = false;
 
 pid_t server_pid;
+Uint32 parentPid = 0;
 
 void sigUsr1Handler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
 {
@@ -130,6 +131,12 @@ long ServerProcess::get_server_pid()
 {
     return server_pid;
 }
+
+void ServerProcess::set_parent_pid(int pid)
+{
+    parentPid = pid;
+}
+
 
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
 

@@ -51,8 +51,6 @@ PEGASUS_NAMESPACE_BEGIN
   * See PEP#222 for more information.
   */ 
 
-Uint32 parentPid = 0;
-
 class PEGASUS_SERVICE_LINKAGE ServerProcess
 {
 public:
@@ -84,6 +82,8 @@ public:
     void notify_parent(int id);
 
     long get_server_pid(void);
+
+    void set_parent_pid(int pid);
 
     int get_proc(int pid);
 

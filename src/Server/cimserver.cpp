@@ -1055,8 +1055,8 @@ MessageLoader::_useProcessLocale = false;
 //l10n
 
     // Get the parent's PID before forking
-    parentPid = System::getPID();
-
+    _cimServerProcess->set_parent_pid(System::getPID());
+    
     // do we need to run as a daemon ?
     if (daemonOption)
     {

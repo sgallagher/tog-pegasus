@@ -87,6 +87,7 @@ ServerProcess::~ServerProcess() {}
 void ServerProcess::notify_parent(int id) {}
 void ServerProcess::cimserver_set_process(void* p) {}
 long ServerProcess::get_server_pid(void) { return 0; }
+void ServerProcess::set_parent_pid(int pid) {}
 int ServerProcess::get_proc(int pid) { return 0; }
 int ServerProcess::cimserver_wait(void) { return 1; }
 String ServerProcess::getHome(void) { return String::EMPTY; }

@@ -86,6 +86,7 @@ static bool _setRegInfo(const char *lpchKeyword, const char *lpchValue);
 int ServerProcess::cimserver_fork(void) { return(0); }
 void ServerProcess::notify_parent(int id) { return; }
 long ServerProcess::get_server_pid(void) { return 0; }
+void ServerProcess::set_parent_pid(int pid) {}
 int ServerProcess::get_proc(int pid) { return 0; }
 int ServerProcess::cimserver_kill(int id) { return(0); }
 void cimserver_exitRC(int rc) {}

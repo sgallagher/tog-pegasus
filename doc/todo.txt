@@ -1,4 +1,16 @@
 
+
+    -	Finalize export client/server:
+
+	    -	Covert GetClass operation to DeliverIndication operation.
+
+	    -   Rework export-client to asynchronously process responses 
+		(instead of the RPC style used now).
+
+	    -	Need meta-export-client (with connection management).
+
+	    -	Implement disconnect() logic.
+
     -	Remove keys from messages?
 
     -   Get rid of unused source code (dealing with channels and TCP).

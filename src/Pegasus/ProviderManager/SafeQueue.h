@@ -23,59 +23,125 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:
-//              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_ProviderModule_h
-#define Pegasus_ProviderModule_h
+#ifndef Pegasus_SafeQueue_h
+#define Pegasus_SafeQueue_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Common/System.h>
-
-#include <Pegasus/Provider/CIMBaseProvider.h>
+#include <Pegasus/Common/Message.h>
+#include <Pegasus/Common/Queue.h>
+#include <Pegasus/Common/IPC.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-// The ProviderModule class represents the physical module, as defined by the
-// operating, that contains a provider. This class effectively encapsulates the
-// "physical" portion of a provider.
-class PEGASUS_SERVER_LINKAGE ProviderModule
+template<class T>
+class PEGASUS_SERVER_LINKAGE SafeQueue
 {
 public:
-	ProviderModule(const String & fileName, const String & providerName);
-	virtual ~ProviderModule(void);
+	SafeQueue(void);
+	virtual ~SafeQueue(void);
 
-	const String & getFileName(void) const;
-	const String & getProviderName(void) const;
+	void enqueue(const T & O);
+    T & dequeue(void);
 
-	void load(void);
-	void unload(void);
+    T & front(void);
+    const T & front(void) const;
 
-	virtual CIMBaseProvider * getProvider(void) const;
+    T & back(void);
+    const T & back(void) const;
+
+    Uint32 size(void) const;
 
 protected:
-	String _fileName;
-	String _providerName;
-	DynamicLibraryHandle _library;
-	CIMBaseProvider * _provider;
+	class LocalMutex
+	{
+	public:
+		LocalMutex(Mutex & mutex, Boolean lock = true) : _mutex(mutex)
+		{
+			if(lock == true)
+			{
+				_mutex.lock(pegasus_thread_self());
+			}
+		}
+
+		~LocalMutex(void)
+		{
+			_mutex.unlock();
+		}
+
+	private:
+		Mutex & _mutex;
+
+	};
+
+protected:
+	Mutex _mutex;
+	Queue<T> _queue;
 
 };
 
-inline const String & ProviderModule::getFileName(void) const
+template<class T>
+SafeQueue<T>::SafeQueue(void)
 {
-    return(_fileName);
 }
 
-inline const String & ProviderModule::getProviderName(void) const
+template<class T>
+SafeQueue<T>::~SafeQueue(void)
 {
-    return(_providerName);
 }
 
-inline CIMBaseProvider * ProviderModule::getProvider(void) const
+template<class T>
+void SafeQueue<T>::enqueue(const T & O)
 {
-    return(_provider);
+	LocalMutex mutex(_mutex);
+
+	_queue.enqueue(O);
+}
+
+template<class T>
+T & SafeQueue<T>::dequeue(void)
+{
+	LocalMutex mutex(_mutex);
+	
+	T & O = _queue.front();
+
+	_queue.dequeue();	
+
+	return(O);
+}
+
+template<class T>
+T & SafeQueue<T>::front(void)
+{
+	LocalMutex mutex(_mutex);
+	
+	return(_queue.front());
+}
+
+template<class T>
+const T & SafeQueue<T>::front(void) const
+{
+	LocalMutex mutex(_mutex);
+	
+	return(_queue.front());
+}
+
+template<class T>
+T & SafeQueue<T>::back(void)
+{
+	LocalMutex mutex(_mutex);
+	
+	return(_queue.back());
+}
+
+template<class T>
+const T & SafeQueue<T>::back(void) const
+{
+	LocalMutex mutex(_mutex);
+	
+	return(_queue.back());
 }
 
 PEGASUS_NAMESPACE_END

@@ -20,37 +20,39 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou (yi_zhou@hp.com)
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:
 //
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_ProviderBlockedEntry_h
-#define Pegasus_ProviderBlockedEntry_h
+#ifndef Pegasus_Provider_h
+#define Pegasus_Provider_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Common/System.h>
-#include <Pegasus/Common/Sharable.h>
+
+#include <Pegasus/ProviderManager/ProviderModule.h>
+#include <Pegasus/ProviderManager/ProviderFacade.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE ProviderBlockedEntry : public Sharable
+// The Provider class represents the logical provider extracted from a
+// provider module. It is wrapped in a facade to stabalize the interface
+// and is directly tied to a module.
+class PEGASUS_SERVER_LINKAGE Provider : public ProviderFacade
 {
 public:
-	ProviderBlockedEntry(const String & providerName, Boolean BlockFlag);
-	virtual ~ProviderBlockedEntry(void);
+	Provider(const String & name, const String & path);
+	virtual ~Provider(void);
 
-	const String & getProviderName(void) const;
-	Boolean getProviderBlockFlag(void) const;
+	virtual void initialize(CIMOMHandle & cimom);
+	virtual void terminate(void);
 
-	void setProviderBlockFlag(Boolean BlockFlag);
+	String getName(void) const;
 
 protected:
-	String _providerName;
-	Boolean _providerBlockFlag;
+	ProviderModule _module;
 
 };
 

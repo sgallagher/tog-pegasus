@@ -23,61 +23,66 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:
-//              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_ProviderModule_h
-#define Pegasus_ProviderModule_h
+#ifndef Pegasus_Lockable_h
+#define Pegasus_Lockable_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/IPC.h>
 
-#include <Pegasus/Provider/CIMBaseProvider.h>
-
-PEGASUS_NAMESPACE_BEGIN
-
-// The ProviderModule class represents the physical module, as defined by the
-// operating, that contains a provider. This class effectively encapsulates the
-// "physical" portion of a provider.
-class PEGASUS_SERVER_LINKAGE ProviderModule
+template<class object_type>
+class Lockable
 {
 public:
-	ProviderModule(const String & fileName, const String & providerName);
-	virtual ~ProviderModule(void);
+	Lockable(void);
+	virtual ~Lockable(void);
 
-	const String & getFileName(void) const;
-	const String & getProviderName(void) const;
-
-	void load(void);
-	void unload(void);
-
-	virtual CIMBaseProvider * getProvider(void) const;
+	operator const object_type &(void) const;
+	operator object_type &(void);
+	
+	void lock(void);
+	void unlock(void);
 
 protected:
-	String _fileName;
-	String _providerName;
-	DynamicLibraryHandle _library;
-	CIMBaseProvider * _provider;
+	//Mutex _mutex;
 
 };
 
-inline const String & ProviderModule::getFileName(void) const
+template<class object_type>
+inline Lockable<object_type>::Lockable(void)
 {
-    return(_fileName);
 }
 
-inline const String & ProviderModule::getProviderName(void) const
+template<class object_type>
+inline Lockable<object_type>::~Lockable(void)
 {
-    return(_providerName);
+	//_mutex.unlock();
 }
 
-inline CIMBaseProvider * ProviderModule::getProvider(void) const
+template<class object_type>
+inline Lockable<object_type>::operator const object_type &(void) const
 {
-    return(_provider);
+	return(_object);
 }
 
-PEGASUS_NAMESPACE_END
+template<class object_type>
+inline Lockable<object_type>::operator object_type &(void)
+{
+	return(_object);
+}
+
+template<class object_type>
+inline void Lockable<object_type>::lock(void)
+{
+	//_mutex.lock(pegasus_thread_self());
+}
+
+template<class object_type>
+inline void Lockable<object_type>::unlock(void)
+{
+	//_mutex.unlock();
+}
 
 #endif

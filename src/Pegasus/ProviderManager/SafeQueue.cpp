@@ -20,42 +20,14 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou (yi_zhou@hp.com)
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "ProviderBlockedEntry.h"
-
-#include <Pegasus/Common/Destroyer.h>
-#include <Pegasus/Common/FileSystem.h>
+#include "SafeQueue.h"
 
 PEGASUS_NAMESPACE_BEGIN
-
-
-ProviderBlockedEntry::ProviderBlockedEntry(const String & providerName, Boolean BlockFlag)
-    : _providerName(providerName), _providerBlockFlag(BlockFlag)
-{
-}
-
-ProviderBlockedEntry::~ProviderBlockedEntry(void)
-{
-}
-
-const String & ProviderBlockedEntry::getProviderName(void) const
-{
-	return(_providerName);
-}
-
-Boolean ProviderBlockedEntry::getProviderBlockFlag(void) const
-{
-	return(_providerBlockFlag);
-}
-
-void ProviderBlockedEntry::setProviderBlockFlag(Boolean BlockFlag)
-{
-	_providerBlockFlag = BlockFlag;
-}
 
 PEGASUS_NAMESPACE_END

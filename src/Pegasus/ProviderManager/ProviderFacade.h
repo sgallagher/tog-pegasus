@@ -44,6 +44,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+// The ProviderModule class wraps a provider pointer extracted from a provider
+// module to ensure it is complete and well behaved. So, regardless of the
+// method supported by a "real" provider, it can be placed inside a reliable
+// facade with a known interface.
 class PEGASUS_SERVER_LINKAGE ProviderFacade :
 	public CIMInstanceProvider,
 	public CIMClassProvider,

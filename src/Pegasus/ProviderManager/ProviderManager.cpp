@@ -28,14 +28,10 @@
 
 #include "ProviderManager.h"
 
-#include <Pegasus/ProviderManager/ProviderFacade.h>
-#include <Pegasus/Common/OperationContext.h>
-#include <Pegasus/Provider/OperationFlag.h>
-#include <Pegasus/Provider/SimpleResponseHandler.h>
-
 PEGASUS_NAMESPACE_BEGIN
 
 ProviderManager::ProviderManager(void)
+//	: _cimom("845186CD-DC6E-478f-A822-99F324C1CB5A")
 {
 }
 
@@ -44,67 +40,59 @@ ProviderManager::~ProviderManager(void)
 	// terminate all providers
 	for(Uint32 i = 0, n = _providers.size(); i < n; i++)
 	{
-		CIMBaseProvider * provider = _providers[i].getProvider();
-
-		if(provider != 0)
+		try
 		{
-			provider->terminate();
+			_providers[i].terminate();
+		}
+		catch(...)
+		{
 		}
 	}
 }
 
-ProviderModule ProviderManager::getProviderModule(
+Provider ProviderManager::getProvider(
 	const String & fileName,
 	const String & providerName)
 {
 	// check list for requested provider and return if found
 	for(Uint32 i = 0, n = _providers.size(); i < n; i++)
 	{
-		if(String::equalNoCase(fileName, _providers[i].getFileName()) &&
-			String::equalNoCase(providerName, _providers[i].getProviderName()))
+		if(String::equalNoCase(providerName, _providers[i].getName()))
 		{
 			return(_providers[i]);
 		}
 	}
 
+	PEGASUS_STD(cout) << "Loading " << providerName << " @ " << fileName << PEGASUS_STD(endl);
+	
 	// create provider module
-	ProviderModule module(fileName, providerName);
-
-	module.load();
-
-	// get provider handle
-	CIMBaseProvider * provider = module.getProvider();
-
-	if(provider == 0)
-	{
-		throw CIMException(CIM_ERR_FAILED, "invalid provider handle.");
-	}
+	Provider provider(providerName, fileName);
 
 	// initialize provider
-	// ATTN: Is it okay to pass the same CIMOMHandle to multiple providers?
-	// Is that object reentrant?  (it has a waitForResponse method)
-	CIMOMHandle cimom;
+	CIMOMHandle _cimom;
 	
-	provider->initialize(cimom);
+	provider.initialize(_cimom);
 
 	// add provider to list
-	_providers.append(module);
+	_providers.append(provider);
 
 	// recurse to get the provider as it resides in the array (rather than the local instance)
-	return(getProviderModule(fileName, providerName));
+	return(getProvider(fileName, providerName));
 }
 
 void ProviderManager::addProviderToTable(const String & providerName, Boolean BlockFlag)
 {
+	/*
 	ProviderBlockedEntry providerInfo(providerName, BlockFlag);
 
 	// add providerInfo to provider block table
 	_providerBT.append(providerInfo);
+	*/
 }
 
-void ProviderManager::removeProviderFromTable(
-	const String & providerName)
+void ProviderManager::removeProviderFromTable(const String & providerName)
 {
+	/*
 	for(Uint32 i=0, n=_providerBT.size(); i<n; i++)
 	{
 		if(String::equalNoCase(providerName,_providerBT[i].getProviderName()))
@@ -112,10 +100,12 @@ void ProviderManager::removeProviderFromTable(
 			_providerBT.remove(i);
 		}
 	}
+	*/
 }
 
 Uint32 ProviderManager::blockProvider(const String & providerName)
 {
+	/*
 	for(Uint32 i=0, n=_providerBT.size(); i<n; i++)
 	{
 		if(String::equalNoCase(providerName,_providerBT[i].getProviderName()))
@@ -124,12 +114,14 @@ Uint32 ProviderManager::blockProvider(const String & providerName)
 			return(0);
 		}
 	}
+	*/
 
 	return(1);
 }
 
 Uint32 ProviderManager::unblockProvider(const String & providerName)
 {
+	/*
 	for(Uint32 i=0, n=_providerBT.size(); i<n; i++)
 	{
 		if(String::equalNoCase(providerName,_providerBT[i].getProviderName()))
@@ -138,12 +130,14 @@ Uint32 ProviderManager::unblockProvider(const String & providerName)
 			return(0);
 		}
 	}
+	*/
 
 	return(1);
 }
 
 Boolean ProviderManager::isProviderBlocked(const String & providerName)
 {
+	/*
 	for(Uint32 i=0, n=_providerBT.size(); i<n; i++)
 	{
 		if(String::equalNoCase(providerName,_providerBT[i].getProviderName()))
@@ -151,11 +145,14 @@ Boolean ProviderManager::isProviderBlocked(const String & providerName)
 			return(_providerBT[i].getProviderBlockFlag());
 		}
 	}
+	*/
+
 	return(false);
 }
 
 void ProviderManager::createProviderBlockTable(Array<CIMNamedInstance> & namedinstances)
 {
+	/*
 	String providerName;
 	Boolean blockFlag;
 	CIMInstance instance;
@@ -170,10 +167,12 @@ void ProviderManager::createProviderBlockTable(Array<CIMNamedInstance> & namedin
 		
 		addProviderToTable(providerName, blockFlag);
 	}
+	*/
 }
 
 Uint32 ProviderManager::stopProvider(const String & providerName)
 {
+	/*
 	// check list for requested provider. If found, terminate the
 	// provider and unload library
 	for(Uint32 i = 0, n = _providers.size(); i < n; i++)
@@ -190,11 +189,13 @@ Uint32 ProviderManager::stopProvider(const String & providerName)
 	}
 
 	// if provider is not loaded, just return
+	*/
 	return(0);
 }
 
 void ProviderManager::shutdownAllProviders(const String & providerName, const String & className)
 {
+	/*
 	//
 	// For each provider in the list, call its terminate() method, skipping
 	// the specified provider.
@@ -216,6 +217,7 @@ void ProviderManager::shutdownAllProviders(const String & providerName, const St
 		
 		numProviders--;
 	}
+	*/
 }
 
 // ATTN: disabled temporarily
@@ -244,11 +246,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::monitorThread(void *
 
 			// get provider timeout
 
-#if defined(PEGASUS_OS_HPUX)
+			#if defined(PEGASUS_OS_HPUX)
 			Uint32 provider_timeout = 0xffffffff;
-#else
+			#else
 			Uint32 provider_timeout = 30;
-#endif
+			#endif
 
 			if((provider_timeout != 0xffffffff) && (provider_timeout <= timeout))
 			{

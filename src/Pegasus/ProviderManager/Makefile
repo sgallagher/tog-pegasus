@@ -13,14 +13,17 @@ LIBRARY = pegprovidermanager
 LIBRARIES = \
     pegcommon \
     pegprovider \
-    pegconfig
+    pegserver \
+	pegconfig
 
 SOURCES = \
+	Lockable.cpp \
+	SafeQueue.cpp \
 	ProviderManagerService.cpp \
 	ProviderManager.cpp \
     ProviderModule.cpp \
     ProviderFacade.cpp \
-    ProviderBlockedEntry.cpp
+	Provider.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

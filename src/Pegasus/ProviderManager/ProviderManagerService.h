@@ -38,31 +38,12 @@
 #include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/Thread.h>
-#include <Pegasus/Common/Stack.h>
+
+#include <Pegasus/ProviderManager/SafeQueue.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class ProviderManager;
-
-class PEGASUS_SERVER_LINKAGE SafeMessageQueue
-{
-public:
-	SafeMessageQueue(void);
-	virtual ~SafeMessageQueue(void);
-
-	const Message * front(void);
-		
-	void enqueue(Message * message);
-	Message * dequeue(void);
-	
-	void lock(void);
-	void unlock(void);
-
-protected:
-	Mutex _mutex;
-	Stack<Message *> _stack;
-
-};
 
 class PEGASUS_SERVER_LINKAGE ProviderManagerService : public MessageQueueService
 {
@@ -84,8 +65,22 @@ protected:
 	Pair<String, String> _lookupProviderForClass(const CIMObjectPath & objectPath);
 
 protected:	
-	void handleOperation(void) throw();
+	//void handleServiceOperation(void) throw()
 
+	//void handleStartService();
+	//void handleStopService();
+	//void handlePauseService();
+	//void handleResumeService();
+
+	void handleCimOperation(void) throw();
+
+	//static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleGetClassRequest(void *) throw();
+	//static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleEnumerateClassesRequest(void *) throw();
+	//static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleEnumerateClassNamesRequest(void *) throw();
+	//static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleCreateClassRequest(void *) throw();
+	//static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleModifyClassRequest(void *) throw();
+	//static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleDeleteClassRequest(void *) throw();
+	
 	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleGetInstanceRequest(void *) throw();
 	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleEnumerateInstancesRequest(void *) throw();
 	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleEnumerateInstanceNamesRequest(void *) throw();
@@ -113,7 +108,7 @@ protected:
 	ThreadPool _threadPool;
 	Semaphore _threadSemaphore;
 	
-	SafeMessageQueue messageQueue;
+	SafeQueue<Message *> messageQueue;
 
 };
 

@@ -23,61 +23,53 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:
-//              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_ProviderModule_h
-#define Pegasus_ProviderModule_h
-
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Common/System.h>
-
-#include <Pegasus/Provider/CIMBaseProvider.h>
+#include "Provider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-// The ProviderModule class represents the physical module, as defined by the
-// operating, that contains a provider. This class effectively encapsulates the
-// "physical" portion of a provider.
-class PEGASUS_SERVER_LINKAGE ProviderModule
+Provider::Provider(const String & name, const String & path)
+	: ProviderFacade(0), _module(path, name)
 {
-public:
-	ProviderModule(const String & fileName, const String & providerName);
-	virtual ~ProviderModule(void);
-
-	const String & getFileName(void) const;
-	const String & getProviderName(void) const;
-
-	void load(void);
-	void unload(void);
-
-	virtual CIMBaseProvider * getProvider(void) const;
-
-protected:
-	String _fileName;
-	String _providerName;
-	DynamicLibraryHandle _library;
-	CIMBaseProvider * _provider;
-
-};
-
-inline const String & ProviderModule::getFileName(void) const
-{
-    return(_fileName);
 }
 
-inline const String & ProviderModule::getProviderName(void) const
+Provider::~Provider(void)
 {
-    return(_providerName);
 }
 
-inline CIMBaseProvider * ProviderModule::getProvider(void) const
+String Provider::getName(void) const
 {
-    return(_provider);
+	return(_module.getProviderName());
+}
+
+void Provider::initialize(CIMOMHandle & cimom)
+{
+	// NOTE: yield before a potentially lengthy operation.
+	pegasus_yield();
+	
+	_module.load();
+
+	ProviderFacade::_provider = _module.getProvider();
+
+	// NOTE: yield before a potentially lengthy operation.
+	pegasus_yield();
+	
+	ProviderFacade::initialize(cimom);
+}
+
+void Provider::terminate(void)
+{
+	// NOTE: yield before a potentially lengthy operation.
+	pegasus_yield();
+	
+	ProviderFacade::terminate();
+
+	// NOTE: yield before a potentially lengthy operation.
+	pegasus_yield();
+
+	_module.unload();
 }
 
 PEGASUS_NAMESPACE_END
-
-#endif

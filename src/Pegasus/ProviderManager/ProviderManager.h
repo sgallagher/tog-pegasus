@@ -32,8 +32,9 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Pair.h>
-#include <Pegasus/ProviderManager/ProviderModule.h>
-#include <Pegasus/ProviderManager/ProviderBlockedEntry.h>
+
+#include <Pegasus/ProviderManager/Lockable.h>
+#include <Pegasus/ProviderManager/Provider.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -44,15 +45,7 @@ public:
 	virtual ~ProviderManager(void);
 
 public:	
-	ProviderModule getProviderModule(const String & fileName, const String & providerName);
-
-	/*
-	getProvider();
-	addProvider();
-	removeProvider();
-	startProvider();
-	stopProvider();
-	*/
+	Provider getProvider(const String & fileName, const String & providerName);
 
 	void addProviderToTable(const String & providerName, Boolean BlockFlag);
 	void removeProviderFromTable(const String & providerName);
@@ -65,10 +58,8 @@ public:
     void shutdownAllProviders(const String & providerName, const String & className);
 
 protected:
-
-protected:
-	Array<ProviderModule> _providers;
-	Array<ProviderBlockedEntry> _providerBT;
+	//CIMOMHandle _cimom;
+	Array<Provider> _providers;
 
 };
 

@@ -42,6 +42,8 @@
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/AuthenticationInfo.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/AcceptLanguages.h>
+#include <Pegasus/Common/ContentLanguages.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -63,6 +65,10 @@ class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
       Array<Sint8> message;
       Uint32 queueId;
       AuthenticationInfo* authInfo;
+      AcceptLanguages acceptLanguages;
+      ContentLanguages contentLanguages;
+      Boolean acceptLanguagesDecoded;
+      Boolean contentLanguagesDecoded;
 
       void parse(
 	 String& startLine,

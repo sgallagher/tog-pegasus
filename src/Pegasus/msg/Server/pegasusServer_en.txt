@@ -2100,7 +2100,6 @@ en:table {
         */
         Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERNAME_KEY_IN_CONSUMER_CAPABILITIES:string {"PGS06412: The key property ProviderName is missing from the PG_ConsumerCapabilities instance."}
 
-
         // ==========================================================
         // Messages for OptionManager
         //  Please use message prefix "PGS06600"
@@ -3313,8 +3312,13 @@ CIM server listening on HTTPS port {0}."}
         * @note  PGS11202:
         *    Substitution {0} is a string containing the export method name
         */
-        ExportServer.CIMExportRequestDispatcher.UNRECOGNIZED_EXPORT_METHOD:string {"Unrecognized export method: {0}"}
+        ExportServer.CIMExportRequestDispatcher.UNRECOGNIZED_EXPORT_METHOD:string {"PGS11202:  Unrecognized export method: {0}"}
 
+	/**
+        * @note PGS11203:
+        * @version 2.4
+        */
+        ExportServer.CIMExportRequestDecoder.REQUEST_NOT_VALID:string{"PGS11203:  The request is not valid."}
 
         // ==========================================================
         // Messages for CIMExportResponseDecoder
@@ -3659,14 +3663,14 @@ CIM server listening on HTTPS port {0}."}
         * Do not translate 'SIMPLEREQ'
         * Do not translate 'MULTIREQ'
         */
-        Common.XmlConstants.MISSING_ELEMENT_REQ:string {"Expected SIMPLEREQ or MULTIREQ element."}
+        Common.XmlConstants.MISSING_ELEMENT_REQ:string {"PGS12600:  Expected SIMPLEREQ or MULTIREQ element."}
         
         /**
         * @note MISSING_ELEMENT_LOCALPATH:
         * Do not translate 'LOCALCLASSPATH'
         * Do not translate 'LOCALINSTANCEPATH'
         */
-        Common.XmlConstants.MISSING_ELEMENT_LOCALPATH:string{"Expected LOCALCLASSPATH or LOCALINSTANCEPATH element."}
+        Common.XmlConstants.MISSING_ELEMENT_LOCALPATH:string{"PGS12601:  Expected LOCALCLASSPATH or LOCALINSTANCEPATH element."}
         
         // ==========================================================
         // Messages for Thread
@@ -3677,6 +3681,23 @@ CIM server listening on HTTPS port {0}."}
         * @note CANCEL_LONG_RUNNING_THREAD:
         *    Substitution {0} is a number of seconds (an integer)
         */
-        Common.Thread.CANCEL_LONG_RUNNING_THREAD:string{"A thread has run longer than {0} seconds and will be cancelled."}
+        Common.Thread.CANCEL_LONG_RUNNING_THREAD:string{"PGS12800:  A thread has run longer than {0} seconds and will be cancelled."}
+
+	// ==========================================================
+        // Messages for HTTPAuthenticatorDelegator
+        //  Please use message prefix "PGS13000"
+        // ==========================================================
         
+	/**
+        * @note HTTPAuthenticatorDelegator:
+	* @version 2.4
+	*/
+	Pegasus.Server.HTTPAuthenticatorDelegator.REQUEST_NOT_VALID:string{"PGS13000:  The request is not valid."}
+
+	/**
+        * @note HTTPAuthenticatorDelegator:
+        * @version 2.4
+        */
+	Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_HEADER_ERROR:string{"PGS13001:  Authorization header error."}
+
 }

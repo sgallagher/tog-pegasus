@@ -47,6 +47,7 @@
 #include <Pegasus/Config/ConfigManager.h>
 #include "CIMExportRequestDecoder.h"
 #include <Pegasus/Common/CommonUTF.h>
+#include <Pegasus/Common/MessageLoader.h>
 
 PEGASUS_USING_STD;
 
@@ -320,6 +321,9 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    ContentLanguages contentLanguages = ContentLanguages::EMPTY;
    try 
    { 
+	if(httpMessage->acceptLanguagesDecoded){
+		acceptLanguages = httpMessage->acceptLanguages;
+	}else{
 		// Get and validate the Accept-Language header, if set 	   	  
 		String acceptLanguageHeader;		
 		if (HTTPMessage::lookupHeader(
@@ -330,7 +334,11 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 	    {
 			acceptLanguages = AcceptLanguages(acceptLanguageHeader);
 	    }
-
+	}
+	
+	if(httpMessage->contentLanguagesDecoded){
+		contentLanguages = httpMessage->contentLanguages;
+	}else{
 		// Get and validate the Content-Language header, if set 	
 		String contentLanguageHeader;
 		if (HTTPMessage::lookupHeader(
@@ -341,11 +349,16 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 	    {						
 			contentLanguages = ContentLanguages(contentLanguageHeader);      
 	    }
+	}
+	
    }			
    catch (Exception &e)
    {
+	Thread::clearLanguages();
+	MessageLoaderParms msgParms("ExportServer.CIMExportRequestDecoder.REQUEST_NOT_VALID","request-not-valid");
+	String msg(MessageLoader::getMessage(msgParms));
 		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, 
-					"request-not-valid",
+					msg,
                     e.getMessage());		         	
        	return;
    }        

@@ -36,7 +36,9 @@
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Config/ConfigManager.h>
+#include <Pegasus/Common/Thread.h>
 #include "HTTPAuthenticatorDelegator.h"
+#include <Pegasus/Common/MessageLoader.h>
  
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 #include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
@@ -250,7 +252,54 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     Uint32 contentLength;
 
     httpMessage->parse(startLine, headers, contentLength);
-    
+
+// l10n start
+   AcceptLanguages acceptLanguages = AcceptLanguages::EMPTY;
+   ContentLanguages contentLanguages = ContentLanguages::EMPTY;
+   try
+   {
+                // Get and validate the Accept-Language header, if set
+                String acceptLanguageHeader;
+                if (HTTPMessage::lookupHeader(
+                      headers,
+                  "Accept-Language",
+                      acceptLanguageHeader,
+                  false) == true)
+            {
+                        acceptLanguages = AcceptLanguages(acceptLanguageHeader);
+			httpMessage->acceptLanguagesDecoded = true;
+            }
+                                                                                                                                                             
+                // Get and validate the Content-Language header, if set
+                String contentLanguageHeader;
+                if (HTTPMessage::lookupHeader(
+                      headers,
+                  "Content-Language",
+                      contentLanguageHeader,
+                  false) == true)
+            {
+                        contentLanguages = ContentLanguages(contentLanguageHeader);
+			httpMessage->contentLanguagesDecoded = true;
+            }
+   }
+   catch (Exception &e)
+   {
+	Thread::clearLanguages(); // clear any existing languages to force messages to come from the root bundle
+	MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.REQUEST_NOT_VALID","request-not-valid");
+	String msg(MessageLoader::getMessage(msgParms));
+
+                _sendHttpError(queueId, HTTP_STATUS_BADREQUEST,
+                                        msg,
+                            e.getMessage());
+        PEG_METHOD_EXIT();
+        return;
+   }
+   Thread::setLanguages(new AcceptLanguages(acceptLanguages));
+   httpMessage->acceptLanguages = acceptLanguages;
+   httpMessage->contentLanguages = contentLanguages;
+// l10n end   
+
+ 
     //
     // Parse the request line:
     //
@@ -330,10 +379,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     }
                     else
                     {
+			MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_HEADER_ERROR","Authorization header error");
+		        String msg(MessageLoader::getMessage(msgParms));
                         _sendHttpError(queueId,
                                        HTTP_STATUS_BADREQUEST,
                                        String::EMPTY,
-                                       "Authorization header error");
+                                       msg);
                     }
 
                     PEG_METHOD_EXIT();
@@ -398,10 +449,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     }
                     else
                     {
+			MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_HEADER_ERROR","Authorization header error");
+                        String msg(MessageLoader::getMessage(msgParms));
                         _sendHttpError(queueId,
                                        HTTP_STATUS_BADREQUEST,
                                        String::EMPTY,
-                                       "Authorization header error");
+                                       msg);
                     }
 
                     PEG_METHOD_EXIT();
@@ -425,10 +478,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 	    {
 		if (httpMessage->message.size() == 0)
 		{
+			MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_HEADER_ERROR","Authorization header error");
+                        String msg(MessageLoader::getMessage(msgParms));
 		    _sendHttpError(queueId,
 				   HTTP_STATUS_BADREQUEST,
 				   String::EMPTY,
-				   "Authorization header error");
+				   msg);
 		}
 		else
 		{
@@ -551,10 +606,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             }
             else
             {
+		MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_HEADER_ERROR","Authorization header error");
+                String msg(MessageLoader::getMessage(msgParms));
                 _sendHttpError(queueId,
                                HTTP_STATUS_BADREQUEST,
                                String::EMPTY,
-                               "Authorization header error");
+                               msg);
             }
         }
     } // M-POST and POST processing

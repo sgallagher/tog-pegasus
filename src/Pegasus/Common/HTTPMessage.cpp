@@ -92,9 +92,10 @@ HTTPMessage::HTTPMessage(
     :
     Message(HTTP_MESSAGE), 
     message(message_), 
-    queueId(queueId_)
+    queueId(queueId_),
+    acceptLanguagesDecoded(false),
+    contentLanguagesDecoded(false)
 {
-
 }
 
 
@@ -106,6 +107,10 @@ HTTPMessage::HTTPMessage(HTTPMessage & msg)
       message = msg.message;
       queueId = msg.queueId;
       authInfo = 0;
+      acceptLanguages = msg.acceptLanguages;
+      contentLanguages = msg.contentLanguages;
+      acceptLanguagesDecoded = msg.acceptLanguagesDecoded;
+      contentLanguagesDecoded = msg.contentLanguagesDecoded;
    }
 }
 

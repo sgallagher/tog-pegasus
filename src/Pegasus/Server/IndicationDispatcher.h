@@ -27,60 +27,40 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_ExportClient_h
-#define Pegasus_ExportClient_h
+#ifndef PegasusIndicationDispatcher_IndicationDispatcher_h
+#define PegasusIndicationDispatcher_IndicationDispatcher_h
 
-#include <fstream>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMObject.h>
-#include <Pegasus/ExportClient/ExportClientException.h>
+#include <Pegasus/Common/CIMOperations.h>
+#include <Pegasus/Server/HandlerTable.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class ExportClientHandler;
-class Selector;
-class Channel;
+class CIMRepository;
+class HandlerTable;
 
-class PEGASUS_EXPORTCLIENT_LINKAGE CIMExportClient
+class PEGASUS_SERVER_LINKAGE IndicationDispatcher 
 {
 public:
 
-    enum { DEFAULT_TIMEOUT_MILLISECONDS = 20000 };
+    IndicationDispatcher(CIMRepository* repository);
 
-    CIMExportClient(
-	Selector* selector,
-	Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
+    virtual ~IndicationDispatcher();
 
-    ~CIMExportClient();
-
-    Uint32 getTimeOut() const
-    {
-	return _timeOutMilliseconds;
-    }
-
-    void setTimeOut(Uint32 timeOutMilliseconds)
-    {
-	_timeOutMilliseconds = timeOutMilliseconds;
-    }
-
-    void deliverIndication(
-	const char* address, 
-	CIMInstance& indicationInstance, 
+    void handleIndication(
+        CIMInstance& indicationHandlerInstance,
+        CIMInstance& indicationInstance,
 	String nameSpace);
 
-private:
+protected:
+    CIMHandler* _lookupHandlerForClass(
+	const String& nameSpace,
+	const String& className);
 
-    ExportClientHandler* _getHandler();
-
-    void _sendMessage(const Array<Sint8>& message);
-
-    const char* _getHostName() const { return "localhost"; }
-
-    Selector* _selector;
-    Channel* _channel;
-    Uint32 _timeOutMilliseconds;
+    CIMRepository* _repository;
+    HandlerTable _handlerTable;
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_ExportClient_h */
+#endif /* PegasusIndicationDispatcher_IndicationDispatcher_h */

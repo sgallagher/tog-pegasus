@@ -868,7 +868,9 @@ void BinaryStreamer::toBin(Array<Sint8> & out, const CIMValue& val)
    }
 }
 
-
+#if defined(PEGASUS_OS_HPUX)
+#define TYPE_CONV 
+#endif
 
 CIMValue BinaryStreamer::extractValue(const Array<Sint8>& in, Uint32 & pos)
 {
@@ -903,62 +905,194 @@ CIMValue BinaryStreamer::extractValue(const Array<Sint8>& in, Uint32 & pos)
 
             switch (type) {
             case CIMTYPE_BOOLEAN: {
+#ifdef TYPE_CONV
+		  Array<Boolean> a_val;
+		  a_val.reserveCapacity(as);
+		  for (Uint32 i =0; i < as*sizeof(Boolean); i+=sizeof(Boolean)) {
+			Boolean b;
+			memcpy( &b, ar + pos + i, sizeof(Boolean));
+		  	a_val.append(b);
+		  }
+		  val.set(a_val);
+#else
                   val.set(Array<Boolean>((Boolean*)(ar+pos),as));
+#endif
                   pos+=sizeof(Boolean)*as;
                }
                break;
             case CIMTYPE_UINT8: {
+#ifdef TYPE_CONV
+		  Array<Uint8> a_val;
+		  a_val.reserveCapacity(as);
+		  for (Uint32 i =0; i < as*sizeof(Uint8); i+=sizeof(Uint8)) {
+			Uint8 val;
+			memcpy( &val, ar + pos + i, sizeof(Uint8));
+		  	a_val.append(val);
+		  }
+		  val.set(a_val);
+#else		  
                   val.set(Array<Uint8>((Uint8*)(ar+pos),as));
+#endif
                   pos+=sizeof(Uint8)*as;
                }
                break;
             case CIMTYPE_SINT8: {
+#ifdef TYPE_CONV
+		  Array<Sint8> a_val;
+		  a_val.reserveCapacity(as);
+		  for (Uint32 i =0; i < as*sizeof(Sint8); i+=sizeof(Sint8)) {
+			Sint8 val;
+			memcpy( &val, ar + pos + i, sizeof(Sint8));
+		  	a_val.append(val);
+		  }
+		  val.set(a_val);
+#else
                   val.set(Array<Sint8>((Sint8*)(ar+pos),as));
+#endif
                   pos+=sizeof(Sint8)*as;
                }
                break;
             case CIMTYPE_UINT16: {
+#ifdef TYPE_CONV
+		  Array<Uint16> a_val;
+		  a_val.reserveCapacity(as);
+		  for (Uint32 i =0; i < as*sizeof(Uint16); i+=sizeof(Uint16)) {
+			Uint16 val;
+			memcpy( &val, ar + pos + i, sizeof(Uint16));
+		  	a_val.append(val);
+		  }
+		  val.set(a_val);
+#else
                   val.set(Array<Uint16>((Uint16*)(ar+pos),as));
+#endif
                   pos+=sizeof(Uint16)*as;
                }
                break;
             case CIMTYPE_SINT16: {
+#ifdef TYPE_CONV
+		  Array<Sint16> a_val;
+		  a_val.reserveCapacity(as);
+		  for (Uint32 i =0; i < as*sizeof(Sint16); i+=sizeof(Sint16)) {
+			Sint16 val;
+			memcpy( &val, ar + pos + i, sizeof(Sint16));
+		  	a_val.append(val);
+		  }
+		  val.set(a_val);
+#else
                   val.set(Array<Sint16>((Sint16*)(ar+pos),as));
+#endif
                   pos+=sizeof(Sint16)*as;
                }
                break;
             case CIMTYPE_UINT32: {
+#ifdef TYPE_CONV
+		  Array<Uint32> a_val;
+		  a_val.reserveCapacity(as);
+		  for (Uint32 i =0; i < as*sizeof(Uint32); i+=sizeof(Uint32)) {
+			Uint32 val;
+			memcpy( &val, ar + pos + i, sizeof(Uint32));
+		  	a_val.append(val);
+		  }
+		  val.set(a_val);
+#else
                   val.set(Array<Uint32>((Uint32*)(ar+pos),as));
+#endif
                   pos+=sizeof(Uint32)*as;
                }
                break;
             case CIMTYPE_SINT32: {
+#ifdef TYPE_CONV
+		  Array<Sint32> a_val;
+		  a_val.reserveCapacity(as);
+		  for (Uint32 i =0; i < as*sizeof(Sint32); i+=sizeof(Sint32)) {
+			Sint32 val;
+			memcpy( &val, ar + pos + i, sizeof(Sint32));
+		  	a_val.append(val);
+		  }
+		  val.set(a_val);
+#else
                   val.set(Array<Sint32>((Sint32*)(ar+pos),as));
+#endif
                   pos+=sizeof(Sint32)*as;
                }
                break;
             case CIMTYPE_UINT64: {
+#ifdef TYPE_CONV
+		  Array<Uint64> a_val;
+		  a_val.reserveCapacity(as);
+		  for (Uint32 i =0; i < as*sizeof(Uint64); i+=sizeof(Uint64)) {
+			Uint64 val;
+			memcpy( &val, ar + pos + i, sizeof(Uint64));
+		  	a_val.append(val);
+		  }
+		  val.set(a_val);
+#else
                   val.set(Array<Uint64>((Uint64*)(ar+pos),as));
+#endif
                   pos+=sizeof(Uint64)*as;
                }
                break;
             case CIMTYPE_SINT64: {
+#ifdef TYPE_CONV
+		  Array<Sint64> a_val;
+		  a_val.reserveCapacity(as);
+		  for (Uint32 i =0; i < as*sizeof(Sint64); i+=sizeof(Sint64)) {
+			Sint64 val;
+			memcpy( &val, ar + pos + i, sizeof(Sint64));
+		  	a_val.append(val);
+		  }
+		  val.set(a_val);
+#else
                   val.set(Array<Sint64>((Sint64*)(ar+pos),as));
+#endif
                   pos+=sizeof(Sint64)*as;
                }
                break;
             case CIMTYPE_REAL32: {
+#ifdef TYPE_CONV
+		  Array<Real32> a_val;
+		  a_val.reserveCapacity(as);
+		  for (Uint32 i =0; i < as*sizeof(Real32); i+=sizeof(Real32)) {
+			Real32 val;
+			memcpy( &val, ar + pos + i, sizeof(Real32));
+		  	a_val.append(val);
+		  }
+		  val.set(a_val);
+#else
                   val.set(Array<Real32>((Real32*)(ar+pos),as));
+#endif
                   pos+=sizeof(Real32)*as;
                }
                break;
             case CIMTYPE_REAL64: {
+#ifdef TYPE_CONV
+		  Array<Real64> a_val;
+		  a_val.reserveCapacity(as);
+		  for (Uint32 i =0; i < as*sizeof(Real64); i+=sizeof(Real64)) {
+			Real64 val;
+			memcpy( &val, ar + pos + i, sizeof(Real64));
+		  	a_val.append(val);
+		  }
+		  val.set(a_val);
+#else
                   val.set(Array<Real64>((Real64*)(ar+pos),as));
+#endif
                   pos+=sizeof(Real64)*as;
                }
                break;
             case CIMTYPE_CHAR16: {
+#ifdef TYPE_CONV
+		  Array<Char16> a_val;
+		  a_val.reserveCapacity(as);
+		  for (Uint32 i =0; i < as*sizeof(Char16); i+=sizeof(Char16)) {
+			Char16 val;
+			memcpy( &val, ar + pos + i, sizeof(Char16));
+		  	a_val.append(val);
+		  }
+		  val.set(a_val);
+#else
                   val.set(Array<Char16>((Char16*)(ar+pos),as));
+#endif
                   pos+=sizeof(Char16)*as;
                }
                break;
@@ -980,7 +1114,18 @@ CIMValue BinaryStreamer::extractValue(const Array<Sint8>& in, Uint32 & pos)
                      Uint32 sl; //=*(Uint32*)(ar+pos);
 		     memcpy( &sl, ar + pos, sizeof(Uint32));		    
                      pos+=sizeof(Uint32);
+#ifdef TYPE_CONV
+		     String string;
+		     string.reserveCapacity(sl);
+		     for (Uint32 j=0; j < sl*sizeof(Char16); j+=sizeof(Char16)) {
+			Char16 char16;
+			memcpy( &char16, ar + pos + j, sizeof(Char16));
+			string.append( char16 );
+		     }
+		     dar.append(CIMDateTime(string));
+#else
                      dar.append(CIMDateTime(String(((Char16*)(ar+pos)),sl)));
+#endif
                      pos+=sl*sizeof(Char16);
                   }
                   val.set(dar);
@@ -992,7 +1137,18 @@ CIMValue BinaryStreamer::extractValue(const Array<Sint8>& in, Uint32 & pos)
                      Uint32 sl; //=*(Uint32*)(ar+pos);
 		     memcpy( &sl, ar + pos, sizeof(Uint32));
                      pos+=sizeof(Uint32);
+#ifdef TYPE_CONV
+		     String string;
+		     string.reserveCapacity(sl);
+		     for (Uint32 j=0; j < sl*sizeof(Char16); j+=sizeof(Char16)) {
+			Char16 char16;
+			memcpy( &char16, ar + pos + j, sizeof(Char16));
+			string.append( char16 );
+		     }
+		     rar.append(CIMObjectPath( string ));
+#else
                      rar.append(CIMObjectPath(String(((Char16*)(ar+pos)),sl)));
+#endif
                      pos+=sl*sizeof(Char16);
                   }
                   val.set(rar);
@@ -1044,10 +1200,14 @@ CIMValue BinaryStreamer::extractValue(const Array<Sint8>& in, Uint32 & pos)
 	       val.set(sint16);
                pos+=sizeof(Sint16);
                break;
-            case CIMTYPE_CHAR16:
-               val.set(*(Char16*)(ar+pos));
+            case CIMTYPE_CHAR16: {
+		Char16 char16;
+		memcpy( &char16, ar + pos, sizeof(Char16));
+               //val.set(*(Char16*)(ar+pos));
+		val.set ( char16 );
                pos+=sizeof(Char16);
                break;
+	  	}
             case CIMTYPE_UINT32:
 	       Uint32 uint32;
 	       memcpy ( &uint32, ar + pos, sizeof(Uint32));
@@ -1102,15 +1262,45 @@ CIMValue BinaryStreamer::extractValue(const Array<Sint8>& in, Uint32 & pos)
                   Uint32 dtl; //=*(Uint32*)(ar+pos);
 		  memcpy( &dtl, ar + pos, sizeof (Uint32));
                   pos+=sizeof(Uint32);
-                  val.set(CIMDateTime(String(((Char16*)(ar+pos)),dtl)));
-                  pos+=dtl*sizeof(Char16);
+
+		  CIMDateTime time;
+#ifdef TYPE_CONV
+		  String string;
+		  string.reserveCapacity(dtl);
+
+		   for (Uint32 i =0; i < dtl*sizeof(Char16); i+=sizeof(Char16)) {
+			Char16 char_at;
+			memcpy( &char_at, ar + pos + i, sizeof(Char16));
+			string.append( char_at );
+		   }
+		 time = CIMDateTime ( string ); 
+#else
+		 time = CIMDateTime(String(((Char16*)(ar+pos)),dtl));
+#endif
+                 val.set( time );
+                 pos+=dtl*sizeof(Char16);
                }
                break;
             case CIMTYPE_REFERENCE: {
                   Uint32 rfl; //=*(Uint32*)(ar+pos);
 		  memcpy( &rfl, ar + pos, sizeof (Uint32));
                   pos+=sizeof(Uint32);
-                  val.set(CIMObjectPath(String(((Char16*)(ar+pos)),rfl)));
+
+		  CIMObjectPath objPath;
+#ifdef TYPE_CONV
+		  String string;
+
+		  string.reserveCapacity(rfl);
+		  for (Uint32 i =0; i < rfl*sizeof(Char16); i+=sizeof(Char16)) {
+			Char16 char_at;
+			memcpy ( &char_at, ar + pos +i, sizeof(Char16));
+			string.append( char_at );
+		  }
+		  objPath = CIMObjectPath( string );
+#else
+		  objPath = CIMObjectPath(String(((Char16*)(ar+pos)),rfl));
+#endif
+		  val.set( objPath);
                   pos+=rfl*sizeof(Char16);
                }
                break;

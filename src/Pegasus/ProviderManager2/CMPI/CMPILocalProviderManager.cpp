@@ -42,7 +42,7 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-    CMPILocalProviderManager *my_instance = 0;
+static CMPILocalProviderManager *my_instance = 0;
 
 CMPILocalProviderManager::CMPILocalProviderManager(void)
     : _idle_timeout(300), _unload_idle_flag(1)

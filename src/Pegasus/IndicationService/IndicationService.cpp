@@ -2999,7 +2999,7 @@ Boolean IndicationService::_canCreate (
 	if (instance.getClassName ().equal (
 	    PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
 	{
-	    Array<String> textFormatParams = NULL;
+	    Array<String> textFormatParams;
 	    CIMValue textFormatParamsValue;
 	    CIMClass indicationClass;
 
@@ -3033,9 +3033,8 @@ Boolean IndicationService::_canCreate (
                 textFormatValue = instance.getProperty(
 		    textFormatPos).getValue();
 
-		// ATTN-YZ-20050218 add if defined(PEGASUS_OS_HPUX)
-		// until bugzilla 2754 is fixed 
-#if defined(PEGASUS_OS_HPUX)
+#if defined(PEGASUS_ENABLE_SYSTEM_LOG_HANDLER) || \
+    defined(PEGASUS_ENABLE_EMAIL_HANDLER)
 	        // if the value of textFormat is not null
                 if (!(textFormatValue.isNull()) &&
 	            (textFormatValue.getType() == CIMTYPE_STRING) &&
@@ -3187,38 +3186,6 @@ Boolean IndicationService::_canCreate (
             }
         }
 
-	else if (instance.getClassName ().equal
-		 (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
-        {
-#ifndef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
-
-            //
-	    //  The System Log Handler is not enabled currently,
-            //  this class is not currently served by the Indication Service
-            //
-            PEG_METHOD_EXIT ();
-
-            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
-            MessageLoaderParms(_MSG_CLASS_NOT_SERVED_KEY, _MSG_CLASS_NOT_SERVED));
-#endif
-	}
-
-	else if (instance.getClassName ().equal
-		 (PEGASUS_CLASSNAME_LSTNRDST_EMAIL))
-        {
-#if !defined(PEGASUS_ENABLE_EMAIL_HANDLER) && !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_OS_LINUX)
-
-            //
-	    //  The Email Handler is not enabled currently,
-            //  this class is not currently served by the Indication Service
-            //
-            PEG_METHOD_EXIT ();
-
-            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
-            MessageLoaderParms(_MSG_CLASS_NOT_SERVED_KEY, _MSG_CLASS_NOT_SERVED));
-#endif
-	}
-
         //
         //  Currently only five subclasses of the Listener Destination 
         //  class are supported -- further subclassing is not currently
@@ -3235,6 +3202,38 @@ Boolean IndicationService::_canCreate (
                  (instance.getClassName ().equal
                   (PEGASUS_CLASSNAME_INDHANDLER_SNMP)))
         {
+#ifndef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
+            if (instance.getClassName ().equal
+	        (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
+            {
+                //
+	        //  The System Log Handler is not enabled currently,
+                //  this class is not currently served by the Indication Service
+                //
+                PEG_METHOD_EXIT ();
+
+                throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
+                MessageLoaderParms(_MSG_CLASS_NOT_SERVED_KEY, 
+		    _MSG_CLASS_NOT_SERVED));
+	    }
+#endif
+
+#if !defined(PEGASUS_ENABLE_EMAIL_HANDLER)
+
+            if (instance.getClassName ().equal
+	        (PEGASUS_CLASSNAME_LSTNRDST_EMAIL))
+            {
+                //
+	        //  The Email Handler is not enabled currently,
+                //  this class is not currently served by the Indication Service
+                //
+                PEG_METHOD_EXIT ();
+
+                throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
+                MessageLoaderParms(_MSG_CLASS_NOT_SERVED_KEY, 
+				   _MSG_CLASS_NOT_SERVED));
+	    }
+#endif
             _checkPropertyWithOther (instance, _PROPERTY_PERSISTENCETYPE,
                 _PROPERTY_OTHERPERSISTENCETYPE, (Uint16) _PERSISTENCE_PERMANENT,
                 (Uint16) _PERSISTENCE_OTHER, _validPersistenceTypes,
@@ -3306,7 +3305,7 @@ Boolean IndicationService::_canCreate (
                     CIMTYPE_STRING, _MSG_PROPERTY);
 
 		// get MailTo from handler instance
-                Array<String> mailTo = NULL;
+                Array<String> mailTo;
 	        instance.getProperty(instance.findProperty(
                   PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO)).getValue().get(mailTo);
 

@@ -37,16 +37,14 @@ DIRS += \
     ControlProviders/InteropProvider/tests
 endif
 
-# temporary add ifeq ($(OS),HPUX) until Bug 2754 is fixed
-ifeq ($(OS),HPUX)
-  ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
+ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
     DIRS += \
         Handler/SystemLogListenerDestination
-  endif
-  ifdef PEGASUS_ENABLE_EMAIL_HANDLER
+endif
+
+ifdef PEGASUS_ENABLE_EMAIL_HANDLER
     DIRS += \
         Handler/EmailListenerDestination
-  endif
 endif
 
 DIRS += \

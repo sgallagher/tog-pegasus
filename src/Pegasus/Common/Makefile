@@ -134,6 +134,13 @@ ifdef PEGASUS_ENABLE_SLP
   SOURCES += $(SOURCES_SLP)
 endif
 
+ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
+    SOURCES += IndicationFormatter.cpp
+else 
+    ifdef PEGASUS_ENABLE_EMAIL_HANDLER
+      SOURCES += IndicationFormatter.cpp
+    endif
+endif
 
 ifeq ($(OS),linux)
   EXTRA_LIBRARIES += -lcrypt
@@ -157,9 +164,7 @@ AIX_LIB_PRIORITY=-20
   endif
 endif
 
-# temporary add SOURCES +=, it will be moved to SOURCES when bug 2754 is fixed
 ifeq ($(OS),HPUX)
-  SOURCES += IndicationFormatter.cpp
   ifdef PEGASUS_HAS_SSL
     EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
   endif

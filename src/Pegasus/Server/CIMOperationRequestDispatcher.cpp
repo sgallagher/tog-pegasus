@@ -759,7 +759,6 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 					 String::EMPTY,
 					 PEGASUS_QUEUENAME_INDICATIONSERVICE);
 
-#ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
 	    _routing_table.insert_record(PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG,
 					 _wild,
 					 DynamicRoutingTable::INTERNAL,
@@ -768,9 +767,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 					 (MessageQueue::lookup(PEGASUS_QUEUENAME_INDICATIONSERVICE)),
 					 String::EMPTY,
 					 PEGASUS_QUEUENAME_INDICATIONSERVICE);
-#endif
 
-#ifdef PEGASUS_ENABLE_EMAIL_HANDLER
 	    _routing_table.insert_record(PEGASUS_CLASSNAME_LSTNRDST_EMAIL,
 					 _wild,
 					 DynamicRoutingTable::INTERNAL,
@@ -779,7 +776,6 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 					 (MessageQueue::lookup(PEGASUS_QUEUENAME_INDICATIONSERVICE)),
 					 String::EMPTY,
 					 PEGASUS_QUEUENAME_INDICATIONSERVICE);
-#endif
 
 	    _routing_table.insert_record(PEGASUS_CLASSNAME_INDFILTER,
 				      _wild,

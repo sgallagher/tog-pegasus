@@ -195,7 +195,6 @@ createConfigFile:
 	@$(CAT)  $(PEGASUS_ROOT)/src/SDK/samples/mak/config.mak >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 
 stageSAMPLES:
-	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile -i cimstop
 	@$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/EnumInstances
@@ -220,6 +219,39 @@ stageHTML:
 	@$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_HTML_DIR)
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_HTML_DIR)
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/doc/SDK -f Makefile PEGASUS_HTML_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_HTML_DIR) buildDoc_ContinueOnError
+
+_append_filesSectionToSpecFile:
+	@$(ECHO-E) "%files sdk"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%defattr(0444,root,root)"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "# SDK Include Files"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "#"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir $(PEGASUS_INCLUDE_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(foreach i, $(INCLUDEFILES), $(ECHO-E) \
+              "%attr(-,root,root) $(PEGASUS_INCLUDE_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "# SDK Sample Files"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "#"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir $(PEGASUS_SAMPLES_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(foreach i, $(CLIENTSRCPATH1FILES), $(ECHO-E) \
+              "%attr(-,root,root) $(PEGASUS_SAMPLES_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(foreach i, $(CLIENTSRCPATH2FILES), $(ECHO-E) \
+              "%attr(-,root,root) $(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(foreach i, $(CLIENTSRCPATH3FILES), $(ECHO-E) \
+              "%attr(-,root,root) $(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(foreach i, $(PROVIDERSRCPATH1FILES), $(ECHO-E) \
+              "%attr(-,root,root) $(PEGASUS_SAMPLES_DIR)/Providers/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(foreach i, $(PROVIDERSRCPATH2FILES), $(ECHO-E) \
+              "%attr(-,root,root) $(PEGASUS_SAMPLES_DIR)/Providers/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(foreach i, $(PROVIDERSRCPATH3FILES), $(ECHO-E) \
+              "%attr(-,root,root) $(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(foreach i, $(PROVIDERSRCPATH4FILES), $(ECHO-E) \
+              "%attr(-,root,root) $(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "# SDK Documentation"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "#"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "$(PEGASUS_HTML_DIR)"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 removeSampleProviderNamespace:
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile -i cimstop

@@ -1,5 +1,13 @@
-include $(PEGASUS_ROOT)/mak/config.mak
-include $(PEGASUS_ROOT)/mak/commands.mak
+ifndef ROOT 
+ ifdef PEGASUS_ROOT
+    ROOT =  $(subst \,/,$(PEGASUS_ROOT))
+ else
+    ROOT = .
+ endif
+endif
+
+include $(ROOT)/mak/config.mak
+include $(ROOT)/mak/commands.mak
 
 ifndef PEGASUS_STAGING_DIR
    PEGASUS_STAGING_DIR = $(PEGASUS_HOME)/stagingDir
@@ -19,7 +27,7 @@ endif
 
 TEST_BIN_FILES_SRCPATH = $(PEGASUS_HOME)/bin
 TEST_LIB_FILES_SRCPATH = $(PEGASUS_HOME)/lib
-TEST_MAK_FILES_SRCPATH = $(PEGASUS_ROOT)/mak
+TEST_MAK_FILES_SRCPATH = $(ROOT)/mak
 
 MAK_FILES = \
    commands.mak
@@ -89,12 +97,12 @@ stageTEST:
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/bin
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/lib
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/mak
-	@$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile.ReleaseTest -s stage_makfiles
-	@$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile.ReleaseTest -s stage_testproviderfiles
-	@$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile.ReleaseTest -s stage_prestarttests
-	@$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile.ReleaseTest -s stage_poststarttests
-	@$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile.ReleaseTest -s create_Makefile
-	@$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile.ReleaseTest -s create_repository
+	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest -s stage_makfiles
+	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest -s stage_testproviderfiles
+	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest -s stage_prestarttests
+	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest -s stage_poststarttests
+	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest -s create_Makefile
+	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest -s create_repository
 
 stage_makfiles:
 	@$(foreach i, $(MAK_FILES), $(COPY) $(TEST_MAK_FILES_SRCPATH)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/mak/$(i);)
@@ -114,10 +122,10 @@ create_Makefile:
 	@$(ECHO-E) "ROOT = UNDEFINED\n" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 	@$(ECHO-E) "CIMSERVER_PATH = $(PEGASUS_SBIN_DIR)/\n" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 	@$(ECHO-E) "include mak/commands.mak\n" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
-	@$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile.ReleaseTest createMakefile_providerlinks
-	@$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile.ReleaseTest createMakefile_prestarttests
-	@$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile.ReleaseTest createMakefile_poststarttests
-	@$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile.ReleaseTest createMakefile_tests
+	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest createMakefile_providerlinks
+	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest createMakefile_prestarttests
+	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest createMakefile_poststarttests
+	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest createMakefile_tests
 
 createMakefile_providerlinks:
 	@$(ECHO-E) "create_providerlinks:" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
@@ -147,20 +155,40 @@ createMakefile_tests:
 create_repository:
 	$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_REPOSITORY_DIR)/$(PEGASUS_TEST_REPOSITORY_NAME)
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_REPOSITORY_DIR)/$(PEGASUS_TEST_REPOSITORY_NAME)
-	$(MAKE) --directory=$(PEGASUS_ROOT)/Schemas/Pegasus -f Makefile REPOSITORY_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_REPOSITORY_DIR) \
+	$(MAKE) --directory=$(ROOT)/Schemas/Pegasus -f Makefile REPOSITORY_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_REPOSITORY_DIR) \
                    REPOSITORY_NAME=$(PEGASUS_TEST_REPOSITORY_NAME) repository
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Providers/sample/Load -f Makefile REPOSITORY_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_REPOSITORY_DIR) \
+	$(MAKE) --directory=$(ROOT)/src/Providers/sample/Load -f Makefile REPOSITORY_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_REPOSITORY_DIR) \
                    REPOSITORY_NAME=$(PEGASUS_TEST_REPOSITORY_NAME) repository
-	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile REPOSITORY_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_REPOSITORY_DIR) \
+	$(MAKE) --directory=$(ROOT)/test/wetest -f Makefile REPOSITORY_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_REPOSITORY_DIR) \
                    REPOSITORY_NAME=$(PEGASUS_TEST_REPOSITORY_NAME) repository
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Clients/benchmarkTest/Load -f Makefile \
+	$(MAKE) --directory=$(ROOT)/src/Clients/benchmarkTest/Load -f Makefile \
                    REPOSITORY_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_REPOSITORY_DIR) REPOSITORY_NAME=$(PEGASUS_TEST_REPOSITORY_NAME) repository
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Providers/TestProviders/Load -f Makefile \
+	$(MAKE) --directory=$(ROOT)/src/Providers/TestProviders/Load -f Makefile \
                    REPOSITORY_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_REPOSITORY_DIR) REPOSITORY_NAME=$(PEGASUS_TEST_REPOSITORY_NAME) repository
 
 preinstall:
-	 @$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile.ReleaseTest -s preinstall_setreleasepermissions
+	 @$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest -s preinstall_setreleasepermissions
 
 preinstall_setreleasepermissions:
 	@$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(MAKE) -f $(ROOT)/Makefile.ReleaseTest setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/lib/$(i)$(LIB_SUFFIX);)
 
+_append_filesSectionToSpecFile:
+	@$(ECHO-E) "%files test"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "# Test Files"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "#"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr(-, root,root) $(PEGASUS_TEST_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr(-, root,root) $(PEGASUS_TEST_DIR)/lib" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr(-, root,root) $(PEGASUS_TEST_DIR)/bin" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr(-, root,root) $(PEGASUS_TEST_DIR)/mak" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(foreach i, $(MAK_FILES), $(ECHO-E) \
+              "%attr(-,root,root) $(PEGASUS_TEST_DIR)/mak/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(ECHO-E) \
+              "%attr(-,root,root) $(PEGASUS_TEST_DIR)/lib/$(i)$(LIB_SUFFIX)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(foreach i, $(PRESTARTTEST_FILES), $(ECHO-E) \
+              "%attr(-,root,root) $(PEGASUS_TEST_DIR)/bin/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(foreach i, $(POSTSTARTTEST_FILES), $(ECHO-E) \
+              "%attr(-,root,root) $(PEGASUS_TEST_DIR)/bin/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(ECHO-E) "%attr(-,root,root) $(PEGASUS_TEST_DIR)/Makefile" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "$(PEGASUS_TEST_REPOSITORY_DIR)/$(PEGASUS_TEST_REPOSITORY_NAME)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)

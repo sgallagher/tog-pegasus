@@ -37,6 +37,7 @@
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //              Seema Gupta (gseema@in.ibm.com) for PEP135
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
+//				Willis White (whiwill@us.ibm.com) PEP 127 and 128
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -374,13 +375,16 @@ void CIMOperationResponseEncoder::encodeCreateClassResponse(
 
    Array<Sint8> body;
 
+	STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("CreateClass"), response->messageId, 
       response->getHttpMethod(), 
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
-      body);
+      body,
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
 
@@ -405,13 +409,16 @@ void CIMOperationResponseEncoder::encodeGetClassResponse(
    Array<Sint8> body;
    XmlWriter::appendClassElement(body, response->cimClass);
 
+   STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("GetClass"), response->messageId, 
       response->getHttpMethod(), 
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),      
-      body);
+      body,
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
 
@@ -435,13 +442,16 @@ void CIMOperationResponseEncoder::encodeModifyClassResponse(
 
    Array<Sint8> body;
 
+   STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("ModifyClass"), response->messageId, 
       response->getHttpMethod(), 
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body);
+      body,
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
 
@@ -468,13 +478,16 @@ void CIMOperationResponseEncoder::encodeEnumerateClassNamesResponse(
    for (Uint32 i = 0; i < response->classNames.size(); i++)
       XmlWriter::appendClassNameElement(body, response->classNames[i]);
 
+   STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("EnumerateClassNames"), response->messageId, 
       response->getHttpMethod(), 
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body);
+      body,
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
 
@@ -504,13 +517,16 @@ void CIMOperationResponseEncoder::encodeEnumerateClassesResponse(
        for (Uint32 i = 0; i < response->cimClasses.size(); i++)
           XmlWriter::appendClassElement(body, response->cimClasses[i]);
 
+	   STAT_SERVEREND
+
        message = XmlWriter::formatSimpleIMethodRspMessage(
           CIMName ("EnumerateClasses"), response->messageId, 
           response->getHttpMethod(), 
 		  	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),           
-          body);
+          body,
+		  response->totServerTime);
 
-       STAT_SERVEREND
+       STAT_BYTESSENT
    }
    // This operation may result in a large response. Handle the bad_alloc
    // exception and send an error response.
@@ -560,13 +576,16 @@ void CIMOperationResponseEncoder::encodeDeleteClassResponse(
 
    Array<Sint8> body;
 
+   STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("DeleteClass"), response->messageId, 
       response->getHttpMethod(), 
 	  	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),       
-      body);
+      body,
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
    PEG_METHOD_EXIT();
@@ -591,13 +610,16 @@ void CIMOperationResponseEncoder::encodeCreateInstanceResponse(
 
    XmlWriter::appendInstanceNameElement(body, response->instanceName);
 
+   STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("CreateInstance"), response->messageId, 
       response->getHttpMethod(), 
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body);
+      body,
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
    PEG_METHOD_EXIT();
@@ -621,13 +643,16 @@ void CIMOperationResponseEncoder::encodeGetInstanceResponse(
    Array<Sint8> body;
    XmlWriter::appendInstanceElement(body, response->cimInstance);
 
+   STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("GetInstance"), response->messageId, 
       response->getHttpMethod(),
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body);
+      body,
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
    PEG_METHOD_EXIT();
@@ -650,13 +675,16 @@ void CIMOperationResponseEncoder::encodeModifyInstanceResponse(
 
    Array<Sint8> body;
 
+   STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("ModifyInstance"), response->messageId, 
       response->getHttpMethod(), 
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body);
+      body,
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
    PEG_METHOD_EXIT();
@@ -680,19 +708,22 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
    Array<Sint8> body;
    Array<Sint8> message;
 
+  
    try
    {
        for (Uint32 i = 0; i < response->cimNamedInstances.size(); i++)
           XmlWriter::appendValueNamedInstanceElement(
               body, response->cimNamedInstances[i]);
 
+	   STAT_SERVEREND
        message = XmlWriter::formatSimpleIMethodRspMessage(
           CIMName ("EnumerateInstances"), response->messageId, 
           response->getHttpMethod(),
           	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-          body, response->isFirst(), response->isComplete());
+          body, response->isFirst(), response->isComplete(),
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   
    }
    // This operation may result in a large response. Handle the bad_alloc
    // exception and send an error response.
@@ -722,6 +753,9 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
        return;
    }
 
+
+   STAT_BYTESSENT
+
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
    PEG_METHOD_EXIT();
 }
@@ -746,13 +780,16 @@ void CIMOperationResponseEncoder::encodeEnumerateInstanceNamesResponse(
    for (Uint32 i = 0; i < response->instanceNames.size(); i++)
       XmlWriter::appendInstanceNameElement(body, response->instanceNames[i]);
 
+   STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("EnumerateInstanceNames"), response->messageId, 
       response->getHttpMethod(),
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body, response->isFirst(), response->isComplete());
+      body, response->isFirst(), response->isComplete(),
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
    PEG_METHOD_EXIT();
@@ -775,13 +812,16 @@ void CIMOperationResponseEncoder::encodeDeleteInstanceResponse(
 
    Array<Sint8> body;
 
+   STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("DeleteInstance"), response->messageId, 
       response->getHttpMethod(),
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body);
+      body,
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
    PEG_METHOD_EXIT();
@@ -805,13 +845,16 @@ void CIMOperationResponseEncoder::encodeGetPropertyResponse(
    Array<Sint8> body;
    XmlWriter::appendValueElement(body, response->value);
 
+   STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("GetProperty"), response->messageId, 
       response->getHttpMethod(),
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body);
+      body,
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
    PEG_METHOD_EXIT();
@@ -834,13 +877,16 @@ void CIMOperationResponseEncoder::encodeSetPropertyResponse(
 
    Array<Sint8> body;
 
+   STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("SetProperty"), response->messageId, 
       response->getHttpMethod(),
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body);
+      body,
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
    PEG_METHOD_EXIT();
@@ -863,13 +909,16 @@ void CIMOperationResponseEncoder::encodeSetQualifierResponse(
 
    Array<Sint8> body;
 
+   STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("SetQualifier"), response->messageId, 
       response->getHttpMethod(),
 	  	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),       
-      body);
+      body,
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
    PEG_METHOD_EXIT();
@@ -893,13 +942,16 @@ void CIMOperationResponseEncoder::encodeGetQualifierResponse(
    Array<Sint8> body;
    XmlWriter::appendQualifierDeclElement(body, response->cimQualifierDecl);
 
+	STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("GetQualifier"), response->messageId, 
       response->getHttpMethod(),
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body);
+      body,
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
    PEG_METHOD_EXIT();
@@ -925,13 +977,16 @@ void CIMOperationResponseEncoder::encodeEnumerateQualifiersResponse(
    for (Uint32 i = 0; i < response->qualifierDeclarations.size(); i++)
       XmlWriter::appendQualifierDeclElement(body, response->qualifierDeclarations[i]);
 
+   STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("EnumerateQualifiers"), response->messageId, 
       response->getHttpMethod(),
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body);
+      body,
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
    PEG_METHOD_EXIT();
@@ -954,13 +1009,16 @@ void CIMOperationResponseEncoder::encodeDeleteQualifierResponse(
 
    Array<Sint8> body;
 
+	STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("DeleteQualifier"), response->messageId, 
       response->getHttpMethod(),
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body);
+      body,
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
    PEG_METHOD_EXIT();
@@ -990,13 +1048,16 @@ void CIMOperationResponseEncoder::encodeReferenceNamesResponse(
       body << "</OBJECTPATH>\n";
    }
 
+   STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("ReferenceNames"), response->messageId, 
       response->getHttpMethod(),
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body, response->isFirst(), response->isComplete());
+      body, response->isFirst(), response->isComplete(),
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
    PEG_METHOD_EXIT();
@@ -1022,13 +1083,16 @@ void CIMOperationResponseEncoder::encodeReferencesResponse(
    for (Uint32 i = 0; i < response->cimObjects.size(); i++)
       XmlWriter::appendValueObjectWithPathElement(body, response->cimObjects[i]);
 
+   STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("References"), response->messageId, 
       response->getHttpMethod(),
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body, response->isFirst(), response->isComplete());
+      body, response->isFirst(), response->isComplete(),
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
    PEG_METHOD_EXIT();
@@ -1058,13 +1122,16 @@ void CIMOperationResponseEncoder::encodeAssociatorNamesResponse(
       body << "</OBJECTPATH>\n";
    }
 
+   STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("AssociatorNames"), response->messageId, 
       response->getHttpMethod(),
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body, response->isFirst(), response->isComplete());
+      body, response->isFirst(), response->isComplete(),
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
    PEG_METHOD_EXIT();
@@ -1090,13 +1157,16 @@ void CIMOperationResponseEncoder::encodeAssociatorsResponse(
    for (Uint32 i = 0; i < response->cimObjects.size(); i++)
       XmlWriter::appendValueObjectWithPathElement(body, response->cimObjects[i]);
 
+   STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("Associators"), response->messageId, 
       response->getHttpMethod(),
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body, response->isFirst(), response->isComplete());
+      body, response->isFirst(), response->isComplete(),
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
    PEG_METHOD_EXIT();
@@ -1122,13 +1192,16 @@ void CIMOperationResponseEncoder::encodeExecQueryResponse(
    for (Uint32 i = 0; i < response->cimObjects.size(); i++)
       XmlWriter::appendValueObjectWithPathElement(body, response->cimObjects[i]);
 
+   STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("ExecQuery"), response->messageId, 
       response->getHttpMethod(),
       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body);
+      body,
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
    PEG_METHOD_EXIT();
@@ -1164,13 +1237,16 @@ void CIMOperationResponseEncoder::encodeInvokeMethodResponse(
       XmlWriter::appendParamValueElement(body, response->outParameters[i]);
    }
 
+	STAT_SERVEREND
+
    Array<Sint8> message = XmlWriter::formatSimpleMethodRspMessage(
        response->methodName, response->messageId, 
        response->getHttpMethod(), 
        	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
-       body, response->isFirst(), response->isComplete());
+       body, response->isFirst(), response->isComplete(),
+	  response->totServerTime);
 
-   STAT_SERVEREND
+   STAT_BYTESSENT
 
    sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
    PEG_METHOD_EXIT();

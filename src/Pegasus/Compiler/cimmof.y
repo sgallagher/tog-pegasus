@@ -63,7 +63,8 @@ extern void cimmof_yy_less(int n);
 /* is completed.                                                       */
 /* ------------------------------------------------------------------- */
   // KS : simply forced the defaults
-  Uint32 g_flavor = CIMFlavor::DEFAULTS;
+  //Uint32 g_flavor = CIMFlavor::DEFAULTS;
+  Uint32 g_flavor = 0;
   Uint32 g_scope = 0;
   qualifierList g_qualifierList(10);  /* FIXME */
   CIMMethod *g_currentMethod = 0;
@@ -680,10 +681,10 @@ qualifier: qualifierName qualifierParameter flavor
  } ;
 
 // KS 4 march change g_flavor to set defaults
-qualifierName: TOK_SIMPLE_IDENTIFIER { g_flavor = CIMFlavor::DEFAULTS; }
+qualifierName: TOK_SIMPLE_IDENTIFIER { g_flavor = 0; }
              | metaElement { 
                         $$ = new String(ScopeToString($1));
-                        g_flavor = CIMFlavor::DEFAULTS; } ;
+                        g_flavor = 0; } ;
 
 qualifierParameter: TOK_LEFTPAREN constantValue TOK_RIGHTPAREN { $$ = $2; }
                   | arrayInitializer { $$ = $1; }

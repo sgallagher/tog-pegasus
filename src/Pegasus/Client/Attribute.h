@@ -68,7 +68,7 @@ private:
   Array <String> _vals;
 };
 
-PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
+PEGASUS_CLIENT_LINKAGE PEGASUS_STD(ostream)& operator<<(
     PEGASUS_STD(ostream)& os,
     const Attribute& attr);
 

@@ -77,7 +77,8 @@ String CQLSimplePredicateRep::toString()
 {
 	printf("CQLSimplePredicate::toString()\n");
 	String s = _leftSide.toString();
-	switch(_operator){
+	if(!_isSimple){
+	   switch(_operator){
 		case LT:
 			s.append(" < ");
 			break;
@@ -108,8 +109,9 @@ String CQLSimplePredicateRep::toString()
 		case LIKE:
 			s.append(" LIKE ");
 			break;
+	   }
+	   s.append(_rightSide.toString());
 	}
-	s.append(_rightSide.toString());
 	return s;
 }
 Boolean CQLSimplePredicateRep::isSimple(){

@@ -406,6 +406,7 @@ chain : literal
       | identifier LPAR arg_list RPAR
         {
             sprintf(msg,"BISON::chain-> identifier( arg_list )\n");
+	    printf_(msg);
             chain_state = CQLFUNCTION;
 	    CQLFunction _func(*$1,_arglist);
 	    $$ = (CQLPredicate*)(_factory.makeObject(&_func,Predicate));
@@ -821,8 +822,10 @@ arg_list : {;}
                sprintf(msg,"BISON::arg_list->STAR\n");
 	       printf_(msg);
 	       CQLIdentifier _id("*");
+		printf("%s\n",(const char*)_id.toString().getCString());
 	       CQLPredicate* _pred = (CQLPredicate*)(_factory.makeObject(&_id,Predicate));
 	       _arglist.append(*_pred);
+		printf("%s\n",(const char*)_pred->toString().getCString());
            }
          | expr
 	   {

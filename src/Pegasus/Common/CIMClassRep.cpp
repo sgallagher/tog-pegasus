@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -37,7 +37,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMClassRep::CIMClassRep(
     const String& className,
-    const String& superClassName) 
+    const String& superClassName)
     :
     CIMObjectRep(className),
     _superClassName(superClassName)
@@ -107,13 +107,13 @@ void CIMClassRep::addProperty(const CIMProperty& x)
     // Reject addition of references to non-associations:
 
     if (!isAssociation() && x.getValue().getType() == CIMType::REFERENCE)
-	throw AddedReferenceToClass(_className);
+	throw AddedReferenceToClass(_reference.getClassName());
 
     // Set the class origin:
     // ATTN: put this check in other places:
 
     if (x.getClassOrigin().size() == 0)
-	CIMProperty(x).setClassOrigin(_className);
+	CIMProperty(x).setClassOrigin(_reference.getClassName());
 
     // Add the property:
 
@@ -371,7 +371,7 @@ void CIMClassRep::toXml(Array<Sint8>& out) const
     // Class opening element:
 
     out << "<CLASS ";
-    out << " NAME=\"" << _className << "\" ";
+    out << " NAME=\"" << _reference.getClassName() << "\" ";
 
     if (_superClassName.size())
 	out << " SUPERCLASS=\"" << _superClassName << "\" ";
@@ -402,7 +402,7 @@ void CIMClassRep::toXml(Array<Sint8>& out) const
     classDeclaration 	=    [ qualifierList ]
 			     CLASS className [ alias ] [ superClass ]
 			     "{" *classFeature "}" ";"
-			     
+			
     superClass 		=    :" className
 
     classFeature 	=    propertyDeclaration | methodDeclaration
@@ -412,7 +412,7 @@ void CIMClassRep::toXml(Array<Sint8>& out) const
 void CIMClassRep::toMof(Array<Sint8>& out) const
 {
     // Get and format the class qualifiers
-    out << "\n//    Class " << _className;
+    out << "\n//    Class " << _reference.getClassName();
     if (_qualifiers.getCount())
 	out << "\n";
     _qualifiers.toMof(out);
@@ -421,11 +421,11 @@ void CIMClassRep::toMof(Array<Sint8>& out) const
     out << "\n";
 
     // output class statement
-    out << "class " << _className;
+    out << "class " << _reference.getClassName();
 
     if (_superClassName.size())
 	out << " : " << _superClassName;
-    
+
     out << "\n{";
 
     // format the Properties:

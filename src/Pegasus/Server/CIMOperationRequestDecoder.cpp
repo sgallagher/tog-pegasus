@@ -310,7 +310,6 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
        count = 0;
        while(count<validateSize)
        {
-	   UTF8_NEXT(validateContent,count,currentChar);
 	   if (!(String::isUTF8((char *)&validateContent[count])))
 	   {
 	       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "unsupported-Content-Type",
@@ -318,6 +317,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 	       PEG_METHOD_EXIT();
 	       return; 
 	   }
+	   UTF8_NEXT(validateContent,count,currentChar);
        }
    }
 

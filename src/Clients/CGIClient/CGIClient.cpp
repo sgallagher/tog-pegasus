@@ -157,7 +157,7 @@ void PrintRule()
 }
 
 
-static void PrintHead(const String& title)
+void PrintHead(const String& title)
 {
     cout << "<head>\n";
     cout << "  <title>" << title << "</title>\n";
@@ -168,7 +168,7 @@ static void PrintHead(const String& title)
     the text definition for the page and the TOG logo.
     @param - Text for the title
 */
-static void PrintHeader(const String& title)
+void PrintHeader(const String& title)
 {
     String img = "/pegasus/icons/OpenGroupLogo.gif";
 
@@ -188,7 +188,7 @@ static void PrintHeader(const String& title)
     @param string header - The text for the banner line. This string
     identifies the function of the page.
 */
-static void PrintHTMLHead(const String& title, const String& header)
+void PrintHTMLHead(const String& title, const String& header)
 {
      cout << "<html>\n";
      PrintHead(title);
@@ -231,7 +231,7 @@ CIMNamespaceName GetNameSpaceQueryField(const CGIQueryString& qs)
     return CIMNamespaceName (nameSpace);
 }
 
-static String EncodeQueryStringValue(const String& x)
+String EncodeQueryStringValue(const String& x)
 {
     String result;
 
@@ -253,20 +253,20 @@ static String EncodeQueryStringValue(const String& x)
     @param href - the reference for building the href
     @param content - The content of the reference
 */
-static void PrintAHref(const String& href, const String& content)
+void PrintAHref(const String& href, const String& content)
 {
     cout << "<a href=\"" << href << "\">\n" << content << "</a>\n";
 }
 /* just prints HTML form spaces. Count is number of spaces
 */
-static void PrintSpaces(Uint32 count)
+void PrintSpaces(Uint32 count)
 {
     for (Uint32 i = 0; i < count; i++)
     {
         cout << "&nbsp;";
     }
 }
-static void PrintTableHeader(const String& tableName)
+void PrintTableHeader(const String& tableName)
 {
     cout << "<h2>" << tableName << "</h2>\n";
     cout << "<table border=1 width=\"90%\">\n";
@@ -280,7 +280,7 @@ static void PrintTableHeader(const String& tableName)
 Columns in the table are CIMProperty CIMName, type, Vlaue, ClassOrigin,
 Propogated indicator.
 */
-static void PrintPropertiesTableHeader(const String& tableName)
+void PrintPropertiesTableHeader(const String& tableName)
 {
     cout << "<h2>" << tableName << "</h2>\n";
     cout << "<table border=1 width=\"90%\">\n";
@@ -352,7 +352,7 @@ String createGetClassHref(const CIMNamespaceName & nameSpace,
 instance Names function for this class.
 @return - void
 */
-static void PrintEnumInstanceNameHref(const CIMNamespaceName & nameSpace, 
+void PrintEnumInstanceNameHref(const CIMNamespaceName & nameSpace, 
     const CIMName & className)
 {
     String href = BuildOperationHref("EnumerateInstanceNames",
@@ -364,7 +364,7 @@ static void PrintEnumInstanceNameHref(const CIMNamespaceName & nameSpace,
 }
 
 
-static void PrintTableTrailer()
+void PrintTableTrailer()
 {
     cout << "</table>\n";
 }
@@ -372,7 +372,7 @@ static void PrintTableTrailer()
 /** PrintRow - Prints a single table row with 3 entires
     The entries are name, type, value
 */
-static void PrintRow(
+void PrintRow(
     const CIMName& name,
     const String& type,
     const String& value)
@@ -389,7 +389,7 @@ static void PrintRow(
     cout << "<tr>\n";
 }
 
-static void PrintLogo()
+void PrintLogo()
 {
     cout << "<table border=2>\n";
     cout << "<tr>\n";
@@ -721,7 +721,7 @@ void PrintPropertyDeclaration(CIMProperty& property)
 /** Function GetClass Peforms the getClass
     request and prints the result as an HTML page
 */
-static void GetClass(const CGIQueryString& qs)
+void GetClass(const CGIQueryString& qs)
 {
     CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
     DDD(cout << "GetClass" << endl;)
@@ -784,7 +784,7 @@ static void GetClass(const CGIQueryString& qs)
     PropertyName parameter to find each property
     get the property and Print each property.
 */
-static void GetPropertyDeclaration(const CGIQueryString& qs)
+void GetPropertyDeclaration(const CGIQueryString& qs)
 {
     CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 
@@ -843,7 +843,7 @@ static void GetPropertyDeclaration(const CGIQueryString& qs)
 }
 /** PrintClassNames  - Generates a table with the class names
 */
-static void PrintClassNames(
+void PrintClassNames(
     const CIMNamespaceName& nameSpace,
     const Array<CIMName>& classNames,
     double elapsedTime)
@@ -887,7 +887,7 @@ static void PrintClassNames(
     CIMOperation.
     The returned array in sent to printclassnames
 */
-static void EnumerateClassNames(const CGIQueryString& qs)
+void EnumerateClassNames(const CGIQueryString& qs)
 {
     // Get NameSpace:
     CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
@@ -941,7 +941,7 @@ static void EnumerateClassNames(const CGIQueryString& qs)
 
 /** DeleteClass - Deletes the class defined on input
 */
-static void DeleteClass(const CGIQueryString& qs)
+void DeleteClass(const CGIQueryString& qs)
 {
     CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 
@@ -1096,7 +1096,7 @@ void PrintEnumerateQualifiers(
 ***************************************************************************/
 /* CIMMethod to execute the EnumerateQualifiers operation
 */
-static void EnumerateQualifiers(const CGIQueryString& qs)
+void EnumerateQualifiers(const CGIQueryString& qs)
 {
     CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 

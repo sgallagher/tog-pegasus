@@ -250,7 +250,7 @@ void Thread::cleanup_pop(Boolean execute = true) throw(IPCException)
 
 
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
-#define PEGASUS_ATOMIC_INT_NATIVE // use native implementation
+#define PEGASUS_ATOMIC_INT_NATIVE = 1 // use native implementation
 
 AtomicInt::AtomicInt(): _rep(0) {}
 

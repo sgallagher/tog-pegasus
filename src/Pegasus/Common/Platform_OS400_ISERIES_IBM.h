@@ -111,4 +111,6 @@
 
 #define PEGASUS_MONITOR2
 
+#define PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+
 #endif /* Pegasus_Platform_OS400_ISERIES_IBM_h */

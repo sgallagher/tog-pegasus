@@ -2303,7 +2303,33 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
 
    String className = request->instanceName.getClassName();
-	
+
+   String serviceName = String::EMPTY;
+   String controlProviderName = String::EMPTY;
+
+   // Check for class provided by an internal provider
+   if (_lookupInternalProvider(request->nameSpace, className, serviceName,
+           controlProviderName))
+   {
+      CIMInvokeMethodRequestMessage* requestCopy =
+         new CIMInvokeMethodRequestMessage(*request);
+
+      if (controlProviderName == String::EMPTY)
+      {
+         _forwardRequestToService(serviceName, requestCopy, response);
+      }
+      else
+      {
+         _forwardRequestToControlProvider(
+            serviceName, controlProviderName, requestCopy, response);
+      }
+
+      _enqueueResponse(request, response);
+
+      PEG_METHOD_EXIT();
+      return;
+   }
+
    // check the class name for an "external provider"
    String providerName = _lookupMethodProvider(request->nameSpace,
 			 className, request->methodName);

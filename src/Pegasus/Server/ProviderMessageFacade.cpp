@@ -120,15 +120,6 @@ Message * ProviderMessageFacade::handleRequestMessage(Message * message) throw()
     case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
 	return _handleInvokeMethodRequest(message);
 	break;
-    case CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-	return _handleEnableIndicationRequest(message);
-	break;
-    case CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-	return _handleModifyIndicationRequest(message);
-	break;
-    case CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-	return _handleDisableIndicationRequest(message);
-	break;
     case CIM_GET_CLASS_REQUEST_MESSAGE:
     case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
     case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
@@ -842,117 +833,6 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) t
 	    returnValue,
 	    outParameters,
 	    request->methodName);
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    return response;
-}
-
-Message * ProviderMessageFacade::_handleEnableIndicationRequest(Message * message) throw()
-{
-    const CIMEnableIndicationSubscriptionRequestMessage * request =
-	dynamic_cast<CIMEnableIndicationSubscriptionRequestMessage *>(message);
-
-    PEGASUS_ASSERT(request != 0);
-
-    Status status;
-
-    try
-    {
-	// make target object path
-	CIMObjectPath objectPath(
-	    System::getHostName(),
-	    request->nameSpace,
-	    request->classNames[0]);
-
-	SimpleResponseHandler<CIMInstance> handler;
-
-	try
-	{
-	    //
-	    //  ATTN: pass thresholding parameter values in
-	    //  operation context
-	    //
-	    enableIndication(
-		OperationContext(),
-		request->nameSpace,
-		request->classNames,
-		request->propertyList,
-		request->repeatNotificationPolicy,
-		request->otherRepeatNotificationPolicy,
-		request->repeatNotificationInterval,
-		request->repeatNotificationGap,
-		request->repeatNotificationCount,
-		request->condition,
-		request->queryLanguage,
-		request->subscription,
-		handler);
-	}
-	catch(...)
-	{
-	    status = Status(CIM_ERR_FAILED, "Provider not available");
-	}
-    }
-    catch(CIMException & e)
-    {
-	status = Status(e.getCode(), e.getMessage());
-    }
-    catch(Exception & e)
-    {
-	status = Status(CIM_ERR_FAILED, e.getMessage());
-    }
-    catch(...)
-    {
-	status = Status(CIM_ERR_FAILED, "Unknown Error");
-    }
-
-    CIMEnableIndicationSubscriptionResponseMessage * response =
-	new CIMEnableIndicationSubscriptionResponseMessage(
-	    request->messageId,
-	    CIMStatusCode(status.getCode()),
-	    status.getMessage(),
-	    request->queueIds.copyAndPop());
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    return response;
-}
-
-Message * ProviderMessageFacade::_handleModifyIndicationRequest(Message * message) throw()
-{
-    const CIMModifyIndicationSubscriptionRequestMessage * request =
-	dynamic_cast<CIMModifyIndicationSubscriptionRequestMessage *>(message);
-
-    PEGASUS_ASSERT(request != 0);
-
-    CIMModifyIndicationSubscriptionResponseMessage * response =
-	new CIMModifyIndicationSubscriptionResponseMessage(
-	    request->messageId,
-	    CIM_ERR_FAILED,
-	    "not implemented",
-	    request->queueIds.copyAndPop());
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    return response;
-}
-
-Message * ProviderMessageFacade::_handleDisableIndicationRequest(Message * message) throw()
-{
-    const CIMDisableIndicationSubscriptionRequestMessage * request =
-	dynamic_cast<CIMDisableIndicationSubscriptionRequestMessage *>(message);
-
-    PEGASUS_ASSERT(request != 0);
-
-    CIMDisableIndicationSubscriptionResponseMessage * response =
-	new CIMDisableIndicationSubscriptionResponseMessage(
-	    request->messageId,
-	    CIM_ERR_FAILED,
-	    "not implemented",
-	    request->queueIds.copyAndPop());
 
     // preserve message key
     response->setKey(request->getKey());

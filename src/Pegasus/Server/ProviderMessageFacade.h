@@ -66,9 +66,6 @@ protected:
     Message * _handleGetPropertyRequest(Message * message) throw();
     Message * _handleSetPropertyRequest(Message * message) throw();
     Message * _handleInvokeMethodRequest(Message * message) throw();
-    Message * _handleEnableIndicationRequest(Message * message) throw();
-    Message * _handleModifyIndicationRequest(Message * message) throw();
-    Message * _handleDisableIndicationRequest(Message * message) throw();
 };
 
 PEGASUS_NAMESPACE_END

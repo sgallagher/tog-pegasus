@@ -350,6 +350,19 @@ Uint32 String::find(Char16 c) const
     return PEG_NOT_FOUND;
 }
 
+Uint32 String::find(Uint32 pos, Char16 c) const
+{
+    const Char16* data = getData();
+
+    for (Uint32 i = pos, n = size(); i < n; i++)
+    {
+	if (data[i] == c)
+	    return i;
+    }
+
+    return PEG_NOT_FOUND;
+}
+
 Uint32 String::find(const String& s) const
 {
     const Char16* pSubStr = s.getData();

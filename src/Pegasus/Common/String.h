@@ -314,6 +314,8 @@ public:
     */
     Uint32 find(Char16 c) const;
 
+    /** Same as above but starts searching from the given position. */
+    Uint32 find(Uint32 pos, Char16 c) const;
 
     /** Find the position of the first occurence of the string object.
 	This function finds one string inside another

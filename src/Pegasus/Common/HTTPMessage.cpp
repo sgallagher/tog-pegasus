@@ -34,6 +34,29 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+
+//------------------------------------------------------------------------------
+//
+// Implementation notes:
+//
+//     According to the HTTP specification: 
+//
+//         1.  Method names are case-sensitive.
+//         2.  Field names are case-insensitive.
+//         3.  The first line of a message is known as the "start-line".
+//         4.  Subsequent lines are known as headers.
+//         5.  Headers have a field-name and field-value.
+//         6.  Start-lines may be request-lines or status-lines. Request lines
+//             have this form:
+//
+//             Request-Line = Method SP Request-URI SP HTTP-Version CRLF
+//
+//             Status-lines have this form:
+//
+//             Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
+//
+//------------------------------------------------------------------------------
+
 static char* _FindSeparator(const char* data, Uint32 size)
 {
     const char* p = data;
@@ -207,6 +230,59 @@ void HTTPMessage::print(ostream& os) const
     }
 
     cout << endl;
+}
+
+Boolean HTTPMessage::lookupHeader(
+    Array<HTTPHeader>& headers,
+    const String& fieldName,
+    String& fieldValue)
+{
+    for (Uint32 i = 0, n = headers.size(); i < n; i++)
+    {
+	if (String::equalNoCase(headers[i].first, fieldName))
+	{
+	    fieldValue = headers[i].second;
+	    return true;
+	}
+    }
+
+    // Not found:
+    return false;
+}
+
+Boolean HTTPMessage::parseRequestLine(
+    const String& startLine,
+    String& methodName,
+    String& requestUri,
+    String& httpVersion)
+{
+    // Request-Line = Method SP Request-URI SP HTTP-Version CRLF
+
+    // Extract the method-name:
+
+    Uint32 space1 = startLine.find(' ');
+
+    if (space1 == PEGASUS_NOT_FOUND)
+	return false;
+
+    methodName = startLine.subString(0, space1);
+
+    // Extrat the request-URI:
+
+    Uint32 space2 = startLine.find(space1 + 1, ' ');
+
+    if (space2 == PEGASUS_NOT_FOUND)
+	return false;
+
+    Uint32 uriPos = space1 + 1;
+
+    requestUri = startLine.subString(uriPos, space2 - uriPos);
+
+    // Extract the HTTP version:
+
+    httpVersion = startLine.subString(space2 + 1);
+
+    return true;
 }
 
 PEGASUS_NAMESPACE_END

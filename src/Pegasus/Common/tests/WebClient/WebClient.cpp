@@ -31,6 +31,7 @@
 #include <iostream>
 #include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Common/HTTPConnection.h>
+#include <Pegasus/Common/HTTPMessage.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

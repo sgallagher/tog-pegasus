@@ -32,6 +32,7 @@
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HTTPConnection.h>
+#include <Pegasus/Common/HTTPMessage.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -86,7 +87,7 @@ void WebServerQueue::handleEnqueue()
 Message* WebServerQueue::handleHTTPMessage(HTTPMessage* requestMessage)
 {
     String startLine;
-    Array<HTTPMessage::HTTPHeader> headers;
+    Array<HTTPHeader> headers;
     Sint8* content;
     Uint32 contentLength;
 
@@ -96,9 +97,16 @@ Message* WebServerQueue::handleHTTPMessage(HTTPMessage* requestMessage)
 
     // Split the first line about the method name and the rest:
 
-    Uint32 space = startLine.find(' ');
-    String methodName = startLine.subString(0, space);
-    String remainder = startLine.subString(space + 1);
+    String methodName;
+    String requestUri;
+    String httpVersion;
+
+    HTTPMessage::parseRequestLine(
+	startLine, methodName, requestUri, httpVersion);
+
+PEGASUS_OUT(methodName);
+PEGASUS_OUT(requestUri);
+PEGASUS_OUT(httpVersion);
 
     // Handle GET requests:
 
@@ -106,13 +114,11 @@ Message* WebServerQueue::handleHTTPMessage(HTTPMessage* requestMessage)
     {
 	// Extract and expand document name:
 
-	String documentName = remainder.subString(0, remainder.find(' '));
-
-	if (documentName == "/")
-	    documentName = "index.html";
+	if (requestUri == "/")
+	    requestUri = "index.html";
 
 	String fullDocumentName = "htdocs/";
-	fullDocumentName += documentName;
+	fullDocumentName += requestUri;
 
 	// Load the document into memory:
 

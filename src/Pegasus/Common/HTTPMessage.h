@@ -41,6 +41,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+typedef Pair<String, String> HTTPHeader;
+
 /** This message is sent from a connection to its output queue when
     a complete HTTP message is received.
 */
@@ -53,8 +55,6 @@ public:
     Array<Sint8> message;
     Uint32 returnQueueId;
 
-    typedef Pair<String, String> HTTPHeader;
-
     void parse(
 	String& startLine,
 	Array<HTTPHeader>& headers,
@@ -62,6 +62,17 @@ public:
 	Uint32& contentLength) const;
 
     void print(PEGASUS_STD(ostream)& os) const;
+
+    static Boolean lookupHeader(
+	Array<HTTPHeader>& headers,
+	const String& fieldName,
+	String& fieldValue);
+
+    static Boolean parseRequestLine(
+	const String& startLine,
+	String& methodName,
+	String& requestUri,
+	String& httpVersion);
 };
 
 PEGASUS_NAMESPACE_END

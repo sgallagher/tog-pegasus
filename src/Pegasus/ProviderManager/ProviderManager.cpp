@@ -59,20 +59,18 @@ Provider ProviderManager::getProvider(
     const String & fileName,
     const String & providerName)
 {
+    // check list for requested provider and return if found
+    for(Uint32 i = 0, n = _providers.size(); i < n; i++)
     {
-        MutexLock lock(_mutex);
-
-        // check list for requested provider and return if found
-        for(Uint32 i = 0, n = _providers.size(); i < n; i++)
+        if(String::equalNoCase(providerName, _providers[i].getName()))
         {
-            if(String::equalNoCase(providerName, _providers[i].getName()))
-            {
-                return(_providers[i]);
-            }
+            return(_providers[i]);
         }
     }
 
-    return(_loadProvider(fileName, providerName));
+    loadProvider(fileName, providerName);
+
+    return(getProvider(fileName, providerName));
 }
 
 void ProviderManager::loadProvider(
@@ -81,16 +79,20 @@ void ProviderManager::loadProvider(
 {
     MutexLock lock(_mutex);
 
-    _loadProvider(fileName, providerName);
-}
+    // NOTE:
+    // check the list before attempting to load the provider
+    // to prevent multiple threads from attempting to load
+    // a provider during its initialization.
 
+    // check list for requested provider and do nothing if found
+    for(Uint32 i = 0, n = _providers.size(); i < n; i++)
+    {
+        if(String::equalNoCase(providerName, _providers[i].getName()))
+        {
+            return;
+        }
+    }
 
-Provider ProviderManager::_loadProvider(
-    const String & fileName,
-    const String & providerName)
-{
-    // NOTE: _loadProvider SHOULD ONLY BE CALLED AFTER OBTAINING THE LOCK
-    //
     // create provider module
     Provider provider(providerName, fileName);
 
@@ -110,10 +112,7 @@ Provider ProviderManager::_loadProvider(
     // initialize provider
     provider.initialize(_cimom);
 
-    // add provider to list
     _providers.append(provider);
-
-    return(provider);
 }
 
 void ProviderManager::unloadProvider(

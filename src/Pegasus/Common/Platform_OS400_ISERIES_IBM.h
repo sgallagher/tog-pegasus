@@ -117,4 +117,7 @@
 
 #define PEGASUS_SUPPORT_UTF8_FILENAME
 
+#include <sys/param.h> // For MAXHOSTNAMELEN
+#define PEGASUS_MAXHOSTNAMELEN MAXHOSTNAMELEN
+
 #endif /* Pegasus_Platform_OS400_ISERIES_IBM_h */

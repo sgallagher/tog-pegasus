@@ -60,8 +60,8 @@ void SNMPIndicationProvider::enableIndications(ResponseHandler<CIMIndication> & 
     CIMInstance cimInstance("root/PG_InterOp:cycHostAdapterDiscovered");
 
     cimInstance.addProperty(CIMProperty("cycHostAdapterNumber", Uint32(101)));
-    cimInstance.addProperty(CIMProperty("cycHostAdapterID", "HP-NU-123"));
-    cimInstance.addProperty(CIMProperty("cycManagerID", "HP-NU-456"));
+    cimInstance.addProperty(CIMProperty("cycHostAdapterID", String("HP-NU-123")));
+    cimInstance.addProperty(CIMProperty("cycManagerID", String("HP-NU-456")));
     
     CIMIndication cimIndication(cimInstance);
 

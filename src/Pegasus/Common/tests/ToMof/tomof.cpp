@@ -193,9 +193,9 @@ int main(int argc, char** argv)
 	class1
 	    .addQualifier(CIMQualifier("abstract", true))
     	    .addQualifier(CIMQualifier("description", 
-	       "This is a Description of my class. "
+	       String("This is a Description of my class. "
 	       "This is part 2 of the string to make it longer. "
-	       "This is part 3 of the same string for nothing."
+	       "This is part 3 of the same string for nothing.")
 				       
 				       ))
 

@@ -44,66 +44,76 @@ void TestCreateFilterInstances(CIMClient& client)
     {
 	CIMInstance filterInstance("CIM_IndicationFilter");
         filterInstance.addProperty(CIMProperty("SystemCreationClassName", 
-                                               "CIM_UnitaryComputerSystem"));
+                                          String("CIM_UnitaryComputerSystem")));
 	filterInstance.addProperty(CIMProperty("SystemName", 
-                                               "bigbasin.hp.com"));
+                                               String("bigbasin.hp.com")));
 	filterInstance.addProperty(CIMProperty("CreationClassName", 
-                                               "CIM_IndicationFilter"));
+                                               String("CIM_IndicationFilter")));
 	switch (i)
 	{
 	    case 1:
-		filterInstance.addProperty(CIMProperty("Name", "Filter1"));
+		filterInstance.addProperty(CIMProperty("Name",
+                                                       String("Filter1")));
 	        filterInstance.addProperty (CIMProperty( "Query", 
-                    "SELECT NewAlertType FROM Sample_HelloWorldIndication WHERE NewAlertType = 5"));
+                    String("SELECT NewAlertType FROM Sample_HelloWorldIndication WHERE NewAlertType = 5")));
 		break;
 	    case 2:
-		filterInstance.addProperty(CIMProperty("Name", "Filter2"));
+		filterInstance.addProperty(CIMProperty("Name",
+                                                       String("Filter2")));
 	        filterInstance.addProperty (CIMProperty( "Query", 
-                    "SELECT IndicationTime, ProbableCause, ProbableCauseDescription, EventID, EventTime FROM CIM_ProcessIndication"));
+                    String("SELECT IndicationTime, ProbableCause, ProbableCauseDescription, EventID, EventTime FROM CIM_ProcessIndication")));
 		break;
 	    case 3:
-		filterInstance.addProperty(CIMProperty("Name", "Filter3"));
+		filterInstance.addProperty(CIMProperty("Name",
+                                                       String("Filter3")));
 	        filterInstance.addProperty (CIMProperty( "Query", 
-                    "SELECT ProbableCause FROM CIM_ProcessIndication"));
+                    String("SELECT ProbableCause FROM CIM_ProcessIndication")));
 		break;
 	    case 4:
-		filterInstance.addProperty(CIMProperty("Name", "Filter4"));
+		filterInstance.addProperty(CIMProperty("Name",
+                                                       String("Filter4")));
 	        filterInstance.addProperty (CIMProperty( "Query", 
-                    "SELECT TestProperty, ProbableCause, ProbableCauseDescription FROM CIM_ProcessIndication"));
+                    String("SELECT TestProperty, ProbableCause, ProbableCauseDescription FROM CIM_ProcessIndication")));
 		break;
 	    case 5:
-		filterInstance.addProperty(CIMProperty("Name", "Filter5"));
+		filterInstance.addProperty(CIMProperty("Name",
+                                                       String("Filter5")));
 	        filterInstance.addProperty (CIMProperty ("Query", 
-                    "SELECT ProbableCause, ProbableCauseDescription FROM CIM_ProcessIndication WHERE EventID IS NOT NULL"));
+                    String("SELECT ProbableCause, ProbableCauseDescription FROM CIM_ProcessIndication WHERE EventID IS NOT NULL")));
 		break;
 	    case 6:
-		filterInstance.addProperty(CIMProperty("Name", "Filter6"));
+		filterInstance.addProperty(CIMProperty("Name",
+                                                       String("Filter6")));
 	        filterInstance.addProperty (CIMProperty ("Query", 
-                    "SELECT * FROM CIM_ProcessIndication WHERE EventID IS NOT NULL"));
+                    String("SELECT * FROM CIM_ProcessIndication WHERE EventID IS NOT NULL")));
 		break;
 	    case 7:
-		filterInstance.addProperty(CIMProperty("Name", "Filter7"));
+		filterInstance.addProperty(CIMProperty("Name",
+                                                       String("Filter7")));
 	        filterInstance.addProperty (CIMProperty ("Query", 
-                    "SELECT * FROM CIM_AlertIndication"));
+                    String("SELECT * FROM CIM_AlertIndication")));
 		break;
 	    case 8:
-		filterInstance.addProperty(CIMProperty("Name", "Filter8"));
+		filterInstance.addProperty(CIMProperty("Name",
+                                                       String("Filter8")));
 	        filterInstance.addProperty (CIMProperty ("Query", 
-                    "SELECT * FROM CIM_AlertIndication"));
+                    String("SELECT * FROM CIM_AlertIndication")));
 		break;
 	    case 9:
-		filterInstance.addProperty(CIMProperty("Name", "Filter9"));
+		filterInstance.addProperty(CIMProperty("Name",
+                                                       String("Filter9")));
 	        filterInstance.addProperty (CIMProperty ("Query", 
-                    "SELECT * FROM CIM_AlertIndication"));
+                    String("SELECT * FROM CIM_AlertIndication")));
 		break;
 	    case 10:
-		filterInstance.addProperty(CIMProperty("Name", "Filter10"));
+		filterInstance.addProperty(CIMProperty("Name",
+                                                       String("Filter10")));
 	        filterInstance.addProperty (CIMProperty ("Query", 
-                    "SELECT NewAlertType FROM Sample_HelloWorldIndication WHERE NewAlertType = 5"));
+                    String("SELECT NewAlertType FROM Sample_HelloWorldIndication WHERE NewAlertType = 5")));
 		break;
 	}
 
-	filterInstance.addProperty(CIMProperty("QueryLanguage", "WQL1"));
+	filterInstance.addProperty(CIMProperty("QueryLanguage", String("WQL1")));
 	CIMObjectPath filterRef = filterInstance.getInstanceName(filterClass);
 	client.createInstance(NAMESPACE, filterInstance);
     }

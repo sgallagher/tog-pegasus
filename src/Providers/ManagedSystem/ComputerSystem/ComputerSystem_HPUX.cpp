@@ -76,14 +76,14 @@ ComputerSystem::~ComputerSystem()
 Boolean ComputerSystem::getCaption(CIMProperty& p)
 {
   // hardcoded
-  p = CIMProperty(PROPERTY_CAPTION,CAPTION);
+  p = CIMProperty(PROPERTY_CAPTION, String(CAPTION));
   return true;
 }
 
 Boolean ComputerSystem::getDescription(CIMProperty& p)
 {
   // hardcoded
-  p = CIMProperty(PROPERTY_DESCRIPTION,DESCRIPTION);
+  p = CIMProperty(PROPERTY_DESCRIPTION, String(DESCRIPTION));
   return true;
 }
 

@@ -158,7 +158,7 @@ void test02()
 
         CIMConstProperty cp1 = p1;
         CIMConstProperty cp2 = p2;
-        CIMConstProperty cp3("message3", "hello");
+        CIMConstProperty cp3("message3", String("hello"));
         CIMConstProperty cp1clone = cp1.clone(true);
 
         if(verbose)

@@ -65,7 +65,7 @@ void ProcessIndicationProvider::enableIndications (
         (CIMProperty ("IndicationTime", CIMValue (CIMDateTime ())));
 
     indicationInstance.addProperty
-        (CIMProperty ("IndicationIdentifier", "ProcessIndication01"));
+        (CIMProperty ("IndicationIdentifier", String("ProcessIndication01")));
 
     Array <String> correlatedIndications;
     indicationInstance.addProperty (CIMProperty ("CorrelatedIndications", 

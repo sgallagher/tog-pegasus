@@ -65,17 +65,17 @@ void AlertIndicationProvider::enableIndications (
         (CIMProperty ("IndicationTime", CIMValue (CIMDateTime ())));
 
     indicationInstance.addProperty
-        (CIMProperty ("IndicationIdentifier", "AlertIndication02"));
+        (CIMProperty ("IndicationIdentifier", String("AlertIndication02")));
 
     Array <String> correlatedIndications;
     indicationInstance.addProperty (CIMProperty ("CorrelatedIndications",
          CIMValue (correlatedIndications)));
 
     indicationInstance.addProperty
-        (CIMProperty ("Description", "An alert indication for testing"));
+        (CIMProperty ("Description", String("An alert indication for testing")));
 
     indicationInstance.addProperty
-        (CIMProperty ("AlertingManagedElement", "The instance path"));
+        (CIMProperty ("AlertingManagedElement", String("The instance path")));
 
     indicationInstance.addProperty
         (CIMProperty ("AlertType", CIMValue ((Uint16) 5)));
@@ -87,7 +87,7 @@ void AlertIndicationProvider::enableIndications (
         (CIMProperty ("ProbableCause", CIMValue ((Uint16) 0)));
 
     indicationInstance.addProperty
-        (CIMProperty ("ProbableCauseDescription", "Unknown"));
+        (CIMProperty ("ProbableCauseDescription", String("Unknown")));
 
     indicationInstance.addProperty
         (CIMProperty ("Trending", CIMValue ((Uint16) 0)));
@@ -99,19 +99,19 @@ void AlertIndicationProvider::enableIndications (
          CIMValue (recommendedActions)));
 
     indicationInstance.addProperty
-        (CIMProperty ("EventID", "AlertEvent02"));
+        (CIMProperty ("EventID", String("AlertEvent02")));
 
     indicationInstance.addProperty
         (CIMProperty ("EventTime", CIMValue (CIMDateTime ())));
 
     indicationInstance.addProperty
-        (CIMProperty ("SystemCreationClassName", "CIM_ComputerSystem"));
+        (CIMProperty ("SystemCreationClassName", String("CIM_ComputerSystem")));
 
     indicationInstance.addProperty
-        (CIMProperty ("SystemName", "server001.acme.com"));
+        (CIMProperty ("SystemName", String("server001.acme.com")));
 
     indicationInstance.addProperty
-        (CIMProperty ("ProviderName", "AlertIndicationProvider"));
+        (CIMProperty ("ProviderName", String("AlertIndicationProvider")));
 
     CIMIndication cimIndication (indicationInstance);
 

@@ -42,24 +42,24 @@ void test01()
     assert(pv.isNull());
 
     String p1("message");
-    CIMValue v1("argument_Test");
+    CIMValue v1(String("argument_Test"));
     CIMParamValue a1(p1, v1);
 
     String p2("message2");
-    CIMValue v2("argument_Test2");
+    CIMValue v2(String("argument_Test2"));
     CIMParamValue a2(p2, v2);
 
     String p3("message3");
-    CIMValue v3("argument_Test3");
+    CIMValue v3(String("argument_Test3"));
     CIMParamValue a3(p3, v3);
 
     String p4("message4");
-    CIMValue v4("argument_Test4");
+    CIMValue v4(String("argument_Test4"));
     CIMParamValue a4(p4, v4);
     CIMParamValue a5 = a4;
 
     String p6("message6");
-    CIMValue v6("argument_Test6");
+    CIMValue v6(String("argument_Test6"));
     CIMParamValue a6(p6, v6);
 
     Array<CIMParamValue> aa;
@@ -68,7 +68,7 @@ void test01()
 
     aa.append(CIMParamValue("message3", CIMValue(200000)));
 
-    aa.append(CIMParamValue("message4", CIMValue("test4")));
+    aa.append(CIMParamValue("message4", CIMValue(String("test4"))));
     
     //
     // clone

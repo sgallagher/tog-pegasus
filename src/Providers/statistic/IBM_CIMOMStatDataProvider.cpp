@@ -162,9 +162,9 @@ CIMInstance IBM_CIMOMStatDataProvider::getInstance(Uint16 type)
 
    CIMInstance requestedInstance("IBM_CIMOMStatData");
    requestedInstance.addProperty( CIMProperty("Description",
-      CIMValue("CIMOM performance statistics for CIM request type <reqx>")));
+      CIMValue(String("CIMOM performance statistics for CIM request type <reqx>"))));
    requestedInstance.addProperty(CIMProperty("Caption",
-      CIMValue("CIMOM performance statistics for CIM request type <reqx>")));
+      CIMValue(String("CIMOM performance statistics for CIM request type <reqx>"))));
    requestedInstance.addProperty(CIMProperty("InstanceId",
       CIMValue("IBM_CIMOMStatData"+String(buffer))));
    requestedInstance.addProperty(CIMProperty("Name",

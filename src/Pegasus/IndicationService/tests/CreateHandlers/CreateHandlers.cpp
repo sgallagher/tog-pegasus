@@ -45,64 +45,74 @@ void TestCreateHandlerInstances(CIMClient& client)
     {
 	CIMInstance handlerInstance("CIM_IndicationHandlerCIMXML");
 	handlerInstance.addQualifier(CIMQualifier("Handler", 
-                                     "CIMxmlIndicationHandler"));
+                                     String("CIMxmlIndicationHandler")));
 	handlerInstance.addProperty(CIMProperty("SystemCreationClassName", 
-                                     "CIM_UnitaryComputerSystem"));
+                                     String("CIM_UnitaryComputerSystem")));
 	handlerInstance.addProperty(CIMProperty("SystemName", 
-                                     "bigbasin.hp.com"));
+                                     String("bigbasin.hp.com")));
 	handlerInstance.addProperty(CIMProperty("CreationClassName", 
-                                     "CIM_IndicationHandlerCIMXML"));
+                                     String("CIM_IndicationHandlerCIMXML")));
 	switch (i)
 	{
 	    case 1:
-		handlerInstance.addProperty(CIMProperty("Name", "Handler1"));
+		handlerInstance.addProperty(CIMProperty("Name",
+                                                        String("Handler1")));
 	        handlerInstance.addProperty(CIMProperty("Destination", 
-                                            "localhost:5988/test1"));
+                                            String("localhost:5988/test1")));
 		break;
 	    case 2:
-		handlerInstance.addProperty(CIMProperty("Name", "Handler2"));
+		handlerInstance.addProperty(CIMProperty("Name",
+                                                        String("Handler2")));
 	        handlerInstance.addProperty(CIMProperty("Destination", 
-                                            "localhost:5988/test2"));
+                                            String("localhost:5988/test2")));
 		break;
 	    case 3:
-		handlerInstance.addProperty(CIMProperty("Name", "Handler3"));
+		handlerInstance.addProperty(CIMProperty("Name",
+                                                        String("Handler3")));
 	        handlerInstance.addProperty(CIMProperty("Destination", 
-                                            "localhost:5988/test1"));
+                                            String("localhost:5988/test1")));
 		break;
 	    case 4:
-		handlerInstance.addProperty(CIMProperty("Name", "Handler4"));
+		handlerInstance.addProperty(CIMProperty("Name",
+                                                        String("Handler4")));
 	        handlerInstance.addProperty(CIMProperty("Destination", 
-                                            "localhost:5988/test2"));
+                                            String("localhost:5988/test2")));
 		break;
 	    case 5:
-		handlerInstance.addProperty(CIMProperty("Name", "Handler5"));
+		handlerInstance.addProperty(CIMProperty("Name",
+                                                        String("Handler5")));
 	        handlerInstance.addProperty(CIMProperty("Destination", 
-                                            "localhost:5988/test3"));
+                                            String("localhost:5988/test3")));
 		break;
 	    case 6:
-		handlerInstance.addProperty(CIMProperty("Name", "Handler6"));
+		handlerInstance.addProperty(CIMProperty("Name",
+                                                        String("Handler6")));
 	        handlerInstance.addProperty(CIMProperty("Destination", 
-                                            "localhost:5988/test1"));
+                                            String("localhost:5988/test1")));
 		break;
 	    case 7:
-		handlerInstance.addProperty(CIMProperty("Name", "Handler7"));
+		handlerInstance.addProperty(CIMProperty("Name",
+                                                        String("Handler7")));
 	        handlerInstance.addProperty(CIMProperty("Destination", 
-                                            "localhost:5988/test1"));
+                                            String("localhost:5988/test1")));
 		break;
 	    case 8:
-		handlerInstance.addProperty(CIMProperty("Name", "Handler8"));
+		handlerInstance.addProperty(CIMProperty("Name",
+                                                        String("Handler8")));
 	        handlerInstance.addProperty(CIMProperty("Destination", 
-                                            "localhost:5988/test1"));
+                                            String("localhost:5988/test1")));
 		break;
 	    case 9:
-		handlerInstance.addProperty(CIMProperty("Name", "Handler9"));
+		handlerInstance.addProperty(CIMProperty("Name",
+                                                        String("Handler9")));
 	        handlerInstance.addProperty(CIMProperty("Destination", 
-                                            "localhost:5988/test1"));
+                                            String("localhost:5988/test1")));
 		break;
 	    case 10:
-		handlerInstance.addProperty(CIMProperty("Name", "Handler10"));
+		handlerInstance.addProperty(CIMProperty("Name",
+                                                        String("Handler10")));
 	        handlerInstance.addProperty(CIMProperty("Destination", 
-                                            "localhost:5988/test4"));
+                                            String("localhost:5988/test4")));
 		break;
 	}
 

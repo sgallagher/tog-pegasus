@@ -45,10 +45,20 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Config/ConfigPropertyOwner.h>
 #include <Pegasus/Config/ConfigFileHandler.h>
-#include <Pegasus/Config/Linkage.h>
+
+#include <Pegasus/Config/TracePropertyOwner.h>
+#include <Pegasus/Config/LogPropertyOwner.h>
+#include <Pegasus/Config/DefaultPropertyOwner.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
+
+/** PropertyList. */
+struct PropertyList
+{
+    const char* propertyName;
+    ConfigPropertyOwner* propertyOwner;
+};
 
 
 struct OwnerTable;
@@ -86,8 +96,8 @@ private:
     @exception UnrecognizedConfigProperty  if property is not defined.
     */
     Boolean _initPropertyWithCommandLineOption(
-        const String& configOption)
-            throw (InvalidPropertyValue, UnrecognizedConfigProperty);
+        const String& configOption);
+            //throw (InvalidPropertyValue, UnrecognizedConfigProperty);
 
 
     /** 
@@ -97,8 +107,15 @@ private:
     @exception ConfigFileSyntaxError  if there are synatx error 
                             while parsing the config files.
     */
-    void _loadConfigProperties()
-        throw (CannotRenameFile, ConfigFileSyntaxError);
+    void _loadConfigProperties();
+        //throw (CannotRenameFile, ConfigFileSyntaxError);
+
+
+    /**
+    Initialize config property owners and add them to the property owner table
+    */
+    void _initPropertyOwners();
+
 
     /** 
     HashTable to store the config property names and 
@@ -111,33 +128,34 @@ private:
     */
     ConfigFileHandler*    _configFileHandler;
 
-    /**
-    Flags indicating the cimserver command line options 
-    */
-    Boolean        _help;
-
-    Boolean        _version;
-
-    Boolean        _trace;
-
-    Boolean        _logTrace;
-
-    Boolean        _install;
-
-    Boolean        _remove;
-
-    Boolean        _daemon;
-
-    Boolean        _port;
-
-    Boolean        _logdir;
-
-    Boolean        _cleanlogs;
-
-    Boolean        _slp;
-
-
 public:
+
+    /**
+    Constants representing the command line options.
+    */
+    static const char OPTION_TRACE;
+
+    static const char OPTION_LOG_TRACE;
+
+    static const char OPTION_DAEMON;
+
+
+    /**
+    Property Owners
+
+    When a new property owner is created be sure to add static
+    variable pointers for each of the new property owner.
+    */
+    static TracePropertyOwner*      traceOwner;
+
+    static LogPropertyOwner*        logOwner; 
+
+    static DefaultPropertyOwner*    defaultOwner;
+
+    /**
+    Property list
+    */
+    static struct PropertyList properties[];
 
     /** 
     Construct the singleton instance of the ConfigManager and return a 
@@ -159,9 +177,9 @@ public:
     @exception UnrecognizedConfigProperty  if property is not defined.
     @exception InvalidPropertyValue  if property value is not valid.
     */
-    Boolean updateCurrentValue(const String& name, const String& value)
-        throw (NonDynamicConfigProperty, InvalidPropertyValue, 
-            UnrecognizedConfigProperty);
+    Boolean updateCurrentValue(const String& name, const String& value);
+        //throw (NonDynamicConfigProperty, InvalidPropertyValue, 
+        //    UnrecognizedConfigProperty);
 
     /** 
     Update planned value of a property.
@@ -176,9 +194,9 @@ public:
     @exception UnrecognizedConfigProperty  if property is not defined.
     @exception InvalidPropertyValue  if property value is not valid.
     */
-    Boolean updatePlannedValue(const String& name, const String& value)
-        throw (NonDynamicConfigProperty, InvalidPropertyValue, 
-            UnrecognizedConfigProperty);
+    Boolean updatePlannedValue(const String& name, const String& value);
+        //throw (NonDynamicConfigProperty, InvalidPropertyValue, 
+        //    UnrecognizedConfigProperty);
 
 
     /** 
@@ -190,8 +208,19 @@ public:
 
     @exception UnrecognizedConfigProperty  if property is not defined.
     */
-    Boolean validatePropertyValue(const String& name, const String& value)
-        throw (UnrecognizedConfigProperty);
+    Boolean validatePropertyValue(const String& name, const String& value);
+        //throw (UnrecognizedConfigProperty);
+
+    /**
+    Get default value of the specified property.
+
+    @param  name    The name of the property.
+    @return string containing the default value of the specified property.
+
+    @exception UnrecognizedConfigProperty  if property is not defined.
+    */
+    String getDefaultValue(const String& name);
+        //throw (UnrecognizedConfigProperty);
 
 
     /** 
@@ -202,8 +231,8 @@ public:
 
     @exception UnrecognizedConfigProperty  if property is not defined.
     */
-    String getCurrentValue(const String& name)
-        throw (UnrecognizedConfigProperty);
+    String getCurrentValue(const String& name);
+        //throw (UnrecognizedConfigProperty);
 
 
     /** 
@@ -214,8 +243,8 @@ public:
 
     @exception UnrecognizedConfigProperty  if property is not defined.
     */
-    String getPlannedValue(const String& name)
-        throw (UnrecognizedConfigProperty);
+    String getPlannedValue(const String& name);
+        //throw (UnrecognizedConfigProperty);
 
 
     /** 
@@ -226,8 +255,8 @@ public:
 
     @exception UnrecognizedConfigProperty  if property is not defined.
     */
-    void getPropertyInfo(const String& name, Array<String>& propertyInfo)
-        throw (UnrecognizedConfigProperty);
+    void getPropertyInfo(const String& name, Array<String>& propertyInfo);
+        //throw (UnrecognizedConfigProperty);
 
 
     /** 
@@ -249,9 +278,9 @@ public:
     @exception ConfigFileSyntaxError  if there is synatx error 
                             while parsing the config files.
     */
-    void mergeConfigFiles(const String& currentFile, const String& plannedFile)
-        throw (NoSuchFile, FileNotReadable, CannotRenameFile, 
-            ConfigFileSyntaxError);
+    void mergeConfigFiles(const String& currentFile, const String& plannedFile);
+        //throw (NoSuchFile, FileNotReadable, CannotRenameFile, 
+        //    ConfigFileSyntaxError);
 
     /** 
     Merge the config properties from the default planned config file
@@ -263,9 +292,9 @@ public:
     @exception ConfigFileSyntaxError  if there are synatx error 
                             while parsing the config files.
     */
-    void mergeConfigFiles()
-        throw (NoSuchFile, FileNotReadable, CannotRenameFile, 
-            ConfigFileSyntaxError);
+    void mergeConfigFiles();
+        //throw (NoSuchFile, FileNotReadable, CannotRenameFile, 
+        //    ConfigFileSyntaxError);
 
 
     /** 
@@ -275,56 +304,11 @@ public:
     @param argv list of command line arguments.
 
     @exception  InvalidPropertyValue if validation fails.
-    @exception  MissingCommandLineOptionArgument if command line option is
-                name is not specified after "-".
     @exception  UnrecognizedConfigProperty  if property is not defined.
     */
-    void mergeCommandLine(int& argc, char**& argv)
-        throw (UnrecognizedConfigProperty, MissingCommandLineOptionArgument,
-            InvalidPropertyValue);
+    void mergeCommandLine(int& argc, char**& argv);
+        //throw (UnrecognizedConfigProperty, InvalidPropertyValue);
 
-    /** 
-    Check if the help flag is set or not.
-
-    @return  true if the help flag is set.
-    */
-    Boolean isHelpFlagSet();
-      
-    /** 
-    Check if the version flag is set or not.
-
-    @return  true if the version flag is set.
-    */
-    Boolean isVersionFlagSet();
-
-    /** 
-    Check if the command line option flags are set or not.
-
-    @return  true if the flag is set.
-    */
-    Boolean isTraceFlagSet();
-
-    Boolean isLogTraceFlagSet();
-
-    Boolean isInstallFlagSet();
-
-    Boolean isRemoveFlagSet();
-
-    Boolean isDaemonFlagSet();
-
-    Boolean isPortFlagSet();
-
-    Boolean isCleanLogsFlagSet();
-
-    Boolean isSlpFlagSet();
-
-};
-
-/** PropertyList. */
-struct PropertyList
-{
-    const char* propertyName;
-    ConfigPropertyOwner* propertyOwner;
 };
 
 PEGASUS_NAMESPACE_END

@@ -23,7 +23,7 @@
 //
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +38,6 @@
 #define Pegasus_LogPropertyOwner_h
 
 #include <Pegasus/Config/ConfigPropertyOwner.h>
-#include <Pegasus/Config/Linkage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -62,6 +61,14 @@ public:
     /** Destructor  */
     ~LogPropertyOwner();
 
+    /**
+    Initialize the config properties.
+
+    This method is expected to be called only once at the start of the
+    CIMOM. It initializes the properties with the default values.
+    */
+    void initialize();
+
 
     /** 
     Get information about the specified property.
@@ -70,8 +77,8 @@ public:
     @param propertyInfo   List to store the property info.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    void getPropertyInfo(const String& name, Array<String>& propertyInfo)
-        throw (UnrecognizedConfigProperty);
+    void getPropertyInfo(const String& name, Array<String>& propertyInfo);
+        //throw (UnrecognizedConfigProperty);
 
 
     /** 
@@ -81,8 +88,8 @@ public:
     @return string containing the default value of the property specified.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    const String getDefaultValue(const String& name)
-        throw (UnrecognizedConfigProperty);
+    const String getDefaultValue(const String& name);
+        //throw (UnrecognizedConfigProperty);
 
 
     /** 
@@ -92,8 +99,8 @@ public:
     @return string containing the currnet value of the property specified.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    const String getCurrentValue(const String& name)
-        throw (UnrecognizedConfigProperty);
+    const String getCurrentValue(const String& name);
+        //throw (UnrecognizedConfigProperty);
 
 
     /** 
@@ -103,13 +110,13 @@ public:
     @return string containing the planned value of the property specified.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    const String getPlannedValue(const String& name)
-        throw (UnrecognizedConfigProperty);
+    const String getPlannedValue(const String& name);
+        //throw (UnrecognizedConfigProperty);
 
 
     /** 
     Init current value of the specified property to the specified value.
-    This method is exected to be called only once at the start of the
+    This method is expected to be called only once at the start of the
     CIMOM. The property value will be initialized irrespective of whether
     the property is dynamic or not.
 
@@ -118,13 +125,13 @@ public:
     @exception     UnrecognizedConfigProperty  if the property is not defined.
     @exception     InvalidPropertyValue  if the property value is not valid.
     */
-    void initCurrentValue(const String& name, const String& value)
-        throw (UnrecognizedConfigProperty, InvalidPropertyValue);
+    void initCurrentValue(const String& name, const String& value);
+        //throw (UnrecognizedConfigProperty, InvalidPropertyValue);
 
 
     /** 
     Init planned value of the specified property to the specified value.
-    This method is exected to be called only once at the start of the
+    This method is expected to be called only once at the start of the
     CIMOM. The property value will be initialized irrespective of whether
     the property is dynamic or not.
 
@@ -133,8 +140,8 @@ public:
     @exception     UnrecognizedConfigProperty  if the property is not defined.
     @exception     InvalidPropertyValue  if the property value is not valid.
     */
-    void initPlannedValue(const String& name, const String& value) 
-        throw (UnrecognizedConfigProperty, InvalidPropertyValue);
+    void initPlannedValue(const String& name, const String& value); 
+        //throw (UnrecognizedConfigProperty, InvalidPropertyValue);
 
 
     /** 
@@ -148,9 +155,9 @@ public:
     @exception     InvalidPropertyValue  if the property value is not valid.
     @exception     UnrecognizedConfigProperty  if the property is not defined.
     */
-    void updateCurrentValue(const String& name, const String& value)
-        throw (NonDynamicConfigProperty, InvalidPropertyValue,
-            UnrecognizedConfigProperty);
+    void updateCurrentValue(const String& name, const String& value);
+        //throw (NonDynamicConfigProperty, InvalidPropertyValue,
+        //    UnrecognizedConfigProperty);
 
 
     /** 
@@ -161,8 +168,8 @@ public:
     @exception     InvalidPropertyValue  if the property value is not valid.
     @exception     UnrecognizedConfigProperty  if the property is not defined.
     */
-    void updatePlannedValue(const String& name, const String& value)
-        throw (InvalidPropertyValue, UnrecognizedConfigProperty);
+    void updatePlannedValue(const String& name, const String& value);
+        //throw (InvalidPropertyValue, UnrecognizedConfigProperty);
 
 
     /** 
@@ -173,8 +180,8 @@ public:
     @return Boolean      True if the specified value for the property is valid.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    Boolean isValid(const String& name, const String& value)
-        throw (UnrecognizedConfigProperty);
+    Boolean isValid(const String& name, const String& value);
+        //throw (UnrecognizedConfigProperty);
 
 
     /** 
@@ -184,8 +191,8 @@ public:
     @return Boolean      True if the specified property is dynamic.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    Boolean isDynamic(const String& name)
-        throw (UnrecognizedConfigProperty);
+    Boolean isDynamic(const String& name);
+        //throw (UnrecognizedConfigProperty);
 
 
 private:
@@ -199,7 +206,7 @@ private:
 
     struct ConfigProperty*      _cleanlogs;
 
-    struct ConfigProperty*      _logs;
+    struct ConfigProperty*      _trace;
 
     struct ConfigProperty*      _severity;
 

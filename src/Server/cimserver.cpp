@@ -93,15 +93,25 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-/**
-    The command name.
-*/
+//
+//  The command name.
+//
 static const char COMMAND_NAME []    = "cimserver";
 
-/**
-    The constant defining usage string.
-*/
+//
+//  The constant defining usage string.
+//
 static const char USAGE []           = "Usage: ";
+
+/**
+Constants representing the command line options.
+*/
+static const char OPTION_VERSION     = 'v';
+
+static const char OPTION_HELP        = 'h';
+
+static const char OPTION_HOME        = 'D';
+
 
 
 void GetEnvironmentVariables(
@@ -156,7 +166,14 @@ void GetOptions(
     {
         throw cfse;
     }
-
+    catch(UnrecognizedConfigProperty ucp)
+    {
+        throw ucp;
+    }
+    catch(InvalidPropertyValue ipv)
+    {
+        throw ipv;
+    }
 }
 
 /* PrintHelp - This is temporary until we expand the options manager to allow
@@ -172,12 +189,21 @@ void PrintHelp(const char* arg0)
     usage.append (COMMAND_NAME);
     usage.append (" [ [ options ] | [ configProperty=value, ... ] ]\n");
     usage.append ("  options\n");
-    usage.append ("    -v    - prints out the version number\n");
-    usage.append ("    -h    - prints this help message\n");
-    usage.append ("    -t    - turns tracing on\n");
-    usage.append ("    -l    - turns logging on\n");
-    usage.append ("  configProperty\n");
-    usage.append ("    port=nnnn  - specifies port number to listen on\n");
+    usage.append ("    -v          - displays pegasus version number\n");
+    usage.append ("    -h          - prints this help message\n");
+    usage.append ("    -t          - turns tracing on\n");
+    usage.append ("    -t          - turns on trace of client IO to console\n");
+    usage.append ("    -l          - turns on trace of client IO to trace file\n");
+    usage.append ("    -d          - runs pegasus as a daemon\n");
+    usage.append ("    -cleanlogs  - clears the log files at startup\n");
+    usage.append ("    -install    - installs pegasus as a Windows NT Service\n");
+    usage.append ("    -remove     - removes pegasus as a Windows NT Service\n");
+    usage.append ("    -slp        - registers pegasus as a service with SLP\n\n");
+
+    usage.append ("  configProperty=value\n");
+    usage.append ("    port=nnnn            - sets port number to listen on\n");
+    usage.append ("    home=/pegasus/bin    - sets pegasus home directory\n");
+    usage.append ("    logdir=/pegasus/logs - directory for log files\n");
 
     cout << endl;
     cout << PEGASUS_NAME << PEGASUS_VERSION << endl;
@@ -190,7 +216,6 @@ void PrintHelp(const char* arg0)
 //////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv)
 {
-
     String pegasusHome  = String::EMPTY;
     Boolean pegasusIOTrace = false;
     Boolean pegasusIOLog = false;
@@ -204,22 +229,55 @@ int main(int argc, char** argv)
     if (argc == 1 )
       cim_server_service(argc, argv) ;
   
-    // Get environment variables
+    // Get help, version and home options
 
-    if (pegasusHome.size() == 0)
-    for (int i=0; i < argc; i++) {
-        if (!strcmp(argv[i],"-D")) {
-            i++;
-            if (i < argc) pegasusHome = argv[i];
-            break;
+    for (int i = 0; i < argc; )
+    {
+        const char* arg = argv[i];
+
+        // Check for -option
+        if (*arg == '-')
+        {
+            // Get the option
+            const char* option = arg + 1;
+
+            //
+            // Check to see if user asked for the version (-v option):
+            //
+            if (*option == OPTION_VERSION)
+            {
+                cout << PEGASUS_VERSION << endl;
+                exit(0);
+            }
+            //
+            // Check to see if user asked for help (-h option):
+            //
+            else if (*option == OPTION_HELP)
+            {
+                PrintHelp(argv[0]);
+                exit(0);
+            }
+            else if (*option == OPTION_HOME)
+            {
+                if (i + 1 < argc) 
+                {
+                    pegasusHome = argv[i + 1];
+                }
+                else
+                {
+                    cout << "Missing argument for option -" << option << endl;
+                    exit(0);
+                }
+
+                memmove(&argv[i], &argv[i + 2], (argc-i-1) * sizeof(char*));
+                argc -= 2;
+            }
         }
+        i++;
     }
+
     if (pegasusHome.size() == 0)
         GetEnvironmentVariables(argv[0], pegasusHome);
-
-    // Get options (from command line and from configuration file); this
-    // removes corresponding options and their arguments from the command
-    // line.
 
     //
     // Get an instance of the Config Manager.
@@ -228,7 +286,7 @@ int main(int argc, char** argv)
 
     //
     // Get options (from command line and from configuration file); this
-    // removes corresponding options and their arguments fromt he command
+    // removes corresponding options and their arguments from the command
     // line.
     //
     try
@@ -241,46 +299,14 @@ int main(int argc, char** argv)
         exit(1);
     }
 
-    // At this point, all options should have been extracted; print an
-    // error if there are any remaining:
-
-    if (argc != 1)
-    {
-	cerr << argv[0] << ": unrecognized options: ";
-
-	for (int i = 1; i < argc; i++)
-	    cerr << argv[i] << ' ';
-	cout << endl;
-	exit(1);
-    }
 
     try
     {
         //
-        // Check to see if user asked for the version (-v option):
-        //
-
-        if (configManager->isVersionFlagSet())
-        {
-            cout << PEGASUS_VERSION << endl;
-            exit(0);
-        }
-
-        //
-        // Check to see if user asked for help (-h option):
-        //
-
-        if (configManager->isHelpFlagSet())
-        {
-            PrintHelp(argv[0]);
-            exit(0);
-        }
-
-        //
         // Check to see if we should (can) install as a NT service
         //
 
-        if (configManager->isInstallFlagSet())
+        if (String::equal(configManager->getCurrentValue("install"), "true"))
         {
             if( 0 != cimserver_install_nt_service( pegasusHome ))
             {
@@ -293,7 +319,7 @@ int main(int argc, char** argv)
         // Check to see if we should (can) remove Pegasus as an NT service
         //
 
-        if (configManager->isRemoveFlagSet())
+        if (String::equal(configManager->getCurrentValue("remove"), "true"))
         {
             if( 0 != cimserver_remove_nt_service() )
             {
@@ -306,7 +332,7 @@ int main(int argc, char** argv)
         // Check to see if we should Pegasus as a daemon
         //
 
-        if (configManager->isDaemonFlagSet())
+        if (String::equal(configManager->getCurrentValue("daemon"), "true"))
         {
             daemonOption = true;
         }
@@ -321,7 +347,7 @@ int main(int argc, char** argv)
         // Check the trace options and set global variable
         //
 
-        if (configManager->isTraceFlagSet())
+        if (String::equal(configManager->getCurrentValue("trace"), "true"))
         {
             Handler::setMessageTrace(true);
             pegasusIOTrace = true;
@@ -331,7 +357,7 @@ int main(int argc, char** argv)
         // Check the log trace options and set global variable
         //
 
-        if (configManager->isLogTraceFlagSet())
+        if (String::equal(configManager->getCurrentValue("logtrace"), "true"))
         {
             Handler::setMessageLogTrace(true);
             pegasusIOLog = true;
@@ -347,9 +373,10 @@ int main(int argc, char** argv)
         // Set up the Logger. This does not open the logs
         // Might be more logical to clean before set.
         // ATTN: Need tool to completely disable logging.
+
         Logger::setHomeDirectory(logsDirectory);
 
-        if (configManager->isCleanLogsFlagSet())
+        if (String::equal(configManager->getCurrentValue("cleanlogs"), "true"))
         {
             Logger::clean(logsDirectory);;
         }
@@ -357,7 +384,7 @@ int main(int argc, char** argv)
         // Leave this in until people get familiar with the logs.
         cout << "Logs Directory = " << logsDirectory << endl;
 
-        if (configManager->isSlpFlagSet())
+        if (String::equal(configManager->getCurrentValue("slp"), "true"))
         {
             useSLP =  true;
         }
@@ -425,7 +452,7 @@ int main(int argc, char** argv)
 	    {
 	      if( discovery != NULL && url != NULL )
 		discovery->srv_reg_all(url,  
-				       "(namespace=root/cimv20)",
+				       "(namespace=root/cimv2)",
 				       "service:cim.pegasus", 
 				       "DEFAULT", 
 				       70) ;

@@ -64,6 +64,14 @@ public:
     /** Destructor  */
     virtual ~ConfigPropertyOwner() { }
 
+    /**
+    Initialize the config properties.
+
+    This method is expected to be called only once at the start of the
+    CIMOM. It initializes the properties with the default values.
+    */
+    virtual void initialize() = 0;
+
 
     /** 
     Get information about the specified property.
@@ -73,8 +81,8 @@ public:
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
     virtual void getPropertyInfo(const String& name, 
-        Array<String>& propertyInfo)
-        throw (UnrecognizedConfigProperty) = 0;
+        Array<String>& propertyInfo) = 0;
+        //throw (UnrecognizedConfigProperty) = 0;
 
 
     /** 
@@ -84,8 +92,8 @@ public:
     @return string containing the default value of the property specified.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    virtual const String getDefaultValue(const String& name)
-        throw (UnrecognizedConfigProperty) = 0;
+    virtual const String getDefaultValue(const String& name) = 0;
+        //throw (UnrecognizedConfigProperty) = 0;
 
 
     /** 
@@ -95,8 +103,8 @@ public:
     @return string containing the currnet value of the property specified.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    virtual const String getCurrentValue(const String& name)
-        throw (UnrecognizedConfigProperty) = 0;
+    virtual const String getCurrentValue(const String& name) = 0;
+        //throw (UnrecognizedConfigProperty) = 0;
 
 
     /** 
@@ -106,38 +114,38 @@ public:
     @return string containing the planned value of the property specified.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    virtual const String getPlannedValue(const String& name)
-        throw (UnrecognizedConfigProperty) = 0;
+    virtual const String getPlannedValue(const String& name) = 0;
+        //throw (UnrecognizedConfigProperty) = 0;
 
 
     /** 
     Init current value of the specified property to the specified value.
-    This method is exected to be called only once at the start of the
+    This method is expected to be called only once at the start of the
     CIMOM. The property value will be initialized irrespective of whether
     the property is dynamic or not.
 
-    @param  name         The name of the property.
-    @param  value        The current value of the property. 
+    @param  name   The name of the property.
+    @param  value  The current value of the property. 
     @exception     UnrecognizedConfigProperty  if the property is not defined.
     @exception     InvalidPropertyValue  if the property value is not valid.
     */
-    virtual void initCurrentValue(const String& name, const String& value)
-        throw (UnrecognizedConfigProperty, InvalidPropertyValue) = 0;
+    virtual void initCurrentValue(const String& name, const String& value) = 0;
+        //throw (UnrecognizedConfigProperty, InvalidPropertyValue) = 0;
 
 
     /** 
     Init planned value of the specified property to the specified value.
-    This method is exected to be called only once at the start of the
+    This method is expected to be called only once at the start of the
     CIMOM. The property value will be initialized irrespective of whether
     the property is dynamic or not.
 
-    @param  name         The name of the property.
-    @param  value        The planned value of the property. 
+    @param  name   The name of the property.
+    @param  value  The planned value of the property. 
     @exception     UnrecognizedConfigProperty  if the property is not defined.
     @exception     InvalidPropertyValue  if the property value is not valid.
     */
-    virtual void initPlannedValue(const String& name, const String& value)
-        throw (UnrecognizedConfigProperty, InvalidPropertyValue) = 0;
+    virtual void initPlannedValue(const String& name, const String& value) = 0;
+        //throw (UnrecognizedConfigProperty, InvalidPropertyValue) = 0;
 
 
     /** 
@@ -145,54 +153,54 @@ public:
     The property value will be updated only if the property is dynamically
     updatable.
 
-    @param  name         The name of the property.
-    @param  value        The current value of the property. 
+    @param  name   The name of the property.
+    @param  value  The current value of the property. 
     @exception     NonDynamicConfigProperty  if the property is not dynamic.
     @exception     InvalidPropertyValue  if the property value is not valid.
     @exception     UnrecognizedConfigProperty  if the property is not defined.
     */
     virtual void updateCurrentValue(
         const String& name, 
-        const String& value)
-        throw (NonDynamicConfigProperty, InvalidPropertyValue,
-            UnrecognizedConfigProperty) = 0;
+        const String& value) = 0;
+        //throw (NonDynamicConfigProperty, InvalidPropertyValue,
+        //    UnrecognizedConfigProperty) = 0;
 
 
     /** 
     Update planned value of the specified property to the specified value.
 
-    @param  name         The name of the property.
-    @param  value        The planned value of the property. 
+    @param  name   The name of the property.
+    @param  value  The planned value of the property. 
     @exception     InvalidPropertyValue  if the property value is not valid.
     @exception     UnrecognizedConfigProperty  if the property is not defined.
     */
     virtual void updatePlannedValue(
         const String& name, 
-        const String& value) 
-        throw (InvalidPropertyValue, UnrecognizedConfigProperty) = 0;
+        const String& value) = 0; 
+        //throw (InvalidPropertyValue, UnrecognizedConfigProperty) = 0;
 
 
     /** 
     Checks to see if the given value is valid or not.
 
-    @param  name         The name of the property.
-    @param  value        The value of the property to be validated. 
+    @param  name   The name of the property.
+    @param  value  The value of the property to be validated. 
     @return true if the specified value for the property is valid.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    virtual Boolean isValid(const String& name, const String& value)
-        throw (UnrecognizedConfigProperty) = 0;
+    virtual Boolean isValid(const String& name, const String& value) = 0;
+        //throw (UnrecognizedConfigProperty) = 0;
 
 
     /** 
     Checks to see if the specified property is dynamic or not.
 
-    @param  name         The name of the property.
+    @param  name   The name of the property.
     @return true if the specified property is dynamic.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    virtual Boolean isDynamic(const String& name)
-        throw (UnrecognizedConfigProperty) = 0;
+    virtual Boolean isDynamic(const String& name) = 0;
+        //throw (UnrecognizedConfigProperty) = 0;
 
 };
 

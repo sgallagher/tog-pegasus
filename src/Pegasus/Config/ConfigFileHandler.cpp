@@ -33,7 +33,7 @@
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Logger.h>
-#include <Pegasus/Config/ConfigFileHandler.h>
+#include "ConfigFileHandler.h"
 
 
 PEGASUS_USING_STD;
@@ -64,27 +64,73 @@ struct ConfigTable
 */
 ConfigFileHandler::ConfigFileHandler (
     const String& currentFile, 
-    const String& plannedFile) throw (NoSuchFile, FileNotReadable)
+    const String& plannedFile)
 {
     String cFile = currentFile;
 
     String pFile = plannedFile;
 
-    try
-    {
-        _currentConfFile = new ConfigFile(cFile);
-    }
-    catch (NoSuchFile nsf) 
-    { 
-        // Current file need not exist, so ignore this
-        // exception. The planned file will get copied
-        // on to the current file.
-    }
+    //
+    // Initialize instance variables.
+    //
+    _currentConfFile = 0;
+    _plannedConfFile = 0;
 
+    _currentFileExist = true;
+    _plannedFileExist = true;
+
+
+    _currentConfFile = new ConfigFile(cFile);
     _plannedConfFile = new ConfigFile(pFile);
 
     _currentConfig = new ConfigTable;
     _plannedConfig = new ConfigTable;
+
+    //
+    // check whether the planned file exists or not
+    //
+    if (!FileSystem::exists(pFile))
+    {
+        _plannedFileExist = false;
+        return;
+    }
+
+    //
+    // check whether the file is readable or not
+    //
+    if (!FileSystem::canRead(pFile))
+    {
+        throw FileNotReadable(pFile);
+    }
+
+    //
+    // check whether the current file exists or not
+    //
+    if (!FileSystem::exists(cFile))
+    {
+        _currentFileExist = false;
+        //
+        // Current file need not exist.
+        // try creating one so that planned file contents
+        // can be copied over.
+        //
+        ArrayDestroyer<char> p(cFile.allocateCString());
+        ofstream ofs(p.getPointer());
+        if (!ofs)
+        {
+            throw NoSuchFile(cFile);
+        }
+        ofs.close();
+    }
+
+    //
+    // check whether the file is readable or not
+    //
+    if (!FileSystem::canRead(cFile))
+    {
+        throw FileNotReadable(cFile);
+    }
+
 }
 
 /** 
@@ -114,9 +160,18 @@ ConfigFileHandler::~ConfigFileHandler ()
     current file.
 */
 void ConfigFileHandler::copyPlannedFileOverCurrentFile()
-    throw (CannotRenameFile)
 {
-    _currentConfFile->replace(_plannedConfFile->getFileName());
+    if (_plannedFileExist)
+    {
+        _currentConfFile->replace(_plannedConfFile->getFileName());
+    }
+    else if (_currentFileExist)
+    {
+        //
+        // Remove the current file
+        //
+        FileSystem::removeFileNoCase(_currentConfFile->getFileName());
+    }
 }
 
 
@@ -124,7 +179,6 @@ void ConfigFileHandler::copyPlannedFileOverCurrentFile()
     Load the config properties from the config files.
 */
 void ConfigFileHandler::loadAllConfigProperties ()
-    throw (ConfigFileSyntaxError)
 {
     loadCurrentConfigProperties();
 
@@ -136,9 +190,11 @@ void ConfigFileHandler::loadAllConfigProperties ()
     Load the config properties from the current config file.
 */
 void ConfigFileHandler::loadCurrentConfigProperties ()
-    throw (ConfigFileSyntaxError)
 {
-    _currentConfFile->load(_currentConfig);
+    if (_currentFileExist)
+    {
+        _currentConfFile->load(_currentConfig);
+    }
 }
 
 
@@ -146,9 +202,11 @@ void ConfigFileHandler::loadCurrentConfigProperties ()
     Load the config properties from the planned config file.
 */
 void ConfigFileHandler::loadPlannedConfigProperties ()
-    throw (ConfigFileSyntaxError)
 {
-    _plannedConfFile->load(_plannedConfig);
+    if (_plannedFileExist)
+    {
+        _plannedConfFile->load(_plannedConfig);
+    }
 }
 
 
@@ -194,6 +252,12 @@ Boolean ConfigFileHandler::updateCurrentValue (
 
         return false;
     }
+    //
+    // The current config file would now been created,
+    // so set the flag to true.
+    //
+    _currentFileExist = true;
+
     return true;
 }
 
@@ -232,8 +296,9 @@ Boolean ConfigFileHandler::updatePlannedValue (
     {
         //
         // Store the new property in current config file.
-        //
+            //
         _plannedConfFile->save(_plannedConfig);
+
     }
     catch (CannotRenameFile e)
     {
@@ -246,6 +311,11 @@ Boolean ConfigFileHandler::updatePlannedValue (
 
         return false;
     }
+    //
+    // The planned config file would now been created,
+    // so set the flag to true.
+    //
+    _plannedFileExist = true;
 
     return true;
 }
@@ -256,9 +326,12 @@ Boolean ConfigFileHandler::updatePlannedValue (
 */
 String ConfigFileHandler::getCurrentValue (const String& name)
 {
-    String value;
+    String value = String::EMPTY;
 
-    _currentConfig->table.lookup(name, value);
+    if (_currentFileExist)
+    {
+        _currentConfig->table.lookup(name, value);
+    }
 
     return (value);
 }
@@ -269,9 +342,12 @@ String ConfigFileHandler::getCurrentValue (const String& name)
 */
 String ConfigFileHandler::getPlannedValue (const String& name)
 {
-    String value;
+    String value = String::EMPTY;
 
-    _plannedConfig->table.lookup(name, value);
+    if (_plannedFileExist)
+    {
+        _plannedConfig->table.lookup(name, value);
+    }
 
     return (value);
 }
@@ -284,9 +360,12 @@ void ConfigFileHandler::getAllCurrentPropertyNames (Array<String>& propertyNames
 {
     propertyNames.clear();
 
-    for (Table::Iterator i = _currentConfig->table.start(); i; i++)
+    if (_currentFileExist)
     {
-        propertyNames.append(i.key());
+        for (Table::Iterator i = _currentConfig->table.start(); i; i++)
+        {
+            propertyNames.append(i.key());
+        }
     }
 }
 
@@ -301,10 +380,13 @@ void ConfigFileHandler::getAllCurrentProperties (
     propertyNames.clear();
     propertyValues.clear();
 
-    for (Table::Iterator i = _currentConfig->table.start(); i; i++)
+    if (_currentFileExist)
     {
-        propertyNames.append(i.key());
-        propertyValues.append(i.value());
+        for (Table::Iterator i = _currentConfig->table.start(); i; i++)
+        {
+            propertyNames.append(i.key());
+            propertyValues.append(i.value());
+        }
     }
 }
 
@@ -317,9 +399,12 @@ void ConfigFileHandler::getAllPlannedPropertyNames (
 {
     propertyNames.clear();
 
-    for (Table::Iterator i = _plannedConfig->table.start(); i; i++)
+    if (_plannedFileExist)
     {
-        propertyNames.append(i.key());
+        for (Table::Iterator i = _plannedConfig->table.start(); i; i++)
+        {
+            propertyNames.append(i.key());
+        }
     }
 }
 
@@ -334,10 +419,13 @@ void ConfigFileHandler::getAllPlannedProperties (
     propertyNames.clear();
     propertyValues.clear();
 
-    for (Table::Iterator i = _plannedConfig->table.start(); i; i++)
+    if (_plannedFileExist)
     {
-        propertyNames.append(i.key());
-        propertyValues.append(i.value());
+        for (Table::Iterator i = _plannedConfig->table.start(); i; i++)
+        {
+            propertyNames.append(i.key());
+            propertyValues.append(i.value());
+        }
     }
 }
 

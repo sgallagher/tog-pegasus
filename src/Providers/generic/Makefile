@@ -4,6 +4,6 @@ ROOT = ../../..
 
 include $(ROOT)/mak/config.mak
 
-DIRS = __NamespaceProvider CIMConfigSetting
+DIRS = __NamespaceProvider ConfigSettingProvider
 
 include $(ROOT)/mak/recurse.mak

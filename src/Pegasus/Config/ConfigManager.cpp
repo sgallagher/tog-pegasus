@@ -34,8 +34,8 @@
 
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Destroyer.h>
-#include <Pegasus/Config/ConfigExceptions.h>
-#include <Pegasus/Config/ConfigManager.h>
+#include "ConfigExceptions.h"
+#include "ConfigManager.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -44,9 +44,9 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Config/DefaultPropertyOwner.h>
-#include <Pegasus/Config/TracePropertyOwner.h>
-#include <Pegasus/Config/LogPropertyOwner.h>
+#include "DefaultPropertyOwner.h"
+#include "TracePropertyOwner.h"
+#include "LogPropertyOwner.h"
 
 
 PEGASUS_USING_STD;
@@ -74,10 +74,9 @@ struct OwnerTable
 //
 /////////////////////////////////////////////////////////////////////////////
 
-static TracePropertyOwner*      traceOwner   = new TracePropertyOwner;
-static LogPropertyOwner*        logOwner     = new LogPropertyOwner;
-static DefaultPropertyOwner*    defaultOwner = new DefaultPropertyOwner;
-
+TracePropertyOwner*      ConfigManager::traceOwner   = new TracePropertyOwner;
+LogPropertyOwner*        ConfigManager::logOwner     = new LogPropertyOwner;
+DefaultPropertyOwner*    ConfigManager::defaultOwner = new DefaultPropertyOwner;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -86,42 +85,42 @@ static DefaultPropertyOwner*    defaultOwner = new DefaultPropertyOwner;
 //
 /////////////////////////////////////////////////////////////////////////////
 
-static struct PropertyList properties[] =
-{   
-    {"traceLevel",          (ConfigPropertyOwner* )traceOwner},
-    {"traceFilePath",       (ConfigPropertyOwner* )traceOwner},
-    {"traceComponents",     (ConfigPropertyOwner* )traceOwner},
-    {"logtrace",            (ConfigPropertyOwner* )logOwner},
-    {"logdir",              (ConfigPropertyOwner* )logOwner},
-    {"cleanlogs",           (ConfigPropertyOwner* )logOwner},
-    {"logs",                (ConfigPropertyOwner* )logOwner},
-    {"severity",            (ConfigPropertyOwner* )logOwner},
-    {"port",                (ConfigPropertyOwner* )defaultOwner},
-    {"options",             (ConfigPropertyOwner* )defaultOwner},
-    {"daemon",              (ConfigPropertyOwner* )defaultOwner},
-    {"install",             (ConfigPropertyOwner* )defaultOwner},
-    {"remove",              (ConfigPropertyOwner* )defaultOwner},
-    {"slp",                 (ConfigPropertyOwner* )defaultOwner}
+struct PropertyList ConfigManager::properties[] =
+{
+    {"traceLevel",          (ConfigPropertyOwner* )ConfigManager::traceOwner},
+    {"traceFilePath",       (ConfigPropertyOwner* )ConfigManager::traceOwner},
+    {"traceComponents",     (ConfigPropertyOwner* )ConfigManager::traceOwner},
+    {"trace",               (ConfigPropertyOwner* )ConfigManager::logOwner},
+    {"logtrace",            (ConfigPropertyOwner* )ConfigManager::logOwner},
+    {"logdir",              (ConfigPropertyOwner* )ConfigManager::logOwner},
+    {"cleanlogs",           (ConfigPropertyOwner* )ConfigManager::logOwner},
+    {"severity",            (ConfigPropertyOwner* )ConfigManager::logOwner},
+    {"port",                (ConfigPropertyOwner* )ConfigManager::defaultOwner},
+    {"home",                (ConfigPropertyOwner* )ConfigManager::defaultOwner},
+    {"daemon",              (ConfigPropertyOwner* )ConfigManager::defaultOwner},
+    {"install",             (ConfigPropertyOwner* )ConfigManager::defaultOwner},
+    {"remove",              (ConfigPropertyOwner* )ConfigManager::defaultOwner},
+    {"slp",                 (ConfigPropertyOwner* )ConfigManager::defaultOwner}
 };
 
-const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
+const Uint32 NUM_PROPERTIES = 
+    sizeof(ConfigManager::properties) / sizeof(ConfigManager::properties[0]);
 
 
 
 /**
-Constants representing the command line options.
+Initialize the constants representing the command line options.
 */
-static const char OPTION_VERSION     = 'v';
+const char ConfigManager::OPTION_TRACE       = 't';
 
-static const char OPTION_HELP        = 'h';
+const char ConfigManager::OPTION_LOG_TRACE   = 'l';
 
-static const char OPTION_TRACE       = 't';
+const char ConfigManager::OPTION_DAEMON      = 'd';
 
-static const char OPTION_LOG_TRACE   = 'l';
 
-static const char OPTION_DAEMON      = 'd';
-
-/** Initialize. */
+/** 
+Initialize ConfigManager instance 
+*/
 ConfigManager* ConfigManager::_instance = 0;
 
 
@@ -132,15 +131,11 @@ ConfigManager::ConfigManager ()
     // Initialize the instance variables
     //
     _propertyOwnerTable = new OwnerTable;
-    _trace = false;
-    _logTrace = false;
-    _version = false;
-    _help = false;
-    _install = false;
-    _remove = false;
-    _daemon = false;
-    _cleanlogs = false;
-    _slp = false;
+
+    //
+    // Initialize the property owners
+    //
+    _initPropertyOwners();
 }
 
 /** Destructor. */
@@ -178,8 +173,6 @@ Update current value of a property.
 Boolean ConfigManager::updateCurrentValue(
     const String& name, 
     const String& value) 
-    throw (NonDynamicConfigProperty, InvalidPropertyValue, 
-            UnrecognizedConfigProperty)
 {
     String prevValue = String::EMPTY;
 
@@ -237,8 +230,6 @@ Update planned value of a property.
 Boolean ConfigManager::updatePlannedValue(
     const String& name, 
     const String& value)
-    throw (NonDynamicConfigProperty, InvalidPropertyValue, 
-            UnrecognizedConfigProperty)
 {
     String prevValue = String::EMPTY;
 
@@ -296,7 +287,6 @@ Validate the value of a specified property.
 Boolean ConfigManager::validatePropertyValue(
     const String& name, 
     const String& value)
-    throw (UnrecognizedConfigProperty)
 {
     //
     // get property owner object from config table
@@ -311,12 +301,28 @@ Boolean ConfigManager::validatePropertyValue(
     return (propertyOwner->isValid(name, value));
 }
 
+/**
+Get default value of the specified property.
+*/
+String ConfigManager::getDefaultValue(const String& name)
+{
+    //
+    // get property owner object from config table
+    //
+    ConfigPropertyOwner* propertyOwner;
+
+    if (!_propertyOwnerTable->table.lookup(name, propertyOwner))
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
+
+    return (propertyOwner->getDefaultValue(name));
+}
 
 /** 
 Get current value of the specified property.
 */
 String ConfigManager::getCurrentValue(const String& name)
-    throw (UnrecognizedConfigProperty)
 {
     //
     // get property owner object from config table
@@ -336,7 +342,6 @@ String ConfigManager::getCurrentValue(const String& name)
 Get planned value of the specified property.
 */
 String ConfigManager::getPlannedValue(const String& name)
-    throw (UnrecognizedConfigProperty)
 {
     //
     // get property owner object from config table
@@ -358,7 +363,6 @@ Get all the attributes of the specified property.
 void ConfigManager::getPropertyInfo(
     const String& name, 
     Array<String>& propertyInfo)
-    throw (UnrecognizedConfigProperty)
 {
     //
     // get property owner object from config table
@@ -395,14 +399,11 @@ with the properties in the specified current config file.
 void ConfigManager::mergeConfigFiles(
     const String& currentFile, 
     const String& plannedFile)
-    throw (NoSuchFile, FileNotReadable, CannotRenameFile, 
-        ConfigFileSyntaxError)
 {
     try
     {
         _configFileHandler = new ConfigFileHandler(currentFile, plannedFile);
 
-        _loadConfigProperties();
     }
     catch (NoSuchFile nsf)
     {
@@ -412,14 +413,8 @@ void ConfigManager::mergeConfigFiles(
     {
         throw fnr;
     }
-    catch (CannotRenameFile ftrf)
-    {
-        throw ftrf;
-    }
-    catch (ConfigFileSyntaxError cfse)
-    {
-        throw cfse;
-    }
+
+    _loadConfigProperties();
 }
 
 
@@ -428,14 +423,11 @@ Merge the config properties from the default planned config file
 with the properties in the default current config file.
 */
 void ConfigManager::mergeConfigFiles()
-    throw (NoSuchFile, FileNotReadable, CannotRenameFile, 
-        ConfigFileSyntaxError)
 {
     try
     {
         _configFileHandler = new ConfigFileHandler();
 
-        _loadConfigProperties();
     }
     catch (NoSuchFile nsf)
     {
@@ -445,14 +437,8 @@ void ConfigManager::mergeConfigFiles()
     {
         throw fnr;
     }
-    catch (CannotRenameFile ftrf)
-    {
-        throw ftrf;
-    }
-    catch (ConfigFileSyntaxError cfse)
-    {
-        throw cfse;
-    }
+
+    _loadConfigProperties();
 }
 
 
@@ -460,10 +446,15 @@ void ConfigManager::mergeConfigFiles()
 Merge config properties specified on the command line 
 */
 void ConfigManager::mergeCommandLine(int& argc, char**& argv)
-    throw (UnrecognizedConfigProperty, MissingCommandLineOptionArgument,
-        InvalidPropertyValue)
 {
-    for (int i = 1; i < argc; )
+    // Remove the command name from the command line
+    memmove(&argv[0], &argv[1], (argc) * sizeof(char*));
+    argc--;
+
+    //
+    //  Merge properties from the command line
+    //
+    for (int i = 0; i < argc; )
     {
         const char* arg = argv[i];
 
@@ -473,55 +464,46 @@ void ConfigManager::mergeCommandLine(int& argc, char**& argv)
             // Get the option
             const char* option = arg + 1;
 
-            if (*option == OPTION_VERSION)
+            if (*option == OPTION_TRACE)
             {
-                _version = true;
-            }
-            else if (*option == OPTION_HELP)
-            {
-                _help = true;
-            }
-            else if (*option == OPTION_TRACE)
-            {
-                _trace = true;
+                _initPropertyWithCommandLineOption("trace=true");
             }
             else if (*option == OPTION_LOG_TRACE)
             {
-                _logTrace = true;
-            }
-            else if (!strcmp(option,"install"))
-            {
-                _install = true;
-            }
-            else if (!strcmp(option,"remove"))
-            {
-                _remove = true;
+                _initPropertyWithCommandLineOption("logtrace=true");
             }
             else if (*option == OPTION_DAEMON)
             {
-                _daemon = true;
+                _initPropertyWithCommandLineOption("daemon=true");
+            }
+            else if (!strcmp(option,"install"))
+            {
+                _initPropertyWithCommandLineOption("install=true");
+            }
+            else if (!strcmp(option,"remove"))
+            {
+                _initPropertyWithCommandLineOption("remove=true");
             }
             else if (!strcmp(option,"cleanlogs"))
             {
-                _cleanlogs = true;
+                _initPropertyWithCommandLineOption("cleanlogs=true");
             }
             else if (!strcmp(option,"slp"))
             {
-                _slp = true;
+                _initPropertyWithCommandLineOption("slp=true");
             }
             else
             {
-                throw UnrecognizedConfigProperty(option);
+                throw UnrecognizedConfigProperty(arg);
             }
         }
-        else
+        else 
         {
             // Get the config option
-            const char* configOption = argv[i];
-
-            if (!_initPropertyWithCommandLineOption(configOption))
+            //const char* configOption = argv[i];
+            if (!_initPropertyWithCommandLineOption(arg))
             {
-                throw UnrecognizedConfigProperty(configOption); 
+                throw UnrecognizedConfigProperty(arg); 
             }
         }
 
@@ -536,7 +518,6 @@ void ConfigManager::mergeCommandLine(int& argc, char**& argv)
 load config properties from the file 
 */
 void ConfigManager::_loadConfigProperties()
-    throw (CannotRenameFile, ConfigFileSyntaxError)
 {
     //
     // copy the contents of planned config file over
@@ -551,8 +532,8 @@ void ConfigManager::_loadConfigProperties()
     _configFileHandler->loadAllConfigProperties();
 
     //
-    // initialize all the property owners and add them to 
-    // the config table.
+    // initialize all the property owners with the values
+    // from the config files.
     //
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
@@ -565,19 +546,40 @@ void ConfigManager::_loadConfigProperties()
         // initialize the current value of the property owner
         // with the value from the config file handler
         //
-        //if (!String::equal(value, String::EMPTY))
         if (value != String::EMPTY)
         {
-            properties[i].propertyOwner->initCurrentValue(
-                properties[i].propertyName, value);
-        }
+            try
+            {
+                //
+                // get property owner object from the config table.
+                //
+                ConfigPropertyOwner* propertyOwner;
 
-        //
-        // add config property and its owner object to config table
-        //
-        _propertyOwnerTable->table.insert(properties[i].propertyName,
-            properties[i].propertyOwner);
+                if (_propertyOwnerTable->table.lookup(
+                    properties[i].propertyName, propertyOwner))
+                {
+                    propertyOwner->initCurrentValue(
+                        properties[i].propertyName, value);
+
+                    propertyOwner->initPlannedValue(
+                        properties[i].propertyName, value);
+                }
+            }
+            catch(UnrecognizedConfigProperty ucp)
+            {
+                cerr << ucp.getMessage() <<
+                    " : Default value is used." << endl;
+                continue;
+            }
+            catch(InvalidPropertyValue ipv)
+            {
+                cerr << ipv.getMessage() << 
+                    " : Default value is used." << endl;
+                continue;
+            }
+        }
     }
+
 }
 
 
@@ -587,7 +589,6 @@ in the command line.
 */
 Boolean ConfigManager::_initPropertyWithCommandLineOption(
     const String& option) 
-        throw (InvalidPropertyValue, UnrecognizedConfigProperty)
 {
     ConfigPropertyOwner* propertyOwner = 0;
 
@@ -640,81 +641,22 @@ Boolean ConfigManager::_initPropertyWithCommandLineOption(
     return 0;
 }
 
-
-/**
-Check if the help flag is set or not.
+/** 
+Initialize config property owners and add them to the property owner table
 */
-Boolean ConfigManager::isHelpFlagSet()
+void ConfigManager::_initPropertyOwners()
 {
-    return _help;
+    //
+    // add config property and its owner object to config table
+    //
+    for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
+    {
+        properties[i].propertyOwner->initialize();
+
+        _propertyOwnerTable->table.insert(properties[i].propertyName,
+            properties[i].propertyOwner);
+    }
 }
-
-
-/**
-Check if the version flag is set or not.
-*/
-Boolean ConfigManager::isVersionFlagSet()
-{
-    return _version;
-}
-
-
-/**
-Check if the trace flag is set or not.
-*/
-Boolean ConfigManager::isTraceFlagSet()
-{
-    return _trace;
-}
-
-
-/**
-Check if the log trace flag is set or not.
-*/
-Boolean ConfigManager::isLogTraceFlagSet()
-{
-    return _logTrace;
-}
-
-/**
-Check if the command line option flags are set or not.
-
-@return  true if the flag is set.
-*/
-Boolean ConfigManager::isInstallFlagSet()
-{
-    return _install;
-}
-
-
-Boolean ConfigManager::isRemoveFlagSet()
-{
-    return _remove;
-}
-
-
-Boolean ConfigManager::isDaemonFlagSet()
-{
-    return _daemon;
-}
-
-
-Boolean ConfigManager::isPortFlagSet()
-{
-    return _port;
-}
-
-Boolean ConfigManager::isCleanLogsFlagSet()
-{
-    return _cleanlogs;
-}
-
-
-Boolean ConfigManager::isSlpFlagSet()
-{
-    return _slp;
-}
-
 
 PEGASUS_NAMESPACE_END
 

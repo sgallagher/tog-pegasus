@@ -60,7 +60,7 @@ class InvalidPropertyValue : public Exception
 {
 public:
     InvalidPropertyValue(const String& name, const String& value)
-        : Exception("Invalid property value: " + name + "=\"" + value + "\"") { }
+        : Exception("Invalid property value: " + name + "=" + value ) { }
 };
 
 

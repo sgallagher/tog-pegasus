@@ -13,9 +13,7 @@ LIBRARIES = \
 
 DYNAMIC_LIBRARIES += -lpegcommon \
 -lpegconfig \
--lpegprotocol \
 -lpeggetoopt \
--lpegrepository \
 -lpegclient \
 -lpegcliutils
 

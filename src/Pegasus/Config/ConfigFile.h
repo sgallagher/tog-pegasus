@@ -55,11 +55,10 @@ public:
     /** 
     Constructor. 
 
-    @exception  NoSuchFile   if the specified file cannot be opened.
     @exception  FileNotReadable  if the specified file is not readable.
     */
-    ConfigFile(const String& fileName)
-        throw (NoSuchFile, FileNotReadable);
+    ConfigFile(const String& fileName);
+        //throw (FileNotReadable);
 
 
     /** Destructor. */
@@ -82,8 +81,8 @@ public:
 
     Note: Original code was taken from OptionManager::mergeFile() 
     */
-    void load(ConfigTable* confTable)
-        throw (ConfigFileSyntaxError);
+    void load(ConfigTable* confTable);
+        //throw (ConfigFileSyntaxError);
 
 
     /** 
@@ -92,8 +91,8 @@ public:
     @param  confTable    hash table containing the config properties.
     @exception  ConnotRenameFile  if failed to create the backup file.
     */
-    void save(ConfigTable* confTable)
-        throw (CannotRenameFile);
+    void save(ConfigTable* confTable);
+        //throw (CannotRenameFile);
 
 
     /** 
@@ -105,8 +104,8 @@ public:
     @exception  FileNotReadable  if the specified file is not readable.
     @exception  CannotRenameFile if failed to create the backup file.
     */
-    void replace(const String& fileName)
-        throw (NoSuchFile, FileNotReadable, CannotRenameFile);
+    void replace(const String& fileName);
+        //throw (FileNotReadable, CannotRenameFile);
 
 
 private:

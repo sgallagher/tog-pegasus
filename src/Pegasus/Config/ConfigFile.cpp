@@ -35,8 +35,8 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Logger.h>
 
-#include <Pegasus/Config/ConfigExceptions.h>
-#include <Pegasus/Config/ConfigFile.h>
+#include "ConfigExceptions.h"
+#include "ConfigFile.h"
 
 
 PEGASUS_USING_STD;
@@ -93,29 +93,10 @@ static const int HEADER_SIZE = sizeof(ConfigHeader) / sizeof(ConfigHeader[0]);
     Constructor. 
 */
 ConfigFile::ConfigFile (const String& fileName)
-    throw (NoSuchFile, FileNotReadable)
 {
     _configFile = fileName;
 
     _configBackupFile = fileName + ".bak";
-
-
-    //
-    // check whether the file exists or not
-    //
-    if (!FileSystem::exists(_configFile))
-    {
-        throw NoSuchFile(_configFile);
-    }
-
-
-    //
-    // check whether the file is readable or not
-    //
-    if (!FileSystem::canRead(_configFile))
-    {
-        throw FileNotReadable(_configFile);
-    }
 
 }
 
@@ -141,15 +122,26 @@ String ConfigFile::getFileName ()
     Load the properties from the config file.
 */
 void ConfigFile::load (ConfigTable* confTable)
-    throw (ConfigFileSyntaxError)
 {
     String line;
+
+    //
+    // Delete the backup configuration file
+    //
+    if (FileSystem::exists(_configBackupFile))
+    {
+        FileSystem::removeFile(_configBackupFile);
+    }
 
     //
     // Open the config file
     //
     ArrayDestroyer<char> p(_configFile.allocateCString());
     ifstream ifs(p.getPointer());
+    if (!ifs)
+    {
+        return;
+    }
 
     //
     // Read each line of the file
@@ -257,19 +249,24 @@ void ConfigFile::load (ConfigTable* confTable)
     Save the properties to the config file.
 */
 void ConfigFile::save (ConfigTable* confTable)
-    throw (CannotRenameFile)
 {
     //
     // Delete the backup configuration file
     //
-    FileSystem::removeFile(_configBackupFile);
+    if (FileSystem::exists(_configBackupFile))
+    {
+        FileSystem::removeFile(_configBackupFile);
+    }
 
     //
     // Rename the configuration file as a backup file
     //
-    if (!FileSystem::renameFile(_configFile, _configBackupFile))
+    if (FileSystem::exists(_configFile))
     {
-        throw CannotRenameFile(_configFile);
+        if (!FileSystem::renameFile(_configFile, _configBackupFile))
+        {
+            throw CannotRenameFile(_configFile);
+        }
     }
 
     //
@@ -306,25 +303,8 @@ void ConfigFile::save (ConfigTable* confTable)
     the given file.
 */
 void ConfigFile::replace (const String& fileName)
-    throw (NoSuchFile, FileNotReadable, CannotRenameFile)
 {
     String line;
-
-    //
-    // check whether the file exist or not.
-    //
-    if (!FileSystem::exists(fileName))
-    {
-        throw NoSuchFile(fileName);
-    }
-
-    //
-    // check whether the file is readable or not
-    //
-    if (!FileSystem::canRead(fileName))
-    {
-        throw FileNotReadable(fileName);
-    }
 
     //
     // Open the given config file for reading
@@ -335,7 +315,10 @@ void ConfigFile::replace (const String& fileName)
     //
     // Delete the backup configuration file
     //
-    FileSystem::removeFile(_configBackupFile);
+    if (FileSystem::exists(_configBackupFile))
+    {
+        FileSystem::removeFile(_configBackupFile);
+    }
 
     //
     // Rename the existing config file as a backup file
@@ -344,6 +327,7 @@ void ConfigFile::replace (const String& fileName)
     {
         if (!FileSystem::renameFile(_configFile, _configBackupFile))
         {
+            ifs.close();
             throw CannotRenameFile(_configFile);
         }
     }

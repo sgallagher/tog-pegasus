@@ -34,7 +34,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Config/DefaultPropertyOwner.h>
+#include "DefaultPropertyOwner.h"
 
 
 PEGASUS_USING_STD;
@@ -53,7 +53,7 @@ PEGASUS_NAMESPACE_BEGIN
 static struct ConfigPropertyRow properties[] =
 {
     {"port", "5988", 0, 0, 0},
-    {"options", "false", 0, 0, 0},
+    {"home", "./", 0, 0, 0},
     {"daemon", "false", 0, 0, 0},
     {"install", "false", 0, 0, 0},
     {"remove", "false", 0, 0, 0},
@@ -67,7 +67,19 @@ const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 DefaultPropertyOwner::DefaultPropertyOwner()
 {
     _configProperties = new ConfigProperty[NUM_PROPERTIES];
+}
 
+/** Destructor  */
+DefaultPropertyOwner::~DefaultPropertyOwner()
+{
+    delete _configProperties;
+}
+
+/**
+Initialize the config properties.
+*/
+void DefaultPropertyOwner::initialize()
+{
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
         _configProperties[i].propertyName = properties[i].propertyName;
@@ -80,18 +92,13 @@ DefaultPropertyOwner::DefaultPropertyOwner()
     }
 }
 
-/** Destructor  */
-DefaultPropertyOwner::~DefaultPropertyOwner()
-{
-    delete _configProperties;
-}
 
 /** 
 Get information about the specified property.
 */
 void DefaultPropertyOwner::getPropertyInfo(
     const String& name, 
-    Array<String>& propertyInfo) throw (UnrecognizedConfigProperty)
+    Array<String>& propertyInfo)
 {
     propertyInfo.clear();
 
@@ -125,7 +132,6 @@ void DefaultPropertyOwner::getPropertyInfo(
 Get default value of the specified property 
 */
 const String DefaultPropertyOwner::getDefaultValue(const String& name)
-    throw (UnrecognizedConfigProperty)
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
@@ -145,7 +151,6 @@ const String DefaultPropertyOwner::getDefaultValue(const String& name)
 Get current value of the specified property 
 */
 const String DefaultPropertyOwner::getCurrentValue(const String& name)
-    throw (UnrecognizedConfigProperty)
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
@@ -165,7 +170,6 @@ const String DefaultPropertyOwner::getCurrentValue(const String& name)
 Get planned value of the specified property 
 */
 const String DefaultPropertyOwner::getPlannedValue(const String& name)
-    throw (UnrecognizedConfigProperty)
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
@@ -187,7 +191,6 @@ Init current value of the specified property to the specified value
 void DefaultPropertyOwner::initCurrentValue(
     const String& name, 
     const String& value)
-    throw (UnrecognizedConfigProperty, InvalidPropertyValue)
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
@@ -211,7 +214,6 @@ Init planned value of the specified property to the specified value
 void DefaultPropertyOwner::initPlannedValue(
     const String& name, 
     const String& value)
-    throw (UnrecognizedConfigProperty, InvalidPropertyValue)
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
@@ -234,8 +236,6 @@ Update current value of the specified property to the specified value
 void DefaultPropertyOwner::updateCurrentValue(
     const String& name, 
     const String& value)
-    throw (NonDynamicConfigProperty, InvalidPropertyValue,
-            UnrecognizedConfigProperty)
 {
     //
     // make sure the property is dynamic before updating the value.
@@ -260,7 +260,6 @@ Update planned value of the specified property to the specified value
 void DefaultPropertyOwner::updatePlannedValue(
     const String& name, 
     const String& value)
-    throw (InvalidPropertyValue, UnrecognizedConfigProperty)
 {
     //
     // Since the validations done in initPlannedValue are sufficient and 
@@ -275,7 +274,6 @@ void DefaultPropertyOwner::updatePlannedValue(
 Checks to see if the given value is valid or not.
 */
 Boolean DefaultPropertyOwner::isValid(const String& name, const String& value)
-    throw (UnrecognizedConfigProperty)
 {
     //
     // By default, no validation is done. It can optionally be added here
@@ -288,7 +286,6 @@ Boolean DefaultPropertyOwner::isValid(const String& name, const String& value)
 Checks to see if the specified property is dynamic or not.
 */
 Boolean DefaultPropertyOwner::isDynamic(const String& name)
-    throw (UnrecognizedConfigProperty)
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {

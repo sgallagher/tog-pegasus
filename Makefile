@@ -33,4 +33,4 @@ repository:
 	@ $(MAKE) -SC src/Pegasus/Compiler/load repository
 
 config:
-	@ $(MAKE) -SC src/Providers/generic/CIMConfigSetting/load config
+	@ $(MAKE) -SC src/Providers/generic/ConfigSettingProvider/load config

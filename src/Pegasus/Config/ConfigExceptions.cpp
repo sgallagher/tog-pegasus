@@ -27,8 +27,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "ConfigExceptions.h"
 #include <stdio.h>
+#include "ConfigExceptions.h"
 
 PEGASUS_NAMESPACE_BEGIN
 

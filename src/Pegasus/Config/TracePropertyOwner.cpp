@@ -37,7 +37,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Destroyer.h>
-#include <Pegasus/Config/TracePropertyOwner.h>
+#include "TracePropertyOwner.h"
 
 
 PEGASUS_USING_STD;
@@ -67,7 +67,21 @@ TracePropertyOwner::TracePropertyOwner()
     _traceLevel = new ConfigProperty;
     _traceFilePath = new ConfigProperty;
     _traceComponents = new ConfigProperty;
+}
 
+/** Destructor  */
+TracePropertyOwner::~TracePropertyOwner()
+{
+    delete _traceLevel;
+    delete _traceFilePath;
+    delete _traceComponents;
+}
+
+/**
+Initialize the config properties.
+*/
+void TracePropertyOwner::initialize()
+{
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
         //
@@ -165,20 +179,12 @@ TracePropertyOwner::TracePropertyOwner()
     }
 }
 
-/** Destructor  */
-TracePropertyOwner::~TracePropertyOwner()
-{
-    delete _traceLevel;
-    delete _traceFilePath;
-    delete _traceComponents;
-}
-
 /** 
 Get information about the specified property.
 */
 void TracePropertyOwner::getPropertyInfo(
     const String& name, 
-    Array<String>& propertyInfo) throw (UnrecognizedConfigProperty)
+    Array<String>& propertyInfo)
 {
     propertyInfo.clear();
 
@@ -237,7 +243,6 @@ void TracePropertyOwner::getPropertyInfo(
 Get default value of the specified property.
 */
 const String TracePropertyOwner::getDefaultValue(const String& name)
-    throw (UnrecognizedConfigProperty)
 {
     if (String::equalNoCase(_traceComponents->propertyName, name))
     {
@@ -261,7 +266,6 @@ const String TracePropertyOwner::getDefaultValue(const String& name)
 Get current value of the specified property.
 */
 const String TracePropertyOwner::getCurrentValue(const String& name)
-    throw (UnrecognizedConfigProperty)
 {
     if (String::equalNoCase(_traceComponents->propertyName, name))
     {
@@ -285,7 +289,6 @@ const String TracePropertyOwner::getCurrentValue(const String& name)
 Get planned value of the specified property.
 */
 const String TracePropertyOwner::getPlannedValue(const String& name)
-    throw (UnrecognizedConfigProperty)
 {
     if (String::equalNoCase(_traceComponents->propertyName, name))
     {
@@ -311,7 +314,6 @@ Init current value of the specified property to the specified value.
 void TracePropertyOwner::initCurrentValue(
     const String& name, 
     const String& value)
-    throw (UnrecognizedConfigProperty, InvalidPropertyValue)
 {
     Uint32 retCode;
 
@@ -347,6 +349,10 @@ void TracePropertyOwner::initCurrentValue(
         }
         else
         {
+            Logger::put(Logger::DEBUG_LOG,"TracePropertyOwner",
+                Logger::WARNING, 
+                "Trace level $0 is not valid", newValue);
+
             throw InvalidPropertyValue(name, value); 
         }
         _traceLevel->currentValue = newValue;
@@ -364,6 +370,10 @@ void TracePropertyOwner::initCurrentValue(
         retCode = Tracer::setTraceFile(fileName.getPointer());
         if (retCode == 1)
         {
+            Logger::put(Logger::DEBUG_LOG,"TracePropertyOwner",
+                Logger::WARNING, 
+                "Unable to write to trace file $0", newValue);
+
             throw InvalidPropertyValue(name, newValue); 
         }
         _traceFilePath->currentValue = newValue;
@@ -381,7 +391,6 @@ Init planned value of the specified property to the specified value.
 void TracePropertyOwner::initPlannedValue(
     const String& name, 
     const String& value)
-    throw (UnrecognizedConfigProperty, InvalidPropertyValue)
 {
     // Perform validation
     if (String::equalNoCase(_traceComponents->propertyName, name))
@@ -425,10 +434,13 @@ void TracePropertyOwner::initPlannedValue(
             }
             else
             {
+                Logger::put(Logger::DEBUG_LOG,"TracePropertyOwner",
+                    Logger::WARNING, 
+                    "Unable to write to trace file $0", value);
+
                 outFile.close();
                 throw InvalidPropertyValue(name, value); 
             }
-            _traceFilePath->plannedValue= value;
         }
     }
     else
@@ -443,8 +455,6 @@ Update current value of the specified property to the specified value.
 void TracePropertyOwner::updateCurrentValue(
     const String& name, 
     const String& value) 
-    throw (NonDynamicConfigProperty, InvalidPropertyValue,
-            UnrecognizedConfigProperty)
 {
     //
     // make sure the property is dynamic before updating the value.
@@ -469,7 +479,6 @@ Update planned value of the specified property to the specified value.
 void TracePropertyOwner::updatePlannedValue(
     const String& name, 
     const String& value)
-    throw (InvalidPropertyValue, UnrecognizedConfigProperty)
 {
     //
     // Since the validations done in initPlannedValue are sufficient and 
@@ -483,7 +492,6 @@ void TracePropertyOwner::updatePlannedValue(
 Checks to see if the given value is valid or not.
 */
 Boolean TracePropertyOwner::isValid(const String& name, const String& value)
-    throw (UnrecognizedConfigProperty)
 {
     if (String::equalNoCase(_traceComponents->propertyName, name))
     {
@@ -532,7 +540,6 @@ Boolean TracePropertyOwner::isValid(const String& name, const String& value)
 Checks to see if the specified property is dynamic or not.
 */
 Boolean TracePropertyOwner::isDynamic(const String& name)
-    throw (UnrecognizedConfigProperty)
 {
     if (String::equalNoCase(_traceComponents->propertyName, name))
     {

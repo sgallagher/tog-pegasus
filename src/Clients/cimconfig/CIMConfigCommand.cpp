@@ -35,31 +35,29 @@
 #include <Pegasus/Common/Selector.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Client/ClientException.h>
-
 #include <Pegasus/Config/ConfigFileHandler.h>
-#include <Clients/cimconfig/CIMConfigCommand.h>
+#include "CIMConfigCommand.h"
 
-
-PEGASUS_USING_STD;
-PEGASUS_USING_PEGASUS;
+PEGASUS_NAMESPACE_BEGIN
 
 /**
     The command name.
 */
-static const char COMMAND_NAME []                = "cimconfig";
+static const char COMMAND_NAME []              = "cimconfig";
 
 /**
     The usage string for this command.  This string is displayed
     when an error occurs in parsing or validating the command line.
 */
-static const char USAGE []                       = "usage: ";
+static const char USAGE []                     = "usage: ";
 
 /**
     This constant represents the getoopt argument designator
 */
-static const char GETOPT_ARGUMENT_DESIGNATOR     = ':';
+static const char GETOPT_ARGUMENT_DESIGNATOR   = ':';
 
 /*
     These constants represent the operation modes supported by the CLI.
@@ -69,72 +67,86 @@ static const char GETOPT_ARGUMENT_DESIGNATOR     = ':';
 /**
     This constant signifies that an operation option has not been recorded
 */
-static const int OPERATION_TYPE_UNINITIALIZED    = 0;
+static const int OPERATION_TYPE_UNINITIALIZED  = 0;
 
 /**
     This constant represents a property get operation
 */
-static const int OPERATION_TYPE_GET              = 1;
+static const int OPERATION_TYPE_GET            = 1;
 
 /**
     This constant represents a property set operation
 */
-static const int OPERATION_TYPE_SET              = 2;
+static const int OPERATION_TYPE_SET            = 2;
 
 /**
     This constant represents a property unset operation
 */
-static const int OPERATION_TYPE_UNSET            = 3;
+static const int OPERATION_TYPE_UNSET          = 3;
 
 /**
     This constant represents a property list operation
 */
-static const int OPERATION_TYPE_LIST             = 4;
+static const int OPERATION_TYPE_LIST           = 4;
 
 
 /**
     The constant representing the default namespace
 */
 // ATTN: TODO change to "root/cimv2"
-const String NAMESPACE                           = "root/cimv2";
+const String NAMESPACE                         = "root/cimv2";
  
 /**
     The default port string
 */
-static const char DEFAULT_PORT_STR []            = "5988";
+static const char DEFAULT_PORT_STR []          = "5988";
 
 /**
     The host name used by the command line.
 */
-static const char HOST_NAME []                   = "localhost";
+static const char HOST_NAME []                 = "localhost";
 
 /**
     The constant representing the string "port".
 */
-static const char PORT []                        = "port";
+static const char PORT []                      = "port";
 
 /**
     The constants representing the string literals.
 */
-static const char PROPERTY_NAME []               = "PropertyName";
+static const char PROPERTY_NAME []             = "PropertyName";
 
-static const char DEFAULT_VALUE []               = "DefaultValue";
+static const char DEFAULT_VALUE []             = "DefaultValue";
 
-static const char CURRENT_VALUE []               = "CurrentValue";
+static const char CURRENT_VALUE []             = "CurrentValue";
 
-static const char PLANNED_VALUE []               = "PlannedValue";
+static const char PLANNED_VALUE []             = "PlannedValue";
 
-static const char DYNAMIC_PROPERTY []            = "DynamicProperty";
+static const char DYNAMIC_PROPERTY []          = "DynamicProperty";
 
 /**
     The constants representing the messages.
 */
-static const char FILE_NOT_EXIST []            = "Config file does not exist: ";
+static const char CIMOM_NOT_RUNNING []         = 
+                        "CIMOM may not be running.";
 
-static const char FILE_NOT_READABLE []         = "Config file not readable: ";
+static const char FILE_NOT_EXIST []            = 
+                        "Configuration files does not exist";
+
+static const char FILE_NOT_READABLE []         = 
+                        "Configuration file not readable.";
 
 static const char FAILED_TO_GET_PROPERTY []    = 
-                        "Failed to get the config property: ";
+                        "Failed to get the config property.";
+
+static const char FAILED_TO_SET_PROPERTY []    = 
+                        "Failed to set the config property.";
+
+static const char FAILED_TO_UNSET_PROPERTY []  = 
+                        "Failed to unset the config property.";
+
+static const char FAILED_TO_LIST_PROPERTIES [] = 
+                        "Failed to list the config properties.";
 
 static const char CURRENT_VALUE_OF_PROPERTY [] =
                         "Current value for the property '";
@@ -159,10 +171,21 @@ static const char IS_UNSET_IN_FILE []          =
 static const char UPDATED_IN_FILE []           =
                         "' updated in configuration file.";
 
+static const char CONFIG_SCHEMA_NOT_LOADED []  =
+    "Please make sure that the config schema is loaded on the CIMOM.";
+
+static const char PROPERTY_NOT_FOUND []        =
+                        "Specified property name was not found.";
+
+static const char INVALID_PROPERTY_VALUE []    =
+                        "Specified property value is not valid.";
+
+static const char PROPERTY_NOT_MODIFIED []     =
+                        "Specified property can not be modified.";
 /**
     The constant representing the config setting class name
 */
-static const char CIM_CONFIG_CLASS []          = "CIM_ConfigSetting";
+static const char PG_CONFIG_CLASS []          = "PG_ConfigSetting";
 
 /**
     The option character used to specify get config property.
@@ -201,28 +224,6 @@ static const char   OPTION_DEFAULT_VALUE       = 'd';
 
 char*     address     = 0;
 
-/**
-    Get environment variable PEGASUS_HOME
-*/
-void GetEnvironmentVariables(
-    const char* arg0,
-    String& pegasusHome)
-{
-    //
-    // Get environment variables
-    //
-
-    const char* env = getenv("PEGASUS_HOME");
-
-    if (!env)
-    {
-        cerr << arg0 << ": PEGASUS_HOME environment variable undefined" << endl;
-        exit(1);
-    }
-
-    pegasusHome = env;
-    FileSystem::translateSlashes(pegasusHome);
-}
 
 /**
     Constructs a CIMConfigCommand and initializes instance variables.
@@ -407,6 +408,16 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
 
                     _propertyValue = property.subString( equalsIndex + 1 );
 
+                    if (String::equal(_propertyValue, String::EMPTY) )
+                    {
+                        //
+                        // The property value was not specified
+                        //
+                        InvalidOptionArgumentException e (property,
+                            OPTION_SET);
+                        throw e;
+                    }
+
                     break;
                 }
 
@@ -558,6 +569,17 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
 
 }
 
+/** 
+    Print message to the given stream
+*/
+
+//void CIMConfigCommand::_printErrorMessage(
+//    CIMStatusCode code, 
+//    const String&,
+//    ostream& errPrintWriter)
+//{
+//
+//}
 
 /**
     Executes the command and writes the results to the PrintWriters.
@@ -572,6 +594,7 @@ Uint32 CIMConfigCommand::execute (
     String    defaultValue  = String::EMPTY;
     String    currentValue  = String::EMPTY;
     String    plannedValue  = String::EMPTY;
+    String    pegasusHome   = String::EMPTY;
 
 
     if ( _operationType == OPERATION_TYPE_UNINITIALIZED )
@@ -582,12 +605,31 @@ Uint32 CIMConfigCommand::execute (
         return ( RC_ERROR );
     }
 
+    //
+    // Get environment variables
+    //
+
+    const char* env = getenv("PEGASUS_HOME");
+
+    if (!env || env == "")
+    {
+        cerr << "PEGASUS_HOME environment variable undefined" << endl;
+        exit(1);
+    }
+
+    pegasusHome = env;
+
+    FileSystem::translateSlashes(pegasusHome);
+
+    String currentFile = pegasusHome + "/" + CURRENT_CONFIG_FILE;
+    String plannedFile = pegasusHome + "/" + PLANNED_CONFIG_FILE;
+
     try
     {
         //
         // Open default config files and load current config properties
         //
-        _configFileHandler = new ConfigFileHandler();
+        _configFileHandler = new ConfigFileHandler(currentFile, plannedFile);
 
         _configFileHandler->loadCurrentConfigProperties();
 
@@ -637,14 +679,26 @@ Uint32 CIMConfigCommand::execute (
 
         connected = true;
     }
-    catch(Exception&)
+    catch(Exception e)
     {
         //
-        // Failed connect, so process the request off-line.
-        // Required to load only planned config properties. The config command
-        // updates any changes to config properties in the planned config file
-        // when the CIMOM is not running.
+        // Failed to connect, so process the request offline.
+        // When CIMOM is running the config command updates changes to 
+        // config properties in the planned config file, so load only
+        // planned config properties. 
         //
+
+        //
+        // check whether the planned file exists or not
+        //
+        if (!FileSystem::exists(currentFile) || 
+            !FileSystem::exists(plannedFile))
+        {
+            outPrintWriter << CIMOM_NOT_RUNNING << endl <<
+                FILE_NOT_EXIST << " at '" << pegasusHome << "'" << endl;
+            return ( RC_ERROR );
+        }
+
         _configFileHandler->loadPlannedConfigProperties();
         connected = false;
     }
@@ -679,17 +733,34 @@ Uint32 CIMConfigCommand::execute (
                     }
                     else 
                     {
-                        currentValue = 
-                            _configFileHandler->getCurrentValue ( _propertyName );
-                        plannedValue = 
-                            _configFileHandler->getPlannedValue ( _propertyName );
+                        currentValue = _configFileHandler->getCurrentValue ( 
+                            _propertyName );
+                        plannedValue = _configFileHandler->getPlannedValue ( 
+                            _propertyName );
                     }
                 }
             }
             catch (CIMException e)
             {
-                errPrintWriter << FAILED_TO_GET_PROPERTY
-                    << e.getMessage() << endl;
+                CIMStatusCode code = e.getCode();
+
+                if (code == CIM_ERR_NO_SUCH_PROPERTY || 
+                    code == CIM_ERR_FAILED)
+                {
+                    outPrintWriter << PROPERTY_NOT_FOUND << endl;
+
+                    errPrintWriter << e.getMessage() << endl;
+                }
+                else if (code == CIM_ERR_INVALID_CLASS)
+                {
+                    outPrintWriter << FAILED_TO_GET_PROPERTY << endl <<
+                        CONFIG_SCHEMA_NOT_LOADED << endl;
+                }
+                else
+                {
+                    errPrintWriter << FAILED_TO_GET_PROPERTY <<
+                        e.getMessage() << endl;
+                }
                 return ( RC_ERROR );
             }
 
@@ -784,8 +855,48 @@ Uint32 CIMConfigCommand::execute (
             }
             catch (CIMException e)
             {
-                errPrintWriter << "Failed to set the config property: " 
-                    << e.getMessage() << endl;
+                CIMStatusCode code = e.getCode();
+
+                if (code == CIM_ERR_TYPE_MISMATCH)
+                { 
+                    outPrintWriter << INVALID_PROPERTY_VALUE << endl;
+
+                    errPrintWriter << e.getMessage() << endl;
+                }
+                else if (code == CIM_ERR_NO_SUCH_PROPERTY)
+                {
+                    outPrintWriter << PROPERTY_NOT_FOUND << endl;
+
+                    errPrintWriter << e.getMessage() << endl;
+                }
+                else if (code == CIM_ERR_NOT_SUPPORTED)
+                {
+                    outPrintWriter << PROPERTY_NOT_MODIFIED << endl;
+
+                    errPrintWriter << e.getMessage() << endl;
+                }
+                else if (code == CIM_ERR_FAILED)
+                {
+                    outPrintWriter << FAILED_TO_SET_PROPERTY << 
+                        e.getMessage() << endl;
+                }
+                else if (code == CIM_ERR_ALREADY_EXISTS)
+                {
+                    outPrintWriter << "The property '" << _propertyName <<
+                        "' value is already set to '" << _propertyValue <<
+                        "'." << endl;
+
+                    errPrintWriter << e.getMessage() << endl;
+                }
+                else if (code == CIM_ERR_INVALID_CLASS)
+                {
+                    outPrintWriter << FAILED_TO_SET_PROPERTY << endl << 
+                        CONFIG_SCHEMA_NOT_LOADED << endl;
+                }
+                else
+                {
+                    errPrintWriter << e.getMessage() << endl;
+                }
                 return ( RC_ERROR );
             }
             break;
@@ -821,9 +932,10 @@ Uint32 CIMConfigCommand::execute (
                 {
                     if (_currentValueSet)
                     {
-                        errPrintWriter << CURRENT_VALUE_OF_PROPERTY <<
+                        outPrintWriter << CURRENT_VALUE_OF_PROPERTY <<
                             _propertyName <<"' can not be unset" <<
                             IN_CONFIG_FILE  << endl;
+
                         return ( RC_ERROR );
                     }
 
@@ -840,57 +952,130 @@ Uint32 CIMConfigCommand::execute (
             }
             catch (CIMException e)
             {
-                errPrintWriter << "Failed to unset the config property: " 
-                    << e.getMessage() << endl;
+                CIMStatusCode code = e.getCode();
+
+                if (code == CIM_ERR_TYPE_MISMATCH)
+                {
+                    outPrintWriter << INVALID_PROPERTY_VALUE << endl;
+
+                    errPrintWriter << e.getMessage() << endl;
+                }
+                else if (code == CIM_ERR_NO_SUCH_PROPERTY)
+                {
+                    outPrintWriter << PROPERTY_NOT_FOUND << endl;
+
+                    errPrintWriter << e.getMessage() << endl;
+                }
+                else if (code == CIM_ERR_NOT_SUPPORTED)
+                {
+                    outPrintWriter << PROPERTY_NOT_MODIFIED << endl;
+
+                    errPrintWriter << e.getMessage() << endl;
+                }
+                else if (code == CIM_ERR_FAILED)
+                {
+                    outPrintWriter << FAILED_TO_UNSET_PROPERTY <<
+                        e.getMessage() << endl;
+                }
+                else if (code == CIM_ERR_ALREADY_EXISTS)
+                {
+                    outPrintWriter << "The property '" << _propertyName <<
+                        "' value is already unset." << endl;
+
+                    errPrintWriter << e.getMessage() << endl;
+                }
+                else if (code == CIM_ERR_INVALID_CLASS)
+                {
+                    outPrintWriter << FAILED_TO_UNSET_PROPERTY << endl <<
+                        CONFIG_SCHEMA_NOT_LOADED << endl;
+                }
+                else
+                {
+                    errPrintWriter << e.getMessage() << endl;
+                }
                 return ( RC_ERROR );
             }
             break;
 
         case OPERATION_TYPE_LIST:
-        {
-            Array<String> propertyNames;
-            Array<String> propertyValues;
-
-            if (connected)
+            //
+            // send request to CIMOM if running, else send to config file
+            //
+            try
             {
-                _listAllPropertiesInCIMServer( 
-                        propertyNames, propertyValues);
+                Array<String> propertyNames;
+                Array<String> propertyValues;
 
-            }
-            else
-            {
-                if (_currentValueSet)
+                if (connected)
                 {
-                    _configFileHandler->getAllCurrentProperties(
-                        propertyNames, propertyValues);
-                }
-                else if (_plannedValueSet)
-                {
-                    _configFileHandler->getAllPlannedProperties(
-                        propertyNames, propertyValues);
+                    _listAllPropertiesInCIMServer( 
+                            propertyNames, propertyValues);
+
                 }
                 else
                 {
-                    _configFileHandler->getAllCurrentPropertyNames(
-                        propertyNames);
+                    if (_currentValueSet)
+                    {
+                        _configFileHandler->getAllCurrentProperties(
+                            propertyNames, propertyValues);
+                    }
+                    else if (_plannedValueSet)
+                    {
+                        _configFileHandler->getAllPlannedProperties(
+                            propertyNames, propertyValues);
+
+                    }
+                    else
+                    {
+                        _configFileHandler->getAllCurrentPropertyNames(
+                            propertyNames);
+                    }
                 }
-            }
 
-            Uint32 valuesSize = propertyValues.size();
-            Uint32 namesSize  = propertyNames.size();
+                Uint32 valuesSize = propertyValues.size();
+                Uint32 namesSize  = propertyNames.size();
 
-            for ( Uint32 i = 0; i < namesSize; i++ )
-            {
-                outPrintWriter << propertyNames[i];
-                if ( ( _currentValueSet || _plannedValueSet ) &&
-                     ( valuesSize == namesSize) )
+                if (namesSize == 0)
                 {
-                    outPrintWriter << "=" << propertyValues[i];
+                    outPrintWriter << "No configuration properties found"
+                        << " in the configuration file." << endl;
+                    break;
                 }
-                outPrintWriter << endl;
+
+                for ( Uint32 i = 0; i < namesSize; i++ )
+                {
+                    outPrintWriter << propertyNames[i];
+                    if ( ( _currentValueSet || _plannedValueSet ) &&
+                         ( valuesSize == namesSize) )
+                    {
+                        outPrintWriter << "=" << propertyValues[i];
+                    }
+                    outPrintWriter << endl;
+                }
+                break;
+            }
+            catch (CIMException e)
+            {
+                CIMStatusCode code = e.getCode();
+
+                if (code == CIM_ERR_NOT_FOUND || code == CIM_ERR_INVALID_CLASS)
+                {
+                    outPrintWriter << FAILED_TO_LIST_PROPERTIES << endl <<
+                        CONFIG_SCHEMA_NOT_LOADED << endl;
+                }
+                else if (code == CIM_ERR_FAILED)
+                {
+                    outPrintWriter << FAILED_TO_LIST_PROPERTIES <<
+                        e.getMessage() << endl;
+                }
+                else
+                {
+                    errPrintWriter << e.getMessage() << endl;
+                }
+
+                return ( RC_ERROR );
             }
             break;
-        }
 
         default:
             //
@@ -911,7 +1096,7 @@ void CIMConfigCommand::_getPropertiesFromCIMServer
     ostream&    errPrintWriter,
     const String&    propName,
     Array <String>&    propValues
-    ) throw (CIMException)
+    ) 
 {
     CIMProperty prop;
 
@@ -937,7 +1122,7 @@ void CIMConfigCommand::_getPropertiesFromCIMServer
         kbArray.append(kb);
 
         CIMReference reference(
-            _hostName, NAMESPACE, "CIM_ConfigSetting", kbArray);
+            _hostName, NAMESPACE, PG_CONFIG_CLASS, kbArray);
 
         CIMInstance cimInstance = client.getInstance(NAMESPACE, reference);
 
@@ -976,7 +1161,7 @@ void CIMConfigCommand::_updatePropertyInCIMServer
     ostream&    errPrintWriter,
     const String&   propName,
     const String&   propValue
-    ) throw (CIMException)
+    ) 
 {
 
     try
@@ -1001,7 +1186,7 @@ void CIMConfigCommand::_updatePropertyInCIMServer
         kbArray.append(kb);
 
         CIMReference reference(
-            _hostName, NAMESPACE, "CIM_ConfigSetting", kbArray);
+            _hostName, NAMESPACE, PG_CONFIG_CLASS, kbArray);
 
         CIMInstance modifiedInst = client.getInstance(NAMESPACE, reference);
 
@@ -1051,6 +1236,8 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
     Array <String>&   propValues
     )
 {
+    Array<CIMInstance> configInstances;
+
     try
     {
         //
@@ -1062,70 +1249,81 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
         
         client.connect(address);
 
-        //
-        // call enumerateInstanceNames
-        //
-        Array<CIMReference> instanceNames =
-            client.enumerateInstanceNames(NAMESPACE, "CIM_ConfigSetting");
-
-        //
-        // copy all the property names
-        //
-        for (Uint32 i = 0; i < instanceNames.size(); i++)
+        if ( _currentValueSet ||  _plannedValueSet )
         {
-            Array<KeyBinding> kbArray = instanceNames[i].getKeyBindings();
-  
-            if (kbArray.size() > 0)
+            //
+            // get all the instances of class PG_ConfigSetting
+            //
+            configInstances =
+                client.enumerateInstances(NAMESPACE, PG_CONFIG_CLASS);
+
+            //
+            // copy all the property names and values
+            //
+            for (Uint32 i = 0; i < configInstances.size(); i++)
             {
-                propNames.append(kbArray[0].getValue());
+                Uint32 pos = configInstances[i].findProperty("PropertyName");
+                CIMProperty prop = (CIMProperty)configInstances[i].getProperty(pos);
+                propNames[i] = prop.getValue().toString();
+
+                if (_currentValueSet)
+                {
+                    //
+                    // get current value
+                    //
+                    pos = configInstances[i].findProperty("CurrentValue");
+                    prop = (CIMProperty)configInstances[i].getProperty(pos);
+                    propValues[i] = prop.getValue().toString();
+                }
+                else if (_plannedValueSet)
+                {
+                    //
+                    // get planned value
+                    //
+                    pos = configInstances[i].findProperty("PlannedValue");
+                    prop = (CIMProperty)configInstances[i].getProperty(pos);
+                    propValues[i] = prop.getValue().toString();
+                }
             }
         }
+        else 
+        {
+            //
+            // call enumerateInstanceNames
+            //
+            Array<CIMReference> instanceNames =
+                client.enumerateInstanceNames(NAMESPACE, PG_CONFIG_CLASS);
+
+            //
+            // copy all the property names
+            //
+            for (Uint32 i = 0; i < instanceNames.size(); i++)
+            {
+                Array<KeyBinding> kbArray = instanceNames[i].getKeyBindings();
+  
+                if (kbArray.size() > 0)
+                {
+                    propNames.append(kbArray[0].getValue());
+                }
+            }
+ 
+        }
     }
-    catch(Exception& e)
+    catch (CIMException e)
     {
-       throw e;
+        throw e;
     }
 
-    //
-    // ATTN: Should be using this when enumerateInstances 
-    //       is supported in CIMClient 
-    //
-    //if (!_currentValueSet && !_plannedValueSet)
-    //{
-    // get only the instance names
-    //    Array<CIMReference> instanceNames = 
-    //        _client->enumerateInstanceNames(NAMESPACE, "CIM_ConfigSetting");
-    //}
-    //else
-    //{
-    // get all the instances
-    //    Array<CIMInstance> instanceNames = 
-    //        _client->enumerateInstances(NAMESPACE, "CIM_ConfigSetting");
-    //}
-    // copy all the property names
-    //for (Uint32 i = 0; i < instanceNames.size(); i++)
-    //{
-    //    propNames[i] = instanceNames[i];
-    //}
-
-    //if (_currentValueSet)
-    //{
-    // copy only current property values
-    //    for (Uint32 i = 0; i < instanceNames.size(); i++)
-    //    {
-    //        propNames[i] = instanceNames[i];
-    //    }
-    //}
-    //else if (_plannedValueSet)
-    //{
-    // copy only planned property values
-    //    for (Uint32 i = 0; i < instanceNames.size(); i++)
-    //    {
-    //        propNames[i] = instanceNames[i];
-    //    }
-    //}
 }
 
+PEGASUS_NAMESPACE_END
+
+//
+// exclude main from the Pegasus Namespace
+//
+PEGASUS_USING_PEGASUS;
+
+PEGASUS_USING_STD;
 
 ///////////////////////////////////////////////////////////////////////////////
 /**

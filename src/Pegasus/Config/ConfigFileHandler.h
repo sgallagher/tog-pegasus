@@ -32,9 +32,9 @@
 #define Pegasus_ConfigFileHandler_h
 
 #include <cctype>
+#include <Pegasus/Config/Linkage.h>
 #include <Pegasus/Config/ConfigExceptions.h>
 #include <Pegasus/Config/ConfigFile.h>
-#include <Pegasus/Config/Linkage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -75,8 +75,8 @@ public:
     */
     ConfigFileHandler (
         const String& currentFile = CURRENT_CONFIG_FILE, 
-        const String& plannedFile = PLANNED_CONFIG_FILE)
-            throw (NoSuchFile, FileNotReadable);
+        const String& plannedFile = PLANNED_CONFIG_FILE);
+            //throw (NoSuchFile, FileNotReadable);
 
 
     /** Destructor. */
@@ -93,7 +93,8 @@ public:
 
     @exception  CannotRenameFile  if failed to create the backup file.
     */
-    void copyPlannedFileOverCurrentFile() throw (CannotRenameFile);
+    void copyPlannedFileOverCurrentFile();
+        //throw (CannotRenameFile);
 
 
     /** 
@@ -101,7 +102,8 @@ public:
 
     @exception ConfigFileSyntaxError if file contains a syntax error.
     */
-    void loadAllConfigProperties () throw (ConfigFileSyntaxError);
+    void loadAllConfigProperties ();
+        //throw (ConfigFileSyntaxError);
 
 
     /** 
@@ -109,7 +111,8 @@ public:
 
     @exception ConfigFileSyntaxError if file contains a syntax error.
     */
-    void loadCurrentConfigProperties () throw (ConfigFileSyntaxError);
+    void loadCurrentConfigProperties ();
+        //throw (ConfigFileSyntaxError);
 
 
     /** 
@@ -117,7 +120,8 @@ public:
 
     @exception ConfigFileSyntaxError if file contains a syntax error.
     */
-    void loadPlannedConfigProperties () throw (ConfigFileSyntaxError);
+    void loadPlannedConfigProperties ();
+       //throw (ConfigFileSyntaxError);
 
 
     /** 
@@ -212,6 +216,17 @@ private:
     ConfigFile*  _currentConfFile;
 
     ConfigFile*  _plannedConfFile;
+
+    /**
+    Flag indicating whether the current config files exists or not.
+    */
+    Boolean      _currentFileExist;
+
+    /**
+    Flag indicating whether the planned config files exists or not.
+    */
+    Boolean      _plannedFileExist;
+
 };
 
 PEGASUS_NAMESPACE_END

@@ -45,9 +45,9 @@ int main()
     try
     {
 	Array<String> all;
-	Array<String> info;
 
 	ConfigManager* _config;
+
 	_config = ConfigManager::getInstance();
 
 	_config->mergeConfigFiles();
@@ -56,25 +56,18 @@ int main()
 
 	for (int i = 0; i < all.size(); i++)
 	{
-		info.clear();
-		_config->getPropertyInfo(all[i], info);
-
+	    Array<String> info;
+            info.clear();
+            _config->getPropertyInfo(all[i], info);
+            _config->getCurrentValue(all[i]);
+            _config->getPlannedValue(all[i]);
 	}
 
-	_config->updateCurrentValue(all[7], "New Current Value");
-	_config->updatePlannedValue(all[7], "New Planned Value");
-
-	for (int i = 0; i < all.size(); i++)
-	{
-                info.clear();
-                _config->getPropertyInfo(all[i], info);
-
-	}
     }
     catch (Exception& e)
     {
-		cerr << "Exception: " << e.getMessage() << endl;
-		exit(1);
+        cerr << "Exception: " << e.getMessage() << endl;
+        exit(1);
     }
 
     cout << "++++ passed all tests" << endl;

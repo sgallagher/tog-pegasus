@@ -35,9 +35,8 @@
 #include <Pegasus/Common/String.h>
 #include <Clients/cliutils/Command.h>
 #include <Clients/cliutils/CommandException.h>
-#include <Pegasus/Config/UnrecognizedPropertyException.h>
-#include <Pegasus/Config/InvalidPropertyValueException.h>
 
+PEGASUS_NAMESPACE_BEGIN
 
 /**
 This is a configuration CLI used to manage the configuration of the
@@ -68,7 +67,8 @@ public:
     @throws  CommandFormatException  if an error is encountered in parsing
                                      the command line
     */
-    void setCommand (Uint32 argc, char* argv []) throw (CommandFormatException);
+    void setCommand (Uint32 argc, char* argv [])
+        throw (CommandFormatException);
 
     /**
     Executes the command and writes the results to the output streams.
@@ -96,11 +96,11 @@ private:
     */
     void _getPropertiesFromCIMServer
         (
-        ostream&    outPrintWriter, 
-        ostream&    errPrintWriter,
-        const String&    propertyName,
-        Array <String>&    propertyValues
-        ) throw (CIMException);
+        PEGASUS_STD(ostream)&    outPrintWriter, 
+        PEGASUS_STD(ostream)&    errPrintWriter,
+        const String&            propertyName,
+        Array <String>&          propertyValues
+        ); //throw (CIMException);
 
     /**
     Send an updated property value to the CIM Server.
@@ -114,11 +114,11 @@ private:
     */
     void _updatePropertyInCIMServer
         (
-        ostream&    outPrintWriter, 
-        ostream&    errPrintWriter,
-        const String&   propertyName,
-        const String&   propertyValue
-        ) throw (CIMException);
+        PEGASUS_STD(ostream)&    outPrintWriter, 
+        PEGASUS_STD(ostream)&    errPrintWriter,
+        const String&            propertyName,
+        const String&            propertyValue
+        ); //throw (CIMException);
 
     /**
     Get a list of all property names and value from the CIM Server.
@@ -178,5 +178,7 @@ private:
     Uint32        _operationType;
 
 };
+
+PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_CIMConfigCommand_h */

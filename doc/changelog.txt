@@ -24,6 +24,14 @@ RmDirHierCmd.cpp, StripCmd.cpp, TouchCmd.cpp).  aCC scopes variable
 declarations in for loop initializers outside the loop, so multiple
 "for (int i=0; i<10; i++);" statements cause a compile error.
 
+6. (Nag Boranna - HP) 15 Aug 2001 - Modified Config framework to remove 
+dependency on the config files at the start of the cimserver. Now the 
+cimserver will use in-memory default values in the absence of config files 
+and command line options. Fixed a few defects in the config framework that 
+were causing cimom to crash under certain conditions. Changed the config 
+provider class name to 'PG_ConfigSetting' in the mof file and modified 
+provider implementation files accordingly. Also modified the config CLI 
+to show user friendly error/status messages.
         
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch

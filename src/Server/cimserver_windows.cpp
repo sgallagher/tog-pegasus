@@ -80,22 +80,28 @@ PEGASUS_TRACE;
     }
 PEGASUS_TRACE;
 
+    //
     // Check the trace options and set global variable
+    //
     Boolean pegasusIOTrace = false;
 
-    if (configManager->isTraceFlagSet())
+    if (String::equal(configManager->getCurrentValue("trace"), "true"))
     {
-         Handler::setMessageTrace(true);
-	 pegasusIOTrace = true;
+        Handler::setMessageTrace(true);
+        pegasusIOTrace = true;
     }
 
+    //
+    // Check the log trace options and set global variable
+    //
     Boolean pegasusIOLog = false;
 
-    if (configManager->isLogTraceFlagSet())
+    if (String::equal(configManager->getCurrentValue("logtrace"), "true"))
     {
-	Handler::setMessageLogTrace(true);
-	 pegasusIOLog = true;
+        Handler::setMessageLogTrace(true);
+        pegasusIOLog = true;
     }
+
 PEGASUS_TRACE;
     
     // Grab the port otpion:

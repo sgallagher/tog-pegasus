@@ -23,7 +23,7 @@
 //
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +34,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Config/LogPropertyOwner.h>
+#include "LogPropertyOwner.h"
 
 
 PEGASUS_USING_STD;
@@ -50,7 +50,7 @@ static struct ConfigPropertyRow properties[] =
     {"logtrace", "false", 0, 0, 0},
     {"logdir", "./logs", 1, 0, 0},
     {"cleanlogs", "false", 0, 0, 0},
-    {"logs", "ALL", 0, 0, 0},
+    {"trace", "false", 0, 0, 0},
     {"severity", "ALL", 0, 0, 0}
 };
 
@@ -63,10 +63,26 @@ LogPropertyOwner::LogPropertyOwner()
     _logtrace    = new ConfigProperty;
     _logdir        = new ConfigProperty;
     _cleanlogs    = new ConfigProperty;
-    _logs        = new ConfigProperty;
+    _trace       = new ConfigProperty;
     _severity    = new ConfigProperty;
+}
+
+/** Destructor  */
+LogPropertyOwner::~LogPropertyOwner()
+{
+    delete _logtrace;
+    delete _logdir;
+    delete _cleanlogs;
+    delete _trace;
+    delete _severity;
+}
 
 
+/**
+Initialize the config properties.
+*/
+void LogPropertyOwner::initialize()
+{
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
         //
@@ -102,15 +118,15 @@ LogPropertyOwner::LogPropertyOwner()
             _cleanlogs->domain = properties[i].domain;
             _cleanlogs->domainSize = properties[i].domainSize;
         }
-        else if (String::equalNoCase(properties[i].propertyName, "logs"))
+        else if (String::equalNoCase(properties[i].propertyName, "trace"))
         {
-            _logs->propertyName = properties[i].propertyName;
-            _logs->defaultValue = properties[i].defaultValue;
-            _logs->currentValue = properties[i].defaultValue;
-            _logs->plannedValue = properties[i].defaultValue;
-            _logs->dynamic = properties[i].dynamic;
-            _logs->domain = properties[i].domain;
-            _logs->domainSize = properties[i].domainSize;
+            _trace->propertyName = properties[i].propertyName;
+            _trace->defaultValue = properties[i].defaultValue;
+            _trace->currentValue = properties[i].defaultValue;
+            _trace->plannedValue = properties[i].defaultValue;
+            _trace->dynamic = properties[i].dynamic;
+            _trace->domain = properties[i].domain;
+            _trace->domainSize = properties[i].domainSize;
         }
         else if (String::equalNoCase(properties[i].propertyName, "severity"))
         {
@@ -125,22 +141,12 @@ LogPropertyOwner::LogPropertyOwner()
     }
 }
 
-/** Destructor  */
-LogPropertyOwner::~LogPropertyOwner()
-{
-    delete _logtrace;
-    delete _logdir;
-    delete _cleanlogs;
-    delete _logs;
-    delete _severity;
-}
-
 /** 
 Get information about the specified property.
 */
 void LogPropertyOwner::getPropertyInfo(
     const String& name, 
-    Array<String>& propertyInfo) throw (UnrecognizedConfigProperty)
+    Array<String>& propertyInfo)
 {
     propertyInfo.clear();
 
@@ -189,13 +195,13 @@ void LogPropertyOwner::getPropertyInfo(
             propertyInfo.append(STRING_FALSE);
         }
     }
-    else if (String::equalNoCase(_logs->propertyName, name))
+    else if (String::equalNoCase(_trace->propertyName, name))
     {
-        propertyInfo.append(_logs->propertyName);
-        propertyInfo.append(_logs->defaultValue);
-        propertyInfo.append(_logs->currentValue);
-        propertyInfo.append(_logs->plannedValue);
-        if (_logs->dynamic)
+        propertyInfo.append(_trace->propertyName);
+        propertyInfo.append(_trace->defaultValue);
+        propertyInfo.append(_trace->currentValue);
+        propertyInfo.append(_trace->plannedValue);
+        if (_trace->dynamic)
         {
             propertyInfo.append(STRING_TRUE);
         }
@@ -229,7 +235,6 @@ void LogPropertyOwner::getPropertyInfo(
 Get default value of the specified property.
 */
 const String LogPropertyOwner::getDefaultValue(const String& name)
-    throw (UnrecognizedConfigProperty)
 {
     if (String::equalNoCase(_logtrace->propertyName, name))
     {
@@ -243,9 +248,9 @@ const String LogPropertyOwner::getDefaultValue(const String& name)
     {
         return (_cleanlogs->defaultValue);
     }
-    else if (String::equalNoCase(_logs->propertyName, name))
+    else if (String::equalNoCase(_trace->propertyName, name))
     {
-        return (_logs->defaultValue);
+        return (_trace->defaultValue);
     }
     else if (String::equalNoCase(_severity->propertyName, name))
     {
@@ -261,7 +266,6 @@ const String LogPropertyOwner::getDefaultValue(const String& name)
 Get current value of the specified property.
 */
 const String LogPropertyOwner::getCurrentValue(const String& name)
-    throw (UnrecognizedConfigProperty)
 {
     if (String::equalNoCase(_logtrace->propertyName, name))
     {
@@ -275,9 +279,9 @@ const String LogPropertyOwner::getCurrentValue(const String& name)
     {
         return (_cleanlogs->currentValue);
     }
-    else if (String::equalNoCase(_logs->propertyName, name))
+    else if (String::equalNoCase(_trace->propertyName, name))
     {
-        return (_logs->currentValue);
+        return (_trace->currentValue);
     }
     else if (String::equalNoCase(_severity->propertyName, name))
     {
@@ -293,7 +297,6 @@ const String LogPropertyOwner::getCurrentValue(const String& name)
 Get planned value of the specified property.
 */
 const String LogPropertyOwner::getPlannedValue(const String& name)
-    throw (UnrecognizedConfigProperty)
 {
     if (String::equalNoCase(_logtrace->propertyName, name))
     {
@@ -307,9 +310,9 @@ const String LogPropertyOwner::getPlannedValue(const String& name)
     {
         return (_cleanlogs->plannedValue);
     }
-    else if (String::equalNoCase(_logs->propertyName, name))
+    else if (String::equalNoCase(_trace->propertyName, name))
     {
-        return (_logs->plannedValue);
+        return (_trace->plannedValue);
     }
     else if (String::equalNoCase(_severity->propertyName, name))
     {
@@ -328,7 +331,6 @@ Init current value of the specified property to the specified value.
 void LogPropertyOwner::initCurrentValue(
     const String& name, 
     const String& value)
-    throw (UnrecognizedConfigProperty, InvalidPropertyValue)
 {
     if (String::equalNoCase(_logtrace->propertyName, name))
     {
@@ -342,9 +344,9 @@ void LogPropertyOwner::initCurrentValue(
     {
        _cleanlogs->currentValue = value;
     }
-    else if (String::equalNoCase(_logs->propertyName, name))
+    else if (String::equalNoCase(_trace->propertyName, name))
     {
-        _logs->currentValue = value;
+        _trace->currentValue = value;
     }
     else if (String::equalNoCase(_severity->propertyName, name))
     {
@@ -363,7 +365,6 @@ Init planned value of the specified property to the specified value.
 void LogPropertyOwner::initPlannedValue(
     const String& name, 
     const String& value)
-    throw (UnrecognizedConfigProperty, InvalidPropertyValue)
 {
     if (String::equalNoCase(_logtrace->propertyName, name))
     {
@@ -377,9 +378,9 @@ void LogPropertyOwner::initPlannedValue(
     {
        _cleanlogs->plannedValue= value;
     }
-    else if (String::equalNoCase(_logs->propertyName, name))
+    else if (String::equalNoCase(_trace->propertyName, name))
     {
-        _logs->plannedValue= value;
+        _trace->plannedValue= value;
     }
     else if (String::equalNoCase(_severity->propertyName, name))
     {
@@ -397,8 +398,6 @@ Update current value of the specified property to the specified value.
 void LogPropertyOwner::updateCurrentValue(
     const String& name, 
     const String& value) 
-    throw (NonDynamicConfigProperty, InvalidPropertyValue,
-            UnrecognizedConfigProperty)
 {
     //
     // make sure the property is dynamic before updating the value.
@@ -423,7 +422,6 @@ Update planned value of the specified property to the specified value.
 void LogPropertyOwner::updatePlannedValue(
     const String& name, 
     const String& value)
-    throw (InvalidPropertyValue, UnrecognizedConfigProperty)
 {
     //
     // Since the validations done in initPlannedValue are sufficient and 
@@ -437,7 +435,6 @@ void LogPropertyOwner::updatePlannedValue(
 Checks to see if the given value is valid or not.
 */
 Boolean LogPropertyOwner::isValid(const String& name, const String& value)
-    throw (UnrecognizedConfigProperty)
 {
     // TODO: Add validation code
     return 1;
@@ -447,7 +444,6 @@ Boolean LogPropertyOwner::isValid(const String& name, const String& value)
 Checks to see if the specified property is dynamic or not.
 */
 Boolean LogPropertyOwner::isDynamic(const String& name)
-    throw (UnrecognizedConfigProperty)
 {
     if (String::equalNoCase(_logtrace->propertyName, name))
     {
@@ -461,9 +457,9 @@ Boolean LogPropertyOwner::isDynamic(const String& name)
     {
         return (_cleanlogs->dynamic);
     }
-    else if (String::equalNoCase(_logs->propertyName, name))
+    else if (String::equalNoCase(_trace->propertyName, name))
     {
-        return (_logs->dynamic);
+        return (_trace->dynamic);
     }
     else if (String::equalNoCase(_severity->propertyName, name))
     {

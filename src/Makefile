@@ -15,4 +15,4 @@ repository:
 	@ $(MAKE) -SC Pegasus/Compiler/load repository
 
 config:
-	@ $(MAKE) -SC Providers/generic/CIMConfigSetting/load config 
+	@ $(MAKE) -SC Providers/generic/ConfigSettingProvider/load config 

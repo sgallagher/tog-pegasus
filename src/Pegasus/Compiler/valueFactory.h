@@ -49,6 +49,7 @@ PEGASUS_USING_STD;
 //
 class PEGASUS_COMPILER_LINKAGE valueFactory  {
  public:
+  static String stringWComma(String tmp);
   static long Stoi(const String &s);
   static CIMValue * createValue(CIMType type, int arrayDimension,
                              Boolean isNull,

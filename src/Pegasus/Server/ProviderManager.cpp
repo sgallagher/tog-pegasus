@@ -63,7 +63,7 @@ ProviderHandle * ProviderManager::getProvider(const String & fileName, const Str
 		}
 	}
 	
-	std::cout << "loading provider for " << className << " in " << fileName << std::endl;
+	PEGASUS_STD(cout) << "loading provider for " << className << " in " << fileName << PEGASUS_STD(endl);
 	
 	// create provider module
 	ProviderModule module(fileName, className);
@@ -107,7 +107,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::monitorThread(void *
 
 			if((provider_timeout != 0xffffffff) && (provider_timeout <= timeout))
 			{
-				std::cout << "unloading provider for " << _this->_providers[i].getClassName() << " in " << _this->_providers[i].getFileName() << std::endl;
+				PEGASUS_STD(cout) << "unloading provider for " << _this->_providers[i].getClassName() << " in " << _this->_providers[i].getFileName() << PEGASUS_STD(endl);
 
 				_this->_providers[i].getProvider()->terminate();
 				_this->_providers.remove(i);
@@ -115,7 +115,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::monitorThread(void *
 		}
 	}
 	
-	std::cout << "provider monitor stopped" << std::endl;
+	PEGASUS_STD(cout) << "provider monitor stopped" << PEGASUS_STD(endl);
 	
 	return(0);
 }

@@ -32,6 +32,7 @@
 #define Pegasus_GeneralPropertyOwner_h
 
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Config/ConfigPropertyOwner.h>
 
 

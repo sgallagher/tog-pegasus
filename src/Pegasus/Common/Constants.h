@@ -201,8 +201,7 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 //
 // SSL client certificate files
 //
-//ATTN-NB-02-05152002: Finalize the certificate and random file locations
-#include "SSLDir.h"
+#include <Pegasus/Common/SSLDir.h>
 
 //
 // Miscellaneous Constants

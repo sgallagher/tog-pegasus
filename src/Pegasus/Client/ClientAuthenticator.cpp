@@ -33,6 +33,7 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Base64.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/Constants.h>
 #include "ClientAuthenticator.h"
 
 #include <ctype.h>
@@ -151,6 +152,29 @@ Boolean ClientAuthenticator::checkResponseHeaderForChallenge(
        else
        {
            throw InvalidAuthHeader();
+       }
+
+       if ( _authType == ClientAuthenticator::LOCAL ||
+           _authType == ClientAuthenticator::LOCALPRIVILEGED )
+       {
+           String filePath = authRealm;
+           FileSystem::translateSlashes(filePath);
+
+           // Check whether the directory is a valid pre-defined directory.
+           //
+           Uint32 index = filePath.reverseFind('/');
+
+           if (index != PEG_NOT_FOUND)
+           {
+               String dirName = filePath.subString(0,index);
+
+               if (!String::equal(dirName, String(PEGASUS_LOCAL_AUTH_DIR)))
+               {
+                   // Cannot access an arbitrary directory
+                   //
+                   throw UnauthorizedAccess();
+               }
+           }
        }
 
        _realm = authRealm;
@@ -323,6 +347,8 @@ ClientAuthenticator::AuthType ClientAuthenticator::getAuthType()
 String ClientAuthenticator::_getFileContent(String filePath)
 {
     String challenge = String::EMPTY;
+
+    FileSystem::translateSlashes(filePath);
 
     //
     // Check whether the file exists or not

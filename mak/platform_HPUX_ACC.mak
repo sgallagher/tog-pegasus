@@ -66,6 +66,22 @@ endif
 ##
 DEFINES += -DPEGASUS_DONOT_LIST_TRACE_PROPERTIES
 
+##
+## The following flag needs to be set to compile in the configuration
+## properties set with fixed release settings.
+##
+ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+ DEFINES += -DPEGASUS_USE_RELEASE_CONFIG_OPTIONS
+endif
+
+##
+## The following flag needs to be set to compile in the configuration
+## properties involving directories set with fixed release settings.
+##
+ifdef PEGASUS_USE_RELEASE_DIRS
+ DEFINES += -DPEGASUS_USE_RELEASE_DIRS
+endif
+
 DEPEND_INCLUDES =
 
 

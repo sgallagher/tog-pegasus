@@ -27,6 +27,9 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#ifndef Pegasus_DefaultPropertyTable_h
+#define Pegasus_DefaultPropertyTable_h
+
 #ifdef PEGASUS_PLATFORM_LINUX_IA64_GNU
 #include "DefaultPropertyTableLinuxIA64.h"
 #else
@@ -42,6 +45,8 @@
     {"SSL", "false", 0, 0, 0},
     {"enableAssociationTraversal", "true", 0, 0, 0},
     {"enableIndicationService", "true", 0, 0, 0},
-    {"tempLocalAuthDir", "/tmp", 0, 0, 0},
+    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0},
     {"enableClientCertification", "false", 0, 0, 0}
 #endif
+
+#endif /* Pegasus_DefaultPropertyTable_h */

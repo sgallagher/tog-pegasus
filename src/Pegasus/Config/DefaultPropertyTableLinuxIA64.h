@@ -27,6 +27,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#ifndef Pegasus_DefaultPropertyTableLinuxIA64_h
+#define Pegasus_DefaultPropertyTableLinuxIA64_h
+
+
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
     {"httpPort", "5988", 0, 0, 0},
     {"httpsPort", "5989", 0, 0, 0},
@@ -40,7 +44,7 @@
     {"SSL", "true", 0, 0, 0},
     {"enableAssociationTraversal", "true", 0, 0, 0},
     {"enableIndicationService", "true", 0, 0, 0},
-    {"tempLocalAuthDir", "/tmp", 0, 0, 0},
+    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0},
     {"enableClientCertification", "false", 0, 0, 0}
 #else
     {"httpPort", "5988", 0, 0, 0},
@@ -55,6 +59,9 @@
     {"SSL", "false", 0, 0, 0},
     {"enableAssociationTraversal", "true", 0, 0, 0},
     {"enableIndicationService", "true", 0, 0, 0},
-    {"tempLocalAuthDir", "/tmp", 0, 0, 0},
+    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0},
     {"enableClientCertification", "false", 0, 0, 0}
 #endif
+
+
+#endif /* Pegasus_DefaultPropertyTableLinuxIA64_h */

@@ -27,10 +27,17 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#ifndef Pegasus_SSLDirLinuxIA64_h 
+#define Pegasus_SSLDirLinuxIA64_h 
+
 #ifdef PEGASUS_USE_RELEASE_DIRS
 #define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/var/opt/wbem/server.pem"
 #define PEGASUS_SSLCLIENT_RANDOMFILE      "/var/opt/wbem/ssl.rnd"
+#define PEGASUS_LOCAL_AUTH_DIR            "/var/opt/wbem/localauth"
 #else
 #define PEGASUS_SSLCLIENT_CERTIFICATEFILE "server.pem"
 #define PEGASUS_SSLCLIENT_RANDOMFILE      "ssl.rnd"
+#define PEGASUS_LOCAL_AUTH_DIR            "/tmp"
 #endif
+
+#endif /* Pegasus_SSLDirLinuxIA64_h */

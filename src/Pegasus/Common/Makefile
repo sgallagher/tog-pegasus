@@ -131,13 +131,18 @@ SOURCES = \
 
 ifeq ($(OS),linux)
   ifdef PEGASUS_HAS_SSL
-    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
+    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto -lcrypt
+    ifdef PEGASUS_USE_RELEASE_DIRS
+       EXTRA_LINK_ARGUMENTS =  -Xlinker -rpath -Xlinker $(OPENSSL_HOME)/lib
+    else
+       EXTRA_LINK_ARGUMENTS =  -Xlinker -rpath -Xlinker $(OPENSSL_HOME)/lib
+    endif
   endif
 endif
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
   ifdef PEGASUS_HAS_SSL
-    EXTRA_LIBRARIES += -lssl -lcrypto
+    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
   endif
 endif
 
@@ -150,6 +155,18 @@ AIX_LIB_PRIORITY=-20
 endif
 
 ifeq ($(OS),HPUX)
+  ifdef PEGASUS_HAS_SSL
+    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
+  endif
+endif
+
+ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_GNU)
+  ifdef PEGASUS_HAS_SSL
+    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
+  endif
+endif
+
+ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
   ifdef PEGASUS_HAS_SSL
     EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
   endif

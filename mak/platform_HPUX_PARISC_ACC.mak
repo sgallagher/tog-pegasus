@@ -10,10 +10,3 @@ FLAGS += +Z +DAportable -mt -D_PSTAT64
 ifdef PEGASUS_PAM_AUTHENTICATION
    SYS_LIBS += -lpam
 endif
-
-ifdef PEGASUS_HAS_SSL
-  ifdef PEGASUS_USE_SSL_SHAREDLIB
-    SYS_LIBS += -L$(OPENSSL_HOME)/lib
-    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib
-  endif
-endif

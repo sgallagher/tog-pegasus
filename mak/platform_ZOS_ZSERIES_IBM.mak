@@ -25,11 +25,6 @@ FLAGS = -+ -O2 -W "c,ASCII,XPLINK,dll,expo,rtti(dynamiccast),langlvl(extended),f
 PR_FLAGS = -+ -O2 -W "c,ASCII,XPLINK,dll,expo,langlvl(extended),FLOAT(IEEE)" -W "l,XPLINK,dll"
 endif
 
-ifdef PEGASUS_HAS_SSL
-  FLAGS += -L$(OPENSSL_HOME)/lib
-  PR_FLAGS += -L$(OPENSSL_HOME)/lib
-endif
-
 ifdef PEGASUS_ZOS_SECURITY
   DEFINES += -DPEGASUS_ZOS_SECURITY
 endif

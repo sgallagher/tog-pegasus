@@ -56,12 +56,4 @@ else
 SYS_LIBS += -lrt
 endif
 
-ifdef PEGASUS_HAS_SSL
-	ifdef PEGASUS_USE_SSL_SHAREDLIB
-		EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
-	else
-		$(error Static linking of OpenSSL is not currently supported on this platform.)
-	endif
-endif
-
 SYS_LIBS += $(EXTRA_LIBRARIES)

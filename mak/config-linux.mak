@@ -36,11 +36,7 @@ DEFINES += -DPEGASUS_USE_SYSLOGS
 
 DEFINES += -DPEGASUS_HAS_SIGNALS
 
-SYS_LIBS = -ldl -lpthread -lcrypt
-
-ifdef PEGASUS_HAS_SSL
-  SYS_LIBS += -lssl
-endif
+SYS_LIBS = -ldl -lpthread
 
 # Build using fixed release settings
 #

@@ -17,4 +17,7 @@ Checking Head still works
 
 CHecking debugging removed OK
 
+Checking that it still works after the new directory mod
+
+
 

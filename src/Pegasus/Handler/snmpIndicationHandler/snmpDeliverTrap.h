@@ -29,6 +29,7 @@
 
 #include <iostream>
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
 
 PEGASUS_NAMESPACE_BEGIN

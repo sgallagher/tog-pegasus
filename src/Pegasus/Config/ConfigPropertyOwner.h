@@ -38,6 +38,7 @@
 #ifndef Pegasus_ConfigPropertyOwner_h
 #define Pegasus_ConfigPropertyOwner_h
 
+#include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Config/ConfigExceptions.h>

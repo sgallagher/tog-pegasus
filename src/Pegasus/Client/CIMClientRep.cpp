@@ -1236,12 +1236,12 @@ Message* CIMClientRep::_doRequest(
                       item = perfDataStore->createPerfDataStruct();
                       perfDataStore->handler_prt->handleClientOpPerformanceData(item);
                    }
-                  catch(Exception& e){
-                    cerr << "Exception : " << e.getMessage() << endl;
-                    exit(1);
-                   }
                    catch(CIMException& e){
                     cout << e.getMessage() << endl;
+                   }
+                   catch(Exception& e){
+                    cerr << "Exception : " << e.getMessage() << endl;
+                    exit(1);
                    }
                    catch(...){
                       cerr << " Caught General Exception:" << endl;

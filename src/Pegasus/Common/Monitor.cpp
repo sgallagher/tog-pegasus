@@ -89,32 +89,13 @@ static struct timeval deadlock_time = {0, 0};
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// MonitorRep
-//
-////////////////////////////////////////////////////////////////////////////////
-
-struct MonitorRep
-{
-    fd_set rd_fd_set;
-    fd_set wr_fd_set;
-    fd_set ex_fd_set;
-    fd_set active_rd_fd_set;
-    fd_set active_wr_fd_set;
-    fd_set active_ex_fd_set;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-//
 // Monitor
 //
 ////////////////////////////////////////////////////////////////////////////////
 
 #define MAX_NUMBER_OF_MONITOR_ENTRIES  32
 Monitor::Monitor()
-   : _module_handle(0),
-     _controller(0),
-     _async(false),
-     _stopConnections(0),
+   : _stopConnections(0),
      _stopConnectionsSem(0),
      _solicitSocketCount(0),
      _tickle_client_socket(-1),
@@ -123,36 +104,6 @@ Monitor::Monitor()
 {
     int numberOfMonitorEntriesToAllocate = MAX_NUMBER_OF_MONITOR_ENTRIES;
     Socket::initializeInterface();
-    _rep = 0;
-    _entries.reserveCapacity(numberOfMonitorEntriesToAllocate);
-
-    // setup the tickler
-    initializeTickler();
-
-    // Start the count at 1 because initilizeTickler()
-    // has added an entry in the first position of the
-    // _entries array
-    for( int i = 1; i < numberOfMonitorEntriesToAllocate; i++ )
-    {
-       _MonitorEntry entry(0, 0, 0);
-       _entries.append(entry);
-    }
-}
-
-Monitor::Monitor(Boolean async)
-   : _module_handle(0),
-     _controller(0),
-     _async(async),
-     _stopConnections(0),
-     _stopConnectionsSem(0),
-     _solicitSocketCount(0),
-     _tickle_client_socket(-1),
-     _tickle_server_socket(-1),
-     _tickle_peer_socket(-1)
-{
-    int numberOfMonitorEntriesToAllocate = MAX_NUMBER_OF_MONITOR_ENTRIES;
-    Socket::initializeInterface();
-    _rep = 0;
     _entries.reserveCapacity(numberOfMonitorEntriesToAllocate);
 
     // setup the tickler
@@ -170,17 +121,6 @@ Monitor::Monitor(Boolean async)
 
 Monitor::~Monitor()
 {
-    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-                  "deregistering with module controller");
-
-    if(_module_handle.get() != NULL)
-    {
-       _controller->deregister_module(PEGASUS_MODULENAME_MONITOR);
-       _controller.reset();
-       _module_handle.reset();
-    }
-    Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "deleting rep");
-
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "uninitializing interface");
 
     try{

@@ -105,8 +105,6 @@ public:
     };
 };
 
-struct MonitorRep;
-
 /** This message occurs when there is activity on a socket. */
 class SocketMessage : public Message
 {
@@ -185,8 +183,6 @@ public:
       
   /** Default constructor. */
   Monitor();
-  Monitor(Boolean async);
-    
 
   /** This destruct deletes all handlers which were installed. */
   ~Monitor();
@@ -246,10 +242,6 @@ public:
 private:
       
   Array<_MonitorEntry> _entries;
-  MonitorRep* _rep;
-  AutoPtr<pegasus_module> _module_handle;
-  AutoPtr<ModuleController> _controller;
-  Boolean _async;
   Mutex _entry_mut;
   AtomicInt _stopConnections;
   Semaphore _stopConnectionsSem;

@@ -1107,7 +1107,7 @@ MessageLoader::_useProcessLocale = false;
 
 
 
-	Monitor monitor(true);
+	Monitor monitor;
 	CIMServer server(&monitor);
 
 	CimserverHolder cimserverHolder( &server );

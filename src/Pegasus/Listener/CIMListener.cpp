@@ -166,7 +166,7 @@ void CIMListenerService::init()
 {
 	PEG_METHOD_ENTER(TRC_LISTENER, "CIMListenerService::init");
 
-  _monitor = new Monitor(true);
+  _monitor = new Monitor();
   
 	//_dispatcher = new CIMListenerIndicationDispatcher();
 

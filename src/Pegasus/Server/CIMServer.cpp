@@ -138,7 +138,7 @@ CIMServer::CIMServer(
     if ( requireAuthentication && requireAuthorization )
     {
         //
-        // Create Authorization queue only if authorization and 
+        // Create Authorization queue only if authorization and
         // authentication are enabled
         //
         _cimOperationRequestAuthorizer = new CIMOperationRequestAuthorizer(
@@ -199,7 +199,7 @@ CIMServer::CIMServer(
     /** load registered providers from repository, and creates
         provider block table
     */
-    _cimOperationRequestDispatcher->loadRegisteredProviders();
+    //_cimOperationRequestDispatcher->loadRegisteredProviders();
 
     PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
 }

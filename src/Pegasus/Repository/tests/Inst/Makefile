@@ -14,3 +14,6 @@ tests:
 	Inst
 	$(RM) X.idx
 	$(RM) X.instances
+
+poststarttests:
+

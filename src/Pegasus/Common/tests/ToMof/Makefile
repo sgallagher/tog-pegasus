@@ -11,3 +11,6 @@ include $(ROOT)/mak/program.mak
 
 tests:
 	$(PROGRAM)
+
+poststarttests:
+

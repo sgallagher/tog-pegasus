@@ -296,7 +296,7 @@ extern "C" {
         #define CMPI_ENCA         (CMPI_ARRAY | CMPI_ENC)
         #define CMPI_stringA      (CMPI_ARRAY | CMPI_string)
         #define CMPI_charsA       (CMPI_ARRAY | CMPI_chars)
-        #define CMPI_dateTimeA    (CMPI_ARRAY | CMPI_dateTime
+        #define CMPI_dateTimeA    (CMPI_ARRAY | CMPI_dateTime)
 
 	// the following are CMPIObjectPath key-types synonyms
 	// and are valid only when CMPI_keyValue of CMPIValueState is set

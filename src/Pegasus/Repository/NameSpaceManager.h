@@ -48,7 +48,7 @@ class NameSpace;
 enum NameSpaceIntendedOp {
    NameSpaceRead,
    NameSpaceWrite,
-   NameSpaceDelete,
+   NameSpaceDelete
 };
 
 /** The NameSpaceManager class manages a collection of NameSpace objects.
@@ -101,8 +101,6 @@ public:
     */
     void getNameSpaceNames(Array<CIMNamespaceName>& nameSpaceNames) const;
 
-    typedef HashTable <String, String, EqualNoCaseFunc, HashLowerCaseFunc> NameSpaceAttributes;
-
     Boolean getNameSpaceAttributes(const CIMNamespaceName& nameSpace, NameSpaceAttributes &attributes);
 
     /** Get path to the class file for the given class. 
@@ -136,7 +134,7 @@ public:
 	const CIMNamespaceName& nameSpaceName,
 	const CIMName& className) const;
 
-    String NameSpaceManager::getInstanceDataFileBase(
+    String getInstanceDataFileBase(
         const NameSpace *nameSpace,
         const CIMName& className) const;
 

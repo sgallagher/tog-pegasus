@@ -202,6 +202,7 @@ PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLFactor");
                 return makeObject((CQLTerm*)(_CQLObjectPtr._ptr), target);
                 break;
         }
+PEG_METHOD_EXIT();
 }
 void* CQLFactory::makeObject(CQLTerm* obj, FactoryType target){
 //printf("CQLFactory::makeObject(term)\n");
@@ -259,25 +260,51 @@ void* CQLFactory::getObject(void* inObject, FactoryType inObjectType, FactoryTyp
 PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::getObject");
 	switch(inObjectType){
 		case Predicate:
+			{
+			PEG_METHOD_EXIT();
 			return getObject(((CQLPredicate*)inObject),targetType);
+			}
 		case SimplePredicate:
+			{
+			PEG_METHOD_EXIT();
 			return getObject(((CQLSimplePredicate*)inObject),targetType);
+			}
 		case Expression:
+			{
+			PEG_METHOD_EXIT();
 			return getObject(((CQLExpression*)inObject),targetType);
+			}
 		case Term:
+			{
+			PEG_METHOD_EXIT();
 			return getObject(((CQLTerm*)inObject),targetType);
+			}
 		case Factor:
+			{
+			PEG_METHOD_EXIT();
 			return getObject(((CQLFactor*)inObject),targetType);
+			}
 		case Function:
+			{
+			PEG_METHOD_EXIT();
 			return NULL;
+			}
 		case Value:
+			{
+			PEG_METHOD_EXIT();
 			return getObject(((CQLValue*)inObject),targetType);
+			}
 		case ChainedIdentifier:
+			{
+			PEG_METHOD_EXIT();
 			return getObject(((CQLChainedIdentifier*)inObject),targetType);
+			}
 		default:
+			{
+			PEG_METHOD_EXIT();
 			return NULL;
+			}
 	}
-PEG_METHOD_EXIT();
 }
 
 void* CQLFactory::getObject(CQLChainedIdentifier* obj, FactoryType target){

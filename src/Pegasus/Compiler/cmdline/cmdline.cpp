@@ -23,6 +23,7 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // Modified By:
+//         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -94,7 +95,7 @@ process_filelist(const String &filename, mofCompilerOptions &cmdlinedata)
   ifstream ifs;
   Open(ifs, filename);
 
-  while (ifs != 0) {
+  while (ifs.good() != 0) {
     GetLine(ifs, line);   
     cmdlinedata.add_filespecs(line);
   }

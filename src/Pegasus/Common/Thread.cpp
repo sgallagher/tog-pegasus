@@ -496,8 +496,18 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       return((PEGASUS_THREAD_RETURN)0);
    }
 
-   while(pool->_dying.value() < 1)
+   while(1)
    {
+      try 
+      {
+	 if(pool->_dying.value())
+	    break;
+      }
+      catch(...)
+      {
+	 return((PEGASUS_THREAD_RETURN)0);
+      }
+      
       try 
       {
 	 sleep_sem->wait();
@@ -579,6 +589,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 	    // us and now "owns" our pointer.
 	    if( pool->_running.remove((void *)myself) != 0 )
 	        pool->_pool.insert_first(myself);
+	    else 
+	    {	    
+	       return((PEGASUS_THREAD_RETURN)0);
+	    }
+	    
 	 }
 	 else
 	 {
@@ -927,7 +942,7 @@ Boolean ThreadPool::check_time(struct timeval *start, struct timeval *interval)
    if(interval && interval->tv_sec == 0 && interval->tv_usec == 0)
       return false;
    
-   struct timeval now, finish, remaining ;
+   struct timeval now = {0,0}, finish = {0,0}, remaining = {0,0};
    Uint32 usec;
    pegasus_gettimeofday(&now);
    /* remove valgrind error */

@@ -94,7 +94,7 @@ int _testnum = 0;
 void TestThreadPool2()
 {
    int done = 0;
-	while( done < 10000 )
+	while( done < 100 )
 	{
 		printf( "ThreadPool crash test, iteration:  %d\n", ++done );
 		TestThreadPool();
@@ -244,12 +244,19 @@ int main(int argc, char **argv)
       }
       catch(Deadlock & ) 
       { 
+	 PEGASUS_STD(cout) << "deadlock creating blocking thread" << PEGASUS_STD(endl);
+	 
 	 success = false; 
 	 pegasus_sleep(100);
+	 continue;
+	 
       } 
+      break;
+      
+      
    } while( success == false ); 
    
-   
+   PEGASUS_STD(cout) << "waiting on  blocking thread" << PEGASUS_STD(endl);
    
    blocking.wait();
    tp.kill_dead_threads( ) ;

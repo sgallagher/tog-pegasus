@@ -360,6 +360,17 @@ endif
 # compile in the experimental APIs
 DEFINES+= -DPEGASUS_USE_EXPERIMENTAL_INTERFACES
 
+
+############################################################
+#
+# Set any vendor-specific compile flags
+#
+############################################################
+
+ifdef PEGASUS_VENDOR_HP
+  DEFINES+= -DPEGASUS_VENDOR_HP
+endif
+
  
 ############################################################
 #

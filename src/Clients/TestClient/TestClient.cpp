@@ -583,6 +583,62 @@ static void TestInvokeMethod( CIMClient& client,
     }
 }
 
+/* 
+   Tests the enumerate instances from the sample instance provider.
+*/
+
+static void TestEnumerateInstances( CIMClient& client,
+				    Boolean activeTest, 
+				    Boolean verboseTest )
+{
+
+  const String NAMESPACE = "root/SampleProvider";
+  const String INSTANCE0 = "instance 0Sample_InstanceProviderClass";
+  const String INSTANCE1 = "instance 1Sample_InstanceProviderClass";
+  const String INSTANCE2 = "instance 2Sample_InstanceProviderClass";
+  const String CLASSNAME = "Sample_InstanceProviderClass";
+
+  try
+    {
+      const String classname = CLASSNAME;
+      Boolean deepInheritance = true;
+      Boolean localOnly = true;
+      Boolean includeQualifiers = false;
+      Boolean includeClassOrigin = false;
+      Uint32 testRepeat = 10;
+      for (Uint32 i = 0; i < testRepeat; i++)        // repeat the test x time
+        {
+	  Array<CIMNamedInstance> cimNInstances = 
+	    client.enumerateInstances(NAMESPACE,  classname, deepInheritance,
+				      localOnly,  includeQualifiers,
+				      includeClassOrigin );
+	  
+	  assert( cimNInstances.size() == 3);
+	  for (Uint32 i = 0; i < cimNInstances.size(); i++)
+	    {
+	      String instanceRef = cimNInstances[i].getInstanceName().toString();
+	      
+	      //ATTN P2 WO 4 April 2002
+	      // Test for INSTANCE0..2 when getInstanceName returns
+	      // the full reference string
+	      
+	      if( !(String::equal(  instanceRef, CLASSNAME ) ) )
+		{
+		  PEGASUS_STD(cerr) << "Error: EnumInstances failed" <<
+		    PEGASUS_STD(endl);
+		  return;
+		}
+	    }
+	}
+      cout << "Enumerate instances " << testRepeat << " times" << endl;
+    }
+  catch(Exception& e)
+    {
+      PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+      return;
+    }
+}
+
 ///////////////////////////////////////////////////////////////
 //    OPTION MANAGEMENT
 ///////////////////////////////////////////////////////////////
@@ -905,14 +961,23 @@ int main(int argc, char** argv)
 				   */
 				   
 			   testStart("Test Invoke Method Execution");
-				   TestInvokeMethod(client, activeTest, verboseTest);
+			           elapsedTime.reset();
+				   TestInvokeMethod(client, activeTest,
+						    verboseTest);
+				   testEnd(elapsedTime.getElapsed());
+
+			   testStart("Test Enumerate Instances Execution");
+			           elapsedTime.reset();
+				   TestEnumerateInstances(client, activeTest,
+							  verboseTest);
 				   testEnd(elapsedTime.getElapsed());
 
 			  client.disconnect();
 		  }
 		  catch(Exception& e)
 		  {
-			   PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+			   PEGASUS_STD(cerr) << "Error: " << e.getMessage() <<
+			     PEGASUS_STD(endl);
 			   exit(1);
 		  }
 		}

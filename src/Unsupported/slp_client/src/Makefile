@@ -1,5 +1,4 @@
 COMPONENTS = all
-KERNEL = kernel 
 CLIENT = client
 CLEAN = clean
 INSTALL = install 
@@ -10,9 +9,6 @@ DIRS = 	$(SRC_DIR)/kernel \
 
 all: $(COMPONENTS)
 .PHONY: all 
-
-kernel: $(KERNEL)
-.PHONY: kernel
 
 client: $(CLIENT)
 .PHONY: client
@@ -31,8 +27,5 @@ $(COMPONENTS) $(INSTALL) $(REMOVE):
 	$(foreach dir, $(DIRS), cd $(dir) && $(MAKE) $@;)
 $(CLEAN):
 	$(foreach dir, $(DIRS), cd $(dir) && $(MAKE) -k $@;)
-$(KERNEL):
-	cd $(SRC_DIR)/kernel && $(MAKE)
-
 $(CLIENT):
 	cd $(SRC_DIR)/cmd-utils && $(MAKE)  

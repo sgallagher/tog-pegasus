@@ -20,16 +20,16 @@ DIRS = \
     ExportClient \
     Provider \
     Provider2 \
+    ExportServer \
     Server \
+    Handler/CIMxmlIndicationHandler \
+    Handler/sendmailIndicationHandler \
     Common/tests \
     Config/tests \
     Repository/tests \
     Server/tests \
+    ExportServer/tests \
     Client/tests \
-    Compiler/tests
-
-## Taken out temporarily while rework of ExportClient is happening.
-## Handler/CIMxmlIndicationHandler \
-## Handler/sendmailIndicationHandler \
+    Compiler/tests 
 
 include $(ROOT)/mak/recurse.mak

@@ -1,7 +1,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
-//
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
 // deal in the Software without restriction, including without limitation the 
@@ -22,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -32,9 +33,18 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/CIMObject.h>
+#include <Pegasus/Provider2/CIMIndicationConsumer.h>
 #include <Pegasus/ExportServer/Linkage.h>
 
+#include "ConsumerTable.h"
+#include "HandlerTable.h"
+
 PEGASUS_NAMESPACE_BEGIN
+
+class CIMRepository;
+class HandlerTable;
 
 /** This class dispatches CIM export requests. For now it simply
 */
@@ -43,18 +53,35 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDispatcher
 {
 public:
 
-    CIMExportRequestDispatcher();
+    
+    CIMExportRequestDispatcher(CIMRepository* repository);
 
-    ~CIMExportRequestDispatcher();
+    virtual ~CIMExportRequestDispatcher();
+
+    void handleIndication(
+        CIMInstance& indicationHandlerInstance,
+        CIMInstance& indicationInstance,
+	String nameSpace);
+
+protected:
+    CIMHandler* _lookupHandlerForClass(
+	const String& nameSpace,
+	const String& className);
+
+    CIMIndicationConsumer* _lookupConsumer(const String& url);
 
     virtual void handleEnqueue();
 
     virtual const char* getQueueName() const;
 
+    CIMRepository* _repository;
+    HandlerTable _handlerTable;
+    ConsumerTable _consumerTable;
+
 private:
 
-    void _handleGetClassRequest(
-	CIMGetClassRequestMessage* request);
+    void _handleExportIndicationRequest(
+	CIMExportIndicationRequestMessage* request);
 
     void _enqueueResponse(
 	CIMRequestMessage* request,

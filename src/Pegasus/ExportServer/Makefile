@@ -23,7 +23,9 @@ PRE_DEPEND_INCLUDES = -I./depends
 SOURCES = \
     CIMExportRequestDecoder.cpp \
     CIMExportResponseEncoder.cpp \
-    CIMExportRequestDispatcher.cpp
+    CIMExportRequestDispatcher.cpp \
+    HandlerTable.cpp \
+    ConsumerTable.cpp 
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

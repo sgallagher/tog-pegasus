@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -22,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -69,11 +70,11 @@ public:
 
     void handleHTTPMessage(HTTPMessage* httpMessage);
 
-    void handleMethodCall(
+    void handleMethodRequest(
 	Uint32 queueId,
 	Sint8* content);
 
-    void decodeGetClassRequest(
+    void decodeExportIndicationRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
@@ -82,6 +83,9 @@ public:
 private:
 
     MessageQueue* _outputQueue;
+
+    // Consumer to which the indication to be send.
+    String _url;
 
     // Queue where responses should be enqueued.
     Uint32 _returnQueueId;

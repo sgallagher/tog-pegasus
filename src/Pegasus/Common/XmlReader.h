@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -24,6 +25,8 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //              (carolann_graves@hp.com)
+//
+//              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -354,6 +357,14 @@ public:
     static Boolean getObjectPathElement(
 	XmlParser& parser, 
 	CIMReference& objectPath);
+
+    static Boolean getEMethodCallStartTag(
+	XmlParser& parser, 
+	const char*& name);
+
+    static Boolean getEMethodResponseStartTag(
+	XmlParser& parser, 
+	const char*& name);
 
 private:
 

@@ -32,6 +32,7 @@
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/HTTPMessage.h>
+#include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/ExportServer/CIMExportRequestDecoder.h>
 #include <Pegasus/ExportServer/CIMExportResponseEncoder.h>
 #include <Pegasus/ExportServer/CIMExportRequestDispatcher.h>
@@ -87,10 +88,11 @@ int main()
     {
 	// Create a monitor to watch for activity on sockets:
 
-	Monitor* monitor = new Monitor;
+        Monitor* monitor = new Monitor;
+	CIMRepository* repository = new CIMRepository("/PegasusRun");
 
 	CIMExportRequestDispatcher* dispatcher
-	    = new CIMExportRequestDispatcher();
+	    = new CIMExportRequestDispatcher(repository);
 
 	CIMExportResponseEncoder* encoder
 	    = new CIMExportResponseEncoder;

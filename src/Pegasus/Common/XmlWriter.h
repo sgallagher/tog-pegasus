@@ -199,28 +199,40 @@ public:
 	const Array<Sint8>& body);
 
     static String getNextMessageId();
-	
+
     static Array<Sint8> formatSimpleIndicationReqMessage(
 	const char* host,
-    	const String& nameSpace,
     	const char* iMethodName,
 	const String& messageId,
     	const Array<Sint8>& body);
 
     static Array<Sint8> formatEMethodCallElement(
     	const char* name,
-    	const String& nameSpace,
     	const Array<Sint8>& iParamValues);
 
     static Array<Sint8> formatMPostIndicationHeader(
     	const char* host,
     	const char* cimOperation,
     	const char* cimMethod,
-    	const String& cimObject,
     	const Array<Sint8>& content);
 
     static Array<Sint8> formatSimpleExportReqElement(
     	const Array<Sint8>& body);
+
+    static Array<Sint8> formatSimpleExportRspElement(
+	const Array<Sint8>& body);
+
+    static Array<Sint8> formatSimpleIndicationRspMessage(
+	const char* iMethodName,
+        const String& messageId,
+	const Array<Sint8>& body);
+
+    static Array<Sint8> formatEMethodResponseElement(
+	const char* name,
+	const Array<Sint8>& iParamValues);
+
+    static Array<Sint8> formatEMethodResponseHeader(
+	const Array<Sint8>& content);
 
 private:
 

@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -22,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -104,40 +105,32 @@ void CIMExportClient::connect(const String& address)
     _connected = true;
 }
 
-CIMClass CIMExportClient::getClass(
-    const String& nameSpace,
-    const String& className,
-    Boolean localOnly,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const Array<String>& propertyList)
+void CIMExportClient::exportIndication(
+    const String& url,
+    const CIMInstance& instanceName)
 {
     String messageId = XmlWriter::getNextMessageId();
     
     // encode request
-    Message* request = new CIMGetClassRequestMessage(
+    Message* request = new CIMExportIndicationRequestMessage(
 	messageId,
-	nameSpace,
-	className,
-	localOnly,
-	includeQualifiers,
-	includeClassOrigin,
-	propertyList,
+	url,
+	instanceName,
 	QueueIdStack());
-    
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_GET_CLASS_RESPONSE_MESSAGE, messageId);
 
-    CIMGetClassResponseMessage* response = 
-        (CIMGetClassResponseMessage*)message;
+    _requestEncoder->enqueue(request);
+
+    Message* message = _waitForResponse(
+        CIM_EXPORT_INDICATION_RESPONSE_MESSAGE, messageId);
+
+    CIMExportIndicationResponseMessage* response = 
+        (CIMExportIndicationResponseMessage*)message;
     
-    Destroyer<CIMGetClassResponseMessage> destroyer(response);
+    Destroyer<CIMExportIndicationResponseMessage> destroyer(response);
     
     _checkError(response);
     
-    return(response->cimClass);
+    //return(response->cimClass);
 }
 
 Message* CIMExportClient::_waitForResponse(

@@ -21,54 +21,54 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_CIMExportResponseEncoder_h
-#define Pegasus_CIMExportResponseEncoder_h
+#ifndef Pegasus_HTTPDelegator_h
+#define Pegasus_HTTPDelegator_h
 
-#include <Pegasus/Common/Config.h>
+#include <cstdio>
+#include <cassert>
+#include <iostream>
 #include <Pegasus/Common/MessageQueue.h>
-#include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/ExportServer/Linkage.h>
+#include <Pegasus/Common/HTTPAcceptor.h>
+#include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/HTTPConnection.h>
+#include <Pegasus/Common/HTTPMessage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This class encodes CIM operation requests and passes them up-stream.
-*/
-class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportResponseEncoder 
-    : public MessageQueue
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
+
+class PEGASUS_COMMON_LINKAGE HTTPDelegator : public MessageQueue
 {
 public:
 
-    CIMExportResponseEncoder();
+    /** Constructor. */
+    HTTPDelegator(
+	MessageQueue* operationMessageQueue,
+	MessageQueue* exportMessageQueue);
 
-    ~CIMExportResponseEncoder();
-
-    void sendResponse(Uint32 queueId, Array<Sint8>& message);
-
-    void sendError(
-	Uint32 queueId, 
-	const String& messageId,
-	const String& methodName,
-	CIMStatusCode code,
-	const String& description);
-
-    void sendError(
-	CIMResponseMessage* response,
-	const String& cimMethodName);
+    /** Destructor. */
+    ~HTTPDelegator();
 
     virtual void handleEnqueue();
 
     virtual const char* getQueueName() const;
 
-    void encodeExportIndicationResponse(
-	CIMExportIndicationResponseMessage* response);
+    void handleHTTPMessage(HTTPMessage* httpMessage);
+
+private:
+
+    MessageQueue* _operationMessageQueue;
+    MessageQueue* _exportMessageQueue;
+
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_CIMExportResponseEncoder_h */
+#endif /* Pegasus_HTTPDelegator_h */

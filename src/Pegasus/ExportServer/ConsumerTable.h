@@ -21,54 +21,66 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_CIMExportResponseEncoder_h
-#define Pegasus_CIMExportResponseEncoder_h
+#ifndef Pegasus_ConsumerTable_h
+#define Pegasus_ConsumerTable_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
-#include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Provider2/CIMIndicationConsumer.h>
 #include <Pegasus/ExportServer/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This class encodes CIM operation requests and passes them up-stream.
-*/
-class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportResponseEncoder 
-    : public MessageQueue
+class CreateIndicationConsumerReturnedNull : public Exception
 {
 public:
 
-    CIMExportResponseEncoder();
+    CreateIndicationConsumerReturnedNull(
+	const String& libName, 
+	const String& funcName)
+	: Exception(funcName + " returned null in library " + libName) { }
+};
+ 
+// The consumer table maintains a list of consumers which have been 
+// dynamically loaded. It maintains a mapping between string 
+// consumer identifiers and consumers. CIMOM Listner will use the 
+// consumer table to find consumer for the purposes of request dispatching.
 
-    ~CIMExportResponseEncoder();
+class PEGASUS_EXPORT_SERVER_LINKAGE ConsumerTable
+{
+public:
 
-    void sendResponse(Uint32 queueId, Array<Sint8>& message);
+    ConsumerTable();
 
-    void sendError(
-	Uint32 queueId, 
-	const String& messageId,
-	const String& methodName,
-	CIMStatusCode code,
-	const String& description);
+    CIMIndicationConsumer* lookupConsumer(const String& consumerId);
 
-    void sendError(
-	CIMResponseMessage* response,
-	const String& cimMethodName);
+    CIMIndicationConsumer* loadConsumer(const String& consumerId);
 
-    virtual void handleEnqueue();
+private:
 
-    virtual const char* getQueueName() const;
+    struct Entry
+    {
+	String consumerId;
+	CIMIndicationConsumer* consumer;
+    };
 
-    void encodeExportIndicationResponse(
-	CIMExportIndicationResponseMessage* response);
+    Array<Entry> _consumers;
+
+public:
+
+    friend int operator==(const Entry& x, const Entry& y)
+    {
+	return 0;
+    }
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_CIMExportResponseEncoder_h */
+#endif /* Pegasus_ConsumerTable_h */

@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -20,11 +21,15 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
+
+#include <Pegasus/Common/HTTPMessage.h>
+#include <Pegasus/Common/CIMOMHandle.h>
+#include <Pegasus/Repository/CIMRepository.h>
 
 #include "CIMExportRequestDispatcher.h"
 
@@ -32,7 +37,9 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMExportRequestDispatcher::CIMExportRequestDispatcher()
+CIMExportRequestDispatcher::CIMExportRequestDispatcher(
+    CIMRepository* repository)
+    : _repository(repository)
 {
 
 }
@@ -56,44 +63,13 @@ void CIMExportRequestDispatcher::handleEnqueue()
 
     switch (request->getType())
     {
-	case CIM_GET_CLASS_REQUEST_MESSAGE:
-	    _handleGetClassRequest((CIMGetClassRequestMessage*)request);
+	case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
+	    _handleExportIndicationRequest(
+		(CIMExportIndicationRequestMessage*)request);
 	    break;
     }
 
     delete request;
-}
-
-void CIMExportRequestDispatcher::_handleGetClassRequest(
-    CIMGetClassRequestMessage* request)
-{
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-    CIMClass cimClass("MyClass");
-
-    try
-    {
-
-    }
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
-    }
-
-    CIMGetClassResponseMessage* response = new CIMGetClassResponseMessage(
-	request->messageId,
-	errorCode,
-	errorDescription,
-	request->queueIds.copyAndPop(),
-	cimClass);
-
-    _enqueueResponse(request, response);
 }
 
 void CIMExportRequestDispatcher::_enqueueResponse(
@@ -112,6 +88,132 @@ void CIMExportRequestDispatcher::_enqueueResponse(
     // Enqueue the response:
 
     queue->enqueue(response);
+}
+
+void CIMExportRequestDispatcher::_handleExportIndicationRequest(
+    CIMExportIndicationRequestMessage* request)
+{
+    // ATTN: This is just demo code
+
+    OperationContext context;
+
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription;
+
+    CIMIndicationConsumer* consumer = _lookupConsumer(request->url);
+    
+    if (consumer)
+    	consumer->handleIndication(
+	context,
+	request->url, 
+	request->indicationInstance);
+    else
+	throw CIMException(CIM_ERR_FAILED);
+
+    CIMExportIndicationResponseMessage* response = 
+	new CIMExportIndicationResponseMessage(
+	request->messageId,
+	errorCode,
+	errorDescription,
+	request->queueIds.copyAndPop());
+
+    _enqueueResponse(request, response);
+}
+
+void CIMExportRequestDispatcher::handleIndication(
+    CIMInstance& indicationHandlerInstance,
+    CIMInstance& indicationInstance,
+    String nameSpace)
+{
+    String className = indicationHandlerInstance.getClassName();
+    CIMHandler* handler = _lookupHandlerForClass(nameSpace, className);
+    
+    if (handler)
+    {
+	handler->handleIndication(
+	    indicationHandlerInstance,
+	    indicationInstance,
+	    nameSpace);
+    }
+    else
+	throw CIMException(CIM_ERR_FAILED);
+}
+
+CIMHandler* CIMExportRequestDispatcher::_lookupHandlerForClass(
+    const String& nameSpace,
+    const String& className)
+{
+    //----------------------------------------------------------------------
+    // Look up the class:
+    //----------------------------------------------------------------------
+
+    CIMClass cimClass = _repository->getClass(nameSpace, className);
+
+    if (!cimClass)
+	throw CIMException(CIM_ERR_INVALID_CLASS);
+
+    //----------------------------------------------------------------------
+    // Get the handler qualifier:
+    //----------------------------------------------------------------------
+
+    Uint32 pos = cimClass.findQualifier("Handler");
+
+    if (pos == PEG_NOT_FOUND)
+	return 0;
+
+    CIMQualifier q = cimClass.getQualifier(pos);
+    String handlerId;
+
+    q.getValue().get(handlerId);
+
+    CIMHandler* handler = _handlerTable.lookupHandler(handlerId);
+
+    if (!handler)
+    {
+	handler = _handlerTable.loadHandler(handlerId);
+
+	if (!handler)
+	    throw CIMException(CIM_ERR_FAILED);
+
+	handler->initialize();
+    }
+
+    return handler;
+}
+
+CIMIndicationConsumer* CIMExportRequestDispatcher::_lookupConsumer(const String& url)
+{
+    //ATTN: How to get NAMESPACE? Defining just to proceed further.
+    String NAMESPACE = "root/cimv2";
+
+    Array<CIMInstance> cInst;
+    cInst = _repository->enumerateInstances(NAMESPACE, "PG_ConsumerRegistration");
+
+    CIMInstance cInstance = cInst[0];
+
+    String lib_name;
+
+    if (cInstance.getProperty(cInstance.findProperty("url")).getValue().toString() == url)
+    {
+	lib_name = cInstance.getProperty(cInstance.findProperty("consumerName")).getValue().toString();
+    }   
+
+    CIMIndicationConsumer* consumer = _consumerTable.lookupConsumer(lib_name);
+
+    if (!consumer)
+    {
+	consumer = _consumerTable.loadConsumer(lib_name);
+
+	if (!consumer)
+	    throw CIMException(CIM_ERR_FAILED);
+
+	//ATTN: How will get this handle? Defining just to proceed further.
+	CIMOMHandle cimom;
+
+	consumer->initialize(cimom);
+    }
+
+    return consumer;
 }
 
 PEGASUS_NAMESPACE_END

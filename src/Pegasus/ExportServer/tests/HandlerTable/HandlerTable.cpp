@@ -21,54 +21,34 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_CIMExportResponseEncoder_h
-#define Pegasus_CIMExportResponseEncoder_h
+#include <cassert>
+#include <Pegasus/ExportServer/HandlerTable.h>
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
-#include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/ExportServer/Linkage.h>
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
-PEGASUS_NAMESPACE_BEGIN
-
-/** This class encodes CIM operation requests and passes them up-stream.
-*/
-class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportResponseEncoder 
-    : public MessageQueue
+int main(int argc, char** argv)
 {
-public:
+    try
+    {
+	HandlerTable table;
+	CIMHandler* handler = table.loadHandler("CIMxmlIndicationHandler");
+	assert(handler != 0);
+	delete handler;
+    }
+    catch(Exception& e)
+    {
+	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+	exit(1);
+    }
 
-    CIMExportResponseEncoder();
+    cout << "+++++ passed all tests" << endl;
 
-    ~CIMExportResponseEncoder();
-
-    void sendResponse(Uint32 queueId, Array<Sint8>& message);
-
-    void sendError(
-	Uint32 queueId, 
-	const String& messageId,
-	const String& methodName,
-	CIMStatusCode code,
-	const String& description);
-
-    void sendError(
-	CIMResponseMessage* response,
-	const String& cimMethodName);
-
-    virtual void handleEnqueue();
-
-    virtual const char* getQueueName() const;
-
-    void encodeExportIndicationResponse(
-	CIMExportIndicationResponseMessage* response);
-};
-
-PEGASUS_NAMESPACE_END
-
-#endif /* Pegasus_CIMExportResponseEncoder_h */
+    return 0;
+}

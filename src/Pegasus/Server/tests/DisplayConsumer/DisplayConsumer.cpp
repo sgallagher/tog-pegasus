@@ -21,54 +21,64 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_CIMExportResponseEncoder_h
-#define Pegasus_CIMExportResponseEncoder_h
-
+#include <iostream>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
-#include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/ExportServer/Linkage.h>
+#include <Pegasus/Common/CIMOMHandle.h>
+#include <Pegasus/Provider2/CIMIndicationConsumer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This class encodes CIM operation requests and passes them up-stream.
-*/
-class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportResponseEncoder 
-    : public MessageQueue
+PEGASUS_USING_STD;
+
+class PEGASUS_PROVIDER_LINKAGE DisplayConsumer : public CIMIndicationConsumer
 {
 public:
 
-    CIMExportResponseEncoder();
+    DisplayConsumer()
+    {
+        
+    }
 
-    ~CIMExportResponseEncoder();
+    virtual ~DisplayConsumer()
+    {
+        
+    }
 
-    void sendResponse(Uint32 queueId, Array<Sint8>& message);
+    void initialize(CIMOMHandle & cimom)
+    {
+	
+    }
 
-    void sendError(
-	Uint32 queueId, 
-	const String& messageId,
-	const String& methodName,
-	CIMStatusCode code,
-	const String& description);
+    void terminate()
+    {
+        
+    }
 
-    void sendError(
-	CIMResponseMessage* response,
-	const String& cimMethodName);
-
-    virtual void handleEnqueue();
-
-    virtual const char* getQueueName() const;
-
-    void encodeExportIndicationResponse(
-	CIMExportIndicationResponseMessage* response);
+    void handleIndication(
+	const OperationContext & context,
+	String& url,
+	const CIMInstance& indicationInstance)
+    {
+	Array<Sint8> buffer;
+	indicationInstance.toXml(buffer);
+	cout << buffer.getData() << endl;
+    }
 };
 
-PEGASUS_NAMESPACE_END
+// This is the dynamic entry point into this dynamic module. The name of
+// this handler is "FlatFileConsumer" which is appened to "PegasusCreateHandler_"
+// to form a symbol name. This function is called by the HandlerTable
+// to load this handler.
 
-#endif /* Pegasus_CIMExportResponseEncoder_h */
+extern "C" PEGASUS_EXPORT CIMIndicationConsumer* 
+    PegasusCreateIndicationConsumer_DisplayConsumer() {
+    return new DisplayConsumer;
+}
+
+PEGASUS_NAMESPACE_END

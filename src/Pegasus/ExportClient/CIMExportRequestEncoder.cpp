@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -22,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -58,8 +59,8 @@ void CIMExportRequestEncoder::handleEnqueue()
 
     switch (message->getType())
     {
-	case CIM_GET_CLASS_REQUEST_MESSAGE:
-	    _encodeGetClassRequest((CIMGetClassRequestMessage*)message);
+	case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
+	    _encodeExportIndicationRequest((CIMExportIndicationRequestMessage*)message);
 	    break;
     }
 
@@ -71,25 +72,19 @@ const char* CIMExportRequestEncoder::getQueueName() const
     return "CIMExportRequestEncoder";
 }
 
-void CIMExportRequestEncoder::_encodeGetClassRequest(
-    CIMGetClassRequestMessage* message)
+void CIMExportRequestEncoder::_encodeExportIndicationRequest(
+    CIMExportIndicationRequestMessage* message)
 {
     Array<Sint8> params;
 
-    XmlWriter::appendClassNameParameter(
-	params, "ClassName", message->className);
+    XmlWriter::appendInstanceParameter(
+	params, "NewIndication", message->indicationInstance);
 	
-    if (message->localOnly != true)
-	XmlWriter::appendBooleanParameter(params, "LocalOnly", false);
-
-    if (message->includeQualifiers != true)
-	XmlWriter::appendBooleanParameter(params, "IncludeQualifiers", false);
-
-    if (message->includeClassOrigin != false)
-	XmlWriter::appendBooleanParameter(params, "IncludeClassOrigin", true);
-
-    Array<Sint8> buffer = XmlWriter::formatSimpleReqMessage(
-	_hostName, message->nameSpace, "GetClass", message->messageId, params);
+    Array<Sint8> buffer = XmlWriter::formatSimpleIndicationReqMessage(
+	message->url.allocateCString(), 
+	"ExportIndication", 
+	message->messageId, 
+	params);
 
     _outputQueue->enqueue(new HTTPMessage(buffer));
 }

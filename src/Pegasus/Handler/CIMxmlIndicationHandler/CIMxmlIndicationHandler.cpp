@@ -32,6 +32,7 @@
 #include <Pegasus/Common/Selector.h>
 #include <Pegasus/ExportClient/CIMExportClient.h>
 #include <Pegasus/Handler/CIMHandler.h>
+#include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -78,13 +79,13 @@ public:
 	
 	try
         {
-            //send indication to destination
-	    Selector selector;
-	    CIMExportClient deliveryClient(&selector);
-	    deliveryClient.deliverIndication(dest.toString().allocateCString(), 
-					     indicationInstance, 
-					     nameSpace);
-        }
+	    Monitor* monitor = new Monitor;
+	    HTTPConnector* httpConnector = new HTTPConnector(monitor);
+	    CIMExportClient exportclient(monitor, httpConnector);
+	    exportclient.connect(dest.toString().allocateCString());
+	    exportclient.exportIndication(dest.toString().allocateCString(), 
+		indicationInstance);
+	}
 	catch(Exception& e)
         {
             PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);

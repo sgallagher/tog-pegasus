@@ -5,6 +5,7 @@ LIBRARIES = \
     $(LIB_DIR)/$(LIB_PREFIX)pegserver$(LIB_SUFFIX) \
     $(LIB_DIR)/$(LIB_PREFIX)pegprovider$(LIB_SUFFIX) \
     $(LIB_DIR)/$(LIB_PREFIX)pegexportclient$(LIB_SUFFIX) \
+    $(LIB_DIR)/$(LIB_PREFIX)pegclient$(LIB_SUFFIX)
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
 DYNAMIC_LIBRARIES = \
@@ -13,7 +14,8 @@ DYNAMIC_LIBRARIES = \
     $(LIB_DIR)/$(LIB_PREFIX)pegprotocol.x \
     $(LIB_DIR)/$(LIB_PREFIX)pegserver.x \
     $(LIB_DIR)/$(LIB_PREFIX)pegprovider.x \
-    $(LIB_DIR)/$(LIB_PREFIX)pegexportclient.x
+    $(LIB_DIR)/$(LIB_PREFIX)pegexportclient.x \
+    $(LIB_DIR)/$(LIB_PREFIX)pegclient.x 
  
 else
 DYNAMIC_LIBRARIES = \
@@ -22,6 +24,7 @@ DYNAMIC_LIBRARIES = \
     -lpegprotocol \
     -lpegserver \
     -lpegprovider \
-    -lpegexportclient
+    -lpegexportclient \
+    -lpegclient
  
 endif

@@ -28,8 +28,11 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
+#include <Pegasus/Common/Monitor.h>
+#include <Pegasus/Common/HTTPConnector.h>
+#include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Repository/CIMRepository.h>
-#include <Pegasus/Server/CIMExportRequestDispatcher.h>
+#include <Pegasus/ExportServer/CIMExportRequestDispatcher.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -38,78 +41,54 @@ const String NAMESPACE = "root/cimv2";
 
 int main()
 {
-    CIMRepository r("./testrepository");
+    //CIMRepository r("/PegasusRun/repository");
 
-    try
-    {   
-        r.createNameSpace(NAMESPACE);
-    }
-    catch (AlreadyExists&)
-    {
-        // Ignore this!
-    }
+    Monitor* monitor = new Monitor;
+    HTTPConnector* httpConnector = new HTTPConnector(monitor);
+    CIMClient r(monitor, httpConnector);
 
-    r.setQualifier(
-        NAMESPACE, CIMQualifierDecl("Handler", "CIMxmlIndicationHandler", CIMScope::CLASS));
+    r.connect("localhost:5988");
 
-    r.setQualifier(
-        NAMESPACE, CIMQualifierDecl("key", true, CIMScope::PROPERTY));
+    //Consumer
+    CIMClass cClass = r.getClass(NAMESPACE, "PG_ConsumerRegistration", false);
+    CIMInstance cInstance("PG_ConsumerRegistration");
+    cInstance.addProperty(CIMProperty("url", "localhost:5988"));
+    cInstance.addProperty(CIMProperty("consumerName", "DisplayConsumer"));
+    CIMReference instanceName3 = cInstance.getInstanceName(cClass);
+    r.createInstance(NAMESPACE, cInstance);
 
-    //Handler
-    CIMClass handlerClass("CIMxmlIndicationHandler");
-
-    handlerClass
-        .addProperty(CIMProperty("destination", String())
-            .addQualifier(CIMQualifier("key", true)));
-    handlerClass.addQualifier(CIMQualifier("Handler", "CIMxmlIndicationHandler"));
-
-    r.createClass(NAMESPACE, handlerClass);
-
-    //--------------------------------------------------------------------------
-    // Create Instance (of SuperClass):
-    //--------------------------------------------------------------------------
-
-    CIMInstance handlerInstance("CIMxmlIndicationHandler");
-    handlerInstance.addQualifier(CIMQualifier("Handler", "CIMxmlIndicationHandler"));
-    handlerInstance.addProperty(CIMProperty("destination", "localhost:5988"));
     
+    //Handler
+    CIMClass handlerClass = r.getClass(NAMESPACE, "CIM_IndicationHandlerXMLHTTP", false);
+    CIMInstance handlerInstance("CIM_IndicationHandlerXMLHTTP");
+    handlerInstance.addQualifier(CIMQualifier("Handler", "CIMxmlIndicationHandler"));
+    handlerInstance.addProperty(CIMProperty("Destination", "localhost:5988"));
+    //handlerInstance.addProperty(CIMProperty("Destination", "arches.cup.hp.com:5988"));
+    handlerInstance.addProperty(CIMProperty("SystemCreationClassName", "NU744781"));
+    handlerInstance.addProperty(CIMProperty("SystemName", "NU744781"));
+    handlerInstance.addProperty(CIMProperty("CreationClassName", "CIM_IndciationHandlerXMLHTTP"));
+    handlerInstance.addProperty(CIMProperty("Name", "snmpIndicationHandler"));
+    CIMReference instanceName1 = handlerInstance.getInstanceName(handlerClass);
     r.createInstance(NAMESPACE, handlerInstance);
 
     //Indication
-    CIMClass indicationClass("MyIndication");
+    CIMClass cimClass = r.getClass(NAMESPACE, "TestSoftwarePkg", false);
+    CIMInstance cimInstance("TestSoftwarePkg");
+    cimInstance.addProperty(CIMProperty("PkgName", "WBEM"));
+    cimInstance.addProperty(CIMProperty("PkgIndex", Uint32(101)));
+    cimInstance.addProperty(CIMProperty("trapOid", "1.3.6.1.4.1.11.2.3.1.7.0.4"));
+    cimInstance.addProperty(CIMProperty("computerName", "NU744781"));
+    CIMReference instanceName2 = cimInstance.getInstanceName(cimClass);
+    r.createInstance(NAMESPACE, cimInstance);
 
-    indicationClass
-        .addProperty(CIMProperty("Company", String())
-            .addQualifier(CIMQualifier("key", true)))
-        .addProperty(CIMProperty("City", String())
-            .addQualifier(CIMQualifier("key", true)))
-        .addProperty(CIMProperty("Building", Uint8(0))
-            .addQualifier(CIMQualifier("key", true)));
-
-    r.createClass(NAMESPACE, indicationClass);
-
-    //--------------------------------------------------------------------------
-    // Create Instance (of SuperClass):
-    //--------------------------------------------------------------------------
-
-    CIMInstance indicationInstance("MyIndication");
-    indicationInstance.addProperty(CIMProperty("Company", "Hewlett-Packard Company"));
-    indicationInstance.addProperty(CIMProperty("City", "Cupertino, CA"));
-    indicationInstance.addProperty(CIMProperty("Building", Uint8(44)));
-
-    r.createInstance(NAMESPACE, indicationInstance);
-
-    CIMRepository* repository = new CIMRepository("./testrepository");
+    CIMRepository* repository = new CIMRepository("/PegasusRun/repository");
     CIMExportRequestDispatcher* dispatcher = new CIMExportRequestDispatcher(repository);
 
-    dispatcher->handleIndication(handlerInstance, indicationInstance, NAMESPACE);
+    dispatcher->handleIndication(handlerInstance, cimInstance, NAMESPACE);
 
-    //Removing everything
-#ifdef PEGASUS_OS_TYPE_UNIX
-    system("rm -r testrepository");
-#endif
-
-    cout << "+++++ passed all tests" << endl;
+    r.deleteInstance(NAMESPACE, instanceName1);
+    r.deleteInstance(NAMESPACE, instanceName2);
+    r.deleteInstance(NAMESPACE, instanceName3);
 
     return 0;
 }

@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -22,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -85,13 +86,9 @@ public:
     void connect(const String& address);
 
     ///
-    virtual CIMClass getClass(
+    virtual void exportIndication(
 	const String& nameSpace,
-	const String& className,
-	Boolean localOnly = true,
-	Boolean includeQualifiers = true,
-	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = EmptyStringArray());
+	const CIMInstance& instanceName);
 
 private:
 

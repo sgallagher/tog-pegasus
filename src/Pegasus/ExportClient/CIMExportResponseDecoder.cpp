@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -22,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -100,7 +101,7 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     String cimOperation;
 
     if (!HTTPMessage::lookupHeader(
-	headers, "*CIMOperation", cimOperation, true))
+	headers, "*CIMExport", cimOperation, true))
     {
 	// ATTN: error discarded at this time!
 	return;
@@ -167,18 +168,18 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
 	}
 
 	//
-	// Expect <SIMPLERSP ... >
+	// Expect <SIMPLEEXPRSP ... >
 	//
 
-	XmlReader::expectStartTag(parser, entry, "SIMPLERSP");
+	XmlReader::expectStartTag(parser, entry, "SIMPLEEXPRSP");
 
 	//
-	// Expect <IMETHODRESPONSE ... >
+	// Expect <EXPMETHODRESPONSE ... >
 	//
 
 	const char* iMethodResponseName = 0;
 
-	if (!XmlReader::getIMethodResponseStartTag(parser, iMethodResponseName))
+	if (!XmlReader::getEMethodResponseStartTag(parser, iMethodResponseName))
 	{
 	    // ATTN: error ignored for now!
 
@@ -189,15 +190,15 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
 	// Dispatch the method:
 	//
 
-	if (EqualNoCase(iMethodResponseName, "GetClass"))
-	    _decodeGetClassResponse(parser, messageId);
-
+	if (EqualNoCase(iMethodResponseName, "ExportIndication"))
+	    _decodeExportIndicationResponse(parser, messageId);
+	
 	//
 	// Handle end tags:
 	//
 
-	XmlReader::expectEndTag(parser, "IMETHODRESPONSE");
-	XmlReader::expectEndTag(parser, "SIMPLERSP");
+	XmlReader::expectEndTag(parser, "EXPMETHODRESPONSE");
+	XmlReader::expectEndTag(parser, "SIMPLEEXPRSP");
 	XmlReader::expectEndTag(parser, "MESSAGE");
 	XmlReader::expectEndTag(parser, "CIM");
     }
@@ -210,7 +211,7 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
     }
 }
 
-void CIMExportResponseDecoder::_decodeGetClassResponse(
+void CIMExportResponseDecoder::_decodeExportIndicationResponse(
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
@@ -219,28 +220,21 @@ void CIMExportResponseDecoder::_decodeGetClassResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMGetClassResponseMessage(
+	_outputQueue->enqueue(new CIMExportIndicationResponseMessage(
 	    messageId,
 	    code,
 	    description,
-	    QueueIdStack(),
-	    CIMClass()));
+	    QueueIdStack()));
     }
     else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
     {
-	CIMClass cimClass;
-
-	if (!XmlReader::getClassElement(parser, cimClass))
-	    throw XmlValidationError(parser.getLine(),"expected CLASS element");
-
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	_outputQueue->enqueue(new CIMGetClassResponseMessage(
+	_outputQueue->enqueue(new CIMExportIndicationResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
-	    QueueIdStack(),
-	    cimClass));
+	    QueueIdStack()));
     }
     else
     {
@@ -248,51 +242,5 @@ void CIMExportResponseDecoder::_decodeGetClassResponse(
 	    "expected ERROR or IRETURNVALUE element");
     }
 }
-
-#if 0
-void CIMExportClient::deliverIndication(
-    const char* address, 
-    CIMInstance& indicationInstance, 
-    String nameSpace)
-{
-    if (_channel)
-	throw AlreadyConnected();
-
-    ChannelHandlerFactory* factory = new ExportClientHandlerFactory(_selector);
-
-    TCPChannelConnector* connector
-	= new TCPChannelConnector(factory, _selector);
-
-    // ATTN-A: need connection timeout here:
-
-    _channel = connector->connect(address);
-
-    if (!_channel)
-	throw FailedToConnect();
-
-    String messageId = XmlWriter::getNextMessageId();
-
-    Array<Sint8> params;
-
-    XmlWriter::appendInstanceParameter(
-	params, "NewIndication", indicationInstance);
-	
-    Array<Sint8> message = XmlWriter::formatSimpleIndicationReqMessage(
-	_getHostName(), nameSpace, "ExportIndication", messageId, params);
-
-    _channel->writeN(message.getData(), message.size());
-
-    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
-	throw TimedOut();
-
-    CreateInstanceResult* result = _getHandler()->_createInstanceResult;
-    CIMStatusCode code = result->code;
-    delete result;
-    _getHandler()->_createInstanceResult = 0;
-
-    if (code != CIM_ERR_SUCCESS)
-	throw CIMException(code);
-}
-#endif
 
 PEGASUS_NAMESPACE_END

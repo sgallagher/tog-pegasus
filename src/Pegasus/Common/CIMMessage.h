@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -22,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -154,6 +155,28 @@ public:
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     Array<String> propertyList;
+};
+
+class CIMExportIndicationRequestMessage : public CIMRequestMessage
+{
+public:
+
+    CIMExportIndicationRequestMessage(
+        const String& messageId_,
+	const String& url_,
+	const CIMInstance& indicationInstance_,
+	QueueIdStack queueIds_) 
+	:
+	CIMRequestMessage(
+	    CIM_EXPORT_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
+	url(url_),
+	indicationInstance(indicationInstance_)
+    {
+
+    }
+
+    String url;
+    CIMInstance indicationInstance;
 };
 
 class CIMDeleteClassRequestMessage : public CIMRequestMessage
@@ -769,6 +792,22 @@ public:
     }
 
     CIMInstance cimInstance;
+};
+
+class CIMExportIndicationResponseMessage : public CIMResponseMessage
+{
+public:
+
+    CIMExportIndicationResponseMessage(
+        const String& messageId_,
+	CIMStatusCode errorCode_,
+	const String& errorDescription_,
+	const QueueIdStack& queueIds_)
+	:
+	CIMResponseMessage(CIM_EXPORT_INDICATION_RESPONSE_MESSAGE, 
+	    messageId_, errorCode_, errorDescription_, queueIds_)
+    {
+    }
 };
 
 class CIMDeleteClassResponseMessage : public CIMResponseMessage

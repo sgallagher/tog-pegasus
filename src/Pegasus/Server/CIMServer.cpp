@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -24,6 +25,7 @@
 //
 // Modified By:
 //         Mike Day (mdday@us.ibm.com)s
+//         Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +37,11 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/TCPChannel.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
+#include <Pegasus/Common/HTTPDelegator.h>
 #include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/ExportServer/CIMExportRequestDispatcher.h>
+#include <Pegasus/ExportServer/CIMExportResponseEncoder.h>
+#include <Pegasus/ExportServer/CIMExportRequestDecoder.h>
 #include "CIMServer.h"
 #include "CIMOperationRequestDispatcher.h"
 #include "CIMOperationResponseEncoder.h"
@@ -83,7 +89,21 @@ CIMServer::CIMServer(
 	_cimOperationRequestDispatcher, 
 	_cimOperationResponseEncoder->getQueueId());
 
-    _acceptor = new HTTPAcceptor(_monitor, _cimOperationRequestDecoder);
+    _cimExportRequestDispatcher 
+	= new CIMExportRequestDispatcher(repository);
+
+    _cimExportResponseEncoder 
+	= new CIMExportResponseEncoder;
+
+    _cimExportRequestDecoder = new CIMExportRequestDecoder(
+	_cimExportRequestDispatcher, 
+	_cimExportResponseEncoder->getQueueId());
+    
+    HTTPDelegator* serevrQueue = new HTTPDelegator(
+    	_cimOperationRequestDecoder,
+     	_cimExportRequestDecoder);
+
+    _acceptor = new HTTPAcceptor(_monitor, serevrQueue);
 }
 
 CIMServer::~CIMServer()

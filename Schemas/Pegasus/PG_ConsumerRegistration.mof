@@ -1,0 +1,14 @@
+// ===================================================================
+// PG_ConsumerRegistration
+// ===================================================================
+[Description (
+     "This is a temporary class that will get replaced when the DMTF "
+     "standardizes provider registration.")]
+class PG_ConsumerRegistration
+{
+        [Required, Key] 
+    string consumerName ;
+        [Required, Key] 
+    string url ;
+};
+     

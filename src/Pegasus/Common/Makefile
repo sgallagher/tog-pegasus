@@ -13,7 +13,8 @@ NEW_SOURCES = \
     HTTPAcceptor.cpp \
     HTTPConnection.cpp \
     HTTPConnector.cpp  \
-    HTTPMessage.cpp
+    HTTPMessage.cpp \
+    HTTPDelegator.cpp
 
 SOURCES = \
     $(NEW_SOURCES) \

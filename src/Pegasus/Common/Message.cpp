@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -22,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -47,6 +48,7 @@ static const char* _MESSAGE_TYPE_STRINGS[] =
 {
     "CIM_GET_CLASS_REQUEST_MESSAGE",
     "CIM_GET_INSTANCE_REQUEST_MESSAGE",
+    "CIM_EXPORT_INDICATION_REQUEST_MESSAGE",
     "CIM_DELETE_CLASS_REQUEST_MESSAGE",
     "CIM_DELETE_INSTANCE_REQUEST_MESSAGE",
     "CIM_CREATE_CLASS_REQUEST_MESSAGE",
@@ -71,6 +73,7 @@ static const char* _MESSAGE_TYPE_STRINGS[] =
     "CIM_INVOKE_METHOD_REQUEST_MESSAGE",
     "CIM_GET_CLASS_RESPONSE_MESSAGE",
     "CIM_GET_INSTANCE_RESPONSE_MESSAGE",
+    "CIM_EXPORT_INDICATION_RESPONSE_MESSAGE",
     "CIM_DELETE_CLASS_RESPONSE_MESSAGE",
     "CIM_DELETE_INSTANCE_RESPONSE_MESSAGE",
     "CIM_CREATE_CLASS_RESPONSE_MESSAGE",

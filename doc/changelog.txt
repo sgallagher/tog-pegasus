@@ -76,6 +76,30 @@ repository implementation.
     Created new class SignalHandler that allow registration, activation and
     deactivation of signal handler functions (Linux only !).
 
+22. (Nitin Upasani - HP) 27 Sep 2001 - Modification of ExportServer and ExportClient 
+    to support ExportIndication. DisplayConsumer, a sample consumer is added which 
+    will consume (by displaying on screen) the indication exported by 
+    CIMExportRequestDispatcher. This complete implementation is based on 
+    CIM_EXPORT_INDICATION_REQUEST and RESPONSE messages. CIMMessage.h, Message.cpp 
+    and Message.h files are modified to implement above messages. 
+
+    XmlIndicationDispatcher test program is modified to test complete operation. 
+    It now creates a consumer, handler and indication instance and then calls 
+    CIMExportRequestDispatcher to export the indication to consumer. This
+    program needs src/Pegasus/Server/tests/XmlIndicationDispatcher/TestSoftwarePkg.mof 
+    and Schemas/Pegasus/PG_ConsumerRegistration.mof files to be loaded in the repository
+    to complete the test successfully. This test program also needs Handler qualifier 
+    defined in repository and modify CIM_Event25.mof for CIM_IndicationHandlerXMLHTTP 
+    class as below:
+
+    //====================================================================
+    //  CIM_IndicationHandlerXMLHTTP
+    //====================================================================
+    [Description (
+      "CIM_IndicationHandlerXMLHTTP describes the destination for "
+      "Indications to be delivered via HTTP, using a cimXML "
+      "representation."), Handler ("CIMxmlIndicationHandler") ]
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

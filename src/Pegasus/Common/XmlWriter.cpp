@@ -863,7 +863,6 @@ Array<Sint8>& XmlWriter::appendObjectNameParameter(
 
 Array<Sint8> XmlWriter::formatEMethodCallElement(
     const char* name,
-    const String& nameSpace,
     const Array<Sint8>& iParamValues)
 {
     Array<Sint8> out;
@@ -875,7 +874,6 @@ Array<Sint8> XmlWriter::formatEMethodCallElement(
 
 Array<Sint8> XmlWriter::formatSimpleIndicationReqMessage(
     const char* host,
-    const String& nameSpace,
     const char* iMethodName,
     const String& messageId,
     const Array<Sint8>& body)
@@ -884,13 +882,11 @@ Array<Sint8> XmlWriter::formatSimpleIndicationReqMessage(
         host,
         "MethodRequest",
         iMethodName,
-        nameSpace,
         XmlWriter::formatMessageElement(
             messageId,
             XmlWriter::formatSimpleExportReqElement(
                 XmlWriter::formatEMethodCallElement(
                     iMethodName,
-                    nameSpace,
                     body))));
 }
 
@@ -898,7 +894,6 @@ Array<Sint8> XmlWriter::formatMPostIndicationHeader(
     const char* host,
     const char* cimOperation,
     const char* cimMethod,
-    const String& cimObject,
     const Array<Sint8>& content)
 {
     Array<Sint8> out;
@@ -922,6 +917,82 @@ Array<Sint8> XmlWriter::formatSimpleExportReqElement(
 {
     Array<Sint8> out;
     return out << "<SIMPLEEXPREQ>\n" << body << "</SIMPLEEXPREQ>\n";
+}
+
+Array<Sint8> XmlWriter::formatSimpleIndicationRspMessage(
+    const char* iMethodName,
+    const String& messageId,
+    const Array<Sint8>& body)
+{
+    return XmlWriter::formatEMethodResponseHeader(
+        XmlWriter::formatMessageElement(
+	    messageId,
+            XmlWriter::formatSimpleExportRspElement(
+                XmlWriter::formatEMethodResponseElement(
+                    iMethodName,
+                    XmlWriter::formatIReturnValueElement(body)))));
+}
+
+//------------------------------------------------------------------------------
+//
+// formatSimpleExportRspElement()
+//
+//     <!ELEMENT SIMPLEEXPRSP (METHODRESPONSE|EXPMETHODRESPONSE)>
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8> XmlWriter::formatSimpleExportRspElement(
+    const Array<Sint8>& body)
+{
+    Array<Sint8> out;
+    return out << "<SIMPLEEXPRSP>\n" << body << "</SIMPLEEXPRSP>\n";
+}
+
+//------------------------------------------------------------------------------
+//
+// formatIMethodResponseElement()
+//
+//     <!ELEMENT EXPMETHODRESPONSE (ERROR|IRETURNVALUE?)>
+//     <!ATTLIST EXPMETHODRESPONSE %CIMName;>
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8> XmlWriter::formatEMethodResponseElement(
+    const char* name,
+    const Array<Sint8>& body)
+{
+    Array<Sint8> out;
+    out << "<EXPMETHODRESPONSE NAME=\"" << name << "\">\n";
+    out << body;
+    out << "</EXPMETHODRESPONSE>\n";
+    return out;
+}
+
+//------------------------------------------------------------------------------
+//
+// formatMethodResponseHeader()
+//
+//     Build HTTP response header.
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8> XmlWriter::formatEMethodResponseHeader(
+    const Array<Sint8>& content)
+{
+    Array<Sint8> out;
+    out.reserve(1024);
+    char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
+
+    out << "HTTP/1.1 200 OK\r\n";
+    out << "Content-CIMType: application/xml; charset=\"utf-8\"\r\n";
+    out << "Content-Length: " << content.size() << "\r\n";
+    out << "Ext:\r\n";
+    out << "Cache-Control: no-cache\r\n";
+    out << "Man:  http://www.dmtf.org/cim/mapping/http/v1.0; ns=";
+    out << nn <<"\r\n";
+    out << nn << "-CIMExport: MethodResponse\r\n\r\n";
+    out << content;
+    return out;
 }
 
 PEGASUS_NAMESPACE_END

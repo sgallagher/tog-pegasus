@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -24,6 +25,7 @@
 //
 // Modified By:
 //         Mike Day (mdday@us.ibm.com)
+//	   Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,6 +43,9 @@ class Monitor;
 class CIMOperationRequestDispatcher;
 class CIMOperationResponseEncoder;
 class CIMOperationRequestDecoder;
+class CIMExportRequestDispatcher;
+class CIMExportResponseEncoder;
+class CIMExportRequestDecoder;
 class HTTPAcceptor;
 
 class PEGASUS_SERVER_LINKAGE CIMServer
@@ -89,6 +94,11 @@ private:
     CIMOperationRequestDispatcher* _cimOperationRequestDispatcher;
     CIMOperationResponseEncoder* _cimOperationResponseEncoder;
     CIMOperationRequestDecoder* _cimOperationRequestDecoder;
+
+    CIMExportRequestDispatcher* _cimExportRequestDispatcher;
+    CIMExportResponseEncoder* _cimExportResponseEncoder;
+    CIMExportRequestDecoder* _cimExportRequestDecoder;
+
     HTTPAcceptor* _acceptor;
 };
 

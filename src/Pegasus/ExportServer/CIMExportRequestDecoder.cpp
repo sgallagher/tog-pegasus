@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -22,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -77,11 +78,11 @@ void CIMExportRequestDecoder::sendError(
     ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
     ArrayDestroyer<char> tmp2(description.allocateCString());
 
-    Array<Sint8> message = XmlWriter::formatMethodResponseHeader(
+    Array<Sint8> message = XmlWriter::formatEMethodResponseHeader(
 	XmlWriter::formatMessageElement(
 	    messageId,
-	    XmlWriter::formatSimpleRspElement(
-		XmlWriter::formatIMethodResponseElement(
+	    XmlWriter::formatSimpleExportRspElement(
+		XmlWriter::formatEMethodResponseElement(
 		    tmp1.getPointer(),
 		    XmlWriter::formatErrorElement(code, tmp2.getPointer())))));
     
@@ -126,8 +127,8 @@ const char* CIMExportRequestDecoder::getQueueName() const
 //     Content-Type: application/xml; charset="utf-8" 
 //     Content-Length: xxxx 
 //     Man: http://www.dmtf.org/cim/operation ; ns=73 
-//     73-CIMExport: MethodCall 
-//     73-CIMMethod: EnumerateInstances 
+//     73-CIMExport: MethodRequest
+//     73-CIMExportMethod: ExportIndication
 //     73-CIMObject: root/cimv2 
 // 
 //------------------------------------------------------------------------------
@@ -158,15 +159,21 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     // Process M-POST and POST messages:
 
-
     if (methodName == "M-POST" || methodName == "POST")
     {
-	// Search for "CIMOperation" header:
+	String url;
 
+        if (HTTPMessage::lookupHeader(
+	    headers, "*HOST", url, true))
+	   _url = url;
+        else
+           return;
+
+	// Search for "CIMOperation" header:
 	String cimOperation;
 
 	if (!HTTPMessage::lookupHeader(
-	    headers, "*CIMOperation", cimOperation, true))
+	    headers, "*CIMExport", cimOperation, true))
 	{
 	    // ATTN: error discarded at this time!
 	    return;
@@ -178,18 +185,18 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
 	// If it is a method call, then dispatch it to be handled:
 
-	if (!String::equalNoCase(cimOperation, "MethodCall"))
+	if (!String::equalNoCase(cimOperation, "MethodRequest"))
 	{
 	    // ATTN: error discarded at this time!
 	    return;
 	}
 
-	handleMethodCall(queueId, content);
+	handleMethodRequest(queueId, content);
     }
 }
 
 
-void CIMExportRequestDecoder::handleMethodCall(
+void CIMExportRequestDecoder::handleMethodRequest(
     Uint32 queueId,
     Sint8* content)
 {
@@ -237,32 +244,32 @@ void CIMExportRequestDecoder::handleMethodCall(
 
     try
     {
-	// Expect <SIMPLEREQ ...>
+	// Expect <SIMPLEEXPREQ ...>
 
-	XmlReader::expectStartTag(parser, entry, "SIMPLEREQ");
+	XmlReader::expectStartTag(parser, entry, "SIMPLEEXPREQ");
+	
+	// Expect <EXPMETHODCALL ...>
 
-	// Expect <IMETHODCALL ...>
-
-	if (!XmlReader::getIMethodCallStartTag(parser, cimMethodName))
+	if (!XmlReader::getEMethodCallStartTag(parser, cimMethodName))
 	{
 	    throw XmlValidationError(parser.getLine(), 
-		"expected IMETHODCALL element");
+		"expected EXPMETHODCALL element");
 	}
-
+	
 	// Expect <LOCALNAMESPACEPATH ...>
 
 	String nameSpace;
 
-	if (!XmlReader::getLocalNameSpacePathElement(parser, nameSpace))
-	{
-	    throw XmlValidationError(parser.getLine(), 
-		"expected LOCALNAMESPACEPATH element");
-	}
+	//if (!XmlReader::getLocalNameSpacePathElement(parser, nameSpace))
+	//{
+	//    throw XmlValidationError(parser.getLine(), 
+	//	"expected LOCALNAMESPACEPATH element");
+	//}
 
 	// Delegate to appropriate method to handle:
 
-	if (CompareNoCase(cimMethodName, "GetClass") == 0)
-	    decodeGetClassRequest(queueId, parser, messageId, nameSpace);
+	if (CompareNoCase(cimMethodName, "ExportIndication") == 0)
+	    decodeExportIndicationRequest(queueId, parser, messageId, _url);
 	else
 	{
 	    String description = "Unknown intrinsic method: ";
@@ -278,13 +285,13 @@ void CIMExportRequestDecoder::handleMethodCall(
 	    return;
 	}
 
-	// Expect </IMETHODCALL>
+	// Expect </EXPMETHODCALL>
 
-	XmlReader::expectEndTag(parser, "IMETHODCALL");
+	XmlReader::expectEndTag(parser, "EXPMETHODCALL");
 
-	// Expect </SIMPLEREQ>
+	// Expect </SIMPLEEXPREQ>
 
-	XmlReader::expectEndTag(parser, "SIMPLEREQ");
+	XmlReader::expectEndTag(parser, "SIMPLEEXPREQ");
 
 	// Expect </MESSAGE>
 
@@ -305,43 +312,30 @@ void CIMExportRequestDecoder::handleMethodCall(
     }
 }
 
-void CIMExportRequestDecoder::decodeGetClassRequest(
+void CIMExportRequestDecoder::decodeExportIndicationRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& url)
 {
     // ATTN: handle property lists!
 
-    String className;
-    Boolean localOnly = true;
-    Boolean includeQualifiers = true;
-    Boolean includeClassOrigin = false;
+    CIMInstance instanceName;
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
-	if (CompareNoCase(name, "ClassName") == 0)
-	    XmlReader::getClassNameElement(parser, className, true);
-	else if (CompareNoCase(name, "LocalOnly") == 0)
-	    XmlReader::getBooleanValueElement(parser, localOnly, true);
-	else if (CompareNoCase(name, "IncludeQualifiers") == 0)
-	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
-	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
-	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
+	if (CompareNoCase(name, "NewIndication") == 0)
+	    XmlReader::getInstanceElement(parser, instanceName);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
-
-    Message* request = new CIMGetClassRequestMessage(
-	messageId,
-	nameSpace,
-	className,
-	localOnly,
-	includeQualifiers,
-	includeClassOrigin,
-	Array<String>(),
+    
+    Message* request = new CIMExportIndicationRequestMessage(
+	messageId,  
+	url,
+	instanceName,
 	QueueIdStack(queueId, _returnQueueId));
-
+    
     _outputQueue->enqueue(request);
 }
 

@@ -21,54 +21,66 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_CIMExportResponseEncoder_h
-#define Pegasus_CIMExportResponseEncoder_h
+#ifndef Pegasus_HandlerTable_h
+#define Pegasus_HandlerTable_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
-#include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Handler/CIMHandler.h>
 #include <Pegasus/ExportServer/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This class encodes CIM operation requests and passes them up-stream.
-*/
-class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportResponseEncoder 
-    : public MessageQueue
+class CreateHandlerReturnedNull : public Exception
 {
 public:
 
-    CIMExportResponseEncoder();
+    CreateHandlerReturnedNull(
+	const String& libName, 
+	const String& funcName)
+	: Exception(funcName + " returned null in library " + libName) { }
+};
+ 
+// The handler table maintains a list of handlers which have been 
+// dynamically loaded. It maintains a mapping between string 
+// handler identifiers and handlers. Indication Processor will use the 
+// handler table to find handler for the purposes of request dispatching.
 
-    ~CIMExportResponseEncoder();
+class PEGASUS_EXPORT_SERVER_LINKAGE HandlerTable
+{
+public:
 
-    void sendResponse(Uint32 queueId, Array<Sint8>& message);
+    HandlerTable();
 
-    void sendError(
-	Uint32 queueId, 
-	const String& messageId,
-	const String& methodName,
-	CIMStatusCode code,
-	const String& description);
+    CIMHandler* lookupHandler(const String& handlerId);
 
-    void sendError(
-	CIMResponseMessage* response,
-	const String& cimMethodName);
+    CIMHandler* loadHandler(const String& handlerId);
 
-    virtual void handleEnqueue();
+private:
 
-    virtual const char* getQueueName() const;
+    struct Entry
+    {
+	String handlerId;
+	CIMHandler* handler;
+    };
 
-    void encodeExportIndicationResponse(
-	CIMExportIndicationResponseMessage* response);
+    Array<Entry> _handlers;
+
+public:
+
+    friend int operator==(const Entry& x, const Entry& y)
+    {
+	return 0;
+    }
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_CIMExportResponseEncoder_h */
+#endif /* Pegasus_HandlerTable_h */

@@ -6,9 +6,7 @@ DIRS = 	ProviderTable \
 	MyProvider \
 	LoadProcessClass \
 	SendMailIndicationDispatcher \
-	XmlIndicationDispatcher
-
-# Removed while queuing rework is being completed.
-#	HandlerTable \
+	XmlIndicationDispatcher \
+        DisplayConsumer
 
 include $(ROOT)/mak/recurse.mak

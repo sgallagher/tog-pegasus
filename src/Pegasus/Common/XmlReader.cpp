@@ -1,5 +1,7 @@
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -23,6 +25,8 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //              (carolann_graves@hp.com)
+//
+//              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -2995,6 +2999,54 @@ Boolean XmlReader::getObjectPathElement(
     }
 
     PEGASUS_UNREACHABLE ( return false; )
+}
+
+//------------------------------------------------------------------------------
+//
+// getEMethodCallStartTag()
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getEMethodCallStartTag(
+    XmlParser& parser, 
+    const char*& name)
+{
+    XmlEntry entry;
+
+    if (!testStartTag(parser, entry, "EXPMETHODCALL"))
+	return false;
+
+    // Get EXPMETHODCALL.NAME attribute:
+
+    if (!entry.getAttributeValue("NAME", name))
+	throw XmlValidationError(parser.getLine(),
+	    "Missing EXPMETHODCALL.NAME attribute");
+
+    return true;
+}
+
+//------------------------------------------------------------------------------
+//
+// getEMethodResponseStartTag()
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getEMethodResponseStartTag(
+    XmlParser& parser, 
+    const char*& name)
+{
+    XmlEntry entry;
+
+    if (!testStartTag(parser, entry, "EXPMETHODRESPONSE"))
+	return false;
+
+    // Get EXPMETHODRESPONSE.NAME attribute:
+
+    if (!entry.getAttributeValue("NAME", name))
+	throw XmlValidationError(parser.getLine(),
+	    "Missing EXPMETHODRESPONSE.NAME attribute");
+
+    return true;
 }
 
 PEGASUS_NAMESPACE_END

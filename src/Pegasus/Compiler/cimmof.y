@@ -698,9 +698,11 @@ objectHandle: TOK_DQUOTE namespaceHandleRef modelPath TOK_DQUOTE
 
 
 aliasInitializer : aliasIdentifier {
-  // convert somehow from alias to a CIM object name
-  delete $1;
-} ;
+        // convert somehow from alias to a CIM object name
+        yyerror("'alias' is not yet supported (see bugzilla 14).");
+        YYABORT;
+        delete $1;
+        };
 
 
 namespaceHandleRef: namespaceHandle TOK_COLON
@@ -734,8 +736,16 @@ keyValuePair: keyValuePairName TOK_EQUAL initializer
 keyValuePairName: TOK_SIMPLE_IDENTIFIER ;
 
 
-alias: TOK_AS aliasIdentifier { $$ = $2; } 
-| /* empty */ { $$ = new String(String::EMPTY); } ;
+alias: TOK_AS aliasIdentifier { 
+              yyerror("'alias' is not yet supported (see bugzilla 14).");
+              YYABORT;
+              $$ = $2;
+              } 
+              | /* empty */ { 
+              yyerror("'alias' is not yet supported (see bugzilla 14).");
+              YYABORT;
+              $$ = new String(String::EMPTY);
+              } ;
 
 
 aliasIdentifier: TOK_ALIAS_IDENTIFIER ;

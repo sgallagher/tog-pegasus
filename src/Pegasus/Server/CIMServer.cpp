@@ -419,6 +419,12 @@ void CIMServer::_monitor_idle_routine(void *parm)
    }
 }
 
+monitor_2* CIMServer::get_monitor2(void)
+{
+   return monitor2;
+}
+
+
 void CIMServer::runForever()
 {
   if(_type == OLD) {

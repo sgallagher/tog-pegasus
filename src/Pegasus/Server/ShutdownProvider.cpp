@@ -168,10 +168,6 @@ void ShutdownProvider::invokeMethod(
 
     handler.deliver(CIMValue(0));
     handler.complete();
-#ifdef PEGASUS_MONITOR2
-    monitor_2::get_monitor2()->stop();
-#endif
-    
 
     PEG_METHOD_EXIT();
     return;

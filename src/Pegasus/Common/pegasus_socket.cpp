@@ -388,7 +388,10 @@ int bsd_socket_rep::connect (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length)
 {
    int ccode = ::connect(_socket, addr, length);
    if(ccode == -1)
-       _errno = errno;
+   {
+      _errno = errno;
+   }
+   
    return ccode;
 }
 

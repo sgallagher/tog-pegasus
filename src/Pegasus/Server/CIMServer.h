@@ -110,6 +110,11 @@ public:
     static void _monitor_idle_routine(void* parm);
     
 
+    /** allow other modules to stop my monitor_2 
+     */
+    monitor_2* get_monitor2(void);
+    
+
     /** runForever Main runloop for the server.
     */
     void runForever();

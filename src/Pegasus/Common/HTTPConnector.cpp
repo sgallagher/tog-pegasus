@@ -255,6 +255,7 @@ HTTPConnection* HTTPConnector::connect(
                     reinterpret_cast<sockaddr*>(&address),
                     sizeof(address)) < 0)
       {
+	 
       	//l10n
          //throw CannotConnectException("Cannot connect to local CIM server. Connection failed.");
          MessageLoaderParms parms("Common.HTTPConnector.CONNECTION_FAILED_LOCAL_CIM_SERVER",

@@ -89,8 +89,6 @@ void MessageQueueService::force_shutdown(Boolean destroy_flag)
 			    "Forcing shutdown of CIMOM Message Router");
    PEGASUS_STD(cout) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
 #endif
-   PEGASUS_STD(cout) << "MessageQueueService::force_shutdown()" << PEGASUS_STD(endl);
-   
 
 
    MessageQueueService *svc;
@@ -118,8 +116,6 @@ void MessageQueueService::force_shutdown(Boolean destroy_flag)
 
    _polling_sem.signal();
 
-   PEGASUS_STD(cout) << "Force shutdown found " << counter << " services" << PEGASUS_STD(endl);
-   
    MessageQueueService::_stop_polling = 1;
    
    if(destroy_flag == true) 
@@ -128,8 +124,6 @@ void MessageQueueService::force_shutdown(Boolean destroy_flag)
       svc = _polling_list.remove_last();
       while(svc)
       {
-	 PEGASUS_STD(cout) << "preparing to delete " << svc->getQueueName() << PEGASUS_STD(endl);
-	 
 	 delete svc;
 	 svc = _polling_list.remove_last();
       }

@@ -1,216 +1,194 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
+// Author: Chip Vincent (cvincent@us.ibm.com)
+//
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Provider2/CIMInstanceProvider.h>
+#include <Pegasus/Provider2/SimpleResponseHandler.h>
+
 #include "InstanceProvider.h"
 
-PEGASUS_USING_PEGASUS;
+PEGASUS_NAMESPACE_BEGIN
 
-InstanceProvider::InstanceProvider()
+InstanceProvider::InstanceProvider(void)
 {
 }
 
-InstanceProvider::~InstanceProvider()
+InstanceProvider::~InstanceProvider(void)
 {
 }
 
 void InstanceProvider::initialize(CIMOMHandle& cimom)
 {
-    // create default instances
-    CIMInstance instance1("Sample_InstanceProviderClass");
-    instance1.setPath(
-        CIMObjectPath("Sample_InstanceProviderClass.Identifier=1"));
+	// save cimom handle
+	_cimom = cimom;
 
-    instance1.addProperty(CIMProperty("Identifier", Uint8(1)));   // key
-    instance1.addProperty(CIMProperty("Message", String("Hello World")));
+	// create default instances
+	CIMInstance instance1("Instance");
 
-    _instances.append(instance1);
+	instance1.addProperty(CIMProperty("Identifier", Uint8(1)));   // key
+	instance1.addProperty(CIMProperty("Message", String("Hello World")));
 
-    CIMInstance instance2("Sample_InstanceProviderClass");
-    instance2.setPath(
-        CIMObjectPath("Sample_InstanceProviderClass.Identifier=2"));
+	_instances.append(instance1);
 
-    instance2.addProperty(CIMProperty("Identifier", Uint8(2)));   // key
-    instance2.addProperty(CIMProperty("Message", String("Yo Planet")));
+	CIMInstance instance2("Instance");
 
-    _instances.append(instance2);
+	instance2.addProperty(CIMProperty("Identifier", Uint8(2)));   // key
+	instance2.addProperty(CIMProperty("Message", String("Hey Planet")));
 
-    CIMInstance instance3("Sample_InstanceProviderClass");
-    instance3.setPath(
-        CIMObjectPath("Sample_InstanceProviderClass.Identifier=3"));
+	_instances.append(instance2);
 
-    instance3.addProperty(CIMProperty("Identifier", Uint8(3)));   // key
-    instance3.addProperty(CIMProperty("Message", String("Hey Earth")));
+	CIMInstance instance3("Instance");
 
-    _instances.append(instance3);
+	instance3.addProperty(CIMProperty("Identifier", Uint8(3)));   // key
+	instance3.addProperty(CIMProperty("Message", String("Yo Earth")));
+
+	_instances.append(instance3);
 }
 
-void InstanceProvider::terminate()
+void InstanceProvider::terminate(void)
 {
-    delete this;
 }
 
 void InstanceProvider::getInstance(
-    const OperationContext& context,
-    const CIMObjectPath& instanceReference,
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList,
-    InstanceResponseHandler& handler)
+	const OperationContext & context,
+	const CIMReference & instanceReference,
+	const Uint32 flags,
+	const Array<String> & propertyList,
+	ResponseHandler<CIMInstance> & handler)
 {
-    // convert a potential fully qualified reference into a local reference
-    // (class name and keys only).
-    CIMObjectPath localReference =
-        CIMObjectPath(
-            String(),
-            CIMNamespaceName(),
-            instanceReference.getClassName(),
-            instanceReference.getKeyBindings());
+	// synchronously get references
+	Array<CIMReference> references = _enumerateInstanceNames(context, instanceReference);
 
-    // begin processing the request
-    handler.processing();
+	// ensure the request object exists
+	if(Contains<CIMReference>(references, instanceReference) == false)
+	{
+		throw CIMException(CIM_ERR_NOT_FOUND);
+	}
 
-    // instance index corresponds to reference index
-    for (Uint32 i = 0, n = _instances.size(); i < n; i++)
-    {
-        if (localReference == _instances[i].getPath())
-        {
-            // deliver requested instance
-            handler.deliver(_instances[i]);
+	// begin processing the request
+	handler.processing();
 
-            break;
-        }
-    }
+	// instance index corresponds to reference index
+	for(Uint32 i = 0; i < references.size(); i++)
+	{
+		if(instanceReference == references[i])
+		{
+			// deliver requested instance
+			handler.deliver(_instances[i]);
 
-    // complete processing the request
-    handler.complete();
+			break;
+		}
+	}
+
+	// complete processing the request
+	handler.complete();
 }
 
 void InstanceProvider::enumerateInstances(
-    const OperationContext& context,
-    const CIMObjectPath& classReference,
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList,
-    InstanceResponseHandler& handler)
+	const OperationContext & context,
+	const CIMReference & ref,
+	const Uint32 flags,
+	const Array<String> & propertyList,
+	ResponseHandler<CIMInstance> & handler)
 {
-    // begin processing the request
-    handler.processing();
+	// begin processing the request
+	handler.processing();
 
-    for (Uint32 i = 0, n = _instances.size(); i < n; i++)
-    {
-        // deliver instance
-        handler.deliver(_instances[i]);
-    }
+	// deliver instances
+	handler.deliver(_instances);
 
-    // complete processing the request
-    handler.complete();
+	// complete processing the request
+	handler.complete();
 }
 
 void InstanceProvider::enumerateInstanceNames(
-    const OperationContext& context,
-    const CIMObjectPath& classReference,
-    ObjectPathResponseHandler& handler)
+	const OperationContext & context,
+	const CIMReference & classReference,
+	ResponseHandler<CIMReference> & handler)
 {
-    // begin processing the request
-    handler.processing();
+	// begin processing the request
+	handler.processing();
 
-    for (Uint32 i = 0, n = _instances.size(); i < n; i++)
-    {
-        // deliver reference
-        handler.deliver(_instances[i].getPath());
-    }
+	// get class definition from repository
+	CIMClass cimclass = _cimom.getClass(classReference.getNameSpace(), classReference.getClassName());
 
-    // complete processing the request
-    handler.complete();
+	// convert instances to references;
+	for(Uint32 i = 0; i < _instances.size(); i++)
+	{
+		CIMReference tempRef = _instances[i].getInstanceName(cimclass);
+
+		// ensure references are fully qualified
+		tempRef.setHost(classReference.getHost());
+		tempRef.setNameSpace(classReference.getNameSpace());
+
+		// deliver reference
+		handler.deliver(tempRef);
+	}
+
+	// complete processing the request
+	handler.complete();
 }
 
-
-// ***********************************************************************
-//
-// The modify, create and delete Instance methods are not supported
-// because this Sample Provider only uses the Pegasus public interface
-// which does not provide any locks. Locks are required to support the
-// maintenance of a dynamic data store in a multi-threaded environment.
-//
-// ***********************************************************************
 void InstanceProvider::modifyInstance(
-    const OperationContext& context,
-    const CIMObjectPath& instanceReference,
-    const CIMInstance& instanceObject,
-    const Boolean includeQualifiers,
-    const CIMPropertyList& propertyList,
-    ResponseHandler& handler)
+	const OperationContext & context,
+	const CIMReference & instanceReference,
+	const CIMInstance & instanceObject,
+	ResponseHandler<CIMInstance> & handler)
 {
-    // deliver exception to the ProviderManager, which in turn will return the
-    // error message to the requestor
-
-    throw CIMNotSupportedException("InstanceProvider::modifyInstance()");
+	throw NotImplemented("InstanceProvider::modifyInstance");
 }
 
-// ***********************************************************************
-//
-// The modify, create and delete Instance methods are not supported
-// because this Sample Provider only uses the Pegasus public interface
-// which does not provide any locks. Locks are required to support the
-// maintenance of a dynamic data store in a multi-threaded environment.
-//
-// ***********************************************************************
 void InstanceProvider::createInstance(
-    const OperationContext& context,
-    const CIMObjectPath& instanceReference,
-    const CIMInstance& instanceObject,
-    ObjectPathResponseHandler& handler)
+	const OperationContext & context,
+	const CIMReference & instanceReference,
+	const CIMInstance & instanceObject,
+	ResponseHandler<CIMInstance> & handler)
 {
-    // deliver exception to the ProviderManager, which in turn will return the
-    // error message to the requestor
-
-    throw CIMNotSupportedException("InstanceProvider::createInstance()");
+	throw NotImplemented("InstanceProvider::createInstance");
 }
 
-
-// ***********************************************************************
-//
-// The modify, create and delete Instance methods are not supported
-// because this Sample Provider only uses the Pegasus public interface
-// which does not provide any locks. Locks are required to support the
-// maintenance of a dynamic data store in a multi-threaded environment.
-//
-// ***********************************************************************
 void InstanceProvider::deleteInstance(
-    const OperationContext& context,
-    const CIMObjectPath& instanceReference,
-    ResponseHandler& handler)
+	const OperationContext & context,
+	const CIMReference & instanceReference,
+	ResponseHandler<CIMInstance> & handler)
 {
-    // deliver exception to the ProviderManager, which in turn will return the
-    // error message to the requestor
-
-    throw CIMNotSupportedException("InstanceProvider::deleteInstance()");
+	throw NotImplemented("InstanceProvider::deleteInstance");
 }
+
+Array<CIMReference> InstanceProvider::_enumerateInstanceNames(
+	const OperationContext & context,
+	const CIMReference & classReference)
+{
+	SimpleResponseHandler<CIMReference> handler;
+
+	enumerateInstanceNames(context, classReference, handler);
+
+	return(handler._objects);
+}
+
+PEGASUS_NAMESPACE_END

@@ -1,0 +1,9 @@
+[provider("HelloWorldProvider")]
+class Sample_DummyIndication : public CIM_ProcessInidcation
+{
+	[read]
+	string Message;
+	
+	[read]
+	datetime TimeStamp;
+};

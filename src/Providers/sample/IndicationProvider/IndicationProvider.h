@@ -1,31 +1,28 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
+// Author: Chip Vincent (cvincent@us.ibm.com)
+//
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,49 +30,68 @@
 #define Pegasus_IndicationProvider_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider/CIMIndicationProvider.h>
+#include <Pegasus/Provider2/CIMBaseProvider.h>
+#include <Pegasus/Provider2/CIMIndicationProvider.h>
+#include <Pegasus/Common/Thread.h>
 
-class IndicationProvider:
-    public PEGASUS_NAMESPACE(CIMIndicationProvider)
+PEGASUS_NAMESPACE_BEGIN
+
+class IndicationProvider :
+	public CIMIndicationProvider
 {
 public:
-    IndicationProvider() throw();
-    virtual ~IndicationProvider() throw();
+	IndicationProvider(void) throw();
+	virtual ~IndicationProvider(void) throw();
 
-    // CIMProvider interface
-    virtual void initialize(PEGASUS_NAMESPACE(CIMOMHandle)& cimom);
-    virtual void terminate();
+	// CIMBaseProvider interface
+	virtual void initialize(CIMOMHandle & cimom);
+	virtual void terminate(void);
 
-    // CIMIndicationProvider interface
-    virtual void enableIndications(
-        PEGASUS_NAMESPACE(IndicationResponseHandler)& handler);
-    virtual void disableIndications();
+	// CIMInstanceProvider interface
+	virtual void provideIndication(
+		const OperationContext & context,
+		const CIMReference & classReference,
+		const CIMDateTime & minimumInterval,
+		const CIMDateTime & maximumInterval,
+		const Array<String> & propertyList,
+		ResponseHandler<CIMIndication> & handler);
+	
+	virtual void updateIndication(
+		const OperationContext & context,
+		const CIMReference & classReference,
+		const CIMDateTime & minimumInterval,
+		const CIMDateTime & maximumInterval,
+		const Array<String> & propertyList,
+		ResponseHandler<CIMIndication> & handler);
 
-    virtual void createSubscription(
-        const PEGASUS_NAMESPACE(OperationContext)& context,
-        const PEGASUS_NAMESPACE(CIMObjectPath)& subscriptionName,
-        const PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMObjectPath)>&
-            classNames,
-        const PEGASUS_NAMESPACE(CIMPropertyList)& propertyList,
-        const PEGASUS_NAMESPACE(Uint16) repeatNotificationPolicy);
+	virtual void cancelIndication(
+		const OperationContext & context,
+		const CIMReference & classReference,
+		ResponseHandler<CIMIndication> & handler);
 
-    virtual void modifySubscription(
-        const PEGASUS_NAMESPACE(OperationContext)& context,
-        const PEGASUS_NAMESPACE(CIMObjectPath)& subscriptionName,
-        const PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMObjectPath)>&
-            classNames,
-        const PEGASUS_NAMESPACE(CIMPropertyList)& propertyList,
-        const PEGASUS_NAMESPACE(Uint16) repeatNotificationPolicy);
-
-    virtual void deleteSubscription(
-        const PEGASUS_NAMESPACE(OperationContext)& context,
-        const PEGASUS_NAMESPACE(CIMObjectPath)& subscriptionName,
-        const PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMObjectPath)>&
-            classNames);
+	virtual void checkIndication(
+		const OperationContext & context,
+		const CIMReference & classReference,
+		const Array<String> & propertyList,
+		ResponseHandler<CIMIndication> & handler);
 
 protected:
-    PEGASUS_NAMESPACE(CIMOMHandle) _cimom;
+	class IndicationThread : public Thread
+	{
+	public:
+		IndicationThread(void) throw();
+		virtual ~IndicationThread(void) throw();
+	
+		static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL run(void *) throw();
+	
+	};
+
+protected:
+	CIMOMHandle _cimom;
+	Array<String> _indications;
 
 };
+
+PEGASUS_NAMESPACE_END
 
 #endif

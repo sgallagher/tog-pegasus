@@ -247,9 +247,6 @@ endif
     DEFINES += -DPEGASUS_USE_23HTTPMONITOR_CLIENT
 #endif
 
-# Enable CMPI by default.
-#
-    DEFINES += -DPEGASUS_ENABLE_CMPI_PROVIDER_MANAGER -DPEGASUS_CMPI_PROVIDER_INTERNAL 
 
 # PEP 161
 # Control whether utf-8 filenames are supported by the repository

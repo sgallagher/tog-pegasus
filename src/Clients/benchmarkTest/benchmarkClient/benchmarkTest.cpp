@@ -126,7 +126,7 @@ static const Uint32 MAX_PW_RETRIES = 3;
 static Boolean verifyCertificate(SSLCertificateInfo &certInfo)
 {
 
-#ifdef DEBUG
+#if 0
     outPrintWriter << certInfo.getSubjectName() << endl;
 #endif
     return true;

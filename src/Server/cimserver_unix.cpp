@@ -28,7 +28,9 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#if defined(PEGASUS_OS_HPUX)
 #include <sys/pstat.h>
+#endif
 #include <fcntl.h>
 #include <unistd.h>
 
@@ -86,12 +88,14 @@ int cimserver_kill(void)
   //
   // kill the process if it is still alive
   //
+#if defined(PEGASUS_OS_HPUX)
   struct pst_status pstru;
 
   if (pstat_getproc(&pstru, sizeof(struct pst_status), (size_t)0, pid) != -1)
   {
       kill(pid, SIGKILL);
   }
+#endif
 
   // remove the file
   System::removeFile(fname);

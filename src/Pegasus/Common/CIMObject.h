@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -48,7 +48,7 @@ class CIMConstInstance;
 class CIMConstObject;
 class CIMObject;
 
-/** This class either refers to a CIMInstance or a CIMClass. 
+/** This class either refers to a CIMInstance or a CIMClass.
 
     The CIMObjectRep data member points to either a CIMInstanceRep or
     CIMClassRep.
@@ -99,13 +99,21 @@ public:
     */
     CIMObject& operator=(const CIMInstance& x);
 
-    /** Destructor. 
+    /** Destructor.
     */
     ~CIMObject()
     {
 	Dec(_rep);
     }
 
+	/** Accessor.
+	*/
+	const CIMReference & getPath(void) const
+	{
+	_checkRep();
+	return _rep->getPath();
+	}
+	
     /**	Accessor.
     */
     const String& getClassName() const
@@ -359,7 +367,7 @@ private:
 	    ThrowUnitializedHandle();
     }
 
-    CIMObjectRep* _rep;
+	CIMObjectRep* _rep;
 
     friend class CIMConstObject;
     friend class CIMClass;
@@ -442,6 +450,12 @@ public:
 	Dec(_rep);
     }
 
+	const CIMReference & getPath(void) const
+	{
+	_checkRep();
+	return _rep->getPath();
+	}
+	
     const String& getClassName() const
     {
 	_checkRep();
@@ -553,7 +567,7 @@ public:
 
     CIMObjectWithPath& operator=(const CIMObjectWithPath& x);
 
-    /** set - 
+    /** set -
     */
     void set(const CIMReference& reference, const CIMObject& object);
 

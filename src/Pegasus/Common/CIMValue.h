@@ -33,11 +33,14 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMType.h>
+#include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/CIMDateTime.h>
-#include <Pegasus/Common/Union.h>
+#include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Array.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+class CIMValueRep;
 
 /**
     The CIMValue class represents a value of any of the CIM data types
@@ -48,7 +51,7 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE CIMValue
 {
 public:
-    /**	Constructor with no value. This constructor creates an NULL CIMValue
+    /** Constructor with no value. This constructor creates an NULL CIMValue
         object set to null and with type CIMType:none and !arraytype.
     */
     CIMValue();
@@ -58,120 +61,116 @@ public:
     */
     CIMValue(CIMType type, Boolean isArray, Uint32 arraySize = 0);
 
-    /**	Constructor with the Value constructor and a value.  This constructs a
+    /** Constructor with the Value constructor and a value.  This constructs a
         CIMValue object with the type defined by the value constructor and the value
         installed
         <pre>
         ATTN: Add example
         </pre> 
     */
-    CIMValue(Boolean x) { _init(); set(x); }
+    CIMValue(Boolean x);
 
-    ///	Constructor
-    CIMValue(Uint8 x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(Uint8 x);
 
-    ///	Constructor
-    CIMValue(Sint8 x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(Sint8 x);
 
-    ///	Constructor
-    CIMValue(Uint16 x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(Uint16 x);
 
-    ///	Constructor
-    CIMValue(Sint16 x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(Sint16 x);
 
-    ///	Constructor
-    CIMValue(Uint32 x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(Uint32 x);
 
-    ///	Constructor
-    CIMValue(Sint32 x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(Sint32 x);
 
-    ///	Constructor
-    CIMValue(Uint64 x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(Uint64 x);
 
-    ///	Constructor
-    CIMValue(Sint64 x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(Sint64 x);
 
-    ///	Constructor
-    CIMValue(Real32 x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(Real32 x);
 
-    ///	Constructor
-    CIMValue(Real64 x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(Real64 x);
 
-    ///	Constructor
-    CIMValue(const Char16& x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(const Char16& x);
 
-    ///	Constructor
-    CIMValue(const String& x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(const String& x);
 
-    ///	Constructor
-    CIMValue(const char* x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(const char* x);
 
-    ///	Constructor
-    CIMValue(const CIMDateTime& x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(const CIMDateTime& x);
 
-    ///	Constructor
-    CIMValue(const CIMReference& x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(const CIMReference& x);
 
-    ///	Constructor
-    CIMValue(const Array<Boolean>& x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(const Array<Boolean>& x);
 
-    ///	Constructor
-    CIMValue(const Array<Uint8>& x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(const Array<Uint8>& x);
 
-    ///	Constructor
-    CIMValue(const Array<Sint8>& x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(const Array<Sint8>& x);
 
-    ///	Constructor
-    CIMValue(const Array<Uint16>& x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(const Array<Uint16>& x);
 
-    ///	Constructor
-    CIMValue(const Array<Sint16>& x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(const Array<Sint16>& x);
 
-    ///	Constructor
-    CIMValue(const Array<Uint32>& x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(const Array<Uint32>& x);
 
-    ///	Constructor
-    CIMValue(const Array<Sint32>& x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(const Array<Sint32>& x);
 
-    ///	Constructor
-    CIMValue(const Array<Uint64>& x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(const Array<Uint64>& x);
 
-    ///	Constructor
-    CIMValue(const Array<Sint64>& x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(const Array<Sint64>& x);
 
-    ///	Constructor
-    CIMValue(const Array<Real32>& x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(const Array<Real32>& x);
 
-    ///	Constructor
-    CIMValue(const Array<Real64>& x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(const Array<Real64>& x);
 
-    ///	Constructor
-    CIMValue(const Array<Char16>& x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(const Array<Char16>& x);
 
-    ///	Constructor
-    CIMValue(const Array<String>& x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(const Array<String>& x);
 
-    ///	Constructor
-    CIMValue(const Array<CIMDateTime>& x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(const Array<CIMDateTime>& x);
 
-    ///	Constructor
-    CIMValue(const Array<CIMReference>& x) { _init(); set(x); }
+    /// Constructor
+    CIMValue(const Array<CIMReference>& x);
 
-    ///	Constructor
+    /// Constructor
     CIMValue(const CIMValue& x);
 
-    ///	Destructor
+    /// Destructor
     ~CIMValue();
 
     /// Operator =
-    CIMValue& operator=(const CIMValue& x) 
-    { 
-	assign(x); return *this; 
-    }
+    CIMValue& operator=(const CIMValue& x);
 
     /** assign - The method to assign one CIMValue object to another CIMValue
     object.
-    
     */
     void assign(const CIMValue& x);
 
@@ -184,7 +183,7 @@ public:
 
     /** typeCompatible - Compares the types of two CIMvalues. This
         compares the type field and the array indicators.
-	@return true if both are of the same type and both are either arrays
+        @return true if both are of the same type and both are either arrays
         or not. Else returns false.
         <pre>
             CIMValue a(Boolean(true);
@@ -193,27 +192,24 @@ public:
                 ...
         </pre>
     */
-    Boolean typeCompatible(const CIMValue& x) const
-    {
-	return _type == x._type && _isArray == x._isArray;
-    }
+    Boolean typeCompatible(const CIMValue& x) const;
 
     /** isArray - Determines if the value is an array
-	@return TRUE if the value is an array
+        @return TRUE if the value is an array
     */
-    Boolean isArray() const { return _isArray; }
+    Boolean isArray() const;
 
     /** Returns whether the CIMvalue object is Null. 
-	Null is the specific condition where no value has
-	yet been set into the value.
-	If a CIMValue object is Null, any get on that object
-	will create an exception.
-	@return Returns True if the CIMValue object is Null
+        Null is the specific condition where no value has
+        yet been set into the value.
+        If a CIMValue object is Null, any get on that object
+        will create an exception.
+        @return Returns True if the CIMValue object is Null
     */
-    Boolean isNull() const { return _isNull; }
+    Boolean isNull() const;
 
     /** getArraySize = Returns the size of an Array CIMValue
-	@return The number of entries in the array
+        @return The number of entries in the array
     */
     Uint32 getArraySize() const;
 
@@ -221,19 +217,16 @@ public:
         The CIMType is defined in ATTN:
         @return Returns the CIMType value
     */
-    CIMType getType() const 
-    { 
-	return CIMType(_type); 
-    }
+    CIMType getType() const;
 
-    /** setNullvalue - Sets the CIMType, the Array indicator and if it is
+    /** setNullValue - Sets the CIMType, the Array indicator and if it is
         the arraytype, the Arraysize of a CIMValue and sets the isNull
         Attribute.  This function is used to set up CIMValues an NULL but
         with valid CIMType and array characteristics (ex. when update from
         XML)
         @param type - The CIMType for this CIMValue
-        @paramisArray - Boolean indicating whether this is an array CIMValue
-        @param arraySize (optional)  Uint32parameter indicating the array
+        @param isArray - Boolean indicating whether this is an array CIMValue
+        @param arraySize (optional) Uint32 parameter indicating the array
         size
         @return void
         <pre>
@@ -321,11 +314,11 @@ public:
     /** get - Gets the value of a CIMValue
         @param Variable in which we return the value:
         @return void
-		<pre>
-		Uint32 v;
-		CIMValue value(CIMValue::UINT32, UINT32(99));
-		value.get(v);
-		</pre>
+                <pre>
+                Uint32 v;
+                CIMValue value(CIMValue::UINT32, UINT32(99));
+                value.get(v);
+                </pre>
     */
     void get(Boolean& x) const;
     ///
@@ -392,11 +385,11 @@ public:
         XML element wrapped in the <VALUE>, <VALUE.ARRAY>, <VALUE.REFERENCE>,
         or <VALUE.REFARRAY> tags. If the CIMValue is Null, no element is
         returned.
-	@param out Sint8 Array to hold the XML representation
+        @param out Sint8 Array to hold the XML representation
         @param forceTag Boolean parameter that if set forces the XML tags to
         be output even if the CIMValue is NULL.
-	@return Returns the XML representation of the CIMValue
-	object in the input parameter out.
+        @return Returns the XML representation of the CIMValue
+        object in the input parameter out.
     */
     void toXml(Array<Sint8>& out, Boolean forceTag) const;
 
@@ -408,55 +401,50 @@ public:
         CIMValue is Null, no element is returned.
         @param forceTag Boolean parameter that if set forces the XML tags to
         be output even if the CIMValue is NULL.
-	@return Returns the XML representation of the CIMValue
-	object in String form.
+        @return Returns the XML representation of the CIMValue
+        object in String form.
     */
     String toXml(Boolean forceTag) const;
 
     /** CIMMethod print - Format and print the Value as XML to std output
-    	stream
+        stream
         @param forceTag Boolean parameter that if set forces the XML tags to
         be output even if the CIMValue is NULL.
         @param o Stream to output to. Defaults to cout.
-	@return None
-	<PRE>
-	Example:
-	    CIMValue value(Boolean(true));
-	    value.print(true);	  // Prints "true"
-	</PRE>
+        @return None
+        <PRE>
+        Example:
+            CIMValue value(Boolean(true));
+            value.print(true);  // Prints "true"
+        </PRE>
     */
     void print(Boolean forceTag, PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
 
     /** toMof - Converts a CIMValueObject to Mof.
-	@out Sint8 Array to hold the Mof representation
-	@return Returns the Mof representation of the CIMValue
-	object in the input parameter out. 
+        @out Sint8 Array to hold the Mof representation
+        @return Returns the Mof representation of the CIMValue
+        object in the input parameter out. 
     */
     void toMof(Array<Sint8>& out) const;
 
     /** toString - Converts the CIMvalue to a string.  Should only be
             used for output purposes.  To get an actual String value, use
             get(String &).
-	@return - String output for CIMValue.
+        @return - String output for CIMValue.
         @exception - Throws exception CIMValueInvalidType if the CIMValue
             has an invalid type. Normally this is a Pegasus internal error.
-	<PRE>
-	Example:
-	    String test;
-	    CIMValue value(Boolean(true));
-	    test = value.toString();	  // puts "TRUE" into test
-	</PRE>
-	*/
+        <PRE>
+        Example:
+            String test;
+            CIMValue value(Boolean(true));
+            test = value.toString();  // puts "TRUE" into test
+        </PRE>
+        */
     String toString() const;
 
 private:
 
-    void _init();
-
-    CIMType _type;
-    Boolean _isArray;
-    Boolean _isNull;
-    Union _u;
+    CIMValueRep* _rep;
 
     friend class CIMMethodRep;
     friend class CIMParameterRep;
@@ -464,22 +452,20 @@ private:
     friend class CIMQualifierRep;
     friend class CIMQualifierDeclRep;
     PEGASUS_COMMON_LINKAGE friend Boolean operator==(
-	const CIMValue& x, 
-	const CIMValue& y);
+        const CIMValue& x, 
+        const CIMValue& y);
 };
+
 /** operator == compares two CIMValue objects for equality.
-	@param x - First CIMvalue to compare
-	@parm y - Second CIMValue to compare
-	@return True if they are identical in type, attribute and value.
+        @param x - First CIMvalue to compare
+        @parm y - Second CIMValue to compare
+        @return True if they are identical in type, attribute and value.
 */
 PEGASUS_COMMON_LINKAGE Boolean operator==(const CIMValue& x, const CIMValue& y);
 
 /** operator != compares two CIMValue objects for nonequality
 */
-inline Boolean operator!=(const CIMValue& x, const CIMValue& y)
-{
-    return !operator==(x, y);
-}
+PEGASUS_COMMON_LINKAGE Boolean operator!=(const CIMValue& x, const CIMValue& y);
 
 #define PEGASUS_ARRAY_T CIMValue
 # include "ArrayInter.h"

@@ -104,15 +104,20 @@ pegasus_basic_identity::pegasus_basic_identity(const pegasus_basic_identity & id
    
 }
 
-	  
+	 
+pegasus_basic_identity::~pegasus_basic_identity(void)
+{
+}
+
+ 
 const String & pegasus_basic_identity::get_username(void)
 {
-   return reinterpret_cast<const String &>( *(get_base_identity()));
+   return *(reinterpret_cast<const String *>( get_base_identity()));
 }
 
 const String & pegasus_basic_identity::get_password(void)
 {
-   return reinterpret_cast<const String &>( *get_base_credential() );
+   return *(reinterpret_cast<const String *>( get_base_credential()));
 }
 
 Boolean pegasus_basic_identity::authenticate(void)

@@ -388,15 +388,19 @@ void RT_IndicationProvider::_checkOperationContext(const OperationContext& conte
       throw CIMOperationFailedException(funcName + "- incorrect source namespace");
     }
  
-     //
-    // Try to parse the filter query from the filter query container
-    //
     try
     {
+      //
+      // Try to parse the filter query from the filter query container
+      //
       CIMOMHandleQueryContext ctx(qContainer.getSourceNameSpace(), _cimom);
       QueryExpression qe(qContainer.getQueryLanguage(),
                          qContainer.getFilterQuery(),
                          ctx);
+
+      // Exercise the QueryExpression...this will cause repository access through
+      // the CIMOMHandleQueryContext.
+      qe.validate();
     }
     catch (Exception & e)
     {

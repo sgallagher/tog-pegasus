@@ -1,21 +1,13 @@
-
-define NEWLINE
-
-
-endef
-
 DEPEND_MAK = $(OBJ_DIR)/depend.mak
 
+##
+## Notice that the system includes are excluded. That is because this
+## depend utility doesn't require that all the includes be resolved (just
+## the ones that matter (the ones the user put on the path).
+##
+
 depend: $(OBJ_DIR)/target $(ERROR)
-	@ mu rm $(DEPEND_MAK)
-	@ echo === depend:
-	$(foreach i, $(SOURCES), \
-	    @ $(CXX) -P $(FLAGS) $(LOCAL_DEFINES) $(DEFINES)  \
-		$(PRE_DEPEND_INCLUDES) $(DEPEND_INCLUDES) \
-		$(SYS_INCLUDES) $(INCLUDES) $(i) $(NEWLINE) \
-	    @ mu depend \
-		$(subst .cpp,.i,$(i)) $(DEPEND_MAK) $(OBJ_DIR)/ $(NEWLINE) \
-	)
+	mu depend -O$(OBJ_DIR) $(INCLUDES) $(SOURCES) > $(DEPEND_MAK)
 
 clean-depend:
 	$(RM) $(OBJ_DIR)/depend.mak

@@ -37,3 +37,5 @@ LIB_SUFFIX = .so
 COPY = cp
 
 TOUCH = touch
+
+ECHO = echo

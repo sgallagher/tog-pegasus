@@ -49,3 +49,5 @@ SHARED_LIB_SUFFIX = .dll
 COPY = mu copy
 
 TOUCH = mu touch
+
+ECHO = mu echo

@@ -123,7 +123,41 @@ class PEGASUS_CIMOM_LINKAGE Reply : public Message
       Uint32 result;
 } ;
 
-class PEGASUS_CIMOM_LINKAGE Ioctl : public Request
+
+class PEGASUS_CIMOM_LINKAGE AsyncRequest : public Request
+{
+   public:
+      AsyncRequest(Uint32 type, 
+		   Uint32 key, 
+		   QueueIdStack queue_ids,
+		   Uint32 mask,
+		   AsyncOpNode *opnode,
+		   Uint32 routing = 0) 
+	 : Request(type, key, queue_ids, mask | message_mask::ha_async, routing),
+	   op(opnode) {  }
+      virtual ~AsyncRequest(void);
+
+      AsyncOpNode *op;
+} ;
+
+class PEGASUS_CIMOM_LINKAGE AsyncReply : public Reply
+{
+   public:
+      AsyncReply(Uint32 type, 
+		 Uint32 key, 
+		 Uint32 result_code, 
+		 Uint32 mask, 
+		 AsyncOpNode *opnode,
+		 Uint32 routing = 0)
+	 :Reply(type, key, result_code, mask | message_mask::ha_async, routing),
+	  op(opnode) {  }
+      virtual ~AsyncReply(void);
+      
+      AsyncOpNode *op;
+} ;
+
+
+class PEGASUS_CIMOM_LINKAGE Ioctl : public AsyncRequest
 {
    public:
       Ioctl(Uint32 type,
@@ -133,8 +167,9 @@ class PEGASUS_CIMOM_LINKAGE Ioctl : public Request
 	    Uint32 control_code,
 	    Uint32 uint_param,
 	    void * pointer_param,
+	    AsyncOpNode *op,
 	    Uint32 routing = 0)
-	 : Request(type, key, queue_ids, mask, routing),
+	 : AsyncRequest(type, key, queue_ids, mask, op, routing),
 	   code(code), uint(uint_param), pparam(pointer_param) { }
 
       virtual ~Ioctl(void) { };
@@ -142,6 +177,7 @@ class PEGASUS_CIMOM_LINKAGE Ioctl : public Request
       Uint32 code;
       Uint32 uint;
       void *pparam;
+      
 };
 
 // heartbeat TO the cimom from a SERVICE
@@ -152,7 +188,7 @@ class PEGASUS_CIMOM_LINKAGE CimomHeartBeat : public Reply
       CimomHeartBeat(Uint32 key,
 		     Uint32 routing = 0)
 	 : Reply(cimom_messages::HEARTBEAT, key, 0,
-		 (message_mask::type_cimom | message_mask::ha_reply),
+		 message_mask::type_cimom | message_mask::ha_reply | message_mask::ha_synchronous,
 		 routing )
       {
       }
@@ -162,7 +198,7 @@ class PEGASUS_CIMOM_LINKAGE CimomHeartBeat : public Reply
 } ;
 
 // request from a service to the cimom
-class PEGASUS_CIMOM_LINKAGE CimomRegisterService : public Request
+class PEGASUS_CIMOM_LINKAGE CimomRegisterService : public AsyncRequest
 {
    public:
       CimomRegisterService(Uint32 key,
@@ -171,9 +207,11 @@ class PEGASUS_CIMOM_LINKAGE CimomRegisterService : public Request
 			   Uint32 module_capabilities,
 			   Uint32 module_mask,
 			   Uint32 module_queue,
+			   AsyncOpNode *op,
 			   Uint32 routing = 0)
-	 : Request(cimom_messages::REGISTER_SERVICE, key, queue_ids, routing,
-		   ( message_mask::type_cimom | message_mask::ha_request )),
+	 : AsyncRequest(cimom_messages::REGISTER_SERVICE, key, queue_ids, 
+			message_mask::type_cimom | message_mask::ha_request , 
+			op, routing),
 	   name(module_name), capabilities(module_capabilities),
 	   mask(module_mask ), q_id(module_queue)  {   }
 
@@ -187,16 +225,18 @@ class PEGASUS_CIMOM_LINKAGE CimomRegisterService : public Request
 
 
 // request from a service to the cimom
-class PEGASUS_CIMOM_LINKAGE CimomDeregisterService : public Request
+class PEGASUS_CIMOM_LINKAGE CimomDeregisterService : public AsyncRequest
 {
    public:
 
       CimomDeregisterService(Uint32 key,
 			     QueueIdStack queue_ids,
 			     Uint32 module_queue,
+			     AsyncOpNode *op,
 			     Uint32 routing = 0 )
-	 : Request(cimom_messages::DEREGISTER_SERVICE, key, queue_ids, routing,
-		   (message_mask::type_cimom | message_mask::ha_request) ),
+	 : AsyncRequest(cimom_messages::DEREGISTER_SERVICE, key, queue_ids, 
+		   (message_mask::type_cimom | message_mask::ha_request),
+		   op, routing),
 	   q_id(module_queue) {  }
 
       virtual ~CimomDeregisterService(void) { };
@@ -207,7 +247,7 @@ class PEGASUS_CIMOM_LINKAGE CimomDeregisterService : public Request
 
 // modules can unly update their capabilities or their mask, not their queue_id.
 // changing a queue_id is equivalent to deregistering and registering.
-class PEGASUS_CIMOM_LINKAGE CimomUpdateService : public Request
+class PEGASUS_CIMOM_LINKAGE CimomUpdateService : public AsyncRequest
 {
    public:
       CimomUpdateService(Uint32 key,
@@ -215,9 +255,11 @@ class PEGASUS_CIMOM_LINKAGE CimomUpdateService : public Request
 			 Uint32 module_capabilities,
 			 Uint32 module_mask,
 			 Uint32 module_queue,
+			 AsyncOpNode *op,
 			 Uint32 routing = 0)
-	 : Request(cimom_messages::UPDATE_SERVICE, key, queue_ids, routing,
-		       message_mask::type_cimom | message_mask::ha_request ) ,
+	 : AsyncRequest(cimom_messages::UPDATE_SERVICE, key, queue_ids, 
+		   message_mask::type_cimom | message_mask::ha_request,
+		   op, routing ) ,
 	  capabilities(module_capabilities), mask(module_mask),
 	  q_id(module_queue) {  }
 
@@ -240,6 +282,7 @@ class PEGASUS_CIMOM_LINKAGE CimomIoctl : public Ioctl
 		 Uint32 code,
 		 Uint32 uint_param,
 		 void *pointer_param,
+		 AsyncOpNode *op,
 		 Uint32 routing = 0)
 	 : Ioctl(cimom_messages::IOCTL,
 		 key,
@@ -248,54 +291,56 @@ class PEGASUS_CIMOM_LINKAGE CimomIoctl : public Ioctl
 		 code,
 		 uint_param,
 		 pointer_param,
+		 op,
 		 routing) { }
       
       virtual ~CimomIoctl(void) { };
 };
 
-class PEGASUS_CIMOM_LINKAGE CimomAsyncOpReply : public Reply
+class PEGASUS_CIMOM_LINKAGE CimomAsyncOpReply : public AsyncReply
 {
    public:
       CimomAsyncOpReply(Uint32 key,
 			Uint32 result_code,
 			AsyncOpNode *operation,
 			Uint32 routing = 0)
-	 : Reply(cimom_messages::ASYNC_OP_REPLY, key, result_code,
-		 ( message_mask::type_cimom | message_mask::ha_reply), routing),
-	   op(operation) {  }
+	 : AsyncReply(cimom_messages::ASYNC_OP_REPLY, 
+		      key, 
+		      result_code,
+		      message_mask::type_cimom | message_mask::ha_reply, 
+		      op,
+		      routing) {  }
 
 	  virtual ~CimomAsyncOpReply(void) { };
 
-      AsyncOpNode *op;
 };
 
 // async operation issued TO a service FROM the Cimom
-class PEGASUS_CIMOM_LINKAGE ServiceAsyncReq : public Request
+class PEGASUS_CIMOM_LINKAGE ServiceAsyncReq : public AsyncRequest
 {
    public:
       ServiceAsyncReq(Uint32 type,
-		   Uint32 key,
-		   QueueIdStack queue_ids,
-		   AsyncOpNode *operation,
-		   Uint32 routing = 0)
-	 : Request(type, key, queue_ids, routing,
-		   ( message_mask::type_service | message_mask::ha_request) ),
-	   op(operation) {  }
-
+		      Uint32 key,
+		      QueueIdStack queue_ids,
+		      AsyncOpNode *op,
+		      Uint32 routing = 0)
+	 : AsyncRequest(type, key, queue_ids, 
+			( message_mask::type_service | message_mask::ha_request),
+			op, routing) {  }
+      
       virtual ~ServiceAsyncReq(void) { };
-
-      AsyncOpNode *op;
+      
 } ;
 
 class PEGASUS_CIMOM_LINKAGE ServiceAsyncOpStart : public ServiceAsyncReq
 {
    public:
       ServiceAsyncOpStart(Uint32 key,
-			QueueIdStack queue_ids,
-			AsyncOpNode *operation,
-			Uint32 routing = 0)
+			  QueueIdStack queue_ids,
+			  AsyncOpNode *operation,
+			  Uint32 routing = 0)
 	 : ServiceAsyncReq(service_messages::ASYNC_OP_START, key, queue_ids, operation, routing)  {  }
-
+      
       virtual ~ServiceAsyncOpStart(void) { };
 };
 
@@ -303,39 +348,51 @@ class PEGASUS_CIMOM_LINKAGE ServiceAsyncOpCancel : public ServiceAsyncReq
 {
    public:
       ServiceAsyncOpCancel(Uint32 key,
-			 QueueIdStack queue_ids,
-			 AsyncOpNode *operation,
-			 Uint32 routing = 0)
-	 : ServiceAsyncReq(service_messages::ASYNC_OP_CANCEL, key, queue_ids, operation, routing) {  }
-
+			   QueueIdStack queue_ids,
+			   AsyncOpNode *operation,
+			   Uint32 routing = 0)
+	 : ServiceAsyncReq(service_messages::ASYNC_OP_CANCEL, 
+			   key, 
+			   queue_ids, 
+			   operation, 
+			   routing) {  }
+      
       virtual ~ServiceAsyncOpCancel(void) { };
-
+      
 };
 
 class PEGASUS_CIMOM_LINKAGE ServiceAsyncOpPause : public ServiceAsyncReq
 {
    public:
       ServiceAsyncOpPause(Uint32 key,
-			 QueueIdStack queue_ids,
-			 AsyncOpNode *operation,
-			 Uint32 routing = 0)
-	 : ServiceAsyncReq(service_messages::ASYNC_OP_PAUSE, key, queue_ids, operation, routing) {  }
-
+			  QueueIdStack queue_ids,
+			  AsyncOpNode *operation,
+			  Uint32 routing = 0)
+	 : ServiceAsyncReq(service_messages::ASYNC_OP_PAUSE, 
+			   key, 
+			   queue_ids, 
+			   operation, 
+			   routing) {  }
+      
       virtual ~ServiceAsyncOpPause(void) { };
-
+      
 };
 
 class PEGASUS_CIMOM_LINKAGE ServiceAsyncOpResume : public ServiceAsyncReq
 {
    public:
       ServiceAsyncOpResume(Uint32 key,
-			 QueueIdStack queue_ids,
-			 AsyncOpNode *operation,
-			 Uint32 routing = 0)
-	 : ServiceAsyncReq(service_messages::ASYNC_OP_RESUME, key, queue_ids, operation, routing) {  }
-
+			   QueueIdStack queue_ids,
+			   AsyncOpNode *operation,
+			   Uint32 routing = 0)
+	 : ServiceAsyncReq(service_messages::ASYNC_OP_RESUME, 
+			   key, 
+			   queue_ids, 
+			   operation, 
+			   routing) {  }
+      
       virtual ~ServiceAsyncOpResume(void) { };
-
+      
 };
 
 class PEGASUS_CIMOM_LINKAGE ServiceIoctl : public Ioctl
@@ -346,6 +403,7 @@ class PEGASUS_CIMOM_LINKAGE ServiceIoctl : public Ioctl
 		   Uint32 code,
 		   Uint32 uint_param,
 		   void *pointer_param,
+		   AsyncOpNode *op,
 		   Uint32 routing = 0)
 	 : Ioctl(service_messages::IOCTL,
 		 key,
@@ -354,8 +412,9 @@ class PEGASUS_CIMOM_LINKAGE ServiceIoctl : public Ioctl
 		 code,
 		 uint_param,
 		 pointer_param,
+		 op,
 		 routing) { }
-
+      
       virtual ~ServiceIoctl(void) { };
 };
 
@@ -368,63 +427,70 @@ class PEGASUS_CIMOM_LINKAGE ServiceHeartbeat : public Request
 	 :Request(service_messages::HEARTBEAT, 
 		  key, 
 		  queue_ids, 
-		  message_mask::type_service | message_mask::ha_request,
+		  message_mask::type_service | message_mask::ha_request | message_mask::ha_synchronous,
 		  routing) {  }
       virtual ~ServiceHeartbeat(void) { };
 };
 
-class PEGASUS_CIMOM_LINKAGE ServiceStart : public Request
+class PEGASUS_CIMOM_LINKAGE ServiceStart : public AsyncRequest
 {
    public:
       ServiceStart(Uint32 key, 
 		   QueueIdStack queue_ids,
+		   AsyncOpNode *op,
 		   Uint32 routing = 0)
-	 :Request(service_messages::START, 
+	 :AsyncRequest(service_messages::START, 
 		  key, 
 		  queue_ids, 
 		  message_mask::type_service | message_mask::ha_request,
-		  routing) {  }
+		  op, routing) {  }
       virtual ~ServiceStart(void) { };
 };
 
-class PEGASUS_CIMOM_LINKAGE ServiceStop : public Request
+class PEGASUS_CIMOM_LINKAGE ServiceStop : public AsyncRequest
 {
    public:
       ServiceStop(Uint32 key, 
 		  QueueIdStack queue_ids,
+		  AsyncOpNode *op,
 		  Uint32 routing = 0)
-	 :Request(service_messages::STOP, 
-		  key, 
-		  queue_ids, 
-		  message_mask::type_service | message_mask::ha_request,
-		  routing) {  }
+	 :AsyncRequest(service_messages::STOP, 
+		       key, 
+		       queue_ids, 
+		       message_mask::type_service | message_mask::ha_request,
+		       op, 
+		       routing) {  }
       virtual ~ServiceStop(void) { };
 };
 
-class PEGASUS_CIMOM_LINKAGE ServicePause : public Request
+class PEGASUS_CIMOM_LINKAGE ServicePause : public AsyncRequest
 {
    public:
       ServicePause(Uint32 key, 
-		  QueueIdStack queue_ids,
-		  Uint32 routing = 0)
-	 :Request(service_messages::PAUSE, 
+		   QueueIdStack queue_ids,
+		   AsyncOpNode *op,
+		   Uint32 routing = 0)
+	 :AsyncRequest(service_messages::PAUSE, 
 		  key, 
 		  queue_ids, 
 		  message_mask::type_service | message_mask::ha_request,
+		  op,
 		  routing) {  }
       virtual ~ServicePause(void) { };
 };
 
-class PEGASUS_CIMOM_LINKAGE ServiceResume : public Request
+class PEGASUS_CIMOM_LINKAGE ServiceResume : public AsyncRequest
 {
    public:
       ServiceResume(Uint32 key, 
-		  QueueIdStack queue_ids,
-		  Uint32 routing = 0)
-	 :Request(service_messages::RESUME, 
+		    QueueIdStack queue_ids,
+		    AsyncOpNode *op,
+		    Uint32 routing = 0)
+	 :AsyncRequest(service_messages::RESUME, 
 		  key, 
 		  queue_ids, 
 		  message_mask::type_service | message_mask::ha_request,
+		  op,
 		  routing) {  }
       virtual ~ServiceResume(void) { };
 };

@@ -45,7 +45,7 @@ AsyncOpNode::AsyncOpNode(void)
 AsyncOpNode::~AsyncOpNode(void)
 {
    delete _request;
-   delete _response;
+   _response.empty_list();
 }
 
 
@@ -60,7 +60,7 @@ void AsyncOpNode::_reset(unlocked_dq<AsyncOpNode> *dst_q)
 
    _parent = 0;
    delete _request;
-   delete _response;
+   _response.empty_list();
    _operation_list.reset();
    _state = 0;
    _flags = 0;
@@ -69,6 +69,5 @@ void AsyncOpNode::_reset(unlocked_dq<AsyncOpNode> *dst_q)
    dst_q->insert_first(this);
    return;
 }
-
 
 PEGASUS_NAMESPACE_END

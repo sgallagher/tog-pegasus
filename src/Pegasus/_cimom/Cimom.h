@@ -90,13 +90,20 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
       : MessageQueue("cimom"), _modules(true), 
 	_internal_ops(true ), _new_ops(true, 20), 
 	_pending_ops(true, 100), _completed_ops(true, 100),
-	_thread( _proc, this, false), _die(0)
-      
-      
-      {  }
+	_new_thread( _new_proc, this, false), 
+	_pending_thread( _pending_proc, this, false),
+	_completed_thread( _completed_proc, this, false),
+	_die(0)  {  }
             
+      ~cimom(void) ;
+            
+
+      Uint32 getModuleCount(void);
+      Uint32 getModuleIDs(Uint32 *ids, Uint32 count) throw(IPCException);
+      
       virtual void handleEnqueue();
-      void register_module(CimomRegisterService *);
+      void handle_internal(AsyncOpNode *internal_op);
+      void register_module(CimomRegisterService *msg);
       void deregister_module(CimomDeregisterService *msg) ;
       
 
@@ -106,15 +113,18 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
       
    private:
       DQueue<message_module> _modules;
-      DQueue<AsyncOpNode> _internal_ops; // a place to put messages to me that I
-                                         // need to process asynchronously
+      DQueue<AsyncOpNode> _internal_ops; 
+
       AsyncDQueue<AsyncOpNode> _new_ops;
       AsyncDQueue<AsyncOpNode> _pending_ops;
       AsyncDQueue<AsyncOpNode> _completed_ops;
       
-      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _proc(void *);
-      
-      Thread _thread;
+      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _new_proc(void *);
+      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _pending_proc(void *);
+      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _completed_proc(void *);
+      Thread _new_thread;
+      Thread _pending_thread;
+      Thread _completed_thread;
       AtomicInt _die;
       CIMOperationRequestDispatcher *_cim_dispatcher;
       CIMOperationResponseEncoder *_cim_encoder;
@@ -164,6 +174,45 @@ inline Boolean message_module::operator == (const void *key) const
 {
    return operator == ( (*(reinterpret_cast<const message_module *>(key) ) ) );
 }
+
+
+inline Uint32 cimom::getModuleCount(void) 
+{
+   return _modules.count();
+}
+
+inline Uint32 cimom::getModuleIDs(Uint32 *ids, Uint32 count) throw(IPCException)
+{
+
+   if(ids == 0)
+      return 0;
+   
+   message_module *temp = 0;
+   _modules.lock();
+   temp = _modules.next(temp);
+   while( temp != 0 && count > 0 )
+   {
+      *ids = temp->_q_id;
+      ids++;
+      count--;
+      temp = _modules.next(temp);
+   }
+   _modules.unlock();
+
+   while( count > 0 )
+   {
+      *ids = 0;
+      ids++;
+      count--;
+   }
+   
+   return _modules.count();
+}
+
+
+
+
+
 
 PEGASUS_NAMESPACE_END
 

@@ -187,6 +187,48 @@ void MessageQueue::enqueue(Message* message) throw(IPCException)
        handleEnqueue();
 }
 
+
+Boolean MessageQueue::accept_async(Message *message) throw(IPCException)
+{
+   if(! message)
+      throw NullPointer();
+   if(_async == false)
+      return false;
+   
+   if (getenv("PEGASUS_TRACE"))
+   {
+      cout << "==~ accept() ~== " << getQueueName() << ": ";
+      message->print(cout);
+   }
+
+
+   // in derived methods, evaluate the message here to determine
+   // whether or not you can handle it. 
+
+    _mut.lock(pegasus_thread_self());
+    if (_back)
+    {
+       _back->_next = message;
+       message->_prev = _back;
+       message->_next = 0;
+       _back = message;
+    }
+    else
+    {
+       _front = message;
+       _back = message;
+       message->_prev = 0;
+       message->_next = 0;
+    }
+    message->_owner = this;
+    _count++;
+    _workSemaphore.signal();
+    _mut.unlock();
+
+   return true;
+}
+
+
 Message* MessageQueue::dequeue() throw(IPCException)
 {
    _mut.lock(pegasus_thread_self());

@@ -62,6 +62,22 @@ public:
     */
     void enqueue(Message* message) throw(IPCException);
 
+
+    /** allows a caller to determine if this message queue is asynchronous or not 
+
+    */
+    Boolean isAsync(void) { return _async; }
+    
+    /** Allows a message queue to decline to enqueue a message. If
+	the message is enqueued returns true. If the queue declines to
+	handle the message returns false and the message is not enqueued
+
+	Note: accept_async() MUST NEVER call handleEnqueue(). Synchronous
+	MessageQueues (those not having a worker thread) must always return false.
+    */
+    
+    virtual Boolean accept_async(Message *message) throw(IPCException);
+    
     /** Dequeues a message (removes it from the front of the queue).
 	@return pointer to message or zero if queue is empty.
     */
@@ -159,7 +175,7 @@ public:
     static  MessageQueue* lookup(const char *name) throw(IPCException);
     static Uint32 _CIMOM_Q_ID;
 
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL workThread(void * arg);
+    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL workThread(void * arg);
 
 private:
 

@@ -64,8 +64,10 @@ PEGASUS_NAMESPACE_BEGIN
 #define ASYNC_OPSTATE_PAUSED            0x00000200
 #define ASYNC_OPSTATE_SUSPENDED         0x00000400
 #define ASYNC_OPSTATE_RESUMED           0x00000800
-#define ASYNC_OPSTATE_ORPHANED          0X00001000
+#define ASYNC_OPSTATE_ORPHANED          0x00001000
+#define ASYNC_OPSTATE_ACCEPTED          0x00002000
 
+class Cimom;
 
 class PEGASUS_COMMON_LINKAGE AsyncOpNode
 {
@@ -106,7 +108,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       Semaphore _client_sem;
       Mutex _mut;
       Message *_request;
-      Message *_response;
+      DQueue<Message> _response; 
       OperationContext _operation_list;
       Uint32 _state;
       Uint32 _flags;
@@ -133,6 +135,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       void _make_orphan( AsyncOpNode & parent) ;
       void _adopt_child(AsyncOpNode *child) ;
       void _disown_child(AsyncOpNode *child) ;
+      friend class cimom;
 };
 
 
@@ -168,36 +171,24 @@ inline OperationContext & AsyncOpNode::get_context(void)
 
 inline  void AsyncOpNode::put_request(const Message *request) 
 {
-   _mut.lock(pegasus_thread_self());
+
    _request = const_cast<Message *>(request);
-   _mut.unlock();
-   
+
 }
 
 inline const Message * AsyncOpNode::get_request(void) 
 {
-   Message *req = 0;
-   _mut.lock(pegasus_thread_self());
-   req = _request;
-   _mut.unlock();
-   return req;
+   return _request ;
 }
 
 inline void AsyncOpNode::put_response(const Message *response) 
 {
-   _mut.lock(pegasus_thread_self());
-   _response = const_cast<Message *>(response);
-   _mut.unlock();
-   
+   _response.insert_last( const_cast<Message *>(response) );
 }
 
 inline const Message * AsyncOpNode::get_response(void) 
 {
-   Message *resp;
-   _mut.lock(pegasus_thread_self());
-   resp = _response;
-   _mut.unlock();
-   return resp;
+   return  _response.remove_first();
 }
 
 inline Uint32 AsyncOpNode::read_state(void)

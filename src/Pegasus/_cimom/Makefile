@@ -11,15 +11,7 @@ LOCAL_DEFINES = -DPEGASUS_CIMOM_INTERNAL
 LIBRARY = cimom
 
 LIBRARIES = \
-    pegcommon \
-    pegrepository \
-    pegprotocol \
-    pegprovider \
-    pegprovider2 \
-    pegexportserver \
-    pegconfig \
-    peguser \
-    peglocalauth
+    pegcommon 
 
 PRE_DEPEND_INCLUDES = -I./depends
 

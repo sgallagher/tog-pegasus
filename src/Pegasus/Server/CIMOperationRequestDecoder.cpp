@@ -653,7 +653,7 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
     {
         throw CIMException(CIM_ERR_INVALID_PARAMETER);
     }
-
+ 
     CIMCreateClassRequestMessage* request = new CIMCreateClassRequestMessage(
         messageId,
         nameSpace,

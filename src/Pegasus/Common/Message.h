@@ -64,6 +64,8 @@ class PEGASUS_COMMON_LINKAGE message_mask
       static Uint32 ha_request;
       static Uint32 ha_reply;
       static Uint32 ha_synchronous;
+      static Uint32 ha_async;
+      
 
       // more for documentation than for use 
 
@@ -147,6 +149,20 @@ class PEGASUS_COMMON_LINKAGE Message
       
       virtual void print(PEGASUS_STD(ostream)& os) const;
 
+      // << Thu Dec 27 10:46:04 2001 mdd >> for use with DQueue container 
+      // as used by AsyncOpNode 
+      Boolean operator == (void *msg )
+      {
+	 if( this == reinterpret_cast<Message *>(msg) )
+	    return true;
+	 if( _key == (reinterpret_cast<Message *>(msg))->_key )
+	    if(_type == (reinterpret_cast<Message *>(msg))->_type )
+	       if(_mask == (reinterpret_cast<Message *>(msg))->_mask )
+		  return true;
+	 return false;
+      }
+      
+
    private:
       Uint32 _type;
       Uint32 _key;
@@ -160,31 +176,6 @@ class PEGASUS_COMMON_LINKAGE Message
       friend class MessageQueue;
 };
 
-
-// each component needs to support a set of these messgaes and pass that array
-// to the dispatcher so the dispatcher can route messages at the first level
-// i.e., client will not accept request messages.
-// every message should have a response
-
-// dispatcher supports full cim api set (as below)
-// repository needs to be a peer to the provider manager
-// 
-
-// mkdir _dispatcher
-// mkdir _providermanager
-// mkdir _server (http incoming, front end)
-// mkdir _repositorymanager
-//       _subscriptionprocessor
-//       _indicationprocessor
-//       _configurationmanager 
-//       _cimom (loads and links everyone, hooks up queues)
-
-// fundamental messages:
-
-// start, stop, pause, resume
-// handshaking: interrogate (as in windows service api)
-//              message class support
-//              message namespace support ???
 
 enum MessageType
 {

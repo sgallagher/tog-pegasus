@@ -602,7 +602,7 @@ Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
     float  psize;
     float  subtotal;
 
-    // BJH Dec-7-2004:  Correct value to reflect Kbytes instead of pages
+    // Feb-25-2005:  Correct value to reflect Kbytes instead of pages
 
     if (pstat_getstatic(&pst, sizeof(pst), (size_t)1, 0) == -1)
     {
@@ -635,8 +635,7 @@ Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
         return false;
     }
 
-    // this constant is 1/1024 - used for efficiency vs. dividing
-    // BJH Dec-7-2004:  Correct value to reflect Kbytes instead of Mbytes
+    // Feb-25-2005:  Correct value to reflect Kbytes instead of Mbytes
     psize = pst.page_size / 1024;  
     total = ((float)pst.physical_memory * psize);
     memory = total;

@@ -51,7 +51,7 @@ static const String BASIC_CHALLENGE_HEADER = "WWW-Authenticate: Basic \"";
 /** Service name for pam_start */
 const char *service = "wbem";
 
-const char* userPassword = 0;
+char* userPassword = 0;
 
 /* constructor. */
 PAMBasicAuthenticator::PAMBasicAuthenticator() 
@@ -104,7 +104,8 @@ Boolean PAMBasicAuthenticator::authenticate(
     pconv.conv = PAMBasicAuthenticator::PAMCallback;
     pconv.appdata_ptr = NULL;
 
-    userPassword = password.getCString();
+    userPassword = (char *)malloc(PAM_MAX_MSG_SIZE);
+    strcpy(userPassword, (const char*) password.getCString());
 
     //
     //Call pam_start since you need to before making any other PAM calls
@@ -112,6 +113,7 @@ Boolean PAMBasicAuthenticator::authenticate(
     if ( ( pam_start(service, 
         (const char *)userName.getCString(), &pconv, &phandle) ) != PAM_SUCCESS ) 
     {
+        free(userPassword);
         userPassword = 0;
         PEG_METHOD_EXIT();
         return (authenticated);
@@ -138,6 +140,7 @@ Boolean PAMBasicAuthenticator::authenticate(
     //
     pam_end(phandle, 0);
 
+    free(userPassword);
     userPassword = 0;
     PEG_METHOD_EXIT();
 

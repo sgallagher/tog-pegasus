@@ -11,9 +11,8 @@
     <hr>
     <form name="CreateClass" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="CreateClass">
-      <input type="hidden" name="hostip" value="localhost">
-      <input type="hidden" name="portnum" value="5988">
-
+      <INPUT TYPE="hidden" NAME="hostaddress" VALUE="localhost:5988">
+      <INPUT TYPE="hidden" NAME="debug" VALUE="">
       <p>The <TT>CreateClass</TT> method creates a single CIM Class for the target Namespace
       where the ClassName input parameter defines the name of the class to be created.
       <p><b>NameSpace</b> <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv2">
@@ -102,15 +101,16 @@
     <PRE>
     virtual void createClass(
 
-		const String& nameSpace,
-		ClassDecl& newClass) = 0;
+		const String&amp; nameSpace,
+		ClassDecl&amp; newClass) = 0;
 
     </PRE>
       	</form>
    <script>
-   CreateClass.hostip.value = opener.top.hostip;
-   CreateClass.portnum.value = opener.top.portnum;
-   window.focus();
+       document.CreateClass.hostaddress.value = top.hostAddress;
+       document.CreateClass.debug.value = top.debug;
+       document.CreateClass.NameSpace.value = top.NameSpace;
+	   window.focus();
    </script>
 	    </body>
 </html>

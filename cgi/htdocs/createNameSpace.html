@@ -9,14 +9,13 @@
       </tr>
     </table>
     <hr>
-    <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+    <form name="CreateNameSpace" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="CreateNameSpace">
-      <input type="hidden" name="hostip" value="localhost">
-	  <input type="hidden" name="portnum" value="5988">
-
+      <INPUT TYPE="hidden" NAME="hostaddress" VALUE="localhost:5988">
+      <INPUT TYPE="hidden" NAME="debug" VALUE="">
       <p>The <tt>CreateNameSpace</tt> method creates a new namespace in the Pegasus repository.
-      <p><b><a href="#NameSpace">NameSpace</a></b>
-	         <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root">&nbsp;
+      <p><b><a href="#NameSpace">NameSpace</a></b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root">&nbsp;
        		Defines the root namespace where the __Namespace class is defined. (DO NOT CHANGE)
       <p><b>New NameSpace Name</b> <INPUT TYPE="text" NAME="NewNameSpace" SIZE=30>
       String that defines the namespace to be created.&nbsp;
@@ -90,15 +89,15 @@
 
     <p style="line-height: 100%; margin-top: 0; margin-bottom: 0"><font size="1">Last
     Modified <!--webbot bot="Timestamp" S-Type="EDITED"
-    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 02:37:32 PM<!--webbot bot="Timestamp" i-CheckSum="50314" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Friday, June 29, 2001 04:56:44 PM<!--webbot bot="Timestamp" i-CheckSum="54751" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     Copyright @ The Open Group 2001&nbsp;</font>
 
    <script>
-   CreateClass.hostip.value = opener.top.hostip;
-   CreateClass.portnum.value = opener.top.portnum;
-   window.focus();
+       document.CreateNameSpace.hostaddress.value = top.hostAddress;
+       document.CreateNameSpace.debug.value = top.debug;
+       document.CreateNameSpace.NameSpace.value = top.NameSpace;
+	   window.focus();
    </script>
-
   </body>
 </html>
 

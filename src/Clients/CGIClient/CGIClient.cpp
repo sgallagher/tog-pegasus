@@ -58,6 +58,24 @@ PEGASUS_USING_STD;
 #define DDD(X) X
 //#define DDD(X) /* X */
 
+/*
+class operationhRef
+{
+public:
+    hRef(const String& operation)
+    appendPair (const String& key, const String& value
+    appendKey  (const String& key)
+    appendValue(const String& value)
+
+private:
+}
+
+void operationhRef:appendKey(const String& key)
+{
+
+}
+
+*/
 
 /** Class to hold, get, put, etc. the host info.
 This info must be maintained between calls to CGI client
@@ -71,10 +89,6 @@ class HostInfo
 {
 public:
     void setHostName(const char* str);
-    const char* getHostName();
-    void setHostPort(const char* str);
-    int getHostPort();
-    const char* getHostPortString();
     const char* getAddress();
 private:
     char _address[128];
@@ -90,26 +104,15 @@ void HostInfo::setHostName( const char* str)
 
 const char* HostInfo::getAddress()
 {
-    return("localhost:5988");
-}
-const char* HostInfo::getHostName()
-{
-    return("localhost");
-}
-void HostInfo::setHostPort(const char* str)
-{
-  /// ATTN: To be done
-}
-int HostInfo::getHostPort()
-{
-   return 5988;
-}
-const char* HostInfo::getHostPortString()
-{
-   return "5988";
-}
+    const char* tmp = getenv("QUERY_STRING");
+    char* queryString = strcpy(new char[strlen(tmp) + 1], tmp);
+    CGIQueryString qs(queryString);
 
-
+    if (tmp = qs.findValue("hostaddress"))
+	return tmp; 
+    else 
+	return("localhost:5988");
+}
 String PrintSuperClassName(String superClassName)
 {
     if (superClassName == "")
@@ -149,8 +152,6 @@ static void PrintHeader(const String& title)
     cout << "</table>\n";
 }
 
-
-
 /** PrintHTMLHead - Prints the HTML opening, document title
     and the page banner informatio
     @param string title - The text for the title field
@@ -175,11 +176,6 @@ static void PrintHTMLHead(const String& title, const String& header)
 void ErrorExit(const String& message)
 {
     PrintHTMLHead("Message", "Error in CGIClient");
-    // kscout << "<html>\n";
-    // ksPrintHead("Message");
-    // ksPrintHeader("Error");
-    // ksPrintRule();
-    // kscout << "  <body bgcolor=\"#CCCCCC\">\n";
     cout << "    <h1>" << message << "</h1>\n";
     cout << "  </body>\n";
     cout << "</html>\n";
@@ -211,7 +207,9 @@ static String EncodeQueryStringValue(const String& x)
 
 	if (c == '/')
 	    result.append("%2F");
-	else
+	else if	 (c == ':')
+	    result.append("%3A");
+	else    
 	    result.append(c);
     }
 
@@ -259,14 +257,20 @@ static void PrintPropertiesTableHeader(const String& tableName)
     @return - The result string
 */
 //ATTN: Why do we not do the EncodeQueryStringValue
+//ATTN: Why is host address part of this?
 String BuildOperationHref(String operation, String nameSpace)
 {
+    
     String result = "/pegasus/cgi-bin/CGIClient?";
     result.append("Operation=");
     result.append(operation);
     result.append("&");
     result.append("NameSpace=");
     result.append(EncodeQueryStringValue(nameSpace));
+    result.append("&");
+    HostInfo hostinfo;
+    result.append("hostaddress=");
+    result.append(EncodeQueryStringValue(hostinfo.getAddress()));
     result.append("&");
     return(result);
 }
@@ -288,6 +292,10 @@ String createClassHref(String nameSpace,String operation, String className)
 
     href.append("ClassName=");
     href.append(className);
+    href.append("&");
+    HostInfo hostinfo;
+    href.append("hostaddress=");
+    href.append(EncodeQueryStringValue(hostinfo.getAddress()));
     href.append("&");
 
     return(href);
@@ -380,6 +388,10 @@ void PrintObjectProperties(
 	href.append("&");
 	href.append("PropertyName=");
 	href.append(property.getName());
+	href.append("&"); 
+	HostInfo hostinfo;
+	href.append("hostaddress=");
+	href.append(EncodeQueryStringValue(hostinfo.getAddress()));
 
 	cout << "<tr>\n";
 	cout << "<td>";
@@ -431,6 +443,7 @@ void PrintQualifiers(OBJECT& object)
 */
 void PrintClassMethods(CIMClass& cimClass)
 {
+    // ATTN:If there are no methods.  State that rather than empty table
     cout << "<h2>Methods:</h2>\n";
     // Create the table
     cout << "<table border=1 width=\"50%\">\n";
@@ -474,7 +487,11 @@ void PrintClass(
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
+    //ATTN: Should say GetClass and then classname
+    //Aregument for combining to one parm
     PrintHTMLHead("GetClass", cimClass.getClassName());
+
+    //Consider short table of request parameters
 
     cout << "<h2>SuperClass Name:</h2>\n";
     if (cimClass.getSuperClassName() == "")
@@ -486,7 +503,7 @@ void PrintClass(
     if (includeQualifiers)
 	PrintQualifiers(cimClass);
     else
-	cout << "IncludeQualifier Parameter False" << endl;
+	cout << "\n\nQualifier Parameters Not Requested" << endl;
     PrintObjectProperties(nameSpace, cimClass,includeClassOrigin);
     PrintClassMethods(cimClass);
 
@@ -667,18 +684,6 @@ static void PrintClassNames(
 	    "GetClass",
 	    classNames[i]);
 
-	//ATTN: test the print class names and delete following
-	//String href = "/pegasus/cgi-bin/CGIClient?";
-	//href.append("Operation=GetClass&");
-	//href.append("NameSpace=");
-	//href.append(EncodeQueryStringValue(nameSpace));
-	//href.append("&");
-
-	//href.append("ClassName=");
-	//href.append(classNames[i]);
-	//href.append("&");
-
-       // href.append("LocalOnly=true");
 
 	PrintA(href, classNames[i]);
 
@@ -783,7 +788,7 @@ static void DeleteClass(const CGIQueryString& qs)
 	String message = "Class \"";
 	message += className;
 	message.append("\" was deleted");
-	PrintHTMLHead("DeleteClass", "Delete Class");
+	PrintHTMLHead("DeleteClass", "Delete Class Result");
         cout << "    <h1>" << message << "</h1>\n";
         cout << "  </body>\n";
         cout << "</html>\n";
@@ -809,6 +814,12 @@ void PrintQualifierRow(const String& nameSpace,
     href += "QualifierName=";
     href += qd.getName();
 
+    href.append("&"); 
+    HostInfo hostinfo;
+    href.append("&hostaddress=");
+    href.append(EncodeQueryStringValue(hostinfo.getAddress()));
+
+
     cout << "<td>";
     PrintA(href, qd.getName());
     cout << "</td>";
@@ -825,7 +836,7 @@ void PrintGetQualifier(
     const String& nameSpace,
     CIMQualifierDecl qualifierDecl)
 {
-    PrintHTMLHead("GetQualifier", "GetQualifier");
+    PrintHTMLHead("GetQualifier", "GetQualifier Result");
     // cout << "<html>\n";
     // PrintHead("GetQualifier");
     // cout << "<body bgcolor=\"#CCCCCC\">\n";
@@ -951,23 +962,27 @@ static void GetQualifier(const CGIQueryString& qs)
 }
 
 /***************************************************************************
-    PrintInstanceNames Function
+    PrintObjectNames Function
 ***************************************************************************/
 /** PrintInstanceNames
     Prints the HTML form for the names provided in the
-    String array of instancenames.
+    String array of instancenames. Note that the instance names
+    are provided as an array of CIMReference.
     The table created includes an href for each name so that
     a click on the href entry will get the instance
     Note that we assume the defaults for the extra
     parameters on the getInstance
+    @param nameSpace
+    @param InstanceNames - The array of references to print
     ATTN: Change so the user can select extra params.
 */
-static void PrintInstanceNames(
+static void PrintObjectNames(
+    const String& header,
     const String& nameSpace,
-    const Array<String>& InstanceNames,
+    const Array<CIMReference>& instanceNames,
     double elapsedTime)
 {
-    PrintHTMLHead("GetInstanceNames", "EnumerateInstanceNames Result");
+    PrintHTMLHead("GetInstanceNames", header);
     // cout << "<html>\n";
     // PrintHead("GetClassNames");
     // cout << "<body bgcolor=\"#CCCCCC\">\n";
@@ -976,10 +991,10 @@ static void PrintInstanceNames(
     //PrintRule();
 
     cout << "<table border=1>\n";
-    cout << "<tr><th>Instance Names</th><tr>\n";
+    cout << "<tr><th>Object Names</th><tr>\n";
     // For each name prepare the table entry with an href for
     // click access to the getInstance for that name
-    for (Uint32 i = 0, n = InstanceNames.size(); i < n; i++)
+    for (Uint32 i = 0, n = instanceNames.size(); i < n; i++)
     {
 	cout << "<tr><td>\n";
 
@@ -987,17 +1002,21 @@ static void PrintInstanceNames(
 	href.append("Operation=GetInstance&");
 	href.append("NameSpace=");
 	href.append(EncodeQueryStringValue(nameSpace));
-	href.append("&");
 
+	href.append("&");
+	HostInfo hostinfo;
+	href.append("hostaddress=");
+	href.append(EncodeQueryStringValue(hostinfo.getAddress()));
+	href.append("&");
 	href.append("InstanceName=");
-	href.append(InstanceNames[i]);
+	href.append(instanceNames[i].toString());
 	href.append("&");
 
 	href.append("LocalOnly=true");
 	href.append("includQualifiers=false");
 	href.append("includeClassOrigin=false");
 
-	PrintA(href, InstanceNames[i]);
+	PrintA(href, instanceNames[i].toString());
 
 	cout << "</tr></td>\n";
     }
@@ -1005,7 +1024,7 @@ static void PrintInstanceNames(
     cout << "</table>\n";
 
     // Close the Page
-    cout << "<p>Returned " << InstanceNames.size() << " Instances ";
+    cout << "<p>Returned " << instanceNames.size() << " Instances ";
     cout << " in " << elapsedTime << " Seconds</p>\n";
     cout << "</body>\n" << "</html>\n";
 
@@ -1019,7 +1038,7 @@ static void PrintInstanceNames(
     Gets the parameters from the CGIQuery String and calls
     the enumerateInstanceNames CIMClient function.
     The resulting string array of names is printed by
-    the function printInstanceNames
+    the function PrintObjectNames
 */
 static void EnumerateInstanceNames(const CGIQueryString& qs)
 {
@@ -1051,14 +1070,15 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 	Array<CIMReference> instanceNames = client.enumerateInstanceNames(
 	    nameSpace, className);
 
+	 /* Delete this after test.
 	Array<String> tmpInstanceNames;
 
 	for (Uint32 i = 0; i < instanceNames.size(); i++)
 	    tmpInstanceNames.append(instanceNames[i].toString());
-
-	// Print the name array
-	PrintInstanceNames(
-	    nameSpace, tmpInstanceNames, elapsedTime.getElapsed());
+	*/
+	// Print the CIMReference array
+	PrintObjectNames( "EnumerateInstanceNames Result",
+	    nameSpace, instanceNames, elapsedTime.getElapsed());
         }
     catch(Exception& e)
     {
@@ -1210,7 +1230,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
 		referenceName, propertyName);
 
 
-	    PrintHTMLHead("GetProperty", "GetProperty Return");
+	    PrintHTMLHead("GetProperty", "GetProperty Result");
 
 
 	    cout << "<B>Instance = </B> " <<
@@ -1478,23 +1498,20 @@ set.
 */
 static void DefineHostParameters(const CGIQueryString& qs)
 {
-    const char* tmp;
+    // const char* tmp;
     HostInfo hostInfo;
 
-    if ((tmp = qs.findValue("HostURL")))
-	hostInfo.setHostName(tmp);
+    // if ((tmp = qs.findValue("HostURL")))
+	// hostInfo.setHostName(tmp);
 
-    if ((tmp = qs.findValue("HostPort")))
-	hostInfo.setHostPort("5988");
+    // if ((tmp = qs.findValue("HostPort")))
+	// hostInfo.setHostPort("8888");
 
     /// Respond with the new parameters
-    PrintHTMLHead("GetInstanceNames", "EnumerateInstanceNames Result");
+    PrintHTMLHead("DefineHostParameters", "HostName/Port");
 
     cout << "<B>Host CIMName</B>  ";
-    cout << hostInfo.getHostName();
-    cout << "\n";
-    cout << "<P><B>Host Port</B>  ";
-    cout << hostInfo.getHostPortString();
+    cout << hostInfo.getAddress();
     cout << "\n";
     cout << "</body>\n" << "</html>\n";
 
@@ -1522,6 +1539,10 @@ void PrintClassTreeEntry(const String& nameSpace,
     PrintA(href, className);
 
 }
+/***************************************************************************
+   TraverseClassTree Function
+***************************************************************************/
+
 /** TraverseClassTree - Traverse the Tree of super-to-subclasses
     printing each new subclass.	This function uses recursieve calls
     to traverse the complete Class Tree.
@@ -1568,6 +1589,11 @@ void TraverseClassTree(
     if (putUL)
 	cout << "</UL><!-- " << level << " -->\n";
 }
+
+/***************************************************************************
+   ClassInheritance Function
+***************************************************************************/
+
 /**
     ClassInheritance
     This function operates on the same parameters as the enumerate classes
@@ -1682,6 +1708,9 @@ static void ClassInheritance(const CGIQueryString& qs)
 
  }
 
+/***************************************************************************
+   ClassTree Function
+***************************************************************************/
 
 /**
     ClassTree
@@ -1692,7 +1721,7 @@ static void ClassTree(const CGIQueryString& qs)
 {
     const String rootClass = "";
     // Get NameSpace:
-     String nameSpace = GetNameSpaceQueryField(qs);
+    String nameSpace = GetNameSpaceQueryField(qs);
 
     // Invoke the method:
     try
@@ -1755,7 +1784,127 @@ static void ClassTree(const CGIQueryString& qs)
     {
         ErrorExit(e.getMessage());
     }
+}
+/***************************************************************************
+   ReferenceNames Function
+***************************************************************************/
+
+static void ReferenceNames(const CGIQueryString& qs)
+{
+    // Get NameSpace:
+    String nameSpace = GetNameSpaceQueryField(qs);
+
+    const char* tmp;
+
+    String objectName;
+    if ((tmp = qs.findValue("ObjectName")))
+	objectName = tmp;
+    
+    String resultClass = String::EMPTY;
+    if ((tmp = qs.findValue("ResultClass")))
+	resultClass = tmp;
+
+    String role = String::EMPTY;
+    if ((tmp = qs.findValue("Role")))
+	role = tmp;
+
+    // Invoke the method:
+    try
+    {
+	// Time the connection
+	Stopwatch elapsedTime;
+
+	Selector selector;
+	CIMClient client(&selector);
+	HostInfo hostinfo;
+	client.connect(hostinfo.getAddress());
+
+	Array<CIMReference> objectReferences; 
+	objectReferences = client.referenceNames(
+		    nameSpace,
+		    objectName,
+		    resultClass,
+		    role);
+	// Generate table of returned CIMReferences
+	// Similar to Instance names response.
+	// Print the CIMReference array
+	PrintObjectNames( "EnumerateReferenceNames Result",
+	    nameSpace, objectReferences, elapsedTime.getElapsed());
+
+
+    }
+    catch(Exception& e)
+    {
+        ErrorExit(e.getMessage());
+    }
   }
+
+/***************************************************************************
+   Associator Function
+***************************************************************************/
+static void AssociatorNames(const CGIQueryString& qs)
+{
+    // Get NameSpace:
+    String nameSpace = GetNameSpaceQueryField(qs);
+
+    const char* tmp;
+
+    //Finish this one.
+    CIMReference objectNameRef;
+    String objectName;
+    if ((tmp = qs.findValue("ObjectName")))
+	objectName = tmp;
+    
+    String assocClass = String::EMPTY;
+    if ((tmp = qs.findValue("AssocClass")))
+	assocClass = tmp;
+    
+    
+    String resultClass = String::EMPTY;
+    if ((tmp = qs.findValue("ResultClass")))
+	resultClass = tmp;
+
+    String role = String::EMPTY;
+    if ((tmp = qs.findValue("ResultRole")))
+	role = tmp;
+
+    String resultRole = String::EMPTY;
+    if ((tmp = qs.findValue("Role")))
+	resultRole = tmp;
+
+    // Invoke the method:
+    try
+    {
+	// Time the connection
+	Stopwatch elapsedTime;
+
+	Selector selector;
+	CIMClient client(&selector);
+	HostInfo hostinfo;
+	client.connect(hostinfo.getAddress());
+
+	Array<CIMReference> objectReferences; 
+	objectReferences = client.associatorNames(
+	    nameSpace,
+	    objectName,
+	    assocClass,
+	    resultClass,
+	    role,
+	    resultRole);
+
+	// Generate table of returned CIMReferences
+	// Similar to Instance names response.
+
+	PrintObjectNames( "EnumerateReferenceNames Result",
+	    nameSpace, objectReferences, elapsedTime.getElapsed());
+
+    }
+    catch(Exception& e)
+    {
+        ErrorExit(e.getMessage());
+    }
+  }
+
 
 /******************************************************************
    Main Function
@@ -1781,7 +1930,6 @@ int main(int argc, char** argv)
 
     if (argc != 1)
 	ErrorExit("unexpected command line arguments");
-
     const char* tmp = getenv("QUERY_STRING");
 
     if (!tmp)
@@ -1790,13 +1938,21 @@ int main(int argc, char** argv)
     try
     {
         char* queryString = strcpy(new char[strlen(tmp) + 1], tmp);
-	// DEBUG cout << "Query String " << tmp << endl;
+
+	
+
 
 	Logger::put( Logger::TRACE_LOG,  "CGIClient", Logger::INFORMATION,
 	    "Query String $0", queryString);
 
-
 	CGIQueryString qs(queryString);
+
+	// Test for debug display. Note needs keyword test.
+	String debug = String::EMPTY;
+	if ((tmp = qs.findValue("debug")))
+	{
+	    cout << "Query String " << tmp << endl;
+	}
 
         const char* operation = qs.findValue("Operation");
 	if (!operation)
@@ -1811,6 +1967,10 @@ int main(int argc, char** argv)
 	    GetPropertyDeclaration(qs);
         else if (strcmp(operation, "EnumerateQualifiers") == 0)
 	    EnumerateQualifiers(qs);
+        //else if (strcmp(operation, "SetQualifier") == 0)
+	//    SetQualifier(qs);
+	//else if (strcmp(operation, "DeleteQualifier") == 0)
+	//    DeleteQualifier(qs);
         else if (strcmp(operation, "GetQualifier") == 0)
 	    GetQualifier(qs);
         else if (strcmp(operation, "GetInstance") == 0)
@@ -1833,9 +1993,15 @@ int main(int argc, char** argv)
 	    DeleteNameSpace(qs);
 	else if (strcmp(operation, "EnumerateNameSpaces") == 0)
 	    EnumerateNameSpaces(qs);
+	else if (strcmp(operation, "ReferenceNames") == 0)
+	    ReferenceNames(qs);
+	else if (strcmp(operation, "AssociatorNames") == 0)
+	    AssociatorNames(qs);
+
+
 	else if (strcmp(operation, "ClassInheritance") == 0)
 	    ClassInheritance(qs);
-	else if (strcmp(operation, "ClassTree") == 0)
+        else if (strcmp(operation, "ClassTree") == 0)
 	    ClassTree(qs);
 
         else

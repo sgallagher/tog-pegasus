@@ -11,12 +11,13 @@
     <hr>
     <form name="GetQualifier" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="GetQualifier">
-      <input type="hidden" name="hostip" value="localhost">
-      <input type="hidden" name="portnum" value="5988">
+      <INPUT TYPE="hidden" NAME="hostaddress" VALUE="localhost:5988">
+      <INPUT TYPE="hidden" NAME="debug" VALUE="">
       <p>
     The <TT>getQualifier</TT> operation retrieves a single Qualifier
     declaration from the target Namespace.
-      <p><b><a href="#NameSpace">NameSpace</a></b> <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv2">&nbsp;
+      <p><b><a href="#NameSpace">NameSpace</a></b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv2">&nbsp;
       String that defines the target namespace. See <a href="getnamespaces.html">NameSpace
       Operations</a> for more information
       <p><b><a href="#QualifierName">QualifierName</a></b> <INPUT TYPE="text" NAME="QualifierName" SIZE=30>
@@ -26,9 +27,10 @@
       <INPUT TYPE="reset" VALUE="Reset">
     </form>
    <script>
-   GetQualifier.hostip.value = opener.top.hostip;
-   GetQualifier.portnum.value = opener.top.portnum;
-   window.focus();
+       document.GetQualifier.hostaddress.value = top.hostAddress;
+       document.GetQualifier.debug.value = top.debug
+       document.GetQualifier.NameSpace.value = top.NameSpace
+       window.focus();
    </script>
     <hr>
     <h2>Request Return</h2>
@@ -94,8 +96,11 @@
      for more information on Pegasus</font>
 
      <p style="margin-top: 0; margin-bottom: 0"> <font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
-    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 05:17:08 PM<!--webbot bot="Timestamp" i-CheckSum="50597" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Friday, June 29, 2001 06:45:59 PM<!--webbot bot="Timestamp" i-CheckSum="55177" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
      Copyright @ The Open Group 2001&nbsp;</font>
-
+   <script>
+	   document.GetQualifier.hostaddress.value = top.hostAddress;
+	   window.focus();
+   </script>
   </body>
 </html>

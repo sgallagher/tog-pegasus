@@ -9,11 +9,11 @@
       </tr>
     </table>
     <hr>
-    <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+    <form name="DeleteNameSpace" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="DeleteNameSpace">
-      <input type="hidden" name="hostip" value="localhost">
-	  <input type="hidden" name="portnum" value="5988">
-      <p>The <tt>DeleteNameSpace</tt> method deletes an existing namespace in the Pegasus repository.
+      <INPUT TYPE="hidden" NAME="hostaddress" VALUE="localhost:5988">
+      <INPUT TYPE="hidden" NAME="debug" VALUE="">
+     <p>The <tt>DeleteNameSpace</tt> method deletes an existing namespace in the Pegasus repository.
       <p><b><a href="#NameSpace">NameSpace</a></b>
 	         <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root">&nbsp;
        		Defines the root namespace where the __Namespace class is defined. (DO NOT CHANGE)
@@ -90,9 +90,10 @@ the list (starting with the first element of the list, and working down) is the 
      Copyright @ The Open Group 2001&nbsp;</font>
 
    <script>
-   CreateClass.hostip.value = opener.top.hostip;
-   CreateClass.portnum.value = opener.top.portnum;
-   window.focus();
+       document.DeleteNameSpace.hostaddress.value = top.hostAddress;
+       document.DeleteNameSpace.debug.value = top.debug;
+       document.DeleteNameSpace.NameSpace.value = top.NameSpace;
+	   window.focus();
    </script>
 
   </body>

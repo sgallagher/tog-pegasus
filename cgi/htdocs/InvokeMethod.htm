@@ -11,6 +11,8 @@
     <hr>
     <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="InvokeMethod">
+      <INPUT TYPE="hidden" NAME="hostaddress" VALUE="localhost:5988">
+       <INPUT TYPE="hidden" NAME="debug" VALUE="">
       <p>Show the Class Tree for a Namespace.
       <p>NameSpace&nbsp;&nbsp;&nbsp; <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv2">
       <p>&nbsp;
@@ -51,8 +53,7 @@ method. This allows a CIM client to determine that all attempts to execute extri
 		const CIMReference&amp; instanceName,
 		const String&amp; methodName,
 		const Array<CIMValue>&amp; inParameters,
-		Array<CIMValue>&amp; outParameters) = 0;
-    </pre>
+		Array<CIMValue>&amp; outParameters) = 0;    </pre>
   <hr><p style="margin-top: 0; margin-bottom: 0"> <font size="2">Demonstration
      Prepared by the OpenGroup Manageability Work Group Pegasus Development Team</font>
 
@@ -60,8 +61,15 @@ method. This allows a CIM client to determine that all attempts to execute extri
      for more information on Pegasus</font>
 
      <p style="margin-top: 0; margin-bottom: 0"> <font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
-    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 05:51:53 PM<!--webbot bot="Timestamp" i-CheckSum="50405" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Friday, June 29, 2001 06:46:22 PM<!--webbot bot="Timestamp" i-CheckSum="54909" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
      Copyright @ The Open Group 2001&nbsp;</font>
+   <script>
+   	   document.InvokeMethod.hostaddress.value = top.hostAddress;
+       document.InvokeMethod.debug.value = top.debug
+       document.InvokeMethod.NameSpace.value = top.NameSpace
+
+	   window.focus();
+   </script>
 
   </body>
 </html>

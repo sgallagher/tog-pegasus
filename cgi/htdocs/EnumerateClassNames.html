@@ -11,8 +11,8 @@
     <hr>
     <form name="EnumerateClassNames" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient" >
       <INPUT TYPE="hidden" NAME="Operation" VALUE="EnumerateClassNames">
-      <input type="hidden" name="hostip" value="localhost">
-      <input type="hidden" name="portnum" value="5988">
+      <INPUT TYPE="hidden" NAME="hostaddress" VALUE="localhost:5988">
+      <INPUT TYPE="hidden" NAME="debug" VALUE="">
       <p>
     The <TT>enumerateClassNames</TT> operation is used to enumerate the
     names of subclasses of a CIM Class in the target Namespace.
@@ -28,11 +28,6 @@
       <p><INPUT TYPE="submit" VALUE="Submit Request">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <INPUT TYPE="reset" VALUE="Reset">
     </form>
-   <script>
-   EnumerateClassNames.hostip.value = opener.top.hostip;
-   EnumerateClassNames.portnum.value = opener.top.portnum;
-   window.focus();
-   </script>
     <hr>
 
     <h2>Request Return&nbsp;</h2>
@@ -90,9 +85,15 @@
      for more information on Pegasus</font>
 
      <p style="margin-top: 0; margin-bottom: 0"> <font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
-    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 03:06:48 PM<!--webbot bot="Timestamp" i-CheckSum="50711" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Friday, June 29, 2001 06:34:27 PM<!--webbot bot="Timestamp" i-CheckSum="55059" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
      Copyright @ The Open Group 2001&nbsp;</font>
 
+   <script>
+       document.EnumerateClassNames.hostaddress.value = top.hostAddress;
+       document.EnumerateClassNames.debug.value = top.debug;
+       document.EnumerateClassNames.NameSpace.value = top.NameSpace;
+	   window.focus();
+   </script>
 
   </body>
 </html>

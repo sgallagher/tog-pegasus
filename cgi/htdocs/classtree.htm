@@ -9,8 +9,10 @@
       </tr>
     </table>
     <hr>
-    <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+    <form name="ClassTree" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="ClassTree">
+      <INPUT TYPE="hidden" NAME="hostaddress" VALUE="localhost:5988">
+      <INPUT TYPE="hidden" NAME="debug" VALUE="">
       <p>Show the Class Tree for a Namespace.
       <p>NameSpace&nbsp;&nbsp;&nbsp; <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv2">
       <p><INPUT TYPE="submit" VALUE="Submit" name="Submit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -43,9 +45,14 @@
      for more information on Pegasus</font>
 
      <p style="margin-top: 0; margin-bottom: 0"> <font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
-    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Thursday, March 29, 2001 07:53:44 AM<!--webbot bot="Timestamp" i-CheckSum="6736" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Friday, June 29, 2001 04:56:07 PM<!--webbot bot="Timestamp" i-CheckSum="54783" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
      Copyright @ The Open Group 2001&nbsp;</font>
-
+   <script>
+       document.ClassTree.hostaddress.value = top.hostAddress;
+       document.ClassTree.debug.value = top.debug;
+       document.ClassTree.NameSpace.value = top.NameSpace;
+	   window.focus();
+   </script>
   </body>
 </html>
 

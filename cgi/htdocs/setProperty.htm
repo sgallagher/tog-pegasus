@@ -9,8 +9,10 @@
       </tr>
     </table>
     <hr>
-    <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+    <form name="SetProperty" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="GetProperty">
+      <INPUT TYPE="hidden" NAME="hostaddress" VALUE="localhost:5988">
+      <INPUT TYPE="hidden" NAME="debug" VALUE="">
       <p>The <tt>setProperty</tt>  CIM operation sets a single property value from a CIM Instance.
       <p>NameSpace&nbsp;&nbsp;&nbsp; <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv2">
       <p>InstanceName <INPUT TYPE="text" NAME="ClassName" SIZE=30>
@@ -18,7 +20,6 @@
       <p>Newvalue&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <input type="text" name="T1" size="30">
       <p><INPUT TYPE="submit" VALUE="Submit" name="Submit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <INPUT TYPE="reset" VALUE="Reset">
-      <p>
     </form>
 
     <hr>
@@ -78,9 +79,14 @@
      for more information on Pegasus</font>
 
      <p style="margin-top: 0; margin-bottom: 0"> <font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
-    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 02:37:32 PM<!--webbot bot="Timestamp" i-CheckSum="50314" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Friday, June 29, 2001 06:46:49 PM<!--webbot bot="Timestamp" i-CheckSum="55165" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
      Copyright @ The Open Group 2001&nbsp;</font>
-
+   <script>
+	   document.SetProperty.hostaddress.value = top.hostAddress;
+       document.SetProperty.debug.value = top.debug;
+       document.SetProperty.NameSpace.value = top.NameSpace;
+	   window.focus();
+   </script>
   </body>
 </html>
 

@@ -8,14 +8,14 @@
         </td>
       </tr>
     </table>
-    <hr></hr>
+    <hr>
     <form name="EnumerateQualifiers" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="EnumerateQualifiers">
-      <input type="hidden" name="hostip" value="localhost">
-      <input type="hidden" name="portnum" value="5988">
-      <p>NameSpace <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv2">
-      <p><INPUT TYPE="submit" VALUE="EnumerateQualifiers">
-      <p><INPUT TYPE="reset" VALUE="Reset">
+      <INPUT TYPE="hidden" NAME="hostaddress" VALUE="localhost:5988">
+      <INPUT TYPE="hidden" NAME="debug" VALUE="">
+      <p><b>NameSpace</b> <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv2">
+      <p><INPUT TYPE="submit" VALUE="EnumerateQualifiers">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <INPUT TYPE="reset" VALUE="Reset">
     </form>
     <hr>
     <h2>Return Results</h2>
@@ -43,8 +43,8 @@
     <h2>Additional Fields Description</h2>
 The <TT>enumerateQualifiers</TT> operation is used to enumerate
     CIMQualifier declarations from the target Namespace.&nbsp;
-    <p>NameSpace The NameSpace parameter is a string that defines the target
-	namespace \Ref{NAMESPACE}&nbsp;
+    <p><b>NameSpace</b> The NameSpace parameter is a string that defines the target
+	namespace&nbsp;
     <hr>
     <h2>C++ Pegasus API</h2>
     <pre>
@@ -58,13 +58,14 @@ The <TT>enumerateQualifiers</TT> operation is used to enumerate
      for more information on Pegasus</font>
 
      <p style="margin-top: 0; margin-bottom: 0"> <font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
-    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 02:57:40 PM<!--webbot bot="Timestamp" i-CheckSum="50226" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Friday, June 29, 2001 06:40:22 PM<!--webbot bot="Timestamp" i-CheckSum="54885" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
      Copyright @ The Open Group 2001&nbsp;</font>
 
    <script>
-   EnumerateQualifiers.hostip.value = opener.top.hostip;
-   EnumerateQualifiers.portnum.value = opener.top.portnum;
-   window.focus();
+       document.EnumerateQualifiers.hostaddress.value = top.hostAddress;
+       document.EnumerateQualifiers.debug.value = top.debug;
+       document.EnumerateQualifiers.NameSpace.value = top.NameSpace;
+	   window.focus();
    </script>
   </body>
 </html>

@@ -9,11 +9,11 @@
       </tr>
     </table>
     <hr>
-    <form name="deleteQualifier" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+    <form name="DeleteQualifier" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="DeleteQualifier">
-      <input type="hidden" name="hostip" value="localhost">
-      <input type="hidden" name="portnum" value="5988">
-      <p>
+      <INPUT TYPE="hidden" NAME="hostaddress" VALUE="localhost:5988">
+      <INPUT TYPE="hidden" NAME="debug" VALUE="">
+     <p>
     The <TT>setQualifier</TT> operation deletes a single Qualifier
     declaration for the target Namespace.
       <p><b><a href="#NameSpace">NameSpace</a></b> <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv2">&nbsp;
@@ -26,9 +26,10 @@
       <INPUT TYPE="reset" VALUE="Reset">
     </form>
    <script>
-   deleteQualifier.hostip.value = opener.top.hostip;
-   deleteQualifier.portnum.value = opener.top.portnum;
-   window.focus();
+   	   document.deleteQualifier.hostaddress.value = top.hostAddress;
+       document.deleteQualifier.debug.value = top.debug;
+       document.deleteQualifier.NameSpace.value = top.NameSpace;
+       window.focus();
    </script>
     <hr>
     <h2>Request Return</h2>
@@ -82,5 +83,10 @@
     	const String&amp; nameSpace,
     	const String&amp; qualifierName) = 0;
     </PRE>
+   <script>
+       document.DeleteQualifier.hostaddress.value = top.hostAddress;
+	   window.focus();
+   </script>
+
   </body>
 </html>

@@ -11,8 +11,8 @@
      <hr>
      <form name="EnumerateInstances" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
        <INPUT TYPE="hidden" NAME="Operation" VALUE="EnumerateInstances">
-      <input type="hidden" name="hostip" value="localhost">
-      <input type="hidden" name="portnum" value="5988">
+       <INPUT TYPE="hidden" NAME="hostaddress" VALUE="localhost:5988">
+       <INPUT TYPE="hidden" NAME="debug" VALUE="">
        <p>
 
      <a name="TOP"></a>
@@ -40,56 +40,47 @@
 	       <p><INPUT TYPE="submit" VALUE="Submit Request">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	       <INPUT TYPE="reset" VALUE="Reset">
 	     </form>
-   <script>
-   EnumerateInstances.hostip.value = opener.top.hostip;
-   EnumerateInstances.portnum.value = opener.top.portnum;
-   window.focus();
-   </script>
 	     <hr>
-    <h2>RETURN</h2>
+    <h2>Additional Information</h2>
 
      <P>The <TT>enumerateInstances</TT> method enumerates instances of a CIM
      Class in the target Namespace.
 
      NameSpace The NameSpace parameter is a string that defines the
-     target namespace \Ref{NAMESPACE}
-
-     ClassName The <TT>ClassName</TT> input parameter defines the
+     target namespace. The <TT>ClassName</TT> input parameter defines the
      Class that is the basis for the enumeration.    </P>
 
-     LocalOnly If the <TT>LocalOnly</TT> input parameter is
+     <b>
+
+     LocalOnly</b> If the <TT>LocalOnly</TT> input parameter is
      <TT>true</TT>, this specifies that, for each returned Instance,
      only elements (properties and qualifiers) overriden within the
      definition of that Instance are included.  If <TT>false</TT>,
      all elements are returned.  This parameter therefore effects a CIM
      Server-side mechanism to filter certain elements of the returned object
      based on whether or not they have been propagated from the parent
-     Class (as defined by the <TT>PROPAGATED</TT> attribute).
-
-     @param DeepInheritance If the <TT>DeepInheritance</TT> input
+     Class (as defined by the <TT>PROPAGATED</TT> attribute).&nbsp;
+     <p><b>DeepInheritance</b> If the <TT>DeepInheritance</TT> input
      parameter is <TT>true</TT>, this specifies that, for each
      returned Instance of the Class, all properties of the Instance MUST
      be present (subject to constraints imposed by the other
      parameters), including any which were added by subclassing the specified
      Class. If <TT>false</TT>, each returned Instance includes only
-     properties defined for the specified Class.
-
-     @param IncludeQualifiersIf the <TT>IncludeQualifiers</TT> input
+     properties defined for the specified Class.&nbsp;</p>
+     <p><b>IncludeQualifiers</b> If the <TT>IncludeQualifiers</TT> input
      parameter is <TT>true</TT>, this specifies that all Qualifiers
      for each Instance (including Qualifiers on the Instance
      and on any returned Properties) MUST be included as
      <TT>&lt;QUALIFIER&gt;</TT> elements in the response.  If false no
      <TT>&lt;QUALIFIER&gt;</TT> elements are present in each
-     returned Instance.
-
-     @param IncludeClassOrigin If the <TT>IncludeClassOrigin</TT> input
+     returned Instance.&nbsp;</p>
+     <p><b>IncludeClassOrigin</b> If the <TT>IncludeClassOrigin</TT> input
      parameter is <TT>true</TT>, this specifies that the
      <TT>CLASSORIGIN</TT> attribute MUST be present on all appropriate
      elements in each returned Instance. If false, no
      <TT>CLASSORIGIN</TT> attributes are present in each returned
-     Instance.
-
-     @param PropertyList If the <TT>PropertyList</TT> input parameter is not
+     Instance.&nbsp;</p>
+     <p><b>PropertyList</b> If the <TT>PropertyList</TT> input parameter is not
      <TT>NULL</TT>, the members of the array define one or more Property
      names.  Each returned Instance MUST NOT include elements
      for any Properties missing from this list.  Note that if
@@ -110,16 +101,17 @@
      the Server MUST ignore the duplicates but otherwise process the request
      normally.  If the <TT>PropertyList</TT> contains elements which are
      invalid Property names for any target Instance, the Server MUST
-     ignore such entries but otherwise process the request normally.
-
-     @return If successful, the method returns zero or more named
+     ignore such entries but otherwise process the request normally.&nbsp;</p>
+     <hr>
+     <h2>Return</h2>
+     <p>If successful, the method returns zero or more named
      Instances that meet the required criteria.
 
      If unsuccessful, one of the following status codes MUST be returned
      by this method, where the first applicable error in the list (starting
      with the first element of the list, and working down) is the error
      returned. Any additional method-specific interpretation of the error in
-     is given in parentheses.
+     is given in parentheses.</p>
 
  	<UL>
  	  <LI>CIM_ERR_ACCESS_DENIED
@@ -131,17 +123,24 @@
  		basis for this enumeration does not exist)
  	  <LI>CIM_ERR_FAILED (some other unspecified erroroccurred)</LI>
  	</UL>
-
+ 	<hr>
+<h2>C++ APIs as defined in CIMOperations.h</h2>
      <PRE>
      virtual Array<InstanceDecl> enumerateInstances(
-         const String& nameSpace,
-         const String& className,
+         const String&amp; nameSpace,
+         const String&amp; className,
          Boolean deepInheritance = true,
          Boolean localOnly = true,
          Boolean includeQualifiers = false,
          Boolean includeClassOrigin = false,
- 		const Array<String>& propertyList = _getStringArray()) = 0;
+ 		const Array<String>&amp; propertyList = _getStringArray()) = 0;
     </PRE>
-   </body>
- </html>
+	   <script>
+	   	   document.EnumerateInstances.hostaddress.value = top.hostAddress;
+           document.EnumerateInstances.debug.value = top.debug;
+           document.EnumerateInstances.NameSpace.value = top.NameSpace;
+		   window.focus();
+	   </script>
+	</body>
+</html>
 

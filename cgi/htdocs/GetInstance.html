@@ -12,8 +12,7 @@
     <hr>
     <form name="GetInstance" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="GetInstance">
-      <input type="hidden" name="hostip" value="localhost">
-      <input type="hidden" name="portnum" value="5988">
+      <INPUT TYPE="hidden" NAME="hostaddress" VALUE="localhost:5988">
 	  <P>The <TT>GetInstance</TT> method returns a single CIM Instance from the target
 	  Namespace based on the InstanceName parameter provided.
 
@@ -44,10 +43,9 @@
       <p><INPUT TYPE="submit" VALUE="Submit Request"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       &nbsp;&nbsp;&nbsp;&nbsp; <INPUT TYPE="reset" VALUE="Reset Form">
 
-      <hr>
-
-      <p>
 	</form>
+
+    <hr>
 
       <h2>REQUEST RETURN</h2>
 
@@ -131,14 +129,16 @@
      for more information on Pegasus</font>
 
      <p style="margin-top: 0; margin-bottom: 0"> <font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
-    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 05:01:31 PM<!--webbot bot="Timestamp" i-CheckSum="50193" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Friday, June 29, 2001 06:42:17 PM<!--webbot bot="Timestamp" i-CheckSum="55037" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
      Copyright @ The Open Group 2001&nbsp;</font>
 
       <p>
 	</form>
    <script>
-   GetInstance.hostip.value = opener.top.hostip;
-   GetInstance.portnum.value = opener.top.portnum;
+       document.GetInstance.hostaddress.value = top.hostAddress;
+       document.GetInstance.debug.value = top.debug;
+       document.GetInstance.NameSpace.value = top.NameSpace;
+
    window.focus();
    </script>
   </body>

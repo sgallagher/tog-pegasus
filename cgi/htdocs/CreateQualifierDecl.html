@@ -1,4 +1,10 @@
+
 <html>
+  <head>
+	<script>
+
+	</script>
+</head>
   <body bgcolor="#CCCCCC">
     <table width="100%">
       <tr>
@@ -11,12 +17,13 @@
     <hr>
     <form name="SetQualifier" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="SetQualifier">
-      <input type="hidden" name="hostip" value="localhost">
-      <input type="hidden" name="portnum" value="5988">
-      <p>
+      <INPUT TYPE="hidden" NAME="hostaddress" VALUE="localhost:5988">
+      <INPUT TYPE="hidden" NAME="debug" VALUE="">
+   <p>
     The <TT>setQualifier</TT> operation creates a single Qualifier
     declaration for the target Namespace.
-      <p><b><a href="#NameSpace">NameSpace</a></b> <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv2">&nbsp;
+      <p><b><a href="#NameSpace">NameSpace</a></b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv2">&nbsp;
       String that defines the target namespace. See <a href="getnamespaces.html">NameSpace
       Operations</a> for more information
       <p><b><a href="#QualifierName">QualifierName</a></b> <INPUT TYPE="text" NAME="QualifierName" SIZE=30>
@@ -25,11 +32,6 @@
       <p><INPUT TYPE="submit" VALUE="SetQualifier">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <INPUT TYPE="reset" VALUE="Reset">
     </form>
-   <script>
-   SetQualifier.hostip.value = opener.top.hostip;
-   SetQualifier.portnum.value = opener.top.portnum;
-   window.focus();
-   </script>
     <hr>
     <h2>Request Return</h2>
 
@@ -82,5 +84,12 @@
     	const String&amp; nameSpace,
     	const String&amp; qualifierName) = 0;
     </PRE>
+       <script>
+           document.SetQualifier.hostaddress.value = top.hostAddress;
+           document.SetQualifier.debug.value = top.debug;
+           document.SetQualifier.NameSpace.value = top.NameSpace;
+		   window.focus();
+	   </script>
+
   </body>
 </html>

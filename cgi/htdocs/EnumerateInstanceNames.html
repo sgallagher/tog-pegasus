@@ -11,8 +11,8 @@
     <hr>
     <form name="EnumerateInstanceNames" METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="EnumerateInstanceNames">
-      <input type="hidden" name="hostip" value="localhost">
-      <input type="hidden" name="portnum" value="5988">
+      <INPUT TYPE="hidden" NAME="hostaddress" VALUE="localhost:5988">
+      <INPUT TYPE="hidden" NAME="debug" VALUE="">
       <p>
 
     <a name="TOP"></a>
@@ -40,11 +40,6 @@
       <p><INPUT TYPE="submit" VALUE="Submit Request">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <INPUT TYPE="reset" VALUE="Reset">
     </form>
-   <script>
-   EnumerateInstanceNames.hostip.value = opener.top.hostip;
-   EnumerateInstanceNames.portnum.value = opener.top.portnum;
-   window.focus();
-   </script>
 
     <hr>
     <h2>RETURN</h2>
@@ -159,8 +154,12 @@
      <p style="margin-top: 0; margin-bottom: 0"> <font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
     S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 05:01:59 PM<!--webbot bot="Timestamp" i-CheckSum="50769" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
      Copyright @ The Open Group 2001&nbsp;</font>
-
-    <PRE>   </PRE>
+   <script>
+       document.EnumerateInstanceNames.hostaddress.value = top.hostAddress;
+       document.EnumerateInstanceNames.debug.value = top.debug;
+       document.EnumerateInstanceNames.NameSpace.value = top.NameSpace;
+	   window.focus();
+   </script>
   </body>
 </html>
 

@@ -2,7 +2,7 @@
 %{
 
 extern int WQLInput(char* buffer, int& numRead, int numRequested);
-extern int WQL_error(char*);
+extern int WQL_error(const char*);
 
 #define YY_INPUT(BUF, NREAD, NREQUESTED) WQLInput(BUF, NREAD, NREQUESTED)
 

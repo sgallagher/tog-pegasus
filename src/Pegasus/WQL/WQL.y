@@ -31,7 +31,7 @@
 #endif
 
 extern int WQL_lex();
-extern int WQL_error(char*);
+extern int WQL_error(const char*);
 
 //
 // Define the global parser state object:

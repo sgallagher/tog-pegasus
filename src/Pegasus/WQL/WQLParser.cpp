@@ -129,7 +129,7 @@ PEGASUS_NAMESPACE_END
 
 PEGASUS_USING_PEGASUS;
 
-int WQL_error(char* errorMessage)
+int WQL_error(const char* errorMessage)
 {
     PEG_METHOD_ENTER(TRC_WQL,"WQL_error");
 

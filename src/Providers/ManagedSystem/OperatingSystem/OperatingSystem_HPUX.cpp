@@ -557,9 +557,9 @@ Boolean OperatingSystem::getFreeVirtualMemory(Uint64& freeVirtualMemory)
 {
     char               mline[80];
     FILE             * mswapInfo;
-    Uint32             swapAvailable;
-    Uint32             swapUsed;
-    Uint32             swapFree;
+    Uint32             swapAvailable = 0;
+    Uint32             swapUsed = 0;
+    Uint32             swapFree = 0;
 
     // Initialize the return parameter in case swapinfo is not available. 
     freeVirtualMemory = 0;

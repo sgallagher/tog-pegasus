@@ -112,7 +112,7 @@ extern "C" {
      CMPIDateTime* (*newDateTime)
                  (CMPIBroker* mb, CMPIStatus* rc);
 
-     /** DateTime factory service. Initialized from <binTime>.
+     /** DateTime factory service. Initialized from &lt;binTime&gt;.
          @param mb Broker this pointer
 	 @param binTime Date/Time definition in binary format in microsecods
 	       starting since 00:00:00 GMT, Jan 1,1970.
@@ -124,7 +124,7 @@ extern "C" {
                  (CMPIBroker* mb, CMPIUint64 binTime, CMPIBoolean interval,
 		  CMPIStatus* rc);
 
-     /** DateTime factory service. Is initialized from <utcTime>.
+     /** DateTime factory service. Is initialized from &lt;utcTime&gt;.
          @param mb Broker this pointer
 	 @param utcTime Date/Time definition in UTC format
 	 @param rc Output: Service return status (suppressed when NULL).
@@ -145,8 +145,8 @@ extern "C" {
                  (CMPIBroker* mb, const char *query, const char *lang,
                   CMPIArray** projection, CMPIStatus* st);
 
-     /** Function to determine whether a CIM class is of <type> or any of
-         <type> subclasses.
+     /** Function to determine whether a CIM class is of &lt;type&gt; or any of
+         &lt;type&gt; subclasses.
          @param mb Broker this pointer
 	 @param op The class path (namespace and classname components).
 	 @param type The type to tested for.
@@ -161,12 +161,12 @@ extern "C" {
          @param mb Broker this pointer
 	 @param object A valid CMPI object.
 	 @param rc Output: Service return status (suppressed when NULL).
-         @return String from representation of <object>.
+         @return String from representation of &lt;object&gt;.
      */
      CMPIString* (*toString)
                  (CMPIBroker* mb, void* object, CMPIStatus* rc);
 
-     /** Verifies whether <object> is of CMPI type <type>.
+     /** Verifies whether &lt;object&gt; is of CMPI type &lt;type&gt;.
          Intended for debugging purposes only.
          @param mb Broker this pointer
 	 @param object A valid CMPI object.
@@ -178,7 +178,7 @@ extern "C" {
      CMPIBoolean (*isOfType)
                  (CMPIBroker* mb, void* object, const char *type, CMPIStatus* rc);
 
-     /** Retrieves the CMPI type of <object>.
+     /** Retrieves the CMPI type of &lt;object&gt;.
          Intended for debugging purposes only.
          @param mb Broker this pointer
 	 @param object A valid CMPI object.
@@ -279,7 +279,7 @@ extern "C" {
                  const char *ns, CMPIInstance* ind);
      // class 1 services
 
-      /** Enumerate Instance Names of the class (and subclasses) defined by <op>.
+      /** Enumerate Instance Names of the class (and subclasses) defined by &lt;op&gt;.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op ObjectPath containing namespace and classname components.
@@ -290,8 +290,8 @@ extern "C" {
                 (CMPIBroker* mb, CMPIContext* ctx,
                  CMPIObjectPath* op, CMPIStatus* rc);
 
-      /** Get Instance using <op> as reference. Instance structure can be
-         controled using the CMPIInvocationFlags entry in <ctx>.
+      /** Get Instance using &lt;op&gt; as reference. Instance structure can be
+         controled using the CMPIInvocationFlags entry in &lt;ctx&gt;.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op ObjectPath containing namespace, classname and key components.
@@ -307,7 +307,7 @@ extern "C" {
 
      // class 2 services
 
-      /** Create Instance from <inst> using <op> as reference.
+      /** Create Instance from &lt;inst&gt; using &lt;op&gt; as reference.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op ObjectPath containing namespace, classname and key components.
@@ -319,7 +319,7 @@ extern "C" {
                 (CMPIBroker* mb, CMPIContext* ctx,
                  CMPIObjectPath* op, CMPIInstance* inst, CMPIStatus* rc);
 
-      /** Replace an existing Instance from <inst> using <op> as reference.
+      /** Replace an existing Instance from &lt;inst&gt; using &lt;op&gt; as reference.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op ObjectPath containing namespace, classname and key components.
@@ -330,7 +330,7 @@ extern "C" {
                 (CMPIBroker* mb, CMPIContext* ctx,
                  CMPIObjectPath* op, CMPIInstance* inst, char ** properties);
 
-      /** Delete an existing Instance using <op> as reference.
+      /** Delete an existing Instance using &lt;op&gt; as reference.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op ObjectPath containing namespace, classname and key components.
@@ -341,7 +341,7 @@ extern "C" {
                  CMPIObjectPath* op);
 
       /** Query the enumeration of instances of the class (and subclasses) defined
-         by <op> using <query> expression.
+         by &lt;op&gt; using &lt;query&gt; expression.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op ObjectPath containing namespace and classname components.
@@ -354,9 +354,9 @@ extern "C" {
                 (CMPIBroker* mb, CMPIContext* ctx,
                  CMPIObjectPath* op, const char *query, const char *lang, CMPIStatus* rc);
 
-      /** Enumerate Instances of the class (and subclasses) defined by <op>.
+      /** Enumerate Instances of the class (and subclasses) defined by &lt;op&gt;.
          Instance structure and inheritance scope can be controled using the
-	 CMPIInvocationFlags entry in <ctx>.
+	 CMPIInvocationFlags entry in &lt;ctx&gt;.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op ObjectPath containing namespace and classname components.
@@ -370,7 +370,7 @@ extern "C" {
                 (CMPIBroker* mb, CMPIContext* ctx,
                  CMPIObjectPath* op, char** properties, CMPIStatus* rc);
 
-      /** Enumerate instances associated with the Instance defined by the <op>.
+      /** Enumerate instances associated with the Instance defined by the &lt;op&gt;.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op Source ObjectPath containing namespace, classname and key components.
@@ -405,7 +405,7 @@ extern "C" {
                  CMPIObjectPath* op, const char *assocClass, const char *resultClass,
 		 const char *role, const char *resultRole, char** properties, CMPIStatus* rc);
 
-      /** Enumerate ObjectPaths associated with the Instance defined by <op>.
+      /** Enumerate ObjectPaths associated with the Instance defined by &lt;op&gt;.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op Source ObjectPath containing namespace, classname and key components.
@@ -438,7 +438,7 @@ extern "C" {
 		 const char *role, const char *resultRole, CMPIStatus* rc);
 
        /** Enumerates the association instances that refer to the instance defined by
-           <op>.
+           &lt;op&gt;.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op Source ObjectPath containing namespace, classname and key components.
@@ -464,7 +464,7 @@ extern "C" {
 		 char** properties, CMPIStatus* rc);
 
        /** Enumerates the association ObjectPaths that refer to the instance defined by
-           <op>.
+           &lt;op&gt;.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op Source ObjectPath containing namespace, classname and key components.
@@ -487,7 +487,7 @@ extern "C" {
                  CMPIStatus* rc);
 
        /** Invoke a named, extrinsic method of an Instance
-         defined by the <op> parameter.
+         defined by the &lt;op&gt; parameter.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op ObjectPath containing namespace, classname and key components.
@@ -502,7 +502,7 @@ extern "C" {
                  CMPIObjectPath* op,const char *method,
 		 CMPIArgs* in, CMPIArgs* out, CMPIStatus* rc);
 
-       /** Set the named property value of an Instance defined by the <op> parameter.
+       /** Set the named property value of an Instance defined by the &lt;op&gt; parameter.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op ObjectPath containing namespace, classname and key components.
@@ -516,7 +516,7 @@ extern "C" {
                  CMPIObjectPath* op, const char *name , CMPIValue* value,
                  CMPIType type);
 
-       /** Get the named property value of an Instance defined by the <op> parameter.
+       /** Get the named property value of an Instance defined by the &lt;op&gt; parameter.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op ObjectPath containing namespace, classname and key components.
@@ -1102,7 +1102,7 @@ extern "C" {
      unsigned int (*getKeyCount)
               (CMPIObjectPath* op, CMPIStatus* rc);
 
-      /** Set/replace namespace and classname components from <src>.
+      /** Set/replace namespace and classname components from &lt;src&gt;.
 	 @param op ObjectPath this pointer.
 	 @param src Source input.
 	 @return Service return status.
@@ -1110,7 +1110,7 @@ extern "C" {
      CMPIStatus (*setNameSpaceFromObjectPath)
               (CMPIObjectPath* op, CMPIObjectPath* src);
 
-      /** Set/replace hostname, namespace and classname components from <src>.
+      /** Set/replace hostname, namespace and classname components from &lt;src&gt;.
 	 @param op ObjectPath this pointer.
 	 @param src Source input.
 	 @return Service return status.
@@ -2053,7 +2053,7 @@ extern "C" {
              (CMPIInstanceMI* mi, CMPIContext* ctx, CMPIResult* rslt,
               CMPIObjectPath* op, char** properties);
 
-       /** Get the Instances defined by <op>.
+       /** Get the Instances defined by &lt;op&gt;.
 	 @param mi Provider this pointer.
 	 @param ctx Invocation Context.
 	 @param rslt Result data container.
@@ -2067,7 +2067,7 @@ extern "C" {
              (CMPIInstanceMI* mi, CMPIContext* ctx, CMPIResult* rslt,
               CMPIObjectPath* op, char** properties);
 
-       /** Create Instance from <inst> using <op> as reference.
+       /** Create Instance from &lt;inst&gt; using &lt;op&gt; as reference.
 	 @param mi Provider this pointer.
 	 @param ctx Invocation Context.
 	 @param rslt Result data container.
@@ -2079,7 +2079,7 @@ extern "C" {
              (CMPIInstanceMI* mi, CMPIContext* ctx, CMPIResult* rslt,
               CMPIObjectPath* op, CMPIInstance* inst);
 
-       /** Replace an existing Instance from <inst> using <op> as reference.
+       /** Replace an existing Instance from &lt;inst&gt; using &lt;op&gt; as reference.
 	 @param mi Provider this pointer.
 	 @param ctx Invocation Context.
 	 @param rslt Result data container.
@@ -2095,7 +2095,7 @@ extern "C" {
              (CMPIInstanceMI* mi, CMPIContext* ctx, CMPIResult* rslt,
               CMPIObjectPath* op, CMPIInstance* inst, char** properties);
 
-       /** Delete an existing Instance defined by <op>.
+       /** Delete an existing Instance defined by &lt;op&gt;.
 	 @param mi Provider this pointer.
 	 @param ctx Invocation Context.
 	 @param rslt Result data container.
@@ -2107,7 +2107,7 @@ extern "C" {
               CMPIObjectPath* op);
 
       /** Query the enumeration of instances of the class (and subclasses) defined
-         by <op> using <query> expression.
+         by &lt;op&gt; using &lt;query&gt; expression.
 	 @param mi Provider this pointer.
 	 @param ctx Context object
 	 @param rslt Result data container.
@@ -2181,7 +2181,7 @@ extern "C" {
      CMPIStatus (*cleanup)
              (CMPIAssociationMI* mi, CMPIContext* ctx);
 
-      /** Enumerate ObjectPaths associated with the Instance defined by <op>.
+      /** Enumerate ObjectPaths associated with the Instance defined by &lt;op&gt;.
 	 @param mi Provider this pointer.
 	 @param ctx Invocation Context
 	 @param rslt Result data container.
@@ -2216,7 +2216,7 @@ extern "C" {
               CMPIObjectPath* op, const char *asscClass, const char *resultClass,
               const char *role, const char *resultRole, char** properties);
 
-      /** Enumerate ObjectPaths associated with the Instance defined by <op>.
+      /** Enumerate ObjectPaths associated with the Instance defined by &lt;op&gt;.
 	 @param mi Provider this pointer.
 	 @param ctx Invocation Context
 	 @param rslt Result data container.
@@ -2249,7 +2249,7 @@ extern "C" {
               const char *role, const char *resultRole);
 
        /** Enumerates the association instances that refer to the instance defined by
-           <op>.
+           &lt;op&gt;.
 	 @param mi Provider this pointer.
 	 @param ctx Invocation Context
 	 @param rslt Result data container.
@@ -2275,7 +2275,7 @@ extern "C" {
 	      char** properties);
 
       /** Enumerates the association ObjectPaths that refer to the instance defined by
-           <op>.
+           &lt;op&gt;.
 	 @param mi Provider this pointer.
 	 @param ctx Invocation Context
 	 @param rslt Result data container.
@@ -2359,7 +2359,7 @@ extern "C" {
              (CMPIMethodMI* mi, CMPIContext* ctx);
 
       /** Invoke a named, extrinsic method of an Instance
-         defined by the <op> parameter.
+         defined by the &lt;op&gt; parameter.
 	 @param mi Provider this pointer.
 	 @param ctx Invocation Context
 	 @param rslt Result data container.
@@ -2434,7 +2434,7 @@ extern "C" {
      CMPIStatus (*cleanup)
              (CMPIPropertyMI* mi, CMPIContext* ctx);
 
-      /** Set the named property value of an Instance defined by the <op> parameter.
+      /** Set the named property value of an Instance defined by the &lt;op&gt; parameter.
 	 @param mi Provider this pointer.
 	 @param ctx Invocation Context
 	 @param rslt Result data container.
@@ -2447,7 +2447,7 @@ extern "C" {
              (CMPIPropertyMI* mi, CMPIContext* ctx, CMPIResult* rslt,
               CMPIObjectPath* op, const char *name, CMPIData data);
 
-      /** Get the named property value of an Instance defined by the <op> parameter.
+      /** Get the named property value of an Instance defined by the &lt;op&gt; parameter.
 	 @param mi Provider this pointer.
 	 @param ctx Invocation Context
 	 @param rslt Result data container.

@@ -13,6 +13,7 @@ DIRS = \
     Compiler/cmdline \
     ExportClient \
     Provider \
+    Server/ProviderRegistrationManager \
     ProviderManager \
     ExportServer \
     Listener \
@@ -20,7 +21,6 @@ DIRS = \
     Security/Authentication \
     WQL \
     HandlerService \
-    Server/ProviderRegistrationManager \
     Server \
     Handler/CIMxmlIndicationHandler \
     Handler/sendmailIndicationHandler \

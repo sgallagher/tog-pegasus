@@ -543,14 +543,22 @@ int main(int argc, char** argv)
 			for (Uint32 i = 0; i < qualifierDecls.size(); i++)
 			{
 				CIMQualifierDecl tmp = qualifierDecls[i];
-				Array<Sint8> x;
-			
-				tmp.toMof(x);
-			
-				x.append('\0');
-			
-				mofFormat(cout, x.getData(), 4);
-				cout << endl;
+
+				if(isXMLOutput)
+				{
+					tmp.print(cout);			
+				}
+				else
+				{
+					Array<Sint8> x;
+					tmp.toMof(x);
+
+					x.append('\0');
+
+					mofFormat(cout, x.getData(), 4);
+
+					//cimClass.printMof(cout); 
+				}
 			}
 	    }
 

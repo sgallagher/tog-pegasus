@@ -34,3 +34,34 @@ instance of PG_ProviderCapabilities
     SupportedProperties = NULL;
     SupportedMethods = NULL;
 };
+
+// Include the instance provider for the TST_LineageDynamic
+// Class. Note that this is instance only
+// Note that there a problem here in that we should only register the
+// leaf class so should probably be the Labled one.
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "SampleFamilyProviderModule";
+    ProviderName = "SampleFamilyProvider";
+    CapabilityID = "SampleFamilyProvider";
+    ClassName = "TST_LineageDynamic";
+    Namespaces = { "root/SampleProvider" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+
+// Include the instance provider for the TST_LineageDynamic
+// Class. Note that this is instance only
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "SampleFamilyProviderModule";
+    ProviderName = "SampleFamilyProvider";
+    CapabilityID = "SampleFamilyProvider";
+    ClassName = "TST_LabledLineageDynamic";
+    Namespaces = { "root/SampleProvider" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+

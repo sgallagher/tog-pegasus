@@ -40,10 +40,20 @@ class TST_Person
     string name;
 };
 
+// This is the first one we want to make dynamic
+
     [ Description ( "Defines a subclass that is "
         "supported by a provider for the test. "
         "See the SamplePerson Provider. ") ]
 class TST_PersonDynamic:TST_Person
+{
+};
+
+// Second level Subclass 
+    [ Description ( "Defines a 2nd levelsubclass that is "
+        "supported by a provider for the test. "
+        "See the SamplePerson Provider. ") ]
+class TST_PersonDynamicSubClass:TST_PersonDynamic
 {
 };
 

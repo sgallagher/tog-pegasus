@@ -33,6 +33,7 @@
 #include <time.h>
 
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/System.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/XmlWriter.h>
@@ -123,6 +124,11 @@ public:
 	const String& messageId,
 	const String& nameSpace);
     //STUB}
+
+    void handleAssociatorNames(
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
     void handleAssociators(
 	XmlParser& parser, 
@@ -488,6 +494,8 @@ int ServerHandler::handleMethodCall()
     else if (CompareNoCase(iMethodCallName, "EnumerateClassNames") == 0)
 	handleEnumerateClassNames(parser, messageId, nameSpace);
     //STUB}
+    else if (CompareNoCase(iMethodCallName, "AssociatorNames") == 0)
+	handleAssociatorNames(parser, messageId, nameSpace);
     else if (CompareNoCase(iMethodCallName, "Associators") == 0)
 	handleAssociators(parser, messageId, nameSpace);
     else if (CompareNoCase(iMethodCallName, "CreateInstance") == 0)
@@ -1649,7 +1657,7 @@ void ServerHandler::handleAssociators(
 	// ATTN-A: get the host name here!
 
 	if (r.getHost().size() == 0)
-	    r.setHost("unknown-hostname");
+	    r.setHost(System::getHostName());
 
 	if (r.getNameSpace().size() == 0)
 	    r.setNameSpace(nameSpace);
@@ -1659,6 +1667,103 @@ void ServerHandler::handleAssociators(
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"Associators", messageId, body);
+
+    outputN(message);
+}
+
+//------------------------------------------------------------------------------
+//
+// ServerHandler::handleAssociatorNames()
+//
+//------------------------------------------------------------------------------
+
+void ServerHandler::handleAssociatorNames(
+    XmlParser& parser, 
+    const String& messageId,
+    const String& nameSpace)
+{
+    // -- Extract the parameters:
+
+    CIMReference objectName;
+    String assocClass;
+    String resultClass;
+    String role;
+    String resultRole;
+
+    // ATTN-B: handle the property list!
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "ObjectName") == 0)
+	{
+	    XmlReader::getObjectNameElement(parser, objectName);
+	}
+	else if (CompareNoCase(name, "AssocClass") == 0)
+	{
+	    XmlReader::getClassNameElement(parser, assocClass, true);
+	}
+	else if (CompareNoCase(name, "ResultClass") == 0)
+	{
+	    XmlReader::getClassNameElement(parser, resultClass, true);
+	}
+	else if (CompareNoCase(name, "Role") == 0)
+	{
+	    XmlReader::getStringValueElement(parser, role, true);
+	}
+	else if (CompareNoCase(name, "ResultRole") == 0)
+	{
+	    XmlReader::getStringValueElement(parser, resultRole, true);
+	}
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    Array<CIMReference> objectPaths;
+    
+    try
+    {
+	objectPaths = _dispatcher->associatorNames(
+	    nameSpace,
+	    objectName,
+	    assocClass,
+	    resultClass,
+	    role,
+	    resultRole);
+    }
+    catch (CIMException& e)
+    {
+	sendError(messageId, "Associators", 
+	    e.getCode(), e.codeToString(e.getCode()));
+	return;
+    }
+    catch (Exception&)
+    {
+	sendError(messageId, "Associators", CIMException::FAILED, 
+	    CIMException::codeToString(CIMException::FAILED));
+	return;
+    }
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < objectPaths.size(); i++)
+    {
+	CIMReference& r = objectPaths[i];
+
+	// Fill out incomplete object names (need host and namespace):
+
+	if (r.getHost().size() == 0)
+	    r.setHost(System::getHostName());
+
+	if (r.getNameSpace().size() == 0)
+	    r.setNameSpace(nameSpace);
+
+	body << "<OBJECTPATH>\n";
+	objectPaths[i].toXml(body, false);
+	body << "</OBJECTPATH>\n";
+    }
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"AssociatorNames", messageId, body);
 
     outputN(message);
 }

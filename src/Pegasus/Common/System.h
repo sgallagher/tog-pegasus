@@ -100,6 +100,8 @@ public:
     static DynamicSymbolHandle loadDynamicSymbol(
 	DynamicLibraryHandle libraryHandle,
 	const char* symbolName);
+
+    static String getHostName();
 };
 
 PEGASUS_NAMESPACE_END

@@ -194,4 +194,14 @@ DynamicSymbolHandle System::loadDynamicSymbol(
 #endif
 }
 
+String System::getHostName()
+{
+    static char hostname[64];
+
+    if (!*hostname)
+        gethostname(hostname, sizeof(hostname));
+
+    return hostname;
+}
+
 PEGASUS_NAMESPACE_END

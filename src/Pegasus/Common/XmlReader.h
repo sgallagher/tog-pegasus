@@ -346,6 +346,10 @@ public:
 	XmlParser& parser, 
 	CIMReference& objectName);
 
+    static Boolean getObjectPathElement(
+	XmlParser& parser, 
+	CIMReference& objectPath);
+
 private:
 
     XmlReader() 

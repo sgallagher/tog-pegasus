@@ -2918,7 +2918,6 @@ Boolean XmlReader::getObjectWithPath(
 //
 //------------------------------------------------------------------------------
 
-
 Boolean XmlReader::getObjectNameElement(
     XmlParser& parser, 
     CIMReference& objectName)
@@ -2937,6 +2936,29 @@ Boolean XmlReader::getObjectNameElement(
     {
 	throw XmlValidationError(parser.getLine(),
 	    "expected CLASSNAME or INSTANCENAME element");
+    }
+
+    return false;
+}
+
+//------------------------------------------------------------------------------
+//
+// <!ELEMENT OBJECTPATH (INSTANCEPATH|CLASSPATH)>
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getObjectPathElement(
+    XmlParser& parser, 
+    CIMReference& objectPath)
+{
+    if (getClassPathElement(parser, objectPath))
+	return true;
+    else if (getInstancePathElement(parser, objectPath))
+	return true;
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected INSTANCEPATH or CLASSPATH element");
     }
 
     return false;

@@ -197,23 +197,28 @@ static void TestInstanceOperations(CIMClient& client)
 #endif
 }
 
-static void TestAssoc(CIMClient& client)
+static void TestAssoc1(CIMClient& client)
 {
-    CIMReference instanceName = "X.key=\"John Smith\"";
+    CIMReference instanceName = "Person.name=\"Mike\"";
 
     Array<CIMObjectWithPath> result = client.associators(
-	NAMESPACE, instanceName, "A", "Y", "left", "right", true, true);
+	NAMESPACE, 
+	instanceName, 
+	"Lineage", 
+	"Person", 
+	"parent", 
+	"child", 
+	true, 
+	true);
+
+    cout << "size: " << result.size() << endl;
 
     for (Uint32 i = 0; i < result.size(); i++)
     {
 	CIMObjectWithPath current = result[i];
 	CIMReference ref = current.getReference();
+	cout << "ref: " << ref << endl;
     }
-
-    assert(result.size() == 1);
-    Boolean flag = (result[0].getReference().toStringCanonical() ==
-	"//unknown-hostname/root/cimv2:y.key=\"John Jones\"");
-    assert(flag);
 }
 
 int main(int argc, char** argv)
@@ -233,7 +238,7 @@ int main(int argc, char** argv)
 	// To run the following test, first compile "test.mof" into the
 	// repository!
 
-	// TestAssoc(client);
+	TestAssoc1(client);
     }
     catch(Exception& e)
     {

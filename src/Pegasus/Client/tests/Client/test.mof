@@ -1,36 +1,45 @@
-
-class X
+class Person
 {
     [key]
-    string key;
-};
-
-class Y
-{
-    [key]
-    string key;
+    string name;
 };
 
 [association]
-class A
+class Lineage
 {
-    [Key] X ref left;
-    [KEY] Y ref right;
+    [key] Person ref parent;
+    [key] Person ref child;
 };
 
-instance of X
+instance of Person { name = "Mike"; };
+
+instance of Person { name = "Saara"; };
+
+instance of Person { name = "Sofi"; };
+
+instance of Person { name = "Gabi"; };
+
+instance of Lineage
 {
-    key = "John Smith";
+    parent = "Person.name=\"Mike"\"";
+    child = "Person.name=\"Sofi"\"";
 };
 
-instance of Y
+instance of Lineage
 {
-    key = "John Jones";
+    parent = "Person.name=\"Mike"\"";
+    child = "Person.name=\"Gabi"\"";
 };
 
-instance of A
+instance of Lineage
 {
-    left = "X.key=\"John Smith"\"";
-    right = "Y.key=\"John Jones"\"";
+    parent = "Person.name=\"Saara"\"";
+    child = "Person.name=\"Sofi"\"";
+};
+
+instance of Lineage
+{
+    parent = "Person.name=\"Saara"\"";
+    child = "Person.name=\"Gabi"\"";
 };
 

@@ -84,6 +84,18 @@ struct EnumerateClassNamesResult
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// AssociatorNamesResult
+//
+////////////////////////////////////////////////////////////////////////////////
+
+struct AssociatorNamesResult
+{
+    CIMException::Code code;
+    Array<CIMReference> objectPaths;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // AssociatorsResult
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -263,6 +275,10 @@ public:
 	const String& messageId);
     //STUB}
 
+    int handleAssociatorNamesResponse(
+	XmlParser& parser, 
+	const String& messageId);
+
     int handleAssociatorsResponse(XmlParser& parser, const String& messageId);
 
     int handleCreateInstanceResponse(
@@ -310,6 +326,7 @@ public:
 	//STUB{
 	EnumerateClassNamesResult* _enumerateClassNamesResult;
 	//STUB}
+	AssociatorNamesResult* _associatorNamesResult;
 	AssociatorsResult* _associatorsResult;
 	CreateInstanceResult* _createInstanceResult;
 	EnumerateInstanceNamesResult* _enumerateInstanceNamesResult;
@@ -453,6 +470,8 @@ int ClientHandler::handleMethodResponse()
     else if (strcmp(iMethodResponseName, "EnumerateClassNames") == 0)
 	handleEnumerateClassNamesResponse(parser, messageId);
     //STUB}
+    else if (strcmp(iMethodResponseName, "AssociatorNames") == 0)
+	handleAssociatorNamesResponse(parser, messageId);
     else if (strcmp(iMethodResponseName, "Associators") == 0)
 	handleAssociatorsResponse(parser, messageId);
     else if (strcmp(iMethodResponseName, "CreateInstance") == 0)
@@ -638,6 +657,54 @@ int ClientHandler::handleEnumerateClassNamesResponse(
     return 0;
 }
 //STUB}
+
+//------------------------------------------------------------------------------
+//
+// ClientHandler::handleAssociatorNamesResponse()
+//
+//     Expect (ERROR|IRETURNVALUE).
+//
+//------------------------------------------------------------------------------
+
+int ClientHandler::handleAssociatorNamesResponse(
+    XmlParser& parser,
+    const String& messageId)
+{
+    XmlEntry entry;
+    CIMException::Code code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_associatorNamesResult = new AssociatorNamesResult;
+	_associatorNamesResult->code = code;
+	_blocked = false;
+	return 0;
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	CIMReference objectPath;
+	Array<CIMReference> objectPaths;
+
+	while (XmlReader::getObjectPathElement(parser, objectPath))
+	    objectPaths.append(objectPath);
+
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_associatorNamesResult = new AssociatorNamesResult;
+	_associatorNamesResult->code = CIMException::SUCCESS;
+	_associatorNamesResult->objectPaths = objectPaths;
+	_blocked = false;
+	return 0;
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
+
+    return 0;
+}
 
 //------------------------------------------------------------------------------
 //
@@ -1845,10 +1912,45 @@ Array<CIMReference> CIMClient::associatorNames(
     const String& role,
     const String& resultRole)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
-    return Array<CIMReference>();
-}
+    String messageId = XmlWriter::getNextMessageId();
+    Array<Sint8> params;
 
+    XmlWriter::appendObjectNameParameter(params, "ObjectName", objectName);
+
+    XmlWriter::appendClassNameParameter(params, "AssocClass", assocClass);
+
+    XmlWriter::appendClassNameParameter(params, "ResultClass", resultClass);
+
+    XmlWriter::appendStringParameter(params, "Role", role);
+
+    XmlWriter::appendStringParameter(params, "ResultRole", resultRole);
+
+    // Format and send the message:
+
+    Array<Sint8> message = XmlWriter::formatSimpleReqMessage(_getHostName(),
+	nameSpace, "AssociatorNames", params);
+
+    _channel->writeN(message.getData(), message.size());
+
+    // message.append('\0');
+    // cout << message.getData() << endl;
+
+    // Wait for response and then process result:
+
+    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
+	throw TimedOut();
+
+    AssociatorNamesResult* result = _getHandler()->_associatorNamesResult;
+    Array<CIMReference> objectPaths = result->objectPaths;
+    CIMException::Code code = result->code;
+    delete result;
+    _getHandler()->_associatorNamesResult = 0;
+
+    if (code != CIMException::SUCCESS)
+	throw CIMException(code);
+
+    return objectPaths;
+}
 
 Array<CIMInstance> CIMClient::references(
     const String& nameSpace,
@@ -1862,7 +1964,6 @@ Array<CIMInstance> CIMClient::references(
     throw CIMException(CIMException::NOT_SUPPORTED);
     return Array<CIMInstance>();
 }
-
 
 Array<CIMReference> CIMClient::referenceNames(
     const String& nameSpace,

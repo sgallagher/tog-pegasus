@@ -264,8 +264,8 @@ Array<CIMReference> Dispatcher::associatorNames(
     const String& role,
     const String& resultRole)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
-    return Array<CIMReference>();
+    return _repository->associatorNames(
+	nameSpace, objectName, assocClass, resultClass, role, resultRole);
 }
 
 Array<CIMInstance> Dispatcher::references(

@@ -888,7 +888,15 @@ private:
     void _sendAlerts (
         const Array <CIMNamedInstance> & subscriptions,
         /* const */ CIMInstance & alertInstance);
+      
 
+      /** Async completion routine for _sendStart */
+
+      static void _sendStartCallBack(AsyncOpNode *operation, 
+				     MessageQueue *callback_destination, 
+				     void *parameter);
+      
+      
     /**
         Sends a start message to the specified provider.
 

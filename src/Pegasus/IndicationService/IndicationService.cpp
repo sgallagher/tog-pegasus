@@ -4773,6 +4773,37 @@ void IndicationService::_sendAlerts (
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
 
+void IndicationService::_sendStartCallBack(AsyncOpNode *op,
+					   MessageQueue *q,
+					   void *parm)
+{
+   IndicationService *service = 
+      static_cast<IndicationService *>(q);
+   
+   AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
+   AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
+   CIMEnableIndicationsRequestMessage *request = 
+      static_cast<CIMEnableIndicationsRequestMessage *>
+      ((static_cast<AsyncLegacyOperationStart *>(asyncRequest))->get_action());
+   
+   Message *response =  
+      ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+
+   //
+   //  ATTN: Check for return value indicating invalid queue ID
+   //  If received, need to find Provider Manager Service queue ID
+   //  again
+   //
+
+   delete request;
+   delete response;
+   delete asyncRequest;
+   delete asyncReply;
+   op->complete();
+   service->return_op(op);
+}
+
+
 void IndicationService::_sendStart (
     const ProviderClassList & startProvider)
 {
@@ -4797,19 +4828,13 @@ void IndicationService::_sendStart (
             request,
             _queueId);
 
-    //SendAsync (op, 
-        //_providerManager, 
-        //IndicationService::_sendStartRequestsCallBack,
-        //this, 
-        //(void *) epl);
-
-    AsyncReply * async_reply = SendWait (async_req);
-
-    //
-    //  ATTN: Check for return value indicating invalid queue ID
-    //  If received, need to find Provider Manager Service queue ID
-    //  again
-    //
+    SendAsync (op, 
+	       _providerManager, 
+	       IndicationService::_sendStartCallBack,
+	       this, 
+	       NULL);
+    //    AsyncReply * async_reply = SendWait (async_req);
+    // << Wed Apr 10 12:26:16 2002 mdd >>
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }

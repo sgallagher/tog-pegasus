@@ -43,11 +43,15 @@
 #include <Pegasus/Common/Thread.h>
 
 #if defined (CMPI_VER_85)
-#include <Pegasus/Common/MessageLoader.h>
+  #include <Pegasus/Common/MessageLoader.h>
 #endif
 
 #include <stdarg.h>
 #include <string.h>
+
+#if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
+  #include <sys/timeb.h>
+#endif
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -71,14 +75,14 @@ static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL start_driver(void *parm)
     thrd_data data=*pp;
     delete pp;
 
-    return (data.pgm)(data.parm);
+    return (PEGASUS_THREAD_RETURN)(data.pgm)(data.parm);
 }
 
 static CMPI_THREAD_TYPE newThread
         (CMPI_THREAD_RETURN (CMPI_THREAD_CDECL *start )(void *), void *parm, int detached)
 {
    thrd_data *data=new thrd_data();
-   data->pgm=(PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void*))start;
+   data->pgm=(CMPI_THREAD_RETURN (CMPI_THREAD_CDECL *)(void*))start;
    data->parm=parm;
 
    Thread *t=new Thread(
@@ -92,13 +96,13 @@ static CMPI_THREAD_TYPE newThread
 static int joinThread (CMPI_THREAD_TYPE thread, CMPI_THREAD_RETURN *returnCode)
 {
    ((Thread*)thread)->join();
-   *returnCode=((Thread*)thread)->get_exit();
+   *returnCode=(CMPI_THREAD_RETURN)((Thread*)thread)->get_exit();
    return 0;
 }
 
  static int exitThread(CMPI_THREAD_RETURN return_code)
  {
-    Thread::getCurrent()->exit_self(return_code);
+    Thread::getCurrent()->exit_self((PEGASUS_THREAD_RETURN)return_code);
     return 0;
  }
 
@@ -186,9 +190,23 @@ static int timedCondWait(CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m, struct timespec *w
    but will work for the time beeing
 */
    int msec;
-   struct timeval now;
    struct timespec next=*wait;
+
+#if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
+   struct timeval {
+      long tv_sec;
+      long tv_usec;
+   }now;
+   struct _timeb timebuffer;
+
+   _ftime( &timebuffer );
+   now.tv_sec=timebuffer.time;
+   now.tv_usec=timebuffer.millitm*1000; 
+#else 
+   struct timeval now;
    gettimeofday(&now, NULL);
+#endif
+
    if (next.tv_nsec>1000000000) {
       next.tv_sec+=next.tv_nsec/1000000000;
       next.tv_nsec=next.tv_nsec%1000000000;

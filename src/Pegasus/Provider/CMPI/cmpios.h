@@ -41,6 +41,11 @@
    #define CMPI_THREAD_CDECL    __stdcall
    #define CMPI_THREAD_KEY_TYPE unsigned long int
 
+struct timespec {
+   long tv_sec;
+   long tv_nsec;
+};
+
 #elif defined( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
    #define CMPI_THREAD_CDECL    __cdecl
    #define CMPI_THREAD_KEY_TYPE unsigned long long

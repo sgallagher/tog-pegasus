@@ -52,6 +52,6 @@ SOURCES = \
     XmlParser.cpp \
     XmlReader.cpp \
     XmlWriter.cpp \
-#   Stopwatch.cpp
+    Stopwatch.cpp
 
 include $(ROOT)/mak/library.mak

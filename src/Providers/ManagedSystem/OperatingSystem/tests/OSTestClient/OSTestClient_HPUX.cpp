@@ -90,13 +90,13 @@ Boolean OSTestClient::goodCSCreationClassName(const String &cs_ccn,
 Boolean OSTestClient::goodCSName(const String &csname, Boolean verbose)
 {
    struct hostent *he;
-   char hostName[MAXHOSTNAMELEN];
+   char hostName[PEGASUS_MAXHOSTNAMELEN];
 
    if (verbose)
       cout<<"Checking " <<csname<< " against hostname" <<endl;
 
    // try and get fully qualified hostname, else just system name
-   if (gethostname(hostName, MAXHOSTNAMELEN) != 0)
+   if (gethostname(hostName, PEGASUS_MAXHOSTNAMELEN) != 0)
    {
       return false;  // if can't get data to validate, fail
    }

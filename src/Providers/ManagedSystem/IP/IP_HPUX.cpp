@@ -425,7 +425,7 @@ NOTES             :
 void IPInterface::initSystemName(void)
 {
     struct hostent *he;
-    char hn[MAXHOSTNAMELEN];
+    char hn[PEGASUS_MAXHOSTNAMELEN];
 
     // Only initialize _hostname if it's not already been done.
     // We need to do this check since we don't know which provider
@@ -434,7 +434,7 @@ void IPInterface::initSystemName(void)
     if (String::equal(_hostname,String::EMPTY))
     {
 	// fill in hn with what this system thinks is its name
-	gethostname(hn,MAXHOSTNAMELEN);
+	gethostname(hn,PEGASUS_MAXHOSTNAMELEN);
 
 	// find out what the nameservices think is its full name
 	// but if that failed, return what gethostname said

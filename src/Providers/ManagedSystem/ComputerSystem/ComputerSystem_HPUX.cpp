@@ -32,6 +32,7 @@
 //              Mike Glantz         <michael_glantz@hp.com>
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Bapu Patil (bapu_patil@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -317,9 +318,9 @@ void ComputerSystem::initialize(void)
   
   // _hostName
   struct hostent *he;
-  char hn[MAXHOSTNAMELEN];
+  char hn[PEGASUS_MAXHOSTNAMELEN];
   // fill hn with what this system thinks is name
-  gethostname(hn,MAXHOSTNAMELEN);
+  gethostname(hn,PEGASUS_MAXHOSTNAMELEN);
   // find out what nameservices think is full name
   if (he=gethostbyname(hn)) _hostName = he->h_name;
   else _hostName = hn;

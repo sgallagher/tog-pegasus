@@ -26,8 +26,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
-//
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Bapu Patil (bapu_patil@hp.com)
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //
@@ -178,7 +178,7 @@ DynamicSymbolHandle System::loadDynamicSymbol(
 
 String System::getHostName()
 {
-    static char hostname[64];
+    static char hostname[PEGASUS_MAXHOSTNAMELEN];
 
     if (!*hostname)
         gethostname(hostname, sizeof(hostname));

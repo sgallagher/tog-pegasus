@@ -441,10 +441,10 @@ Boolean ComputerSystem::getIdentificationNumber(CIMProperty& p)
  */
 void ComputerSystem::initialize(void)
 {
-  char    hostName[MAXHOSTNAMELEN];
+  char    hostName[PEGASUS_MAXHOSTNAMELEN];
   struct  hostent *he;
 
-  if (gethostname(hostName, MAXHOSTNAMELEN) != 0)
+  if (gethostname(hostName, PEGASUS_MAXHOSTNAMELEN) != 0)
   {
       _hostName.assign("Not initialized");
   }

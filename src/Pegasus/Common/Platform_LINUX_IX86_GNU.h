@@ -28,6 +28,7 @@
 // Modified By: Mike Day (mdday@us.ibm.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Bapu Patil (bapu_patil@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -71,6 +72,7 @@
 #include <features.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/param.h> // For MAXHOSTNAMELEN
 #ifndef min
 #define min(a,b) (((a)<(b))?(a):(b))
 #endif

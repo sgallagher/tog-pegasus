@@ -28,6 +28,7 @@
 // Modified By: Ben Heilbronn (ben_heilbronn@hp.com)
 //              Sushma Fernandes (sushma_fernandes@hp.com)
 //              Nag Boranna (nagaraja_boranna@hp.com)
+//              Bapu Patil (bapu_patil@hp.com)
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //
@@ -519,7 +520,7 @@ DynamicSymbolHandle System::loadDynamicSymbol(
 
 String System::getHostName()
 {
-    static char hostname[64];
+    static char hostname[PEGASUS_MAXHOSTNAMELEN];
 
     if (!*hostname)
     {
@@ -535,11 +536,11 @@ String System::getHostName()
 String System::getFullyQualifiedHostName ()
 {
 #ifdef PEGASUS_OS_HPUX
-    char hostName [MAXHOSTNAMELEN];
+    char hostName [PEGASUS_MAXHOSTNAMELEN];
     struct hostent *he;
     String fqName;
 
-    if (gethostname (hostName, MAXHOSTNAMELEN) != 0)
+    if (gethostname (hostName, PEGASUS_MAXHOSTNAMELEN) != 0)
     {
         return String::EMPTY;
     }

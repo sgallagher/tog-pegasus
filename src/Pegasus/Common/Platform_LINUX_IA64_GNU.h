@@ -28,7 +28,7 @@
 // Modified By: Mike Day (mdday@us.ibm.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
-//
+//              Bapu Patil (bapu_patil@hp.com)
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Platform_LINUX_IA64_GNU_h
@@ -70,6 +70,7 @@
 #include <features.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/param.h> // For MAXHOSTNAMELEN
 #ifndef min
 #define min(a,b) (((a)<(b))?(a):(b))
 #endif

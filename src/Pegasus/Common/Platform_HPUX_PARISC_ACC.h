@@ -26,7 +26,8 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
-//
+
+//              Bapu Patil (bapu_patil@hp.com)
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Platform_HPUX_PARISC_ACC_h
@@ -51,5 +52,7 @@
 #define PEGASUS_HAVE_MUTABLE
 
 #define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
+
+#define PEGASUS_MAXHOSTNAMELEN  256
 
 #endif /* Pegasus_Platform_HPUX_PARISC_ACC_h */

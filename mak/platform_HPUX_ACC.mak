@@ -177,6 +177,13 @@ ifdef PEGASUS_DEBUG
   FLAGS += -g
 endif
 
+#
+#  For future use on HP-UX
+#
+ifdef HPUX_LARGE_INTERFACES
+	FLAGS += -D_HPUX_API_LEVEL=20040821
+endif
+
 SYS_LIBS = -lpthread -lrt
 
 SH = sh

@@ -30,6 +30,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              David Eger (dteger@us.ibm.com)
+//              Bapu Patil (bapu_patil@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -165,6 +166,11 @@
 #ifndef PEGASUS_64BIT_CONVERSION_WIDTH
 #define PEGASUS_64BIT_CONVERSION_WIDTH "ll"
 #endif
+
+#ifndef PEGASUS_MAXHOSTNAMELEN
+#define PEGASUS_MAXHOSTNAMELEN MAXHOSTNAMELEN
+#endif
+
 
 PEGASUS_NAMESPACE_BEGIN
 

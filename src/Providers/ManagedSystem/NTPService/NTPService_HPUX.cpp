@@ -98,10 +98,10 @@ NTPService::~NTPService(void)
 //------------------------------------------------------------------------------
 static Boolean getUtilGetHostName(String& systemName)
 {
-     char    hostName[MAXHOSTNAMELEN];
+     char    hostName[PEGASUS_MAXHOSTNAMELEN];
      struct  hostent *he;
 
-     if (gethostname(hostName, MAXHOSTNAMELEN) != 0)
+     if (gethostname(hostName, PEGASUS_MAXHOSTNAMELEN) != 0)
      {
          return false;
      }
@@ -228,8 +228,8 @@ Boolean NTPService::isHostAddress(String host) {
 //------------------------------------------------------------------------------
 Boolean NTPService::getLocalHostName(String & hostName) 
 {
-    char host[30];
-    if(gethostname(host, sizeof(host)))
+    char host[PEGASUS_MAXHOSTNAMELEN];
+    if (gethostname(host, PEGASUS_MAXHOSTNAMELEN) != 0)
         return false;
 
        hostName.assign(host);

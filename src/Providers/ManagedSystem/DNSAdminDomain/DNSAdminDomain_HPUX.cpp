@@ -102,7 +102,7 @@ DNSFileOk()
 Boolean
 DNSAdminDomain::getLocalHostName(String & hostName) 
 {
-    char host[30];
+    char host[PEGASUS_MAXHOSTNAMELEN];
     if(gethostname(host, sizeof(host)))
         return false;
 

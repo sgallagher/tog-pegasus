@@ -52,10 +52,10 @@ PEGASUS_USING_STD;
 static 
 Boolean getUtilGetHostName(String& systemName)
 {
-     char    hostName[MAXHOSTNAMELEN];
+     char    hostName[PEGASUS_MAXHOSTNAMELEN];
      struct  hostent *he;
 
-     if (gethostname(hostName, MAXHOSTNAMELEN) != 0)
+     if (gethostname(hostName, PEGASUS_MAXHOSTNAMELEN) != 0)
      {
          return false;
      }

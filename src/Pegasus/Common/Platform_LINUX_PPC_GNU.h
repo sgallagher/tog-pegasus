@@ -27,6 +27,8 @@
 //
 // Author: David Eger (dteger@us.ibm.com)
 //
+// Modified By: 
+//              Bapu Patil (bapu_patil@hp.com)
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Platform_LINUX_PPC_GNU_h
@@ -68,6 +70,7 @@
 #include <features.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/param.h> // For MAXHOSTNAMELEN
 #ifndef min
 #define min(a,b) (((a)<(b))?(a):(b))
 #endif

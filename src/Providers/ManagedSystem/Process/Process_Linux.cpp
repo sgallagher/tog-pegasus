@@ -760,11 +760,11 @@ NOTES             :
 */
 String Process::getCSName(void) const
 {
-     char    hostName[MAXHOSTNAMELEN];
+     char    hostName[PEGASUS_MAXHOSTNAMELEN];
      struct  hostent *he;
      String csName;
 
-     if (gethostname(hostName, MAXHOSTNAMELEN) != 0)
+     if (gethostname(hostName, PEGASUS_MAXHOSTNAMELEN) != 0)
      {
          return String::EMPTY;
      }

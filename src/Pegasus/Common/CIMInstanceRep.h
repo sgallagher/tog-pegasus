@@ -76,9 +76,12 @@ private:
 
     CIMInstanceRep(const CIMInstanceRep& x);
 
+    // This method is declared and made private so that the compiler does
+    // not implicitly define a default copy constructor.
     CIMInstanceRep& operator=(const CIMInstanceRep& x)
     {
-	return *this;
+        PEGASUS_ASSERT(0);
+        return *this;
     }
 
     friend class CIMInstance;

@@ -66,19 +66,9 @@ public:
 
     void addMethod(const CIMMethod& x);
 
-    Uint32 findMethod(const String& name);
+    Uint32 findMethod(const String& name) const;
 
-    Uint32 findMethod(const String& name) const
-    {
-	return ((CIMClassRep*)this)->findMethod(name);
-    }
-
-    Boolean existsMethod(const String& name);
-
-    Boolean existsMethod(const String& name) const
-    {
-	return ((CIMClassRep*)this)->existsMethod(name);
-    }
+    Boolean existsMethod(const String& name) const;
 
     CIMMethod getMethod(Uint32 pos);
 
@@ -120,9 +110,12 @@ private:
 
     CIMClassRep(const CIMClassRep& x);
 
+    // This method is declared and made private so that the compiler does
+    // not implicitly define a default copy constructor.
     CIMClassRep& operator=(const CIMClassRep& x)
     {
-	return *this;
+        PEGASUS_ASSERT(0);
+        return *this;
     }
 
     String _superClassName;

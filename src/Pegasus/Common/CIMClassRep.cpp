@@ -154,7 +154,7 @@ void CIMClassRep::addMethod(const CIMMethod& x)
     _methods.append(x);
 }
 
-Uint32 CIMClassRep::findMethod(const String& name)
+Uint32 CIMClassRep::findMethod(const String& name) const
 {
     for (Uint32 i = 0, n = _methods.size(); i < n; i++)
     {
@@ -165,7 +165,7 @@ Uint32 CIMClassRep::findMethod(const String& name)
     return PEG_NOT_FOUND;
 }
 
-Boolean CIMClassRep::existsMethod(const String& name)
+Boolean CIMClassRep::existsMethod(const String& name) const
 {
     return(findMethod(name) == PEG_NOT_FOUND) ? false : true;
 }

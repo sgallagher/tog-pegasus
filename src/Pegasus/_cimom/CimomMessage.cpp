@@ -31,7 +31,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
- 
 const Uint32 cimom_results::OK =                        0x00000000;
 const Uint32 cimom_results::PARAMETER_ERROR =           0x00000001;
 const Uint32 cimom_results::MODULE_ALREADY_REGISTERED = 0x00000002;
@@ -46,9 +45,10 @@ const Uint32 cimom_results::ASYNC_CANCELLED =           0x00000008;
 const Uint32 cimom_results::ASYNC_PAUSED =              0x00000009;
 const Uint32 cimom_results::ASYNC_RESUMED =             0x0000000a;
 
-const Uint32 cimom_results::SERVICE_STARTED =           0x0000000b;
-const Uint32 cimom_results::SERVICE_STOPPED =           0x0000000c;
-const Uint32 cimom_results::SERVICE_PAUSED =            0x0000000d;
+const Uint32 cimom_results::SERVICE_STARTED =          	0x0000000b;
+const Uint32 cimom_results::SERVICE_STOPPED_ =          0x0000000c;
+
+const Uint32 cimom_results::SERVICE_PAUSED_ =           0x0000000d;
 const Uint32 cimom_results::SERVICE_RESUMED =           0x0000000e;
 const Uint32 cimom_results::NAK =                       0x0000000f;
       

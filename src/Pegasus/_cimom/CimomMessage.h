@@ -56,11 +56,14 @@ class cimom_results
       static const Uint32 ASYNC_RESUMED;
 
       static const Uint32 SERVICE_STARTED;
-      static const Uint32 SERVICE_STOPPED;
-      static const Uint32 SERVICE_PAUSED;
+
+      // mbrasher: I appended "_" to these since MSVC #defines these 
+      // which causes a compiler error here.
+      static const Uint32 SERVICE_STOPPED_;
+      static const Uint32 SERVICE_PAUSED_;
+
       static const Uint32 SERVICE_RESUMED;
       static const Uint32 NAK;
-      
 };
 
 // messages handled by the cimom

@@ -58,6 +58,8 @@ repository implementation.
 15. (Mike Brasher) - Initial work on refactorying client into modules.
     CIMOperationRequestEncoder and partial CIMOperationResponseDecoder.
 
+16. (Mike Brasher) - queue-based clients now complete.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

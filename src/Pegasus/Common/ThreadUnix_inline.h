@@ -31,6 +31,35 @@
 #ifndef ThreadUnix_inline_h
 #define ThreadUnix_inline_h
 
+#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
+// _start wrapper to overcome "C" "C++" binding warnings
+// (code "borrowed" from ThreadzOS_inline.h)
+// Actually the Solaris compiler doesn't need this as "C" "C++"
+// bindings are the same, but it moans like hell about it !!
+// (Its correct to moan, but its a pain all the same).
+
+
+typedef struct {                                   
+    void * (PEGASUS_THREAD_CDECL * _start)(void *);
+    void * realParm;                               
+} zosParmDef;                                      
+
+extern "C" { void * _linkage(void * zosParm); }
+                                                   
+inline void Thread::run()
+{
+    zosParmDef * zosParm = (zosParmDef *)malloc(sizeof(zosParmDef));
+    zosParm->_start = _start;
+    zosParm->realParm = (void *) this;
+    if (_is_detached)
+    {
+        pthread_attr_setdetachstate(&_handle.thatt, PTHREAD_CREATE_DETACHED);
+    }
+    pthread_attr_setschedpolicy(&_handle.thatt, SCHED_RR);
+    pthread_create((pthread_t *)&_handle.thid,
+                    &_handle.thatt, &_linkage, zosParm);
+}
+#else // PEGASUS_PLATFORM_SOLARIS_SPARC_CC
 inline void Thread::run()
 {
     if (_is_detached)
@@ -41,6 +70,7 @@ inline void Thread::run()
 #endif
     pthread_create((pthread_t *)&_handle.thid, &_handle.thatt, _start, this);
 }
+#endif // PEGASUS_PLATFORM_SOLARIS_SPARC_CC
 
 
 inline void Thread::cancel()

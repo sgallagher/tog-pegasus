@@ -87,8 +87,8 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Tracer.h>
 
-#define CDEBUG(X)
-//#define CDEBUG(X) PEGASUS_STD(cout) << "SLPProvider " << X << PEGASUS_STD(endl)
+//#define CDEBUG(X)
+#define CDEBUG(X) PEGASUS_STD(cout) << "SLPProvider " << X << PEGASUS_STD(endl)
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -322,7 +322,7 @@ String SLPProvider::getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& 
         if (temp != String::EMPTY)
         {
             _appendCSV(names, temp );
-            _appendCSV(classInfo, _getPropertyValue(CIMNamespaceInstances[i], CIMName(classinfoAttribute), " "));
+            _appendCSV(classInfo, _getPropertyValue(CIMNamespaceInstances[i], CIMName(classinfoAttribute), ""));
         }
         else
             CDEBUG("Must log error here if property not found");
@@ -564,7 +564,8 @@ void SLPProvider::populateRegistrationData(const String &protocol,
     
     // Create the service ID from the serviceName and UUID for this system
     // ATTN: All of this will be moved to issueSLPRegistrations()
-    String ServiceID = serviceName + strUUID;
+    //ATTN: KS Exactly the service name be.
+    String ServiceID = serviceName + String(":") + strUUID;
     CString CServiceID = ServiceID.getCString();
 
     // Append the instance and reference and serviceID to the maintained object list.
@@ -575,6 +576,7 @@ void SLPProvider::populateRegistrationData(const String &protocol,
     CString CstrREgistration = _slpTemplateInstance.getCString();
     
     // Test the registration
+    // ATTN: Needs an error log.
     slp_agent.test_registration((const char *)CServiceID , 
                         (const char *)CstrREgistration,
                         serviceName,
@@ -834,7 +836,7 @@ void SLPProvider::invokeMethod(
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
       "SLPProvider::invokeMethod()");
-
+    CDEBUG("invokeMethod. method= " << methodName.getString());
     // convert a fully qualified reference into a local reference
     // (class name and keys only).
     CIMObjectPath localReference = CIMObjectPath(

@@ -423,7 +423,9 @@ void CIMReference::set(const String& objectName)
     if (!dot)
     {
 	if (!CIMName::legal(p)) 
+        {
 	    throw IllformedObjectName(objectName);
+        }
 
 	// ATTN: remove this later: a reference should only be able to hold
 	// an instance name.
@@ -447,7 +449,9 @@ void CIMReference::set(const String& objectName)
         char* key = strtok(p, "=");
 
 	if (!key)
+        {
 	    throw IllformedObjectName(objectName);
+        }
 
 	String keyString(key);
 
@@ -481,8 +485,6 @@ void CIMReference::set(const String& objectName)
 
 	    if (*p++ != '"')
 		throw IllformedObjectName(objectName);
-
-            p++;
 	}
 	else if (*p == '"')
 	{
@@ -502,8 +504,6 @@ void CIMReference::set(const String& objectName)
 
 	    if (*p++ != '"')
 		throw IllformedObjectName(objectName);
-
-            p++;
 	}
 	else if (toupper(*p) == 'T' || toupper(*p) == 'F')
 	{
@@ -524,7 +524,7 @@ void CIMReference::set(const String& objectName)
 
 	    valueString.assign(p, n);
 
-            p = p + n + 1;
+            p = p + n;
 	}
 	else
 	{
@@ -539,7 +539,12 @@ void CIMReference::set(const String& objectName)
                 n++;
 	    }
           
-            *r = '\0';
+            Boolean isComma = false;
+            if (*r)
+            {
+                *r = '\0';
+                isComma = true;
+            }
 
 	    Sint64 x;
 
@@ -548,10 +553,23 @@ void CIMReference::set(const String& objectName)
 
             valueString.assign(p, n);
 
-            p = p + n + 1;
+            if (isComma)
+            {
+                *r = ',';
+            }
+
+            p = p + n;
 	}
 
 	_keyBindings.append(KeyBinding(keyString, valueString, type));
+
+        if (*p)
+        {
+            if (*p++ != ',')
+            {
+                throw IllformedObjectName(objectName);
+            }
+        }
     }  
 
     _BubbleSort(_keyBindings);

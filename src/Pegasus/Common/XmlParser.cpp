@@ -488,8 +488,7 @@ void XmlParser::_skipWhitespace(char*& p)
 
 Boolean XmlParser::_getElementName(char*& p)
 {
-    if (!String::isUTF8(p) ||
-        !(((*p >= 'A') && (*p <= 'Z')) ||
+    if (!(((*p >= 'A') && (*p <= 'Z')) ||
           ((*p >= 'a') && (*p <= 'z')) ||
           (*p == '_')))
 	throw XmlException(XmlException::BAD_START_TAG, _line);
@@ -523,8 +522,7 @@ Boolean XmlParser::_getOpenElementName(char*& p, Boolean& openCloseElement)
 {
     openCloseElement = false;
 
-    if (!String::isUTF8(p) ||
-        !(((*p >= 'A') && (*p <= 'Z')) ||
+    if (!(((*p >= 'A') && (*p <= 'Z')) ||
           ((*p >= 'a') && (*p <= 'z')) ||
           (*p == '_')))
 	throw XmlException(XmlException::BAD_START_TAG, _line);
@@ -564,8 +562,7 @@ Boolean XmlParser::_getOpenElementName(char*& p, Boolean& openCloseElement)
 
 void XmlParser::_getAttributeNameAndEqual(char*& p)
 {
-    if (!String::isUTF8(p) ||
-        !(((*p >= 'A') && (*p <= 'Z')) ||
+    if (!(((*p >= 'A') && (*p <= 'Z')) ||
           ((*p >= 'a') && (*p <= 'z')) ||
           (*p == '_')))
 	throw XmlException(XmlException::BAD_ATTRIBUTE_NAME, _line);
@@ -891,8 +888,7 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
 
 	return;
     }
-    else if (String::isUTF8(p) &&
-             (((*p >= 'A') && (*p <= 'Z')) ||
+    else if ((((*p >= 'A') && (*p <= 'Z')) ||
               ((*p >= 'a') && (*p <= 'z')) ||
               (*p == '_')))
     {

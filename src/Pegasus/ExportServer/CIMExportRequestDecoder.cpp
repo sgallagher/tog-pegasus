@@ -269,26 +269,13 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    Sint8  *validateContent = (Sint8 *)httpMessage->message.getData();
    Uint32 count;
 
-   // If the Content-Type header is missing we will assume a charset of 7-bit ASCII
-   if(!contentTypeHeaderFound)
-   {
-       // We will verify that the characters fall in the 7-bit ASCII range
-       for(count = 0;count < validateSize; ++count)
-       {
-	   if((Uint8)validateContent[count] > 0x7F)
-	   {
-	       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "unsupported-Content-Type",
-			     String("8-bit characters detected, Content-Type value is required."));
-	       return;
-	   } 
-       }
-   }
    // Validating the charset is utf-8
-   else if(!String::equalNoCase(cimContentType, "application/xml; charset=\"utf-8\""))
+   if(!(String::equalNoCase(cimContentType, "application/xml; charset=\"utf-8\"")  ||
+  	     String::equalNoCase(cimContentType, "text/xml; charset=\"utf-8\"") ||
+	     contentTypeHeaderFound))
    {
-       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "unsupported-Content-Type",
-		     String("Content-Type value \"") + cimContentType +
-		     "\" is not supported.");
+	sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                       "CIMContentType value syntax error.");
        return; 
    }
    // Validating content falls within UTF8
@@ -300,8 +287,8 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
        {
 	   if (!(String::isUTF8((char *)&validateContent[count])))
 	   {
-	       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "unsupported-Content-Type",
-			     String("Invalid UTF-8 character detected."));
+	       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                       "Invalid UTF-8 character detected.");
 	       return; 
 	   }
 	   UTF8_NEXT(validateContent,count,currentChar);

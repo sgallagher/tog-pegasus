@@ -115,7 +115,7 @@ String LocalAuthFile::create()
     strcat(fileName, extension);
 
     // create a file name with the name of the user
-#ifndef PEGASUS_PLATFORM_AIX_RS_IBMCXX
+#if !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) && !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     outfs.open(fileName, ios::in, S_IRUSR | S_IWUSR);
 #else
     outfs.open(fileName, ios::in);

@@ -295,7 +295,36 @@ cimmofParser::wrapCurrentBuffer()
 //--------------------------------------------------------------------
 int
 cimmofParser::parse()
-{ return cimmof_parse(); }
+{ 
+    int ret;
+    if (_cmdline)
+    {
+      	// ATTN: KS added the following 7 Aug 2001 to put header and trailer
+	// lines on xml output from the parser.
+	// If xml_output put the XML headers and trailers around the output
+      if (_cmdline->xml_output() ) 
+      {
+	  cout << "<?xml version=\"1.0\"?>" << endl;
+          cout << "<CIM CIMVERSION=\"2.0\" DTDVERSION=\"2.0\">" << endl;
+	  cout << "<DECLARATION>" << endl;
+	  cout << "<DECLGROUP>" << endl;
+      }
+    }
+    ret =  cimmof_parse();
+    if (_cmdline)
+    {
+
+      if (_cmdline->xml_output() ) 
+      {
+	  cout << "</DECLGROUP>" << endl;
+	  cout << "</DECLARATION>" << endl;
+          cout << "</CIM>" << endl;
+      }
+    }
+
+
+    return ret;
+}
 
 //----------------------------------------------------------------------
 // Override the default parser error routine to enable I18n
@@ -449,9 +478,9 @@ cimmofParser::addClass(CIMClass *classdecl)
     {
       if (classdecl)
       {
-        cout << "<VALUE.OBJECT>\n" << endl;
+        cout << "<VALUE.OBJECT>" << endl;
 	classdecl->print(PEGASUS_STD(cout));
-        cout << "</VALUE.OBJECT>\n" << endl;
+        cout << "</VALUE.OBJECT>" << endl;
         cout << endl;
       }
       return ret;
@@ -542,9 +571,9 @@ cimmofParser::addInstance(CIMInstance *instance)
     {
       if (instance)
       {
-	cout << "<VALUE.OBJECT>\n" << endl;
+	cout << "<VALUE.OBJECT>" << endl;
 	instance->print(PEGASUS_STD(cout));
-	cout << "</VALUE.OBJECT>\n" << endl;
+	cout << "</VALUE.OBJECT>" << endl;
 	cout << endl;
       }
       return ret;
@@ -638,9 +667,9 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
     {
       if (qualifier) 
       {
-	cout << "<VALUE.OBJECT>\n" << endl;
+	cout << "<VALUE.OBJECT>" << endl;
 	qualifier->print(PEGASUS_STD(cout));
-	cout << "</VALUE.OBJECT>\n" << endl;
+	cout << "</VALUE.OBJECT>" << endl;
 	cout << endl;
       }
       return ret;

@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -43,14 +43,14 @@ PEGASUS_NAMESPACE_BEGIN
 ////////////////////////////////////////////////////////////////////////////////
 
 CIMQualifierDeclRep::CIMQualifierDeclRep(
-    const String& name, 
-    const CIMValue& value, 
+    const String& name,
+    const CIMValue& value,
     Uint32 scope,
     Uint32 flavor,
     Uint32 arraySize)
-    : 
-    _name(name), 
-    _value(value), 
+    :
+    _name(name),
+    _value(value),
     _scope(scope),
     _flavor(flavor),
     _arraySize(arraySize)
@@ -67,12 +67,12 @@ CIMQualifierDeclRep::~CIMQualifierDeclRep()
 
 }
 
-void CIMQualifierDeclRep::setName(const String& name) 
+void CIMQualifierDeclRep::setName(const String& name)
 {
     if (!CIMName::legal(name))
 	throw IllegalName();
 
-    _name = name; 
+    _name = name;
 }
 
 static const char* _toString(Boolean x)
@@ -118,7 +118,8 @@ void CIMQualifierDeclRep::toXml(Array<Sint8>& out) const
 
     qualifierType 	   = 	":" dataType [ array ] [ defaultValue ]
 
-    scope 		   = 	"," SCOPE "(" metaElement *( "," metaElement ) ")"
+    scope 		   = 	"," SCOPE "(" metaElement *( "," metaElement )
+    ")"
 */
 void CIMQualifierDeclRep::toMof(Array<Sint8>& out) const
 {
@@ -174,6 +175,7 @@ void CIMQualifierDeclRep::print(PEGASUS_STD(ostream) &os) const
     Array<Sint8> tmp;
     toXml(tmp);
     tmp.append('\0');
+    // ATTN:KS 7 Aug 2001 I think the endl should be removed here.
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 
@@ -182,7 +184,7 @@ CIMQualifierDeclRep::CIMQualifierDeclRep()
 
 }
 
-CIMQualifierDeclRep::CIMQualifierDeclRep(const CIMQualifierDeclRep& x) : 
+CIMQualifierDeclRep::CIMQualifierDeclRep(const CIMQualifierDeclRep& x) :
     Sharable(),
     _name(x._name),
     _value(x._value),
@@ -193,28 +195,30 @@ CIMQualifierDeclRep::CIMQualifierDeclRep(const CIMQualifierDeclRep& x) :
 
 }
 
-CIMQualifierDeclRep& CIMQualifierDeclRep::operator=(const CIMQualifierDeclRep& x) 
-{ 
-    return *this; 
+CIMQualifierDeclRep& CIMQualifierDeclRep::operator=(const CIMQualifierDeclRep&
+x)
+{
+    return *this;
 }
 
 Boolean CIMQualifierDeclRep::identical(const CIMQualifierDeclRep* x) const
 {
     return
 	this == x ||
-	CIMName::equal(_name, x->_name) && 
-	_value == x->_value && 
+	CIMName::equal(_name, x->_name) &&
+	_value == x->_value &&
 	_scope == x->_scope &&
 	_flavor == x->_flavor &&
 	_arraySize == x->_arraySize;
 }
 
-void CIMQualifierDeclRep::setValue(const CIMValue& value) 
+void CIMQualifierDeclRep::setValue(const CIMValue& value)
 {
-    _value = value; 
+    _value = value;
 
     if (_value.getType() == CIMType::NONE)
 	throw NullType();
 }
 
 PEGASUS_NAMESPACE_END
+

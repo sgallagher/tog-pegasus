@@ -56,7 +56,7 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 Array<PEGASUS_ARRAY_T>::Array(Uint32 size)
 {
     _rep = Rep::create(size);
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
     InitializeRaw<PEGASUS_ARRAY_T>(_rep->data(), size);
 #else
     InitializeRaw(_rep->data(), size);
@@ -86,7 +86,7 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 Array<PEGASUS_ARRAY_T>::Array(const PEGASUS_ARRAY_T* items, Uint32 size)
 {
     _rep = Rep::create(size);
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
     CopyToRaw<PEGASUS_ARRAY_T>(_rep->data(), items, size);
 #else
     CopyToRaw(_rep->data(), items, size);
@@ -140,7 +140,7 @@ void Array<PEGASUS_ARRAY_T>::_reserveAux(Uint32 capacity)
     Uint32 size = this->size();
     Rep* rep = Rep::create(capacity);
     rep->size = size;
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
     CopyToRaw<PEGASUS_ARRAY_T>(rep->data(), _rep->data(), size);
 #else
     CopyToRaw(rep->data(), _rep->data(), size);
@@ -218,7 +218,7 @@ void Array<PEGASUS_ARRAY_T>::append(const PEGASUS_ARRAY_T* x, Uint32 size)
 {
     _copyOnWrite();
     reserve(this->size() + size);
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
     CopyToRaw<PEGASUS_ARRAY_T>(_data() + this->size(), x, size);
 #else
     CopyToRaw(_data() + this->size(), x, size);
@@ -250,7 +250,7 @@ void Array<PEGASUS_ARRAY_T>::prepend(const PEGASUS_ARRAY_T* x, Uint32 size)
     _copyOnWrite();
     reserve(this->size() + size);
     memmove(_data() + size, _data(), sizeof(PEGASUS_ARRAY_T) * this->size());
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
     CopyToRaw<PEGASUS_ARRAY_T>(_data(), x, size);
 #else
     CopyToRaw(_data(), x, size);
@@ -299,7 +299,7 @@ void Array<PEGASUS_ARRAY_T>::insert(Uint32 pos, const PEGASUS_ARRAY_T* x, Uint32
 	memmove(
 	    _data() + pos + size, _data() + pos, sizeof(PEGASUS_ARRAY_T) * n);
 
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
     CopyToRaw<PEGASUS_ARRAY_T>(_data() + pos, x, size);
 #else
     CopyToRaw(_data() + pos, x, size);
@@ -319,7 +319,7 @@ void Array<PEGASUS_ARRAY_T>::remove(Uint32 pos)
 
     _copyOnWrite();
 
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
     Destroy<PEGASUS_ARRAY_T>(_data() + pos);
 #else
     Destroy(_data() + pos);
@@ -345,7 +345,7 @@ void Array<PEGASUS_ARRAY_T>::remove(Uint32 pos, Uint32 size)
 
     _copyOnWrite();
 
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
     Destroy<PEGASUS_ARRAY_T>(_data() + pos, size);
 #else
     Destroy(_data() + pos, size);

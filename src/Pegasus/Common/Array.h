@@ -105,7 +105,7 @@ ArrayRep<T>* ArrayRep<T>::clone() const
 {
     ArrayRep<T>* rep = ArrayRep<T>::create(capacity);
     rep->size = size;
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
     CopyToRaw<T>(rep->data(), data(), size);
 #else
     CopyToRaw(rep->data(), data(), size);
@@ -153,7 +153,9 @@ void PEGASUS_STATIC_CDECL ArrayRep<T>::dec(const ArrayRep<T>* rep_)
 
     if (rep && --rep->ref == 0)
     {
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+// ATTN-RK-P1-20020509: PLATFORM PORT: This change fixes memory leaks for me.
+// Should you make these changes on your platform?  (See also ArrayImpl.h)
+#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 	Destroy<T>(rep->data(), rep->size);
 #else
 	Destroy(rep->data(), rep->size);

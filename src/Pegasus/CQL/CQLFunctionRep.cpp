@@ -299,7 +299,7 @@ CQLValue CQLFunctionRep::dateTimeToMicrosecond(const CIMInstance& CI, const Quer
 
 CQLValue CQLFunctionRep::stringToUint(const CIMInstance& CI, const QueryContext& queryCtx)
 {
-  if(_parms.size() > 1)
+  if(_parms.size() != 1)
     {
       throw(Exception(String("CQLFunctionRep::stringToUint -- too many predicates")));
     }
@@ -320,7 +320,7 @@ CQLValue CQLFunctionRep::stringToUint(const CIMInstance& CI, const QueryContext&
 
 CQLValue CQLFunctionRep::stringToSint(const CIMInstance& CI, const QueryContext& queryCtx)
 {
-  if(_parms.size() > 1)
+  if(_parms.size() != 1)
     {
       throw(Exception(String("CQLFunctionRep::stringToUint -- too many predicates")));
     }
@@ -341,7 +341,7 @@ CQLValue CQLFunctionRep::stringToSint(const CIMInstance& CI, const QueryContext&
 
 CQLValue CQLFunctionRep::stringToReal(const CIMInstance& CI, const QueryContext& queryCtx)
 {
-  if(_parms.size() > 1)
+  if(_parms.size() != 1)
     {
       throw(Exception(String("CQLFunctionRep::stringToUint -- too many predicates")));
     }
@@ -362,7 +362,7 @@ CQLValue CQLFunctionRep::stringToReal(const CIMInstance& CI, const QueryContext&
 
 CQLValue CQLFunctionRep::stringToNumeric(const CIMInstance& CI, const QueryContext& queryCtx)
 {
-   return CQLValue(Uint64(0));
+   return stringToReal(CI, queryCtx);
 }
 
 CQLValue CQLFunctionRep::upperCase(const CIMInstance& CI, const QueryContext& queryCtx)

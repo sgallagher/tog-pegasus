@@ -2,7 +2,8 @@ ROOT = ../../../..
 
 include $(ROOT)/mak/config.mak
 
-#   Inst \
+#   Inst \		Temp. removed - see bug 2727
+#   LoadRepository  \	Temp. removed - see bug 2878
 
 DIRS = \
     Repository \

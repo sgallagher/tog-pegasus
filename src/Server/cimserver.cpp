@@ -31,11 +31,12 @@
 #include <Pegasus/Common/Selector.h>
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Server/CIMServer.h>
+#include <Pegasus/Common/PegasusVersion.h>
 
 using namespace Pegasus;
 using namespace std;
 
-const char PEGASUS_VERSION[]  = "Pegasus CIM Server - Version 0.7";
+// const char PEGASUS_VERSION[]  = "Pegasus CIM Server - Version 0.7";
 
 void GetEnvironmentVariables(
     const char* arg0,
@@ -85,7 +86,7 @@ void GetOptions(
 void PrintHelp(const char* arg0)
 {
     cout << '\n';
-    cout << PEGASUS_VERSION << endl;
+    cout << PEGASUS_NAME << PEGASUS_VERSION << endl;
     cout << '\n';
     cout << "Usage: " << arg0 << " [-port <port_num> -t -h -v]\n";
     cout << '\n';
@@ -164,6 +165,13 @@ int main(int argc, char** argv)
 	CIMServer server(&selector, pegasusHome);
 
 	char* address = portOption.allocateCString();
+
+	// Put out startup up message.
+	// Put to cout if not daemon
+	// ATTN: modify when we add daemon
+	cout << PEGASUS_NAME << PEGASUS_VERSION <<
+	     " on port " << address << endl;
+
 	server.bind(address);
 	delete [] address;
 	server.runForever();

@@ -118,15 +118,6 @@ DIRS += \
 	ControlProviders/CertificateProvider
 endif
 
-ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
-DIRS += \
-	DynListener/Service
-endif
-
-ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
-DIRS += \
-	DynListener/Service
-endif
 
 DIRS += \
 	Server \

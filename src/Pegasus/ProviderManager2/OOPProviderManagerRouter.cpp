@@ -475,7 +475,7 @@ void ProviderAgentContainer::_startAgentProcess()
                 {
                     Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                         "System::changeUserContext() failed.  userName = %s.",
-                        _userName.getCString());
+                        (const char*)_userName.getCString());
                     Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER,
                         Logger::WARNING,
                         "ProviderManager.OOPProviderManagerRouter."

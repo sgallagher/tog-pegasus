@@ -164,6 +164,21 @@ void test01()
      CIMObjectPath h0
       ("//usoPen-9.ustA-1-a.org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
 
+     // IPAddress as hostname which should be good
+     //errorDetected = false;
+     //try
+     //{
+        // Trailing dot
+        CIMObjectPath h5 
+         ("//192.168.1.80:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     //} catch (Exception& e)
+     //{
+     //   errorDetected = true;
+     //}
+#ifndef PEGASUS_SNIA_INTEROP_TEST
+     //assert(errorDetected);
+#endif
+
      // Now, try some bad ones
      Boolean errorDetected = false;
      try
@@ -171,7 +186,7 @@ void test01()
         // Leading numeric (the second 1) 
         CIMObjectPath h1
          ("//usopen-9.usta-1-a.1org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
-     } catch (Exception& e)
+     } catch (Exception&)
      {
         errorDetected = true;
      }
@@ -184,7 +199,7 @@ void test01()
         // Non-alphanum char (?)
         CIMObjectPath h11 
          ("//usopen-9.usta?-1-a.org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
-     } catch (Exception& e)
+     } catch (Exception&)
      {
         errorDetected = true;
      }
@@ -196,7 +211,7 @@ void test01()
         // Leading dot
         CIMObjectPath h2 
          ("//.usopen-9.usta-1-a.org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
-     } catch (Exception& e)
+     } catch (Exception&)
      {
         errorDetected = true;
      }
@@ -210,7 +225,7 @@ void test01()
         // Dot in the wrong spot (before a -)
         CIMObjectPath h3 
          ("//usopen.-9.usta-1-a.org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
-     } catch (Exception& e)
+     } catch (Exception&)
      {
         errorDetected = true;
      }
@@ -224,7 +239,7 @@ void test01()
         // Two dots in a row
         CIMObjectPath h4 
          ("//usopen-9.usta-1-a..org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
-     } catch (Exception& e)
+     } catch (Exception&)
      {
         errorDetected = true;
      }
@@ -238,14 +253,13 @@ void test01()
         // Trailing dot
         CIMObjectPath h5 
          ("//usopen-9.usta-1-a.org.:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
-     } catch (Exception& e)
+     } catch (Exception&)
      {
         errorDetected = true;
      }
 #ifndef PEGASUS_SNIA_INTEROP_TEST
      assert(errorDetected);
 #endif
-
 }
 
 void test02()
@@ -289,7 +303,7 @@ void test02()
        CIMObjectPath testerr1 = CIMObjectPath 
            ("myclass.X=\"Hello World\"Z=trueY=1234");
     }
-    catch (Exception& e)
+    catch (Exception&)
     {
         errorDetected = true;
     }
@@ -300,7 +314,7 @@ void test02()
     {
        CIMObjectPath testerr2 = CIMObjectPath ("myclass.XYZ");
     }
-    catch (Exception& e)
+    catch (Exception&)
     {
         errorDetected = true;
     }
@@ -312,7 +326,7 @@ void test02()
        CIMObjectPath testerr3 = CIMObjectPath 
            ("MyClass.z=true,y=1234abc,x=\"Hello World\"");
     }
-    catch (Exception& e)
+    catch (Exception&)
     {
         errorDetected = true;
     }
@@ -324,7 +338,7 @@ void test02()
        CIMObjectPath testerr4 = CIMObjectPath 
            ("MyClass.z=nottrue,y=1234,x=\"Hello World\"");
     }
-    catch (Exception& e)
+    catch (Exception&)
     {
         errorDetected = true;
     }

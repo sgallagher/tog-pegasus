@@ -50,7 +50,6 @@ PEGASUS_USING_PEGASUS;
 
 AtomicInt function_count;
 
-
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func(void *parm)
 {
 
@@ -61,19 +60,19 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func(void *parm)
 #else   
    Uint32 sleep_interval = (Uint32)parm;
 #endif
-//   pegasus_sleep(sleep_interval);
+   pegasus_sleep(sleep_interval);
    function_count++;
-//    if( ! (function_count.value() % 100) )
-//    {
-//       while(1)
-//       { 
-// 	 pegasus_yield();
-//       }
-//    }
+   if( ! (function_count.value() % 10) )
+   {
+      while(1)
+      { 
+	 pegasus_sleep(1);
+      }
+   }
    
    return 0; 
 }  
- 
+
 int main(int argc, char **argv) 
 { 
    
@@ -154,7 +153,7 @@ int main(int argc, char **argv)
    cout << "deliberately causing deadlock detection to occur ..." << endl;
    pegasus_sleep( 7000 ) ; 
    cout << " killed " << tp.kill_dead_threads( ) << " threads " << endl;  
-   tp.kill_dead_threads( ) ;
+   cout << " killed " << tp.kill_dead_threads( ) << " threads " << endl;  
     
    cout << " allocating joinable threads " << endl;
    Semaphore blocking(0);

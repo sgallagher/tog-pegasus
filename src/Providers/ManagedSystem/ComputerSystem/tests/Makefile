@@ -60,7 +60,7 @@ include $(ROOT)/mak/program.mak
 
 ifeq ($(OS),VMS)
 LFLAGS +=/sysexe
-TMPVMSOBJECTS = $(SOURCES:.cpp=$(OBJ),pegasus_vmshome:[obj.Providers.ManagedSystem.ComputerSystem]ComputerSystem.obj,)
+TMPVMSOBJECTS = $(SOURCES:.cpp=$(OBJ),pegasus_vmshome:[$(OBJ_VMSDIRB).Providers.ManagedSystem.ComputerSystem]ComputerSystem.obj,)
 
 SOURCES = \
 	TestCSProvider.cpp

@@ -41,7 +41,12 @@
 #define CMPI_INLINE
 #endif
 
-
+// Per bug #2041
+#ifndef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+	#error Warning: PEGASUS_USE_EXPERIMENTAL_INTERFACES is not defined.
+	#error Append -DPEGASUS_USE_EXPERIMENTAL_INTERFACES to CFLAGS environment variable
+#endif
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 #ifdef DOC_ONLY
   /** This macro builds a CMPIStatus object with &lt;rc&gt; as return code and returns
       to the Broker.
@@ -2236,4 +2241,5 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #define CMProviderBase(pn) \
    CmpiProviderBase base##pn;
 
+#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 #endif // _CMPIMACS_H_

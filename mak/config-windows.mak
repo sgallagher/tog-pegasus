@@ -8,7 +8,11 @@ DEPEND_INCLUDES =
 
 ACE_INCLUDES = -I$(ACE_ROOT)
 
+ifeq ($(PEGASUS_DEBUG),1)
 ACE_LIB = $(ACE_ROOT)/ace/aced.lib
+else
+ACE_LIB = $(ACE_ROOT)/ace/ace.lib
+endif
 
 DEFINES = -DWIN32
 

@@ -40,6 +40,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Config/ConfigManager.h>
+#include <Pegasus/Common/IPC.h>
 #if defined(PEGASUS_OS_OS400)
 #include "OS400ConvertChar.h"
 #endif
@@ -70,12 +71,13 @@ const char TMP_AUTH_FILE_NAME []  =  "/cimclient_";
 //
 // Constant representing the int buffer size
 //
-const Uint32 INT_BUFFER_SIZE = 64;
+const Uint32 INT_BUFFER_SIZE = 16;
 
 //
 // A unique sequence number used in random file name creation.
 //
-static Uint32 sequenceCount  =  212;
+static Uint32 sequenceCount = 1;
+static Mutex sequenceCountLock;
 
 
 
@@ -116,16 +118,19 @@ String LocalAuthFile::create()
     PEG_METHOD_ENTER(TRC_AUTHENTICATION, "LocalAuthFile::create()");
 
     Uint32 secs, milliSecs;
+    Uint32 mySequenceNumber;
 
     System::getCurrentTime(secs, milliSecs);
 
     //
     // extension size is username plus the sequence count
     //
-    sequenceCount++;
+    sequenceCountLock.lock(pegasus_thread_self());
+    mySequenceNumber = sequenceCount++;
+    sequenceCountLock.unlock();
 
-    char extension[INT_BUFFER_SIZE];
-    sprintf(extension,"_%d", sequenceCount + milliSecs);
+    char extension[2*INT_BUFFER_SIZE];
+    sprintf(extension,"_%u_%u", mySequenceNumber, milliSecs);
     extension[strlen(extension)] = 0;
 
     String filePath = String::EMPTY;

@@ -1173,9 +1173,9 @@ void CIMRepository::_createClass(
 /*------------------------------------------------------------------------------
   Checks whether a hostname points to the local CIMOM
 ------------------------------------------------------------------------------*/
-static Boolean isLocalCIMOMHostAndPort( const String& hostname )
+static Boolean isLocalCIMOM( const String& hostname )
 {
-   PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::isLocalCIMOMHostAndPort");
+   PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::isLocalCIMOM");
 
    // First do a brute force check for equality of the strings
    if( String::equalNoCase(hostname,System::getHostName()))
@@ -1184,30 +1184,15 @@ static Boolean isLocalCIMOMHostAndPort( const String& hostname )
       return true;
    }
 
+   // ------------------------------------------------------------------------
+   // Strip of the port numbers
+   // ------------------------------------------------------------------------
    String hn = hostname;
-
-   // ------------------------------------------------------------------------
-   // Match the port numbers
-   // ------------------------------------------------------------------------
-   String port, localPort, localSPort;
 
    Uint32 index = hostname.find(':');
    if ( index != PEG_NOT_FOUND )
    {
-      port = hostname.subString(index+1);
       hn = hostname.subString(0,index);
-
-      ConfigManager *cfgMgr = ConfigManager::getInstance();
-
-      localPort  =  cfgMgr->getCurrentValue("httpPort");
-      localSPort =  cfgMgr->getCurrentValue("httpsPort");
-
-      if (!String::equal(port,localPort) &&
-          !String::equal(port,localSPort) )
-      {
-         PEG_METHOD_EXIT();
-         return false;
-      }
    }
 
    // ------------------------------------------------------------------------
@@ -1285,7 +1270,7 @@ void CIMRepository::_createAssocInstEntries(
                     // Fix for bugzilla 667:
                     // Strip off the hostname if it is the same as the local host
                     if ((fromRef.getHost() != String::EMPTY) &&
-                        (isLocalCIMOMHostAndPort(fromRef.getHost())))
+                        (isLocalCIMOM(fromRef.getHost())))
                     {
                        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "_createAssocInstEntries() - Stripping of local hostName from fromRef");
                        fromRef.setHost(String::EMPTY);
@@ -1302,7 +1287,7 @@ void CIMRepository::_createAssocInstEntries(
 
                     // Strip off the hostname if it is the same as the local host
                     if ((toRef.getHost() != String::EMPTY) &&
-                        (isLocalCIMOMHostAndPort(toRef.getHost())))
+                        (isLocalCIMOM(toRef.getHost())))
                     {
                        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "_createAssocInstEntries() - Stripping of local hostName from toRef");
                        toRef.setHost(String::EMPTY);

@@ -375,6 +375,11 @@ public:
         HttpMethod httpMethod,
 	const CIMException& cimException);
 
+    static void appendInstanceEParameter(
+	Array<Sint8>& out,
+	const char* name,
+	const CIMInstance& instance);
+
     static void appendEMethodRequestHeader(
     	Array<Sint8>& out,
         const char* requestUri,
@@ -481,6 +486,12 @@ private:
     	const CIMName& name);
     static void _appendEMethodCallElementEnd(
     	Array<Sint8>& out);
+
+    static void _appendEParamValueElementBegin(
+	Array<Sint8>& out,
+	const char* name);
+    static void _appendEParamValueElementEnd(
+	Array<Sint8>& out);
 
     static void _appendSimpleExportRspElementBegin(Array<Sint8>& out);
     static void _appendSimpleExportRspElementEnd(Array<Sint8>& out);

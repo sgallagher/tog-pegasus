@@ -2491,6 +2491,46 @@ void XmlWriter::_appendEMethodCallElementEnd(
 
 //------------------------------------------------------------------------------
 //
+// _appendEParamValueElementBegin()
+// _appendEParamValueElementEnd()
+//
+//     <!ELEMENT EXPPARAMVALUE (INSTANCE)> 
+//     <!ATTLIST EXPPARAMVALUE  
+//         %CIMName;>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::_appendEParamValueElementBegin(
+    Array<Sint8>& out,
+    const char* name)
+{
+    out << "<EXPPARAMVALUE NAME=\"" << name << "\">\n";
+}
+
+void XmlWriter::_appendEParamValueElementEnd(
+    Array<Sint8>& out)
+{
+    out << "</EXPPARAMVALUE>\n";
+}
+
+//------------------------------------------------------------------------------
+//
+// appendInstanceEParameter()
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendInstanceEParameter(
+    Array<Sint8>& out,
+    const char* name,
+    const CIMInstance& instance)
+{
+    _appendEParamValueElementBegin(out, name);
+    appendInstanceElement(out, instance);
+    _appendEParamValueElementEnd(out);
+}
+
+//------------------------------------------------------------------------------
+//
 // _appendSimpleExportRspElementBegin()
 // _appendSimpleExportRspElementEnd()
 //

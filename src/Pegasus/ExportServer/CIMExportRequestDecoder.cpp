@@ -550,7 +550,7 @@ CIMExportIndicationRequestMessage* CIMExportRequestDecoder::decodeExportIndicati
       if (System::strcasecmp(name, "NewIndication") == 0)
 	 XmlReader::getInstanceElement(parser, instanceName);
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      XmlReader::expectEndTag(parser, "EXPPARAMVALUE");
    }
     
    CIMExportIndicationRequestMessage* request = new CIMExportIndicationRequestMessage(

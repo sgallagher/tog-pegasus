@@ -94,7 +94,7 @@ void CIMExportRequestEncoder::_encodeExportIndicationRequest(
 {
    Array<Sint8> params;
 
-   XmlWriter::appendInstanceIParameter(
+   XmlWriter::appendInstanceEParameter(
       params, "NewIndication", message->indicationInstance);
 	
    Array<Sint8> buffer = XmlWriter::formatSimpleEMethodReqMessage(

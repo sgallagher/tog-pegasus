@@ -399,6 +399,10 @@ public:
 	XmlParser& parser, 
 	const char*& name);
 
+    static Boolean getEParamValueTag(
+	XmlParser& parser, 
+	const char*& name);
+
     static Boolean getMethodCallStartTag(
 	XmlParser& parser, 
 	const char*& name);

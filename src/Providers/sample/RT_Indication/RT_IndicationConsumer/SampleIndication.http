@@ -1,7 +1,7 @@
 M-POST cimom/Pegasus_RT_IndicationConsumer HTTP/1.1
 HOST: 
 Content-Type: application/xml; charset="utf-8"
-Content-Length: 671
+Content-Length: 673
 Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=40
 40-CIMExport: MethodRequest
 40-CIMExportMethod: ExportIndication
@@ -11,7 +11,7 @@ Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=40
  <MESSAGE ID="1007" PROTOCOLVERSION="1.0">
   <SIMPLEEXPREQ>
    <EXPMETHODCALL NAME="ExportIndication">
-    <IPARAMVALUE NAME="NewIndication">
+    <EXPPARAMVALUE NAME="NewIndication">
      <INSTANCE CLASSNAME="RT_TestIndication">
       <PROPERTY NAME="IndicationTime" TYPE="string">
        <VALUE>20010515104354.000000:000</VALUE>

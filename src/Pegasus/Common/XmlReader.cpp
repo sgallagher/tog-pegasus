@@ -3621,6 +3621,30 @@ Boolean XmlReader::getEMethodResponseStartTag(
 
 //------------------------------------------------------------------------------
 //
+// getEParamValueTag()
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getEParamValueTag(
+    XmlParser& parser, 
+    const char*& name)
+{
+    XmlEntry entry;
+
+    if (!testStartTag(parser, entry, "EXPPARAMVALUE"))
+	return false;
+
+    // Get EXPPARAMVALUE.NAME attribute:
+
+    if (!entry.getAttributeValue("NAME", name))
+	throw XmlValidationError(parser.getLine(),
+	    "Missing EXPPARAMVALUE.NAME attribute");
+
+    return true;
+}
+
+//------------------------------------------------------------------------------
+//
 // getMethodCallStartTag()
 //
 //------------------------------------------------------------------------------

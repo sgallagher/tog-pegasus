@@ -56,8 +56,12 @@ ifeq ($(HPUX_IA64_NATIVE_COMPILER), yes)
  DEFINES += -DHPUX_IA64_NATIVE_COMPILER
 endif
 
-ifdef LOCK_CONNECTION_ENABLED
- DEFINES += -DLOCK_CONNECTION_ENABLED
+ifdef USE_CONNECTLOCAL
+ DEFINES += -DUSE_CONNECTLOCAL
+endif
+
+ifdef PEGASUS_NOASSERTS
+ DEFINES += -DNDEBUG
 endif
 
 ##
@@ -102,7 +106,11 @@ SYS_LIBS = -lpthread -lrt
 
 # PAM support
 ifdef PEGASUS_PAM_AUTHENTICATION
-SYS_LIBS += -lpam
+   ifeq ($(HPUX_IA64_VERSION), yes)
+      SYS_LIBS += -L$(PAMLIB_HOME) -lpam
+   else
+      SYS_LIBS += -lpam
+   endif
 endif
 
 # SSL support

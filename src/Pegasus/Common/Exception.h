@@ -97,14 +97,18 @@ public:
 
     defining the file, line and condition that was tested.
 */
+#ifdef NDEBUG
+#define PEGASUS_ASSERT(COND)
+#else
 #define PEGASUS_ASSERT(COND) \
     do \
     { \
-	if (!(COND)) \
-	{ \
-	    throw AssertionFailureException(__FILE__, __LINE__, #COND); \
-	} \
+        if (!(COND)) \
+        { \
+            throw AssertionFailureException(__FILE__, __LINE__, #COND); \
+        } \
     } while (0)
+#endif
 
 /* Macro to Create the equivalent of an assert but without the
    termination.  This can be used as a temporary marker for asserts

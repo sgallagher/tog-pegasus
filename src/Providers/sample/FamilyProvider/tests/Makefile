@@ -33,7 +33,7 @@ poststarttests:
 
 	@echo +++++ TST_Person Testing Family provider in  $(SAMPLEPROVIDERNS)
 
-	CLI ei TST_Person -n $(SAMPLEPROVIDERNS) -s -count 8
+	CLI ei TST_Person -n $(SAMPLEPROVIDERNS) -s -count 13
 	CLI ni TST_Person -n $(SAMPLEPROVIDERNS) -s -count 13
 	CLI rn TST_Person -n $(SAMPLEPROVIDERNS) -s -count 4
 	CLI r  TST_Person -n $(SAMPLEPROVIDERNS) -s -count 4
@@ -104,7 +104,7 @@ poststarttests:
 
 	@echo +++++ TST_PersonDynamic Family class Operations in  $(SAMPLEPROVIDERNS)
 
-	CLI ei TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -s -count 0
+	CLI ei TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -s -count 5
 	CLI ni TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -s -count 5
 	CLI rn TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -s -count 5
 	CLI r  TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -s -count 5
@@ -116,7 +116,7 @@ poststarttests:
 	CLI rn TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -s -count 3
 	CLI r TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -s -count 3
 	CLI an TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -s -count 3
-	CLI a TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -s -count 0
+	CLI a TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -s -count 3
 
 	@echo TST_PersonDynamic with bad object name (lower case)
 
@@ -134,8 +134,8 @@ poststarttests:
 	CLI rn TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -rc TST_LineageDynamic -s -count 3
 	CLI r TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -rc TST_LineageDynamic -s -count 3
 	CLI an TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 3
-	CLI a TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 0
-	CLI a TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 0
+	CLI a TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 3
+	CLI a TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 3
 
 	@echo TST_PersonDynamic association with resultClass role option
 

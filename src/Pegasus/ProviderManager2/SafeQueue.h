@@ -36,12 +36,12 @@
 #include <Pegasus/Common/Queue.h>
 #include <Pegasus/Common/IPC.h>
 
-#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 template<class T>
-class PEGASUS_SERVER_LINKAGE SafeQueue
+class PEGASUS_PPM_LINKAGE SafeQueue
 {
 public:
     SafeQueue(void);

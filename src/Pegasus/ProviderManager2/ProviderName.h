@@ -37,11 +37,11 @@
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 
-#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE ProviderName
+class PEGASUS_PPM_LINKAGE ProviderName
 {
 public:
     ProviderName(void);

@@ -46,11 +46,11 @@
 #include <Pegasus/ProviderManager2/Default/Provider.h>
 #include <Pegasus/ProviderManager2/Default/ProviderModule.h>
 
-#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/Default/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE LocalProviderManager
+class PEGASUS_DEFPM_LINKAGE LocalProviderManager
 {
 public:
     LocalProviderManager(void);

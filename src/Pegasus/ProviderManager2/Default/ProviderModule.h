@@ -43,14 +43,14 @@
 
 #include <Pegasus/Config/ConfigManager.h>
 
-#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/Default/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 // The ProviderModule class represents the physical module, as defined by the
 // operating, that contains a provider. This class effectively encapsulates the
 // "physical" portion of a provider.
-class PEGASUS_SERVER_LINKAGE ProviderModule
+class PEGASUS_DEFPM_LINKAGE ProviderModule
 {
 public:
     ProviderModule(const String & fileName);

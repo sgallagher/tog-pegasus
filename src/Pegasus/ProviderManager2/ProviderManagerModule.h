@@ -38,11 +38,11 @@
 
 #include <Pegasus/ProviderManager2/ProviderManager.h>
 
-#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE ProviderManagerModule : public DynamicLibrary
+class PEGASUS_PPM_LINKAGE ProviderManagerModule : public DynamicLibrary
 {
 public:
     typedef ProviderManager * (*CREATE_PROVIDER_MANAGER_FUNCTION)(const String &);

@@ -42,7 +42,7 @@
 #include <Pegasus/Provider/CIMProvider.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 
-#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/CMPI/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -51,7 +51,7 @@ PEGASUS_NAMESPACE_BEGIN
 // "physical" portion of a provider.
 
 
-class PEGASUS_SERVER_LINKAGE CMPIProviderModule
+class PEGASUS_CMPIPM_LINKAGE CMPIProviderModule
 {
 
     friend class CMPILocalProviderManager;

@@ -23,33 +23,23 @@
 //
 //==============================================================================
 //
-// Author:
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
+//           (carolann_graves@hp.com)
 //
-// Modified By:
+// Modified By: Adrian Schuur (schuur@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_InternalProviderManager_h
-#define Pegasus_InternalProviderManager_h
-
 #include <Pegasus/Common/Config.h>
 
-#include <Pegasus/ProviderManager2/ProviderManager.h>
-
-#include <Pegasus/ProviderManager2/Linkage.h>
-
-PEGASUS_NAMESPACE_BEGIN
-
-class PEGASUS_PPM_LINKAGE InternalProviderManager : public ProviderManager
-{
-public:
-    InternalProviderManager(void);
-    virtual ~InternalProviderManager(void);
-
-    virtual Message * processMessage(Message * request) throw();
-
-};
-
-PEGASUS_NAMESPACE_END
-
+#ifndef PEGASUS_CMPIPM_LINKAGE
+#  ifdef PEGASUS_OS_TYPE_WINDOWS
+#    ifdef PEGASUS_CMPIPM_INTERNAL
+#      define PEGASUS_CMPIPM_LINKAGE PEGASUS_EXPORT
+#    else
+#      define PEGASUS_CMPIPM_LINKAGE PEGASUS_IMPORT
+#    endif
+#  else
+#    define PEGASUS_CMPIPM_LINKAGE /* empty */
+#  endif
 #endif

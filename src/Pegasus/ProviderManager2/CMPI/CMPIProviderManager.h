@@ -37,16 +37,18 @@
 #include <Pegasus/ProviderManager2/ProviderRegistrarInitializer.h>
 #include <Pegasus/ProviderManager2/ProviderName.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>
-#include <Pegasus/Server/Linkage.h>
+
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/ProviderManager2/Default/OperationResponseHandler.h>
+
+#include <Pegasus/ProviderManager2/CMPI/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 struct CMPI_SelectExp;
 
-class PEGASUS_SERVER_LINKAGE CMPIProviderManager : public ProviderManager
+class PEGASUS_CMPIPM_LINKAGE CMPIProviderManager : public ProviderManager
 {
 public:
     enum Mode { 

@@ -48,6 +48,7 @@
 #include <Pegasus/Repository/CIMRepository.h>
 
 #include <Pegasus/ProviderManager2/SafeQueue.h>
+#include <Pegasus/ProviderManager2/ProviderManager.h>
 
 #include <Pegasus/ProviderManager2/Linkage.h>
 

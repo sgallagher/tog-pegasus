@@ -46,7 +46,8 @@
 //#include <Pegasus/Provider/CIMQueryProvider.h>
 #include <Pegasus/Provider/CIMIndicationProvider.h>
 #include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
-#include <Pegasus/Server/Linkage.h>
+
+#include <Pegasus/ProviderManager2/Default/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -55,7 +56,7 @@ PEGASUS_NAMESPACE_BEGIN
 // module to ensure it is complete and well behaved. So, regardless of the
 // method supported by a "real" provider, it can be placed inside a reliable
 // facade with a known interface.
-class PEGASUS_SERVER_LINKAGE ProviderFacade :
+class PEGASUS_DEFPM_LINKAGE ProviderFacade :
     public CIMInstanceQueryProvider,
     public CIMClassProvider,
     public CIMAssociationProvider,

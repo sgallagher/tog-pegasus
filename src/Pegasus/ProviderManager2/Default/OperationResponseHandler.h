@@ -53,9 +53,11 @@
 
 #include <Pegasus/ProviderManager2/Default/SimpleResponseHandler.h>
 
+#include <Pegasus/ProviderManager2/Default/Linkage.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE OperationResponseHandler
+class PEGASUS_DEFPM_LINKAGE OperationResponseHandler
 {
 public:
     OperationResponseHandler(CIMRequestMessage * request, CIMResponseMessage * response)

@@ -42,7 +42,7 @@
 #include <Pegasus/Provider/CIMProvider.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 
-#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/CMPI/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -60,7 +60,7 @@ typedef provider_address* (*RESOLVE_CLASS) ( const char * provider,
 				      CMPIObjectPath * cop,
 				      CMPIContext * ctx );
 
-class PEGASUS_SERVER_LINKAGE CMPIResolverModule
+class PEGASUS_CMPIPM_LINKAGE CMPIResolverModule
 {
 
     friend class CMPILocalProviderManager;

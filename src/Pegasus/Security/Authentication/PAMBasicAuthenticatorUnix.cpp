@@ -532,7 +532,7 @@ void PAMBasicAuthenticatorStandAlone::_createPAMStandalone()
 
 	getSigHandle()->registerHandler(PEGASUS_SIGCHLD, childSignalHandler);
 	getSigHandle()->activate(PEGASUS_SIGCHLD);
-#else
+#elif defined(PEGASUS_OS_HPUX)
         SignalHandler::ignore(PEGASUS_SIGCHLD);  // Allows child death
 #endif
         if ((pid = fork()) < 0)

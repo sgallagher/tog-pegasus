@@ -48,6 +48,7 @@ PEGASUS_NAMESPACE_BEGIN
 // REVIEW: Needs constructor that creates from individual elements(year,...)
 
 static const char _NULL_INTERVAL_TYPE_STRING[] = "00000000000000.000000:000";
+static const char _NULL_DATE_TYPE_STRING[] = "00000000000000.000000-000";
 
 CIMDateTime::CIMDateTime()
 {

@@ -104,6 +104,13 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_lookupInternalProvider()");
 
+    if (String::equalNoCase(className, "PG_ConfigSetting"))
+    {
+        service = "ModuleController";
+        provider = "ModuleController::ConfigProvider";
+        PEG_METHOD_EXIT();
+        return true;
+    }
     if (String::equalNoCase(className, "PG_Provider") ||
         String::equalNoCase(className, "PG_ProviderCapabilities") ||
         String::equalNoCase(className, "PG_ProviderModule"))
@@ -231,6 +238,80 @@ String CIMOperationRequestDispatcher::_lookupAssociationProvider(
 
     PEG_METHOD_EXIT();
     return(String::EMPTY);
+}
+
+void CIMOperationRequestDispatcher::_forwardRequestToService(
+    const String& serviceName,
+    CIMRequestMessage* request,
+    CIMResponseMessage*& response)
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMOperationRequestDispatcher::_forwardRequestToService()");
+
+    Array<Uint32> serviceIds;
+    find_services(serviceName, 0, 0, &serviceIds);
+    PEGASUS_ASSERT(serviceIds.size() != 0);
+
+    AsyncOpNode * op = this->get_op();
+
+    AsyncLegacyOperationStart * asyncRequest =
+        new AsyncLegacyOperationStart(
+	    get_next_xid(),
+	    op,
+	    serviceIds[0],
+	    request,
+	    this->getQueueId());
+
+    AsyncReply * asyncReply = SendWait(asyncRequest);
+    PEGASUS_ASSERT(asyncReply != 0);
+
+    response = reinterpret_cast<CIMResponseMessage *>
+        ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+    PEGASUS_ASSERT(response != 0);
+
+    delete asyncReply;
+    delete asyncRequest;
+
+    PEG_METHOD_EXIT();
+}
+
+void CIMOperationRequestDispatcher::_forwardRequestToControlProvider(
+    const String& serviceName,
+    const String& controlProviderName,
+    CIMRequestMessage* request,
+    CIMResponseMessage*& response)
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMOperationRequestDispatcher::_forwardRequestToControlProvider()");
+
+    Array<Uint32> serviceIds;
+    find_services(serviceName, 0, 0, &serviceIds);
+    PEGASUS_ASSERT(serviceIds.size() != 0);
+
+    AsyncOpNode * op = this->get_op();
+
+    AsyncModuleOperationStart * moduleControllerRequest =
+        new AsyncModuleOperationStart(
+	    get_next_xid(),
+	    op,
+	    serviceIds[0],
+	    this->getQueueId(),
+	    true,
+	    controlProviderName,
+	    request);
+
+    AsyncReply * moduleControllerReply = SendWait(moduleControllerRequest);
+    PEGASUS_ASSERT(moduleControllerReply != 0);
+
+    response = reinterpret_cast<CIMResponseMessage *>
+        ((static_cast<AsyncModuleOperationResult *>(moduleControllerReply))->
+            get_result());
+    PEGASUS_ASSERT(response != 0);
+
+    delete moduleControllerReply;
+    delete moduleControllerRequest;
+
+    PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::_enqueueResponse(
@@ -492,45 +573,32 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
    // get the class name
    String className = request->instanceName.getClassName();
-   String service;
-   String provider;
+   CIMResponseMessage * response;
+
+   String serviceName = String::EMPTY;
+   String controlProviderName = String::EMPTY;
 
    // Check for class provided by an internal provider
-   if (_lookupInternalProvider("", className, service, provider))
+   if (_lookupInternalProvider(request->nameSpace, className, serviceName,
+           controlProviderName))
    {
-       Array<Uint32> serviceIds;
+      CIMGetInstanceRequestMessage* requestCopy =
+         new CIMGetInstanceRequestMessage(*request);
 
-       find_services(service, 0, 0, &serviceIds);
+      if (controlProviderName == String::EMPTY)
+      {
+         _forwardRequestToService(serviceName, requestCopy, response);
+      }
+      else
+      {
+         _forwardRequestToControlProvider(
+            serviceName, controlProviderName, requestCopy, response);
+      }
 
-       PEGASUS_ASSERT(serviceIds.size() != 0);
+      _enqueueResponse(request, response);
 
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMGetInstanceRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMGetInstanceResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
 
    // get provider for class
@@ -538,39 +606,16 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
    if(providerName.size() != 0)
    {
-       Array<Uint32> serviceIds;
+      CIMGetInstanceRequestMessage* requestCopy =
+          new CIMGetInstanceRequestMessage(*request);
 
-       find_services(String("Server::ProviderManagerService"), 0, 0, &serviceIds);
+      _forwardRequestToService(
+          String("Server::ProviderManagerService"), requestCopy, response);
 
-       PEGASUS_ASSERT(serviceIds.size() != 0);
+      _enqueueResponse(request, response);
 
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMGetInstanceRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMGetInstanceResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
    else if (_repository->isDefaultInstanceProvider())
    {
@@ -687,84 +732,48 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 
    // get the class name
    String className = request->instanceName.getClassName();
-   String service;
-   String provider;
+   CIMResponseMessage * response;
+
+   String serviceName = String::EMPTY;
+   String controlProviderName = String::EMPTY;
 
    // Check for class provided by an internal provider
-   if (_lookupInternalProvider("", className, service, provider))
+   if (_lookupInternalProvider(request->nameSpace, className, serviceName,
+           controlProviderName))
    {
-       Array<Uint32> serviceIds;
+      CIMDeleteInstanceRequestMessage* requestCopy =
+         new CIMDeleteInstanceRequestMessage(*request);
 
-       find_services(service, 0, 0, &serviceIds);
+      if (controlProviderName == String::EMPTY)
+      {
+         _forwardRequestToService(serviceName, requestCopy, response);
+      }
+      else
+      {
+         _forwardRequestToControlProvider(
+            serviceName, controlProviderName, requestCopy, response);
+      }
 
-       PEGASUS_ASSERT(serviceIds.size() != 0);
+      _enqueueResponse(request, response);
 
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMDeleteInstanceRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMDeleteInstanceResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
 
    String providerName = _lookupInstanceProvider(request->nameSpace, className);
 
    if(providerName.size() != 0)
    {
-       Array<Uint32> serviceIds;
+      CIMDeleteInstanceRequestMessage* requestCopy =
+          new CIMDeleteInstanceRequestMessage(*request);
 
-       find_services(String("Server::ProviderManagerService"), 0, 0, &serviceIds);
+      _forwardRequestToService(
+          String("Server::ProviderManagerService"), requestCopy, response);
 
-       PEGASUS_ASSERT(serviceIds.size() != 0);
+      _enqueueResponse(request, response);
 
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMDeleteInstanceRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMDeleteInstanceResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
    else if (_repository->isDefaultInstanceProvider())
    {
@@ -875,45 +884,32 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
    // get the class name
    String className = request->newInstance.getClassName();
-   String service;
-   String provider;
+   CIMResponseMessage * response;
+
+   String serviceName = String::EMPTY;
+   String controlProviderName = String::EMPTY;
 
    // Check for class provided by an internal provider
-   if (_lookupInternalProvider("", className, service, provider))
+   if (_lookupInternalProvider(request->nameSpace, className, serviceName,
+           controlProviderName))
    {
-       Array<Uint32> serviceIds;
+      CIMCreateInstanceRequestMessage* requestCopy =
+         new CIMCreateInstanceRequestMessage(*request);
 
-       find_services(service, 0, 0, &serviceIds);
+      if (controlProviderName == String::EMPTY)
+      {
+         _forwardRequestToService(serviceName, requestCopy, response);
+      }
+      else
+      {
+         _forwardRequestToControlProvider(
+            serviceName, controlProviderName, requestCopy, response);
+      }
 
-       PEGASUS_ASSERT(serviceIds.size() != 0);
+      _enqueueResponse(request, response);
 
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMCreateInstanceRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMCreateInstanceResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
 
    // ATTN: TEMP: Test code for ProcessIndication
@@ -965,39 +961,16 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
    if(providerName.size() != 0)
    {
-       Array<Uint32> serviceIds;
+      CIMCreateInstanceRequestMessage* requestCopy =
+          new CIMCreateInstanceRequestMessage(*request);
 
-       find_services(String("Server::ProviderManagerService"), 0, 0, &serviceIds);
+      _forwardRequestToService(
+          String("Server::ProviderManagerService"), requestCopy, response);
 
-       PEGASUS_ASSERT(serviceIds.size() != 0);
+      _enqueueResponse(request, response);
 
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMCreateInstanceRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMCreateInstanceResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
    else if (_repository->isDefaultInstanceProvider())
    {
@@ -1113,45 +1086,32 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
    // get the class name
    String className = request->modifiedInstance.getInstance().getClassName();
-   String service;
-   String provider;
+   CIMResponseMessage * response;
+
+   String serviceName = String::EMPTY;
+   String controlProviderName = String::EMPTY;
 
    // Check for class provided by an internal provider
-   if (_lookupInternalProvider("", className, service, provider))
+   if (_lookupInternalProvider(request->nameSpace, className, serviceName,
+           controlProviderName))
    {
-       Array<Uint32> serviceIds;
+      CIMModifyInstanceRequestMessage* requestCopy =
+         new CIMModifyInstanceRequestMessage(*request);
 
-       find_services(service, 0, 0, &serviceIds);
+      if (controlProviderName == String::EMPTY)
+      {
+         _forwardRequestToService(serviceName, requestCopy, response);
+      }
+      else
+      {
+         _forwardRequestToControlProvider(
+            serviceName, controlProviderName, requestCopy, response);
+      }
 
-       PEGASUS_ASSERT(serviceIds.size() != 0);
+      _enqueueResponse(request, response);
 
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMModifyInstanceRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMModifyInstanceResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
 
    // check the class name for an "external provider"
@@ -1159,39 +1119,16 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
    if(providerName.size() != 0)
    {
-       Array<Uint32> serviceIds;
+      CIMModifyInstanceRequestMessage* requestCopy =
+          new CIMModifyInstanceRequestMessage(*request);
 
-       find_services(String("Server::ProviderManagerService"), 0, 0, &serviceIds);
+      _forwardRequestToService(
+          String("Server::ProviderManagerService"), requestCopy, response);
 
-       PEGASUS_ASSERT(serviceIds.size() != 0);
+      _enqueueResponse(request, response);
 
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMModifyInstanceRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMModifyInstanceResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
    else if (_repository->isDefaultInstanceProvider())
    {
@@ -1360,50 +1297,32 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
    // get the class name
    String className = request->className;
-   String service;
-   String provider;
+   CIMResponseMessage * response;
+
+   String serviceName = String::EMPTY;
+   String controlProviderName = String::EMPTY;
 
    // Check for class provided by an internal provider
-   if (_lookupInternalProvider("", className, service, provider))
+   if (_lookupInternalProvider(request->nameSpace, className, serviceName,
+           controlProviderName))
    {
-       PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-           "Found internal provider; service = " + service);
+      CIMEnumerateInstancesRequestMessage* requestCopy =
+         new CIMEnumerateInstancesRequestMessage(*request);
 
-       Array<Uint32> serviceIds;
+      if (controlProviderName == String::EMPTY)
+      {
+         _forwardRequestToService(serviceName, requestCopy, response);
+      }
+      else
+      {
+         _forwardRequestToControlProvider(
+            serviceName, controlProviderName, requestCopy, response);
+      }
 
-       find_services(service, 0, 0, &serviceIds);
+      _enqueueResponse(request, response);
 
-       Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4, "Found %u service ID(s)",
-                     serviceIds.size());
-       PEGASUS_ASSERT(serviceIds.size() != 0);
-
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMEnumerateInstancesRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMEnumerateInstancesResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
 
    // check the class name for an "external provider"
@@ -1411,39 +1330,16 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
    if(providerName.size() != 0)
    {
-       Array<Uint32> serviceIds;
+      CIMEnumerateInstancesRequestMessage* requestCopy =
+          new CIMEnumerateInstancesRequestMessage(*request);
 
-       find_services(String("Server::ProviderManagerService"), 0, 0, &serviceIds);
+      _forwardRequestToService(
+          String("Server::ProviderManagerService"), requestCopy, response);
 
-       PEGASUS_ASSERT(serviceIds.size() != 0);
+      _enqueueResponse(request, response);
 
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMEnumerateInstancesRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMEnumerateInstancesResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
    else if (_repository->isDefaultInstanceProvider())
    {
@@ -1515,45 +1411,32 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
    // get the class name
    String className = request->className;
-   String service;
-   String provider;
+   CIMResponseMessage * response;
+
+   String serviceName = String::EMPTY;
+   String controlProviderName = String::EMPTY;
 
    // Check for class provided by an internal provider
-   if (_lookupInternalProvider("", className, service, provider))
+   if (_lookupInternalProvider(request->nameSpace, className, serviceName,
+           controlProviderName))
    {
-       Array<Uint32> serviceIds;
+      CIMEnumerateInstanceNamesRequestMessage* requestCopy =
+         new CIMEnumerateInstanceNamesRequestMessage(*request);
 
-       find_services(service, 0, 0, &serviceIds);
+      if (controlProviderName == String::EMPTY)
+      {
+         _forwardRequestToService(serviceName, requestCopy, response);
+      }
+      else
+      {
+         _forwardRequestToControlProvider(
+            serviceName, controlProviderName, requestCopy, response);
+      }
 
-       PEGASUS_ASSERT(serviceIds.size() != 0);
+      _enqueueResponse(request, response);
 
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMEnumerateInstanceNamesRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMEnumerateInstanceNamesResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
 
    // check the class name for an "external provider"
@@ -1561,39 +1444,16 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
    if(providerName.size() != 0)
    {
-       Array<Uint32> serviceIds;
+      CIMEnumerateInstanceNamesRequestMessage* requestCopy =
+          new CIMEnumerateInstanceNamesRequestMessage(*request);
 
-       find_services(String("Server::ProviderManagerService"), 0, 0, &serviceIds);
+      _forwardRequestToService(
+          String("Server::ProviderManagerService"), requestCopy, response);
 
-       PEGASUS_ASSERT(serviceIds.size() != 0);
+      _enqueueResponse(request, response);
 
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMEnumerateInstanceNamesRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMEnumerateInstanceNamesResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
    else if (_repository->isDefaultInstanceProvider())
    {
@@ -1659,45 +1519,23 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
       "CIMOperationRequestDispatcher::handleAssociatorsRequest()");
 
    String className = request->objectName.getClassName();
+   CIMResponseMessage * response;
 	
    // check the class name for an "external provider"
    String providerName = _lookupAssociationProvider(request->nameSpace, className);
 
    if(providerName.size() != 0)
    {
-       Array<Uint32> serviceIds;
+      CIMAssociatorsRequestMessage* requestCopy =
+          new CIMAssociatorsRequestMessage(*request);
 
-       find_services(String("Server::ProviderManagerService"), 0, 0, &serviceIds);
+      _forwardRequestToService(
+          String("Server::ProviderManagerService"), requestCopy, response);
 
-       PEGASUS_ASSERT(serviceIds.size() != 0);
+      _enqueueResponse(request, response);
 
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMAssociatorsRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMAssociatorNamesResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
    else if (_repository->isDefaultInstanceProvider())
    {
@@ -1770,45 +1608,23 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
       "CIMOperationRequestDispatcher::handleAssociatorNamesRequest()");
 
    String className = request->objectName.getClassName();
+   CIMResponseMessage * response;
 	
    // check the class name for an "external provider"
    String providerName = _lookupAssociationProvider(request->nameSpace, className);
 
    if(providerName.size() != 0)
    {
-       Array<Uint32> serviceIds;
+      CIMAssociatorNamesRequestMessage* requestCopy =
+          new CIMAssociatorNamesRequestMessage(*request);
 
-       find_services(String("Server::ProviderManagerService"), 0, 0, &serviceIds);
+      _forwardRequestToService(
+          String("Server::ProviderManagerService"), requestCopy, response);
 
-       PEGASUS_ASSERT(serviceIds.size() != 0);
+      _enqueueResponse(request, response);
 
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMAssociatorNamesRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMAssociatorNamesResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
    else if (_repository->isDefaultInstanceProvider())
    {
@@ -1878,45 +1694,23 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
       "CIMOperationRequestDispatcher::handleReferencesRequest()");
 
    String className = request->objectName.getClassName();
+   CIMResponseMessage * response;
 	
    // check the class name for an "external provider"
    String providerName = _lookupAssociationProvider(request->nameSpace, className);
 
    if(providerName.size() != 0)
    {
-       Array<Uint32> serviceIds;
+      CIMReferencesRequestMessage* requestCopy =
+          new CIMReferencesRequestMessage(*request);
 
-       find_services(String("Server::ProviderManagerService"), 0, 0, &serviceIds);
+      _forwardRequestToService(
+          String("Server::ProviderManagerService"), requestCopy, response);
 
-       PEGASUS_ASSERT(serviceIds.size() != 0);
+      _enqueueResponse(request, response);
 
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMReferencesRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMReferencesResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
    else if (_repository->isDefaultInstanceProvider())
    {
@@ -1987,45 +1781,23 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
       "CIMOperationRequestDispatcher::handleReferenceNamesRequest()");
 
    String className = request->objectName.getClassName();
+   CIMResponseMessage * response;
 	
    // check the class name for an "external provider"
    String providerName = _lookupAssociationProvider(request->nameSpace, className);
 
    if(providerName.size() != 0)
    {
-       Array<Uint32> serviceIds;
+      CIMReferenceNamesRequestMessage* requestCopy =
+          new CIMReferenceNamesRequestMessage(*request);
 
-       find_services(String("Server::ProviderManagerService"), 0, 0, &serviceIds);
+      _forwardRequestToService(
+          String("Server::ProviderManagerService"), requestCopy, response);
 
-       PEGASUS_ASSERT(serviceIds.size() != 0);
+      _enqueueResponse(request, response);
 
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMReferenceNamesRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMReferenceNamesResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
    else if (_repository->isDefaultInstanceProvider())
    {
@@ -2092,45 +1864,23 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
       "CIMOperationRequestDispatcher::handleGetPropertyRequest()");
 
    String className = request->instanceName.getClassName();
+   CIMResponseMessage * response;
 	
    // check the class name for an "external provider"
    String providerName = _lookupInstanceProvider(request->nameSpace, className);
 
    if(providerName.size() != 0)
    {
-       Array<Uint32> serviceIds;
+      CIMGetPropertyRequestMessage* requestCopy =
+          new CIMGetPropertyRequestMessage(*request);
 
-       find_services(String("Server::ProviderManagerService"), 0, 0, &serviceIds);
+      _forwardRequestToService(
+          String("Server::ProviderManagerService"), requestCopy, response);
 
-       PEGASUS_ASSERT(serviceIds.size() != 0);
+      _enqueueResponse(request, response);
 
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMGetPropertyRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMGetPropertyResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
    else if (_repository->isDefaultInstanceProvider())
    {
@@ -2234,45 +1984,23 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
    }
 
    String className = request->instanceName.getClassName();
+   CIMResponseMessage * response;
 	
    // check the class name for an "external provider"
    String providerName = _lookupInstanceProvider(request->nameSpace, className);
 
    if(providerName.size() != 0)
    {
-       Array<Uint32> serviceIds;
+      CIMSetPropertyRequestMessage* requestCopy =
+          new CIMSetPropertyRequestMessage(*request);
 
-       find_services(String("Server::ProviderManagerService"), 0, 0, &serviceIds);
+      _forwardRequestToService(
+          String("Server::ProviderManagerService"), requestCopy, response);
 
-       PEGASUS_ASSERT(serviceIds.size() != 0);
+      _enqueueResponse(request, response);
 
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMSetPropertyRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMSetPropertyResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
    else if (_repository->isDefaultInstanceProvider())
    {
@@ -2525,6 +2253,8 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleInvokeMethodRequest()");
 
+   CIMResponseMessage * response;
+
    {
       CIMStatusCode errorCode = CIM_ERR_SUCCESS;
       String errorDescription;
@@ -2549,7 +2279,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
       if (errorCode != CIM_ERR_SUCCESS)
       {
-         CIMInvokeMethodResponseMessage* response =
+         response =
             new CIMInvokeMethodResponseMessage(
                request->messageId,
                errorCode,
@@ -2575,39 +2305,16 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
    if(providerName.size() != 0)
    {
-       Array<Uint32> serviceIds;
+      CIMInvokeMethodRequestMessage* requestCopy =
+          new CIMInvokeMethodRequestMessage(*request);
 
-       find_services(String("Server::ProviderManagerService"), 0, 0, &serviceIds);
+      _forwardRequestToService(
+          String("Server::ProviderManagerService"), requestCopy, response);
 
-       PEGASUS_ASSERT(serviceIds.size() != 0);
+      _enqueueResponse(request, response);
 
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMInvokeMethodRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMInvokeMethodResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
 	
    CIMStatusCode errorCode = CIM_ERR_FAILED;
@@ -2615,7 +2322,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
    CIMValue retValue(1);
    Array<CIMParamValue> outParameters;
 
-   CIMInvokeMethodResponseMessage* response =
+   response =
       new CIMInvokeMethodResponseMessage(
 	 request->messageId,
 	 errorCode,
@@ -2637,6 +2344,8 @@ void CIMOperationRequestDispatcher::handleEnableIndicationSubscriptionRequest(
       "CIMOperationRequestDispatcher::"
           "handleEnableIndicationSubscriptionRequest()");
 
+   CIMResponseMessage * response;
+
    //
    // check the class name for an "external provider"
    //
@@ -2645,42 +2354,19 @@ void CIMOperationRequestDispatcher::handleEnableIndicationSubscriptionRequest(
 
    if(providerName.size() != 0)
    {
-       Array<Uint32> serviceIds;
+      CIMEnableIndicationSubscriptionRequestMessage* requestCopy =
+          new CIMEnableIndicationSubscriptionRequestMessage(*request);
 
-       find_services(String("Server::ProviderManagerService"), 0, 0, &serviceIds);
+      _forwardRequestToService(
+          String("Server::ProviderManagerService"), requestCopy, response);
 
-       PEGASUS_ASSERT(serviceIds.size() != 0);
+      _enqueueResponse(request, response);
 
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMEnableIndicationSubscriptionRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMEnableIndicationSubscriptionResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
 
-   CIMEnableIndicationSubscriptionResponseMessage* response =
+   response =
       new CIMEnableIndicationSubscriptionResponseMessage (
 	 request->messageId,
 	 CIM_ERR_FAILED,
@@ -2699,6 +2385,8 @@ void CIMOperationRequestDispatcher::handleModifyIndicationSubscriptionRequest(
       "CIMOperationRequestDispatcher::"
           "handleModifyIndicationSubscriptionRequest()");
 
+   CIMResponseMessage * response;
+
    //  ATTN: Provider to be loaded is known to serve all classes
    //  in classNames list.  The getProvider function requires a class
    //  name.  There is no form that takes only the provider name.
@@ -2713,42 +2401,19 @@ void CIMOperationRequestDispatcher::handleModifyIndicationSubscriptionRequest(
 
    if(providerName.size() != 0)
    {
-       Array<Uint32> serviceIds;
+      CIMModifyIndicationSubscriptionRequestMessage* requestCopy =
+          new CIMModifyIndicationSubscriptionRequestMessage(*request);
 
-       find_services(String("Server::ProviderManagerService"), 0, 0, &serviceIds);
+      _forwardRequestToService(
+          String("Server::ProviderManagerService"), requestCopy, response);
 
-       PEGASUS_ASSERT(serviceIds.size() != 0);
+      _enqueueResponse(request, response);
 
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMModifyIndicationSubscriptionRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMModifyIndicationSubscriptionResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
 
-   CIMModifyIndicationSubscriptionResponseMessage* response =
+   response =
       new CIMModifyIndicationSubscriptionResponseMessage (
 	 request->messageId,
 	 CIM_ERR_FAILED,
@@ -2767,6 +2432,8 @@ void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
       "CIMOperationRequestDispatcher::"
           "handleDisableIndicationSubscriptionRequest()");
 
+   CIMResponseMessage * response;
+
    //  ATTN: Provider to be loaded is known to serve all classes
    //  in classNames list.  The getProvider function requires a class
    //  name.  There is no form that takes only the provider name.
@@ -2781,42 +2448,19 @@ void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
 
    if(providerName.size() != 0)
    {
-       Array<Uint32> serviceIds;
+      CIMDisableIndicationSubscriptionRequestMessage* requestCopy =
+          new CIMDisableIndicationSubscriptionRequestMessage(*request);
 
-       find_services(String("Server::ProviderManagerService"), 0, 0, &serviceIds);
+      _forwardRequestToService(
+          String("Server::ProviderManagerService"), requestCopy, response);
 
-       PEGASUS_ASSERT(serviceIds.size() != 0);
+      _enqueueResponse(request, response);
 
-       AsyncOpNode * op = this->get_op();
-
-       AsyncLegacyOperationStart * asyncRequest =
-	       new AsyncLegacyOperationStart(
-		       get_next_xid(),
-		       op,
-		       serviceIds[0],
-		       new CIMDisableIndicationSubscriptionRequestMessage(*request),
-		       this->getQueueId());
-
-       AsyncReply * asyncReply = SendWait(asyncRequest);
-
-       PEGASUS_ASSERT(asyncReply != 0);
-
-       CIMResponseMessage * response =
-	       reinterpret_cast<CIMDisableIndicationSubscriptionResponseMessage *>
-	       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-       PEGASUS_ASSERT(response != 0);
-
-       _enqueueResponse(request, response);
-
-       delete asyncReply;
-       delete asyncRequest;
-
-       PEG_METHOD_EXIT();
-       return;
+      PEG_METHOD_EXIT();
+      return;
    }
 
-   CIMDisableIndicationSubscriptionResponseMessage* response =
+   response =
       new CIMDisableIndicationSubscriptionResponseMessage (
 	 request->messageId,
 	 CIM_ERR_FAILED,

@@ -176,6 +176,17 @@ protected:
       String _lookupIndicationProvider(
 	const String& nameSpace, const String& className);
 
+      void _forwardRequestToService(
+	const String& serviceName,
+	CIMRequestMessage* request,
+	CIMResponseMessage*& response);
+
+      void _forwardRequestToControlProvider(
+	const String& serviceName,
+	const String& controlProviderName,
+	CIMRequestMessage* request,
+	CIMResponseMessage*& response);
+
       void _enqueueResponse(
 	 CIMRequestMessage* request, CIMResponseMessage* response);
 

@@ -477,14 +477,7 @@ void CIMListenerRep::stop()
     _svc->stopClientConnection();
 
     // Wait until pending export requests in the server are done.
-    if (!waitForPendingRequests(10))
-    {
-      // Pendings requests did not finish in time.
-      MessageLoaderParms parms("Listener.CIMListenerRep.SHUTDOWN_TIMEOUT",
-	     "The CIMListener could not be stopped after $0 seconds because export requests have not finished.",
-	     10);
-      throw Exception(parms);
-    }
+    waitForPendingRequests(10);
    
     // Shutdown the CIMListenerService
     _svc->shutdown();

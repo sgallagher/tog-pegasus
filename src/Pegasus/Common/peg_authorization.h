@@ -63,202 +63,91 @@ class PEGASUS_COMMON_LINKAGE peg_credential_types
 };
 
 
-class PEGASUS_COMMON_LINKAGE pegasus_identity_rep
+class PEGASUS_COMMON_LINKAGE pegasus_identity
 {
    public:
-      pegasus_identity_rep(Uint32 identity_type, 
-		       void *identity,
-		       Uint32 credential_type,
-		       void *credential)
-	 : _identity_type(identity_type),
-	   _identity(identity),
-	   _credential_type(credential_type),
-	   _credential(credential),
-	   _reference(1), 
-	   _thread_safety()
-      {
-
-      }
-      
-      virtual ~pegasus_identity_rep(void)
-      {
-      }
-
-      void reference(void) 
-      {
-	 _reference++;
-      }
-      
-      void dereference(void)
-      {
-	 _reference--;
-      }
-      
-      Uint32 get_reference(void)
-      {
-	 return  _reference.value();
-      }
-
-      Uint32 get_identity_type(void)
-      {
-	 return _identity_type;
-      }
-      
-      Uint32 get_credential_type(void)
-      {
-	 return _credential_type;
-      }
-      
-      void *get_identity(void)
-      {
-	 if( _reference.value() )
-	    return _identity;
-	 return NULL;
-      }
-      
-      void *get_credential(void)
-      {
-	 if( _reference.value() )
-	    return _credential;
-	 return NULL;
-      }
-		       
-      void lock(void) 
-      {
-	 _thread_safety.lock(pegasus_thread_self());
-      }
-      
-      void unlock(void)
-      {
-	 _thread_safety.unlock();
-      }
-      
-
-   private:
-      Uint32 _identity_type;
-      void *_identity;
-      Uint32 _credential_type;
-      void *_credential;
-      AtomicInt _reference;
-      Mutex _thread_safety;
-            
-      pegasus_identity_rep();
-      pegasus_identity_rep(const pegasus_identity_rep & rep);
-      pegasus_identity_rep & operator = (const pegasus_identity_rep & rep);
-};
-
-
-class PEGASUS_COMMON_LINKAGE pegasus_base_identity
-{
-   public:
-      pegasus_base_identity(Uint32 identity_type, 
-			    void *identity,
-			    Uint32 credential_type,
-			    void *credential);
-      
-      pegasus_base_identity & operator=(const pegasus_base_identity & id);
-      pegasus_base_identity(const pegasus_base_identity & id);
-
-      virtual ~pegasus_base_identity(void);
+      pegasus_identity(void) { }
+      virtual ~pegasus_identity(void){ };
+      virtual String get_id_string(void) const = 0;
+      virtual String get_cred_string(void) const = 0;
+      virtual Uint32 get_id_type(void) const = 0;
+      virtual Uint32 get_credential_type(void) const = 0;
       virtual Boolean authenticate(void) = 0;
-
-      Uint32 get_base_reference_count(void)
-      {
-	 return _rep->get_reference();
-      }
-      
-      Uint32 get_base_id_type(void)
-      {
-	 return _rep->get_identity_type();
-      }
-      
-      Uint32 get_base_cred_type(void)
-      {
-	 return _rep->get_credential_type();
-      }
-      
-      void *get_base_identity(void)
-      {
-	 return _rep->get_identity();
-      }
-      
-      void *get_base_credential(void)
-      {
-	 return _rep->get_credential();
-      }
-      
-   private:
-      pegasus_identity_rep * _rep;
+      virtual pegasus_identity *create_id(void) const = 0;
+      virtual Boolean get_auth_bit(Uint32 index, Uint32 bit) const = 0;
 };
 
 
-
-class PEGASUS_COMMON_LINKAGE pegasus_basic_identity : protected  pegasus_base_identity
+class PEGASUS_COMMON_LINKAGE pegasus_basic_identity : public pegasus_identity
 {
    public:
-      typedef pegasus_base_identity Base;
+      typedef pegasus_identity Base;
       
-      pegasus_basic_identity(String & username, String & password);
+      pegasus_basic_identity(const String & username, 
+			     const String & password);
       pegasus_basic_identity( const pegasus_basic_identity & id);
-      pegasus_basic_identity & operator= (const pegasus_basic_identity & id);
-      
       virtual ~pegasus_basic_identity(void);
-      
-      const String & get_username(void) ;
-      const String & get_password(void) ;
 
-      Boolean authenticate(void);
-      
+      pegasus_basic_identity & operator= (const pegasus_basic_identity & id);
+      Boolean operator==(const pegasus_basic_identity & id) const;
+      virtual String get_id_string(void) const;
+      virtual String get_cred_string(void) const;
+      virtual Uint32 get_id_type(void) const ;
+      virtual Uint32 get_credential_type(void) const ;
+      virtual Boolean authenticate(void) ;
+      virtual pegasus_identity *create_id(void) const;
+      virtual Boolean get_auth_bit(Uint32 index, Uint32 bit) const;
    private:
       pegasus_basic_identity(void);
+
+      String _username;
+      String _password;
 };
 
 
-class PEGASUS_COMMON_LINKAGE pegasus_internal_identity : public pegasus_base_identity
+class PEGASUS_COMMON_LINKAGE pegasus_internal_identity : public pegasus_identity
 {
    public:
-      typedef pegasus_base_identity Base;
+      typedef pegasus_identity Base;
       pegasus_internal_identity(Uint32 identity);
       pegasus_internal_identity(const pegasus_internal_identity & id);
-      pegasus_internal_identity & operator= ( const pegasus_internal_identity & id);
-      
       virtual ~pegasus_internal_identity(void);
-      const Uint32 get_credential(void);
-      Boolean authenticate(void);
+
+      pegasus_internal_identity & operator= ( const pegasus_internal_identity & id);
+      Boolean operator== (const pegasus_internal_identity & id) const ;
+      virtual String get_id_string(void) const;
+      virtual String get_cred_string(void) const;
+      virtual Uint32 get_id_type(void) const;
+      virtual Uint32 get_credential_type(void) const;
+      virtual Boolean authenticate(void);
+      virtual pegasus_identity *create_id(void) const;
+      virtual Boolean get_auth_bit(Uint32 index, Uint32 bit) const;
    private:
       pegasus_internal_identity(void);
+      Uint32 _id;
+      Uint32 _credential;
 };
 
 
-
-class PEGASUS_COMMON_LINKAGE pegasus_authorization_handle
+class PEGASUS_COMMON_LINKAGE pegasus_auth_handle
 {
    public:
-      pegasus_authorization_handle( )
+      pegasus_auth_handle(const pegasus_identity & id) 
       {
+	 _id = id.create_id();
       }
+      
+      virtual ~pegasus_auth_handle(void)
+      {
+	 delete _id;
+      }
+      
+      virtual Boolean authorized(void) = 0;
+      virtual Boolean authorized(Uint32 ) = 0;
+      virtual Boolean authorized(Uint32, Uint32) = 0;
 
-      virtual ~pegasus_authorization_handle(void)
-      {
-      }
-      
-      virtual Boolean authorized(pegasus_base_identity *, Uint32 operation) = 0;
-      virtual Boolean authorized(pegasus_base_identity *) = 0;
-   protected:
-      pegasus_authorization_handle(const pegasus_authorization_handle & auth)
-      {
-      }
-      
-      pegasus_authorization_handle & operator=(const pegasus_authorization_handle & auth)
-      {
-	 if(this != &auth)
-	 {
-	 }
-	 return *this;
-      }
-      
    private:
-
+      pegasus_identity *_id;
 };
 
 

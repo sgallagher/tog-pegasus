@@ -27,7 +27,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ModuleController.h"
-
+ 
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -40,13 +40,14 @@ pegasus_module::module_rep::module_rep(ModuleController *controller,
 				       Message * (*receive_message)(Message *, void *),
 				       void (*async_callback)(Uint32, Message *, void *),
 				       void (*shutdown_notify)(Uint32 code, void *))
-   : _thread_safety(),
+   : Base ( pegasus_internal_identity(peg_credential_types::MODULE) ),
+     _thread_safety(),
      _controller(controller), 
      _name(name), 
      _reference_count(1), 
      _shutting_down(0),
      _module_address(module_address)
-   
+
 {
    if(receive_message != NULL)
       _receive_message = receive_message;
@@ -101,13 +102,29 @@ void pegasus_module::module_rep::_send_shutdown_notify(void)
    _thread_safety.unlock();
 }
 
+
+Boolean pegasus_module::module_rep::authorized()
+{
+   return true;
+}
+
+Boolean pegasus_module::module_rep::authorized(Uint32 operation)
+{
+   return true;
+}
+
+Boolean pegasus_module::module_rep::authorized(Uint32 index, Uint32 operation)
+{
+   return true;
+}
+
+
 pegasus_module::pegasus_module(ModuleController *controller, 
 			       const String &id, 
  			       void *module_address,
 			       Message * (*receive_message)(Message *, void *),
 			       void (*async_callback)(Uint32, Message *, void *),
 			       void (*shutdown_notify)(Uint32 code, void *))
-   :Base(), _id(new pegasus_internal_identity(peg_credential_types::SERVICE))
 {
    _rep = new module_rep(controller, 
 			 id, 
@@ -130,7 +147,6 @@ pegasus_module::pegasus_module(ModuleController *controller,
 }
 
 pegasus_module::pegasus_module(const pegasus_module & mod)
-   : Base(mod) 
 {
    mod._rep->reference();
    _rep = mod._rep;
@@ -142,15 +158,14 @@ pegasus_module::~pegasus_module(void)
    _send_shutdown_notify();
    if( 0 == _rep->reference_count())
       delete _rep;
-   delete _id;
 }
 
-Boolean pegasus_module::authorized(pegasus_base_identity *id, Uint32 operation)
+Boolean pegasus_module::authorized(Uint32 operation)
 {
    return true;
 }
 
-Boolean pegasus_module::authorized(pegasus_base_identity *id)
+Boolean pegasus_module::authorized()
 {
    return true;
 }
@@ -163,7 +178,6 @@ pegasus_module & pegasus_module::operator= (const pegasus_module & mod)
       if ( _rep->reference_count() == 0 )
 	 delete _rep;
       _rep = mod._rep;
-      _id = mod._id;
    }
    return *this;
 }
@@ -261,17 +275,22 @@ const Uint32 ModuleController::CLIENT_BLOCKING_THREAD_EXEC =0x00001000;
 const Uint32 ModuleController::CLIENT_ASYNC_THREAD_EXEC =   0x00001000;
 
 
+Boolean ModuleController::client_handle::authorized()
+{
+   return true;
+}
+
 Boolean ModuleController::client_handle::authorized(Uint32 operation)
 {
    return true;
 }
  
-Boolean ModuleController::client_handle::authorized()
+
+Boolean ModuleController::client_handle::authorized(Uint32 index, Uint32 operation)
 {
    return true;
 }
  
-
 
 // NOTE: "destroy" is defined in <memory> on HP-UX and must not be redefined
 static struct timeval createTime = {0, 50000};

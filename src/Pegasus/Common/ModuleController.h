@@ -46,12 +46,14 @@ PEGASUS_NAMESPACE_BEGIN
 class ModuleController;
 
 
-class PEGASUS_COMMON_LINKAGE pegasus_module : pegasus_authorization_handle
+class PEGASUS_COMMON_LINKAGE pegasus_module 
 {
    private: 
-      class module_rep 
+      class module_rep : public pegasus_auth_handle
       {
 	 public:
+	    typedef pegasus_auth_handle Base;
+	    
 	    module_rep(ModuleController *controller, 
 		       const String & name,
 		       void *module_address, 
@@ -83,6 +85,11 @@ class PEGASUS_COMMON_LINKAGE pegasus_module : pegasus_authorization_handle
 	    void _send_shutdown_notify(void);
 	    void lock(void) { _thread_safety.lock(pegasus_thread_self()); }
 	    void unlock(void) { _thread_safety.unlock(); }
+
+	    Boolean authorized(void) ;
+	    Boolean authorized(Uint32);
+	    Boolean authorized(Uint32, Uint32);
+	    
 	 private:
 	    module_rep(void);
 	    module_rep(const module_rep & );
@@ -119,8 +126,6 @@ class PEGASUS_COMMON_LINKAGE pegasus_module : pegasus_authorization_handle
       };
 
    public:
-      typedef pegasus_authorization_handle Base;
-      
       pegasus_module(ModuleController *controller, 
 		     const String &id, 
 		     void *module_address,
@@ -131,10 +136,10 @@ class PEGASUS_COMMON_LINKAGE pegasus_module : pegasus_authorization_handle
       pegasus_module(const pegasus_module & mod);
       pegasus_module & operator= (const pegasus_module & mod);
       
-      ~pegasus_module(void);
+      virtual ~pegasus_module(void);
       
-      virtual Boolean authorized(pegasus_base_identity *id, Uint32 operation);
-      virtual Boolean authorized(pegasus_base_identity *id);
+      virtual Boolean authorized(Uint32 operation);
+      virtual Boolean authorized(void);
       
       Boolean operator == (const pegasus_module *mod) const;
       Boolean operator == (const pegasus_module & mod) const ; 
@@ -148,7 +153,7 @@ class PEGASUS_COMMON_LINKAGE pegasus_module : pegasus_authorization_handle
             
 
    private:
-      pegasus_base_identity *_id;
+
       module_rep *_rep;
 
       pegasus_module(void);
@@ -193,14 +198,13 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
       
 
    private: 
-      class client_handle : pegasus_authorization_handle
+      class client_handle : public pegasus_auth_handle
       {
 	 public:
-	    typedef pegasus_authorization_handle Base;
+	    typedef pegasus_auth_handle Base;
 	    
-	    client_handle(void)
-	       :Base(), 
-		_id(new pegasus_internal_identity(peg_credential_types::SERVICE)),
+	    client_handle(const pegasus_identity & id)
+	       :Base(id) ,
 		allowed_operations( GET_CLIENT_HANDLE | 
 				    FIND_SERVICE | 
 				    FIND_MODULE_IN_SERVICE | 
@@ -215,34 +219,15 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 
 	    }
 	    
-	    client_handle(pegasus_base_identity *id)
-	       :Base(), _id(id)
-	    {
-	       if( id && (id->get_base_id_type() == peg_identity_types::INTERNAL ))
-	       {
-		  if (id->get_base_cred_type() == peg_credential_types::SERVICE )
-		     allowed_operations = ModuleController::CLIENT_SEND_WAIT | 
-					  ModuleController::CLIENT_SEND_WAIT_MODULE | 
-					  ModuleController::CLIENT_SEND_ASYNC | 
-					  ModuleController::CLIENT_SEND_ASYNC_MODULE | 
-					  ModuleController::CLIENT_BLOCKING_THREAD_EXEC | 
-					  ModuleController::CLIENT_ASYNC_THREAD_EXEC;
-		  else 
-		     allowed_operations = 0;
-	       }
-	       
-	    }
 	    ~client_handle(void) 
 	    {
-	       delete _id;
 	    }
 	    
+	    virtual Boolean authorized(Uint32, Uint32);
 	    virtual Boolean authorized(Uint32 operation);
 	    virtual Boolean authorized(void);
+	    bitset<32> allowed_operations;
 	    
-	 private:
-	    pegasus_base_identity *_id;
-	    bitset<64> allowed_operations;
       };
       
    public:

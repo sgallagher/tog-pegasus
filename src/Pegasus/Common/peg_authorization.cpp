@@ -48,90 +48,54 @@ const Uint32 peg_credential_types::SERVICE =                  0x00000004;
 const Uint32 peg_credential_types::MODULE =                   0x00000005;
 const Uint32 peg_credential_types::PROVIDER =                 0x00000006;
 
-pegasus_base_identity::pegasus_base_identity(Uint32 identity_type, 
-					     void *identity,
-					     Uint32 credential_type,
-					     void *credential)
-{
-   _rep = new pegasus_identity_rep(identity_type, 
-				   identity,
-				   credential_type,
-				   credential);
-}
-
-pegasus_base_identity::pegasus_base_identity(const pegasus_base_identity & id)
-{
-   _rep = id._rep;
-   _rep->reference();
-}
-
-pegasus_base_identity & pegasus_base_identity::operator=(const pegasus_base_identity & id)
-{
-   if(this != &id)
-   {
-      if( _rep->get_reference() == 1 )
-	 delete _rep;
-      _rep = id._rep;
-      _rep->reference();
-   }
-   return *this;
-}
-
-pegasus_base_identity::~pegasus_base_identity(void)
-{
-   if ( _rep->get_reference() == 1 )
-   {
-      delete _rep;
-   }
-}
-
-
-pegasus_basic_identity::pegasus_basic_identity(String & username,
-					       String & password)
-   : Base(peg_identity_types::USERNAME, 
-	  new String(username), 
-	  peg_credential_types::CLEAR_PASSWORD, 
-	  new String(password))
-	  
+pegasus_basic_identity::pegasus_basic_identity(const pegasus_basic_identity & id)
+   : Base(), _username(id._username), _password(id._password)
 {
    
 }
 
-pegasus_basic_identity::pegasus_basic_identity( const pegasus_basic_identity & id)
-   :Base(id)
+pegasus_basic_identity::~pegasus_basic_identity(void)
 {
 }
+
 
 pegasus_basic_identity & pegasus_basic_identity::operator= (const pegasus_basic_identity & id)
 {
    if(this != &id)
    {
-      Base::operator=(id);
+      _username.clear();
+      _username = id._username;
+      _password.clear();
+      _password = id._password;
    }
    return *this;
 }
-	 
-pegasus_basic_identity::~pegasus_basic_identity(void)
+
+Boolean pegasus_basic_identity::operator== (const pegasus_basic_identity & id) const
 {
-   // if we are the last handle to the identity, we need to clean up our 
-   // identity and credential types
-   // our parent will delete the actual representation of the identity
-   if( get_base_reference_count() == 1 )
-   {
-      delete reinterpret_cast<String *>(get_base_identity());
-      delete reinterpret_cast<String *>(get_base_credential());
-   }
+   if ( _username == id._username) 
+      return true;
+   return false;
 }
 
-const String & pegasus_basic_identity::get_username(void)
+String pegasus_basic_identity::get_id_string(void) const 
 {
-   return *(reinterpret_cast<const String *>( get_base_identity()));
+   return String(_username);
 }
 
- 
-const String & pegasus_basic_identity::get_password(void)
+String pegasus_basic_identity::get_cred_string(void) const 
 {
-   return *(reinterpret_cast<const String *>( get_base_credential()));
+   return String(_password);
+}
+
+Uint32 pegasus_basic_identity::get_id_type(void) const
+{
+   return peg_identity_types::USERNAME;
+}
+
+Uint32 pegasus_basic_identity::get_credential_type(void) const 
+{
+   return peg_credential_types::CLEAR_PASSWORD;
 }
 
 Boolean pegasus_basic_identity::authenticate(void)
@@ -139,52 +103,92 @@ Boolean pegasus_basic_identity::authenticate(void)
    return true;
 }
 
-
-// credential should be SERVICE, MODULE, or PROVIDER
-pegasus_internal_identity::pegasus_internal_identity(Uint32 credential)
-   : Base(peg_identity_types::INTERNAL, 
-	  (void *)0,
-	  credential, 
-	  (void *)credential)
+pegasus_identity *pegasus_basic_identity::create_id(void) const
 {
+   return(new pegasus_basic_identity(*this));
+}
+
+Boolean pegasus_basic_identity::get_auth_bit(Uint32 index, Uint32 bit) const 
+{
+   return true;
+}
+
+pegasus_internal_identity::pegasus_internal_identity(Uint32 cred)
+   :_id(peg_identity_types::INTERNAL), _credential(cred)
+{
+   
 }
 
 pegasus_internal_identity::pegasus_internal_identity(const pegasus_internal_identity & id)
-   : Base(id)
+   :Base(), _id(id._id), _credential(id._credential)
 {
+   
 }
 
-pegasus_internal_identity & pegasus_internal_identity::operator = (const pegasus_internal_identity & id)
+
+pegasus_internal_identity & pegasus_internal_identity::operator= ( const pegasus_internal_identity & id)
 {
    if(this != &id)
    {
-      Base::operator=(id);
+      _id = id._id;
+      _credential = id._credential;
    }
+   
    return *this;
 }
 
-pegasus_internal_identity::~pegasus_internal_identity(void)
+Boolean pegasus_internal_identity::operator== (const pegasus_internal_identity & id) const 
 {
+   if( _id == id._id)
+      if( _credential == id._credential)
+	 return true;
+   return false;
 }
 
-const Uint32 pegasus_internal_identity::get_credential(void)
+
+String pegasus_internal_identity::get_id_string(void) const
 {
-#ifndef PEGASUS_PLATFORM_LINUX_IA64_GNU
-   return reinterpret_cast<Uint32>(get_base_credential());
-#else
-   return reinterpret_cast<Uint64>(get_base_credential());
-#endif
+   if( _credential == peg_credential_types::SERVICE )
+      return String("INTERNAL::SERVICE");
+   if( _credential == peg_credential_types::MODULE)
+      return String("INTERNAL::MODULE");
+   if( _credential == peg_credential_types::PROVIDER)
+      return String("INTERNAL::PROVIDER");
+   return String("INTERNAL::UNKNOWN");
+}
+
+String pegasus_internal_identity::get_cred_string(void) const
+{
+   return get_id_string();
+
+}
+
+
+Uint32 pegasus_internal_identity::get_id_type(void) const 
+{
+   return _id;
+}
+
+Uint32 pegasus_internal_identity::get_credential_type(void) const
+{
+   return _credential;
 }
 
 Boolean pegasus_internal_identity::authenticate(void)
 {
-   Uint32 cred = get_base_cred_type();
-   
-   if( (cred == peg_credential_types::SERVICE) ||
-       (cred == peg_credential_types::MODULE) ||
-       (cred == peg_credential_types::PROVIDER))
-      return true;
+   if( _id == peg_identity_types::INTERNAL)
+   {
+      if( _credential == peg_credential_types::SERVICE || 
+	  _credential == peg_credential_types::MODULE || 
+	  _credential == peg_credential_types::PROVIDER)
+	 return true;
+   }
    return false;
+}
+
+pegasus_identity * pegasus_internal_identity::create_id() const 
+{
+   return new pegasus_internal_identity(*this);
 }
 
 

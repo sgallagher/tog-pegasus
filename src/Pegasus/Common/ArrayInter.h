@@ -217,13 +217,7 @@ private:
 
     typedef ArrayRep<PEGASUS_ARRAY_T> Rep;
 
-    void _copyOnWriteAux();
-
-    void _copyOnWrite()
-    {
-	if (_rep->ref != 1)
-	    _copyOnWriteAux();
-    }
+    void _copyOnWrite();
 
     Rep* _rep;
 

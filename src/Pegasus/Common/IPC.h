@@ -52,8 +52,6 @@
 # error "Unsupported platform"
 #endif
 
-#include <Pegasus/Common/Exception.h>
-
 #define PEG_SEM_READ 1
 #define PEG_SEM_WRITE 2
 

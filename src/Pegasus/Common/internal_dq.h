@@ -446,7 +446,8 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
       
       inline virtual L *next(const void *ref) 
       {
-	 PEGASUS_ASSERT(this->_isHead);
+         // ATTN-RK-P3-20020513: Circular dependency Array->DQ->Exception->Array
+	 //PEGASUS_ASSERT(this->_isHead);
 	 
 	 if( ref == 0)
 	    _cur = this->_next;
@@ -458,7 +459,8 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
       
       inline virtual L *prev(const void *ref) 
       {
-	 PEGASUS_ASSERT(this->_isHead);
+         // ATTN-RK-P3-20020513: Circular dependency Array->DQ->Exception->Array
+	 //PEGASUS_ASSERT(this->_isHead);
 	 if( ref == 0 )
 	    _cur = _prev;
 	 else {

@@ -154,7 +154,7 @@ template<class PEGASUS_ARRAY_T>
 #else
 PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
-void Array<PEGASUS_ARRAY_T>::_copyOnWriteAux()
+void Array<PEGASUS_ARRAY_T>::_copyOnWrite()
 {
     if (_rep->ref != 1)
     {
@@ -171,9 +171,9 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::grow(Uint32 size, const PEGASUS_ARRAY_T& x)
 {
-    _copyOnWrite();
     Uint32 oldSize = _rep->size;
     reserve(oldSize + size);
+    _copyOnWrite();
 
     PEGASUS_ARRAY_T* p = _rep->data() + oldSize;
     Uint32 n = size;
@@ -203,8 +203,8 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::append(const PEGASUS_ARRAY_T& x)
 {
-    _copyOnWrite();
     reserve(size() + 1);
+    _copyOnWrite();
     new (_data() + size()) PEGASUS_ARRAY_T(x);
     _rep->size++;
 }
@@ -216,8 +216,8 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::append(const PEGASUS_ARRAY_T* x, Uint32 size)
 {
-    _copyOnWrite();
     reserve(this->size() + size);
+    _copyOnWrite();
 #if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
     CopyToRaw<PEGASUS_ARRAY_T>(_data() + this->size(), x, size);
 #else
@@ -233,8 +233,8 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::prepend(const PEGASUS_ARRAY_T& x)
 {
-    _copyOnWrite();
     reserve(size() + 1);
+    _copyOnWrite();
     memmove(_data() + 1, _data(), sizeof(PEGASUS_ARRAY_T) * size());
     new(_data()) PEGASUS_ARRAY_T(x);
     _rep->size++;
@@ -247,8 +247,8 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::prepend(const PEGASUS_ARRAY_T* x, Uint32 size)
 {
-    _copyOnWrite();
     reserve(this->size() + size);
+    _copyOnWrite();
     memmove(_data() + size, _data(), sizeof(PEGASUS_ARRAY_T) * this->size());
 #if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
     CopyToRaw<PEGASUS_ARRAY_T>(_data(), x, size);
@@ -268,8 +268,8 @@ void Array<PEGASUS_ARRAY_T>::insert(Uint32 pos, const PEGASUS_ARRAY_T& x)
     if (pos > size())
 	ThrowOutOfBounds();
 
-    _copyOnWrite();
     reserve(size() + 1);
+    _copyOnWrite();
 
     Uint32 n = size() - pos;
 
@@ -290,8 +290,8 @@ void Array<PEGASUS_ARRAY_T>::insert(Uint32 pos, const PEGASUS_ARRAY_T* x, Uint32
     if (pos + size > this->size())
 	ThrowOutOfBounds();
 
-    _copyOnWrite();
     reserve(this->size() + size);
+    _copyOnWrite();
 
     Uint32 n = this->size() - pos;
 

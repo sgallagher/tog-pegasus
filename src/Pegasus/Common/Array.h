@@ -35,6 +35,7 @@
 #ifdef PEGASUS_HAS_EBCDIC
 #include <unistd.h>
 #endif
+#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/Char16.h>
 #include <Pegasus/Common/Memory.h>
@@ -51,6 +52,7 @@ PEGASUS_NAMESPACE_BEGIN
 template<class T>
 struct ArrayRep
 {
+    Mutex mut;
     Uint32 size;
     Uint32 capacity;
 
@@ -128,6 +130,7 @@ ArrayRep<T>* PEGASUS_STATIC_CDECL ArrayRep<T>::create(Uint32 size)
     ArrayRep<T>* rep =
 	(ArrayRep<T>*)operator new(sizeof(ArrayRep<T>) + sizeof(T) * capacity);
 
+    new(&rep->mut) Mutex();
     rep->size = size;
     rep->capacity = capacity;
     rep->ref = 1;
@@ -138,21 +141,24 @@ ArrayRep<T>* PEGASUS_STATIC_CDECL ArrayRep<T>::create(Uint32 size)
 template<class T>
 void PEGASUS_STATIC_CDECL ArrayRep<T>::inc(const ArrayRep<T>* rep)
 {
-    // REVIEW: Need locked increment here so we can shared among threads.
-
     if (rep)
+    {
+	((ArrayRep<T>*)rep)->mut.lock(pegasus_thread_self());
 	((ArrayRep<T>*)rep)->ref++;
+	((ArrayRep<T>*)rep)->mut.unlock();
+    }
 }
 
 template<class T>
 void PEGASUS_STATIC_CDECL ArrayRep<T>::dec(const ArrayRep<T>* rep_)
 {
-    // REVIEW: Need locked decrement here so we can shared among threads.
-
     ArrayRep<T>* rep = (ArrayRep<T>*)rep_;
 
-    if (rep && --rep->ref == 0)
+    if (rep)
     {
+      ((ArrayRep<T>*)rep)->mut.lock(pegasus_thread_self());
+      if (--rep->ref == 0)
+      {
 // ATTN-RK-P1-20020509: PLATFORM PORT: This change fixes memory leaks for me.
 // Should you make these changes on your platform?  (See also ArrayImpl.h)
 #if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
@@ -161,10 +167,12 @@ void PEGASUS_STATIC_CDECL ArrayRep<T>::dec(const ArrayRep<T>* rep_)
 	Destroy(rep->data(), rep->size);
 #endif
 
-	// ATTN: take this out later:
-	//memset(rep->data(), 0xaa, rep->size * sizeof(T));
-
-	operator delete(rep);
+        ((ArrayRep<T>*)rep)->mut.unlock();
+        rep->mut.~Mutex();
+        operator delete(rep);
+        return;
+      }
+      ((ArrayRep<T>*)rep)->mut.unlock();
     }
 }
 

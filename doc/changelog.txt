@@ -213,6 +213,25 @@ TAG: Version_1_09.
     is changed to (__int64), the tv_usec variable of timeval struct has 
     the correct value.
 
+38. (Roger Kumpf - HP) 13 May 2002 - To eliminate the possibility of
+    collisions (and subsequent corruption) when different threads
+    concurrently update the ArrayRep reference count, I added a Mutex
+    to the ArrayRep structure.  This Mutex gets locked in the inc()
+    and dec() methods that manage the reference count.
+
+    After adding the Mutex, the "mysterious" memory problems seemed to clear
+    up.  This seems like a very good thing.  However, note that the addition
+    of the Mutex adversely affects performance (nearly 2:1).  I tried using
+    an AtomicInt for the reference count, but that seemed to yield even worse
+    performance on my system.
+
+    Anyone should feel free to optimize the performance of the locking in
+    the ArrayRep structure.  Since I believe this locking is required for
+    proper operation, I've added the Mutex for all platforms.  Note that I
+    had to comment out the assert statements in internal_dq.h to avoid a
+    circular header file dependency (Array.h->IPC.h->internal_dq.h->
+    Exception.h->String.h->Array.h).
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

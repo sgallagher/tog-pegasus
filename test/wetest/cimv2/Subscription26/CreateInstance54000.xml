@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+  <MESSAGE ID="54000" PROTOCOLVERSION="1.0">
+    <SIMPLEREQ>
+      <IMETHODCALL NAME="CreateInstance">
+        <LOCALNAMESPACEPATH>
+          <NAMESPACE NAME="root"/>
+          <NAMESPACE NAME="cimv2"/>
+        </LOCALNAMESPACEPATH>
+        <IPARAMVALUE NAME="NewInstance">
+          <INSTANCE CLASSNAME="CIM_IndicationHandlerCIMXML">
+	   <PROPERTY NAME="SystemCreationClassName" TYPE="string"> 
+	    <VALUE>CIM_UnitaryComputerSystem</VALUE>
+	   </PROPERTY>
+	   <PROPERTY NAME="SystemName" TYPE="string"> 
+	    <VALUE>server001.acme.com</VALUE>
+	   </PROPERTY>
+	   <PROPERTY NAME="CreationClassName" TYPE="string"> 
+	    <VALUE>CIM_IndicationHandlerCIMXML</VALUE>
+	   </PROPERTY>
+	   <PROPERTY NAME="Name" TYPE="string"> 
+	    <VALUE>ACMESubscription12345</VALUE>
+	   </PROPERTY>
+	   <PROPERTY NAME="Owner" TYPE="string"> 
+	    <VALUE>ACMEAlertMonitoringConsole</VALUE>
+	   </PROPERTY>
+	   <PROPERTY NAME="Destination" TYPE="string"> 
+            <VALUE>HTTP://www.acme.com/cimlistener/browser</VALUE>
+	   </PROPERTY>
+          </INSTANCE>
+        </IPARAMVALUE>
+      </IMETHODCALL>
+    </SIMPLEREQ>
+  </MESSAGE>
+</CIM>

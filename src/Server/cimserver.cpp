@@ -681,9 +681,13 @@ int main(int argc, char** argv)
 
 	Monitor monitor;
 	CIMServer server(&monitor, useSSL);
-		
-	// bind throws an exception of the bind fails
+
+	// bind throws an exception if the bind fails
+#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+	cout << "Binding to domain socket" << endl;
+#else
 	cout << "Binding to " << address << endl;
+#endif
 
 	char* end = 0;
 	long portNumber = strtol(address, &end, 10);

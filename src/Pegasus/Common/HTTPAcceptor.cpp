@@ -45,6 +45,9 @@
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include <sys/socket.h>
+# ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+#  include <sys/un.h>
+# endif
 #endif
 
 #include "Socket.h"
@@ -64,7 +67,11 @@ PEGASUS_NAMESPACE_BEGIN
 
 struct HTTPAcceptorRep
 {
+#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+      struct sockaddr_un address;
+#else
       struct sockaddr_in address;
+#endif
       Sint32 socket;
       Array<HTTPConnection*> connections;
 };
@@ -187,6 +194,8 @@ void HTTPAcceptor::bind(Uint32 portNumber)
 
 /**
    _bind - creates a new server socket and bind socket to the port address.
+   If PEGASUS_LOCAL_DOMAIN_SOCKET is defined, the port number is ignored and
+   a domain socket is bound.
 */
 void HTTPAcceptor::_bind()
 {
@@ -195,18 +204,23 @@ void HTTPAcceptor::_bind()
 
    memset(&_rep->address, 0, sizeof(_rep->address));
 
-#ifdef PEGASUS_ACCEPT_ONLY_LOCAL_CONNECTIONS
-   _rep->address.sin_addr.s_addr = INADDR_LOOPBACK;
+#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+   _rep->address.sun_family = AF_UNIX;
+   strcpy(_rep->address.sun_path, "/var/opt/wbem/cimxml.socket");
+   ::unlink(_rep->address.sun_path);
 #else
    _rep->address.sin_addr.s_addr = INADDR_ANY;
-#endif
-
    _rep->address.sin_family = AF_INET;
    _rep->address.sin_port = htons(_portNumber);
+#endif
 
    // Create socket:
     
+#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+   _rep->socket = socket(AF_UNIX, SOCK_STREAM, 0);
+#else
    _rep->socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+#endif
 
    if (_rep->socket < 0)
    {
@@ -239,10 +253,10 @@ void HTTPAcceptor::_bind()
       Socket::close(_rep->socket);
       delete _rep;
       _rep = 0;
-      throw BindFailed("Failed to bind socket to port");
+      throw BindFailed("Failed to bind socket");
    }
 
-   // Set up listening on the given port:
+   // Set up listening on the given socket:
 
    int const MAX_CONNECTION_QUEUE_LENGTH = 5;
 
@@ -251,7 +265,7 @@ void HTTPAcceptor::_bind()
       Socket::close(_rep->socket);
       delete _rep;
       _rep = 0;
-      throw BindFailed("Failed to bind socket to port");
+      throw BindFailed("Failed to bind socket");
    }
 
    // Register to receive SocketMessages on this socket:

@@ -15,6 +15,9 @@ This file defines the document strucuture and provides the introduction
             "FAQ.dxx" is actually "FAQ.DXX"
 
 	$Log: PegasusDoc.dxx,v $
+	Revision 1.21  2002/02/16 17:38:44  kumpf
+	Modify Doc++ build environment to support Unix environments.
+	
 	Revision 1.20  2001/12/13 14:53:21  mike
 	Merged dev branch into main trunk.
 	
@@ -34,7 +37,7 @@ This file defines the document strucuture and provides the introduction
 	Update version number
 	
 	
-	$Author: mike $
+	$Author: kumpf $
 */
 /* do not change the following Name.  Used in the Frame definition.
 If you change it, the HTML Frame must also be changed.
@@ -73,7 +76,7 @@ This version of the Pegasus User Manual was created at \today
 */
 
 */
-//@Include:DocumentHistory.dxx
+/* //@Include:DocumentHistory.dxx */
 /* The following is the complete file hiearchy for this document.
    We have tried to keep all file references in only this one place
    to make modification easier.  In the future, please keep the
@@ -100,35 +103,36 @@ This version of the Pegasus User Manual was created at \today
 	   //@Include: CIMobjectTable.dxx
 	   //@Include: classes.dxx
            //@{ 
-    		//@Include: ..\..\src\Pegasus\Common\Array.h
-    		//@Include: ..\..\src\Pegasus\Common\CIMClass.h
-    		//@Include: ..\..\src\Pegasus\Common\CIMDateTime.h
-    		//@Include: ..\..\src\Pegasus\Common\CIMQualifierDecl.h
-    		//@Include: ..\..\src\Pegasus\Common\String.h
-    		//@Include: ..\..\src\Pegasus\Common\CIMType.h
-    		//@Include: ..\..\src\Pegasus\Common\CIMInstance.h
-    		//@Include: ..\..\src\Pegasus\Common\CIMValue.h
-    		//@Include: ..\..\src\Pegasus\Common\CIMParameter.h
-    		//@Include: ..\..\src\Pegasus\Common\CIMProperty.h
-    		//@Include: ..\..\src\Pegasus\Common\CIMScope.h
-    		//@Include: ..\..\src\Pegasus\Common\CIMReference.h
-    		//@Include: ..\..\src\Pegasus\Common\CIMQualifierList.h    		
-    		//@Include: ..\..\src\Pegasus\Common\CIMQualifierNames.h
-    		//@Include: ..\..\src\Pegasus\Common\CIMQualifier.h
-    		//@Include: ..\..\src\Pegasus\Common\CIMName.h
-    		//@Include: ..\..\src\Pegasus\Common\CIMMethod.h
-    		//@Include: ..\..\src\Pegasus\Common\CIMFlavor.h
-    		//@Include: ..\..\src\Pegasus\Common\Char16.h
-        	//@Include: ..\..\src\Pegasus\Common\DeclContext.h
-         	//@Include: ..\..\src\Pegasus\Common\Stack.h 
-         	//@Include: ..\..\src\Pegasus\Common\CIMName.h 
-             	//@Include: ..\..\src\Pegasus\Common\Stopwatch.h 
-         	//@Include: ..\..\src\Pegasus\Common\TimeValue.h 
+    		//@Include: ../../src/Pegasus/Common/Array.h
+    		//@Include: ../../src/Pegasus/Common/CIMClass.h
+    		//@Include: ../../src/Pegasus/Common/CIMDateTime.h
+    		//@Include: ../../src/Pegasus/Common/CIMQualifierDecl.h
+    		//@Include: ../../src/Pegasus/Common/String.h
+    		//@Include: ../../src/Pegasus/Common/CIMType.h
+		//@Include: ../../src/Pegasus/Common/CIMNamedInstance.h
+    		//@Include: ../../src/Pegasus/Common/CIMInstance.h
+    		//@Include: ../../src/Pegasus/Common/CIMValue.h
+    		//@Include: ../../src/Pegasus/Common/CIMParameter.h
+    		//@Include: ../../src/Pegasus/Common/CIMProperty.h
+    		//@Include: ../../src/Pegasus/Common/CIMScope.h
+    		//@Include: ../../src/Pegasus/Common/CIMReference.h
+    		//@Include: ../../src/Pegasus/Common/CIMQualifierList.h    		
+    		//@Include: ../../src/Pegasus/Common/CIMQualifierNames.h
+    		//@Include: ../../src/Pegasus/Common/CIMQualifier.h
+    		//@Include: ../../src/Pegasus/Common/CIMName.h
+    		//@Include: ../../src/Pegasus/Common/CIMMethod.h
+    		//@Include: ../../src/Pegasus/Common/CIMFlavor.h
+    		//@Include: ../../src/Pegasus/Common/Char16.h
+        	//@Include: ../../src/Pegasus/Common/DeclContext.h
+         	//@Include: ../../src/Pegasus/Common/Stack.h 
+         	//@Include: ../../src/Pegasus/Common/CIMName.h 
+             	//@Include: ../../src/Pegasus/Common/Stopwatch.h 
+         	//@Include: ../../src/Pegasus/Common/TimeValue.h 
 
 
         	//@{
 		//@Include: Exceptions.dxx  
-        	//@Include: ..\..\src\Pegasus\Common\Exception.h
+        	//@Include: ../../src/Pegasus/Common/Exception.h
         	//@}
             //@}
         	
@@ -137,20 +141,29 @@ This version of the Pegasus User Manual was created at \today
        //@{
 	    //@Include: CIMOperations.dxx
 	        //@{
-		    //@Include: ..\..\doc\CIMOperations.h
+		    //@Include: ../../doc/CIMOperations.h
 		//@}
 	    //@Include: ClientInterfaces.dxx   
 		//@{    
-		    //@Include: ..\..\src\Pegasus\Client\CIMClient.h
+		    //@Include: ../../src/Pegasus/Client/CIMClient.h
 		//@}
     	   //@Include: ProviderInterfaces.dxx
     	   	//@{
-		    //@Include: ..\..\src\Pegasus\Provider\CIMProvider.h
+/*		    //@Include: ../../src/Pegasus/Provider/CIMProvider.h */
+		    //@Include: ../../src/Pegasus/Provider/CIMAssociationProvider.h
+		    //@Include: ../../src/Pegasus/Provider/CIMBaseProvider.h
+		    //@Include: ../../src/Pegasus/Provider/CIMClassProvider.h
+		    //@Include: ../../src/Pegasus/Provider/CIMIndicationProvider.h
+		    //@Include: ../../src/Pegasus/Provider/CIMInstanceProvider.h
+		    //@Include: ../../src/Pegasus/Provider/CIMMethodProvider.h
+		    //@Include: ../../src/Pegasus/Provider/CIMPropertyProvider.h
+		    //@Include: ../../src/Pegasus/Provider/CIMQueryProvider.h
+
 		//@}  	 
     	   //@Include: ServiceInterfaces.dxx
     	   //@Include: RepositoryInterfaces.dxx
     	   	//@{
-		    //@Include: ..\..\src\Pegasus\Repository\CIMRepository.h
+		    //@Include: ../../src/Pegasus/Repository/CIMRepository.h
 		//@}
        //@}
     

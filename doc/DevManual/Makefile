@@ -3,7 +3,7 @@ ROOT = ../..
 DIR = DevManual
 include $(ROOT)/mak/config.mak
 
-DOC_ROOT = $(ROOT)/doc/
+DOC_ROOT = $(ROOT)/doc
 DOC_DIR = $(DOC_ROOT)/$(DIR)
 DOC_OUTPUT = $(HOME_DIR)/$(DIR)html
 DOC_HEAD = PegasusDoc.dxx

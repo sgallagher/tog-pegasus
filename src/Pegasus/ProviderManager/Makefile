@@ -20,6 +20,7 @@ SOURCES = \
 	SafeQueue.cpp \
 	ProviderManagerService.cpp \
 	ProviderManager.cpp \
+	ProviderAdapter.cpp \
     ProviderModule.cpp \
     ProviderFacade.cpp \
 	Provider.cpp \

@@ -23,8 +23,8 @@ instance of PG_ProviderCapabilities
     ProviderName = "SLPProvider";
     CapabilityID = "1";
     ClassName = "PG_WBEMSLPTemplate";
-    Namespaces = { "root/cimv2", "root/PG_Internal" };
-    ProviderType = { 2 };
+    Namespaces = { "root/PG_Internal" };
+    ProviderType = { 2, 5 };  // instance and method
     SupportedProperties = NULL;
     SupportedMethods = NULL;
 };

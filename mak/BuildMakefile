@@ -1,23 +1,24 @@
 ###############################################################################
 ##
-## Makefile for Pegasus CIMOM
+## Makefile for managing a Pegasus source tree
 ##
 ## NOTE: This Makefile should be executed from the parent directory of the
 ## pegasus directory because it may remove and recheckout the pegasus source
 ## tree.
 ##
 ## Options:
-##      cleanbuild - Removes the existing pegasus directory contents, performs
-##                   checkout, build and runs tests. 
-##      rebuild    - Rebuild and execute tests.
+##      cleanbuild - Remove the existing pegasus directory, perform a CVS
+##                   checkout of the pegasus source, build, and run tests. 
+##      removeall  - Remove the existing pegasus directory.
+##      checkout   - Perform a CVS checkout of the pegasus source.
+##      recheckout - Remove the existing pegasus directory and perform a CVS
+##                   checkout of the pegasus source.
 ## 
+## All pegasus/TestMakefile options are also supported by this Makefile.
+##
 ###############################################################################
 
-error: 
-	@ echo "Specify desired makefile option (i.e., cleanbuild, rebuild)"
-
-include $(PEGASUS_ROOT)/mak/config.mak
-include $(PEGASUS_ROOT)/mak/commands.mak
+include $(PEGASUS_ROOT)/TestMakefile
 
 ifeq ($(DYNAMIC_SOCKSIFY),TRUE)
   CVS = socksify cvs
@@ -34,33 +35,3 @@ removeall:
 
 checkout:
 	$(CVS) checkout -P pegasus
-
-rebuild:
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile rebuild
-
-build:
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile build
-
-clean:
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile clean
-
-buildmu:
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile buildmu
-
-all:
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile all
-
-doc:
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile doc
-
-repositoryServer: 
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile repositoryServer
-
-prestarttests: 
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile prestarttests
-
-poststarttests:
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile poststarttests
-
-tests:
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile tests

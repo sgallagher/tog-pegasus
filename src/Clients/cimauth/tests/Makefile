@@ -59,5 +59,9 @@ poststarttests_ignoreerror:
 	@cimauth -r -u www  >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) "Remove CIM user www" >> $(RESULTFILE)
 	@cimuser -r -u www  >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) "Test all Long options" >> $(RESULTFILE)
+	@cimuser --help >> $(RESULTFILE) $(REDIRECTERROR)
+	@cimuser --version >> $(RESULTFILE) $(REDIRECTERROR)
+
 
 depend:

@@ -1,76 +1,66 @@
 Display usage - error
 cimauth: Required arguments missing.
-usage: cimauth -a -u username -n namespace [ -R ] [ -W ] 
-               -m -u username -n namespace [ -R ] [ -W ] 
-               -r -u username [ -n namespace ]
-               -l 
-
+cimauth: Incorrect usage. Use '--help' to obtain command syntax
 Display usage - error
 cimauth: the "-u" option is required
-usage: cimauth -a -u username -n namespace [ -R ] [ -W ] 
-               -m -u username -n namespace [ -R ] [ -W ] 
-               -r -u username [ -n namespace ]
-               -l 
-
+cimauth: Incorrect usage. Use '--help' to obtain command syntax
 Display usage - error
 cimauth: the "-u" option is required
-usage: cimauth -a -u username -n namespace [ -R ] [ -W ] 
-               -m -u username -n namespace [ -R ] [ -W ] 
-               -r -u username [ -n namespace ]
-               -l 
-
+cimauth: Incorrect usage. Use '--help' to obtain command syntax
 Display Usage - error
 cimauth: the "-u" option is required
-usage: cimauth -a -u username -n namespace [ -R ] [ -W ] 
-               -m -u username -n namespace [ -R ] [ -W ] 
-               -r -u username [ -n namespace ]
-               -l 
-
+cimauth: Incorrect usage. Use '--help' to obtain command syntax
 Display Usage - error
 cimauth: option "-m" was unexpected
-usage: cimauth -a -u username -n namespace [ -R ] [ -W ] 
-               -m -u username -n namespace [ -R ] [ -W ] 
-               -r -u username [ -n namespace ]
-               -l 
-
+cimauth: Incorrect usage. Use '--help' to obtain command syntax
 Display Usage - error
 cimauth: option "-r" was unexpected
-usage: cimauth -a -u username -n namespace [ -R ] [ -W ] 
-               -m -u username -n namespace [ -R ] [ -W ] 
-               -r -u username [ -n namespace ]
-               -l 
-
+cimauth: Incorrect usage. Use '--help' to obtain command syntax
 Duplicate -a parameter
 cimauth: duplicate "-a" option
-usage: cimauth -a -u username -n namespace [ -R ] [ -W ] 
-               -m -u username -n namespace [ -R ] [ -W ] 
-               -r -u username [ -n namespace ]
-               -l 
-
+cimauth: Incorrect usage. Use '--help' to obtain command syntax
 Add auth for user not existing on system - error
-CIM_ERR_INVALID_PARAMETER: One or more parameter values passed to the method were invalid: "CIM_ERR_INVALID_PARAMETER: One or more parameter values passed to the method were invalid: "The specified user is not a valid user on the local system , user name: xp""
+Failed to add authorizations.
+CIM_ERR_INVALID_PARAMETER: One or more parameter values passed to the method were invalid: "The specified user is not a valid user on the local system , user name: xp"
 Add CIM user www
-Adding user...
 User added successfully.
 Add auth for user www on root/cimxyz2 - error
-CIM_ERR_INVALID_PARAMETER: One or more parameter values passed to the method were invalid: "CIM_ERR_INVALID_PARAMETER: One or more parameter values passed to the method were invalid: "The specified namespace does not exist, root/cimxyz2""
+Failed to add authorizations.
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "PG_Authorization.Namespace="root/cimv2",Username="www""
 Add auth for user www on root/cimv2
 Authorizations added successfully.
 Modify auth for user www on root/cimv2
 Authorizations modified successfully.
 Add auth again for user www on root/cimv2 - error
 Failed to add authorizations.
-CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "CIM_ERR_ALREADY_EXISTS: Operation cannot be carried out because an object already exists: "PG_Authorization.Namespace="root/cimv2",Username="www""""
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "PG_Authorization.Namespace="root/cimv2",Username="www""
 Modify wrong user name - error
 Failed to modify authorizations.
-CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "CIM_ERR_NOT_FOUND: The requested object could not be found: "PG_Authorization.Namespace="root/cimv2",Username="xuztest1""""
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "PG_Authorization.Namespace="root/cimv2",Username="xuztest1""
 Remove user xp - error
 Failed to remove authorizations.
-CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "CIM_ERR_NOT_FOUND: The requested object could not be found: "PG_Authorization.Namespace="root/cimv2",Username="xp""""
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "PG_Authorization.Namespace="root/cimv2",Username="xp""
 Remove auth for user www on root/cimv2
 Authorizations removed successfully.
 Remove all auth for user www
 Authorizations removed successfully.
 Remove CIM user www
-Removing user...
 User removed successfully.
+Test all Long options
+Usage: cimuser [ -a -u username [ -w password ]] 
+               [ -m -u username [ -w old_password ] [ -n new_password ]] 
+               [ -r -u username ] [ -l ] [ -h ] [ --help ] [ --version ] 
+Options : 
+    -a         - Add a new CIM user
+    -h, --help - Display this help message
+    -l         - List the names of CIM users
+    -m         - Modify a CIM user's password
+    -n         - Supply a new password for the specified user name
+    -r         - Remove the specified CIM user
+    -u         - Specify a CIM user name
+    --version  - Display CIM Server version number
+    -w         - Supply a password for the specified user name
+
+Usage note: The cimuser command requires that the CIM Server is running.
+
+Version 2.4

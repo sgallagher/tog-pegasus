@@ -339,7 +339,6 @@ CIMConstClass::CIMConstClass(
     const String& superClassName)
 {
     _rep = new CIMClassRep(reference, superClassName);
-    Inc(_rep);
 }
 
 CIMConstClass& CIMConstClass::operator=(const CIMConstClass& x)

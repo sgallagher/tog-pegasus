@@ -249,41 +249,6 @@ void Thread::clearLanguages() //l10n
 }
 // l10n end      
 
-#if 0
-// two special synchronization classes for ThreadPool
-//
-
-class timed_mutex
-{
-   public:
-      timed_mutex(Mutex* mut, int msec)
-         :_mut(mut)
-      {
-         _mut->timed_lock(msec, pegasus_thread_self());
-      }
-      ~timed_mutex(void)
-      {
-         _mut->unlock();
-      }
-      Mutex* _mut;
-};
-#endif
-
-class try_mutex
-{
-   public:
-      try_mutex(Mutex* mut)
-	 :_mut(mut)
-      {
-	 _mut->try_lock(pegasus_thread_self());
-      }
-      ~try_mutex(void)
-      {
-	 _mut->unlock();
-      }
-      
-      Mutex* _mut;
-};
 
 class auto_int
 {

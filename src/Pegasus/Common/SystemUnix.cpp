@@ -440,6 +440,11 @@ void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
 #ifdef PEGASUS_OS_OS400
    OS400_UnloadDynamicLibrary((int)libraryHandle);
 #endif
+
+#ifdef PEGASUS_OS_AIX
+    dlclose(libraryHandle);
+#endif
+
 }
 
 String System::dynamicLoadError() {

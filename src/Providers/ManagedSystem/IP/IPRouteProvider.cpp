@@ -126,7 +126,9 @@ PEGASUS_USING_PEGASUS;
 
 IPRouteProvider::IPRouteProvider()
 {
+#ifdef DEBUG
   cout << "IPRouteProvider::IPRouteProvider()" << endl;
+#endif
 }
 
 IPRouteProvider::~IPRouteProvider()
@@ -195,7 +197,9 @@ void IPRouteProvider::enumerateInstances(
 	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
+#ifdef DEBUG
     cout << "IPRouteProvider::enumerateInstances()" << endl;
+#endif
 
     CIMName className = classReference.getClassName();
     CIMNamespaceName nameSpace = classReference.getNameSpace();
@@ -238,7 +242,9 @@ void IPRouteProvider::enumerateInstanceNames(const OperationContext &ctx,
                             const CIMObjectPath &ref,
                             ObjectPathResponseHandler &handler)
 {
+#ifdef DEBUG
     cout << "IPRouteProvider::enumerateInstanceNames()" << endl;
+#endif
 
     CIMName className = ref.getClassName();
     CIMNamespaceName nameSpace = ref.getNameSpace();
@@ -252,8 +258,10 @@ void IPRouteProvider::enumerateInstanceNames(const OperationContext &ctx,
     int i;
     RouteList _rList;
 
+#ifdef DEBUG
     cout << "IPRouteProvider::enumerateInstanceNames() _rList Initialized"
    	 << endl;
+#endif
 
     for (i = 0; i < _rList.size(); i++)
     {
@@ -290,8 +298,10 @@ void IPRouteProvider::getInstance(const OperationContext &ctx,
                  const CIMPropertyList        &propertyList,
                  InstanceResponseHandler &handler)
 {	
+#ifdef DEBUG
   cout << "IPRouteProvider::getInstance(" << instanceName.toString() << ")" 
        << endl;
+#endif
 
   CIMKeyBinding kb;
   CIMName className = instanceName.getClassName();
@@ -481,7 +491,9 @@ PARAMETERS        :
 */
 void IPRouteProvider::initialize(CIMOMHandle &ch)
 {
+#ifdef DEBUG
   cout << "IPRouteProvider::initialize()" << endl;
+#endif
 
   _cimomHandle = ch;
 
@@ -508,7 +520,9 @@ PARAMETERS        :
 */
 void IPRouteProvider::terminate()
 {
+#ifdef DEBUG
   cout << "IPRouteProvider::terminate()" << endl;
+#endif
   delete this;
 }
 
@@ -526,7 +540,9 @@ PARAMETERS        : IP Route
 Array<CIMKeyBinding> IPRouteProvider::_constructKeyBindings(
 					const IPRoute& _ipr)
 {
+#ifdef DEBUG
   cout << "IPRouteProvider::_constructKeyBindings()" << endl;
+#endif
 
   Array<CIMKeyBinding> keyBindings;
   String s;
@@ -588,7 +604,9 @@ Array<CIMKeyBinding> IPRouteProvider::_constructKeyBindings(
 		String("Host-specific module doesn't support Key `") +
 		PROPERTY_ADDRESS_TYPE.getString() + String("'"));
 
+#ifdef DEBUG
   cout << "IPRouteProvider::_constructKeyBindings() -- done" << endl;
+#endif
 
   return keyBindings;
 }
@@ -611,7 +629,9 @@ CIMInstance IPRouteProvider::_constructInstance(
     const CIMNamespaceName &nameSpace,
     const IPRoute &_ipr)
 {
+#ifdef DEBUG
   cout << "IPRouteProvider::_constructInstance()" << endl;
+#endif
 
   String s;
   Uint16 i16;
@@ -703,7 +723,9 @@ CIMInstance IPRouteProvider::_constructInstance(
     inst.addProperty(CIMProperty(key[i].getName(),key[i].getValue()));
   }
 
+#ifdef DEBUG
   cout << "IPRouteProvider::_constructInstance() -- done" << endl;
+#endif
 
   return inst;
 }

@@ -101,7 +101,9 @@ PEGASUS_USING_PEGASUS;
 
 BIPTLEpProvider::BIPTLEpProvider()
 {
+#ifdef DEBUG
   cout << "BIPTLEpProvider::BIPTLEpProvider()" << endl;
+#endif
 }
 
 BIPTLEpProvider::~BIPTLEpProvider()
@@ -170,7 +172,9 @@ void BIPTLEpProvider::enumerateInstances(
 	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
+#ifdef DEBUG
     cout << "BIPTLEpProvider::enumerateInstances()" << endl;
+#endif
 
     CIMName className = classReference.getClassName();
     CIMNamespaceName nameSpace = classReference.getNameSpace();
@@ -218,7 +222,9 @@ void BIPTLEpProvider::enumerateInstanceNames(const OperationContext &ctx,
                             const CIMObjectPath &ref,
                             ObjectPathResponseHandler &handler)
 {
+#ifdef DEBUG
     cout << "BIPTLEpProvider::enumerateInstanceNames()" << endl;
+#endif
 
     CIMName className = ref.getClassName();
     CIMNamespaceName nameSpace = ref.getNameSpace();
@@ -232,8 +238,10 @@ void BIPTLEpProvider::enumerateInstanceNames(const OperationContext &ctx,
     int i;
     InterfaceList _ifList;
 
+#ifdef DEBUG
     cout << "BIPTLEpProvider::enumerateInstanceNames() _ifList Initialized"
    	 << endl;
+#endif
 
     for (i = 0; i < _ifList.size(); i++)
     {
@@ -275,8 +283,10 @@ void BIPTLEpProvider::getInstance(const OperationContext &ctx,
                  const CIMPropertyList        &propertyList,
                  InstanceResponseHandler &handler)
 {	
+#ifdef DEBUG
   cout << "BIPTLEpProvider::getInstance(" << instanceName.toString() << ")" 
        << endl;
+#endif
 
   CIMKeyBinding kb;
   CIMName className = instanceName.getClassName();
@@ -322,7 +332,9 @@ void BIPTLEpProvider::getInstance(const OperationContext &ctx,
       {
         keysFound |= 1;
 	lepName = refName;
+#ifdef DEBUG
         cout << "BIPTLEpProvider::getInstance(): lepName=" << lepName << endl;
+#endif
       }
       else
          throw CIMInvalidParameterException(keyValue+": bad value for key "+
@@ -338,7 +350,9 @@ void BIPTLEpProvider::getInstance(const OperationContext &ctx,
       {
         keysFound |= 2;
 	ipeName = refName;
+#ifdef DEBUG
         cout << "BIPTLEpProvider::getInstance(): ipeName=" << ipeName << endl;
+#endif
       }
       else
          throw CIMInvalidParameterException(keyValue+": bad value for key "+
@@ -421,7 +435,9 @@ PARAMETERS        :
 */
 void BIPTLEpProvider::initialize(CIMOMHandle &ch)
 {
+#ifdef DEBUG
   cout << "BIPTLEpProvider::initialize()" << endl;
+#endif
 
   _cimomHandle = ch;
 
@@ -448,7 +464,9 @@ PARAMETERS        :
 */
 void BIPTLEpProvider::terminate()
 {
+#ifdef DEBUG
   cout << "BIPTLEpProvider::terminate()" << endl;
+#endif
   delete this;
 }
 
@@ -466,7 +484,9 @@ PARAMETERS        : className, Process
 Array<CIMKeyBinding> BIPTLEpProvider::_constructKeyBindings(
 					const IPInterface& _ipif)
 {
+#ifdef DEBUG
   cout << "BIPTLEpProvider::_constructKeyBindings()" << endl;
+#endif
 
   Array<CIMKeyBinding> keyBindings;
   String s;
@@ -521,10 +541,12 @@ Array<CIMKeyBinding> BIPTLEpProvider::_constructKeyBindings(
   _a.append ("\"");
   _d.append ( "\"");
 
+#ifdef DEBUG
   cout << "BIPTLEpProvider::_constructKeyBindings(): Antecedent = `" +
 	_a + "'"  << endl;
   cout << "BIPTLEpProvider::_constructKeyBindings(): Dependent = `" +
 	_d + "'"  << endl;
+#endif
 
   // Construct the key bindings
   keyBindings.append(CIMKeyBinding(PROPERTY_ANTECEDENT,
@@ -533,7 +555,9 @@ Array<CIMKeyBinding> BIPTLEpProvider::_constructKeyBindings(
   keyBindings.append(CIMKeyBinding(PROPERTY_DEPENDENT,
 		                _d, CIMKeyBinding::REFERENCE));
 
+#ifdef DEBUG
   cout << "BIPTLEpProvider::_constructKeyBindings() -- done" << endl;
+#endif
 
   return keyBindings;
 }
@@ -556,7 +580,9 @@ CIMInstance BIPTLEpProvider::_constructInstance(
     const CIMNamespaceName &nameSpace,
     const IPInterface &_ipif)
 {
+#ifdef DEBUG
   cout << "BIPTLEpProvider::_constructInstance()" << endl;
+#endif
 
   String s;
   Uint16 i16;
@@ -600,7 +626,9 @@ CIMInstance BIPTLEpProvider::_constructInstance(
   if (_ipif.getFrameType(i16))
     inst.addProperty(CIMProperty(PROPERTY_FRAME_TYPE,i16));
 
+#ifdef DEBUG
   cout << "BIPTLEpProvider::_constructInstance() -- done" << endl;
+#endif
 
   return inst;
 }
@@ -622,8 +650,10 @@ Boolean BIPTLEpProvider::_goodPERefKeys(const CIMObjectPath &instName,
 				     String &rccn,    // CreationClassName
 				     String &rname)   // Name
 {
+#ifdef DEBUG
    cout << "BIPTLEpProvider::_goodPERefKeys(" << instName.toString() << ")" 
         << endl;
+#endif
 
    int keysFound,  // this will be used as a bit array
        i; 
@@ -640,9 +670,11 @@ Boolean BIPTLEpProvider::_goodPERefKeys(const CIMObjectPath &instName,
       CIMName keyName = kb.getName();
       String keyValue = kb.getValue();
 
+#ifdef DEBUG
       cout << "BIPTLEpProvider::_goodPERefKeys(): keyName=" << 
               keyName.getString() <<
               ", keyValue=" << keyValue << endl;
+#endif
 
       // SystemCreationClassName
       if (keyName.equal (PROPERTY_SYSTEM_CREATION_CLASS_NAME))
@@ -689,8 +721,10 @@ Boolean BIPTLEpProvider::_goodPERefKeys(const CIMObjectPath &instName,
 
    } // for
    
+#ifdef DEBUG
    cout << "BIPTLEpProvider::_goodPERefKeys(): rccn =" << rccn <<
            ", rname=" << rname << endl;
+#endif
 
   // We could get here if we didn't get all the keys, which
   // could happen if the right number of keys were supplied,
@@ -699,7 +733,9 @@ Boolean BIPTLEpProvider::_goodPERefKeys(const CIMObjectPath &instName,
    if (keysFound != (1<<NUMKEYS_CIM_PROTOCOL_ENDPOINT)-1)
       return false;
 
+#ifdef DEBUG
    cout << "BIPTLEpProvider::_goodPERefKeys() - success!" << endl;
+#endif
 
    return true;
 }

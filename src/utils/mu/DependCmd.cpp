@@ -33,13 +33,13 @@
 #include <cassert>
 #include "DependCmd.h"
 
-#ifdef OS_TYPE_WINDOWS
+#ifdef OS_WINDOWS
 # define OBJ_EXT ".obj"
 #else
 # define OBJ_EXT ".o"
 #endif
 
-#ifdef OS_TYPE_WINDOWS
+#ifdef OS_WINDOWS
 using namespace std;
 #endif
 

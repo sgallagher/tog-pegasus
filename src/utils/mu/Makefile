@@ -26,7 +26,7 @@ ifeq ($(OS),compaq_oss)
     LIBFLAGS = /usr/lib/crtlmain.o -obey /usr/lib/libc.obey
     SRLFLAGS = -l zrwslsrl -l zcplsrl -verbose
     LXX = nld
-    DEFINES = -DOS_TYPE_OSS
+    DEFINES = -DOS_OSS
     PROGRAM = mu
     EXE_OUT = -o
     RM = rm -f
@@ -38,7 +38,7 @@ ifeq ($(OS),windows)
     CXX = cl
     LXX = $(CXX)
     CXXFLAGS = -nologo -W3 -GX
-    DEFINES = -DOS_TYPE_WINDOWS
+    DEFINES = -DOS_WINDOWS
     PROGRAM = mu.exe
     EXE_OUT = -Fe
     RM = erase
@@ -50,7 +50,7 @@ ifeq ($(OS),unix)
     CXX = g++
     LXX = $(CXX)
     CXXFLAGS = -O2 -Wall -Wno-unused -pedantic
-    DEFINES = -DOS_TYPE_UNIX
+    DEFINES = -DOS_UNIX
     PROGRAM = mu
     EXE_OUT = -o
     RM = rm -f
@@ -62,7 +62,7 @@ ifeq ($(OS),tru64)
     CXX = g++
     LXX = $(CXX)
     CXXFLAGS = -O2 -Wall -Wno-unused -pedantic -I../../stdcxx/stream
-    DEFINES = -DOS_TYPE_UNIX
+    DEFINES = -DOS_TRU64
     PROGRAM = mu
     EXE_OUT = -o
     RM = rm -f

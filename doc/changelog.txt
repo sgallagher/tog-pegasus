@@ -36,6 +36,10 @@ Version 0.98.0 - Work in progress
 
 10. (Mike Brasher) - Changed CIMOMHandle to carry repository pointer.
 
+11. (Mike Brasher) - Ported to TRU64.
+
+12. (Mike Brasher) - Fixed compiler error on Linux.
+
 ------------------------------------------------------------------------------
 --
 

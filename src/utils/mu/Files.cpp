@@ -294,7 +294,13 @@ bool Glob(const string& pattern_, vector<string>& fileNames)
     string pattern = pattern_;
 
     while (pattern.size() > 0 && pattern[pattern.size()-1] == '/')
+    {
+#ifdef OS_TRU64
 	pattern.remove(pattern.size() - 1);
+#else
+	pattern.erase(pattern.end() - 1);
+#endif
+    }
 
     // Split the pattern into directory name and base name:
 
@@ -338,7 +344,7 @@ bool CopyFile(const string& from_file, const string& to_file)
 {
     // Open input file:
 
-#ifdef OS_TYPE_WINDOWS
+#ifdef OS_WINDOWS
     ifstream is(from_file.c_str(), ios::binary);
 #else
     ifstream is(from_file.c_str());
@@ -349,7 +355,7 @@ bool CopyFile(const string& from_file, const string& to_file)
 
     // Open output file:
 
-#ifdef OS_TYPE_WINDOWS
+#ifdef OS_WINDOWS
     ofstream os(to_file.c_str(), ios::binary);
 #else
     ofstream os(to_file.c_str());
@@ -417,7 +423,7 @@ bool CompareFiles(
     const string& filename2, 
     size_t& offset)
 {
-#ifdef OS_TYPE_WINDOWS
+#ifdef OS_WINDOWS
     ifstream is1(filename1.c_str(), ios::binary);
 #else
     ifstream is1(filename1.c_str());
@@ -426,7 +432,7 @@ bool CompareFiles(
     if (!is1)
 	return false;
 
-#ifdef OS_TYPE_WINDOWS
+#ifdef OS_WINDOWS
     ifstream is2(filename2.c_str(), ios::binary);
 #else
     ifstream is2(filename2.c_str());

@@ -26,7 +26,7 @@
 #ifndef _Config_h
 #define _Config_h
 
-#ifdef OS_TYPE_WINDOWS
+#ifdef OS_WINDOWS
 # define for if (0) ; else for
 namespace std { };
 using namespace std;

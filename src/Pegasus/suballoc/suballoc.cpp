@@ -126,7 +126,11 @@ void * operator new(size_t size) throw (PEGASUS_STD(bad_alloc))
    }
 }
 
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+void operator delete(void *dead) throw()
+#else
 void operator delete(void *dead) 
+#endif
 {
    if( dead == 0 )
       return;
@@ -175,7 +179,11 @@ void * operator new[] (size_t size) throw (PEGASUS_STD(bad_alloc))
    }
 }
 
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+void operator delete[] (void *dead) throw()
+#else
 void operator delete[] (void *dead) 
+#endif
 {
    if( dead == 0 )
       return;

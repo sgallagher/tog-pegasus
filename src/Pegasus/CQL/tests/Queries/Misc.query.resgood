@@ -265,7 +265,33 @@ ERROR!
 The identifier Description of CIM_System.CIM_EnabledLogicalElement::CIM_System.Description must use the scope operator.
 
 =========     17     =========
------Query: SELECT * FROM CIM_ComputerSystem  WHERE 2 = CIM_ComputerSystem.EnabledState#ENAbled
+-----Query: SELECT * FROM CIM_Process 
+
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestElement.InstanceId=0
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypesMissing.InstanceId=3
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="CIM_RunningOS",Name="sysName"
+FALSE
+=========     18     =========
+-----Query: SELECT * FROM CQL_TestPropertyTypes 
+
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestElement.InstanceId=0
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypesMissing.InstanceId=3
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
+TRUE
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
+TRUE
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="CIM_RunningOS",Name="sysName"
+FALSE
+=========     19     =========
+-----Query: SELECT * FROM CQL_TestElement 
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestElement.InstanceId=0
 TRUE
@@ -276,8 +302,21 @@ TRUE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 TRUE
 -----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="CIM_RunningOS",Name="sysName"
+FALSE
+=========     20     =========
+-----Query: SELECT * FROM CIM_ComputerSystem  WHERE 2 = CIM_ComputerSystem.EnabledState#ENAbled
+
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestElement.InstanceId=0
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypesMissing.InstanceId=3
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
+FALSE
+-----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="CIM_RunningOS",Name="sysName"
 TRUE
-=========     18     =========
+=========     21     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE Propertystring = 'bert RULES'
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestElement.InstanceId=0
@@ -290,7 +329,7 @@ FALSE
 FALSE
 -----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="CIM_RunningOS",Name="sysName"
 FALSE
-=========     19     =========
+=========     22     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE Propertystring = 'Bert Rules'
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestElement.InstanceId=0
@@ -303,7 +342,7 @@ FALSE
 TRUE
 -----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="CIM_RunningOS",Name="sysName"
 FALSE
-=========     20     =========
+=========     23     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyChar16 = 'a'
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestElement.InstanceId=0
@@ -316,7 +355,7 @@ FALSE
 FALSE
 -----Instance: //a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="CIM_RunningOS",Name="sysName"
 FALSE
-=========     21     =========
+=========     24     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyChar16 = 'A'
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestElement.InstanceId=0

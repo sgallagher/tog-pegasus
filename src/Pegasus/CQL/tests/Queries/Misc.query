@@ -20,27 +20,52 @@ Select * from CQL_TESTPropertyTypes where Cql_TestPropertyTypeS::instanceId = 2
 Select * from CQL_TESTPropertyTypes where cql_testpropertytypes.Cql_TEStPropertyTypeS::instanceId = 2
 Select * from CQL_TESTPropertyTypes aS ALIAS where cql_testpropertytypes.alias::instanceId = 2
 
+#
+# Misc. tests of the class scoping rules
+#
+
 select * from CIM_ComputerSystem where CIM_ComputerSystem.CIM_ComputerSystem::Description = 'Computer System'
 select * from CIM_ComputerSystem where 'Computer System' = CIM_ComputerSystem.CIM_ComputerSystem::Description
 select * from CIM_ComputerSystem where CIM_ComputerSystem::Description = 'Computer System'
 
-# Fails validation, CIMComputerSystem does not exist
+# Fails evaluate, CIMComputerSystem does not exist causing null contagion
 select * from CIM_ComputerSystem where 'Computer System' = CIMComputerSystem::Description
 
 select * from CIM_ComputerSystem where Description = 'Computer System'
 select * from CIM_ComputerSystem where 'Computer System' = Description
 select * from CIM_System where CIM_ComputerSystem::Description = 'Computer System'
 
-# Failes validation, The property CIM_ComputerSystem does not exist on class CIM_System
+# Fails evaluate, the property CIM_ComputerSystem does not exist on class CIM_System
 select * from CIM_System where CIM_ComputerSystem.CIM_ComputerSystem::Description = 'Computer System'
 select * from CIM_System where CIM_System::Description = 'Computer System'
 select * from CIM_System where CIM_System.CIM_ComputerSystem::Description = 'Computer System'
 
-# Fails validation, The identifier Description of CIM_System.CIM_EnabledLogicalElement::CIM_System.Description must use the scope operator.
+# Fails evaluate, The identifier Description of 
+# CIM_System.CIM_EnabledLogicalElement::CIM_System.Description must use the scope operator.
 select * from CIM_System where CIM_EnabledLogicalElement::CIM_System.Description = 'Computer System'
 
-# Symbolic constant
-# Result: true.
+#
+# Test the relationship between the FROM class vs.the instance type being evaluated
+#
+
+# Result: all instances evaluate to false.
+# None of the instances are CIM_Process or subclass of CIM_Process.
+select * from CIM_Process
+
+# Result: only the instances of CQL_TestPropertyTypes evaluate to true
+# None of the other instances are CQL_TestPropertyTypes 
+# or are a subclass of CQL_TestPropertyTypes.
+select * from CQL_TestPropertyTypes 
+
+# Result: instances of CQL_TestElement and CQL_TestPropertyTypes evaluate to true
+# Only these instances are the FROM class or subclass of FROM class.
+select * from CQL_TestElement 
+
+#
+# Case insensitivity of the symbolic constant names
+#
+
+# Result: true for the instance of CIM_ComputerSystem.
 select * from CIM_ComputerSystem where 2 = CIM_ComputerSystem.EnabledState#'ENAbled'
 
 #

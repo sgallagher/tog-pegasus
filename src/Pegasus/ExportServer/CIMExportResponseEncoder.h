@@ -40,10 +40,10 @@ PEGASUS_NAMESPACE_BEGIN
 /** This class encodes CIM operation requests and passes them up-stream.
  */
 class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportResponseEncoder 
-   : public MessageQueue
+   : public MessageQueueService
 {
    public:
-      typedef MessageQueue Base;
+      typedef MessageQueueService Base;
       
       CIMExportResponseEncoder();
       

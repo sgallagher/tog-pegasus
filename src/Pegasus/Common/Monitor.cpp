@@ -267,6 +267,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 	    {
 	       if( static_cast<HTTPConnection *>(queue)->refcount.value() == 0 )
 	       {
+		  
 		  static_cast<HTTPConnection *>(queue)->refcount++;
 		  if( false == static_cast<HTTPConnection *>(queue)->is_dying())
 		     _controller->async_thread_exec(*_module_handle, _dispatch, (void *)queue);

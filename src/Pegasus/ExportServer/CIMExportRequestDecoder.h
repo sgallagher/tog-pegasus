@@ -46,11 +46,11 @@ class XmlParser;
 /** This class decodes CIM operation requests and passes them down-stream.
  */
 class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder 
-   : public MessageQueue
+   : public MessageQueueService
 {
    public:
 
-      typedef MessageQueue Base;
+      typedef MessageQueueService Base;
   
       CIMExportRequestDecoder(
 	 MessageQueueService* outputQueue,

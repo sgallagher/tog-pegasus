@@ -45,10 +45,10 @@ PEGASUS_NAMESPACE_BEGIN
     and encodes them into HTTP messages which it places on its output queue.
 */
 class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportRequestEncoder 
-   : public MessageQueue
+   : public MessageQueueService
 {
    public:
-      typedef MessageQueue Base;
+      typedef MessageQueueService Base;
   
       /** Constuctor.
 	  @param outputQueue queue to receive encoded HTTP messages.

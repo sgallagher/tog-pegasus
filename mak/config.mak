@@ -182,7 +182,23 @@ pegasus_unknown_platform:
 	@ exit 1
 endif
 
+################################################################################
+##
+##  Set up any platform independent compile conditionals by adding them to
+##  precreated FLAGS parameter.
+##  Assumes that the basic flags have been setup in FLAGS. 
+##  Assumes that compile time flags are controlled with -D CLI option.
+##
+################################################################################
 
+# Setup the conditional compile for client displays.
+# 
+ifdef PEGASUS_CLIENT_TRACE_ENABLE
+  DEFINES+= -DPEGASUS_CLIENT_TRACE_ENABLE
+endif
+
+
+ 
 ############################################################
 #
 # Set up other Make Variables that depend on platform config files

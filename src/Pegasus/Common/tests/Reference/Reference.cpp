@@ -31,6 +31,13 @@ void test01()
     assert(r1 == r2);
     assert(r1 != r3);
     }
+
+    {
+	CIMReference r1 = "X.a=123,b=true";
+	CIMReference r2 = "x.B=TRUE,A=123";
+	assert(r1 == r2);
+	assert(r1.makeHashKey() == r2.makeHashKey());
+    }
 }
 
 int main()

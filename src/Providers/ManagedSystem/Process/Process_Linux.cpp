@@ -1005,7 +1005,8 @@ NOTES             : returns true upon successful stat read
 */
 Boolean  parseProcStat(char* inputFileString, peg_proc_t* P) {
     int num;
-    long not_used;
+    int  int_not_used;
+    long long_not_used;
     char* tmp = strrchr(inputFileString, ')');
     if( ! tmp )
     {
@@ -1024,9 +1025,11 @@ Boolean  parseProcStat(char* inputFileString, peg_proc_t* P) {
        "%ld %ld %ld %ld %ld %ld "
        "%lu %lu ",
        &P->pst_stat,
-       &P->pst_ppid, &P->pst_pgrp, &P->pst_sid, &P->pst_tty, &not_used,
-       &not_used, &not_used, &not_used, &not_used, &not_used, &P->pst_utime, &P->pst_stime,
-       &P->pst_cutime, &P->pst_cstime, &P->pst_pri, &P->pst_nice, &not_used, &not_used,
+       &P->pst_ppid, &P->pst_pgrp, &P->pst_sid, &P->pst_tty, &int_not_used,
+       &long_not_used, &long_not_used, &long_not_used, &long_not_used, &long_not_used,
+                       &P->pst_utime, &P->pst_stime,
+       &P->pst_cutime, &P->pst_cstime, &P->pst_pri, &P->pst_nice, &long_not_used,
+                       &long_not_used,
        &P->pst_start, &P->pst_vmmsize);
     
     if (P->pst_tty == 0)

@@ -1,0 +1,116 @@
+Copyright 1999 - 2003 Michael Day
+
+LDAP_SLP is an implementation of the rfc2608 Service Location Protocol
+
+LSLP-KERNEL
+=============
+lslp-kernel is a Mesh-enhanced Directory Agent. It is designed to be
+very fast and fully featured. 
+
+CMD-UTILS
+===========
+The cmd-utils directory contains a general purpose client library,
+plus two command-line programs designed to be used with Bash or
+Perl. The library contains all the features of an SLP client, and the
+two programs use the library to implement an SLP Service Agent and an
+SLP User Agent
+
+
+State of the Source Tree
+=======================
+As of Mon May 12 2003 the Windows build is broken. The Linux build is
+working on at least two linux platforms. The build is broken unless
+you define DEBUG=true when you configure the environment. 
+
+The source tree has undergone significant reorgination lately. I have
+converted from really ugly kludged makefiles to using the GNU autoconf
+and libtool programs to organize and control the building
+process. (Some of you may think that autoconf is really ugly and
+kludged but considering all of the problems it solves I would have to
+disagree.) 
+
+Here is how the source tree is now organized:
+
+Initial directory = ldap_slp
++---conf                     <-- contains the DA configuration file 
++---doc                      <-- contains some internet-drafts
++---src                      <-- source code
+|   +---cmd-utils            <-- command-line utilities
+|   |   +---slp_client       <-- slp client library
+|   |   +---slp_query        <-- command-line slp user agent 
+|   |   +---slp_srvreg       <-- command-line and daemon slp service agent
+|   +---kernel               <-- slp directory agent (daemon)
+
+
+Windows Build
+=============
+The Windows build is broken because I haven't debugged the autoconf
+macros for windows. If you are curious, look at the file
+ldap_slp/configure.ac. 
+
+When windows builds once again it will require Bash, gmake, and GNU
+Autoconf and Libtool. The best thing to do if you want to build on
+windows and don't know what I'm talking about is to get Cygwin. You
+can get Cygwin at http://www.cygwin.com
+
+
+Porting
+=========
+Porting this code to any POSIX operating system is straightforward. 
+Each operating system needs to have its own compatibility source
+modules. For linux, those are lslp-linux.h and lslp-linux.c
+
+To add support for a new platform, you must start with the autoconf
+script, configure.ac. In that script there are placeholders for each
+platform. Here is a sample that implements part of the linux support: 
+
+  *-*-linux*)
+	AC_DEFINE([HOST_OS], ["Linux"], [Target Operation System])
+	AC_DEFINE([OS_PORT_INCLUDE], ["lslp-linux.h"], [Portability Header])
+	OS_PORT_INC=lslp-linux.h
+	OS_PORT_SRC=lslp-linux.c
+	OS_PORT_OBJ=lslp-linux.lo
+
+Each of these symbols has a counterpart within the build system. For a
+new platform you need to flesh out the placeholder for that platform
+in configure.ac. Then you need to implement the portability header and
+possibly a portability source file.
+
+Unfortunatly, the cmd-utils and kernel directory structures each have
+their own compatibility headers. That means there is one
+"lslp-linux.h" for the DA build and a totally separate version of the
+same file for the cmd-utils build. This is historical and I intend to
+clean it up. However, the DA is quite a bit more sophisticated than
+the cmd-utils so its compatibility files are more complicated. So it
+is not just a total duplication of code. 
+
+If you are only interested in the DA (lslp-kernel) or the SA
+(cmd-utils) but not both then you can choose to only implement one
+version of the compatibility files. The SA version is not as much
+work.
+
+ALPHA Code 
+========== 
+
+This is alpha code, although the cmd-utils tree is beta and quality
+for linux. There are some pretty significant things to fix in the DA
+code.
+
+- Thread management. Right now thread destruction is
+incorrect. This is a termination issue because threads in the DA are
+not supposed to terminate. 
+
+- Memory suballocater. There are a couple of bugs in the memory
+suballocator that can cause a core in the DA. That's why the source
+will only build under debug right now. 
+
+- TCP connection handling. This needs to be modified so connections
+can persist across transactions. Everything is enabled but part of the
+connection handling. (i.e., reading/writing, checking, etc.)
+
+BUG Reports
+=============
+Please send bug reports to lslp-bugs@lists.sourceforge.net
+
+Mike Day
+mday@users.sourceforge.net

@@ -1,0 +1,57 @@
+Copyright 1999 - 2003 Michael Day
+
+
+SOURCE CODE ORGANIZATION
+==========================
+
+The source code is organized as follows:
+
+Initial directory = ldap_slp
++---conf                     <-- contains the DA configuration file 
++---doc                      <-- contains some internet-drafts
++---src                      <-- source code
+|   +---cmd-utils            <-- command-line utilities
+|   |   +---slp_client       <-- slp client library
+|   |   +---slp_query        <-- command-line slp user agent 
+|   |   +---slp_srvreg       <-- command-line and daemon slp service agent
+|   +---kernel               <-- slp directory agent (daemon)
+
+
+BUILD REQUIREMENTS
+===========================
+
+To build the source tree, you must have Bash, Gnu Make, Gnu Autoconf,
+and Gnu Libtool, and a C compiler and linker. 
+
+
+BUILD COMMANDS
+===========================
+
+1) Untar distribution tarball and cd into the ldap_slp directory. 
+2) type ./configure DEBUG=TRUE <Enter>
+3) type make <Enter>
+
+Binaries will be located in the same directories as thier source. The
+mysterious machinations of libtool allow you to link and run binaries
+against the libslp_client.so shared library without actually
+installing anything. 
+
+To clean all the binaries, type make clean <Enter>
+
+
+INSTALLATION
+===========================
+
+To install, su to root and type make install <Enter>
+
+Currently make install only works for the cmd-utils directory tree. 
+This allows you to install the shared library, SA (slp_srvreg), and UA
+(slp_query) tools. 
+
+To install the DA, simply copy it to a directory in your search
+path. Ensure that the configuration file (slp.conf) is in a known
+location and use the -f command-line parameter to load the
+configuratin file. e.g., 
+
+lslp-kernel -f/etc/slp.conf
+

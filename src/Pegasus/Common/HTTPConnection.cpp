@@ -45,6 +45,7 @@
 #include "MessageQueue.h"
 #include "Monitor.h"
 #include "HTTPMessage.h"
+#include "Tracer.h"
 
 PEGASUS_USING_STD;
 
@@ -122,10 +123,22 @@ HTTPConnection::~HTTPConnection()
 
 void HTTPConnection::handleEnqueue()
 {
+    const char METHOD_NAME[] = "HTTPConnection::handleEnqueue";
+
+    PEG_FUNC_ENTER(TRC_HTTP, METHOD_NAME);
+
+#ifdef ENABLETIMEOUTWORKAROUNDHACK
+    static Mutex handleEnqueue_mut = Mutex();
+#endif
+
     Message* message = dequeue();
 
     if (!message)
         return;
+
+#ifdef ENABLETIMEOUTWORKAROUNDHACK
+    handleEnqueue_mut.lock(pegasus_thread_self());
+#endif
 
     switch (message->getType())
     {
@@ -181,6 +194,7 @@ void HTTPConnection::handleEnqueue()
             _requestCount--;
 
             _socket->disableBlocking();
+            break;
 	}
 
 	default:
@@ -189,6 +203,12 @@ void HTTPConnection::handleEnqueue()
     };
 
     delete message;
+
+#ifdef ENABLETIMEOUTWORKAROUNDHACK
+    handleEnqueue_mut.unlock();
+#endif
+
+    PEG_FUNC_EXIT(TRC_HTTP, METHOD_NAME);
 }
 
 const char* HTTPConnection::getQueueName() const
@@ -283,8 +303,14 @@ void HTTPConnection::_clearIncoming()
 
 void HTTPConnection::_closeConnection()
 {
+    const char METHOD_NAME[] = "HTTPConnection::_closeConnection";
+
+    PEG_FUNC_ENTER(TRC_HTTP, METHOD_NAME);
+
     Message* message= new CloseConnectionMessage(_socket->getSocket());
     _ownerMessageQueue->enqueue(message);
+
+    PEG_FUNC_EXIT(TRC_HTTP, METHOD_NAME);
 }
 
 void HTTPConnection::_handleReadEvent()

@@ -52,9 +52,9 @@
 
 #define PEGASUS_COMPILER_IBM
 
-#define PEGASUS_UINT64 unsigned long int
+#define PEGASUS_UINT64 unsigned long long int
 
-#define PEGASUS_SINT64 long int
+#define PEGASUS_SINT64 long long int
 
 #define PEGASUS_HAVE_NAMESPACES
 

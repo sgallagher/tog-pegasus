@@ -58,7 +58,20 @@ static const Uint32 _MAX_FREE_COUNT = 16;
 // Local routines:
 //
 ////////////////////////////////////////////////////////////////////////////////
+#ifdef PEGASUS_OS_ZOS
 
+static Uint32 getOffset( streampos sp )
+{
+    Uint32 result = (streamoff)sp;
+
+    fpos_t posArray = sp.seekpos();
+
+
+    result += posArray.__fpos_elem[1];
+
+    return result;
+}
+#endif
 //
 // Gets one line from the given file.
 //
@@ -664,8 +677,11 @@ Boolean InstanceIndexFile::_lookupEntry(
     Uint32 index;
     Uint32 size;
     Boolean error;
-
-    entryOffset = fs.tellp();
+    #ifndef PEGASUS_OS_ZOS
+        entryOffset = fs.tellp();
+    #else
+        entryOffset = getOffset(fs.tellp());
+    #endif
 
     while (_GetNextRecord(
 	fs, line, freeFlag, hashCode, index, size, instanceNameTmp, error))
@@ -680,7 +696,12 @@ Boolean InstanceIndexFile::_lookupEntry(
 	    return true;
 	}
 
-	entryOffset = fs.tellp();
+    #ifndef PEGASUS_OS_ZOS
+        entryOffset = fs.tellp();
+    #else
+        entryOffset = getOffset(fs.tellp());
+        cout << "Current reading position in InstanceIndexFile (start) = " << entryOffset << endl;
+    #endif
     }
 
     fs.clear();

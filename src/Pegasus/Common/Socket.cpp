@@ -39,6 +39,9 @@
 #   include <Pegasus/Common/OS400ConvertChar.h>
 #   include <unistd.cleinc>
 #endif
+#ifdef PEGASUS_OS_ZOS
+#   include <string.h>  // added by rk for memcpy
+#endif
 # include <cstdlib>
 # include <errno.h>
 # include <fcntl.h>

@@ -8,22 +8,18 @@ COMPILER = ibm
 
 #SYS_INCLUDES = -I/usr/lpp/tcpip/include -I/usr/lpp/ioclib/include -I$(ROOT)/src/StandardIncludes/zOS
 SYS_INCLUDES = -I/usr/lpp/tcpip/include -I/usr/lpp/ioclib/include
+DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -D_OPEN_SOURCE=3
 
-DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
+DEFINES += -DPEGASUS_DISABLE_KILLING_HUNG_THREADS
 
 DEPEND_DEFINES = -D__IBMCPP__=400
 
 ifdef PEGASUS_DEBUG
-FLAGS = -g -W "c,dll,expo,rtti(dynamiccast),langlvl(extended)"
-PR_FLAGS = -g -W "c,XPLINK(back,stor)" -W "l,XPLINK"
-#FLAGS = -g -W "c,dll,expo,langlvl(extended),tempinc($(ROOT))"
-#PR_FLAGS = -g -W "c,XPLINK(back,stor),langlvl(extended),tempinc($(ROOT))" \
-# -W "l,XPLINK"
+FLAGS = -+ -g -W "c,XPLINK,dll,expo,rtti(dynamiccast),langlvl(extended),float(ieee)"
+PR_FLAGS = -+ -g -W "c,XPLINK,dll,expo,FLOAT(IEEE)" -W "l,XPLINK,dll"
 else
-FLAGS = -O2 -W "c,dll,expo,rtti(dynamiccast),langlvl(extended)"
-PR_FLAGS = -O2 -W "c,XPLINK" -W "l,XPLINK"
-#FLAGS = -O2 -W "c,dll,expo,langlvl(extended),tempinc($(ROOT))"
-#PR_FLAGS = -O2 -W "c,XPLINK,langlvl(extended),tempinc($(ROOT))" -W "l,XPLINK"
+FLAGS = -+ -O2 -W "c,XPLINK,dll,expo,rtti(dynamiccast),langlvl(extended),float(ieee)"
+PR_FLAGS = -+ -O2 -W "c,XPLINK,dll,expo,langlvl(extended),FLOAT(IEEE)" -W "l,XPLINK,dll"
 endif
 
 SYS_LIBS =

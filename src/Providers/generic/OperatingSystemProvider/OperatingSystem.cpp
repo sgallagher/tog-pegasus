@@ -33,4 +33,6 @@
  #include "OperatingSystem_Linux.cpp"
 #elif defined PEGASUS_PLATFORM_AIX_RS_IBMCXX
  #include "OperatingSystem_AIX.cpp"
+#elif defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+ #include "OperatingSystem_zOS.cpp"
 #endif

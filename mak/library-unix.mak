@@ -39,7 +39,7 @@ endif
 
 ifeq ($(COMPILER),ibm)
   LINK_COMMAND = c++ $(FLAGS)
-  LINK_ARGUMENTS =
+  LINK_ARGUMENTS = -W "l,XPLINK,dll"
   LINK_OUT = -o
 endif
 

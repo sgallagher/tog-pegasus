@@ -40,6 +40,11 @@
 #include <unistd.h>
 #endif
 
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#include <sys/utsname.h>
+#endif
+
+
 PEGASUS_NAMESPACE_BEGIN
 
 //
@@ -92,6 +97,12 @@ private:
     struct utsname m_uts;
     struct sysinfo m_si;
 #endif
+
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+private:
+    struct utsname m_uts;
+#endif
+
 
 };
 

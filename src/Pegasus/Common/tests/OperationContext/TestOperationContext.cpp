@@ -55,7 +55,7 @@ void main(void)
     {
         cout << "----- Identity Container failed" << endl;
 
-        return;
+        exit(1);
     }
 
     try
@@ -75,7 +75,7 @@ void main(void)
     {
         cout << "----- Locale Container failed" << endl;
 
-        return;
+        exit(1);
     }
 
     try
@@ -96,7 +96,7 @@ void main(void)
     {
         cout << "----- Provider Id Container failed" << endl;
 
-        return;
+        exit(1);
     }
 
     try
@@ -114,4 +114,6 @@ void main(void)
     }
 
     cout << "+++++ passed all tests." << endl;
+
+    exit(0);
 }

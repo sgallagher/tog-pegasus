@@ -143,14 +143,17 @@ private:
 	const String& userName,
 	const String& password);
 
-#if defined (PEGASUS_OS_HPUX) || defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
     Boolean	_usePAM;
 
     Boolean _authenticateByPwnam(
 	const char* userName,
 	const String& password);
 
+#if defined(PEGASUS_USE_PAM_STANDALONE_PROC)
     PAMBasicAuthenticatorStandAlone* _pamBasicAuthenticatorStandAlone;
+#endif
+
 #endif
 };
 

@@ -56,71 +56,10 @@ void AlertIndicationProvider::terminate (void)
 void AlertIndicationProvider::enableIndications (
     IndicationResponseHandler & handler)
 {
-//cout << "enable AlertIndicationProvider" << endl;
-    handler.processing ();
-
-    CIMInstance indicationInstance ("root/PG_InterOp:CIM_AlertIndication");
-
-    indicationInstance.addProperty
-        (CIMProperty ("IndicationTime", CIMValue (CIMDateTime ())));
-
-    indicationInstance.addProperty
-        (CIMProperty ("IndicationIdentifier", String("AlertIndication02")));
-
-    Array <String> correlatedIndications;
-    indicationInstance.addProperty (CIMProperty ("CorrelatedIndications",
-         CIMValue (correlatedIndications)));
-
-    indicationInstance.addProperty
-        (CIMProperty ("Description", String("An alert indication for testing")));
-
-    indicationInstance.addProperty
-        (CIMProperty ("AlertingManagedElement", String("The instance path")));
-
-    indicationInstance.addProperty
-        (CIMProperty ("AlertType", CIMValue ((Uint16) 5)));
-
-    indicationInstance.addProperty
-        (CIMProperty ("PerceivedSeverity", CIMValue ((Uint16) 4)));
-
-    indicationInstance.addProperty
-        (CIMProperty ("ProbableCause", CIMValue ((Uint16) 0)));
-
-    indicationInstance.addProperty
-        (CIMProperty ("ProbableCauseDescription", String("Unknown")));
-
-    indicationInstance.addProperty
-        (CIMProperty ("Trending", CIMValue ((Uint16) 0)));
-
-    Array <String> recommendedActions;
-    recommendedActions.append ("Take the following actions ");
-    recommendedActions.append ("to fix the problem.");
-    indicationInstance.addProperty (CIMProperty ("RecommendedActions",
-         CIMValue (recommendedActions)));
-
-    indicationInstance.addProperty
-        (CIMProperty ("EventID", String("AlertEvent02")));
-
-    indicationInstance.addProperty
-        (CIMProperty ("EventTime", CIMValue (CIMDateTime ())));
-
-    indicationInstance.addProperty
-        (CIMProperty ("SystemCreationClassName", String("CIM_ComputerSystem")));
-
-    indicationInstance.addProperty
-        (CIMProperty ("SystemName", String("server001.acme.com")));
-
-    indicationInstance.addProperty
-        (CIMProperty ("ProviderName", String("AlertIndicationProvider")));
-
-    CIMIndication cimIndication (indicationInstance);
-
-    handler.deliver (cimIndication);
 }
 
 void AlertIndicationProvider::disableIndications (void)
 {
-    //handler.complete ();
 }
 
 void AlertIndicationProvider::createSubscription (
@@ -130,7 +69,6 @@ void AlertIndicationProvider::createSubscription (
     const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
-//cout << "create AlertIndicationProvider" << endl;
 }
 
 void AlertIndicationProvider::modifySubscription (

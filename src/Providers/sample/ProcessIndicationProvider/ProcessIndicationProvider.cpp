@@ -56,29 +56,10 @@ void ProcessIndicationProvider::terminate (void)
 void ProcessIndicationProvider::enableIndications (
     IndicationResponseHandler & handler)
 {
-//cout << "enable ProcessIndicationProvider" << endl;
-    handler.processing ();
-
-    CIMInstance indicationInstance ("root/PG_Interop:CIM_ProcessIndication");
-
-    indicationInstance.addProperty
-        (CIMProperty ("IndicationTime", CIMValue (CIMDateTime ())));
-
-    indicationInstance.addProperty
-        (CIMProperty ("IndicationIdentifier", String("ProcessIndication01")));
-
-    Array <String> correlatedIndications;
-    indicationInstance.addProperty (CIMProperty ("CorrelatedIndications", 
-         CIMValue (correlatedIndications)));
-
-    CIMIndication cimIndication (indicationInstance);
-
-    handler.deliver (cimIndication);
 }
 
 void ProcessIndicationProvider::disableIndications (void)
 {
-    //handler.complete ();
 }
 
 void ProcessIndicationProvider::createSubscription (
@@ -88,7 +69,6 @@ void ProcessIndicationProvider::createSubscription (
     const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
-//cout << "create ProcessIndicationProvider" << endl;
 }
 
 void ProcessIndicationProvider::modifySubscription (

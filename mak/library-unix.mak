@@ -1,6 +1,10 @@
 ifeq ($(COMPILER),xlc)
   LINK_COMMAND = xlC_r
-  LINK_ARGUMENTS = -qmkshrobj=$(AIX_LIB_PRIORITY) -Wl,-bhalt:$(AIX_LD_HALT)
+  ifdef PEGASUS_USE_RELEASE_DIRS
+    LINK_ARGUMENTS = -qmkshrobj=$(AIX_LIB_PRIORITY) -blibpath:/usr/linux/lib:/usr/lib:/lib -Wl,-bhalt:$(AIX_LD_HALT)
+  else
+    LINK_ARGUMENTS = -qmkshrobj=$(AIX_LIB_PRIORITY) -Wl,-bhalt:$(AIX_LD_HALT)
+  endif
   LINK_OUT = -o
   ifeq ($(PEGASUS_SUPPORTS_DYNLIB), yes)
     LINK_COMMAND += -G

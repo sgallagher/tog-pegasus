@@ -249,9 +249,14 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
             Message* resp = pmc->getProviderManager()->processMessage(request);
             if (resp)
             {
-                response = resp;
+                delete resp;
             }
         }
+
+        response = new CIMStopAllProvidersResponseMessage(
+            request->messageId,
+            CIMException(),
+            request->queueIds.copyAndPop());
     }
     else
     {

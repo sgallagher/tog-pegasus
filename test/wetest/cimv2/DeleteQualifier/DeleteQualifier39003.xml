@@ -8,7 +8,7 @@
           <NAMESPACE NAME="cimv2"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="QualifierName">
-          <VALUE>NonExistentQualifier</VALUE>
+          <CLASSNAME NAME="NonExistentQualifier"/>
         </IPARAMVALUE>
       </IMETHODCALL>
     </SIMPLEREQ>

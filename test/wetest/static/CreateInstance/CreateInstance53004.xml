@@ -43,7 +43,7 @@
 	   </PROPERTY>
 	   <PROPERTY NAME="PropertySint8" TYPE="sint8" 
 	    CLASSORIGIN="PG_TestPropertyTypes" >
-	    <VALUE>-122</VALUE>
+	    <VALUE>-180</VALUE>
 	   </PROPERTY>
 	   <PROPERTY NAME="PropertySint16" TYPE="sint16" 
 	    CLASSORIGIN="PG_TestPropertyTypes" >

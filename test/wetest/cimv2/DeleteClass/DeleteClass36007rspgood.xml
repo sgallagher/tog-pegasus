@@ -3,7 +3,7 @@
 <MESSAGE ID="36007" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="DeleteClass">
-<ERROR CODE="8" DESCRIPTION="CIM_ERR_CLASS_HAS_CHILDREN: Test_ForSubClassing"/>
+<ERROR CODE="8" DESCRIPTION="InheritanceTree.cpp(396): CIM_ERR_CLASS_HAS_CHILDREN: Operation cannot be carried out on this class since it has subclasses: &quot;Test_ForSubClassing&quot;"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

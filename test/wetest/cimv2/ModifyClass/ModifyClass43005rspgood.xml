@@ -3,7 +3,7 @@
 <MESSAGE ID="43005" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="ModifyClass">
-<ERROR CODE="8" DESCRIPTION="CIM_ERR_CLASS_HAS_CHILDREN: CIM_Indication"/>
+<ERROR CODE="8" DESCRIPTION="NameSpaceManager.cpp(516): CIM_ERR_CLASS_HAS_CHILDREN: Operation cannot be carried out on this class since it has subclasses: &quot;CIM_Indication&quot;"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

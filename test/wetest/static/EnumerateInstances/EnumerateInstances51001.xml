@@ -4,7 +4,7 @@
   <SIMPLEREQ>
    <IMETHODCALL NAME="EnumerateInstances">
     <LOCALNAMESPACEPATH>
-     <NAMESPACE NAME="NonExistentNameSpaceName"/>
+     <NAMESPACE NAME="root"/>
     </LOCALNAMESPACEPATH>
     <IPARAMVALUE NAME="ClassName">
      <CLASSNAME NAME="PG_TestPropertyTypes"/>

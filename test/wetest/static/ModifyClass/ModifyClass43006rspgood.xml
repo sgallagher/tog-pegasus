@@ -3,7 +3,7 @@
 <MESSAGE ID="43006" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="ModifyClass">
-<ERROR CODE="1" DESCRIPTION="CIM_ERR_FAILED: attempt to change superclass"/>
+<ERROR CODE="1" DESCRIPTION="NameSpaceManager.cpp(508): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: &quot;attempt to change superclass&quot;"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

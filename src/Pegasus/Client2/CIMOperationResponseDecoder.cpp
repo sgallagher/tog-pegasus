@@ -237,8 +237,8 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
     // Display of received packet.  Displays the complete received packet
     // For now, this is conditionally compiled.
-    
-    XmlWriter::indentedPrint(cout, httpMessage->message.getData());
+    if (getenv("PEGASUS_CLIENT_TRACE"))
+        XmlWriter::indentedPrint(cout, httpMessage->message.getData());
     
     // Calculate the beginning of the content from the message size and
     // the content length.  Subtract 1 to take into account the null
@@ -806,16 +806,17 @@ CIMEnumerateInstancesResponseMessage* CIMOperationResponseDecoder::_decodeEnumer
     else
     {
 	Array<CIMInstance> namedInstances;
-
-	if (XmlReader::testStartTagOremptyTag(parser, entry, "IRETURNVALUE"))
-	{
-	    CIMInstance namedInstance;
-
-	    while (XmlReader::getNamedInstanceElement(parser, namedInstance))
-	        namedInstances.append(namedInstance);
-
-	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	}
+    cout << "KSTEST instances " << endl;
+	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+        {
+    	    CIMInstance namedInstance;
+    
+    	    while (XmlReader::getNamedInstanceElement(parser, namedInstance))
+    	        namedInstances.append(namedInstance);
+    
+    	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+        }
 
 	return(new CIMEnumerateInstancesResponseMessage(
 	    messageId,

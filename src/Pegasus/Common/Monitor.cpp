@@ -26,7 +26,9 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifdef OS_TYPE_WINDOWS
+#include "Config.h"
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
 # define FD_SETSIZE 1024
 # include <winsock.h>
 #else
@@ -57,7 +59,7 @@ extern Uint32 _socketInterfaceRefCount;
 
 static void _OpenSocketInterface()
 {
-#ifdef OS_TYPE_WINDOWS
+#ifdef PEGASUS_OS_TYPE_WINDOWS
     if (_socketInterfaceRefCount == 0)
     {
 	WSADATA tmp;
@@ -72,7 +74,7 @@ static void _OpenSocketInterface()
 
 static void _CloseSocketInterface()
 {
-#ifdef OS_TYPE_WINDOWS
+#ifdef PEGASUS_OS_TYPE_WINDOWS
     _socketInterfaceRefCount--;
 
     if (_socketInterfaceRefCount == 0)
@@ -122,7 +124,7 @@ Monitor::~Monitor()
 
 Boolean Monitor::run(Uint32 milliseconds)
 {
-#ifdef OS_TYPE_WINDOWS
+#ifdef PEGASUS_OS_TYPE_WINDOWS
 
     // Windows select() has a strange little bug. It returns immediately if
     // there are no descriptors in the set even if the timeout is non-zero.
@@ -157,7 +159,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 
 	if (count == 0)
 	    return false;
-#ifdef OS_TYPE_WINDOWS
+#ifdef PEGASUS_OS_TYPE_WINDOWS
 	else if (count == SOCKET_ERROR)
 #else
 	else if (count == -1)

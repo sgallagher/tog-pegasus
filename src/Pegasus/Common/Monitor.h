@@ -51,8 +51,8 @@ public:
 
     enum Events { READ = 1, WRITE = 2, EXCEPTION = 4 };
 
-    SocketMessage(Uint32 socket_, Events events_) :
-	Message(SOCKET_MESSAGE), socket(socket_) events(events_)
+    SocketMessage(Uint32 socket_, Uint32 events_) :
+	Message(SOCKET_MESSAGE), socket(socket_), events(events_)
     {
     }
 

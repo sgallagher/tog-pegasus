@@ -29,10 +29,10 @@ DEFINES += -DSUNOS_5_6
 endif
 
 ifdef PEGASUS_DEBUG
-FLAGS = -g -KPIC -mt -xs -xildoff
+FLAGS = -g -pto -KPIC -mt -xs -xildoff
 DEFINES += -DPEGASUS_DEBUG
 else
-FLAGS = -O -KPIC -mt -xildoff
+FLAGS = -O -pto -KPIC -mt -xildoff
 endif
 
 SYS_LIBS = -lpthread -ldl -lsocket -lnsl -lxnet

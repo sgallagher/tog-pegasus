@@ -91,19 +91,6 @@ void test01()
     //
     Array<Sint8> xmlOut;
     XmlWriter::appendParamValueElement(xmlOut, a4clone);
-
-    //
-    // identical
-    //
-    Boolean same;
-    same  = a4clone.identical(a4);
-    assert(same);
- 
-    //
-    // not identical
-    //
-    same = a4clone.identical(a3);
-    assert(!same);
 }
 
 

@@ -14,3 +14,5 @@ include $(ROOT)/mak/program.mak
 
 tests:
 	$(PROGRAM)
+	$(RM) *.log
+	$(RM) *.trace

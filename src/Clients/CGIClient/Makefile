@@ -1,15 +1,8 @@
 ROOT = ../../..
 
-DIR = Pegasus/CGI
-
-LIBRARIES = \
-    $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX) \
-    $(LIB_DIR)/$(LIB_PREFIX)pegrepository$(LIB_SUFFIX) \
-    $(LIB_DIR)/$(LIB_PREFIX)pegprotocol$(LIB_SUFFIX) \
-    $(LIB_DIR)/$(LIB_PREFIX)pegclient$(LIB_SUFFIX) \
-    $(ACE_LIB)
-
+DIR = Pegasus/Clients/CGIClient
 include $(ROOT)/mak/config.mak
+include ../libraries.mak
 
 PROGRAM = CGIClient
 SOURCES = CGIClient.cpp
@@ -17,6 +10,6 @@ SOURCES = CGIClient.cpp
 include $(ROOT)/mak/program.mak
 
 install:
-	cp $(ROOT)/bin/CGIClient $(ROOT)/cgi-bin/CGIClient
+	cp $(PEGASUS_HOME)/bin/CGIClient.exe $(ROOT)/cgi/cgi-bin
 
 tests:

@@ -1,6 +1,9 @@
 /* PegasusDoc.dxx - Top Level file for Developer Documentation.
 This file defines the document strucuture and provides the introduction
 	$Log: PegasusDoc.dxx,v $
+	Revision 1.16  2001/03/29 16:41:38  karl
+	Add Class Tree Stuff
+	
 	Revision 1.15  2001/03/23 13:16:33  karl
 	minor corrections
 	
@@ -72,33 +75,35 @@ If you change it, the HTML Frame must also be changed.
     <td width="37%">Karl</td>
     <td width="117%">&nbsp;</td>
   </tr>
-    <tr>
+  <tr>
       <td width="10%">0.6</td>
       <td width="13%">01/04/01</td>
       <td width="37%">Karl</td>
       <td width="117%">Clean up the API defintions. and Add repository section.</td>
   </tr>
-  </tr>
-    <tr>
+  <tr>
       <td width="10%">0.7</td>
       <td width="13%">02/20/01</td>
       <td width="37%">Karl</td>
       <td width="117%">Change Class names, Add definitions, Add Architecture documentation.</td>
   </tr>  
-    </tr>
-      <tr>
-        <td width="10%">0.75</td>
-        <td width="13%">02/25/01</td>
-        <td width="37%">Karl</td>
-        <td width="117%">Create Frames Version and redo structure..</td>
+  <tr>
+      <td width="10%">0.75</td>
+      <td width="13%">02/25/01</td>
+      <td width="37%">Karl</td>
+      <td width="117%">Create Frames Version and redo structure..</td>
   </tr> 
-  </tr>  
-      </tr>
-        <tr>
-          <td width="10%">0.8</td>
-          <td width="13%">03/12/2001</td>
-          <td width="37%">Karl</td>
-          <td width="117%">Generate for 0.8 Release.</td>
+  <tr>
+      <td width="10%">0.8</td>
+      <td width="13%">03/12/2001</td>
+      <td width="37%">Karl</td>
+      <td width="117%">Generate for 0.8 Release.</td>
+  </tr> 
+    <tr>
+        <td width="10%">0.9</td>
+        <td width="13%">03/12/2001</td>
+        <td width="37%">Karl</td>
+        <td width="117%">Generate for 0.9 Release.</td>
   </tr> 
 </table>
 
@@ -173,6 +178,7 @@ This version of the Pegasus User Manual was created at \today
     		//@Include: ..\..\src\Pegasus\Common\CIMFlavor.h
     		//@Include: ..\..\src\Pegasus\Common\Char16.h
         	//@Include: ..\..\src\Pegasus\Common\DeclContext.h
+         	//@Include: ..\..\src\Pegasus\Common\Stack.h       	
         	//@{
 		//@Include: Exceptions.dxx  
         	//@Include: ..\..\src\Pegasus\Common\Exception.h

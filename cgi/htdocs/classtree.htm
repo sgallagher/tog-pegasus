@@ -2,7 +2,7 @@
   <body bgcolor="#CCCCCC">
     <table width="100%">
       <tr>
-	<td width="50%" align="bottom"><h1>Display a Class Tree</h1><td>
+	<td width="50%" align="bottom"><h1>Display Complete Class Tree&nbsp;</h1><td>
 	<td width="50%" align="right">
 	  <img border=1 src="/pegasus/icons/OpenGroupLogo.gif">
         </td>
@@ -11,24 +11,31 @@
     <hr>
     <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="ClassTree">
-      <p>Show the Class Tree for a Namespace or a part of a namespace starting
-      at a particular class.
+      <p>Show the Class Tree for a Namespace.
       <p>NameSpace&nbsp;&nbsp;&nbsp; <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
-      <p><b><a href="http://www.opengroup.org/management#className">ClassName</a></b>&nbsp;&nbsp;
-      <INPUT TYPE="text" NAME="ClassName" SIZE=30>&nbsp;
-      Defines the name of the Class that is the basis for the enumeration.. Null (no entry) lists all
-      class names in the Namespace<p><b><a href="#DeepInheritance">DeepInheritance</a></b>
-        <INPUT TYPE="checkbox" NAME="DeepInheritance" VALUE="false">&nbsp;
-      If true return names of all subclasses of specified class. If false, only
-      immediate subclasses are returned.
-      <p>I<INPUT TYPE="submit" VALUE="Submit" name="Submit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <p><INPUT TYPE="submit" VALUE="Submit" name="Submit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <INPUT TYPE="reset" VALUE="Reset">
-      <p>
     </form>
     
     <hr>
-    Background
-    <p>The Class Tree Display ...</p>
+    <h2>
+    Additional Information</h2>
+    <p>This function displays the complete inheritance tree of classes in a
+    Namespace with indenting to show the inheritance. Individual classes can be
+    displayed from the entries.</p>
+    <p>This function takes a long time to complete (est. 50 seconds + with 735
+    classes) and does not start to display until complete.&nbsp;This is a
+    function of the way the information is acquired and in a future version, the
+    algorithm modified to present levels of information as they are received
+    rather than do the complete acquisition and structuring before creating the
+    HTML outptu.&nbsp; It uses the
+    enumerate classnames to get a complete set of names and then uses individual
+    getclass operations to get the classes and extract the superclass.&nbsp;
+    Whereas the Class Inheritance function gets everything in one single
+    enumerate classes operation and requires that the timeout be set to the time
+    required to complete the single call, this display uses enumerate names to
+    get the complete namelist of classes and then acquires the class information
+    one-by-one and therefore can operate with the normal timeout.</p>
     <hr>
     <h2>Return Request</h2>
  If unsuccessful, one of the following status codes MUST be returned
@@ -60,7 +67,7 @@
      for more information on Pegasus</font>
 
      <p style="margin-top: 0; margin-bottom: 0"> <font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
-    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 05:34:50 PM<!--webbot bot="Timestamp" i-CheckSum="50229" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Thursday, March 29, 2001 07:53:44 AM<!--webbot bot="Timestamp" i-CheckSum="6736" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
      Copyright @ The Open Group 2001&nbsp;</font>
 
   </body>

@@ -55,6 +55,7 @@
 #include <Pegasus/Common/CIMPropertyList.h>
 
 PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_STD;
 
 class PEGASUS_COMMON_LINKAGE CIMMessage : public Message
 {

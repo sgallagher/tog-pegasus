@@ -690,6 +690,7 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
     // find provider manager for provider interface
     for(Uint32 i = 0, n = _providerManagers.size(); i < n; i++)
     {
+        // DEBUG
         CString s1 = name.getInterfaceName().getCString();
         const char * p1 = s1;
 

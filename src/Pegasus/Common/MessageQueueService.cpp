@@ -188,9 +188,14 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void *
    return(0);
 }
 
+
+// callback function is responsible for cleaning up all resources
+// including op, op->_callback_node, and op->_callback_ptr
 void MessageQueueService::_handle_async_callback(AsyncOpNode *op)
 {
-   return_op(op);
+   // note that _callback_node may be different from op 
+   // op->_callback_q is a "this" pointer we can use for static callback methods
+   op->_async_callback(op->_callback_node, op->_callback_q, op->_callback_ptr);
 }
 
 
@@ -552,12 +557,14 @@ Boolean MessageQueueService::ForwardOp(AsyncOpNode *op,
 				       Uint32 destination)
 {
    PEGASUS_ASSERT(op != 0 );
-   if ( 0 == (op->_op_dest = MessageQueue::lookup(destination)))
-      return false;
-
+   op->lock();
+   op->_op_dest = MessageQueue::lookup(destination);
    op->_flags |= (ASYNC_OPFLAGS_FIRE_AND_FORGET | ASYNC_OPFLAGS_FORWARD);
    op->_flags &= ~(ASYNC_OPFLAGS_CALLBACK);
-
+   op->unlock();
+   if ( op->_op_dest == 0 )
+      return false;
+      
    return  _meta_dispatcher->route_async(op);
 }
 
@@ -566,17 +573,29 @@ Boolean MessageQueueService::SendAsync(AsyncOpNode *op,
 				       Uint32 destination,
 				       void (*callback)(AsyncOpNode *, 
 							MessageQueue *, 
-							void *))
+							void *),
+				       MessageQueue *callback_response_q,
+				       void *callback_ptr)
 { 
    PEGASUS_ASSERT(op != 0 && callback != 0 );
    
    // get the queue handle for the destination
-   if ( 0 == (op->_op_dest = MessageQueue::lookup(destination)))
-      return false;
 
+   op->lock();
+   op->_op_dest = MessageQueue::lookup(destination);
    op->_flags |= ASYNC_OPFLAGS_CALLBACK;
    op->_flags &= ~(ASYNC_OPFLAGS_FIRE_AND_FORGET);
    op->_state &= ~ASYNC_OPSTATE_COMPLETE;
+   // initialize the callback data
+   op->_async_callback = callback;
+   op->_callback_node = op;
+   op->_callback_response_q = callback_response_q;
+   op->_callback_ptr = callback_ptr;
+   op->_callback_q = this;
+   
+   op->unlock();
+   if(op->_op_dest == 0) 
+      return false;
    
    return  _meta_dispatcher->route_async(op);
 }
@@ -601,21 +620,17 @@ Boolean MessageQueueService::SendForget(Message *msg)
       if (mask & message_mask::ha_async)
 	 (static_cast<AsyncMessage *>(msg))->op = op;
    }
+   op->lock();
+   op->_op_dest = MessageQueue::lookup(msg->dest);
    op->_flags |= ASYNC_OPFLAGS_FIRE_AND_FORGET;
    op->_flags &= ~(ASYNC_OPFLAGS_CALLBACK | ASYNC_OPFLAGS_SIMPLE_STATUS);
    op->_state &= ~ASYNC_OPSTATE_COMPLETE;
-   
-   // get the queue handle for the destination
-   if ( 0 == (op->_op_dest = MessageQueue::lookup(msg->dest)))
-   {
+   op->unlock();
+   if ( op->_op_dest == 0 )
       return false;
-   }
    
    // now see if the meta dispatcher will take it
-   Boolean return_code = _meta_dispatcher->route_async(op);
-   return  return_code;
-   
-
+   return  _meta_dispatcher->route_async(op);
 }
 
 
@@ -634,21 +649,21 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest *request)
    }
    
    request->block = true;
+   request->op->lock();
    request->op->_state &= ~ASYNC_OPSTATE_COMPLETE;
    request->op->_flags &= ~ASYNC_OPFLAGS_CALLBACK; 
    
-   // get the queue handle for the destination
-   if ( 0 == (request->op->_op_dest = MessageQueue::lookup(request->dest)))
+   request->op->_op_dest = MessageQueue::lookup(request->dest);
+   request->op->unlock();
+   
+   if ( request->op->_op_dest == 0 )
       return 0;
    
-   
    // now see if the meta dispatcher will take it
-
    if (true == _meta_dispatcher->route_async(request->op))
    {
       request->op->_client_sem.wait();
       PEGASUS_ASSERT(request->op->_state & ASYNC_OPSTATE_COMPLETE);
-      
    }
    
    request->op->lock();
@@ -662,7 +677,6 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest *request)
       request->op->_request.remove(request);
       request->op->_state |= ASYNC_OPSTATE_RELEASED;
       request->op->unlock();
-      
       return_op(request->op);
       request->op = 0;
    }

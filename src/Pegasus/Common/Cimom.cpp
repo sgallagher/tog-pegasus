@@ -395,9 +395,7 @@ cimom *cimom::_global_this;
 void cimom::_default_callback(AsyncOpNode *op, MessageQueue *q, void *ptr)
 {
    PEGASUS_ASSERT(op != 0 && q != 0);
-   
-   op->_op_dest = q;
-   _global_this->route_async(op);
+   return;
 }
 
 
@@ -420,9 +418,10 @@ void cimom::_complete_op_node(AsyncOpNode *op, Uint32 state, Uint32 flag, Uint32
    
    if ( flags & ASYNC_OPFLAGS_CALLBACK )
    {
-      (*(op->_async_callback))(op->_callback_node, 
-			       op->_callback_queue,
-			       op->_callback_ptr);
+      // send this node to the response queue
+      op->_op_dest = op->_callback_response_q; 
+      op->_callback_response_q = 0;
+      _global_this->route_async(op);
       return;
    }
    

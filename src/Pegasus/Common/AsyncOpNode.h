@@ -160,8 +160,11 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
 			      MessageQueue *, 
 			      void *);
       AsyncOpNode *_callback_node;
-      MessageQueue *_callback_queue;
+      MessageQueue *_callback_response_q;
       void *_callback_ptr;
+      MessageQueue *_callback_q;
+      
+
       
       friend class cimom;
       friend class MessageQueueService;
@@ -232,7 +235,7 @@ inline  void AsyncOpNode::put_request(const Message *request)
 {
    _mut.lock(pegasus_thread_self());
    gettimeofday(&_updated, NULL);
-//   if( false == _request.exists(reinterpret_cast<void *>(const_cast<Message *>(request))) )
+   if( false == _request.exists(reinterpret_cast<void *>(const_cast<Message *>(request))) )
    _request.insert_last( const_cast<Message *>(request) ) ;
 
 //   _request = const_cast<Message *>(request);
@@ -256,7 +259,7 @@ inline void AsyncOpNode::put_response(const Message *response)
 {
    _mut.lock(pegasus_thread_self());
    gettimeofday(&_updated, NULL);
-//   if (false == _response.exists(reinterpret_cast<void *>(const_cast<Message *>(response))))
+   if (false == _response.exists(reinterpret_cast<void *>(const_cast<Message *>(response))))
    _response.insert_last( const_cast<Message *>(response) );
 
 //   _response = const_cast<Message *>(response);

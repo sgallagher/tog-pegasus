@@ -46,6 +46,27 @@ const Uint32 PEG_SEM_WRITE = 2 ;
 //-----------------------------------------------------------------
 #ifndef PEGASUS_READWRITE_NATIVE 
 
+
+// // If i get cancelled, I MUST ensure:
+// 1) I do not hold the internal mutex
+// 2) I do not hold the write lock
+// 3) I am not using a reader slot
+
+void extricate_read_write(void *parm)
+{
+   ReadWriteSem *rws = (ReadWriteSem *)parm;
+   PEGASUS_THREAD_TYPE myself = pegasus_thread_self();
+   
+   if(rws->_rwlock._wlock.get_owner() == myself)
+      rws->_rwlock._wlock.unlock();
+   else
+      if(rws->_readers > 0)
+	 rws->_rwlock._rlock.signal();
+   if (rws->_rwlock._internal_lock.get_owner() == myself)
+      rws->_rwlock._internal_lock.unlock();
+}
+
+
 ReadWriteSem::ReadWriteSem(void) : _readers(0), _writers(0), _rwlock() {}
 
 ReadWriteSem::~ReadWriteSem(void)
@@ -83,182 +104,202 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 // Lock this object to maintain integrity while we decide 
 // exactly what to do next.
 //-----------------------------------------------------------------
-   if(milliseconds == 0)
-      _rwlock._internal_lock.lock(pegasus_thread_self()); 
-   else if(milliseconds == -1)
-      _rwlock._internal_lock.try_lock(pegasus_thread_self());
-   else
-      _rwlock._internal_lock.timed_lock(milliseconds, pegasus_thread_self());
-
-   if(mode == PEG_SEM_WRITE)
-   {
+   IPCException * caught = NULL;
+   
+   { // cleanup stack frame 
+      native_cleanup_push(extricate_read_write, this);
+      try
+      {
+	 if(milliseconds == 0)
+	    _rwlock._internal_lock.lock(pegasus_thread_self()); 
+	 else if(milliseconds == -1)
+	    _rwlock._internal_lock.try_lock(pegasus_thread_self());
+	 else
+	    _rwlock._internal_lock.timed_lock(milliseconds, pegasus_thread_self());
+      }
+      catch(IPCException& e)
+      {
+	 caught = &e;
+	 goto throw_from_here;
+      }
+      
+      if(mode == PEG_SEM_WRITE)
+      {
 //-----------------------------------------------------------------
 // Write Lock Step 1: lock the object and allow all the readers to exit
 //-----------------------------------------------------------------
-
-      if(milliseconds == 0) // fast wait
-      {
-	 if(_rwlock._rlock.count() > 0)
+	 if(milliseconds == 0) // fast wait
 	 {
-	    _rwlock._internal_lock.unlock();
-	    throw(WaitFailed(pegasus_thread_self()));
-	 }
-      }
-      else if(milliseconds == -1) // infinite wait
-      {
-	 while(_rwlock._rlock.count() > 0 )
-	    pegasus_yield();
-      }
-      else // timed wait 
-      {
-	 struct timeval start, now;
-	 pegasus_gettimeofday(&start);
-	 now.tv_sec = start.tv_sec;
-	 now.tv_usec = start.tv_usec;
-	 
-	 while(_rwlock._rlock.count() > 0)
-	 {
-	    if((now.tv_usec - start.tv_usec) > (1000 * milliseconds))
+	    if(_rwlock._rlock.count() > 0)
 	    {
 	       _rwlock._internal_lock.unlock();
-	       throw(TimeOut(pegasus_thread_self()));
+	       caught = new WaitFailed(pegasus_thread_self());
+	       goto throw_from_here;
 	    }
-	    pegasus_yield();
 	 }
-      }
+	 else if(milliseconds == -1) // infinite wait
+	 {
+	    while(_rwlock._rlock.count() > 0 )
+	       pegasus_yield();
+	 }
+	 else // timed wait 
+	 {
+	    struct timeval start, now;
+	    gettimeofday(&start, NULL);
+	    start.tv_usec += (1000 * milliseconds);
+	    while(_rwlock._rlock.count() > 0)
+	    {
+	       gettimeofday(&now, NULL);
+	       if((now.tv_usec > start.tv_usec) || now.tv_sec > start.tv_sec )
+	       {
+		  _rwlock._internal_lock.unlock();
+		  caught = new TimeOut(pegasus_thread_self());
+		  goto throw_from_here;
+	       }
+	       pegasus_yield();
+	    }
+	 }
 //-----------------------------------------------------------------
 // Write Lock Step 2: Obtain the Write Mutex
 //  Although there are no readers, there may be a writer
 //-----------------------------------------------------------------
-      if(milliseconds == 0) // fast wait
-      {
-	 try 
+	 if(milliseconds == 0) // fast wait
 	 {
-	    _rwlock._wlock.try_lock(pegasus_thread_self());
+	    try 
+	    {
+	       _rwlock._wlock.try_lock(pegasus_thread_self());
+	    }
+	    catch(IPCException e) 
+	    {
+	       _rwlock._internal_lock.unlock();
+	       caught = &e;
+	       goto throw_from_here;
+	    }
 	 }
-	 catch(IPCException e) 
+	 else if(milliseconds == -1) // infinite wait
 	 {
-	    _rwlock._internal_lock.unlock();
-	    throw;
+	    try 
+	    {
+	       _rwlock._wlock.lock(pegasus_thread_self());
+	    }
+	    catch (IPCException& e) 
+	    {
+	       _rwlock._internal_lock.unlock();
+	       caught = &e;
+	       goto throw_from_here;
+	    }
 	 }
-      }
-      else if(milliseconds == -1) // infinite wait
-      {
-	 try 
+	 else // timed wait
 	 {
-	    _rwlock._wlock.lock(pegasus_thread_self());
+	    try
+	    {
+	       _rwlock._wlock.timed_lock(milliseconds, pegasus_thread_self());
+	    }
+	    catch(IPCException& e)
+	    {
+	       _rwlock._internal_lock.unlock();
+	       caught = &e;
+	       goto throw_from_here;
+	    }
 	 }
-	 catch (IPCException& e) 
-	 {
-	    _rwlock._internal_lock.unlock();
-	    throw;
-	 }
-      }
-
-      else // timed wait
-      {
-	 try
-	 {
-	    _rwlock._wlock.timed_lock(milliseconds, pegasus_thread_self());
-	 }
-	 catch(IPCException& e)
-	 {
-	    _rwlock._internal_lock.unlock();
-	 }
-      }
       
 //-----------------------------------------------------------------      
 // Write Lock Step 3: set the writer count to one, unlock the object
 //   There are no readers and we are the only writer !
 //-----------------------------------------------------------------      
-      _writers = 1;
-      // set the owner
-      _rwlock._owner = pegasus_thread_self();
-      // unlock the object
-      _rwlock._internal_lock.unlock();
-   } // PEG_SEM_WRITE
-   else
-   {
+	 _writers = 1;
+	 // set the owner
+	 _rwlock._owner = pegasus_thread_self();
+	 // unlock the object
+	 _rwlock._internal_lock.unlock();
+      } // PEG_SEM_WRITE
+      else
+      {
 //-----------------------------------------------------------------
 // Read Lock Step 1: Wait for the existing writer (if any) to clear
 //-----------------------------------------------------------------
-      if(milliseconds == 0) // fast wait
-      {
-	 if(_writers > 0)
+	 if(milliseconds == 0) // fast wait
 	 {
-	    _rwlock._internal_lock.unlock();
-	    throw(WaitFailed(pegasus_thread_self()));
-	 }
-      }
-      else if(milliseconds == -1) // infinite wait
-      {
-	 while(_writers > 0)
-	    pegasus_yield(); 
-      }
-      else // timed wait
-      {
-	 struct timeval start, now;
-	 pegasus_gettimeofday(&start);
-	 now.tv_sec = start.tv_sec;
-	 now.tv_usec = start.tv_usec;
-	 
-	 while(_writers > 0)
-	 {
-	    if((now.tv_sec > start.tv_sec)) 
+	    if(_writers > 0)
 	    {
-	       if((now.tv_usec - start.tv_usec) > (1000 * milliseconds))
+	       _rwlock._internal_lock.unlock();
+	       caught = new WaitFailed(pegasus_thread_self());
+	       goto throw_from_here;
+	    }
+	 }
+	 else if(milliseconds == -1) // infinite wait
+	 {
+	    while(_writers > 0)
+	       pegasus_yield(); 
+	 }
+	 else // timed wait
+	 {
+	    struct timeval start, now;
+	    gettimeofday(&start, NULL);
+	    start.tv_usec += (milliseconds * 1000);
+	    
+	    while(_writers > 0)
+	    {
+	       gettimeofday(&now, NULL);
+	       if((now.tv_usec > start.tv_usec) || (now.tv_sec > start.tv_sec))
 	       {
 		  _rwlock._internal_lock.unlock();
-		  throw(TimeOut(pegasus_thread_self()));
+		  caught = new TimeOut(pegasus_thread_self());
+		  goto throw_from_here;
 	       }
+	       pegasus_yield();
+	       pegasus_gettimeofday(&now);
 	    }
-	    pegasus_yield();
-	    pegasus_gettimeofday(&now);
 	 }
-      }
       
 //-----------------------------------------------------------------
 // Read Lock Step 2: wait for a reader slot to open up, then return
 //  At this point there are no writers, but there may be too many
 //  readers.
 //-----------------------------------------------------------------
-      if(milliseconds == 0) // fast wait
-      {
-	 try 
+	 if(milliseconds == 0) // fast wait
 	 {
-	    _rwlock._rlock.try_wait();  
+	    try 
+	    {
+	       _rwlock._rlock.try_wait();  
+	    }
+	    catch(IPCException& e) 
+	    {
+	       // the wait failed, there must be too many readers already. 
+	       // unlock the object
+	       _rwlock._internal_lock.unlock();
+	       caught = new TooManyReaders(pegasus_thread_self());
+	    }
 	 }
-	 catch(IPCException& e) 
+	 else if(milliseconds == -1) // infinite wait
 	 {
-	    // the wait failed, there must be too many readers already. 
-	    // unlock the object
-	    _rwlock._internal_lock.unlock();
-	    throw(TooManyReaders(pegasus_thread_self()));
-	 }
-      }
-      else if(milliseconds == -1) // infinite wait
-      {
-	 _rwlock._rlock.wait(); // does not throw an exception
-      }      else // timed wait
-      {
-	 try 
+	    _rwlock._rlock.wait(); // does not throw an exception
+	 }      else // timed wait
 	 {
-	    _rwlock._rlock.time_wait(milliseconds);
+	    try 
+	    {
+	       _rwlock._rlock.time_wait(milliseconds);
+	    }
+	    catch(IPCException& e)
+	    {
+	       _rwlock._internal_lock.unlock();
+	       caught = &e;
+	       goto throw_from_here;
+	    }
 	 }
-	 catch(IPCException& e)
-	 {
-	    _rwlock._internal_lock.unlock();
-	    throw;
-	 }
-      }
       
 //-----------------------------------------------------------------      
 // Read Lock Step 3: increment the number of readers, unlock the object, 
 // return
 //-----------------------------------------------------------------
-      _readers++;
-      _rwlock._internal_lock.unlock();
-   }
+	 _readers++;
+	 _rwlock._internal_lock.unlock();
+      }
+  throw_from_here:
+      native_cleanup_pop(0);
+   } // cleanup stack frame 
+   if(caught != NULL)
+      throw(*caught);
    return;
 }
 
@@ -287,7 +328,6 @@ void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller)
       _readers--;
       _rwlock._rlock.signal();
    }
-   
 }
 
 #endif // ! PEGASUS_READWRITE_NATIVE
@@ -452,36 +492,33 @@ AtomicInt& AtomicInt::operator-=(Uint32 val)
 
 void extricate_condition(void *parm)
 {
+   Condition *c = (Condition *)parm;
 
    // if I own the critical section, release it
-
-
+   if(pegasus_thread_self() == c->_condition._spin.get_owner())
+      c->_condition._spin.unlock();
    // if I DO NOT own the mutex, obtain it
-
+   if(pegasus_thread_self() != c->_cond_mutex.get_owner())
+      c->_cond_mutex.lock(pegasus_thread_self());
 }
 
 Condition::Condition(void) : _disallow(0), _condition(), _cond_mutex() { } 
 
 Condition::~Condition(void)
 {
-   struct internal_dq<cond_waiter> *lingerers;
+   cond_waiter *lingerers;
    // don't allow any new waiters
    _disallow = 1;
-// lock the internal mutex
    _condition._spin.lock(pegasus_thread_self());
-   lingerers = _condition._waiters._next;
-   while( lingerers->_isHead == false)
+
+   while(NULL != (lingerers = _condition._waiters.remove() ) )
    {
-      lingerers->_rep->signalled.signal();
-      lingerers = lingerers->_next;
+      lingerers->signalled.signal();
    }
    _condition._spin.unlock();
-   _condition._spin.~Mutex();
-   while( _condition._waiters._count) 
-   {
+   while( _condition._waiters._count)   {
       pegasus_yield();
    }
-   _cond_mutex.~Mutex();
 }
 
 void Condition::signal(PEGASUS_THREAD_TYPE caller)
@@ -541,39 +578,47 @@ void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller
    throw(TimeOut, Permission)
 {
 
+   IPCException *caught = NULL;
+   
    if(_disallow == 1)
       throw(TimeOut(caller));
    // enforce that the caller owns the conditional lock
    if(_cond_mutex._mutex.owner != caller)
       throw(Permission(caller));
    cond_waiter *waiter = new cond_waiter(caller, milliseconds);
-   // lock the internal list
-   _condition._spin.lock(caller);
-   _condition._waiters.insert_first(waiter);
-   // unlock the condition mutex 
-   _cond_mutex.unlock();
-   _condition._spin.unlock();
-   try 
    {
-      if(milliseconds == -1)
-	 waiter->signalled.wait();
-      else
-	 waiter->signalled.time_wait(milliseconds);
-   }
-   catch(IPCException& e)
-   {
+      native_cleanup_push(extricate_condition, this);
+
+      // lock the internal list
+      _condition._spin.lock(caller);
+      _condition._waiters.insert_first(waiter);
+      // unlock the condition mutex 
+      _cond_mutex.unlock();
+      _condition._spin.unlock();
+      try 
+      {
+	 if(milliseconds == -1)
+	    waiter->signalled.wait();
+	 else
+	    waiter->signalled.time_wait(milliseconds);
+      }
+      catch(TimeOut& t) 
+      {
+	 ;
+      }
+      catch(IPCException& e)
+      {
+	 caught = &e;
+      }
       _condition._spin.lock(caller);
       _condition._waiters.remove(waiter);
       _condition._spin.unlock();
       delete waiter;
       _cond_mutex.lock(caller);
-      throw;
+      native_cleanup_pop(0);
    }
-   _condition._spin.lock(caller);
-   _condition._waiters.remove(waiter);
-   _condition._spin.unlock();
-   delete waiter;
-   _cond_mutex.lock(caller);
+   if(caught != NULL)
+      throw(*caught);
    return;
 }
 
@@ -582,8 +627,7 @@ void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
 {
    if(_disallow == 1)
       return;
-   
-   // enforce that the caller owns the conditional lock
+      // enforce that the caller owns the conditional lock
    if(_cond_mutex._mutex.owner != caller)
       throw(Permission(caller));
 

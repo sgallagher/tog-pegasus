@@ -207,7 +207,7 @@ void Mutex::timed_lock( Uint32 milliseconds , PEGASUS_THREAD_TYPE caller)
       errorcode = pthread_mutex_trylock(&_mutex.mut);
       gettimeofday(&now, NULL);
    } while (errorcode == EBUSY && 
-	    now.tv_usec < start.tv_usec) ;
+	    ((now.tv_usec < start.tv_usec) || (now.tv_sec <= start.tv_sec ))) ;
 
    if (errorcode)
    {
@@ -332,7 +332,8 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	 errorcode = pthread_rwlock_tryrdlock(&_rwlock.rwlock);
 	 gettimeofday(&now, NULL);
       }
-      while (errorcode == EBUSY && now.tv_used < start.tv_used);
+      while (errorcode == EBUSY && 
+	     ((now.tv_usec < start.tv_usec) || (now.tv_sec <= start.tv_sec)));
       if(0 == errorcode)
       {
 	 _readers++;
@@ -346,7 +347,8 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	 errorcode = pthread_rwlock_trywrlock(&_rwlock.rwlock);
 	 gettimeofday(&now, NULL);
       }
-      while(errorcode == EBUSY && now.tv_used < start.tv_used)
+      while(errorcode == EBUSY && 
+	    ((now.tv_usec < start.tv_usec) || (now.tv_sec <= start.tv_sec ))
 
       if(0 == errorcode)
       {
@@ -627,7 +629,7 @@ void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
       gettimeofday(&now, NULL);
    } while (retcode == -1 && 
 	    errno == EAGAIN &&
-	    now.tv_usec < start.tv_usec) ;
+	    (now.tv_usec < start.tv_usec) || ( now.tv_sec <= start.tv_sec)) ;
    
    if(retcode)
       throw(TimeOut(_semaphore.owner));

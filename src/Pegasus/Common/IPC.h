@@ -247,7 +247,6 @@ template<class L> class PEGASUS_EXPORT internal_dq {
 	 }
 	 return(ret); 
       }
-
       inline int count(void) { return _count ; }
 } ;
 
@@ -480,6 +479,7 @@ class PEGASUS_EXPORT ReadWriteSem
       int _readers; 
       int _writers;
       PEGASUS_RWLOCK_HANDLE _rwlock;
+      friend void extricate_read_write(void *);
 } ;
 
 //-----------------------------------------------------------------

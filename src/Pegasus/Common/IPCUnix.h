@@ -147,10 +147,10 @@ typedef sig_atomic_t PEGASUS_ATOMIC_TYPE ;
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
 // #define PEGASUS_READWRITE_NATIVE = 1
 
-// typedef struct {
-//     pthread_rwlock_t rwlock;
-//     pthread_t owner;
-// } PEGASUS_RWLOCK_HANDLE;
+typedef struct {
+    pthread_rwlock_t rwlock;
+    pthread_t owner;
+} PEGASUS_RWLOCK_HANDLE;
 
 #endif // linux platform read/write type
 

@@ -1,0 +1,12 @@
+/*
+    $Log#
+    This file defines the basic operations functions for Pegasus
+    ATTN: Add to this
+*/
+
+/** @name Implementing the CIM Operations over HTTP
+The core of the Pegasus is the WBEM Operations (Formally known as CIM Operations over HTTP in the DMTF specificaion).  Pegasus uses the basic WBEM operations as the basis for all of the interfaces.
+
+This section defines these interfaces.
+
+*/

@@ -1535,7 +1535,7 @@ void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Mes
                    request->resultRole,
                    request->includeQualifiers,
                    request->includeClassOrigin,
-                   request->propertyList.getPropertyNameArray(),
+                   request->propertyList,
                    handler);
 
                STAT_PMS_PROVIDEREND;
@@ -1783,7 +1783,7 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
                 request->role,
                 request->includeQualifiers,
                 request->includeClassOrigin,
-                request->propertyList.getPropertyNameArray(),
+                request->propertyList,
                 handler);
             STAT_PMS_PROVIDEREND;
 

@@ -59,6 +59,10 @@
 #include "Tracer.h"
 #include <Pegasus/Common/MessageLoader.h> //l10n
 
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+#include "OS400ConvertChar.h"
+#endif
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -243,6 +247,9 @@ void HTTPAcceptor::_bind()
            AF_UNIX;
        strcpy(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path,
               PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+       AtoE(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
+#endif
        ::unlink(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
 #else
        PEGASUS_ASSERT(false);
@@ -638,6 +645,9 @@ void pegasus_acceptor::bind()
     memset(&addr_un, 0, sizeof(addr_un));
     addr_un.sun_family = AF_UNIX;
     strcpy(addr_un.sun_path, PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+    AtoE(addr_un.sun_path);
+#endif
     addr = (struct sockaddr*) &addr_un;
     addr_size = sizeof(addr_un);
     _listener.socket(AF_UNIX, SOCK_STREAM, 0);

@@ -241,6 +241,9 @@ HTTPConnection* HTTPConnector::connect(
       sockaddr_un address;
       address.sun_family = AF_UNIX;
       strcpy(address.sun_path, PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+      AtoE(address.sun_path);
+#endif
 
       socket = ::socket(AF_UNIX, SOCK_STREAM, 0);
       if (socket < 0)

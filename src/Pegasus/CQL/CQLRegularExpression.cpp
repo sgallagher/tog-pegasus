@@ -252,7 +252,7 @@ Boolean CQLRegularExpression::match(const String& string, const String& pattern)
             strIndex ++;
         }
     }
-    return false;   
+    PEGASUS_UNREACHABLE( return false; )
 }
 
 PEGASUS_NAMESPACE_END

@@ -201,7 +201,7 @@ static CIMDateTime time_t_to_CIMDateTime(time_t *time_to_represent)
    if (strftime(date_ascii_rep, CIM_DATE_TIME_ASCII_LEN,
                 "%Y%m%d%H%M%S.000000", &broken_time))
    {
-      snprintf(utc_offset, 20, "%+03ld", -tz.tz_minuteswest);
+      snprintf(utc_offset, 20, "%+04ld", -tz.tz_minuteswest);
       strncat(date_ascii_rep, utc_offset, CIM_DATE_TIME_ASCII_LEN);
       dt = String(date_ascii_rep);
    }

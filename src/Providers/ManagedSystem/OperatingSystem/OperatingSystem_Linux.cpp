@@ -342,9 +342,9 @@ static CIMDateTime time_t_to_CIMDateTime(time_t *time_to_represent)
    {
 #if defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
       //-- the following makes use of a GNU extension
-      snprintf(utc_offset, 20, "%+03ld", broken_time.tm_gmtoff / 60);
+      snprintf(utc_offset, 20, "%+04ld", broken_time.tm_gmtoff / 60);
 #else
-      snprintf(utc_offset, 20, "%+03ld", 0);
+      snprintf(utc_offset, 20, "%+04ld", 0);
 #endif
       strncat(date_ascii_rep, utc_offset, CIM_DATE_TIME_ASCII_LEN);
       dt = String(date_ascii_rep);

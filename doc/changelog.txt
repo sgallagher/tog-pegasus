@@ -14,7 +14,11 @@ Version 1.1.1 - 3 August 2001 -  Development Branch (Work in Progress)
 3. (Karl) 7 Aug 2001 - Added CIM Schema 2.6 (preliminary) to the Schemas
 	directorys.  Note however that today the make repository still
 	loads the 2.5 schema.
-
+	
+4. (Karl) 8 Aug 2001 - Change cimmofparser.cpp to put header and trailers
+        on XML output.
+        
+        
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

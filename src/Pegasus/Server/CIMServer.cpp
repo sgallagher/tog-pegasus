@@ -138,8 +138,11 @@ void childSignalHandler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
         PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL4, "Caught SIGCHLD");
         pid_t cpid = 0;
 
+#if GCC_VERSION > 30200
+        while ((cpid = waitpid(0, NULL, WNOHANG | __WCLONE)) > 0);
+#else
         while ((cpid = waitpid(0, NULL, WNOHANG)) > 0);
-
+#endif
         if (cpid < 0)
         {
             Tracer::trace(TRC_SERVER, Tracer::LEVEL2,

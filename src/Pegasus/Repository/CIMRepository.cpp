@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -137,7 +137,7 @@ void _SaveObject(const String& path, const Object& object)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-CIMRepository::CIMRepository(const String& repositoryRoot) 
+CIMRepository::CIMRepository(const String& repositoryRoot)
     : _repositoryRoot(repositoryRoot), _nameSpaceManager(repositoryRoot)
 {
     _context = new RepositoryDeclContext(this);
@@ -198,7 +198,7 @@ Boolean CIMRepository::_getInstanceIndex(
 	// -- Lookup index of instance:
 
 	String path = _getIndexFilePath(nameSpace, classNames[i]);
-    
+
 	if (InstanceIndexFile::lookup(path, tmpInstanceName, index))
 	{
 	    className = classNames[i];
@@ -255,7 +255,7 @@ void CIMRepository::deleteClass(
 
 void CIMRepository::deleteInstance(
     const String& nameSpace,
-    const CIMReference& instanceName) 
+    const CIMReference& instanceName)
 {
     // -- Lookup index of entry from index file:
 
@@ -274,7 +274,7 @@ void CIMRepository::deleteInstance(
 
     if (!FileSystem::removeFileNoCase(instanceFilePath))
     {
-	throw PEGASUS_CIM_EXCEPTION(FAILED, 
+	throw PEGASUS_CIM_EXCEPTION(FAILED,
 	    "failed to remove file in CIMRepository::deleteInstance()");
     }
 
@@ -288,35 +288,36 @@ void CIMRepository::deleteInstance(
 
     if (!FileSystem::getFileSizeNoCase(indexFilePath, size))
     {
-	throw PEGASUS_CIM_EXCEPTION(FAILED, 
+	throw PEGASUS_CIM_EXCEPTION(FAILED,
 	    "unexpected failure in CIMRepository::deleteInstance()");
     }
 
     if (size == 0 && !FileSystem::removeFileNoCase(indexFilePath))
     {
-	throw PEGASUS_CIM_EXCEPTION(FAILED, 
+	throw PEGASUS_CIM_EXCEPTION(FAILED,
 	    "unexpected failure in CIMRepository::deleteInstance()");
     }
 }
 
 void CIMRepository::createClass(
     const String& nameSpace,
-    CIMClass& newClass) 
+    const CIMClass& newClass)
 {
     // -- Resolve the class:
-
-    newClass.resolve(_context, nameSpace);
+	CIMClass cimClass(newClass);
+	
+    cimClass.resolve(_context, nameSpace);
 
     // -- Create namespace manager entry:
 
     String classFilePath;
 
-    _nameSpaceManager.createClass(nameSpace, newClass.getClassName(), 
-	newClass.getSuperClassName(), classFilePath);
+    _nameSpaceManager.createClass(nameSpace, cimClass.getClassName(),
+	cimClass.getSuperClassName(), classFilePath);
 
     // -- Create the class file:
 
-    _SaveObject(classFilePath, newClass);
+    _SaveObject(classFilePath, cimClass);
 }
 
 /*------------------------------------------------------------------------------
@@ -351,8 +352,8 @@ void CIMRepository::createClass(
 ------------------------------------------------------------------------------*/
 
 void CIMRepository::_createAssociationEntries(
-    const String& nameSpace, 
-    const CIMConstClass& cimClass, 
+    const String& nameSpace,
+    const CIMConstClass& cimClass,
     const CIMInstance& cimInstance,
     const CIMReference& instanceName)
 {
@@ -360,11 +361,11 @@ void CIMRepository::_createAssociationEntries(
 
     String tmpNameSpace = nameSpace;
     tmpNameSpace.translate('/', '#');
-    String assocFileName = 
+    String assocFileName =
 	Cat(_repositoryRoot, "/", tmpNameSpace, "/associations");
 
     // Open input file:
-    
+
     ofstream os;
 
     if (!OpenAppend(os, assocFileName))
@@ -427,13 +428,14 @@ void CIMRepository::_createAssociationEntries(
 
 void CIMRepository::createInstance(
     const String& nameSpace,
-    CIMInstance& newInstance) 
+    const CIMInstance& newInstance)
 {
     // -- Resolve the instance (looks up class):
+	CIMInstance cimInstance(newInstance);
 
     CIMConstClass cimClass;
-    newInstance.resolve(_context, nameSpace, cimClass);
-    CIMReference instanceName = newInstance.getInstanceName(cimClass);
+    cimInstance.resolve(_context, nameSpace, cimClass);
+    CIMReference instanceName = cimInstance.getInstanceName(cimClass);
 
     // -- Make sure the class has keys (otherwise it will be impossible to
     // -- create the instance.
@@ -459,19 +461,19 @@ void CIMRepository::createInstance(
 
     if (cimClass.isAssociation())
     {
-	_createAssociationEntries(nameSpace, 
-	    cimClass, newInstance, instanceName);
+	_createAssociationEntries(nameSpace,
+	    cimClass, cimInstance, instanceName);
     }
 
     // -- Get common base (of instance file and index file):
 
     String instanceFileBase = _nameSpaceManager.getInstanceFileBase(
-	nameSpace, newInstance.getClassName());
+	nameSpace, cimInstance.getClassName());
 
     // -- Make index file entry:
 
     String indexFilePath = _getIndexFilePath(
-	nameSpace, newInstance.getClassName());
+	nameSpace, cimInstance.getClassName());
     Uint32 index;
 
     if (!InstanceIndexFile::insert(indexFilePath, instanceName, index))
@@ -479,52 +481,54 @@ void CIMRepository::createInstance(
 
     // -- Save instance to file:
 
-    String instanceFilePath = _getInstanceFilePath(nameSpace, 
-	newInstance.getClassName(), index);
+    String instanceFilePath = _getInstanceFilePath(nameSpace,
+	cimInstance.getClassName(), index);
 
-    _SaveObject(instanceFilePath, newInstance);
+    _SaveObject(instanceFilePath, cimInstance);
 }
 
 void CIMRepository::modifyClass(
     const String& nameSpace,
-    CIMClass& modifiedClass) 
+    const CIMClass& modifiedClass)
 {
     // -- Resolve the class:
+	CIMClass cimClass(modifiedClass);
 
-    modifiedClass.resolve(_context, nameSpace);
+    cimClass.resolve(_context, nameSpace);
 
     // -- Check to see if it is okay to modify this class:
 
     String classFilePath;
 
-    _nameSpaceManager.checkModify(nameSpace, modifiedClass.getClassName(),
-	modifiedClass.getSuperClassName(), classFilePath);
+    _nameSpaceManager.checkModify(nameSpace, cimClass.getClassName(),
+	cimClass.getSuperClassName(), classFilePath);
 
     // -- Delete the old file containing the class:
 
     if (!FileSystem::removeFileNoCase(classFilePath))
     {
-	throw PEGASUS_CIM_EXCEPTION(FAILED, 
+	throw PEGASUS_CIM_EXCEPTION(FAILED,
 	    "failed to remove file in CIMRepository::modifyClass()");
     }
 
     // -- Create new class file:
 
-    _SaveObject(classFilePath, modifiedClass);
+    _SaveObject(classFilePath, cimClass);
 }
 
 void CIMRepository::modifyInstance(
     const String& nameSpace,
-    CIMInstance& modifiedInstance) 
+    const CIMInstance& modifiedInstance)
 {
     // -- Resolve the instance (looks up the class):
+	CIMInstance cimInstance(modifiedInstance);
 
     CIMConstClass cimClass;
-    modifiedInstance.resolve(_context, nameSpace, cimClass);
+    cimInstance.resolve(_context, nameSpace, cimClass);
 
     // -- Lookup index of entry from index file:
 
-    CIMReference instanceName = modifiedInstance.getInstanceName(cimClass);
+    CIMReference instanceName = cimInstance.getInstanceName(cimClass);
 
     String indexFilePath = _getIndexFilePath(
 	nameSpace, instanceName.getClassName());
@@ -541,13 +545,13 @@ void CIMRepository::modifyInstance(
 
     if (!FileSystem::removeFileNoCase(instanceFilePath))
     {
-	throw PEGASUS_CIM_EXCEPTION(FAILED, 
+	throw PEGASUS_CIM_EXCEPTION(FAILED,
 	    "failed to remove file in CIMRepository::deleteInstance()");
     }
 
     // -- Save instance to file:
 
-    _SaveObject(instanceFilePath, modifiedInstance);
+    _SaveObject(instanceFilePath, cimInstance);
 }
 
 Array<CIMClass> CIMRepository::enumerateClasses(
@@ -567,7 +571,7 @@ Array<CIMClass> CIMRepository::enumerateClasses(
 
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
-	result.append(getClass(nameSpace, classNames[i], localOnly, 
+	result.append(getClass(nameSpace, classNames[i], localOnly,
 	    includeQualifiers, includeClassOrigin));
     }
 
@@ -618,7 +622,7 @@ Array<CIMInstance> CIMRepository::enumerateInstances(
 	String path = _getIndexFilePath(nameSpace, classNames[i]);
 
 	// Get all instance names for that class:
-    
+
 	InstanceIndexFile::appendInstanceNamesTo(path, instanceNames, indices);
 	PEGASUS_ASSERT(instanceNames.size() == indices.size());
 
@@ -642,7 +646,7 @@ Array<CIMInstance> CIMRepository::enumerateInstances(
 
 Array<CIMReference> CIMRepository::enumerateInstanceNames(
     const String& nameSpace,
-    const String& className) 
+    const String& className)
 {
     // -- Get all descendent classes of this class:
 
@@ -662,7 +666,7 @@ Array<CIMReference> CIMRepository::enumerateInstanceNames(
 	String path = _getIndexFilePath(nameSpace, classNames[i]);
 
 	// Get all instances for that class:
-    
+
 	InstanceIndexFile::appendInstanceNamesTo(path, instanceNames, indices);
     }
 
@@ -671,8 +675,8 @@ Array<CIMReference> CIMRepository::enumerateInstanceNames(
 
 Array<CIMInstance> CIMRepository::execQuery(
     const String& queryLanguage,
-    const String& query) 
-{ 
+    const String& query)
+{
     throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "execQuery()");
 
     return Array<CIMInstance>();
@@ -688,7 +692,7 @@ Array<CIMInstance> CIMRepository::associators(
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
-{ 
+{
     throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "associators()");
     return Array<CIMInstance>();
 }
@@ -705,7 +709,7 @@ Array<CIMReference> CIMRepository::associatorNames(
 
     String tmpNameSpace = nameSpace;
     tmpNameSpace.translate('/', '#');
-    String assocFileName = 
+    String assocFileName =
 	Cat(_repositoryRoot, "/", tmpNameSpace, "/associations");
 
     Array<String> associatorNames;
@@ -748,7 +752,7 @@ Array<CIMReference> CIMRepository::referenceNames(
     const CIMReference& objectName,
     const String& resultClass,
     const String& role)
-{ 
+{
     throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "referenceNames()");
     return Array<CIMReference>();
 }
@@ -756,7 +760,7 @@ Array<CIMReference> CIMRepository::referenceNames(
 CIMValue CIMRepository::getProperty(
     const String& nameSpace,
     const CIMReference& instanceName,
-    const String& propertyName) 
+    const String& propertyName)
 {
     // -- Get the index for this instance:
 
@@ -824,7 +828,7 @@ void CIMRepository::setProperty(
 
     if (oldRef != newRef)
     {
-	throw PEGASUS_CIM_EXCEPTION(FAILED, 
+	throw PEGASUS_CIM_EXCEPTION(FAILED,
 	    "setProperty(): attempted to modify a key property");
     }
 
@@ -835,7 +839,7 @@ void CIMRepository::setProperty(
 
 CIMQualifierDecl CIMRepository::getQualifier(
     const String& nameSpace,
-    const String& qualifierName) 
+    const String& qualifierName)
 {
     // -- Get path of qualifier file:
 
@@ -860,7 +864,7 @@ CIMQualifierDecl CIMRepository::getQualifier(
 
 void CIMRepository::setQualifier(
     const String& nameSpace,
-    const CIMQualifierDecl& qualifierDecl) 
+    const CIMQualifierDecl& qualifierDecl)
 {
     // -- Get path of qualifier file:
 
@@ -879,7 +883,7 @@ void CIMRepository::setQualifier(
 
 void CIMRepository::deleteQualifier(
     const String& nameSpace,
-    const String& qualifierName) 
+    const String& qualifierName)
 {
     // -- Get path of qualifier file:
 
@@ -901,7 +905,7 @@ Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
 
     if (!FileSystem::getDirectoryContents(qualifiersRoot, qualifierNames))
     {
-	throw PEGASUS_CIM_EXCEPTION(FAILED, 
+	throw PEGASUS_CIM_EXCEPTION(FAILED,
 	    "enumerateQualifiers(): internal error");
     }
 
@@ -921,7 +925,7 @@ CIMValue CIMRepository::invokeMethod(
     const CIMReference& instanceName,
     const String& methodName,
     const Array<CIMValue>& inParameters,
-    Array<CIMValue>& outParameters) 
+    Array<CIMValue>& outParameters)
 {
     throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "invokeMethod()");
     return CIMValue();

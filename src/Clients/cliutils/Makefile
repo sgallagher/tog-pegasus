@@ -1,12 +1,24 @@
 ROOT = ../../..
 
-DIR = Pegasus/Clients/cliutils
+DIR = Clients/cliutils
 
 include $(ROOT)/mak/config.mak
 
-LIBRARY = pegcliutils
+EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-SOURCES = Command.cpp \
-          CommandException.cpp 
+LOCAL_DEFINES = -DPEGASUS_XYZ_INTERNAL
+
+LIBRARY = pegclient
+
+LIBRARIES = \
+    $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX) \
+
+PRE_DEPEND_INCLUDES = -I./depends
+
+SOURCES = \
+    Command.cpp \
+    CommandException.cpp
+
+OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
 include $(ROOT)/mak/library.mak

@@ -32,6 +32,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+const Uint32 Command::RC_SUCCESS = 0;
+
+const Uint32 Command::RC_ERROR = 1;
+
 /**
   
     Gets command usage string.  Usage string may be retrieved and displayed

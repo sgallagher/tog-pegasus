@@ -33,7 +33,8 @@
 
 #include <iostream>
 #include <Pegasus/Common/String.h>
-#include "CommandException.h"
+#include <Clients/cliutils/Linkage.h>
+#include <Clients/cliutils/CommandException.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -44,7 +45,7 @@ PEGASUS_NAMESPACE_BEGIN
     @author  Hewlett-Packard Company
   
  */
-class Command 
+class PEGASUS_XYZ_LINKAGE Command 
 {
 public:
     /**
@@ -98,7 +99,7 @@ public:
         successfully.
       
     */
-    static const Uint32    RC_SUCCESS  =  0;
+    static const Uint32    RC_SUCCESS;
 
     /**
       
@@ -106,7 +107,7 @@ public:
         executing the command.
       
     */
-    static const Uint32    RC_ERROR    =  1;
+    static const Uint32    RC_ERROR;
 
 protected:
     /**

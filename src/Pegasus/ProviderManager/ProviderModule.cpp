@@ -32,19 +32,55 @@
 
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Provider/CIMInstanceProvider.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-ProviderModule::ProviderModule(const String & fileName, const String & providerName)
-    : _fileName(fileName), _providerName(providerName), _library(0), _provider(0)
+ProviderModule::ProviderModule(const String & fileName,
+                               const String & providerName)
+    : _fileName(fileName), _providerName(providerName),
+      _library(0), _provider(0)
 {
+}
+
+ProviderModule::ProviderModule(const String & fileName,
+                               const String & providerName,
+                               const String & interfaceName)
+    : _fileName(fileName), _providerName(providerName),
+      _interfaceName(interfaceName),
+      _library(0), _provider(0)
+{
+    // currently without interface registration
+    _interfaceFilename = String::EMPTY;
+
+    if (_interfaceName.size() > 0)
+        if (!( String::equalNoCase(_interfaceName, "C++Standard") ||
+               String::equalNoCase(_interfaceName, "C++Default") ||
+               String::equalNoCase(_interfaceName, "PG_DefaultC++") ))
+        {
+            #ifdef PEGASUS_OS_TYPE_WINDOWS
+            _interfaceFilename = _interfaceName + String(".dll");
+            #elif defined(PEGASUS_OS_HPUX)
+            _interfaceFilename = ConfigManager::getHomedPath(
+                ConfigManager::getInstance()->getCurrentValue("providerDir"));
+            _interfaceFilename +=
+                String("/lib") + _interfaceName + String(".sl");
+            #else
+            _interfaceFilename = ConfigManager::getHomedPath(
+                ConfigManager::getInstance()->getCurrentValue("providerDir"));
+            _interfaceFilename +=
+                String("/lib") + _interfaceName + String(".so");
+            #endif
+        }
 }
 
 ProviderModule::ProviderModule(const ProviderModule & pm)
     : _fileName(pm._fileName),
-    _providerName(pm._providerName),
-    _library(pm._library),
-    _provider(pm._provider)
+      _providerName(pm._providerName),
+      _interfaceName(pm._interfaceName),
+      _interfaceFilename(pm._interfaceFilename),
+      _library(pm._library),
+      _provider(pm._provider)
 {
 }
 
@@ -54,6 +90,29 @@ ProviderModule::~ProviderModule(void)
 
 void ProviderModule::load(void)
 {
+// BMMU
+    cerr << "Load: " << _interfaceName << " 2) " << _interfaceFilename 
+         << " 3) " << _providerName << endl;
+
+    // get the interface adapter library first
+    if (_interfaceFilename.size() > 0)
+    {
+        _adapter = ProviderAdapterManager::get_pamgr()->addAdapter(
+                                          _interfaceName, _interfaceFilename,
+                                          _providerName);
+
+        _provider = dynamic_cast<CIMBaseProvider *>(_adapter);
+
+        if (_provider == NULL)
+        {
+            String errorString = "ProviderAdapter is no BaseProvider";
+            throw Exception("ProviderLoadFailure (" + _providerName + "):" +
+                errorString);
+        }
+
+        return;
+    }
+
     // dynamically load the provider library
     ArrayDestroyer<char> fileName = _fileName.allocateCString();
 
@@ -109,17 +168,37 @@ void ProviderModule::load(void)
 
 void ProviderModule::unload(void)
 {
+    if(_adapter != 0)
+    {
+        delete _adapter;
+
+        _adapter = 0;
+    }
+
     /*
     // ATTN: cannot determine if provider is stack or heap based allocated.
     // the provider should delete, if necessary, during CIMBaseProvider::terminate()
+
     if(_provider != 0)
     {
+	delete _provider;
         delete _provider;
 
+	_provider = 0;
         _provider = 0;
     }
     */
 
+    if(_library != 0)
+    {
+	System::unloadDynamicLibrary(_library);
+
+	_library = 0;
+    }
+}
+
+void ProviderModule::unloadModule(void)
+{
     if(_library != 0)
     {
         System::unloadDynamicLibrary(_library);

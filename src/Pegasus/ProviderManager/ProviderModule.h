@@ -34,6 +34,8 @@
 #include <Pegasus/Common/System.h>
 
 #include <Pegasus/Provider/CIMBaseProvider.h>
+#include <Pegasus/ProviderManager/ProviderAdapter.h>
+#include <Pegasus/Config/ConfigManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -44,11 +46,16 @@ class PEGASUS_SERVER_LINKAGE ProviderModule
 {
 public:
     ProviderModule(const String & fileName, const String & providerName);
+    ProviderModule(const String & fileName, const String & providerName,
+                   const String & interfaceName);
     ProviderModule(const ProviderModule & pm);
     virtual ~ProviderModule(void);
 
     const String & getFileName(void) const;
     const String & getProviderName(void) const;
+
+    const String & ProviderModule::getInterfaceName(void) const;
+    ProviderAdapter * ProviderModule::getAdapter(void) const;
 
     void load(void);
     void unload(void);
@@ -59,10 +66,25 @@ public:
 protected:
     String _fileName;
     String _providerName;
+
+    String _interfaceName;
+    String _interfaceFilename; // for later use with interface registration
+    ProviderAdapter * _adapter;
+
     DynamicLibraryHandle _library;
     CIMBaseProvider * _provider;
 
 };
+
+inline const String & ProviderModule::getInterfaceName(void) const
+{
+    return _interfaceName;
+}
+
+inline ProviderAdapter * ProviderModule::getAdapter(void) const
+{
+    return _adapter;
+}
 
 inline const String & ProviderModule::getFileName(void) const
 {

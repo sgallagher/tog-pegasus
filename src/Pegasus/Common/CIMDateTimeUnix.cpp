@@ -69,7 +69,7 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
     struct 		timeval   tv;
     struct 		timezone  tz;
     struct tm* 		tmval;
-#if defined PEGASUS_OS_SOLARIS
+#if defined PEGASUS_PLATFORM_SOLARIS_SPARC_CC
     struct tm		local_tm;
     time_t		utc_offset;
 #endif
@@ -77,7 +77,7 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
     mSysTime = time(NULL);
 
     // Get the localtime
-#if defined PEGASUS_OS_SOLARIS
+#if defined PEGASUS_PLATFORM_SOLARIS_SPARC_CC
     tmval = localtime_r(&mSysTime, &local_tm);
     gettimeofday(&tv,NULL);
     utc_offset = (tmval->tm_isdst > 0 && daylight) ? altzone : timezone ;
@@ -99,7 +99,7 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
                     tmval->tm_min,
                     tmval->tm_sec,
                     0,
-#if defined PEGASUS_OS_SOLARIS
+#if defined PEGASUS_PLATFORM_SOLARIS_SPARC_CC
 		    abs((int)utc_offset));
 
     // Set UTC sign

@@ -485,7 +485,7 @@ void HTTPAcceptor::_acceptConnection()
    struct sockaddr* accept_address;
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
    size_t address_size;
-#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || (defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) && !defined(SUNOS_5_6))
+#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || (defined(PEGASUS_OS_SOLARIS) && !defined(SUNOS_5_6))
    socklen_t address_size;
 #else
    int address_size;

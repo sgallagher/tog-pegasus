@@ -27,6 +27,10 @@ ifeq ($(PEGASUS_PLATFORM),HPUX_IA64_ACC)
 OS=hpux
 endif
 
+ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_GNU)
+OS=solaris_gnu
+endif
+
 # Set Parameters for OS type
 ifeq ($(OS),compaq_oss)
     CXX = c89
@@ -59,6 +63,18 @@ ifeq ($(OS),unix)
     LXX = $(CXX)
     CXXFLAGS = -O2 -Wall -Wno-unused -pedantic
     DEFINES = -DOS_UNIX
+    PROGRAM = mu
+    EXE_OUT = -o
+    RM = rm -f
+    OBJ = .o
+    PLATFORM_SOURCES = FilesUnix.cpp
+endif
+
+ifeq ($(OS),solaris_gnu)
+    CXX = g++
+    LXX = $(CXX)
+    CXXFLAGS = -O2 -Wall -Wno-unused -pedantic
+    DEFINES = -DOS_UNIX -DOS_SOLARIS_GNU
     PROGRAM = mu
     EXE_OUT = -o
     RM = rm -f

@@ -32,4 +32,8 @@ namespace std { };
 using namespace std;
 #endif
 
+#ifdef OS_SOLARIS_GNU
+using namespace std;
+#endif
+
 #endif /* _Config_h */

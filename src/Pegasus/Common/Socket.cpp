@@ -62,7 +62,7 @@ Sint32 Socket::read(Sint32 socket, void* ptr, Uint32 size)
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     return ::recv(socket, (char*)ptr, size, 0);
 #else
-#if defined (__GNUC__)
+#if defined (__GNUC__) && !defined(PEGASUS_OS_SOLARIS)
     int ccode = TEMP_FAILURE_RETRY(::read(socket, (char*)ptr, size));
     return ccode;
 #else 
@@ -76,7 +76,7 @@ Sint32 Socket::write(Sint32 socket, const void* ptr, Uint32 size)
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     return ::send(socket, (const char*)ptr, size, 0);
 #else
-#if (__GNUC__)
+#if (__GNUC__) && !defined(PEGASUS_OS_SOLARIS)
     int ccode = TEMP_FAILURE_RETRY(::write(socket, (char*)ptr, size));
     return ccode;
 #else
@@ -90,7 +90,7 @@ void Socket::close(Sint32 socket)
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     closesocket(socket);
 #else
-#if (__GNUC__)
+#if (__GNUC__) && !defined(PEGASUS_OS_SOLARIS)
     TEMP_FAILURE_RETRY(::close(socket));
 #else
     ::close(socket);
@@ -103,7 +103,7 @@ int Socket::close2(Sint32 socket)
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     return closesocket(socket);
 #else
-#if (__GNUC__)
+#if (__GNUC__) && !defined(PEGASUS_OS_SOLARIS)
     int ccode = TEMP_FAILURE_RETRY(::close(socket));
     return ccode;
 #else

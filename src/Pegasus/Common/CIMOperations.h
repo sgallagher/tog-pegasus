@@ -589,22 +589,18 @@ public:
 
         <LI>If a CIMProperty of the Class is not specified in the Instance,
         then that CIMProperty is inherited without modification by the Instance
-        (so
-        that any previous changes to that CIMProperty in the Instance are
+        (so that any previous changes to that CIMProperty in the Instance are
         lost).
         <LI>Any Qualifiers defined in the Class with a <TT>TOINSTANCE</TT>
         attribute value of <TT>true</TT> appear in the Instance (it is not
         possible remove a propagated CIMQualifier from an Instance. Qualifiers
-        in
-        the Class with a <TT>TOINSTANCE</TT> attribute value of <TT>false</TT>
+        in the Class with a <TT>TOINSTANCE</TT> attribute value of <TT>false</TT>
         MUST NOT be propagated to the Instance.
         <LI>Any CIMQualifier propagated from the Class cannot be modified by the
         Server if the <TT>OVERRIDABLE</TT> attribute of that CIMQualifier was
-        set
-        to <TT>false</TT> in the Class. It is a Client error to specify such a
-        CIMQualifier in the <TT>ModifiedInstance</TT> with a different
-        definition
-        to that in the Class (where definition encompasses the name,
+        set to <TT>false</TT> in the Class. It is a Client error to specify such
+	a CIMQualifier in the <TT>ModifiedInstance</TT> with a different
+        definition to that in the Class (where definition encompasses the name,
         type and flavor attribute settings of the
         <TT>&lt;QUALIFIER&gt;</TT> element, and the value of the CIMQualifier).
         <LI>Any CIMQualifier propagated from the Class cannot be modified in

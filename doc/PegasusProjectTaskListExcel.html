@@ -14,13 +14,13 @@ xmlns="http://www.w3.org/TR/REC-html40">
   <o:Author>karl</o:Author>
   <o:LastAuthor>karl</o:LastAuthor>
   <o:Created>2001-06-03T23:35:43Z</o:Created>
-  <o:LastSaved>2001-06-04T08:52:17Z</o:LastSaved>
+  <o:LastSaved>2001-06-15T01:21:45Z</o:LastSaved>
   <o:Company>inova</o:Company>
   <o:Version>9.3821</o:Version>
  </o:DocumentProperties>
  <o:OfficeDocumentSettings>
   <o:DownloadComponents/>
-  <o:LocationOfComponents HRef="file:msowc.cab"/>
+  <o:LocationOfComponents HRef="msowc.cab"/>
  </o:OfficeDocumentSettings>
 </xml><![endif]-->
 <style>
@@ -82,13 +82,13 @@ td
 	mso-rotate:0;}
 .xl24
 	{mso-style-parent:style0;
-	border:.5pt solid windowtext;}
+	font-size:14.0pt;
+	font-weight:700;
+	font-family:Arial, sans-serif;
+	mso-font-charset:0;}
 .xl25
 	{mso-style-parent:style0;
-	border-top:.5pt solid windowtext;
-	border-right:.5pt solid windowtext;
-	border-bottom:1.0pt solid windowtext;
-	border-left:.5pt solid windowtext;}
+	mso-number-format:"General Date";}
 .xl26
 	{mso-style-parent:style0;
 	border-top:1.0pt solid windowtext;
@@ -100,55 +100,104 @@ td
 	border-top:1.0pt solid windowtext;
 	border-right:.5pt solid windowtext;
 	border-bottom:1.0pt solid windowtext;
-	border-left:.5pt solid windowtext;}
+	border-left:none;}
 .xl28
 	{mso-style-parent:style0;
 	border-top:1.0pt solid windowtext;
 	border-right:1.0pt solid windowtext;
 	border-bottom:1.0pt solid windowtext;
-	border-left:.5pt solid windowtext;}
+	border-left:none;}
 .xl29
 	{mso-style-parent:style0;
-	border-top:1.0pt solid windowtext;
+	text-align:left;
+	border-top:none;
 	border-right:.5pt solid windowtext;
 	border-bottom:.5pt solid windowtext;
 	border-left:1.0pt solid windowtext;}
 .xl30
 	{mso-style-parent:style0;
-	border-top:1.0pt solid windowtext;
+	border-top:none;
 	border-right:.5pt solid windowtext;
 	border-bottom:.5pt solid windowtext;
-	border-left:.5pt solid windowtext;}
+	border-left:none;}
 .xl31
 	{mso-style-parent:style0;
-	border-top:1.0pt solid windowtext;
+	border-top:none;
 	border-right:1.0pt solid windowtext;
 	border-bottom:.5pt solid windowtext;
-	border-left:.5pt solid windowtext;}
+	border-left:none;}
 .xl32
 	{mso-style-parent:style0;
-	border-top:.5pt solid windowtext;
+	text-align:left;
+	border-top:none;
 	border-right:.5pt solid windowtext;
-	border-bottom:.5pt solid windowtext;
-	border-left:1.0pt solid windowtext;}
-.xl33
-	{mso-style-parent:style0;
-	border-top:.5pt solid windowtext;
-	border-right:1.0pt solid windowtext;
 	border-bottom:.5pt solid windowtext;
 	border-left:.5pt solid windowtext;}
+.xl33
+	{mso-style-parent:style0;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	white-space:normal;}
 .xl34
 	{mso-style-parent:style0;
-	border-top:.5pt solid windowtext;
+	border-top:none;
 	border-right:.5pt solid windowtext;
-	border-bottom:1.0pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
 	border-left:1.0pt solid windowtext;}
 .xl35
 	{mso-style-parent:style0;
-	border-top:.5pt solid windowtext;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:1.0pt solid windowtext;
+	border-left:1.0pt solid windowtext;}
+.xl36
+	{mso-style-parent:style0;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:1.0pt solid windowtext;
+	border-left:none;}
+.xl37
+	{mso-style-parent:style0;
+	border-top:none;
 	border-right:1.0pt solid windowtext;
 	border-bottom:1.0pt solid windowtext;
-	border-left:.5pt solid windowtext;}
+	border-left:none;}
+.xl38
+	{mso-style-parent:style0;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:1.0pt solid windowtext;
+	border-left:none;
+	white-space:normal;}
+.xl39
+	{mso-style-parent:style0;
+	mso-number-format:"Medium Date";
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;}
+.xl40
+	{mso-style-parent:style0;
+	text-align:left;
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;}
+.xl41
+	{mso-style-parent:style0;
+	border-top:none;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;}
+.xl42
+	{mso-style-parent:style0;
+	mso-number-format:"d\\-mmm";
+	border-top:none;
+	border-right:.5pt solid windowtext;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;}
 -->
 </style>
 <!--[if gte mso 9]><xml>
@@ -157,12 +206,19 @@ td
    <x:ExcelWorksheet>
     <x:Name>Sheet1</x:Name>
     <x:WorksheetOptions>
+     <x:Print>
+      <x:ValidPrinterInfo/>
+      <x:HorizontalResolution>200</x:HorizontalResolution>
+      <x:VerticalResolution>200</x:VerticalResolution>
+     </x:Print>
+     <x:Zoom>160</x:Zoom>
      <x:Selected/>
+     <x:TopRowVisible>46</x:TopRowVisible>
      <x:Panes>
       <x:Pane>
        <x:Number>3</x:Number>
-       <x:ActiveRow>16</x:ActiveRow>
-       <x:ActiveCol>9</x:ActiveCol>
+       <x:ActiveRow>51</x:ActiveRow>
+       <x:ActiveCol>7</x:ActiveCol>
       </x:Pane>
      </x:Panes>
      <x:ProtectContents>False</x:ProtectContents>
@@ -188,9 +244,9 @@ td
    </x:ExcelWorksheet>
   </x:ExcelWorksheets>
   <x:WindowHeight>12150</x:WindowHeight>
-  <x:WindowWidth>18060</x:WindowWidth>
-  <x:WindowTopX>120</x:WindowTopX>
-  <x:WindowTopY>15</x:WindowTopY>
+  <x:WindowWidth>16575</x:WindowWidth>
+  <x:WindowTopX>255</x:WindowTopX>
+  <x:WindowTopY>135</x:WindowTopY>
   <x:ProtectStructure>False</x:ProtectStructure>
   <x:ProtectWindows>False</x:ProtectWindows>
  </x:ExcelWorkbook>
@@ -199,18 +255,23 @@ td
 
 <body link=blue vlink=purple>
 
-<table x:str border=0 cellpadding=0 cellspacing=0 width=603 style='border-collapse:
- collapse;table-layout:fixed;width:452pt'>
- <col width=64 span=3 style='width:48pt'>
+<table x:str border=0 cellpadding=0 cellspacing=0 width=821 style='border-collapse:
+ collapse;table-layout:fixed;width:616pt'>
+ <col width=64 span=2 style='width:48pt'>
+ <col width=153 style='mso-width-source:userset;mso-width-alt:5595;width:115pt'>
  <col width=91 style='mso-width-source:userset;mso-width-alt:3328;width:68pt'>
- <col width=64 span=5 style='width:48pt'>
- <tr height=17 style='height:12.75pt'>
-  <td height=17 width=64 style='height:12.75pt;width:48pt'></td>
+ <col width=64 span=3 style='width:48pt'>
+ <col width=65 style='mso-width-source:userset;mso-width-alt:2377;width:49pt'>
+ <col width=64 span=3 style='width:48pt'>
+ <tr height=24 style='height:18.0pt'>
+  <td height=24 width=64 style='height:18.0pt;width:48pt'></td>
   <td width=64 style='width:48pt'></td>
-  <td colspan=2 width=155 style='mso-ignore:colspan;width:116pt'>Pegasus Task
-  List</td>
+  <td class=xl24 colspan=2 width=244 style='mso-ignore:colspan;width:183pt'>Pegasus
+  Task List</td>
   <td width=64 style='width:48pt'></td>
   <td width=64 style='width:48pt'></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=65 style='width:49pt'></td>
   <td width=64 style='width:48pt'></td>
   <td width=64 style='width:48pt'></td>
   <td width=64 style='width:48pt'></td>
@@ -218,93 +279,811 @@ td
  <tr height=18 style='height:13.5pt'>
   <td height=18 colspan=2 style='height:13.5pt;mso-ignore:colspan'
   x:str="Last updated ">Last updated </td>
-  <td colspan=7 style='mso-ignore:colspan'></td>
+  <td class=xl25 align=right x:num="37057.138262499997" x:fmla="=NOW()">6/15/2001
+  3:19</td>
+  <td colspan=8 style='mso-ignore:colspan'></td>
  </tr>
  <tr height=18 style='height:13.5pt'>
   <td height=18 class=xl26 style='height:13.5pt'>TaskID</td>
-  <td class=xl27 style='border-left:none'>Version</td>
-  <td class=xl27 style='border-left:none'>Name</td>
-  <td class=xl27 style='border-left:none'>Responsibility</td>
-  <td class=xl27 style='border-left:none'>Priority</td>
-  <td class=xl27 style='border-left:none'>Status</td>
-  <td class=xl27 style='border-left:none'>Start Date</td>
-  <td class=xl27 style='border-left:none'>End Date</td>
-  <td class=xl28 style='border-left:none'>Reference</td>
+  <td class=xl27>Phase</td>
+  <td class=xl27>Name</td>
+  <td class=xl27>Responsibility</td>
+  <td class=xl27>Priority</td>
+  <td class=xl27>Status</td>
+  <td class=xl27>Start Date</td>
+  <td class=xl27>End Date</td>
+  <td class=xl28>Reference</td>
+  <td colspan=2 style='mso-ignore:colspan'>Documentation</td>
  </tr>
  <tr height=17 style='height:12.75pt'>
-  <td height=17 class=xl29 style='height:12.75pt;border-top:none'>&nbsp;</td>
-  <td class=xl30 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl30 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl30 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl30 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl30 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl30 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl30 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl31 style='border-top:none;border-left:none'>&nbsp;</td>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>1</td>
+  <td class=xl30 align=right x:num>1.01</td>
+  <td class=xl30>Threading</td>
+  <td class=xl30>M. Day</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl39 align=right x:num="37072">30-Jun-01</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
  </tr>
  <tr height=17 style='height:12.75pt'>
-  <td height=17 class=xl32 style='height:12.75pt;border-top:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl33 style='border-top:none;border-left:none'>&nbsp;</td>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>1.1</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>Design definition</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>ASAP</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
  </tr>
  <tr height=17 style='height:12.75pt'>
-  <td height=17 class=xl32 style='height:12.75pt;border-top:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl33 style='border-top:none;border-left:none'>&nbsp;</td>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>1.2</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>Abastract Library</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl42 align=right x:num="37062">20-Jun</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
  </tr>
  <tr height=17 style='height:12.75pt'>
-  <td height=17 class=xl32 style='height:12.75pt;border-top:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl33 style='border-top:none;border-left:none'>&nbsp;</td>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>1.3</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>Integration</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl42 align=right x:num="37072">30-Jun</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
  </tr>
  <tr height=17 style='height:12.75pt'>
-  <td height=17 class=xl32 style='height:12.75pt;border-top:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl24 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl33 style='border-top:none;border-left:none'>&nbsp;</td>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>2</td>
+  <td class=xl30 align=right x:num>1.1</td>
+  <td class=xl30>Indications</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl32 style='height:12.75pt' x:num>2.1</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Define Architecture</td>
+  <td class=xl30>ks/mb</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl32 style='height:12.75pt'>&nbsp;</td>
+  <td class=xl30 align=right x:num>1.1</td>
+  <td class=xl33 width=153 style='width:115pt'>Subscription handler</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl32 style='height:12.75pt' x:num>2.2</td>
+  <td class=xl30 align=right x:num>1.1</td>
+  <td class=xl33 width=153 style='width:115pt'>Process indications</td>
+  <td class=xl30>Chip</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl32 style='height:12.75pt'>2.2.1</td>
+  <td class=xl30 align=right x:num>1.1</td>
+  <td class=xl33 width=153 style='width:115pt'>CIMOM Implementation</td>
+  <td class=xl30>Unknown</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl32 style='height:12.75pt'>2.2.1</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Provider Implementation</td>
+  <td class=xl30>Chip</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl32 style='height:12.75pt' x:num>2.4</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Client Implementation</td>
+  <td class=xl30>HP</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl40 style='height:12.75pt' x:num>2.5</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Indication Handlers</td>
+  <td class=xl30>HP</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl41>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl40 style='height:12.75pt' x:num>2.6</td>
+  <td class=xl30 align=right x:num>1.2</td>
+  <td class=xl33 width=153 style='width:115pt'>Indications Life-cycle</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl41>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>3</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Security</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt'>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Traffic Security - client</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt'>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Authenticaltion - client</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt'>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Access control - CIMOM</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>4</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Async Client Interfaces</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=34 style='height:25.5pt'>
+  <td height=34 class=xl29 style='height:25.5pt' x:num>5</td>
+  <td class=xl30 align=right x:num>1</td>
+  <td class=xl33 width=153 style='width:115pt'>Developers Guideline Doc</td>
+  <td class=xl30>KS / MB</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=51 style='height:38.25pt'>
+  <td height=51 class=xl29 style='height:38.25pt' x:num>6</td>
+  <td class=xl30>???</td>
+  <td class=xl33 width=153 style='width:115pt'>Add Iterators to Repository and
+  Provider interface</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=34 style='height:25.5pt'>
+  <td height=34 class=xl29 style='height:25.5pt' x:num>7</td>
+  <td class=xl30 align=right x:num>1</td>
+  <td class=xl33 width=153 style='width:115pt'>Add Terminate to Provider
+  Interface</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>8</td>
+  <td class=xl30 align=right x:num>1</td>
+  <td class=xl33 width=153 style='width:115pt'>Provider Multi-Interface</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>9</td>
+  <td class=xl30 align=right x:num>1</td>
+  <td class=xl33 width=153 style='width:115pt'>Add CIMOM Handle</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>10</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Protocol Adapter</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>10.1</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Define Proposal</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=34 style='height:25.5pt'>
+  <td height=34 class=xl29 style='height:25.5pt' x:num>10.2</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Implement general functions</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>10.3</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Implement CIM-XML</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=34 style='height:25.5pt'>
+  <td height=34 class=xl29 style='height:25.5pt' x:num>11</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Add CIM_Object Functions</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=34 style='height:25.5pt'>
+  <td height=34 class=xl29 style='height:25.5pt' x:num>12</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Define Privileged Provider</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>13</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Out-of-Process Provider</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>14</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>ExecQueryFunction</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>15</td>
+  <td class=xl30 align=right x:num>1.2</td>
+  <td class=xl33 width=153 style='width:115pt'>WQL</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>15.1</td>
+  <td class=xl30 align=right x:num>1.2</td>
+  <td class=xl33 width=153 style='width:115pt'>Grammar</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>15.2</td>
+  <td class=xl30 align=right x:num>1.2</td>
+  <td class=xl33 width=153 style='width:115pt'>Motor/interpreter</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>15.3</td>
+  <td class=xl30 align=right x:num>1.2</td>
+  <td class=xl33 width=153 style='width:115pt'>Integration, Queries</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>15.4</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Integration, Indications</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>16</td>
+  <td class=xl30 align=right x:num>1</td>
+  <td class=xl30>Install Tools</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>16.1</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>Windows</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>16.2</td>
+  <td class=xl30 align=right x:num>1</td>
+  <td class=xl30>Linux</td>
+  <td class=xl30>MM</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>17</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>Object Browser</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30 align=right x:num>1</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>18</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Test Framework</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>19</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Test Clients</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>20</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Efficient Repository</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30 align=right x:num>4</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>21</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Java Provider Interface</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>22</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>BenchMark Tests</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>23</td>
+  <td class=xl30 align=right x:num>1.1</td>
+  <td class=xl33 width=153 style='width:115pt'>Null Property Support</td>
+  <td class=xl30>MB</td>
+  <td class=xl30 align=right x:num>5</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>24</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Modularize encodings</td>
+  <td class=xl30>MB</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>25</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Observer Module</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30 align=right x:num>5</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=34 style='height:25.5pt'>
+  <td height=34 class=xl29 style='height:25.5pt' x:num>26</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Template Bloat Reduction</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>27</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Internationalization</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>28</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Core Modularization</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30 align=right x:num>5</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=34 style='height:25.5pt'>
+  <td height=34 class=xl29 style='height:25.5pt' x:num>29</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Association Provider concepts</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=34 style='height:25.5pt'>
+  <td height=34 class=xl29 style='height:25.5pt' x:num>30</td>
+  <td class=xl30 align=right x:num>1</td>
+  <td class=xl33 width=153 style='width:115pt'>Define Privileged
+  Provider/service</td>
+  <td class=xl30>ks/mb</td>
+  <td class=xl30 align=right x:num>5</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=34 style='height:25.5pt'>
+  <td height=34 class=xl29 style='height:25.5pt' x:num>31</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>New Configuration Functions</td>
+  <td class=xl30>HP</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>32</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>Log and Trace</td>
+  <td class=xl30>HP</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>33</td>
+  <td class=xl30 align=right x:num>1</td>
+  <td class=xl33 width=153 style='width:115pt'>Property List</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt' x:num>34</td>
+  <td class=xl30 align=right x:num>1</td>
+  <td class=xl33 width=153 style='width:115pt'>Compaq Configuration</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=34 style='height:25.5pt'>
+  <td height=34 class=xl29 style='height:25.5pt' x:num>35</td>
+  <td class=xl30 align=right x:num>1.2</td>
+  <td class=xl33 width=153 style='width:115pt'>Async Provider Interfaces</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt'>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt'>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt'>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl29 style='height:12.75pt'>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 class=xl34 style='height:12.75pt'>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl33 width=153 style='width:115pt'>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl30>&nbsp;</td>
+  <td class=xl31>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
  </tr>
  <tr height=18 style='height:13.5pt'>
-  <td height=18 class=xl34 style='height:13.5pt;border-top:none'>&nbsp;</td>
-  <td class=xl25 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl25 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl25 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl25 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl25 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl25 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl25 style='border-top:none;border-left:none'>&nbsp;</td>
-  <td class=xl35 style='border-top:none;border-left:none'>&nbsp;</td>
+  <td height=18 class=xl35 style='height:13.5pt'>&nbsp;</td>
+  <td class=xl36>&nbsp;</td>
+  <td class=xl38 width=153 style='width:115pt'>&nbsp;</td>
+  <td class=xl36>&nbsp;</td>
+  <td class=xl36>&nbsp;</td>
+  <td class=xl36>&nbsp;</td>
+  <td class=xl36>&nbsp;</td>
+  <td class=xl36>&nbsp;</td>
+  <td class=xl37>&nbsp;</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 colspan=11 style='height:12.75pt;mso-ignore:colspan'></td>
+ </tr>
+ <tr height=17 style='height:12.75pt'>
+  <td height=17 colspan=3 style='height:12.75pt;mso-ignore:colspan'>Priority 1
+  = low 5 = highest</td>
+  <td colspan=8 style='mso-ignore:colspan'></td>
  </tr>
  <![if supportMisalignedColumns]>
  <tr height=0 style='display:none'>
   <td width=64 style='width:48pt'></td>
   <td width=64 style='width:48pt'></td>
-  <td width=64 style='width:48pt'></td>
+  <td width=153 style='width:115pt'></td>
   <td width=91 style='width:68pt'></td>
   <td width=64 style='width:48pt'></td>
   <td width=64 style='width:48pt'></td>
+  <td width=64 style='width:48pt'></td>
+  <td width=65 style='width:49pt'></td>
   <td width=64 style='width:48pt'></td>
   <td width=64 style='width:48pt'></td>
   <td width=64 style='width:48pt'></td>

@@ -46,14 +46,17 @@ CIMPropertyList CQLSelectStatement::getPropertyList(const CIMObjectPath& inClass
 
 void CQLSelectStatement::appendClassPath(const CQLIdentifier& inIdentifier)
 {
+	_ctx->insertClassPath(inIdentifier);
 }
 
 void CQLSelectStatement::setPredicate(CQLPredicate inPredicate)
 {
+	_predicate = inPredicate;
 }
 
 void CQLSelectStatement::insertClassPathAlias(const CQLIdentifier& inIdentifier, String inAlias)
 {
+	_ctx->insertClassPath(inIdentifier,inAlias);
 }
 
 void CQLSelectStatement::appendSelectIdentifier(const CQLChainedIdentifier& x)

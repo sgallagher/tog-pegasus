@@ -72,6 +72,21 @@ Boolean CQLPredicate::isSimple(){
 }
 
 String CQLPredicate::toString(){
-
+	if(_terminal)
+		return _simplePredicate.toString();
+	if(isSimple())
+		return _predicates[0].toString();
+	String s;
+	for(Uint32 i = 0; i < _predicates.size(); i++){
+		s.append(_predicates[i].toString());
+		if(i <= _operators.size()){
+			switch(_operators[i]){
+				case AND: s.append(" AND ");
+				case OR: s.append(" OR ");
+			}
+		}
+	}
+	return s;
 }
+
 PEGASUS_NAMESPACE_END

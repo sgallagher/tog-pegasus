@@ -87,38 +87,38 @@ protected:
     //void handleModifyClassRequest(const Message * message) throw();
     //void handleDeleteClassRequest(const Message * message) throw();
 
-    void handleGetInstanceRequest(const Message * message) throw();
-    void handleEnumerateInstancesRequest(const Message * message) throw();
-    void handleEnumerateInstanceNamesRequest(const Message * message) throw();
-    void handleCreateInstanceRequest(const Message * message) throw();
-    void handleModifyInstanceRequest(const Message * message) throw();
-    void handleDeleteInstanceRequest(const Message * message) throw();
+    void handleGetInstanceRequest(AsyncOpNode *op, const Message *message) throw();
+    void handleEnumerateInstancesRequest(AsyncOpNode *op, const Message *message) throw();
+    void handleEnumerateInstanceNamesRequest(AsyncOpNode *op, const Message *message) throw();
+    void handleCreateInstanceRequest(AsyncOpNode *op, const Message *message) throw();
+    void handleModifyInstanceRequest(AsyncOpNode *op, const Message *message) throw();
+    void handleDeleteInstanceRequest(AsyncOpNode *op, const Message *message) throw();
 
-    void handleExecuteQueryRequest(const Message * message) throw();
+    void handleExecuteQueryRequest(AsyncOpNode *op, const Message *message) throw();
 
-    void handleAssociatorsRequest(const Message * message) throw();
-    void handleAssociatorNamesRequest(const Message * message) throw();
-    void handleReferencesRequest(const Message * message) throw();
-    void handleReferenceNamesRequest(const Message * message) throw();
+    void handleAssociatorsRequest(AsyncOpNode *op, const Message *message) throw();
+    void handleAssociatorNamesRequest(AsyncOpNode *op, const Message *message) throw();
+    void handleReferencesRequest(AsyncOpNode *op, const Message *message) throw();
+    void handleReferenceNamesRequest(AsyncOpNode *op, const Message *message) throw();
 
-    void handleGetPropertyRequest(const Message * message) throw();
-    void handleSetPropertyRequest(const Message * message) throw();
+    void handleGetPropertyRequest(AsyncOpNode *op, const Message *message) throw();
+    void handleSetPropertyRequest(AsyncOpNode *op, const Message *message) throw();
 
-    void handleInvokeMethodRequest(const Message * message) throw();
+    void handleInvokeMethodRequest(AsyncOpNode *op, const Message *message) throw();
 
-    void handleCreateSubscriptionRequest(const Message * message) throw();
-    void handleModifySubscriptionRequest(const Message * message) throw();
-    void handleDeleteSubscriptionRequest(const Message * message) throw();
-    void handleEnableIndicationsRequest(const Message * message) throw();
-    void handleDisableIndicationsRequest(const Message * message) throw();
+    void handleCreateSubscriptionRequest(AsyncOpNode *op, const Message *message) throw();
+    void handleModifySubscriptionRequest(AsyncOpNode *op, const Message *message) throw();
+    void handleDeleteSubscriptionRequest(AsyncOpNode *op, const Message *message) throw();
+    void handleEnableIndicationsRequest(AsyncOpNode *op, const Message *message) throw();
+    void handleDisableIndicationsRequest(AsyncOpNode *op, const Message *message) throw();
     
-    void handleDisableModuleRequest(const Message * message) throw();
-    void handleEnableModuleRequest(const Message * message) throw();
+    void handleDisableModuleRequest(AsyncOpNode *op, const Message *message) throw();
+    void handleEnableModuleRequest(AsyncOpNode *op, const Message *message) throw();
 
 protected:
     ThreadPool _threadPool;
 
-    SafeQueue<Message *> _incomingQueue;
+    SafeQueue<AsyncOpNode *> _incomingQueue;
     //SafeQueue<Message *> _outgoingQueue;
 
     ProviderRegistrationManager * _providerRegistrationManager;

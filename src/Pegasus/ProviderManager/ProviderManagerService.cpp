@@ -302,22 +302,29 @@ void ProviderManagerService::handleEnqueue(Message * message)
 {
     PEGASUS_ASSERT(message != 0);
 
-// *FIXME* Markus
+//*FIXME* Markus
 // catch response messages that should never appear here
-// 
-    if (message->getType() == CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE)
-        abort(); // handle double provider callback !
 
-    AsyncOpNode * op = this->get_op();
+//    if (message->getType() == CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE)
+//        abort(); // handle double provider callback !
 
-    AsyncLegacyOperationStart * asyncRequest =
+    AsyncLegacyOperationStart * asyncRequest;
+    
+    if(message->_async != NULL)
+    {
+       asyncRequest = static_cast<AsyncLegacyOperationStart *>(message->_async);
+    }
+    else 
+    {
+       asyncRequest =
 	new AsyncLegacyOperationStart(
 	get_next_xid(),
-	op,
+	0,
 	this->getQueueId(),
 	message,
 	this->getQueueId());
-
+    }
+    
     _handle_async_request(asyncRequest);
 }
 
@@ -326,177 +333,181 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
                      "ProviderManagerService::_handle_async_request");
 
-    PEGASUS_ASSERT(request != 0);
+    PEGASUS_ASSERT(request != 0 && request->op != 0 );
+
     if(request->getType() == async_messages::ASYNC_LEGACY_OP_START)
     {
-	request->op->processing();
-
-	Message * message = (static_cast<AsyncLegacyOperationStart *>(request)->get_action());
-
-	PEGASUS_ASSERT(message != 0);
-
-	// place message on local queue
-	_incomingQueue.enqueue(message);
-
-	// get thread and start request method
-	_threadPool.allocate_and_awaken((void *)this, ProviderManagerService::handleCimOperation);
-
-	// give the thread a chance to run
-	System::sleep(1);
-
-	PEG_METHOD_EXIT();
-	return;
+       request->op->processing();
+       _incomingQueue.enqueue(request->op);
+    
+       _threadPool.allocate_and_awaken((void *)this, ProviderManagerService::handleCimOperation);
     }
-
-    // pass all other operations to the default handler
-    MessageQueueService::_handle_async_request(request);
+    else 
+    {
+       // pass all other operations to the default handler
+       MessageQueueService::_handle_async_request(request);
+    }
+    
     PEG_METHOD_EXIT();
+    return ;
+    
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleServiceOperation(void * arg) throw()
-{
-    // get the service from argument
-    ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
+// PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleServiceOperation(void * arg) throw()
+// {
+//     // get the service from argument
+//     ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
 
-    PEGASUS_ASSERT(service != 0);
+//     PEGASUS_ASSERT(service != 0);
 
-    // get message from service queue
-    Message * message = service->_incomingQueue.dequeue();
+//     // get message from service queue
+//     Message * message = service->_incomingQueue.dequeue();
 
-    PEGASUS_ASSERT(message != 0);
+//     PEGASUS_ASSERT(message != 0);
 
-    return(0);
-}
+//     return(0);
+// }
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOperation(void * arg) throw()
 {
-    // get the service from argument
-    ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
+   // get the service from argument
+   ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
 
-    PEGASUS_ASSERT(service != 0);
+   PEGASUS_ASSERT(service != 0);
 
-    if(service->_incomingQueue.size() == 0)
-    {
-	// thread started with no message in queue.
-	return(PEGASUS_THREAD_RETURN(1));
-    }
+   if(service->_incomingQueue.size() == 0)
+   {
+      // thread started with no message in queue.
+      return(PEGASUS_THREAD_RETURN(1));
+   }
 
-    // get message from service queue
-    Message * message = service->_incomingQueue.dequeue();
+   AsyncOpNode *op = service->_incomingQueue.dequeue();
+   PEGASUS_ASSERT(op != 0 );
+    
+   AsyncRequest *request = static_cast<AsyncRequest *>(op->_request.next(0));
+   if( request->getType() == async_messages::ASYNC_LEGACY_OP_START )
+   {
+      Message *legacy = static_cast<AsyncLegacyOperationStart *>(request)->get_action();
+      if(legacy != NULL)
+      {
+	 
+	 Destroyer<Message> xmessage(legacy);
 
-    PEGASUS_ASSERT(message != 0);
+	 // pass the request message to a handler method based on message type
+	 switch(legacy->getType())
+	 {
+	    case CIM_GET_CLASS_REQUEST_MESSAGE:
+	    case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
+	    case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
+	    case CIM_CREATE_CLASS_REQUEST_MESSAGE:
+	    case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
+	    case CIM_DELETE_CLASS_REQUEST_MESSAGE:
+	       break;
+	    case CIM_GET_INSTANCE_REQUEST_MESSAGE:
+	       service->handleGetInstanceRequest(op, legacy);
 
-    // ensure the message is destoyed at end-of-scope
-    Destroyer<Message> xmessage(message);
+	       break;
+	    case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+	       service->handleEnumerateInstancesRequest(op, legacy);
 
-    // pass the request message to a handler method based on message type
-    switch(message->getType())
-    {
-    case CIM_GET_CLASS_REQUEST_MESSAGE:
-    case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
-    case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
-    case CIM_CREATE_CLASS_REQUEST_MESSAGE:
-    case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
-    case CIM_DELETE_CLASS_REQUEST_MESSAGE:
-	break;
-    case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-	service->handleGetInstanceRequest(message);
+	       break;
+	    case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
+	       service->handleEnumerateInstanceNamesRequest(op, legacy);
 
-	break;
-    case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-	service->handleEnumerateInstancesRequest(message);
+	       break;
+	    case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
+	       service->handleCreateInstanceRequest(op, legacy);
 
-	break;
-    case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-	service->handleEnumerateInstanceNamesRequest(message);
+	       break;
+	    case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
+	       service->handleModifyInstanceRequest(op, legacy);
 
-	break;
-    case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-	service->handleCreateInstanceRequest(message);
+	       break;
+	    case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
+	       service->handleDeleteInstanceRequest(op, legacy);
 
-	break;
-    case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-	service->handleModifyInstanceRequest(message);
+	       break;
+	    case CIM_EXEC_QUERY_REQUEST_MESSAGE:
+	       service->handleExecuteQueryRequest(op, legacy);
 
-	break;
-    case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-	service->handleDeleteInstanceRequest(message);
+	       break;
+	    case CIM_ASSOCIATORS_REQUEST_MESSAGE:
+	       service->handleAssociatorsRequest(op, legacy);
 
-	break;
-    case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-	service->handleExecuteQueryRequest(message);
+	       break;
+	    case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
+	       service->handleAssociatorNamesRequest(op, legacy);
 
-	break;
-    case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-	service->handleAssociatorsRequest(message);
+	       break;
+	    case CIM_REFERENCES_REQUEST_MESSAGE:
+	       service->handleReferencesRequest(op, legacy);
 
-	break;
-    case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-	service->handleAssociatorNamesRequest(message);
+	       break;
+	    case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
+	       service->handleReferenceNamesRequest(op, legacy);
 
-	break;
-    case CIM_REFERENCES_REQUEST_MESSAGE:
-	service->handleReferencesRequest(message);
+	       break;
+	    case CIM_GET_PROPERTY_REQUEST_MESSAGE:
+	       service->handleGetPropertyRequest(op, legacy);
 
-	break;
-    case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-	service->handleReferenceNamesRequest(message);
+	       break;
+	    case CIM_SET_PROPERTY_REQUEST_MESSAGE:
+	       service->handleSetPropertyRequest(op, legacy);
 
-	break;
-    case CIM_GET_PROPERTY_REQUEST_MESSAGE:
-	service->handleGetPropertyRequest(message);
+	       break;
+	    case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
+	       service->handleInvokeMethodRequest(op, legacy);
 
-	break;
-    case CIM_SET_PROPERTY_REQUEST_MESSAGE:
-	service->handleSetPropertyRequest(message);
+	       break;
+	    case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
+	       service->handleCreateSubscriptionRequest(op, legacy);
 
-	break;
-    case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-	service->handleInvokeMethodRequest(message);
+	       break;
+	    case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
+	       service->handleModifySubscriptionRequest(op, legacy);
 
-	break;
-    case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
-	service->handleCreateSubscriptionRequest(message);
+	       break;
+	    case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
+	       service->handleDeleteSubscriptionRequest(op, legacy);
 
-	break;
-    case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
-	service->handleModifySubscriptionRequest(message);
+	       break;
+	    case CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE:
+	       service->handleEnableIndicationsRequest(op, legacy);
 
-	break;
-    case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
-	service->handleDeleteSubscriptionRequest(message);
+	       break;
+	    case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
+	       service->handleDisableIndicationsRequest(op, legacy);
 
-	break;
-    case CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE:
-	service->handleEnableIndicationsRequest(message);
+	       break;
+	    case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
+	       service->handleDisableModuleRequest(op, legacy);
 
-	break;
-    case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
-	service->handleDisableIndicationsRequest(message);
+	       break;
+	    case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
+	       service->handleEnableModuleRequest(op, legacy);
 
-	break;
-    case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
-        service->handleDisableModuleRequest(message);
-
-        break;
-    case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
-        service->handleEnableModuleRequest(message);
-
-        break;
-    default:
-	// unsupported messages are ignored
-	break;
-    }
-
-    return(0);
+	       break;
+	    default:
+	       // unsupported messages are ignored
+	       break;
+	 }
+      }
+   }
+   else 
+   {
+      // reply with a NAK 
+   }
+   
+   return(0);
 }
 
-void ProviderManagerService::handleGetInstanceRequest(const Message * message) throw()
+void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Message *message) throw()
 {
     CIMGetInstanceRequestMessage * request =
-	dynamic_cast<CIMGetInstanceRequestMessage *>(const_cast<Message *>(message));
+       	dynamic_cast<CIMGetInstanceRequestMessage *>(const_cast<Message *>(message));
 
-    PEGASUS_ASSERT(request != 0);
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+    PEGASUS_ASSERT(request != 0 && async != 0 );
 
     CIMGetInstanceResponseMessage * response =
 	new CIMGetInstanceResponseMessage(
@@ -574,15 +585,24 @@ void ProviderManagerService::handleGetInstanceRequest(const Message * message) t
 	handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
-    _enqueueResponse(handler.getRequest(), handler.getResponse());
+
+    AsyncLegacyOperationResult *async_result = 
+       new AsyncLegacyOperationResult( 
+	  async->getKey(),
+	  async->getRouting(),
+	  op,
+	  response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
 }
 
-void ProviderManagerService::handleEnumerateInstancesRequest(const Message * message) throw()
+void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, const Message * message) throw()
 {
     CIMEnumerateInstancesRequestMessage * request =
 	dynamic_cast<CIMEnumerateInstancesRequestMessage *>(const_cast<Message *>(message));
 
-    PEGASUS_ASSERT(request != 0);
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+    PEGASUS_ASSERT(request != 0 && async != 0 );
 
     CIMEnumerateInstancesResponseMessage * response =
 	new CIMEnumerateInstancesResponseMessage(
@@ -658,15 +678,23 @@ void ProviderManagerService::handleEnumerateInstancesRequest(const Message * mes
 	handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
-    _enqueueResponse(handler.getRequest(), handler.getResponse());
+    AsyncLegacyOperationResult *async_result = 
+       new AsyncLegacyOperationResult( 
+	  async->getKey(),
+	  async->getRouting(),
+	  op,
+	  response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
 }
 
-void ProviderManagerService::handleEnumerateInstanceNamesRequest(const Message * message) throw()
+void ProviderManagerService::handleEnumerateInstanceNamesRequest(AsyncOpNode *op, const Message * message) throw()
 {
     CIMEnumerateInstanceNamesRequestMessage * request =
 	dynamic_cast<CIMEnumerateInstanceNamesRequestMessage *>(const_cast<Message *>(message));
 
-    PEGASUS_ASSERT(request != 0);
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+    PEGASUS_ASSERT(request != 0 && async != 0 );
 
     CIMEnumerateInstanceNamesResponseMessage * response =
 	new CIMEnumerateInstanceNamesResponseMessage(
@@ -733,15 +761,24 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(const Message *
 	handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
-    _enqueueResponse(handler.getRequest(), handler.getResponse());
+
+    AsyncLegacyOperationResult *async_result = 
+       new AsyncLegacyOperationResult( 
+	  async->getKey(),
+	  async->getRouting(),
+	  op,
+	  response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
 }
 
-void ProviderManagerService::handleCreateInstanceRequest(const Message * message) throw()
+void ProviderManagerService::handleCreateInstanceRequest(AsyncOpNode *op, const Message * message) throw()
 {
     CIMCreateInstanceRequestMessage * request =
 	dynamic_cast<CIMCreateInstanceRequestMessage *>(const_cast<Message *>(message));
 
-    PEGASUS_ASSERT(request != 0);
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+    PEGASUS_ASSERT(request != 0 && async != 0 );
 
     // create response message
     CIMCreateInstanceResponseMessage * response =
@@ -811,15 +848,24 @@ void ProviderManagerService::handleCreateInstanceRequest(const Message * message
 	handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
-    _enqueueResponse(handler.getRequest(), handler.getResponse());
+
+    AsyncLegacyOperationResult *async_result = 
+       new AsyncLegacyOperationResult( 
+	  async->getKey(),
+	  async->getRouting(),
+	  op,
+	  response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
 }
 
-void ProviderManagerService::handleModifyInstanceRequest(const Message * message) throw()
+void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const Message * message) throw()
 {
     CIMModifyInstanceRequestMessage * request =
 	dynamic_cast<CIMModifyInstanceRequestMessage *>(const_cast<Message *>(message));
 
-    PEGASUS_ASSERT(request != 0);
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+    PEGASUS_ASSERT(request != 0 && async != 0 );
 
     // create response message
     CIMModifyInstanceResponseMessage * response =
@@ -898,15 +944,24 @@ void ProviderManagerService::handleModifyInstanceRequest(const Message * message
 	handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
-    _enqueueResponse(handler.getRequest(), handler.getResponse());
+    AsyncLegacyOperationResult *async_result = 
+       new AsyncLegacyOperationResult( 
+	  async->getKey(),
+	  async->getRouting(),
+	  op,
+	  response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
+
 }
 
-void ProviderManagerService::handleDeleteInstanceRequest(const Message * message) throw()
+void ProviderManagerService::handleDeleteInstanceRequest(AsyncOpNode *op, const Message * message) throw()
 {
     CIMDeleteInstanceRequestMessage * request =
 	dynamic_cast<CIMDeleteInstanceRequestMessage *>(const_cast<Message *>(message));
 
-    PEGASUS_ASSERT(request != 0);
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+    PEGASUS_ASSERT(request != 0 && async != 0 );
 
     // create response message
     CIMDeleteInstanceResponseMessage * response =
@@ -973,15 +1028,24 @@ void ProviderManagerService::handleDeleteInstanceRequest(const Message * message
 	handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
-    _enqueueResponse(handler.getRequest(), handler.getResponse());
+
+    AsyncLegacyOperationResult *async_result = 
+       new AsyncLegacyOperationResult( 
+	  async->getKey(),
+	  async->getRouting(),
+	  op,
+	  response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
 }
 
-void ProviderManagerService::handleExecuteQueryRequest(const Message * message) throw()
+void ProviderManagerService::handleExecuteQueryRequest(AsyncOpNode *op, const Message * message) throw()
 {
     CIMExecQueryRequestMessage * request =
 	dynamic_cast<CIMExecQueryRequestMessage *>(const_cast<Message *>(message));
 
-    PEGASUS_ASSERT(request != 0);
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+    PEGASUS_ASSERT(request != 0 && async != 0 );
 
     Array<CIMObjectWithPath> cimObjects;
 
@@ -997,15 +1061,24 @@ void ProviderManagerService::handleExecuteQueryRequest(const Message * message) 
     // preserve message key
     response->setKey(request->getKey());
 
-    _enqueueResponse(request, response);
+
+    AsyncLegacyOperationResult *async_result = 
+       new AsyncLegacyOperationResult( 
+	  async->getKey(),
+	  async->getRouting(),
+	  op,
+	  response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
 }
 
-void ProviderManagerService::handleAssociatorsRequest(const Message * message) throw()
+void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Message * message) throw()
 {
     CIMAssociatorsRequestMessage * request =
 	dynamic_cast<CIMAssociatorsRequestMessage *>(const_cast<Message *>(message));
 
-    PEGASUS_ASSERT(request != 0);
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+    PEGASUS_ASSERT(request != 0 && async != 0);
 
     Array<CIMObjectWithPath> cimObjects;
 
@@ -1021,15 +1094,24 @@ void ProviderManagerService::handleAssociatorsRequest(const Message * message) t
     // preserve message key
     response->setKey(request->getKey());
 
-    _enqueueResponse(request, response);
+
+    AsyncLegacyOperationResult *async_result = 
+       new AsyncLegacyOperationResult( 
+	  async->getKey(),
+	  async->getRouting(),
+	  op,
+	  response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
 }
 
-void ProviderManagerService::handleAssociatorNamesRequest(const Message * message) throw()
+void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const Message * message) throw()
 {
     CIMAssociatorNamesRequestMessage * request =
 	dynamic_cast<CIMAssociatorNamesRequestMessage *>(const_cast<Message *>(message));
 
-    PEGASUS_ASSERT(request != 0);
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+    PEGASUS_ASSERT(request != 0 && async != 0 );
 
     Array<CIMReference> cimReferences;
 
@@ -1122,15 +1204,24 @@ void ProviderManagerService::handleAssociatorNamesRequest(const Message * messag
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
-    _enqueueResponse(handler.getRequest(), handler.getResponse());
+
+    AsyncLegacyOperationResult *async_result = 
+       new AsyncLegacyOperationResult( 
+	  async->getKey(),
+	  async->getRouting(),
+	  op,
+	  response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
 }
 
-void ProviderManagerService::handleReferencesRequest(const Message * message) throw()
+void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Message * message) throw()
 {
     CIMReferencesRequestMessage * request =
 	dynamic_cast<CIMReferencesRequestMessage *>(const_cast<Message *>(message));
 
-    PEGASUS_ASSERT(request != 0);
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+    PEGASUS_ASSERT(request != 0 && async != 0 );
 
     Array<CIMObjectWithPath> cimObjects;
 
@@ -1226,15 +1317,24 @@ void ProviderManagerService::handleReferencesRequest(const Message * message) th
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
-    _enqueueResponse(handler.getRequest(), handler.getResponse());
+
+    AsyncLegacyOperationResult *async_result = 
+       new AsyncLegacyOperationResult( 
+	  async->getKey(),
+	  async->getRouting(),
+	  op,
+	  response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
 }
 
-void ProviderManagerService::handleReferenceNamesRequest(const Message * message) throw()
+void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const Message * message) throw()
 {
     CIMReferenceNamesRequestMessage * request =
 	dynamic_cast<CIMReferenceNamesRequestMessage *>(const_cast<Message *>(message));
 
-    PEGASUS_ASSERT(request != 0);
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+    PEGASUS_ASSERT(request != 0 && async != 0 );
 
     Array<CIMReference> cimReferences;
 
@@ -1325,15 +1425,25 @@ void ProviderManagerService::handleReferenceNamesRequest(const Message * message
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
-    _enqueueResponse(handler.getRequest(), handler.getResponse());
+
+    AsyncLegacyOperationResult *async_result = 
+       new AsyncLegacyOperationResult( 
+	  async->getKey(),
+	  async->getRouting(),
+	  op,
+	  response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
+
 }
 
-void ProviderManagerService::handleGetPropertyRequest(const Message * message) throw()
+void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Message * message) throw()
 {
     CIMGetPropertyRequestMessage * request =
 	dynamic_cast<CIMGetPropertyRequestMessage *>(const_cast<Message *>(message));
 
-    PEGASUS_ASSERT(request != 0);
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+    PEGASUS_ASSERT(request != 0 && async != 0 );
 
     CIMValue cimValue;
 
@@ -1350,15 +1460,23 @@ void ProviderManagerService::handleGetPropertyRequest(const Message * message) t
     // preserve message key
     response->setKey(request->getKey());
 
-    _enqueueResponse(request, response);
+
+    AsyncLegacyOperationResult *async_result = 
+       new AsyncLegacyOperationResult( 
+	  async->getKey(),
+	  async->getRouting(),
+	  op,
+	  response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
 }
 
-void ProviderManagerService::handleSetPropertyRequest(const Message * message) throw()
+void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Message * message) throw()
 {
     CIMSetPropertyRequestMessage * request =
 	dynamic_cast<CIMSetPropertyRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+    PEGASUS_ASSERT(request != 0 && async != 0);
 
     // create response message
     CIMSetPropertyResponseMessage * response =
@@ -1372,10 +1490,18 @@ void ProviderManagerService::handleSetPropertyRequest(const Message * message) t
     // preserve message key
     response->setKey(request->getKey());
 
-    _enqueueResponse(request, response);
+
+    AsyncLegacyOperationResult *async_result = 
+       new AsyncLegacyOperationResult( 
+	  async->getKey(),
+	  async->getRouting(),
+	  op,
+	  response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
 }
 
-void ProviderManagerService::handleInvokeMethodRequest(const Message * message) throw()
+void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Message * message) throw()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
                      "ProviderManagerService::handleInvokeMethodRequest");
@@ -1383,7 +1509,8 @@ void ProviderManagerService::handleInvokeMethodRequest(const Message * message) 
     CIMInvokeMethodRequestMessage * request =
 	dynamic_cast<CIMInvokeMethodRequestMessage *>(const_cast<Message *>(message));
 
-    PEGASUS_ASSERT(request != 0);
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+    PEGASUS_ASSERT(request != 0 && async != 0 );
 
     // create response message
     CIMInvokeMethodResponseMessage * response =
@@ -1463,16 +1590,25 @@ void ProviderManagerService::handleInvokeMethodRequest(const Message * message) 
 	handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
-    _enqueueResponse(handler.getRequest(), handler.getResponse());
+
+    AsyncLegacyOperationResult *async_result = 
+       new AsyncLegacyOperationResult( 
+	  async->getKey(),
+	  async->getRouting(),
+	  op,
+	  response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
     PEG_METHOD_EXIT();
 }
 
-void ProviderManagerService::handleCreateSubscriptionRequest(const Message * message) throw()
+void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, const Message * message) throw()
 {
     CIMCreateSubscriptionRequestMessage * request =
 	dynamic_cast<CIMCreateSubscriptionRequestMessage *>(const_cast<Message *>(message));
 
-    PEGASUS_ASSERT(request != 0);
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+    PEGASUS_ASSERT(request != 0 && async != 0 );
 
     CIMCreateSubscriptionResponseMessage * response =
 	new CIMCreateSubscriptionResponseMessage(
@@ -1545,15 +1681,24 @@ void ProviderManagerService::handleCreateSubscriptionRequest(const Message * mes
 	handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
     }
 	
-    _enqueueResponse(handler.getRequest(), handler.getResponse());
+
+    AsyncLegacyOperationResult *async_result = 
+       new AsyncLegacyOperationResult( 
+	  async->getKey(),
+	  async->getRouting(),
+	  op,
+	  response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
 }
 
-void ProviderManagerService::handleModifySubscriptionRequest(const Message * message) throw()
+void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, const Message * message) throw()
 {
     CIMModifySubscriptionRequestMessage * request =
 	dynamic_cast<CIMModifySubscriptionRequestMessage *>(const_cast<Message *>(message));
 
-    PEGASUS_ASSERT(request != 0);
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+    PEGASUS_ASSERT(request != 0 && async != 0 );
 
     CIMModifySubscriptionResponseMessage * response =
 	new CIMModifySubscriptionResponseMessage(
@@ -1626,15 +1771,24 @@ void ProviderManagerService::handleModifySubscriptionRequest(const Message * mes
 	handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
     }
 	
-    _enqueueResponse(handler.getRequest(), handler.getResponse());
+
+    AsyncLegacyOperationResult *async_result = 
+       new AsyncLegacyOperationResult( 
+	  async->getKey(),
+	  async->getRouting(),
+	  op,
+	  response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
 }
 
-void ProviderManagerService::handleDeleteSubscriptionRequest(const Message * message) throw()
+void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, const Message * message) throw()
 {
     CIMDeleteSubscriptionRequestMessage * request =
 	dynamic_cast<CIMDeleteSubscriptionRequestMessage *>(const_cast<Message *>(message));
 
-    PEGASUS_ASSERT(request != 0);
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+    PEGASUS_ASSERT(request != 0 && async != 0 );
 
     CIMDeleteSubscriptionResponseMessage * response =
 	new CIMDeleteSubscriptionResponseMessage(
@@ -1701,15 +1855,24 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(const Message * mes
 	handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
     }
 	
-    _enqueueResponse(handler.getRequest(), handler.getResponse());
+
+    AsyncLegacyOperationResult *async_result = 
+       new AsyncLegacyOperationResult( 
+	  async->getKey(),
+	  async->getRouting(),
+	  op,
+	  response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
 }
 
-void ProviderManagerService::handleEnableIndicationsRequest(const Message * message) throw()
+void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, const Message * message) throw()
 {
     CIMEnableIndicationsRequestMessage * request =
 	dynamic_cast<CIMEnableIndicationsRequestMessage *>(const_cast<Message *>(message));
 
-    PEGASUS_ASSERT(request != 0);
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+    PEGASUS_ASSERT(request != 0 && async != 0 );
 
     CIMEnableIndicationsResponseMessage * response =
 	new CIMEnableIndicationsResponseMessage(
@@ -1721,7 +1884,9 @@ void ProviderManagerService::handleEnableIndicationsRequest(const Message * mess
 
     // preserve message key
     response->setKey(request->getKey());
-
+    
+    response->dest = request->queueIds.top();
+    
     EnableIndicationsResponseHandler handler(request, response, this);
 
     try
@@ -1731,7 +1896,6 @@ void ProviderManagerService::handleEnableIndicationsRequest(const Message * mess
 
 	// get cached or load new provider module
 	Provider provider = providerManager.getProvider(pair.first, pair.second);
-
 	provider.enableIndications(handler);
     }
     catch(CIMException & e)
@@ -1746,16 +1910,24 @@ void ProviderManagerService::handleEnableIndicationsRequest(const Message * mess
     {
 	handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
     }
-	
-    _enqueueResponse(handler.getRequest(), handler.getResponse());
+
+    AsyncLegacyOperationResult *async_result = 
+       new AsyncLegacyOperationResult( 
+	  async->getKey(),
+	  async->getRouting(),
+	  op,
+	  response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
 }
 
-void ProviderManagerService::handleDisableIndicationsRequest(const Message * message) throw()
+void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, const Message * message) throw()
 {
     CIMDisableIndicationsRequestMessage * request =
 	dynamic_cast<CIMDisableIndicationsRequestMessage *>(const_cast<Message *>(message));
 
-    PEGASUS_ASSERT(request != 0);
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+    PEGASUS_ASSERT(request != 0 && async != 0 );
 
     CIMDisableIndicationsResponseMessage * response =
 	new CIMDisableIndicationsResponseMessage(
@@ -1793,16 +1965,24 @@ void ProviderManagerService::handleDisableIndicationsRequest(const Message * mes
 	handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
     }
 	
-    _enqueueResponse(handler.getRequest(), handler.getResponse());
+
+    AsyncLegacyOperationResult *async_result = 
+       new AsyncLegacyOperationResult( 
+	  async->getKey(),
+	  async->getRouting(),
+	  op,
+	  response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
 }
 
 //ATTN-YZ-P1-20020424: Need to be implemented
-void ProviderManagerService::handleDisableModuleRequest(const Message * message) throw()
+void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const Message * message) throw()
 {
     CIMDisableModuleRequestMessage * request =
 	dynamic_cast<CIMDisableModuleRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+    PEGASUS_ASSERT(request != 0 && async != 0);
 
     Array<Uint16> operationalStatus;
 
@@ -1818,16 +1998,25 @@ void ProviderManagerService::handleDisableModuleRequest(const Message * message)
     // preserve message key
     response->setKey(request->getKey());
 
-    _enqueueResponse(request, response);
+
+    AsyncLegacyOperationResult *async_result = 
+       new AsyncLegacyOperationResult( 
+	  async->getKey(),
+	  async->getRouting(),
+	  op,
+	  response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
 }
 
 //ATTN-YZ-P1-20020424: Need to be implemented
-void ProviderManagerService::handleEnableModuleRequest(const Message * message) throw()
+void ProviderManagerService::handleEnableModuleRequest(AsyncOpNode *op, const Message * message) throw()
 {
     CIMEnableModuleRequestMessage * request =
 	dynamic_cast<CIMEnableModuleRequestMessage *>(const_cast<Message *>(message));
 
-    PEGASUS_ASSERT(request != 0);
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+    PEGASUS_ASSERT(request != 0 && async != 0 );
 
     Array<Uint16> operationalStatus;
 
@@ -1843,7 +2032,14 @@ void ProviderManagerService::handleEnableModuleRequest(const Message * message) 
     // preserve message key
     response->setKey(request->getKey());
 
-    _enqueueResponse(request, response);
+    AsyncLegacyOperationResult *async_result = 
+       new AsyncLegacyOperationResult( 
+	  async->getKey(),
+	  async->getRouting(),
+	  op,
+	  response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
 }
 
 PEGASUS_NAMESPACE_END

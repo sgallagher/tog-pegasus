@@ -267,6 +267,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       PEG_METHOD_EXIT();
       myself->exit_self(0);
    }
+   catch(...)
+   {
+      PEG_METHOD_EXIT();
+      myself->exit_self(0);
+   }
+   
    if(sleep_sem == 0 || deadlock_timer == 0)
    {
       PEG_METHOD_EXIT();
@@ -428,23 +434,12 @@ Uint32 ThreadPool::kill_dead_threads(void)
    // first go thread the dead q and clean it up as much as possible
    while(_dead.count() > 0)
    {
+      PEGASUS_STD(cout) << "ThreadPool:: removing and joining dead thread" << PEGASUS_STD(endl);
       Thread *dead = _dead.remove_first();
       if(dead == 0)
 	 throw NullPointer();
-      if(dead->_handle.thid != 0)
-      {
-	 dead->detach();
-	 destroy_thread(dead->_handle.thid, 0);
-	 dead->_handle.thid = 0;
-	 while(dead->_cleanup.count() )
-	 {
-	    // this may throw a permission exception,
-	    // which I will remove from the code prior to stabilizing
-	    dead->cleanup_pop(true);
-	 }
-      }
+      dead->join();
       delete dead;
-      pegasus_sleep(1);
    }
 
    DQueue<Thread> * map[2] =
@@ -457,20 +452,8 @@ Uint32 ThreadPool::kill_dead_threads(void)
    int i = 0;
    AtomicInt needed(0);
 
-//   for( ; i < 2; i++) << Fri Sep 13 12:49:46 2002 mdd >>
-// This change prevents the thread pool from killing hung threads.
-// The definition of a hung thread is one that has been on the run queue for too long. 
-// "too long" is defined as a time interval that is set when the thread pool is created. 
-// Cancelling "hung" threads has proved to be problematic. 
 
-// With this change the thread pool will not cancel hung threads. This may prevent a 
-// crash depending upon the state of the hung thread. It will cause the thread to hang 
-// around and not do anything besides waste space. 
-
-// Idle threads, those that have not executed a routine for a time interval, continue to be 
-// destroyed. This is normal and should not cause any problems. 
-
-   for( ; i < 1; i++)
+   for( ; i < 2; i++)
    { 
       q = map[i];
       if(q->count() > 0 )
@@ -539,66 +522,41 @@ Uint32 ThreadPool::kill_dead_threads(void)
 	       }
 	
 	       th = q->remove_no_lock((void *)th);
-
-	       // ATTN-DME-P3-20020919 This code assumes that the thread being
-	       // killed is 'alive' and available to respond to a terminate
-	       // request quickly. Since this code is only processing threads 
-	       // on the _pool (i.e., idle) queue this assumption is currently
-	       // valid. However, this code should not be called if the 
-	       // thread is truly 'hung' or executing a long running request
-	       // because it will cause this thread to wait. 
 	
 	       if(th != 0)
 	       {
-		  
-		  th->delete_tsd("work func");
-		  th->put_tsd("work func", NULL,
-			      sizeof( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void *)),
-			      (void *)&_undertaker);
-		  th->delete_tsd("work parm");
-		  th->put_tsd("work parm", NULL, sizeof(void *), th);
-	
-		  // signal the thread's sleep semaphore to awaken it
-		  Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
-	
-		  if(sleep_sem == 0)
+		  if( i == 0 )
 		  {
-	             q->unlock();
+		     th->delete_tsd("work func");
+		     th->put_tsd("work func", NULL,
+				 sizeof( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void *)),
+				 (void *)&_undertaker);
+		     th->delete_tsd("work parm");
+		     th->put_tsd("work parm", NULL, sizeof(void *), th);
+		     
+		     // signal the thread's sleep semaphore to awaken it
+		     Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
+		     
+		     if(sleep_sem == 0)
+		     {
+			q->unlock();
+			th->dereference_tsd();
+			throw NullPointer();
+		     }
+		     
+		     bodies++;
 		     th->dereference_tsd();
-		     throw NullPointer();
+		     _dead.insert_first(th);
+		     sleep_sem->signal();
+		     th = 0;
 		  }
-		  
-#ifdef DO_NOT_IMPLEMENT_THREAD_POOL_FIX 
-		  // The above code activates an idle thread to run the
-		  // _undertaker method. This will cause the thread to
-		  // terminate.  The issue with placing this 
-		  // thread on the _dead queue is that it creates a timing 
-		  // problem. If the kill_dead_threads procedure is called
-		  // before this thread has a chance to execute, or while
-		  // this thread is executing, the thread object may be
-		  // deleted prematurely.  This can cause the CIM Server
-		  // or the ThreadPool test to core dump or hang.
-		  // 
-		  // put the thread on the dead  list
-		  _dead.insert_first(th);
-		  bodies++;
-		  sleep_sem->signal();
-		  
-		  th->dereference_tsd();
-		  th = 0;
-#else
-		  // Wait until the thread exits before deleting the 
-		  // thread object and related data structures.
-		  //
-                  th->cancel();
-                  th->dereference_tsd();
-                  sleep_sem->signal();
-                  th->join();
-                  th->empty_tsd();
-                  delete th;
-                  th=0;
-                  bodies++;
-#endif
+		  else 
+		  {
+		     // deadlocked threads
+		     PEGASUS_STD(cout) << "Killing a deadlocked thread" << PEGASUS_STD(endl);
+		     th->cancel();
+		     delete th;
+		  }
 	       }
 	    }
 	    th = q->next(th);
@@ -639,25 +597,10 @@ Boolean ThreadPool::check_time(struct timeval *start, struct timeval *interval)
       return false;
 }
 
-
 PEGASUS_THREAD_RETURN ThreadPool::_undertaker( void *parm )
 {
-   Thread *myself = reinterpret_cast<Thread *>(parm);
-   if(myself != 0)
-   {
-      myself->detach();
-#ifdef DO_NOT_IMPLEMENT_THREAD_POOL_FIX 
-      // Implementations of the join operation rely on the 
-      // value of the handle.thid to implement the join operation.
-      // Setting this value to 0 can cause the thread
-      // issuing the join call to hang.
-      myself->_handle.thid = 0;
-#endif
-      myself->cancel();
-      myself->test_cancel();
-      myself->exit_self(0);
-   }
-   return((PEGASUS_THREAD_RETURN)0);
+   exit_thread((PEGASUS_THREAD_RETURN)1);
+   return (PEGASUS_THREAD_RETURN)1;
 }
 
 

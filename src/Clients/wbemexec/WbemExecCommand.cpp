@@ -411,7 +411,6 @@ void WbemExecCommand::_handleResponse( Array <Sint8>      responseMessage,
  */
 void WbemExecCommand::_executeHttp (ostream& outPrintWriter, 
                                     ostream& errPrintWriter) 
-    throw (WbemExecException)
 {
     Uint32                       size;
     Array <Sint8>                content;
@@ -1009,8 +1008,26 @@ Uint32 WbemExecCommand::execute (ostream& outPrintWriter,
     }
     catch (WbemExecException& e)
     {
-      errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " << 
-	e.getMessage () << endl;
+        errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " << 
+	   e.getMessage () << endl;
+        return (RC_ERROR);
+    }
+    catch (Exception& e)
+    {
+        errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " << 
+	   e.getMessage() << endl;
+        return (RC_ERROR);
+    }
+    catch (exception& e)
+    {
+        errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " << 
+	   e.what() << endl;
+        return (RC_ERROR);
+    }
+    catch (...)
+    {
+        errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " << 
+	  "Unknown error thrown" << endl;
         return (RC_ERROR);
     }
     return (RC_SUCCESS);

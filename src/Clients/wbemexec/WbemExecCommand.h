@@ -216,8 +216,7 @@ private:
                                        the command 
       
      */
-    void _executeHttp (ostream& outPrintWriter, ostream& errPrintWriter) 
-        throw (WbemExecException);
+    void _executeHttp (ostream& outPrintWriter, ostream& errPrintWriter); 
 
     /**
         The host on which the command is to be executed.  A CIM Server must be

@@ -9,8 +9,9 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 LIBRARY = pegcommon
 
 SOURCES = \
-    CGIQueryString.cpp \
     Array.cpp \
+    Operations.cpp \
+    CGIQueryString.cpp \
     Char16.cpp \
     ClassDecl.cpp \
     ClassDeclRep.cpp \
@@ -28,7 +29,6 @@ SOURCES = \
     Method.cpp \
     MethodRep.cpp \
     Name.cpp \
-    Operations.cpp \
     Pair.cpp \
     Parameter.cpp \
     ParameterRep.cpp \

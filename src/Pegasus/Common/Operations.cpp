@@ -23,8 +23,12 @@
 // Author:
 //
 // $Log: Operations.cpp,v $
-// Revision 1.1  2001/01/14 19:52:59  mike
-// Initial revision
+// Revision 1.2  2001/02/08 00:31:51  mike
+// Clean up on Operations class.
+// Reformmatted documentation.
+//
+// Revision 1.1.1.1  2001/01/14 19:52:59  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -32,11 +36,6 @@
 #include "Operations.h"
 
 PEGASUS_NAMESPACE_BEGIN
-
-Operations::Operations()
-{
-
-}
 
 Operations::~Operations()
 {

@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: Repository.h,v $
+// Revision 1.5  2001/02/08 00:31:51  mike
+// Clean up on Operations class.
+// Reformmatted documentation.
+//
 // Revision 1.4  2001/02/06 17:04:03  karl
 // add documentation
 //
@@ -103,8 +107,7 @@ public:
     /// createInstance
     virtual void createInstance(
 	const String& nameSpace,
-	const InstanceDecl& newInstance) ;
-    /// modifyClass
+	const InstanceDecl& newInstance);
     virtual void modifyClass(
 	const String& nameSpace,
 	ClassDecl& modifiedClass);

@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: Array.h,v $
+// Revision 1.6  2001/02/08 00:31:51  mike
+// Clean up on Operations class.
+// Reformmatted documentation.
+//
 // Revision 1.5  2001/02/05 03:40:28  mike
 // new documentation
 //
@@ -78,6 +82,7 @@ struct ArrayRep
 	Uint32 ref;
 	Uint64 alignment;
     };
+
 
     /// Obtains a pointer to the first element in the array.
     T* data() { return (T*)(this + 1); }

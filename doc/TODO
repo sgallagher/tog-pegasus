@@ -3,6 +3,9 @@
 
     ------------------------------------------------------------------------
 
+    (A) Change make system to rename dll's before link so that they
+	can be used by the server.
+
     (A) Hide setPropagated() and setClassOrigin() methods (only the resolve
         method should touch these).
 

@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: Operations.h,v $
+// Revision 1.9  2001/02/08 00:31:51  mike
+// Clean up on Operations class.
+// Reformmatted documentation.
+//
 // Revision 1.8  2001/02/06 17:04:03  karl
 // add documentation
 //
@@ -90,20 +94,8 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE Operations
 {
 public:
-    /** Constructor method
 
-    */
-    Operations();
-    /**
-        Destructor method
-    */
     virtual ~Operations();
-
-	    // ATTN: MSVC++ 5.0 you know what!
-	    static Array<String> _getStringArray()
-	    {
-		return Array<String>();
-	    }
 
     /** The <TT>GetClass</TT> method returns a single CIM Class from the
     target Namespace where the ClassName input parameter defines the name of
@@ -1489,6 +1481,15 @@ public:
 		const String& methodName,
 		const Array<Value>& inParameters,
 		Array<Value>& outParameters) = 0;
+
+    /** This method is used to workaround a internal compiler crash in
+        MSVC++ 5.0.
+    */
+    static Array<String> _getStringArray()
+    {
+	return Array<String>();
+    }
+
 };
 
 PEGASUS_NAMESPACE_END

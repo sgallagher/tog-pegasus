@@ -4,3 +4,4 @@
 
     2. Is NULL distinct from an empty string value for string?
 
+    3. How are property lists encoded in CIM?

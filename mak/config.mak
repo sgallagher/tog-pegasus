@@ -14,6 +14,15 @@ pegasus_home_undefined:
 	@ exit 1
 endif
 
+ifdef PEGASUS_ROOT
+    ROOT =  $(subst \,/,$(PEGASUS_ROOT))
+else
+    ERROR = pegasus_root_undefined
+pegasus_root_undefined:
+	@ echo PEGASUS_ROOT environment variable undefined
+	@ exit 1
+endif
+
 VALID_PLATFORMS = \
     WIN32_IX86_MSVC \
     LINUX_IX86_GNU \

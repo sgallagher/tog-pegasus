@@ -660,32 +660,91 @@ void CIMRepository::modifyInstance(
     const CIMPropertyList& propertyList)
 {
     String errMessage;
-    CIMInstance cimInstance;
+    CIMInstance cimInstance;    // The instance that replaces the original
 
     if (propertyList.isNull())
     {
         //
-        // Use the given instance as is
+        // Replace all the properties in the instance
         //
-        cimInstance = modifiedInstance.getInstance();
+        if (includeQualifiers)
+        {
+            //
+            // Replace the entire instance with the given instance
+            // (this is the default behavior)
+            //
+            cimInstance = modifiedInstance.getInstance();
+        }
+        else
+        {
+            //
+            // Replace all the properties in the instance, but keep the
+            // original qualifiers on the instance and on the properties
+            //
+
+            cimInstance = getInstance(nameSpace,
+                modifiedInstance.getInstanceName(), false, true);
+            CIMInstance newInstance(
+                modifiedInstance.getInstanceName().getClassName());
+            CIMInstance givenInstance = modifiedInstance.getInstance();
+
+            //
+            // Copy over the original instance qualifiers
+            //
+            for (Uint32 i=0; i<cimInstance.getQualifierCount(); i++)
+            {
+                newInstance.addQualifier(cimInstance.getQualifier(i));
+            }
+
+            //
+            // Loop through the properties replacing each property in the
+            // original with a new value, but keeping the original qualifiers
+            //
+            for (Uint32 i=0; i<givenInstance.getPropertyCount(); i++)
+            {
+                // Copy the given property value (not qualifiers)
+                CIMProperty givenProperty = givenInstance.getProperty(i);
+                CIMProperty newProperty(
+                    givenProperty.getName(),
+                    givenProperty.getValue(),
+                    givenProperty.getArraySize(),
+                    givenProperty.getReferenceClassName(),
+                    givenProperty.getClassOrigin(),
+                    givenProperty.getPropagated());
+
+                // Copy the original property qualifiers
+                Uint32 origPos =
+                    cimInstance.findProperty(newProperty.getName());
+                if (origPos != PEG_NOT_FOUND)
+                {
+                    CIMProperty origProperty = cimInstance.getProperty(origPos);
+                    for (Uint32 j=0; j<origProperty.getQualifierCount(); j++)
+                    {
+                        newProperty.addQualifier(origProperty.getQualifier(i));
+                    }
+                }
+
+                // Add the newly constructed property to the new instance
+                newInstance.addProperty(newProperty);
+            }
+
+            // Use the newly merged instance to replace the original instance
+            cimInstance = newInstance;
+        }
     }
     else
     {
         //
-        // Use only the specified parts from the given instance
+        // Replace only the properties specified in the given instance
         //
 
         cimInstance = getInstance(nameSpace,
             modifiedInstance.getInstanceName(), false, true);
         CIMInstance givenInstance = modifiedInstance.getInstance();
 
-        if (includeQualifiers)
-        {
-            // ATTN: What to do with instance qualifiers?
-            // Need to remove the qualifiers from the original instance and
-            // copy over those from the given instance.  CIMInstance does
-            // not currently have a way to remove qualifiers from an instance.
-        }
+        // NOTE: Instance qualifiers are not changed when a property list
+        // is specified.  Property qualifiers are replaced with the
+        // corresponding property values.
 
         //
         // Loop through the propertyList replacing each property in the original

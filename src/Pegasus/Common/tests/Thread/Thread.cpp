@@ -94,7 +94,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm)
    
    PEGASUS_THREAD_TYPE myself = pegasus_thread_self();
    
-   cout << "r";
+   cout << endl << "r";
    
    while(die == false) 
    {
@@ -147,7 +147,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL writing_thread(void *parm)
 	 cout << "Exception while trying to get a write lock" << endl;
 	 abort();
       }
-      cout << endl << "W";
+      cout << "W";
       my_handle->sleep(1);
       try 
       {

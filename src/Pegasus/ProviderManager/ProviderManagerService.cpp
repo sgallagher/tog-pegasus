@@ -415,19 +415,21 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 	service->handleInvokeMethodRequest(message);
 
 	break;
+    // deprecated
     case CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
 	service->handleEnableIndicationRequest(message);
 
 	break;
+    // deprecated
     case CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
 	service->handleModifyIndicationRequest(message);
 
 	break;
+    // deprecated
     case CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
 	service->handleDisableIndicationRequest(message);
 
 	break;
-    /*
     case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
 	service->handleCreateSubscriptionRequest(message);
 
@@ -440,7 +442,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 	service->handleDeleteSubscriptionRequest(message);
 
 	break;
-    */
     default:
 	// unsupported messages are ignored
 	break;
@@ -1330,7 +1331,6 @@ void ProviderManagerService::handleDisableIndicationRequest(Message * message) t
 
 void ProviderManagerService::handleCreateSubscriptionRequest(Message * message) throw()
 {
-    /*
     const CIMCreateSubscriptionRequestMessage * request =
 	dynamic_cast<CIMCreateSubscriptionRequestMessage *>(message);
 
@@ -1348,12 +1348,10 @@ void ProviderManagerService::handleCreateSubscriptionRequest(Message * message) 
 
     // call the message queue service method to see if this is an async envelope
     _enqueueResponse((Message *)request, (Message *)response);
-    */
 }
 
 void ProviderManagerService::handleModifySubscriptionRequest(Message * message) throw()
 {
-    /*
     const CIMModifySubscriptionRequestMessage * request =
 	dynamic_cast<CIMModifySubscriptionRequestMessage *>(message);
 
@@ -1371,12 +1369,10 @@ void ProviderManagerService::handleModifySubscriptionRequest(Message * message) 
 
     // call the message queue service method to see if this is an async envelope
     _enqueueResponse((Message *)request, (Message *)response);
-    */
 }
 
 void ProviderManagerService::handleDeleteSubscriptionRequest(Message * message) throw()
 {
-    /*
     const CIMDeleteSubscriptionRequestMessage * request =
 	dynamic_cast<CIMDeleteSubscriptionRequestMessage *>(message);
 
@@ -1394,7 +1390,6 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(Message * message) 
 
     // call the message queue service method to see if this is an async envelope
     _enqueueResponse((Message *)request, (Message *)response);
-    */
 }
 
 PEGASUS_NAMESPACE_END

@@ -2569,7 +2569,7 @@ CIMInvokeMethodRequestMessage* CIMOperationRequestDecoder::decodeInvokeMethodReq
 	 messageId, 
 	 reference.getNameSpace(), 
 	 reference, 
-	 cimMethodName.allocateCString(),
+	 cimMethodName,
 	 inParameters,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,

@@ -472,7 +472,7 @@ void ComputerSystem::initialize(void)
 
   */
 
-_providerCacheDir.assign("/var/opt/pegasus/providercache");
+_providerCacheDir.assign("/var/cache/pegasus/providercache");
 _pinFile = _providerCacheDir;
 _pinFile.append("/PG_ComputerSystem.pin");
 _tmpFile = _providerCacheDir;

@@ -635,7 +635,6 @@ HTTPConnection2::~HTTPConnection2()
    try 
    {
       _close_connection();
-	  _socket.close();
    }
    catch(...)
    {
@@ -846,6 +845,8 @@ void HTTPConnection2::_handleReadEvent(monitor_2_entry* entry)
     Boolean incompleteSecureReadOccurred = false;
     Boolean would_block = false;
 
+   Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "Doing a read on %d.", (Sint32)entry->get_sock());
+
     for (;;)
     {
 	char buffer[4096];
@@ -919,6 +920,11 @@ void HTTPConnection2::_handleReadEvent(monitor_2_entry* entry)
     {
 	if (bytesRead > 0)
         {
+           // We are setting the state of entry as IDLE so that monitor_2::run 
+           // does a select on this FD. And only when next time _handleReadEvent
+           // gets called, bytesRead would be 0, and the state of the entry
+           // would be changed to CLOSED.
+           entry->set_state(IDLE);
 	   delete entry;
 	   HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
 	   message->authInfo = _authInfo;
@@ -945,7 +951,14 @@ void HTTPConnection2::_handleReadEvent(monitor_2_entry* entry)
 	   //
 	   // decrement request count
 	   //
-	   _requestCount--;
+
+           // Commenting out below line, since the decrement is happening
+           // twice, and increment only once for every connection. One
+           // decrement was happening here and another by handleEnqueue()
+           // after response has been written on the socket.
+
+	   // _requestCount--;
+
 	   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
 			 "_requestCount = %d", _requestCount.value());
 	   

@@ -26,6 +26,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Mike Day (monitor_2) mdday@us.ibm.com 
+//              Amit K Arora (Bug#1153) amita@in.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -663,7 +664,10 @@ monitor_2::monitor_2(void)
     pegasus_socket accepted = temp.accept((struct sockaddr*)&peer, &peer_size);
     
     monitor_2_entry* _tickle = new monitor_2_entry(accepted, INTERNAL, 0, 0);
-    _tickle->set_state(BUSY);
+
+// No need to set _tickle's state as BUSY, since monitor_2::run() now
+// does a select only on sockets which are in IDLE (default) state.
+//  _tickle->set_state(BUSY);
     
     _listeners.insert_first(_tickle);
 
@@ -707,7 +711,10 @@ monitor_2::~monitor_2(void)
 void monitor_2::run(void)
 {
   monitor_2_entry* temp;
+  int _nonIdle=0, _idleCount=0, events;
+
   while(_die.value() == 0) {
+    _nonIdle=_idleCount=0;
      
      struct timeval tv_idle = { 60, 0 };
      
@@ -716,11 +723,16 @@ void monitor_2::run(void)
     try {
       _listeners.lock(pegasus_thread_self());
       temp = _listeners.next(0);
+      Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+       "monitor_2::run:Creating New FD list for SELECT.");
       while(temp != 0 ){
 	if(temp->get_state() == CLOSED ) {
 	  monitor_2_entry* closed = temp;
 	  temp = _listeners.next(closed);
 	  _listeners.remove_no_lock(closed);
+      
+      Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+       "monitor_2::run:Deleteing CLOSED socket fd=%d.",(Sint32)closed->get_sock());
 	  
 	  HTTPConnection2 *cn = monitor_2::remove_connection((Sint32)(closed->get_sock()));
 	  delete cn;
@@ -728,28 +740,63 @@ void monitor_2::run(void)
 	}
 	if(temp == 0)
 	   break;
+
+
+        //Count the number if IDLE sockets
+        if(temp->get_state() != IDLE ) _nonIdle++;
+         else _idleCount++;
+
 	Sint32 fd = (Sint32) temp->get_sock();
-	if(fd >= 0 )
-	   FD_SET(fd , &rd_fd_set);
-	temp = _listeners.next(temp);
+
+        //Select should be called ONLY on the FDs which are in IDLE state
+	if((fd >= 0) && (temp->get_state() == IDLE))
+        {
+          Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+           "monitor_2::run:Adding FD %d to the list for SELECT.",fd);
+	  FD_SET(fd , &rd_fd_set);
+        }
+	   temp = _listeners.next(temp);
       }
       _listeners.unlock();
     } 
     catch(...){
       return;
     }
+
     // important -  the dispatch routine has pointers to all the 
     // entries that are readable. These entries can be changed but 
     // the pointer must not be tampered with. 
     if(_connections.count() )
-       int events = select(FD_SETSIZE, &rd_fd_set, NULL, NULL, NULL);
+       events = select(FD_SETSIZE, &rd_fd_set, NULL, NULL, NULL);
     else
-       int events = select(FD_SETSIZE, &rd_fd_set, NULL, NULL, &tv_idle);
+       events = select(FD_SETSIZE, &rd_fd_set, NULL, NULL, &tv_idle);
     
     if(_die.value())
     {
        break;
     }
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    if(events == SOCKET_ERROR)
+#else
+    if(events == -1)
+#endif
+    {
+       Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
+          "monitor_2:run:INVALID FD. errorno = %d on select.", errno);
+       // The EBADF error indicates that one or more or the file
+       // descriptions was not valid. This could indicate that
+       // the _entries structure has been corrupted or that
+       // we have a synchronization error.
+
+     // Keeping the line below commented for time being.
+     //  PEGASUS_ASSERT(errno != EBADF);
+    }
+    else if (events)
+    {
+       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+          "monitor_2::run select event received events = %d, monitoring %d idle entries", events, _idleCount);
+   
     
     try {
       _listeners.lock(pegasus_thread_self());
@@ -785,6 +832,7 @@ void monitor_2::run(void)
        if(_connections.count() == 0 )
 	  _idle_dispatch(_idle_parm);
     }
+   }  // if events
   } // while alive 
 
 }
@@ -796,7 +844,7 @@ int  monitor_2::solicitSocketMessages(
     int type)
 {
 
-   PEG_METHOD_ENTER(TRC_HTTP, "Monitor::solicitSocketMessages");
+   PEG_METHOD_ENTER(TRC_HTTP, "monitor_2::solicitSocketMessages");
 
    _entry_mut.lock(pegasus_thread_self());
 
@@ -809,7 +857,7 @@ int  monitor_2::solicitSocketMessages(
 	    _entries[index].socket = socket;
 	    //_entries[index].queueId  = queueId;
 	    //_entries[index]._type = type;
-	    _entries[index]._status = _MonitorEntry::IDLE;
+	    _entries[index]._status = IDLE;
 	    _entry_mut.unlock();
 
 	    return index;
@@ -915,6 +963,12 @@ void monitor_2::_dispatch(void)
       entry->get_sock().disableBlocking();
       entry->get_sock().read(&buffer, 2);
       entry->get_sock().enableBlocking();
+      entry->set_state(IDLE);   // Set state of the socket to IDLE so that 
+                                // monitor_2::run can add to the list of FDs
+                                // on which select would be called.
+
+     
+ 
       delete entry;
       
       break;
@@ -924,6 +978,7 @@ void monitor_2::_dispatch(void)
 	static PEGASUS_SOCKLEN_SIZE peer_size = sizeof(peer);
 	entry->get_sock().disableBlocking();
 	pegasus_socket connected = entry->get_sock().accept(&peer, &peer_size);
+        entry->set_state(IDLE);  // Set state of the LISTEN socket to IDLE
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     if((Sint32)connected  == SOCKET_ERROR)
 #else
@@ -1006,8 +1061,52 @@ monitor_2_entry*  monitor_2::add_entry(pegasus_socket& ps,
 				       void* accept_parm, 
 				       void* dispatch_parm)
 {
+  Sint32 fd1,fd2;
+
+  fd2=(Sint32) ps;
+
   monitor_2_entry* m2e = new monitor_2_entry(ps, type, accept_parm, dispatch_parm);
-  
+
+// The purpose of the following piece of code is to avoid duplicate entries in
+// the _listeners list. Would it be too much of an overhead ?
+try {
+
+     monitor_2_entry* temp;
+
+      _listeners.lock(pegasus_thread_self());
+      temp = _listeners.next(0);
+      while(temp != 0 )
+      {
+        fd1=(Sint32) temp->get_sock();
+
+        if(fd1 == fd2)
+        {
+
+           Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
+          "monitor_2::add_entry:Request for duplicate entry in _listeners for %d FD.", fd1);
+            if(temp->get_state() == CLOSED)
+            {
+              temp->set_state(IDLE);
+              Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
+              "monitor_2::add_entry:CLOSED state changed to IDLE for %d.", fd1);
+             }
+             _listeners.unlock();
+            delete m2e;
+            return 0;
+        }
+       temp = _listeners.next(temp);
+      }
+   } 
+   catch(...) 
+   {
+      delete m2e;
+      return 0;
+   }
+
+
+  _listeners.unlock();
+
+
   try{
     _listeners.insert_first(m2e);
   }
@@ -1015,6 +1114,8 @@ monitor_2_entry*  monitor_2::add_entry(pegasus_socket& ps,
     delete m2e;
     return 0;
   }
+      Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+      "monitor_2::add_entry:SUCCESSFULLY added to _listeners list. FD = %d.", fd2);
   tickle();
   return m2e;
 }

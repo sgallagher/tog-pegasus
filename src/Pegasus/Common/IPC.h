@@ -308,9 +308,10 @@ class PEGASUS_COMMON_LINKAGE AtomicInt
       AtomicInt(const AtomicInt& original ) ; // copy 
 
       AtomicInt& operator=(const AtomicInt& original ); // assignment
+      //const AtomicInt& operator=(Uint32 val);
       AtomicInt& operator=(Uint32 val);
 
-      Uint32  value(void);
+      Uint32  value(void) const;
 
       void operator++(void); // prefix
       void operator++(int); // postfix
@@ -334,6 +335,9 @@ class PEGASUS_COMMON_LINKAGE AtomicInt
       inline Boolean operator<(Uint32 cmp) {return (this->value() < cmp);}
       inline Boolean operator<=(Uint32 cmp) {return (this->value() <= cmp);}
       inline Boolean operator==(Uint32 cmp) {return (this->value() == cmp);}
+
+      // This method should ease reference counting
+      Boolean DecAndTestIfZero();
 
       // Mutex * getMutex(); keep this hidden - it will only exist on platforms
       // without native atomic types 

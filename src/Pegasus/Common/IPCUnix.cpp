@@ -736,90 +736,201 @@ int Semaphore::count()
 // loaded or stored atomically, but incrementing and decrementing is not
 // done atomically.
 //
-//#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
-
-#if defined(PEGASUS_ATOMIC_INT_NATIVE)
-
-AtomicInt::AtomicInt() { _rep.counter = 0;}
-
-AtomicInt::AtomicInt( Uint32 initial) {_rep.counter = initial;}
-
+#if defined(PEGASUS_ATOMIC_INT_NATIVE) && defined(PEGASUS_OLD_ATOMIC_INT)
+AtomicInt::AtomicInt() {_rep.counter = 0;}
+AtomicInt::AtomicInt(Uint32 initial) {_rep.counter = initial;}
 AtomicInt::~AtomicInt() {}
+AtomicInt::AtomicInt(const AtomicInt& original)
+{ _rep.counter = atomic_read(&original._rep);}
+AtomicInt& AtomicInt::operator=(Uint32 i)
+{ atomic_set(&_rep,i); return *this;}
+AtomicInt& AtomicInt::operator=(const AtomicInt& original)
+{ if (this != &original) atomic_set(&_rep,atomic_read(&original._rep);
+   return *this;}
+
+Uint32 AtomicInt::value(void) const {return((Uint32) atomic_read(&_rep));}
+void AtomicInt::operator++(void) {atomic_inc(&_rep);}
+void AtomicInt::operator--(void) {atomic_dec(&_rep);}
+void AtomicInt::operator++(int) {atomic_inc(&_rep);}
+void AtomicInt::operator--(int) {atomic_dec(&_rep);}
+Uint32 AtomicInt::operator+(const AtomicInt& val)
+{return ((Uint32)(atomic_read(&_rep) + atomic_read(&val._rep));}
+Uint32 AtomicInt::operator+(Uint32 val)
+{return ((Uint32)(atomic_read(&_rep) + val));}
+Uint32 AtomicInt::operator-(const AtomicInt& val)
+{return ((Uint32)(atomic_read(&_rep) - atomic_read(&val._rep));}
+Uint32 AtomicInt::operator-(Uint32 val)
+{return ((Uint32)(atomic_read(&_rep) - val));}
+AtomicInt& AtomicInt::operator+=(const AtomicInt& val)
+{atomic_add(atomic_read(&val._rep),&_rep); return *this; }
+AtomicInt& AtomicInt::operator+=(Uint32 val)
+{atomic_add(val,&_rep); return *this; }
+AtomicInt& AtomicInt::operator-=(const AtomicInt& val)
+{atomic_sub(atomic_read(&val._rep),&_rep); return *this; }
+AtomicInt& AtomicInt::operator-=(Uint32 val)
+{atomic_sub(val,&_rep); return *this; }
+
+Boolean AtomicInt::DecAndTestIfZero()
+{ // Not implemented
+  return false; }
+
+#elif defined(PEGASUS_ATOMIC_INT_NATIVE)
+
+AtomicInt::AtomicInt() { pthread_spin_init(&_crit,0); _rep = 0;}
+
+AtomicInt::AtomicInt( Uint32 initial)
+    {pthread_spin_init(&_crit,0); _rep = initial;}
+
+AtomicInt::~AtomicInt() { pthread_spin_destroy(&_crit);}
 
 AtomicInt::AtomicInt(const AtomicInt& original) 
 {
-   _rep.counter = atomic_read(&original._rep);
+   pthread_spin_init(&_crit,0);
+   _rep = original.value();
 }
 
 AtomicInt& AtomicInt::operator=(Uint32 i) 
 {
-   atomic_set(&_rep, i );
+   pthread_spin_lock(&_crit);
+   _rep = i;
+   pthread_spin_unlock(&_crit);
    return *this;
 }
 
-  AtomicInt& AtomicInt::operator=( const AtomicInt& original)
+AtomicInt& AtomicInt::operator=(const AtomicInt& original)
 {
    if(this != &original)
-      atomic_set(&_rep,atomic_read(&original._rep));
+   {
+      int i = original.value();
+      pthread_spin_lock(&_crit);
+      _rep = i;
+      pthread_spin_unlock(&_crit);
+   }
    return *this;
 }
 
- Uint32 AtomicInt::value(void)
+Uint32 AtomicInt::value(void) const 
 {
-   return((Uint32)atomic_read(&_rep));
+   int i;
+
+   // except for zSeries, i=_rep seems to be atomic even 
+   // on multiprocessor systems without spinlock usage
+   PEGASUS_CRIT_TYPE * crit = const_cast<PEGASUS_CRIT_TYPE *>(&_crit);
+   pthread_spin_lock(crit);
+   i = _rep;
+   pthread_spin_unlock(crit);
+
+   return i;
 }
 
- void AtomicInt::operator++(void) { atomic_inc(&_rep); }
- void AtomicInt::operator--(void) { atomic_dec(&_rep); }
- void AtomicInt::operator++(int) { atomic_inc(&_rep); }
- void AtomicInt::operator--(int) { atomic_dec(&_rep); }
-
-
- Uint32 AtomicInt::operator+(const AtomicInt& val)
+void AtomicInt::operator++(void)
 {
-     return((Uint32)(atomic_read(&_rep) + atomic_read(&val._rep) ));
+    pthread_spin_lock(&_crit);
+    _rep++;
+    pthread_spin_unlock(&_crit);
 }
 
- Uint32 AtomicInt::operator+(Uint32 val)
+void AtomicInt::operator--(void)
+{
+    pthread_spin_lock(&_crit);
+    _rep--;
+    pthread_spin_unlock(&_crit);
+}
+
+void AtomicInt::operator++(int)
+{
+    pthread_spin_lock(&_crit);
+    _rep++;
+    pthread_spin_unlock(&_crit);
+}
+
+void AtomicInt::operator--(int)
+{
+    pthread_spin_lock(&_crit);
+    _rep--;
+    pthread_spin_unlock(&_crit);
+}
+
+
+Uint32 AtomicInt::operator+(const AtomicInt& val)
+{
+    int i = val.value();
+    pthread_spin_lock(&_crit);
+    i += _rep;
+    pthread_spin_unlock(&_crit);
+    return i;
+}
+
+Uint32 AtomicInt::operator+(Uint32 val)
 { 
-    return( (Uint32)(atomic_read(&_rep) + val));
+    int i = val;
+    pthread_spin_lock(&_crit);
+    i += _rep;
+    pthread_spin_unlock(&_crit);
+    return i;
 }
 
- Uint32 AtomicInt::operator-(const AtomicInt& val)
+Uint32 AtomicInt::operator-(const AtomicInt& val)
 {
-     return((Uint32)(atomic_read(&_rep) - atomic_read(&val._rep) ));
+    int i = val.value();
+    pthread_spin_lock(&_crit);
+    i = _rep - i;
+    pthread_spin_unlock(&_crit);
+    return i;
 }
 
- Uint32 AtomicInt::operator-(Uint32 val)
+Uint32 AtomicInt::operator-(Uint32 val)
 { 
-    return( (Uint32)(atomic_read(&_rep) - val));
+    int i = val;
+    pthread_spin_lock(&_crit);
+    i = _rep - i;
+    pthread_spin_unlock(&_crit);
+    return i;
 }
 
- AtomicInt& AtomicInt::operator+=(const AtomicInt& val)
+AtomicInt& AtomicInt::operator+=(const AtomicInt& val)
 {
-    atomic_add(atomic_read(&val._rep),&_rep);
+    int i = val.value();
+    pthread_spin_lock(&_crit);
+    _rep += i;
+    pthread_spin_unlock(&_crit);
     return *this;
 }
 
- AtomicInt& AtomicInt::operator+=(Uint32 val)
+AtomicInt& AtomicInt::operator+=(Uint32 val)
 {
-    atomic_add(val,&_rep);
+    pthread_spin_lock(&_crit);
+    _rep += val;
+    pthread_spin_unlock(&_crit);
     return *this;
 }
 
- AtomicInt& AtomicInt::operator-=(const AtomicInt& val)
+AtomicInt& AtomicInt::operator-=(const AtomicInt& val)
 {
-    atomic_sub(atomic_read(&val._rep),&_rep);
+    int i = val.value();
+    pthread_spin_lock(&_crit);
+    _rep -= i;
+    pthread_spin_unlock(&_crit);
     return *this;
 }
 
- AtomicInt& AtomicInt::operator-=(Uint32 val)
+AtomicInt& AtomicInt::operator-=(Uint32 val)
 {
-    atomic_sub(val,&_rep);
+    pthread_spin_lock(&_crit);
+    _rep -= val;
+    pthread_spin_unlock(&_crit);
     return *this;
 }
 
-// still missing are atomic test like "subtract and test if zero"
+Boolean AtomicInt::DecAndTestIfZero()
+{
+    Boolean b = true;
+    pthread_spin_lock(&_crit);
+    if (_rep > 0)
+        b = (--_rep) ? true : false;
+    pthread_spin_unlock(&_crit);
+    return b;
+}
 
 #endif // Native Atomic Type 
 

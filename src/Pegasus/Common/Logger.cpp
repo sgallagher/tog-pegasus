@@ -1,53 +1,45 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Sushma Fernandes (Hewlett-Packard Company)
+//              sushma_fernandes@hp.com
+// Modified By: Dave Rosckes (IBM)
+//              rosckes@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
 #include <fstream>
 #include <cstring>
-#include <Pegasus/Common/Logger.h>
-#include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/System.h>
-#include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/MessageLoader.h>
-#include <Pegasus/Common/Executor.h>
-#include <Pegasus/Common/Mutex.h>
-
-#if defined(PEGASUS_USE_SYSLOGS)
-# include <syslog.h>
-#endif
+#include "Logger.h"
+#include "System.h"
+#include "Destroyer.h"
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
-
 
 const Uint32 Logger::TRACE = (1 << 0);
 const Uint32 Logger::INFORMATION = (1 << 1);
@@ -64,85 +56,55 @@ static char const* LOGLEVEL_LIST[] =
     "FATAL"
 };
 
+
 LoggerRep* Logger::_rep = 0;
 String Logger::_homeDirectory = ".";
 
 const Uint32 Logger::_NUM_LOGLEVEL = 5;
 
-Uint32 Logger::_severityMask;
+// Set separator
+const char Logger::_SEPARATOR = '@';
 
+Uint32 Logger::_severityMask; 
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// LoggerRep
-//
-///////////////////////////////////////////////////////////////////////////////
+Uint32 Logger::_writeControlMask = 0xF;   // Set all on by default
 
-#if defined(PEGASUS_USE_SYSLOGS)
+// Set the return codes
+const Boolean Logger::_SUCCESS = 1;
+const Boolean Logger::_FAILURE = 0;
 
-class LoggerRep
-{
-public:
-
-    LoggerRep(const String&)
-    {
-# ifdef PEGASUS_OS_ZOS
-        logIdentity = strdup(System::CIMSERVER.getCString());
-        // If System Log is used open it
-        System::openlog(logIdentity, LOG_PID, LOG_DAEMON);
-# endif
-    }
-
-    ~LoggerRep()
-    {
-# ifdef PEGASUS_OS_ZOS
-        System::closelog();
-        free(logIdentity);
-# endif
-    }
-
-    // Actual logging is done in this routine
-    void log(Logger::LogFileType,
-        const String& systemId,
-        Uint32 logLevel,
-        const String localizedMsg)
-    {
-        // Log the message
-        System::syslog(systemId, logLevel, localizedMsg.getCString());
-    }
-
-private:
-
-# ifdef PEGASUS_OS_ZOS
-    char* logIdentity;
-# endif
-};
-
-#else    // !defined(PEGASUS_USE_SYSLOGS)
-
-static const char* fileNames[] =
-{
-    "PegasusTrace.log",
-    "PegasusStandard.log",
-    "PegasusAudit.log",
-    "PegasusError.log"
-};
-static const char* lockFileName = "PegasusLog.lock";
-
-/*
-    _constructFileName builds the absolute file name from homeDirectory
-    and fileName.
+/* _allocLogFileName. Allocates the name from a name set.
+    Today this is static.  However, it should be completely
+    configerable and driven from the config file so that
+    Log organization and names are open.
+    ATTN: rewrite this so that names, choice to do logs and
+    mask for level of severity are all driven from configuration
+    input.
 */
-static CString _constructFileName(
+static CString _allocLogFileName(
     const String& homeDirectory,
-    const char * fileName)
+    Logger::LogFileType logFileType)
 {
+    static const char* fileNames[] = 
+    {
+	"PegasusTrace.log",
+	"PegasusStandard.log",
+	"PegasusError.log",
+	"PegasusDebug.log"
+    };
+
+    int index = int(logFileType);
+
+    if (index > Logger::NUM_LOGS)
+	index = Logger::ERROR_LOG;
+
+    const char* logFileName = fileNames[index];
+
     String result;
-    result.reserveCapacity(
-        (Uint32)(homeDirectory.size() + 1 + strlen(fileName)));
+    result.reserveCapacity(homeDirectory.size() + 1 + strlen(logFileName));
     result.append(homeDirectory);
     result.append('/');
-    result.append(fileName);
+    result.append(logFileName);
     return result.getCString();
 }
 
@@ -152,204 +114,57 @@ public:
 
     LoggerRep(const String& homeDirectory)
     {
-        // Add test for home directory set.
+#if !defined(PEGASUS_USE_SYSLOGS)    
+	// Add test for home directory set.
 
-        // If home directory does not exist, create it.
-        CString lgDir = homeDirectory.getCString();
+	// If home directory does not exist, create it.
+	CString lgDir = homeDirectory.getCString();
 
-        if (!System::isDirectory(lgDir))
-            System::makeDirectory(lgDir);
+	if (!System::isDirectory(lgDir))
+	    System::makeDirectory(lgDir);
 
-        // KS: I put the second test in just in case some trys to create
-        // a completly erronous directory.  At least we will get a message
-        if (!System::isDirectory(lgDir))
-        {
-            MessageLoaderParms parms("Common.Logger.LOGGING_DISABLED",
-                "Logging Disabled");
+	// KS: I put the second test in just in case some trys to create
+	// a completly erronous directory.  At least we will get a message
+	if (!System::isDirectory(lgDir))
+	    cerr << "Logging Disabled";
 
-            cerr << MessageLoader::getMessage(parms);
-        }
+	CString fileName = _allocLogFileName(homeDirectory, Logger::TRACE_LOG);
+	_logs[Logger::TRACE_LOG].open(fileName, ios::app);
 
-       //Filelocks are not used for VMS
-# if !defined(PEGASUS_OS_VMS)
-        _loggerLockFileName = _constructFileName(homeDirectory, lockFileName);
+	fileName = _allocLogFileName(homeDirectory, Logger::STANDARD_LOG);
+	_logs[Logger::STANDARD_LOG].open(fileName, ios::app);
 
-        // Open and close a file to make sure that the file exists, on which
-        // file lock is requested
-        FILE *fileLockFilePointer;
-        fileLockFilePointer = fopen(_loggerLockFileName, "a+");
-        if(fileLockFilePointer)
-        {
-            fclose(fileLockFilePointer);
-        }
-# endif
+	fileName = _allocLogFileName(homeDirectory, Logger::ERROR_LOG);
+	_logs[Logger::ERROR_LOG].open(fileName, ios::app);
 
-        _logFileNames[Logger::TRACE_LOG] = _constructFileName(homeDirectory,
-                                               fileNames[Logger::TRACE_LOG]);
+	fileName = _allocLogFileName(homeDirectory, Logger::DEBUG_LOG);
+	_logs[Logger::DEBUG_LOG].open(fileName, ios::app);
+#endif 
 
-        _logFileNames[Logger::STANDARD_LOG] = _constructFileName(homeDirectory,
-                                               fileNames[Logger::STANDARD_LOG]);
-
-# ifdef PEGASUS_ENABLE_AUDIT_LOGGER
-        _logFileNames[Logger::AUDIT_LOG] = _constructFileName(homeDirectory,
-                                               fileNames[Logger::AUDIT_LOG]);
-# endif
-
-        _logFileNames[Logger::ERROR_LOG] = _constructFileName(homeDirectory,
-                                               fileNames[Logger::ERROR_LOG]);
     }
 
-    ~LoggerRep()
+    ostream& logOf(Logger::LogFileType logFileType)
     {
+	int index = int(logFileType);
+
+	if (index > int(Logger::ERROR_LOG))
+	    index = Logger::ERROR_LOG;
+
+	return _logs[index];
     }
 
-    // Actual logging is done in this routine
-    void log(Logger::LogFileType logFileType,
-        const String& systemId,
-        Uint32 logLevel,
-        const String &localizedMsg)
-    {
-        // Prepend the systemId to the incoming message
-        String messageString(systemId);
-        messageString.append(": ");
-        messageString.append(localizedMsg);  // l10n
-
-        // Get the logLevel String
-        // This converts bitmap to string based on highest order
-        // bit set
-        // ATTN: KS Fix this more efficiently.
-        const char* tmp = "";
-        if (logLevel & Logger::TRACE) tmp =       "TRACE   ";
-        if (logLevel & Logger::INFORMATION) tmp = "INFO    ";
-        if (logLevel & Logger::WARNING) tmp =     "WARNING ";
-        if (logLevel & Logger::SEVERE) tmp =      "SEVERE  ";
-        if (logLevel & Logger::FATAL) tmp =       "FATAL   ";
-
-# ifndef PEGASUS_OS_VMS
-        // Acquire AutoMutex (for thread sync)
-        // and AutoFileLock (for Process Sync).
-        AutoMutex am(_mutex);
-        AutoFileLock fileLock(_loggerLockFileName);
-
-        Uint32  logFileSize = 0;
-
-        // Read logFileSize to check if the logfile needs to be pruned.
-        FileSystem::getFileSize(String(_logFileNames[logFileType]),
-                                       logFileSize);
-
-        // Check if the size of the logfile is exceeding _maxLogFileSizeBytes.
-        if ( logFileSize > _maxLogFileSizeBytes)
-        {
-            // Prepare appropriate file name based on the logFileType.
-            // Eg: if Logfile name is PegasusStandard.log, pruned logfile name
-            // will be PegasusStandard-062607-122302.log,where 062607-122302
-            // is the time stamp.
-            String prunedLogfile(_logFileNames[logFileType],
-                                (Uint32)strlen(_logFileNames[logFileType]) - 4);
-            prunedLogfile.append('-');
-
-            // Get timestamp,remove illegal chars in file name'/' and ':'
-            // (: is illegal Open VMS) from the time stamp. Append the time
-            // info to the file name.
-
-            String timeStamp = System::getCurrentASCIITime();
-            for ( unsigned int i = 0; i < timeStamp.size(); i++ )
-            {
-                if( timeStamp[i] == '/' || timeStamp[i] == ':')
-                {
-                    timeStamp.remove(i, 1);
-                }
-            }
-            prunedLogfile.append(timeStamp);
-
-            // Append '.log' to the file
-            prunedLogfile.append( ".log");
-
-            // Rename the logfile
-            FileSystem::renameFile(String(_logFileNames[logFileType]),
-                                   prunedLogfile);
-
-        } // Check if the logfile needs to be pruned.
-# endif  // ifndef PEGASUS_OS_VMS
-
-        // Open Logfile. Based on the value of logFileType, one of the five
-        // Logfiles will be opened.
-        ofstream logFileStream;
-        logFileStream.open(_logFileNames[logFileType], ios::app);
-        logFileStream << System::getCurrentASCIITime()
-           << " " << tmp << (const char *)messageString.getCString() << endl;
-        logFileStream.close();
-    }
-
-    static void setMaxLogFileSize(Uint32 maxLogFileSizeBytes)
-    {
-        _maxLogFileSizeBytes = maxLogFileSizeBytes;
-    }
 private:
 
-    CString _logFileNames[int(Logger::NUM_LOGS)];
-
-    static Uint32 _maxLogFileSizeBytes;
-# ifndef PEGASUS_OS_VMS
-    CString _loggerLockFileName;
-    Mutex _mutex;
-# endif
+    ofstream _logs[int(Logger::NUM_LOGS)];
 };
-
-Uint32 LoggerRep::_maxLogFileSizeBytes;
-
-#endif    // !defined(PEGASUS_USE_SYSLOGS)
-
-
-///////////////////////////////////////////////////////////////////////////////
-//
-// Logger
-//
-///////////////////////////////////////////////////////////////////////////////
 
 void Logger::_putInternal(
     LogFileType logFileType,
     const String& systemId,
-    Uint32 logLevel,
-    const String& message)
-{
-    if (!_rep)
-       _rep = new LoggerRep(_homeDirectory);
-
-    // Call the actual logging routine is in LoggerRep.
-    _rep->log(logFileType, systemId, logLevel, message);
-
-    // PEP 315
-    // The trace can be routed into the log. The logged trace messages are
-    // logged with logFileType of Logger::TRACE_LOG.
-    // To avoid a cirular writing of these messages, log messages with
-    // logFileType of Logger::TRACE_LOG are never send to the trace.
-    if (Logger::TRACE_LOG != logFileType)
-    {
-        // For all other logFileType's send the log messages to the trace.
-        // But do not write log messages to trace when the trace facility is
-        // set to log. This avoids double messages.
-        if (Tracer::TRACE_FACILITY_LOG != Tracer::getTraceFacility())
-        {
-            PEG_TRACE_CSTRING(
-                TRC_LOGMSG,
-                Tracer::LEVEL1,
-                (const char*) message.getCString());
-        }
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// Public methods start here:
-//
-////////////////////////////////////////////////////////////////////////////////
-
-void Logger::put(
-    LogFileType logFileType,
-    const String& systemId,
+    const Uint32 logComponent, // TODO: Support logComponent mask in future release 
     Uint32 logLevel,
     const String& formatString,
+    const String& messageId,  // l10n
     const Formatter::Arg& arg0,
     const Formatter::Arg& arg1,
     const Formatter::Arg& arg2,
@@ -361,96 +176,248 @@ void Logger::put(
     const Formatter::Arg& arg8,
     const Formatter::Arg& arg9)
 {
-    if (wouldLog(logLevel))
+    // Test for logLevel against severity mask to determine
+    // if we write this log.
+    if ((_severityMask & logLevel) != 0) 
     {
-        Logger::_putInternal(logFileType, systemId, logLevel,
-            Formatter::format(formatString, arg0, arg1, arg2, arg3,
-                arg4, arg5, arg6, arg7, arg8, arg9));
+	if (!_rep)
+	   _rep = new LoggerRep(_homeDirectory);
+
+		// Get the logLevel String
+		// This converts bitmap to string based on highest order
+		// bit set
+		// ATTN: KS Fix this more efficiently.
+		static const char* svNames[] = 
+		{
+	    "TRACE   ",
+	    "INFO    ",
+	    "WARNING ",
+	    "SEVERE  ",
+	    "FATAL   "
+		};
+		// NUM_LEVELS = 5
+		int sizeSvNames = sizeof(svNames) / sizeof(svNames[0]) - 1;
+
+// l10n start
+        // The localized message to be sent to the system log.
+		String localizedMsg;
+         
+		// If the caller specified a messageId, then load the localized
+		// message in the locale of the server process.                		
+		if (messageId != String::EMPTY)
+		{
+			// A message ID was specified.  Use the MessageLoader.			
+			MessageLoaderParms msgParms(messageId, formatString);
+			msgParms.useProcessLocale = true;
+			msgParms.arg0 = arg0;
+			msgParms.arg1 = arg1;
+			msgParms.arg2 = arg2;
+			msgParms.arg3 = arg3;
+			msgParms.arg4 = arg4;
+			msgParms.arg5 = arg5;
+			msgParms.arg6 = arg6;
+			msgParms.arg7 = arg7;
+			msgParms.arg8 = arg8;
+			msgParms.arg9 = arg9;
+																		
+			localizedMsg = MessageLoader::getMessage(msgParms);				
+		}
+		else
+		{  // No message ID.  Use the Pegasus formatter  
+		  	localizedMsg = Formatter::format(formatString,
+                arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);			
+		}
+// l10n end		
+	
+#if defined(PEGASUS_USE_SYSLOGS)
+           
+            // Open the syslog.
+            // Ignore the systemId and open the log as cimserver
+	    System::openlog(systemId);
+
+            // Log the message
+	    System::syslog(logLevel,(const char*)localizedMsg.getCString());
+// l10n TODO uncomment this line	    
+//	    System::syslog(logLevel,(const char*)localizedMsg.getCStringUTF8());	    
+	    
+
+            // Close the syslog.
+	    System::closelog();
+
+       #else
+
+	    // Prepend the systemId to the incoming message
+	    String messageString(systemId);
+	    messageString.append(": ");
+	    messageString.append(localizedMsg);  // l10n - TODO need to send as UTF-8
+
+	    const char* tmp = "";
+	    if (logLevel & Logger::TRACE) tmp =       "TRACE   ";
+	    if (logLevel & Logger::INFORMATION) tmp = "INFO    ";
+            if (logLevel & Logger::WARNING) tmp =     "WARNING ";
+	    if (logLevel & Logger::SEVERE) tmp =      "SEVERE  ";
+	    if (logLevel & Logger::FATAL) tmp =       "FATAL   ";
+                _rep->logOf(logFileType) << System::getCurrentASCIITime()
+                 << " " << tmp << messageString.getCString() << endl;
+// l10n - TODO uncomment this                 
+//               << " " << tmp << messageString.getCStringUTF8() << endl;
+
+       #endif
     }
 }
 
 void Logger::put(
-    LogFileType logFileType,
-    const String& systemId,
-    Uint32 logLevel,
-    const String& formatString)
+		 LogFileType logFileType,
+		 const String& systemId,
+		 Uint32 logLevel,
+		 const String& formatString,
+		 const Formatter::Arg& arg0,
+		 const Formatter::Arg& arg1,
+		 const Formatter::Arg& arg2,
+		 const Formatter::Arg& arg3,
+		 const Formatter::Arg& arg4,
+		 const Formatter::Arg& arg5,
+		 const Formatter::Arg& arg6,
+		 const Formatter::Arg& arg7,
+		 const Formatter::Arg& arg8,
+		 const Formatter::Arg& arg9)	
 {
-    if (wouldLog(logLevel))
-    {
-        Logger::_putInternal(logFileType, systemId, logLevel, formatString);
-    }
+    Uint32 logComponent = 0;
+
+    Logger::_putInternal(
+			logFileType,
+			systemId,
+			logComponent,
+			logLevel,
+			formatString,
+//l10n
+			String::EMPTY,
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+			arg4,
+			arg5,
+			arg6,
+			arg7,
+			arg8,
+			arg9);		
 }
 
-void Logger::put(
-    LogFileType logFileType,
-    const String& systemId,
-    Uint32 logLevel,
-    const String& formatString,
-    const Formatter::Arg& arg0)
-{
-    if (wouldLog(logLevel))
-    {
-        Logger::_putInternal(logFileType, systemId, logLevel,
-            Formatter::format(formatString, arg0));
-    }
-}
-
-void Logger::put(
-    LogFileType logFileType,
-    const String& systemId,
-    Uint32 logLevel,
-    const String& formatString,
-    const Formatter::Arg& arg0,
-    const Formatter::Arg& arg1)
-{
-    if (wouldLog(logLevel))
-    {
-        Logger::_putInternal(logFileType, systemId, logLevel,
-            Formatter::format(formatString, arg0, arg1));
-    }
-}
-
-void Logger::put(
-    LogFileType logFileType,
-    const String& systemId,
-    Uint32 logLevel,
-    const String& formatString,
-    const Formatter::Arg& arg0,
-    const Formatter::Arg& arg1,
-    const Formatter::Arg& arg2)
-{
-    if (wouldLog(logLevel))
-    {
-        Logger::_putInternal(logFileType, systemId, logLevel,
-            Formatter::format(formatString, arg0, arg1, arg2));
-    }
-}
-
+// l10n
 void Logger::put_l(
-    LogFileType logFileType,
-    const String& systemId,
-    Uint32 logLevel,
-    const MessageLoaderParms& msgParms)
+		 LogFileType logFileType,
+		 const String& systemId,
+		 Uint32 logLevel,
+		 const String& messageId,  // l10n		 
+		 const String& formatString,
+		 const Formatter::Arg& arg0,
+		 const Formatter::Arg& arg1,
+		 const Formatter::Arg& arg2,
+		 const Formatter::Arg& arg3,
+		 const Formatter::Arg& arg4,
+		 const Formatter::Arg& arg5,
+		 const Formatter::Arg& arg6,
+		 const Formatter::Arg& arg7,
+		 const Formatter::Arg& arg8,
+		 const Formatter::Arg& arg9)			
 {
-    if (wouldLog(logLevel))
-    {
-        MessageLoaderParms parms = msgParms;
-        parms.useProcessLocale = true;
-        Logger::_putInternal(logFileType, systemId, logLevel,
-            MessageLoader::getMessage(parms));
-    }
+    Uint32 logComponent = 0;
+
+    Logger::_putInternal(
+			logFileType,
+			systemId,
+			logComponent,
+			logLevel,
+			formatString,
+			messageId,
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+			arg4,
+			arg5,
+			arg6,
+			arg7,
+			arg8,
+			arg9);		
 }
 
 void Logger::trace(
-    LogFileType logFileType,
-    const String& systemId,
-    const String& message)
+		   LogFileType logFileType,
+		   const String& systemId,
+		   const Uint32 logComponent,
+		   const String& formatString,
+		   const Formatter::Arg& arg0,
+		   const Formatter::Arg& arg1,
+		   const Formatter::Arg& arg2,
+		   const Formatter::Arg& arg3,
+		   const Formatter::Arg& arg4,
+		   const Formatter::Arg& arg5,
+		   const Formatter::Arg& arg6,
+		   const Formatter::Arg& arg7,
+		   const Formatter::Arg& arg8,
+		   const Formatter::Arg& arg9)	
 {
-    if (wouldLog(Logger::TRACE))
-    {
-        Logger::_putInternal(logFileType, systemId, Logger::TRACE,
-            message);
-    }
+    Uint32 logLevel = Logger::TRACE;
+
+    Logger::_putInternal(
+			logFileType,
+			systemId,
+			logComponent,
+			logLevel,
+			formatString,
+// l10n
+			String::EMPTY,
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+			arg4,
+			arg5,
+			arg6,
+			arg7,
+			arg8,
+			arg9);			
+}
+
+// l10n
+void Logger::trace_l(
+		   LogFileType logFileType,
+		   const String& systemId,
+		   const Uint32 logComponent,
+		   const String& messageId,		   
+		   const String& formatString,
+		   const Formatter::Arg& arg0,
+		   const Formatter::Arg& arg1,
+		   const Formatter::Arg& arg2,
+		   const Formatter::Arg& arg3,
+		   const Formatter::Arg& arg4,
+		   const Formatter::Arg& arg5,
+		   const Formatter::Arg& arg6,
+		   const Formatter::Arg& arg7,
+		   const Formatter::Arg& arg8,
+		   const Formatter::Arg& arg9)	
+{
+    Uint32 logLevel = Logger::TRACE;
+
+    Logger::_putInternal(
+			logFileType,
+			systemId,
+			logComponent,
+			logLevel,
+			formatString,
+			messageId,
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+			arg4,
+			arg5,
+			arg6,
+			arg7,
+			arg8,
+			arg9);			
 }
 
 void Logger::setHomeDirectory(const String& homeDirectory)
@@ -458,9 +425,13 @@ void Logger::setHomeDirectory(const String& homeDirectory)
     _homeDirectory = homeDirectory;
 }
 
-void Logger::setlogLevelMask( const String &logLevelList )
+////////////////////////////////////////////////////////////////////////////////
+// Set logLevel. 
+////////////////////////////////////////////////////////////////////////////////
+void Logger::setlogLevelMask( const String logLevelList )
 {
-    Uint32 logLevelType = 0;
+    Uint32 position          = 0;
+    Uint32 logLevelType;
     String logLevelName      = logLevelList;
 
     // Check if logLevel has been specified
@@ -469,102 +440,97 @@ void Logger::setlogLevelMask( const String &logLevelList )
         // initialise _severityMask
         _severityMask = 0;
 
-        // Set logLevelType to indicate the level of logging
+ 	// Set logLevelType to indicate the level of logging
         // required by the user.
-        if (String::equalNoCase(logLevelName,"TRACE"))
-        {
-            logLevelType =  Logger::TRACE;
-        }
-        else if (String::equalNoCase(logLevelName,"INFORMATION"))
-        {
-            logLevelType =  Logger::INFORMATION;
-        }
-        else if (String::equalNoCase(logLevelName,"WARNING"))
-        {
-            logLevelType = Logger::WARNING;
-        }
-        else if (String::equalNoCase(logLevelName,"SEVERE"))
-        {
-            logLevelType = Logger::SEVERE;
-        }
-        else if (String::equalNoCase(logLevelName,"FATAL"))
-        {
-            logLevelType = Logger::FATAL;
-        }
-        // Setting _severityMask.  NOTE:  When adding new logLevels
+	if (String::equalNoCase(logLevelName,"TRACE"))
+	{
+	    logLevelType =  Logger::TRACE;
+	}
+	else if (String::equalNoCase(logLevelName,"INFORMATION"))
+	{
+	    logLevelType =  Logger::INFORMATION;
+	}
+	else if (String::equalNoCase(logLevelName,"WARNING"))
+	{
+	    logLevelType = Logger::WARNING;
+	}
+	else if (String::equalNoCase(logLevelName,"SEVERE"))
+	{
+	    logLevelType = Logger::SEVERE;
+	}
+	else if (String::equalNoCase(logLevelName,"FATAL"))
+	{
+	    logLevelType = Logger::FATAL;
+	}
+	// Setting _severityMask.  NOTE:  When adding new logLevels
         // it is essential that they are adding in ascending order
         // based on priority.  Once a case statement is true we will
         // continue to set all following log levels with a higher
         // priority.
-        switch(logLevelType)
-        {
-            case Logger::TRACE:
-                  _severityMask |= Logger::TRACE;
-            case Logger::INFORMATION:
-                  _severityMask |= Logger::INFORMATION;
-            case Logger::WARNING:
-                  _severityMask |= Logger::WARNING;
-            case Logger::SEVERE:
-                  _severityMask |= Logger::SEVERE;
-            case Logger::FATAL:
-                  _severityMask |= Logger::FATAL;
-        }
-
-        Executor::updateLogLevel(logLevelName.getCString());
+	switch(logLevelType)
+	{
+	    case Logger::TRACE:
+		  _severityMask |= Logger::TRACE;
+	    case Logger::INFORMATION:
+		  _severityMask |= Logger::INFORMATION;
+	    case Logger::WARNING:
+		  _severityMask |= Logger::WARNING;
+	    case Logger::SEVERE:
+		  _severityMask |= Logger::SEVERE;
+	    case Logger::FATAL:
+		  _severityMask |= Logger::FATAL;
+	}
     }
     else
     {
-        // Property logLevel not specified, set default value.
-        _severityMask = ~Logger::TRACE;
-        Executor::updateLogLevel("INFORMATION");
+	// Property logLevel not specified, set default value.
+	_severityMask = ~Logger::TRACE;
     }
+    return ;
 }
 
-Boolean Logger::isValidlogLevel(const String &logLevel)
+Boolean Logger::isValidlogLevel(
+    const String logLevel)
 {
     // Validate the logLevel and modify the logLevel argument
     // to reflect the invalid logLevel
 
+    Uint32    position=0;
     Uint32    index=0;
     String    logLevelName = String::EMPTY;
     Boolean   validlogLevel=false;
+    Boolean   retCode=true;
 
     logLevelName = logLevel;
 
     if (logLevelName != String::EMPTY)
     {
-        // Lookup the index for logLevel name in _logLevel_LIST
-        index = 0;
-        validlogLevel = false;
+	// Lookup the index for logLevel name in _logLevel_LIST
+	index = 0;
+	validlogLevel = false;
 
-        while (index < _NUM_LOGLEVEL)
-        {
-            if (String::equalNoCase(logLevelName, LOGLEVEL_LIST[index]))
-            {
-                // Found logLevel, break from the loop
-                validlogLevel = true;
-                break;
-            }
-            else
-            {
-                index++;
-            }
-        }
+	while (index < _NUM_LOGLEVEL)
+	{
+	    if (String::equalNoCase(logLevelName, LOGLEVEL_LIST[index]))
+	    {
+		// Found logLevel, break from the loop
+		validlogLevel = true;
+		break;
+	    }
+	    else
+	    {
+		index++;
+	    }
+	}
     }
     else
     {
-        // logLevels is empty, it is a valid value so return true
-        return true;
+	// logLevels is empty, it is a valid value so return true
+	return _SUCCESS;
     }
 
     return validlogLevel;
 }
 
-#if !defined (PEGASUS_USE_SYSLOGS)
-void Logger::setMaxLogFileSize(Uint32 maxLogFileSizeBytes)
-{
-     LoggerRep::setMaxLogFileSize(maxLogFileSizeBytes);
-}
-#endif
 
 PEGASUS_NAMESPACE_END

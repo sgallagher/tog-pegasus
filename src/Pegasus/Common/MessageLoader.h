@@ -1,31 +1,29 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Humberto Rivero (hurivero@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,246 +36,242 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Formatter.h>
-#include <Pegasus/Common/AcceptLanguageList.h>
-#include <Pegasus/Common/ContentLanguageList.h>
+#include <Pegasus/Common/AcceptLanguages.h>
+#include <Pegasus/Common/ContentLanguages.h>
+
+//ICU specific 
+#ifdef PEGASUS_HAS_ICU
+#include <unicode/uloc.h> 
+#include <unicode/ures.h>
+#include <unicode/umsg.h>
+#include <unicode/ucnv.h>
+#include <unicode/fmtable.h>
+#include <unicode/msgfmt.h>
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    MessageLoaderParms class is basically a stuct class containing public
-    variables that control the way MessageLoader behaves. MessageLoader uses
-    the fields in this class to decide where and how to load messages from
-    the message resources.
+ * MessageLoaderParms class is basically a stuct class containing public variables that control
+ * the way MessageLoader behaves. MessageLoader uses the fields in this class to decide where and
+ * how to load messages from the message resources.
  */
-class PEGASUS_COMMON_LINKAGE MessageLoaderParms
-{
+
+class PEGASUS_COMMON_LINKAGE MessageLoaderParms{
+	
 public:
+	
+	/*
+	 * String msg_id: unique message identifier for a particular message in a message resource
+	 */
+	String msg_id;	
+	
+	/*
+	 * String default_msg: the default message to use if a message cannot be loaded from a message resource
+	 */		
+	String default_msg;     
+	
+	/*
+	 * String msg_src_path: this path tells MessageLoader where to find message resources
+	 * it can be empty, fully qualified or relative to $PEGASUS_HOME
+	 */
+	String msg_src_path;
+	
+	/*
+	 * AcceptLanguages acceptlanguages: This contains the languages that are acceptable by the caller
+	 * of MessageLoader::getMessage(). That is, MessageLoader will do its best to return a message in 
+	 * a language that was specified in this container.  This container is naturally ordered using the quality 
+	 * values attached to the languages and MessageLoader iterates through this container in its natural 
+	 * ordering.  This container is used by MessageLoader to load messages if it is not empty.
+	 */
+	AcceptLanguages acceptlanguages;
+	
+	/*
+	 * ContentLanguages contentlanguages: This is set by MessageLoader::getMessage() after a message has
+	 * been loaded from either a message resource or the default message.  After the call to MessageLoader::getMessage()
+	 * the caller can check the MessageLoaderParms.contentlanguages object to see what MessageLoader set it to.
+	 * In all cases where a message is returned from MessageLoader::getMessage(), this field will be set to match the
+	 * language that the message was found in.
+	 */
+	ContentLanguages contentlanguages;
+	
+	/*
+	 * Boolean useProcessLocale: Default is false, if true, MessageLoader uses the system default language
+	 * to loads messages from.
+	 */
+	Boolean useProcessLocale;
+	
+	/*
+	 * Boolean useThreadLocale: Default is true, this tells MessageLoader to use the AcceptLanguages container
+	 * from the current Pegasus thread.
+	 */
+	Boolean useThreadLocale;
+	
+	/*
+	 * Boolean useICUfallback: Default is false.  Only relevant if PEGASUS_HAS_ICU is defined.
+	 * MessageLoader::getMessage() default behaviour is to extract messages for the langauge exactly
+	 * matching an available message resource.  If this is set to true, the MessageLoader is free to extract
+	 * a message from a less specific message resource according to its search algorithm.
+	 */
+	#ifdef PEGASUS_HAS_ICU
+	Boolean useICUfallback;
+	#endif
+	
+	/*
+	 * Formatter::Arg0-9: These are assigned the various substitutions necessary to properly format
+	 * the message being extracted.  MessageLoader substitutes these in the correct places in the message
+	 * being returned from MessageLoader::getMessage()
+	 */
+	Formatter::Arg arg0; 
+	Formatter::Arg arg1;
+	Formatter::Arg arg2;
+	Formatter::Arg arg3;
+	Formatter::Arg arg4;
+	Formatter::Arg arg5;
+	Formatter::Arg arg6;
+	Formatter::Arg arg7;
+	Formatter::Arg arg8;
+	Formatter::Arg arg9;
+	
+	/**
+	 * Constructor:
+	 */
+	MessageLoaderParms(){}
+	
+	/*
+	 * Constructor: 
+	 * @param id String - message identifier used to look up a message in a message resource
+	 * @param msg String - default message to use if a message cannot be found in the message resources.
+	 * @param arg0 Formatter::Arg - optional substitution parameter
+	 * @param arg1 Formatter::Arg - optional substitution parameter
+	 * @param arg2 Formatter::Arg - optional substitution parameter
+	 * @param arg3 Formatter::Arg - optional substitution parameter
+	 * @param arg4 Formatter::Arg - optional substitution parameter
+	 * @param arg5 Formatter::Arg - optional substitution parameter
+	 * @param arg6 Formatter::Arg - optional substitution parameter
+	 * @param arg7 Formatter::Arg - optional substitution parameter
+	 * @param arg8 Formatter::Arg - optional substitution parameter
+	 * @param arg9 Formatter::Arg - optional substitution parameter
+	 */
+	MessageLoaderParms( String id, String msg, 
+						Formatter::Arg arg0 = Formatter::Arg(), 
+						Formatter::Arg arg1 = Formatter::Arg(),
+						Formatter::Arg arg2 = Formatter::Arg(),
+						Formatter::Arg arg3 = Formatter::Arg(),
+						Formatter::Arg arg4 = Formatter::Arg(),
+						Formatter::Arg arg5 = Formatter::Arg(),
+						Formatter::Arg arg6 = Formatter::Arg(),
+						Formatter::Arg arg7 = Formatter::Arg(),
+						Formatter::Arg arg8 = Formatter::Arg(),
+						Formatter::Arg arg9 = Formatter::Arg() ){
+							
+		msg_id = id;
+		default_msg = msg;
+		useProcessLocale = false;
+		useThreadLocale = true;
+		
+		#ifdef PEGASUS_HAS_ICU
+		useICUfallback = false;
+		#endif
+		
+		acceptlanguages = AcceptLanguages::EMPTY;
+		contentlanguages = ContentLanguages::EMPTY;
+		msg_src_path = String::EMPTY;
+		this->arg0 = arg0;
+		this->arg1 = arg1;
+		this->arg2 = arg2;
+		this->arg3 = arg3;
+		this->arg4 = arg4;
+		this->arg5 = arg5;
+		this->arg6 = arg6;
+		this->arg7 = arg7;
+		this->arg8 = arg8;
+		this->arg9 = arg9;
+	}	
+	
+	String toString(){
+		
+		String s;
+		String processLoc,threadLoc,ICUfallback;
+		processLoc = (useProcessLocale) ? "true" : "false";
+		threadLoc = (useThreadLocale) ? "true" : "false";
+		#ifdef PEGASUS_HAS_ICU
+		ICUfallback = (useICUfallback) ? "true" : "false";
+		#endif
+		
+		s.append("msg_id = " + msg_id + "\n");
+		s.append("default_msg = " + default_msg + "\n");
+		s.append("msg_src_path = " + msg_src_path + "\n");
+		s.append("acceptlanguages = " + acceptlanguages.toString() + "\n");
+		s.append("contentlanguages = " + contentlanguages.toString() + "\n");
+		
+		s.append("useProcessLocale = " + processLoc + "\n");
+		s.append("useThreadLocale = " + threadLoc + "\n");
+		#ifdef PEGASUS_HAS_ICU
+		s.append("useICUfallback = " + ICUfallback + "\n");
+		#endif
+		s.append("arg0 = " + arg0.toString() + "\n" + "arg1 = " + arg1.toString() + "\n" + "arg2 = " + arg2.toString() + "\n" + "arg3 = " + arg3.toString() + "\n" + 
+		          "arg4 = " + arg4.toString() + "\n" + "arg5 = " + arg5.toString() + "\n" + "arg6 = " + arg6.toString() + "\n" + "arg7 = " + arg7.toString() + "\n" + 
+		          "arg8 = " + arg8.toString() + "\n" + "arg9 = " + arg9.toString() + "\n\n");
+		          
+		return s;
+	}	
+		
+}; // end MessageLoaderParms
 
-    /**
-        Unique message identifier for a particular
-        message in a message resource
-     */
-    const char* msg_id;
 
-    /**
-        String default_msg: the default message to use if a message
-        cannot be loaded from a message resource
-     */
-    String default_msg;
+/*
+ * MessageLoader is a static class resposible for looking up messages in message resources. 
+ * For specific behaviour details of this class see the Globalization HOWTO.
+ */
 
-    /**
-        String msg_src_path: this path tells MessageLoader where to
-        find message resources.
-        It can be empty, fully qualified or relative to $PEGASUS_HOME
-     */
-    String msg_src_path;
-
-    /**
-        AcceptLanguageList acceptlanguages: This contains the languages
-        that are acceptable by the caller of MessageLoader::getMessage()
-        or openMessageFile(). That is, MessageLoader will do its best to
-        return a message in a language that was specified in this container.
-        This container is naturally ordered using the quality values
-        attached to the languages and MessageLoader iterates through this
-        container in its natural ordering.  This container is used by
-        MessageLoader to load messages if it is not empty.
-     */
-    AcceptLanguageList acceptlanguages;
-
-    /**
-        ContentLanguageList contentlanguages: This is set by
-        MessageLoader::getMessage() and after a message has been loaded
-        from either a message resource or the default message, or by
-        MessageLoader::openMessageFile() after it has identified and
-        opened a message resource. After the call to
-        MessageLoader::getMessage() or MessageLoader::openMessageFile(),
-        the caller can check the MessageLoaderParms.contentlanguages
-        object to see what MessageLoader set it to. In all cases where a
-        message is returned from MessageLoader::getMessage() or will be
-        returned from MessageLoader::getMessage2(), this field will be
-        set to match the language that the message was (or will be)
-        found in.
-     */
-    ContentLanguageList contentlanguages;
-
-    /**
-        Boolean useProcessLocale: Default is false, if true, MessageLoader
-        uses the system default language to loads messages from.
-     */
-    Boolean useProcessLocale;
-
-    /**
-        Boolean useThreadLocale: Default is true, this tells
-        MessageLoader to use the AcceptLanguageList container
-        from the current Pegasus thread.
-     */
-    Boolean useThreadLocale;
-
-    /**
-        const Formatter::Arg&0-9: These are assigned the various
-        substitutions necessary to properly format the message being
-        extracted.  MessageLoader substitutes these in the correct
-        places in the message being returned from
-        MessageLoader::getMessage()
-     */
-    Formatter::Arg arg0;
-    Formatter::Arg arg1;
-    Formatter::Arg arg2;
-    Formatter::Arg arg3;
-    Formatter::Arg arg4;
-    Formatter::Arg arg5;
-    Formatter::Arg arg6;
-    Formatter::Arg arg7;
-    Formatter::Arg arg8;
-    Formatter::Arg arg9;
-
-    /** Constructor */
-    MessageLoaderParms();
-
-    /** Constructor */
-    MessageLoaderParms(
-        const char* id,
-        const char* msg,
-        const Formatter::Arg& arg0,
-        const Formatter::Arg& arg1,
-        const Formatter::Arg& arg2,
-        const Formatter::Arg& arg3,
-        const Formatter::Arg& arg4,
-        const Formatter::Arg& arg5 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg6 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg7 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg8 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg9 = Formatter::DEFAULT_ARG);
-
-    /** Constructor */
-    MessageLoaderParms(
-        const char* id,
-        const char* msg);
-
-    /**
-        Constructor with a String default message argument and no
-        substitutions.  This form is handy for cases like command usage
-        strings where the message is built up dynamically from component parts.
-    */
-    MessageLoaderParms(
-        const char* id,
-        const String& msg);
-
-    /** Constructor */
-    MessageLoaderParms(
-        const char* id,
-        const char* msg,
-        const Formatter::Arg& arg0);
-
-    /** Constructor */
-    MessageLoaderParms(
-        const char* id,
-        const char* msg,
-        const Formatter::Arg& arg0,
-        const Formatter::Arg& arg1);
-
-    /** Constructor */
-    MessageLoaderParms(
-        const char* id,
-        const char* msg,
-        const Formatter::Arg& arg0,
-        const Formatter::Arg& arg1,
-        const Formatter::Arg& arg2);
-
-    /** Constructor */
-    MessageLoaderParms(
-        const char* id,
-        const char* msg,
-        const Formatter::Arg& arg0,
-        const Formatter::Arg& arg1,
-        const Formatter::Arg& arg2,
-        const Formatter::Arg& arg3);
-
-#ifdef PEGASUS_DEBUG
-    /** Converts to string. */
-    String toString();
-#endif
-
-    ~MessageLoaderParms();
-
+class PEGASUS_COMMON_LINKAGE MessageLoader{
+	
+public:
+	
+	/*
+	 * Retrieves a message from a message resource
+	 * @param parms MessageLoaderParms - controls the behaviour of how a message is retrieved
+	 * @return String - the formatted message
+	 */
+	static String getMessage(MessageLoaderParms &parms);
+	
+	static void setPegasusMsgHome(String home);
+	
+	static Boolean _useProcessLocale;
+	
+	static Boolean _useDefaultMsg;
+ 	
+	static AcceptLanguages _acceptlanguages;
+	
 private:
 
-    void* _resbundl;
+	static String formatDefaultMessage(MessageLoaderParms &parms);
+	
+	static String getQualifiedMsgPath(String path);
 
-    void _init();
+	static void initPegasusMsgHome();
+	
+	static String pegasus_MSG_HOME;
+	
+	#ifdef PEGASUS_HAS_ICU
+		static String loadICUMessage(MessageLoaderParms &parms);
+		
+		static String extractICUMessage(UResourceBundle * resbundl, MessageLoaderParms &parms);
+		
+		static String formatICUMessage(UResourceBundle * resbundl, const UChar *msg, int msg_len, MessageLoaderParms &parms);
+		
+		static String uChar2String(UChar * uchar_str);
+		
+		static String uChar2String(UChar * uchar_str, int len);
+		
+		static UChar* string2UChar(String s);
+		
+		static void xferFormattables(MessageLoaderParms &parms, Formattable *formattables);
+	#endif
+	
+}; // end MessageLoader
 
-    friend class MessageLoader;
-    friend class MessageLoaderICU;
-};
-
-
-/**
-    MessageLoader is a static class resposible for looking up messages in
-    message resources.
-    For specific behaviour details of this class see the Globalization HOWTO.
- */
-class PEGASUS_COMMON_LINKAGE MessageLoader
-{
-public:
-
-    /**
-        Retrieves a message from a message resource
-        @param parms MessageLoaderParms - controls the behaviour of how a
-        message is retrieved
-        @return String - the formatted message
-     */
-    static String getMessage(MessageLoaderParms& parms);
-
-    /**
-        Opens a message resource bundle.  If unsuccessful, a subsequent call
-        to getMessage2() with the specified MessageLoaderParms object will
-        result in the default message being formatted.
-        ATTN: Do we want *real* error codes for this?
-        @param parms MessageLoaderParms - controls the behaviour of how a
-            message is retrieved, this parameter should be used *ONLY* on
-            subsequent calls to getMessage2() and closeMessageFile().
-     */
-    static void openMessageFile(MessageLoaderParms& parms);
-
-    /**
-        Closes a message resource bundle.
-        @param parms MessageLoaderParms - identifies a previously opened
-            resource bundle returned from openMessageFile().
-     */
-    static void closeMessageFile(MessageLoaderParms& parms);
-
-    /**
-        Retrieves a message from a message resource previously opened by
-        openMessageFile()
-        @param parms MessageLoaderParms - controls the behaviour of how a
-            message is retrieved, and is the same MessageLoaderParms
-            parameter that was passed to openMessageFile().
-        @return String - the formatted message
-     */
-    static String getMessage2(MessageLoaderParms& parms);
-
-    static void setPegasusMsgHome(String home);
-
-    static void setPegasusMsgHomeRelative(const String& argv0);
-
-    static String getQualifiedMsgPath(const String& path);
-
-    static Boolean _useProcessLocale;
-
-    static Boolean _useDefaultMsg;
-
-    static AcceptLanguageList _acceptlanguages;
-
-private:
-
-    static String formatDefaultMessage(MessageLoaderParms& parms);
-
-    static void initPegasusMsgHome(const String& startDir);
-
-    static void checkDefaultMsgLoading();
-
-    static String pegasus_MSG_HOME;
-};
 
 PEGASUS_NAMESPACE_END
 

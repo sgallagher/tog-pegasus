@@ -1,31 +1,35 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//  
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Sushma Fernandes , Hewlett-Packard Company
+//                (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,28 +45,28 @@ Exception::Exception(const String& message)
 {
     _rep = new ExceptionRep();
     _rep->message = message;
-    _rep->contentLanguages.clear();
+    _rep->contentLanguages = ContentLanguages::EMPTY;  // l10n
 }
 
 Exception::Exception(const Exception& exception)
 {
     _rep = new ExceptionRep();
     _rep->message = exception._rep->message;
-    _rep->contentLanguages = exception._rep->contentLanguages;
+    _rep->contentLanguages = exception._rep->contentLanguages;    // l10n
 }
 
+// l10n
 Exception::Exception(const MessageLoaderParms& msgParms)
 {
     _rep = new ExceptionRep();
     _rep->message = MessageLoader::getMessage(
-        const_cast<MessageLoaderParms &>(msgParms));
-    // Must be after MessageLoader::getMessage call
+    	const_cast<MessageLoaderParms &>(msgParms));
+    // Must be after MessageLoader::getMessage call    
     _rep->contentLanguages = msgParms.contentlanguages;
 }
 
 Exception::Exception()
 {
-    _rep = NULL;
 }
 
 Exception::~Exception()
@@ -70,253 +74,321 @@ Exception::~Exception()
     delete _rep;
 }
 
-Exception& Exception::operator=(const Exception& exception)
-{
-    if (&exception != this)
-    {
-        *this->_rep = *exception._rep;
-    }
-    return *this;
-}
-
 const String& Exception::getMessage() const
 {
     return _rep->message;
 }
 
-const ContentLanguageList& Exception::getContentLanguages() const
+// l10n
+const ContentLanguages& Exception::getContentLanguages() const
 {
-    return _rep->contentLanguages;
-}
+	return _rep->contentLanguages;
+} 
 
-void Exception::setContentLanguages(const ContentLanguageList& langs)
+// l10n
+void Exception::setContentLanguages(const ContentLanguages& langs)
 {
-    _rep->contentLanguages = langs;
-}
+	_rep->contentLanguages = langs;
+} 
+
+// l10n TODO - finish the commented out constructors below 
 
 IndexOutOfBoundsException::IndexOutOfBoundsException()
-    : Exception(MessageLoaderParms(
-          "Common.Exception.INDEX_OUT_OF_BOUNDS_EXCEPTION",
-          "index out of bounds"))
+    : Exception("index out of bounds")
 {
 }
+
+/*
+IndexOutOfBoundsException::IndexOutOfBoundsException()
+    : Exception(MessageLoaderParms("key","index out of bounds"))
+{
+}
+*/
 
 AlreadyExistsException::AlreadyExistsException(const String& message)
-    : Exception(MessageLoaderParms(
-          "Common.Exception.ALREADY_EXISTS_EXCEPTION",
-          "already exists: $0",
-          message))
+    : Exception("already exists: " + message)
 {
 }
 
-AlreadyExistsException::AlreadyExistsException(MessageLoaderParms& msgParms)
-    : Exception(MessageLoaderParms(
-          "Common.Exception.ALREADY_EXISTS_EXCEPTION",
-          "already exists: $0",
-          MessageLoader::getMessage(msgParms)))
+/*
+AlreadyExistsException::AlreadyExistsException(const String& message)
+    : Exception(MessageLoaderParms("key1",
+    								"already exists: $0",
+DON'T FORGET THE $0 for the rest of these!    								
+    								 message))
 {
 }
 
+AlreadyExistsException::AlreadyExistsException(const MessageLoaderParms& msgParms)
+    : Exception(MessageLoaderParms("key2",
+    								"already exists: "))
+{
+	_rep->message.append(MessageLoader.getMessage(msgParms));
+}
+*/
+
+InvalidNameException::InvalidNameException(const String& name)
+    : Exception("invalid CIM name: " + name)
+{
+}
+
+/*
 InvalidNameException::InvalidNameException(const String& message)
-    : Exception(MessageLoaderParms(
-          "Common.Exception.INVALID_NAME_EXCEPTION",
-          "The CIM name is not valid: $0",
-          message))
+    : Exception(MessageLoaderParms("key1",
+    								"invalid CIM name: ",
+    								 message))
 {
 }
 
-InvalidNameException::InvalidNameException(MessageLoaderParms& msgParms)
-    : Exception(MessageLoaderParms(
-          "Common.Exception.INVALID_NAME_EXCEPTION",
-          "invalid CIM name: $0",
-          MessageLoader::getMessage(msgParms)))
+InvalidNameException::InvalidNameException(const MessageLoaderParms& msgParms)
+    : Exception(MessageLoaderParms("key2",
+    								"invalid CIM name: "))
 {
+	_rep->message.append(MessageLoader.getMessage(msgParms));
 }
+*/
 
 InvalidNamespaceNameException::InvalidNamespaceNameException(const String& name)
-    : Exception(MessageLoaderParms(
-          "Common.Exception.INVALID_NAMESACE_NAME_EXCEPTION",
-          "invalid CIM namespace name: $0",
-          name))
+    : Exception("invalid CIM namespace name: " + name)
 {
 }
 
-InvalidNamespaceNameException::InvalidNamespaceNameException(
-    MessageLoaderParms& msgParms)
-    : Exception(MessageLoaderParms(
-          "Common.Exception.INVALID_NAMESPACE_NAME_EXCEPTION",
-          "invalid CIM namespace name: $0",
-          MessageLoader::getMessage(msgParms)))
+/*
+InvalidNamespaceNameException::InvalidNamespaceNameException(const String& name)
+    : Exception(MessageLoaderParms("key1",
+    								"invalid CIM namespace name: ",
+    								 name))
 {
 }
+
+InvalidNamespaceNameException::InvalidNamespaceNameException(const MessageLoaderParms& msgParms)
+    : Exception(MessageLoaderParms("key2",
+    								"invalid CIM namespace name: "))
+{
+	_rep->message.append(MessageLoader.getMessage(msgParms));
+}
+*/
 
 UninitializedObjectException::UninitializedObjectException()
-    : Exception(MessageLoaderParms(
-          "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
-          "uninitialized object"))
+    : Exception("uninitialized object")
 {
 }
+
+/*
+UninitializedObjectException::UninitializedObjectException()
+    : Exception(MessageLoaderParms("key1",
+    								"uninitialized object"))
+{
+}
+*/
 
 TypeMismatchException::TypeMismatchException()
-    : Exception(MessageLoaderParms(
-          "Common.Exception.TYPE_MISMATCH_EXCEPTION",
-          "type mismatch"))
+    : Exception("type mismatch")
 {
 }
 
-TypeMismatchException::TypeMismatchException(const String& message)
-    : Exception(MessageLoaderParms(
-          "Common.Exception.TYPE_MISMATCH_EXCEPTION",
-          "type mismatch: $0",message))
-{
-
-}
-
-TypeMismatchException::TypeMismatchException(MessageLoaderParms& msgParms)
-    : Exception(MessageLoaderParms(
-          "Common.Exception.TYPE_MISMATCH_EXCEPTION",
-          "type mismatch: $0",
-          MessageLoader::getMessage(msgParms)))
+/*
+TypeMismatchException::TypeMismatchException()
+    : Exception(MessageLoaderParms("key1",
+    								"type mismatch"))
 {
 }
+*/
 
 DynamicCastFailedException::DynamicCastFailedException()
-    : Exception(MessageLoaderParms(
-          "Common.Exception.DYNAMIC_CAST_FAILED_EXCEPTION",
-          "dynamic cast failed"))
+    : Exception("dynamic cast failed")
 {
 }
+
+/*
+DynamicCastFailedException::DynamicCastFailedException()
+    : Exception(MessageLoaderParms("key1",
+    								"dynamic cast failed"))
+{
+}
+*/
 
 InvalidDateTimeFormatException::InvalidDateTimeFormatException()
-    : Exception(MessageLoaderParms(
-          "Common.Exception.INVALID_DATETIME_FORMAT_EXCEPTION",
-          "invalid datetime format"))
+    : Exception("invalid datetime format")
 {
 }
 
+/*
+InvalidDateTimeFormatException::InvalidDateTimeFormatException()
+    : Exception(MessageLoaderParms("key1",
+    								"invalid datetime format"))
+{
+}
+*/
+
 MalformedObjectNameException::MalformedObjectNameException(
-    const String& message)
-    : Exception(MessageLoaderParms(
-          "Common.Exception.MALFORMED_OBJECT_NAME_EXCEPTION",
-          "malformed object name: $0",
-          message))
+    const String& objectName)
+    : Exception("malformed object name: " + objectName)
 {
 }
 
-MalformedObjectNameException::MalformedObjectNameException(
-    MessageLoaderParms& msgParms)
-    : Exception(MessageLoaderParms(
-          "Common.Exception.MALFORMED_OBJECT_NAME_EXCEPTION",
-          "malformed object name: $0",
-          MessageLoader::getMessage(msgParms)))
+/*
+MalformedObjectNameException::MalformedObjectNameException(const String& message)
+    : Exception(MessageLoaderParms("key1",
+    								"malformed object name: ",
+    								 message))
 {
 }
+
+MalformedObjectNameException::MalformedObjectNameException(const MessageLoaderParms& msgParms)
+    : Exception(MessageLoaderParms("key2",
+    								"malformed object name: "))
+{
+	_rep->message.append(MessageLoader.getMessage(msgParms));
+}
+*/
 
 BindFailedException::BindFailedException(const String& message)
-    : Exception(MessageLoaderParms(
-          "Common.Exception.BIND_FAILED_EXCEPTION",
-          "Bind failed: $0",
-          message))
+    : Exception("Bind failed: " + message)
 {
 }
 
-BindFailedException::BindFailedException(MessageLoaderParms& msgParms)
-    : Exception(MessageLoaderParms(
-          "Common.Exception.BIND_FAILED_EXCEPTION",
-          "Bind failed: $0",
-          MessageLoader::getMessage(msgParms)))
+/*
+BindFailedException::BindFailedException(const String& message)
+    : Exception(MessageLoaderParms("key1",
+    								"Bind failed: ",
+    								 message))
 {
 }
 
+BindFailedException::BindFailedException(const MessageLoaderParms& msgParms)
+    : Exception(MessageLoaderParms("key2",
+    								"Bind failed: "))
+{
+	_rep->message.append(MessageLoader.getMessage(msgParms));
+}
+*/
+
+InvalidLocatorException::InvalidLocatorException(const String& locator)
+    : Exception("Invalid locator: " + locator)
+{
+}
+
+/*
 InvalidLocatorException::InvalidLocatorException(const String& message)
-    : Exception(MessageLoaderParms(
-          "Common.Exception.INVALID_LOCATOR_EXCEPTION",
-          "Invalid locator: $0",
-          message))
+    : Exception(MessageLoaderParms("key1",
+    								"Invalid locator: ",
+    								 message))
 {
 }
 
-InvalidLocatorException::InvalidLocatorException(MessageLoaderParms& msgParms)
-    : Exception(MessageLoaderParms(
-          "Common.Exception.INVALID_LOCATOR_EXCEPTION",
-          "Invalid locator: $0",
-          MessageLoader::getMessage(msgParms)))
+InvalidLocatorException::InvalidLocatorException(const MessageLoaderParms& msgParms)
+    : Exception(MessageLoaderParms("key2",
+    								"Invalid locator: "))
 {
+	_rep->message.append(MessageLoader.getMessage(msgParms));
 }
+*/
 
 CannotCreateSocketException::CannotCreateSocketException()
-    : Exception(MessageLoaderParms(
-          "Common.Exception.CANNOT_CREATE_SOCKET_EXCEPTION",
-          "Cannot create socket"))
+    : Exception("Cannot create socket")
 {
 }
 
+/*
+CannotCreateSocketException::CannotCreateSocketException()
+    : Exception(MessageLoaderParms("key1",
+    								"Cannot create socket"))
+{
+}
+*/
 
-CannotConnectException::CannotConnectException(const String& message)//???
+CannotConnectException::CannotConnectException(const String& message)
     : Exception(message)
 {
 }
-
-
-CannotConnectException::CannotConnectException(MessageLoaderParms& msgParms)
+/*
+CannotConnectException::CannotConnectException(const MessageLoaderParms& msgParms)
     : Exception(msgParms)
 {
 }
+*/
 
 AlreadyConnectedException::AlreadyConnectedException()
-    : Exception(MessageLoaderParms(
-          "Common.Exception.ALREADY_CONNECTED_EXCEPTION",
-          "already connected"))
+    : Exception("already connected")
 {
 }
 
+/*
+AlreadyConnectedException::AlreadyConnectedException()
+    : Exception(MessageLoaderParms("key1",
+    								"already connected"))
+{
+}
+*/
 
 NotConnectedException::NotConnectedException()
-    : Exception(MessageLoaderParms(
-          "Common.Exception.NOT_CONNECTED_EXCEPTION",
-          "not connected"))
+    : Exception("not connected")
 {
 }
+
+/*
+NotConnectedException::NotConnectedException()
+    : Exception(MessageLoaderParms("key1",
+    								"not connected"))
+{
+}
+*/
 
 ConnectionTimeoutException::ConnectionTimeoutException()
-    : Exception(MessageLoaderParms(
-          "Common.Exception.CONNECTION_TIMEOUT_EXCEPTION",
-          "connection timed out"))
+    : Exception("connection timed out")
 {
 }
+
+/*
+ConnectionTimeoutException::ConnectionTimeoutException()
+    : Exception(MessageLoaderParms("key1",
+    								"connection timed out"))
+{
+}
+*/
 
 SSLException::SSLException(const String& message)
-    : Exception(MessageLoaderParms(
-          "Common.Exception.SSL_EXCEPTION",
-          "SSL Exception: $0" ,
-          message))
+    : Exception("SSL Exception: " + message)
 {
 }
 
-SSLException::SSLException(MessageLoaderParms& msgParms)
-    : Exception(MessageLoaderParms(
-          "Common.Exception.SSL_EXCEPTION",
-          "SSL Exception: $0",
-          MessageLoader::getMessage(msgParms)))
+/*
+SSLException::SSLException(const String& message)
+    : Exception(MessageLoaderParms("key1",
+    								"SSL Exception: " ,
+    								 message))
 {
 }
+
+SSLException::SSLException(const MessageLoaderParms& msgParms)
+    : Exception(MessageLoaderParms("key2",
+    								"SSL Exception: " ))
+{
+	_rep->message.append(MessageLoader.getMessage(msgParms));
+}
+*/
 
 DateTimeOutOfRangeException::DateTimeOutOfRangeException(const String& message)
-    : Exception(MessageLoaderParms(
-          "Common.Exception.DATETIME_OUT_OF_RANGE_EXCEPTION",
-          "DateTime is out of range : $0" ,
-          message))
+    : Exception("DateTime is out of range : " + message)
 {
 }
 
-DateTimeOutOfRangeException::DateTimeOutOfRangeException(
-    MessageLoaderParms& msgParms)
-    : Exception(MessageLoaderParms(
-          "Common.Exception.DATETIME_OUT_OF_RANGE_EXCEPTION",
-          "DateTime is out of range : $0",
-          MessageLoader::getMessage(msgParms)))
+/*
+DateTimeOutOfRangeException::DateTimeOutOfRangeException(const String& message)
+    : Exception(MessageLoaderParms("key1",
+    								"DateTime is out of range : " ,
+    								 message))
 {
 }
+
+DateTimeOutOfRangeException::DateTimeOutOfRangeException(const MessageLoaderParms& msgParms)
+    : Exception(MessageLoaderParms("key2",
+    								"DateTime is out of range : " ))
+{
+	_rep->message.append(MessageLoader.getMessage(msgParms));
+}
+*/
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -337,103 +409,25 @@ CIMException::CIMException(
     tmp->code = code;
     tmp->file = "";
     tmp->line = 0;
-    tmp->contentLanguages.clear();
-    tmp->cimMessage = String::EMPTY;
+    tmp->contentLanguages = ContentLanguages::EMPTY;     
+    tmp->cimMessage = String::EMPTY;    
     _rep = tmp;
 }
 
-
-// l10n - note - use this when you have an exception
-// an untranslated detail message and an attached CIM_Error
-// The pegasus message associated with code will be translated.
-CIMException::CIMException(
-    CIMStatusCode code,
-    const String& message,
-    const CIMInstance& instance)
-    : Exception()
-{
-    CIMExceptionRep * tmp = new CIMExceptionRep ();
-    tmp->message = message;
-    tmp->code = code;
-    tmp->file = "";
-    tmp->errors.append(instance);
-    tmp->line = 0;
-    tmp->contentLanguages.clear();
-    tmp->cimMessage = String::EMPTY;
-    _rep = tmp;
-}
-
-// l10n - note - use this when you have an exception
-// an untranslated detail message and an attached CIM_Error
-// array
-// The pegasus message associated with code will be translated.
-CIMException::CIMException(
-    CIMStatusCode code,
-    const String& message,
-    const Array<CIMInstance>& instances)
-    : Exception()
-{
-    CIMExceptionRep * tmp = new CIMExceptionRep ();
-    tmp->message = message;
-    tmp->code = code;
-    tmp->file = "";
-    tmp->errors.appendArray(instances);
-    tmp->line = 0;
-    tmp->contentLanguages.clear();
-    tmp->cimMessage = String::EMPTY;
-    _rep = tmp;
-}
 // l10n - note use this when you have an exception with a translated
 // detail message
+// l10n
 CIMException::CIMException(
     CIMStatusCode code,
     const MessageLoaderParms& msgParms)
     : Exception()
 {
-    CIMExceptionRep* tmp = new CIMExceptionRep();
+    CIMExceptionRep * tmp = new CIMExceptionRep ();
     tmp->message = MessageLoader::getMessage(
-        const_cast<MessageLoaderParms &>(msgParms));
+    	const_cast<MessageLoaderParms &>(msgParms));
     // Must be after MessageLoader::getMessage call
-    tmp->contentLanguages = msgParms.contentlanguages;
+    tmp->contentLanguages = msgParms.contentlanguages;     
     tmp->cimMessage = String::EMPTY;
-    tmp->code = code;
-    tmp->file = "";
-    tmp->line = 0;
-    _rep = tmp;
-}
-
-CIMException::CIMException(
-    CIMStatusCode code,
-    const MessageLoaderParms& msgParms,
-    const CIMInstance& instance)
-    : Exception()
-{
-    CIMExceptionRep* tmp = new CIMExceptionRep();
-    tmp->message = MessageLoader::getMessage(
-        const_cast<MessageLoaderParms &>(msgParms));
-    // Must be after MessageLoader::getMessage call
-    tmp->contentLanguages = msgParms.contentlanguages;
-    tmp->cimMessage = String::EMPTY;
-    tmp->errors.append(instance);
-    tmp->code = code;
-    tmp->file = "";
-    tmp->line = 0;
-    _rep = tmp;
-}
-
-CIMException::CIMException(
-    CIMStatusCode code,
-    const MessageLoaderParms& msgParms,
-    const Array<CIMInstance>& instances)
-    : Exception()
-{
-    CIMExceptionRep* tmp = new CIMExceptionRep();
-    tmp->message = MessageLoader::getMessage(
-        const_cast<MessageLoaderParms &>(msgParms));
-    // Must be after MessageLoader::getMessage call
-    tmp->contentLanguages = msgParms.contentlanguages;
-    tmp->cimMessage = String::EMPTY;
-    tmp->errors.appendArray(instances);
     tmp->code = code;
     tmp->file = "";
     tmp->line = 0;
@@ -443,45 +437,35 @@ CIMException::CIMException(
 CIMException::CIMException(const CIMException & cimException)
     : Exception()
 {
-    _rep = new CIMExceptionRep(
-        *reinterpret_cast<CIMExceptionRep*>(cimException._rep));
+    CIMExceptionRep * tmp = new CIMExceptionRep ();
+    CIMExceptionRep * rep;
+    rep = reinterpret_cast<CIMExceptionRep*>(cimException._rep);
+    tmp->message = rep->message;
+    tmp->contentLanguages = rep->contentLanguages;  // l10n
+    tmp->cimMessage = rep->cimMessage;  // l10n    
+    tmp->code = rep->code;
+    tmp->file = rep->file;
+    tmp->line = rep->line;
+    _rep = tmp;
 }
 
 CIMException& CIMException::operator=(const CIMException & cimException)
 {
-    if (&cimException != this)
-    {
-        CIMExceptionRep* left = reinterpret_cast<CIMExceptionRep*>(this->_rep);
-        CIMExceptionRep* right =
-            reinterpret_cast<CIMExceptionRep*>(cimException._rep);
-        *left = *right;
-    }
+    CIMExceptionRep* left;
+    CIMExceptionRep* right;
+    left = reinterpret_cast<CIMExceptionRep*>(this->_rep);
+    right = reinterpret_cast<CIMExceptionRep*>(cimException._rep);
+    left->message = right->message;
+    left->contentLanguages = right->contentLanguages;  // l10n    
+    left->cimMessage = right->cimMessage;  // l10n
+    left->code = right->code;
+    left->file = right->file;
+    left->line = right->line;
     return *this;
 }
 
 CIMException::~CIMException()
 {
-}
-
-Uint32 CIMException::getErrorCount() const
-{
-    return reinterpret_cast<CIMExceptionRep*>(_rep)->errors.size();
-}
-/**************
-CIMInstance CIMException::getError(Uint32 index)
-{
-    return reinterpret_cast<CIMExceptionRep*>(_rep)->errors[index];
-}
-***************/
-
-CIMConstInstance CIMException::getError(Uint32 index) const
-{
-    return reinterpret_cast<CIMExceptionRep*>(_rep)->errors[index];
-}
-
-void CIMException::addError(const CIMInstance& instance)
-{
-    reinterpret_cast<CIMExceptionRep*>(_rep)->errors.append(instance);
 }
 
 CIMStatusCode CIMException::getCode() const

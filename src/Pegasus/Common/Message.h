@@ -147,6 +147,8 @@ class PEGASUS_COMMON_LINKAGE Message
 	    _next = _prev = _async = 0;
 	    dest = msg.dest;
             _httpMethod = msg._httpMethod;
+	    _socket = msg._socket;
+	    
 	 }
 	 return *this;
       }
@@ -280,6 +282,7 @@ class PEGASUS_COMMON_LINKAGE Message
       {
 	 _key = req->_key;
 	 _routing_code = req->_routing_code;
+	 _socket = req->_socket;
       }
       
 

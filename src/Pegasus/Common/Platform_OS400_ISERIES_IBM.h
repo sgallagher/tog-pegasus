@@ -21,35 +21,59 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: Chuck Carmack (carmack@us.ibm.com)
 //
-// Modified By: Mike Day (mdday@us.ibm.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//
+// Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Platform_LINUX_IX86_GNU_h
-#define Pegasus_Platform_LINUX_IX86_GNU_h
+#ifndef Pegasus_Platform_OS400_ISERIES_IBM_h
+#define Pegasus_Platform_OS400_ISERIES_IBM_h
+
+//#define _XOPEN_SOURCE_EXTENDED 1
+//#define _OPEN_SYS 1
+#define _MSE_PROTOS
+#define _OPEN_SOURCE 3
+
+#define _MULTI_THREADED 
+
+#ifndef PEGASUS_INTERNALONLY
+  // Need this because Sint8 is typedef as a char,
+  // and char defaults to unsigned on OS/400.
+  // Internal Pegasus code needs char to be unsigned
+  // so that Sint8 * can be cast to char *.
+  // External code needs char to be signed for comparison
+  // operators (<, <=, etc).
+  #pragma chars(signed)
+#endif 
 
 #include <cstddef>
 
+#define OS400_DEFAULT_PEGASUS_HOME "/QIBM/UserData/OS400/CIM"
+
+#define OS400_DEFAULT_MESSAGE_SOURCE "/QIBM/ProdData/OS400/CIM/msg" // l10n
+
+#define PEGASUS_HAS_ICU  // l10n ICU libraries are available, this switch
+                         // is defined as part of the various platform make files
+                         
+#define PEGASUS_HAS_MESSAGES  // turns on localized message loading
+
 #define PEGASUS_OS_TYPE_UNIX
 
-#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-#  undef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-#  define PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-#endif
+#include <ifs.cleinc>
+  
+#define PEGASUS_OS_OS400
 
-#define PEGASUS_OS_LINUX
+#define PEGASUS_ARCHITECTURE_ISERIES
 
-#define PEGASUS_ARCHITECTURE_IX86
-
-#define PEGASUS_COMPILER_GNU
+#define PEGASUS_COMPILER_IBM
 
 #define PEGASUS_UINT64 unsigned long long
 
-#define PEGASUS_SINT64 long long
+#define PEGASUS_SINT64 signed long long  
 
 #define PEGASUS_HAVE_NAMESPACES
 
@@ -59,19 +83,20 @@
 
 #define PEGASUS_HAVE_FOR_SCOPE
 
-// #define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
+#define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-#ifndef _REENTRANT
-#define _REENTRANT
-#endif
-#define _THREAD_SAFE
-#include <features.h>
-#include <stdio.h>
-#include <stdlib.h>
-#ifndef min
-#define min(a,b) (((a)<(b))?(a):(b))
-#endif
-#endif /* Pegasus_Platform_LINUX_IX86_GNU_h */
+#define PEGASUS_HAVE_EBCDIC
+
+#define PEGASUS_HAVE_IOS_BINARY
+
+#define PEGASUS_STATIC_CDECL __cdecl
+
+#define PEGASUS_NO_PASSWORDFILE
+
+#define PEGASUS_LOCAL_DOMAIN_SOCKET
+
+//#define PEGASUS_HAS_PERFINST  comment out until this works
+
+#define PEGASUS_USE_SYSLOGS
+
+#endif /* Pegasus_Platform_OS400_ISERIES_IBM_h */

@@ -1,31 +1,42 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
+
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//
+// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//              (carolann_graves@hp.com)
+//
+// Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Sushma Fernandes, Hewlett-Packard Company
+//              (sushma_fernandes@hp.com)
+//
+// Modified By : Chip Vincent (cvincent@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,208 +54,110 @@
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/OperationContext.h>
-#include <Pegasus/Common/AcceptLanguageList.h>
-#include <Pegasus/Common/ContentLanguageList.h>
-#include <Pegasus/Common/Pair.h>
-#include <Pegasus/Common/ArrayInternal.h>
-#include <Pegasus/Common/Threads.h>
-#include <Pegasus/Common/Thread.h>
-#include <Pegasus/Common/CIMResponseData.h>
-#include <Pegasus/Common/IndicationRouter.h>
-
-/*   ProviderType should become part of Pegasus/Common     PEP# 99
-   #include <Pegasus/ProviderManager2/ProviderType.h>
-   #define TYPE_INSTANCE    ProviderType::INSTANCE
-   #define TYPE_CLASS       ProviderType::CLASS
-   #define TYPE_METHOD      ProviderType::METHOD
-   #define TYPE_ASSOCIATION ProviderType::ASSOCIATION
-   #define TYPE_QUERY       ProviderType::QUERY
-*/
-// using these equations instead      PEP# 99
-#define TYPE_CLASS       1
-#define TYPE_INSTANCE    2
-#define TYPE_ASSOCIATION 3
-#define TYPE_METHOD      5
-#define TYPE_QUERY       7
+#include <Pegasus/Common/AcceptLanguages.h>  // l10n
+#include <Pegasus/Common/ContentLanguages.h>  // l10n
 
 
 PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_STD;
 
-/*
- * Please DONOT make any ctor of CIMMessage(s) inline as it bloats code
- * Instead define the ctor in CIMMessage.cpp,
- * Bug 9580 has details
-*/
+// l10n - added AcceptLanguages and ContentLanguages below
 
 class PEGASUS_COMMON_LINKAGE CIMMessage : public Message
 {
 public:
 
-    CIMMessage(MessageType type, const String& messageId_);
-
-    /**
-        Updates the language context for the thread to the contents of the
-        AcceptLanguageContainer in the OperationContext.
-    */
-    void updateThreadLanguages()
+    CIMMessage(Uint32 type,
+	 const String& messageId_,
+	 const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	 const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+	: Message(type),
+	 messageId(messageId_),
+	 contentLanguages(contentLanguages_),
+	 acceptLanguages(acceptLanguages_)
     {
-        if (!Threads::equal(_languageContextThreadId, Threads::self()))
-        {
-            Thread::setLanguages(
-                ((AcceptLanguageListContainer)operationContext.get(
-                    AcceptLanguageListContainer::NAME)).getLanguages());
-            _languageContextThreadId = Threads::self();
-        }
     }
 
-#ifndef PEGASUS_DISABLE_PERFINST
-    //
-    // Needed for performance measurement
-    //
-
-    Uint64 getServerStartTime() const
+    virtual void print(PEGASUS_STD(ostream)& os, Boolean printHeader) const
     {
-        return _serverStartTimeMicroseconds;
+	if (printHeader)
+	{
+	    os << "CIMMessage\n";
+	    os << "{";
+	}
+
+	Message::print(os, false);
+
+	os << "    messageId=" << messageId << endl;
+
+	if (printHeader)
+	{
+	    os << "}";
+	}
     }
 
-    void setServerStartTime(Uint64 serverStartTimeMicroseconds)
-    {
-        _serverStartTimeMicroseconds = serverStartTimeMicroseconds;
-    }
-
-    void endServer();
-
-    Uint64 getProviderTime() const
-    {
-        return _providerTimeMicroseconds;
-    }
-
-    void setProviderTime(Uint64 providerTimeMicroseconds)
-    {
-        _providerTimeMicroseconds = providerTimeMicroseconds;
-    }
-
-    Uint64 getTotalServerTime() const
-    {
-        return _totalServerTimeMicroseconds;
-    }
-
-    void setTotalServerTime(Uint64 totalServerTimeMicroseconds)
-    {
-        _totalServerTimeMicroseconds = totalServerTimeMicroseconds;
-    }
-#endif
-
-    String messageId;
-    OperationContext operationContext;
-
-    // This flag indicates that the original request was a binary request.
-    // That is the HTTP "Content-Type" header had a value of
-    // "application/x-openpegasus". It does not necessarily follow that
-    // the response to this request must also be binary. Binary requests
-    // may have XML responses.
-    Boolean binaryRequest;
-
-    // This flag indications that the ultimate response to this message
-    // must be sent as binary response. This means the original request's
-    // "Accept" HTTP header had a value of "application/x-openpegasus".
-    // Note that a binary response can be sent to an XML request as long
-    // as the "Accept" header is "application/x-openpegasus".
-    Boolean binaryResponse;
-
-private:
-
-    ThreadType _languageContextThreadId;
-
-#ifndef PEGASUS_DISABLE_PERFINST
-    Uint64 _serverStartTimeMicroseconds;
-    Uint64 _providerTimeMicroseconds;
-    Uint64 _totalServerTimeMicroseconds;
-#endif
+    const String messageId;
+    ContentLanguages contentLanguages;
+    AcceptLanguages acceptLanguages;
 };
-
-
-class CIMResponseMessage;
 
 class PEGASUS_COMMON_LINKAGE CIMRequestMessage : public CIMMessage
 {
 public:
     CIMRequestMessage(
-        MessageType type_,
-        const String& messageId_,
-        const QueueIdStack& queueIds_);
+        Uint32 type_, 
+	const String& messageId_,
+	QueueIdStack queueIds_,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMMessage(type_, messageId_, contentLanguages_, acceptLanguages_),
+	queueIds(queueIds_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const = 0;
+    virtual void print(PEGASUS_STD(ostream)& os, Boolean printHeader) const
+    {
+	if (printHeader)
+	{
+	    os << "CIMRequestMessage\n";
+	    os << "{";
+	}
+
+	CIMMessage::print(os, false);
+
+	os << "    queueIds=" << "<not shown for now>" << endl;
+
+	if (printHeader)
+	{
+	    os << "}";
+	}
+    }
 
     QueueIdStack queueIds;
 };
-
 
 class PEGASUS_COMMON_LINKAGE CIMResponseMessage : public CIMMessage
 {
 public:
-
     CIMResponseMessage(
-        MessageType type_,
+        Uint32 type_,
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_,
-        Boolean isAsyncResponsePending=false);
-
-    void syncAttributes(const CIMRequestMessage* request);
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMMessage(type_, messageId_, contentLanguages_, acceptLanguages_),
+        queueIds(queueIds_),
+        cimException(cimException_)
+    {
+    }
 
     QueueIdStack queueIds;
     CIMException cimException;
-
-    // This flag indicates if the response will arrive asynchronously.
-    Boolean isAsyncResponsePending;
-
-};
-
-//
-// CIMRequestMessages
-//
-class PEGASUS_COMMON_LINKAGE CIMOperationRequestMessage
-    : public CIMRequestMessage
-{
-public:
-
-    CIMOperationRequestMessage(
-        MessageType type_,
-        const String& messageId_,
-        const QueueIdStack& queueIds_,
-        const String& authType_,
-        const String& userName_,
-        const CIMNamespaceName& nameSpace_,
-        const CIMName& className_,
-        Uint32 providerType_ = TYPE_INSTANCE);
-
-    String authType;
-    String userName;
-    String ipAddress;
-    CIMNamespaceName nameSpace;
-    CIMName className;
-    Uint32 providerType;
-};
-
-class PEGASUS_COMMON_LINKAGE CIMIndicationRequestMessage
-    : public CIMRequestMessage
-{
-public:
-    CIMIndicationRequestMessage(
-        MessageType type_,
-        const String & messageId_,
-        const QueueIdStack& queueIds_,
-        const String& authType_,
-        const String& userName_);
-
-    String authType;
-    String userName;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMGetClassRequestMessage
-    : public CIMOperationRequestMessage
+    : public CIMRequestMessage
 {
 public:
     CIMGetClassRequestMessage(
@@ -255,148 +168,243 @@ public:
         Boolean includeQualifiers_,
         Boolean includeClassOrigin_,
         const CIMPropertyList& propertyList_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(CIM_GET_CLASS_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        className(className_),
+        localOnly(localOnly_),
+        includeQualifiers(includeQualifiers_),
+        includeClassOrigin(includeClassOrigin_),
+        propertyList(propertyList_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMNamespaceName nameSpace;
+    CIMName className;
     Boolean localOnly;
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMGetInstanceRequestMessage
-    : public CIMOperationRequestMessage
+class CIMGetInstanceRequestMessage : public CIMRequestMessage
 {
 public:
     CIMGetInstanceRequestMessage(
         const String& messageId_,
         const CIMNamespaceName& nameSpace_,
         const CIMObjectPath& instanceName_,
+        Boolean localOnly_,
         Boolean includeQualifiers_,
         Boolean includeClassOrigin_,
         const CIMPropertyList& propertyList_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_GET_INSTANCE_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        instanceName(instanceName_),
+        localOnly(localOnly_),
+        includeQualifiers(includeQualifiers_),
+        includeClassOrigin(includeClassOrigin_),
+        propertyList(propertyList_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMNamespaceName nameSpace;
     CIMObjectPath instanceName;
-    Boolean localOnly;    // deprecated
+    Boolean localOnly;
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMExportIndicationRequestMessage
-    : public CIMRequestMessage
+class CIMExportIndicationRequestMessage : public CIMRequestMessage
 {
 public:
     CIMExportIndicationRequestMessage(
         const String& messageId_,
-        const String& destinationPath_,
+        const String& url_,
         const CIMInstance& indicationInstance_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_EXPORT_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        url(url_),
+        indicationInstance(indicationInstance_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
-    String destinationPath;
+    String url;
     CIMInstance indicationInstance;
     String authType;
     String userName;
-    String ipAddress;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMDeleteClassRequestMessage
-    : public CIMOperationRequestMessage
+class CIMDeleteClassRequestMessage : public CIMRequestMessage
 {
 public:
     CIMDeleteClassRequestMessage(
         const String& messageId_,
         const CIMNamespaceName& nameSpace_,
         const CIMName& className_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_DELETE_CLASS_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        className(className_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
+    CIMNamespaceName nameSpace;
+    CIMName className;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMDeleteInstanceRequestMessage
-    : public CIMOperationRequestMessage
+class CIMDeleteInstanceRequestMessage : public CIMRequestMessage
 {
 public:
     CIMDeleteInstanceRequestMessage(
         const String& messageId_,
         const CIMNamespaceName& nameSpace_,
         const CIMObjectPath& instanceName_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_DELETE_INSTANCE_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        instanceName(instanceName_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMNamespaceName nameSpace;
     CIMObjectPath instanceName;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMCreateClassRequestMessage
-    : public CIMOperationRequestMessage
+class CIMCreateClassRequestMessage : public CIMRequestMessage
 {
 public:
     CIMCreateClassRequestMessage(
         const String& messageId_,
         const CIMNamespaceName& nameSpace_,
         const CIMClass& newClass_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_CREATE_CLASS_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        newClass(newClass_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMNamespaceName nameSpace;
     CIMClass newClass;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMCreateInstanceRequestMessage
-    : public CIMOperationRequestMessage
+class CIMCreateInstanceRequestMessage : public CIMRequestMessage
 {
 public:
     CIMCreateInstanceRequestMessage(
         const String& messageId_,
         const CIMNamespaceName& nameSpace_,
         const CIMInstance& newInstance_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_CREATE_INSTANCE_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        newInstance(newInstance_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMNamespaceName nameSpace;
     CIMInstance newInstance;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMModifyClassRequestMessage
-    : public CIMOperationRequestMessage
+class CIMModifyClassRequestMessage : public CIMRequestMessage
 {
 public:
     CIMModifyClassRequestMessage(
         const String& messageId_,
         const CIMNamespaceName& nameSpace_,
         const CIMClass& modifiedClass_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_MODIFY_CLASS_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        modifiedClass(modifiedClass_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMNamespaceName nameSpace;
     CIMClass modifiedClass;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMModifyInstanceRequestMessage
-    : public CIMOperationRequestMessage
+class CIMModifyInstanceRequestMessage : public CIMRequestMessage
 {
 public:
     CIMModifyInstanceRequestMessage(
@@ -405,19 +413,32 @@ public:
         const CIMInstance& modifiedInstance_,
         Boolean includeQualifiers_,
         const CIMPropertyList& propertyList_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_MODIFY_INSTANCE_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        modifiedInstance(modifiedInstance_),
+        includeQualifiers(includeQualifiers_),
+        propertyList(propertyList_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMNamespaceName nameSpace;
     CIMInstance modifiedInstance;
     Boolean includeQualifiers;
     CIMPropertyList propertyList;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMEnumerateClassesRequestMessage
-    : public CIMOperationRequestMessage
+class CIMEnumerateClassesRequestMessage : public CIMRequestMessage
 {
 public:
     CIMEnumerateClassesRequestMessage(
@@ -428,20 +449,36 @@ public:
         Boolean localOnly_,
         Boolean includeQualifiers_,
         Boolean includeClassOrigin_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        className(className_),
+        deepInheritance(deepInheritance_),
+        localOnly(localOnly_),
+        includeQualifiers(includeQualifiers_),
+        includeClassOrigin(includeClassOrigin_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMNamespaceName nameSpace;
+    CIMName className;
     Boolean deepInheritance;
     Boolean localOnly;
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMEnumerateClassNamesRequestMessage
-    : public CIMOperationRequestMessage
+class CIMEnumerateClassNamesRequestMessage : public CIMRequestMessage
 {
 public:
     CIMEnumerateClassNamesRequestMessage(
@@ -449,17 +486,30 @@ public:
         const CIMNamespaceName& nameSpace_,
         const CIMName& className_,
         Boolean deepInheritance_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        className(className_),
+        deepInheritance(deepInheritance_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMNamespaceName nameSpace;
+    CIMName className;
     Boolean deepInheritance;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMEnumerateInstancesRequestMessage
-    : public CIMOperationRequestMessage
+class CIMEnumerateInstancesRequestMessage : public CIMRequestMessage
 {
 public:
     CIMEnumerateInstancesRequestMessage(
@@ -467,40 +517,102 @@ public:
         const CIMNamespaceName& nameSpace_,
         const CIMName& className_,
         Boolean deepInheritance_,
+        Boolean localOnly_,
         Boolean includeQualifiers_,
         Boolean includeClassOrigin_,
         const CIMPropertyList& propertyList_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        className(className_),
+        deepInheritance(deepInheritance_),
+        localOnly(localOnly_),
+        includeQualifiers(includeQualifiers_),
+        includeClassOrigin(includeClassOrigin_),
+        propertyList(propertyList_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMNamespaceName nameSpace;
+    CIMName className;
     Boolean deepInheritance;
-    Boolean localOnly;    // deprecated
+    Boolean localOnly;
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMEnumerateInstanceNamesRequestMessage
-    : public CIMOperationRequestMessage
+class CIMEnumerateInstanceNamesRequestMessage : public CIMRequestMessage
 {
 public:
     CIMEnumerateInstanceNamesRequestMessage(
         const String& messageId_,
         const CIMNamespaceName& nameSpace_,
         const CIMName& className_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        className(className_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
+    CIMEnumerateInstanceNamesRequestMessage(
+	const CIMEnumerateInstanceNamesRequestMessage& x)
+    : CIMRequestMessage(
+        CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE, x.messageId, x.queueIds),
+        nameSpace(x.nameSpace),
+        className(x.className),
+        authType(x.authType),
+        userName(x.userName)
+    {
+    }
+
+    virtual void print(PEGASUS_STD(ostream)& os, Boolean printHeader) const
+    {
+	if (printHeader)
+	{
+	    os << "CIMEnumerateInstanceNamesRequestMessage\n";
+	    os << "{";
+	}
+
+	CIMRequestMessage::print(os, false);
+
+	os << "    nameSpace=" << nameSpace << endl;
+	os << "    className=" << className << endl;
+	os << "    authType=" << authType << endl;
+	os << "    userName=" << userName << endl;
+
+	if (printHeader)
+	{
+	    os << "}";
+	}
+    }
+
+    CIMNamespaceName nameSpace;
+    CIMName className;
+    String authType;
+    String userName;
 };
 
-
-class PEGASUS_COMMON_LINKAGE CIMExecQueryRequestMessage
-    : public CIMOperationRequestMessage
+class CIMExecQueryRequestMessage : public CIMRequestMessage
 {
 public:
     CIMExecQueryRequestMessage(
@@ -508,18 +620,29 @@ public:
         const CIMNamespaceName& nameSpace_,
         const String& queryLanguage_,
         const String& query_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(CIM_EXEC_QUERY_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        queryLanguage(queryLanguage_),
+        query(query_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMNamespaceName nameSpace;
     String queryLanguage;
     String query;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMAssociatorsRequestMessage
-    : public CIMOperationRequestMessage
+class CIMAssociatorsRequestMessage : public CIMRequestMessage
 {
 public:
     CIMAssociatorsRequestMessage(
@@ -533,13 +656,29 @@ public:
         Boolean includeQualifiers_,
         Boolean includeClassOrigin_,
         const CIMPropertyList& propertyList_,
-        const QueueIdStack& queueIds_,
-        Boolean isClassRequest = false,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_ASSOCIATORS_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        objectName(objectName_),
+        assocClass(assocClass_),
+        resultClass(resultClass_),
+        role(role_),
+        resultRole(resultRole_),
+        includeQualifiers(includeQualifiers_),
+        includeClassOrigin(includeClassOrigin_),
+        propertyList(propertyList_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMNamespaceName nameSpace;
     CIMObjectPath objectName;
     CIMName assocClass;
     CIMName resultClass;
@@ -548,11 +687,11 @@ public:
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;
-    Boolean isClassRequest;    // is request for classes or instances
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMAssociatorNamesRequestMessage
-    : public CIMOperationRequestMessage
+class CIMAssociatorNamesRequestMessage : public CIMRequestMessage
 {
 public:
     CIMAssociatorNamesRequestMessage(
@@ -563,23 +702,36 @@ public:
         const CIMName& resultClass_,
         const String& role_,
         const String& resultRole_,
-        const QueueIdStack& queueIds_,
-        Boolean isClassRequest = false,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        objectName(objectName_),
+        assocClass(assocClass_),
+        resultClass(resultClass_),
+        role(role_),
+        resultRole(resultRole_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMNamespaceName nameSpace;
     CIMObjectPath objectName;
     CIMName assocClass;
     CIMName resultClass;
     String role;
     String resultRole;
-    Boolean isClassRequest;  // is request for classes or instances
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMReferencesRequestMessage
-    : public CIMOperationRequestMessage
+class CIMReferencesRequestMessage : public CIMRequestMessage
 {
 public:
     CIMReferencesRequestMessage(
@@ -591,24 +743,37 @@ public:
         Boolean includeQualifiers_,
         Boolean includeClassOrigin_,
         const CIMPropertyList& propertyList_,
-        const QueueIdStack& queueIds_,
-        Boolean isClassRequest_ = false,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(CIM_REFERENCES_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        objectName(objectName_),
+        resultClass(resultClass_),
+        role(role_),
+        includeQualifiers(includeQualifiers_),
+        includeClassOrigin(includeClassOrigin_),
+        propertyList(propertyList_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMNamespaceName nameSpace;
     CIMObjectPath objectName;
     CIMName resultClass;
     String role;
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;
-    Boolean isClassRequest;            // is request for classes or instances
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMReferenceNamesRequestMessage
-    : public CIMOperationRequestMessage
+class CIMReferenceNamesRequestMessage : public CIMRequestMessage
 {
 public:
     CIMReferenceNamesRequestMessage(
@@ -617,21 +782,32 @@ public:
         const CIMObjectPath& objectName_,
         const CIMName& resultClass_,
         const String& role_,
-        const QueueIdStack& queueIds_,
-        Boolean isClassRequest = false,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_REFERENCE_NAMES_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        objectName(objectName_),
+        resultClass(resultClass_),
+        role(role_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMNamespaceName nameSpace;
     CIMObjectPath objectName;
     CIMName resultClass;
     String role;
-    Boolean isClassRequest;          // is request for classes or instances
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMGetPropertyRequestMessage
-    : public CIMOperationRequestMessage
+class CIMGetPropertyRequestMessage : public CIMRequestMessage
 {
 public:
     CIMGetPropertyRequestMessage(
@@ -639,18 +815,30 @@ public:
         const CIMNamespaceName& nameSpace_,
         const CIMObjectPath& instanceName_,
         const CIMName& propertyName_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_GET_PROPERTY_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        instanceName(instanceName_),
+        propertyName(propertyName_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMNamespaceName nameSpace;
     CIMObjectPath instanceName;
     CIMName propertyName;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMSetPropertyRequestMessage
-    : public CIMOperationRequestMessage
+class CIMSetPropertyRequestMessage : public CIMRequestMessage
 {
 public:
     CIMSetPropertyRequestMessage(
@@ -659,84 +847,141 @@ public:
         const CIMObjectPath& instanceName_,
         const CIMName& propertyName_,
         const CIMValue& newValue_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_SET_PROPERTY_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        instanceName(instanceName_),
+        propertyName(propertyName_),
+        newValue(newValue_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMNamespaceName nameSpace;
     CIMObjectPath instanceName;
     CIMName propertyName;
     CIMValue newValue;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMGetQualifierRequestMessage
-    : public CIMOperationRequestMessage
+class CIMGetQualifierRequestMessage : public CIMRequestMessage
 {
 public:
     CIMGetQualifierRequestMessage(
         const String& messageId_,
         const CIMNamespaceName& nameSpace_,
         const CIMName& qualifierName_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_GET_QUALIFIER_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        qualifierName(qualifierName_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMNamespaceName nameSpace;
     CIMName qualifierName;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMSetQualifierRequestMessage
-    : public CIMOperationRequestMessage
+class CIMSetQualifierRequestMessage : public CIMRequestMessage
 {
 public:
     CIMSetQualifierRequestMessage(
         const String& messageId_,
         const CIMNamespaceName& nameSpace_,
         const CIMQualifierDecl& qualifierDeclaration_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_SET_QUALIFIER_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        qualifierDeclaration(qualifierDeclaration_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMNamespaceName nameSpace;
     CIMQualifierDecl qualifierDeclaration;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMDeleteQualifierRequestMessage
-    : public CIMOperationRequestMessage
+class CIMDeleteQualifierRequestMessage : public CIMRequestMessage
 {
 public:
     CIMDeleteQualifierRequestMessage(
         const String& messageId_,
         const CIMNamespaceName& nameSpace_,
         const CIMName& qualifierName_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_DELETE_QUALIFIER_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        qualifierName(qualifierName_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMNamespaceName nameSpace;
     CIMName qualifierName;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMEnumerateQualifiersRequestMessage
-    : public CIMOperationRequestMessage
+class CIMEnumerateQualifiersRequestMessage : public CIMRequestMessage
 {
 public:
     CIMEnumerateQualifiersRequestMessage(
         const String& messageId_,
         const CIMNamespaceName& nameSpace_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
+    CIMNamespaceName nameSpace;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMInvokeMethodRequestMessage
-    : public CIMOperationRequestMessage
+class CIMInvokeMethodRequestMessage : public CIMRequestMessage
 {
 public:
     CIMInvokeMethodRequestMessage(
@@ -745,19 +990,32 @@ public:
         const CIMObjectPath& instanceName_,
         const CIMName& methodName_,
         const Array<CIMParamValue>& inParameters_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_INVOKE_METHOD_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        instanceName(instanceName_),
+        methodName(methodName_),
+        inParameters(inParameters_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMNamespaceName nameSpace;
     CIMObjectPath instanceName;
     CIMName methodName;
     Array<CIMParamValue> inParameters;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMProcessIndicationRequestMessage
-    : public CIMRequestMessage
+class CIMProcessIndicationRequestMessage : public CIMRequestMessage
 {
 public:
     CIMProcessIndicationRequestMessage(
@@ -765,44 +1023,130 @@ public:
         const CIMNamespaceName & nameSpace_,
         const CIMInstance& indicationInstance_,
         const Array<CIMObjectPath> & subscriptionInstanceNames_,
-        const CIMInstance & provider_,
-        const QueueIdStack& queueIds_,
-        Uint32 timeoutMilliSec_ = 0,
-        String oopAgentName_ = String::EMPTY);
-
-    virtual CIMResponseMessage* buildResponse() const;
+        QueueIdStack queueIds_,
+		const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+		const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_PROCESS_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_,
+		 contentLanguages_, acceptLanguages_),
+        nameSpace (nameSpace_),
+        indicationInstance(indicationInstance_),
+        subscriptionInstanceNames(subscriptionInstanceNames_)
+    {
+    }
 
     CIMNamespaceName nameSpace;
     CIMInstance indicationInstance;
     Array<CIMObjectPath> subscriptionInstanceNames;
-    CIMInstance provider;
-    Uint32 timeoutMilliSec;
-    String oopAgentName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMNotifyProviderRegistrationRequestMessage
-    : public CIMRequestMessage
+class CIMConsumeIndicationRequestMessage : public CIMRequestMessage
+{
+   public:
+      CIMConsumeIndicationRequestMessage(
+	 const String & messageId_, 
+	 const CIMNamespaceName & nameSpace_,     // ns of the origin of the indication 
+	 const CIMInstance & indicationInstance_, 
+	 const CIMInstance & consumer_provider_, 
+	 const CIMInstance & consumer_module_,
+	 QueueIdStack queueIds_,
+	 const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	 const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+	 : CIMRequestMessage(
+	    CIM_CONSUME_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_,
+            contentLanguages_, acceptLanguages_),
+	   nameSpace(nameSpace_), 
+	   indicationInstance(indicationInstance_),
+	   consumer_provider(consumer_provider_), 
+	   consumer_module(consumer_module_)
+      {
+      }
+
+      CIMNamespaceName nameSpace;
+      CIMInstance indicationInstance;
+      CIMInstance consumer_provider;
+      CIMInstance consumer_module;
+};
+
+
+
+class CIMEnableIndicationsRequestMessage : public CIMRequestMessage
+{
+public:
+    CIMEnableIndicationsRequestMessage(
+        const String & messageId_,
+        const CIMInstance & provider_,
+        const CIMInstance & providerModule_,
+        QueueIdStack queueIds_)
+    : CIMRequestMessage(
+        CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_),
+        provider(provider_),
+        providerModule(providerModule_)
+    {
+    }
+
+    CIMInstance provider;
+    CIMInstance providerModule;
+};
+
+class CIMDisableIndicationsRequestMessage : public CIMRequestMessage
+{
+public:
+    CIMDisableIndicationsRequestMessage(
+        const String & messageId_,
+        const CIMInstance & provider_,
+        const CIMInstance & providerModule_,
+        QueueIdStack queueIds_)
+    : CIMRequestMessage(
+        CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_),
+        provider(provider_),
+        providerModule(providerModule_)
+    {
+    }
+
+    CIMInstance provider;
+    CIMInstance providerModule;
+};
+
+class CIMNotifyProviderRegistrationRequestMessage : public CIMRequestMessage
 {
 public:
     enum Operation
     {
-        OP_CREATE = 1,
-        OP_DELETE = 2,
-        OP_MODIFY = 3
+        OP_CREATE = 1, OP_DELETE = 2, OP_MODIFY = 3
     };
 
     CIMNotifyProviderRegistrationRequestMessage(
         const String & messageId_,
         const Operation operation_,
+        const CIMInstance & provider_,
+        const CIMInstance & providerModule_,
         const CIMName & className_,
         const Array <CIMNamespaceName> & newNamespaces_,
         const Array <CIMNamespaceName> & oldNamespaces_,
         const CIMPropertyList & newPropertyNames_,
         const CIMPropertyList & oldPropertyNames_,
-        const QueueIdStack& queueIds_);
+        QueueIdStack queueIds_)
+    : CIMRequestMessage(
+        CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE,
+        messageId_, queueIds_),
+        provider (provider_),
+        providerModule (providerModule_),
+        className (className_),
+        newNamespaces (newNamespaces_),
+        oldNamespaces (oldNamespaces_),
+        newPropertyNames (newPropertyNames_),
+        oldPropertyNames (oldPropertyNames_),
+        operation(operation_)
+    {
+    }
 
-    virtual CIMResponseMessage* buildResponse() const;
-
+    CIMInstance provider;
+    CIMInstance providerModule;
     CIMName className;
     Array <CIMNamespaceName> newNamespaces;
     Array <CIMNamespaceName> oldNamespaces;
@@ -811,22 +1155,25 @@ public:
     Operation operation;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMNotifyProviderTerminationRequestMessage
-    : public CIMRequestMessage
+class CIMNotifyProviderTerminationRequestMessage : public CIMRequestMessage
 {
 public:
     CIMNotifyProviderTerminationRequestMessage(
         const String & messageId_,
         const Array <CIMInstance> & providers_,
-        const QueueIdStack& queueIds_);
+        QueueIdStack queueIds_)
+    : CIMRequestMessage(
+        CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE,
+        messageId_, queueIds_),
+        providers (providers_)
+    {
 
-    virtual CIMResponseMessage* buildResponse() const;
+    }
 
     Array <CIMInstance> providers;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMHandleIndicationRequestMessage
-    : public CIMRequestMessage
+class CIMHandleIndicationRequestMessage : public CIMRequestMessage
 {
 public:
     CIMHandleIndicationRequestMessage(
@@ -834,24 +1181,30 @@ public:
         const CIMNamespaceName & nameSpace_,
         const CIMInstance& handlerInstance_,
         const CIMInstance& indicationInstance_,
-        const CIMInstance& subscriptionInstance_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
-
-    virtual CIMResponseMessage* buildResponse() const;
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_HANDLE_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_,
+	 contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        handlerInstance(handlerInstance_),
+        indicationInstance(indicationInstance_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
     CIMNamespaceName nameSpace;
     CIMInstance handlerInstance;
     CIMInstance indicationInstance;
-    CIMInstance subscriptionInstance;
     String authType;
     String userName;
-    DeliveryStatusAggregator *deliveryStatusAggregator;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMCreateSubscriptionRequestMessage
-    : public CIMIndicationRequestMessage
+class CIMCreateSubscriptionRequestMessage : public CIMRequestMessage
 {
 public:
     CIMCreateSubscriptionRequestMessage(
@@ -859,25 +1212,50 @@ public:
         const CIMNamespaceName & nameSpace_,
         const CIMInstance & subscriptionInstance_,
         const Array<CIMName> & classNames_,
+        const CIMInstance & provider_,
+        const CIMInstance & providerModule_,
         const CIMPropertyList & propertyList_,
         const Uint16 repeatNotificationPolicy_,
-        const String & query_,
-        const QueueIdStack& queueIds_,
+        const String & condition_,
+        const String & queryLanguage_,
+        QueueIdStack queueIds_,
         const String & authType_ = String::EMPTY,
-        const String & userName_ = String::EMPTY);
-
-    virtual CIMResponseMessage* buildResponse() const;
+        const String & userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_,
+        contentLanguages_, acceptLanguages_),
+        nameSpace (nameSpace_),
+        subscriptionInstance(subscriptionInstance_),
+        classNames(classNames_),
+        provider (provider_),
+        providerModule (providerModule_),
+        propertyList (propertyList_),
+        repeatNotificationPolicy (repeatNotificationPolicy_),
+        condition (condition_),
+        queryLanguage (queryLanguage_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
     CIMNamespaceName nameSpace;
     CIMInstance subscriptionInstance;
     Array <CIMName> classNames;
+    CIMInstance provider;
+    CIMInstance providerModule;
     CIMPropertyList propertyList;
     Uint16 repeatNotificationPolicy;
-    String query;
+    String condition;
+    String queryLanguage;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMModifySubscriptionRequestMessage
-    : public CIMIndicationRequestMessage
+class CIMModifySubscriptionRequestMessage : public CIMRequestMessage
 {
 public:
     CIMModifySubscriptionRequestMessage(
@@ -885,25 +1263,50 @@ public:
         const CIMNamespaceName & nameSpace_,
         const CIMInstance & subscriptionInstance_,
         const Array<CIMName> & classNames_,
+        const CIMInstance & provider_,
+        const CIMInstance & providerModule_,
         const CIMPropertyList & propertyList_,
         const Uint16 repeatNotificationPolicy_,
-        const String & query_,
-        const QueueIdStack& queueIds_,
+        const String & condition_,
+        const String & queryLanguage_,
+        QueueIdStack queueIds_,
         const String & authType_ = String::EMPTY,
-        const String & userName_ = String::EMPTY);
-
-    virtual CIMResponseMessage* buildResponse() const;
+        const String & userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_,
+	contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        subscriptionInstance(subscriptionInstance_),
+        classNames(classNames_),
+        provider (provider_),
+        providerModule (providerModule_),
+        propertyList (propertyList_),
+        repeatNotificationPolicy (repeatNotificationPolicy_),
+        condition (condition_),
+        queryLanguage (queryLanguage_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
     CIMNamespaceName nameSpace;
     CIMInstance subscriptionInstance;
     Array<CIMName> classNames;
+    CIMInstance provider;
+    CIMInstance providerModule;
     CIMPropertyList propertyList;
     Uint16 repeatNotificationPolicy;
-    String query;
+    String condition;
+    String queryLanguage;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMDeleteSubscriptionRequestMessage
-    : public CIMIndicationRequestMessage
+class CIMDeleteSubscriptionRequestMessage : public CIMRequestMessage
 {
 public:
     CIMDeleteSubscriptionRequestMessage(
@@ -911,235 +1314,104 @@ public:
         const CIMNamespaceName & nameSpace_,
         const CIMInstance & subscriptionInstance_,
         const Array<CIMName> & classNames_,
-        const QueueIdStack& queueIds_,
+        const CIMInstance & provider_,
+        const CIMInstance & providerModule_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
-
-    virtual CIMResponseMessage* buildResponse() const;
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMRequestMessage(
+        CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_,
+		contentLanguages_, acceptLanguages_),
+        nameSpace(nameSpace_),
+        subscriptionInstance(subscriptionInstance_),
+        classNames(classNames_),
+        provider (provider_),
+        providerModule (providerModule_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
     CIMNamespaceName nameSpace;
     CIMInstance subscriptionInstance;
     Array<CIMName> classNames;
+    CIMInstance provider;
+    CIMInstance providerModule;
+    String authType;
+    String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE
-    CIMSubscriptionInitCompleteRequestMessage
-    : public CIMRequestMessage
-{
-public:
-    CIMSubscriptionInitCompleteRequestMessage(
-        const String & messageId_,
-        const QueueIdStack & queueIds_);
-
-    virtual CIMResponseMessage* buildResponse() const;
-};
-
-class PEGASUS_COMMON_LINKAGE
-    CIMIndicationServiceDisabledRequestMessage
-    : public CIMRequestMessage
-{
-public:
-    CIMIndicationServiceDisabledRequestMessage(
-        const String & messageId_,
-        const QueueIdStack & queueIds_);
-
-    virtual CIMResponseMessage* buildResponse() const;
-};
-
-class PEGASUS_COMMON_LINKAGE CIMDisableModuleRequestMessage
-    : public CIMRequestMessage
+class CIMDisableModuleRequestMessage : public CIMRequestMessage
 {
 public:
     CIMDisableModuleRequestMessage(
         const String& messageId_,
         const CIMInstance& providerModule_,
         const Array<CIMInstance>& providers_,
-        Boolean disableProviderOnly_,
-        const Array<Boolean>& indicationProviders_,
-        const QueueIdStack& queueIds_,
+	Boolean disableProviderOnly_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
-
-    virtual CIMResponseMessage* buildResponse() const;
+        const String& userName_ = String::EMPTY)
+    : CIMRequestMessage(
+        CIM_DISABLE_MODULE_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_),
+        providerModule(providerModule_),
+        providers(providers_),
+	disableProviderOnly(disableProviderOnly_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
     CIMInstance providerModule;
     Array<CIMInstance> providers;
     Boolean disableProviderOnly;
-    Array<Boolean> indicationProviders;
     String authType;
     String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMEnableModuleRequestMessage
-    : public CIMRequestMessage
+class CIMEnableModuleRequestMessage : public CIMRequestMessage
 {
 public:
     CIMEnableModuleRequestMessage(
         const String& messageId_,
         const CIMInstance& providerModule_,
-        const QueueIdStack& queueIds_,
+        QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
-        const String& userName_ = String::EMPTY);
-
-    virtual CIMResponseMessage* buildResponse() const;
+        const String& userName_ = String::EMPTY)
+    : CIMRequestMessage(
+        CIM_ENABLE_MODULE_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_),
+        providerModule(providerModule_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
 
     CIMInstance providerModule;
     String authType;
     String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMNotifyProviderEnableRequestMessage
-    : public CIMRequestMessage
+class CIMStopAllProvidersRequestMessage : public CIMRequestMessage
 {
-public:
-    CIMNotifyProviderEnableRequestMessage(
-        const String & messageId_,
-        const Array <CIMInstance> & capInstances_,
-        const QueueIdStack& queueIds_);
-
-    virtual CIMResponseMessage* buildResponse() const;
-
-    Array <CIMInstance> capInstances;
-};
-
-class PEGASUS_COMMON_LINKAGE CIMNotifyProviderFailRequestMessage
-    : public CIMRequestMessage
-{
-public:
-    CIMNotifyProviderFailRequestMessage(
-        const String & messageId_,
-        const String & moduleName_,
-        const String & userName_,
-        const QueueIdStack& queueIds_);
-
-    virtual CIMResponseMessage* buildResponse() const;
-
-    String moduleName;
-    String userName;
-};
-
-class PEGASUS_COMMON_LINKAGE CIMStopAllProvidersRequestMessage
-    : public CIMRequestMessage
-{
-public:
+   public:
     CIMStopAllProvidersRequestMessage(
         const String& messageId_,
-        const QueueIdStack& queueIds_,
-        Uint32 shutdownTimeout_ = 0);
-
-    virtual CIMResponseMessage* buildResponse() const;
-    Uint32 shutdownTimeout;
-};
-
-// Used to pass initialization data to an Out-of-Process Provider Agent process
-class PEGASUS_COMMON_LINKAGE CIMInitializeProviderAgentRequestMessage
-    : public CIMRequestMessage
-{
-public:
-    CIMInitializeProviderAgentRequestMessage(
-        const String & messageId_,
-        const String& pegasusHome_,
-        const Array<Pair<String, String> >& configProperties_,
-        Boolean bindVerbose_,
-        Boolean subscriptionInitComplete_,
-        const QueueIdStack& queueIds_);
-
-    virtual CIMResponseMessage* buildResponse() const;
-
-    String pegasusHome;
-    Array<Pair<String, String> > configProperties;
-    Boolean bindVerbose;
-    Boolean subscriptionInitComplete;
-};
-
-class PEGASUS_COMMON_LINKAGE CIMNotifyConfigChangeRequestMessage
-    : public CIMRequestMessage
-{
-public:
-    CIMNotifyConfigChangeRequestMessage(
-        const String & messageId_,
-        const String & propertyName_,
-        const String & newPropertyValue_,
-        Boolean currentValueModified_, // false - planned value modified
-        const QueueIdStack& queueIds_);
-
-    virtual CIMResponseMessage* buildResponse() const;
-
-    String propertyName;
-    String newPropertyValue;
-    Boolean currentValueModified;
-};
-
-
-class PEGASUS_COMMON_LINKAGE ProvAgtGetScmoClassRequestMessage
-    : public CIMRequestMessage
-{
-public:
-    ProvAgtGetScmoClassRequestMessage(
-        const String& messageId_,
-        const CIMNamespaceName& nameSpace_,
-        const CIMName& className_,
-        const QueueIdStack& queueIds_);
-
-    virtual CIMResponseMessage* buildResponse() const;
-
-    CIMNamespaceName nameSpace;
-    CIMName className;
-
-};
-
-class PEGASUS_COMMON_LINKAGE CIMNotifySubscriptionNotActiveRequestMessage
-    : public CIMRequestMessage
-{
-public:
-    CIMNotifySubscriptionNotActiveRequestMessage(
-        const String & messageId_,
-        const CIMObjectPath &subscriptionName_,
-        const QueueIdStack& queueIds_);
-
-    virtual CIMResponseMessage* buildResponse() const;
-
-    CIMObjectPath subscriptionName;
-};
-
-class PEGASUS_COMMON_LINKAGE CIMNotifyListenerNotActiveRequestMessage
-    : public CIMRequestMessage
-{
-public:
-    CIMNotifyListenerNotActiveRequestMessage(
-        const String & messageId_,
-        const CIMObjectPath &handlerName_,
-        const QueueIdStack& queueIds_);
-
-    virtual CIMResponseMessage* buildResponse() const;
-
-    CIMObjectPath handlerName;
-};
-
-//
-// CIMResponseMessages
-//
-
-class PEGASUS_COMMON_LINKAGE CIMResponseDataMessage
-    : public CIMResponseMessage
-{
-public:
-
-    CIMResponseDataMessage(
-        MessageType type_,
-        const String& messageId_,
-        const CIMException& cimException_,
-        const QueueIdStack& queueIds_,
-        CIMResponseData::ResponseDataContent rspContent_,
-        Boolean isAsyncResponsePending=false);
-
-    CIMResponseData& getResponseData()
+        QueueIdStack queueIds_)
+        :
+        CIMRequestMessage(
+            CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE,
+            messageId_,
+            queueIds_)
     {
-        return _responseData;
     }
-
-private:
-    CIMResponseData _responseData;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMGetClassResponseMessage
@@ -1150,267 +1422,406 @@ public:
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_,
-        const CIMClass& cimClass_);
+        const CIMClass& cimClass_,
+		const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY)
+    : CIMResponseMessage(CIM_GET_CLASS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,
+	contentLanguages_),
+        cimClass(cimClass_)
+    {
+    }
 
     CIMClass cimClass;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMGetInstanceResponseMessage
-    : public CIMResponseDataMessage
+class CIMGetInstanceResponseMessage : public CIMResponseMessage
 {
 public:
     CIMGetInstanceResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_,
+        const CIMInstance& cimInstance_,
+		const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY)
+    : CIMResponseMessage(CIM_GET_INSTANCE_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,
+	contentLanguages_),
+        cimInstance(cimInstance_)
+    {
+    }
 
-private:
-    CIMGetInstanceResponseMessage();
-    CIMGetInstanceResponseMessage(const CIMGetInstanceResponseMessage&);
-    CIMGetInstanceResponseMessage& operator=(
-        const CIMGetInstanceResponseMessage&);
+    CIMInstance cimInstance;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMExportIndicationResponseMessage
-    : public CIMResponseMessage
+class CIMExportIndicationResponseMessage : public CIMResponseMessage
 {
 public:
     CIMExportIndicationResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(CIM_EXPORT_INDICATION_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+    {
+    }
 };
 
-class PEGASUS_COMMON_LINKAGE CIMDeleteClassResponseMessage
-    : public CIMResponseMessage
+class CIMDeleteClassResponseMessage : public CIMResponseMessage
 {
 public:
     CIMDeleteClassResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(CIM_DELETE_CLASS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+    {
+    }
 };
 
-class PEGASUS_COMMON_LINKAGE CIMDeleteInstanceResponseMessage
-    : public CIMResponseMessage
+class CIMDeleteInstanceResponseMessage : public CIMResponseMessage
 {
 public:
     CIMDeleteInstanceResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(CIM_DELETE_INSTANCE_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+    {
+    }
 };
 
-class PEGASUS_COMMON_LINKAGE CIMCreateClassResponseMessage
-    : public CIMResponseMessage
+class CIMCreateClassResponseMessage : public CIMResponseMessage
 {
 public:
     CIMCreateClassResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(CIM_CREATE_CLASS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+    {
+    }
 };
 
-class PEGASUS_COMMON_LINKAGE CIMCreateInstanceResponseMessage
-    : public CIMResponseMessage
+class CIMCreateInstanceResponseMessage : public CIMResponseMessage
 {
 public:
     CIMCreateInstanceResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_,
-        const CIMObjectPath& instanceName_);
+        const CIMObjectPath& instanceName_,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY)
+    : CIMResponseMessage(CIM_CREATE_INSTANCE_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,
+	contentLanguages_),
+        instanceName(instanceName_)
+    {
+    }
 
     CIMObjectPath instanceName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMModifyClassResponseMessage
-    : public CIMResponseMessage
+class CIMModifyClassResponseMessage : public CIMResponseMessage
 {
 public:
     CIMModifyClassResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(CIM_MODIFY_CLASS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+    {
+    }
 };
 
-class PEGASUS_COMMON_LINKAGE CIMModifyInstanceResponseMessage
-    : public CIMResponseMessage
+class CIMModifyInstanceResponseMessage : public CIMResponseMessage
 {
 public:
     CIMModifyInstanceResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+    {
+    }
 };
 
-class PEGASUS_COMMON_LINKAGE CIMEnumerateClassesResponseMessage
-    : public CIMResponseMessage
+class CIMEnumerateClassesResponseMessage : public CIMResponseMessage
 {
 public:
     CIMEnumerateClassesResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_,
-        const Array<CIMClass>& cimClasses_);
+        const Array<CIMClass>& cimClasses_,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY)
+    : CIMResponseMessage(CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,
+	contentLanguages_),
+        cimClasses(cimClasses_)
+    {
+    }
 
     Array<CIMClass> cimClasses;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMEnumerateClassNamesResponseMessage
-    : public CIMResponseMessage
+class CIMEnumerateClassNamesResponseMessage : public CIMResponseMessage
 {
 public:
     CIMEnumerateClassNamesResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_,
-        const Array<CIMName>& classNames_);
+        const Array<CIMName>& classNames_,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY)
+    : CIMResponseMessage(CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,
+	contentLanguages_),
+        classNames(classNames_)
+    {
+    }
 
     Array<CIMName> classNames;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMEnumerateInstancesResponseMessage
-    : public CIMResponseDataMessage
+class CIMEnumerateInstancesResponseMessage : public CIMResponseMessage
 {
 public:
     CIMEnumerateInstancesResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_,
+        const Array<CIMInstance>& cimNamedInstances_,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY)
+    : CIMResponseMessage(CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,
+	contentLanguages_),
+        cimNamedInstances(cimNamedInstances_)
+    {
+    }
+
+    Array<CIMInstance> cimNamedInstances;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMEnumerateInstanceNamesResponseMessage
-    : public CIMResponseDataMessage
+class CIMEnumerateInstanceNamesResponseMessage : public CIMResponseMessage
 {
 public:
     CIMEnumerateInstanceNamesResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_,
+        const Array<CIMObjectPath>& instanceNames_,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY)
+    : CIMResponseMessage(CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,
+	contentLanguages_),
+        instanceNames(instanceNames_)
+    {
+    }
+
+    Array<CIMObjectPath> instanceNames;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMExecQueryResponseMessage
-    : public CIMResponseDataMessage
+class CIMExecQueryResponseMessage : public CIMResponseMessage
 {
 public:
     CIMExecQueryResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_,
+        const Array<CIMObject>& cimObjects_,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY)
+    : CIMResponseMessage(CIM_EXEC_QUERY_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,
+	contentLanguages_),
+        cimObjects(cimObjects_)
+    {
+    }
+
+    Array<CIMObject> cimObjects;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMAssociatorsResponseMessage
-    : public CIMResponseDataMessage
+class CIMAssociatorsResponseMessage : public CIMResponseMessage
 {
 public:
     CIMAssociatorsResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_,
+        const Array<CIMObject>& cimObjects_,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY)
+    : CIMResponseMessage(CIM_ASSOCIATORS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,
+	contentLanguages_),
+        cimObjects(cimObjects_)
+    {
+    }
+
+    Array<CIMObject> cimObjects;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMAssociatorNamesResponseMessage
-    : public CIMResponseDataMessage
+class CIMAssociatorNamesResponseMessage : public CIMResponseMessage
 {
 public:
     CIMAssociatorNamesResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_,
+        const Array<CIMObjectPath>& objectNames_,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY)
+    : CIMResponseMessage(CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,
+	contentLanguages_),
+        objectNames(objectNames_)
+    {
+    }
+
+    Array<CIMObjectPath> objectNames;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMReferencesResponseMessage
-    : public CIMResponseDataMessage
+class CIMReferencesResponseMessage : public CIMResponseMessage
 {
 public:
     CIMReferencesResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_,
+        const Array<CIMObject>& cimObjects_,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY)
+    : CIMResponseMessage(CIM_REFERENCES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,
+	contentLanguages_),
+        cimObjects(cimObjects_)
+    {
+    }
+
+    Array<CIMObject> cimObjects;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMReferenceNamesResponseMessage
-    : public CIMResponseDataMessage
+class CIMReferenceNamesResponseMessage : public CIMResponseMessage
 {
 public:
     CIMReferenceNamesResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_,
+        const Array<CIMObjectPath>& objectNames_,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY)
+    : CIMResponseMessage(CIM_REFERENCE_NAMES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,
+	contentLanguages_),
+        objectNames(objectNames_)
+    {
+    }
+
+    Array<CIMObjectPath> objectNames;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMGetPropertyResponseMessage
-    : public CIMResponseMessage
+class CIMGetPropertyResponseMessage : public CIMResponseMessage
 {
 public:
     CIMGetPropertyResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_,
-        const CIMValue& value_);
+        const CIMValue& value_,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY)
+    : CIMResponseMessage(CIM_GET_PROPERTY_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,
+	contentLanguages_),
+        value(value_)
+    {
+    }
 
     CIMValue value;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMSetPropertyResponseMessage
-    : public CIMResponseMessage
+class CIMSetPropertyResponseMessage : public CIMResponseMessage
 {
 public:
     CIMSetPropertyResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(CIM_SET_PROPERTY_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+    {
+    }
 };
 
-class PEGASUS_COMMON_LINKAGE CIMGetQualifierResponseMessage
-    : public CIMResponseMessage
+class CIMGetQualifierResponseMessage : public CIMResponseMessage
 {
 public:
     CIMGetQualifierResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_,
-        const CIMQualifierDecl& cimQualifierDecl_);
+        const CIMQualifierDecl& cimQualifierDecl_,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY)
+    : CIMResponseMessage(CIM_GET_QUALIFIER_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,
+	contentLanguages_),
+        cimQualifierDecl(cimQualifierDecl_)
+    {
+    }
 
     CIMQualifierDecl cimQualifierDecl;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMSetQualifierResponseMessage
-    : public CIMResponseMessage
+class CIMSetQualifierResponseMessage : public CIMResponseMessage
 {
 public:
+
     CIMSetQualifierResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_)
+    :
+    CIMResponseMessage(CIM_SET_QUALIFIER_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+    {
+    }
 };
 
-class PEGASUS_COMMON_LINKAGE CIMDeleteQualifierResponseMessage
-    : public CIMResponseMessage
+class CIMDeleteQualifierResponseMessage : public CIMResponseMessage
 {
 public:
+
     CIMDeleteQualifierResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_)
+    :
+    CIMResponseMessage(CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+    {
+    }
 };
 
-class PEGASUS_COMMON_LINKAGE CIMEnumerateQualifiersResponseMessage
-    : public CIMResponseMessage
+class CIMEnumerateQualifiersResponseMessage : public CIMResponseMessage
 {
 public:
     CIMEnumerateQualifiersResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_,
-        const Array<CIMQualifierDecl>& qualifierDeclarations_);
+        const Array<CIMQualifierDecl>& qualifierDeclarations_,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY)
+    : CIMResponseMessage(CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,
+	contentLanguages_),
+        qualifierDeclarations(qualifierDeclarations_)
+    {
+    }
 
     Array<CIMQualifierDecl> qualifierDeclarations;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMInvokeMethodResponseMessage
-    : public CIMResponseMessage
+class CIMInvokeMethodResponseMessage : public CIMResponseMessage
 {
 public:
     CIMInvokeMethodResponseMessage(
@@ -1419,108 +1830,126 @@ public:
         const QueueIdStack& queueIds_,
         const CIMValue& retValue_,
         const Array<CIMParamValue>& outParameters_,
-        const CIMName& methodName_);
+        const CIMName& methodName_,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY)
+    : CIMResponseMessage(CIM_INVOKE_METHOD_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_,
+	contentLanguages_),
+        retValue(retValue_),
+        outParameters(outParameters_),
+        methodName(methodName_)
+    {
+    }
 
     CIMValue retValue;
     Array<CIMParamValue> outParameters;
     CIMName methodName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMProcessIndicationResponseMessage
-    : public CIMResponseMessage
+class CIMProcessIndicationResponseMessage : public CIMResponseMessage
 {
 public:
     CIMProcessIndicationResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_,
-        String oopAgentName_ = String::EMPTY,
-        CIMInstance subscription_ = CIMInstance());
-
-    String oopAgentName;
-    CIMInstance subscription;
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(CIM_CREATE_INSTANCE_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+    {
+    }
 };
 
-class PEGASUS_COMMON_LINKAGE CIMNotifyProviderRegistrationResponseMessage
-    : public CIMResponseMessage
-{
-public:
-    CIMNotifyProviderRegistrationResponseMessage(
-        const String& messageId_,
-        const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
-};
-
-class PEGASUS_COMMON_LINKAGE CIMNotifyProviderTerminationResponseMessage
-    : public CIMResponseMessage
-{
-public:
-    CIMNotifyProviderTerminationResponseMessage(
-        const String& messageId_,
-        const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
-};
-
-class PEGASUS_COMMON_LINKAGE CIMHandleIndicationResponseMessage
-    : public CIMResponseMessage
+class CIMHandleIndicationResponseMessage : public CIMResponseMessage
 {
 public:
     CIMHandleIndicationResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(CIM_HANDLE_INDICATION_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+    {
+    }
 };
 
-class PEGASUS_COMMON_LINKAGE CIMCreateSubscriptionResponseMessage
-    : public CIMResponseMessage
+class CIMCreateSubscriptionResponseMessage : public CIMResponseMessage
 {
 public:
     CIMCreateSubscriptionResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(
+        CIM_CREATE_SUBSCRIPTION_RESPONSE_MESSAGE,
+        messageId_,
+        cimException_,
+        queueIds_)
+    {
+    }
 };
 
-class PEGASUS_COMMON_LINKAGE CIMModifySubscriptionResponseMessage
-    : public CIMResponseMessage
+class CIMModifySubscriptionResponseMessage : public CIMResponseMessage
 {
 public:
     CIMModifySubscriptionResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(
+        CIM_MODIFY_SUBSCRIPTION_RESPONSE_MESSAGE,
+        messageId_,
+        cimException_,
+        queueIds_)
+    {
+    }
 };
 
-class PEGASUS_COMMON_LINKAGE CIMDeleteSubscriptionResponseMessage
-    : public CIMResponseMessage
+class CIMDeleteSubscriptionResponseMessage : public CIMResponseMessage
 {
 public:
     CIMDeleteSubscriptionResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(
+        CIM_DELETE_SUBSCRIPTION_RESPONSE_MESSAGE,
+        messageId_,
+        cimException_,
+        queueIds_)
+    {
+    }
 };
 
-class PEGASUS_COMMON_LINKAGE
-CIMSubscriptionInitCompleteResponseMessage
-    : public CIMResponseMessage
+class CIMEnableIndicationsResponseMessage : public CIMResponseMessage
 {
 public:
-    CIMSubscriptionInitCompleteResponseMessage
-       (const String & messageId_,
+    CIMEnableIndicationsResponseMessage(
+        const String & messageId_,
         const CIMException & cimException_,
-        const QueueIdStack & queueIds_);
+        const QueueIdStack & queueIds_)
+    : CIMResponseMessage(
+        CIM_ENABLE_INDICATIONS_RESPONSE_MESSAGE,
+        messageId_,
+        cimException_,
+        queueIds_)
+    {
+    }
 };
 
-class PEGASUS_COMMON_LINKAGE
-CIMIndicationServiceDisabledResponseMessage
-    : public CIMResponseMessage
+class CIMDisableIndicationsResponseMessage : public CIMResponseMessage
 {
 public:
-    CIMIndicationServiceDisabledResponseMessage
-       (const String & messageId_,
+    CIMDisableIndicationsResponseMessage(
+        const String & messageId_,
         const CIMException & cimException_,
-        const QueueIdStack & queueIds_);
+        QueueIdStack queueIds_)
+    : CIMResponseMessage(
+        CIM_DISABLE_INDICATIONS_RESPONSE_MESSAGE,
+        messageId_,
+        cimException_,
+        queueIds_)
+    {
+    }
 };
 
 class PEGASUS_COMMON_LINKAGE CIMDisableModuleResponseMessage
@@ -1531,7 +1960,12 @@ public:
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_,
-        const Array<Uint16>& operationalStatus_);
+        const Array<Uint16>& operationalStatus_)
+    : CIMResponseMessage(CIM_DISABLE_MODULE_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+        operationalStatus(operationalStatus_)
+    {
+    }
 
     Array<Uint16> operationalStatus;
 };
@@ -1544,94 +1978,30 @@ public:
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_,
-        const Array<Uint16>& operationalStatus_);
+        const Array<Uint16>& operationalStatus_)
+    : CIMResponseMessage(CIM_ENABLE_MODULE_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+        operationalStatus(operationalStatus_)
+    {
+    }
 
     Array<Uint16> operationalStatus;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMNotifyProviderEnableResponseMessage
-    : public CIMResponseMessage
-{
-public:
-    CIMNotifyProviderEnableResponseMessage(
-        const String& messageId_,
-        const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
-};
-
-class PEGASUS_COMMON_LINKAGE CIMNotifyProviderFailResponseMessage
-    : public CIMResponseMessage
-{
-public:
-    CIMNotifyProviderFailResponseMessage(
-        const String& messageId_,
-        const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
-
-    Uint32 numSubscriptionsAffected;
-};
-
 class PEGASUS_COMMON_LINKAGE CIMStopAllProvidersResponseMessage
-    : public CIMResponseMessage
+   : public CIMResponseMessage
 {
-public:
-    CIMStopAllProvidersResponseMessage(
-        const String& messageId_,
-        const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
-};
+   public:
 
-class PEGASUS_COMMON_LINKAGE CIMInitializeProviderAgentResponseMessage
-    : public CIMResponseMessage
-{
-public:
-    CIMInitializeProviderAgentResponseMessage(
-        const String& messageId_,
-        const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
-};
-
-class PEGASUS_COMMON_LINKAGE CIMNotifyConfigChangeResponseMessage
-    : public CIMResponseMessage
-{
-public:
-    CIMNotifyConfigChangeResponseMessage(
-        const String& messageId_,
-        const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
-};
-
-class PEGASUS_COMMON_LINKAGE ProvAgtGetScmoClassResponseMessage
-    : public CIMResponseMessage
-{
-public:
-    ProvAgtGetScmoClassResponseMessage(
-        const String& messageId_,
-        const CIMException& cimException_,
-        const QueueIdStack& queueIds_,
-        const SCMOClass& scmoClass_);
-
-    SCMOClass scmoClass;
-};
-
-class PEGASUS_COMMON_LINKAGE CIMNotifySubscriptionNotActiveResponseMessage
-    : public CIMResponseMessage
-{
-public:
-    CIMNotifySubscriptionNotActiveResponseMessage(
-        const String& messageId_,
-        const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
-};
-
-class PEGASUS_COMMON_LINKAGE CIMNotifyListenerNotActiveResponseMessage
-    : public CIMResponseMessage
-{
-public:
-    CIMNotifyListenerNotActiveResponseMessage(
-        const String& messageId_,
-        const CIMException& cimException_,
-        const QueueIdStack& queueIds_);
+      CIMStopAllProvidersResponseMessage(
+         const String& messageId_,
+         const CIMException& cimException_,
+         const QueueIdStack& queueIds_)
+         :
+         CIMResponseMessage(CIM_STOP_ALL_PROVIDERS_RESPONSE_MESSAGE,
+                            messageId_, cimException_, queueIds_)
+      {
+      }
 };
 
 PEGASUS_NAMESPACE_END

@@ -114,6 +114,14 @@ void shutdownSignalHandler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
 }
 
 
+void CIMServer::shutdownSignal()
+{
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::shutdownSignal()");
+    handleShutdownSignal = true;
+    PEG_METHOD_EXIT();
+}
+
+
 CIMServer::CIMServer(Monitor* monitor)
   : _dieNow(false), _monitor(monitor), monitor2(0), _type(OLD)
 {

@@ -145,6 +145,10 @@ public:
 
     Uint32 getOutstandingRequestCount();
 
+    /** Signal to shutdown
+    */
+    void shutdownSignal();
+
 private:
 
     SSLContext* _getSSLContext();

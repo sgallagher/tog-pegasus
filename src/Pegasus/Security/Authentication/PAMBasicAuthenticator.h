@@ -35,6 +35,7 @@
 
 #include <Pegasus/Security/Authentication/Linkage.h>
 
+
 PEGASUS_NAMESPACE_BEGIN
 
 /** This class provides PAM basic authentication implementation by extending
@@ -73,7 +74,12 @@ public:
     */
     static Sint32 PAMCallback(
         Sint32 num_msg, 
+#if defined (PEGASUS_OS_LINUX) && defined(PEGASUS_PAM_AUTHENTICATION)
+
+        const struct pam_message **msg,
+#else
         struct pam_message **msg,
+#endif
         struct pam_response **resp, 
         void *appdata_ptr);
 

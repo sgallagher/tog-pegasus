@@ -25,7 +25,8 @@
 //
 // Author: Dave Rosckes (rosckes@us.ibm.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -73,11 +74,11 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
        */
     CQLValueRep(const String& inString);
 
-   CQLValueRep(const Sint64 inSint);
-   CQLValueRep(const Uint64 inUint);
-   CQLValueRep(const Real64 inReal);
+   CQLValueRep(Sint64 inSint);
+   CQLValueRep(Uint64 inUint);
+   CQLValueRep(Real64 inReal);
    CQLValueRep(const CIMInstance& inInstance);
-   CQLValueRep(const Boolean inBool);
+   CQLValueRep(Boolean inBool);
    CQLValueRep(const CIMClass& inClass);
    CQLValueRep(const CIMObject& inObject);
    CQLValueRep(const CIMValue& inVal);

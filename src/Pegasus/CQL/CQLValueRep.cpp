@@ -198,24 +198,21 @@ CQLValueRep::CQLValueRep(const CIMInstance& inInstance)
   : _isResolved(true),
     _valueType(CQLValue::CIMObject_type)
 {
-  // embobj
-  //  _theValue.set((CIMObject)inInstance);
+  _theValue.set((CIMObject)inInstance);
 }
 
 CQLValueRep::CQLValueRep(const CIMClass& inClass)
   : _isResolved(true),
     _valueType(CQLValue::CIMObject_type)
 {
-  // embobj
-  //_theValue.set((CIMObject)inClass);
+  _theValue.set((CIMObject)inClass);
 }
 
 CQLValueRep::CQLValueRep(const CIMObject& inObject)
   : _isResolved(true),
     _valueType(CQLValue::CIMObject_type)
 {
-  // embobj
-  //_theValue.set((CIMObject)inObject);
+  /_theValue.set((CIMObject)inObject);
 }
 
 CQLValueRep::CQLValueRep(const CIMObjectPath& inObjPath)
@@ -283,8 +280,7 @@ void CQLValueRep::resolve(const CIMInstance& CI, const  QueryContext& inQueryCtx
     {
       // A class was passed in with no property indicated.
       // Set the instance passed in, as a primitive.
-      // embobj
-      //      _theValue.set((CIMObject)CI);
+       _theValue.set((CIMObject)CI);
       _valueType = CQLValue::CIMObject_type;
       _isResolved = true;
       return; // Done.
@@ -343,9 +339,8 @@ void CQLValueRep::resolve(const CIMInstance& CI, const  QueryContext& inQueryCtx
 	  _valueType = CQLValue::Null_type;
 	  return;
 	}
-      //embobj
-      // propObj.getValue().get(objectContext);
-      //classContext = objectContext.getClassName();
+      propObj.getValue().get(objectContext);
+      classContext = objectContext.getClassName();
     }  
 } // end of function
 
@@ -353,15 +348,14 @@ void CQLValueRep::_process_value(CIMProperty& propObj,
 				 CQLIdentifier& _id,
 				 const QueryContext& inQueryCtx)
 {
-  if( 0 /*propObj.getType() == CIMTYPE_EMBEDDED*/) //embobj
+  if(propObj.getType() == CIMTYPE_EMBEDDED) 
     {
-      /* embobj
       CIMObject cimObj;
       propObj.getValue().get(cimObj);
 
       _theValue.set(cimObj);
       _valueType = CQLValue::CIMObject_type;
-      */
+
     }
   else // Primitive
     {
@@ -518,14 +512,12 @@ Boolean CQLValueRep::operator==(const CQLValueRep& x)
 	  }
 	case CQLValue::CIMObject_type: 
 	  { 
-       /* embobj
 	    CIMObject objBase;
 	    CIMObject objParm;
 	    _theValue.get(objBase);
 	    x._theValue.get(objParm);
-       */
-	    
-	    return false; //_compareObjects(objBase,objParm); embobj
+       
+	    return _compareObjects(objBase,objParm);
        
 	  }
 	  break;
@@ -794,7 +786,7 @@ Boolean CQLValueRep::isa(const CQLChainedIdentifier& inID,QueryContext& QueryCtx
    CIMName className;
    CIMObject obj;
 
-   //   _theValue.get(obj); embobj
+   _theValue.get(obj);
 
    className = obj.getClassName();
 
@@ -963,7 +955,7 @@ CIMObject CQLValueRep::getObject()const
        throw CQLRuntimeException(mload);
    }
    CIMObject tmp;
-   //   _theValue.get(tmp); embobj
+   _theValue.get(tmp);
    PEG_METHOD_EXIT();
    return tmp.clone();
 }
@@ -1347,7 +1339,6 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 key)
             _valueType = CQLValue::CIMReference_type;
             break;
 	  }   
-     /* embobj
 	case CIMTYPE_EMBEDDED:
 	  {
 	    if(key == -1)
@@ -1362,8 +1353,7 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 key)
 	      }
             _valueType = CQLValue::CIMObject_type;
             break;
-	  } 
-     */  
+	  }  
 	default:
 	   MessageLoaderParms mload(String("CQL.CQLValueRep.SET_VALUE"),
 				    String("Unable to set internal object."));
@@ -1850,7 +1840,6 @@ Boolean CQLValueRep::_compareArray(const CQLValueRep& _in)
 	  }
 	break;
       }   
-      /* embobj
     case CIMTYPE_EMBEDDED:
       {
 	_in1.get(_obj1);
@@ -1860,7 +1849,6 @@ Boolean CQLValueRep::_compareArray(const CQLValueRep& _in)
 	  }
 	break;
       } 
-      */  
     default:
       MessageLoaderParms mload(String("CQL.CQLValueRep.INVALID_ARRAY_COMPARISON"),
 			       String("Invalid array comparison type."));

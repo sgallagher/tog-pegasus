@@ -86,7 +86,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
 		      CIMObject_type, Boolean_type};
 
   /** 
-      Contructs CQLTermRep default object.
+      Contructs CQLValue default object.
       
       @param  - None.
       @return - None.
@@ -96,7 +96,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
   CQLValue();
 
   /** 
-      Contructs CQLTermRep default object.
+      Destroys CQLValue object.
       
       @param  - None.
       @return - None.
@@ -106,7 +106,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
   ~CQLValue()
 
   /** 
-      Contructs CQLTermRep default object.
+      Contructs CQLValue object (Copy-Constructor).
       
       @param  - None.
       @return - None.
@@ -116,9 +116,10 @@ class PEGASUS_CQL_LINKAGE CQLValue
   CQLValue(const CQLValue& val);
 
   /** 
-      Contructs CQLTermRep default object.
+      Contructs CQLValue object given a string and a numbericType
       
-      @param  - None.
+      @param  - inString - the string representation of a number
+      @param  - inValueType - the NumericType
       @return - None.
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
@@ -126,48 +127,40 @@ class PEGASUS_CQL_LINKAGE CQLValue
   CQLValue(String inString, NumericType inValueType,
 	   Boolean inSign = true);
   
-  /**  Initializes object as a CQLIdentifier.
-   */
-  /** 
-      Contructs CQLTermRep default object.
+  /**  
+      Contructs CQLValue object via CQLChainedIdentifier.
       
-      @param  - None.
+      @param  - inCQLIdent - The CQLChained Identifer used to create the object
       @return - None.
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
   */
   CQLValue(CQLChainedIdentifier inCQLIdent);
   
-  /**  Initializes object as a CIMObjectPath.
-   */
-  /** 
-      Contructs CQLTermRep default object.
-      
-      @param  - None.
+  /**
+      Initializes object as a CIMObjectPath.
+
+      @param  - inObjPath - CIMObjectPath use to construct object.
       @return - None.
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
   */
   CQLValue(CIMObjectPath inObjPath);
   
-  /**  Initializes object as a CIMDateTime.
-   */
-  /** 
-      Contructs CQLTermRep default object.
-      
-      @param  - None.
+  /**
+      Initializes object as a CIMDateTime.
+
+      @param  - inDateTime - used to construct object.
       @return - None.
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
   */
   CQLValue(CIMDateTime inDateTime);
   
-  /**  Initializes object as a literal string (non-numeric).
-   */
-  /** 
-      Contructs CQLTermRep default object.
-      
-      @param  - None.
+  /**  
+      Initializes object as a literal string (non-numeric).
+
+      @param  - inString - String used to construct object.
       @return - None.
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
@@ -175,9 +168,9 @@ class PEGASUS_CQL_LINKAGE CQLValue
   CQLValue(String inString);
   
   /** 
-      Contructs CQLTermRep default object.
+      Initializes object as an Sint64.
       
-      @param  - None.
+      @param  - inSint - Sint64 used to contruct object.
       @return - None.
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
@@ -185,9 +178,9 @@ class PEGASUS_CQL_LINKAGE CQLValue
   CQLValue(Sint64 inSint);
 
   /** 
-      Contructs CQLTermRep default object.
+      Initializes object as a Uint64
       
-      @param  - None.
+      @param  - inUint - Uint64 used to construct object.
       @return - None.
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
@@ -195,9 +188,9 @@ class PEGASUS_CQL_LINKAGE CQLValue
   CQLValue(Uint64 inUint);
 
   /** 
-      Contructs CQLTermRep default object.
+      Initializes object as a Real64
       
-      @param  - None.
+      @param  - inReal - Real64 used to construct object.
       @return - None.
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
@@ -205,9 +198,9 @@ class PEGASUS_CQL_LINKAGE CQLValue
   CQLValue(Real64 inReal);
   
   /** 
-      Contructs CQLTermRep default object.
+      Initializes object as a CIMInstance
       
-      @param  - None.
+      @param  - inInstance - CIMInstance used to construct object.
       @return - None.
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
@@ -215,9 +208,9 @@ class PEGASUS_CQL_LINKAGE CQLValue
   CQLValue(CIMInstance inInstance);
 
   /** 
-      Contructs CQLTermRep default object.
+      Initializes object as a Boolean
       
-      @param  - None.
+      @param  - inBool - inBool used to construct object.
       @return - None.
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
@@ -225,9 +218,9 @@ class PEGASUS_CQL_LINKAGE CQLValue
   CQLValue(Boolean inBool);
 
   /** 
-      Contructs CQLTermRep default object.
+      Initializes object as a inClass
       
-      @param  - None.
+      @param  - inClass - CIMClass used to construct object.
       @return - None.
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
@@ -235,9 +228,9 @@ class PEGASUS_CQL_LINKAGE CQLValue
   CQLValue(CIMClass inClass);
 
   /** 
-      Contructs CQLTermRep default object.
+      Initializes object as a CQLValueRep
       
-      @param  - None.
+      @param  - rhs - CQLValueRep used to construct object.
       @return - None.
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
@@ -245,9 +238,9 @@ class PEGASUS_CQL_LINKAGE CQLValue
   CQLValue(CQLValueRep rhs);
 
   /** 
-      Contructs CQLTermRep default object.
+      Initializes object as a CIMObject
       
-      @param  - None.
+      @param  - inObject - CIMObject used to construct object.
       @return - None.
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
@@ -255,9 +248,9 @@ class PEGASUS_CQL_LINKAGE CQLValue
   CQLValue(CIMObject inObject);
 
   /** 
-      Contructs CQLTermRep default object.
+      Initializes object as a CIMValue
       
-      @param  - None.
+      @param  - inVal - CIMValue used to construct object.
       @return - None.
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
@@ -265,130 +258,164 @@ class PEGASUS_CQL_LINKAGE CQLValue
   CQLValue(CIMValue inVal);
   
   /**  This method is used to ask an identifier to resolve itself to 
-       a number or string (primitive value).
+       a primitive value.
        
        Resolves:
        - symbolic constants
        - indexing an array
        - decoding identifier
-       * URI reference
        * embedded object (e.g. myclass.embeddedobject.prop1)
        and this is recursive
        - class aliasing
-  */
-  /** 
-      Contructs CQLTermRep default object.
-      
-      @param  - None.
+
+      @param  - CI - CIMInstance where information is retrieved.
+      @param  - inQueryCtx - QueryContext contains query data.
       @return - None.
-      @throw  - None.
+      @throw  - CQLRuntimeException.
       <I><B>Experimental Interface</B></I><BR>
   */
   void resolve(const CIMInstance& CI,const  QueryContext& inQueryCtx);
   
+  /** 
+      Assignment operator.
+      
+      @param  - rhs - right hand side of operator.
+      @return - CQLValue.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   CQLValue& operator=(const CQLValue& rhs);
   
-  /** operator == compares two CQLValue objects for equality and
+  /** 
+      operator == compares two CQLValue objects for equality and
       performs type checking.
-      @param x - First CQLValue to compare
-      @param y - Second CQLValue to compare
-      @return true if they are identical in type, attribute and value,
-      false otherwise.
+      
+      @param  - rhs - right hand side of operator.
+      @return - Boolean.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
   */
+
   
   Boolean operator==(const CQLValue& x);
   
-  /** operator == compares two CQLValue objects for inequality and
+  /** 
+      operator != compares two CQLValue objects for inequality and
       performs type checking.
-      @param x - First CQLValue to compare
-      @param y - Second CQLValue to compare
-      @return true if they are NOT identical in type, attribute and value,
-      false otherwise.
+      
+      @param  - x - right hand side of operator.
+      @return - Boolean.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
   */
-  
   Boolean operator!=(const CQLValue& x);
   
-  /** operator <= compares two CQLValue objects to see if x is less than or
-      equal to y and performs type checking.
-      @param x - First CQLValue to compare
-      @param y - Second CQLValue to compare
-      @return true if x is less than or equal to y,
-      false otherwise.
+  /** 
+      operator <= compares two CQLValue objects to see if leftside is less than or
+      equal to right side and performs type checking.
+
+      @param  - x - right hand side of operator.
+      @return - Boolean.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
   */
-  
   Boolean operator<=(const CQLValue& x);
   
-  /** operator >= compares two CQLValue objects to see if x is greater than or
-      equal to y and performs type checking.
-      @param x - First CQLValue to compare
-      @param y - Second CQLValue to compare
-      @return true if x is greater than or equal to y,
-        false otherwise.
+  /** 
+      operator >= compares two CQLValue objects to see if leftside is greater than or
+      equal to rightside and performs type checking.
+
+      @param  - x - right hand side of operator.
+      @return - Boolean.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
   */
   
   Boolean operator>=(const CQLValue& x);
   
-  /** The overload operator (<) compares CQLValue obects and
+  /** 
+      The overload operator < compares CQLValue obects and
       performs type checking.
-      <pre>
-            CQLValue   val1 = "def";
-            CQLValue   val2 = "a";
-            assert (val2 < val1);
-	    </pre>
+
+      @param  - val1 - right hand side of operator.
+      @return - Boolean.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
   */
-  
   Boolean operator<(const CQLValue& val1);
   
-  /** The overload operator (>) compares CQLValue obects and
+  /** 
+      The overload operator > compares CQLValue obects and
       performs type checking.
-      <pre>
-      CQLValue   val1 = "def";
-      CQLValue   val2 = "a";
-      assert (val2 < val1);
-      </pre>
+
+      @param  - val1 - right hand side of operator.
+      @return - Boolean.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
   */
-  
   Boolean operator>(const CQLValue& val1);
   
-  /** This overload operator (+) concatenates or adds the value of
-      CQLValue objects and performs type checking and Uint64 handling.
-      For example, 
-      <pre>
-      CQLValue  t1 = "abc";  // it's a string type
-            CQLValue  t2 = "def";   // it's another string type
-            CQLValue   t3 = t1 + t2;
-            assert(t3 == "abcdef");
-	    </pre>
+  /** This overload operator (+) concatenates the value of
+      CQLValue objects and performs type checking. 
+      (Currently supports only CQLValue of String type.)
+
+      @param  - x - right hand side of operator.
+      @return - Boolean.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
   */
+  CQLValue operator+(const CQLValue& x);  
   
-  CQLValue operator+(const CQLValue& x);
-  
-  
-  
-  /** Accessor for getting the type of the CQLValue.
-      
-  TODO:  do we need this method?
-  */
-  
+  /** 
+      Accessor for getting the type of the CQLValue.
+
+      @param  - None.
+      @return - CQLValueType.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */   
   CQLValueType getValueType();
   
-  /** Clears this object and sets its type to NULL_VALUE
-   */
-  
+  /** 
+      Clears this object and sets its type to NULL_VALUE
+
+      @param  - None.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */   
   void setNull();
   
-  /** Returns whether the value has been resolved to a primitive.
-   */
-  
+  /** 
+      Returns whether the value has been resolved to a primitive.
+
+      @param  - None.
+      @return - true when value is a primitive.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */     
   Boolean isResolved();
   
-  /** Returns whether the CQLValue is null.
-   */
-  
+  /** 
+      Returns whether the CQLValue is null.
+
+      @param  - None.
+      @return - true if CQLValue primitive value is NULL.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */ 
   Boolean isNull();
   
-  /** Tests to see if this "isa" the input string.
-   */
+  /** This will test to determine if the CQLValue isa String contained in the cid,
+      that identifies a class. The CQLValue must be of a type Instance or Class; Also
+      the cid must contain a String that is a valid class name.
+
+      @param  - cid - Contains the class name.
+      @param  - QueryCtx - contains query related data.
+      @return - true CQLValue isa class identified by cid.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */ 
   
   Boolean isa(const CQLChainedIdentifier& cid, QueryContext& QueryCtx);
   
@@ -403,24 +430,125 @@ class PEGASUS_CQL_LINKAGE CQLValue
       For Basic Query, the left-hand expression (this) may be restricted to
       chain, and 
       the right-hand expression may be restricted to be a literal-string.
+
+      @param  - inVal - CQLValue to be compared.
+      @return - true CQLValue is like the passed in CQLValue.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
   */
-  
   Boolean like(const CQLValue& inVal);
-  /*
-    void invert();
+ 
+  /** 
+      Get the ChainedIdentifier. Primitive from CQLValue
+
+      @param  - None.
+      @return - ChainedIdentifier.
+      @throw  - CQLRuntimeException.
+      <I><B>Experimental Interface</B></I><BR>
   */
   CQLChainedIdentifier getChainedIdentifier()const;
+
+  /** 
+      Get the Uint64.  Primitive from CQLValue
+
+      @param  - None.
+      @return - Uint64.
+      @throw  - CQLRuntimeException.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   Uint64 getUint()const;
+
+  /** 
+      Get the Sint64. Primitive from CQLValue.
+
+      @param  - None.
+      @return - Sint64.
+      @throw  - CQLRuntimeException.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   Sint64 getSint()const;
+
+  /** 
+      Get the Real64. Primitive from CQLValue.
+
+      @param  - None.
+      @return - Real64.
+      @throw  - CQLRuntimeException.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   Real64 getReal()const;
+
+  /** 
+      Get the String. Primitive from CQLValue
+
+      @param  - None.
+      @return - String.
+      @throw  - CQLRuntimeException.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   String getString()const;
+
+  /** 
+      Get the Boolean. Primitive from CQLValue
+
+      @param  - None.
+      @return - Boolean
+      @throw  - CQLRuntimeException.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   Boolean getBool()const;
+
+  /** 
+      Get the CIMDateTime. Primitive from CQLValue.
+
+      @param  - None.
+      @return - CIMDateTime
+      @throw  - CQLRuntimeException.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   CIMDateTime getDateTime()const;
+
+  /** 
+      Get the CIMObjectPath. Primitive from CQLValue.
+
+      @param  - None.
+      @return - Reference.
+      @throw  - CQLRuntimeException.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   CIMObjectPath getReference()const;
+
+  /** 
+      Get the CIMObject. Primitive from CQLValue.
+
+      @param  - None.
+      @return - CIMObject.
+      @throw  - CQLRuntimeException.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   CIMObject getObject()const;
+
+  /** 
+      Return String representation of object.
+
+      @param  - None.
+      @return - String
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   String toString()const;
+
+  /** 
+      Apply scope and class to CQLValue's chainedIdentifier.
+
+      @param  - None.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
   void applyContext(QueryContext& _ctx,
 		    CQLChainedIdentifier& inCid);
+
   friend class CQLFactory; 
   
  private:

@@ -23,8 +23,9 @@
 // Author:
 //
 // $Log: String.cpp,v $
-// Revision 1.6  2001/04/11 07:03:02  mike
-// Port to Unix
+// Revision 1.7  2001/04/12 07:46:23  mike
+// Fixed bug in String test.
+// Fixed makefile CL flags.
 //
 // Revision 1.4  2001/04/09 20:18:47  karl
 // add find substring function
@@ -176,7 +177,7 @@ int main()
 	assert("one" == t1);
 	assert(t1 == t2);
 	assert(t2 == t1);
-	assert("one" == "one");
+	assert(String("one") == "one");
 
 	const char STR0[] = "one two three four";
 	String s = STR0;

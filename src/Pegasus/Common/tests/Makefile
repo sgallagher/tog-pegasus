@@ -18,6 +18,7 @@ DIRS = \
     FileSystem \
     InstanceDecl \
     Method \
+    MessageQueueService \
     Parameter \
     Property \
     Qualifier \

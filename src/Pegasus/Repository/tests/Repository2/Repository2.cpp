@@ -43,7 +43,15 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 static char * verbose;
-
+/*
+The following fix  turns off the filtering of enumerate
+instances for localOnly, includeQualifiers, IncludClassOrigin
+deepInheritance, PropertyList. It is included for the moment
+13 November 2003 to keep the code installed but not change
+current client behavior pending architecture team decison.
+KS, 13 Sept 2003  Note that there is also a flag in 
+cimrepository.cpp */
+#define PEGASUS_NO_ENUMERATEINSTANCE_FILTER
 String repositoryRoot;
 
 void TestNameSpaces()
@@ -160,7 +168,7 @@ void TestCreateClass()
     assert(classNames.size() == 2);
     assert(classNames[1] == CIMName ("SuperClass"));
     assert(classNames[0] == CIMName ("SubClass"));
-
+#ifndef PEGASUS_NO_ENUMERATEINSTANCE_FILTER
 	//
 	// Test the getClass operation options, localonly,
 	//		includeQualifiers, includeClassOrigin, propertyList
@@ -253,6 +261,7 @@ void TestCreateClass()
 	assert(cc2.findProperty("message") != PEG_NOT_FOUND);
 
 
+#endif
     // -- Create an instance of each class:
 
     CIMInstance inst0(CIMName ("SuperClass"));
@@ -264,7 +273,6 @@ void TestCreateClass()
     r.createInstance(NS, inst1);
 
     // -- Enumerate instances names:
-
     Array<CIMObjectPath> instanceNames = 
 	r.enumerateInstanceNames(NS, CIMName ("SuperClass"));
 
@@ -320,6 +328,7 @@ void TestCreateClass()
 
     assert(namedInstances[0].identical(inst1));
     
+#ifndef PEGASUS_NO_ENUMERATEINSTANCE_FILTER
     // Test enumerating with classOrigin false
 
     namedInstances = r.enumerateInstances(NS, 
@@ -436,7 +445,7 @@ void TestCreateClass()
     // test with localonly set vs. not set
 
     // test with deepinheritance set.
-
+#endif
 
     // -- Modify one of the instances:
 

@@ -172,8 +172,9 @@ static void TestInstanceOperations(CIMClient& client)
 
 	client.deleteClass(NAMESPACE, "myclass");
     }
-    catch (CIMClientException&)
+    catch (CIMClientException& e)
     {
+        cout << "Delete MyClass error: " << e.getMessage() << endl;
 	// Ignore delete class!
     }
 

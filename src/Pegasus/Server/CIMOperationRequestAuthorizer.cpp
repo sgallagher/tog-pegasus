@@ -462,7 +462,6 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
                    //
                    if (cimMethodName == "InvokeMethod")
                    {
-                       PEG_METHOD_EXIT();
                        // l10n
                        sendMethodError(
                            queueId,
@@ -470,10 +469,11 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
                            ((CIMRequestMessage*)request)->messageId,
                            ((CIMInvokeMethodRequestMessage*)request)->methodName,
                            PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, msgLoaderParms));
+                       PEG_METHOD_EXIT();
+                       return;
                    }
                    else
                    {
-                       PEG_METHOD_EXIT();
                        // l10n
                        sendIMethodError(
                            queueId,
@@ -481,6 +481,8 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
                            ((CIMRequestMessage*)request)->messageId,
                            cimMethodName,
                            PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, msgLoaderParms));
+                       PEG_METHOD_EXIT();
+                       return;
                    }
                }
            }
@@ -488,13 +490,14 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
    }
    catch (InternalSystemError &ise)
    {
-       PEG_METHOD_EXIT();
        sendIMethodError(
                queueId,
                request->getHttpMethod(),
                ((CIMRequestMessage*)request)->messageId,
                cimMethodName,
                PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, ise.getMessage()));
+       PEG_METHOD_EXIT();
+       return;
    }
 #endif  // #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
 

@@ -81,14 +81,7 @@ Boolean Thread::_key_error = false;
 void Thread::cleanup_push( void (*routine)(void *), void *parm) throw(IPCException)
 {
     AutoPtr<cleanup_handler> cu(new cleanup_handler(routine, parm));
-    try
-    {
-	_cleanup.insert_first(cu.get());
-    }
-    catch(IPCException&)
-    {
-	throw;
-    }
+    _cleanup.insert_first(cu.get());
     cu.release();
     return;
 }

@@ -260,8 +260,7 @@ class PEGASUS_COMMON_LINKAGE Thread
       inline void create_tsd(const Sint8 *key, int size, void *buffer) throw(IPCException)
       {
         AutoPtr<thread_data> tsd(new thread_data(key, size, buffer));
-        try { _tsd.insert_first(tsd.get()); }
-        catch(IPCException& e) { e = e; throw; }
+        _tsd.insert_first(tsd.get());
         tsd.release();
       }
 
@@ -407,9 +406,8 @@ class PEGASUS_COMMON_LINKAGE Thread
       inline void create_tsd(const Sint8 *key ) throw(IPCException)
       {
 	 AutoPtr<thread_data> tsd(new thread_data(key));
-	 try { _tsd.insert_first(tsd.get()); }
-	 catch(IPCException& e) { e = e; throw; }
-     tsd.release();
+	 _tsd.insert_first(tsd.get());
+	 tsd.release();
       }
       PEGASUS_THREAD_HANDLE _handle;
       Boolean _is_detached;

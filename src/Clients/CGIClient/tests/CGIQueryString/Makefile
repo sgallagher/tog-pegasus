@@ -18,7 +18,7 @@ SOURCES = \
     CGIQueryString.cpp
 
 ifeq ($(OS),VMS)
-TMPVMSOBJECTS = $(SOURCES:.cpp=$(OBJ),pegasus_vmshome:[obj.Clients.CGIClient]CGIQueryString.obj,)
+TMPVMSOBJECTS = $(SOURCES:.cpp=$(OBJ),pegasus_vmshome:[$(OBJ_VMSDIRB).Clients.CGIClient]CGIQueryString.obj,)
 
 SOURCES = \
         CGIQueryString.cpp

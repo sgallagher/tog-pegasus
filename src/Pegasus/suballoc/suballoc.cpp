@@ -2,7 +2,7 @@
 //
 // Copyright (c) 2000 - 2002 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of chargem, to any person obtaining a copy
+// Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
 // deal in the Software without restriction, including without limitation the 
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
@@ -32,13 +32,13 @@
 PEGASUS_NAMESPACE_BEGIN
 peg_suballocator internal_allocator;
 
-void * (PEGASUS_SUBALLOC_LINKAGE) pegasus_alloc(size_t size)
+PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t size)
 {
    return internal_allocator.vs_malloc(size, 
  				       &(internal_allocator.get_handle())) ;
 }
 
-void PEGASUS_SUBALLOC_LINKAGE pegasus_free(void * dead) 
+PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void * dead) 
 {
    internal_allocator.vs_free(dead); 
 }

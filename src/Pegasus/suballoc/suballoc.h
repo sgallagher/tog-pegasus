@@ -103,9 +103,8 @@ namespace
 
 PEGASUS_NAMESPACE_BEGIN
 
-void * pegasus_alloc(size_t );
-void pegasus_free(void *);
-
+PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t );
+PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *);
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 

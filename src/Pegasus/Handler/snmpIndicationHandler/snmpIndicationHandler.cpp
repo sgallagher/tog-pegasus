@@ -134,13 +134,15 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handler,
 
     if ((handler.findProperty("TrapDestination") != PEG_NOT_FOUND) &&
         (handler.findProperty("SNMPVersion") != PEG_NOT_FOUND) && 
-        (indication.findQualifier("TrapOid") != PEG_NOT_FOUND))
+        (indicationClass.findQualifier("MappingStrings") != PEG_NOT_FOUND))
     {
         String community, trapType, destination;   // from handler instance
-	String trapOid;	    // from indication instance
+	String trapOid;	    // from indication Class
 
-	trapOid = indication.getQualifier(
-	    indication.findQualifier("TrapOid")).getValue().toString();
+	trapOid = indicationClass.getQualifier(
+	    indicationClass.findQualifier("MappingStrings")).getValue().toString();
+
+        trapOid = trapOid.subString(trapOid.find("OID.IETF | SNMP.")+16);
 
 	community = handler.getProperty(
 	    handler.findProperty("SNMPCommunityName")).getValue().toString();
@@ -160,6 +162,8 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handler,
             propTYPEs, 
             propVALUEs);
     }
+    else
+        cout << "Invalid Indication" << endl;
 }
 
 // This is the dynamic entry point into this dynamic module. The name of

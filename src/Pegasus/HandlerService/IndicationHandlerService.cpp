@@ -139,7 +139,7 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 
    Uint32 pos = PEG_NOT_FOUND;
 
-   if (className == String("CIM_IndicationHandlerCIMXML"))
+   if (className == String("PG_IndicationHandlerCIMXML"))
        pos = handler.findProperty("destination");
    else if (className == String("PG_IndicationHandlerSNMPMapper"))
        pos = handler.findProperty("TrapDestination");
@@ -152,23 +152,23 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 
    CIMProperty prop = handler.getProperty(pos);
    String destination = prop.getValue().toString();
-    
+
    if (destination.size() == 0)
       throw CIMException(CIM_ERR_FAILED);
  
-   if ((className == "CIM_IndicationHandlerCIMXML") &&
+   if ((className == "PG_IndicationHandlerCIMXML") &&
        (destination.subString(0, 9) == String("localhost")))
    {
       Array<Uint32> exportServer;
 
       find_services(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER, 0, 0, &exportServer);
-        
+
       // Listener is build with Cimom, so send message to ExportServer
 	
       CIMExportIndicationRequestMessage* exportmessage =
 	 new CIMExportIndicationRequestMessage(
 	    "1234",
-	    destination,
+	    destination.subString(15), //taking localhost:5988/ portion out from reg
 	    indication,
 	    QueueIdStack(exportServer[0], getQueueId()));
 	
@@ -226,7 +226,7 @@ CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
 
    if (className == String("PG_IndicationHandlerCIMXML"))
        handlerId = String("CIMxmlIndicationHandler");
-   if (className == String("PG_IndicationHandlerSNMPMapper"))
+   else if (className == String("PG_IndicationHandlerSNMPMapper"))
        handlerId = String("snmpIndicationHandler");
    else
        return 0;

@@ -99,6 +99,15 @@ TAG: Version_1_09.
    method Boolean isInterval(), to check if the CIMDateTime object is an
    interval.
 
+17. (Nitin Upasani - HP) 15 Apr 2002 - Improved Consumer interface with 
+   indications. Now indications can be displayed using sample
+   DisplayConsumer. To test, create Handler with destination as
+   localhost:5988/logicalname. Create a file consumer_list.dat in your
+   PEGASUS_HOME directory and then ass entry as follows:
+   logicalname = DisplayConsumer
+   This will help ConsumerTable to load the DisplayConsumer to consume
+   the indication passed through ExportServer (CIMExportRequestDispathcer).
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

@@ -146,8 +146,7 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
     }
     else
     {
-	//CIMIndicationConsumer* consumer = _lookupConsumer(request->url);
-	CIMIndicationConsumer* consumer = _lookupConsumer(String("DisplayConsumer"));
+	CIMIndicationConsumer* consumer = _lookupConsumer(request->url);
 
 	if (consumer)
 	{

@@ -55,7 +55,8 @@ ConsumerTable::ConsumerTable()
     String consumerFile;
     String plannedFile;
 
-    consumerDir = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("consumerDir"));
+    consumerDir = ConfigManager::getPegasusHome();
+
     FileSystem::translateSlashes(consumerDir);
     consumerFile.append(consumerDir + "/" + CONSUMER_LIST_FILE);
 
@@ -222,8 +223,7 @@ typedef CIMIndicationConsumer* (*CreateIndicationConsumerFunc)();
 
 CIMIndicationConsumer* ConsumerTable::loadConsumer(const String& consumerId)
 {
-    //String consumerName = _GetConsumerName(consumerId);
-    String consumerName = consumerId;
+    String consumerName = _GetConsumerName(consumerId);
 
     if (consumerName.size() != 0)
     {

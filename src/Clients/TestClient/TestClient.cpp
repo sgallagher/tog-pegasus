@@ -529,6 +529,60 @@ static void TestMethodOperations( CIMClient& client, Boolean
     client.deleteInstance(globalNamespace, instanceName);
 }
 
+/* 
+   Tests the invoke method request via the sample method provider.
+*/
+
+static void TestInvokeMethod( CIMClient& client,
+			      Boolean activeTest, 
+			      Boolean verboseTest )
+{
+  const String NAMESPACE  = "root/SampleProvider";
+  const String classname  = "Sample_MethodProviderClass";
+  const String methodName = "SayHello";
+  const String GOODREPLY  = "Hello";
+  const CIMReference instanceName = 
+                            "Sample_MethodProviderClass.Identifier=1";
+
+  try
+    {
+      Array<CIMParamValue> inParams;
+      Array<CIMParamValue> outParams;
+	
+      Uint32 testRepeat = 10;
+      for (Uint32 i = 0; i < testRepeat; i++)        // repeat the test x time
+        {
+	  CIMValue retValue = client.invokeMethod(
+						  NAMESPACE, 
+						  instanceName, 
+						  methodName,
+						  inParams, 
+						  outParams);
+	  if( retValue.toString() != GOODREPLY )
+	    {
+	      PEGASUS_STD(cerr) << "Error: bad reply \"" <<
+		retValue.toString() << PEGASUS_STD(endl);
+	      return;
+	    }
+	  if (verboseTest)
+            {
+	      cout << "Output : " << retValue.toString() << endl;
+	      for (Uint8 i = 0; i < outParams.size(); i++)
+		cout << outParams[i].getParameterName() 
+		     << " : " 
+		     << outParams[i].getValue().toString()
+		     << endl;
+            }
+        }
+      cout << "Executed " << testRepeat << " methods" << endl;
+    }
+  catch(Exception& e)
+    {
+	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+	return;
+    }
+}
+
 ///////////////////////////////////////////////////////////////
 //    OPTION MANAGEMENT
 ///////////////////////////////////////////////////////////////
@@ -842,6 +896,7 @@ int main(int argc, char** argv)
 			   testStart("Test Associations");
 				   TestAssociationOperations(client, activeTest, verboseTest);
 				   testEnd(elapsedTime.getElapsed());
+
 				   /* Turn this one off until we get valid method to execute
 		
 			   testStart("Test Method Execution");
@@ -849,6 +904,10 @@ int main(int argc, char** argv)
 				   testEnd(elapsedTime.getElapsed());
 				   */
 				   
+			   testStart("Test Invoke Method Execution");
+				   TestInvokeMethod(client, activeTest, verboseTest);
+				   testEnd(elapsedTime.getElapsed());
+
 			  client.disconnect();
 		  }
 		  catch(Exception& e)

@@ -6,7 +6,7 @@ include $(ROOT)/mak/config.mak
 
 LOCAL_DEFINES = -DPEGASUS_WQL_INTERNAL -DPEGASUS_INTERNALONLY
 
-ifneq ($(OS), HPUX) 
+ifneq ($(OS), HPUX)
   ifndef PEGASUS_LSB
 	EXTRA_INCLUDES = -Int_includes
   endif
@@ -15,23 +15,23 @@ endif
 LIBRARY = pegwql
 
 LIBRARIES = \
-   pegcommon
+	pegcommon
 
 SOURCES = \
-    WQLSelectStatement.cpp \
-    WQLYACC.cpp \
-    WQLLEX.cpp \
-    WQLSimplePropertySource.cpp \
-    WQLPropertySource.cpp \
-    WQLInstancePropertySource.cpp \
-    WQLParserState.cpp \
-    WQLOperation.cpp \
-    WQLOperand.cpp \
-    WQLParser.cpp \
-    WQLQueryExpressionRep.cpp
+	WQLSelectStatement.cpp \
+	WQLYACC.cpp \
+	WQLLEX.cpp \
+	WQLSimplePropertySource.cpp \
+	WQLPropertySource.cpp \
+	WQLInstancePropertySource.cpp \
+	WQLParserState.cpp \
+	WQLOperation.cpp \
+	WQLOperand.cpp \
+	WQLParser.cpp \
+	WQLQueryExpressionRep.cpp
 
 SOURCES_X = \
-    WQLLEX.cpp \
+	WQLLEX.cpp \
 
 include $(ROOT)/mak/library.mak
 include $(ROOT)/mak/install.mak
@@ -46,7 +46,7 @@ include $(ROOT)/mak/install.mak
 
 
 ##
-## This pushes BISON_SIMPLE into the environment so that bison will use this 
+## This pushes BISON_SIMPLE into the environment so that bison will use this
 ## rather than looking for /usr/local/share/bison.simple.
 ##
 

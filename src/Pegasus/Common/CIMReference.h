@@ -196,7 +196,7 @@ class XmlWriter;
     TennisPlayer.first="Patrick",last="Rafter"
     </pre>
 
-    This of course presupposes the existence of a class called "TennisPlayer" 
+    This of course presupposes the existence of a class called "TennisPlayer"
     that has key properties named "first" and "last". For example, here is what
     the MOF might look like:
 
@@ -366,10 +366,24 @@ public:
     /** Copy constructor. */
     CIMReference(const CIMReference& x);
 
-    /** Initializes this object from a CIM object name. */
+    /** Initializes a CIMReference object from a CIM object name.
+    	@param objectName String representing the object name.
+    	@return Returns the initialized CIMReference
+    	@exception Throws "IllformedObjectName" exception if the name
+    	not parsable.
+    	<PRE>
+    	    CIMReference r1 = "MyClass.z=true,y=1234,x=\"Hello World\"";
+
+    	</PRE>
+    */
     CIMReference(const String& objectName);
 
-    /** Initializes this object from a CIM object name (char* version). */
+    /** Initializes this object from a CIM object name (char* version).
+    	@param objectName char* representing the objectName
+    	@return
+    	@exception Throws "IllformedObjectName" if objectName parameter not
+    	parsable as a CIMReference.
+    */
     CIMReference(const char* objectName);
 
     /** Workaround to MSVC++ bug. */
@@ -380,6 +394,7 @@ public:
 	@param nameSpace Namespace (e.g., "root/cimv20").
 	@param className Name of a class (e.g., "MyClass").
 	@param keyBindings An array of KeyBinding objects.
+	@return Returns the constructed CIMReference
     */
     CIMReference(
 	const String& host,
@@ -426,27 +441,47 @@ public:
 	return *this;
     }
 
-    /** Accessor. */
+    /** getHost - returns the hostname component of the
+        CIMReference
+        @return String contianing hostname.
+        <pre>
+
+        </pre>
+    */
     const String& getHost() const
     {
 	return _host;
     }
 
-    /** Modifier. */
+    /** setHost Sets the hostname component of the CIMReference
+        object to the input parameter
+        @param host String parameter with the hostname
+        <PRE>
+        CIMReference r1;
+        r1.sethost("fred-8888");
+        </PRE>
+    */
     void setHost(const String& host)
     {
 	_host = host;
     }
 
-    /** Accessor */
+    /** getNameSpace - returns the namespace component of the
+        CIMReference as a String.
+    */
     const String& getNameSpace() const
     {
 	return _nameSpace;
     }
 
     /** Sets the namespace component.
-	@param String representing the Namespace
+	@param String representing the Namespace. The functions tests for
+	a legal name.
 	@exception Throws IllegalName if form of the namespace is illegal.
+	A CIM name must match the following regular expression:
+	<PRE>
+	   [A-Z-a-z_][A-Za-z_0-9]*
+        </PRE>
     */
     void setNameSpace(const String& nameSpace);
 
@@ -456,7 +491,9 @@ public:
 	return _className;
     }
 
-    /** Sets the class name component to the following string.
+    /** Sets the classname component of the CIMReference object to the input
+    parameter.
+        @param className String containing the className.
 	@exception Throws IllegalName if form of className is illegal.
     */
     void setClassName(const String& className);
@@ -470,11 +507,28 @@ public:
     /** Modifier. */
     void setKeyBindings(const Array<KeyBinding>& keyBindings);
 
-    /** Returns the object name represented by this reference. */
+    /** Returns the object name represented by this reference.
+    The returned string is formed from the hostname, namespace, classname
+    and keybindings defined for this CIMReference object.
+    the form of the name is:
+    <PRE>
+    	"//" + hostname + "/" + namespace + ":" + classname +"." +
+    		(keyname) + "=" (keyvalue) +"," ...
+    </PRE>
+    The building includes the escaping of special characters.
+    ATTN: The form of the above string definition needs cleaning.
+    */
     String toString() const;
 
     /** Returns true if this reference is identical to the one given
-	by the x argument.
+	by the x argument. Since CIMReferences are normalized when they
+	are created, any differences in the ordering of keybindings is accounted
+	for as are the case insensitivity characteristics defined by
+	the specification
+	@param CIMReference for comparison
+	@return True if the objects are have identical components
+	<PRE>
+	</PRE>
     */
     Boolean identical(const CIMReference& x) const;
 
@@ -483,7 +537,7 @@ public:
     */
     void toXml(Array<Sint8>& out) const;
 
-    /** Prints the XML encoding of this objet.
+    /** Prints the XML encoding of this object.
     */
     void print(PEGASUS_STD(ostream)& os = PEGASUS_STD(cout)) const;
 
@@ -523,7 +577,7 @@ inline Boolean operator!=(const CIMReference& x, const CIMReference& y)
 }
 
 inline PEGASUS_STD(ostream)& operator<<(
-    PEGASUS_STD(ostream)& os, 
+    PEGASUS_STD(ostream)& os,
     const CIMReference& x)
 {
     return os << x.toString();
@@ -536,4 +590,5 @@ inline PEGASUS_STD(ostream)& operator<<(
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Reference_h */
+
 

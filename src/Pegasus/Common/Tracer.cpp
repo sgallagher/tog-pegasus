@@ -27,6 +27,7 @@
 //
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -458,20 +459,30 @@ void Tracer::_trace(
 ////////////////////////////////////////////////////////////////////////////////
 Boolean Tracer::isValidFileName(const char* filePath)
 {
-    return (_getInstance()->_traceHandler->isValidFilePath(filePath));
+    String moduleName = _getInstance()->_moduleName;
+    if (moduleName == String::EMPTY)
+    {
+        return (_getInstance()->_traceHandler->isValidFilePath(filePath));
+    }
+    else
+    {
+        String extendedFilePath = String(filePath) + "." + moduleName;
+        return (_getInstance()->_traceHandler->isValidFilePath(
+            extendedFilePath.getCString()));
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //Validate the trace components
 ////////////////////////////////////////////////////////////////////////////////
-Boolean Tracer::isValidComponents(const String traceComponents)
+Boolean Tracer::isValidComponents(const String& traceComponents)
 {
     String invalidComponents;
     return isValidComponents(traceComponents, invalidComponents);
 }
 
 Boolean Tracer::isValidComponents(
-    const String traceComponents, String& invalidComponents)
+    const String& traceComponents, String& invalidComponents)
 {
     // Validate the trace components and modify the traceComponents argument
     // to reflect the invalid components
@@ -553,6 +564,14 @@ Boolean Tracer::isValidComponents(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+//Set the name of the module being traced
+////////////////////////////////////////////////////////////////////////////////
+void Tracer::setModuleName(const String& moduleName)
+{
+    _getInstance()->_moduleName = moduleName;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 //Returns the Singleton instance of the Tracer
 ////////////////////////////////////////////////////////////////////////////////
 Tracer* Tracer::_getInstance()
@@ -574,7 +593,17 @@ Tracer* Tracer::_getInstance()
 ////////////////////////////////////////////////////////////////////////////////
 Uint32 Tracer::setTraceFile(const char* traceFile)
 {
-    return (_getInstance()->_traceHandler->setFileName (traceFile));
+    String moduleName = _getInstance()->_moduleName;
+    if (moduleName == String::EMPTY)
+    {
+        return (_getInstance()->_traceHandler->setFileName(traceFile));
+    }
+    else
+    {
+        String extendedTraceFile = String(traceFile) + "." + moduleName;
+        return (_getInstance()->_traceHandler->setFileName(
+            extendedTraceFile.getCString()));
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -612,7 +641,7 @@ Uint32 Tracer::setTraceLevel(const Uint32 traceLevel)
 ////////////////////////////////////////////////////////////////////////////////
 // Set components to be traced.
 ////////////////////////////////////////////////////////////////////////////////
-void Tracer::setTraceComponents( const String traceComponents )
+void Tracer::setTraceComponents(const String& traceComponents)
 {
     Uint32 position          = 0;
     Uint32 index             = 0;

@@ -27,6 +27,7 @@
 //
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -141,7 +142,7 @@ public:
         }
 
         static void setTraceComponents(
-	  const String traceComponents)
+	  const String& traceComponents)
 	{
 	      // empty function
         }
@@ -283,7 +284,7 @@ public:
 		      components should be separated by ','
         */
         static void setTraceComponents(
-	   const String traceComponents);
+	   const String& traceComponents);
         
     #endif 
 
@@ -333,7 +334,7 @@ public:
         @return   1        if the components are valid
                   0        if one or more components are invalid
      */
-    static Boolean isValidComponents(const String traceComponents);
+    static Boolean isValidComponents(const String& traceComponents);
 
     /** Validates the trace components
         @param    traceComponents   comma separated list of trace components
@@ -342,8 +343,14 @@ public:
                   0        if one or more components are invalid
      */
     static Boolean isValidComponents(
-        const String traceComponents,
+        const String& traceComponents,
         String& invalidComponents);
+
+    /** Specify the name of the module being traced.  If non-empty, this
+        value is used as an extension to the name of the trace file.
+        @param    moduleName   Name of the module being traced.
+     */
+    static void setModuleName(const String& moduleName);
 
 private:
 
@@ -353,9 +360,10 @@ private:
     static const Uint32 _STRLEN_MAX_PID_TID;
     static const Boolean _SUCCESS;
     static const Boolean _FAILURE;
-    AutoArrayPtr<Boolean>    _traceComponentMask; //PEP101
+    AutoArrayPtr<Boolean> _traceComponentMask;
     Uint32              _traceLevelMask;
-    AutoPtr<TraceFileHandler>   _traceHandler; //PEP101
+    AutoPtr<TraceFileHandler> _traceHandler;
+    String              _moduleName;
     static Tracer*      _tracerInstance;
 
     // Message Strings for function Entry and Exit

@@ -13,7 +13,8 @@ endif
 include ../libraries.mak
 
 PROGRAM = g11ntest
-PROGRAM_NOICU = g11ntest -noicu
+PROGRAM_ICU = g11ntest -reqlang en -rsplang en
+PROGRAM_NOICU = g11ntest
 SOURCES = g11ntest.cpp
 
 ifneq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
@@ -32,5 +33,9 @@ poststarttests:
 ifdef PEGASUS_USE_DEFAULT_MESSAGES
 	$(PROGRAM_NOICU)
 else
-	$(PROGRAM)
+  ifdef PEGASUS_HAS_MESSAGES
+	$(PROGRAM_ICU)
+  else
+	$(PROGRAM_NOICU)
+  endif
 endif

@@ -43,7 +43,7 @@ struct WQLParserState
     Uint32 offset;
     WQLSelectStatement* statement;
     Boolean error;
-    const String errorMessage;
+    String errorMessage;
 };
 
 PEGASUS_NAMESPACE_END

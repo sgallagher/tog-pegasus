@@ -39,6 +39,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/WQL/WQLOperation.h>
 #include <Pegasus/WQL/WQLOperand.h>
+#include <Pegasus/WQL/WQLParserState.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
 #include <string.h>
 #include <stdlib.h>
@@ -52,7 +53,7 @@
 #endif
 
 #if 1
-# define WQL_TRACE(X) printf(X)
+# define WQL_TRACE(X) printf X
 #else
 # define WQL_TRACE(X)
 #endif
@@ -60,8 +61,16 @@
 extern int WQL_lex();
 extern int WQL_error(char*);
 
+PEGASUS_USING_PEGASUS;
 
-#line 45 "wql.y"
+PEGASUS_NAMESPACE_BEGIN
+
+extern WQLParserState* globalParserState;
+
+PEGASUS_NAMESPACE_END
+
+
+#line 54 "wql.y"
 typedef union 
 {
    int intValue;
@@ -142,10 +151,10 @@ static const short yyrhs[] = {    29,
 
 #if YYDEBUG != 0
 static const short yyrline[] = { 0,
-   116,   122,   128,   132,   138,   142,   148,   152,   158,   164,
-   170,   174,   178,   182,   186,   190,   194,   200,   204,   210,
-   214,   218,   222,   226,   230,   236,   240,   246,   250,   256,
-   261,   267,   271,   275,   279,   283
+   125,   131,   137,   141,   147,   151,   157,   161,   167,   175,
+   181,   185,   189,   193,   197,   201,   205,   211,   215,   221,
+   225,   229,   233,   237,   241,   247,   251,   257,   261,   267,
+   273,   280,   284,   288,   292,   296
 };
 #endif
 
@@ -769,217 +778,221 @@ yyreduce:
   switch (yyn) {
 
 case 1:
-#line 117 "wql.y"
+#line 126 "wql.y"
 {
 	printf("YACC: start\n");
     ;
     break;}
 case 2:
-#line 123 "wql.y"
+#line 132 "wql.y"
 {
 
     ;
     break;}
 case 3:
-#line 129 "wql.y"
+#line 138 "wql.y"
 {
-
+	globalParserState->statement->appendPropertyName("*");
     ;
     break;}
 case 4:
-#line 133 "wql.y"
+#line 142 "wql.y"
 {
 
     ;
     break;}
 case 5:
-#line 139 "wql.y"
+#line 148 "wql.y"
 {
-
+	globalParserState->statement->appendPropertyName(yyvsp[0].strValue);
     ;
     break;}
 case 6:
-#line 143 "wql.y"
+#line 152 "wql.y"
 {
-
+	globalParserState->statement->appendPropertyName(yyvsp[0].strValue);
     ;
     break;}
 case 7:
-#line 149 "wql.y"
+#line 158 "wql.y"
 {
 
     ;
     break;}
 case 8:
-#line 153 "wql.y"
+#line 162 "wql.y"
 {
 
     ;
     break;}
 case 9:
-#line 159 "wql.y"
+#line 168 "wql.y"
 {
-
+	WQL_TRACE(("YACC: fromClause: TOK_FROM className(%s)\n", yyvsp[0].strValue));
+	globalParserState->statement->setClassName(yyvsp[0].strValue);
+	delete [] yyvsp[0].strValue;
     ;
     break;}
 case 10:
-#line 165 "wql.y"
+#line 176 "wql.y"
 {
 
     ;
     break;}
 case 11:
-#line 171 "wql.y"
+#line 182 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_OR\n"));
     ;
     break;}
 case 12:
-#line 175 "wql.y"
+#line 186 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_AND\n"));
     ;
     break;}
 case 13:
-#line 179 "wql.y"
+#line 190 "wql.y"
 {
 
     ;
     break;}
 case 14:
-#line 183 "wql.y"
+#line 194 "wql.y"
 {
 
     ;
     break;}
 case 15:
-#line 187 "wql.y"
+#line 198 "wql.y"
 {
 
     ;
     break;}
 case 16:
-#line 191 "wql.y"
+#line 202 "wql.y"
 {
 
     ;
     break;}
 case 17:
-#line 195 "wql.y"
+#line 206 "wql.y"
 {
 
     ;
     break;}
 case 18:
-#line 201 "wql.y"
+#line 212 "wql.y"
 {
 
     ;
     break;}
 case 19:
-#line 205 "wql.y"
+#line 216 "wql.y"
 {
 
     ;
     break;}
 case 20:
-#line 211 "wql.y"
+#line 222 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_LT\n"));
     ;
     break;}
 case 21:
-#line 215 "wql.y"
+#line 226 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_GT\n"));
     ;
     break;}
 case 22:
-#line 219 "wql.y"
+#line 230 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_LE\n"));
     ;
     break;}
 case 23:
-#line 223 "wql.y"
+#line 234 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_GE\n"));
     ;
     break;}
 case 24:
-#line 227 "wql.y"
+#line 238 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_EQ\n"));
     ;
     break;}
 case 25:
-#line 231 "wql.y"
+#line 242 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_NE\n"));
     ;
     break;}
 case 26:
-#line 237 "wql.y"
+#line 248 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_IS TOK_NULL\n"));
     ;
     break;}
 case 27:
-#line 241 "wql.y"
+#line 252 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_NOT TOK_NULL\n"));
     ;
     break;}
 case 28:
-#line 247 "wql.y"
+#line 258 "wql.y"
 {
 
     ;
     break;}
 case 29:
-#line 251 "wql.y"
-{
-
-    ;
-    break;}
-case 30:
-#line 257 "wql.y"
-{
-
-    ;
-    break;}
-case 31:
 #line 262 "wql.y"
 {
 
     ;
     break;}
-case 32:
+case 30:
 #line 268 "wql.y"
+{
+	WQL_TRACE(("YACC: propertyName : TOK_IDENTIFIER(%s)\n", yyvsp[0].strValue));
+	yyval.strValue = yyvsp[0].strValue;
+    ;
+    break;}
+case 31:
+#line 274 "wql.y"
+{
+	WQL_TRACE(("YACC: TOK_IDENTIFIER %s\n", yyvsp[0].strValue));
+	yyval.strValue = yyvsp[0].strValue;
+    ;
+    break;}
+case 32:
+#line 281 "wql.y"
 {
 
     ;
     break;}
 case 33:
-#line 272 "wql.y"
+#line 285 "wql.y"
 {
 
     ;
     break;}
 case 34:
-#line 276 "wql.y"
+#line 289 "wql.y"
 {
 
     ;
     break;}
 case 35:
-#line 280 "wql.y"
+#line 293 "wql.y"
 {
 
     ;
     break;}
 case 36:
-#line 284 "wql.y"
+#line 297 "wql.y"
 {
 
     ;
@@ -1206,11 +1219,5 @@ yyerrhandle:
     }
   return 1;
 }
-#line 288 "wql.y"
+#line 301 "wql.y"
 
-
-int WQL_error(char* errorMessage)
-{
-    fprintf(stderr, "WQL_error: %s\n", errorMessage);
-    return -1;
-}

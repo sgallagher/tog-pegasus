@@ -37,10 +37,52 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+/** This class provides the parser interface for the WQL parser.
+
+    Here is an example of how to parse a SELECT statement using this
+    class:
+
+    <pre>
+	const char TEXT[] = "SELECT X,Y FROM MyClass WEHERE X > 10 AND Y < 3";
+	Array<Sint8> text(TEXT, sizeof(TEXT));
+	WQLSelectStatement selectStatement;
+
+	WQLParser parser;
+
+	try
+	{
+	    parser.parse(text, selectStatement);
+	}
+	catch (ParseError&)
+	{
+	    ...
+	}
+	catch (MissingNullTerminator&)
+	{
+	    ...
+	}
+    </pre>
+
+    NOTE: the text must be NULL terminated or else the MissingNullTerminator
+    exception is thrown.
+*/
 class PEGASUS_WQL_LINKAGE WQLParser
 {
 public:
 
+    /** Parse the SELECT statement given by the text parameter and initialize
+	the statement parameter accordingly.
+
+	@param text null terminated array of characters containing a SELECT
+	    statement.
+	@param statement object which holds the compiled version of the SELECT
+	    statement upon return.
+	@exception throws ParseError if text is not a valid SELECT statement.
+	@exception throws MissingNullTerminator if text argument is not 
+	    terminated with a null. 
+
+	ATTN: this method is NOT thread safe. Needs mutexes.
+    */
     static void parse(
 	const Array<Sint8>& text,
 	WQLSelectStatement& statement);

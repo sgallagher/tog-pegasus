@@ -11,6 +11,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/WQL/WQLOperation.h>
 #include <Pegasus/WQL/WQLOperand.h>
+#include <Pegasus/WQL/WQLParserState.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
 #include <string.h>
 #include <stdlib.h>
@@ -24,13 +25,21 @@
 #endif
 
 #if 1
-# define WQL_TRACE(X) printf(X)
+# define WQL_TRACE(X) printf X
 #else
 # define WQL_TRACE(X)
 #endif
 
 extern int WQL_lex();
 extern int WQL_error(char*);
+
+PEGASUS_USING_PEGASUS;
+
+PEGASUS_NAMESPACE_BEGIN
+
+extern WQLParserState* globalParserState;
+
+PEGASUS_NAMESPACE_END
 
 %}
 
@@ -82,9 +91,9 @@ extern int WQL_error(char*);
 %token <intValue> TOK_WHERE
 %token <intValue> TOK_FROM
 
-%token <strValue> TOK_UNEXPECTED_CHAR
+%token <intValue> TOK_UNEXPECTED_CHAR
 
-%type <nodeValue> propertyName
+%type <strValue> propertyName
 %type <nodeValue> propertyList
 %type <nodeValue> predicate
 %type <nodeValue> comparisonPredicate
@@ -127,7 +136,7 @@ selectStatement
 selectList
     : '*'
     {
-
+	globalParserState->statement->appendPropertyName("*");
     }
     | propertyList
     {
@@ -137,11 +146,11 @@ selectList
 propertyList 
     : propertyName
     {
-
+	globalParserState->statement->appendPropertyName($1);
     }
     | propertyList ',' propertyName
     {
-
+	globalParserState->statement->appendPropertyName($3);
     }
 
 selectExpression
@@ -157,7 +166,9 @@ selectExpression
 fromClause
     : TOK_FROM className
     {
-
+	WQL_TRACE(("YACC: fromClause: TOK_FROM className(%s)\n", $2));
+	globalParserState->statement->setClassName($2);
+	delete [] $2;
     }
 
 whereClause 
@@ -255,12 +266,14 @@ truthValue
 propertyName 
     : TOK_IDENTIFIER
     {
-
+	WQL_TRACE(("YACC: propertyName : TOK_IDENTIFIER(%s)\n", $1));
+	$$ = $1;
     }
 
 className : TOK_IDENTIFIER
     {
-
+	WQL_TRACE(("YACC: TOK_IDENTIFIER %s\n", $1));
+	$$ = $1;
     }
 
 comparisonTerm
@@ -286,9 +299,3 @@ comparisonTerm
     }
 
 %%
-
-int WQL_error(char* errorMessage)
-{
-    fprintf(stderr, "WQL_error: %s\n", errorMessage);
-    return -1;
-}

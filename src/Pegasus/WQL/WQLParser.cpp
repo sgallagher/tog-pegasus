@@ -28,6 +28,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Exception.h>
 #include <iostream>
 #include "WQLParser.h"
 #include "WQLParserState.h"
@@ -47,7 +48,7 @@ void WQLParser::parse(
     // ATTN: raise error here:
 
     if (text.size() == 0 || text[text.size() - 1] != '\0')
-	return;
+	throw MissingNullTerminator();
 
     globalParserState = new WQLParserState;
     globalParserState->error = false;
@@ -57,12 +58,26 @@ void WQLParser::parse(
 
     WQL_parse();
 
+    if (globalParserState->error)
+    {
+	String errorMessage = globalParserState->errorMessage;
+	delete globalParserState;
+	throw ParseError(errorMessage);
+    }
+
     delete globalParserState;
 }
 
 PEGASUS_NAMESPACE_END
 
 PEGASUS_USING_PEGASUS;
+
+int WQL_error(char* errorMessage)
+{
+    globalParserState->error = true;
+    globalParserState->errorMessage = errorMessage;
+    return -1;
+}
 
 int WQLInput(char* buffer, int& numRead, int numRequested)
 {

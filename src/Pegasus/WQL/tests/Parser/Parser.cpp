@@ -55,7 +55,17 @@ int main(int argc, char** argv)
 
     WQLSelectStatement statement;
 
-    WQLParser::parse(text, statement);
+    try
+    {
+	WQLParser::parse(text, statement);
+    }
+    catch (Exception& e)
+    {
+	cerr << "Exception: " << e.getMessage() << endl;
+	exit(1);
+    }
+
+    statement.print();
 
     return 0;
 }

@@ -7,10 +7,11 @@ extern int WQL_error(char*);
 /* ATTN: works with Flex only */
 #define YY_INPUT(BUF, NREAD, NREQUESTED) WQLInput(BUF, NREAD, NREQUESTED)
 
-#include "WQLYACC.h"
 #include <cstring>
+#include <cassert>
+#include "WQLYACC.h"
 
-#if 1
+#if 0
 # define WQL_TRACE(X) printf X
 #else
 # define WQL_TRACE(X)
@@ -109,9 +110,20 @@ IDENT_CHAR [A-Za-z_]
 \"[^\"\n]*\" {
 
     /* ATTN: Can long string literals overflow the buffer? */
+    /* ATTN: Handle expansion of special characters */
 
     WQL_TRACE(("LEX: %s [TOK_STRING]\n", yytext));
-    WQL_lval.strValue = strdup(yytext);
+
+    /* Copy the string (but remove the surrounding quotes */
+
+    {
+	size_t n = strlen(yytext) - 2;
+	char* strValue = new char[n + 1];
+	memcpy(strValue, yytext + 1, n);
+	strValue[n - 1] = '\0';
+	WQL_lval.strValue = strValue;
+    }
+
     return TOK_STRING;
 }
 
@@ -164,7 +176,15 @@ IDENT_CHAR [A-Za-z_]
 {IDENT_CHAR}({IDENT_CHAR}|{DECIMAL_DIGIT})*  {
 
     WQL_TRACE(("LEX: %s [TOK_IDENTIFIER]\n", yytext));
-    WQL_lval.strValue = strdup((char*)yytext);
+
+    {
+	size_t n = strlen(yytext);
+	char* strValue = new char[n + 1];
+	memcpy(strValue, yytext, n);
+	strValue[n] = '\0';
+	WQL_lval.strValue = strValue;
+    }
+
     return TOK_IDENTIFIER;
 }
 
@@ -174,7 +194,7 @@ IDENT_CHAR [A-Za-z_]
 }
 
 . {
-    WQL_lval.strValue = strdup((char*)yytext);
+    WQL_lval.intValue = 0;
     return TOK_UNEXPECTED_CHAR;
 }
 

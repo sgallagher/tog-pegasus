@@ -15,15 +15,15 @@ install:
 clean:
 	@$(RM) $(RESULTFILE)
 
-posttests:
+poststarttests:
 	@$(RM) $(RESULTFILE)
 	@$(ECHO) "List Users" >> $(RESULTFILE)
 	@cimuser -l >> $(RESULTFILE) $(REDIRECTERROR)
-	@$(MAKE) -i -s posttests_ignoreerror
+	@$(MAKE) -i -s poststarttests_ignoreerror
 	$(COMPARERESULTS)
 	@$(ECHO) +++ Test passed +++
 
-posttests_ignoreerror:
+poststarttests_ignoreerror:
 	@$(ECHO) "Display usage - error" >> $(RESULTFILE)
 	@cimuser >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) "Display Usage - error" >> $(RESULTFILE)
@@ -61,3 +61,4 @@ posttests_ignoreerror:
 	@$(ECHO) "Duplicate -a parameter" >> $(RESULTFILE)
 	@cimuser -a -u lp -w lp -a -u lp -w lp >> $(RESULTFILE) $(REDIRECTERROR)
 
+depend:

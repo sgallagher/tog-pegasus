@@ -221,6 +221,13 @@ void test01()
     CIMClass c7 = c5.clone();
     const CIMClass c8(class1);
 
+    // Test the findMethod and isMethod functions
+    assert(c7.findMethod("DoesNotExist") == PEG_NOT_FOUND);
+
+    assert(!c7.existsMethod("DoesNotExist"));
+     
+    assert(c7.isTrueQualifier("dummy") == false);
+
     try
     {
         CIMConstMethod cm = c8.getMethod(0);
@@ -241,10 +248,20 @@ void test01()
 			cout << "Exception: " << e.getMessage() << endl;
     }
 
-	if(verbose) {
-		c5.print();
-	}
+    if(verbose) 
+    {
+	c5.print();
+    }
 
+    try
+    {
+        CIMConstMethod cm = cc7.getMethod(0);
+    }
+    catch(OutOfBounds& e)
+    {
+	if(verbose)
+	    cout << "Exception: " << e.getMessage() << endl;
+    }
     // Test the findMethod and isMethod functions
     assert(c4.findMethod("DoesNotExist") == PEG_NOT_FOUND);
 

@@ -8,6 +8,7 @@ DIRS = \
     cliutils \
     cimconfig \
     cimuser \
+    cimuser/tests \
     cimauth \
     wbemexec \
     ToMofClient

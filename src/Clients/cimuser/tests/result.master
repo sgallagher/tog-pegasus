@@ -1,8 +1,6 @@
 List Users
 Listing users...
-root
 guest
-www
 Display usage - error
 cimuser: Required arguments missing.
 usage: cimuser -a -u username [ -w password ] 
@@ -27,7 +25,7 @@ usage: cimuser -a -u username [ -w password ]
 Remove user lp
 Removing user...
 Failed to remove user.
-CIMClient.cpp(960): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The specified user is not a valid CIM user, user name: lp."
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The specified user is not a valid CIM user, user name: lp.""
 Add user lp
 Adding user...
 User added successfully.
@@ -37,20 +35,20 @@ Password changed successfully.
 Add user lp again - error
 Adding user...
 Failed to add user.
-CIMClient.cpp(960): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "User already exists, user name: lp"
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "User already exists, user name: lp""
 Add a user not existing on system - error
 Adding user...
 Failed to add user.
-CIMClient.cpp(960): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "User already exists, user name: lp"
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "User already exists, user name: lp""
 Display usage - error
-cimuser: User name is required.
+cimuser: the "-u" option is required
 usage: cimuser -a -u username [ -w password ] 
                -m -u username [ -w old password ] [ -n new password ] 
                -r -u username 
                -l 
 
 Display usage - error
-cimuser: User name is required.
+cimuser: the "-u" option is required
 usage: cimuser -a -u username [ -w password ] 
                -m -u username [ -w old password ] [ -n new password ] 
                -r -u username 
@@ -59,13 +57,13 @@ usage: cimuser -a -u username [ -w password ]
 Modify wrong user name - error
 Modifying users password...
 Failed to change password.
-CIMClient.cpp(960): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "UserManagerProvider.cpp(723): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The specified user is not a valid CIM user, user name: test1.""
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The specified user is not a valid CIM user, user name: test1.""
 Modify wrong password - error
 Modifying users password...
 Failed to change password.
-CIMClient.cpp(960): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "UserManagerProvider.cpp(723): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The specified password does not match user's current password, user name: lp""
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The specified password does not match user's current password, user name: lp""
 Display usage - error
-cimuser: User name is required.
+cimuser: the "-u" option is required
 usage: cimuser -a -u username [ -w password ] 
                -m -u username [ -w old password ] [ -n new password ] 
                -r -u username 
@@ -84,11 +82,11 @@ User removed successfully.
 Remove user test1 - error
 Removing user...
 Failed to remove user.
-CIMClient.cpp(960): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The specified user is not a valid CIM user, user name: test1."
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The specified user is not a valid CIM user, user name: test1.""
 Remove user lp again
 Removing user...
 Failed to remove user.
-CIMClient.cpp(960): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The specified user is not a valid CIM user, user name: lp."
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The specified user is not a valid CIM user, user name: lp.""
 Duplicate -a parameter
 cimuser: duplicate "-a" option
 usage: cimuser -a -u username [ -w password ] 

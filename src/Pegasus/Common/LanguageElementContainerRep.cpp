@@ -100,7 +100,11 @@ void LanguageElementContainerRep::itrStart(){
 
 LanguageElement LanguageElementContainerRep::itrNext(){
 	if(itr_index >= container.size()){
-		return LanguageElement::EMPTY_REF;
+		#if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+                        return LanguageElement(); // To Do on Mac OS X
+                #else
+                        return LanguageElement::EMPTY_REF;
+                #endif
 	}
 	return container[itr_index++];
 }

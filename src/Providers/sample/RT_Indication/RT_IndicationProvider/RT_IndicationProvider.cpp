@@ -55,6 +55,12 @@ void _generateIndication (
 
 RT_IndicationProvider::RT_IndicationProvider (void) throw ()
 {
+	#if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+                _handler = 0;
+                _enabled = false;
+                _nextUID = 0;
+                _numSubscriptions = 0;
+        #endif	
 }
 
 RT_IndicationProvider::~RT_IndicationProvider (void) throw ()

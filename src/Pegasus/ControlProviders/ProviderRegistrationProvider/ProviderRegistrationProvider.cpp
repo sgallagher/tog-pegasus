@@ -440,7 +440,7 @@ void ProviderRegistrationProvider::createInstance(
 		//"Missing InterfaceType which is required property in PG_ProviderModule class.");
 		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
 		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_INTERFACETYPE_IN_PG_PROVIDERMODULE",
-		"Missing InterfaceType which is required property in PG_ProviderModul class."));
+		"Missing InterfaceType which is required property in PG_ProviderModule class."));
 	}
         String ifcTypeString;
         instanceObject.getProperty(ifcTypeIndex).getValue().

@@ -119,15 +119,15 @@ void GetDocument(
 	"Host: %s\r\n"
 	"Connection: Keep-Alive\r\n"
 	"\r\n",
-	document.getCString(),
-	host.getCString());
+	(const char*)document.getCString(),
+	(const char*)host.getCString());
 
     Array<Sint8> message;
     message.append(buffer, strlen(buffer));
     HTTPMessage* httpMessage = new HTTPMessage(message);
 
     // Enqueue message on the connection's queue (so that it will be sent
-    // to the sever it is conneted to:
+    // to the server it is conneted to:
 
     // httpMessage->print(cout);
 

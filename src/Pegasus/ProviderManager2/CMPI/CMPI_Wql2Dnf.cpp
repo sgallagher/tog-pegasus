@@ -36,6 +36,7 @@
 
 #include <Pegasus/Common/Stack.h>
 #include <Pegasus/WQL/WQLParser.h>
+#include <Pegasus/WQL/WQLSelectStatementRep.h>
 
 #include "CMPI_Wql2Dnf.h"
 
@@ -473,6 +474,8 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
 
     //WQLSelectStatement* that = (WQLSelectStatement*)wqs;
 
+    WQLSelectStatementRep* wqsrep = wqs->_rep;
+
     WQLOperand dummy;
     dummy.clear();
     Stack<stack_el> stack;
@@ -483,9 +486,9 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
 
     //cerr << "Build eval heap\n";
 
-    for (Uint32 i = 0, n = wqs->_operations.size(); i < n; i++)
+    for (Uint32 i = 0, n = wqsrep->_operations.size(); i < n; i++)
     {
-        WQLOperation op = wqs->_operations[i];
+        WQLOperation op = wqsrep->_operations[i];
 
         switch (op)
         {
@@ -532,11 +535,11 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
             case WQL_GT:
             case WQL_GE:
             {
-                PEGASUS_ASSERT(wqs->_operands.size() >= 2);
+                PEGASUS_ASSERT(wqsrep->_operands.size() >= 2);
 
-                WQLOperand lhs = wqs->_operands[j++];
+                WQLOperand lhs = wqsrep->_operands[j++];
 
-                WQLOperand rhs = wqs->_operands[j++];
+                WQLOperand rhs = wqsrep->_operands[j++];
 
                 terminal_heap.push(term_el(false, op, lhs, rhs));
 
@@ -554,8 +557,8 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
 
             case WQL_IS_NULL:
             {
-                PEGASUS_ASSERT(wqs->_operands.size() >= 1);
-                WQLOperand op = wqs->_operands[j++];
+                PEGASUS_ASSERT(wqsrep->_operands.size() >= 1);
+                WQLOperand op = wqsrep->_operands[j++];
 
                 terminal_heap.push(term_el(false, WQL_EQ, op, dummy));
 
@@ -566,8 +569,8 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
 
             case WQL_IS_NOT_NULL:
             {
-                PEGASUS_ASSERT(wqs->_operands.size() >= 1);
-                WQLOperand op = wqs->_operands[j++];
+                PEGASUS_ASSERT(wqsrep->_operands.size() >= 1);
+                WQLOperand op = wqsrep->_operands[j++];
 
                 terminal_heap.push(term_el(false, WQL_NE, op, dummy));
 

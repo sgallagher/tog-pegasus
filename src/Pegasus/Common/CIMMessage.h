@@ -2058,6 +2058,22 @@ class PEGASUS_COMMON_LINKAGE CIMStopAllProvidersResponseMessage
       }
 };
 
+class PEGASUS_COMMON_LINKAGE CIMNotifyProviderEnableResponseMessage
+   : public CIMResponseMessage
+{
+    public:
+
+        CIMNotifyProviderEnableResponseMessage(
+            const String& messageId_,
+	    const CIMException& cimException_,
+	    const QueueIdStack& queueIds_)
+	    :
+	    CIMResponseMessage(CIM_NOTIFY_PROVIDER_ENABLE_RESPONSE_MESSAGE,
+                               messageId_, cimException_, queueIds_)
+        {
+        }
+};
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_CIMMessage_h */

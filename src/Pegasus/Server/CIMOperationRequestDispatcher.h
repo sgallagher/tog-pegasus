@@ -158,6 +158,12 @@ public:
 
 protected:
 
+      Boolean _lookupInternalProvider(
+        const String& nameSpace,
+        const String& className,
+        String& service,
+        String& provider);
+
       String _lookupInstanceProvider(
 	const String& nameSpace, const String& className);
 

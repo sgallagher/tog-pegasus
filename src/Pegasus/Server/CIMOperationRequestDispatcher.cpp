@@ -84,6 +84,33 @@ void CIMOperationRequestDispatcher::_handle_async_request(AsyncRequest *req)
 	Base::_handle_async_request(req);
 }
 
+Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
+   const String& nameSpace,
+   const String& className,
+   String& service,
+   String& provider)
+{
+    if(String::equalNoCase(className, "PG_Provider") ||
+       String::equalNoCase(className, "PG_ProviderCapabilities") ||
+       String::equalNoCase(className, "PG_ProviderModule"))
+    {
+        service = "Server::ConfigurationManagerQueue";
+        provider = String::EMPTY;
+        return true;
+    }
+    if(String::equalNoCase(className, "PG_IndicationSubscription") ||
+       String::equalNoCase(className, "PG_IndicationHandler") ||
+       String::equalNoCase(className, "PG_IndicationHandlerCIMXML") ||
+       String::equalNoCase(className, "PG_IndicationHandlerSNMP") ||
+       String::equalNoCase(className, "PG_IndicationFilter"))
+    {
+        service = "Server::IndicationService";
+        provider = String::EMPTY;
+        return true;
+    }
+    return false;
+}
+
 String CIMOperationRequestDispatcher::_lookupInstanceProvider(
    const String& nameSpace,
    const String& className)
@@ -423,15 +450,15 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
    // get the class name
    String className = request->instanceName.getClassName();
+   String service;
+   String provider;
 
-   // check the class name for an "internal provider"
-   if(String::equalNoCase(className, "PG_Provider") ||
-      String::equalNoCase(className, "PG_ProviderCapabilities") ||
-      String::equalNoCase(className, "PG_ProviderModule"))
+   // Check for class provided by an internal provider
+   if (_lookupInternalProvider("", className, service, provider))
    {
        Array<Uint32> serviceIds;
 
-       find_services(String("Server::ConfigurationManagerQueue"), 0, 0, &serviceIds);
+       find_services(service, 0, 0, &serviceIds);
 
        PEGASUS_ASSERT(serviceIds.size() != 0);
 
@@ -462,44 +489,6 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
        return;
    }
-
-    //
-    // check the class name for subscription, filter and handler
-    //
-    if(String::equalNoCase(className, "PG_IndicationSubscription") ||
-       String::equalNoCase(className, "PG_IndicationHandlerCIMXML") ||
-       String::equalNoCase(className, "PG_IndicationHandlerSNMP") ||
-       String::equalNoCase(className, "PG_IndicationFilter"))
-    {
-        //
-        //  Send to the indication service
-        //
-        Array <Uint32> iService;
-
-        find_services (String ("Server::IndicationService"), 0, 0, &iService);
-
-        AsyncOpNode * op = this->get_op ();
-
-        AsyncLegacyOperationStart * req =
-            new AsyncLegacyOperationStart (
-                get_next_xid (),
-                op,
-                iService [0],
-                new CIMGetInstanceRequestMessage (*request),
-                this->getQueueId ());
-
-        AsyncReply* reply = SendWait (req);
-        CIMGetInstanceResponseMessage * response =
-            reinterpret_cast <CIMGetInstanceResponseMessage *>
-            ((static_cast <AsyncLegacyOperationResult *>
-            (reply))->get_result ());
-
-        _enqueueResponse (request, response);
-
-        delete reply;
-        delete req;
-        return;
-    }
 
    // get provider for class
    String providerName = _lookupInstanceProvider(request->nameSpace, className);
@@ -645,15 +634,15 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 {
    // get the class name
    String className = request->instanceName.getClassName();
+   String service;
+   String provider;
 
-   // check the class name for an "internal provider"
-   if(String::equalNoCase(className, "PG_Provider") ||
-      String::equalNoCase(className, "PG_ProviderCapabilities") ||
-      String::equalNoCase(className, "PG_ProviderModule"))
+   // Check for class provided by an internal provider
+   if (_lookupInternalProvider("", className, service, provider))
    {
        Array<Uint32> serviceIds;
 
-       find_services(String("Server::ConfigurationManagerQueue"), 0, 0, &serviceIds);
+       find_services(service, 0, 0, &serviceIds);
 
        PEGASUS_ASSERT(serviceIds.size() != 0);
 
@@ -684,44 +673,6 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 
        return;
    }
-
-    //
-    // check the class name for subscription, filter and handler
-    //
-    if(String::equalNoCase(className, "PG_IndicationSubscription") ||
-       String::equalNoCase(className, "PG_IndicationHandlerCIMXML") ||
-       String::equalNoCase(className, "PG_IndicationHandlerSNMP") ||
-       String::equalNoCase(className, "PG_IndicationFilter"))
-    {
-        //
-        //  Send to the indication service
-        //
-        Array <Uint32> iService;
-
-        find_services (String ("Server::IndicationService"), 0, 0, &iService);
-
-        AsyncOpNode * op = this->get_op ();
-
-        AsyncLegacyOperationStart * req =
-            new AsyncLegacyOperationStart (
-                get_next_xid (),
-                op,
-                iService [0],
-                new CIMDeleteInstanceRequestMessage (*request),
-                this->getQueueId ());
-
-        AsyncReply* reply = SendWait (req);
-        CIMDeleteInstanceResponseMessage * response =
-            reinterpret_cast <CIMDeleteInstanceResponseMessage *>
-            ((static_cast <AsyncLegacyOperationResult *>
-            (reply))->get_result ());
-
-        _enqueueResponse (request, response);
-
-        delete reply;
-        delete req;
-        return;
-    }
 
    String providerName = _lookupInstanceProvider(request->nameSpace, className);
 
@@ -859,15 +810,15 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 {
    // get the class name
    String className = request->newInstance.getClassName();
+   String service;
+   String provider;
 
-   // check the class name for an "internal provider"
-   if(String::equalNoCase(className, "PG_Provider") ||
-      String::equalNoCase(className, "PG_ProviderCapabilities") ||
-      String::equalNoCase(className, "PG_ProviderModule"))
+   // Check for class provided by an internal provider
+   if (_lookupInternalProvider("", className, service, provider))
    {
        Array<Uint32> serviceIds;
 
-       find_services(String("Server::ConfigurationManagerQueue"), 0, 0, &serviceIds);
+       find_services(service, 0, 0, &serviceIds);
 
        PEGASUS_ASSERT(serviceIds.size() != 0);
 
@@ -899,44 +850,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
        return;
    }
 
-   //
-   // check the class name for subscription, filter and handler
-   //
-
-   if(String::equalNoCase(className, "PG_IndicationSubscription") ||
-      String::equalNoCase(className, "PG_IndicationHandlerCIMXML") ||
-      String::equalNoCase(className, "PG_IndicationHandlerSNMP") ||
-      String::equalNoCase(className, "PG_IndicationFilter"))
-   {
-      Array<Uint32> iService;
-
-      find_services(String("Server::IndicationService"), 0, 0, &iService);
-
-      AsyncOpNode* op = this->get_op();
-
-      AsyncLegacyOperationStart *req =
-	 new AsyncLegacyOperationStart(
-	    get_next_xid(),
-	    op,
-	    iService[0],
-	    new CIMCreateInstanceRequestMessage(*request),
-	    this->getQueueId());
-
-      AsyncReply* reply = SendWait(req);
-      CIMCreateInstanceResponseMessage * response =
-	 reinterpret_cast<CIMCreateInstanceResponseMessage *>
-	 ((static_cast<AsyncLegacyOperationResult *>(reply))->get_result());
-
-      _enqueueResponse(request, response);
-
-      delete reply;
-//      delete response;
-// << Tue Feb 26 18:41:38 2002 mdd >>
-      delete req;
-      return;
-   }
-
-   // TEMP: Test code for ProcessIndication
+   // ATTN: TEMP: Test code for ProcessIndication
    if ((className == "TestSoftwarePkg") ||
        (className == "nsatrap"))
    {
@@ -1121,15 +1035,15 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
    // get the class name
    String className = request->modifiedInstance.getInstance().getClassName();
+   String service;
+   String provider;
 
-   // check the class name for an "internal provider"
-   if(String::equalNoCase(className, "PG_Provider") ||
-      String::equalNoCase(className, "PG_ProviderCapabilities") ||
-      String::equalNoCase(className, "PG_ProviderModule"))
+   // Check for class provided by an internal provider
+   if (_lookupInternalProvider("", className, service, provider))
    {
        Array<Uint32> serviceIds;
 
-       find_services(String("Server::ConfigurationManagerQueue"), 0, 0, &serviceIds);
+       find_services(service, 0, 0, &serviceIds);
 
        PEGASUS_ASSERT(serviceIds.size() != 0);
 
@@ -1160,44 +1074,6 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
        return;
    }
-
-    //
-    // check the class name for subscription, filter and handler
-    //
-    if(String::equalNoCase(className, "PG_IndicationSubscription") ||
-       String::equalNoCase(className, "PG_IndicationHandlerCIMXML") ||
-       String::equalNoCase(className, "PG_IndicationHandlerSNMP") ||
-       String::equalNoCase(className, "PG_IndicationFilter"))
-    {
-        //
-        //  Send to the indication service
-        //
-        Array <Uint32> iService;
-
-        find_services (String ("Server::IndicationService"), 0, 0, &iService);
-
-        AsyncOpNode * op = this->get_op ();
-
-        AsyncLegacyOperationStart * req =
-            new AsyncLegacyOperationStart (
-                get_next_xid (),
-                op,
-                iService [0],
-                new CIMModifyInstanceRequestMessage (*request),
-                this->getQueueId ());
-
-        AsyncReply* reply = SendWait (req);
-        CIMModifyInstanceResponseMessage * response =
-            reinterpret_cast <CIMModifyInstanceResponseMessage *>
-            ((static_cast <AsyncLegacyOperationResult *>
-            (reply))->get_result ());
-
-        _enqueueResponse (request, response);
-
-        delete reply;
-        delete req;
-        return;
-    }
 
    // check the class name for an "external provider"
    String providerName = _lookupInstanceProvider(request->nameSpace, className);
@@ -1389,15 +1265,15 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 {
    // get the class name
    String className = request->className;
+   String service;
+   String provider;
 
-   // check the class name for an "internal provider"
-   if(String::equalNoCase(className, "PG_Provider") ||
-      String::equalNoCase(className, "PG_ProviderCapabilities") ||
-      String::equalNoCase(className, "PG_ProviderModule"))
+   // Check for class provided by an internal provider
+   if (_lookupInternalProvider("", className, service, provider))
    {
        Array<Uint32> serviceIds;
 
-       find_services(String("Server::ConfigurationManagerQueue"), 0, 0, &serviceIds);
+       find_services(service, 0, 0, &serviceIds);
 
        PEGASUS_ASSERT(serviceIds.size() != 0);
 
@@ -1428,45 +1304,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
        return;
    }
-
-    //
-    // check the class name for subscription, filter and handler
-    //
-    if(String::equalNoCase(className, "PG_IndicationSubscription") ||
-       String::equalNoCase(className, "PG_IndicationHandler") ||
-       String::equalNoCase(className, "PG_IndicationHandlerCIMXML") ||
-       String::equalNoCase(className, "PG_IndicationHandlerSNMP") ||
-       String::equalNoCase(className, "PG_IndicationFilter"))
-    {
-        //
-        //  Send to the indication service
-        //
-        Array <Uint32> iService;
-
-        find_services (String ("Server::IndicationService"), 0, 0, &iService);
-
-        AsyncOpNode * op = this->get_op ();
-
-        AsyncLegacyOperationStart * req =
-            new AsyncLegacyOperationStart (
-                get_next_xid (),
-                op,
-                iService [0],
-                new CIMEnumerateInstancesRequestMessage (*request),
-                this->getQueueId ());
-
-        AsyncReply* reply = SendWait (req);
-        CIMEnumerateInstancesResponseMessage * response =
-            reinterpret_cast <CIMEnumerateInstancesResponseMessage *>
-            ((static_cast <AsyncLegacyOperationResult *>
-            (reply))->get_result ());
-
-        _enqueueResponse (request, response);
-
-        delete reply;
-        delete req;
-        return;
-    }
 
    // check the class name for an "external provider"
    String providerName = _lookupInstanceProvider(request->nameSpace, className);
@@ -1571,15 +1408,15 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 {
    // get the class name
    String className = request->className;
+   String service;
+   String provider;
 
-   // check the class name for an "internal provider"
-   if(String::equalNoCase(className, "PG_Provider") ||
-      String::equalNoCase(className, "PG_ProviderCapabilities") ||
-      String::equalNoCase(className, "PG_ProviderModule"))
+   // Check for class provided by an internal provider
+   if (_lookupInternalProvider("", className, service, provider))
    {
        Array<Uint32> serviceIds;
 
-       find_services(String("Server::ConfigurationManagerQueue"), 0, 0, &serviceIds);
+       find_services(service, 0, 0, &serviceIds);
 
        PEGASUS_ASSERT(serviceIds.size() != 0);
 
@@ -1610,45 +1447,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
        return;
    }
-
-    //
-    // check the class name for subscription, filter and handler
-    //
-    if(String::equalNoCase(className, "PG_IndicationSubscription") ||
-       String::equalNoCase(className, "PG_IndicationHandler") ||
-       String::equalNoCase(className, "PG_IndicationHandlerCIMXML") ||
-       String::equalNoCase(className, "PG_IndicationHandlerSNMP") ||
-       String::equalNoCase(className, "PG_IndicationFilter"))
-    {
-        //
-        //  Send to the indication service
-        //
-        Array <Uint32> iService;
-
-        find_services (String ("Server::IndicationService"), 0, 0, &iService);
-
-        AsyncOpNode * op = this->get_op ();
-
-        AsyncLegacyOperationStart * req =
-            new AsyncLegacyOperationStart (
-                get_next_xid (),
-                op,
-                iService [0],
-                new CIMEnumerateInstanceNamesRequestMessage (*request),
-                this->getQueueId ());
-
-        AsyncReply* reply = SendWait (req);
-        CIMEnumerateInstanceNamesResponseMessage * response =
-            reinterpret_cast <CIMEnumerateInstanceNamesResponseMessage *>
-            ((static_cast <AsyncLegacyOperationResult *>
-            (reply))->get_result ());
-
-        _enqueueResponse (request, response);
-
-        delete reply;
-        delete req;
-        return;
-    }
 
    // check the class name for an "external provider"
    String providerName = _lookupInstanceProvider(request->nameSpace, className);

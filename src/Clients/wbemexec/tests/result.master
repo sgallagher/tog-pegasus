@@ -9,6 +9,7 @@ wbemexec -p 5988 -v 1.1 -m M-POST -t 10000 -u guest -w guest ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
+<CLASSNAME NAME="PG_UnixProcessStatistics"/>
 <CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
 <CLASSNAME NAME="CIM_PhysicalStatistics"/>
 <CLASSNAME NAME="CIM_DeviceStatistics"/>
@@ -31,6 +32,7 @@ wbemexec -p5988 -v1.1 -mM-POST -t10000 -uguest -wguest ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
+<CLASSNAME NAME="PG_UnixProcessStatistics"/>
 <CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
 <CLASSNAME NAME="CIM_PhysicalStatistics"/>
 <CLASSNAME NAME="CIM_DeviceStatistics"/>
@@ -53,6 +55,7 @@ wbemexec < ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
+<CLASSNAME NAME="PG_UnixProcessStatistics"/>
 <CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
 <CLASSNAME NAME="CIM_PhysicalStatistics"/>
 <CLASSNAME NAME="CIM_DeviceStatistics"/>
@@ -76,6 +79,7 @@ wbemexec -v 1.0 ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
+<CLASSNAME NAME="PG_UnixProcessStatistics"/>
 <CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
 <CLASSNAME NAME="CIM_PhysicalStatistics"/>
 <CLASSNAME NAME="CIM_DeviceStatistics"/>
@@ -98,6 +102,7 @@ wbemexec -v 1.1 ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
+<CLASSNAME NAME="PG_UnixProcessStatistics"/>
 <CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
 <CLASSNAME NAME="CIM_PhysicalStatistics"/>
 <CLASSNAME NAME="CIM_DeviceStatistics"/>
@@ -121,6 +126,7 @@ wbemexec -m POST ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
+<CLASSNAME NAME="PG_UnixProcessStatistics"/>
 <CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
 <CLASSNAME NAME="CIM_PhysicalStatistics"/>
 <CLASSNAME NAME="CIM_DeviceStatistics"/>
@@ -143,6 +149,7 @@ wbemexec -m M-POST ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
+<CLASSNAME NAME="PG_UnixProcessStatistics"/>
 <CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
 <CLASSNAME NAME="CIM_PhysicalStatistics"/>
 <CLASSNAME NAME="CIM_DeviceStatistics"/>
@@ -165,6 +172,7 @@ wbemexec -v 1.0 -m POST ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
+<CLASSNAME NAME="PG_UnixProcessStatistics"/>
 <CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
 <CLASSNAME NAME="CIM_PhysicalStatistics"/>
 <CLASSNAME NAME="CIM_DeviceStatistics"/>
@@ -187,6 +195,7 @@ wbemexec -v 1.1 -m POST ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
+<CLASSNAME NAME="PG_UnixProcessStatistics"/>
 <CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
 <CLASSNAME NAME="CIM_PhysicalStatistics"/>
 <CLASSNAME NAME="CIM_DeviceStatistics"/>
@@ -209,6 +218,7 @@ wbemexec -v 1.1 -m M-POST ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
+<CLASSNAME NAME="PG_UnixProcessStatistics"/>
 <CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
 <CLASSNAME NAME="CIM_PhysicalStatistics"/>
 <CLASSNAME NAME="CIM_DeviceStatistics"/>
@@ -232,6 +242,7 @@ wbemexec -t 4294967295 ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
+<CLASSNAME NAME="PG_UnixProcessStatistics"/>
 <CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
 <CLASSNAME NAME="CIM_PhysicalStatistics"/>
 <CLASSNAME NAME="CIM_DeviceStatistics"/>
@@ -312,6 +323,7 @@ wbemexec - < ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
+<CLASSNAME NAME="PG_UnixProcessStatistics"/>
 <CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
 <CLASSNAME NAME="CIM_PhysicalStatistics"/>
 <CLASSNAME NAME="CIM_DeviceStatistics"/>
@@ -336,6 +348,7 @@ wbemexec - ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
+<CLASSNAME NAME="PG_UnixProcessStatistics"/>
 <CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
 <CLASSNAME NAME="CIM_PhysicalStatistics"/>
 <CLASSNAME NAME="CIM_DeviceStatistics"/>
@@ -583,6 +596,7 @@ wbemexec -u nonuser ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
+<CLASSNAME NAME="PG_UnixProcessStatistics"/>
 <CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
 <CLASSNAME NAME="CIM_PhysicalStatistics"/>
 <CLASSNAME NAME="CIM_DeviceStatistics"/>
@@ -607,6 +621,7 @@ wbemexec -w nonpassword ./cimrequest.xml
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateClassNames">
 <IRETURNVALUE>
+<CLASSNAME NAME="PG_UnixProcessStatistics"/>
 <CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
 <CLASSNAME NAME="CIM_PhysicalStatistics"/>
 <CLASSNAME NAME="CIM_DeviceStatistics"/>

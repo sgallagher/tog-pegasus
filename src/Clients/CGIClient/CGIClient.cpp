@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.7  2001/02/02 21:59:45  karl
+// fix enuminstances and some DOC++
+//
 // Revision 1.6  2001/01/31 15:57:06  karl
 // comments
 //
@@ -1001,7 +1004,7 @@ int main(int argc, char** argv)
 
 	else
 	{
-	    String message = "Unknown operation: ";
+	    String message = "CGIClient - Unknown operation: ";
 	    message.append(operation);
 	    ErrorExit(message);
 	}

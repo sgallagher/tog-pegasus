@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Operations.h,v $
+// Revision 1.7  2001/02/02 21:59:45  karl
+// fix enuminstances and some DOC++
+//
 // Revision 1.6  2001/01/31 08:20:51  mike
 // Added dispatcher framework.
 // Added enumerateInstanceNames.
@@ -365,7 +368,7 @@ public:
         different definition to that in the Superclass (where definition
         encompasses the name, type and flavor attribute settings of the
         <QUALIFIER> element, and the value of the Qualifier).
-		</LI>
+	</LI>
     </UL>
 
     @param NameSpace The NameSpace parameter is a string that defines the target
@@ -471,34 +474,34 @@ public:
 
     /** The <TT>modifyClass</TT> method modifies an existing CIM Class in the
     target Namespace.  The Class MUST already exist. The <TT>ModifiedClass</TT>
-    input parameter defines the set of changes (which MUST be&nbsp;correct
+    input parameter defines the set of changes (which MUST be  correct
     amendments to the CIM Class as defined by the CIM Specification) to be made
     to the current class definition.
 
-    In processing the&nbsp;modifcation of the Class, the following rules MUST be
+    In processing the  modifcation of the Class, the following rules MUST be
     conformed to by the CIM Server.
 
     <UL>
       <LI>Any <TT>CLASSORIGIN</TT> and <TT>PROPAGATED</TT> attributes in the
       <TT>ModifiedClass</TT> MUST be ignored by the Server.
-      <LI>If the&nbsp;modified Class has no Superclass,
+      <LI>If the  modified Class has no Superclass,
       the<TT>ModifiedClass</TT> parameter defines modifications to a base Class.
       The Server MUST ensure that:
       <UL>
         <LI>All Properties and Methods of the modified Class have a
         <TT>CLASSORIGIN</TT> attribute whose value is the name of this Class.
         <LI>Any Properties, Methods or Qualifiers in the existing Class
-        definition which do not appear in the&nbsp; <FONT face="Courier
+        definition which do not appear in the   <FONT face="Courier
         New">ModifiedClass</TT> parameter are removed from the resulting
         modified Class.</LI>
       </UL>
-      <LI>If the&nbsp;modified Class has a
-      Superclass,the&nbsp;<TT>ModifiedClass</TT> parameter
-      defines&nbsp;modifications to a Subclass of that Superclass. The
+      <LI>If the  modified Class has a
+      Superclass,the <TT>ModifiedClass</TT> parameter
+      defines modifications to a Subclass of that Superclass. The
       Superclass MUST exist, and the Client MUST NOT change the name of the
       Superclass in the modified Subclass. The Server MUST ensure that:
       <UL>
-        <LI>Any Properties, Methods or Qualifiers&nbsp;in the Subclass not
+        <LI>Any Properties, Methods or Qualifiers in the Subclass not
         defined in the Superclass are created as elements of the Subclass. In
         particular the Server MUST set the <TT>CLASSORIGIN</TT> attribute on the
         new Properties and Methods to the name of the Subclass, and MUST ensure
@@ -507,28 +510,28 @@ public:
         Superclass.
         <LI>Any Property, Method or Qualifier previously defined in the Subclass
         but not defined in the Superclass, and which is not present in the
-        <TT>ModifiedClass</TT> parameter, is removed from the Subclass.&nbsp;
+        <TT>ModifiedClass</TT> parameter, is removed from the Subclass. 
         <LI>If a Property is specified in the <TT>ModifiedClass</TT>
-        parameter,&nbsp;the value assigned to that property therein (including
+        parameter, the value assigned to that property therein (including
         NULL) becomes the default value of the property for the Subclass.
         <LI>If a Property or Method of the Superclass is not specified in the
-        Subclass, then that Property&nbsp;or Method is inherited
+        Subclass, then that Property or Method is inherited
         without modification by the Subclass (so that any previous changes to
         such an Element in the Subclass are lost).
-        <LI>If a&nbsp;Qualifier in the Superclass is not specified in the
+        <LI>If a Qualifier in the Superclass is not specified in the
         Subclass, and the Qualifier is defined in the Superclass with a
         <TT>TOSUBCLASS</TT> attribute value of <TT>true</TT>, then the Qualifier
         MUST still be present in the resulting modified Subclass (it is not
         possible to remove a propagated Qualifier from a Subclass).
         <LI>Any Qualifier propagated from the Superclass cannot be
-        modified&nbsp;in the Subclass if the <TT>OVERRIDABLE</TT> attribute of
+        modified in the Subclass if the <TT>OVERRIDABLE</TT> attribute of
         that Qualifier was set to <TT>false</TT> in the Superclass. It is a
         Client error to specify such a Qualifier in the <TT>ModifiedClass</TT>
         with a different definition to that in the Superclass (where definition
-        encompasses the name, type and flavor&nbsp;attribute settings of the
+        encompasses the name, type and flavor attribute settings of the
         <TT>&lt;QUALIFIER&gt;</TT> element, and the value of the Qualifier).
         <LI>Any Qualifiers defined in the Superclass with a <TT>TOSUBCLASS</TT>
-        attribute value of&nbsp; <TT>false</TT> MUST NOT be propagated to the
+        attribute value of  <TT>false</TT> MUST NOT be propagated to the
         Subclass.</LI> </UL>
        </LI></UL>
 
@@ -536,31 +539,31 @@ public:
     namespace \Ref{NAMESPACE}
 
     @param ModifiedClass The <TT>ModifiedClass</TT>
-    input parameter defines the set of changes (which MUST be&nbsp;correct
+    input parameter defines the set of changes (which MUST be correct
     amendments to the CIM Class as defined by the CIM Specification) to be made
     to the current class definition.
 
 
-    @return If successful, the specified&nbsp;Class MUST have been updated by
-    the CIM Server.&nbsp;
+    @return If successful, the specified Class MUST have been updated by
+    the CIM Server. 
 
     The request to modify the Class MUST fail if the Server cannot update any
     existing Subclasses or Instances of that Class in a consistent manner.
 
-    @return If unsuccessful, one of the following status codes&nbsp;MUST be
+    @return If unsuccessful, one of the following status codes MUST be
     returned by this method, where the first applicable error in the list
-    (starting with the first element of the list, and working down) is&nbsp;the
+    (starting with the first element of the list, and working down) is the
     error returned. Any additional method-specific interpretation of the error
     in is given in parentheses.
 
     <UL>
       <LI>CIM_ERR_ACCESS_DENIED
       <LI>CIM_ERR_NOT_SUPPORTED
-      <LI>CIM_ERR_INVALID_NAMESPACE&nbsp;
+      <LI>CIM_ERR_INVALID_NAMESPACE 
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
-        duplicate,&nbsp;unrecognized or otherwise incorrect parameters)
-      <LI>CIM_ERR_NOT_FOUND (the CIM Class&nbsp;does not
-        exist)&nbsp;
+        duplicate, unrecognized or otherwise incorrect parameters)
+      <LI>CIM_ERR_NOT_FOUND (the CIM Class does not
+        exist) 
       <LI>CIM_ERR_INVALID_SUPERCLASS (the putative CIM Class
         declares a non-existent or incorrect superclass)
       <LI>CIM_ERR_CLASS_HAS_CHILDREN (the modification could
@@ -569,8 +572,8 @@ public:
         Class in a consistent fashion)
       <LI>CIM_ERR_CLASS_HAS_INSTANCES (the modification could
         not be performed because it was not possible to update
-        the&nbsp;instances of
-        the Class in a consistent fashion)&nbsp;
+        the instances of
+        the Class in a consistent fashion) 
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)
      </LI></UL>
     */
@@ -586,11 +589,11 @@ public:
 
     @param ModifiedInstance The <TT>ModifiedInstance</TT> input parameter
     identifies the name of the Instance to be modified, and defines the set of
-    changes (which MUST be&nbsp;correct amendments to the&nbsp;Instance as
-    defined by the CIM Specification) to be made to the current&nbsp;Instance
-    definition.&nbsp;
+    changes (which MUST be correct amendments to the Instance as
+    defined by the CIM Specification) to be made to the current Instance
+    definition. 
 
-    In processing the&nbsp;modifcation of the Instance, the following rules MUST
+    In processing the modifcation of the Instance, the following rules MUST
     be conformed to by the CIM Server:
 
     <UL>
@@ -600,26 +603,26 @@ public:
       the name of the Class in the modified Instance. The Server MUST ensure
       that:
       <UL>
-        <LI>Any Qualifiers&nbsp;in the Instance not defined in
-        the&nbsp;Class are created as new&nbsp;elements of the Instance.
-        <LI>All Properties of the&nbsp;Instance preserve their
+        <LI>Any Qualifiers in the Instance not defined in
+        the Class are created as new elements of the Instance.
+        <LI>All Properties of the Instance preserve their
         <TT>CLASSORIGIN</TT> attribute value from that defined in the Class.
-        <LI>Any Qualifier previously defined in the&nbsp;Instance but not
+        <LI>Any Qualifier previously defined in the Instance but not
         defined in the Class, and which is not present in the
-        <TT>ModifiedInstance</TT> parameter, is removed from the Instance.&nbsp;
+        <TT>ModifiedInstance</TT> parameter, is removed from the Instance. 
 
-        <LI>If a Property is&nbsp;specified in the <TT>ModifiedInstance</TT>
-        parameter,&nbsp;the value assigned to that property&nbsp;therein
+        <LI>If a Property is specified in the <TT>ModifiedInstance</TT>
+        parameter, the value assigned to that property therein
         (including NULL) becomes the value of the property for the Instance.
         Note that it is a Client error to specify a Property that does not
         belong to the Class.
 
-        <LI>If a Property of the&nbsp;Class is not specified in the Instance,
+        <LI>If a Property of the Class is not specified in the Instance,
         then that Property is inherited without modification by the Instance (so
-        that any previous changes to&nbsp;that Property in the&nbsp;Instance are
+        that any previous changes to that Property in the Instance are
         lost).
-        <LI>Any Qualifiers defined in the&nbsp;Class with a <TT>TOINSTANCE</TT>
-        attribute value of <TT>true</TT> appear in the&nbsp;Instance (it is not
+        <LI>Any Qualifiers defined in the Class with a <TT>TOINSTANCE</TT>
+        attribute value of <TT>true</TT> appear in the Instance (it is not
         possible remove a propagated Qualifier from an Instance. Qualifiers in
         the Class with a <TT>TOINSTANCE</TT> attribute value of <TT>false</TT>
         MUST NOT be propagated to the Instance.
@@ -628,14 +631,14 @@ public:
         to <TT>false</TT> in the Class. It is a Client error to specify such a
         Qualifier in the <TT>ModifiedInstance</TT> with a different definition
         to that in the Class (where definition encompasses the name,
-        type&nbsp;and flavor&nbsp;attribute settings of the
+        type and flavor attribute settings of the
         <TT>&lt;QUALIFIER&gt;</TT> element, and the value of the Qualifier).
-        <LI>Any Qualifier propagated from the Class cannot be modified&nbsp;in
+        <LI>Any Qualifier propagated from the Class cannot be modified in
         the Instance if the <TT>OVERRIDABLE</TT> attribute of that Qualifier was
         set to <TT>false</TT> in the Class. It is a Client error to specify such
         a Qualifier in the <TT>ModifiedInstance</TT> with a different definition
         to that in the Class (where definition encompasses the name, type and
-        flavor&nbsp;attribute settings of the <TT>&lt;QUALIFIER&gt;</TT>
+        flavor attribute settings of the <TT>&lt;QUALIFIER&gt;</TT>
         element, and the value of the Qualifier).</LI>
         </UL>
       </LI></UL>
@@ -643,21 +646,21 @@ public:
     @return If successful, the specified Instance MUST have been updated by the
     CIM Server.
 
-    If unsuccessful, one of the following status codes&nbsp;MUST be returned by
+    If unsuccessful, one of the following status codes MUST be returned by
     this method, where the first applicable error in the list (starting with the
-    first element of the list, and working down) is&nbsp;the error returned. Any
+    first element of the list, and working down) is the error returned. Any
     additional method-specific interpretation of the error in is given in
     parentheses
 
     <UL>
-      <LI>CIM_ERR_ACCESS_DENIED&nbsp;
+      <LI>CIM_ERR_ACCESS_DENIED 
       <LI>CIM_ERR_NOT_SUPPORTED
-      <LI>CIM_ERR_INVALID_NAMESPACE&nbsp;
+      <LI>CIM_ERR_INVALID_NAMESPACE 
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
-        duplicate,&nbsp;unrecognized or otherwise incorrect parameters)
+        duplicate, unrecognized or otherwise incorrect parameters)
       <LI>CIM_ERR_INVALID_CLASS (the CIM Class of which this is
         to be a new Instance does not exist)
-      <LI>CIM_ERR_NOT_FOUND (the CIM&nbsp;Instance does not exist)&nbsp;
+      <LI>CIM_ERR_NOT_FOUND (the CIM Instance does not exist) 
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI></UL>
     */
     virtual void modifyInstance(
@@ -673,55 +676,55 @@ public:
     namespace \Ref{NAMESPACE}
 
     @param className The <TT>ClassName</TT> input parameter defines the Class
-    that is the basis for the enumeration.&nbsp;
+    that is the basis for the enumeration. 
 
     @param DeepInheritance If the <TT>DeepInheritance</TT> input
-    parameter&nbsp;is <TT>true</TT>,&nbsp;this specifies that all subclasses of
+    parameter is <TT>true</TT>, this specifies that all subclasses of
     the specified Class should be returned (if the <TT>ClassName</TT> input
     parameter is absent, this implies that all Classes in the target Namespace
-    should be returned).&nbsp; If <TT>false</TT>, only immediate child
-    subclasses&nbsp;are returned (if the <TT>ClassName</TTT> input parameter is
+    should be returned).  If <TT>false</TT>, only immediate child
+    subclasses are returned (if the <TT>ClassName</TT> input parameter is
     NULL, this implies that all base Classes in the target Namespace should be
     returned).
 
-    @param LocalOnly If the <TT>LocalOnly</TT> input parameter&nbsp;is
+    @param LocalOnly If the <TT>LocalOnly</TT> input parameter is
     <TT>true</TT>, it specifies that, for each returned Class, only elements
-    (properties, methods and qualifiers) overriden within&nbsp;the definition of
-    that Class are included.&nbsp; If <TT>false</TT>, all elements are
-    returned.&nbsp; This parameter therefore effects a CIM Server-side mechanism
+    (properties, methods and qualifiers) overriden within the definition of
+    that Class are included.  If <TT>false</TT>, all elements are
+    returned.  This parameter therefore effects a CIM Server-side mechanism
     to filter certain elements of the returned object based on whether or not
     they have been propagated from the parent Class (as defined by the
     <TT>PROPAGATED</TT> attribute).
 
     @param IncludeQualifiers If the <TT>IncludeQualifiers</TT> input parameter
-    is <TT>true</TTT>, this specifies that all Qualifiers for&nbsp;each Class
+    is <TT>true</TT>, this specifies that all Qualifiers for each Class
     (including Qualifiers on the Class and on any returned Properties, Methods
     or Method Parameters) MUST be included as <TT>&lt;QUALIFIER&gt;</TT>
-    elements in the response.&nbsp; If false no
-    <TT>&lt;QUALIFIER&gt;</TTT>&nbsp;elements are present in&nbsp;each returned
+    elements in the response.  If false no
+    <TT>&lt;QUALIFIER&gt;</TT> elements are present in each returned
     Class.
 
-    @param IncludeClassOrigin If the <TT>IncludeClassOrigin</TTT> input
+    @param IncludeClassOrigin If the <TT>IncludeClassOrigin</TT> input
     parameter is <TT>true</TT>, this specifies that the <TT>CLASSORIGIN</TT>
-    attribute MUST be present on all appropriate elements in&nbsp;each returned
-    Class. If false, no <TT>CLASSORIGIN</TT> attributes are present in&nbsp;each
+    attribute MUST be present on all appropriate elements in each returned
+    Class. If false, no <TT>CLASSORIGIN</TT> attributes are present in each
     returned Class.
 
     @return If successful, the method returns zero or more Classes that meet the
     required criteria.
 
-    If unsuccessful, one of the following status codes&nbsp;MUST be returned by
+    If unsuccessful, one of the following status codes MUST be returned by
     this method, where the first applicable error in the list (starting with the
-    first element of the list, and working down) is&nbsp;the error returned. Any
+    first element of the list, and working down) is the error returned. Any
     additional method-specific interpretation of the error in is given in
     parentheses.
 
     <UL>
       <LI>CIM_ERR_ACCESS_DENIED
       <LI>CIM_ERR_NOT_SUPPORTED
-      <LI>CIM_ERR_INVALID_NAMESPACE&nbsp;
+      <LI>CIM_ERR_INVALID_NAMESPACE 
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
-        duplicate,&nbsp;unrecognized or otherwise incorrect parameters)
+        duplicate, unrecognized or otherwise incorrect parameters)
       <LI>CIM_ERR_INVALID_CLASS (the CIM Class that is the
         basis for this enumeration does not exist)
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)
@@ -744,7 +747,7 @@ public:
     target namespace \Ref{NAMESPACE}
 
     @param className The <TT>ClassName</TT> input parameter defines the Class
-    that is the basis for the enumeration.&nbsp;
+    that is the basis for the enumeration. 
 
     @param DeepInheritance If the DeepInheritance input parameter is true, this
     specifies that the names of all subclasses of the specified Class should be
@@ -766,9 +769,9 @@ public:
     <UL>
       <LI>CIM_ERR_ACCESS_DENIED
       <LI>CIM_ERR_NOT_SUPPORTED
-      <LI>CIM_ERR_INVALID_NAMESPACE&nbsp;
+      <LI>CIM_ERR_INVALID_NAMESPACE 
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
-        duplicate,&nbsp;unrecognized or otherwise incorrect parameters)
+        duplicate, unrecognized or otherwise incorrect parameters)
       <LI>CIM_ERR_INVALID_CLASS (the CIM Class that is the
         basis for this enumeration does not exist)
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
@@ -787,78 +790,78 @@ public:
     target namespace \Ref{NAMESPACE}
 
     @param ClassName The <TT>ClassName</TT> input parameter defines the
-    Class that is the basis for the enumeration.&nbsp;&nbsp;&nbsp; </P>
+    Class that is the basis for the enumeration.    </P>
 
-    @param LocalOnly If the <TT>LocalOnly</TT> input parameter&nbsp;is
-    <TT>true</TT>,&nbsp;this specifies that, for each returned Instance,
-    only elements (properties and qualifiers) overriden within&nbsp;the
-    definition of that&nbsp;Instance are included.&nbsp; If <TT>false</TT>,
-    all elements are returned.&nbsp; This parameter therefore effects a CIM
+    @param LocalOnly If the <TT>LocalOnly</TT> input parameter is
+    <TT>true</TT>, this specifies that, for each returned Instance,
+    only elements (properties and qualifiers) overriden within the
+    definition of that Instance are included.  If <TT>false</TT>,
+    all elements are returned.  This parameter therefore effects a CIM
     Server-side mechanism to filter certain elements of the returned object
     based on whether or not they have been propagated from the parent
-    Class&nbsp;(as defined by the <TT>PROPAGATED</TT> attribute).
+    Class (as defined by the <TT>PROPAGATED</TT> attribute).
 
     @param DeepInheritance If the <TT>DeepInheritance</TT> input
-    parameter&nbsp;is <TT>true</TT>,&nbsp;this specifies that, for each
+    parameter is <TT>true</TT>, this specifies that, for each
     returned Instance of the Class, all properties of the Instance MUST
-    be&nbsp;present (subject to constraints imposed by the other
+    be present (subject to constraints imposed by the other
     parameters), including any which were added by subclassing the specified
-    Class.&nbsp;If <TT>false</TT>, each returned&nbsp;Instance includes only
-    properties defined for the&nbsp;specified Class.
+    Class. If <TT>false</TT>, each returned Instance includes only
+    properties defined for the specified Class.
 
     @param IncludeQualifiersIf the <TT>IncludeQualifiers</TT> input
     parameter is <TT>true</TT>, this specifies that all Qualifiers
-    for&nbsp;each&nbsp;Instance (including Qualifiers on the&nbsp;Instance
+    for each Instance (including Qualifiers on the Instance
     and on any returned Properties) MUST be included as
-    <TT>&lt;QUALIFIER&gt;</TT> elements in the response.&nbsp; If false no
-    <TT>&lt;QUALIFIER&gt;</TT>&nbsp;elements are present in&nbsp;each
+    <TT>&lt;QUALIFIER&gt;</TT> elements in the response.  If false no
+    <TT>&lt;QUALIFIER&gt;</TT> elements are present in each
     returned Instance.
 
-    @param IncludeClassOrigin If the <TT>IncludeClassOrigin</TTT> input
+    @param IncludeClassOrigin If the <TT>IncludeClassOrigin</TT> input
     parameter is <TT>true</TT>, this specifies that the
-    <TT>CLASSORIGIN</TTT> attribute MUST be present on all appropriate
-    elements in&nbsp;each returned Instance. If false, no
-    <TT>CLASSORIGIN</TTT> attributes are present in&nbsp;each returned
+    <TT>CLASSORIGIN</TT> attribute MUST be present on all appropriate
+    elements in each returned Instance. If false, no
+    <TT>CLASSORIGIN</TT> attributes are present in each returned
     Instance.
 
     @param PropertyList If the <TT>PropertyList</TT> input parameter is not
     <TT>NULL</TT>, the members of the array define one or more Property
-    names.&nbsp;&nbsp;Each returned&nbsp;Instance MUST NOT include elements
-    for any Properties&nbsp;missing from this list.&nbsp; Note that if
+    names.  Each returned Instance MUST NOT include elements
+    for any Properties missing from this list.  Note that if
     <TT>LocalOnly</TT> is specified as <TT>true</TT> (or
     <TT>DeepInheritance</TT> is specified as <TT>false</TT>) this acts as an
-    additional filter on the&nbsp;set of Properties returned (for example,
-    if&nbsp;Property <TT>A</TT> is included&nbsp;in the
+    additional filter on the set of Properties returned (for example,
+    if Property <TT>A</TT> is included in the
     <TT>PropertyList</TT> but <TT>LocalOnly</TT> is set to true and
-    <TT>A</TT> is not local to a returned&nbsp;Instance, then it will not be
+    <TT>A</TT> is not local to a returned Instance, then it will not be
     included in that Instance). If the <TT>PropertyList</TT> input parameter
     is an empty array this signifies that no Properties are included in each
-    returned Instance.&nbsp;If the <TT>PropertyList</TT> input parameter is
+    returned Instance. If the <TT>PropertyList</TT> input parameter is
     NULL this specifies that all Properties (subject to the conditions
-    expressed by the other parameters) are included in each&nbsp;returned
+    expressed by the other parameters) are included in each returned
     Instance.
 
-    If&nbsp;the&nbsp;<TT>PropertyList</TT>&nbsp;contains duplicate elements,
+    If the <TT>PropertyList</TT> contains duplicate elements,
     the Server MUST ignore the duplicates but otherwise process the request
-    normally.&nbsp; If the <TT>PropertyList</TT> contains elements which are
-    invalid Property names for any&nbsp;target Instance, the Server MUST
+    normally.  If the <TT>PropertyList</TT> contains elements which are
+    invalid Property names for any target Instance, the Server MUST
     ignore such entries but otherwise process the request normally.
 
-    @return If successful, the method returns zero or more&nbsp;named
+    @return If successful, the method returns zero or more named
     Instances that meet the required criteria.
 
-    If unsuccessful, one of the following status codes&nbsp;MUST be returned
+    If unsuccessful, one of the following status codes MUST be returned
     by this method, where the first applicable error in the list (starting
-    with the first element of the list, and working down) is&nbsp;the error
+    with the first element of the list, and working down) is the error
     returned. Any additional method-specific interpretation of the error in
     is given in parentheses.
 
 	<UL>
 	  <LI>CIM_ERR_ACCESS_DENIED
 	  <LI>CIM_ERR_NOT_SUPPORTED
-	  <LI>CIM_ERR_INVALID_NAMESPACE&nbsp;
+	  <LI>CIM_ERR_INVALID_NAMESPACE 
 	  <LI>CIM_ERR_INVALID_PARAMETER (including missing,
-		duplicate,&nbsp;unrecognized or otherwise incorrect parameters)
+		duplicate, unrecognized or otherwise incorrect parameters)
 	  <LI>CIM_ERR_INVALID_CLASS (the CIM Class that is the
 		basis for this enumeration does not exist)
 	  <LI>CIM_ERR_FAILED (some other unspecified erroroccurred)</LI>
@@ -895,9 +898,9 @@ public:
     <UL>
       <LI>CIM_ERR_ACCESS_DENIED
       <LI>CIM_ERR_NOT_SUPPORTED
-      <LI>CIM_ERR_INVALID_NAMESPACE&nbsp;
+      <LI>CIM_ERR_INVALID_NAMESPACE 
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
-      duplicate,&nbsp;unrecognized or otherwise incorrect parameters)
+      duplicate, unrecognized or otherwise incorrect parameters)
       <LI>CIM_ERR_INVALID_CLASS (the CIM Class that is the
       basis for this enumeration does not exist)
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
@@ -931,13 +934,13 @@ public:
     <UL>
       <LI>CIM_ERR_ACCESS_DENIED
       <LI>CIM_ERR_NOT_SUPPORTED
-      <LI>CIM_ERR_INVALID_NAMESPACE&nbsp;
+      <LI>CIM_ERR_INVALID_NAMESPACE 
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
-      duplicate,&nbsp;unrecognized or otherwise incorrect parameters)
+      duplicate, unrecognized or otherwise incorrect parameters)
       <LI>CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED (the requested query language is
       not recognized)
-      <LI>CIM_ERR_INVALID_QUERY (the query is not a valid query&nbsp;in the
-      specified query language)&nbsp;
+      <LI>CIM_ERR_INVALID_QUERY (the query is not a valid query in the
+      specified query language) 
       <LI>CIM_ERR_FAILED (some other unspecified error ccurred)</LI>
      </UL>
     */
@@ -1030,9 +1033,9 @@ public:
     <UL>
       <LI>CIM_ERR_ACCESS_DENIED
       <LI>CIM_ERR_NOT_SUPPORTED
-      <LI>CIM_ERR_INVALID_NAMESPACE&nbsp;
+      <LI>CIM_ERR_INVALID_NAMESPACE 
       <LI>CIM_ERR_INVALID_PARAMETER (including
-      missing,duplicate,&nbsp;unrecognized or
+      missing,duplicate, unrecognized or
         otherwise incorrect parameters)
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
     </UL>
@@ -1102,7 +1105,7 @@ public:
       <LI>CIM_ERR_NOT_SUPPORTED
       <LI>CIM_ERR_INVALID_NAMESPACE;
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
-      duplicate,&nbsp;unrecognized or otherwise incorrect parameters)
+      duplicate, unrecognized or otherwise incorrect parameters)
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
     </UL>
     */
@@ -1183,9 +1186,9 @@ public:
     <UL>
       <LI>CIM_ERR_ACCESS_DENIED
       <LI>CIM_ERR_NOT_SUPPORTED
-      <LI>CIM_ERR_INVALID_NAMESPACE&nbsp;
+      <LI>CIM_ERR_INVALID_NAMESPACE 
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
-      	duplicate,&nbsp;unrecognized or otherwise incorrect parameters)
+      	duplicate, unrecognized or otherwise incorrect parameters)
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
      </UL>
     */
@@ -1311,14 +1314,14 @@ public:
       <LI>CIM_ERR_INVALID_NAMESPACE
 
       <LI>CIM_ERR_INVALID_PARAMETER (including
-      missing,duplicate,&nbsp;unrecognized or otherwise incorrect parameters)
+      missing,duplicate, unrecognized or otherwise incorrect parameters)
 
       <LI>CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the specified
       namespace)
       <LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested
-      CIM&nbsp;Instance does not exist in the specified namespace)
+      CIM Instance does not exist in the specified namespace)
       <LI>CIM_ERR_NO_SUCH_PROPERTY (the CIM Instance does exist, but the
-      requested Property does not)&nbsp;
+      requested Property does not) 
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
     </UL>
     */
@@ -1352,13 +1355,13 @@ public:
       <LI>CIM_ERR_NOT_SUPPORTED
       <LI>CIM_ERR_INVALID_NAMESPACE
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
-      	duplicate,&nbsp;unrecognized or otherwise incorrect parameters)
+      	duplicate, unrecognized or otherwise incorrect parameters)
       <LI>CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the specified
       	namespace)
       <LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested
-      	CIM&nbsp;Instance does not exist in the specified namespace)
+      	CIM Instance does not exist in the specified namespace)
       <LI>CIM_ERR_NO_SUCH_PROPERTY (the CIM Instance does exist, but the
-      	requested Property does not)&nbsp;
+      	requested Property does not) 
       <LI>CIM_ERR_TYPE_MISMATCH (the supplied value is incompatible with the
       	type of the Property)
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
@@ -1393,7 +1396,7 @@ public:
       <LI>CIM_ERR_NOT_SUPPORTED
       <LI>CIM_ERR_INVALID_NAMESPACE
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
-      	duplicate,&nbsp;unrecognized or otherwise incorrect parameters)
+      	duplicate, unrecognized or otherwise incorrect parameters)
       <LI>CIM_ERR_NOT_FOUND (the requested Qualifier declaration did not exist)
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)
       </LI>
@@ -1425,7 +1428,7 @@ public:
       <LI>CIM_ERR_NOT_SUPPORTED
       <LI>CIM_ERR_INVALID_NAMESPACE
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
-      duplicate,&nbsp;unrecognized or otherwise incorrect parameters)
+      duplicate, unrecognized or otherwise incorrect parameters)
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
   </UL>
 
@@ -1456,7 +1459,7 @@ public:
       <LI>CIM_ERR_NOT_SUPPORTED
       <LI>CIM_ERR_INVALID_NAMESPACE
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
-      	duplicate,&nbsp;unrecognized or otherwise incorrect parameters)
+      	duplicate, unrecognized or otherwise incorrect parameters)
       <LI>CIM_ERR_NOT_FOUND (the requested Qualifier declaration did not exist)
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)
       </LI>

@@ -166,6 +166,9 @@ will be deleted.
     operations.
 
     Modified registration provider to use latest provider registration schema.
+    
+18  (KS) 6 March 2002 - Implemented changes to compiler and flavors to correct the
+    definition of CIMFlavors.
 
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001

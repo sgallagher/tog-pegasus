@@ -126,8 +126,7 @@ endif
 
     SYS_INCLUDES += -I${ICU_ROOT}/source/common -I${ICU_ROOT}/source/i18n
     DEFINES += -DPEGASUS_HAS_ICU
-    SYS_LIBS += -licuuc
-    SYS_LIBS += -licui18n
+    EXTRA_LIBRARIES += -L$(ICU_INSTALL)/lib -licuuc -licui18n -licudata
   endif
 endif
 

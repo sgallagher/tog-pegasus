@@ -1,58 +1,37 @@
 ROOT = ../../../../../../
+DIR = Providers/TestProviders/CMPI/TestCMPIIndications/tests
 
 include $(ROOT)/mak/config.mak
+
+LIBRARIES = \
+     pegserver \
+     pegclient \
+     pegrepository \
+     pegconfig \
+     pegcommon
+
+LOGFILES = TestCMPIIndication
+
+EXTRA_INCLUDES = $(SYS_INCLUDES)
+
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY 
+
+PROGRAM = TestCMPIIndicationSubscription
+
+SOURCES = TestCMPIIndicationSubscription.cpp
+
+include $(ROOT)/mak/program.mak
 include $(ROOT)/test/config.mak
-
-XMLSCRIPTS =  \
-	CreateFilter01 CreateHandler01 CreateSubscription01 \
-	DeleteSubscription01 DeleteFilter01 DeleteHandler01 \
-	CreateFilter02 CreateHandler02 CreateSubscription02 \
-	DeleteSubscription02 DeleteFilter02 DeleteHandler02 \
-	CreateFilter03 CreateHandler03 CreateSubscription03 \
-	DeleteSubscription03 DeleteFilter03 DeleteHandler03 \
-	CreateFilter04 CreateHandler04 CreateSubscription04 \
-	DeleteSubscription04 DeleteFilter04 DeleteHandler04 
-
-
-LOGFILES =   TestCMPIIndication
-
-removeclasses:
-	@wbemexec $(WBEMEXECOPTIONS) DeleteSubscription01.xml
-	@wbemexec $(WBEMEXECOPTIONS) DeleteFilter01.xml
-	@wbemexec $(WBEMEXECOPTIONS) DeleteHandler01.xml
-	@wbemexec $(WBEMEXECOPTIONS) DeleteSubscription02.xml
-	@wbemexec $(WBEMEXECOPTIONS) DeleteFilter02.xml
-	@wbemexec $(WBEMEXECOPTIONS) DeleteHandler02.xml
-	@wbemexec $(WBEMEXECOPTIONS) DeleteSubscription03.xml
-	@wbemexec $(WBEMEXECOPTIONS) DeleteFilter03.xml
-	@wbemexec $(WBEMEXECOPTIONS) DeleteHandler03.xml
-	@wbemexec $(WBEMEXECOPTIONS) DeleteSubscription04.xml
-	@wbemexec $(WBEMEXECOPTIONS) DeleteFilter04.xml
-	@wbemexec $(WBEMEXECOPTIONS) DeleteHandler04.xml
-
-# I am redefining the poststarttests here.
-LOGREQUESTS = $(foreach i, $(LOGFILES), $i.loggood)
-LOGRESPONSES = $(LOGREQUESTS:.loggood=.logresp)
-
-%.logresp: %.loggood
-	@ $(MOVE) $*.log $*.logresp
-	@ $(DIFF) $*.loggood $(TMP_DIR)/$*.logresp
-	@ $(RM) $(TMP_DIR)/$*.logresp
-	@ $(ECHO) +++ $* passed successfully +++
-
-clean:
-	$(RM) $(XMLRESPONSES)
-	$(RM) $(LOGRESPONSES)
-
-depend:
 
 tests:
 
-ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-	@ ./change_hostname
-endif
-	
-poststarttests: $(XMLRESPONSES) $(LOGRESPONSES)
+poststarttests:
+	@$(RM) $(LOGFILES).log
+	@$(ECHO) $(PROGRAM) test
+	@$(PROGRAM) test
+	@$(ECHO) +++ $(PROGRAM) passed successfully +++
+	@$(DIFF) $(LOGFILES).loggood $(LOGFILES).log
+	@$(ECHO) +++ $(LOGFILES) passed successfully +++
 
-general:
+install:
 

@@ -241,7 +241,7 @@ Boolean Process::getCreationDate(CIMDateTime& d) const
   // convert time to a usable format
   struct tm *t = localtime((time_t*)&pInfo.pst_start);
   // convert to CIMDateTime format
-  char timstr[CIMDateTime::FORMAT_LENGTH+1];
+  char timstr[26];
   sprintf(timstr,"%04d%02d%02d%02d%02d%02d.000000%c%03d",t->tm_year+1900,
                        t->tm_mon+1,
                        t->tm_mday,

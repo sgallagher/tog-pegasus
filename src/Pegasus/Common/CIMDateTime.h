@@ -23,9 +23,9 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Karl Schopmeyer(k.schopmeyer@opengroup.org)
-//
-// Modified By: Sushma Fernandes, Hewlett Packard Company 
-//              (sushma_fernandes@hp.com)
+//              Sushma Fernandes, Hewlett Packard Company 
+//                  (sushma_fernandes@hp.com)
+//              Roger Kumpf, Hewlett Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,9 +34,9 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
+#ifdef PEGASUS_INTERNALONLY
 #include <iostream>
-
-#include <time.h>
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -105,7 +105,6 @@ class PEGASUS_COMMON_LINKAGE CIMDateTime
 {
 public:
 
-    enum { FORMAT_LENGTH = 25 };
     /** Create a new CIMDateTime object with NULL DateTime definition.
     */
     CIMDateTime();
@@ -125,7 +124,7 @@ public:
     CIMDateTime(const CIMDateTime& x);
 
     /** DateTime Destructor. */
-    ~CIMDateTime() { }
+    ~CIMDateTime();
 
     /**  Assign one DateTime object to another
     @param - The DateTime Object to assign
@@ -207,14 +206,10 @@ public:
     */
     Boolean isInterval();
 
-    /** CIMDateTime - ATTN: Friend operator Test for CIMDateTime 
-	equality
-    */
-    PEGASUS_COMMON_LINKAGE friend Boolean operator==(
-	const CIMDateTime& x,
-	const CIMDateTime& y);
-
+#ifdef PEGASUS_INTERNALONLY
 private:
+
+    enum { FORMAT_LENGTH = 25 };
 
     //
     // Length of the string required to store only the date and time without
@@ -243,15 +238,25 @@ private:
        @param tm           Contains the tm structure to be updated.
     */
     static void formatDateTime(char* dateTime, tm* tm);
+#endif
+
+    /** CIMDateTime - ATTN: Friend operator Test for CIMDateTime 
+	equality
+    */
+    PEGASUS_COMMON_LINKAGE friend Boolean operator==(
+	const CIMDateTime& x,
+	const CIMDateTime& y);
 };
 
 PEGASUS_COMMON_LINKAGE Boolean operator==(
     const CIMDateTime& x, 
     const CIMDateTime& y);
 
+#ifdef PEGASUS_INTERNALONLY
 PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
     PEGASUS_STD(ostream)& os, 
     const CIMDateTime& x);
+#endif
 
 #define PEGASUS_ARRAY_T CIMDateTime
 # include "ArrayInter.h"

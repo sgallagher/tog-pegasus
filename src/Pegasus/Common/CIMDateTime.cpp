@@ -23,13 +23,15 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Sushma Fernandes, Hewlett-Packard Company
-//              sushma_fernandes@hp.com
+//                  (sushma_fernandes@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cctype>
 #include <cstdlib>
 #include <cstdio>
+#include <time.h>
 #include "CIMDateTime.h"
 #include "Exception.h"
 #include "Array.h"
@@ -84,6 +86,10 @@ CIMDateTime& CIMDateTime::operator=(const CIMDateTime& x)
 	memcpy(_rep, x._rep, sizeof(_rep));
 
     return *this;
+}
+
+CIMDateTime::~CIMDateTime()
+{
 }
 
 Boolean CIMDateTime::isNull() const

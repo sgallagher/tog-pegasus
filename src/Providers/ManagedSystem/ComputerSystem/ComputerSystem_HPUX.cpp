@@ -56,7 +56,7 @@ PEGASUS_NAMESPACE_BEGIN
 static String _serialNumber;
 static String _hostName;
 static Array<String> _model;
-static String _installDate;
+static CIMDateTime _installDate;
 static String _primaryOwnerName;
 static String _primaryOwnerContact;
 static String _primaryOwnerPager;
@@ -363,7 +363,7 @@ void ComputerSystem::initialize(void)
   // convert to a usable format
   struct tm *t = localtime(&st.st_mtime);
   // convert to CIMDateTime format
-  char timstr[CIMDateTime::FORMAT_LENGTH+1];
+  char timstr[26];
   sprintf(timstr,"%04d%02d%02d%02d%02d%02d.000000%c%03d",t->tm_year+1900,
                        t->tm_mon+1,
                        t->tm_mday,

@@ -1,0 +1,35 @@
+
+class X
+{
+    [key]
+    string key;
+};
+
+class Y
+{
+    [key]
+    string key;
+};
+
+[association]
+class A
+{
+    [Key] X ref left;
+    [KEY] Y ref right;
+};
+
+instance of X
+{
+    key = "John Smith";
+};
+
+instance of Y
+{
+    key = "John Jones";
+};
+
+instance of A
+{
+    left = "X.key=\"John Smith"\"";
+    right = "Y.key=\"John Jones"\"";
+};

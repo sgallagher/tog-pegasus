@@ -33,6 +33,7 @@
 #include <Pegasus/Server/CIMServer.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Protocol/Handler.h>
+#include <Pegasus/Common/logger.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -67,6 +68,8 @@ void GetOptions(
     {
 	{"port", "8888", false, Option::WHOLE_NUMBER, 0, 0, "port"},
 	{"trace", "false", false, Option::BOOLEAN, 0, 0, "t"},
+	{"Severity", "ALL", false, Option::STRING, 0, 0, "s"},
+	{"logs", "ALL", false, Option::STRING, 0, 0, "L"},
 	{"version", "false", false, Option::BOOLEAN, 0, 0, "v"},
 	{"help", "false", false, Option::BOOLEAN, 0, 0, "h"},
 	{"debug", "false", false, Option::BOOLEAN, 0, 0, "d"}
@@ -170,6 +173,8 @@ int main(int argc, char** argv)
     String portOption;
     om.lookupValue("port", portOption);
 
+    Logger::setHomeDirectory("./logs");
+
     try
     {
 	Selector selector;
@@ -185,6 +190,10 @@ int main(int argc, char** argv)
 	cout << "Built " << __DATE__ << " " << __TIME__ << endl;
 	cout <<"Started..." 
 	     << (pegasusIOTrace ? " Tracing": " ") << endl;
+
+	Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+	    "Start $0 %1 port $2 $3 ", 88, PEGASUS_NAME, PEGASUS_VERSION,
+		    address, (pegasusIOTrace ? " Tracing": " "));
 
 	server.bind(address);
 	delete [] address;

@@ -107,7 +107,11 @@ CIMOMHandle & CIMOMHandle::operator=(const CIMOMHandle & handle)
     _rep->cimom = handle._rep->cimom;
     _rep->controller = handle._rep->controller;
     _rep->client_handle = handle._rep->client_handle;
-    _rep->client_handle->reference_count++;  // ATTN-RK-P2-20020712: This is a hack
+
+    // ATTN-RK-P2-20020712: This is a hack
+    if (_rep->client_handle) {
+        _rep->client_handle->reference_count++;
+    }
 
     return(*this);
 }

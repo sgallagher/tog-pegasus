@@ -553,6 +553,26 @@ String System::getFullyQualifiedHostName ()
     fqName.assign (hostName);
 
     return fqName;
+#elif defined(PEGASUS_OS_ZOS)
+	char hostName [PEGASUS_MAXHOSTNAMELEN];
+	char domainName [PEGASUS_MAXHOSTNAMELEN];
+	String fqName;
+	// receive short name of the local host
+	if (gethostname(hostName, PEGASUS_MAXHOSTNAMELEN) != 0)
+	{
+		return String::EMPTY;
+	}
+	// get domain name of the local host
+	if (domainName= __ipDomainName() == 0)
+	{
+		return String::EMPTY;
+	}
+	// build fully qualified hostname
+	fqName.assign(hostName);
+	fqName.append(".");
+	fqName.append(domainName);
+
+	return fqName;
 #else
     //
     //  ATTN: Implement this method to return the fully qualified host name

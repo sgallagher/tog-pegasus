@@ -168,15 +168,21 @@ OperatingSystemProvider::enumerateInstances(
 
     className = ref.getClassName();
     
-    // only support enumerate on our subclass, CIMOM will call us as 
-    // natural part of recursing through subtree on enumerate - if we
-    // return on enumerate of our superclass, there would be dups
+    // only return instances when enumerate on our subclass, CIMOM 
+    // will call us as natural part of recursing through subtree on 
+    // enumerate - if we return instances on enumerate of our superclass, 
+    // there would be dups
     if (String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))
     {
-         handler.processing();
-         instance = _build_instance(ref);
-         handler.deliver(instance);
-         handler.complete();
+        handler.processing();
+        instance = _build_instance(ref);
+        handler.deliver(instance);
+        handler.complete();
+    }
+    else if (String::equalNoCase(className, STANDARDOPERATINGSYSTEMCLASS))
+    {
+        handler.processing();
+        handler.complete();
     }
     else
     {
@@ -195,20 +201,27 @@ OperatingSystemProvider::enumerateInstanceNames(
     CIMObjectPath newref;
     String className;
 
-    // only support enumerate on our subclass, CIMOM will call us as 
-    // natural part of recursing through subtree on enumerate - if we
-    // return on enumerate of our superclass, there would be dups
+    // only return instances when enumerate on our subclass, CIMOM 
+    // will call us as natural part of recursing through subtree on 
+    // enumerate - if we return instances on enumerate of our superclass, 
+    // there would be dups
     className = ref.getClassName();
-    if (!String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))
+    if (String::equalNoCase(className, STANDARDOPERATINGSYSTEMCLASS))
+    {
+        handler.processing();
+        handler.complete();
+        return;
+    }
+    else if (!String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))
     {
         throw NotSupported("OperatingSystemProvider "
                        "does not support class " + className);
     }
 
+    // so we know it is for EXTENDEDOPERATINGSYSTEMCLASS
     handler.processing();
     // in terms of the class we use, want to set to what was requested 
     newref = _fill_reference(ref.getNameSpace(), className);
-// newref = _fill_reference(ref.getNameSpace(), STANDARDOPERATINGSYSTEMCLASS);
     handler.deliver(newref);
     handler.complete();
 

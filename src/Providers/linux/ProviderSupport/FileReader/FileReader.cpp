@@ -88,7 +88,7 @@ FileReader::~FileReader(void)
 
   CleanupRegexVector(file_regexs);
 
-  delete [] cstring_file_to_parse;
+  delete cstring_file_to_parse;
 }
 
 char const *FileReader::SearchFileRegexList(char const * const *filename_patterns, int *index) 
@@ -127,9 +127,9 @@ char const *FileReader::SearchFileRegexList(char const * const *filename_pattern
 
   if (FindNextMatchingFile(index, matches) != -1) {
 
-    delete [] cstring_file_to_parse;
+    delete cstring_file_to_parse;
 
-    cstring_file_to_parse = file_to_parse.allocateCString();
+    cstring_file_to_parse = strdup(file_to_parse.getCString());
 
     if ((stream = (FILE *) fopen(cstring_file_to_parse, "r")) == NULL)
       return NULL;
@@ -152,21 +152,16 @@ int FileReader::FindNextMatchingFile(int *index, vector<String> &matches)
   String filename_to_test;
   bool found;
   struct stat file_stat;
-  char *cstring_test;
+  CString cstring_test;
 
   file_to_parse = "";
 
   if (dir_frames.empty()) {  // We have no active frames.  Start one.
-    char *p;
-    
     new_frame.cwd_name = base_directory;
-    p = new_frame.cwd_name.allocateCString();
-    if ((new_frame.dir_handle = (DIR *) opendir(p)) == NULL)
+    if ((new_frame.dir_handle = (DIR *) opendir(new_frame.cwd_name.getCString())) == NULL)
     {
-      delete [] p;
       throw SearchDirectoryMissing(new_frame.cwd_name);
     }
-    delete [] p;
 
     dir_frames.push_back(new_frame);
   }
@@ -176,8 +171,6 @@ int FileReader::FindNextMatchingFile(int *index, vector<String> &matches)
   found = false;
 
   do {
-    char *p;
-
     if (readdir_r(working_frame->dir_handle, &entry, &result) != 0 ||  //error
 	result == NULL) {   // end of directory reached.
 
@@ -195,13 +188,10 @@ int FileReader::FindNextMatchingFile(int *index, vector<String> &matches)
     // If we get here, we've found a valid direntry.
     filename_to_test = working_frame->cwd_name + "/" + entry.d_name;
 
-    p = filename_to_test.allocateCString();
-    if (lstat(p, &file_stat) != 0)
+    if (lstat(filename_to_test.getCString(), &file_stat) != 0)
     {
-      delete [] p;
       continue;   // failed to locate file.  Give up and go on.
     }
-    delete [] p;
 
     if (S_ISDIR(file_stat.st_mode) &&
 	strcmp(entry.d_name, ".") != 0 &&
@@ -209,13 +199,10 @@ int FileReader::FindNextMatchingFile(int *index, vector<String> &matches)
 
       //  Descend the directory.  Push a new frame
       new_frame.cwd_name = filename_to_test;
-      p = new_frame.cwd_name.allocateCString();
-      if ((new_frame.dir_handle = (DIR *) opendir(p)) == NULL)
+      if ((new_frame.dir_handle = (DIR *) opendir(new_frame.cwd_name.getCString())) == NULL)
       {
-        delete [] p;
 	continue;   // Failed to open the directory.  Don't push the frame.
       }
-      delete [] p;
 
       dir_frames.push_back(new_frame);
 
@@ -227,7 +214,7 @@ int FileReader::FindNextMatchingFile(int *index, vector<String> &matches)
     if (!S_ISREG(file_stat.st_mode))
       continue;
 
-    cstring_test = filename_to_test.allocateCString();
+    cstring_test = filename_to_test.getCString();
     if (TextMatchesRegex(cstring_test, file_regexs, index, matches)) {
       
       int i;
@@ -240,15 +227,12 @@ int FileReader::FindNextMatchingFile(int *index, vector<String> &matches)
 	}
 
       if (i < N_IN_ARRAY(readfile_blacklist)) {  // hit a forbidden file
-	delete [] cstring_test;
 	continue;
       }
 
       file_to_parse = filename_to_test;
       found = true;
     }
-
-    delete [] cstring_test;
 
   } while (!found);
 

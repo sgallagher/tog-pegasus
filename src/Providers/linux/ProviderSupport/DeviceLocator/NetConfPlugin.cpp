@@ -304,13 +304,10 @@ IPV4NetInformation *NetConfPlugin::getNextDevice(void)
 	  break;
 	case IF_RX_INFO:
         {
-          char *p;
           unsigned long ul[6];
           for (int ii = 1; ii < 6; ii++)
           {
-             p = matches[ii].allocateCString();
-             ul[ii] = strtoul(p, NULL, 10);
-             delete [] p;
+             ul[ii] = strtoul(matches[ii].getCString(), NULL, 10);
           }
 	  iface->SetRxPackets(ul[1]);
 	  iface->SetRxErrStats(ul[2], ul[3], ul[4], ul[5]);
@@ -318,13 +315,10 @@ IPV4NetInformation *NetConfPlugin::getNextDevice(void)
         }
 	case IF_TX_INFO:
         {
-          char *p;
           unsigned long ul[6];
           for (int ii = 1; ii < 6; ii++)
           {
-             p = matches[ii].allocateCString();
-             ul[ii] = strtoul(p, NULL, 10);
-             delete [] p;
+             ul[ii] = strtoul(matches[ii].getCString(), NULL, 10);
           }
 	  iface->SetTxPackets(ul[1]);
 	  iface->SetTxErrStats(ul[2], ul[3], ul[4], ul[5]);
@@ -332,21 +326,13 @@ IPV4NetInformation *NetConfPlugin::getNextDevice(void)
         }
 	case IF_COLLISIONS:
         {
-          char *p;
-          p = matches[1].allocateCString();
-	  iface->SetCollisions(strtoul(p, NULL, 10));
-          delete [] p;
+	  iface->SetCollisions(strtoul(matches[1].getCString(), NULL, 10));
 	  break;
         }
 	case IF_RX_TX_BYTES:
         {
-          char *p;
-          p = matches[1].allocateCString();
-	  iface->SetRxBytes(strtoul(p, NULL, 10));
-          delete [] p;
-          p = matches[2].allocateCString();
-	  iface->SetTxBytes(strtoul(p, NULL, 10));
-          delete [] p;
+	  iface->SetRxBytes(strtoul(matches[1].getCString(), NULL, 10));
+	  iface->SetTxBytes(strtoul(matches[2].getCString(), NULL, 10));
 	  break;
         }
 	case IF_STATUS_FLAGS_MTU:

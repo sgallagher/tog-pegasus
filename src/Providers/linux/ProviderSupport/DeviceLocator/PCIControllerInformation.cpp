@@ -97,10 +97,7 @@ void PCIControllerInformation::SetExpansionROMBaseAddr(String const &address_tex
   if (address_text == "<unassigned>")
     return;
   
-  char *p;
-  p = address_text.allocateCString();
-  expansion_rom_base_addr.setValue(strtoul(p, NULL, 16));
-  delete [] p;
+  expansion_rom_base_addr.setValue(strtoul(address_text.getCString(), NULL, 16));
   return;
 }
 

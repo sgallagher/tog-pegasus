@@ -257,23 +257,14 @@ DeviceInformation *PCILocatorPlugin::getNextDevice(void)
 
 	curDevice->setUniqueKey(String("PCIController: ") + detailed_matches[1]);
 
-        char *p;
-        p = detailed_matches[2].allocateCString();
-	PCI_base = (Uint16) strtoul(p, NULL, 16);
-        delete [] p;
-        p = detailed_matches[3].allocateCString();
-	PCI_sub = (Uint16) strtoul(p, NULL, 16);
-        delete [] p;
+	PCI_base = (Uint16) strtoul(detailed_matches[2].getCString(), NULL, 16);
+	PCI_sub = (Uint16) strtoul(detailed_matches[3].getCString(), NULL, 16);
 	
 	curDevice->setBaseClass(PCI_base);
 	curDevice->setSubClass(PCI_sub);
 
-        p = detailed_matches[4].allocateCString();
-	curDevice->setManufacturerID(strtoul(p, NULL, 16));
-        delete [] p;
-        p = detailed_matches[5].allocateCString();
-	curDevice->setDeviceID((Uint16) strtoul(p, NULL, 16));
-        delete [] p;
+	curDevice->setManufacturerID(strtoul(detailed_matches[4].getCString(), NULL, 16));
+	curDevice->setDeviceID((Uint16) strtoul(detailed_matches[5].getCString(), NULL, 16));
 	curDevice->setManufacturerString(text_matches[3]);
 	curDevice->setDeviceString(text_matches[4]);
 
@@ -320,21 +311,16 @@ DeviceInformation *PCILocatorPlugin::getNextDevice(void)
 
       case PCI_LATENCY_CACHE:
       {
-        char *p;
-        p = detailed_matches[1].allocateCString();
-	curDevice->SetLatency(strtoul(p, NULL, 10));
-        delete [] p;
-        p = detailed_matches[2].allocateCString();
-	curDevice->SetCacheLineSize(strtoul(p, NULL, 10));
-        delete [] p;
+	curDevice->SetLatency(
+          strtoul(detailed_matches[1].getCString(), NULL, 10));
+	curDevice->SetCacheLineSize(
+          strtoul(detailed_matches[2].getCString(), NULL, 10));
 	break;
       }
       case PCI_LATENCY_NOCACHE:	
       {
-        char *p;
-        p = detailed_matches[1].allocateCString();
-	curDevice->SetLatency(strtoul(p, NULL, 10));
-        delete [] p;
+	curDevice->SetLatency(
+          strtoul(detailed_matches[1].getCString(), NULL, 10));
 	break;
       }
 	

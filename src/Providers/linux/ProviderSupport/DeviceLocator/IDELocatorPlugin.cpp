@@ -230,12 +230,9 @@ MediaAccessDeviceInformation *IDELocatorPlugin::createDevice(void){
 	curDeviceInformation->setName(curDevice);
 	curDeviceInformation->setDescription(model);
 	/* Capacity */
-        char *p;
         unsigned long ul;
-        p = capacity.allocateCString();
-        ul = strtoul(p, NULL, 10);
+        ul = strtoul(capacity.getCString(), NULL, 10);
 	curDeviceInformation->setMaxMediaSize(ul);
-        delete [] p;
 
 	/* Now see if the user actually wants this type of device */
 	if((subClass!=WILDCARD_DEVICE)&&(curDeviceInformation->getSubClass()!=subClass)){

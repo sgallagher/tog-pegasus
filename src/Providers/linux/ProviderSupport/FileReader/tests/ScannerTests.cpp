@@ -204,7 +204,6 @@ static void use_file_reader(void)
   int key_found;
   vector<String> matches;
   bool foundfile[3], foundsecret;
-  char *cptr;
 
   foundfile[0] = foundfile[1] = foundfile[2] = foundsecret = false;
 
@@ -225,8 +224,7 @@ static void use_file_reader(void)
 
       switch(lookup_info[lineindex].match_type) {
       case MATCH_KEY:
-	key_found = (int) atoi(cptr = matches[1].allocateCString());
-	delete [] cptr;
+	key_found = (int) atoi(matches[1].getCString());
 
 	if (key_found != fileindex + 1)
 	  throw ScannerTestFailed("Regular expression matched on wrong file.");

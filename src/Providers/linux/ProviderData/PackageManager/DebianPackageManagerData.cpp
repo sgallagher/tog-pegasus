@@ -182,10 +182,8 @@ PackageInformation * DebianPackageManagerData::GetPackage(const String &inName, 
 }
 
 FILE * DebianPackageManagerData::OpenStatusFile(const String &filename){
-	char *CStringFilename=filename.allocateCString();
 	FILE * retval;
-	retval= fopen(CStringFilename,"r");
-	delete [] CStringFilename;
+	retval= fopen(filename.getCString(),"r");
 	return retval;
 }
 

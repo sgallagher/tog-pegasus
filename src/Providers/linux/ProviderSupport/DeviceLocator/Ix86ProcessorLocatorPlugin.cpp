@@ -354,23 +354,17 @@ DeviceInformation *Ix86ProcessorLocatorPlugin::getNextDevice(void){
     case MATCH_CPU_STEPPING:
       if(curDevice)
       {
-        char *p;
         unsigned long ul;
-        p = matches[1].allocateCString();
-        ul = strtoul(p, NULL, 10);
+        ul = strtoul(matches[1].getCString(), NULL, 10);
 	curDevice->setStepping(ul);
-        delete [] p;
       }
       break;
     case MATCH_CPU_SPEED:
       if(curDevice){
-        char *p;
         unsigned long ul;
-        p = matches[1].allocateCString();
-        ul = strtoul(p, NULL, 10);
+        ul = strtoul(matches[1].getCString(), NULL, 10);
 	curDevice->setMaxClockSpeed(ul);
 	curDevice->setCurClockSpeed(ul);
-        delete [] p;
       }
       break;
 

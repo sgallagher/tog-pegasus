@@ -52,18 +52,13 @@ PEGASUS_NAMESPACE_BEGIN
 void IPV4NetInformation::ParseDottedQuad(String const &quad_string, 
 					 validated<dottedquad_t> *quad) const
 {
-  char *cstring;
   int int_octets[4];
   int fields, i;
   dottedquad_t byte_octets;
 
-  cstring = quad_string.allocateCString();
-
-  fields = sscanf(cstring, "%d.%d.%d.%d",
+  fields = sscanf(quad_string.getCString(), "%d.%d.%d.%d",
 		  &int_octets[0], &int_octets[1],
 		  &int_octets[2], &int_octets[3]);
-
-  delete [] cstring;
 
 
   if (fields != 4)
@@ -251,8 +246,8 @@ int IPV4IFInformation::SetMTU(String const &mtu_string)
   char *eptr;
   Uint32 hold_mtu;
 
-  char *p;
-  p = mtu_string.allocateCString();
+  CString p;
+  p = mtu_string.getCString();
   hold_mtu = strtoul(p, &eptr, 10);
   
   if (*eptr == 0) {
@@ -267,12 +262,11 @@ int IPV4IFInformation::SetMTU(String const &mtu_string)
 int IPV4IFInformation::SetInterrupt(String const &interrupt_string)
 {
   char *eptr;
-  char *p;
+  CString p;
   Uint32 int_hold;
 
-  p = interrupt_string.allocateCString();
+  p = interrupt_string.getCString();
   int_hold = strtoul(p, &eptr, 10);
-  delete [] p;
   
   if (*eptr == 0) {
     interrupt.setValue(int_hold);
@@ -286,12 +280,11 @@ int IPV4IFInformation::SetInterrupt(String const &interrupt_string)
 int IPV4IFInformation::SetBaseAddr(String const &base_address_string)
 {
   char *eptr;
-  char *p;
+  CString p;
   Uint32 hold_base;
 
-  p = base_address_string.allocateCString();
+  p = base_address_string.getCString();
   hold_base = strtoul(p, &eptr, 16);
-  delete [] p;
   
   if (*eptr == 0) {
     base_address.setValue(hold_base);

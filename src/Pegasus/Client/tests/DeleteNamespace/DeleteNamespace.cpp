@@ -477,9 +477,7 @@ int main(int argc, char** argv)
 	/*
 	if (om.lookupValue("repeat", repeats))
         {
-		char* repeatsStr = repeats.allocateCString();
-		repeatTestCount = atol(repeatsStr);
-		delete [] repeatsStr;
+		repeatTestCount = atol(repeats.getCString());
         }
 	else
 		repeatTestCount = 1;

@@ -116,7 +116,7 @@ int EthernetAdapterData::initialize(void)
  *  and from mii-diag (if present). */
 int EthernetAdapterData::initialize(IPV4IFInformation const *interface)
 {
-  char *name_cstring;
+  CString name_cstring;
   char const *mii_args[] = { "mii-diag", "PLACEHOLDER", NULL };
   char const *mii_exename = mii_args[0];
   ExecScanner mii_runner;
@@ -138,8 +138,8 @@ int EthernetAdapterData::initialize(IPV4IFInformation const *interface)
     mii_regexs[i] = mii_info[i].regex;
   mii_regexs[i] = NULL;
 
-  name_cstring = name.allocateCString();
-  mii_args[N_IN_ARRAY(mii_args) - 2] = name_cstring;
+  name_cstring = name.getCString();
+  mii_args[N_IN_ARRAY(mii_args) - 2] = (const char*)name_cstring;
   if (mii_runner.ExecuteForScan(mii_exename, mii_args) == 0) {
 
     mii_runner.SetSearchRegexps(mii_regexs);
@@ -149,10 +149,7 @@ int EthernetAdapterData::initialize(IPV4IFInformation const *interface)
       switch(index) {
       case MII_AUTONEG_MEDIA:
       {
-        char *p;
-        p = matches[1].allocateCString();
-	SetMaxSpeed(strtoul(p, NULL, 10) * 1000000);
-        delete [] p;
+	SetMaxSpeed(strtoul(matches[1].getCString(), NULL, 10) * 1000000);
 	if (matches[2] == "") // not full-duplex
 	  SetFullDuplex(false);
 	else
@@ -172,7 +169,6 @@ int EthernetAdapterData::initialize(IPV4IFInformation const *interface)
   SetLogicalDeviceID(String("Interface:") + name);
 
   adapter_type = NETWORK_ADAPTER_ETHERNET;
-  delete [] name_cstring;
   return 0;
 }
 

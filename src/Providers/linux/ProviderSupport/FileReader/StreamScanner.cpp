@@ -118,7 +118,6 @@ int StreamScanner::GetNextMatchingLine(String &line, int *index,
 {
   char readbuffer[READBUFFER_LEN];
   String current_line;
-  char *cptr;
 
   if (stream == NULL)
     return -1;
@@ -146,13 +145,10 @@ int StreamScanner::GetNextMatchingLine(String &line, int *index,
       current_line.remove(current_line.size() - 1);
 
     /* Check for a match */
-    cptr = current_line.allocateCString();
-    if (TextMatchesRegex(cptr, line_regexs, index, matches)) {
+    if (TextMatchesRegex(current_line.getCString(), line_regexs, index, matches)) {
       line = current_line;
-      delete [] cptr;
       return 0;
     }
-    delete [] cptr;
   }
 }
 

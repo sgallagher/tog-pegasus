@@ -35,7 +35,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 extern "C" PEGASUS_EXPORT CIMBaseProvider * PegasusCreateProvider(const String & className)
 {
-	if(String::equalNoCase(className, "sample_dummyinstance"))
+	if(String::equalNoCase(className, "sample_instanceproviderclass"))
 	{
 		return(new InstanceProvider());
 	}

@@ -47,9 +47,13 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 /* The following define is used to control displays of output from the
-    test.  Comment out the define to turn off the large quantity of prinout
+    test.  Comment out the define to turn off the large quantity of prinout.
+    Added the verbose variable which comes from an environment variable.
+    IO occurs onlly when the environment variable is set.
 */
-#define IO
+#define IO 1
+
+static char * verbose;
 
 
 /* This template provides a complete set of tests of simple CIMValues for
@@ -68,8 +72,11 @@ void test01(const T& x)
     CIMValue v4(type,false);
     v3 = v2;
 #ifdef IO
-    cout << "\n----------------------\n";
-    v3.print(true);
+    if (verbose)
+    {
+	cout << "\n----------------------\n";
+	v3.print(true);
+    }
 #endif
     try
     {
@@ -97,8 +104,11 @@ void test01(const T& x)
         // Test toString
         String valueString = v.toString();
 #ifdef IO
-        cout << "MOF = [" << mofout.getData() << "]" << endl;
-        cout << "toString Output [" << valueString << "]" << endl;
+	if (verbose)
+	{
+	    cout << "MOF = [" << mofout.getData() << "]" << endl;
+	    cout << "toString Output [" << valueString << "]" << endl;
+	}
 #endif
 
     // There should be no exceptions to this point in the test.
@@ -128,9 +138,12 @@ void test01(const T& x)
         v.toMof(mofOutput2);
         mofOutput2.append('\0');
 #ifdef IO
-        cout << "MOF NULL = [" << mofOutput2.getData() << "]" << endl;
-        cout << "toString NULL Output [" << valueString2 << "]" << endl;
-        cout << " XML NULL = [" << xmlString2 << "]" << endl;
+	if (verbose)
+	{
+	    cout << "MOF NULL = [" << mofOutput2.getData() << "]" << endl;
+	    cout << "toString NULL Output [" << valueString2 << "]" << endl;
+	    cout << " XML NULL = [" << xmlString2 << "]" << endl;
+	}
 #endif
         v.clear();
         assert(v.isNull());
@@ -159,8 +172,11 @@ void test02(const Array<T>& x)
     CIMType type = va.getType();            // get the type of v
     CIMValue va4(type,true);
 #ifdef IO
-    cout << "\n----------------------\n";
-    va3.print(true);
+    if (verbose)
+    {
+	cout << "\n----------------------\n";
+	va3.print(true);
+    }
 #endif
     try
     {
@@ -197,9 +213,11 @@ void test02(const Array<T>& x)
         // Test toString
         String valueString = va.toString();
 #ifdef IO
-        cout << "MOF = [" << mofOutput.getData() << "]" << endl;
-
-        cout << "toString Output [" << valueString << "]" << endl;
+	if (verbose)
+	{
+	    cout << "MOF = [" << mofOutput.getData() << "]" << endl;
+	    cout << "toString Output [" << valueString << "]" << endl;
+	}
 #endif
         // There should be no exceptions to this point so the
         // catch simply terminates.
@@ -231,9 +249,12 @@ void test02(const Array<T>& x)
         va.toMof(mofOutput2);
         mofOutput2.append('\0');
 #ifdef IO
-        cout << "MOF NULL = [" << mofOutput2.getData() << "]" << endl;
-        cout << "toString NULL Output [" << valueString2 << "]" << endl;
-        cout << " XML NULL = [" << xmlString2 << "]" << endl;
+	if (verbose)
+	{
+	    cout << "MOF NULL = [" << mofOutput2.getData() << "]" << endl;
+	    cout << "toString NULL Output [" << valueString2 << "]" << endl;
+	    cout << " XML NULL = [" << xmlString2 << "]" << endl;
+	}
 #endif
         va.clear();
         assert(va.isNull());
@@ -246,10 +267,12 @@ void test02(const Array<T>& x)
 
 }
 
-int main()
+int main(int argc, char** argv)
 {
 #ifdef IO
-    cout << "Test CIMValue. To turn off display, compile with IO undefined\n";
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    if (verbose)
+	cout << "Test CIMValue. To turn off display, compile with IO undefined\n";
 #endif
     // Test the primitive CIMValue types with test01
     test01(Boolean(true));
@@ -363,7 +386,7 @@ int main()
     arr15.append(CIMReference("//host3:99/root/test/static:Class3.keyX=\"keyXValue\",keyY=\"keyYValue\""));
     test02(arr15);
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

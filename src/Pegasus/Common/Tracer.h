@@ -422,8 +422,11 @@ private:
 #ifdef PEGASUS_REMOVE_TRACE
     #define PEG_FUNC_ENTER(traceComponent,methodName) 
     #define PEG_FUNC_EXIT(traceComponent,methodName) 
+    #define PEG_METHOD_ENTER(traceComponent,methodName) 
+    #define PEG_METHOD_EXIT() 
 #else
     /** Macro for tracing method entry
+        ATTN: Phase out in favor of PEG_METHOD_ENTER
         @param    traceComponent  component being traced
         @param    methodName      name of the method
      */
@@ -431,11 +434,26 @@ private:
 	Tracer::traceEnter(__FILE__, __LINE__,traceComponent,methodName)
 
     /** Macro for tracing method exit
+        ATTN: Phase out in favor of PEG_METHOD_EXIT
         @param    traceComponent  component being traced
         @param    methodName      name of the method
      */
     #define PEG_FUNC_EXIT(traceComponent,methodName) \
 	Tracer::traceExit(__FILE__,__LINE__,traceComponent,methodName)
+
+    /** Macro for tracing method entry
+        @param    traceComponent  component being traced
+        @param    methodName      name of the method
+     */
+    #define PEG_METHOD_ENTER(traceComponent,methodName) \
+	const char *PEG_METHOD_NAME = methodName; \
+	const Uint32 PEG_TRACE_COMPONENT = traceComponent; \
+	Tracer::traceEnter(__FILE__,__LINE__,PEG_TRACE_COMPONENT,PEG_METHOD_NAME)
+
+    /** Macro for tracing method exit
+     */
+    #define PEG_METHOD_EXIT() \
+	Tracer::traceExit(__FILE__,__LINE__,PEG_TRACE_COMPONENT,PEG_METHOD_NAME)
 #endif
 
 PEGASUS_NAMESPACE_END

@@ -26,7 +26,7 @@
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //         Dan Gorey, IBM (djgorey@us.ibm.com)
 //
-// Modified By:
+// Modified By:  Seema Gupta (gseema@in.ibm.com) for Bug#1441
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -62,20 +62,20 @@ public:
 
 protected:
 
-    Message * _handleGetInstanceRequest(Message * message) throw();
-    Message * _handleEnumerateInstancesRequest(Message * message) throw();
-    Message * _handleEnumerateInstanceNamesRequest(Message * message) throw();
-    Message * _handleCreateInstanceRequest(Message * message) throw();
-    Message * _handleModifyInstanceRequest(Message * message) throw();
-    Message * _handleDeleteInstanceRequest(Message * message) throw();
-    Message * _handleExecuteQueryRequest(Message * message) throw();
-    Message * _handleAssociatorsRequest(Message * message) throw();
-    Message * _handleAssociatorNamesRequest(Message * message) throw();
-    Message * _handleReferencesRequest(Message * message) throw();
-    Message * _handleReferenceNamesRequest(Message * message) throw();
-    Message * _handleGetPropertyRequest(Message * message) throw();
-    Message * _handleSetPropertyRequest(Message * message) throw();
-    Message * _handleInvokeMethodRequest(Message * message) throw();
+    Message * _handleGetInstanceRequest(Message * message);
+    Message * _handleEnumerateInstancesRequest(Message * message);
+    Message * _handleEnumerateInstanceNamesRequest(Message * message);
+    Message * _handleCreateInstanceRequest(Message * message);
+    Message * _handleModifyInstanceRequest(Message * message);
+    Message * _handleDeleteInstanceRequest(Message * message);
+    Message * _handleExecuteQueryRequest(Message * message);
+    Message * _handleAssociatorsRequest(Message * message);
+    Message * _handleAssociatorNamesRequest(Message * message);
+    Message * _handleReferencesRequest(Message * message);
+    Message * _handleReferenceNamesRequest(Message * message);
+    Message * _handleGetPropertyRequest(Message * message);
+    Message * _handleSetPropertyRequest(Message * message);
+    Message * _handleInvokeMethodRequest(Message * message);
 };
 
 PEGASUS_NAMESPACE_END

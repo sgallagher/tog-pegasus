@@ -31,6 +31,7 @@
 //               Dan Gorey, IBM (djgorey@us.ibm.com)
 //               Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //				 Seema Gupta (gseema@in.ibm.com) for PEP135
+//				 Seema Gupta (gseema@in.ibm.com) for Bug#1441
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -167,7 +168,11 @@ Message * ProviderMessageFacade::handleRequestMessage(Message * message) throw()
     return(response);
 }
 
-Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) throw()
+/* Since the caller of _handleXXX methods (handleRequestMessage)  is not expected to 
+throw an exception (indicated by the empty throw() clause on handleRequestMessage), all the 
+_handleXXX methods also shouldn't throw an exception */
+
+Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) 
 {
     const CIMGetInstanceRequestMessage * request =
 	dynamic_cast<CIMGetInstanceRequestMessage *>(message);
@@ -258,7 +263,7 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) th
     return response.release();
 }
 
-Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * message) throw()
+Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * message) 
 {
     const CIMEnumerateInstancesRequestMessage * request =
 	dynamic_cast<CIMEnumerateInstancesRequestMessage *>(message);
@@ -334,7 +339,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
     return response.release();
 }
 
-Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * message) throw()
+Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * message) 
 {
     const CIMEnumerateInstanceNamesRequestMessage * request =
 	dynamic_cast<CIMEnumerateInstanceNamesRequestMessage *>(message);
@@ -403,7 +408,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * 
     return response.release();
 }
 
-Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message) throw()
+Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message) 
 {
     const CIMCreateInstanceRequestMessage * request =
 	dynamic_cast<CIMCreateInstanceRequestMessage *>(message);
@@ -490,7 +495,7 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
     return response.release();
 }
 
-Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message) throw()
+Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message) 
 {
     const CIMModifyInstanceRequestMessage * request =
 	dynamic_cast<CIMModifyInstanceRequestMessage *>(message);
@@ -562,7 +567,7 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
     return response.release();
 }
 
-Message * ProviderMessageFacade::_handleDeleteInstanceRequest(Message * message) throw()
+Message * ProviderMessageFacade::_handleDeleteInstanceRequest(Message * message) 
 {
     const CIMDeleteInstanceRequestMessage * request =
 	dynamic_cast<CIMDeleteInstanceRequestMessage *>(message);
@@ -625,7 +630,7 @@ Message * ProviderMessageFacade::_handleDeleteInstanceRequest(Message * message)
     return response.release();
 }
 
-Message * ProviderMessageFacade::_handleExecuteQueryRequest(Message * message) throw()
+Message * ProviderMessageFacade::_handleExecuteQueryRequest(Message * message) 
 {
     const CIMExecQueryRequestMessage * request =
 	dynamic_cast<CIMExecQueryRequestMessage *>(message);
@@ -656,7 +661,7 @@ Message * ProviderMessageFacade::_handleExecuteQueryRequest(Message * message) t
     return response.release();
 }
 
-Message * ProviderMessageFacade::_handleAssociatorsRequest(Message * message) throw()
+Message * ProviderMessageFacade::_handleAssociatorsRequest(Message * message) 
 {
     const CIMAssociatorsRequestMessage * request =
 	dynamic_cast<CIMAssociatorsRequestMessage *>(message);
@@ -687,7 +692,7 @@ Message * ProviderMessageFacade::_handleAssociatorsRequest(Message * message) th
     return response.release();
 }
 
-Message * ProviderMessageFacade::_handleAssociatorNamesRequest(Message * message) throw()
+Message * ProviderMessageFacade::_handleAssociatorNamesRequest(Message * message) 
 {
     const CIMAssociatorNamesRequestMessage * request =
 	dynamic_cast<CIMAssociatorNamesRequestMessage *>(message);
@@ -718,7 +723,7 @@ Message * ProviderMessageFacade::_handleAssociatorNamesRequest(Message * message
     return response.release();
 }
 
-Message * ProviderMessageFacade::_handleReferencesRequest(Message * message) throw()
+Message * ProviderMessageFacade::_handleReferencesRequest(Message * message) 
 {
     const CIMReferencesRequestMessage * request =
 	dynamic_cast<CIMReferencesRequestMessage *>(message);
@@ -749,7 +754,7 @@ Message * ProviderMessageFacade::_handleReferencesRequest(Message * message) thr
     return response.release();
 }
 
-Message * ProviderMessageFacade::_handleReferenceNamesRequest(Message * message) throw()
+Message * ProviderMessageFacade::_handleReferenceNamesRequest(Message * message) 
 {
     const CIMReferenceNamesRequestMessage * request =
 	dynamic_cast<CIMReferenceNamesRequestMessage *>(message);
@@ -780,7 +785,7 @@ Message * ProviderMessageFacade::_handleReferenceNamesRequest(Message * message)
     return response.release();
 }
 
-Message * ProviderMessageFacade::_handleGetPropertyRequest(Message * message) throw()
+Message * ProviderMessageFacade::_handleGetPropertyRequest(Message * message) 
 {
     const CIMGetPropertyRequestMessage * request =
 	dynamic_cast<CIMGetPropertyRequestMessage *>(message);
@@ -812,7 +817,7 @@ Message * ProviderMessageFacade::_handleGetPropertyRequest(Message * message) th
     return response.release();
 }
 
-Message * ProviderMessageFacade::_handleSetPropertyRequest(Message * message) throw()
+Message * ProviderMessageFacade::_handleSetPropertyRequest(Message * message) 
 {
     const CIMSetPropertyRequestMessage * request =
 	dynamic_cast<CIMSetPropertyRequestMessage *>(message);
@@ -840,7 +845,7 @@ Message * ProviderMessageFacade::_handleSetPropertyRequest(Message * message) th
     return response.release();
 }
 
-Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) throw()
+Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) 
 {
     const CIMInvokeMethodRequestMessage * request =
 	dynamic_cast<CIMInvokeMethodRequestMessage *>(message);

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Config.h,v $
+// Revision 1.5  2001/04/13 21:06:36  mike
+// new
+//
 // Revision 1.4  2001/04/13 19:57:17  mike
 // Fixed several memory leaks.
 // Fixed build crash problem (caused by screwed up NT flags).
@@ -49,23 +52,9 @@
 #ifndef Pegasus_Config_h
 #define Pegasus_Config_h
 
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
-# include <Pegasus/Common/ConfigWindows.h>
-#elif defined(PEGASUS_OS_TYPE_UNIX)
-# include <Pegasus/Common/ConfigUnix.h>
-#else
-# error "Unsupported platform"
-#endif
+#include <Pegasus/Common/ConfigPlatform.h>
 
 #include <iostream>
-
-#if defined(sparc)
-# define PEGASUS_OS_SOLARIS
-#elif defined(linux)
-# define PEGASUS_OS_LINUX
-#elif defined(_WIN32)
-# define PEGASUS_OS_WIN32
-#endif
 
 #define PEGASUS_TRACE \
     std::cout << __FILE__ << '(' << __LINE__ << ')' << std::endl

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
+// Revision 1.10  2001/04/13 21:06:36  mike
+// new
+//
 // Revision 1.9  2001/04/08 21:57:13  karl
 // dir hier tested
 //
@@ -49,15 +52,6 @@
 //
 //
 //END_HISTORY
-
- #ifdef PEGASUS_OS_TYPE_WINDOWS
-# include <io.h>
-# include <direct.h>
-#else
-# include <unistd.h>
-# include <dirent.h>
-#endif
-
 
 #include <cassert>
 #include <fstream>

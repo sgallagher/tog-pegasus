@@ -75,6 +75,10 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   Boolean         _emit_xml;
   compilerCommonDefs::operationType _ot;
   Boolean         _trace;
+#ifdef PEGASUS_OS_OS400
+// chuck
+  Boolean         _quiet;
+#endif
   PEGASUS_STD(ostream)      *_traceos;
   PEGASUS_STD(ostream)      *_erroros;
   PEGASUS_STD(ostream)      *_warningos;
@@ -118,6 +122,12 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   void set_trace() { _trace = true; }
   void reset_trace() { _trace = false; }
   Boolean trace() const { return _trace; }
+#ifdef PEGASUS_OS_OS400
+// chuck
+  void set_quiet() { _quiet = true; }
+  void reset_quiet() { _quiet = false; }
+  Boolean quiet() const { return _quiet; }
+#endif
   void set_operationType(compilerCommonDefs::operationType ot) { _ot = ot; }
   void reset_operationType() { _ot = compilerCommonDefs::USE_REPOSITORY; }
   compilerCommonDefs::operationType operationType() const { return _ot; }

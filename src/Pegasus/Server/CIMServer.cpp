@@ -27,6 +27,7 @@
 //         Mike Day (mdday@us.ibm.com)s
 //         Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//         Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -111,6 +112,11 @@ CIMServer::CIMServer(
     UserManager* userManager = UserManager::getInstance(repository);
 
     _acceptor = new HTTPAcceptor(_monitor, serverQueue);
+
+    /** load registered providers from repository, and creates
+        provider block table
+    */
+    _cimOperationRequestDispatcher->loadRegisteredProviders();
 }
 
 CIMServer::~CIMServer()
@@ -131,6 +137,11 @@ void CIMServer::runForever()
 {
     if(!_dieNow)
 	_monitor->run(100);
+}
+
+CIMOperationRequestDispatcher* CIMServer::getDispatcher()
+{
+   return _cimOperationRequestDispatcher;
 }
 
 PEGASUS_NAMESPACE_END

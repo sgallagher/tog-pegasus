@@ -24,8 +24,9 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//            : Mike Day (mdday@us.ibm.com)
+//            : Yi Zhou (yi_zhou@hp.com)
 //
-// Modified by: Mike Day (mdday@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -177,6 +178,10 @@ public:
     
     void handleUpdateIndicationRequest(
 	CIMUpdateIndicationRequestMessage* request);
+
+    ProviderManager* getProviderManager(void);
+
+    void loadRegisteredProviders(void);
 
 protected:
 

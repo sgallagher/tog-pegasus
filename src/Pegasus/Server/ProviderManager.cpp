@@ -24,6 +24,7 @@
 //
 // Modified By:
 //              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
+//              Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -98,6 +99,112 @@ ProviderHandle * ProviderManager::getProvider(const String & providerName, const
     // recurse to get the provider as it resides in the array (rather than the local instance)
     return(getProvider(providerName, className));
 }
+
+
+void ProviderManager::_addProviderToTable
+		(const String & providerName, Boolean blockFlag)
+{
+    ProviderBlockedEntry providerInfo(providerName, blockFlag);
+
+    // add providerInfo to provider block table
+    _providerBT.append(providerInfo);
+}
+
+void ProviderManager::addProviderToTable
+		(const String & providerName, Boolean BlockFlag)
+{
+    _addProviderToTable(providerName, BlockFlag);
+}
+
+void ProviderManager::removeProviderFromTable
+		(const String & providerName)
+{
+	for (Uint32 i=0, n=_providerBT.size(); i<n; i++)
+	{
+	   if(String::equalNoCase(providerName,_providerBT[i].getProviderName()))
+	   {
+		_providerBT.remove(i);
+	   }
+	}
+}
+
+Uint32 ProviderManager::blockProvider(const String & providerName)
+{
+	for (Uint32 i=0, n=_providerBT.size(); i<n; i++)
+	{
+	   if(String::equalNoCase(providerName,_providerBT[i].getProviderName()))
+	   {
+		_providerBT[i].setProviderBlockFlag(true);
+		return (0);
+	   }	
+	}
+
+	return (1);
+}
+
+Uint32 ProviderManager::unblockProvider(const String & providerName)
+{
+	for (Uint32 i=0, n=_providerBT.size(); i<n; i++)
+	{
+	   if(String::equalNoCase(providerName,_providerBT[i].getProviderName()))
+	   {
+		_providerBT[i].setProviderBlockFlag(false);
+		return (0);
+	   }	
+	}
+
+	return (1);
+}
+
+Boolean ProviderManager::isProviderBlocked(const String & providerName)
+{
+	for (Uint32 i=0, n=_providerBT.size(); i<n; i++)
+	{
+	   if(String::equalNoCase(providerName,_providerBT[i].getProviderName()))
+	   {
+		return(_providerBT[i].getProviderBlockFlag());
+	   }	
+	}
+	return (false);
+}
+
+void ProviderManager::createProviderBlockTable(Array<CIMNamedInstance> & namedinstances)
+{
+
+	String providerName;
+	Boolean blockFlag;
+	CIMInstance instance;
+	
+	for(Uint32 i = 0, n = namedinstances.size(); i < n; i++)
+	{
+	    instance = namedinstances[i].getInstance(); 
+	    providerName = instance.getProperty(
+             instance.findProperty("Name")).getValue().toString();
+	    instance.getProperty(instance.findProperty("blocked")).
+		getValue().get(blockFlag);
+	    _addProviderToTable(providerName, blockFlag);
+	}
+}
+
+Uint32 ProviderManager::stopProvider(const String & providerName)
+{
+    // check list for requested provider. If found, terminate the
+    // provider and unload library
+    for(Uint32 i = 0, n = _providers.size(); i < n; i++)
+    {
+        if(String::equalNoCase(providerName, _providers[i].getProviderName()))
+        {
+	    // get provider handle
+	    _providers[i].getProvider()->terminate();
+	    _providers[i].unload();
+            return(0);
+        }
+    }
+    
+    // if provider is not loaded, just return
+	return (0);
+}
+    
     
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::monitorThread(void * arg)
 {

@@ -20,56 +20,40 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
+// Author: Yi Zhou (yi_zhou@hp.com)
 //
 // Modified By:
-//              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//              Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
+//  
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_ProviderManager_h
-#define Pegasus_ProviderManager_h
+#ifndef Pegasus_ProviderBlockedEntry_h
+#define Pegasus_ProviderBlockedEntry_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Thread.h>
-
-#include <Pegasus/Server/ProviderModule.h>
-#include <Pegasus/Server/ServiceCIMOMHandle.h>
-#include <Pegasus/Server/ProviderBlockedEntry.h>
+#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/Sharable.h>
 
 #include <Pegasus/Provider/ProviderHandle.h>
 #include <Pegasus/Provider/ProviderException.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE ProviderManager
+class PEGASUS_SERVER_LINKAGE ProviderBlockedEntry : public Sharable
 {
 public:
-	ProviderManager(MessageQueue * outputQueue, CIMRepository * repository, CIMServer * server);
-	virtual ~ProviderManager(void);
+	ProviderBlockedEntry(const String & providerName, Boolean BlockFlag);
+	virtual ~ProviderBlockedEntry(void);
 
-	ProviderHandle * getProvider(const String & providerName, const String & className);
+	const String & getProviderName(void) const;
+	Boolean getProviderBlockFlag(void) const;
 
-	void addProviderToTable(const String & providerName, Boolean BlockFlag);
-	void removeProviderFromTable(const String & providerName);
-	Uint32 blockProvider(const String & providerName);
-	Uint32 unblockProvider(const String & providerName);
-	Uint32 stopProvider(const String & providerName);
-	Boolean isProviderBlocked(const String & providerName);
-	void createProviderBlockTable(Array<CIMNamedInstance> & instances);
+	void setProviderBlockFlag(Boolean BlockFlag);
 
 protected:
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL monitorThread(void * arg);
-
-	CIMOMHandle _cimom;
-	ServiceCIMOMHandle _serviceCimom;
-	Array<ProviderModule> _providers;
-	Array<ProviderBlockedEntry> _providerBT;
-
-private:
-	void _addProviderToTable(const String & providerName, Boolean blockFlag);
+	String _providerName;
+	Boolean _providerBlockFlag;
 
 };
 

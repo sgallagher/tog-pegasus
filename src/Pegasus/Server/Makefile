@@ -55,6 +55,7 @@ SOURCES = \
     ProviderManager.cpp \
     ProviderModule.cpp \
     ServiceCIMOMHandle.cpp \
+    ProviderBlockedEntry.cpp \
     CIMServer.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))

@@ -37,3 +37,6 @@ config:
 
 user:
 	@ $(MAKE) -SC src/Providers/generic/UserManagerProvider/load user
+
+registration:
+	@ $(MAKE) -SC src/Providers/generic/PG_RegistrationProvider/load registration

@@ -463,6 +463,10 @@ repository implementation.
 54. (Mike Brasher - BMC) 3 Dec 2001 - Added support for WQL-1. New directory
     under src/Pegasus/WQL which contains library and BNF.
 
+55. (Yi Zhou - HP) 03 Dec 2001 - Implemented Pegasus registration provider
+    which does provider registration, block, unblock, and stop a provider.
+    It also alert Subscription Service of any provider registration changes.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

@@ -84,6 +84,8 @@ public:
     */
     void killServer() { _dieNow = true; }
 
+    CIMOperationRequestDispatcher* getDispatcher();
+
 private:
 
     Boolean _dieNow;

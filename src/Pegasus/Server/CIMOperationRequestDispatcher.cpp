@@ -152,7 +152,61 @@ String CIMOperationRequestDispatcher::_lookupProviderForClass(
     //----------------------------------------------------------------------
 
     CIMClass cimClass;
+    Array<CIMNamedInstance> enumInstances;
+    CIMInstance instance;
+    String classname;
+    String providername;
 
+   // check if it is asking for PG_RegistrationProvider
+   if (className == "PG_Provider" || className == "CIM_ProviderCapabilities")
+   {
+	return ("PG_ProviderRegistration");
+   }
+
+   // use provider registration to find provider
+    try
+    {
+      // get all the registered providers
+       enumInstances = _repository->enumerateInstances(nameSpace, "CIM_ProviderCapabilities");
+    }
+
+    catch (CIMException& e)
+    {
+        if (e.getCode() == CIM_ERR_NOT_FOUND)
+        {
+	    throw CIMException(CIM_ERR_INVALID_CLASS);
+        }
+        else
+        {
+            throw e;
+        }
+    }
+
+    for (Uint32 i = 0, n = enumInstances.size(); i < n ; i++)
+    {
+	instance = enumInstances[i].getInstance();
+	// get className
+	classname = instance.getProperty(instance.findProperty("ClassName")).getValue().toString();
+	if (String::equal(classname, className))
+	{
+	  providername = instance.getProperty(instance.findProperty("ProviderName")).getValue().toString();
+
+          if (_providerManager.isProviderBlocked(providername)) // blocked
+          {
+	     // if the provider is blocked
+
+	     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider is blocked"); 
+	     return (String::EMPTY);
+          }
+          else
+          {
+	     return(providername);
+          }
+	} 
+    }		
+
+// ATTN: still use qualifier to find provider if a provider did not use 
+// PG_RegistrationProvider to register. Will remove in the future 
     try
     {
         cimClass = _repository->getClass(nameSpace, className);
@@ -169,7 +223,6 @@ String CIMOperationRequestDispatcher::_lookupProviderForClass(
             throw e;
         }
     }
-
     //----------------------------------------------------------------------
     // Get the provider qualifier:
     //----------------------------------------------------------------------
@@ -186,7 +239,16 @@ String CIMOperationRequestDispatcher::_lookupProviderForClass(
     q.getValue().get(providerId);
     DDD(cout << _DISPATCHER << "Provider " << providerId << endl;)
 
+    if (_providerManager.isProviderBlocked(providerId)) // blocked
+    {
+	// if the provider is blocked
+
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider is blocked"); 
+    }
+    else
+    {
 	return(providerId);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1657,6 +1719,42 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CIMOperationRequestDispatcher::_qthre
 
 }
 
+// ATTN:: Temporaryly required to support provider registration service
+ProviderManager* CIMOperationRequestDispatcher::getProviderManager(void)
+{
+    return &_providerManager;
+}
+
+void CIMOperationRequestDispatcher::loadRegisteredProviders(void)
+{
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription;
+    Array<CIMNamedInstance> cimNamedInstances;
+
+    // ATTN: May need change 
+    const String& nameSpace = "root/cimv2";
+    const String& className = "PG_Provider";
+
+    try
+    {
+	cimNamedInstances = _repository->enumerateInstances(
+		nameSpace,
+		className);
+    }
+
+    catch (CIMException& exception)
+    {
+	errorCode = exception.getCode();
+	errorDescription = exception.getMessage();
+    }
+    catch (Exception& exception)
+    {
+	errorCode = CIM_ERR_FAILED;
+	errorDescription = exception.getMessage();
+    }
+
+    _providerManager.createProviderBlockTable(cimNamedInstances);
+}
 
 
 PEGASUS_NAMESPACE_END

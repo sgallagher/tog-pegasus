@@ -8,6 +8,7 @@ DIRS = \
 	__NamespaceProvider \
 	ConfigSettingProvider \
 	UserManagerProvider \
+	PG_RegistrationProvider \
 	OperatingSystemProvider
 
 include $(ROOT)/mak/recurse.mak

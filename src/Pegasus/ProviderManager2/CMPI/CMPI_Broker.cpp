@@ -37,6 +37,7 @@
 #include "CMPI_Enumeration.h"
 #include "CMPI_Value.h"
 #include "CMPIProviderManager.h"
+#include "CMPI_String.h"
 
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMPropertyList.h>
@@ -112,8 +113,12 @@ static CMPIInstance* mbGetInstance(CMPIBroker *mb, CMPIContext *ctx,
    }
    catch (CIMException &e) {
       DDD(cout<<"### exception: mbGetInstance - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
-      if (rc) CMSetStatus(rc,(CMPIrc)e.getCode());
+      if (rc) CMSetStatusWithString(rc,(CMPIrc)e.getCode(),
+		   (CMPIString*)string2CMPIString(e.getMessage()));
+      delete props;
+      return NULL;
    }
+   if (rc) CMSetStatusWithChars(mb,rc,CMPI_RC_ERROR,"Internal error - CMPIBoker.cpp-0");
    delete props;
    return NULL;
 }
@@ -133,9 +138,11 @@ static CMPIObjectPath* mbCreateInstance(CMPIBroker *mb, CMPIContext *ctx,
    }
    catch (CIMException &e) {
       DDD(cout<<"### exception: mbCreateInstance - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
-      if (rc) CMSetStatus(rc,(CMPIrc)e.getCode());
+      if (rc) CMSetStatusWithString(rc,(CMPIrc)e.getCode(),
+		   (CMPIString*)string2CMPIString(e.getMessage()));
+		return NULL;
    }
-   if (rc) CMSetStatus(rc,CMPI_RC_ERROR);
+   if (rc) CMSetStatusWithChars(mb,rc,CMPI_RC_ERROR,"Internal error - CMPIBoker.cpp-1");
    return NULL;
 }
 
@@ -156,9 +163,10 @@ static CMPIStatus mbSetInstance(CMPIBroker *mb, CMPIContext *ctx,
    }
    catch (CIMException &e) {
       DDD(cout<<"### exception: mbSetInstance - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
-      CMReturn((CMPIrc)e.getCode());
+      CMReturnWithString((CMPIrc)e.getCode(),
+		   (CMPIString*)string2CMPIString(e.getMessage()));
    }
-   CMReturn(CMPI_RC_ERR_FAILED);
+   CMReturnWithChars(mb,CMPI_RC_ERROR,"Internal error - CMPIBoker.cpp-2");
 }
 
 static CMPIStatus mbDeleteInstance (CMPIBroker *mb, CMPIContext *ctx,
@@ -178,9 +186,10 @@ static CMPIStatus mbDeleteInstance (CMPIBroker *mb, CMPIContext *ctx,
    }
    catch (CIMException &e) {
       DDD(cout<<"### exception: mbDeleteInstance - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
-      CMReturn((CMPIrc)e.getCode());
+      CMReturnWithString((CMPIrc)e.getCode(),
+		   (CMPIString*)string2CMPIString(e.getMessage()));
    }
-   CMReturn(CMPI_RC_ERROR);
+   CMReturnWithChars(mb,CMPI_RC_ERROR,"Internal error - CMPIBoker.cpp-3");
 }
 
 static CMPIEnumeration* mbExecQuery(CMPIBroker *mb, CMPIContext *ctx,
@@ -199,9 +208,10 @@ static CMPIEnumeration* mbExecQuery(CMPIBroker *mb, CMPIContext *ctx,
    }
    catch (CIMException &e) {
       DDD(cout<<"### exception: mbExecQuery - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
-      if (rc) CMSetStatus(rc,(CMPIrc)e.getCode());
+      if (rc) CMSetStatusWithString(rc,(CMPIrc)e.getCode(),
+		   (CMPIString*)string2CMPIString(e.getMessage()));
    }
-   if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+   if (rc) CMSetStatusWithChars(mb,rc,CMPI_RC_ERR_FAILED,"Internal error - CMPIBoker.cpp-4");
    return NULL;
 }
 
@@ -229,9 +239,12 @@ static CMPIEnumeration* mbEnumInstances(CMPIBroker *mb, CMPIContext *ctx,
    }
    catch (CIMException &e) {
       DDD(cout<<"### exception: mbEnumInstances - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
-      if (rc) CMSetStatus(rc,(CMPIrc)e.getCode());
+      if (rc) CMSetStatusWithString(rc,(CMPIrc)e.getCode(),
+		   (CMPIString*)string2CMPIString(e.getMessage()));
+      delete props;
+      return NULL;
    }
-   if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+   if (rc) CMSetStatusWithChars(mb,rc,CMPI_RC_ERROR,"Internal error - CMPIBoker.cpp-5");
    delete props;
    return NULL;
 }
@@ -251,9 +264,10 @@ static CMPIEnumeration* mbEnumInstanceNames(CMPIBroker *mb, CMPIContext *ctx,
    }
    catch (CIMException &e) {
       DDD(cout<<"### exception: mbEnumInstances - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
-      if (rc) CMSetStatus(rc,(CMPIrc)e.getCode());
+      if (rc) CMSetStatusWithString(rc,(CMPIrc)e.getCode(),
+		   (CMPIString*)string2CMPIString(e.getMessage()));
    }
-   if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+   if (rc) CMSetStatusWithChars(mb,rc,CMPI_RC_ERROR,"Internal error - CMPIBoker.cpp-6");
    return NULL;
 }
 
@@ -286,9 +300,12 @@ static CMPIEnumeration* mbAssociators(CMPIBroker *mb, CMPIContext *ctx,
    }
    catch (CIMException &e) {
       DDD(cout<<"### exception: mbAssociators - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
-      if (rc) CMSetStatus(rc,(CMPIrc)e.getCode());
+      if (rc) CMSetStatusWithString(rc,(CMPIrc)e.getCode(),
+		   (CMPIString*)string2CMPIString(e.getMessage()));
+      delete props;
+      return NULL;
    }
-   if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+   if (rc) CMSetStatusWithChars(mb,rc,CMPI_RC_ERROR,"Internal error - CMPIBoker.cpp-7");
    delete props;
    return NULL;
 }
@@ -316,9 +333,10 @@ static CMPIEnumeration* mbAssociatorNames(CMPIBroker *mb, CMPIContext *ctx,
    }
    catch (CIMException &e) {
       DDD(cout<<"### exception: mbAssociatorsNames - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
-      if (rc) CMSetStatus(rc,(CMPIrc)e.getCode());
+      if (rc) CMSetStatusWithString(rc,(CMPIrc)e.getCode(),
+		   (CMPIString*)string2CMPIString(e.getMessage()));
    }
-   if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+   if (rc) CMSetStatusWithChars(mb,rc,CMPI_RC_ERROR,"Internal error - CMPIBoker.cpp-8");
    return NULL;
 }
 
@@ -349,9 +367,12 @@ static CMPIEnumeration* mbReferences(CMPIBroker *mb, CMPIContext *ctx,
    }
    catch (CIMException &e) {
       DDD(cout<<"### exception: mbReferences - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
-      if (rc) CMSetStatus(rc,(CMPIrc)e.getCode());
+      if (rc) CMSetStatusWithString(rc,(CMPIrc)e.getCode(),
+		   (CMPIString*)string2CMPIString(e.getMessage()));
+      delete props;
+      return NULL;
    }
-   if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+   if (rc) CMSetStatusWithChars(mb,rc,CMPI_RC_ERROR,"Internal error - CMPIBoker.cpp-10");
    delete props;
    return NULL;
 }
@@ -377,9 +398,10 @@ static CMPIEnumeration* mbReferenceNames(CMPIBroker *mb, CMPIContext *ctx,
    }
    catch (CIMException &e) {
       DDD(cout<<"### exception: mbReferencesNames - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
-      if (rc) CMSetStatus(rc,(CMPIrc)e.getCode());
+      if (rc) CMSetStatusWithString(rc,(CMPIrc)e.getCode(),
+		   (CMPIString*)string2CMPIString(e.getMessage()));
    }
-   if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+   if (rc) CMSetStatusWithChars(mb,rc,CMPI_RC_ERROR,"Internal error - CMPIBoker.cpp-11");
    return NULL;
 }
 
@@ -410,9 +432,10 @@ static CMPIStatus mbSetProperty(CMPIBroker *mb, CMPIContext *ctx,
    }
    catch (CIMException &e) {
       DDD(cout<<"### exception: mbSetProperty - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
-      CMReturn((CMPIrc)e.getCode());
+      CMReturnWithString((CMPIrc)e.getCode(),
+		   (CMPIString*)string2CMPIString(e.getMessage()));
    }
-   CMReturn(CMPI_RC_ERR_FAILED);
+   CMReturnWithChars(mb,CMPI_RC_ERROR,"Internal error - CMPIBoker.cpp-12");
 }
 
 static CMPIData mbGetProperty(CMPIBroker *mb, CMPIContext *ctx,

@@ -18,13 +18,13 @@ SOURCES = \
 	MutexLock.cpp \
 	Lockable.cpp \
 	SafeQueue.cpp \
-	ProviderManagerService.cpp \
-	ProviderManager.cpp \
 	ProviderAdapter.cpp \
     ProviderModule.cpp \
     ProviderFacade.cpp \
 	Provider.cpp \
-	OperationResponseHandler.cpp
+	ProviderManager.cpp \
+	OperationResponseHandler.cpp \
+	ProviderManagerService.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

@@ -40,10 +40,41 @@ namespace
 }
 
 #include <Pegasus/suballoc/suballoc.h>
+#include <new.h>
+PEGASUS_NAMESPACE_BEGIN
+peg_suballocator internal_allocator;
+PEGASUS_NAMESPACE_END
+
+PEGASUS_USING_PEGASUS;
+
+void * operator new(size_t size)
+{
+
+   if( internal_allocator.get_mode() == false)
+      return(std::operator new(size));
+   
+   if( size == 0 )
+      size = 1;
+   void *p;
+   
+   while(1)
+   {
+      p = internal_allocator.vs_malloc(size, 
+				       &(internal_allocator.get_handle())) ;
+      if( p )
+	 return p;
+      new_handler global = set_new_handler(0);
+      set_new_handler(global);
+      if( global) 
+	 (*global)();
+      else
+	 throw std::bad_alloc();
+   }
+}
+
+
 
 PEGASUS_NAMESPACE_BEGIN
-
-peg_suballocator internal_allocator;
 
 // <<< Sun May  5 22:25:14 2002 mdd >>>
 // to do: 

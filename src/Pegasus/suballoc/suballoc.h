@@ -200,6 +200,8 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
       Sint32 init_count;
       PEGASUS_MUTEX_T init_mutex;
       Boolean debug_mode;
+
+      
       
       int CREATE_MUTEX(PEGASUS_MUTEX_T *mut);
       void WAIT_MUTEX(PEGASUS_MUTEX_T *mut, Uint32 msec, int *result);
@@ -269,6 +271,18 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
       Boolean _UnfreedNodes(void *handle);
       void DeInitSubAllocator(void *handle);
       static void _CheckNode(void *m);
+      
+      Boolean get_mode(void) 
+      {
+	 return debug_mode;
+      }
+      
+      SUBALLOC_HANDLE & get_handle(void)
+      {
+	 return internal_handle;
+      }
+      
+
    private:
       _suballocHandle internal_handle;
 };

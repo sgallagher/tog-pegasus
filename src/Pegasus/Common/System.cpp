@@ -38,6 +38,7 @@
 
 #include <fstream>
 #include <cctype>  // for tolower()
+#include <cstring>
 #include "System.h"
 
 #include <Pegasus/Common/PegasusVersion.h>

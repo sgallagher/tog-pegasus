@@ -35,6 +35,7 @@
 #include <Pegasus/Common/CIMDateTime.h>
 
 #include <sys/time.h>
+#include <cstring>
 
 typedef struct Timestamp {
     char year[4];

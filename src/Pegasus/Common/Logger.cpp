@@ -30,13 +30,13 @@
 
 #include <iostream>
 #include <fstream>
-#include "System.h"
+#include <cstring>
 #include "Logger.h"
 #include "System.h"
 #include "Destroyer.h"
 
 #ifdef PEGASUS_OS_HPUX
-    #include <syslog.h>
+# include <syslog.h>
 #endif
 
 PEGASUS_USING_STD;

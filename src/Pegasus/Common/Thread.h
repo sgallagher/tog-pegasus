@@ -27,9 +27,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-
 #ifndef Pegasus_Thread_h
 #define Pegasus_Thread_h
+
+#include <cstring>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/InternalException.h>

@@ -67,8 +67,6 @@ Provider ProviderManager::getProvider(
 	}
     }
 
-    PEGASUS_STD(cout) << "Loading " << providerName << " @ " << fileName << PEGASUS_STD(endl);
-
     // create provider module
     Provider provider(providerName, fileName);
 

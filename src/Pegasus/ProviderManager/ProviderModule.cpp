@@ -34,7 +34,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-
 ProviderModule::ProviderModule(const String & fileName, const String & providerName)
     : _fileName(fileName), _providerName(providerName), _library(0), _provider(0)
 {
@@ -53,6 +52,8 @@ void ProviderModule::load(void)
 
     if(_library == 0)
     {
+	// ATTN: does unload() need to be called?
+	
 	String errorString = "Cannot load library, error: " + System::dynamicLoadError();
 	throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
     }

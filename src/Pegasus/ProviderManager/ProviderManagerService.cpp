@@ -118,9 +118,9 @@ Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMOb
     {
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
 	    "Provider registration not found.");
-	
+
 	PEG_METHOD_EXIT();
-	
+
 	throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
     }
 
@@ -136,7 +136,7 @@ Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMOb
 
 	throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
     }
-	
+
     pInstance.getProperty(pos).getValue().get(providerName);
 
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
@@ -166,11 +166,11 @@ Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMOb
     // get all provider capability instances
     Array<CIMInstance> cimInstances =
     _cimom.enumerateInstances(
-	OperationContext(),
-	"root/cimv2",
-	"PG_ProviderCapabilities",
-	false, false, false, false,
-	CIMPropertyList());
+    OperationContext(),
+    "root/cimv2",
+    "PG_ProviderCapabilities",
+    false, false, false, false,
+    CIMPropertyList());
 
     CIMInstance cimInstance;
 
@@ -181,9 +181,9 @@ Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMOb
 
     if(String::equalNoCase(className, objectPath.getClassName()))
     {
-	cimInstance = cimInstances[i];
+    cimInstance = cimInstances[i];
 
-	break;
+    break;
     }
     }
 
@@ -194,11 +194,11 @@ Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMOb
     // get the module instance
     CIMInstance moduleInstance =
     _cimom.getInstance(
-	OperationContext(),
-	"root/cimv2",
-	CIMObjectPath("root/cimv2:PG_ProviderModule.Name=\"" + moduleName +"\""),
-	false, false, false,
-	CIMPropertyList());
+    OperationContext(),
+    "root/cimv2",
+    CIMObjectPath("root/cimv2:PG_ProviderModule.Name=\"" + moduleName +"\""),
+    false, false, false,
+    CIMPropertyList());
 
     // get the module location
     String location = moduleInstance.getProperty(moduleInstance.findProperty("Location")).getValue().toString();
@@ -206,15 +206,15 @@ Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMOb
 
     String fileName;
 
-    #ifdef PEGASUS_OS_TYPE_WINDOWS
+#ifdef PEGASUS_OS_TYPE_WINDOWS
     fileName = location + String(".dll");
-    #elif defined(PEGASUS_OS_HPUX)
+#elif defined(PEGASUS_OS_HPUX)
     fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
     fileName += String("/lib") + location + String(".sl");
-    #else
+#else
     fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
     fileName += String("/lib") + location + String(".so");
-    #endif
+#endif
 
     PEG_METHOD_EXIT();
 

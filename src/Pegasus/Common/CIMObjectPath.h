@@ -39,8 +39,6 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Exception.h>
 
-#include <iostream>
-
 PEGASUS_NAMESPACE_BEGIN
 
 class CIMObjectPath;
@@ -515,21 +513,6 @@ public:
 
 private:
 
-    Boolean _parseHostElement(
-        const String& objectName,
-        char*& p,
-        String& host);
-
-    Boolean _parseNamespaceElement(
-        const String& objectName,
-        char*& p,
-        CIMNamespaceName& nameSpace);
-
-    void _parseKeyBindingPairs(
-        const String& objectName,
-        char*& p,
-        Array<CIMKeyBinding>& keyBindings);
-
     /** Stringizes object into canonical form (in which all keys are sorted
         into ascending order and classnames and keynames are shifted to
         lower case.
@@ -547,9 +530,11 @@ PEGASUS_COMMON_LINKAGE Boolean operator!=(
     const CIMObjectPath& x,
     const CIMObjectPath& y);
 
+#ifndef PEGASUS_REMOVE_DEPRECATED
 PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
     PEGASUS_STD(ostream)& os,
     const CIMObjectPath& x);
+#endif
 
 #define PEGASUS_ARRAY_T CIMObjectPath
 # include <Pegasus/Common/ArrayInter.h>

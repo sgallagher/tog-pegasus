@@ -32,6 +32,7 @@
 #include <Pegasus/Common/Config.h>
 #include <cctype>
 #include <cstring>
+#include <iostream>
 #include "HashTable.h"
 #include "CIMObjectPath.h"
 #include "Indentor.h"
@@ -433,7 +434,7 @@ void CIMObjectPath::set(
    setKeyBindings(keyBindings);
 }
 
-Boolean CIMObjectPath::_parseHostElement(
+Boolean _parseHostElement(
     const String& objectName,
     char*& p,
     String& host)
@@ -504,7 +505,7 @@ Boolean CIMObjectPath::_parseHostElement(
     return true;
 }
 
-Boolean CIMObjectPath::_parseNamespaceElement(
+Boolean _parseNamespaceElement(
     const String& objectName,
     char*& p,
     CIMNamespaceName& nameSpace)
@@ -591,7 +592,7 @@ Boolean CIMObjectPath::_parseNamespaceElement(
     operation of retrieving the class definition to determine
     the key property types.
 */
-void CIMObjectPath::_parseKeyBindingPairs(
+void _parseKeyBindingPairs(
     const String& objectName,
     char*& p,
     Array<CIMKeyBinding>& keyBindings)  
@@ -954,11 +955,13 @@ Boolean operator!=(const CIMObjectPath& x, const CIMObjectPath& y)
     return !operator==(x, y);
 }
 
+#ifndef PEGASUS_REMOVE_DEPRECATED
 PEGASUS_STD(ostream)& operator<<(
     PEGASUS_STD(ostream)& os,
     const CIMObjectPath& x)
 {
     return os << x.toString();
 }
+#endif
 
 PEGASUS_NAMESPACE_END

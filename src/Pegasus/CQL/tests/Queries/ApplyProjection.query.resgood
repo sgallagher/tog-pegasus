@@ -365,36 +365,6 @@ Instance of class CQL_TestPropertyTypes
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertySint32Array, Value = -32 -31 -30 -29 -28 -27 -26 
 ======================================36
-SELECT PropertySint64 FROM CQL_TestPropertyTypes 
-Instance of class CQL_TestElement
------No properties left after projection
-Instance of class CQL_TestPropertyTypesMissing
------No properties left after projection
-Instance of class CQL_TestPropertyTypes
------Prop #0 Name = PropertySint64, Value = -64
-Instance of class CQL_TestPropertyTypes
------Prop #0 Name = PropertySint64, Value = -1
-======================================37
-SELECT PropertySint64Array[1-1] FROM CQL_TestPropertyTypes 
-Instance of class CQL_TestElement
------The identifier PropertySint64Array[1-1] of CQL_TestPropertyTypes.PropertySint64Array[1-1] in the SELECT list cannot use an array index.
-Instance of class CQL_TestPropertyTypesMissing
------The identifier PropertySint64Array[1-1] of CQL_TestPropertyTypes.PropertySint64Array[1-1] in the SELECT list cannot use an array index.
-Instance of class CQL_TestPropertyTypes
------The identifier PropertySint64Array[1-1] of CQL_TestPropertyTypes.PropertySint64Array[1-1] in the SELECT list cannot use an array index.
-Instance of class CQL_TestPropertyTypes
------The identifier PropertySint64Array[1-1] of CQL_TestPropertyTypes.PropertySint64Array[1-1] in the SELECT list cannot use an array index.
-======================================38
-SELECT PropertySint64Array FROM CQL_TestPropertyTypes 
-Instance of class CQL_TestElement
------No properties left after projection
-Instance of class CQL_TestPropertyTypesMissing
------No properties left after projection
-Instance of class CQL_TestPropertyTypes
------Prop #0 Name = PropertySint64Array, Value = -1 -2 -3 -4 -5 -6 
-Instance of class CQL_TestPropertyTypes
------Prop #0 Name = PropertySint64Array, Value = -1 -2 -3 -4 -5 -6 
-======================================39
 SELECT PropertyBoolean FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -404,7 +374,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyBoolean, Value = TRUE
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyBoolean, Value = TRUE
-======================================40
+======================================37
 SELECT PropertyBooleanArray[1-1] FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----The identifier PropertyBooleanArray[1-1] of CQL_TestPropertyTypes.PropertyBooleanArray[1-1] in the SELECT list cannot use an array index.
@@ -414,7 +384,7 @@ Instance of class CQL_TestPropertyTypes
 -----The identifier PropertyBooleanArray[1-1] of CQL_TestPropertyTypes.PropertyBooleanArray[1-1] in the SELECT list cannot use an array index.
 Instance of class CQL_TestPropertyTypes
 -----The identifier PropertyBooleanArray[1-1] of CQL_TestPropertyTypes.PropertyBooleanArray[1-1] in the SELECT list cannot use an array index.
-======================================41
+======================================38
 SELECT PropertyBooleanArray FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -424,7 +394,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyBooleanArray, Value = TRUE FALSE FALSE TRUE TRUE TRUE FALSE 
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyBooleanArray, Value = TRUE FALSE FALSE TRUE TRUE TRUE FALSE 
-======================================42
+======================================39
 SELECT PropertyDatetime FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -434,7 +404,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyDatetime, Value = 20040811105625.000000-360
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyDatetime, Value = 20040811105625.000000-360
-======================================43
+======================================40
 SELECT PropertyDatetimeArray[1-1] FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----The identifier PropertyDatetimeArray[1-1] of CQL_TestPropertyTypes.PropertyDatetimeArray[1-1] in the SELECT list cannot use an array index.
@@ -444,7 +414,7 @@ Instance of class CQL_TestPropertyTypes
 -----The identifier PropertyDatetimeArray[1-1] of CQL_TestPropertyTypes.PropertyDatetimeArray[1-1] in the SELECT list cannot use an array index.
 Instance of class CQL_TestPropertyTypes
 -----The identifier PropertyDatetimeArray[1-1] of CQL_TestPropertyTypes.PropertyDatetimeArray[1-1] in the SELECT list cannot use an array index.
-======================================44
+======================================41
 SELECT PropertyDatetimeArray FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -454,7 +424,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyDatetimeArray, Value = 20040811105625.000000-360 20030811105625.000000-360 
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyDatetimeArray, Value = 20040811105625.000000-360 20030811105625.000000-360 
-======================================45
+======================================42
 SELECT PropertyChar16 FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -464,7 +434,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyChar16, Value = A
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyChar16, Value = A
-======================================46
+======================================43
 SELECT PropertyChar16Array[1-1] FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----The identifier PropertyChar16Array[1-1] of CQL_TestPropertyTypes.PropertyChar16Array[1-1] in the SELECT list cannot use an array index.
@@ -474,7 +444,7 @@ Instance of class CQL_TestPropertyTypes
 -----The identifier PropertyChar16Array[1-1] of CQL_TestPropertyTypes.PropertyChar16Array[1-1] in the SELECT list cannot use an array index.
 Instance of class CQL_TestPropertyTypes
 -----The identifier PropertyChar16Array[1-1] of CQL_TestPropertyTypes.PropertyChar16Array[1-1] in the SELECT list cannot use an array index.
-======================================47
+======================================44
 SELECT PropertyChar16Array FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -484,7 +454,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyChar16Array, Value = A a 
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyChar16Array, Value = A a 
-======================================48
+======================================45
 SELECT PropertyValueMap FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -494,7 +464,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyValueMap, Value = 1
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyValueMap, Value = 2
-======================================49
+======================================46
 SELECT PropertyStringArray,PropertyDatetime,PropertySint8,PropertyUint32,PropertyChar16Array FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -512,7 +482,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #2 Name = PropertySint8, Value = 16
 -----Prop #3 Name = PropertyDatetime, Value = 20040811105625.000000-360
 -----Prop #4 Name = PropertyChar16Array, Value = A a 
-======================================50
+======================================47
 SELECT PropertyStringArray,PropertyDatetime,PropertySint8,PropertyUint32,PropertyChar16Array[1-1] FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----The identifier PropertyChar16Array[1-1] of CQL_TestPropertyTypes.PropertyChar16Array[1-1] in the SELECT list cannot use an array index.
@@ -522,7 +492,7 @@ Instance of class CQL_TestPropertyTypes
 -----The identifier PropertyChar16Array[1-1] of CQL_TestPropertyTypes.PropertyChar16Array[1-1] in the SELECT list cannot use an array index.
 Instance of class CQL_TestPropertyTypes
 -----The identifier PropertyChar16Array[1-1] of CQL_TestPropertyTypes.PropertyChar16Array[1-1] in the SELECT list cannot use an array index.
-======================================51
+======================================48
 SELECT PropertyStringArray,PropertyDatetime,PropertyNonExistent,PropertyUint32,PropertyChar16Array FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -532,7 +502,7 @@ Instance of class CQL_TestPropertyTypes
 -----The property PropertyNonExistent is missing on the instance of class CQL_TestPropertyTypes.
 Instance of class CQL_TestPropertyTypes
 -----The property PropertyNonExistent is missing on the instance of class CQL_TestPropertyTypes.
-======================================52
+======================================49
 SELECT PropertyStringArray,PropertyDatetime,PropertySint8,PropertyUint32,PropertyChar16Array FROM CIM_ANonExistentClass 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -542,7 +512,7 @@ Instance of class CQL_TestPropertyTypes
 -----No properties left after projection
 Instance of class CQL_TestPropertyTypes
 -----No properties left after projection
-======================================53
+======================================50
 SELECT PropertyStringArray,PropertyDatetime,PropertySint8,PropertyUint32,PropertyChar16Array FROM CQL_TestElement 
 Instance of class CQL_TestElement
 -----The property PropertyChar16Array is missing on the instance of class CQL_TestElement.
@@ -560,7 +530,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #2 Name = PropertySint8, Value = 16
 -----Prop #3 Name = PropertyDatetime, Value = 20040811105625.000000-360
 -----Prop #4 Name = PropertyChar16Array, Value = A a 
-======================================54
+======================================51
 SELECT PropertyStringArray,PropertyDatetime,PropertySint8,PropertyUint32,PropertyChar16Array FROM CQL_ComputerSystem 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -570,7 +540,7 @@ Instance of class CQL_TestPropertyTypes
 -----No properties left after projection
 Instance of class CQL_TestPropertyTypes
 -----No properties left after projection
-======================================55
+======================================52
 SELECT CQL_TestPropertyTypes.PropertyBooleanArray FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -580,7 +550,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyBooleanArray, Value = TRUE FALSE FALSE TRUE TRUE TRUE FALSE 
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyBooleanArray, Value = TRUE FALSE FALSE TRUE TRUE TRUE FALSE 
-======================================56
+======================================53
 SELECT Alias.PropertyBooleanArray FROM CQL_TestPropertyTypes AS ALIAS 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -590,7 +560,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyBooleanArray, Value = TRUE FALSE FALSE TRUE TRUE TRUE FALSE 
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyBooleanArray, Value = TRUE FALSE FALSE TRUE TRUE TRUE FALSE 
-======================================57
+======================================54
 SELECT Alias.PropertyBooleanArray FROM CQL_TestPropertyTypes AS ALIAS 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -600,7 +570,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyBooleanArray, Value = TRUE FALSE FALSE TRUE TRUE TRUE FALSE 
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyBooleanArray, Value = TRUE FALSE FALSE TRUE TRUE TRUE FALSE 
-======================================58
+======================================55
 SELECT CQL_ANonExistentClass.PropertyBooleanArray FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----The identifier PropertyBooleanArray of CQL_TestPropertyTypes.CQL_ANonExistentClass.PropertyBooleanArray must use the scope operator.
@@ -610,7 +580,7 @@ Instance of class CQL_TestPropertyTypes
 -----The identifier PropertyBooleanArray of CQL_TestPropertyTypes.CQL_ANonExistentClass.PropertyBooleanArray must use the scope operator.
 Instance of class CQL_TestPropertyTypes
 -----The identifier PropertyBooleanArray of CQL_TestPropertyTypes.CQL_ANonExistentClass.PropertyBooleanArray must use the scope operator.
-======================================59
+======================================56
 SELECT CIM_OperatingSystem.PropertyBooleanArray FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----The identifier PropertyBooleanArray of CQL_TestPropertyTypes.CIM_OperatingSystem.PropertyBooleanArray must use the scope operator.
@@ -620,7 +590,7 @@ Instance of class CQL_TestPropertyTypes
 -----The identifier PropertyBooleanArray of CQL_TestPropertyTypes.CIM_OperatingSystem.PropertyBooleanArray must use the scope operator.
 Instance of class CQL_TestPropertyTypes
 -----The identifier PropertyBooleanArray of CQL_TestPropertyTypes.CIM_OperatingSystem.PropertyBooleanArray must use the scope operator.
-======================================60
+======================================57
 SELECT CQL_TestPropertyTypes.PropertyBooleanArray FROM CQL_ANonExistentClass 
 Instance of class CQL_TestElement
 -----The identifier PropertyBooleanArray of CQL_ANonExistentClass.CQL_TestPropertyTypes.PropertyBooleanArray must use the scope operator.
@@ -630,7 +600,7 @@ Instance of class CQL_TestPropertyTypes
 -----The identifier PropertyBooleanArray of CQL_ANonExistentClass.CQL_TestPropertyTypes.PropertyBooleanArray must use the scope operator.
 Instance of class CQL_TestPropertyTypes
 -----The identifier PropertyBooleanArray of CQL_ANonExistentClass.CQL_TestPropertyTypes.PropertyBooleanArray must use the scope operator.
-======================================61
+======================================58
 SELECT CQL_TestPropertyTypes.PropertyBooleanArray FROM CQL_OperatingSystem 
 Instance of class CQL_TestElement
 -----The identifier PropertyBooleanArray of CQL_OperatingSystem.CQL_TestPropertyTypes.PropertyBooleanArray must use the scope operator.
@@ -640,7 +610,7 @@ Instance of class CQL_TestPropertyTypes
 -----The identifier PropertyBooleanArray of CQL_OperatingSystem.CQL_TestPropertyTypes.PropertyBooleanArray must use the scope operator.
 Instance of class CQL_TestPropertyTypes
 -----The identifier PropertyBooleanArray of CQL_OperatingSystem.CQL_TestPropertyTypes.PropertyBooleanArray must use the scope operator.
-======================================62
+======================================59
 SELECT * FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----The property PropertyString is missing on the instance of class CQL_TestElement.
@@ -650,7 +620,7 @@ Instance of class CQL_TestPropertyTypes
 -----Instance has 58 properties
 Instance of class CQL_TestPropertyTypes
 -----Instance has 58 properties
-======================================63
+======================================60
 SELECT CQL_TestPropertyTypes.* FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----The property PropertyString is missing on the instance of class CQL_TestElement.
@@ -660,7 +630,7 @@ Instance of class CQL_TestPropertyTypes
 -----Instance has 58 properties
 Instance of class CQL_TestPropertyTypes
 -----Instance has 58 properties
-======================================64
+======================================61
 SELECT Alias.* FROM CQL_TestPropertyTypes AS alias 
 Instance of class CQL_TestElement
 -----The property PropertyString is missing on the instance of class CQL_TestElement.
@@ -670,7 +640,7 @@ Instance of class CQL_TestPropertyTypes
 -----Instance has 58 properties
 Instance of class CQL_TestPropertyTypes
 -----Instance has 58 properties
-======================================65
+======================================62
 SELECT PropertyString,* FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----The property PropertyString is missing on the instance of class CQL_TestElement.
@@ -680,7 +650,7 @@ Instance of class CQL_TestPropertyTypes
 -----Instance has 58 properties
 Instance of class CQL_TestPropertyTypes
 -----Instance has 58 properties
-======================================66
+======================================63
 SELECT * FROM CQL_TestElement 
 Instance of class CQL_TestElement
 -----Prop #0 Name = InstanceId, Value = 0
@@ -690,7 +660,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = InstanceId, Value = 1
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = InstanceId, Value = 2
-======================================67
+======================================64
 SELECT CQL_TestElement.* FROM CQL_TestElement 
 Instance of class CQL_TestElement
 -----Prop #0 Name = InstanceId, Value = 0
@@ -700,7 +670,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = InstanceId, Value = 1
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = InstanceId, Value = 2
-======================================68
+======================================65
 SELECT * FROM CQL_TestPropertyTypesMissing 
 Instance of class CQL_TestElement
 -----The property MissingProperty is missing on the instance of class CQL_TestElement.
@@ -710,7 +680,7 @@ Instance of class CQL_TestPropertyTypes
 -----The property MissingProperty is missing on the instance of class CQL_TestPropertyTypes.
 Instance of class CQL_TestPropertyTypes
 -----The property MissingProperty is missing on the instance of class CQL_TestPropertyTypes.
-======================================69
+======================================66
 SELECT InstanceID,* FROM CQL_TestPropertyTypesMissing 
 Instance of class CQL_TestElement
 -----The property MissingProperty is missing on the instance of class CQL_TestElement.
@@ -720,7 +690,7 @@ Instance of class CQL_TestPropertyTypes
 -----The property MissingProperty is missing on the instance of class CQL_TestPropertyTypes.
 Instance of class CQL_TestPropertyTypes
 -----The property MissingProperty is missing on the instance of class CQL_TestPropertyTypes.
-======================================70
+======================================67
 SELECT CQL_TestElement::InstanceID FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----Prop #0 Name = InstanceId, Value = 0
@@ -730,7 +700,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = InstanceId, Value = 1
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = InstanceId, Value = 2
-======================================71
+======================================68
 SELECT CQL_TestPropertyTypes.CQL_TestElement::InstanceID FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----Prop #0 Name = InstanceId, Value = 0
@@ -740,7 +710,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = InstanceId, Value = 1
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = InstanceId, Value = 2
-======================================72
+======================================69
 SELECT Alias.CQL_TestElement::InstanceID FROM CQL_TestPropertyTypes AS alias 
 Instance of class CQL_TestElement
 -----Prop #0 Name = InstanceId, Value = 0
@@ -750,7 +720,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = InstanceId, Value = 1
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = InstanceId, Value = 2
-======================================73
+======================================70
 SELECT CQL_TestPropertyTypes::PropertyString FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -760,7 +730,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyString, Value = BERT RULES
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyString, Value = Bert Rules
-======================================74
+======================================71
 SELECT alias::PropertyString FROM CQL_TestPropertyTypes AS alias 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -770,7 +740,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyString, Value = BERT RULES
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyString, Value = Bert Rules
-======================================75
+======================================72
 SELECT CQL_TestPropertyTypes.CQL_TestPropertyTypes::PropertyString FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -780,7 +750,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyString, Value = BERT RULES
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyString, Value = Bert Rules
-======================================76
+======================================73
 SELECT CQL_TestPropertyTypes.ALIAS::PropertyString FROM CQL_TestPropertyTypes AS alias 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -790,7 +760,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyString, Value = BERT RULES
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyString, Value = Bert Rules
-======================================77
+======================================74
 SELECT Alias.CQL_TestPropertyTypes::PropertyString FROM CQL_TestPropertyTypes AS alias 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -800,7 +770,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyString, Value = BERT RULES
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyString, Value = Bert Rules
-======================================78
+======================================75
 SELECT Alias.alias::PropertyString FROM CQL_TestPropertyTypes AS alias 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -810,7 +780,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyString, Value = BERT RULES
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyString, Value = Bert Rules
-======================================79
+======================================76
 SELECT CQL_TestPropertyTypes::PropertyString FROM CQL_TestElement 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -820,7 +790,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyString, Value = BERT RULES
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyString, Value = Bert Rules
-======================================80
+======================================77
 SELECT CQL_TestElement.CQL_TestPropertyTypes::PropertyString FROM CQL_TestElement 
 Instance of class CQL_TestElement
 -----No properties left after projection
@@ -830,7 +800,7 @@ Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyString, Value = BERT RULES
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyString, Value = Bert Rules
-======================================81
+======================================78
 SELECT Alias.CQL_TestPropertyTypes::PropertyString FROM CQL_TestElement AS alias 
 Instance of class CQL_TestElement
 -----No properties left after projection

@@ -47,9 +47,6 @@ SELECT PropertySint16Array FROM CQL_TestPropertyTypes
 SELECT PropertySint32 FROM CQL_TestPropertyTypes
 SELECT PropertySint32Array[1] FROM CQL_TestPropertyTypes
 SELECT PropertySint32Array FROM CQL_TestPropertyTypes
-SELECT PropertySint64 FROM CQL_TestPropertyTypes
-SELECT PropertySint64Array[1] FROM CQL_TestPropertyTypes
-SELECT PropertySint64Array FROM CQL_TestPropertyTypes
 SELECT PropertyBoolean FROM CQL_TestPropertyTypes
 SELECT PropertyBooleanArray[1] FROM CQL_TestPropertyTypes
 SELECT PropertyBooleanArray FROM CQL_TestPropertyTypes

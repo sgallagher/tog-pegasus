@@ -973,7 +973,7 @@ Boolean peg_suballocator::_CheckGuard(SUBALLOC_NODE *node)
 }
 
 peg_suballocator::SUBALLOC_NODE *peg_suballocator::_CheckNode(void *m, 
-							      int type, 
+							      int type,  
 							      Sint8 *file, 
 							      Uint32 line)
 {

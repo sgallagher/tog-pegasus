@@ -279,7 +279,7 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
    public:
 
       peg_suballocator(void);
-      peg_suballocator(Boolean mode = true);
+      peg_suballocator(Boolean mode );
       virtual ~peg_suballocator(void);
 
       inline Boolean PEGASUS_DEBUG_ALLOC(void) { return _debug; }

@@ -141,6 +141,11 @@ inline Boolean operator!=(CIMType::Tag x, CIMType y)
     return !operator==(x, y);
 }
 
+inline Boolean operator==(CIMType::Tag x, CIMType::Tag y)
+{
+	return x == y;
+}
+
 // Returns a string representation of the given type. The string
 // is the same as the "CIM CIMType" column in the table above.
 

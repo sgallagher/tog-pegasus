@@ -29,6 +29,7 @@
 #include <Pegasus/Common/Config.h>
 #include <cstdio>
 #include "CIMParameter.h"
+#include "CIMParameterRep.h"
 #include "Indentor.h"
 #include "CIMName.h"
 #include "CIMScope.h"

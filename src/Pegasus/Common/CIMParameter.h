@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -30,7 +30,8 @@
 #define Pegasus_Parameter_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMParameterRep.h>
+#include <Pegasus/Common/CIMQualifier.h>
+#include <Pegasus/Common/CIMType.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -40,179 +41,77 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+class DeclContext;
 class CIMConstParameter;
+class CIMParameterRep;
 
 class PEGASUS_COMMON_LINKAGE CIMParameter
 {
 public:
 
-    CIMParameter() : _rep(0)
-    {
+    CIMParameter();
 
-    }
-
-    CIMParameter(const CIMParameter& x)
-    {
-	Inc(_rep = x._rep);
-    }
-
-    CIMParameter& operator=(const CIMParameter& x)
-    {
-	if (x._rep != _rep)
-	{
-	    Dec(_rep);
-	    Inc(_rep = x._rep);
-	}
-	return *this;
-    }
+    CIMParameter(const CIMParameter& x);
 
     // Throws IllegalName if name argument not legal CIM identifier.
-
     CIMParameter(
 	const String& name, 
 	CIMType type,
 	Boolean isArray = false,
 	Uint32 arraySize = 0,
-	const String& referenceClassName = String::EMPTY)
-    {
-	_rep = new CIMParameterRep(
-	    name, type, isArray, arraySize, referenceClassName);
-    }
+	const String& referenceClassName = String::EMPTY);
 
-    ~CIMParameter()
-    {
-	Dec(_rep);
-    }
+    ~CIMParameter();
 
-    const String& getName() const 
-    { 
-	_checkRep();
-	return _rep->getName(); 
-    }
+    CIMParameter& operator=(const CIMParameter& x);
+
+    const String& getName() const ;
 
     // Throws IllegalName if name argument not legal CIM identifier.
+    void setName(const String& name);
 
-    void setName(const String& name)
-    {
-	_checkRep();
-	_rep->setName(name);
-    }
+    Boolean isArray() const;
 
-    Boolean isArray() const
-    {
-	_checkRep();
-	return _rep->isArray();
-    }
+    Uint32 getArraySize() const;
 
-    Uint32 getArraySize() const
-    {
-	_checkRep();
-	return _rep->getArraySize();
-    }
+    const String& getReferenceClassName() const ;
 
-    const String& getReferenceClassName() const 
-    {
-	_checkRep();
-	return _rep->getReferenceClassName(); 
-    }
+    CIMType getType() const ;
 
-    CIMType getType() const 
-    { 
-	_checkRep();
-	return _rep->getType();
-    }
-
-    void setType(const CIMType type)
-    {
-	_checkRep();
-	_rep->setType(type);
-    }
-
+    void setType(const CIMType type);
 
     // Throws AlreadyExists.
+    CIMParameter& addQualifier(const CIMQualifier& x);
 
-    CIMParameter& addQualifier(const CIMQualifier& x)
-    {
-	_checkRep();
-	_rep->addQualifier(x);
-	return *this;
-    }
+    Uint32 findQualifier(const String& name) const;
 
-    Uint32 findQualifier(const String& name)
-    {
-	_checkRep();
-	return _rep->findQualifier(name);
-    }
+    CIMQualifier getQualifier(Uint32 pos);
 
-    Uint32 findQualifier(const String& name) const
-    {
-	_checkRep();
-	return _rep->findQualifier(name);
-    }
+    CIMConstQualifier getQualifier(Uint32 pos) const;
 
-    CIMQualifier getQualifier(Uint32 pos)
-    {
-	_checkRep();
-	return _rep->getQualifier(pos);
-    }
+    Uint32 getQualifierCount() const;
 
-    CIMConstQualifier getQualifier(Uint32 pos) const
-    {
-	_checkRep();
-	return _rep->getQualifier(pos);
-    }
+#ifdef PEGASUS_INTERNALONLY
+    void resolve(DeclContext* declContext, const String& nameSpace);
 
-    Uint32 getQualifierCount() const
-    {
-	_checkRep();
-	return _rep->getQualifierCount();
-    }
+    operator int() const;
+#endif
 
-    void resolve(DeclContext* declContext, const String& nameSpace)
-    {
-	_checkRep();
-	_rep->resolve(declContext, nameSpace);
-    }
+    void toXml(Array<Sint8>& out) const;
 
-    operator int() const { return _rep != 0; }
+    void toMof(Array<Sint8>& out) const;
 
-    void toXml(Array<Sint8>& out) const
-    {
-	_checkRep();
-	_rep->toXml(out);
-    }
-
-    void toMof(Array<Sint8>& out) const
-    {
-	_checkRep();
-	_rep->toMof(out);
-    }
-
-
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
-    {
-	_checkRep();
-	_rep->print(o);
-    }
+    void print(PEGASUS_STD(ostream)& o=PEGASUS_STD(cout)) const;
 
     Boolean identical(const CIMConstParameter& x) const;
 
-    CIMParameter clone() const
-    {
-	return CIMParameter(_rep->clone());
-    }
+    CIMParameter clone() const;
 
 private:
 
-    CIMParameter(CIMParameterRep* rep) : _rep(rep)
-    {
-    }
+    CIMParameter(CIMParameterRep* rep);
 
-    void _checkRep() const
-    {
-	if (!_rep)
-	    ThrowUnitializedHandle();
-    }
+    void _checkRep() const;
 
     CIMParameterRep* _rep;
     friend class CIMConstParameter;
@@ -228,140 +127,57 @@ class PEGASUS_COMMON_LINKAGE CIMConstParameter
 {
 public:
 
-    CIMConstParameter() : _rep(0)
-    {
+    CIMConstParameter();
 
-    }
+    CIMConstParameter(const CIMConstParameter& x);
 
-    CIMConstParameter(const CIMConstParameter& x)
-    {
-	Inc(_rep = x._rep);
-    }
-
-    CIMConstParameter(const CIMParameter& x)
-    {
-	Inc(_rep = x._rep);
-    }
-
-    CIMConstParameter& operator=(const CIMConstParameter& x)
-    {
-	if (x._rep != _rep)
-	{
-	    Dec(_rep);
-	    Inc(_rep = x._rep);
-	}
-	return *this;
-    }
-
-    CIMConstParameter& operator=(const CIMParameter& x)
-    {
-	if (x._rep != _rep)
-	{
-	    Dec(_rep);
-	    Inc(_rep = x._rep);
-	}
-	return *this;
-    }
+    CIMConstParameter(const CIMParameter& x);
 
     // Throws IllegalName if name argument not legal CIM identifier.
-
     CIMConstParameter(
 	const String& name, 
 	CIMType type,
 	Boolean isArray = false,
 	Uint32 arraySize = 0,
-	const String& referenceClassName = String::EMPTY)
-    {
-	_rep = new CIMParameterRep(
-	    name, type, isArray, arraySize, referenceClassName);
-    }
+	const String& referenceClassName = String::EMPTY);
 
-    ~CIMConstParameter()
-    {
-	Dec(_rep);
-    }
+    ~CIMConstParameter();
 
-    const String& getName() const 
-    { 
-	_checkRep();
-	return _rep->getName(); 
-    }
+    CIMConstParameter& operator=(const CIMConstParameter& x);
 
-    Boolean isArray() const
-    {
-	_checkRep();
-	return _rep->isArray();
-    }
+    CIMConstParameter& operator=(const CIMParameter& x);
 
-    Uint32 getArraySize() const
-    {
-	_checkRep();
-	return _rep->getArraySize();
-    }
+    const String& getName() const;
 
-    const String& getReferenceClassName() const 
-    {
-	_checkRep();
-	return _rep->getReferenceClassName(); 
-    }
+    Boolean isArray() const;
 
-    CIMType getType() const 
-    { 
-	_checkRep();
-	return _rep->getType();
-    }
+    Uint32 getArraySize() const;
 
-    Uint32 findQualifier(const String& name) const
-    {
-	_checkRep();
-	return _rep->findQualifier(name);
-    }
+    const String& getReferenceClassName() const;
 
-    CIMConstQualifier getQualifier(Uint32 pos) const
-    {
-	_checkRep();
-	return _rep->getQualifier(pos);
-    }
+    CIMType getType() const;
 
-    Uint32 getQualifierCount() const
-    {
-	_checkRep();
-	return _rep->getQualifierCount();
-    }
+    Uint32 findQualifier(const String& name) const;
 
-    operator int() const { return _rep != 0; }
+    CIMConstQualifier getQualifier(Uint32 pos) const;
 
-    void toXml(Array<Sint8>& out) const
-    {
-	_checkRep();
-	_rep->toXml(out);
-    }
+    Uint32 getQualifierCount() const;
 
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
-    {
-	_checkRep();
-	_rep->print(o);
-    }
+#ifdef PEGASUS_INTERNALONLY
+    operator int() const;
 
-    Boolean identical(const CIMConstParameter& x) const
-    {
-	x._checkRep();
-	_checkRep();
-	return _rep->identical(x._rep);
-    }
+    void toXml(Array<Sint8>& out) const;
 
-    CIMParameter clone() const
-    {
-	return CIMParameter(_rep->clone());
-    }
+    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
+#endif
+
+    Boolean identical(const CIMConstParameter& x) const;
+
+    CIMParameter clone() const;
 
 private:
 
-    void _checkRep() const
-    {
-	if (!_rep)
-	    ThrowUnitializedHandle();
-    }
+    void _checkRep() const;
 
     CIMParameterRep* _rep;
     friend class CIMParameter;

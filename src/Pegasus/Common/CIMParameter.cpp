@@ -22,11 +22,12 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMParameter.h"
+#include "CIMParameterRep.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -34,11 +35,312 @@ PEGASUS_NAMESPACE_BEGIN
 # include "ArrayImpl.h"
 #undef PEGASUS_ARRAY_T
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// CIMParameter
+//
+////////////////////////////////////////////////////////////////////////////////
+
+CIMParameter::CIMParameter()
+    : _rep(0)
+{
+}
+
+CIMParameter::CIMParameter(const CIMParameter& x)
+{
+    Inc(_rep = x._rep);
+}
+
+CIMParameter::CIMParameter(
+    const String& name,
+    CIMType type,
+    Boolean isArray,
+    Uint32 arraySize,
+    const String& referenceClassName)
+{
+    _rep = new CIMParameterRep(
+        name, type, isArray, arraySize, referenceClassName);
+}
+
+CIMParameter::CIMParameter(CIMParameterRep* rep)
+    : _rep(rep)
+{
+}
+
+CIMParameter::~CIMParameter()
+{
+    Dec(_rep);
+}
+
+CIMParameter& CIMParameter::operator=(const CIMParameter& x)
+{
+    if (x._rep != _rep)
+    {
+        Dec(_rep);
+        Inc(_rep = x._rep);
+    }
+    return *this;
+}
+
+const String& CIMParameter::getName() const
+{
+    _checkRep();
+    return _rep->getName();
+}
+
+void CIMParameter::setName(const String& name)
+{
+    _checkRep();
+    _rep->setName(name);
+}
+
+Boolean CIMParameter::isArray() const
+{
+    _checkRep();
+    return _rep->isArray();
+}
+
+Uint32 CIMParameter::getArraySize() const
+{
+    _checkRep();
+    return _rep->getArraySize();
+}
+
+const String& CIMParameter::getReferenceClassName() const
+{
+    _checkRep();
+    return _rep->getReferenceClassName();
+}
+
+CIMType CIMParameter::getType() const
+{
+    _checkRep();
+    return _rep->getType();
+}
+
+void CIMParameter::setType(const CIMType type)
+{
+    _checkRep();
+    _rep->setType(type);
+}
+
+CIMParameter& CIMParameter::addQualifier(const CIMQualifier& x)
+{
+    _checkRep();
+    _rep->addQualifier(x);
+    return *this;
+}
+
+Uint32 CIMParameter::findQualifier(const String& name) const
+{
+    _checkRep();
+    return _rep->findQualifier(name);
+}
+
+CIMQualifier CIMParameter::getQualifier(Uint32 pos)
+{
+    _checkRep();
+    return _rep->getQualifier(pos);
+}
+
+CIMConstQualifier CIMParameter::getQualifier(Uint32 pos) const
+{
+    _checkRep();
+    return _rep->getQualifier(pos);
+}
+
+Uint32 CIMParameter::getQualifierCount() const
+{
+    _checkRep();
+    return _rep->getQualifierCount();
+}
+
+void CIMParameter::resolve(DeclContext* declContext, const String& nameSpace)
+{
+    _checkRep();
+    _rep->resolve(declContext, nameSpace);
+}
+
+CIMParameter::operator int() const
+{
+    return (_rep != 0);
+}
+
+void CIMParameter::toXml(Array<Sint8>& out) const
+{
+    _checkRep();
+    _rep->toXml(out);
+}
+
+void CIMParameter::toMof(Array<Sint8>& out) const
+{
+    _checkRep();
+    _rep->toMof(out);
+}
+
+void CIMParameter::print(PEGASUS_STD(ostream)& o) const
+{
+    _checkRep();
+    _rep->print(o);
+}
+
 Boolean CIMParameter::identical(const CIMConstParameter& x) const
 {
     x._checkRep();
     _checkRep();
     return _rep->identical(x._rep);
+}
+
+CIMParameter CIMParameter::clone() const
+{
+    return CIMParameter(_rep->clone());
+}
+
+void CIMParameter::_checkRep() const
+{
+    if (!_rep)
+        ThrowUnitializedHandle();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// CIMConstParameter
+//
+////////////////////////////////////////////////////////////////////////////////
+
+CIMConstParameter::CIMConstParameter()
+    : _rep(0)
+{
+}
+
+CIMConstParameter::CIMConstParameter(const CIMConstParameter& x)
+{
+    Inc(_rep = x._rep);
+}
+
+CIMConstParameter::CIMConstParameter(const CIMParameter& x)
+{
+    Inc(_rep = x._rep);
+}
+
+CIMConstParameter::CIMConstParameter(
+    const String& name,
+    CIMType type,
+    Boolean isArray,
+    Uint32 arraySize,
+    const String& referenceClassName)
+{
+    _rep = new CIMParameterRep(
+        name, type, isArray, arraySize, referenceClassName);
+}
+
+CIMConstParameter::~CIMConstParameter()
+{
+    Dec(_rep);
+}
+
+CIMConstParameter& CIMConstParameter::operator=(const CIMConstParameter& x)
+{
+    if (x._rep != _rep)
+    {
+        Dec(_rep);
+        Inc(_rep = x._rep);
+    }
+    return *this;
+}
+
+CIMConstParameter& CIMConstParameter::operator=(const CIMParameter& x)
+{
+    if (x._rep != _rep)
+    {
+        Dec(_rep);
+        Inc(_rep = x._rep);
+    }
+    return *this;
+}
+
+const String& CIMConstParameter::getName() const
+{
+    _checkRep();
+    return _rep->getName();
+}
+
+Boolean CIMConstParameter::isArray() const
+{
+    _checkRep();
+    return _rep->isArray();
+}
+
+Uint32 CIMConstParameter::getArraySize() const
+{
+    _checkRep();
+    return _rep->getArraySize();
+}
+
+const String& CIMConstParameter::getReferenceClassName() const
+{
+    _checkRep();
+    return _rep->getReferenceClassName();
+}
+
+CIMType CIMConstParameter::getType() const
+{
+    _checkRep();
+    return _rep->getType();
+}
+
+Uint32 CIMConstParameter::findQualifier(const String& name) const
+{
+    _checkRep();
+    return _rep->findQualifier(name);
+}
+
+CIMConstQualifier CIMConstParameter::getQualifier(Uint32 pos) const
+{
+    _checkRep();
+    return _rep->getQualifier(pos);
+}
+
+Uint32 CIMConstParameter::getQualifierCount() const
+{
+    _checkRep();
+    return _rep->getQualifierCount();
+}
+
+CIMConstParameter::operator int() const
+{
+    return (_rep != 0);
+}
+
+void CIMConstParameter::toXml(Array<Sint8>& out) const
+{
+    _checkRep();
+    _rep->toXml(out);
+}
+
+void CIMConstParameter::print(PEGASUS_STD(ostream)& o) const
+{
+    _checkRep();
+    _rep->print(o);
+}
+
+Boolean CIMConstParameter::identical(const CIMConstParameter& x) const
+{
+    x._checkRep();
+    _checkRep();
+    return _rep->identical(x._rep);
+}
+
+CIMParameter CIMConstParameter::clone() const
+{
+    return CIMParameter(_rep->clone());
+}
+
+void CIMConstParameter::_checkRep() const
+{
+    if (!_rep)
+        ThrowUnitializedHandle();
 }
 
 PEGASUS_NAMESPACE_END

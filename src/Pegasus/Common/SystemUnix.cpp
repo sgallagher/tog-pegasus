@@ -1,40 +1,83 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
+// Author: Mike Brasher (mbrasher@bmc.com)
+//
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#if !defined(PEGASUS_OS_ZOS) && \
-    !defined(PEGASUS_OS_DARWIN)
-# include <crypt.h>
+#ifdef PEGASUS_OS_HPUX
+# include <dl.h>
+#else
+# include <dlfcn.h>
 #endif
 
+# include <unistd.h>
+#include <dirent.h>
+#include "System.h"
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <cstdio>
+#include <time.h>
+
 PEGASUS_NAMESPACE_BEGIN
+
+#include <sys/time.h>
+#include <unistd.h>
+
+inline void sleep_wrapper(Uint32 seconds)
+{
+    sleep(seconds);
+}
+
+void System::getCurrentTime(Uint32& seconds, Uint32& milliseconds)
+{
+    timeval tv;
+    gettimeofday(&tv, 0);
+    seconds = int(tv.tv_sec);
+    milliseconds = int(tv.tv_usec) / 1000;
+}
+
+String System::getCurrentASCIITime()
+{
+    char    str[50];
+    time_t  rawTime;
+
+    time(&rawTime);
+    strftime(str, 40,"%T-%D", localtime(&rawTime));
+    String time = str;
+    return time;
+}
+
+void System::sleep(Uint32 seconds)
+{
+    sleep_wrapper(seconds);
+}
+
+Boolean System::exists(const char* path)
+{
+    return access(path, F_OK) == 0;
+}
 
 Boolean System::canRead(const char* path)
 {
@@ -46,199 +89,139 @@ Boolean System::canWrite(const char* path)
     return access(path, W_OK) == 0;
 }
 
-String System::getPassword(const char* prompt)
+Boolean System::getCurrentDirectory(char* path, Uint32 size)
 {
-#if  defined(PEGASUS_OS_PASE)
-
-    char* umepass = umeGetPass();
-    if(NULL == umepass)
-    {
-        return String::EMPTY;
-    }
-    else
-    {
-        return String(umepass);
-    }
-
-#else /* default */
-
-    return String(getpass(prompt));
-
-#endif /* default */
-
+    return getcwd(path, size) != NULL;
 }
 
-String System::encryptPassword(const char* password, const char* salt)
+Boolean System::isDirectory(const char* path)
 {
-    return String(crypt(password, salt));
+    struct stat st;
+
+    if (stat(path, &st) != 0)
+	return false;
+
+    return S_ISDIR(st.st_mode);
 }
 
-Boolean System::isPrivilegedUser(const String& userName)
+Boolean System::changeDirectory(const char* path)
 {
-#if defined(PEGASUS_OS_PASE)
-    CString user = userName.getCString();
-    // this function only can be found in PASE environment
-    return umeIsPrivilegedUser((const char *)user);
+    return chdir(path) == 0;
+}
 
+Boolean System::makeDirectory(const char* path)
+{
+    return mkdir(path, 0777) == 0;
+}
+
+Boolean System::getFileSize(const char* path, Uint32& size)
+{
+    struct stat st;
+
+    if (stat(path, &st) != 0)
+	return false;
+
+    size = st.st_size;
+    return true;
+}
+
+Boolean System::removeDirectory(const char* path)
+{
+    return rmdir(path) == 0;	
+}
+
+Boolean System::removeFile(const char* path)
+{
+    return unlink(path) == 0;	
+}
+
+Boolean System::renameFile(const char* oldPath, const char* newPath)
+{
+    if (link(oldPath, newPath) != 0)
+	return false;
+
+    return unlink(oldPath) == 0;
+}
+
+DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
+{
+#if defined(PEGASUS_OS_HPUX)
+    char* p = strcpy(new char[strlen(fileName) + 4], fileName);
+    char* dot = strrchr(p, '.');
+
+    if (!dot)
+	return 0;
+
+    *dot = '\0';
+    strcat(p, ".sl");
+
+    void* handle = shl_load(p, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
+    delete [] p;
+
+    return DynamicLibraryHandle(handle);
 #else
-    struct passwd   pwd;
-    struct passwd   *result;
-    const unsigned int PWD_BUFF_SIZE = 1024;
-    char            pwdBuffer[PWD_BUFF_SIZE];
 
-    if (getpwnam_r(
-          userName.getCString(), &pwd, pwdBuffer, PWD_BUFF_SIZE, &result) != 0)
-    {
-        PEG_TRACE((
-            TRC_OS_ABSTRACTION,
-            Tracer::LEVEL1,
-            "getpwnam_r failure : %s",
-            strerror(errno)));
-    }
+# ifdef PEGASUS_OS_TRU64
+    return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW));
+# else
+    return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW | RTLD_GLOBAL));
+# endif
 
-    // Check if the requested entry was found. If not return false.
-    if ( result != NULL )
-    {
-        // Check if the uid is 0.
-        if ( pwd.pw_gid == 0 || pwd.pw_uid == 0 )
-        {
-            return true;
-        }
-    }
-    return false;
 #endif
 }
 
-#if defined(PEGASUS_ENABLE_USERGROUP_AUTHORIZATION)
-
-static void doFreeIfNeeded( const Boolean freeNeeded, char* ptrToFree)
+void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
 {
-    if (freeNeeded)
-    {
-        free(ptrToFree);
-        ptrToFree = NULL;
-    }
 }
 
-Boolean System::isGroupMember(const char* userName, const char* groupName)
-{
-    struct group grp;
-    Boolean retVal = false;
-    const  Uint32 PWD_BUFF_SIZE = 1024;
-    struct passwd pwd;
-    struct passwd* result;
-    struct group* grpresult;
-    char pwdBuffer[PWD_BUFF_SIZE];
-    // Search Primary group information.
-
-    // Find the entry that matches "userName"
-    Sint32 errCode = 0;
-    if((errCode = getpwnam_r(userName, &pwd, pwdBuffer,
-        PWD_BUFF_SIZE, &result)) != 0)
-    {
-        String errorMsg = String("getpwnam_r failure : ") +
-                            String(strerror(errCode));
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                                  errorMsg);
-        throw InternalSystemError();
-    }
-
-    Uint32 grpbuflen = 1024; 
-
-    //tell if we need to free due to dynamically allocated memory
-    Boolean isDynamicMemory = false;
-    char grpBuf[grpbuflen];
-    char* grpBuffer = grpBuf;
-
-
-    if ( result != NULL )
-    {
-
-        // User found, check for group information.
-        gid_t group_id;
-        group_id = pwd.pw_gid;
-
-
-        //getgrgid_r may failed with groups with large number of users in group
-        //Hence use loop here if ERANGE occurs 
-        while((errCode = getgrgid_r(group_id, &grp, grpBuffer,
-            grpbuflen, &grpresult) == ERANGE))
-        {
-           
-            grpBuffer = (!isDynamicMemory) ? NULL: grpBuffer; 
-            isDynamicMemory = true; 
-            grpbuflen *= 2;
-            
-            grpBuffer = (char*)peg_inln_realloc( grpBuffer, grpbuflen);
-        }
-
-        if (errCode != 0 )
-        {
-            String errorMsg = String("getgrgid_r failure : ") +
-                String(strerror(errCode));
-        }
-  
-
-        // Compare the user's group name to groupName.
-        if (strcmp(grp.gr_name, groupName) == 0)
-        {
-            doFreeIfNeeded(isDynamicMemory, grpBuffer);
-
-             // User is a member of the group.
-             return true;
-        }
-    }
-
-    // Search supplemental groups.
-    // Get a user group entry
-
-    // The grpbuflen which has been calculated 
-    // succeed getgrgid_r is good enough
-    // for getgrnam_r so no need to repeat 
-    // above step for getgrnam_r
-
-    errCode = 0;
-    if ((errCode = getgrnam_r((char *)groupName, &grp,
-        grpBuffer, grpbuflen, &grpresult)) != 0)
-    {
-        doFreeIfNeeded(isDynamicMemory, grpBuffer);
-        String errorMsg = String("getgrnam_r failure : ") +
-            String(strerror(errCode));
-        Logger::put(
-            Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING, errorMsg);
-        throw InternalSystemError();
-    }
-
-    // Check if the requested group was found.
-    if (grpresult == NULL)
-    {
-        doFreeIfNeeded(isDynamicMemory, grpBuffer);
-        return false;
-    }
-
-
-    //
-    // Get all the members of the group
-    //
-    Uint32 j = 0;
-    char *member = NULL;
-    while ( (member = grp.gr_mem[j++]) )
-    {
-        //
-        // Check if the user is a member of the group
-        //
-        if ( strcmp(userName, member) == 0 )
-        {
-            retVal = true;
-            break;
-        }
-    }
-
-    doFreeIfNeeded( isDynamicMemory, grpBuffer);
-    return retVal;
+String System::dynamicLoadError() {
+#ifdef PEGASUS_OS_HPUX
+    return String();
+#else
+    String dlerr = dlerror();
+    return dlerr;
+#endif
 }
 
-#endif /* PEGASUS_ENABLE_USERGROUP_AUTHORIZATION */
 
+DynamicSymbolHandle System::loadDynamicSymbol(
+    DynamicLibraryHandle libraryHandle,
+    const char* symbolName)
+{
+#ifdef PEGASUS_OS_HPUX
+    char* p = (char*)symbolName;
+    void* proc = 0;
+
+    if (shl_findsym((shl_t*)&libraryHandle, p, TYPE_UNDEFINED, &proc) == 0)
+	return DynamicSymbolHandle(proc);
+
+    p = strcpy(new char[strlen(symbolName) + 2], symbolName);
+    strcpy(p, "_");
+    strcat(p, symbolName);
+
+    if (shl_findsym((shl_t*)libraryHandle, p, TYPE_UNDEFINED, &proc) == 0)
+    {
+	delete [] p;
+	return DynamicSymbolHandle(proc);
+    }
+
+    return 0;
+
+#else
+
+    return DynamicSymbolHandle(dlsym(libraryHandle, (char*)symbolName));
+
+#endif
+}
+
+String System::getHostName()
+{
+    static char hostname[64];
+
+    if (!*hostname)
+        gethostname(hostname, sizeof(hostname));
+
+    return hostname;
+}
 
 PEGASUS_NAMESPACE_END

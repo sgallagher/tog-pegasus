@@ -101,10 +101,19 @@ Sint32 LocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
             OpProviderHolder* ph = reinterpret_cast< OpProviderHolder* >( ret );
             pr =_lookupProvider(providerName);
 
-            if(pr->getStatus()!=Provider::INITIALIZED)
+            // Do an initial check before a thread-safe check. This guards
+            // against a race condition between two requests initializing
+            // the same provider, but this normally isn't an issue. Having the
+            // initial check outside the mutex lock saves the overhead of
+            // locking for every request that comes through.
+            if(pr->_status !=Provider::INITIALIZED)
             {
-                _initProvider(pr,moduleFileName,interfaceName);
-            }
+                AutoMutex lock(pr->_statusMutex);
+                if(pr->_status != Provider::INITIALIZED)
+                {
+                    _initProvider(pr,moduleFileName,interfaceName);
+                }
+            } // unlock provider
 
             if(pr->_status!=Provider::INITIALIZED)
             {
@@ -637,9 +646,7 @@ Provider* LocalProviderManager::_initProvider(
     //
     Boolean undoModuleLoad = true;
 
-    {   // lock the provider mutex
-        AutoMutex pr_lock(provider->_statusMutex);
-
+    {
         // check provider status
         if (provider->_status == Provider::UNINITIALIZED)
         {
@@ -661,7 +668,7 @@ Provider* LocalProviderManager::_initProvider(
                 provider->reset();
             }
         }
-    }  // unlock the provider mutex
+    }
 
     // if we did not initialize the provider, unload the provider module
     if (undoModuleLoad)

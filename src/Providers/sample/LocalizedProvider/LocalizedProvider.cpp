@@ -717,27 +717,6 @@ void LocalizedProvider::referenceNames(
 }
 */
 
-/*
-void LocalizedProvider::getProperty(
-    const OperationContext & context,
-    const CIMObjectPath & instanceReference,
-    const CIMName & propertyName,
-    ValueResponseHandler & handler)
-{
-
-}
-
-void LocalizedProvider::setProperty(
-    const OperationContext & context,
-    const CIMObjectPath & instanceReference,
-    const CIMName & propertyName,
-    const CIMValue & newValue,
-    ResponseHandler & handler)
-{
-
-}
-*/
-
 void LocalizedProvider::invokeMethod(
     const OperationContext & context,
     const CIMObjectPath & objectReference,

@@ -43,7 +43,6 @@
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMClassProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
-#include <Pegasus/Provider/CIMPropertyProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Provider/CIMQueryProvider.h>
 #include <Pegasus/Provider/CIMIndicationProvider.h>
@@ -61,7 +60,6 @@ class PEGASUS_SERVER_LINKAGE ProviderFacade :
     public CIMInstanceProvider,
     public CIMClassProvider,
     public CIMAssociationProvider,
-    public CIMPropertyProvider,
     public CIMMethodProvider,
     public CIMQueryProvider,
     public CIMIndicationProvider,
@@ -201,7 +199,10 @@ public:
         const String & role,
         ObjectPathResponseHandler & handler);
 
-    // CIMPropertyProvider interface
+    // Property operation interfaces
+    // Note: Property operations are not supported at the provider level.
+    // These methods should be removed, and the caller should be changed to
+    // use the CIMInstanceProvider interface.
     virtual void getProperty(
         const OperationContext & context,
         const CIMObjectPath & instanceReference,

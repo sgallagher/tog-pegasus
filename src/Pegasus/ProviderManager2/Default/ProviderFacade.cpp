@@ -409,19 +409,8 @@ void ProviderFacade::getProperty(
     ValueResponseHandler & handler)
 {
     op_counter ops(&_current_operations);
-    // NOTE: CIMPropertyProvider interface not supported yet
-    /*
-    CIMPropertyProvider * provider = getInterface<CIMPropertyProvider>(_provider);
 
-    // forward request
-    provider->getProperty(
-    context,
-    objectName,
-    propertyName,
-    handler);
-    */
-
-    // NOTE: Use the CIMInstanceProvider interface until CIMPropertyProvider is supported
+    // NOTE: Use the CIMInstanceProvider interface
     handler.processing();
 
     Array<CIMName> propertyList;
@@ -469,20 +458,8 @@ void ProviderFacade::setProperty(
     ResponseHandler & handler)
 {
     op_counter ops(&_current_operations);
-    // NOTE: CIMPropertyProvider interface not supported yet
-    /*
-    CIMPropertyProvider * provider = getInterface<CIMPropertyProvider>(_provider);
 
-    // forward request
-    provider->setProperty(
-    context,
-    objectName,
-    propertyName,
-    newValue,
-    handler);
-    */
-
-    // NOTE: Use the CIMInstanceProvider interface until CIMPropertyProvider is supported
+    // NOTE: Use the CIMInstanceProvider interface
     handler.processing();
 
     CIMInstance instance(instanceReference.getClassName());

@@ -319,7 +319,6 @@ copy CIMIndicationProvider.h %PROVDR_INCL%
 copy CIMInstanceProvider.h %PROVDR_INCL%
 copy CIMMethodProvider.h %PROVDR_INCL%
 copy CIMOMHandle.h %PROVDR_INCL%
-copy CIMPropertyProvider.h %PROVDR_INCL%
 copy CIMProvider.h %PROVDR_INCL%
 copy CIMQueryProvider.h %PROVDR_INCL%
 copy Linkage.h %PROVDR_INCL%

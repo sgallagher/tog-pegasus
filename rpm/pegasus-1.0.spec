@@ -109,6 +109,7 @@ sbin/insserv etc/init.d
 %attr(-,root,root) /usr/local/lib/lib__NamespaceProvider.so
 %attr(-,root,root) /usr/local/lib/libMyProvider.so
 %attr(-,root,root) /usr/local/lib/libDynLib.so
+%attr(-,root,root) /usr/local/lib/liblslp-perl-lib.so
 
 %attr(-,root,root) /usr/local/bin/cimserver
 %attr(-,root,root) /usr/local/bin/cimmof

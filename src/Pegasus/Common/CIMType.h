@@ -151,11 +151,13 @@ inline Boolean operator!=(CIMType::Tag x, CIMType y)
 
 inline Boolean operator==(CIMType::Tag x, CIMType::Tag y)
 {
-	//not supported on Tru64
-	return x == y;
+	
 
 #ifdef PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX
 	return operator==(x, y);
+#else 
+	//not supported on Tru64
+	return x == y;
 #endif
 }
 

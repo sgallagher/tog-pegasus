@@ -53,7 +53,7 @@ typedef struct {
     pthread_t owner;
 } PEGASUS_MUTEX_HANDLE ;
 
-typedef pthread_mutex_t PEGASUS_CRIT_TYPE;
+typedef struct PEGASUS_MUTEX_HANDLE  PEGASUS_CRIT_TYPE;
 
 typedef void *PEGASUS_CLEANUP_HANDLE ;
 typedef void *PEGASUS_THREAD_RETURN;

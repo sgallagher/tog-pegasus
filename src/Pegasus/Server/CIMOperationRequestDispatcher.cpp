@@ -401,7 +401,9 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
 
       PEG_METHOD_EXIT();
 }
-
+/* Return from Control Provider - Provides the return from Control providers
+    (See _forwardRequestToControlProvider) and forwards teh response.
+*/
 void CIMOperationRequestDispatcher::_forwardToModuleCallBack(AsyncOpNode *op,
 							     MessageQueue *q,
 							     void *parm)
@@ -450,6 +452,10 @@ void CIMOperationRequestDispatcher::_forwardToModuleCallBack(AsyncOpNode *op,
    PEG_METHOD_EXIT();
 }
 
+/* Send a OperationsRequest message to a Control provider - Forwards the message
+   defined in request to the Control Provider defined in controlProviderName.
+   This is an internal function.
+*/
 void CIMOperationRequestDispatcher::_forwardRequestToControlProvider(
     const String& serviceName,
     const String& controlProviderName,
@@ -475,6 +481,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToControlProvider(
 	    controlProviderName,
 	    request);
     
+    // Send to the Control provider with _forwardToModuleCallBack as return
     PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
 		     "Forwarding " + String(MessageTypeToString(request->getType())) + 
 		     "to " + serviceName + "::" + controlProviderName + " response should go to queue " + 
@@ -489,6 +496,40 @@ void CIMOperationRequestDispatcher::_forwardRequestToControlProvider(
 
     PEG_METHOD_EXIT();
 }
+/* This function simply decides based on the controlProviderNameField
+    whether to forward to Service or ControlProvider.
+    If controlProviderName String empty, ToService, else toControlProvider
+    Convience coding to simply other functions
+*/
+void CIMOperationRequestDispatcher::_forwardRequest(
+    const String& className,        // only for diagnostic
+    const String& serviceName,
+    const String& controlProviderName,
+    CIMRequestMessage* request,
+    CIMResponseMessage*& response)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "CIMOperationRequestDispatcher::_forwardRequest");
+    if (controlProviderName == String::EMPTY)
+    {
+        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
+                         "Forwarding Delete Instance  Operation (" + className + 
+                         ") to Service " + serviceName );
+       
+        _forwardRequestToService(serviceName, request, response);
+    }
+    else
+    {
+        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
+                         "Forwarding Delete Instance Operation (" + className + 
+                         ") to Module " + serviceName + "::" + controlProviderName );
+       _forwardRequestToControlProvider(
+          serviceName, controlProviderName, request, response);
+    }
+
+    PEG_METHOD_EXIT();
+}
+
 
 void CIMOperationRequestDispatcher::_enqueueResponse(
    CIMRequestMessage* request,
@@ -774,7 +815,8 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
       PEG_METHOD_EXIT();
       return;
    }
-   else if (_repository->isDefaultInstanceProvider())
+   // not internal or found provider, go to default
+   if (_repository->isDefaultInstanceProvider())
    {
       CIMException cimException;
       CIMInstance cimInstance;
@@ -908,23 +950,8 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
       CIMDeleteInstanceRequestMessage* requestCopy =
          new CIMDeleteInstanceRequestMessage(*request);
 
-      if (controlProviderName == String::EMPTY)
-      {
-	 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
-			  "Forwarding Delete Instance  Operation (" + className + 
-			  ") to Service " + serviceName );
-	 
-         _forwardRequestToService(serviceName, requestCopy , response);
-      }
-      else
-      {
-	 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
-			  "Forwarding Delete Instance Operation (" + className + 
-			  ") to Module " + serviceName + "::" + controlProviderName );
-	 
-         _forwardRequestToControlProvider(
-            serviceName, controlProviderName, requestCopy, response);
-      }
+      _forwardRequest(className,serviceName, controlProviderName,
+          requestCopy, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -1072,27 +1099,15 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
       CIMCreateInstanceRequestMessage* requestCopy =
          new CIMCreateInstanceRequestMessage(*request);
 
-      if (controlProviderName == String::EMPTY)
-      {
-	 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
-			  "Forwarding Create Instance Operation (" + className + 
-			  ") to Service " + serviceName );
-         _forwardRequestToService(serviceName, requestCopy, response);
-      }
-      else
-      {
-	 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
-			  "Forwarding Create Instance Operation (" + className + 
-			  ") to Module " + serviceName + "::" + controlProviderName );
-         _forwardRequestToControlProvider(
-            serviceName, controlProviderName, requestCopy, response);
-      }
+      _forwardRequest(className,serviceName, controlProviderName, requestCopy,
+          response);
 
       PEG_METHOD_EXIT();
       return;
    }
 
    // ATTN: TEMP: Test code for ProcessIndication
+   //*********************************************************************
    if ((className == "TestSoftwarePkg") ||
        (className == "nsatrap"))
    {
@@ -1285,22 +1300,8 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
       CIMModifyInstanceRequestMessage* requestCopy =
          new CIMModifyInstanceRequestMessage(*request);
 
-      if (controlProviderName == String::EMPTY)
-      {
-	 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
-			  "Forwarding Modify Instance Operation (" + className + 
-			  ") to Service " + serviceName );
-         _forwardRequestToService(serviceName, requestCopy, response);
-      }
-      else
-      {
-	 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
-			  "Forwarding Modify Instance Operation (" + className + 
-			  ") to Module " + serviceName + "::" + controlProviderName );
-	 
-         _forwardRequestToControlProvider(
-            serviceName, controlProviderName, requestCopy, response);
-      }
+      _forwardRequest(className, serviceName, controlProviderName,
+          requestCopy, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -1512,15 +1513,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
       CIMEnumerateInstancesRequestMessage* requestCopy =
          new CIMEnumerateInstancesRequestMessage(*request);
 
-      if (controlProviderName == String::EMPTY)
-      {
-         _forwardRequestToService(serviceName, requestCopy, response);
-      }
-      else
-      {
-         _forwardRequestToControlProvider(
-            serviceName, controlProviderName, requestCopy, response);
-      }
+      _forwardRequest(className, serviceName, controlProviderName,
+          requestCopy, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -1623,23 +1617,16 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
    if (_lookupInternalProvider(request->nameSpace, className, serviceName,
            controlProviderName))
    {
-
        CIMEnumerateInstanceNamesRequestMessage* requestCopy =
          new CIMEnumerateInstanceNamesRequestMessage(*request);
 
-      if (controlProviderName == String::EMPTY)
-      {
-         _forwardRequestToService(serviceName, requestCopy, response);
-      }
-      else
-      {
-         _forwardRequestToControlProvider(
-            serviceName, controlProviderName, requestCopy, response);
-      }
+          _forwardRequest(className, serviceName, controlProviderName,
+              requestCopy, response);
 
       PEG_METHOD_EXIT();
       return;
    }
+    
    // check the class name for an "external provider"
    String providerName = _lookupInstanceProvider(request->nameSpace, className);
 
@@ -2569,15 +2556,8 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
       CIMInvokeMethodRequestMessage* requestCopy =
          new CIMInvokeMethodRequestMessage(*request);
 
-      if (controlProviderName == String::EMPTY)
-      {
-         _forwardRequestToService(serviceName, requestCopy, response);
-      }
-      else
-      {
-         _forwardRequestToControlProvider(
-            serviceName, controlProviderName, requestCopy, response);
-      }
+      _forwardRequest(className, serviceName, controlProviderName,
+          requestCopy, response);
 
       PEG_METHOD_EXIT();
       return;

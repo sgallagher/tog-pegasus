@@ -165,9 +165,6 @@ int main(int argc, char** argv)
 
     try
     {
-//	Monitor* monitor = new Monitor;
-//	HTTPConnector* httpConnector = new HTTPConnector(monitor);
-//	CIMClient client(monitor, httpConnector);
 	CIMClient client;
 	
 	client.connect("localhost:5988");

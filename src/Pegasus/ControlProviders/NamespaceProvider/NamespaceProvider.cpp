@@ -75,15 +75,15 @@ PEGASUS_NAMESPACE_BEGIN
 
 static const char NAMESPACE_NAME[] = "Name";
 
-static const char PROPERTY_NAME []      = "PropertyName";
+//static const char PROPERTY_NAME []      = "PropertyName";
 
-static const char DEFAULT_VALUE []      = "DefaultValue";
+//static const char DEFAULT_VALUE []      = "DefaultValue";
 
-static const char CURRENT_VALUE []      = "CurrentValue";
+//static const char CURRENT_VALUE []      = "CurrentValue";
 
-static const char PLANNED_VALUE []      = "PlannedValue";
+//static const char PLANNED_VALUE []      = "PlannedValue";
 
-static const char DYNAMIC_PROPERTY []   = "DynamicProperty";
+//static const char DYNAMIC_PROPERTY []   = "DynamicProperty";
 /**
     The constant representing the __namespace class name
 */
@@ -124,6 +124,7 @@ void NamespaceProvider::createInstance(
 	       "Invalid instance name");
        }
 
+       // Get the name property from the object
        keyValue.assign(kbArray[0].getValue());
        Array<String> namespaceNames;
        try
@@ -168,9 +169,11 @@ void NamespaceProvider::createInstance(
        }
        catch(Exception& e)
        {
-	   // ATTN: Not sure how to handle this error
-	   cout << "__Namespace Provider Exception ";
-	   cout << e.getMessage() <<  endl;
+           PEG_METHOD_EXIT();
+           throw PEGASUS_CIM_EXCEPTION(
+                   CIM_ERR_FAILED, e.getMessage());
+
+            //       String("Namespace \"") + keyValue + "\"" + " creation error");
        }
 
        handler.deliver(instanceReference);
@@ -188,7 +191,92 @@ void NamespaceProvider::deleteInstance(
         const CIMReference& instanceName,
 	ResponseHandler<CIMInstance> & handler)
     {
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "");
+        CIMValue                userName ;
+        String                  namespaceNameStr;
+        Array<KeyBinding>       kbArray;
+
+        PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::deleteInstance");
+        // begin processing the request
+        handler.processing();
+
+        try
+        {
+            //
+            // Get the namespace name from the instance
+            //
+            kbArray = instanceName.getKeyBindings();
+            for (Uint32 i = 0; i < kbArray.size(); i++)
+            {
+                if ( kbArray[i].getName() == NAMESPACE_NAME )
+                {
+                    namespaceNameStr = kbArray[i].getValue();
+                }
+                else
+                {
+                    cerr << "What error do I put out here";
+                }
+            }
+        }
+        catch ( CIMException &e )
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+        }
+        if ( !namespaceNameStr.size() )
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION (
+                CIM_ERR_INVALID_PARAMETER,
+                "name property can not be empty.") ;
+        }
+
+        Array<String> namespaceNames;
+        try
+        {
+
+            namespaceNames = _repository->enumerateNameSpaces();
+        }
+        catch(Exception& e)
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+        }
+        // Determine if this namespace exists.
+        // Cound not use Contains since this is equalNoCase
+        Boolean found = false;
+        for(Uint32 i = 0; i < namespaceNames.size(); i++)
+        {
+            if(String::equalNoCase(namespaceNames[i], namespaceNameStr))
+            {
+                found = true;
+                continue;
+            }
+        }
+
+        // If found, put out error that cannot create twice.
+        if(!found)
+        {
+                PEG_METHOD_EXIT();
+                throw PEGASUS_CIM_EXCEPTION(
+                        CIM_ERR_NOT_FOUND,
+                        String("Namespace \"") + namespaceNameStr + "\"");
+        }
+        try
+        {
+            _repository->deleteNameSpace(namespaceNameStr);
+        }
+        catch (Exception& e)
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+
+        }
+        // complete processing the request
+        handler.complete();
+
+        PEG_METHOD_EXIT();
+        return;
+
     }
 
 void NamespaceProvider::getInstance(
@@ -292,12 +380,12 @@ void NamespaceProvider::getInstance(
 	//
 	// construct the instance
 	//
-	instance.addProperty(CIMProperty(NAMESPACE_NAME, propertyInfo[0]));
-	instance.addProperty(CIMProperty(DEFAULT_VALUE, propertyInfo[1]));
-	instance.addProperty(CIMProperty(CURRENT_VALUE, propertyInfo[2]));
-	instance.addProperty(CIMProperty(PLANNED_VALUE, propertyInfo[3]));
-	instance.addProperty(CIMProperty(DYNAMIC_PROPERTY,
-	    Boolean(propertyInfo[4]=="true"?true:false)));
+	instance.addProperty(CIMProperty(NAMESPACE_NAME, keyValue));
+	//instance.addProperty(CIMProperty(DEFAULT_VALUE, propertyInfo[1]));
+	//instance.addProperty(CIMProperty(CURRENT_VALUE, propertyInfo[2]));
+	//instance.addProperty(CIMProperty(PLANNED_VALUE, propertyInfo[3]));
+	//instance.addProperty(CIMProperty(DYNAMIC_PROPERTY,
+	//    Boolean(propertyInfo[4]=="true"?true:false)));
 
 	handler.deliver(instance);
 
@@ -354,15 +442,15 @@ void NamespaceProvider::enumerateInstances(
                     KeyBinding::STRING));
                 CIMReference instanceName(ref.getHost(), ref.getNameSpace(),
                     __NAMESPACE, keyBindings);
-
+                */
                 // construct the instance
-                instance.addProperty(CIMProperty(PROPERTY_NAME, propertyInfo[0]));
-                instance.addProperty(CIMProperty(DEFAULT_VALUE, propertyInfo[1]));
-                instance.addProperty(CIMProperty(CURRENT_VALUE, propertyInfo[2]));
-                instance.addProperty(CIMProperty(PLANNED_VALUE, propertyInfo[3]));
-                instance.addProperty(CIMProperty(DYNAMIC_PROPERTY,
-                    Boolean(propertyInfo[4]=="true"?true:false)));
-                */                //namedInstanceArray.append(
+                instance.addProperty(CIMProperty(NAMESPACE_NAME, namespaceNames[i]));
+                //instance.addProperty(CIMProperty(DEFAULT_VALUE, propertyInfo[1]));
+                //instance.addProperty(CIMProperty(CURRENT_VALUE, propertyInfo[2]));
+                //instance.addProperty(CIMProperty(PLANNED_VALUE, propertyInfo[3]));
+                //instance.addProperty(CIMProperty(DYNAMIC_PROPERTY,
+                //    Boolean(propertyInfo[4]=="true"?true:false)));
+                //namedInstanceArray.append(
                 //    CIMNamedInstance(instanceName, instance));
                 instanceArray.append(instance);
             }

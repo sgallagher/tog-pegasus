@@ -184,6 +184,13 @@ public:
 	CIMRequestMessage* request,
 	CIMResponseMessage*& response);
 
+      void _forwardRequest(
+        const String& className,
+	const String& serviceName,
+	const String& controlProviderName,
+	CIMRequestMessage* request,
+	CIMResponseMessage*& response);
+
       void _enqueueResponse(
 	 CIMRequestMessage* request, CIMResponseMessage* response);
 

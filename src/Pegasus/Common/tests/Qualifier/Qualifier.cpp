@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Qualifier.cpp,v $
+// Revision 1.3  2001/02/18 03:56:01  mike
+// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
+//
 // Revision 1.2  2001/02/16 02:06:07  mike
 // Renamed many classes and headers.
 //
@@ -47,8 +50,8 @@ int main()
     {
 	CIMQualifier q1("Description", "Hello", CIMFlavor::TOINSTANCE);
 	CIMQualifier q2("Abstract", true);
-	ConstQualifier q3 = q1;
-	ConstQualifier q4;
+	CIMConstQualifier q3 = q1;
+	CIMConstQualifier q4;
 	q4 = q3;
 	assert(q4.identical(q1));
 

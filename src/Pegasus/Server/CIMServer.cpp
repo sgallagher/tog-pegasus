@@ -23,6 +23,9 @@
 // Author: Mike Brasher
 //
 // $Log: CIMServer.cpp,v $
+// Revision 1.2  2001/02/18 03:56:01  mike
+// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
+//
 // Revision 1.1  2001/02/16 02:08:26  mike
 // Renamed several classes
 //
@@ -487,7 +490,7 @@ void ServerHandler::handleGetClass(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
-    ConstClassDecl classDecl;
+    CIMConstClass classDecl;
     
     try
     {
@@ -565,7 +568,7 @@ void ServerHandler::handleGetInstance(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
-    ConstInstanceDecl instanceDecl;
+    CIMConstInstance instanceDecl;
     
     try
     {

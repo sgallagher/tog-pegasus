@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Property.cpp,v $
+// Revision 1.3  2001/02/18 03:56:01  mike
+// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
+//
 // Revision 1.2  2001/02/16 02:06:07  mike
 // Renamed many classes and headers.
 //
@@ -47,7 +50,7 @@ int main()
     CIMProperty p1("message", "Hi There");
     p1.addQualifier(CIMQualifier("Key", true));
     p1.addQualifier(CIMQualifier("Description", "Blah Blah"));
-    ConstProperty p2 = p1;
+    CIMConstProperty p2 = p1;
 
     cout << "+++++ passed all tests" << endl;
 

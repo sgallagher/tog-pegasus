@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: ClassDeclRep.cpp,v $
+// Revision 1.3  2001/02/18 03:56:01  mike
+// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
+//
 // Revision 1.2  2001/02/16 02:06:09  mike
 // Renamed many classes and headers.
 //
@@ -53,7 +56,7 @@ void Test01()
     CIMQualifierDecl q1("abstract", false, CIMScope::CLASS);
     r.setQualifier(NAMESPACE, q1);
 
-    ConstQualifierDecl q2 = r.getQualifier(NAMESPACE, "abstract");
+    CIMConstQualifierDecl q2 = r.getQualifier(NAMESPACE, "abstract");
     assert(q1.identical(q2));
 
     // Create two simple classes:

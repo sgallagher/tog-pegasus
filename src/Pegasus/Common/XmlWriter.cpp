@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: XmlWriter.cpp,v $
+// Revision 1.5  2001/02/18 03:56:01  mike
+// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
+//
 // Revision 1.4  2001/02/16 02:06:07  mike
 // Renamed many classes and headers.
 //
@@ -486,7 +489,7 @@ Array<Sint8>& XmlWriter::appendQualifierNameParameter(
 Array<Sint8>& XmlWriter::appendClassParameter(
     Array<Sint8>& out,
     const char* parameterName,
-    const ConstClassDecl& classDecl)
+    const CIMConstClass& classDecl)
 {
     Array<Sint8> tmp;
     classDecl.toXml(tmp);
@@ -518,7 +521,7 @@ Array<Sint8>& XmlWriter::appendInstanceNameParameter(
 Array<Sint8>& XmlWriter::appendQualifierDeclarationParameter(
     Array<Sint8>& out,
     const char* parameterName,
-    const ConstQualifierDecl& qualifierDecl)
+    const CIMConstQualifierDecl& qualifierDecl)
 {
     Array<Sint8> tmp;
     qualifierDecl.toXml(tmp);

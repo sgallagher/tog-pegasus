@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Repository.cpp,v $
+// Revision 1.4  2001/02/18 03:56:01  mike
+// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
+//
 // Revision 1.3  2001/02/16 02:06:09  mike
 // Renamed many classes and headers.
 //
@@ -68,7 +71,7 @@ void test01()
 
     r.createClass(NAMESPACE, c);
 
-    ConstClassDecl cc;
+    CIMConstClass cc;
     cc = r.getClass("aa/bb", "MyClass");
 
     assert(c.identical(cc));

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.12  2001/02/18 03:56:00  mike
+// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
+//
 // Revision 1.11  2001/02/16 02:06:06  mike
 // Renamed many classes and headers.
 //
@@ -358,7 +361,7 @@ void PrintQualifiers(OBJECT& object)
 
     for (Uint32 i = 0, n = object.getQualifierCount(); i < n; i++)
     {
-	ConstQualifier qualifier = object.getQualifier(i);
+	CIMConstQualifier qualifier = object.getQualifier(i);
 	const CIMValue& value = qualifier.getValue();
 
 	PrintRow(

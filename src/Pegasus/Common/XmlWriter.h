@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: XmlWriter.h,v $
+// Revision 1.5  2001/02/18 03:56:01  mike
+// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
+//
 // Revision 1.4  2001/02/16 02:06:07  mike
 // Renamed many classes and headers.
 //
@@ -58,8 +61,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class ConstQualifierDecl;
-class ConstClassDecl;
+class CIMConstQualifierDecl;
+class CIMConstClass;
 
 class PEGASUS_COMMON_LINKAGE XmlWriter
 {
@@ -158,7 +161,7 @@ public:
     static Array<Sint8>& appendClassParameter(
 	Array<Sint8>& out,
 	const char* parameterName,
-	const ConstClassDecl& classDecl);
+	const CIMConstClass& classDecl);
 
     static Array<Sint8>& appendInstanceNameParameter(
 	Array<Sint8>& out,
@@ -168,7 +171,7 @@ public:
     static Array<Sint8>& appendQualifierDeclarationParameter(
 	Array<Sint8>& out,
 	const char* parameterName,
-	const ConstQualifierDecl& qualifierDecl);
+	const CIMConstQualifierDecl& qualifierDecl);
 
     static Array<Sint8>& appendClassNameElement(
 	Array<Sint8>& out,

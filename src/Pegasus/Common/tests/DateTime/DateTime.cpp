@@ -122,7 +122,11 @@ int main(int argc, char** argv)
         cout << "Finish date time is : " << finishTime << endl;
     }
 
+#ifndef PEGASUS_PLATFORM_LINUX_IX86_GNU
     assert ( differenceInMicroseconds == -10800000000 );
+#else
+    assert ( differenceInMicroseconds == -10800000000LL );
+#endif
 
     //
     //  Test date difference with microseconds
@@ -152,7 +156,11 @@ int main(int argc, char** argv)
         cout << "Finish date time is : " << finishTime << endl;
     }
 
+#ifndef PEGASUS_PLATFORM_LINUX_IX86_GNU
     assert (differenceInMicroseconds == 10800000003);
+#else
+    assert (differenceInMicroseconds == 10800000003LL);
+#endif
 
     // Set the start and finish times
     startTime.clear ();
@@ -178,8 +186,11 @@ int main(int argc, char** argv)
         cout << "Start date time is  : " << startTime << endl;
         cout << "Finish date time is : " << finishTime << endl;
     }
-
+#ifndef PEGASUS_PLATFORM_LINUX_IX86_GNU
     assert (differenceInMicroseconds == 10799999997);
+#else
+    assert (differenceInMicroseconds == 10799999997LL);
+#endif
 
     // Set the start and finish times
     startTime.clear();
@@ -206,7 +217,11 @@ int main(int argc, char** argv)
         cout << "Finish date time is : " << finishTime << endl;
     }
 
+#ifndef PEGASUS_PLATFORM_LINUX_IX86_GNU
     assert ( differenceInMicroseconds == 10800000000 );
+#else
+    assert ( differenceInMicroseconds == 10800000000LL );
+#endif
 
     // Set the start and finish times
     startTime.clear();
@@ -233,7 +248,11 @@ int main(int argc, char** argv)
         cout << "Finish date time is : " << finishTime << endl;
     }
 
+#ifndef PEGASUS_PLATFORM_LINUX_IX86_GNU
     assert ( differenceInMicroseconds == 48600000000 );
+#else
+    assert ( differenceInMicroseconds == 48600000000LL );
+#endif
 
     // Set the start and finish times
     startTime.clear();
@@ -260,7 +279,11 @@ int main(int argc, char** argv)
         cout << "Finish date time is : " << finishTime << endl;
     }
 
+#ifndef PEGASUS_PLATFORM_LINUX_IX86_GNU
     assert ( differenceInMicroseconds == -48600000000 );
+#else
+    assert ( differenceInMicroseconds == -48600000000LL );
+#endif
 
     // Check for interval
     CIMDateTime 	 startInterval;
@@ -300,7 +323,11 @@ int main(int argc, char** argv)
                                      (startInterval, finishInterval);
 
     assert ( startInterval.isInterval() == true );
+#ifndef PEGASUS_PLATFORM_LINUX_IX86_GNU
     assert ( intervalDifferenceInMicroseconds == 8639999999999999999 );
+#else
+    assert ( intervalDifferenceInMicroseconds == 8639999999999999999LL );
+#endif
 
     try 
     {

@@ -153,16 +153,16 @@ static const char PROVIDER_NOT_REGISTERED[] =
 		"Specified provider was not registered.";
 
 static const char DELETEING_PROVIDER_MODULE[] =
-			"Deleteing provider module...";
+			"Deleting provider module...";
 
 static const char DELETEING_PROVIDER[] =
-			"Deleteing provider...";
+			"Deleting provider...";
 
 static const char STARTING_PROVIDER_MODULE[] =
-			"Enableing provider module...";
+			"Enabling provider module...";
 
 static const char STOPING_PROVIDER_MODULE[] =
-			"Disableing provider module...";
+			"Disabling provider module...";
 
 static const char NO_MODULE_REGISTERED[] =
 			"No modules registered for listing.";

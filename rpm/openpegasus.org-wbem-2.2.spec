@@ -62,11 +62,11 @@
 Summary: WBEM Services for Linux
 Name: pegasus-wbem
 Version: 2.2
-Release: 4
+Release: 1
 Group: Systems Management/Base
 Copyright: Open Group Pegasus Open Source
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
-Source: ftp://www.opengroup.org/pegasus/pegasus-wbem-%{version}-%{release}.tar.gz
+BuildRoot: %{_tmppath}/%{name}-%{version}.%{release}
+Source: ftp://www.opengroup.org/pegasus/pegasus-wbem-%{version}.%{release}.tar.gz
 Requires: openssl-devel >= 0.9.6
 Provides: cimserver pegasus-wbem-2.2
 

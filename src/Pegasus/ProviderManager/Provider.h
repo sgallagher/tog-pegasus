@@ -28,6 +28,7 @@
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -162,7 +163,7 @@ public:
 class OpProviderHolder
 {
 private:
-	Provider* _provider;
+	AutoPtr<Provider> _provider; //PEP101
 
 public:
 	OpProviderHolder(): _provider( NULL )
@@ -170,7 +171,7 @@ public:
 	}
 	OpProviderHolder( const OpProviderHolder& p ): _provider( NULL )
 	{
-		SetProvider( p._provider );
+		SetProvider( p._provider.get() );
 	}
 	OpProviderHolder( Provider* p ): _provider( NULL )
 	{
@@ -181,13 +182,13 @@ public:
 		UnSetProvider();
 	}
 
-	Provider& GetProvider() { return *_provider; }
+	Provider& GetProvider() { return *_provider.get(); }
 
 	OpProviderHolder& operator=( const OpProviderHolder& x )
 	{
 		if( this == &x )
 			return *this;
-		SetProvider( x._provider );
+		SetProvider( x._provider.get() );
 
         return(*this);
 	}
@@ -197,17 +198,18 @@ public:
 		UnSetProvider();
 		if( p )
 		{
-			_provider = p;
+            _provider.release();
+			_provider.reset(p);
 			_provider->_current_operations++;
 		}
 	}
 
 	void UnSetProvider()
 	{
-		if( _provider )
+		if( _provider.get() )
 		{
 			_provider->_current_operations--;
-			_provider = NULL;
+			_provider.release();
 		}
 	}
 };

@@ -28,6 +28,7 @@
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -75,7 +76,7 @@ void Provider::set(ProviderModule *module,
                    CIMOMHandle *cimomHandle)
 {
     _module = module;
-    _provider = cimProvider;
+    _provider.reset(cimProvider);
     _cimom_handle = cimomHandle;
 }
 

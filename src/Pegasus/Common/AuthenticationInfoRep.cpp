@@ -48,6 +48,10 @@ AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::AuthenticationInfoRep");
 
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+    _securityAssoc = new CIMKerberosSecurityAssociation;
+#endif
+
     PEG_METHOD_EXIT();
 }
 
@@ -56,6 +60,14 @@ AuthenticationInfoRep::~AuthenticationInfoRep()
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::~AuthenticationInfoRep");
+
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+    if (_securityAssoc)
+    {
+        delete _securityAssoc;
+        _securityAssoc = 0;
+    }
+#endif
 
     PEG_METHOD_EXIT();
 }

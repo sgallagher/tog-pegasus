@@ -36,6 +36,9 @@
 #include <Pegasus/Common/AuthenticationInfoRep.h>
 #include <Pegasus/Common/Linkage.h>
 
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+#include "CIMKerberosSecurityAssociation.h"
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -248,6 +251,17 @@ public:
         _checkRep();
         return _rep->getAuthType();
     }
+
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+    /** Get the CIM Security Association 
+        @return the CIM Security Association
+    */
+    CIMKerberosSecurityAssociation* getSecurityAssociation() const 
+    { 
+        _checkRep();
+        return _rep->getSecurityAssociation(); 
+    }
+#endif
 
 private:
 

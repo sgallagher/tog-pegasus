@@ -35,6 +35,9 @@
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Linkage.h>
 
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+#include "CIMKerberosSecurityAssociation.h"
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -100,6 +103,13 @@ public:
 
     void   setAuthType(const String& authType);
 
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+    CIMKerberosSecurityAssociation* getSecurityAssociation() const 
+    { 
+        return _securityAssoc;
+    } 
+#endif
+
 private:
 
     /** Constructors  */
@@ -115,6 +125,9 @@ private:
     Boolean _privileged;
     String  _authType;
     AuthStatus _authStatus;
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+    CIMKerberosSecurityAssociation * _securityAssoc;
+#endif
 };
 
 PEGASUS_NAMESPACE_END

@@ -26,14 +26,14 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/suballoc.h>
+#include "suballoc.h"
 #include <Pegasus/Common/Tracer.h>
 #include <new.h>
 PEGASUS_NAMESPACE_BEGIN
 
 peg_suballocator *peg_suballocator::_suballoc_instance = 0;
 
-PEGASUS_COMMON_LINKAGE peg_suballocator *peg_suballocator::get_instance(void)
+PEGASUS_SUBALLOC_LINKAGE peg_suballocator *peg_suballocator::get_instance(void)
 {
    if(peg_suballocator::_suballoc_instance == 0)
    {
@@ -43,7 +43,7 @@ PEGASUS_COMMON_LINKAGE peg_suballocator *peg_suballocator::get_instance(void)
 }
 
 #if defined(PEGASUS_DEBUG_MEMORY)
-PEGASUS_COMMON_LINKAGE void * pegasus_alloc(size_t size, 
+PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t size, 
 					      void * handle,
 					      int type,
 					      const Sint8 *classname, 
@@ -58,7 +58,7 @@ PEGASUS_COMMON_LINKAGE void * pegasus_alloc(size_t size,
 				       line) ;
 }
 
-PEGASUS_COMMON_LINKAGE void pegasus_free(void * dead,
+PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void * dead,
 					   void * handle,
 					   int type, 
 					   Sint8 *classname, 
@@ -78,12 +78,12 @@ PEGASUS_COMMON_LINKAGE void pegasus_free(void * dead,
 
 #else
 
-PEGASUS_COMMON_LINKAGE void * pegasus_alloc(size_t size)
+PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t size)
 {
    return peg_suballocator::get_instance()->vs_malloc(size);
 }
 
-PEGASUS_COMMON_LINKAGE void pegasus_free(void *dead)
+PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *dead)
 {
    peg_suballocator::get_instance()->vs_free(dead);
 }
@@ -136,8 +136,6 @@ void operator delete(void *dead) throw()
 			      "internal", 
 			      __FILE__, 
 			      __LINE__);
-   free(dead);
-   
 
 #else
    peg_suballocator::get_instance()->vs_free(dead);
@@ -597,9 +595,6 @@ peg_suballocator::SUBALLOC_NODE *peg_suballocator::GetNode(Sint32 vector, Sint32
 peg_suballocator::SUBALLOC_NODE * peg_suballocator::GetHugeNode(Sint32 size)
 {
    SUBALLOC_NODE *temp;
-   Sint8 *g;
-   
-   
    Sint32 waitCode;
    if(initialized == 0 )
    {
@@ -977,7 +972,6 @@ void *peg_suballocator::vs_realloc(void *pblock, size_t newsize)
       newblock = vs_calloc(newsize, sizeof(char));
       if (newblock != NULL) {
 	 SUBALLOC_NODE *temp;
-	 Sint8 *g;
 	 int copysize;
 	 temp = (SUBALLOC_NODE *)pblock;
 	 temp--;

@@ -28,7 +28,7 @@
 #if defined(PEGASUS_REMOVE_TRACE)  
 #undef PEGASUS_REMOVE_TRACE 
 #endif
-#include <Pegasus/Common/suballoc.h>
+#include <Pegasus/suballoc/suballoc.h>
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Tracer.h> 

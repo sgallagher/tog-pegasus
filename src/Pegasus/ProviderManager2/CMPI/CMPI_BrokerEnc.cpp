@@ -488,6 +488,7 @@ extern "C" {
   {
     int exception = 1;
     int useShortNames = 0;
+    CMPIStatus rc = { CMPI_RC_OK, NULL };
 
     if (strncmp (lang, CALL_SIGN_WQL, CALL_SIGN_WQL_SIZE) == 0)
       {
@@ -524,14 +525,28 @@ extern "C" {
           {
             *projection =
               mbEncNewArray (mb, stmt->getSelectPropertyNameCount (),
-                             CMPI_chars, NULL);
+                             CMPI_string, NULL);
             for (int i = 0, m = stmt->getSelectPropertyNameCount (); i < m;
                  i++)
               {
                 const CIMName & n = stmt->getSelectPropertyName (i);
-                CMSetArrayElementAt (*projection, i,
-                                     (const char *) n.getString ().
-                                     getCString (), CMPI_chars);
+                //cerr << "Property: " << n.getString() << endl;
+                // Since the array and the CIMName disappear when this function
+                // exits we use CMPI data storage - the CMPI_Object keeps a list of
+                // data and cleans it up when the provider API function is exited.
+                CMPIString *str_data =
+                  reinterpret_cast < CMPIString * >(new CMPI_Object (n.getString()));
+                CMPIValue value;
+                value.string = str_data;
+
+                rc = CMSetArrayElementAt (*projection, i,
+                                          &value, CMPI_string);
+                if (rc.rc != CMPI_RC_OK)
+                  {
+                    if (st)
+                      CMSetStatus (st, rc.rc);
+                    return NULL;
+				  }
               }
 		    }
           }
@@ -551,7 +566,6 @@ extern "C" {
           useShortNames = 1;
         // Get the namespace.
         CMPIContext *ctx = CMPI_ThreadContext::getContext ();
-        CMPIStatus rc = { CMPI_RC_OK, NULL };
 
         CMPIData data = ctx->ft->getEntry (ctx, CMPINamespace, &rc);
         if (rc.rc != CMPI_RC_OK)

@@ -247,7 +247,6 @@ bool WMICollector::getInstanceEnum(
 	PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMICollector::getInstanceEnum()");
 
 	HRESULT hr;
-
 	long lFlags = WBEM_FLAG_FORWARD_ONLY;
 
 	//
@@ -667,6 +666,8 @@ void getProperties(IWbemClassObject *pClass,
 				"getProperties() - %s property not found", (LPCTSTR)sPropName.getCString());
 
 			//reset
+			throw CIMException(CIM_ERR_FAILED, "[getProperties] Property Not Found");
+			
 			hr = S_OK;
 		}
 	}

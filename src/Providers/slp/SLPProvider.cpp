@@ -90,8 +90,8 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h> // for Logger
 
-#define CDEBUG(X)
-//#define CDEBUG(X) PEGASUS_STD(cout) << "SLPProvider " << X << PEGASUS_STD(endl)
+//#define CDEBUG(X)
+#define CDEBUG(X) PEGASUS_STD(cout) << "SLPProvider " << X << PEGASUS_STD(endl)
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -648,19 +648,24 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
     
     // InterOp Schema
     populateTemplateField(instance1, InteropSchemaNamespaceAttribute, InteropSchemaNamespaceName);
-
+    CDEBUG("Before instance_objMgrComm. instance count = " << instance_ObjMgrComm.getPropertyCount());
     // ATTN: KS Loop through all properties Note: This does not make it easy to
     // distinguish required vs. optional but works for now.
     for(Uint32 j=0;  j < instance_ObjMgrComm.getPropertyCount(); j++)
     {
+        CDEBUG("MgrCommLoop. count " << j);
         CIMConstProperty p1=instance_ObjMgrComm.getProperty(j);
         CIMName n1 = p1.getName();
         CIMValue v1= p1.getValue();
 
-        if (n1.equal(otherCommunicationMechanismAttribute))
-        {
-    
+        CDEBUG("MgrCommLoop. count " << j << " Name= " << n1.getString());
+
+
+        if (n1.equal(communicationMechanismAttribute))
             populateTemplateField(instance1, communicationMechanismAttribute,v1.toString());
+
+        else if (n1.equal(otherCommunicationMechanismAttribute))
+        {
             
             if (String::equalNoCase(v1.toString(),"1"))
             {

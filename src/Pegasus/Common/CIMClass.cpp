@@ -278,12 +278,12 @@ void CIMClass::_checkRep() const
         throw UninitializedObjectException();
 }
 
-CIMInstance CIMClass::createInstance(Boolean includeQualifiers,
+CIMInstance CIMClass::buildInstance(Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList) const
 {
     _checkRep();
-    return _rep->createInstance(includeQualifiers, 
+    return _rep->buildInstance(includeQualifiers, 
         includeClassOrigin,
         propertyList);
 }

@@ -343,7 +343,7 @@ public:
 
     <Will be provided with the code>
     */
-    CIMInstance createInstance(Boolean includeQualifiers,
+    CIMInstance buildInstance(Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMPropertyList & propertyList) const;
 

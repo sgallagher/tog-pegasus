@@ -478,7 +478,7 @@ void CIMClassRep::resolve(
     // _resolved = true;
 }
 
-CIMInstance CIMClassRep::createInstance(Boolean includeQualifiers,
+CIMInstance CIMClassRep::buildInstance(Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList) const
 {

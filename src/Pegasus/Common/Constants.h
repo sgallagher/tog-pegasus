@@ -138,7 +138,7 @@ static const CIMName PEGASUS_CLASSNAME___NAMESPACE          =
 
 #ifdef PEGASUS_ENABLE_SLP
 // Interop Classes Accessed through Interop Control Provider
-static const CIMName PEGASUS_CLASSNAME_NAMESPACE            = 
+static const CIMName PEGASUS_CLASSNAME_CIMNAMESPACE            = 
     CIMName ("CIM_Namespace");
 static const CIMName PEGASUS_CLASSNAME_PGNAMESPACE            = 
     CIMName ("PG_Namespace");

@@ -106,7 +106,7 @@ public:
 
     Boolean hasKeys() const;
 
-    CIMInstance createInstance(Boolean includeQualifiers,
+    CIMInstance buildInstance(Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMPropertyList & propertyList) const;
 

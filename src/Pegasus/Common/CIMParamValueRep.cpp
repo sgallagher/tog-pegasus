@@ -63,7 +63,7 @@ void CIMParamValueRep::toXml(Array<Sint8>& out) const
 
     if (_isTyped && (type != CIMType::NONE))
     {
-        out << " PARAMTYPE=\"" << TypeToString(type) << "\"";
+        out << " PARAMTYPE=\"" << type.toString() << "\"";
     }
 
     out << ">\n";

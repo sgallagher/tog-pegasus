@@ -2961,8 +2961,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
          PEG_METHOD_EXIT();
 	 throw PEGASUS_CIM_EXCEPTION(
 	    CIM_ERR_INVALID_PARAMETER,
-	    String("Malformed ") + TypeToString(type) +
-	    "value");
+	    String("Malformed ") + type.toString() + " value");
       }
 
       for (Uint32 k=0; k<charPtrArray.size(); k++)
@@ -2987,8 +2986,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
          PEG_METHOD_EXIT();
 	 throw PEGASUS_CIM_EXCEPTION(
 	    CIM_ERR_INVALID_PARAMETER,
-	    String("Malformed ") + TypeToString(type) +
-	    "value");
+	    String("Malformed ") + type.toString() + " value");
       }
    }
 

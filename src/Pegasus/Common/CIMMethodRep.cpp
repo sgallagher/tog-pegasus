@@ -176,7 +176,7 @@ void CIMMethodRep::toXml(Array<Sint8>& out) const
 
     out << " NAME=\"" << _name << "\"";
 
-    out << " TYPE=\"" << TypeToString(_type) << "\"";
+    out << " TYPE=\"" << _type.toString() << "\"";
 
     if (_classOrigin.size())
 	out << " CLASSORIGIN=\"" << _classOrigin << "\"";
@@ -220,7 +220,7 @@ void CIMMethodRep::toMof(Array<Sint8>& out) const   //ATTNKS:
     _qualifiers.toMof(out);
 
     // output the type,	MethodName and ParmeterList left enclosure
-    out << "\n" << TypeToString(_type) << " " << _name << "(";
+    out << "\n" << _type.toString() << " " << _name << "(";
 
     // output the param list separated by commas.
     

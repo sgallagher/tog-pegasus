@@ -104,7 +104,7 @@ void CIMQualifierDeclRep::toXml(Array<Sint8>& out) const
 {
     out << "<QUALIFIER.DECLARATION";
     out << " NAME=\"" << _name << "\"";
-    out << " TYPE=\"" << TypeToString(_value.getType()) << "\"";
+    out << " TYPE=\"" << _value.getType().toString() << "\"";
 
     if (_value.isArray())
     {
@@ -151,7 +151,7 @@ void CIMQualifierDeclRep::toMof(Array<Sint8>& out) const
     out << "Qualfier " << _name;
 
     // output the qualifiertype
-    out << " : " << TypeToString(_value.getType());
+    out << " : " << _value.getType().toString();
 
     // If array put the Array indicator "[]" and possible size after name.
     if (_value.isArray())

@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,9 +39,43 @@ static const char* _typeStrings[] =
 
 static const Uint32 _NUM_TYPES = sizeof(_typeStrings) / sizeof(_typeStrings[0]);
 
-const char* TypeToString(CIMType type)
+CIMType::CIMType() : _tag(NONE)
 {
-    return _typeStrings[Uint32(CIMType::Tag(type))];
+}
+
+CIMType::CIMType(Tag tag) : _tag(tag)
+{
+}
+
+#if 0
+CIMType::CIMType(Uint32 tag) : _tag(Tag(tag))
+{
+}
+#endif
+
+CIMType::CIMType(const CIMType& x) : _tag(x._tag)
+{
+}
+
+CIMType& CIMType::operator=(Tag tag)
+{
+    _tag = tag;
+    return *this;
+}
+
+CIMType::operator Tag() const
+{
+    return _tag;
+}
+
+Boolean CIMType::equal(const CIMType& x) const
+{
+    return x._tag == _tag;
+}
+
+const char* CIMType::toString() const
+{
+    return _typeStrings[Uint32(_tag)];
 }
 
 PEGASUS_NAMESPACE_END

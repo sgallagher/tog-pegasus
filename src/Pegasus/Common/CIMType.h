@@ -22,8 +22,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
-//         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
+// Modified By: Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -92,31 +92,42 @@ public:
     };
 
     /// Constructor
-    CIMType() : _tag(NONE) { }
+    CIMType();
 
     ///  Constructor
-    CIMType(Tag tag) : _tag(tag) { }
+    CIMType(Tag tag);
 
+#if 0 // ATTN-RK-P3-20020514: Why encourage/allow this?
     /// Constructor
-    PEGASUS_EXPLICIT CIMType(Uint32 tag) : _tag(Tag(tag)) { }
+    PEGASUS_EXPLICIT CIMType(Uint32 tag);
+#endif
 
     ///  Constructor
-    CIMType(const CIMType& x) : _tag(x._tag) { }
+    CIMType(const CIMType& x);
 
     /// operator =
-    CIMType& operator=(Tag tag) { _tag = tag; return *this; }
+    CIMType& operator=(Tag tag);
 
     /// 
-    operator Tag() const { return _tag; }
+    operator Tag() const;
 
     ///
-    Boolean equal(const CIMType& x) const { return x._tag == _tag; }
+    Boolean equal(const CIMType& x) const;
+
+    /** Returns a string representation of the given type that may be useful
+        for debugging.  (Note: the current implementation returns a string
+        matching the first column in the table above, but that is subject to
+        change in later revisions.
+    */
+    const char* toString() const;
 
 private:
 
     Tag _tag;
 };
 
+#if 0 // ATTN-RK-P3-20020514: These shouldn't be necessary because the
+      // compiler can convert CIMType to CIMType::Tag automatically
 inline Boolean operator==(CIMType x, CIMType y)
 {
     return CIMType::Tag(x) == CIMType::Tag(y);
@@ -126,45 +137,7 @@ inline Boolean operator!=(CIMType x, CIMType y)
 {
     return !operator==(x, y);
 }
-
-// ATTN: this doesn't seem necessary!
-
-inline Boolean operator==(CIMType x, CIMType::Tag y)
-{
-    return x.equal(y);
-}
-
-inline Boolean operator==(CIMType::Tag x, CIMType y)
-{
-    return y.equal(x);
-}
-
-inline Boolean operator!=(CIMType x, CIMType::Tag y)
-{
-    return !operator==(x, y);
-}
-
-inline Boolean operator!=(CIMType::Tag x, CIMType y)
-{
-    return !operator==(x, y);
-}
-
-inline Boolean operator==(CIMType::Tag x, CIMType::Tag y)
-{
-	
-
-#ifdef PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX
-	return operator==(x, y);
-#else 
-	//not supported on Tru64
-	return x == y;
 #endif
-}
-
-// Returns a string representation of the given type. The string
-// is the same as the "CIM CIMType" column in the table above.
-
-PEGASUS_COMMON_LINKAGE const char* TypeToString(CIMType type);
 
 PEGASUS_NAMESPACE_END
 

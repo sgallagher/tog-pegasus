@@ -168,7 +168,7 @@ void CIMPropertyRep::toXml(Array<Sint8>& out) const
 
 	out << " NAME=\"" << _name << "\" ";
 
-	out << " TYPE=\"" << TypeToString(_value.getType()) << "\"";
+	out << " TYPE=\"" << _value.getType().toString() << "\"";
 
 	if (_arraySize)
 	{
@@ -224,7 +224,7 @@ void CIMPropertyRep::toXml(Array<Sint8>& out) const
 	if (_propagated != false)
 	    out << " PROPAGATED=\"" << _toString(_propagated) << "\"";
 
-	out << " TYPE=\"" << TypeToString(_value.getType()) << "\"";
+	out << " TYPE=\"" << _value.getType().toString() << "\"";
 
 	out << ">\n";
 
@@ -265,7 +265,7 @@ void CIMPropertyRep::toMof(Array<Sint8>& out) const  //ATTNKS:
     _qualifiers.toMof(out);
 
     // Output the Type and name on a new line
-    out << "\n" << TypeToString(_value.getType()) << " " << _name;
+    out << "\n" << _value.getType().toString() << " " << _name;
 
     // If array put the Array indicator "[]" and possible size after name.
     if (_value.isArray())

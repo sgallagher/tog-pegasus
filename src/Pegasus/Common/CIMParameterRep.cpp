@@ -117,7 +117,7 @@ void CIMParameterRep::toXml(Array<Sint8>& out) const
 
 	out << " NAME=\"" << _name << "\" ";
 
-	out << " TYPE=\"" << TypeToString(_type) << "\"";
+	out << " TYPE=\"" << _type.toString() << "\"";
 
 	if (_arraySize)
 	{
@@ -147,7 +147,7 @@ void CIMParameterRep::toXml(Array<Sint8>& out) const
     {
 	out << "<PARAMETER";
 	out << " NAME=\"" << _name << "\" ";
-	out << " TYPE=\"" << TypeToString(_type) << "\"";
+	out << " TYPE=\"" << _type.toString() << "\"";
 	out << ">\n";
 
 	_qualifiers.toXml(out);
@@ -179,7 +179,7 @@ void CIMParameterRep::toMof(Array<Sint8>& out) const
 	out << " ";
 
     // Output the data type and name
-    out << TypeToString(_type) << " " <<  _name;
+    out << _type.toString() << " " <<  _name;
 
     if (_isArray)
     {

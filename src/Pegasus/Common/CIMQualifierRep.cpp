@@ -99,7 +99,7 @@ void CIMQualifierRep::toXml(Array<Sint8>& out) const
 {
     out << "<QUALIFIER";
     out << " NAME=\"" << _name << "\"";
-    out << " TYPE=\"" << TypeToString(_value.getType()) << "\"";
+    out << " TYPE=\"" << _value.getType().toString() << "\"";
 
     if (_propagated != false)
 	out << " PROPAGATED=\"" << _toString(_propagated) << "\"";

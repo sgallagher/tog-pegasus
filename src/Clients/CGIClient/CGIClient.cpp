@@ -375,7 +375,7 @@ void PrintSingleProperty(CIMProperty& property)
 
     PrintRow(
 	property.getName(),
-	TypeToString(value.getType()),
+	value.getType().toString(),
 	value.toString());
 
     PrintTableTrailer();
@@ -420,7 +420,7 @@ void PrintObjectProperties(
 	cout << "<td>";
 	PrintAHref(href, property.getName());
 	cout << "</td>";
-	cout << "<td>" << TypeToString(value.getType()) << "</td>\n";
+	cout << "<td>" << value.getType().toString() << "</td>\n";
 
 	String valueString = value.toString();
 
@@ -453,7 +453,7 @@ void PrintQualifiers(OBJECT& object)
 
 	PrintRow(
 	    qualifier.getName(),
-	    TypeToString(value.getType()),
+	    value.getType().toString(),
 	    value.toString());
     }
 
@@ -533,7 +533,7 @@ void PrintClassMethods(CIMClass& cimClass)
 
 	cout << "<tr>\n";
 	cout << "<td>" << method.getName() << "</td>\n";
-	cout << "<td>" << TypeToString(type) << "</td>\n";
+	cout << "<td>" << type.toString() << "</td>\n";
 	cout << "<tr>\n";
     }
 
@@ -955,7 +955,7 @@ void PrintQualifierRow(const String& nameSpace,
     cout << "<td>";
     PrintAHref(href, qd.getName());
     cout << "</td>";
-    cout << "<td>" << TypeToString(value.getType()) << "</td>\n";
+    cout << "<td>" << value.getType().toString() << "</td>\n";
     cout << "<td>" << value.toString() << "</td>\n";
     cout << "<td>" << ScopeToString(qd.getScope()) << "</td>\n";
     cout << "<td>" << FlavorToMof(qd.getFlavor()) << "</td>\n";
@@ -1461,7 +1461,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
 	    cout << "<B>Property = </B> " << propertyName << "\n\n";
 	    cout << "<B>Value Type = </B>";
 
-	    cout <<  TypeToString(value.getType()) << "\n\n";
+	    cout <<  value.getType().toString() << "\n\n";
 
 	    String valueString = value.toString();
 	    cout << "<B>Value = </B> ";

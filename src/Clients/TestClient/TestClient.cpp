@@ -25,9 +25,8 @@
 // Modified By: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //         Mike Day (mdday@us.ibm.com)
 //         Jenny Yu (jenny_yu@hp.com)
-//
-// Modified By:
-//         Bapu Patil, Hewlett-Packard Company ( bapu_patil@hp.com )
+//         Bapu Patil ( bapu_patil@hp.com )
+//         Warren Otsuka (warren_otsuka@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -384,7 +383,9 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
 		 .addProperty(CIMProperty("first", String())
 		     .addQualifier(CIMQualifier("key", true)))
 		 .addProperty(CIMProperty("age", Uint32(0))
-		     .addQualifier(CIMQualifier("key", true)));
+		     .addQualifier(CIMQualifier("key", true)))
+		 .addProperty(CIMProperty("nick", String())
+		      .addQualifier(CIMQualifier("key", false)));
     client.createClass(globalNamespace, cimClass);
 
     // Create an instance of that class:
@@ -394,6 +395,7 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
     cimInstance.addProperty(CIMProperty("last", "Smith"));
     cimInstance.addProperty(CIMProperty("first", "John"));
     cimInstance.addProperty(CIMProperty("age", Uint32(1010)));
+    cimInstance.addProperty(CIMProperty("nick", "Duke"));
     CIMReference instanceName = cimInstance.getInstanceName(cimClass);
     client.createInstance(globalNamespace, cimInstance);
 
@@ -403,11 +405,32 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
     //CIMReference::instanceNameToReference(instanceName, ref);
     CIMInstance tmp = client.getInstance(globalNamespace, instanceName);
 
-
-
     // cimInstance.print();
     // tmp.print();
     // assert(cimInstance.identical(tmp));
+
+    // Test timeout methods
+
+    const Uint32 TEST_TIMEOUT = 10000;
+    Uint32 origTimeout = client.getTimeOut();
+    client.setTimeOut( TEST_TIMEOUT );
+    Uint32 newTimeout = client.getTimeOut();
+    assert( newTimeout == TEST_TIMEOUT );
+    client.setTimeOut( origTimeout );
+
+    // Test get/set property methods
+
+    const String TESTPROPVAL    = "JR";
+    const String TESTPROPVALNAME = "nick";
+    cout << "Set property " << endl;
+    const CIMValue testPropVal = CIMValue( TESTPROPVAL );
+    client.setProperty( globalNamespace, instanceName, TESTPROPVALNAME,
+			testPropVal );
+    cout << "Get property " << endl;
+    CIMValue returnedPropVal = client.getProperty(  globalNamespace,
+						    instanceName,
+						    TESTPROPVALNAME );
+    assert( returnedPropVal == testPropVal );
 
     client.deleteInstance(globalNamespace, instanceName);
 

@@ -63,8 +63,9 @@ int main(int argc, char** argv)
 	  {
 	    String instanceRef = cimNInstances[i].getInstanceName().toString();
 
-	    //ATTN: Test for INSTANCE0..2 when getInstanceName returns
-            //      the full reference string
+	    //ATTN P2 WO 4 April 2002
+	    // Test for INSTANCE0..2 when getInstanceName returns
+            // the full reference string
 
 	    if( !(String::equal(  instanceRef, CLASSNAME ) ) )
 	      {

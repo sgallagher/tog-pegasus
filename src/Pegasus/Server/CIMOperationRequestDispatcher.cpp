@@ -49,14 +49,11 @@ DDD(static const char* _DISPATCHER = "CIMOperationRequestDispatcher::";)
 
 CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     CIMRepository* repository,
-    ProviderRegistrationManager* providerRegistrationManager,
-    CIMServer* server)
+    ProviderRegistrationManager* providerRegistrationManager)
       :
       Base("CIMOpRequestDispatcher", MessageQueue::getNextQueueId()),
       _repository(repository),
-      _providerRegistrationManager(providerRegistrationManager),
-      _cimom(this, server, repository),
-      _configurationManager(_cimom)
+      _providerRegistrationManager(providerRegistrationManager)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::CIMOperationRequestDispatcher()");
@@ -123,8 +120,8 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         String::equalNoCase(className, "PG_ProviderCapabilities") ||
         String::equalNoCase(className, "PG_ProviderModule"))
     {
-        service = "Server::ConfigurationManagerQueue";
-        provider = String::EMPTY;
+        service = "ModuleController";
+        provider = "ModuleController::ProviderRegistrationProvider";
         PEG_METHOD_EXIT();
         return true;
     }
@@ -2409,14 +2406,6 @@ void CIMOperationRequestDispatcher::handleProcessIndicationRequest(
 
    PEG_METHOD_EXIT();
    return;
-}
-
-ProviderRegistrationManager* CIMOperationRequestDispatcher::getProviderRegistrationManager(void)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::getProviderRegistrationManager()");
-    PEG_METHOD_EXIT();
-    return _providerRegistrationManager;
 }
 
 /**

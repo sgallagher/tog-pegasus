@@ -2,9 +2,6 @@ ROOT = ../../..
 
 DIR = Pegasus/Server
 
-OBJECT_DIRS = \
-	ConfigurationManager
-
 include $(ROOT)/mak/config.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
@@ -27,7 +24,8 @@ LIBRARIES = \
     pegwql \
     pegprm \
     ConfigSettingProvider \
-    UserAuthProvider
+    UserAuthProvider \
+    ProviderRegistrationProvider
 
 PRE_DEPEND_INCLUDES = -I./depends
 
@@ -41,9 +39,7 @@ SOURCES = \
     CIMServer.cpp \
     CIMServerState.cpp \
     ServiceCIMOMHandle.cpp \
-    ProviderMessageFacade.cpp \
-    ConfigurationManager/ConfigurationManagerQueue.cpp \
-    ConfigurationManager/PG_RegistrationProvider.cpp
+    ProviderMessageFacade.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

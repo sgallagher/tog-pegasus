@@ -64,6 +64,7 @@
 #include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/ControlProviders/ConfigSettingProvider/ConfigSettingProvider.h>
 #include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
+#include <Pegasus/ControlProviders/ProviderRegistrationProvider/ProviderRegistrationProvider.h>
 
 
 PEGASUS_USING_STD;
@@ -144,10 +145,18 @@ CIMServer::CIMServer(
                                       controlProviderReceiveMessageCallback,
                                       0, 0);
 
+    // Create the Provider Registration control provider
+    ProviderMessageFacade * provRegProvider = new ProviderMessageFacade(
+        new ProviderRegistrationProvider(_providerRegistrationManager));
+    ModuleController::register_module("ModuleController",
+                                      "ModuleController::ProviderRegistrationProvider",
+                                      provRegProvider,
+                                      controlProviderReceiveMessageCallback,
+                                      0, 0);
+
     _cimOperationRequestDispatcher
 	= new CIMOperationRequestDispatcher(_repository,
-                                            _providerRegistrationManager,
-                                            this);
+                                            _providerRegistrationManager);
 
     _indicationService = new IndicationService
         (_repository, _providerRegistrationManager);

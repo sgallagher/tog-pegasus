@@ -38,7 +38,6 @@ class MessageQueueService;
 class CIMServer;
 class CIMRepository;
 class ProviderManagerService;
-class ConfigurationManagerQueue;
 
 // ATTN: the ServiceCIMOMHandle does not derive from CIMOMHandle
 // because it can go directly to a component.
@@ -76,27 +75,11 @@ public:
 		return(_providerManager);
 	}
 
-	ConfigurationManagerQueue * getConfigurationManager(void)
-	{
-		if(_configurationManager == 0)
-		{
-
-			// ATTN: temporary solution to avoid passing component pointers in the
-			// constructor.
-			_configurationManager =
-				(ConfigurationManagerQueue *)MessageQueue::lookup("Server_ConfiguratioknManagerQueue");
-		}
-
-		return(_configurationManager);
-	}
-
 
 protected:	
 	CIMServer * _server;
 	CIMRepository * _repository;
 	ProviderManagerService * _providerManager;
-	ConfigurationManagerQueue * _configurationManager;
-
 };
 
 PEGASUS_NAMESPACE_END

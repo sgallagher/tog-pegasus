@@ -24,10 +24,11 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//            : Mike Day (mdday@us.ibm.com)
-//            : Yi Zhou (yi_zhou@hp.com)
-//            : Carol Ann Krug Graves, Hewlett-Packard Company
-//              (carolann_graves@hp.com)
+//              Mike Day (mdday@us.ibm.com)
+//              Yi Zhou (yi_zhou@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -48,8 +49,6 @@
 
 #include <Pegasus/Repository/CIMRepository.h>
 
-#include <Pegasus/Server/ServiceCIMOMHandle.h>
-#include <Pegasus/Server/ConfigurationManager/ConfigurationManagerQueue.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -62,8 +61,7 @@ public:
 
       CIMOperationRequestDispatcher(
 	 CIMRepository* repository,
-	 ProviderRegistrationManager* providerRegistrationManager,
-	 CIMServer* server);
+	 ProviderRegistrationManager* providerRegistrationManager);
 
       virtual ~CIMOperationRequestDispatcher();
 
@@ -154,8 +152,6 @@ public:
       void handleProcessIndicationRequest(
 	 CIMProcessIndicationRequestMessage* request);
 
-      ProviderRegistrationManager* getProviderRegistrationManager(void);
-
 protected:
 
       Boolean _lookupInternalProvider(
@@ -199,10 +195,6 @@ protected:
       CIMRepository * _repository;
 
       ProviderRegistrationManager* _providerRegistrationManager;
-
-      ServiceCIMOMHandle _cimom;
-
-      ConfigurationManagerQueue _configurationManager;
 
       AtomicInt _dying;
 

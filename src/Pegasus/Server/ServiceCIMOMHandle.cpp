@@ -37,7 +37,7 @@ PEGASUS_NAMESPACE_BEGIN
 ////////////////////////////////////////////////////////////////////////////////
 
 ServiceCIMOMHandle::ServiceCIMOMHandle(void)
-	: _server(0), _repository(0), _providerManager(0), _configurationManager(0)
+	: _server(0), _repository(0), _providerManager(0)
 {
 }
 
@@ -48,8 +48,7 @@ ServiceCIMOMHandle::ServiceCIMOMHandle(
 :
     _server(server),
     _repository(repository),
-	_providerManager(0),
-	_configurationManager(0)
+	_providerManager(0)
 {
 }
 
@@ -67,7 +66,6 @@ ServiceCIMOMHandle& ServiceCIMOMHandle::operator=(const ServiceCIMOMHandle& hand
     _server = handle._server;
     _repository = handle._repository;
 	_providerManager = handle._providerManager;
-	_configurationManager = handle._configurationManager;
 
     return(*this);
 }

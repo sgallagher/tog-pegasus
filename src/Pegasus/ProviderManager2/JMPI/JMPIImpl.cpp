@@ -2052,6 +2052,18 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMNameSpace__1setNameSpace
 // ---
 // -------------------------------------
 
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_ClassEnumeration__1getClass
+  (JNIEnv *jEnv, jobject jThs, jint jEnum, jint pos) {
+   Array<CIMClass> *enm=(Array<CIMClass>*)jEnum;
+   return (jint) new CIMClass((*enm)[pos]);
+}
+
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_ClassEnumeration__1size
+  (JNIEnv *jEnv, jobject jThs, jint jEnum) {
+   Array<CIMClass> *enm=(Array<CIMClass>*)jEnum;
+   return enm->size();
+}
+
 
 JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_InstEnumeration__1getInstance
   (JNIEnv *jEnv, jobject jThs, jint jEnum, jint pos) {

@@ -17,7 +17,6 @@ MSG_DIR = $(MSG_ROOT)/provider/localizedProvider
 # The list of resource bundles to compile.
 # NOTE - your .txt files must be named with the package name before the '_'
 MSG_SOURCES = \
-    localizedProvider_root.txt \
     localizedProvider_en.txt \
     localizedProvider_fr.txt \
     localizedProvider_de.txt\

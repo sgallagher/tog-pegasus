@@ -52,6 +52,9 @@ struct DirRep
 {
     DIR* dir;
     struct dirent* entry;
+#ifdef PEGASUS_OS_OS400
+    struct dirent os400Entry;
+#endif
 };
 
 Dir::Dir(const String& path)
@@ -61,7 +64,16 @@ Dir::Dir(const String& path)
 
     if (_rep->dir)
     {
+#ifdef PEGASUS_OS_OS400
+	// Need to use readdir_r since we are multithreaded
+	if (readdir_r(_rep->dir, &_rep->os400Entry, &_rep->entry) != 0)
+        {
+	    _more = false;
+	    throw CannotOpenDirectory(path);
+        }
+#else
 	_rep->entry = readdir(_rep->dir);
+#endif
 	_more = _rep->entry != NULL;
     }
     else
@@ -73,7 +85,8 @@ Dir::Dir(const String& path)
 
 Dir::~Dir()
 {
-    if (_rep->dir)
+    if (
+_rep->dir)
 	closedir(_rep->dir);
 
     delete _rep;
@@ -88,7 +101,16 @@ void Dir::next()
 {
     if (_more)
     {
+#ifdef PEGASUS_OS_OS400
+	// Need to use readdir_r since we are multithreaded
+	if (readdir_r(_rep->dir, &_rep->os400Entry, &_rep->entry) != 0)
+        {
+	    _more = false;
+	    throw CannotOpenDirectory(path);
+        }
+#else
 	_rep->entry = readdir(_rep->dir);
+#endif
 	_more = _rep->entry != NULL;
     }
 }

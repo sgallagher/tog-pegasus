@@ -49,11 +49,19 @@ PEGASUS_NAMESPACE_BEGIN
 
 //typedef pthread_t PEGASUS_THREAD_TYPE;
 
+// Redefine PEGASUS_THREAD_TYPE as a class on OS/400.  On other platforms
+// this is an int and Pegasus sets this to 0 to indicate
+// that the thread is 'dead'.  Also, we cannot use == operator
+// on pthread_t, but need to call pthread_equal( ), so the ==
+// operation is overloaded.  Other operators are overloaded in this file.
 typedef class __pegasus_os400_thread_type {
   public:
     pthread_t thid;           // An opaque struct on OS/400
-    pthread_id_np_t uniq_id;  // Needed because Pegasus code does numeric operations
+    PEGASUS_UINT64 pegasusValue; // Needed because Pegasus sets PEGASUS_THREAD_TYPE's to 0
+                              // to indicate the thread is 'dead', but
+                              // pthread_t structs cannot be changed on OS/400.
 
+   // Overloaded operators.
     __pegasus_os400_thread_type& operator=(const PEGASUS_UINT64 & rval);
     operator pthread_t*();
     operator pthread_t();
@@ -192,10 +200,14 @@ inline void exit_thread(PEGASUS_THREAD_RETURN rc)
   pthread_exit(rc);
 }
 
+// Overload pegasus_thread_self to construct our
+// PEGASUS_THREAD_TYPE with all the variables set.
 inline PEGASUS_THREAD_TYPE pegasus_thread_self(void)
 {
-    PEGASUS_THREAD_TYPE thrd = {pthread_self(),
-                                pthread_getthreadid_np()};
+    // Construct a PEGASUS_THREAD_TYPE with the 
+    // pegasusValue initialized to 1 (ie. the thread
+    // is 'alive')
+    PEGASUS_THREAD_TYPE thrd = {pthread_self(),1};
     return thrd; 
 }
 
@@ -217,7 +229,7 @@ inline int operator==(const PEGASUS_THREAD_TYPE & lval,
 inline int operator==(const PEGASUS_THREAD_TYPE & lval,
                       const PEGASUS_UINT64 & rval)
 {
-    return ( *((PEGASUS_UINT64 *)&(lval.uniq_id.intId)) == rval);
+   return ( lval.pegasusValue == rval);
 }
 
 
@@ -248,7 +260,7 @@ inline int operator==(const PEGASUS_THREAD_TYPE & lval,
  
 inline __pegasus_os400_thread_type& __pegasus_os400_thread_type::operator=(const PEGASUS_UINT64 & rval)
 {
-  *((PEGASUS_UINT64 *)&(uniq_id.intId)) = rval;
+  pegasusValue = rval;
   return *this;
 }
 
@@ -264,12 +276,12 @@ inline __pegasus_os400_thread_type::operator pthread_t ()
 
 inline __pegasus_os400_thread_type::operator Uint32 ()
 {
-    return uniq_id.intId.lo;
+    return Uint32(pegasusValue);
 }
 
 inline __pegasus_os400_thread_type::operator PEGASUS_UINT64 ()
 {
-    return *((PEGASUS_UINT64 *)&(uniq_id.intId));
+    return pegasusValue;
 }
 
 PEGASUS_NAMESPACE_END

@@ -35,6 +35,10 @@ inline void Thread::run()
 {
     if (_is_detached)
         pthread_attr_setdetachstate(&_handle.thatt, PTHREAD_CREATE_DETACHED);
+#ifdef PEGASUS_OS_OS400
+    // Initialize the pegasusValue to 1, see IPCOs400.h.
+    _handle.thid.pegasusValue = 1;  
+#endif
     pthread_create((pthread_t *)&_handle.thid, &_handle.thatt, _start, this);
 }
 

@@ -40,7 +40,16 @@ PEGASUS_NAMESPACE_BEGIN
 Mutex::Mutex()
 {
    pthread_mutexattr_init(&_mutex.mutatt);
+
+#if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
+   // Needed because of EDEADLK checks below.
+   // Otherwise, the thread will block if it already owns the mutex.
+   pthread_mutexattr_settype(&_mutex.mutatt, PTHREAD_MUTEX_ERRORCHECK);
+   pthread_mutex_init(&_mutex.mut, &_mutex.mutatt);
+#else
    pthread_mutex_init(&_mutex.mut, NULL);
+#endif
+
    _mutex.owner = 0;
 }
 

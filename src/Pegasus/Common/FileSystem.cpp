@@ -69,6 +69,14 @@ Boolean FileSystem::getCurrentDirectory(String& path)
 
 Boolean FileSystem::existsNoCase(const String& path, String& realPath)
 {
+#ifdef PEGASUS_OS_OS400
+    // The OS/400 file system is case insensitive, so just call exists( ).
+    // This is faster, but the main reason to do this is to
+    // avoid multi-threading problems with the IFS directory APIs
+    // (even though they claim to be threadsafe).
+    realPath = path;
+    return exists(path);
+#else
     realPath.clear();
     CString cpath = _clonePath(path);
     const char* p = cpath;
@@ -110,6 +118,7 @@ Boolean FileSystem::existsNoCase(const String& path, String& realPath)
     }
 
     return false;
+#endif
 }
 
 Boolean FileSystem::canRead(const String& path)

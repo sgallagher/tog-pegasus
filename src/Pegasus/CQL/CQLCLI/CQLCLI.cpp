@@ -578,8 +578,15 @@ int main(int argc, char ** argv)
    CIMRepository* _rep = new CIMRepository(repositoryDir);
    RepositoryQueryContext _ctx(_ns, _rep);
 	String lang("CIM:CQL");
-   String query("");
+   String query("dummy statement");
 	CQLSelectStatement _ss(lang,query,_ctx);
+
+   if (_ss.getQuery() != query || _ss.getQueryLanguage() != lang)
+   {
+     cout << "ERROR: unable to get query or query language from select statement" << endl;
+     return 1;
+   }
+
 	char text[1024];
 	char* _text;
 

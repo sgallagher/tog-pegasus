@@ -33,10 +33,15 @@ PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 
+//#define DDD(X) X
+#define DDD(X) /* X */
+
+DDD(char* dptchr = "Dispatcher::";)
+
 Dispatcher::Dispatcher(CIMRepository* repository)
     : _repository(repository)
 {
-
+    DDD(cout << dptchr << endl;)
 }
 
 Dispatcher::~Dispatcher()
@@ -52,6 +57,7 @@ CIMClass Dispatcher::getClass(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
+    DDD(cout << dptchr << "getClass" << endl;)
     return _repository->getClass(
 	nameSpace,
 	className,
@@ -69,7 +75,10 @@ CIMInstance Dispatcher::getInstance(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
+    
     String className = instanceName.getClassName();
+
+    DDD(cout << dptchr << "getInstance of " << className << endl;)
 
     CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
 
@@ -167,6 +176,8 @@ Array<String> Dispatcher::enumerateClassNames(
     const String& className,
     Boolean deepInheritance)
 {
+    DDD(cout << dptchr << "emumClass " << className << endl;)
+    
     return _repository->enumerateClassNames(
 	nameSpace,
 	className,
@@ -182,6 +193,8 @@ Array<CIMInstance> Dispatcher::enumerateInstances(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
+    DDD(cout << dptchr << "emumInstance of " << className << endl;)
+    
     return Array<CIMInstance>();
 }
 
@@ -189,6 +202,8 @@ Array<CIMReference> Dispatcher::enumerateInstanceNames(
     const String& nameSpace,
     const String& className)
 {
+    DDD(cout << dptchr << "emumInstanceNames of " << className << endl;)
+    
     CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
 
     if (provider)
@@ -345,6 +360,7 @@ CIMProvider* Dispatcher::_lookupProviderForClass(
     //----------------------------------------------------------------------
 
     CIMClass cimClass = _repository->getClass(nameSpace, className);
+    DDD(cout << dptchr << "Lookup Provider for " << className << endl;)
 
     if (!cimClass)
 	throw CIMException(CIMException::INVALID_CLASS);
@@ -356,13 +372,16 @@ CIMProvider* Dispatcher::_lookupProviderForClass(
     //----------------------------------------------------------------------
 
     Uint32 pos = cimClass.findQualifier("provider");
+    DDD(cout << dptchr << "Lookup Qualifier " << pos << endl;)
 
     if (pos == PEG_NOT_FOUND)
 	return 0;
 
     CIMQualifier q = cimClass.getQualifier(pos);
     String providerId;
+
     q.getValue().get(providerId);
+    DDD(cout << dptchr << "Provider " << providerId << endl;)
 
     //----------------------------------------------------------------------
     // Get the provider (initialize it if not already initialize)
@@ -373,6 +392,8 @@ CIMProvider* Dispatcher::_lookupProviderForClass(
 
     if (!provider)
     {
+	DDD(cout << dptchr << " Lookup Provider " << providerId << endl;)
+	
 	provider = _providerTable.loadProvider(providerId);
 
 	if (!provider)

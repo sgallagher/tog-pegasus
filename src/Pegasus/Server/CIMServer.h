@@ -51,14 +51,27 @@ public:
 
     enum Protocol { PROPRIETARY, STANDARD };
 
+    /** Constructor - Creates a CIMServer object.
+        The CIM Server objects establishes a repository object,
+        a dispatcher object, and creates a channnel factory and
+        acceptor for the Server.
+        @param selector	  selector object for the server.
+        @param rootPath Directory path to the repository.
+        @exception - ATTN
+    */
     CIMServer(
 	Selector* selector,
 	const String& rootPath);
 
     ~CIMServer();
     
+    /**  bind Binds the port address to the Server.
+    @param address char* to the port address for TCP.
+    */
     void bind(const char* address);
 
+    /** runForever Main runloop for the server.
+    */
     void runForever();
 
 private:

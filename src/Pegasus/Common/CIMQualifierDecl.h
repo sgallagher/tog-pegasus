@@ -49,6 +49,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMConstQualifierDecl;
 class CIMClassRep;
+class CIMQualifierDeclRep;
 /** Class CIMQualifierDecl
   This class defines the CIM Qualifier Declarations. Note that the Declarations
   are not the same as CIM Qualiifers as seen on Classes, properties, etc.

@@ -74,7 +74,8 @@ endif
 
 ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
   ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
- $(error Error: JMPI is currently not supported on Windows.)
+      DIRS += \
+         ProviderManager2/JMPI
   endif
   ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
       DIRS += \

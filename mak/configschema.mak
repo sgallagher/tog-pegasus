@@ -1,5 +1,5 @@
 
-CIMMOFCLI = cimmofl
+CIMMOFCLI = $(BIN_DIR)/cimmofl
 
 # The INTEROPNS variable defines the absolute name of the
 # Pegasus InterOp Namespace.

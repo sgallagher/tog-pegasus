@@ -12,7 +12,9 @@ COMPILER = gnu
 
 PLATFORM_VERSION_SUPPORTED = yes
 
+ifndef CXX
 CXX = g++
+endif
 
 SH = sh
 
@@ -139,7 +141,7 @@ endif
 ####################################
 
 ifdef PEGASUS_LSB
-    SYS_INCLUDES += -I/usr/include -I/usr/include/c++
+    SYS_INCLUDES += -I/usr/include -I/usr/include/c++ -I/opt/lsbdev-base/include/c++ -I/opt/lsbdev-base/include/
     FLAGS += -DPEGASUS_OS_LSB
 endif
 

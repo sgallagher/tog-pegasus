@@ -173,7 +173,7 @@ DEST_SBIN_DIR = $(PREFIX)/sbin
 endif
 
 ifndef DEST_ETC_DIR
-DEST_ETC_DIR = $(SYSCONF_PREFIX)
+DEST_ETC_DIR = $(SYSCONF_PREFIX)/pegasus
 endif
 
 ifndef DEST_MAN_DIR

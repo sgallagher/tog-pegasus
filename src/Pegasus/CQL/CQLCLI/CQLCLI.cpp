@@ -4,14 +4,29 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <stdio.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/CQL/CQLParserState.h>
+#include <Pegasus/CQL/CQLSelectStatement.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 FILE *CQL_in;
 int CQL_parse();
 
+PEGASUS_NAMESPACE_BEGIN
+CQLParserState* globalParserState = 0;
+PEGASUS_NAMESPACE_END
+
 int main(int argc, char ** argv)
 {
+	// init parser state
+	const char* text = "blah";
+	globalParserState = new CQLParserState;
+        globalParserState->error = false;
+        globalParserState->text = text;
+        globalParserState->textSize = strlen(text) + 1;
+        globalParserState->offset = 0;
+        globalParserState->statement = new CQLSelectStatement();
+
 	Boolean readFile = false;
 	if(argc > 1){
 		FILE *file;
@@ -25,17 +40,10 @@ int main(int argc, char ** argv)
 		readFile = true;
 	}
         printf("Starting parser...\n");
-	//if(readFile){
-	 //  int good = 0;
-	  /// while(good == 0){
-	//	good = CQL_parse();
-	  // }	
-	//}else{
-		while(1){
-			CQL_parse();
-		}
+	while(1){
+		CQL_parse();
+	}
         	
-	//}
     	return 0;                                                                                                              
 }
 

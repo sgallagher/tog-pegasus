@@ -51,14 +51,14 @@ class CIMOperationResponseEncoder : public MessageQueueService
 
       void sendResponse(Uint32 queueId, Array<Sint8>& message);
 
-      void sendError(
+      void sendIMethodError(
 	 Uint32 queueId, 
 	 const String& messageId,
 	 const String& methodName,
 	 CIMStatusCode code,
 	 const String& description);
 
-      void sendError(
+      void sendIMethodError(
 	 CIMResponseMessage* response,
 	 const String& cimMethodName);
 

@@ -66,35 +66,40 @@ void CIMExportResponseEncoder::sendResponse(
    }
 }
 
-void CIMExportResponseEncoder::sendError(
+// Code is duplicated in CIMExportRequestDecoder
+void CIMExportResponseEncoder::sendEMethodError(
    Uint32 queueId, 
    const String& messageId,
    const String& cimMethodName,
    CIMStatusCode code,
    const String& description) 
 {
-   ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
-   ArrayDestroyer<char> tmp2(description.allocateCString());
+    ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
+    ArrayDestroyer<char> tmp2(description.allocateCString());
+    Array<Sint8> message;
+    Array<Sint8> tmp;
 
-   Array<Sint8> message = XmlWriter::formatEMethodResponseHeader(
-      XmlWriter::formatMessageElement(
-	 messageId,
-	 XmlWriter::formatSimpleExportRspElement(
-	    XmlWriter::formatEMethodResponseElement(
-	       tmp1.getPointer(),
-	       XmlWriter::formatErrorElement(code, tmp2.getPointer())))));
-    
-   sendResponse(queueId, message);
+    XmlWriter::appendMessageElementBegin(message, messageId);
+    XmlWriter::appendSimpleExportRspElementBegin(message);
+    XmlWriter::appendEMethodResponseElementBegin(message, tmp1.getPointer());
+    XmlWriter::appendErrorElement(message, code, tmp2.getPointer());
+    XmlWriter::appendEMethodResponseElementEnd(message);
+    XmlWriter::appendSimpleExportRspElementEnd(message);
+    XmlWriter::appendMessageElementEnd(message);
+
+    XmlWriter::appendEMethodResponseHeader(tmp, message.size());
+    tmp << message;
+    sendResponse(queueId, tmp);
 }
 
-void CIMExportResponseEncoder::sendError(
+void CIMExportResponseEncoder::sendEMethodError(
    CIMResponseMessage* response,
    const String& cimMethodName)
 {
    Uint32 queueId = response->queueIds.top();
    response->queueIds.pop();
 
-   sendError(
+   sendEMethodError(
       queueId,
       response->messageId, 
       cimMethodName, 
@@ -136,13 +141,13 @@ void CIMExportResponseEncoder::encodeExportIndicationResponse(
 {
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
-      sendError(response, "ExportIndication");
+      sendEMethodError(response, "ExportIndication");
       return;
    }
 
    Array<Sint8> body;
     
-   Array<Sint8> message = XmlWriter::formatSimpleIndicationRspMessage(
+   Array<Sint8> message = XmlWriter::formatSimpleEMethodRspMessage(
       "ExportIndication", response->messageId, body);
 
    sendResponse(response->queueIds.top(), message);

@@ -200,7 +200,7 @@ void CIMOperationRequestEncoder::_encodeCreateClassRequest(
     CIMCreateClassRequestMessage* message)
 {
     Array<Sint8> params;
-    XmlWriter::appendClassParameter(params, "NewClass", message->newClass);
+    XmlWriter::appendClassIParameter(params, "NewClass", message->newClass);
 	
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
         message->nameSpace, "CreateClass", message->messageId,
@@ -214,20 +214,20 @@ void CIMOperationRequestEncoder::_encodeGetClassRequest(
 {
     Array<Sint8> params;
 
-    XmlWriter::appendClassNameParameter(
+    XmlWriter::appendClassNameIParameter(
 	params, "ClassName", message->className);
 	
     if (message->localOnly != true)
-	XmlWriter::appendBooleanParameter(params, "LocalOnly", false);
+	XmlWriter::appendBooleanIParameter(params, "LocalOnly", false);
 
     if (message->includeQualifiers != true)
-	XmlWriter::appendBooleanParameter(params, "IncludeQualifiers", false);
+	XmlWriter::appendBooleanIParameter(params, "IncludeQualifiers", false);
 
     if (message->includeClassOrigin != false)
-	XmlWriter::appendBooleanParameter(params, "IncludeClassOrigin", true);
+	XmlWriter::appendBooleanIParameter(params, "IncludeClassOrigin", true);
 
     if (!message->propertyList.isNull())
-	XmlWriter::appendPropertyListParameter(
+	XmlWriter::appendPropertyListIParameter(
 	    params, message->propertyList);
 
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(
@@ -242,7 +242,7 @@ void CIMOperationRequestEncoder::_encodeModifyClassRequest(
 {
     Array<Sint8> params;
 
-    XmlWriter::appendClassParameter(
+    XmlWriter::appendClassIParameter(
 	params, "ModifiedClass", message->modifiedClass);
 	
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
@@ -259,11 +259,11 @@ void CIMOperationRequestEncoder::_encodeEnumerateClassNamesRequest(
     Array<Sint8> params;
 
     if (message->className.size())
-	XmlWriter::appendClassNameParameter(
+	XmlWriter::appendClassNameIParameter(
 	    params, "ClassName", message->className);
 	
     if (message->deepInheritance != false)
-	XmlWriter::appendBooleanParameter(params, "DeepInheritance", true);
+	XmlWriter::appendBooleanIParameter(params, "DeepInheritance", true);
 
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, "EnumerateClassNames", message->messageId,
@@ -278,21 +278,21 @@ void CIMOperationRequestEncoder::_encodeEnumerateClassesRequest(
     Array<Sint8> params;
 
     if (message->className.size())
-	XmlWriter::appendClassNameParameter(
+	XmlWriter::appendClassNameIParameter(
 	    params, "ClassName", message->className);
 	
     if (message->deepInheritance != false)
-	XmlWriter::appendBooleanParameter(params, "DeepInheritance", true);
+	XmlWriter::appendBooleanIParameter(params, "DeepInheritance", true);
 
     if (message->localOnly != true)
-	XmlWriter::appendBooleanParameter(params, "LocalOnly", false);
+	XmlWriter::appendBooleanIParameter(params, "LocalOnly", false);
 
     if (message->includeQualifiers != true)
-	XmlWriter::appendBooleanParameter(
+	XmlWriter::appendBooleanIParameter(
 	    params, "IncludeQualifiers", false);
 
     if (message->includeClassOrigin != false)
-	XmlWriter::appendBooleanParameter(
+	XmlWriter::appendBooleanIParameter(
 	    params, "IncludeClassOrigin", true);
 
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
@@ -308,7 +308,7 @@ void CIMOperationRequestEncoder::_encodeDeleteClassRequest(
     Array<Sint8> params;
 
     if (message->className.size())
-	XmlWriter::appendClassNameParameter(
+	XmlWriter::appendClassNameIParameter(
 	    params, "ClassName", message->className);
 
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
@@ -323,7 +323,7 @@ void CIMOperationRequestEncoder::_encodeCreateInstanceRequest(
 {
     Array<Sint8> params;
 
-    XmlWriter::appendInstanceParameter(
+    XmlWriter::appendInstanceIParameter(
 	params, "NewInstance", message->newInstance);
 	
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
@@ -338,23 +338,23 @@ void CIMOperationRequestEncoder::_encodeGetInstanceRequest(
 {
     Array<Sint8> params;
 
-    XmlWriter::appendInstanceNameParameter(
+    XmlWriter::appendInstanceNameIParameter(
 	params, "InstanceName", message->instanceName);
 	
     if (message->localOnly != true)
-	XmlWriter::appendBooleanParameter(
+	XmlWriter::appendBooleanIParameter(
 	    params, "LocalOnly", false);
 
     if (message->includeQualifiers != false)
-	XmlWriter::appendBooleanParameter(
+	XmlWriter::appendBooleanIParameter(
 	    params, "IncludeQualifiers", true);
 
     if (message->includeClassOrigin != false)
-	XmlWriter::appendBooleanParameter(
+	XmlWriter::appendBooleanIParameter(
 	    params, "IncludeClassOrigin", true);
 
     if (!message->propertyList.isNull())
-	XmlWriter::appendPropertyListParameter(
+	XmlWriter::appendPropertyListIParameter(
 	    params, message->propertyList);
 
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
@@ -368,15 +368,15 @@ void CIMOperationRequestEncoder::_encodeModifyInstanceRequest(
     CIMModifyInstanceRequestMessage* message)
 {
     Array<Sint8> params;
-    XmlWriter::appendNamedInstanceParameter(
+    XmlWriter::appendNamedInstanceIParameter(
 	params, "ModifiedInstance", message->modifiedInstance);
 	
     if (message->includeQualifiers != true)
-	XmlWriter::appendBooleanParameter(
+	XmlWriter::appendBooleanIParameter(
 	    params, "IncludeQualifiers", false);
 
     if (!message->propertyList.isNull())
-	XmlWriter::appendPropertyListParameter(
+	XmlWriter::appendPropertyListIParameter(
 	    params, message->propertyList);
 
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
@@ -391,7 +391,7 @@ void CIMOperationRequestEncoder::_encodeEnumerateInstanceNamesRequest(
 {
     Array<Sint8> params;
 
-    XmlWriter::appendClassNameParameter(
+    XmlWriter::appendClassNameIParameter(
 	params, "ClassName", message->className);
 	
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
@@ -406,25 +406,25 @@ void CIMOperationRequestEncoder::_encodeEnumerateInstancesRequest(
 {
     Array<Sint8> params;
 
-    XmlWriter::appendClassNameParameter(
+    XmlWriter::appendClassNameIParameter(
         params, "ClassName", message->className);
 	
     if (message->localOnly != true)
-	XmlWriter::appendBooleanParameter(params, "LocalOnly", false);
+	XmlWriter::appendBooleanIParameter(params, "LocalOnly", false);
 
     if (message->deepInheritance != true)
-	XmlWriter::appendBooleanParameter(params, "DeepInheritance", false);
+	XmlWriter::appendBooleanIParameter(params, "DeepInheritance", false);
 
     if (message->includeQualifiers != false)
-	XmlWriter::appendBooleanParameter(
+	XmlWriter::appendBooleanIParameter(
 	    params, "IncludeQualifiers", true);
 
     if (message->includeClassOrigin != false)
-	XmlWriter::appendBooleanParameter(
+	XmlWriter::appendBooleanIParameter(
 	    params, "IncludeClassOrigin", true);
 
     if (!message->propertyList.isNull())
-	XmlWriter::appendPropertyListParameter(
+	XmlWriter::appendPropertyListIParameter(
 	    params, message->propertyList);
 
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
@@ -439,7 +439,7 @@ void CIMOperationRequestEncoder::_encodeDeleteInstanceRequest(
 {
     Array<Sint8> params;
 
-    XmlWriter::appendInstanceNameParameter(
+    XmlWriter::appendInstanceNameIParameter(
 	params, "InstanceName", message->instanceName);
 
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
@@ -454,10 +454,10 @@ void CIMOperationRequestEncoder::_encodeGetPropertyRequest(
 {
     Array<Sint8> params;
 
-    XmlWriter::appendInstanceNameParameter(
+    XmlWriter::appendInstanceNameIParameter(
 	params, "InstanceName", message->instanceName);
 	
-    XmlWriter::appendPropertyNameParameter(
+    XmlWriter::appendPropertyNameIParameter(
 	params, message->propertyName);
 
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
@@ -472,14 +472,14 @@ void CIMOperationRequestEncoder::_encodeSetPropertyRequest(
 {
     Array<Sint8> params;
 
-    XmlWriter::appendInstanceNameParameter(
+    XmlWriter::appendInstanceNameIParameter(
 	params, "InstanceName", message->instanceName);
 	
-    XmlWriter::appendPropertyNameParameter(
+    XmlWriter::appendPropertyNameIParameter(
 	params, message->propertyName);
 
     if (!message->newValue.isNull())
-        XmlWriter::appendPropertyValueParameter(
+        XmlWriter::appendPropertyValueIParameter(
 	    params, "NewValue", message->newValue);
 
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
@@ -493,7 +493,7 @@ void CIMOperationRequestEncoder::_encodeSetQualifierRequest(
     CIMSetQualifierRequestMessage* message)
 {
     Array<Sint8> params;
-    XmlWriter::appendQualifierDeclarationParameter(
+    XmlWriter::appendQualifierDeclarationIParameter(
 	params, "QualifierDeclaration", message->qualifierDeclaration);
 
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
@@ -509,7 +509,7 @@ void CIMOperationRequestEncoder::_encodeGetQualifierRequest(
     Array<Sint8> params;
 
     if (message->qualifierName.size())
-	XmlWriter::appendClassNameParameter(
+	XmlWriter::appendClassNameIParameter(
 	    params, "QualifierName", message->qualifierName);
 	
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
@@ -537,7 +537,7 @@ void CIMOperationRequestEncoder::_encodeDeleteQualifierRequest(
     Array<Sint8> params;
 
     if (message->qualifierName.size())
-	XmlWriter::appendClassNameParameter(
+	XmlWriter::appendClassNameIParameter(
 	    params, "QualifierName", message->qualifierName);
 	
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
@@ -552,10 +552,10 @@ void CIMOperationRequestEncoder::_encodeReferenceNamesRequest(
 {
     Array<Sint8> params;
 
-    XmlWriter::appendObjectNameParameter(
+    XmlWriter::appendObjectNameIParameter(
 	params, "ObjectName", message->objectName);
 
-    XmlWriter::appendClassNameParameter(
+    XmlWriter::appendClassNameIParameter(
 	params, "ResultClass", message->resultClass);
 
     XmlWriter::appendStringIParameter(
@@ -573,23 +573,23 @@ void CIMOperationRequestEncoder::_encodeReferencesRequest(
 {
     Array<Sint8> params;
 
-    XmlWriter::appendObjectNameParameter(
+    XmlWriter::appendObjectNameIParameter(
 	params, "ObjectName", message->objectName);
 
-    XmlWriter::appendClassNameParameter(
+    XmlWriter::appendClassNameIParameter(
 	params, "ResultClass", message->resultClass);
 
     XmlWriter::appendStringIParameter(
 	params, "Role", message->role);
 
     if (message->includeQualifiers != false)
-	XmlWriter::appendBooleanParameter(params, "IncludeQualifiers", true);
+	XmlWriter::appendBooleanIParameter(params, "IncludeQualifiers", true);
 
     if (message->includeClassOrigin != false)
-	XmlWriter::appendBooleanParameter(params, "IncludeClassOrigin", true);
+	XmlWriter::appendBooleanIParameter(params, "IncludeClassOrigin", true);
 
     if (!message->propertyList.isNull())
-	XmlWriter::appendPropertyListParameter(
+	XmlWriter::appendPropertyListIParameter(
 	    params, message->propertyList);
 
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
@@ -604,13 +604,13 @@ void CIMOperationRequestEncoder::_encodeAssociatorNamesRequest(
 {
     Array<Sint8> params;
 
-    XmlWriter::appendObjectNameParameter(
+    XmlWriter::appendObjectNameIParameter(
 	params, "ObjectName", message->objectName);
 
-    XmlWriter::appendClassNameParameter(
+    XmlWriter::appendClassNameIParameter(
 	params, "AssocClass", message->assocClass);
 
-    XmlWriter::appendClassNameParameter(
+    XmlWriter::appendClassNameIParameter(
 	params, "ResultClass", message->resultClass);
 
     XmlWriter::appendStringIParameter(
@@ -631,13 +631,13 @@ void CIMOperationRequestEncoder::_encodeAssociatorsRequest(
 {
     Array<Sint8> params;
 
-    XmlWriter::appendObjectNameParameter(
+    XmlWriter::appendObjectNameIParameter(
 	params, "ObjectName", message->objectName);
 
-    XmlWriter::appendClassNameParameter(
+    XmlWriter::appendClassNameIParameter(
 	params, "AssocClass", message->assocClass);
 
-    XmlWriter::appendClassNameParameter(
+    XmlWriter::appendClassNameIParameter(
 	params, "ResultClass", message->resultClass);
 
     XmlWriter::appendStringIParameter(
@@ -647,13 +647,13 @@ void CIMOperationRequestEncoder::_encodeAssociatorsRequest(
 	params, "ResultRole", message->resultRole);
 
     if (message->includeQualifiers != false)
-	XmlWriter::appendBooleanParameter(params, "IncludeQualifiers", true);
+	XmlWriter::appendBooleanIParameter(params, "IncludeQualifiers", true);
 
     if (message->includeClassOrigin != false)
-	XmlWriter::appendBooleanParameter(params, "IncludeClassOrigin", true);
+	XmlWriter::appendBooleanIParameter(params, "IncludeClassOrigin", true);
 
     if (!message->propertyList.isNull())
-	XmlWriter::appendPropertyListParameter(
+	XmlWriter::appendPropertyListIParameter(
 	    params, message->propertyList);
 
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,

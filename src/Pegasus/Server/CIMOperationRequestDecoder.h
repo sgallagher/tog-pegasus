@@ -60,7 +60,14 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId, 
 	 Array<Sint8>& message);
 
-      void sendError(
+      void sendIMethodError(
+	 Uint32 queueId, 
+	 const String& messageId,
+	 const String& methodName,
+	 CIMStatusCode code,
+	 const String& description);
+
+      void sendMethodError(
 	 Uint32 queueId, 
 	 const String& messageId,
 	 const String& methodName,
@@ -267,13 +274,6 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 const String& authType,
 	 const String& userName);
         
-      void sendMethodError(
-	 Uint32 queueId, 
-	 const String& messageId,
-	 const String& methodName,
-	 CIMStatusCode code,
-	 const String& description);
-
       /** Sets the flag to indicate whether or not the CIMServer is 
 	  shutting down.
       */

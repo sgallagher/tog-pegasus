@@ -81,7 +81,7 @@ void HTTPAuthenticatorDelegator::_sendChallenge(
     //
 
     Array<Sint8> message;
-    message = XmlWriter::formatUnauthorizedResponseHeader(authResponse);
+    XmlWriter::appendUnauthorizedResponseHeader(message, authResponse);
 
     _sendResponse(queueId, message);
 }

@@ -61,7 +61,7 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
 	 Uint32 queueId, 
 	 Array<Sint8>& message);
 
-      void sendError(
+      void sendEMethodError(
 	 Uint32 queueId, 
 	 const String& messageId,
 	 const String& methodName,

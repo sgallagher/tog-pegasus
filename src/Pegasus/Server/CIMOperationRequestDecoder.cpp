@@ -78,25 +78,54 @@ void CIMOperationRequestDecoder::sendResponse(
    }
 }
 
-void CIMOperationRequestDecoder::sendError(
+void CIMOperationRequestDecoder::sendIMethodError(
    Uint32 queueId, 
    const String& messageId,
    const String& cimMethodName,
    CIMStatusCode code,
    const String& description) 
 {
-   ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
-   ArrayDestroyer<char> tmp2(description.allocateCString());
+    ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
+    ArrayDestroyer<char> tmp2(description.allocateCString());
+    Array<Sint8> message;
+    Array<Sint8> tmp;
 
-   Array<Sint8> message = XmlWriter::formatMethodResponseHeader(
-      XmlWriter::formatMessageElement(
-	 messageId,
-	 XmlWriter::formatSimpleRspElement(
-	    XmlWriter::formatIMethodResponseElement(
-	       tmp1.getPointer(),
-	       XmlWriter::formatErrorElement(code, tmp2.getPointer())))));
+    XmlWriter::appendMessageElementBegin(message, messageId);
+    XmlWriter::appendSimpleRspElementBegin(message);
+    XmlWriter::appendIMethodResponseElementBegin(message, tmp1.getPointer());
+    XmlWriter::appendErrorElement(message, code, tmp2.getPointer());
+    XmlWriter::appendIMethodResponseElementEnd(message);
+    XmlWriter::appendSimpleRspElementEnd(message);
+    XmlWriter::appendMessageElementEnd(message);
+
+    XmlWriter::appendMethodResponseHeader(tmp, message.size());
+    tmp << message;
+    sendResponse(queueId, tmp);
+}
+
+void CIMOperationRequestDecoder::sendMethodError(
+   Uint32 queueId, 
+   const String& messageId,
+   const String& cimMethodName,
+   CIMStatusCode code,
+   const String& description) 
+{
+    ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
+    ArrayDestroyer<char> tmp2(description.allocateCString());
+    Array<Sint8> message;
+    Array<Sint8> tmp;
+
+    XmlWriter::appendMessageElementBegin(message, messageId);
+    XmlWriter::appendSimpleRspElementBegin(message);
+    XmlWriter::appendMethodResponseElementBegin(message, tmp1.getPointer());
+    XmlWriter::appendErrorElement(message, code, tmp2.getPointer());
+    XmlWriter::appendMethodResponseElementEnd(message);
+    XmlWriter::appendSimpleRspElementEnd(message);
+    XmlWriter::appendMessageElementEnd(message);
     
-   sendResponse(queueId, message);
+    XmlWriter::appendMethodResponseHeader(tmp, message.size());
+    tmp << message;
+    sendResponse(queueId, tmp);
 }
 
 void CIMOperationRequestDecoder::handleEnqueue(Message *message)
@@ -318,7 +347,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	    description.append("Request cannot be processed: ");
 	    description += cimMethodName;
 
-	    sendError(
+	    sendIMethodError(
 	       queueId,
 	       messageId,
 	       cimMethodName,
@@ -402,7 +431,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	    String description = "Unknown intrinsic method: ";
 	    description += cimMethodName;
 
-	    sendError(
+	    sendIMethodError(
 	       queueId, 
 	       messageId,
 	       cimMethodName,
@@ -529,7 +558,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
    }
    catch (CIMException& e)
    {
-      sendError(
+      sendIMethodError(
 	 queueId, 
 	 messageId,
 	 cimMethodName,
@@ -539,7 +568,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
    }
    catch (Exception& e)
    {
-      sendError(
+      sendIMethodError(
 	 queueId, 
 	 messageId,
 	 cimMethodName,
@@ -2055,27 +2084,6 @@ CIMInvokeMethodRequestMessage* CIMOperationRequestDecoder::decodeInvokeMethodReq
 
 
    return(request);
-}
-
-void CIMOperationRequestDecoder::sendMethodError(
-   Uint32 queueId, 
-   const String& messageId,
-   const String& cimMethodName,
-   CIMStatusCode code,
-   const String& description) 
-{
-   ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
-   ArrayDestroyer<char> tmp2(description.allocateCString());
-
-   Array<Sint8> message = XmlWriter::formatMethodResponseHeader(
-      XmlWriter::formatMessageElement(
-	 messageId,
-	 XmlWriter::formatSimpleRspElement(
-	    XmlWriter::formatMethodResponseElement(
-	       tmp1.getPointer(),
-	       XmlWriter::formatErrorElement(code, tmp2.getPointer())))));
-    
-   sendResponse(queueId, message);
 }
 
 void CIMOperationRequestDecoder::setServerTerminating(Boolean flag)

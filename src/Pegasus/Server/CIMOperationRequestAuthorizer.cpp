@@ -85,32 +85,37 @@ void CIMOperationRequestAuthorizer::sendResponse(
    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
 }
 
-void CIMOperationRequestAuthorizer::sendError(
+// Code is duplicated in CIMOperationRequestDecoder
+void CIMOperationRequestAuthorizer::sendIMethodError(
    Uint32 queueId,
    const String& messageId,
    const String& cimMethodName,
    CIMStatusCode code,
    const String& description)
 {
-   const char METHOD_NAME[] = 
-      "CIMOperationRequestAuthorizer::sendError()";
+    const char METHOD_NAME[] = 
+       "CIMOperationRequestAuthorizer::sendIMethodError()";
 
-   PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
+    PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
 
-   ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
-   ArrayDestroyer<char> tmp2(description.allocateCString());
+    ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
+    ArrayDestroyer<char> tmp2(description.allocateCString());
+    Array<Sint8> message;
+    Array<Sint8> tmp;
 
-   Array<Sint8> message = XmlWriter::formatMethodResponseHeader(
-      XmlWriter::formatMessageElement(
-	 messageId,
-	 XmlWriter::formatSimpleRspElement(
-	    XmlWriter::formatIMethodResponseElement(
-	       tmp1.getPointer(),
-	       XmlWriter::formatErrorElement(code, tmp2.getPointer())))));
+    XmlWriter::appendMessageElementBegin(message, messageId);
+    XmlWriter::appendSimpleRspElementBegin(message);
+    XmlWriter::appendIMethodResponseElementBegin(message, tmp1.getPointer());
+    XmlWriter::appendErrorElement(message, code, tmp2.getPointer());
+    XmlWriter::appendIMethodResponseElementEnd(message);
+    XmlWriter::appendSimpleRspElementEnd(message);
+    XmlWriter::appendMessageElementEnd(message);
 
-   sendResponse(queueId, message);
+    XmlWriter::appendMethodResponseHeader(tmp, message.size());
+    tmp << message;
+    sendResponse(queueId, tmp);
 
-   PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -372,7 +377,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
       String description = "CIMServer is shutting down.  ";
       description.append("Request cannot be processed: ");
 
-      sendError(
+      sendIMethodError(
 	 queueId,
 	 ((CIMRequestMessage*)request)->messageId,
 	 cimMethodName,
@@ -412,7 +417,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 	 description.append(" in the namespace ");
 	 description.append(nameSpace);
 
-	 sendError(
+	 sendIMethodError(
 	    queueId,
 	    ((CIMRequestMessage*)request)->messageId,
 	    cimMethodName,
@@ -435,7 +440,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
       String description =
 	 "Remote privileged user access is not enabled.";
 
-      sendError(
+      sendIMethodError(
 	 queueId,
 	 ((CIMRequestMessage*)request)->messageId,
 	 cimMethodName,

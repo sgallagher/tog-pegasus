@@ -49,9 +49,6 @@ class CIMConstQualifierDecl;
 class CIMConstClass;
 class CIMConstInstance;
 
-// REVIEW: Restructure parser so that multiple nested allocations are not
-// REVIEW: required to build a message.
-
 class PEGASUS_COMMON_LINKAGE XmlWriter
 {
 public:
@@ -63,150 +60,179 @@ public:
 	append(out, Char16(x));
     }
 
-    static void append(Array<Sint8>& out, const char* x);
-
-    static void append(Array<Sint8>& out, const String& x);
-
     static void append(Array<Sint8>& out, Uint32 x);
+
+    static void append(Array<Sint8>& out, const char* str);
+
+    static void append(Array<Sint8>& out, const String& str);
+
+    static void append(Array<Sint8>& out, const Indentor& x);
 
     static void appendSpecial(Array<Sint8>& out, Char16 x);
 
     static void appendSpecial(Array<Sint8>& out, char x);
 
-    static void appendSpecial(Array<Sint8>& out, const char* x);
+    static void appendSpecial(Array<Sint8>& out, const char* str);
 
-    static void appendSpecial(Array<Sint8>& out, const String& x);
-
-    static void append(Array<Sint8>& out, const Indentor& x);
+    static void appendSpecial(Array<Sint8>& out, const String& str);
 
     static void appendLocalNameSpaceElement(
 	Array<Sint8>& out, 
 	const String& nameSpace);
 
-    static void appendNameSpaceElement(
-	Array<Sint8>& out, 
-	const String& nameSpace);
-
-    static Array<Sint8> formatGetHeader(
-	const char* documentPath);
-
-    static Array<Sint8> formatMPostHeader(
+    static void appendMethodCallHeader(
+	Array<Sint8>& out,
 	const char* host,
-	const char* cimOperation,
 	const char* cimMethod,
 	const String& cimObject,
         const String& authenticationHeader,
-	const Array<Sint8>& content);
+	Uint32 contentLength);
 
-    static Array<Sint8> formatMethodResponseHeader(
-	const Array<Sint8>& content);
-
-    static Array<Sint8> formatMessageElement(
-	const String& messageId,
-	const Array<Sint8>& body);
-
-    static Array<Sint8> formatSimpleReqElement(
-	const Array<Sint8>& body);
-
-    static Array<Sint8> formatSimpleRspElement(
-	const Array<Sint8>& body);
-
-    static Array<Sint8> formatIMethodCallElement(
-	const char* name,
-	const String& nameSpace,
-	const Array<Sint8>& iParamValues);
-
-    static Array<Sint8> formatIReturnValueElement(
-	const Array<Sint8>& body);
-
-    static Array<Sint8> formatIMethodResponseElement(
-	const char* name,
-	const Array<Sint8>& iParamValues);
-
-    static Array<Sint8>& formatIParamValueElement(
+    static void appendMethodResponseHeader(
 	Array<Sint8>& out,
-	const char* name,
-	const Array<Sint8>& body);
+	Uint32 contentLength);
 
-    static Array<Sint8> formatErrorElement(
+    static void appendUnauthorizedResponseHeader(
+	Array<Sint8>& out,
+        const String& content);
+
+    static void appendMessageElementBegin(
+	Array<Sint8>& out,
+	const String& messageId);
+    static void appendMessageElementEnd(
+	Array<Sint8>& out);
+
+    static void appendSimpleReqElementBegin(Array<Sint8>& out);
+    static void appendSimpleReqElementEnd(Array<Sint8>& out);
+
+    static void appendMethodCallElementBegin(
+	Array<Sint8>& out,
+	const char* name);
+    static void appendMethodCallElementEnd(
+	Array<Sint8>& out);
+
+    static void appendIMethodCallElementBegin(
+	Array<Sint8>& out,
+	const char* name);
+    static void appendIMethodCallElementEnd(
+	Array<Sint8>& out);
+
+    static void appendIParamValueElementBegin(
+	Array<Sint8>& out,
+	const char* name);
+    static void appendIParamValueElementEnd(
+	Array<Sint8>& out);
+
+    static void appendSimpleRspElementBegin(Array<Sint8>& out);
+    static void appendSimpleRspElementEnd(Array<Sint8>& out);
+
+    static void appendMethodResponseElementBegin(
+	Array<Sint8>& out,
+	const char* name);
+    static void appendMethodResponseElementEnd(
+	Array<Sint8>& out);
+
+    static void appendIMethodResponseElementBegin(
+	Array<Sint8>& out,
+	const char* name);
+    static void appendIMethodResponseElementEnd(
+	Array<Sint8>& out);
+
+    static void appendErrorElement(
+	Array<Sint8>& out,
 	CIMStatusCode code,
 	const char* description);
 
-    static Array<Sint8>& appendBooleanParameter(
+    static void appendReturnValueElement(
 	Array<Sint8>& out,
-	const char* parameterName,
-	Boolean flag);
-
-    static Array<Sint8>& appendStringIParameter(
-	Array<Sint8>& out,
-	const char* parameterName,
-	const String& str);
-
-    static Array<Sint8>& appendClassNameParameter(
-	Array<Sint8>& out,
-	const char* parameterName,
-	const String& className);
-
-    static Array<Sint8>& appendQualifierNameParameter(
-	Array<Sint8>& out,
-	const char* parameterName,
-	const String& qualifierName);
-
-    static Array<Sint8>& appendClassParameter(
-	Array<Sint8>& out,
-	const char* parameterName,
-	const CIMConstClass& cimClass);
-
-    static Array<Sint8>& appendInstanceNameParameter(
-	Array<Sint8>& out,
-	const char* parameterName,
-	const CIMReference& instanceName);
-
-    static Array<Sint8>& appendInstanceParameter(
-	Array<Sint8>& out,
-	const char* parameterName,
-	const CIMConstInstance& instance);
-
-    static Array<Sint8>& appendNamedInstanceParameter(
-	Array<Sint8>& out,
-	const char* parameterName,
-	const CIMNamedInstance& namedInstance);
-
-    static Array<Sint8>& appendQualifierDeclarationParameter(
-	Array<Sint8>& out,
-	const char* parameterName,
-	const CIMConstQualifierDecl& qualifierDecl);
-
-    static Array<Sint8>& appendClassNameElement(
-	Array<Sint8>& out,
-	const String& className);
-
-    static Array<Sint8>& appendInstanceNameElement(
-	Array<Sint8>& out,
-	const CIMReference& instanceName);
-
-    static Array<Sint8>& appendPropertyNameParameter(
-	Array<Sint8>& out,
-	const String& propertyName);
-
-    static Array<Sint8>& appendPropertyValueParameter(
-	Array<Sint8>& out,
-	const char* parameterName,
 	const CIMValue& value);
 
-    static Array<Sint8>& appendPropertyListParameter(
-	Array<Sint8>& out,
-	const CIMPropertyList& propertyList);
+    static void appendIReturnValueElementBegin(Array<Sint8>& out);
+    static void appendIReturnValueElementEnd(Array<Sint8>& out);
 
-    static Array<Sint8>& appendObjectNameParameter(
+    static void appendBooleanIParameter(
+	Array<Sint8>& out,
+	const char* name,
+	Boolean flag);
+
+    static void appendStringIParameter(
+	Array<Sint8>& out,
+	const char* name,
+	const String& str);
+
+    static void appendQualifierNameIParameter(
+	Array<Sint8>& out,
+	const char* name,
+	const String& qualifierName);
+
+    static void appendClassNameIParameter(
+	Array<Sint8>& out,
+	const char* name,
+	const String& className);
+
+    static void appendInstanceNameIParameter(
+	Array<Sint8>& out,
+	const char* name,
+	const CIMReference& instanceName);
+
+    static void appendObjectNameIParameter(
 	Array<Sint8>& out,
 	const char* name,
 	const CIMReference& objectName);
 
-    static void indentedPrint(
-	PEGASUS_STD(ostream)& os,
-	const char* text, 
-	Uint32 indentChars = 2);
+    static void appendClassIParameter(
+	Array<Sint8>& out,
+	const char* name,
+	const CIMConstClass& cimClass);
+
+    static void appendInstanceIParameter(
+	Array<Sint8>& out,
+	const char* name,
+	const CIMConstInstance& instance);
+
+    static void appendNamedInstanceIParameter(
+	Array<Sint8>& out,
+	const char* name,
+	const CIMNamedInstance& namedInstance);
+
+    static void appendPropertyNameIParameter(
+	Array<Sint8>& out,
+	const String& propertyName);
+
+    static void appendPropertyValueIParameter(
+	Array<Sint8>& out,
+	const char* name,
+	const CIMValue& value);
+
+    static void appendPropertyListIParameter(
+	Array<Sint8>& out,
+	const CIMPropertyList& propertyList);
+
+    static void appendQualifierDeclarationIParameter(
+	Array<Sint8>& out,
+	const char* name,
+	const CIMConstQualifierDecl& qualifierDecl);
+
+    static void appendClassNameElement(
+	Array<Sint8>& out,
+	const String& className);
+
+    static void appendInstanceNameElement(
+	Array<Sint8>& out,
+	const CIMReference& instanceName);
+
+    static Array<Sint8> formatSimpleMethodReqMessage(
+	const char* host,
+	const String& nameSpace,
+	const char* methodName,
+	const String& messageId,
+        const String& authenticationHeader,
+	const Array<Sint8>& body);
+
+    static Array<Sint8> formatSimpleMethodRspMessage(
+	const char* methodName,
+        const String& messageId,
+	const Array<Sint8>& body);
 
     static Array<Sint8> formatSimpleIMethodReqMessage(
 	const char* host,
@@ -216,12 +242,10 @@ public:
         const String& authenticationHeader,
 	const Array<Sint8>& body);
 
-    static Array<Sint8> formatSimpleRspMessage(
+    static Array<Sint8> formatSimpleIMethodRspMessage(
 	const char* iMethodName,
         const String& messageId,
 	const Array<Sint8>& body);
-
-    static String getNextMessageId();
 
     static Array<Sint8> formatSimpleIndicationReqMessage(
 	const char* host,
@@ -230,63 +254,53 @@ public:
         const String& authenticationHeader,
     	const Array<Sint8>& body);
 
-    static Array<Sint8> formatEMethodCallElement(
-    	const char* name,
-    	const Array<Sint8>& iParamValues);
-
-    static Array<Sint8> formatMPostIndicationHeader(
+    static void appendEMethodRequestHeader(
+    	Array<Sint8>& out,
     	const char* host,
-    	const char* cimOperation,
     	const char* cimMethod,
         const String& authenticationHeader,
-    	const Array<Sint8>& content);
+	Uint32 contentLength);
 
-    static Array<Sint8> formatSimpleExportReqElement(
-    	const Array<Sint8>& body);
-
-    static Array<Sint8> formatSimpleExportRspElement(
-	const Array<Sint8>& body);
-
-    static Array<Sint8> formatSimpleIndicationRspMessage(
-	const char* iMethodName,
-        const String& messageId,
-	const Array<Sint8>& body);
-
-    static Array<Sint8> formatEMethodResponseElement(
-	const char* name,
-	const Array<Sint8>& iParamValues);
-
-    static Array<Sint8> formatEMethodResponseHeader(
-	const Array<Sint8>& content);
-
-    static Array<Sint8> formatSimpleMethodReqMessage(
-	const char* host,
-	const String& nameSpace,
-	const char* iMethodName,
-	const String& messageId,
-        const String& authenticationHeader,
-	const Array<Sint8>& body);
-
-    static Array<Sint8> formatMethodCallElement(
-	const char* name,
-	const String& nameSpace,
-	const Array<Sint8>& iParamValues);
-
-    static Array<Sint8> formatSimpleMethodRspMessage(
-	const char* iMethodName,
-        const String& messageId,
-	const Array<Sint8>& body);
-
-    static Array<Sint8> formatMethodResponseElement(
-	const char* name,
-	const Array<Sint8>& iParamValues);
-
-    static Array<Sint8>& appendReturnValueElement(
+    static void appendEMethodResponseHeader(
 	Array<Sint8>& out,
-	const CIMValue& value);
+	Uint32 contentLength);
 
-    static Array<Sint8> formatUnauthorizedResponseHeader(
-        const String& content);
+    static void appendSimpleExportReqElementBegin(Array<Sint8>& out);
+    static void appendSimpleExportReqElementEnd(Array<Sint8>& out);
+
+    static void appendEMethodCallElementBegin(
+    	Array<Sint8>& out,
+    	const char* name);
+    static void appendEMethodCallElementEnd(
+    	Array<Sint8>& out);
+
+    static void appendSimpleExportRspElementBegin(Array<Sint8>& out);
+    static void appendSimpleExportRspElementEnd(Array<Sint8>& out);
+
+    static void appendEMethodResponseElementBegin(
+    	Array<Sint8>& out,
+    	const char* name);
+    static void appendEMethodResponseElementEnd(
+    	Array<Sint8>& out);
+
+    static Array<Sint8> formatSimpleEMethodReqMessage(
+	const char* host,
+	const char* eMethodName,
+	const String& messageId,
+	const String& authenticationHeader,
+	const Array<Sint8>& body);
+
+    static Array<Sint8> formatSimpleEMethodRspMessage(
+	const char* eMethodName,
+        const String& messageId,
+	const Array<Sint8>& body);
+
+    static void indentedPrint(
+	PEGASUS_STD(ostream)& os,
+	const char* text, 
+	Uint32 indentChars = 2);
+
+    static String getNextMessageId();
 
 private:
 

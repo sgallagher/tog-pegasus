@@ -3646,7 +3646,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
             Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                 "Associators repository access: class = %s, count = %u.",
-                    request->objectName.toString().getCString(),
+                    (const char*)request->objectName.toString().getCString(),
                     cimObjects.size());
         }
 
@@ -3914,7 +3914,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
             Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                 "AssociatorNames repository access: class = %s, count = %u.",
-                    request->objectName.toString().getCString(),
+                    (const char*)request->objectName.toString().getCString(),
                     cimObjectPaths.size());
         }
 
@@ -4184,7 +4184,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
             Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                 "References repository access: class = %s, count = %u.",
-                    request->objectName.toString().getCString(),
+                    (const char*)request->objectName.toString().getCString(),
                     cimObjects.size());
         }
 
@@ -4448,7 +4448,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
             Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                 "ReferenceNames repository access: class = %s, count = %u.",
-                    request->objectName.toString().getCString(),
+                    (const char*)request->objectName.toString().getCString(),
                     cimObjectPaths.size());
         }
 

@@ -257,54 +257,43 @@ PEG_METHOD_EXIT();
 }
 
 void* CQLFactory::getObject(void* inObject, FactoryType inObjectType, FactoryType targetType){
+
 PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::getObject");
+
+void * obj = NULL;
+
 	switch(inObjectType){
 		case Predicate:
-			{
-			PEG_METHOD_EXIT();
-			return getObject(((CQLPredicate*)inObject),targetType);
-			}
+                        obj = getObject(((CQLPredicate*)inObject),targetType);
+                        break;
 		case SimplePredicate:
-			{
-			PEG_METHOD_EXIT();
-			return getObject(((CQLSimplePredicate*)inObject),targetType);
-			}
+                        obj = getObject(((CQLSimplePredicate*)inObject),targetType);
+                        break;
 		case Expression:
-			{
-			PEG_METHOD_EXIT();
-			return getObject(((CQLExpression*)inObject),targetType);
-			}
+                        obj = getObject(((CQLExpression*)inObject),targetType);
+                        break;
 		case Term:
-			{
-			PEG_METHOD_EXIT();
-			return getObject(((CQLTerm*)inObject),targetType);
-			}
+                        obj = getObject(((CQLTerm*)inObject),targetType);
+                        break;
 		case Factor:
-			{
-			PEG_METHOD_EXIT();
-			return getObject(((CQLFactor*)inObject),targetType);
-			}
+                        obj = getObject(((CQLFactor*)inObject),targetType);
+                        break;
 		case Function:
-			{
-			PEG_METHOD_EXIT();
-			return NULL;
-			}
+                        obj = NULL;
+                        break;
 		case Value:
-			{
-			PEG_METHOD_EXIT();
-			return getObject(((CQLValue*)inObject),targetType);
-			}
+                        obj = getObject(((CQLValue*)inObject),targetType);
+                        break;
 		case ChainedIdentifier:
-			{
-			PEG_METHOD_EXIT();
-			return getObject(((CQLChainedIdentifier*)inObject),targetType);
-			}
+                        obj = getObject(((CQLChainedIdentifier*)inObject),targetType);
+                        break;
 		default:
-			{
-			PEG_METHOD_EXIT();
-			return NULL;
-			}
+                        obj = NULL;
+                        break;
 	}
+
+PEG_METHOD_EXIT();
+return obj;
 }
 
 void* CQLFactory::getObject(CQLChainedIdentifier* obj, FactoryType target){

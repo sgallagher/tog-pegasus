@@ -108,7 +108,7 @@ static const int OPERATION_TYPE_LIST           = 4;
 /**
     The constant representing the default namespace
 */
-const String PROPERTY_NAME_NAMESPACE                         = "root/cimv2";
+const String PROPERTY_NAME_NAMESPACE                         = "root/PG_InterOp";
  
 /**
     The constant representing the User class 

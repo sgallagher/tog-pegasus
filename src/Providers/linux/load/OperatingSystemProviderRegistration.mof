@@ -1,24 +1,23 @@
-instance of PG_ProviderModule 
+instance of PG_ProviderModule
 {
-   Name = "OperatingSystemProvider";
-   Location = "OperatingSystemProvider";
+   Name = "LinuxOperatingSystemProviderModule";
+   Location = "LinuxOperatingSystemProvider";
    Vendor = "Pegasus Community";
    Version = "2.0.0";
    InterfaceType = "C++Default";
    InterfaceVersion = "2.0.0";
-   Location = "OperatingSystemProvider";
 };
 
-instance of PG_Provider 
+instance of PG_Provider
 {
-   ProviderModuleName = "OperatingSystemProvider";
-   Name = "PG_OperatingSystemProvider";
+   ProviderModuleName = "LinuxOperatingSystemProviderModule";
+   Name = "LinuxOperatingSystemProvider";
 };
 
-instance of PG_ProviderCapabilities 
+instance of PG_ProviderCapabilities
 {
-   ProviderModuleName = "OperatingSystemProvider";
-   ProviderName = "PG_OperatingSystemProvider";
+   ProviderModuleName = "LinuxOperatingSystemProviderModule";
+   ProviderName = "LinuxOperatingSystemProvider";
    CapabilityID = "1";
    ClassName = "Linux_OperatingSystem";
    Namespaces[] = {"root/cimv2"};

@@ -1,23 +1,27 @@
-instance of CIM_Provider {
-SystemCreationClassName = "CIM_ComputerSystem";
-SystemName = "";
-CreationClassName = "CIM_Provider";
-Name = "LinuxSoftwareElementProvider";
-Location = "LinuxSofwareElementProvider";
+instance of PG_ProviderModule
+{
+   Name = "LinuxSoftwareElementProviderModule";
+   Location = "LinuxSoftwareElementProvider";
+   Vendor = "Pegasus Community";
+   Version = "2.0.0";
+   InterfaceType = "C++Default";
+   InterfaceVersion = "2.0.0";
 };
 
-instance of CIM_ProviderCapabilities {
-InstanceID = "PGLinux_SoftwareElementProvider_1";
-Name = "PGLinux_SoftwareElementProvider";
-ClassName = "Linux_Debian_SoftwareElement";
-//ProviderType = { 2 }; // Instance
-OtherProviderType = "";
-//SupportedProperties = {}; // All properties 
-//SupportedMethods = {}; // All methods
+instance of PG_Provider
+{
+   ProviderModuleName = "LinuxSoftwareElementProviderModule";
+   Name = "LinuxSoftwareElementProvider";
 };
 
-instance of CIM_ProviderElementCapabilities {
-        ManagedElement = "CIM_Provider.CreationClassName=\"CIM_Provider\",Name=\"LinuxSoftwareElementProvider\",SystemCreationClassName=\"CIM_ComputerSystem\",SystemName=\"\"";
-        Capabilities = "CIM_ProviderCapabilities.InstanceID=\"PGLinux_SoftwareElementProvider_1\"";
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "LinuxSoftwareElementProviderModule";
+   ProviderName = "LinuxSoftwareElementProvider";
+   CapabilityID = "1";
+   ClassName = "Linux_Debian_SoftareElement";
+   Namespaces[] = {"root/cimv2"};
+   ProviderType[] = { 2 }; // Instance
+   SupportedProperties[] = NULL; // All properties
+   SupportedMethods[] = NULL; // All methods
 };
-

@@ -1,38 +1,39 @@
-instance of CIM_Provider  {
-SystemCreationClassName = "CIM_ComputerSystem";
-SystemName = "";
-CreationClassName = "CIM_Provider";
-Name = "LinuxNetworkAdapterProvider";
-Location = "LinuxNetworkAdapterProvider";
+instance of PG_ProviderModule
+{
+   Name = "LinuxNetworkAdapterProviderModule";
+   Location = "LinuxNetworkAdapterProvider";
+   Vendor = "Pegasus Community";
+   Version = "2.0.0";
+   InterfaceType = "C++Default";
+   InterfaceVersion = "2.0.0";
 };
 
-instance of CIM_ProviderCapabilities  {
-InstanceID = "PGLinux_NetworkAdapterProvider_1";
-Name = "PGLinux_NetworkAdpaterProvider";
-ClassName = "Linux_NetworkAdapter";
-//ProviderType = { 2 }; // Instance
-OtherProviderType = "";
-//SupportedProperties = {}; // All properties 
-//SupportedMethods = {}; // All methods
+instance of PG_Provider
+{
+   ProviderModuleName = "LinuxNetworkAdapterProviderModule";
+   Name = "LinuxNetworkAdapterProvider";
 };
 
-instance of CIM_ProviderCapabilities  {
-InstanceID = "PGLinux_NetworkAdapterProvider_2";
-Name = "PGLinux_NetworkAdpaterProvider";
-ClassName = "Linux_EthernetAdapter";
-//ProviderType = { 2 }; // Instance
-OtherProviderType = "";
-//SupportedProperties = {}; // All properties 
-//SupportedMethods = {}; // All methods
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "LinuxNetworkAdapterProviderModule";
+   ProviderName = "LinuxNetworkAdapterProvider";
+   CapabilityID = "1";
+   ClassName = "Linux_NetworkAdapter";
+   Namespaces[] = {"root/cimv2"};
+   ProviderType[] = { 2 }; // Instance
+   SupportedProperties[] = NULL; // All properties
+   SupportedMethods[] = NULL; // All methods
 };
 
-instance of CIM_ProviderElementCapabilities {
-        ManagedElement = "CIM_Provider.CreationClassName=\"CIM_Provider\",Name=\"LinuxNetworkAdapterProvider\",SystemCreationClassName=\"CIM_ComputerSystem\",SystemName=\"\"";
-        Capabilities = "CIM_ProviderCapabilities.InstanceID=\"PGLinux_NetworkAdapterProvider_1\"";
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "LinuxNetworkAdapterProviderModule";
+   ProviderName = "LinuxNetworkAdapterProvider";
+   CapabilityID = "2";
+   ClassName = "Linux_EthernetAdapter";
+   Namespaces[] = {"root/cimv2"};
+   ProviderType[] = { 2 }; // Instance
+   SupportedProperties[] = NULL; // All properties
+   SupportedMethods[] = NULL; // All methods
 };
-
-instance of CIM_ProviderElementCapabilities {
-        ManagedElement = "CIM_Provider.CreationClassName=\"CIM_Provider\",Name=\"LinuxNetworkAdapterProvider\",SystemCreationClassName=\"CIM_ComputerSystem\",SystemName=\"\"";
-        Capabilities = "CIM_ProviderCapabilities.InstanceID=\"PGLinux_NetworkAdapterProvider_2\"";
-};
-

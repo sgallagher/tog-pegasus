@@ -1,7 +1,7 @@
 
 CIMMOFCLI = cimmofl
 
-# The PG_INTEROPNS variable defines the absolute name of the
+# The INTEROPNS variable defines the absolute name of the
 # Pegasus InterOp Namespace.
 
 INTEROPNS=root/PG_InterOp

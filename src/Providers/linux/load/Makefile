@@ -29,11 +29,9 @@
 
 ROOT = ../../../..
 include $(ROOT)/mak/config.mak
+include $(ROOT)/mak/configschema.mak
 
 MOF_PATH = .
-CIMMOF = $(PEGASUS_HOME)/bin/cimmof
-NAMESPACE = root/cimv2
-INTEROPNAMESPACE = root/cimv2
 
 MOFS = \
    CDROMDriveProvider.mof \
@@ -64,10 +62,10 @@ all:
 # Delete and rebuild the repository using the MOF compiler.
 
 repository:
-	@ $(foreach i, $(MOFS), echo +++++ Loading $(i) into $(NAMESPACE) namespace ...; cimmof -I$(MOF_PATH) -n$(NAMESPACE) $(MOF_PATH)/$(i);)
+	@ $(foreach i, $(MOFS), echo +++++ Loading $(i) into $(MANAGEDSYSTEMNS) namespace ...; cimmofl -I$(MOF_PATH) -n$(MANAGEDSYSTEMNS) $(MOF_PATH)/$(i);)
 
 register:
-	@ $(foreach i, $(REGISTRATIONMOFS), echo +++++ Loading $(i) into $(INTEROPNAMESPACE) namespace ...; cimmof -I$(MOF_PATH) -n$(INTEROPNAMESPACE) $(MOF_PATH)/$(i);)
+	@ $(foreach i, $(REGISTRATIONMOFS), echo +++++ Loading $(i) into $(INTEROPNS) namespace ...; cimmofl -I$(MOF_PATH) -n$(INTEROPNS) $(MOF_PATH)/$(i);)
 
 clean:
 

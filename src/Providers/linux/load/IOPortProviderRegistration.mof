@@ -1,37 +1,39 @@
-instance of CIM_Provider {
-SystemCreationClassName = "CIM_ComputerSystem";
-SystemName = "";
-CreationClassName = "CIM_Provider";
-Name = "LinuxIOPortProvider";
-Location = "LinuxIOPortProvider";
+instance of PG_ProviderModule
+{
+   Name = "LinuxIOPortProviderModule";
+   Location = "LinuxIOPortProvider";
+   Vendor = "Pegasus Community";
+   Version = "2.0.0";
+   InterfaceType = "C++Default";
+   InterfaceVersion = "2.0.0";
 };
 
-instance of CIM_ProviderCapabilities {
-InstanceID = "PGLinux_IOPortProvider_1";
-Name = "PGLinux_IOPortProvider";
-ClassName = "Linux_PortResource";
-//ProviderType = { 2 }; // Instance
-OtherProviderType = "";
-//SupportedProperties = {}; // All properties 
-//SupportedMethods = {}; // All methods
+instance of PG_Provider
+{
+   ProviderModuleName = "LinuxIOPortProviderModule";
+   Name = "LinuxIOPortProvider";
 };
 
-instance of CIM_ProviderCapabilities  {
-InstanceID = "PGLinux_IOPortProvider_2";
-Name = "PGLinux_IOPortProvider";
-ClassName = "Linux_MemoryResource";
-//ProviderType = { 2 }; // Instance
-OtherProviderType = "";
-//SupportedProperties = {}; // All properties 
-//SupportedMethods = {}; // All methods
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "LinuxIOPortProviderModule";
+   ProviderName = "LinuxIOPortProvider";
+   CapabilityID = "1";
+   ClassName = "Linux_PortResource";
+   Namespaces[] = {"root/cimv2"};
+   ProviderType[] = { 2 }; // Instance
+   SupportedProperties[] = NULL; // All properties
+   SupportedMethods[] = NULL; // All methods
 };
 
-instance of CIM_ProviderElementCapabilities {
-        ManagedElement = "CIM_Provider.CreationClassName=\"CIM_Provider\",Name=\"LinuxIOPortProvider\",SystemCreationClassName=\"CIM_ComputerSystem\",SystemName=\"\"";
-        Capabilities = "CIM_ProviderCapabilities.InstanceID=\"PGLinux_IOPortProvider_1\"";
-};
-
-instance of CIM_ProviderElementCapabilities {
-        ManagedElement = "CIM_Provider.CreationClassName=\"CIM_Provider\",Name=\"LinuxIOPortProvider\",SystemCreationClassName=\"CIM_ComputerSystem\",SystemName=\"\"";
-        Capabilities = "CIM_ProviderCapabilities.InstanceID=\"PGLinux_IOPortProvider_2\"";
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "LinuxIOPortProviderModule";
+   ProviderName = "LinuxIOPortProvider";
+   CapabilityID = "2";
+   ClassName = "Linux_MemoryResource";
+   Namespaces[] = {"root/cimv2"};
+   ProviderType[] = { 2 }; // Instance
+   SupportedProperties[] = NULL; // All properties
+   SupportedMethods[] = NULL; // All methods
 };

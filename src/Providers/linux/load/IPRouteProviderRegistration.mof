@@ -1,23 +1,27 @@
-instance of CIM_Provider {
-SystemCreationClassName = "CIM_ComputerSystem";
-SystemName = "";
-CreationClassName = "CIM_Provider";
-Name = "LinuxIPRouteProvider";
-Location = "LinuxIPRouteProvider";
+instance of PG_ProviderModule
+{
+   Name = "LinuxIPRouteProviderModule";
+   Location = "LinuxIPRouteProvider";
+   Vendor = "Pegasus Community";
+   Version = "2.0.0";
+   InterfaceType = "C++Default";
+   InterfaceVersion = "2.0.0";
 };
 
-instance of CIM_ProviderCapabilities {
-InstanceID = "PGLinux_IPRouteProvider_1";
-Name = "PGLinux_IPRouteProvider";
-ClassName = "Linux_IPRoute";
-//ProviderType = { 2 }; // Instance
-OtherProviderType = "";
-//SupportedProperties = {}; // All properties 
-//SupportedMethods = {}; // All methods
+instance of PG_Provider
+{
+   ProviderModuleName = "LinuxIPRouteProviderModule";
+   Name = "LinuxIPRouteProvider";
 };
 
-instance of CIM_ProviderElementCapabilities {
-        ManagedElement = "CIM_Provider.CreationClassName=\"CIM_Provider\",Name=\"LinuxIPRouteProvider\",SystemCreationClassName=\"CIM_ComputerSystem\",SystemName=\"\"";
-        Capabilities = "CIM_ProviderCapabilities.InstanceID=\"PGLinux_IPRouteProvider_1\"";
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "LinuxIPRouteProviderModule";
+   ProviderName = "LinuxIPRouteProvider";
+   CapabilityID = "1";
+   ClassName = "Linux_IPRoute";
+   Namespaces[] = {"root/cimv2"};
+   ProviderType[] = { 2 }; // Instance
+   SupportedProperties[] = NULL; // All properties
+   SupportedMethods[] = NULL; // All methods
 };
-

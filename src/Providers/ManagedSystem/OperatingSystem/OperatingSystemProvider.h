@@ -31,7 +31,7 @@
 
 #define STANDARDOPERATINGSYSTEMCLASS "CIM_OperatingSystem"
 #define EXTENDEDOPERATINGSYSTEMCLASS "PG_OperatingSystem"
-#define OPERATINGSYSTEMPROVIDERNAME "OperatingSystemProvider"
+#define OPERATINGSYSTEMPROVIDERNAME "PG_OperatingSystemProvider"
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>

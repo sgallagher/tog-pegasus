@@ -12,13 +12,13 @@ instance of PG_ProviderModule
 instance of PG_Provider 
 {
    ProviderModuleName = "OperatingSystemProvider";
-   Name = "OperatingSystemProvider";
+   Name = "PG_OperatingSystemProvider";
 };
 
 instance of PG_ProviderCapabilities 
 {
    ProviderModuleName = "OperatingSystemProvider";
-   ProviderName = "OperatingSystemProvider";
+   ProviderName = "PG_OperatingSystemProvider";
    CapabilityID = "1";
    ClassName = "PG_OperatingSystem";
    Namespaces[] = {"root/cimv2"};

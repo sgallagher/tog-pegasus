@@ -1681,6 +1681,10 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                 INTEROPNAMESPACE,
                 _CLASS_PROVIDER_MODULE);
 
+	Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+		        "PG_ProviderModule class has = %d instances",
+		     	cimNamedInstances.size());	
+
     	for(Uint32 i = 0, n=cimNamedInstances.size(); i < n; i++)
     	{
 	    Array<CIMInstance> instances;
@@ -1704,6 +1708,9 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         cimNamedInstances = _repository->enumerateInstances(
                 INTEROPNAMESPACE,
                 _CLASS_PG_PROVIDER);
+	Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+		        "PG_Provider class has = %d instances",
+		     	cimNamedInstances.size());	
 
     	for(Uint32 i = 0, n=cimNamedInstances.size(); i < n; i++)
     	{
@@ -1912,10 +1919,12 @@ void ProviderRegistrationManager::_addInstancesToTable(
 	delete elementInfo;
 	PEG_METHOD_EXIT();
         throw e;
-    } 
-
+    }
+ 
     if (!_registrationTable->table.insert(key,elementInfo))
     {
+	Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                      "Exception:: Attempt to add duplicate entry to provider reistration hash table.");
 	//ATTN-YZ-P3-20020301:Is this proper exception 
 	PEG_METHOD_EXIT();
         throw CIMException(CIM_ERR_FAILED, "can not insert element to the table ");

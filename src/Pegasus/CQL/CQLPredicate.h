@@ -113,7 +113,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
   
     CQLSimplePredicate getSimplePredicate();
 
-    //BooleanOpType[] getOperators();
+    BooleanOpType* getOperators();
 
     //Array<CQLScope> getScopes();
 

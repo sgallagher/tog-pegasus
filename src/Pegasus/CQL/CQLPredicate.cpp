@@ -45,11 +45,11 @@ Array<CQLPredicate> CQLPredicate::getPredicates(){
 CQLSimplePredicate CQLPredicate::getSimplePredicate(){
 	return _simplePredicate;
 }
-/*
-BooleanOpType[] CQLPredicate::getOperators(){
-	return operators;
-}
 
+BooleanOpType* CQLPredicate::getOperators(){
+	return _operators;
+}
+/*
 Array<CQLScope> CQLPredicate::getScopes(){
 
 }

@@ -8,6 +8,7 @@ LIBRARIES = \
     pegrepository \
     pegserver \
     pegprovider \
+    pegwql \
     pegclient 
 
 ifneq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)

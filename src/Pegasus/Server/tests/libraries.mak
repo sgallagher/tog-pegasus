@@ -5,4 +5,5 @@ LIBRARIES = \
     pegprovider \
     pegexportclient \
     pegexportserver \
+    pegwql \
     pegclient

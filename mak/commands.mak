@@ -1,4 +1,4 @@
-# commands.mak is a helper Makefile that is intended to be included in an upper level Makefile. 
+# commands.mak is a helper Makefile that is intended to be included in an upper level Makefile.
 
 # Ensure that config.mak is included (so that the ROOT variable is set correctly)
 
@@ -60,7 +60,7 @@ ifeq ($(OS),HPUX)
     DOCXX = doc++
 
     GENERATE_RANDSEED = randseed
-    GET_HOSTNAME = `hostname`
+    GET_HOSTNAME = `nslookup \`hostname\` | grep "Name:" | sed 's/Name:[ ]*//'`
 
     ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_ACC)
         LIB_LINK_SUFFIX = .sl
@@ -133,7 +133,7 @@ ifeq ($(OS),linux)
     CAT = cat
     DOCXX = doc++
 
-    GET_HOSTNAME = `hostname`
+    GET_HOSTNAME = `host \`hostname\`|cut -d" " -f1`
 
     LIB_LINK_SUFFIX = .so
 
@@ -320,3 +320,31 @@ runTestSuite: CMDSFORCE
 	$(CIMSERVER_START_SERVICE)
 	$(foreach i, $(TESTSUITE_CMDS), $(subst @@, ,$(i));)
 	$(CIMSERVER_STOP_SERVICE)
+
+ifndef PEGASUS_SSLCNF_FULLY_QUALIFIED_DSN
+  PEGASUS_SSLCNF_FULLY_QUALIFIED_DSN=$(GET_HOSTNAME)
+endif
+
+createSSLCnfFile: CMDSFORCE
+	@$(RM) $(PEGASUS_SSLCERT_CNFFILE)
+	@$(ECHO) "[ req ]" >> $(PEGASUS_SSLCERT_CNFFILE)
+	@$(ECHO) "distinguished_name     = req_distinguished_name" >> $(PEGASUS_SSLCERT_CNFFILE)
+	@$(ECHO) "prompt                 = no"  >> $(PEGASUS_SSLCERT_CNFFILE)
+	@$(ECHO) "[ req_distinguished_name ]" >>  $(PEGASUS_SSLCERT_CNFFILE)
+	@$(ECHO) "C                      = $(PEGASUS_SSLCNF_COUNTRY_CODE)" >> $(PEGASUS_SSLCERT_CNFFILE)
+	@$(ECHO) "ST                     = $(PEGASUS_SSLCNF_STATE)" >> $(PEGASUS_SSLCERT_CNFFILE)
+	@$(ECHO) "L                      = $(PEGASUS_SSLCNF_LOCALITY)" >> $(PEGASUS_SSLCERT_CNFFILE)
+	@$(ECHO) "O                      = $(PEGASUS_SSLCNF_ORGANIZATION)" >> $(PEGASUS_SSLCERT_CNFFILE)
+	@$(ECHO) "OU                     = $(PEGASUS_SSLCNF_ORGANIZATION_UNIT)" >> $(PEGASUS_SSLCERT_CNFFILE)
+	@$(ECHO) "CN                     = $(PEGASUS_SSLCNF_FULLY_QUALIFIED_DSN)" >> $(PEGASUS_SSLCERT_CNFFILE)
+
+createSSLCertificate: CMDSFORCE
+ifdef PEGASUS_SSL_RANDOMFILE
+	@$(OPENSSL_COMMAND) req -x509 -days $(PEGASUS_SSLCERT_DAYS) -newkey rsa:2048 -rand $(PEGASUS_SSLCERT_RANDOMFILE) -nodes -config $(PEGASUS_SSLCERT_CNFFILE) -keyout $(PEGASUS_SSLCERT_KEYFILE) -out 
+$(PEGASUS_SSLCERT_CERTFILE)
+else
+	@$(OPENSSL_COMMAND) req -x509 -days $(PEGASUS_SSLCERT_DAYS) -newkey rsa:2048 -nodes -config $(PEGASUS_SSLCERT_CNFFILE) -keyout $(PEGASUS_SSLCERT_KEYFILE) -out $(PEGASUS_SSLCERT_CERTFILE)
+endif
+
+displayCertificate: CMDSFORCE
+	@$(OPENSSL_COMMAND) x509 -in $(PEGASUS_SSLCERT_CERTFILE) -text

@@ -59,6 +59,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		
 		// if message loading is DISABLED return the default message
 #ifndef PEGASUS_HAS_MESSAGES
+			PEG_METHOD_EXIT();
 			return formatDefaultMessage(parms);
 #else
 		
@@ -69,6 +70,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 				//cout << "didnt get a message from ICU, using default message" << endl;
 				return formatDefaultMessage(parms);
 			}
+			PEG_METHOD_EXIT();
 			return msg;
 #else
 			// NOTE TO PROGRAMMERS:
@@ -76,10 +78,12 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			// non-ICU process locale discovery code and non-ICU message loading
 			// otherwise the default message is always returned
 			//cout << "PEGASUS_HAS_ICU is NOT defined, using default message" << endl;
+			PEG_METHOD_EXIT();
 			return formatDefaultMessage(parms);
 #endif	
 #endif	
 		}catch(Exception&){
+			PEG_METHOD_EXIT();
 			return String("AN INTERNAL ERROR OCCURED IN MESSAGELOADER: ").append(parms.default_msg);	
 		}
 	}
@@ -104,7 +108,11 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 
 		// if someone has set the global behaviour to use default messages
 		// Note: this must be after the call to getQualifiedMsgPath
-		if(_useDefaultMsg) return formatDefaultMessage(parms);	 
+		if (_useDefaultMsg)
+		{
+			PEG_METHOD_EXIT();
+			return formatDefaultMessage(parms);	 
+		}
 
 		//cout << "USING PACKAGE PATH: " << endl;
 		//cout << resbundl_path_ICU << endl;
@@ -147,6 +155,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using process locale.  Could not open resource, formatting default message.");
     			msg = formatDefaultMessage(parms);
 			}
+			PEG_METHOD_EXIT();
 			return msg;
 		} else if (acceptlanguages.size() == 0 && parms.useThreadLocale){ // get AcceptLanguages from the current Thread
 			AcceptLanguages *al = Thread::getLanguages();
@@ -432,6 +441,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		parms.contentlanguages.clear(); // this could have previously been set by ICU
 		//cout << parms.toString() << endl;
 		//cout << "ml:" << parms.default_msg << endl;
+		PEG_METHOD_EXIT();
 		return Formatter::format(parms.default_msg,
 		 						 	parms.arg0,
 								 	parms.arg1,
@@ -448,20 +458,25 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 	}
 	
 	String MessageLoader::getQualifiedMsgPath(String path){
-		PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::getQualifiedPackageName");
+		PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::getQualifiedMsgPath");
 		
 		if(pegasus_MSG_HOME.size() == 0)
 				initPegasusMsgHome();
 		
 		if(path.size() == 0)	 
+		{
+			PEG_METHOD_EXIT();
 			return pegasus_MSG_HOME + server_resbundl_name;
+		}
 		
 		Char16 delim = '/'; // NOTE TO PROGRAMMERS: WINDOWS and non-UNIX platforms should redefine delim here
 		Uint32 i;
 		if(( i = path.find(delim)) != PEG_NOT_FOUND && i == 0){ //  fully qualified package name
+			PEG_METHOD_EXIT();
 			return path;
 		}
 		
+		PEG_METHOD_EXIT();
 		return pegasus_MSG_HOME	+ path;  // relative path and package name
 
 	}

@@ -241,9 +241,8 @@ void Tracer::_traceString(
     {
         if (_isTraceEnabled(traceComponent,traceLevel))
         {
-            String msg = traceString;
-            ArrayDestroyer<char> traceMsg(msg.allocateCString());
-            trace(traceComponent,traceLevel,"%s",traceMsg);
+            ArrayDestroyer<char> traceMsg(traceString.allocateCString());
+            trace(traceComponent,traceLevel,"%s",traceMsg.getPointer());
         }
     }
 }
@@ -267,9 +266,8 @@ void Tracer::_traceString(
     {
         if ( _isTraceEnabled( traceComponent, traceLevel ) )
         {
-            String msg = traceString;
-            ArrayDestroyer<char> traceMsg(msg.allocateCString());
-            trace(fileName,lineNum,traceComponent,traceLevel,"%s",traceMsg);
+            ArrayDestroyer<char> traceMsg(traceString.allocateCString());
+            trace(fileName,lineNum,traceComponent,traceLevel,"%s",traceMsg.getPointer());
         }
     }
 }

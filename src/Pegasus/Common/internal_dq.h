@@ -25,7 +25,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-//#include <Pegasus/Common/Exception.h>
 #include <assert.h>
 
 #ifndef PEG_INTERNAL_DQ_include
@@ -48,14 +47,14 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 
             
       // unlink this node from whichever list it is on
-      inline void unlink( void  ) 
+       void unlink( void  ) 
       { 
 	 _prev->_next = _next; 
 	 _next->_prev = _prev; 
 	 _next = _prev = 0;
       }
     
-      inline void insert_first(internal_dq & head)
+       void insert_first(internal_dq & head)
       { 
 	 _prev = &head; 
 	 _next = head._next; 
@@ -64,7 +63,7 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 	 head._count++; 
       }
 
-      inline void insert_last(internal_dq & head) 
+       void insert_last(internal_dq & head) 
       {
 	 _next = &head;
 	 _prev = head._prev;
@@ -73,7 +72,7 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 	 head._count++;
       }
 
-      inline void *remove( int code )
+       void *remove( int code )
       {
 	 void *ret = NULL;
 	
@@ -105,11 +104,11 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 
       virtual ~internal_dq() 
       {  
-	 if (_isHead  )
+	 if (_isHead == true )
 	    empty_list(); 
       }
 
-      inline void insert_first(void *element)
+       void insert_first(void *element)
       {
 	 if(element == 0)
 	    return;
@@ -119,7 +118,7 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 	 ins->insert_first(*this); 
       }
 
-      inline void insert_last(void *element)
+       void insert_last(void *element)
       {
 	 if(element == 0)
 	    return;
@@ -129,7 +128,7 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 	 ins->insert_last(*this);
       }
       
-      inline virtual void empty_list( void )
+       virtual void empty_list( void )
       {
 	 if ( _isHead == true ) 
 	 {
@@ -146,10 +145,10 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 	 return;
       }
 
-      inline void *remove_first ( void ) { return(remove(PEG_DQUEUE_FIRST) );}
-      inline void *remove_last ( void ) { return(remove(PEG_DQUEUE_LAST) );}
+       void *remove_first ( void ) { return(remove(PEG_DQUEUE_FIRST) );}
+       void *remove_last ( void ) { return(remove(PEG_DQUEUE_LAST) );}
 
-      inline void *remove(const void *key)
+       void *remove(const void *key)
       {
 	 if(key == 0)
 	    return 0;
@@ -180,7 +179,7 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 	 return(ret); 
       }
 
-      inline void *reference(const void *key)
+       void *reference(const void *key)
       {
 	 if(key == 0)
 	    return 0;
@@ -200,7 +199,7 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 	 return 0;
       }
 
-      inline void *next( const void * ref)
+       void *next( const void * ref)
       {
 	 if( ref == 0)
 	    _cur = _next;
@@ -210,7 +209,7 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 	 return(_cur->_rep);
       }
 
-      inline void *prev( const void * ref)
+       void *prev( const void * ref)
       {
 	 if( ref == 0 )
 	    _cur = _prev;
@@ -220,7 +219,7 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 	 return(_cur->_rep);
       }
 
-      inline Boolean exists(const void *key) 
+       Boolean exists(const void *key) 
       {
 	 if(key == 0 )
 	    return false;
@@ -241,7 +240,7 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 	 }
 	 return(ret);
       }
-      inline virtual Uint32 count(void) { return _count ; }
+       virtual Uint32 count(void) { return _count ; }
 } ;
 
 
@@ -258,7 +257,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
       int _count;
 
       // unlink this node from whichever list it is on
-      inline void unlink( void  ) 
+       void unlink( void  ) 
       { 
 	 _prev->_next = _next; 
 	 _next->_prev = _prev; 
@@ -283,7 +282,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
 	 (head._count)++;
       }
 
-      inline L *remove( int code )
+       L *remove( int code )
       {
 	 L *ret = NULL;
 	
@@ -326,7 +325,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
             
       virtual ~unlocked_dq() 
       {  
-	 if ( _isHead )
+	 if ( _isHead == true)
 	    empty_list();
       }
 
@@ -348,7 +347,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
 	 ins->insert_last(*this);
       }
       
-      inline virtual void empty_list( void ) 
+       virtual void empty_list( void ) 
       {
 
 	 if ( _isHead == true ) 
@@ -365,11 +364,11 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
 	 return;
       }
 
-      inline L *remove_first ( void ) { return(remove(PEG_DQUEUE_FIRST) );}
-      inline L *remove_last ( void ) { return(remove(PEG_DQUEUE_LAST) );}
+       L *remove_first ( void ) { return(remove(PEG_DQUEUE_FIRST) );}
+       L *remove_last ( void ) { return(remove(PEG_DQUEUE_LAST) );}
 
             
-      inline virtual L *remove(const L *key)
+       virtual L *remove(const L *key)
       {
 	 if(key == 0)
 	    return 0;
@@ -401,7 +400,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
       }
       
 
-      inline virtual L *remove(const void *key) 
+       virtual L *remove(const void *key) 
       {
 
 	 if(key == 0)
@@ -409,7 +408,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
 	 return unlocked_dq<L>::remove(reinterpret_cast<const L *>(key));
       }
       
-      inline virtual L *reference(const void *key) 
+       virtual L *reference(const void *key) 
       {
 	 if( key == 0 )
 	    return 0;
@@ -427,7 +426,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
 	 return(0);
       }
 
-      inline virtual L *reference(const L *key)
+       virtual L *reference(const L *key)
       {
 	 if(key == 0)
 	    return 0;
@@ -446,9 +445,9 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
       }
 
       
-      inline virtual L *next(const void *ref) 
+       virtual L *next(const void *ref) 
       {
-	 assert(this->_isHead);
+	 assert(this->_isHead == true);
 	 
 	 if( ref == 0)
 	    _cur = this->_next;
@@ -458,9 +457,9 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
 	 return(_cur->_rep);
       }
       
-      inline virtual L *prev(const void *ref) 
+       virtual L *prev(const void *ref) 
       {
-	 assert(this->_isHead);
+	 assert(this->_isHead == true);
 	 if( ref == 0 )
 	    _cur = _prev;
 	 else {
@@ -491,7 +490,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
 	 return(ret);
       }
       
-      inline virtual Uint32 count(void) { return _count ; }
+       virtual Uint32 count(void) { return _count ; }
 };
 
 PEGASUS_NAMESPACE_END

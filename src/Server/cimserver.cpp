@@ -707,7 +707,7 @@ int main(int argc, char** argv)
     // try loop to bind the address, and run the server
     try
     {
-#if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX)
+#if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX) && ! defined(PEGASUS_NO_SLP)
       	slp_client *discovery = new slp_client() ;;
         String serviceURL;
 	serviceURL.assign("service:cim.pegasus://");
@@ -775,7 +775,7 @@ int main(int argc, char** argv)
         //
 	while( !server.terminated() )
 	{
-#if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX)
+#if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX) && ! defined(PEGASUS_NO_SLP)
 	  if(useSLP  ) 
 	  {
 	    if(  (time(NULL) - last ) > 60 ) 

@@ -57,7 +57,7 @@ union Union
     Real32 _real32Value;
     Real64 _real64Value;
     Uint16 _char16Value;
-    Uint8 _stringValue[sizeof(String)];
+    String* _stringValue;
     CIMDateTime* _dateTimeValue;
     CIMReference* _referenceValue;
 

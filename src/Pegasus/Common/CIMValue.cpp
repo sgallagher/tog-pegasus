@@ -594,7 +594,7 @@ void CIMValue::assign(const CIMValue& x)
 		break;
 
 	    case CIMType::STRING:
-		new(_u._stringValue) String(*((String*)x._u._stringValue));
+		_u._stringValue = new String(*(x._u._stringValue));
 		break;
 
 	    case CIMType::DATETIME:
@@ -789,7 +789,7 @@ void CIMValue::clear()
 		break;
 
 	    case CIMType::STRING:
-		((String*)_u._stringValue)->~String();
+		delete _u._stringValue;
 		break;
 
 	    case CIMType::DATETIME:
@@ -967,7 +967,7 @@ void CIMValue::toXml(Array<Sint8>& out, Boolean forceTag) const
 		break;
 
 	    case CIMType::STRING:
-		_toXml(out, *((String*)_u._stringValue));
+		_toXml(out, *_u._stringValue);
 		break;
 
 	    case CIMType::DATETIME:
@@ -1124,7 +1124,7 @@ void CIMValue::toMof(Array<Sint8>& out) const
 		break;
 
 	    case CIMType::STRING:
-		_toMof(out, *((String*)_u._stringValue));
+		_toMof(out, *_u._stringValue);
 		break;
 
 	    case CIMType::DATETIME:
@@ -1250,7 +1250,7 @@ void CIMValue::set(const Char16& x)
 void CIMValue::set(const String& x)
 {
     clear();
-    new(_u._stringValue) String(x);
+    _u._stringValue = new String(x);
     _type = CIMType::STRING;
     _isNull = false;
 }
@@ -1513,7 +1513,7 @@ void CIMValue::get(String& x) const
     if (_type != CIMType::STRING || _isArray)
 	throw TypeMismatch();
 
-    x = *((String*)_u._stringValue);
+    x = *_u._stringValue;
 }
 
 void CIMValue::get(CIMDateTime& x) const
@@ -1781,9 +1781,7 @@ Boolean operator==(const CIMValue& x, const CIMValue& y)
 		return x._u._char16Value == y._u._char16Value;
 
 	    case CIMType::STRING:
-		return String::equal(
-		    *((String*)x._u._stringValue), 
-		    *((String*)y._u._stringValue));
+		return String::equal(*x._u._stringValue, *y._u._stringValue);
 
 	    case CIMType::DATETIME:
 		return *x._u._dateTimeValue == *y._u._dateTimeValue;
@@ -2083,7 +2081,7 @@ String CIMValue::toString() const
 		break;
 
 	    case CIMType::STRING:
-		_toString(out, *((String*)_u._stringValue));
+		_toString(out, *_u._stringValue);
 		break;
 
 	    case CIMType::DATETIME:

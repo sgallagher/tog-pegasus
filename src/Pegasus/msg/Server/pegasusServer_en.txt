@@ -278,6 +278,8 @@ en:table {
 											  
 	Security.UserManager.UserFileHandler.ERROR_UPDATING_USER_INFO:string {"Error updating user information for : {0}."}
 
+	Security.Authentication.AuthenticationManager.AUTHENTICATION_HANDLER_KERBEROS_FAILED_TO_INITIALIZE:string {"CIMOM server authentication handler for Kerberos failed to initialize properly. The CIMOM server is not started."}
+
 	Config.ConfigExceptions.MISSING_CMDLINE_OPTION:string {"Missing command line option argument: {0}"}
 
 	Config.ConfigExceptions.UNRECOGNIZED_CMDLINE_OPTION:string {"Unrecognized command line option. "}
@@ -343,7 +345,17 @@ en:table {
 	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_MODULE_FAILED:string {"Failed to disable the provider module."}
 
 	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.SUPERUSER_PRIVILEGE_REQUIRED_DISABLE_ENABLE_PROVIDERS:string {"You must have superuser privilege to disable or enable providers."}
+	
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDER_MODULE_NAME_WHICH_IS_REQUIRED:string {"Missing ProviderModuleName which is required property in PG_ConsumerCapabilities class."}
 
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDER_NAME_WHICH_IS_REQUIRED:string {"Missing ProviderName which is required property in PG_ConsumerCapabilities class."}
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_CAPABILITY_ID_WHICH_IS_REQUIRED:string {"Missing CapabilityID which is required property in PG_ConsumerCapabilities class."}
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDER_TYPE_WHICH_IS_REQUIRED:string {"Missing ProviderType which is required property in PG_ConsumerCapabilities class."}
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_DESTINATIONS_TYPE_WHICH_IS_REQUIRED:string {"Missing Destinations which is required property in PG_ConsumerCapabilities class."}
+	
 	ControlProviders.UserAuthProvider.MUST_BE_PRIVILEGED_USER:string {"Must be a privileged user to execute this CIM operation."}
 
 	ControlProviders.UserAuthProvider.UNABLE_TO_FIND_KEY_PROPERTY_USERNAME:string {"Unable to find Key Property Username"}
@@ -518,6 +530,42 @@ en:table {
 	Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT:string {"A {0} element was expected."}
 
 	Server.CIMOperationRequestDecoder.UNRECOGNIZED_INSTRINSIC_METHOD:string {"The intrinsic method {0} was not recognized."}
+	
+	Server.CIMOperationRequestDecoder.CIMCONTENTTYPE_SYNTAX_ERROR:string{"CIMContentType value syntax error."}
+
+	Server.CIMOperationRequestDecoder.INVALID_UTF8_CHARACTER:string{"Invalid UTF-8 character detected."}
+
+	Server.CIMOperationRequestDecoder.CIMOPERATION_VALUE_NOT_SUPPORTED:string{"CIMOperation value \"{0}\" is not supported."}
+
+	Server.CIMOperationRequestDecoder.EMPTY_CIMMETHOD_VALUE:string{"Empty CIMMethod value."}
+
+	Server.CIMOperationRequestDecoder.CIMMETHOD_VALUE_SYNTAX_ERROR:string{"CIMMethod value syntax error."}
+
+	Server.CIMOperationRequestDecoder.EMPTY_CIMOBJECT_VALUE:string{"Empty CIMObject value."}
+
+	Server.CIMOperationRequestDecoder.CIMOBJECT_VALUE_SYNTAX_ERROR:string{"CIMObject value syntax error."}
+
+	Server.CIMOperationRequestDecoder.CIMSERVER_SHUTTING_DOWN:string{"CIM Server is shutting down."}
+
+	Server.CIMOperationRequestDecoder.CIM_VERSION_NOT_SUPPORTED:string{"CIM version \"{0}\" is not supported."}
+
+	Server.CIMOperationRequestDecoder.DTD_VERSION_NOT_SUPPORTED:string{"DTD version \"$0\" is not supported."}
+
+	Server.CIMOperationRequestDecoder.CIMPROTOCOL_VERSION_MISMATCH:string{"CIMProtocolVersion value \"{0}\" does not match CIM request protocol version \"{1}\"."}
+
+	Server.CIMOperationRequestDecoder.CIMPROTOCOL_VERSION_NOT_SUPPORTED:string{"CIMProtocolVersion \"{0}\" is not supported."}
+
+	Server.CIMOperationRequestDecoder.MULTI_REQUEST_MISSING_CIMBATCH_HTTP_HEADER:string{"Multi-request is missing CIMBatch HTTP header"}
+
+	Server.CIMOperationRequestDecoder.MISSING_CIMMETHOD_HTTP_HEADER:string{"Missing CIMMethod HTTP header."}
+
+	Server.CIMOperationRequestDecoder.CIMMETHOD_VALUE_DOES_NOT_MATCH_REQUEST_METHOD:string{"CIMMethod value \"{0}\" does not match CIM request method \"{1}\"."}
+
+	Server.CIMOperationRequestDecoder.Server.CIMOperationRequestDecoder.MISSING_CIMOBJECT_HTTP_HEADER:string{"Missing CIMObject HTTP header."}
+
+	Server.CIMOperationRequestDecoder.Server.CIMOperationRequestDecoder.CIMOBJECT_VALUE_DOES_NOT_MATCH_REQUEST_OBJECT:string {"CIMObject value \"{0}\" does not match CIM request object \"{1}\"."}
+
+	Server.CIMOperationRequestDecoder.Server.CIMOperationRequestDecoder.COULD_NOT_PARSE_CIMOBJECT_VALUE:string {"Could not parse CIMObject value \"{0}\"."}
 
 	Server.CIMOperationRequestDispatcher.ENUM_REQ_TOO_BROAD:string {"The enumerate request is too broad."}	
 
@@ -557,10 +605,18 @@ en:table {
 
 	Server.ProviderRegistrationManager.ProviderRegistrationManager.PG_PROVIDER_MODULE:string {"The PG_ProviderModule class needs to be registered before the PG_Provider class."}
 	
-	 Server.ProviderRegistrationManager.ProviderRegistrationManager.PG_PROVIDER_CLASS:string {"The PG_Provider class needs to be registered before the Provider capabilities class"}
+	Server.ProviderRegistrationManager.ProviderRegistrationManager.PG_PROVIDER_CLASS:string {"The PG_Provider class needs to be registered before the Provider capabilities class"}
 
 	Server.ProviderRegistrationManager.ProviderRegistrationManager.CAN_NOT_INSERT_ELEMENT:string {"The element can not be inserted into the table."}
+	
+	Server.ProviderRegistrationManager.ProviderRegistrationManager.PGPROVIDER_NEEDS_TO_BE_REGISTERED_BEFORE_CONSUMER_CAPABILITIES:string {"PG_Provider class needs to be registered before registering the consumer capabilities class."}
 
+	Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERMODULENAME_KEY_IN_CONSUMER_CAPABILITIES:string {"Missing ProviderModuleName which is key in PG_ConsumerCapabilities class."}
+
+	Server.ProviderRegistrationManager.ProviderRegistrationManager.Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERNAME_KEY_IN_CONSUMER_CAPABILITIES:string {"Missing ProviderName which is key in PG_ConsumerCapabilities class."}
+
+	Server.ProviderRegistrationManager.ProviderRegistrationManager.CONSUMER_CAPABILITY_NOT_YET_REGISTERED:string {"Consumer capability has not been registered yet."}
+	
 	Common.OptionManager.MISSING_CMD_LINE_OPTION:string {"Missing command line option argument: {0}"}
 	
 	Common.OptionManager.INVALID_OPTION_VALUE:string {"Invalid option value: {0}={1}"}
@@ -805,7 +861,13 @@ en:table {
 	IndicationService.IndicationService._MSG_REFERENCED:string {"A Filter or Handler referenced by a subscription may not be deleted."}
 
 	IndicationService.IndicationService._MSG_CLASS_NOT_SERVED:string {"The specified class is not served by the Indication Service."}
+	
+	IndicationService.IndicationService.INVALID_SUBSCRIPTION_INSTANCES_IGNORED:string {"One or more invalid Subscription instances were ignored"}
 
+	IndicationService.IndicationService._MSG_INVALID_TYPE_FOR_PROPERTY:string {"Invalid type {0} for property {1}"}
+
+	IndicationService.IndicationService._MSG_INVALID_TYPE_ARRAY_OF_FOR_PROPERTY:string {"Invalid type array of {0} for property {1}"}
+	
 	HandlerService.IndicationHandlerService.HANDLER_WITHOUT_DESTINATION:string {"The {0} does not have a destination."}
 
 	HandlerService.IndicationHandlerService.INVALID_DESTINATION:string {"The destination is invalid."}
@@ -815,6 +877,8 @@ en:table {
 	Handler.snmpIndicationHandler.snmpIndicationHandler.INVALID_VALUE:string {"The {0} value is invalid."}
 
 	Handler.snmpIndicationHandler.snmpIndicationHandler.INVALID_INSTANCE:string {"The {0} instance is invalid."}
+	
+	Handler.snmpIndicationHandler.snmpIndicationHandler.QUALIFIER_MAPPINGS_NOT_FOUND:string {"Qualifier MappingStrings can not be found"}
 	 
 	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INITSUBAGENT_FAILED:string {"The {0} failed to initialize."}
 
@@ -929,6 +993,26 @@ en:table {
 
 
         // End OS/400 messages
+        
+        // Start Kerberos Messages
+        
+    /**
+ 	* @comment CLIENT_DENIED - Where {0} is the kerberos principal (a string)
+ 	*/
+	Authentication.Kerberos.CLIENT_DENIED:string {"Client denied: Unable to match Kerberos userid {0} to a user identity on this system."}
+
+	/**
+ 	* @comment CONTEXT_NOT_ESTABLISHED -
+ 	* @comment Where {0} is the name of API (a string) 
+ 	* @comment  Where {1} is the return code (a decimal)
+	*/
+	Authentication.Kerberos.CONTEXT_NOT_ESTABLISHED: string {"Could not establish security context,  {0} returned error {1}. Negotiation continuing."}
+
+	/**
+	*/
+	Authentication.Kerberos.SERVER_INITIALIZE_FAILED: string {"CIMOM server authentication handler for Kerberos failed to initialize properly.  CIMOM server is not started." }
+         
+        // End Kerberos Messages
 
         // ========================================================== 
         // End of platform-specific messages

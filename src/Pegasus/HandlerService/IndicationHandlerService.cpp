@@ -145,6 +145,10 @@ void IndicationHandlerService::_handleIndication(const Message* message)
     if ((className == "CIM_IndicationHandlerCIMXML") &&
 	(destination.subString(0, 9) == String("localhost")))
     {
+	Array<Uint32> exportServer;
+
+	find_services(String("CIMExportRequestDispatcher"), 0, 0, &exportServer);
+        
 	// Listener is build with Cimom, so send message to ExportServer
 	
 	CIMExportIndicationRequestMessage* exportmessage =
@@ -152,12 +156,8 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 		"1234",
 		destination,
 		indication,
-		QueueIdStack());
+		QueueIdStack(exportServer[0], getQueueId()));
 	
-	Array<Uint32> exportServer;
-
-	find_services(String("CIMExportRequestDispatcher"), 0, 0, &exportServer);
-        
         AsyncOpNode* op = this->get_op();
 
 	AsyncLegacyOperationStart *req =
@@ -171,7 +171,7 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 
 	AsyncReply* reply = SendWait(req);
 
-        _completeAsyncResponse(req, reply, ASYNC_OPSTATE_COMPLETE, 0 );
+        _enqueueResponse(req, reply);
 
 	delete req;
 	delete exportmessage;
@@ -194,6 +194,7 @@ void IndicationHandlerService::_handleIndication(const Message* message)
     }
 
     delete request;
+    return;
 }
 
 CIMHandler* IndicationHandlerService::_lookupHandlerForClass(

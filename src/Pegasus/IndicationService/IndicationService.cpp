@@ -1294,13 +1294,11 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
     {
 	errorCode = exception.getCode ();
 	errorDescription = exception.getMessage ();
-//cout << "CIMException: " << exception.getMessage () << endl;
     }
     catch (Exception& exception)
     {
 	errorCode = CIM_ERR_FAILED;
 	errorDescription = exception.getMessage ();
-//cout << "Exception: " << exception.getMessage () << endl;
     }
 
     CIMEnumerateInstancesResponseMessage* response = 
@@ -1311,7 +1309,18 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
 	    request->queueIds.copyAndPop(),
 	    enumInstances);
 
-    _enqueueResponse(request, response);
+        // preserve message key
+    response->setKey(request->getKey());
+
+    // lookup the message queue
+    MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
+
+    PEGASUS_ASSERT(queue != 0);
+
+    // enqueue the response
+    queue->enqueue(response);
+
+    //_enqueueResponse(request, response);
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
@@ -1840,8 +1849,8 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
 
-    CIMHandleIndicationResponseMessage* response =
-        new CIMHandleIndicationResponseMessage(
+    CIMProcessIndicationResponseMessage* response =
+        new CIMProcessIndicationResponseMessage(
             request->messageId,
             errorCode,
             errorDescription,
@@ -1910,12 +1919,14 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                      handler_request,
                      _queueId);
 
-                 AsyncReply *async_reply = SendWait(async_req);
-                 response = reinterpret_cast<CIMHandleIndicationResponseMessage *>
-                     ((static_cast<AsyncLegacyOperationResult *>(async_reply))->res);
+                 //AsyncReply *async_reply = SendWait(async_req);
+                 SendForget(async_req);
+
+                 //response = reinterpret_cast<CIMProcessIndicationResponseMessage *>
+                 //    ((static_cast<AsyncLegacyOperationResult *>(async_reply))->res);
 
                  delete async_req;
-                 delete async_reply;
+                 //delete async_reply;
             }
         }
     }
@@ -1933,6 +1944,8 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
     _enqueueResponse(request, response);
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+
+    return;
 }
 
 void IndicationService::_handleNotifyProviderRegistrationRequest

@@ -881,7 +881,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
                     get_next_xid(),
                     op,
                     iService[0],
-                    request,
+                    new CIMCreateInstanceRequestMessage(*request),
                     this->getQueueId());
 
             AsyncReply* reply = SendWait(req);
@@ -892,9 +892,9 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
             _enqueueResponse(request, response);
          
             delete reply;
-            delete req;
             delete response;
 
+            delete req;
             return;
 	}
 
@@ -926,7 +926,17 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
                     _queueId);
                     //getQueueId());
 
-            AsyncReply* reply = SendWait(req);
+            Boolean ret = SendForget(req); 
+
+             CIMCreateInstanceResponseMessage* response =
+                new CIMCreateInstanceResponseMessage(
+                request->messageId,
+                CIM_ERR_SUCCESS,
+                "",
+                request->queueIds.copyAndPop(),
+                CIMReference());
+
+            _enqueueResponse(request, response);
             return;
 	}
         // End test block

@@ -27,6 +27,7 @@
 //
 // Modified By:  Dan Gorey (djgorey@us.ibm.com)
 //               Amit Arora (amita@in.ibm.com) for Bug#1170
+//				 Marek Szermutzky (MSzermutzky@de.ibm.com) for PEP#139 Stage1
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -527,6 +528,8 @@ CIMInstance CIMClientRep::getInstance(
     const CIMPropertyList& propertyList
 )
 {
+	compareObjectPathtoCurrentConnection(instanceName);
+
     CIMRequestMessage* request = new CIMGetInstanceRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -571,6 +574,7 @@ void CIMClientRep::deleteInstance(
     const CIMObjectPath& instanceName
 )
 {
+	compareObjectPathtoCurrentConnection(instanceName);
     CIMRequestMessage* request = new CIMDeleteInstanceRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -609,6 +613,7 @@ CIMObjectPath CIMClientRep::createInstance(
     const CIMInstance& newInstance
 )
 {
+	compareObjectPathtoCurrentConnection(newInstance.getPath());
     CIMRequestMessage* request = new CIMCreateInstanceRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -651,6 +656,7 @@ void CIMClientRep::modifyInstance(
     const CIMPropertyList& propertyList
 )
 {
+	compareObjectPathtoCurrentConnection(modifiedInstance.getPath());
     CIMRequestMessage* request = new CIMModifyInstanceRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -813,6 +819,7 @@ Array<CIMObject> CIMClientRep::associators(
     const CIMPropertyList& propertyList
 )
 {
+	compareObjectPathtoCurrentConnection(objectName);	
     CIMRequestMessage* request = new CIMAssociatorsRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -845,6 +852,7 @@ Array<CIMObjectPath> CIMClientRep::associatorNames(
     const String& resultRole
 )
 {
+	compareObjectPathtoCurrentConnection(objectName);
     CIMRequestMessage* request = new CIMAssociatorNamesRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -875,6 +883,7 @@ Array<CIMObject> CIMClientRep::references(
     const CIMPropertyList& propertyList
 )
 {
+	compareObjectPathtoCurrentConnection(objectName);	
     CIMRequestMessage* request = new CIMReferencesRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -903,6 +912,7 @@ Array<CIMObjectPath> CIMClientRep::referenceNames(
     const String& role
 )
 {
+	compareObjectPathtoCurrentConnection(objectName);	
     CIMRequestMessage* request = new CIMReferenceNamesRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -927,6 +937,7 @@ CIMValue CIMClientRep::getProperty(
     const CIMName& propertyName
 )
 {
+	compareObjectPathtoCurrentConnection(instanceName);
     CIMRequestMessage* request = new CIMGetPropertyRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -951,6 +962,7 @@ void CIMClientRep::setProperty(
     const CIMValue& newValue
 )
 {
+	compareObjectPathtoCurrentConnection(instanceName);		
     CIMRequestMessage* request = new CIMSetPropertyRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -1058,6 +1070,10 @@ CIMValue CIMClientRep::invokeMethod(
     // ATTN-RK-P3-20020301: Do we need to make sure the caller didn't specify
     // a host name in the instanceName?
 
+	// solved with PEP#139 Stage1 as other CIMOMs contained in the object path
+	// will cause a TypeMisMatchException
+
+	compareObjectPathtoCurrentConnection(instanceName);
     CIMRequestMessage* request = new CIMInvokeMethodRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -1274,6 +1290,194 @@ String CIMClientRep::_getLocalHostName()
     static String hostname = "localhost";
 
     return hostname;
+}
+
+void CIMClientRep::compareObjectPathtoCurrentConnection(CIMObjectPath obj) throw(TypeMismatchException)
+{
+
+	String ObjHost = obj.getHost();
+	// test if a host is given at all, if not everything is fine and we leave it at that
+	if (ObjHost==String::EMPTY)
+	{
+		return;
+	}
+	MessageLoaderParms typeMismatchMessage;
+	// splitting the port from hostname as we have to compare both separate
+	int i = ObjHost.find(":");
+	String ObjPort = String::EMPTY;
+	// only if there is a ":" we should split a port address from hostname string
+	if (i > 0)
+	{
+		ObjPort = ObjHost.subString(i+1);
+		ObjHost.remove(i);
+
+
+		// lets see who we are really connected to
+		// should stand in UInt32 _connectPortNumber and String _connectHost;
+
+
+		// comparing the evil stuff
+
+		// first the easy part, comparing the ports
+		Uint32 objectport = strtoul((const char*) ObjPort.getCString(), NULL, 0);
+
+
+		// if port in object path does not equal port of connection throw a TypeMismatch Exception
+		if (objectport != _connectPortNumber)
+		{
+
+
+			typeMismatchMessage = MessageLoaderParms("Client.CIMClientRep.TYPEMISMATCH_PORTMISMATCH",
+													 "Failed validation of CIM object path: port of CIMClient connection($0) and port of object path($1) not equal",
+													 _connectPortNumber, objectport);
+			throw TypeMismatchException(typeMismatchMessage);
+		}
+	}
+
+	// lets retrieve ip addresses for both hostnames
+	Uint32 ipObjectPath, ipConnection = 0xFFFFFFFF;
+	ipObjectPath = _acquireIP((const char *) ObjHost.getCString());
+	if (ipObjectPath == 0x7F000001)
+	{
+		// localhost or ip address of 127.0.0.1
+		// still for compare we need the real ip address
+		ipObjectPath = _acquireIP((const char *) System::getHostName().getCString());
+	}
+	if (ipObjectPath == 0xFFFFFFFF)
+	{
+		// bad formatted ip address or not resolveable
+		typeMismatchMessage = MessageLoaderParms("Client.CIMClientRep.TYPEMISMATCH_OBJECTPATH_IP_UNRESOLVEABLE",
+												 "Failed validation of CIM object path: failed to resolve IP address($0) from object path",
+												 ObjHost);
+		throw TypeMismatchException(typeMismatchMessage);
+	}
+	
+	ipConnection = _acquireIP((const char *) _connectHost.getCString());
+	if (ipConnection == 0x7F000001)
+	{
+		// localhost or ip address of 127.0.0.1
+		// still for compare we need the real ip address
+		ipConnection = _acquireIP((const char *) System::getHostName().getCString());
+	}
+	if (ipConnection == 0xFFFFFFFF)
+	{
+		// bad formatted ip address or not resolveable
+		typeMismatchMessage = MessageLoaderParms("Client.CIMClientRep.TYPEMISMATCH_CIMCLIENTCONNECTION_IP_UNRESOLVEABLE",
+                                                 "Failed validation of CIM object path: failed to resolve IP address($0) of CIMClient connection",
+												 _connectHost);
+		throw TypeMismatchException(typeMismatchMessage);
+	}
+
+	if (ipObjectPath != ipConnection)
+	{
+		typeMismatchMessage = MessageLoaderParms("Client.CIMClientRep.TYPEMISMATCH_OBJECTPATHS_NOTEQUAL",
+                                                 "Failed validation of CIM object path: host of CIMClient connection($0) and object path($1) not equal",
+												 _connectHost,
+												 ObjHost);
+		throw TypeMismatchException(typeMismatchMessage);
+	}
+
+}
+
+Uint32 CIMClientRep::_acquireIP(const char* hostname)
+{
+	Uint32 ip = 0xFFFFFFFF;
+	if (!hostname) return 0xFFFFFFFF;
+
+#ifdef PEGASUS_OS_OS400
+	char ebcdicHost[256];
+	if (strlen(hostname) < 256)
+		strcpy(ebcdicHost, hostname);
+	else
+		return 0xFFFFFFFF;
+	AtoE(ebcdicHost);
+#endif
+
+	struct hostent *entry;
+
+	if (isalpha(hostname[0]))
+	{
+#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
+#define HOSTENT_BUFF_SIZE        8192
+		char      buf[HOSTENT_BUFF_SIZE];
+		int       h_errorp;
+		struct    hostent hp;
+
+		entry = gethostbyname_r((char *)hostname, &hp, buf,
+								HOSTENT_BUFF_SIZE, &h_errorp);
+#elif defined(PEGASUS_OS_OS400)
+		entry = gethostbyname(ebcdicHost);
+#elif defined(PEGASUS_OS_ZOS)
+		char hostName[ MAXHOSTNAMELEN + 1 ];
+		if (String::equalNoCase("localhost",String(hostname)))
+		{
+			gethostname( hostName, sizeof( hostName ) );
+			entry = gethostbyname(hostName);
+		} else
+		{
+			entry = gethostbyname((char *)hostname);
+		}
+#else
+		entry = gethostbyname((char *)hostname);
+#endif
+		if (!entry)
+		{
+			return 0xFFFFFFFF;
+		}
+		unsigned char ip_part1,ip_part2,ip_part3,ip_part4;
+
+		ip_part1 = entry->h_addr[0];
+		ip_part2 = entry->h_addr[1];
+		ip_part3 = entry->h_addr[2];
+		ip_part4 = entry->h_addr[3];
+		ip = ip_part1;
+		ip = (ip << 8) + ip_part2;
+		ip = (ip << 8) + ip_part3;
+		ip = (ip << 8) + ip_part4;
+	} else
+	{
+		// given hostname starts with an numeric character
+#ifdef PEGASUS_OS_OS400
+		Uint32 tmp_addr = inet_addr(ebcdicHost);
+#else
+#ifdef PEGASUS_OS_ZOS
+		Uint32 tmp_addr = inet_addr_ebcdic((char *)hostname);
+#else
+		Uint32 tmp_addr = inet_addr((char *)hostname);
+#endif
+#endif
+		// 0xFFFFFFF is same as -1 in an unsigned int32
+		if (tmp_addr == 0xFFFFFFFF)
+		{
+			// error, given ip does not follow format requirements
+			return 0xFFFFFFFF;
+		}
+
+		// resolve hostaddr to a real host entry
+
+		entry = gethostbyaddr(&tmp_addr,sizeof(tmp_addr),AF_INET);
+
+		if (entry == 0)
+		{
+			// error, couldn't resolve the ip
+			return 0xFFFFFFFF;
+		} else
+		{
+
+			unsigned char ip_part1,ip_part2,ip_part3,ip_part4;
+
+			ip_part1 = entry->h_addr[0];
+			ip_part2 = entry->h_addr[1];
+			ip_part3 = entry->h_addr[2];
+			ip_part4 = entry->h_addr[3];
+			ip = ip_part1;
+			ip = (ip << 8) + ip_part2;
+			ip = (ip << 8) + ip_part3;
+			ip = (ip << 8) + ip_part4;
+		}
+	}
+
+	return ip;
 }
 
 PEGASUS_NAMESPACE_END

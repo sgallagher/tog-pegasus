@@ -26,6 +26,7 @@
 // Author: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 // Modified By:     Dan Gorey (djgorey@us.ibm.com)
+//				 Marek Szermutzky (MSzermutzky@de.ibm.com) for PEP#139 Stage1
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -321,6 +322,11 @@ private:
     AcceptLanguages requestAcceptLanguages;
     ContentLanguages requestContentLanguages;
     ContentLanguages responseContentLanguages;
+
+	// mszer : Additions Stage1 PEP#139
+
+	void compareObjectPathtoCurrentConnection(CIMObjectPath obj) throw(TypeMismatchException);
+	Uint32 _acquireIP(const char* hostname);
 };
 
 PEGASUS_NAMESPACE_END

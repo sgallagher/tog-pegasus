@@ -195,6 +195,20 @@ TypeMismatchException::TypeMismatchException()
 {
 }
 
+TypeMismatchException::TypeMismatchException(const String& message)
+    : Exception(MessageLoaderParms("Common.Exception.TYPE_MISMATCH_EXCEPTION",
+    								"type mismatch: $0",message))
+{
+
+}
+
+TypeMismatchException::TypeMismatchException(MessageLoaderParms& msgParms)
+    : Exception(MessageLoaderParms("Common.Exception.TYPE_MISMATCH_EXCEPTION",
+    								"type mismatch: "))
+{
+    _rep->message.append(MessageLoader::getMessage(msgParms));
+}
+
 /*
 DynamicCastFailedException::DynamicCastFailedException()
     : Exception("dynamic cast failed")

@@ -3005,7 +3005,48 @@ CIM server listening on HTTPS port {0}."}
 
         Client.CIMClient.MISMATCHED_RESPONSE_TYPE:string {"PGS11801: The response message type does not match the expected response message type."}
 
+        
+        // ==========================================================
+        // Messages for CIMClientRep
+        //  Please use message prefix "PGS11900"
+        // ==========================================================
 
+        /**
+        * @note  PGS11900:
+        *    Substitution {0} and {1} are numbers containing the ports of object path and connection
+        *    Do not translate 'CIMClient' since it is the name of the client API interface
+        *    Do not translate 'CIM' since it is the name of the technology
+        */
+        
+        Client.CIMClientRep.TYPEMISMATCH_PORTMISMATCH:string {"PGS11900:  Failed validation of CIM object path: port of CIMClient connection({0}) and port of object path({1}) not equal."}
+
+        /**
+        * @note  PGS11901:
+        *    Substitution {0} is a string containing the host of object path
+        *    Do not translate 'CIM' since it is the name of the technology
+        */
+        
+        Client.CIMClientRep.TYPEMISMATCH_OBJECTPATH_IP_UNRESOLVEABLE:string {"PGS11901:  Failed validation of CIM object path: failed to resolve IP address({0}) from object path"}
+        
+        /**
+        * @note  PGS11902:
+        *    Substitution {0} is a string containing the host of the CIMClient connection
+        *    Do not translate 'CIMClient' since it is the name of the client API interface
+        *    Do not translate 'CIM' since it is the name of the technology
+        */
+        
+        Client.CIMClientRep.TYPEMISMATCH_CIMCLIENTCONNECTION_IP_UNRESOLVEABLE:string {"PGS11902:  Failed validation of CIM object path: failed to resolve IP address({0}) of CIMClient connection"}
+
+        /**
+        * @note  PGS11903:
+        *    Substitution {0} and {1} are strings containing the host of the CIMClient connection and the host of CIM object path
+        *    Do not translate 'CIMClient' since it is the name of the client API interface
+        *    Do not translate 'CIM' since it is the name of the technology
+        */
+        
+        Client.CIMClientRepTYPEMISMATCH_OBJECTPATHS_NOTEQUAL:string {"PGS11903:  Failed validation of CIM object path: host of CIMClient connection({0}) and object path({1}) not equal"}
+
+        
         // ==========================================================
         // Messages for CIMOperationResponseDecoder
         //  Please use message prefix "PGS12000"

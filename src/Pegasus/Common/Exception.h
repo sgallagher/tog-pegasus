@@ -149,6 +149,11 @@ class PEGASUS_COMMON_LINKAGE TypeMismatchException : public Exception
 public:
     ///
     TypeMismatchException();
+    TypeMismatchException(const String& message);
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    TypeMismatchException(MessageLoaderParms& msgParms);
+#endif    
+
 };
 
 #ifdef PEGASUS_USE_DEPRECATED_INTERFACES

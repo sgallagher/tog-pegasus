@@ -24,6 +24,12 @@ NewTests:
 	@$(ECHO) "cimmofl -R$(REPOSITORYDIR) ValidMof4.mof"
 	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" ValidMof4.mof
 	@$(MAKE) -s MASTERRESULTFILE=./repository/test/instances/ValidMof4.instances RESULTFILE=ValidMof4.instances.master
+	@$(ECHO) "cimmofl -R$(REPOSITORYDIR) ValidMof4a.mof"
+	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" ValidMof4a.mof
+	@$(MAKE) -s MASTERRESULTFILE=./repository/test/instances/ValidMof4a.instances RESULTFILE=ValidMof4.instances.master
+	@$(ECHO) "cimmofl -R$(REPOSITORYDIR) ValidMof4b.mof"
+	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" ValidMof4b.mof
+	@$(MAKE) -s MASTERRESULTFILE=./repository/test/instances/ValidMof4b.instances RESULTFILE=ValidMof4.instances.master
 	@$(ECHO) "cimmofl -R$(REPOSITORYDIR) ValidMof5.mof"
 	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" ValidMof5.mof
 	@$(MAKE) -s MASTERRESULTFILE=./repository/test/instances/ValidMof5.instances RESULTFILE=ValidMof5.instances.master
@@ -89,6 +95,12 @@ tests:
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "cimmofl -R$(REPOSITORYDIR) ValidMof4.mof" >> $(RESULTFILE)
 	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" ValidMof4.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) " " >> $(RESULTFILE)
+	@$(ECHO) "cimmofl -R$(REPOSITORYDIR) ValidMof4a.mof" >> $(RESULTFILE)
+	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" ValidMof4a.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) " " >> $(RESULTFILE)
+	@$(ECHO) "cimmofl -R$(REPOSITORYDIR) ValidMof4b.mof" >> $(RESULTFILE)
+	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" ValidMof4b.mof >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "cimmofl -R$(REPOSITORYDIR) ValidMof5.mof" >> $(RESULTFILE)
 	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" ValidMof5.mof >> $(RESULTFILE) $(REDIRECTERROR)

@@ -19,4 +19,9 @@ DIRS = \
 	UserContextTestProvider/testclient \
 	DynamicIndicationProvider
 
+ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+DIRS += \
+	CMPI/TestIndications \
+	CMPI/TestIndications/tests
+endif
 include $(ROOT)/mak/recurse.mak

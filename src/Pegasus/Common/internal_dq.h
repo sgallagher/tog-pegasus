@@ -27,12 +27,14 @@
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
+// Modified By: Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
 #include <assert.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 #ifndef PEG_INTERNAL_DQ_include
 #define PEG_INTERNAL_DQ_include
@@ -120,9 +122,10 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 	 if(element == 0)
 	    return;
 	 
-	 internal_dq *ins = new internal_dq(false);
+     AutoPtr<internal_dq> ins(new internal_dq(false));
 	 ins->_rep = element;
 	 ins->insert_first(*this); 
+     ins.release();
       }
 
        void insert_last(void *element)
@@ -130,9 +133,10 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 	 if(element == 0)
 	    return;
 
-	 internal_dq *ins = new internal_dq(false);
+     AutoPtr<internal_dq> ins(new internal_dq(false));
 	 ins->_rep = element;
 	 ins->insert_last(*this);
+     ins.release();
       }
       
        virtual void empty_list( void )

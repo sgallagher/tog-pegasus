@@ -31,6 +31,7 @@
 //              Amit K Arora (Bug#1153) amita@in.ibm.com
 //              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //              Sushma Fernandes (sushma@hp.com) for Bug#2057
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +45,7 @@
 #include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/Exception.h>
+
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 # if defined(FD_SETSIZE) && FD_SETSIZE != 1024
@@ -163,11 +165,11 @@ Monitor::~Monitor()
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                   "deregistering with module controller");
 
-    if(_module_handle != NULL)
+    if(_module_handle.get() != NULL)
     {
        _controller->deregister_module(PEGASUS_MODULENAME_MONITOR);
-       _controller = 0;
-       delete _module_handle;
+       _controller.reset();
+       _module_handle.reset();
     }
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "deleting rep");
 
@@ -1470,7 +1472,7 @@ monitor_2_entry*  monitor_2::add_entry(pegasus_socket& ps,
 
   fd2=(Sint32) ps;
 
-  monitor_2_entry* m2e = new monitor_2_entry(ps, type, accept_parm, dispatch_parm);
+  AutoPtr<monitor_2_entry> m2e(new monitor_2_entry(ps, type, accept_parm, dispatch_parm));
 
 // The purpose of the following piece of code is to avoid duplicate entries in
 // the _listeners list. Would it be too much of an overhead ?
@@ -1496,7 +1498,7 @@ try {
               "monitor_2::add_entry:CLOSED state changed to IDLE for %d.", fd1);
              }
              _listeners.unlock();
-            delete m2e;
+            m2e.reset();
             return 0;
         }
        temp = _listeners.next(temp);
@@ -1504,7 +1506,7 @@ try {
    }
    catch(...)
    {
-      delete m2e;
+      m2e.reset();
       return 0;
    }
 
@@ -1513,16 +1515,16 @@ try {
 
 
   try{
-    _listeners.insert_first(m2e);
+    _listeners.insert_first(m2e.get());
   }
   catch(...){
-    delete m2e;
+    m2e.reset();
     return 0;
   }
       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
       "monitor_2::add_entry:SUCCESSFULLY added to _listeners list. FD = %d.", fd2);
   tickle();
-  return m2e;
+  return m2e.release();
 }
 
 Boolean monitor_2::remove_entry(Sint32 s)

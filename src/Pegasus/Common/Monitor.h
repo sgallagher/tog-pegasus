@@ -29,6 +29,7 @@
 //
 // Modified By:   Amit Arora (amita@in.ibm.com) for Bug#1170
 //                Sushma Fernandes (sushma@hp.com) for Bug#2057
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +45,7 @@
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Linkage.h> 
+#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -244,8 +246,8 @@ private:
       
   Array<_MonitorEntry> _entries;
   MonitorRep* _rep;
-  pegasus_module * _module_handle;
-  ModuleController * _controller;
+  AutoPtr<pegasus_module> _module_handle;
+  AutoPtr<ModuleController> _controller;
   Boolean _async;
   Mutex _entry_mut;
   AtomicInt _stopConnections;
@@ -326,6 +328,7 @@ public:
   void set_dispatch(void*);
   
   m2e_rep* _rep;
+
 	enum entry_status {IDLE, BUSY, DYING, EMPTY};
   
 };

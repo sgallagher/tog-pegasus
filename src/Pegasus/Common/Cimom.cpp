@@ -27,7 +27,7 @@
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
-// Modified By:
+// Modified By: Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +36,7 @@
 #include <iostream>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -128,14 +129,14 @@ void cimom::_shutdown_routed_queue(void)
    if (_routed_queue_shutdown.value() > 0 )
       return ;
    
-   AsyncIoctl *msg = new AsyncIoctl(get_xid(),
+   AutoPtr<AsyncIoctl> msg(new AsyncIoctl(get_xid(),
 				    0, 
 				    CIMOM_Q_ID, 
 				    CIMOM_Q_ID, 
 				    true, 
 				    AsyncIoctl::IO_CLOSE, 
 				    0, 
-				    0);
+				    0));
    msg->op = get_cached_op();
 
    msg->op->_flags |= ASYNC_OPFLAGS_FIRE_AND_FORGET;
@@ -143,10 +144,11 @@ void cimom::_shutdown_routed_queue(void)
 		   | ASYNC_OPFLAGS_SIMPLE_STATUS);
    msg->op->_state &= ~ASYNC_OPSTATE_COMPLETE;
    msg->op->_op_dest = _global_this;
-   msg->op->_request.insert_first(msg);
+   msg->op->_request.insert_first(msg.get());
 
    _routed_ops.insert_last_wait(msg->op);
    _routing_thread.join();
+   msg.release();
    
 }
 
@@ -332,18 +334,18 @@ void cimom::_make_response(Message *req, Uint32 code)
       return;
    }
 
-   AsyncReply *reply = 0 ;
+   AutoPtr<AsyncReply> reply ;
    if ( ! ((static_cast<AsyncRequest *>(req))->op->_flags & ASYNC_OPFLAGS_SIMPLE_STATUS) )
    {
  
-      reply = new AsyncReply(async_messages::REPLY,
+      reply.reset(new AsyncReply(async_messages::REPLY,
 			     req->getKey(),
 			     req->getRouting(),
 			     0,
 			     (static_cast<AsyncRequest *>(req))->op, 
 			     code, 
 			     (static_cast<AsyncRequest *>(req))->resp,
-			     false);
+			     false));
    }
    else       
       (static_cast<AsyncRequest *>(req))->op->_completion_code = code;
@@ -351,7 +353,8 @@ void cimom::_make_response(Message *req, Uint32 code)
              // _completion_code field in the AsyncOpNode.
 
 
-   _completeAsyncResponse(static_cast<AsyncRequest *>(req), reply, ASYNC_OPSTATE_COMPLETE, 0 );
+   _completeAsyncResponse(static_cast<AsyncRequest *>(req), reply.get(), ASYNC_OPSTATE_COMPLETE, 0 );
+   reply.release();
 }
 
 void cimom::_completeAsyncResponse(AsyncRequest *request,
@@ -556,39 +559,41 @@ void cimom::register_module(RegisterCimService *msg)
    else
    {
 
-      message_module *new_mod = new message_module(msg->name,
+      AutoPtr<message_module> new_mod(new message_module(msg->name,
 						   msg->capabilities,
 						   msg->mask,
-						   msg->queue);
-      if(new_mod == 0 )
+						   msg->queue));
+      if(new_mod.get() == 0 )
 	 result = async_results::INTERNAL_ERROR;
       else
       {
 	 try
 	 {
-	    _modules.insert_first(new_mod);
+	    _modules.insert_first(new_mod.get());
 	 }
 	 catch(IPCException&)
 	 {
 	    result = async_results::INTERNAL_ERROR;
-	    delete new_mod;
+	    new_mod.reset();
 	 }
       }
+     new_mod.release();
    }
 
-   AsyncReply *reply = new AsyncReply(async_messages::REPLY,
+   AutoPtr<AsyncReply> reply(new AsyncReply(async_messages::REPLY,
 				      msg->getKey(),
 				      msg->getRouting(),
 				      0,
 				      msg->op,
 				      result,
 				      msg->resp,
-				      msg->block);
+				      msg->block));
 
    _completeAsyncResponse(static_cast<AsyncRequest *>(msg),
-			  reply,
+			  reply.get(),
 			  ASYNC_OPSTATE_COMPLETE,
 			  0);
+   reply.release();
    return;
 }
 
@@ -632,18 +637,19 @@ void cimom::update_module(UpdateCimService *msg )
    }
    _modules.unlock();
 
-   AsyncReply *reply = new AsyncReply(async_messages::REPLY,
+   AutoPtr<AsyncReply> reply(new AsyncReply(async_messages::REPLY,
 				      msg->getKey(),
 				      msg->getRouting(),
 				      0,
 				      msg->op,
 				      result,
 				      msg->resp,
-				      msg->block);
+				      msg->block));
    _completeAsyncResponse(static_cast<AsyncRequest *>(msg),
-			  reply,
+			  reply.get(),
 			  ASYNC_OPSTATE_COMPLETE,
 			  0);
+    reply.release();
    return;
 }
 
@@ -660,18 +666,19 @@ void cimom::ioctl(AsyncIoctl *msg)
 	 cimom *service = static_cast<cimom *>(msg->op->_service_ptr);
 	 
 	 // respond to this message.
-	 AsyncReply *reply = new AsyncReply( async_messages::REPLY,
+	 AutoPtr<AsyncReply> reply(new AsyncReply( async_messages::REPLY,
 					     msg->getKey(),
 					     msg->getRouting(),
 					     0,
 					     msg->op,
 					     async_results::OK,
 					     msg->resp,
-					     msg->block);
+					     msg->block));
 	 _completeAsyncResponse(static_cast<AsyncRequest *>(msg),
-				reply,
+				reply.get(),
 				ASYNC_OPSTATE_COMPLETE,
 				0);
+     reply.release();
 	 // ensure we do not accept any further messages
 
 	 // ensure we don't recurse on IO_CLOSE
@@ -710,18 +717,19 @@ void cimom::ioctl(AsyncIoctl *msg)
       default:
       {
 	 Uint32 result = _ioctl(msg->ctl, msg->intp, msg->voidp);
-	 AsyncReply *reply = new AsyncReply( async_messages::REPLY,
+	 AutoPtr<AsyncReply> reply(new AsyncReply( async_messages::REPLY,
 					     msg->getKey(),
 					     msg->getRouting(),
 					     0,
 					     msg->op,
 					     result,
 					     msg->resp,
-					     msg->block);
+					     msg->block));
 	 _completeAsyncResponse(static_cast<AsyncRequest *>(msg),
-				reply,
+				reply.get(),
 				ASYNC_OPSTATE_COMPLETE,
 				0);
+     reply.release();
       }
    }
 }
@@ -777,19 +785,20 @@ void cimom::find_service_q(FindServiceQueue  *msg)
    }
    _modules.unlock();
 
-   FindServiceQueueResult *reply  =
+   AutoPtr<FindServiceQueueResult> reply(
       new FindServiceQueueResult( msg->getKey(),
 				  msg->getRouting(),
 				  msg->op,
 				  async_results::OK,
 				  msg->resp,
 				  msg->block,
-				  found);
+				  found));
 
    _completeAsyncResponse(static_cast<AsyncRequest *>(msg),
-			  reply,
+			  reply.get(),
 			  ASYNC_OPSTATE_COMPLETE,
 			  0);
+    reply.release();
    return;
 }
 
@@ -799,7 +808,7 @@ void cimom::find_service_q(FindServiceQueue  *msg)
 void cimom::enumerate_service(EnumerateService *msg)
 {
 
-   EnumerateServiceResponse *reply = 0;
+   AutoPtr<EnumerateServiceResponse> reply;
    _modules.lock();
    message_module *ret = _modules.next( 0 );
 
@@ -807,7 +816,7 @@ void cimom::enumerate_service(EnumerateService *msg)
    {
       if( ret->_q_id == msg->qid )
       {
-	 reply = new EnumerateServiceResponse(msg->getKey(),
+	 reply.reset(new EnumerateServiceResponse(msg->getKey(),
 					      msg->getRouting(),
 					      msg->op,
 					      async_results::OK,
@@ -816,29 +825,30 @@ void cimom::enumerate_service(EnumerateService *msg)
 					      ret->_name,
 					      ret->_capabilities,
 					      ret->_mask,
-					      ret->_q_id);
+					      ret->_q_id));
 	 break;
       }
       ret = _modules.next(ret);
    }
    _modules.unlock();
 
-   if(reply == 0 )
+   if(reply.get() == 0 )
    {
-      reply = new EnumerateServiceResponse(msg->getKey(),
+      reply.reset(new EnumerateServiceResponse(msg->getKey(),
 					   msg->getRouting(),
 					   msg->op,
 					   async_results::MODULE_NOT_FOUND,
 					   msg->resp,
 					   msg->block,
 					   String(),
-					   0, 0, 0);
+					   0, 0, 0));
    }
 
    _completeAsyncResponse(static_cast<AsyncRequest *>(msg),
-			  reply,
+			  reply.get(),
 			  ASYNC_OPSTATE_COMPLETE,
 			  0);
+    reply.release();
 
    return;
 }
@@ -909,12 +919,12 @@ Uint32 cimom::getModuleIDs(Uint32 *ids, Uint32 count) throw(IPCException)
 AsyncOpNode *cimom::get_cached_op(void) throw(IPCException)
 {
 
-   AsyncOpNode *op = new AsyncOpNode();
+   AutoPtr<AsyncOpNode> op(new AsyncOpNode());
    
    op->_state = ASYNC_OPSTATE_UNKNOWN;
    op->_flags = ASYNC_OPFLAGS_SINGLE | ASYNC_OPFLAGS_NORMAL | ASYNC_OPFLAGS_META_DISPATCHER;
    
-   return op;
+   return op.release();
 }
 
 void cimom::cache_op(AsyncOpNode *op) throw(IPCException)

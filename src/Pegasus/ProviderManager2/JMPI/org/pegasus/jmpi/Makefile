@@ -26,6 +26,7 @@ PACKAGEDIR = org/pegasus/jmpi
    CIMDataType.class \
    CIMFlavor.class \
    CIMScope.class \
+   CIMArgument.class \
    \
    CIMProvider.class \
    InstanceProvider.class \

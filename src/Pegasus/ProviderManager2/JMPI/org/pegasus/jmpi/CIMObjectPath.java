@@ -80,7 +80,7 @@ public class CIMObjectPath
 
    public CIMObjectPath(String className, Vector keyValuePairs) {
       cInst=_newCn(className);
-      _setKeys(cInst,keyValuePairs);
+      if (keyValuePairs!=null) _setKeys(cInst,keyValuePairs);
    }
 
    public CIMObjectPath(CIMInstance ci) {

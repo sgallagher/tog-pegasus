@@ -69,7 +69,7 @@ public class CIMValue
 
    protected void finalize() {
      _finalize(cInst);
-   }   
+   }
 
    CIMValue(int v) {
       cInst=v;
@@ -94,9 +94,9 @@ public class CIMValue
              cInst=_long(((UnsignedInt64)o).longValue(),true);
           else if (o instanceof Long)
              cInst=_long(((Long)o).longValue(),false);
-          else if (o instanceof Float)  
+          else if (o instanceof Float)
              cInst=_float(((Float)o).floatValue());
-          else if (o instanceof Double)  
+          else if (o instanceof Double)
              cInst=_double(((Double)o).doubleValue());
       }
 
@@ -116,9 +116,9 @@ public class CIMValue
          for (int i=0;i<U8.length;i++)
             u8[i]=U8[i].shortValue();
          cInst=_byteArray(u8,true);
-      } 
+      }
 
-      else if (o instanceof Short[]) {   
+      else if (o instanceof Short[]) {
          Short S16[]=(Short[])o;
          int s16[]=new int[S16.length];
 
@@ -136,7 +136,7 @@ public class CIMValue
          cInst=_shortArray(u16,true);
       }
 
-      else if (o instanceof Integer[]) {   
+      else if (o instanceof Integer[]) {
          Integer S32[]=(Integer[])o;
          long s32[]=new long[S32.length];
 
@@ -190,7 +190,7 @@ public class CIMValue
       }
 
       else if (o instanceof Boolean)
-         cInst=_boolean(((Boolean)o).booleanValue());                 
+         cInst=_boolean(((Boolean)o).booleanValue());
 
       else if (o instanceof Boolean[]) {
          Boolean B[]=(Boolean[])o;
@@ -208,7 +208,7 @@ public class CIMValue
          cInst=_stringArray((String[])o);
 
       else if (o instanceof CIMObjectPath)
-         cInst=_ref(((CIMObjectPath)o).cInst); 
+         cInst=_ref(((CIMObjectPath)o).cInst);
 
       else if (o instanceof CIMObjectPath[]) {
          CIMObjectPath C[]=(CIMObjectPath[])o;
@@ -219,18 +219,22 @@ public class CIMValue
          cInst=_refArray(c);
       }
       else if (o instanceof CIMDateTime)
-         cInst=_datetime(((CIMDateTime)o).cInst); 
+         cInst=_datetime(((CIMDateTime)o).cInst);
 
       if (cInst==-1)
          System.err.println("+++ CIMValue(): unsupported type: "+o.getClass());
    }
 
    public CIMValue(Object val, CIMDataType type) throws Exception {
-      cInst=new CIMValue(val).cInst;
+      CIMValue nv=new CIMValue(val);
+      cInst=nv.cInst;
+      nv.cInst=0;
    }
 
    public CIMValue(String str, CIMDataType type) throws Exception {
-      cInst=new CIMValue(str,type.getType(),type.isArrayType()).cInst;
+      CIMValue nv=new CIMValue(str,type.getType(),type.isArrayType());
+      cInst=nv.cInst;
+      nv.cInst=0;
    }
 
   public CIMValue(String str, int type, boolean isArray) throws Exception {
@@ -238,7 +242,7 @@ public class CIMValue
       //System.out.println("value: "+str+" , type: "+CIMDataType.toStr[type]+" , isArray: "+isArray);
 
       cInst=-1;
-      if (isArray) {    
+      if (isArray) {
          StringTokenizer st = new StringTokenizer(str, ",");
          Vector v = new Vector(st.countTokens());
          while (st.hasMoreTokens())
@@ -367,7 +371,7 @@ public class CIMValue
             cInst=_ref(new CIMObjectPath(str).cInst);
          }        
       }
-      
+
       if (cInst==-1)
          throw new Exception("+++ unsupported type: "+type+" , isArray: "+isArray);
    }

@@ -18,7 +18,7 @@
 //
 // Contributor(s):
 //
-// $Id: TestCIMClient.java,v 1.1 2004/06/30 16:20:42 schuur Exp $
+// $Id: TestCIMClient.java,v 1.2 2004/07/02 09:15:28 schuur Exp $
 //
 // Revision 1.7  2001/08/05 15:13:31   bpatil
 // -  Added Pegasus CIMServer support
@@ -37,7 +37,7 @@ import java.util.*;
 class Log {
    public static void assignLogFileName(String fn) {}
    public static void startTransaction() {}
-   public static void printlnTransaction(String line) { System.out.println(line); }
+   public static void printlnTransaction(String line) { return; }//System.out.println(line); }
 }
 
 public class TestCIMClient {
@@ -182,10 +182,10 @@ public class TestCIMClient {
             System.out.println("\n*** delete namespace ");
             Log.printlnTransaction("\n*** delete namespace ");
 
-            cc.deleteNameSpace(newNS1);
+            cc.deleteNameSpace(newNS2);
             Log.printlnTransaction("  " + newNS1.getNameSpace());
 
-            cc.deleteNameSpace(newNS2);
+            cc.deleteNameSpace(newNS1);
             Log.printlnTransaction("  " + newNS2.getNameSpace());
         }
         catch (CIMException ce)
@@ -776,14 +776,12 @@ public class TestCIMClient {
             localOnly = false;
             includeQualifiers = true;
             includeClassOrigin = true;
-            Log.printlnTransaction("gettting Instance ");
 
             CIMClass cimClass = cc.getClass(new CIMObjectPath(className),
                                             localOnly,
                                             includeQualifiers,
                                             includeClassOrigin,
                                             null);
-            Log.printlnTransaction("Instance xx");
             cimInstance = cimClass.newInstance();
             Log.printlnTransaction("Instance = " + cimInstance);
 
@@ -792,6 +790,7 @@ public class TestCIMClient {
             cimInstance.setProperty("ratio", new CIMValue(new UnsignedInt32(10),
                                     new CIMDataType(CIMDataType.UINT32)));
             cimInstance.setProperty("message", new CIMValue(message1));
+            Log.printlnTransaction("Instance = " + cimInstance);
 
             // create instance
             path = new CIMObjectPath(className,
@@ -831,6 +830,7 @@ public class TestCIMClient {
                                        includeQualifiers,
                                        includeClassOrigin,
                                        null);
+            Log.printlnTransaction("getInstance() Instance = " + cimInstance);
         }
         catch (CIMException ce)
         {
@@ -855,6 +855,7 @@ public class TestCIMClient {
             try
             {
                 newInstance.setProperty("message", new CIMValue(message2));
+            Log.printlnTransaction("\n*** Modify instance xx");
                 includeQualifiers = false;
                 cc.modifyInstance(path, newInstance, includeQualifiers, null);
             }
@@ -943,7 +944,7 @@ public class TestCIMClient {
         System.out.println("\n++++ Test Instance Modify Operations ++++");
         Log.printlnTransaction("\n++++ Test Instance Modify Operations ++++");
 
-        String nameSpace = "root/SampleProvider";        
+        String nameSpace = "root/SampleProvider";
         String className = "Sample_InstanceProviderClass";
 
         CIMInstance cimInstance = null;
@@ -978,7 +979,7 @@ public class TestCIMClient {
             cimInstance = cimClass.newInstance();
             Log.printlnTransaction("Instance = " + cimInstance);
 
-            cimInstance.setProperty("Identifier", new CIMValue(new Integer(55),
+            cimInstance.setProperty("Identifier", new CIMValue(new UnsignedInt8((short)55),
                                     new CIMDataType(CIMDataType.UINT8)));
             cimInstance.setProperty("Message", new CIMValue("Hello World"));
 
@@ -988,9 +989,18 @@ public class TestCIMClient {
 
             Log.printlnTransaction("instancePath = " + instancePath);
 
-            cc.createInstance(instancePath, cimInstance);
+            try
+            {
+               cc.createInstance(instancePath, cimInstance);
+	    }
+            catch (CIMException ce)
+	    {
+	       if (ce.getID().equals(CIMException.CIM_ERR_ALREADY_EXISTS))
+               cc.deleteInstance(instancePath);
+               cc.createInstance(instancePath, cimInstance);
+	    }
         }
-        catch (CIMException ce) 
+        catch (CIMException ce)
         {
             if (ce.getID().equals(CIMException.CIM_ERR_NOT_SUPPORTED))
             {
@@ -1145,6 +1155,7 @@ public class TestCIMClient {
            System.err.println("\nUnable to delete qualifier: " + ce);
            //System.exit(1);
         }
+        System.out.println("\n*** Delete qualifier done");
 
         //
         // create qualifier (setQualifier)
@@ -1154,7 +1165,7 @@ public class TestCIMClient {
 
         try
         {
-            CIMObjectPath path = new CIMObjectPath(clientNameSpace.getNameSpace());
+            CIMObjectPath path = new CIMObjectPath((String)null,clientNameSpace.getNameSpace());
             cc.setQualifier(path, qt);
         }
         catch (CIMException ce)
@@ -1234,24 +1245,24 @@ public class TestCIMClient {
         Log.printlnTransaction("\n*** enumNameSpace");
         try
         {
-            CIMObjectPath pa1=new CIMObjectPath("root", (Vector)null);  
-            Enumeration elist1 = cc.enumNameSpace(pa1, deepInheritance); 
-            if (elist1!=null) 
+            CIMObjectPath pa1=new CIMObjectPath("root", (Vector)null);
+            Enumeration elist1 = cc.enumNameSpace(pa1, deepInheritance);
+            if (elist1!=null)
             {
-                while (elist1.hasMoreElements()) 
+                while (elist1.hasMoreElements())
                 {
                     String nsString=(String)(elist1.nextElement());
                     Log.printlnTransaction("  Name space: " + nsString);
                 }
             }
         }
-        catch (CIMException ce) 
+        catch (CIMException ce)
         {
             System.err.println("\nFailed to enumerate namespaces: " + ce);
             System.exit(1);
         }
 
-        // getClass 
+        // getClass
         //
         Log.printlnTransaction("\n*** getClass");
         CIMClass cl = null;
@@ -1263,13 +1274,13 @@ public class TestCIMClient {
             localOnly = false;
             cl = cc.getClass(cp, localOnly);
         }
-        catch (CIMException ce) 
+        catch (CIMException ce)
         {
             System.err.println("\nFailed to get class: " + ce);
             System.exit(1);
         }
 
-        // setClass 
+        // setClass
         //
         Log.printlnTransaction("\n*** setClass");
         Vector properties = cl.getAllProperties();
@@ -1744,7 +1755,7 @@ public class TestCIMClient {
         System.out.println("\n*** Test invokeMethod() ");
         Log.printlnTransaction("\n*** Test invokeMethod() ");
 
-        String testNameSpace = "root/SampleProvider";        
+        String testNameSpace = "root/SampleProvider";
         String testClassName = "Sample_MethodProviderClass";
         String methodName = "SayHello";
         String inParamValue = "Yoda";
@@ -1824,7 +1835,11 @@ public class TestCIMClient {
         catch (CIMException ce)
         {
             System.err.println("\nInvokeMethod() Failed: " + ce);
-            System.exit(1);
+            System.err.println(
+               "\nNOTE:  This test uses the Sample_MethodProviderClass. "+
+               "It requires the sample method provider to be loaded and registered.");
+
+	    System.exit(1);
         }
         catch (Exception e)
         {

@@ -23,34 +23,58 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Duta
+// Author:      Adrian Schuur, schuur@de.ibm.com 
 //
-// Modified By: Adrian Schuur, schuur@de.ibm.com 
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+
 package org.pegasus.jmpi;
 
-public class CIMQualifierType
+public class CIMArgument
 {
    int cInst;
-   private native int    _new();
-   private native String _getName(int qt);
-   private native int    _setName(int qt, String n);
-   private native void   _setValue(int qt, int v);
-   private native void   _finalize(int qt);
+   private native int     _new();
+   private native int     _newS(String name);
+   private native int     _newSV(String name,int v);
+   private native int     _getType(int v);
+   private native int     _setType(int v, int t);
+   private native void    _setValue(int p,int v);
+   private native int     _getValue(int p);
+   private native String  _getName(int v);
+   private native void    _setName(int v,String n);
+   private native int     _getQualifier(int v,String n);
+   private native CIMQualifier[]  _getQualifiers(int v);
+   private native void    _setQualifiers(int v,CIMQualifier[] qa);
+   private native void    _finalize(int cp);
 
    protected void finalize() {
       _finalize(cInst);
    }
 
-
-   CIMQualifierType(int qt) {
-      cInst=qt;
+   CIMArgument(int ci) {
+      cInst=ci;
    }
 
-   public CIMQualifierType() {
+   int cInst() {
+      return cInst;
+   }
+
+   public CIMArgument() {
       cInst=_new();
+   }
+
+   public CIMArgument(String name) {
+      cInst=_newS(name);
+   }
+
+   public CIMArgument(String name, CIMValue cv) {
+      cInst=_newSV(name,cv.cInst);
+   }
+
+   public CIMValue getValue() {
+      return new CIMValue(_getValue(cInst));
    }
 
    public String getName() {
@@ -58,23 +82,42 @@ public class CIMQualifierType
    }
 
    public void setName(String n) {
-       cInst=_setName(cInst,n);
+       _setName(cInst,n);
+   }
+
+   public CIMDataType getType() {
+      return new CIMDataType(_getType(cInst),true);
+   }
+
+   public void setType(CIMDataType dt) {
+       cInst=_setType(cInst,dt.cInst);
+   }
+
+   public String toString() {
+      return getType().toString()+" "+getName()+"="+getValue().toString()+";";
    }
 
    public void setValue(CIMValue v) {
-       _setValue(cInst,v.cInst);
+      _setValue(cInst,v.cInst);
    }
 
-   public void setDefaultValue(CIMValue v) {
+   public CIMQualifier getQualifier(String n) {
+      return new CIMQualifier(_getQualifier(cInst,n));
    }
 
-   public void setType(CIMDataType t) {
+   public CIMQualifier[] getQualifiers() {
+      return _getQualifiers(cInst);
    }
 
-   public void addFlavor(CIMFlavor t) {
+   public void setQualifiers(CIMQualifier[] qa) {
+      _setQualifiers(cInst,qa);
    }
 
-   public void addScope(CIMScope t) {
+   static {
+      System.loadLibrary("JMPIProviderManager");
    }
 }
+
+
+
 

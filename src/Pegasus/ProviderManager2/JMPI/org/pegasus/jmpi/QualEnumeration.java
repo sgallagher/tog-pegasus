@@ -38,7 +38,7 @@ class QualEnumeration implements Enumeration {
    int cInst;
    int cur,max;
    
-   private native int _getQualifier(int cInst, int pos);
+   private native int _getQualifierType(int cInst, int pos);
    private native int _size(int cInst);
    
    QualEnumeration(int ci) {
@@ -51,6 +51,6 @@ class QualEnumeration implements Enumeration {
    }
    public Object nextElement() {
       if (cur>=max) return null;
-      return new CIMClass(_getQualifier(cInst,cur++));
+      return new CIMQualifierType(_getQualifierType(cInst,cur++));
    }
 }

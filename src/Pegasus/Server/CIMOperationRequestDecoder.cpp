@@ -282,8 +282,13 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
   	     String::equalNoCase(cimContentType, "text/xml; charset=\"utf-8\"") ||
 	     contentTypeHeaderFound))
    {
-       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                       "CIMContentType value syntax error.");
+   		//l10n
+       //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                       //"CIMContentType value syntax error.");
+       	MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMCONTENTTYPE_SYNTAX_ERROR",
+   								 "CIMContentType value syntax error.");
+   		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
        PEG_METHOD_EXIT();
        return; 
    }
@@ -296,8 +301,14 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
        {
 	   if (!(String::isUTF8((char *)&validateContent[count])))
 	   {
-	       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-			     "Invalid UTF-8 character detected.");
+	   		//l10n
+	       //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+			     //"Invalid UTF-8 character detected.");
+			MessageLoaderParms parms("Server.CIMOperationRequestDecoder.INVALID_UTF8_CHARACTER",
+   								 "Invalid UTF-8 character detected.");
+   			sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
+			
 	       PEG_METHOD_EXIT();
 	       return; 
 	   }
@@ -323,9 +334,15 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       //     status "400 Bad Request". The CIM Server MUST include a
       //     CIMError header in the response with a value of
       //     unsupported-operation.
-      sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "unsupported-operation",
-                    String("CIMOperation value \"") + cimOperation +
-                        "\" is not supported.");
+      //l10n
+      //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "unsupported-operation",
+                   // String("CIMOperation value \"") + cimOperation +
+                        //"\" is not supported.");
+     	MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMOPERATION_VALUE_NOT_SUPPORTED",
+   								 "CIMOperation value \"$0\" is not supported.",
+   								 cimOperation);
+   		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "unsupported-operation",
+   						MessageLoader::getMessage(parms));
       PEG_METHOD_EXIT();
       return;
    }
@@ -363,8 +380,13 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       if (cimMethod == String::EMPTY)
       {
          // This is not a valid value, and we use EMPTY to mean "absent"
-         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                       "Empty CIMMethod value.");
+         //l10n
+         //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                       //"Empty CIMMethod value.");
+        MessageLoaderParms parms("Server.CIMOperationRequestDecoder.EMPTY_CIMMETHOD_VALUE",
+   								 "Empty CIMMethod value.");
+   		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
          PEG_METHOD_EXIT();
          return;
       }
@@ -376,8 +398,13 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       catch (ParseError& e)
       {
          // The CIMMethod header value could not be decoded
-         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                       "CIMMethod value syntax error.");
+         //l10n
+         //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                       //"CIMMethod value syntax error.");
+         MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMMETHOD_VALUE_SYNTAX_ERROR",
+   								 "CIMMethod value syntax error.");
+   		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms)); 
          PEG_METHOD_EXIT();
          return;
       }
@@ -388,8 +415,13 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       if (cimObject == String::EMPTY)
       {
          // This is not a valid value, and we use EMPTY to mean "absent"
-         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                       "Empty CIMObject value.");
+         //l10n
+         //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                       //"Empty CIMObject value.");
+         MessageLoaderParms parms("Server.CIMOperationRequestDecoder.EMPTY_CIMOBJECT_VALUE",
+   								 "Empty CIMObject value.");
+   		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
          PEG_METHOD_EXIT();
          return;
       }
@@ -401,8 +433,12 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       catch (ParseError& e)
       {
          // The CIMObject header value could not be decoded
-         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                       "CIMObject value syntax error.");
+         //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                       //"CIMObject value syntax error.");
+         MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMOBJECT_VALUE_SYNTAX_ERROR",
+   								 "CIMObject value syntax error.");
+   		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
          PEG_METHOD_EXIT();
          return;
       }
@@ -437,9 +473,10 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    }			
    catch (Exception &e)
    {
-		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, 
+   
+   		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, 
 					"request-not-valid",
-                    e.getMessage());		         	
+   		            e.getMessage());		         	
        	PEG_METHOD_EXIT();
        	return;
    }        
@@ -495,9 +532,14 @@ void CIMOperationRequestDecoder::handleMethodCall(
    //
    if (_serverTerminating)
    {
-       sendHttpError(queueId, HTTP_STATUS_SERVICEUNAVAILABLE,
-                     String::EMPTY,
-                     "CIM Server is shutting down.");
+   	//l10n
+       //sendHttpError(queueId, HTTP_STATUS_SERVICEUNAVAILABLE,
+                     //String::EMPTY,
+                     //"CIM Server is shutting down.");
+       MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMSERVER_SHUTTING_DOWN",
+   								 "CIM Server is shutting down.");
+   		sendHttpError(queueId, HTTP_STATUS_SERVICEUNAVAILABLE, String::EMPTY,
+   						MessageLoader::getMessage(parms));
        PEG_METHOD_EXIT();
        return;
    }
@@ -533,22 +575,34 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
       if (strcmp(cimVersion, "2.0") != 0)
       {
-         sendHttpError(queueId,
-                       HTTP_STATUS_NOTIMPLEMENTED,
-                       "unsupported-cim-version",
-                       String("CIM version \"") + cimVersion +
-                           "\" is not supported.");
+      	//l10n
+         //sendHttpError(queueId,
+                      // HTTP_STATUS_NOTIMPLEMENTED,
+                      // "unsupported-cim-version",
+                       //String("CIM version \"") + cimVersion +
+                          // "\" is not supported.");
+         MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIM_VERSION_NOT_SUPPORTED",
+   								 "CIM version \"$0\" is not supported.",
+   								 cimVersion);
+   		sendHttpError(queueId, HTTP_STATUS_NOTIMPLEMENTED, "unsupported-cim-version",
+   						MessageLoader::getMessage(parms));
          PEG_METHOD_EXIT();
          return;
       }
 
       if (strcmp(dtdVersion, "2.0") != 0)
       {
-         sendHttpError(queueId,
-                       HTTP_STATUS_NOTIMPLEMENTED,
-                       "unsupported-dtd-version",
-                       String("DTD version \"") + dtdVersion +
-                           "\" is not supported.");
+      	//l10n
+         //sendHttpError(queueId,
+                       //HTTP_STATUS_NOTIMPLEMENTED,
+                       //"unsupported-dtd-version",
+                       //String("DTD version \"") + dtdVersion +
+                           //"\" is not supported.");
+         MessageLoaderParms parms("Server.CIMOperationRequestDecoder.DTD_VERSION_NOT_SUPPORTED",
+   								 "DTD version \"$0\" is not supported.",
+   								 dtdVersion);
+   		sendHttpError(queueId, HTTP_STATUS_NOTIMPLEMENTED, "unsupported-dtd-version",
+   						MessageLoader::getMessage(parms));
          PEG_METHOD_EXIT();
          return;
       }
@@ -578,11 +632,18 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
       if (!String::equalNoCase(protocolVersion, cimProtocolVersionInHeader))
       {
-         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                       String("CIMProtocolVersion value \"") +
-                           cimProtocolVersionInHeader + "\" does not " +
-                           "match CIM request protocol version \"" +
-                           protocolVersion + "\".");
+      	//l10n
+         //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                       //String("CIMProtocolVersion value \"") +
+                           //cimProtocolVersionInHeader + "\" does not " +
+                          // "match CIM request protocol version \"" +
+                           //protocolVersion + "\".");
+         MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMPROTOCOL_VERSION_MISMATCH",
+   								 "CIMProtocolVersion value \"$0\" does not match CIM request protocol version \"$1\".",
+   								 cimProtocolVersionInHeader,
+   								 protocolVersion);
+   		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
          PEG_METHOD_EXIT();
          return;
       }
@@ -592,11 +653,17 @@ void CIMOperationRequestDecoder::handleMethodCall(
       if (!String::equalNoCase(protocolVersion, "1.0"))
       {
          // See Specification for CIM Operations over HTTP section 4.3
-         sendHttpError(queueId,
-                       HTTP_STATUS_NOTIMPLEMENTED,
-                       "unsupported-protocol-version",
-                       String("CIMProtocolVersion \"") + protocolVersion +
-                           "\" is not supported.");
+         //l10n
+         //sendHttpError(queueId,
+                       //HTTP_STATUS_NOTIMPLEMENTED,
+                       //"unsupported-protocol-version",
+                       //String("CIMProtocolVersion \"") + protocolVersion +
+                           //"\" is not supported.");
+         MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMPROTOCOL_VERSION_MISMATCH",
+   								 "CIMProtocolVersion \"$0\" is not supported.",
+   								 protocolVersion);
+   		sendHttpError(queueId, HTTP_STATUS_NOTIMPLEMENTED, "unsupported-protocol-version",
+   						MessageLoader::getMessage(parms));
          PEG_METHOD_EXIT();
          return;
       }
@@ -605,8 +672,13 @@ void CIMOperationRequestDecoder::handleMethodCall(
       {
          // We wouldn't have gotten here if CIMBatch header was specified,
          // so this must be indicative of a header mismatch
-         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                       "Multi-request is missing CIMBatch HTTP header");
+         //l10n
+         //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                       //"Multi-request is missing CIMBatch HTTP header");
+         MessageLoaderParms parms("Server.CIMOperationRequestDecoder.MULTI_REQUEST_MISSING_CIMBATCH_HTTP_HEADER",
+   								 "Multi-request is missing CIMBatch HTTP header");
+   		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
          PEG_METHOD_EXIT();
          return;
          // Future: When MULTIREQ is supported, must ensure CIMMethod and
@@ -657,15 +729,26 @@ void CIMOperationRequestDecoder::handleMethodCall(
             // ATTN-RK-P3-20020304: How to decode cimMethodInHeader?
             if (cimMethodInHeader == String::EMPTY)
             {
-               sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                             "Missing CIMMethod HTTP header.");
+            	//l10n
+               //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                             //"Missing CIMMethod HTTP header.");
+               MessageLoaderParms parms("Server.CIMOperationRequestDecoder.MISSING_CIMMETHOD_HTTP_HEADER",
+   								 "Missing CIMMethod HTTP header.");
+   				sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
             }
             else
             {
-               sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                             String("CIMMethod value \"") + cimMethodInHeader +
-                                 "\" does not match CIM request method \"" +
-                                 cimMethodName + "\".");
+               //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                             //String("CIMMethod value \"") + cimMethodInHeader +
+                                 //"\" does not match CIM request method \"" +
+                                 //cimMethodName + "\".");
+               MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMMETHOD_VALUE_DOES_NOT_MATCH_REQUEST_METHOD",
+   								 "CIMMethod value \"$0\" does not match CIM request method \"$1\".",
+   								 cimMethodInHeader,
+   								 cimMethodName);
+   				sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
             }
             PEG_METHOD_EXIT();
             return;
@@ -728,15 +811,27 @@ void CIMOperationRequestDecoder::handleMethodCall(
          {
             if (cimObjectInHeader == String::EMPTY)
             {
-               sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                             "Missing CIMObject HTTP header.");
+            	//l10n
+               //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                             //"Missing CIMObject HTTP header.");
+               MessageLoaderParms parms("Server.CIMOperationRequestDecoder.MISSING_CIMOBJECT_HTTP_HEADER",
+   								 "Missing CIMObject HTTP header.");
+   				sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
             }
             else
             {
-               sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                             String("CIMObject value \"") + cimObjectInHeader +
-                                 "\" does not match CIM request object \"" +
-                                 nameSpace + "\".");
+            	//l10n
+               //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                             //String("CIMObject value \"") + cimObjectInHeader +
+                                 //"\" does not match CIM request object \"" +
+                                 //nameSpace + "\".");
+               MessageLoaderParms parms("Server.CIMOperationRequestDecoder.Server.CIMOperationRequestDecoder.CIMOBJECT_VALUE_DOES_NOT_MATCH_REQUEST_OBJECT:",
+   								 "CIMObject value \"$0\" does not match CIM request object \"$1\".",
+   								 cimObjectInHeader,
+   								 nameSpace);
+   				sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
             }
             PEG_METHOD_EXIT();
             return;
@@ -889,15 +984,27 @@ void CIMOperationRequestDecoder::handleMethodCall(
             // ATTN-RK-P3-20020304: How to decode cimMethodInHeader?
             if (cimMethodInHeader == String::EMPTY)
             {
-               sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                             "Missing CIMMethod HTTP header.");
+            	//l10n
+               //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                             //"Missing CIMMethod HTTP header.");
+               MessageLoaderParms parms("Server.CIMOperationRequestDecoder.MISSING_CIMMETHOD_HTTP_HEADER",
+   								 "Missing CIMMethod HTTP header.");
+   				sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
             }
             else
             {
-               sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                             String("CIMMethod value \"") + cimMethodInHeader +
-                                 "\" does not match CIM request method \"" +
-                                 cimMethodName + "\".");
+            	//l10n
+               //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                             //String("CIMMethod value \"") + cimMethodInHeader +
+                                 //"\" does not match CIM request method \"" +
+                                 //cimMethodName + "\".");
+               MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMMETHOD_VALUE_DOES_NOT_MATCH_REQUEST_METHOD",
+   								 "CIMMethod value \"$0\" does not match CIM request method \"$1\".",
+   								 cimMethodInHeader,
+   								 cimMethodName);
+   				sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
             }
             PEG_METHOD_EXIT();
             return;
@@ -989,8 +1096,13 @@ void CIMOperationRequestDecoder::handleMethodCall(
          //     considerations specified in Errors.
          if (cimObjectInHeader == String::EMPTY)
          {
-            sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                          "Missing CIMObject HTTP header.");
+         	//l10n
+            //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                          //"Missing CIMObject HTTP header.");
+            MessageLoaderParms parms("Server.CIMOperationRequestDecoder.MISSING_CIMOBJECT_HTTP_HEADER",
+   								 "Missing CIMObject HTTP header.");
+   			sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
             PEG_METHOD_EXIT();
             return;
          }
@@ -1002,19 +1114,32 @@ void CIMOperationRequestDecoder::handleMethodCall(
          }
          catch (Exception e)
          {
-            sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                          String("Could not parse CIMObject value \"") +
-                              cimObjectInHeader + "\".");
+         	//l10n
+            //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                          //String("Could not parse CIMObject value \"") +
+                              //cimObjectInHeader + "\".");
+            MessageLoaderParms parms("Server.CIMOperationRequestDecoder.Server.CIMOperationRequestDecoder.COULD_NOT_PARSE_CIMOBJECT_VALUE",
+   								 "Could not parse CIMObject value \"$0\".",
+   								 cimObjectInHeader);
+   			sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
             PEG_METHOD_EXIT();
             return;
          }
 
          if (!reference.identical(headerObjectReference))
          {
-            sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                          String("CIMObject value \"") + cimObjectInHeader +
-                              "\" does not match CIM request object \"" +
-                              reference.toString() + "\".");
+         	//l10n
+            //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                          //String("CIMObject value \"") + cimObjectInHeader +
+                              //"\" does not match CIM request object \"" +
+                              //reference.toString() + "\".");
+            MessageLoaderParms parms("Server.CIMOperationRequestDecoder.Server.CIMOperationRequestDecoder.CIMOBJECT_VALUE_DOES_NOT_MATCH_REQUEST_OBJECT:",
+   								 "CIMObject value \"$0\" does not match CIM request object \"$1\".",
+   								 cimObjectInHeader,
+   								 reference.toString());
+   				sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
             PEG_METHOD_EXIT();
             return;
          }

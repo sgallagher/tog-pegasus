@@ -1,6 +1,9 @@
 ROOT = ../../../../..
+
 DIR = Pegasus/Config/tests/ConfigFileHandler
+
 include $(ROOT)/mak/config.mak
+
 include ../libraries.mak
 
 PROGRAM = TestConfigFileHanler

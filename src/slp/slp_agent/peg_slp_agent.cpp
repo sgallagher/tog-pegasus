@@ -31,6 +31,7 @@
 
 #include "peg_slp_agent.h"
 
+PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 class sa_reg_params
@@ -143,7 +144,7 @@ slp_service_agent::slp_service_agent(const char *local_interface,
 			    local_interface,
 			    target_port,
 			    "DSA",
-			    "scpoes",
+			    "scopes",
 			    listen,
 			    use_da);
    }
@@ -196,11 +197,21 @@ void slp_service_agent::_init(void)
 	 System::loadDynamicSymbol(_lib_handle, "test_srv_reg");
 
       _initialized = 1;
-     
+
       if(_create_client == 0 || _destroy_client == 0 || _find_das == 0 || _test_reg == 0)
       {
-	 _initialized = 0;
-	 System::unloadDynamicLibrary(_lib_handle);
+    	 _initialized = 0;
+         String symbol;
+         if (_create_client == 0){symbol = "create_slp_client";}
+         if (_destroy_client == 0){symbol = "destroy_slp_client";}
+         if (_find_das == 0){symbol = "find_das";}
+         if (_test_reg == 0){symbol = "test_srv_reg";}
+
+         Logger::put(Logger::ERROR_LOG, "slp_agent", Logger::SEVERE,
+                 "Link Error to library: $0, symbol: $1" ,
+             _lib_fileName, symbol);
+
+    	 System::unloadDynamicLibrary(_lib_handle);
       }
    }
 }
@@ -226,7 +237,6 @@ void slp_service_agent::_de_init(void)
       }
    }
 }
-
 
 Boolean slp_service_agent::srv_register(const char* url, 
 					const char* attributes, 
@@ -283,7 +293,8 @@ Uint32 slp_service_agent::test_registration(const char *url,
 
    if(_initialized.value() == 0 )
       throw UninitializedObjectException();
-   
+
+   cout << "test_registration. type= " << type << endl;
    if(type ==  0)
       return 1;
    
@@ -302,6 +313,8 @@ Uint32 slp_service_agent::test_registration(const char *url,
    int8* _scopes = strdup(scopes);
 
    Uint32 ccode = _test_reg(_type, _url, _attrs, _scopes);
+
+   cout << "rtn from _tst_reg: " << ccode << endl;
    
    free(_type);
    free(_url);

@@ -33,7 +33,7 @@
 //                   (carolann_graves@hp.com)
 //               Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
 //               Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//		         Karl Schopmeyer (k.schopmeyer@opengrouporg)
+//               Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -126,7 +126,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_CONFIGPROVIDER;
 	PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-	    "Intern provider  Service = " + service + " provider " + provider + " found.");
+	    "Internal provider  Service = " + service + " provider " + provider + " found.");
         PEG_METHOD_EXIT();
         return true;
     }
@@ -136,7 +136,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_USERAUTHPROVIDER;
 	PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-	    "Intern provider  Service = " + service + " provider " + provider + " found.");
+	    "Internal provider  Service = " + service + " provider " + provider + " found.");
         PEG_METHOD_EXIT();
         return true;
     }
@@ -145,7 +145,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_SHUTDOWNPROVIDER;
 	PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-	    "Intern provider  Service = " + service + " provider " + provider + " found.");
+	    "Internal provider  Service = " + service + " provider " + provider + " found.");
         PEG_METHOD_EXIT();
         return true;
     }
@@ -155,7 +155,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_NAMESPACEPROVIDER;
 	PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-	    "Intern provider  Service = " + service + " provider " + provider + " found.");
+	    "Internal provider  Service = " + service + " provider " + provider + " found.");
         PEG_METHOD_EXIT();
         return true;
     }
@@ -167,7 +167,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_PROVREGPROVIDER;
 	PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-	    "Intern provider  Service = " + service + " provider " + provider + " found.");
+	    "Internal provider  Service = " + service + " provider " + provider + " found.");
         PEG_METHOD_EXIT();
         return true;
     }
@@ -180,7 +180,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         service = PEGASUS_QUEUENAME_INDICATIONSERVICE;
         provider = String::EMPTY;
 	PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-	    "Intern provider  Service = "
+	    "Internal provider  Service = "
 	     + service + " provider " + provider + " found.");
         PEG_METHOD_EXIT();
         return true;
@@ -371,19 +371,6 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
 	return(String::EMPTY);
     }
 }
-
-// ATTN-YZ-P1-20020305: Implement this interface
-/* ATTNKSDELETE String CIMOperationRequestDispatcher::_lookupIndicationProvider(
-   const String& nameSpace,
-   const String& className)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::_lookupIndicationProvider");
-
-    PEG_METHOD_EXIT();
-    return(String::EMPTY);
-}
-*/
 
 // ATTN-YZ-P1-20020305: Implement this interface
 //
@@ -1413,11 +1400,6 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
 	 handleInvokeMethodRequest(
 	    (CIMInvokeMethodRequestMessage*)request);
 	 break;
-
-      case CIM_PROCESS_INDICATION_REQUEST_MESSAGE:
-	 handleProcessIndicationRequest(
-	    (CIMProcessIndicationRequestMessage*)request);
-	 break;
    }
 
    delete request;
@@ -1844,53 +1826,6 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
       PEG_METHOD_EXIT();
       return;
    }
-
-   /* ATTN: TEMP: Test code for ProcessIndication
-   //*********************************************************************
-   if ((className == "TestSoftwarePkg") ||
-       (className == "nsatrap"))
-   {
-      CIMProcessIndicationRequestMessage* message =
-	 new CIMProcessIndicationRequestMessage(
-	    "1234",
-	    request->nameSpace,
-	    request->newInstance,
-	    request->queueIds);
-
-      //_indicationService.enqueue(message);
-      //return;
-
-      Array<Uint32> iService;
-
-      find_services(PEGASUS_QUEUENAME_INDICATIONSERVICE, 0, 0, &iService);
-
-      AsyncOpNode* op = this->get_op();
-
-      AsyncLegacyOperationStart *req =
-	 new AsyncLegacyOperationStart(
-	    get_next_xid(),
-	    op,
-	    iService[0],
-	    message,
-	    _queueId);
-      //getQueueId());
-
-      Boolean ret = SendForget(req);
-
-      CIMCreateInstanceResponseMessage* response =
-	 new CIMCreateInstanceResponseMessage(
-	    request->messageId,
-	    CIMException(),
-	    request->queueIds.copyAndPop(),
-	    CIMObjectPath());
-
-      STAT_COPYDISPATCHER
-
-      _enqueueResponse(request, response);
-      PEG_METHOD_EXIT();
-      return;
-   }
-   // End test block  */
 
    String providerName = _lookupInstanceProvider(request->nameSpace, className);
 
@@ -3725,32 +3660,6 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
    _enqueueResponse(request, response);
 
    PEG_METHOD_EXIT();
-}
-
-// ATTN-RK-P2-20020328: Should this method be removed?
-void CIMOperationRequestDispatcher::handleProcessIndicationRequest(
-   CIMProcessIndicationRequestMessage* request)
-{
-   PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleProcessIndicationRequest");
-
-   //
-   // forward request to IndicationService. IndicationService will take care
-   // of response to this request.
-   //
-
-   // lookup IndicationService
-   MessageQueue * queue =
-       MessageQueue::lookup(PEGASUS_QUEUENAME_INDICATIONSERVICE);
-
-   PEGASUS_ASSERT(queue != 0);
-
-   // forward to indication service. make a copy becuase the original request is
-   // deleted by this service.
-   queue->enqueue(new CIMProcessIndicationRequestMessage(*request));
-
-   PEG_METHOD_EXIT();
-   return;
 }
 
 /**

@@ -216,9 +216,6 @@ public:
       void handleInvokeMethodRequest(
     	 CIMInvokeMethodRequestMessage* request);
 
-      void handleProcessIndicationRequest(
-    	 CIMProcessIndicationRequestMessage* request);
-      
       static void _forwardToServiceCallBack(AsyncOpNode *, 
 					    MessageQueue *,
 					    void *);
@@ -287,9 +284,6 @@ public:
 
       String _lookupMethodProvider(const String& nameSpace,
     	const String& className, const String& methodName);
-
-      String _lookupIndicationProvider(
-    	const String& nameSpace, const String& className);
 
       void _forwardRequestToService(
         const String& serviceName,

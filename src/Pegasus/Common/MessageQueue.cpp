@@ -44,14 +44,15 @@ static Uint32 _GetNextQueueId() throw(IPCException)
 {
    
    static Uint32 _queueId = 2;
-
-   q_table_mut.lock(pegasus_thread_self());
+   static Mutex _id_mut = Mutex();
+   
+   _id_mut.lock(pegasus_thread_self());
    
    // Handle wrap-around!
    if (_queueId == 0)
       _queueId = MessageQueue::_CIMOM_Q_ID;
    Uint32 ret = _queueId++;
-   q_table_mut.unlock();
+   _id_mut.unlock();
    
    return ret;
 }
@@ -61,9 +62,9 @@ Uint32 MessageQueue::_CIMOM_Q_ID = 1;
 MessageQueue::MessageQueue() : _mut( ), _count(0), _front(0), _back(0)
 {
     // ATTN-A: thread safety!
+   q_table_mut.lock(pegasus_thread_self());
 
    memset(_name, 0x00, 26);
-   q_table_mut.lock(pegasus_thread_self());
    
     while (!_queueTable.insert(_queueId = _GetNextQueueId(), this))
 	;

@@ -1,91 +1,54 @@
 #include <Pegasus/CQL/CQLFunction.h>
+#include <Pegasus/CQL/CQLFunctionRep.h>
 #include <Pegasus/CQL/CQLExpression.h>
 #include <Pegasus/CQL/CQLFactory.h>
 PEGASUS_NAMESPACE_BEGIN
 
-//##ModelId=40FD653E0390
 CQLFunction::CQLFunction(FunctionOpType inFunctionOpType, Array<CQLExpression> inParms)
 {
-   _funcOpType = inFunctionOpType;
-   _parms = inParms;
+	_rep = new CQLFunctionRep(inFunctionOpType,inParms);
 } 
 
 CQLFunction::CQLFunction(const CQLFunction& inFunc)
 {
-   _funcOpType = inFunc._funcOpType;
-   _parms = inFunc._parms; 
+	_rep = inFunc._rep;
 }
 
-//##ModelId=40FC3BEA01F9
+CQLFunction::~CQLFunction(){
+	if(_rep)
+		delete _rep;
+}
+
 CQLValue CQLFunction::resolveValue(CIMInstance CI, QueryContext& queryCtx)
 {
-   switch(_funcOpType)
-   {
-      case CLASSNAMEEXP:
-      case CLASSNAME:
-      case CLASSPATH:
-      case COUNT:
-      case COUNTDISTINCT:
-      case COUNTDISTINCTEXPR:
-      case CREATEARRAY:
-      case DATETIME:
-      case HOSTNAME:
-      case MAX:
-      case MEAN:
-      case MEDIAN:
-      case MIN:
-      case MODELPATH:
-      case NAMESPACENAME:
-      case NAMESPACEPATH:
-      case OBJECTPATH:
-      case SCHEME:
-      case SUM:
-      case USERINFO:
-      case UPPERCASE:
-      default:
-         break;
-   }
-   return CQLValue(Uint64(0));
+	return _rep->resolveValue(CI,queryCtx);
 }
 
 String CQLFunction::toString()
 {
-   String returnStr;
-
-   char buffer[32];  // Should need 21 chars max
-   sprintf(buffer, "%u", _funcOpType);
-         
-   returnStr.append(String(buffer));
-   for(Uint32 i = 0; i < _parms.size(); ++i)
-   {
-      returnStr.append(_parms[i].toString());
-   }
-   return returnStr;
+   return _rep->toString();
 }
 
 
 Array<CQLExpression> CQLFunction::getParms()
 {
-   return _parms;
+   return _rep->getParms();
 }
 
 FunctionOpType CQLFunction::getFunctionType()
 {
-   return _funcOpType;
+   return _rep->getFunctionType();
 }
  
 void CQLFunction::applyScopes(Array<CQLScope> inScopes)
 {
-   for(Uint32 i = 0; i < _parms.size(); ++i)
-   {
-      _parms[i].applyScopes(inScopes);
-   }
+	return _rep->applyScopes(inScopes);
 }
 
 Boolean CQLFunction::operator==(const CQLFunction& func){
-	return true;
+	return (_rep == func._rep);
 }
 Boolean CQLFunction::operator!=(const CQLFunction& func){
-	return (!operator==(func));
+	return (_rep != func._rep);
 }
 PEGASUS_NAMESPACE_END

@@ -1,5 +1,5 @@
-#ifndef CQLFUNCTION_H_HEADER_INCLUDED_BEE5F11B
-#define CQLFUNCTION_H_HEADER_INCLUDED_BEE5F11B
+#ifndef Pegasus_CQLFunction_h
+#define Pegasus_CQLFunction_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/CQL/CQLValue.h>
@@ -11,10 +11,10 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_CQL_LINKAGE CQLFactory;
+class PEGASUS_CQL_LINKAGE CQLFunctionRep;
 
  /** The Enum is private, the definition is public.
       */
-    //##ModelId=40FC3AB3010B
     enum  FunctionOpType { CLASSNAMEEXP, CLASSNAME, CLASSPATH, COUNT, COUNTDISTINCT, COUNTDISTINCTEXPR, CREATEARRAY, DATETIME, HOSTNAME, MAX, MEAN, MEDIAN, MIN, MODELPATH, NAMESPACENAME, NAMESPACEPATH, OBJECTPATH, SCHEME, SUM, USERINFO, UPPERCASE };
 /**
    CQLFunction objects are populated by the
@@ -48,17 +48,15 @@ class PEGASUS_CQL_LINKAGE CQLFactory;
   */
 
 
-//##ModelId=40FC3A8803C7
 class PEGASUS_CQL_LINKAGE CQLFunction
 {
   public:
    
 
-    //##ModelId=40FD653E0390
     CQLFunction() {};
    CQLFunction(const CQLFunction& inFunc);
     CQLFunction(FunctionOpType inFunctionOpType, Array<CQLExpression> inParms);
-
+    ~CQLFunction();
     /** 
        The getValue method validates the parms versus FunctionOpType.
                (A) resolves prarameter  types
@@ -66,7 +64,6 @@ class PEGASUS_CQL_LINKAGE CQLFunction
         and then actually executes the function.
         Returns a CQLValue object that has already been resolved.
       */
-    //##ModelId=40FC3BEA01F9
     CQLValue resolveValue(CIMInstance CI, QueryContext& queryCtx);
    Array<CQLExpression> getParms();
    FunctionOpType getFunctionType();
@@ -78,12 +75,10 @@ class PEGASUS_CQL_LINKAGE CQLFunction
 
   private:
 
-   FunctionOpType _funcOpType;
-
-    Array<CQLExpression> _parms;
+  CQLFunctionRep *_rep;
 
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* CQLFUNCTION_H_HEADER_INCLUDED_BEE5F11B */
+#endif 

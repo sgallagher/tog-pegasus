@@ -266,6 +266,11 @@ Boolean ModuleController::client_handle::authorized(Uint32 operation)
    return true;
 }
  
+Boolean ModuleController::client_handle::authorized()
+{
+   return true;
+}
+ 
 
 
 // NOTE: "destroy" is defined in <memory> on HP-UX and must not be redefined

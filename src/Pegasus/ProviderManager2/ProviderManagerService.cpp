@@ -55,8 +55,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMRepository* ProviderManagerService::_repository=NULL;
-
 inline Boolean _isSupportedRequestType(const Message * message)
 {
     // ATTN: needs implementation

@@ -76,8 +76,6 @@ public:
 
     static void indicationCallback(CIMProcessIndicationRequestMessage* request);
 
-    static CIMRepository* getRepository() { return _repository; }
-
 protected:
     virtual Boolean messageOK(const Message * message);
     virtual void handleEnqueue(void);
@@ -85,7 +83,7 @@ protected:
 
     virtual void _handle_async_request(AsyncRequest * request);
 
-    static CIMRepository* _repository;
+    CIMRepository* _repository;
 
 private:
     //static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleServiceOperation(void * arg) throw();

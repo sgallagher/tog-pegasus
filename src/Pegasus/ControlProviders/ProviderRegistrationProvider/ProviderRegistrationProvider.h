@@ -134,11 +134,9 @@ ProviderRegistrationProvider & operator=(const ProviderRegistrationProvider & ha
 
 protected:
 
-/*
     pegasus_internal_identity _id;
     ModuleController * _controller;
     ModuleController::client_handle *_client_handle;
-*/
 
     ProviderRegistrationManager* _providerRegistrationManager;
 
@@ -147,6 +145,9 @@ protected:
 	CIMDisableModuleRequestMessage * notify_req);
     Array<Uint16> _sendEnableMessageToProviderManager(
 	CIMEnableModuleRequestMessage * notify_req);
+    MessageQueueService * _getIndicationService();
+    void _sendTerminationMessageToSubscription(
+	const CIMReference & ref, const String & moduleName);
 };
 
 PEGASUS_NAMESPACE_END

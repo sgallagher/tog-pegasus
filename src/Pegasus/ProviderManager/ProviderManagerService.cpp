@@ -1799,7 +1799,6 @@ void ProviderManagerService::handleDisableIndicationsRequest(const Message * mes
 //ATTN-YZ-P1-20020424: Need to be implemented
 void ProviderManagerService::handleDisableModuleRequest(const Message * message) throw()
 {
-cout << " I get the message" << endl;
     CIMDisableModuleRequestMessage * request =
 	dynamic_cast<CIMDisableModuleRequestMessage *>(const_cast<Message *>(message));
 
@@ -1819,9 +1818,7 @@ cout << " I get the message" << endl;
     // preserve message key
     response->setKey(request->getKey());
 
-cout << "before enqueueResponse" << endl;
     _enqueueResponse(request, response);
-cout << "after enqueueResponse" << endl;
 }
 
 //ATTN-YZ-P1-20020424: Need to be implemented

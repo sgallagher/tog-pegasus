@@ -32,6 +32,8 @@
 
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/CIMMessage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -164,13 +166,27 @@ static const Uint16 _PROVIDER_STOPPED   = 10;
 
 ProviderRegistrationProvider::ProviderRegistrationProvider(
     ProviderRegistrationManager * providerRegistrationManager)	
-    //:_id(peg_credential_types::PROVIDER)
+    :_id(peg_credential_types::PROVIDER)
 {
     _providerRegistrationManager = providerRegistrationManager;
+
+    _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
+    if(_client_handle == NULL)
+      ThrowUnitializedHandle();
 }
 
 ProviderRegistrationProvider::~ProviderRegistrationProvider(void)	
 {
+    if (_providerRegistrationManager)
+    {
+	delete _providerRegistrationManager;
+    }
+
+    if (_client_handle)
+    {
+	delete _client_handle;
+    }
+
 }
 
 void ProviderRegistrationProvider::initialize(CIMOMHandle & cimom)
@@ -608,6 +624,9 @@ void ProviderRegistrationProvider::invokeMethod(
 		CIMValue retValue(ret_value);
 		handler.deliver(retValue);
     		handler.complete();
+
+	 	// send termination message to subscription service
+		_sendTerminationMessageToSubscription(objectReference, moduleName);
 		return;
 	    }
 	}
@@ -706,14 +725,6 @@ void ProviderRegistrationProvider::async_callback(Uint32 user_data,
 Array<Uint16> ProviderRegistrationProvider::_sendDisableMessageToProviderManager(
         CIMDisableModuleRequestMessage * disable_req)
 {
-    pegasus_internal_identity _id = peg_credential_types::PROVIDER;
-    ModuleController * _controller;
-    ModuleController::client_handle *_client_handle;
-
-    _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
-    if(_client_handle == NULL)
-      ThrowUnitializedHandle();
-
     MessageQueueService * _service = _getProviderManagerService();
     Uint32 _queueId = _service->getQueueId();
 
@@ -772,14 +783,6 @@ Array<Uint16> ProviderRegistrationProvider::_sendDisableMessageToProviderManager
 Array<Uint16> ProviderRegistrationProvider::_sendEnableMessageToProviderManager(
         CIMEnableModuleRequestMessage * enable_req)
 {
-    pegasus_internal_identity _id = peg_credential_types::PROVIDER;
-    ModuleController * _controller;
-    ModuleController::client_handle *_client_handle;
-
-    _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
-    if(_client_handle == NULL)
-      ThrowUnitializedHandle();
-
     MessageQueueService * _service = _getProviderManagerService();
     Uint32 _queueId = _service->getQueueId();
 
@@ -831,6 +834,80 @@ Array<Uint16> ProviderRegistrationProvider::_sendEnableMessageToProviderManager(
     delete cb_data;
     
     return(operationalStatus);
+}
+
+// send termination message to subscription service
+void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
+    const CIMReference & ref, const String & moduleName)
+{
+    CIMInstance instance;
+    String _moduleName;
+    Array<CIMInstance> instances;
+
+    CIMReference reference("", PEGASUS_NAMESPACENAME_INTEROP, 
+	PEGASUS_CLASSNAME_PROVIDER, ref.getKeyBindings());
+ 
+    // get all registered providers
+    Array<CIMNamedInstance> enumInstances =
+	_providerRegistrationManager->enumerateInstances(reference); 
+
+    // find all the instances which have same module name as moduleName
+    for (Uint32 i = 0, n=enumInstances.size(); i < n; i++)
+    {
+	instance = enumInstances[i].getInstance();
+
+	//
+        // get provider module name
+        //
+        instance.getProperty(instance.findProperty
+	(_PROPERTY_PROVIDERMODULENAME)).getValue().get(_moduleName);
+
+	if (String::equalNoCase(moduleName, _moduleName))
+	{
+	    instances.append(instance);
+	}
+    }
+
+    //
+    // get indication server queueId
+    //
+    MessageQueueService * _service = _getIndicationService();
+    Uint32 _queueId = _service->getQueueId();
+
+    CIMNotifyProviderTerminationRequestMessage * termination_req =
+	new CIMNotifyProviderTerminationRequestMessage(
+	    XmlWriter::getNextMessageId (),
+	    instances,
+	    QueueIdStack(_service->getQueueId()));
+
+    // create request envelope
+    AsyncLegacyOperationStart * asyncRequest =
+        new AsyncLegacyOperationStart (
+                _service->get_next_xid(),
+                NULL,
+                _queueId,
+                termination_req,
+                _queueId);
+
+    if( false  == _controller->ClientSendForget(
+                           *_client_handle,
+                           _queueId,
+                           asyncRequest))
+    {
+        delete asyncRequest;
+        throw CIMException(CIM_ERR_NOT_FOUND);
+    }
+}
+
+// get indication service
+MessageQueueService * ProviderRegistrationProvider::_getIndicationService()
+{
+    MessageQueue * queue = MessageQueue::lookup(
+	PEGASUS_QUEUENAME_INDICATIONSERVICE);
+
+    MessageQueueService * _service =
+	dynamic_cast<MessageQueueService *>(queue);
+    return(_service);
 }
 
 PEGASUS_NAMESPACE_END

@@ -149,19 +149,19 @@ DEPEND_INCLUDES =
 
 FLAGS = 
 
-ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
-  ifdef PEGASUS_USE_RELEASE_DIRS
-    FLAGS += -Wl,+s -Wl,+b/opt/wbem/lib:/usr/lib
-  else
-    ifdef PEGASUS_HAS_MESSAGES
-      ifdef ICU_ROOT
-        ifdef ICU_INSTALL
-          FLAGS += -Wl,+s -Wl,+b$(LIB_DIR):/usr/lib:${ICU_INSTALL}/lib
-        endif
+PEGASUS_SUPPORTS_DYNLIB=yes
+
+ifdef PEGASUS_USE_RELEASE_DIRS
+  FLAGS += -Wl,+s -Wl,+b/opt/wbem/lib:/usr/lib
+else
+  ifdef PEGASUS_HAS_MESSAGES
+    ifdef ICU_ROOT
+      ifdef ICU_INSTALL
+        FLAGS += -Wl,+s -Wl,+b$(LIB_DIR):/usr/lib:${ICU_INSTALL}/lib
       endif
-    else
-          FLAGS += -Wl,+s -Wl,+b$(LIB_DIR):/usr/lib
     endif
+  else
+    FLAGS += -Wl,+s -Wl,+b$(LIB_DIR):/usr/lib
   endif
 endif
 

@@ -11,7 +11,6 @@ DIRS = \
     QualifierDeclRep \
     NameSpace \
     EnumerateClassNames \
-    Inst \
-    LoadRepository \
+    Inst
 
 include ../../../../mak/recurse.mak

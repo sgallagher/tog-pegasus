@@ -72,13 +72,8 @@ void GetOptions(
 
     String configFile = pegasusHome + "/cimserver.conf";
 
-    if (!FileSystem::exists(configFile))
-    {
-	cerr << argv[0] << ": cannot open " << configFile << endl;
-	exit(1);
-    }
-
-    om.mergeFile(configFile);
+    if (FileSystem::exists(configFile))
+	om.mergeFile(configFile);
 
     om.mergeCommandLine(argc, argv);
 

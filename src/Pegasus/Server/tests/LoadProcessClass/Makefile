@@ -12,7 +12,7 @@ SOURCES = LoadProcessClass.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	@ LoadProcessClass $(REPOSITORY_ROOT)
+	LoadProcessClass $(REPOSITORY_ROOT)
 
 load:
-	@ LoadProcessClass $(REPOSITORY_ROOT)
+	LoadProcessClass $(REPOSITORY_ROOT)

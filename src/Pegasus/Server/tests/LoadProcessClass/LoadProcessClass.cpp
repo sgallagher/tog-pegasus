@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: LoadProcessClass.cpp,v $
+// Revision 1.13  2001/04/24 01:50:15  mike
+// Switch to use of cimmof compiler for populating the repository.
+//
 // Revision 1.12  2001/04/12 07:25:20  mike
 // Replaced ACE with new Channel implementation.
 // Removed all ACE dependencies.
@@ -84,7 +87,7 @@ int main(int argc, char** argv)
 	}
 	catch (Exception&)
 	{
-	    // Ignore not such class error:
+	    // Ignore no such class error and namespace already exists:
 	}
 
 	CIMClass c("Process");

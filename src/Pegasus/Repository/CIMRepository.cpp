@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMRepository.cpp,v $
+// Revision 1.12  2001/04/24 01:50:15  mike
+// Switch to use of cimmof compiler for populating the repository.
+//
 // Revision 1.11  2001/04/13 18:22:54  mike
 // Cleaned up memory leaks.
 //
@@ -184,6 +187,8 @@ static Boolean _SkipIdentifier(Char16*& p)
 
     return true;
 }
+
+using namespace std;
 
 static void _MakeNameSpacePath(
     const String& root,
@@ -1133,7 +1138,7 @@ void CIMRepository::deleteNameSpace(const String& nameSpace)
 
 // Recall flavor defaults: TOSUBCLASS | OVERRIDABLE
 
-void CIMRepository::createMetaQualifiers(const String& nameSpace)
+void CIMRepository::_createMetaQualifiers(const String& nameSpace)
 {
     // CIMQualifier CimType : string = null, 
     //     CIMScope(property, parameter)

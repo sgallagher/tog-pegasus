@@ -3,10 +3,6 @@ ROOT=../..
 include $(ROOT)/mak/config.mak
 
 TEST_DIRS = \
-    Common/tests \
-    Repository/tests \
-    Server/tests \
-    Client/tests
 
 DIRS = \
     Common \
@@ -17,7 +13,12 @@ DIRS = \
     Server \
     getoopt \
     Compiler \
-    $(TEST_DIRS)
+    Compiler/cmdline \
+    Compiler/load \
+    Common/tests \
+    Repository/tests \
+    Server/tests \
+    Client/tests
 
 # Compiler \
 # Compiler/cmdline \

@@ -38,6 +38,8 @@
 //              Adrian Schuur (schuur@de.ibm.com) - PEP 129 & 164
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //              Dave Sudlik, IBM (dsudlik@us.ibm.com)
+//              David Dillard, VERITAS Software Corp.
+//                   (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -392,7 +394,7 @@ void _LoadObject(
 
     // Load file into memory:
 
-    Array<Sint8> data;
+    Array<char> data;
     FileSystem::loadFileToMemory(data, realPath);
     data.append('\0');
 
@@ -414,7 +416,7 @@ void _LoadObject(
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-void _SaveObject(const String& path, Array<Sint8>& objectXml,
+void _SaveObject(const String& path, Array<char>& objectXml,
     ObjectStreamer *streamer)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_SaveObject");
@@ -1132,7 +1134,7 @@ void CIMRepository::_createClass(
 
     // -- Create the class file:
 
-    Array<Sint8> classXml;
+    Array<char> classXml;
     streamer->encode(classXml, cimClass);
     //XmlWriter::appendClassElement(classXml, cimClass);
     _SaveObject(classFilePath, classXml,streamer);
@@ -1485,7 +1487,7 @@ CIMObjectPath CIMRepository::_createInstance(
     Uint32 size;
 
     {
-        Array<Sint8> data;
+        Array<char> data;
         streamer->encode(data, cimInstance);
         // XmlWriter::appendInstanceElement(data, cimInstance);
         size = data.size();
@@ -1632,7 +1634,7 @@ void CIMRepository::_modifyClass(
     // Create new class file:
     //
 
-    Array<Sint8> classXml;
+    Array<char> classXml;
     streamer->encode(classXml, cimClass);
     //XmlWriter::appendClassElement(classXml, cimClass);
     _SaveObject(classFilePath, classXml,streamer);
@@ -1992,7 +1994,7 @@ void CIMRepository::modifyInstance(
     //
 
     {
-        Array<Sint8> out;
+        Array<char> out;
         streamer->encode(out, cimInstance);
         //XmlWriter::appendInstanceElement(out, cimInstance);
 
@@ -2135,7 +2137,7 @@ Boolean CIMRepository::_loadAllInstances(
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_loadAllInstances");
 
     Array<CIMObjectPath> instanceNames;
-    Array<Sint8> data;
+    Array<char> data;
     Array<Uint32> indices;
     Array<Uint32> sizes;
 
@@ -3077,7 +3079,7 @@ void CIMRepository::_setQualifier(
 
     // -- Save qualifier:
 
-    Array<Sint8> qualifierDeclXml;
+    Array<char> qualifierDeclXml;
     streamer->encode(qualifierDeclXml, qualifierDecl);
     //XmlWriter::appendQualifierDeclElement(qualifierDeclXml, qualifierDecl);
     _SaveObject(qualifierFilePath, qualifierDeclXml,streamer);
@@ -3276,7 +3278,7 @@ Boolean CIMRepository::_loadInstance(
     // Load instance (in XML) from instance file into memory:
     //
 
-    Array<Sint8> data;
+    Array<char> data;
 
     if (!InstanceDataFile::loadInstance(path, index, size, data))
     {

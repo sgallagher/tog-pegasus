@@ -32,6 +32,8 @@
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -124,7 +126,7 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
    String startLine;
    Array<HTTPHeader> headers;
-   Sint8* content;
+   char* content;
    Uint32 contentLength;
 
    if (httpMessage->message.size() == 0)
@@ -332,7 +334,7 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
    // the content length.  Subtract 1 to take into account the null
    // character we just added to the end of the message.
 
-   content = (Sint8*) httpMessage->message.getData() +
+   content = (char *) httpMessage->message.getData() +
       httpMessage->message.size() - contentLength - 1;
 
    //

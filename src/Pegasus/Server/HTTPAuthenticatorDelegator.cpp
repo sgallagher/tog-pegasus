@@ -30,7 +30,9 @@
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //              Sushma Fernandes (sushma_fernandes@hp.com)
 //              Heather Sterling, IBM (hsterl@us.ibm.com)
-//     Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -87,7 +89,7 @@ void HTTPAuthenticatorDelegator::enqueue(Message* message) throw(IPCException)
 
 void HTTPAuthenticatorDelegator::_sendResponse(
     Uint32 queueId,
-    Array<Sint8>& message)
+    Array<char>& message)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::_sendResponse");
@@ -117,7 +119,7 @@ void HTTPAuthenticatorDelegator::_sendSuccess(
     // build OK (200) response message
     //
 
-    Array<Sint8> message;
+    Array<char> message;
     XmlWriter::appendOKResponseHeader(message, authResponse);
 
     _sendResponse(queueId, message);
@@ -137,7 +139,7 @@ void HTTPAuthenticatorDelegator::_sendChallenge(
     // build unauthorized (401) response message
     //
 
-    Array<Sint8> message;
+    Array<char> message;
     XmlWriter::appendUnauthorizedResponseHeader(message, authResponse);
 
     _sendResponse(queueId, message);
@@ -159,7 +161,7 @@ void HTTPAuthenticatorDelegator::_sendHttpError(
     // build error response message
     //
 
-    Array<Sint8> message;
+    Array<char> message;
     message = XmlWriter::formatHttpErrorRspMessage(
         status,
         cimError,

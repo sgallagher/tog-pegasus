@@ -28,6 +28,8 @@
 //                   (carolann_graves@hp.com)
 //               Karl Schopmeyer - Add reference object tests.
 //               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//               David Dillard, VERITAS Software Corp.
+//                   (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +70,7 @@ void test01()
         cout << r.toString() << endl;
     }
 
-    Array<Sint8> mofOut;
+    Array<char> mofOut;
     MofWriter::appendValueReferenceElement(mofOut, r);
     r.clear();
     }

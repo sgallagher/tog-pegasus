@@ -53,7 +53,7 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportResponseEncoder
       
       ~CIMExportResponseEncoder();
       
-      void sendResponse(Uint32 queueId, Array<Sint8>& message);
+      void sendResponse(Uint32 queueId, Array<char>& message);
       
       void sendEMethodError(
 	 Uint32 queueId, 

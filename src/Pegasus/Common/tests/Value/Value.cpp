@@ -32,8 +32,10 @@
 //                  20 Feb 2002 - Add tests for new constructor and extend array tests
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
 //              Dave Sudlik, IBM (dsudlik@us.ibm.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -105,13 +107,13 @@ void test01(const T& x)
         assert (v4.typeCompatible(v));
 
         // Test toMof
-        Array<Sint8> mofout;
+        Array<char> mofout;
         mofout.clear();
         MofWriter::appendValueElement(mofout, v);
         mofout.append('\0');
 
         // Test toXml
-        Array<Sint8> out;
+        Array<char> out;
         XmlWriter::appendValueElement(out, v);
         XmlWriter::appendValueElement(out, v);
 
@@ -146,11 +148,11 @@ void test01(const T& x)
 
         // get the String and XML outputs for v
         String valueString2 = v.toString();
-        Array<Sint8> xmlBuffer;
+        Array<char> xmlBuffer;
         XmlWriter::appendValueElement(xmlBuffer, v);
         xmlBuffer.append('\0');
 
-        Array<Sint8> mofOutput2;
+        Array<char> mofOutput2;
         MofWriter::appendValueElement(mofOutput2, v);
         mofOutput2.append('\0');
 #ifdef IO
@@ -218,13 +220,13 @@ void test02(const Array<T>& x)
 
 
         // Test toMof
-        Array<Sint8> mofOutput;
+        Array<char> mofOutput;
         MofWriter::appendValueElement(mofOutput, va);
         mofOutput.append('\0');
 
 
         // Test toXml
-        Array<Sint8> out;
+        Array<char> out;
         XmlWriter::appendValueElement(out, va);
         XmlWriter::appendValueElement(out, va);
         // Test toString
@@ -260,11 +262,11 @@ void test02(const Array<T>& x)
 
         // get the String and XML outputs for v
         String valueString2 = va.toString();
-        Array<Sint8> xmlBuffer;
+        Array<char> xmlBuffer;
         XmlWriter::appendValueElement(xmlBuffer, va);
         xmlBuffer.append('\0');
 
-        Array<Sint8> mofOutput2;
+        Array<char> mofOutput2;
         MofWriter::appendValueElement(mofOutput2, va);
         mofOutput2.append('\0');
 #ifdef IO

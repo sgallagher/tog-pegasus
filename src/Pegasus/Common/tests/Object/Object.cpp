@@ -30,6 +30,8 @@
 // Modified By:  Jenny Yu (jenny_yu@hp.com)
 //               Carol Ann Krug Graves, Hewlett-Packard Company 
 //                   (carolann_graves@hp.com)
+//               David Dillard, VERITAS Software Corp.
+//                   (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -156,7 +158,7 @@ void test01()
 
     if (verbose)
     {
-        Array<Sint8> xmlOut;
+        Array<char> xmlOut;
         XmlWriter::appendObjectElement(xmlOut, oinstance1);
     }
     
@@ -219,7 +221,7 @@ void test02()
 
     if (verbose)
     {
-        Array<Sint8> xmlOut;
+        Array<char> xmlOut;
         XmlWriter::appendObjectElement(xmlOut, ccloneObj);
     }
 
@@ -291,7 +293,7 @@ void test03()
 
     if(verbose)
     {
-        Array<Sint8> xmlOut;
+        Array<char> xmlOut;
         XmlWriter::appendObjectElement(xmlOut, myObj);
     }
 }

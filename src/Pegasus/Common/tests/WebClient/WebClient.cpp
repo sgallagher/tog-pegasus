@@ -28,8 +28,10 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
 //              Dan Gorey, IBM (djgorey@us.ibm.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -141,7 +143,7 @@ void GetDocument(
         (const char*)host.getCString(),
         portNumber);
 
-    Array<Sint8> message;
+    Array<char> message;
     message.append(buffer, strlen(buffer));
     HTTPMessage* httpMessage = new HTTPMessage(message);
 
@@ -177,7 +179,7 @@ void GetDocument(
         (const char*)host.getCString(),
         portNumber);
 
-    Array<Sint8> message;
+    Array<char> message;
     message.append(buffer, strlen(buffer));
     HTTPMessage* httpMessage = new HTTPMessage(message);
 

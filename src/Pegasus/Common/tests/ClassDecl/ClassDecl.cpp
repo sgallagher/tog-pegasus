@@ -30,7 +30,9 @@
 // Modified By:	Karl Schopmeyer(k.schopmeyer@opengroup.org)
 //              Sushma Fernandes (sushma_fernandes@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -219,7 +221,7 @@ void test01()
 		MofWriter::printClassElement(class1);
 	}
 
-    Array<Sint8> out;
+    Array<char> out;
     MofWriter::appendClassElement(out, class1);
     out.clear();
     XmlWriter::appendClassElement(out, class1);

@@ -29,8 +29,10 @@
 //
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
 //              Karl Schopmeyer(k.schopmeyer@opengroup.org)
+//              David Dilard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -73,12 +75,12 @@ void test01()
     }
 
     // Test toMof
-       Array<Sint8> mofOut;
+       Array<char> mofOut;
        MofWriter::appendPropertyElement(mofOut, p1);
        MofWriter::appendPropertyElement(mofOut, p2);
 
     // Test toXml
-       Array<Sint8> xmlOut;
+       Array<char> xmlOut;
        XmlWriter::appendPropertyElement(xmlOut, p1);
        XmlWriter::appendPropertyElement(xmlOut, p2);
 
@@ -193,9 +195,9 @@ void test02()
         if(verbose)
 	    XmlWriter::printPropertyElement(cp1, cout);
 
-        Array<Sint8> mofOut;
+        Array<char> mofOut;
         MofWriter::appendPropertyElement(mofOut, cp1);
-        Array<Sint8> xmlOut;
+        Array<char> xmlOut;
         XmlWriter::appendPropertyElement(xmlOut, cp1);
 
         assert(cp1.getName() == CIMName ("message"));

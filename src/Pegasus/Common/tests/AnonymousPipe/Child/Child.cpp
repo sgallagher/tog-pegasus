@@ -29,6 +29,8 @@
 //             (carolann_graves@hp.com)
 //
 // Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -109,7 +111,7 @@ int main (int argc, char * argv [])
 
         PEGASUS_ASSERT (strcmp (requestBuffer.get (), "Hello world") == 0);
 
-        Array <Sint8> responseBuffer;
+        Array<char> responseBuffer;
         char buffer [16];
         sprintf (buffer, "%s", "Good-bye");
         responseBuffer.append (buffer, strlen (buffer));

@@ -29,7 +29,9 @@
 //
 // Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -155,7 +157,7 @@ int main(int argc, char** argv)
             XmlWriter::printMethodElement(m1);
             XmlWriter::printMethodElement(cm1);
         }
-        Array<Sint8> out;
+        Array<char> out;
         XmlWriter::appendMethodElement(out, cm1);
         MofWriter::appendMethodElement(out, cm1);
 

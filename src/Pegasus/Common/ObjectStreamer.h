@@ -27,7 +27,8 @@
 //
 // Author: Adrian Schuur (schuur@de.ibm.com) - PEP 164
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,15 +50,15 @@ public:
 
    virtual ~ObjectStreamer() {}
 
-   virtual void encode(Array<Sint8>& out, const CIMClass& cls) = 0;
-   virtual void encode(Array<Sint8>& out, const CIMInstance& inst) = 0;
-   virtual void encode(Array<Sint8>& out, const CIMQualifierDecl& qual) = 0;
+   virtual void encode(Array<char>& out, const CIMClass& cls) = 0;
+   virtual void encode(Array<char>& out, const CIMInstance& inst) = 0;
+   virtual void encode(Array<char>& out, const CIMQualifierDecl& qual) = 0;
 
-   virtual void decode(const Array<Sint8>& in, unsigned int pos, CIMClass& cls) = 0;
-   virtual void decode(const Array<Sint8>& in, unsigned int pos, CIMInstance& inst) = 0;
-   virtual void decode(const Array<Sint8>& in, unsigned int pos, CIMQualifierDecl& qual) = 0;
+   virtual void decode(const Array<char>& in, unsigned int pos, CIMClass& cls) = 0;
+   virtual void decode(const Array<char>& in, unsigned int pos, CIMInstance& inst) = 0;
+   virtual void decode(const Array<char>& in, unsigned int pos, CIMQualifierDecl& qual) = 0;
 
-   virtual void write(PEGASUS_STD(ostream)& os, Array<Sint8>& in)
+   virtual void write(PEGASUS_STD(ostream)& os, Array<char>& in)
    {
       os.write((char*)in.getData(), in.size());
    }

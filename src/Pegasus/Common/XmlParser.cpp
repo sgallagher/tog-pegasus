@@ -27,7 +27,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1139,7 +1140,7 @@ Boolean XmlEntry::getAttributeValue(const char* name, String& value) const
     return true;
 }
 
-void XmlAppendCString(Array<Sint8>& out, const char* str)
+void XmlAppendCString(Array<char>& out, const char* str)
 {
     out.append(str, strlen(str));
 }

@@ -83,9 +83,9 @@ Boolean BasicAuthenticationHandler::authenticate(
     Boolean authenticated = false;
 
     //
-    // copy userPass string to Sint8 array for decoding
+    // copy userPass string to char array for decoding
     //
-    Array <Sint8>  userPassArray;
+    Array<char> userPassArray;
 
     Uint32 length = authHeader.size();
 
@@ -94,13 +94,13 @@ Boolean BasicAuthenticationHandler::authenticate(
 
     for( Uint32 i = 0; i < length; i++ )
     {
-        userPassArray.append( (Sint8)authHeader[i] );
+        userPassArray.append( static_cast<char>(authHeader[i]) );
     }
 
     //
     // base64 decode the userPass array
     //
-    Array <Uint8>  decodedArray;
+    Array<char>  decodedArray;
 
     decodedArray = Base64::decode( userPassArray );
 

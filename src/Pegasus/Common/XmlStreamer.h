@@ -27,7 +27,8 @@
 //
 // Author: Adrian Schuur (schuur@de.ibm.com) PEP 164
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,13 +47,13 @@ public:
 
    ~XmlStreamer() {}
 
-   void encode(Array<Sint8>& out, const CIMClass& cls);
-   void encode(Array<Sint8>& out, const CIMInstance& inst);
-   void encode(Array<Sint8>& out, const CIMQualifierDecl& qual);
+   void encode(Array<char>& out, const CIMClass& cls);
+   void encode(Array<char>& out, const CIMInstance& inst);
+   void encode(Array<char>& out, const CIMQualifierDecl& qual);
 
-   void decode(const Array<Sint8>& in, unsigned int pos, CIMClass& cls);
-   void decode(const Array<Sint8>& in, unsigned int pos, CIMInstance& inst);
-   void decode(const Array<Sint8>& in, unsigned int pos, CIMQualifierDecl& qual);
+   void decode(const Array<char>& in, unsigned int pos, CIMClass& cls);
+   void decode(const Array<char>& in, unsigned int pos, CIMInstance& inst);
+   void decode(const Array<char>& in, unsigned int pos, CIMQualifierDecl& qual);
 
 };
 

@@ -30,10 +30,12 @@
 // Modified By: Sushma Fernandes, Hewlett-Packard Company
 //		(sushma_fernandes@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //				Seema Gupta (gseema@in.ibm.com) for PEP135
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -84,7 +86,7 @@ CIMOperationRequestAuthorizer::~CIMOperationRequestAuthorizer()
 
 void CIMOperationRequestAuthorizer::sendResponse(
    Uint32 queueId,
-   Array<Sint8>& message)
+   Array<char>& message)
 {
    PEG_METHOD_ENTER(TRC_SERVER, "CIMOperationRequestAuthorizer::sendResponse");
 
@@ -110,7 +112,7 @@ void CIMOperationRequestAuthorizer::sendIMethodError(
     PEG_METHOD_ENTER(TRC_SERVER,
                      "CIMOperationRequestAuthorizer::sendIMethodError");
 
-    Array<Sint8> message;
+    Array<char> message;
     message = XmlWriter::formatSimpleIMethodErrorRspMessage(
         iMethodName,
         messageId,
@@ -133,7 +135,7 @@ void CIMOperationRequestAuthorizer::sendMethodError(
     PEG_METHOD_ENTER(TRC_SERVER,
                      "CIMOperationRequestAuthorizer::sendMethodError");
 
-    Array<Sint8> message;
+    Array<char> message;
     message = XmlWriter::formatSimpleMethodErrorRspMessage(
         methodName,
         messageId,
@@ -187,7 +189,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
    //
    if (_serverTerminating)
    {
-       Array<Sint8> message;
+       Array<char> message;
        message = XmlWriter::formatHttpErrorRspMessage(
            HTTP_STATUS_SERVICEUNAVAILABLE,
            String::EMPTY,

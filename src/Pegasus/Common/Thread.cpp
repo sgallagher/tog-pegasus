@@ -327,7 +327,7 @@ void ThreadPool::kill_idle_threads(void)
 
 
 ThreadPool::ThreadPool(Sint16 initial_size,
-		       const Sint8 *key,
+		       const char *key,
 		       Sint16 min,
 		       Sint16 max,
 		       struct timeval & alloc_wait,

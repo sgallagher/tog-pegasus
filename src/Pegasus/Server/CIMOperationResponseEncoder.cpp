@@ -41,6 +41,8 @@
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //				Willis White (whiwill@us.ibm.com) PEP 127 and 128
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
+//              David Dillard, VERITAS Software Corp.
+//                 (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -88,7 +90,7 @@ void
 CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 																					const String &name,
 																					Boolean isImplicit,
-																					Array<Sint8> *bodygiven)
+																					Array<char> *bodygiven)
 {
 	static String funcname = "CIMOperationResponseEncoder::sendResponse: ";
 	String funcnameClassS = String(funcname + "for class " + name);
@@ -129,7 +131,7 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 	HttpMethod httpMethod = response->getHttpMethod();
 	String &messageId = response->messageId;
 	CIMException &cimException = response->cimException;
-	Array<Sint8> message;
+	Array<char> message;
 
 	// Note: the language is ALWAYS passed empty to the xml formatters because
 	// it is HTTPConnection that needs to make the decision of whether to add
@@ -141,19 +143,19 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 	Boolean isFirst = messageIndex == 0 ? true : false;
 	Boolean isLast = response->isComplete();
 	Uint64 serverTime	= response->totServerTime;
-	Array<Sint8> bodylocal;
-	Array<Sint8> &body = bodygiven ? *bodygiven : bodylocal;
+	Array<char> bodylocal;
+	Array<char> &body = bodygiven ? *bodygiven : bodylocal;
 
-	Array<Sint8> (*formatResponse)(const CIMName& iMethodName,
+	Array<char> (*formatResponse)(const CIMName& iMethodName,
 																 const String& messageId,
 																 HttpMethod httpMethod,
 																 const ContentLanguages &httpContentLanguages, 
-																 const Array<Sint8>& body,
+																 const Array<char>& body,
 																 Uint64 serverResponseTime,
 																 Boolean isFirst,
 																 Boolean isLast);
 
-	Array<Sint8> (*formatError)(const CIMName& methodName,
+	Array<char> (*formatError)(const CIMName& methodName,
 															const String& messageId,
 															HttpMethod httpMethod,
 															const CIMException& cimException);
@@ -435,7 +437,7 @@ void CIMOperationResponseEncoder::encodeCreateClassResponse(
 void CIMOperationResponseEncoder::encodeGetClassResponse(
    CIMGetClassResponseMessage* response)
 {
-	Array<Sint8> body;
+	Array<char> body;
 	if (response->cimException.getCode() == CIM_ERR_SUCCESS)
 		XmlWriter::appendClassElement(body, response->cimClass);
 	sendResponse(response, "GetClass", true, &body);
@@ -450,7 +452,7 @@ void CIMOperationResponseEncoder::encodeModifyClassResponse(
 void CIMOperationResponseEncoder::encodeEnumerateClassNamesResponse(
    CIMEnumerateClassNamesResponseMessage* response)
 {
-	Array<Sint8> body;
+	Array<char> body;
 	if (response->cimException.getCode() == CIM_ERR_SUCCESS)
 		for (Uint32 i = 0, n = response->classNames.size(); i < n; i++)
 			XmlWriter::appendClassNameElement(body, response->classNames[i]);
@@ -460,7 +462,7 @@ void CIMOperationResponseEncoder::encodeEnumerateClassNamesResponse(
 void CIMOperationResponseEncoder::encodeEnumerateClassesResponse(
    CIMEnumerateClassesResponseMessage* response)
 {
-	Array<Sint8> body;
+	Array<char> body;
 	if (response->cimException.getCode() == CIM_ERR_SUCCESS)
 		for (Uint32 i = 0, n= response->cimClasses.size(); i < n; i++)
 			XmlWriter::appendClassElement(body, response->cimClasses[i]);
@@ -476,7 +478,7 @@ void CIMOperationResponseEncoder::encodeDeleteClassResponse(
 void CIMOperationResponseEncoder::encodeCreateInstanceResponse(
    CIMCreateInstanceResponseMessage* response)
 {
-   Array<Sint8> body;
+   Array<char> body;
 	 if (response->cimException.getCode() == CIM_ERR_SUCCESS)
 		 XmlWriter::appendInstanceNameElement(body, response->instanceName);
 	 sendResponse(response, "CreateInstance", true, &body);
@@ -485,7 +487,7 @@ void CIMOperationResponseEncoder::encodeCreateInstanceResponse(
 void CIMOperationResponseEncoder::encodeGetInstanceResponse(
    CIMGetInstanceResponseMessage* response)
 {
-   Array<Sint8> body;
+   Array<char> body;
 	 if (response->cimException.getCode() == CIM_ERR_SUCCESS)
 		 XmlWriter::appendInstanceElement(body, response->cimInstance);
 	 sendResponse(response, "GetInstance", true, &body);
@@ -500,7 +502,7 @@ void CIMOperationResponseEncoder::encodeModifyInstanceResponse(
 void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
    CIMEnumerateInstancesResponseMessage* response)
 {
-	Array<Sint8> body;
+	Array<char> body;
 	if (response->cimException.getCode() == CIM_ERR_SUCCESS)
 		for (Uint32 i = 0, n = response->cimNamedInstances.size(); i < n; i++)
 			XmlWriter::appendValueNamedInstanceElement(body, response->cimNamedInstances[i]);
@@ -510,7 +512,7 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
 void CIMOperationResponseEncoder::encodeEnumerateInstanceNamesResponse(
    CIMEnumerateInstanceNamesResponseMessage* response)
 {
-   Array<Sint8> body;
+   Array<char> body;
 	 if (response->cimException.getCode() == CIM_ERR_SUCCESS)
 		 for (Uint32 i = 0, n = response->instanceNames.size(); i < n; i++)
 			 XmlWriter::appendInstanceNameElement(body, response->instanceNames[i]);
@@ -526,7 +528,7 @@ void CIMOperationResponseEncoder::encodeDeleteInstanceResponse(
 void CIMOperationResponseEncoder::encodeGetPropertyResponse(
    CIMGetPropertyResponseMessage* response)
 {
-	Array<Sint8> body;
+	Array<char> body;
 	if (response->cimException.getCode() == CIM_ERR_SUCCESS)
 		XmlWriter::appendValueElement(body, response->value);
 	sendResponse(response, "GetProperty", true, &body);
@@ -547,7 +549,7 @@ void CIMOperationResponseEncoder::encodeSetQualifierResponse(
 void CIMOperationResponseEncoder::encodeGetQualifierResponse(
    CIMGetQualifierResponseMessage* response)
 {
-	Array<Sint8> body;
+	Array<char> body;
 	if (response->cimException.getCode() == CIM_ERR_SUCCESS)
 		XmlWriter::appendQualifierDeclElement(body, response->cimQualifierDecl);
 	sendResponse(response, "GetQualifier", true, &body);
@@ -556,7 +558,7 @@ void CIMOperationResponseEncoder::encodeGetQualifierResponse(
 void CIMOperationResponseEncoder::encodeEnumerateQualifiersResponse(
    CIMEnumerateQualifiersResponseMessage* response)
 {
-   Array<Sint8> body;
+   Array<char> body;
 	 if (response->cimException.getCode() == CIM_ERR_SUCCESS)
 		 for (Uint32 i = 0, n = response->qualifierDeclarations.size(); i < n;i++)
 			 XmlWriter::appendQualifierDeclElement(body, response->qualifierDeclarations[i]);
@@ -572,7 +574,7 @@ void CIMOperationResponseEncoder::encodeDeleteQualifierResponse(
 void CIMOperationResponseEncoder::encodeReferenceNamesResponse(
    CIMReferenceNamesResponseMessage* response)
 {
-   Array<Sint8> body;
+   Array<char> body;
 	 if (response->cimException.getCode() == CIM_ERR_SUCCESS)
 		 for (Uint32 i = 0, n = response->objectNames.size(); i < n; i++)
 		 {
@@ -587,7 +589,7 @@ void CIMOperationResponseEncoder::encodeReferenceNamesResponse(
 void CIMOperationResponseEncoder::encodeReferencesResponse(
    CIMReferencesResponseMessage* response)
 {
-   Array<Sint8> body;
+   Array<char> body;
 	 if (response->cimException.getCode() == CIM_ERR_SUCCESS)
 		 for (Uint32 i = 0, n = response->cimObjects.size(); i < n;i++)
 			 XmlWriter::appendValueObjectWithPathElement(body, response->cimObjects[i]);
@@ -597,7 +599,7 @@ void CIMOperationResponseEncoder::encodeReferencesResponse(
 void CIMOperationResponseEncoder::encodeAssociatorNamesResponse(
    CIMAssociatorNamesResponseMessage* response)
 {
-   Array<Sint8> body;
+   Array<char> body;
 	 if (response->cimException.getCode() == CIM_ERR_SUCCESS)
 		 for (Uint32 i = 0, n = response->objectNames.size(); i < n; i++)
 		 {
@@ -611,7 +613,7 @@ void CIMOperationResponseEncoder::encodeAssociatorNamesResponse(
 void CIMOperationResponseEncoder::encodeAssociatorsResponse(
    CIMAssociatorsResponseMessage* response)
 {
-   Array<Sint8> body;
+   Array<char> body;
 	 if (response->cimException.getCode() == CIM_ERR_SUCCESS)
 		 for (Uint32 i = 0, n = response->cimObjects.size(); i < n; i++)
 			 XmlWriter::appendValueObjectWithPathElement(body, response->cimObjects[i]);
@@ -621,7 +623,7 @@ void CIMOperationResponseEncoder::encodeAssociatorsResponse(
 void CIMOperationResponseEncoder::encodeExecQueryResponse(
    CIMExecQueryResponseMessage* response)
 {
-   Array<Sint8> body;
+   Array<char> body;
 	 if (response->cimException.getCode() == CIM_ERR_SUCCESS)
 		 for (Uint32 i = 0; i < response->cimObjects.size(); i++)
 			 XmlWriter::appendValueObjectWithPathElement(body, response->cimObjects[i]);
@@ -631,7 +633,7 @@ void CIMOperationResponseEncoder::encodeExecQueryResponse(
 void CIMOperationResponseEncoder::encodeInvokeMethodResponse(
     CIMInvokeMethodResponseMessage* response)
 {
-   Array<Sint8> body;
+   Array<char> body;
 
    // ATTN-RK-P3-20020219: Who's job is it to make sure the return value is
    // not an array?

@@ -29,7 +29,9 @@
 //
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -116,7 +118,7 @@ void test01()
     //
     // Test toMof 
     //
-    Array<Sint8> mofOut;
+    Array<char> mofOut;
     MofWriter::appendQualifierDeclElement(mofOut, qual1);
 
     CIMConstQualifierDecl cq1; 

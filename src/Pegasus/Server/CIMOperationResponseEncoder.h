@@ -29,11 +29,13 @@
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
 //              Sushma Fernandes, Hewlett-Packard Company
-//                (sushma_fernandes@hp.com)
+//                  (sushma_fernandes@hp.com)
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -65,7 +67,7 @@ class CIMOperationResponseEncoder : public MessageQueueService
 			void sendResponse(CIMResponseMessage* response,
 												const String &name,
 												Boolean isImplicit,
-												Array<Sint8> *bodygiven = 0);
+												Array<char> *bodygiven = 0);
 
       virtual void handleEnqueue(Message *);
       

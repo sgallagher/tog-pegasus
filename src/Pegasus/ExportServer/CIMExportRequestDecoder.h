@@ -31,6 +31,8 @@
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              David Dillard, VERITAS SOftware Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -66,7 +68,7 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
 
       void sendResponse(
 	 Uint32 queueId, 
-	 Array<Sint8>& message);
+	 Array<char>& message);
 
       void sendEMethodError(
 	 Uint32 queueId, 
@@ -91,7 +93,7 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
       void handleMethodRequest(
 	 Uint32 queueId,
          HttpMethod httpMethod,
-	 Sint8* content,
+	 char* content,
 	 const String& requestUri,
 	 const String& cimProtocolVersionInHeader,
 	 const String& cimExportMethodInHeader,

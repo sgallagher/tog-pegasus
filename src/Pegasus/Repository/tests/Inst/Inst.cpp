@@ -28,8 +28,10 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
-//               (carolann_graves@hp.com)
+//                   (carolann_graves@hp.com)
 //               Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//               David Dillard, VERITAS Software Corp.
+//                   (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -187,7 +189,7 @@ void _Test02()
     // Append some instances:
     //
 
-    Array<Sint8> data;
+    Array<char> data;
     Uint32 index;
 
     data.append("AAAAAAAA", 8);

@@ -28,6 +28,8 @@
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -59,7 +61,7 @@ public:
 	const String& url,
 	const CIMInstance& indicationInstance)
     {
-	Array<Sint8> buffer;
+	Array<char> buffer;
 	XmlWriter::appendInstanceElement(buffer, indicationInstance);
 	cout << buffer.getData() << endl;
     }

@@ -57,7 +57,7 @@ void test01(const T& x)
     if (verbose)
         XmlWriter::printValueElement(v3, cout);
 
-    Array<Sint8> tmp1;
+    Array<char> tmp1;
     MofWriter::appendValueElement(tmp1, v3);
 
     tmp1.append('\0');
@@ -111,7 +111,7 @@ int main(int argc, char** argv)
     // Test Properties
     {
     CIMProperty p1(CIMName ("message"), String("Hi There"));
-    Array<Sint8> tmp;
+    Array<char> tmp;
     MofWriter::appendPropertyElement(tmp, p1);
     tmp.append('\0');
     if (verbose)
@@ -119,7 +119,7 @@ int main(int argc, char** argv)
     }
     {
     CIMProperty p2(CIMName ("message"), String("test"));
-    Array<Sint8> tmp;
+    Array<char> tmp;
     MofWriter::appendPropertyElement(tmp, p2);
     tmp.append('\0');
     if (verbose)
@@ -142,7 +142,7 @@ int main(int argc, char** argv)
 		.addParameter(CIMParameter(CIMName ("port"), CIMTYPE_UINT32)));
         if (verbose)
             XmlWriter::printClassElement(class1);
-	Array<Sint8> tmp;
+	Array<char> tmp;
 	MofWriter::appendClassElement(tmp, class1);
 	tmp.append('\0');
         if (verbose)
@@ -170,7 +170,7 @@ int main(int argc, char** argv)
 		.addParameter(CIMParameter(CIMName ("port"), CIMTYPE_UINT32)));
         if (verbose)
             XmlWriter::printClassElement(class1);
-	Array<Sint8> tmp;
+	Array<char> tmp;
 	MofWriter::appendClassElement(tmp, class1);
 	tmp.append('\0');
         if (verbose)
@@ -245,7 +245,7 @@ int main(int argc, char** argv)
                      ;
         if (verbose)
             XmlWriter::printClassElement(class1);
-	//Array<Sint8> tmp;
+	//Array<char> tmp;
 	//MofWriter::appendClassElement(tmp, class1);
 	//tmp.append('\0');
 
@@ -295,14 +295,14 @@ int main(int argc, char** argv)
 
             if (verbose)
 	        XmlWriter::printQualifierDeclElement(qual1);
-	    Array<Sint8> tmp;
+	    Array<char> tmp;
 	    MofWriter::appendQualifierDeclElement(tmp, qual1);
 	    tmp.append('\0');
             if (verbose)
 	        cout << "Qualifier Test\n" << tmp.getData() << "\n\n";
             if (verbose)
 	        XmlWriter::printQualifierDeclElement(q2);
-	    Array<Sint8> tmp1;
+	    Array<char> tmp1;
 	    MofWriter::appendQualifierDeclElement(tmp1, q2);
 	    tmp1.append('\0');
             if (verbose)

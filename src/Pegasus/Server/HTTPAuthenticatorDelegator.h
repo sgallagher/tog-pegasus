@@ -28,8 +28,10 @@
 // Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 // Modified By:
-//     Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//     Heather Sterling, IBM (hsterl@us.ibm.com) for PEP#187
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              Heather Sterling, IBM (hsterl@us.ibm.com) for PEP#187
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veriats.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -88,7 +90,7 @@ class PEGASUS_SERVER_LINKAGE HTTPAuthenticatorDelegator : public MessageQueueSer
 
       void _sendResponse( 
 	 Uint32 queueId, 
-	 Array<Sint8>& message); 
+	 Array<char>& message); 
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
       void _sendSuccess( 

@@ -36,6 +36,8 @@
 //              Sushma Fernandes. Hewlett-Packard Company
 //                     sushma_fernandes@hp.com
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -85,7 +87,7 @@ Boolean InstanceDataFile::loadInstance(
     const String& path, 
     Uint32 index,
     Uint32 size,  
-    Array<Sint8>& data)
+    Array<char>& data)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceDataFile::loadInstance()");
 
@@ -138,7 +140,7 @@ Boolean InstanceDataFile::loadInstance(
 
 Boolean InstanceDataFile::loadAllInstances(
     const String& path, 
-    Array<Sint8>& data)
+    Array<char>& data)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceDataFile::loadAllInstance()");
 
@@ -191,7 +193,7 @@ Boolean InstanceDataFile::loadAllInstances(
 
 Boolean InstanceDataFile::appendInstance(
     const String& path, 
-    const Array<Sint8>& data,
+    const Array<char>& data,
     Uint32& index)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceDataFile::appendInstance()");
@@ -438,7 +440,7 @@ Boolean InstanceDataFile::compact(
 	return false;
     }
 
-    Array<Sint8> data;
+    Array<char> data;
 
     //
     // Copy over instances which have not been freed:

@@ -30,7 +30,9 @@
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -112,7 +114,7 @@ void test01()
     //
     // toXml
     //
-    Array<Sint8> xmlOut;
+    Array<char> xmlOut;
     XmlWriter::appendParamValueElement(xmlOut, a4clone);
 }
 

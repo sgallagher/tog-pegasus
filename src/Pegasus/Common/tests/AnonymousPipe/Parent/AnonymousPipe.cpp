@@ -29,6 +29,8 @@
 //             (carolann_graves@hp.com)
 //
 // Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -187,7 +189,7 @@ int main ()
         //
         //  Send a request buffer to the child via the anonymous pipe
         //
-        Array <Sint8> requestBuffer;
+        Array<char> requestBuffer;
         char buffer [32];
         sprintf (buffer, "%s", "Hello world");
         requestBuffer.append (buffer, strlen (buffer));

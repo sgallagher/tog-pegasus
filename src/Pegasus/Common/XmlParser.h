@@ -27,7 +27,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -204,7 +205,7 @@ private:
 };
 
 PEGASUS_COMMON_LINKAGE void XmlAppendCString(
-    Array<Sint8>& out, 
+    Array<char>& out, 
     const char* str);
 
 PEGASUS_NAMESPACE_END

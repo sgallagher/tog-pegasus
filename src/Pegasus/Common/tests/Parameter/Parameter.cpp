@@ -29,7 +29,9 @@
 //
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -74,14 +76,14 @@ void test01()
     //
     // toMof
     //
-    Array<Sint8> mofOut;
+    Array<char> mofOut;
 	if(verbose)
 		MofWriter::appendParameterElement(mofOut, p1);
 
     //
     // toXml
     //
-    Array<Sint8> xmlOut;
+    Array<char> xmlOut;
 	if(verbose)
 		XmlWriter::appendParameterElement(xmlOut, p1);
 

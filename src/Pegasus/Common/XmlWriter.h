@@ -36,6 +36,7 @@
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //		   Willis White (whiwill@us.ibm.com) PEP 127 and 128
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
+//         David Dillard, VERITAS Software Corp.  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -73,83 +74,83 @@ class PEGASUS_COMMON_LINKAGE XmlWriter
 {
 public:
 
-    static void append(Array<Sint8>& out, const Char16& x);
+    static void append(Array<char>& out, const Char16& x);
 
-    static void append(Array<Sint8>& out, char x)
+    static void append(Array<char>& out, char x)
     {
       out.append(x);
     }
 
-    static void append(Array<Sint8>& out, Boolean x);
+    static void append(Array<char>& out, Boolean x);
 
-    static void append(Array<Sint8>& out, Uint32 x);
+    static void append(Array<char>& out, Uint32 x);
 
-    static void append(Array<Sint8>& out, Sint32 x);
+    static void append(Array<char>& out, Sint32 x);
 
-    static void append(Array<Sint8>& out, Uint64 x);
+    static void append(Array<char>& out, Uint64 x);
 
-    static void append(Array<Sint8>& out, Sint64 x);
+    static void append(Array<char>& out, Sint64 x);
 
-    static void append(Array<Sint8>& out, Real32 x);
+    static void append(Array<char>& out, Real32 x);
 
-    static void append(Array<Sint8>& out, Real64 x);
+    static void append(Array<char>& out, Real64 x);
 
-    static void append(Array<Sint8>& out, const char* str);
+    static void append(Array<char>& out, const char* str);
 
-    static void append(Array<Sint8>& out, const String& str);
+    static void append(Array<char>& out, const String& str);
 
-    static void append(Array<Sint8>& out, const Indentor& x);
+    static void append(Array<char>& out, const Indentor& x);
 
-    static void appendSpecial(Array<Sint8>& out, const Char16& x);
+    static void appendSpecial(Array<char>& out, const Char16& x);
 
-    static void appendSpecial(Array<Sint8>& out, char x);
+    static void appendSpecial(Array<char>& out, char x);
 
-    static void appendSpecial(Array<Sint8>& out, const char* str);
+    static void appendSpecial(Array<char>& out, const char* str);
 
-    static void appendSpecial(Array<Sint8>& out, const String& str);
+    static void appendSpecial(Array<char>& out, const String& str);
 
-    static String encodeURICharacters(Array<Sint8> uriString);
+    static String encodeURICharacters(Array<char> uriString);
     static String encodeURICharacters(String uriString);
 
     static void appendLocalNameSpacePathElement(
-	Array<Sint8>& out, 
+	Array<char>& out, 
 	const CIMNamespaceName& nameSpace);
 
     static void appendNameSpacePathElement(
-	Array<Sint8>& out, 
+	Array<char>& out, 
 	const String& host,
 	const CIMNamespaceName& nameSpace);
 
     static void appendClassNameElement(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const CIMName& className);
 
     static void appendInstanceNameElement(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const CIMObjectPath& instanceName);
 
     static void appendClassPathElement(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const CIMObjectPath& classPath);
 
     static void appendInstancePathElement(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const CIMObjectPath& instancePath);
 
     static void appendLocalClassPathElement(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const CIMObjectPath& classPath);
 
     static void appendLocalInstancePathElement(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const CIMObjectPath& instancePath);
 
     static void appendLocalObjectPathElement(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const CIMObjectPath& objectPath);
 
     static void appendValueElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMValue& value);
 
     static void printValueElement(
@@ -157,11 +158,11 @@ public:
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
     static void appendValueObjectWithPathElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMObject& objectWithPath);
 
     static void appendValueReferenceElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMObjectPath& reference,
         Boolean putValueWrapper);
 
@@ -170,11 +171,11 @@ public:
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
     static void appendValueNamedInstanceElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMInstance& namedInstance);
 
     static void appendClassElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMConstClass& cimclass);
 
     static void printClassElement(
@@ -182,7 +183,7 @@ public:
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
     static void appendInstanceElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMConstInstance& instance);
 
     static void printInstanceElement(
@@ -190,11 +191,11 @@ public:
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
     static void appendObjectElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMConstObject& object);
 
     static void appendPropertyElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMConstProperty& property);
 
     static void printPropertyElement(
@@ -202,7 +203,7 @@ public:
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
     static void appendMethodElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMConstMethod& method);
 
     static void printMethodElement(
@@ -210,7 +211,7 @@ public:
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
     static void appendParameterElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMConstParameter& parameter);
 
     static void printParameterElement(
@@ -218,7 +219,7 @@ public:
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
     static void appendParamValueElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMParamValue& paramValue);
 
     static void printParamValueElement(
@@ -226,7 +227,7 @@ public:
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
     static void appendQualifierElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMConstQualifier& qualifier);
 
     static void printQualifierElement(
@@ -234,7 +235,7 @@ public:
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
     static void appendQualifierDeclElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMConstQualifierDecl& qualifierDecl);
 
     static void printQualifierDeclElement(
@@ -242,15 +243,15 @@ public:
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
     static void appendQualifierFlavorEntity(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMFlavor & flavor);
 
     static void appendScopeElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMScope & scope);
 
     static void appendMethodCallHeader(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const char* host,
 	const CIMName& cimMethod,
 	const String& cimObject,
@@ -262,101 +263,101 @@ public:
 
 	// added to accommodate sending WBEMServerResponseTime PEP #128
     static void appendMethodResponseHeader(
-        Array<Sint8>& out,
+        Array<char>& out,
         HttpMethod httpMethod,
     const ContentLanguages & contentLanguages,
         Uint32 contentLength,
 	Uint64 serverResponseTime = 0);
 
     static void appendHttpErrorResponseHeader(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const String& status,
 	const String& cimError = String::EMPTY,
 	const String& errorDetail = String::EMPTY);
 
     static void appendUnauthorizedResponseHeader(
-	Array<Sint8>& out,
+	Array<char>& out,
         const String& content);
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     static void appendOKResponseHeader(
-	Array<Sint8>& out,
+	Array<char>& out,
         const String& content);
 #endif
 
     static void appendReturnValueElement(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const CIMValue& value);
 
     static void appendBooleanIParameter(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const char* name,
 	Boolean flag);
 
     static void appendStringIParameter(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const char* name,
 	const String& str);
 
     static void appendQualifierNameIParameter(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const char* name,
 	const String& qualifierName);
 
     static void appendClassNameIParameter(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const char* name,
 	const CIMName& className);
 
     static void appendInstanceNameIParameter(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const char* name,
 	const CIMObjectPath& instanceName);
 
     static void appendObjectNameIParameter(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const char* name,
 	const CIMObjectPath& objectName);
 
     static void appendClassIParameter(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const char* name,
 	const CIMConstClass& cimClass);
 
     static void appendInstanceIParameter(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const char* name,
 	const CIMConstInstance& instance);
 
     static void appendNamedInstanceIParameter(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const char* name,
 	const CIMInstance& namedInstance) ;
 
     static void appendPropertyNameIParameter(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const CIMName& propertyName);
 
     static void appendPropertyValueIParameter(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const char* name,
 	const CIMValue& value);
 
     static void appendPropertyListIParameter(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const CIMPropertyList& propertyList);
 
     static void appendQualifierDeclarationIParameter(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const char* name,
 	const CIMConstQualifierDecl& qualifierDecl);
 
-    static Array<Sint8> formatHttpErrorRspMessage(
+    static Array<char> formatHttpErrorRspMessage(
 	const String& status,
 	const String& cimError = String::EMPTY,
 	const String& errorDetail = String::EMPTY);
 
-    static Array<Sint8> formatSimpleMethodReqMessage(
+    static Array<char> formatSimpleMethodReqMessage(
 	const char* host,
 	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& path,
@@ -369,23 +370,23 @@ public:
     const ContentLanguages& httpContentLanguages);
 
 	//PEP 128 - sending serverResponseTime (WBEMServerResponseTime) in respons header
-	static Array<Sint8> formatSimpleMethodRspMessage(
+	static Array<char> formatSimpleMethodRspMessage(
 	const CIMName& methodName,
         const String& messageId,
         HttpMethod httpMethod,
         const ContentLanguages & httpContentLanguages,          
-	const Array<Sint8>& body,
+	const Array<char>& body,
 	Uint64 serverResponseTime,
 	Boolean isFirst = true,
 	Boolean isLast = true);
 
-    static Array<Sint8> formatSimpleMethodErrorRspMessage(
+    static Array<char> formatSimpleMethodErrorRspMessage(
 	const CIMName& methodName,
 	const String& messageId,
         HttpMethod httpMethod,
 	const CIMException& cimException);
 
-    static Array<Sint8> formatSimpleIMethodReqMessage(
+    static Array<char> formatSimpleIMethodReqMessage(
 	const char* host,
 	const CIMNamespaceName& nameSpace,
 	const CIMName& iMethodName,
@@ -394,32 +395,32 @@ public:
         const String& authenticationHeader,
     const AcceptLanguages& httpAcceptLanguages,
     const ContentLanguages& httpContentLanguages,        
-	const Array<Sint8>& body);
+	const Array<char>& body);
 
     //PEP 128 - sending serverResponseTime (WBEMServerResponseTime) in respons header
-	static Array<Sint8> formatSimpleIMethodRspMessage(
+	static Array<char> formatSimpleIMethodRspMessage(
 	const CIMName& iMethodName,
         const String& messageId,
         HttpMethod httpMethod,
         const ContentLanguages & httpContentLanguages,  
-	const Array<Sint8>& body,
+	const Array<char>& body,
 	Uint64 serverResponseTime,
 	Boolean isFirst = true,
 	Boolean isLast = true);
 
-    static Array<Sint8> formatSimpleIMethodErrorRspMessage(
+    static Array<char> formatSimpleIMethodErrorRspMessage(
 	const CIMName& iMethodName,
 	const String& messageId,
         HttpMethod httpMethod,
 	const CIMException& cimException);
 
     static void appendInstanceEParameter(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const char* name,
 	const CIMInstance& instance);
 
     static void appendEMethodRequestHeader(
-    	Array<Sint8>& out,
+    	Array<char>& out,
         const char* requestUri,
     	const char* host,
     	const CIMName& cimMethod,
@@ -430,12 +431,12 @@ public:
 	Uint32 contentLength);
 
     static void appendEMethodResponseHeader(
-	Array<Sint8>& out,
+	Array<char>& out,
         HttpMethod httpMethod,
     const ContentLanguages& contentLanguages,           
 	Uint32 contentLength);
 
-    static Array<Sint8> formatSimpleEMethodReqMessage(
+    static Array<char> formatSimpleEMethodReqMessage(
         const char* requestUri,
 	const char* host,
 	const CIMName& eMethodName,
@@ -444,16 +445,16 @@ public:
 	const String& authenticationHeader,
     const AcceptLanguages& httpAcceptLanguages,
     const ContentLanguages& httpContentLanguages,  	
-	const Array<Sint8>& body);
+	const Array<char>& body);
 
-    static Array<Sint8> formatSimpleEMethodRspMessage(
+    static Array<char> formatSimpleEMethodRspMessage(
 	const CIMName& eMethodName,
         const String& messageId,
         HttpMethod httpMethod,
     const ContentLanguages& httpContentLanguages,        
-	const Array<Sint8>& body);
+	const Array<char>& body);
 
-    static Array<Sint8> formatSimpleEMethodErrorRspMessage(
+    static Array<char> formatSimpleEMethodErrorRspMessage(
 	const CIMName& eMethodName,
 	const String& messageId,
         HttpMethod httpMethod,
@@ -474,107 +475,107 @@ public:
 private:
 
     static void _appendMessageElementBegin(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const String& messageId);
     static void _appendMessageElementEnd(
-	Array<Sint8>& out);
+	Array<char>& out);
 
-    static void _appendSimpleReqElementBegin(Array<Sint8>& out);
-    static void _appendSimpleReqElementEnd(Array<Sint8>& out);
+    static void _appendSimpleReqElementBegin(Array<char>& out);
+    static void _appendSimpleReqElementEnd(Array<char>& out);
 
     static void _appendMethodCallElementBegin(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const CIMName& name);
     static void _appendMethodCallElementEnd(
-	Array<Sint8>& out);
+	Array<char>& out);
 
     static void _appendIMethodCallElementBegin(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const CIMName& name);
     static void _appendIMethodCallElementEnd(
-	Array<Sint8>& out);
+	Array<char>& out);
 
     static void _appendIParamValueElementBegin(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const char* name);
     static void _appendIParamValueElementEnd(
-	Array<Sint8>& out);
+	Array<char>& out);
 
-    static void _appendSimpleRspElementBegin(Array<Sint8>& out);
-    static void _appendSimpleRspElementEnd(Array<Sint8>& out);
+    static void _appendSimpleRspElementBegin(Array<char>& out);
+    static void _appendSimpleRspElementEnd(Array<char>& out);
 
     static void _appendMethodResponseElementBegin(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const CIMName& name);
     static void _appendMethodResponseElementEnd(
-	Array<Sint8>& out);
+	Array<char>& out);
 
     static void _appendIMethodResponseElementBegin(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const CIMName& name);
     static void _appendIMethodResponseElementEnd(
-	Array<Sint8>& out);
+	Array<char>& out);
 
     static void _appendErrorElement(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const CIMException& cimException);
 
-    static void _appendIReturnValueElementBegin(Array<Sint8>& out);
-    static void _appendIReturnValueElementEnd(Array<Sint8>& out);
+    static void _appendIReturnValueElementBegin(Array<char>& out);
+    static void _appendIReturnValueElementEnd(Array<char>& out);
 
-    static void _appendSimpleExportReqElementBegin(Array<Sint8>& out);
-    static void _appendSimpleExportReqElementEnd(Array<Sint8>& out);
+    static void _appendSimpleExportReqElementBegin(Array<char>& out);
+    static void _appendSimpleExportReqElementEnd(Array<char>& out);
 
     static void _appendEMethodCallElementBegin(
-    	Array<Sint8>& out,
+    	Array<char>& out,
     	const CIMName& name);
     static void _appendEMethodCallElementEnd(
-    	Array<Sint8>& out);
+    	Array<char>& out);
 
     static void _appendEParamValueElementBegin(
-	Array<Sint8>& out,
+	Array<char>& out,
 	const char* name);
     static void _appendEParamValueElementEnd(
-	Array<Sint8>& out);
+	Array<char>& out);
 
-    static void _appendSimpleExportRspElementBegin(Array<Sint8>& out);
-    static void _appendSimpleExportRspElementEnd(Array<Sint8>& out);
+    static void _appendSimpleExportRspElementBegin(Array<char>& out);
+    static void _appendSimpleExportRspElementEnd(Array<char>& out);
 
     static void _appendEMethodResponseElementBegin(
-    	Array<Sint8>& out,
+    	Array<char>& out,
     	const CIMName& name);
     static void _appendEMethodResponseElementEnd(
-    	Array<Sint8>& out);
+    	Array<char>& out);
 
     XmlWriter() { }
 };
 
-PEGASUS_COMMON_LINKAGE Array<Sint8>& operator<<(
-    Array<Sint8>& out, 
+PEGASUS_COMMON_LINKAGE Array<char>& operator<<(
+    Array<char>& out, 
     const char* x);
 
-PEGASUS_COMMON_LINKAGE Array<Sint8>& operator<<(Array<Sint8>& out, char x);
+PEGASUS_COMMON_LINKAGE Array<char>& operator<<(Array<char>& out, char x);
 
-PEGASUS_COMMON_LINKAGE Array<Sint8>& operator<<(Array<Sint8>& out, const Char16& x);
+PEGASUS_COMMON_LINKAGE Array<char>& operator<<(Array<char>& out, const Char16& x);
 
-PEGASUS_COMMON_LINKAGE Array<Sint8>& operator<<(
-    Array<Sint8>& out, 
+PEGASUS_COMMON_LINKAGE Array<char>& operator<<(
+    Array<char>& out, 
     const String& x);
 
-PEGASUS_COMMON_LINKAGE Array<Sint8>& operator<<(
-    Array<Sint8>& out, 
+PEGASUS_COMMON_LINKAGE Array<char>& operator<<(
+    Array<char>& out, 
     const Indentor& x);
 
-PEGASUS_COMMON_LINKAGE Array<Sint8>& operator<<(
-    Array<Sint8>& out, 
-    const Array<Sint8>& x);
+PEGASUS_COMMON_LINKAGE Array<char>& operator<<(
+    Array<char>& out, 
+    const Array<char>& x);
 
-PEGASUS_COMMON_LINKAGE Array<Sint8>& operator<<(
-    Array<Sint8>& out, 
+PEGASUS_COMMON_LINKAGE Array<char>& operator<<(
+    Array<char>& out, 
     Uint32 x);
 
-PEGASUS_COMMON_LINKAGE Array<Sint8>& operator<<(
-    Array<Sint8>& out, 
+PEGASUS_COMMON_LINKAGE Array<char>& operator<<(
+    Array<char>& out, 
     const CIMName& name);
 
 PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(

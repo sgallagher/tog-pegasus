@@ -33,6 +33,8 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Dave Rosckes (rosckes@us.ibm.com)
 //				Seema Gupta (gseema@in.ibm.com for PEP135)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -74,7 +76,7 @@ CIMExportRequestDecoder::~CIMExportRequestDecoder()
 
 void CIMExportRequestDecoder::sendResponse(
    Uint32 queueId, 
-   Array<Sint8>& message)
+   Array<char>& message)
 {
    MessageQueue* queue = MessageQueue::lookup(queueId);
 
@@ -92,7 +94,7 @@ void CIMExportRequestDecoder::sendEMethodError(
    const String& eMethodName,
    const CIMException& cimException) 
 {
-    Array<Sint8> message;
+    Array<char> message;
     message = XmlWriter::formatSimpleEMethodErrorRspMessage(
         eMethodName,
         messageId,
@@ -108,7 +110,7 @@ void CIMExportRequestDecoder::sendHttpError(
    const String& cimError,
    const String& messageBody)
 {
-    Array<Sint8> message;
+    Array<char> message;
     message = XmlWriter::formatHttpErrorRspMessage(
         status,
         cimError,
@@ -189,7 +191,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
    String startLine;
    Array<HTTPHeader> headers;
-   Sint8* content;
+   char* content;
    Uint32 contentLength;
 
    httpMessage->parse(startLine, headers, contentLength);
@@ -377,7 +379,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    // the content length.  Subtract 1 to take into account the null
    // character we just added to the end of the message.
 
-   content = (Sint8*) httpMessage->message.getData() +
+   content = (char *) httpMessage->message.getData() +
       httpMessage->message.size() - contentLength - 1;
 
 
@@ -426,7 +428,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 void CIMExportRequestDecoder::handleMethodRequest(
    Uint32 queueId,
    HttpMethod httpMethod,
-   Sint8* content,
+   char* content,
    const String& requestUri,
    const String& cimProtocolVersionInHeader,
    const String& cimExportMethodInHeader,

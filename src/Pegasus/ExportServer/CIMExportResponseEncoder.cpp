@@ -63,7 +63,7 @@ CIMExportResponseEncoder::~CIMExportResponseEncoder()
 
 void CIMExportResponseEncoder::sendResponse(
    Uint32 queueId, 
-   Array<Sint8>& message)
+   Array<char>& message)
 {
    MessageQueue* queue = MessageQueue::lookup(queueId);
 
@@ -90,7 +90,7 @@ void CIMExportResponseEncoder::sendEMethodError(
    const String& eMethodName,
    const CIMException& cimException) 
 {
-    Array<Sint8> message;
+    Array<char> message;
     message = XmlWriter::formatSimpleEMethodErrorRspMessage(
         eMethodName,
         messageId,
@@ -148,13 +148,13 @@ void CIMExportResponseEncoder::encodeExportIndicationResponse(
       return;
    }
 
-   Array<Sint8> body;
+   Array<char> body;
     
 // l10n
    // Note: Content-Language will not be set in the response. 
    // Export responses are sent in the default language of the
    // ExportServer.
-   Array<Sint8> message = XmlWriter::formatSimpleEMethodRspMessage(
+   Array<char> message = XmlWriter::formatSimpleEMethodRspMessage(
       CIMName ("ExportIndication"), response->messageId, 
       response->getHttpMethod(),
       ContentLanguages::EMPTY,

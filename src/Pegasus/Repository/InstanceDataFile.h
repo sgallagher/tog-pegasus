@@ -28,6 +28,8 @@
 // Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 // Modified By: Michael E. Brasher (mbrasher@bmc.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -104,7 +106,7 @@ public:
 	const String& path, 
 	Uint32 index,
 	Uint32 size,  
-        Array<Sint8>& data);
+        Array<char>& data);
     
     /** loads all the instances from the data file into memory. 
 
@@ -114,7 +116,7 @@ public:
     */
     static Boolean loadAllInstances(
 	const String& path, 
-        Array<Sint8>& data);
+        Array<char>& data);
     
     /** Appends a new instance to the end of the file.
      
@@ -125,7 +127,7 @@ public:
     */
     static Boolean appendInstance(
 	const String& path, 
-        const Array<Sint8>& data,
+        const Array<char>& data,
 	Uint32& index);
 
     /** Begin a transaction to modify this file. The effect of subsequent

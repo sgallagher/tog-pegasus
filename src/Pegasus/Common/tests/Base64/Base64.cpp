@@ -27,9 +27,8 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By:
-//
-//
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,8 +54,8 @@ int main(int argc, char** argv)
 
     // Test a simple decode to determine if decode correct
     {
-        Array<Sint8> in;
-        Array<Uint8> out;
+        Array<char> in;
+        Array<char> out;
         // Create an array of the character A 4 times.
         in.append('A');
         in.append('A');
@@ -77,8 +76,8 @@ int main(int argc, char** argv)
     }
     // Test a simple decode to determine if decode correct
     {
-        Array<Sint8> in;
-        Array<Uint8> out;
+        Array<char> in;
+        Array<char> out;
         // Create an array of the character A 4 times.
         in.append('/');
         in.append('/');
@@ -104,8 +103,8 @@ int main(int argc, char** argv)
     // and determine if correct character set created
     {
         // Test for creation of char A
-        Array<Uint8> in;
-        Array<Sint8> out;
+        Array<char> in;
+        Array<char> out;
 
         // Create Array of 3 zeros.
         in.append(0);
@@ -131,14 +130,14 @@ int main(int argc, char** argv)
         {
             //build an array i characters long with integers 0 - 63
                                                     
-            Array<Uint8> in;
-            Array<Uint8> out;
+            Array<char> in;
+            Array<char> out;
         
             Uint8 k = 0;
         
             // Build the array from assending set of characters
             in.append(k++);   
-            Array<Sint8> temp = Base64::encode(in);
+            Array<char> temp = Base64::encode(in);
             out = Base64::decode(temp);
     
             assert(in == out);
@@ -162,13 +161,13 @@ int main(int argc, char** argv)
 	if(verbose)
 		cout << "Test 2 -Test all zero buffer" << endl;
     {
-        Array<Uint8> in;
-        Array<Uint8> out;
+        Array<char> in;
+        Array<char> out;
         
         for (Uint32 i = 0; i < maxLength; i++)
         {
             in.append(0);   
-            Array<Sint8> temp = Base64::encode(in);
+            Array<char> temp = Base64::encode(in);
             out = Base64::decode(temp);
             assert(in == out);
         }
@@ -179,13 +178,13 @@ int main(int argc, char** argv)
 	if(verbose)
 		cout << "Test 3 -- Test all 1s in buffer" << endl;
     {
-        Array<Uint8> in;
-        Array<Uint8> out;
+        Array<char> in;
+        Array<char> out;
         
         for (Uint32 i = 0; i < maxLength; i++)
         {
             in.append(255);   
-            Array<Sint8> temp = Base64::encode(in);
+            Array<char> temp = Base64::encode(in);
             out = Base64::decode(temp);
 
             assert(in == out);
@@ -194,8 +193,8 @@ int main(int argc, char** argv)
 
     // One more
     {
-        Array<Uint8> in;
-        Array<Uint8> out;
+        Array<char> in;
+        Array<char> out;
         
         for (Uint32 i = 0; i < maxLength; i++)
         {

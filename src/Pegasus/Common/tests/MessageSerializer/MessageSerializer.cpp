@@ -27,7 +27,8 @@
 //
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
  
@@ -44,7 +45,7 @@ static char * verbose;
  
 CIMMessage* serializeDeserializeMessage(CIMMessage* inMessage)
 {
-    Array<Sint8> outBuffer;
+    Array<char> outBuffer;
     CIMMessageSerializer::serialize(outBuffer, inMessage);
     outBuffer.append(0);
 

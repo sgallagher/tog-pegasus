@@ -33,8 +33,10 @@
 //              Sushma Fernandes, Hewlett-Packard Company 
 //              (sushma_fernandes@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +70,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       void sendResponse(
 	 Uint32 queueId, 
-	 Array<Sint8>& message);
+	 Array<char>& message);
 
       void sendIMethodError(
 	 Uint32 queueId, 
@@ -100,7 +102,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
       void handleMethodCall(
 	 Uint32 queueId,
          HttpMethod httpMethod,
-	 Sint8* content,
+	 char* content,
          Uint32 contentLength,
 	 const String& cimProtocolVersionInHeader,
 	 const String& cimMethodInHeader,

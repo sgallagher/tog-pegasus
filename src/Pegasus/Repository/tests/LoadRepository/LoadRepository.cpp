@@ -27,7 +27,8 @@
 //
 // Author:
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -197,8 +198,8 @@ static void _processFile(const char* repositoryRoot, const char* xmlFileName)
 {
     // Create the parser:
 
-    Array<Sint8> text;
-    text.reserve(1024 * 1024);
+    Array<char> text;
+    text.reserveCapacity(1024 * 1024);
     FileSystem::loadFileToMemory(text, xmlFileName);
     text.append('\0');
     XmlParser parser((char*)text.getData());

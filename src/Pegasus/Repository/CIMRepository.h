@@ -33,6 +33,8 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company 
 //                  (carolann_graves@hp.com)
 //              Adrian Schuur (schuur@de.ibm.com) - PEP 129
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 

@@ -27,7 +27,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -91,7 +92,7 @@ void WQLParser::parse(
 }
 
 void WQLParser::parse(
-    const Array<Sint8>& text,
+    const Array<char>& text,
     WQLSelectStatement& statement)
 {
     PEG_METHOD_ENTER(TRC_WQL,"WQLParser::parse");

@@ -35,6 +35,8 @@
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //				Seema Gupta (gseema@in.ibm.com) for PEP135
 //              Amit K Arora (amita@in.ibm.com) for PEP101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -103,7 +105,7 @@ void CIMExportRequestEncoder::_encodeExportIndicationRequest(
    CIMExportIndicationRequestMessage* message)
 {
    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportRequestEncoder::_encodeExportIndicationRequest()");
-   Array<Sint8> params;
+   Array<char> params;
 
    XmlWriter::appendInstanceEParameter(
       params, "NewIndication", message->indicationInstance);
@@ -111,7 +113,7 @@ void CIMExportRequestEncoder::_encodeExportIndicationRequest(
 // l10n
    // Note:  Accept-Language will not be set in the request	
    // We will accept the default language of the export server.
-   Array<Sint8> buffer = XmlWriter::formatSimpleEMethodReqMessage(
+   Array<char> buffer = XmlWriter::formatSimpleEMethodReqMessage(
       message->destinationPath.getCString(),
       _hostName,
       CIMName ("ExportIndication"), 

@@ -30,6 +30,8 @@
 // Modified By: Markus Mueller
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -83,34 +85,34 @@ class  PEGASUS_COMMON_LINKAGE thread_data
    public:
       static void default_delete(void *data);
       
-      thread_data( const Sint8 *key ) : _delete_func(NULL) , _data(NULL), _size(0)
+      thread_data( const char *key ) : _delete_func(NULL) , _data(NULL), _size(0)
       {
 	 PEGASUS_ASSERT(key != NULL);
 	 size_t keysize = strlen(key);
-	 _key = new Sint8 [keysize + 1];
+	 _key = new char[keysize + 1];
 	 memcpy(_key, key, keysize);
 	 _key[keysize] = 0x00;
 	 
       }
   
-      thread_data(const Sint8 *key, size_t size) : _delete_func(default_delete), _size(size)
+      thread_data(const char *key, size_t size) : _delete_func(default_delete), _size(size)
       {
 	 PEGASUS_ASSERT(key != NULL);
 	 size_t keysize = strlen(key);
-	 _key = new Sint8 [keysize + 1];
+	 _key = new char[keysize + 1];
 	 memcpy(_key, key, keysize);
 	 _key[keysize] = 0x00;
 	 _data = ::operator new(_size) ;
 
       }
 
-      thread_data(const Sint8 *key, size_t size, void *data) : _delete_func(default_delete), _size(size)
+      thread_data(const char *key, size_t size, void *data) : _delete_func(default_delete), _size(size)
       {
 	 PEGASUS_ASSERT(key != NULL);
 	 PEGASUS_ASSERT(data != NULL);
 	 size_t keysize = strlen(key);
 
-	 _key = new Sint8[keysize + 1];
+	 _key = new char[keysize + 1];
 	 memcpy(_key, key, keysize);
 	 _key[keysize] = 0x00;
 	 _data = ::operator new(_size);
@@ -188,14 +190,14 @@ class  PEGASUS_COMMON_LINKAGE thread_data
       
       inline Boolean operator==(const void *key) const 
       { 
-	 if ( ! strcmp(_key, (Sint8 *)key)) 
+	 if ( ! strcmp(_key, reinterpret_cast<const char *>(key))) 
 	    return(true); 
 	 return(false);
       } 
 
       inline Boolean operator==(const thread_data& b) const
       {
-	 return(operator==((const void *)b._key));
+	 return(operator==(b._key));
       }
 
    private:
@@ -203,7 +205,7 @@ class  PEGASUS_COMMON_LINKAGE thread_data
       thread_data();
       void *_data;
       size_t _size;
-      Sint8 *_key;
+      char *_key;
 
       friend class DQueue<thread_data>;
       friend class Thread;
@@ -282,7 +284,7 @@ class PEGASUS_COMMON_LINKAGE Thread
       void cleanup_pop(Boolean execute = true) throw(IPCException);
 
       // create and initialize a tsd
-      inline void create_tsd(const Sint8 *key, int size, void *buffer) throw(IPCException)
+      inline void create_tsd(const char *key, int size, void *buffer) throw(IPCException)
       {
         AutoPtr<thread_data> tsd(new thread_data(key, size, buffer));
         _tsd.insert_first(tsd.get());
@@ -291,20 +293,20 @@ class PEGASUS_COMMON_LINKAGE Thread
 
       // get the buffer associated with the key
       // NOTE: this call leaves the tsd LOCKED !!!! 
-      inline void *reference_tsd(const Sint8 *key) throw(IPCException)
+      inline void *reference_tsd(const char *key) throw(IPCException)
       {
 	 _tsd.lock(); 
-	 thread_data *tsd = _tsd.reference((const void *)key);
+	 thread_data *tsd = _tsd.reference(key);
 	 if(tsd != NULL)
 	    return( (void *)(tsd->_data) );
 	 else
 	    return(NULL);
       }
 
-      inline void *try_reference_tsd(const Sint8 *key) throw(IPCException)
+      inline void *try_reference_tsd(const char *key) throw(IPCException)
       {
 	 _tsd.try_lock();
-	 thread_data *tsd = _tsd.reference((const void *)key);
+	 thread_data *tsd = _tsd.reference(key);
 	 if(tsd != NULL)
 	    return((void *)(tsd->_data) );
 	 else
@@ -320,13 +322,13 @@ class PEGASUS_COMMON_LINKAGE Thread
       }
 
       // delete the tsd associated with the key
-      inline void delete_tsd(const Sint8 *key) throw(IPCException)
+      inline void delete_tsd(const char *key) throw(IPCException)
       {
-         AutoPtr<thread_data> tsd(_tsd.remove((const void *)key));
+         AutoPtr<thread_data> tsd(_tsd.remove(key));
       }
 
       // Note: Caller must delete the thread_data object returned (if not null)
-      inline void *remove_tsd(const Sint8 *key) throw(IPCException)
+      inline void *remove_tsd(const char *key) throw(IPCException)
       {
 	 return(_tsd.remove((const void *)key));
       }
@@ -355,7 +357,7 @@ class PEGASUS_COMMON_LINKAGE Thread
       
       // create or re-initialize tsd associated with the key
       // if the tsd already exists, delete the existing buffer
-      void put_tsd(const Sint8 *key, void (*delete_func)(void *), Uint32 size, void *value) 
+      void put_tsd(const char *key, void (*delete_func)(void *), Uint32 size, void *value) 
 	 throw(IPCException)
 
       {
@@ -428,7 +430,7 @@ class PEGASUS_COMMON_LINKAGE Thread
 
       static Sint8 initializeKey();  // l10n
 
-      inline void create_tsd(const Sint8 *key ) throw(IPCException)
+      inline void create_tsd(const char *key ) throw(IPCException)
       {
 	 AutoPtr<thread_data> tsd(new thread_data(key));
 	 _tsd.insert_first(tsd.get());
@@ -463,7 +465,7 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
    public:
 
       ThreadPool(Sint16 initial_size,
-		 const Sint8 *key,
+		 const char *key,
 		 Sint16 min,
 		 Sint16 max,
 		 struct timeval & alloc_wait,
@@ -496,15 +498,15 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
       
       void get_key(Sint8 *buf, int bufsize);
 
-      inline Boolean operator==(const void *key) const 
+      inline Boolean operator==(const char *key) const 
       { 
-	 if ( ! strncmp( reinterpret_cast<Sint8 *>(const_cast<void *>(key)), _key, 16  )) 
+	 if ( ! strncmp(key, _key, 16)) 
 	    return(true); 
 	 return(false);
       } 
       inline Boolean operator==(const ThreadPool & b) const
       {
-	 return(operator==((const void *) b._key ));
+	 return(operator==(b._key));
       }
 
       inline void set_min_threads(Sint16 min)
@@ -603,7 +605,7 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
       struct timeval _deallocate_wait;
       struct timeval _deadlock_detect;
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _loop(void *);
-      Sint8 _key[17];
+      char _key[17];
       DQueue<Thread> _pool;
       DQueue<Thread> _running;
       DQueue<Thread> _dead;

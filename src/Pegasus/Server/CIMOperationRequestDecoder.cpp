@@ -40,6 +40,8 @@
 //              Dave Rosckes (rosckes@us.ibm.com)
 //				Seema Gupta (gseema@in.ibm.com for PEP135)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -83,7 +85,7 @@ CIMOperationRequestDecoder::~CIMOperationRequestDecoder()
 
 void CIMOperationRequestDecoder::sendResponse(
    Uint32 queueId, 
-   Array<Sint8>& message)
+   Array<char>& message)
 {
    MessageQueue* queue = MessageQueue::lookup(queueId);
 
@@ -101,7 +103,7 @@ void CIMOperationRequestDecoder::sendIMethodError(
    const String& iMethodName,
    const CIMException& cimException)
 {
-    Array<Sint8> message;
+    Array<char> message;
     message = XmlWriter::formatSimpleIMethodErrorRspMessage(
         iMethodName,
         messageId,
@@ -118,7 +120,7 @@ void CIMOperationRequestDecoder::sendMethodError(
    const String& methodName,
    const CIMException& cimException)
 {
-    Array<Sint8> message;
+    Array<char> message;
     message = XmlWriter::formatSimpleMethodErrorRspMessage(
         methodName,
         messageId,
@@ -134,7 +136,7 @@ void CIMOperationRequestDecoder::sendHttpError(
    const String& cimError,
    const String& pegasusError) 
 {
-    Array<Sint8> message;
+    Array<char> message;
     message = XmlWriter::formatHttpErrorRspMessage(
         status,
         cimError,
@@ -220,7 +222,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
    String startLine;
    Array<HTTPHeader> headers;
-   Sint8* content;
+   char* content;
    Uint32 contentLength;
 
    httpMessage->parse(startLine, headers, contentLength);
@@ -401,7 +403,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    // the content length.  Subtract 1 to take into account the null
    // character we just added to the end of the message.
 
-   content = (Sint8*) httpMessage->message.getData() +
+   content = (char *) httpMessage->message.getData() +
    httpMessage->message.size() - contentLength - 1;
 
    // Validate the "Content-Type" header:
@@ -464,7 +466,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 void CIMOperationRequestDecoder::handleMethodCall(
    Uint32 queueId,
    HttpMethod httpMethod,
-   Sint8* content,
+   char* content,
    Uint32 contentLength,    // used for statistics only
    const String& cimProtocolVersionInHeader,
    const String& cimMethodInHeader,

@@ -28,7 +28,9 @@
 // Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company 
-//              (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -71,7 +73,7 @@ String encodeUserPass(const String& userPass)
     //
     // copy userPass string content to Uint8 array for encoding
     //
-    Array <Uint8>  userPassArray;
+    Array<char> userPassArray;
 
     Uint32 userPassLength = userPass.size();
 
@@ -86,7 +88,7 @@ String encodeUserPass(const String& userPass)
     //
     // base64 encode the user name and password
     //
-    Array <Sint8>  encodedArray;
+    Array<char> encodedArray;
 
     encodedArray = Base64::encode( userPassArray );
 

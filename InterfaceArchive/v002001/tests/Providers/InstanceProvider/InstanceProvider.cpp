@@ -70,6 +70,7 @@ void InstanceProvider::initialize(CIMOMHandle & cimom)
 
 void InstanceProvider::terminate(void)
 {
+	delete this;
 }
 
 void InstanceProvider::getInstance(
@@ -182,41 +183,56 @@ void InstanceProvider::modifyInstance(
 }
 
 void InstanceProvider::createInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	ObjectPathResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance & instanceObject,
+    ObjectPathResponseHandler & handler)
 {
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		CIMNamespaceName(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
-	
-	// instance index corresponds to reference index
-	for(Uint32 i = 0, n = _instanceNames.size(); i < n; i++)
-	{
-		if(localReference == _instanceNames[i])
-		{
-			throw CIMObjectAlreadyExistsException(
-                                  localReference.toString());
-		}
-	}
-			
-	// begin processing the request
-	handler.processing();
+    // Validate the class name
+    if (!instanceObject.getClassName().equal("Sample_InstanceProviderClass"))
+    {
+        throw CIMNotSupportedException(
+            instanceObject.getClassName().getString());
+    }
 
-	// add the new instance to the array
-	_instances.append(instanceObject);
-	_instanceNames.append(instanceReference);
+    // Find the key property
+    Uint32 idIndex = instanceObject.findProperty("Identifier");
+    if (idIndex == PEG_NOT_FOUND)
+    {
+        throw CIMInvalidParameterException("Missing key value");
+    }
 
-	// deliver the new instance
-	handler.deliver(_instanceNames[_instanceNames.size() - 1]);
+    // Create the new instance name
+    CIMValue idValue = instanceObject.getProperty(idIndex).getValue();
+    Array<CIMKeyBinding> keys;
+    keys.append(CIMKeyBinding("Identifier", idValue));
+    CIMObjectPath instanceName = CIMObjectPath(
+        String(),
+        CIMNamespaceName(),
+        instanceObject.getClassName(),
+        keys);
+    
+    // Determine whether this instance already exists
+    for(Uint32 i = 0, n = _instanceNames.size(); i < n; i++)
+    {
+        if(instanceName == _instanceNames[i])
+        {
+            throw CIMObjectAlreadyExistsException(instanceName.toString());
+        }
+    }
 
-	// complete processing the request
-	handler.complete();
+    // begin processing the request
+    handler.processing();
+
+    // add the new instance to the array
+    _instances.append(instanceObject);
+    _instanceNames.append(instanceName);
+
+    // deliver the new instance name
+    handler.deliver(instanceName);
+
+    // complete processing the request
+    handler.complete();
 }
 
 void InstanceProvider::deleteInstance(

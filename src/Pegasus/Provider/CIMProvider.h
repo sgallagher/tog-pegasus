@@ -52,15 +52,18 @@ interface types. The currently supported interfaces are:</p>
 manipulation of CIM instances and their properties</li>
 <li><b>{@link CIMMethodProvider CIMMethodProvider}</b> - supports
 invocation of methods defined on CIM instances</li>
+<li><b>{@link CIMAssociationProvider CIMAssociationProvider}</b> -
+supports query of CIM Associaitons and their properties. This provider
+interfaces provides both reference and associatior query operations in
+accordance with the DMTF Cim Operation specifications
 </ul>
 
-<p>A provider may inherit from either of these
-interface classes or both. A provider <i>must</i> implement every
-function in the chosen interface(s). However, it is not
-required that all operations be supported. If an operation
-is not supported, then a minimal implementation of
-the corresponding function must throw a
-{@link NotSupported NotSupported} exception.</p>
+<p>A provider may inherit from any of these interface classes or all of 
+them.  A provider <i>MUST</i> implement every function in the chosen 
+interface(s).  However, it is not required that all operations be 
+supported.  If an operation is not supported, then a minimal 
+implementation of the corresponding function must throw a {@link 
+NotSupported NotSupported} exception.</p> 
 
 <p>\Label{mainParams}Certain parameters are passed in several of the functions
 in the provider interfaces. These are also described in their own
@@ -83,13 +86,15 @@ uniquely identify an instance of a CIM object.
 the object resides. This does not need to be the system that the CIM server
 is running on, but it generally will be the same system.</p>
 
-<p><b>namespace</b> - specifies the <i>namespace</i> on the
-aforementioned host in which the object resides.</p>
+<p><b>namespace</b> - this <b>{@link CIMNamespaceName CIMNamespaceName}</b>
+object specifies the <i>namespace</i> on the 
+aforementioned host in which the object resides.</p> 
 
 <p><b>classname</b> - specifies the class on which the requested
 operation is to be performed.</p>
 
-<p><b>keybindings</b> - the set of key properties for the aforementioned
+<p><b>keybindings</b> - this<b>{@link CIMKeyBinding CIMKeyBinging}</b>
+object specifies the set of key properties for the aforementioned
 class. The set of keys uniquely identifies a CIM instance in the
 host and namespace. It is permissible for clients to specify,
 and providers should accept,
@@ -178,10 +183,12 @@ public:
     virtual ~CIMProvider(void);
 
     /**
-    Performs any setup required before normal operation.
-    <p>The <TT>initialize</TT> function allows the provider to conduct the
+    Performs any setup required before normal operation of the provider.
+    <p>The initialize() function allows the provider to conduct the
     necessary preparations to handle requests.
-    The initialize function is called only once during the lifetime of the provider. 
+    The initialize function is called only once during the lifetime of the provider.
+    Note, however, that with the Pegasus automatic unload function enabled, a
+    provider many be unloaded and loaded many times during one cycle of the CIMOM.
     This function must complete before the CIM server invokes any other function of
     the provider, other than terminate.</p>
 
@@ -191,13 +198,13 @@ public:
 
     /**
     Performs any cleanup required before termination.
-    <p>The <TT>terminate</TT> function allows the provider to conduct the
+    <p>The terminate function allows the provider to conduct the
     necessary preparations for termination. This function
     may be called by the CIM Server
     at any time, including initialization. Once invoked, no other provider
-    functions are invoked until after a call to <tt>initialize</tt>.</p>
+    functions are invoked until after a call to initialize.</p>
     <p>The provider may, for example, do the following in the
-    <tt>terminate</tt> function:</p>
+    terminate function:</p>
     <ul>
     <li>close files or I/O streams</li>
     <li>release resources such as shared memory</li>
@@ -208,8 +215,8 @@ public:
     <li>and others</li>
     </ul>
     <p>If the provider instance was created on the heap with
-    <i>new</i> in <tt>PegasusCreateProvider</tt>, then it must
-    be deleted in <tt>terminate</tt>:
+    <i>new</i> in PegasusCreateProvider, then it must
+    be deleted in terminate:
     <pre>void MyProvider::terminate()
     {
     ...
@@ -222,11 +229,11 @@ public:
 
 #ifdef PEGASUS_PRESERVE_TRYTERMINATE
     /** 
-    Allow a provider to decline a terminate call. If the provider
+    Allows a provider to decline a terminate call. If the provider
     is unable to terminate, it should return false. Otherwise, 
-    it calls its <code>terminate</code> function and then
+    it calls its terminate() function and then
     returns true, as in the default implementation.
-    @return	False If the provider is unable to terminate.  Otherwise, true is returned.
+    @return	False If the provider is unable to terminate; Otherwise, return true.
     */
     virtual Boolean tryTerminate(void) 
       {

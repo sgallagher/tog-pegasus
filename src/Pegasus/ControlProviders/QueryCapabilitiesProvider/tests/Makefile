@@ -22,9 +22,19 @@ SAMPLE_PROVIDER_NS = root/SampleProvider
 tests:
 install:
  
+repository:
+	@ echo +++++ Loading $(CIM_SCHEMA_DIR)/CIM_Interop.mof into root/cimv2 namespace...
+	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Interop.mof
+	@ echo +++++ Loading $(CIM_SCHEMA_DIR)/CIM_Interop.mof into $(SAMPLE_PROVIDER_NS) namespace...
+	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) $(ALLOW_EXPERIMENTAL) -n$(SAMPLE_PROVIDER_NS) $(CIM_SCHEMA_DIR)/CIM_Interop.mof
+
+
+repositoryServer:
+	@ echo +++++ Loading $(CIM_SCHEMA_DIR)/CIM_Interop.mof into root/cimv2 namespace...
+	@ cimmof -I$(CIM_SCHEMA_DIR) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Interop.mof
+	@ echo +++++ Loading $(CIM_SCHEMA_DIR)/CIM_Interop.mof into $(SAMPLE_PROVIDER_NS) namespace...
+	@ cimmof -I$(CIM_SCHEMA_DIR) $(ALLOW_EXPERIMENTAL) -n$(SAMPLE_PROVIDER_NS) $(CIM_SCHEMA_DIR)/CIM_Interop.mof
+
+
 poststarttests:
-	@echo 'cimmof -I$(CIM_SCHEMA_DIR) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Interop.mof'
-	@cimmof -I$(CIM_SCHEMA_DIR) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Interop.mof
-	@echo 'cimmof -I$(CIM_SCHEMA_DIR) $(ALLOW_EXPERIMENTAL) -n$(SAMPLE_PROVIDER_NS) $(CIM_SCHEMA_DIR)/CIM_Interop.mof'
-	@cimmof -I$(CIM_SCHEMA_DIR) $(ALLOW_EXPERIMENTAL) -n$(SAMPLE_PROVIDER_NS) $(CIM_SCHEMA_DIR)/CIM_Interop.mof
 	$(PROGRAM)

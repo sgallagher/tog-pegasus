@@ -37,6 +37,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+/*  REVIEW: What's this base class for?
+*/
+
 class PEGASUS_PROVIDER_LINKAGE ProviderHandle : public CIMHandle
 {
 public:

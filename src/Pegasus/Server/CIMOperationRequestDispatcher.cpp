@@ -51,10 +51,13 @@ PEGASUS_USING_STD;
 DDD(static const char* _DISPATCHER = "CIMOperationRequestDispatcher::";)
    
    
-CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(CIMRepository* repository, CIMServer* server)
-   : Base("CIMOpRequestDispatcher", true), 
-     _repository(repository), _providerManager(this, repository, server)
-   
+CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
+    CIMRepository* repository, 
+    CIMServer* server)
+   : 
+   Base("CIMOpRequestDispatcher", true), 
+   _repository(repository), 
+   _providerManager(this, repository, server)
 {
    
     DDD(cout << _DISPATCHER << endl;)
@@ -426,6 +429,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
             // ATTN: Is this the right exception?
             throw CIMException(CIM_ERR_NOT_SUPPORTED);
         }
+
 	// NOTE - getProviderName reads a const string and does not 
 	// need to use the rw lock 
         else if ( (providerName.size() == 0) ||

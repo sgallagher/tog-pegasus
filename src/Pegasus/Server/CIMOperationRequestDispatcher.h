@@ -58,7 +58,9 @@ public:
       
       typedef MessageQueue Base;
       
-      CIMOperationRequestDispatcher(CIMRepository* repository, CIMServer* server);
+      CIMOperationRequestDispatcher(
+	  CIMRepository* repository, 
+	  CIMServer* server);
       
       virtual ~CIMOperationRequestDispatcher();
       

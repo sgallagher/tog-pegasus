@@ -22,8 +22,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
-//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+// Modified By: 
+//     Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -98,7 +98,7 @@ public:
 
     static DynamicLibraryHandle loadDynamicLibrary(const char* fileName);
 
-	static void unloadDynamicLibrary(DynamicLibraryHandle libraryHandle);
+    static void unloadDynamicLibrary(DynamicLibraryHandle libraryHandle);
 
     static String dynamicLoadError(void);
 

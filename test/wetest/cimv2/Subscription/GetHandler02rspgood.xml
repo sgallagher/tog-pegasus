@@ -5,55 +5,35 @@
 <IMETHODRESPONSE NAME="GetInstance">
 <IRETURNVALUE>
 <INSTANCE CLASSNAME="PG_IndicationHandlerCIMXML">
+<QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
+<VALUE>
+PG_IndicationHandlerCIMXML describes the destination for Indications to be delivered via HTTP, using a CIMXML representation.
+</VALUE>
+</QUALIFIER>
 <PROPERTY NAME="Caption" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="MaxLen" TYPE="uint32" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-64
-</VALUE>
-</QUALIFIER>
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The Caption property is a short textual description (one-line string) of the object.
-</VALUE>
-</QUALIFIER>
 </PROPERTY>
 <PROPERTY NAME="Description" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The Description property provides a textual description of the object.
-</VALUE>
-</QUALIFIER>
 </PROPERTY>
 <PROPERTY NAME="Owner" CLASSORIGIN="PG_IndicationHandler" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The name of the entity that created and/or maintains this Handler.
-</VALUE>
-</QUALIFIER>
 </PROPERTY>
 <PROPERTY NAME="OtherPersistenceType" CLASSORIGIN="PG_IndicationHandler" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-This value MUST be set to a non NULL value when the PersistenceType is 1 (&quot;Other&quot;). For all other values of PersistenceType, the value of OtherPersistenceType MUST be NULL.
-</VALUE>
-</QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="PG_IndicationHandlerCIMXML" TYPE="string">
+<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="PG_IndicationHandler" TYPE="string">
 <VALUE>
 CIM_UnitaryComputerSystem
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SystemName" CLASSORIGIN="PG_IndicationHandlerCIMXML" TYPE="string">
+<PROPERTY NAME="SystemName" CLASSORIGIN="PG_IndicationHandler" TYPE="string">
 <VALUE>
 server001.acme.com
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="CreationClassName" CLASSORIGIN="PG_IndicationHandlerCIMXML" TYPE="string">
+<PROPERTY NAME="CreationClassName" CLASSORIGIN="PG_IndicationHandler" TYPE="string">
 <VALUE>
 PG_IndicationHandlerCIMXML
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="Name" CLASSORIGIN="PG_IndicationHandlerCIMXML" TYPE="string">
+<PROPERTY NAME="Name" CLASSORIGIN="PG_IndicationHandler" TYPE="string">
 <VALUE>
 Handler02
 </VALUE>
@@ -63,7 +43,7 @@ Handler02
 localhost:5988/test2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="PersistenceType" CLASSORIGIN="PG_IndicationHandlerCIMXML" TYPE="uint16">
+<PROPERTY NAME="PersistenceType" CLASSORIGIN="PG_IndicationHandler" TYPE="uint16">
 <VALUE>
 2
 </VALUE>

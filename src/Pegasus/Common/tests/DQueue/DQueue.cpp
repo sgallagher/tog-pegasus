@@ -31,6 +31,7 @@
 #undef PEGASUS_REMOVE_TRACE 
 #endif 
 #include <Pegasus/suballoc/suballoc.h>
+#include <Pegasus/Common/Destroyer.h>  
 #include <Pegasus/Common/DQueue.h>  
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Tracer.h> 
@@ -260,7 +261,17 @@ int main(int argc, char **argv)
 {
     PEGASUS_START_LEAK_CHECK();
    
-   Tracer::setTraceFile("dq_memory_trace"); 
+    const char* tmpDir = getenv ("PEGASUS_TMP");
+    if (tmpDir == NULL)
+    {
+        tmpDir = ".";
+    }
+    String traceFile (tmpDir);
+    traceFile += "/dq_memory_trace";
+    ArrayDestroyer <char> traceFileD (traceFile.allocateCString ());
+    const char* DQTraceFile = traceFileD.getPointer ();
+
+   Tracer::setTraceFile (DQTraceFile); 
    Tracer::setTraceComponents("Memory");  
    Tracer::setTraceLevel(Tracer::LEVEL4); 
    dq_handle = new peg_suballocator::SUBALLOC_HANDLE();

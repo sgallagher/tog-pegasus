@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+<MESSAGE ID="050003" PROTOCOLVERSION="1.0">
+<SIMPLERSP>
+<IMETHODRESPONSE NAME="EnumerateInstances">
+<IRETURNVALUE>
+<VALUE.NAMEDINSTANCE>
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+<KEYBINDING NAME="CreationClassName">
+<KEYVALUE VALUETYPE="string">
+PG_IndicationHandlerCIMXML
+</KEYVALUE>
+</KEYBINDING>
+<KEYBINDING NAME="Name">
+<KEYVALUE VALUETYPE="string">
+Handler01
+</KEYVALUE>
+</KEYBINDING>
+<KEYBINDING NAME="SystemCreationClassName">
+<KEYVALUE VALUETYPE="string">
+CIM_UnitaryComputerSystem
+</KEYVALUE>
+</KEYBINDING>
+<KEYBINDING NAME="SystemName">
+<KEYVALUE VALUETYPE="string">
+server001.acme.com
+</KEYVALUE>
+</KEYBINDING>
+</INSTANCENAME>
+<INSTANCE CLASSNAME="PG_IndicationHandlerCIMXML">
+<QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
+<VALUE>
+PG_IndicationHandlerCIMXML describes the destination for Indications to be delivered via HTTP, using a CIMXML representation.
+</VALUE>
+</QUALIFIER>
+<PROPERTY NAME="Caption" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
+</PROPERTY>
+<PROPERTY NAME="Description" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
+</PROPERTY>
+<PROPERTY NAME="Owner" CLASSORIGIN="PG_IndicationHandler" PROPAGATED="true" TYPE="string">
+</PROPERTY>
+<PROPERTY NAME="OtherPersistenceType" CLASSORIGIN="PG_IndicationHandler" PROPAGATED="true" TYPE="string">
+</PROPERTY>
+<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="PG_IndicationHandler" TYPE="string">
+<VALUE>
+CIM_UnitaryComputerSystem
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="SystemName" CLASSORIGIN="PG_IndicationHandler" TYPE="string">
+<VALUE>
+server001.acme.com
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="CreationClassName" CLASSORIGIN="PG_IndicationHandler" TYPE="string">
+<VALUE>
+PG_IndicationHandlerCIMXML
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="Name" CLASSORIGIN="PG_IndicationHandler" TYPE="string">
+<VALUE>
+Handler01
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="Destination" CLASSORIGIN="PG_IndicationHandlerCIMXML" TYPE="string">
+<VALUE>
+localhost:5988/test1
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="PersistenceType" CLASSORIGIN="PG_IndicationHandler" TYPE="uint16">
+<VALUE>
+2
+</VALUE>
+</PROPERTY>
+</INSTANCE>
+</VALUE.NAMEDINSTANCE>
+<VALUE.NAMEDINSTANCE>
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+<KEYBINDING NAME="CreationClassName">
+<KEYVALUE VALUETYPE="string">
+PG_IndicationHandlerCIMXML
+</KEYVALUE>
+</KEYBINDING>
+<KEYBINDING NAME="Name">
+<KEYVALUE VALUETYPE="string">
+Handler02
+</KEYVALUE>
+</KEYBINDING>
+<KEYBINDING NAME="SystemCreationClassName">
+<KEYVALUE VALUETYPE="string">
+CIM_UnitaryComputerSystem
+</KEYVALUE>
+</KEYBINDING>
+<KEYBINDING NAME="SystemName">
+<KEYVALUE VALUETYPE="string">
+server001.acme.com
+</KEYVALUE>
+</KEYBINDING>
+</INSTANCENAME>
+<INSTANCE CLASSNAME="PG_IndicationHandlerCIMXML">
+<QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
+<VALUE>
+PG_IndicationHandlerCIMXML describes the destination for Indications to be delivered via HTTP, using a CIMXML representation.
+</VALUE>
+</QUALIFIER>
+<PROPERTY NAME="Caption" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
+</PROPERTY>
+<PROPERTY NAME="Description" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
+</PROPERTY>
+<PROPERTY NAME="Owner" CLASSORIGIN="PG_IndicationHandler" PROPAGATED="true" TYPE="string">
+</PROPERTY>
+<PROPERTY NAME="OtherPersistenceType" CLASSORIGIN="PG_IndicationHandler" PROPAGATED="true" TYPE="string">
+</PROPERTY>
+<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="PG_IndicationHandler" TYPE="string">
+<VALUE>
+CIM_UnitaryComputerSystem
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="SystemName" CLASSORIGIN="PG_IndicationHandler" TYPE="string">
+<VALUE>
+server001.acme.com
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="CreationClassName" CLASSORIGIN="PG_IndicationHandler" TYPE="string">
+<VALUE>
+PG_IndicationHandlerCIMXML
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="Name" CLASSORIGIN="PG_IndicationHandler" TYPE="string">
+<VALUE>
+Handler02
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="Destination" CLASSORIGIN="PG_IndicationHandlerCIMXML" TYPE="string">
+<VALUE>
+localhost:5988/test2
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="PersistenceType" CLASSORIGIN="PG_IndicationHandler" TYPE="uint16">
+<VALUE>
+2
+</VALUE>
+</PROPERTY>
+</INSTANCE>
+</VALUE.NAMEDINSTANCE>
+</IRETURNVALUE>
+</IMETHODRESPONSE>
+</SIMPLERSP>
+</MESSAGE>
+</CIM>

@@ -810,11 +810,11 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
 
     try
     {
-        enumInstances = _repository->enumerateInstances (request->nameSpace, 
-            request->className, request->deepInheritance, request->localOnly, 
-            request->includeQualifiers, request->includeClassOrigin, 
-            request->propertyList);
-
+        enumInstances = _repository->enumerateInstancesForClass
+            (request->nameSpace, request->className, 
+             request->deepInheritance, request->localOnly, 
+             request->includeQualifiers, request->includeClassOrigin, 
+             false, request->propertyList);
         
         //
         //  Remove Creator property from instances before returning
@@ -887,8 +887,8 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
 
     try
     {
-        enumInstanceNames = _repository->enumerateInstanceNames 
-            (request->nameSpace, request->className);
+        enumInstanceNames = _repository->enumerateInstanceNamesForClass
+            (request->nameSpace, request->className, false);
     }
     catch (CIMException& exception)
     {
@@ -3810,8 +3810,14 @@ void IndicationService::_deleteReferencingSubscriptions (
 
             try
             {
-                _repository->deleteInstance (nameSpace, 
-                    subscriptions [i].getPath ());
+                //
+                //  Namespace and host must not be set in path passed to 
+                //  repository
+                //
+                CIMObjectPath path ("", "",
+                    subscriptions [i].getPath ().getClassName(),
+                    subscriptions [i].getPath ().getKeyBindings());
+                _repository->deleteInstance (nameSpace, path);
             }
             catch (Exception & exception)
             {

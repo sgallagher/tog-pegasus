@@ -28,24 +28,14 @@ server001.acme.com
 </KEYBINDING>
 </INSTANCENAME>
 <INSTANCE CLASSNAME="PG_IndicationFilter">
+<QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
+<VALUE>
+PG_IndicationFilter defines the criteria for generating an Indication and what data should be returned in the Indication. It is derived from CIM_ManagedElement to allow modeling the dependency of the filter on a specific service.
+</VALUE>
+</QUALIFIER>
 <PROPERTY NAME="Caption" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="MaxLen" TYPE="uint32" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-64
-</VALUE>
-</QUALIFIER>
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The Caption property is a short textual description (one-line string) of the object.
-</VALUE>
-</QUALIFIER>
 </PROPERTY>
 <PROPERTY NAME="Description" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The Description property provides a textual description of the object.
-</VALUE>
-</QUALIFIER>
 </PROPERTY>
 <PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
 <VALUE>
@@ -108,24 +98,14 @@ server001.acme.com
 </KEYBINDING>
 </INSTANCENAME>
 <INSTANCE CLASSNAME="PG_IndicationFilter">
+<QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
+<VALUE>
+PG_IndicationFilter defines the criteria for generating an Indication and what data should be returned in the Indication. It is derived from CIM_ManagedElement to allow modeling the dependency of the filter on a specific service.
+</VALUE>
+</QUALIFIER>
 <PROPERTY NAME="Caption" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="MaxLen" TYPE="uint32" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-64
-</VALUE>
-</QUALIFIER>
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The Caption property is a short textual description (one-line string) of the object.
-</VALUE>
-</QUALIFIER>
 </PROPERTY>
 <PROPERTY NAME="Description" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The Description property provides a textual description of the object.
-</VALUE>
-</QUALIFIER>
 </PROPERTY>
 <PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
 <VALUE>
@@ -188,24 +168,14 @@ server001.acme.com
 </KEYBINDING>
 </INSTANCENAME>
 <INSTANCE CLASSNAME="PG_IndicationFilter">
+<QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
+<VALUE>
+PG_IndicationFilter defines the criteria for generating an Indication and what data should be returned in the Indication. It is derived from CIM_ManagedElement to allow modeling the dependency of the filter on a specific service.
+</VALUE>
+</QUALIFIER>
 <PROPERTY NAME="Caption" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="MaxLen" TYPE="uint32" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-64
-</VALUE>
-</QUALIFIER>
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The Caption property is a short textual description (one-line string) of the object.
-</VALUE>
-</QUALIFIER>
 </PROPERTY>
 <PROPERTY NAME="Description" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The Description property provides a textual description of the object.
-</VALUE>
-</QUALIFIER>
 </PROPERTY>
 <PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
 <VALUE>
@@ -268,24 +238,14 @@ server001.acme.com
 </KEYBINDING>
 </INSTANCENAME>
 <INSTANCE CLASSNAME="PG_IndicationFilter">
+<QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
+<VALUE>
+PG_IndicationFilter defines the criteria for generating an Indication and what data should be returned in the Indication. It is derived from CIM_ManagedElement to allow modeling the dependency of the filter on a specific service.
+</VALUE>
+</QUALIFIER>
 <PROPERTY NAME="Caption" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="MaxLen" TYPE="uint32" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-64
-</VALUE>
-</QUALIFIER>
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The Caption property is a short textual description (one-line string) of the object.
-</VALUE>
-</QUALIFIER>
 </PROPERTY>
 <PROPERTY NAME="Description" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The Description property provides a textual description of the object.
-</VALUE>
-</QUALIFIER>
 </PROPERTY>
 <PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
 <VALUE>
@@ -348,24 +308,14 @@ server001.acme.com
 </KEYBINDING>
 </INSTANCENAME>
 <INSTANCE CLASSNAME="PG_IndicationFilter">
+<QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
+<VALUE>
+PG_IndicationFilter defines the criteria for generating an Indication and what data should be returned in the Indication. It is derived from CIM_ManagedElement to allow modeling the dependency of the filter on a specific service.
+</VALUE>
+</QUALIFIER>
 <PROPERTY NAME="Caption" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="MaxLen" TYPE="uint32" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-64
-</VALUE>
-</QUALIFIER>
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The Caption property is a short textual description (one-line string) of the object.
-</VALUE>
-</QUALIFIER>
 </PROPERTY>
 <PROPERTY NAME="Description" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The Description property provides a textual description of the object.
-</VALUE>
-</QUALIFIER>
 </PROPERTY>
 <PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
 <VALUE>
@@ -428,24 +378,14 @@ server001.acme.com
 </KEYBINDING>
 </INSTANCENAME>
 <INSTANCE CLASSNAME="PG_IndicationFilter">
+<QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
+<VALUE>
+PG_IndicationFilter defines the criteria for generating an Indication and what data should be returned in the Indication. It is derived from CIM_ManagedElement to allow modeling the dependency of the filter on a specific service.
+</VALUE>
+</QUALIFIER>
 <PROPERTY NAME="Caption" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="MaxLen" TYPE="uint32" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-64
-</VALUE>
-</QUALIFIER>
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The Caption property is a short textual description (one-line string) of the object.
-</VALUE>
-</QUALIFIER>
 </PROPERTY>
 <PROPERTY NAME="Description" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The Description property provides a textual description of the object.
-</VALUE>
-</QUALIFIER>
 </PROPERTY>
 <PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
 <VALUE>

@@ -21,6 +21,7 @@ poststarttests:
 	@$(STRIPCRS)
 	$(COMPARERESULTS)
 	@$(ECHO) +++ Test passed +++
+	@$(RM) $(RESULTFILE)
 
 poststarttests_ignoreerror:
 	@$(ECHO) "Display usage - error" >> $(RESULTFILE)

@@ -2,13 +2,13 @@
 <CIM CIMVERSION="2.0" DTDVERSION="2.0">
   <MESSAGE ID="050002" PROTOCOLVERSION="1.0">
     <SIMPLEREQ>
-      <IMETHODCALL NAME="EnumerateInstances">
+      <IMETHODCALL NAME="EnumerateInstanceNames">
         <LOCALNAMESPACEPATH>
           <NAMESPACE NAME="root"/>
           <NAMESPACE NAME="PG_InterOp"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="ClassName">
-          <CLASSNAME NAME="PG_IndicationHandler"/>
+          <CLASSNAME NAME="PG_IndicationHandlerSNMPMapper"/>
         </IPARAMVALUE>
       </IMETHODCALL>
     </SIMPLEREQ>

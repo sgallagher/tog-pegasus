@@ -17,4 +17,6 @@ include $(ROOT)/mak/program.mak
 tests:
 
 poststarttests:
+	$(RMDIRHIER) $(TMP_DIR)/repository
 	$(PROGRAM)
+	$(RMDIRHIER) $(TMP_DIR)/repository

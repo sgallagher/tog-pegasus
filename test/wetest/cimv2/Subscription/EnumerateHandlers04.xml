@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-  <MESSAGE ID="050001" PROTOCOLVERSION="1.0">
+  <MESSAGE ID="050004" PROTOCOLVERSION="1.0">
     <SIMPLEREQ>
-      <IMETHODCALL NAME="EnumerateInstanceNames">
+      <IMETHODCALL NAME="EnumerateInstances">
         <LOCALNAMESPACEPATH>
           <NAMESPACE NAME="root"/>
           <NAMESPACE NAME="PG_InterOp"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="ClassName">
-          <CLASSNAME NAME="PG_IndicationHandlerCIMXML"/>
+          <CLASSNAME NAME="PG_IndicationHandlerSNMPMapper"/>
         </IPARAMVALUE>
       </IMETHODCALL>
     </SIMPLEREQ>

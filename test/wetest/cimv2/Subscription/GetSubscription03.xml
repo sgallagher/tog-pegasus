@@ -63,6 +63,23 @@
             </KEYBINDING>
           </INSTANCENAME>
         </IPARAMVALUE>
+        <IPARAMVALUE NAME="PropertyList">
+          <VALUE.ARRAY>
+            <VALUE> OtherOnFatalErrorPolicy </VALUE>
+            <VALUE> FailureTriggerTimeInterval </VALUE>
+            <VALUE> OtherSubscriptionState </VALUE>
+            <VALUE> SubscriptionDuration </VALUE>
+            <VALUE> OtherRepeatNotificationPolicy </VALUE>
+            <VALUE> RepeatNotificationInterval </VALUE>
+            <VALUE> RepeatNotificationGap </VALUE>
+            <VALUE> RepeatNotificationCount </VALUE>
+            <VALUE> Filter </VALUE>
+            <VALUE> Handler </VALUE>
+            <VALUE> SubscriptionState </VALUE>
+            <VALUE> RepeatNotificationPolicy </VALUE>
+            <VALUE> OnFatalErrorPolicy </VALUE>
+          </VALUE.ARRAY>
+        </IPARAMVALUE>
       </IMETHODCALL>
     </SIMPLEREQ>
   </MESSAGE>

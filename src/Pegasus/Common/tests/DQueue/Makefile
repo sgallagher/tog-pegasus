@@ -11,6 +11,8 @@ SOURCES = DQueue.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
+	$(RM) $(TMP_DIR)/dq_memory_trace
 	$(PROGRAM)
+	$(RM) $(TMP_DIR)/dq_memory_trace
 
 poststarttests:

@@ -4,28 +4,6 @@
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateInstanceNames">
 <IRETURNVALUE>
-<INSTANCENAME CLASSNAME="PG_IndicationHandlerSNMPMapper">
-<KEYBINDING NAME="CreationClassName">
-<KEYVALUE VALUETYPE="string">
-PG_IndicationHandlerSNMPMapper
-</KEYVALUE>
-</KEYBINDING>
-<KEYBINDING NAME="Name">
-<KEYVALUE VALUETYPE="string">
-Handler03
-</KEYVALUE>
-</KEYBINDING>
-<KEYBINDING NAME="SystemCreationClassName">
-<KEYVALUE VALUETYPE="string">
-CIM_UnitaryComputerSystem
-</KEYVALUE>
-</KEYBINDING>
-<KEYBINDING NAME="SystemName">
-<KEYVALUE VALUETYPE="string">
-server001.acme.com
-</KEYVALUE>
-</KEYBINDING>
-</INSTANCENAME>
 <INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">

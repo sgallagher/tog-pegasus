@@ -11,10 +11,12 @@ XMLSCRIPTS = \
     CreateSubscription01 CreateSubscription02 CreateSubscription03 \
     CreateSubscription04 CreateSubscription05 CreateSubscription06 \
     CreateSubscription07 CreateSubscription08 CreateSubscription09 \
-    EnumerateFilters01 \
-    EnumerateHandlers01 \
+    EnumerateFilters01 EnumerateFilters02 \
+    EnumerateHandlers01 EnumerateHandlers02 \
+    EnumerateHandlers03 EnumerateHandlers04 \
     EnumerateSubscriptions01 \
     GetFilter01 GetFilter02 GetFilter03 GetFilter04 GetFilter05 GetFilter06 \
+    GetHandler01 GetHandler02 GetHandler03 \
     ModifyFilter01 \
     ModifyHandler01 \
     ModifySubscription01 ModifySubscription02 \
@@ -47,10 +49,7 @@ XMLSCRIPTS = \
     CreateSubscription24 CreateSubscription25 \
     DeleteCapability02 DeleteProvider02 DeleteModule02 \
     DeleteCapability01 DeleteProvider01 DeleteModule01
-#   EnumerateFilters01 EnumerateFilters02 \
-#   EnumerateHandlers01 EnumerateHandlers02 \
 #   EnumerateSubscriptions01 EnumerateSubscriptions02 \
-#   GetHandler01 GetHandler02 GetHandler03 \
 #   GetSubscription01 GetSubscription02 GetSubscription03 \
 #   GetSubscription04 GetSubscription05 GetSubscription06 \
 #   GetSubscription07 GetSubscription08 GetSubscription09 \

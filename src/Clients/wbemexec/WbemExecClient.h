@@ -43,11 +43,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-static const char CERTIFICATE[] = "server.pem";
-
-static const char RANDOMFILE[]  = "ssl.rnd";
-
-
 /** This class provides the interface that a client uses to communicate
     with a CIMOM.
 */

@@ -256,23 +256,14 @@ WbemExecCommand::WbemExecCommand ()
 	    //
 	    const char* pegasusHome = getenv("PEGASUS_HOME");
 	
-	    String certpath = String::EMPTY;
-	    if (pegasusHome)
-	      {
-	        certpath.append(pegasusHome);
-	        certpath.append("/");
-	      }
-	    certpath.append(CERTIFICATE);
+	    String certpath = FileSystem::getAbsolutePath(
+                pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 	
 	    String randFile = String::EMPTY;
 
 #ifdef PEGASUS_SSL_RANDOMFILE
-	    if (pegasusHome)
-	      {
-	        randFile.append(pegasusHome);
-	        randFile.append("/");
-	      }
-	    randFile.append(RANDOMFILE);
+	    randFile = FileSystem::getAbsolutePath(
+                pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
             SSLContext * sslcontext =
                 new SSLContext(certpath, verifyCertificate, randFile, true);

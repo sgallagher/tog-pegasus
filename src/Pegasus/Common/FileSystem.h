@@ -280,6 +280,13 @@ public:
     */
     static void translateSlashes(String& path);
 
+    /** Get an absolute path from an absolute directory and a relative or
+        absolute file name.  If the file name is fully specified, it is
+        returned unchanged.  Otherwise, the specified directory is prepended
+        to the file name.
+    */
+    static String getAbsolutePath(const char* path, const String& filename);
+
 private:
 
     FileSystem() { }
@@ -341,6 +348,26 @@ inline Boolean FileSystem::getFileSizeNoCase(const String& path, Uint32& size)
 	return false;
 
     return FileSystem::getFileSize(realPath, size);
+}
+
+inline String FileSystem::getAbsolutePath(
+    const char* path,
+    const String& filename)
+{
+    String absolutePath;
+
+    if (filename != String::EMPTY)
+    {
+        if ((filename[0] != '/') && path && path[0])
+        {
+            absolutePath.append(path);
+            absolutePath.append('/');
+        }
+        absolutePath.append(filename);
+    }
+    translateSlashes(absolutePath);
+
+    return absolutePath;
 }
 
 inline Boolean Open(PEGASUS_STD(ifstream)& is, const String& path)

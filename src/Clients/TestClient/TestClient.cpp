@@ -35,6 +35,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <cassert>
 #include <Pegasus/Common/TLS.h>
@@ -54,9 +55,6 @@ PEGASUS_USING_STD;
 
 String globalNamespace = "root/cimv2";
 static const char __NAMESPACE_NAMESPACE [] = "root";
-
-static const char CERTIFICATE[] = "server.pem";
-static const char RANDOMFILE[] = "ssl.rnd";
 
 /** ErrorExit - Print out the error message as an
     and get out.
@@ -1077,22 +1075,13 @@ int main(int argc, char** argv)
                             //
                             const char* pegasusHome = getenv("PEGASUS_HOME");
 
-                            String certpath = String::EMPTY;
-                            if (pegasusHome)
-                            {
-                                   certpath.append(pegasusHome);
-                                   certpath.append("/");
-                            }
-                            certpath.append(CERTIFICATE);
+                            String certpath = FileSystem::getAbsolutePath(
+                                pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
                             String randFile = String::EMPTY;
 #ifdef PEGASUS_SSL_RANDOMFILE
-                            if (pegasusHome)
-                            {
-                                  randFile.append(pegasusHome);
-                                  randFile.append("/");
-                            }
-                            randFile.append(RANDOMFILE);
+                            randFile = FileSystem::getAbsolutePath(
+                                pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
                             SSLContext * sslcontext = 
                                 new SSLContext(certpath, verifyCertificate, randFile, true);

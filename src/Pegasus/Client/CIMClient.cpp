@@ -34,6 +34,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Common/CIMMessage.h>
@@ -60,12 +61,6 @@
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
-
-
-//ATTN-NB-02-05152002: Finalize the certificate and random file locations
-static const char CERTIFICATE[] = "server.pem";
-
-static const char RANDOMFILE[] = "ssl.rnd";
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -506,27 +501,16 @@ void CIMClientRep::connectLocal() throw(CIMClientException)
         // Create SSLContext
         //
 
-        // ATTN-NB-02-05152002: Remove PEGASUS_HOME dependency for certificate and random file.
-        //
         const char* pegasusHome = getenv("PEGASUS_HOME");
 
-        String certpath = String::EMPTY;
-        if (pegasusHome)
-        {
-               certpath.append(pegasusHome);
-               certpath.append("/");
-        }
-        certpath.append(CERTIFICATE);
+        String certpath = FileSystem::getAbsolutePath(
+            pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
         String randFile = String::EMPTY;
 
 #ifdef PEGASUS_SSL_RANDOMFILE
-        if (pegasusHome)
-        {
-            randFile.append(pegasusHome);
-            randFile.append("/");
-        }
-        randFile.append(RANDOMFILE);
+        randFile = FileSystem::getAbsolutePath(
+            pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
 
         try

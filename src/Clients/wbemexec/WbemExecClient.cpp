@@ -29,6 +29,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
@@ -226,27 +227,16 @@ void WbemExecClient::connectLocal()
         // Create SSLContext
         //
 
-        // ATTN-NB-02-05152002: Remove PEGASUS_HOME dependency for certificate and random file.
-        //
         const char* pegasusHome = getenv("PEGASUS_HOME");
 
-        String certpath = String::EMPTY;
-        if (pegasusHome)
-        {
-               certpath.append(pegasusHome);
-               certpath.append("/");
-        }
-        certpath.append(CERTIFICATE);
+        String certpath = FileSystem::getAbsolutePath(
+            pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
         String randFile = String::EMPTY;
 
 #ifdef PEGASUS_SSL_RANDOMFILE
-        if (pegasusHome)
-        {
-            randFile.append(pegasusHome);
-            randFile.append("/");
-        }
-        randFile.append(RANDOMFILE);
+        randFile = FileSystem::getAbsolutePath(
+            pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
 
         SSLContext * sslContext =

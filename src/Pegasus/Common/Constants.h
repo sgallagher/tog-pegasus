@@ -174,6 +174,13 @@ PEGASUS_NAMESPACE_BEGIN
 #define WBEM_HTTPS_SERVICE_NAME "wbem-https"
 
 //
+// SSL client certificate files
+//
+//ATTN-NB-02-05152002: Finalize the certificate and random file locations
+#define PEGASUS_SSLCLIENT_CERTIFICATEFILE "server.pem"
+#define PEGASUS_SSLCLIENT_RANDOMFILE      "ssl.rnd"
+
+//
 // Miscellaneous Constants
 //
 

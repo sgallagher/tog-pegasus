@@ -585,27 +585,9 @@ Uint32 CIMConfigCommand::execute (
     // Get environment variables
     //
 
-    String currentFile;
-    String plannedFile;
-
     const char* env = getenv("PEGASUS_HOME");
-
-    if (!env || env == "")
-    {
-        cerr << "PEGASUS_HOME environment variable undefined," << endl;
-        cerr << "using the configuration files from the current directory." << endl;
-
-        currentFile.append(CURRENT_CONFIG_FILE);
-        plannedFile.append(PLANNED_CONFIG_FILE);
-    }
-    else
-    {
-        pegasusHome = env;
-        FileSystem::translateSlashes(pegasusHome);
-
-        currentFile.append(pegasusHome + "/" + CURRENT_CONFIG_FILE);
-        plannedFile.append(pegasusHome + "/" + PLANNED_CONFIG_FILE);
-    }
+    String currentFile = FileSystem::getAbsolutePath(env, CURRENT_CONFIG_FILE);
+    String plannedFile = FileSystem::getAbsolutePath(env, PLANNED_CONFIG_FILE);
 
     try
     {

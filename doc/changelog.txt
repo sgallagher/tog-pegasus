@@ -483,6 +483,24 @@ repository implementation.
     For more information, refer to the CIMOM Shutdown working paper 
     in pegasus/doc/WorkPapers/CIMOMShutdown.pdf.
 
+59. (Markus Mueller - IBM) 06 Dec 2001 - Implemented SSL support (Linux only).
+    It consists the new classes SSL_Context, SSLSocket and MP_Socket defined
+    in TLS.h. HTTPAcceptor and HTTPConnector are extended with an additional
+    constructor to set a pointer to the server-, resp. client wide SSL_Context
+    structure. The Socket field in HTTPConnection is substituted with an
+    MP_Socket pointer, a class that is designed to hide the differences
+    between Socket and SSLSocket. The MP_Socket (multipurpose socket) class
+    is defined even in a non-ssl environment.
+    How to use it in a Server or Client:
+    1. Just create an SSL_Context once per Server/Client address space
+    2. Construct every HTTPConnector/Acceptor with a pointer to this
+       SSL_Context if you want to enable SSL; construct Connectors/Acceptors
+       without SSL_Context for conventional connections.
+
+    The Configuration data was extended with the boolean SSL property, and
+    cimserver and TestClient now understand the -SSL, resp. -ssl flag.
+
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

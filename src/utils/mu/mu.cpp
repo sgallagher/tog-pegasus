@@ -48,6 +48,7 @@
 #include "StripCmd.h"
 #include "PrependCmd.h"
 #include "SleepCmd.h"
+#include "SortCmd.h"
 #include "Files.h"
 
 const char HELP[] =
@@ -58,7 +59,7 @@ const char HELP[] =
 "\n"
 "Where command is one of the following:\n"
 "    rm, rmdirhier, mkdirhier, echo, touch, pwd, copy, move, compare depend\n"
-"    strip prepend sleep\n";
+"    strip prepend sleep sort\n";
 
 int main(int argc, char** argv)
 {
@@ -118,6 +119,9 @@ int main(int argc, char** argv)
         result = PrependCmd(args);
     else if (args[0] == "sleep")
         result = SleepCmd(args);
+    else if (args[0] == "sort")
+        result = SortCmd(args);
+
     else
     {
         result = 1;

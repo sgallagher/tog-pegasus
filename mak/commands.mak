@@ -20,12 +20,14 @@ endif
 ifeq ($(OS),win32)
     STRIPCRS = stripcrs $(RESULTFILE) $(MASTERRESULTFILE)
     DIFF = mu compare
+    SORT = mu sort
     REDIRECTERROR = 2>&1
     CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS) -start
     CIMSERVER_STOP_SERVICE = $(CIMSERVER_PATH)cimserver -stop
     SLEEP = mu sleep
     REMOVE_PEGASUS_DIRECTORY = mu rmdirhier pegasus
     MUEXE = mu.exe
+    RM = mu rm
     MKDIRHIER = $(MUEXE) mkdirhier
     RMDIRHIER = $(MUEXE) rmdirhier
     ECHO = mu echo
@@ -40,6 +42,7 @@ endif
 ifeq ($(OS),HPUX)
     STRIPCRS = 
     DIFF = diff
+    SORT = sort
     REDIRECTERROR = 2>&1
     CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS)
     CIMSERVER_STOP_SERVICE = $(CIMSERVER_PATH)cimserver -s
@@ -91,12 +94,14 @@ endif
 ifeq ($(OS),solaris)
     STRIPCRS =
     DIFF = diff
+    SORT = sort
     REDIRECTERROR = 2>&1
     CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS)
     CIMSERVER_STOP_SERVICE = /usr/bin/ps -ef | /usr/bin/grep cimserver | /usr/bin/grep -v grep | /usr/bin/awk '{print "kill -9 "$$2 |"/usr/bin/ksh"}'
     SLEEP = sleep
     REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
     MUEXE = mu
+    RM = rm -f
     MKDIRHIER = mkdir -p
     RMDIRHIER = rm -rf
     ECHO = echo
@@ -110,6 +115,7 @@ endif
 ifeq ($(OS),linux)
     STRIPCRS =
     DIFF = diff
+    SORT = sort
     REDIRECTERROR = 2>&1
     CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS)
     CIMSERVER_STOP_SERVICE = $(CIMSERVER_PATH)cimserver -s
@@ -156,12 +162,14 @@ endif
 ifeq ($(OS),zos)
     STRIPCRS =
     DIFF = diff
+    SORT = sort
     REDIRECTERROR =
     CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS)
     CIMSERVER_STOP_SERVICE = $(CIMSERVER_PATH)cimserver -s
     SLEEP = sleep
     REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
     MUEXE = mu
+    RM = rm -f
     MKDIRHIER = mkdir -p
     RMDIRHIER = rm -rf
     ECHO =
@@ -175,6 +183,7 @@ endif
 ifeq ($(OS),VMS)
     STRIPCRS =
     DIFF = mu compare
+    SORT = mu sort
     REDIRECTERROR =
     CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS)
     CIMSERVER_STOP_SERVICE = $(CIMSERVER_PATH)cimserver -s
@@ -193,12 +202,14 @@ endif
 ifeq ($(OS),aix)
     STRIPCRS =
     DIFF = diff
+    SORT = sort
     REDIRECTERROR =
     CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS)
     CIMSERVER_STOP_SERVICE = $(CIMSERVER_PATH)cimserver -s
     SLEEP = sleep
     REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
     MUEXE = mu
+    RM = rm -f
     MKDIRHIER = mkdir -p
     RMDIRHIER = rm -rf
     ECHO = echo

@@ -45,7 +45,8 @@ SOURCES = \
     mu.cpp                  \
     StripCmd.cpp            \
     PrependCmd.cpp          \
-    SleepCmd.cpp
+    SleepCmd.cpp            \
+    SortCmd.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
@@ -61,7 +62,7 @@ $(FULL_PROGRAM): $(OBJECTS)
 clean:
 	$(RM) $(OBJECTS)
 	$(RM) $(FULL_PROGRAM)
-	
+
 tests:
 
 poststarttests:

@@ -26,6 +26,12 @@ SH = sh
 
 YACC = yacc
 
+RM = rf -f
+
+DIFF = diff
+
+SORT = sort
+
 COPY = cp
 
 MOVE = mv

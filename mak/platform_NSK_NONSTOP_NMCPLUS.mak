@@ -32,6 +32,12 @@ SH = sh
 
 YACC = yacc 
 
+RM = rm -f
+
+DIFF = diff
+
+SORT = sort
+
 COPY = cp
 
 MOVE = mv

@@ -36,6 +36,10 @@ RMDIRHIER = mu rmdirhier
 
 MKDIRHIER = mu mkdirhier
 
+DIFF = mu compare
+
+SORT = mu sort
+
 COPY = mu copy
 
 MOVE = mu move

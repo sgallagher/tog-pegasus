@@ -41,6 +41,12 @@ SH = sh
 
 YACC = bison
 
+RM = mu rm
+
+DIFF = mu diff
+
+SORT = mu sort
+
 COPY = mu copy
 
 MOVE = mu move

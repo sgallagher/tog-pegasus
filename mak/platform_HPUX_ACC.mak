@@ -178,6 +178,12 @@ SH = sh
 
 YACC = bison
 
+RM = rm -f
+
+DIFF = diff
+
+SORT = sort
+
 COPY = cp
 
 MOVE = mv

@@ -140,6 +140,28 @@ endif
 
 LEX = flex
 
+## ========================================================================
+## DIFFSORT function definition 
+## Here is an example using the DIFFSORT function:
+## 
+## difftest: FORCE
+##	@ test > result
+##      @ $(call DIFFSORT,result,standard_result)
+##	@ $(ECHO) +++++ all test passed
+##
+
+define NL
+
+
+endef
+
+DIFFSORT = $(SORT) $(1) > $(1).tmp $(NL) \
+$(SORT) $(2) > $(2).tmp $(NL) \
+$(DIFF) $(1).tmp $(2).tmp $(NL) \
+$(RM) -f $(1).tmp $(NL) \
+$(RM) -f $(2).tmp $(NL)
+
+
 ################################################################################
 ##
 ## Attempt to include a platform configuration file:

@@ -60,6 +60,12 @@ EXE = .exe
 
 LIB_PREFIX = lib
 
+RM = $(MU) rm
+
+DIFF = $(MU) diff
+
+SORT = $(MU) sort
+
 COPY = $(MU) copy
 
 TOUCH = $(MU) touch

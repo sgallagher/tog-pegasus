@@ -18,6 +18,10 @@ EXE =
 
 LIB_PREFIX = lib
 
+DIFF = diff
+
+SORT = sort
+
 COPY = cp
 
 TOUCH = touch

@@ -49,6 +49,10 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+#if defined(PEGASUS_OS_HPUX)
+#define TYPE_CONV 
+#endif
+
 void BinaryStreamer::encode(Array<Sint8>& out, const CIMClass& cls)
 {
    toBin(out, cls);
@@ -212,7 +216,23 @@ void BinaryStreamer::toBin(Array<Sint8>& out, const CIMClass& cls)
 
 CIMClass BinaryStreamer::extractClass(const Array<Sint8>& in, Uint32 & pos, const String &path)
 {
+#ifdef TYPE_CONV
+  AutoPtr<record_preamble> preamble(new record_preamble());
+
+  Uint32 idx = pos;
+  memcpy( &preamble->_format, in.getData() +idx, sizeof(Uint8));
+  idx+=sizeof(Uint8);
+  memcpy( &preamble->_pVersion, in.getData()+idx, sizeof(Uint8));
+  idx+=sizeof(Uint8);
+  memcpy( &preamble->_pLenAndCtl, in.getData()+idx, sizeof(Uint16));
+  idx+=sizeof(Uint16);
+  memcpy( &preamble->_type, in.getData()+idx, sizeof(Uint8));
+  idx+=sizeof(Uint8);
+  memcpy( &preamble->_tVersion, in.getData()+idx, sizeof(Uint8));
+  //idx+=sizeof(Uint8);
+#else
    BINREP_RECORD_IN(preamble,in,pos);
+#endif
    const Sint8 *ar=in.getData();
 
    try {
@@ -251,7 +271,6 @@ CIMClass BinaryStreamer::extractClass(const Array<Sint8>& in, Uint32 & pos, cons
          }
 
          cls._rep->_resolved=extractBoolean(ar,pos);
-
          return cls;
       }
       default:
@@ -263,7 +282,6 @@ CIMClass BinaryStreamer::extractClass(const Array<Sint8>& in, Uint32 & pos, cons
       throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,"Binary Repository integraty failure: "+
          be.message+" - Accessing class: "+path);
    }
-
    return CIMClass();
 }
 
@@ -300,7 +318,24 @@ void BinaryStreamer::toBin(Array<Sint8>& out, const CIMInstance& inst)
 CIMInstance BinaryStreamer::extractInstance(const Array<Sint8>& in, Uint32 & pos,
         const String & path)
 {
+
+#ifdef TYPE_CONV
+  AutoPtr<record_preamble> preamble(new record_preamble());
+
+  Uint32 idx = pos;
+  memcpy( &preamble->_format, in.getData() +idx, sizeof(Uint8));
+  idx+=sizeof(Uint8);
+  memcpy( &preamble->_pVersion, in.getData()+idx, sizeof(Uint8));
+  idx+=sizeof(Uint8);
+  memcpy( &preamble->_pLenAndCtl, in.getData()+idx, sizeof(Uint16));
+  idx+=sizeof(Uint16);
+  memcpy( &preamble->_type, in.getData()+idx, sizeof(Uint8));
+  idx+=sizeof(Uint8);
+  memcpy( &preamble->_tVersion, in.getData()+idx, sizeof(Uint8));
+  //idx+=sizeof(Uint8);
+#else
    BINREP_RECORD_IN(preamble,in,pos);
+#endif
    const Sint8 *ar=in.getData();
 
    try {
@@ -374,7 +409,23 @@ void BinaryStreamer::toBin(Array<Sint8>& out, const CIMQualifierDecl& qdc)
 CIMQualifierDecl BinaryStreamer::extractQualifierDecl(const Array<Sint8>& in, Uint32 & pos,
         const String &path)
 {
+#ifdef TYPE_CONV
+  AutoPtr<record_preamble> preamble(new record_preamble());
+
+  Uint32 idx = pos;
+  memcpy( &preamble->_format, in.getData() +idx, sizeof(Uint8));
+  idx+=sizeof(Uint8);
+  memcpy( &preamble->_pVersion, in.getData()+idx, sizeof(Uint8));
+  idx+=sizeof(Uint8);
+  memcpy( &preamble->_pLenAndCtl, in.getData()+idx, sizeof(Uint16));
+  idx+=sizeof(Uint16);
+  memcpy( &preamble->_type, in.getData()+idx, sizeof(Uint8));
+  idx+=sizeof(Uint8);
+  memcpy( &preamble->_tVersion, in.getData()+idx, sizeof(Uint8));
+  //idx+=sizeof(Uint8);
+#else
    BINREP_RECORD_IN(preamble,in,pos);
+#endif
    const Sint8 *ar=in.getData();
 
    try {
@@ -450,7 +501,19 @@ void BinaryStreamer::toBin(Array<Sint8>& out, const CIMMethod &meth)
 
 CIMMethod BinaryStreamer::extractMethod(const Array<Sint8>& in, Uint32 & pos)
 {
+#ifdef TYPE_CONV
+  AutoPtr<subtype_preamble> preamble(new subtype_preamble());
+
+  Uint32 idx = pos;
+  memcpy( &preamble->_pLength, in.getData() +idx, sizeof(Uint8));
+  idx+=sizeof(Uint8);
+  memcpy( &preamble->_type, in.getData()+idx, sizeof(Uint8));
+  idx+=sizeof(Uint8);
+  memcpy( &preamble->_tVersion, in.getData()+idx, sizeof(Uint8));
+  //idx+=sizeof(Uint8);
+#else
    BINREP_SUBTYPE_IN(preamble,in,pos);
+#endif
    const Sint8 *ar=in.getData();
 
    if (preamble->type()!=BINREP_METHOD) {
@@ -521,7 +584,19 @@ void BinaryStreamer::toBin(Array<Sint8>& out, const CIMParameter& prm)
 
 CIMParameter BinaryStreamer::extractParameter(const Array<Sint8>& in, Uint32 &pos)
 {
+#ifdef TYPE_CONV
+  AutoPtr<subtype_preamble> preamble(new subtype_preamble());
+
+  Uint32 idx = pos;
+  memcpy( &preamble->_pLength, in.getData() +idx, sizeof(Uint8));
+  idx+=sizeof(Uint8);
+  memcpy( &preamble->_type, in.getData()+idx, sizeof(Uint8));
+  idx+=sizeof(Uint8);
+  memcpy( &preamble->_tVersion, in.getData()+idx, sizeof(Uint8));
+  //idx+=sizeof(Uint8);
+#else
    BINREP_SUBTYPE_IN(preamble,in,pos);
+#endif
    const Sint8 *ar=in.getData();
 
    if (preamble->type()!=BINREP_PARAMETER) {
@@ -589,7 +664,19 @@ void BinaryStreamer::toBin(Array<Sint8>& out, const CIMProperty& prop)
 
 CIMProperty BinaryStreamer::extractProperty(const Array<Sint8>& in, Uint32 &pos)
 {
+#ifdef TYPE_CONV
+  AutoPtr<subtype_preamble> preamble(new subtype_preamble());
+
+  Uint32 idx = pos;
+  memcpy( &preamble->_pLength, in.getData() +idx, sizeof(Uint8));
+  idx+=sizeof(Uint8);
+  memcpy( &preamble->_type, in.getData()+idx, sizeof(Uint8));
+  idx+=sizeof(Uint8);
+  memcpy( &preamble->_tVersion, in.getData()+idx, sizeof(Uint8));
+  //idx+=sizeof(Uint8);
+#else
    BINREP_SUBTYPE_IN(preamble,in,pos);
+#endif
    const Sint8 *ar=in.getData();
 
    if (preamble->type()!=BINREP_PROPERTY) {
@@ -682,7 +769,19 @@ void BinaryStreamer::toBin(Array<Sint8>& out, const CIMQualifier& qual)
 
 CIMQualifier BinaryStreamer::extractQualifier(const Array<Sint8>& in, Uint32 & pos)
 {
+#ifdef TYPE_CONV
+  AutoPtr<subtype_preamble> preamble(new subtype_preamble());
+
+  Uint32 idx = pos;
+  memcpy( &preamble->_pLength, in.getData() +idx, sizeof(Uint8));
+  idx+=sizeof(Uint8);
+  memcpy( &preamble->_type, in.getData()+idx, sizeof(Uint8));
+  idx+=sizeof(Uint8);
+  memcpy( &preamble->_tVersion, in.getData()+idx, sizeof(Uint8));
+  //idx+=sizeof(Uint8);
+#else
    BINREP_SUBTYPE_IN(preamble,in,pos);
+#endif
    const Sint8 *ar=in.getData();
 
    if (preamble->type()!=BINREP_QUALIFIER) {
@@ -868,13 +967,22 @@ void BinaryStreamer::toBin(Array<Sint8> & out, const CIMValue& val)
    }
 }
 
-#if defined(PEGASUS_OS_HPUX)
-#define TYPE_CONV 
-#endif
 
 CIMValue BinaryStreamer::extractValue(const Array<Sint8>& in, Uint32 & pos)
 {
+#ifdef TYPE_CONV
+  AutoPtr<subtype_preamble> preamble(new subtype_preamble());
+
+  Uint32 idx = pos;
+  memcpy( &preamble->_pLength, in.getData() +idx, sizeof(Uint8));
+  idx+=sizeof(Uint8);
+  memcpy( &preamble->_type, in.getData()+idx, sizeof(Uint8));
+  idx+=sizeof(Uint8);
+  memcpy( &preamble->_tVersion, in.getData()+idx, sizeof(Uint8));
+  //idx+=sizeof(Uint8);
+#else
     BINREP_SUBTYPE_IN(preamble,in,pos);
+#endif
     const Sint8 *ar=in.getData();
 
    if (preamble->type()!=BINREP_VALUE) {

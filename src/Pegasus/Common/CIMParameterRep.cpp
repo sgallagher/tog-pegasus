@@ -49,12 +49,8 @@ CIMParameterRep::CIMParameterRep(
     if (!CIMName::legal(name))
 	throw IllegalName();
 
-// ATTN-RK-P2-20020222: Had to remove this check to support InvokeMethod
-// requests without the new PARAMTYPE attribute on the PARAMVALUEs.
-// In this case, we can't determine the type during operating decoding,
-// so we set it to NONE and then correct it during operation processing.
-//    if (_type == CIMType::NONE)
-//	throw NullType();
+    if (_type == CIMType::NONE)
+	throw NullType();
 
     if (_arraySize && !_isArray)
 	throw IncompatibleTypes();

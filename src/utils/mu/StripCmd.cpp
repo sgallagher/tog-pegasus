@@ -4,27 +4,19 @@
 #include "StripCmd.h"
 #include "Files.h"
 
-int StripCmd(const vector<string>& args)
+static int _Strip(
+    const string& arg0,
+    const string& startPattern,
+    const string& endPattern,
+    const string& fileName)
 {
-    // -- Check arguments:
-
-    if (args.size() < 4)
-    {
-	cerr << args[0] << ": insufficient arguments" << endl;
-	return 1;
-    }
-
-    string startPattern = args[1];
-    string endPattern = args[2];
-    string fileName = args[3];
-
     // -- Open input file:
 
     ifstream is(fileName.c_str());
 
     if (!is)
     {
-	cerr << args[0] << ": failed to open \"" << fileName << "\"" << endl;
+	cerr << arg0 << ": failed to open \"" << fileName << "\"" << endl;
 	return 1;
     }
 
@@ -37,7 +29,7 @@ int StripCmd(const vector<string>& args)
 
     if (!os)
     {
-	cerr << args[0] << ": failed to open \"" << tmpFileName << "\"" << endl;
+	cerr << arg0 << ": failed to open \"" << tmpFileName << "\"" << endl;
 	return 1;
     }
 
@@ -80,13 +72,41 @@ int StripCmd(const vector<string>& args)
 
     if (!CopyFile(tmpFileName, fileName))
     {
-	cerr << args[0] << ": failed to copy file" << endl;
+	cerr << arg0 << ": failed to copy file" << endl;
 	return 1;
     }
 
     // -- Remove the temporary file:
 
     RemoveFile(tmpFileName);
+
+    return 0;
+}
+
+int StripCmd(const vector<string>& args)
+{
+    // -- Check arguments:
+
+    if (args.size() < 4)
+    {
+	cerr << args[0] << ": insufficient arguments" << endl;
+	return 1;
+    }
+
+    // -- Create complete glob list:
+
+    vector<string> fileNames;
+
+    for (size_t i = 3; i < args.size(); i++)
+	Glob(args[i], fileNames);
+
+    for (size_t i = 0; i < fileNames.size(); i++)
+    {
+	int result = _Strip(args[0], args[1], args[2], fileNames[i]);
+
+	if (result != 0)
+	    return result;
+    }
 
     return 0;
 }

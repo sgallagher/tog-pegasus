@@ -43,9 +43,9 @@ CIMObjectPath CreateHandler1Instance (CIMClient& client)
 {
     CIMInstance handlerInstance(PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
     handlerInstance.addProperty(CIMProperty (CIMName("SystemCreationClassName"),
-        String("CIM_UnitaryComputerSystem")));
+        System::getSystemCreationClassName ()));
     handlerInstance.addProperty(CIMProperty(CIMName ("SystemName"),
-        String("server001.acme.com")));
+        System::getFullyQualifiedHostName ()));
     handlerInstance.addProperty(CIMProperty(CIMName ("CreationClassName"),
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString()));
     handlerInstance.addProperty(CIMProperty(CIMName ("Name"),
@@ -61,9 +61,9 @@ CIMObjectPath CreateFilterInstance (CIMClient& client, const String query, const
 {
     CIMInstance filterInstance(PEGASUS_CLASSNAME_INDFILTER);
     filterInstance.addProperty(CIMProperty (CIMName ("SystemCreationClassName"),
-        String("CIM_UnitaryComputerSystem")));
+        System::getSystemCreationClassName ()));
     filterInstance.addProperty(CIMProperty(CIMName ("SystemName"),
-        String("server001.acme.com")));
+        System::getFullyQualifiedHostName ()));
     filterInstance.addProperty(CIMProperty(CIMName ("CreationClassName"),
         PEGASUS_CLASSNAME_INDFILTER.getString()));
     filterInstance.addProperty(CIMProperty(CIMName ("Name"),
@@ -140,7 +140,7 @@ int main(int argc, char** argv)
                            << PEGASUS_STD (endl);
         PEGASUS_STD (cerr) << "create handler instance failed" 
                            << PEGASUS_STD (endl);
-        exit (-1);
+        return -1;
     }
 
     PEGASUS_STD (cout) << "+++++ handler instances created" 
@@ -160,7 +160,7 @@ int main(int argc, char** argv)
                            << PEGASUS_STD (endl);
         PEGASUS_STD (cerr) << "create filter instances failed" 
                            << PEGASUS_STD (endl);
-        exit (-1);
+        return -1;
     }
 
     PEGASUS_STD (cout) << "+++++ filter instances created" 
@@ -178,13 +178,13 @@ int main(int argc, char** argv)
                            << PEGASUS_STD (endl);
         PEGASUS_STD (cerr) << "create subscription instance failed" 
                            << PEGASUS_STD (endl);
-        exit (-1);
+        return -1;
     }
 
     PEGASUS_STD (cout) << "+++++ subscription instances created" 
                        << PEGASUS_STD (endl);
 
-    // get dispaly consumer
+    // get display consumer
     String indicationFile2, oldIndicationFile;
 
     indicationFile2 = INDICATION_DIR;
@@ -220,7 +220,7 @@ int main(int argc, char** argv)
                            << PEGASUS_STD (endl);
         PEGASUS_STD (cerr) << "generate indication failed" 
                            << PEGASUS_STD (endl);
-        exit (-1);
+        return -1;
     }
 
     PEGASUS_STD (cout) << "+++++ indications generated" 
@@ -242,7 +242,7 @@ int main(int argc, char** argv)
                            << PEGASUS_STD (endl);
         PEGASUS_STD (cerr) << "delete instance failed" 
                            << PEGASUS_STD (endl);
-        exit (-1);
+        return -1;
     }
 
     PEGASUS_STD (cout) << "+++++ instances deleted" 
@@ -267,7 +267,7 @@ int main(int argc, char** argv)
 	    PEGASUS_STD (cout) << "+++++ passed all tests." << PEGASUS_STD (endl);
     	    // remove indicationFile
    	    FileSystem::removeFile(indicationFile);
-    	    exit (0);
+    	    return 0;
         }
         else
         {
@@ -278,7 +278,7 @@ int main(int argc, char** argv)
 	    indication_failed.append("/indicationLog_FAILED");
 	    FileSystem::renameFile(indicationFile, indication_failed);
     	    FileSystem::removeFile(indicationFile);
-	    exit (1);
+	    return 1;
         }
     }
     else
@@ -293,7 +293,7 @@ int main(int argc, char** argv)
 	    FileSystem::renameFile(indicationFile, indication_failed);
  	    FileSystem::removeFile(indicationFile);
 	}
-	exit (1);
+	return 1;
     }
 
 }

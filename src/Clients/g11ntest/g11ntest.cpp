@@ -37,6 +37,7 @@
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Stopwatch.h>
+#include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Consumer/CIMIndicationConsumer.h>
@@ -1526,6 +1527,50 @@ static void TestServerMessages( CIMClient& client,
     }
 }
 
+/*
+   Builds a filter or handler object path
+*/
+static CIMObjectPath buildFilterOrHandlerPath 
+    (const CIMName & className,
+     const String & name)
+{
+    CIMObjectPath path;
+
+    Array <CIMKeyBinding> keyBindings;
+    keyBindings.append (CIMKeyBinding ("SystemCreationClassName",
+        System::getSystemCreationClassName (), CIMKeyBinding::STRING));
+    keyBindings.append (CIMKeyBinding ("SystemName",
+        System::getFullyQualifiedHostName (), CIMKeyBinding::STRING));
+    keyBindings.append (CIMKeyBinding ("CreationClassName",
+        className.getString(), CIMKeyBinding::STRING));
+    keyBindings.append (CIMKeyBinding ("Name", name,
+        CIMKeyBinding::STRING));
+    path.setClassName (className);
+    path.setKeyBindings (keyBindings);
+
+    return path;
+}
+
+/*
+   Builds a subscription object path
+*/
+static CIMObjectPath buildSubscriptionObjectPath 
+    (const CIMObjectPath & filterPath,
+     const CIMObjectPath & handlerPath)
+{
+    CIMObjectPath path;
+
+    Array <CIMKeyBinding> keyBindings;
+    keyBindings.append (CIMKeyBinding ("Filter", filterPath.toString (), 
+        CIMKeyBinding::REFERENCE));
+    keyBindings.append (CIMKeyBinding ("Handler", handlerPath.toString (), 
+        CIMKeyBinding::REFERENCE));
+    path.setClassName (PEGASUS_CLASSNAME_INDSUBSCRIPTION);
+    path.setKeyBindings (keyBindings);
+
+    return path;
+}
+
 /* 
    Creates the subscriptions, filters, and handlers for the indication tests
 */
@@ -1551,47 +1596,24 @@ static void createSubscriptions(CIMClient& client,
     //---------------------------------------------------------
 
     // The handler that will have program as the destination
-    String g11ntestHandlerPath = "CIM_IndicationHandlerCIMXML."
-      "CreationClassName=\"CIM_IndicationHandlerCIMXML\","
-      "Name=\"g11ntest_Handler\","
-      "SystemCreationClassName=\"CIM_UnitaryComputerSystem\","
-      "SystemName=\"server001.acme.com\"";
+    CIMObjectPath g11ntestHandlerPath = buildFilterOrHandlerPath 
+        (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "g11ntest_Handler");
 
     // The handler that will have LocalizedProvider as the destination
-    String providerHandlerPath = "CIM_IndicationHandlerCIMXML."
-      "CreationClassName=\"CIM_IndicationHandlerCIMXML\","
-      "Name=\"provider_Handler\","
-      "SystemCreationClassName=\"CIM_UnitaryComputerSystem\","
-      "SystemName=\"server001.acme.com\"";
+    CIMObjectPath providerHandlerPath = buildFilterOrHandlerPath 
+        (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "provider_Handler");
 
     // The filter
-    String filterPath = "CIM_IndicationFilter."
-      "CreationClassName=\"CIM_IndicationFilter\","
-      "Name=\"g11ntest_Filter\","
-      "SystemCreationClassName=\"CIM_UnitaryComputerSystem\","
-      "SystemName=\"server001.acme.com\"";
+    CIMObjectPath filterPath = buildFilterOrHandlerPath 
+        (PEGASUS_CLASSNAME_INDFILTER, "g11ntest_Filter");
 
     // The subscription that will have this program as the destination
-    String g11ntestSubscriptionPath = "CIM_IndicationSubscription."
-      "Filter=\"CIM_IndicationFilter.CreationClassName=\\\"CIM_IndicationFilter\\\","
-      "Name=\\\"g11ntest_Filter\\\","
-      "SystemCreationClassName=\\\"CIM_UnitaryComputerSystem\\\","
-      "SystemName=\\\"server001.acme.com\\\"\","
-      "Handler=\"CIM_IndicationHandlerCIMXML.CreationClassName=\\\"CIM_IndicationHandlerCIMXML\\\","
-      "Name=\\\"g11ntest_Handler\\\","
-      "SystemCreationClassName=\\\"CIM_UnitaryComputerSystem\\\","
-      "SystemName=\\\"server001.acme.com\\\"\"";
+    CIMObjectPath g11ntestSubscriptionPath = buildSubscriptionObjectPath
+        (filterPath, g11ntestHandlerPath);
 
     // The subscription that will have LocalizedProvider as the destination
-    String providerSubscriptionPath = "CIM_IndicationSubscription."
-      "Filter=\"CIM_IndicationFilter.CreationClassName=\\\"CIM_IndicationFilter\\\","
-      "Name=\\\"g11ntest_Filter\\\","
-      "SystemCreationClassName=\\\"CIM_UnitaryComputerSystem\\\","
-      "SystemName=\\\"server001.acme.com\\\"\","
-      "Handler=\"CIM_IndicationHandlerCIMXML.CreationClassName=\\\"CIM_IndicationHandlerCIMXML\\\","
-      "Name=\\\"provider_Handler\\\","
-      "SystemCreationClassName=\\\"CIM_UnitaryComputerSystem\\\","
-      "SystemName=\\\"server001.acme.com\\\"\"";
+    CIMObjectPath providerSubscriptionPath = buildSubscriptionObjectPath
+        (filterPath, providerHandlerPath);
 
     // Need to delete the old subscription and handler that have this program as the
     // destination.  This is done in case the port changed since the last time.
@@ -1633,9 +1655,9 @@ static void createSubscriptions(CIMClient& client,
     {
       CIMInstance g11ntestHandlerInstance(PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
       g11ntestHandlerInstance.addProperty(CIMProperty (CIMName("SystemCreationClassName"),
-						       String("CIM_UnitaryComputerSystem")));
+          System::getSystemCreationClassName ()));
       g11ntestHandlerInstance.addProperty(CIMProperty(CIMName ("SystemName"),
-						      String("server001.acme.com")));
+          System::getFullyQualifiedHostName ()));
       g11ntestHandlerInstance.addProperty(CIMProperty(CIMName ("CreationClassName"),
 					      PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString()));
       g11ntestHandlerInstance.addProperty(CIMProperty(CIMName ("Name"),
@@ -1648,9 +1670,9 @@ static void createSubscriptions(CIMClient& client,
     // Create the new handler instance with LocalizedProvider as the destination
     CIMInstance providerHandlerInstance(PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
     providerHandlerInstance.addProperty(CIMProperty (CIMName("SystemCreationClassName"),
-        String("CIM_UnitaryComputerSystem")));
+        System::getSystemCreationClassName ()));
     providerHandlerInstance.addProperty(CIMProperty(CIMName ("SystemName"),
-        String("server001.acme.com")));
+        System::getFullyQualifiedHostName ()));
     providerHandlerInstance.addProperty(CIMProperty(CIMName ("CreationClassName"),
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString()));
     providerHandlerInstance.addProperty(CIMProperty(CIMName ("Name"),
@@ -1676,9 +1698,9 @@ static void createSubscriptions(CIMClient& client,
 
     CIMInstance filterInstance(PEGASUS_CLASSNAME_INDFILTER);
     filterInstance.addProperty(CIMProperty (CIMName ("SystemCreationClassName"),
-        String("CIM_UnitaryComputerSystem")));
+        System::getSystemCreationClassName ()));
     filterInstance.addProperty(CIMProperty(CIMName ("SystemName"),
-        String("server001.acme.com")));
+        System::getFullyQualifiedHostName ()));
     filterInstance.addProperty(CIMProperty(CIMName ("CreationClassName"),
         PEGASUS_CLASSNAME_INDFILTER.getString()));
     filterInstance.addProperty(CIMProperty(CIMName ("Name"),

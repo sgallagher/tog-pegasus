@@ -195,9 +195,9 @@ private:
 
         This function is called by the _canCreate function, and is used to 
         validate the  Filter and Handler properties in Subscription instances,
-        the Name, CreationClassName, Query and Query Language properties in 
-        Filter instances, the Name, CreationClassName, and Destination 
-        properties in CIMXML Handler instances, and the Name, CreationClassName,
+        the Name, Query and Query Language properties in 
+        Filter instances, the Name and Destination 
+        properties in CIMXML Handler instances, and the Name, 
         Trap Destination, and SNMP Version properties in SNMP Mapper instances.
 
         @param   instance              instance to be validated
@@ -261,9 +261,7 @@ private:
         If the property exists, but its value is NULL, its value is set to
         the default value.
         This function is called by the _canCreate function, and is used to 
-        validate the System Name and System Creation Class Name properties in
-        Filter and Handler instances, and the Source Namespace property in 
-        Filter instances.
+        validate the Source Namespace property in Filter instances.
 
         Note: currently all properties validated by this function are of type
         String.  To use this function in the future with properties of other 
@@ -277,6 +275,34 @@ private:
         @return  the value of the property
      */
     String _checkPropertyWithDefault (
+        CIMInstance & instance,
+        const CIMName & propertyName,
+        const String & defaultValue);
+
+    /**
+        Validates the specified property in the instance.
+        If the property does not exist, it is added with the default value.
+        If the property exists, but its value is NULL, its value is set to
+        the default value.
+        If the property exists and has a non-NULL value, its value is validated 
+        against the default (expected) value.  If the value is invalid, an 
+        exception is thrown.
+        This function is called by the _canCreate function, and is used to 
+        validate the Creation Class Name, System Name and System Creation Class
+        Name properties in Filter and Handler instances.
+
+        Note: currently all properties validated by this function are of type
+        String.  To use this function in the future with properties of other 
+        types, a type parameter would need to be added, and the default value 
+        would need to be passed as a CIMValue instead of a String.
+
+        @param   instance              instance to be validated
+        @param   propertyName          name of property to be validated
+        @param   defaultValue          default value for property
+
+        @return  the value of the property
+     */
+    String _initOrValidateStringProperty (
         CIMInstance & instance,
         const CIMName & propertyName,
         const String & defaultValue);

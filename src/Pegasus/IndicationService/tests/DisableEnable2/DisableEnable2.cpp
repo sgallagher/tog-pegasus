@@ -30,8 +30,9 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
-#include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/InternalException.h>
+#include <Pegasus/Common/System.h>
+#include <Pegasus/Client/CIMClient.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -47,9 +48,9 @@ void _createHandlerInstance
 {
     CIMInstance handlerInstance (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
     handlerInstance.addProperty (CIMProperty (CIMName 
-        ("SystemCreationClassName"), String ("CIM_UnitaryComputerSystem")));
+        ("SystemCreationClassName"), System::getSystemCreationClassName ()));
     handlerInstance.addProperty (CIMProperty (CIMName ("SystemName"),
-        String ("server001.acme.com")));
+        System::getFullyQualifiedHostName ()));
     handlerInstance.addProperty (CIMProperty (CIMName ("CreationClassName"),
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString ()));
     handlerInstance.addProperty (CIMProperty (CIMName ("Name"), name));
@@ -66,9 +67,9 @@ void _createFilterInstance
 {
     CIMInstance filterInstance (PEGASUS_CLASSNAME_INDFILTER);
     filterInstance.addProperty (CIMProperty (CIMName 
-        ("SystemCreationClassName"), String ("CIM_UnitaryComputerSystem")));
+        ("SystemCreationClassName"), System::getSystemCreationClassName ()));
     filterInstance.addProperty (CIMProperty (CIMName ("SystemName"),
-        String ("server001.acme.com")));
+        System::getFullyQualifiedHostName ()));
     filterInstance.addProperty (CIMProperty (CIMName ("CreationClassName"),
         PEGASUS_CLASSNAME_INDFILTER.getString ()));
     filterInstance.addProperty (CIMProperty (CIMName ("Name"), name));
@@ -178,9 +179,9 @@ void _deleteSubscriptionInstance
 {
     Array<CIMKeyBinding> filterKeyBindings;
     filterKeyBindings.append (CIMKeyBinding ("SystemCreationClassName",
-        "CIM_UnitaryComputerSystem", CIMKeyBinding::STRING));
+        System::getSystemCreationClassName (), CIMKeyBinding::STRING));
     filterKeyBindings.append (CIMKeyBinding ("SystemName",
-        "server001.acme.com", CIMKeyBinding::STRING));
+        System::getFullyQualifiedHostName (), CIMKeyBinding::STRING));
     filterKeyBindings.append (CIMKeyBinding ("CreationClassName",
         PEGASUS_CLASSNAME_INDFILTER.getString(), CIMKeyBinding::STRING));
     filterKeyBindings.append (CIMKeyBinding ("Name", filterName,
@@ -190,9 +191,9 @@ void _deleteSubscriptionInstance
 
     Array<CIMKeyBinding> handlerKeyBindings;
     handlerKeyBindings.append (CIMKeyBinding ("SystemCreationClassName",
-        "CIM_UnitaryComputerSystem", CIMKeyBinding::STRING));
+        System::getSystemCreationClassName (), CIMKeyBinding::STRING));
     handlerKeyBindings.append (CIMKeyBinding ("SystemName",
-        "server001.acme.com", CIMKeyBinding::STRING));
+        System::getFullyQualifiedHostName (), CIMKeyBinding::STRING));
     handlerKeyBindings.append (CIMKeyBinding ("CreationClassName",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString(),
         CIMKeyBinding::STRING));
@@ -217,9 +218,9 @@ void _deleteHandlerInstance
 {
     Array<CIMKeyBinding> keyBindings;
     keyBindings.append (CIMKeyBinding ("SystemCreationClassName",
-        "CIM_UnitaryComputerSystem", CIMKeyBinding::STRING));
+        System::getSystemCreationClassName (), CIMKeyBinding::STRING));
     keyBindings.append (CIMKeyBinding ("SystemName",
-        "server001.acme.com", CIMKeyBinding::STRING));
+        System::getFullyQualifiedHostName (), CIMKeyBinding::STRING));
     keyBindings.append (CIMKeyBinding ("CreationClassName",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString(),
         CIMKeyBinding::STRING));
@@ -236,9 +237,9 @@ void _deleteFilterInstance
 {
     Array<CIMKeyBinding> keyBindings;
     keyBindings.append (CIMKeyBinding ("SystemCreationClassName",
-        "CIM_UnitaryComputerSystem", CIMKeyBinding::STRING));
+        System::getSystemCreationClassName (), CIMKeyBinding::STRING));
     keyBindings.append (CIMKeyBinding ("SystemName",
-        "server001.acme.com", CIMKeyBinding::STRING));
+        System::getFullyQualifiedHostName (), CIMKeyBinding::STRING));
     keyBindings.append (CIMKeyBinding ("CreationClassName",
         PEGASUS_CLASSNAME_INDFILTER.getString(), CIMKeyBinding::STRING));
     keyBindings.append (CIMKeyBinding ("Name", name, 
@@ -277,13 +278,35 @@ void _setup (CIMClient & client)
                        << PEGASUS_STD (endl);
 }
 
+CIMObjectPath _buildFilterOrHandlerPath
+    (const CIMName & className,
+     const String & name)
+{
+    CIMObjectPath path;
+
+    Array <CIMKeyBinding> keyBindings;
+    keyBindings.append (CIMKeyBinding ("SystemCreationClassName",
+        System::getSystemCreationClassName (), CIMKeyBinding::STRING));
+    keyBindings.append (CIMKeyBinding ("SystemName",
+        System::getFullyQualifiedHostName (), CIMKeyBinding::STRING));
+    keyBindings.append (CIMKeyBinding ("CreationClassName",
+        className.getString(), CIMKeyBinding::STRING));
+    keyBindings.append (CIMKeyBinding ("Name", name, CIMKeyBinding::STRING));
+    path.setClassName (className);
+    path.setKeyBindings (keyBindings);
+
+    return path;
+}
+
 void _create (CIMClient & client)
 {
     try
     {
-
-        _createSubscriptionInstance (client, CIMObjectPath ("CIM_IndicationFilter.CreationClassName=\"CIM_IndicationFilter\",Name=\"DEFilter01\",SystemCreationClassName=\"CIM_UnitaryComputerSystem\",SystemName=\"server001.acme.com\""), 
-            CIMObjectPath ("CIM_IndicationHandlerCIMXML.CreationClassName=\"CIM_IndicationHandlerCIMXML\",Name=\"DEHandler01\",SystemCreationClassName=\"CIM_UnitaryComputerSystem\",SystemName=\"server001.acme.com\""));
+        _createSubscriptionInstance (client, 
+            _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
+                "DEFilter01"),
+            _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
+                "DEHandler01"));
     }
     catch (Exception & e)
     {
@@ -393,13 +416,13 @@ int main (int argc, char** argv)
     catch (Exception & e)
     {
         PEGASUS_STD (cerr) << e.getMessage () << PEGASUS_STD (endl);
-        exit (-1);
+        return -1;
     }
 
     if (argc != 2)
     {
         _usage ();
-        exit (1);
+        return 1;
     }
 
     else
@@ -439,9 +462,9 @@ int main (int argc, char** argv)
             PEGASUS_STD (cerr) << "Invalid option: " << opt 
                 << PEGASUS_STD (endl);
             _usage ();
-            exit (-1);
+            return -1;
         }
     }
 
-    exit (0);
+    return 0;
 }

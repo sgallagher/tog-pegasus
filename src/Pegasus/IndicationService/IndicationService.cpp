@@ -2930,18 +2930,22 @@ Boolean IndicationService::_canCreate (
         //
         //  Name, CreationClassName, SystemName, and SystemCreationClassName
         //  are key properties for Filter and Handler
-        //  CreationClassName and Name must exist
+        //  Name must exist
         //  If others do not exist, add and set to default
+        //  If they exist but are NULL, set value to the default
+        //  If they exist and are not NULL, validate the value
         //
         _checkRequiredProperty (instance, _PROPERTY_NAME, CIMTYPE_STRING,
             _MSG_KEY_PROPERTY);
-        _checkRequiredProperty (instance, _PROPERTY_CREATIONCLASSNAME,
-            CIMTYPE_STRING, _MSG_KEY_PROPERTY);
 
-        _checkPropertyWithDefault (instance, _PROPERTY_SYSTEMNAME,
+        _initOrValidateStringProperty (instance, _PROPERTY_CREATIONCLASSNAME,
+            instance.getClassName ().getString ());
+
+        _initOrValidateStringProperty (instance, _PROPERTY_SYSTEMNAME,
             System::getFullyQualifiedHostName ());
 
-        _checkPropertyWithDefault (instance, _PROPERTY_SYSTEMCREATIONCLASSNAME,
+        _initOrValidateStringProperty (instance, 
+            _PROPERTY_SYSTEMCREATIONCLASSNAME,
             System::getSystemCreationClassName ());
 
         if (instance.getClassName ().equal (PEGASUS_CLASSNAME_INDFILTER))
@@ -3577,6 +3581,42 @@ String IndicationService::_checkPropertyWithDefault (
 
     PEG_METHOD_EXIT ();
 }
+
+String IndicationService::_initOrValidateStringProperty (
+    CIMInstance & instance,
+    const CIMName & propertyName,
+    const String & defaultValue)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+        "IndicationService::_initOrValidateStringProperty");
+
+    String result = defaultValue;
+
+    String propertyValue = _checkPropertyWithDefault (instance, propertyName,
+        defaultValue);
+    if (propertyValue != defaultValue)
+    {
+        //
+        //  Property value specified is invalid
+        //
+        String exceptionStr = _MSG_INVALID_VALUE;
+        exceptionStr.append ("$0");
+        exceptionStr.append (_MSG_FOR_PROPERTY);
+        exceptionStr.append ("$1");
+
+        PEG_METHOD_EXIT ();
+
+        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
+            MessageLoaderParms (_MSG_INVALID_VALUE_FOR_PROPERTY_KEY,
+            exceptionStr,
+            propertyValue, propertyName.getString ()));
+    }
+
+    return result;
+
+    PEG_METHOD_EXIT ();
+}
+
 
 void IndicationService::_checkProperty (
     CIMInstance & instance,

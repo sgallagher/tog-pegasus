@@ -4,18 +4,18 @@
 // The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -32,7 +32,7 @@
 //              (carolann_graves@hp.com)
 //
 // Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Sushma Fernandes, Hewlett-Packard Company 
+//              Sushma Fernandes, Hewlett-Packard Company
 //              (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -56,11 +56,11 @@ class PEGASUS_COMMON_LINKAGE CIMMessage : public Message
 {
    public:
       typedef Message Base;
-      
-      CIMMessage(Uint32 type, const String& messageId_) 
+
+      CIMMessage(Uint32 type, const String& messageId_)
 	 : Message(type), messageId(messageId_) { }
-      
-      
+
+
       CIMMessage(CIMMessage & msg)
 	 : Base(msg)
       {
@@ -69,7 +69,7 @@ class PEGASUS_COMMON_LINKAGE CIMMessage : public Message
 	    const_cast<String &>(messageId) = msg.messageId;
 	 }
       }
-    
+
 
       virtual ~CIMMessage();
 
@@ -81,9 +81,9 @@ class PEGASUS_COMMON_LINKAGE CIMRequestMessage : public CIMMessage
    public:
 
       typedef CIMMessage Base;
-      
+
       CIMRequestMessage(
-	 Uint32 type_, const String& messageId_, QueueIdStack queueIds_) 
+	 Uint32 type_, const String& messageId_, QueueIdStack queueIds_)
 	 : CIMMessage(type_, messageId_), queueIds(queueIds_) { }
 
 
@@ -106,17 +106,17 @@ class PEGASUS_COMMON_LINKAGE CIMResponseMessage : public CIMMessage
    public:
 
       typedef CIMMessage Base;
-      
+
       CIMResponseMessage(
-	 Uint32 type_, 
+	 Uint32 type_,
 	 const String& messageId_,
 	 CIMStatusCode errorCode_,
 	 const String& errorDescription_,
 	 const QueueIdStack& queueIds_)
-	 : 
-	 CIMMessage(type_, messageId_), 
+	 :
+	 CIMMessage(type_, messageId_),
 	 queueIds(queueIds_),
-	 errorCode(errorCode_), 
+	 errorCode(errorCode_),
 	 errorDescription(errorDescription_)
       {
       }
@@ -132,7 +132,7 @@ class PEGASUS_COMMON_LINKAGE CIMResponseMessage : public CIMMessage
 	    errorDescription = msg.errorDescription;
 	 }
       }
-      
+
       virtual ~CIMResponseMessage();
 
       QueueIdStack queueIds;
@@ -140,11 +140,11 @@ class PEGASUS_COMMON_LINKAGE CIMResponseMessage : public CIMMessage
       String errorDescription;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMGetClassRequestMessage 
+class PEGASUS_COMMON_LINKAGE CIMGetClassRequestMessage
    : public CIMRequestMessage
 {
    public:
-    
+
       CIMGetClassRequestMessage(
 	 const String& messageId_,
 	 const String& nameSpace_,
@@ -252,7 +252,7 @@ class CIMExportIndicationRequestMessage : public CIMRequestMessage
 class CIMDeleteClassRequestMessage : public CIMRequestMessage
 {
    public:
-    
+
       CIMDeleteClassRequestMessage(
 	 const String& messageId_,
 	 const String& nameSpace_,
@@ -280,7 +280,7 @@ class CIMDeleteClassRequestMessage : public CIMRequestMessage
 class CIMDeleteInstanceRequestMessage : public CIMRequestMessage
 {
    public:
-    
+
       CIMDeleteInstanceRequestMessage(
 	 const String& messageId_,
 	 const String& nameSpace_,
@@ -590,7 +590,7 @@ class CIMExecQueryRequestMessage : public CIMRequestMessage
 
 class CIMAssociatorsRequestMessage : public CIMRequestMessage
 {
-   public:    
+   public:
 
       CIMAssociatorsRequestMessage(
 	 const String& messageId_,
@@ -652,7 +652,7 @@ class CIMAssociatorNamesRequestMessage : public CIMRequestMessage
 	 QueueIdStack queueIds_,
 	 const String& authType_ = String::EMPTY,
 	 const String& userName_ = String::EMPTY)
-	 : 
+	 :
 	 CIMRequestMessage(
 	    CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE, messageId_, queueIds_),
 	 nameSpace(nameSpace_),
@@ -979,10 +979,10 @@ class CIMEnableIndicationSubscriptionRequestMessage : public CIMRequestMessage
 	 const String& authType_ = String::EMPTY,
 	 const String& userName_ = String::EMPTY,
          //
-         //  ATTN-CAKG-P1-20020318: the following four parameters will be 
+         //  ATTN-CAKG-P1-20020318: the following four parameters will be
          //  removed as soon as possible; these are no longer needed, since
-         //  the threshholding parameters will not be passed in the operation 
-         //  context -- they can be obtained from the subscription instance 
+         //  the threshholding parameters will not be passed in the operation
+         //  context -- they can be obtained from the subscription instance
          //  (which will now be passed in the operation context).
          //
 	 const String & otherRepeatNotificationPolicy_ = String::EMPTY,
@@ -1008,8 +1008,8 @@ class CIMEnableIndicationSubscriptionRequestMessage : public CIMRequestMessage
 	 queryLanguage (queryLanguage_),
          //
          //  ATTN-CAKG-P1-20020318: A CIMNamedInstance is now passed, since both
-         //  the CIMInstance and CIMReference are needed for the indication 
-         //  provider API.  Since message recipients are currently still 
+         //  the CIMInstance and CIMReference are needed for the indication
+         //  provider API.  Since message recipients are currently still
          //  expecting a CIMInstance, subscription is currently being set to the
          //  CIMInstance part of the CIMNamedInstance; this will be modified as
          //  soon as possible to set subscription to the CIMNamedInstance
@@ -1062,10 +1062,10 @@ class CIMModifyIndicationSubscriptionRequestMessage : public CIMRequestMessage
 	 const String& authType_ = String::EMPTY,
 	 const String& userName_ = String::EMPTY,
          //
-         //  ATTN-CAKG-P1-20020318: the following four parameters will be 
+         //  ATTN-CAKG-P1-20020318: the following four parameters will be
          //  removed as soon as possible; these are no longer needed, since
-         //  the threshholding parameters will not be passed in the operation 
-         //  context -- they can be obtained from the subscription instance 
+         //  the threshholding parameters will not be passed in the operation
+         //  context -- they can be obtained from the subscription instance
          //  (which will now be passed in the operation context).
          //
 	 const String & otherRepeatNotificationPolicy_ = String::EMPTY,
@@ -1091,8 +1091,8 @@ class CIMModifyIndicationSubscriptionRequestMessage : public CIMRequestMessage
 	 queryLanguage (queryLanguage_),
          //
          //  ATTN-CAKG-P1-20020318: A CIMNamedInstance is now passed, since both
-         //  the CIMInstance and CIMReference are needed for the indication 
-         //  provider API.  Since message recipients are currently still 
+         //  the CIMInstance and CIMReference are needed for the indication
+         //  provider API.  Since message recipients are currently still
          //  expecting a CIMInstance, subscription is currently being set to the
          //  CIMInstance part of the CIMNamedInstance; this will be modified as
          //  soon as possible to set subscription to the CIMNamedInstance
@@ -1151,8 +1151,8 @@ class CIMDisableIndicationSubscriptionRequestMessage : public CIMRequestMessage
 	 providerModule (providerModule_),
          //
          //  ATTN-CAKG-P1-20020318: A CIMNamedInstance is now passed, since both
-         //  the CIMInstance and CIMReference are needed for the indication 
-         //  provider API.  Since message recipients are currently still 
+         //  the CIMInstance and CIMReference are needed for the indication
+         //  provider API.  Since message recipients are currently still
          //  expecting a CIMInstance, subscription is currently being set to the
          //  CIMInstance part of the CIMNamedInstance; this will be modified as
          //  soon as possible to set subscription to the CIMNamedInstance
@@ -1215,7 +1215,7 @@ class CIMNotifyProviderRegistrationRequestMessage : public CIMRequestMessage
 	 QueueIdStack queueIds_)
 	 :
 	 CIMRequestMessage(
-            CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE, 
+            CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE,
 	    messageId_, queueIds_),
 	 provider (provider_),
          providerModule (providerModule_),
@@ -1226,10 +1226,10 @@ class CIMNotifyProviderRegistrationRequestMessage : public CIMRequestMessage
 	 oldPropertyNames (oldPropertyNames_),
 	 operation(operation_)
       {
-    
+
       }
 
-      CIMInstance provider;    
+      CIMInstance provider;
       CIMInstance providerModule;
       String className;
       Array <String> newNamespaces;
@@ -1248,14 +1248,14 @@ class CIMNotifyProviderTerminationRequestMessage : public CIMRequestMessage
 	 QueueIdStack queueIds_)
 	 :
 	 CIMRequestMessage(
-            CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE, 
+            CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE,
 	    messageId_, queueIds_),
 	 provider (provider_)
       {
-    
+
       }
 
-      CIMInstance provider;    
+      CIMInstance provider;
 };
 
 class CIMHandleIndicationRequestMessage : public CIMRequestMessage
@@ -1289,7 +1289,57 @@ class CIMHandleIndicationRequestMessage : public CIMRequestMessage
       String userName;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMGetClassResponseMessage 
+/*
+class CIMCreateSubscriptionRequestMessage : public CIMRequestMessage
+{
+   public:
+
+      CIMCreateSubscriptionRequestMessage(
+	 const String& messageId_,
+	 CIMStatusCode errorCode_,
+	 const String& errorDescription_,
+	 const QueueIdStack& queueIds_)
+	 :
+	 CIMResponseMessage(CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE,
+			    messageId_, errorCode_, errorDescription_, queueIds_)
+      {
+      }
+};
+
+class CIMModifySubscriptionRequestMessage : public CIMRequestMessage
+{
+   public:
+
+      CIMModifySubscriptionRequestMessage(
+	 const String& messageId_,
+	 CIMStatusCode errorCode_,
+	 const String& errorDescription_,
+	 const QueueIdStack& queueIds_)
+	 :
+	 CIMResponseMessage(CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE,
+			    messageId_, errorCode_, errorDescription_, queueIds_)
+      {
+      }
+};
+
+class CIMDeleteSubscriptionRequestMessage : public CIMRequestMessage
+{
+   public:
+
+      CIMDeleteSubscriptionRequestMessage(
+	 const String& messageId_,
+	 CIMStatusCode errorCode_,
+	 const String& errorDescription_,
+	 const QueueIdStack& queueIds_)
+	 :
+	 CIMResponseMessage(CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE,
+			    messageId_, errorCode_, errorDescription_, queueIds_)
+      {
+      }
+};
+*/
+
+class PEGASUS_COMMON_LINKAGE CIMGetClassResponseMessage
    : public CIMResponseMessage
 {
    public:
@@ -1301,7 +1351,7 @@ class PEGASUS_COMMON_LINKAGE CIMGetClassResponseMessage
 	 const QueueIdStack& queueIds_,
 	 const CIMClass& cimClass_)
 	 :
-	 CIMResponseMessage(CIM_GET_CLASS_RESPONSE_MESSAGE, 
+	 CIMResponseMessage(CIM_GET_CLASS_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_),
 	 cimClass(cimClass_)
       {
@@ -1323,7 +1373,7 @@ class CIMGetInstanceResponseMessage : public CIMResponseMessage
 	 const QueueIdStack& queueIds_,
 	 const CIMInstance& cimInstance_)
 	 :
-	 CIMResponseMessage(CIM_GET_INSTANCE_RESPONSE_MESSAGE, 
+	 CIMResponseMessage(CIM_GET_INSTANCE_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_),
 	 cimInstance(cimInstance_)
       {
@@ -1342,7 +1392,7 @@ class CIMExportIndicationResponseMessage : public CIMResponseMessage
 	 const String& errorDescription_,
 	 const QueueIdStack& queueIds_)
 	 :
-	 CIMResponseMessage(CIM_EXPORT_INDICATION_RESPONSE_MESSAGE, 
+	 CIMResponseMessage(CIM_EXPORT_INDICATION_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_)
       {
       }
@@ -1353,12 +1403,12 @@ class CIMDeleteClassResponseMessage : public CIMResponseMessage
    public:
 
       CIMDeleteClassResponseMessage(
-	 const String& messageId_, 
+	 const String& messageId_,
 	 CIMStatusCode errorCode_,
 	 const String& errorDescription_,
 	 const QueueIdStack& queueIds_)
-	 : 
-	 CIMResponseMessage(CIM_DELETE_CLASS_RESPONSE_MESSAGE, 
+	 :
+	 CIMResponseMessage(CIM_DELETE_CLASS_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_)
       {
       }
@@ -1373,8 +1423,8 @@ class CIMDeleteInstanceResponseMessage : public CIMResponseMessage
 	 CIMStatusCode errorCode_,
 	 const String& errorDescription_,
 	 const QueueIdStack& queueIds_)
-	 : 
-	 CIMResponseMessage(CIM_DELETE_INSTANCE_RESPONSE_MESSAGE, 
+	 :
+	 CIMResponseMessage(CIM_DELETE_INSTANCE_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_)
       {
       }
@@ -1389,8 +1439,8 @@ class CIMCreateClassResponseMessage : public CIMResponseMessage
 	 CIMStatusCode errorCode_,
 	 const String& errorDescription_,
 	 const QueueIdStack& queueIds_)
-	 : 
-	 CIMResponseMessage(CIM_CREATE_CLASS_RESPONSE_MESSAGE, 
+	 :
+	 CIMResponseMessage(CIM_CREATE_CLASS_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_)
       {
       }
@@ -1406,8 +1456,8 @@ class CIMCreateInstanceResponseMessage : public CIMResponseMessage
 	 const String& errorDescription_,
 	 const QueueIdStack& queueIds_,
 	 const CIMReference& instanceName_)
-	 : 
-	 CIMResponseMessage(CIM_CREATE_INSTANCE_RESPONSE_MESSAGE, 
+	 :
+	 CIMResponseMessage(CIM_CREATE_INSTANCE_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_),
 	 instanceName(instanceName_)
       {
@@ -1421,12 +1471,12 @@ class CIMModifyClassResponseMessage : public CIMResponseMessage
    public:
 
       CIMModifyClassResponseMessage(
-	 const String& messageId_, 
+	 const String& messageId_,
 	 CIMStatusCode errorCode_,
 	 const String& errorDescription_,
 	 const QueueIdStack& queueIds_)
-	 : 
-	 CIMResponseMessage(CIM_MODIFY_CLASS_RESPONSE_MESSAGE, 
+	 :
+	 CIMResponseMessage(CIM_MODIFY_CLASS_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_)
       {
       }
@@ -1441,8 +1491,8 @@ class CIMModifyInstanceResponseMessage : public CIMResponseMessage
 	 CIMStatusCode errorCode_,
 	 const String& errorDescription_,
 	 const QueueIdStack& queueIds_)
-	 : 
-	 CIMResponseMessage(CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE, 
+	 :
+	 CIMResponseMessage(CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_)
       {
       }
@@ -1459,7 +1509,7 @@ class CIMEnumerateClassesResponseMessage : public CIMResponseMessage
 	 const QueueIdStack& queueIds_,
 	 const Array<CIMClass>& cimClasses_)
 	 :
-	 CIMResponseMessage(CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE, 
+	 CIMResponseMessage(CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_),
 	 cimClasses(cimClasses_)
       {
@@ -1479,7 +1529,7 @@ class CIMEnumerateClassNamesResponseMessage : public CIMResponseMessage
 	 const QueueIdStack& queueIds_,
 	 const Array<String>& classNames_)
 	 :
-	 CIMResponseMessage(CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE, 
+	 CIMResponseMessage(CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_),
 	 classNames(classNames_)
       {
@@ -1499,7 +1549,7 @@ class CIMEnumerateInstancesResponseMessage : public CIMResponseMessage
 	 const QueueIdStack& queueIds_,
 	 const Array<CIMNamedInstance>& cimNamedInstances_)
 	 :
-	 CIMResponseMessage(CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE, 
+	 CIMResponseMessage(CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_),
 	 cimNamedInstances(cimNamedInstances_)
       {
@@ -1519,7 +1569,7 @@ class CIMEnumerateInstanceNamesResponseMessage : public CIMResponseMessage
 	 const QueueIdStack& queueIds_,
 	 const Array<CIMReference>& instanceNames_)
 	 :
-	 CIMResponseMessage(CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE, 
+	 CIMResponseMessage(CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_),
 	 instanceNames(instanceNames_)
       {
@@ -1539,7 +1589,7 @@ class CIMExecQueryResponseMessage : public CIMResponseMessage
 	 const QueueIdStack& queueIds_,
 	 const Array<CIMInstance>& cimInstances_)
 	 :
-	 CIMResponseMessage(CIM_EXEC_QUERY_RESPONSE_MESSAGE, 
+	 CIMResponseMessage(CIM_EXEC_QUERY_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_),
 	 cimInstances(cimInstances_)
       {
@@ -1559,7 +1609,7 @@ class CIMAssociatorsResponseMessage : public CIMResponseMessage
 	 const QueueIdStack& queueIds_,
 	 const Array<CIMObjectWithPath>& cimObjects_)
 	 :
-	 CIMResponseMessage(CIM_ASSOCIATORS_RESPONSE_MESSAGE, 
+	 CIMResponseMessage(CIM_ASSOCIATORS_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_),
 	 cimObjects(cimObjects_)
       {
@@ -1579,7 +1629,7 @@ class CIMAssociatorNamesResponseMessage : public CIMResponseMessage
 	 const QueueIdStack& queueIds_,
 	 const Array<CIMReference>& objectNames_)
 	 :
-	 CIMResponseMessage(CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE, 
+	 CIMResponseMessage(CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_),
 	 objectNames(objectNames_)
       {
@@ -1599,7 +1649,7 @@ class CIMReferencesResponseMessage : public CIMResponseMessage
 	 const QueueIdStack& queueIds_,
 	 const Array<CIMObjectWithPath>& cimObjects_)
 	 :
-	 CIMResponseMessage(CIM_REFERENCES_RESPONSE_MESSAGE, 
+	 CIMResponseMessage(CIM_REFERENCES_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_),
 	 cimObjects(cimObjects_)
       {
@@ -1619,7 +1669,7 @@ class CIMReferenceNamesResponseMessage : public CIMResponseMessage
 	 const QueueIdStack& queueIds_,
 	 const Array<CIMReference>& objectNames_)
 	 :
-	 CIMResponseMessage(CIM_REFERENCE_NAMES_RESPONSE_MESSAGE, 
+	 CIMResponseMessage(CIM_REFERENCE_NAMES_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_),
 	 objectNames(objectNames_)
       {
@@ -1639,7 +1689,7 @@ class CIMGetPropertyResponseMessage : public CIMResponseMessage
 	 const QueueIdStack& queueIds_,
 	 const CIMValue& value_)
 	 :
-	 CIMResponseMessage(CIM_GET_PROPERTY_RESPONSE_MESSAGE, 
+	 CIMResponseMessage(CIM_GET_PROPERTY_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_),
 	 value(value_)
       {
@@ -1653,12 +1703,12 @@ class CIMSetPropertyResponseMessage : public CIMResponseMessage
    public:
 
       CIMSetPropertyResponseMessage(
-	 const String& messageId_, 
+	 const String& messageId_,
 	 CIMStatusCode errorCode_,
 	 const String& errorDescription_,
 	 const QueueIdStack& queueIds_)
-	 : 
-	 CIMResponseMessage(CIM_SET_PROPERTY_RESPONSE_MESSAGE, 
+	 :
+	 CIMResponseMessage(CIM_SET_PROPERTY_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_)
       {
       }
@@ -1675,7 +1725,7 @@ class CIMGetQualifierResponseMessage : public CIMResponseMessage
 	 const QueueIdStack& queueIds_,
 	 const CIMQualifierDecl& cimQualifierDecl_)
 	 :
-	 CIMResponseMessage(CIM_GET_QUALIFIER_RESPONSE_MESSAGE, 
+	 CIMResponseMessage(CIM_GET_QUALIFIER_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_),
 	 cimQualifierDecl(cimQualifierDecl_)
       {
@@ -1689,12 +1739,12 @@ class CIMSetQualifierResponseMessage : public CIMResponseMessage
    public:
 
       CIMSetQualifierResponseMessage(
-	 const String& messageId_, 
+	 const String& messageId_,
 	 CIMStatusCode errorCode_,
 	 const String& errorDescription_,
 	 const QueueIdStack& queueIds_)
-	 : 
-	 CIMResponseMessage(CIM_SET_QUALIFIER_RESPONSE_MESSAGE, 
+	 :
+	 CIMResponseMessage(CIM_SET_QUALIFIER_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_)
       {
       }
@@ -1705,12 +1755,12 @@ class CIMDeleteQualifierResponseMessage : public CIMResponseMessage
    public:
 
       CIMDeleteQualifierResponseMessage(
-	 const String& messageId_, 
+	 const String& messageId_,
 	 CIMStatusCode errorCode_,
 	 const String& errorDescription_,
 	 const QueueIdStack& queueIds_)
-	 : 
-	 CIMResponseMessage(CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE, 
+	 :
+	 CIMResponseMessage(CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_)
       {
       }
@@ -1727,7 +1777,7 @@ class CIMEnumerateQualifiersResponseMessage : public CIMResponseMessage
 	 const QueueIdStack& queueIds_,
 	 const Array<CIMQualifierDecl>& qualifierDeclarations_)
 	 :
-	 CIMResponseMessage(CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE, 
+	 CIMResponseMessage(CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_),
 	 qualifierDeclarations(qualifierDeclarations_)
       {
@@ -1749,7 +1799,7 @@ class CIMInvokeMethodResponseMessage : public CIMResponseMessage
 	 const Array<CIMParamValue>& outParameters_,
 	 const String& methodName_)
 	 :
-	 CIMResponseMessage(CIM_INVOKE_METHOD_RESPONSE_MESSAGE, 
+	 CIMResponseMessage(CIM_INVOKE_METHOD_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_),
 	 retValue(retValue_),
 	 outParameters(outParameters_),
@@ -1838,11 +1888,61 @@ class CIMHandleIndicationResponseMessage : public CIMResponseMessage
 	 const String& errorDescription_,
 	 const QueueIdStack& queueIds_)
 	 :
-	 CIMResponseMessage(CIM_HANDLE_INDICATION_RESPONSE_MESSAGE, 
+	 CIMResponseMessage(CIM_HANDLE_INDICATION_RESPONSE_MESSAGE,
 			    messageId_, errorCode_, errorDescription_, queueIds_)
       {
       }
 };
+
+/*
+class CIMCreateSubscriptionResponseMessage : public CIMResponseMessage
+{
+   public:
+
+      CIMCreateSubscriptionResponseMessage(
+	 const String& messageId_,
+	 CIMStatusCode errorCode_,
+	 const String& errorDescription_,
+	 const QueueIdStack& queueIds_)
+	 :
+	 CIMResponseMessage(CIM_CREATE_SUBSCRIPTION_RESPONSE_MESSAGE,
+			    messageId_, errorCode_, errorDescription_, queueIds_)
+      {
+      }
+};
+
+class CIMModifySubscriptionResponseMessage : public CIMResponseMessage
+{
+   public:
+
+      CIMModifySubscriptionResponseMessage(
+	 const String& messageId_,
+	 CIMStatusCode errorCode_,
+	 const String& errorDescription_,
+	 const QueueIdStack& queueIds_)
+	 :
+	 CIMResponseMessage(CIM_MODIFY_SUBSCRIPTION_RESPONSE_MESSAGE,
+			    messageId_, errorCode_, errorDescription_, queueIds_)
+      {
+      }
+};
+
+class CIMDeleteSubscriptionResponseMessage : public CIMResponseMessage
+{
+   public:
+
+      CIMDeleteSubscriptionResponseMessage(
+	 const String& messageId_,
+	 CIMStatusCode errorCode_,
+	 const String& errorDescription_,
+	 const QueueIdStack& queueIds_)
+	 :
+	 CIMResponseMessage(CIM_DELETE_SUBSCRIPTION_RESPONSE_MESSAGE,
+			    messageId_, errorCode_, errorDescription_, queueIds_)
+      {
+      }
+};
+*/
 
 PEGASUS_NAMESPACE_END
 

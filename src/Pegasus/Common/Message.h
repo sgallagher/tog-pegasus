@@ -4,18 +4,18 @@
 // The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -24,7 +24,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company 
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //              (carolann_graves@hp.com)
 // Modified By: Mike Day (mdday@us.ibm.com)
 //
@@ -43,7 +43,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 // REVIEW: could class be renamed to MessageMask (coding standard)
 
-class PEGASUS_COMMON_LINKAGE message_mask 
+class PEGASUS_COMMON_LINKAGE message_mask
 {
    public:
 
@@ -59,16 +59,16 @@ class PEGASUS_COMMON_LINKAGE message_mask
       static Uint32 type_control;
       static Uint32 type_service;
       static Uint32 type_broadcast;
-      
+
       static Uint32 ha_no_delete;
       static Uint32 ha_request;
       static Uint32 ha_reply;
       static Uint32 ha_synchronous;
       static Uint32 ha_async;
       static Uint32 ha_wait;
-      
-      
-      // more for documentation than for use 
+
+
+      // more for documentation than for use
 
       inline Uint32 get_type(Uint32 flags)
       {
@@ -87,7 +87,7 @@ class MessageQueueService;
 class AsyncLegacyOperationStart;
 class AsyncLegacyOperationResult;
 
-/** The Message class and derived classes are used to pass messages between 
+/** The Message class and derived classes are used to pass messages between
     modules. Messages are passed between modules using the message queues
     (see MessageQueue class). Derived classes may add their own fields.
     This base class defines two common fields: type, which is the type of
@@ -105,19 +105,19 @@ class PEGASUS_COMMON_LINKAGE Message
       Message(
 	 Uint32 type,
 	 Uint32 destination = 0,
-	 Uint32 key = getNextKey(), 
+	 Uint32 key = getNextKey(),
 	 Uint32 routing_code = 0,
-	 Uint32 mask = message_mask::type_legacy ) 
-	 : 
-	 _type(type), 
-	 _key(key), 
-	 _routing_code(routing_code), 
+	 Uint32 mask = message_mask::type_legacy )
+	 :
+	 _type(type),
+	 _key(key),
+	 _routing_code(routing_code),
 	 _mask(mask),
-	 _next(0), 
+	 _next(0),
 	 _prev(0),
 	 _async(0),
 	 dest(destination)
-      { 
+      {
 
       }
 
@@ -133,9 +133,9 @@ class PEGASUS_COMMON_LINKAGE Message
 	    dest = msg.dest;
 	 }
       }
-      
 
-      virtual ~Message(); 
+
+      virtual ~Message();
 
       Uint32 getType() const { return _type; }
 
@@ -149,9 +149,9 @@ class PEGASUS_COMMON_LINKAGE Message
       void setRouting(Uint32 routing) { _routing_code = routing; }
 
       Uint32 getMask() const { return _mask; }
-      
+
       void setMask(Uint32 mask) { _mask = mask; }
-      
+
       Message* getNext() { return _next; }
 
       const Message* getNext() const { return _next; }
@@ -160,40 +160,40 @@ class PEGASUS_COMMON_LINKAGE Message
 
       const Message* getPrevious() const { return _prev; }
 
-      static Uint32 getNextKey() 
-      { 
-	 
-	 _mut.lock( pegasus_thread_self() ) ; 
+      static Uint32 getNextKey()
+      {
+	
+	 _mut.lock( pegasus_thread_self() ) ;
 	 Uint32 ret = _nextKey++;
 	 _mut.unlock();
 	 return ret;
       }
-      
+
       virtual void print(PEGASUS_STD(ostream)& os) const;
 
-      // << Thu Dec 27 10:46:04 2001 mdd >> for use with DQueue container 
-      // as used by AsyncOpNode 
+      // << Thu Dec 27 10:46:04 2001 mdd >> for use with DQueue container
+      // as used by AsyncOpNode
       Boolean operator == (const void *msg )
       {
 	 if (reinterpret_cast<void *>(this) == msg )
 	    return true;
 	 return false;
       }
-      
+
       Message *get_async(void)
       {
 	 Message *ret = _async;
 	 _async = 0;
 	 return ret;
-	 
+	
       }
-      
+
       void put_async(Message * msg)
       {
 	 _async = msg;
       }
-      
-      
+
+
    private:
       Uint32 _type;
       Uint32 _key;
@@ -205,7 +205,7 @@ class PEGASUS_COMMON_LINKAGE Message
       Message *_async;
    public:
       Uint32 dest;
-      
+
    private:
       MessageQueue* _owner;
       static Uint32 _nextKey;
@@ -215,7 +215,7 @@ class PEGASUS_COMMON_LINKAGE Message
       friend class MessageQueueService;
       friend class AsyncLegacyOperationStart;
       friend class AsyncLegacyOperationResult;
-      
+
 };
 
 
@@ -290,6 +290,14 @@ enum MessageType
     CIM_NOTIFY_PROVIDER_TERMINATION_RESPONSE_MESSAGE,
     CIM_HANDLE_INDICATION_RESPONSE_MESSAGE,
 
+    // CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE,
+    // CIM_CREATE_SUBSCRIPTION_RESPONSE_MESSAGE,
+    // CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE,
+    // CIM_MODIFY_SUBSCRIPTION_RESPONSE_MESSAGE,
+    // CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE,
+    // CIM_DELETE_SUBSCRIPTION_RESPONSE_MESSAGE,
+
+
     // Monitor-related messages:
 
     SOCKET_MESSAGE,
@@ -315,31 +323,31 @@ class QueueIdStack
 {
 public:
 
-    QueueIdStack() : _size(0) 
-    { 
+    QueueIdStack() : _size(0)
+    {
     }
 
-    QueueIdStack(const QueueIdStack& x) : _size(x._size) 
+    QueueIdStack(const QueueIdStack& x) : _size(x._size)
     {
 	memcpy(_items, x._items, sizeof(_items));
     }
 
-    PEGASUS_EXPLICIT QueueIdStack(Uint32 x) : _size(0) 
-    { 
-	push(x); 
-    }
-
-    PEGASUS_EXPLICIT QueueIdStack(Uint32 x1, Uint32 x2) : _size(0) 
+    PEGASUS_EXPLICIT QueueIdStack(Uint32 x) : _size(0)
     {
-	push(x1); 
-	push(x2); 
+	push(x);
     }
 
-    ~QueueIdStack() 
-    { 
+    PEGASUS_EXPLICIT QueueIdStack(Uint32 x1, Uint32 x2) : _size(0)
+    {
+	push(x1);
+	push(x2);
     }
 
-    QueueIdStack& operator=(const QueueIdStack& x) 
+    ~QueueIdStack()
+    {
+    }
+
+    QueueIdStack& operator=(const QueueIdStack& x)
     {
 	if (this != &x)
 	{
@@ -349,17 +357,17 @@ public:
 	return *this;
     }
 
-    Uint32 size() const 
-    { 
-	return _size; 
+    Uint32 size() const
+    {
+	return _size;
     }
 
-    Boolean isEmpty() const 
-    { 
-	return _size == 0; 
+    Boolean isEmpty() const
+    {
+	return _size == 0;
     }
 
-    void push(Uint32 x) 
+    void push(Uint32 x)
     {
 	if (_size == MAX_SIZE)
 	    throw StackOverflow();
@@ -375,12 +383,12 @@ public:
 	return _items[_size-1];
     }
 
-    Uint32 top() const 
+    Uint32 top() const
     {
-	return ((QueueIdStack*)this)->top(); 
+	return ((QueueIdStack*)this)->top();
     }
 
-    void pop() 
+    void pop()
     {
 	if (_size == 0)
 	    throw StackUnderflow();
@@ -397,7 +405,7 @@ public:
 private:
 
     // Copy the given stack but then pop the top element:
-    QueueIdStack(const QueueIdStack& x, int) : _size(x._size) 
+    QueueIdStack(const QueueIdStack& x, int) : _size(x._size)
     {
 	memcpy(_items, x._items, sizeof(_items));
 	pop();

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Property.cpp,v $
+// Revision 1.5  2001/02/20 07:25:57  mike
+// Added basic create-instance in repository and in client.
+//
 // Revision 1.4  2001/02/19 01:47:17  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -53,7 +56,7 @@ int main()
     CIMProperty p1("message", "Hi There");
     p1.addQualifier(CIMQualifier("Key", true));
     p1.addQualifier(CIMQualifier("Description", "Blah Blah"));
-    CIMConstProperty p2 = p1;
+    ConstCIMProperty p2 = p1;
 
     cout << "+++++ passed all tests" << endl;
 

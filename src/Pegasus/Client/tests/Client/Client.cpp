@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Client.cpp,v $
+// Revision 1.7  2001/02/20 07:25:57  mike
+// Added basic create-instance in repository and in client.
+//
 // Revision 1.6  2001/02/18 19:02:17  mike
 // Fixed CIM debacle
 //
@@ -166,12 +169,59 @@ static void TestQualifierOperations(CIMClient& client)
     client.deleteQualifier(NAMESPACE, "qd2");
 }
 
+static void TestInstanceOperations(CIMClient& client)
+{
+    // Delete the class if it already exists:
+
+    try
+    {
+	client.deleteClass(NAMESPACE, "myclass");
+    }
+    catch (Exception& e)
+    {
+	cout << "Warning: deleteClass() failed" << endl;
+	cout << "Error: " << e.getMessage() << endl;
+    }
+
+    // Create a new class:
+
+    CIMClass cimClass("myclass");
+    cimClass
+	.addProperty(CIMProperty("last", String())
+	    .addQualifier(CIMQualifier("key", true)))
+	.addProperty(CIMProperty("first", String())
+	    .addQualifier(CIMQualifier("key", true)))
+	.addProperty(CIMProperty("age", Uint8(0))
+	    .addQualifier(CIMQualifier("key", true)));
+    client.createClass(NAMESPACE, cimClass);
+
+    // Create an instance of that class:
+
+    CIMInstance cimInstance("myclass");
+    cimInstance.addProperty(CIMProperty("last", "Smith"));
+    cimInstance.addProperty(CIMProperty("first", "John"));
+    cimInstance.addProperty(CIMProperty("age", Uint8(101)));
+    String instanceName = cimInstance.getInstanceName(cimClass);
+    client.createInstance(NAMESPACE, cimInstance);
+
+    // Get the class and compare with created one:
+
+    CIMReference ref;
+    CIMReference::instanceNameToReference(instanceName, ref);
+    CIMInstance tmp = client.getInstance(NAMESPACE, ref);
+
+    cimInstance.print();
+    tmp.print();
+    assert(cimInstance.identical(tmp));
+}
+
 int main(int argc, char** argv)
 {
     try
     {
 	CIMClient client;
 	client.connect("localhost", 8888);
+	TestInstanceOperations(client);
 	TestQualifierOperations(client);
 	TestClassOperations(client);
     }

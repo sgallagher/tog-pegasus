@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMRepository.cpp,v $
+// Revision 1.4  2001/02/20 07:25:57  mike
+// Added basic create-instance in repository and in client.
+//
 // Revision 1.3  2001/02/19 01:47:17  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -579,8 +582,35 @@ CIMInstance CIMRepository::getInstance(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    throw CimException(CimException::NOT_SUPPORTED);
-    return CIMInstance();
+    // Get path of index file:
+
+    String indexPath;
+
+    _MakeInstanceIndexPath(
+	_root, nameSpace, instanceName.getClassName(), indexPath);
+
+    // Lookup the index of the instance:
+
+    Uint32 index;
+
+    // ATTN-A: Need to put instance name in standard form:
+
+    String tmp;
+    CIMReference::referenceToInstanceName(instanceName, tmp);
+
+    if (!InstanceIndexFile::lookup(indexPath, tmp, index))
+	throw CimException(CimException::FAILED);
+
+    // Form the path to the instance fiel:
+
+    String path;
+
+    _MakeInstancePath(
+	_root, nameSpace, instanceName.getClassName(), index, path);
+
+    CIMInstance cimInstance;
+    _LoadObject(path, cimInstance);
+    return cimInstance;
 }
 
 void CIMRepository::deleteClass(
@@ -644,17 +674,18 @@ void CIMRepository::createInstance(
     const String& nameSpace,
     CIMInstance& newInstance) 
 {
-    // Form the reference to this instance:
+    // Lookup the class and resolve the instance:
 
-    String instanceName;
+    CIMClass cimClass = getClass(nameSpace, newInstance.getClassName());
 
-#if 0
-    // ATTN: fix this:
-    CIMReference::referenceToInstanceName(
-	newInstance.makeReference(), instanceName);
-#else
-    instanceName = "MyClass.key1=123456";
-#endif
+    // ATTN-B: the class is looked up twice here!
+
+    newInstance.resolve(_context, nameSpace);
+
+    // Get the instance name from the new instance:
+    // ATTN-1: Why is this necessary?
+
+    String instanceName = newInstance.getInstanceName(cimClass);
 
     // Get the instance-name and create an entry
 

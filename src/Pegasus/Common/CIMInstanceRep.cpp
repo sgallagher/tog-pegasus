@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMInstanceRep.cpp,v $
+// Revision 1.4  2001/02/20 07:25:57  mike
+// Added basic create-instance in repository and in client.
+//
 // Revision 1.3  2001/02/20 05:16:57  mike
 // Implemented CIMInstance::getInstanceName()
 //
@@ -202,7 +205,7 @@ void CIMInstanceRep::resolve(
 
 	for (Uint32 j = m, n = _properties.getSize(); j < n; j++)
 	{
-	    if (_properties[j].getName() == name)
+	    if (CIMName::equal(_properties[j].getName(), name))
 	    {
 		found = true;
 		break;
@@ -305,7 +308,7 @@ void CIMInstanceRep::print() const
     std::cout << tmp.getData() << std::endl;
 }
 
-String CIMInstanceRep::getInstanceName(ConstCIMClass& cimClass) const
+String CIMInstanceRep::getInstanceName(const ConstCIMClass& cimClass) const
 {
     // ATTN-A: should we disallow keys on arrays and reals?
     // ATTN-A: shift the case of each identifier to lower case:
@@ -338,7 +341,7 @@ String CIMInstanceRep::getInstanceName(ConstCIMClass& cimClass) const
 
 	ConstCIMProperty tmp = getProperty(pos);
 
-	if (tmp.getName() == keyName)
+	if (CIMName::equal(tmp.getName(), keyName))
 	{
 	    const CIMValue& value = tmp.getValue();
 

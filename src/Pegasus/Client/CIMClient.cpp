@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMClient.cpp,v $
+// Revision 1.4  2001/02/20 07:25:57  mike
+// Added basic create-instance in repository and in client.
+//
 // Revision 1.3  2001/02/19 01:47:16  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -100,6 +103,17 @@ struct EnumerateClassNamesResult
     Array<String> classNames;
 };
 //STUB}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// CreateInstanceResult
+//
+////////////////////////////////////////////////////////////////////////////////
+
+struct CreateInstanceResult
+{
+    CimException::Code code;
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -240,6 +254,8 @@ public:
     int handleEnumerateClassNamesResponse(XmlParser& parser, Uint32 messageId);
     //STUB}
 
+    int handleCreateInstanceResponse(XmlParser& parser, Uint32 messageId);
+
     int handleEnumerateInstanceNamesResponse(
 	XmlParser& parser, 
 	Uint32 messageId);
@@ -272,6 +288,7 @@ public:
 	//STUB{
 	EnumerateClassNamesResult* _enumerateClassNamesResult;
 	//STUB}
+	CreateInstanceResult* _createInstanceResult;
 	EnumerateInstanceNamesResult* _enumerateInstanceNamesResult;
 	DeleteQualifierResult* _deleteQualifierResult;
 	GetQualifierResult* _getQualifierResult;
@@ -422,6 +439,8 @@ int ClientHandler::handleMethodResponse()
     else if (strcmp(iMethodResponseName, "EnumerateClassNames") == 0)
 	handleEnumerateClassNamesResponse(parser, messageId);
     //STUB}
+    else if (strcmp(iMethodResponseName, "CreateInstance") == 0)
+	handleCreateInstanceResponse(parser, messageId);
     else if (strcmp(iMethodResponseName, "EnumerateInstanceNames") == 0)
 	handleEnumerateInstanceNamesResponse(parser, messageId);
     else if (strcmp(iMethodResponseName, "DeleteQualifier") == 0)
@@ -599,6 +618,47 @@ int ClientHandler::handleEnumerateClassNamesResponse(
     return 0;
 }
 //STUB}
+
+//------------------------------------------------------------------------------
+//
+// ClientHandler::handleCreateInstanceResponse()
+//
+//     Expect (ERROR|IRETURNVALUE).
+//
+//------------------------------------------------------------------------------
+
+int ClientHandler::handleCreateInstanceResponse(
+    XmlParser& parser, 
+    Uint32 messageId) 
+{
+    XmlEntry entry;
+    CimException::Code code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_createInstanceResult = new CreateInstanceResult;
+	_createInstanceResult->code = code;
+	_blocked = false;
+	return 0;
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_createInstanceResult = new CreateInstanceResult;
+	_createInstanceResult->code = CimException::SUCCESS;
+	_blocked = false;
+	return 0;
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
+
+    return 0;
+}
 
 //------------------------------------------------------------------------------
 //
@@ -1331,12 +1391,34 @@ void CIMClient::createClass(
 	throw CimException(code);
 }
 
-
 void CIMClient::createInstance(
     const String& nameSpace,
     CIMInstance& newInstance) 
 {
-    throw CimException(CimException::NOT_SUPPORTED);
+    Uint32 messageId = XmlWriter::getNextMessageId();
+
+    Array<Sint8> parameters;
+
+    XmlWriter::appendInstanceParameter(
+	parameters, "NewInstance", newInstance);
+	
+    Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
+	((ClientHandler*)_handler)->getHostName(),
+	nameSpace, "CreateInstance", parameters);
+
+    ClientHandler* handler = (ClientHandler*)_handler;
+    handler->sendMessage(message);
+
+    if (!handler->waitForResponse(_timeOutMilliseconds))
+	throw TimedOut();
+
+    CreateInstanceResult* result = handler->_createInstanceResult;
+    CimException::Code code = result->code;
+    delete result;
+    handler->_createInstanceResult = 0;
+
+    if (code != CimException::SUCCESS)
+	throw CimException(code);
 }
 
 void CIMClient::modifyClass(

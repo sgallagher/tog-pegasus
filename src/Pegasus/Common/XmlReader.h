@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: XmlReader.h,v $
+// Revision 1.4  2001/02/20 07:25:57  mike
+// Added basic create-instance in repository and in client.
+//
 // Revision 1.3  2001/02/19 01:47:16  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -310,6 +313,15 @@ public:
 	{
 	    throw XmlValidationError(parser.getLine(),
 		"expected CLASS element");
+	}
+    }
+
+    static void getObject(XmlParser& parser, CIMInstance& x)
+    {
+	if (!getInstanceElement(parser, x))
+	{
+	    throw XmlValidationError(parser.getLine(),
+		"expected INSTANCE element");
 	}
     }
 

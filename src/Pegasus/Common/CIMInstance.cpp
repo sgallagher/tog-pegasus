@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMInstance.cpp,v $
+// Revision 1.3  2001/02/20 07:25:57  mike
+// Added basic create-instance in repository and in client.
+//
 // Revision 1.2  2001/02/19 01:47:16  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -49,7 +52,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-Boolean CIMInstance::identical(const CIMConstInstance& x) const
+Boolean CIMInstance::identical(const ConstCIMInstance& x) const
 {
     x._checkRep();
     _checkRep();

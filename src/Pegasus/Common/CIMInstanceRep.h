@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMInstanceRep.h,v $
+// Revision 1.4  2001/02/20 07:25:57  mike
+// Added basic create-instance in repository and in client.
+//
 // Revision 1.3  2001/02/20 05:16:57  mike
 // Implemented CIMInstance::getInstanceName()
 //
@@ -58,7 +61,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class DeclContext;
 class CIMInstance;
-class CIMConstInstance;
+class ConstCIMInstance;
 class CIMClass;
 class ConstCIMClass;
 
@@ -128,7 +131,7 @@ public:
 	return new CIMInstanceRep(*this);
     }
 
-    String getInstanceName(ConstCIMClass& cimClass) const;
+    String getInstanceName(const ConstCIMClass& cimClass) const;
 
 private:
 

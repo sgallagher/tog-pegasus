@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: XmlWriter.h,v $
+// Revision 1.7  2001/02/20 07:25:57  mike
+// Added basic create-instance in repository and in client.
+//
 // Revision 1.6  2001/02/19 01:47:17  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -66,6 +69,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMConstQualifierDecl;
 class ConstCIMClass;
+class ConstCIMInstance;
 
 class PEGASUS_COMMON_LINKAGE XmlWriter
 {
@@ -170,6 +174,11 @@ public:
 	Array<Sint8>& out,
 	const char* parameterName,
 	const CIMReference& instanceName);
+
+    static Array<Sint8>& appendInstanceParameter(
+	Array<Sint8>& out,
+	const char* parameterName,
+	const ConstCIMInstance& instance);
 
     static Array<Sint8>& appendQualifierDeclarationParameter(
 	Array<Sint8>& out,

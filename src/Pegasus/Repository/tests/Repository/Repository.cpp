@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Repository.cpp,v $
+// Revision 1.7  2001/02/20 07:25:57  mike
+// Added basic create-instance in repository and in client.
+//
 // Revision 1.6  2001/02/19 01:47:17  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -101,10 +104,31 @@ void test02()
 	// Ignore this!
     }
 
-    CIMInstance inst("MyClass");
-    inst.addProperty(CIMProperty("key", Uint32(0)));
+    CIMClass cimClass("ThisClass");
 
-    r.createInstance(NAMESPACE, inst);
+    cimClass
+	.addProperty(CIMProperty("Last", String())
+	    .addQualifier(CIMQualifier("key", true)))
+	.addProperty(CIMProperty("First", String())
+	    .addQualifier(CIMQualifier("key", true)))
+	.addProperty(CIMProperty("Age", Uint8(0))
+	    .addQualifier(CIMQualifier("key", true)));
+
+    r.createClass(NAMESPACE, cimClass);
+
+    CIMInstance cimInstance("ThisClass");
+    cimInstance.addProperty(CIMProperty("Last", "Smith"));
+    cimInstance.addProperty(CIMProperty("First", "John"));
+    cimInstance.addProperty(CIMProperty("Age", Uint8(101)));
+    String instanceName = cimInstance.getInstanceName(cimClass);
+
+    r.createInstance(NAMESPACE, cimInstance);
+
+    CIMReference ref;
+    CIMReference::instanceNameToReference(instanceName, ref);
+    CIMInstance tmp = r.getInstance(NAMESPACE, ref);
+
+    assert(cimInstance.identical(tmp));
 }
 
 int main()

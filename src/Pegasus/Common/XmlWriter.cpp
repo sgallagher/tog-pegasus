@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: XmlWriter.cpp,v $
+// Revision 1.7  2001/02/20 07:25:57  mike
+// Added basic create-instance in repository and in client.
+//
 // Revision 1.6  2001/02/19 01:47:17  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -48,6 +51,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include "CIMClass.h"
+#include "CIMInstance.h"
 #include "CIMQualifierDecl.h"
 #include "XmlWriter.h"
 #include "XmlParser.h"
@@ -512,6 +516,22 @@ Array<Sint8>& XmlWriter::appendInstanceNameParameter(
 {
     Array<Sint8> tmp;
     instanceName.instanceNameToXml(tmp);
+    return formatIParamValueElement(out, parameterName, tmp);
+}
+
+//------------------------------------------------------------------------------
+//
+// appendInstanceParameter()
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8>& XmlWriter::appendInstanceParameter(
+    Array<Sint8>& out,
+    const char* parameterName,
+    const ConstCIMInstance& instance)
+{
+    Array<Sint8> tmp;
+    instance.toXml(tmp);
     return formatIParamValueElement(out, parameterName, tmp);
 }
 

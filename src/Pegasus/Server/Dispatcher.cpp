@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Dispatcher.cpp,v $
+// Revision 1.6  2001/02/20 07:25:57  mike
+// Added basic create-instance in repository and in client.
+//
 // Revision 1.5  2001/02/19 01:47:17  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -46,6 +49,8 @@
 #include "ProviderTable.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
+using namespace std;
 
 Dispatcher::Dispatcher(CIMRepository* repository)
     : _repository(repository)
@@ -87,12 +92,22 @@ CIMInstance Dispatcher::getInstance(
 
     CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
 
-    CIMInstance cimInstance = provider->getInstance(nameSpace, instanceName, 
-	localOnly, includeQualifiers, includeClassOrigin);
+    if (provider)
+    {
+	CIMInstance cimInstance = provider->getInstance(nameSpace, 
+	    instanceName, localOnly, includeQualifiers, includeClassOrigin);
 
-    // ATTN: Need code here to fill out the class?
+	// ATTN: Need code here to fill out the class?
 
-    return cimInstance;
+	return cimInstance;
+    }
+    else
+    {
+	CIMInstance cimInstance = _repository->getInstance(nameSpace, 
+	    instanceName, localOnly, includeQualifiers, includeClassOrigin);
+
+	return cimInstance;
+    }
 }
 
 void Dispatcher::deleteClass(
@@ -119,8 +134,15 @@ void Dispatcher::createClass(
 void Dispatcher::createInstance(
     const String& nameSpace,
     CIMInstance& newInstance) 
-{ 
-    throw CimException(CimException::NOT_SUPPORTED);
+{
+    String className = newInstance.getClassName();
+
+    CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
+
+    if (provider)
+	provider->createInstance(nameSpace, newInstance);
+    else
+	_repository->createInstance(nameSpace, newInstance);
 }
 
 void Dispatcher::modifyClass(
@@ -184,7 +206,10 @@ Array<CIMReference> Dispatcher::enumerateInstanceNames(
 {
     CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
 
-    return provider->enumerateInstanceNames(nameSpace, className);
+    if (provider)
+	return provider->enumerateInstanceNames(nameSpace, className);
+    else
+	return _repository->enumerateInstanceNames(nameSpace, className);
 }
 
 Array<CIMInstance> Dispatcher::execQuery(
@@ -323,7 +348,7 @@ CIMProvider* Dispatcher::_lookupProviderForClass(
     Uint32 pos = cimClass.findQualifier("provider");
 
     if (pos == Uint32(-1))
-	throw CimException(CimException::FAILED);
+	return 0;
 
     CIMQualifier q = cimClass.getQualifier(pos);
     String providerId;

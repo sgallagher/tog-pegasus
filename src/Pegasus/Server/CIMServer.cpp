@@ -23,6 +23,9 @@
 // Author: Mike Brasher
 //
 // $Log: CIMServer.cpp,v $
+// Revision 1.5  2001/02/20 07:25:57  mike
+// Added basic create-instance in repository and in client.
+//
 // Revision 1.4  2001/02/19 01:47:17  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -65,6 +68,7 @@
 #include <Pegasus/Server/Dispatcher.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -122,6 +126,11 @@ public:
 	Uint32 messageId,
 	const String& nameSpace);
     //STUB}
+
+    void handleCreateInstance(
+	XmlParser& parser, 
+	Uint32 messageId,
+	const String& nameSpace);
 
     void handleEnumerateInstanceNames(
 	XmlParser& parser, 
@@ -405,6 +414,8 @@ cout << "CONTENT[" << (char*)getContent() << "]" << endl;
     else if (strcmp(iMethodCallName, "EnumerateClassNames") == 0)
 	handleEnumerateClassNames(parser, messageId, nameSpace);
     //STUB}
+    else if (strcmp(iMethodCallName, "CreateInstance") == 0)
+	handleCreateInstance(parser, messageId, nameSpace);
     else if (strcmp(iMethodCallName, "EnumerateInstanceNames") == 0)
 	handleEnumerateInstanceNames(parser, messageId, nameSpace);
     else if (strcmp(iMethodCallName, "DeleteQualifier") == 0)
@@ -574,7 +585,7 @@ void ServerHandler::handleGetInstance(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
-    CIMConstInstance cimInstance;
+    ConstCIMInstance cimInstance;
     
     try
     {
@@ -672,6 +683,63 @@ void ServerHandler::handleEnumerateClassNames(
     sendMessage(message);
 }
 //STUB}
+
+//------------------------------------------------------------------------------
+//
+// ServerHandler::handleCreateInstance()
+//
+//------------------------------------------------------------------------------
+
+void ServerHandler::handleCreateInstance(
+    XmlParser& parser, 
+    Uint32 messageId,
+    const String& nameSpace)
+{
+    //--------------------------------------------------------------------------
+    // <!ELEMENT IPARAMVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE
+    //     |INSTANCENAME|CLASSNAME|QUALIFIER.DECLARATION
+    //     |CLASS|INSTANCE|VALUE.NAMEDINSTANCE)?>
+    // <!ATTLIST IPARAMVALUE %CIMName;>
+    //--------------------------------------------------------------------------
+
+    CIMInstance cimInstance;
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (strcmp(name, "NewInstance") == 0)
+	    XmlReader::getInstanceElement(parser, cimInstance);
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    try
+    {
+	_dispatcher->createInstance(nameSpace, cimInstance);
+    }
+    catch (CimException& e)
+    {
+	sendError(messageId, "CreateInstance", 
+	    e.getCode(), e.codeToString(e.getCode()));
+	return;
+    }
+    catch (Exception& e)
+    {
+	char* tmp = e.getMessage().allocateCString();
+
+	sendError(messageId, "CreateInstance", CimException::FAILED, tmp);
+	    // CimException::codeToString(CimException::FAILED));
+
+	delete [] tmp;
+	return;
+    }
+
+    Array<Sint8> body;
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"CreateInstance", body);
+
+    sendMessage(message);
+}
 
 //------------------------------------------------------------------------------
 //

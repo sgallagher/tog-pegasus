@@ -53,7 +53,7 @@
     {"sslKeyFilePath",      "/etc/opt/tog-pegasus/file.pem"},
     {"sslTrustStore",       "/etc/opt/tog-pegasus/cimserver_trust"},
     {"exportSSLTrustStore", "/etc/opt/tog-pegasus/indication_trust"},
-    {"crl",                 "/etc/opt/tog-pegasus/crl"},
+    {"crlStore",            "/etc/opt/tog-pegasus/crl"},
     {"repositoryDir",       "/var/opt/tog-pegasus/repository"},
     {"providerDir",         "/opt/tog-pegasus/providers/lib"},
     {"messageDir",         "/opt/tog-pegasus/share/locale/ICU_Messages"},
@@ -67,7 +67,7 @@
     {"sslKeyFilePath",      "/etc/opt/lsb-pegasus/file.pem"},
     {"sslTrustStore",       "/etc/opt/lsb-pegasus/cimserver_trust"},
     {"exportSSLTrustStore", "/etc/opt/lsb-pegasus/indication_trust"},
-    {"crl",                 "/etc/opt/lsb-pegasus/crl"},
+    {"crlStore",            "/etc/opt/lsb-pegasus/crl"},
     {"repositoryDir",       "/var/opt/lsb-pegasus/repository"},
     {"providerDir",         "/opt/lsb-pegasus/providers"},
 #endif

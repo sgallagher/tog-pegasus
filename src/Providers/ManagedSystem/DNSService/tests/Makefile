@@ -1,7 +1,8 @@
-# wbemexec tests for ManagedSystem IP provider
+# wbemexec tests for ManagedSystem DNS provider
 
 ROOT = ../../../../..
 include $(ROOT)/mak/config.mak
+include $(ROOT)/mak/test.mak
 
 HOSTNAME =
 PORT = -p 5988

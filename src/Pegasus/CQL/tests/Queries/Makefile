@@ -4,12 +4,6 @@ ROOT = ../../../../..
 include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/test.mak
 
-ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
-    DIFF = mu compare
-else
-    DIFF = diff
-endif
-
 # Steps to add a testcase:
 # 1) Add your .query and .query.resgood file to this directory
 # 2) Add a rule to build your .query.res file from a .query file 

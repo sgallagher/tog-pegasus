@@ -2,6 +2,7 @@
 
 ROOT = ../../../../..
 include $(ROOT)/mak/config.mak
+include $(ROOT)/mak/test.mak
 
 HOSTNAME =
 PORT = -p 5988

@@ -44,25 +44,13 @@ else
     DISPLAYCONSUMER_DIR = $(subst \,/,$(PEGASUS_HOME))
 endif
 
-VALID_PLATFORMS = \
-    WIN32_IX86_MSVC \
-    LINUX_IX86_GNU \
-    LINUX_PPC_GNU \
-    LINUX_IA64_GNU \
-    LINUX_ZSERIES_GNU \
-    AIX_RS_IBMCXX \
-    HPUX_PARISC_ACC \
-    HPUX_IA64_ACC \
-    TRU64_ALPHA_DECCXX \
-    SOLARIS_SPARC_GNU \
-    SOLARIS_SPARC_CC \
-    ZOS_ZSERIES_IBM \
-    NSK_NONSTOP_NMCPLUS \
-    DARWIN_PPC_GNU
+PLATFORM_FILES=$(wildcard $(ROOT)/mak/platform*.mak)
+TEMP=$(subst $(ROOT)/mak/platform_,, $(PLATFORM_FILES))
+VALID_PLATFORMS=$(subst .mak,, $(TEMP))
 
 ifndef PEGASUS_PLATFORM
-    $(error PEGASUS_PLATFORM environment variable undefined.  Please set to\
-        one of the following: $(VALID_PLATFORMS))
+    $(error PEGASUS_PLATFORM environment variable undefined. Please set to\
+        one of the following:$(VALID_PLATFORMS))
 endif
 
 ################################################################################
@@ -195,79 +183,12 @@ endif
 ##
 ################################################################################
 
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-    FOUND = true
-endif
-
-ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
-    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-    FOUND = true
-endif
-
-ifeq ($(PEGASUS_PLATFORM),LINUX_PPC_GNU)
-    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-    FOUND = true
-endif
-
-ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU)
-    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-    FOUND = true
-endif
-
-ifeq ($(PEGASUS_PLATFORM),LINUX_ZSERIES_GNU)
-    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-    FOUND = true
-endif
-
-ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
-    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-    FOUND = true
-endif
-
-ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
-    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-    FOUND = true
-endif
-
-ifeq ($(PEGASUS_PLATFORM),HPUX_IA64_ACC)
-    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-    FOUND = true
-endif
-
-ifeq ($(PEGASUS_PLATFORM),TRU64_ALPHA_DECCXX)
-    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-    FOUND = true
-endif
-
-ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_GNU)
-    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-    FOUND = true
-endif
-
-ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
-    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-    FOUND = true
-endif
-
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-    FOUND = true
-endif
-
-ifeq ($(PEGASUS_PLATFORM),NSK_NONSTOP_NMCPLUS)
-    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-    FOUND = true
-endif
-
-ifeq ($(PEGASUS_PLATFORM),DARWIN_PPC_GNU)
-    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-    FOUND = true
-endif
-
-ifneq ($(FOUND),true)
+PLATFORM_FILE = $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+ifneq ($(wildcard $(PLATFORM_FILE)), )
+    include $(PLATFORM_FILE)
+else
   $(error  PEGASUS_PLATFORM environment variable must be set to one of\
-        the following: $(VALID_PLATFORMS))
+        the following:$(VALID_PLATFORMS))
 endif
 
 ################################################################################

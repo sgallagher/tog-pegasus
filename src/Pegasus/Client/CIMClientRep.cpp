@@ -1171,6 +1171,10 @@ Message* CIMClientRep::_doRequest(
 
                 Destroyer<Exception> d(clientException);
 
+		// Make the ContentLanguage of the exception available through
+		// the CIMClient API (its also available in the exception).
+		responseContentLanguages = clientException->getContentLanguages();
+
                 //
                 // Determine and throw the specific class of client exception
                 //
@@ -1240,16 +1244,19 @@ Message* CIMClientRep::_doRequest(
                     throw responseException;
                 }
 
-// l10n
+		// l10n
                 // Get the Content-Languages from the response's operationContext
-                  responseContentLanguages = ((ContentLanguageListContainer)cimResponse->operationContext.get
-												(ContentLanguageListContainer::NAME)).getLanguages();
+		// and make available through the CIMClient API
+                responseContentLanguages =
+		  ((ContentLanguageListContainer)cimResponse->operationContext.get
+		   (ContentLanguageListContainer::NAME)).getLanguages();
 
                 if (cimResponse->cimException.getCode() != CIM_ERR_SUCCESS)
                 {
                     CIMException cimException(
                         cimResponse->cimException.getCode(),
                         cimResponse->cimException.getMessage());
+		    cimException.setContentLanguages(responseContentLanguages);
                     delete response;
                     throw cimException;
                 }

@@ -22,7 +22,8 @@
 //==============================================================================
 //
 // Author: Konrad Rzeszutek
-//
+// Modified by:
+//         Steve Hills (steve.hills@ncr.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -47,35 +48,68 @@ int main(int argc, char** argv)
 	}
 	i = 5;
 	i++;
-	assert ( i == 6 );
+	if( !(i == 6) )
+		throw Exception( "!(i == 6)" );
 	++i;
-	assert ( i == 7 );
+	if( !(i == 7) )
+		throw Exception( "!(i == 7)" );
 	i--;
-	assert ( i == 6 );
+	if( !(i == 6) )
+		throw Exception( "!(i == 6)" );
 	--i;
-	assert ( i == 5 );
+	if( !(i == 5) )
+		throw Exception( "!(i == 5)" );
 
 	if (verbose) {
 		cout << "Testing: i+Uint32, i+AtomicInt, i-Uint32, etc.. "<<endl;
 	}	
-	assert ( (i + 5)  == 10);
-	assert ( i == 5);
+	if( !((i + 5) == 10) )
+		throw Exception( "!((i + 5)" );
+	if( !(i == 5) )
+		throw Exception( "!(i == 5)" );
 	j = 1;	
-	assert ( i + j == 6 );
-	assert ( j + i == 6 );
-	assert ( i == 5 && j == 1);
+	if( !(i + j == 6) )
+		throw Exception( "!(i + j == 6)" );
+	if( !(j + i == 6) )
+		throw Exception( "!(j + i == 6)" );
+	if( !(i == 5 && j == 1) )
+		throw Exception( "!(i == 5 && j == 1)" );
 	i = j - 5; // Ugly.
-	assert ( i.value() > 0 );
+	if( !(i.value() > 0) )
+		throw Exception( "!(i.value() > 0)" );
 	ii = 4;
 	i += ii;
-	assert ( i >= 0 );
-	assert ( ii < 5 );
-	// assert ( 5 > ii );
+	if( !(i >= 0) )
+		throw Exception( "!(i >= 0)" );
+	if( !(ii < 5) )
+		throw Exception( "!(ii < 5)" );
+	// if( !(5 > ii) )
 	jj = 2;
 	ii+= jj + jj;
-	assert ( ii == 8 );
-	assert ( jj == 2 );
-	 
+	if( !(ii == 8) )
+		throw Exception( "!(ii == 8)" );
+	if( !(jj == 2) )
+		throw Exception( "!(jj == 2)" );
+
+	i = 20;
+	j = 10;
+	ii = i + j;
+	if( !(i == 20) )
+		throw Exception( "!(i == 20)" );
+	if( !(j == 10) )
+		throw Exception( "!(j == 10)" );
+
+	ii = i + 1;
+	if( !(i == 20) )
+		throw Exception( "!(i == 20)" );
+
+	ii = i - j;
+	if( !(i == 20) )
+		throw Exception( "!(i == 20)" );
+
+	ii = i - 1;
+	if( !(i == 20) )
+		throw Exception( "!(i == 20)" );
     }
     catch (Exception & e)
     {

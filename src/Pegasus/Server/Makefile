@@ -38,7 +38,6 @@ SOURCES = \
     ShutdownService.cpp \
     CIMServer.cpp \
     CIMServerState.cpp \
-    ServiceCIMOMHandle.cpp \
     ProviderMessageFacade.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))

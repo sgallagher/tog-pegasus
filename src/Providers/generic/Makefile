@@ -7,7 +7,6 @@ include $(ROOT)/mak/config.mak
 # removed _NamespaceProvider
 
 DIRS = \
-	OperatingSystemProvider \
-	ShutdownProvider
+	OperatingSystemProvider
 
 include $(ROOT)/mak/recurse.mak

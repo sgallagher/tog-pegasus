@@ -46,6 +46,7 @@ public:
     typedef ProviderManager * (*CREATE_PROVIDER_MANAGER_FUNCTION)(const String &);
 
 public:
+    ProviderManagerModule(void);
     ProviderManagerModule(const String & fileName);
     virtual ~ProviderManagerModule(void);
 

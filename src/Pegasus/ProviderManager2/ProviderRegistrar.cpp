@@ -88,11 +88,6 @@ static ProviderName _lookupProvider(const CIMObjectPath & cimObjectPath)
             }
         }
     }
-    catch(Exception & e)
-    {
-        // log error
-        String message = e.getMessage();
-    }
     catch(...)
     {
     }
@@ -121,11 +116,6 @@ static ProviderName _lookupProvider(const CIMObjectPath & cimObjectPath)
                 break;
             }
         }
-    }
-    catch(Exception & e)
-    {
-        // log error
-        String message = e.getMessage();
     }
     catch(...)
     {
@@ -164,11 +154,6 @@ static ProviderName _lookupProvider(const CIMObjectPath & cimObjectPath)
                 break;
             }
         }
-    }
-    catch(Exception & e)
-    {
-        // log error
-        String message = e.getMessage();
     }
     catch(...)
     {

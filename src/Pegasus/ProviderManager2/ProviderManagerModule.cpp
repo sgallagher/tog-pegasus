@@ -31,6 +31,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+ProviderManagerModule::ProviderManagerModule(void)
+{
+}
+
 ProviderManagerModule::ProviderManagerModule(const String & fileName) : DynamicLibrary(fileName)
 {
 }

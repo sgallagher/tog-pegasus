@@ -44,45 +44,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+// BEGIN TEMP SECTION
 class ProviderManagerContainer
 {
 public:
-    ProviderManagerContainer(const String & name, const String & path) : _name(name), _module(path)
-    {
-        _module.load();
-
-        _manager = _module.getProviderManager(_name);
-    }
-
-    ~ProviderManagerContainer(void)
-    {
-        _module.unload();
-    }
-
-    String & getName(void)
-    {
-        return(_name);
-    }
-
-    ProviderManager & getProviderManager(void)
-    {
-        return(*_manager);
-    }
-
-private:
-    String _name;
-    ProviderManagerModule _module;
-    ProviderManager * _manager;
-
-};
-
-static Array<ProviderManagerContainer> _providerManagers;
-
-// BEGIN TEMP SECTION
-class ProviderManagerRegistration
-{
-public:
-    ProviderManagerRegistration(const String & physicalName, const String & logicalName, const String & interfaceName)
+    ProviderManagerContainer(const String & physicalName, const String & logicalName, const String & interfaceName)
     {
         #if defined(PEGASUS_OS_TYPE_WINDOWS)
         _physicalName = physicalName + String(".dll");
@@ -102,19 +68,35 @@ public:
         _logicalName = logicalName;
 
         _interfaceName = interfaceName;
+
+        _module = ProviderManagerModule(_physicalName);
+
+        _module.load();
+
+        _manager = _module.getProviderManager(_logicalName);
     }
 
-    const String & getPhysicalName(void) const
+    ~ProviderManagerContainer(void)
+    {
+        _module.unload();
+    }
+
+    ProviderManager & getProviderManager(void)
+    {
+        return(*_manager);
+    }
+
+    String & getPhysicalName(void)
     {
         return(_physicalName);
     }
 
-    const String & getLogicalName(void) const
+    String & getLogicalName(void)
     {
         return(_logicalName);
     }
 
-    const String & getInterfaceName(void) const
+    String & getInterfaceName(void)
     {
         return(_interfaceName);
     }
@@ -124,7 +106,12 @@ private:
     String _logicalName;
     String _interfaceName;
 
+    ProviderManagerModule _module;
+    ProviderManager * _manager;
+
 };
+
+static Array<ProviderManagerContainer> _providerManagers;
 // END TEMP SECTION
 
 inline Boolean _isSupportedRequestType(const Message * message)
@@ -161,43 +148,30 @@ ProviderManagerService::ProviderManagerService(ProviderRegistrationManager * pro
     // each platform.
 
     // BEGIN TEMP SECTION
-    Array<ProviderManagerRegistration> registrations;
-
     //#if defined(PEGASUS_OS_OS400)
-    //registrations.append(ProviderManagerRegistration("QSYS/??????????", "INTERNAL", "INTERNAL"));
+    //_providerManagers.append(ProviderManagerContainer("QSYS/??????????", "INTERNAL", "INTERNAL"));
     //#else
-    //registrations.append(ProviderManagerRegistration("InternalProviderManager", "DEFAULT", "INTERNAL"));
+    //_providerManager.append(ProviderManagerContainer("InternalProviderManager", "DEFAULT", "INTERNAL"));
     //#endif
 
+    /*
     #if defined(ENABLE_DEFAULT_PROVIDER_MANAGER)
     #if defined(PEGASUS_OS_OS400)
-    registrations.append(ProviderManagerRegistration("QSYS/QYCMDFTPVM", "DEFAULT", "C++Default"));
+    _providerManagers.append(ProviderManagerContainer("QSYS/QYCMDFTPVM", "DEFAULT", "C++Default"));
     #else
-    registrations.append(ProviderManagerRegistration("DefaultProviderManager", "DEFAULT", "C++Default"));
+    _providerManagers.append(ProviderManagerContainer("DefaultProviderManager", "DEFAULT", "C++Default"));
     #endif
     #endif
 
     #if defined(ENABLE_CMPI_PROVIDER_MANAGER)
     #if defined(PEGASUS_OS_OS400)
-    registrations.append(ProviderManagerRegistration("QSYS/QYCMCMPIPM", "CMPI", "CMPI"));
+    _providerManagers.append(ProviderManagerContainer("QSYS/QYCMCMPIPM", "CMPI", "CMPI"));
     #else
-    registrations.append(ProviderManagerRegistration("CMPIProviderManager", "CMPI", "CMPI"));
+    _providerManagers.append(ProviderManagerContainer("CMPIProviderManager", "CMPI", "CMPI"));
     #endif
     #endif
+    */
     // END TEMP SECTION
-
-    for(Uint32 i = 0, n = registrations.size(); i < n; i++)
-    {
-        try
-        {
-            ProviderManagerContainer container(registrations[i].getLogicalName(), registrations[i].getPhysicalName());
-
-            _providerManagers.append(container);
-        }
-        catch(...)
-        {
-        }
-    }
 }
 
 ProviderManagerService::~ProviderManagerService(void)
@@ -417,20 +391,273 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
     Message * response = 0;
 
     // get namespace and class name from message
+    String nameSpace;
+    String className;
 
+    switch(message->getType())
+    {
+    case CIM_GET_CLASS_REQUEST_MESSAGE:
+        {
+            const CIMGetClassRequestMessage * p = dynamic_cast<const CIMGetClassRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            className = p->className.getString();
+        }
+
+        break;
+    case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
+        {
+            const CIMEnumerateClassesRequestMessage * p = dynamic_cast<const CIMEnumerateClassesRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            className = p->className.getString();
+        }
+
+        break;
+    case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
+        {
+            const CIMEnumerateClassNamesRequestMessage * p = dynamic_cast<const CIMEnumerateClassNamesRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            className = p->className.getString();
+        }
+
+        break;
+    case CIM_CREATE_CLASS_REQUEST_MESSAGE:
+        {
+            const CIMCreateClassRequestMessage * p = dynamic_cast<const CIMCreateClassRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            //className = p->className.getString();
+        }
+
+        break;
+    case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
+        {
+            const CIMModifyClassRequestMessage * p = dynamic_cast<const CIMModifyClassRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            //className = p->className.getString();
+        }
+
+        break;
+    case CIM_DELETE_CLASS_REQUEST_MESSAGE:
+        {
+            const CIMDeleteClassRequestMessage * p = dynamic_cast<const CIMDeleteClassRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            className = p->className.getString();
+        }
+
+        break;
+    case CIM_GET_INSTANCE_REQUEST_MESSAGE:
+        {
+            const CIMGetInstanceRequestMessage * p = dynamic_cast<const CIMGetInstanceRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            //className = p->className.getString();
+        }
+
+        break;
+    case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+        {
+            const CIMEnumerateInstancesRequestMessage * p = dynamic_cast<const CIMEnumerateInstancesRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            className = p->className.getString();
+        }
+
+        break;
+    case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
+        {
+            const CIMEnumerateInstanceNamesRequestMessage * p = dynamic_cast<const CIMEnumerateInstanceNamesRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            className = p->className.getString();
+        }
+
+        break;
+    case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
+        {
+            const CIMCreateInstanceRequestMessage * p = dynamic_cast<const CIMCreateInstanceRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            //className = p->className.getString();
+        }
+
+        break;
+    case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
+        {
+            const CIMModifyInstanceRequestMessage * p = dynamic_cast<const CIMModifyInstanceRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            //className = p->className.getString();
+        }
+
+        break;
+    case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
+        {
+            const CIMDeleteInstanceRequestMessage * p = dynamic_cast<const CIMDeleteInstanceRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            //className = p->className.getString();
+        }
+
+        break;
+    case CIM_EXEC_QUERY_REQUEST_MESSAGE:
+        break;
+    case CIM_ASSOCIATORS_REQUEST_MESSAGE:
+        {
+            const CIMAssociatorsRequestMessage * p = dynamic_cast<const CIMAssociatorsRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            //className = p->className.getString();
+        }
+
+        break;
+    case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
+        {
+            const CIMAssociatorNamesRequestMessage * p = dynamic_cast<const CIMAssociatorNamesRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            //className = p->className.getString();
+        }
+
+        break;
+    case CIM_REFERENCES_REQUEST_MESSAGE:
+        {
+            const CIMReferencesRequestMessage * p = dynamic_cast<const CIMReferencesRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            //className = p->className.getString();
+        }
+
+        break;
+    case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
+        {
+            const CIMReferenceNamesRequestMessage * p = dynamic_cast<const CIMReferenceNamesRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            //className = p->className.getString();
+        }
+
+        break;
+    case CIM_GET_PROPERTY_REQUEST_MESSAGE:
+        {
+            const CIMGetPropertyRequestMessage * p = dynamic_cast<const CIMGetPropertyRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            //className = p->className.getString();
+        }
+
+        break;
+    case CIM_SET_PROPERTY_REQUEST_MESSAGE:
+        {
+            const CIMSetPropertyRequestMessage * p = dynamic_cast<const CIMSetPropertyRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            //className = p->className.getString();
+        }
+
+        break;
+    case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
+        {
+            const CIMInvokeMethodRequestMessage * p = dynamic_cast<const CIMInvokeMethodRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            //className = p->className.getString();
+        }
+
+        break;
     /*
+    case CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
+        {
+            const CIMEnableIndicationsSubscriptionRequestMessage * p = dynamic_cast<const CIMEnableIndicationsRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            className = p->className.getString();
+        }
+
+        break;
+    case CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
+        {
+            const CIMModifyIndicationsRequestMessage * p = dynamic_cast<const CIMModifyIndicationsRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            className = p->className.getString();
+        }
+
+        break;
+    case CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
+        {
+            const CIMGetClassRequestMessage * p = dynamic_cast<const CIMGetClassRequestMessage *>(message);
+
+            PEGASUS_ASSERT(p != 0);
+
+            nameSpace = p->nameSpace.getString();
+            className = p->className.getString();
+        }
+
+        break;
+    */
+    default:
+        break;
+    }
+
     ProviderName name(
-        String::EMPTY,
+        CIMObjectPath(String::EMPTY, nameSpace, className).toString(),
         String::EMPTY,
         String::EMPTY,
         String::EMPTY,
         0);
 
     // find provider manager
-    name = findProvider(name);
+    name = ProviderRegistrar().findProvider(name);
 
     // find provider manager for provider interface
-    */
+
 
     try
     {

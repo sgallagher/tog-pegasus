@@ -649,14 +649,31 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleGetInst
 		ProviderFacade facade(module.getProvider());
 
 		// convert arguments
-		OperationContext context;
-		context.add_context( sizeof(String *),
+		OperationContext op_context;
+		op_context.add_context( sizeof(String *),
 				     const_cast<String *>(&(request->userName)),
 				     0, 
 				     0, 
 				     CONTEXT_IDENTITY,
 				     0, 
 				     0);
+
+
+// to retrieve the identity key from the context within a provider :
+// NOTE FOR ROGER << Thu Mar  7 17:18:11 2002 mdd >>
+// 		context *identity;
+		
+// 		identity = op_context.remove_context_key(CONTEXT_IDENTITY);
+// 		if(identity != 0 )
+// 		{
+// 		   String *userName ; 
+// 		   Uint32 size;
+// 		   userName = (String *)identity->get_data((void **)&userName, &size);
+// 		   if(userName != 0 )
+// 		      userName->print();
+// 		}
+		
+		
 
 		
 		CIMReference instanceReference(request->instanceName);
@@ -672,7 +689,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleGetInst
 
 		// forward request
 		facade.getInstance(
-			context,
+			op_context,
 			instanceReference,
 			flags,
 			propertyList.getPropertyNameArray(),
@@ -758,8 +775,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnumera
 		ProviderFacade facade(module.getProvider());
 
 		// convert arguments
-		OperationContext context;
-		context.add_context( sizeof(String *),
+		OperationContext op_context;
+		op_context.add_context( sizeof(String *),
 				     const_cast<String *>(&(request->userName)),
 				     0, 
 				     0, 
@@ -777,7 +794,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnumera
 		SimpleResponseHandler<CIMInstance> handler;
 
 		facade.enumerateInstances(
-			context,
+			op_context,
 			classReference,
 			flags,
 			propertyList.getPropertyNameArray(),
@@ -862,8 +879,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnumera
 		ProviderFacade facade(module.getProvider());
 
 		// convert arguments
-		OperationContext context;
-		context.add_context( sizeof(String *),
+		OperationContext op_context;
+		op_context.add_context( sizeof(String *),
 				     const_cast<String *>(&(request->userName)),
 				     0, 
 				     0, 
@@ -877,7 +894,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnumera
 		SimpleResponseHandler<CIMReference> handler;
 
 		facade.enumerateInstanceNames(
-			context,
+			op_context,
 			classReference,
 			handler);
 
@@ -957,8 +974,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCreateI
 	   ProviderFacade facade(module.getProvider());
 
 	   // convert arguments
-	   OperationContext context;
-		context.add_context( sizeof(String *),
+	   OperationContext op_context;
+		op_context.add_context( sizeof(String *),
 				     const_cast<String *>(&(request->userName)),
 				     0, 
 				     0, 
@@ -978,7 +995,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCreateI
 
 	   // forward request
 	   facade.createInstance(
-		  context,
+		  op_context,
 		  instanceReference,
 		  request->newInstance,
 		  handler);
@@ -1066,8 +1083,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleModifyI
 	   ProviderFacade facade(module.getProvider());
 
 	   // convert arguments
-	   OperationContext context;
-		context.add_context( sizeof(String *),
+	   OperationContext op_context;
+		op_context.add_context( sizeof(String *),
 				     const_cast<String *>(&(request->userName)),
 				     0, 
 				     0, 
@@ -1083,7 +1100,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleModifyI
 
 	   // forward request
 	   facade.modifyInstance(
-		  context,
+		  op_context,
 		  instanceName,
 		  request->modifiedInstance.getInstance(),
 		  flags,
@@ -1160,8 +1177,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleDeleteI
 	   ProviderFacade facade(module.getProvider());
 
 	   // convert arguments
-	   OperationContext context;
-		context.add_context( sizeof(String *),
+	   OperationContext op_context;
+		op_context.add_context( sizeof(String *),
 				     const_cast<String *>(&(request->userName)),
 				     0, 
 				     0, 
@@ -1172,7 +1189,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleDeleteI
 
 	   // forward request
 	   facade.deleteInstance(
-		  context,
+		  op_context,
 		  request->instanceName,
 		  handler);
 	}
@@ -1517,8 +1534,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleInvokeM
 		ProviderFacade facade(module.getProvider());
 
 		// convert arguments
-		OperationContext context;
-		context.add_context( sizeof(String *),
+		OperationContext op_context;
+		op_context.add_context( sizeof(String *),
 				     const_cast<String *>(&(request->userName)),
 				     0, 
 				     0, 
@@ -1535,7 +1552,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleInvokeM
 
 		// forward request
 		facade.invokeMethod(
-			context,
+			op_context,
 			instanceReference,
 			request->methodName,
 			request->inParameters,
@@ -1628,9 +1645,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnableI
 			//  ATTN: pass thresholding parameter values in
 			//  operation context
 			//
-		   OperationContext context;
+		   OperationContext op_context;
 		   
-		context.add_context( sizeof(String *),
+		op_context.add_context( sizeof(String *),
 				     const_cast<String *>(&(request->userName)),
 				     0, 
 				     0, 
@@ -1639,7 +1656,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnableI
 				     0);
 
 			facade.enableIndication(
-				context,
+				op_context,
 				request->nameSpace,
 				request->classNames,
 				request->providerName,

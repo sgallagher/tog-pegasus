@@ -100,7 +100,7 @@ int main()
 	exit(1);
     }
 
-    cout << "++++ passed all tests" << endl;
+    cout << "+++++ passed all tests" << endl;
 
     return 0;
 }

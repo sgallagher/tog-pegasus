@@ -28,7 +28,8 @@ DIRS = \
     ControlProviders/NamespaceProvider \
     HandlerService \
     IndicationService \
-    ManagedClient
+    ManagedClient \
+    DynListener
 
 ifdef PEGASUS_ENABLE_SLP
 DIRS += \
@@ -131,6 +132,7 @@ DIRS += \
     Listener/tests \
     Consumer/tests \
     msg/Server \
-    msg/CLI
+    msg/CLI \
+    DynListener/tests
 
 include $(ROOT)/mak/recurse.mak

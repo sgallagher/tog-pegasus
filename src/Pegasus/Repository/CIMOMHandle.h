@@ -47,7 +47,7 @@ public:
     CIMOMHandle(MessageQueue* outputQueue, CIMRepository* repository);
 
     /** */ 
-    ~CIMOMHandle();
+    virtual ~CIMOMHandle();
 
     CIMRepository* getRepository() { return _repository; }
 

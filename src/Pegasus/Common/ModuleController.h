@@ -39,13 +39,8 @@
 #include <Pegasus/Common/CimomMessage.h>
 #include <Pegasus/Common/MessageQueueService.h>
 
-#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-#ifndef min
-#define min(a, b) ((a) < (b) ? (a) : (b)  )
-#endif
-#endif
-
 #include <bitset>
+
 PEGASUS_NAMESPACE_BEGIN
 
 class ModuleController;

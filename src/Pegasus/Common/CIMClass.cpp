@@ -51,16 +51,10 @@ CIMClass::CIMClass(const CIMClass& x)
     Inc(_rep = x._rep);
 }
 
-CIMClass::CIMClass(const CIMObject& x)
+CIMClass::CIMClass(const CIMObject& x) throw(DynamicCastFailed)
 {
     if (!(_rep = dynamic_cast<CIMClassRep*>(x._rep)))
 	throw DynamicCastFailed();
-    Inc(_rep);
-}
-
-CIMClass::CIMClass(const CIMObject& x, NoThrow&)
-{
-    _rep = dynamic_cast<CIMClassRep*>(x._rep);
     Inc(_rep);
 }
 
@@ -356,29 +350,17 @@ CIMConstClass::CIMConstClass(const CIMClass& x)
     Inc(_rep = x._rep);
 }
 
-CIMConstClass::CIMConstClass(const CIMObject& x)
+CIMConstClass::CIMConstClass(const CIMObject& x) throw(DynamicCastFailed)
 {
     if (!(_rep = dynamic_cast<CIMClassRep*>(x._rep)))
 	throw DynamicCastFailed();
     Inc(_rep);
 }
 
-CIMConstClass::CIMConstClass(const CIMConstObject& x)
+CIMConstClass::CIMConstClass(const CIMConstObject& x) throw(DynamicCastFailed)
 {
     if (!(_rep = dynamic_cast<CIMClassRep*>(x._rep)))
 	throw DynamicCastFailed();
-    Inc(_rep);
-}
-
-CIMConstClass::CIMConstClass(const CIMObject& x, NoThrow&)
-{
-    _rep = dynamic_cast<CIMClassRep*>(x._rep);
-    Inc(_rep);
-}
-
-CIMConstClass::CIMConstClass(const CIMConstObject& x, NoThrow&)
-{
-    _rep = dynamic_cast<CIMClassRep*>(x._rep);
     Inc(_rep);
 }
 

@@ -70,9 +70,8 @@ public:
     */
     CIMClass(const CIMClass& x);
 
-    PEGASUS_EXPLICIT CIMClass(const CIMObject& x);
-
-    PEGASUS_EXPLICIT CIMClass(const CIMObject& x, NoThrow&);
+    PEGASUS_EXPLICIT CIMClass(const CIMObject& x)
+        throw(DynamicCastFailed);
 
     /**	Constructor - Creates a Class from inputs of a classname and
 	SuperClassName
@@ -399,13 +398,11 @@ public:
 
     CIMConstClass(const CIMClass& x);
 
-    PEGASUS_EXPLICIT CIMConstClass(const CIMObject& x);
+    PEGASUS_EXPLICIT CIMConstClass(const CIMObject& x)
+        throw(DynamicCastFailed);
 
-    PEGASUS_EXPLICIT CIMConstClass(const CIMConstObject& x);
-
-    PEGASUS_EXPLICIT CIMConstClass(const CIMObject& x, NoThrow&);
-
-    PEGASUS_EXPLICIT CIMConstClass(const CIMConstObject& x, NoThrow&);
+    PEGASUS_EXPLICIT CIMConstClass(const CIMConstObject& x)
+        throw(DynamicCastFailed);
 
     // Throws IllegalName if className argument not legal CIM identifier.
     CIMConstClass(

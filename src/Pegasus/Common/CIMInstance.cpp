@@ -57,16 +57,10 @@ CIMInstance::CIMInstance(const CIMInstance& x)
     Inc(_rep = x._rep);
 }
 
-CIMInstance::CIMInstance(const CIMObject& x)
+CIMInstance::CIMInstance(const CIMObject& x) throw(DynamicCastFailed)
 {
     if (!(_rep = dynamic_cast<CIMInstanceRep*>(x._rep)))
 	throw DynamicCastFailed();
-    Inc(_rep);
-}
-
-CIMInstance::CIMInstance(const CIMObject& x, NoThrow&)
-{
-    _rep = dynamic_cast<CIMInstanceRep*>(x._rep);
     Inc(_rep);
 }
 
@@ -288,7 +282,7 @@ CIMConstInstance::CIMConstInstance(const CIMInstance& x)
     Inc(_rep = x._rep);
 }
 
-CIMConstInstance::CIMConstInstance(const CIMObject& x)
+CIMConstInstance::CIMConstInstance(const CIMObject& x) throw(DynamicCastFailed)
 {
     if (!(_rep = dynamic_cast<CIMInstanceRep*>(x._rep)))
 	throw DynamicCastFailed();
@@ -296,21 +290,10 @@ CIMConstInstance::CIMConstInstance(const CIMObject& x)
 }
 
 CIMConstInstance::CIMConstInstance(const CIMConstObject& x)
+    throw(DynamicCastFailed)
 {
     if (!(_rep = dynamic_cast<CIMInstanceRep*>(x._rep)))
 	throw DynamicCastFailed();
-    Inc(_rep);
-}
-
-CIMConstInstance::CIMConstInstance(const CIMObject& x, NoThrow&)
-{
-    _rep = dynamic_cast<CIMInstanceRep*>(x._rep);
-    Inc(_rep);
-}
-
-CIMConstInstance::CIMConstInstance(const CIMConstObject& x, NoThrow&)
-{
-    _rep = dynamic_cast<CIMInstanceRep*>(x._rep);
     Inc(_rep);
 }
 

@@ -61,9 +61,7 @@ public:
     */
     CIMInstance(const CIMInstance& x);
 
-    PEGASUS_EXPLICIT CIMInstance(const CIMObject& x);
-
-    PEGASUS_EXPLICIT CIMInstance(const CIMObject& x, NoThrow&);
+    PEGASUS_EXPLICIT CIMInstance(const CIMObject& x) throw(DynamicCastFailed);
 
     /**	Constructor - Creates an Instance object with the classname
 	from the input parameters
@@ -319,13 +317,11 @@ public:
 
     CIMConstInstance(const CIMInstance& x);
 
-    PEGASUS_EXPLICIT CIMConstInstance(const CIMObject& x);
+    PEGASUS_EXPLICIT CIMConstInstance(const CIMObject& x)
+        throw(DynamicCastFailed);
 
-    PEGASUS_EXPLICIT CIMConstInstance(const CIMConstObject& x);
-
-    PEGASUS_EXPLICIT CIMConstInstance(const CIMObject& x, NoThrow&);
-
-    PEGASUS_EXPLICIT CIMConstInstance(const CIMConstObject& x, NoThrow&);
+    PEGASUS_EXPLICIT CIMConstInstance(const CIMConstObject& x)
+        throw(DynamicCastFailed);
 
     // Throws IllegalName if className argument not legal CIM identifier.
     CIMConstInstance(const String& className);

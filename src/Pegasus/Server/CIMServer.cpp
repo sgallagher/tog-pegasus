@@ -895,9 +895,9 @@ SSLContext* CIMServer::_getSSLContext()
                 "SSL Client verification REQUIRED.");
 
 #ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE
-            _sslcontext.reset(new SSLContext(trustStore, certPath, keyPath, 0, trustStoreUserName, randFile));
+            _sslcontext.reset(new SSLContext(trustStore, certPath, keyPath, 0, false, trustStoreUserName, randFile));        
 #else
-            _sslcontext.reset(new SSLContext(trustStore, certPath, keyPath, 0, false, trustStoreUserName, randFile));
+            _sslcontext.reset(new SSLContext(trustStore, certPath, keyPath, 0, trustStoreUserName, randFile));
 #endif
         } 
         else if (String::equal(verifyClient, "optional"))
@@ -919,9 +919,9 @@ SSLContext* CIMServer::_getSSLContext()
                 "SSL Client verification DISABLED.");
 
 #ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE
-            _sslcontext.reset(new SSLContext(String::EMPTY, certPath, keyPath, 0, String::EMPTY, randFile));
+            _sslcontext.reset(new SSLContext(String::EMPTY, certPath, keyPath, 0, false, String::EMPTY, randFile));       
 #else
-            _sslcontext.reset(new SSLContext(String::EMPTY, certPath, keyPath, 0, false, String::EMPTY, randFile));
+            _sslcontext.reset(new SSLContext(String::EMPTY, certPath, keyPath, 0, String::EMPTY, randFile));
 #endif
         }
         else 

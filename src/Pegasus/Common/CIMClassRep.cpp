@@ -247,10 +247,9 @@ void CIMClassRep::resolve(
 		{
 			CIMProperty& property = _properties[i];
 
-            if(property.getValue().getType() == CIMTYPE_REFERENCE)
+            if(!isAssociationClass &&
+               property.getValue().getType() == CIMTYPE_REFERENCE)
             {
-                        if (!isAssociationClass)
-                        {
                         	//l10n
                             //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
                                 //"Non-assocation class contains reference property");
@@ -258,13 +257,7 @@ void CIMClassRep::resolve(
                             			MessageLoaderParms("Common.CIMClassRep.NON_ASSOCIATION_CLASS_CONTAINS_REFERENCE_PROPERTY",
                             							   "Non-assocation class contains reference property"));
                             							   
-                        }
-                        if(property.getReferenceClassName().isNull())
-                        {
-                            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
-                                MessageLoaderParms("Common.CIMClassRep.REFERENCE_PROPERTY_MISSING_REFERENCE_CLASS_NAME",
-                            							   "Reference Property for CIMClass Definition missing ReferenceClass Name"));
-                        }
+
             }
 						
 

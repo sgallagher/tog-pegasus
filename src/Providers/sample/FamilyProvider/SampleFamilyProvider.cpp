@@ -377,17 +377,22 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
     String _son2("Son2");
     String _daughter1("Daughter1");
     String _daughter2("Daughter2");
+    String _one("one");
+    String _two("two");
+    String _three( "three");
+    String _four( "four");
+    String _five( "five");
     Uint32 Father = _instances.size();
-    _instances.append(_buildPersonDynamicInstance(_father, String("one"), 1));
+    _instances.append(_buildPersonDynamicInstance(_father, _one, 1));
     //CIMObjectPath reference("TST_PersonDynamic.Name=\"Father\"");
     Uint32 Mother = _instances.size();
-    _instances.append(_buildPersonDynamicInstance(_mother, String("two"), 2));
+    _instances.append(_buildPersonDynamicInstance(_mother, _two, 2));
     Uint32 Son1 = _instances.size();
-    _instances.append(_buildPersonDynamicInstance(_son1, String("three"), 3));
+    _instances.append(_buildPersonDynamicInstance(_son1, _three, 3));
     Uint32 Son2 = _instances.size();
-    _instances.append(_buildPersonDynamicInstance(_son2, String("four"), 4));
+    _instances.append(_buildPersonDynamicInstance(_son2, _four, 4));
     Uint32 Daughter1 = _instances.size();
-    _instances.append(_buildPersonDynamicInstance(_daughter1, String("five"), 5));
+    _instances.append(_buildPersonDynamicInstance(_daughter1, _five, 5));
 
     CDEBUG ("initialize - referenced Class Instances Built");
     for(Uint32 i = 0, n = _instances.size(); i < n; i++)

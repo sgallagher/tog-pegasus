@@ -219,7 +219,6 @@ private:
 
     CIMDateTimeRep* _rep;
 
-#ifdef PEGASUS_INTERNALONLY
     Boolean _set(const char* str);
 
     /**
@@ -231,7 +230,6 @@ private:
        @param tm           Contains the tm structure to be updated.
     */
     static void formatDateTime(char* dateTime, tm* tm);
-#endif
 
     /** CIMDateTime - ATTN: Friend operator Test for CIMDateTime 
 	equality

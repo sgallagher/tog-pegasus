@@ -68,10 +68,7 @@ PEGASUS_USING_STD;
 // Test tool to limit enumerations to a single level.  This is not production and is used only to
 // debug special problems in the requests that issue multiple provider operations.
 //#define LIMIT_ENUM_TO_ONE_LEVEL
-String _showBool(Boolean x)
-{
-    return(x? "true" : "false");
-}
+
 static DynamicRoutingTable _routing_table;
 
 // Variable to control whether we do search or simply single provider for reference and
@@ -652,6 +649,7 @@ Boolean _mergePropertyLists(const CIMClass& cl, const Boolean localOnly,
            "CIMOperationRequestDispatcher::_mergePropertyLists");
 
     Boolean listIsNull = pl.isNull();
+    //ATTN: Combine all of these tests into a single if statement. KS oct 04
 
     // if property list is  !NULL but empty, we send empty propertylist
     // with NO properties independent of localOnly.
@@ -662,7 +660,7 @@ Boolean _mergePropertyLists(const CIMClass& cl, const Boolean localOnly,
         return(false);
     }
 
-    // if there is a property list, simply use it as the base.
+    // if there is non_empty property list, simply use it as the base.
     if (pl.size() != 0)
     {
        PEG_METHOD_EXIT();
@@ -699,7 +697,6 @@ Boolean _mergePropertyLists(const CIMClass& cl, const Boolean localOnly,
    PEG_METHOD_EXIT();
    return(true);
 }
-
 
 ///////////////////////////////////////////////////////////////////////////
 // Provider Lookup Functions

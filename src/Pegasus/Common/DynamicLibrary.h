@@ -57,7 +57,7 @@ class PEGASUS_COMMON_LINKAGE DynamicLibrary
 public:
     #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
       typedef HMODULE LIBRARY_HANDLE;
-      typedef int LIBRARY_SYMBOL;
+      typedef FARPROC LIBRARY_SYMBOL;
     #elif defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_DARWIN)
       typedef void * LIBRARY_HANDLE;
       typedef void * LIBRARY_SYMBOL;

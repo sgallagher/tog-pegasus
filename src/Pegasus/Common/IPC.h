@@ -34,12 +34,9 @@
 //         David Eger (dteger@us.ibm.com)
 //         Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //         Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
-#if !defined(PEGASUS_OS_SOLARIS) && !defined(PEGASUS_OS_LSB) && !defined(PEGASUS_OS_VMS)
-#define PEGASUS_NEED_CRITICAL_TYPE
-#endif
 
 #ifndef Pegasus_IPC_h
 #define Pegasus_IPC_h
@@ -47,6 +44,11 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>
+
+#if !defined(PEGASUS_OS_SOLARIS) && !defined(PEGASUS_OS_LSB) && !defined(PEGASUS_OS_VMS)
+#define PEGASUS_NEED_CRITICAL_TYPE
+#endif
+
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 # include "IPCWindows.h"
 #elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)

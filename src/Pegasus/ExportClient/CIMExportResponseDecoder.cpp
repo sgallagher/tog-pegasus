@@ -26,10 +26,10 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -458,11 +458,16 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
       //
 
       const char* iMethodResponseName = 0;
+      Boolean isEmptyTag = false;
 
-      if (XmlReader::getEMethodResponseStartTag(parser, iMethodResponseName))
+      if (XmlReader::getEMethodResponseStartTag(
+              parser, iMethodResponseName, isEmptyTag))
       {
 	  if (System::strcasecmp(iMethodResponseName, "ExportIndication") == 0)
-              response.reset( _decodeExportIndicationResponse(parser, messageId));
+          {
+              response.reset(_decodeExportIndicationResponse(
+                  parser, messageId, isEmptyTag));
+          }
           else
 	  {
 	    // Unrecognized IMethodResponse name attribute
@@ -484,7 +489,10 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
             // Handle end tag:
             //
 
-            XmlReader::expectEndTag(parser, "EXPMETHODRESPONSE");
+            if (isEmptyTag)
+            {
+                XmlReader::expectEndTag(parser, "EXPMETHODRESPONSE");
+            }
         }
         else
         {
@@ -529,22 +537,25 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
 }
 
 CIMExportIndicationResponseMessage* CIMExportResponseDecoder::_decodeExportIndicationResponse(
-   XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportResponseDecoder::_decodeExportIndicationResponse()");
    XmlEntry entry;
    CIMException cimException;
 
-   if (XmlReader::getErrorElement(parser, cimException))
+   if (!isEmptyImethodresponseTag)
    {
-      PEG_METHOD_EXIT();
-      return(new CIMExportIndicationResponseMessage(
-		messageId,
-		cimException,
-		QueueIdStack()));
-   }
-   else
-   {
+      if (XmlReader::getErrorElement(parser, cimException))
+      {
+         PEG_METHOD_EXIT();
+         return(new CIMExportIndicationResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack()));
+      }
+
       if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
       {
          if (entry.type != XmlEntry::EMPTY_TAG)
@@ -552,13 +563,13 @@ CIMExportIndicationResponseMessage* CIMExportResponseDecoder::_decodeExportIndic
             XmlReader::expectEndTag(parser, "IRETURNVALUE");
          }
       }
-
-      PEG_METHOD_EXIT();
-      return(new CIMExportIndicationResponseMessage(
-		messageId,
-		cimException,
-		QueueIdStack()));
    }
+
+   PEG_METHOD_EXIT();
+   return(new CIMExportIndicationResponseMessage(
+      messageId,
+      cimException,
+      QueueIdStack()));
 }
 
 PEGASUS_NAMESPACE_END

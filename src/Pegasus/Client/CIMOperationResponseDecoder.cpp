@@ -34,8 +34,8 @@
 //              Sushma Fernandes, Hewlett-Packard Company
 //                  (sushma_fernandes@hp.com)
 //              Dave Rosckes (rosckes@us.ibm.com)
-//				Seema Gupta (gseema@in.ibm.com) for PEP135
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
+//              Seema Gupta (gseema@in.ibm.com) for PEP135
+//              Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +48,7 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Common/Exception.h> 
+#include <Pegasus/Common/Exception.h>
 #include "CIMOperationResponseDecoder.h"
 
 // l10n
@@ -87,21 +87,20 @@ void CIMOperationResponseDecoder::handleEnqueue()
     Message* message = dequeue();
 
     if (!message)
-	return;
+        return;
 
     switch (message->getType())
     {
-	case HTTP_MESSAGE:
-	{
+        case HTTP_MESSAGE:
+        {
+            HTTPMessage* httpMessage = (HTTPMessage*)message;
+            _handleHTTPMessage(httpMessage);
+            break;
+        }
 
-	    HTTPMessage* httpMessage = (HTTPMessage*)message;
-	    _handleHTTPMessage(httpMessage);
-	    break;
-	}
-
-	default:
+        default:
             PEGASUS_ASSERT(0);
-	    break;
+            break;
     }
 
     delete message;
@@ -119,25 +118,24 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     Uint32 contentLength;
 
     if (httpMessage->message.size() == 0)
-      {
-	
-	// l10n
-	
-	// CIMClientMalformedHTTPException* malformedHTTPException =
-	//   new CIMClientMalformedHTTPException("Empty HTTP response message.");
-	
-	MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EMPTY_RESPONSE", "Empty HTTP response message.");
-	String mlString(MessageLoader::getMessage(mlParms));
-	
-	CIMClientMalformedHTTPException* malformedHTTPException =
-	  new CIMClientMalformedHTTPException(mlString);
-	
-	ClientExceptionMessage * response =
-	  new ClientExceptionMessage(malformedHTTPException);
-	
-	_outputQueue->enqueue(response);
-	return;
-      }
+    {
+        // l10n
+
+        // CIMClientMalformedHTTPException* malformedHTTPException =
+        //   new CIMClientMalformedHTTPException("Empty HTTP response message.");
+
+        MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EMPTY_RESPONSE", "Empty HTTP response message.");
+        String mlString(MessageLoader::getMessage(mlParms));
+
+        CIMClientMalformedHTTPException* malformedHTTPException =
+            new CIMClientMalformedHTTPException(mlString);
+
+        ClientExceptionMessage * response =
+            new ClientExceptionMessage(malformedHTTPException);
+
+        _outputQueue->enqueue(response);
+        return;
+    }
 
     httpMessage->parse(startLine, headers, contentLength);
 
@@ -152,23 +150,22 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         startLine, httpVersion, statusCode, reasonPhrase);
     if (!parsableMessage)
     {
+        // l10n
 
-      // l10n
+        // CIMClientMalformedHTTPException* malformedHTTPException = new
+        //   CIMClientMalformedHTTPException("Malformed HTTP response message.");
 
-      // CIMClientMalformedHTTPException* malformedHTTPException = new
-      //   CIMClientMalformedHTTPException("Malformed HTTP response message.");
-     
-      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.MALFORMED_RESPONSE", "Malformed HTTP response message.");
-      String mlString(MessageLoader::getMessage(mlParms));
-     
-      CIMClientMalformedHTTPException* malformedHTTPException =
-	new CIMClientMalformedHTTPException(mlString);
-      
-      ClientExceptionMessage * response =
-	new ClientExceptionMessage(malformedHTTPException);
-      
-      _outputQueue->enqueue(response);
-      return;
+        MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.MALFORMED_RESPONSE", "Malformed HTTP response message.");
+        String mlString(MessageLoader::getMessage(mlParms));
+
+        CIMClientMalformedHTTPException* malformedHTTPException =
+            new CIMClientMalformedHTTPException(mlString);
+
+        ClientExceptionMessage * response =
+            new ClientExceptionMessage(malformedHTTPException);
+
+        _outputQueue->enqueue(response);
+        return;
     }
 
 #ifdef PEGASUS_CLIENT_TRACE_ENABLE
@@ -185,10 +182,10 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         strncpy( tmpBuf, httpMessage->message.getData(), size );
         tmpBuf[size] = '\0';
         Logger::put(Logger::STANDARD_LOG,
-					"CIMCLIENT",
-					Logger::TRACE,
-					"CIMOperationRequestDecoder::Response, XML content: $1",
-					tmpBuf);
+            "CIMCLIENT",
+            Logger::TRACE,
+            "CIMOperationRequestDecoder::Response, XML content: $1",
+            tmpBuf);
         delete []tmpBuf;
     }
 #endif
@@ -272,7 +269,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     String cimOperation;
 
     if (!HTTPMessage::lookupHeader(
-	headers, "CIMOperation", cimOperation, true))
+        headers, "CIMOperation", cimOperation, true))
     {
       // l10n
 
@@ -281,10 +278,10 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
       MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.MISSING_CIMOP_HEADER", "Missing CIMOperation HTTP header");
       String mlString(MessageLoader::getMessage(mlParms));
-      
+
       CIMClientMalformedHTTPException* malformedHTTPException = new
-	CIMClientMalformedHTTPException(mlString);
-      
+        CIMClientMalformedHTTPException(mlString);
+
         ClientExceptionMessage * response =
             new ClientExceptionMessage(malformedHTTPException);
 
@@ -294,127 +291,126 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
 
 // l10n start
-   ContentLanguages contentLanguages  = ContentLanguages::EMPTY;
-   try 
-   { 
-		// Get and validate the Content-Language header, if set 	
-		String contentLanguageHeader;
-		if (HTTPMessage::lookupHeader(
-		      headers, 
-	    	  "Content-Language", 
-		      contentLanguageHeader,
-	    	  false) == true)
-	    {						
-			contentLanguages = ContentLanguages(contentLanguageHeader);      
-	    }   	
-   }			
-   catch (Exception &)
-   {
+    ContentLanguages contentLanguages  = ContentLanguages::EMPTY;
+    try
+    {
+        // Get and validate the Content-Language header, if set
+        String contentLanguageHeader;
+        if (HTTPMessage::lookupHeader(
+                headers,
+                "Content-Language",
+                contentLanguageHeader,
+                false) == true)
+        {
+            contentLanguages = ContentLanguages(contentLanguageHeader);
+        }
+    }
+    catch (Exception &)
+    {
+        // l10n
 
-     // l10n
+        // CIMClientMalformedHTTPException* malformedHTTPException = new
+        //  CIMClientMalformedHTTPException("Malformed Content-Language header.");
 
-     // CIMClientMalformedHTTPException* malformedHTTPException = new
-     //  CIMClientMalformedHTTPException("Malformed Content-Language header.");
+        MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.MALFORMED_CONTENT", "Malformed Content-Language header.");
+        String mlString(MessageLoader::getMessage(mlParms));
 
-      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.MALFORMED_CONTENT", "Malformed Content-Language header.");
-      String mlString(MessageLoader::getMessage(mlParms));
+        CIMClientMalformedHTTPException* malformedHTTPException =
+            new CIMClientMalformedHTTPException(mlString);
 
-      CIMClientMalformedHTTPException* malformedHTTPException =
-	new CIMClientMalformedHTTPException(mlString);
+        ClientExceptionMessage * response =
+            new ClientExceptionMessage(malformedHTTPException);
 
-     ClientExceptionMessage * response =
-       new ClientExceptionMessage(malformedHTTPException);
-     
-     _outputQueue->enqueue(response);
-     return;    	
-   }        
-// l10n end   
+        _outputQueue->enqueue(response);
+        return;
+    }
+// l10n end
     //
     // Search for "Content-Type" header:
     //
-   // BUG 572, Use of Content-Type header and change error msg.
-   // If header exists, test type.  If not, ignore. We will find
-   // content type errors in text analysis.
-   // content-type header  value format:
-   //              type "/" subtype *( ";" parameter )
-   // ex. text/xml;Charset="utf8"
-   String cimContentType;
-   
-   if (HTTPMessage::lookupHeader(
-				  headers, "Content-Type", cimContentType, true))
-   {
-		Uint32 len;
-		String contentTypeValue;
-		if ((len = cimContentType.find(';')) != PEG_NOT_FOUND)
-			contentTypeValue = cimContentType.subString(0,len);
-		else
-			contentTypeValue = cimContentType;
-		
-		if (!String::equalNoCase(contentTypeValue, "text/xml") && 
-			!String::equalNoCase(contentTypeValue, "application/xml"))
-		{
-			CIMClientMalformedHTTPException* malformedHTTPException = new
-				CIMClientMalformedHTTPException
-					("Bad Content-Type HTTP header; " + contentTypeValue);
-			ClientExceptionMessage * response =
-				new ClientExceptionMessage(malformedHTTPException);
-			
-			_outputQueue->enqueue(response);
-			return;
-		}
-   }
-   // comment out the error rejection code if the content-type header does
-   //    not exist
-#ifdef PEGASUS_REJECT_ON_MISSING_CONTENTTYPE_HEADER
-   else
-   {
-		CIMClientMalformedHTTPException* malformedHTTPException = new
-			CIMClientMalformedHTTPException
-				("Missing Content-Type HTTP header; ");
-		ClientExceptionMessage * response =
-			new ClientExceptionMessage(malformedHTTPException);
-		
-		_outputQueue->enqueue(response);
-		return;
-    
-   }
-#endif
-   
-		// look for any cim status codes. The HTTPConnection level would have
-		// added them here.
 
-		String cimStatusCodeValue;
-		Boolean found = HTTPMessage::lookupHeader(headers, "CIMStatusCode", 
-																							cimStatusCodeValue, true);
-		CIMStatusCode cimStatusCodeNumber = CIM_ERR_SUCCESS;
+    // BUG 572, Use of Content-Type header and change error msg.
+    // If header exists, test type.  If not, ignore. We will find
+    // content type errors in text analysis.
+    // content-type header  value format:
+    //              type "/" subtype *( ";" parameter )
+    // ex. text/xml;Charset="utf8"
+    String cimContentType;
 
-		if (found == true && 
-				(cimStatusCodeNumber = (CIMStatusCode)
-				 atoi(cimStatusCodeValue.getCString())) != CIM_ERR_SUCCESS)
-		{
-			String cimStatusCodeDescription;
-			found = HTTPMessage::lookupHeader(headers, "CIMStatusCodeDescription", 
-																				cimStatusCodeDescription, true);
-			if (found == true && cimStatusCodeDescription.size() > 0)
-			{
-				try
-				{
-					cimStatusCodeDescription = 
-						XmlReader::decodeURICharacters(cimStatusCodeDescription);
-				}
-				catch (ParseError&)
+    if (HTTPMessage::lookupHeader(
+            headers, "Content-Type", cimContentType, true))
+    {
+        Uint32 len;
+        String contentTypeValue;
+        if ((len = cimContentType.find(';')) != PEG_NOT_FOUND)
+            contentTypeValue = cimContentType.subString(0,len);
+        else
+            contentTypeValue = cimContentType;
+
+        if (!String::equalNoCase(contentTypeValue, "text/xml") &&
+            !String::equalNoCase(contentTypeValue, "application/xml"))
         {
-				}
-			} // if there is a description with the code
-			
-			CIMException* cimStatusException =
-				new CIMException(cimStatusCodeNumber,cimStatusCodeDescription);
-			cimStatusException->setContentLanguages(contentLanguages);
-			ClientExceptionMessage * response =
-				new ClientExceptionMessage(cimStatusException);
-			_outputQueue->enqueue(response);
-			return;
-		}
+            CIMClientMalformedHTTPException* malformedHTTPException = new
+                CIMClientMalformedHTTPException
+                    ("Bad Content-Type HTTP header; " + contentTypeValue);
+            ClientExceptionMessage * response =
+                new ClientExceptionMessage(malformedHTTPException);
+
+            _outputQueue->enqueue(response);
+            return;
+        }
+    }
+    // comment out the error rejection code if the content-type header does
+    //    not exist
+#ifdef PEGASUS_REJECT_ON_MISSING_CONTENTTYPE_HEADER
+    else
+    {
+        CIMClientMalformedHTTPException* malformedHTTPException = new
+            CIMClientMalformedHTTPException
+                ("Missing Content-Type HTTP header; ");
+        ClientExceptionMessage * response =
+            new ClientExceptionMessage(malformedHTTPException);
+
+        _outputQueue->enqueue(response);
+        return;
+    }
+#endif
+
+    // look for any cim status codes. The HTTPConnection level would have
+    // added them here.
+
+    String cimStatusCodeValue;
+    Boolean found = HTTPMessage::lookupHeader(headers, "CIMStatusCode",
+        cimStatusCodeValue, true);
+    CIMStatusCode cimStatusCodeNumber = CIM_ERR_SUCCESS;
+
+    if (found == true &&
+        (cimStatusCodeNumber = (CIMStatusCode)
+         atoi(cimStatusCodeValue.getCString())) != CIM_ERR_SUCCESS)
+    {
+        String cimStatusCodeDescription;
+        found = HTTPMessage::lookupHeader(headers, "CIMStatusCodeDescription",
+            cimStatusCodeDescription, true);
+        if (found == true && cimStatusCodeDescription.size() > 0)
+        {
+            try
+            {
+                cimStatusCodeDescription =
+                    XmlReader::decodeURICharacters(cimStatusCodeDescription);
+            }
+            catch (ParseError&)
+            {
+            }
+        } // if there is a description with the code
+
+        CIMException* cimStatusException =
+            new CIMException(cimStatusCodeNumber,cimStatusCodeDescription);
+        cimStatusException->setContentLanguages(contentLanguages);
+        ClientExceptionMessage * response =
+            new ClientExceptionMessage(cimStatusException);
+        _outputQueue->enqueue(response);
+        return;
+    }
 
     //
     // Zero-terminate the message:
@@ -434,34 +430,32 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
     if (!String::equalNoCase(cimOperation, "MethodResponse"))
     {
+        // l10n
 
-      // l10n
+        // CIMClientMalformedHTTPException* malformedHTTPException =
+        //   new CIMClientMalformedHTTPException(
+        //        String("Received CIMOperation HTTP header value \"") +
+        //        cimOperation + "\", expected \"MethodResponse\"");
 
-      // CIMClientMalformedHTTPException* malformedHTTPException =
-      //   new CIMClientMalformedHTTPException(
-      //        String("Received CIMOperation HTTP header value \"") +
-      //        cimOperation + "\", expected \"MethodResponse\"");
+        MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_METHODRESPONSE", "Received CIMOperation HTTP header value \"$1\", expected \"MethodResponse\"", cimOperation);
+        String mlString(MessageLoader::getMessage(mlParms));
 
+        CIMClientMalformedHTTPException* malformedHTTPException =
+            new CIMClientMalformedHTTPException(mlString);
 
-      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_METHODRESPONSE", "Received CIMOperation HTTP header value \"$1\", expected \"MethodResponse\"", cimOperation);
-      String mlString(MessageLoader::getMessage(mlParms));
-
-      CIMClientMalformedHTTPException* malformedHTTPException =
-	new CIMClientMalformedHTTPException(mlString);
-
-      ClientExceptionMessage * response =
-	new ClientExceptionMessage(malformedHTTPException);
+        ClientExceptionMessage * response =
+            new ClientExceptionMessage(malformedHTTPException);
 
         _outputQueue->enqueue(response);
         return;
     }
 
     _handleMethodResponse(content,
-   						contentLanguages);  // l10n
+        contentLanguages);  // l10n
 }
 
 void CIMOperationResponseDecoder::_handleMethodResponse(char* content,
-								const ContentLanguages& contentLanguages) //l10n
+    const ContentLanguages& contentLanguages) //l10n
 {
     Message* response = 0;
 
@@ -474,199 +468,226 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content,
 
     try
     {
-	//
-	// Process <?xml ... >
-	//
+        //
+        // Process <?xml ... >
+        //
 
         const char* xmlVersion = 0;
         const char* xmlEncoding = 0;
 
-	XmlReader::getXmlDeclaration(parser, xmlVersion, xmlEncoding);
+        XmlReader::getXmlDeclaration(parser, xmlVersion, xmlEncoding);
 
-	//
-	// Process <CIM ... >
-	//
+        //
+        // Process <CIM ... >
+        //
 
         const char* cimVersion = 0;
         const char* dtdVersion = 0;
 
         // ATTN-RK-P3-20020416: Need to validate these versions?
-	XmlReader::getCimStartTag(parser, cimVersion, dtdVersion);
+        XmlReader::getCimStartTag(parser, cimVersion, dtdVersion);
 
-	//
-	// Expect <MESSAGE ... >
-	//
+        //
+        // Expect <MESSAGE ... >
+        //
 
-	String messageId;
-	String protocolVersion;
+        String messageId;
+        String protocolVersion;
 
-	if (!XmlReader::getMessageStartTag(parser, messageId, protocolVersion)) {
+        if (!XmlReader::getMessageStartTag(parser, messageId, protocolVersion))
+        {
+            // l10n
 
-	  // l10n
+            // throw XmlValidationError(
+            // parser.getLine(), "expected MESSAGE element");
 
-	  // throw XmlValidationError(
-	  // parser.getLine(), "expected MESSAGE element");
+            MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_MESSAGE_ELEMENT",
+                "expected MESSAGE element");
 
-	  MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_MESSAGE_ELEMENT",
-				     "expected MESSAGE element");
-
-	  throw XmlValidationError(parser.getLine(), mlParms);
-	}
-
+            throw XmlValidationError(parser.getLine(), mlParms);
+        }
 
         if (!String::equalNoCase(protocolVersion, "1.0"))
-	{
+        {
+            // l10n
 
-	  // l10n
+            // CIMClientResponseException* responseException =
+            //   new CIMClientResponseException(
+            //        String("Received unsupported protocol version \"") +
+            //        protocolVersion + "\", expected \"1.0\"");
 
-	  // CIMClientResponseException* responseException =
-	  //   new CIMClientResponseException(
-	  //        String("Received unsupported protocol version \"") +
-	  //        protocolVersion + "\", expected \"1.0\"");
+            MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.UNSUPPORTED_PROTOCOL", "Received unsupported protocol version \"$0\", expected \"$1\"", protocolVersion, "1.0");
+            String mlString(MessageLoader::getMessage(mlParms));
 
-	MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.UNSUPPORTED_PROTOCOL", "Received unsupported protocol version \"$0\", expected \"$1\"", protocolVersion, "1.0");
-	String mlString(MessageLoader::getMessage(mlParms));
-	
-	CIMClientResponseException* responseException =
-	  new CIMClientResponseException(mlString);
+            CIMClientResponseException* responseException =
+                new CIMClientResponseException(mlString);
 
             ClientExceptionMessage * response =
                 new ClientExceptionMessage(responseException);
 
             _outputQueue->enqueue(response);
             return;
-	}
+        }
 
-	//
-	// Expect <SIMPLERSP ... >
-	//
+        //
+        // Expect <SIMPLERSP ... >
+        //
 
-	XmlReader::expectStartTag(parser, entry, "SIMPLERSP");
+        XmlReader::expectStartTag(parser, entry, "SIMPLERSP");
 
-	//
-	// Expect <IMETHODRESPONSE ... >
-	//
+        //
+        // Expect <IMETHODRESPONSE ... >
+        //
 
-	const char* iMethodResponseName = 0;
+        const char* iMethodResponseName = 0;
+        Boolean isEmptyTag = false;
 
-	if (XmlReader::getIMethodResponseStartTag(parser, iMethodResponseName))
-	{
-	    //
-	    // Dispatch the method:
-	    //
+        if (XmlReader::getIMethodResponseStartTag(
+                parser, iMethodResponseName, isEmptyTag))
+        {
+            //
+            // Dispatch the method:
+            //
 
-	    if (System::strcasecmp(iMethodResponseName, "GetClass") == 0)
-		response = _decodeGetClassResponse(parser, messageId);
-	    else if (System::strcasecmp(iMethodResponseName, "GetInstance") == 0)
-		response = _decodeGetInstanceResponse(parser, messageId);
-	    else if (System::strcasecmp(iMethodResponseName, "EnumerateClassNames") == 0)
-		response = _decodeEnumerateClassNamesResponse(parser,messageId);
-	    else if (System::strcasecmp(iMethodResponseName, "References") == 0)
-		response = _decodeReferencesResponse(parser, messageId);
-	    else if (System::strcasecmp(iMethodResponseName, "ReferenceNames") == 0)
-		response = _decodeReferenceNamesResponse(parser, messageId);
-	    else if (System::strcasecmp(iMethodResponseName, "AssociatorNames") == 0)
-		response = _decodeAssociatorNamesResponse(parser, messageId);
-	    else if (System::strcasecmp(iMethodResponseName, "Associators") == 0)
-		response = _decodeAssociatorsResponse(parser, messageId);
-	    else if (System::strcasecmp(iMethodResponseName, "CreateInstance") == 0)
-		response = _decodeCreateInstanceResponse(parser, messageId);
-	    else if (System::strcasecmp(iMethodResponseName,"EnumerateInstanceNames") == 0)
-		response = _decodeEnumerateInstanceNamesResponse(
-                  parser, messageId);
-	    else if (System::strcasecmp(iMethodResponseName,"EnumerateInstances") == 0)
-		response = _decodeEnumerateInstancesResponse(parser, messageId);
-	    else if (System::strcasecmp(iMethodResponseName, "GetProperty") == 0)
-		response = _decodeGetPropertyResponse(parser, messageId);
-	    else if (System::strcasecmp(iMethodResponseName, "SetProperty") == 0)
-		response = _decodeSetPropertyResponse(parser, messageId);
-	    else if (System::strcasecmp(iMethodResponseName, "DeleteQualifier") == 0)
-		response = _decodeDeleteQualifierResponse(parser, messageId);
-	    else if (System::strcasecmp(iMethodResponseName, "GetQualifier") == 0)
-		response = _decodeGetQualifierResponse(parser, messageId);
-	    else if (System::strcasecmp(iMethodResponseName, "SetQualifier") == 0)
-		response = _decodeSetQualifierResponse(parser, messageId);
-	    else if (System::strcasecmp(iMethodResponseName, "EnumerateQualifiers") == 0)
-		response = _decodeEnumerateQualifiersResponse(parser,messageId);
-	    else if (System::strcasecmp(iMethodResponseName, "EnumerateClasses") == 0)
-		response = _decodeEnumerateClassesResponse(parser, messageId);
-	    else if (System::strcasecmp(iMethodResponseName, "CreateClass") == 0)
-		response = _decodeCreateClassResponse(parser, messageId);
-	    else if (System::strcasecmp(iMethodResponseName, "ModifyClass") == 0)
-		response = _decodeModifyClassResponse(parser, messageId);
-	    else if (System::strcasecmp(iMethodResponseName, "ModifyInstance") == 0)
-		response = _decodeModifyInstanceResponse(parser, messageId);
-	    else if (System::strcasecmp(iMethodResponseName, "DeleteClass") == 0)
-		response = _decodeDeleteClassResponse(parser, messageId);
-	    else if (System::strcasecmp(iMethodResponseName, "DeleteInstance") == 0)
-		response = _decodeDeleteInstanceResponse(parser, messageId);
-	    else if (System::strcasecmp(iMethodResponseName, "ExecQuery") == 0)
-		response = _decodeExecQueryResponse(parser, messageId);
-	    else
-	    {
-
-	      // l10n
+            if (System::strcasecmp(iMethodResponseName, "GetClass") == 0)
+                response = _decodeGetClassResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName, "GetInstance") == 0)
+                response = _decodeGetInstanceResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName, "EnumerateClassNames") == 0)
+                response = _decodeEnumerateClassNamesResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName, "References") == 0)
+                response = _decodeReferencesResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName, "ReferenceNames") == 0)
+                response = _decodeReferenceNamesResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName, "AssociatorNames") == 0)
+                response = _decodeAssociatorNamesResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName, "Associators") == 0)
+                response = _decodeAssociatorsResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName, "CreateInstance") == 0)
+                response = _decodeCreateInstanceResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName,"EnumerateInstanceNames") == 0)
+                response = _decodeEnumerateInstanceNamesResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName,"EnumerateInstances") == 0)
+                response = _decodeEnumerateInstancesResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName, "GetProperty") == 0)
+                response = _decodeGetPropertyResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName, "SetProperty") == 0)
+                response = _decodeSetPropertyResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName, "DeleteQualifier") == 0)
+                response = _decodeDeleteQualifierResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName, "GetQualifier") == 0)
+                response = _decodeGetQualifierResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName, "SetQualifier") == 0)
+                response = _decodeSetQualifierResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName, "EnumerateQualifiers") == 0)
+                response = _decodeEnumerateQualifiersResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName, "EnumerateClasses") == 0)
+                response = _decodeEnumerateClassesResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName, "CreateClass") == 0)
+                response = _decodeCreateClassResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName, "ModifyClass") == 0)
+                response = _decodeModifyClassResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName, "ModifyInstance") == 0)
+                response = _decodeModifyInstanceResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName, "DeleteClass") == 0)
+                response = _decodeDeleteClassResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName, "DeleteInstance") == 0)
+                response = _decodeDeleteInstanceResponse(
+                    parser, messageId, isEmptyTag);
+            else if (System::strcasecmp(iMethodResponseName, "ExecQuery") == 0)
+                response = _decodeExecQueryResponse(
+                    parser, messageId, isEmptyTag);
+            else
+            {
+                // l10n
 
                 // Unrecognized IMethodResponse name attribute
-	      // throw XmlValidationError(parser.getLine(),
-	      //   String("Unrecognized IMethodResponse name \"") +
-	      //        iMethodResponseName + "\"");
+                // throw XmlValidationError(parser.getLine(),
+                //   String("Unrecognized IMethodResponse name \"") +
+                //        iMethodResponseName + "\"");
 
-	      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.UNRECOGNIZED_NAME",
-					 "Unrecognized IMethodResponse name \"$0\"", 
-					 iMethodResponseName);
-	      
-	      throw XmlValidationError(parser.getLine(), mlParms);
-	    }
-	
-	    //
-	    // Handle end tag:
-	    //
+                MessageLoaderParms mlParms(
+                    "Client.CIMOperationResponseDecoder.UNRECOGNIZED_NAME",
+                    "Unrecognized IMethodResponse name \"$0\"",
+                    iMethodResponseName);
+                throw XmlValidationError(parser.getLine(), mlParms);
+            }
 
-	    XmlReader::expectEndTag(parser, "IMETHODRESPONSE");
-	}
-	else if (XmlReader::getMethodResponseStartTag(parser, 
-	    iMethodResponseName))
-	{
-	    response = _decodeInvokeMethodResponse(
-              parser, messageId, iMethodResponseName);
+            //
+            // Handle end tag:
+            //
 
-	    //
-	    // Handle end tag:
-	    //
-	    XmlReader::expectEndTag(parser, "METHODRESPONSE");
-	}
-	else
-	{
-	  // l10n
+            if (!isEmptyTag)
+            {
+                XmlReader::expectEndTag(parser, "IMETHODRESPONSE");
+            }
+        }
+        else if (XmlReader::getMethodResponseStartTag(
+                     parser, iMethodResponseName, isEmptyTag))
+        {
+            response = _decodeInvokeMethodResponse(
+                parser, messageId, iMethodResponseName, isEmptyTag);
 
-	  // throw XmlValidationError(parser.getLine(),
-	  //   "expected METHODRESPONSE or IMETHODRESPONSE element");
+            //
+            // Handle end tag:
+            //
+            if (!isEmptyTag)
+            {
+                XmlReader::expectEndTag(parser, "METHODRESPONSE");
+            }
+        }
+        else
+        {
+            // l10n
 
-	  MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_METHODRESPONSE_OR_IMETHODRESPONSE_ELEMENT",
-				     "expected METHODRESPONSE or IMETHODRESPONSE element");
+            // throw XmlValidationError(parser.getLine(),
+            //   "expected METHODRESPONSE or IMETHODRESPONSE element");
 
-	  throw XmlValidationError(parser.getLine(), mlParms);
-	}
+            MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_METHODRESPONSE_OR_IMETHODRESPONSE_ELEMENT",
+                "expected METHODRESPONSE or IMETHODRESPONSE element");
+
+            throw XmlValidationError(parser.getLine(), mlParms);
+        }
 
         //
         // Handle end tags:
         //
-	XmlReader::expectEndTag(parser, "SIMPLERSP");
-	XmlReader::expectEndTag(parser, "MESSAGE");
-	XmlReader::expectEndTag(parser, "CIM");
+        XmlReader::expectEndTag(parser, "SIMPLERSP");
+        XmlReader::expectEndTag(parser, "MESSAGE");
+        XmlReader::expectEndTag(parser, "CIM");
     }
     catch (XmlException& x)
     {
-	Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
-		    "CIMOperationResponseDecoder::_handleMethodResponse - XmlException has occurred. Message: $0",x.getMessage());
+        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
+            "CIMOperationResponseDecoder::_handleMethodResponse - XmlException has occurred. Message: $0",x.getMessage());
 
         if (response)
         {
 //#ifdef PEGASUS_SNIA_INTEROP_TEST
 //         httpMessage->printAll(cout);
 //#endif
-	
+
             delete response;
         }
 
@@ -689,914 +710,985 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content,
 //l10n start
 // l10n TODO - might want to move A-L and C-L to Message
 // to make this more maintainable
-	// Add the language header to the request
-	CIMMessage * cimmsg = dynamic_cast<CIMMessage *>(response);
-	if (cimmsg != NULL)
-	{
-		cimmsg->operationContext.set(ContentLanguageListContainer(contentLanguages));
-	}
-	else
-	{
-		;	// l10n TODO - error back to client here	
-	}
-// l10n end	
-
+    // Add the language header to the request
+    CIMMessage * cimmsg = dynamic_cast<CIMMessage *>(response);
+    if (cimmsg != NULL)
+    {
+        cimmsg->operationContext.set(ContentLanguageListContainer(contentLanguages));
+    }
+    else
+    {
+        ;    // l10n TODO - error back to client here
+    }
+// l10n end
 
     _outputQueue->enqueue(response);
 }
 
 CIMCreateClassResponseMessage* CIMOperationResponseDecoder::_decodeCreateClassResponse(
-    XmlParser& parser, 
-    const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (!isEmptyImethodresponseTag)
     {
-	return(new CIMCreateClassResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack()));
+        if (XmlReader::getErrorElement(parser, cimException))
+        {
+            return(new CIMCreateClassResponseMessage(
+                messageId,
+                cimException,
+                QueueIdStack()));
+        }
 
+        if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+        {
+            if (entry.type != XmlEntry::EMPTY_TAG)
+            {
+                XmlReader::expectEndTag(parser, "IRETURNVALUE");
+            }
+        }
     }
-    else
-    {
-	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
-	{
-	    if (entry.type != XmlEntry::EMPTY_TAG)
-	    {
-	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	    }
-	}
 
-	return(new CIMCreateClassResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack()));
-    }
+    return(new CIMCreateClassResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack()));
 }
 
 CIMGetClassResponseMessage* CIMOperationResponseDecoder::_decodeGetClassResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (isEmptyImethodresponseTag)
     {
-	return(new CIMGetClassResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    CIMClass()));
+        MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_OPEN",
+            "Expected open of $0 element", "IMETHODRESPONSE");
+        throw XmlValidationError(parser.getLine(), mlParms);
+    }
+    else if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return(new CIMGetClassResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            CIMClass()));
     }
     else if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
     {
-	CIMClass cimClass;
+        CIMClass cimClass;
 
-	if ((entry.type == XmlEntry::EMPTY_TAG) ||
-	    !XmlReader::getClassElement(parser, cimClass))
-	{
+        if ((entry.type == XmlEntry::EMPTY_TAG) ||
+            !XmlReader::getClassElement(parser, cimClass))
+        {
+            // l10n
 
-	  // l10n
+            // throw XmlValidationError(parser.getLine(),"expected CLASS element");
 
-	  // throw XmlValidationError(parser.getLine(),"expected CLASS element");
+            MessageLoaderParms mlParms(
+                "Client.CIMOperationResponseDecoder.EXPECTED_CLASS_ELEMENT",
+                "expected CLASS element");
+            throw XmlValidationError(parser.getLine(), mlParms);
+        }
 
-	  MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_CLASS_ELEMENT",
-				     "expected CLASS element");
+        XmlReader::expectEndTag(parser, "IRETURNVALUE");
 
-	  throw XmlValidationError(parser.getLine(), mlParms);
-	}
-
-	XmlReader::expectEndTag(parser, "IRETURNVALUE");
-
-	return(new CIMGetClassResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    cimClass));
+        return(new CIMGetClassResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            cimClass));
     }
     else
     {
+        // l10n
 
-      // l10n
+        // throw XmlValidationError(parser.getLine(),
+        //   "expected ERROR or IRETURNVALUE element");
 
-      // throw XmlValidationError(parser.getLine(),
-      //   "expected ERROR or IRETURNVALUE element");
+        MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_ERROR_OR_IRETURNVALUE_ELEMENT",
+            "expected ERROR or IRETURNVALUE element");
 
-      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_ERROR_OR_IRETURNVALUE_ELEMENT",
-				 "expected ERROR or IRETURNVALUE element");
-      
-      throw XmlValidationError(parser.getLine(), mlParms);
+        throw XmlValidationError(parser.getLine(), mlParms);
     }
 }
 
 CIMModifyClassResponseMessage* CIMOperationResponseDecoder::_decodeModifyClassResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (!isEmptyImethodresponseTag)
     {
-	return(new CIMModifyClassResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack()));
-    }
-    else
-    {
-	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
-	{
-	    if (entry.type != XmlEntry::EMPTY_TAG)
-	    {
-	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	    }
-	}
+        if (XmlReader::getErrorElement(parser, cimException))
+        {
+            return(new CIMModifyClassResponseMessage(
+                messageId,
+                cimException,
+                QueueIdStack()));
+        }
 
-	return(new CIMModifyClassResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack()));
+        if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+        {
+            if (entry.type != XmlEntry::EMPTY_TAG)
+            {
+                XmlReader::expectEndTag(parser, "IRETURNVALUE");
+            }
+        }
     }
+
+    return(new CIMModifyClassResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack()));
 }
 
 CIMEnumerateClassNamesResponseMessage* CIMOperationResponseDecoder::_decodeEnumerateClassNamesResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
+    Array<CIMName> classNames;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (!isEmptyImethodresponseTag)
     {
-	return(new CIMEnumerateClassNamesResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    Array<CIMName>()));
+        if (XmlReader::getErrorElement(parser, cimException))
+        {
+            return(new CIMEnumerateClassNamesResponseMessage(
+                messageId,
+                cimException,
+                QueueIdStack(),
+                Array<CIMName>()));
+        }
+
+        if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+        {
+            if (entry.type != XmlEntry::EMPTY_TAG)
+            {
+                CIMName className;
+
+                while (XmlReader::getClassNameElement(parser, className, false))
+                    classNames.append(className);
+
+                XmlReader::expectEndTag(parser, "IRETURNVALUE");
+            }
+        }
     }
-    else
-    {
-	Array<CIMName> classNames;
 
-	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
-	{
-	    if (entry.type != XmlEntry::EMPTY_TAG)
-	    {
-	        CIMName className;
-
-	        while (XmlReader::getClassNameElement(parser, className, false))
-	            classNames.append(className);
-
-	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	    }
-	}
-
-	return(new CIMEnumerateClassNamesResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    classNames));
-    }
+    return(new CIMEnumerateClassNamesResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        classNames));
 }
 
 CIMEnumerateClassesResponseMessage* CIMOperationResponseDecoder::_decodeEnumerateClassesResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
+    Array<CIMClass> cimClasses;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (!isEmptyImethodresponseTag)
     {
-	return(new CIMEnumerateClassesResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    Array<CIMClass>()));
+        if (XmlReader::getErrorElement(parser, cimException))
+        {
+            return(new CIMEnumerateClassesResponseMessage(
+                messageId,
+                cimException,
+                QueueIdStack(),
+                Array<CIMClass>()));
+        }
+
+        if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+        {
+            if (entry.type != XmlEntry::EMPTY_TAG)
+            {
+                CIMClass cimClass;
+
+                while (XmlReader::getClassElement(parser, cimClass))
+                    cimClasses.append(cimClass);
+
+                XmlReader::expectEndTag(parser, "IRETURNVALUE");
+            }
+        }
     }
-    else
-    {
-	Array<CIMClass> cimClasses;
 
-	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
-	{
-	    if (entry.type != XmlEntry::EMPTY_TAG)
-	    {
-	        CIMClass cimClass;
-
-	        while (XmlReader::getClassElement(parser, cimClass))
-	            cimClasses.append(cimClass);
-
-	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	    }
-	}
-
-	return(new CIMEnumerateClassesResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    cimClasses));
-    }
+    return(new CIMEnumerateClassesResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        cimClasses));
 }
 
 CIMDeleteClassResponseMessage* CIMOperationResponseDecoder::_decodeDeleteClassResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (!isEmptyImethodresponseTag)
     {
-	return(new CIMDeleteClassResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack()));
-    }
-    else
-    {
-	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
-	{
-	    if (entry.type != XmlEntry::EMPTY_TAG)
-	    {
-	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	    }
-	}
+        if (XmlReader::getErrorElement(parser, cimException))
+        {
+            return(new CIMDeleteClassResponseMessage(
+                messageId,
+                cimException,
+                QueueIdStack()));
+        }
 
-	return(new CIMDeleteClassResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack()));
+        if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+        {
+            if (entry.type != XmlEntry::EMPTY_TAG)
+            {
+                XmlReader::expectEndTag(parser, "IRETURNVALUE");
+            }
+        }
     }
+
+    return(new CIMDeleteClassResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack()));
 }
 
 CIMCreateInstanceResponseMessage* CIMOperationResponseDecoder::_decodeCreateInstanceResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (isEmptyImethodresponseTag)
     {
-	return(new CIMCreateInstanceResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    CIMObjectPath()));
+        MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_OPEN",
+            "Expected open of $0 element", "IMETHODRESPONSE");
+        throw XmlValidationError(parser.getLine(), mlParms);
+    }
+    else if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return(new CIMCreateInstanceResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            CIMObjectPath()));
     }
     else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
     {
-	CIMObjectPath instanceName;
-	XmlReader::getInstanceNameElement(parser, instanceName);
+        CIMObjectPath instanceName;
+        XmlReader::getInstanceNameElement(parser, instanceName);
 
-	XmlReader::expectEndTag(parser, "IRETURNVALUE");
+        XmlReader::expectEndTag(parser, "IRETURNVALUE");
 
-	return(new CIMCreateInstanceResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    instanceName));
+        return(new CIMCreateInstanceResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            instanceName));
     }
     else
     {
+        // l10n
 
-      // l10n
+        // throw XmlValidationError(parser.getLine(),
+        //   "expected ERROR or IRETURNVALUE element");
 
-      // throw XmlValidationError(parser.getLine(),
-      //   "expected ERROR or IRETURNVALUE element");
+        MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_ERROR_OR_IRETURNVALUE_ELEMENT",
+            "expected ERROR or IRETURNVALUE element");
 
-      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_ERROR_OR_IRETURNVALUE_ELEMENT",
-				 "expected ERROR or IRETURNVALUE element");
-      
-      throw XmlValidationError(parser.getLine(), mlParms);
+        throw XmlValidationError(parser.getLine(), mlParms);
     }
 }
 
 CIMGetInstanceResponseMessage* CIMOperationResponseDecoder::_decodeGetInstanceResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (isEmptyImethodresponseTag)
     {
-	return(new CIMGetInstanceResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    CIMInstance()));
+        MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_OPEN",
+            "Expected open of $0 element", "IMETHODRESPONSE");
+        throw XmlValidationError(parser.getLine(), mlParms);
+    }
+    else if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return(new CIMGetInstanceResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            CIMInstance()));
     }
     else if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
     {
-	CIMInstance cimInstance;
+        CIMInstance cimInstance;
 
-	if ((entry.type == XmlEntry::EMPTY_TAG) ||
-	    !XmlReader::getInstanceElement(parser, cimInstance))
-	{
+        if ((entry.type == XmlEntry::EMPTY_TAG) ||
+            !XmlReader::getInstanceElement(parser, cimInstance))
+        {
+            // l10n
 
-	  // l10n
+            // throw XmlValidationError(
+            // parser.getLine(), "expected INSTANCE element");
 
-	  // throw XmlValidationError(
-	  // parser.getLine(), "expected INSTANCE element");
+            MessageLoaderParms mlParms(
+                "Client.CIMOperationResponseDecoder.EXPECTED_INSTANCE_ELEMENT",
+                "expected INSTANCE element");
 
-	  MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_INSTANCE_ELEMENT",
-				     "expected INSTANCE element");
+            throw XmlValidationError(parser.getLine(), mlParms);
+        }
 
-	  throw XmlValidationError(parser.getLine(), mlParms);
-	}
+        XmlReader::expectEndTag(parser, "IRETURNVALUE");
 
-	XmlReader::expectEndTag(parser, "IRETURNVALUE");
-
-	return(new CIMGetInstanceResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    cimInstance));
+        return(new CIMGetInstanceResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            cimInstance));
     }
     else
     {
+        // l10n
 
-      // l10n
+        // throw XmlValidationError(parser.getLine(),
+        //   "expected ERROR or IRETURNVALUE element");
 
-      // throw XmlValidationError(parser.getLine(),
-      //   "expected ERROR or IRETURNVALUE element");
+        MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_ERROR_OR_IRETURNVALUE_ELEMENT",
+            "expected ERROR or IRETURNVALUE element");
 
-      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_ERROR_OR_IRETURNVALUE_ELEMENT",
-				 "expected ERROR or IRETURNVALUE element");
-      
-      throw XmlValidationError(parser.getLine(), mlParms);
+        throw XmlValidationError(parser.getLine(), mlParms);
     }
 }
 
 CIMModifyInstanceResponseMessage* CIMOperationResponseDecoder::_decodeModifyInstanceResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (!isEmptyImethodresponseTag)
     {
-	return(new CIMModifyInstanceResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack()));
-    }
-    else
-    {
-	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
-	{
-	    if (entry.type != XmlEntry::EMPTY_TAG)
-	    {
-	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	    }
-	}
+        if (XmlReader::getErrorElement(parser, cimException))
+        {
+            return(new CIMModifyInstanceResponseMessage(
+                messageId,
+                cimException,
+                QueueIdStack()));
+        }
 
-	return(new CIMModifyInstanceResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack()));
+        if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+        {
+            if (entry.type != XmlEntry::EMPTY_TAG)
+            {
+                XmlReader::expectEndTag(parser, "IRETURNVALUE");
+            }
+        }
     }
+
+    return(new CIMModifyInstanceResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack()));
 }
 
 CIMEnumerateInstanceNamesResponseMessage* CIMOperationResponseDecoder::_decodeEnumerateInstanceNamesResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
+    Array<CIMObjectPath> instanceNames;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (!isEmptyImethodresponseTag)
     {
-	return(new CIMEnumerateInstanceNamesResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    Array<CIMObjectPath>()));
+        if (XmlReader::getErrorElement(parser, cimException))
+        {
+            return(new CIMEnumerateInstanceNamesResponseMessage(
+                messageId,
+                cimException,
+                QueueIdStack(),
+                Array<CIMObjectPath>()));
+        }
+
+        if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+        {
+            if (entry.type != XmlEntry::EMPTY_TAG)
+            {
+                String className;
+                Array<CIMKeyBinding> keyBindings;
+
+                while (XmlReader::getInstanceNameElement(
+                    parser, className, keyBindings))
+                {
+                    CIMObjectPath r(
+                        String::EMPTY,
+                        CIMNamespaceName(),
+                        className,
+                        keyBindings);
+                    instanceNames.append(r);
+                }
+
+                XmlReader::expectEndTag(parser, "IRETURNVALUE");
+            }
+        }
     }
-    else
-    {
-	Array<CIMObjectPath> instanceNames;
 
-	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
-	{
-	    if (entry.type != XmlEntry::EMPTY_TAG)
-	    {
-	        String className;
-	        Array<CIMKeyBinding> keyBindings;
-
-	        while (XmlReader::getInstanceNameElement(
-	            parser, className, keyBindings))
-	        {
-	            CIMObjectPath r(
-		        String::EMPTY,
-		        CIMNamespaceName(),
-		        className,
-		        keyBindings);
-	            instanceNames.append(r);
-	        }
-
-	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	    }
-	}
-
-	return(new CIMEnumerateInstanceNamesResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    instanceNames));
-    }
+    return(new CIMEnumerateInstanceNamesResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        instanceNames));
 }
 
 CIMEnumerateInstancesResponseMessage* CIMOperationResponseDecoder::_decodeEnumerateInstancesResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
+    Array<CIMInstance> namedInstances;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (!isEmptyImethodresponseTag)
     {
-	return(new CIMEnumerateInstancesResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    Array<CIMInstance>()));
+        if (XmlReader::getErrorElement(parser, cimException))
+        {
+            return(new CIMEnumerateInstancesResponseMessage(
+                messageId,
+                cimException,
+                QueueIdStack(),
+                Array<CIMInstance>()));
+        }
+
+        if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+        {
+            if (entry.type != XmlEntry::EMPTY_TAG)
+            {
+                CIMInstance namedInstance;
+
+                while (XmlReader::getNamedInstanceElement(
+                           parser, namedInstance))
+                {
+                    namedInstances.append(namedInstance);
+                }
+
+                XmlReader::expectEndTag(parser, "IRETURNVALUE");
+            }
+        }
     }
-    else
-    {
-	Array<CIMInstance> namedInstances;
 
-	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
-	{
-	    if (entry.type != XmlEntry::EMPTY_TAG)
-	    {
-	        CIMInstance namedInstance;
-
-	        while (XmlReader::getNamedInstanceElement(
-	                   parser, namedInstance))
-	        {
-	            namedInstances.append(namedInstance);
-	        }
-
-	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	    }
-	}
-
-	return(new CIMEnumerateInstancesResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    namedInstances));
-    }
+    return(new CIMEnumerateInstancesResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        namedInstances));
 }
 
 CIMDeleteInstanceResponseMessage* CIMOperationResponseDecoder::_decodeDeleteInstanceResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (!isEmptyImethodresponseTag)
     {
-	return(new CIMDeleteInstanceResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack()));
-    }
-    else
-    {
-	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
-	{
-	    if (entry.type != XmlEntry::EMPTY_TAG)
-	    {
-	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	    }
-	}
+        if (XmlReader::getErrorElement(parser, cimException))
+        {
+            return(new CIMDeleteInstanceResponseMessage(
+                messageId,
+                cimException,
+                QueueIdStack()));
+        }
 
-	return(new CIMDeleteInstanceResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack()));
+        if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+        {
+            if (entry.type != XmlEntry::EMPTY_TAG)
+            {
+                XmlReader::expectEndTag(parser, "IRETURNVALUE");
+            }
+        }
     }
+
+    return(new CIMDeleteInstanceResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack()));
 }
 
 CIMGetPropertyResponseMessage* CIMOperationResponseDecoder::_decodeGetPropertyResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
+    CIMValue cimValue(CIMTYPE_STRING, false);
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (!isEmptyImethodresponseTag)
     {
-	return(new CIMGetPropertyResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    CIMValue()));
-    }
-    else
-    {
-	CIMValue cimValue(CIMTYPE_STRING, false);
+        if (XmlReader::getErrorElement(parser, cimException))
+        {
+            return(new CIMGetPropertyResponseMessage(
+                messageId,
+                cimException,
+                QueueIdStack(),
+                CIMValue()));
+        }
 
-	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
-	{
-	    if (entry.type != XmlEntry::EMPTY_TAG)
-	    {
-	        if (!XmlReader::getPropertyValue(parser, cimValue))
-	        {
+        if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+        {
+            if (entry.type != XmlEntry::EMPTY_TAG)
+            {
+                if (!XmlReader::getPropertyValue(parser, cimValue))
+                {
                     // No value given; just return a null String value
-	        }
+                }
 
-	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	    }
-	}
-	else
-	{
+                XmlReader::expectEndTag(parser, "IRETURNVALUE");
+            }
+        }
+        else
+        {
             // No value given; just return a null String value
-	}
-
-	return(new CIMGetPropertyResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    cimValue));
+        }
     }
+
+    return(new CIMGetPropertyResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        cimValue));
 }
 
 CIMSetPropertyResponseMessage* CIMOperationResponseDecoder::_decodeSetPropertyResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (!isEmptyImethodresponseTag)
     {
-	return(new CIMSetPropertyResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack()));
-    }
-    else
-    {
-	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
-	{
-	    if (entry.type != XmlEntry::EMPTY_TAG)
-	    {
-	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	    }
-	}
+        if (XmlReader::getErrorElement(parser, cimException))
+        {
+            return(new CIMSetPropertyResponseMessage(
+                messageId,
+                cimException,
+                QueueIdStack()));
+        }
 
-	return(new CIMSetPropertyResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack()));
+        if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+        {
+            if (entry.type != XmlEntry::EMPTY_TAG)
+            {
+                XmlReader::expectEndTag(parser, "IRETURNVALUE");
+            }
+        }
     }
+
+    return(new CIMSetPropertyResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack()));
 }
 
 CIMSetQualifierResponseMessage* CIMOperationResponseDecoder::_decodeSetQualifierResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (!isEmptyImethodresponseTag)
     {
-	return(new CIMSetQualifierResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack()));
-    }
-    else
-    {
-	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
-	{
-	    if (entry.type != XmlEntry::EMPTY_TAG)
-	    {
-	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	    }
-	}
+        if (XmlReader::getErrorElement(parser, cimException))
+        {
+            return(new CIMSetQualifierResponseMessage(
+                messageId,
+                cimException,
+                QueueIdStack()));
+        }
 
-	return(new CIMSetQualifierResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack()));
+        if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+        {
+            if (entry.type != XmlEntry::EMPTY_TAG)
+            {
+                XmlReader::expectEndTag(parser, "IRETURNVALUE");
+            }
+        }
     }
+
+    return(new CIMSetQualifierResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack()));
 }
 
 CIMGetQualifierResponseMessage* CIMOperationResponseDecoder::_decodeGetQualifierResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (isEmptyImethodresponseTag)
     {
-	return(new CIMGetQualifierResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    CIMQualifierDecl()));
+        MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_OPEN",
+            "Expected open of $0 element", "IMETHODRESPONSE");
+        throw XmlValidationError(parser.getLine(), mlParms);
+    }
+    else if (XmlReader::getErrorElement(parser, cimException))
+    {
+        return(new CIMGetQualifierResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            CIMQualifierDecl()));
     }
     else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
     {
-	CIMQualifierDecl qualifierDecl;
-	XmlReader::getQualifierDeclElement(parser, qualifierDecl);
+        CIMQualifierDecl qualifierDecl;
+        XmlReader::getQualifierDeclElement(parser, qualifierDecl);
 
-	XmlReader::expectEndTag(parser, "IRETURNVALUE");
+        XmlReader::expectEndTag(parser, "IRETURNVALUE");
 
-	return(new CIMGetQualifierResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    qualifierDecl));
+        return(new CIMGetQualifierResponseMessage(
+            messageId,
+            cimException,
+            QueueIdStack(),
+            qualifierDecl));
     }
     else
     {
+        // l10n
 
-      // l10n
+        // throw XmlValidationError(parser.getLine(),
+        //   "expected ERROR or IRETURNVALUE element");
 
-      // throw XmlValidationError(parser.getLine(),
-      //   "expected ERROR or IRETURNVALUE element");
+        MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_ERROR_OR_IRETURNVALUE_ELEMENT",
+        "expected ERROR or IRETURNVALUE element");
 
-      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_ERROR_OR_IRETURNVALUE_ELEMENT",
-				 "expected ERROR or IRETURNVALUE element");
-      
-      throw XmlValidationError(parser.getLine(), mlParms);
+        throw XmlValidationError(parser.getLine(), mlParms);
     }
 }
 
 CIMEnumerateQualifiersResponseMessage* CIMOperationResponseDecoder::_decodeEnumerateQualifiersResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
+    Array<CIMQualifierDecl> qualifierDecls;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (!isEmptyImethodresponseTag)
     {
-	return(new CIMEnumerateQualifiersResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    Array<CIMQualifierDecl>()));
+        if (XmlReader::getErrorElement(parser, cimException))
+        {
+            return(new CIMEnumerateQualifiersResponseMessage(
+                messageId,
+                cimException,
+                QueueIdStack(),
+                Array<CIMQualifierDecl>()));
+        }
+
+        if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+        {
+            if (entry.type != XmlEntry::EMPTY_TAG)
+            {
+                CIMQualifierDecl qualifierDecl;
+
+                while (XmlReader::getQualifierDeclElement(
+                           parser, qualifierDecl))
+                {
+                    qualifierDecls.append(qualifierDecl);
+                }
+
+                XmlReader::expectEndTag(parser, "IRETURNVALUE");
+            }
+        }
     }
-    else
-    {
-	Array<CIMQualifierDecl> qualifierDecls;
 
-	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
-	{
-	    if (entry.type != XmlEntry::EMPTY_TAG)
-	    {
-	        CIMQualifierDecl qualifierDecl;
-
-	        while (XmlReader::getQualifierDeclElement(
-	                   parser, qualifierDecl))
-	        {
-	            qualifierDecls.append(qualifierDecl);
-	        }
-
-	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	    }
-	}
-
-	return(new CIMEnumerateQualifiersResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    qualifierDecls));
-    }
+    return(new CIMEnumerateQualifiersResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        qualifierDecls));
 }
 
 CIMDeleteQualifierResponseMessage* CIMOperationResponseDecoder::_decodeDeleteQualifierResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (!isEmptyImethodresponseTag)
     {
-	return(new CIMDeleteQualifierResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack()));
-    }
-    else
-    {
-	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
-	{
-	    if (entry.type != XmlEntry::EMPTY_TAG)
-	    {
-	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	    }
-	}
+        if (XmlReader::getErrorElement(parser, cimException))
+        {
+            return(new CIMDeleteQualifierResponseMessage(
+                messageId,
+                cimException,
+                QueueIdStack()));
+        }
 
-	return(new CIMDeleteQualifierResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack()));
+        if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+        {
+            if (entry.type != XmlEntry::EMPTY_TAG)
+            {
+                XmlReader::expectEndTag(parser, "IRETURNVALUE");
+            }
+        }
     }
+
+    return(new CIMDeleteQualifierResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack()));
 }
 
-//MEB:
-
 CIMReferenceNamesResponseMessage* CIMOperationResponseDecoder::_decodeReferenceNamesResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
+    Array<CIMObjectPath> objectPaths;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (!isEmptyImethodresponseTag)
     {
-	return(new CIMReferenceNamesResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    Array<CIMObjectPath>()));
+        if (XmlReader::getErrorElement(parser, cimException))
+        {
+            return(new CIMReferenceNamesResponseMessage(
+                messageId,
+                cimException,
+                QueueIdStack(),
+                Array<CIMObjectPath>()));
+        }
+
+        if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+        {
+            if (entry.type != XmlEntry::EMPTY_TAG)
+            {
+                CIMObjectPath objectPath;
+
+                while (XmlReader::getObjectPathElement(parser, objectPath))
+                    objectPaths.append(objectPath);
+
+                XmlReader::expectEndTag(parser, "IRETURNVALUE");
+            }
+        }
     }
-    else
-    {
-	Array<CIMObjectPath> objectPaths;
 
-	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
-	{
-	    if (entry.type != XmlEntry::EMPTY_TAG)
-	    {
-	        CIMObjectPath objectPath;
-
-	        while (XmlReader::getObjectPathElement(parser, objectPath))
-	            objectPaths.append(objectPath);
-
-	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	    }
-	}
-
-	return(new CIMReferenceNamesResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    objectPaths));
-    }
+    return(new CIMReferenceNamesResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        objectPaths));
 }
 
 CIMReferencesResponseMessage* CIMOperationResponseDecoder::_decodeReferencesResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
+    Array<CIMObject> objectWithPathArray;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (!isEmptyImethodresponseTag)
     {
-	return(new CIMReferencesResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    Array<CIMObject>()));
+        if (XmlReader::getErrorElement(parser, cimException))
+        {
+            return(new CIMReferencesResponseMessage(
+                messageId,
+                cimException,
+                QueueIdStack(),
+                Array<CIMObject>()));
+        }
+
+        if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+        {
+            if (entry.type != XmlEntry::EMPTY_TAG)
+            {
+                CIMObject objectWithPath;
+
+                while (XmlReader::getValueObjectWithPathElement(
+                           parser, objectWithPath))
+                {
+                    objectWithPathArray.append(objectWithPath);
+                }
+
+                XmlReader::expectEndTag(parser, "IRETURNVALUE");
+            }
+        }
     }
-    else
-    {
-	Array<CIMObject> objectWithPathArray;
 
-	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
-	{
-	    if (entry.type != XmlEntry::EMPTY_TAG)
-	    {
-	        CIMObject objectWithPath;
-
-	        while (XmlReader::getValueObjectWithPathElement(
-	                   parser, objectWithPath))
-	        {
-	            objectWithPathArray.append(objectWithPath);
-	        }
-
-	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	    }
-	}
-
-	return(new CIMReferencesResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    objectWithPathArray));
-    }
+    return(new CIMReferencesResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        objectWithPathArray));
 }
 
 CIMAssociatorNamesResponseMessage* CIMOperationResponseDecoder::_decodeAssociatorNamesResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
+    Array<CIMObjectPath> objectPaths;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (!isEmptyImethodresponseTag)
     {
-	return(new CIMAssociatorNamesResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    Array<CIMObjectPath>()));
+        if (XmlReader::getErrorElement(parser, cimException))
+        {
+            return(new CIMAssociatorNamesResponseMessage(
+                messageId,
+                cimException,
+                QueueIdStack(),
+                Array<CIMObjectPath>()));
+        }
+
+        if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+        {
+            if (entry.type != XmlEntry::EMPTY_TAG)
+            {
+                CIMObjectPath objectPath;
+
+                while (XmlReader::getObjectPathElement(parser, objectPath))
+                    objectPaths.append(objectPath);
+
+                XmlReader::expectEndTag(parser, "IRETURNVALUE");
+            }
+        }
     }
-    else
-    {
-	Array<CIMObjectPath> objectPaths;
 
-	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
-	{
-	    if (entry.type != XmlEntry::EMPTY_TAG)
-	    {
-	        CIMObjectPath objectPath;
-
-	        while (XmlReader::getObjectPathElement(parser, objectPath))
-	            objectPaths.append(objectPath);
-
-	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	    }
-	}
-
-	return(new CIMAssociatorNamesResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    objectPaths));
-    }
+    return(new CIMAssociatorNamesResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        objectPaths));
 }
 
 CIMAssociatorsResponseMessage* CIMOperationResponseDecoder::_decodeAssociatorsResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
+    Array<CIMObject> objectWithPathArray;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (!isEmptyImethodresponseTag)
     {
-	return(new CIMAssociatorsResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    Array<CIMObject>()));
+        if (XmlReader::getErrorElement(parser, cimException))
+        {
+            return(new CIMAssociatorsResponseMessage(
+                messageId,
+                cimException,
+                QueueIdStack(),
+                Array<CIMObject>()));
+        }
+
+        if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+        {
+            if (entry.type != XmlEntry::EMPTY_TAG)
+            {
+                CIMObject objectWithPath;
+
+                while (XmlReader::getValueObjectWithPathElement(
+                           parser, objectWithPath))
+                {
+                    objectWithPathArray.append(objectWithPath);
+                }
+
+                XmlReader::expectEndTag(parser, "IRETURNVALUE");
+            }
+        }
     }
-    else
-    {
-	Array<CIMObject> objectWithPathArray;
 
-	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
-	{
-	    if (entry.type != XmlEntry::EMPTY_TAG)
-	    {
-	        CIMObject objectWithPath;
-
-	        while (XmlReader::getValueObjectWithPathElement(
-	                   parser, objectWithPath))
-	        {
-	            objectWithPathArray.append(objectWithPath);
-	        }
-
-	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	    }
-	}
-
-	return(new CIMAssociatorsResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    objectWithPathArray));
-    }
+    return(new CIMAssociatorsResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        objectWithPathArray));
 }
 
 CIMExecQueryResponseMessage* CIMOperationResponseDecoder::_decodeExecQueryResponse(
-    XmlParser& parser, const String& messageId)
+    XmlParser& parser,
+    const String& messageId,
+    Boolean isEmptyImethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
+    Array<CIMObject> objectWithPathArray;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (!isEmptyImethodresponseTag)
     {
-	return(new CIMExecQueryResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    Array<CIMObject>()));
-    }
-    else
-    {
-	Array<CIMObject> objectWithPathArray;
+        if (XmlReader::getErrorElement(parser, cimException))
+        {
+            return(new CIMExecQueryResponseMessage(
+                messageId,
+                cimException,
+                QueueIdStack(),
+                Array<CIMObject>()));
+        }
 
-	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
-	{
-	    if (entry.type != XmlEntry::EMPTY_TAG)
-	    {
+        if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+        {
+            if (entry.type != XmlEntry::EMPTY_TAG)
+            {
                 XmlReader::getObjectArray(parser, objectWithPathArray);
 
-	        XmlReader::expectEndTag(parser, "IRETURNVALUE");
-	    }
-	}
-
-	return(new CIMExecQueryResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    objectWithPathArray));
+                XmlReader::expectEndTag(parser, "IRETURNVALUE");
+            }
+        }
     }
+
+    return(new CIMExecQueryResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        objectWithPathArray));
 }
 
 CIMInvokeMethodResponseMessage* CIMOperationResponseDecoder::_decodeInvokeMethodResponse(
-    XmlParser& parser, const String& messageId, const String& methodName)
+    XmlParser& parser,
+    const String& messageId,
+    const String& methodName,
+    Boolean isEmptyMethodresponseTag)
 {
     XmlEntry entry;
     CIMException cimException;
@@ -1604,21 +1696,20 @@ CIMInvokeMethodResponseMessage* CIMOperationResponseDecoder::_decodeInvokeMethod
     CIMParamValue paramValue;
     Array<CIMParamValue> outParameters;
     CIMValue returnValue;
-    const char* paramName;
-    String inValue;
 
-    if (XmlReader::getErrorElement(parser, cimException))
+    if (!isEmptyMethodresponseTag)
     {
-	return(new CIMInvokeMethodResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    returnValue,
-	    outParameters,
-	    methodName));
-    }
-    else
-    {
+        if (XmlReader::getErrorElement(parser, cimException))
+        {
+            return(new CIMInvokeMethodResponseMessage(
+                messageId,
+                cimException,
+                QueueIdStack(),
+                returnValue,
+                outParameters,
+                methodName));
+        }
+
         Boolean isReturnValue = false;
         Boolean isParamValue = false;
         Boolean gotReturnValue = false;
@@ -1626,42 +1717,41 @@ CIMInvokeMethodResponseMessage* CIMOperationResponseDecoder::_decodeInvokeMethod
         while ((isReturnValue =
                     XmlReader::getReturnValueElement(parser, returnValue)) ||
                (isParamValue =
-		    XmlReader::getParamValueElement(parser, paramValue)))
+                    XmlReader::getParamValueElement(parser, paramValue)))
         {
             if (isReturnValue)
             {
                 if (gotReturnValue)
                 {
+                    // l10n
 
-		  // l10n
+                    // throw XmlValidationError(parser.getLine(),
+                    //   "unexpected RETURNVALUE element");
 
-		  // throw XmlValidationError(parser.getLine(),
-		  //   "unexpected RETURNVALUE element");
+                    MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_RETURNVALUE_ELEMENT",
+                        "unexpected RETURNVALUE element");
 
-		  MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_RETURNVALUE_ELEMENT",
-					     "unexpected RETURNVALUE element");
-		  
-		  throw XmlValidationError(parser.getLine(), mlParms);
+                    throw XmlValidationError(parser.getLine(), mlParms);
                 }
                 gotReturnValue = true;
             }
             else    // isParamValue == true
             {
-	        outParameters.append(paramValue);
+                outParameters.append(paramValue);
             }
 
             isReturnValue = false;
             isParamValue = false;
         }
-
-	return(new CIMInvokeMethodResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    returnValue,
-	    outParameters,
-	    methodName));
     }
+
+    return(new CIMInvokeMethodResponseMessage(
+        messageId,
+        cimException,
+        QueueIdStack(),
+        returnValue,
+        outParameters,
+        methodName));
 }
 
 PEGASUS_NAMESPACE_END

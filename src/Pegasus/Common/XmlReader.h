@@ -356,8 +356,9 @@ public:
 	const char*& name);
 
     static Boolean getIMethodResponseStartTag(
-	XmlParser& parser, 
-	const char*& name);
+        XmlParser& parser,
+        const char*& name,
+        Boolean& isEmptyTag);
 
     static Boolean getIParamValueTag(
 	XmlParser& parser, 
@@ -412,8 +413,9 @@ public:
 	const char*& name);
 
     static Boolean getEMethodResponseStartTag(
-	XmlParser& parser, 
-	const char*& name);
+        XmlParser& parser,
+        const char*& name,
+        Boolean& isEmptyTag);
 
     static Boolean getEParamValueTag(
 	XmlParser& parser, 
@@ -424,8 +426,9 @@ public:
 	const char*& name);
 
     static Boolean getMethodResponseStartTag(
-	XmlParser& parser, 
-	const char*& name);
+        XmlParser& parser,
+        const char*& name,
+        Boolean& isEmptyTag);
 
     static Boolean getParamValueElement(
 	XmlParser& parser, 

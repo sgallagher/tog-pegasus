@@ -26,8 +26,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -101,76 +101,125 @@ private:
 	const ContentLanguages& contentLanguages);
 
     CIMCreateClassResponseMessage* _decodeCreateClassResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMGetClassResponseMessage* _decodeGetClassResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMModifyClassResponseMessage* _decodeModifyClassResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMEnumerateClassNamesResponseMessage* _decodeEnumerateClassNamesResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMEnumerateClassesResponseMessage* _decodeEnumerateClassesResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMDeleteClassResponseMessage* _decodeDeleteClassResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMCreateInstanceResponseMessage* _decodeCreateInstanceResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMGetInstanceResponseMessage* _decodeGetInstanceResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMModifyInstanceResponseMessage* _decodeModifyInstanceResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMEnumerateInstanceNamesResponseMessage* _decodeEnumerateInstanceNamesResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMEnumerateInstancesResponseMessage* _decodeEnumerateInstancesResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMDeleteInstanceResponseMessage* _decodeDeleteInstanceResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMGetPropertyResponseMessage* _decodeGetPropertyResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMSetPropertyResponseMessage* _decodeSetPropertyResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMSetQualifierResponseMessage* _decodeSetQualifierResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMGetQualifierResponseMessage* _decodeGetQualifierResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMEnumerateQualifiersResponseMessage* _decodeEnumerateQualifiersResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMDeleteQualifierResponseMessage* _decodeDeleteQualifierResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMReferenceNamesResponseMessage* _decodeReferenceNamesResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMReferencesResponseMessage* _decodeReferencesResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMAssociatorNamesResponseMessage* _decodeAssociatorNamesResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMAssociatorsResponseMessage* _decodeAssociatorsResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMExecQueryResponseMessage* _decodeExecQueryResponse(
-	XmlParser& parser, const String& messageId);
+        XmlParser& parser,
+        const String& messageId,
+        Boolean isEmptyImethodresponseTag);
 
     CIMInvokeMethodResponseMessage* _decodeInvokeMethodResponse(
-	XmlParser& parser, const String& messageId, const String& methodName);
+        XmlParser& parser,
+        const String& messageId,
+        const String& methodName,
+        Boolean isEmptyMethodresponseTag);
 
     MessageQueue*        _outputQueue;
 

@@ -26,10 +26,10 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -102,7 +102,9 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder :  public MessageQu
 	 char* content);
 
       CIMExportIndicationResponseMessage* _decodeExportIndicationResponse(
-	 XmlParser& parser, const String& messageId);
+         XmlParser& parser,
+         const String& messageId,
+         Boolean isEmptyMethodresponseTag);
 
       AutoPtr<MessageQueue>        _outputQueue; //PEP101
       AutoPtr<MessageQueue>        _encoderQueue; //PEP101

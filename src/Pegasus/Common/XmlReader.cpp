@@ -3909,12 +3909,15 @@ Boolean XmlReader::getIMethodCallStartTag(
 
 Boolean XmlReader::getIMethodResponseStartTag(
     XmlParser& parser, 
-    const char*& name)
+    const char*& name,
+    Boolean& isEmptyTag)
 {
     XmlEntry entry;
 
-    if (!testStartTag(parser, entry, "IMETHODRESPONSE"))
+    if (!testStartTagOrEmptyTag(parser, entry, "IMETHODRESPONSE"))
 	return false;
+
+    isEmptyTag = (entry.type == XmlEntry::EMPTY_TAG);
 
     // Get IMETHODRESPONSE.NAME attribute:
 
@@ -4498,12 +4501,15 @@ Boolean XmlReader::getEMethodCallStartTag(
 
 Boolean XmlReader::getEMethodResponseStartTag(
     XmlParser& parser, 
-    const char*& name)
+    const char*& name,
+    Boolean& isEmptyTag)
 {
     XmlEntry entry;
 
-    if (!testStartTag(parser, entry, "EXPMETHODRESPONSE"))
+    if (!testStartTagOrEmptyTag(parser, entry, "EXPMETHODRESPONSE"))
 	return false;
+
+    isEmptyTag = (entry.type == XmlEntry::EMPTY_TAG);
 
     // Get EXPMETHODRESPONSE.NAME attribute:
 
@@ -4602,12 +4608,15 @@ Boolean XmlReader::getMethodCallStartTag(
 
 Boolean XmlReader::getMethodResponseStartTag(
     XmlParser& parser, 
-    const char*& name)
+    const char*& name,
+    Boolean& isEmptyTag)
 {
     XmlEntry entry;
 
-    if (!testStartTag(parser, entry, "METHODRESPONSE"))
+    if (!testStartTagOrEmptyTag(parser, entry, "METHODRESPONSE"))
 	return false;
+
+    isEmptyTag = (entry.type == XmlEntry::EMPTY_TAG);
 
     // Get METHODRESPONSE.NAME attribute:
 

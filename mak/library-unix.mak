@@ -26,6 +26,8 @@ ifeq ($(COMPILER),acc)
      ifdef PEGASUS_HAS_SSL
         ifdef PEGASUS_USE_SSL_SHAREDLIB
           LINK_COMMAND += -Wl,+s -Wl,+b$(LIB_DIR):/usr/lib:$(OPENSSL_HOME)/lib
+        else
+          LINK_COMMAND += -Wl,+s -Wl,+b$(LIB_DIR):/usr/lib
         endif
       else
         LINK_COMMAND += -Wl,+s -Wl,+b$(LIB_DIR):/usr/lib

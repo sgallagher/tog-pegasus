@@ -1,7 +1,7 @@
 ifdef PEGASUS_OS_TYPE
-  OS_TYPE = $(PEGASUS_OS_TYPE)
+    OS_TYPE=$(PEGASUS_OS_TYPE)
 else
-  OS_TYPE = windows
+    OS_TYPE = windows
 endif
 
 ifeq ($(OS_TYPE),windows)

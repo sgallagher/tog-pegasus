@@ -34,6 +34,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Repository/InheritanceTree.h>
 #include <Pegasus/Repository/Linkage.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -190,9 +191,16 @@ private:
 class NonEmptyNameSpace : public Exception
 {
 public:
-
-    NonEmptyNameSpace(const String& nameSpaceName) : Exception(
-	"Attempt to delete a non-empty namespace: " + nameSpaceName) { }
+	//l10n 
+    //NonEmptyNameSpace(const String& nameSpaceName) : Exception(
+	//"Attempt to delete a non-empty namespace: " + nameSpaceName) { }
+	NonEmptyNameSpace(const String& nameSpaceName) : 
+								Exception(MessageLoaderParms(
+								"Repository.NameSpaceManager.ATTEMPT_DELETE_NONEMPTY_NAMESPACE",
+								"Attempt to delete a non-empty namespace: $0", nameSpaceName)) { }
+	
+	
+	//l10n end
 };
 
 PEGASUS_NAMESPACE_END

@@ -38,6 +38,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Repository/Linkage.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -251,9 +252,13 @@ private:
 class InvalidInheritanceTree : public Exception
 {
 public:
-
-    InvalidInheritanceTree(const String& className) 
-	: Exception("Invalid inheritance tree: unknown class: " + className) { }
+	//l10n start
+    //InvalidInheritanceTree(const String& className) 
+	//: Exception("Invalid inheritance tree: unknown class: " + className) { }
+	InvalidInheritanceTree(const String& className) 
+	: Exception(MessageLoaderParms("Repository.InheritanceTree.INVALID_INHERITANCE_TREE",
+								   "Invalid inheritance tree: unknown class: $0", className)) { }
+	//l10n end
 };
 
 PEGASUS_NAMESPACE_END

@@ -489,8 +489,9 @@ void CIMOperationRequestDispatcher::_forwardToModuleCallBack(AsyncOpNode *op,
       static_cast<CIMOperationRequestDispatcher *>(q);
    AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
    AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
-    CIMRequestMessage *request = reinterpret_cast<CIMRequestMessage *>
-       ((static_cast<AsyncModuleOperationStart *>(asyncRequest))->get_action());
+// ATTN-RK-P2-20020517: This writes to memory freed by ProviderMessageFacade
+//    CIMRequestMessage *request = reinterpret_cast<CIMRequestMessage *>
+//       ((static_cast<AsyncModuleOperationStart *>(asyncRequest))->get_action());
 
    if( asyncReply->getType() == async_messages::ASYNC_OP_RESULT ||
        asyncReply->getType() == async_messages::ASYNC_LEGACY_OP_RESULT || 

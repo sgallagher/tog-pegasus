@@ -109,7 +109,9 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
     namespaces.append( "test1/test2/test3/test4/test5" );
     namespaces.append( "test1/test2/test3/test4/test5/test6" );
     if(verboseTest)
-      cout << "Conducting Create test " << endl;
+    {
+      cout << "++ Cleanup existing test namespaces" << endl;
+    }
     for (Sint32 i = namespaces.size()-1; i > -1; i--)
     {
       // Build the instance name for __namespace
@@ -133,6 +135,10 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
       }
     }
 
+    if(verboseTest)
+    {
+      cout << "++ Create test namespaces" << endl;
+    }
     for (Uint32 i = 0; i < namespaces.size(); i++)
       {
 	// Build the instance name for __namespace
@@ -198,7 +204,7 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
     }
 
   if(verboseTest)
-    cout << "Conducting Delete namespace test " << endl;
+    cout << "++ Delete test namespaces " << endl;
   
   for (Sint32 i = namespaces.size()-1; i > -1; i--)
     {
@@ -255,7 +261,9 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
     namespaces.append( "test1/test2/test3/test4/test5" );
     namespaces.append( "test1/test2/test3/test4/test5/test6" );
     if(verboseTest)
-      cout << "Conducting Create test " << endl;
+    {
+      cout << "++ Cleanup existing test namespaces" << endl;
+    }
     for (Sint32 i = namespaces.size()-1; i > -1; i--)
     {
       // Build the instance name for __namespace
@@ -276,6 +284,10 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
       }
     }
 
+    if(verboseTest)
+    {
+      cout << "++ Create test namespaces" << endl;
+    }
     for (Uint32 i = 0; i < namespaces.size(); i++)
       {
 	try
@@ -283,6 +295,10 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
 	    // Build the new instance
 	    CIMInstance newInstance(instanceName);
 	    newInstance.addProperty(CIMProperty("name",String::EMPTY));
+            if(verboseTest)
+            {
+              cout << "Creating " << namespaces[i] << endl;
+            }
 	    client.createInstance(namespaces[i], newInstance);
 	}
 	catch(CIMClientException& e)
@@ -300,7 +316,7 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
       }
 
   if(verboseTest)
-    cout << "Conducting Delete namespace test " << endl;
+    cout << "++ Delete test namespaces" << endl;
   
   for (Sint32 i = namespaces.size()-1; i > -1; i--)
     {

@@ -256,15 +256,6 @@ void UserAuthProvider::createInstance(
             }
 #endif
 
-            //
-            // check if the specified namespace is valid namespace
-            //
-            if ( !_userManager->verifyNamespace( namespaceStr ) )
-            {
-                InvalidNamespace ins(namespaceStr);
-                throw ins;
-            }
-
             _repository->createInstance(
                 instanceReference.getNameSpace(), myInstance);
 
@@ -487,7 +478,7 @@ void UserAuthProvider::deleteInstance(
             CIM_ERR_NOT_FOUND, myInstance.getClassName());
     }
 
-   
+
     // complete processing the request
     handler.complete();
 
@@ -506,7 +497,7 @@ void UserAuthProvider::modifyInstance(
     const CIMPropertyList & propertyList,
     ResponseHandler<CIMInstance> & handler)
 {
-    PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::modifyInstance"); 
+    PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::modifyInstance");
 
     //
     // get userName
@@ -800,7 +791,7 @@ void UserAuthProvider::enumerateInstanceNames(
     else
     {
         handler.complete();
-        
+
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, className);
     }

@@ -577,6 +577,7 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
                            );
     CIMInstance currentInstance =
       client.getInstance( globalNamespace, instanceName );
+    currentInstance.setPath( instanceName );
     assert( currentInstance.identical( testInstance ) );
 
     client.deleteInstance(globalNamespace, instanceName);

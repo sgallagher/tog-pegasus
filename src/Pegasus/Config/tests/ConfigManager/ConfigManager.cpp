@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -26,57 +26,91 @@
 //==============================================================================
 //
 //
-// Author: Nag Boranna, Hewlett-Packard Company
-//         (nagaraja_boranna@hp.com)
+// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 // Modified By:
+//      Chip Vincent (cvincent@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-
-#include <cassert>
-#include <fstream>
-#include <iostream>
-#include <cstdio>
 #include <Pegasus/Config/ConfigManager.h>
 
-PEGASUS_USING_STD;
+#include <iostream>
+
 PEGASUS_USING_PEGASUS;
 
+PEGASUS_USING_STD;
 
-int main()
+static char * verbose = 0;
+
+int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+
     try
     {
-	Array<String> all;
+        ConfigManager * _config = 0;
 
-	ConfigManager* _config;
+        _config = ConfigManager::getInstance();
 
-	_config = ConfigManager::getInstance();
+        if(_config == 0)
+        {
+            throw Exception("ConfigManager::getInstance() failed.");
+        }
+
         _config->useConfigFiles = true;
 
-	_config->mergeConfigFiles();
+        _config->mergeConfigFiles();
 
-	_config->getAllPropertyNames(all, true);
+        Array<String> propertyNames;
 
-	for (Uint32 i = 0; i < all.size(); i++)
-	{
-	    Array<String> info;
-            info.clear();
-            _config->getPropertyInfo(all[i], info);
-            _config->getCurrentValue(all[i]);
-            _config->getPlannedValue(all[i]);
-	}
+        _config->getAllPropertyNames(propertyNames, true);
 
+        for(Uint32 i = 0, n = propertyNames.size(); i < n; i++)
+        {
+            Array<String> info;
+
+            _config->getPropertyInfo(propertyNames[i], info);
+
+            if(verbose)
+            {
+                cout << "property name = " << propertyNames[i] << endl;
+
+                /*
+                cout << "property info = ";
+
+                for(Uint32 j = 0, m = info.size(); j < m; j++)
+                {
+                    cout << info[j] << " ";
+                }
+
+                cout << endl;
+                */
+            }
+
+            String currentValue = _config->getCurrentValue(propertyNames[i]);
+
+            if(verbose)
+            {
+                cout << "current value = " << currentValue << endl;
+            }
+
+            String plannedValue = _config->getPlannedValue(propertyNames[i]);
+
+            if(verbose)
+            {
+                cout << "planned value = " << plannedValue << endl;
+            }
+        }
     }
-    catch (Exception& e)
+    catch(Exception& e)
     {
         cerr << "Exception: " << e.getMessage() << endl;
-        exit(1);
+
+        return(1);
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
-    return 0;
+    return(0);
 }
-

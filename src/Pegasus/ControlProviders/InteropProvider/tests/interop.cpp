@@ -27,7 +27,8 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -74,7 +75,7 @@ __Namespace and CIM_Namespace functions
 static const CIMNamespaceName __NAMESPACE_NAMESPACE = CIMNamespaceName ("root");
 static const CIMNamespaceName InteropNamespace = CIMNamespaceName("root/PG_Interop");
 
-static char* programVersion =  "1.0";
+static const char programVersion[] =  "1.0";
 
 // Property Names for __Namespace Class
 static const CIMName NAMESPACE_PROPERTYNAME  = CIMName ("Name");

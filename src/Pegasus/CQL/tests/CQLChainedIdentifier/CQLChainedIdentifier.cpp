@@ -66,69 +66,211 @@ void print(CQLIdentifier &_id){
 
 void drive_CQLIdentifier(){
 	CQLIdentifier _ID1("ID1");
-	CIMName name = _ID1.getName();
-	cout << "name = " << name.getString() << endl;
+	assert(_ID1.getName() == "ID1");
+
 	CQLIdentifier _ID2("ID2");
-	cout << "name = " << _ID2.getName().getString() << endl;
 	assert(_ID1 != _ID2);
+
 	CQLIdentifier _ID3("*");
 	assert(_ID3.isWildcard());
 	
 	CQLIdentifier scopedID("SCOPE::IDENTIFIER");
-	cout << "name = " << scopedID.getName().getString() << endl;
-	cout << "scope = " << scopedID.getScope() << endl;
+	assert(scopedID.isScoped());
+   assert(scopedID.getScope() == "SCOPE");
 
 	CQLIdentifier _ID4("A::Name");
 	CQLIdentifier _ID4a("A::Name");
 	assert(_ID4 == _ID4a);
 	
 	CQLIdentifier symbolicConstantID("Name#OK");
-	cout << "name = " << symbolicConstantID.getName().getString() << endl;
+	assert(symbolicConstantID.getName() == "Name");
 	assert(symbolicConstantID.isSymbolicConstant());
-	cout << "symbolicConstant = " << symbolicConstantID.getSymbolicConstantName() << endl;
+	assert(symbolicConstantID.getSymbolicConstantName() == "OK");
 
-	CQLIdentifier rangeID("SCOPE::Name[5..,6..,..7,4-5,..]");
-	cout << "name = " << rangeID.getName().getString() << endl;
+	CQLIdentifier rangeID("SCOPE::Name[5,6,7]");
+	assert(rangeID.getName() == "Name");
 	assert(rangeID.isArray());
 	Array<SubRange> subRanges = rangeID.getSubRanges();
-	for(Uint32 i = 0; i < subRanges.size(); i++){
-		cout << "subRange[" << i << "].start = " << subRanges[i].start << endl;
-		cout << "subRange[" << i << "].end = " << subRanges[i].end << endl;
-	}
-	cout << "scope = " << rangeID.getScope() << endl;
+   assert(subRanges[0] == String("5"));
+   assert(subRanges[1] == String("6"));
+   assert(subRanges[2] == String("7"));
+	assert(rangeID.getScope() == "SCOPE");
 
-	CQLIdentifier rangeID1("Name[*]");
-	assert(rangeID1.isArray());
-        Array<SubRange> subRanges1 = rangeID1.getSubRanges();
-        for(Uint32 i = 0; i < subRanges1.size(); i++){
-                cout << "subRange[" << i << "].start = " << subRanges1[i].start << endl;
-                cout << "subRange[" << i << "].end = " << subRanges1[i].end << endl;
-        }
+   try 
+   {
+     CQLIdentifier rangeID("SCOPE::Name[5..,6..,..7,4-5,..]");
+     assert(false);
+   }
+   catch (QueryParseException & e)
+   {
+   }
 
-	CQLIdentifier invalid("Name#OK[4-5]");
-	cout << "name = " << invalid.getName().getString() << endl;
-	CQLIdentifier invalid1("Name[4-5]#OK");
+   try 
+   {
+     CQLIdentifier rangeID1("Name[*]");
+     assert(false);
+   }
+   catch (QueryParseException & e)
+   {
+   }
+
+   try
+   {
+     CQLIdentifier invalid("Name#OK[4-5]");
+     assert(false);
+   }
+   catch (CQLIdentifierParseException & e)
+   {
+   }
+
+
+   try
+   {  
+     CQLIdentifier invalid1("Name[4-5]#OK");
+     assert(false);
+   }
+   catch (CQLIdentifierParseException & e)
+   {
+   }
 }
 
-void drive_CQLChainedIdentifier(){
+void drive_CQLChainedIdentifier()
+{
+  // Error cases
+  try 
+  {
 	CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[*]");
-	Array<CQLIdentifier> _arr = _CI.getSubIdentifiers();
-	cout << _CI.toString() << endl;
-	for(Uint32 i = 0; i < _arr.size(); i++)
-		print(_arr[i]);
+   assert(false);
+  }
+  catch (QueryParseException & e)
+  {
+    // do nothing, exception is expected due to wildcard
+  }
+
+  try 
+  {
+	CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[1,3-5,7]");
+   assert(false);
+  }
+  catch (QueryParseException & e)
+  {
+    // do nothing, exception is expected due to range
+  }
+
+  try 
+  {
+	CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[1..3]");
+   assert(false);
+  }
+  catch (QueryParseException & e)
+  {
+    // do nothing, exception is expected due to range
+  }
+
+  try 
+  {
+	CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[]");
+   assert(false);
+  }
+  catch (QueryParseException & e)
+  {
+    // do nothing, exception is expected due to missing index
+  }
+
+  try 
+  {
+	CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[3]#'ok'");
+   assert(false);
+  }
+  catch (CQLIdentifierParseException & e)
+  {
+    // do nothing, exception is expected due to combo of array
+    // and symbolic constant.
+  }
+
+  try 
+  {
+	CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[3");
+   assert(false);
+  }
+  catch (CQLIdentifierParseException & e)
+  {
+    // do nothing, exception is expected due to missing ']'
+  }
+
+  try 
+  {
+	CQLChainedIdentifier _CI("CLASS.B::EO.A::this-is-bogus");
+   assert(false);
+  }
+  catch (CQLIdentifierParseException & e)
+  {
+    // do nothing, exception is expected due to missing bad prop name
+  }
+
+  // Good case with all the bells and whistles, except wildcard
+  CQLChainedIdentifier _CI("FROMCLASS.SCOPE1::EO1.SCOPE2::EO2[1,3,5,7].SCOPE3::PROP#'ok'");
+
+  Array<CQLIdentifier> _arr = _CI.getSubIdentifiers();
+  assert(_arr.size() == 4);
+
+  assert(_arr[0].getName() == "FROMCLASS");
+  assert(!_arr[0].isScoped());
+  assert(!_arr[0].isSymbolicConstant());
+  assert(!_arr[0].isArray());
+  assert(!_arr[0].isWildcard());
+
+  assert(_arr[1].getName() == "EO1");
+  assert(_arr[1].isScoped());
+  assert(_arr[1].getScope() == "SCOPE1");
+  assert(!_arr[1].isSymbolicConstant());
+  assert(!_arr[1].isArray());
+  assert(!_arr[1].isWildcard());
+
+  assert(_arr[2].getName() == "EO2");
+  assert(_arr[2].isScoped());
+  assert(_arr[2].getScope() == "SCOPE2");
+  assert(!_arr[2].isSymbolicConstant());
+  assert(_arr[2].isArray());
+  Array<SubRange> ranges = _arr[2].getSubRanges();
+  assert(ranges.size() == 4);
+  assert(ranges[0] == String("1"));
+  assert(ranges[1] == String("3"));
+  assert(ranges[2] == String("5"));
+  assert(ranges[3] == String("7"));
+  assert(!_arr[2].isWildcard());
+
+  assert(_arr[3].getName() == "PROP");
+  assert(_arr[3].isScoped());
+  assert(_arr[3].getScope() == "SCOPE3");
+  assert(_arr[3].isSymbolicConstant());
+  assert(_arr[3].getSymbolicConstantName() == "'ok'");
+  assert(!_arr[3].isArray());
+  assert(!_arr[3].isWildcard());
+
+  // Good case with all the bells and whistles, and wildcard
+  CQLChainedIdentifier _CI1("FROMCLASS.SCOPE1::EO1.SCOPE2::EO2[1,3,5,7].*");
+
+  _arr = _CI1.getSubIdentifiers();
+  assert(_arr.size() == 4);
+
+  assert(!_arr[3].isScoped());
+  assert(!_arr[3].isSymbolicConstant());
+  assert(!_arr[3].isArray());
+  assert(_arr[3].isWildcard());
 }
 
 int main( int argc, char *argv[] ){
 
-        //BEGIN TESTS....
+  //BEGIN TESTS....
 
-	//drive_CQLIdentifier();
-	drive_CQLChainedIdentifier();
+  drive_CQLIdentifier();
+  drive_CQLChainedIdentifier();
 
-	//END TESTS....
-	                                                                                                                   
-        cout << argv[0] << " +++++ passed all tests" << endl;
-                                                                                                                                       
-        return 0;
+  //END TESTS....
+
+  cout << argv[0] << " +++++ passed all tests" << endl;
+                   
+  return 0;
 }
 

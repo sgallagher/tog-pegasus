@@ -22,7 +22,8 @@ SOURCES = CQLChainedIdentifier.cpp
 
 include $(ROOT)/mak/program.mak
 
-tests:
+tests: 
+	$(PROGRAM)
 
 poststarttests:
 install:

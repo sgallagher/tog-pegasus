@@ -26,108 +26,43 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "EverythingProvider.h"
+#include "PropertyProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-EverythingProvider::EverythingProvider(void)
+PropertyProvider::PropertyProvider(void)
 {
 }
 
-EverythingProvider::~EverythingProvider(void)
+PropertyProvider::~PropertyProvider(void)
 {
 }
 
-void EverythingProvider::initialize(CIMOMHandle & cimom)
+void PropertyProvider::initialize(CIMOMHandle & cimom)
 {
 }
 
-void EverythingProvider::terminate(void)
+void PropertyProvider::terminate(void)
 {
 }
 
-void EverythingProvider::getInstance(
+void PropertyProvider::getProperty(
 	const OperationContext & context,
 	const CIMReference & instanceReference,
-	const Uint32 flags,
-	const Array<String> & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	const String & propertyName,
+	ResponseHandler<CIMValue> & handler)
 {
-	handler.processing();
-
-	CIMReference localReference(instanceReference);
-
-	localReference.setHost(String::EMPTY);
-	localReference.setNameSpace(String::EMPTY);
-
-	if(localReference == CIMReference("Sample_KitchenSink.Id=1"))
-	{
-		CIMInstance instance("sample_kitchensink");
-
-		instance.addProperty(CIMProperty("Id", CIMValue(1)));
-
-		handler.deliver(instance);
-	}
-
-	handler.complete();
+	throw NotSupported("PropertyProvider::getProperty");
 }
 
-void EverythingProvider::enumerateInstances(
-	const OperationContext & context,
-	const CIMReference & ref,
-	const Uint32 flags,
-	const Array<String> & propertyList,
-	ResponseHandler<CIMInstance> & handler)
-{
-	handler.processing();
-
-	CIMInstance instance("sample_kitchensink");
-
-	instance.addProperty(CIMProperty("Id", CIMValue(1)));
-
-	handler.deliver(instance);
-	
-	handler.complete();
-}
-
-void EverythingProvider::enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMReference & classReference,
-	ResponseHandler<CIMReference> & handler)
-{
-	handler.processing();
-
-	handler.deliver(CIMReference("Sample_KitchenSink.Id=1"));
-	
-	handler.complete();
-}
-
-void EverythingProvider::modifyInstance(
+void PropertyProvider::setProperty(
 	const OperationContext & context,
 	const CIMReference & instanceReference,
-	const CIMInstance & instanceObject,
-	const Uint32 flags,
-	const Array<String> & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	const String & propertyName,
+	const CIMValue & newValue,
+	ResponseHandler<CIMValue> & handler)
 {
-	throw NotImplemented("EverythingProvider::modifyInstance");
-}
-
-void EverythingProvider::createInstance(
-	const OperationContext & context,
-	const CIMReference & instanceReference,
-	const CIMInstance & instanceObject,
-	ResponseHandler<CIMReference> & handler)
-{
-	throw NotImplemented("EverythingProvider::createInstance");
-}
-
-void EverythingProvider::deleteInstance(
-	const OperationContext & context,
-	const CIMReference & instanceReference,
-	ResponseHandler<CIMInstance> & handler)
-{
-	throw NotImplemented("EverythingProvider::deleteInstance");
+	throw NotSupported("PropertyProvider::getProperty");
 }
 
 PEGASUS_NAMESPACE_END

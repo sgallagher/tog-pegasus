@@ -34,11 +34,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class SamplePropertyProvider : public CIMPropertyProvider
+class PropertyProvider : public CIMPropertyProvider
 {
 public:
-	SamplePropertyProvider(void);
-	virtual ~SamplePropertyProvider(void);
+	PropertyProvider(void);
+	virtual ~PropertyProvider(void);
 
 	// CIMBaseProvider interface
 	virtual void initialize(CIMOMHandle & cimom);
@@ -63,3 +63,5 @@ protected:
 };
 
 PEGASUS_NAMESPACE_END
+
+#endif

@@ -46,7 +46,8 @@ SOURCES = \
    CQLSelectStatementRep.cpp \
    SelectStatement.cpp \
    SelectStatementRep.cpp \
-   CQLValue.cpp 
+   CQLValue.cpp \
+   CQLValueRep.cpp
 
 include $(ROOT)/mak/library.mak
 include $(ROOT)/mak/install.mak

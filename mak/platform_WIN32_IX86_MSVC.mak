@@ -21,6 +21,9 @@ ifdef PEGASUS_DEBUG_CIMEXCEPTION
  DEFINES += -DPEGASUS_DEBUG_CIMEXCEPTION
 endif
 
+# Enable the compilation of the SLP functions.
+PEGASUS_ENABLE_SLP=true
+
 # ATTN KS 20020927 - Add flag to allow conditional testing of interoperability
 # changes during interoperability tests.
 ifdef PEGASUS_SNIA_INTEROP_TEST

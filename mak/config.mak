@@ -300,7 +300,10 @@ endif
 
 
 # setup function to enable SLP functions in the Pegasus standard compile
-# Set the environment varaible PEGASUS_ENABLE_SLP to enable SLP code.  
+# Set the environment varaible PEGASUS_ENABLE_SLP to enable SLP code.
+# NOTE. Effective with Bug # 2633 some platforms now enable SLP.
+# To see which platforms look for platform make files that set
+# the variable PEGASUS_ENABLE_SLP  
 ifdef PEGASUS_ENABLE_SLP
     DEFINES += -DPEGASUS_ENABLE_SLP
 endif

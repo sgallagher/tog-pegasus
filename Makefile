@@ -38,6 +38,9 @@ world: depend all repository
 repository: FORCE
 	@ $(MAKE) "-SC" Schemas/Pegasus repository
 
+repositoryclean: FORCE
+	@ $(RMREPOSITORY) $(REPOSITORY_ROOT)
+
 repositoryServer: FORCE
 	@ $(MAKE) "-SC" Schemas/Pegasus repositoryServer
 

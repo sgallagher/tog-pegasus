@@ -72,9 +72,17 @@
 #include "AssocInstTable.h"
 #include "AssocClassTable.h"
 
+#ifdef PEGASUS_COMPRESS_REPOSITORY
+// #define win32 
+# include <zlib.h>
+# include <sstream>
+#endif
+
+
 #if  defined(PEGASUS_OS_OS400)
 #include "OS400ConvertChar.h"
 #endif
+
 
 #if 0
 #undef PEG_METHOD_ENTER
@@ -106,7 +114,58 @@ PEGASUS_NAMESPACE_BEGIN
 static const Uint32 _MAX_FREE_COUNT = 16;
 static int binaryMode = -1; // PEP 164
 
+#ifdef PEGASUS_COMPRESS_REPOSITORY 
+static int compressMode = 0; // PEP214
+#endif
+
 // #define TEST_OUTPUT	
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// _LoadFileToMemory()  PEP214
+//
+// The gzxxxx functions read both compresed and non-compresed files. 
+// 
+// There is no conditional flag on reading of files since gzread()
+// (from zlib) is capable of reading compressed and non-compressed
+// files (so it contains the logic that examines the header
+// and magic number). Everything will work properly if the repository
+// has some compressed and some non-compressed files. 
+//
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void _LoadFileToMemory(Array<char>& data, const String& path)
+{
+
+#ifdef PEGASUS_COMPRESS_REPOSITORY 
+
+    Uint32 fileSize;
+
+    if (!FileSystem::getFileSize(path, fileSize))
+	throw CannotOpenFile(path);
+
+    gzFile fp = gzopen(path.getCString(), "rb");
+
+    if (fp == NULL)
+	throw CannotOpenFile(path);
+
+    data.reserveCapacity(fileSize);
+    char buffer[4096];
+    int n;
+
+    while ((n = gzread(fp, buffer, sizeof(buffer))) > 0)
+        data.append(buffer, n);
+
+    gzclose(fp);
+
+#else    
+
+    FileSystem::loadFileToMemory(data, path);
+
+#endif /* PEGASUS_COMPRESS_REPOSITORY */
+}
+
 
 //
 //  The following _xx functions are local to the repository implementation
@@ -399,7 +458,9 @@ void _LoadObject(
     // Load file into memory:
 
     Array<char> data;
-    FileSystem::loadFileToMemory(data, realPath);
+
+    _LoadFileToMemory(data, realPath);    // PEP214
+
     data.append('\0');
 
     streamer->decode(data, 0, object);
@@ -425,16 +486,43 @@ void _SaveObject(const String& path, Array<char>& objectXml,
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_SaveObject");
 
-    PEGASUS_STD(ofstream) os(path.getCString() PEGASUS_IOS_BINARY);
+#ifdef PEGASUS_COMPRESS_REPOSITORY
+    if (compressMode)            // PEP214
+      {
+	PEGASUS_STD(ostringstream) os;
+	streamer->write(os, objectXml);
+	string str = os.str();
 
-    if (!os)
-    {
-        PEG_METHOD_EXIT();
-        throw CannotOpenFile(path);
-    }
+	gzFile fp = gzopen(path.getCString(), "wb");
 
-    streamer->write(os, objectXml);
+	if (fp == NULL)
+	  throw CannotOpenFile(path);
 
+	const char* ptr = str.data();
+	size_t rem = str.size();
+	int n;
+
+	while (rem > 0 && (n = gzwrite(fp, (char*)ptr, rem)) > 0)
+	  {
+	    ptr += n;
+	    rem -= n;
+	  }
+
+	gzclose(fp);
+      }
+    else
+#endif /* PEGASUS_COMPRESS_REPOSITORY */
+      {
+	PEGASUS_STD(ofstream) os(path.getCString() PEGASUS_IOS_BINARY);
+
+	if (!os)
+	  {
+	    PEG_METHOD_EXIT();
+	    throw CannotOpenFile(path);
+	  }
+
+	streamer->write(os, objectXml);
+      }
     PEG_METHOD_EXIT();
 }
 
@@ -459,9 +547,26 @@ CIMRepository::CIMRepository(const String& repositoryRoot, const CIMRepository_M
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::CIMRepository");
 
     binaryMode = mode.flag & CIMRepository_Mode::BIN;
+    
+#ifdef PEGASUS_COMPRESS_REPOSITORY    // PEP214
+    // FUTURE?? -  compressMode = mode.flag & CIMRepository_Mode::COMPRESSED;
+    compressMode=1;
+
+    char *s = getenv("PEGASUS_COMPRESS_REPOSITORY");
+    if (s && (strcmp(s, "build_non_compressed") == 0))
+      {
+	compressMode =0;
 #ifdef TEST_OUTPUT   
+	cout << "In Compress mode: build_non_compresed found" << endl;
+#endif /* TEST_OUTPUT */
+      }
+#endif /* PEGASUS_COMPRESS_REPOSITORY */ 
+
+#ifdef TEST_OUTPUT  
+    cout << "repositoryRoot = " << repositoryRoot << endl; 
     cout << "CIMRepository: binaryMode="  << binaryMode << "mode.flag=" << mode.flag << "\n";
-#endif // TEST_OUTPUT
+    cout << "CIMRepository: compressMode= " << compressMode << endl;
+#endif /* TEST_OUTPUT */
 
     if (binaryMode>0) { // PEP 164
       // BUILD BINARY 
@@ -493,9 +598,26 @@ CIMRepository::CIMRepository(const String& repositoryRoot)
         "enableBinaryRepository") == "true");
     }
 
+
+#ifdef PEGASUS_COMPRESS_REPOSITORY    // PEP214
+    // FUTURE?? -  compressMode = mode.flag & CIMRepository_Mode::COMPRESSED;
+    compressMode=1;
+
+    char *s = getenv("PEGASUS_COMPRESS_REPOSITORY");
+    if (s && (strcmp(s, "build_non_compressed") == 0))
+      {
+	compressMode =0;
 #ifdef TEST_OUTPUT   
-    cout << "CIMRepository: binaryMode="  << binaryMode << "\n";
-#endif // TEST_OUTPUT
+	cout << "In Compress mode: build_non_compresed found" << endl;
+#endif /* TEST_OUTPUT */
+      }
+#endif /* PEGASUS_COMPRESS_REPOSITORY */ 
+
+#ifdef TEST_OUTPUT  
+    cout << "repositoryRoot = " << repositoryRoot << endl; 
+    cout << "CIMRepository: binaryMode="  << binaryMode << endl;
+    cout << "CIMRepository: compressMode= " << compressMode << endl;
+#endif /* TEST_OUTPUT */
 
     if (binaryMode>0) { // PEP 164
       // BUILD BINARY 
@@ -2554,6 +2676,7 @@ Array<CIMInstance> CIMRepository::execQuery(
     PEG_METHOD_EXIT();
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "execQuery()");
 
+    PEG_METHOD_EXIT();
     return Array<CIMInstance>();
 }
 
@@ -3121,8 +3244,9 @@ void CIMRepository::_setQualifier(
 
     Array<char> qualifierDeclXml;
     streamer->encode(qualifierDeclXml, qualifierDecl);
-    //XmlWriter::appendQualifierDeclElement(qualifierDeclXml, qualifierDecl);
+     //XmlWriter::appendQualifierDeclElement(qualifierDeclXml, qualifierDecl);
     _SaveObject(qualifierFilePath, qualifierDeclXml,streamer);
+
 
     PEG_METHOD_EXIT();
 }

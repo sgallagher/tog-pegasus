@@ -63,6 +63,12 @@ int Handler::handle_input(ACE_HANDLE)
     return 0;
 }
 
+int Handler::handle_output(ACE_HANDLE)
+{
+    cout << "Handler::handle_output()" << endl;
+    return 0;
+}
+
 int Handler::handle_close(ACE_HANDLE handle, ACE_Reactor_Mask mask)
 {
     cout << "Handler::handle_close()" << endl;

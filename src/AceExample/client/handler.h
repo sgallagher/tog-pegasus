@@ -18,6 +18,8 @@ public:
 
     virtual int handle_input(ACE_HANDLE);
 
+    virtual int handle_output(ACE_HANDLE);
+
     virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask mask);
 
     typedef ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> BaseClass;

@@ -261,6 +261,10 @@ class PEGASUS_EXPORT Mutex
 
       Mutex(void) ;
       Mutex(int type);
+#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+      // to share the mutex between different condition variables
+      Mutex(const Mutex& _mutex);
+#endif
       ~Mutex(void);
 
       // block until gaining the lock - throw a deadlock 
@@ -532,6 +536,9 @@ class PEGASUS_EXPORT Condition
       // create the condition variable
       Condition(void)  ;
       ~Condition(void);
+#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+      Condition(const Mutex& mutex);
+#endif
 
       // signal the condition variable
       void signal(PEGASUS_THREAD_TYPE caller) 

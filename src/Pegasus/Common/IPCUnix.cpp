@@ -183,6 +183,13 @@ Mutex::Mutex(int mutex_type)
    pthread_mutex_init(&_mutex.mut,&_mutex.mutatt);
    _mutex.owner = 0;
 }
+#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+      // to share the mutex between different condition variables
+Mutex::Mutex(const Pegasus::Mutex& mutex)
+{
+   _mutex = mutex._mutex;
+}
+#endif
 
 Mutex::~Mutex()
 {
@@ -512,6 +519,14 @@ Condition::Condition()
    _condition = (PEGASUS_COND_TYPE) PTHREAD_COND_INITIALIZER;
 #endif
 }
+
+#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+Condition::Condition(const Pegasus::Mutex& mutex)
+{
+   _cond_mutex = Mutex(mutex);
+   _condition = (PEGASUS_COND_TYPE) PTHREAD_COND_INITIALIZER;
+}
+#endif
 
 Condition::~Condition()
 {

@@ -28,6 +28,7 @@
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Tony Fiorentino (fiorentino_tony@emc.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Steve Hills (steve.hills@ncr.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -53,20 +54,24 @@ PEGASUS_USING_STD;
 //-------------------------------------------------------------------------
 // GLOBALS
 //-------------------------------------------------------------------------
-CIMServer *server_windows;
+static Mutex _cimserverLock;
+static CIMServer* _cimserver = 0;
+static bool _shutdown = false;
 static Service pegasus_service(PEGASUS_SERVICE_NAME);
-static HANDLE pegasus_service_event;
+static HANDLE pegasus_service_event = NULL;
 static LPCSTR g_cimservice_key  = TEXT("SYSTEM\\CurrentControlSet\\Services\\%s");
 static LPCSTR g_cimservice_home = TEXT("home");
+
+//  Constants representing the command line options.
+static const char OPTION_INSTALL[] = "install";
+static const char OPTION_REMOVE[]  = "remove";
+static const char OPTION_START[]   = "start";
+static const char OPTION_STOP[]    = "stop";
 
 //-------------------------------------------------------------------------
 // PROTOTYPES
 //-------------------------------------------------------------------------
 int cimserver_windows_main(int flag, int argc, char **argv);
-extern void GetOptions(ConfigManager *cm,
-                int &argc,
-                char **argv,
-                const String &pegasusHome);
 static bool _getRegInfo(const char *lpchKeyword, char *lpchRetValue);
 static bool _setRegInfo(const char *lpchKeyword, const char *lpchValue);
 void setHome(String & home);
@@ -76,247 +81,149 @@ void setHome(String & home);
 //-------------------------------------------------------------------------
 int cimserver_fork(void) { return(0); }
 int cimserver_kill(void) { return(0); }
-void notify_parent(int id) { return;    }
+void notify_parent(int id) { return; }
 
-// l10n
 //-------------------------------------------------------------------------
-// Dummy function for the Thread object associated with the initial thread.
-// Since the initial thread is used to process CIM requests, this is
-// needed to localize the exceptions thrown during CIM request processing.
-// Note: This function should never be called! 
-//------------------------------------------------------------------------- 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL dummyThreadFuncWindows(void *parm)
+// Helper for platform specific handling
+//-------------------------------------------------------------------------
+
+void cimserver_set( CIMServer* s )
 {
-   return((PEGASUS_THREAD_RETURN)0);	
+	auto_mutex am( &_cimserverLock );
+	_cimserver = s;
+	if( _cimserver && _shutdown )
+		_cimserver->shutdownSignal();
+}
+
+void signal_shutdown()
+{
+	auto_mutex am( &_cimserverLock );
+	_shutdown = true;
+	if( _cimserver )
+		_cimserver->shutdownSignal();
 }
 
 //-------------------------------------------------------------------------
-// START MONITOR Asynchronously
+// Run main server asynchronously
 //-------------------------------------------------------------------------
-static void __cdecl cimserver_windows_thread(void *parm) 
+static unsigned __stdcall cimserver_windows_thread( void* parm )
 {
-//l10n
-   // Set Message loading to process locale
-   MessageLoader::_useProcessLocale = true; 
-
-  // Get options (from command line and from configuration file); this
-  // removes corresponding options and their arguments fromt he command
-  // line.
-
-  String pegasusHome;
-
-  // Windows way to set home
-  setHome(pegasusHome);
-
-  ConfigManager::setPegasusHome(pegasusHome);
-
-  ConfigManager* configManager = ConfigManager::getInstance();
-  int dummy = 0;
-
-  try
-    {
-      GetOptions(configManager, dummy, NULL, pegasusHome);
-    }
-  catch (Exception&)
-    {
-      exit(1);
-    }
-
-// l10n
-  String messagesDir = ConfigManager::getHomedPath("msg");
-  MessageLoader::setPegasusMsgHome(messagesDir);	
-
-  Boolean enableHttpConnection = String::equal(
-    configManager->getCurrentValue("enableHttpConnection"), "true");
-  Boolean enableHttpsConnection = String::equal(
-    configManager->getCurrentValue("enableHttpsConnection"), "true");
-
-  if (!enableHttpConnection && !enableHttpsConnection)
-  {
-    //l10n
-    //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
-      //"Neither HTTP nor HTTPS connection is enabled.  "
-      //"CIMServer will not be started.");
-    Logger::put_l(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
-   	  "src.Server.cimserver_windows.HTTP_NOT_ENABLED_SERVER_NOT_STARTING", 
-      "Neither HTTP nor HTTPS connection is enabled.  CIMServer will not be started.");
-     
-    MessageLoaderParms parms("src.Server.cimserver_windows.HTTP_NOT_ENABLED_SERVER_NOT_STARTING",
-    						 "Neither HTTP nor HTTPS connection is enabled.  CIMServer will not be started.");
-    //cerr << "Neither HTTP nor HTTPS connection is enabled.  "
-      //"CIMServer will not be started." << endl;
-    cerr << MessageLoader::getMessage(parms) << endl;
-    exit(1);
-  }
-
-  // Get the connection port configurations
-
-  Uint32 portNumberHttps;
-  Uint32 portNumberHttp;
-
-  if (enableHttpsConnection)
-  {
-    String httpsPort = configManager->getCurrentValue("httpsPort");
-    CString portString = httpsPort.getCString();
-    char* end = 0;
-    Uint32 port = strtol(portString, &end, 10);
-    assert(end != 0 && *end == '\0');
-
-    //
-    // Look up the WBEM-HTTPS port number
-    //
-    portNumberHttps = System::lookupPort(WBEM_HTTPS_SERVICE_NAME, port);
-  }
-
-  if (enableHttpConnection)
-  {
-    String httpPort = configManager->getCurrentValue("httpPort");
-    CString portString = httpPort.getCString();
-    char* end = 0;
-    Uint32 port = strtol(portString, &end, 10);
-    assert(end != 0 && *end == '\0');
-
-    //
-    // Look up the WBEM-HTTP port number
-    //
-    portNumberHttp = System::lookupPort(WBEM_HTTP_SERVICE_NAME, port);
-  }
-
-  // Set up the Logger
-  String logsDirectory = String::EMPTY;
-  logsDirectory = configManager->getCurrentValue("logdir");
-  logsDirectory = ConfigManager::getHomedPath(configManager->getCurrentValue("logdir"));
-
-  Logger::setHomeDirectory(logsDirectory);
-
-  // Put server start message to the logger
-  //l10n
-  //Logger::put(Logger::STANDARD_LOG, PEGASUS_SERVICE_NAME, Logger::INFORMATION,
-              //"Started $0 version $1.", PEGASUS_NAME, PEGASUS_VERSION);
-	Logger::put_l(Logger::STANDARD_LOG, PEGASUS_SERVICE_NAME, Logger::INFORMATION,
-				"src.Server.cimserver_windows.STARTED_VERSION",
-              	"Started $0 version $1.", PEGASUS_NAME, PEGASUS_VERSION);
-
-   // try loop to bind the address, and run the server
-  try
-  {
-    Monitor monitor(true);
-    
-    CIMServer server(&monitor);
-    server_windows = &server;
-
-    if (enableHttpConnection)
-    {
-      server_windows->addAcceptor(false, portNumberHttp, false);
-      //l10n 485
-      //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-                  //"Listening on HTTP port $0.", portNumberHttp);
-      Logger::put_l(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-      				"src.Server.cimserver_windows.LISTENING_ON_HTTP_PORT",
-                  "Listening on HTTP port $0.", portNumberHttp);
-    }
-    if (enableHttpsConnection)
-    {
-      server_windows->addAcceptor(false, portNumberHttps, true);
-      //l10n 485
-      //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-        //          "Listening on HTTPS port $0.", portNumberHttps);
-      Logger::put_l(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-      				"src.Server.cimserver_windows.LISTENING_ON_HTTPS_PORT",
-                  "Listening on HTTPS port $0.", "HTTPS", portNumberHttps);
-    }
-
-    server_windows->bind();
-
-//l10n
-    // reset message loading to NON-process locale
-    MessageLoader::_useProcessLocale = false; 
-// l10n
-    // Now we are about to run the server..
-    // Create a dummy Thread object that can be used to store the
-    // AcceptLanguages object for CIM requests that are serviced
-    // by this thread (initial thread of server).  Need to do this
-    // because this thread is not in a ThreadPool, but is used
-    // to service CIM requests.
-    // The run function for the dummy Thread should never be called,
-    Thread *dummyInitialThread = new Thread(dummyThreadFuncWindows, NULL, false);
-    Thread::setCurrent(dummyInitialThread);
-    AcceptLanguages default_al = AcceptLanguages::getDefaultAcceptLanguages();
-    Thread::setLanguages(new AcceptLanguages(default_al));
-
-    while(!server_windows->terminated())
-      {
-        server_windows->runForever();
-      }
-  }
-  catch(Exception& e)
-  {
-    PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-  }
-
-  _endthreadex(NULL);
+	int argc = 0;
+	int rc = cimserver_run( argc, 0, false );
+	SetEvent(pegasus_service_event);
+	_endthreadex( rc );
+	return rc;
 }
-
 
 //-------------------------------------------------------------------------
 //  Windows NT Service Control Code 
 //-------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------
-// SERVICE (no parameters)
-//-------------------------------------------------------------------------
-void cim_server_service(int argc, char **argv)
-{
-  Service::ReturnCode status = Service::SERVICE_RETURN_SUCCESS;
-  char console_title[_MAX_PATH] = {0};
-
-  // Check if running from a console window
-  if (GetConsoleTitle(console_title, _MAX_PATH) > 0)
-    return;
-
-  pegasus_service_event = CreateEvent(NULL, FALSE, FALSE, NULL);
-
-  // Run should exit the process if a service
-  status = pegasus_service.Run(cimserver_windows_main);
-
-  // If we made it here there was a problem starting this process as a service
-  // Log the problem to the log file
-
-  // TODO: log or echo something here
-}
-
-//-------------------------------------------------------------------------
 // START/STOP handler 
 //-------------------------------------------------------------------------
 int cimserver_windows_main(int flag, int argc, char *argv[])
 {
-  switch (flag)
-  {
-    case Service::STARTUP_FLAG:
-      if (_beginthread(cimserver_windows_thread, 0, NULL))
-        WaitForSingleObject(pegasus_service_event, INFINITE);
-      break;
+	switch( flag )
+	{
+	case Service::STARTUP_FLAG:
+	{
+		//
+		// Start up main run in a separate thread and wait for it to finish.
+		//
 
-    case Service::SHUTDOWN_FLAG:
-      SetEvent(pegasus_service_event);
-      break;
+		unsigned threadid = 0;
+		HANDLE hThread = (HANDLE)_beginthreadex( NULL, 0, cimserver_windows_thread, NULL, 0, &threadid );
+		if( hThread == NULL )
+			return 1;
 
-    default:
-      break;
-  }
+		WaitForSingleObject( pegasus_service_event, INFINITE );
 
-  return 0;
+		//
+		// Shutdown the cimserver.
+		//
+
+		signal_shutdown();
+
+		//
+		// Make sure we upate the SCM that our stop is pending.
+		// Wait for the main run thread to exit.
+		//
+
+		DWORD dwCheckPoint = 1; // service code should have already started at 0
+
+		while( WaitForSingleObject( hThread, 3000 ) == WAIT_TIMEOUT )
+		{
+			pegasus_service.report_status( 
+				SERVICE_STOP_PENDING, NO_ERROR, dwCheckPoint++, 5000 );
+		}
+
+		CloseHandle( hThread );
+
+		break;
+	}
+	case Service::SHUTDOWN_FLAG:
+		SetEvent(pegasus_service_event);
+		break;
+
+	default:
+		break;
+	}
+
+	return 0;
 }
 
 //-------------------------------------------------------------------------
 // IS RUNNING?
 //-------------------------------------------------------------------------
+
+static const char* _ALREADY_RUNNING_NAME = "PegasusCIMServer";
+
+class AlreadyRunning
+{
+public:
+	AlreadyRunning(): alreadyRunning( true ), event( NULL )
+	{
+	}
+	~AlreadyRunning()
+	{
+		if( event != NULL )
+			CloseHandle( event );
+	}
+
+	void Init()
+	{
+		if( event == NULL )
+		{
+			event = CreateEvent( NULL, TRUE, TRUE, _ALREADY_RUNNING_NAME );
+			if( event != NULL && GetLastError() != ERROR_ALREADY_EXISTS )
+				alreadyRunning = false;
+		}
+	}
+
+	bool IsAlreadyRunning()
+	{
+		return alreadyRunning;
+	}
+
+	bool alreadyRunning;
+	HANDLE event;
+};
+
+AlreadyRunning _alreadyRunning;
+
+
 Boolean isCIMServerRunning(void)
 {
-  Service::State state;
-  pegasus_service.GetState(&state);
+	//Service::State state;
+	//pegasus_service.GetState(&state);
+	//return (state == Service::SERVICE_STATE_RUNNING) ? true : false;
 
-  return (state == Service::SERVICE_STATE_RUNNING) ? true : false;
+	// We do it this way so this will work when run as a 
+	// console process and a Windows service.
+	AlreadyRunning ar;
+	ar.Init();
+	return ar.IsAlreadyRunning();
 }
 
 //-------------------------------------------------------------------------
@@ -538,5 +445,212 @@ void setHome(String & home)
     }
 }
 
+//
+// Our console control handler
+//
 
+static BOOL WINAPI ControlHandler( DWORD dwCtrlType )
+{
+	switch( dwCtrlType )
+	{
+	case CTRL_BREAK_EVENT:  // use Ctrl+C or Ctrl+Break to simulate
+	case CTRL_C_EVENT:      // SERVICE_CONTROL_STOP in debug mode
+	{
+		signal_shutdown();
+		return TRUE;
+	}
+	}
+	return FALSE;
+}
 
+//
+// Platform specific run
+//
+
+int platform_run( int argc, char** argv, Boolean shutdownOption )
+{
+	//
+	// Check for my command line options
+	//
+
+	for( int i = 1; i < argc; )
+	{
+		const char* arg = argv[i];
+
+		// Check for -option
+		if (*arg == '-')
+		{
+			// Get the option
+			const char* option = arg + 1;
+
+			if (strcmp(option, OPTION_INSTALL) == 0)
+			{
+				//
+				// Install as a NT service
+				//
+				char *opt_arg = NULL;
+				if (i+1 < argc)
+				{
+					opt_arg = argv[i+1];
+
+				}
+				if(cimserver_install_nt_service(opt_arg))
+				{
+					//l10n
+					//cout << "\nPegasus installed as NT Service";
+					MessageLoaderParms parms(
+						"src.Server.cimserver.INSTALLED_NT_SERVICE",
+						"\nPegasus installed as NT Service");
+					cout << MessageLoader::getMessage(parms) << endl;
+					exit(0);
+				}
+				else
+				{
+					exit(0);
+				}
+			}
+			else if (strcmp(option, OPTION_REMOVE) == 0)
+			{
+				//
+				// Remove Pegasus as an NT service
+				//
+				char *opt_arg = NULL;
+				if (i+1 < argc)
+				{
+					opt_arg = argv[i+1];                    
+				}
+				if(cimserver_remove_nt_service(opt_arg))
+				{
+					//l10n
+					//cout << "\nPegasus removed as NT Service";
+					MessageLoaderParms parms(
+						"src.Server.cimserver.REMOVED_NT_SERVICE",
+						"\nPegasus removed as NT Service");
+					cout << MessageLoader::getMessage(parms) << endl;
+					exit(0);
+				}
+				else
+				{
+					exit(0);
+				}
+
+			}
+			else if (strcmp(option, OPTION_START) == 0)
+			{
+				//
+				// Start as a NT service
+				//
+				char *opt_arg = NULL;
+				if (i+1 < argc)
+				{
+					opt_arg = argv[i+1];                    
+				}
+				if(cimserver_start_nt_service(opt_arg))
+				{
+					//l10n
+					//cout << "\nPegasus started as NT Service";
+					MessageLoaderParms parms(
+						"src.Server.cimserver.STARTED_NT_SERVICE",
+						"\nPegasus started as NT Service");
+					cout << MessageLoader::getMessage(parms) << endl;
+					exit(0);
+				}
+				else
+				{
+					exit(0);
+				}
+			}
+			else if (strcmp(option, OPTION_STOP) == 0)
+			{
+				//
+				// Stop as a NT service
+				//
+				char *opt_arg = NULL;
+				if (i+1 < argc)
+				{
+					opt_arg = argv[i+1];                    
+				}
+				if(cimserver_stop_nt_service(opt_arg))
+				{
+					//l10n
+					//cout << "\nPegasus stopped as NT Service";
+					MessageLoaderParms parms(
+						"src.Server.cimserver.STOPPED_NT_SERVICE",
+						"\nPegasus stopped as NT Service");
+					cout << MessageLoader::getMessage(parms) << endl;
+					exit(0);
+				}
+				else
+				{
+					exit(0);
+				}
+			}
+			else
+				i++;
+		}
+		else
+			i++;
+	}
+
+	//
+	// Signal ourself as running
+	//
+
+	if( !shutdownOption )
+		_alreadyRunning.Init();
+
+	//
+	// Check if already running
+	//
+	// Hmm, when starting as a service, should we do this here (before
+	// starting the control dispatcher)?  If we do then the SCM reports
+	// a dumb message to the user.  If we don't, and it in the serviceProc 
+	// then the service will start up then die silently.
+	//
+
+	if( !shutdownOption && _alreadyRunning.IsAlreadyRunning() )
+	{
+		MessageLoaderParms parms(
+			"src.Server.cimserver.UNABLE_TO_START_SERVER_ALREADY_RUNNING",
+			"Unable to start CIMServer.\nCIMServer is already running." );
+		Logger::put(
+			Logger::ERROR_LOG, "CIMServer", Logger::SEVERE,
+			MessageLoader::getMessage(parms) );
+		PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
+		return 1;
+	}
+
+	//
+	// Check if running from a console window. If so then just run
+	// as a console process.
+	//
+
+	char console_title[ _MAX_PATH ] = {0};
+	if( GetConsoleTitle( console_title, _MAX_PATH ) > 0 )
+	{
+		SetConsoleCtrlHandler( ControlHandler, TRUE );
+
+		return cimserver_run( argc, argv, shutdownOption );
+	}
+
+	//
+	// Run as a service
+	//
+
+	pegasus_service_event = CreateEvent( NULL, FALSE, FALSE, NULL );
+
+	Service::ReturnCode status;
+	status = pegasus_service.Run( cimserver_windows_main );
+
+	if( status != Service::SERVICE_RETURN_SUCCESS )
+	{
+		// todo: put into localized messages when messages unfreezes.
+		Logger::put_l(
+			Logger::ERROR_LOG, "CIMServer", Logger::SEVERE,
+			"src.Server.cimserver_windows.LISTENING_ON_HTTP_PORT",
+			"Error during service run: code = $0.", status );
+		return 1;
+	}
+
+	return 0;
+}

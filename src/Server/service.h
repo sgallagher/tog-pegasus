@@ -99,6 +99,7 @@ public:
 
   ReturnCode Start(int wait_time);
   ReturnCode Stop(int wait_time);
+  static bool report_status(DWORD current_state, DWORD exit_code, DWORD check_point, DWORD wait_hint);
 
   static ReturnCode Run(SERVICE_MAIN_T service_main, DWORD flags = 0);
   ReturnCode GetState(State *state);
@@ -123,7 +124,6 @@ private:
   static SERVICE_MAIN_T         g_service_main;
 
   static bool show_error(const char *action, const char *object, DWORD hr);
-  static bool report_status(DWORD current_state, DWORD exit_code, DWORD check_point, DWORD wait_hint);
   static void WINAPI service_control_handler(DWORD control);
   static bool check_args_for_string(char *string);
   static void __stdcall real_service_main(DWORD argc, LPTSTR *argv);

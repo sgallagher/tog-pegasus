@@ -358,3 +358,15 @@ void cimserver_exitRC(int rc){
  	write(fifo,rc_tmp,strlen(rc_tmp));
     }
 }
+
+////////////////////////////////////////////////////
+// Platform specific run
+////////////////////////////////////////////////////
+int platform_run( int argc, char** argv, Boolean shutdownOption )
+{
+	return cimserver_run( argc, argv, shutdownOption );
+}
+
+void cimserver_set( CIMServer* s )
+{
+}

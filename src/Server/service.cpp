@@ -343,9 +343,8 @@ Service::Run(SERVICE_MAIN_T service_main, DWORD flags)
       return status; // FAIL
     }
 
-  // After the service shuts down, don't return.
-
-  exit(status);
+  // Don't call exit()
+  return status;
 }
 
 /*-------------------------------------------------------------------------*
@@ -739,7 +738,7 @@ Service::show_error(const char *action, const char *object, DWORD hr)
   // send courtesy message txt to stderr
   if (GetConsoleTitle(console_title, _MAX_PATH) > 0)
     {
-      cerr << txt << endl;
+      std::cerr << txt << std::endl;
     }
 
   return LogEvent(EVENTLOG_ERROR_TYPE, 1, txt);

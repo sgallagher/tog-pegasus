@@ -360,3 +360,14 @@ void notify_parent(int id)
   else
    kill(ppid, PEGASUS_SIGUSR1); 
 }
+
+
+// Platform specific run
+int platform_run( int argc, char** argv, Boolean shutdownOption )
+{
+	return cimserver_run( argc, argv, shutdownOption );
+}
+
+void cimserver_set( CIMServer* s )
+{
+}

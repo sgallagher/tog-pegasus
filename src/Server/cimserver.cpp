@@ -40,6 +40,8 @@
 //
 // Modified By: Humberto Rivero (hurivero@us.ibm.com)
 //
+// Modified By: Steve Hills (steve.hills@ncr.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -75,10 +77,14 @@
 // To START the Pegasus service, 
 //
 // net start cimserver
+// or
+// cimserver -start
 //
 // To STOP the Pegasus service, 
 //
 // net stop cimserver
+// or
+// cimserver -stop
 //
 // Alternatively, you can use the windows service manager. Pegasus shows up 
 // in the service database as "Pegasus CIM Object Manager"
@@ -106,6 +112,7 @@
 #include <Pegasus/Server/ShutdownService.h>
 #include <Pegasus/Common/Destroyer.h>
 
+int cimserver_run( int argc, char** argv, Pegasus::Boolean shutdownOption );
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "cimserver_windows.cpp"
@@ -144,14 +151,6 @@ static const char OPTION_HOME        = 'D';
 
 static const char OPTION_SHUTDOWN    = 's';
 
-static const char OPTION_INSTALL[]   = "install";
-
-static const char OPTION_REMOVE[]   = "remove";
-
-static const char OPTION_START[]   = "start";
-
-static const char OPTION_STOP[]   = "stop";
-
 #if defined(PEGASUS_OS_HPUX)
 static const char OPTION_BINDVERBOSE = 'X';
 #endif
@@ -160,14 +159,29 @@ static const String PROPERTY_TIMEOUT = "shutdownTimeout";
 
 ConfigManager*    configManager;
 
+/** Helper for platform specific handling. So platform specific code
+    can use our single instance of CIMServer.
+*/
+class CimserverHolder
+{
+public:
+	CimserverHolder( CIMServer* s )
+	{
+		cimserver_set( s );
+	}
+	virtual ~CimserverHolder()
+	{
+		cimserver_set( 0 );
+	}
+};
+
 /** GetOptions function - This function defines the Options Table
     and sets up the options from that table using the config manager.
 */
 void GetOptions(
     ConfigManager* cm,
     int& argc,
-    char** argv,
-    const String& pegasusHome)
+    char** argv)
 {
     try
     {
@@ -307,16 +321,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL dummyThreadFunc(void *parm)
    return((PEGASUS_THREAD_RETURN)0);	
 }
 
-//
-// cimserver_exit: platform specific exit routine calls
-//         
-void cimserver_exit( int rc ){
-#ifdef PEGASUS_OS_OS400
-    cimserver_exitRC(rc);
-#endif
-    exit(rc);
-}
-
 void shutdownCIMOM(Uint32 timeoutValue)
 {
     //
@@ -341,7 +345,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
         //
         client.setTimeout(2000);
     }
-    catch(Exception& e)
+    catch(Exception&)
     {
 #ifdef PEGASUS_OS_OS400
 	//l10n
@@ -353,8 +357,8 @@ void shutdownCIMOM(Uint32 timeoutValue)
 	// The server job may still be active but not responding.
 	// Kill the job if it exists.
 	if(cimserver_kill() == -1)
-	   cimserver_exit(2);
-	cimserver_exit(1);
+	   cimserver_exitRC(2);
+	cimserver_exitRC(1);
 #else
         //l10n
         //PEGASUS_STD(cerr) << "Unable to connect to CIM Server." << PEGASUS_STD(endl);
@@ -362,8 +366,8 @@ void shutdownCIMOM(Uint32 timeoutValue)
         MessageLoaderParms parms("src.Server.cimserver.UNABLE_CONNECT_SERVER_MAY_NOT_BE_RUNNING",
                                                          "Unable to connect to CIM Server.\nCIM Server may not be running.\n");
         PEGASUS_STD(cerr) << MessageLoader::getMessage(parms);
+        exit(1);
 #endif
-        cimserver_exit(1);
     }
 
     try
@@ -423,7 +427,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
 	}
 	// Kill the server job.
 	if(cimserver_kill() == -1)
-	   cimserver_exit(2);
+	   cimserver_exitRC(2);
 #else
         //l10n - TODO
         MessageLoaderParms parms("src.Server.cimserver.SHUTDOWN_FAILED",
@@ -462,11 +466,10 @@ void shutdownCIMOM(Uint32 timeoutValue)
                                      "Forced shutdown initiated.");
             PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
         }
+        exit(1);
 #endif
-        cimserver_exit(1);
-
     }
-    catch(Exception& e)
+    catch(Exception&)
     {
         //
         // This may mean that the CIM Server has terminated, causing this
@@ -496,8 +499,8 @@ void shutdownCIMOM(Uint32 timeoutValue)
 	   
 #ifdef PEGASUS_OS_OS400
 	    if(kill_rc == -1)
-		cimserver_exit(2);
-	    cimserver_exit(1);
+		cimserver_exitRC(2);
+	    cimserver_exitRC(1);
 #endif
 
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
@@ -526,10 +529,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
 int main(int argc, char** argv)
 {
     String pegasusHome  = String::EMPTY;
-    String logsDirectory = String::EMPTY;
-    Boolean daemonOption = false;
     Boolean shutdownOption = false;
-    Uint32 timeoutValue  = 0;
 
 //l10n
 // Set Message loading to process locale
@@ -577,14 +577,7 @@ MessageLoader::_useProcessLocale = true;
   // windows only
   setHome(pegasusHome);
 #endif
-    // on Windows NT if there are no command-line options, run as a service
 
-    if (argc == 1 )
-    {
-      cim_server_service(argc, argv);
-    }
-    else
-    {
         // Get help, version, and shutdown options
 
         for (int i = 1; i < argc; )
@@ -705,122 +698,43 @@ MessageLoader::_useProcessLocale = true;
                     memmove(&argv[i], &argv[i + 1], (argc-i) * sizeof(char*));
                     argc--;   
                 }
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-                else if (strcmp(option, OPTION_INSTALL) == 0)
-                {
-                  //
-                  // Install as a NT service
-                  //
-                  char *opt_arg = NULL;
-                  if (i+1 < argc)
-                  {
-                    opt_arg = argv[i+1];
-                    
-                  }
-                  if(cimserver_install_nt_service(opt_arg))
-                  {
-                     //l10n
-                      //cout << "\nPegasus installed as NT Service";
-                      MessageLoaderParms parms("src.Server.cimserver.INSTALLED_NT_SERVICE",
-					       "\nPegasus installed as NT Service");
-                       
-                      cout << MessageLoader::getMessage(parms) << endl;
-                      exit(0);
-                  }
-                  else
-                  {
-                      exit(0);
-                  }
-                }
-                else if (strcmp(option, OPTION_REMOVE) == 0)
-                {
-                  //
-                  // Remove Pegasus as an NT service
-                  //
-                  char *opt_arg = NULL;
-                  if (i+1 < argc)
-                  {
-                    opt_arg = argv[i+1];                    
-                  }
-                  if(cimserver_remove_nt_service(opt_arg))
-                  {
-                      //l10n
-                      //cout << "\nPegasus removed as NT Service";
-                      MessageLoaderParms parms("src.Server.cimserver.REMOVED_NT_SERVICE",
-					       "\nPegasus removed as NT Service");
-                       
-                      cout << MessageLoader::getMessage(parms) << endl;
-                      exit(0);
-                  }
-                  else
-                  {
-                      exit(0);
-                  }
-
-                }
-                else if (strcmp(option, OPTION_START) == 0)
-                {
-                  //
-                  // Start as a NT service
-                  //
-                  char *opt_arg = NULL;
-                  if (i+1 < argc)
-                  {
-                    opt_arg = argv[i+1];                    
-                  }
-                  if(cimserver_start_nt_service(opt_arg))
-                  {
-                      //l10n
-                      //cout << "\nPegasus started as NT Service";
-                      MessageLoaderParms parms("src.Server.cimserver.STARTED_NT_SERVICE",
-					       "\nPegasus started as NT Service");
-                       
-                      cout << MessageLoader::getMessage(parms) << endl;
-                      exit(0);
-                  }
-                  else
-                  {
-                      exit(0);
-                  }
-                }
-                else if (strcmp(option, OPTION_STOP) == 0)
-                {
-                  //
-                  // Stop as a NT service
-                  //
-                  char *opt_arg = NULL;
-                  if (i+1 < argc)
-                  {
-                    opt_arg = argv[i+1];                    
-                  }
-                  if(cimserver_stop_nt_service(opt_arg))
-                  {
-                      //l10n
-                      //cout << "\nPegasus stopped as NT Service";
-                      MessageLoaderParms parms("src.Server.cimserver.STOPPED_NT_SERVICE",
-					       "\nPegasus stopped as NT Service");
-                       
-                      cout << MessageLoader::getMessage(parms) << endl;
-                      exit(0);
-                  }
-                  else
-                  {
-                      exit(0);
-                  }
-                }
-#endif
                 else
                     i++;
             }
             else
                 i++;
         }
-    }
 
     //
     // Set the value for pegasusHome property
     //
     ConfigManager::setPegasusHome(pegasusHome);
+
+    //
+    // Do the plaform specific run
+    //
+
+    return platform_run( argc, argv, shutdownOption );
+}
+
+
+//
+// The main, common, running code
+//
+// NOTE: Do NOT call exit().  Use return(), otherwise some platforms 
+// will fail to shutdown properly/cleanly.
+//
+// TODO: Current change minimal for platform "service" shutdown bug fixes.  
+// Perhpas further extract out common stuff and put into main(), put 
+// daemon stuff into platform specific platform_run(), etc.  
+// Note: make sure to not put error handling stuff that platform 
+// specific runs may need to deal with bettter (instead of exit(), etc).
+//
+
+int cimserver_run( int argc, char** argv, Boolean shutdownOption )
+{
+    String logsDirectory = String::EMPTY;
+    Boolean daemonOption = false;
 
     //
     // Get an instance of the Config Manager.
@@ -834,7 +748,7 @@ MessageLoader::_useProcessLocale = true;
     //
     try
     {
-        GetOptions(configManager, argc, argv, pegasusHome);
+        GetOptions(configManager, argc, argv);
     }
     catch (Exception& e)
     {
@@ -844,7 +758,7 @@ MessageLoader::_useProcessLocale = true;
 #else
         cerr << argv[0] << ": " << e.getMessage() << endl;
 #endif
-        exit(1);
+        return(1);
     }
 
 // l10n
@@ -880,7 +794,7 @@ MessageLoader::_useProcessLocale = true;
         MessageLoaderParms parms("src.Server.cimserver.HTTP_NOT_ENABLED_SERVER_NOT_STARTING",
         						 "Neither HTTP nor HTTPS connection is enabled.  CIMServer will not be started.");
         cerr << MessageLoader::getMessage(parms) << endl;
-        exit(1);
+        return(1);
     }
 #endif
 
@@ -920,7 +834,7 @@ MessageLoader::_useProcessLocale = true;
         {
             String configTimeout = 
                 configManager->getCurrentValue("shutdownTimeout");
-            timeoutValue = strtol(configTimeout.getCString(), (char **)0, 10);
+            Uint32 timeoutValue = strtol(configTimeout.getCString(), (char **)0, 10);
             
             shutdownCIMOM(timeoutValue);
 
@@ -931,6 +845,7 @@ MessageLoader::_useProcessLocale = true;
 		Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
 			"src.Server.cimserver.SERVER_STOPPED",
 			"CIM Server stopped.");
+            cimserver_exitRC(0);
 #else
 			//l10n
             //cout << "CIM Server stopped." << endl;
@@ -938,8 +853,8 @@ MessageLoader::_useProcessLocale = true;
             						 "CIM Server stopped.");
 
             cout << MessageLoader::getMessage(parms) << endl;
+            return(0);
 #endif
-            cimserver_exit(0);
         }
 
         // Leave this in until people get familiar with the logs.
@@ -1028,8 +943,8 @@ MessageLoader::_useProcessLocale = false;
     {
         if(-1 == cimserver_fork())
 #ifndef PEGASUS_OS_OS400
-	{	
-	    exit(-1);
+	{
+	    return(-1);
 	}
 #else
 	{
@@ -1078,7 +993,7 @@ MessageLoader::_useProcessLocale = false;
 	Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
 				  "src.Server.cimserver.SERVER_FAILED_TO_INITIALIZE",
 		    	  "CIM Server failed to initialize");  
-	exit(-1);
+	return(-1);
     } 
 #endif
 
@@ -1106,7 +1021,7 @@ MessageLoader::_useProcessLocale = false;
         if (daemonOption)
                 notify_parent(1);
 
-        exit(1);
+        return(1);
     }
      
 #endif
@@ -1128,6 +1043,7 @@ MessageLoader::_useProcessLocale = false;
 	CIMServer server(&monitor);
 #endif
 
+	CimserverHolder cimserverHolder( &server );
 
         if (enableHttpConnection)
         {

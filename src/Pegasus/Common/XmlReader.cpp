@@ -695,12 +695,32 @@ Boolean XmlReader::stringToSignedInteger(
 
     const char* last = p;
 
+    // Build the Sint64 as a negative number, regardless of the eventual sign
+    x = -(*first++ - '0');
+
     while (first != last)
-	x = 10 * x + (*first++ - '0');
+    {
+        if (x < -922337203685477580 /* -(1<<63) / 10 */)
+        {
+            return false;
+        }
+        x = 10 * x;
+        Sint64 newDigit = (*first++ - '0');
+        if (-9223372036854775808 - x > -newDigit)
+        {
+            return false;
+        }
+	x = x - newDigit;
+    }
 
-    if (negative)
+    if (!negative)
+    {
+        if (x == -9223372036854775808)
+        {
+            return false;
+        }
 	x = -x;
-
+    }
     return true;
 }
 
@@ -708,7 +728,7 @@ Boolean XmlReader::stringToSignedInteger(
 //
 // stringToUnsignedInteger
 //
-//	[ "+" | "-" ] ( positiveDecimalDigit *decimalDigit | "0" )
+//	[ "+" ] ( positiveDecimalDigit *decimalDigit | "0" )
 //
 // ATTN-B: handle conversion from hexadecimal.
 //------------------------------------------------------------------------------
@@ -756,7 +776,19 @@ Boolean XmlReader::stringToUnsignedInteger(
     const char* last = p;
 
     while (first != last)
-	x = 10 * x + (*first++ - '0');
+    {
+        if (x > 1844674407370955161 /* (1<<64 - 1) / 10 */)
+        {
+            return false;
+        }
+        x = 10 * x;
+        Uint64 newDigit = (*first++ - '0');
+        if (18446744073709551615 - x < newDigit)
+        {
+            return false;
+        }
+	x = x + newDigit;
+    }
 
     return true;
 }
@@ -764,9 +796,6 @@ Boolean XmlReader::stringToUnsignedInteger(
 //------------------------------------------------------------------------------
 //
 // stringToValue()
-//
-// ATTN-C: note that integers are truncated without warning. What should be 
-// done in this case? In C they are truncated without warning by design.
 //
 // Return: CIMValue. If the string input is zero length creates a CIMValue
 //         with value defined by the type.  Else the value is inserted.
@@ -846,9 +875,33 @@ CIMValue XmlReader::stringToValue(
 
 	    switch (type)
 	    {
-		case CIMType::UINT8: return CIMValue(Uint8(x));
-		case CIMType::UINT16: return CIMValue(Uint16(x));
-		case CIMType::UINT32: return CIMValue(Uint32(x));
+		case CIMType::UINT8:
+                {
+                    if (x >= (Uint64(1)<<8))
+		    {
+			throw XmlSemanticError(
+			    lineNumber, "Uint8 value out of range");
+		    }
+		    return CIMValue(Uint8(x));
+                }
+		case CIMType::UINT16:
+                {
+                    if (x >= (Uint64(1)<<16))
+		    {
+			throw XmlSemanticError(
+			    lineNumber, "Uint16 value out of range");
+		    }
+		    return CIMValue(Uint16(x));
+                }
+		case CIMType::UINT32:
+                {
+                    if (x >= (Uint64(1)<<32))
+		    {
+			throw XmlSemanticError(
+			    lineNumber, "Uint32 value out of range");
+		    }
+		    return CIMValue(Uint32(x));
+                }
 		case CIMType::UINT64: return CIMValue(Uint64(x));
 		default: break;
 	    }
@@ -869,9 +922,33 @@ CIMValue XmlReader::stringToValue(
 
 	    switch (type)
 	    {
-		case CIMType::SINT8: return CIMValue(Sint8(x));
-		case CIMType::SINT16: return CIMValue(Sint16(x));
-		case CIMType::SINT32: return CIMValue(Sint32(x));
+		case CIMType::SINT8:
+                {
+                    if(  (x >= (Sint64(1)<<7)) || (x < (-(Sint64(1)<<7))) )
+		    {
+			throw XmlSemanticError(
+			    lineNumber, "Sint8 value out of range");
+		    }
+		    return CIMValue(Sint8(x));
+                }
+		case CIMType::SINT16:
+                {
+                    if(  (x >= (Sint64(1)<<15)) || (x < (-(Sint64(1)<<15))) )
+		    {
+			throw XmlSemanticError(
+			    lineNumber, "Sint16 value out of range");
+		    }
+		    return CIMValue(Sint16(x));
+                }
+		case CIMType::SINT32:
+                {
+                    if(  (x >= (Sint64(1)<<31)) || (x < (-(Sint64(1)<<31))) )
+		    {
+			throw XmlSemanticError(
+			    lineNumber, "Sint32 value out of range");
+		    }
+		    return CIMValue(Sint32(x));
+                }
 		case CIMType::SINT64: return CIMValue(Sint64(x));
 		default: break;
 	    }
@@ -900,6 +977,7 @@ CIMValue XmlReader::stringToValue(
 	    if (!stringToReal(valueString, x))
 		throw XmlSemanticError(lineNumber, "Bad real value");
 
+	    // ATTN-RK-P3-20010319: This value gets truncated.
 	    return CIMValue(Real32(x));
 	}
 

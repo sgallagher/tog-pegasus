@@ -292,6 +292,13 @@ will be deleted.
        
 29.  (KS ) 18 March 2002 - Modified schema makefiles to use the cimomfl respository
         executable. 
+
+30. (Roger Kumpf - HP) 19 Mar 2002 - Added range checking for Uint* and
+    Sint* values in XmlReader.cpp.  Previously, values that were out of
+    range were simply truncated to fit the given integer size.  An
+    exception is now thrown when the given string can not be parsed into
+    an integer of the specified size.
+
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001
 

@@ -137,8 +137,8 @@ public:
     */
     Uint32 size() const { return _rep.size() - 1; }
 
-    /** Returns a pointer to the first character in the null-terminated string
-	string.
+    /** getData Returns a pointer to the first character in the 
+	null-terminated string string of the String object.
 	@return	Pointer to the first character of the String object
     	<pre>
 	    String t1 = "abc";
@@ -147,18 +147,21 @@ public:
     */
     const Char16* getData() const { return _rep.getData(); }
 
-    /** AallocateCString - llocates an 8 bit representation of this string. The
-    user is
-	responsible for freeing the result. If any characters are truncated,
-	a TruncatedCharacter exception is thrown. This exception may
-	be suppressed by passing true as the noThrow argument. Extra
-	characters may be allocated at the end of the new string by
-	passing a non-zero value to the extraBytes argument.
+    /** AallocateCString - llocates an 8 bit representation of this String 
+	object. The user is responsible for freeing the result. If any 
+	characters are truncated, a TruncatedCharacter exception is thrown.
+	This exception may be suppressed by passing true as the noThrow 
+	argument. Extra characters may be allocated at the end of the
+	new string by passing a non-zero value to the extraBytes argument.
+	
 	@param extraBytes Defines the number of extra characters to be
 	allocated at the end of the new string. Default is zero.
+	
 	@param	noThrow If true, no exception will be thrown if characters
 	are truncated
+	
 	@return pointer to the new representation of the string
+	
 	@exception Throws TruncatedCharacter exception if any characters are
 	truncated
 	<pre>
@@ -170,11 +173,11 @@ public:
     */
     char* allocateCString(Uint32 extraBytes = 0, Boolean noThrow = false) const;
 
-    /** appendToCString - Append the given string to a C-string. If the length
-    	is not PEG_NOT_FOUND, then the lesser of the the length argument and the
-    	length of this string is truncated. Otherwise, the entire string is
-    	trunctated. The TruncatedCharacter exception is thrown if any characters
-    	are truncated.
+    /** appendToCString - Append the given String object to a C-string. If the 
+	length is not PEG_NOT_FOUND, then the lesser of the the length argument
+	and he length of this string is truncated.  Otherwise, the entire string
+	is trunctated.  The TruncatedCharacter exception is thrown if any 
+	characters are truncated.  
     	@param str Char pointer to the string to append
     	@param length Length to append or PEG_NOT_FOUND (Uint32(-1)
     	@param noThrow - If false, throw the "TruncatedCharacter" exception of
@@ -311,6 +314,8 @@ public:
     */
     Uint32 find(Char16 c) const;
 
+    /** Same as above but starts searching from the given position. */
+    Uint32 find(Uint32 pos, Char16 c) const;
 
     /** Find the position of the first occurence of the string object.
 	This function finds one string inside another
@@ -373,6 +378,8 @@ public:
     */
     static int compareNoCase(const char* s1, const char* s2, Uint32 n);
 
+    static int compareNoCase(const char* s1, const char* s2);
+
     /** Compare two null-terminated strings.
     	@param s1 First null-terminated string for the comparison.
 	@param s2 Second null-terminated string for the comparison.
@@ -421,16 +428,22 @@ public:
     */
     static const String EMPTY;
 
-    static Uint32 _pegasusMin(Uint32 x, Uint32 y) 
-    {
-	return x < y ? x : y; 
-    }
+    /** Return true if the str parameter matches the pattern. C-Shell style
+	glob matching is used.
+    */
+    static Boolean match(const String& str, const String& pattern);
+
+    /** Return true if the str parameter matches the pattern. C-Shell style
+	glob matching is used. Ignore case in all comparisons.
+    */
+    static Boolean matchNoCase(const String& str, const String& pattern);
 
 private:
 
+    static Uint32 PEG_min(Uint32 x, Uint32 y) { return x < y ? x : y; }
+
     Array<Char16> _rep;
 };
-
 
 /** String operator ==. Test for equality between two strings of any of the
     types String or char*.
@@ -526,6 +539,11 @@ PEGASUS_COMMON_LINKAGE String ToLower(const String& str);
 /** Compare two strings but ignore any case differences.
 */
 PEGASUS_COMMON_LINKAGE int CompareNoCase(const char* s1, const char* s2);
+
+inline int EqualNoCase(const char* s1, const char* s2)
+{
+    return CompareNoCase(s1, s2) == 0;
+}
 
 /** Get the next line from the input file.
 */

@@ -107,7 +107,7 @@ String::String(const char* str)
 
 String::String(const char* str, Uint32 n_)
 {
-    Uint32 n = _pegasusMin(strlen(str), n_);
+    Uint32 n = PEG_min(strlen(str), n_);
     reserve(n + 1);
 
     while (n--)
@@ -126,7 +126,7 @@ String& String::assign(const Char16* x)
 String& String::assign(const Char16* str, Uint32 n)
 {
     _rep.clear();
-    Uint32 m = _pegasusMin(StrLen(str), n);
+    Uint32 m = PEG_min(StrLen(str), n);
     _rep.append(str, m);
     _rep.append('\0');
     return *this;
@@ -150,7 +150,7 @@ String& String::assign(const char* x, Uint32 n_)
 {
     _rep.clear();
 
-    Uint32 n = _pegasusMin(strlen(x), n_);
+    Uint32 n = PEG_min(strlen(x), n_);
     _rep.reserve(n + 1);
 
     while (n--)
@@ -188,7 +188,7 @@ void String::appendToCString(
     if (!str)
 	throw NullPointer();
 
-    Uint32 n = _pegasusMin(size(), length);
+    Uint32 n = PEG_min(size(), length);
 
     char* p = str + strlen(str);
     const Char16* q = getData();
@@ -223,7 +223,7 @@ const Char16 String::operator[](Uint32 i) const
 
 String& String::append(const Char16* str, Uint32 n)
 {
-    Uint32 m = _pegasusMin(StrLen(str), n);
+    Uint32 m = PEG_min(StrLen(str), n);
     _rep.reserve(_rep.size() + m);
     _rep.remove(_rep.size() - 1);
     _rep.append(str, m);
@@ -312,7 +312,11 @@ Boolean String::equalNoCase(const String& x, const String& y)
 
     while (n--)
     {
+#ifdef PEGASUS_HAS_EBCDIC
+	if (*p <= 255 && *q <= 255)
+#else
 	if (*p <= 127 && *q <= 127)
+#endif
 	{
 	    if (tolower(*p++) != tolower(*q++))
 		return false;
@@ -350,12 +354,30 @@ Uint32 String::find(Char16 c) const
     return PEG_NOT_FOUND;
 }
 
+Uint32 String::find(Uint32 pos, Char16 c) const
+{
+    const Char16* data = getData();
+
+    for (Uint32 i = pos, n = size(); i < n; i++)
+    {
+	if (data[i] == c)
+	    return i;
+    }
+
+    return PEG_NOT_FOUND;
+}
+
 Uint32 String::find(const String& s) const
 {
     const Char16* pSubStr = s.getData();
     const Char16* pStr = getData();
     Uint32 subStrLen = s.size();
     Uint32 strLen = size();
+
+    if (subStrLen > strLen)
+    {
+        return PEG_NOT_FOUND;
+    }
 
     // loop to find first char match
     Uint32 loc = 0;
@@ -402,7 +424,11 @@ void String::toLower()
 {
     for (Char16* p = &_rep[0]; *p; p++)
     {
+#ifdef PEGASUS_HAS_EBCDIC
+	if (*p <= 255)
+#else
 	if (*p <= 127)
+#endif
 	    *p = tolower(*p);
     }
 }
@@ -421,6 +447,24 @@ int String::compare(const Char16* s1, const Char16* s2)
     while (*s1 && *s2)
     {
 	int r = *s1++ - *s2++;
+
+	if (r)
+	    return r;
+    }
+
+    if (*s2)
+	return -1;
+    else if (*s1)
+	return 1;
+
+    return 0;
+}
+
+int String::compareNoCase(const char* s1, const char* s2)
+{
+    while (*s1 && *s2)
+    {
+	int r = tolower(*s1++) - tolower(*s2++);
 
 	if (r)
 	    return r;
@@ -456,7 +500,11 @@ String ToLower(const String& str)
     {
 	Char16 c = tmp[i];
 
+#ifdef PEGASUS_HAS_EBCDIC
+	if (c <= 255)
+#else
 	if (c <= 127)
+#endif
 	    tmp[i] = tolower(c);
     }
 
@@ -539,5 +587,223 @@ const Array<String>& EmptyStringArray()
     return tmp;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// String matching routines borrowed from Tcl 8.0:
+//
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// This software is copyrighted by the Regents of the University of
+// California, Sun Microsystems, Inc., and other parties.  The following
+// terms apply to all files associated with the software unless explicitly
+// disclaimed in individual files.
+// 
+// The authors hereby grant permission to use, copy, modify, distribute,
+// and license this software and its documentation for any purpose, provided
+// that existing copyright notices are retained in all copies and that this
+// notice is included verbatim in any distributions. No written agreement,
+// license, or royalty fee is required for any of the authorized uses.
+// Modifications to this software may be copyrighted by their authors
+// and need not follow the licensing terms described here, provided that
+// the new terms are clearly indicated on the first page of each file where
+// they apply.
+// 
+// IN NO EVENT SHALL THE AUTHORS OR DISTRIBUTORS BE LIABLE TO ANY PARTY
+// FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
+// ARISING OUT OF THE USE OF THIS SOFTWARE, ITS DOCUMENTATION, OR ANY
+// DERIVATIVES THEREOF, EVEN IF THE AUTHORS HAVE BEEN ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+// 
+// THE AUTHORS AND DISTRIBUTORS SPECIFICALLY DISCLAIM ANY WARRANTIES,
+// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE
+// IS PROVIDED ON AN "AS IS" BASIS, AND THE AUTHORS AND DISTRIBUTORS HAVE
+// NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
+// MODIFICATIONS.
+// 
+// GOVERNMENT USE: If you are acquiring this software on behalf of the
+// U.S. government, the Government shall have only "Restricted Rights"
+// in the software and related documentation as defined in the Federal 
+// Acquisition Regulations (FARs) in Clause 52.227.19 (c) (2).  If you
+// are acquiring the software on behalf of the Department of Defense, the
+// software shall be classified as "Commercial Computer Software" and the
+// Government shall have only "Restricted Rights" as defined in Clause
+// 252.227-7013 (c) (1) of DFARs.  Notwithstanding the foregoing, the
+// authors grant the U.S. Government and others acting in its behalf
+// permission to use and distribute the software in accordance with the
+// terms specified in this license. 
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * Tcl_StringMatch --
+ *
+ *	See if a particular string matches a particular pattern.
+ *
+ * Results:
+ *	The return value is 1 if string matches pattern, and
+ *	0 otherwise.  The matching operation permits the following
+ *	special characters in the pattern: *?\[] (see the manual
+ *	entry for details on what these mean).
+ *
+ * Side effects:
+ *	None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+typedef Uint16 Tcl_Char;
+
+inline Uint16 _ToLower(Uint16 ch)
+{
+#ifdef PEGASUS_HAS_EBCDIC
+    return ch <= 255 ? tolower(char(ch)) : ch;
+#else
+    return ch <= 127 ? tolower(char(ch)) : ch;
+#endif
+}
+
+inline Boolean _Equal(Uint16 ch1, Uint16 ch2, int nocase)
+{
+    if (nocase)
+	return _ToLower(ch1) == _ToLower(ch2);
+    else
+	return ch1 == ch2;
+}
+
+int Tcl_StringMatch(
+    Tcl_Char *string,		/* String. */
+    Tcl_Char *pattern,		/* Pattern, which may contain special
+				 * characters. */
+    int nocase)			/* Ignore case if this is true */
+{
+    Tcl_Char c2;
+
+    while (1) {
+	/* See if we're at the end of both the pattern and the string.
+	 * If so, we succeeded.  If we're at the end of the pattern
+	 * but not at the end of the string, we failed.
+	 */
+	
+	if (*pattern == 0) {
+	    if (*string == 0) {
+		return 1;
+	    } else {
+		return 0;
+	    }
+	}
+	if ((*string == 0) && (*pattern != '*')) {
+	    return 0;
+	}
+
+	/* Check for a "*" as the next pattern character.  It matches
+	 * any substring.  We handle this by calling ourselves
+	 * recursively for each postfix of string, until either we
+	 * match or we reach the end of the string.
+	 */
+	
+	if (*pattern == '*') {
+	    pattern += 1;
+	    if (*pattern == 0) {
+		return 1;
+	    }
+	    while (1) {
+		if (Tcl_StringMatch(string, pattern, nocase)) {
+		    return 1;
+		}
+		if (*string == 0) {
+		    return 0;
+		}
+		string += 1;
+	    }
+	}
+    
+	/* Check for a "?" as the next pattern character.  It matches
+	 * any single character.
+	 */
+
+	if (*pattern == '?') {
+	    goto thisCharOK;
+	}
+
+	/* Check for a "[" as the next pattern character.  It is followed
+	 * by a list of characters that are acceptable, or by a range
+	 * (two characters separated by "-").
+	 */
+	
+	if (*pattern == '[') {
+	    pattern += 1;
+	    while (1) {
+		if ((*pattern == ']') || (*pattern == 0)) {
+		    return 0;
+		}
+		if (_Equal(*pattern, *string, nocase)) {
+		    break;
+		}
+		if (pattern[1] == '-') {
+		    c2 = pattern[2];
+		    if (c2 == 0) {
+			return 0;
+		    }
+		    if ((*pattern <= *string) && (c2 >= *string)) {
+			break;
+		    }
+		    if ((*pattern >= *string) && (c2 <= *string)) {
+			break;
+		    }
+		    pattern += 2;
+		}
+		pattern += 1;
+	    }
+	    while (*pattern != ']') {
+		if (*pattern == 0) {
+		    pattern--;
+		    break;
+		}
+		pattern += 1;
+	    }
+	    goto thisCharOK;
+	}
+    
+	/* If the next pattern character is '/', just strip off the '/'
+	 * so we do exact matching on the character that follows.
+	 */
+	
+	if (*pattern == '\\') {
+	    pattern += 1;
+	    if (*pattern == 0) {
+		return 0;
+	    }
+	}
+
+	/* There's no special character.  Just make sure that the next
+	 * characters of each string match.
+	 */
+	
+	if (!_Equal(*pattern, *string, nocase)) {
+	    return 0;
+	}
+
+	thisCharOK: pattern += 1;
+	string += 1;
+    }
+}
+
+Boolean String::match(const String& str, const String& pattern)
+{
+    return Tcl_StringMatch(
+	(Uint16*)str.getData(), (Uint16*)pattern.getData(), 0) != 0;
+}
+
+Boolean String::matchNoCase(const String& str, const String& pattern)
+{
+    return Tcl_StringMatch(
+	(Uint16*)str.getData(), (Uint16*)pattern.getData(), 1) != 0;
+}
 
 PEGASUS_NAMESPACE_END

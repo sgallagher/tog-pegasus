@@ -496,7 +496,7 @@ void CIMServer::addAcceptor(
           portNumber,
           useSSL ? _getSSLContext(SSLContextManager::EXPORT_CONTEXT) : 0,
           exportConnection,
-          _sslContextMgr->getSSLContextObjectLock());
+          useSSL ? _sslContextMgr->getSSLContextObjectLock() : 0 );
     }
     else
     {
@@ -507,7 +507,7 @@ void CIMServer::addAcceptor(
           portNumber,
           useSSL ? _getSSLContext(SSLContextManager::SERVER_CONTEXT) : 0,
           exportConnection,
-          _sslContextMgr->getSSLContextObjectLock());
+          useSSL ? _sslContextMgr->getSSLContextObjectLock() : 0 );
     }
     _acceptors.append(acceptor);
 }

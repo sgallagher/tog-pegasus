@@ -56,7 +56,6 @@
 #endif // end of PEGASUS_HAS_SSL
 
 #include <Pegasus/Common/Tracer.h>
-//#include <Pegasus/Common/SSLContextRep.h>
 #include <Pegasus/Common/FileSystem.h>
 
 #include "SSLContext.h"
@@ -178,7 +177,6 @@ void SSLContextManager::reloadTrustStore(Uint32 contextType)
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
             "Context Type is Export Context.");
         sslContext = _exportSSLContext->_rep->getContext();
-        //trustStore = _exportTrustStore;
         trustStore = _exportSSLContext->getTrustStore();
     }
     else

@@ -10,9 +10,10 @@ DEPEND_INCLUDES =
 DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 
 ifdef PEGASUS_DEBUG
-  FLAGS = -GX -W3 -Od -Zi -MDd
+  FLAGS = -GX -GR -W3 -Od -Zi -MDd
+  LINK_FLAGS = -debug
 else
-  FLAGS = -GX -W3 -O2 -MD
+  FLAGS = -GX -GR -W3 -O2 -MD
 endif
 
 RM = mu rm
@@ -50,8 +51,6 @@ ECHO = mu echo
 LEX = flex
 
 YACC = bison
-
-SYS_LIBS = ws2_32.lib advapi32.lib
 
 SH = bash
 

@@ -38,6 +38,9 @@
 #include <Pegasus/Common/Tracer.h>
 #include "ConfigFileHandler.h"
 #include "ConfigManager.h"
+#if  defined(PEGASUS_OS_OS400)
+#include "OS400ConvertChar.h"
+#endif
 
 
 PEGASUS_USING_STD;
@@ -126,7 +129,14 @@ ConfigFileHandler::ConfigFileHandler (
         // try creating one so that planned file contents
         // can be copied over.
         //
+#if defined(PEGASUS_OS_OS400)
+	CString tempPath = cFile.getCString();
+	const char * tmp = tempPath;
+	AtoE((char *)tmp);
+	ofstream ofs(tmp, PEGASUS_STD(_CCSID_T(1208)));
+#else
         ofstream ofs(cFile.getCString());
+#endif
         if (!ofs)
         {
             throw NoSuchFile(cFile);
@@ -316,7 +326,14 @@ Boolean ConfigFileHandler::updatePlannedValue (
         {
             String pFile = _plannedConfFile->getFileName();
 
+#if defined(PEGASUS_OS_OS400)
+	    CString tempPath = pFile.getCString();
+	    const char * tmp = tempPath;
+	    AtoE((char *)tmp);
+	    ofstream ofs(tmp, PEGASUS_STD(_CCSID_T(1208)));
+#else
             ofstream ofs(pFile.getCString());
+#endif
             if (!ofs)
             {
                 throw NoSuchFile(pFile);

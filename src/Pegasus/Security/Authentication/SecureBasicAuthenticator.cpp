@@ -38,6 +38,7 @@
 
 #ifdef PEGASUS_OS_OS400
 #include "qycmutiltyUtility.H"
+#include "OS400ConvertChar.h"
 #endif
 
 PEGASUS_USING_STD;
@@ -104,9 +105,15 @@ Boolean SecureBasicAuthenticator::authenticate(
 
 #ifdef PEGASUS_OS_OS400
     // Use OS400 APIs to do user name and password verification
+    // (note - need to convert to EBCDIC before calling ycm)
+    CString userCStr = userName.getCString();
+    const char * user = (const char *)userCStr;
+    AtoE((char *)user);
+    CString pwCStr = password.getCString();
+    const char * pw = (const char *)pwCStr;
+    AtoE((char *)pw);
     int os400auth =
-      ycmVerifyUserAuthorization((const char*)userName.getCString(),
-				 (const char*)password.getCString());
+      ycmVerifyUserAuthorization(user, pw);
     if (os400auth == TRUE) 
 	authenticated = true;
 #else

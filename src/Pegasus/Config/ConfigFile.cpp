@@ -37,6 +37,9 @@
 
 #include "ConfigExceptions.h"
 #include "ConfigFile.h"
+#if  defined(PEGASUS_OS_OS400)
+#include "OS400ConvertChar.h"
+#endif
 
 
 PEGASUS_USING_STD;
@@ -136,7 +139,14 @@ void ConfigFile::load (ConfigTable* confTable)
     //
     // Open the config file
     //
+#if defined(PEGASUS_OS_OS400)
+    CString tempPath = _configFile.getCString();
+    const char * tmp = tempPath;
+    AtoE((char *)tmp);
+    ifstream ifs(tmp, PEGASUS_STD(_CCSID_T(1208)));
+#else
     ifstream ifs(_configFile.getCString());
+#endif
     if (!ifs)
     {
         return;
@@ -272,7 +282,15 @@ void ConfigFile::save (ConfigTable* confTable)
     //
     // Open the config file for writing
     //
+#if defined(PEGASUS_OS_OS400)
+    CString tempPath = _configFile.getCString();
+    const char * tmp = tempPath;
+    AtoE((char *)tmp);
+
+    ofstream ofs(tmp, PEGASUS_STD(_CCSID_T(1208)));
+#else
     ofstream ofs(_configFile.getCString());
+#endif
     ofs.clear();
 
     //
@@ -308,7 +326,15 @@ void ConfigFile::replace (const String& fileName)
     //
     // Open the given config file for reading
     //
+#if defined(PEGASUS_OS_OS400)
+    CString tempPath = fileName.getCString();
+    const char * tmp = tempPath;
+    AtoE((char *)tmp);
+
+    ifstream ifs(tmp, PEGASUS_STD(_CCSID_T(1208)));
+#else
     ifstream ifs(fileName.getCString());
+#endif
 
     //
     // Delete the backup configuration file
@@ -333,7 +359,14 @@ void ConfigFile::replace (const String& fileName)
     //
     // Open the existing config file for writing
     //
+#if defined(PEGASUS_OS_OS400)
+    CString tempPath1 = _configFile.getCString();
+    const char * tmp1 = tempPath1;
+    AtoE((char *)tmp1);
+    ofstream ofs(tmp1, PEGASUS_STD(_CCSID_T(1208)));
+#else
     ofstream ofs(_configFile.getCString());
+#endif
     ofs.clear();
 
     //

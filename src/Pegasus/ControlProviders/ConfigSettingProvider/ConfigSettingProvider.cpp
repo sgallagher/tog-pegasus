@@ -180,7 +180,7 @@ void ConfigSettingProvider::modifyInstance(
         String userName;
         try
         {
-            IdentityContainer container = context.get(CONTEXT_IDENTITY);
+            IdentityContainer container = context.get(IdentityContainer::NAME);
             userName = container.getUserName();
         }
         catch (...)

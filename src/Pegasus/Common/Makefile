@@ -78,6 +78,7 @@ SOURCES = \
     ModuleController.cpp \
     Monitor.cpp \
     OperationContext.cpp \
+    OperationContextInternal.cpp \
     OptionManager.cpp \
     Pair.cpp \
     Queue.cpp \

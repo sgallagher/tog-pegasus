@@ -352,7 +352,7 @@ void ProviderRegistrationProvider::modifyInstance(
     String userName;
     try
     {
-        IdentityContainer container = context.get(CONTEXT_IDENTITY);
+        IdentityContainer container = context.get(IdentityContainer::NAME);
         userName = container.getUserName();
     }
     catch (...)
@@ -432,7 +432,7 @@ void ProviderRegistrationProvider::createInstance(
     String userName;
     try
     {
-        IdentityContainer container = context.get(CONTEXT_IDENTITY);
+        IdentityContainer container = context.get(IdentityContainer::NAME);
         userName = container.getUserName();
     }
     catch (...)
@@ -620,7 +620,7 @@ void ProviderRegistrationProvider::deleteInstance(
     String userName;
     try
     {
-        IdentityContainer container = context.get(CONTEXT_IDENTITY);
+        IdentityContainer container = context.get(IdentityContainer::NAME);
         userName = container.getUserName();
     }
     catch (...)
@@ -679,7 +679,7 @@ void ProviderRegistrationProvider::invokeMethod(
     String userName;
     try
     {
-        IdentityContainer container = context.get(CONTEXT_IDENTITY);
+        IdentityContainer container = context.get(IdentityContainer::NAME);
         userName = container.getUserName();
     }
     catch (...)

@@ -23,7 +23,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,6 +35,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 // OperationContext
 //
+
 class OperationContextRep
 {
 public:
@@ -79,12 +80,29 @@ void OperationContext::clear(void)
 {
     for(Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
     {
-        delete _rep->containers[i];
+        _rep->containers[i]->destroy();
     }
 
     _rep->containers.clear();
 }
 
+const OperationContext::Container & OperationContext::get(
+    const String& containerName) const
+{
+    for(Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
+    {
+        if(containerName == _rep->containers[i]->getName())
+        {
+            Container * p = _rep->containers[i];
+
+            return(*p);
+        }
+    }
+
+    throw Exception("object not found");
+}
+
+#ifndef PEGASUS_REMOVE_DEPRECATED
 const OperationContext::Container & OperationContext::get(const Uint32 key) const
 {
     for(Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
@@ -99,15 +117,16 @@ const OperationContext::Container & OperationContext::get(const Uint32 key) cons
 
     throw Exception("object not found");
 }
+#endif
 
 void OperationContext::set(const OperationContext::Container & container)
 {
     for(Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
     {
-        if(container.getKey() == _rep->containers[i]->getKey())
+        if(container.getName() == _rep->containers[i]->getName())
         {
             // delete previous container
-            delete _rep->containers[i];
+            _rep->containers[i]->destroy();
             _rep->containers.remove(i);
 
             // append current container
@@ -124,7 +143,7 @@ void OperationContext::insert(const OperationContext::Container & container)
 {
     for(Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
     {
-        if(container.getKey() == _rep->containers[i]->getKey())
+        if(container.getName() == _rep->containers[i]->getName())
         {
             throw Exception("object already exists.");
         }
@@ -133,6 +152,23 @@ void OperationContext::insert(const OperationContext::Container & container)
     _rep->containers.append(container.clone());
 }
 
+void OperationContext::remove(const String& containerName)
+{
+    for(Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
+    {
+        if(containerName == _rep->containers[i]->getName())
+        {
+            _rep->containers[i]->destroy();
+            _rep->containers.remove(i);
+
+            return;
+        }
+    }
+
+    throw Exception("object not found");
+}
+
+#ifndef PEGASUS_REMOVE_DEPRECATED
 void OperationContext::remove(const Uint32 key)
 {
     for(Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
@@ -148,31 +184,41 @@ void OperationContext::remove(const Uint32 key)
 
     throw Exception("object not found");
 }
+#endif
 
 //
 // OperationContext::Container
 //
+
+#ifndef PEGASUS_REMOVE_DEPRECATED
 OperationContext::Container::Container(const Uint32 key) : _key(key)
 {
 }
+#endif
 
 OperationContext::Container::~Container(void)
 {
 }
 
+#ifndef PEGASUS_REMOVE_DEPRECATED
 const Uint32 & OperationContext::Container::getKey(void) const
 {
     return(_key);
 }
-
-OperationContext::Container * OperationContext::Container::clone(void) const
-{
-    return(new Container(*this));
-}
+#endif
 
 //
 // IdentityContainer
 //
+
+class IdentityContainerRep
+{
+public:
+    String userName;
+};
+
+const String IdentityContainer::NAME = "IdentityContainer";
+
 IdentityContainer::IdentityContainer(const OperationContext::Container & container)
 {
     const IdentityContainer * p = dynamic_cast<const IdentityContainer *>(&container);
@@ -182,87 +228,42 @@ IdentityContainer::IdentityContainer(const OperationContext::Container & contain
         throw DynamicCastFailedException();
     }
 
-    *this = *p;
+    _rep = new IdentityContainerRep();
+    _rep->userName = p->_rep->userName;
 }
 
 IdentityContainer::IdentityContainer(const String & userName)
-    : OperationContext::Container(CONTEXT_IDENTITY), _userName(userName)
+#ifndef PEGASUS_REMOVE_DEPRECATED
+    : OperationContext::Container(CONTEXT_IDENTITY)
+#endif
 {
+    _rep = new IdentityContainerRep();
+    _rep->userName = userName;
+}
+
+IdentityContainer::~IdentityContainer(void)
+{
+    delete _rep;
+}
+
+String IdentityContainer::getName(void) const
+{
+    return(NAME);
 }
 
 OperationContext::Container * IdentityContainer::clone(void) const
 {
-    return(new IdentityContainer(*this));
+    return(new IdentityContainer(_rep->userName));
+}
+
+void IdentityContainer::destroy(void)
+{
+    delete this;
 }
 
 String IdentityContainer::getUserName(void) const
 {
-    return(_userName);
-}
-
-//
-// LocaleContainer
-//
-LocaleContainer::LocaleContainer(const OperationContext::Container & container)
-{
-    const LocaleContainer * p = dynamic_cast<const LocaleContainer *>(&container);
-
-    if(p == 0)
-    {
-        throw DynamicCastFailedException();
-    }
-
-    *this = *p;
-}
-
-LocaleContainer::LocaleContainer(const String & languageId)
-    : OperationContext::Container(CONTEXT_LOCALE), _languageId(languageId)
-{
-}
-
-OperationContext::Container * LocaleContainer::clone(void) const
-{
-    return(new LocaleContainer(*this));
-}
-
-String LocaleContainer::getLanguageId(void) const
-{
-    return(_languageId);
-}
-
-//
-// ProviderIdContainer
-//
-ProviderIdContainer::ProviderIdContainer(const OperationContext::Container & container)
-{
-    const ProviderIdContainer * p = dynamic_cast<const ProviderIdContainer *>(&container);
-
-    if(p == 0)
-    {
-        throw DynamicCastFailedException();
-    }
-
-    *this = *p;
-}
-
-ProviderIdContainer::ProviderIdContainer(const CIMInstance & module, const CIMInstance & provider)
-    : OperationContext::Container(CONTEXT_PROVIDERID), _module(module), _provider(provider)
-{
-}
-
-OperationContext::Container * ProviderIdContainer::clone(void) const
-{
-    return(new ProviderIdContainer(*this));
-}
-
-CIMInstance ProviderIdContainer::getModule(void) const
-{
-    return(_module);
-}
-
-CIMInstance ProviderIdContainer::getProvider(void) const
-{
-    return(_provider);
+    return(_rep->userName);
 }
 
 PEGASUS_NAMESPACE_END

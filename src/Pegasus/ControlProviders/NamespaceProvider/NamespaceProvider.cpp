@@ -259,7 +259,7 @@ void NamespaceProvider::createInstance(
        String userName;
        try
        {
-           IdentityContainer container = context.get(CONTEXT_IDENTITY);
+           IdentityContainer container = context.get(IdentityContainer::NAME);
            userName = container.getUserName();
        }
        catch (...)
@@ -353,7 +353,7 @@ void NamespaceProvider::deleteInstance(
        String userName;
        try
        {
-           IdentityContainer container = context.get(CONTEXT_IDENTITY);
+           IdentityContainer container = context.get(IdentityContainer::NAME);
            userName = container.getUserName();
        }
        catch (...)
@@ -443,7 +443,7 @@ void NamespaceProvider::getInstance(
        String userName;
        try
        {
-           IdentityContainer container = context.get(CONTEXT_IDENTITY);
+           IdentityContainer container = context.get(IdentityContainer::NAME);
            userName = container.getUserName();
        }
        catch (...)
@@ -541,7 +541,7 @@ void NamespaceProvider::enumerateInstances(
        String userName;
        try
        {
-           IdentityContainer container = context.get(CONTEXT_IDENTITY);
+           IdentityContainer container = context.get(IdentityContainer::NAME);
            userName = container.getUserName();
        }
        catch (...)
@@ -632,7 +632,7 @@ void NamespaceProvider::enumerateInstanceNames(
 	String userName;
         try
         {
-            IdentityContainer container = context.get(CONTEXT_IDENTITY);
+            IdentityContainer container = context.get(IdentityContainer::NAME);
             userName = container.getUserName();
         }
         catch (...)

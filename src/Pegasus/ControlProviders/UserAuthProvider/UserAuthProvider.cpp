@@ -138,7 +138,7 @@ void UserAuthProvider::createInstance(
     String user;
     try
     {
-        const IdentityContainer container = context.get(CONTEXT_IDENTITY);
+        const IdentityContainer container = context.get(IdentityContainer::NAME);
         user= container.getUserName();
     }
     catch (...)
@@ -329,7 +329,7 @@ void UserAuthProvider::deleteInstance(
     String user;
     try
     {
-        IdentityContainer container = context.get(CONTEXT_IDENTITY);
+        IdentityContainer container = context.get(IdentityContainer::NAME);
         user= container.getUserName();
     }
     catch (...)
@@ -501,7 +501,7 @@ void UserAuthProvider::modifyInstance(
     String user;
     try
     {
-        IdentityContainer container = context.get(CONTEXT_IDENTITY);
+        IdentityContainer container = context.get(IdentityContainer::NAME);
         user= container.getUserName();
     }
     catch (...)
@@ -619,7 +619,7 @@ void UserAuthProvider::enumerateInstances(
     String user;
     try
     {
-        IdentityContainer container = context.get(CONTEXT_IDENTITY);
+        IdentityContainer container = context.get(IdentityContainer::NAME);
         user= container.getUserName();
     }
     catch (...)
@@ -697,7 +697,7 @@ void UserAuthProvider::enumerateInstanceNames(
     String user;
     try
     {
-        IdentityContainer container = context.get(CONTEXT_IDENTITY);
+        IdentityContainer container = context.get(IdentityContainer::NAME);
         user= container.getUserName();
     }
     catch (...)
@@ -819,7 +819,7 @@ void UserAuthProvider::invokeMethod(
     String user;
     try
     {
-        IdentityContainer container = context.get(CONTEXT_IDENTITY);
+        IdentityContainer container = context.get(IdentityContainer::NAME);
         user= container.getUserName();
     }
     catch (...)

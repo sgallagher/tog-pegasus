@@ -24,6 +24,7 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Mike Day (mdday@us.ibm.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -32,12 +33,11 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-
+#ifndef PEGASUS_REMOVE_DEPRECATED
 static const Uint32 CONTEXT_EMPTY =                     0;
 static const Uint32 CONTEXT_IDENTITY =                  1;
 static const Uint32 CONTEXT_AUTHENICATION =             2;
@@ -65,6 +65,7 @@ static const Uint32 OPERATION_DELIVER =                 0x00000040;
 static const Uint32 OPERATION_RESERVE =                 0x00000080;
 static const Uint32 OPERATION_PROCESSING =              0x00000100;
 static const Uint32 OPERATION_COMPLETE =                0x00000200;
+#endif  // !PEGASUS_REMOVE_DEPRECATED
 
 class OperationContextRep;
 
@@ -81,33 +82,42 @@ the issuing user.</p>
 class PEGASUS_COMMON_LINKAGE OperationContext
 {
 public:
+    /**
+        An element of client context information.
+    
+        <p>The <tt>Container</tt> object carries the information that
+        the provider may access. A container name determines which
+        container is being referenced. Currently, only the container
+        carrying the user identity of the client is available.</p>
+    */
     class PEGASUS_COMMON_LINKAGE Container
     {
     public:
-
-        /**
-        An element of client context information.
-        
-        <p>The <tt>Container</tt> object carries the information
-        that the provider may access. A key determines which
-        container is being references. Currently, only the
-        container carrying the user identity of the client
-        is available.</p>
-        */
+#ifndef PEGASUS_REMOVE_DEPRECATED
         Container(const Uint32 key = CONTEXT_EMPTY);
+#endif
 
         ///
         virtual ~Container(void);
 
         ///
+        virtual String getName(void) const = 0;
+
+#ifndef PEGASUS_REMOVE_DEPRECATED
         const Uint32 & getKey(void) const;
+#endif
 
-        // Caller is responsible for deleting dynamically allocated memory.
-        virtual Container * clone(void) const;
+        // Caller is responsible for deleting dynamically allocated memory
+        // by calling destroy() method.
+        virtual Container * clone(void) const = 0;
 
+        // Cleans up the object, including dynamically allocated memory.
+        virtual void destroy(void) = 0;
+
+#ifndef PEGASUS_REMOVE_DEPRECATED
     protected:
         Uint32 _key;
-
+#endif
     };
 
 public:
@@ -122,17 +132,17 @@ public:
 
     OperationContext & operator=(const OperationContext & context);
 
-    /**	
+    /**
         clear - Removes all containers in the current object.
-	
-        @param none
-	    @return none
-	    @exception none
     */
     void clear(void);
 
     ///
+    const Container & get(const String& containerName) const;
+
+#ifndef PEGASUS_REMOVE_DEPRECATED
     const Container & get(const Uint32 key) const;
+#endif
 
     ///
     void set(const Container & container);
@@ -141,7 +151,11 @@ public:
     void insert(const Container & container);
 
     ///
+    void remove(const String& containerName);
+
+#ifndef PEGASUS_REMOVE_DEPRECATED
     void remove(const Uint32 key);
+#endif
 
 protected:
     OperationContextRep* _rep;
@@ -149,50 +163,26 @@ protected:
 };
 
 
-class PEGASUS_COMMON_LINKAGE IdentityContainer : public OperationContext::Container
+class IdentityContainerRep;
+
+class PEGASUS_COMMON_LINKAGE IdentityContainer
+    : virtual public OperationContext::Container
 {
 public:
+    static const String NAME;
+
     IdentityContainer(const OperationContext::Container & container);
     IdentityContainer(const String & userName);
+    virtual ~IdentityContainer(void);
 
+    virtual String getName(void) const;
     virtual OperationContext::Container * clone(void) const;
+    virtual void destroy(void);
 
     String getUserName(void) const;
 
 protected:
-    String _userName;
-
-};
-
-class PEGASUS_COMMON_LINKAGE LocaleContainer : public OperationContext::Container
-{
-public:
-    LocaleContainer(const OperationContext::Container & container);
-    LocaleContainer(const String & languageId);
-
-    virtual OperationContext::Container * clone(void) const;
-
-    String getLanguageId(void) const;
-
-protected:
-    String _languageId;
-
-};
-
-class PEGASUS_COMMON_LINKAGE ProviderIdContainer : public OperationContext::Container
-{
-public:
-    ProviderIdContainer(const OperationContext::Container & container);
-    ProviderIdContainer(const CIMInstance & module, const CIMInstance & provider);
-
-    virtual OperationContext::Container * clone(void) const;
-
-    CIMInstance getModule(void) const;
-    CIMInstance getProvider(void) const;
-
-protected:
-    CIMInstance _module;
-    CIMInstance _provider;
+    IdentityContainerRep* _rep;
 
 };
 

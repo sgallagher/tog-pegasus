@@ -29,7 +29,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/OperationContext.h>
+#include <Pegasus/Common/OperationContextInternal.h>
 
 #include <iostream>
 
@@ -46,7 +46,7 @@ int main(void)
 
         context.insert(IdentityContainer(userName));
 
-        IdentityContainer container = context.get(CONTEXT_IDENTITY);
+        IdentityContainer container = context.get(IdentityContainer::NAME);
 
         if(userName != container.getUserName())
         {
@@ -66,7 +66,7 @@ int main(void)
 
         context.insert(LocaleContainer(languageId));
 
-        LocaleContainer container = context.get(CONTEXT_LOCALE);
+        LocaleContainer container = context.get(LocaleContainer::NAME);
 
         if(languageId != container.getLanguageId())
         {
@@ -87,7 +87,7 @@ int main(void)
 
         context.insert(ProviderIdContainer(module, provider));
 
-        ProviderIdContainer container = context.get(CONTEXT_PROVIDERID);
+        ProviderIdContainer container = context.get(ProviderIdContainer::NAME);
 
         if(!module.identical(container.getModule()) || !provider.identical(container.getProvider()))
         {
@@ -107,9 +107,9 @@ int main(void)
 
         scopeContext = context;
 
-        scopeContext.remove(CONTEXT_IDENTITY);
-        scopeContext.remove(CONTEXT_LOCALE);
-        scopeContext.remove(CONTEXT_PROVIDERID);
+        scopeContext.remove(IdentityContainer::NAME);
+        scopeContext.remove(LocaleContainer::NAME);
+        scopeContext.remove(ProviderIdContainer::NAME);
     }
     catch(...)
     {

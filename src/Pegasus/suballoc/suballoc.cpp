@@ -24,6 +24,7 @@
 // Author: Mike Day (mdday@us.ibm.com)
 //
 // Modified By: 
+//	   Rammnath Ravindran (Ramnath.Ravindran@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -99,7 +100,7 @@ PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *dead)
 PEGASUS_NAMESPACE_END
 PEGASUS_USING_STD;
 
-#if !defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#if !defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) && !defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
 PEGASUS_USING_PEGASUS;
 void * operator new(size_t size) throw (PEGASUS_STD(bad_alloc))
 {

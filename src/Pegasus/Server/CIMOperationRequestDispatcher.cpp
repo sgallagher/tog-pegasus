@@ -616,6 +616,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 				      PEGASUS_MODULENAME_NAMESPACEPROVIDER,
 				      PEGASUS_QUEUENAME_CONTROLSERVICE);
 
+#ifdef PEGASUS_HAS_SSL
 	//PEP187
 	_routing_table.insert_record(PEGASUS_CLASSNAME_CERTIFICATE,
 								 PEGASUS_NAMESPACENAME_CERTIFICATE,
@@ -635,6 +636,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 								 (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
 								 PEGASUS_MODULENAME_CERTIFICATEPROVIDER,
 								 service = PEGASUS_QUEUENAME_CONTROLSERVICE);
+#endif
 
 
 #ifdef PEGASUS_HAS_PERFINST

@@ -24,7 +24,6 @@ DIRS = \
     ControlProviders/UserAuthProvider \
     ControlProviders/ProviderRegistrationProvider \
     ControlProviders/NamespaceProvider \
-    ControlProviders/CertificateProvider \
     HandlerService \
     IndicationService \
     ManagedClient \
@@ -89,6 +88,11 @@ DIRS += \
 	ControlProviders/InteropProvider \
     	ControlProviders/InteropProvider/tests
 
+endif
+
+ifdef PEGASUS_HAS_SSL
+DIRS += \
+	ControlProviders/CertificateProvider
 endif
 	
 DIRS += \

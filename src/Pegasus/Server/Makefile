@@ -43,8 +43,7 @@ LIBRARIES = \
 	ConfigSettingProvider \
 	UserAuthProvider \
 	ProviderRegistrationProvider\
-	NamespaceProvider \
-	CertificateProvider
+	NamespaceProvider
 
 ifdef PEGASUS_ENABLE_SLP
 LIBRARIES += \
@@ -61,6 +60,11 @@ ifdef PEGASUS_HAS_PERFINST
 LIBRARIES += \
 	CIMOMStatDataProvider \
 	InteropProvider
+endif
+
+ifdef PEGASUS_HAS_SSL
+LIBRARIES += \
+	CertificateProvider
 endif
 
 PRE_DEPEND_INCLUDES = -I./depends

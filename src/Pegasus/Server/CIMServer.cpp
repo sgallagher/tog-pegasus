@@ -91,7 +91,6 @@
 #include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/ControlProviders/ConfigSettingProvider/ConfigSettingProvider.h>
 #include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
-#include <Pegasus/ControlProviders/CertificateProvider/CertificateProvider.h>
 #include <Pegasus/ControlProviders/ProviderRegistrationProvider/ProviderRegistrationProvider.h>
 #include <Pegasus/ControlProviders/NamespaceProvider/NamespaceProvider.h>
 
@@ -99,6 +98,9 @@
 #include <Pegasus/ControlProviders/Statistic/CIMOMStatDataProvider.h>
 #endif
 
+#ifdef PEGASUS_HAS_SSL
+#include <Pegasus/ControlProviders/CertificateProvider/CertificateProvider.h>
+#endif
 
 #if defined(PEGASUS_HAS_PERFINST) ||  defined(PEGASUS_ENABLE_SLP)
 #include <Pegasus/ControlProviders/InteropProvider/InteropProvider.h>
@@ -305,7 +307,7 @@ void CIMServer::_init(void)
                                        namespaceProvider,
                                        controlProviderReceiveMessageCallback,
                                        0, 0);
-
+#ifdef PEGASUS_HAS_SSL
 	// ATTN: Are we allowing this to run if sslClientVerification is off?
     // Create the certificate control provider
 	// String verifyClient = ConfigManager::getInstance()->getCurrentValue(PROPERTY_NAME__SSL_CLIENT_VERIFICATION);
@@ -319,6 +321,7 @@ void CIMServer::_init(void)
 										  controlProviderReceiveMessageCallback,
 										  0, 0);
 	//}
+#endif
 
 #ifdef PEGASUS_HAS_PERFINST
                                                                                 

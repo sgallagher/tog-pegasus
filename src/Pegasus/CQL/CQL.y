@@ -523,27 +523,25 @@ chain : literal
             sprintf(msg,"BISON::chain->chain.identifier#literal_string : chain_state = %d\n",chain_state);
 	    printf_(msg);
 
-	    CQLChainedIdentifier *_cid;
-	    CQLIdentifier *_id;
             if(chain_state == CQLIDENTIFIER){
-		CQLIdentifier *_id = ((CQLIdentifier*)(_factory.getObject($1,Predicate,Identifier)));	
-		CQLChainedIdentifier _cid(*_id);
+              CQLIdentifier *_id = ((CQLIdentifier*)(_factory.getObject($1,Predicate,Identifier)));	
+              CQLChainedIdentifier _cid(*_id);
                 String tmp($3->getName().getString());
-		tmp.append("#").append(*$5);
+                tmp.append("#").append(*$5);
                 CQLIdentifier _id1(tmp);
                 _cid.append(_id1);
-		_factory.setObject(((CQLPredicate*)$1),&_cid,ChainedIdentifier);
+                _factory.setObject(((CQLPredicate*)$1),&_cid,ChainedIdentifier);
                 $$ = $1;
-		delete $3; delete $5;
+                delete $3; delete $5;
             }else if(chain_state == CQLCHAINEDIDENTIFIER){
-		CQLChainedIdentifier *_cid =  ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
-		String tmp($3->getName().getString());
+              CQLChainedIdentifier *_cid =  ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
+              String tmp($3->getName().getString());
                 tmp.append("#").append(*$5);
                 CQLIdentifier _id1(tmp);
                 _cid->append(_id1);
-		_factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
-		$$ = $1;
-		delete $3; delete $5;
+                _factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
+                $$ = $1;
+                delete $3; delete $5;
             }else{
                 /* error */
 		String _msg("chain->chain.identifier#literal_string : chain state not CQLIDENTIFIER or CQLCHAINEDIDENTIFIER");
@@ -697,7 +695,7 @@ arith : term
 	     get term out of $1, get term out of $3, appendoperation, then construct predicate and forward it
 	    globalParserState->currentRule = "arith->arith PLUS term";
             printf("BISON::arith->arith PLUS term\n");
-            $1->appendOperation(plus, *$3);
+            $1->appendOperation(TERM_ADD, *$3);
             $$ = $1;
         }
       | arith MINUS term
@@ -705,7 +703,7 @@ arith : term
 	    get term out of $1, get term out of $3, appendoperation, then construct predicate and forward it 
 	    globalParserState->currentRule = "arith->arith MINUS term";
             printf("BISON::arith->arith MINUS term\n");
-	    $1->appendOperation(minus, *$3);
+	    $1->appendOperation(TERM_SUBTRACT, *$3);
             $$ = $1;
         }*/
 ;

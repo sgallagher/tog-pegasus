@@ -68,11 +68,11 @@ CQLValue CQLExpressionRep::resolveValue(const CIMInstance& CI, const QueryContex
     {
       switch(_TermOperators[i])
 	{/*
-	   case plus:
+	   case TERM_ADD:
 	   returnVal = returnVal + 
 	   _CQLTerms[i+1].resolveValue(CI,QueryCtx);
 	   break;
-	   case minus:
+	   case TERM_SUBTRACT:
 	   returnVal = returnVal - 
 	   _CQLTerms[i+1].resolveValue(CI,QueryCtx);
 	   break;
@@ -106,7 +106,7 @@ String CQLExpressionRep::toString()const
     returnStr.append(_CQLTerms[0].toString());
     for(Uint32 i = 0; i < _TermOperators.size(); ++i)
       {
-	returnStr.append(_TermOperators[i] == plus ? String(" + ") : String(" - "));
+	returnStr.append(_TermOperators[i] == TERM_ADD ? String(" + ") : String(" - "));
 	returnStr.append(_CQLTerms[i+1].toString());
       }
   }

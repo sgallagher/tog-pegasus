@@ -83,7 +83,7 @@ class PEGASUS_CQL_LINKAGE CQLExpressionRep
   /**  The _TermOperators member variable is an 
        array of operators that are valid to operate on Terms in a CQL
        expression. 
-       Valid operators include concatentation, plus and minus.
+       Valid operators include concatentation, add and subtract.
        
        The array is ordered according to the operation from left to right.
   */

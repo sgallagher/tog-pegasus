@@ -255,7 +255,7 @@ private:
 
     InheritanceTreeRep* _rep;
     
-    friend class InheritanceTreeNode;
+    friend struct InheritanceTreeNode;
 };
 
 /** The InvalidInheritanceTree exception is thrown when the

@@ -251,6 +251,34 @@ void CIMOperationResponseDecoder::_decodeCreateClassResponse(
     XmlParser& parser, 
     const String& messageId)
 {
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_outputQueue->enqueue(new CIMCreateClassResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack()));
+
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_outputQueue->enqueue(new CIMCreateClassResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack()));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
 }
 
 void CIMOperationResponseDecoder::_decodeGetClassResponse(
@@ -262,14 +290,12 @@ void CIMOperationResponseDecoder::_decodeGetClassResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	CIMGetClassResponseMessage* message = new CIMGetClassResponseMessage(
+	_outputQueue->enqueue(new CIMGetClassResponseMessage(
 	    messageId,
 	    code,
 	    description,
 	    QueueIdStack(),
-	    CIMClass());
-
-	_outputQueue->enqueue(message);
+	    CIMClass()));
     }
     else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
     {
@@ -280,12 +306,12 @@ void CIMOperationResponseDecoder::_decodeGetClassResponse(
 
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	CIMGetClassResponseMessage* message = new CIMGetClassResponseMessage(
+	_outputQueue->enqueue(new CIMGetClassResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
 	    QueueIdStack(),
-	    cimClass);
+	    cimClass));
     }
     else
     {
@@ -297,86 +323,635 @@ void CIMOperationResponseDecoder::_decodeGetClassResponse(
 void CIMOperationResponseDecoder::_decodeModifyClassResponse(
     XmlParser& parser, const String& messageId)
 {
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_outputQueue->enqueue(new CIMModifyClassResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack()));
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_outputQueue->enqueue(new CIMModifyClassResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack()));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
 }
 
 void CIMOperationResponseDecoder::_decodeEnumerateClassNamesResponse(
     XmlParser& parser, const String& messageId)
 {
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_outputQueue->enqueue(new CIMEnumerateClassNamesResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack(),
+	    Array<String>()));
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	Array<String> classNames;
+	String className;
+
+	while (XmlReader::getClassNameElement(parser, className, false))
+	    classNames.append(className);
+
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_outputQueue->enqueue(new CIMEnumerateClassNamesResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack(),
+	    classNames));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
 }
 
 void CIMOperationResponseDecoder::_decodeEnumerateClassesResponse(
     XmlParser& parser, const String& messageId)
 {
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_outputQueue->enqueue(new CIMEnumerateClassesResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack(),
+	    Array<CIMClass>()));
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	Array<CIMClass> cimClasses;
+	CIMClass cimClass;
+
+	while (XmlReader::getClassElement(parser, cimClass))
+	    cimClasses.append(cimClass);
+
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_outputQueue->enqueue(new CIMEnumerateClassesResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack(),
+	    cimClasses));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
 }
 
 void CIMOperationResponseDecoder::_decodeDeleteClassResponse(
     XmlParser& parser, const String& messageId)
 {
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_outputQueue->enqueue(new CIMDeleteClassResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack()));
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_outputQueue->enqueue(new CIMDeleteClassResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack()));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
 }
 
 void CIMOperationResponseDecoder::_decodeCreateInstanceResponse(
     XmlParser& parser, const String& messageId)
 {
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_outputQueue->enqueue(new CIMCreateInstanceResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack()));
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_outputQueue->enqueue(new CIMCreateInstanceResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack()));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
 }
 
 void CIMOperationResponseDecoder::_decodeGetInstanceResponse(
     XmlParser& parser, const String& messageId)
 {
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_outputQueue->enqueue(new CIMGetInstanceResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack(),
+	    CIMInstance()));
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	CIMInstance cimInstance;
+
+	if (!XmlReader::getInstanceElement(parser, cimInstance))
+	{
+	    throw XmlValidationError(
+		parser.getLine(), "expected INSTANCE element");
+	}
+
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_outputQueue->enqueue(new CIMGetInstanceResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack(),
+	    cimInstance));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
 }
 
 void CIMOperationResponseDecoder::_decodeModifyInstanceResponse(
     XmlParser& parser, const String& messageId)
 {
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_outputQueue->enqueue(new CIMModifyInstanceResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack()));
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_outputQueue->enqueue(new CIMModifyInstanceResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack()));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
 }
 
 void CIMOperationResponseDecoder::_decodeEnumerateInstanceNamesResponse(
     XmlParser& parser, const String& messageId)
 {
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_outputQueue->enqueue(new CIMEnumerateInstanceNamesResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack(),
+	    Array<CIMReference>()));
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	Array<CIMReference> instanceNames;
+	String className;
+	Array<KeyBinding> keyBindings;
+
+	while (XmlReader::getInstanceNameElement(
+	    parser, className, keyBindings))
+	{
+	    CIMReference r(
+		String::EMPTY,
+		String::EMPTY,
+		className,
+		keyBindings);
+	    instanceNames.append(r);
+	}
+
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_outputQueue->enqueue(new CIMEnumerateInstanceNamesResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack(),
+	    instanceNames));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
 }
 
 void CIMOperationResponseDecoder::_decodeDeleteInstanceResponse(
     XmlParser& parser, const String& messageId)
 {
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_outputQueue->enqueue(new CIMDeleteInstanceResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack()));
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_outputQueue->enqueue(new CIMDeleteInstanceResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack()));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
 }
 
 void CIMOperationResponseDecoder::_decodeSetQualifierResponse(
     XmlParser& parser, const String& messageId)
 {
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_outputQueue->enqueue(new CIMSetQualifierResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack()));
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_outputQueue->enqueue(new CIMSetQualifierResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack()));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
 }
 
 void CIMOperationResponseDecoder::_decodeGetQualifierResponse(
     XmlParser& parser, const String& messageId)
 {
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_outputQueue->enqueue(new CIMGetQualifierResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack(),
+	    CIMQualifierDecl()));
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	CIMQualifierDecl qualifierDecl;
+	XmlReader::getQualifierDeclElement(parser, qualifierDecl);
+
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_outputQueue->enqueue(new CIMGetQualifierResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack(),
+	    qualifierDecl));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
 }
 
 void CIMOperationResponseDecoder::_decodeEnumerateQualifiersResponse(
     XmlParser& parser, const String& messageId)
 {
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_outputQueue->enqueue(new CIMEnumerateQualifiersResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack(),
+	    Array<CIMQualifierDecl>()));
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	Array<CIMQualifierDecl> qualifierDecls;
+	CIMQualifierDecl qualifierDecl;
+
+	while (XmlReader::getQualifierDeclElement(parser, qualifierDecl))
+	    qualifierDecls.append(qualifierDecl);
+
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_outputQueue->enqueue(new CIMEnumerateQualifiersResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack(),
+	    qualifierDecls));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
 }
 
 void CIMOperationResponseDecoder::_decodeDeleteQualifierResponse(
     XmlParser& parser, const String& messageId)
 {
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_outputQueue->enqueue(new CIMDeleteQualifierResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack()));
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_outputQueue->enqueue(new CIMDeleteQualifierResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack()));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
 }
+
+//MEB:
 
 void CIMOperationResponseDecoder::_decodeReferenceNamesResponse(
     XmlParser& parser, const String& messageId)
 {
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_outputQueue->enqueue(new CIMReferenceNamesResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack(),
+	    Array<CIMReference>()));
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	CIMReference objectPath;
+	Array<CIMReference> objectPaths;
+
+	while (XmlReader::getObjectPathElement(parser, objectPath))
+	    objectPaths.append(objectPath);
+
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_outputQueue->enqueue(new CIMReferenceNamesResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack(),
+	    objectPaths));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
 }
 
 void CIMOperationResponseDecoder::_decodeReferencesResponse(
     XmlParser& parser, const String& messageId)
 {
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_outputQueue->enqueue(new CIMReferencesResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack(),
+	    Array<CIMObjectWithPath>()));
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	Array<CIMObjectWithPath> objectWithPathArray;
+	CIMObjectWithPath tmp;
+
+	while (XmlReader::getObjectWithPath(parser, tmp))
+	    objectWithPathArray.append(tmp);
+
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_outputQueue->enqueue(new CIMReferencesResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack(),
+	    objectWithPathArray));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
 }
 
 void CIMOperationResponseDecoder::_decodeAssociatorNamesResponse(
     XmlParser& parser, const String& messageId)
 {
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_outputQueue->enqueue(new CIMAssociatorNamesResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack(),
+	    Array<CIMReference>()));
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	CIMReference objectPath;
+	Array<CIMReference> objectPaths;
+
+	while (XmlReader::getObjectPathElement(parser, objectPath))
+	    objectPaths.append(objectPath);
+
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_outputQueue->enqueue(new CIMAssociatorNamesResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack(),
+	    objectPaths));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
 }
 
 void CIMOperationResponseDecoder::_decodeAssociatorsResponse(
     XmlParser& parser, const String& messageId)
 {
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_outputQueue->enqueue(new CIMAssociatorsResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack(),
+	    Array<CIMObjectWithPath>()));
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	Array<CIMObjectWithPath> objectWithPathArray;
+	CIMObjectWithPath tmp;
+
+	while (XmlReader::getObjectWithPath(parser, tmp))
+	    objectWithPathArray.append(tmp);
+
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_outputQueue->enqueue(new CIMAssociatorsResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack(),
+	    objectWithPathArray));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
 }
 
 PEGASUS_NAMESPACE_END

@@ -42,13 +42,18 @@ PEGASUS_NAMESPACE_BEGIN
 class CIMConstProperty;
 class CIMInstanceRep;
 
-/** CIMProperty Class - Defines a single CIM Property.
+/** CIMProperty Class - This C++ class implements the CIM Property 
+Object. It defines a single CIM Property and allows the manipulation of that 
+property. A CIM property is a value used to characterize an instance of a 
+class.
+ANNT: This is a very poor definition.
+ATTN: Define the property concept in more detail and ref property.
 */
-class PEGASUS_COMMON_LINKAGE CIMProperty
+ class PEGASUS_COMMON_LINKAGE CIMProperty
 {
 public:
 
-    /// CIMProperty
+    /// CIMProperty constructor
     CIMProperty() : _rep(0)
     {
 
@@ -60,9 +65,21 @@ public:
 	Inc(_rep = x._rep);
     }
 
-    /** CIMProperty
-	@return
-	Throws IllegalName if name argument not legal CIM identifier.
+    /** CIMProperty Constructor for CIMProperty that adds a number of 
+        parameters to the constructed CIMProperty object.
+        @param name String Name for the property 
+	@param value CIMValue defines the value for the property
+	@param arraySize (optional) - ATTN - TBD
+	@param referenceClassName (optional) String parameter that defines the 
+        reference class name for the property. /Ref{referenceClassName}
+        @param classOrigin (optional) String 
+        parameter to define the class origin of the property	
+        /Ref{ClassOrigin} 
+        @param propagated (optional) If true defines the property as 
+        propagated  /Ref{propagated properties}
+        @return	The constructed property object
+	@exception Throws "IllegalName" if name argumentis not legal a CIM 
+	name /Ref{CIMName}.
     */
     CIMProperty(
 	const String& name,
@@ -92,7 +109,13 @@ public:
 	return *this;
     }
 
-    /// getName
+    /** getName - Gets the name of the property.
+        @return String containing the property name.
+        <pre>
+        CIMProperty p1("count", Uint32(231));
+    	assert(p1.getName() == Uint32(231));
+    </pre>
+    */
     const String& getName() const
     {
 	_checkRep();
@@ -118,7 +141,12 @@ public:
 	return _rep->getValue();
     }
 
-    /// setValue - ATTN
+    /** setValue Sets the Value in the Property object from the input 
+        parameter.
+	@param value CIMValue containing the value to be put into the 
+        property. /Ref{CIMValue}
+     */
+
     void setValue(const CIMValue& value)
     {
 	_checkRep();
@@ -132,7 +160,7 @@ public:
 	return _rep->getArraySize();
     }
 
-    /**getReferenceClassName - ATTN:
+    /** getReferenceClassName - ATTN:
     */
     const String& getReferenceClassName() const
     {

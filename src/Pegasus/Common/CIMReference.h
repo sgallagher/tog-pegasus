@@ -55,7 +55,13 @@ public:
     /** Copy constructor */
     KeyBinding(const KeyBinding& x);
 
-    /** Construct a KeyBinding with a name, value, and type */
+    /** Construct a KeyBinding with a name, value, and type 
+        @param name String name for the key for this binding object.
+        @param value String value for this key.
+        @param type
+        <pre>
+        </pre>
+    */
     KeyBinding(const String& name, const String& value, Type type);
 
     /** Destructor */
@@ -64,7 +70,8 @@ public:
     /** Assignment operator */
     KeyBinding& operator=(const KeyBinding& x);
 
-    /** Accessor */
+    /** Accessor 
+    */
     const String& getName() const
     {
 	return _name;
@@ -500,13 +507,22 @@ public:
     */
     void setClassName(const String& className);
 
-    /** Accessor. */
+    /** getKeyBindings - Returns an Array of keybindings from the
+        CIMReference representing all of the key/value pairs defined in the
+	Reference.
+	@return Array of KeyBinding objects from the CIMReference.
+	ATTN 
+    */
     const Array<KeyBinding>& getKeyBindings() const
     {
 	return _keyBindings;
     }
 
-    /** Modifier. */
+    /** setkeyBindings - Sets the key/value pairs in the CIMReference
+        from an array of keybindings defined by the input parameter
+        @param keyBindings Array of keybindings to set into the CIMRefernece
+	object.
+    */
     void setKeyBindings(const Array<KeyBinding>& keyBindings);
 
     /** Returns the object name represented by this reference.

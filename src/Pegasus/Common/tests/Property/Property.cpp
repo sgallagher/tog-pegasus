@@ -45,6 +45,11 @@ int main()
     CIMConstProperty p2 = p1;
 
 
+    // Test name
+        String name;
+        name = p1.getName();
+        assert(name == "message");
+
     // Tests for Qualifiers
 	assert(p1.findQualifier("stuff") != PEG_NOT_FOUND);
 	assert(p1.findQualifier("stuff2") != PEG_NOT_FOUND);
@@ -68,6 +73,22 @@ int main()
 	assert(!p1.existsQualifier("stuff"));
 	assert(p1.existsQualifier("stuff2"));
 
+   // Tests for value insertion.
+   {
+           CIMProperty p1("p1", "Hi There");
+           // test for CIMValue and type
+           CIMProperty p2("p2", Uint32(999));
+           // test for CIMValue and type
+
+	   //Test getName and setName
+	   assert(p1.getName() == "p1");
+	   p1.setName("px");
+	   assert(p1.getName() == "px");
+
+	   // Test setValue and getValue
+
+
+   }
 
     cout << "+++++ passed all tests" << endl;
 

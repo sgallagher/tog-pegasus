@@ -520,17 +520,12 @@ public:
         return (!strncmp(key, _key, 16));
     }
 
-    Boolean operator==(const void* p)
+    Boolean operator==(const void* p) const
     {
         return ((void *)this == p);
     }
 
-    inline Boolean operator==(const ThreadPool & b) const
-    {
-        return (operator==(b._key));
-    }
-
-    Boolean operator==(const ThreadPool & p)
+    Boolean operator==(const ThreadPool & p) const
     {
         return operator==((const void *)&p);
     }

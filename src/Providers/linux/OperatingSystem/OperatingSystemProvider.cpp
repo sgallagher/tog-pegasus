@@ -429,7 +429,7 @@ static CIMDateTime time_t_to_CIMDateTime(time_t *time_to_represent)
 #endif
       strncat(date_ascii_rep, utc_offset, CIM_DATE_TIME_ASCII_LEN);
       dt = date_ascii_rep;
-      cout << "dt = " << dt << endl;
+      cout << "dt = " << dt.getString() << endl;
    }
 
    return dt;

@@ -460,7 +460,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
        Uint32 count = 0;
        while(count<contentLength)
        {
-	   if (!(String::isUTF8((char *)&content[count])))
+	   if (!(isUTF8((char *)&content[count])))
 	   {
 	   		//l10n
 	       //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",

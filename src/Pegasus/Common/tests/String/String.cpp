@@ -320,7 +320,7 @@ int main(int argc, char** argv)
 	Uint32 size = sizeof(utf8chr);
 	while(count<size)
 	{
-	  	assert(String::isUTF8(&utf8chr[count]) == true);
+	  	assert(isUTF8(&utf8chr[count]) == true);
 	   	UTF8_NEXT(utf8chr,count);
        	}
 
@@ -328,9 +328,49 @@ int main(int argc, char** argv)
 	size = sizeof(utf8bad);
 	while(count<size)
 	{
-	  	assert(String::isUTF8(&utf8bad[count]) == false);
+	  	assert(isUTF8(&utf8bad[count]) == false);
 	   	UTF8_NEXT(utf8bad,count);
        	}    
+        String little("the quick brown fox jumped over the lazy dog"); 
+        String    big("THE QUICK BROWN FOX JUMPED OVER THE LAZY DOG");
+
+	String tmpBig = big;
+	String tmpLittle = little;
+
+	tmpBig.toLower(ENGLISH_US);
+	assert(tmpBig == little);
+
+	tmpBig.toUpper();	
+	assert(tmpBig == big);
+
+	Char16 utf16Chars[] =
+        {
+        0x6A19,	0x6E96,	0x842C, 0x570B,	0x78BC,
+        0x042E, 0x043D, 0x0438, 0x043A, 0x043E, 0x0434,
+        0x110B, 0x1172, 0x1102, 0x1165, 0x110F, 0x1169, 0x11AE, 
+        0x10E3, 0x10DC, 0x10D8, 0x10D9, 0x10DD, 0x10D3, 0x10D8,
+	0xdbc0,	0xdc01, 
+        0x05D9, 0x05D5, 0x05E0, 0x05D9, 0x05E7, 0x05D0, 0x05B8, 0x05D3,
+        0x064A, 0x0648, 0x0646, 0x0650, 0x0643, 0x0648, 0x062F,
+        0x092F, 0x0942, 0x0928, 0x093F, 0x0915, 0x094B, 0x0921,
+        0x016A, 0x006E, 0x012D, 0x0063, 0x014D, 0x0064, 0x0065, 0x033D,
+        0x00E0, 0x248B, 0x0061, 0x2173, 0x0062, 0x1EA6, 0xFF21, 0x00AA, 0x0325, 0x2173, 0x249C, 0x0063,
+        0x02C8, 0x006A, 0x0075, 0x006E, 0x026A, 0x02CC, 0x006B, 0x006F, 0x02D0, 0x0064,
+        0x30E6, 0x30CB, 0x30B3, 0x30FC, 0x30C9, 
+        0xFF95, 0xFF86, 0xFF7A, 0xFF70, 0xFF84, 0xFF9E, 
+        0xC720, 0xB2C8, 0xCF5B, 0x7D71, 0x4E00, 0x78BC,
+	0xdbc0,	0xdc01,
+        0x00};
+
+	String ugly(utf16Chars);
+	assert(ugly == utf16Chars);
+
+	ugly.toLower("zh_CN");
+	assert(ugly != utf16Chars);
+
+	ugly.toUpper("zh_CN");
+	assert(ugly != utf16Chars);
+ 
     }
                              
 #if 0

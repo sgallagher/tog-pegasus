@@ -494,7 +494,7 @@ inline void _xmlWritter_encodeURIChar(String& outString, Sint8 char8)
     Uint8 c = (Uint8)char8;
     
 #ifndef PEGASUS_DO_NOT_IMPLEMENT_URI_ENCODING
-    if ( ((c <= 0x20) && (c >= 0x00)) ||    // Control characters + space char
+    if ( (c <= 0x20) ||                     // Control characters + space char
          ( (c >= 0x22) && (c <= 0x26) ) ||  // '"' '#' '$' '%' '&'
          (c == 0x2b) ||                     // '+'
          (c == 0x2c) ||                     // ','
@@ -503,7 +503,6 @@ inline void _xmlWritter_encodeURIChar(String& outString, Sint8 char8)
          ( (c >= 0x5b) && (c <= 0x5e) ) ||  // '[' '\\' ']' '^'
          (c == 0x60) ||                     // '`'
          ( (c >= 0x7b) && (c <= 0x7d) ) ||  // '{' '|' '}'
-//       (c == 0x7f) )                      // Control character
          (c >= 0x7f) )                      // Control character or non US-ASCII (UTF-8)
     {
         char hexencoding[4];

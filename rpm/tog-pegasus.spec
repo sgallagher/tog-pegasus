@@ -66,6 +66,7 @@ build WBEM Clients and Providers. It also supports C provider developers via the
 %prep
 [ "$RPM_BUILD_ROOT" != "/" ] && [ -d $RPM_BUILD_ROOT ] && rm -rf $RPM_BUILD_ROOT;
 
+%setup -n %{name}-%{version}
 export PEGASUS_ROOT=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 
 # Needed for CMPI patch
@@ -74,7 +75,6 @@ ln -s $RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION $RPM_BUILD_DIR/$RPM_
 %build
 export PEGASUS_EXTRA_C_FLAGS="-g $RPM_OPT_FLAGS"
 export PEGASUS_EXTRA_CXX_FLAGS="$PEGASUS_EXTRA_C_FLAGS"
-export PEGASUS_EXTRA_LINK_FLAGS="-pie"
 export PEGASUS_ROOT=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 export PEGASUS_HOME=$RPM_BUILD_ROOT/usr/pegasus
 %ifarch ia64 x86_64

@@ -1922,7 +1922,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
        PEG_METHOD_EXIT();
        return;
    }
-   /*******************8 Come here if there is nothing to send.
    else if (_repository->isDefaultInstanceProvider())
    {
       CIMException cimException;
@@ -1971,7 +1970,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
       _enqueueResponse(request, response);
    }
-   *********************************************/
    else // No provider is registered and the repository isn't the default
    {
        //cout << "KSTEST nothing registered" << endl;

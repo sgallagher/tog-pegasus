@@ -49,6 +49,8 @@
 
 #ifdef PEGASUS_OS_OS400
 #include "qycmutiltyUtility.H"
+#include "vfyptrs.cinc"
+#include <stdio.h>
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
@@ -182,6 +184,13 @@ static const char   OPTION_GET                 = 'g';
 */
 static const char   OPTION_SET                 = 's';
 
+#ifdef PEGASUS_OS_OS400
+/**
+    The option character used to specify no output to stdout or stderr.
+*/
+     static const char OPTION_QUIET      = 'q';
+#endif
+
 /**
     The option character used to specify unset config property.
 */
@@ -249,6 +258,10 @@ CIMConfigCommand::CIMConfigCommand ()
     usage.append("                 -").append(OPTION_LIST);
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
     usage.append(" | -").append(OPTION_PLANNED_VALUE).append(" ]\n");
+#ifdef PEGASUS_OS_OS400
+    usage.append("                 -").append(OPTION_QUIET);
+    usage.append("\n");
+#endif
 
     setUsage (usage);
 }
@@ -280,6 +293,10 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
     optString.append(OPTION_UNSET);
     optString.append(GETOPT_ARGUMENT_DESIGNATOR);
 
+#ifdef PEGASUS_OS_OS400
+    optString.append(OPTION_QUIET);
+#endif
+
     optString.append(OPTION_LIST);
     optString.append(OPTION_CURRENT_VALUE);
     optString.append(OPTION_PLANNED_VALUE);
@@ -300,6 +317,21 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
     }
     
     _operationType = OPERATION_TYPE_UNINITIALIZED;
+
+     #ifdef PEGASUS_OS_OS400
+      // check for quiet option before processing the rest of the options
+     for (i =  options.first (); i <  options.last (); i++)
+     {
+        c = options [i].getopt () [0];
+	if( c == OPTION_QUIET )
+	{
+	   // Redirect to /dev/null.
+           // Works for both qshell and native modes.
+           freopen("/dev/null","w",stdout);
+           freopen("/dev/null","w",stderr);
+	}
+     }
+     #endif
 
     //
     //  Get options and arguments from the command line
@@ -331,7 +363,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
             c = options [i].getopt () [0];
 
             switch (c) 
-            {
+	    {
                 case OPTION_GET: 
                 {
                     if (_operationType != OPERATION_TYPE_UNINITIALIZED)
@@ -1313,12 +1345,25 @@ int main (int argc, char* argv [])
 {
     CIMConfigCommand*    command;
     Uint32               returnCode;
+    
 
 #ifdef PEGASUS_OS_OS400
+
+  VFYPTRS_INCDCL;               // VFYPTRS local variables 
+
+  // verify pointers
+  #pragma exception_handler (qsyvp_excp_hndlr,qsyvp_excp_comm_area,\
+    0,_C2_MH_ESCAPE)
+      for( int arg_index = 1; arg_index < argc; arg_index++ ){
+	  VFYPTRS(VERIFY_SPP_NULL(argv[arg_index]));
+      }
+  #pragma disable_handler 
+
     if(FALSE == ycmCheckCmdAuthorities())
     { 
       return -9;
     }
+      
 #endif
 
     command  = new CIMConfigCommand ();

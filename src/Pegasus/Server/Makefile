@@ -57,7 +57,9 @@ SOURCES = \
     CIMServerState.cpp \
     ProviderMessageFacade.cpp \
     BinaryMessageHandler.cpp \
-    reg_table.cpp
+    reg_table.cpp \
+    QuerySupportRouter.cpp \
+    WQLOperationRequestDispatcher.cpp 
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

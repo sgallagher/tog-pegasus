@@ -36,6 +36,7 @@
 //                  (sushma_fernandes@hp.com)
 //              Chip Vincent (cvincent@us.ibm.com)
 //              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              Adrian Schuur (schuur@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -70,7 +71,7 @@
    #define TYPE_CLASS       3
    #define TYPE_METHOD      4
    #define TYPE_ASSOCIATION 5
-   #define TYPE_QUERY       6
+   #define TYPE_QUERY       7
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -669,6 +670,28 @@ public:
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
     : CIMOperationRequestMessage(CIM_EXEC_QUERY_REQUEST_MESSAGE, messageId_, queueIds_,
          nameSpace_,CIMName(),
+	 contentLanguages_, acceptLanguages_,
+	 TYPE_QUERY),
+        queryLanguage(queryLanguage_),
+        query(query_),
+        authType(authType_),
+        userName(userName_)
+    {
+    }
+
+    CIMExecQueryRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+	const CIMName className,
+        const String& queryLanguage_,
+        const String& query_,
+        QueueIdStack queueIds_,
+        const String& authType_ = String::EMPTY,
+        const String& userName_ = String::EMPTY,
+	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
+	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
+    : CIMOperationRequestMessage(CIM_EXEC_QUERY_REQUEST_MESSAGE, messageId_, queueIds_,
+         nameSpace_,className,
 	 contentLanguages_, acceptLanguages_,
 	 TYPE_QUERY),
         queryLanguage(queryLanguage_),

@@ -38,11 +38,13 @@
 #include "CMPI_Ftabs.h"
 
 #include <Pegasus/Common/OperationContext.h>
+#include <Pegasus/WQL/WQLSelectStatement.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 struct CMPI_SelectExp : CMPISelectExp {
    CMPI_SelectExp(const OperationContext& ct, String cond_, String lang_);
+   CMPI_SelectExp(WQLSelectStatement*);
    CMPI_Object *next,*prev;
    const char **props;
    Array<CIMObjectPath> classNames;
@@ -51,6 +53,7 @@ struct CMPI_SelectExp : CMPISelectExp {
    String cond,lang;
    CMPI_Wql2Dnf *dnf;
    Tableau* tableau;
+   WQLSelectStatement* stmt;
 };
 
 PEGASUS_NAMESPACE_END

@@ -216,6 +216,7 @@ ProviderName ProviderRegistrar::findProvider(const ProviderName & providerName)
     CIMInstance provider;
     CIMInstance providerModule;
     ProviderName temp;
+    Boolean hasNoQuery;
    
    switch (flags) {
        case 2: //ProviderType::INSTANCE
@@ -242,6 +243,19 @@ ProviderName ProviderRegistrar::findProvider(const ProviderName & providerName)
 	            providerModule.getProperty(providerModule.findProperty
                        ("InterfaceType")).getValue().toString(),
 		    ProviderType::ASSOCIATION);
+          }
+          break;
+       case 7: //ProviderType::QUERY
+          if (_prm->lookupInstanceProvider(objectName.getNameSpace(),objectName.getClassName(),
+                provider,providerModule,0,&hasNoQuery)) {
+	      return ProviderName(providerName.getObjectName(),
+	            provider.getProperty(providerModule.findProperty
+                       ("Name")).getValue ().toString (),
+		    providerModule.getProperty(providerModule.findProperty
+                       ("Location")).getValue().toString(),
+	            providerModule.getProperty(providerModule.findProperty
+                       ("InterfaceType")).getValue().toString(),
+		    ProviderType::INSTANCE);
           }
           break;
        default:

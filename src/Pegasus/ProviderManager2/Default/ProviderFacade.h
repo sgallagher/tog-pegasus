@@ -38,12 +38,12 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Provider/CIMProvider.h>
-#include <Pegasus/Provider/CIMInstanceProvider.h>
+#include <Pegasus/Provider/CIMInstanceQueryProvider.h>
 #include <Pegasus/Provider/CIMClassProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
 #include <Pegasus/Provider/CIMPropertyProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
-#include <Pegasus/Provider/CIMQueryProvider.h>
+//#include <Pegasus/Provider/CIMQueryProvider.h>
 #include <Pegasus/Provider/CIMIndicationProvider.h>
 #include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
 #include <Pegasus/Server/Linkage.h>
@@ -56,12 +56,12 @@ PEGASUS_NAMESPACE_BEGIN
 // method supported by a "real" provider, it can be placed inside a reliable
 // facade with a known interface.
 class PEGASUS_SERVER_LINKAGE ProviderFacade :
-    public CIMInstanceProvider,
+    public CIMInstanceQueryProvider,
     public CIMClassProvider,
     public CIMAssociationProvider,
     public CIMPropertyProvider,
     public CIMMethodProvider,
-    public CIMQueryProvider,
+//    public CIMQueryProvider,
     public CIMIndicationProvider,
     public CIMIndicationConsumerProvider
 {
@@ -113,6 +113,12 @@ public:
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
         ResponseHandler & handler);
+
+    virtual void execQuery(
+        const OperationContext & context,
+        const CIMObjectPath & nameSpaceAndClass,
+        const QueryExpression & query,
+        InstanceResponseHandler & handler);
 
     // CIMClassProvider interface
     virtual void getClass(
@@ -216,14 +222,6 @@ public:
         const CIMName & methodName,
         const Array<CIMParamValue> & inParameters,
         MethodResultResponseHandler & handler);
-
-    // CIMQueryProvider interface
-    virtual void executeQuery(
-        const OperationContext & context,
-        const CIMNamespaceName & nameSpace,
-        const String & queryLanguage,
-        const String & query,
-        ObjectResponseHandler & handler);
 
     // CIMIndicationProvider interface
     virtual void enableIndications(

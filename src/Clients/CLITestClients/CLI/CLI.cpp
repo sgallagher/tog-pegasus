@@ -28,6 +28,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Adrian Schuur (schuur@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -199,6 +200,7 @@ int main(int argc, char** argv)
 		opts.time = false;
 		opts.termCondition = 0;
 		opts.debug = false;
+		opts.queryLanguage = "WQL";
 
 		CheckCommonOptionValues(om, argv, opts);
 
@@ -509,7 +511,11 @@ int main(int argc, char** argv)
                 case ID_ShowOptions :
                     showCommands();
                     break;
-
+                case ID_ExecQuery:
+		    opts.query = argv[2];
+                    if (argc==4) opts.queryLanguage = argv[3];
+                    executeQuery(client, opts);
+		    break; 
                 //case ID_Unknown :
                 default:
                     cout << "Invalid Command. Command name must be first parm or --c parameter."

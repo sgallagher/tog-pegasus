@@ -1122,6 +1122,24 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
   #define CMEvaluateSelExp(s,i,r)        ((s)->ft->evaluate((s),(i),(r)))
 #endif
 
+#if defined(CMPI_VER_87)
+#ifdef CMPI_INLINE
+       /** Evaluate this select expression by using a data value accessor routine. .
+	 @param se SelectExp this pointer.
+	 @param accessor Data accessor routine to be used.
+	 @param parm Data accessor parameter.
+	 @param rc Output: Service return status (suppressed when NULL).
+	 @return True or false incicator.
+      */
+   inline static   CMPIBoolean CMEvaluateSelExpUsingAccessor
+              (CMPISelectExp* se, CMPIAccessor* accessor, void *parm, CMPIStatus* rc)
+	{ return ((se)->ft->evaluateUsingAccessor((se),(inst),(rc))); }
+#else
+  #define CMEvaluateSelExpUsingAccessor(s,i,p,r) \
+                            ((s)->ft->evaluateUsingAccessor((s),(i),(p),(r)))
+#endif
+#endif
+
 #ifdef CMPI_INLINE
        /** Return the select expression as disjunction of conjunctions.
 	 @param se SelectExp this pointer.

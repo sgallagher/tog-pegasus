@@ -125,6 +125,8 @@ static Boolean _Evaluate(
     return false;
 }
 
+const WQLSelectStatement WQLSelectStatement::EMPTY=WQLSelectStatement();
+
 WQLSelectStatement::WQLSelectStatement()
 {
     //
@@ -374,6 +376,34 @@ Boolean WQLSelectStatement::evaluateWhereClause(
 
     PEGASUS_ASSERT(stack.size() == 1);
     return stack.top();
+}
+
+void WQLSelectStatement::applyProjection(CIMInstance& ci) 
+{
+   if (_allProperties) return;
+
+   for (int i=ci.getPropertyCount(); i!=0; i--) {
+      CIMName pn=ci.getProperty(i-1).getName();
+      for (int ii=0,mm=_selectPropertyNames.size(); ii<mm; ii++) {
+         if (_selectPropertyNames[ii]==pn) break;
+	 ci.removeProperty(i-1);
+	 break;
+      }	 
+   }
+}
+
+void WQLSelectStatement::applyProjection(CIMObject& ci) 
+{
+   if (_allProperties) return;
+ 
+   for (int i=ci.getPropertyCount(); i!=0; i--) {
+      CIMName pn=ci.getProperty(i-1).getName();
+      for (int ii=0,mm=_selectPropertyNames.size(); ii<mm; ii++) {
+         if (_selectPropertyNames[ii]==pn) break;
+	 ci.removeProperty(i-1);
+	 break;
+      }	 
+   }
 }
 
 void WQLSelectStatement::print() const

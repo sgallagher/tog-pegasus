@@ -91,6 +91,8 @@ SOURCES = \
     OptionManager.cpp \
     pegasus_socket.cpp \
     Pair.cpp \
+    QueryExpression.cpp \
+    QueryExpressionRep.cpp \
     Queue.cpp \
     Resolver.cpp \
     ResponseHandler.cpp \

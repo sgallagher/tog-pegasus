@@ -43,6 +43,9 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 
+#include <Pegasus/Common/QueryExpression.h>
+#include <Pegasus/ProviderManager2/QueryExpressionFactory.h>
+
 #include <Pegasus/Config/ConfigManager.h>
 
 #include <Pegasus/ProviderManager2/Default/Provider.h>
@@ -125,7 +128,7 @@ Message * DefaultProviderManager::processMessage(Message * request) throw()
 
         break;
     case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-        response = handleExecuteQueryRequest(request);
+        response = handleExecQueryRequest(request);
 
         break;
     case CIM_ASSOCIATORS_REQUEST_MESSAGE:
@@ -376,8 +379,8 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
         name = _resolveProviderName(name);
 
         // get cached or load new provider module
-        OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+        OpProviderHolder ph = providerManager.getProvider(name.getPhysicalName(),
+	        name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -866,22 +869,19 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
     return(response);
 }
 
-Message * DefaultProviderManager::handleExecuteQueryRequest(const Message * message) throw()
+Message * DefaultProviderManager::handleExecQueryRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleExecuteQueryRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleExecQueryRequest");
 
     CIMExecQueryRequestMessage * request =
         dynamic_cast<CIMExecQueryRequestMessage *>(const_cast<Message *>(message));
 
     PEGASUS_ASSERT(request != 0);
 
-    //l10n
     CIMExecQueryResponseMessage * response =
         new CIMExecQueryResponseMessage(
         request->messageId,
-        PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-        "ProviderManager.DefaultProviderManager.NOT_IMPLEMENTED",
-        "not implemented")),
+        CIMException(),
         request->queueIds.copyAndPop(),
         Array<CIMObject>());
 
@@ -891,11 +891,96 @@ Message * DefaultProviderManager::handleExecuteQueryRequest(const Message * mess
     response->setKey(request->getKey());
 
     //  Set HTTP method in response from request
-    response->setHttpMethod(request->getHttpMethod());
+    response->setHttpMethod (request->getHttpMethod ());
 
-    // l10n
-    // ATTN: when this is implemented, need to add the language containers to the
-    // OperationContext.  See how the other requests do it.
+    // create a handler for this request
+    ExecQueryResponseHandler handler(request, response);
+
+    try
+    {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "DefaultProviderManager::handleExecQueryRequest - Host name: $0  Name space: $1  Class name: $2",
+            System::getHostName(),
+            request->nameSpace.getString(),
+            request->className.getString());
+
+        // make target object path
+        CIMObjectPath objectPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->className);
+
+        ProviderName name(
+            objectPath.toString(),
+            String::EMPTY,
+            String::EMPTY,
+            String::EMPTY,
+            ProviderType::QUERY);
+
+        // resolve provider name
+        name = _resolveProviderName(name);
+
+        // get cached or load new provider module
+        OpProviderHolder ph =
+            providerManager.getProvider(name.getPhysicalName(),
+	                                name.getLogicalName(), String::EMPTY);
+
+        if (dynamic_cast<CIMInstanceQueryProvider*>(ph.GetCIMProvider()) == 0) {
+           String errorString = " instance provider is registered supporting execQuery "
+	                        "but is not a CIMQueryInstanceProvider subclass.";
+           throw CIMException(CIM_ERR_FAILED,"ProviderLoadFailure (" + name.getPhysicalName() + ":" +
+	                    name.getLogicalName() + "):" + errorString);
+        }
+
+        // convert arguments
+        OperationContext context;
+
+        context.insert(IdentityContainer(request->userName));
+        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+        context.insert(ContentLanguageListContainer(request->contentLanguages));
+
+	QueryExpression qx(QueryExpressionFactory::routeBuildQueryExpressionRep
+	    (request->queryLanguage,request->query));
+
+        // forward request
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Calling provider.executeQueryRequest: " +
+            ph.GetProvider().getName());
+
+        pm_service_op_lock op_lock(&ph.GetProvider());
+
+        STAT_GETSTARTTIME;
+
+        ph.GetProvider().execQuery(
+            context,
+            objectPath,
+            qx,
+            handler);
+
+        STAT_PMS_PROVIDEREND;
+    }
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(Exception & e)
+    {
+	   cout<<"--- exception not a CIMInstanceQueryProvider"<<endl;
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: Unknown");
+
+        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+    }
 
     PEG_METHOD_EXIT();
 

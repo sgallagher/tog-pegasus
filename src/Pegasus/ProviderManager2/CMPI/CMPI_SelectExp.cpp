@@ -29,12 +29,15 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#define CMPI_VER_86 1
+#include "CMPI_Version.h"
 
 #include "CMPI_SelectExp.h"
 #include "CMPI_Ftabs.h"
 #include "CMPI_Value.h"
 #include "CMPI_String.h"
+#include "CMPI_SelectExpAccessor.h"
+
+#include <Pegasus/WQL/WQLInstancePropertySource.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -49,8 +52,31 @@ static CMPISelectExp* selxClone(CMPISelectExp* eSx, CMPIStatus* rc) {
 }
 
 static CMPIBoolean selxEvaluate(CMPISelectExp* eSx, CMPIInstance* inst, CMPIStatus* rc) {
+   CMPI_SelectExp *sx=(CMPI_SelectExp*)eSx;
+   WQLInstancePropertySource ips(*(CIMInstance*)inst->hdl);
+   try {
+      return sx->stmt->evaluateWhereClause(&ips);
+   }
+   catch (...) {
+      return false;
+   }
       return false;
 }
+
+#ifdef CMPI_VER_87
+static CMPIBoolean selxEvaluateUsingAccessor(CMPISelectExp* eSx,
+            CMPIAccessor* accessor, void *parm, CMPIStatus* rc) {
+   CMPI_SelectExp *sx=(CMPI_SelectExp*)eSx;
+   CMPI_SelectExpAccessor ips(accessor,parm);
+   try {
+      return sx->stmt->evaluateWhereClause(&ips);
+   }
+   catch (...) {
+      return false;
+   }
+   return false;
+}
+#endif
 
 static CMPIString* selxGetString(CMPISelectExp* eSx, CMPIStatus* rc) {
    CMPI_SelectExp *sx=(CMPI_SelectExp*)eSx;
@@ -80,6 +106,9 @@ static CMPISelectExpFT selx_FT={
      selxGetString,
      selxGetDOC,
      NULL  //selxGetCOD
+#ifdef CMPI_VER_87
+     ,selxEvaluateUsingAccessor
+#endif
 };
 
 CMPISelectExpFT *CMPI_SelectExp_Ftab=&selx_FT;
@@ -89,6 +118,18 @@ CMPI_SelectExp::CMPI_SelectExp(const OperationContext& ct, String cond_, String 
    props=NULL;
    ft=CMPI_SelectExp_Ftab;
    dnf=NULL;
+   stmt=NULL;
+   tableau=NULL;
+}
+
+CMPI_SelectExp::CMPI_SelectExp(WQLSelectStatement* st)
+  : ctx(OperationContext()), stmt(st) {
+   CMPI_ThreadContext::addObject((CMPI_Object*)this);
+   hdl=NULL;
+   ft=CMPI_SelectExp_Ftab;
+   props=NULL;
+   dnf=NULL;
+   tableau=NULL;
 }
 
 PEGASUS_NAMESPACE_END

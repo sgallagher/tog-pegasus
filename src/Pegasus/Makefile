@@ -13,6 +13,7 @@ DIRS = \
     Compiler/load \
     Compiler/cmdline \
     ExportClient \
+    WQL \
     Provider \
     Server/ProviderRegistrationManager \
     ExportServer \
@@ -23,7 +24,6 @@ DIRS = \
     ControlProviders/UserAuthProvider \
     ControlProviders/ProviderRegistrationProvider \
     ControlProviders/NamespaceProvider \
-    WQL \
     HandlerService \
     IndicationService
 

@@ -37,6 +37,8 @@
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMPropertyList.h>
+#include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/WQL/WQLOperation.h>
 #include <Pegasus/WQL/WQLOperand.h>
 #include <Pegasus/WQL/WQLPropertySource.h>
@@ -191,10 +193,16 @@ public:
     */
     Boolean evaluateWhereClause(const WQLPropertySource* source) const;
 
+    /** Inspect an instance and remove properties not listed in Select projection.
+    */
+    void applyProjection(CIMInstance& inst);
+    void applyProjection(CIMObject& inst);
+    
     /** Prints out the members of this class.
     */
     void print() const;
 
+    static const WQLSelectStatement EMPTY;
 private:
 
     //

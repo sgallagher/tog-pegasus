@@ -13,7 +13,8 @@ LIBRARY = pegprovidermanager
 LIBRARIES = \
     pegcommon \
 	pegprm \
-        pegconfig
+        pegconfig \
+	pegwql
 
 SOURCES = \
 	ProviderManagerService.cpp \
@@ -21,9 +22,9 @@ SOURCES = \
 	\
 	ProviderManager.cpp \
 	ProviderRegistrar.cpp \
-	ProviderRegistrarInitializer.cpp \
 	ProviderName.cpp \
 	ProviderType.cpp \
+	QueryExpressionFactory.cpp \
 	\
 	SafeQueue.cpp \
 	Lockable.cpp

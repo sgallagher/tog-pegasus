@@ -29,6 +29,7 @@
 //                  (carolann_graves@hp.com)
 //              Dave Rosckes (rosckes@us.ibm.com)
 //		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//		Adrian Schuur (schuur@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -279,6 +280,32 @@ public:
     }
 
 };
+
+class ExecQueryResponseHandler : public OperationResponseHandler, public SimpleInstance2ObjectResponseHandler
+{
+public:
+    ExecQueryResponseHandler(
+        CIMExecQueryRequestMessage * request,
+        CIMExecQueryResponseMessage * response)
+    : OperationResponseHandler(request, response)
+    {
+    }
+
+    virtual void complete()
+    {
+    	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    		    "OperationResponseHandler: complete()");
+
+        static_cast<CIMExecQueryResponseMessage *>(
+            getResponse())->cimObjects = getObjects();
+  
+	// l10n
+	getResponse()->contentLanguages = getLanguages();
+    }
+
+};
+
+
 class AssociatorsResponseHandler : public OperationResponseHandler, public SimpleObjectResponseHandler
 {
 public:
@@ -302,7 +329,6 @@ public:
     }
 
 };
-
 
 class AssociatorNamesResponseHandler : public OperationResponseHandler, public SimpleObjectPathResponseHandler
 {

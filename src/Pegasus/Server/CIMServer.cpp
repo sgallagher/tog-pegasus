@@ -115,6 +115,7 @@ void shutdownSignalHandler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
     PEG_METHOD_EXIT();
 }
 
+CIMServer *CIMServer::thisServer=NULL;
 
 void CIMServer::shutdownSignal()
 {
@@ -180,6 +181,7 @@ void CIMServer::_init(void)
 #endif
 
     _repository = new CIMRepository(repositoryRootPath);
+    thisServer=this;
 
     // -- Create a UserManager object:
 

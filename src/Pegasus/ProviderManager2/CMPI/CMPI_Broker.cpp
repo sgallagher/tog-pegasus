@@ -29,7 +29,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#define CMPI_VER_86 1
+#include "CMPI_Version.h"
 
 #include "CMPI_Broker.h"
 #include "CMPI_Object.h"

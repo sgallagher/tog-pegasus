@@ -32,7 +32,7 @@
 #include "ProviderType.h"
 
 PEGASUS_NAMESPACE_BEGIN
-
+/*
 const Uint32 ProviderType::INSTANCE = 0x00000002;
 const Uint32 ProviderType::CLASS = 0x00000003;
 const Uint32 ProviderType::METHOD = 0x00000004;
@@ -40,6 +40,13 @@ const Uint32 ProviderType::ASSOCIATION = 0x00000005;
 const Uint32 ProviderType::QUERY = 0x00000006;
 const Uint32 ProviderType::INDICATION = 0x00000007;
 const Uint32 ProviderType::CONSUMER = 0x00000008;
-
+*/
+const Uint32 ProviderType::INSTANCE = 0x00000002;
+const Uint32 ProviderType::CLASS = 0x00000001;
+const Uint32 ProviderType::METHOD = 0x00000005;
+const Uint32 ProviderType::ASSOCIATION = 0x00000003;
+const Uint32 ProviderType::QUERY = 0x00000007;
+const Uint32 ProviderType::INDICATION = 0x00000004;
+const Uint32 ProviderType::CONSUMER = 0x00000008;
 
 PEGASUS_NAMESPACE_END

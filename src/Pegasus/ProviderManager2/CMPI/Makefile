@@ -43,6 +43,7 @@ SOURCES = \
         CMPI_SelectExp.cpp \
         CMPI_SelectCond.cpp \
         CMPI_SubCond.cpp \
-        CMPI_Predicate.cpp
+        CMPI_Predicate.cpp \
+        CMPI_SelectExpAccessor.cpp
 
 include $(ROOT)/mak/library.mak

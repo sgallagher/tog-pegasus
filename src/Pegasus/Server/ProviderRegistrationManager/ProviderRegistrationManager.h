@@ -29,6 +29,7 @@
 //                  (carolann_graves@hp.com)
 //              Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Adrian Schuur (schuur@de.ibm.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -165,6 +166,11 @@ static const char IND_PROVIDER [] = "Indication";
 /**
    Registered Method provider 
 */
+static const char INSTANCE_QUERY_PROVIDER [] = "InstanceQuery";
+
+/**
+   Registered Method provider 
+*/
 static const char MET_PROVIDER [] = "Method";
 
 /**
@@ -202,6 +208,11 @@ static const Uint16 _INDICATION_PROVIDER    = 4;
 static const Uint16 _METHOD_PROVIDER    = 5;
 
 /**
+   Registered method provider type
+*/
+static const Uint16 _INSTANCE_QUERY_PROVIDER    = 7;
+
+/**
    Provider status
 */
 static const Uint16 _PROVIDER_OK        = 2;
@@ -228,7 +239,8 @@ public:
 		const CIMName & className,
 	    CIMInstance & provider, 
 		CIMInstance & providerModule,
-        Boolean is_assoc = false); 
+        Boolean is_assoc = false,
+	Boolean * has_no_query = NULL);
 
 	Boolean lookupMethodProvider(
 		const CIMNamespaceName & nameSpace, 

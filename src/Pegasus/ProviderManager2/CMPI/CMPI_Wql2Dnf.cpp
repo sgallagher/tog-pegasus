@@ -30,7 +30,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-#define CMPI_VER_86 1
+#include "CMPI_Version.h"
 
 //#include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Stack.h>

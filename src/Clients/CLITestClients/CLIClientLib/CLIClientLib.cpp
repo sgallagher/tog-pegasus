@@ -27,6 +27,7 @@
 //          Mary Hinton (m.hinton@verizon.net)
 //
 // Modified By:  Amit K Arora (amita@in.ibm.com) for Bug# 1081 (mofFormat())
+//               Adrian Schuur (schuur@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/Common/Config.h>
@@ -469,6 +470,41 @@ int enumerateInstances(CIMClient& client, Options& opts)
             CIMInstance instance = instances[i];
             // Check Output Format to print results
             OutputFormatInstance(opts.outputType, instance);
+        }
+    }
+    return 0;
+}
+
+int executeQuery(CIMClient& client, Options& opts)
+{
+    if (opts.verboseTest)
+    {
+        cout << "ExecQuery "
+			<< "Namespace = " << opts.nameSpace
+			<< ", queryLanguage = " << opts.queryLanguage
+			<< ", query = " << opts.query
+            << endl;
+    }
+    
+    Array<CIMObject> objects; 
+    if (opts.time) opts.elapsedTime.reset();
+    objects = client.execQuery( opts.nameSpace,
+                                opts.queryLanguage,
+                                opts.query );
+    
+    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
+    
+    if (opts.summary)
+    {
+      String s = "instances of class";
+        _displaySummary(objects.size(), s, opts.className.getString(),opts);    
+    }
+    else
+    {
+        // Output the returned instances
+        for (Uint32 i = 0; i < objects.size(); i++)
+        {
+            OutputFormatObject(opts.outputType, objects[i]);
         }
     }
     return 0;

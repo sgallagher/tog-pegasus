@@ -15,7 +15,8 @@ LIBRARIES = \
 	pegprovider \
 	pegprovidermanager \
 	pegprm \
-        pegconfig
+        pegconfig \
+	pegwql
 
 SOURCES = \
 	DefaultProviderManagerMain.cpp \

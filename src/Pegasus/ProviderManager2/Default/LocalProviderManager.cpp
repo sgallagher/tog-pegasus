@@ -145,7 +145,6 @@ Sint32 LocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
                 throw NullPointer();
             pr->_quantum=0;
 
-
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                 "Loading Provider " +  pr->_name);
             try

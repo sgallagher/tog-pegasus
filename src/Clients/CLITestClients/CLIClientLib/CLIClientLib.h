@@ -26,7 +26,7 @@
 // Author:  Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //          Mary Hinton (m.hinton@verizon.net)
 //
-// Modified By:
+// Modified By: Adrian Schuur (schuur&de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -147,7 +147,8 @@ CMD_STRUCT CommandTable[] =
     {ID_References,              "references",      2,      "r",  "Enum References <classname>|<instancename> "  },
     {ID_ReferenceNames,          "referencenames",2 ,       "rn", "Enum Reference Names <classname>|<instancename> "  },
     {ID_InvokeMethod,            "InvokeMethod",  2 ,       "im", "im <object> <method> {<inputParams>} "  },
-    {ID_ExecQuery,               "execquery",     2 ,       "eq", "Not supported "  },
+    {ID_ExecQuery,               "execquery",     2 ,       "xq", 
+        "Execute Query <query-expresssion> [<query-language>]"  },
     {ID_EnumerateNamespaces,     "enumeratenamespaces",2 ,  "ns",
         "Enumerate all namespaces on the server. "  },
     {ID_ShowOptions,             "show command options",2 ,  "?", "Show List of Commands "  },
@@ -208,7 +209,8 @@ struct  OPTION_STRUCT
     Stopwatch elapsedTime;
     double saveElapsedTime;
     Uint32 termCondition;
-    
+    String queryLanguage;
+    String query;
 };
 
 typedef struct OPTION_STRUCT Options;
@@ -270,6 +272,8 @@ int PEGASUS_CLI_LINKAGE associators(CIMClient& client, Options& opts);
 int PEGASUS_CLI_LINKAGE associatorNames(CIMClient& client, Options& opts);
 
 int PEGASUS_CLI_LINKAGE invokeMethod(CIMClient& client, Options& opts);
+
+int PEGASUS_CLI_LINKAGE executeQuery(CIMClient& client, Options& opts);
 
 int PEGASUS_CLI_LINKAGE enumerateNamespaces_Namespace(CIMClient& client, Options& opts);
 

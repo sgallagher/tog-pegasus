@@ -96,6 +96,7 @@ public:
 protected:
     Status _status;
     ProviderModule *_module;
+    CIMProvider *getCIMProvider();
 private:
     friend class LocalProviderManager;
     friend class ProviderManagerService;
@@ -137,6 +138,11 @@ public:
     Provider& GetProvider()
     {
         return(*_provider);
+    }
+
+    CIMProvider* GetCIMProvider()
+    {
+        return _provider->getCIMProvider();
     }
 
     OpProviderHolder& operator=( const OpProviderHolder& x )

@@ -54,6 +54,10 @@ Provider::~Provider(void)
 
 }
 
+CIMProvider *Provider::getCIMProvider()
+{
+   return _provider;
+}
 
 Provider::Status Provider::getStatus(void) const
 {

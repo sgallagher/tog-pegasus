@@ -114,7 +114,8 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
     const CIMName & className,
     CIMInstance & provider,
     CIMInstance & providerModule,
-    Boolean is_assoc)
+    Boolean is_assoc,
+    Boolean* has_no_query)
 {
     String providerName;
     String providerModuleName;
@@ -132,10 +133,21 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
     // create the key by using nameSpace, className, and providerType
     //
     String capabilityKey;
-    if (!is_assoc)
+    if (!is_assoc) {
+       if (has_no_query) {
+          *has_no_query=true;
+          capabilityKey = _generateKey(nameSpace, className, INSTANCE_QUERY_PROVIDER);
+          if (!_registrationTable->table.lookup(
+                  capabilityKey, providerCapability))
         capabilityKey = _generateKey(nameSpace, className, INS_PROVIDER);
+          else *has_no_query=false;
+       }
     else
+          capabilityKey = _generateKey(nameSpace, className, INS_PROVIDER);
+    }
+    else {
         capabilityKey = _generateKey(nameSpace, className, ASSO_PROVIDER);
+    }
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                      "\nnameSpace = " + nameSpace.getString() +
                      "; className = " + className.getString() +
@@ -146,7 +158,7 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         //
         // get provider capability instance from the table
         //
-        if (!_registrationTable->table.lookup(
+        if (providerCapability==0 && !_registrationTable->table.lookup(
                   capabilityKey, providerCapability))
         {
             PEG_METHOD_EXIT();
@@ -1359,7 +1371,6 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         //
         // get all instances of providerModule class
         //
-
         Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "nameSpace = %s; className = %s",
             (const char *)
@@ -1737,6 +1748,25 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                             }
                         }
 
+                        break;
+                    }
+
+                    case _INSTANCE_QUERY_PROVIDER:
+                    {
+                        for (Uint32 k=0; k < namespaces.size(); k++)
+                        {
+                            Array<CIMInstance> instances;
+
+                            //
+                            // create a key by using namespace, className
+                            // and providerType. Use this key to store the
+                            // instance to the hash table
+                            //
+                            capabilityKey = _generateKey(namespaces[k],
+                                                className, INSTANCE_QUERY_PROVIDER);
+                            instances.append(instance);
+                            _addInitialInstancesToTable(capabilityKey, instances);
+                        }
                         break;
                     }
 
@@ -2253,6 +2283,49 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                             _addInstancesToTable(_capabilityKey, instances);
                                         }
                                     }
+                                }
+                            }
+
+                            break;
+                        }
+
+                        case _INSTANCE_QUERY_PROVIDER:
+                        {
+                            Uint32 notInstanceProvider=1;
+			    for (Uint32 ii=0; ii < _providerType.size(); ii++) {
+                               if (_providerType[ii]==_INSTANCE_PROVIDER) notInstanceProvider=0;
+                            }
+                            if (notInstanceProvider) {
+                               //
+                               //  Error condition: InstanceQueryProvider must be defined in
+                               //  combination with InstanceProvider
+                               //
+                               throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+                                        "InstanceQueryProvider must be defined in "
+                                        "combination with InstanceProvider");
+                               break;
+                            }
+                            for (Uint32 j=0; j < _namespaces.size(); j++)
+                            {
+                                Array<CIMInstance> instances;
+
+                                //
+                                // create a key by using namespace, className
+                                // and providerType
+                                //
+                                _capabilityKey = _generateKey(_namespaces[j],
+                                     _className, INSTANCE_QUERY_PROVIDER);
+                                if (_registrationTable->table.contains(_capabilityKey))
+                                {
+                                    // the instance was already registered
+//L10N_TODO DONE
+                                    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, String::EMPTY);
+                                }
+                                else
+                                {
+                                    // add the instance to the table
+                                    instances.append(instance);
+                                    _addInstancesToTable(_capabilityKey, instances);
                                 }
                             }
 

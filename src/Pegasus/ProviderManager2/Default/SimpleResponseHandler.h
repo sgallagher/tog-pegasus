@@ -311,6 +311,43 @@ private:
 
 };
 
+class PEGASUS_SERVER_LINKAGE SimpleInstance2ObjectResponseHandler : public SimpleResponseHandler, public InstanceResponseHandler
+{
+public:
+    SimpleInstance2ObjectResponseHandler(void)
+    {
+    }
+
+    void processing(void) { SimpleResponseHandler::processing(); }
+    void complete(void) { SimpleResponseHandler::complete(); }
+
+    virtual void deliver(const CIMInstance & object)
+    {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: deliver()");
+
+        _objects.append(CIMObject(object));
+    }
+
+    virtual void deliver(const Array<CIMInstance> & objects)
+    {
+        // call deliver for each object in the array
+        for(Uint32 i = 0, n = objects.size(); i < n; i++)
+        {
+            deliver(objects[i]);
+        }
+    }
+
+    const Array<CIMObject> getObjects(void) const
+    {
+        return _objects;
+    }
+
+private:
+    Array<CIMObject> _objects;
+
+};
+
 class PEGASUS_SERVER_LINKAGE SimpleValueResponseHandler : public SimpleResponseHandler, public ValueResponseHandler
 {
 public:

@@ -47,6 +47,7 @@ extern "C" {
    #define CMPIVersion080 80     //  0.80
    #define CMPIVersion085 85     //  0.85
    #define CMPIVersion086 86     //  0.86
+   #define CMPIVersion087 87     //  0.87
 
 
 // CMPI_VERSION compile switch should be used during MI compilation only.
@@ -60,6 +61,8 @@ extern "C" {
      #define CMPI_VER_85 1
   #elif (CMPI_VERSION==86)
      #define CMPI_VER_86 1
+   #elif (CMPI_VERSION==87)
+     #define CMPI_VER_87 1
   #else
      #error Unsupported CMPI_VERSION defined
   #endif
@@ -80,7 +83,13 @@ extern "C" {
 //  <mi-name>_Create<mi-type>MI.miVersion<=<mi-name>_Create<mi-type>MI.ftVersion
 // If this is not the case, the MI might require higher version MB support.
 
-#if   defined (CMPI_VER_86) || defined(CMPI_VER_ALL)
+#if   defined (CMPI_VER_87) || defined(CMPI_VER_ALL)
+   // added evaluateUsingAccessor in _CMPISelectExp
+  #define CMPI_VER_86
+  #define CMPI_VER_85
+  #define CMPI_VER_80
+  #define CMPICurrentVersion CMPIVersion087
+#elif defined (CMPI_VER_86) || defined(CMPI_VER_ALL)
    // enable() disable() support in _CMPIIndicationMIFT
    // toString() in _CMPIObjectPathFT
    // support for NULL return from <mi-name>_Create<mi-type>MI
@@ -94,10 +103,11 @@ extern "C" {
 #elif defined (CMPI_VER_80) || defined(CMPI_VER_ALL)
   #define CMPICurrentVersion CMPIVersion080
 #else  // default version
+  #define CMPI_VER_87
   #define CMPI_VER_86
   #define CMPI_VER_85
   #define CMPI_VER_80
-  #define CMPICurrentVersion CMPIVersion086
+  #define CMPICurrentVersion CMPIVersion087
 #endif
 
 
@@ -307,7 +317,6 @@ extern "C" {
         #define CMPI_classNameString (CMPI_string | CMPI_class)
         #define CMPI_nameString      (CMPI_string | ((16+10)<<8))
 
-
    typedef unsigned short CMPIValueState;
         #define CMPI_goodValue (0)
         #define CMPI_nullValue (1<<8)
@@ -319,6 +328,11 @@ extern "C" {
       CMPIValueState state;
       CMPIValue value;
    } CMPIData;
+
+
+#ifdef CMPI_VER_87
+   typedef CMPIData CMPIAccessor(const char*, void* parm);
+#endif
 
 
 #ifndef CMPI_NO_SYNONYM_SUPPORT

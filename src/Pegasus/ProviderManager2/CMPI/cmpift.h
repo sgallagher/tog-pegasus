@@ -1174,6 +1174,18 @@ extern "C" {
       */
      CMPISelectCond* (*getCOD)
               (CMPISelectExp* se, CMPIStatus* rc);
+
+       /** Evaluate this select expression by using a data value accessor routine.
+	 @param se SelectExp this pointer.
+	 @param accessor Address of data accessor routine.
+	 @param parm Data accessor routine parameter.
+	 @param rc Output: Service return status (suppressed when NULL).
+	 @return True or false incicator.
+      */
+     #if defined(CMPI_VER_87)
+     CMPIBoolean (*evaluateUsingAccessor)
+              (CMPISelectExp* se, CMPIAccessor *accessor, void *parm, CMPIStatus* rc);
+     #endif
    };
 
 

@@ -33,6 +33,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
+//              Adrian Schuur (schuur@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -80,7 +81,7 @@ protected:
     Message * handleModifyInstanceRequest(const Message * message) throw();
     Message * handleDeleteInstanceRequest(const Message * message) throw();
 
-    Message * handleExecuteQueryRequest(const Message * message) throw();
+    Message * handleExecQueryRequest(const Message * message) throw();
 
     Message * handleAssociatorsRequest(const Message * message) throw();
     Message * handleAssociatorNamesRequest(const Message * message) throw();

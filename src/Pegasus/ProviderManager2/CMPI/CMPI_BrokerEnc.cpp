@@ -29,12 +29,13 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#define CMPI_VER_86 1
+#include "CMPI_Version.h"
 
 #include "CMPI_Object.h"
 #include "CMPI_Broker.h"
 #include "CMPI_Ftabs.h"
 #include "CMPI_String.h"
+#include "CMPI_SelectExp.h"
 
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMPropertyList.h>
@@ -42,6 +43,8 @@
 #include <Pegasus/Common/MessageLoader.h>
 #endif
 #include <Pegasus/Provider/CIMOMHandle.h>
+#include <Pegasus/WQL/WQLSelectStatement.h>
+#include <Pegasus/WQL/WQLParser.h>
 
 #include <stdarg.h>
 #include <string.h>
@@ -205,7 +208,7 @@ static CMPIString* mbEncToString(CMPIBroker*,void *o, CMPIStatus *rc) {
    return (CMPIString*) new CMPI_Object(String(msg)+str);
 }
 
-CMPIBoolean mbEncClassPathIsA(CMPIBroker *mb, CMPIObjectPath *eCp, char *type, CMPIStatus *rc) {
+static CMPIBoolean mbEncClassPathIsA(CMPIBroker *mb, CMPIObjectPath *eCp, char *type, CMPIStatus *rc) {
    CIMObjectPath* cop=(CIMObjectPath*)eCp->hdl;
    const CIMName tcn(type);
 
@@ -225,7 +228,7 @@ CMPIBoolean mbEncClassPathIsA(CMPIBroker *mb, CMPIObjectPath *eCp, char *type, C
    return 0;
 }
 
-CMPIBoolean mbEncIsOfType(CMPIBroker *mb, void *o, char *type, CMPIStatus *rc) {
+static CMPIBoolean mbEncIsOfType(CMPIBroker *mb, void *o, char *type, CMPIStatus *rc) {
    CMPI_Object *obj=(CMPI_Object*)o;
    char msg[128];
    if (obj==NULL) {
@@ -258,7 +261,7 @@ CMPIBoolean mbEncIsOfType(CMPIBroker *mb, void *o, char *type, CMPIStatus *rc) {
    return 0;
 }
 
-CMPIString* mbEncGetType(CMPIBroker *mb, void* o, CMPIStatus *rc) {
+static CMPIString* mbEncGetType(CMPIBroker *mb, void* o, CMPIStatus *rc) {
    CMPI_Object *obj=(CMPI_Object*)o;
    char msg[128];
    if (obj==NULL) {
@@ -337,7 +340,7 @@ static Formatter::Arg formatValue(va_list *argptr, CMPIStatus *rc, int *err) {
    }
 }
 
-CMPIString* mbEncGetMessage(CMPIBroker *mb, char *msgId, char *defMsg,
+static CMPIString* mbEncGetMessage(CMPIBroker *mb, char *msgId, char *defMsg,
             CMPIStatus* rc, unsigned int count, ...) {
    MessageLoaderParms parms(msgId,defMsg);
    cerr<<"::: mbEncGetMessage() count: "<<count<<endl;
@@ -377,6 +380,47 @@ CMPIString* mbEncGetMessage(CMPIBroker *mb, char *msgId, char *defMsg,
 
 #endif
 
+static CMPISelectExp* mbEncNewSelectExp(CMPIBroker* mb, char* query, char* lang,
+                  CMPIArray** projection, CMPIStatus* st) {
+   WQLSelectStatement *stmt=new WQLSelectStatement();
+   int exception=1;
+   
+   if (strcmp(lang,"WQL")!=0) {
+      if (st) CMSetStatus(st,CMPI_RC_ERR_QUERY_LANGUAGE_NOT_SUPPORTED);
+      return NULL;
+   }
+   
+   try {
+      WQLParser::parse(query, *stmt);
+      exception=0;
+   }
+   catch (ParseError& e) {
+      if (st) CMSetStatus(st,CMPI_RC_ERR_INVALID_QUERY);
+   }
+   catch (MissingNullTerminator& e) {
+      if (st) CMSetStatus(st,CMPI_RC_ERR_INVALID_QUERY);
+   }
+   if (exception) {
+      delete stmt;
+      if (projection) *projection=NULL;
+      return NULL;
+   }
+   
+   if (stmt->getAllProperties()) {
+      *projection=NULL;
+   }
+   else {
+      *projection=mbEncNewArray(mb,stmt->getSelectPropertyNameCount(),CMPI_chars,NULL);
+      for (int i=0,m=stmt->getSelectPropertyNameCount(); i<m; i++) {
+         const CIMName &n=stmt->getSelectPropertyName(i);
+	 CMSetArrayElementAt(*projection,i,(const char*)n.getString().getCString(),CMPI_chars);
+      }
+   }
+   stmt->hasWhereClause();
+   return (CMPISelectExp*) new CMPI_SelectExp(stmt);
+}  
+
+
 static CMPIBrokerEncFT brokerEnc_FT={
      CMPICurrentVersion,
      mbEncNewInstance,
@@ -387,7 +431,7 @@ static CMPIBrokerEncFT brokerEnc_FT={
      mbEncNewDateTime,
      mbEncNewDateTimeFromBinary,
      mbEncNewDateTimeFromString,
-     NULL,
+     mbEncNewSelectExp,
      mbEncClassPathIsA,
      mbEncToString,
      mbEncIsOfType,

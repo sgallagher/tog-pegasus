@@ -102,7 +102,7 @@ protected:
     Message * handleModifyInstanceRequest(const Message * message) throw();
     Message * handleDeleteInstanceRequest(const Message * message) throw();
 
-    Message * handleExecuteQueryRequest(const Message * message) throw();
+    Message * handleExecQueryRequest(const Message * message) throw();
 
     Message * handleAssociatorsRequest(const Message * message) throw();
     Message * handleAssociatorNamesRequest(const Message * message) throw();

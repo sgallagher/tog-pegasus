@@ -32,6 +32,7 @@
 //                  (carolann_graves@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //		        Karl Schopmeyer (k.schopmeyer@opengroup.org)
+//		Adrian Schuur (schuur@de.ibm.com)
 //
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -55,6 +56,8 @@
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/Server/Linkage.h>
 
+#include <Pegasus/Common/QueryExpressionRep.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 // Class to aggregate and manage the information about classes and providers
@@ -68,12 +71,14 @@ public:
     }
     ProviderInfo(CIMName& className)
             : _className(className), 
+	      _hasNoQuery(true),
               _magicNumber(54321)
     {
     }
     ProviderInfo(CIMName className, String& serviceName, String& controlProviderName)
         :   _className(className), _serviceName(serviceName),
             _controlProviderName(controlProviderName),
+	    _hasNoQuery(true),
             _magicNumber(54321)
     {
     }
@@ -99,7 +104,7 @@ public:
 String _controlProviderName;
 String _serviceName;
 CIMName _className;
-Boolean _hasProvider;
+Boolean _hasProvider,_hasNoQuery;
 CIMNamespaceName _nameSpace;
 
 private:
@@ -128,11 +133,15 @@ public:
                                 Uint32 msgRequestType,
                                 String messageId,
                                 Uint32 dest,
-                                CIMName className)
+                                CIMName className,
+				QueryExpressionRep* query=NULL,
+				String queryLanguage=String::EMPTY)
     : _messageId(messageId), _msgRequestType(msgRequestType),
       _request(request), _totalIssued(0), _magicNumber(12345),
-      _dest(dest), _className(className)
+      _dest(dest), _className(className), _query(query),
+      _queryLanguage(queryLanguage)
     {}
+
     /* Constructor with nameSpace object also.
     */
     OperationAggregate(CIMRequestMessage* request,
@@ -140,10 +149,13 @@ public:
                                 String messageId,
                                 Uint32 dest,
                                 CIMName className,
-                                CIMNamespaceName nameSpace)
+                                CIMNamespaceName nameSpace,
+				QueryExpressionRep* query=NULL,
+				String queryLanguage=String::EMPTY)
     : _messageId(messageId), _msgRequestType(msgRequestType),
       _request(request), _totalIssued(0), _magicNumber(12345),
-      _dest(dest), _className(className),_nameSpace(nameSpace)
+      _dest(dest), _className(className),_nameSpace(nameSpace),
+      _query(query), _queryLanguage(queryLanguage)
     {}
 
 
@@ -232,9 +244,12 @@ public:
     Array<String> propertyList;
 
     Uint64 _aggregationSN;
+//    WQLSelectStatement* _query;
+    QueryExpressionRep* _query;
+    String _queryLanguage;
 private:
     /** Hidden (unimplemented) copy constructor */
-    OperationAggregate(const OperationAggregate& x){ }
+    OperationAggregate(const OperationAggregate& x) : _query(NULL) {}
 
     Array<CIMResponseMessage*> _responseList;
     Mutex _appendResponseMutex;
@@ -242,9 +257,11 @@ private:
     Uint32 _totalIssued;
     Uint32 _magicNumber;
 };
+
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueueService
 {
-public:
+   friend class QuerySupportRouter;
+   public:
 
       typedef MessageQueueService Base;
 
@@ -353,6 +370,8 @@ public:
 
       static void handleEnumerateInstanceNamesResponseAggregation(OperationAggregate* poA);
 
+   //   static
+      void handleExecQueryResponseAggregation(OperationAggregate* poA);
 
    protected:
 
@@ -377,20 +396,40 @@ public:
         String& service,
         String& provider);
     
+/*    Boolean _lookupNewQueryProvider(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        String& serviceName,
+        String& controlProviderName,
+	Boolean* notQueryProvider); */
+
     Boolean _lookupNewInstanceProvider(
         const CIMNamespaceName& nameSpace, 
         const CIMName& className,
         String& serviceName,
-        String& controlProviderName);
+        String& controlProviderName,
+        Boolean *has_no_query = NULL);
+
+/*    String _lookupQueryProvider(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+	Boolean* notQueryProvider); */
 
     String _lookupInstanceProvider(
         const CIMNamespaceName& nameSpace,
-        const CIMName& className);
+        const CIMName& className,
+        Boolean *has_no_query = NULL);
+
+/*   Array<ProviderInfo> _lookupAllQueryProviders(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        Uint32& providerCount)  throw(CIMException); */
     
     Array<ProviderInfo> _lookupAllInstanceProviders(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-        Uint32& providerCount)  throw(CIMException);
+        Uint32& providerCount,
+        Boolean is_query = false)  throw(CIMException);
     
     Array<ProviderInfo> _lookupAllAssociationProviders(
         const CIMNamespaceName& nameSpace,
@@ -462,13 +501,45 @@ public:
       Boolean _enableAssociationTraversal;
       Boolean _enableIndicationService;
       Uint32 _maximumEnumerateBreadth;
+      static Uint64 cimOperationAggregationSN;
 
       // << Tue Feb 12 08:48:09 2002 mdd >> meta dispatcher integration
       virtual void _handle_async_request(AsyncRequest *req);
+
+      // the following two methods enable specific query language implementations
+
+ /*     void handleQueryRequest(
+    	 CIMExecQueryRequestMessage* request);
+
+      void handleQueryResponseAggregation(
+         OperationAggregate* poA);
+
+      void applyQueryToEnumeration(CIMResponseMessage* msg,
+         QueryExpressionRep* query);
+*/
    private:
       static void _handle_enqueue_callback(AsyncOpNode *, MessageQueue *, void *);
 
 };
+
+/*
+class WQLOperationRequestDispatcher : public CIMOperationRequestDispatcher {
+   friend class Nobody;
+   private:
+      WQLOperationRequestDispatcher(CIMRepository* repository,
+         ProviderRegistrationManager* providerRegistrationManager)
+         : CIMOperationRequestDispatcher(repository,providerRegistrationManager) {}
+
+      virtual ~WQLOperationRequestDispatcher() {}
+
+   public:
+      void handleQueryRequest(
+    	 CIMExecQueryRequestMessage* request);
+
+      void handleQueryResponseAggregation(
+         OperationAggregate* poA);
+};
+*/
 
 PEGASUS_NAMESPACE_END
 

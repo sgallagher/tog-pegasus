@@ -12,7 +12,8 @@ endif
 
 LIBRARY = pegwql
 
-LIBRARIES = pegcommon
+LIBRARIES = \
+   pegcommon
 
 SOURCES = \
     WQLSelectStatement.cpp \
@@ -20,10 +21,12 @@ SOURCES = \
     WQLLEX.cpp \
     WQLSimplePropertySource.cpp \
     WQLPropertySource.cpp \
+    WQLInstancePropertySource.cpp \
     WQLParserState.cpp \
     WQLOperation.cpp \
     WQLOperand.cpp \
-    WQLParser.cpp
+    WQLParser.cpp \
+    WQLQueryExpressionRep.cpp
 
 SOURCES_X = \
     WQLLEX.cpp \

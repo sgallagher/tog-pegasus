@@ -221,6 +221,24 @@ void ProviderFacade::deleteInstance(
         handler);
 }
 
+void ProviderFacade::execQuery(
+    const OperationContext & context,
+    const CIMObjectPath & nameSpaceAndClass,
+    const QueryExpression & query,
+    InstanceResponseHandler & handler)
+{
+    op_counter ops(&_current_operations);
+    CIMInstanceQueryProvider *provider =
+               getInterface<CIMInstanceQueryProvider>(_provider);
+   // forward request
+    provider->execQuery(
+        context,
+        nameSpaceAndClass,
+        query,
+        handler);
+}
+
+
 void ProviderFacade::getClass(
     const OperationContext & context,
     const CIMObjectPath & classReference,
@@ -504,17 +522,6 @@ void ProviderFacade::invokeMethod(
         methodName,
         inParameters,
         handler);
-}
-
-void ProviderFacade::executeQuery(
-    const OperationContext & context,
-    const CIMNamespaceName & nameSpace,
-    const String & queryLanguage,
-    const String & query,
-    ObjectResponseHandler & handler)
-{
-    op_counter ops(&_current_operations);
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "CIMQueryProvider::*");
 }
 
 void ProviderFacade::enableIndications(IndicationResponseHandler & handler)

@@ -52,6 +52,7 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_USING_STD;
 
+Boolean verbose = false;
 
 static const CIMNamespaceName GOOD_NAMESPACE = CIMNamespaceName ("root/cimv2");
 
@@ -61,8 +62,11 @@ static const CIMNamespaceName BAD_NAMESPACE = CIMNamespaceName ("root/cimvx99");
 //
 // main
 //
-int main()
+int main(int argc, char** argv)
 {
+    verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
+    if (verbose) cout << argv[0] << ": started" << endl;
+
     CIMNamespaceName nameSpace = CIMNamespaceName ();
 
     String testUser = String::EMPTY;
@@ -139,11 +143,11 @@ int main()
     }
     catch(Exception& e)
     {
-        cout << "Exception: " << e.getMessage() << endl;
+      cout << argv[0] << " Exception: " << e.getMessage() << endl;
         assert(0);
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

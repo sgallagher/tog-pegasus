@@ -957,8 +957,8 @@ int main(int argc, char ** argv)
             _statements.append(_ss);
           } // end-try
           catch(Exception& e){
-            cout << "Caught Exception: " << e.getMessage()  << endl;
-            cout << "Statement with error = " << text << endl;
+            cout << "Caught Exception: " << getStatementString(e.getMessage())  << endl;
+            cout << "Statement with error = " << getStatementString(String(text)) << endl;
             _ss.clear();
             statementsInError++;
           } // end-catch
@@ -984,7 +984,7 @@ int main(int argc, char ** argv)
       _normalize(_statements,_instances, testOption);
     }
     catch(Exception e){ 
-      cout << e.getMessage() << endl; 
+      cout << getStatementString(e.getMessage()) << endl; 
     }
     catch(...){
       cout << "CAUGHT ... BADNESS HAPPENED!!!" << endl;

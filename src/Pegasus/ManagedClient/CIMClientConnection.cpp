@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -24,6 +24,8 @@
 //==============================================================================
 //
 // Author: Marek Szermutzky (MSzermutzky@de.ibm.com) PEP#139 Stage2
+//
+// Modified by: Robert Kieninger, IBM (kieningr@de.ibm.com) Bug#667
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -54,12 +56,12 @@ CIMClientConnection::CIMClientConnection(const String& host, const String& port,
 	_sslcontext = 0;
 
 	_connectionHandle = new CIMClientRep();
-	_resolvedIP = CIMClientRep::_acquireIP((const char*)host.getCString());
+	_resolvedIP = System::_acquireIP((const char*)host.getCString());
 	if (_resolvedIP == 0x7F000001)
 	{
 		// localhost or ip address of 127.0.0.1
 		// still for compare we need the real ip address
-		_resolvedIP = CIMClientRep::_acquireIP((const char *) System::getHostName().getCString());
+		_resolvedIP = System::_acquireIP((const char *) System::getHostName().getCString());
 	}
 }
 
@@ -73,12 +75,12 @@ CIMClientConnection::CIMClientConnection(const String& host, const String& port,
 	_sslcontext = new SSLContext(sslcontext);
 
 	_connectionHandle = new CIMClientRep();
-	_resolvedIP = CIMClientRep::_acquireIP((const char*)host.getCString());
+	_resolvedIP = System::_acquireIP((const char*)host.getCString());
 	if (_resolvedIP == 0x7F000001)
 	{
 		// localhost or ip address of 127.0.0.1
 		// still for compare we need the real ip address
-		_resolvedIP = CIMClientRep::_acquireIP((const char *) System::getHostName().getCString());
+		_resolvedIP = System::_acquireIP((const char *) System::getHostName().getCString());
 	}
 }
 	

@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -25,8 +25,9 @@
 //
 // Author: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
-// Modified By:     Dan Gorey (djgorey@us.ibm.com)
+// Modified By:  Dan Gorey (djgorey@us.ibm.com)
 //				 Marek Szermutzky (MSzermutzky@de.ibm.com) for PEP#139 Stage1
+//               Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -287,8 +288,6 @@ public:
         const Array<CIMParamValue>& inParameters,
         Array<CIMParamValue>& outParameters
     );
-	// moved for stage2 of PEP#139
-	static Uint32 _acquireIP(const char* hostname);
 
 private:
 
@@ -312,7 +311,7 @@ private:
     HTTPConnector2* _httpConnector;
     HTTPConnection2* _httpConnection;
     #endif
-    
+
 
     Uint32 _timeoutMilliseconds;
     Boolean _connected;

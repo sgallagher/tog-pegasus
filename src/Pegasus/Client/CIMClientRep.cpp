@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,6 +30,7 @@
 //				 Marek Szermutzky (MSzermutzky@de.ibm.com) for PEP#139 Stage1
 //				 Seema Gupta (gseema@in.ibm.com) for PEP135
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
+//               Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +45,6 @@
 # include <windows.h>
 #else
 # include <netinet/in.h>
-# include <arpa/inet.h>
 # include <sys/socket.h>
 #endif
 
@@ -168,7 +168,7 @@ void CIMClientRep::_connect()
                                                   _responseDecoder);
         _monitor->set_session_dispatch(_httpConnection->connection_dispatch);
         #endif
-        
+
     }
     catch (CannotCreateSocketException& e)
     {
@@ -1116,8 +1116,8 @@ Message* CIMClientRep::_doRequest(
     // Set the Accept-Languages and Content-Languages into
     // the request message
 
-	request->operationContext.set(AcceptLanguageListContainer(requestAcceptLanguages)); 
-    request->operationContext.set(ContentLanguageListContainer(requestContentLanguages)); 
+	request->operationContext.set(AcceptLanguageListContainer(requestAcceptLanguages));
+    request->operationContext.set(ContentLanguageListContainer(requestContentLanguages));
 
 
     // Sending a new request, so clear out the response Content-Languages
@@ -1343,12 +1343,12 @@ void CIMClientRep::compareObjectPathtoCurrentConnection(CIMObjectPath obj) throw
 
 	// lets retrieve ip addresses for both hostnames
 	Uint32 ipObjectPath, ipConnection = 0xFFFFFFFF;
-	ipObjectPath = _acquireIP((const char *) ObjHost.getCString());
+	ipObjectPath = System::_acquireIP((const char *) ObjHost.getCString());
 	if (ipObjectPath == 0x7F000001)
 	{
 		// localhost or ip address of 127.0.0.1
 		// still for compare we need the real ip address
-		ipObjectPath = _acquireIP((const char *) System::getHostName().getCString());
+		ipObjectPath = System::_acquireIP((const char *) System::getHostName().getCString());
 	}
 	if (ipObjectPath == 0xFFFFFFFF)
 	{
@@ -1367,16 +1367,16 @@ void CIMClientRep::compareObjectPathtoCurrentConnection(CIMObjectPath obj) throw
 		// return;
 	} else
 	{
-		ipConnection = _acquireIP((const char *) _connectHost.getCString());
+		ipConnection = System::_acquireIP((const char *) _connectHost.getCString());
 	}
 #else	
-	ipConnection = _acquireIP((const char *) _connectHost.getCString());
+	ipConnection = System::_acquireIP((const char *) _connectHost.getCString());
 #endif
 	if (ipConnection == 0x7F000001)
 	{
 		// localhost or ip address of 127.0.0.1
 		// still for compare we need the real ip address
-		ipConnection = _acquireIP((const char *) System::getHostName().getCString());
+		ipConnection = System::_acquireIP((const char *) System::getHostName().getCString());
 	}
 	if (ipConnection == 0xFFFFFFFF)
 	{
@@ -1396,106 +1396,6 @@ void CIMClientRep::compareObjectPathtoCurrentConnection(CIMObjectPath obj) throw
 		throw TypeMismatchException(typeMismatchMessage);
 	}
 
-}
-
-Uint32 CIMClientRep::_acquireIP(const char* hostname)
-{
-	Uint32 ip = 0xFFFFFFFF;
-	if (!hostname) return 0xFFFFFFFF;
-
-#ifdef PEGASUS_OS_OS400
-	char ebcdicHost[PEGASUS_MAXHOSTNAMELEN];
-	if (strlen(hostname) < PEGASUS_MAXHOSTNAMELEN)
-		strcpy(ebcdicHost, hostname);
-	else
-		return 0xFFFFFFFF;
-	AtoE(ebcdicHost);
-#endif
-
-	struct hostent *entry;
-
-	if (isalpha(hostname[0]))
-	{
-#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
-#define HOSTENT_BUFF_SIZE        8192
-		char      buf[HOSTENT_BUFF_SIZE];
-		int       h_errorp;
-		struct    hostent hp;
-
-		entry = gethostbyname_r((char *)hostname, &hp, buf,
-								HOSTENT_BUFF_SIZE, &h_errorp);
-#elif defined(PEGASUS_OS_OS400)
-		entry = gethostbyname(ebcdicHost);
-#elif defined(PEGASUS_OS_ZOS)
-		char hostName[ PEGASUS_MAXHOSTNAMELEN ];
-		if (String::equalNoCase("localhost",String(hostname)))
-		{
-			gethostname( hostName, PEGASUS_MAXHOSTNAMELEN );
-			entry = gethostbyname(hostName);
-		} else
-		{
-			entry = gethostbyname((char *)hostname);
-		}
-#else
-		entry = gethostbyname((char *)hostname);
-#endif
-		if (!entry)
-		{
-			return 0xFFFFFFFF;
-		}
-		unsigned char ip_part1,ip_part2,ip_part3,ip_part4;
-
-		ip_part1 = entry->h_addr[0];
-		ip_part2 = entry->h_addr[1];
-		ip_part3 = entry->h_addr[2];
-		ip_part4 = entry->h_addr[3];
-		ip = ip_part1;
-		ip = (ip << 8) + ip_part2;
-		ip = (ip << 8) + ip_part3;
-		ip = (ip << 8) + ip_part4;
-	} else
-	{
-		// given hostname starts with an numeric character
-		// get address in network byte order
-#ifdef PEGASUS_OS_OS400
-		Uint32 tmp_addr = inet_addr(ebcdicHost);
-#elif defined(PEGASUS_OS_ZOS)
-		Uint32 tmp_addr = inet_addr_ebcdic((char *)hostname);
-#else
-		Uint32 tmp_addr = inet_addr((char *) hostname);
-#endif
-		
-		// 0xFFFFFFF is same as -1 in an unsigned int32
-		if (tmp_addr == 0xFFFFFFFF)
-		{
-			// error, given ip does not follow format requirements
-			return 0xFFFFFFFF;
-		}		
-		// resolve hostaddr to a real host entry
-		// casting to (const char *) as (char *) will work as (void *) too, those it fits all platforms
-		entry = gethostbyaddr((const char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
-
-		if (entry == 0)
-		{
-			// error, couldn't resolve the ip
-			return 0xFFFFFFFF;
-		} else
-		{
-
-			unsigned char ip_part1,ip_part2,ip_part3,ip_part4;
-
-			ip_part1 = entry->h_addr[0];
-			ip_part2 = entry->h_addr[1];
-			ip_part3 = entry->h_addr[2];
-			ip_part4 = entry->h_addr[3];
-			ip = ip_part1;
-			ip = (ip << 8) + ip_part2;
-			ip = (ip << 8) + ip_part3;
-			ip = (ip << 8) + ip_part4;
-		}
-	}
-
-	return ip;
 }
 
 PEGASUS_NAMESPACE_END

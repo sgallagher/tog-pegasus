@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -25,10 +25,11 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By: 
+// Modified By:
 //     Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
+//              Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -67,10 +68,10 @@ typedef struct DynamicLibraryHandle_* DynamicLibraryHandle;
     Values of this type may be casted to the appropriate target type.
 */
 #if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) && !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-typedef struct DynamicSymbolHandle_* DynamicSymbolHandle; 
-#else                                                     
-extern "C" {typedef int (* DynamicSymbolHandle)(void);}   
-#endif                                                    
+typedef struct DynamicSymbolHandle_* DynamicSymbolHandle;
+#else
+extern "C" {typedef int (* DynamicSymbolHandle)(void);}
+#endif
 
 
 
@@ -143,6 +144,8 @@ public:
     static String getFullyQualifiedHostName ();
     static String getSystemCreationClassName ();
 
+    static Uint32 _acquireIP(const char* hostname);
+
     static Uint32 lookupPort(
         const char * serviceName,
         Uint32 defaultPort);
@@ -160,7 +163,7 @@ public:
     static String getPassword(const char* prompt);
 
     /**
-    This function is used to encrypt the user's password. 
+    This function is used to encrypt the user's password.
     The encryption is compatible with Apache's  password file (generated using
     the htpasswd command )
 
@@ -172,7 +175,7 @@ public:
     static String encryptPassword(const char* password, const char* salt);
 
     /**
-    This function is used to verify whether specified user is a user 
+    This function is used to verify whether specified user is a user
     on the local system.
 
     @param userName     User name to be verified.
@@ -226,11 +229,11 @@ public:
         function in the standard library.
     */
     static Sint32 strcasecmp(const char* s1, const char* s2);
-    
+
     /** Return just the file or directory name from the path into basename.
         This method returns a file or directory name at the end of a path.
         The path can be relative or absolute. If the path is the root,
-        then empty string is returned.        
+        then empty string is returned.
     */
     static char *extract_file_name(const char *fullpath, char *basename);
 
@@ -240,7 +243,7 @@ public:
         If the fullpath is the root, then fullpath is returned.
         The resulting path will contain a trailing slash unless fullpath is
         a file or directory name, in which case, just the file or directory
-        name is returned. 
+        name is returned.
     */
     static char *extract_file_path(const char *fullpath, char *dirname);
 
@@ -249,7 +252,7 @@ public:
 
     /** Changes file permissions on the given file.
         @param path path of the file.
-        @param mode the bit-wise inclusive OR of the values for the desired 
+        @param mode the bit-wise inclusive OR of the values for the desired
         permissions.
         @return true on success, false on error and errno is set appropriately.
     */

@@ -31,7 +31,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Karl Schopmeyer(k.schopmeyer@opengroup.org) - extend ref function.
-//              Robert Kieninger, IBM (kieningr@de.ibm.com) - Bugzilla 383,1508,1813
+//              Robert Kieninger, IBM (kieningr@de.ibm.com) - Bugzilla 383,1508,1813,667
 //              Seema Gupta (gseema@in.ibm.com) - Bugzilla 281, Bugzilla 1313
 //              Adrian Schuur (schuur@de.ibm.com) - PEP 129 & 164
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
@@ -58,6 +58,8 @@
 #include <Pegasus/Common/XmlStreamer.h>
 #include <Pegasus/Common/BinaryStreamer.h>
 #include <Pegasus/Common/AutoStreamer.h>
+
+#include <Pegasus/Client/CIMClientRep.h> // for 667
 
 #include "CIMRepository.h"
 #include "RepositoryDeclContext.h"
@@ -1169,6 +1171,67 @@ void CIMRepository::_createClass(
 
 ------------------------------------------------------------------------------*/
 
+
+/*------------------------------------------------------------------------------
+  Checks whether a hostname points to the local CIMOM
+------------------------------------------------------------------------------*/
+static Boolean isLocalCIMOMHostAndPort( const String& hostname )
+{
+   PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::isLocalCIMOMHostAndPort");
+
+   // First do a brute force check for equality of the strings
+   if( String::equalNoCase(hostname,System::getHostName()))
+   {
+      PEG_METHOD_EXIT();
+      return true;
+   }
+
+   String hn = hostname;
+
+   // ------------------------------------------------------------------------
+   // Match the port numbers
+   // ------------------------------------------------------------------------
+   String port, localPort, localSPort;
+
+   Uint32 index = hostname.find(':');
+   if ( index != PEG_NOT_FOUND )
+   {
+      port = hostname.subString(index+1);
+      hn = hostname.subString(0,index);
+
+      ConfigManager *cfgMgr = ConfigManager::getInstance();
+
+      localPort  =  cfgMgr->getCurrentValue("httpPort");
+      localSPort =  cfgMgr->getCurrentValue("httpsPort");
+
+      if (!String::equal(port,localPort) &&
+          !String::equal(port,localSPort) )
+      {
+         PEG_METHOD_EXIT();
+         return false;
+      }
+   }
+
+   // ------------------------------------------------------------------------
+   // Normalize hostname into a a single host unique integer representation
+   // and compare against the equivalent for the local CIMOM, if not localhost.
+   // ------------------------------------------------------------------------
+   Uint32 hostIP = System::_acquireIP((const char*) hn.getCString());
+
+   // Check if localhost or 127.0.0.x
+   if (hostIP == 0x7F000001)
+   {
+      PEG_METHOD_EXIT();
+      return true;
+   }
+
+   Uint32 localHostIP = System::_acquireIP((const char*) System::getHostName().getCString());
+
+   PEG_METHOD_EXIT();
+   return hostIP == localHostIP;
+}
+
+
 void CIMRepository::_createAssocInstEntries(
     const CIMNamespaceName& nameSpace,
     const CIMConstClass& cimClass,
@@ -1219,6 +1282,43 @@ void CIMRepository::_createAssocInstEntries(
 
                     CIMObjectPath toRef;
                     toProp.getValue().get(toRef);
+
+
+                    // Fix for bugzilla 667:
+                    // Strip off the hostname if it is the same as the local host
+                    if ((fromRef.getHost() != String::EMPTY) &&
+                        (isLocalCIMOMHostAndPort(fromRef.getHost())))
+                    {
+                       PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "_createAssocInstEntries() - Stripping of local hostName from fromRef");
+                       fromRef.setHost(String::EMPTY);
+                    }
+
+                    // Strip off the namespace when it is the same as the
+                    // one this instance is created in.
+                    if ((fromRef.getHost() == String::EMPTY) &&
+                        (fromRef.getNameSpace() == nameSpace))
+                    {
+                       PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "_createAssocInstEntries() - Stripping of local nameSpace from fromRef");
+                       fromRef.setNameSpace(CIMNamespaceName());
+                    }
+
+                    // Strip off the hostname if it is the same as the local host
+                    if ((toRef.getHost() != String::EMPTY) &&
+                        (isLocalCIMOMHostAndPort(toRef.getHost())))
+                    {
+                       PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "_createAssocInstEntries() - Stripping of local hostName from toRef");
+                       toRef.setHost(String::EMPTY);
+                    }
+
+                    // Strip off the namespace when it is the same as the
+                    // one this instance is created in.
+                    if ((toRef.getHost() == String::EMPTY) &&
+                        (toRef.getNameSpace() == nameSpace))
+                    {
+                       PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "_createAssocInstEntries() - Stripping of local nameSpace from toRef");
+                       toRef.setNameSpace(CIMNamespaceName());
+                    }
+
 
                     String fromObjectName = fromRef.toString();
                     CIMName fromClassName = fromRef.getClassName();

@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -24,6 +24,8 @@
 //==============================================================================
 //
 // Author: Marek Szermutzky (MSzermutzky@de.ibm.com) PEP#139 Stage2
+//
+// Modified by: Robert Kieninger, IBM (kieningr@de.ibm.com) Bug#667
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -60,13 +62,13 @@ CIMClientRep* CIMDefaultClientConnectionManager::getConnection(
 	Uint32 requestedPort;
 
 	// build a single host unique integer representation
-	requestedIP = CIMClientRep::_acquireIP((const char*) host.getCString());
+	requestedIP = System::_acquireIP((const char*) host.getCString());
 
 	if (requestedIP == 0x7F000001)
 	{
 		// localhost or ip address of 127.0.0.1
 		// still for compare we need the real ip address
-		requestedIP = CIMClientRep::_acquireIP((const char *) System::getHostName().getCString());
+		requestedIP = System::_acquireIP((const char *) System::getHostName().getCString());
 	}
 	if (requestedIP == 0xFFFFFFFF)
 	{

@@ -27,6 +27,8 @@
 //
 // Modified By:  Gerarda Marquez (gmarquez@us.ibm.com)
 //               -- PEP 43 changes
+//               Seema Gupta (gseema@in.ibm.com)
+//               
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -72,6 +74,15 @@ struct optspec {
 #endif
 
 #define PEGASUS_HOME "PEGASUS_HOME"
+
+#define PEGASUS_CIMMOF_NO_DEFAULTNAMESPACEPATH    -9
+#define PEGASUS_CIMMOF_COMPILER_GENERAL_EXCEPTION -8
+#define PEGASUS_CIMMOF_BAD_FILENAME               -7
+#define PEGASUS_CIMMOF_PARSING_ERROR              -6
+#define PEGASUS_CIMMOF_PARSER_LEXER_ERROR         -5
+#define PEGASUS_CIMMOF_UNEXPECTED_CONDITION       -4
+#define PEGASUS_CIMMOF_CMDLINE_NOREPOSITORY       -3
+#define PEGASUS_CIMMOF_CIM_EXCEPTION              -2
 
 #ifdef PEGASUS_OS_OS400
 #pragma convert(0)

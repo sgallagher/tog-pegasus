@@ -48,7 +48,6 @@
 #include <sys/timeb.h> 
 #include <errno.h>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Linkage.h>
 
 
 typedef CRITICAL_SECTION  PEGASUS_CRIT_TYPE;
@@ -132,7 +131,7 @@ struct timezone
 
 
 // excluded
-/*
+
 inline int pegasus_gettimeofday(struct timeval *tv)
 {
 	struct _timeb timebuffer;   
@@ -142,11 +141,15 @@ inline int pegasus_gettimeofday(struct timeval *tv)
 	tv->tv_sec = timebuffer.time;
 	tv->tv_usec = ( timebuffer.millitm * 1000 );
 	return(0);
-} */
+} 
 
 // Markus: new implementation with higher resolution
 // that is needed for performance statistics
+/*
 
+
+
+THIS ROUTINE IS BROKEN << Thu Mar 20 10:24:14 2003 mdd >> 
 inline int pegasus_gettimeofday(struct timeval *tv)
 {
    if (tv == NULL){
@@ -169,6 +172,7 @@ inline int pegasus_gettimeofday(struct timeval *tv)
    }
 }
 	
+*/
 inline int PEGASUS_COMMON_LINKAGE gettimeofday(struct timeval *tv, struct timezone *tz)
 {
   return(pegasus_gettimeofday(tv));

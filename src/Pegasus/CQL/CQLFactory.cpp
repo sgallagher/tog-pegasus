@@ -245,11 +245,11 @@ void* CQLFactory::getObject(CQLValue* obj, FactoryType target){
 	printf("CQLFactory::getObject(CQLValue* obj)\n");
 	switch(target){
           case ChainedIdentifier:
-		_CQLObjectPtr._ptr = new CQLChainedIdentifier(obj->_CQLChainId);
+		_CQLObjectPtr._ptr = new CQLChainedIdentifier(obj->_rep->_CQLChainId);
 		_getObjectChainedIdentifiers.append(_CQLObjectPtr);
 		return _getObjectChainedIdentifiers[_getObjectChainedIdentifiers.size()-1]._ptr;
 	  case Identifier:
-		return getObject(&(obj->_CQLChainId),target);
+		return getObject(&(obj->_rep->_CQLChainId),target);
           default:
                 return NULL;
                 break;
@@ -380,7 +380,7 @@ void CQLFactory::setObject(CQLPredicate* predicate, void* obj, FactoryType objTy
                         *((CQLValue*)obj);
 		break;
 	  case ChainedIdentifier:
-		predicate->_rep->_simplePredicate._rep->_leftSide._rep->_CQLTerms[0]._rep->_Factors[0]._rep->_CQLVal._CQLChainId = *((CQLChainedIdentifier*)obj);
+		predicate->_rep->_simplePredicate._rep->_leftSide._rep->_CQLTerms[0]._rep->_Factors[0]._rep->_CQLVal._rep->_CQLChainId = *((CQLChainedIdentifier*)obj);
 		break;
 	  case Identifier:
 		break;

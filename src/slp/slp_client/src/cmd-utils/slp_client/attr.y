@@ -5,7 +5,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/attr.y,v 1.2 2005/02/11 21:40:10 david.dillard Exp $
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/attr.y,v 1.3 2005/02/26 05:33:26 david.dillard Exp $
  *
  *  Copyright (c) 2001 - 2003  IBM
  *  Copyright (c) 2000 - 2003 Michael Day
@@ -35,13 +35,13 @@
 
 %{
 #include "slp_client.h"
-void attrerror(int8 *, ...);
+void attrerror(const char *, ...);
 int32 attrwrap(void);
 int32 attrlex(void);
 int32 attrparse(void);
 BOOL bt = TRUE, bf = FALSE;
 void attr_close_lexer(uint32 handle);
-uint32 attr_init_lexer(int8 *s);
+size_t attr_init_lexer(const char *s);
 
 lslpAttrList attrHead =
 {
@@ -191,7 +191,7 @@ void _lslpInitInternalAttrList(void)
 	return;
 }
 
-lslpAttrList *_lslpDecodeAttrString(int8 *s)
+lslpAttrList *_lslpDecodeAttrString(char *s)
 {
   uint32 lexer = 0;
   lslpAttrList *temp = NULL;
@@ -199,7 +199,7 @@ lslpAttrList *_lslpDecodeAttrString(int8 *s)
   _lslpInitInternalAttrList();
   if (s != NULL) {
     if(NULL != (temp = lslpAllocAttrList()))  {
-      if ((0 != (lexer = attr_init_lexer( s))) &&  attrparse()) {
+      if ((0 != (lexer = attr_init_lexer(s))) &&  attrparse()) {
 	lslpFreeAttrList(temp, TRUE);
 	while (! _LSLP_IS_HEAD(inProcessTag.next))  {
 	  temp = inProcessTag.next;
@@ -222,7 +222,7 @@ lslpAttrList *_lslpDecodeAttrString(int8 *s)
 
       if (! _LSLP_IS_EMPTY(&attrHead)) {
 	temp->attr_string_len = strlen(s);
-	temp->attr_string = (int8 *)malloc(temp->attr_string_len + 1);
+	temp->attr_string = (char *)malloc(temp->attr_string_len + 1);
 	if(temp->attr_string != NULL) {
 	  memcpy(temp->attr_string, s, temp->attr_string_len);
 	  temp->attr_string[temp->attr_string_len] = 0x00;
@@ -238,7 +238,7 @@ lslpAttrList *_lslpDecodeAttrString(int8 *s)
 }
 
 
-lslpAttrList *lslpAllocAttr(const int8 *name, int8 type, const void *val, int16 len)
+lslpAttrList *lslpAllocAttr(const char *name, char type, const void *val, int16 len)
 {
   lslpAttrList *attr;
   if (NULL != (attr = (lslpAttrList *)calloc(1, sizeof(lslpAttrList))))

@@ -5,7 +5,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.l,v 1.1 2003/12/17 18:05:31 tony Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.l,v 1.2 2005/02/26 05:41:02 david.dillard Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -41,24 +41,22 @@
 #undef YY_INPUT
 #define YY_INPUT(b, r, m) abort()
 #define exit(i) abort()
-#undef ECHO
-#define ECHO  urlerror(yytext)
 #include "slp_client.h"
 #include "y_url.h"
 #include <stdarg.h>
 
 #define urlless yyless
-void urlerror(int8 *, ...);
+void urlerror(char *, ...);
 
 static int16 heapIndex;
-static int8 heap[2052];
-static int8 buf[2052];
+static char heap[2052];
+static char buf[2052];
 /* special counter to exit the appletalk state */
-int8 atalk_state = 0;
+char atalk_state = 0;
 
-static int8 *_lslp_strdup(int8 *s);
+static char *_lslp_strdup(const char *s);
 void url_close_lexer(uint32 handle);
-uint32 url_init_lexer(int8 *s);
+size_t url_init_lexer(const char *s);
 
 %}
 
@@ -213,24 +211,24 @@ void url_close_lexer(uint32 handle)
 }
 
 
-uint32 url_init_lexer(int8 *s)
+size_t url_init_lexer(const char *s)
 {
   memset(&buf[0], 0x00, 2052);
   memset(&heap[0], 0x00, 2052);
   heapIndex = 0;
   strncpy(&buf[0], s, 2048);
-  return((uint32)url_scan_buffer(&buf[0], strlen(s) + 2));
+  return((size_t) url_scan_buffer(&buf[0], strlen(s) + 2));
 }
 
 
-static int8 *_lslp_strdup(int8 *s)
+static char *_lslp_strdup(const char *s)
 {
-  int8 *p = &heap[heapIndex];
+  char *p = &heap[heapIndex];
   do { heap[heapIndex++] = *s; } while ((*s != 0x00) && (heapIndex < 2049) && (++s));
   return(p);
 }
 
-void urlerror(int8 *s, ...)
+void urlerror(char *s, ...)
 {
  return;
 }	

@@ -5,7 +5,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.y,v 1.1 2003/12/17 18:05:31 tony Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.y,v 1.2 2005/02/26 05:43:30 david.dillard Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -40,12 +40,12 @@
 
 
 /* prototypes and globals go here */
-void urlerror(int8 *, ...);
+void urlerror(char *, ...);
 int32 urlwrap(void);
 int32 urllex(void);   
 int32 urlparse(void);
 void url_close_lexer(uint32 handle);
-uint32 url_init_lexer(int8 *s);
+size_t url_init_lexer(const char *s);
 
 lslpAtomizedURL urlHead = 
 {
@@ -64,7 +64,7 @@ static lslpAtomList attrHead = {&attrHead, &attrHead, TRUE, NULL, 0};
 
 %union {
 	int32 _i;
-	int8 *_s;
+	char *_s;
 	lslpAtomList *_atl;
 	lslpAtomizedURL *_aturl;
 }
@@ -110,7 +110,7 @@ url: service_list sap {
 					urlLen += strlen(temp->str) + 1;
 					temp = temp->next;
 				}
-				if (NULL != ($$->url = (int8 *)calloc(urlLen, sizeof(int8))))
+				if (NULL != ($$->url = (char *)calloc(urlLen, sizeof(char))))
 				{
 					temp = srvcHead.next;
 					if (! _LSLP_IS_HEAD(temp) && temp->str != NULL)
@@ -197,7 +197,7 @@ service:  _RESNAME ':'	{
 			if (NULL != ($$ = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
 				$$->next = $$->prev = $$;
-				if (NULL != ($$->str = (int8 *)calloc(2 + strlen($1), sizeof(int8))))
+				if (NULL != ($$->str = (char *)calloc(2 + strlen($1), sizeof(char))))
 				{
 					strcpy($$->str, $1);
 					strcat($$->str, ":");	
@@ -215,7 +215,7 @@ service:  _RESNAME ':'	{
 			if (NULL != ($$ = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
 				$$->next = $$->prev = $$;
-				if (NULL != ($$->str = (int8 *)calloc(3 + strlen($1) + strlen($3), sizeof(int8))))
+				if (NULL != ($$->str = (char *)calloc(3 + strlen($1) + strlen($3), sizeof(char))))
 				{
 					strcpy($$->str, $1);
 					strcat($$->str, ".");
@@ -311,7 +311,7 @@ ip_site: '/''/' {
 			$$ = strdup("//");
 		}
 	|   '/''/' hostport {
-			if(NULL != $3 && (NULL !=($$ = (int8 *)calloc(3 + strlen($3), sizeof(int8)))))
+			if(NULL != $3 && (NULL !=($$ = (char *)calloc(3 + strlen($3), sizeof(char)))))
 			{
 				strcpy($$, "//");
 				strcat($$, $3);
@@ -319,7 +319,7 @@ ip_site: '/''/' {
 
 		}
 	|   '/''/' _RESNAME '@' hostport {
-			if(NULL != $5 && (NULL !=($$ = (int8 *)calloc(4 + strlen($3) + strlen($5), sizeof(int8)))))
+			if(NULL != $5 && (NULL !=($$ = (char *)calloc(4 + strlen($3) + strlen($5), sizeof(char)))))
 			{
 				strcpy($$, "//");
 				strcat($$, $3);
@@ -340,7 +340,7 @@ ipx_site: _IPX {
 	;
 
 at_site: _AT _ZONE ':' _ZONE ':' _ZONE {
-			if(NULL != ($$ = (int8 *)calloc(strlen($1) + strlen($2) + strlen($4) + strlen($6) + 3, sizeof(int8))))
+			if(NULL != ($$ = (char *)calloc(strlen($1) + strlen($2) + strlen($4) + strlen($6) + 3, sizeof(char))))
 			{
 				strcpy($$, $1);
 				strcat($$, $2);
@@ -358,7 +358,7 @@ hostport: host {
 	|	host ':' _HEXDIG {
 			if ($1 != NULL)
 			{
-				if(NULL != ($$ = (int8 *)calloc(strlen($1) + strlen($3) + 2, sizeof(int8))))
+				if(NULL != ($$ = (char *)calloc(strlen($1) + strlen($3) + 2, sizeof(char))))
 				{
 					strcpy($$, $1);
 					strcat($$, ":");
@@ -414,7 +414,7 @@ path_el: '/' {
 			if(NULL != ($$ = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
 				$$->prev = $$->next = $$;
-				if(NULL != ($$->str = (int8 *)calloc(1 + strlen($2), sizeof(int8))))
+				if(NULL != ($$->str = (char *)calloc(1 + strlen($2), sizeof(char))))
 				{
 					strcpy($$->str, $2);
 					$$->hash = lslpCheckSum($$->str, (int16)strlen($$->str));
@@ -432,7 +432,7 @@ path_el: '/' {
 			if(NULL != ($$ = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
 				$$->prev = $$->next = $$;
-				if(NULL != ($$->str = (int8 *)calloc(1 + strlen($2), sizeof(int8))))
+				if(NULL != ($$->str = (char *)calloc(1 + strlen($2), sizeof(char))))
 				{
 					strcpy($$->str, $2);
 					$$->hash = lslpCheckSum($$->str, (int16)strlen($$->str));
@@ -449,7 +449,7 @@ path_el: '/' {
 			if(NULL != ($$ = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
 				$$->prev = $$->next = $$;
-				if(NULL != ($$->str = (int8 *)calloc(1 + strlen($2), sizeof(int8))))
+				if(NULL != ($$->str = (char *)calloc(1 + strlen($2), sizeof(char))))
 				{
 					strcpy($$->str, $2);
 					$$->hash = lslpCheckSum($$->str, (int16)strlen($$->str));
@@ -483,7 +483,7 @@ attr_el: ';' _ELEMENT  {
 			if(NULL != ($$ = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
 				$$->prev = $$->next = $$;
-				if(NULL != ($$->str = (int8 *)calloc(1 + strlen($2), sizeof(int8))))
+				if(NULL != ($$->str = (char *)calloc(1 + strlen($2), sizeof(char))))
 				{
 					strcpy($$->str, $2);
 					$$->hash = lslpCheckSum($$->str, (int16)strlen($$->str));
@@ -500,7 +500,7 @@ attr_el: ';' _ELEMENT  {
 			if(NULL != ($$ = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
 				$$->prev = $$->next = $$;
-				if(NULL != ($$->str = (int8 *)calloc(2 + strlen($2) + strlen($4), sizeof(int8))))
+				if(NULL != ($$->str = (char *)calloc(2 + strlen($2) + strlen($4), sizeof(char))))
 				{
 					strcpy($$->str, $2);
 					strcat($$->str, "=");
@@ -644,7 +644,7 @@ void lslpCleanUpURLLists(void)
   lslpFreeAtomizedURLList(&urlHead, 0);
 }
 
-lslpAtomizedURL *_lslpDecodeURLs(int8 *u[], int32 count)
+lslpAtomizedURL *_lslpDecodeURLs(char *u[], int32 count)
 {
   int32 i;
   

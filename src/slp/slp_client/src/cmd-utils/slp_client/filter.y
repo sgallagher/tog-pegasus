@@ -37,13 +37,13 @@
 #include "slp_client.h"
 
 /* prototypes and globals go here */
-  void filtererror(int8 *, ...);
+  void filtererror(char *, ...);
 
   int32 filterlex(void);
 
 int32 filterparse(void);
 void filter_close_lexer(uint32 handle);
-uint32 filter_init_lexer(int8 *s);
+size_t filter_init_lexer(const char *s);
 
 /* have a place to put attributes and the filter while the parser is working */
 /* on them makes it easier to recover from parser errors - all the memory we  */
@@ -60,7 +60,7 @@ uint32 filter_init_lexer(int8 *s);
 
 %union {
   int32 filter_int;
-  int8 *filter_string;
+  char *filter_string;
   lslpLDAPFilter *filter_filter;
 }
 
@@ -234,7 +234,7 @@ void lslpCleanUpFilterList(void)
   lslpFreeFilterList( (lslpLDAPFilter *)&reducedFilters, FALSE);
 }
 
-lslpLDAPFilter *_lslpDecodeLDAPFilter(int8 *filter)
+lslpLDAPFilter *_lslpDecodeLDAPFilter(char *filter)
 {
 
   lslpLDAPFilter *temp = NULL;

@@ -5,7 +5,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/filter.l,v 1.1 2003/12/17 18:05:31 tony Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/filter.l,v 1.2 2005/02/26 05:36:54 david.dillard Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -40,15 +40,13 @@
 #define YY_NEVER_INTERACTIVE 1
 #undef YY_INPUT
 #define YY_INPUT(b, r, m) abort()
-#undef ECHO
-#define ECHO  filtererror(yytext)
 #define exit(i) abort()
 #include "slp_client.h"
 #include "y_filter.h"
 #include <stdarg.h>
 
 #define filterless yyless
-void filtererror(int8 *, ...);
+void filtererror(char *, ...);
 
 /*
 extern char *lslp_logPath;
@@ -56,12 +54,12 @@ extern char *lslp_logPath;
 #define yyerror(s) 	_lslpMsgOut(lslp_logPath, lslpPrintSem, LSLP_LOG_ERRORS, NULL, 0, (s), __FILE__, __LINE__);
 */
 static int16 heapIndex;
-static int8 heap[2052];
-static int8 buf[2052];
+static char heap[2052];
+static char buf[2052];
 
-static int8 *_lslp_strdup(int8 *s);
+static char *_lslp_strdup(const char *s);
 void filter_close_lexer(uint32 handle);
-uint32 filter_init_lexer(int8 *s);
+size_t filter_init_lexer(const char *s);
 
 
 %}
@@ -143,34 +141,34 @@ void filter_close_lexer(uint32 handle)
 }
 
 
-uint32 filter_init_lexer(int8 *s)
+size_t filter_init_lexer(const char *s)
 {
   memset(&buf[0], 0x00, 2052);
   memset(&heap[0], 0x00, 2052);
   heapIndex = 0;
   strncpy(&buf[0], s, 2048);
-  return((uint32)filter_scan_buffer(&buf[0], strlen(s) + 2));
+  return((size_t) filter_scan_buffer(&buf[0], strlen(s) + 2));
 }
 
 
-static int8 *_lslp_strdup(int8 *s)
+static char *_lslp_strdup(const char *s)
 {
-  int8 *p = &heap[heapIndex];
+  char *p = &heap[heapIndex];
   do { heap[heapIndex++] = *s; } while ((*s != 0x00) && (heapIndex < 2049) && (++s));
   return(p);
 }
 
 /*****
-static int8 *_lslp_strdup_strip_quotes(int8 *s)
+static char *_lslp_strdup_strip_quotes(char *s)
 {
-  int8 *p = &heap[heapIndex];
+  char *p = &heap[heapIndex];
   do { if(*s != '"') heap[heapIndex++] = *s; } while ((*s != 0x00) && (heapIndex < 2049) && (++s));
   return(p);
 }
 
 ******/
 
-void filtererror(int8 *s, ...)
+void filtererror(char *s, ...)
 {
 	return;
 }	

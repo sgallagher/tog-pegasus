@@ -1,31 +1,3 @@
-//%2005////////////////////////////////////////////////////////////////////////
-//
-// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
-// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
-// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
-// IBM Corp.; EMC Corporation, The Open Group.
-// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
-// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
-// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
-// EMC Corporation; VERITAS Software Corporation; The Open Group.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
-// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
-// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//==============================================================================
 /* A Bison parser, made from url.y
    by GNU bison 1.35.  */
 
@@ -57,12 +29,12 @@
 
 
 /* prototypes and globals go here */
-void urlerror(int8 *, ...);
+void urlerror(char *, ...);
 int32 urlwrap(void);
 int32 urllex(void);   
 int32 urlparse(void);
 void url_close_lexer(uint32 handle);
-uint32 url_init_lexer(int8 *s);
+size_t url_init_lexer(const char *s);
 
 lslpAtomizedURL urlHead = 
 {
@@ -79,7 +51,7 @@ static lslpAtomList attrHead = {&attrHead, &attrHead, TRUE, NULL, 0};
 #ifndef YYSTYPE
 typedef union {
 	int32 _i;
-	int8 *_s;
+	char *_s;
 	lslpAtomList *_atl;
 	lslpAtomizedURL *_aturl;
 } yystype;
@@ -991,7 +963,7 @@ case 1:
 					urlLen += strlen(temp->str) + 1;
 					temp = temp->next;
 				}
-				if (NULL != (yyval._aturl->url = (int8 *)calloc(urlLen, sizeof(int8))))
+				if (NULL != (yyval._aturl->url = (char *)calloc(urlLen, sizeof(char))))
 				{
 					temp = srvcHead.next;
 					if (! _LSLP_IS_HEAD(temp) && temp->str != NULL)
@@ -1083,7 +1055,7 @@ case 4:
 			if (NULL != (yyval._atl = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
 				yyval._atl->next = yyval._atl->prev = yyval._atl;
-				if (NULL != (yyval._atl->str = (int8 *)calloc(2 + strlen(yyvsp[-1]._s), sizeof(int8))))
+				if (NULL != (yyval._atl->str = (char *)calloc(2 + strlen(yyvsp[-1]._s), sizeof(char))))
 				{
 					strcpy(yyval._atl->str, yyvsp[-1]._s);
 					strcat(yyval._atl->str, ":");	
@@ -1104,7 +1076,7 @@ case 5:
 			if (NULL != (yyval._atl = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
 				yyval._atl->next = yyval._atl->prev = yyval._atl;
-				if (NULL != (yyval._atl->str = (int8 *)calloc(3 + strlen(yyvsp[-3]._s) + strlen(yyvsp[-1]._s), sizeof(int8))))
+				if (NULL != (yyval._atl->str = (char *)calloc(3 + strlen(yyvsp[-3]._s) + strlen(yyvsp[-1]._s), sizeof(char))))
 				{
 					strcpy(yyval._atl->str, yyvsp[-3]._s);
 					strcat(yyval._atl->str, ".");
@@ -1216,7 +1188,7 @@ case 12:
 case 13:
 #line 313 "url.y"
 {
-			if(NULL != yyvsp[0]._s && (NULL !=(yyval._s = (int8 *)calloc(3 + strlen(yyvsp[0]._s), sizeof(int8)))))
+			if(NULL != yyvsp[0]._s && (NULL !=(yyval._s = (char *)calloc(3 + strlen(yyvsp[0]._s), sizeof(char)))))
 			{
 				strcpy(yyval._s, "//");
 				strcat(yyval._s, yyvsp[0]._s);
@@ -1227,7 +1199,7 @@ case 13:
 case 14:
 #line 321 "url.y"
 {
-			if(NULL != yyvsp[0]._s && (NULL !=(yyval._s = (int8 *)calloc(4 + strlen(yyvsp[-2]._s) + strlen(yyvsp[0]._s), sizeof(int8)))))
+			if(NULL != yyvsp[0]._s && (NULL !=(yyval._s = (char *)calloc(4 + strlen(yyvsp[-2]._s) + strlen(yyvsp[0]._s), sizeof(char)))))
 			{
 				strcpy(yyval._s, "//");
 				strcat(yyval._s, yyvsp[-2]._s);
@@ -1251,7 +1223,7 @@ case 16:
 case 17:
 #line 342 "url.y"
 {
-			if(NULL != (yyval._s = (int8 *)calloc(strlen(yyvsp[-5]._s) + strlen(yyvsp[-4]._s) + strlen(yyvsp[-2]._s) + strlen(yyvsp[0]._s) + 3, sizeof(int8))))
+			if(NULL != (yyval._s = (char *)calloc(strlen(yyvsp[-5]._s) + strlen(yyvsp[-4]._s) + strlen(yyvsp[-2]._s) + strlen(yyvsp[0]._s) + 3, sizeof(char))))
 			{
 				strcpy(yyval._s, yyvsp[-5]._s);
 				strcat(yyval._s, yyvsp[-4]._s);
@@ -1273,7 +1245,7 @@ case 19:
 {
 			if (yyvsp[-2]._s != NULL)
 			{
-				if(NULL != (yyval._s = (int8 *)calloc(strlen(yyvsp[-2]._s) + strlen(yyvsp[0]._s) + 2, sizeof(int8))))
+				if(NULL != (yyval._s = (char *)calloc(strlen(yyvsp[-2]._s) + strlen(yyvsp[0]._s) + 2, sizeof(char))))
 				{
 					strcpy(yyval._s, yyvsp[-2]._s);
 					strcat(yyval._s, ":");
@@ -1347,7 +1319,7 @@ case 28:
 			if(NULL != (yyval._atl = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
 				yyval._atl->prev = yyval._atl->next = yyval._atl;
-				if(NULL != (yyval._atl->str = (int8 *)calloc(1 + strlen(yyvsp[0]._s), sizeof(int8))))
+				if(NULL != (yyval._atl->str = (char *)calloc(1 + strlen(yyvsp[0]._s), sizeof(char))))
 				{
 					strcpy(yyval._atl->str, yyvsp[0]._s);
 					yyval._atl->hash = lslpCheckSum(yyval._atl->str, (int16)strlen(yyval._atl->str));
@@ -1368,7 +1340,7 @@ case 29:
 			if(NULL != (yyval._atl = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
 				yyval._atl->prev = yyval._atl->next = yyval._atl;
-				if(NULL != (yyval._atl->str = (int8 *)calloc(1 + strlen(yyvsp[0]._s), sizeof(int8))))
+				if(NULL != (yyval._atl->str = (char *)calloc(1 + strlen(yyvsp[0]._s), sizeof(char))))
 				{
 					strcpy(yyval._atl->str, yyvsp[0]._s);
 					yyval._atl->hash = lslpCheckSum(yyval._atl->str, (int16)strlen(yyval._atl->str));
@@ -1388,7 +1360,7 @@ case 30:
 			if(NULL != (yyval._atl = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
 				yyval._atl->prev = yyval._atl->next = yyval._atl;
-				if(NULL != (yyval._atl->str = (int8 *)calloc(1 + strlen(yyvsp[0]._s), sizeof(int8))))
+				if(NULL != (yyval._atl->str = (char *)calloc(1 + strlen(yyvsp[0]._s), sizeof(char))))
 				{
 					strcpy(yyval._atl->str, yyvsp[0]._s);
 					yyval._atl->hash = lslpCheckSum(yyval._atl->str, (int16)strlen(yyval._atl->str));
@@ -1427,7 +1399,7 @@ case 33:
 			if(NULL != (yyval._atl = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
 				yyval._atl->prev = yyval._atl->next = yyval._atl;
-				if(NULL != (yyval._atl->str = (int8 *)calloc(1 + strlen(yyvsp[0]._s), sizeof(int8))))
+				if(NULL != (yyval._atl->str = (char *)calloc(1 + strlen(yyvsp[0]._s), sizeof(char))))
 				{
 					strcpy(yyval._atl->str, yyvsp[0]._s);
 					yyval._atl->hash = lslpCheckSum(yyval._atl->str, (int16)strlen(yyval._atl->str));
@@ -1446,7 +1418,7 @@ case 34:
 			if(NULL != (yyval._atl = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
 				yyval._atl->prev = yyval._atl->next = yyval._atl;
-				if(NULL != (yyval._atl->str = (int8 *)calloc(2 + strlen(yyvsp[-2]._s) + strlen(yyvsp[0]._s), sizeof(int8))))
+				if(NULL != (yyval._atl->str = (char *)calloc(2 + strlen(yyvsp[-2]._s) + strlen(yyvsp[0]._s), sizeof(char))))
 				{
 					strcpy(yyval._atl->str, yyvsp[-2]._s);
 					strcat(yyval._atl->str, "=");
@@ -1823,7 +1795,7 @@ void lslpCleanUpURLLists(void)
   lslpFreeAtomizedURLList(&urlHead, 0);
 }
 
-lslpAtomizedURL *_lslpDecodeURLs(int8 *u[], int32 count)
+lslpAtomizedURL *_lslpDecodeURLs(char *u[], int32 count)
 {
   int32 i;
   

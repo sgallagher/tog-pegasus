@@ -148,7 +148,13 @@ public:
 	of enqueue()).
     */
     virtual void handleEnqueue();
+    
+    /** This method <b>may</b> be called prior to enqueueing an message. 
+	the message queue can inform the caller that it does not want
+	to handle the message by returning false **/
 
+    virtual Boolean messageOK(const Message & msg) { return true ;}
+    
     /** Lookup a message queue from a queue id. */
     static MessageQueue* lookup(Uint32 queueId) throw(IPCException);
     static  MessageQueue* lookup(const char *name) throw(IPCException);

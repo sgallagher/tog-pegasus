@@ -88,45 +88,50 @@ class MessageQueue;
 */
 class PEGASUS_COMMON_LINKAGE Message
 {
-public:
+   public:
 
-    Message(
-	Uint32 type, 
-	Uint32 key = getNextKey(), 
-	Uint32 mask = message_mask::type_legacy) 
-	: 
-	_type(type), 
-	_key(key), 
-	_mask(mask), 
-	_next(0), 
-	_prev(0) 
-    { 
+      Message(
+	 Uint32 type, 
+	 Uint32 key = getNextKey(), 
+	 Uint32 routing_code = 0,
+	 Uint32 mask = message_mask::type_legacy) 
+	 : 
+	 _type(type), 
+	 _key(key), 
+	 _routing_code(routing_code), 
+	 _mask(mask),
+	 _next(0), 
+	 _prev(0) 
+      { 
 
-    }
+      }
 
-    virtual ~Message(); 
+      virtual ~Message(); 
 
-    Uint32 getType() const { return _type; }
+      Uint32 getType() const { return _type; }
 
-    void setType(Uint32 type) { _type = type; }
+      void setType(Uint32 type) { _type = type; }
 
-    Uint32 getKey() const { return _key; }
+      Uint32 getKey() const { return _key; }
 
-    void setKey(Uint32 key) { _key = key; }
+      void setKey(Uint32 key) { _key = key; }
 
-    Uint32 getMask() const { return _mask; }
+      Uint32 getRouting() const { return _routing_code; }
+      void setRouting(Uint32 routing) { _routing_code = routing; }
+
+      Uint32 getMask() const { return _mask; }
       
-    void setMask(Uint32 mask) { _mask = mask; }
+      void setMask(Uint32 mask) { _mask = mask; }
       
-    Message* getNext() { return _next; }
+      Message* getNext() { return _next; }
 
-    const Message* getNext() const { return _next; }
+      const Message* getNext() const { return _next; }
 
-    Message* getPrevious() { return _prev; }
+      Message* getPrevious() { return _prev; }
 
-    const Message* getPrevious() const { return _prev; }
+      const Message* getPrevious() const { return _prev; }
 
-    static Uint32 getNextKey() 
+      static Uint32 getNextKey() 
       { 
 	 
 	 _mut.lock( pegasus_thread_self() ) ; 
@@ -135,11 +140,12 @@ public:
 	 return ret;
       }
       
-    virtual void print(PEGASUS_STD(ostream)& os) const;
+      virtual void print(PEGASUS_STD(ostream)& os) const;
 
-private:
+   private:
       Uint32 _type;
       Uint32 _key;
+      Uint32 _routing_code;
       Uint32 _mask;
       Message* _next;
       Message* _prev;

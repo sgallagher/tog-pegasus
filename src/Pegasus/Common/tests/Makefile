@@ -48,6 +48,7 @@ DIRS = \
     Logger \
     WebClient \
     ParamValue \
+    L10N \
     OperationContext
 
 #    MessageQueueService \

@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -64,7 +64,7 @@ static const CIMNamespaceName __NAMESPACE_NAMESPACE = CIMNamespaceName ("root");
 
 static const char* programVersion =  "2.0";
 
-/** 
+/**
   Thread Parameters Class
 */
 class T_Parms{
@@ -117,7 +117,7 @@ static void TestNameSpaceOperations(CIMClient* client, Boolean activeTest,
     // Get all namespaces for display using the __Namespaces function.
     CIMName className = "__NameSpace";
     Array<CIMNamespaceName> namespaceNames;
-    
+
     // Build the namespaces incrementally starting at the root
     // ATTN: 20030319 KS today we start with the "root" directory but this is wrong. We should be
     // starting with null (no directoyr) but today we get an xml error return in Pegasus
@@ -183,7 +183,7 @@ static void TestNameSpaceOperations(CIMClient* client, Boolean activeTest,
     }
 
     cout << returnNamespaces.size() << " namespaces " << " returned." << endl;
-    for( Uint32 cnt = 0 ; cnt < returnNamespaces.size(); cnt++ ) 
+    for( Uint32 cnt = 0 ; cnt < returnNamespaces.size(); cnt++ )
     {
         cout << returnNamespaces[cnt] << endl;;
     }
@@ -195,7 +195,7 @@ static void TestNameSpaceOperations(CIMClient* client, Boolean activeTest,
 	String testNamespace = uniqueID.append("_Namespace");
     	if(verboseTest)
     	    cout << "Conducting Create / Delete namespace test " << endl;
-    
+
     	// Build the instance name for __namespace
     	CIMNamespaceName testNamespaceName = CIMNamespaceName (testNamespace);
     	String instanceName = className.getString();
@@ -211,7 +211,7 @@ static void TestNameSpaceOperations(CIMClient* client, Boolean activeTest,
     	//    instanceNames
     	//}
     	// Create the new instance
-    
+
         CIMObjectPath newInstanceName;
     	try
     	{
@@ -253,9 +253,9 @@ static void TestNameSpaceOperations(CIMClient* client, Boolean activeTest,
     		    << PEGASUS_STD(endl);
     	     return;
     	}
-    
+
     	// Now delete it
-    
+
     	try
     	{
     		CIMObjectPath myReference(instanceName);
@@ -343,12 +343,12 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
     		    }
         }
         // CreateClass:
-    
+
         CIMClass c1(testClass, CIMName ("CIM_ManagedElement"));
         c1.addProperty(CIMProperty(CIMName ("count"), Uint32(99)));
         c1.addProperty(CIMProperty(CIMName ("ratio"), Real64(66.66)));
         c1.addProperty(CIMProperty(CIMName ("message"), String("Hello World")));
-    
+
         try
         {
         	client->createClass(globalNamespace, c1);
@@ -364,9 +364,9 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
     			return;
     		}
     	}
-    
+
         // GetClass:
-    
+
         CIMClass c2 = client->getClass(globalNamespace, testClass, true);
         if (!c1.identical(c2))
         {
@@ -375,7 +375,7 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
         // ATTN: This test should be uncommented when the repository implements
         // the localOnly flag.
         //assert(c1.identical(c2));
-    
+
         // Modify the class:
         c2.removeProperty(c2.findProperty(CIMName ("message")));
         try
@@ -388,20 +388,20 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
      	}
         // GetClass:
         CIMClass c3 = client->getClass(globalNamespace, testClass, true);
-    
+
         if (!c3.identical(c2))
         {
     	cout << "Test Failed. Rtned class c3 not equal to c2" << endl;
         }
         //assert(c3.identical(c2));
-    
+
         // Determine if the new Class exists in Enumerate
-    
+
         classNames = client->enumerateClassNames(
     		 globalNamespace, CIMName ("CIM_ManagedElement"), false);
-    
+
         Boolean found = false;
-    
+
         for (Uint32 i = 0; i < classNames.size(); i++)
         {
     		 if (classNames[i].equal(testClass))
@@ -413,7 +413,7 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
         	return;
     	}
         //assert(found);
-    
+
         // DeleteClass:
     	try
     	{
@@ -433,7 +433,7 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
     //assert(classDecls.size() == classNames.size());
     if (classDecls.size() == classNames.size())
     {
-        cout << "Class total count before and after test. Before = " << classNames.size() 
+        cout << "Class total count before and after test. Before = " << classNames.size()
             << " after = " <<  classDecls.size() << endl;
         return;
     }
@@ -472,11 +472,11 @@ static void TestQualifierOperations(CIMClient* client, Boolean activeTest,
 
 		 // Create two qualifier declarations:
 
-		 CIMQualifierDecl qd1(qd1_name, false, CIMScope::CLASS, 
+		 CIMQualifierDecl qd1(qd1_name, false, CIMScope::CLASS,
                      CIMFlavor::TOSUBCLASS);
 		 client->setQualifier(globalNamespace, qd1);
 
-		 CIMQualifierDecl qd2(qd2_name, String("Hello"), 
+		 CIMQualifierDecl qd2(qd2_name, String("Hello"),
                      CIMScope::PROPERTY + CIMScope::CLASS,
 		     CIMFlavor::OVERRIDABLE);
 		 client->setQualifier(globalNamespace, qd2);
@@ -714,22 +714,22 @@ static void TestInstanceModifyOperations(CIMClient* client, Boolean
 */
 static void testRefandAssoc(CIMClient* client, CIMNamespaceName& nameSpace,
         CIMObjectPath& objectName,
-        CIMName assocClass, 
+        CIMName assocClass,
         CIMName resultClass,
         String role = String::EMPTY,
         String resultRole = String::EMPTY)
 {
 
     Array<CIMObjectPath> result = client->referenceNames(
-        	nameSpace, 
-        	objectName, 
-        	resultClass, 
+        	nameSpace,
+        	objectName,
+        	resultClass,
         	role);
-    
+
     Array<CIMObject> resultObjects = client->references(
-        	nameSpace, 
-        	objectName, 
-        	resultClass, 
+        	nameSpace,
+        	objectName,
+        	resultClass,
         	role);
 
     if (result.size() != resultObjects.size())
@@ -742,41 +742,41 @@ static void testRefandAssoc(CIMClient* client, CIMNamespaceName& nameSpace,
         {
             cout << "ReferencesName response Error: "
                  << resultObjects[i].getPath().toString()
-                 << " != " 
+                 << " != "
                  << result[i].toString()
                  << endl;
         }
     }
 
     Array<CIMObjectPath> assocResult = client->associatorNames(
-        	nameSpace, 
+        	nameSpace,
         	objectName,
             assocClass,
-        	resultClass, 
+        	resultClass,
         	role,
             resultRole);
     Array<CIMObject> assocResultObjects = client->associators(
-        	nameSpace, 
+        	nameSpace,
         	objectName,
             assocClass,
-        	resultClass, 
+        	resultClass,
         	role,
             resultRole);
     if (assocResult.size() != assocResultObjects.size())
     {
-        cout << "ERROR, Associator and AssociatorName count returned different counts " 
+        cout << "ERROR, Associator and AssociatorName count returned different counts "
             << assocResult.size() << " associator name responses and "
             << assocResultObjects.size() << " associator objects " << endl;
-	//#define LOCAL_MAX (a , b) (a > b) ?  a : b )        
+	//#define LOCAL_MAX (a , b) (a > b) ?  a : b )
     // Uint32 maxCount = LOCAL_MAX(assocResult.size() ,assocResultObjects.size());
         Uint32 maxCount = (assocResult.size() ,assocResultObjects.size() ) ?
-	  assocResult.size()  : assocResultObjects.size(); 
-        cout << "Max " << maxCount << endl; 
+	  assocResult.size()  : assocResultObjects.size();
+        cout << "Max " << maxCount << endl;
 
         for (Uint32 i = 0 ; i < maxCount ; i ++)
         {
             cout << i << " " << ((i < assocResult.size())? assocResult[i].toString() : "") << endl;
-            
+
             cout << i << " " << ((i < assocResultObjects.size())? assocResultObjects[i].getPath().toString() : "") << endl;
         }
         return;
@@ -787,7 +787,7 @@ static void testRefandAssoc(CIMClient* client, CIMNamespaceName& nameSpace,
         {
             cout << "Association Name response Error"
                     << assocResultObjects[i].getPath().toString()
-                    << " != " 
+                    << " != "
                     << assocResult[i].toString()
                     << endl;
         }
@@ -797,18 +797,18 @@ static void TestAssociationOperations(CIMClient* client, Boolean
 		 		 	 activeTest, Boolean verboseTest, String uniqueID)
 {
     CIMNamespaceName nameSpace = "root/sampleprovider";
-    // If the sample provider class is loaded, this function tests the 
+    // If the sample provider class is loaded, this function tests the
     // association functions against the FamilyProvider
     Boolean runTest = true;
     // First test against known name in cim namespace.
-    {                                                 
+    {
         CIMObjectPath o1("CIM_ManagedElement");
         CIMObjectPath o2("CIM_ManagedElement.name=\"karl\"");
 
         testRefandAssoc(client, globalNamespace, o1, CIMName(), CIMName());
         testRefandAssoc(client, globalNamespace, o2, CIMName(), CIMName());
     }
-    
+
     // Now Test to see if the namespace and class exist before
     // continueing the test.
     {
@@ -832,12 +832,12 @@ static void TestAssociationOperations(CIMClient* client, Boolean
     }
     if (runTest)
     {
-        
+
         CIMObjectPath TST_PersonClass= CIMObjectPath("TST_Person");
         CIMObjectPath TST_PersonInstance = CIMObjectPath( "TST_Person.name=\"Mike\"");
         CIMObjectPath TST_PersonDynamicClass = CIMObjectPath("TST_PersonDynamic");
         CIMObjectPath TST_PersonDynamicInstance = CIMObjectPath( "TST_PersonDynamic.name=\"Father\"");
-        
+
         testRefandAssoc(client, nameSpace, TST_PersonClass , CIMName(), CIMName());
         testRefandAssoc(client, nameSpace, TST_PersonInstance , CIMName(), CIMName());
         testRefandAssoc(client, nameSpace, TST_PersonDynamicClass , CIMName(), CIMName());
@@ -861,7 +861,7 @@ static void TestMethodOperations( CIMClient* client, Boolean
     // Since the test modifies the repository, don't do it unless active set.
     if (!activeTest)
         return;
-   
+
     String name = uniqueID.append("_").append("TestSoftwarePkg");
     CIMName cimName(name);
     //Indication to be created
@@ -869,24 +869,24 @@ static void TestMethodOperations( CIMClient* client, Boolean
     CIMInstance cimInstance(cimName);
     cimInstance.addProperty(CIMProperty(CIMName ("PkgName"), String("WBEM")));
     cimInstance.addProperty(CIMProperty(CIMName ("PkgIndex"), Uint32(101)));
-    cimInstance.addProperty(CIMProperty(CIMName ("trapOid"), 
+    cimInstance.addProperty(CIMProperty(CIMName ("trapOid"),
         String("1.3.6.1.4.1.11.2.3.1.7.0.4")));
-    cimInstance.addProperty(CIMProperty(CIMName ("computerName"), 
+    cimInstance.addProperty(CIMProperty(CIMName ("computerName"),
         String("NU744781")));
     CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
     instanceName.setNameSpace(globalNamespace);
     client->createInstance(globalNamespace, cimInstance);
-    
+
     try
     {
     	Array<CIMParamValue> inParams;
     	Array<CIMParamValue> outParams;
-    	inParams.append(CIMParamValue("param1", 
+    	inParams.append(CIMParamValue("param1",
             CIMValue(String("Hewlett-Packard"))));
-    	inParams.append(CIMParamValue("param2", 
+    	inParams.append(CIMParamValue("param2",
             CIMValue(String("California"))));
             Uint32 testRepeat = 100;
-            
+
     	for (Uint32 i = 0; i < testRepeat; i++)        // repeat the test x time
             {
                 CIMValue retValue = client->invokeMethod(
@@ -931,7 +931,7 @@ static void TestInvokeMethod( CIMClient * client,
   const String OUTSTRING = "Yoda";
   const String GOODREPLY = "Hello, " + OUTSTRING + "!";
   const String GOODPARAM = "From Neverland";
-  const CIMObjectPath instanceName = CIMObjectPath 
+  const CIMObjectPath instanceName = CIMObjectPath
                             ("Sample_MethodProviderClass.Identifier=1");
 
   try
@@ -941,7 +941,7 @@ static void TestInvokeMethod( CIMClient * client,
 
       Uint32 testRepeat = 10;
       inParams.append( CIMParamValue(  "Name", CIMValue( OUTSTRING ) ) );
-      
+
       for (Uint32 i = 0; i < testRepeat; i++)        // repeat the test x time
       {
           CIMValue retValue = client->invokeMethod(
@@ -952,7 +952,7 @@ static void TestInvokeMethod( CIMClient * client,
                               outParams);
           if( retValue.toString() != GOODREPLY )
             {
-                PEGASUS_STD(cerr) << "Error: bad reply \"" 
+                PEGASUS_STD(cerr) << "Error: bad reply \""
                   << retValue.toString() << "\"" << PEGASUS_STD(endl);
                 return;
             }
@@ -1005,11 +1005,11 @@ static void TestEnumerateInstances( CIMClient * client,
 				    Boolean verboseTest, String uniqueID )
 {
 
-  const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/SampleProvider");
-  const CIMName CLASSNAME = CIMName ("Sample_InstanceProviderClass");
-  const String INSTANCE0 = "instance 0Sample_InstanceProviderClass";
-  const String INSTANCE1 = "instance 1Sample_InstanceProviderClass";
-  const String INSTANCE2 = "instance 2Sample_InstanceProviderClass";
+  const CIMNamespaceName NAMESPACE("root/SampleProvider");
+  const CIMName CLASSNAME("Sample_InstanceProviderClass");
+  const CIMObjectPath INSTANCE0("Sample_InstanceProviderClass.Identifier=1");
+  const CIMObjectPath INSTANCE1("Sample_InstanceProviderClass.Identifier=2");
+  const CIMObjectPath INSTANCE2("Sample_InstanceProviderClass.Identifier=3");
 
   try
     {
@@ -1033,21 +1033,22 @@ static void TestEnumerateInstances( CIMClient * client,
       numberInstances =  cimNInstances.size();
 
 	  for (Uint32 i = 0; i < cimNInstances.size(); i++)
-	    {
-	      String instanceRef = cimNInstances[i].getPath ().toString();
+      {
+          CIMObjectPath instanceRef = cimNInstances[i].getPath();
 
-	      //ATTN P2 WO 4 April 2002
-	      // Test for INSTANCE0..2 when getInstanceName returns
-	      // the full reference string
+          if((instanceRef != INSTANCE0) &&
+             (instanceRef != INSTANCE1) &&
+             (instanceRef != INSTANCE2))
+          {
+              PEGASUS_STD(cerr) << "Error: EnumInstances failed. Instance Name Error"
+                  << " Expected instance name = "
+                  << INSTANCE0.toString() << " or "
+                  << INSTANCE1.toString() << " or "
+                  << INSTANCE2.toString()
+                  << "received = " << instanceRef.toString() << PEGASUS_STD(endl);
 
-	      if( !(String::equal(  instanceRef, className.getString() ) ) )
-		{
-		  PEGASUS_STD(cerr) << "Error: EnumInstances failed. ClassName Error"
-              << " Expected classname = " << className << " Received " << instanceRef
-              << PEGASUS_STD(endl);
-          
-		  return;
-		}
+              return;
+          }
 	    }
 	}
       cout << "Enumerate " << numberInstances << " instances " << testRepeat << " times" << endl;
@@ -1152,8 +1153,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL executeTests(void *parm){
 	T_Parms *parms = (T_Parms *)my_thread->get_parm();
 	CIMClient *client = parms->client.get();
 	Uint32 testCount = parms->testCount;
-	Boolean verboseTest = parms->verboseTest;
-	Boolean activeTest = parms->activeTest;
+	Boolean verboseTest = parms->verboseTest == 0 ? false : true;
+	Boolean activeTest = parms->activeTest == 0 ? false : true;
 	int id = parms->uniqueID;
 	char id_[4];
 	memset(id_,0x00,sizeof(id_));
@@ -1167,17 +1168,17 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL executeTests(void *parm){
 		testStart("Test NameSpace Operations");
                 TestNameSpaceOperations(client, activeTest, verboseTest, uniqueID);
                 testEnd(elapsedTime.getElapsed());
-                                                                                                                                                             
+
                 testStart("Test Qualifier Operations");
                 elapsedTime.reset();
                 TestQualifierOperations(client,activeTest,verboseTest, uniqueID);
                 testEnd(elapsedTime.getElapsed());
-                                                                                                                                                             
+
                 testStart("Test EnumerateClassNames");
                 elapsedTime.reset();
                 TestEnumerateClassNames(client,activeTest,verboseTest, uniqueID);
                 testEnd(elapsedTime.getElapsed());
-                                                                                                                                                             
+
                 testStart("Test Class Operations");
                 elapsedTime.reset();
                 TestClassOperations(client,activeTest,verboseTest, uniqueID);
@@ -1186,29 +1187,29 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL executeTests(void *parm){
                 testStart("Test Instance Get Operations");
                 elapsedTime.reset();
                 TestInstanceGetOperations(client,activeTest,verboseTest, uniqueID);
-                testEnd(elapsedTime.getElapsed());                                                                                                                                                      
+                testEnd(elapsedTime.getElapsed());
 
                 testStart("Test Instance Modification Operations");
                 elapsedTime.reset();
                 TestInstanceModifyOperations(client, activeTest, verboseTest, uniqueID);
                 testEnd(elapsedTime.getElapsed());
-      
-                                                                                                                                                  
+
+
                 testStart("Test Associations");
                 TestAssociationOperations(client, activeTest, verboseTest, uniqueID);
                 testEnd(elapsedTime.getElapsed());
-                                                                                                                                                
+
                 /* Turn this one off until we get valid method to execute
                 testStart("Test Method Execution");
                 TestMethodOperations(client, activeTest, verboseTest, uniqueID);
                 testEnd(elapsedTime.getElapsed());
                 */
-                                                                                                                                                           
+
                 testStart("Test Invoke Method Execution");
                 elapsedTime.reset();
                 TestInvokeMethod(client, activeTest, verboseTest, uniqueID);
 		testEnd(elapsedTime.getElapsed());
-                                                                                                                                                             
+
                 testStart("Test Enumerate Instances Execution");
                 elapsedTime.reset();
                 TestEnumerateInstances(client, activeTest, verboseTest, uniqueID);
@@ -1239,7 +1240,7 @@ Thread * runTests(CIMClient *client, Uint32 testCount, Boolean activeTest, Boole
 
 void connectClient(CIMClient *client, String host, Uint32 portNumber, String userName, String password, Boolean useSSL, Boolean localConnection,
 			Uint32 timeout){
- 
+
    try{
 	client->setTimeout(timeout);
         if (useSSL){
@@ -1254,10 +1255,10 @@ void connectClient(CIMClient *client, String host, Uint32 portNumber, String use
                 // Get environment variables:
                 //
                 const char* pegasusHome = getenv("PEGASUS_HOME");
-                                                                                                                                                             
+
                 String certpath = FileSystem::getAbsolutePath(
                                 pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
-                                                                                                                                                             
+
                         String randFile = String::EMPTY;
 #ifdef PEGASUS_SSL_RANDOMFILE
                         randFile = FileSystem::getAbsolutePath(
@@ -1283,7 +1284,7 @@ void connectClient(CIMClient *client, String host, Uint32 portNumber, String use
     } catch(Exception& e) {
                 PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
                 exit(1);
-    }                                                                                                                                         
+    }
 }
 
 
@@ -1378,7 +1379,7 @@ int main(int argc, char** argv)
     {
        cout << "Username = " << userName << endl;
     }
-                                                                                                                                                             
+
     String password;
     om.lookupValue("password", password);
     if (password != String::EMPTY)
@@ -1389,12 +1390,12 @@ int main(int argc, char** argv)
     Boolean useSLP =  false;
     Boolean localConnection = (om.valueEquals("local", "true"))? true: false;
     Boolean useSSL =  om.isTrue("ssl");
-    
+
      Array<String> connectionList;
     if (argc > 1 && !localConnection)
                  for (Sint32 i = 1; i < argc; i++)
                      connectionList.append(argv[i]);
-                                                                                                                       
+
     // setup default connection definitions if needed
     if (useSSL)
         connectionList.append("localhost:5989");
@@ -1422,11 +1423,11 @@ int main(int argc, char** argv)
     	if (index != PEG_NOT_FOUND){
     		String portStr = connectionList[i].subString(index + 1, connectionList[i].size ());
         	sscanf (portStr.getCString (), "%u", &portNumber);
-    	}              
-                                                                                                         
+    	}
+
 
         Array<CIMClient*> clientConnections;
-    
+
     	CIMClient* client;
     	for(Uint32 i = 0; i < clients; i++){
 		client = new CIMClient();

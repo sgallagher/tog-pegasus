@@ -7,6 +7,7 @@ include $(ROOT)/mak/config.mak
 DIRS = \
 	__NamespaceProvider \
 	ConfigSettingProvider \
+	UserManagerProvider \
 	OperatingSystemProvider
 
 include $(ROOT)/mak/recurse.mak

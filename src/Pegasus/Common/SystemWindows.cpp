@@ -172,10 +172,8 @@ String System::getHostName()
 
 String System::getPassword(const char* prompt)
 {
-    //
-    // This function needs to be implemented
-    // Return a dummy string for now
-    //
+    //ATTN: Implement this method to get password from User with no echo
+    //      This is used in cimuser CLI
     String password("dummy");
 
     return password;
@@ -188,4 +186,27 @@ String System::getCurrentLoginName()
 
     return String();
 }
+
+String System::encryptPassword(const char* password, const char* salt)
+{
+    //ATTN: Implement this method to encrypt the password
+    //      This is used in User Manager
+    return (String("dummy"));
+}
+
+Boolean System::isSystemUser(char* userName)
+{
+    //ATTN: Implement this method to verify if user is vaild on the local system
+    //      This is used in User Manager
+    return true;
+}
+
+Boolean System::isPrivilegedUser()
+{
+    // ATTN: Implement this method to verify if user executing the current
+    //       command is a priviliged user
+    //       This is used in cimuser CLI
+    return true;
+}
+    
 PEGASUS_NAMESPACE_END

@@ -44,6 +44,7 @@
 #include <Pegasus/ExportServer/CIMExportRequestDispatcher.h>
 #include <Pegasus/ExportServer/CIMExportResponseEncoder.h>
 #include <Pegasus/ExportServer/CIMExportRequestDecoder.h>
+#include <Pegasus/Security/UserManager/UserManager.h>
 #include "CIMServer.h"
 #include "CIMOperationRequestDispatcher.h"
 #include "CIMOperationResponseEncoder.h"
@@ -106,6 +107,8 @@ CIMServer::CIMServer(
     HTTPAuthenticatorDelegator* serverQueue = new HTTPAuthenticatorDelegator(
         _cimOperationRequestDecoder->getQueueId(),
         _cimExportRequestDecoder->getQueueId());
+
+    UserManager* userManager = UserManager::getInstance(repository);
 
     _acceptor = new HTTPAcceptor(_monitor, serverQueue);
 }

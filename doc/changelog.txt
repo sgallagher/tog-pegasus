@@ -445,6 +445,21 @@ repository implementation.
     operations.  Note that GetProperty and SetProperty currently only
     work for String properties because of an XML encoding limitation.
 
+53. (Nag Boranna - HP, Sushma Fernandes - HP) 30 Nov 2001 - Implemented the
+    Security components for authentication and authorization. 
+
+    Authentication and User Management:
+    cimuser CLI : This CLI is used for addition, modification, removal
+    and listing of CIM Users. The CIM user password is encrypted and stored
+    in a file. The password file format is compatible with Apache's htpasswd 
+    generated password file. 
+
+    cimauth CLI implement the authorization managment functionality by letting
+    to add/remove/list user authorizations.
+    
+    User Manager and  User Manager Provider  components implement the user 
+    management and authorization functionality.   
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

@@ -49,6 +49,7 @@ PEGASUS_NAMESPACE_BEGIN
 static struct ConfigPropertyRow properties[] =
 {
     {"requireAuthentication", "false", 0, 0, 0},
+    {"requireAuthorization", "false", 0, 0, 0},
     {"httpAuthType", "Basic", 0, 0, 0}
 };
 
@@ -59,6 +60,7 @@ const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 SecurityPropertyOwner::SecurityPropertyOwner()
 {
     _requireAuthentication = new ConfigProperty;
+    _requireAuthorization = new ConfigProperty;
     _httpAuthType = new ConfigProperty;
 }
 
@@ -66,6 +68,7 @@ SecurityPropertyOwner::SecurityPropertyOwner()
 SecurityPropertyOwner::~SecurityPropertyOwner()
 {
     delete _requireAuthentication;
+    delete _requireAuthorization;
     delete _httpAuthType;
 }
 
@@ -90,6 +93,17 @@ void SecurityPropertyOwner::initialize()
             _requireAuthentication->dynamic = properties[i].dynamic;
             _requireAuthentication->domain = properties[i].domain;
             _requireAuthentication->domainSize = properties[i].domainSize;
+        }
+        else if (String::equalNoCase(
+            properties[i].propertyName, "requireAuthorization"))
+        {
+            _requireAuthorization->propertyName = properties[i].propertyName;
+            _requireAuthorization->defaultValue = properties[i].defaultValue;
+            _requireAuthorization->currentValue = properties[i].defaultValue;
+            _requireAuthorization->plannedValue = properties[i].defaultValue;
+            _requireAuthorization->dynamic = properties[i].dynamic;
+            _requireAuthorization->domain = properties[i].domain;
+            _requireAuthorization->domainSize = properties[i].domainSize;
         }
         else if (String::equalNoCase(properties[i].propertyName, "httpAuthType"))
         {
@@ -128,6 +142,21 @@ void SecurityPropertyOwner::getPropertyInfo(
             propertyInfo.append(STRING_FALSE);
         }
     }
+    else if (String::equalNoCase(_requireAuthorization->propertyName, name))
+    {
+        propertyInfo.append(_requireAuthorization->propertyName);
+        propertyInfo.append(_requireAuthorization->defaultValue);
+        propertyInfo.append(_requireAuthorization->currentValue);
+        propertyInfo.append(_requireAuthorization->plannedValue);
+        if (_requireAuthorization->dynamic)
+        {
+            propertyInfo.append(STRING_TRUE);
+        }
+        else
+        {
+            propertyInfo.append(STRING_FALSE);
+        }
+    }
     else if (String::equalNoCase(_httpAuthType->propertyName, name))
     {
         propertyInfo.append(_httpAuthType->propertyName);
@@ -158,6 +187,10 @@ const String SecurityPropertyOwner::getDefaultValue(const String& name)
     {
         return (_requireAuthentication->defaultValue);
     }
+    else if (String::equalNoCase(_requireAuthorization->propertyName, name))
+    {
+        return (_requireAuthorization->defaultValue);
+    }
     else if (String::equalNoCase(_httpAuthType->propertyName, name))
     {
         return (_httpAuthType->defaultValue);
@@ -177,6 +210,10 @@ const String SecurityPropertyOwner::getCurrentValue(const String& name)
     {
         return (_requireAuthentication->currentValue);
     }
+    else if (String::equalNoCase(_requireAuthorization->propertyName, name))
+    {
+        return (_requireAuthorization->currentValue);
+    }
     else if (String::equalNoCase(_httpAuthType->propertyName, name))
     {
         return (_httpAuthType->currentValue);
@@ -195,6 +232,10 @@ const String SecurityPropertyOwner::getPlannedValue(const String& name)
     if (String::equalNoCase(_requireAuthentication->propertyName, name))
     {
         return (_requireAuthentication->plannedValue);
+    }
+    else if (String::equalNoCase(_requireAuthorization->propertyName, name))
+    {
+        return (_requireAuthorization->plannedValue);
     }
     else if (String::equalNoCase(_httpAuthType->propertyName, name))
     {
@@ -224,6 +265,10 @@ void SecurityPropertyOwner::initCurrentValue(
     {
         _requireAuthentication->currentValue = value;
     }
+    else if (String::equalNoCase(_requireAuthorization->propertyName, name))
+    {
+        _requireAuthorization->currentValue = value;
+    }
     else if (String::equalNoCase(_httpAuthType->propertyName, name))
     {
         _httpAuthType->currentValue = value;
@@ -250,6 +295,10 @@ void SecurityPropertyOwner::initPlannedValue(
     if (String::equalNoCase(_requireAuthentication->propertyName, name))
     {
         _requireAuthentication->plannedValue= value;
+    }
+    else if (String::equalNoCase(_requireAuthorization->propertyName, name))
+    {
+        _requireAuthorization->plannedValue= value;
     }
     else if (String::equalNoCase(_httpAuthType->propertyName, name))
     {
@@ -319,6 +368,13 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
             retVal = true;
         }
     }
+    else if (String::equalNoCase(_requireAuthorization->propertyName, name))
+    {
+        if(String::equal(value, "true") || String::equal(value, "false"))
+        {
+            retVal = true;
+        }
+    }
     else if (String::equalNoCase(_httpAuthType->propertyName, name))
     {
         if(String::equal(value, "Basic") || String::equal(value, "Digest"))
@@ -341,6 +397,10 @@ Boolean SecurityPropertyOwner::isDynamic(const String& name)
     if (String::equalNoCase(_requireAuthentication->propertyName, name))
     {
         return (_requireAuthentication->dynamic);
+    }
+    if (String::equalNoCase(_requireAuthorization->propertyName, name))
+    {
+        return (_requireAuthorization->dynamic);
     }
     else if (String::equalNoCase(_httpAuthType->propertyName, name))
     {

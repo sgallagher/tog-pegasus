@@ -202,6 +202,8 @@ private:
     */
     struct ConfigProperty*      _requireAuthentication;
 
+    struct ConfigProperty*      _requireAuthorization;
+
     struct ConfigProperty*      _httpAuthType;
 
 };

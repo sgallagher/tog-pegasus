@@ -1,241 +1,205 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//=============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Sushma Fernandes (sushma_fernandes@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////
-//
-// This file implements the functionality required to manage auth table.
+// 
+// This file implements the functionality required to manage auth table. 
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/Constants.h>
-#include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/CIMNameCast.h>
+#include <Pegasus/Common/CIMReference.h>
 
-#ifdef PEGASUS_OS_PASE
-# include <ILEWrapper/qumemultiutil.h>
-# include <ILEWrapper/ILEUtilities2.h>
-#endif
-
-#include "AuthorizationHandler.h"
-#include "UserExceptions.h"
+#include <Pegasus/Security/UserManager/AuthorizationHandler.h>
+#include <Pegasus/Security/UserManager/UserExceptions.h>
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+//
+//ATTN: The following constant should be placed in a common place.
+//
+/**
+    The constant represeting the authorization class name
+*/
+const String PG_AUTH_CLASS                     = "PG_Authorization";
 
-//
-// This constant represents the  User name property in the schema
-//
-static const CIMName PROPERTY_NAME_USERNAME = CIMNameCast("Username");
+/**
+    The constant representing the default namespace
+*/
+const String AUTHORIZATION_NAMESPACE           = "root/cimv2";
 
-//
-// This constant represents the Namespace property in the schema
-//
-static const CIMName PROPERTY_NAME_NAMESPACE = CIMNameCast("Namespace");
+/**
+    This constant represents the  User name property in the schema
+*/
+static const char PROPERTY_NAME_USERNAME []    = "Username";
 
-//
-// This constant represents the Authorizations property in the schema
-//
-static const CIMName PROPERTY_NAME_AUTHORIZATION = CIMNameCast("Authorization");
+/**
+    This constant represents the Namespace property in the schema
+*/
+static const char PROPERTY_NAME_NAMESPACE []   = "Namespace";
+
+/**
+    This constant represents the Authorizations property in the schema
+*/
+static const char PROPERTY_NAME_AUTHORIZATION []    = "Authorization";
 
 
-//
-// List of all the CIM Operations
-//
-// Note: The following tables contain all the existing CIM Operations.
-//       Any new CIM Operations created must be included in one of these tables,
-//       otherwise no CIM requests will have authorization to execute those
-//       new operations.
-//
+/**
+    List of CIM Operations
+*/
+//ATTN: Make sure it has all the operations covered
 
-//
-// List of read only CIM Operations
-//
-static const CIMName READ_OPERATIONS [] =
-{
-    CIMName("GetClass"),
-    CIMName("GetInstance"),
-    CIMName("EnumerateClassNames"),
-    CIMName("References"),
-    CIMName("ReferenceNames"),
-    CIMName("AssociatorNames"),
-    CIMName("Associators"),
-    CIMName("EnumerateInstanceNames"),
-    CIMName("GetQualifier"),
-    CIMName("EnumerateQualifiers"),
-    CIMName("EnumerateClasses"),
-    CIMName("EnumerateInstances"),
-    CIMName("ExecQuery"),
-    CIMName("GetProperty")
-};
-
-//
-// List of write CIM Operations
-//
-static const CIMName WRITE_OPERATIONS [] =
-{
-    CIMName("CreateClass"),
-    CIMName("CreateInstance"),
-    CIMName("DeleteQualifier"),
-    CIMName("SetQualifier"),
-    CIMName("ModifyClass"),
-    CIMName("ModifyInstance"),
-    CIMName("DeleteClass"),
-    CIMName("DeleteInstance"),
-    CIMName("SetProperty"),
-    CIMName("InvokeMethod"),
-    CIMName("EnableIndicationSubscription"),
-    CIMName("ModifyIndicationSubscription"),
-    CIMName("DisableIndicationSubscription")
-};
-
-static String _getAuthKey(const String &userName, const String &nameSpace)
-{
-    //Separator ":" is used to distinguish "a" +"bc"
-    // and "ab"+"c" scenarios
-    String key = nameSpace;
-    key.append(Char16(':'));
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    key.append(userName);
-    key.toLower();
-#else
-    key.toLower();
-    key.append(userName);
-#endif
-
-    return key;
-}
+static const char* READ_OPERATIONS []    = {
+    "GetClass",
+    "GetInstance",
+    "EnumerateClassNames",
+    "References",
+    "ReferenceNames",
+    "AssociatorNames",
+    "Associators",
+    "EnumerateInstanceNames",
+    "GetQualifier",
+    "EnumerateQualifiers",
+    "EnumerateClasses",
+    "EnumerateInstances",
+    "ExecQuery",
+    "GetProperty" };
+    
+static const char* WRITE_OPERATIONS []    = {
+    "CreateClass",
+    "CreateInstance",
+    "DeleteQualifier",
+    "SetQualifier",
+    "ModifyClass",
+    "ModifyInstance",
+    "DeleteClass",
+    "DeleteInstance",
+    "SetProperty" };
+    
 
 //
 // Constructor
 //
 AuthorizationHandler::AuthorizationHandler(CIMRepository* repository)
 {
-    PEG_METHOD_ENTER(
-        TRC_AUTHORIZATION, "AuthorizationHandler::AuthorizationHandler()");
-
     _repository = repository;
 
-    _loadAllAuthorizations();
+    try
+    {
+        _loadAllAuthorizations();
+    }
+    catch(Exception& e)
+    {
+	//ATTN: 
+	cerr << PG_AUTH_CLASS << " class not loaded, ";
+	cerr << "No authorizations configured." << endl;
 
-    PEG_METHOD_EXIT();
+        //throw e;
+    }
 }
 
 //
-// Destructor.
+// Destructor. 
 //
 AuthorizationHandler::~AuthorizationHandler()
 {
-    PEG_METHOD_ENTER(
-        TRC_AUTHORIZATION, "AuthorizationHandler::~AuthorizationHandler()");
 
-    PEG_METHOD_EXIT();
 }
 
 //
 // Check if a given namespace exists
 //
-Boolean AuthorizationHandler::verifyNamespace(
-    const CIMNamespaceName& nameSpace)
+Boolean AuthorizationHandler::verifyNamespace( const String& nameSpace )
 {
-    PEG_METHOD_ENTER(
-        TRC_AUTHORIZATION, "AuthorizationHandler::verifyNamespace()");
-
+    //
+    // ATTN: Implement this
+    // 
+/*
     try
     {
         //
-        // call enumerateNameSpaces to get all the namespaces
-        // in the repository
+        // call enumerateInstanceNames
         //
-        Array<CIMNamespaceName> namespaceNames =
-            _repository->enumerateNameSpaces();
+        Array<CIMReference> instanceNames =
+            _repository->enumerateInstanceNames( AUTHORIZATION_NAMESPACE, PG_AUTH_CLASS);
 
         //
         // check for the given namespace
         //
-        Uint32 size = namespaceNames.size();
-
-        for (Uint32 i = 0; i < size; i++)
+        for (Uint32 i = 0; i < instanceNames.size(); i++)
         {
-             if (nameSpace.equal (namespaceNames[i]))
-             {
-                 PEG_METHOD_EXIT();
-                 return true;
-             }
+            Array<KeyBinding> kbArray = instanceNames[i].getKeyBindings();
+
+            if (kbArray.size() > 0)
+            {
+                if (String::equal(nameSpace, kbArray[0].getValue();
+            }
         }
-    }
-    catch (Exception& e)
+    catch (CIMException& e)
     {
-        PEG_METHOD_EXIT();
-        throw InvalidNamespace(nameSpace.getString() + e.getMessage());
+	throw InvalidNamespace(nameSpace+e.getMessage());
     }
-
-    PEG_METHOD_EXIT();
-
-    return false;
+*/
+    return true;
 }
 
-//
+// 
 // Load all user names and password
 //
 void AuthorizationHandler::_loadAllAuthorizations()
 {
-    PEG_METHOD_ENTER(
-        TRC_AUTHORIZATION, "AuthorizationHandler::_loadAllAuthorizations()");
-
-    Array<CIMInstance> namedInstances;
+    Array<CIMNamedInstance> namedInstances;
 
     try
     {
         //
-        // call enumerateInstancesForClass of the repository
+        // call enumerateInstances of the repository
         //
-        namedInstances = _repository->enumerateInstancesForClass(
-            PEGASUS_NAMESPACENAME_AUTHORIZATION,
-            PEGASUS_CLASSNAME_AUTHORIZATION);
+        namedInstances = _repository->enumerateInstances(
+            AUTHORIZATION_NAMESPACE, PG_AUTH_CLASS); 
 
         //
         // get all the user names, namespaces, and authorizations
         //
         for (Uint32 i = 0; i < namedInstances.size(); i++)
         {
-            CIMInstance& authInstance = namedInstances[i];
+            CIMInstance& authInstance =
+                namedInstances[i].getInstance();
 
             //
             // get user name
@@ -261,89 +225,82 @@ void AuthorizationHandler::_loadAllAuthorizations()
             //
             // Add authorization to the table
             //
-            if (!_authTable.insert(_getAuthKey(userName, nameSpace), auth))
+            if (!_authTable.insert(userName+nameSpace, auth))
             {
-                throw AuthorizationCacheError();
+                //ATTN: Should an exception be thrown or just ignore 
+                //      that instance ?
+                //throw AuthorizationCacheError();
             }
         }
 
     }
-    catch (const CIMException& e)
+    catch(Exception& e)
     {
-        // Allow initialization to succeed with an empty repository
-        if (e.getCode() != CIM_ERR_INVALID_NAMESPACE)
-        {
-            PEG_METHOD_EXIT();
-            throw;
-        }
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
     }
+    
 
-    PEG_METHOD_EXIT();
+
 }
 
 void AuthorizationHandler::setAuthorization(
-    const String& userName,
-    const CIMNamespaceName& nameSpace,
-    const String& auth)
+                            const String& userName,
+                            const String& nameSpace,
+			    const String& auth)
+
 {
-    PEG_METHOD_ENTER(
-        TRC_AUTHORIZATION, "AuthorizationHandler::setAuthorization()");
-
-    String key = _getAuthKey(userName, nameSpace.getString());
     //
-    // Remove auth if it already exists
+    // Check if the auth already exists
     //
-    _authTable.remove(key);
-
-    //
-    // Insert the specified authorization
-    //
-    if (!_authTable.insert(key, auth))
+    if (_authTable.contains(userName+nameSpace))
     {
-        PEG_METHOD_EXIT();
+        //
+        // remove the existing auth TODO: confirm this
+        //
+        if (!_authTable.remove(userName+nameSpace))
+        {
+            //ATTN: Should this exception be thrown here?
+            throw AuthorizationCacheError();
+        }
+    }
+
+    //
+    // Add authorization to the table
+    //
+    if (!_authTable.insert(userName+nameSpace,auth))
+    {
         throw AuthorizationCacheError();
     }
 
-    PEG_METHOD_EXIT();
 }
 
 void AuthorizationHandler::removeAuthorization(
-    const String& userName,
-    const CIMNamespaceName& nameSpace)
+                            const String& userName,
+                            const String& nameSpace)
 {
-    PEG_METHOD_ENTER(
-        TRC_AUTHORIZATION, "AuthorizationHandler::removeAuthorization()");
-
     //
-    // Remove the specified authorization
+    // remove authorization from the table
     //
-    if (!_authTable.remove(_getAuthKey(userName, nameSpace.getString())))
+    if (!_authTable.remove(userName+nameSpace))
     {
-        PEG_METHOD_EXIT();
-        throw AuthorizationEntryNotFound(userName, nameSpace.getString());
+        throw AuthorizationCacheError();
     }
-    PEG_METHOD_EXIT();
 }
 
 String AuthorizationHandler::getAuthorization(
-    const String& userName,
-    const CIMNamespaceName& nameSpace)
+                            const String& userName,
+                            const String& nameSpace)
 {
-    PEG_METHOD_ENTER(
-        TRC_AUTHORIZATION, "AuthorizationHandler::getAuthorization()");
-
     String auth;
 
-    //
-    // Get authorization for the specified userName and nameSpace
-    //
-    if (!_authTable.lookup(_getAuthKey(userName, nameSpace.getString()), auth))
+    // Check if the user exists in the auth table
+    if (!_authTable.contains(userName+nameSpace))
     {
-        PEG_METHOD_EXIT();
-        throw AuthorizationEntryNotFound(userName, nameSpace.getString());
+	// TODO: change to auth entry not found
+        throw InvalidUserAndNamespace(userName, nameSpace);
     }
 
-    PEG_METHOD_EXIT();
+    _authTable.lookup(userName+nameSpace,auth);
 
     return auth;
 }
@@ -353,85 +310,16 @@ String AuthorizationHandler::getAuthorization(
 // to be performed by the specified user.
 //
 Boolean AuthorizationHandler::verifyAuthorization(
-    const String& userName,
-    const CIMNamespaceName& nameSpace,
-    const CIMName& cimMethodName)
+                            const String& userName,
+                            const String& nameSpace,
+                            const String& cimMethodName)
 {
-    PEG_METHOD_ENTER(
-        TRC_AUTHORIZATION, "AuthorizationHandler::verifyAuthorization()");
-
     Boolean authorized = false;
-    Boolean readOperation = false;
-    Boolean writeOperation = false;
 
     Uint32 readOpSize = sizeof(READ_OPERATIONS) / sizeof(READ_OPERATIONS[0]);
 
     Uint32 writeOpSize = sizeof(WRITE_OPERATIONS) / sizeof(WRITE_OPERATIONS[0]);
 
-    for (Uint32 i = 0; i < readOpSize; i++)
-    {
-        if (cimMethodName.equal(READ_OPERATIONS[i]))
-        {
-            readOperation = true;
-            break;
-        }
-    }
-    if (!readOperation)
-    {
-        for (Uint32 i = 0; i < writeOpSize; i++ )
-        {
-            if (cimMethodName.equal(WRITE_OPERATIONS[i]))
-            {
-                writeOperation = true;
-                break;
-            }
-        }
-    }
-
-#ifdef PEGASUS_OS_PASE
-    if (readOperation || writeOperation)
-    {
-        //Use OS/400 Application Administration to do cim operation verification
-        CString userCStr = userName.getCString();
-        const char * user = (const char *)userCStr;
-        CString cimMethCStr = cimMethodName.getString().getCString();
-        const char * cimMeth = (const char *)cimMethCStr;
-
-        CString nameSpaceCStr = nameSpace.getString().getCString();
-        const char * nameSpChar = (const char *)nameSpaceCStr;
-
-        int PaseAuth =
-            umeVerifyFunctionAuthorization(user,
-                    cimMeth);
-
-        if (PaseAuth == TRUE)
-            authorized = true;
-
-        /* read operation needn't verify priviledUser */
-        if(authorized && writeOperation)
-        {
-            /*
-               The Application Admin checks
-               we have now cover all class/qualifier
-               operations to all namespaces.
-               But maybe this is not enough protection
-               for the private Pegasus namespaces.
-               We should call isPrivilegedUser
-               in this case instead of App Admin
-               */
-            if (strcasecmp(nameSpChar,"root/PG_Internal") == 0
-                    ||strcasecmp(nameSpChar,"root/PG_InterOp") == 0
-                    ||strcasecmp(nameSpChar,"PG_Internal") == 0
-                    ||strcasecmp(nameSpChar,"PG_InterOp") == 0 
-                    ||strcasecmp(nameSpChar,"root/interop") == 0
-                    ||strcasecmp(nameSpChar,"interop") == 0 )
-            {
-                if(!System::isPrivilegedUser(userName))
-                    authorized = false;
-            }
-        }
-    }
-#else
     //
     // Get the authorization of the specified user and namespace
     //
@@ -440,28 +328,53 @@ Boolean AuthorizationHandler::verifyAuthorization(
     {
         auth = getAuthorization(userName, nameSpace);
     }
-    catch (Exception&)
+    catch (Exception& e)
     {
-        PEG_METHOD_EXIT();
+cout << e.getMessage() << endl;
         return authorized;
     }
 
-    if ((String::equal(auth, "rw") || String::equal(auth, "wr")) &&
-        (readOperation || writeOperation))
+    if (String::equal(auth, "rw") || String::equal(auth, "wr"))
     {
-        authorized = true;
+        for (Uint32 i = 0; i < readOpSize; i++ )
+        {
+            if ( String::equal(cimMethodName, READ_OPERATIONS[i]) )
+            {
+                authorized = true;
+                break;
+            }
+        }
+        for (Uint32 i = 0; i < writeOpSize; i++ )
+        {
+            if ( String::equal(cimMethodName, WRITE_OPERATIONS[i]) )
+            {
+                authorized = true;
+                break;
+            }
+        }
     }
-    else if (String::equal(auth, "r") && readOperation)
+    else if (String::equal(auth, "r"))
     {
-        authorized = true;
+        for (Uint32 i = 0; i < readOpSize; i++ )
+        {
+            if ( String::equal(cimMethodName, READ_OPERATIONS[i]) )
+            {
+                authorized = true;
+                break;
+            }
+        }
     }
-    else if (String::equal(auth, "w") && writeOperation)
+    else if (String::equal(auth, "w"))
     {
-        authorized = true;
+        for (Uint32 i = 0; i < writeOpSize; i++ )
+        {
+            if ( String::equal(cimMethodName, WRITE_OPERATIONS[i]) )
+            {
+                authorized = true;
+                break;
+            }
+        }
     }
-#endif
-
-    PEG_METHOD_EXIT();
 
     return authorized;
 }

@@ -27,17 +27,23 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
+#include <cstdio>
+#include <Pegasus/Security/UserManager/UserExceptions.h>
 
-#ifndef PEGASUS_USERMANAGER_LINKAGE
-#  ifdef PEGASUS_OS_TYPE_WINDOWS
-#    ifdef PEGASUS_USERMANAGER_INTERNAL
-#      define PEGASUS_USERMANAGER_LINKAGE PEGASUS_EXPORT
-#    else
-#      define PEGASUS_USERMANAGER_LINKAGE PEGASUS_IMPORT
-#    endif
-#  else
-#    define PEGASUS_USERMANAGER_LINKAGE
-#    define PEGASUS_USERMANAGER_LINKAGE
-#  endif
-#endif
+PEGASUS_NAMESPACE_BEGIN
+
+String PasswordFileSyntaxError::_formatMessage(
+    const String& file, Uint32 line)
+{
+    char buffer[28];
+    sprintf(buffer, "%d", line);
+
+    String result = "Syntax error in password file: ";
+    result += file;
+    result += "(";
+    result += buffer;
+    result += ")";
+    return result;
+}
+
+PEGASUS_NAMESPACE_END

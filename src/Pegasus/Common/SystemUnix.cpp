@@ -38,8 +38,10 @@
 # include <dlfcn.h>
 #endif
 
-# include <unistd.h>
+#include <unistd.h>
 #include <dirent.h>
+#include <pwd.h>
+#include <crypt.h>
 #include "System.h"
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -291,4 +293,33 @@ String System::getCurrentLoginName()
     return(userName);
 }
 
+String System::encryptPassword(const char* password, const char* salt)
+{
+    return ( String(crypt( password,salt)) );
+}
+
+Boolean System::isSystemUser(char* userName)
+{
+    //
+    //  get the password entry for the user
+    //
+    if  ( getpwnam(userName) == NULL )
+    {
+	return false;
+    }
+    return true;
+}
+
+Boolean System::isPrivilegedUser()
+{
+    //
+    // Get the effective UID for the user 
+    //
+    if ( geteuid() != 0 )
+    {
+	return false;
+    }
+    return true;
+}
+    
 PEGASUS_NAMESPACE_END

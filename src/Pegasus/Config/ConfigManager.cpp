@@ -106,6 +106,7 @@ struct PropertyList ConfigManager::properties[] =
     {"remove",              (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"slp",                 (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"requireAuthentication", (ConfigPropertyOwner* )ConfigManager::securityOwner},
+    {"requireAuthorization",  (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"httpAuthType",        (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"repositoryIsDefaultInstanceProvider", (ConfigPropertyOwner* )ConfigManager::repositoryOwner},
     {"repositoryProviderName", (ConfigPropertyOwner* )ConfigManager::repositoryOwner}

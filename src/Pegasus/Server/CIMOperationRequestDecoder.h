@@ -24,6 +24,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -69,8 +70,9 @@ public:
     void handleHTTPMessage(HTTPMessage* httpMessage);
 
     void handleMethodCall(
-	Uint32 queueId,
-	Sint8* content);
+        Uint32 queueId,
+        Sint8* content,
+        String userName);
 
     CIMCreateClassRequestMessage* decodeCreateClassRequest(
         Uint32 queueId,

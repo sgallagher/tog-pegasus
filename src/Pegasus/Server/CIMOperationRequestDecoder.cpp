@@ -26,6 +26,7 @@
 // Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,6 +39,8 @@
 #include <Pegasus/Common/XmlConstants.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Security/UserManager/UserManager.h>
+#include <Pegasus/Config/ConfigManager.h>
 #include "CIMOperationRequestDecoder.h"
 
 PEGASUS_USING_STD;
@@ -143,6 +146,15 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     Uint32 queueId = httpMessage->queueId;
 
+    // Save userName:
+
+    String userName;
+
+    if ( httpMessage->authInfo->isAuthenticated() )
+    {
+        userName = httpMessage->authInfo->getAuthenticatedUser();
+    }
+
     // Parse the HTTP message:
 
     String startLine;
@@ -202,7 +214,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 	    return;
 	}
 
-	handleMethodCall(queueId, content);
+        handleMethodCall(queueId, content, userName);
     }
     
     PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationRequestDecoder::"
@@ -213,9 +225,30 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
 void CIMOperationRequestDecoder::handleMethodCall(
     Uint32 queueId,
-    Sint8* content)
+    Sint8* content,
+    String userName)
 {
     Message* request;
+
+    //
+    // get the configured authentication flag
+    //
+    ConfigManager* configManager = ConfigManager::getInstance();
+
+    Boolean requireAuthentication = false;
+    Boolean requireAuthorization = false;
+
+    if (String::equal(
+        configManager->getCurrentValue("requireAuthentication"), "true"))
+    {
+        requireAuthentication = true;
+    }
+
+    if (String::equal(
+        configManager->getCurrentValue("requireAuthorization"), "true"))
+    {
+        requireAuthorization = true;
+    }
 
     // Create a parser:
 
@@ -278,6 +311,33 @@ void CIMOperationRequestDecoder::handleMethodCall(
 		throw XmlValidationError(parser.getLine(), 
 		    "expected LOCALNAMESPACEPATH element");
 	    }
+
+            //
+            // check for authorization for the specified operation
+            //
+
+            if ( requireAuthentication && requireAuthorization )
+            {
+                UserManager* userManager = UserManager::getInstance();
+
+                if ( !userManager || !userManager->verifyAuthorization(
+                    userName, nameSpace, cimMethodName) )
+                {
+                    String description = "Not authorized to run ";
+                        description.append(cimMethodName);
+                    description.append(" in the namespace ");
+                    description.append(nameSpace);
+
+                    sendError(
+                        queueId,
+                        messageId,
+                        cimMethodName,
+                        CIM_ERR_FAILED,
+                        description);
+
+                    return;
+                }
+            }
 
 	    // Delegate to appropriate method to handle:
 
@@ -406,6 +466,41 @@ void CIMOperationRequestDecoder::handleMethodCall(
                 throw XmlValidationError(parser.getLine(),
                                          MISSING_ELEMENT_LOCALPATH);
             }
+
+            //
+            // get the namespace in the CIMreference
+            //
+
+            String nameSpace;
+	    nameSpace = reference.getNameSpace();
+
+            //
+            // check for authorization for the specified operation
+            //
+
+            if ( requireAuthentication && requireAuthorization )
+            {
+                UserManager* userManager = UserManager::getInstance();
+
+                if ( !userManager || !userManager->verifyAuthorization(
+                    userName, nameSpace, cimMethodName) )
+                {
+                    String description = "Not authorized to run ";
+                        description.append(cimMethodName);
+                    description.append(" in the namespace ");
+                    description.append(nameSpace);
+
+                    sendError(
+                        queueId,
+                        messageId,
+                        cimMethodName,
+                        CIM_ERR_FAILED,
+                        description);
+
+                    return;
+                }
+            }
+
 
 	    // Delegate to appropriate method to handle:
 

@@ -119,6 +119,39 @@ public:
     @return             password obtained from the user
     */
     static String getPassword(const char* prompt);
+
+    /**
+    This function is used to encrypt the user's password. 
+    The encryption is compatible with Apache's  password file (generated using
+    the htpasswd command )
+
+    @param password     Password to be encrypted.
+    @param salt         Two character string chosen from the set [a-zA-Z0-9./].
+
+    @return             Encrypted password.
+    */
+    static String encryptPassword(const char* password, const char* salt);
+
+    /**
+    This function is used to verify whether specified user is a user 
+    on the local system.
+
+    @param userName     User name to be verified.
+
+    @return             true if the username is valid, else false
+    */
+    static Boolean isSystemUser(char* userName);
+
+    /**
+    This function is used to check whether the user running the command is
+    a privileged user. On Unix implementation it checks whether the user
+    is a root user.
+
+    @return             true if the user running the command is a 
+			privileged user, else false
+    */
+    static Boolean isPrivilegedUser();
+
 };
 
 PEGASUS_NAMESPACE_END

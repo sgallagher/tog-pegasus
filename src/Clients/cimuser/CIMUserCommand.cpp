@@ -21,7 +21,7 @@
 //
 //==============================================================================
 //
-// Author: Sushma Fernandes (sushma_fernandes@hp.com)
+// Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
 //
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -58,12 +58,12 @@ static const char COMMAND_NAME []              = "cimuser";
 /**
     This constant represents the name of the User name property in the schema
 */
-static const char USER_NAME []                 = "Username";
+static const char PROPERTY_NAME_USER_NAME []                 = "Username";
 
 /**
     This constant represents the name of the Password property in the schema
 */
-static const char PASSWORD []                  = "Password";
+static const char PROPERTY_NAME_PASSWORD []                  = "Password";
 
 /**
     The usage string for this command.  This string is displayed
@@ -109,7 +109,7 @@ static const int OPERATION_TYPE_LIST           = 4;
 /**
     The constant representing the default namespace
 */
-const String NAMESPACE                         = "root/cimv2";
+const String PROPERTY_NAME_NAMESPACE                         = "root/cimv2";
  
 /**
     The constant representing the User class 
@@ -136,6 +136,8 @@ static const char PORT []                      = "port";
     The constants representing the messages.
 */
 
+static const char NOT_PRIVILEGED_USER []         = 
+                     "Error, you must have superuser privilege to run cimuser."; 
 static const char CIMOM_NOT_RUNNING []         = 
                         "CIMOM may not be running.";
 
@@ -184,8 +186,11 @@ static const char REMOVING_USER[] =
 static const char AUTH_SCHEMA_NOT_LOADED []  =
     "Please make sure that the authentication schema is loaded on the CIMOM.";
 
-static const char  REQUIRED_ARGS_MISSING []        =
+static const char REQUIRED_ARGS_MISSING []        =
                         "Required arguments missing.";
+
+static const char INVALID_ARGS []        =
+                        "Invalid arguments.";
 
 static const char USER_ALREADY_EXISTS []        =
                         "Specified user name already exists.";
@@ -193,16 +198,8 @@ static const char USER_ALREADY_EXISTS []        =
 static const char USER_NOT_FOUND []        =
                         "Specified user name was not found.";
 
-static const char PASSWORD_NOT_REQUIRED []        =
-                        "Password not required for removing a user.";
-
 static const char USERNAME_REQUIRED []        =
                         "User name is required.";
-
-/**
-    The constant representing the user provider class name
-*/
-static const char PG_USER_MGR_PROV_CLASS []       = "PG_UserManager";
 
 /**
     The option character used to specify add user.
@@ -255,20 +252,23 @@ static const char   OLD_PASS_PARAM[]             = "oldPassword";
 static const char   NEW_PASS_PARAM[]             = "newPassword";
 
 
-static const char PASSWORD_PROMPT []  =
+static const char   PASSWORD_PROMPT []  =
                         "Please enter your password: ";
 
-static const char OLD_PASSWORD_PROMPT []  =
+static const char   OLD_PASSWORD_PROMPT []  =
                         "Please enter your old password: ";
 
-static const char RE_ENTER_PROMPT []  =
+static const char   RE_ENTER_PROMPT []  =
                         "Please re-enter your password: ";
 
-static const char NEW_PASSWORD_PROMPT []  =
+static const char   NEW_PASSWORD_PROMPT []  =
                         "Please enter your new password: ";
 
-static const char PASSWORD_DOES_NOT_MATCH []  =
+static const char   PASSWORD_DOES_NOT_MATCH []  =
                         "Passwords do not match. Please Re-enter.";
+
+static const char   PASSWORD_SAME_ERROR []  =
+                        "Error, new and old passwords cannot be same.";
 
 // Contains the address for connecting to CIMOM
 char*     address     = 0;
@@ -633,7 +633,8 @@ void CIMUserCommand::setCommand (
                         throw e;
                     }
 
-                    _password = options [i].Value ();
+                    String password = options [i].Value ();
+                    _password = password.subString(0,8);
 
                     _passwordSet = true; 
 
@@ -650,7 +651,8 @@ void CIMUserCommand::setCommand (
                         throw e;
                     }
 
-                    _newpassword = options [i].Value ();
+                    String newpassword = options [i].Value ();
+                    _newpassword = newpassword.subString(0,8);
 
                     _newpasswordSet = true; 
 
@@ -719,9 +721,16 @@ void CIMUserCommand::setCommand (
     // Some more validations
     //
     if ( _operationType == OPERATION_TYPE_UNINITIALIZED  && 
-	 ( _userNameSet || _passwordSet ) )
+	 ( _userNameSet || _passwordSet || _newpasswordSet ) )
     {
         CommandFormatException e ( REQUIRED_ARGS_MISSING );
+        throw e;
+    }
+	
+    if ( _operationType == OPERATION_TYPE_LIST  && 
+	 ( _userNameSet || _passwordSet || _newpasswordSet ) )
+    {
+        CommandFormatException e ( INVALID_ARGS );
         throw e;
     }
 	
@@ -737,6 +746,14 @@ void CIMUserCommand::setCommand (
 
     if (_operationType == OPERATION_TYPE_ADD)
     {
+	if ( _newpasswordSet )
+	{
+            //
+            // An invalid option was encountered
+            //
+            CommandFormatException e (INVALID_ARGS);
+            throw e;
+        }
         if ( !_userNameSet )
         {
             //
@@ -783,6 +800,14 @@ void CIMUserCommand::setCommand (
             CommandFormatException e (USERNAME_REQUIRED);
             throw e;
         }
+	if ( _passwordSet && _newpasswordSet )
+	{
+	    if ( _newpassword == _password )
+	    {
+		cerr << PASSWORD_SAME_ERROR << endl;
+		exit (1);
+            }
+        }
         if ( !_passwordSet )
         {
             //
@@ -826,6 +851,11 @@ void CIMUserCommand::setCommand (
             }
             while ( newPw == String::EMPTY );
             _newpassword = newPw ;
+	    if ( _newpassword == _password )
+	    {
+		cerr << PASSWORD_SAME_ERROR << endl;
+                exit (-1);
+            }
         }
     }
 
@@ -867,7 +897,7 @@ Uint32 CIMUserCommand::execute (
         //
         // The command was not initialized
         //
-        return ( RC_ERROR );
+        return 1;
     }
 
     //
@@ -915,12 +945,12 @@ Uint32 CIMUserCommand::execute (
     catch (FileNotReadable& fnr)
     {
         errPrintWriter << FILE_NOT_READABLE << fnr.getMessage() << endl;
-        return ( RC_ERROR );
+        return 1;
     }
     catch (ConfigFileSyntaxError& cfse)
     {
         errPrintWriter << cfse.getMessage() << endl;
-        return ( RC_ERROR );
+        return 1 ;
     }
 
     // 
@@ -943,7 +973,7 @@ Uint32 CIMUserCommand::execute (
 
         address = addressStr.allocateCString ();
 
-        client.connect(address);
+        client.connectLocal(address);
 
         connected = true;
     }
@@ -1157,14 +1187,16 @@ void CIMUserCommand::_AddUser
         HTTPConnector* connector = new HTTPConnector(monitor);
         CIMClient client(monitor, connector);
 
-        client.connect(address);
+        client.connectLocal(address);
 
         CIMInstance newInstance( PG_USER_CLASS );
-	newInstance.addProperty ( CIMProperty( USER_NAME, _userName ) );
-	newInstance.addProperty ( CIMProperty( PASSWORD , _password ) );
+	newInstance.addProperty ( 
+			  CIMProperty( PROPERTY_NAME_USER_NAME, _userName ) );
+	newInstance.addProperty ( 
+			  CIMProperty( PROPERTY_NAME_PASSWORD , _password ) );
 
 	outPrintWriter << ADDING_USER << endl;
-	client.createInstance( NAMESPACE, newInstance );
+	client.createInstance( PROPERTY_NAME_NAMESPACE, newInstance );
 	outPrintWriter << ADD_USER_SUCCESS << endl;
 
     }
@@ -1197,11 +1229,15 @@ void CIMUserCommand::_ModifyUser
         HTTPConnector* connector = new HTTPConnector(monitor);
         CIMClient client(monitor, connector);
 
-        client.connect(address);
+        client.connectLocal(address);
 
 	//
 	// Build the input params
 	//
+	inParams.append ( CIMParamValue (
+			     CIMParameter ( OLD_PASS_PARAM,
+					    CIMType::STRING ),
+                             CIMValue ( _userName )));
 	inParams.append ( CIMParamValue (
 			     CIMParameter ( OLD_PASS_PARAM,
 					    CIMType::STRING ),
@@ -1218,14 +1254,14 @@ void CIMUserCommand::_ModifyUser
         kbArray.append(kb);
 
         CIMReference reference(
-            _hostName, NAMESPACE, PG_USER_CLASS, kbArray);
+            _hostName, PROPERTY_NAME_NAMESPACE, PG_USER_CLASS, kbArray);
 
 	//
 	// Call the invokeMethod with the input parameters
 	// 
 	outPrintWriter << MODIFYING_USER << endl;
 	CIMValue retValue = client.invokeMethod (
-		                       NAMESPACE,
+		                       PROPERTY_NAME_NAMESPACE,
 		                       reference,
 		                       MODIFY_METHOD,
 		                       inParams,
@@ -1260,19 +1296,19 @@ void CIMUserCommand::_RemoveUser
         HTTPConnector* connector = new HTTPConnector(monitor);
         CIMClient client(monitor, connector);
 
-        client.connect(address);
+        client.connectLocal(address);
 
-        kb.setName(USER_NAME);
+        kb.setName(PROPERTY_NAME_USER_NAME);
         kb.setValue(_userName);
         kb.setType(KeyBinding::STRING);
 
         kbArray.append(kb);
 
         CIMReference reference(
-            _hostName, NAMESPACE, PG_USER_CLASS, kbArray);
+            _hostName, PROPERTY_NAME_NAMESPACE, PG_USER_CLASS, kbArray);
 
         outPrintWriter << REMOVING_USER << endl;
-        client.deleteInstance(NAMESPACE, reference);
+        client.deleteInstance(PROPERTY_NAME_NAMESPACE, reference);
 	outPrintWriter << REMOVE_USER_SUCCESS << endl;
 
     }
@@ -1301,14 +1337,14 @@ void CIMUserCommand::_ListUsers
         HTTPConnector* connector = new HTTPConnector(monitor);
         CIMClient client(monitor, connector);
         
-        client.connect(address);
+        client.connectLocal(address);
 
         //
         // get all the instances of class PG_User
         //
 	outPrintWriter << LISTING_USERS << endl;
         Array<CIMReference> instanceNames =
-            client.enumerateInstanceNames(NAMESPACE, PG_USER_CLASS);
+            client.enumerateInstanceNames(PROPERTY_NAME_NAMESPACE, PG_USER_CLASS);
 
         if ( instanceNames.size() == 0 )
         {
@@ -1363,6 +1399,15 @@ int main (int argc, char* argv [])
     CIMUserCommand*      command;
     Uint32               retCode;
 
+    //
+    // Check if root is issuing the command
+    //
+    if ( !System::isPrivilegedUser() )
+    {
+	cerr << NOT_PRIVILEGED_USER << endl;
+	return 1;
+    }
+	 
     command  = new CIMUserCommand ();
 
     try 
@@ -1376,12 +1421,11 @@ int main (int argc, char* argv [])
             cerr << COMMAND_NAME << ": " << cfe.getMessage () << endl;
         }
         cerr << command->getUsage () << endl;
-        exit (-1);
+        return 1;
     }
 
     retCode = command->execute (cout, cerr);
 
-    exit (retCode);
-    return 0;
+    return (retCode);
 }
 

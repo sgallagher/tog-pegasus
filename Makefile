@@ -34,3 +34,6 @@ repository:
 
 config:
 	@ $(MAKE) -SC src/Providers/generic/ConfigSettingProvider/load config
+
+user:
+	@ $(MAKE) -SC src/Providers/generic/UserManagerProvider/load user

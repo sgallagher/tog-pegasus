@@ -24,6 +24,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -71,8 +72,9 @@ public:
     void handleHTTPMessage(HTTPMessage* httpMessage);
 
     void handleMethodRequest(
-	Uint32 queueId,
-	Sint8* content);
+        Uint32 queueId,
+        Sint8* content,
+        String userName);
 
     CIMExportIndicationRequestMessage* decodeExportIndicationRequest(
         Uint32 queueId,

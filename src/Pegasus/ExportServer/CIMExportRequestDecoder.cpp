@@ -24,6 +24,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,6 +35,7 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Config/ConfigManager.h>
 #include "CIMExportRequestDecoder.h"
 
 PEGASUS_USING_STD;
@@ -139,6 +141,15 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     Uint32 queueId = httpMessage->queueId;
 
+    // Save userName:
+
+    String userName;
+
+    if ( httpMessage->authInfo->isAuthenticated() )
+    {
+        userName = httpMessage->authInfo->getAuthenticatedUser();
+    }
+
     // Parse the HTTP message:
 
     String startLine;
@@ -198,16 +209,38 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 	    return;
 	}
 
-	handleMethodRequest(queueId, content);
+        handleMethodRequest(queueId, content, userName);
     }
 }
 
 
 void CIMExportRequestDecoder::handleMethodRequest(
     Uint32 queueId,
-    Sint8* content)
+    Sint8* content,
+    String userName)
 {
     Message* request;
+
+    //
+    // get the configured authentication flag
+    //
+    ConfigManager* configManager = ConfigManager::getInstance();
+
+    Boolean requireAuthentication = false;
+    Boolean requireAuthorization = false;
+
+    if (String::equal(
+        configManager->getCurrentValue("requireAuthentication"), "true"))
+    {
+        requireAuthentication = true;
+    }
+
+    if (String::equal(
+        configManager->getCurrentValue("requireAuthorization"), "true"))
+    {
+        requireAuthorization = true;
+    }
+
     // Create a parser:
 
     XmlParser parser(content);

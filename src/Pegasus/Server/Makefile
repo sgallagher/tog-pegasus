@@ -18,6 +18,7 @@ LIBRARIES = \
     $(LIB_DIR)/$(LIB_PREFIX)pegprovider2$(LIB_SUFFIX) \
     $(LIB_DIR)/$(LIB_PREFIX)pegexportserver$(LIB_SUFFIX) \
     $(LIB_DIR)/$(LIB_PREFIX)pegconfig$(LIB_SUFFIX) \
+    $(LIB_DIR)/$(LIB_PREFIX)peguser$(LIB_SUFFIX) \
     $(LIB_DIR)/$(LIB_PREFIX)peglocalauth$(LIB_SUFFIX)
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
@@ -29,6 +30,7 @@ DYNAMIC_LIBRARIES = \
     $(LIB_DIR)/$(LIB_PREFIX)pegprovider2.x \
     $(LIB_DIR)/$(LIB_PREFIX)pegexportserver.x \
     $(LIB_DIR)/$(LIB_PREFIX)pegconfig.x \
+    $(LIB_DIR)/$(LIB_PREFIX)peguser.x \
     $(LIB_DIR)/$(LIB_PREFIX)peglocalauth.x
 else
 DYNAMIC_LIBRARIES = \
@@ -39,6 +41,7 @@ DYNAMIC_LIBRARIES = \
     -lpegprovider2 \
     -lpegexportserver \
     -lpegconfig \
+    -lpeguser \
     -lpeglocalauth
 endif
 

@@ -1,31 +1,29 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
+// Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
+//
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,9 +32,9 @@
 #include <fstream>
 
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Executor.h>
 
 #include <Pegasus/Security/UserManager/PasswordFile.h>
 #include <Pegasus/Security/UserManager/UserExceptions.h>
@@ -48,114 +46,98 @@ PEGASUS_NAMESPACE_BEGIN
 
 const char COLON = ':';
 
+/*
+    Password file header information
+*/
+static const char* PasswordFileHeader [] = {
+    "########################################################################",
+    "##                                                                    ##",
+    "##                  CIM Server Password file                          ##",
+    "##                                                                    ##",
+    "########################################################################",
+    " ",    
+    "########################################################################",
+    "#                                                                      #",
+    "# This is the password file for the CIMOM. The username/passowrd       #",
+    "# in this file are loaded in to CIMOM by the User Manager Provider.    #",
+    "# CIMOM updates this file with the changes .                           #",
+    "#                                                                      #",
+    "# The password file stores the user information in username:password   #",
+    "# format in order to be compatible with Apache's htpasswd generated    #",
+    "# password file.                                                       #",
+    "#                                                                      #",
+    "# The user must not edit this file, instead use                        #",
+    "# cimuser CLI to make any changes to the CIMOM user information.       #",
+    "#                                                                      #",
+    "########################################################################",
+    " "
+};
+
+static const int HEADER_SIZE = sizeof(PasswordFileHeader)/sizeof(PasswordFileHeader[0]);
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  PasswordFile Class
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-/**
-    Constructor.
+
+
+/** 
+    Constructor. 
 */
-PasswordFile::PasswordFile(const String& fileName)
+PasswordFile::PasswordFile (const String& fileName)
 {
-    PEG_METHOD_ENTER(TRC_USER_MANAGER, "PasswordFile::PasswordFile");
+    const char METHOD_NAME[] = "PasswordFile::PasswordFile";
+    PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
 
     _passwordFile       = fileName;
 
-#ifdef PEGASUS_OS_VMS
-    _passwordBackupFile = fileName + "_bak";
-#else
     _passwordBackupFile = fileName + ".bak";
-#endif
 
-    try
+    _passwordNewFile    = fileName + ".new";
+
+    // ATTN: Temporary hack to work when the password file is absent
+    if (!FileSystem::exists(_passwordFile))
     {
-        PasswordTable pt;
-        load(pt);
-    }
-    catch (const NoSuchFile&)
-    {
-        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            MessageLoaderParms(
-                "Security.UserManager.PasswordFile.PWD_FILE_NOT_FOUND",
-                "Password file not found : $0.", _passwordFile));
-        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
-            MessageLoaderParms(
-                "Security.UserManager.PasswordFile.CREATING_BLANK_PWD_FILE",
-                "Creating blank password file."));
         PasswordTable pt;
         save(pt);
     }
-    PEG_METHOD_EXIT();
+
+    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
 }
 
-/**
-    Destructor.
+/** 
+    Destructor. 
 */
-PasswordFile::~PasswordFile()
+PasswordFile::~PasswordFile ()
 {
-    PEG_METHOD_ENTER(TRC_USER_MANAGER, "PasswordFile::~PasswordFile");
+    const char METHOD_NAME[] = "PasswordFile::~PasswordFile";
+    PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
 
-    PEG_METHOD_EXIT();
+    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
 }
 
-/**
+/** 
     Load the username and password from the password file.
 */
-void PasswordFile::load(PasswordTable& passwordTable)
+void PasswordFile::load (PasswordTable& passwordTable)
 {
     String line;
+    const char METHOD_NAME[] = "PasswordFile::load";
 
-    PEG_METHOD_ENTER(TRC_USER_MANAGER, "PasswordFile::load");
-
-    //
-    // Check if the backup file exists, if it does use the backup file
-    // If not try to use the password file
-    //
-    if (FileSystem::exists(_passwordBackupFile))
-    {
-        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
-            MessageLoaderParms(
-                "Security.UserManager.PasswordFile.TRYING_TO_BACKUP_FILE",
-                "Trying to use the backup file : $0.",
-                    _passwordBackupFile));
-        if (Executor::renameFile(
-                _passwordBackupFile.getCString(),
-                _passwordFile.getCString()) != 0)
-        {
-            Logger::put_l(
-                Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
-                MessageLoaderParms(
-                    "Security.UserManager.PasswordFile.CANNOT_USE_BACKUP_FILE",
-                    "Unable to use the backup file : $0.",
-                    _passwordBackupFile));
-            throw CannotRenameFile(_passwordBackupFile);
-        }
-        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
-            MessageLoaderParms(
-                "Security.UserManager.PasswordFile.RECOVERED_USING_BACKUP_FILE",
-                "Recovered using the backup file : $0.",
-                _passwordBackupFile));
-    }
-    if (!FileSystem::exists(_passwordFile))
-    {
-        throw NoSuchFile(_passwordFile);
-    }
+    PEG_FUNC_ENTER(TRC_USER_MANAGER,METHOD_NAME);
 
     //
     // Open the password file
     //
-    ifstream ifs(_passwordFile.getCString());
-
+    ArrayDestroyer<char> p(_passwordFile.allocateCString());
+    ifstream ifs(p.getPointer());
     if (!ifs)
     {
-        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            MessageLoaderParms(
-                "Security.UserManager.PasswordFile.ERROR_OPENING_PWD_FILE",
-                "Error opening password file : $0.",
-                _passwordFile));
-        return;
+        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+	throw CannotOpenFile(getFileName());
     }
 
     //
@@ -168,18 +150,22 @@ void PasswordFile::load(PasswordTable& passwordTable)
         //
         // Skip leading whitespace
         //
-        const Char16* pLine = line.getChar16Data();
-        const Char16* pUserNameStart;
-        const Char16* pUserNameEnd;
-        const Char16* pColon;
-        const Char16* pPassword;
+        const Char16* p = line.getData();
 
-        while (*pLine && isspace(*pLine))
+        while (*p && isspace(*p))
         {
-            pLine++;
+            p++;
         }
 
-        if (!*pLine)
+        if (!*p)
+        {
+            continue;
+        }
+
+        //
+        // Skip comment lines
+        //
+        if (*p == '#')
         {
             continue;
         }
@@ -187,80 +173,55 @@ void PasswordFile::load(PasswordTable& passwordTable)
         //
         // Get the userName
         //
-        pUserNameStart = pLine;
+        String userName = String::EMPTY;
 
-        //
-        // Look for the password
-        //
-        pColon = pLine;
-        while (*pColon && (*pColon != COLON))
+        userName += *p++;
+
+        while (isalnum(*p))
         {
-            ++pColon;
-        }
-        //
-        // Expect a colon sign
-        //
-        if (*pColon != COLON)
-        {
-            // Did not find Colon, log a message and skip entry
-            Logger::put_l(
-                Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
-                MessageLoaderParms(
-                    "Security.UserManager.PasswordFile.PWD_ENTRY_SYNTAX_ERROR",
-                    "Syntax error in password entry at line : $0.",
-                    lineNumber));
-            continue;
+            userName += *p++;
         }
 
         //
         // Skip whitespace after user name
         //
-        pUserNameEnd = pColon - 1;
-        while ((pUserNameEnd >= pUserNameStart) && isspace(*pUserNameEnd))
+        while (*p && isspace(*p))
         {
-            pUserNameEnd--;
-        }
-        pUserNameEnd++; // Point to one past the username
-
-        if (pUserNameStart == pUserNameEnd)
-        {
-            // Did not find a user name, log a message and skip entry
-            Logger::put_l(
-                Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
-                MessageLoaderParms(
-                    "Security.UserManager.PasswordFile.ERROR_READING_USR_ENTRY",
-                    "User name not found in entry at line : $0.",
-                    lineNumber));
-            continue;
+            p++;
         }
 
-        String userName(pUserNameStart, pUserNameEnd - pUserNameStart);
+        //
+        // Expect a colon sign
+        //
+        if (*p != COLON) 
+        {
+	    //
+	    // Did not find Colon, log a message and skip entry
+            //
+            Logger::put(Logger::ERROR_LOG, "CIMPassword", Logger::INFORMATION,
+            "Error in reading password entry for : $0, .", userName);
+	    continue;
+        }
+
+        p++;
 
         //
         // Skip whitespace after : sign
         //
-        pPassword = pColon + 1;
-        while (*pPassword && isspace(*pPassword))
+        while (*p && isspace(*p))
         {
-            pPassword++;
-        }
-
-        if (!*pPassword)
-        {
-            // Did not find a password, log a message and skip entry
-            Logger::put_l(
-                Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
-                MessageLoaderParms(
-                    "Security.UserManager.PasswordFile.ERROR_READING_PWD_ENTRY",
-                    "Error reading the password entry for user : $0.",
-                    userName));
-            continue;
+            p++;
         }
 
         //
         // Get the password
         //
-        String password(pPassword);
+        String password = String::EMPTY;
+
+        while (*p)
+        {
+            password += *p++;
+        }
 
         //
         // Store the user name and password in the table
@@ -270,103 +231,112 @@ void PasswordFile::load(PasswordTable& passwordTable)
             //
             // Duplicate entry for user, ignore the new entry.
             //
-            Logger::put_l(
-                Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
-                MessageLoaderParms(
-                    "Security.UserManager.PasswordFile.DUPLICATE_USER",
-                    "Duplicate user: $0.", userName));
+            Logger::put(Logger::ERROR_LOG, "CIMPassword", Logger::INFORMATION,
+            "Duplicate user: $0, .", userName);
         }
     }
 
     ifs.close();
-    PEG_METHOD_EXIT();
+    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
 }
 
 
-/**
+/** 
     Save the username and password to the password file.
 */
-void PasswordFile::save (const PasswordTable& passwordTable)
+void PasswordFile::save (PasswordTable& passwordTable)
 {
-    PEG_METHOD_ENTER(TRC_USER_MANAGER, "PasswordFile::save");
+    const char METHOD_NAME[] = "PasswordFile::save";
+
+    PEG_FUNC_ENTER(TRC_USER_MANAGER, METHOD_NAME);
 
     //
-    // Check if backup password file exists, if it does remove the password file
-    // If it does not rename the password file to password backup file
+    // Delete the backup password file
     //
     if (FileSystem::exists(_passwordBackupFile))
     {
-        if (FileSystem::exists(_passwordFile))
-        {
-            if (Executor::removeFile(_passwordFile.getCString()) != 0)
-            {
-                Logger::put_l(
-                    Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                    MessageLoaderParms(
-                        "Security.UserManager.PasswordFile."
-                            "CANNOT_REMOVE_PWD_FILE",
-                        "Cannot remove password file : $0.", _passwordFile));
-                throw CannotRemoveFile(_passwordFile);
-            }
+        if ( ! FileSystem::removeFile(_passwordBackupFile))
+	{
+            Logger::put(Logger::ERROR_LOG, "CIMPassword", Logger::INFORMATION,
+            "Cannot remove backup password file : $0, .", _passwordBackupFile);
         }
     }
-    else
+
+    //
+    // Delete the new password file
+    //
+    if (FileSystem::exists(_passwordNewFile))
     {
-        if (FileSystem::exists(_passwordFile))
-        {
-            if (Executor::renameFile(_passwordFile.getCString(),
-                _passwordBackupFile.getCString()) != 0)
-            {
-                Logger::put_l(
-                    Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                    MessageLoaderParms(
-                        "Security.UserManager.PasswordFile."
-                            "CANNOT_RENAME_PWD_FILE",
-                        "Cannot rename password file : $0.",
-                        _passwordFile));
-                throw CannotRenameFile(_passwordFile);
-            }
+        if ( ! FileSystem::removeFile(_passwordNewFile))
+	{
+            Logger::put(Logger::ERROR_LOG, "CIMPassword", Logger::INFORMATION,
+            "Cannot remove new password file : $0, .", _passwordNewFile);
         }
     }
 
     //
-    // Open the password file for writing
+    // Open the new password file for writing
     //
-
-    FILE* ofs = Executor::openFile(_passwordFile.getCString(), 'w');
-
+    ArrayDestroyer<char> p(_passwordNewFile.allocateCString());
+    ofstream ofs(p.getPointer());
     if (!ofs)
     {
-        PEG_METHOD_EXIT();
-        throw CannotOpenFile(getFileName());
+        PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
+	throw CannotOpenFile(getFileName());
     }
+	
+    ofs.clear();
+
+    //
+    // Write password file header information
+    //
+    
+    for (int index = 0; index < HEADER_SIZE; index++)
+    {
+        ofs << PasswordFileHeader[index] << endl;
+    }
+
+    ofs << endl; 
 
     //
     // Save user names and passwords to the new file
     //
     for (PasswordTable::Iterator i = passwordTable.start(); i; i++)
     {
-        CString key = i.key().getCString();
-        CString value = i.value().getCString();
-        fprintf(ofs, "%s:%s\n", (const char*)key, (const char*)value);
+        ofs << i.key() << ":" << i.value() << endl;
     }
 
-    fclose(ofs);
+    ofs.close();
 
-    if (FileSystem::exists(_passwordBackupFile))
+    //
+    // Rename the current password file as the backup file
+    //
+    if (FileSystem::exists(_passwordFile))
     {
-        if (Executor::removeFile(_passwordBackupFile.getCString()) != 0)
+        if (!FileSystem::renameFile(_passwordFile, _passwordBackupFile))
         {
-            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                MessageLoaderParms(
-                    "Security.UserManager.PasswordFile."
-                        "CANNOT_REMOVE_BACKUP_PWD_FILE",
-                    "Cannot remove backup password file : $0.",
-                    _passwordBackupFile));
-            throw CannotRemoveFile(_passwordBackupFile);
+            throw CannotRenameFile(_passwordFile);
         }
     }
-    PEG_METHOD_EXIT();
+
+    //
+    // Rename the new password file as the password file
+    //
+    if (FileSystem::exists(_passwordNewFile))
+    {
+        if (!FileSystem::renameFile(_passwordNewFile, _passwordFile))
+        {
+	    FileSystem::renameFile(_passwordBackupFile, _passwordFile);
+            throw CannotRenameFile(_passwordNewFile);
+        }
+        if ( ! FileSystem::removeFile(_passwordBackupFile))
+	{
+            Logger::put(Logger::ERROR_LOG, "CIMPassword", Logger::INFORMATION,
+            "Cannot remove backup password file : $0, .", _passwordBackupFile);
+        }
+    }
+    PEG_FUNC_EXIT(TRC_USER_MANAGER,METHOD_NAME);
 }
 
 PEGASUS_NAMESPACE_END
+

@@ -58,8 +58,8 @@ ShutdownService* ShutdownService::_instance = 0;
 Initialize all other class variables
 */
 CIMServer*              ShutdownService::_cimserver = 0;
-ProviderManagerService* ShutdownService::_providerManagerService = 0;
-ProviderManager*        ShutdownService::_providerManager = 0;
+//ProviderManagerService* ShutdownService::_providerManagerService = 0;
+//ProviderManager*        ShutdownService::_providerManager = 0;
 Uint32                  ShutdownService::_operationTimeout = 0;
 Uint32                  ShutdownService::_shutdownTimeout = 0;
 
@@ -101,16 +101,16 @@ void ShutdownService::shutdown(Boolean force, Uint32 timeout)
     //
     // get ProviderManagerService
     //
-    MessageQueue * providerManagerServiceQueue =
-        MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
+    //MessageQueue * providerManagerServiceQueue =
+    //    MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
 
-    _providerManagerService =
-       dynamic_cast<ProviderManagerService *> (providerManagerServiceQueue);
+    //_providerManagerService =
+    //   dynamic_cast<ProviderManagerService *> (providerManagerServiceQueue);
 
     //
     // get an instance of the ProviderManager
     //
-    _providerManager = _providerManagerService->getProviderManager();
+    //_providerManager = _providerManagerService->getProviderManager();
 
     //
     // set CIMServer state to TERMINATING

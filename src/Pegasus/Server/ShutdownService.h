@@ -36,8 +36,8 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Server/CIMServer.h>
-#include <Pegasus/ProviderManager/ProviderManagerService.h>
-#include <Pegasus/ProviderManager/ProviderManager.h>
+//#include <Pegasus/ProviderManager/ProviderManagerService.h>
+//#include <Pegasus/ProviderManager/ProviderManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -103,8 +103,8 @@ private:
     static ShutdownService* _instance;
 
     static CIMServer*               _cimserver;
-    static ProviderManagerService*  _providerManagerService;
-    static ProviderManager*         _providerManager;
+    //static ProviderManagerService*  _providerManagerService;
+    //static ProviderManager*         _providerManager;
 
     static Uint32     _operationTimeout;
     static Uint32     _shutdownTimeout;

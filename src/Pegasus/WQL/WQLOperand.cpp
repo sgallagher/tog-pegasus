@@ -32,7 +32,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-WQLOperand::WQLOperand() : _type(UNITIALIZED) 
+WQLOperand::WQLOperand() : _type(NULL_VALUE) 
 { 
 
 }
@@ -61,7 +61,7 @@ void WQLOperand::clear()
     else if (_type == STRING_VALUE)
 	((String*)_stringValue)->~String();
 
-    _type = UNITIALIZED;
+    _type = NULL_VALUE;
 }
 
 void WQLOperand::assign(const WQLOperand& x)
@@ -141,7 +141,7 @@ String WQLOperand::toString() const
 	}
 
 	default:
-	    result = "UNITIALIZED";
+	    result = "NULL_VALUE";
 	    break;
     }
 

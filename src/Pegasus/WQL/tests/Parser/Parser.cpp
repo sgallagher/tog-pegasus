@@ -39,19 +39,33 @@ int main(int argc, char** argv)
     // Check arguments:
     //
 
-    if (argc != 2)
+    if (argc < 2)
     {
-	cerr << "Usage: " << argv[0] << " wql-text" << endl;
+	cerr << "Usage: " << argv[0] << " wql-text..." << endl;
 	exit(1);
     }
 
     // 
-    // Parse the text:
+    // Append all arguments together to from a single string:
     //
 
     Array<Sint8> text;
-    text.append(argv[1], strlen(argv[1]));
+
+    for (int i = 1; i < argc; i++)
+    {
+	text.append(argv[i], strlen(argv[i]));
+
+	if (i + 1 !=  argc)
+	    text.append("\n", 1);
+    }
+
     text.append('\0');
+
+    // PEGASUS_OUT(text.getData());
+
+    // 
+    // Parse the text:
+    //
 
     WQLSelectStatement statement;
 

@@ -35,30 +35,22 @@ const char* WQLOperationToString(WQLOperation x)
 {
     switch (x)
     {
-	case WQL_OR:
-	    return "WQL_OR";
-	case WQL_AND:
-	    return "WQL_AND";
-	case WQL_NOT:
-	    return "WQL_NOT";
-	case WQL_EQ:
-	    return "WQL_EQ";
-	case WQL_NE:
-	    return "WQL_NE";
-	case WQL_LT:
-	    return "WQL_LT";
-	case WQL_LE:
-	    return "WQL_LE";
-	case WQL_GT:
-	    return "WQL_GT";
-	case WQL_GE:
-	    return "WQL_GE";
-	case WQL_IS_NULL:
-	    return "WQL_IS_NULL";
-	case WQL_CALL:
-	    return "WQL_CALL";
-	default:
-	    return "UNKNOWN OPERATION";
+	case WQL_OR: return "WQL_OR";
+	case WQL_AND: return "WQL_AND";
+	case WQL_NOT: return "WQL_NOT";
+	case WQL_EQ: return "WQL_EQ";
+	case WQL_NE: return "WQL_NE";
+	case WQL_LT: return "WQL_LT";
+	case WQL_LE: return "WQL_LE";
+	case WQL_GT: return "WQL_GT";
+	case WQL_GE: return "WQL_GE";
+	case WQL_IS_NULL: return "WQL_IS_NULL";
+	case WQL_IS_TRUE: return "WQL_IS_TRUE";
+	case WQL_IS_FALSE: return "WQL_IS_FALSE";
+	case WQL_IS_NOT_NULL: return "WQL_IS_NOT_NULL";
+	case WQL_IS_NOT_TRUE: return "WQL_IS_NOT_TRUE";
+	case WQL_IS_NOT_FALSE: return "WQL_IS_NOT_FALSE";
+	default: return "UNKNOWN OPERATION";
     }
 }
 

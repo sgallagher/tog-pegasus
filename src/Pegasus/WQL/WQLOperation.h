@@ -47,7 +47,11 @@ enum WQLOperation
     WQL_GT,
     WQL_GE,
     WQL_IS_NULL,
-    WQL_CALL
+    WQL_IS_TRUE,
+    WQL_IS_FALSE,
+    WQL_IS_NOT_NULL,
+    WQL_IS_NOT_TRUE,
+    WQL_IS_NOT_FALSE
 };
 
 PEGASUS_WQL_LINKAGE const char* WQLOperationToString(WQLOperation x);

@@ -42,7 +42,7 @@ public:
 
     enum Type
     {
-	UNITIALIZED,
+	NULL_VALUE,
 	INTEGER_VALUE,
 	DOUBLE_VALUE,
 	BOOLEAN_VALUE,

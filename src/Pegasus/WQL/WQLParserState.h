@@ -31,6 +31,7 @@
 #define Pegasus_WQLParserState_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Array.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -39,11 +40,47 @@ struct WQLParserState
 {
     WQLParserState() { }
 
+    //
+    // Text containing SELECT statement (must be null-terminated).
+    //
+
     Array<Sint8> text;
+
+    //
+    // Offset to current parser position in the above text.
+    //
+
     Uint32 offset;
+
+    //
+    // The output object being initialized during parsing.
+    //
+
     WQLSelectStatement* statement;
+
+    //
+    // Set to true when there is an error (set by WQL_error()).
+    //
+
     Boolean error;
+
+    //
+    // Error message if any (set by WQL_error()).
+    //
+
     String errorMessage;
+
+    //
+    // A list of strings created by lexer. These are deleted by the
+    // WQLParser when cleaning up in the parse() method. It is not possible
+    // to reliably clean them up anywhere else due to potential parse errors
+    // which prevent YACC actions (which might attempt to free them) from
+    // being reached. These strings are outstanding in the sense that they
+    // need to be cleaned up (not in the sense that they are excellent examples
+    // of strings).
+    //
+
+    Array<char*> outstandingStrings;
 };
 
 PEGASUS_NAMESPACE_END

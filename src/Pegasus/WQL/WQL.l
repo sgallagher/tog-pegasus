@@ -7,6 +7,8 @@ extern int WQL_error(char*);
 /* ATTN: works with Flex only */
 #define YY_INPUT(BUF, NREAD, NREQUESTED) WQLInput(BUF, NREAD, NREQUESTED)
 
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/WQL/WQLParserState.h>
 #include <cstring>
 #include <cassert>
 #include "WQLYACC.h"
@@ -16,6 +18,16 @@ extern int WQL_error(char*);
 #else
 # define WQL_TRACE(X)
 #endif
+
+PEGASUS_NAMESPACE_BEGIN
+
+extern WQLParserState* globalParserState;
+
+static char* CloneString(const char* str, Uint32 size = (Uint32)-1);
+
+PEGASUS_NAMESPACE_END
+
+PEGASUS_USING_PEGASUS;
 
 %}
 
@@ -56,7 +68,7 @@ IDENT_CHAR [A-Za-z_]
     return TOK_FALSE;
 }
 
-[Nn][Ul][Ul] {
+[Nn][Uu][Ll][Ll] {
 
     WQL_TRACE(("LEX: %s [TOK_NULL]\n", yytext));
     return TOK_NULL;
@@ -102,6 +114,8 @@ IDENT_CHAR [A-Za-z_]
 
 [-+]?{DECIMAL_DIGIT}*\.{DECIMAL_DIGIT}+([eE][+-]?{DECIMAL_DIGIT}+)? {
 
+    /* ATTN: make this consistent with WBEMSQL1 "standard" */
+
     WQL_TRACE(("LEX: %s [TOK_DOUBLE]\n", yytext));
     WQL_lval.doubleValue = strtod((char*)yytext, (char**)0);
     return TOK_DOUBLE;
@@ -120,8 +134,9 @@ IDENT_CHAR [A-Za-z_]
 	size_t n = strlen(yytext) - 2;
 	char* strValue = new char[n + 1];
 	memcpy(strValue, yytext + 1, n);
-	strValue[n - 1] = '\0';
+	strValue[n] = '\0';
 	WQL_lval.strValue = strValue;
+	globalParserState->outstandingStrings.append(strValue);
     }
 
     return TOK_STRING;
@@ -183,6 +198,7 @@ IDENT_CHAR [A-Za-z_]
 	memcpy(strValue, yytext, n);
 	strValue[n] = '\0';
 	WQL_lval.strValue = strValue;
+	globalParserState->outstandingStrings.append(strValue);
     }
 
     return TOK_IDENTIFIER;

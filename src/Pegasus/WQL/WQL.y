@@ -24,7 +24,7 @@
 # include <alloca.h>
 #endif
 
-#if 1
+#if 0
 # define WQL_TRACE(X) printf X
 #else
 # define WQL_TRACE(X)
@@ -32,6 +32,10 @@
 
 extern int WQL_lex();
 extern int WQL_error(char*);
+
+//
+// Define the global parser state object:
+//
 
 PEGASUS_USING_PEGASUS;
 
@@ -97,7 +101,7 @@ PEGASUS_NAMESPACE_END
 %type <nodeValue> propertyList
 %type <nodeValue> predicate
 %type <nodeValue> comparisonPredicate
-%type <nodeValue> comparisonTerm
+// %type <nodeValue> comparisonTerm
 %type <nodeValue> nullPredicate
 %type <nodeValue> searchCondition
 %type <nodeValue> fromClause
@@ -106,6 +110,7 @@ PEGASUS_NAMESPACE_END
 %type <nodeValue> selectList
 %type <nodeValue> selectExpression
 %type <strValue> className
+%type <intValue> truthValue
 
 %left TOK_OR
 %left TOK_AND
@@ -124,7 +129,7 @@ PEGASUS_NAMESPACE_END
 start
     : selectStatement
     {
-	printf("YACC: start\n");
+	WQL_TRACE(("YACC: start\n"));
     }
 
 selectStatement
@@ -168,7 +173,6 @@ fromClause
     {
 	WQL_TRACE(("YACC: fromClause: TOK_FROM className(%s)\n", $2));
 	globalParserState->statement->setClassName($2);
-	delete [] $2;
     }
 
 whereClause 
@@ -181,14 +185,18 @@ searchCondition
     : searchCondition TOK_OR searchCondition
     {
 	WQL_TRACE(("YACC: TOK_OR\n"));
+	globalParserState->statement->appendOperation(WQL_OR);
     }
     | searchCondition TOK_AND searchCondition
     {
 	WQL_TRACE(("YACC: TOK_AND\n"));
+	globalParserState->statement->appendOperation(WQL_AND);
     }
     | TOK_NOT searchCondition
     {
+	WQL_TRACE(("YACC: TOK_NOT\n"));
 
+	globalParserState->statement->appendOperation(WQL_NOT);
     }
     | '(' searchCondition ')'
     {
@@ -200,12 +208,16 @@ searchCondition
     }
     | predicate TOK_IS truthValue
     {
-
+	WQLOperation op = $3 ? WQL_IS_TRUE : WQL_IS_FALSE;
+	globalParserState->statement->appendOperation(op);
     }
     | predicate TOK_IS TOK_NOT truthValue
     {
-
+	WQLOperation op = $4 ? WQL_IS_NOT_TRUE : WQL_IS_NOT_FALSE;
+	globalParserState->statement->appendOperation(op);
     }
+
+/******************************************************************************/
 
 predicate
     : comparisonPredicate
@@ -221,46 +233,54 @@ comparisonPredicate
     : comparisonTerm TOK_LT comparisonTerm 
     {
 	WQL_TRACE(("YACC: TOK_LT\n"));
+	globalParserState->statement->appendOperation(WQL_LT);
     }
     | comparisonTerm TOK_GT comparisonTerm
     {
 	WQL_TRACE(("YACC: TOK_GT\n"));
+	globalParserState->statement->appendOperation(WQL_GT);
     }
     | comparisonTerm TOK_LE comparisonTerm
     {
 	WQL_TRACE(("YACC: TOK_LE\n"));
+	globalParserState->statement->appendOperation(WQL_LE);
     }
     | comparisonTerm TOK_GE comparisonTerm
     {
 	WQL_TRACE(("YACC: TOK_GE\n"));
+	globalParserState->statement->appendOperation(WQL_GE);
     }
     | comparisonTerm TOK_EQ comparisonTerm
     {
 	WQL_TRACE(("YACC: TOK_EQ\n"));
+	globalParserState->statement->appendOperation(WQL_EQ);
     }
     | comparisonTerm TOK_NE comparisonTerm
     {
 	WQL_TRACE(("YACC: TOK_NE\n"));
+	globalParserState->statement->appendOperation(WQL_NE);
     }
 
 nullPredicate
     : comparisonTerm TOK_IS TOK_NULL
     {
-	WQL_TRACE(("YACC: TOK_IS TOK_NULL\n"));
+	WQL_TRACE(("YACC: nullPredicate : comparisonTerm IS NULL\n"));
+	globalParserState->statement->appendOperation(WQL_IS_NULL);
     }
     | comparisonTerm TOK_IS TOK_NOT TOK_NULL
     {
-	WQL_TRACE(("YACC: TOK_NOT TOK_NULL\n"));
+	WQL_TRACE(("YACC: nullPredicate : comparisonTerm IS NOT NULL\n"));
+	globalParserState->statement->appendOperation(WQL_IS_NOT_NULL);
     }
 
 truthValue 
     : TOK_TRUE 
     {
-
+	$$ = 1;
     }
     | TOK_FALSE
     {
-
+	$$ = 0;
     }
 
 propertyName 
@@ -279,23 +299,28 @@ className : TOK_IDENTIFIER
 comparisonTerm
     : propertyName
     {
-
+	globalParserState->statement->appendOperand(
+	    WQLOperand($1, WQLOperand::PROPERTY_NAME_TAG));
     }
     | TOK_INTEGER
     {
-
+	globalParserState->statement->appendOperand(
+	    WQLOperand($1, WQLOperand::INTEGER_VALUE_TAG));
     }
     | TOK_DOUBLE
     {
-
+	globalParserState->statement->appendOperand(
+	    WQLOperand($1, WQLOperand::DOUBLE_VALUE_TAG));
     }
     | TOK_STRING
     {
-
+	globalParserState->statement->appendOperand(
+	    WQLOperand($1, WQLOperand::STRING_VALUE_TAG));
     }
     | truthValue
     {
-
+	globalParserState->statement->appendOperand(
+	    WQLOperand($1 != 0, WQLOperand::BOOLEAN_VALUE_TAG));
     }
 
 %%

@@ -52,7 +52,7 @@
 # include <alloca.h>
 #endif
 
-#if 1
+#if 0
 # define WQL_TRACE(X) printf X
 #else
 # define WQL_TRACE(X)
@@ -60,6 +60,10 @@
 
 extern int WQL_lex();
 extern int WQL_error(char*);
+
+//
+// Define the global parser state object:
+//
 
 PEGASUS_USING_PEGASUS;
 
@@ -70,7 +74,7 @@ extern WQLParserState* globalParserState;
 PEGASUS_NAMESPACE_END
 
 
-#line 54 "wql.y"
+#line 58 "wql.y"
 typedef union 
 {
    int intValue;
@@ -151,10 +155,10 @@ static const short yyrhs[] = {    29,
 
 #if YYDEBUG != 0
 static const short yyrline[] = { 0,
-   125,   131,   137,   141,   147,   151,   157,   161,   167,   175,
-   181,   185,   189,   193,   197,   201,   205,   211,   215,   221,
-   225,   229,   233,   237,   241,   247,   251,   257,   261,   267,
-   273,   280,   284,   288,   292,   296
+   130,   136,   142,   146,   152,   156,   162,   166,   172,   179,
+   185,   190,   195,   201,   205,   209,   214,   223,   227,   233,
+   238,   243,   248,   253,   258,   265,   270,   277,   281,   287,
+   293,   300,   305,   310,   315,   320
 };
 #endif
 
@@ -778,223 +782,241 @@ yyreduce:
   switch (yyn) {
 
 case 1:
-#line 126 "wql.y"
+#line 131 "wql.y"
 {
-	printf("YACC: start\n");
+	WQL_TRACE(("YACC: start\n"));
     ;
     break;}
 case 2:
-#line 132 "wql.y"
+#line 137 "wql.y"
 {
 
     ;
     break;}
 case 3:
-#line 138 "wql.y"
+#line 143 "wql.y"
 {
 	globalParserState->statement->appendPropertyName("*");
     ;
     break;}
 case 4:
-#line 142 "wql.y"
+#line 147 "wql.y"
 {
 
     ;
     break;}
 case 5:
-#line 148 "wql.y"
+#line 153 "wql.y"
 {
 	globalParserState->statement->appendPropertyName(yyvsp[0].strValue);
     ;
     break;}
 case 6:
-#line 152 "wql.y"
+#line 157 "wql.y"
 {
 	globalParserState->statement->appendPropertyName(yyvsp[0].strValue);
     ;
     break;}
 case 7:
-#line 158 "wql.y"
+#line 163 "wql.y"
 {
 
     ;
     break;}
 case 8:
-#line 162 "wql.y"
+#line 167 "wql.y"
 {
 
     ;
     break;}
 case 9:
-#line 168 "wql.y"
+#line 173 "wql.y"
 {
 	WQL_TRACE(("YACC: fromClause: TOK_FROM className(%s)\n", yyvsp[0].strValue));
 	globalParserState->statement->setClassName(yyvsp[0].strValue);
-	delete [] yyvsp[0].strValue;
     ;
     break;}
 case 10:
-#line 176 "wql.y"
+#line 180 "wql.y"
 {
 
     ;
     break;}
 case 11:
-#line 182 "wql.y"
+#line 186 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_OR\n"));
+	globalParserState->statement->appendOperation(WQL_OR);
     ;
     break;}
 case 12:
-#line 186 "wql.y"
+#line 191 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_AND\n"));
+	globalParserState->statement->appendOperation(WQL_AND);
     ;
     break;}
 case 13:
-#line 190 "wql.y"
+#line 196 "wql.y"
 {
+	WQL_TRACE(("YACC: TOK_NOT\n"));
 
+	globalParserState->statement->appendOperation(WQL_NOT);
     ;
     break;}
 case 14:
-#line 194 "wql.y"
-{
-
-    ;
-    break;}
-case 15:
-#line 198 "wql.y"
-{
-
-    ;
-    break;}
-case 16:
 #line 202 "wql.y"
 {
 
     ;
     break;}
-case 17:
+case 15:
 #line 206 "wql.y"
 {
 
     ;
     break;}
+case 16:
+#line 210 "wql.y"
+{
+	WQLOperation op = yyvsp[0].intValue ? WQL_IS_TRUE : WQL_IS_FALSE;
+	globalParserState->statement->appendOperation(op);
+    ;
+    break;}
+case 17:
+#line 215 "wql.y"
+{
+	WQLOperation op = yyvsp[0].intValue ? WQL_IS_NOT_TRUE : WQL_IS_NOT_FALSE;
+	globalParserState->statement->appendOperation(op);
+    ;
+    break;}
 case 18:
-#line 212 "wql.y"
+#line 224 "wql.y"
 {
 
     ;
     break;}
 case 19:
-#line 216 "wql.y"
+#line 228 "wql.y"
 {
 
     ;
     break;}
 case 20:
-#line 222 "wql.y"
+#line 234 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_LT\n"));
+	globalParserState->statement->appendOperation(WQL_LT);
     ;
     break;}
 case 21:
-#line 226 "wql.y"
+#line 239 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_GT\n"));
+	globalParserState->statement->appendOperation(WQL_GT);
     ;
     break;}
 case 22:
-#line 230 "wql.y"
+#line 244 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_LE\n"));
+	globalParserState->statement->appendOperation(WQL_LE);
     ;
     break;}
 case 23:
-#line 234 "wql.y"
+#line 249 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_GE\n"));
+	globalParserState->statement->appendOperation(WQL_GE);
     ;
     break;}
 case 24:
-#line 238 "wql.y"
+#line 254 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_EQ\n"));
+	globalParserState->statement->appendOperation(WQL_EQ);
     ;
     break;}
 case 25:
-#line 242 "wql.y"
+#line 259 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_NE\n"));
+	globalParserState->statement->appendOperation(WQL_NE);
     ;
     break;}
 case 26:
-#line 248 "wql.y"
+#line 266 "wql.y"
 {
-	WQL_TRACE(("YACC: TOK_IS TOK_NULL\n"));
+	WQL_TRACE(("YACC: nullPredicate : comparisonTerm IS NULL\n"));
+	globalParserState->statement->appendOperation(WQL_IS_NULL);
     ;
     break;}
 case 27:
-#line 252 "wql.y"
+#line 271 "wql.y"
 {
-	WQL_TRACE(("YACC: TOK_NOT TOK_NULL\n"));
+	WQL_TRACE(("YACC: nullPredicate : comparisonTerm IS NOT NULL\n"));
+	globalParserState->statement->appendOperation(WQL_IS_NOT_NULL);
     ;
     break;}
 case 28:
-#line 258 "wql.y"
+#line 278 "wql.y"
 {
-
+	yyval.intValue = 1;
     ;
     break;}
 case 29:
-#line 262 "wql.y"
+#line 282 "wql.y"
 {
-
+	yyval.intValue = 0;
     ;
     break;}
 case 30:
-#line 268 "wql.y"
+#line 288 "wql.y"
 {
 	WQL_TRACE(("YACC: propertyName : TOK_IDENTIFIER(%s)\n", yyvsp[0].strValue));
 	yyval.strValue = yyvsp[0].strValue;
     ;
     break;}
 case 31:
-#line 274 "wql.y"
+#line 294 "wql.y"
 {
 	WQL_TRACE(("YACC: TOK_IDENTIFIER %s\n", yyvsp[0].strValue));
 	yyval.strValue = yyvsp[0].strValue;
     ;
     break;}
 case 32:
-#line 281 "wql.y"
+#line 301 "wql.y"
 {
-
+	globalParserState->statement->appendOperand(
+	    WQLOperand(yyvsp[0].strValue, WQLOperand::PROPERTY_NAME_TAG));
     ;
     break;}
 case 33:
-#line 285 "wql.y"
+#line 306 "wql.y"
 {
-
+	globalParserState->statement->appendOperand(
+	    WQLOperand(yyvsp[0].intValue, WQLOperand::INTEGER_VALUE_TAG));
     ;
     break;}
 case 34:
-#line 289 "wql.y"
+#line 311 "wql.y"
 {
-
+	globalParserState->statement->appendOperand(
+	    WQLOperand(yyvsp[0].doubleValue, WQLOperand::DOUBLE_VALUE_TAG));
     ;
     break;}
 case 35:
-#line 293 "wql.y"
+#line 316 "wql.y"
 {
-
+	globalParserState->statement->appendOperand(
+	    WQLOperand(yyvsp[0].strValue, WQLOperand::STRING_VALUE_TAG));
     ;
     break;}
 case 36:
-#line 297 "wql.y"
+#line 321 "wql.y"
 {
-
+	globalParserState->statement->appendOperand(
+	    WQLOperand(yyvsp[0].intValue != 0, WQLOperand::BOOLEAN_VALUE_TAG));
     ;
     break;}
 }
@@ -1219,5 +1241,5 @@ yyerrhandle:
     }
   return 1;
 }
-#line 301 "wql.y"
+#line 326 "wql.y"
 

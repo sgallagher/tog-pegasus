@@ -84,6 +84,9 @@ void WQLSelectStatement::print() const
 
     for (Uint32 i = 0; i < _propertyNames.size(); i++)
     {
+	if (i == 0)
+	    cout << endl;
+
 	cout << "    _propertyNames[" << i << "]: ";
 	cout << '"' << _propertyNames[i] << '"' << endl;
     }
@@ -94,6 +97,9 @@ void WQLSelectStatement::print() const
 
     for (Uint32 i = 0; i < _operations.size(); i++)
     {
+	if (i == 0)
+	    cout << endl;
+
 	cout << "    _operations[" << i << "]: ";
 	cout << '"' << WQLOperationToString(_operations[i]) << '"' << endl;
     }
@@ -104,7 +110,10 @@ void WQLSelectStatement::print() const
 
     for (Uint32 i = 0; i < _operands.size(); i++)
     {
-	cout << "    _operations[" << i << "]: ";
+	if (i == 0)
+	    cout << endl;
+
+	cout << "    _operands[" << i << "]: ";
 	cout << '"' << _operands[i].toString() << '"' << endl;
     }
 

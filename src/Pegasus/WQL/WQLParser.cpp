@@ -61,11 +61,23 @@ void WQLParser::parse(
     if (globalParserState->error)
     {
 	String errorMessage = globalParserState->errorMessage;
+	cleanup();
 	delete globalParserState;
 	throw ParseError(errorMessage);
     }
 
+    cleanup();
     delete globalParserState;
+}
+
+void WQLParser::cleanup()
+{
+    Array<char*>& arr = globalParserState->outstandingStrings;
+
+    for (Uint32 i = 0, n = arr.size(); i < n; i++)
+	delete [] arr[i];
+
+    arr.clear();
 }
 
 PEGASUS_NAMESPACE_END

@@ -89,6 +89,15 @@ public:
 
 private:
 
+    /** This method cleans up all the strings which were created by LEX and
+	passed to YACC. These strings cannot be cleaned up by YACC actions
+	since the actions that clean up certain strings are not always reached
+	when errors occur.
+    */
+    static void cleanup();
+
+    /** Private constructor to avoid user from creating instance of this class.
+    */
     WQLParser() { }
 };
 

@@ -39,9 +39,10 @@
 #include <cctype>
 #include <cassert>
 #include <cstdlib>
+#include "Socket.h"
+#include "TLS.h"
 #include "HTTPConnection.h"
 #include "MessageQueue.h"
-#include "Socket.h"
 #include "Monitor.h"
 #include "HTTPMessage.h"
 
@@ -91,7 +92,8 @@ static char* _FindSeparator(const char* data, Uint32 size)
 
 HTTPConnection::HTTPConnection(
     Monitor* monitor,
-    Sint32 socket, 
+    //Sint32 socket, 
+    MP_Socket* socket, 
     MessageQueue* ownerMessageQueue,
     MessageQueue* outputMessageQueue)
     : 
@@ -102,7 +104,8 @@ HTTPConnection::HTTPConnection(
     _contentOffset(-1),
     _contentLength(-1)
 {
-    Socket::disableBlocking(_socket);
+    //Socket::disableBlocking(_socket);
+    _socket->disableBlocking();
     _authInfo = new AuthenticationInfo();
 
     //
@@ -121,7 +124,8 @@ HTTPConnection::HTTPConnection(
 
 HTTPConnection::~HTTPConnection()
 {
-    Socket::close(_socket);
+    _socket->close();
+    delete _socket;
     delete _authInfo;
 }
 
@@ -152,16 +156,16 @@ void HTTPConnection::handleEnqueue()
 
 	    // Send response message to the client (use synchronous I/O for now:
 
-	    Socket::enableBlocking(_socket);
+            _socket->enableBlocking();
 
 	    const Array<Sint8>& buffer = httpMessage->message;
 	    const Uint32 CHUNK_SIZE = 16 * 1024;
 
-#if 0
+#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
             SignalHandler::ignore(SIGPIPE);
 
-            getSigHandle()->registerHandler(SIGSEGV,sig_act);
-            getSigHandle()->activate(SIGSEGV);
+            //getSigHandle()->registerHandler(SIGSEGV,sig_act);
+            //getSigHandle()->activate(SIGSEGV);
             // use the next two lines to test the SIGSEGV handler
             //Thread t(::segmentation_faulter,NULL,false);
             //t.run();
@@ -170,8 +174,7 @@ void HTTPConnection::handleEnqueue()
 	    {
 		Uint32 bytesToWrite = _Min(bytesRemaining, CHUNK_SIZE);
 
-		Sint32 bytesWritten = Socket::write(
-		    _socket, 
+		Sint32 bytesWritten = _socket->write(
 		    buffer.getData() + buffer.size() - bytesRemaining, 
 		    bytesToWrite);
 
@@ -192,7 +195,7 @@ void HTTPConnection::handleEnqueue()
                 _serverState->decrementRequestCount();
             }
 
-	    Socket::disableBlocking(_socket);
+            _socket->disableBlocking();
 	}
 
 	default:
@@ -295,7 +298,7 @@ void HTTPConnection::_clearIncoming()
 
 void HTTPConnection::_closeConnection()
 {
-    Message* message = new CloseConnectionMessage(_socket);
+    Message* message= new CloseConnectionMessage(_socket->getSocket());
     _ownerMessageQueue->enqueue(message);
 }
 
@@ -308,7 +311,7 @@ void HTTPConnection::_handleReadEvent()
     for (;;)
     {
 	char buffer[4096];
-	Sint32 n = Socket::read(_socket, buffer, sizeof(buffer));
+        Sint32 n = _socket->read(buffer, sizeof(buffer));
 
 	if (n <= 0)
 	    break;

@@ -41,6 +41,7 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/AuthenticationInfo.h>
+#include <Pegasus/Common/TLS.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/CIMServerState.h>
 
@@ -71,7 +72,8 @@ public:
     /** Constructor. */
     HTTPConnection(
 	Monitor* monitor,
-	Sint32 socket, 
+	//Sint32 socket, 
+	MP_Socket * socket, 
 	MessageQueue* ownerMessageQueue,
 	MessageQueue* outputMessageQueue);
 
@@ -86,7 +88,7 @@ public:
     virtual const char* getQueueName() const;
 
     /** Return socket this connection is using. */
-    Sint32 getSocket() const { return _socket; }
+    Sint32 getSocket() { return _socket->getSocket();}
 
 private:
 
@@ -100,7 +102,9 @@ private:
 
     Monitor* _monitor;
     CIMServerState*  _serverState;
-    Sint32 _socket;
+
+    //Sint32 _socket;
+    MP_Socket* _socket;
     MessageQueue* _ownerMessageQueue;
     MessageQueue* _outputMessageQueue;
 

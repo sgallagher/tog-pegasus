@@ -26,3 +26,5 @@ checking CVS upgrade
 
 checking commit file tracking
 
+checking commit messages
+

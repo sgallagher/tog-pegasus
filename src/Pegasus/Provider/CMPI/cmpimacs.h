@@ -135,12 +135,16 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 
 #ifndef DOC_ONLY
   #ifdef CMPI_PLATFORM_WIN32_IX86_MSVC
-	#define  CMPI_EXTERN_C __declspec(dllexport)
+	#ifdef __cplusplus
+        #define CMPI_EXTERN_C extern "C" __declspec(dllexport)
+    #else
+        #define CMPI_EXTERN_C __declspec(dllexport)
+    #endif
   #else
 	#ifdef __cplusplus
-      #define  CMPI_EXTERN_C extern "C"
+        #define  CMPI_EXTERN_C extern "C"
     #else
-      #define CMPI_EXTERN_C
+        #define CMPI_EXTERN_C
     #endif
   #endif
 #endif
@@ -2019,7 +2023,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
    CMPIInstanceMI* CMInstanceMIFactory(chars cn, chars pn);
 #else
  #define CMInstanceMIFactory(cn,pn) \
- extern "C" \
+ CMPI_EXTERN_C \
  CMPIInstanceMI* pn##_Create_InstanceMI(CMPIBroker* broker, CMPIContext *ctxp) { \
    static CMPIInstanceMIFT instMIFT={ \
     CMPICurrentVersion, \
@@ -2067,7 +2071,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
    CMPIAssociationMI* CMAssociationMIFactory(chars cn, chars pn);
 #else
  #define CMAssociationMIFactory(cn,pn) \
- extern "C" \
+ CMPI_EXTERN_C \
  CMPIAssociationMI* pn##_Create_AssociationMI(CMPIBroker* broker, CMPIContext *ctxp) { \
    static CMPIAssociationMIFT assocMIFT={ \
     CMPICurrentVersion, \
@@ -2112,7 +2116,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
    CMPIMethodMI* CMMethodMIFactory(chars cn, chars pn);
 #else
  #define CMMethodMIFactory(cn,pn) \
- extern "C" \
+ CMPI_EXTERN_C \
  CMPIMethodMI* pn##_Create_MethodMI(CMPIBroker* broker, CMPIContext *ctxp) { \
    static CMPIMethodMIFT methMIFT={ \
     CMPICurrentVersion, \
@@ -2153,7 +2157,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
    CMPIPropertyMI* CMPropertyMIFactory(chars cn, chars pn):
 #else
  #define CMPropertyMIFactory(cn,pn) \
- extern "C" \
+ CMPI_EXTERN_C \
  CMPIMethodMI* pn##_Create_PropertyMI(CMPIBroker* broker, CMPIContext *ctxp) { \
    static CMPIPropertyMIFT propMIFT={ \
     CMPICurrentVersion, \
@@ -2204,7 +2208,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
   #endif
 
 #define CMIndicationMIFactory(cn,pn) \
- extern "C" \
+ CMPI_EXTERN_C \
  CMPIMethodMI* pn##_Create_IndicationMI(CMPIBroker* broker, CMPIContext *ctxp) { \
    static CMPIIndicationMIFT indMIFT={ \
     CMPICurrentVersion, \

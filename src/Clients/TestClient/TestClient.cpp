@@ -816,15 +816,15 @@ static void TestAssociationOperations(CIMClient& client, Boolean
     }
     if (runTest)
     {
-      // CIMName TST_PersonClass= "TST_Person";
-      //  CIMObjectPath TST_PersonInstance = "TST_Person.name=\"Mike\"";
-      //  CIMObjectPath TST_PersonDynamicClass = "TST_PersonDynamic";
-      //  CIMObjectPath TST_PersonDynamicInstance = "TST_PersonDynamic.name=\"Father\"";
+        CIMObjectPath TST_PersonClass= "TST_Person";
+        CIMObjectPath TST_PersonInstance = "TST_Person.name=\"Mike\"";
+        CIMObjectPath TST_PersonDynamicClass = "TST_PersonDynamic";
+        CIMObjectPath TST_PersonDynamicInstance = "TST_PersonDynamic.name=\"Father\"";
         
-      //  testRefandAssoc(client, nameSpace, CIMObjectPath(TST_PersonClass) , CIMName(), CIMName());
-      //  testRefandAssoc(client, nameSpace, TST_PersonInstance , CIMName(), CIMName());
-      //  testRefandAssoc(client, nameSpace, TST_PersonDynamicClass , CIMName(), CIMName());
-      //  testRefandAssoc(client, nameSpace, TST_PersonDynamicInstance , CIMName(), CIMName());
+        testRefandAssoc(client, nameSpace, TST_PersonClass , CIMName(), CIMName());
+        testRefandAssoc(client, nameSpace, TST_PersonInstance , CIMName(), CIMName());
+        testRefandAssoc(client, nameSpace, TST_PersonDynamicClass , CIMName(), CIMName());
+        testRefandAssoc(client, nameSpace, TST_PersonDynamicInstance , CIMName(), CIMName());
     }
 
     return;

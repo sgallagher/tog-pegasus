@@ -30,6 +30,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <string.h> //l10n
 
 #include "Command.h"
 
@@ -68,6 +69,33 @@ String& Command::getUsage ()
 void Command::setUsage (String& usageMessage)
 {
     _usage = usageMessage;
+}  
+
+//l10n
+String Command::localizeMessage(const char * resource_path,
+								const char * key, 
+								const char * default_msg,
+					   			Formatter::Arg arg0, 
+								Formatter::Arg arg1,
+								Formatter::Arg arg2,
+								Formatter::Arg arg3,
+								Formatter::Arg arg4,
+								Formatter::Arg arg5,
+								Formatter::Arg arg6,
+								Formatter::Arg arg7,
+								Formatter::Arg arg8,
+								Formatter::Arg arg9)
+{
+	MessageLoaderParms parms(key,default_msg,
+					   arg0,arg1,arg2,arg3,arg4,
+					   arg5,arg6,arg7,arg8,arg9);
+					   
+	if(strlen(resource_path) > 0)
+		parms.msg_src_path = resource_path;
+	
+	return MessageLoader::getMessage(parms);
+					   
 }
+//l10n end
 
 PEGASUS_NAMESPACE_END

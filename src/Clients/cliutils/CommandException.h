@@ -33,6 +33,7 @@
 
 #include <Pegasus/Common/Exception.h>
 #include <Clients/cliutils/Linkage.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -55,6 +56,8 @@ public:
       
      */
     CommandException (const String& exceptionMessage);
+    
+    CommandException (MessageLoaderParms &parms);//l10n
 };
 
 /**
@@ -76,6 +79,8 @@ public:
 
      */
     CommandFormatException (const String& exceptionMessage);
+    
+    CommandFormatException (MessageLoaderParms &parms); //l10n
 };
 
 /**

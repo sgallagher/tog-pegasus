@@ -33,6 +33,7 @@
 // implementation of getoopt
 
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 #include "getoopt.h"
 #include <cctype>
@@ -277,7 +278,13 @@ getoopt::addFlagspec(const String &opt) {
 Boolean
 getoopt::addFlagspec(char flag, Boolean hasarg) {
   if (flag == '*') {
-    addError("You can't have a flag named '*'");
+  	//l10n
+  	MessageLoaderParms parms("getoopt.getoopt.CANT_NAME_FLAG",
+  							 "You can't have a flag named '$0'",
+  							 flag);
+  	addError(MessageLoader::getMessage(parms));
+    //addError("You can't have a flag named '*'");
+    //l10n end
     return false;
   }
   flagspec fs;
@@ -447,8 +454,15 @@ getoopt::parse(int argc, char **argv) {
 	      String temp = argv[i];
 	      String name = temp.subString(argpos, 1);
 	      if (!fs) {  // See if we recognize it
-		addError("Unknown flag -" + name);
-		argpos++;
+	      	//l10n
+	      	MessageLoaderParms parms("getoopt.getoopt.UNKNOWN_FLAG",
+	      							 "Unknown flag $0$1",
+	      							 "-",
+	      							 name);
+	      	addError(MessageLoader::getMessage(parms));
+			//addError("Unknown flag -" + name);
+			//l10n end
+			argpos++;
 	      } else {
 		if (fs->argtype == NOARG) {  // Should this flag be bound
 		  addarg(_args, name, Optarg::FLAG,  "");  // NO
@@ -472,8 +486,15 @@ getoopt::parse(int argc, char **argv) {
 	    optargFromLongOpt(o, arg);
 	    fs = getFlagspec(o.getName());
 	    if (!fs) { // see if we recognize this flag
-	      String temp = "Unknown flag ";
-	      addError(temp + o.getName());
+	    	//l10n
+	      //String temp = "Unknown flag ";
+	      //addError(temp + o.getName());
+	      MessageLoaderParms parms("getoopt.getoopt.UNKNOWN_FLAG",
+	      						   "Unknown flag $0$1",
+	      						   "",
+	      						   o.getName());
+	      addError(MessageLoader::getMessage(parms));
+	      //l10n end
 	    } else {
 	        // this is a long flag we know about
 	      if (o.optarg() != ""  || fs->argtype != MUSTHAVEARG) { 
@@ -492,7 +513,13 @@ getoopt::parse(int argc, char **argv) {
 
       case ARGEXPECTED:
 	if (argv[i][0] == '-') {
-	  addError("Missing required value for flag " + o.getopt());
+		//l10n
+	  //addError("Missing required value for flag " + o.getopt());
+	  MessageLoaderParms parms("getoopt.getoopt.MISSING_VALUE_FOR_FLAG",
+	      					   "Missing required value for flag $0",
+	      					   o.getopt());
+	  addError(MessageLoader::getMessage(parms));
+	  //l10n end
 	  i--;
 	} else {
 	  o.setValue(argv[i]);
@@ -503,7 +530,13 @@ getoopt::parse(int argc, char **argv) {
       } // end switch
   } // end for
   if (state != START) {
-    addError("Missing required value for flag " + o.getName());
+  	//l10n
+    //addError("Missing required value for flag " + o.getName());
+    MessageLoaderParms parms("getoopt.getoopt.MISSING_VALUE_FOR_FLAG",
+	      					   "Missing required value for flag $0",
+	      					   o.getName());
+	  addError(MessageLoader::getMessage(parms));
+    //l10n end
   }
   copyargs(_args, nonflagargs);
   return !_errorStrings.size();

@@ -45,7 +45,11 @@ CommandException::CommandException (const String& exceptionMessage) : Exception
     (exceptionMessage)
 {
 }
-
+//l10n
+CommandException::CommandException (MessageLoaderParms &parms) : Exception 
+    (parms)
+{
+}
 /**
 
     Constructs a CommandFormatException with the specified message.
@@ -57,7 +61,11 @@ CommandFormatException::CommandFormatException (const String& exceptionMessage)
    : CommandException (exceptionMessage)
 {
 }
-
+//l10n
+CommandFormatException::CommandFormatException (MessageLoaderParms &parms)
+   : CommandException (parms)
+{
+}
 /**
 
     First part of exception message string indicating a duplicate option
@@ -87,10 +95,14 @@ const char DuplicateOptionException::_MESSAGE_DUPLICATE_OPTION2 [] =
 DuplicateOptionException::DuplicateOptionException (char duplicateOption) :
     CommandFormatException (String ())
 {
-    _rep->message = _MESSAGE_DUPLICATE_OPTION1;
-    _rep->message.append (duplicateOption);
-    _rep->message.append (_MESSAGE_DUPLICATE_OPTION2);
-
+	//l10n
+    //_rep->message = _MESSAGE_DUPLICATE_OPTION1;
+    //_rep->message.append (duplicateOption);
+    //_rep->message.append (_MESSAGE_DUPLICATE_OPTION2);
+    MessageLoaderParms parms("Clients.cliutils.CommandException.DUPLICATE_OPTION",
+    					     "duplicate \"-$0\" option",
+    					     duplicateOption);
+	_rep->message.append(MessageLoader::getMessage(parms));
 }
 
 /**
@@ -134,11 +146,18 @@ InvalidOptionArgumentException::InvalidOptionArgumentException
     (const String& invalidArgument, char option) : CommandFormatException
         (String ())
 {
-    _rep->message = _MESSAGE_INVALID_ARG1;
-    _rep->message.append (invalidArgument);
-    _rep->message.append (_MESSAGE_INVALID_ARG2);
-    _rep->message.append (option);
-    _rep->message.append (_MESSAGE_INVALID_ARG3);
+	//l10n
+    //_rep->message = _MESSAGE_INVALID_ARG1;
+    //_rep->message.append (invalidArgument);
+    //_rep->message.append (_MESSAGE_INVALID_ARG2);
+    //_rep->message.append (option);
+    //_rep->message.append (_MESSAGE_INVALID_ARG3);
+    MessageLoaderParms parms("Clients.cliutils.CommandException.INVALID_ARG",
+    						 "argument \"$0\" is not valid for option \"-$1\"",
+    						 invalidArgument,
+    						 option);
+    _rep->message.append(MessageLoader::getMessage(parms));
+    					
 
 }
 
@@ -170,9 +189,14 @@ const char InvalidOptionException::_MESSAGE_INVALID_OPTION2 [] =
 InvalidOptionException::InvalidOptionException (char invalidOption) :
     CommandFormatException (String ())
 {
-    _rep->message = _MESSAGE_INVALID_OPTION1;
-    _rep->message.append (invalidOption);
-    _rep->message.append (_MESSAGE_INVALID_OPTION2);
+	//l10n
+    //_rep->message = _MESSAGE_INVALID_OPTION1;
+    //_rep->message.append (invalidOption);
+    //_rep->message.append (_MESSAGE_INVALID_OPTION2);
+    MessageLoaderParms parms("Clients.cliutils.CommandException.INVALID_OPTION",
+    						 "option \"-$0\" is not valid for this command",
+    						 invalidOption);
+    _rep->message.append(MessageLoader::getMessage(parms));						 
 }
 
 /**
@@ -205,9 +229,14 @@ const char MissingOptionArgumentException::_MESSAGE_MISSING_OPTARG2 [] =
 MissingOptionArgumentException::MissingOptionArgumentException (char option) :
     CommandFormatException (String ())
 {
-    _rep->message = _MESSAGE_MISSING_OPTARG1;
-    _rep->message.append (option);
-    _rep->message.append (_MESSAGE_MISSING_OPTARG2);
+	//l10n
+    //_rep->message = _MESSAGE_MISSING_OPTARG1;
+    //_rep->message.append (option);
+    //_rep->message.append (_MESSAGE_MISSING_OPTARG2);
+    MessageLoaderParms parms("Clients.cliutils.CommandException.MISSING_OPTION_ARG",
+    						 "missing argument value for \"-$0\" option",
+    						 option);
+    _rep->message.append(MessageLoader::getMessage(parms));
 }
 
 /**
@@ -239,9 +268,14 @@ const char MissingOptionException::_MESSAGE_MISSING_OPTION2 [] =
 MissingOptionException::MissingOptionException (char missingOption) :
     CommandFormatException (String ())
 {
-    _rep->message = _MESSAGE_MISSING_OPTION1;
-    _rep->message.append (missingOption);
-    _rep->message.append (_MESSAGE_MISSING_OPTION2);
+	//l10n
+    //_rep->message = _MESSAGE_MISSING_OPTION1;
+    //_rep->message.append (missingOption);
+    //_rep->message.append (_MESSAGE_MISSING_OPTION2);
+    MessageLoaderParms parms("Clients.cliutils.CommandException.MISSING_OPTION",
+    						 "the \"-$0\" option is required",
+    						 missingOption);
+    _rep->message.append(MessageLoader::getMessage(parms));
 }
 
 /**
@@ -273,9 +307,14 @@ const char UnexpectedArgumentException::_MESSAGE_UNEXPECTED_ARG2 [] =
 UnexpectedArgumentException::UnexpectedArgumentException
     (const String& argumentValue) : CommandFormatException (String ())
 {
-    _rep->message = _MESSAGE_UNEXPECTED_ARG1;
-    _rep->message.append (argumentValue);
-    _rep->message.append (_MESSAGE_UNEXPECTED_ARG2);
+	//l10n
+    //_rep->message = _MESSAGE_UNEXPECTED_ARG1;
+    //_rep->message.append (argumentValue);
+    //_rep->message.append (_MESSAGE_UNEXPECTED_ARG2);
+    MessageLoaderParms parms("Clients.cliutils.CommandException.UNEXPECTED_ARG",
+    						 "argument \"$0\" was unexpected",
+    						 argumentValue);
+    _rep->message.append(MessageLoader::getMessage(parms));
 }
 
 /**
@@ -308,9 +347,14 @@ const char UnexpectedOptionException::_MESSAGE_UNEXPECTED_OPT2 [] =
 UnexpectedOptionException::UnexpectedOptionException (char optionValue) :
     CommandFormatException (String ())
 {
-    _rep->message = _MESSAGE_UNEXPECTED_OPT1;
-    _rep->message.append (optionValue);
-    _rep->message.append (_MESSAGE_UNEXPECTED_OPT2);
+	//l10n
+    //_rep->message = _MESSAGE_UNEXPECTED_OPT1;
+    //_rep->message.append (optionValue);
+    //_rep->message.append (_MESSAGE_UNEXPECTED_OPT2);
+    MessageLoaderParms parms("Clients.cliutils.CommandException.UNEXPECTED_OPTION",
+    						 "option \"-$0\" was unexpected",
+    						 optionValue);
+    _rep->message.append(MessageLoader::getMessage(parms));
 }
 
 PEGASUS_NAMESPACE_END

@@ -35,6 +35,8 @@
 #include <Pegasus/Common/String.h>
 #include <Clients/cliutils/Linkage.h>
 #include <Clients/cliutils/CommandException.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/Formatter.h> //l10n
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -111,6 +113,21 @@ public:
       
     */
     static const Uint32    RC_ERROR;
+    
+    //l10n
+	String localizeMessage(	const char *resource_path, 
+						   	const char * key, 
+						   	const char * default_msg,
+							Formatter::Arg arg0 = Formatter::Arg(), 
+							Formatter::Arg arg1 = Formatter::Arg(),
+							Formatter::Arg arg2 = Formatter::Arg(),
+							Formatter::Arg arg3 = Formatter::Arg(),
+							Formatter::Arg arg4 = Formatter::Arg(),
+							Formatter::Arg arg5 = Formatter::Arg(),
+							Formatter::Arg arg6 = Formatter::Arg(),
+							Formatter::Arg arg7 = Formatter::Arg(),
+							Formatter::Arg arg8 = Formatter::Arg(),
+							Formatter::Arg arg9 = Formatter::Arg());
 
 protected:
     /**

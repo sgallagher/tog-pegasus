@@ -292,7 +292,7 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
         PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"new child" + 
                           ids[j].getName().getString());
         curChild = new PropertyNode;
-        curChild->sibling = curNode->firstChild;
+        curChild->sibling.reset(curNode->firstChild.release());
         curChild->name = ids[j].getName();
         curChild->wildcard = false;
         curChild->endpoint = false;

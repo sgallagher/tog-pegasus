@@ -70,8 +70,7 @@ PEGASUS_LIBRARY_LINKS = \
 PEGASUS_PROVIDERS = \
    libComputerSystemProvider \
    libOSProvider \
-   libProcessProvider \
-   libDefaultProviderManager
+   libProcessProvider
 
 PEGASUS_ADMIN_CMDS = \
    cimauth \

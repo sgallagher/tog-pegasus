@@ -59,33 +59,15 @@ typedef CIMHandler* (*CreateHandlerFunc)();
 
 CIMHandler* HandlerTable::loadHandler(const String& handlerId)
 {
-    // Load the dynamic library:
-    String libraryName;
-
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    libraryName = handlerId + String(".dll");
-#elif defined(PEGASUS_OS_HPUX)
-# ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-    libraryName = String("lib") + handlerId + String(".sl");
-# else
-    libraryName = String("lib") + handlerId + String(".so");
-# endif
-#elif defined(PEGASUS_OS_OS400)
-    libraryName = handlerId;
-#elif defined(PEGASUS_OS_DARWIN)
-    libraryName = String("/lib") + handlerId + String(".dylib");
-#else
-    libraryName = String("/lib") + handlerId + String(".so");
-#endif
-    libraryName = FileSystem::getAbsoluteFileName(
-	ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir")), libraryName);
+    String fileName = ConfigManager::getHomedPath(PEGASUS_DEST_LIB_DIR) +
+        "/" + FileSystem::buildLibraryFileName(handlerId);
 
     DynamicLibraryHandle libraryHandle = 
-	System::loadDynamicLibrary(libraryName.getCString());
+	System::loadDynamicLibrary(fileName.getCString());
 
     if (!libraryHandle) {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-	throw DynamicLoadFailed(libraryName);
+	throw DynamicLoadFailed(fileName);
 #else
         String errorMsg = System::dynamicLoadError();
 	throw DynamicLoadFailed(errorMsg);
@@ -109,7 +91,7 @@ CIMHandler* HandlerTable::loadHandler(const String& handlerId)
 
     if (!handler)
 	throw CreateHandlerReturnedNull(
-	    libraryName, 
+	    fileName, 
 	    functionName);
 
     if (handler)

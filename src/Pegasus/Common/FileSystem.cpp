@@ -28,6 +28,7 @@
 // Modified By:
 //         Ramnath Ravindran(Ramnath.Ravindran@compaq.com)
 //         Amit K Arora, IBM (amita@in.ibm.com)
+//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -435,6 +436,29 @@ String FileSystem::getAbsoluteFileName(const String &paths, const String &filena
 	  }
   } while (tempPath.size() > 0);
   return root;
+}
+
+String FileSystem::buildLibraryFileName(const String &libraryName)
+{
+    String fileName;
+
+    //
+    // Add the necessary prefix and suffix to convert the library name to its
+    // corresponding file name.
+    //
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+    fileName = libraryName + String(".dll");
+#elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+    fileName = String("lib") + libraryName + String(".sl");
+#elif defined(PEGASUS_OS_OS400)
+    fileName = libraryName;
+#elif defined(PEGASUS_OS_DARWIN)
+    fileName = String("lib") + libraryName + String(".dylib");
+#else
+    fileName = String("lib") + libraryName + String(".so");
+#endif
+
+    return fileName;
 }
 
 

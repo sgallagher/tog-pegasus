@@ -25,7 +25,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -329,6 +329,16 @@ public:
     */
     static String getAbsoluteFileName(const String &paths, const String &filename);
        
+    /**
+        Convert a library name to its corresponding file name by adding the
+        appropriate prefix and suffix.
+
+        @param libraryName The name of the library for which to build the file
+                           name.
+        @return The file name corresponding to the specified library name.
+    */
+    static String buildLibraryFileName(const String &libraryName);
+
 private:
 
     FileSystem() { }

@@ -25,12 +25,13 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/ArrayInternal.h>
+#include <Pegasus/Common/FileSystem.h>
 
 #include <Pegasus/ProviderManager2/ProviderManagerModule.h>
 
@@ -38,22 +39,6 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
-static const String FILE_NAME = "TestProviderManager.dll";
-#elif defined(PEGASUS_OS_HPUX)
-  # ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-    static const String FILE_NAME = "libTestProviderManager.sl";
-  # else
-    static const String FILE_NAME = "libTestProviderManager.so";
-  # endif
-#elif defined (PEGASUS_OS_OS400)
-static const String FILE_NAME = "TestProviderManager";
-#elif defined (PEGASUS_OS_DARWIN)
-static const String FILE_NAME = "libTestProviderManager.dylib";
-#else
-static const String FILE_NAME = "libTestProviderManager.so";
-#endif
 
 String fileName;
 
@@ -143,6 +128,9 @@ void Test3(void)
 int main(int argc, char** argv)
 {
     const char * verbose = getenv("PEGASUS_TEST_VERBOSE");
+
+    const String FILE_NAME =
+        FileSystem::buildLibraryFileName("TestProviderManager");
 
     // Use "bin" directory for Windows, to be consistent with the default
     // providerDir value in Config/ProviderDirPropertyOwner.cpp.

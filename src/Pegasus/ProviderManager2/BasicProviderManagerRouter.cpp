@@ -36,6 +36,8 @@
 #include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 #include <Pegasus/ProviderManager2/ProviderManagerModule.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>
@@ -75,7 +77,8 @@ public:
         PEGASUS_INDICATION_CALLBACK indicationCallback)
     : _manager(0)
     {
-        _physicalName = ProviderManager::_resolvePhysicalName(physicalName);
+        _physicalName = ConfigManager::getHomedPath(PEGASUS_DEST_LIB_DIR) +
+            "/" + FileSystem::buildLibraryFileName(physicalName);
 
         _logicalName = logicalName;
         _interfaceName = interfaceName;

@@ -413,8 +413,11 @@ endif
 
 ifdef PEGASUS_USE_RELEASE_DIRS
   FLAGS += -DPEGASUS_USE_RELEASE_DIRS
-  DEFINES += -DPEGASUS_DEST_LIB_DIR=\"$(PEGASUS_DEST_LIB_DIR)\"
 endif
 
+# Unless otherwise specified, Pegasus libraries go in $(PEGASUS_HOME)/lib
+ifndef PEGASUS_DEST_LIB_DIR
+  PEGASUS_DEST_LIB_DIR = lib
+endif
 
-
+DEFINES += -DPEGASUS_DEST_LIB_DIR=\"$(PEGASUS_DEST_LIB_DIR)\"

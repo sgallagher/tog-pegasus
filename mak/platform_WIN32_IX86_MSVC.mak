@@ -78,3 +78,6 @@ YACC = bison
 INSTALL_LIBRARY = echo Not supported.
 INSTALL_PROGRAM = echo Not supported.
 INSTALL_SBIN_PROGRAM = echo Not supported.
+
+# Windows DLLs are installed in the $(PEGASUS_HOME)/bin directory
+PEGASUS_DEST_LIB_DIR = bin

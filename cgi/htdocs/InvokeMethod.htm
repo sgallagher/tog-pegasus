@@ -1,4 +1,15 @@
 <html>
+<head>
+<script>
+	function rTrim(tempStr){
+                     while( tempStr.lastIndexOf(' ') == tempStr.length-1 && tempStr.length > 0 )
+                     { 
+                         tempStr = tempStr.substring(0,tempStr.length-1) 
+                     }
+                     document.InvokeMethod.InstanceName.value = tempStr;
+	}
+</script>
+</head>
 	<body bgcolor="#cccccc">
 		<table width="100%">
 			<tr>
@@ -11,15 +22,26 @@
 		</table>
 		<hr>
 		<form name="InvokeMethod" METHOD="get" ACTION="/pegasus/cgi-bin/CGIClient">
-			<INPUT TYPE="hidden" NAME="Operation" VALUE="InvokeMethod"> 
-			<INPUT TYPE="hidden" NAME="hostaddress" VALUE="localhost:5988">
+			<INPUT TYPE="hidden" NAME="Operation" VALUE="InvokeMethod"> <INPUT TYPE="hidden" NAME="hostaddress" VALUE="localhost:5988">
 			<INPUT TYPE="hidden" NAME="debug">
 			<p>
-				Invoke an extrinsic method on an Instance present in the Namespace. <FONT color="#ff0000">
-					(Under Construction)</FONT>
+			Invoke an extrinsic method on an Instance present in the Namespace.
 			<p>NameSpace&nbsp;&nbsp;&nbsp; <INPUT TYPE="text" NAME="NameSpace" SIZE="30" VALUE="root/cimv2">
+				String that defines the target namespace. See <A href="enumeratenamespaces.html">NameSpace 
+					Operations</A>
+			for more information
+			<p>InstanceName&nbsp;&nbsp;&nbsp; <INPUT TYPE="text" NAME="InstanceName" SIZE="30">&nbsp;The 
+				name of the Instance&nbsp;on which the method is to&nbsp;be invoked. See <A href="EnumerateInstanceNames.html">
+					Enumerate Instance Names</A>
+			for instance names for a class
+			<p>MethodName&nbsp;&nbsp;&nbsp; <INPUT TYPE="text" NAME="MethodName" SIZE="30"> The 
+				name of the method that is to be invoked. See <A href="GetClass.html">Get Class</A>
+			&nbsp;for&nbsp;methods&nbsp;supported&nbsp;by a class
+			<p>Arguments&nbsp;&nbsp;&nbsp; <INPUT TYPE="text" NAME="ArgumentList" SIZE="30">
+			&nbsp; Input parameters in the same sequence&nbsp;as expected by the method. 
+			Delimit multiple parameters with a semicolon. Eg., Sam;1234;true;Sales
 			<p>
-			<p><INPUT TYPE="submit" VALUE="Submit Request" name="Submit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<p><INPUT TYPE="submit" VALUE="Submit Request" name="Submit" onClick="rTrim(document.InvokeMethod.InstanceName.value);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				<INPUT TYPE="reset" VALUE="Reset Form">
 			<p>
 		</form>
@@ -82,7 +104,7 @@
 				for more information on Pegasus</font>
 		<p style="MARGIN-TOP: 0px; MARGIN-BOTTOM: 0px">
 			<font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
-    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan --> 
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->
 				Friday, June 29, 2001 06:46:22 PM<!--webbot bot="Timestamp" i-CheckSum="54909" endspan -->
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Copyright @ The Open Group 2001&nbsp;</font>
 			<script>

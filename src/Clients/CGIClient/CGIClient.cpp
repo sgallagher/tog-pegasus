@@ -50,6 +50,7 @@ Pegasus.
 
 #include <Pegasus/Common/Config.h>
 #include <cassert>
+#include <cctype>
 #include <cstdlib>
 #include <cstdio>
 #include <Pegasus/Common/CGIQueryString.h>
@@ -58,6 +59,10 @@ Pegasus.
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/MofWriter.h>
+#include <Pegasus/Common/CIMMethod.h>
+
+#define PEGASUS_SINT64_MIN (PEGASUS_SINT64_LITERAL(0x8000000000000000))
+#define PEGASUS_UINT64_MAX PEGASUS_UINT64_LITERAL(0xFFFFFFFFFFFFFFFF)
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -2558,6 +2563,665 @@ static void AssociatorNames(const CGIQueryString& qs)
     }
   }
 
+inline Uint8 hexCharToNumeric(const char c)
+{
+    Uint8 n;
+
+    if (isdigit(c))
+        n = (c - '0');
+    else if (isupper(c))
+        n = (c - 'A' + 10);
+    else // if (islower(c))
+        n = (c - 'a' + 10);
+
+    return n;
+}
+
+static Boolean stringToUnsignedInteger(
+    const char* stringValue, 
+    Uint64& x)
+{
+    x = 0;
+    const char* p = stringValue;
+
+    if (!p || !*p)
+	return false;
+
+    if (*p == '0')
+    {
+        if ( (p[1] == 'x') || (p[1] == 'X') )
+        {
+            // Convert a hexadecimal string
+
+            // Skip over the "0x"
+            p+=2;
+
+            // At least one hexadecimal digit is required
+            if (!*p)
+                return false;
+
+            // Add on each digit, checking for overflow errors
+            while (isxdigit(*p))
+            {
+                // Make sure we won't overflow when we multiply by 16
+                if (x > PEGASUS_UINT64_MAX/16)
+                {
+                    return false;
+                }
+                x = x << 4;
+
+                // We can't overflow when we add the next digit
+                Uint64 newDigit = Uint64(hexCharToNumeric(*p++));
+                if (PEGASUS_UINT64_MAX - x < newDigit)
+                {
+                    return false;
+                }
+                x = x + newDigit;
+            }
+
+            // If we found a non-hexadecimal digit, report an error
+            if (*p)
+                return false;
+
+            return true;
+        }
+        else
+        {
+            // A decimal string that starts with '0' must be exactly "0".
+	    return p[1] == '\0';
+        }
+    }
+
+    // Expect a positive decimal digit:
+
+    // Add on each digit, checking for overflow errors
+    while (isdigit(*p))
+    {
+        // Make sure we won't overflow when we multiply by 10
+        if (x > PEGASUS_UINT64_MAX/10)
+        {
+            return false;
+        }
+        x = 10 * x;
+
+        // Make sure we won't overflow when we add the next digit
+        Uint64 newDigit = (*p++ - '0');
+        if (PEGASUS_UINT64_MAX - x < newDigit)
+        {
+            return false;
+        }
+        x = x + newDigit;
+    }
+
+    // If we found a non-decimal digit, report an error
+    if (*p)
+	return false;
+
+    return true;
+}
+
+static Boolean stringToSignedInteger(
+    const char* stringValue, 
+    Sint64& x)
+{
+    x = 0;
+    const char* p = stringValue;
+
+    if (!p || !*p)
+	return false;
+
+    // Skip optional sign:
+
+    Boolean negative = *p == '-';
+
+    if (negative || *p == '+')
+	p++;
+
+    if (*p == '0')
+    {
+        if ( (p[1] == 'x') || (p[1] == 'X') )
+        {
+            // Convert a hexadecimal string
+
+            // Skip over the "0x"
+            p+=2;
+
+            // At least one hexadecimal digit is required
+            if (!isxdigit(*p))
+                return false;
+
+            // Build the Sint64 as a negative number, regardless of the
+            // eventual sign (negative numbers can be bigger than positive ones)
+
+            // Add on each digit, checking for overflow errors
+            while (isxdigit(*p))
+            {
+                // Make sure we won't overflow when we multiply by 16
+                if (x < PEGASUS_SINT64_MIN/16)
+                {
+                    return false;
+                }
+                x = x << 4;
+
+                // Make sure we don't overflow when we add the next digit
+                Sint64 newDigit = Sint64(hexCharToNumeric(*p++));
+                if (PEGASUS_SINT64_MIN - x > -newDigit)
+                {
+                    return false;
+                }
+                x = x - newDigit;
+            }
+
+            // If we found a non-hexadecimal digit, report an error
+            if (*p)
+                return false;
+
+            // Return the integer to positive, if necessary, checking for an
+            // overflow error
+            if (!negative)
+            {
+                if (x == PEGASUS_SINT64_MIN)
+                {
+                    return false;
+                }
+                x = -x;
+            }
+            return true;
+        }
+        else
+        {
+            // A decimal string that starts with '0' must be exactly "0".
+	    return p[1] == '\0';
+        }
+    }
+
+    // Expect a positive decimal digit:
+
+    // At least one decimal digit is required
+    if (!isdigit(*p))
+        return false;
+
+    // Build the Sint64 as a negative number, regardless of the
+    // eventual sign (negative numbers can be bigger than positive ones)
+
+    // Add on each digit, checking for overflow errors
+    while (isdigit(*p))
+    {
+        // Make sure we won't overflow when we multiply by 10
+        if (x < PEGASUS_SINT64_MIN/10)
+        {
+            return false;
+        }
+        x = 10 * x;
+
+        // Make sure we won't overflow when we add the next digit
+        Sint64 newDigit = (*p++ - '0');
+        if (PEGASUS_SINT64_MIN - x > -newDigit)
+        {
+            return false;
+        }
+        x = x - newDigit;
+    }
+
+    // If we found a non-decimal digit, report an error
+    if (*p)
+	return false;
+
+    // Return the integer to positive, if necessary, checking for an
+    // overflow error
+    if (!negative)
+    {
+        if (x == PEGASUS_SINT64_MIN)
+        {
+            return false;
+        }
+        x = -x;
+    }
+    return true;
+}
+
+static Boolean stringToReal(const char* stringValue, Real64& x)
+{
+    //
+    // Check the string against the DMTF-defined grammar
+    //
+    const char* p = stringValue;
+
+    if (!*p)
+	return false;
+
+    // Skip optional sign:
+
+    if (*p == '+' || *p  == '-')
+	p++;
+
+    // Skip optional first set of digits:
+
+    while (isdigit(*p))
+	p++;
+
+    // Test required dot:
+
+    if (*p++ != '.')
+	return false;
+
+    // One or more digits required:
+
+    if (!isdigit(*p++))
+	return false;
+
+    while (isdigit(*p))
+	p++;
+
+    // If there is an exponent now:
+
+    if (*p)
+    {
+	// Test exponent:
+
+	if (*p != 'e' && *p != 'E')
+	    return false;
+
+	p++;
+
+	// Skip optional sign:
+
+	if (*p == '+' || *p  == '-')
+	    p++;
+
+	// One or more digits required:
+
+	if (!isdigit(*p++))
+	    return false;
+
+	while (isdigit(*p))
+	    p++;
+    }
+
+    if (*p)
+	return false;
+
+    //
+    // Do the conversion
+    //
+    char* end;
+    errno = 0;
+    x = strtod(stringValue, &end);
+    if (*end || (errno == ERANGE))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+/***************************************************************************
+   InvokeMethod Function
+***************************************************************************/
+static void InvokeMethod(const CGIQueryString& qs)
+{
+    CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
+    Array<CIMParamValue>  inParams;
+    Array<CIMParamValue>  outParams;
+
+    const char* tmp;
+
+    String methodName = String::EMPTY;
+    if ((tmp = qs.findValue("MethodName")))
+	methodName = tmp;
+
+    String argumentList = String::EMPTY;
+    if ((tmp = qs.findValue("ArgumentList")))
+	argumentList = tmp;
+
+    if (!(tmp = qs.findValue("InstanceName")))
+	ErrorExit("Missing InstanceName field");
+
+    CIMObjectPath objectReference;
+    try
+    {
+	    objectReference = tmp;
+    }
+    catch(Exception& e)
+    {
+        ErrorExit(e.getMessage());
+    }
+
+    //ALAGS : Input argument parser for Semicolon separated values.
+    // What is the best delimiter we could use ? 
+    // Commas and colons CANNOT be used as they are used
+    // in REFs and DateTimes properties respectively.
+
+    Array<String> inpArgs;
+    Uint32 startIndex = 0;
+    Uint32 endIndex = 0 ;
+    Uint32 curIndex = 0; //Used while checking [IN] params
+    
+    if (argumentList.size () > 0)
+    {
+        endIndex = argumentList.find (';'); //ARGUMENT DELIMITER
+        if(endIndex == PEG_NOT_FOUND)
+        {
+            argumentList = argumentList.subString (startIndex, endIndex);
+            inpArgs.append(argumentList);
+        }
+        while(endIndex != PEG_NOT_FOUND)
+        {                
+            String parmStr = argumentList.subString (startIndex, endIndex);
+            inpArgs.append(parmStr);
+            argumentList = argumentList.subString (endIndex+1,PEG_NOT_FOUND);
+            endIndex = argumentList.find (';'); //ARGUMENT DELIMITER
+            if(endIndex == PEG_NOT_FOUND)
+                inpArgs.append(argumentList);
+        }
+        
+    }
+ 
+
+    // ALAGS : Method inspection code starts
+
+
+    try
+    {
+
+	    CIMClient client;
+        String host;
+        Uint32 portNumber;
+        Uint32 inpargCount = 0;
+
+        getHostAndPort (host, portNumber);
+        client.connect (host, portNumber, String::EMPTY, String::EMPTY);
+
+        //Just to check if instance exists in given Namespace
+        //Here, the returned instance is NOT used for data extraction
+        CIMInstance cimInstance = client.getInstance(nameSpace, 
+                                                     objectReference);
+
+
+        CIMClass c1=client.getClass(nameSpace, 
+                                    objectReference.getClassName(), false);
+
+        for (Uint32 i = 0; i < c1.getMethodCount(); i++)
+        {
+            CIMMethod mth = c1.getMethod(i);
+
+            //"if" check to decide if this method is the one requested in call
+            if(String::equalNoCase(mth.getName().getString(), methodName))
+            {
+
+                for (Uint32 j = 0; j < mth.getParameterCount(); j++)
+                {
+                    Boolean inputQualifier = false;
+                    CIMParameter mp = mth.getParameter(j);
+                    String parName = mp.getName().getString();
+
+                    for(Uint32 k = 0; k < mp.getQualifierCount();k++)
+                    {
+                        CIMQualifier qual = mp.getQualifier(k);
+                        if(String::equalNoCase(qual.getName().getString(),"IN"))
+                        {
+                            inpargCount++; //Inc for every [IN] arg found
+                            inputQualifier = true;
+                        }
+                    }
+
+
+                    //Assign input Args from WebPage to Parameter only if 
+                    //Qualifier == [IN]
+                    if((inputQualifier == true) && 
+                        (inpArgs.size() >= inpargCount))
+                    {
+                        char valStr[64];
+                        switch(mp.getType())
+                        {
+                            case CIMTYPE_BOOLEAN:
+                                if(String::equalNoCase(inpArgs[curIndex++], 
+                                                       "true"))
+                                {
+                                    inParams.append( CIMParamValue( parName, 
+                                              CIMValue( Boolean(true) ) ) );
+                                }
+                                else
+                                {
+                                    inParams.append( CIMParamValue( parName, 
+                                              CIMValue( Boolean(false) ) ) );
+                                }
+                                break;
+                            case CIMTYPE_UINT8:
+                            case CIMTYPE_UINT16:
+                            case CIMTYPE_UINT32:
+                            case CIMTYPE_UINT64:
+                            {
+                                sprintf(valStr,"%s",
+                                 (const char*)inpArgs[curIndex++].getCString());
+
+                                Uint64 x=0;
+                                if (!stringToUnsignedInteger(valStr, x))
+                                {
+                                    ErrorExit("Invalid Unsigned Integer value");
+                                }
+                                switch(mp.getType())
+                                {
+                                    case CIMTYPE_UINT8:
+                                        {
+                                        if (x >= (Uint64(1)<<8))
+                                        {
+                                            ErrorExit("Uint8 value out of range");
+                                        }
+                                        inParams.append( CIMParamValue( parName, 
+                                                         CIMValue( Uint8(x))));
+                                        break;
+                                        }
+                                    case CIMTYPE_UINT16:
+                                        {
+                                        if (x >= (Uint64(1)<<16))
+                                        {
+                                            ErrorExit("Uint16 value out of range");
+                                        }
+                                        inParams.append( CIMParamValue( parName, 
+                                                         CIMValue( Uint16(x))));
+                                        break;
+                                        }
+                                    case CIMTYPE_UINT32:
+                                        {
+                                        if (x >= (Uint64(1)<<32))
+                                        {
+                                            ErrorExit("Uint32 value out of range");
+                                        }
+                                        inParams.append( CIMParamValue( parName, 
+                                                         CIMValue( Uint32(x))));
+                                        break;
+                                        }
+                                    case CIMTYPE_UINT64:
+                                        {
+                                        inParams.append( CIMParamValue( parName, 
+                                                         CIMValue( Uint64(x))));
+                                        break;
+                                        }
+                                    default: break;
+                                    
+                                }
+                                break;
+                            }
+
+                            case CIMTYPE_SINT8:
+                            case CIMTYPE_SINT16:
+                            case CIMTYPE_SINT32:
+                            case CIMTYPE_SINT64:
+                            {
+                                sprintf(valStr,"%s",
+                                 (const char*)inpArgs[curIndex++].getCString());
+                                Sint64 x=0;
+                                if (!stringToSignedInteger(valStr, x))
+                                {
+                                    ErrorExit("Invalid Signed Integer value.");
+                                }
+                                switch(mp.getType())
+                                {
+                                    case CIMTYPE_SINT8:
+                                        {
+                                        if(  (x >= (Sint64(1)<<7)) || 
+                                             (x < (-(Sint64(1)<<7))) )
+                                        {
+                                         ErrorExit("Sint8 value out of range");
+                                        }
+                                        inParams.append( CIMParamValue( parName, 
+                                                         CIMValue( Sint8(x) )));
+                                        break;
+                                        }
+                                    case CIMTYPE_SINT16:
+                                        {
+                                        if(  (x >= (Sint64(1)<<15)) || 
+                                             (x < (-(Sint64(1)<<15))) )
+                                        {
+                                         ErrorExit("Sint16 value out of range");
+                                        }
+                                        inParams.append( CIMParamValue( parName, 
+                                                        CIMValue( Sint16(x) )));
+                                        break;
+                                        }
+                                    case CIMTYPE_SINT32:
+                                        {
+                                        if(  (x >= (Sint64(1)<<31)) || 
+                                             (x < (-(Sint64(1)<<31))) )
+                                        {
+                                         ErrorExit("Sint32 value out of range");
+                                        }
+                                        inParams.append( CIMParamValue( parName, 
+                                                        CIMValue( Sint32(x) )));
+                                        break;
+                                        }
+                                    case CIMTYPE_SINT64:
+                                        {
+                                        inParams.append( CIMParamValue( parName, 
+                                                        CIMValue( Sint64(x) )));
+                                        break;
+                                        }
+                                    default: break;
+                                   
+                                }
+                                break;
+                            }
+                            case CIMTYPE_REAL32:
+                                {
+                                Real64 x=0;
+
+                                sprintf(valStr,"%s",
+                                 (const char*)inpArgs[curIndex++].getCString());
+                                if (!stringToReal(valStr, x))
+                                {
+                                    ErrorExit("Invalid Real32 Number value");
+                                }
+                                inParams.append( CIMParamValue( parName, 
+                                                CIMValue( Real32(x) )));
+                                break;
+                                }
+                            case CIMTYPE_REAL64:
+                                {
+                                Real64 x=0;
+                                sprintf(valStr,"%s",
+                                 (const char*)inpArgs[curIndex++].getCString());
+                                if (!stringToReal(valStr, x))
+                                {
+                                    ErrorExit("Invalid Real64 Number value");
+                                }
+                                inParams.append( CIMParamValue( parName, 
+                                                 CIMValue(x) ));
+                                break;
+                                }
+                            case CIMTYPE_STRING:
+                                inParams.append( CIMParamValue( parName, 
+                                  CIMValue( inpArgs[curIndex++] )));
+                                break;
+                            case CIMTYPE_DATETIME:
+                                {
+                                CIMDateTime tmpdt;
+                                String strDate = inpArgs[curIndex++];
+                                if(strDate.size() !=0 )
+                                    tmpdt.set(strDate);
+                                else
+                                    ErrorExit("Datetime string is null");
+
+                                inParams.append( CIMParamValue( parName, 
+                                  CIMValue( CIMDateTime(tmpdt))));
+                                break;
+                                }
+                            case CIMTYPE_REFERENCE:
+                                inParams.append( CIMParamValue( parName, 
+                                 CIMValue(CIMObjectPath(inpArgs[curIndex++]))));
+                                break;
+                            case CIMTYPE_CHAR16:
+                                {
+                                    String tmp(inpArgs[curIndex++]);
+                                    if (tmp.size() != 1)
+                                    {
+                                        ErrorExit("Invalid Char16 value");
+                                    }
+                                    inParams.append( CIMParamValue( parName, 
+                                    CIMValue( tmp[0] )));
+                                    break;
+                                }
+                        }
+                    }
+
+                    
+                    // Check to see if client supplied atleast as many INPUT
+                    // parameters that are required by the Method. Supplying
+                    // more params than what is required by the method is OK.
+                    if(inpArgs.size() < inpargCount)
+                    {
+                        ErrorExit("Insufficient input parameters");
+                    }
+                }
+            }
+        }
+
+
+        // ALAGS : Method inspection code ends
+
+	    // Time the method call
+	    Stopwatch elapsedTime;
+
+        CIMValue retValue = client.invokeMethod(
+            nameSpace, 
+            objectReference, 
+            CIMName (methodName), 
+            inParams, 
+            outParams);
+
+        PrintHTMLHead("InvokeMethod", "Invoke an Extrinsic Method");
+	
+        cout << "<br><b>Method return value : </b>" << retValue.toString() 
+             << "<br>" << endl;
+
+        cout << "<br><b>Method Output Parameters : </b><br>" << endl;
+        cout << "<table border=1 width=\"50%\">\n";
+        cout << "  <tr>\n";
+        cout << "    <th>Parameter Name</th>\n";
+        cout << "    <th>Value</th>\n";
+        cout << "  </tr>\n";
+
+        for (Uint8 i = 0; i < outParams.size(); i++)
+        {
+	        cout << "<tr>";
+            cout << "   <td>" << outParams[i].getParameterName() << "</td>";
+            cout << "   <td>" << outParams[i].getValue().toString() << "</td>";
+            cout << "</tr><br>" << endl;
+        }
+
+        cout << "</table>\n<br>";
+
+        cout << "<br>InvokeMethod completed in " << elapsedTime.getElapsed() 
+             << " Seconds</p>\n";
+        cout << "</body>\n" << "</html>\n";
+
+    }
+    catch(Exception& e)
+    {
+	    ErrorExit(e.getMessage());
+    }
+}
+
 
 /******************************************************************
 *******************************************************************
@@ -2610,14 +3274,8 @@ int main(int argc, char** argv)
 
 	CGIQueryString qs(queryString);
 
-	// Test for debug display. Note needs keyword test.
-	//String debug = String::EMPTY;
-	//if ((tmp = qs.findValue("debug")))
-	//{
-	//    cout << "Query String " << tmp << endl;
-	//}
+    const char* operation = qs.findValue("Operation");
 
-        const char* operation = qs.findValue("Operation");
 	if (!operation)
 	    ErrorExit("Missing Operation field");
 	if (strcmp(operation, "GetClass") == 0)
@@ -2666,6 +3324,8 @@ int main(int argc, char** argv)
 	    ClassTree(qs);
     else if (strcmp(operation, "AllInstances") == 0)
 	    AllInstances(qs);
+    else if (strcmp(operation, "InvokeMethod") == 0)
+	    InvokeMethod(qs);
     else
 	{
 	    String message = "CGIClient - Unknown operation: ";

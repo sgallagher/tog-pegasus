@@ -267,6 +267,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       PEG_METHOD_EXIT();
       myself->exit_self(0);
    }
+   catch(...)
+   {
+      PEG_METHOD_EXIT();
+      myself->exit_self(0);
+   }
+   
    if(sleep_sem == 0 || deadlock_timer == 0)
    {
       PEG_METHOD_EXIT();

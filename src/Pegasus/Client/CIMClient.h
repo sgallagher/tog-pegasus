@@ -82,7 +82,17 @@ public:
 	_timeOutMilliseconds = timeOutMilliseconds;
     }
 
-    ///
+    /** connect - Creates an HTTP connection with the server
+        defined by the URL in address.
+        @param address - String defining the URL of the server
+        to which the client should connect
+        @return - No return defined. Failure to connect throws an exception
+        @exception AlreadyConnected if connection already established
+        @exception InvalidLocator
+        @exception CannotCreateSocket
+        @exception CannotConnect
+        @exception UnexpectedFailure
+    */
     void connect(const String& address);
 
     ///

@@ -2,7 +2,7 @@ include $(PEGASUS_ROOT)/mak/config.mak
 
 include ../libraries.mak
 
-DIR = Pegasus/Common/tests/Thread
+DIR = Pegasus/Common/tests/OperationContext
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 

@@ -1,5 +1,5 @@
 ROOT = ../../../../../..
-DIR = Pegasus/Server/ConfigurationManager/tests/modifyInstances
+DIR = Pegasus/ControlProviders/ProviderRegistrationProvider/tests/modifyInstances
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 

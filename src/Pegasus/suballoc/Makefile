@@ -1,6 +1,6 @@
 ROOT = ../../..
 
-DIR = Pegasus/Server
+DIR = Pegasus/suballoc
 
 include $(ROOT)/mak/config.mak
 

@@ -380,6 +380,29 @@ private:
         const struct SubscriptionRef& subscriptionRef) const;
 
     /**
+        Gets the parameter values required to enable the subscription request.
+        If no indciation providers are found, condition and queryLanguage are 
+        set to empty string.
+
+        @param   nameSpace             Input namespace name
+        @param   subscription          Input subscription instance
+        @param   indicationProviders   Output list of providers with associated
+                                           classes
+        @param   propertyList          Output list of properties required by the
+                                           subscription
+        @param   condition             Output condition part of the filter query
+        @param   queryLanguage         Output query language in which the filter
+                                           query is expressed
+     */
+    void _getEnableParams (
+        const String & nameSpaceName,
+        const CIMInstance & subscriptionInstance,
+        Array <struct ProviderClassList> & indicationProviders,
+        CIMPropertyList & propertyList,
+        String & condition,
+        String & queryLanguage);
+
+    /**
         Sends enable subscription request for the specified subscription
         to each provider in the list.
 
@@ -462,6 +485,10 @@ private:
     WQLSimplePropertySource _getPropertySourceFromInstance(
         CIMInstance & indicationInstance);
 
+    //
+    //  Class names
+    //
+
     /**
         The name of the indication subscription class
      */
@@ -511,6 +538,10 @@ private:
         The name of the Provider Capabilities class
      */
     static const char   _CLASS_PROVIDER_CAPABILITIES [];
+
+    //
+    //  Property names
+    //
 
     /**
         The name of the Subscription State property for Indication Subscription
@@ -684,6 +715,10 @@ private:
      */
     static const char   _PROPERTY_PROVIDER_TYPE [];
 
+    //
+    //  Other literal values
+    //
+
     /**
         The integer representing the Indication value for the Provider Type
         property of the Provider Capabilities class
@@ -714,7 +749,28 @@ private:
         The string identifying the service name of the Handler Manager Service
      */
     static const char _SERVICE_HANDLERMANAGER [];
+
+    //
+    //  Message substrings used in exception messages
+    //
+
+    static const char _MSG_MISSING_REQUIRED [];
+
+    static const char _MSG_KEY_PROPERTY [];
+
+    static const char _MSG_PROPERTY [];
+
+    static const char _MSG_PROPERTY_PRESENT [];
+
+    static const char _MSG_VALUE_NOT [];
+
+    static const char _MSG_NO_PROVIDERS [];
+
+    static const char _MSG_INVALID_CLASSNAME [];
+
+    static const char _MSG_IN_FROM [];
 };
+
 
 PEGASUS_NAMESPACE_END
 

@@ -37,6 +37,7 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/OperationFlag.h>
 #include <Pegasus/WQL/WQLParser.h>
@@ -47,6 +48,10 @@
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+//
+//  Class names
+//
 
 /**
     The name of the indication subscription class
@@ -115,6 +120,10 @@ const char   IndicationService::_CLASS_PROVIDER_TERMINATED_ALERT [] =
  */
 const char   IndicationService::_CLASS_PROVIDER_CAPABILITIES [] = 
                  "CIM_ProviderCapabilities";
+
+//
+//  Property names
+//
 
 /**
     The name of the filter reference property for indication subscription class
@@ -308,21 +317,9 @@ const char   IndicationService::_PROPERTY_PROVIDER_TYPE [] =
 const char   IndicationService::_PROPERTY_CREATOR [] = 
              "Creator";
 
-/**
-    The integer representing the Indication value for the Provider Type
-    property of the Provider Capabilities class
- */
-const Uint16 IndicationService::_VALUE_INDICATION       = 4;
-
-/**
-    The WHERE keyword in WQL
- */
-const char   IndicationService::_QUERY_WHERE []         = "WHERE";
-
-/**
-    The string representing the asterisk all properties symbol in WQL
- */
-const char   IndicationService::_QUERY_ALLPROPERTIES [] = "*";
+//
+//  Service names
+//
 
 /**
     The string identifying the service name of the Provider Manager Service
@@ -343,10 +340,60 @@ const char IndicationService::_SERVICE_HANDLERMANAGER [] =
                "IndicationHandlerService";
 
 
+//
+//  Other literal values
+//
+
+/**
+    The integer representing the Indication value for the Provider Type
+    property of the Provider Capabilities class
+ */
+const Uint16 IndicationService::_VALUE_INDICATION       = 4;
+
+/**
+    The WHERE keyword in WQL
+ */
+const char   IndicationService::_QUERY_WHERE []         = "WHERE";
+
+/**
+    The string representing the asterisk all properties symbol in WQL
+ */
+const char   IndicationService::_QUERY_ALLPROPERTIES [] = "*";
+
+
+//
+//  Message substrings used in exception messages
+//
+
+const char IndicationService::_MSG_MISSING_REQUIRED [] = "Missing required ";
+
+const char IndicationService::_MSG_KEY_PROPERTY [] = " key property";
+
+const char IndicationService::_MSG_PROPERTY [] = " property";
+
+const char IndicationService::_MSG_PROPERTY_PRESENT [] = 
+    " property present, but ";
+
+const char IndicationService::_MSG_VALUE_NOT [] = " value not ";
+
+const char IndicationService::_MSG_NO_PROVIDERS [] = 
+    "There are no providers capable of serving the subscription";
+
+const char IndicationService::_MSG_INVALID_CLASSNAME [] = 
+    "Invalid indication class name ";
+
+const char IndicationService::_MSG_IN_FROM [] = " in FROM clause of ";
+
+
 IndicationService::IndicationService (CIMRepository* repository)
     : Base ("Server::IndicationService", MessageQueue::getNextQueueId ()),
          _repository (repository)
 {
+    //
+    //  ATTN: This call to _initialize is here temporarily -- in future, it
+    //  will be called in response to a CIMSERVICE_START message
+    //
+
     //
     //  Initialize
     //
@@ -372,7 +419,7 @@ void IndicationService::_handle_async_request(AsyncRequest *req)
     }
     if (req->getType () == async_messages::CIMSERVICE_START)
     {
-        cout << "CIMSERVICE_START message received" << endl;
+        //cout << "CIMSERVICE_START message received" << endl;
         req->op->processing ();
 
         //
@@ -453,23 +500,57 @@ void IndicationService::handleEnqueue(void)
 void IndicationService::_initialize (void)
 {
     Array <struct SubscriptionRef> activeSubscriptions;
-    String filterQuery;
-    WQLSelectStatement selectStatement;
-    String indicationClassName;
-    String condition;
-    String queryLanguage;
-    Array <String> indicationSubclasses;
-    CIMPropertyList propertyList;
-    Array <struct ProviderClassList> indicationProviders;
     Array <struct SubscriptionRef> noProviderSubscriptions;
     Array <String> startProviders;
     Boolean duplicate;
-    CIMInstance indicationInstance;
 
     const char METHOD_NAME [] = "IndicationService::_initialize";
 
     PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
 
+    //
+    //  Find required services
+    //
+    Array <Uint32> pmservices;
+    find_services (_SERVICE_PROVIDERMANAGER, 0, 0, &pmservices);
+    pegasus_yield ();
+    if (pmservices.size () > 0)
+    {
+        _providerManager = pmservices [0];
+
+        //
+        //  ATTN: What should be done if more than one service is found??
+        //
+    }
+    else
+    {
+        //
+        //  ATTN: What should be done if no service is found??
+        //
+    }
+
+    Array <Uint32> hmservices;
+    find_services (_SERVICE_HANDLERMANAGER, 0, 0, &hmservices);
+    pegasus_yield ();
+    if (hmservices.size () > 0)
+    {
+        _handlerService = hmservices [0];
+
+        //
+        //  ATTN: What should be done if more than one service is found??
+        //
+    }
+    else
+    {
+        //
+        //  ATTN: What should be done if no service is found??
+        //
+    }
+
+    //
+    //  ATTN: Add code to find repository service, if repository becomes a 
+    //  service
+    //
 
     //
     //  Get list of namespaces in repository
@@ -545,44 +626,16 @@ void IndicationService::_initialize (void)
     activeSubscriptions = _getActiveSubscriptions ();
     noProviderSubscriptions.clear ();
 
+    String condition;
+    String queryLanguage;
+    CIMPropertyList propertyList;
+    Array <struct ProviderClassList> indicationProviders;
+
     for (Uint8 i = 0; i < activeSubscriptions.size (); i++)
     {
-        //
-        //  Get filter query
-        //
-        filterQuery = _getFilterQuery (activeSubscriptions [i].subscription,
-            activeSubscriptions [i].nameSpaceName);
-        selectStatement = _getSelectStatement (filterQuery);
-    
-        //
-        //  Get indication class name from filter query (FROM clause)
-        //
-        indicationClassName = _getIndicationClassName (selectStatement,
-            activeSubscriptions [i].nameSpaceName);
-    
-        //
-        //  Get list of subclass names for indication class
-        //
-        indicationSubclasses = _repository->enumerateClassNames 
-            (activeSubscriptions [i].nameSpaceName, indicationClassName, true);
-        indicationSubclasses.append (indicationClassName);
-    
-        //
-        //  Get property list from filter query (FROM and WHERE 
-        //  clauses)
-        //
-        if ((selectStatement.getSelectPropertyNameCount () > 0) ||
-            (selectStatement.getWherePropertyNameCount () > 0))
-        {
-            propertyList = _getPropertyList (selectStatement);
-        }
-
-        //
-        //  Get indication provider class lists
-        //
-        indicationProviders = _getIndicationProviders 
-            (activeSubscriptions [i].nameSpaceName, indicationClassName,
-             indicationSubclasses, propertyList);
+        _getEnableParams (activeSubscriptions [i].nameSpaceName,
+            activeSubscriptions [i].subscription, indicationProviders,
+            propertyList, condition, queryLanguage);
 
         if (indicationProviders.size () == 0)
         {
@@ -593,21 +646,6 @@ void IndicationService::_initialize (void)
             noProviderSubscriptions.append (activeSubscriptions [i]);
             continue;
         }
-    
-        //
-        //  Get condition from filter query (WHERE clause)
-        //
-        if (selectStatement.hasWhereClause ())
-        {
-            condition = _getCondition (filterQuery);
-        }
-
-        //
-        //  Get filter query language
-        //
-        queryLanguage = _getFilterQueryLanguage 
-            (activeSubscriptions [i].subscription,
-             activeSubscriptions [i].nameSpaceName);
     
         //
         //  Send enable request message to each provider
@@ -636,7 +674,7 @@ void IndicationService::_initialize (void)
                 startProviders.append (indicationProviders [j].providerName);
             }
         }
-    }  // for each subscription
+    }  // for each active subscription
 
     //
     //  Send alerts for any subscriptions for which there is no longer any
@@ -648,7 +686,7 @@ void IndicationService::_initialize (void)
         //  Send NoProviderAlertIndication to handler instances
         //  ATTN: NoProviderAlertIndication must be defined
         //
-        indicationInstance = _createAlertInstance
+        CIMInstance indicationInstance = _createAlertInstance
             (_CLASS_NO_PROVIDER_ALERT, noProviderSubscriptions);
 
         _sendAlerts (noProviderSubscriptions, indicationInstance);
@@ -662,45 +700,6 @@ void IndicationService::_initialize (void)
         //
         //  ATTN: start message has not yet been defined
         //
-    }
-
-    //
-    //  Find required services
-    //
-    Array <Uint32> pmservices;
-    find_services (_SERVICE_PROVIDERMANAGER, 0, 0, &pmservices);
-    pegasus_yield ();
-    cout << "Found " << pmservices.size () << " Provider Manager Services" 
-         << endl;
-    if (pmservices.size () > 0)
-    {
-        _providerManager = pmservices [0];
-        cout << "Found Provider Manager Service at: " << pmservices [0] << endl;
-    }
-    else
-    {
-        cout << "Provider Manager Service not found" << endl;
-    }
-
-    //Array <Uint32> rservices;
-    //find_services (_SERVICE_REPOSITORY, 0, 0, &rservices);
-    //pegasus_yield ();
-    //_repository = rservices [0];
-    //cout << "Found Repository Service at: " << rservices [0] << endl;
-
-    Array <Uint32> hmservices;
-    find_services (_SERVICE_HANDLERMANAGER, 0, 0, &hmservices);
-    pegasus_yield ();
-    cout << "Found " << hmservices.size () << " Handler Manager Services" 
-         << endl;
-    if (hmservices.size () > 0)
-    {
-        _handlerService = hmservices [0];
-        cout << "Found Handler Manager Service at: " << hmservices [0] << endl;
-    }
-    else
-    {
-        cout << "Handler Manager Service not found" << endl;
     }
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
@@ -785,14 +784,22 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
             //
             if (!instance.existsProperty (_PROPERTY_FILTER))
             {
+                String exceptionStr = _MSG_MISSING_REQUIRED;
+                exceptionStr.append (_PROPERTY_FILTER);
+                exceptionStr.append (_MSG_KEY_PROPERTY);
                 PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw CIMException (CIM_ERR_INVALID_PARAMETER);
+                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                    exceptionStr);
             }
     
             if (!instance.existsProperty (_PROPERTY_HANDLER))
             {
+                String exceptionStr = _MSG_MISSING_REQUIRED;
+                exceptionStr.append (_PROPERTY_HANDLER);
+                exceptionStr.append (_MSG_KEY_PROPERTY);
                 PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw CIMException (CIM_ERR_INVALID_PARAMETER);
+                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                    exceptionStr);
             }
 
             //
@@ -819,8 +826,12 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                 if ((subscriptionState == _STATE_OTHER) &&
                     (!instance.existsProperty (_PROPERTY_OTHERSTATE)))
                 {
+                    String exceptionStr = _MSG_MISSING_REQUIRED;
+                    exceptionStr.append (_PROPERTY_OTHERSTATE);
+                    exceptionStr.append (_MSG_PROPERTY);
                     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw CIMException (CIM_ERR_INVALID_PARAMETER);
+                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                        exceptionStr);
                 }
 
                 //
@@ -829,8 +840,14 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                 //
                 else if (instance.existsProperty (_PROPERTY_OTHERSTATE))
                 {
+                    String exceptionStr = _PROPERTY_OTHERSTATE;
+                    exceptionStr.append (_MSG_PROPERTY_PRESENT);
+                    exceptionStr.append (_PROPERTY_STATE);
+                    exceptionStr.append (_MSG_VALUE_NOT);
+                    exceptionStr.append (_STATE_OTHER);
                     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw CIMException (CIM_ERR_INVALID_PARAMETER);
+                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                        exceptionStr);
                 }
             }
 
@@ -861,8 +878,13 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                     (!instance.existsProperty 
                     (_PROPERTY_OTHERREPEATNOTIFICATIONPOLICY)))
                 {
+                    String exceptionStr = _MSG_MISSING_REQUIRED;
+                    exceptionStr.append 
+                        (_PROPERTY_OTHERREPEATNOTIFICATIONPOLICY);
+                    exceptionStr.append (_MSG_PROPERTY);
                     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw CIMException (CIM_ERR_INVALID_PARAMETER);
+                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                        exceptionStr);
                 }
 
                 //
@@ -872,8 +894,15 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                 else if (instance.existsProperty 
                     (_PROPERTY_OTHERREPEATNOTIFICATIONPOLICY))
                 {
+                    String exceptionStr = 
+                        _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY;
+                    exceptionStr.append (_MSG_PROPERTY_PRESENT);
+                    exceptionStr.append (_PROPERTY_REPEATNOTIFICATIONPOLICY);
+                    exceptionStr.append (_MSG_VALUE_NOT);
+                    exceptionStr.append (_POLICY_OTHER);
                     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw CIMException (CIM_ERR_INVALID_PARAMETER);
+                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                        exceptionStr);
                 }
             }
 
@@ -903,8 +932,12 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                     (!instance.existsProperty 
                     (_PROPERTY_OTHERONFATALERRORPOLICY)))
                 {
+                    String exceptionStr = _MSG_MISSING_REQUIRED;
+                    exceptionStr.append (_PROPERTY_OTHERONFATALERRORPOLICY);
+                    exceptionStr.append (_MSG_PROPERTY);
                     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw CIMException (CIM_ERR_INVALID_PARAMETER);
+                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                        exceptionStr);
                 }
 
                 //
@@ -914,8 +947,14 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                 else if (instance.existsProperty 
                     (_PROPERTY_OTHERONFATALERRORPOLICY))
                 {
+                    String exceptionStr = _PROPERTY_OTHERONFATALERRORPOLICY;
+                    exceptionStr.append (_MSG_PROPERTY_PRESENT);
+                    exceptionStr.append (_PROPERTY_ONFATALERRORPOLICY);
+                    exceptionStr.append (_MSG_VALUE_NOT);
+                    exceptionStr.append (_ERRORPOLICY_OTHER);
                     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw CIMException (CIM_ERR_INVALID_PARAMETER);
+                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                        exceptionStr);
                 }
             }
         } 
@@ -929,14 +968,22 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
             //
             if (!instance.existsProperty (_PROPERTY_NAME))
             {
+                String exceptionStr = _MSG_MISSING_REQUIRED;
+                exceptionStr.append (_PROPERTY_NAME);
+                exceptionStr.append (_MSG_KEY_PROPERTY);
                 PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw CIMException (CIM_ERR_INVALID_PARAMETER);
+                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                    exceptionStr);
             }
     
             if (!instance.existsProperty (_PROPERTY_CREATIONCLASSNAME))
             {
+                String exceptionStr = _MSG_MISSING_REQUIRED;
+                exceptionStr.append (_PROPERTY_CREATIONCLASSNAME);
+                exceptionStr.append (_MSG_KEY_PROPERTY);
                 PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw CIMException (CIM_ERR_INVALID_PARAMETER);
+                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                    exceptionStr);
             }
     
             if (!instance.existsProperty (_PROPERTY_SYSTEMNAME))
@@ -962,13 +1009,21 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                 //
                 if (!instance.existsProperty (_PROPERTY_QUERY))
                 {
+                    String exceptionStr = _MSG_MISSING_REQUIRED;
+                    exceptionStr.append (_PROPERTY_QUERY);
+                    exceptionStr.append (_MSG_PROPERTY);
                     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw CIMException (CIM_ERR_INVALID_PARAMETER);
+                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                        exceptionStr);
                 }
                 if (!instance.existsProperty (_PROPERTY_QUERYLANGUAGE))
                 {
+                    String exceptionStr = _MSG_MISSING_REQUIRED;
+                    exceptionStr.append (_PROPERTY_QUERYLANGUAGE);
+                    exceptionStr.append (_MSG_PROPERTY);
                     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw CIMException (CIM_ERR_INVALID_PARAMETER);
+                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                        exceptionStr);
                 }
 
                 //
@@ -1017,8 +1072,12 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                         (!instance.existsProperty 
                         (_PROPERTY_OTHERPERSISTENCETYPE)))
                     {
+                        String exceptionStr = _MSG_MISSING_REQUIRED;
+                        exceptionStr.append (_PROPERTY_OTHERPERSISTENCETYPE);
+                        exceptionStr.append (_MSG_PROPERTY);
                         PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                        throw CIMException (CIM_ERR_INVALID_PARAMETER);
+                        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                            exceptionStr);
                     }
     
                     //
@@ -1028,8 +1087,14 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                     else if (instance.existsProperty 
                         (_PROPERTY_OTHERPERSISTENCETYPE))
                     {
+                        String exceptionStr = _PROPERTY_OTHERPERSISTENCETYPE;
+                        exceptionStr.append (_MSG_PROPERTY_PRESENT);
+                        exceptionStr.append (_PROPERTY_PERSISTENCETYPE);
+                        exceptionStr.append (_MSG_VALUE_NOT);
+                        exceptionStr.append (_PERSISTENCE_OTHER);
                         PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                        throw CIMException (CIM_ERR_INVALID_PARAMETER);
+                        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                            exceptionStr);
                     }
                 }
 
@@ -1039,8 +1104,12 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                 //
                 if (!instance.existsProperty (_PROPERTY_DESTINATION))
                 {
+                    String exceptionStr = _MSG_MISSING_REQUIRED;
+                    exceptionStr.append (_PROPERTY_DESTINATION);
+                    exceptionStr.append (_MSG_PROPERTY);
                     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw CIMException (CIM_ERR_INVALID_PARAMETER);
+                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                        exceptionStr);
                 }
 
                 if (instance.getClassName () == _CLASS_HANDLERSNMP)
@@ -1050,8 +1119,12 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                     //
                     if (!instance.existsProperty (_PROPERTY_SNMPTYPE))
                     {
+                        String exceptionStr = _MSG_MISSING_REQUIRED;
+                        exceptionStr.append (_PROPERTY_SNMPTYPE);
+                        exceptionStr.append (_MSG_PROPERTY);
                         PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                        throw CIMException (CIM_ERR_INVALID_PARAMETER);
+                        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                            exceptionStr);
                     }
                 }
             }
@@ -1093,52 +1166,15 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
             if ((subscriptionState == _STATE_ENABLED) ||
                 (subscriptionState == _STATE_ENABLEDDEGRADED))
             {
-                String filterQuery;
-                WQLSelectStatement selectStatement;
-                String indicationClassName;
-                Array <String> indicationSubclasses;
-                Array <struct ProviderClassList> indicationProviders;
-        
-                //
-                //  Get filter query
-                //
-                filterQuery = _getFilterQuery (instance, request->nameSpace);
-                selectStatement = _getSelectStatement (filterQuery);
-            
-                //
-                //  Get indication class name from filter query (FROM clause)
-                //
-                indicationClassName = _getIndicationClassName (selectStatement,
-                    request->nameSpace);
-    
-                //
-                //  Get list of subclass names for indication class
-                //
-                indicationSubclasses = _repository->enumerateClassNames 
-                    (request->nameSpace, indicationClassName, true);
-                indicationSubclasses.append (indicationClassName);
-            
-                CIMPropertyList propertyList;
                 String condition;
                 String queryLanguage;
-        
-                //
-                //  Get property list from filter query (FROM and WHERE 
-                //  clauses)
-                //
-                if ((selectStatement.getSelectPropertyNameCount () > 0) ||
-                    (selectStatement.getWherePropertyNameCount () > 0))
-                {
-                    propertyList = _getPropertyList (selectStatement);
-                }
-        
-                //
-                //  Get indication provider class lists
-                //
-                indicationProviders = _getIndicationProviders 
-                    (request->nameSpace, indicationClassName, 
-                    indicationSubclasses, propertyList);
-        
+                CIMPropertyList requiredProperties;
+                Array <struct ProviderClassList> indicationProviders;
+
+                _getEnableParams (request->nameSpace, instance,
+                    indicationProviders, requiredProperties, condition, 
+                    queryLanguage);
+
                 if (indicationProviders.size () == 0)
                 {
                     //
@@ -1146,28 +1182,15 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                     //  subscription
                     //
                     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw CIMException (CIM_ERR_NOT_SUPPORTED);
+                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
+                        _MSG_NO_PROVIDERS);
                 }
 
-                //
-                //  Get condition from filter query (WHERE clause)
-                //
-                if (selectStatement.hasWhereClause ())
-                {
-                    condition = _getCondition (filterQuery);
-                }
-        
-                //
-                //  Get filter query language
-                //
-                queryLanguage = _getFilterQueryLanguage (instance, 
-                    request->nameSpace);
-            
                 //
                 //  Send enable request message to each provider
                 //
                 _sendEnableRequests (indicationProviders, request->nameSpace, 
-                    propertyList, condition, queryLanguage, instance);
+                    requiredProperties, condition, queryLanguage, instance);
         
                 //
                 //  Send start message to each provider
@@ -1309,7 +1332,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
 	    request->queueIds.copyAndPop(),
 	    enumInstances);
 
-        // preserve message key
+    // preserve message key
     response->setKey(request->getKey());
 
     // lookup the message queue
@@ -1328,10 +1351,9 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
 void IndicationService::_handleEnumerateInstanceNamesRequest
     (const Message* message)
 {
-
-   const char METHOD_NAME [] = 
-	  "IndicationService::_handleEnumerateInstancesNamesRequest";
-   PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+    const char METHOD_NAME [] = 
+        "IndicationService::_handleEnumerateInstancesNamesRequest";
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
    
     CIMEnumerateInstanceNamesRequestMessage* request =
 	(CIMEnumerateInstanceNamesRequestMessage*) message;
@@ -1367,6 +1389,7 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
 
     // preserve message key
     response->setKey(request->getKey());
+
     
 // << Fri Feb 22 13:55:34 2002 mdd >>
 // ATTN: set the response destination !!!
@@ -1377,7 +1400,6 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
 //    SendForget(response);
     
     Base::_enqueueResponse(request, response);
-
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
@@ -1468,7 +1490,6 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
 	String creator = instance.getProperty (instance.findProperty 
 	    (_PROPERTY_CREATOR)).getValue ().toString ();
 
-//cout << "Creator property not found/removed" << endl;
 	//
 	//  ATTN: how is current user obtained?
 	//
@@ -1527,53 +1548,16 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
 		//  Subscription was previously not enabled but is now to be 
                 //  enabled
 		//
-		String filterQuery;
-		WQLSelectStatement selectStatement;
-		String indicationClassName;
-		Array <String> indicationSubclasses;
+
 		Array <struct ProviderClassList> indicationProviders;
-    
-		//
-		//  Get filter query
-		//
-		filterQuery = _getFilterQuery 
-                    (instance, request->nameSpace);
-		selectStatement = _getSelectStatement (filterQuery);
-        
-		//
-		//  Get indication class name from filter query (FROM clause)
-		//
-		indicationClassName = _getIndicationClassName (selectStatement,
-		    request->nameSpace);
-        
-		//
-		//  Get list of subclass names for indication class
-		//
-		indicationSubclasses = _repository->enumerateClassNames 
-		    (request->nameSpace, indicationClassName, true);
-                indicationSubclasses.append (indicationClassName);
-        
-		CIMPropertyList properties;
+		CIMPropertyList requiredProperties;
 		String condition;
 		String queryLanguage;
     
-		//
-		//  Get property list from filter query (FROM and WHERE 
-		//  clauses)
-		//
-		if ((selectStatement.getSelectPropertyNameCount () > 0) ||
-		    (selectStatement.getWherePropertyNameCount () > 0))
-		{
-		    properties = _getPropertyList (selectStatement);
-		}
-    
-		//
-		//  Get indication provider class lists
-		//
-		indicationProviders = _getIndicationProviders 
-		    (request->nameSpace, indicationClassName, 
-                    indicationSubclasses, properties);
-    
+                _getEnableParams (request->nameSpace, instance,
+                    indicationProviders, requiredProperties, condition, 
+                    queryLanguage);
+
 		if (indicationProviders.size () == 0)
 		{
 		    //
@@ -1581,25 +1565,12 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     //  subscription
 		    //
 		    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-		    throw CIMException (CIM_ERR_NOT_SUPPORTED);
+                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
+                        _MSG_NO_PROVIDERS);
 		}
-        
-		//
-		//  Get condition from filter query (WHERE clause)
-		//
-		if (selectStatement.hasWhereClause ())
-		{
-		    condition = _getCondition (filterQuery);
-		}
-    
-		//
-		//  Get filter query language
-		//
-		queryLanguage = _getFilterQueryLanguage (instance, 
-                    request->nameSpace);
         
 		_sendEnableRequests (indicationProviders, request->nameSpace, 
-                    properties, condition, queryLanguage, instance);
+                    requiredProperties, condition, queryLanguage, instance);
 
 		//
 		//  Send start message to each provider
@@ -1619,6 +1590,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
 		//  Subscription was previously enabled but is now to be 
                 //  disabled
 		//
+
 		String filterQuery;
 		WQLSelectStatement selectStatement;
 		String indicationClassName;
@@ -1906,7 +1878,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 
                  CIMRequestMessage * handler_request =
                      new CIMHandleIndicationRequestMessage (
-                         "1234",
+                         XmlWriter::getNextMessageId (),
                          request->nameSpace,
                          handlerRef.handler,
                          indication,
@@ -1979,13 +1951,6 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     newSubscriptions.clear ();
     formerSubscriptions.clear ();
 
-    //
-    //  Construct provider class list from input provider and class name
-    //
-    indicationProvider.providerName = providerName;
-    indicationProvider.classList.append (className);
-    indicationProviders.append (indicationProvider);
-
     switch (request->operation)
     {
         case OP_CREATE:
@@ -2032,11 +1997,16 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             break;
     }  // switch
 
+    //
+    //  Construct provider class list from input provider and class name
+    //
+    indicationProvider.providerName = providerName;
+    indicationProvider.classList.append (className);
+    indicationProviders.append (indicationProvider);
+
     if (newSubscriptions.size () > 0)
     {
-        CIMPropertyList propertyList;
-        String filterQuery;
-        WQLSelectStatement selectStatement;
+        CIMPropertyList requiredProperties;
         String condition;
         String queryLanguage;
 
@@ -2047,43 +2017,16 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         //
         for (Uint8 i = 0; i < newSubscriptions.size (); i++)
         {
-            //
-            //  Get filter query
-            //
-            filterQuery = _getFilterQuery (newSubscriptions [i].subscription,
-                 newSubscriptions [i].nameSpaceName);
-            selectStatement = _getSelectStatement (filterQuery);
-
-            //
-            //  Get propertyList
-            //
-            if ((selectStatement.getSelectPropertyNameCount () > 0) ||
-                (selectStatement.getWherePropertyNameCount () > 0))
-            {
-                propertyList = _getPropertyList (selectStatement);
-            }
-
-            //
-            //  Get condition from filter query (WHERE clause)
-            //
-            if (selectStatement.hasWhereClause ())
-            {
-                condition = _getCondition (filterQuery);
-            }
-                        
-            //
-            //  Get filter query language
-            //
-            queryLanguage = _getFilterQueryLanguage
-                (newSubscriptions [i].subscription,
-                 newSubscriptions [i].nameSpaceName);
+            _getEnableParams (newSubscriptions [i].nameSpaceName, 
+                newSubscriptions [i].subscription, indicationProviders, 
+                requiredProperties, condition, queryLanguage);
 
             //
             //  Send enable request
             //
             _sendEnableRequests (indicationProviders,
-                newSubscriptions [i].nameSpaceName, propertyList, condition, 
-                queryLanguage, newSubscriptions [i].subscription);
+                newSubscriptions [i].nameSpaceName, requiredProperties, 
+                condition, queryLanguage, newSubscriptions [i].subscription);
 
             //
             //  Send start message to each provider
@@ -2917,7 +2860,26 @@ Array <SubscriptionRef> IndicationService::_getProviderSubscriptions (
                         propertyList = _getPropertyList (selectStatement);
                     }
 
-                    requiredProperties = propertyList.getPropertyNameArray ();
+                    //
+                    //  If all properties are required, get list
+                    //
+                    if (propertyList.isNull ())
+                    {
+                        CIMClass indicationClass = _repository->getClass
+                            (nameSpaceNames [i], indicationClassName);
+                        for (Uint32 j = 0; 
+                             j < indicationClass.getPropertyCount ();
+                             j++)
+                        {
+                            requiredProperties.append 
+                                (indicationClass.getProperty (j).getName ());
+                        }
+                    }
+                    else
+                    {
+                        requiredProperties = 
+                            propertyList.getPropertyNameArray ();
+                    }
             
                     match = false;
                     for (Uint8 m = 0; m < regProviders.size () && !match; m++)
@@ -3088,10 +3050,15 @@ String IndicationService::_getIndicationClassName (
     //
     if (!Contains (indicationSubclasses, indicationClassName))
     {
-        //cout << "Invalid indication class name in FROM clause of query"
-        //     << endl;
+        String exceptionStr = _MSG_INVALID_CLASSNAME;
+        exceptionStr.append (indicationClassName);
+        exceptionStr.append (_MSG_IN_FROM);
+        exceptionStr.append (_CLASS_FILTER);
+        exceptionStr.append (_PROPERTY_QUERY);
+        exceptionStr.append (_MSG_PROPERTY);
         PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-        throw CIMException (CIM_ERR_INVALID_PARAMETER);
+        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+            exceptionStr);
     }
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
@@ -3113,10 +3080,11 @@ Array <struct ProviderClassList>
     String providerName;
     Array <struct ProviderClassList> indicationProviders;
     struct ProviderClassList provider;
+    Array <CIMInstance> indicationProviderInstances;
     Boolean duplicate;
     Boolean match;
-    const char METHOD_NAME [] = 
-        "IndicationService::_getIndicationProviders";
+
+    const char METHOD_NAME [] = "IndicationService::_getIndicationProviders";
 
     PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
 
@@ -3147,6 +3115,24 @@ Array <struct ProviderClassList>
         requiredProperties = 
             requiredPropertyList.getPropertyNameArray ();
     }
+
+    //
+    //  For each indication subclass, get providers
+    //
+    //for (Uint8 i = 0; i < indicationSubclasses.size (); i++)
+    //{
+        //
+        //  Get providers that can serve the subscription
+        //
+        //indicationProviderInstances = regProvider->getIndicationProviders
+            //(nameSpace,
+             //indicationSubclasses [i],
+             //requiredProperties);
+
+        //
+        //  Merge providers into list
+        //
+    //}
 
     //
     //  Get Provider Capabilities instances from the repository
@@ -3364,6 +3350,75 @@ struct HandlerRef IndicationService::_getHandlerRef (
     return (handler);
 }
 
+void IndicationService::_getEnableParams (
+    const String & nameSpaceName,
+    const CIMInstance & subscriptionInstance,
+    Array <struct ProviderClassList> & indicationProviders,
+    CIMPropertyList & propertyList,
+    String & condition,
+    String & queryLanguage)
+{
+    String filterQuery;
+    WQLSelectStatement selectStatement;
+    String indicationClassName;
+    Array <String> indicationSubclasses;
+    condition = String::EMPTY;
+    queryLanguage = String::EMPTY;
+
+    //
+    //  Get filter query
+    //
+    filterQuery = _getFilterQuery (subscriptionInstance, nameSpaceName);
+    selectStatement = _getSelectStatement (filterQuery);
+    
+    //
+    //  Get indication class name from filter query (FROM clause)
+    //
+    indicationClassName = _getIndicationClassName (selectStatement,
+        nameSpaceName);
+    
+    //
+    //  Get list of subclass names for indication class
+    //
+    indicationSubclasses = _repository->enumerateClassNames (nameSpaceName, 
+        indicationClassName, true);
+    indicationSubclasses.append (indicationClassName);
+    
+    //
+    //  Get property list from filter query (FROM and WHERE 
+    //  clauses)
+    //
+    if ((selectStatement.getSelectPropertyNameCount () > 0) ||
+        (selectStatement.getWherePropertyNameCount () > 0))
+    {
+        propertyList = _getPropertyList (selectStatement);
+    }
+
+    //
+    //  Get indication provider class lists
+    //
+    indicationProviders = _getIndicationProviders 
+        (nameSpaceName, indicationClassName, indicationSubclasses, 
+         propertyList);
+
+    if (indicationProviders.size () > 0)
+    {
+        //
+        //  Get condition from filter query (WHERE clause)
+        //
+        if (selectStatement.hasWhereClause ())
+        {
+            condition = _getCondition (filterQuery);
+        }
+
+        //
+        //  Get filter query language
+        //
+        queryLanguage = _getFilterQueryLanguage (subscriptionInstance, 
+             nameSpaceName);
+    }
+}
+    
 void IndicationService::_sendEnableRequests
     (const Array <struct ProviderClassList> & indicationProviders,
      const String & nameSpace,
@@ -3418,65 +3473,54 @@ void IndicationService::_sendEnableRequests
     }
 
     //
-    //  ATTN: method of accessing dispatcher queue will be changing
-    //  but is not yet finalized
+    //  Send enable request to each provider
     //
-    MessageQueue * queue = MessageQueue::lookup
-        ("CIMOpRequestDispatcher");
 
-    if (queue)
+    for (Uint8 i = 0; i < indicationProviders.size (); i++)
     {
-        for (Uint8 i = 0; i < indicationProviders.size (); i++)
-        {
-            CIMEnableIndicationSubscriptionRequestMessage * request =
-                new CIMEnableIndicationSubscriptionRequestMessage
-                    ("1234",
-                    nameSpace,
-                    indicationProviders [i].classList,
-                    indicationProviders [i].providerName,
-                    propertyList.getPropertyNameArray (),
-                    repeatNotificationPolicy,
-                    otherRepeatNotificationPolicy,
-                    repeatNotificationInterval,
-                    repeatNotificationGap,
-                    repeatNotificationCount,
-                    condition,
-                    queryLanguage,
-                    subscription,
-                    QueueIdStack (queue->getQueueId ()));
+        CIMEnableIndicationSubscriptionRequestMessage * request =
+            new CIMEnableIndicationSubscriptionRequestMessage
+                (XmlWriter::getNextMessageId (),
+                nameSpace,
+                indicationProviders [i].classList,
+                indicationProviders [i].providerName,
+                propertyList.getPropertyNameArray (),
+                repeatNotificationPolicy,
+                otherRepeatNotificationPolicy,
+                repeatNotificationInterval,
+                repeatNotificationGap,
+                repeatNotificationCount,
+                condition,
+                queryLanguage,
+                subscription,
+                QueueIdStack (_providerManager, getQueueId ()));
 
-            AsyncOpNode* op = this->get_op(); 
+        AsyncOpNode* op = this->get_op(); 
 
-            AsyncLegacyOperationStart * async_req =
-                new AsyncLegacyOperationStart
-                    (get_next_xid (),
-                    op,
-                    _providerManager,
-                    request,
-                    _queueId);
+        AsyncLegacyOperationStart * async_req =
+            new AsyncLegacyOperationStart
+                (get_next_xid (),
+                op,
+                _providerManager,
+                request,
+                _queueId);
 
-            AsyncReply * async_reply = SendWait (async_req);
+        AsyncReply * async_reply = SendWait (async_req);
 
-            //
-            //  ATTN: Check for return value indicating invalid queue ID
-            //  If received, need to find Provider Manager Service queue ID
-            //  again
-            //
+        //
+        //  ATTN: Check for return value indicating invalid queue ID
+        //  If received, need to find Provider Manager Service queue ID
+        //  again
+        //
 
-            CIMEnableIndicationSubscriptionResponseMessage * response =
-                reinterpret_cast 
-                <CIMEnableIndicationSubscriptionResponseMessage *>
-                ((static_cast <AsyncLegacyOperationResult *>
-                (async_reply))->res);
+        CIMEnableIndicationSubscriptionResponseMessage * response =
+            reinterpret_cast 
+            <CIMEnableIndicationSubscriptionResponseMessage *>
+            ((static_cast <AsyncLegacyOperationResult *>
+            (async_reply))->res);
 
-            delete async_req;
-            delete async_reply;
-        }
-    }
-    else
-    {
-        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-        throw CIMException (CIM_ERR_FAILED);
+        delete async_req;
+        delete async_reply;
     }
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
@@ -3556,7 +3600,7 @@ void IndicationService::_sendModifyRequests
         {
             CIMModifyIndicationSubscriptionRequestMessage* request =
                 new CIMModifyIndicationSubscriptionRequestMessage
-                    ("1234",
+                    (XmlWriter::getNextMessageId (),
                     nameSpace,
                     indicationProviders [i].classList,
                     indicationProviders [i].providerName,
@@ -3630,7 +3674,7 @@ void IndicationService::_sendDisableRequests
         {
             CIMDisableIndicationSubscriptionRequestMessage* request =
                 new CIMDisableIndicationSubscriptionRequestMessage
-                ("1234",
+                (XmlWriter::getNextMessageId (),
                 nameSpace,
                 indicationProviders [i].classList,
                 indicationProviders [i].providerName,
@@ -3782,7 +3826,7 @@ void IndicationService::_sendAlerts (
         {
              CIMHandleIndicationRequestMessage * handler_request =
                  new CIMHandleIndicationRequestMessage (
-                     "1234",
+                     XmlWriter::getNextMessageId (),
                      handlers [k].nameSpaceName,
                      handlers [k].handler,
                      alertInstance,

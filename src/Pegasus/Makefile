@@ -37,8 +37,6 @@ DIRS = \
     Listener/tests \
     Consumer/tests
 
-#    Subscription \
-#    Subscription/tests \
 #    Security/Authentication/tests
 
 include $(ROOT)/mak/recurse.mak

@@ -159,15 +159,15 @@ int enumerateInstanceNames(CIMClient& client, Options& opts)
             << ", Class = " << opts.className
             << endl;
     }
-    CIMNamespaceName myNameSpace;
+    /*CIMNamespaceName myNameSpace;
     
     if (opts.nameSpace == "")
         myNameSpace.isNull();
     else 
-        myNameSpace = opts.nameSpace;
+        myNameSpace = opts.nameSpace;*/
     
     Array<CIMObjectPath> instanceNames = 
-        client.enumerateInstanceNames(myNameSpace, opts.className);
+        client.enumerateInstanceNames(opts.nameSpace, opts.className);
     if (opts.summary)
     {
         cout << instanceNames.size() << " instance names of class " << opts.className << " returned." << endl;

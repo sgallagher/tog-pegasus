@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,24 +29,23 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMOMHandle.h"
-#include <Pegasus/Common/Config.h>
+
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/CIMObjectPath.h>
-//#include <Pegasus/Common/Exception.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 CIMOMHandle::CIMOMHandle(void)
-   : _service(0), _cimom(0), _id(peg_credential_types::PROVIDER)
+    : _service(0), _cimom(0), _id(peg_credential_types::PROVIDER)
 {
 }
 
 CIMOMHandle::CIMOMHandle(MessageQueueService * service)
-   : _service(service), _cimom(0), _id(peg_credential_types::PROVIDER)
+    : _service(service), _cimom(0), _id(peg_credential_types::PROVIDER)
 {
     MessageQueue * queue =
         MessageQueue::lookup(PEGASUS_QUEUENAME_OPREQDISPATCHER);
@@ -56,7 +55,7 @@ CIMOMHandle::CIMOMHandle(MessageQueueService * service)
 
     if((_service == 0) || (_cimom == 0) || (_client_handle == NULL))
     {
-	ThrowUninitializedHandle();
+        ThrowUninitializedHandle();
     }
 }
 
@@ -68,7 +67,7 @@ CIMOMHandle & CIMOMHandle::operator=(const CIMOMHandle & handle)
 {
     if(this == &handle)
     {
-	return(*this);
+        return(*this);
     }
 
     _service = handle._service;
@@ -80,12 +79,12 @@ CIMOMHandle & CIMOMHandle::operator=(const CIMOMHandle & handle)
 }
 
 void CIMOMHandle::async_callback(Uint32 user_data,
-				 Message *reply,
-				 void *parm)
+    Message *reply,
+    void *parm)
 {
-   callback_data *cb_data = reinterpret_cast<callback_data *>(parm);
-   cb_data->reply = reply;
-   cb_data->client_sem.signal();
+    callback_data *cb_data = reinterpret_cast<callback_data *>(parm);
+    cb_data->reply = reply;
+    cb_data->client_sem.signal();
 }
 
 CIMClass CIMOMHandle::getClass(
@@ -99,20 +98,20 @@ CIMClass CIMOMHandle::getClass(
 {
     if((_service == 0) || (_cimom == 0))
     {
-	ThrowUninitializedHandle();
+        ThrowUninitializedHandle();
     }
 
     // encode request
     CIMGetClassRequestMessage * request =
-	new CIMGetClassRequestMessage(
-	    XmlWriter::getNextMessageId(),
-	    nameSpace,
-	    className,
-	    localOnly,
-	    includeQualifiers,
-	    includeClassOrigin,
-	    propertyList,
-	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        new CIMGetClassRequestMessage(
+        XmlWriter::getNextMessageId(),
+        nameSpace,
+        className,
+        localOnly,
+        includeQualifiers,
+        includeClassOrigin,
+        propertyList,
+        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     // create an op node
     //    AsyncOpNode * op = _service->get_op();
@@ -122,36 +121,36 @@ CIMClass CIMOMHandle::getClass(
 
     // create request envelope
     AsyncLegacyOperationStart * asyncRequest =
-	new AsyncLegacyOperationStart (
-	    _service->get_next_xid(),
-	    NULL,
-	    _cimom->getQueueId(),
-	    request,
-	    _cimom->getQueueId());
+        new AsyncLegacyOperationStart (
+        _service->get_next_xid(),
+        NULL,
+        _cimom->getQueueId(),
+        request,
+        _cimom->getQueueId());
 
-    if( false  == _controller->ClientSendAsync(*_client_handle,
-					       0,
-					       _cimom->getQueueId(),
-					       asyncRequest,
-					       async_callback,
-					       (void *)cb_data) )
+    if(false  == _controller->ClientSendAsync(*_client_handle,
+        0,
+        _cimom->getQueueId(),
+        asyncRequest,
+        async_callback,
+        (void *)cb_data))
     {
-       delete asyncRequest;
-       delete cb_data;
-       throw CIMException(CIM_ERR_NOT_FOUND);
+        delete asyncRequest;
+        delete cb_data;
+        throw CIMException(CIM_ERR_NOT_FOUND);
 
     }
-       cb_data->client_sem.wait();
-       AsyncReply * asyncReply = static_cast<AsyncReply *>(cb_data->get_reply()) ;
-       CIMGetClassResponseMessage * response =
-	  reinterpret_cast<CIMGetClassResponseMessage *>(
-	     (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-       CIMClass cimClass = response->cimClass;
-       delete asyncRequest;
-       delete asyncReply;
-       delete response;
-       delete cb_data;
-       return(cimClass);
+    cb_data->client_sem.wait();
+    AsyncReply * asyncReply = static_cast<AsyncReply *>(cb_data->get_reply()) ;
+    CIMGetClassResponseMessage * response =
+        reinterpret_cast<CIMGetClassResponseMessage *>(
+        (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+    CIMClass cimClass = response->cimClass;
+    delete asyncRequest;
+    delete asyncReply;
+    delete response;
+    delete cb_data;
+    return(cimClass);
 }
 
 void CIMOMHandle::getClassAsync(
@@ -178,19 +177,19 @@ Array<CIMClass> CIMOMHandle::enumerateClasses(
 {
     if((_service == 0) || (_cimom == 0))
     {
-	ThrowUninitializedHandle();
+        ThrowUninitializedHandle();
     }
 
     CIMEnumerateClassesRequestMessage * request =
-	new CIMEnumerateClassesRequestMessage(
-	    XmlWriter::getNextMessageId(),
-	    nameSpace,
-	    className,
-	    deepInheritance,
-	    localOnly,
-	    includeQualifiers,
-	    includeClassOrigin,
-	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        new CIMEnumerateClassesRequestMessage(
+        XmlWriter::getNextMessageId(),
+        nameSpace,
+        className,
+        deepInheritance,
+        localOnly,
+        includeQualifiers,
+        includeClassOrigin,
+        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     Array<CIMClass> cimClasses;
 
@@ -218,16 +217,16 @@ Array<String> CIMOMHandle::enumerateClassNames(
 {
     if((_service == 0) || (_cimom == 0))
     {
-	ThrowUninitializedHandle();
+        ThrowUninitializedHandle();
     }
 
     CIMEnumerateClassNamesRequestMessage * request =
-	new CIMEnumerateClassNamesRequestMessage(
-	    XmlWriter::getNextMessageId(),
-	    nameSpace,
-	    className,
-	    deepInheritance,
-	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        new CIMEnumerateClassNamesRequestMessage(
+        XmlWriter::getNextMessageId(),
+        nameSpace,
+        className,
+        deepInheritance,
+        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     Array<String> classNames;
 
@@ -251,15 +250,15 @@ void CIMOMHandle::createClass(
 {
     if((_service == 0) || (_cimom == 0))
     {
-	ThrowUninitializedHandle();
+        ThrowUninitializedHandle();
     }
 
     CIMCreateClassRequestMessage * request =
-	new CIMCreateClassRequestMessage(
-	    XmlWriter::getNextMessageId(),
-	    nameSpace,
-	    newClass,
-	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        new CIMCreateClassRequestMessage(
+        XmlWriter::getNextMessageId(),
+        nameSpace,
+        newClass,
+        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     return;
 }
@@ -268,7 +267,7 @@ void CIMOMHandle::createClassAsync(
     const OperationContext & context,
     const String& nameSpace,
     const CIMClass& newClass,
-    ResponseHandler<CIMClass> & handler)
+    ResponseHandler<void> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
@@ -280,15 +279,15 @@ void CIMOMHandle::modifyClass(
 {
     if((_service == 0) || (_cimom == 0))
     {
-	ThrowUninitializedHandle();
+        ThrowUninitializedHandle();
     }
 
     CIMModifyClassRequestMessage * request =
-	new CIMModifyClassRequestMessage(
-	    XmlWriter::getNextMessageId(),
-	    nameSpace,
-	    modifiedClass,
-	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        new CIMModifyClassRequestMessage(
+        XmlWriter::getNextMessageId(),
+        nameSpace,
+        modifiedClass,
+        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     return;
 }
@@ -297,7 +296,7 @@ void CIMOMHandle::modifyClassAsync(
     const OperationContext & context,
     const String& nameSpace,
     const CIMClass& modifiedClass,
-    ResponseHandler<CIMClass> & handler)
+    ResponseHandler<void> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
@@ -309,16 +308,16 @@ void CIMOMHandle::deleteClass(
 {
     if((_service == 0) || (_cimom == 0))
     {
-	ThrowUninitializedHandle();
+        ThrowUninitializedHandle();
     }
 
     // encode request
     CIMDeleteClassRequestMessage * request =
-	new CIMDeleteClassRequestMessage(
-	    XmlWriter::getNextMessageId(),
-	    nameSpace,
-	    className,
-	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        new CIMDeleteClassRequestMessage(
+        XmlWriter::getNextMessageId(),
+        nameSpace,
+        className,
+        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     return;
 }
@@ -327,7 +326,7 @@ void CIMOMHandle::deleteClassAsync(
     const OperationContext & context,
     const String& nameSpace,
     const String& className,
-    ResponseHandler<CIMClass> & handler)
+    ResponseHandler<void> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
@@ -343,46 +342,46 @@ CIMInstance CIMOMHandle::getInstance(
 {
     if((_service == 0) || (_cimom == 0))
     {
-	ThrowUninitializedHandle();
+        ThrowUninitializedHandle();
     }
 
     // encode request
     CIMGetInstanceRequestMessage * request =
-	new CIMGetInstanceRequestMessage(
-	    XmlWriter::getNextMessageId(),
-	    nameSpace,
-	    instanceName,
-	    localOnly,
-	    includeQualifiers,
-	    includeClassOrigin,
-	    propertyList,
-	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        new CIMGetInstanceRequestMessage(
+        XmlWriter::getNextMessageId(),
+        nameSpace,
+        instanceName,
+        localOnly,
+        includeQualifiers,
+        includeClassOrigin,
+        propertyList,
+        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     // create an op node
     //    AsyncOpNode * op = _service->get_op();
 
     // create request envelope
     AsyncLegacyOperationStart * asyncRequest =
-	new AsyncLegacyOperationStart (
-	    _service->get_next_xid(),
-	    0,
-	    _cimom->getQueueId(),
-	    request,
-	    _cimom->getQueueId());
+        new AsyncLegacyOperationStart (
+        _service->get_next_xid(),
+        0,
+        _cimom->getQueueId(),
+        request,
+        _cimom->getQueueId());
 
 
     callback_data *cb_data = new callback_data(this);
 
-    if ( false == _controller->ClientSendAsync(*_client_handle,
-					       0,
-					       _cimom->getQueueId(),
-					       asyncRequest,
-					       async_callback,
-					       (void *)cb_data) )
+    if(false == _controller->ClientSendAsync(*_client_handle,
+        0,
+        _cimom->getQueueId(),
+        asyncRequest,
+        async_callback,
+        (void *)cb_data))
     {
-       delete asyncRequest;
-       delete cb_data;
-       throw CIMException(CIM_ERR_NOT_FOUND);
+        delete asyncRequest;
+        delete cb_data;
+        throw CIMException(CIM_ERR_NOT_FOUND);
     }
 
     cb_data->client_sem.wait();
@@ -394,8 +393,8 @@ CIMInstance CIMOMHandle::getInstance(
 
     // decode response
     CIMGetInstanceResponseMessage * response =
-	reinterpret_cast<CIMGetInstanceResponseMessage *>(
-	    (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+        reinterpret_cast<CIMGetInstanceResponseMessage *>(
+        (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
 
     CIMInstance cimInstance = response->cimInstance;
 
@@ -434,21 +433,21 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
 {
     if((_service == 0) || (_cimom == 0))
     {
-	ThrowUninitializedHandle();
+        ThrowUninitializedHandle();
     }
 
     // encode request
     CIMEnumerateInstancesRequestMessage * request =
-	new CIMEnumerateInstancesRequestMessage(
-	    XmlWriter::getNextMessageId(),
-	    nameSpace,
-	    className,
-	    deepInheritance,
-	    localOnly,
-	    includeQualifiers,
-	    includeClassOrigin,
-	    propertyList,
-	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        new CIMEnumerateInstancesRequestMessage(
+        XmlWriter::getNextMessageId(),
+        nameSpace,
+        className,
+        deepInheritance,
+        localOnly,
+        includeQualifiers,
+        includeClassOrigin,
+        propertyList,
+        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     // obtain an op node
     // AsyncOpNode * op = _service->get_op();
@@ -457,12 +456,12 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
 
     // create request envelope
     AsyncLegacyOperationStart * asyncRequest =
-	new AsyncLegacyOperationStart (
-	    _service->get_next_xid(),
-	    0,
-	    _cimom->getQueueId(),
-	    request,
-	    _cimom->getQueueId());
+        new AsyncLegacyOperationStart (
+        _service->get_next_xid(),
+        0,
+        _cimom->getQueueId(),
+        request,
+        _cimom->getQueueId());
 
 
     // send request and wait for response
@@ -471,15 +470,15 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
 
 
     if(false == _controller->ClientSendAsync(*_client_handle,
-					     0,
-					     _cimom->getQueueId(),
-					     asyncRequest,
-					     async_callback,
-					     (void *)cb_data) )
+        0,
+        _cimom->getQueueId(),
+        asyncRequest,
+        async_callback,
+        (void *)cb_data))
     {
-       delete asyncRequest;
-       delete cb_data;
-       throw CIMException(CIM_ERR_NOT_FOUND);
+        delete asyncRequest;
+        delete cb_data;
+        throw CIMException(CIM_ERR_NOT_FOUND);
     }
 
     cb_data->client_sem.wait();
@@ -487,14 +486,14 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
 
     // decode response
     CIMEnumerateInstancesResponseMessage * response =
-	reinterpret_cast<CIMEnumerateInstancesResponseMessage *>(
-	    (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+        reinterpret_cast<CIMEnumerateInstancesResponseMessage *>(
+        (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
 
     Array<CIMInstance> cimInstances;
 
     for(Uint32 i = 0, n = response->cimNamedInstances.size(); i < n; i++)
     {
-	cimInstances.append(response->cimNamedInstances[i]);
+        cimInstances.append(response->cimNamedInstances[i]);
     }
 
     // release the op node
@@ -530,16 +529,16 @@ Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
 {
     if((_service == 0) || (_cimom == 0))
     {
-	ThrowUninitializedHandle();
+        ThrowUninitializedHandle();
     }
 
     // encode request
     CIMEnumerateInstanceNamesRequestMessage * request =
-	new CIMEnumerateInstanceNamesRequestMessage(
-	    XmlWriter::getNextMessageId(),
-	    nameSpace,
-	    className,
-	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        new CIMEnumerateInstanceNamesRequestMessage(
+        XmlWriter::getNextMessageId(),
+        nameSpace,
+        className,
+        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     // create an op node
     // AsyncOpNode * op = _service->get_op();
@@ -548,24 +547,24 @@ Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
 
     // create request envelope
     AsyncLegacyOperationStart * asyncRequest =
-	new AsyncLegacyOperationStart (
-	    _service->get_next_xid(),
-	    0,
-	    _cimom->getQueueId(),
-	    request,
-	    _cimom->getQueueId());
+        new AsyncLegacyOperationStart (
+        _service->get_next_xid(),
+        0,
+        _cimom->getQueueId(),
+        request,
+        _cimom->getQueueId());
 
     if(false == _controller->ClientSendAsync(*_client_handle,
-					     0,
-					     _cimom->getQueueId(),
-					     asyncRequest,
-					     async_callback,
-					     (void *)cb_data))
-       {
-	  delete asyncRequest;
-	  delete cb_data;
-	  throw CIMException(CIM_ERR_NOT_FOUND);
-       }
+        0,
+        _cimom->getQueueId(),
+        asyncRequest,
+        async_callback,
+        (void *)cb_data))
+    {
+        delete asyncRequest;
+        delete cb_data;
+        throw CIMException(CIM_ERR_NOT_FOUND);
+    }
 
 
 
@@ -576,8 +575,8 @@ Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
     AsyncReply * asyncReply = static_cast<AsyncReply *>(cb_data->get_reply());
     // decode response
     CIMEnumerateInstanceNamesResponseMessage * response =
-       reinterpret_cast<CIMEnumerateInstanceNamesResponseMessage *>(
-	  (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+        reinterpret_cast<CIMEnumerateInstanceNamesResponseMessage *>(
+        (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
     Array<CIMObjectPath> cimReferences = response->instanceNames;
     //_service->return_op(op);
 
@@ -605,15 +604,15 @@ CIMObjectPath CIMOMHandle::createInstance(
 {
     if((_service == 0) || (_cimom == 0))
     {
-	ThrowUninitializedHandle();
+        ThrowUninitializedHandle();
     }
 
     CIMCreateInstanceRequestMessage * request =
-	new CIMCreateInstanceRequestMessage(
-	    XmlWriter::getNextMessageId(),
-	    nameSpace,
-	    newInstance,
-	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        new CIMCreateInstanceRequestMessage(
+        XmlWriter::getNextMessageId(),
+        nameSpace,
+        newInstance,
+        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     CIMObjectPath cimReference;
 
@@ -624,7 +623,7 @@ void CIMOMHandle::createInstanceAsync(
     const OperationContext & context,
     const String& nameSpace,
     const CIMInstance& newInstance,
-    ResponseHandler<CIMInstance> & handler)
+    ResponseHandler<void> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
@@ -638,17 +637,17 @@ void CIMOMHandle::modifyInstance(
 {
     if((_service == 0) || (_cimom == 0))
     {
-	ThrowUninitializedHandle();
+        ThrowUninitializedHandle();
     }
 
     CIMModifyInstanceRequestMessage * request =
-	new CIMModifyInstanceRequestMessage(
-	    XmlWriter::getNextMessageId(),
-	    nameSpace,
-	    CIMInstance(),
-	    includeQualifiers,
-	    propertyList,
-	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        new CIMModifyInstanceRequestMessage(
+        XmlWriter::getNextMessageId(),
+        nameSpace,
+        CIMInstance(),
+        includeQualifiers,
+        propertyList,
+        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     return;
 }
@@ -659,7 +658,7 @@ void CIMOMHandle::modifyInstanceAsync(
     const CIMInstance& modifiedInstance,
     Boolean includeQualifiers,
     const CIMPropertyList& propertyList,
-    ResponseHandler<CIMInstance> & handler)
+    ResponseHandler<void> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
@@ -671,15 +670,15 @@ void CIMOMHandle::deleteInstance(
 {
     if((_service == 0) || (_cimom == 0))
     {
-	ThrowUninitializedHandle();
+        ThrowUninitializedHandle();
     }
 
     CIMDeleteInstanceRequestMessage * request =
-	new CIMDeleteInstanceRequestMessage(
-	    XmlWriter::getNextMessageId(),
-	    nameSpace,
-	    instanceName,
-	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        new CIMDeleteInstanceRequestMessage(
+        XmlWriter::getNextMessageId(),
+        nameSpace,
+        instanceName,
+        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     return;
 }
@@ -688,7 +687,7 @@ void CIMOMHandle::deleteInstanceAsync(
     const OperationContext & context,
     const String& nameSpace,
     const CIMObjectPath& instanceName,
-    ResponseHandler<CIMInstance> & handler)
+    ResponseHandler<void> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
@@ -701,16 +700,16 @@ Array<CIMInstance> CIMOMHandle::execQuery(
 {
     if((_service == 0) || (_cimom == 0))
     {
-	ThrowUninitializedHandle();
+        ThrowUninitializedHandle();
     }
 
     CIMExecQueryRequestMessage * request =
-	new CIMExecQueryRequestMessage(
-	    XmlWriter::getNextMessageId(),
-	    nameSpace,
-	    queryLanguage,
-	    query,
-	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        new CIMExecQueryRequestMessage(
+        XmlWriter::getNextMessageId(),
+        nameSpace,
+        queryLanguage,
+        query,
+        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     Array<CIMInstance> cimInstances;
 
@@ -741,22 +740,22 @@ Array<CIMObject> CIMOMHandle::associators(
 {
     if((_service == 0) || (_cimom == 0))
     {
-	ThrowUninitializedHandle();
+        ThrowUninitializedHandle();
     }
 
     CIMAssociatorsRequestMessage * request =
-	new CIMAssociatorsRequestMessage(
-	    XmlWriter::getNextMessageId(),
-	    nameSpace,
-	    objectName,
-	    assocClass,
-	    resultClass,
-	    role,
-	    resultRole,
-	    includeQualifiers,
-	    includeClassOrigin,
-	    propertyList,
-	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        new CIMAssociatorsRequestMessage(
+        XmlWriter::getNextMessageId(),
+        nameSpace,
+        objectName,
+        assocClass,
+        resultClass,
+        role,
+        resultRole,
+        includeQualifiers,
+        includeClassOrigin,
+        propertyList,
+        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     Array<CIMObject> cimObjects;
 
@@ -790,19 +789,19 @@ Array<CIMObjectPath> CIMOMHandle::associatorNames(
 {
     if((_service == 0) || (_cimom == 0))
     {
-	ThrowUninitializedHandle();
+        ThrowUninitializedHandle();
     }
 
     CIMAssociatorNamesRequestMessage * request =
-	new CIMAssociatorNamesRequestMessage(
-	    XmlWriter::getNextMessageId(),
-	    nameSpace,
-	    objectName,
-	    assocClass,
-	    resultClass,
-	    role,
-	    resultRole,
-	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        new CIMAssociatorNamesRequestMessage(
+        XmlWriter::getNextMessageId(),
+        nameSpace,
+        objectName,
+        assocClass,
+        resultClass,
+        role,
+        resultRole,
+        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     Array<CIMObjectPath> cimObjectPaths;
 
@@ -834,20 +833,20 @@ Array<CIMObject> CIMOMHandle::references(
 {
     if((_service == 0) || (_cimom == 0))
     {
-	ThrowUninitializedHandle();
+        ThrowUninitializedHandle();
     }
 
     CIMReferencesRequestMessage * request =
-	new CIMReferencesRequestMessage(
-	    XmlWriter::getNextMessageId(),
-	    nameSpace,
-	    objectName,
-	    resultClass,
-	    role,
-	    includeQualifiers,
-	    includeClassOrigin,
-	    propertyList,
-	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        new CIMReferencesRequestMessage(
+        XmlWriter::getNextMessageId(),
+        nameSpace,
+        objectName,
+        resultClass,
+        role,
+        includeQualifiers,
+        includeClassOrigin,
+        propertyList,
+        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     Array<CIMObject> cimObjects;
 
@@ -877,17 +876,17 @@ Array<CIMObjectPath> CIMOMHandle::referenceNames(
 {
     if((_service == 0) || (_cimom == 0))
     {
-	ThrowUninitializedHandle();
+        ThrowUninitializedHandle();
     }
 
     CIMReferenceNamesRequestMessage * request =
-	new CIMReferenceNamesRequestMessage(
-	    XmlWriter::getNextMessageId(),
-	    nameSpace,
-	    objectName,
-	    resultClass,
-	    role,
-	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        new CIMReferenceNamesRequestMessage(
+        XmlWriter::getNextMessageId(),
+        nameSpace,
+        objectName,
+        resultClass,
+        role,
+        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     Array<CIMObjectPath> cimObjectPaths;
 
@@ -913,16 +912,16 @@ CIMValue CIMOMHandle::getProperty(
 {
     if((_service == 0) || (_cimom == 0))
     {
-	ThrowUninitializedHandle();
+        ThrowUninitializedHandle();
     }
 
     CIMGetPropertyRequestMessage * request =
-	new CIMGetPropertyRequestMessage(
-	    XmlWriter::getNextMessageId(),
-	    nameSpace,
-	    instanceName,
-	    propertyName,
-	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        new CIMGetPropertyRequestMessage(
+        XmlWriter::getNextMessageId(),
+        nameSpace,
+        instanceName,
+        propertyName,
+        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     CIMValue cimValue;
 
@@ -948,17 +947,17 @@ void CIMOMHandle::setProperty(
 {
     if((_service == 0) || (_cimom == 0))
     {
-	ThrowUninitializedHandle();
+        ThrowUninitializedHandle();
     }
 
     CIMSetPropertyRequestMessage * request =
-	new CIMSetPropertyRequestMessage(
-	    XmlWriter::getNextMessageId(),
-	    nameSpace,
-	    instanceName,
-	    propertyName,
-	    newValue,
-	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        new CIMSetPropertyRequestMessage(
+        XmlWriter::getNextMessageId(),
+        nameSpace,
+        instanceName,
+        propertyName,
+        newValue,
+        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     return;
 }
@@ -985,16 +984,16 @@ CIMValue CIMOMHandle::invokeMethod(
 {
     if((_service == 0) || (_cimom == 0))
     {
-	ThrowUninitializedHandle();
+    ThrowUninitializedHandle();
     }
 
     Message* request = new CIMInvokeMethodRequestMessage(
-	XmlWriter::getNextMessageId(),
-	nameSpace,
-	instanceName,
-	methodName,
-	inParameters,
-	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+    XmlWriter::getNextMessageId(),
+    nameSpace,
+    instanceName,
+    methodName,
+    inParameters,
+        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     return(response->retValue);
 }

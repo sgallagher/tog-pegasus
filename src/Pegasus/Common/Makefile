@@ -16,7 +16,10 @@ NEW_SOURCES = \
     HTTPMessage.cpp \
     HTTPDelegator.cpp \
     CIMParamValue.cpp \
-    CIMParamValueRep.cpp
+    CIMParamValueRep.cpp \
+	 CIMHandle.cpp \
+	 OperationContext.cpp \
+	 ResponseHandler.cpp
 
 SOURCES = \
     $(NEW_SOURCES) \

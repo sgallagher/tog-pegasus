@@ -6,7 +6,7 @@ include $(ROOT)/mak/config.mak
 
 INCLUDES = -I..
 
-LOCAL_DEFINES = -DPEGASUS_PROVIDER_INTERNAL 
+LOCAL_DEFINES = -DPEGASUS_PROVIDER_INTERNAL
 
 LIBRARIES = $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX)
 
@@ -18,6 +18,8 @@ endif
 
 LIBRARY = pegprovider
 
-SOURCES = CIMProvider.cpp 
+SOURCES = \
+    ProviderHandle.cpp \
+    CIMProvider.cpp
 
 include $(ROOT)/mak/library.mak

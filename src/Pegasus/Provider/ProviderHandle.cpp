@@ -1,4 +1,4 @@
-//%/////-*-c++-*-//////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
@@ -26,55 +26,16 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_ResponseHandler_h
-#define Pegasus_ResponseHandler_h
-
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Array.h>
+#include "ProviderHandle.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-template<class object_type>
-class ResponseHandler
+ProviderHandle::ProviderHandle(void)
 {
-public:
-//    enum ProcessingClass { POLL, SIGNAL };
-//    enum FilteringClass { INDISCRETE, DISCRETIONARY };
+}
 
-      /** ATTN:
-      */
-      ResponseHandler(void) {};
-
-      /** ATTN:
-      */
-      virtual ~ResponseHandler(void) {};
-
-      /** ATTN:
-      */
-      virtual void deliver(const object_type & object) = 0;
-
-      /** ATTN:
-      */
-      virtual void deliver(const Array<object_type> & objects) = 0;
-
-      /** ATTN:
-      */
-      virtual void reserve(const Uint32 size) = 0;
-//    virtual CIMPredicate *processing(
-//	 ProcessingClass pc = POLL,
-//	 FilteringClass fc = INDISCRETE ) = 0;
-
-      /** ATTN:
-      */
-      virtual void processing(void) = 0;
-
-      /** ATTN:
-      */
-      virtual void complete(void) = 0;
-
-};
+ProviderHandle::~ProviderHandle(void)
+{
+}
 
 PEGASUS_NAMESPACE_END
-
-#endif
-	

@@ -729,9 +729,10 @@ int main(int argc, char** argv)
 
 	server.bind(portNumber);
 
-	// notify parent process to terminate so user knows that cimserver
-	// is ready to serve CIM requests.
-	notify_parent();
+	// notify parent process (if there is a parent process) to terminate 
+        // so user knows that cimserver is ready to serve CIM requests.
+	if (daemonOption)
+		notify_parent();
 
 	time_t last = 0;
 

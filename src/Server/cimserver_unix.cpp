@@ -190,6 +190,18 @@ int get_proc(int pid)
     return -1;
   }
 
+  //
+  // Check to see if this command process has the same pid as the cimserver
+  // daemon process pid stored in the cimserver_start.conf file.  Since the
+  // command has the same name as the cimserver daemon process, this could
+  // happen after a system reboot.  If the pids are the same, cimserver 
+  // isn't really running.
+  //
+  pid_t mypid = getpid();
+  if (mypid == pid)
+  {
+      return -1;
+  }
   return 0;
 }
 #endif
@@ -255,8 +267,19 @@ Boolean isCIMServerRunning(void)
 
   if ( (ret_code != -1 ) && (strcmp(pstru.pst_ucomm, "cimserver")) == 0)
   {
-      // cimserver is running
-      return true;
+      //
+      // Check to see if this command process has the same pid as the 
+      // cimserver daemon process pid stored in the cimserver_start.conf 
+      // file.  Since the command has the same name as the cimserver daemon
+      // process, this could happen after a system reboot.  If the pids are
+      // the same, cimserver isn't really running.
+      //
+      pid_t mypid = getpid();
+      if (mypid != pid)
+      {
+          // cimserver is running
+          return true;
+      }
   }
 #endif
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)

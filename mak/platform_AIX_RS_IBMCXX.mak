@@ -22,7 +22,7 @@ else
 FLAGS = -O2
 endif
 
-FLAGS += -qrtti=dyna 
+FLAGS += -qrtti=dyna -qcpluscmt
 
 SYS_LIBS = -ldl 
 

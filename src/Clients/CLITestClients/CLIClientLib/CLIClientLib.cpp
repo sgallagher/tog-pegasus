@@ -223,7 +223,7 @@ int enumerateAllInstanceNames(CIMClient& client, Options& opts)
         client.enumerateInstanceNames(opts.nameSpace, classNames[iClass]);
         if (opts.summary)
         {
-            if (instanceNames.size != 0)
+            if (instanceNames.size() != 0)
             {
                 cout << instanceNames.size() << " instance names of class " << opts.className << " returned." << endl;
             }
@@ -771,7 +771,40 @@ int associators(CIMClient& client, Options& opts)
         }
     }
     return 0;
-}        
+} 
+
+                /*
+                    CIMValue invokeMethod(
+                    	const CIMNamespaceName& nameSpace,
+                    	const CIMObjectPath& instanceName,
+                    	const CIMName& methodName,
+                    	const Array<CIMParamValue>& inParameters,
+	                    Array<CIMParamValue>& outParameters
+                 */
+
+ int invokeMethod(CIMClient& client, Options& opts)
+ {
+     if (opts.verboseTest)
+     {
+         cout << "Associators "
+             << "Namespace = " << opts.nameSpace
+             << ", Object = " << opts.objectName
+             << ", methodName = " << opts.methodName
+             << endl;
+         CIMValue retValue;
+         Array<CIMParamValue> inParms;
+         Array<CIMParamValue> outParms;
+
+         retValue = client.invokeMethod(opts.nameSpace, opts.objectName,
+             opts.methodName, inParms, outParms);
+
+         // Now display the CIMValue
+
+
+         return 0;
+     }
+
+ }
 
 
 void GetOptions(

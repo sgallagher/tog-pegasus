@@ -176,6 +176,7 @@ struct  OPTION_STRUCT
     String resultClassName;
     CIMName resultClass;
     String role;
+    CIMName methodName;
 };
 
 typedef struct OPTION_STRUCT Options;
@@ -230,6 +231,7 @@ int PEGASUS_CLI_LINKAGE associators(CIMClient& client, Options& opts);
 
 int PEGASUS_CLI_LINKAGE associatorNames(CIMClient& client, Options& opts);
 
+int PEGASUS_CLI_LINKAGE invokeMethod(CIMClient& client, Options& opts);
 
 PEGASUS_NAMESPACE_END
 

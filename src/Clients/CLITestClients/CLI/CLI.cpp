@@ -88,6 +88,7 @@ int main(int argc, char** argv)
     opts.role = String::EMPTY;
     opts.propertyListText = String::EMPTY;
     opts.propertyName = String::EMPTY;
+    opts.methodName = "unknown";
 
     CheckCommonOptionValues(om, argv, opts);
     
@@ -351,6 +352,7 @@ int main(int argc, char** argv)
                     {
                         opts.objectName = argv[2];
                     }
+                    associators(client, opts); 
                 }
                 break;
         case ID_AssociatorNames :
@@ -375,6 +377,27 @@ int main(int argc, char** argv)
                     enumerateInstanceNames(client,opts);
                 }
                 break;
+                /*
+                    CIMValue invokeMethod(
+                    	const CIMNamespaceName& nameSpace,
+                    	const CIMObjectPath& instanceName,
+                    	const CIMName& methodName,
+                    	const Array<CIMParamValue>& inParameters,
+        
+                Array<CIMParamValue>& outParameters
+                */
+        case ID_InvokeMethod :
+                {
+                    if (argc > 2)
+                    {
+                        opts.objectName = argv[2];
+                    }
+                    if (argc > 3)
+                    {
+                        opts.objectName = argv[3];
+                    }
+                    invokeMethod(client, opts);
+                }
                 
             //case ID_Unknown :
             default:

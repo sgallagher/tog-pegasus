@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMQualifierDeclRep.h,v $
+// Revision 1.3  2001/03/04 21:57:34  bob
+// Changed print methods to take a stream instead of hardcoded cout
+//
 // Revision 1.2  2001/02/19 01:47:16  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -123,7 +126,7 @@ public:
 
     void toXml(Array<Sint8>& out) const;
 
-    void print() const;
+    void print(std::ostream &o=std::cout) const;
 
     Boolean identical(const CIMQualifierDeclRep* x) const;
 

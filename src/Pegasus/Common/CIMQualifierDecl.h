@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMQualifierDecl.h,v $
+// Revision 1.3  2001/03/04 21:57:34  bob
+// Changed print methods to take a stream instead of hardcoded cout
+//
 // Revision 1.2  2001/02/19 01:47:16  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -212,10 +215,10 @@ public:
     
     */
 
-    void print() const
+    void print(std::ostream &o=std::cout) const
     {
 	_checkRep();
-	_rep->print();
+	_rep->print(o);
     }
     /** CIMMethod
     
@@ -362,10 +365,10 @@ public:
 	_rep->toXml(out);
     }
 
-    void print() const
+    void print(std::ostream &o=std::cout) const
     {
 	_checkRep();
-	_rep->print();
+	_rep->print(o);
     }
 
     Boolean identical(const CIMConstQualifierDecl& x) const

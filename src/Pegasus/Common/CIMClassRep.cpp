@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+///BEGIN_LICENSE
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: CIMClassRep.cpp,v $
+// Revision 1.4  2001/03/04 21:57:34  bob
+// Changed print methods to take a stream instead of hardcoded cout
+//
+
 // Revision 1.3  2001/02/20 05:16:57  mike
 // Implemented CIMInstance::getInstanceName()
 //
@@ -447,12 +451,12 @@ void CIMClassRep::toXml(Array<Sint8>& out) const
     out << "</CLASS>\n";
 }
 
-void CIMClassRep::print() const
+void CIMClassRep::print(std::ostream &os) const
 {
     Array<Sint8> tmp;
     toXml(tmp);
     tmp.append('\0');
-    XmlWriter::indentedPrint(std::cout, tmp.getData(), 4);
+    XmlWriter::indentedPrint(os, tmp.getData(), 4);
     // cout << tmp.getData() << endl;
 }
 

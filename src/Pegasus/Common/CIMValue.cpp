@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMValue.cpp,v $
+// Revision 1.3  2001/03/04 21:57:34  bob
+// Changed print methods to take a stream instead of hardcoded cout
+//
 // Revision 1.2  2001/02/26 04:33:28  mike
 // Fixed many places where cim names were be compared with operator==(String,String).
 // Changed all of these to use CIMName::equal()
@@ -758,12 +761,12 @@ void CIMValue::toXml(Array<Sint8>& out) const
     }
 }
 
-void CIMValue::print() const
+void CIMValue::print(std::ostream &os) const
 {
     Array<Sint8> tmp;
     toXml(tmp);
     tmp.append('\0');
-    std::cout << tmp.getData() << std::endl;
+    os << tmp.getData() << std::endl;
 }
 
 void CIMValue::set(Boolean x)

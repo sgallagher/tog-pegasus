@@ -23,8 +23,8 @@
 // Author:
 //
 // $Log: CIMParameterRep.cpp,v $
-// Revision 1.1  2001/02/18 18:39:06  mike
-// new
+// Revision 1.2  2001/03/04 21:57:34  bob
+// Changed print methods to take a stream instead of hardcoded cout
 //
 // Revision 1.1  2001/02/16 02:07:06  mike
 // Renamed many classes and headers (using new CIM prefixes).
@@ -157,12 +157,12 @@ void CIMParameterRep::toXml(Array<Sint8>& out) const
     }
 }
 
-void CIMParameterRep::print() const 
+void CIMParameterRep::print(std::ostream &os) const 
 {
     Array<Sint8> tmp;
     toXml(tmp);
     tmp.append('\0');
-    std::cout << tmp.getData() << std::endl;
+    os << tmp.getData() << std::endl;
 }
 
 Boolean CIMParameterRep::identical(const CIMParameterRep* x) const

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMReference.h,v $
+// Revision 1.4  2001/03/04 21:57:34  bob
+// Changed print methods to take a stream instead of hardcoded cout
+//
 // Revision 1.3  2001/02/26 04:33:28  mike
 // Fixed many places where cim names were be compared with operator==(String,String).
 // Changed all of these to use CIMName::equal()
@@ -295,7 +298,7 @@ public:
     /** print() Creates and prints to stdout the XML representation for
 	the CIM object path
     */
-    void print() const;
+    void print(std::ostream &o=std::cout) const;
     ///  nameSpaceToXML - ATTN:
     void nameSpaceToXml(Array<Sint8>& out) const;
 	/// localNameSpaceToXml - ATTN:

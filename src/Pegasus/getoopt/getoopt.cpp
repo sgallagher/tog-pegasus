@@ -471,11 +471,11 @@ getoopt::parse(int argc, char **argv) {
 	      addError(temp + o.getName());
 	    } else {
 	        // this is a long flag we know about
-	      if (o.optarg() != ""  || fs->argtype != MUSTHAVE) { 
+	      if (o.optarg() != ""  || fs->argtype != MUSTHAVEARG) { 
 		addarg(_args, o);
 		state = START;  // we have a completed long flag
 	      } else {   // no value yet, and we expect one
-		if (fs->argtype == MUSTHAVE) {
+		if (fs->argtype == MUSTHAVEARG) {
 		  state = ARGEXPECTED;
 		}
 	      }

@@ -108,17 +108,17 @@ static struct optspec optspecs[] =
     {(char*)"", FILESPEC, false, getoopt::NOARG},
     {(char*)"h", HELPFLAG, false, getoopt::NOARG},
     {(char*)"help", HELPFLAG, true, getoopt::NOARG},
-    {(char*)"f", FILELIST, false, getoopt::MUSTHAVE},
-    {(char*)"filelist", FILELIST, true, getoopt::MUSTHAVE},
-    {(char*)"n", NAMESPACE, false, getoopt::MUSTHAVE},
-    {(char*)"namespace", NAMESPACE, true, getoopt::MUSTHAVE}, 
-    {(char*)"I", INCLUDEPATH, false, getoopt::MUSTHAVE},
-    {(char*)"Include", INCLUDEPATH, true, getoopt::MUSTHAVE},
-    {(char*)"R", REPOSITORYNAME, false, getoopt::MUSTHAVE},
-    {(char*)"CIMRepository", REPOSITORYNAME, true, getoopt::MUSTHAVE},
+    {(char*)"f", FILELIST, false, getoopt::MUSTHAVEARG},
+    {(char*)"filelist", FILELIST, true, getoopt::MUSTHAVEARG},
+    {(char*)"n", NAMESPACE, false, getoopt::MUSTHAVEARG},
+    {(char*)"namespace", NAMESPACE, true, getoopt::MUSTHAVEARG}, 
+    {(char*)"I", INCLUDEPATH, false, getoopt::MUSTHAVEARG},
+    {(char*)"Include", INCLUDEPATH, true, getoopt::MUSTHAVEARG},
+    {(char*)"R", REPOSITORYNAME, false, getoopt::MUSTHAVEARG},
+    {(char*)"CIMRepository", REPOSITORYNAME, true, getoopt::MUSTHAVEARG},
     {(char*)"E", SYNTAXFLAG, false, getoopt::NOARG}, 
     {(char*)"w", SUPPRESSFLAG, false, getoopt::NOARG},
-    {(char*)"trace", TRACEFLAG, true, getoopt::OPTIONAL},
+    {(char*)"trace", TRACEFLAG, true, getoopt::OPTIONALARG},
     {(char*)"xml", XMLFLAG, true, getoopt::NOARG},
     {(char*)"", OPTEND, false, getoopt::NOARG}
 };
@@ -134,7 +134,7 @@ setCmdLineOpts(getoopt &cmdline) {
     if (o.islong)
       cmdline.addLongFlagspec(o.flag, (getoopt::argtype)o.needsvalue);
     else
-      cmdline.addFlagspec(o.flag[0], o.needsvalue == getoopt::MUSTHAVE ?
+      cmdline.addFlagspec(o.flag[0], o.needsvalue == getoopt::MUSTHAVEARG ?
 			  true : false);
   }
 }

@@ -196,7 +196,7 @@ class PEGASUS_GETOOPT_LINKAGE getoopt {
   String emptystring;
   Optarg _emptyopt;
  public:
-  enum argtype {NOARG, MUSTHAVE, OPTIONAL};
+  enum argtype {NOARG, MUSTHAVEARG, OPTIONALARG};
   // Constructor and destructor.  You can initialize an instance with
   // an optstring to specify command line flags.
   getoopt(const char *optstring = 0);

@@ -682,6 +682,8 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
     String         GetOptString   = String ();
     getoopt        getOpts;
 
+    _operationType = OPERATION_TYPE_UNINITIALIZED;
+
     //
     //  Construct GetOptString
     //
@@ -937,6 +939,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
         }
     }
 
+/*
     // 
     // Some more validations
     //
@@ -951,6 +954,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
         CommandFormatException e (localizeMessage(MSG_PATH,REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING));
         throw e;
     }
+*/
 
     if (getOpts.isSet (_OPTION_PORTNUMBER) < 1)
     {

@@ -4059,8 +4059,12 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
             //
             if (propertyList.isNull ())
             {
+                //
+                //  Current subscription does not match
+                //  Continue to next subscription in list
+                //
                 match = false;
-                break;
+                continue;
             }
             else
             {

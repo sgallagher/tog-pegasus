@@ -404,6 +404,32 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 					
 				} catch (CIMException& e)
 				{
+                    //currently, we have an issue with the scenario of a root CA being added to the truststore and
+					//authenticating a user certificate that the CA signed.  The SSL client verification works correctly,
+					//but when we try to get the instance here, it fails because the serial number is that of the user
+					//and not that of the CA.  We need to work out how to go about getting the correct serial number.
+					//Complications also include the possibility of an intermediate CA or that a certificate for a root CA
+					//and a user cert are registered for different usernames.  At any rate, this issue is being tracked by
+					//Heather Sterling as part of PEP187.
+
+					//For now, try a serial number of "0" to attempt to get the root CA
+					try
+					{
+						keyBindings.remove(1); 
+                        keyBindings.append(CIMKeyBinding("SerialNumber", "0", CIMKeyBinding::STRING));
+
+				        CIMObjectPath rootCAPath("localhost",
+												 PEGASUS_NAMESPACENAME_CERTIFICATE,
+												 PEGASUS_CLASSNAME_CERTIFICATE,
+												 keyBindings);
+
+						PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "Trying root CA path: " + rootCAPath.toString());
+
+
+						cimInstance = _repository->getInstance(PEGASUS_NAMESPACENAME_CERTIFICATE, rootCAPath);
+					
+					} catch (...)
+					{
                     //this scenario can occur if a certificate cached on the server was deleted
                     //openssl would not pick up the deletion but we would pick it up here when we went to look it up
                     //in the repository
@@ -419,6 +445,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 								   msg);
 					PEG_METHOD_EXIT();
 					return;
+				}
 				}
 
                 pos = cimInstance.findProperty("RegisteredUserName");

@@ -308,11 +308,8 @@ void CIMServer::_init(void)
                                        controlProviderReceiveMessageCallback,
                                        0, 0);
 #ifdef PEGASUS_HAS_SSL
-	// ATTN: Are we allowing this to run if sslClientVerification is off?
-    // Create the certificate control provider
-	// String verifyClient = ConfigManager::getInstance()->getCurrentValue(PROPERTY_NAME__SSL_CLIENT_VERIFICATION);
-	// if (!String::equal(verifyClient, "disabled")) 
-	//{
+        //Because this provider allows management of the cimserver truststore, the export truststore, and the local client 
+	    //truststore, it needs to be available regardless of the values of ssClientVerification and enableSSLExportVerification.
 		ProviderMessageFacade * certificateProvider =
 			new ProviderMessageFacade(new CertificateProvider(_repository));
 		ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
@@ -320,7 +317,6 @@ void CIMServer::_init(void)
 										  certificateProvider,
 										  controlProviderReceiveMessageCallback,
 										  0, 0);
-	//}
 #endif
 
 #ifdef PEGASUS_HAS_PERFINST

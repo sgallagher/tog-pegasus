@@ -1,6 +1,6 @@
 ROOT = ../../..
 
-DIR = Pegasus/Clients/ToMofClient
+DIR = Clients/ToMofClient
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 

@@ -1,5 +1,5 @@
 ROOT = ../../../../..
-DIR = Pegasus/Repository/EnumerateClassNames
+DIR = Pegasus/Repository/tests/EnumerateClassNames
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 

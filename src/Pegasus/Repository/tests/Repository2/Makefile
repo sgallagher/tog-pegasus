@@ -1,5 +1,5 @@
 ROOT = ../../../../..
-DIR = Pegasus/Repository2/Repository2
+DIR = Pegasus/Repository/tests/Repository2
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 

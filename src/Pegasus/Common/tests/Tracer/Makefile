@@ -1,6 +1,6 @@
 ROOT = ../../../../..
 
-DIR = Pegasus/Tracer/tests/Tracer
+DIR = Pegasus/Common/tests/Tracer
 
 include $(ROOT)/mak/config.mak
 

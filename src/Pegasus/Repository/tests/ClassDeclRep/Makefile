@@ -1,5 +1,5 @@
 ROOT = ../../../../..
-DIR = Pegasus/Repository/ClassDeclRep
+DIR = Pegasus/Repository/tests/ClassDeclRep
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 

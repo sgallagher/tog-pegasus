@@ -1153,34 +1153,33 @@ Boolean XmlReader::getValueArrayElement(
     // Get VALUE.ARRAY open tag:
 
     XmlEntry entry;
+    Array<const char*> stringArray;
 
     if (!testStartTagOrEmptyTag(parser, entry, "VALUE.ARRAY"))
 	return false;
 
-    if (entry.type == XmlEntry::EMPTY_TAG)
-	return true;
-
-    // For each VALUE element:
-
-    Array<const char*> stringArray;
-
-    while (testStartTagOrEmptyTag(parser, entry, "VALUE"))
+    if (entry.type != XmlEntry::EMPTY_TAG)
     {
-	if (entry.type == XmlEntry::EMPTY_TAG)
-	{
-	    stringArray.append("");
-	    continue;
-	}
+        // For each VALUE element:
 
-	if (testContentOrCData(parser, entry))
-	    stringArray.append(entry.text);
-	else
-	    stringArray.append("");
+        while (testStartTagOrEmptyTag(parser, entry, "VALUE"))
+        {
+	    if (entry.type == XmlEntry::EMPTY_TAG)
+	    {
+	        stringArray.append("");
+	        continue;
+	    }
 
-	expectEndTag(parser, "VALUE");
+	    if (testContentOrCData(parser, entry))
+	        stringArray.append(entry.text);
+	    else
+	        stringArray.append("");
+
+	    expectEndTag(parser, "VALUE");
+        }
+
+        expectEndTag(parser, "VALUE.ARRAY");
     }
-
-    expectEndTag(parser, "VALUE.ARRAY");
 
     value = stringArrayToValue(parser.getLine(), stringArray, type);
     return true;
@@ -2185,6 +2184,8 @@ Boolean XmlReader::getValueReferenceArrayElement(
     CIMValue& value)
 {
     XmlEntry entry;
+    Array<CIMReference> referenceArray;
+    CIMReference reference;
 
     value.clear();
 
@@ -2193,22 +2194,17 @@ Boolean XmlReader::getValueReferenceArrayElement(
     if (!testStartTagOrEmptyTag(parser, entry, "VALUE.REFARRAY"))
 	return false;
 
-    if (entry.type == XmlEntry::EMPTY_TAG)
-        // ATTN-RK-P3-20020220: Should the type and array size get set in
-        // the value even though it is null?  (See also getValueArrayElement.)
-	return true;
-
-    // For each VALUE.REFERENCE element:
-
-    Array<CIMReference> referenceArray;
-    CIMReference reference;
-
-    while (getValueReferenceElement(parser, reference))
+    if (entry.type != XmlEntry::EMPTY_TAG)
     {
-	referenceArray.append(reference);
-    }
+        // For each VALUE.REFERENCE element:
 
-    expectEndTag(parser, "VALUE.REFARRAY");
+        while (getValueReferenceElement(parser, reference))
+        {
+	    referenceArray.append(reference);
+        }
+
+        expectEndTag(parser, "VALUE.REFARRAY");
+    }
 
     value.set(referenceArray);
     return true;

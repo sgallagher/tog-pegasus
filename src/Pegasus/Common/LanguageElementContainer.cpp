@@ -45,8 +45,8 @@ const LanguageElementContainer LanguageElementContainer::EMPTY = LanguageElement
 	
 LanguageElementContainer::LanguageElementContainer(){}	
 		 
-LanguageElementContainer::LanguageElementContainer(Array<LanguageElement> container){
-	this->container = container;	
+LanguageElementContainer::LanguageElementContainer(Array<LanguageElement> aContainer){
+	this->container = aContainer;	
 }
  
 LanguageElementContainer::LanguageElementContainer(const LanguageElementContainer &rhs){

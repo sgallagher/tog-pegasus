@@ -69,67 +69,67 @@ private:
     void _handleMethodResponse(
 	char* content);
 
-    void _decodeCreateClassResponse(
+    CIMCreateClassResponseMessage* _decodeCreateClassResponse(
 	XmlParser& parser, const String& messageId);
 
-    void _decodeGetClassResponse(
+    CIMGetClassResponseMessage* _decodeGetClassResponse(
 	XmlParser& parser, const String& messageId);
 
-    void _decodeModifyClassResponse(
+    CIMModifyClassResponseMessage* _decodeModifyClassResponse(
 	XmlParser& parser, const String& messageId);
 
-    void _decodeEnumerateClassNamesResponse(
+    CIMEnumerateClassNamesResponseMessage* _decodeEnumerateClassNamesResponse(
 	XmlParser& parser, const String& messageId);
 
-    void _decodeEnumerateClassesResponse(
+    CIMEnumerateClassesResponseMessage* _decodeEnumerateClassesResponse(
 	XmlParser& parser, const String& messageId);
 
-    void _decodeDeleteClassResponse(
+    CIMDeleteClassResponseMessage* _decodeDeleteClassResponse(
 	XmlParser& parser, const String& messageId);
 
-    void _decodeCreateInstanceResponse(
+    CIMCreateInstanceResponseMessage* _decodeCreateInstanceResponse(
 	XmlParser& parser, const String& messageId);
 
-    void _decodeGetInstanceResponse(
+    CIMGetInstanceResponseMessage* _decodeGetInstanceResponse(
 	XmlParser& parser, const String& messageId);
 
-    void _decodeModifyInstanceResponse(
+    CIMModifyInstanceResponseMessage* _decodeModifyInstanceResponse(
 	XmlParser& parser, const String& messageId);
 
-    void _decodeEnumerateInstanceNamesResponse(
+    CIMEnumerateInstanceNamesResponseMessage* _decodeEnumerateInstanceNamesResponse(
 	XmlParser& parser, const String& messageId);
 
-    void _decodeEnumerateInstancesResponse(
+    CIMEnumerateInstancesResponseMessage* _decodeEnumerateInstancesResponse(
 	XmlParser& parser, const String& messageId);
 
-    void _decodeDeleteInstanceResponse(
+    CIMDeleteInstanceResponseMessage* _decodeDeleteInstanceResponse(
 	XmlParser& parser, const String& messageId);
 
-    void _decodeSetQualifierResponse(
+    CIMSetQualifierResponseMessage* _decodeSetQualifierResponse(
 	XmlParser& parser, const String& messageId);
 
-    void _decodeGetQualifierResponse(
+    CIMGetQualifierResponseMessage* _decodeGetQualifierResponse(
 	XmlParser& parser, const String& messageId);
 
-    void _decodeEnumerateQualifiersResponse(
+    CIMEnumerateQualifiersResponseMessage* _decodeEnumerateQualifiersResponse(
 	XmlParser& parser, const String& messageId);
 
-    void _decodeDeleteQualifierResponse(
+    CIMDeleteQualifierResponseMessage* _decodeDeleteQualifierResponse(
 	XmlParser& parser, const String& messageId);
 
-    void _decodeReferenceNamesResponse(
+    CIMReferenceNamesResponseMessage* _decodeReferenceNamesResponse(
 	XmlParser& parser, const String& messageId);
 
-    void _decodeReferencesResponse(
+    CIMReferencesResponseMessage* _decodeReferencesResponse(
 	XmlParser& parser, const String& messageId);
 
-    void _decodeAssociatorNamesResponse(
+    CIMAssociatorNamesResponseMessage* _decodeAssociatorNamesResponse(
 	XmlParser& parser, const String& messageId);
 
-    void _decodeAssociatorsResponse(
+    CIMAssociatorsResponseMessage* _decodeAssociatorsResponse(
 	XmlParser& parser, const String& messageId);
 
-    void _decodeInvokeMethodResponse(
+    CIMInvokeMethodResponseMessage* _decodeInvokeMethodResponse(
 	XmlParser& parser, const String& messageId, const String& methodName);
 
     MessageQueue* _outputQueue;

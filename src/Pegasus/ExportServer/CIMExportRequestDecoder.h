@@ -74,7 +74,7 @@ public:
 	Uint32 queueId,
 	Sint8* content);
 
-    void decodeExportIndicationRequest(
+    CIMExportIndicationRequestMessage* decodeExportIndicationRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,

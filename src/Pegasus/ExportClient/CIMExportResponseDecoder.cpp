@@ -128,6 +128,7 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
 void CIMExportResponseDecoder::_handleMethodResponse(char* content)
 {
+    Message* response;
     //
     // Create and initialize XML parser:
     //
@@ -191,7 +192,7 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
 	//
 
 	if (EqualNoCase(iMethodResponseName, "ExportIndication"))
-	    _decodeExportIndicationResponse(parser, messageId);
+	    response = _decodeExportIndicationResponse(parser, messageId);
 	
 	//
 	// Handle end tags:
@@ -209,9 +210,11 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
 	cout << x.getMessage() << endl;
 	return;
     }
+
+   _outputQueue->enqueue(response);
 }
 
-void CIMExportResponseDecoder::_decodeExportIndicationResponse(
+CIMExportIndicationResponseMessage* CIMExportResponseDecoder::_decodeExportIndicationResponse(
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
@@ -220,7 +223,7 @@ void CIMExportResponseDecoder::_decodeExportIndicationResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMExportIndicationResponseMessage(
+	return(new CIMExportIndicationResponseMessage(
 	    messageId,
 	    code,
 	    description,
@@ -230,7 +233,7 @@ void CIMExportResponseDecoder::_decodeExportIndicationResponse(
     {
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	_outputQueue->enqueue(new CIMExportIndicationResponseMessage(
+	return(new CIMExportIndicationResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),

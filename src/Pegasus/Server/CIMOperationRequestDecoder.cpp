@@ -206,6 +206,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
     Uint32 queueId,
     Sint8* content)
 {
+    Message* request;
+
     // Create a parser:
 
     XmlParser parser(content);
@@ -271,73 +273,73 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	    // Delegate to appropriate method to handle:
 
 	    if (CompareNoCase(cimMethodName, "GetClass") == 0)
-		decodeGetClassRequest(
+		request = decodeGetClassRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "GetInstance") == 0)
-		decodeGetInstanceRequest(
+		request = decodeGetInstanceRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "EnumerateClassNames") == 0)
-		decodeEnumerateClassNamesRequest(
+		request = decodeEnumerateClassNamesRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "References") == 0)
-		decodeReferencesRequest(
+		request = decodeReferencesRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "ReferenceNames") == 0)
-		decodeReferenceNamesRequest(
+		request = decodeReferenceNamesRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "AssociatorNames") == 0)
-		decodeAssociatorNamesRequest(
+		request = decodeAssociatorNamesRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "Associators") == 0)
-		decodeAssociatorsRequest(
+		request = decodeAssociatorsRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "CreateInstance") == 0)
-		decodeCreateInstanceRequest(
+		request = decodeCreateInstanceRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "EnumerateInstanceNames") == 0)
-		decodeEnumerateInstanceNamesRequest(
+		request = decodeEnumerateInstanceNamesRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "DeleteQualifier") == 0)
-		decodeDeleteQualifierRequest(
+		request = decodeDeleteQualifierRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "GetQualifier") == 0)
-		decodeGetQualifierRequest(
+		request = decodeGetQualifierRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "SetQualifier") == 0)
-		decodeSetQualifierRequest(
+		request = decodeSetQualifierRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "EnumerateQualifiers") == 0)
-		decodeEnumerateQualifiersRequest(
+		request = decodeEnumerateQualifiersRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "EnumerateClasses") == 0)
-		decodeEnumerateClassesRequest(
+		request = decodeEnumerateClassesRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "EnumerateClassNames") == 0)
-		decodeEnumerateClassNamesRequest(
+		request = decodeEnumerateClassNamesRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "EnumerateInstances") == 0)
-		decodeEnumerateInstancesRequest(
+		request = decodeEnumerateInstancesRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "CreateClass") == 0)
-		decodeCreateClassRequest(
+		request = decodeCreateClassRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "ModifyClass") == 0)
-		decodeModifyClassRequest(
+		request = decodeModifyClassRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "ModifyInstance") == 0)
-		decodeModifyInstanceRequest(
+		request = decodeModifyInstanceRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "DeleteClass") == 0)
-		decodeDeleteClassRequest(
+		request = decodeDeleteClassRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "DeleteInstance") == 0)
-		decodeDeleteInstanceRequest(
+		request = decodeDeleteInstanceRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "GetProperty") == 0)
-		decodeGetPropertyRequest(
+		request = decodeGetPropertyRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else if (CompareNoCase(cimMethodName, "SetProperty") == 0)
-		decodeSetPropertyRequest(
+		request = decodeSetPropertyRequest(
 		    queueId, parser, messageId, nameSpace);
 	    else
 	    {
@@ -375,7 +377,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
 	    if (cimMethodName != NULL)
 	    {
-		decodeInvokeMethodRequest(
+		request = decodeInvokeMethodRequest(
 		    queueId, 
 		    parser, 
 		    messageId, 
@@ -426,11 +428,13 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	    cimMethodName,
 	    CIM_ERR_FAILED,
 	    e.getMessage());
-	//return;
+	return;
     }
+
+    _outputQueue->enqueue(request);
 }
 
-void CIMOperationRequestDecoder::decodeCreateClassRequest(
+CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -452,10 +456,10 @@ void CIMOperationRequestDecoder::decodeCreateClassRequest(
 	newClass,
 	QueueIdStack(queueId, _returnQueueId));
 
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
-void CIMOperationRequestDecoder::decodeGetClassRequest(
+CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -482,7 +486,7 @@ void CIMOperationRequestDecoder::decodeGetClassRequest(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
-    Message* request = new CIMGetClassRequestMessage(
+    CIMGetClassRequestMessage* request = new CIMGetClassRequestMessage(
 	messageId,
 	nameSpace,
 	className,
@@ -492,10 +496,10 @@ void CIMOperationRequestDecoder::decodeGetClassRequest(
 	Array<String>(),
 	QueueIdStack(queueId, _returnQueueId));
 
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
-void CIMOperationRequestDecoder::decodeModifyClassRequest(
+CIMModifyClassRequestMessage* CIMOperationRequestDecoder::decodeModifyClassRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -518,10 +522,10 @@ void CIMOperationRequestDecoder::decodeModifyClassRequest(
 	    modifiedClass,
 	    QueueIdStack(queueId, _returnQueueId));
 
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
-void CIMOperationRequestDecoder::decodeEnumerateClassNamesRequest(
+CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateClassNamesRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -548,10 +552,10 @@ void CIMOperationRequestDecoder::decodeEnumerateClassNamesRequest(
 	    deepInheritance,
 	    QueueIdStack(queueId, _returnQueueId));
 
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
-void CIMOperationRequestDecoder::decodeEnumerateClassesRequest(
+CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateClassesRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -590,10 +594,10 @@ void CIMOperationRequestDecoder::decodeEnumerateClassesRequest(
 	    includeClassOrigin,
 	    QueueIdStack(queueId, _returnQueueId));
 
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
-void CIMOperationRequestDecoder::decodeDeleteClassRequest(
+CIMDeleteClassRequestMessage* CIMOperationRequestDecoder::decodeDeleteClassRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -609,16 +613,16 @@ void CIMOperationRequestDecoder::decodeDeleteClassRequest(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
-    Message* request = new CIMDeleteClassRequestMessage(
+    CIMDeleteClassRequestMessage* request = new CIMDeleteClassRequestMessage(
 	messageId,
 	nameSpace,
 	className,
 	QueueIdStack(queueId, _returnQueueId));
 
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
-void CIMOperationRequestDecoder::decodeCreateInstanceRequest(
+CIMCreateInstanceRequestMessage* CIMOperationRequestDecoder::decodeCreateInstanceRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -641,10 +645,10 @@ void CIMOperationRequestDecoder::decodeCreateInstanceRequest(
 	    newInstance,
 	    QueueIdStack(queueId, _returnQueueId));
 
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
-void CIMOperationRequestDecoder::decodeGetInstanceRequest(
+CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -671,7 +675,7 @@ void CIMOperationRequestDecoder::decodeGetInstanceRequest(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
-    Message* request = new CIMGetInstanceRequestMessage(
+    CIMGetInstanceRequestMessage* request = new CIMGetInstanceRequestMessage(
 	messageId,
 	nameSpace,
 	instanceName,
@@ -681,10 +685,10 @@ void CIMOperationRequestDecoder::decodeGetInstanceRequest(
 	Array<String>(),
 	QueueIdStack(queueId, _returnQueueId));
 
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
-void CIMOperationRequestDecoder::decodeModifyInstanceRequest(
+CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanceRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -707,10 +711,10 @@ void CIMOperationRequestDecoder::decodeModifyInstanceRequest(
 	    modifiedInstance,
 	    QueueIdStack(queueId, _returnQueueId));
 
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
-void CIMOperationRequestDecoder::decodeEnumerateInstancesRequest(
+CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateInstancesRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -751,10 +755,10 @@ void CIMOperationRequestDecoder::decodeEnumerateInstancesRequest(
 	    Array<String>(),
 	    QueueIdStack(queueId, _returnQueueId));
 
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
-void CIMOperationRequestDecoder::decodeEnumerateInstanceNamesRequest(
+CIMEnumerateInstanceNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateInstanceNamesRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -777,10 +781,10 @@ void CIMOperationRequestDecoder::decodeEnumerateInstanceNamesRequest(
 	    className,
 	    QueueIdStack(queueId, _returnQueueId));
 
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
-void CIMOperationRequestDecoder::decodeDeleteInstanceRequest(
+CIMDeleteInstanceRequestMessage* CIMOperationRequestDecoder::decodeDeleteInstanceRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -796,16 +800,16 @@ void CIMOperationRequestDecoder::decodeDeleteInstanceRequest(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
-    Message* request = new CIMDeleteInstanceRequestMessage(
+    CIMDeleteInstanceRequestMessage* request = new CIMDeleteInstanceRequestMessage(
 	messageId,
 	nameSpace,
 	instanceName,
 	QueueIdStack(queueId, _returnQueueId));
 
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
-void CIMOperationRequestDecoder::decodeSetQualifierRequest(
+CIMSetQualifierRequestMessage* CIMOperationRequestDecoder::decodeSetQualifierRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -828,10 +832,10 @@ void CIMOperationRequestDecoder::decodeSetQualifierRequest(
 	    qualifierDeclaration,
 	    QueueIdStack(queueId, _returnQueueId));
 
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
-void CIMOperationRequestDecoder::decodeGetQualifierRequest(
+CIMGetQualifierRequestMessage* CIMOperationRequestDecoder::decodeGetQualifierRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -854,10 +858,10 @@ void CIMOperationRequestDecoder::decodeGetQualifierRequest(
 	    qualifierName,
 	    QueueIdStack(queueId, _returnQueueId));
 
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
-void CIMOperationRequestDecoder::decodeEnumerateQualifiersRequest(
+CIMEnumerateQualifiersRequestMessage* CIMOperationRequestDecoder::decodeEnumerateQualifiersRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -872,10 +876,10 @@ void CIMOperationRequestDecoder::decodeEnumerateQualifiersRequest(
 	    nameSpace,
 	    QueueIdStack(queueId, _returnQueueId));
 
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
-void CIMOperationRequestDecoder::decodeDeleteQualifierRequest(
+CIMDeleteQualifierRequestMessage* CIMOperationRequestDecoder::decodeDeleteQualifierRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -898,10 +902,10 @@ void CIMOperationRequestDecoder::decodeDeleteQualifierRequest(
 	    qualifierName,
 	    QueueIdStack(queueId, _returnQueueId));
 
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
-void CIMOperationRequestDecoder::decodeReferenceNamesRequest(
+CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceNamesRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -938,10 +942,10 @@ void CIMOperationRequestDecoder::decodeReferenceNamesRequest(
 	    role,
 	    QueueIdStack(queueId, _returnQueueId));
 
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
-void CIMOperationRequestDecoder::decodeReferencesRequest(
+CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -994,10 +998,10 @@ void CIMOperationRequestDecoder::decodeReferencesRequest(
 	    propertyList,
 	    QueueIdStack(queueId, _returnQueueId));
 
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
-void CIMOperationRequestDecoder::decodeAssociatorNamesRequest(
+CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNamesRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -1036,10 +1040,10 @@ void CIMOperationRequestDecoder::decodeAssociatorNamesRequest(
 	    resultRole,
 	    QueueIdStack(queueId, _returnQueueId));
 
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
-void CIMOperationRequestDecoder::decodeAssociatorsRequest(
+CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -1104,10 +1108,10 @@ void CIMOperationRequestDecoder::decodeAssociatorsRequest(
 	    propertyList,
 	    QueueIdStack(queueId, _returnQueueId));
 
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
-void CIMOperationRequestDecoder::decodeGetPropertyRequest(
+CIMGetPropertyRequestMessage* CIMOperationRequestDecoder::decodeGetPropertyRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -1117,7 +1121,7 @@ void CIMOperationRequestDecoder::decodeGetPropertyRequest(
     PEGASUS_ASSERT(0);
 }
 
-void CIMOperationRequestDecoder::decodeSetPropertyRequest(
+CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -1127,7 +1131,7 @@ void CIMOperationRequestDecoder::decodeSetPropertyRequest(
     PEGASUS_ASSERT(0);
 }
 
-void CIMOperationRequestDecoder::decodeInvokeMethodRequest(
+CIMInvokeMethodRequestMessage* CIMOperationRequestDecoder::decodeInvokeMethodRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -1160,7 +1164,7 @@ void CIMOperationRequestDecoder::decodeInvokeMethodRequest(
 	    inParameters,
 	    QueueIdStack(queueId, _returnQueueId));
 
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
 void CIMOperationRequestDecoder::sendMethodError(

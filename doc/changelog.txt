@@ -130,6 +130,12 @@ repository implementation.
     A skeleton program has been created for the Basic Authenticator. This code is
     in the Security/Authentication directory which is not yet linked into the build.
 
+26. (Nitin Upasani - HP) 08 Oct 2001 - Changes to Operation and Export Decoders. Earlier
+    decoders were sending requests and responses before finishing complete Xml parse.
+    This was prone to send request/response even the Xml is wrong after the MethodCall.
+    New changes collects the Message* as return value from the appropriate functions
+    while parsing the Xml and sends on _outputQueue only when Xml is parsed successfully.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

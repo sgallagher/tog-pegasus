@@ -70,7 +70,7 @@ private:
     void _handleMethodResponse(
 	char* content);
 
-    void _decodeExportIndicationResponse(
+    CIMExportIndicationResponseMessage* _decodeExportIndicationResponse(
 	XmlParser& parser, const String& messageId);
 
     MessageQueue* _outputQueue;

@@ -128,6 +128,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
 void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 {
+    Message* response;
     //
     // Create and initialize XML parser:
     //
@@ -186,43 +187,43 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 	    //
 
 	    if (EqualNoCase(iMethodResponseName, "GetClass"))
-		_decodeGetClassResponse(parser, messageId);
+		response = _decodeGetClassResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "GetInstance"))
-		_decodeGetInstanceResponse(parser, messageId);
+		response = _decodeGetInstanceResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "EnumerateClassNames"))
-		_decodeEnumerateClassNamesResponse(parser, messageId);
+		response = _decodeEnumerateClassNamesResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "References"))
-		_decodeReferencesResponse(parser, messageId);
+		response = _decodeReferencesResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "ReferenceNames"))
-		_decodeReferenceNamesResponse(parser, messageId);
+		response = _decodeReferenceNamesResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "AssociatorNames"))
-		_decodeAssociatorNamesResponse(parser, messageId);
+		response = _decodeAssociatorNamesResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "Associators"))
-		_decodeAssociatorsResponse(parser, messageId);
+		response = _decodeAssociatorsResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "CreateInstance"))
-		_decodeCreateInstanceResponse(parser, messageId);
+		response = _decodeCreateInstanceResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName,"EnumerateInstanceNames"))
-		_decodeEnumerateInstanceNamesResponse(parser, messageId);
+		response = _decodeEnumerateInstanceNamesResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "DeleteQualifier"))
-		_decodeDeleteQualifierResponse(parser, messageId);
+		response = _decodeDeleteQualifierResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "GetQualifier"))
-		_decodeGetQualifierResponse(parser, messageId);
+		response = _decodeGetQualifierResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "SetQualifier"))
-		_decodeSetQualifierResponse(parser, messageId);
+		response = _decodeSetQualifierResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "EnumerateQualifiers"))
-		_decodeEnumerateQualifiersResponse(parser, messageId);
+		response = _decodeEnumerateQualifiersResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "EnumerateClasses"))
-		_decodeEnumerateClassesResponse(parser, messageId);
+		response = _decodeEnumerateClassesResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "CreateClass"))
-		_decodeCreateClassResponse(parser, messageId);
+		response = _decodeCreateClassResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "ModifyClass"))
-		_decodeModifyClassResponse(parser, messageId);
+		response = _decodeModifyClassResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "ModifyInstance"))
-		_decodeModifyInstanceResponse(parser, messageId);
+		response = _decodeModifyInstanceResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "DeleteClass"))
-		_decodeDeleteClassResponse(parser, messageId);
+		response = _decodeDeleteClassResponse(parser, messageId);
 	    else if (EqualNoCase(iMethodResponseName, "DeleteInstance"))
-		_decodeDeleteInstanceResponse(parser, messageId);
+		response = _decodeDeleteInstanceResponse(parser, messageId);
 	    //else
 	    //{
 		//ATTN: This message is received due to InvokeMethod 
@@ -239,7 +240,7 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 	else if (XmlReader::getMethodResponseStartTag(parser, 
 	    iMethodResponseName))
 	{
-	    _decodeInvokeMethodResponse(parser, messageId, iMethodResponseName);
+	    response = _decodeInvokeMethodResponse(parser, messageId, iMethodResponseName);
 
 	    //
 	    // Handle end tags:
@@ -264,9 +265,11 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 	cout << x.getMessage() << endl;
 	return;
     }
+
+    _outputQueue->enqueue(response);
 }
 
-void CIMOperationResponseDecoder::_decodeCreateClassResponse(
+CIMCreateClassResponseMessage* CIMOperationResponseDecoder::_decodeCreateClassResponse(
     XmlParser& parser, 
     const String& messageId)
 {
@@ -276,7 +279,7 @@ void CIMOperationResponseDecoder::_decodeCreateClassResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMCreateClassResponseMessage(
+	return(new CIMCreateClassResponseMessage(
 	    messageId,
 	    code,
 	    description,
@@ -287,7 +290,7 @@ void CIMOperationResponseDecoder::_decodeCreateClassResponse(
     {
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	_outputQueue->enqueue(new CIMCreateClassResponseMessage(
+	return(new CIMCreateClassResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
@@ -300,7 +303,7 @@ void CIMOperationResponseDecoder::_decodeCreateClassResponse(
     }
 }
 
-void CIMOperationResponseDecoder::_decodeGetClassResponse(
+CIMGetClassResponseMessage* CIMOperationResponseDecoder::_decodeGetClassResponse(
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
@@ -309,7 +312,7 @@ void CIMOperationResponseDecoder::_decodeGetClassResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMGetClassResponseMessage(
+	return(new CIMGetClassResponseMessage(
 	    messageId,
 	    code,
 	    description,
@@ -325,7 +328,7 @@ void CIMOperationResponseDecoder::_decodeGetClassResponse(
 
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	_outputQueue->enqueue(new CIMGetClassResponseMessage(
+	return(new CIMGetClassResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
@@ -339,7 +342,7 @@ void CIMOperationResponseDecoder::_decodeGetClassResponse(
     }
 }
 
-void CIMOperationResponseDecoder::_decodeModifyClassResponse(
+CIMModifyClassResponseMessage* CIMOperationResponseDecoder::_decodeModifyClassResponse(
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
@@ -348,7 +351,7 @@ void CIMOperationResponseDecoder::_decodeModifyClassResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMModifyClassResponseMessage(
+	return(new CIMModifyClassResponseMessage(
 	    messageId,
 	    code,
 	    description,
@@ -358,7 +361,7 @@ void CIMOperationResponseDecoder::_decodeModifyClassResponse(
     {
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	_outputQueue->enqueue(new CIMModifyClassResponseMessage(
+	return(new CIMModifyClassResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
@@ -371,7 +374,7 @@ void CIMOperationResponseDecoder::_decodeModifyClassResponse(
     }
 }
 
-void CIMOperationResponseDecoder::_decodeEnumerateClassNamesResponse(
+CIMEnumerateClassNamesResponseMessage* CIMOperationResponseDecoder::_decodeEnumerateClassNamesResponse(
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
@@ -380,7 +383,7 @@ void CIMOperationResponseDecoder::_decodeEnumerateClassNamesResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMEnumerateClassNamesResponseMessage(
+	return(new CIMEnumerateClassNamesResponseMessage(
 	    messageId,
 	    code,
 	    description,
@@ -397,7 +400,7 @@ void CIMOperationResponseDecoder::_decodeEnumerateClassNamesResponse(
 
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	_outputQueue->enqueue(new CIMEnumerateClassNamesResponseMessage(
+	return(new CIMEnumerateClassNamesResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
@@ -411,7 +414,7 @@ void CIMOperationResponseDecoder::_decodeEnumerateClassNamesResponse(
     }
 }
 
-void CIMOperationResponseDecoder::_decodeEnumerateClassesResponse(
+CIMEnumerateClassesResponseMessage* CIMOperationResponseDecoder::_decodeEnumerateClassesResponse(
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
@@ -420,7 +423,7 @@ void CIMOperationResponseDecoder::_decodeEnumerateClassesResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMEnumerateClassesResponseMessage(
+	return(new CIMEnumerateClassesResponseMessage(
 	    messageId,
 	    code,
 	    description,
@@ -437,7 +440,7 @@ void CIMOperationResponseDecoder::_decodeEnumerateClassesResponse(
 
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	_outputQueue->enqueue(new CIMEnumerateClassesResponseMessage(
+	return(new CIMEnumerateClassesResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
@@ -451,7 +454,7 @@ void CIMOperationResponseDecoder::_decodeEnumerateClassesResponse(
     }
 }
 
-void CIMOperationResponseDecoder::_decodeDeleteClassResponse(
+CIMDeleteClassResponseMessage* CIMOperationResponseDecoder::_decodeDeleteClassResponse(
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
@@ -460,7 +463,7 @@ void CIMOperationResponseDecoder::_decodeDeleteClassResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMDeleteClassResponseMessage(
+	return(new CIMDeleteClassResponseMessage(
 	    messageId,
 	    code,
 	    description,
@@ -470,7 +473,7 @@ void CIMOperationResponseDecoder::_decodeDeleteClassResponse(
     {
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	_outputQueue->enqueue(new CIMDeleteClassResponseMessage(
+	return(new CIMDeleteClassResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
@@ -483,7 +486,7 @@ void CIMOperationResponseDecoder::_decodeDeleteClassResponse(
     }
 }
 
-void CIMOperationResponseDecoder::_decodeCreateInstanceResponse(
+CIMCreateInstanceResponseMessage* CIMOperationResponseDecoder::_decodeCreateInstanceResponse(
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
@@ -492,7 +495,7 @@ void CIMOperationResponseDecoder::_decodeCreateInstanceResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMCreateInstanceResponseMessage(
+	return(new CIMCreateInstanceResponseMessage(
 	    messageId,
 	    code,
 	    description,
@@ -502,7 +505,7 @@ void CIMOperationResponseDecoder::_decodeCreateInstanceResponse(
     {
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	_outputQueue->enqueue(new CIMCreateInstanceResponseMessage(
+	return(new CIMCreateInstanceResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
@@ -515,7 +518,7 @@ void CIMOperationResponseDecoder::_decodeCreateInstanceResponse(
     }
 }
 
-void CIMOperationResponseDecoder::_decodeGetInstanceResponse(
+CIMGetInstanceResponseMessage* CIMOperationResponseDecoder::_decodeGetInstanceResponse(
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
@@ -524,7 +527,7 @@ void CIMOperationResponseDecoder::_decodeGetInstanceResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMGetInstanceResponseMessage(
+	return(new CIMGetInstanceResponseMessage(
 	    messageId,
 	    code,
 	    description,
@@ -543,7 +546,7 @@ void CIMOperationResponseDecoder::_decodeGetInstanceResponse(
 
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	_outputQueue->enqueue(new CIMGetInstanceResponseMessage(
+	return(new CIMGetInstanceResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
@@ -557,7 +560,7 @@ void CIMOperationResponseDecoder::_decodeGetInstanceResponse(
     }
 }
 
-void CIMOperationResponseDecoder::_decodeModifyInstanceResponse(
+CIMModifyInstanceResponseMessage* CIMOperationResponseDecoder::_decodeModifyInstanceResponse(
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
@@ -566,7 +569,7 @@ void CIMOperationResponseDecoder::_decodeModifyInstanceResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMModifyInstanceResponseMessage(
+	return(new CIMModifyInstanceResponseMessage(
 	    messageId,
 	    code,
 	    description,
@@ -576,7 +579,7 @@ void CIMOperationResponseDecoder::_decodeModifyInstanceResponse(
     {
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	_outputQueue->enqueue(new CIMModifyInstanceResponseMessage(
+	return(new CIMModifyInstanceResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
@@ -589,7 +592,7 @@ void CIMOperationResponseDecoder::_decodeModifyInstanceResponse(
     }
 }
 
-void CIMOperationResponseDecoder::_decodeEnumerateInstanceNamesResponse(
+CIMEnumerateInstanceNamesResponseMessage* CIMOperationResponseDecoder::_decodeEnumerateInstanceNamesResponse(
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
@@ -598,7 +601,7 @@ void CIMOperationResponseDecoder::_decodeEnumerateInstanceNamesResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMEnumerateInstanceNamesResponseMessage(
+	return(new CIMEnumerateInstanceNamesResponseMessage(
 	    messageId,
 	    code,
 	    description,
@@ -624,7 +627,7 @@ void CIMOperationResponseDecoder::_decodeEnumerateInstanceNamesResponse(
 
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	_outputQueue->enqueue(new CIMEnumerateInstanceNamesResponseMessage(
+	return(new CIMEnumerateInstanceNamesResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
@@ -638,7 +641,7 @@ void CIMOperationResponseDecoder::_decodeEnumerateInstanceNamesResponse(
     }
 }
 
-void CIMOperationResponseDecoder::_decodeDeleteInstanceResponse(
+CIMDeleteInstanceResponseMessage* CIMOperationResponseDecoder::_decodeDeleteInstanceResponse(
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
@@ -647,7 +650,7 @@ void CIMOperationResponseDecoder::_decodeDeleteInstanceResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMDeleteInstanceResponseMessage(
+	return(new CIMDeleteInstanceResponseMessage(
 	    messageId,
 	    code,
 	    description,
@@ -657,7 +660,7 @@ void CIMOperationResponseDecoder::_decodeDeleteInstanceResponse(
     {
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	_outputQueue->enqueue(new CIMDeleteInstanceResponseMessage(
+	return(new CIMDeleteInstanceResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
@@ -670,7 +673,7 @@ void CIMOperationResponseDecoder::_decodeDeleteInstanceResponse(
     }
 }
 
-void CIMOperationResponseDecoder::_decodeSetQualifierResponse(
+CIMSetQualifierResponseMessage* CIMOperationResponseDecoder::_decodeSetQualifierResponse(
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
@@ -679,7 +682,7 @@ void CIMOperationResponseDecoder::_decodeSetQualifierResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMSetQualifierResponseMessage(
+	return(new CIMSetQualifierResponseMessage(
 	    messageId,
 	    code,
 	    description,
@@ -689,7 +692,7 @@ void CIMOperationResponseDecoder::_decodeSetQualifierResponse(
     {
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	_outputQueue->enqueue(new CIMSetQualifierResponseMessage(
+	return(new CIMSetQualifierResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
@@ -702,7 +705,7 @@ void CIMOperationResponseDecoder::_decodeSetQualifierResponse(
     }
 }
 
-void CIMOperationResponseDecoder::_decodeGetQualifierResponse(
+CIMGetQualifierResponseMessage* CIMOperationResponseDecoder::_decodeGetQualifierResponse(
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
@@ -711,7 +714,7 @@ void CIMOperationResponseDecoder::_decodeGetQualifierResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMGetQualifierResponseMessage(
+	return(new CIMGetQualifierResponseMessage(
 	    messageId,
 	    code,
 	    description,
@@ -725,7 +728,7 @@ void CIMOperationResponseDecoder::_decodeGetQualifierResponse(
 
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	_outputQueue->enqueue(new CIMGetQualifierResponseMessage(
+	return(new CIMGetQualifierResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
@@ -739,7 +742,7 @@ void CIMOperationResponseDecoder::_decodeGetQualifierResponse(
     }
 }
 
-void CIMOperationResponseDecoder::_decodeEnumerateQualifiersResponse(
+CIMEnumerateQualifiersResponseMessage* CIMOperationResponseDecoder::_decodeEnumerateQualifiersResponse(
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
@@ -748,7 +751,7 @@ void CIMOperationResponseDecoder::_decodeEnumerateQualifiersResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMEnumerateQualifiersResponseMessage(
+	return(new CIMEnumerateQualifiersResponseMessage(
 	    messageId,
 	    code,
 	    description,
@@ -765,7 +768,7 @@ void CIMOperationResponseDecoder::_decodeEnumerateQualifiersResponse(
 
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	_outputQueue->enqueue(new CIMEnumerateQualifiersResponseMessage(
+	return(new CIMEnumerateQualifiersResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
@@ -779,7 +782,7 @@ void CIMOperationResponseDecoder::_decodeEnumerateQualifiersResponse(
     }
 }
 
-void CIMOperationResponseDecoder::_decodeDeleteQualifierResponse(
+CIMDeleteQualifierResponseMessage* CIMOperationResponseDecoder::_decodeDeleteQualifierResponse(
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
@@ -788,7 +791,7 @@ void CIMOperationResponseDecoder::_decodeDeleteQualifierResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMDeleteQualifierResponseMessage(
+	return(new CIMDeleteQualifierResponseMessage(
 	    messageId,
 	    code,
 	    description,
@@ -798,7 +801,7 @@ void CIMOperationResponseDecoder::_decodeDeleteQualifierResponse(
     {
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	_outputQueue->enqueue(new CIMDeleteQualifierResponseMessage(
+	return(new CIMDeleteQualifierResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
@@ -813,7 +816,7 @@ void CIMOperationResponseDecoder::_decodeDeleteQualifierResponse(
 
 //MEB:
 
-void CIMOperationResponseDecoder::_decodeReferenceNamesResponse(
+CIMReferenceNamesResponseMessage* CIMOperationResponseDecoder::_decodeReferenceNamesResponse(
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
@@ -822,7 +825,7 @@ void CIMOperationResponseDecoder::_decodeReferenceNamesResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMReferenceNamesResponseMessage(
+	return(new CIMReferenceNamesResponseMessage(
 	    messageId,
 	    code,
 	    description,
@@ -839,7 +842,7 @@ void CIMOperationResponseDecoder::_decodeReferenceNamesResponse(
 
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	_outputQueue->enqueue(new CIMReferenceNamesResponseMessage(
+	return(new CIMReferenceNamesResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
@@ -853,7 +856,7 @@ void CIMOperationResponseDecoder::_decodeReferenceNamesResponse(
     }
 }
 
-void CIMOperationResponseDecoder::_decodeReferencesResponse(
+CIMReferencesResponseMessage* CIMOperationResponseDecoder::_decodeReferencesResponse(
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
@@ -862,7 +865,7 @@ void CIMOperationResponseDecoder::_decodeReferencesResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMReferencesResponseMessage(
+	return(new CIMReferencesResponseMessage(
 	    messageId,
 	    code,
 	    description,
@@ -879,7 +882,7 @@ void CIMOperationResponseDecoder::_decodeReferencesResponse(
 
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	_outputQueue->enqueue(new CIMReferencesResponseMessage(
+	return(new CIMReferencesResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
@@ -893,7 +896,7 @@ void CIMOperationResponseDecoder::_decodeReferencesResponse(
     }
 }
 
-void CIMOperationResponseDecoder::_decodeAssociatorNamesResponse(
+CIMAssociatorNamesResponseMessage* CIMOperationResponseDecoder::_decodeAssociatorNamesResponse(
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
@@ -902,7 +905,7 @@ void CIMOperationResponseDecoder::_decodeAssociatorNamesResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMAssociatorNamesResponseMessage(
+	return(new CIMAssociatorNamesResponseMessage(
 	    messageId,
 	    code,
 	    description,
@@ -919,7 +922,7 @@ void CIMOperationResponseDecoder::_decodeAssociatorNamesResponse(
 
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	_outputQueue->enqueue(new CIMAssociatorNamesResponseMessage(
+	return(new CIMAssociatorNamesResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
@@ -933,7 +936,7 @@ void CIMOperationResponseDecoder::_decodeAssociatorNamesResponse(
     }
 }
 
-void CIMOperationResponseDecoder::_decodeAssociatorsResponse(
+CIMAssociatorsResponseMessage* CIMOperationResponseDecoder::_decodeAssociatorsResponse(
     XmlParser& parser, const String& messageId)
 {
     XmlEntry entry;
@@ -942,7 +945,7 @@ void CIMOperationResponseDecoder::_decodeAssociatorsResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMAssociatorsResponseMessage(
+	return(new CIMAssociatorsResponseMessage(
 	    messageId,
 	    code,
 	    description,
@@ -959,7 +962,7 @@ void CIMOperationResponseDecoder::_decodeAssociatorsResponse(
 
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
-	_outputQueue->enqueue(new CIMAssociatorsResponseMessage(
+	return(new CIMAssociatorsResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
@@ -973,7 +976,7 @@ void CIMOperationResponseDecoder::_decodeAssociatorsResponse(
     }
 }
 
-void CIMOperationResponseDecoder::_decodeInvokeMethodResponse(
+CIMInvokeMethodResponseMessage* CIMOperationResponseDecoder::_decodeInvokeMethodResponse(
     XmlParser& parser, const String& messageId, const String& methodName)
 {
     XmlEntry entry;
@@ -987,7 +990,7 @@ void CIMOperationResponseDecoder::_decodeInvokeMethodResponse(
 
     if (XmlReader::getErrorElement(parser, code, description))
     {
-	_outputQueue->enqueue(new CIMInvokeMethodResponseMessage(
+	return(new CIMInvokeMethodResponseMessage(
 	    messageId,
 	    code,
 	    description,
@@ -1014,7 +1017,7 @@ void CIMOperationResponseDecoder::_decodeInvokeMethodResponse(
 	    XmlReader::expectEndTag(parser, "PARAMVALUE");
 	}
 
-	_outputQueue->enqueue(new CIMInvokeMethodResponseMessage(
+	return(new CIMInvokeMethodResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),

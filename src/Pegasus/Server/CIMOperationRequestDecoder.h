@@ -72,139 +72,139 @@ public:
 	Uint32 queueId,
 	Sint8* content);
 
-    void decodeCreateClassRequest(
+    CIMCreateClassRequestMessage* decodeCreateClassRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeGetClassRequest(
+    CIMGetClassRequestMessage* decodeGetClassRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeModifyClassRequest(
+    CIMModifyClassRequestMessage* decodeModifyClassRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeEnumerateClassNamesRequest(
+    CIMEnumerateClassNamesRequestMessage* decodeEnumerateClassNamesRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeEnumerateClassesRequest(
+    CIMEnumerateClassesRequestMessage* decodeEnumerateClassesRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeDeleteClassRequest(
+    CIMDeleteClassRequestMessage* decodeDeleteClassRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeCreateInstanceRequest(
+    CIMCreateInstanceRequestMessage* decodeCreateInstanceRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeGetInstanceRequest(
+    CIMGetInstanceRequestMessage* decodeGetInstanceRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeModifyInstanceRequest(
+    CIMModifyInstanceRequestMessage* decodeModifyInstanceRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeEnumerateInstanceNamesRequest(
+    CIMEnumerateInstanceNamesRequestMessage* decodeEnumerateInstanceNamesRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeEnumerateInstancesRequest(
+    CIMEnumerateInstancesRequestMessage* decodeEnumerateInstancesRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeDeleteInstanceRequest(
+    CIMDeleteInstanceRequestMessage* decodeDeleteInstanceRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeSetQualifierRequest(
+    CIMSetQualifierRequestMessage* decodeSetQualifierRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeGetQualifierRequest(
+    CIMGetQualifierRequestMessage* decodeGetQualifierRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeEnumerateQualifiersRequest(
+    CIMEnumerateQualifiersRequestMessage* decodeEnumerateQualifiersRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeDeleteQualifierRequest(
+    CIMDeleteQualifierRequestMessage* decodeDeleteQualifierRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeReferenceNamesRequest(
+    CIMReferenceNamesRequestMessage* decodeReferenceNamesRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeReferencesRequest(
+    CIMReferencesRequestMessage* decodeReferencesRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeAssociatorNamesRequest(
+    CIMAssociatorNamesRequestMessage* decodeAssociatorNamesRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeAssociatorsRequest(
+    CIMAssociatorsRequestMessage* decodeAssociatorsRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeGetPropertyRequest(
+    CIMGetPropertyRequestMessage* decodeGetPropertyRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeSetPropertyRequest(
+    CIMSetPropertyRequestMessage* decodeSetPropertyRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
 
-    void decodeInvokeMethodRequest(
+    CIMInvokeMethodRequestMessage* decodeInvokeMethodRequest(
         Uint32 queueId,
 	XmlParser& parser, 
 	const String& messageId,

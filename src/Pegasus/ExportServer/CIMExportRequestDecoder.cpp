@@ -200,6 +200,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
     Uint32 queueId,
     Sint8* content)
 {
+    Message* request;
     // Create a parser:
 
     XmlParser parser(content);
@@ -269,7 +270,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
 	// Delegate to appropriate method to handle:
 
 	if (CompareNoCase(cimMethodName, "ExportIndication") == 0)
-	    decodeExportIndicationRequest(queueId, parser, messageId, _url);
+	    request = decodeExportIndicationRequest(queueId, parser, messageId, _url);
 	else
 	{
 	    String description = "Unknown intrinsic method: ";
@@ -309,10 +310,13 @@ void CIMExportRequestDecoder::handleMethodRequest(
 	    cimMethodName,
 	    CIM_ERR_FAILED,
 	    e.getMessage());
+        return;
     }
+
+    _outputQueue->enqueue(request);
 }
 
-void CIMExportRequestDecoder::decodeExportIndicationRequest(
+CIMExportIndicationRequestMessage* CIMExportRequestDecoder::decodeExportIndicationRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
@@ -330,13 +334,13 @@ void CIMExportRequestDecoder::decodeExportIndicationRequest(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
     
-    Message* request = new CIMExportIndicationRequestMessage(
+    CIMExportIndicationRequestMessage* request = new CIMExportIndicationRequestMessage(
 	messageId,  
 	url,
 	instanceName,
 	QueueIdStack(queueId, _returnQueueId));
     
-    _outputQueue->enqueue(request);
+    return(request);
 }
 
 PEGASUS_NAMESPACE_END

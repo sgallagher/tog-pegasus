@@ -60,6 +60,10 @@
 #include <process.h>
 #include <lm.h>
 
+//Bug 3076 - define these for GetUserNameEx function
+//#define SECURITY_WIN32
+//#include <security.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 #define PEGASUS_ACCESS_EXISTS 0
@@ -324,6 +328,47 @@ String System::getPassword(const char* prompt)
 
 String System::getEffectiveUserName()
 {
+    //ATTN: Proposed function for Bug 3076 - hns
+/*
+	char fullUserName[UNLEN+1];
+	DWORD userNameSize = sizeof(fullUserName);
+	char computerName[MAX_COMPUTERNAME_LENGTH+1];
+    DWORD computerNameSize = sizeof(computerName);    
+	char userName[UNLEN+1];
+    char userDomain[UNLEN+1];
+	String userId;
+
+	if (!GetUserNameEx(NameSamCompatible, fullUserName, &userNameSize))
+	{
+		return String();
+	}
+
+	OutputDebugString("My full name");
+	OutputDebugString(fullUserName);
+
+	char* index = strchr(fullUserName, '\\');
+	*index = '\0';
+	strcpy(userDomain, fullUserName);
+	strcpy(userName, index + 1);
+ 
+	//The above function will return the system name as the domain if
+	//the user is not on a real domain.  Strip this out so that the rest of
+	//our windows user functions work.  What if the system name and the domain
+	//name are the same?
+    GetComputerName(computerName, &computerNameSize);
+		
+	if (strcmp(computerName, userDomain) != 0) 
+	{
+		userId.append(userDomain);
+		userId.append("\\");
+		userId.append(userName);
+	} else
+	{
+		userId.append(userName);
+	}
+
+	return userId;
+*/
     int retcode = 0;
 
     // UNLEN (256) is the limit, not including null

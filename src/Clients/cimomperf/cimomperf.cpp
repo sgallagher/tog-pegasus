@@ -40,7 +40,6 @@
 #include <Pegasus/Common/Config.h>
 #include <cassert>
 #include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/Stopwatch.h>
@@ -335,8 +334,8 @@ int main(int argc, char** argv)
 		Boolean includeQualifiers = false;
 		Boolean includeClassOrigin = false;
 		
-		Array<CIMNamedInstance> namedInstances; 
-		namedInstances = client.enumerateInstances(nameSpace,
+		Array<CIMInstance> instances; 
+		instances = client.enumerateInstances(nameSpace,
 							   className,
 							   deepInheritance,
 							   localOnly,
@@ -353,9 +352,12 @@ int main(int argc, char** argv)
 		
 		// Output the returned instances
 		
-		for (Uint32 i = 0; i < namedInstances.size(); i++)
+		for (Uint32 i = 0; i < instances.size(); i++)
 		{
-			CIMInstance instance = namedInstances[i].getInstance();
+			CIMInstance instance = instances[i];
+            /* Took this out because not used and
+               toMof not member of CIMInstance any more
+               KS 6 June 2002
 			if (debug) 
 			{
 				Array<Sint8> x;
@@ -365,6 +367,7 @@ int main(int argc, char** argv)
 			
 				mofFormat(cout, x.getData(), 4);
 			}
+            */
 			// Build a line for every information entry.
 
 			// Get the request type property for this instance

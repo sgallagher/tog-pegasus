@@ -570,7 +570,7 @@ Boolean CIMReference::identical(const CIMReference& x) const
 {
     return
 	String::equal(_host, x._host) &&
-	String::equal(_nameSpace, x._nameSpace) &&
+	CIMName::equal(_nameSpace, x._nameSpace) &&
 	CIMName::equal(_className, x._className) &&
 	_keyBindings == x._keyBindings;
 }

@@ -54,6 +54,29 @@ PEGASUS_NAMESPACE_BEGIN
 
 // Factory section
 
+static CMPIString* mbEncToString(CMPIBroker*,void *o, CMPIStatus *rc);
+
+static String typeToString(CIMType t) {
+   switch (t) {    
+	   case CIMTYPE_BOOLEAN:   return "boolean";
+	   case CIMTYPE_UINT8:     return "uint8";
+	   case CIMTYPE_SINT8:     return "sint8";
+	   case CIMTYPE_UINT16:    return "uint16";
+	   case CIMTYPE_SINT16:    return "sint16";
+	   case CIMTYPE_UINT32:    return "uint32";
+	   case CIMTYPE_SINT32:    return "sint32";
+	   case CIMTYPE_UINT64:    return "sint64";
+	   case CIMTYPE_SINT64:    return "sint64";
+	   case CIMTYPE_REAL32:    return "real32";
+	   case CIMTYPE_REAL64:    return "real64";
+	   case CIMTYPE_CHAR16:    return "char16";
+	   case CIMTYPE_STRING:    return "string";
+	   case CIMTYPE_DATETIME:  return "datetime";
+	   case CIMTYPE_REFERENCE: return "reference";
+      default: return "???";
+   }    
+}
+
 static CMPIInstance* mbEncNewInstance(CMPIBroker* mb, CMPIObjectPath* eCop,
                                       CMPIStatus *rc) {
    CIMObjectPath* cop=(CIMObjectPath*)eCop->hdl;
@@ -68,15 +91,27 @@ static CMPIInstance* mbEncNewInstance(CMPIBroker* mb, CMPIObjectPath* eCop,
        if ((flgs & CMPI_FLAG_IncludeQualifiers)!=0) {
           for (int i=0,m=cls->getQualifierCount(); i<m; i++)
              ci->addQualifier(cls->getQualifier(i).clone());
-          for (int i=0,m=cls->getPropertyCount(); i<m; i++)
-             ci->addProperty(cls->getProperty(i).clone());
+//          for (int i=0,m=cls->getPropertyCount(); i<m; i++)
+//             ci->addProperty(cls->getProperty(i).clone());
+          for (int i=0,m=cls->getPropertyCount(); i<m; i++) {
+             CIMConstProperty p=cls->getProperty(i);
+             CIMProperty np(p.getName(),p.getValue(),
+                            p.getArraySize(),p.getReferenceClassName(),
+                            p.getClassOrigin());
+             for (int q=0,qm=p.getQualifierCount(); q<qm; q++) {
+                np.addQualifier(p.getQualifier(q).clone());
+             }
+             ci->addProperty(np);
+          } 
        }
        else {
-         for (int i=0,m=cls->getPropertyCount(); i<m; i++) {
+          for (int i=0,m=cls->getPropertyCount(); i<m; i++) {
             CIMConstProperty p=cls->getProperty(i);
             ci->addProperty(CIMProperty(
-	        p.getName(),p.getValue(),
-	        p.getArraySize(),p.getReferenceClassName()));
+               p.getName(),p.getValue(), 
+               p.getArraySize(),p.getReferenceClassName(),
+               p.getClassOrigin())); //,
+               //p.getPropagated()));
          }
       }
    }
@@ -88,6 +123,7 @@ static CMPIInstance* mbEncNewInstance(CMPIBroker* mb, CMPIObjectPath* eCop,
    ci->setPath(*cop);
    CMPIInstance* neInst=reinterpret_cast<CMPIInstance*>(new CMPI_Object(ci));
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
+//   CMPIString *str=mbEncToString(mb,neInst,NULL);
    return neInst;
 }
 
@@ -185,11 +221,18 @@ static CMPIString* mbEncToString(CMPIBroker*,void *o, CMPIStatus *rc) {
    
    if (obj->getFtab()==(void*)CMPI_Instance_Ftab ||
        obj->getFtab()==(void*)CMPI_InstanceOnStack_Ftab) {
-      sprintf(msg,"** Object not supported (%p) **",o);
-      if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
-      return reinterpret_cast<CMPIString*>(new CMPI_Object(msg));
-      // str=((CIMInstance*)obj->hdl)->toString();
+      CIMInstance *ci=(CIMInstance*)obj->getHdl();
+      str="Instance of "+ci->getClassName().getString()+" {\n";
+      for (int i=0,m=ci->getPropertyCount(); i<m; i++) {
+         CIMConstProperty p=ci->getProperty(i);
+         str.append("  "+typeToString(p.getType())+
+             " "+p.getName().getString()+
+             " = "+p.getValue().toString()+";\n");
+      }
+      str.append("};\n");
+//      cout<<str<<endl;
    }
+
    else if (obj->getFtab()==(void*)CMPI_ObjectPath_Ftab ||
        obj->getFtab()==(void*)CMPI_ObjectPathOnStack_Ftab) {
        str=((CIMObjectPath*)obj->getHdl())->toString();

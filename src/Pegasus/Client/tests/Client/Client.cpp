@@ -233,7 +233,7 @@ int main(int argc, char** argv)
 	// To run the following test, first compile "test.mof" into the
 	// repository!
 
-	TestAssoc(client);
+	// TestAssoc(client);
     }
     catch(Exception& e)
     {

@@ -23,6 +23,9 @@
 *
 *===============================================================================
 
+    -   The CIMServer.exe program should probably create the logs directory
+	under PEGASUS_HOME.
+
     -   Clean up exceptions.
 
     -   Resolve redundancy in which the namespace is passed to certain methods

@@ -49,8 +49,10 @@ SELECT * FROM CQL_TestElement WHERE CQL_TestElement::InstanceID = 3
 SELECT * FROM CQL_TestElement WHERE InstanceID = 3 AND CQL_TestPropertyTypesMissing::MissingProperty = 5
 SELECT * FROM CQL_TestElement WHERE InstanceID = 3 AND CQL_TestPropertyTypes::propertySint64 = -1
 #
-# Special test for ISA
+# Special tests for ISA
 SELECT * FROM CQL_TestPropertyTypes WHERE CQL_TestPropertyTypes ISA CQL_TestElement
+SELECT * FROM CQL_TestPropertyTypes WHERE CQL_TestPropertyTypes ISA CQL_TestElement AND CQL_TestPropertyTypes.BogusProperty ISA CQL_TestElement 
+SELECT * FROM CQL_TestPropertyTypes WHERE CQL_TestPropertyTypes ISA CQL_TestElement AND CQL_TestPropertyTypes.BogusProperty ISA CQL_TestBogus 
 
 
 

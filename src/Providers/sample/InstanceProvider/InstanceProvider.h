@@ -85,13 +85,7 @@ public:
 		ResponseHandler<CIMInstance> & handler);
 
 protected:
-	Array<CIMReference> _enumerateInstanceNames(
-		const OperationContext & context,
-		const CIMReference & classReference);
-
-protected:
-	CIMOMHandle         _cimom;
-	Array<CIMInstance>	_instances;
+	Array<Pair<CIMReference, CIMInstance> > _instances;
 
 };
 

@@ -42,32 +42,32 @@ InstanceProvider::~InstanceProvider(void)
 {
 }
 
-void InstanceProvider::initialize(CIMOMHandle& cimom)
+void InstanceProvider::initialize(CIMOMHandle & cimom)
 {
-	// save cimom handle
-	_cimom = cimom;
-
 	// create default instances
 	CIMInstance instance1("Sample_DummyInstance");
+	CIMReference reference1("Sample_DummyInstance.Identifier=1");
 
 	instance1.addProperty(CIMProperty("Identifier", Uint8(1)));   // key
 	instance1.addProperty(CIMProperty("Message", String("Hello World")));
 
-	_instances.append(instance1);
+	_instances.append(Pair<CIMReference, CIMInstance>(reference1, instance1));
 
 	CIMInstance instance2("Sample_DummyInstance");
+	CIMReference reference2("Sample_DummyInstance.Identifier=2");
 
 	instance2.addProperty(CIMProperty("Identifier", Uint8(2)));   // key
 	instance2.addProperty(CIMProperty("Message", String("Hey Planet")));
 
-	_instances.append(instance2);
+	_instances.append(Pair<CIMReference, CIMInstance>(reference2, instance2));
 
 	CIMInstance instance3("Sample_DummyInstance");
+	CIMReference reference3("Sample_DummyInstance.Identifier=3");
 
 	instance3.addProperty(CIMProperty("Identifier", Uint8(3)));   // key
 	instance3.addProperty(CIMProperty("Message", String("Yo Earth")));
 
-	_instances.append(instance3);
+	_instances.append(Pair<CIMReference, CIMInstance>(reference1, instance3));
 }
 
 void InstanceProvider::terminate(void)
@@ -81,25 +81,16 @@ void InstanceProvider::getInstance(
 	const Array<String> & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
-	// synchronously get references
-	Array<CIMReference> references = _enumerateInstanceNames(context, instanceReference);
-
-	// ensure the request object exists
-	if(Contains<CIMReference>(references, instanceReference) == false)
-	{
-		throw CIMException(CIM_ERR_NOT_FOUND);
-	}
-
 	// begin processing the request
 	handler.processing();
 
 	// instance index corresponds to reference index
-	for(Uint32 i = 0; i < references.size(); i++)
+	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
 	{
-		if(instanceReference == references[i])
+		if(instanceReference == _instances[i].first)
 		{
 			// deliver requested instance
-			handler.deliver(_instances[i]);
+			handler.deliver(_instances[i].second);
 
 			break;
 		}
@@ -119,29 +110,10 @@ void InstanceProvider::enumerateInstances(
 	// begin processing the request
 	handler.processing();
 
-        // NOTE: It would be more efficient to remember the instance names
-
-	// get class definition from repository
-	CIMClass cimclass = _cimom.getClass(
-		OperationContext(),
-		ref.getNameSpace(),
-		ref.getClassName(),
-		false,
-		false,
-		false,
-		Array<String>());
-
-	// convert instances to references;
-	for(Uint32 i = 0; i < _instances.size(); i++)
+	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
 	{
-		CIMReference tempRef = _instances[i].getInstanceName(cimclass);
-
-		// ensure references are fully qualified
-		tempRef.setHost(ref.getHost());
-		tempRef.setNameSpace(ref.getNameSpace());
-
 		// deliver named instance
-		handler.deliver(CIMNamedInstance(tempRef, _instances[i]));
+		handler.deliver(CIMNamedInstance(_instances[i].first, _instances[i].second));
 	}
 
 	// complete processing the request
@@ -156,27 +128,10 @@ void InstanceProvider::enumerateInstanceNames(
 	// begin processing the request
 	handler.processing();
 
-	// get class definition from repository
-	CIMClass cimclass = _cimom.getClass(
-		OperationContext(),
-		classReference.getNameSpace(),
-		classReference.getClassName(),
-		false,
-		false,
-		false,
-		Array<String>());
-
-	// convert instances to references;
-	for(Uint32 i = 0; i < _instances.size(); i++)
+	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
 	{
-		CIMReference tempRef = _instances[i].getInstanceName(cimclass);
-
-		// ensure references are fully qualified
-		tempRef.setHost(classReference.getHost());
-		tempRef.setNameSpace(classReference.getNameSpace());
-
 		// deliver reference
-		handler.deliver(tempRef);
+		handler.deliver(_instances[i].first);
 	}
 
 	// complete processing the request
@@ -209,17 +164,6 @@ void InstanceProvider::deleteInstance(
 	ResponseHandler<CIMInstance> & handler)
 {
 	throw NotImplemented("InstanceProvider::deleteInstance");
-}
-
-Array<CIMReference> InstanceProvider::_enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMReference & classReference)
-{
-	SimpleResponseHandler<CIMReference> handler;
-
-	enumerateInstanceNames(context, classReference, handler);
-
-	return(handler._objects);
 }
 
 PEGASUS_NAMESPACE_END

@@ -29,8 +29,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <security/pam_appl.h>
-
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Destroyer.h>
@@ -42,6 +40,8 @@
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+#include <security/pam_appl.h>
 
 
 /**

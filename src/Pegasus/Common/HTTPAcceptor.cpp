@@ -34,7 +34,7 @@
 #include "Socket.h"
 
 #ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-# include <winsock.h>
+#include <windows.h>
 #else
 # include <cctype>
 # include <unistd.h>

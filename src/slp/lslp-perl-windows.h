@@ -33,9 +33,9 @@
 #ifndef _MT
 #define _MT
 #endif
+#include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#include <windows.h>
 #include <stdio.h>
 #include <process.h>
 #include <winbase.h>

@@ -26,9 +26,9 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef _WIN32_WINNT
+
 #define _WIN32_WINNT 0x0400
-#endif 
+
 #include <process.h>  
 
 //
@@ -40,7 +40,7 @@
 #endif
 
 #include <windows.h>
-
+#include <winbase.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/timeb.h> 
@@ -84,8 +84,13 @@ typedef struct {
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 
-// windows uses the generic conditional semaphore defined in
-// IPC.ccp
+#define PEGASUS_CONDITIONAL_NATIVE = 1 
+typedef HANDLE PEGASUS_COND_TYPE;
+
+typedef struct {
+      PEGASUS_COND_TYPE cond;
+      PEGASUS_THREAD_TYPE owner;
+} PEGASUS_COND_HANDLE;
 
 #endif // platform conditional  type
 

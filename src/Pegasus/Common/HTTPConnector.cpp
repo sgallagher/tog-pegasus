@@ -32,7 +32,7 @@
 #include "Socket.h"
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-# include <winsock.h>
+# include <windows.h>
 #else
 # include <cctype>
 # include <unistd.h>

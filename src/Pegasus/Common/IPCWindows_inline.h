@@ -241,7 +241,6 @@ inline AtomicInt& AtomicInt::operator-=(Uint32 val)
 
 #ifdef  PEGASUS_CONDITIONAL_NATIVE
 
-
 inline void Condition::signal(PEGASUS_THREAD_TYPE caller)
    throw(IPCException)
 {
@@ -263,7 +262,7 @@ inline void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
 {
    if(_cond_mutex->_mutex.owner != caller)
       throw Permission((PEGASUS_THREAD_TYPE)caller);
-   PulseEvent(_condition._event);
+   PulseEvent(_condition);
 }
 
 inline void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
@@ -290,7 +289,7 @@ inline void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int millisec
    _cond_mutex->timed_lock(milliseconds, caller);
    if( _disallow.value() > 0 )
    {
-      _cond_mutex.unlock();
+      _cond_mutex->unlock();
       throw ListClosed();
    }
 }
@@ -305,6 +304,15 @@ inline void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller)
    unlocked_timed_wait(-1, caller);
 }
 
+// WINBASEAPI
+// DWORD
+// WINAPI
+// SignalObjectAndWait(
+//     HANDLE hObjectToSignal,
+//     HANDLE hObjectToWaitOn,
+//     DWORD dwMilliseconds,
+//     BOOL bAlertable
+//     );
 inline void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller)
 {
    if(_disallow.value() > 0)
@@ -319,12 +327,11 @@ inline void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE
       milliseconds = INFINITE;
    
    DWORD retcode = SignalObjectAndWait(_cond_mutex->_mutex.mut,
-				       _condition._event,
+				       _condition,
 				       milliseconds, 
-				       FALSE);
+				       false);
    if(retcode == WAIT_TIMEOUT)
       throw TimeOut(pegasus_thread_self());
-
    _cond_mutex->lock(caller);
 }
 

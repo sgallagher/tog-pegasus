@@ -131,12 +131,13 @@ int main(int argc, char **argv)
       server[i]->run();
    }
 
-   while(requests.value() < NUMBER_MSGS || replies.value() < NUMBER_MSGS)
+   while( requests.value() < NUMBER_MSGS || replies.value() < NUMBER_MSGS )
    {
       pegasus_sleep(1000);
 
       cout << "total requests: " << requests.value() << "; total replies: " << replies.value() << endl;
    }
+      
    rw.incoming->shutdown_queue();
    rw.outgoing->shutdown_queue();
 
@@ -180,11 +181,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_sending_thread(void *parm)
       {
 	 my_qs->incoming->insert_last_wait(msg);
       }
-      catch(ListClosed & lc)
+      catch(ListClosed & )
       {
 	 break;
       }
-      catch(IPCException & e)
+      catch(IPCException & )
       {
 	 cout << endl << "IPC exception sending client msg" << endl;
 	 abort();
@@ -217,12 +218,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_thread(void *parm)
       {
 	 msg = my_qs->incoming->remove_first_wait();
       }
-      catch(ListClosed & lc ) 
+      catch(ListClosed & ) 
       { 
-//	 cout << endl << "client ---> server q is shutting down" << endl;
 	 break;
       }
-      catch(IPCException & e)
+      catch(IPCException & )
       {
 	 cout << endl << "IPC exception retrieving client msg" << endl;
 	 abort();
@@ -234,12 +234,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_thread(void *parm)
 	    my_qs->outgoing->insert_last_wait(msg);
 	    msg = 0;
 	 }
-	 catch(ListClosed & lc)
+	 catch(ListClosed & )
 	 {
-	    cout << endl << "server ---> client q is shutting down" << endl;
 	    break;
 	 }
-	 catch(IPCException & e)
+	 catch(IPCException & )
 	 {
 	    cout << endl << "IPC exception dispatching client msg" << endl;
 	    abort();
@@ -258,21 +257,19 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_receiving_thread(void *parm)
    Thread *my_handle = (Thread *)parm;
    read_write * my_qs = (read_write *)my_handle->get_parm();
    PEGASUS_THREAD_TYPE myself = pegasus_thread_self();
-   while(replies.value() < NUMBER_MSGS )
+   while( 1 )
    {
       FAKE_MESSAGE *msg = 0;
       try
       {
 	 msg  = my_qs->outgoing->remove_wait((void *)my_handle);
       }
-      catch(ListClosed & lc)
+      catch(ListClosed & )
       {
-//	 cout << endl << "server ---> client q is shutting down" << endl;
 	 break;
       }
-      catch(IPCException & e)
+      catch(IPCException & )
       {
-	 cout << endl << "IPC exception receiving client msg" << endl;
 	 abort();
       } 
       

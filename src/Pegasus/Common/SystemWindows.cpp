@@ -40,7 +40,7 @@ PEGASUS_NAMESPACE_BEGIN
 #include <direct.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <winsock.h>
+#include <windows.h>
 #include <process.h>
 
 #define ACCESS_EXISTS 0

@@ -116,16 +116,19 @@ AtomicInt::AtomicInt(const AtomicInt& original)
 
 #ifdef PEGASUS_CONDITIONAL_NATIVE
 
-Condition::Condition(void) : _disallow(0), _condition()
+Condition::Condition(void) : _disallow(0)
 { 
    _cond_mutex = new Mutex();
    _destroy_mut = true;
+   _condition = CreateEvent( NULL, TRUE, FALSE, NULL);
+
 } 
 
 Condition::Condition(const Mutex & mutex) : _disallow(0), _condition()
 {
    _cond_mutex = const_cast<Mutex *>(&mutex);
    _destroy_mut = false;
+   _condition = CreateEvent( NULL, TRUE, FALSE, NULL);
 }
 
 
@@ -134,7 +137,7 @@ Condition::~Condition(void)
    // don't allow any new waiters
    _disallow++;
    
-   PulseEvent(_condition._event);
+   PulseEvent(_condition);
    if(_destroy_mut == true)
       delete _cond_mutex;
 }

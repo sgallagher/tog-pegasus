@@ -41,9 +41,10 @@ of <winsock.h>. It may have been indirectly included (e.g., by including \
 compilation unit and #define FD_SETZIE to 1024 prior to that inclusion; \
 otherwise, less than 64 clients (the default) will be able to connect to the \
 CIMOM. PLEASE DO NOT SUPPRESS THIS WARNING; PLEASE FIX THE PROBLEM."
+
 # endif
 # define FD_SETSIZE 1024
-# include <winsock2.h>
+# include <windows.h>
 #else
 # include <sys/types.h>
 # include <sys/socket.h>

@@ -292,11 +292,8 @@ void ThreadPool::allocate_and_awaken(void *parm,
       {
 	 _pool_sem.time_wait(interval);
       }
-      catch(TimeOut & timeout)
+      catch(TimeOut & )
       {
-	 if (timeout.get_owner())
-	    ;
-	 
 	 if(_current_threads < _max_threads)
 	 {
 	    th = _init_thread();

@@ -41,7 +41,7 @@
 
 #include <iostream>
 #ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-# include <winsock.h>
+# include <windows.h>
 #else
 # include <netinet/in.h>
 # include <arpa/inet.h>

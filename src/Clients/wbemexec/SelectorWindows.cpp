@@ -32,7 +32,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 #define FD_SETSIZE 1024
 
-#include <winsock.h>
+#include <windows.h>
 
 using namespace std;
 

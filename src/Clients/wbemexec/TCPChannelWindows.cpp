@@ -27,7 +27,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
-#include <winsock.h>
+#include <windows.h>
 #include <Pegasus/Common/Socket.h>
 #include "TCPChannel.h"
 

@@ -11,9 +11,12 @@
     <hr>
     <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="DefineHostParameters">
- 	<p><b>HostURL</b> <INPUT TYPE="text" NAME="HostURL" SIZE=30 Value=localhost>
+ 	<p><b>Pegasus URL</b> <INPUT TYPE="text" NAME="HostURL" SIZE=30 Value=localhost>
  	Enter the URL of the host with where Pegasus is running
  	<p><b>HostName</b>
+ 	<p><b>Host Port</b> <INPUT TYPE="text" NAME="HostPort" SIZE=30 Value=8888>
+ 	<p><b>User Name</b> <INPUT TYPE="text" NAME="UserName" SIZE=30>
+ 	<p><b>User Password</b> <INPUT TYPE="text" NAME="UserPassword" SIZE=30>
  	<p>Today, CIM and WBEM do not have any discovery tools.&nbsp; You must
     specifically setup the URL and Port number of the WBEM Services Broker you
     want to query.&nbsp; The defaults are provided for use in a test environment

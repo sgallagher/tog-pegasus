@@ -212,7 +212,7 @@ Uint32 System::lookupPort(
     //
     if (  (serv = getservbyname(serviceName, TCP)) != NULL )
     {
-        localPort = serv->s_port;
+        localPort = ntohs(serv->s_port);
     }
     else
     {

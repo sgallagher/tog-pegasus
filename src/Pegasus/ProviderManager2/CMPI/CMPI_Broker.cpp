@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,7 +29,7 @@
 //
 // Author:      Adrian Schuur, schuur@de.ibm.com
 //
-// Modified By:
+// Modified By: Robert Kieninger, kieningr@de.ibm.com, for bug#2642
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -123,6 +123,7 @@ extern "C" {
          CM_IncludeQualifiers(flgs),
          CM_ClassOrigin(flgs),
          props);
+	     ci.setPath(qop);
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
          return (CMPIInstance*)new CMPI_Object(new CIMInstance(ci));
       }
@@ -306,7 +307,7 @@ extern "C" {
          Array<CIMObject> const &en=CM_CIMOM(mb)->associators(
                      OperationContext(*CM_Context(ctx)),
          CM_ObjectPath(cop)->getNameSpace(),
-         qop, 
+         qop,
          assocClass ? CIMName(assocClass) : CIMName(),
          resultClass ? CIMName(resultClass) : CIMName(),
          role ? String(role) : String::EMPTY,
@@ -341,7 +342,7 @@ extern "C" {
          Array<CIMObjectPath> const &en=CM_CIMOM(mb)->associatorNames(
          OperationContext(*CM_Context(ctx)),
          CM_ObjectPath(cop)->getNameSpace(),
-         qop, 
+         qop,
          assocClass ? CIMName(assocClass) : CIMName(),
          resultClass ? CIMName(resultClass) : CIMName(),
          role ? String(role) : String::EMPTY,
@@ -407,7 +408,7 @@ extern "C" {
          Array<CIMObjectPath> const &en=CM_CIMOM(mb)->referenceNames(
          OperationContext(*CM_Context(ctx)),
          CM_ObjectPath(cop)->getNameSpace(),
-         qop, 
+         qop,
          resultClass ? CIMName(resultClass) : CIMName(),
          role ? String(role) : String::EMPTY);
          if (rc) CMSetStatus(rc,CMPI_RC_OK);

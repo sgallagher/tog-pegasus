@@ -257,34 +257,56 @@ int prepareForCallback(int preVerifyOk, X509_STORE_CTX *ctx)
 
     if (verify_certificate(certInfo))
     {
-        //verifyError = X509_V_OK;
+#ifndef PEGASUS_USE_232_CLIENT_VERIFICATION
+        verifyError = X509_V_OK;
+#endif
         preVerifyOk = 1;
         Tracer::trace(TRC_SSL, Tracer::LEVEL4,
             "--> SSL: verify_certificate() returned X509_V_OK");
     }
     else
     {
-        //verifyError = certInfo.getErrorCode();
+#ifndef PEGASUS_USE_232_CLIENT_VERIFICATION
+        verifyError = certInfo.getErrorCode();
+#endif
         preVerifyOk = 0;
         Tracer::trace(TRC_SSL, Tracer::LEVEL4,
             "--> SSL: verify_certificate() returned error %d", verifyError);
     }
-
 
     // We need a way for the server to retain the verification result,
     // so that in 'optional' settings, we can still continue the connection.
     // We can then give the verification result to a consumer and let them 
     // decide whether to accept or reject the request.
     //
-    // The server's 'optional' callback returns true but does not set the
-    // error code, so the original verification error will still be in
-    // SSL_get_verify_result.
+    // The problem is that if we don't reset the error, the server verification
+    // gets messed up on the client side.
     //
-    // Clients need to set the error code to V_OK in their callbacks
-    // if they are verifying servers, otherwise, the error code
-    // will be the original result and verification will fail.
+    // If SSL client verification is disabled, do things the old way,
+    // since the server will never even use the callback.
+    // 
+    // If SSL client verification is enabled, do not set the error code explicitly.
+    // Instead, require the client to set the error code within its callback.
+    // i.e.
+    // Boolean verifyCertificate(SSLCertificateInfo cert)
+    // {
+    //    cert.setErrorCode(SSLCertificateInfo::V_OK);
+    //    return true;
+    // }
+    //
+    // If clients do not do this w/ PEGASUS_USE_232_CLIENT_VERIFICATION enabled,
+    // the server verification will fail because the error code will be the original result.
+    // This is sort of a kluge, but I cannot figure out a better way to do this w/o
+    // some storage tactic.  
+    //
+    // This will definitely be fixed in 2.4.  For 2.3.2, it shouldn't matter since we
+    // are not using server verification.
 
+#ifndef PEGASUS_USE_232_CLIENT_VERIFICATION
     X509_STORE_CTX_set_error(ctx, certInfo.getErrorCode()); 
+#else
+    X509_STORE_CTX_set_error(ctx, verifyError);
+#endif
 
     PEG_METHOD_EXIT();
 

@@ -753,6 +753,7 @@ int associators(CIMClient& client, Options& opts)
             << ", assocClass = " << opts.assocClass
             << ", resultClass = " << opts.resultClass
             << ", role = " << opts.role
+            << ", resultRole = " << opts.resultRole
             << ", includeQualifiers = " << ((opts.includeQualifiers)? "true" : "false")
             << ", includeClassOrigin = " << ((opts.includeClassOrigin)? "true" : "false")
             << ", propertyList = " << printPropertyList(opts.propertyList)
@@ -763,6 +764,7 @@ int associators(CIMClient& client, Options& opts)
         opts.assocClass,
         opts.resultClass,
         opts.role,
+        opts.resultRole,
         opts.includeQualifiers,
         opts.includeClassOrigin,
         opts.propertyList);

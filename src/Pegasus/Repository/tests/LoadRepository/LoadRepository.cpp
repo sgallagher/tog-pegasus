@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: LoadRepository.cpp,v $
+// Revision 1.7  2001/02/19 01:39:36  mike
+// new
+//
 // Revision 1.6  2001/02/18 19:02:18  mike
 // Fixed CIM debacle
 //
@@ -74,13 +77,13 @@ Boolean ProcessValueObjectElement(CIMRepository& repository, XmlParser& parser)
     if (!XmlReader::testStartTag(parser, entry, "VALUE.OBJECT"))
 	return false;
 
-    CIMClass classDecl;
+    CIMClass cimClass;
 
-    XmlReader::getClassElement(parser, classDecl);
+    XmlReader::getClassElement(parser, cimClass);
 
-    cout << "Creating " << classDecl.getClassName() << "..." << endl;
+    cout << "Creating " << cimClass.getClassName() << "..." << endl;
 
-    repository.createClass(CIMV20_NAMESPACE, classDecl);
+    repository.createClass(CIMV20_NAMESPACE, cimClass);
 
     XmlReader::expectEndTag(parser, "VALUE.OBJECT");
 
@@ -208,6 +211,7 @@ static void _processFile(const char* repositoryRoot, const char* xmlFileName)
     // Create the qualifiers:
 
     repository.createMetaQualifiers(CIMV20_NAMESPACE);
+    repository.createMetaQualifiers(ROOT_NAMESPACE);
 
     if (!ProcessCimElement(repository, parser))
     {

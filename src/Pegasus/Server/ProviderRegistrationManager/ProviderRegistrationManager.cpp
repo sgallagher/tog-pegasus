@@ -1201,7 +1201,13 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
 		//
 		// remove old entry from table
 		//
-		_registrationTable->table.remove(_moduleKey);
+                ProviderRegistrationTable* _entry = 0;
+
+                if (_registrationTable->table.lookup(_moduleKey, _entry))
+		{
+	            delete _entry;
+		    _registrationTable->table.remove(_moduleKey);
+		}
 
 		//
 		// add the updated instance to the table
@@ -1410,6 +1416,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 				//
 				// remove the entry from the table
 				//
+				delete capabilities;
 				_registrationTable->table.remove(capabilityKey);
 			    }
 			    else
@@ -1759,6 +1766,7 @@ CIMReference ProviderRegistrationManager::_createInstance(
 				    //
 	 			    // remove the entry from the table
 				    //
+				    delete providerCapabilities;
 				    _registrationTable->table.remove(_capabilityKey);
 				}
 				else
@@ -2049,6 +2057,7 @@ void ProviderRegistrationManager::_deleteInstance(
 		      {
 		    	if (instances.size()== 1)
 		    	{
+		            delete i.value();
 		            _registrationTable->table.remove(i.key());
 		    	}
 		    	else
@@ -2198,6 +2207,7 @@ void ProviderRegistrationManager::_deleteInstance(
 		//
 		if (String::equalNoCase(_deletedProviderKey, i.key()))
 		{
+	            delete i.value();
 		    _registrationTable->table.remove(i.key());
 		}
 		else
@@ -2222,6 +2232,7 @@ void ProviderRegistrationManager::_deleteInstance(
 		    	  {
 			    if (instances.size() == 1)
 			    {
+			        delete i.value();
 			        _registrationTable->table.remove(i.key());
 			    }
 			    else
@@ -2380,6 +2391,7 @@ void ProviderRegistrationManager::_deleteInstance(
 		//
 		if (String::equalNoCase(_deletedModuleKey, i.key()))
 		{
+		    delete i.value();
 		    _registrationTable->table.remove(i.key());
 		}
 		else
@@ -2406,6 +2418,7 @@ void ProviderRegistrationManager::_deleteInstance(
 		    	{
 			    if (instances.size() == 1)
 			    {
+			        delete i.value();
 			        _registrationTable->table.remove(i.key());
 			    }
 			    else

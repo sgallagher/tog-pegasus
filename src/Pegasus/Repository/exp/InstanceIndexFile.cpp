@@ -342,7 +342,8 @@ Boolean InstanceIndexFile::enumerateEntries(
     Array<Uint32>& freeFlags,
     Array<Uint32>& indices,
     Array<Uint32>& sizes,
-    Array<CIMReference>& instanceNames)
+    Array<CIMReference>& instanceNames,
+    Boolean includeFreeEntries)
 {
     //
     // Reserve space for at least COUNT entries:
@@ -379,10 +380,13 @@ Boolean InstanceIndexFile::enumerateEntries(
     while (_GetNextRecord(
 	fs, line, freeFlag, hashCode, index, size, instanceName, error))
     {
-	freeFlags.append(freeFlag); 
-	indices.append(index); 
-	sizes.append(size);
-	instanceNames.append(instanceName);
+	if (!freeFlag || includeFreeEntries)
+	{
+	    freeFlags.append(freeFlag); 
+	    indices.append(index); 
+	    sizes.append(size);
+	    instanceNames.append(instanceName);
+	}
     }
 
     if (error)

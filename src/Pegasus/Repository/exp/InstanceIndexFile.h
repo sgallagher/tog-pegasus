@@ -161,7 +161,8 @@ public:
 	Array<Uint32>& freeFlags,
 	Array<Uint32>& indices,
         Array<Uint32>& sizes,
-	Array<CIMReference>& instanceNames);
+	Array<CIMReference>& instanceNames,
+	Boolean includeFreeEntries);
 
     /** Begin a transaction to modify this file. The effect of subsequent
 	modifications can be rolled back by calling rollbackTransaction().

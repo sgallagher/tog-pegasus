@@ -565,6 +565,7 @@ MessageLoader::_useProcessLocale = true;
     pegasusHome = OS400_DEFAULT_PEGASUS_HOME;
 #endif
 
+
 #ifndef PEGASUS_OS_TYPE_WINDOWS
     //
     // Get environment variables:
@@ -581,12 +582,16 @@ MessageLoader::_useProcessLocale = true;
 	pegasusHome = home;
     }
 #else
+  #if defined(PEGASUS_OS_AIX) && defined(PEGASUS_USE_RELEASE_DIRS)
+    pegasusHome = AIX_RELEASE_PEGASUS_HOME;
+  #else
     const char* tmp = getenv("PEGASUS_HOME");
 
     if (tmp)
     {
         pegasusHome = tmp;
     }
+  #endif
 #endif
 
     FileSystem::translateSlashes(pegasusHome);

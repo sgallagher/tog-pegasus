@@ -412,7 +412,8 @@ void ProviderRegistrationProvider::createInstance(
         String ifcTypeString;
         instanceObject.getProperty(ifcTypeIndex).getValue().
             get(ifcTypeString);
-        if (ifcTypeString != "C++Default" || ifcTypeString != "CMPI" )
+
+        if(ifcTypeString != "C++Default" && ifcTypeString != "CMPI" )
 	{
 	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
 		"Unsupported InterfaceType value: \"" + ifcTypeString + "\"");

@@ -1025,7 +1025,54 @@ class CIMEnableIndicationSubscriptionRequestMessage : public CIMRequestMessage
       String userName;
 };
 
-//
+class CIMEnableIndicationsRequestMessage : public CIMRequestMessage
+{
+public:
+    CIMEnableIndicationsRequestMessage(
+	const String & messageId_,
+	const String & nameSpace_,
+	const Array<String> & classNames_,
+	QueueIdStack queueIds_)
+    :
+    CIMRequestMessage(
+	CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_),
+    nameSpace(nameSpace_),
+    classNames(classNames_)
+    {
+    }
+
+    String nameSpace;
+    Array<String> classNames;
+
+};
+
+class CIMDisableIndicationsRequestMessage : public CIMRequestMessage
+{
+public:
+    CIMDisableIndicationsRequestMessage(
+	const String & messageId_,
+	const String & nameSpace_,
+	const Array<String> & classNames_,
+	QueueIdStack queueIds_)
+    :
+    CIMRequestMessage(
+	CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_),
+    nameSpace(nameSpace_),
+    classNames(classNames_)
+
+    {
+    }
+
+    String nameSpace;
+    Array<String> classNames;
+
+};
+
+
 //  ATTN-CAKG-P2-20020326: To Be Removed - once the ProviderManagerService
 //  has been modified to use the new messages
 //
@@ -1256,7 +1303,7 @@ class CIMCreateSubscriptionRequestMessage : public CIMRequestMessage
         const String & nameSpace_,
         //
         //  ATTN-CAKG-P2-20020326: May want to change to CIMNamedInstance -
-        //  Both the instance and instance name (CIMReference) are needed, so 
+        //  Both the instance and instance name (CIMReference) are needed, so
         //  it would be convenient to have the CIMNamedInstance
         //
         const CIMInstance & subscriptionInstance_,
@@ -1311,7 +1358,7 @@ class CIMModifySubscriptionRequestMessage : public CIMRequestMessage
         const String & nameSpace_,
         //
         //  ATTN-CAKG-P2-20020326: May want to change to CIMNamedInstance -
-        //  Both the instance and instance name (CIMReference) are needed, so 
+        //  Both the instance and instance name (CIMReference) are needed, so
         //  it would be convenient to have the CIMNamedInstance
         //
         const CIMInstance & subscriptionInstance_,
@@ -1366,7 +1413,7 @@ class CIMDeleteSubscriptionRequestMessage : public CIMRequestMessage
         const String & nameSpace_,
         //
         //  ATTN-CAKG-P2-20020326: May want to change to CIMNamedInstance -
-        //  Both the instance and instance name (CIMReference) are needed, so 
+        //  Both the instance and instance name (CIMReference) are needed, so
         //  it would be convenient to have the CIMNamedInstance
         //
         const CIMInstance & subscriptionInstance_,
@@ -1989,6 +2036,40 @@ class CIMDeleteSubscriptionResponseMessage : public CIMResponseMessage
 	     queueIds_)
       {
       }
+};
+
+class CIMEnableIndicationsResponseMessage : public CIMResponseMessage
+{
+public:
+    CIMEnableIndicationsResponseMessage(
+	const String & messageId_,
+	const CIMException & cimException_,
+	const QueueIdStack & queueIds_)
+    : CIMResponseMessage(
+	CIM_ENABLE_INDICATIONS_RESPONSE_MESSAGE,
+        messageId_,
+	cimException,
+        queueIds_)
+    {
+    }
+
+};
+
+class CIMDisableIndicationsResponseMessage : public CIMResponseMessage
+{
+public:
+    CIMDisableIndicationsResponseMessage(
+	const String & messageId_,
+	const CIMException & cimException_,
+	QueueIdStack queueIds_)
+    : CIMResponseMessage(
+	CIM_DISABLE_INDICATIONS_RESPONSE_MESSAGE,
+        messageId_,
+	cimException,
+        queueIds_)
+    {
+    }
+
 };
 
 PEGASUS_NAMESPACE_END

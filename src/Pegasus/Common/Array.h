@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Array.h,v $
+// Revision 1.3  2001/01/31 15:57:06  karl
+// comments
+//
 // Revision 1.2  2001/01/30 23:39:00  karl
 // Add doc++ Documentation to header files
 //
@@ -194,32 +197,32 @@ template<class T>
 class Array
 {
 public:
-
+    /// Constructor - ATTN:
     Array();
-
+    /// Constructor - ATTN:
     Array(const Array<T>& x);
-
+    /// Constructor - ATTN:
     Array(Uint32 size);
-
+    /// Constructor - ATTN:
     Array(Uint32 size, const T& x);
-
+    /// Constructor - ATTN:
     Array(const T* items, Uint32 size);
 
     Array(ArrayRep<T>* rep)
     {
 	Rep::inc(_rep = rep);
     }
-
+    /// Destructor - ATTN:
     ~Array();
 
     Array<T>& operator=(const Array<T>& x);
-	/** method clear
-	ATTN:
-	*/
+    /** method clear
+    ATTN:
+    */
     void clear();
-	/** method reserve
-	ATTN:
-	*/
+    /** method reserve
+    ATTN:
+    */
     void reserve(Uint32 capacity)
     {
 	if (capacity > _rep->capacity)
@@ -233,21 +236,21 @@ public:
 	ATTN:
 	*/
     void swap(Array<T>& x);
-
+    /// Method getSize - ATTN:
     Uint32 getSize() const { return _rep->size; }
-
+    /// Method getData - ATTN
     const T* getData() const { return _rep->data(); }
 
     T& operator[](Uint32 pos);
 
     const T& operator[](Uint32 pos) const;
-	/** method append
-	ATTN:
-	*/
+    /** method append
+    ATTN:
+    */
     void append(const T& x);
-
+    /// Method append - ATTN:
     void append(const T* x, Uint32 size);
-
+    /// Method appendArray  - ATTN:
     void appendArray(const Array<T>& x)
     {
 	append(x.getData(), x.getSize());

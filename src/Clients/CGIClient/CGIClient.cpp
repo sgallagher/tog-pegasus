@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.6  2001/01/31 15:57:06  karl
+// comments
+//
 // Revision 1.5  2001/01/31 09:26:32  karl
 // Update CGIClient for instances
 //
@@ -565,7 +568,7 @@ static void EnumerateClassNames(const CGIQueryString& qs)
     {
 	Client client;
 	client.connect("localhost", 8888);
-
+	
 	Array<String> classNames = client.enumerateClassNames(
 	    nameSpace, className, deepInheritance);
 
@@ -770,7 +773,7 @@ static void PrintInstanceNames(
     const String& nameSpace,
     const Array<String>& InstanceNames)
 {
-    PrintHTMLHead("GetInstanceNames", "EnumerateInstanceNames Rusult");
+    PrintHTMLHead("GetInstanceNames", "EnumerateInstanceNames Result");
     // cout << "<html>\n";
     // PrintHead("GetClassNames");
     // cout << "<body bgcolor=\"#CCCCCC\">\n";
@@ -838,10 +841,10 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
     {
 	Client client;
 	client.connect("localhost", 8888);
-
+	/*
 	Array<Reference> instanceNames = client.enumerateInstanceNames(
 	    nameSpace, className);
-
+	
 	Array<String> tmpInstanceNames;
 
 	for (Uint32 i = 0; i < instanceNames.getSize(); i++)
@@ -851,8 +854,9 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 	    tmpInstanceNames.append(tmp);
 	}
 
-	// Print the name array
+	Print the name array
 	PrintInstanceNames(nameSpace, tmpInstanceNames);
+	*/
     }
     catch(Exception& e)
     {
@@ -986,7 +990,7 @@ int main(int argc, char** argv)
 	    GetInstance(qs);
         else if (strcmp(operation, "EnumerateInstanceNames") == 0)
 	    EnumerateInstanceNames(qs);
-       else if (strcmp(operation, "EnumerateInstances") == 0)
+        else if (strcmp(operation, "EnumerateInstances") == 0)
 	    EnumerateInstances(qs);
 	//else if (strcmp(operation, "GetProperty") == 0)
 	//    GetProperty(qs);
@@ -1010,4 +1014,9 @@ int main(int argc, char** argv)
 
     return 0;
 }
-
+/* TO List
+Make sure that The program name is in all error mesages.
+Version on CGIClient.
+Is class names and instance names the same basic thing that we can do 
+with template.
+*/

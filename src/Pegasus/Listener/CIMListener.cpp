@@ -175,7 +175,7 @@ void CIMListenerService::init()
   
 	//_dispatcher = new CIMListenerIndicationDispatcher();
 
-	_responseEncoder = new CIMExportResponseEncoder();
+  _responseEncoder = new CIMExportResponseEncoder();
   _requestDecoder = new CIMExportRequestDecoder(
 		_dispatcher,
 		_responseEncoder->getQueueId());
@@ -196,61 +196,62 @@ void CIMListenerService::init()
 		   _sslContext);
   #endif
 
-	bind();
+  bind();
 
-    PEG_METHOD_EXIT();
+  PEG_METHOD_EXIT();
 }
 void CIMListenerService::bind()
 {
-	if(_acceptor!=NULL)
-	{ // Bind to the port
-		_acceptor->bind();
+  if(_acceptor!=NULL)
+    { // Bind to the port
+      _acceptor->bind();
 
-		PEGASUS_STD(cout) << "Listening on HTTP port " << _portNumber << PEGASUS_STD(endl);
+      PEGASUS_STD(cout) << "Listening on HTTP port " << _portNumber << PEGASUS_STD(endl);
 		
-		//listener.addAcceptor(false, portNumberHttp, false);
-    Logger::put(Logger::STANDARD_LOG, System::CIMLISTENER, Logger::INFORMATION,
+      //listener.addAcceptor(false, portNumberHttp, false);
+      Logger::put(Logger::STANDARD_LOG, System::CIMLISTENER, Logger::INFORMATION,
                         "Listening on HTTP port $0.", _portNumber);
 
-	}
+    }
 }
+
 void CIMListenerService::runForever()
 {
-	static int modulator = 0;
+  static int modulator = 0;
 
-	if(!_dieNow)
-	{
-    #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
-    if(false == _monitor->run(100))
+  if(!_dieNow)
     {
-			modulator++;
-			if(!(modulator % 5000) )
-			{
-				try 
-				{
-					//MessageQueueService::_check_idle_flag = 1;
-					//MessageQueueService::_polling_sem.signal();
-                                        MessageQueueService::get_thread_pool()->kill_idle_threads();
-				}
-				catch(...)
-				{
-				}
-			}	
-		}
-/*
-		if (handleShutdownSignal)
+#ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
+      if(false == _monitor->run(100)) 
+	{	
+	  modulator++;
+	  if(!(modulator % 5000) )
+	    {
+	      try 
 		{
-			Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
-				"CIMServer::runForever - signal received.  Shutting down.");
-
-			ShutdownService::getInstance(this)->shutdown(true, 10, false);
-			handleShutdownSignal = false;
+		  //MessageQueueService::_check_idle_flag = 1;
+		  //MessageQueueService::_polling_sem.signal();
+		  MessageQueueService::get_thread_pool()->kill_idle_threads();
 		}
-*/
-   #else
-   _monitor->run();
-   #endif
+	      catch(...)
+		{
+		}
+	    }	
 	}
+/*
+      if (handleShutdownSignal)
+      {
+        Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
+	"CIMServer::runForever - signal received.  Shutting down.");
+
+	ShutdownService::getInstance(this)->shutdown(true, 10, false);
+	handleShutdownSignal = false;
+      }
+*/
+#else
+      _monitor->run();
+#endif
+    }
 }
 
 void CIMListenerService::shutdown()
@@ -315,17 +316,17 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CIMListenerService::_listener_routine
 {
   CIMListenerService *svc = reinterpret_cast<CIMListenerService *>(param);
 
-  //	svc->init(); bug 1394 
-	while(!svc->terminated())
-	{
-          #if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
-		pthread_testcancel();
-	  #endif
-	  svc->runForever();
-}
-	delete svc;
+  //svc->init(); bug 1394 
+  while(!svc->terminated())
+  {
+#if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+    pthread_testcancel();
+#endif
+    svc->runForever();
+  }
+  delete svc;
 
-	return 0;
+  return 0;
 }
 static struct timeval create_time = {0, 1};
 static struct timeval destroy_time = {15, 0};
@@ -359,6 +360,8 @@ private:
 
   CIMListenerIndicationDispatcher* _dispatcher;
 	ThreadPool* _thread_pool;
+  CIMListenerService* _svc;  
+  Semaphore *_listener_sem;
 };
 
 CIMListenerRep::CIMListenerRep(Uint32 portNumber, SSLContext* sslContext)
@@ -366,19 +369,35 @@ CIMListenerRep::CIMListenerRep(Uint32 portNumber, SSLContext* sslContext)
 ,_sslContext(sslContext)
 ,_dispatcher(new CIMListenerIndicationDispatcher())
 ,_thread_pool(NULL)
+,_svc(NULL)
+,_listener_sem(NULL)
 {
 }
 CIMListenerRep::~CIMListenerRep()
 {
-	// if port is alive, clean up the port
-	if(_sslContext!=NULL)
-		delete _sslContext;
+  // if port is alive, clean up the port
+  if (_thread_pool != NULL)
+  {
+    // Block incoming export requests and unbind the port
+    _svc->stopClientConnection();
+    
+    // Shutdown the CIMListenerService
+    _svc->shutdown();   
+  }
 
-	if(_dispatcher!=NULL)
-		delete _dispatcher;
+  if(_sslContext!=NULL)
+    delete _sslContext;
 
-	if(_thread_pool!=NULL)
-		delete _thread_pool;
+  if(_dispatcher!=NULL)
+    delete _dispatcher;
+
+  if(_thread_pool!=NULL)
+    delete _thread_pool;
+
+  if(_listener_sem!=NULL)
+    delete _listener_sem;
+
+  // don't delete _svc, this is deleted by _listener_routine
 }
 
 Uint32 CIMListenerRep::getPortNumber() const
@@ -399,49 +418,82 @@ void CIMListenerRep::setSSLContext(SSLContext* sslContext)
 }
 void CIMListenerRep::start()
 {
-	// spawn a thread to do this
-	if(_thread_pool==NULL)
-	{
-		CIMListenerService* svc = new CIMListenerService(_portNumber,_sslContext);
-		try
-		{
-		  // Try to initialize the service (bug 1394)
-		  svc->setIndicationDispatcher(_dispatcher);
-		  svc->init(); 
-		}
-		catch(...)
-		{
-		  // Error. Exit without creating the ThreadPool, so that this listener
-		  // is not 'alive'
-		  delete svc;
-		  throw;
-		}
+  // spawn a thread to do this
+  if(_thread_pool==NULL)
+  {
+    CIMListenerService* svc = new CIMListenerService(_portNumber,_sslContext);
+    try
+    {
+      // Try to initialize the service (bug 1394)
+      svc->setIndicationDispatcher(_dispatcher);
+      svc->init(); 
+    }
+    catch(...)
+    {
+      // Error. Exit without creating the ThreadPool, so that this listener
+      // is not 'alive'
+      delete svc;
+      throw;
+    }
 
-		_thread_pool = new ThreadPool(0, "Listener", 0, 1, 
-			create_time, destroy_time, deadlock_time);
+    _thread_pool = new ThreadPool(0, "Listener", 0, 1, 
+				  create_time, destroy_time, deadlock_time);
 
-		_thread_pool->allocate_and_awaken(svc,CIMListenerService::_listener_routine);
+    _listener_sem = new Semaphore(0);
+    _thread_pool->allocate_and_awaken(svc,
+				      CIMListenerService::_listener_routine,
+				      _listener_sem);
 
-		Logger::put(Logger::STANDARD_LOG,System::CIMLISTENER,
-					      Logger::INFORMATION,
-				        "CIMListener started");
+    _svc = svc;
 
-		PEGASUS_STD(cerr) << "CIMlistener started" << PEGASUS_STD(endl);
-	}
+    Logger::put(Logger::STANDARD_LOG,System::CIMLISTENER,
+		Logger::INFORMATION,
+		"CIMListener started");
+
+    PEGASUS_STD(cerr) << "CIMlistener started" << PEGASUS_STD(endl);
+  }
 }
 
 void CIMListenerRep::stop()
 {
-	if(_thread_pool!=NULL)
-	{ // stop the thread
-		
-		delete _thread_pool;
-		_thread_pool = NULL;
-		
-		Logger::put(Logger::STANDARD_LOG,System::CIMLISTENER,
-						    Logger::INFORMATION,
-					      "CIMListener stopped");
-	}
+  if(_thread_pool!=NULL)
+  { 
+    //
+    // Graceful shutdown of the listener service
+    //
+
+    // Block incoming export requests and unbind the port
+    _svc->stopClientConnection();
+    
+    // Shutdown the CIMListenerService
+    _svc->shutdown();
+
+    // Wait for the _listener_routine thread to exit.
+    // The thread could be delivering an export, so give it 3sec.
+    // Note that _listener_routine deletes the CIMListenerService,
+    // so no need to delete _svc.
+    try
+    {
+      _listener_sem->time_wait(3000); 
+    }
+    catch (TimeOut &)
+    {
+      // No need to do anything, the thread pool will be deleted below
+      // to cancel the _listener_routine thread if it is still running.
+    }
+
+    delete _listener_sem;
+    _listener_sem = NULL;
+    
+    // Delete the thread pool.  This cancels the listener thread if it is still
+    // running.
+    delete _thread_pool;
+    _thread_pool = NULL;
+
+    Logger::put(Logger::STANDARD_LOG,System::CIMLISTENER,
+		Logger::INFORMATION,
+		"CIMListener stopped");
+  }
 }
 
 Boolean CIMListenerRep::isAlive()

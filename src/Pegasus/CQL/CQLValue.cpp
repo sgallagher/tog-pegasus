@@ -242,7 +242,7 @@ CQLValue::CQLValue(CIMInstance inInstance)
    _isResolved = true;
 }
 
-CQLValue::CQLValue(CIMClass inClass)
+CQLValue::CQLValue(CIMClass& inClass)
 {
    _theValue._CL = new CIMClass(inClass);
    _valueType = CIMClass_type;
@@ -484,22 +484,11 @@ void CQLValue::resolve(CIMInstance CI, QueryContext& inQueryCtx)
                }
 
                // The symbolic constant defined in the CQLIdentifier is 
-               // valid for this property. Now we need to determine if the 
-               // property matches the symbolic constant defined by CQLIdentifier.
-                  
-               if(propObj.getValue() == 
-                     CIMValue(Idstrings[index].getSymbolicConstantName()))
-               {
-                  // Set primitive
-                  _setValue(propObj.getValue());
-               }
-               else
-               {
-                  // Set the Ignore_type
-                  _valueType = CQLIgnore_type;
-                  _isResolved = true;
-                  return;     
-               }
+               // valid for this property. Now we need to set the value.
+
+               // Set primitive
+               _setValue(CIMValue(Idstrings[index].getSymbolicConstantName()));
+               return;
             }
             else
             {
@@ -1695,6 +1684,7 @@ CIMClass CQLValue::getClass()
    {
       throw(1);
    }
+
    return *_theValue._CL;
 }
 
@@ -1755,8 +1745,29 @@ void CQLValue::applyScopes(Array<CQLScope> inScope)
    {
       return;
    }
-   _CQLChainId.applyScopes(inScope);
+
+   CQLChainedIdentifier sci;
+
+   for(Uint32 i = 0; i < inScope.size(); ++i)
+   {
+      sci = inScope[i].getTarget();
+  
+      if(!_CQLChainId->isSubChain(sci))
+      {
+         return;
+      }
+
+      for(Uint32 j = 0; j < _CQLChainId->size(); ++j)
+      {
+         if(sci.getLastIdentifier().getName() == (*_CQLChainId)[j].getName())
+         {
+            // Will need to do more processing. When spec better defined.
+            (*_CQLChainId)[i].applyScope(inScope[i].getScope().getString());
+         }
+      }
+   }
 }
+
 
 Boolean CQLValue::_validate(const CQLValue& x)
 {

@@ -34,7 +34,7 @@ PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
 //#define DDD(X) X
-#define DDD(X) /* X */
+#define DDD(X) // X
 
 DDD(char* dptchr = "Dispatcher::";)
 
@@ -112,6 +112,9 @@ void Dispatcher::deleteInstance(
     const CIMReference& instanceName)
 {
     String className = instanceName.getClassName();
+
+    DDD(cout << dptchr << "deleteInstance of " << className << endl;)
+
     CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
 
     if (provider)
@@ -133,6 +136,7 @@ void Dispatcher::createInstance(
 {
     String className = newInstance.getClassName();
     CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
+    DDD(cout << dptchr << "createInstance of " << className << endl;)
 
     if (provider)
 	provider->createInstance(nameSpace, newInstance);

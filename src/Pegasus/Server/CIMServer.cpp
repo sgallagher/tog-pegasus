@@ -175,6 +175,11 @@ public:
 	Uint32 messageId,
 	const String& nameSpace);
 
+    /** outputN sends the message and optionally
+        generates a trace output.
+	@param message - The message as an array<sint8>
+    */     
+    void outputN(Array<Sint8>& message);
 
 
 
@@ -184,6 +189,29 @@ private:
     Channel* _channel;
 };
 
+/** outputN added simply to consolidate all of the
+    message output to one function so we could control
+    output and trace display better.
+    Note that this function outputs but does not format
+    the message. 
+    ATTN: Today there is no choice of output for trace.
+    It goes to the console, is accompanied by long header,
+    and you cannot chose input or output.
+    @Author: KS
+*/
+void ServerHandler::outputN (Array<Sint8>& message)
+{
+    if (_handlerTrace)
+    {
+	cout << "\n========== SENT ==========" << endl;
+	
+	message.append('\0');
+	cout << message.getData() << endl;
+	message.remove(message.size() - 1);
+    }
+    _channel->writeN(message.getData(), message.size());
+
+}
 //------------------------------------------------------------------------------
 //
 // ServerHandler::handleMessage()
@@ -465,8 +493,8 @@ void ServerHandler::sendError(
 		XmlWriter::formatIMethodResponseElement(
 		    methodName,
 		    XmlWriter::formatErrorElement(code, description)))));
-
-    _channel->writeN(message.getData(), message.size());
+    
+    outputN(message);
 }
 
 //------------------------------------------------------------------------------
@@ -536,9 +564,8 @@ void ServerHandler::handleGetClass(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"GetClass", messageId, body);
 
-    _channel->writeN(message.getData(), message.size());
+    outputN(message);
 }
-
 //------------------------------------------------------------------------------
 //
 // ServerHandler::handleGetInstance()
@@ -613,7 +640,7 @@ void ServerHandler::handleGetInstance(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"GetInstance", messageId, body);
 
-    _channel->writeN(message.getData(), message.size());
+    outputN(message);
 }
 
 //STUB{
@@ -678,7 +705,7 @@ void ServerHandler::handleEnumerateClassNames(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"EnumerateClassNames", messageId, body);
 
-    _channel->writeN(message.getData(), message.size());
+    outputN(message);
 }
 //STUB}
 
@@ -736,7 +763,7 @@ void ServerHandler::handleCreateInstance(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"CreateInstance", messageId, body);
 
-    _channel->writeN(message.getData(), message.size());
+    outputN(message);
 }
 
 //------------------------------------------------------------------------------
@@ -796,7 +823,7 @@ void ServerHandler::handleEnumerateInstanceNames(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"EnumerateInstanceNames", messageId, body);
 
-    _channel->writeN(message.getData(), message.size());
+    outputN(message);
 }
 
 //------------------------------------------------------------------------------
@@ -842,7 +869,7 @@ void ServerHandler::handleDeleteQualifier(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"DeleteQualifier", messageId, body);
 
-    _channel->writeN(message.getData(), message.size());
+    outputN(message);
 }
 
 //------------------------------------------------------------------------------
@@ -892,7 +919,7 @@ void ServerHandler::handleGetQualifier(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"GetQualifier", messageId, body);
 
-    _channel->writeN(message.getData(), message.size());
+    outputN(message);
 }
 
 //------------------------------------------------------------------------------
@@ -940,7 +967,7 @@ void ServerHandler::handleSetQualifier(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"SetQualifier", messageId, body);
 
-    _channel->writeN(message.getData(), message.size());
+    outputN(message);
 }
 
 //------------------------------------------------------------------------------
@@ -984,7 +1011,7 @@ void ServerHandler::handleEnumerateQualifiers(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"EnumerateQualifiers", messageId, body);
 
-    _channel->writeN(message.getData(), message.size());
+    outputN(message);
 }
 
 //------------------------------------------------------------------------------
@@ -1060,7 +1087,7 @@ void ServerHandler::handleEnumerateClasses(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"EnumerateClasses", messageId, body);
 
-    _channel->writeN(message.getData(), message.size());
+    outputN(message);
 }
 
 //------------------------------------------------------------------------------
@@ -1113,7 +1140,7 @@ void ServerHandler::handleCreateClass(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"CreateClass", messageId, body);
 
-    _channel->writeN(message.getData(), message.size());
+    outputN(message);
 }
 
 //------------------------------------------------------------------------------
@@ -1166,7 +1193,7 @@ void ServerHandler::handleModifyClass(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"ModifyClass", messageId, body);
 
-    _channel->writeN(message.getData(), message.size());
+    outputN(message);
 }
 
 //------------------------------------------------------------------------------
@@ -1219,7 +1246,7 @@ void ServerHandler::handleDeleteClass(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"DeleteClass", messageId, body);
 
-    _channel->writeN(message.getData(), message.size());
+    outputN(message);
 }
 
 //------------------------------------------------------------------------------
@@ -1321,7 +1348,7 @@ void ServerHandler::handleGetProperty(
     // cout << "DEBUG CIMServer:IhandleGetProperty " <<
     //	cimValueRtn.toString() << endl;
 
-    _channel->writeN(message.getData(), message.size());
+    outputN(message);
 }
 
 
@@ -1386,7 +1413,7 @@ void ServerHandler::handleSetProperty(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"EnumerateClassNames", messageId, body);
 
-    _channel->writeN(message.getData(), message.size());
+    outputN(message);
 }
 
 

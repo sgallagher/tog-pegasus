@@ -92,7 +92,7 @@ private:
 
     enum State { WAITING, LINES, CONTENT, DONE };
     State _state;
-    static Boolean _handlerTrace;
+
 
 protected:
 
@@ -100,6 +100,7 @@ protected:
     Array<Uint32> _lines;
     Uint32 _contentOffset;
     Uint32 _contentLength;
+    static Boolean _handlerTrace;
 };
 
 PEGASUS_NAMESPACE_END

@@ -34,34 +34,42 @@
 #include <Pegasus/Common/Selector.h>
 
 PEGASUS_NAMESPACE_BEGIN
+/**  TCP Channel Class derives from Channel and SelectorHandler
+     and implements the interface to TCP
 
+*/
 class PEGASUS_COMMON_LINKAGE TCPChannel 
     : public Channel, public SelectorHandler
 {
 public:
-
+    ///
     TCPChannel(Selector* selector, Uint32 desc, ChannelHandler* handler);
-
+    ///
     virtual ~TCPChannel();
 
+    /** read Read from the channel.
+    @param ptr
+    @param size - 
+    @seealso channel:read
+    */
     virtual Sint32 read(void* ptr, Uint32 size);
-
+    ///
     virtual Sint32 write(const void* ptr, Uint32 size);
-
+    ///
     virtual Sint32 readN(void* ptr, Uint32 size);
-
+    ///
     virtual Sint32 writeN(const void* ptr, Uint32 size);
-
+    ///
     virtual void enableBlocking();
-
+    ///
     virtual void disableBlocking();
-
+    ///
     virtual Boolean wouldBlock() const;
-
+    ///
     virtual Boolean getBlocking() const { return _blocking; }
-
+    ///
     virtual Boolean handle(Sint32 desc, Uint32 reasons);
-
+    ///
     virtual ChannelHandler* getChannelHandler() { return _handler; }
 
 private:

@@ -493,8 +493,8 @@ Boolean _evaluate(Array<CQLSelectStatement>& _statements,
           {
             cout << "Inst # " << j << ": " <<  _statements[i].toString() << " = ";
           }
-          if(result) printf("TRUE\n");
-          else printf("FALSE\n");
+          if(result) cout << "TRUE" << endl;
+          else cout << "FALSE" << endl;
         }
         catch(Exception e)
         {

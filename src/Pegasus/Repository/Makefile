@@ -19,52 +19,77 @@ EXTRA_LIBRARIES += -lCstd
 endif
 
 ##
-## PEP214 Compressed repository conditional compile
-##    to enable define PEGASUS_COMPRESS_REPOSITORY
-##    in the environment.
+## PEP214 Compressed repository conditional compile.
+##    To enable the compressed repository functionality 
+##    define PEGASUS_COMPRESS_REPOSITORY in the environment.
+##
 ##
 ## COMPILATION:
+##
+##    To enable the compressed repository functionality 
+##    define PEGASUS_COMPRESS_REPOSITORY in the environment,
+##    prior to building the tree. Then build the whole source tree.
 ##
 ## set PEGASUS_COMPRESS_REPOSITORY=1
 ## export PEGASUS_COMPRESS_REPOSITORY=1
 ## etc. 
 ##
+## Alternativly in this directory(pegasus/src/pegasus/Repository type:
+##     make compress
+##
+##
+## LIBZ INSTALLATION:
+##
 ## libz is used in the compression logic so it must be installed in
 ##  a standard location prior to enabling the compressed repository
 ##  functionality.
 ##
-## WINDOWS platform libz standard install is:
+## LIBZ web pages are:
+##
+##      http://www.sourceforge.net
+##      http://gnuwin32.sourceforge.net/packages/zlib.htm
+##      http://www.winimage.com/zLibDll/
+##      http://www.gzip.org/zlib/
+##
+## LIBZ INSTALLATION ON WINDOWS PLATFORMS: 
+##      The standard libz install is:
 ##            "Program Files"\GnuWin32\include
+##			zlib.h and zconf.h
 ##            "Program Files"\GnuWin32\lib
-##  these are the standard locations used by the windows libz package
-##  available on www.sourceforge.net specificaly at
-## http://gnuwin32.sourceforge.net/packages/zlib.htm
+##			libz.a
+##            "Program Files"\GnuWin32\bin
+##			zlib1.dll
 ##
-## other rlated web pages are:
+## These are the locations used by the windows libz package
+## available on www.sourceforge.net specificaly at
+## http://gnuwin32.sourceforge.net/packages/zlib.htm.
 ##
-## http://www.winimage.com/zLibDll/
+## This make file specifies these directorys for the compilation of the 
+## CIMRepository. The CIMserver.exe will use the zlib1.dll and expects to
+## find it in one of the pathed directories. 
+##  
 ##
-## http://www.gzip.org/zlib/
 ##
+## LIBZ INSTALLATION ON UNIX PLATFORMS:
+## Install zlib.h & zconf.h in the standard system includes dierctory.
+## Install libz.a in the standard systems library directory.
+## Install zlib1.dll in the standard executables directory
 ## 
 ## USAGE:
 ##
-## with the compression code enabled and compiled:
-##    all repository formats can be read and written as before 
-##    including the compressed repository.
-##
-## To build a compressed repository the repsoitory name must end with the
-## string "compressed".
+## With the compression code enabled and compiled:
+##    - All repositorys built will be in the compressed format by default.
+##    - all repository formats can be read.
+##    - all repository formats can be written.
+##       To build a non compressed repository with compression enabled:
+##       set PEGASUS_COMPRESS_REPSOITORY to "build_non_compresed".
+##       This is usedby the CompareXmlCompressed repository test. 
 ## 
-## The default repository name is defined in pegasus/mak/config.mak as 
-## REPOSITORY_NAME = repository
-## this can be changed to 
-## REPOSITORY_NAME = repository_compressed. 
-## or any other string ending in compressed to build a compressed repository.
+##  export PEGASUS_COMPRESS_REPOSITORY=1
+##  export PEGASUS_COMPRESS_REPOSITORY=build_non_compressed
+##  set PEGASUS_COMPRESS_REPOSITORY=1
+##  set PEGASUS_COMPRESS_REPOSITORY=build_non_compressed
 ## 
-## 
-
-## PEGASUS_COMPRESS_REPOSITORY = 1
 
 ifdef PEGASUS_COMPRESS_REPOSITORY
   LOCAL_DEFINES += -DPEGASUS_COMPRESS_REPOSITORY

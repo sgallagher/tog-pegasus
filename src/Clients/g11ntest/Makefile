@@ -14,8 +14,8 @@ include ../libraries.mak
 LIBRARIES += peglistener
 
 PROGRAM = g11ntest
-PROGRAM_ICU = g11ntest -skipindication -reqlang en -rsplang en
-PROGRAM_NOICU = g11ntest -skipindication
+PROGRAM_ICU = g11ntest -reqlang en -rsplang en
+PROGRAM_NOICU = g11ntest
 SOURCES = g11ntest.cpp
 
 ifneq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)

@@ -13,6 +13,7 @@ LIBRARIES = $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX)
 LIBRARY = pegrepository
 
 SOURCES = \
+    InheritanceTree.cpp \
     InstanceIndexFile.cpp \
     CIMRepository.cpp 
 

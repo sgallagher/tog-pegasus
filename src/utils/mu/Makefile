@@ -44,7 +44,7 @@ ifeq ($(OS_TYPE),unix)
     OS_TYPE = unix
     CXX = g++
     LXX = $(CXX)
-    CXXFLAGS = -g -Wall -Wno-unused -pedantic
+    CXXFLAGS = -O2 -Wall -Wno-unused -pedantic
     DEFINES = -DOS_TYPE_UNIX
     PROGRAM = mu
     EXE_OUT = -o

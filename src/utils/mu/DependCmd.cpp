@@ -33,6 +33,12 @@
 #include <cassert>
 #include "DependCmd.h"
 
+#ifdef OS_TYPE_WINDOWS
+# define OBJ_EXT ".obj"
+#else
+# define OBJ_EXT ".o"
+#endif
+
 using namespace std;
 
 static const char* programName = "";
@@ -400,7 +406,7 @@ int DependCmdMain(int argc, char** argv)
 	}
 
 	objectFileName.append(start, dot - start);
-	objectFileName += ".obj";
+	objectFileName += OBJ_EXT;
 
 	set<string> cache;
 

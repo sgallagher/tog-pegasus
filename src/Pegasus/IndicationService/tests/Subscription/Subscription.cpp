@@ -1057,7 +1057,8 @@ void _valid (CIMClient & client)
     _addUint16Property (subscription01, "SubscriptionState", 2);
     _addStringProperty (subscription01, "OtherSubscriptionState", String::EMPTY,
         true);
-    _addUint64Property (subscription01, "SubscriptionDuration", 60000000000);
+    _addUint64Property (subscription01, "SubscriptionDuration", 
+        PEGASUS_UINT64_LITERAL(60000000000));
     _addUint16Property (subscription01, "RepeatNotificationPolicy", 1);
     _addStringProperty (subscription01, "OtherRepeatNotificationPolicy", 
         "another policy");
@@ -1077,7 +1078,7 @@ void _valid (CIMClient & client)
     _checkStringProperty (retrievedInstance, "OtherSubscriptionState", 
         String::EMPTY, true);
     _checkUint64Property (retrievedInstance, "SubscriptionDuration", 
-        60000000000);
+        PEGASUS_UINT64_LITERAL(60000000000));
     _checkUint16Property (retrievedInstance, "RepeatNotificationPolicy", 1);
     _checkStringProperty (retrievedInstance, "OtherRepeatNotificationPolicy", 
         "another policy");
@@ -1099,7 +1100,7 @@ void _valid (CIMClient & client)
     _checkStringProperty (instances [0], "OtherSubscriptionState", 
         String::EMPTY, true);
     _checkUint64Property (instances [0], "SubscriptionDuration", 
-        60000000000);
+        PEGASUS_UINT64_LITERAL(60000000000));
     _checkUint16Property (instances [0], "RepeatNotificationPolicy", 1);
     _checkStringProperty (instances [0], "OtherRepeatNotificationPolicy", 
         "another policy");

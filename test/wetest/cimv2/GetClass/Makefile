@@ -13,7 +13,11 @@ XMLSCRIPTS = \
 	   GetClass00013 \
 	   GetClass00014 \
 	   GetClass00015 \
-	   GetClass00016 \
 	   GetClass00017
+
+ifndef SECURITY_ENABLED
+XMLSCRIPTS += \
+           GetClass00016 
+endif
 
 include $(ROOT)/test/configend.mak

@@ -24,22 +24,18 @@
 // Author: Christopher Neufeld <neufeld@linuxcare.com>
 //         David Kennedy       <dkennedy@linuxcare.com>
 //
-// Modified By: David Kennedy       <dkennedy@linuxcare.com>
-//              Christopher Neufeld <neufeld@linuxcare.com>
-//              Al Stone            <ahs3@fc.hp.com>
-//              Jim Metcalfe
-//              Carlos Bonilla
-//              Mike Glantz         <michael_glantz@hp.com>
+// Modified By: 
+//         David Kennedy       <dkennedy@linuxcare.com>
+//         Christopher Neufeld <neufeld@linuxcare.com>
+//         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>
+//         Jim Metcalfe, Hewlett-Packard Company
+//         Carlos Bonilla, Hewlett-Packard Company
+//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
 //
 //%////////////////////////////////////////////////////////////////////////////
 
-#ifndef PG_PROCESS_H
-#define PG_PROCESS_H
-
 #ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-#include "Process_HPUX.h"
+#include "Process_HPUX.cpp"
 #else
-#include "Process_Stub.h"
-#endif
-
+#include "Process_Stub.cpp"
 #endif

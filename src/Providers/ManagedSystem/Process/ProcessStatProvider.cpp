@@ -24,12 +24,13 @@
 // Author: Christopher Neufeld <neufeld@linuxcare.com>
 //         David Kennedy       <dkennedy@linuxcare.com>
 //
-// Modified By: David Kennedy       <dkennedy@linuxcare.com>
-//              Christopher Neufeld <neufeld@linuxcare.com>
-//              Al Stone            <ahs3@fc.hp.com>
-//              Jim Metcalfe
-//              Carlos Bonilla
-//              Mike Glantz         <michael_glantz@hp.com>
+// Modified By:
+//         David Kennedy       <dkennedy@linuxcare.com>
+//         Christopher Neufeld <neufeld@linuxcare.com>
+//         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>
+//         Jim Metcalfe, Hewlett-Packard Company
+//         Carlos Bonilla, Hewlett-Packard Company
+//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -40,9 +41,68 @@
 
 #include "ProcessStatProvider.h"
 
-PEGASUS_USING_STD;
 
-PEGASUS_NAMESPACE_BEGIN
+// ==========================================================================
+// Class names.  These values are the names of the classes that
+// are common for all of the providers.
+//
+// We use CIM_UnitaryComputerSystem as the value of the key
+// CSCreationClassName, because this class has properties that
+// are important for clients of this provider
+// ==========================================================================
+
+#define CLASS_CIM_UNITARY_COMPUTER_SYSTEM "CIM_UnitaryComputerSystem"
+#define CLASS_CIM_OPERATING_SYSTEM        "CIM_OperatingSystem"
+
+// Use PG_UnixProcess* until DMTF finalizes CIM_UnixProcess*
+#define CLASS_UNIX_PROCESS_STAT           "PG_UnixProcessStatisticalInformation"
+#define CLASS_UNIX_PROCESS                "PG_UnixProcess"
+
+/* ==========================================================================
+   The number of keys for the classes.
+   ========================================================================== */
+
+#define NUMKEYS_UNIX_PROCESS_STAT                    7
+
+/* ==========================================================================
+   Property names.  These values are returned by the provider as
+   the property names.
+   ========================================================================== */
+
+// inherited from ManagedElement
+
+#define PROPERTY_CAPTION                     "Caption"
+#define PROPERTY_DESCRIPTION                 "Description"
+
+// Keys
+
+#define PROPERTY_CS_CREATION_CLASS_NAME      "CSCreationClassName"
+#define PROPERTY_CS_NAME                     "CSName"
+#define PROPERTY_OS_CREATION_CLASS_NAME      "OSCreationClassName"
+#define PROPERTY_OS_NAME                     "OSName"
+#define PROPERTY_PROCESS_CREATION_CLASS_NAME "ProcessCreationClassName"
+#define PROPERTY_HANDLE                      "Handle"
+#define PROPERTY_NAME                        "Name"
+
+// Local properties
+
+#define PROPERTY_CPU_TIME                    "CPUTime"
+#define PROPERTY_REAL_TEXT                   "RealText"
+#define PROPERTY_REAL_DATA                   "RealData"
+#define PROPERTY_REAL_STACK                  "RealStack"
+#define PROPERTY_VIRTUAL_TEXT                "VirtualText"
+#define PROPERTY_VIRTUAL_DATA                "VirtualData"
+#define PROPERTY_VIRTUAL_STACK               "VirtualStack"
+#define PROPERTY_VIRTUAL_MEMORY_MAPPED_FILESIZE  "VirtualMemoryMappedFileSize"
+#define PROPERTY_VIRTUAL_SHARED_MEMORY       "VirtualSharedMemory"
+#define PROPERTY_CPU_TIME_DEAD_CHILDREN      "CpuTimeDeadChildren"
+#define PROPERTY_SYSTEM_TIME_DEAD_CHILDREN   "SystemTimeDeadChildren"
+#define PROPERTY_REAL_SPACE                  "RealSpace"
+
+
+PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
+
 
 ProcessStatProvider::ProcessStatProvider()
 {
@@ -57,7 +117,7 @@ ProcessStatProvider::~ProcessStatProvider()
 /*
 ================================================================================
 NAME              : createInstance
-DESCRIPTION       : Create a PG_UnixProcessStatisticalInformation instance.
+DESCRIPTION       : Create a UnixProcessStatisticalInformation instance.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
 POST-CONDITIONS   :
@@ -71,13 +131,15 @@ void ProcessStatProvider::createInstance(const OperationContext       &context,
                     ResponseHandler<CIMReference> &handler)
 
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+  // There is no useful meaning to creating an instance
+  // of this class
+  throw NotSupported(String::EMPTY);
 }
 
 /*
 ================================================================================
 NAME              : deleteInstance
-DESCRIPTION       : Delete a PG_UnixProcessStatisticalInformation instance.
+DESCRIPTION       : Delete a UnixProcessStatisticalInformation instance.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
 POST-CONDITIONS   :
@@ -90,18 +152,21 @@ void ProcessStatProvider::deleteInstance(const OperationContext       &context,
                     ResponseHandler<CIMInstance> &handler)
 
 { 
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+  // There is no useful meaning to deleting an instance
+  // of this class
+  throw NotSupported(String::EMPTY);
 }
 
 /*
 ================================================================================
 NAME              : enumerateInstances
-DESCRIPTION       : Enumerates all of the PG_UnixProcessStatisticalInformation instances.
+DESCRIPTION       : Enumerates all UnixProcessStatisticalInformation instances.
                     An array of instance references is returned.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
 POST-CONDITIONS   :
-NOTES             : 
+NOTES             : LocalOnly, DeepInheritance and propertyList are not
+                  : respected by this provider. Localization is not supported
 PARAMETERS        :
 ================================================================================
 */
@@ -114,41 +179,41 @@ void ProcessStatProvider::enumerateInstances(
 {   
   // cout << "ProcessStatProvider::enumerateInstances()" << endl;
 
-    Process _p;
-    int                 pIndex;
-    String              className;
+  Process _p;
+  int pIndex;
+  String className;
 
-    /* Validate the classname.  */
-    className = classReference.getClassName();
-    _checkClass(className);
+  /* Validate the classname.  */
+  className = classReference.getClassName();
+  _checkClass(className);
 
-    /* Notify processing is starting. */
-    handler.processing();
+  /* Notify processing is starting. */
+  handler.processing();
 
-    /* Get the process information and construct an instance for each */
-    /* process.                                                       */
-    for (pIndex = 0; _p.getProcessInfo(pIndex); )
-    {
-        /* Deliver the instance. */
-        handler.deliver(_constructInstance(CLASS_PG_UNIX_PROCESS_STAT,_p));
-    }
+  // Get the process information and construct and deliver
+  // an instance for each process
+  // HP-UX NOTE: loadProcessInfo will change the value of pIndex
+  // in order to skip over unused entries in the process table
+  // Do not depend on this counter incrementing sequentially!
+  for (pIndex = 0; _p.loadProcessInfo(pIndex); pIndex++)
+    handler.deliver(_constructInstance(CLASS_UNIX_PROCESS_STAT, _p));
 
-    /* Notify processing is complete. */
-    handler.complete();
+  /* Notify processing is complete. */
+  handler.complete();
 
-    return;
+  return;
 }  /* enumerateInstances */
 
 
 /*
 ================================================================================
 NAME              : enumerateInstanceNames
-DESCRIPTION       : Enumerates all of the PG_UnixProcessStatisticalInformation instance names.
+DESCRIPTION       : Enumerates all UnixProcessStatisticalInformation instance names.
                     An array of instance references is returned.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
 POST-CONDITIONS   :
-NOTES             : 
+NOTES             : Localization is not supported
 PARAMETERS        :
 ================================================================================
 */
@@ -156,71 +221,75 @@ void ProcessStatProvider::enumerateInstanceNames(const OperationContext &ctx,
                             const CIMReference &ref,
                             ResponseHandler<CIMReference> &handler)
 {
-    // cout << "ProcessStatProvider::enumerateInstanceNames()" << endl;
+  // cout << "ProcessStatProvider::enumerateInstanceNames()" << endl;
 
-    int                 pIndex;
-    Process _p;
-    String              className;
+  int pIndex;
+  Process _p;
+  String className;
     
-    /* Validate the classname.  */
-    className = ref.getClassName();
-    _checkClass(className);
+  /* Validate the classname.  */
+  className = ref.getClassName();
+  _checkClass(className);
 
+    String csName = _getCSName();
+    String osName = _getOSName();
     String ns = ref.getNameSpace();
 
-    /* Notify processing is starting. */
-    handler.processing();
 
-    /* Get the process information and construct the key bindings for */
-    /* each process.                                                  */
-    // Note that getProcessInfo modifies pIndex to point to the
-    // next process structure
-    for (pIndex = 0; _p.getProcessInfo(pIndex); )
-    {
-            Array<KeyBinding> keyBindings;
+  /* Notify processing is starting. */
+  handler.processing();
 
-            /* Construct the key bindings. */
-            keyBindings.append(KeyBinding(PROPERTY_CS_CREATION_CLASS_NAME,
-	    	                          String::EMPTY,
-                                          KeyBinding::STRING));
+  /* Get the process information and construct the key bindings for */
+  /* each process.                                                  */
+  // Note that loadProcessInfo modifies pIndex to point to the
+  // next process structure
+  for (pIndex = 0; _p.loadProcessInfo(pIndex); pIndex++)
+  {
+    Array<KeyBinding> keyBindings;
+
+    // Construct the key bindings
+    keyBindings.append(KeyBinding(PROPERTY_CS_CREATION_CLASS_NAME,
+                                  CLASS_CIM_UNITARY_COMPUTER_SYSTEM,
+                                  KeyBinding::STRING));
 		
-            keyBindings.append(KeyBinding(PROPERTY_CS_NAME,
-                                          String::EMPTY,
-                                          KeyBinding::STRING));
+    keyBindings.append(KeyBinding(PROPERTY_CS_NAME,
+                                  csName,
+                                  KeyBinding::STRING));
     
-            keyBindings.append(KeyBinding(PROPERTY_OS_CREATION_CLASS_NAME,
-		                          String::EMPTY,
-                                          KeyBinding::STRING));
+    keyBindings.append(KeyBinding(PROPERTY_OS_CREATION_CLASS_NAME,
+                                  CLASS_CIM_OPERATING_SYSTEM,
+                                  KeyBinding::STRING));
 		
-            keyBindings.append(KeyBinding(PROPERTY_OS_NAME,
-                                          String::EMPTY,
-                                          KeyBinding::STRING));
+    keyBindings.append(KeyBinding(PROPERTY_OS_NAME,
+                                  osName,
+                                  KeyBinding::STRING));
 
-            keyBindings.append(KeyBinding(PROPERTY_PROCESS_CREATION_CLASS_NAME,
-		                          CLASS_PG_UNIX_PROCESS,
-                                          KeyBinding::STRING));
+    keyBindings.append(KeyBinding(PROPERTY_PROCESS_CREATION_CLASS_NAME,
+                                  CLASS_UNIX_PROCESS,
+                                  KeyBinding::STRING));
 
-            keyBindings.append(KeyBinding(PROPERTY_HANDLE,
-                                          _p.getHandle(),
-                                          KeyBinding::STRING));
+    keyBindings.append(KeyBinding(PROPERTY_HANDLE,
+                                  _p.getHandle(),
+                                  KeyBinding::STRING));
 
-            keyBindings.append(KeyBinding(PROPERTY_NAME,
-                                          _p.getHandle(),
-                                          KeyBinding::STRING));
+    // We return a time stamp to uniquely identify this
+    // instance of UnixProcessStatisticalInformation
+    keyBindings.append(KeyBinding(PROPERTY_NAME,
+                                  _p.getCurrentTime(),
+                                  KeyBinding::STRING));
 
-            /* Deliver the names. */
-            handler.deliver(CIMReference(String::EMPTY, // hostname
-                                         ref.getNameSpace(),
-                                         CLASS_PG_UNIX_PROCESS_STAT,
-                                         keyBindings));
+    // Deliver the names
+    handler.deliver(CIMReference(String::EMPTY, // hostname
+                                 ns,
+                                 CLASS_UNIX_PROCESS_STAT,
+                                 keyBindings));
 
-    } /* for */
+  } // for
 
-    /* Notify processing is complete. */
-    handler.complete();
+  /* Notify processing is complete. */
+  handler.complete();
 
-    return;
-
+  return;
 }  /* enumerateInstanceNames */
 
 /*
@@ -230,7 +299,8 @@ DESCRIPTION       : Returns a single instance.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
 POST-CONDITIONS   :
-NOTES             : 
+NOTES             : LocalOnly, DeepInheritance and propertyList are not
+                  : respected by this provider. Localization is not supported
 PARAMETERS        :
 ================================================================================
 */
@@ -240,144 +310,139 @@ void ProcessStatProvider::getInstance(const OperationContext &ctx,
                  const CIMPropertyList        &propertyList,
                  ResponseHandler<CIMInstance> &handler)
 {	
-    // cout << "ProcessStatProvider::getInstance()" << endl;
+  // cout << "ProcessStatProvider::getInstance()" << endl;
 
-    KeyBinding         kb;
-    String             className;
-    String             handle;
-    int                pid;
-    int                i;
-    int                numberKeys = 0;
-    Process _p;
-    int                pIndex;
+  KeyBinding kb;
+  String className;
+  String handle;
+  int i;
+  int keysFound; // this will be used as a bit array
+  Process _p;
 
-    /* Validate the classname.  */
-    className = instanceName.getClassName();
-    _checkClass(className);
+  // Validate the classname
+  className = instanceName.getClassName();
+  _checkClass(className);
 
-    String ns = instanceName.getNameSpace();
+  // Extract the key values
+  Array<KeyBinding> kbArray = instanceName.getKeyBindings();
 
-    /* Extract the key values. */
-    Array<KeyBinding> kbArray = instanceName.getKeyBindings();
+  // Leave immediately if wrong number of keys
+  if ( kbArray.size() != NUMKEYS_UNIX_PROCESS_STAT )
+    throw InvalidParameter("Wrong number of keys");
 
-    /* Validate the key bindings.  There are six keys for this class. */
-    for(i=0;i<kbArray.size();i++)
+  // Validate the keys.
+  // Each loop iteration will set a bit in keysFound when a valid
+  // key is found. If the expected bits aren't all set when
+  // the loop finishes, it's a problem
+  for(i=0, keysFound=0; i<NUMKEYS_UNIX_PROCESS_STAT; i++)
+  {
+    kb = kbArray[i];
+
+    String keyName = kb.getName();
+    String keyValue = kb.getValue();
+
+    // CSCreationClassName can be empty or must match
+    if (String::equalNoCase(keyName, PROPERTY_CS_CREATION_CLASS_NAME))
     {
-        if ( kbArray.size() != 6)
-	{
-	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
-	}
-
-	kb = kbArray[i];
-
-	String keyName = kb.getName();
-	String keyValue = kb.getValue();
-
-        // CSCreationClassName can be empty or must match
-	if (String::equalNoCase(keyName, PROPERTY_CS_CREATION_CLASS_NAME) &&
-	    (String::equal(keyValue, String::EMPTY) ||
-	     String::equalNoCase(keyValue, CLASS_CIM_UNITARY_COMPUTER_SYSTEM)))   
-	{
-	    numberKeys++;
-	}
+      if (String::equal(keyValue, String::EMPTY) ||
+          String::equalNoCase(keyValue, CLASS_CIM_UNITARY_COMPUTER_SYSTEM))
+        keysFound |= 1;
+      else
+        throw InvalidParameter(keyValue+": bad value for key "+keyName);
+    }
 	
-	// CSName can be empty or must match
-	else if (String::equalNoCase(keyName, PROPERTY_CS_NAME) &&
-	         (String::equal(keyValue, String::EMPTY) ||
-                  String::equalNoCase(keyValue, _getCSName())))
-	{
-	    numberKeys++;
-	}
+    // CSName can be empty or must match
+    else if (String::equalNoCase(keyName, PROPERTY_CS_NAME))
+    {
+      if (String::equal(keyValue, String::EMPTY) ||
+          String::equalNoCase(keyValue, _getCSName()))
+        keysFound |= 2;
+      else
+        throw InvalidParameter(keyValue+": bad value for key "+keyName);
+    }
 
-        // OSCreationClassName can be empty or must match
-	else if (String::equalNoCase(keyName,PROPERTY_OS_CREATION_CLASS_NAME) &&
-	         (String::equal(keyValue, String::EMPTY) ||
-	          String::equalNoCase(keyValue, CLASS_CIM_OPERATING_SYSTEM)))
-	{
-	    numberKeys++;
-	}
+    // OSCreationClassName can be empty or must match
+    else if (String::equalNoCase(keyName,PROPERTY_OS_CREATION_CLASS_NAME))
+    {
+      if (String::equal(keyValue, String::EMPTY) ||
+	  String::equalNoCase(keyValue, CLASS_CIM_OPERATING_SYSTEM))
+        keysFound |= 4;
+      else
+        throw InvalidParameter(keyValue+": bad value for key "+keyName);
+    }
 
-        // OSName can be empty or must match
-	else if (String::equalNoCase(keyName, PROPERTY_OS_NAME) &&
-	         (String::equal(keyValue, String::EMPTY) ||
-	          String::equalNoCase(keyValue, _getOSName())))
-	{
-	    numberKeys++;
-	}
+    // OSName can be empty or must match
+    else if (String::equalNoCase(keyName, PROPERTY_OS_NAME))
+    {
+      if (String::equal(keyValue, String::EMPTY) ||
+	  String::equalNoCase(keyValue, _getOSName()))
+        keysFound |= 8;
+      else
+        throw InvalidParameter(keyValue+": bad value for key "+keyName);
+    }
 
-        // CreationClassName can be empty or must match
-	else if (String::equalNoCase(keyName,
-	                             PROPERTY_PROCESS_CREATION_CLASS_NAME) &&
-	         (String::equal(keyValue, String::EMPTY) ||
-	          String::equalNoCase(keyValue, CLASS_PG_UNIX_PROCESS)))
-        {
-	    numberKeys++;
-	}
+    // CreationClassName can be empty or must match
+    else if (String::equalNoCase(keyName, PROPERTY_PROCESS_CREATION_CLASS_NAME))
+    {
+      if (String::equal(keyValue, String::EMPTY) ||
+	  String::equalNoCase(keyValue, CLASS_UNIX_PROCESS))
+        keysFound |= 16;
+      else
+        throw InvalidParameter(keyValue+": bad value for key "+keyName);
+    }
 
-        // Handle must be a valid pid, but we will know that later
-	else if (String::equal(keyName, PROPERTY_HANDLE))
-	{
-            handle = keyValue;
-	    numberKeys++;
-	}
+    // Handle must be a valid pid, but we will know that later
+    // For now, just verify that it's present
+    else if (String::equalNoCase(keyName, PROPERTY_HANDLE))
+    {
+      handle = keyValue;
+      keysFound |= 32;
+    }
 
-        // Name must match Handle
-	else if (String::equal(keyName, PROPERTY_NAME) &&
-	         String::equal(keyValue, handle))
-	{
-	    numberKeys++;
-	}
+    // Name must be present, but we don't care what it is
+    else if (String::equalNoCase(keyName, PROPERTY_NAME))
+      keysFound |= 64;
 
-	else
-	{
-	    throw CIMException(CIM_ERR_INVALID_PARAMETER);
-	}
+    // Key name was not recognized by any of the above tests
+    else throw InvalidParameter(keyName+ ": Unrecognized key");
 		
-    } /* for */
+  } /* for */
 
-    if(numberKeys != 7)
-    {
-        throw CIMException(CIM_ERR_NOT_FOUND);
-    }
+  // We could get here if we didn't get all the keys, which
+  // could happen if the right number of keys were supplied,
+  // and they all had valid names and values, but there were
+  // any duplicates (e.g., two Handles, no OSName)
+  if(keysFound != (1<<NUMKEYS_UNIX_PROCESS_STAT)-1)
+    throw InvalidParameter("Bad object name");
 	    
-    /* Find the instance.  First convert the instance id which is the */
-    /* process handle to an integer.  This is necessary because the   */
-    /* handle is the process id on HP-UX which must be passed to      */
-    /* pstat_getproc() as an integer.                                 */
+  /* Find the instance.  First convert the instance id which is the */
+  /* process handle to an integer.  This is necessary because the   */
+  /* handle is the process id on HP-UX which must be passed to      */
+  /* pstat_getproc() as an integer.                                 */
 
-    char *h = handle.allocateCString();
-    pid = atoi(h);
-    delete [] h;
+  /* Get the process information. */
+  if (_p.findProcess(handle))
+  {
+    /* Notify processing is starting. */
+    handler.processing();
 
-    /* Get the process information. */
-    // step through processes; if this loop finishes, there's a problem
-    for (pIndex = 0; _p.getProcessInfo(pIndex); )
-    {
-        char *h = _p.getHandle().allocateCString();
-        int pid2 = atoi(h);
-        delete [] h;
-        if (pid == pid2)
-        {
-            /* Notify processing is starting. */
-            handler.processing();
+    /* Return the instance. */
+    handler.deliver(_constructInstance(CLASS_UNIX_PROCESS_STAT,_p));
 
-            /* Return the instance. */
-            handler.deliver(_constructInstance(CLASS_PG_UNIX_PROCESS_STAT,_p));
-
-            /* Notify processing is complete. */
-            handler.complete();
-            return;
-        }
-    }
-    throw CIMException(CIM_ERR_NOT_FOUND);
-
+    /* Notify processing is complete. */
+    handler.complete();
     return;
+  }
+
+  throw ObjectNotFound(handle+": No such process");
+
+  return; // can never execute, but required to keep compiler happy
 }
 
 /*
 ================================================================================
 NAME              : modifyInstance
-DESCRIPTION       : Modify a PG_UnixProcessStatisticalInformation instance.
+DESCRIPTION       : Modify a UnixProcessStatisticalInformation instance.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
 POST-CONDITIONS   :
@@ -392,7 +457,9 @@ void ProcessStatProvider::modifyInstance(const OperationContext       &context,
 		    const CIMPropertyList        &propertyList,
                     ResponseHandler<CIMInstance> &handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+  // There is no useful meaning for this operation
+  // on this class
+  throw NotSupported(String::EMPTY);
 }
 
 /*
@@ -409,7 +476,7 @@ PARAMETERS        :
 void ProcessStatProvider::initialize(CIMOMHandle &ch)
 {
   // cout << "ProcessStatProvider::initialize()" << endl;
-  _ch = ch;
+  _cimomHandle = ch;
 
   // call platform-specific routine to get values
   Process _p;
@@ -435,17 +502,19 @@ void ProcessStatProvider::terminate()
   // cout << "ProcessStatProvider::terminate()" << endl;
 }
 
-/*
-================================================================================
-NAME              : _constructInstance
-DESCRIPTION       : Constructs the instance's property values.
-ASSUMPTIONS       : None
-PRE-CONDITIONS    :
-POST-CONDITIONS   :
-NOTES             : 
-PARAMETERS        : instance            (IN/OUT)
-================================================================================
-*/
+
+// ================================================================================
+// NAME              : _constructInstance
+// DESCRIPTION       : Constructs instance by adding its properties. The
+//                   : Process instance argument has already been filled in
+//                   : with data from an existing process
+// ASSUMPTIONS       : None
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             : 
+// PARAMETERS        : className, Process
+// ================================================================================
+
 CIMInstance ProcessStatProvider::_constructInstance(const String &className,
                                          const Process &_p) 
 {
@@ -466,31 +535,39 @@ CIMInstance ProcessStatProvider::_constructInstance(const String &className,
   if (_p.getDescription(s))
     inst.addProperty(CIMProperty(PROPERTY_DESCRIPTION,s));
 
-// PG_UnixProcessStatisticalInformation
+// =================================================
+// Keys defined in UnixProcessStatisticalInformation
+// =================================================
 
 //   [ key ] string CSCreationClassName
-  inst.addProperty(CIMProperty(PROPERTY_CS_CREATION_CLASS_NAME, String::EMPTY));
+  inst.addProperty(CIMProperty(PROPERTY_CS_CREATION_CLASS_NAME,
+                               CLASS_CIM_UNITARY_COMPUTER_SYSTEM));
 
 //   [ key ] string CSName
-  inst.addProperty(CIMProperty(PROPERTY_CS_NAME, String::EMPTY));
+  inst.addProperty(CIMProperty(PROPERTY_CS_NAME, _getCSName()));
 
 //   [ key ] string OSCreationClassName
-  inst.addProperty(CIMProperty(PROPERTY_OS_CREATION_CLASS_NAME, String::EMPTY));
+  inst.addProperty(CIMProperty(PROPERTY_OS_CREATION_CLASS_NAME,
+                               CLASS_CIM_OPERATING_SYSTEM));
 
 //   [ key ] string OSName
-  inst.addProperty(CIMProperty(PROPERTY_OS_NAME, String::EMPTY));
+  inst.addProperty(CIMProperty(PROPERTY_OS_NAME, _getOSName()));
 
 //   [ key ] string ProcessCreationClassName
   inst.addProperty(CIMProperty(PROPERTY_PROCESS_CREATION_CLASS_NAME,
-                               CLASS_PG_UNIX_PROCESS));
+                               CLASS_UNIX_PROCESS));
 
 //   [ key ] string Handle
   inst.addProperty(CIMProperty(PROPERTY_HANDLE,_p.getHandle()));
 
-//   [ key ] string Name ATTN: *** use Handle ***
-  inst.addProperty(CIMProperty(PROPERTY_NAME,_p.getHandle()));
+//   [ key ] string Name: return a time stamp for client to
+//   be able to distinguish different samples of this data
+//   Note that this key will be ignored by getInstance()
+  inst.addProperty(CIMProperty(PROPERTY_NAME, _p.getCurrentTime()));
 
-// PG_UnixProcessStatisticalInformation
+// ===============================================
+// Properties in UnixProcessStatisticalInformation
+// ===============================================
 
 //    uint32 CPUTime
   if (_p.getCPUTime(i32))
@@ -554,8 +631,11 @@ POST-CONDITIONS   :
 NOTES             : 
 ================================================================================
 */
-String ProcessStatProvider::_getOSName()
+String &ProcessStatProvider::_getOSName()
 {
+  // This routine could do something dynamic; for nooow
+  // it returns a string that was captured when the
+  // initialize() method was invoked
   return _osName;
 }
 
@@ -570,18 +650,28 @@ POST-CONDITIONS   :
 NOTES             :
 ================================================================================
 */
-String ProcessStatProvider::_getCSName()
+String &ProcessStatProvider::_getCSName()
 {
+  // This routine could do something dynamic; for nooow
+  // it returns a string that was captured when the
+  // initialize() method was invoked
   return _hostName;
 }
 
+
+/*
+================================================================================
+NAME              : _checkClass
+DESCRIPTION       : tests the argument for valid classname,
+                  : throws exception if not
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   : 
+NOTES             :
+================================================================================
+*/
 void ProcessStatProvider::_checkClass(String& className)
 {
-    if (!String::equalNoCase(className, CLASS_PG_UNIX_PROCESS_STAT))
-    {
-        throw CIMException(CIM_ERR_NOT_SUPPORTED);
-    }
+  if (!String::equalNoCase(className, CLASS_UNIX_PROCESS_STAT))
+    throw NotSupported(className+": Class not supported");
 }
-
-
-PEGASUS_NAMESPACE_END

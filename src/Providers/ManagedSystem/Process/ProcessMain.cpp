@@ -24,12 +24,13 @@
 // Author: Christopher Neufeld <neufeld@linuxcare.com>
 //         David Kennedy       <dkennedy@linuxcare.com>
 //
-// Modified By: David Kennedy       <dkennedy@linuxcare.com>
-//              Christopher Neufeld <neufeld@linuxcare.com>
-//              Al Stone            <ahs3@fc.hp.com>
-//              Jim Metcalfe
-//              Carlos Bonilla
-//              Mike Glantz         <michael_glantz@hp.com>
+// Modified By:
+//         David Kennedy       <dkennedy@linuxcare.com>
+//         Christopher Neufeld <neufeld@linuxcare.com>
+//         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>
+//         Jim Metcalfe, Hewlett-Packard Company
+//         Carlos Bonilla, Hewlett-Packard Company
+//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -37,8 +38,8 @@
 #include "ProcessStatProvider.h"
 
 PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
 
-PEGASUS_NAMESPACE_BEGIN
 
 extern "C" PEGASUS_EXPORT CIMBaseProvider* PegasusCreateProvider(String &name)
 {
@@ -46,5 +47,3 @@ extern "C" PEGASUS_EXPORT CIMBaseProvider* PegasusCreateProvider(String &name)
   else if (name == "ProcessStatProvider") return new ProcessStatProvider;
   else return 0;
 }
-
-PEGASUS_NAMESPACE_END

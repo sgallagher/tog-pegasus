@@ -24,12 +24,13 @@
 // Author: Christopher Neufeld <neufeld@linuxcare.com>
 //         David Kennedy       <dkennedy@linuxcare.com>
 //
-// Modified By: David Kennedy       <dkennedy@linuxcare.com>
-//              Christopher Neufeld <neufeld@linuxcare.com>
-//              Al Stone            <ahs3@fc.hp.com>
-//              Jim Metcalfe
-//              Carlos Bonilla
-//              Mike Glantz         <michael_glantz@hp.com>
+// Modified By:
+//         David Kennedy       <dkennedy@linuxcare.com>
+//         Christopher Neufeld <neufeld@linuxcare.com>
+//         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>
+//         Jim Metcalfe, Hewlett-Packard Company
+//         Carlos Bonilla, Hewlett-Packard Company
+//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -41,59 +42,10 @@
    ========================================================================== */
 
 #include <Pegasus/Provider/CIMInstanceProvider.h>
-#include "Process.h"
+#include "ProcessPlatform.h"
 
-PEGASUS_NAMESPACE_BEGIN
-
-/* ==========================================================================
-   Class names.  These values are the names of the classes that
-   are common for all of the providers.
-   ========================================================================== */
-#define CLASS_CIM_UNITARY_COMPUTER_SYSTEM  "CIM_UnitaryComputerSystem"
-#define CLASS_CIM_OPERATING_SYSTEM         "CIM_OperatingSystem"
-#define CLASS_CIM_PROCESS                  "CIM_Process"
-#define CLASS_PG_UNIX_PROCESS              "PG_UnixProcess"
-
-/* ==========================================================================
-   The number of keys for the classes.
-   ========================================================================== */
-#define KEYS_PG_UNIX_PROCESS                    6
-
-/* ==========================================================================
-   Property names.  These values are returned by the provider as
-   the property names.
-   ========================================================================== */
-#define PROPERTY_CS_CREATION_CLASS_NAME      "CSCreationClassName"
-#define PROPERTY_CS_NAME                     "CSName"
-#define PROPERTY_OS_CREATION_CLASS_NAME      "OSCreationClassName"
-#define PROPERTY_OS_NAME                     "OSName"
-#define PROPERTY_CREATION_CLASS_NAME         "CreationClassName"
-#define PROPERTY_HANDLE                      "Handle"
-
-#define PROPERTY_CAPTION                     "Caption"
-#define PROPERTY_DESCRIPTION                 "Description"
-#define PROPERTY_INSTALL_DATE                "InstallDate"
-#define PROPERTY_STATUS                      "Status"
-
-#define PROPERTY_NAME                        "Name"
-#define PROPERTY_PRIORITY                    "Priority"
-#define PROPERTY_EXECUTION_STATE             "ExecutionState"
-#define PROPERTY_OTHER_EXECUTION_DESCRIPTION "OtherExecutionDescription"
-#define PROPERTY_CREATION_DATE               "CreationDate"
-#define PROPERTY_TERMINATION_DATE            "TerminationDate"
-#define PROPERTY_KERNEL_MODE_TIME            "KernelModeTime"
-#define PROPERTY_USER_MODE_TIME              "UserModeTime"
-#define PROPERTY_WORKING_SET_SIZE            "WorkingSetSize"
-
-#define PROPERTY_PARENT_PROCESS_ID           "ParentProcessID"
-#define PROPERTY_REAL_USER_ID                "RealUserID"
-#define PROPERTY_PROCESS_GROUP_ID            "ProcessGroupID"
-#define PROPERTY_PROCESS_SESSION_ID          "ProcessSessionID"
-#define PROPERTY_PROCESS_TTY                 "ProcessTTY"
-#define PROPERTY_MODULE_PATH                 "ModulePath"
-#define PROPERTY_PARAMETERS                  "Parameters"
-#define PROPERTY_PROCESS_NICE_VALUE          "ProcessNiceValue"
-#define PROPERTY_PROCESS_WAITING_FOR_EVENT   "ProcessWaitingForEvent"
+PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
 
 
 class ProcessProvider : public CIMInstanceProvider
@@ -138,27 +90,40 @@ public:
 		    const CIMPropertyList        &propertyList,
                     ResponseHandler<CIMInstance> &handler);
 
-  void initialize(CIMOMHandle &ch);
+  void initialize(CIMOMHandle&);
 
   void terminate(void);
 
 private:
 
-  CIMOMHandle _ch;
+  // private member to store handle passed by initialize()
+  CIMOMHandle _cimomHandle;
 
-  CIMInstance _constructInstance(const String &, const Process &);
+  // Used to add properties to an instance
+  // first argument is the class of instance to be built
+  // second argument is a Process instance that contains
+  // process status information that has been fetched
+  CIMInstance _constructInstance(const String &clnam, const Process &p);
 
+  // checks the class passed by the cimom and throws
+  // an exception if it's not supported by this provider
   void _checkClass(String&);
 
-  String _getCSName(void);
+  // returns the private member _hostname
+  // used so that a future version could obtain this
+  // value dynamically, if necessary
+  String &_getCSName(void);
 
-  String _getOSName(void);
+  // returns the private member _osName
+  // for same reason as above
+  String &_getOSName(void);
 
+  // uninitialized; will be set during initialize() processing
   String _hostName;
 
+  // uninitialized; will be set during initialize() processing
   String _osName;
 };
 
-PEGASUS_NAMESPACE_END
 
 #endif  /* #ifndef PG_PROCESS_PROVIDER_H */

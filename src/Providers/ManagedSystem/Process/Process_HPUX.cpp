@@ -24,12 +24,13 @@
 // Author: Christopher Neufeld <neufeld@linuxcare.com>
 //         David Kennedy       <dkennedy@linuxcare.com>
 //
-// Modified By: David Kennedy       <dkennedy@linuxcare.com>
-//              Christopher Neufeld <neufeld@linuxcare.com>
-//              Al Stone            <ahs3@fc.hp.com>
-//              Jim Metcalfe
-//              Carlos Bonilla
-//              Mike Glantz         <michael_glantz@hp.com>
+// Modified By:
+//         David Kennedy       <dkennedy@linuxcare.com>
+//         Christopher Neufeld <neufeld@linuxcare.com>
+//         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>
+//         Jim Metcalfe, Hewlett-Packard Company
+//         Carlos Bonilla, Hewlett-Packard Company
+//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -37,12 +38,11 @@
    Includes.
    ========================================================================== */
 
-#include "Process.h"
+#include "ProcessPlatform.h"
+#include <errno.h>
 
 PEGASUS_USING_STD;
-
-PEGASUS_NAMESPACE_BEGIN
-
+PEGASUS_USING_PEGASUS;
 
 Process::Process()
 {
@@ -98,7 +98,10 @@ NOTES             :
 */
 Boolean Process::getInstallDate(CIMDateTime& d) const
 {
-  // not supported
+  // Not supported. This property is inherited from
+  // CIM_ManagedSystemElement, but has no useful meaning
+  // for a transient entity such as a process (there is a
+  // suitable property CreationDate below
   return false;
 }
 
@@ -114,7 +117,9 @@ NOTES             :
 */
 Boolean Process::getStatus(String& s) const
 {
-  // not supported, but see getExecutionState below
+  // This property is inherited from CIM_ManagedSystemElement,
+  // is not relevant, but the process class has defined a
+  // more useful property, below: ExecutionState
   return false;
 }
 
@@ -131,8 +136,10 @@ NOTES             :
 Boolean Process::getName(String& s) const
 {
   // We will return the basename of the executable image,
-  // rather than the actual command line, since this is a
-  // reliable command, unlike the command line
+  // rather than the actual command line, since this is
+  // reliably the name of an executable image, unlike the
+  // first token on the command line, which could be an
+  // alias, or could even be something completely irrelevant
   s = pInfo.pst_ucomm;
   return true;
 }
@@ -165,34 +172,58 @@ NOTES             :
 */
 Boolean Process::getExecutionState(Uint16& i16) const
 {
+  /* 
+     From the MOF for this class:
+      [Description (
+        "Indicates the current operating condition of the Process. "
+        "Values include ready (2), running (3), and blocked (4), "
+        "among others."),
+       Values {"Unknown", "Other", "Ready", "Running", 
+               "Blocked", "Suspended Blocked", "Suspended Ready", 
+               "Terminated", "Stopped", "Growing" },
+   */
+
+  enum
+  { Unknown,
+    Other,
+    Ready,
+    Running,
+    Blocked,
+    Suspended_Blocked,
+    Suspended_Ready,
+    Terminated,
+    Stopped,
+    Growing
+  };
+
   switch (pInfo.pst_stat)
   {
   case PS_SLEEP:
-    i16 = 6; // Suspended Ready
+    i16 = Suspended_Ready;
     break;
 
   case PS_RUN:
-    i16 = 3;
+    i16 = Running;
     break;
 
   case PS_STOP:
-    i16 = 8;
+    i16 = Stopped;
     break;
 
   case PS_ZOMBIE:
-    i16 = 1; // need to coordinate this with OtherExecutionDescription
+    i16 = Other; // this is coordinated with OtherExecutionDescription
     break;
 
   case PS_IDLE:
-    i16 = 2; // we are saying this is Ready
+    i16 = Ready;
     break;
 
   case PS_OTHER:
-    i16 = 1;
+    i16 = Other; // This is coordinated with OtherExecutionDescription
     break;
 
   default:
-    i16 = 0; // unknown
+    i16 = Unknown;
   }
   return true;
 }
@@ -221,6 +252,8 @@ Boolean Process::getOtherExecutionDescription(String& s) const
   
   default:
     s = String::EMPTY; // ExecutionState is not Other
+    // In this case, the caller must know to set the
+    // property value to NULL (XML: no <VALUE> element)
   }
 
   return true;
@@ -240,6 +273,15 @@ Boolean Process::getCreationDate(CIMDateTime& d) const
 {
   // convert time to a usable format
   struct tm *t = localtime((time_t*)&pInfo.pst_start);
+
+  // If localtime() failed, we will not return this property
+  // There's really no way it can fail for a process start time
+  // since the only failures occur when its argument is not a
+  // valid time, but if this happened, the system must have had
+  // some serious problem to return an invalid time for a
+  // process creation time
+  if (t == 0) return false;
+
   // convert to CIMDateTime format
   char timstr[26];
   sprintf(timstr,"%04d%02d%02d%02d%02d%02d.000000%c%03d",t->tm_year+1900,
@@ -266,7 +308,10 @@ NOTES             :
 */
 Boolean Process::getTerminationDate(CIMDateTime& d) const
 {
-  // not supported
+  // Not supported: this is a dynamic provider that can only
+  // return information on processes while they exist. A
+  // different provider that saved information about previously
+  // existing processes might fill in this property (if it could)
   return false;
 }
 
@@ -318,6 +363,21 @@ NOTES             :
 */
 Boolean Process::getWorkingSetSize(Uint64& i64) const
 {
+  /*
+     From MOF:
+      [Gauge, Description (
+        "The amount of memory in bytes that a Process needs to "
+        "execute efficiently, for an OperatingSystem that uses "
+        "page-based memory management.  If an insufficient amount "
+        "of memory is available (< working set size), thrashing "
+        "will occur.  If this information is not known, NULL or 0 "
+        "should be entered.  If this data is provided, it could be "
+        "monitored to understand a Process' changing memory "
+        "requirements as execution proceeds."),
+       Units ("Bytes") ]
+   uint64 WorkingSetSize;
+   */
+
   i64 = 0;
   return true;
 }
@@ -382,9 +442,13 @@ NOTES             :
 */
 Boolean Process::getProcessTTY(String& s) const
 {
-  // ATTN: The following conversion from major/minor returned
+  // ATTN-MG-P3-20020503: The following conversion from major/minor returned
   // by pstat_getproc() to deviceID used by devnm() may
-  // not be supported
+  // not be supported. Also, while the use of major/minor for device
+  // identification will continue to be supported, future enhancements
+  // to various operating systems might add other important info which
+  // is not represented in major/minor, and this code may have to be
+  // modified to obtain additional information
   
   if (pInfo.pst_major == -1 && pInfo.pst_minor == -1)
   {
@@ -411,11 +475,12 @@ NOTES             :
 */
 Boolean Process::getModulePath(String& s) const
 {
-  // ATTN: Not sure how to get this, because the first token
-  // of the command line is not guaranteed to be the path, and
-  // there is really no way to get the path of the image being
-  // executed by a process (but we will return the entire command
-  // string as the Parameters property below)
+  // We don't support this property, because there's no
+  // reliable way to get the module path for a command
+
+  // ATTN-MG-P5-20020503: it may be possible to build this
+  // from the PATH environment variable and the command
+  // basename returned in pst_status.pst_ucomm
   return false;
 }
 
@@ -431,7 +496,9 @@ NOTES             :
 */
 Boolean Process::getParameters(Array<String>& as) const
 {
-  // ATTN: we will return the full command line (see ModulePath above)
+  // ATTN-MG-P5-20020503: we return the full command line
+  // including the first "argument", which is the command.
+  // This could be considered incorrect.
 
   // start with p at beginning of string
   // q is position of first blank after p
@@ -478,6 +545,8 @@ NOTES             :
 */
 Boolean Process::getProcessWaitingForEvent(String& s) const
 {
+  // Not supported. It is not feasible to determine what event
+  // a process might be waiting for
   return false;
 }
 
@@ -493,6 +562,8 @@ NOTES             :
 */
 Boolean Process::getCPUTime(Uint32& i32) const
 {
+  // pst_pctcpu is a float between 0 and 1, 1=100%
+  // CPUTime property is the percent
   i32 = pInfo.pst_pctcpu * 100;
   return true;
 }
@@ -509,6 +580,14 @@ NOTES             :
 */
 Boolean Process::getRealText(Uint64& i64) const
 {
+  // ATTN-MG-P4-20020503:
+  // For this and other functions that call getpagesize(),
+  // this need not be done if the page size can't change; the
+  // value could be acquired once. But on systems where this
+  // can change and be different from different processes, or
+  // even different segments of the address space of a process,
+  // this code will not work, because it is getting the page
+  // size of the cimom!
   i64 = pInfo.pst_tsize * getpagesize() / 1024;
   return true;
 }
@@ -637,7 +716,11 @@ NOTES             :
 */
 Boolean Process::getCpuTimeDeadChildren(Uint64& i64) const
 {
-// ATTN this field seems not to be available
+
+// ATTN-MG-P4-20020503: this field seems not to be available
+// on system we are using. It may be possible to obtain this
+// field on a system on which the necessary defines are present
+
 #ifdef _RUSAGE_EXTENDED
   // value to be returned in clock ticks, not time
   i64 = ((Uint64)pInfo.pst_child_usercycles.psc_hi << 32) +
@@ -665,6 +748,11 @@ NOTES             :
 */
 Boolean Process::getSystemTimeDeadChildren(Uint64& i64) const
 {
+
+// ATTN-MG-P4-20020503: this field seems not to be available
+// on system we are using. It may be possible to obtain this
+// field on a system on which the necessary defines are present
+
 #ifdef _RUSAGE_EXTENDED
   // these values are to be returned in clock ticks, not
   // time
@@ -730,7 +818,7 @@ String Process::getHandle(void) const
 {
   char buf[100];
   sprintf(buf,"%d",pInfo.pst_pid);
-  return buf;
+  return String(buf);
 }
 
 /*
@@ -748,14 +836,14 @@ String Process::getCSName(void) const
   struct hostent *he;
   char hn[MAXHOSTNAMELEN];
 
-  // fill hn with what this system thinks is name
+  // fill in hn with what this system thinks is its name
   gethostname(hn,MAXHOSTNAMELEN);
 
-  // find out what nameservices think is full name
-  if (he=gethostbyname(hn)) return he->h_name;
+  // find out what the nameservices think is its full name
+  if (he=gethostbyname(hn)) return String(he->h_name);
 
   // but if that failed, return what gethostname said
-  else return hn;
+  else return String(hn);
 }
 
 /*
@@ -775,14 +863,32 @@ String Process::getOSName(void) const
   /* Call uname, handle errors */ 
   if (uname(&unameInfo) < 0)
   {
-    throw CIMException(CIM_ERR_FAILED);
+    throw OperationFailure(CIM_ERR_FAILED,strerror(errno));
   }
-  return unameInfo.sysname;
+  return String(unameInfo.sysname);
 }
+
 
 /*
 ================================================================================
-NAME              : getProcessInfo
+NAME              : getCurrentTime
+DESCRIPTION       : Platform-specific routine to get a timestamp stat Name key
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   : 
+NOTES             : 
+================================================================================
+*/
+String Process::getCurrentTime(void) const
+{
+  time_t t = time(0);
+  return String(ctime(&t));
+}
+
+
+/*
+================================================================================
+NAME              : loadProcessInfo
 DESCRIPTION       : Use pstat_getproc() to fill in a struct pst_status
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
@@ -790,27 +896,74 @@ POST-CONDITIONS   :
 NOTES             : 
 ================================================================================
 */
-Boolean Process::getProcessInfo(int &pIndex)
+Boolean Process::loadProcessInfo(int &pIndex)
 {
   // This routine fills in the protected member pInfo by calling
-  // pstat_getproc. If modifies pIndex so that a subsequent call
-  // to this routine will fetch the next process. getProcessInfo
-  // is therefore functionally equivalent to pstat_getproc(),
-  // except that it hides the platform-specific structure pst_status.
-  // It returns true is it succeeded in fetching a process, otherwise
+  // pstat_getproc. Because HP-UX process entries are not contiguous
+  // this routine modified pIndex so that the caller, after
+  // incrementing pIndex, will be able to fetch the next process in
+  // a subsequent call. The routine is functionally equivalent to
+  // pstat_getproc(), except that it hides the platform-specific
+  // structure pst_status.
+  // It returns true if it succeeded in fetching a process, otherwise
   // false, incidating that there are no more processes to be fetched.
 
-  // pstat_getproc takes an empty struct to fill in, each element's size,
+  // pstat_getproc() takes an empty struct to fill in, each element's size,
   // the number of elements (0 if last arg is pid instead of index),
   // and an index to start at
 
   int stat = pstat_getproc(&pInfo, sizeof(pInfo), 1, pIndex);
 
   // pstat_getproc returns number of returned structures
+  // if this was not 1, it means that we are at the end
+  // of the process entry table, and the caller should not
+  // use data from this call
   if (stat != 1) return false;
 
-  pIndex = pInfo.pst_idx + 1;
+  pIndex = pInfo.pst_idx;
   return true;
 }
 
-PEGASUS_NAMESPACE_END
+
+/*
+================================================================================
+NAME              : findProcess
+DESCRIPTION       : find the requested process and load its data
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   : 
+NOTES             : 
+================================================================================
+*/
+Boolean Process::findProcess(const String& handle)
+{
+  int pIndex;
+  int stat;
+
+  // Convert handle to an integer
+  char *h = handle.allocateCString();
+  int pid = atoi(h);
+  delete [] h;
+
+  // loop ends with stat==0, meaning number of entries
+  // returned was zero
+  // if this loop finishes, we haven't found the process
+  for (pIndex=0, stat=1; stat!=0; pIndex++)
+  {
+    // pstat_getproc() fills in ps with a process entry's
+    // data, and returns the number of entries filled in,
+    // so that anything other than 1 is a problem
+    stat = pstat_getproc(&pInfo, sizeof(pInfo), 1, pIndex);
+
+    // we can return right now if we found it
+    if (pid == pInfo.pst_pid) return true;
+
+    // Need to set pIndex to skip empty entries, because
+    // HP-UX doesn't necessarily store entries contiguously
+    pIndex = pInfo.pst_idx;
+  }
+
+  // we finished the loop without finding the process
+  // signal this to the caller
+  return false;
+}

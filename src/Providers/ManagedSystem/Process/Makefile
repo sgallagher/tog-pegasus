@@ -24,9 +24,10 @@
 #// Author: Christopher Neufeld <neufeld@linuxcare.com>
 #//         David Kennedy       <dkennedy@linuxcare.com>
 #//
-#// Modified By: David Kennedy       <dkennedy@linuxcare.com>
-#//              Christopher Neufeld <neufeld@linuxcare.com>
-#//		 Mike Glantz <michael_glantz@hp.com>
+#// Modified By: 
+#//         David Kennedy       <dkennedy@linuxcare.com>
+#//         Christopher Neufeld <neufeld@linuxcare.com>
+#//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
 #//
 #//%////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +42,7 @@ LIBRARY = ProcessProvider
 EXTRA_INCLUDES =
 
 SOURCES = \
-	Process.cpp \
+	ProcessPlatform.cpp \
 	ProcessProvider.cpp \
 	ProcessStatProvider.cpp \
         ProcessMain.cpp
@@ -52,7 +53,10 @@ LIBRARIES = \
 
 include $(ROOT)/mak/library.mak
 
+general:
+
 tests:
 
 poststarttests:
 
+depend:

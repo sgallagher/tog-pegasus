@@ -24,12 +24,13 @@
 // Author: Christopher Neufeld <neufeld@linuxcare.com>
 //         David Kennedy       <dkennedy@linuxcare.com>
 //
-// Modified By: David Kennedy       <dkennedy@linuxcare.com>
-//              Christopher Neufeld <neufeld@linuxcare.com>
-//              Al Stone            <ahs3@fc.hp.com>
-//              Jim Metcalfe
-//              Carlos Bonilla
-//              Mike Glantz         <michael_glantz@hp.com>
+// Modified By:
+//         David Kennedy       <dkennedy@linuxcare.com>
+//         Christopher Neufeld <neufeld@linuxcare.com>
+//         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>
+//         Jim Metcalfe, Hewlett-Packard Company
+//         Carlos Bonilla, Hewlett-Packard Company
+//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -37,11 +38,10 @@
    Includes.
    ========================================================================== */
 
-#include "Process.h"
+#include "ProcessPlatform.h"
 
 PEGASUS_USING_STD;
-
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 
 Process::Process()
@@ -609,7 +609,8 @@ NOTES             :
 */
 String Process::getHandle(void) const
 {
-  // ATTN: This routine must be written to return this key value
+  // This routine *must* return a non-empty value if even a
+  // dummy provider will be tested
   return String::EMPTY;
 }
 
@@ -626,7 +627,7 @@ NOTES             :
 */
 String Process::getCSName(void) const
 {
-  // ATTN: This routine must be written to return this key value
+  // This routine must be written to return this key value
   return String::EMPTY;
 }
 
@@ -643,26 +644,55 @@ NOTES             :
 */
 String Process::getOSName(void) const
 {
-  // ATTN: This routine must be written to return this key value
+  // This routine must be written to return this key value
   return String::EMPTY;
 }
 
 
 /*
 ================================================================================
-NAME              : getProcessInfo
-DESCRIPTION       : get process info from system
+NAME              : getCurrentTime
+DESCRIPTION       : Platform-specific routine to get a timestamp stat Name key
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
 POST-CONDITIONS   : 
 NOTES             : 
 ================================================================================
 */
-Boolean Process::getProcessInfo(int &pIndex)
+String Process::getCurrentTime(void) const
+{
+  return String::EMPTY;
+}
+
+
+/*
+================================================================================
+NAME              : loadProcessInfo
+DESCRIPTION       : get process info from system into internal data struct
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   : 
+NOTES             : 
+================================================================================
+*/
+Boolean Process::loadProcessInfo(int &pIndex)
 {
   // not yet implemented
   return false;
 }
 
-
-PEGASUS_NAMESPACE_END
+/*
+================================================================================
+NAME              : findProcess
+DESCRIPTION       : find the requested process and load its data
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   : 
+NOTES             : 
+================================================================================
+*/
+Boolean Process::findProcess(const String& handle)
+{
+  // not yet implemented
+  return false;
+}

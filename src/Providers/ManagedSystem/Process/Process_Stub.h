@@ -24,12 +24,13 @@
 // Author: Christopher Neufeld <neufeld@linuxcare.com>
 //         David Kennedy       <dkennedy@linuxcare.com>
 //
-// Modified By: David Kennedy       <dkennedy@linuxcare.com>
-//              Christopher Neufeld <neufeld@linuxcare.com>
-//              Al Stone            <ahs3@fc.hp.com>
-//              Jim Metcalfe
-//              Carlos Bonilla
-//              Mike Glantz         <michael_glantz@hp.com>
+// Modified By:
+//         David Kennedy       <dkennedy@linuxcare.com>
+//         Christopher Neufeld <neufeld@linuxcare.com>
+//         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>
+//         Jim Metcalfe, Hewlett-Packard Company
+//         Carlos Bonilla, Hewlett-Packard Company
+//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +43,9 @@
 
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
+
 
 /* ==========================================================================
    Type Definitions.
@@ -126,15 +129,25 @@ public:
 
   Boolean getRealSpace(Uint64&) const;
   
-  Boolean getProcessInfo(int &pIndex);
+  // Loads the internal process status structure with
+  // the status data for the indexed process and, if
+  // necessary (on HP-UX) updates pIndex to skip unused
+  // entries so that a simple increment will allow next
+  // call to access next entry
+  Boolean loadProcessInfo(int &pIndex);
   
+  // Finds the requested process and loads its info into
+  // the internal process status structure
+  Boolean findProcess(const String& handle);
+
   String getHandle(void) const;
+
+  String getCurrentTime(void) const;
   
   String getOSName(void) const;
   
   String getCSName(void) const;
 };
 
-PEGASUS_NAMESPACE_END
 
 #endif  /* #ifndef PG_PROCESS_STUB_H */

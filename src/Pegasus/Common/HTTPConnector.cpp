@@ -233,7 +233,7 @@ HTTPConnection* HTTPConnector::connect(
    {
       char portStr [32];
       sprintf (portStr, "%u", portNumber);
-      throw InvalidLocatorException("Invalid port number " + host + ":" + portStr);
+      throw InvalidLocatorException(host + ":" + portStr);
    }
 
 

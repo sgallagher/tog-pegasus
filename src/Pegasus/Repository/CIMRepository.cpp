@@ -124,6 +124,15 @@ static int compressMode = 0; // PEP214
 //
 // _LoadFileToMemory()  PEP214
 //
+// The gzxxxx functions read both compresed and non-compresed files. 
+// 
+// There is no conditional flag on reading of files since gzread()
+// (from zlib) is capable of reading compressed and non-compressed
+// files (so it contains the logic that examines the header
+// and magic number). Everything will work properly if the repository
+// has some compressed and some non-compressed files. 
+//
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 void _LoadFileToMemory(Array<char>& data, const String& path)
@@ -538,29 +547,26 @@ CIMRepository::CIMRepository(const String& repositoryRoot, const CIMRepository_M
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::CIMRepository");
 
     binaryMode = mode.flag & CIMRepository_Mode::BIN;
-
-#ifdef TEST_OUTPUT   
-    cout << "CIMRepository: binaryMode="  << binaryMode << "mode.flag=" << mode.flag << "\n";
-    cout << "repositoryRoot = " << repositoryRoot << endl;
-#endif // TEST_OUTPUT
     
 #ifdef PEGASUS_COMPRESS_REPOSITORY    // PEP214
     // FUTURE?? -  compressMode = mode.flag & CIMRepository_Mode::COMPRESSED;
-    compressMode=0;
-    int size = repositoryRoot.size();
-    if (size > 10)
+    compressMode=1;
+
+    char *s = getenv("PEGASUS_COMPRESS_REPOSITORY");
+    if (s && (strcmp(s, "build_non_compressed") == 0))
       {
-	String filename_end = repositoryRoot.subString(size-10,PEG_NOT_FOUND);
- 
-	if (String::equal(filename_end, "compressed"))
-	  {
+	compressMode =0;
 #ifdef TEST_OUTPUT   
-	    cout << "Compress found" << endl;
+	cout << "In Compress mode: build_non_compresed found" << endl;
 #endif /* TEST_OUTPUT */
-	    compressMode = 1;
-	  }
       }
-#endif /* PEGASUS_COMPRESS_REPOSITOR */ 
+#endif /* PEGASUS_COMPRESS_REPOSITORY */ 
+
+#ifdef TEST_OUTPUT  
+    cout << "repositoryRoot = " << repositoryRoot << endl; 
+    cout << "CIMRepository: binaryMode="  << binaryMode << "mode.flag=" << mode.flag << "\n";
+    cout << "CIMRepository: compressMode= " << compressMode << endl;
+#endif /* TEST_OUTPUT */
 
     if (binaryMode>0) { // PEP 164
       // BUILD BINARY 
@@ -592,31 +598,26 @@ CIMRepository::CIMRepository(const String& repositoryRoot)
         "enableBinaryRepository") == "true");
     }
 
-#ifdef TEST_OUTPUT   
-    cout << "CIMRepository: binaryMode="  << binaryMode << "\n";
-    cout << "repositoryRoot = " << repositoryRoot << endl;
-#endif // TEST_OUTPUT
 
 #ifdef PEGASUS_COMPRESS_REPOSITORY    // PEP214
     // FUTURE?? -  compressMode = mode.flag & CIMRepository_Mode::COMPRESSED;
-    compressMode=0;
-    int size = repositoryRoot.size();
-    if (size > 10)
+    compressMode=1;
+
+    char *s = getenv("PEGASUS_COMPRESS_REPOSITORY");
+    if (s && (strcmp(s, "build_non_compressed") == 0))
       {
-	String filename_end = repositoryRoot.subString(size-10,PEG_NOT_FOUND);
-
-
- 
-	if (String::equal(filename_end, "compressed"))
-	  {
+	compressMode =0;
 #ifdef TEST_OUTPUT   
-	    cout << "Compress found" << endl;
+	cout << "In Compress mode: build_non_compresed found" << endl;
 #endif /* TEST_OUTPUT */
-	    compressMode = 1;
-	  }
       }
 #endif /* PEGASUS_COMPRESS_REPOSITORY */ 
 
+#ifdef TEST_OUTPUT  
+    cout << "repositoryRoot = " << repositoryRoot << endl; 
+    cout << "CIMRepository: binaryMode="  << binaryMode << endl;
+    cout << "CIMRepository: compressMode= " << compressMode << endl;
+#endif /* TEST_OUTPUT */
 
     if (binaryMode>0) { // PEP 164
       // BUILD BINARY 

@@ -235,7 +235,7 @@ public:
      * input and returns only class names. It is a toolto get
      * information for the distribution of CIM associator operations
      * to providers.
-     * This funciton returns the list of referenced class names, not
+     * This function returns the list of referenced class names, not
      * the references.
     */
     virtual Array<CIMName> referencedClassNames(

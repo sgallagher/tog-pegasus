@@ -37,7 +37,7 @@
 //
 //
 // This class acts as a buffer between the compiler and the repository
-// interface.  Thie main thing it does is registers a non-standard
+// interface.  The main thing it does is registers a non-standard
 // DeclContext so we can do local checking of context for new objects
 //
 

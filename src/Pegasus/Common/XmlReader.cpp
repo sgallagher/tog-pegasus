@@ -2340,7 +2340,7 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
     Boolean propagated = getCimBooleanAttribute(
 	parser.getLine(), entry, "PROPERTY", "PROPAGATED", false, false);
 
-    // Get PROPERTY.EMBEDDEDOBJECT
+    // Get PROPERTY.EMBEDDEDOBJECT attribute:
 
     String embeddedObject = getEmbeddedObjectAttribute(
 	parser.getLine(), entry, "PROPERTY");
@@ -2362,13 +2362,18 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
 	    getQualifierElements(parser, property);
     }
 
+    Boolean embeddedObjectQualifierValue = false;
+    Uint32 ix = property.findQualifier(CIMName("EmbeddedObject"));
+    if (ix != PEG_NOT_FOUND)
+    {
+        property.getQualifier(ix).getValue().get(embeddedObjectQualifierValue);
+    }
+
     // If the EMBEDDEDOBJECT attribute is present with value "object" 
-    // or the EmbeddedObject qualifier exists on this property
+    // or the EmbeddedObject qualifier exists on this property with value "true"
     // then
     //     Convert the EmbeddedObject-encoded string into a CIMObject
-    if (String::equal(embeddedObject, "object")
-        || property.findQualifier(CIMName("EmbeddedObject")) != PEG_NOT_FOUND
-        ) 
+    if (String::equal(embeddedObject, "object") || embeddedObjectQualifierValue)
     {
         // The EMBEDDEDOBJECT attribute is only valid on Properties of type string
         if (type == CIMTYPE_STRING)
@@ -2519,7 +2524,7 @@ Boolean XmlReader::getPropertyArrayElement(
                                                 ,false
                                                 ,false);
 
-    // Get PROPERTY.EMBEDDEDOBJECT
+    // Get PROPERTY.EMBEDDEDOBJECT attribute:
 
     String embeddedObject = getEmbeddedObjectAttribute(parser.getLine()
                                                        ,entry
@@ -2536,13 +2541,18 @@ Boolean XmlReader::getPropertyArrayElement(
         getQualifierElements(parser, property);
     }
 
-    // If the EMBEDDEDOBJECT attribute is present with value "object"
-    // or the EmbeddedObject qualifier exists on this property
+    Boolean embeddedObjectQualifierValue = false;
+    Uint32 ix = property.findQualifier(CIMName("EmbeddedObject"));
+    if (ix != PEG_NOT_FOUND)
+    {
+        property.getQualifier(ix).getValue().get(embeddedObjectQualifierValue);
+    }
+
+    // If the EMBEDDEDOBJECT attribute is present with value "object" 
+    // or the EmbeddedObject qualifier exists on this property with value "true"
     // then
     //     Convert the EmbeddedObject-encoded string into a CIMObject
-    if (String::equal(embeddedObject, "object")
-        || property.findQualifier(CIMName("EmbeddedObject")) != PEG_NOT_FOUND
-        ) 
+    if (String::equal(embeddedObject, "object") || embeddedObjectQualifierValue)
     {
         // The EMBEDDEDOBJECT attribute is only valid on Properties of type string
         if (type == CIMTYPE_STRING)

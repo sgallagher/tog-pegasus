@@ -44,6 +44,8 @@
 #include <Pegasus/WQL/WQLSelectStatement.h>
 #include <Pegasus/WQL/WQLSimplePropertySource.h>
 #include <Pegasus/Server/Linkage.h>
+#include <Pegasus/Common/AcceptLanguages.h> // l10n  
+#include <Pegasus/Common/ContentLanguages.h> // l10n
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -932,6 +934,9 @@ private:
         @param   queryLanguage         the query language in which the filter
                                            query is expressed
         @param   subscription          the subscription to be created
+        @param   acceptLangs           the language of the response, and
+                                           future indications
+        @param   contentLangs          the language of the subscription
         @param   userName              the userName for authentication
         @param   authType              the authentication type
 
@@ -945,6 +950,8 @@ private:
         const String & condition,
         const String & queryLanguage,
         const CIMInstance & subscription,
+        const AcceptLanguages & acceptLangs,
+        const ContentLanguages & contentLangs,
         const String & userName,
         const String & authType = String::EMPTY);
 
@@ -971,6 +978,9 @@ private:
         @param   queryLanguage         the query language in which the filter
                                            query is expressed
         @param   subscription          the subscription to be modified
+        @param   acceptLangs           the language of the response, and
+                                           future indications
+        @param   contentLangs          the language of the subscription    
         @param   userName              the userName for authentication
         @param   authType              the authentication type
      */
@@ -981,6 +991,8 @@ private:
         const String & condition,
         const String & queryLanguage,
         const CIMInstance & subscription,
+        const AcceptLanguages & acceptLangs,
+        const ContentLanguages & contentLangs,  
         const String & userName,
         const String & authType = String::EMPTY);
 
@@ -1001,6 +1013,8 @@ private:
         @param   indicationProviders   list of providers with associated classes
         @param   nameSpace             the namespace name
         @param   subscription          the subscription to be modified
+        @param   acceptLangs           the language of the response
+        @param   contentLangs          the language of the subscription    
         @param   userName              the userName for authentication
         @param   authType              the authentication type
      */
@@ -1008,6 +1022,8 @@ private:
         const Array <ProviderClassList> & indicationProviders,
         const CIMNamespaceName & nameSpace,
         const CIMInstance & subscription,
+        const AcceptLanguages & acceptLangs,
+        const ContentLanguages & contentLangs,  
         const String & userName,
         const String & authType = String::EMPTY);
 

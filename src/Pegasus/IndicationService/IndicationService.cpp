@@ -46,6 +46,8 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/AcceptLanguages.h> // l10n  
+#include <Pegasus/Common/ContentLanguages.h> // l10n
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/WQL/WQLParser.h>
@@ -148,6 +150,22 @@ void IndicationService::handleEnqueue(Message* message)
     Stopwatch stopWatch;
 #endif
 	  
+// l10n
+   // Set the client's requested language into this service thread.
+   // This will allow functions in this service to return messages
+   // in the correct language.
+   CIMMessage * msg = dynamic_cast<CIMMessage *>(message);
+   if (msg != NULL)
+   {
+	   AcceptLanguages *langs = 
+   			new AcceptLanguages(msg->acceptLanguages);	
+	   Thread::setLanguages(langs);   		
+   } 
+   else
+   {
+   		Thread::clearLanguages();
+   }          
+
    switch(message->getType())
    {
       case CIM_GET_INSTANCE_REQUEST_MESSAGE:
@@ -406,9 +424,23 @@ void IndicationService::_initialize (void)
         CIMInstance instance = activeSubscriptions [i];
         String creator = instance.getProperty (instance.findProperty
             (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
+//l10n            
+	// Get the language tags that were saved with the subscription instance 
+        String acceptLangs;
+        instance.getProperty (instance.findProperty(PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS)).
+            getValue().
+            get(acceptLangs);            
+        String contentLangs;
+        instance.getProperty (instance.findProperty(PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS)).
+            getValue().
+            get(contentLangs);   
+
         if (!_sendCreateRequests (indicationProviders, sourceNameSpace,
             propertyList, condition, queryLanguage,
-            activeSubscriptions [i], creator))
+            activeSubscriptions [i], 
+            AcceptLanguages(acceptLangs), // l10n
+            ContentLanguages(contentLangs),  // 110n
+	    creator))
         {
             //
             //  No providers accepted this subscription
@@ -564,6 +596,43 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                 creator.setValue (CIMValue (currentUser));
             }
     
+            // l10n
+            // Add the language properties to the Instance
+            // Note:  These came from the Accept-Language and Content-Language
+            // headers in the HTTP messages, and may be empty.
+            AcceptLanguages acceptLangs = request->acceptLanguages;
+            if (instance.findProperty (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS) == 
+                PEG_NOT_FOUND)
+            {
+                instance.addProperty (CIMProperty 
+                    (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS, 
+                    acceptLangs.toString()));
+            }
+            else 
+            {
+                CIMProperty langs = instance.getProperty 
+                    (instance.findProperty 
+                    (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS));
+                langs.setValue (CIMValue (acceptLangs.toString()));
+            } 
+
+            ContentLanguages contentLangs = request->contentLanguages;
+            if (instance.findProperty (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS) == 
+                PEG_NOT_FOUND)
+            {
+                instance.addProperty (CIMProperty 
+                    (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS, 
+                    contentLangs.toString()));
+            }
+            else 
+            {
+                CIMProperty langs = instance.getProperty 
+                    (instance.findProperty 
+                    (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS));
+                langs.setValue (CIMValue (contentLangs.toString()));
+            }                                   
+            // l10n -end
+
             //
             //  If the instance is of the PEGASUS_CLASSNAME_INDSUBSCRIPTION 
             //  class and subscription state is enabled, determine if any 
@@ -731,9 +800,12 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                     //
                     instanceRef.setNameSpace (request->nameSpace);
                     instance.setPath (instanceRef);
+// l10n 
                     if (!_sendCreateRequests (indicationProviders, 
                         sourceNameSpace, requiredProperties, condition, 
                         queryLanguage, instance,
+                        request->acceptLanguages,
+                        request->contentLanguages,   
                         request->userName, request->authType))
                     {
                         PEG_METHOD_EXIT ();
@@ -778,6 +850,7 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
     //  FUTURE: Response should be sent only after Create response
     //  has been received
     //
+// l10n - no Content-Language in response    
     CIMCreateInstanceResponseMessage* response =
         new CIMCreateInstanceResponseMessage(
             request->messageId,
@@ -815,6 +888,7 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
 
     CIMException cimException;
     CIMInstance instance;
+    String contentLangs = String::EMPTY;  // l10n 
 
     _repository->read_lock ();
 
@@ -833,6 +907,20 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
         //
         instance.removeProperty (instance.findProperty 
             (PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
+
+// l10n start
+	Uint32 clIndex = instance.findProperty
+			(PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);      
+        instance.getProperty(clIndex).getValue().get(contentLangs);   
+ 
+        //
+        //  Remove the language properties from instance before returning
+        //
+        instance.removeProperty (instance.findProperty 
+            (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS));
+        instance.removeProperty (instance.findProperty
+	        (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS));            
+// l10n end   
 
         //
         //  If a subscription with a duration, calculate subscription time 
@@ -856,11 +944,15 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
 
     _repository->read_unlock ();
 
+// l10n
+    // Note: setting Content-Language in the response to the contentLanguage
+    // in the repository.
     CIMGetInstanceResponseMessage* response = new CIMGetInstanceResponseMessage
         (request->messageId,
         cimException,
         request->queueIds.copyAndPop(),
-        instance);
+        instance,
+        ContentLanguages(contentLangs));
 
     //
     //  Preserve message key
@@ -894,6 +986,8 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
 
     CIMException cimException;
     CIMInstance cimInstance;
+    String aggregatedLangs = String::EMPTY;    // l10n
+
 
     _repository->read_lock ();
 
@@ -904,6 +998,12 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
              request->deepInheritance, request->localOnly, 
              request->includeQualifiers, request->includeClassOrigin, 
              false, request->propertyList);
+
+// l10n
+	// Vars used to aggregate the content languages of the subscription
+	// instances.
+	Boolean langMismatch = false;
+	Uint32 clIndex;
         
         //
         //  Remove Creator property from instances before returning
@@ -913,6 +1013,41 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
             enumInstances [i].removeProperty 
                 (enumInstances [i].findProperty 
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
+
+// l10n start
+	    clIndex =  enumInstances [i].findProperty
+				(PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);      
+            String contentLangs;
+ 	    enumInstances [i].getProperty(clIndex).getValue().get(contentLangs);   
+
+	    if (!langMismatch)
+            {
+		if (contentLangs == String::EMPTY)
+		{
+			langMismatch = true;
+			aggregatedLangs = String::EMPTY;	 
+		}
+		else
+		{	
+			if (aggregatedLangs == String::EMPTY)
+			{
+				aggregatedLangs = contentLangs;				
+			}
+			else if (aggregatedLangs != contentLangs)
+			{
+				langMismatch = true;
+				aggregatedLangs = String::EMPTY;							
+			}
+		}	
+	    }	
+			
+            enumInstances [i].removeProperty 
+                (enumInstances [i].findProperty
+                (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS));
+            enumInstances [i].removeProperty 
+                (enumInstances [i].findProperty
+                (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS));   			
+// l10n end			
 
             //
             //  If a subscription with a duration, calculate subscription time 
@@ -936,12 +1071,16 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
 
     _repository->read_unlock ();
 
+// l10n
+    // Note: setting Content-Language in the response to the aggregated
+    // contentLanguage from the instances in the repository.
     CIMEnumerateInstancesResponseMessage* response = 
         new CIMEnumerateInstancesResponseMessage(
             request->messageId,
             cimException,
             request->queueIds.copyAndPop(),
-            enumInstances);
+            enumInstances,
+            ContentLanguages(aggregatedLangs));
 
     //
     //  Preserve message key
@@ -996,6 +1135,8 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
 
     _repository->read_unlock ();
 
+// l10n
+    // Note: not setting Content-Language in the response
     CIMEnumerateInstanceNamesResponseMessage* response =
         new CIMEnumerateInstanceNamesResponseMessage(
             request->messageId,
@@ -1192,6 +1333,26 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     }
                 }
 
+// l10n
+                // Add the language properties to the modified instance.
+    	        // Note:  These came from the Accept-Language and Content-Language
+       	        // headers in the HTTP messages, and may be empty.
+                AcceptLanguages acceptLangs = request->acceptLanguages;
+                modifiedInstance.addProperty (CIMProperty 
+                    (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS, 
+                    acceptLangs.toString()));
+
+	            ContentLanguages contentLangs = request->contentLanguages;
+                modifiedInstance.addProperty (CIMProperty 
+                    (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS, 
+                    contentLangs.toString()));
+                    
+                Array <CIMName> properties = propertyList.getPropertyNameArray ();
+                properties.append (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
+                properties.append (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);                
+                propertyList.set (properties);                    
+// l10n -end
+
                 //
                 //  If subscription is to be enabled, determine if there are 
                 //  any indication providers that can serve the subscription
@@ -1300,10 +1461,13 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                 {
                     instanceReference.setNameSpace (request->nameSpace);
                     instance.setPath (instanceReference);
+// l10n                    
                     if (!_sendCreateRequests (indicationProviders, 
                         sourceNameSpace, requiredProperties, condition, 
                         queryLanguage,
                         instance,
+                        request->acceptLanguages,
+                        request->contentLanguages,  
                         request->userName, request->authType))
                     {
                         PEG_METHOD_EXIT ();
@@ -1349,6 +1513,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     //
                     //  Send Delete requests
                     //
+//l10n                    	
                     instanceReference.setNameSpace (request->nameSpace);
                     instance.setPath (instanceReference);
                     if (indicationProviders.size () > 0)
@@ -1356,6 +1521,8 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                         _sendDeleteRequests (indicationProviders, 
                             request->nameSpace,
                             instance,
+	                    request->acceptLanguages,
+    		            request->contentLanguages,  
                             request->userName, request->authType);
                     }
 
@@ -1382,6 +1549,8 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
     //  FUTURE: Response should be sent only after Create or Delete
     //  response has been received
     //
+// l10n
+    // Note: don't need to set content-language in the response.
     CIMModifyInstanceResponseMessage* response =
         new CIMModifyInstanceResponseMessage(
             request->messageId,
@@ -1452,17 +1621,20 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
                 Array <CIMName> indicationSubclasses;
                 CIMNamespaceName sourceNamespaceName;
                 indicationProviders = _getDeleteParams 
-                    (request->nameSpace, subscriptionInstance, 
+                    (request->nameSpace, subscriptionInstance,
                     indicationSubclasses, sourceNamespaceName);
 
                 //
                 //  Send Delete requests
                 //
+// l10n                
                 CIMObjectPath instanceReference = request->instanceName;
                 instanceReference.setNameSpace (request->nameSpace);
                 subscriptionInstance.setPath (instanceReference);
                 _sendDeleteRequests (indicationProviders,
                     request->nameSpace, subscriptionInstance,
+                    request->acceptLanguages,
+                    request->contentLanguages,
                     request->userName, request->authType);
 
                 //
@@ -1568,6 +1740,10 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
 
     PEG_METHOD_EXIT ();
 }
+
+// l10n TODO - might need to globalize another flow and another consumer interface
+// (ie. mdd's) if we can't agree on one export flow and consumer interface
+// (see PEP67)
 
 void IndicationService::_handleProcessIndicationRequest (const Message* message)
 {
@@ -1760,14 +1936,19 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                 handlerNamedInstance = _getHandler
                     (matchedSubscriptions[i]);
 
+// l10n
+// Note: not expecting any language in the response
                 CIMRequestMessage * handler_request =
                     new CIMHandleIndicationRequestMessage (
                         XmlWriter::getNextMessageId (),
                         request->nameSpace,
                         handlerNamedInstance,
                         formattedIndication,
-                        QueueIdStack(_handlerService, getQueueId()));
-                
+                        QueueIdStack(_handlerService, getQueueId()),
+                        String::EMPTY,
+                        String::EMPTY,
+                        request->contentLanguages);
+               
                 AsyncOpNode* op = this->get_op();
 
                 AsyncLegacyOperationStart *async_req = 
@@ -1932,6 +2113,16 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             String creator = instance.getProperty (instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
 
+// l10n
+            String acceptLangs;
+            instance.getProperty (instance.findProperty
+                (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS)).getValue ()
+                .get(acceptLangs);
+            String contentLangs;
+            instance.getProperty (instance.findProperty
+                (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS)).getValue ()
+                .get(contentLangs);                                    
+
             //
             //  Look up the subscription in the active subscriptions table
             //
@@ -1954,10 +2145,14 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                     //
                     //  Send Modify requests
                     //
+// l10n
                     _sendModifyRequests (indicationProviders,
                         newSubscriptions [i].getPath ().getNameSpace (), 
-                        requiredProperties, condition, queryLanguage, 
-                        newSubscriptions [i], creator);
+                        requiredProperties, condition, queryLanguage,
+                        newSubscriptions [i],
+                        AcceptLanguages(acceptLangs),
+                        ContentLanguages(contentLangs), 
+                        creator);
 
                     Uint32 classIndex = _classInList (className,
                         tableValue.providers [providerIndex]);
@@ -1983,9 +2178,13 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                     //
                     //  Send Create requests
                     //
+// l10n                
                     if (!_sendCreateRequests (indicationProviders,
                         sourceNameSpace, requiredProperties, condition, 
-                        queryLanguage, newSubscriptions [i], creator))
+                        queryLanguage, newSubscriptions [i], 
+                        AcceptLanguages(acceptLangs), 
+                        ContentLanguages(contentLangs),  
+                        creator))
                     {
                         PEG_METHOD_EXIT ();
                         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, 
@@ -2055,6 +2254,16 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             String creator = instance.getProperty (instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
 
+// l10n
+            String acceptLangs;
+            instance.getProperty (instance.findProperty
+                (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS)).getValue ()
+                .get(acceptLangs);
+            String contentLangs;
+            instance.getProperty (instance.findProperty
+                (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS)).getValue ()
+                .get(contentLangs);    
+
             //
             //  Look up the subscription in the active subscriptions table
             //  If class list contains only the class name from the current
@@ -2079,9 +2288,13 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                         (tableValue.providers [providerIndex].classList 
                             [0].equal (className)))
                     {
+// l10n
                         _sendDeleteRequests (indicationProviders,
                             formerSubscriptions [i].getPath ().getNameSpace (), 
-                            formerSubscriptions [i], creator);
+                            formerSubscriptions [i], 
+                            AcceptLanguages(acceptLangs),
+                            ContentLanguages(contentLangs), 
+                            creator);
 
                         tableValue.providers.remove (providerIndex);
                     }
@@ -2106,10 +2319,14 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                         //
                         //  Send Modify requests
                         //
+// l10n                    
                         _sendModifyRequests (indicationProviders,
                             formerSubscriptions [i].getPath ().getNameSpace (), 
                             requiredProperties, condition, queryLanguage, 
-                            formerSubscriptions [i], creator);
+                            formerSubscriptions [i], 
+                            AcceptLanguages(acceptLangs),
+                            ContentLanguages(contentLangs),    
+                            creator);
 
                         tableValue.providers [providerIndex].classList.remove 
                             (classIndex);
@@ -4204,12 +4421,29 @@ void IndicationService::_deleteReferencingSubscriptions (
             CIMInstance instance = subscriptions [i];
             String creator = instance.getProperty (instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
+
+// l10n                
+            String acceptLangs;
+            instance.getProperty (instance.findProperty
+                (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS))
+                .getValue ().
+                get (acceptLangs); 
+            String contentLangs;
+            instance.getProperty (instance.findProperty
+                (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS))
+                .getValue ().
+                get (contentLangs);    
+
             CIMObjectPath instanceName = 
                 subscriptions [i].getPath ();
             instanceName.setNameSpace (nameSpace);
             subscriptions [i].setPath (instanceName);
+// l10n  
             _sendDeleteRequests (indicationProviders, nameSpace, 
-                subscriptions [i], creator);
+                subscriptions [i], 
+                AcceptLanguages(acceptLangs),
+                ContentLanguages(contentLangs),
+                creator);
 
             //
             //  Delete referencing subscription instance from repository
@@ -4643,7 +4877,7 @@ void IndicationService::_sendCreateRequestsCallBack(AsyncOpNode *op,
     PEG_METHOD_EXIT ();
 }
 
-
+// l10n  
 Boolean IndicationService::_sendCreateRequests
     (const Array <ProviderClassList> & indicationProviders,
      const CIMNamespaceName & nameSpace,
@@ -4651,6 +4885,8 @@ Boolean IndicationService::_sendCreateRequests
      const String & condition,
      const String & queryLanguage,
      const CIMInstance & subscription,
+     const AcceptLanguages & acceptLangs,
+     const ContentLanguages & contentLangs,	 
      const String & userName,
      const String & authType)
 {
@@ -4679,6 +4915,7 @@ Boolean IndicationService::_sendCreateRequests
            new enableProviderList(indicationProviders[i], 
 				 subscription);
        
+// l10n       
         CIMCreateSubscriptionRequestMessage * request =
             new CIMCreateSubscriptionRequestMessage
                 (XmlWriter::getNextMessageId (),
@@ -4693,7 +4930,9 @@ Boolean IndicationService::_sendCreateRequests
 		 queryLanguage,
 		 QueueIdStack (_providerManager, getQueueId ()),
 		 authType,
-		 userName);
+		 userName,
+		 contentLangs,
+		 acceptLangs);
 	
         AsyncOpNode* op = this->get_op(); 
 
@@ -4777,7 +5016,7 @@ void IndicationService::_sendModifyRequestsCallBack (
     service->return_op (op);
 }
 
-
+// l10n
 void IndicationService::_sendModifyRequests
     (const Array <ProviderClassList> & indicationProviders,
      const CIMNamespaceName & nameSpace,
@@ -4785,6 +5024,8 @@ void IndicationService::_sendModifyRequests
      const String & condition,
      const String & queryLanguage,
      const CIMInstance & subscription,
+     const AcceptLanguages & acceptLangs,
+     const ContentLanguages & contentLangs,	 
      const String & userName,
      const String & authType)
 {
@@ -4812,6 +5053,7 @@ void IndicationService::_sendModifyRequests
 	  new enableProviderList(indicationProviders[i], 
 				 subscription);
 
+// l10n
        CIMModifySubscriptionRequestMessage * request =
 	  new CIMModifySubscriptionRequestMessage(
 	     XmlWriter::getNextMessageId (),
@@ -4826,7 +5068,9 @@ void IndicationService::_sendModifyRequests
 	     queryLanguage,
 	     QueueIdStack (_providerManager, getQueueId ()),
 	     authType,
-	     userName);
+	     userName,
+	     contentLangs,
+	     acceptLangs);
 
         AsyncOpNode* op = this->get_op();
 
@@ -4901,11 +5145,13 @@ void IndicationService::_sendDeleteRequestsCallBack (
     service->return_op (op);
 }
 
-
+// l10n
 void IndicationService::_sendDeleteRequests
     (const Array <ProviderClassList> & indicationProviders,
      const CIMNamespaceName & nameSpace,
      const CIMInstance & subscription,
+     const AcceptLanguages & acceptLangs,
+     const ContentLanguages & contentLangs,	  
      const String & userName,
      const String & authType)
 {
@@ -4922,6 +5168,7 @@ void IndicationService::_sendDeleteRequests
 	  new enableProviderList(indicationProviders[i], 
 				 subscription);
 
+// l10n
         CIMDeleteSubscriptionRequestMessage * request =
             new CIMDeleteSubscriptionRequestMessage
             (XmlWriter::getNextMessageId (),
@@ -4932,8 +5179,10 @@ void IndicationService::_sendDeleteRequests
 	     epl->pcl->providerModule,
 	     QueueIdStack (_providerManager, getQueueId ()),
 	     authType,
-	     userName);
-	
+	     userName,
+	     contentLangs,
+	     acceptLangs);
+
         AsyncOpNode* op = this->get_op();
 
         AsyncLegacyOperationStart * async_req =

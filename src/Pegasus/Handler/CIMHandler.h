@@ -32,6 +32,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMObject.h>
+#include <Pegasus/Common/ContentLanguages.h>  
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Handler/Linkage.h>
 
@@ -50,11 +51,12 @@ public:
     // will look into Handler Table to load the appropriate handler. If 
     // handler is already loaded then IndicationDispatcher will call this
     // method implemented in handler.
- 
-    virtual void handleIndication(
+// l10n 
+     virtual void handleIndication(
         CIMInstance& indicationHandlerInstance,
         CIMInstance& indicationInstance,
-	String nameSpace) = 0;
+	String nameSpace,
+	ContentLanguages& contentLanguages) = 0;
     
     // These are the method to initialize and terminate handler. Actual need and
     // implementation way these methods are yet to be finalized.

@@ -60,3 +60,9 @@
     15.	Changed "Permisyion" to "Permission"
 
     16.	Keep all lines within 80 columns.
+
+    17.	Build seems to fail on many Linux system (threading problems).
+
+    18. SSL is the default on Linux (should not be used by defualt).
+
+    19. Fix main logic (Unix v.s. Linux).

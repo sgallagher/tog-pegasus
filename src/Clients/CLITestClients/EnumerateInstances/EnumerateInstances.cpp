@@ -28,8 +28,10 @@
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 // Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
-//               (carolann_graves@hp.com)
-//              Amit K Arora (amita@in.ibm.com) for Bug# 1081 (mofFormat())
+//                   (carolann_graves@hp.com)
+//               Amit K Arora (amita@in.ibm.com) for Bug# 1081 (mofFormat())
+//               David Dillard, VERITAS Software Corp.
+//                   (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -351,7 +353,7 @@ int main(int argc, char** argv)
 		XmlWriter::printInstanceElement(instance, cout);
 	    else
 	    {
-		Array<Sint8> x;
+		Array<char> x;
 		MofWriter::appendInstanceElement(x, instance);
 	
 		x.append('\0');

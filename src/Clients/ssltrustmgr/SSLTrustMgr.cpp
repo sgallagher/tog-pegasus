@@ -27,7 +27,8 @@
 //
 // Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1052,15 +1053,15 @@ String SSLTrustMgr::_formatCIMDateTime(const String& cimDateTimeStr)
 
     @param  certFilePath     the certificate file path
 
-    @return  Array <Sint8> containing the certificate content
+    @return  Array<char> containing the certificate content
 
     @exception  Exception    if an error is encountered
                              in reading the certificate file
  */
-Array <Sint8> SSLTrustMgr::_readCertificateContent(String &certFilePath)
+Array<char> SSLTrustMgr::_readCertificateContent(String &certFilePath)
     throw (Exception)
 {
-    Array <Sint8>                content;
+    Array<char>                content;
 
     //
     //  Check that cert file exists
@@ -1113,7 +1114,7 @@ void SSLTrustMgr::_addCertificate (
 {
     try
     {
-        Array <Sint8>          content;
+        Array<char>              content;
         Array<CIMKeyBinding>   kbArray;
         CIMKeyBinding          kb;
         Array<CIMParamValue>   inParams;
@@ -1270,7 +1271,7 @@ void SSLTrustMgr::_addCRL(
 {
     try
     {
-        Array <Sint8>          content;
+        Array<char>              content;
         Array<CIMKeyBinding>   kbArray;
         CIMKeyBinding          kb;
         Array<CIMParamValue>   inParams;

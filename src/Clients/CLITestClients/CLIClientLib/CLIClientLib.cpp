@@ -28,8 +28,10 @@
 // Author:  Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //          Mary Hinton (m.hinton@verizon.net)
 //
-// Modified By:  Amit K Arora (amita@in.ibm.com) for Bug# 1081 (mofFormat())
-//               Adrian Schuur (schuur@de.ibm.com)
+// Modified By: Amit K Arora (amita@in.ibm.com) for Bug# 1081 (mofFormat())
+//              Adrian Schuur (schuur@de.ibm.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com) 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/Common/Config.h>
@@ -327,7 +329,7 @@ void outputFormatInstance(const OutputType format, CIMInstance& instance)
             p.setPropagated(false);
         }
 
-        Array<Sint8> x;
+        Array<char> x;
         MofWriter::appendInstanceElement(x, instance);
 
         x.append('\0');
@@ -379,7 +381,7 @@ void outputFormatClass(const OutputType format, CIMClass& myClass)
 			CIMMethod m = myClass.getMethod(i);
 			m.setPropagated(false);
 		}
-		Array<Sint8> x;
+		Array<char> x;
         MofWriter::appendClassElement(x, myClass);
 
         x.append('\0');
@@ -413,7 +415,7 @@ void outputFormatQualifierDecl(const OutputType format, const CIMQualifierDecl& 
         XmlWriter::printQualifierDeclElement(myQualifierDecl, cout);
     else if (format == OUTPUT_MOF)
     {
-        Array<Sint8> x;
+        Array<char> x;
         MofWriter::appendQualifierDeclElement(x, myQualifierDecl);
 
         x.append('\0');
@@ -430,7 +432,7 @@ void outputFormatCIMValue(const OutputType format, const CIMValue& myValue)
         XmlWriter::printValueElement(myValue, cout);
     else if (format == OUTPUT_MOF)
     {
-        Array<Sint8> x;
+        Array<char> x;
         MofWriter::appendValueElement(x, myValue);
 
         x.append('\0');

@@ -27,7 +27,8 @@
 //
 // Author: Nag Boranna, Hewlett-Packard Company (nagaraja.boranna@hp.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -146,12 +147,12 @@ private:
       
         @param  certFilePath    the certificate file path
 
-        @return  Array <Sint8> containing the certificate content
+        @return  Array<char> containing the certificate content
       
         @exception  Exception   if an error is encountered 
                                 in reading the certificate file
      */
-    Array <Sint8> _readCertificateContent(String &certFilePath)
+    Array<char> _readCertificateContent(String &certFilePath)
         throw (Exception);
 
     /**

@@ -46,7 +46,7 @@ ifeq ($(OS),windows)
     DEFINES = -DOS_WINDOWS
     PROGRAM = mu.exe
     EXE_OUT = -Fe
-    RM = erase
+    RM = del
     OBJ = .obj
     PLATFORM_SOURCES = FilesWindows.cpp
 endif
@@ -109,7 +109,7 @@ SOURCES = \
     Files.cpp \
     mu.cpp \
     StripCmd.cpp \
-    PrependCmd.cpp 
+    PrependCmd.cpp
 
 HEADERS = \
     CompareCmd.h \

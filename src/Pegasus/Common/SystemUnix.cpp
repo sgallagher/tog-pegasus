@@ -372,11 +372,6 @@ String System::getHostName()
     if (!*hostname)
         gethostname(hostname, sizeof(hostname));
 
-    // (temporary?) fix for problem of object path creation with
-    // fully-qualified hostname
-    char *dot = strchr(hostname, '.');
-    if (dot != NULL) *dot = '\0';
-
     return hostname;
 }
 

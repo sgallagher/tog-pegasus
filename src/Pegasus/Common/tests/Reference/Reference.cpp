@@ -153,6 +153,43 @@ void test01()
 	assert(r1 == r2);
      }
 
+     // Test cases for the Hostname.  CIMObjectPaths allows the
+     // host to include the domain. Eg. xyz.company.com
+
+     // First, try a good hostname
+     CIMObjectPath h0
+      ("//usoPen-9.ustA-1-a.org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
+
+     // Now, try some bad ones
+     Boolean errorDetected = false;
+     try
+     {
+        // Leading numeric (the second 1) 
+        CIMObjectPath h1
+         ("//usopen-9.usta-1-a.1org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
+
+        // Non-alphanum char (?)
+        CIMObjectPath h11 
+         ("//usopen-9.usta?-1-a.org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
+        // Leading dot
+        CIMObjectPath h2 
+         ("//.usopen-9.usta-1-a.org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
+        // Dot in the wrong spot (before a -)
+        CIMObjectPath h3 
+         ("//usopen.-9.usta-1-a.org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
+        // Two dots in a row
+        CIMObjectPath h4 
+         ("//usopen-9.usta-1-a..org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
+        // Trailing dot
+        CIMObjectPath h5 
+         ("//usopen-9.usta-1-a.org.:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     }
+     catch (Exception& e)
+     {
+        errorDetected = true;
+     }
+     assert(errorDetected);
+
 }
 
 void test02()

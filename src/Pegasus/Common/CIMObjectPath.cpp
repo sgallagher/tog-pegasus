@@ -451,19 +451,35 @@ Boolean _parseHostElement(
     p += 2;
 
     //----------------------------------------------------------------------
-    // Validate the hostname. Hostnames must match the following
-    // regular expression: "[A-Za-z][A-Za-z0-9-]*"
+    // Validate the hostname. A domain is allowed after the hostname.
+    // Eg. xyz.company.com
+    // Hostnames must match the following regular expression: 
+    // ^([A-Za-z][A-Za-z0-9-]*)(\.[A-Za-z][A-Za-z0-9-]*)*$
     //----------------------------------------------------------------------
 
     char* q = p;
 
-    if (!isalpha(*q))
-        throw MalformedObjectNameException(objectName);
+    Boolean foundDot = true;
+    while (foundDot == true)
+    {
+        foundDot = false;
 
-    q++;
+        if (!isalpha(*q))
+            throw MalformedObjectNameException(objectName);
 
-    while (isalnum(*q) || *q == '-')
         q++;
+
+        while (isalnum(*q) || *q == '-')
+        {
+            q++;
+        }
+
+        if (*q == '.')
+        {
+            q++;
+            foundDot = true;
+        }
+     }
 
     // We now expect a port (or default the port).
 

@@ -11,7 +11,6 @@ LIBRARY = pegcommon
 SOURCES = \
     CIMInstanceRep.cpp \
     CIMInstance.cpp \
-    Stopwatch.cpp \
     Array.cpp \
     CGIQueryString.cpp \
     CIMClass.cpp \
@@ -52,6 +51,7 @@ SOURCES = \
     Union.cpp \
     XmlParser.cpp \
     XmlReader.cpp \
-    XmlWriter.cpp
+    XmlWriter.cpp \
+#   Stopwatch.cpp
 
 include $(ROOT)/mak/library.mak

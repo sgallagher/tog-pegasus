@@ -71,8 +71,8 @@ public:
 
     void fromMilliseconds(Uint32 milliseconds)
     {
-	_seconds = 0;
-	_microseconds = milliseconds * 1000;
+	_seconds = milliseconds / 1000;
+	_microseconds = (milliseconds % 1000) * 1000;
     }
 
     Uint32 toMilliseconds() const 
@@ -85,7 +85,7 @@ public:
 	Uint32 seconds;
 	Uint32 milliseconds;
 	System::getCurrentTime(seconds, milliseconds);
-	return TimeValue(seconds, milliseconds);
+	return TimeValue(seconds, milliseconds * 1000);
     }
 
 private:

@@ -76,8 +76,8 @@ void System::getCurrentTime(Uint32& seconds, Uint32& milliseconds)
 {
     timeval tv;
     gettimeofday(&tv, 0);
-    seconds = int(tv.tv_sec);
-    milliseconds = int(tv.tv_usec) / 1000;
+    seconds = Uint32(tv.tv_sec);
+    milliseconds = Uint32(tv.tv_usec) / 1000;
 }
 
 String System::getCurrentASCIITime()

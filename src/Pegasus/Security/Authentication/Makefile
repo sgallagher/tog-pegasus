@@ -20,6 +20,7 @@ SOURCES = \
     SecureLocalAuthenticator.cpp \
     LocalAuthenticationHandler.cpp \
     SecureBasicAuthenticator.cpp \
+    PAMBasicAuthenticator.cpp \
     BasicAuthenticationHandler.cpp \
     AuthenticationManager.cpp
 

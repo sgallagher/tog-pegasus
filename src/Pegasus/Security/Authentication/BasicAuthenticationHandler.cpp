@@ -35,6 +35,7 @@
 #include <Pegasus/Common/Base64.h>
 
 #include "SecureBasicAuthenticator.h"
+#include "PAMBasicAuthenticator.h"
 #include "BasicAuthenticationHandler.h"
 
 
@@ -48,7 +49,11 @@ BasicAuthenticationHandler::BasicAuthenticationHandler()
     PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
         "BasicAuthenticationHandler::BasicAuthenticationHandler()");
 
+#ifdef PEGASUS_PAM_AUTHENTICATION
+    _basicAuthenticator = (BasicAuthenticator*) new PAMBasicAuthenticator();
+#else
     _basicAuthenticator = (BasicAuthenticator*) new SecureBasicAuthenticator();
+#endif
 
     PEG_METHOD_EXIT();
 }

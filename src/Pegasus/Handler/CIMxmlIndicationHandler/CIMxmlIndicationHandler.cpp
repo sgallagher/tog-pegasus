@@ -133,6 +133,8 @@ public:
         {
             static String PROPERTY_NAME__SSLCERT_FILEPATH = "sslCertificateFilePath";
             static String PROPERTY_NAME__SSLKEY_FILEPATH  = "sslKeyFilePath";
+			static String PROPERTY_NAME__ENABLE_HTTPS_CONNECTION = "enableHttpsConnection";
+			static String PROPERTY_NAME__ENABLE_HTTP_CONNECTION = "enableHttpConnection";
 
             //
             // Get the sslCertificateFilePath property from the Config Manager.
@@ -158,8 +160,13 @@ public:
             randFile = ConfigManager::getHomedPath(PEGASUS_SSLSERVER_RANDOMFILE);
 #endif
 
-            SSLContext sslcontext(trustPath, certPath, keyPath, 
-                verifyListenerCertificate, randFile);
+            //
+			// Get the enableHttpsConnection and enableHttpConnection properties
+			//
+			String enableHttps = configManager->getCurrentValue(
+				PROPERTY_NAME__ENABLE_HTTPS_CONNECTION);
+			String enableHttp = configManager->getCurrentValue(
+				PROPERTY_NAME__ENABLE_HTTP_CONNECTION);
 
             #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
             Monitor monitor;
@@ -185,11 +192,13 @@ public:
             if (colon != PEG_NOT_FOUND) 
             {
                 String httpStr = dest.subString(0, colon); 
-                if (String::equalNoCase(httpStr, "https"))
+                if (String::equalNoCase(httpStr, "https") &&
+					String::equalNoCase(enableHttps, "true"))
                 {
                     useHttps = true;
                 }
-                else if (String::equalNoCase(httpStr, "http"))
+                else if (String::equalNoCase(httpStr, "http") &&
+					String::equalNoCase(enableHttp, "true"))
                 {
                     useHttps = false;
                 }
@@ -301,6 +310,10 @@ public:
             if (useHttps)
             {
 #ifdef PEGASUS_HAS_SSL
+				PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, "Build SSL Context...");
+        
+				SSLContext sslcontext(trustPath, certPath, keyPath, 
+				verifyListenerCertificate, randFile);
                 exportclient.connect (hostName, portNumber, sslcontext);
 #else
 //l10n 485

@@ -30,8 +30,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/ContentLanguageElement.h>
+#include <Pegasus/Common/LanguageElementRep.h>
 
-//PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 #define PEGASUS_ARRAY_T ContentLanguageElement
@@ -42,13 +42,22 @@ PEGASUS_NAMESPACE_BEGIN
 
 	ContentLanguageElement ContentLanguageElement::EMPTY_REF = ContentLanguageElement();
 
-	ContentLanguageElement::ContentLanguageElement(String language_tag): LanguageElement(language_tag){}
+	ContentLanguageElement::ContentLanguageElement():LanguageElement(){
+	}
+
+	ContentLanguageElement::ContentLanguageElement(String language_tag): LanguageElement(language_tag){
+	}
 	
 	ContentLanguageElement::ContentLanguageElement(String language, String country, String variant):
-										LanguageElement(language,country,variant){} 
+										LanguageElement(language,country,variant){
+	} 
 
-	ContentLanguageElement::ContentLanguageElement(const ContentLanguageElement &rhs): LanguageElement(rhs){}
+	ContentLanguageElement::ContentLanguageElement(const LanguageElement &le):LanguageElement(le){}
+
+	ContentLanguageElement::ContentLanguageElement(const ContentLanguageElement &rhs):LanguageElement(rhs){
+	}
 	
-	ContentLanguageElement::~ContentLanguageElement(){}
+	ContentLanguageElement::~ContentLanguageElement(){
+	}
 
 PEGASUS_NAMESPACE_END

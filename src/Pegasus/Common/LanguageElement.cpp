@@ -30,10 +30,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/LanguageElement.h>
-#include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/LanguageParser.h>
+#include <Pegasus/Common/LanguageElementRep.h>
  
-//PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
  
 #define PEGASUS_ARRAY_T LanguageElement
@@ -51,106 +49,65 @@ const LanguageElement LanguageElement::EMPTY = LanguageElement();
 LanguageElement LanguageElement::EMPTY_REF = LanguageElement();
  
 LanguageElement::LanguageElement(){
-	language = String();
-	country = String();
-	variant = String();
-	quality = 0;
+	_rep = new LanguageElementRep();
 }
 
-LanguageElement::LanguageElement(String aLanguage, 
-								 String aCountry,
-								 String aVariant,
-								 Real32 aQuality){
-	this->language = aLanguage;
-	this->country = aCountry;
-	this->variant = aVariant;
-	this->quality = aQuality;
+LanguageElement::LanguageElement(String aLanguage, String aCountry, String aVariant, Real32 aQuality){
+	_rep = new LanguageElementRep(aLanguage, aCountry, aVariant, aQuality);
 } 
 
 LanguageElement::LanguageElement(String language_tag, Real32 aQuality){
-	if(language_tag == "*"){ 
-		language = language_tag;
-		this->quality = 0;	
-	}
-	else{
-		 splitLanguageTag(language_tag);
-		this->quality = aQuality;
-	}
+	_rep = new LanguageElementRep(language_tag, aQuality);
 }  
 
 LanguageElement::LanguageElement(const LanguageElement &rhs){
-	language = rhs.getLanguage();
-	country = rhs.getCountry();
-	variant = rhs.getVariant();
-	quality = rhs.quality;
+	_rep = new LanguageElementRep(*rhs._rep);
 }
 
-LanguageElement::~LanguageElement(){}
+LanguageElement::~LanguageElement(){
+	if(_rep) delete _rep;
+}
 
-LanguageElement LanguageElement::operator=(LanguageElement rhs){
-	language = rhs.getLanguage();
-	country = rhs.getCountry();
-	variant = rhs.getVariant();
-	quality = rhs.quality;
+LanguageElement LanguageElement::operator=(const LanguageElement &rhs){
+	*_rep = *rhs._rep;
 	return *this;	
 }
 
-String LanguageElement::getLanguageTag() const {
-	return buildLanguageTag();	
-}
-
 String LanguageElement::getLanguage() const {
-	return language;
+	return _rep->getLanguage();
 }
 
 String LanguageElement::getCountry() const {
-	return country;
+	return _rep->getCountry();
 }
 
 String LanguageElement::getVariant() const {
-	return variant;
+	return _rep->getVariant();
 }
 
 String LanguageElement::getTag() const{
-	return buildLanguageTag();	
+	return _rep->getTag();	
+}
+
+Real32 LanguageElement::getQuality() const{
+	return _rep->getQuality();
 }
 
 String LanguageElement::toString() const{
-	return buildLanguageTag();
+	return _rep->toString();
 }
 
-Boolean LanguageElement::operator==(const LanguageElement rhs)const{
-	return String::equalNoCase(getLanguageTag(), rhs.getLanguageTag());		
+Boolean LanguageElement::operator==(const LanguageElement &rhs)const{
+	return _rep->operator==(*rhs._rep);
 }
 
-Boolean LanguageElement::operator!=(const LanguageElement rhs)const{
-	return (!String::equalNoCase(getLanguageTag(),rhs.getLanguageTag()));
+Boolean LanguageElement::operator!=(const LanguageElement &rhs)const{
+	return (*_rep != *rhs._rep);
 }
 
 PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& stream, LanguageElement le){
-		stream << le.getLanguageTag();
+		stream << le.getTag();
 		return stream;
 }
-
-
-/* %%%%%%%%%%%%%%%%%%%% PRIVATE METHODS and MEMBERS %%%%%%%%%%%%%%%%%%%%%%%% */
-
-
-String LanguageElement::buildLanguageTag() const {
-	String tag = language;
-	if(country.size() != 0)
-		tag = tag + "-" + country;
-	if(variant.size() != 0)
-		tag = tag + "-" + variant;
-	return tag;	
-}
-
-void LanguageElement::splitLanguageTag(String language_tag){
-		LanguageParser lp;
-		language = lp.getLanguage(language_tag);
-		country = lp.getCountry(language_tag);
-		variant = lp.getVariant(language_tag);
-}
-
 
 PEGASUS_NAMESPACE_END

@@ -29,8 +29,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_LanguageElement_h
-#define Pegasus_LanguageElement_h
+#ifndef Pegasus_LanguageElementRep_h
+#define Pegasus_LanguageElementRep_h
 
 #include <cstdlib>
 #include <cctype>
@@ -45,17 +45,15 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class LanguageElementRep;
-
 //////////////////////////////////////////////////////////////
 //
-// LanguageElement::
+// LanguageElementRep::
 //
 //////////////////////////////////////////////////////////////
     
 /** This is a base class for derived LanguageElements
  */ 
-class PEGASUS_COMMON_LINKAGE LanguageElement{
+class PEGASUS_COMMON_LINKAGE LanguageElementRep{
 	     
 public:
 
@@ -63,17 +61,17 @@ public:
         member avoids construction of an empty LanguageElement 
         (e.g., LanguageElement()).
     */
-	static const LanguageElement EMPTY;
+//	static const LanguageElement EMPTY;
 	
 	/**
 	 * This member is used to notify callers of (Accept/Content)Languages::itrNext() that the end of the container
 	 * has been reached and subsequent calls to (Accept/Content)Languages::itrNext() will fail.
 	 */
-	static LanguageElement EMPTY_REF;
+//	static LanguageElement EMPTY_REF;
 
 	/** Constructor
 	 */
-	LanguageElement();
+	LanguageElementRep();
 	
 	
 	/**
@@ -83,7 +81,7 @@ public:
 	 * @param variant String - variant ex: rab-oof
 	 * @param quality Real32 - quality associated with the language, defaults to 1.0
 	 */
-	LanguageElement(String language, 
+	LanguageElementRep(String language, 
 				 String country,
 				 String variant,
 				 Real32 quality = 1);
@@ -93,21 +91,21 @@ public:
 	 * @param language_tag String language value
 	 * @param quality Real32 quality associated with the language value, defaults to 1
 	 */
-	LanguageElement(String language_tag, Real32 quality = 1);
+	LanguageElementRep(String language_tag, Real32 quality = 1);
 
 	/** Copy Constructor 
 	 */
-	LanguageElement(const LanguageElement &rhs);
+	LanguageElementRep(const LanguageElementRep &rhs);
 	
 	/**
 	 * Destructor
 	 */
-	virtual ~LanguageElement();
+	virtual ~LanguageElementRep();
 
 	/**
 	 * Assignment operator, deep copy
 	 */
-	LanguageElement operator=(const LanguageElement &rhs);
+	LanguageElementRep operator=(LanguageElementRep & rhs);
 	
 	/** Gets the language value
 	 * @return String - language
@@ -131,8 +129,6 @@ public:
 	 * @return String - language-country-variant 
 	 */
 	String getTag() const;
-
-	Real32 getQuality() const;
 	
 	/** String representation of the LanguageElement
 	 * @return the String
@@ -142,34 +138,45 @@ public:
 	/**
 	 * Equality based on case INSENSITIVE comparison of the language tags
 	 */
-	Boolean operator==(const LanguageElement &rhs)const;
+	Boolean operator==(const LanguageElementRep &rhs)const;
 	
 	/**
 	 * Inequality based on case INSENSITIVE comparison of the language tags
 	 */
-	Boolean operator!=(const LanguageElement &rhs)const;
+	Boolean operator!=(const LanguageElementRep &rhs)const;
 	
+	Real32 getQuality()const;
+
 	/**
 	 * Writes the String representation of this object to the stream
 	 */
-	PEGASUS_COMMON_LINKAGE friend PEGASUS_STD(ostream)& operator <<(PEGASUS_STD(ostream) &stream, LanguageElement le);
+	//PEGASUS_COMMON_LINKAGE friend PEGASUS_STD(ostream)& operator <<(PEGASUS_STD(ostream) &stream, LanguageElement le);
 
 	/**
 	 * AcceptLanguages needs direct access to quality, but ContentLanguages does not.
 	 */
-	friend class AcceptLanguages;	
+//	friend class AcceptLanguages;	
 
 protected:
-
-	LanguageElementRep *_rep;		
+	String language;      // language part of language tag
+        String country;       // country code part of the language tag
+        String variant;       // language variant part of the language tag
+        Real32 quality;                 // quality value of the languge tag
 	
-}; // end LanguageElement
+private:
+	
+	String buildLanguageTag() const;
+	
+	void splitLanguageTag(String language_tag);
+	
 
-#ifndef PEGASUS_ARRAY_T
-#define PEGASUS_ARRAY_T LanguageElement
-#include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
-#endif
+}; // end LanguageElementRep
+
+//#ifndef PEGASUS_ARRAY_T
+//#define PEGASUS_ARRAY_T LanguageElement
+//#include <Pegasus/Common/ArrayInter.h>
+//#undef PEGASUS_ARRAY_T
+//#endif
 
 PEGASUS_NAMESPACE_END
 

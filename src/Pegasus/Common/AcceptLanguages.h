@@ -40,6 +40,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class AcceptLanguagesRep;
+
 //////////////////////////////////////////////////////////////
 //
 // AcceptLanguages::
@@ -72,18 +74,21 @@ public:
 	 * Constructor
 	 * @param container Array<LanguageElement> - constructs the object with this array
 	 */
-	AcceptLanguages(Array<LanguageElement> container):LanguageElementContainer(container){}
+	AcceptLanguages(const Array<LanguageElement> &container);
 	
 	/**
 	 * Constructor
 	 * @param container Array<AcceptLanguageElement> - constructs the object with this array
 	 */
-	AcceptLanguages(Array<AcceptLanguageElement> container);
+	AcceptLanguages(const Array<AcceptLanguageElement> &container);
+
+	AcceptLanguages(const AcceptLanguages &rhs);
 	
 	/**
 	 * Destrctor
 	 */
-	~AcceptLanguages(){}
+	~AcceptLanguages();
+
 	
 	/**
 	 * @return String - Returns a String representation of this object in AcceptLanguage header format
@@ -95,13 +100,13 @@ public:
 	 * @return ostream - Returns a representation of this object in AcceptLanguage header format
 	 * according to the RFC
 	 */
-	PEGASUS_COMMON_LINKAGE friend PEGASUS_STD(ostream) & operator<<(PEGASUS_STD(ostream) &stream, AcceptLanguages al);
+	PEGASUS_COMMON_LINKAGE friend PEGASUS_STD(ostream) & operator<<(PEGASUS_STD(ostream) &stream, const AcceptLanguages &al);
 	
 	/**
 	 * Assignment 
 	 * @param rhs AcceptLanguages
 	 */
-	AcceptLanguages operator=(AcceptLanguages rhs);
+	AcceptLanguages operator=(const AcceptLanguages &rhs);
 
 	/**
 	 * Random access into this container given an index
@@ -116,6 +121,8 @@ public:
 	 * @param elements Array<AcceptLanguageElement> & - array to fill in
 	 */
 	void getAllLanguageElements(Array<AcceptLanguageElement> & elements) const;
+
+	Array<AcceptLanguageElement> getAllLanguageElements() const;
 	
 	/**
 	 * Returns the next element in the container
@@ -131,7 +138,7 @@ public:
 	 * of this container, that is, based on the quality value associated with the language_tag.
 	 * @param element AcceptLanguageElement - element to add
 	 */
-	void add(AcceptLanguageElement element);
+	void add(const AcceptLanguageElement & element);
 
 	/**
 	 * Removes the element at index from the container.  The elements will be reordered according to the natural ordering
@@ -145,14 +152,14 @@ public:
 	 * @param element AcceptLanguageElement - element to remove
 	 * @return int  -1 if element not found, otherwise returns the position of element before the remove.
 	 */
-	int remove(AcceptLanguageElement element);
+	Uint32 remove(const AcceptLanguageElement &element);
 	
 	/**
 	 * Finds the element in the container and returns its position.
 	 * @param element AcceptLanguageElement - element to find
 	 * @return int index of element if found, otherwise -1
 	 */
-	int find(AcceptLanguageElement element);
+	Sint32 find(const AcceptLanguageElement &element)const;
 	
 	/**
 	 * Finds the element in the container that matches the language_tag and quality.
@@ -160,18 +167,14 @@ public:
 	 * @param quality Real32 - the quality associated with the language_tag to match.
 	 * @return int index of element if found, otherwise -1
 	 */
-	int find(String language_tag, Real32 quality);
+	Sint32 find(String language_tag, Real32 quality)const;
 	
 	static AcceptLanguages getDefaultAcceptLanguages();
-		
-		
-
-private:
+	 
+	void prioritize();
 
 	void buildLanguageElements(Array<String> values);
-
-	void prioritize();
-	       
+      
 }; // end AcceptLanguages
 
 PEGASUS_NAMESPACE_END

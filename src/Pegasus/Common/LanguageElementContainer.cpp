@@ -30,10 +30,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/LanguageElementContainer.h>
-#include <Pegasus/Common/Exception.h>
-//#include <Pegasus/Common/LanguageParser.h>
+#include <Pegasus/Common/LanguageElementContainerRep.h>
 
-//PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 	
@@ -45,121 +43,78 @@ PEGASUS_NAMESPACE_BEGIN
 		 
 const LanguageElementContainer LanguageElementContainer::EMPTY = LanguageElementContainer();
 	
-LanguageElementContainer::LanguageElementContainer(){}	
+LanguageElementContainer::LanguageElementContainer(){
+	_rep = new LanguageElementContainerRep();
+}	
 		 
-LanguageElementContainer::LanguageElementContainer(Array<LanguageElement> aContainer){
-	this->container = aContainer;	
+LanguageElementContainer::LanguageElementContainer(const Array<LanguageElement> &aContainer){
+	_rep = new LanguageElementContainerRep(aContainer);
 }
  
 LanguageElementContainer::LanguageElementContainer(const LanguageElementContainer &rhs){
-		container = rhs.getAllLanguageElements();	
+	_rep = new LanguageElementContainerRep(*rhs._rep);
 }
 
-LanguageElementContainer::~LanguageElementContainer(){}
+LanguageElementContainer::~LanguageElementContainer(){
+	if(_rep) delete _rep;
+}
 
-LanguageElementContainer LanguageElementContainer::operator=(LanguageElementContainer rhs){
-		container = rhs.getAllLanguageElements();
-		return *this;	
+LanguageElementContainer LanguageElementContainer::operator=(const LanguageElementContainer &rhs){
+	if (&rhs != this)
+		*_rep = *rhs._rep;
+	return *this;
 }
 
 LanguageElement LanguageElementContainer::getLanguageElement(int index) const{
-	if(index >= container.size())
-	 	throw IndexOutOfBoundsException();
-	return container[index];
+	return _rep->getLanguageElement(index);
 } 
 
-void LanguageElementContainer::buildLanguageElements(Array<String> values){}
-
 Array<LanguageElement> LanguageElementContainer::getAllLanguageElements() const{
-	return container;	
+	return _rep->getAllLanguageElements();	
 }  
 
 String LanguageElementContainer::toString() const{
-	String s;
-	for(int i = 0; i < container.size(); i++){
-		s.append(container[i].toString());
-		if(i < container.size() - 1)
-			s.append(", ");	
-	}
-	return s;
+	return _rep->toString();
 } 
 
 Uint32 LanguageElementContainer::size() const{
-	return container.size();	
+	return _rep->size();	
 }
 
 Boolean LanguageElementContainer::contains(LanguageElement element)const {
-	return (find(element) != -1);
+	return _rep->contains(element);
 }
 
 void LanguageElementContainer::itrStart(){
-	itr_index = 0;
+	_rep->itrStart();
 }
 
-LanguageElement& LanguageElementContainer::itrNext(){
-	if(itr_index >= container.size())
-		return LanguageElement::EMPTY_REF;
-	return container[itr_index++];
+LanguageElement LanguageElementContainer::itrNext(){
+	return _rep->itrNext();
 }
 
-//void LanguageElementContainer::append(LanguageElement element){
-//	container.append(element);
-//}
+void LanguageElementContainer::append(LanguageElement element){
+	_rep->append(element);
+}
 
 void LanguageElementContainer::remove(Uint32 index){
-	Uint32 size = container.size();
-	container.remove(index);
-	if(size < container.size()){	
-		updateIterator();	
-	}
+	_rep->remove(index);
 }
 
-int LanguageElementContainer::remove(LanguageElement element){
-	int index = find(element);
-	if(index != -1){
-		container.remove(index);			
-		updateIterator();
-	}
-	return index;	
+Uint32 LanguageElementContainer::remove(const LanguageElement &element){
+	return _rep->remove(element);	
 }
 
 void LanguageElementContainer::clear(){
-	container.clear();
-	itr_index = 0;	
+	_rep->clear();
 }
 
-Boolean LanguageElementContainer::operator==(const LanguageElementContainer rhs)const{
-	if(container.size() != rhs.size()) return false;
-	for(int i = 0; i < container.size(); i++){
-		if(container[i] != rhs.getLanguageElement(i)) 
-			return false;
-	}
-	return true;
+Boolean LanguageElementContainer::operator==(const LanguageElementContainer &rhs)const{
+	return (*_rep == *rhs._rep);
 }
 
-Boolean LanguageElementContainer::operator!=(const LanguageElementContainer rhs)const{
-	if(container.size() != rhs.size()) return true;
-	for(int i = 0; i < container.size(); i++){
-		if(container[i] != rhs.getLanguageElement(i)) 
-			return true;
-	}
-	return false;
-}
-
-int LanguageElementContainer::find(LanguageElement element)const { 
-	for(Uint32 i = 0; i < container.size(); i++){
-		if(element == container[i])
-			return i;		
-	}	
-	return -1;
-}
-
-/** 
- * Called when any element is removed from the container
- */
-void LanguageElementContainer::updateIterator(){
-	if(itr_index > 0)
-		itr_index--;	
+Boolean LanguageElementContainer::operator!=(const LanguageElementContainer &rhs)const{
+	return (*_rep != *rhs._rep);
 }
 
 PEGASUS_NAMESPACE_END

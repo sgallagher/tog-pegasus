@@ -30,8 +30,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
  
 #include <Pegasus/Common/AcceptLanguageElement.h>
+#include <Pegasus/Common/LanguageElementRep.h>
 
-//PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 #define PEGASUS_ARRAY_T AcceptLanguageElement
@@ -48,49 +48,60 @@ const AcceptLanguageElement AcceptLanguageElement::EMPTY = AcceptLanguageElement
 
 AcceptLanguageElement AcceptLanguageElement::EMPTY_REF = AcceptLanguageElement();
 
-AcceptLanguageElement::~AcceptLanguageElement(){}
+AcceptLanguageElement::AcceptLanguageElement():LanguageElement(){
+}
 
-AcceptLanguageElement AcceptLanguageElement::operator=(AcceptLanguageElement rhs){
-	LanguageElement::operator=(rhs);
-	return *this;
-} 
+AcceptLanguageElement::AcceptLanguageElement(String language, String country, String variant, Real32 quality):
+	LanguageElement(language, country, variant, quality){
+}
+
+AcceptLanguageElement::AcceptLanguageElement(String language_tag, Real32 quality):LanguageElement(language_tag, quality){
+}
+
+AcceptLanguageElement::AcceptLanguageElement(const LanguageElement &le):LanguageElement(le){}
+
+AcceptLanguageElement::AcceptLanguageElement(const AcceptLanguageElement &rhs):LanguageElement(rhs){
+}
+
+AcceptLanguageElement::~AcceptLanguageElement(){
+}
 
 Real32 AcceptLanguageElement::getQuality() const {
-	return quality;
+	return _rep->getQuality();
 }
 
 String AcceptLanguageElement::toString() const{
-	String s = LanguageElement::toString();
-	String quality_prefix = ";q=";
-	if(getLanguageTag() != "*" && quality != 1.0){ 
-		char q[6];
-		sprintf(q,"%4.3f", quality);
-		s.append(quality_prefix).append(q);
-	}
-	
-	return s;
+	String s = _rep->toString();
+        String quality_prefix = ";q=";
+        if(getTag() != "*" && getQuality() != 1.0){
+                char q[6];
+                sprintf(q,"%4.3f", getQuality());
+                s.append(quality_prefix).append(q);
+        }
+                                                                                                                                                             
+        return s;
 }
 
-Boolean AcceptLanguageElement::operator>(AcceptLanguageElement rhs){
-	return (quality > rhs.getQuality());
+Boolean AcceptLanguageElement::operator>(const AcceptLanguageElement &rhs){
+	return (_rep->getQuality() > rhs.getQuality());
 }
 
-Boolean AcceptLanguageElement::operator<(AcceptLanguageElement rhs){
-	return (quality < rhs.getQuality());
+Boolean AcceptLanguageElement::operator<(const AcceptLanguageElement &rhs){
+	return (_rep->getQuality() < rhs.getQuality());
 }
 
-Boolean AcceptLanguageElement::operator==(AcceptLanguageElement rhs){
-	if(LanguageElement::operator==(rhs))
-		if(quality == rhs.quality)
+Boolean AcceptLanguageElement::operator==(const AcceptLanguageElement &rhs){
+	if(*_rep == *rhs._rep)
+		if(_rep->getQuality() == rhs._rep->getQuality())
 			return true;
 	return false;
 }
 
-Boolean AcceptLanguageElement::operator!=(AcceptLanguageElement rhs){
-	if(LanguageElement::operator==(rhs))
-		if(quality == rhs.quality)
-			return false;
-	return true;
+Boolean AcceptLanguageElement::operator!=(const AcceptLanguageElement &rhs){
+	if(*_rep == *rhs._rep)
+                if(_rep->getQuality() == rhs._rep->getQuality())
+                        return false;
+        return true;
 }
 
 PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& stream, AcceptLanguageElement ale){

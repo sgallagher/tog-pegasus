@@ -38,6 +38,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class ContentLanguageElementRep;
+
 //////////////////////////////////////////////////////////////
 //
 // ContentLanguageElement::
@@ -63,7 +65,7 @@ public:
 	/**
 	 * Default Constructor
 	 */
-	ContentLanguageElement():LanguageElement(){}
+	ContentLanguageElement();
 
 	/**
 	 * Constructor
@@ -79,6 +81,8 @@ public:
 	 */
 	ContentLanguageElement(String language, String country, String variant);
 
+	ContentLanguageElement(const LanguageElement &le);
+
 	/**
 	 * Copy Constructor
 	 */
@@ -88,6 +92,7 @@ public:
 	 * Destructor
 	 */
 	~ContentLanguageElement();
+
 
 }; // end ContentLanguageElement
 

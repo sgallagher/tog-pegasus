@@ -29,8 +29,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_LanguageElementContainer_h
-#define Pegasus_LanguageElementContainer_h
+#ifndef Pegasus_LanguageElementContainerRep_h
+#define Pegasus_LanguageElementContainerRep_h
 
 
 #include <cstdlib>
@@ -41,23 +41,21 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/LanguageElement.h>
-//#include <Pegasus/Common/LanguageParser.h>
+#include <Pegasus/Common/LanguageParser.h>
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 PEGASUS_NAMESPACE_BEGIN
 
-class LanguageElementContainerRep;
-
 //////////////////////////////////////////////////////////////
 //
-// LanguageElementContainer::
+// LanguageElementContainerRep::
 //
 //////////////////////////////////////////////////////////////
 
-/** This class is a container class for LanguageElement
+/** This class is a container class for AcceptLanguageElement
  */
-class PEGASUS_COMMON_LINKAGE LanguageElementContainer{
+class PEGASUS_COMMON_LINKAGE LanguageElementContainerRep{
 
 public:
 
@@ -65,40 +63,40 @@ public:
         member avoids construction of an empty LanguageElementContainer 
         (e.g., LanguageElementContainer()).
 	*/
-	static const LanguageElementContainer EMPTY;
+//	static const LanguageElementContainer EMPTY;
     
     /**
      * Default Constructor
      */
-	LanguageElementContainer();    
+	LanguageElementContainerRep();    
 	
 	/**
 	 * Constructor
 	 * @param container Array<LanguageElement> - contructs the object with the elements in the array
 	 */
-	LanguageElementContainer(const Array<LanguageElement> & container);
+	LanguageElementContainerRep(const Array<LanguageElement> &container);
 
 	/** Copy Constructor
 	 * @param rhs LanguageElementContainer
 	 */
-	LanguageElementContainer(const LanguageElementContainer &rhs);
+	LanguageElementContainerRep(const LanguageElementContainerRep &rhs);
 	
 	/**
 	 * Destructor
 	 */
-	virtual ~LanguageElementContainer();
+	virtual ~LanguageElementContainerRep();
 	
 	/**
 	 * Deep copy
 	 * @param rhs LanguageElementContainer
 	 */
-	LanguageElementContainer operator=(const LanguageElementContainer &rhs);
+	LanguageElementContainerRep operator=(LanguageElementContainerRep rhs);
 
 	/** Gets an AcceptLanguageElement object at position index
 	 * @param index int position of AcceptLanguageElement
 	 * @return AcceptLanguageElement
 	 */
-	LanguageElement getLanguageElement(int index) const;
+	LanguageElement getLanguageElement(Uint32 index) const;
 
 	/** Gets all AcceptLanguageElement objects in the container
 	 * @return Array<AcceptLanguageElement>
@@ -160,26 +158,32 @@ public:
 	/**
 	 * Equality based on language fields only
 	 */
-	Boolean operator==(const LanguageElementContainer &rhs)const;
+	Boolean operator==(const LanguageElementContainerRep &rhs)const;
 
 	/**
 	 * Inequality based on language fields only
 	 */
-	Boolean operator!=(const LanguageElementContainer &rhs)const;
+	Boolean operator!=(const LanguageElementContainerRep &rhs)const;
 	
 	/**
 	 * Finds the element in the container and returns its position.
 	 * @param element LanguageElement - element to find
 	 * @return int index of element if found, otherwise -1
 	 */
-	//int find(LanguageElement element)const;
+	Sint32 find(LanguageElement element)const;
 
-protected:
 
-	LanguageElementContainerRep *_rep;
+  	Array<LanguageElement> container;        // holds LanguageElements
+
+private:
 	
+	void buildLanguageElements(Array<String> values);
+
+	void updateIterator();
+	
+    Uint32 itr_index;					// current position for iterator type access
 	       
-}; // end LanguageElementContainer
+}; // end LanguageElementContainerRep
 
 PEGASUS_NAMESPACE_END
 

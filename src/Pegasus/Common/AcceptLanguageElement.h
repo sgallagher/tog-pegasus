@@ -39,6 +39,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class AcceptLanguageElementRep;
+
 //////////////////////////////////////////////////////////////
 //
 // AcceptLanguageElement::
@@ -66,7 +68,7 @@ public:
 
 	/** Constructor
 	 */
-	AcceptLanguageElement(): LanguageElement(){quality = 0;}
+	AcceptLanguageElement();
 	
 	/**
 	 * Constructor
@@ -78,23 +80,19 @@ public:
 	AcceptLanguageElement(String language, 
 				     String country,
 				     String variant,
-				     Real32 quality = 1.0):
-				     LanguageElement(language,
-		             country,
-		             variant,
-		             quality){}
+				     Real32 quality = 1.0);
 	/** Constructor
 	 * @param language_tag String IANA language value
 	 * @param q Real32 quality value for language, 0 < q < 1, defaults to 1
 	 */
 	AcceptLanguageElement(String language_tag, 
-						  Real32 quality = 1.0): 
-						  LanguageElement(language_tag, quality){}
+						  Real32 quality = 1.0);
+
+	AcceptLanguageElement(const LanguageElement &le);
 
 	/** Copy Constructor 
 	 */
-	AcceptLanguageElement(const AcceptLanguageElement &rhs): 
-						  LanguageElement(rhs){}
+	AcceptLanguageElement(const AcceptLanguageElement &rhs);
 
 	~AcceptLanguageElement();
 
@@ -112,33 +110,33 @@ public:
 	 * Assignment operator, deep copy
 	 * @param rhs AcceptLanguageElement
 	 */
-	AcceptLanguageElement operator=(AcceptLanguageElement rhs);
+	//AcceptLanguageElement operator=(AcceptLanguageElement rhs);
 	
 	/**
 	 * Comparison based on the quality values ONLY, that is, the language tags of the elements are NOT 
 	 * taken into account.
 	 */
-	Boolean operator>(AcceptLanguageElement rhs);
+	Boolean operator>(const AcceptLanguageElement &rhs);
 	
 	/**
 	 * Comparison based on the quality values ONLY, that is, the language tags of the elements are NOT 
 	 * taken into account.
 	 */
-	Boolean operator<(AcceptLanguageElement rhs);
+	Boolean operator<(const AcceptLanguageElement &rhs);
 	
 	/**
 	 * True if the langauge tag portion equals that of rhs (case INSENSITIVE) AND
 	 * if the quality values are equal 
 	 * @param rhs AcceptLanguageElement
 	 */
-	Boolean operator==(AcceptLanguageElement rhs);
+	Boolean operator==(const AcceptLanguageElement &rhs);
 	
 	/**
 	 * True if the langauge tag portion does NOT equal that of rhs (case INSENSITIVE) OR
 	 * if the quality values are NOT equal
 	 * @param rhs AcceptLanguageElement 
 	 */
-	Boolean operator!=(AcceptLanguageElement rhs);
+	Boolean operator!=(const AcceptLanguageElement &rhs);
 
 	/**
 	 * Writes the string representation of this object to the stream

@@ -34,10 +34,11 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/LanguageElementContainer.h>
 #include <Pegasus/Common/ContentLanguageElement.h>
-
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 PEGASUS_NAMESPACE_BEGIN
+
+class ContentLanguagesRep;
 
 //////////////////////////////////////////////////////////////
 //
@@ -58,7 +59,7 @@ public:
 	/**
 	 * Constructor
 	 */
-	ContentLanguages():LanguageElementContainer(){}
+	ContentLanguages();
 
 	/**
 	 * Constructor
@@ -70,13 +71,13 @@ public:
 	 * Constructor
 	 * @param container Array<LanguageElement> - elements to construct the object with
 	 */
-	ContentLanguages(Array<LanguageElement> container);
+	ContentLanguages(const Array<LanguageElement> &container);
 	
 	/**
 	 * Constructor
 	 * @param container Array<ContentLanguageElement> - elements to construct the object with
 	 */
-	ContentLanguages(Array<ContentLanguageElement> container);
+	ContentLanguages(const Array<ContentLanguageElement> &container);
 
 	/**
 	 * Copy Constructor
@@ -102,6 +103,10 @@ public:
 	 * @param elements Array<ContentLanguageElement> & - filled with the contents of the ContentLanguages container 
 	 */
 	void getAllLanguageElements(Array<ContentLanguageElement> & elements) const;
+
+	Array<ContentLanguageElement> getAllLanguageElements()const;
+
+
 	
 	/**
 	 * Appends the element to the container
@@ -123,24 +128,23 @@ public:
 	 * @param language_tag String - case insensitive match
 	 * @return int index of element if found, otherwise -1
 	 */
-	int find(String language_tag);
+	Sint32 find(String language_tag)const;
+
 	
 	/**
 	 * @return ostream - Returns a representation of this object in ContentLanguage header format
 	 * according to the RFC
 	 */
-	PEGASUS_COMMON_LINKAGE friend PEGASUS_STD(ostream) & operator<<(PEGASUS_STD(ostream) &stream, ContentLanguages cl);
+	PEGASUS_COMMON_LINKAGE friend PEGASUS_STD(ostream) & operator<<(PEGASUS_STD(ostream) &stream, const ContentLanguages &cl);
 
 	/**
 	 * Assignment 
 	 * @param rhs ContentLanguages
 	 */
-	ContentLanguages operator=(ContentLanguages rhs);
+	ContentLanguages operator=(const ContentLanguages &rhs);
 
-private:	
+	void buildLanguageElements(Array<String> values);
 
-	virtual void buildLanguageElements(Array<String> values);
-	
 }; // end ContentLanguages
 
 PEGASUS_NAMESPACE_END

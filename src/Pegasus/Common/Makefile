@@ -21,9 +21,11 @@ SOURCES = \
     Base64.cpp \
     LanguageParser.cpp \
     LanguageElement.cpp \
+    LanguageElementRep.cpp \
     AcceptLanguageElement.cpp \
     ContentLanguageElement.cpp \
     LanguageElementContainer.cpp \
+    LanguageElementContainerRep.cpp \
     AcceptLanguages.cpp \
     ContentLanguages.cpp \
     MessageLoader.cpp \

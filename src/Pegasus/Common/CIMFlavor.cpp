@@ -30,14 +30,17 @@
 #include "CIMFlavor.h"
 #include "Exception.h"
 #include "XmlWriter.h"
+//#include <iostream>
 
 PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_STD;
 
 const Uint32 CIMFlavor::NONE = 0;
 const Uint32 CIMFlavor::OVERRIDABLE = 1;
 const Uint32 CIMFlavor::TOSUBCLASS = 2;
 const Uint32 CIMFlavor::TOINSTANCE = 4;
 const Uint32 CIMFlavor::TRANSLATABLE = 8;
+const Uint32 CIMFlavor::TOSUBELEMENTS = TOSUBCLASS | TOINSTANCE;
 const Uint32 CIMFlavor::DEFAULTS = OVERRIDABLE | TOSUBCLASS;
 
 static const char* _toString(Boolean x)
@@ -70,8 +73,10 @@ static const char* _toString(Boolean x)
 
     TRANSLATABLE      = "translatable"
    </pre>
-   The keyword toinstance is not in the CIMspecification and so is not
-   included in out output..
+   The keyword toinstance is not in the CIMspecification. For the moment we are
+   assuming that it is the same as the TOSubclass. We had a choice of using
+   one entity for both or separating them and letting the compiler set both.
+ 
 */
 String FlavorToMof(Uint32 flavor)
 {
@@ -84,19 +89,13 @@ String FlavorToMof(Uint32 flavor)
 
     tmp = "";
 
-    if (overridable)
-        tmp += "EnableOverride, ";
-    else
+    //cout << "KSTEST MOF " << flavor << "  overridable = " << overridable << endl;
+
+    if (!overridable)
 	tmp += "DisableOverride, ";
 
     if (!toSubClass)
 	tmp += "Restricted, ";
-
-
-    /* this is not a legal MOF flavor
-    if (toInstance)
-	tmp += "TOINSTANCE ";
-    */
 
     if (translatable)
 	tmp += "Translatable, ";
@@ -107,6 +106,13 @@ String FlavorToMof(Uint32 flavor)
     return tmp;
 }
 
+/*
+The XML Definition is, from XML Specification
+<!ENTITY % QualifierFlavor "OVERRIDABLE  (true|false)   'true' 
+                              TOSUBCLASS   (true|false)   'true' 
+                              TOINSTANCE   (true|false)   'false' 
+                              TRANSLATABLE (true|false)   'false'">
+*/
 void FlavorToXml(Array<Sint8>& out, Uint32 flavor)
 {
     Boolean overridable = (flavor & CIMFlavor::OVERRIDABLE) != 0;
@@ -116,6 +122,11 @@ void FlavorToXml(Array<Sint8>& out, Uint32 flavor)
 
     if (!overridable)
 	out << " OVERRIDABLE=\"" << _toString(overridable) << "\"";
+
+    /*cout << "KSTEST XML " << flavor << "  overridable = " 
+        << overridable 
+        << " " << FlavorToMof(flavor)
+        << endl;*/
 
     if (!toSubClass)
 	out << " TOSUBCLASS=\"" << _toString(toSubClass) << "\"";

@@ -103,8 +103,8 @@ void CIMQualifierDeclRep::toXml(Array<Sint8>& out) const
     out << ">\n";
 
     ScopeToXml(out, _scope);
-    /*KSTESTNULL*/
-    _value.toXml(out, true);
+    /*KSTESTNULL - Put the XML out with no VALUE tags if Null*/
+    _value.toXml(out, false);
 
     out << "</QUALIFIER.DECLARATION>\n";
 }

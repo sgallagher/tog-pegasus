@@ -64,6 +64,10 @@ struct PEGASUS_COMMON_LINKAGE CIMFlavor
     /** Defaults according to the CIM DTD (OVERRIDABLE | TOSUBCLASS).
     */
     static const Uint32 DEFAULTS;
+
+    /** Set both toInstance and toinstance according to the CIM DTD (OVERRIDABLE | TOSUBCLASS).
+    */
+    static const Uint32 TOSUBELEMENTS;
 };
 
 /** FlavorToMof - Converts the flavor attributes of a qualifier to CIM MOF

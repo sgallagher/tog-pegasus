@@ -42,24 +42,29 @@ class PEGASUS_COMMON_LINKAGE CIMQualifierList
 {
 public:
 
+    ///
     CIMQualifierList();
 
+    ///
     ~CIMQualifierList();
 
+    ///
     CIMQualifierList& add(const CIMQualifier& qualifier);
 
+    ///
     Uint32 getCount() const
     {
 	return _qualifiers.size(); 
     }
 
+    ///
     CIMQualifier& getQualifier(Uint32 pos);
 
+    ///
     const CIMQualifier& getQualifier(Uint32 pos) const
     {
 	return _qualifiers[pos]; 
     }
-    // ATTN: KS 18 may 2001
     /** removeQualifier - Removes the Qualifier defined by
     the pos parameter
     @exception Throws "OutOfBounds" if pos not within
@@ -67,10 +72,21 @@ public:
     */
     void removeQualifier(Uint32 pos);
     
+    ///
     Uint32 find(const String& name) const;
 
+    ///
     Uint32 findReverse(const String& name) const;
-
+    
+    /** resolve - Resolves the qualifier
+        @param declContext
+        @param nameSpace
+        @param scope
+        @param isInstancePart
+        @param inheritedQualifiers
+        @return
+    
+    */ 
     void resolve(
 	DeclContext* declContext,
 	const String& nameSpace,
@@ -78,15 +94,19 @@ public:
 	Boolean isInstancePart,
 	CIMQualifierList& inheritedQualifiers);
 
+    ///
     void toXml(Array<Sint8>& out) const;
 
+    ///
     void toMof(Array<Sint8>& out) const;
 
-
+    ///
     void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
 
+    ///
     Boolean identical(const CIMQualifierList& x) const;
 
+    ///
     void cloneTo(CIMQualifierList& x) const;
 
 private:

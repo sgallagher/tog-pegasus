@@ -32,7 +32,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Provider/CIMIndicationConsumer.h>
 #include <Pegasus/ExportServer/Linkage.h>
 

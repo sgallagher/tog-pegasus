@@ -56,7 +56,7 @@
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMObjectPath.h>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/OperationContext.h>

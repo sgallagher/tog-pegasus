@@ -39,7 +39,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Base64.h>
 #include <Pegasus/Common/Array.h>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

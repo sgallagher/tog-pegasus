@@ -31,7 +31,7 @@
 #include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 #include <cstdio>
 #include <unistd.h>
 

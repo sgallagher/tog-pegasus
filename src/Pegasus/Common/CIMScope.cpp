@@ -30,7 +30,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstring>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 #include "CIMScope.h"
 
 PEGASUS_NAMESPACE_BEGIN

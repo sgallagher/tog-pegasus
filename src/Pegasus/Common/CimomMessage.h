@@ -31,7 +31,7 @@
 #define Pegasus_CimomMessage_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/AsyncOpNode.h>
 #include <Pegasus/Common/Linkage.h>

@@ -35,7 +35,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Logger.h>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/TraceComponents.h>
 #include <Pegasus/Common/TraceFileHandler.h>
 #include <Pegasus/Common/Linkage.h>

@@ -42,7 +42,7 @@
 #include <string.h>
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Array.h>

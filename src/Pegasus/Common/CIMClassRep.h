@@ -32,6 +32,7 @@
 #define Pegasus_CIMClassRep_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMObjectRep.h>
 #include <Pegasus/Common/CIMMethod.h>

@@ -31,7 +31,7 @@
 #define Pegasus_ParamValueRep_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/CIMValue.h>

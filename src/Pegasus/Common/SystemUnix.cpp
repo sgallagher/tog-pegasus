@@ -54,7 +54,7 @@
 #include "System.h"
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Destroyer.h>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

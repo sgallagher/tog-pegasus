@@ -29,7 +29,7 @@
 
 #include "Destroyer.h"
 #include "Dir.h"
-#include "Exception.h"
+#include "InternalException.h"
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -38,7 +38,7 @@
 #include <Pegasus/Common/String.h>
 
 //ATTN: KS-P3-20020603-This added to use the ASSERTTEMP 
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

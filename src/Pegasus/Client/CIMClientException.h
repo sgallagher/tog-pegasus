@@ -27,8 +27,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_ClientExceptions_h
-#define Pegasus_ClientExceptions_h
+#ifndef Pegasus_ClientException_h
+#define Pegasus_ClientException_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
@@ -95,4 +95,4 @@ public:
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_ClientExceptions_h */
+#endif /* Pegasus_ClientException_h */

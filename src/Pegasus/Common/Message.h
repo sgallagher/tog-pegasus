@@ -38,7 +38,7 @@
 #include <Pegasus/Common/Config.h>
 #include <iostream>
 #include <cstring>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/Linkage.h>

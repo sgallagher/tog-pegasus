@@ -31,7 +31,7 @@
 #define Pegasus_AuthenticationInfo_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/AuthenticationInfoRep.h>
 #include <Pegasus/Common/Linkage.h>

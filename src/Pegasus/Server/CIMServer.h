@@ -34,7 +34,7 @@
 #define Pegasus_Server_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Server/CIMServerState.h>
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Server/Linkage.h>

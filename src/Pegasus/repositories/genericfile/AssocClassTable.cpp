@@ -29,7 +29,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <fstream>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Exception.h>
 #include "AssocClassTable.h"

@@ -68,7 +68,7 @@ typedef struct {
 
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/DQueue.h>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/Linkage.h>
 
 // used locally as standard response to stop the failing thread normally

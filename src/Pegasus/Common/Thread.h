@@ -32,7 +32,7 @@
 #define Pegasus_Thread_h
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/IPC.h>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Linkage.h>
 

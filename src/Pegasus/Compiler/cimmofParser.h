@@ -55,7 +55,7 @@
 #include "mofCompilerOptions.h"
 #include "cimmofRepositoryInterface.h"
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Compiler/compilerCommonDefs.h>
 #include <Pegasus/Compiler/Linkage.h>
 #include "memobjs.h"

@@ -31,7 +31,7 @@
 #include <cctype>
 #include "String.h"
 #include "Array.h"
-#include "Exception.h"
+#include "InternalException.h"
 #include <iostream>
 
 PEGASUS_USING_STD;

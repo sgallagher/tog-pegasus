@@ -32,7 +32,7 @@
 #define Pegasus_PropertyRep_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMValue.h>

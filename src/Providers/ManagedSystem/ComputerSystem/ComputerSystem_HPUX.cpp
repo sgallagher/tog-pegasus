@@ -41,7 +41,7 @@
 #include <time.h>        // localtime()
 #include <sys/utsname.h> // uname()
 
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 #include "ComputerSystemProvider.h"
 #include "ComputerSystem.h"
 

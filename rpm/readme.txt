@@ -13,8 +13,9 @@ rpm -U /usr/src/packages/RPMS/i386/pegasus-1.0-1.i386.rpm
 (the version number following the name may differ)
 
 - Creating the repository
-cimmof -I/etc/pegasus/mof -nroot /etc/pegasus/mof/CIM_Core25.mof
-cimmof -I/etc/pegasus/mof -nroot/cimv20 /etc/pegasus/mof/CIM_Schema25.mof
+cimmof -R/etc/pegasus -I/etc/pegasus/mof -nroot /etc/pegasus/mof/CIM_Core25.mof
+cimmof -R/etc/pegasus -I/etc/pegasus/mof -nroot/cimv20 /etc/pegasus/mof/CIM_Schema25.mof
+// Environment variable for cimmof and cimserver
 
 - Starting the Server
 cimserver

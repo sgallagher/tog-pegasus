@@ -64,7 +64,7 @@ struct thrd_data {
    void *parm;
 };
 
-static CMPI_THREAD_RETURN CMPI_THREAD_CDECL start_driver(void *parm)
+static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL start_driver(void *parm)
 {
     Thread* my_thread = (Thread*)parm;
     thrd_data *pp = (thrd_data*)my_thread->get_parm();
@@ -78,10 +78,11 @@ static CMPI_THREAD_TYPE newThread
         (CMPI_THREAD_RETURN (CMPI_THREAD_CDECL *start )(void *), void *parm, int detached)
 {
    thrd_data *data=new thrd_data();
-   data->pgm=start;
+   data->pgm=(PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void*))start;
    data->parm=parm;
 
-   Thread *t=new Thread(start_driver,data,detached==1);
+   Thread *t=new Thread(
+        (PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void*))start_driver,data,detached==1);
    t->run();
    return (CMPI_THREAD_TYPE)t;
 }

@@ -76,13 +76,13 @@ void buildInstances(Array<CIMInstance>& instances){
 
    CIMProperty _p1(CIMName("PropertyString"),CIMValue(String("Bert Rules")));
    CIMProperty _p2(CIMName("PropertyUint8"),CIMValue(Uint8(8)));
-   CIMProperty _p3(CIMName("PropertyUint16"),CIMValue(Uint16(16)));
+   CIMProperty _p3(CIMName("PropertyUint16"),CIMValue(Uint16(8)));
    CIMProperty _p4(CIMName("PropertyUint32"),CIMValue(Uint32(32)));
-   CIMProperty _p5(CIMName("PropertyUint64"),CIMValue(Uint64(64)));
-   CIMProperty _p6(CIMName("PropertySint8"),CIMValue(Sint8(8)));
+   CIMProperty _p5(CIMName("PropertyUint64"),CIMValue(Uint64(18446744073709551615))); // = (2^64)-1
+   CIMProperty _p6(CIMName("PropertySint8"),CIMValue(Sint8(16)));
    CIMProperty _p7(CIMName("PropertySint16"),CIMValue(Sint16(16)));
    CIMProperty _p8(CIMName("PropertySint32"),CIMValue(Sint32(32)));
-   CIMProperty _p9(CIMName("PropertySint64"),CIMValue(Sint64(64)));
+   CIMProperty _p9(CIMName("PropertySint64"),CIMValue(Sint64(-9223372036854775807))); // = (2^63)-1
    CIMProperty _p10(CIMName("PropertyBoolean"),CIMValue(Boolean(true)));
    CIMProperty _p11(CIMName("PropertyReal32"),CIMValue(Real32(32.323232)));
    CIMProperty _p12(CIMName("PropertyReal64"),CIMValue(Real64(64.6464)));
@@ -154,10 +154,12 @@ int main(int argc, char ** argv)
 		Boolean result = false;
 		for(Uint32 i=0; i < _statements.size(); i++){
 			printf("Evaluating query %d...\n",i);
+		   try{
                         result = _statements[i].evaluate(_instances[0]);
 			cout << _statements[i].toString() << " = ";
                         if(result) printf("TRUE\n");
                         else printf("FALSE\n");
+		   }catch(Exception e){ cout << e.getMessage() << endl; }
 		}
 	}else{
 		// manually setup parser state

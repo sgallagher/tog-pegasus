@@ -1,22 +1,18 @@
-select * from class
-select * from class where class = 5
-select * from class where class <= 10
-select * from class where class = 'blah'
-select class from class1
-select class.prop from class
-select class.class1.class2.class3.prop from class where prop = 5
-select * from class where class.prop = 5
-select A::prop#OK from class
-select class.class1.class2.A::prop#OK from class where prop != 'blah'
-select prop[4] from class
-select prop from class where prop >= max(*)
-select class.prop from class where class ISA superclass
-select class.prop from class where class ISA superclassX OR class ISA superclassY
-select class.prop from class where class = max(20) OR class != objectpath(classX.class.prop)
-select class.prop from class where class = max(20) AND class != objectpath(classX.class.prop) AND class ISA superclassX and class = 'blah'
-select * from CIM_InstModification where SourceInstance ISA CIM_FCPort AND PreviousInstance ISA CIM_FCPort AND SourceInstance.CIM_FCPort::OperationalStatus[0] != PreviousInstance.CIM_FCPort::OperationalStatus[0]
-select DetectionTime, SystemIPAddress, PerceivedSeverity, MonitorEventID, UPSttyPath from ACME_UPSAlertIndication where UPSttyPath = '/dev/tty0p1' AND MonitorEventID = 20
-select * from class where class = 'blah' AND NOT class > 10
-select * from class where class = 'blah' AND max(*) IS NOT NULL
-select * from class where prop#'OK' = 'blah'
-select * from class where class.prop#'OK' = 'blah'
+select * from CQL_TestPropertyTypes where PropertyString = 'Bert Rules'
+select * from CQL_TestPropertyTypes where PropertyString != 'Bert Rules'
+select * from CQL_TestPropertyTypes where PropertyUint8 = PropertyUint16
+select * from CQL_TestPropertyTypes where PropertyUint8 <= PropertyUint16
+select * from CQL_TestPropertyTypes where PropertyUint8 >= PropertyUint16
+select * from CQL_TestPropertyTypes where PropertyUint8 != PropertyUint16
+select * from CQL_TestPropertyTypes where PropertyUint8 != PropertyUint32
+select * from CQL_TestPropertyTypes where PropertyUint64 < PropertySint64
+select * from CQL_TestPropertyTypes where PropertyUint64 = PropertySint64
+select * from CQL_TestPropertyTypes where PropertyUint64 > PropertySint64
+select * from CQL_TestPropertyTypes where PropertySint64 < PropertyUint64
+select * from CQL_TestPropertyTypes where PropertySint64 = PropertyUint64
+select * from CQL_TestPropertyTypes where PropertySint64 > PropertyUint64
+select * from CQL_TestPropertyTypes where PropertySint64 > PropertyUint64
+select * from CQL_TestPropertyTypes where PropertyBoolean = true
+select * from CQL_TestPropertyTypes where PropertyString = 'Bert Rules' AND PropertyUint32 = 32
+select * from CQL_TestPropertyTypes where PropertyString = 'Bert Rules' OR PropertyUint32 = 31
+select * from CQL_TestPropertyTypes where PropertyString = 'Bert Rule' OR PropertyUint32 = 32

@@ -134,8 +134,8 @@ void QueryChainedIdentifierRep::applyContext(QueryContext& inContext)
       _subIdentifiers[0].getName().getString().size() == 0 &&
       _subIdentifiers[0].isSymbolicConstant())
   {
-    throw QueryValidationException(
-        MessageLoaderParms(String("CQL.CQLChainedIdentifier.STAND_ALONE_SYMBOLIC_CONSTANT"),
+    throw QueryParseException(
+        MessageLoaderParms(String("QueryCommon.QueryChainedIdentifierRep.STAND_ALONE_SYMBOLIC_CONSTANT"),
         String("The stand alone chained identifier should have had the context applied already.")));
   }
 
@@ -232,8 +232,8 @@ void QueryChainedIdentifierRep::applyContext(QueryContext& inContext)
               if (ce.getCode() == CIM_ERR_INVALID_CLASS || 
                   ce.getCode() == CIM_ERR_NOT_FOUND)
               {
-                throw QueryValidationException(
-                    MessageLoaderParms(String("CQL.CQLChainedIdentifier.FROM_CLASS_DOES_NOT_EXIST"),
+                throw QueryParseException(
+                    MessageLoaderParms(String("QueryCommon.QueryChainedIdentifierRep.FROM_CLASS_DOES_NOT_EXIST"),
                                        String("The FROM class $0 does not exist."),
                                        fromList[0].getName().getString()));
               }

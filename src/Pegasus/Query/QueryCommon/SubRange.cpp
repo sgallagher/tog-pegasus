@@ -33,6 +33,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Query/QueryCommon/SubRange.h>
+#include <Pegasus/Query/QueryCommon/QueryException.h>
 #include <Pegasus/Common/InternalException.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -94,22 +95,25 @@ void SubRange::parse(String range){
                 return;
         }
 */
+
         if(range.size() == 1){
-                _cstr = range.getCString();
-                if(isNum(_cstr)){
-                        start = atoi(_cstr);
-                        end = start;
-                }else{
-                        // error
-			String msg("SubRange parse error, index is not a number\n");
-			throw ParseError(msg);
-                }
-                return;
+          _cstr = range.getCString();
+          if(isNum(_cstr)){
+            start = atoi(_cstr);
+            end = start;
+          }else{
+            // error
+            MessageLoaderParms parms("QueryCommon.SubRange.INDEX_NOT_NUMBER",
+                                     "An array index string cannot be converted to a numeric form.");
+            throw QueryParseException(parms);
+          }
+          return;
         }else{
-		// error
-                String msg("SubRange parse error, index is not a single unsigned integer\n");
-                throw ParseError(msg);
-	}
+          // error
+          MessageLoaderParms parms("QueryCommon.SubRange.INDEX_NOT_SINGLE",
+                                   "An array index is not a single unsigned integer.");
+          throw QueryParseException(parms);
+        }
 	
 /*
 	if((index = range.find('-')) != PEG_NOT_FOUND){

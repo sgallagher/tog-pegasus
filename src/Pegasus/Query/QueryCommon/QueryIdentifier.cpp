@@ -134,7 +134,7 @@ Boolean QueryIdentifier::operator!=(const CIMName &rhs)const{
 }
 
 Boolean QueryIdentifier::operator==(const QueryIdentifier &rhs)const{
-	return _rep == rhs._rep;
+	return _rep->operator==(rhs._rep);
 }
 
 Boolean QueryIdentifier::operator!=(const QueryIdentifier &rhs)const{

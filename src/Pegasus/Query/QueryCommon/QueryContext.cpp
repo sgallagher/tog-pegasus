@@ -86,7 +86,7 @@ void QueryContext::insertClassPath(const QueryIdentifier& inIdentifier, String i
 
   if (inIdentifier.getName().getString() == String::EMPTY)
   {
-    MessageLoaderParms parms("Query.QueryContext.EMPTY_CLASSNAME",
+    MessageLoaderParms parms("QueryCommon.QueryContext.EMPTY_CLASSNAME",
                              "Empty classname is not allowed");
     throw QueryParseException(parms);
   }
@@ -99,7 +99,7 @@ void QueryContext::insertClassPath(const QueryIdentifier& inIdentifier, String i
  
   if (_AliasClassTable.contains(inIdentifier.getName().getString()))
   {
-    MessageLoaderParms parms("Query.QueryContext.CLASS_ALREADY_ALIAS",
+    MessageLoaderParms parms("QueryCommon.QueryContext.CLASS_ALREADY_ALIAS",
                              "A class name in the FROM list is already used as an alias.");
     throw QueryParseException(parms);
   }
@@ -110,7 +110,7 @@ void QueryContext::insertClassPath(const QueryIdentifier& inIdentifier, String i
     if ((inAlias != String::EMPTY) && 
 	(String::equalNoCase(inAlias, _fromList[i].getName().getString())))
     {
-      MessageLoaderParms parms("Query.QueryContext.ALIAS_ALREADY_CLASS",
+      MessageLoaderParms parms("QueryCommon.QueryContext.ALIAS_ALREADY_CLASS",
                              "An alias name in the FROM list is already used as a class name.");
       throw QueryParseException(parms);
     }
@@ -135,7 +135,7 @@ void QueryContext::insertClassPath(const QueryIdentifier& inIdentifier, String i
       {	
         if (!_class.getName().equal(inIdentifier.getName()))
         {
-          MessageLoaderParms parms("Query.QueryContext.ALIAS_CONFLICT",
+          MessageLoaderParms parms("QueryCommon.QueryContext.ALIAS_CONFLICT",
                              "An alias is being used for different class names.");
           throw QueryParseException(parms);
         }

@@ -99,7 +99,7 @@ public:
     CIMQualifier(
 	const CIMName& name, 
 	const CIMValue& value, 
-	Uint32 flavor = CIMFlavor::NONE,
+	const CIMFlavor & flavor = CIMFlavor (CIMFlavor::NONE),
 	Boolean propagated = false);
 
     /// destructor
@@ -140,32 +140,20 @@ public:
 
     /** setFlavor - Sets the bits defined on input into the Flavor variable
         for the Qualifier Object.
-        @param flavor - Uint32 defines the flavor bits to be set.
+        @param flavor - CIMFlavor object defines the flavor bits to be set.
     */
-    void setFlavor(Uint32 flavor);
+    void setFlavor(const CIMFlavor & flavor);
 
     /** unsetFlavor - Resets the bits defined for the flavor 
         for the Qualifier Object with the input.
-        @param flavor - Uint32 defines the flavor bits to be set.
+        @param flavor - Uint32 defines the flavor bits to be unset.
     */
     void unsetFlavor(Uint32 flavor);
 
     /**	getFlavor - Gets the Flavor field from a Qualifier
-	@return - Uint32 with the Flavor flags that can be tested
-	against the CIMFlavor constants.
+	@return - CIMFlavor object 
     */
-    Uint32 getFlavor() const;
-
-    /**	isFlavor - Boolean function that determines if particular flavor
-	flags are set in the flavor variable of a qualifier.
-	@param flavor - The flavor bits to test.
-	Return True if the defined flavor is set.
-	<pre>
-	if (q.isFlavor(CIMType::TOSUBCLASS)
-		do something based on TOSUBCLASS being true
-	</pre>
-    */
-    Boolean isFlavor(Uint32 flavor) const;
+    const CIMFlavor & getFlavor() const;
 
     /**	getPropagated returns the propagated indicator
 	@return Uint32 - TBD
@@ -229,7 +217,7 @@ public:
     CIMConstQualifier(
 	const CIMName& name, 
 	const CIMValue& value, 
-	Uint32 flavor = CIMFlavor::NONE,
+	const CIMFlavor & flavor = CIMFlavor (CIMFlavor::NONE),
 	Boolean propagated = false);
 
     ~CIMConstQualifier();
@@ -246,15 +234,7 @@ public:
 
     const CIMValue& getValue() const;
 
-    const Uint32 getFlavor() const;
-
-    Boolean isFlavor(Uint32 flavor) const;
-	
-    Boolean isFlavorToSubclass() const;
-
-    Boolean isFlavorToInstance() const;
-
-    Boolean isFlavorOverridable() const;
+    const CIMFlavor & getFlavor() const;
 
     const Uint32 getPropagated() const;
 

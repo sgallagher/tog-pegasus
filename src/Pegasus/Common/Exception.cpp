@@ -94,6 +94,8 @@ const char BadQualifierScope::MSG[] = "qualifier invalid in this scope: ";
 
 const char InvalidScope::MSG[] = "invalid scope value: ";
 
+const char InvalidFlavor::MSG[] = "invalid flavor value: ";
+
 const char BadQualifierOverride::MSG[] = "qualifier not overridable: ";
 
 const char BadQualifierType::MSG[] =

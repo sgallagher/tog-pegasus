@@ -23,7 +23,8 @@
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -155,12 +156,12 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   int addInstance(CIMInstance *instance);
   // Called when a new qualifier declaration heading is discovered
   CIMQualifierDecl *newQualifierDecl(const String &name, const CIMValue *value,
-				  Uint32 scope, Uint32 flavor);
+      const CIMScope & scope, const CIMFlavor & flavor);
   // Called when a completed qualifier declaration production is formed
   int addQualifier(CIMQualifierDecl *qualifier);
   // Called when a new qualifier declaration heading is discovered
   CIMQualifier *newQualifier(const String &name, const CIMValue &val,
-			     Uint32 flav);
+			     const CIMFlavor & flav);
   // Called when a new instance declaration heading is discovered
   CIMInstance *newInstance(const String &name);
   // Called when a new property is discovered

@@ -48,8 +48,8 @@ PEGASUS_USING_STD;
 CIMQualifierDeclRep::CIMQualifierDeclRep(
     const CIMName& name,
     const CIMValue& value,
-    CIMScope scope,
-    Uint32 flavor,
+    const CIMScope & scope,
+    const CIMFlavor & flavor,
     Uint32 arraySize)
     :
     _name(name),
@@ -70,15 +70,15 @@ CIMQualifierDeclRep::CIMQualifierDeclRep(
 	// This also assures that there are no conflicts. Note that it favors
 	// restricted and disable override
 	//ATTN: This should become an exception in case conflicting entities are set.
-	if((_flavor & CIMFlavor::RESTRICTED) == 0)
-		_flavor |= ( CIMFlavor::DEFAULTS);
-	else
-		_flavor &= ~( CIMFlavor::DEFAULTS);
+    if(!(_flavor.hasFlavor (CIMFlavor::RESTRICTED)))
+        _flavor.addFlavor (CIMFlavor::TOSUBCLASS);
+    else
+        _flavor.removeFlavor (CIMFlavor::TOSUBCLASS);
 
-	if((_flavor & CIMFlavor::DISABLEOVERRIDE) == 0)
-		_flavor |= ( CIMFlavor::ENABLEOVERRIDE);
-	else
-		_flavor &= ~( CIMFlavor::ENABLEOVERRIDE);
+    if(!(_flavor.hasFlavor (CIMFlavor::DISABLEOVERRIDE)))
+        _flavor.addFlavor (CIMFlavor::ENABLEOVERRIDE);
+    else
+        _flavor.removeFlavor (CIMFlavor::ENABLEOVERRIDE);
 
 }
 
@@ -215,7 +215,7 @@ Boolean CIMQualifierDeclRep::identical(const CIMQualifierDeclRep* x) const
 	_name.equal(x->_name) &&
 	_value == x->_value &&
 	(_scope.equal (x->_scope)) &&
-	_flavor == x->_flavor &&
+	(_flavor.equal (x->_flavor)) &&
 	_arraySize == x->_arraySize;
 }
 

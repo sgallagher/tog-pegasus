@@ -190,7 +190,7 @@ public:
 	CIMType type, 
 	CIMValue& value);
 
-    static Uint32 getFlavor(
+    static CIMFlavor getFlavor(
 	XmlEntry& entry, 
 	Uint32 lineNumber, 
 	const char* tagName);

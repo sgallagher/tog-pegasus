@@ -48,7 +48,7 @@ PEGASUS_USING_STD;
 CIMQualifierRep::CIMQualifierRep(
     const CIMName& name, 
     const CIMValue& value, 
-    Uint32 flavor,
+    const CIMFlavor & flavor,
     Boolean propagated)
     : 
     _name(name), 
@@ -71,21 +71,25 @@ void CIMQualifierRep::setName(const CIMName& name)
     _name = name; 
 }
 
-void CIMQualifierRep::resolveFlavor(Uint32 inheritedFlavor, Boolean inherited)
-	{
-		// ATTN: KS P3 Needs more tests and expansion so we treate first different
-		// from inheritance
+void CIMQualifierRep::resolveFlavor (
+    const CIMFlavor & inheritedFlavor, 
+    Boolean inherited)
+{
+    // ATTN: KS P3 Needs more tests and expansion so we treate first different
+    // from inheritance
 
-		// if the turnoff flags set, reset the functions.
-		if((inheritedFlavor & CIMFlavor::RESTRICTED) != 0) {
-			unsetFlavor(CIMFlavor::TOSUBCLASS + CIMFlavor::TOINSTANCE);
-		}
-		if((inheritedFlavor & CIMFlavor::DISABLEOVERRIDE)) {
-			unsetFlavor(CIMFlavor::ENABLEOVERRIDE);
-		}
+    // if the turnoff flags set, reset the flavor bits
+    if (inheritedFlavor.hasFlavor (CIMFlavor::RESTRICTED)) 
+    {
+        _flavor.removeFlavor (CIMFlavor::TOSUBCLASS | CIMFlavor::TOINSTANCE);
+    }
+    if (inheritedFlavor.hasFlavor (CIMFlavor::DISABLEOVERRIDE)) 
+    {
+        _flavor.removeFlavor (CIMFlavor::ENABLEOVERRIDE);
+    }
 
-		_flavor = inheritedFlavor | _flavor;
-	}
+    _flavor.addFlavor (inheritedFlavor);
+}
 
 static const char* _toString(Boolean x)
 {
@@ -183,7 +187,7 @@ Boolean CIMQualifierRep::identical(const CIMQualifierRep* x) const
 	this == x ||
 	_name.equal(x->_name) && 
 	_value == x->_value && 
-	_flavor == x->_flavor &&
+	(_flavor.equal (x->_flavor)) &&
 	_propagated == x->_propagated;
 }
 

@@ -57,7 +57,7 @@ CIMQualifier::CIMQualifier(const CIMQualifier& x)
 CIMQualifier::CIMQualifier(
     const CIMName& name,
     const CIMValue& value,
-    Uint32 flavor,
+    const CIMFlavor & flavor,
     Boolean propagated)
 {
     _rep = new CIMQualifierRep(name, value, flavor, propagated);
@@ -120,7 +120,7 @@ void CIMQualifier::setValue(const CIMValue& value)
     _rep->setValue(value);
 }
 
-void CIMQualifier::setFlavor(Uint32 flavor)
+void CIMQualifier::setFlavor(const CIMFlavor & flavor)
 {
     _checkRep();
     _rep->setFlavor(flavor);
@@ -132,15 +132,10 @@ void CIMQualifier::unsetFlavor(Uint32 flavor)
     _rep->unsetFlavor(flavor);
 }
 
-Uint32 CIMQualifier::getFlavor() const
+const CIMFlavor & CIMQualifier::getFlavor() const
 {
     _checkRep();
     return _rep->getFlavor();
-}
-
-Boolean CIMQualifier::isFlavor(Uint32 flavor) const
-{
-    return _rep->isFlavor(flavor);
 }
 
 const Uint32 CIMQualifier::getPropagated() const
@@ -203,7 +198,7 @@ CIMConstQualifier::CIMConstQualifier(const CIMQualifier& x)
 CIMConstQualifier::CIMConstQualifier(
     const CIMName& name,
     const CIMValue& value,
-    Uint32 flavor,
+    const CIMFlavor & flavor,
     Boolean propagated)
 {
     _rep = new CIMQualifierRep(name, value, flavor, propagated);
@@ -260,30 +255,10 @@ const CIMValue& CIMConstQualifier::getValue() const
     return _rep->getValue();
 }
 
-const Uint32 CIMConstQualifier::getFlavor() const
+const CIMFlavor & CIMConstQualifier::getFlavor() const
 {
     _checkRep();
     return _rep->getFlavor();
-}
-
-Boolean CIMConstQualifier::isFlavor(Uint32 flavor) const
-{
-    return ((getFlavor() & flavor) !=0);
-}
-
-Boolean CIMConstQualifier::isFlavorToSubclass() const
-{
-    return ((getFlavor() & CIMFlavor::TOSUBCLASS) != 0);
-}
-
-Boolean CIMConstQualifier::isFlavorToInstance() const
-{
-    return ((getFlavor() & CIMFlavor::TOINSTANCE) != 0);
-}
-
-Boolean CIMConstQualifier::isFlavorOverridable() const
-{
-    return ((getFlavor() & CIMFlavor::OVERRIDABLE) != 0);
 }
 
 const Uint32 CIMConstQualifier::getPropagated() const

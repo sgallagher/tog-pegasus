@@ -126,7 +126,7 @@ void Resolver::resolveParameter (
 
 void Resolver::resolveQualifierFlavor (
     CIMQualifier & theQualifier,
-    Uint32 inheritedFlavor, 
+    const CIMFlavor & inheritedFlavor, 
     Boolean inherited)
 {
     theQualifier._checkRep ();

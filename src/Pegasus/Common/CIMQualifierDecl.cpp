@@ -57,8 +57,8 @@ CIMQualifierDecl::CIMQualifierDecl(const CIMQualifierDecl& x)
 CIMQualifierDecl::CIMQualifierDecl(
     const CIMName& name,
     const CIMValue& value,
-    CIMScope scope,
-    Uint32 flavor,
+    const CIMScope & scope,
+    const CIMFlavor & flavor,
     Uint32 arraySize)
 {
     _rep = new CIMQualifierDeclRep(name, value, scope, flavor, arraySize);
@@ -127,15 +127,10 @@ const CIMScope & CIMQualifierDecl::getScope() const
     return _rep->getScope();
 }
 
-Uint32 CIMQualifierDecl::getFlavor() const
+const CIMFlavor & CIMQualifierDecl::getFlavor() const
 {
     _checkRep();
     return _rep->getFlavor();
-}
-
-Boolean CIMQualifierDecl::isFlavor(Uint32 flavor) const
-{
-    return ((getFlavor() & flavor) !=0);
 }
 
 Uint32 CIMQualifierDecl::getArraySize() const
@@ -192,8 +187,8 @@ CIMConstQualifierDecl::CIMConstQualifierDecl(const CIMQualifierDecl& x)
 CIMConstQualifierDecl::CIMConstQualifierDecl(
     const CIMName& name,
     const CIMValue& value,
-    CIMScope scope,
-    Uint32 flavor,
+    const CIMScope & scope,
+    const CIMFlavor & flavor,
     Uint32 arraySize)
 {
     _rep = new CIMQualifierDeclRep(name, value, scope, flavor, arraySize);
@@ -258,15 +253,10 @@ const CIMScope & CIMConstQualifierDecl::getScope() const
     return _rep->getScope();
 }
 
-const Uint32 CIMConstQualifierDecl::getFlavor() const
+const CIMFlavor & CIMConstQualifierDecl::getFlavor() const
 {
     _checkRep();
     return _rep->getFlavor();
-}
-
-Boolean CIMConstQualifierDecl::isFlavor(Uint32 flavor) const
-{
-    return ((getFlavor() & flavor) !=0);
 }
 
 Uint32 CIMConstQualifierDecl::getArraySize() const

@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:  Bob Blair (bblair@bmc.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -43,8 +45,8 @@ compilerDeclContext::compilerDeclContext(CIMRepository *repository,
 compilerDeclContext::~compilerDeclContext() {}
 
 CIMQualifierDecl
-compilerDeclContext::lookupQualifierDecl(const String &nameSpace,
-					 const String &qualifierName) const
+compilerDeclContext::lookupQualifierDecl(const CIMNamespaceName &nameSpace,
+					 const CIMName &qualifierName) const
 {
   const CIMQualifierDecl *pTheQualifier = 0;
   if (_ot != compilerCommonDefs::USE_REPOSITORY) {
@@ -59,8 +61,8 @@ compilerDeclContext::lookupQualifierDecl(const String &nameSpace,
 }
 
 CIMClass
-compilerDeclContext::lookupClass(const String &nameSpace,
-				 const String &className) const
+compilerDeclContext::lookupClass(const CIMNamespaceName &nameSpace,
+				 const CIMName &className) const
 {
   const CIMClass *pTheClass;
 
@@ -75,7 +77,7 @@ compilerDeclContext::lookupClass(const String &nameSpace,
 }
 
 void
-compilerDeclContext::addQualifierDecl(const String &nameSpace,
+compilerDeclContext::addQualifierDecl(const CIMNamespaceName &nameSpace,
 				      const CIMQualifierDecl &x)
 {
   if (_ot != compilerCommonDefs::USE_REPOSITORY)
@@ -85,7 +87,7 @@ compilerDeclContext::addQualifierDecl(const String &nameSpace,
 }
 
 void
-compilerDeclContext::addClass(const String &nameSpace, CIMClass &x)
+compilerDeclContext::addClass(const CIMNamespaceName &nameSpace, CIMClass &x)
 {
   if (_ot != compilerCommonDefs::USE_REPOSITORY)
     _classes.append(x);
@@ -94,14 +96,15 @@ compilerDeclContext::addClass(const String &nameSpace, CIMClass &x)
 }
 
 void
-compilerDeclContext::addInstance(const String &nameSpace, CIMInstance &x)
+compilerDeclContext::addInstance(const CIMNamespaceName &nameSpace, 
+                                 CIMInstance &x)
 {
   if (_ot == compilerCommonDefs::USE_REPOSITORY)
     _repository->createInstance(nameSpace, x);
 }
 
 const CIMClass *
-compilerDeclContext::_findClassInMemory(const String &classname) const
+compilerDeclContext::_findClassInMemory(const CIMName &classname) const
 {
   for (unsigned int i = 0; i < _classes.size(); i++) {
     if (String::equal(classname, (_classes[i]).getClassName()))
@@ -111,7 +114,7 @@ compilerDeclContext::_findClassInMemory(const String &classname) const
 }
 
 const CIMQualifierDecl *
-compilerDeclContext::_findQualifierInMemory(const String &classname) const
+compilerDeclContext::_findQualifierInMemory(const CIMName &classname) const
 {
   for (unsigned int i = 0; i < _qualifiers.size(); i++) {
     if (String::equal(classname, (_qualifiers[i]).getName()))

@@ -226,7 +226,7 @@ public:
 
     static void appendQualifierFlavorEntity(
         Array<Sint8>& out,
-        Uint32 flavor);
+        const CIMFlavor & flavor);
 
     static void appendScopeElement(
         Array<Sint8>& out,

@@ -92,7 +92,7 @@ public:
         Array<Sint8>& out,
         const CIMConstQualifierDecl& qualifierDecl);
 
-    static String getQualifierFlavor(Uint32 flavor);
+    static String getQualifierFlavor(const CIMFlavor & flavor);
 
     static String getQualifierScope(const CIMScope & scope);
 

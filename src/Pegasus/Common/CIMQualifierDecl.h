@@ -75,7 +75,7 @@ public:
         @param name Name of the Qualifier being declared
         @param value CIMValue for the qualifier
         @param scope scope of the qualifier
-        @param flavor Optional defintion of the flavor for the qualifier.  
+        @param flavor Optional definition of the flavor for the qualifier.  
         CIMFlavor::DEFAULTS is used if no value supplied.  This is how we
         install the flavor defaults defined in the CIM specificaiton
         @param arraySize Optional integer defining the arraysize if the
@@ -86,8 +86,8 @@ public:
     CIMQualifierDecl(
         const CIMName& name, 
         const CIMValue& value, 
-        CIMScope scope,
-        Uint32 flavor = CIMFlavor::DEFAULTS,
+        const CIMScope & scope,
+        const CIMFlavor & flavor = CIMFlavor (CIMFlavor::DEFAULTS),
         Uint32 arraySize = 0);
 
     /// Destructor
@@ -131,24 +131,14 @@ public:
     */
     const CIMScope & getScope() const;
 
-    /** getFlavor - Gets the Flavor definition from the qualifer declaration
+    /** getFlavor - Gets the Flavor definition from the qualifier declaration
         constant
-        @return - a Uint32 integer containing the flavor flags.  This can be
-        tested against the flavor constants defined in CIMFlavor.
+        @return - a CIMFlavor object containing the flavor flags.  The 
+        CIMFlavor hasFlavor method can be used to test against the flavor 
+        constants defined in CIMFlavor.
         @SeeAlso 
     */
-    Uint32 getFlavor() const;
-
-    /** isFlavor - Boolean function that determines if particular flavor
-        flags are set in the flavor variable of a qualifier.
-        @param flavor - The flavor bits to test.
-        Return True if the defined flavor is set.
-        <pre>
-        if (q.isFlavor(CIMType::TOSUBCLASS)
-            do something based on TOSUBCLASS being true
-        </pre>
-    */
-    Boolean isFlavor(Uint32 flavor) const;
+    const CIMFlavor & getFlavor() const;
 
     /** CIMMethod
     */
@@ -215,8 +205,8 @@ public:
     CIMConstQualifierDecl(
         const CIMName& name, 
         const CIMValue& value, 
-        CIMScope scope,
-        Uint32 flavor = CIMFlavor::DEFAULTS,
+        const CIMScope & scope,
+        const CIMFlavor & flavor = CIMFlavor (CIMFlavor::DEFAULTS),
         Uint32 arraySize = 0);
 
     ~CIMConstQualifierDecl();
@@ -243,10 +233,7 @@ public:
     const CIMScope & getScope() const;
 
     ///
-    const Uint32 getFlavor() const;
-
-    ///
-    Boolean isFlavor(Uint32 flavor) const;
+    const CIMFlavor & getFlavor() const;
 
     ///
     Uint32 getArraySize() const;

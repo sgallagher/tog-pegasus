@@ -73,65 +73,66 @@ int main(int argc, char** argv)
 	// resolve.  As created, qualifiers have exactly the flavor with which they are
 	// defined.	They have no default flavors when there is no explicit definition.
 	assert(q4.identical(q1));
-	assert(q1.isFlavor(CIMFlavor::TOINSTANCE));
-	//assert(!q1.isFlavor(CIMFlavor::TOSUBCLASS));
-	//assert(!q1.isFlavor(CIMFlavor::OVERRIDABLE));
+	assert(q1.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
+	//assert(!q1.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	//assert(!q1.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
 
-	assert(q1.isFlavor(CIMFlavor::TOINSTANCE));
-	assert(!q1.isFlavor(CIMFlavor::TOSUBCLASS));
-	assert(!q1.isFlavor(CIMFlavor::OVERRIDABLE));
+	assert(q1.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
+	assert(!q1.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	assert(!q1.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
 
-	assert(!q2.isFlavor(CIMFlavor::TOINSTANCE));
+	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
 
 	// Test to be sure the defaults are set correctly
-	assert(!q2.isFlavor(CIMFlavor::TOSUBCLASS));
-	assert(!q2.isFlavor(CIMFlavor::OVERRIDABLE));
-	assert(!q2.isFlavor(CIMFlavor::TRANSLATABLE));
-	assert(!q2.isFlavor(CIMFlavor::ENABLEOVERRIDE));
-	assert(!q2.isFlavor(CIMFlavor::DISABLEOVERRIDE));
+	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
+	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::TRANSLATABLE));
+	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
+	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
 
 
 	q2.unsetFlavor(CIMFlavor::ALL);
-	assert(!q2.isFlavor(CIMFlavor::TOSUBCLASS));
-	assert(!q2.isFlavor(CIMFlavor::TOINSTANCE));
-	assert(!q2.isFlavor(CIMFlavor::OVERRIDABLE));
-	assert(!q2.isFlavor(CIMFlavor::TRANSLATABLE));
-	assert(!q2.isFlavor(CIMFlavor::ENABLEOVERRIDE));
-	assert(!q2.isFlavor(CIMFlavor::DISABLEOVERRIDE));
-	assert(!q2.isFlavor(CIMFlavor::RESTRICTED));
+	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
+	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
+	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::TRANSLATABLE));
+	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
+	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
+	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::RESTRICTED));
 
 	q2.setFlavor(CIMFlavor::TOSUBCLASS);
-	assert(q2.isFlavor(CIMFlavor::TOSUBCLASS));
-	assert(!q2.isFlavor(CIMFlavor::OVERRIDABLE));
+	assert(q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
 
 	q2.unsetFlavor(CIMFlavor::TOSUBCLASS);
-	assert(!q2.isFlavor(CIMFlavor::TOSUBCLASS));
-	assert(!q2.isFlavor(CIMFlavor::OVERRIDABLE));
+	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
 
-	Resolver::resolveQualifierFlavor(q2, CIMFlavor::OVERRIDABLE, false);
-	assert(q2.isFlavor(CIMFlavor::OVERRIDABLE));
+	Resolver::resolveQualifierFlavor(q2, CIMFlavor (CIMFlavor::OVERRIDABLE),
+            false);
+	assert(q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
 
 	q2.setFlavor(CIMFlavor::ALL);
-	assert(q2.isFlavor(CIMFlavor::TOSUBCLASS));
-	assert(!q2.isFlavor(CIMFlavor::TOINSTANCE));
-	assert(q2.isFlavor(CIMFlavor::OVERRIDABLE));
-	assert(q2.isFlavor(CIMFlavor::TRANSLATABLE));
-	assert(q2.isFlavor(CIMFlavor::ENABLEOVERRIDE));
-	assert(q2.isFlavor(CIMFlavor::DISABLEOVERRIDE));
-	assert(q2.isFlavor(CIMFlavor::RESTRICTED));
+	assert(q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	assert(q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
+	assert(q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
+	assert(q2.getFlavor ().hasFlavor(CIMFlavor::TRANSLATABLE));
+	assert(q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
+	assert(q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
+	assert(q2.getFlavor ().hasFlavor(CIMFlavor::RESTRICTED));
 
 
-	// ATTN: KS P1 24 March 2002Add test for resloveFlavor here
+	// ATTN: KS P1 24 March 2002Add test for resolveFlavor here
 	q2.unsetFlavor(CIMFlavor::ALL);
 
-	q2.setFlavor( CIMFlavor::TOSUBCLASS	+ CIMFlavor::ENABLEOVERRIDE);
+	q2.setFlavor (CIMFlavor::TOSUBCLASS | CIMFlavor::ENABLEOVERRIDE);
 
-	Resolver::resolveQualifierFlavor (q2, 
-            CIMFlavor::DISABLEOVERRIDE | CIMFlavor::RESTRICTED, false);
-	assert( q2.isFlavor(CIMFlavor::DISABLEOVERRIDE));
-	assert(!q2.isFlavor(CIMFlavor::ENABLEOVERRIDE));
-	assert(!q2.isFlavor(CIMFlavor::TOSUBCLASS));
-	assert(!q2.isFlavor(CIMFlavor::TOINSTANCE));
+	Resolver::resolveQualifierFlavor (q2, CIMFlavor 
+            (CIMFlavor::DISABLEOVERRIDE | CIMFlavor::RESTRICTED), false);
+	assert( q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
+	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
+	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
 
 	CIMQualifier qual1("qual1", String("This is a test"));
 

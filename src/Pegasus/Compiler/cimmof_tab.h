@@ -8,6 +8,8 @@ typedef union {
   CIMValue *          value;
   String *         strptr;
   CIMQualifier *      qualifier;
+  CIMScope *          scope;
+  CIMFlavor *         flavor;
   CIMProperty *       property;
   CIMMethod *         method;
   CIMClass *      mofclass;

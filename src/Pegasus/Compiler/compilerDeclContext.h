@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -60,19 +61,19 @@ public RepositoryDeclContext {
   virtual ~compilerDeclContext();
 
   virtual
-    CIMQualifierDecl lookupQualifierDecl (const String &nameSpace,
-					  const String &qualifierName) const;
+    CIMQualifierDecl lookupQualifierDecl (const CIMNamespaceName &nameSpace,
+					  const CIMName &qualifierName) const;
   virtual
-    CIMClass         lookupClass        (const String &nameSpace,
-					 const String &className) const;
+    CIMClass         lookupClass        (const CIMNamespaceName &nameSpace,
+					 const CIMName &className) const;
 
-  void               addQualifierDecl   (const String &nameSpace,
+  void               addQualifierDecl   (const CIMNamespaceName &nameSpace,
 					 const CIMQualifierDecl& x);
 
-  void               addClass           (const String &nameSpace,
+  void               addClass           (const CIMNamespaceName &nameSpace,
 					 CIMClass &x);
 
-  void               addInstance        (const String &nameSpace,
+  void               addInstance        (const CIMNamespaceName &nameSpace,
 					 CIMInstance &x);
  private:
   CIMRepository *_cimRepository;
@@ -80,8 +81,8 @@ public RepositoryDeclContext {
   Array<CIMClass>         _classes;
   Array<CIMQualifierDecl> _qualifiers;
   Array<CIMInstance>      _instances;
-  const CIMClass *_findClassInMemory(const String &classname) const;
-  const CIMQualifierDecl *_findQualifierInMemory(const String &name) const;
+  const CIMClass *_findClassInMemory(const CIMName &classname) const;
+  const CIMQualifierDecl *_findQualifierInMemory(const CIMName &name) const;
 };
 
 #endif // PegasusCompiler_Compiler_Decl_Context_h

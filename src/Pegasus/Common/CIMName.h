@@ -131,7 +131,7 @@ PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-    The CIMNameSpace class defines methods for handling CIM namespace names.
+    The CIMNamespaceName class defines methods for handling CIM namespace names.
     <p>
     A CIM namespace name must match the following expression:
     <PRE>

@@ -240,7 +240,7 @@ public:
     */
     static void resolveQualifierFlavor (
         CIMQualifier & theQualifier,
-        Uint32 inheritedFlavor, 
+        const CIMFlavor & inheritedFlavor, 
         Boolean inherited);
 };
 

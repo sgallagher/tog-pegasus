@@ -210,29 +210,43 @@ void CIMQualifierList::resolve(
 		{   // Qualifier does not exist in superclass
 			/* If from declaration, we can override the default value.
 			   However, we need some way to get the value if we have a Null.
-			if (!qd.isFlavor(CIMFlavor::OVERRIDABLE) && qd.isFlavor(CIMFlavor::TOSUBCLASS))
+			if (!(qd.getFlavor ().hasFlavor 
+                               (CIMFlavor::OVERRIDABLE))
+                            && qd.getFlavor ().hasFlavor 
+                               (CIMFlavor::TOSUBCLASS))
 			{
 				if(!(q.getValue() == qd.getValue()))
 					cout << "KSTEST QL err NSCL " << q.getName()
 					<< " decl flavor " << qd.getFlavor() << " Flavor " << q.getFlavor()
-					<< " Not override " << !qd.isFlavor(CIMFlavor::OVERRIDABLE)
-					<< " tosubclass " <<  qd.isFlavor(CIMFlavor::TOSUBCLASS) << endl;
+					<< " Not override " 
+                                        << !(qd.getFlavor ().hasFlavor
+                                           (CIMFlavor::OVERRIDABLE))
+					<< " tosubclass " 
+                                        <<  qd.getFlavor ().hasFlavor
+                                            (CIMFlavor::TOSUBCLASS) << endl;
 				XmlWriter::printQualifierDeclElement(qd);
 				XmlWriter::printQualifierElement(q);
 					//throw BadQualifierOverride(q.getName());
 			}
 			//cout <<  qd.getFlavor() << endl;*/
 			// Do not allow change from disable override to enable override.
-			if(!qd.isFlavor(CIMFlavor::OVERRIDABLE) && q.isFlavor(CIMFlavor::OVERRIDABLE ))
+			if ((!qd.getFlavor ().hasFlavor
+                               (CIMFlavor::OVERRIDABLE))
+                           && (q.getFlavor ().hasFlavor
+                               (CIMFlavor::OVERRIDABLE)))
 				throw BadQualifierOverride(q.getName());
 
-			Resolver::resolveQualifierFlavor (q, qd.getFlavor (), 
-                            false);
+			Resolver::resolveQualifierFlavor 
+                            (q, CIMFlavor (qd.getFlavor ()), false);
 			/*if(!(q.getValue() == qd.getValue()))
 				cout << "KSTEST Flavor resolved from decl. " << q.getName()
-				<< " decl flavor " << qd.getFlavor() << " Flavor " << q.getFlavor()
-				<< " Not override " << !qd.isFlavor(CIMFlavor::OVERRIDABLE)
-				<< " tosubclass " <<  qd.isFlavor(CIMFlavor::TOSUBCLASS) << endl;            
+				<< " decl flavor " << qd.getFlavor().toString ()
+                                << " Flavor " << q.getFlavor().toString ()
+				<< " Not override " 
+                                << !(qd.getFlavor ().hasFlavor 
+                                       (CIMFlavor::OVERRIDABLE))
+				<< " tosubclass " <<  qd.getFlavor ().hasFlavor
+                                       (CIMFlavor::TOSUBCLASS) << endl;            
 			 XmlWriter::printQualifierDeclElement(qd);
 			 XmlWriter::printQualifierElement(q); */
 		}
@@ -240,16 +254,21 @@ void CIMQualifierList::resolve(
 		{	////// Make Const again
 			CIMQualifier iq = inheritedQualifiers.getQualifier(pos);
 			// don't allow change override to notoverride.
-			if(!iq.isFlavor(CIMFlavor::OVERRIDABLE) && q.isFlavor(CIMFlavor::OVERRIDABLE ))
+			if (!(iq.getFlavor ().hasFlavor
+                               (CIMFlavor::OVERRIDABLE)) 
+                           && q.getFlavor ().hasFlavor (CIMFlavor::OVERRIDABLE))
 				throw BadQualifierOverride(q.getName());
 			
-			if (!iq.isFlavor(CIMFlavor::OVERRIDABLE) && iq.isFlavor(CIMFlavor::TOSUBCLASS))
+			if (!(iq.getFlavor ().hasFlavor
+                               (CIMFlavor::OVERRIDABLE)) 
+                            && iq.getFlavor ().hasFlavor
+                               (CIMFlavor::TOSUBCLASS))
 			{
 				/*if(!(q.getValue() == iq.getvalue()))
 					cout << "KSTEST QL err inherit " << q.getName()
 					<< " from superclass " << iq.getName() 
-					<< "   Superclass flavor " << iq.getFlavor()
-					<< " Flavor " << q.getFlavor() 
+					<< "   Superclass flavor " << iq.getFlavor().toString ()
+					<< " Flavor " << q.getFlavor().toString () 
 					<< endl;
 			        XmlWriter::printQualifierElement(iq);
 			        XmlWriter::printQualifierElement(q); */
@@ -261,8 +280,8 @@ void CIMQualifierList::resolve(
 			  }
 			} 
 			//cout << iq.getFlavor()  << endl;
-			Resolver::resolveQualifierFlavor (q, iq.getFlavor (), 
-                            true);	
+			Resolver::resolveQualifierFlavor 
+                            (q, CIMFlavor (iq.getFlavor ()), true);	
 		}
     } 					// end of this objects qualifier loop
 
@@ -280,12 +299,14 @@ void CIMQualifierList::resolve(
 	
 		if (isInstancePart)
 		{
-			if (!iq.isFlavor(CIMFlavor::TOINSTANCE))
+			if (!(iq.getFlavor ().hasFlavor
+                            (CIMFlavor::TOINSTANCE)))
 				continue;
 		}
 		else
 		{
-			if (!iq.isFlavor(CIMFlavor::TOSUBCLASS))
+			if (!(iq.getFlavor ().hasFlavor
+                            (CIMFlavor::TOSUBCLASS)))
 				continue;
 		}
 		

@@ -53,8 +53,8 @@ public:
     CIMQualifierDeclRep(
 	const CIMName& name, 
 	const CIMValue& value, 
-	CIMScope scope,
-	Uint32 flavor,
+	const CIMScope & scope,
+	const CIMFlavor & flavor,
 	Uint32 arraySize);
 
     virtual ~CIMQualifierDeclRep();
@@ -88,7 +88,7 @@ public:
 	return _scope; 
     }
 
-    Uint32 getFlavor() const 
+    const CIMFlavor & getFlavor() const 
     {
 	return _flavor; 
     }
@@ -126,7 +126,7 @@ private:
     CIMName _name;
     CIMValue _value;
     CIMScope _scope;
-    Uint32 _flavor;
+    CIMFlavor _flavor;
     Uint32 _arraySize;
 };
 

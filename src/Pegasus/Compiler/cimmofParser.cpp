@@ -677,7 +677,7 @@ cimmofParser::addInstance(CIMInstance *instance)
 //---------------------------------------------------------------------
 CIMQualifierDecl *
 cimmofParser::newQualifierDecl(const String &name, const CIMValue *value,
-			       Uint32 scope, Uint32 flavor) {
+			       const CIMScope & scope, const CIMFlavor & flavor) {
 
   CIMQualifierDecl *q = 0;
   try {
@@ -772,7 +772,7 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
 //--------------------------------------------------------------------
 CIMQualifier *
 cimmofParser::newQualifier(const String &name, const CIMValue &value,
-			   Uint32 flavor)
+			   const CIMFlavor & flavor)
 {
   CIMQualifier *q = 0;
   try {

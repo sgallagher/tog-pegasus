@@ -1375,7 +1375,7 @@ Boolean XmlReader::getValueArrayElement(
 //
 //------------------------------------------------------------------------------
 
-Uint32 XmlReader::getFlavor(
+CIMFlavor XmlReader::getFlavor(
     XmlEntry& entry, 
     Uint32 lineNumber, 
     const char* tagName)
@@ -1402,23 +1402,23 @@ Uint32 XmlReader::getFlavor(
 
     // Start with CIMFlavor::NONE.  Defaults are specified in the
     // getCimBooleanAttribute() calls above.
-    Uint32 flavor = CIMFlavor::NONE;
+    CIMFlavor flavor = CIMFlavor (CIMFlavor::NONE);
 
     if (overridable)
-	flavor |= CIMFlavor::OVERRIDABLE;
-	else
-		flavor |= CIMFlavor::DISABLEOVERRIDE;
+        flavor.addFlavor (CIMFlavor::OVERRIDABLE);
+    else
+        flavor.addFlavor (CIMFlavor::DISABLEOVERRIDE);
 
     if (toSubClass)
-	flavor |= CIMFlavor::TOSUBCLASS;
-	else
-		flavor |= CIMFlavor::RESTRICTED;
+        flavor.addFlavor (CIMFlavor::TOSUBCLASS);
+    else
+        flavor.addFlavor (CIMFlavor::RESTRICTED);
 
     if (toInstance)
-	flavor |= CIMFlavor::TOINSTANCE;
+        flavor.addFlavor (CIMFlavor::TOINSTANCE);
 
     if (translatable)
-	flavor |= CIMFlavor::TRANSLATABLE;
+        flavor.addFlavor (CIMFlavor::TRANSLATABLE);
 
     return flavor;
 }
@@ -1527,7 +1527,7 @@ Boolean XmlReader::getQualifierElement(
 
     // Get flavor oriented attributes:
 
-    Uint32 flavor = getFlavor(entry, parser.getLine(), "QUALIFIER");
+    CIMFlavor flavor = getFlavor(entry, parser.getLine(), "QUALIFIER");
 
     // Get VALUE or VALUE.ARRAY element:
 
@@ -2749,7 +2749,8 @@ Boolean XmlReader::getQualifierDeclElement(
 
     // Get flavor oriented attributes:
 
-    Uint32 flavor = getFlavor(entry,parser.getLine(), "QUALIFIER.DECLARATION");
+    CIMFlavor flavor = getFlavor (entry, parser.getLine (), 
+        "QUALIFIER.DECLARATION");
 
     // No need to look for interior elements if empty tag:
 

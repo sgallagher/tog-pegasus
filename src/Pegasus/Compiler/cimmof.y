@@ -65,8 +65,8 @@ extern void cimmof_yy_less(int n);
 /* encountered, then applied to the production they qualify when it    */
 /* is completed.                                                       */
 /* ------------------------------------------------------------------- */
-  Uint32 g_flavor = CIMFlavor::NONE;
-  Uint32 g_scope = 0;
+  CIMFlavor g_flavor = CIMFlavor (CIMFlavor::NONE);
+  CIMScope g_scope = CIMScope ();
   //ATTN: BB 2001 BB P1 - Fixed size qualifier list max 10. Make larger or var
   qualifierList g_qualifierList(10);
   CIMMethod *g_currentMethod = 0;
@@ -117,6 +117,8 @@ cimmof_error(const char *msg) {
   CIMValue *          value;
   String *         strptr;
   CIMQualifier *      qualifier;
+  CIMScope *          scope;
+  CIMFlavor *         flavor;
   CIMProperty *       property;
   CIMMethod *         method;
   CIMClass *      mofclass;
@@ -216,7 +218,9 @@ cimmof_error(const char *msg) {
 
 %type <modelpath> modelPath 
 %type <keybinding> keyValuePair
-%type <ival> flavor defaultFlavor array metaElements metaElement scope
+%type <scope> scope
+%type <flavor> flavor defaultFlavor 
+%type <ival> array metaElements metaElement 
 %type <ival> booleanValue keyValuePairList
 %type <pragma> compilerDirectivePragma
 %type <datatype> dataType intDataType realDataType parameterType objectRef
@@ -652,7 +656,7 @@ qualifierDeclaration: TOK_QUALIFIER qualifierName qualifierValue scope
                        defaultFlavor TOK_SEMICOLON 
 {
 //    CIMQualifierDecl *qd = new CIMQualifierDecl($2, $3, $4, $5);
-	$$ = cimmofParser::Instance()->newQualifierDecl(*$2, $3, $4, $5);
+	$$ = cimmofParser::Instance()->newQualifierDecl(*$2, $3, *$4, *$5);
         delete $2;
 	delete $3;  // CIMValue object created in qualifierValue production
 } ;
@@ -665,9 +669,10 @@ qualifierValue: TOK_COLON dataType array typedDefaultValue
     delete $4->value;
 } ;
 
-scope: scope_begin metaElements TOK_RIGHTPAREN { $$ = $2; } ;
+scope: scope_begin metaElements TOK_RIGHTPAREN { $$ = new CIMScope ($2); } ;
 
-scope_begin: TOK_COMMA TOK_SCOPE TOK_LEFTPAREN { g_scope = CIMScope::NONE; } ;
+scope_begin: TOK_COMMA TOK_SCOPE TOK_LEFTPAREN { 
+    g_scope = CIMScope (CIMScope::NONE); } ;
 
 metaElements: metaElement { $$ = $1; }
             | metaElements TOK_COMMA metaElement
@@ -688,13 +693,13 @@ metaElement: TOK_CLASS       { $$ = CIMScope::CLASS;        }
 
 // Correction KS 4 march 2002 - Set the default if empty
 defaultFlavor: TOK_COMMA flavorHead explicitFlavors TOK_RIGHTPAREN
-  { $$ = g_flavor; }
-	   | /* empty */ { $$ = (CIMFlavor::NONE); } ;
+  { $$ = &g_flavor; }
+	   | /* empty */ { $$ = new CIMFlavor (CIMFlavor::NONE); } ;
 
 // Correction KS 4 March 2002 - set the defaults (was zero)
 // Set the flavors for the defaults required: via DEFAULTS
 
-flavorHead: TOK_FLAVOR TOK_LEFTPAREN { g_flavor = (CIMFlavor::NONE); } ;
+flavorHead: TOK_FLAVOR TOK_LEFTPAREN {g_flavor = CIMFlavor (CIMFlavor::NONE);};
 
 explicitFlavors: explicitFlavor
 
@@ -709,14 +714,15 @@ explicitFlavors: explicitFlavor
 
 // The compiler simply provides the flavors defined in the MOF and does not make any
 // assumptions about defaults, etc.  That is a problem for resolution of the flavors.
-explicitFlavor: TOK_ENABLEOVERRIDE  { g_flavor |=   CIMFlavor::ENABLEOVERRIDE; }
-              | TOK_DISABLEOVERRIDE { g_flavor |=   CIMFlavor::DISABLEOVERRIDE; } 
-              | TOK_RESTRICTED      { g_flavor |=   CIMFlavor::RESTRICTED; }
-              | TOK_TOSUBCLASS      { g_flavor |=   CIMFlavor::TOSUBELEMENTS; }
-              | TOK_TRANSLATABLE    { g_flavor |=   CIMFlavor::TRANSLATABLE; } ;
+explicitFlavor: TOK_ENABLEOVERRIDE  
+                    { g_flavor.addFlavor (CIMFlavor::ENABLEOVERRIDE); }
+  | TOK_DISABLEOVERRIDE { g_flavor.addFlavor (CIMFlavor::DISABLEOVERRIDE); }
+  | TOK_RESTRICTED      { g_flavor.addFlavor (CIMFlavor::RESTRICTED); }
+  | TOK_TOSUBCLASS      { g_flavor.addFlavor (CIMFlavor::TOSUBELEMENTS); }
+  | TOK_TRANSLATABLE    { g_flavor.addFlavor (CIMFlavor::TRANSLATABLE); };
 
-flavor: overrideFlavors { $$ = g_flavor; }
-      | /* empty */ { $$ = CIMFlavor::NONE; };
+flavor: overrideFlavors { $$ = &g_flavor; }
+      | /* empty */ { $$ = new CIMFlavor (CIMFlavor::NONE); };
 
 overrideFlavors: explicitFlavor
                | overrideFlavors explicitFlavor ;
@@ -764,10 +770,11 @@ qualifier: qualifierName typedQualifierParameter flavor
  } ;
 
 // KS 4 march change g_flavor to set defaults
-qualifierName: TOK_SIMPLE_IDENTIFIER { g_flavor = 0; }
+qualifierName: TOK_SIMPLE_IDENTIFIER { 
+    g_flavor = CIMFlavor (CIMFlavor::NONE); }
              | metaElement { 
                         $$ = new String(CIMScope ($1).toString ());
-                        g_flavor = 0; } ;
+                        g_flavor = CIMFlavor (CIMFlavor::NONE); } ;
 
 typedQualifierParameter: TOK_LEFTPAREN nonNullConstantValue TOK_RIGHTPAREN 
                     {

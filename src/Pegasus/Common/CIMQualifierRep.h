@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -52,7 +53,7 @@ public:
     CIMQualifierRep(
 	const CIMName& name, 
 	const CIMValue& value, 
-	Uint32 flavor,
+	const CIMFlavor & flavor,
 	Boolean propagated);
 
     virtual ~CIMQualifierRep();
@@ -81,27 +82,22 @@ public:
 
     void setValue(const CIMValue& value);
 
-    Uint32 getFlavor() const 
+    const CIMFlavor & getFlavor() const 
     {
 	return _flavor; 
     }
 
-	Boolean isFlavor(Uint32 flavor) const
-	{
-		return ((getFlavor() & flavor) !=0);
-	}
-
-    void setFlavor(Uint32 flavor) 
+    void setFlavor(const CIMFlavor & flavor) 
     {
-	_flavor = _flavor | flavor; 
+	_flavor = flavor; 
     }
 
     void unsetFlavor(Uint32 flavor) 
     {
-	_flavor = _flavor & (~flavor); 
+        _flavor.removeFlavor (flavor);
     }
 
-	void resolveFlavor(Uint32 inheritedFlavor, Boolean inherited);
+    void resolveFlavor (const CIMFlavor & inheritedFlavor, Boolean inherited);
 
     Boolean getPropagated() const 
     { 
@@ -142,7 +138,7 @@ private:
 
     CIMName _name;
     CIMValue _value;
-    Uint32 _flavor;
+    CIMFlavor _flavor;
     Boolean _propagated;
 };
 

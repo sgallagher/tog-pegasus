@@ -16,6 +16,7 @@ DIRS = \
     DateTime \
     Dir \
     FileSystem \
+    Flavor \
     InstanceDecl \
     Method \
     Object \

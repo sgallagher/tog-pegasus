@@ -264,6 +264,16 @@ public:
 	: Exception (MSG + scopeString) { }
 };
 
+class PEGASUS_COMMON_LINKAGE InvalidFlavor : public Exception
+{
+public:
+
+    static const char MSG [];
+
+    InvalidFlavor (const String flavorString)
+	: Exception (MSG + flavorString) { }
+};
+
 // ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE BadQualifierOverride : public Exception
 {

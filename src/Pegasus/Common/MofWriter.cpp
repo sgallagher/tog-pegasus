@@ -626,17 +626,17 @@ void MofWriter::appendQualifierDeclElement(
 //   <pre>
 //   Keyword            Function                             Default
 //     EnableOverride  Qualifier is overridable.               yes
-//     DisableOverride Qualifier cannot be overridden.          no
+//     DisableOverride Qualifier cannot be overridden.         no
 //     ToSubclass      Qualifier is inherited by any subclass. yes
 //     Restricted      Qualifier applies only to the class     no
 //                     in which it is declared
 //     Translatable    Indicates the value of the qualifier
-//                     can be specified inmultiple languages   no
+//                     can be specified in multiple languages  no
 //     NOTE: There is an open issue with the keyword toinstance.
 //
 //     flavor            = ENABLEOVERRIDE | DISABLEOVERRIDE | RESTRICTED |
 //                         TOSUBCLASS | TRANSLATABLE
-//     DISABLEOVERRIDE   = "disableOverride"
+//     DISABLEOVERRIDE   = "disableoverride"
 //
 //     ENABLEOVERRIDE    = "enableoverride"
 //
@@ -654,21 +654,21 @@ void MofWriter::appendQualifierDeclElement(
 //
 //------------------------------------------------------------------------------
 
-String MofWriter::getQualifierFlavor(Uint32 flavor)
+String MofWriter::getQualifierFlavor(const CIMFlavor & flavor)
 {
     String tmp = "";
 
-    if (!(flavor & CIMFlavor::OVERRIDABLE))
+    if (!(flavor.hasFlavor (CIMFlavor::OVERRIDABLE)))
         tmp += "DisableOverride, ";
 
-    if (!(flavor & CIMFlavor::TOSUBCLASS))
+    if (!(flavor.hasFlavor (CIMFlavor::TOSUBCLASS)))
         tmp += "Restricted, ";
 
     // ATTN-RK-P3-20020515: FUTURE: Need to check toInstance flavor?
-    //if (!(flavor & CIMFlavor::TOINSTANCE))
+    //if (!(flavor.hasFlavor (CIMFlavor::TOINSTANCE)))
     //    tmp += "Restricted, ";
 
-    if (flavor & CIMFlavor::TRANSLATABLE)
+    if (flavor.hasFlavor (CIMFlavor::TRANSLATABLE))
         tmp += "Translatable, ";
 
     if (tmp.size())

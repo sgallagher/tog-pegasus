@@ -1313,18 +1313,18 @@ void XmlWriter::printQualifierDeclElement(
 
 void XmlWriter::appendQualifierFlavorEntity(
     Array<Sint8>& out,
-    Uint32 flavor)
+    const CIMFlavor & flavor)
 {
-    if (!(flavor & CIMFlavor::OVERRIDABLE))
+    if (!(flavor.hasFlavor (CIMFlavor::OVERRIDABLE)))
         out << " OVERRIDABLE=\"false\"";
 
-    if (!(flavor & CIMFlavor::TOSUBCLASS))
+    if (!(flavor.hasFlavor (CIMFlavor::TOSUBCLASS)))
         out << " TOSUBCLASS=\"false\"";
 
-    if (flavor & CIMFlavor::TOINSTANCE)
+    if (flavor.hasFlavor (CIMFlavor::TOINSTANCE))
         out << " TOINSTANCE=\"true\"";
 
-    if (flavor & CIMFlavor::TRANSLATABLE)
+    if (flavor.hasFlavor (CIMFlavor::TRANSLATABLE))
         out << " TRANSLATABLE=\"true\"";
 }
 

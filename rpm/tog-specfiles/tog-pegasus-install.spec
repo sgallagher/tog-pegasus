@@ -9,4 +9,4 @@ export PATH=$PEGASUS_HOME/bin:$PATH
 
 export PEGASUS_STAGING_DIR=$RPM_BUILD_ROOT
 
-make -f /home/pegasusbld/pegasus/Makefile.Release stage PEGASUS_STAGING_DIR=$PEGASUS_STAGING_DIR
+make -f $PEGASUS_ROOT/Makefile.Release stage PEGASUS_STAGING_DIR=$PEGASUS_STAGING_DIR

@@ -28,9 +28,11 @@
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 // Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
-//               (carolann_graves@hp.com)
+//                   (carolann_graves@hp.com)
 //               Amit K Arora (amita@in.ibm.com) for Bug# 1081 (mofFormat())
 //               Alagaraja Ramasubramanian (alags_raj@in.ibm.com)
+//               David Dillard, VERITAS Software Corp.
+//                   (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -657,7 +659,7 @@ void PrintClass(
     {
 	cout << "<h2>Display MOF for Class " << cimClass.getClassName() << "</h2>";
 	cout << "<pre>";
-	Array<Sint8> x;
+	Array<char> x;
 	MofWriter::appendClassElement(x, cimClass);
 	x.append('\0');
 
@@ -711,7 +713,7 @@ const CIMNamespaceName& nameSpace,
     //KSREVIEWKS: Add showMof here
     cout << "<h2>Display MOF for Instance</h2>";
     cout << "<pre>";
-    Array<Sint8> x;
+    Array<char> x;
     MofWriter::appendInstanceElement(x, cimInstance);
     x.append('\0');
 
@@ -1057,7 +1059,7 @@ void PrintGetQualifier(
 
     cout << "\n<h2>MOF</h2>\n";
     cout << "<pre>";
-    Array<Sint8> x;
+    Array<char> x;
     MofWriter::appendQualifierDeclElement(x, qualifierDecl);
     x.append('\0');
     mofFormat(cout, x.getData(), 4);
@@ -1604,7 +1606,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
             //ALAGS : MOF disp can be put into a function
             cout << "<h2>Display MOF for Instance " << i+1 << "</h2>";
             cout << "<pre>";
-            Array<Sint8> x;
+            Array<char> x;
             MofWriter::appendInstanceElement(x, instances[i]);
             x.append('\0');
 

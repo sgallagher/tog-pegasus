@@ -1,0 +1,56 @@
+//%2003////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
+// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+
+
+// ==================================================================
+// PG_Namespace
+// ==================================================================
+
+    [Version ("2.0.0"), Description (
+        "This class is an extends CIM_Namepsace to define characteristics "
+        "associated with the Shared Namespace mechanisms defined in Pegasus "
+        "PEP 129. It adds definitions necessary to understand if a "
+        "Namespace is shared or not and if updates are allowed. "
+        "The correct way to do this is a change to CIMNamespace but "
+        "that depends on a change in the DMTF which has not been "
+        "accomplished at this point in time." )
+    ]
+class PG_NameSpace : CIM_Namespace {
+   [ Description (
+         "It defines whether the schema parts can be added or modified in" ) 
+   ]
+   Boolean SchemaUpdatesAllowed = TRUE;
+   [ Description (
+         "Defines whether the schema parts of this namespace can be shared "
+         "by other namespaces" )
+   ]
+   Boolean IsShareable = FALSE;
+   [ Description (
+         "The parent namespace name in case this namespace is a secondary namespace. "
+         "Otherwise a null string. This implementation is probably a hack "
+         "and this should be an association in any permanent solution." )
+  ]
+   String ParentNamespace = NULL;
+};

@@ -1,5 +1,6 @@
 #pragma include ("PG_Events20.mof")
 #pragma include ("PG_ProviderModule20.mof")
+#pragma include ("PG_Namespace20.mof")
 // PEGASUS_ENABLE_SLP.  Bug 1222 The following should be enabled when
 // The interop classes and support are made permanent.
 // It is removed here and placed as a separate item in the

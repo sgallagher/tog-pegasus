@@ -55,7 +55,7 @@ PEGASUS_USING_STD;
 
 #define PEGASUS_SINT64_MIN (PEGASUS_SINT64_LITERAL(0x8000000000000000))
 #define PEGASUS_UINT64_MAX PEGASUS_UINT64_LITERAL(0xFFFFFFFFFFFFFFFF)
-#define CIMTYPE_EMBEDDED 15  //temporary
+
 
 CQLValueRep::CQLValueRep()
   :_valueType(CQLValue::Null_type)
@@ -329,7 +329,7 @@ void CQLValueRep::resolve(const CIMInstance& CI, const  QueryContext& inQueryCtx
 	  _process_value(propObj,Idstrings[index],inQueryCtx);
 	  return;
 	}
-      else // if(propObj.getType() != CIMTYPE_EMBEDDED) embobj
+      else if(propObj.getType() != CIMTYPE_OBJECT)
 	{
 	  // Object is not embedded.
 	  _valueType = CQLValue::Null_type;
@@ -344,7 +344,7 @@ void CQLValueRep::_process_value(CIMProperty& propObj,
 				 CQLIdentifier& _id,
 				 const QueryContext& inQueryCtx)
 {
-  if(propObj.getType() == CIMTYPE_EMBEDDED) 
+  if(propObj.getType() == CIMTYPE_OBJECT) 
     {
       CIMObject cimObj;
       propObj.getValue().get(cimObj);
@@ -1336,7 +1336,7 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 key)
             _valueType = CQLValue::CIMReference_type;
             break;
 	  }   
-	case CIMTYPE_EMBEDDED:
+	case CIMTYPE_OBJECT:
 	  {
 	    if(key == -1)
 	      {
@@ -1473,7 +1473,7 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 key)
             _valueType = CQLValue::CIMReference_type;
             break;
 	  }   
-	case CIMTYPE_EMBEDDED:
+	case CIMTYPE_OBJECT:
 	  {
 	    _theValue = cv;
             _valueType = CQLValue::CIMObject_type;
@@ -1837,7 +1837,7 @@ Boolean CQLValueRep::_compareArray(const CQLValueRep& _in)
 	  }
 	break;
       }   
-    case CIMTYPE_EMBEDDED:
+    case CIMTYPE_OBJECT:
       {
 	_in1.get(_obj1);
 	for(Uint32 i = 0; i < _obj1.size(); ++i)
@@ -1917,7 +1917,7 @@ Boolean CQLValueRep::_compareArray(const CQLValueRep& _in)
 	break;
       }
       /*   
-    case CIMTYPE_EMBEDDED:
+    case CIMTYPE_OBJECT:
       {
 	_in2.get(_obj2);
 	for(Uint32 i = 0; i < _obj2.size(); ++i)

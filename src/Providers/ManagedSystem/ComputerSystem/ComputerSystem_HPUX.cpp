@@ -196,13 +196,12 @@ Boolean ComputerSystem::getInitialLoadInfo(CIMProperty& p)
   // perhaps this can change dynamically, so don't do it
   // in initialize()
   FILE *s = fopen("/stand/bootconf","r");
-  if (s == 0) throw CIMException(CIM_ERR_FAILED,
-                                 "ComputerSystem_HPUX.cpp", 0,
-                                 "/stand/bootconf: can't open");
+  if (s == 0) throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                                          "/stand/bootconf: can't open");
   char buf[100];
   if (fgets(buf,100,s) == 0)
-    throw CIMException(CIM_ERR_FAILED, "ComputerSystem_HPUX.cpp", 0,
-                       "/stand/bootconf: can't read");
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                                "/stand/bootconf: can't read");
   fclose(s);
   Array<String> res;
   res.append(String(buf));
@@ -329,13 +328,12 @@ void ComputerSystem::initialize(void)
 
   // get model using command
   FILE *s = popen("/usr/bin/model","r");
-  if (s == 0) throw CIMException(CIM_ERR_FAILED,
-                                 "ComputerSystem_HPUX.cpp", 0,
-                                 "/usr/bin/model: command not found");
+  if (s == 0) throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                                          "/usr/bin/model: command not found");
   char buf[100];
   if (fgets(buf,100,s) == 0)
-    throw CIMException(CIM_ERR_FAILED, "ComputerSystem_HPUX.cpp", 0,
-                       "/usr/bin/model: no output");
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                                "/usr/bin/model: no output");
   pclose(s);
   _model.append(String(buf));
 
@@ -360,8 +358,8 @@ void ComputerSystem::initialize(void)
   struct stat st;
   // get get modification time of file
   if (0 != stat("/stand/vmunix", &st))
-    throw CIMException(CIM_ERR_FAILED, "ComputerSystem_HPUX.cpp", 0,
-                       "/stand/vmunix: can't access");
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                                "/stand/vmunix: can't access");
   // convert to a usable format
   struct tm *t = localtime(&st.st_mtime);
   // convert to CIMDateTime format

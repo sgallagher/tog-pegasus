@@ -225,8 +225,9 @@ void CIMExportClient::_checkError(const CIMResponseMessage* responseMessage)
 {
    if (responseMessage && (responseMessage->errorCode != CIM_ERR_SUCCESS))
    {
-      throw CIMException(responseMessage->errorCode, 
-			 __FILE__, __LINE__, responseMessage->errorDescription);
+      // ATTN-RK-P3-20020405: Probably aren't interested in THIS file, line#
+      throw PEGASUS_CIM_EXCEPTION(responseMessage->errorCode,
+                                  responseMessage->errorDescription);
    }
 }
 

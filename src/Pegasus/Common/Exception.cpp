@@ -226,9 +226,9 @@ static String _makeCIMExceptionMessage(
 //
 static String _makeCIMExceptionMessage(
     CIMStatusCode code, 
+    const String& extraMessage,
     const char* file,
-    Uint32 line,
-    const String& extraMessage)
+    Uint32 line)
 {
     String tmp = file;
     tmp.append("(");
@@ -247,29 +247,29 @@ static String _makeCIMExceptionMessage(
 //
 // Returns a message string specifically for tracing. 
 //
-String CIMException::getTraceMessage()
+String CIMException::getTraceMessage() const
 {
     String traceMsg =
-        _makeCIMExceptionMessage(_code, _file, _line, _extraMessage);
+        _makeCIMExceptionMessage(_code, _extraMessage, _file, _line);
     
     return traceMsg;
 }
 
 CIMException::CIMException(
     CIMStatusCode code, 
+    const String& extraMessage,
     const char* file,
-    Uint32 line,
-    const String& extraMessage)
+    Uint32 line)
     : 
 #ifdef DEBUG_CIMEXCEPTION
-    Exception(_makeCIMExceptionMessage(code, file, line, extraMessage)),
+    Exception(_makeCIMExceptionMessage(code, extraMessage, file, line)),
 #else
     Exception(_makeCIMExceptionMessage(code, extraMessage)),
 #endif
-    _code(code), 
-    _file(file), 
-    _line(line), 
-    _extraMessage(extraMessage)
+    _code(code),
+    _extraMessage(extraMessage),
+    _file(file),
+    _line(line)
 {
 
 }

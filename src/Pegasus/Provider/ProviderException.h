@@ -37,7 +37,7 @@ PEGASUS_NAMESPACE_BEGIN
 class OperationFailure : public CIMException
 {
 public:
-    OperationFailure(const Uint32 code, const String & message) : CIMException(CIM_ERR_FAILED, "", 0, message)
+    OperationFailure(const Uint32 code, const String & message) : CIMException(CIM_ERR_FAILED, message)
     {
     }
 };

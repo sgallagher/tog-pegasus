@@ -499,7 +499,7 @@ public:
 };
 
 #define PEGASUS_CIM_EXCEPTION(CODE, EXTRA_MESSAGE) \
-    CIMException(CODE, __FILE__, __LINE__, EXTRA_MESSAGE)
+    CIMException(CODE, EXTRA_MESSAGE, __FILE__, __LINE__)
 
 /** The CIMException defines the CIM exceptions that are formally defined in 
     the CIM Operations over HTTP specification.
@@ -514,12 +514,13 @@ public:
 
     CIMException(
 	CIMStatusCode code, 
+	const String& extraMessage = String::EMPTY,
 	const char* file = "",
-	Uint32 line = 0,
-	const String& extraMessage = String());
+	Uint32 line = 0);
 
     CIMStatusCode getCode() const { return _code; }
-    String getTraceMessage();
+    String getExtraMessage() const { return _extraMessage; }
+    String getTraceMessage() const;
 
 private:
 

@@ -39,6 +39,11 @@
 #include "BasicAuthenticationHandler.h"
 #include "AuthenticationManager.h"
 
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+#include "KerberosAuthenticationHandler.h"
+#endif
+
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -122,6 +127,13 @@ Boolean AuthenticationManager::performHttpAuthentication
     {
         authenticated = _httpAuthHandler->authenticate(cookie, authInfo);
     }
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+    else if ( String::equalNoCase(authType, "Negotiate") &&
+              String::equalNoCase(_httpAuthType, "Kerberos") )
+    {
+        authenticated = _httpAuthHandler->authenticate(cookie, authInfo);
+    }
+#endif
     // FUTURE: Add code to check for "Digest" when digest 
     // authentication is implemented.
 
@@ -282,12 +294,21 @@ String AuthenticationManager::getPegasusAuthResponseHeader
 //
 // Get HTTP authentication response header
 //
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+String AuthenticationManager::getHttpAuthResponseHeader( AuthenticationInfo* authInfo )
+#else		
 String AuthenticationManager::getHttpAuthResponseHeader()
+#endif
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationManager::getHttpAuthResponseHeader()");
 
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+    String respHeader = _httpAuthHandler->getAuthResponseHeader(
+	String::EMPTY, String::EMPTY, authInfo);
+#else
     String respHeader = _httpAuthHandler->getAuthResponseHeader();
+#endif
 
     PEG_METHOD_EXIT();
 
@@ -426,6 +447,24 @@ Authenticator* AuthenticationManager::_getHttpAuthHandler()
     {
         handler = (Authenticator* ) new BasicAuthenticationHandler( );
     }
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+    else if ( String::equalNoCase(_httpAuthType, "Kerberos") )
+    {
+        handler = (Authenticator* ) new KerberosAuthenticationHandler( );
+        KerberosAuthenticationHandler* kerberosHandler = (KerberosAuthenticationHandler *)handler;
+        int itFailed = kerberosHandler->initialize();
+        if (itFailed)
+        {
+            if (handler)
+            {
+                delete handler;	// cleanup
+                handler = 0;
+            }
+            PEGASUS_ASSERT(0);	// end the server because Kerberos could not
+						// initialized.  will this really end the server?
+        }
+    }
+#endif
     // FUTURE: uncomment these line when Digest authentication 
     // is implemented.
     //

@@ -56,6 +56,7 @@ void PropertyProvider::initialize(CIMOMHandle & cimom)
 
 void PropertyProvider::terminate(void)
 {
+	delete this;
 }
 
 void PropertyProvider::getProperty(

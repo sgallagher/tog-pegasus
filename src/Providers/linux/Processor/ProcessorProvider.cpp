@@ -186,6 +186,7 @@ void LinuxProcessorProvider::initialize(CIMOMHandle& handle)
 
 void LinuxProcessorProvider::terminate(void)
 {
+   delete this;
 }
 
 

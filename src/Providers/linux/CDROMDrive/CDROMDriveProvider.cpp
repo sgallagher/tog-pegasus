@@ -185,6 +185,7 @@ void LinuxCDROMDriveProvider::initialize(CIMOMHandle& handle)
 
 void LinuxCDROMDriveProvider::terminate(void)
 {
+   delete this;
 }
 
 CIMObjectPath

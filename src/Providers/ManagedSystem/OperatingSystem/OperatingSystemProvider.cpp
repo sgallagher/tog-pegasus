@@ -280,6 +280,7 @@ void OperatingSystemProvider::initialize(CIMOMHandle& handle)
 
 void OperatingSystemProvider::terminate(void)
 {
+    delete this;
 }
 
 

@@ -192,6 +192,7 @@ void AssociationTestProvider::terminate(void)
     
     // TODO additional cleanup needed
     CDEBUG("Terminate AssociationTestProvider ");
+    delete this;
 }
 
 void AssociationTestProvider::getInstance(

@@ -236,6 +236,7 @@ void LinuxIOPortProvider::initialize(CIMOMHandle& handle)
 
 void LinuxIOPortProvider::terminate(void)
 {
+   delete this;
 }
 
 CIMObjectPath 

@@ -93,6 +93,7 @@ void DefaultInstanceProvider::initialize(CIMOMHandle & cimom)
 
 void DefaultInstanceProvider::terminate(void)
 {
+    delete this;
 }
 
 /***************************************************************************

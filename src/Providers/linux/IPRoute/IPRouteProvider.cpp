@@ -208,6 +208,7 @@ void LinuxIPRouteProvider::initialize(CIMOMHandle& handle)
 
 void LinuxIPRouteProvider::terminate(void)
 {
+   delete this;
 }
 
 CIMObjectPath 

@@ -51,6 +51,7 @@ void ProcessIndicationProvider::initialize (CIMOMHandle & cimom)
 
 void ProcessIndicationProvider::terminate (void)
 {
+    delete this;
 }
 
 void ProcessIndicationProvider::enableIndications (

@@ -62,6 +62,7 @@ void RT_IndicationProvider::initialize (CIMOMHandle & cimom)
 
 void RT_IndicationProvider::terminate (void)
 {
+    delete this;
 }
 
 void RT_IndicationProvider::enableIndications (

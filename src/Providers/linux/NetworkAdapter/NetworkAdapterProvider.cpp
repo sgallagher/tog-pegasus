@@ -234,6 +234,7 @@ void LinuxNetworkAdapterProvider::initialize(CIMOMHandle& handle)
 
 void LinuxNetworkAdapterProvider::terminate(void)
 {
+   delete this;
 }
 
 CIMObjectPath

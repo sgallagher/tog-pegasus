@@ -51,6 +51,7 @@ void AlertIndicationProvider::initialize (CIMOMHandle & cimom)
 
 void AlertIndicationProvider::terminate (void)
 {
+    delete this;
 }
 
 void AlertIndicationProvider::enableIndications (

@@ -72,6 +72,7 @@ void InstanceProvider::initialize(CIMOMHandle & cimom)
 
 void InstanceProvider::terminate(void)
 {
+	delete this;
 }
 
 void InstanceProvider::getInstance(

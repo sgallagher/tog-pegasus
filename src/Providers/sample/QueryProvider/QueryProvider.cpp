@@ -45,6 +45,7 @@ void QueryProvider::initialize(CIMOMHandle & cimom)
 
 void QueryProvider::terminate(void)
 {
+	delete this;
 }
 
 void QueryProvider::executeQuery(

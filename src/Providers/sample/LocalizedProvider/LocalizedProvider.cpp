@@ -246,7 +246,7 @@ void LocalizedProvider::initialize(CIMOMHandle & cimom)
 
 void LocalizedProvider::terminate(void)
 {
-
+	delete this;
 }
 
 void LocalizedProvider::getInstance(

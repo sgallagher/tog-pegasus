@@ -50,6 +50,7 @@ void SNMPIndicationProvider::initialize(CIMOMHandle & cimom)
 
 void SNMPIndicationProvider::terminate(void)
 {
+    delete this;
 }
 
 void SNMPIndicationProvider::enableIndications(IndicationResponseHandler & handler)

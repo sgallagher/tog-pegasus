@@ -474,6 +474,7 @@ void SampleFamilyProvider::terminate(void)
     
     // TODO Additional cleanup needed
     CDEBUG("Terminate SampleFamilyProvider ");
+    delete this;
 }
 
 void SampleFamilyProvider::getInstance(

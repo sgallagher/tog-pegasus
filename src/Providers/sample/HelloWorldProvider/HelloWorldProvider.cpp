@@ -136,6 +136,7 @@ void HelloWorldProvider::initialize(CIMOMHandle& cimom)
 
 void HelloWorldProvider::terminate(void)
 {
+	delete this;
 }
 
 void HelloWorldProvider::getInstance(

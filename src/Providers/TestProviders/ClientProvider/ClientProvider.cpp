@@ -51,6 +51,7 @@ void ClientProvider::initialize(CIMOMHandle & cimom)
 
 void ClientProvider::terminate(void)
 {
+    delete this;
 }
 
 static Boolean verifyCertificate(SSLCertificateInfo &certInfo)

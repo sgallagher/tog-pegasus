@@ -179,6 +179,7 @@ void LinuxInterruptProvider::initialize(CIMOMHandle& handle)
 
 void LinuxInterruptProvider::terminate(void)
 {
+   delete this;
 }
 
 CIMObjectPath 

@@ -46,6 +46,7 @@ void MethodProvider::initialize(CIMOMHandle & cimom)
 
 void MethodProvider::terminate(void)
 {
+	delete this;
 }
 
 void MethodProvider::invokeMethod(

@@ -233,6 +233,7 @@ void ComputerSystemProvider::initialize(CIMOMHandle& handle)
 
 void ComputerSystemProvider::terminate(void)
 {
+    delete this;
 }
 
 

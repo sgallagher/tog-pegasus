@@ -187,6 +187,7 @@ void LinuxPCIControllerProvider::initialize(CIMOMHandle& handle)
 
 void LinuxPCIControllerProvider::terminate(void)
 {
+   delete this;
 }
 
 

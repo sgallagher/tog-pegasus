@@ -51,6 +51,7 @@ void OperatingSystemProvider::initialize(CIMOMHandle & cimom)
 
 void OperatingSystemProvider::terminate(void)
 {
+	delete this;
 }
 
 void OperatingSystemProvider::getInstance(

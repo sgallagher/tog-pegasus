@@ -184,6 +184,7 @@ void LinuxDiskDriveProvider::initialize(CIMOMHandle& handle)
 
 void LinuxDiskDriveProvider::terminate(void)
 {
+   delete this;
 }
 
 CIMObjectPath

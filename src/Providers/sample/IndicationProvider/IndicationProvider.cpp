@@ -50,6 +50,7 @@ void IndicationProvider::initialize(CIMOMHandle & cimom)
 
 void IndicationProvider::terminate(void)
 {
+    delete this;
 }
 
 void IndicationProvider::enableIndications(IndicationResponseHandler & handler)

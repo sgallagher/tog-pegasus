@@ -237,6 +237,7 @@ void DebianSoftwareElementProvider::initialize(CIMOMHandle& handle)
 
 void DebianSoftwareElementProvider::terminate(void)
 {
+   delete this;
 }
 
 CIMInstance 

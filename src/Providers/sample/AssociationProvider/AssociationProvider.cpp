@@ -45,6 +45,7 @@ void AssociationProvider::initialize(CIMOMHandle & cimom)
 
 void AssociationProvider::terminate(void)
 {
+	delete this;
 }
 
 void AssociationProvider::associators(

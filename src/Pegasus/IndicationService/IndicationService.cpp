@@ -658,6 +658,11 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                 //
                 response->dest = request->queueIds.top ();
     
+                //
+                //  Set HTTP method in response from request
+                //
+                response->setHttpMethod (request->getHttpMethod ());
+
                 Base::_enqueueResponse (request, response);
     
                 PEG_METHOD_EXIT ();
@@ -735,6 +740,11 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
     //
     response->dest = request->queueIds.top ();
     
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
+
     Base::_enqueueResponse (request, response);
 
     PEG_METHOD_EXIT ();
@@ -807,6 +817,11 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
     //
     response->dest = request->queueIds.top ();
     
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
+
     Base::_enqueueResponse (request, response);
 
     PEG_METHOD_EXIT ();
@@ -883,6 +898,11 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
     //
     response->dest = request->queueIds.top ();
     
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
+
     Base::_enqueueResponse (request, response);
 
     PEG_METHOD_EXIT ();
@@ -935,6 +955,11 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
     //  Set the response destination !!!
     response->dest = request->queueIds.top();
     
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
+
     // Note: In this particular case you can call either SendForget
     // OR Base::_enqueueResponse
     //    SendForget(response);
@@ -1191,6 +1216,11 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     //
                     response->dest = request->queueIds.top ();
     
+                    //
+                    //  Set HTTP method in response from request
+                    //
+                    response->setHttpMethod (request->getHttpMethod ());
+
                     Base::_enqueueResponse (request, response);
         
                     PEG_METHOD_EXIT ();
@@ -1288,6 +1318,11 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
     //
     response->dest = request->queueIds.top ();
     
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
+
     Base::_enqueueResponse (request, response);
 
     PEG_METHOD_EXIT ();
@@ -1388,6 +1423,11 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
                 //
                 response->dest = request->queueIds.top ();
 
+                //
+                //  Set HTTP method in response from request
+                //
+                response->setHttpMethod (request->getHttpMethod ());
+
                 Base::_enqueueResponse (request, response);
 
                 PEG_METHOD_EXIT ();
@@ -1425,6 +1465,11 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
     //
     response->dest = request->queueIds.top ();
     
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
+
     Base::_enqueueResponse (request, response);
 
     PEG_METHOD_EXIT ();

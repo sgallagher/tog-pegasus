@@ -131,6 +131,11 @@ Message * ProviderMessageFacade::handleRequestMessage(Message * message) throw()
 
     //delete message;
 
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (message->getHttpMethod ());
+
     return(response);
 }
 

@@ -143,6 +143,7 @@ class PEGASUS_COMMON_LINKAGE Message
 	    _mask = msg._mask;
 	    _next = _prev = _async = 0;
 	    dest = msg.dest;
+            _httpMethod = msg._httpMethod;
 	 }
 	 return *this;
       }

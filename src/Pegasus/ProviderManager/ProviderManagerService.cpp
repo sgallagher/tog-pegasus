@@ -632,6 +632,11 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
     // preserve message key
     response->setKey(request->getKey());
 
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
+
     // create a handler for this request
     GetInstanceResponseHandler handler(request, response);
 
@@ -717,6 +722,11 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
     // preserve message key
     response->setKey(request->getKey());
 
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
+
     // create a handler for this request
     EnumerateInstancesResponseHandler handler(request, response);
 
@@ -800,6 +810,11 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(AsyncOpNode *op
     // preserve message key
     response->setKey(request->getKey());
 
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
+
     // create a handler for this request
     EnumerateInstanceNamesResponseHandler handler(request, response);
 
@@ -879,6 +894,11 @@ void ProviderManagerService::handleCreateInstanceRequest(AsyncOpNode *op, const 
 
     // preserve message key
     response->setKey(request->getKey());
+
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
 
     // create a handler for this request
     CreateInstanceResponseHandler handler(request, response);
@@ -960,6 +980,11 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
 
     // preserve message key
     response->setKey(request->getKey());
+
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
 
     // create a handler for this request
     ModifyInstanceResponseHandler handler(request, response);
@@ -1046,6 +1071,11 @@ void ProviderManagerService::handleDeleteInstanceRequest(AsyncOpNode *op, const 
     // preserve message key
     response->setKey(request->getKey());
 
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
+
     // create a handler for this request
     DeleteInstanceResponseHandler handler(request, response);
 
@@ -1127,6 +1157,11 @@ void ProviderManagerService::handleExecuteQueryRequest(AsyncOpNode *op, const Me
     // preserve message key
     response->setKey(request->getKey());
 
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
+
     AsyncLegacyOperationResult *async_result =
         new AsyncLegacyOperationResult(
         async->getKey(),
@@ -1160,6 +1195,11 @@ void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Mes
     // preserve message key
     response->setKey(request->getKey());
 
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
+
     AsyncLegacyOperationResult *async_result =
         new AsyncLegacyOperationResult(
         async->getKey(),
@@ -1192,6 +1232,11 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
 
     // preserve message key
     response->setKey(request->getKey());
+
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
 
     // create a handler for this request
     AssociatorNamesResponseHandler handler(request, response);
@@ -1291,6 +1336,12 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
 
     // preserve message key
     response->setKey(request->getKey());
+
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
+
     // create a handler for this request
     ReferencesResponseHandler handler(request, response);
 
@@ -1388,6 +1439,11 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
 
     // preserve message key
     response->setKey(request->getKey());
+
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
 
     // create a handler for this request
     ReferenceNamesResponseHandler handler(request, response);
@@ -1487,6 +1543,11 @@ void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Mes
     // preserve message key
     response->setKey(request->getKey());
 
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
+
     GetPropertyResponseHandler handler(request, response);
 
     try
@@ -1568,6 +1629,11 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
 
     // preserve message key
     response->setKey(request->getKey());
+
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
 
     SetPropertyResponseHandler handler(request, response);
 
@@ -1659,6 +1725,11 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
     // propagate message key
     response->setKey(request->getKey());
 
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
+
     // create a handler for this request
     InvokeMethodResponseHandler handler(request, response);
 
@@ -1746,6 +1817,11 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
 
     // preserve message key
     response->setKey(request->getKey());
+
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
 
     OperationResponseHandler handler(request, response);
 
@@ -1837,6 +1913,11 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
     // preserve message key
     response->setKey(request->getKey());
 
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
+
     OperationResponseHandler handler(request, response);
 
     try
@@ -1926,6 +2007,11 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
     // preserve message key
     response->setKey(request->getKey());
 
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
+
     OperationResponseHandler handler(request, response);
 
     try
@@ -2007,6 +2093,11 @@ void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, con
     // preserve message key
     response->setKey(request->getKey());
 
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
+
     response->dest = request->queueIds.top();
 
 
@@ -2072,6 +2163,11 @@ void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, co
 
     // preserve message key
     response->setKey(request->getKey());
+
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
 
     OperationResponseHandler handler(request, response);
 
@@ -2202,6 +2298,11 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
     // preserve message key
     response->setKey(request->getKey());
 
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
+
     AsyncLegacyOperationResult *async_result =
         new AsyncLegacyOperationResult(
         async->getKey(),
@@ -2274,6 +2375,11 @@ void ProviderManagerService::handleEnableModuleRequest(AsyncOpNode *op, const Me
     // preserve message key
     response->setKey(request->getKey());
 
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
+
     AsyncLegacyOperationResult *async_result =
         new AsyncLegacyOperationResult(
         async->getKey(),
@@ -2309,6 +2415,11 @@ void ProviderManagerService::handleStopAllProvidersRequest(AsyncOpNode *op, cons
 
     // preserve message key
     response->setKey(request->getKey());
+
+    //
+    //  Set HTTP method in response from request
+    //
+    response->setHttpMethod (request->getHttpMethod ());
 
     AsyncLegacyOperationResult *async_result =
        new AsyncLegacyOperationResult(

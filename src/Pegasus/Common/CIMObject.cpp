@@ -27,8 +27,17 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMObject.h"
+#include "XmlWriter.h"
+
+PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// CIMObject
+//
+////////////////////////////////////////////////////////////////////////////////
 
 CIMClass CIMObject::getClass()
 {
@@ -40,6 +49,16 @@ CIMClass CIMObject::getClass()
     return CIMClass(rep);
 }
 
+CIMConstClass CIMObject::getClass() const
+{
+    CIMClassRep* rep = dynamic_cast<CIMClassRep*>(_rep);
+
+    if (!rep)
+	throw TypeMismatch();
+
+    return CIMConstClass(rep);
+}
+
 CIMInstance CIMObject::getInstance()
 {
     CIMInstanceRep* rep = dynamic_cast<CIMInstanceRep*>(_rep);
@@ -49,6 +68,39 @@ CIMInstance CIMObject::getInstance()
 
     return CIMInstance(rep);
 }
+
+CIMConstInstance CIMObject::getInstance() const
+{
+    CIMInstanceRep* rep = dynamic_cast<CIMInstanceRep*>(_rep);
+
+    if (!rep)
+	throw TypeMismatch();
+
+    return CIMConstInstance(rep);
+}
+
+void CIMObject::toXml(Array<Sint8>& out) const
+{
+    if (!_rep)
+	throw NullPointer();
+
+    if (isClass())
+    {
+	CIMConstClass cimClass = getClass();
+	cimClass.toXml(out);
+    }
+    else
+    {
+	CIMConstInstance cimInstance = getInstance();
+	cimInstance.toXml(out);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// CIMObjectWithPath
+//
+////////////////////////////////////////////////////////////////////////////////
 
 CIMObjectWithPath::CIMObjectWithPath()
 {
@@ -88,6 +140,22 @@ void CIMObjectWithPath::set(CIMReference& reference, CIMObject& object)
 {
     _reference = reference;
     _object = object;
+}
+
+//------------------------------------------------------------------------------
+//
+// <!ELEMENT VALUE.OBJECTWITHPATH ((CLASSPATH,CLASS)|(INSTANCEPATH,INSTANCE))>
+//
+//------------------------------------------------------------------------------
+
+void CIMObjectWithPath::toXml(Array<Sint8>& out) const
+{
+    out << "<VALUE.OBJECTWITHPATH>\n";
+
+    _reference.toXml(out, false);
+    _object.toXml(out);
+
+    out << "</VALUE.OBJECTWITHPATH>\n";
 }
 
 PEGASUS_NAMESPACE_END

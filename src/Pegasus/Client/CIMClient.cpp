@@ -384,6 +384,8 @@ int ClientHandler::handleMethodResponse()
     // Create a parser:
     //--------------------------------------------------------------------------
 
+PEGASUS_OUT(getContent());
+
     _message.append('\0');
     XmlParser parser((char*)getContent());
     XmlEntry entry;
@@ -651,7 +653,7 @@ int ClientHandler::handleAssociatorsResponse(
     const String& messageId)
 {
     XmlEntry entry;
-    CIMException::Code code;
+    CIMException::Code code = CIMException::SUCCESS;
     const char* description = 0;
 
     if (XmlReader::getErrorElement(parser, code, description))
@@ -1768,7 +1770,6 @@ Array<CIMInstance> CIMClient::execQuery(
     return Array<CIMInstance>();
 }
 
-
 Array<CIMObjectWithPath> CIMClient::associators(
     const String& nameSpace,
     const CIMReference& objectName,
@@ -1780,22 +1781,12 @@ Array<CIMObjectWithPath> CIMClient::associators(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-
     String messageId = XmlWriter::getNextMessageId();
     Array<Sint8> params;
 
     // Append "ObjectName" parameter:
 
-    if (objectName.isClassName())
-    {
-	XmlWriter::appendClassNameParameter(
-	    params, "ObjectName", objectName.getClassName());
-    }
-    else
-    {
-	XmlWriter::appendInstanceNameParameter(
-	    params, "ObjectName", objectName);
-    }
+    XmlWriter::appendObjectNameParameter(params, "ObjectName", objectName);
 
     // Append "AssocClass" parameter:
 
@@ -1827,6 +1818,9 @@ Array<CIMObjectWithPath> CIMClient::associators(
 	nameSpace, "Associators", params);
 
     _channel->writeN(message.getData(), message.size());
+
+    // message.append('\0');
+    // cout << message.getData() << endl;
 
     if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();

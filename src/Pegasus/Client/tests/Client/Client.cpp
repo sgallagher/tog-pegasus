@@ -204,19 +204,16 @@ static void TestAssoc(CIMClient& client)
     Array<CIMObjectWithPath> result = client.associators(
 	NAMESPACE, instanceName, "A", "Y", "left", "right", true, true);
 
-    PEGASUS_OUT(result.size());
-
     for (Uint32 i = 0; i < result.size(); i++)
     {
 	CIMObjectWithPath current = result[i];
 	CIMReference ref = current.getReference();
-	PEGASUS_OUT(ref.toString());
     }
 
     assert(result.size() == 1);
-    Boolean result = (result[0].getReference().toStringCanonical() ==
-	"//unknown-hostname/root/cimv2:Y.key=\"John Jones\"");
-    assert(result);
+    Boolean flag = (result[0].getReference().toStringCanonical() ==
+	"//unknown-hostname/root/cimv2:y.key=\"John Jones\"");
+    assert(flag);
 }
 
 int main(int argc, char** argv)
@@ -236,7 +233,7 @@ int main(int argc, char** argv)
 	// To run the following test, first compile "test.mof" into the
 	// repository!
 
-	// TestAssoc(client);
+	TestAssoc(client);
     }
     catch(Exception& e)
     {

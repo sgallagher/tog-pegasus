@@ -38,7 +38,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// ATTN usage of flags and state is inconsistent. suggest mergine
+// ATTN usage of flags and state is inconsistent
 // << Wed Jan 16 17:41:57 2002 mdd >>
 
 #define ASYNC_OPFLAGS_UNKNOWN           0x00000000
@@ -117,14 +117,19 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
    private:
       Semaphore _client_sem;
       Mutex _mut;
-      unlocked_dq<Message> _request;
-      unlocked_dq<Message> _response; 
+//      unlocked_dq<Message> _request;
+//      unlocked_dq<Message> _response; 
+      Message *_request;
+      Message *_response;
+      
       OperationContext _operation_list;
       Uint32 _state;
       Uint32 _flags;
       Uint32 _offered_count;
       Uint32 _total_ops;
       Uint32 _completed_ops;
+      Uint32 _user_data;
+      
       struct timeval _start;
       struct timeval _lifetime;
       struct timeval _updated;
@@ -196,8 +201,8 @@ inline Boolean AsyncOpNode::timeout(void)
    gettimeofday(&now, NULL);
    Boolean ret = false;
    _mut.lock(pegasus_thread_self());
-   if((_updated.tv_sec + _timeout_interval.tv_sec ) <= now.tv_sec)
-      if((_updated.tv_usec + _timeout_interval.tv_usec ) <= now.tv_usec)
+   if((_updated.tv_sec + _timeout_interval.tv_sec ) < now.tv_sec)
+      if((_updated.tv_usec + _timeout_interval.tv_usec ) < now.tv_usec)
 	 ret =  true;
    _mut.unlock();
    return ret;
@@ -214,8 +219,11 @@ inline  void AsyncOpNode::put_request(const Message *request)
 {
    _mut.lock(pegasus_thread_self());
    gettimeofday(&_updated, NULL);
-   if( false == _request.exists(reinterpret_cast<void *>(const_cast<Message *>(request))) )
-      _request.insert_last( const_cast<Message *>(request) ) ;
+//   if( false == _request.exists(reinterpret_cast<void *>(const_cast<Message *>(request))) )
+//      _request.insert_last( const_cast<Message *>(request) ) ;
+
+   _request = const_cast<Message *>(request);
+   
    _mut.unlock();
 }
 
@@ -224,7 +232,9 @@ inline Message * AsyncOpNode::get_request(void)
    Message *ret;
    _mut.lock(pegasus_thread_self());
    gettimeofday(&_updated, NULL);
-   ret = _request.remove_first() ;
+//   ret = _request.remove_first() ;
+   ret = _request;
+   
    _mut.unlock();
    return ret;
 }
@@ -233,8 +243,11 @@ inline void AsyncOpNode::put_response(const Message *response)
 {
    _mut.lock(pegasus_thread_self());
    gettimeofday(&_updated, NULL);
-   if (false == _response.exists(reinterpret_cast<void *>(const_cast<Message *>(response))))
-      _response.insert_last( const_cast<Message *>(response) );
+//   if (false == _response.exists(reinterpret_cast<void *>(const_cast<Message *>(response))))
+//      _response.insert_last( const_cast<Message *>(response) );
+
+   _response = const_cast<Message *>(response);
+   
    _mut.unlock();
 }
 
@@ -243,8 +256,10 @@ inline Message * AsyncOpNode::get_response(void)
    Message *ret;
 
    _mut.lock(pegasus_thread_self());
-   gettimeofday(&_updated, NULL);
-   ret = _response.remove_first();
+//   gettimeofday(&_updated, NULL);
+//   ret = _response.remove_first();
+   ret = _response;
+   
    _mut.unlock();
    return ret;
 }
@@ -311,7 +326,7 @@ inline void AsyncOpNode::deliver(const Uint32 count)
 {
    _mut.lock(pegasus_thread_self());
    _completed_ops = count;
-   _flags |= ASYNC_OPSTATE_DELIVER;
+   _state |= ASYNC_OPSTATE_DELIVER;
    gettimeofday(&_updated, NULL);
    _mut.unlock();
    return;
@@ -322,7 +337,7 @@ inline void AsyncOpNode::reserve(const Uint32 size)
 {
    _mut.lock(pegasus_thread_self());
    _total_ops = size;
-   _flags |= ASYNC_OPSTATE_RESERVE;
+   _state |= ASYNC_OPSTATE_RESERVE;
    gettimeofday(&_updated, NULL);
    _mut.unlock();
    return;
@@ -332,7 +347,7 @@ inline void AsyncOpNode::processing(void)
    throw(IPCException)
 {
    _mut.lock(pegasus_thread_self());
-   _flags |= ASYNC_OPSTATE_PROCESSING;
+   _state |= ASYNC_OPSTATE_PROCESSING;
    gettimeofday(&_updated, NULL);
    _mut.unlock();
    return;
@@ -343,7 +358,7 @@ inline void AsyncOpNode::processing(OperationContext *con)
    throw(IPCException)
 {
    _mut.lock(pegasus_thread_self());
-   _flags |= ASYNC_OPSTATE_PROCESSING;
+   _state |= ASYNC_OPSTATE_PROCESSING;
    gettimeofday(&_updated, NULL);
    
    context *c = con->remove_context();
@@ -360,7 +375,7 @@ inline void AsyncOpNode::complete(void)
    throw(IPCException)
 {
    _mut.lock(pegasus_thread_self());
-   _flags |= ASYNC_OPSTATE_COMPLETE;
+   _state |= ASYNC_OPSTATE_COMPLETE;
    gettimeofday(&_updated, NULL);
    _mut.unlock();
 
@@ -371,7 +386,7 @@ inline void AsyncOpNode::complete(OperationContext *con)
    throw(IPCException)
 {
    _mut.lock(pegasus_thread_self());
-   _flags |= ASYNC_OPSTATE_COMPLETE;
+   _state |= ASYNC_OPSTATE_COMPLETE;
    gettimeofday(&_updated, NULL);
    context *c = con->remove_context();
    while(c != 0)

@@ -82,6 +82,7 @@ class test_request : public AsyncRequest
       virtual ~test_request(void) 
       {
 
+
       }
       
       String greeting;
@@ -240,6 +241,7 @@ void MessageQueueServer::handle_test_request(AsyncRequest *msg)
 			   msg->dest, 
 			   "i am a test response");
       _enqueueAsyncResponse(msg, resp, ASYNC_OPSTATE_COMPLETE, 0);
+      
    }
 }
 
@@ -257,6 +259,8 @@ void MessageQueueServer::handle_CimServiceStop(CimServiceStop *req)
 		     req->resp, 
 		     req->block);
    _enqueueAsyncResponse(req, resp, ASYNC_OPSTATE_COMPLETE, 0 );
+   
+   cout << "recieved STOP from test client" << endl;
    
    dienow = 1;
 }
@@ -287,16 +291,16 @@ void MessageQueueClient::send_test_request(char *greeting, Uint32 qid)
 		       _queueId,
 		       greeting);
 
-   unlocked_dq<AsyncMessage> replies(true);
-   SendWait(req, &replies);
-   while( replies.count() )
-   { 
-      msg_count++;
-      delete static_cast<test_response *>(replies.remove_first());
+
+   AsyncMessage *response = SendWait(req );
+   if( response != 0  )
+   {
+      msg_count++; 
+      delete response;
+
    }
-
-
 }
+
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm);
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func(void *parm);
@@ -309,17 +313,18 @@ int main(int argc, char **argv)
    cimom *Q_server = new cimom();
    
 
-//   server.run();
+   server.run();
    client.run();
-   while( msg_count.value() < 10 )
+   while( msg_count.value() < 100 )
    {
       pegasus_sleep(10);
    }
 
    client.join();
    server.join();
+   cout << " delete meta dispatcher" << endl;
    
-   delete Q_server;
+   delete Q_server;  
    
    return(1);
 }
@@ -336,17 +341,19 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
    while( services.size() == 0 )
    {
       q_client->find_services(String("test server"), 0, 0, &services);
-      my_handle->sleep(10); 
+      my_handle->sleep(10);  
+
    }
    
-   while (msg_count.value() < 10 )
+   while (msg_count.value() < 100 )
    {
       q_client->send_test_request("i am the test client" , services[0]);
-
    }
    // now that we have sent and received all of our responses, tell 
    // the server thread to stop 
 
+   cout << "sending STOP to test server" << endl;
+   
    CimServiceStop *stop = 
       new CimServiceStop(q_client->get_next_xid(),
 			 q_client->get_op(), 
@@ -354,10 +361,14 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
 			 q_client->get_qid(),
 			 true);
 
-   unlocked_dq<AsyncMessage> replies(true);
-   q_client->SendWait(stop, &replies);
-   q_client->deregister_service();
+   q_client->SendWait(stop ); 
 
+   cout << "deregistering client" << endl;
+ 
+   q_client->deregister_service(); 
+ 
+   cout << " deleting client ";
+   
    delete q_client;
    my_handle->exit_self( (PEGASUS_THREAD_RETURN) 1 );
    return(0);
@@ -368,18 +379,21 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func(void *parm)
 {
    Thread *my_handle = reinterpret_cast<Thread *>(parm);
 
-   MessageQueueServer *q_server = new MessageQueueServer("test server");
+   MessageQueueServer *q_server = new MessageQueueServer("test server") ;
+
    q_server->register_service("test server", q_server->_capabilities, q_server->_mask);
    
-//   while( q_server->dienow.value()  < 1  )
-   while(1)
+   while( q_server->dienow.value()  < 1  )
    {
       my_handle->sleep(10);
-     
    }
 
+   cout << "deregistering server qid " << q_server->getQueueId() << endl;
    q_server->deregister_service();
-   delete q_server;
+   cout << " deleting server " << endl;
+   
+   delete q_server; 
+
    
    my_handle->exit_self( (PEGASUS_THREAD_RETURN) 1 );
    return(0);

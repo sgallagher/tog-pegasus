@@ -70,8 +70,10 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
 
 //      virtual Message *openEnvelope(Message *msg);
       
+      AsyncMessage *SendWait(AsyncRequest *request);
+      
       void SendWait(AsyncRequest *request, unlocked_dq<AsyncMessage> *reply_list);
-      Boolean SendAsync(AsyncMessage *msg);
+//      Boolean SendAsync(AsyncMessage *msg);
       void _enqueueAsyncResponse(AsyncRequest *request, 
 				 AsyncReply *reply, 
 				 Uint32 state, 

@@ -117,6 +117,7 @@ class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
 
       virtual void handleEnqueue();
       void register_module(RegisterCimService *msg);
+      void deregister_module(Uint32 quid);
       void deregister_module(DeRegisterCimService *msg) ;
       void update_module(UpdateCimService *msg );
       void ioctl(AsyncIoctl *msg );

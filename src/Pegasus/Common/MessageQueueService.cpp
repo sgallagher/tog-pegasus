@@ -80,13 +80,16 @@ void MessageQueueService::_enqueueAsyncResponse(AsyncRequest *request,
    
    AsyncOpNode *op = request->op;
    op->lock();
-   if (false == op->_response.exists(reply))
-      op->_response.insert_last(reply);
+//   if (false == op->_response.exists(reply))
+//      op->_response.insert_last(reply);
+   op->_response = reply;
    
-   op->_state |= state;
+   op->_state |= state ;
    op->_flags |= flag;
    gettimeofday(&(op->_updated), NULL);
    op->unlock();
+   op->_client_sem.signal();
+   
 }
 
 // may be overriden by derived classes
@@ -133,7 +136,7 @@ void MessageQueueService::_handle_async_request(AsyncRequest *req)
       // we don't handle this request message 
       _make_response(req, async_results::CIM_NAK );
    }
-   req->op->complete();
+
 }
 
 void MessageQueueService::_handle_async_reply(AsyncReply *rep)
@@ -251,6 +254,43 @@ void MessageQueueService::return_op(AsyncOpNode *op)
       delete op;
 }
 
+AsyncMessage *MessageQueueService::SendWait(AsyncRequest *request)
+{
+   if (request == 0 )
+      throw NullPointer();
+   AsyncMessage *ret_msg = 0;
+   
+   AsyncOpNode *op = request->op;
+   
+   if(op == 0 )
+      return 0;
+   //     ATTN: debugging 
+   op->put_response(0);
+   if(true == _meta_dispatcher->accept_async(static_cast<Message *>(request)))
+   {
+      op->_client_sem.wait();
+      ret_msg = static_cast<AsyncMessage *>(op->_response);
+      op->_response = 0;
+            
+      
+//      op->lock();
+//       while( op->_response.count() )
+//       {
+// 	 AsyncMessage *rply = static_cast<AsyncMessage *>(op->_response.remove_last());
+// 	 if (rply != 0 )
+// 	 {
+// 	    rply->op = 0;
+//      reply_list->insert_first( static_cast<AsyncMessage *>(op->_response) );
+// 	 }
+//       }
+      // release the opnode, the meta-dispatcher will recycle it for us
+//      op->_state |= ASYNC_OPSTATE_RELEASED ;
+//      op->unlock();
+   }
+   return ret_msg;
+   
+}
+
 
 void MessageQueueService::SendWait(AsyncRequest *request, unlocked_dq<AsyncMessage> *reply_list)
 {
@@ -258,25 +298,37 @@ void MessageQueueService::SendWait(AsyncRequest *request, unlocked_dq<AsyncMessa
       throw NullPointer();
    
    AsyncOpNode *op = request->op;
+   
    if(op == 0 )
       return;
-   
+   //     ATTN: debugging 
+   op->put_response(0);
    if(true == _meta_dispatcher->accept_async(static_cast<Message *>(request)))
    {
+
+      
       op->_client_sem.wait();
       op->lock();
-      while( op->_response.count() )
-      {
-	 AsyncMessage *rply = static_cast<AsyncMessage *>(op->_response.remove_last());
-	 if (rply != 0 )
-	 {
-	    rply->op = 0;
-	    reply_list->insert_first( rply );
-	 }
-      }
-      // release the opnode, the meta-dispatcher will recycle it for us
-      op->_state |= ASYNC_OPSTATE_RELEASED ;
+      
+      AsyncMessage *response = static_cast<AsyncMessage *>(op->_response);
+      reply_list->insert_first(response);
       op->unlock();
+      
+      op->release();
+      
+//      op->lock();
+//       while( op->_response.count() )
+//       {
+// 	 AsyncMessage *rply = static_cast<AsyncMessage *>(op->_response.remove_last());
+// 	 if (rply != 0 )
+// 	 {
+// 	    rply->op = 0;
+//      reply_list->insert_first( static_cast<AsyncMessage *>(op->_response) );
+// 	 }
+//       }
+      // release the opnode, the meta-dispatcher will recycle it for us
+//      op->_state |= ASYNC_OPSTATE_RELEASED ;
+//      op->unlock();
    }
    else
    {
@@ -286,10 +338,10 @@ void MessageQueueService::SendWait(AsyncRequest *request, unlocked_dq<AsyncMessa
    }
 }
 
-Boolean MessageQueueService::SendAsync(AsyncMessage *msg)
-{
-   return _meta_dispatcher->accept_async(static_cast<Message *>(msg));
-}
+// Boolean MessageQueueService::SendAsync(AsyncMessage *msg)
+// {
+//    return _meta_dispatcher->accept_async(static_cast<Message *>(msg));
+// }
 
 
 Boolean MessageQueueService::register_service(String name, 
@@ -309,24 +361,23 @@ Boolean MessageQueueService::register_service(String name,
 						    capabilities, 
 						    mask,
 						    _queueId);
-   unlocked_dq<AsyncMessage> reply_list(true);
-   SendWait(msg, &reply_list);
    Boolean registered = false;
+   AsyncMessage *reply = SendWait( msg );
    
-   AsyncReply *reply = static_cast<AsyncReply *>(reply_list.remove_first());
-   while(reply)
+   if ( reply != 0 )
    {
       if(reply->getMask() & message_mask:: ha_async)
       {
 	 if(reply->getMask() & message_mask::ha_reply)
 	 {
-	    if(reply->result == async_results::OK)
+	    if((static_cast<AsyncReply *>(reply))->result == async_results::OK)
 	       registered = true;
+	    cout << " service registered " << _queueId << endl;
+	    
 	 }
       }
       
       delete reply;
-      reply = static_cast<AsyncReply *>(reply_list.remove_first());
    }
    return registered;
 }
@@ -344,22 +395,21 @@ Boolean MessageQueueService::update_service(Uint32 capabilities, Uint32 mask)
 						_queueId,
 						_capabilities, 
 						_mask);
-   unlocked_dq<AsyncMessage> reply_list(true);
-   SendWait(msg, &reply_list);
    Boolean registered = false;
-   AsyncReply *reply = static_cast<AsyncReply *>(reply_list.remove_first());
-   while(reply)
+
+
+   AsyncMessage *reply = SendWait(msg);
+   if (reply)
    {
       if(reply->getMask() & message_mask:: ha_async)
       {
 	 if(reply->getMask() & message_mask::ha_reply)
 	 {
-	    if(reply->result == async_results::OK)
+	    if(static_cast<AsyncReply *>(reply)->result == async_results::OK)
 	       registered = true;
 	 }
       }
       delete reply;
-      reply = static_cast<AsyncReply *>(reply_list.remove_first());
    }
    return registered;
 }
@@ -376,25 +426,11 @@ Boolean MessageQueueService::deregister_service(void)
 							op, 
 							true, 
 							_queueId);
-   
-   unlocked_dq<AsyncMessage> reply_list(true);
-   SendWait(msg, &reply_list);
    Boolean deregistered = false;
-   AsyncReply *reply = static_cast<AsyncReply *>(reply_list.remove_first());
-   while(reply)
-   {
-      if(reply->getMask() & message_mask:: ha_async)
-      {
-	 if(reply->getMask() & message_mask::ha_reply)
-	 {
-	    if(reply->result == async_results::OK)
-	       deregistered = true;
-	 }
-      }
-      delete reply;
-      reply = static_cast<AsyncReply *>(reply_list.remove_first());
-   }
-   return deregistered;
+
+
+
+   return _meta_dispatcher->accept_async(static_cast<Message *>(msg));
 }
 
 
@@ -418,11 +454,9 @@ void MessageQueueService::find_services(String name,
 			   name, 
 			   capabilities, 
 			   mask);
-   unlocked_dq<AsyncMessage> reply_list(true);
    
-   SendWait(req, &reply_list); 
-   AsyncReply *reply = static_cast<AsyncReply *>(reply_list.remove_first());
-   while(reply)
+   AsyncMessage *reply = SendWait(req); 
+   if(reply)
    {
       if( reply->getMask() & message_mask::ha_async)
       {
@@ -436,7 +470,6 @@ void MessageQueueService::find_services(String name,
 	 }
       }
       delete reply;
-      reply = static_cast<AsyncReply *>(reply_list.remove_first());
    }
    return ;
 }
@@ -455,11 +488,9 @@ void MessageQueueService::enumerate_service(Uint32 queue, message_module *result
 			     true, 
 			     queue);
    
-   unlocked_dq<AsyncMessage> reply_list(true);
-   SendWait(req, &reply_list);
-   AsyncReply *reply = static_cast<AsyncReply *>(reply_list.remove_first());
+   AsyncMessage *reply = SendWait(req);
    
-   while(reply)
+   if (reply)
    {
       Boolean found = false;
       
@@ -485,7 +516,6 @@ void MessageQueueService::enumerate_service(Uint32 queue, message_module *result
 	 }
       }
       delete reply;
-      AsyncReply *reply = static_cast<AsyncReply *>(reply_list.remove_first());
    }
    return;
 }

@@ -37,6 +37,7 @@
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/CIMFlavor.h>
 #include <Pegasus/Common/CIMScope.h>
+#include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 
 PEGASUS_NAMESPACE_BEGIN

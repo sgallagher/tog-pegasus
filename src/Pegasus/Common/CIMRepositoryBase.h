@@ -40,6 +40,7 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
+#include <Pegasus/Common/ContentLanguages.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -82,21 +83,25 @@ public:
 
     virtual void createClass(
         const CIMNamespaceName& nameSpace,
-        const CIMClass& newClass) = 0;
+        const CIMClass& newClass,
+	const ContentLanguages& contentLangs = ContentLanguages::EMPTY) = 0;
 
     virtual CIMObjectPath createInstance(
         const CIMNamespaceName& nameSpace,
-        const CIMInstance& newInstance) = 0;
+        const CIMInstance& newInstance,
+	const ContentLanguages& contentLangs = ContentLanguages::EMPTY) = 0;
 
     virtual void modifyClass(
         const CIMNamespaceName& nameSpace,
-        const CIMClass& modifiedClass) = 0;
+        const CIMClass& modifiedClass,
+	const ContentLanguages& contentLangs = ContentLanguages::EMPTY) = 0;
 
     virtual void modifyInstance(
         const CIMNamespaceName& nameSpace,
         const CIMInstance& modifiedInstance,
         Boolean includeQualifiers = true,
-        const CIMPropertyList& propertyList = CIMPropertyList()) = 0;
+        const CIMPropertyList& propertyList = CIMPropertyList(),
+	const ContentLanguages& contentLangs = ContentLanguages::EMPTY) = 0;
 
     virtual Array<CIMClass> enumerateClasses(
         const CIMNamespaceName& nameSpace,
@@ -171,7 +176,8 @@ public:
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
         const CIMName& propertyName,
-        const CIMValue& newValue = CIMValue()) = 0;
+        const CIMValue& newValue = CIMValue(),
+	const ContentLanguages& contentLangs = ContentLanguages::EMPTY) = 0;
 
     virtual CIMQualifierDecl getQualifier(
         const CIMNamespaceName& nameSpace,
@@ -179,7 +185,8 @@ public:
 
     virtual void setQualifier(
         const CIMNamespaceName& nameSpace,
-        const CIMQualifierDecl& qualifierDecl) = 0;
+        const CIMQualifierDecl& qualifierDecl,
+	const ContentLanguages& contentLangs = ContentLanguages::EMPTY) = 0;
 
     virtual void deleteQualifier(
         const CIMNamespaceName& nameSpace,

@@ -27,30 +27,30 @@ repository:
 	@ $(ECHO) +++++ Removing existing repository named $(TESTPROVIDERNS)
 	@$(RMREPOSITORY) $(TESTPROVIDERNSDIRECTORY)
 	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(TESTPROVIDERNS) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" -n$(TESTPROVIDERNS) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" -n$(TESTPROVIDERNS) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
 
 	@ $(ECHO) +++++ Loading TestInstanceProvider class definitions into $(TESTPROVIDERNS) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(TESTPROVIDERNS)" TestInstanceProviderSchema.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(TESTPROVIDERNS)" TestInstanceProviderSchema.mof
 
 	@ $(ECHO) +++++ Registering TestInstanceProvider ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" TestInstanceProviderRegistration.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(INTEROPNS)" TestInstanceProviderRegistration.mof
 
 ifndef PEGASUS_DISABLE_PROV_USERCTXT
 	@ $(ECHO) +++++ Loading UserContextTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(TESTPROVIDERNS)" UserContextTestProvider.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(TESTPROVIDERNS)" UserContextTestProvider.mof
 
 	@ $(ECHO) +++++ Registering UserContextTestProvider ...
 ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" UserContextRequestorR.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(INTEROPNS)" UserContextRequestorR.mof
 endif
 ifndef PEGASUS_DISABLE_PROV_USERCTXT_PRIVILEGED
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" UserContextPrivilegedR.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(INTEROPNS)" UserContextPrivilegedR.mof
 endif
 ifndef PEGASUS_DISABLE_PROV_USERCTXT_DESIGNATED
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" UserContextDesignatedR.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(INTEROPNS)" UserContextDesignatedR.mof
 endif
 ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" UserContextCIMServerR.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(INTEROPNS)" UserContextCIMServerR.mof
 endif
 endif
 

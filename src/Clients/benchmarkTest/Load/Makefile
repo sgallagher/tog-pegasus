@@ -18,11 +18,12 @@ repository:
 	@ $(ECHO) +++++ Removing existing repository named $(PROVIDERNS)
 	@$(RMREPOSITORY) $(PROVIDERNSDIRECTORY)
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(PROVIDERNS) namespace ...
-	@ $(CIMMOFL) "-R$(REPOSITORY_DIR)" "-I$(CIM_SCHEMA_DIR)" "-n$(PROVIDERNS)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ $(CIMMOFL) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-I$(CIM_SCHEMA_DIR)" \
+              "-n$(PROVIDERNS)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading $(BenchmarkMOF_NAME) class definitions into $(PROVIDERNS) namespace ...
-	@ $(CIMMOFL) "-R$(REPOSITORY_DIR)" "-n$(PROVIDERNS)" $(BenchmarkMOF_NAME).mof
+	@ $(CIMMOFL) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(PROVIDERNS)" $(BenchmarkMOF_NAME).mof
 	@ $(ECHO) +++++ Registering benchmark Provider   ...
-	@ $(CIMMOFL) "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" $(BenchmarkMOF_NAME)R.mof
+	@ $(CIMMOFL) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(INTEROPNS)" $(BenchmarkMOF_NAME)R.mof
 
 repositoryServer:
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(PROVIDERNS) namespace ...

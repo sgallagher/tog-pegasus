@@ -332,6 +332,11 @@ will be deleted.
     provider.  Moved the ProviderRegistrationProvider to the Pegasus
     ControlProviders directory.  Obsoleted and removed the
     Server/ConfigurationManager class and files.
+    
+38. (KS) 27 march 2002 - Modifications to common functions and the compiler to
+    extend the processing of class creation and correct the flavors and their
+    use.  This allows flavors to be inherited with rules for override, etc.
+    
 
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001

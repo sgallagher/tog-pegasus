@@ -83,7 +83,7 @@ class PEGASUS_SERVER_LINKAGE ProviderModule
       ProviderModule(const ProviderModule & pm);
 
       const String & getProviderName(void) const;
-      const String & ProviderModule::getInterfaceName(void) const ;
+      const String & getInterfaceName(void) const ;
       
       const Uint32 & getRefCount(void) const;
       ProviderAdapter * getAdapter(void) const;

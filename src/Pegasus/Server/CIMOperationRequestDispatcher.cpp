@@ -5013,7 +5013,7 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
       "CIMOperationRequestDispatcher::handleGetPropertyRequest");
 
    CIMName className = request->instanceName.getClassName();
-   CIMResponseMessage * response;
+   CIMResponseMessage * response =NULL;
 
    // check the class name for an "external provider"
    // Assumption here is that there are no "internal" property requests.
@@ -5037,7 +5037,7 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
       _forwardRequestToService(
           PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
-	  STAT_COPYDISPATCHER_REP
+	  
       PEG_METHOD_EXIT();
       return;
    }
@@ -5150,7 +5150,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
    }
 
    CIMName className = request->instanceName.getClassName();
-   CIMResponseMessage * response;
+   CIMResponseMessage * response = NULL;
    ProviderIdContainer *providerIdContainer=NULL;
 
    // check the class name for an "external provider"
@@ -5171,7 +5171,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
       _forwardRequestToService(
           PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
-	  STAT_COPYDISPATCHER_REP
+	
       PEG_METHOD_EXIT();
       return;
    }

@@ -150,6 +150,46 @@ void GetDocument(
 
     connection->enqueue(httpMessage);
 }
+////
+
+void GetDocument(
+    HTTPConnection2* connection,
+    const String& host,
+    const Uint32 portNumber,
+    const String& document)
+{
+    // Build HTTP (request) message:
+
+    char buffer[4096];
+
+    sprintf(buffer,
+	"GET %s HTTP/1.1\r\n"
+	"Accept: */*\r\n"
+	"Accept-Language: en-us\r\n"
+	"Accept-Encoding: gzip, deflate\r\n"
+	"User-Agent: Mozilla/4.0 (compatible; MyClient; Windows NT 5.0)\r\n"
+	"Host: %s:%u\r\n"
+	"Connection: Keep-Alive\r\n"
+	"\r\n",
+	(const char*)document.getCString(),
+        (const char*)host.getCString(),
+        portNumber);
+
+    Array<Sint8> message;
+    message.append(buffer, strlen(buffer));
+    HTTPMessage* httpMessage = new HTTPMessage(message);
+
+    // Enqueue message on the connection's queue (so that it will be sent
+    // to the server it is conneted to:
+
+    // httpMessage->print(cout);
+
+    connection->enqueue(httpMessage);
+}
+
+
+
+////
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -189,7 +229,7 @@ int main(int argc, char** argv)
   monitor_2* monitor = new monitor_2;
   HTTPConnector2* httpConnector = new HTTPConnector2(monitor);
   HTTPConnection2* connection
-	    = httpConnector2->connect(host, portNumber, webClientQueue);
+	    = httpConnector->connect(host, portNumber, webClientQueue);
   #endif
 
       

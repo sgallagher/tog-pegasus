@@ -39,11 +39,13 @@
                                                                                                                                        
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
+#include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Query/QueryCommon/QueryContext.h>
 #include <Pegasus/Query/QueryCommon/QueryIdentifier.h>
 #include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 #include <Pegasus/Repository/RepositoryQueryContext.h>
 #include <Pegasus/CQL/CQLIdentifier.h>
+#include <Pegasus/CQL/CQLChainedIdentifier.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Repository/CIMRepository.h>
@@ -52,83 +54,191 @@ PEGASUS_USING_PEGASUS;
                                                                                                                                        
 PEGASUS_USING_STD;
 
-void drive_CIMOMHandleQueryContext(){
-	CIMNamespaceName _ns("root/cimv2");
-	CIMOMHandle _ch;
-	CIMOMHandleQueryContext _query(_ns,_ch);
-	cout << "Host name = " << _query.getHost(false) << endl;
+void drive_FromList(QueryContext& _query)
+{
 	Array<String> alias;
 	Array<CQLIdentifier> classes;
 	alias.append("A");
 	alias.append("B");
 	alias.append("C");
+   alias.append("D");  // alias == identifier, ignore alias
+   alias.append("A");  // dup, should not be inserted
 	classes.append(CQLIdentifier("APPLE"));
 	classes.append(CQLIdentifier("BONGO"));
 	classes.append(CQLIdentifier("CLAVE"));
+	classes.append(CQLIdentifier("D"));   // alias == identifier, ignore alias
+	classes.append(CQLIdentifier("APPLE"));  // dup, should not be inserted
+
 	for(Uint32 i = 0; i < alias.size(); i++){
 		_query.insertClassPath(classes[i],alias[i]);
 	}
 
-	Array<QueryIdentifier> fromList = _query.getFromList();
-	for(Uint32 i = 0; i < fromList.size(); i++)
-		cout << fromList[i].toString() << endl;
+   //
+   // Error inserts.  Keep before the from list test below
+   //
 
-	cout << "CIMOMHandleQueryContext::GetClass(CIM_Process)..." << endl;
-	CIMClass _class = _query.getClass(CIMName("CIM_Process"));
-	CIMName _name = _class.getClassName();
-	cout << "_name.getString() = " << _name.getString() << endl;
-	
+   // empty identifier
+   try
+   {
+     _query.insertClassPath(QueryIdentifier());
+     assert(false);
+   }
+   catch (QueryParseException & e)
+   {
+   }
+
+   // identifier is already an alias
+   try
+   {
+     _query.insertClassPath(CQLIdentifier("A"));
+     assert(false);
+   }
+   catch (QueryParseException & e)
+   {
+   }
+
+   // alias is already in the from list
+   try
+   {
+     _query.insertClassPath(CQLIdentifier("NEW"),String("BONGO"));
+     assert(false);
+   }
+   catch (QueryParseException & e)
+   {
+   }
+
+   // alias is already used for another from list entry
+   try
+   {
+     _query.insertClassPath(CQLIdentifier("NEW"),String("B"));
+     assert(false);
+   }
+   catch (QueryParseException & e)
+   {
+   }
+
+
+   // check the from list
+	Array<QueryIdentifier> fromList = _query.getFromList();
+   assert(fromList.size() == 4);
+   assert(fromList[0].getName() == "APPLE");
+   assert(fromList[1].getName() == "BONGO");
+   assert(fromList[2].getName() == "CLAVE");
+   assert(fromList[3].getName() == "D");
+
+   // check the from string
+   String fromString = _query.getFromString();
+   assert(fromString == String("FROM APPLE AS A , BONGO AS B , CLAVE AS C , D "));
+
+   // identifier and alias lookup
+   QueryIdentifier lookup = _query.findClass(String("C"));
+   assert(lookup.getName() == "CLAVE");
+   lookup = _query.findClass(String("BONGO"));
+   assert(lookup.getName() == "BONGO");
+   lookup = _query.findClass(String("D"));
+   assert(lookup.getName() == "D");
+   lookup = _query.findClass(String("notthere"));
+   assert(lookup.getName() == CIMName());
 }
 
-void drive_RepositoryQueryContext(){
+void drive_WhereIds(QueryContext& _query)
+{
+  CQLChainedIdentifier chid1("fromclass.eo.scope1::prop");
+  CQLChainedIdentifier chid2("fromclass.eo.scope2::prop");
+  CQLChainedIdentifier chid3("fromclass.eo.scope1::prop#'ok'");
+  CQLChainedIdentifier chid4("fromclass.eo.scope1::prop[1]");
+
+  _query.addWhereIdentifier(chid1);
+  _query.addWhereIdentifier(chid2);
+  _query.addWhereIdentifier(chid3);
+  _query.addWhereIdentifier(chid4);
+  _query.addWhereIdentifier(chid1); // dup, ignored
+
+  Array<QueryChainedIdentifier> qchids = _query.getWhereList();
+
+  assert(qchids.size() == 4);
+  assert(qchids[0].getSubIdentifiers().size() == 3);
+  assert(qchids[1].getSubIdentifiers().size() == 3);
+  assert(qchids[2].getSubIdentifiers().size() == 3);
+  assert(qchids[3].getSubIdentifiers().size() == 3);
+}
+
+void drive_Schema(QueryContext& _query)
+{
+  CIMName base("CQL_TestElement");
+  CIMClass _class = _query.getClass(base);
+  assert(_class.getClassName() == base);
+
+  Array<CIMName> names = _query.enumerateClassNames(base);
+  assert(names.size() == 2);
+
+  CIMName derived("CQL_TestPropertyTypes");
+
+  assert(_query.isSubClass(base, derived));
+  assert(!_query.isSubClass(derived, base));
+
+  assert(_query.getClassRelation(base, base) == QueryContext::SAMECLASS);
+  assert(_query.getClassRelation(base, derived) == QueryContext::SUBCLASS);
+  assert(_query.getClassRelation(derived, base) == QueryContext::SUPERCLASS);
+
+  CIMName unrelated("CIM_Process");
+  assert(_query.getClassRelation(base, unrelated) == QueryContext::NOTRELATED);
+  assert(_query.getClassRelation(unrelated, base) == QueryContext::NOTRELATED);
+}
+
+void drive_CIMOMHandleQueryContext()
+{
+	CIMNamespaceName _ns("root/SampleProvider");
+	CIMOMHandle _ch;
+	CIMOMHandleQueryContext _queryOrig(_ns,_ch);
+
+   CIMOMHandleQueryContext _query = _queryOrig;
+
+   assert(_query.getNamespace() == _ns);
+
+   drive_FromList(_query);
+   drive_WhereIds(_query);
+   drive_Schema(_query);
+}
+
+void drive_RepositoryQueryContext()
+{
 	const char* env = getenv("PEGASUS_HOME");
+
+   if (env == NULL)
+     exit(-1);
+
 	String repositoryDir(env);
 	repositoryDir.append("/repository");
-	cout << "using rep dir = " << repositoryDir << endl;	
-	CIMNamespaceName _ns("root/cimv2");
+	CIMNamespaceName _ns("root/SampleProvider");
 	CIMRepository *_rep = new CIMRepository(repositoryDir);
-	RepositoryQueryContext _query(_ns, _rep);
-	cout << "Host name = " << _query.getHost(false) << endl;
-        Array<String> alias;
-        Array<CQLIdentifier> classes;
-        alias.append("A");
-        alias.append("B");
-        alias.append("C");
-        classes.append(CQLIdentifier("APPLE"));
-        classes.append(CQLIdentifier("BONGO"));
-        classes.append(CQLIdentifier("CLAVE"));
-        for(Uint32 i = 0; i < alias.size(); i++){
-                _query.insertClassPath(classes[i],alias[i]);
-        }
-        
-	QueryIdentifier _id_Alias = _query.findClass(String("A"));
-	QueryIdentifier _id_Class = _query.findClass(String("APPLE"));
-	QueryIdentifier _id_Error = _query.findClass(String("AP"));
-	cout << "_id_Alias = " << _id_Alias.getName().getString() << endl;
-	cout << "_id_Class = " << _id_Class.getName().getString() << endl;
-	cout << "_id_Error = " << _id_Error.getName().getString() << endl;
-                                                                                                                               
-        Array<QueryIdentifier> fromList = _query.getFromList();
-        for(Uint32 i = 0; i < fromList.size(); i++)
-                cout << fromList[i].toString() << endl;
+	RepositoryQueryContext _queryOrig(_ns, _rep);
 
-	cout << "RepositoryQueryContext::GetClass(CIM_Process)..." << endl;
-        CIMClass _class = _query.getClass(CIMName("CIM_ComputerSystem"));
-        CIMName _name = _class.getClassName();
-        cout << "_name.getString() = " << _name.getString() << endl;
+	RepositoryQueryContext _query = _queryOrig;   
+
+   assert(_query.getNamespace() == _ns);
+
+   drive_FromList(_query);
+   drive_WhereIds(_query);
+   drive_Schema(_query);
 }
 
-int main( int argc, char *argv[] ){
+int main( int argc, char *argv[] )
+{
+  //
+  // NOTE: this test needs to be in poststarttests
+  // because the CIMOMHandle uses CIMClient local connect
+  //
 
-        //BEGIN TESTS....
+  //BEGIN TESTS....
 
 	drive_CIMOMHandleQueryContext();
-	drive_RepositoryQueryContext();
+   drive_RepositoryQueryContext();
 
 	//END TESTS....
-	                                                                                                                   
-        cout << argv[0] << " +++++ passed all tests" << endl;
-                                                                                                                                       
-        return 0;
+
+   cout << argv[0] << " +++++ passed all tests" << endl;
+                             
+   return 0;
 }
 

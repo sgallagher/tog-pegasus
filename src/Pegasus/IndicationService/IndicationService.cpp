@@ -91,7 +91,7 @@ Mutex IndicationService::_mutex;
 IndicationService::IndicationService (
     CIMRepository * repository,
     ProviderRegistrationManager * providerRegManager)
-    : Base (PEGASUS_QUEUENAME_INDICATIONSERVICE,
+    : MessageQueueService (PEGASUS_QUEUENAME_INDICATIONSERVICE,
             MessageQueue::getNextQueueId ()),
          _providerRegManager (providerRegManager)
 {
@@ -200,7 +200,7 @@ void IndicationService::_handle_async_request(AsyncRequest *req)
         return;
     }
     else
-        Base::_handle_async_request(req);
+        MessageQueueService::_handle_async_request (req);
 }
 
 void IndicationService::handleEnqueue(Message* message)
@@ -362,7 +362,7 @@ void IndicationService::handleEnqueue(Message* message)
                 "The requested operation is not supported or not recognized "
                 "by the indication service.")),
 
-        Base::_enqueueResponse(cimRequest, response);
+        _enqueueResponse (cimRequest, response);
         break;
     }
 
@@ -855,29 +855,11 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
     if (!responseSent)
     {
 // l10n - no Content-Language in response
-        CIMCreateInstanceResponseMessage* response =
-            new CIMCreateInstanceResponseMessage(
-                request->messageId,
-                cimException,
-                request->queueIds.copyAndPop(),
-                instanceRef);
-
-        //
-        //  Preserve message key
-        //
-        response->setKey (request->getKey ());
-
-        //
-        //  Set response destination
-        //
-        response->dest = request->queueIds.top ();
-
-        //
-        //  Set HTTP method in response from request
-        //
-        response->setHttpMethod (request->getHttpMethod ());
-
-        Base::_enqueueResponse (request, response);
+        CIMCreateInstanceResponseMessage * response = dynamic_cast
+            <CIMCreateInstanceResponseMessage *> (request->buildResponse ());
+        response->cimException = cimException;
+        response->instanceName = instanceRef;
+        _enqueueResponse (request, response);
     }
 
     PEG_METHOD_EXIT ();
@@ -1005,31 +987,13 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
 // l10n
     // Note: setting Content-Language in the response to the contentLanguage
     // in the repository.
-    CIMGetInstanceResponseMessage* response = new CIMGetInstanceResponseMessage
-        (request->messageId,
-        cimException,
-        request->queueIds.copyAndPop(),
-        instance);
-
+    CIMGetInstanceResponseMessage * response = dynamic_cast
+        <CIMGetInstanceResponseMessage *> (request->buildResponse ());
+    response->cimException = cimException;
     response->operationContext.set(ContentLanguageListContainer
         (ContentLanguages(contentLangs)));
-
-    //
-    //  Preserve message key
-    //
-    response->setKey (request->getKey ());
-
-    //
-    //  Set response destination
-    //
-    response->dest = request->queueIds.top ();
-
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
-
-    Base::_enqueueResponse (request, response);
+    response->cimInstance = instance;
+    _enqueueResponse (request, response);
 
     PEG_METHOD_EXIT ();
 }
@@ -1185,32 +1149,13 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
 // l10n
     // Note: setting Content-Language in the response to the aggregated
     // contentLanguage from the instances in the repository.
-    CIMEnumerateInstancesResponseMessage* response =
-        new CIMEnumerateInstancesResponseMessage(
-            request->messageId,
-            cimException,
-            request->queueIds.copyAndPop(),
-            returnedInstances);
-
+    CIMEnumerateInstancesResponseMessage * response = dynamic_cast
+        <CIMEnumerateInstancesResponseMessage *> (request->buildResponse ());
+    response->cimException = cimException;
     response->operationContext.set(ContentLanguageListContainer
         (ContentLanguages(aggregatedLangs))); 
-
-    //
-    //  Preserve message key
-    //
-    response->setKey (request->getKey ());
-
-    //
-    //  Set response destination
-    //
-    response->dest = request->queueIds.top ();
-
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
-
-    Base::_enqueueResponse (request, response);
+    response->cimNamedInstances = returnedInstances;
+    _enqueueResponse (request, response);
 
     PEG_METHOD_EXIT ();
 }
@@ -1249,29 +1194,12 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
 
 // l10n
     // Note: not setting Content-Language in the response
-    CIMEnumerateInstanceNamesResponseMessage* response =
-        new CIMEnumerateInstanceNamesResponseMessage(
-            request->messageId,
-            cimException,
-            request->queueIds.copyAndPop(),
-            enumInstanceNames);
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-
-    //  Set the response destination !!!
-    response->dest = request->queueIds.top();
-
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
-
-    // Note: In this particular case you can call either SendForget
-    // OR Base::_enqueueResponse
-    //    SendForget(response);
-    Base::_enqueueResponse(request, response);
+    CIMEnumerateInstanceNamesResponseMessage * response = dynamic_cast
+        <CIMEnumerateInstanceNamesResponseMessage *> 
+            (request->buildResponse ());
+    response->cimException = cimException;
+    response->instanceNames = enumInstanceNames;
+    _enqueueResponse (request, response);
 
     PEG_METHOD_EXIT ();
 }
@@ -1565,28 +1493,9 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
 
                 if (cimException.getCode() != CIM_ERR_SUCCESS)
                 {
-                    CIMModifyInstanceResponseMessage* response =
-                        new CIMModifyInstanceResponseMessage (
-                            request->messageId,
-                            cimException,
-                            request->queueIds.copyAndPop ());
-
-                    //
-                    //  Preserve message key
-                    //
-                    response->setKey (request->getKey ());
-
-                    //
-                    //  Set response destination
-                    //
-                    response->dest = request->queueIds.top ();
-
-                    //
-                    //  Set HTTP method in response from request
-                    //
-                    response->setHttpMethod (request->getHttpMethod ());
-
-                    Base::_enqueueResponse (request, response);
+                    CIMResponseMessage * response = request->buildResponse ();
+                    response->cimException = cimException;
+                    _enqueueResponse (request, response);
 
                     PEG_METHOD_EXIT ();
                     return;
@@ -1680,28 +1589,9 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
     {
 // l10n
         // Note: don't need to set content-language in the response.
-        CIMModifyInstanceResponseMessage* response =
-            new CIMModifyInstanceResponseMessage(
-                request->messageId,
-                cimException,
-                request->queueIds.copyAndPop());
-
-        //
-        //  Preserve message key
-        //
-        response->setKey (request->getKey ());
-
-        //
-        //  Set response destination
-        //
-        response->dest = request->queueIds.top ();
-
-        //
-        //  Set HTTP method in response from request
-        //
-        response->setHttpMethod (request->getHttpMethod ());
-
-        Base::_enqueueResponse (request, response);
+        CIMResponseMessage * response = request->buildResponse ();
+        response->cimException = cimException;
+        _enqueueResponse (request, response);
     }
 
     PEG_METHOD_EXIT ();
@@ -1769,28 +1659,9 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
 
             if (cimException.getCode() != CIM_ERR_SUCCESS)
             {
-                CIMDeleteInstanceResponseMessage* response =
-                    new CIMDeleteInstanceResponseMessage (
-                        request->messageId,
-                        cimException,
-                        request->queueIds.copyAndPop ());
-
-                //
-                //  Preserve message key
-                //
-                response->setKey (request->getKey ());
-
-                //
-                //  Set response destination
-                //
-                response->dest = request->queueIds.top ();
-
-                //
-                //  Set HTTP method in response from request
-                //
-                response->setHttpMethod (request->getHttpMethod ());
-
-                Base::_enqueueResponse (request, response);
+                CIMResponseMessage * response = request->buildResponse ();
+                response->cimException = cimException;
+                _enqueueResponse (request, response);
 
                 PEG_METHOD_EXIT ();
                 return;
@@ -1880,28 +1751,9 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
     //
     if (!responseSent)
     {
-        CIMDeleteInstanceResponseMessage* response =
-            new CIMDeleteInstanceResponseMessage(
-                request->messageId,
-                cimException,
-                request->queueIds.copyAndPop());
-
-        //
-        //  Preserve message key
-        //
-        response->setKey (request->getKey ());
-
-        //
-        //  Set response destination
-        //
-        response->dest = request->queueIds.top ();
-
-        //
-        //  Set HTTP method in response from request
-        //
-        response->setHttpMethod (request->getHttpMethod ());
-
-        Base::_enqueueResponse (request, response);
+        CIMResponseMessage * response = request->buildResponse ();
+        response->cimException = cimException;
+        _enqueueResponse (request, response);
     }
 
     PEG_METHOD_EXIT ();
@@ -1926,11 +1778,8 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 
     CIMException cimException;
 
-    CIMProcessIndicationResponseMessage* response =
-        new CIMProcessIndicationResponseMessage(
-            request->messageId,
-            cimException,
-            request->queueIds.copyAndPop());
+    CIMResponseMessage * response = request->buildResponse ();
+    response->cimException = cimException;
 
     String filterQuery;
     Boolean match;
@@ -2196,7 +2045,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
             exception.getMessage ());
     }
 
-    Base::_enqueueResponse (request, response);
+    _enqueueResponse (request, response);
 
     PEG_METHOD_EXIT ();
     return;
@@ -2667,13 +2516,9 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     //
     if (!responseSent)
     {
-        CIMNotifyProviderRegistrationResponseMessage * response =
-            new CIMNotifyProviderRegistrationResponseMessage
-                (request->messageId,
-                cimException,
-                request->queueIds.copyAndPop ());
-
-        Base::_enqueueResponse (request, response);
+        CIMResponseMessage * response = request->buildResponse ();
+        response->cimException = cimException;
+        _enqueueResponse (request, response);
     }
 
     PEG_METHOD_EXIT ();
@@ -2759,12 +2604,8 @@ void IndicationService::_handleNotifyProviderTerminationRequest
 
     CIMException cimException;
 
-    CIMNotifyProviderTerminationResponseMessage * response =
-        new CIMNotifyProviderTerminationResponseMessage 
-            (request->messageId,
-            cimException,
-            request->queueIds.copyAndPop ());
-
+    CIMResponseMessage * response = request->buildResponse ();
+    response->cimException = cimException;
     _enqueueResponse (request, response);
 
     PEG_METHOD_EXIT ();
@@ -2973,13 +2814,9 @@ void IndicationService::_handleNotifyProviderEnableRequest
     //
     if (!responseSent)
     {
-        CIMNotifyProviderEnableResponseMessage * response =
-            new CIMNotifyProviderEnableResponseMessage(
-                request->messageId,
-                cimException,
-                request->queueIds.copyAndPop());
-
-        _enqueueResponse(request, response);
+        CIMResponseMessage * response = request->buildResponse ();
+        response->cimException = cimException;
+        _enqueueResponse (request, response);
     }
 
     PEG_METHOD_EXIT ();
@@ -6066,17 +5903,17 @@ void IndicationService::_handleCreateResponseAggregation (
     //
     if ((!responseSent) && (operationAggregate->requiresResponse ()))
     {
-        CIMResponseMessage * response;
         if (operationAggregate->getOrigType () ==
             CIM_CREATE_INSTANCE_REQUEST_MESSAGE)
         {
             // l10n
             // Note: don't need to set Content-language in the response
-            response = new CIMCreateInstanceResponseMessage (
-                operationAggregate->getOrigMessageId (),
-                cimException,
-                operationAggregate->getOrigRequest ()->queueIds.copyAndPop (),
-                instanceRef);
+            CIMCreateInstanceResponseMessage * response = dynamic_cast
+                <CIMCreateInstanceResponseMessage *> 
+                    (operationAggregate->getOrigRequest ()->buildResponse ());
+            response->cimException = cimException;
+            response->instanceName = instanceRef;
+            _enqueueResponse (operationAggregate->getOrigRequest (), response);
         }
 
         else if (operationAggregate->getOrigType () == 
@@ -6085,19 +5922,19 @@ void IndicationService::_handleCreateResponseAggregation (
             // l10n
             // Note: don't need to set Content-language in the response
             //
-            response = new CIMModifyInstanceResponseMessage (
-                operationAggregate->getOrigMessageId (),
-                cimException,
-                operationAggregate->getOrigRequest ()->queueIds.copyAndPop ());
+            CIMResponseMessage * response = 
+                operationAggregate->getOrigRequest ()->buildResponse ();
+            response->cimException = cimException;
+            _enqueueResponse (operationAggregate->getOrigRequest (), response);
         }
 
         else if (operationAggregate->getOrigType () == 
             CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE)
         {
-            response = new CIMNotifyProviderEnableResponseMessage (
-                operationAggregate->getOrigMessageId (),
-                cimException,
-                operationAggregate->getOrigRequest ()->queueIds.copyAndPop ());
+            CIMResponseMessage * response = 
+                operationAggregate->getOrigRequest ()->buildResponse ();
+            response->cimException = cimException;
+            _enqueueResponse (operationAggregate->getOrigRequest (), response);
         }
 
         else //  CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE
@@ -6105,30 +5942,11 @@ void IndicationService::_handleCreateResponseAggregation (
             PEGASUS_ASSERT (operationAggregate->getOrigType () ==
                             CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE);
 
-            response = new CIMNotifyProviderRegistrationResponseMessage 
-                (operationAggregate->getOrigMessageId (),
-                cimException,
-                operationAggregate->getOrigRequest ()->queueIds.copyAndPop ());
+            CIMResponseMessage * response = 
+                operationAggregate->getOrigRequest ()->buildResponse ();
+            response->cimException = cimException;
+            _enqueueResponse (operationAggregate->getOrigRequest (), response);
         }
-
-        //
-        //  Preserve message key
-        //
-        response->setKey (operationAggregate->getOrigRequest ()->getKey ());
-
-        //
-        //  Set response destination
-        //
-        response->dest = operationAggregate->getOrigDest ();
-
-        //
-        //  Set HTTP method in response from request
-        //
-        response->setHttpMethod
-            (operationAggregate->getOrigRequest ()->getHttpMethod ());
-
-        Base::_enqueueResponse
-            (operationAggregate->getOrigRequest (), response);
     }
 
     PEG_METHOD_EXIT ();
@@ -6178,8 +5996,6 @@ void IndicationService::_handleEnableResponseAggregation (
     //
     if (operationAggregate->requiresResponse ())
     {
-        CIMResponseMessage * response;
-
         if (operationAggregate->getOrigType () ==
             CIM_CREATE_INSTANCE_REQUEST_MESSAGE)
         {
@@ -6189,29 +6005,30 @@ void IndicationService::_handleEnableResponseAggregation (
             //
             CIMObjectPath instanceRef = operationAggregate->getPath ();
 
-            response = new CIMCreateInstanceResponseMessage
-                (operationAggregate->getOrigMessageId (),
-                cimException,
-                operationAggregate->getOrigRequest ()->queueIds.copyAndPop (),
-                instanceRef);
+            CIMCreateInstanceResponseMessage * response = dynamic_cast
+                <CIMCreateInstanceResponseMessage *> 
+                    (operationAggregate->getOrigRequest ()->buildResponse ());
+            response->cimException = cimException;
+            response->instanceName = instanceRef;
+            _enqueueResponse (operationAggregate->getOrigRequest (), response);
         }
 
         else if (operationAggregate->getOrigType () == 
             CIM_MODIFY_INSTANCE_REQUEST_MESSAGE)
         {
-            response = new CIMModifyInstanceResponseMessage
-                (operationAggregate->getOrigMessageId (),
-                cimException,
-                operationAggregate->getOrigRequest ()->queueIds.copyAndPop ());
+            CIMResponseMessage * response =
+                operationAggregate->getOrigRequest ()->buildResponse ();
+            response->cimException = cimException;
+            _enqueueResponse (operationAggregate->getOrigRequest (), response);
         }
 
         else if (operationAggregate->getOrigType () == 
             CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE)
         {
-            response = new CIMNotifyProviderEnableResponseMessage
-                (operationAggregate->getOrigMessageId (),
-                cimException,
-                operationAggregate->getOrigRequest ()->queueIds.copyAndPop ());
+            CIMResponseMessage * response =
+                operationAggregate->getOrigRequest ()->buildResponse ();
+            response->cimException = cimException;
+            _enqueueResponse (operationAggregate->getOrigRequest (), response);
         }
 
         else //  CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE
@@ -6219,30 +6036,11 @@ void IndicationService::_handleEnableResponseAggregation (
             PEGASUS_ASSERT (operationAggregate->getOrigType () ==
                             CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE);
 
-            response = new CIMNotifyProviderRegistrationResponseMessage
-                (operationAggregate->getOrigMessageId (),
-                cimException,
-                operationAggregate->getOrigRequest ()->queueIds.copyAndPop ());
+            CIMResponseMessage * response =
+                operationAggregate->getOrigRequest ()->buildResponse ();
+            response->cimException = cimException;
+            _enqueueResponse (operationAggregate->getOrigRequest (), response);
         }
-
-        //
-        //  Preserve message key
-        //
-        response->setKey (operationAggregate->getOrigRequest ()->getKey ());
-    
-        //
-        //  Set response destination
-        //
-        response->dest = operationAggregate->getOrigDest ();
-
-        //
-        //  Set HTTP method in response from request
-        //
-        response->setHttpMethod 
-            (operationAggregate->getOrigRequest ()->getHttpMethod ());
-    
-        Base::_enqueueResponse 
-            (operationAggregate->getOrigRequest (), response);
     }
 
     PEG_METHOD_EXIT ();
@@ -6315,13 +6113,9 @@ void IndicationService::_handleModifyResponseAggregation (
 
         CIMResponseMessage * response;
 
-        response = new CIMNotifyProviderRegistrationResponseMessage
-            (operationAggregate->getOrigMessageId (),
-            cimException,
-            operationAggregate->getOrigRequest ()->queueIds.copyAndPop ());
-
-        Base::_enqueueResponse 
-            (operationAggregate->getOrigRequest (), response);
+        response = operationAggregate->getOrigRequest ()->buildResponse ();
+        response->cimException = cimException;
+        _enqueueResponse (operationAggregate->getOrigRequest (), response);
     }
 
     PEG_METHOD_EXIT ();
@@ -6440,10 +6234,8 @@ void IndicationService::_handleDeleteResponseAggregation (
         {
             // l10n
             // Note: don't need to set Content-language in the response
-            response = new CIMDeleteInstanceResponseMessage
-                (operationAggregate->getOrigMessageId (),
-                cimException,
-                operationAggregate->getOrigRequest ()->queueIds.copyAndPop ());
+            response = operationAggregate->getOrigRequest ()->buildResponse ();
+            response->cimException = cimException;
         }
 
         else if (operationAggregate->getOrigType () ==
@@ -6451,10 +6243,8 @@ void IndicationService::_handleDeleteResponseAggregation (
         {
             // l10n
             // Note: don't need to set Content-language in the response
-            response = new CIMModifyInstanceResponseMessage
-                (operationAggregate->getOrigMessageId (),
-                cimException,
-                operationAggregate->getOrigRequest ()->queueIds.copyAndPop ());
+            response = operationAggregate->getOrigRequest ()->buildResponse ();
+            response->cimException = cimException;
         }
 
         else  // CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE
@@ -6462,30 +6252,11 @@ void IndicationService::_handleDeleteResponseAggregation (
             PEGASUS_ASSERT (operationAggregate->getOrigType () ==
                             CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE);
 
-            response = new CIMNotifyProviderRegistrationResponseMessage
-                (operationAggregate->getOrigMessageId (),
-                cimException,
-                operationAggregate->getOrigRequest ()->queueIds.copyAndPop ());
+            response = operationAggregate->getOrigRequest ()->buildResponse ();
+            response->cimException = cimException;
         }
 
-        //
-        //  Preserve message key
-        //
-        response->setKey (operationAggregate->getOrigRequest ()->getKey ());
-
-        //
-        //  Set response destination
-        //
-        response->dest = operationAggregate->getOrigDest ();
-
-        //
-        //  Set HTTP method in response from request
-        //
-        response->setHttpMethod
-            (operationAggregate->getOrigRequest ()->getHttpMethod ());
-
-        Base::_enqueueResponse
-            (operationAggregate->getOrigRequest (), response);
+        _enqueueResponse (operationAggregate->getOrigRequest (), response);
     }
 
     PEG_METHOD_EXIT ();
@@ -6539,19 +6310,15 @@ void IndicationService::_handleDisableResponseAggregation (
         if (operationAggregate->getOrigType () ==
             CIM_DELETE_INSTANCE_REQUEST_MESSAGE)
         {
-            response = new CIMDeleteInstanceResponseMessage
-                (operationAggregate->getOrigMessageId (),
-                cimException,
-                operationAggregate->getOrigRequest ()->queueIds.copyAndPop ());
+            response = operationAggregate->getOrigRequest ()->buildResponse ();
+            response->cimException = cimException;
         }
 
         else if (operationAggregate->getOrigType () ==
             CIM_MODIFY_INSTANCE_REQUEST_MESSAGE)
         {
-            response = new CIMModifyInstanceResponseMessage
-                (operationAggregate->getOrigMessageId (),
-                cimException,
-                operationAggregate->getOrigRequest ()->queueIds.copyAndPop ());
+            response = operationAggregate->getOrigRequest ()->buildResponse ();
+            response->cimException = cimException;
         }
 
         else  // CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE
@@ -6559,30 +6326,11 @@ void IndicationService::_handleDisableResponseAggregation (
             PEGASUS_ASSERT (operationAggregate->getOrigType () ==
                             CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE);
 
-            response = new CIMNotifyProviderRegistrationResponseMessage
-                (operationAggregate->getOrigMessageId (),
-                cimException,
-                operationAggregate->getOrigRequest ()->queueIds.copyAndPop ());
+            response = operationAggregate->getOrigRequest ()->buildResponse ();
+            response->cimException = cimException;
         }
 
-        //
-        //  Preserve message key
-        //
-        response->setKey (operationAggregate->getOrigRequest ()->getKey ());
-    
-        //
-        //  Set response destination
-        //
-        response->dest = operationAggregate->getOrigDest ();
-
-        //
-        //  Set HTTP method in response from request
-        //
-        response->setHttpMethod 
-            (operationAggregate->getOrigRequest ()->getHttpMethod ());
-    
-        Base::_enqueueResponse 
-            (operationAggregate->getOrigRequest (), response);
+        _enqueueResponse (operationAggregate->getOrigRequest (), response);
     }
 
     PEG_METHOD_EXIT ();

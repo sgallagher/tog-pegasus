@@ -69,8 +69,6 @@ class PEGASUS_SERVER_LINKAGE IndicationService : public MessageQueueService
 {
 public:
 
-    typedef MessageQueueService Base;
-
     /**
         Constructs an IndicationSubscription instance and initializes instance
         variables.

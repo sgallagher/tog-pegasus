@@ -33,11 +33,17 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#ifdef PEGASUS_DEBUG
+#define DEBUG_PRINT(X) { PEGASUS_STD(cout) << X << PEGASUS_STD(endl); }
+#else
+#define DEBUG_PRINT(X)
+#endif
+
 static CIMQualifier _resolveQualifier(
     const CIMQualifier & referenceQualifier,
     const CIMQualifier & cimQualifier)
 {
-    PEGASUS_STD(cout) << "_resolveQualifier(" << referenceQualifier.getName().getString() << ")" << PEGASUS_STD(endl);
+    DEBUG_PRINT("_resolveQualifier(" << referenceQualifier.getName().getString() << ")");
 
     CIMName qualifierName = referenceQualifier.getName();
     CIMValue qualifierValue = referenceQualifier.getValue();
@@ -65,11 +71,10 @@ static CIMProperty _resolveProperty(
     const Boolean includeQualifiers,
     const Boolean includeClassOrigin)
 {
-    PEGASUS_STD(cout) << "_resolveProperty(" << referenceProperty.getName().getString() << ")" << PEGASUS_STD(endl);
-    PEGASUS_STD(cout) << "flags :";
-    PEGASUS_STD(cout) << " includeQualifiers = " << (includeQualifiers == true ? "true" : "false");
-    PEGASUS_STD(cout) << " includeClassOrigin = " << (includeClassOrigin == true ? "true" : "false");
-    PEGASUS_STD(cout) << PEGASUS_STD(endl);
+    DEBUG_PRINT("_resolveProperty(" << referenceProperty.getName().getString() << ")");
+
+    DEBUG_PRINT("includeQualifiers = " << (includeQualifiers == true ? "true" : "false"));
+    DEBUG_PRINT("includeClassOrigin = " << (includeClassOrigin == true ? "true" : "false"));
 
     CIMName propertyName = referenceProperty.getName();
     CIMValue propertyValue = referenceProperty.getValue();
@@ -119,7 +124,7 @@ static CIMProperty _resolveProperty(
             // ATTN: convert const qualifier to non const
             CIMQualifier referenceQualifier = referenceProperty.getQualifier(i).clone();
 
-            PEGASUS_STD(cout) << "adding qualifier - " << referenceQualifier.getName().getString() << PEGASUS_STD(endl);
+            DEBUG_PRINT("adding qualifier - " << referenceQualifier.getName().getString());
 
             newProperty.addQualifier(referenceQualifier);
         }
@@ -143,13 +148,13 @@ static CIMProperty _resolveProperty(
             // ATTN: convert const qualifier to non const
             CIMQualifier cimQualifier = cimProperty.getQualifier(i).clone();
 
-            PEGASUS_STD(cout) << "updating qualifier - " << cimQualifier.getName().getString() << PEGASUS_STD(endl);
+            DEBUG_PRINT("updating qualifier - " << cimQualifier.getName().getString());
 
             newProperty.addQualifier(_resolveQualifier(referenceQualifier, cimQualifier));
         }
     }
 
-    PEGASUS_STD(cout) << newProperty.getName().getString() << " class origin = " << newProperty.getClassOrigin().getString() << PEGASUS_STD(endl);
+    DEBUG_PRINT(newProperty.getName().getString() << " class origin = " << newProperty.getClassOrigin().getString());
 
     return(newProperty);
 }
@@ -159,10 +164,9 @@ static CIMParameter _resolveParameter(
     const CIMParameter & cimParameter,
     const Boolean includeQualifiers)
 {
-    PEGASUS_STD(cout) << "_resolveParameter(" << referenceParameter.getName().getString() << ")" << PEGASUS_STD(endl);
-    PEGASUS_STD(cout) << "flags :";
-    PEGASUS_STD(cout) << " includeQualifiers = " << (includeQualifiers == true ? "true" : "false");
-    PEGASUS_STD(cout) << PEGASUS_STD(endl);
+    DEBUG_PRINT("_resolveParameter(" << referenceParameter.getName().getString() << ")");
+
+    DEBUG_PRINT("includeQualifiers = " << (includeQualifiers == true ? "true" : "false"));
 
     CIMParameter newParameter;
 
@@ -175,11 +179,10 @@ static CIMMethod _resolveMethod(
     const Boolean includeQualifiers,
     const Boolean includeClassOrigin)
 {
-    PEGASUS_STD(cout) << "_resolveMethod(" << referenceMethod.getName().getString() << ")" << PEGASUS_STD(endl);
-    PEGASUS_STD(cout) << "flags :";
-    PEGASUS_STD(cout) << " includeQualifiers = " << (includeQualifiers == true ? "true" : "false");
-    PEGASUS_STD(cout) << " includeClassOrigin = " << (includeClassOrigin == true ? "true" : "false");
-    PEGASUS_STD(cout) << PEGASUS_STD(endl);
+    DEBUG_PRINT("_resolveMethod(" << referenceMethod.getName().getString() << ")");
+
+    DEBUG_PRINT("includeQualifiers = " << (includeQualifiers == true ? "true" : "false"));
+    DEBUG_PRINT("includeClassOrigin = " << (includeClassOrigin == true ? "true" : "false"));
 
     CIMMethod newMethod;
 
@@ -194,12 +197,11 @@ static CIMClass _resolveClass(
     const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
-    PEGASUS_STD(cout) << "_resolveClass(" << referenceClass.getClassName().getString() << " : " << referenceClass.getSuperClassName().getString() << ")" << PEGASUS_STD(endl);
-    PEGASUS_STD(cout) << "flags :";
-    PEGASUS_STD(cout) << " localOnly = " << (localOnly == true ? "true" : "false");
-    PEGASUS_STD(cout) << " includeQualifiers = " << (includeQualifiers == true ? "true" : "false");
-    PEGASUS_STD(cout) << " includeClassOrigin = " << (includeClassOrigin == true ? "true" : "false");
-    PEGASUS_STD(cout) << PEGASUS_STD(endl);
+    DEBUG_PRINT("_resolveClass(" << referenceClass.getClassName().getString() << " : " << referenceClass.getSuperClassName().getString() << ")");
+
+    DEBUG_PRINT("localOnly = " << (localOnly == true ? "true" : "false"));
+    DEBUG_PRINT("includeQualifiers = " << (includeQualifiers == true ? "true" : "false"));
+    DEBUG_PRINT("includeClassOrigin = " << (includeClassOrigin == true ? "true" : "false"));
 
     // get object path elements
     String hostName = referenceClass.getPath().getHost();
@@ -224,7 +226,7 @@ static CIMClass _resolveClass(
             // ATTN: convert const qualifier to non const
             CIMQualifier referenceQualifier = referenceClass.getQualifier(i).clone();
 
-            PEGASUS_STD(cout) << "adding qualifier - " << referenceQualifier.getName().getString() << PEGASUS_STD(endl);
+            DEBUG_PRINT("adding qualifier - " << referenceQualifier.getName().getString());
 
             newClass.addQualifier(referenceQualifier);
         }
@@ -248,7 +250,7 @@ static CIMClass _resolveClass(
             // ATTN: convert const qualifier to non const
             CIMQualifier cimQualifier = cimClass.getQualifier(i).clone();
 
-            PEGASUS_STD(cout) << "updating qualifier - " << cimQualifier.getName().getString() << PEGASUS_STD(endl);
+            DEBUG_PRINT("updating qualifier - " << cimQualifier.getName().getString());
 
             newClass.addQualifier(_resolveQualifier(referenceQualifier, cimQualifier));
         }
@@ -260,18 +262,11 @@ static CIMClass _resolveClass(
         // ATTN: convert const property to non const
         CIMProperty referenceProperty = referenceClass.getProperty(i).clone();
 
-        //if(localOnly && (!superClassName.isNull()) && (!referenceProperty.getPropagated()))
-        //{
-            PEGASUS_STD(cout) << "adding property - " << referenceProperty.getName().getString() << PEGASUS_STD(endl);
+        DEBUG_PRINT("adding property - " << referenceProperty.getName().getString());
 
-            CIMProperty cimProperty = referenceClass.getProperty(i).clone();
+        CIMProperty cimProperty = referenceClass.getProperty(i).clone();
 
-            newClass.addProperty(_resolveProperty(referenceProperty, cimProperty, includeQualifiers, includeClassOrigin));
-        //}
-        //else
-        //{
-        //    PEGASUS_STD(cout) << "ignoring property - " << referenceProperty.getName().getString() << PEGASUS_STD(endl);
-        //}
+        newClass.addProperty(_resolveProperty(referenceProperty, cimProperty, includeQualifiers, includeClassOrigin));
     }
 
     // apply reference class methods
@@ -280,18 +275,11 @@ static CIMClass _resolveClass(
         // ATTN: convert const method to non const
         CIMMethod referenceMethod = referenceClass.getMethod(i).clone();
 
-        //if(localOnly && (!superClassName.isNull()) && (!referenceMethod.getPropagated()))
-        //{
-            PEGASUS_STD(cout) << "adding method - " << referenceMethod.getName().getString() << PEGASUS_STD(endl);
+        DEBUG_PRINT("adding method - " << referenceMethod.getName().getString());
 
-            CIMMethod cimMethod = referenceClass.getMethod(i).clone();
+        CIMMethod cimMethod = referenceClass.getMethod(i).clone();
 
-            newClass.addMethod(_resolveMethod(referenceMethod, cimMethod, includeQualifiers, includeClassOrigin));
-        //}
-        //else
-        //{
-        //    PEGASUS_STD(cout) << "ignoring method - " << referenceMethod.getName().getString() << PEGASUS_STD(endl);
-        //}
+        newClass.addMethod(_resolveMethod(referenceMethod, cimMethod, includeQualifiers, includeClassOrigin));
     }
 
     // TODO: check for properties in the specified class that do not exist in the reference class
@@ -317,7 +305,7 @@ static CIMClass _resolveClass(
             // ATTN: convert const property to non const
             CIMProperty cimProperty = cimClass.getProperty(i).clone();
 
-            PEGASUS_STD(cout) << "updating property - " << cimProperty.getName().getString() << PEGASUS_STD(endl);
+            DEBUG_PRINT("updating property - " << cimProperty.getName().getString());
 
             newClass.addProperty(_resolveProperty(referenceProperty, cimProperty, includeQualifiers, includeClassOrigin));
         }
@@ -354,11 +342,11 @@ static CIMInstance _resolveInstance(
     const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
-    PEGASUS_STD(cout) << "_resolveInstance()" << PEGASUS_STD(endl);
+    DEBUG_PRINT("_resolveInstance()");
 
-    PEGASUS_STD(cout) << "localOnly = " << (localOnly == true ? "true" : "false") << PEGASUS_STD(endl);
-    PEGASUS_STD(cout) << "includeQualifiers = " << (includeQualifiers == true ? "true" : "false") << PEGASUS_STD(endl);
-    PEGASUS_STD(cout) << "includeClassOrigin = " << (includeClassOrigin == true ? "true" : "false") << PEGASUS_STD(endl);
+    DEBUG_PRINT("localOnly = " << (localOnly == true ? "true" : "false"));
+    DEBUG_PRINT("includeQualifiers = " << (includeQualifiers == true ? "true" : "false"));
+    DEBUG_PRINT("includeClassOrigin = " << (includeClassOrigin == true ? "true" : "false"));
 
     // get object path elements
     String hostName = referenceInstance.getPath().getHost();
@@ -378,7 +366,7 @@ static CIMInstance _resolveInstance(
             // ATTN: convert const qualifier to non const
             CIMQualifier referenceQualifier = referenceInstance.getQualifier(i).clone();
 
-            PEGASUS_STD(cout) << "adding qualifier - " << referenceQualifier.getName().getString() << PEGASUS_STD(endl);
+            DEBUG_PRINT("adding qualifier - " << referenceQualifier.getName().getString());
 
             newInstance.addQualifier(referenceQualifier);
         }
@@ -402,7 +390,7 @@ static CIMInstance _resolveInstance(
             // ATTN: convert const qualifier to non const
             CIMQualifier cimQualifier = cimInstance.getQualifier(i).clone();
 
-            PEGASUS_STD(cout) << "updating qualifier - " << cimQualifier.getName().getString() << PEGASUS_STD(endl);
+            DEBUG_PRINT("updating qualifier - " << cimQualifier.getName().getString());
 
             newInstance.addQualifier(_resolveQualifier(referenceQualifier, cimQualifier));
         }
@@ -415,7 +403,7 @@ static CIMInstance _resolveInstance(
         CIMProperty referenceProperty = referenceInstance.getProperty(i).clone();
         CIMProperty cimProperty = referenceInstance.getProperty(i).clone();
 
-        PEGASUS_STD(cout) << "adding property - " << referenceProperty.getName().getString() << PEGASUS_STD(endl);
+        DEBUG_PRINT("adding property - " << referenceProperty.getName().getString());
 
         newInstance.addProperty(_resolveProperty(referenceProperty, cimProperty, includeQualifiers, includeClassOrigin));
     }
@@ -438,7 +426,7 @@ static CIMInstance _resolveInstance(
         // ATTN: convert const property to non const
         CIMProperty cimProperty = cimInstance.getProperty(i).clone();
 
-        PEGASUS_STD(cout) << "updating property - " << cimProperty.getName().getString() << PEGASUS_STD(endl);
+        DEBUG_PRINT("updating property - " << cimProperty.getName().getString());
 
         newInstance.addProperty(_resolveProperty(referenceProperty, cimProperty, includeQualifiers, includeClassOrigin));
     }
@@ -480,14 +468,14 @@ static CIMInstance _resolveIndication(
     const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
-    PEGASUS_STD(cout) << "_resolveIndication()" << PEGASUS_STD(endl);
+    DEBUG_PRINT("_resolveIndication()");
 
     CIMNamespaceName nameSpace = referenceIndication.getPath().getNameSpace();
     CIMName className = referenceIndication.getPath().getClassName();
 
-    PEGASUS_STD(cout) << "localOnly = " << (localOnly == true ? "true" : "false") << PEGASUS_STD(endl);
-    PEGASUS_STD(cout) << "includeQualifiers = " << (includeQualifiers == true ? "true" : "false") << PEGASUS_STD(endl);
-    PEGASUS_STD(cout) << "includeClassOrigin = " << (includeClassOrigin == true ? "true" : "false") << PEGASUS_STD(endl);
+    DEBUG_PRINT("localOnly = " << (localOnly == true ? "true" : "false"));
+    DEBUG_PRINT("includeQualifiers = " << (includeQualifiers == true ? "true" : "false"));
+    DEBUG_PRINT("includeClassOrigin = " << (includeClassOrigin == true ? "true" : "false"));
 
     CIMIndication newIndication;
 
@@ -499,7 +487,7 @@ static CIMMethod _resolveMethod(
     const CIMMethod & cimMethod,
     const Uint32 flags)
 {
-    PEGASUS_STD(cout) << "_resolveMethod()" << PEGASUS_STD(endl);
+    DEBUG_PRINT("_resolveMethod()");
 
     CIMMethod newMethod;
 
@@ -511,7 +499,7 @@ static CIMParameter _resolveParameter(
     const CIMParameter & cimParameter,
     const Uint32 flags)
 {
-    PEGASUS_STD(cout) << "_resolveParameter()" << PEGASUS_STD(endl);
+    DEBUG_PRINT("_resolveParameter()");
 
     CIMParameter newParameter;
 
@@ -529,7 +517,7 @@ CIMClass ObjectNormalizer::normalizeClass(
     const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
-    PEGASUS_STD(cout) << "ObjectNormalizer::resolveClass()" << PEGASUS_STD(endl);
+    DEBUG_PRINT("ObjectNormalizer::resolveClass()");
 
     CIMNamespaceName nameSpace = cimClass.getPath().getNameSpace();
     CIMName className = cimClass.getPath().getClassName();
@@ -583,7 +571,7 @@ Array<CIMInstance> ObjectNormalizer::normalizeInstances(
     const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
-    PEGASUS_STD(cout) << "ObjectNormalizer::resolveInstances()" << PEGASUS_STD(endl);
+    DEBUG_PRINT("ObjectNormalizer::resolveInstances()");
 
     // TODO: ensure array is not empty
     // TODO: ensure objects in the array are initialized

@@ -160,7 +160,7 @@ int main(int argc, char **argv)
    Tracer::setTraceLevel(Tracer::LEVEL4);
    Tracer::setTraceFile("thread_pool_trace.txt");
 #endif
-   struct timeval await = { 0, 40000 };
+   struct timeval await = { 0, 4 };
    struct timeval dwait = { 5, 0 };
    struct timeval deadwait = { 0, 80000 }; 
 
@@ -172,6 +172,8 @@ int main(int argc, char **argv)
    {  
       try 
       {
+	 PEGASUS_STD(cout) << "test iteration: " << i << PEGASUS_STD(endl);
+	 
  	 tp.allocate_and_awaken((void *)1, work_func );
 	 tp.allocate_and_awaken((void *)2, work_func );	 
 	 tp.allocate_and_awaken((void *)3, work_func );
@@ -229,9 +231,12 @@ int main(int argc, char **argv)
       } 
        catch(Deadlock & )  
       {
+	 PEGASUS_STD(cout) << "caught a deadlock, threadpool is totally allocated..." << PEGASUS_STD(endl);
       }
    }  
+   PEGASUS_STD(cout) << "sleeping..." << PEGASUS_STD(endl);
    pegasus_sleep( 7000 ) ; 
+   PEGASUS_STD(cout) << "killing deadlocked threads..." << PEGASUS_STD(endl);
    tp.kill_dead_threads( );
    tp.kill_dead_threads( );
    

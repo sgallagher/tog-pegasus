@@ -91,7 +91,7 @@ void UserFileHandler::_GetSalt(char *salt)
     randNum >>= 6;
     *salt++ = _SALT_STRING[ randNum & 0x3f ];
 
-    salt[2] = '\0';
+	*salt = '\0';
 
     PEG_METHOD_EXIT();
 }

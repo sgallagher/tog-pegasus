@@ -101,25 +101,6 @@ void test01()
     //
     same = a4clone.identical(a3);
     assert(!same);
- 
-    //
-    // test CIMConstParamValue methods
-    //
-    CIMConstParamValue ca1 = a1;
-    CIMConstParamValue ca2 = a2;
-    CIMConstParamValue ca3 = a3;
-    CIMConstParamValue ca4(p4, v4);
-    CIMConstParamValue ca5 = ca4;
-    CIMConstParamValue ca6 = a4;
-
-    CIMConstParamValue ca3clone = ca3.clone();
-
-    ca1.print(cout);
-
-    ca1.toXml(xmlOut);
-
-    assert(ca3clone.identical(ca3) == true);
- 
 }
 
 

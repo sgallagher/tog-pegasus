@@ -65,6 +65,7 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Common/ResponseHandler.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_USING_STD;
 
@@ -173,8 +174,13 @@ void _getKeyValue (
        propertyValue = namespaceInstance.getProperty(pos).getValue();
        if (propertyValue.getType() != CIMTYPE_STRING)
        {
-           throw CIMInvalidParameterException("Invalid type for property: "
-                                 + NAMESPACE_PROPERTYNAME.getString());
+       		//l10n 
+           //throw CIMInvalidParameterException("Invalid type for property: "
+                                 //+ NAMESPACE_PROPERTYNAME.getString());
+           throw CIMInvalidParameterException(MessageLoaderParms(
+           						 "ControlProviders.NamespaceProvider.NamespaceProvider.INVALID_TYPE_FOR_PROPERTY",
+           						 "Invalid type for property: $0",
+                                 NAMESPACE_PROPERTYNAME.getString()));
        }
 
        String cnsName;
@@ -201,7 +207,11 @@ void _getKeyValue (
        }
        else
        {
-           throw CIMInvalidParameterException("Invalid key property:  ");
+       	//l10n
+           //throw CIMInvalidParameterException("Invalid key property:  ");
+           throw CIMInvalidParameterException(MessageLoaderParms(
+           						"ControlProviders.NamespaceProvider.NamespaceProvider.INVALID_KEY_PROPERTY",
+           						"Invalid key property:  "));
        }
 }
 
@@ -220,8 +230,13 @@ void _generateFullNamespaceName(
        {
           if (!_isNamespace(namespaceNames, parentNamespaceName))
           {
-             throw CIMObjectNotFoundException("Parent namespace does not exist: "
-                                      + parentNamespaceName.getString());
+          	//l10n
+             //throw CIMObjectNotFoundException("Parent namespace does not exist: "
+                                      //+ parentNamespaceName.getString());
+             throw CIMObjectNotFoundException(MessageLoaderParms(
+             							"ControlProviders.NamespaceProvider.NamespaceProvider.PARENT_NAMESPACE_DOES_NOT_EXIST",
+             							"Parent namespace does not exist: $0",
+                                        parentNamespaceName.getString()));
           }
           // Create full namespace name by prepending parentNamespaceName
           fullNamespaceName = CIMNamespaceName (parentNamespaceName.getString() 
@@ -251,8 +266,14 @@ void NamespaceProvider::createInstance(
        if (!myInstance.getClassName().equal(NAMESPACE_CLASSNAME))
        {
 	   PEG_METHOD_EXIT();
-           throw CIMNotSupportedException(myInstance.getClassName().getString() 
-               + " not supported by Namespace Provider");
+	   		//l10n
+           //throw CIMNotSupportedException(myInstance.getClassName().getString() 
+               //+ " not supported by Namespace Provider");
+           throw CIMNotSupportedException(MessageLoaderParms(
+           						"ControlProviders.NamespaceProvider.NamespaceProvider.NOT_SUPPORTED_BY_NAMESPACEPROVIDER",
+           						"$0 not supported by Namespace Provider",
+           						myInstance.getClassName().getString()));
+               
        }
 
        //ATTN-DME-P3-20020522: ADD AUTHORIZATION CHECK TO __NAMESPACE PROVIDER
@@ -345,8 +366,13 @@ void NamespaceProvider::deleteInstance(
        if (!instanceName.getClassName().equal(NAMESPACE_CLASSNAME))
        {
 	   PEG_METHOD_EXIT();
-           throw CIMNotSupportedException(instanceName.getClassName().getString()
-               + " not supported by Namespace Provider");
+	   		//l10n
+           //throw CIMNotSupportedException(instanceName.getClassName().getString()
+               //+ " not supported by Namespace Provider");
+           throw CIMNotSupportedException(MessageLoaderParms(
+           						"ControlProviders.NamespaceProvider.NamespaceProvider.NOT_SUPPORTED_BY_NAMESPACEPROVIDER",
+           						"$0 not supported by Namespace Provider",
+           						instanceName.getClassName().getString()));
        }
 
        //ATTN-DME-P3-20020522: ADD AUTHORIZATION CHECK TO __NAMESPACE PROVIDER
@@ -385,7 +411,11 @@ void NamespaceProvider::deleteInstance(
 
 	   if (deleteNamespaceName.equal (ROOTNS))
            {
-               throw CIMNotSupportedException("root namespace may be deleted.");
+           		//l10n
+               //throw CIMNotSupportedException("root namespace may be deleted.");
+               throw CIMNotSupportedException(MessageLoaderParms(
+               					"ControlProviders.NamespaceProvider.NamespaceProvider.ROOT_NAMESPACE_MAY_BE_DELETED",
+               					"root namespace may be deleted."));
            }
 
 	   _repository->deleteNameSpace(deleteNamespaceName);
@@ -435,8 +465,13 @@ void NamespaceProvider::getInstance(
        if (!instanceName.getClassName().equal(NAMESPACE_CLASSNAME))
        {
 	   PEG_METHOD_EXIT();
-           throw CIMNotSupportedException(instanceName.getClassName().getString()
-               + " not supported by Namespace Provider");
+	   //l10n
+           //throw CIMNotSupportedException(instanceName.getClassName().getString()
+               //+ " not supported by Namespace Provider");
+           throw CIMNotSupportedException(MessageLoaderParms(
+           						"ControlProviders.NamespaceProvider.NamespaceProvider.NOT_SUPPORTED_BY_NAMESPACEPROVIDER",
+           						"$0 not supported by Namespace Provider",
+           						instanceName.getClassName().getString()));
        }
 
        //ATTN-DME-P3-20020522: ADD AUTHORIZATION CHECK TO __NAMESPACE PROVIDER
@@ -475,8 +510,13 @@ void NamespaceProvider::getInstance(
 
            if (!_isNamespace(namespaceNames, getNamespaceName))
            {
-              throw CIMObjectNotFoundException("Namespace deos not exist: "
-                                     + getNamespaceName.getString());
+           		//l10n
+              //throw CIMObjectNotFoundException("Namespace deos not exist: "
+                                     //+ getNamespaceName.getString());
+              throw CIMObjectNotFoundException(MessageLoaderParms(
+              				"ControlProviders.NamespaceProvider.NamespaceProvider.NAMESPACE_DOES_NOT_EXIST",
+              				"Namespace deos not exist: $0",
+                            getNamespaceName.getString()));
            }
 
 	   PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
@@ -533,8 +573,13 @@ void NamespaceProvider::enumerateInstances(
        if (!ref.getClassName().equal(NAMESPACE_CLASSNAME))
        {
            PEG_METHOD_EXIT();
-           throw CIMNotSupportedException(ref.getClassName().getString() +
-			    " not supported by Namespace Provider");
+           //l10n
+           //throw CIMNotSupportedException(ref.getClassName().getString() +
+			   // " not supported by Namespace Provider");
+			throw CIMNotSupportedException(MessageLoaderParms(
+           						"ControlProviders.NamespaceProvider.NamespaceProvider.NOT_SUPPORTED_BY_NAMESPACEPROVIDER",
+           						"$0 not supported by Namespace Provider",
+           						ref.getClassName().getString()));
        }
 
        //ATTN-DME-P3-20020522: ADD AUTHORIZATION CHECK TO __NAMESPACE PROVIDER
@@ -623,9 +668,14 @@ void NamespaceProvider::enumerateInstanceNames(
         if (!classReference.getClassName().equal(NAMESPACE_CLASSNAME))
         {
 	    PEG_METHOD_EXIT();
-            throw CIMNotSupportedException
-                (classReference.getClassName().getString() +
-			    " not supported by Namespace Provider");
+	    //l10n
+            //throw CIMNotSupportedException
+                //(classReference.getClassName().getString() +
+			    //" not supported by Namespace Provider");
+			throw CIMNotSupportedException(MessageLoaderParms(
+           						"ControlProviders.NamespaceProvider.NamespaceProvider.NOT_SUPPORTED_BY_NAMESPACEPROVIDER",
+           						"$0 not supported by Namespace Provider",
+           						classReference.getClassName().getString()));
         }
 
         //ATTN-DME-P3-20020522: ADD AUTHORIZATION CHECK TO __NAMESPACE PROVIDER

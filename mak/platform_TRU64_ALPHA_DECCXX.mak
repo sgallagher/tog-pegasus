@@ -20,7 +20,7 @@ endif
 
 #SYS_LIBS = -ldl
 
-CXX = cxx
+CXX = cxx -tlocal
 
 SH = sh
 

@@ -59,7 +59,7 @@ int main(int argc, char** argv)
     // Append all arguments together to from a single string:
     //
 
-    Array<Sint8> text;
+    Array<char> text;
 
     for (int i = 1; i < argc; i++)
     {

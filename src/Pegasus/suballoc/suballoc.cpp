@@ -37,7 +37,7 @@ PEGASUS_SUBALLOC_LINKAGE peg_suballocator *peg_suballocator::get_instance(void)
 {
    if(peg_suballocator::_suballoc_instance == 0)
    {
-      cout << " initializing heap" << endl;
+      PEGASUS_STD(cout) << " initializing heap" << PEGASUS_STD(endl);
       
       peg_suballocator::_suballoc_instance = new((void *)malloc(sizeof(peg_suballocator))) peg_suballocator(true);
    }

@@ -178,13 +178,13 @@ Z [Zz]
 {A}{N}{D} {
 
     printf("LEX: %s [AND] ", yytext);
-    return AND;
+    return _AND;
 }
 
 {O}{R} {
 
     printf("LEX: %s [OR] ", yytext);
-    return OR;
+    return _OR;
 }
 
 {IDENT_CHAR}*\:\:{PROP_CHAR}*[.]? {

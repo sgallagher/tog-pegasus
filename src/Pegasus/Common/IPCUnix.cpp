@@ -175,7 +175,7 @@ void ReadWriteSem::wait(Uint32 mode, PEGASUS_THREAD_TYPE caller) throw(Deadlock,
     throw(WaitFailed(pthread_self()));
 }
 
-void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller) throw(Deadlock, Permission, AlreadyLocked, WaitFailed)
+void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller) throw(AlreadyLocked, Deadlock, Permission, WaitFailed)
 {
     int errorcode = 0;
     if (mode == PEG_SEM_READ) 

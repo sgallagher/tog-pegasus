@@ -30,6 +30,7 @@
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 // Modified By:
+//      Chip Vincent (cvincent@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -109,7 +110,11 @@ void testUserContextPrivileged()
 
         CIMObjectPath instName =
             CIMObjectPath("TST_UserContextPrivileged.Id=1");
-        CIMInstance cimInstance = client.getInstance(NAMESPACE, instName);
+
+        // ATTN: use of the localOnly flag is deprecated, but nor reliably
+        // applied by the CIMOM. An explicit parameter is required for now.
+        CIMInstance cimInstance = 
+            client.getInstance(NAMESPACE, instName, false);
 
         String userContext;
         cimInstance.getProperty(cimInstance.findProperty("UserContext"))
@@ -148,7 +153,11 @@ void testUserContextDesignated()
 
         CIMObjectPath instName =
             CIMObjectPath("TST_UserContextDesignated.Id=1");
-        CIMInstance cimInstance = client.getInstance(NAMESPACE, instName);
+
+        // ATTN: use of the localOnly flag is deprecated, but nor reliably
+        // applied by the CIMOM. An explicit parameter is required for now.
+        CIMInstance cimInstance = 
+            client.getInstance(NAMESPACE, instName, false);
 
         String userContext;
         cimInstance.getProperty(cimInstance.findProperty("UserContext"))
@@ -179,7 +188,11 @@ void testUserContextCIMServer()
 
         CIMObjectPath instName =
             CIMObjectPath("TST_UserContextCIMServer.Id=1");
-        CIMInstance cimInstance = client.getInstance(NAMESPACE, instName);
+
+        // ATTN: use of the localOnly flag is deprecated, but nor reliably
+        // applied by the CIMOM. An explicit parameter is required for now.
+        CIMInstance cimInstance = 
+            client.getInstance(NAMESPACE, instName, false);
 
         String userContext;
         cimInstance.getProperty(cimInstance.findProperty("UserContext"))

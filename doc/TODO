@@ -2,6 +2,8 @@
 				TO-DO List
 				==========
 
+    - Figure out how to handle getProperty() return type.
+
     - Having problems with reference on Repository::createInstance() and
       Repository::getInstance(). References not always in standard form.
       Also, resolve() fails when instance has properties of difference

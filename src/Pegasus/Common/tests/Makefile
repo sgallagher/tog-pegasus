@@ -1,6 +1,4 @@
-ROOT=../../../..
-
-include $(ROOT)/mak/config.mak
+include $(PEGASUS_ROOT)/mak/config.mak
 
 DIRS = \
     Config \
@@ -46,6 +44,7 @@ DIRS = \
     Reference \
     DynLib \
     DynLoad \
+	DynamicLibrary \
     Logger \
     WebClient \
     ParamValue \
@@ -55,4 +54,4 @@ DIRS = \
 #    WebServer \
 #    async_callback \
 
-include $(ROOT)/mak/recurse.mak
+include $(PEGASUS_ROOT)/mak/recurse.mak

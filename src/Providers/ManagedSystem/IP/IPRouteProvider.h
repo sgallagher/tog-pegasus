@@ -32,6 +32,8 @@
 //         Carlos Bonilla, Hewlett-Packard Company
 //         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
 //         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -61,35 +63,37 @@ public:
   void createInstance(const OperationContext       &context,
                     const CIMObjectPath           &instanceName,
                     const CIMInstance            &instanceObject,
-                    ResponseHandler<CIMObjectPath> &handler);
+                    ObjectPathResponseHandler &handler);
 
   void deleteInstance(const OperationContext       &context,
                     const CIMObjectPath           &instanceReference,
-                    ResponseHandler<void> &handler);
+                    ResponseHandler &handler);
 
   void enumerateInstances(
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
-	const Uint32 flags,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
 	const CIMPropertyList & propertyList,
-	ResponseHandler<CIMInstance> & handler);
+	InstanceResponseHandler & handler);
 
   void enumerateInstanceNames(const OperationContext        &context,
                             const CIMObjectPath            &ref,
-                            ResponseHandler<CIMObjectPath> &handler);
+                            ObjectPathResponseHandler &handler);
 
   void getInstance(const OperationContext       &context,
                  const CIMObjectPath           &instanceName,
-                 const Uint32                  flags,
+                 const Boolean includeQualifiers,
+                 const Boolean includeClassOrigin,
                  const CIMPropertyList        &propertyList,
-                 ResponseHandler<CIMInstance> &handler);
+                 InstanceResponseHandler &handler);
 
   void modifyInstance(const OperationContext       &context,
                     const CIMObjectPath           &instanceName,
                     const CIMInstance            &instanceObject,
-		    const Uint32                 flags,
+                    const Boolean includeQualifiers,
 		    const CIMPropertyList        &propertyList,
-                    ResponseHandler<void> &handler);
+                    ResponseHandler &handler);
 
   void initialize(CIMOMHandle&);
 
@@ -100,16 +104,16 @@ private:
   // private member to store handle passed by initialize()
   CIMOMHandle _cimomHandle;
 
-  Array<KeyBinding> _constructKeyBindings(const IPRoute&);
+  Array<CIMKeyBinding> _constructKeyBindings(const IPRoute&);
 
   // Used to add properties to an instance
-  CIMInstance _constructInstance(const String &clnam,
-                                 const String &nameSpace,
+  CIMInstance _constructInstance(const CIMName &clnam,
+                                 const CIMNamespaceName &nameSpace,
                                  const IPRoute &ipR);
 
   // checks the class passed by the cimom and throws
   // an exception if it's not supported by this provider
-  void _checkClass(String&);
+  void _checkClass(CIMName&);
 
 };
 

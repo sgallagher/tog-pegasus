@@ -32,6 +32,8 @@
 //         Carlos Bonilla, Hewlett-Packard Company
 //         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
 //         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -546,13 +548,13 @@ InterfaceList::InterfaceList()
   // Load the interface name structures.
 
   if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-	throw OperationFailure("Error in opening socket: " +
+	throw CIMOperationFailedException("Error in opening socket: " +
 				String(strerror(errno)));
   }
 
   if (ioctl(fd, SIOCGIFNUM, &numif) < 0) {
-	throw OperationFailure("Error in ioctl() request SIOCGIFNUM: " +
-				String(strerror(errno)));
+      throw CIMOperationFailedException
+          ("Error in ioctl() request SIOCGIFNUM: " + String(strerror(errno)));
   }
 
   ifconf.ifc_len = numif * sizeof (struct ifreq);
@@ -560,7 +562,8 @@ InterfaceList::InterfaceList()
 
   if (ioctl (fd, SIOCGIFCONF, &ifconf) < 0) {
 	free (ifconf.ifc_req);
-	throw OperationFailure("Error in ioctl() request SIOCGIFCONF: " +
+	throw CIMOperationFailedException
+            ("Error in ioctl() request SIOCGIFCONF: " +
 				String(strerror(errno)));
   }
 
@@ -568,7 +571,7 @@ InterfaceList::InterfaceList()
 
   if ((fd = open_mib("/dev/ip", O_RDONLY, 0, 0)) < 0) {
 	free (ifconf.ifc_req);
-	throw OperationFailure("Can't open /dev/ip: " +
+	throw CIMOperationFailedException("Can't open /dev/ip: " +
 				String(strerror(errno)));
   }
 
@@ -579,7 +582,7 @@ InterfaceList::InterfaceList()
 
   if (get_mib_info (fd, &parms) < 0) {
 	free (ifconf.ifc_req);
-	throw OperationFailure(
+	throw CIMOperationFailedException(
 	    "Can't get ID_ipAddrNumEnt from get_mib_info(): " +
 	    String(strerror(errno)));
   }
@@ -590,7 +593,7 @@ InterfaceList::InterfaceList()
   {
 	free (ifconf.ifc_req);
 	free (addr_buf);
-	throw OperationFailure(
+	throw CIMOperationFailedException(
 	    "Error in allocating space for the kernel interface table: " +
 	    String(strerror(errno)));
   }
@@ -603,7 +606,7 @@ InterfaceList::InterfaceList()
   if (get_mib_info (fd, &parms) < 0) {
 	free (ifconf.ifc_req);
 	free (addr_buf);
-	throw OperationFailure(
+	throw CIMOperationFailedException(
 	    "Can't get ID_ipAddrTable from get_mib_info(): " +
 	    String(strerror(errno)));
   }
@@ -1013,7 +1016,7 @@ RouteList::RouteList()
   // Load the interface name structures.
 
   if ((fd = open_mib("/dev/ip", O_RDONLY, 0, 0)) < 0) {
-	throw OperationFailure("Can't open /dev/ip: " +
+	throw CIMOperationFailedException("Can't open /dev/ip: " +
 				String(strerror(errno)));
   }
 
@@ -1023,7 +1026,7 @@ RouteList::RouteList()
   parms.len = (unsigned int *) &len;
 
   if (get_mib_info (fd, &parms) < 0) {
-	throw OperationFailure(
+	throw CIMOperationFailedException(
 	    "Can't get ID_ipRouteNumEnt from get_mib_info(): " +
 	    String(strerror(errno)));
   }
@@ -1033,7 +1036,7 @@ RouteList::RouteList()
   if (route_buf == 0)
   {
 	free (route_buf);
-	throw OperationFailure(
+	throw CIMOperationFailedException(
 	    "Error in allocating space for the kernel interface table: " +
 	    String(strerror(errno)));
   }
@@ -1045,7 +1048,7 @@ RouteList::RouteList()
 
   if (get_mib_info (fd, &parms) < 0) {
 	free (route_buf);
-	throw OperationFailure(
+	throw CIMOperationFailedException(
 	    "Can't get ID_ipRouteTable from get_mib_info(): " +
 	    String(strerror(errno)));
   }

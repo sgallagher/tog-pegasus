@@ -41,7 +41,9 @@ DIRS =  \
         DNSAdminDomain \
         DNSAdminDomain/tests/DNSTestClient \
         NTPAdminDomain \
-        NTPAdminDomain/tests/NTPTestClient
+        NTPAdminDomain/tests/NTPTestClient \
+	IP \
+	IP/tests
 
 include $(ROOT)/mak/recurse.mak
 

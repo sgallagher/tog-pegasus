@@ -5,3 +5,4 @@
 #pragma include ("PG_Processor20.mof")
 #pragma include ("PG_DNSAdminDomain20.mof")
 #pragma include ("PG_NTPAdminDomain20.mof")
+#pragma include ("PG_IP20.mof")

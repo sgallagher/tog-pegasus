@@ -32,6 +32,8 @@
 //         Carlos Bonilla, Hewlett-Packard Company
 //         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
 //	   Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +46,7 @@ PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
 
-extern "C" PEGASUS_EXPORT CIMBaseProvider* PegasusCreateProvider(String &name)
+extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(String &name)
 {
   if (name == "IPPEpProvider") return new IPPEpProvider;
   else if (name == "BIPTLEpProvider") return new BIPTLEpProvider;

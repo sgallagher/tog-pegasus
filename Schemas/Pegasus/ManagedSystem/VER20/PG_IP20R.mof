@@ -1,0 +1,73 @@
+// We have one shared library module with three providers
+// in it: IPPEpProvider, BindsIPToLANEpProvider, and IPRouteProvider
+// Only the first one for now . . .
+
+instance of PG_ProviderModule 
+{
+   Name = "IPProviderMod";
+   Location = "IPProviderModule";
+   Vendor = "Pegasus Community";
+   Version = "2.0.0";
+   InterfaceType = "C++Default";
+   InterfaceVersion = "2.0.0";
+};
+
+// Provider for CIM_IPProtocolEndpoint
+
+instance of PG_Provider 
+{
+  ProviderModuleName = "IPProviderMod";
+  Name = "IPPEpProvider";
+};
+
+instance of PG_ProviderCapabilities 
+{
+  ProviderModuleName = "IPProviderMod";
+  ProviderName = "IPPEpProvider";
+  CapabilityID = "1";
+  ClassName = "CIM_IPProtocolEndpoint";
+  Namespaces = { "root/cimv2" };
+  ProviderType = { 2 }; // Instance
+  SupportedProperties = NULL; // All properties
+  SupportedMethods = NULL; // All methods
+};
+
+// Provider for PG_BindsIPToLANEndpoint
+
+instance of PG_Provider 
+{
+  ProviderModuleName = "IPProviderMod";
+  Name = "BIPTLEpProvider";
+};
+
+instance of PG_ProviderCapabilities 
+{
+  ProviderModuleName = "IPProviderMod";
+  ProviderName = "BIPTLEpProvider";
+  CapabilityID = "1";
+  ClassName = "PG_BindsIPToLANEndpoint";
+  Namespaces = { "root/cimv2" };
+  ProviderType = { 2 }; // Instance
+  SupportedProperties = NULL; // All properties
+  SupportedMethods = NULL; // All methods
+};
+
+// Provider for PG_IPRoute
+
+instance of PG_Provider 
+{
+  ProviderModuleName = "IPProviderMod";
+  Name = "IPRouteProvider";
+};
+
+instance of PG_ProviderCapabilities 
+{
+  ProviderModuleName = "IPProviderMod";
+  ProviderName = "IPRouteProvider";
+  CapabilityID = "1";
+  ClassName = "PG_IPRoute";
+  Namespaces = { "root/cimv2" };
+  ProviderType = { 2 }; // Instance
+  SupportedProperties = NULL; // All properties
+  SupportedMethods = NULL; // All methods
+};

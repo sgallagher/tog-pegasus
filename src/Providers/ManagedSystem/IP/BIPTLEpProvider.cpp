@@ -32,6 +32,8 @@
 //         Carlos Bonilla, Hewlett-Packard Company
 //         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
 //         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -50,10 +52,14 @@
 // are important for clients of this provider.
 // ==========================================================================
 
-#define CLASS_CIM_UNITARY_COMPUTER_SYSTEM  "CIM_UnitaryComputerSystem"
-#define CLASS_CIM_IP_PROTOCOL_ENDPOINT     "CIM_IPProtocolEndpoint"
-#define CLASS_CIM_LAN_ENDPOINT             "CIM_LANEndpoint"
-#define CLASS_PG_BINDS_IP_TO_LAN_ENDPOINT  "PG_BindsIPToLANEndpoint"
+static const CIMName CLASS_CIM_UNITARY_COMPUTER_SYSTEM = CIMName 
+    ("CIM_UnitaryComputerSystem");
+static const CIMName CLASS_CIM_IP_PROTOCOL_ENDPOINT    = CIMName 
+    ("CIM_IPProtocolEndpoint");
+static const CIMName CLASS_CIM_LAN_ENDPOINT            = CIMName 
+    ("CIM_LANEndpoint");
+static const CIMName CLASS_PG_BINDS_IP_TO_LAN_ENDPOINT = CIMName 
+    ("PG_BindsIPToLANEndpoint");
 
 // ==========================================================================
 // The number of keys for the classes.
@@ -71,19 +77,22 @@
 
 // References
 //      CIM_LANEndpoint REF Antecedent
-#define PROPERTY_ANTECEDENT          "Antecedent"
+static const CIMName PROPERTY_ANTECEDENT         = CIMName ("Antecedent");
 //      CIM_IPProtocolEndpoint REF Dependent
-#define PROPERTY_DEPENDENT           "Dependent"
+static const CIMName PROPERTY_DEPENDENT          = CIMName ("Dependent");
 
 // Regular Properties
-#define PROPERTY_FRAME_TYPE                  "FrameType"
+static const CIMName PROPERTY_FRAME_TYPE         = CIMName ("FrameType");
 
 // Properties that make up the References
 
-#define PROPERTY_NAME                        "Name"
-#define PROPERTY_CREATION_CLASS_NAME         "CreationClassName"
-#define PROPERTY_SYSTEM_CREATION_CLASS_NAME  "SystemCreationClassName"
-#define PROPERTY_SYSTEM_NAME                 "SystemName"
+static const CIMName PROPERTY_NAME                       = CIMName ("Name");
+static const CIMName PROPERTY_CREATION_CLASS_NAME        = CIMName 
+    ("CreationClassName");
+static const CIMName PROPERTY_SYSTEM_CREATION_CLASS_NAME = CIMName 
+    ("SystemCreationClassName");
+static const CIMName PROPERTY_SYSTEM_NAME                = CIMName 
+    ("SystemName");
 
 
 PEGASUS_USING_STD;
@@ -115,10 +124,10 @@ PARAMETERS        :
 void BIPTLEpProvider::createInstance(const OperationContext &context,
                     const CIMObjectPath           &instanceName,
                     const CIMInstance            &instanceObject,
-                    ResponseHandler<CIMObjectPath> &handler)
+                    ObjectPathResponseHandler &handler)
 
 {
-  throw NotSupported(String::EMPTY);
+  throw CIMNotSupportedException(String::EMPTY);
 }
 
 /*
@@ -134,10 +143,10 @@ PARAMETERS        :
 */
 void BIPTLEpProvider::deleteInstance(const OperationContext &context,
                     const CIMObjectPath           &instanceReference,
-                    ResponseHandler<void> &handler)
+                    ResponseHandler &handler)
 
 {
-  throw NotSupported(String::EMPTY);
+  throw CIMNotSupportedException(String::EMPTY);
 }
 
 /*
@@ -156,14 +165,15 @@ PARAMETERS        :
 void BIPTLEpProvider::enumerateInstances(
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
-	const Uint32 flags,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
 	const CIMPropertyList & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
 {
     cout << "BIPTLEpProvider::enumerateInstances()" << endl;
 
-    String className = classReference.getClassName();
-    String nameSpace = classReference.getNameSpace();
+    CIMName className = classReference.getClassName();
+    CIMNamespaceName nameSpace = classReference.getNameSpace();
 
     // Validate the classname
     _checkClass(className);
@@ -206,12 +216,12 @@ PARAMETERS        :
 */
 void BIPTLEpProvider::enumerateInstanceNames(const OperationContext &ctx,
                             const CIMObjectPath &ref,
-                            ResponseHandler<CIMObjectPath> &handler)
+                            ObjectPathResponseHandler &handler)
 {
     cout << "BIPTLEpProvider::enumerateInstanceNames()" << endl;
 
-    String className = ref.getClassName();
-    String nameSpace = ref.getNameSpace();
+    CIMName className = ref.getClassName();
+    CIMNamespaceName nameSpace = ref.getNameSpace();
 
     // Validate the classname
     _checkClass(className);
@@ -260,15 +270,17 @@ PARAMETERS        :
 */
 void BIPTLEpProvider::getInstance(const OperationContext &ctx,
                  const CIMObjectPath           &instanceName,
-                 const Uint32                  flags,
+                 const Boolean includeQualifiers,
+                 const Boolean includeClassOrigin,
                  const CIMPropertyList        &propertyList,
-                 ResponseHandler<CIMInstance> &handler)
+                 InstanceResponseHandler &handler)
 {	
-  cout << "BIPTLEpProvider::getInstance(" << instanceName << ")" << endl;
+  cout << "BIPTLEpProvider::getInstance(" << instanceName.toString() << ")" 
+       << endl;
 
-  KeyBinding kb;
-  String className = instanceName.getClassName();
-  String nameSpace = instanceName.getNameSpace();
+  CIMKeyBinding kb;
+  CIMName className = instanceName.getClassName();
+  CIMNamespaceName nameSpace = instanceName.getNameSpace();
   int i;
   int keysFound;  // this will be used as a bit array
   String sn;      // system name
@@ -285,11 +297,11 @@ void BIPTLEpProvider::getInstance(const OperationContext &ctx,
   _checkClass(className);
 
   // Extract the key values
-  Array<KeyBinding> kbArray = instanceName.getKeyBindings();
+  Array<CIMKeyBinding> kbArray = instanceName.getKeyBindings();
 
   // Leave immediately if wrong number of keys
   if ( kbArray.size() != NUMKEYS_PG_BINDS_IP_TO_LAN_ENDPOINT )
-    throw InvalidParameter("Wrong number of keys");
+    throw CIMInvalidParameterException("Wrong number of keys");
 
   // Validate the keys.
   // Each loop iteration will set a bit in keysFound when a valid
@@ -299,39 +311,43 @@ void BIPTLEpProvider::getInstance(const OperationContext &ctx,
   {
     kb = kbArray[i];
 
-    String keyName = kb.getName();
+    CIMName keyName = kb.getName();
     String keyValue = kb.getValue();
 
     // Antecedent must match
-    if (String::equalNoCase(keyName, PROPERTY_ANTECEDENT))
+    if (keyName.equal (PROPERTY_ANTECEDENT))
     {
       if (_goodPERefKeys(keyValue, refCCN, refName) &&
-	  String::equalNoCase(refCCN, CLASS_CIM_LAN_ENDPOINT) )
+	  String::equalNoCase(refCCN, CLASS_CIM_LAN_ENDPOINT.getString()))
       {
         keysFound |= 1;
 	lepName = refName;
         cout << "BIPTLEpProvider::getInstance(): lepName=" << lepName << endl;
       }
       else
-         throw InvalidParameter(keyValue+": bad value for key "+keyName);
+         throw CIMInvalidParameterException(keyValue+": bad value for key "+
+             keyName.getString());
     }
 
     // Dependent must match
-    else if (String::equalNoCase(keyName, PROPERTY_DEPENDENT))
+    else if (keyName.equal (PROPERTY_DEPENDENT))
     {
       if (_goodPERefKeys(keyValue, refCCN, refName) &&
-	  String::equalNoCase(refCCN, CLASS_CIM_IP_PROTOCOL_ENDPOINT) )
+	  String::equalNoCase(refCCN, 
+              CLASS_CIM_IP_PROTOCOL_ENDPOINT.getString()))
       {
         keysFound |= 2;
 	ipeName = refName;
         cout << "BIPTLEpProvider::getInstance(): ipeName=" << ipeName << endl;
       }
       else
-         throw InvalidParameter(keyValue+": bad value for key "+keyName);
+         throw CIMInvalidParameterException(keyValue+": bad value for key "+
+             keyName.getString());
     }
 
     // Key name was not recognized by any of the above tests
-    else throw InvalidParameter(keyName+ ": Unrecognized key");
+    else throw CIMInvalidParameterException(keyName.getString()+ 
+        ": Unrecognized key");
 		
   } // for
 
@@ -340,7 +356,7 @@ void BIPTLEpProvider::getInstance(const OperationContext &ctx,
   // and they all had valid names and values, but there were
   // any duplicates (e.g., two Names, no SystemName)
   if (keysFound != (1<<NUMKEYS_PG_BINDS_IP_TO_LAN_ENDPOINT)-1)
-    throw InvalidParameter("Bad object name");
+    throw CIMInvalidParameterException("Bad object name");
 
   // Get the Interface List
   InterfaceList _ifList;
@@ -365,7 +381,7 @@ void BIPTLEpProvider::getInstance(const OperationContext &ctx,
     return;
   }
 
-  throw ObjectNotFound(ipeName+": No such IP Interface");
+  throw CIMObjectNotFoundException(ipeName+": No such IP Interface");
 
   return; // can never execute, but required to keep compiler happy
 }
@@ -384,12 +400,12 @@ PARAMETERS        :
 void BIPTLEpProvider::modifyInstance(const OperationContext &context,
                     const CIMObjectPath           &instanceName,
                     const CIMInstance            &instanceObject,
-		    const Uint32                 flags,
+                    const Boolean includeQualifiers,
 		    const CIMPropertyList        &propertyList,
-                    ResponseHandler<void> &handler)
+                    ResponseHandler &handler)
 {
   // Could be supported in the future for certain properties
-  throw NotSupported(String::EMPTY);
+  throw CIMNotSupportedException(String::EMPTY);
 }
 
 /*
@@ -447,12 +463,12 @@ NOTES             :
 PARAMETERS        : className, Process
 ================================================================================
 */
-Array<KeyBinding> BIPTLEpProvider::_constructKeyBindings(
+Array<CIMKeyBinding> BIPTLEpProvider::_constructKeyBindings(
 					const IPInterface& _ipif)
 {
   cout << "BIPTLEpProvider::_constructKeyBindings()" << endl;
 
-  Array<KeyBinding> keyBindings;
+  Array<CIMKeyBinding> keyBindings;
   String s;
   String _a, _d;   // Antecedent and Dependent REF strings
 
@@ -460,49 +476,50 @@ Array<KeyBinding> BIPTLEpProvider::_constructKeyBindings(
 
   // Build the references
 
-  _a = String(CLASS_CIM_LAN_ENDPOINT) + String(".") +
-       String(PROPERTY_SYSTEM_CREATION_CLASS_NAME) + String("=\"") +
-       String(CLASS_CIM_UNITARY_COMPUTER_SYSTEM) + String("\",") +
-       String(PROPERTY_SYSTEM_NAME) + String("=\"");
+  _a = CLASS_CIM_LAN_ENDPOINT.getString() + String(".") +
+       PROPERTY_SYSTEM_CREATION_CLASS_NAME.getString() + String("=\"") +
+       CLASS_CIM_UNITARY_COMPUTER_SYSTEM.getString() + String("\",") +
+       PROPERTY_SYSTEM_NAME.getString() + String("=\"");
 
-  _d = String(CLASS_CIM_IP_PROTOCOL_ENDPOINT) + String(".") +
-       String(PROPERTY_SYSTEM_CREATION_CLASS_NAME) + String("=\"") +
-       String(CLASS_CIM_UNITARY_COMPUTER_SYSTEM) + String("\",") +
-       String(PROPERTY_SYSTEM_NAME) + String("=\"");
+  _d = CLASS_CIM_IP_PROTOCOL_ENDPOINT.getString() + String(".") +
+       PROPERTY_SYSTEM_CREATION_CLASS_NAME.getString() + String("=\"") +
+       CLASS_CIM_UNITARY_COMPUTER_SYSTEM.getString() + String("\",") +
+       PROPERTY_SYSTEM_NAME.getString() + String("=\"");
 
   if (_ipif.getSystemName(s))
   {
-      _a += s;
-      _d += s;
+      _a.append (s);
+      _d.append (s);
   }
   else
   {
-	throw NotSupported(
+	throw CIMNotSupportedException(
 		String("Host-specific module doesn't support Key `") +
-		String(PROPERTY_SYSTEM_NAME) + String("'"));
+		PROPERTY_SYSTEM_NAME.getString() + String("'"));
   }
 
-  _a += String("\",") + String(PROPERTY_CREATION_CLASS_NAME) + String("=\"") +
-	String(CLASS_CIM_LAN_ENDPOINT) + String("\",") +
-	String(PROPERTY_NAME) + String("=\"") + _ipif.get_LANInterfaceName();
+  _a.append (String("\",") + PROPERTY_CREATION_CLASS_NAME.getString() + 
+        String("=\"") + CLASS_CIM_LAN_ENDPOINT.getString() + String("\",") +
+	PROPERTY_NAME.getString() + String("=\"") + 
+        _ipif.get_LANInterfaceName());
 
-  _d += String("\",") + String(PROPERTY_CREATION_CLASS_NAME) + String("=\"") +
-	String(CLASS_CIM_IP_PROTOCOL_ENDPOINT) + String("\",") +
-	String(PROPERTY_NAME) + String("=\"");
+  _d.append (String("\",") + PROPERTY_CREATION_CLASS_NAME.getString() + 
+        String("=\"") + CLASS_CIM_IP_PROTOCOL_ENDPOINT.getString() + 
+        String("\",") + PROPERTY_NAME.getString() + String("=\""));
 
   if (_ipif.getName(s))
   {
-	_d += s;
+	_d.append (s);
   }
   else
   {
-	throw NotSupported(
+	throw CIMNotSupportedException(
 		String("Host-specific module doesn't support Key `") +
-		String(PROPERTY_NAME) + String("'"));
+		PROPERTY_NAME.getString() + String("'"));
   }
 
-  _a += "\"";
-  _d += "\"";
+  _a.append ("\"");
+  _d.append ( "\"");
 
   cout << "BIPTLEpProvider::_constructKeyBindings(): Antecedent = `" +
 	_a + "'"  << endl;
@@ -510,11 +527,11 @@ Array<KeyBinding> BIPTLEpProvider::_constructKeyBindings(
 	_d + "'"  << endl;
 
   // Construct the key bindings
-  keyBindings.append(KeyBinding(PROPERTY_ANTECEDENT,
-	    	                _a, KeyBinding::REFERENCE));
+  keyBindings.append(CIMKeyBinding(PROPERTY_ANTECEDENT,
+	    	                _a, CIMKeyBinding::REFERENCE));
 
-  keyBindings.append(KeyBinding(PROPERTY_DEPENDENT,
-		                _d, KeyBinding::REFERENCE));
+  keyBindings.append(CIMKeyBinding(PROPERTY_DEPENDENT,
+		                _d, CIMKeyBinding::REFERENCE));
 
   cout << "BIPTLEpProvider::_constructKeyBindings() -- done" << endl;
 
@@ -534,9 +551,10 @@ NOTES             :
 PARAMETERS        : className, Process
 ================================================================================
 */
-CIMInstance BIPTLEpProvider::_constructInstance(const String &className,
-                                                const String &nameSpace,
-                                                const IPInterface &_ipif)
+CIMInstance BIPTLEpProvider::_constructInstance(
+    const CIMName &className,
+    const CIMNamespaceName &nameSpace,
+    const IPInterface &_ipif)
 {
   cout << "BIPTLEpProvider::_constructInstance()" << endl;
 
@@ -566,7 +584,7 @@ CIMInstance BIPTLEpProvider::_constructInstance(const String &className,
   // trusting that this was done correctly
 
   // Get the keys
-  Array<KeyBinding> key = inst.getPath().getKeyBindings();
+  Array<CIMKeyBinding> key = inst.getPath().getKeyBindings();
   // loop through keys, inserting them as properties
   // luckily, all keys for this class are strings, so no
   // need to check key type
@@ -604,30 +622,33 @@ Boolean BIPTLEpProvider::_goodPERefKeys(const CIMObjectPath &instName,
 				     String &rccn,    // CreationClassName
 				     String &rname)   // Name
 {
-   cout << "BIPTLEpProvider::_goodPERefKeys(" << instName << ")" << endl;
+   cout << "BIPTLEpProvider::_goodPERefKeys(" << instName.toString() << ")" 
+        << endl;
 
    int keysFound,  // this will be used as a bit array
        i; 
 
-   Array<KeyBinding> kbArray = instName.getKeyBindings();
+   Array<CIMKeyBinding> kbArray = instName.getKeyBindings();
 
    if ( kbArray.size() != NUMKEYS_CIM_PROTOCOL_ENDPOINT)
-     throw InvalidParameter("Wrong number of keys in reference");
+     throw CIMInvalidParameterException("Wrong number of keys in reference");
     
    for (i=0, keysFound=0; i < NUMKEYS_CIM_PROTOCOL_ENDPOINT; i++)
    {
-      KeyBinding kb = kbArray[i];  
+      CIMKeyBinding kb = kbArray[i];  
 
-      String keyName = kb.getName();
+      CIMName keyName = kb.getName();
       String keyValue = kb.getValue();
 
-      cout << "BIPTLEpProvider::_goodPERefKeys(): keyName=" << keyName <<
+      cout << "BIPTLEpProvider::_goodPERefKeys(): keyName=" << 
+              keyName.getString() <<
               ", keyValue=" << keyValue << endl;
 
       // SystemCreationClassName
-      if (String::equalNoCase(keyName, PROPERTY_SYSTEM_CREATION_CLASS_NAME))
+      if (keyName.equal (PROPERTY_SYSTEM_CREATION_CLASS_NAME))
       {
-	  if (String::equalNoCase(keyValue,CLASS_CIM_UNITARY_COMPUTER_SYSTEM) ||
+	  if (String::equalNoCase(keyValue,
+                  CLASS_CIM_UNITARY_COMPUTER_SYSTEM.getString()) ||
 		  String::equal(keyValue, String::EMPTY) )
              keysFound |= 1;
 	  else
@@ -635,7 +656,7 @@ Boolean BIPTLEpProvider::_goodPERefKeys(const CIMObjectPath &instName,
       }
 
       // SystemName
-      else if (String::equalNoCase(keyName, PROPERTY_SYSTEM_NAME))
+      else if (keyName.equal (PROPERTY_SYSTEM_NAME))
       {
 	  String sn; // System Name
 	  if (IPInterface::getSystemName(sn) == false)
@@ -649,7 +670,7 @@ Boolean BIPTLEpProvider::_goodPERefKeys(const CIMObjectPath &instName,
       }
 
       // CreationClassName
-      else if (String::equalNoCase(keyName, PROPERTY_CREATION_CLASS_NAME))
+      else if (keyName.equal (PROPERTY_CREATION_CLASS_NAME))
       {
 	    rccn = keyValue;
             keysFound |= 4;
@@ -657,7 +678,7 @@ Boolean BIPTLEpProvider::_goodPERefKeys(const CIMObjectPath &instName,
 
       // Name must be a valid IP interface, but we will know that later
       // For now, just verify that it's present
-      else if (String::equalNoCase(keyName, PROPERTY_NAME))
+      else if (keyName.equal (PROPERTY_NAME))
       {
             rname = keyValue;
             keysFound |= 8;
@@ -694,8 +715,9 @@ POST-CONDITIONS   :
 NOTES             :
 ================================================================================
 */
-void BIPTLEpProvider::_checkClass(String& className)
+void BIPTLEpProvider::_checkClass(CIMName& className)
 {
-  if (!String::equalNoCase(className, CLASS_PG_BINDS_IP_TO_LAN_ENDPOINT))
-    throw NotSupported(className+": Class not supported");
+  if (!className.equal (CLASS_PG_BINDS_IP_TO_LAN_ENDPOINT))
+    throw CIMNotSupportedException(className.getString()+
+        ": Class not supported");
 }

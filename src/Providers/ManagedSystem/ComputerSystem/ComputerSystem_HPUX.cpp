@@ -28,6 +28,8 @@
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
 //              Mike Glantz         <michael_glantz@hp.com>
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -366,7 +368,7 @@ void ComputerSystem::initialize(void)
                        t->tm_sec,
                        (timezone>0)?'-':'+',
                        timezone/60 - ( t->tm_isdst? 60:0 ));
-  _installDate = timstr;
+  _installDate = CIMDateTime (timstr);
 
   // ----------------------------------------------------------
   // Now set properties obtained from DMI

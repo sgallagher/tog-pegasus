@@ -27,6 +27,8 @@
 //              Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //                  20 Feb 2002 - Add tests for new constructor and extend array tests
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -384,9 +386,9 @@ int main(int argc, char** argv)
     test02(arr13);
 
     Array<CIMDateTime> arr14;
-    arr14.append("20020130120000.000000+360");
-    arr14.append("20020201120000.000000+360");
-    arr14.append("20020202120000.000000+360");
+    arr14.append(CIMDateTime ("20020130120000.000000+360"));
+    arr14.append(CIMDateTime ("20020201120000.000000+360"));
+    arr14.append(CIMDateTime ("20020202120000.000000+360"));
     test02(arr14);
 
     Array<CIMObjectPath> arr15;

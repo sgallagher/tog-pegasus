@@ -1079,7 +1079,8 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     else
                     {
                         startTimeValue.get (startTime);
-                        if (startTime.isNull ())
+                        if (startTime.equal 
+                            (CIMDateTime (_ZERO_INTERVAL_STRING)))
                         {
                             setStart = true;
                         }
@@ -5321,6 +5322,11 @@ const char   IndicationService::_QUERY_WHERE []         = "WHERE";
  */
 const char   IndicationService::_QUERY_ALLPROPERTIES [] = "*";
 
+/**
+    A zero value CIMDateTime interval
+ */
+const char IndicationService::_ZERO_INTERVAL_STRING [] = 
+    "00000000000000.000000:000";
 
 //
 //  Message substrings used in exception messages

@@ -35,6 +35,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Destroyer.h>
 
 
 // Using the general CIMOM TestClient as an example, developed an
@@ -267,13 +268,15 @@ void OSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
          char bdateString[80];
 
          inst.getProperty(j).getValue().get(bdate);
+         ArrayDestroyer <char> dtStr (bdate.toString ().allocateCString ());
+         char * str = dtStr.getPointer ();
          if (!cimFormat) 
          { // else leave in raw CIM
-            formatCIMDateTime((char *)bdate.getString(), bdateString);
+            formatCIMDateTime(str, bdateString);
          }
          else
          {
-            sprintf(bdateString,"%s",bdate.getString());
+            sprintf(bdateString,"%s",str);
          }
          osBootUpTime.assign(bdateString);
       }   // end if LastBootUpTime 
@@ -285,13 +288,15 @@ void OSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
          char ldateString[80];
 
          inst.getProperty(j).getValue().get(ldate);
+         ArrayDestroyer <char> dtStr (ldate.toString ().allocateCString ());
+         char * str = dtStr.getPointer ();
          if (!cimFormat) 
          { // else leave in raw CIM
-            formatCIMDateTime((char *)ldate.getString(), ldateString);
+            formatCIMDateTime(str, ldateString);
          }
          else
          {
-            sprintf(ldateString,"%s",ldate.getString());
+            sprintf(ldateString,"%s",str);
          }
          osLocalDateTime.assign(ldateString);
       }   // end if LocalDateTime 

@@ -56,6 +56,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 //
 // Returns the local time.
+// Note: Original code was taken from OperatingSystem::getLocalDateTime ()
 //
 CIMDateTime CIMDateTime::getCurrentDateTime()
 {

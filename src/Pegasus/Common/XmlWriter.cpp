@@ -102,6 +102,11 @@ Array<Sint8>& operator<<(Array<Sint8>& out, Uint32 x)
     return out;
 }
 
+PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const CIMDateTime& x)
+{
+    return os << x.toString();
+}
+
 inline void _appendChar(Array<Sint8>& out, Char16 c)
 {
     out.append(Sint8(c));
@@ -554,7 +559,7 @@ inline void _appendValue(Array<Sint8>& out, const String& x)
 
 inline void _appendValue(Array<Sint8>& out, const CIMDateTime& x)
 {
-    out << x.getString();  //ATTN: append() method?
+    out << x.toString();  //ATTN: append() method?
 }
 
 inline void _appendValue(Array<Sint8>& out, const CIMObjectPath& x)

@@ -127,7 +127,7 @@ StoDT(const String &val, CIMDateTime &dt) {
     }
   }
   if (s != "") {
-    dt.set(_CString(s));
+    dt.set (s);
   }
   return dt;
 }

@@ -26,6 +26,8 @@
 // Modified By: Sushma Fernandes, Hewlett-Packard Company
 //                  (sushma_fernandes@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,12 +36,10 @@
 #endif                                          
 
 #include <cctype>
-#include <cstdlib>
-#include <cstdio>
 #include <time.h>
+#include <Pegasus/Common/Destroyer.h>
 #include "CIMDateTime.h" 
 #include "InternalException.h" 
-#include "Array.h"
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
     # include <Pegasus/Common/CIMDateTimeWindows.cpp>
@@ -97,7 +97,7 @@ CIMDateTime::CIMDateTime()
     clear();
 }
 
-CIMDateTime::CIMDateTime(const char* str)
+CIMDateTime::CIMDateTime(const String & str)
 {
     _rep = new CIMDateTimeRep();
     if (!_set(str))
@@ -126,14 +126,9 @@ CIMDateTime::~CIMDateTime()
     delete _rep;
 }
 
-Boolean CIMDateTime::isNull() const
+String CIMDateTime::toString () const
 {
-    return strcmp(_rep->data, _NULL_INTERVAL_TYPE_STRING) == 0;
-}
-
-const char* CIMDateTime::getString() const
-{
-    return _rep->data;
+    return String (_rep->data);
 }
 
 void CIMDateTime::clear()
@@ -141,9 +136,13 @@ void CIMDateTime::clear()
     strcpy(_rep->data, _NULL_INTERVAL_TYPE_STRING);
 }
 
-Boolean CIMDateTime::_set(const char* str)
+Boolean CIMDateTime::_set(const String & dateTimeStr)
 {
     clear();
+
+    ArrayDestroyer <char> dtStr (dateTimeStr.allocateCString ());
+
+    const char* str = dtStr.getPointer ();
 
     // Be sure the incoming string is the proper length:
 
@@ -202,7 +201,7 @@ Boolean CIMDateTime::_set(const char* str)
     sprintf(buffer, "%2.2s", str + 8);
     long hours = atoi(buffer);
 
-    if (hours > 24)
+    if (hours > 23)
 	return false;
 
     sprintf(buffer, "%2.2s", str + 10);
@@ -222,28 +221,18 @@ Boolean CIMDateTime::_set(const char* str)
     return true;
 }
 
-void CIMDateTime::set(const char* str)
+void CIMDateTime::set(const String & str)
 {
     if (!_set(str))
 	throw BadDateTimeFormat();
 }
 
-CIMDateTime CIMDateTime::clone() const
-{
-    return CIMDateTime(*this);
-}
-
-PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const CIMDateTime& x)
-{
-    return os << x.getString();
-}
-
 Boolean operator==(const CIMDateTime& x, const CIMDateTime& y)
 {
-    return memcmp(x._rep->data, y._rep->data, sizeof(x._rep->data)) == 0;
+    return x.equal (y);
 }
 
-void CIMDateTime::formatDateTime(char* dateTimeStr, tm* tm)
+void formatDateTime(char* dateTimeStr, tm* tm)
 {
     Uint32 index = 0, index1 = 0;
     long   year = 0;
@@ -289,13 +278,17 @@ void CIMDateTime::formatDateTime(char* dateTimeStr, tm* tm)
 
 Boolean CIMDateTime::isInterval()
 {
-    const char*  	str; 
     const Uint32 	SIGN_OFFSET = 21;
 
-    str = getString();
-    Boolean isInterval = strcmp(&str[SIGN_OFFSET], ":000") == 0 ;
+    Boolean isInterval = strcmp(&_rep->data[SIGN_OFFSET], ":000") == 0 ;
     
     return isInterval;
+}
+
+Boolean CIMDateTime::equal (const CIMDateTime & x) const
+{
+    return memcmp (this->_rep->data, x._rep->data, sizeof (this->_rep->data)) 
+        == 0;
 }
 
 Sint64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
@@ -315,8 +308,8 @@ Sint64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
     //
     // Get the dates in CString form
     //
-    startDateTimeCString = startTime.getString();
-    finishDateTimeCString = finishTime.getString();
+    startDateTimeCString = startTime._rep->data;
+    finishDateTimeCString = finishTime._rep->data;
 
     //
     // Check if the startTime or finishTime are intervals
@@ -324,17 +317,25 @@ Sint64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
     if (startTime.isInterval() && finishTime.isInterval())
     {
         char 		intervalBuffer[9];
-	Uint32		startIntervalDays;
-	Uint32		startIntervalHours;
-	Uint32 		startIntervalMinutes;
-	Uint32		startIntervalSeconds; 
-	Uint32		finishIntervalDays;
-	Uint32		finishIntervalHours;
-	Uint32 		finishIntervalMinutes;
-	Uint32		finishIntervalSeconds; 
-	Uint64		startIntervalInSeconds; 
-	Uint64		finishIntervalInSeconds; 
-	Sint64		intervalDifferenceInSeconds; 
+        //
+        //  NOTE: although a Uint64 is not required to hold the maximum
+        //  value for these variables, if they are not defined as Uint64s,
+        //  overflow/truncation can occur during the calculation of the
+        //  number of microseconds, and the final result may be incorrect
+        //
+	Uint64		startIntervalDays;
+	Uint64		startIntervalHours;
+	Uint64 		startIntervalMinutes;
+	Uint64		startIntervalSeconds; 
+	Uint64		startIntervalMicroseconds; 
+	Uint64		finishIntervalDays;
+	Uint64		finishIntervalHours;
+	Uint64 		finishIntervalMinutes;
+	Uint64		finishIntervalSeconds; 
+	Uint64		finishIntervalMicroseconds; 
+	Uint64		startIntervalInMicroseconds; 
+	Uint64		finishIntervalInMicroseconds; 
+	Sint64		intervalDifferenceInMicroseconds; 
 
         // Parse the start time interval and get the days, minutes, hours
         // and seconds
@@ -355,6 +356,10 @@ Sint64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
         sprintf(intervalBuffer, "%2.2s", startDateTimeCString + 12);
         startIntervalSeconds = atoi(intervalBuffer);
 
+        // Extract the Microseconds
+        sprintf(intervalBuffer, "%6.6s", startDateTimeCString + 15);
+        startIntervalMicroseconds = atoi(intervalBuffer);
+
         // Parse the finish time interval and get the days, minutes, hours
         // and seconds
 
@@ -374,23 +379,32 @@ Sint64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
         sprintf(intervalBuffer, "%2.2s", finishDateTimeCString + 12);
         finishIntervalSeconds = atoi(intervalBuffer);
 
+        // Extract the Microseconds
+        sprintf(intervalBuffer, "%6.6s", finishDateTimeCString + 15);
+        finishIntervalMicroseconds = atoi(intervalBuffer);
+
         // Convert all values to seconds and compute the start and finish
         // intervals in seconds.
-        startIntervalInSeconds = (Uint64)((startIntervalDays*86400) +
-                                          (startIntervalHours*3600) +
-                                          (startIntervalMinutes*60) +
-                                           startIntervalSeconds) ;
+        startIntervalInMicroseconds = 
+            (Uint64)((startIntervalDays*86400000000) +
+                     (startIntervalHours*3600000000) +
+                     (startIntervalMinutes*60000000) +
+                     (startIntervalSeconds*1000000) +
+                      startIntervalMicroseconds);
 
-        finishIntervalInSeconds = (Uint64)((finishIntervalDays*86400) +
-                                           (finishIntervalHours*3600) +
-                                           (finishIntervalMinutes*60) + 
-                                            finishIntervalSeconds) ;
+        finishIntervalInMicroseconds = 
+            (Uint64)((finishIntervalDays*86400000000) +
+                     (finishIntervalHours*3600000000) +
+                     (finishIntervalMinutes*60000000) + 
+                     (finishIntervalSeconds*1000000) +
+                      finishIntervalMicroseconds);
 
         // Get the difference.
-        intervalDifferenceInSeconds =(Sint64)(finishIntervalInSeconds -
-                                              startIntervalInSeconds);
+        intervalDifferenceInMicroseconds =
+            (Sint64)(finishIntervalInMicroseconds -
+                     startIntervalInMicroseconds);
 
-        return intervalDifferenceInSeconds;
+        return intervalDifferenceInMicroseconds;
     }
     else if ( startTime.isInterval() || finishTime.isInterval() )
     {
@@ -460,8 +474,25 @@ Sint64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
     //
     differenceInSeconds = (Sint64) difftime( timeFinishInSeconds, timeStartInSeconds );
 
+    //
+    //  ATTN-CAKG-P1-20020816: struct tm and difftime don't handle microseconds
+    //
+    Sint64 differenceInMicroseconds = differenceInSeconds * 1000000;
+    startDateTimeCString = startTime._rep->data;
+    finishDateTimeCString = finishTime._rep->data;
+    char dateBuffer [9];
+    sprintf (dateBuffer, "%6.6s", startDateTimeCString + 15);
+    Uint32 startDateMicroseconds = atoi (dateBuffer);
+    sprintf (dateBuffer, "%6.6s", finishDateTimeCString + 15);
+    Uint32 finishDateMicroseconds = atoi (dateBuffer);
+    (finishDateMicroseconds > startDateMicroseconds) ?
+        differenceInMicroseconds +=
+            (finishDateMicroseconds - startDateMicroseconds) :
+        differenceInMicroseconds -=
+            (startDateMicroseconds - finishDateMicroseconds);
+
     delete []dateTimeOnly;
-    return differenceInSeconds;
+    return differenceInMicroseconds;
 }
 
 PEGASUS_NAMESPACE_END

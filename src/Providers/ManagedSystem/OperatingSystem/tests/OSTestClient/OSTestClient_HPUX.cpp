@@ -30,6 +30,8 @@
 //         Warren Otsuka, Hewlett-Packard Company (warren_otsuka@hp.com)
 //         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //         Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -187,7 +189,7 @@ Boolean OSTestClient::goodInstallDate(const CIMDateTime &idate,
                                       Boolean verbose)
 {
    if (verbose)
-      cout<<"Checking InstallDate " << idate.getString() << endl;
+      cout<<"Checking InstallDate " << idate.toString() << endl;
    return false;  // not implemented for HP-UX, fail if there
 }
 
@@ -269,7 +271,7 @@ Boolean OSTestClient::goodLastBootUpTime(const CIMDateTime &btime,
    CIMDateTime        lbTime;
 
    if (verbose)
-      cout<<"Checking LastBootUpTime " << btime.getString() << endl;
+      cout<<"Checking LastBootUpTime " << btime.toString() << endl;
 
    if (pstat_getstatic(&pst, sizeof(pst), (size_t)1, 0) == -1)
    {
@@ -320,19 +322,19 @@ Boolean OSTestClient::goodLocalDateTime(const CIMDateTime &ltime,
 					Boolean verbose)
 {
    if (verbose)
-      cout<<"Checking LocalDateTime " << ltime.getString() << endl;
+      cout<<"Checking LocalDateTime " << ltime.toString() << endl;
 
    CIMDateTime currentDT = CIMDateTime::getCurrentDateTime();
    Sint64 raw_delta = CIMDateTime::getDifference(ltime, currentDT);
    Uint64 delta = labs(raw_delta);
    
    if (verbose) {
-      cout<<" Should be close to " << currentDT.getString() << endl;
+      cout<<" Should be close to " << currentDT.toString() << endl;
       printf( " Delta should be within 360 seconds, is %lld\n",delta);
       fflush(stdout);
    }
    // arbitrary choice of expecting them to be within 360 seconds
-   return (delta < 360);   
+   return (delta < 360000000);   
 }
 
 /**
@@ -346,7 +348,7 @@ Boolean OSTestClient::goodCurrentTimeZone(const Sint16 &tz, Boolean verbose)
       cout<<"Checking CurrentTimeZone " << tz << endl;
   
    CIMDateTime currentDT = CIMDateTime::getCurrentDateTime();
-   String ds = currentDT.getString();  // want timezone
+   String ds = currentDT.toString();  // want timezone
 
    // cheat here since we know the position of the timezone info
    // subtracting '0' gets us the number from the ASCII, while 

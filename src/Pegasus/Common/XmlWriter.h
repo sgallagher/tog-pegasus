@@ -501,6 +501,10 @@ PEGASUS_COMMON_LINKAGE Array<Sint8>& operator<<(
     Array<Sint8>& out, 
     Uint32 x);
 
+PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
+    PEGASUS_STD(ostream)& os,
+    const CIMDateTime& x);
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_XmlWriter_h */

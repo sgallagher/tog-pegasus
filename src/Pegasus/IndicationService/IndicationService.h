@@ -1313,6 +1313,12 @@ private:
      */
     static const char   _QUERY_ALLPROPERTIES [];
 
+    /**
+        A zero value CIMDateTime interval
+     */
+    static const char _ZERO_INTERVAL_STRING [];
+
+
     //
     //  Message substrings used in exception messages
     //

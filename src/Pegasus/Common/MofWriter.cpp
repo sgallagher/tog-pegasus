@@ -186,7 +186,7 @@ inline void _appendValue(Array<Sint8>& out, const String& x)
 
 inline void _appendValue(Array<Sint8>& out, const CIMDateTime& x)
 {
-    out << x.getString();  //ATTN: append() method?
+    out << x.toString();  //ATTN: append() method?
 }
 
 inline void _appendValue(Array<Sint8>& out, const CIMObjectPath& x)

@@ -68,6 +68,9 @@ Boolean getCurrentTimeZone(Sint16& currentTimeZone)
    return(true);
 }
 
+//
+// Note: Original code was taken from OperatingSystem::getLocalDateTime ()
+//
 CIMDateTime CIMDateTime::getCurrentDateTime()
 {
    SYSTEMTIME time;

@@ -25,11 +25,14 @@
 //
 // Modified By: Sushma Fernandes, Hewlett-Packard Company
 //              (sushma_fernandes@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
 #include <Pegasus/Common/CIMDateTime.h>
+#include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Exception.h>
 
 PEGASUS_USING_PEGASUS;
@@ -45,7 +48,7 @@ int main(int argc, char** argv)
     dt.set("19991224120000.000000+360");
 
     dt.clear();
-    assert(dt.isNull());
+    assert (dt.equal (CIMDateTime ("00000000000000.000000:000")));
 
     {
 	Boolean bad = false;
@@ -87,7 +90,8 @@ int main(int argc, char** argv)
     // Tests for getCurrentDateTime and getDifference.
     //
     CIMDateTime         startTime, finishTime;
-    Sint64              differenceInSeconds;
+    Sint64              differenceInMicroseconds;
+
 
     //
     // Call getCurrentDateTime
@@ -104,7 +108,8 @@ int main(int argc, char** argv)
     //
     try 
     {
-        differenceInSeconds = CIMDateTime::getDifference(startTime,finishTime);
+        differenceInMicroseconds = CIMDateTime::getDifference (startTime,
+            finishTime);
     }
     catch(BadDateTimeFormat &e)
     {
@@ -117,7 +122,64 @@ int main(int argc, char** argv)
         cout << "Finish date time is : " << finishTime << endl;
     }
 
-    assert ( differenceInSeconds == -10800 );
+    assert ( differenceInMicroseconds == -10800000000 );
+
+    //
+    //  Test date difference with microseconds
+    //
+    // Set the start and finish times
+    startTime.clear ();
+    finishTime.clear ();
+    finishTime.set ("20020507170000.000003-480");
+    startTime.set ("20020507170000.000000-300");
+
+    //
+    // Call getDifference
+    //
+    try 
+    {
+        differenceInMicroseconds = CIMDateTime::getDifference
+            (startTime, finishTime);
+    }
+    catch (BadDateTimeFormat & e)
+    {
+    }
+
+    if (verbose)
+    {
+        cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
+        cout << "Start date time is  : " << startTime << endl;
+        cout << "Finish date time is : " << finishTime << endl;
+    }
+
+    assert (differenceInMicroseconds == 10800000003);
+
+    // Set the start and finish times
+    startTime.clear ();
+    finishTime.clear ();
+    finishTime.set ("20020507170000.000000-480");
+    startTime.set ("20020507170000.000003-300");
+
+    //
+    // Call getDifference
+    //
+    try 
+    {
+        differenceInMicroseconds = CIMDateTime::getDifference
+            (startTime, finishTime);
+    }
+    catch (BadDateTimeFormat & e)
+    {
+    }
+
+    if (verbose)
+    {
+        cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
+        cout << "Start date time is  : " << startTime << endl;
+        cout << "Finish date time is : " << finishTime << endl;
+    }
+
+    assert (differenceInMicroseconds == 10799999997);
 
     // Set the start and finish times
     startTime.clear();
@@ -130,7 +192,8 @@ int main(int argc, char** argv)
     //
     try 
     {
-        differenceInSeconds = CIMDateTime::getDifference(startTime,finishTime);
+        differenceInMicroseconds = CIMDateTime::getDifference (startTime,
+            finishTime);
     }
     catch(BadDateTimeFormat &e)
     {
@@ -143,7 +206,7 @@ int main(int argc, char** argv)
         cout << "Finish date time is : " << finishTime << endl;
     }
 
-    assert ( differenceInSeconds == 10800 );
+    assert ( differenceInMicroseconds == 10800000000 );
 
     // Set the start and finish times
     startTime.clear();
@@ -156,7 +219,8 @@ int main(int argc, char** argv)
     //
     try 
     {
-        differenceInSeconds = CIMDateTime::getDifference(startTime,finishTime);
+        differenceInMicroseconds = CIMDateTime::getDifference (startTime,
+            finishTime);
     }
     catch(BadDateTimeFormat &e)
     {
@@ -169,7 +233,7 @@ int main(int argc, char** argv)
         cout << "Finish date time is : " << finishTime << endl;
     }
 
-    assert ( differenceInSeconds == 48600 );
+    assert ( differenceInMicroseconds == 48600000000 );
 
     // Set the start and finish times
     startTime.clear();
@@ -182,7 +246,8 @@ int main(int argc, char** argv)
     //
     try 
     {
-        differenceInSeconds = CIMDateTime::getDifference(startTime,finishTime);
+        differenceInMicroseconds = CIMDateTime::getDifference (startTime,
+            finishTime);
     }
     catch(BadDateTimeFormat &e)
     {
@@ -195,12 +260,12 @@ int main(int argc, char** argv)
         cout << "Finish date time is : " << finishTime << endl;
     }
 
-    assert ( differenceInSeconds == -48600 );
+    assert ( differenceInMicroseconds == -48600000000 );
 
     // Check for interval
     CIMDateTime 	 startInterval;
     CIMDateTime		 finishInterval;
-    Sint64      	 intervalDifferenceInSeconds;
+    Sint64      	 intervalDifferenceInMicroseconds;
 
     startInterval.set  ("00000001010100.000000:000");
     finishInterval.set ("00000001010200.000000:000");
@@ -212,11 +277,30 @@ int main(int argc, char** argv)
         cout << "Finish interval is  : " << finishInterval << endl;
     }
 
-    intervalDifferenceInSeconds = CIMDateTime::getDifference
+    intervalDifferenceInMicroseconds = CIMDateTime::getDifference
                                      (startInterval, finishInterval);
 
     assert ( startInterval.isInterval() == true );
-    assert ( intervalDifferenceInSeconds == 60 );
+    assert ( intervalDifferenceInMicroseconds == 60000000 );
+
+    //
+    //  Test maximum interval difference
+    //
+    startInterval.set  ("00000000000000.000000:000");
+    finishInterval.set ("99999999235959.999999:000");
+
+    if (verbose)
+    {
+        cout << "Format              : ddddddddhhmmss.mmmmmm:000" << endl;
+        cout << "Start interval is   : " << startInterval << endl;
+        cout << "Finish interval is  : " << finishInterval << endl;
+    }
+
+    intervalDifferenceInMicroseconds = CIMDateTime::getDifference
+                                     (startInterval, finishInterval);
+
+    assert ( startInterval.isInterval() == true );
+    assert ( intervalDifferenceInMicroseconds == 8639999999999999999 );
 
     try 
     {

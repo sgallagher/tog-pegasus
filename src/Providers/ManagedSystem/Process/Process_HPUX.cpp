@@ -31,6 +31,8 @@
 //         Jim Metcalfe, Hewlett-Packard Company
 //         Carlos Bonilla, Hewlett-Packard Company
 //         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -292,7 +294,7 @@ Boolean Process::getCreationDate(CIMDateTime& d) const
                        t->tm_sec,
                        (timezone>0)?'-':'+',
                        timezone/60 - (t->tm_isdst? 60:0));
-  d = timstr;
+  d = CIMDateTime (timstr);
   return true;
 }
 

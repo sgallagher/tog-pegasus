@@ -27,6 +27,8 @@
 //              Sushma Fernandes, Hewlett Packard Company 
 //                  (sushma_fernandes@hp.com)
 //              Roger Kumpf, Hewlett Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,10 +38,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Linkage.h>
-#include <time.h>
-#ifdef PEGASUS_INTERNALONLY
-#include <iostream>
-#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -54,8 +52,8 @@ class CIMDateTimeRep;
 /**
     The CIMDateTime class represents the CIM datetime data type as a C++ class 
     CIMDateTime. A CIM datetime may contain a date or an interval. CIMDateTime 
-    is an intrinsic CIM data type which represents the time as a formated 
-    fixedplength string.
+    is an intrinsic CIM data type which represents the time as a formatted 
+    fixed length string.
 
     <PRE>
     A date has the following form:
@@ -63,15 +61,15 @@ class CIMDateTimeRep;
 
     Where
 
-	yyyy = year (0-1999)
+	yyyy = year (1-9999)
 	mm = month (1-12)
 	dd = day (1-31)
 	hh = hour (0-23)
 	mm = minute (0-59)
 	ss = second (0-59)
-	mmmmmm = microseconds.
-	s = '+' or '-' to represent the UTC sign.
-	utc = UTC offset (same as GMT offset).
+	mmmmmm = microseconds
+	s = '+' or '-' to represent the UTC sign
+	utc = UTC offset (same as GMT offset)
 
     An interval has the following form:
 
@@ -94,33 +92,32 @@ class CIMDateTimeRep;
     better to think of an interval as specifying time elapsed since
     some event.
 
-    CIMDateTime objects are constructed from C character strings or from
-    other CIMDateTime objects. These character strings must be exactly
-    twenty-five characters and conform to one of the forms idententified
+    CIMDateTime objects are constructed from String objects or from
+    other CIMDateTime objects.  These character strings must be exactly
+    twenty-five characters and conform to one of the forms identified
     above.
 
-    CIMDateTime objects which are not explicitly initialized will be
-    implicitly initialized with the null time interval:
+    CIMDateTime objects that are not explicitly initialized will be
+    implicitly initialized with a zero time interval:
 
 	00000000000000.000000:000
 
-    Instances can be tested for nullness with the isNull() method.
 */
 class PEGASUS_COMMON_LINKAGE CIMDateTime
 {
 public:
 
-    /** Create a new CIMDateTime object with NULL DateTime definition.
+    /** Creates a new CIMDateTime object with a zero interval value
     */
     CIMDateTime();
 
-    /** CIMDateTime - Creat a CIM CIMDateTime instance from a string 
-	constant representing the CIM DateTime formatted datetime
-        See the class documentation for CIMDateTime for the defintion of the
+    /** CIMDateTime - Creates a CIM CIMDateTime instance from a string 
+	constant representing the CIM DateTime-formatted datetime
+        See the class documentation for CIMDateTime for the definition of the
         input string for absolute and interval datetime.
-	@param str String object containing the CIM DateTime formatted string
+	@param str String object containing the CIM DateTime-formatted string
     */
-    CIMDateTime(const char* str);
+    CIMDateTime(const String & str);
 
     /** CIMDateTime Create a CIMDateTime instance from another 
 	CIMDateTime object
@@ -141,26 +138,10 @@ public:
     */
     CIMDateTime& operator=(const CIMDateTime& x);
 
-    /** CIMDateTime isNull method - Tests for an all zero date time. Note that
-        today this function checks for absolute datetime == zero, not interval.
-	<PRE>
-	CIMDateTime dt;
-	dt.clear();
-    	assert(dt.isNull());
-    	</PRE>
-	@return This method returns true of the contents are
-	"00000000000000.000000:000". Else it returns false
-    */
-    Boolean isNull() const;
-
-    /*  ATTN: P3 KS.  This simply returns a string whether the datetime is a
-        real value or the NULL value.  It is up to the user to test.  Should
-        this be modified so we do something like an interupt on NULL?
-    */
-    /** getString - Returns the string representing the DateTime value of the
+    /** toString - Returns the string representing the DateTime value of the
         CIMDateTime Object.
     */
-    const char* getString() const;
+    String toString () const;
 
     /** method set - Sets the date time. Creates the CIMDateTime instance from 
 	the input string constant which must be
@@ -175,38 +156,32 @@ public:
 	BadDateTimeFormat
 	@exception Throws exception BadDateTimeFormat on format error.
     */
-    void set(const char* str);
+    void set(const String & str);
 
-    /**  clear - Clears the datetime class instance. The date time is set to our
-        defintion of NULL, absolute zero date time.
+    /**  clear - Clears the datetime class instance.  The date time is set to 
+         a zero interval value.
     */
     void clear();
-
-    /** Makes a deep copy (clone) of the given object. */
-    CIMDateTime clone() const;
 
     /**
     Get current time as CIMDateTime. The time returned is the local time.
 
     @return CIMDateTime   Contains the current datetime as a CIMDateTime object.
-
-    Note: Original code was taken from OperationSystem::getLocalDateTime()
     */
     static CIMDateTime getCurrentDateTime();
 
     /**
-    Get the difference between two CIMDateTimes. This function computes the 
-    difference between two datetimes or between two intervals. The result 
-    is truncated and returned as the number of seconds.
+    Computes the difference in microseconds between two CIMDateTime dates or 
+    two CIMDateTime intervals 
 
-    @param startTime     Contains the start time.
+    @param startTime     Contains the start datetime
 
-    @param finishTime    Contains the finish time.
+    @param finishTime    Contains the finish datetime
 
-    @return difference   Difference between the two datetimes in seconds.
+    @return difference   Difference between the two datetimes in microseconds
     
     @throws BadDateTimeFormat If one argument is a datetime and one is an
-                              interval.
+                              interval
     */
     static Sint64 getDifference(CIMDateTime startTime, CIMDateTime finishTime);
  
@@ -217,40 +192,24 @@ public:
     */
     Boolean isInterval();
 
+    /**
+    Compares the CIMDateTime object to another CIMDateTime object for equality
+
+    @return True if the two CIMDateTime objects are equal,
+            False otherwise
+    */
+    Boolean equal (const CIMDateTime & x) const;
+
 private:
 
     CIMDateTimeRep* _rep;
 
-    Boolean _set(const char* str);
-
-    /**
-       This function extracts the different components of the date and time
-       from the string passed and assigns it to the tm structure.
-
-       @param dateTimeStr  Contains the string to be assigned.
-
-       @param tm           Contains the tm structure to be updated.
-    */
-    static void formatDateTime(char* dateTime, tm* tm);
-
-    // ATTN
-    /** CIMDateTime - Friend operator Test for CIMDateTime 
-	equality
-    */
-    PEGASUS_COMMON_LINKAGE friend Boolean operator==(
-	const CIMDateTime& x,
-	const CIMDateTime& y);
+    Boolean _set(const String & dateTimeStr);
 };
 
 PEGASUS_COMMON_LINKAGE Boolean operator==(
     const CIMDateTime& x, 
     const CIMDateTime& y);
-
-#ifdef PEGASUS_INTERNALONLY
-PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
-    PEGASUS_STD(ostream)& os, 
-    const CIMDateTime& x);
-#endif
 
 #define PEGASUS_ARRAY_T CIMDateTime
 # include <Pegasus/Common/ArrayInter.h>

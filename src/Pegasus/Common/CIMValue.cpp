@@ -79,7 +79,7 @@ inline void _toString(Array<Sint8>& out, const String& x)
 
 inline void _toString(Array<Sint8>& out, const CIMDateTime& x)
 {
-    out << x.getString();
+    out << x.toString();
 }
 
 inline void _toString(Array<Sint8>& out, const CIMObjectPath& x)

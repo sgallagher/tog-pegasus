@@ -186,7 +186,6 @@ inline PEGASUS_THREAD_TYPE pegasus_thread_self(void)
    return (* ((PEGASUS_THREAD_TYPE *) &pt));
 }
 
-
 // l10n start
 typedef pthread_key_t PEGASUS_THREAD_KEY_TYPE;
 
@@ -213,7 +212,6 @@ inline Uint32 pegasus_set_thread_specific(PEGASUS_THREAD_KEY_TYPE key,
 	return pthread_setspecific(key, value);
 } 
 // l10n end
-
 
 inline void destroy_thread(PEGASUS_THREAD_TYPE th, PEGASUS_THREAD_RETURN rc)
 {

@@ -1,0 +1,33 @@
+#pragma locale ("en_US")
+
+// l10n - globalization test
+
+instance of PG_ProviderModule
+{
+    Description = "The Sample Pegasus Provider Module that implements Sample_LocalizedProviderClass";
+    Caption = "Sample Pegasus Localized Provider Module";
+    Name = "SampleLocalizedProviderModule";
+    Vendor = "Pegasus";
+    Version = "2.0.0";
+    InterfaceType = "C++Default";
+    InterfaceVersion = "2.1.0";
+    Location = "SampleLocalizedProvider";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "SampleLocalizedProviderModule";
+    Name = "SampleLocalizedProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "SampleLocalizedProviderModule";
+    ProviderName = "SampleLocalizedProvider";
+    CapabilityID = "SampleLocalizedProvider";
+    ClassName = "Sample_LocalizedProviderClass";
+    Namespaces = { "root/SampleProvider" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};

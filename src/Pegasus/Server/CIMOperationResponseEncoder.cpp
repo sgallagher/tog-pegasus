@@ -49,6 +49,9 @@
 #include <Pegasus/Common/StatisticalData.h>
 #include "CIMOperationResponseEncoder.h"
 
+// l10n
+#include <Pegasus/Common/MessageLoader.h>
+
 #ifdef PEGASUS_CCOVER
 # include <ccover.h>
 #endif
@@ -90,6 +93,10 @@ void CIMOperationResponseEncoder::sendResponse(
 		  "CIMOperationResponseEncoder::SendResponse - QueueId: $0  XML content: $1",
 		  queue,
 		  httpMessage->message.getData());
+
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+      httpMessage->authInfo = (AuthenticationInfo *)99;
+#endif
 
       queue->enqueue(httpMessage);
 
@@ -509,8 +516,16 @@ void CIMOperationResponseEncoder::encodeEnumerateClassesResponse(
    {
        // ATTN-SF-P5-20021004 A message should be logged here
        // indicating the out of memory message.
-       CIMException cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                      OUT_OF_MEMORY_MESSAGE);
+
+     // l10n
+     CIMException cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+				  MessageLoaderParms(
+				    "Server.CIMOperationResponseEncoder.OUT_OF_MEMORY", 
+				     OUT_OF_MEMORY_MESSAGE));
+
+     // CIMException cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+     //                            OUT_OF_MEMORY_MESSAGE);
+
        response->cimException = cimException;
        sendIMethodError(response, "EnumerateClasses");
        PEG_METHOD_EXIT();
@@ -683,8 +698,17 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
    {
        // ATTN-SF-P5-20021004 A message should be logged here
        // indicating the out of memory message.
-       CIMException cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                      OUT_OF_MEMORY_MESSAGE);
+
+
+     // l10n
+     CIMException cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+				     MessageLoaderParms(
+					"Server.CIMOperationResponseEncoder.OUT_OF_MEMORY", 
+					 OUT_OF_MEMORY_MESSAGE));
+
+       // CIMException cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+       //                            OUT_OF_MEMORY_MESSAGE);
+
        response->cimException = cimException;
        sendIMethodError(response, "EnumerateInstances");
        PEG_METHOD_EXIT();

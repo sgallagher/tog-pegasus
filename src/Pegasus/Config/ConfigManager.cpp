@@ -141,6 +141,9 @@ static struct OwnerEntry _properties[] =
     {"sslCertificateFilePath", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"sslKeyFilePath",      (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"sslTrustFilePath",      (ConfigPropertyOwner* )ConfigManager::securityOwner},
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+    {"kerberosServiceName", (ConfigPropertyOwner* )ConfigManager::securityOwner},
+#endif
     {"repositoryIsDefaultInstanceProvider", (ConfigPropertyOwner* )ConfigManager::repositoryOwner},
     {"shutdownTimeout",     (ConfigPropertyOwner* )ConfigManager::shutdownOwner},
     {"repositoryDir",       (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},
@@ -516,11 +519,23 @@ Get a list of all property names.
 */
 void ConfigManager::getAllPropertyNames(Array<String>& propertyNames)
 {
+    Array<String> propertyInfo;
     propertyNames.clear();
 
     for (OwnerTable::Iterator i = _propertyTable->ownerTable.start(); i; i++)
     {
-        propertyNames.append(i.key());
+        //
+        // Check if property is to be externally visible or not.
+        // If the property should not be externally visible do not list the
+        // property information.
+        //
+        propertyInfo.clear();
+        getPropertyInfo(i.key(), propertyInfo);
+
+        if ( propertyInfo[5] == STRING_TRUE )
+        {
+            propertyNames.append(i.key());
+        }
     }
 }
 

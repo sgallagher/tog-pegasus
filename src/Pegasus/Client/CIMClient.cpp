@@ -94,12 +94,14 @@ public:
 	_timeoutMilliseconds = timeoutMilliseconds;
     }
 
+
 // l10n start
 	AcceptLanguages getRequestAcceptLanguages() const;
 	ContentLanguages getRequestContentLanguages() const;
 	ContentLanguages getResponseContentLanguages() const;
 	void setRequestAcceptLanguages(AcceptLanguages& langs);
 	void setRequestContentLanguages(ContentLanguages& langs);
+	void setRequestDefaultLanguages();
 // l10n end	
 
     void connect(
@@ -353,14 +355,58 @@ void CIMClientRep::handleEnqueue()
 {
 
 }
-
+Uint32 _getShowType(String& s)
+{
+    String log = "log";
+    String con = "con";
+    String both = "both";
+    if (s == log)
+        return 3;
+    if (s == con)
+        return 2;
+    if (s == both)
+        return 1;
+    return 0;
+}
 void CIMClientRep::_connect()
 {
+    //
+	// Test for Display optons of the form
+	// Use Env variable PEGASUS_CLIENT_TRACE= <intrace> : <outtrace
+    // intrace = "con" | "log" | "both"
+    // outtrace = intrace
+    // ex set PEGASUS_CLIENT_TRACE=BOTH:BOTH traces input and output
+    // to console and log
+    // Keywords are case insensitive.
+    // PEP 90
+	//
+	Uint32 showOutput = 0;
+    Uint32 showInput = 0;
+#ifdef PEGASUS_CLIENT_TRACE_ENABLE
+	String input;
+	if (char * envVar = getenv("PEGASUS_CLIENT_TRACE"))
+	{
+		input = envVar;
+		input.toLower();
+		String io = String::EMPTY;
+		//String showWhere = String::EMPTY;
+		Uint32 pos = input.find(':');
+		if (pos == PEG_NOT_FOUND)
+			pos = 0;
+		else
+			io = input.subString(0,pos);
+
+		showOutput = _getShowType(input.subString(pos + 1));
+
+		showInput = _getShowType(io);
+	}
+#endif    
+    
     //
     // Create response decoder:
     //
     _responseDecoder = new CIMOperationResponseDecoder(
-        this, _requestEncoder, &_authenticator);
+        this, _requestEncoder, &_authenticator, showInput);
     
     //
     // Attempt to establish a connection:
@@ -387,12 +433,11 @@ void CIMClientRep::_connect()
         delete _responseDecoder;
         throw e;
     }
-    
     //
     // Create request encoder:
     //
     _requestEncoder = new CIMOperationRequestEncoder(
-        _httpConnection, &_authenticator);
+        _httpConnection, &_authenticator, showOutput);
 
     _responseDecoder->setEncoderQueue(_requestEncoder);
 
@@ -559,8 +604,19 @@ void CIMClientRep::connectLocal()
         //
         // Create SSLContext
         //
-
-        const char* pegasusHome = getenv("PEGASUS_HOME");
+#ifdef PEGASUS_OS_OS400
+#pragma convert(37)
+        const char* env = getenv("PEGASUS_HOME");
+#pragma convert(0)
+	char pegasusHome[256] = {0};
+	if (env != NULL && strlen(env) < 256)
+	{
+	    strcpy(pegasusHome, env);
+	    EtoA(pegasusHome);
+	}
+#else
+	const char* pegasusHome = getenv("PEGASUS_HOME");
+#endif
 
         String certpath = FileSystem::getAbsolutePath(
             pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
@@ -641,6 +697,7 @@ void CIMClientRep::disconnect()
     }
 }
 
+
 // l10n start
 AcceptLanguages CIMClientRep::getRequestAcceptLanguages() const
 {
@@ -665,6 +722,10 @@ void CIMClientRep::setRequestAcceptLanguages(AcceptLanguages& langs)
 void CIMClientRep::setRequestContentLanguages(ContentLanguages& langs)
 {
 	requestContentLanguages = langs;
+}
+
+void CIMClientRep::setRequestDefaultLanguages(){
+	requestAcceptLanguages = AcceptLanguages::getDefaultAcceptLanguages();
 }
 
 // l10n end	
@@ -1495,6 +1556,7 @@ void CIMClient::disconnect()
     _rep->disconnect();
 }
 
+
 // l10n start
 void CIMClient::setRequestAcceptLanguages(AcceptLanguages& langs)
 {
@@ -1519,6 +1581,10 @@ ContentLanguages CIMClient::getRequestContentLanguages() const
 ContentLanguages CIMClient::getResponseContentLanguages() const
 {
 		return _rep->getResponseContentLanguages();
+}
+
+void CIMClient::setRequestDefaultLanguages(){
+	_rep->setRequestDefaultLanguages();
 }
 // l10n end	
 

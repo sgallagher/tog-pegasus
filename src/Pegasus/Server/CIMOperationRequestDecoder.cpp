@@ -51,6 +51,10 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include "CIMOperationRequestDecoder.h"
+#include <Pegasus/Common/CommonUTF.h>
+
+// l10n
+#include <Pegasus/Common/MessageLoader.h>
 
 PEGASUS_USING_STD;
 
@@ -241,12 +245,81 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
    // Process M-POST and POST messages:
 
+   String cimContentType;
    String cimOperation;
    String cimBatch;
    Boolean cimBatchFlag;
    String cimProtocolVersion;
    String cimMethod;
    String cimObject;
+
+   // Validate the "Content-Type" header:
+
+   // 4.2.2. Accept-Charset
+   //  If a CIM client includes an Accept-Charset header in a request,
+   //  it MUST specify a value which allows the CIM Server or CIM Listener
+   //  to return an entity body using the character set "utf-8".
+   //  A CIM server or CIM Listener MUST accept any value for this header
+   //  which implies that "utf-8" is an acceptable character set for an
+   //  response entity.  A CIM Server or CIM Listener SHOULD return
+   //  "406 Not Acceptable" if the Accept-Charset header indicates that
+   //  this character set is not acceptable. 
+   //
+   //  If a CIM Server or CIM Listener decides to accept a request to return
+   //  an entity using a character set other than "utf-8", the nature
+   //  of the response is outside of the domain of this specification. 
+
+
+   Boolean contentTypeHeaderFound = HTTPMessage::lookupHeader(headers,
+							    "Content-Type",
+							    cimContentType,
+							    true);
+
+   Uint32 validateSize= httpMessage->message.size();
+   Sint8  *validateContent = (Sint8*) httpMessage->message.getData();
+   Uint32 count;
+
+   // If the Content-Type header is missing we will assume a charset of ISO-8859-1
+   if(!contentTypeHeaderFound)
+   {
+       // We will verify that the characters fall in the 7-bit ASCII range
+       for(count = 0;count < validateSize; ++count)
+       {
+	   if((Uint8)validateContent[count] > 0x7F)
+	   {
+	       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "unsupported-Content-Type",
+			     String("8-bit characters detected, Content-Type value is required."));
+	       PEG_METHOD_EXIT();
+	       return;
+	   } 
+       }
+   }
+   // Validating the charset is utf-8
+   else if(!String::equalNoCase(cimContentType, "application/xml; charset=\"utf-8\""))
+   {
+       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "unsupported-Content-Type",
+		     String("Content-Type value \"") + cimContentType +
+		     "\" is not supported.");
+       PEG_METHOD_EXIT();
+       return; 
+   }
+   // Validating content falls within UTF8
+   else
+   {
+       char currentChar;
+       count = 0;
+       while(count<validateSize)
+       {
+	   if (!(String::isUTF8((char *)&validateContent[count])))
+	   {
+	       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "unsupported-Content-Type",
+			     String("Invalid UTF-8 character detected."));
+	       PEG_METHOD_EXIT();
+	       return; 
+	   }
+	   UTF8_NEXT(validateContent,count,currentChar);
+       }
+   }
 
    // Validate the "CIMOperation" header:
 
@@ -503,8 +576,18 @@ void CIMOperationRequestDecoder::handleMethodCall(
       if (!XmlReader::getMessageStartTag(
 	     parser, messageId, protocolVersion))
       {
-	 throw XmlValidationError(
-	    parser.getLine(), "expected MESSAGE element");
+
+	// l10n
+
+	// throw XmlValidationError(
+	//  parser.getLine(), "expected MESSAGE element");
+
+	MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
+				   "expected $0 element", "MESSAGE");
+
+	throw XmlValidationError(parser.getLine(), mlParms);
+				 
+			       
       }
 
       // Validate that the protocol version in the header matches the XML
@@ -610,8 +693,18 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
 	 if (!XmlReader::getLocalNameSpacePathElement(parser, nameSpace))
 	 {
-	    throw XmlValidationError(parser.getLine(), 
-				     "expected LOCALNAMESPACEPATH element");
+
+	   // l10n
+
+	   // throw XmlValidationError(parser.getLine(), 
+	   // "expected LOCALNAMESPACEPATH element");
+
+	   MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
+				      "expected $0 element", "LOCALNAMESPACEPATH");
+
+	   throw XmlValidationError(parser.getLine(),mlParms);
+				    
+			       
 	 }
 
          // The Specification for CIM Operations over HTTP reads:
@@ -743,8 +836,14 @@ void CIMOperationRequestDecoder::handleMethodCall(
                   queueId, parser, messageId, nameSpace, authType, userName);
             else
             {
-               throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-                  String("Unrecognized intrinsic method: ") + cimMethodName);
+	      // l10n
+
+	      // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+	      // String("Unrecognized intrinsic method: ") + cimMethodName);
+
+	      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, MessageLoaderParms("Server.CIMOperationRequestDecoder.UNRECOGNIZED_INSTRINSIC_METHOD",
+									     "Unrecognized intrinsic method: $0", cimMethodName));
+
             }
          }
          catch (CIMException& e)
@@ -829,8 +928,18 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	    parser.putBack(entry);
 	    if (!XmlReader::getLocalInstancePathElement(parser, reference))
 	    {
-	       throw XmlValidationError(parser.getLine(),
-					"expected LOCALINSTANCEPATH element");
+
+	      // l10n
+
+	      // throw XmlValidationError(parser.getLine(),
+	      // "expected LOCALINSTANCEPATH element");
+	      
+	      MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
+					 "expected $0 element", "LOCALINSTANCEPATH");
+
+	      throw XmlValidationError(parser.getLine(),mlParms);
+
+				       
 	    }
 	 }
 	 //
@@ -842,14 +951,23 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	    parser.putBack(entry);
 	    if (!XmlReader::getLocalClassPathElement(parser, reference))
 	    {
-	       throw XmlValidationError(parser.getLine(),
-					"expected LOCALCLASSPATH element");
+	      // l10n
+
+	      // throw XmlValidationError(parser.getLine(),
+	      // "expected LOCALCLASSPATH element");
+
+	      MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
+					 "expected $0 element", "LOCALCLASSPATH");
+
+	      throw XmlValidationError(parser.getLine(),mlParms);
+
 	    }
 	 }
 	 else
 	 {
-	    throw XmlValidationError(parser.getLine(),
-				     MISSING_ELEMENT_LOCALPATH);
+	   throw XmlValidationError(parser.getLine(), MISSING_ELEMENT_LOCALPATH);
+	   // this throw is not updated with MLP because MISSING_ELEMENT_LOCALPATH
+	   // is a hardcoded variable, not a message
 	 }
 
          // The Specification for CIM Operations over HTTP reads:
@@ -952,8 +1070,16 @@ void CIMOperationRequestDecoder::handleMethodCall(
       }
       else
       {
-	 throw XmlValidationError(parser.getLine(), 
-				  "expected IMETHODCALL or METHODCALL element");
+	// l10n
+
+	// throw XmlValidationError(parser.getLine(), 
+	// "expected IMETHODCALL or METHODCALL element");
+
+	MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
+				   "expected $0 element", "IMETHODCALL or METHODCALL");
+
+	throw XmlValidationError(parser.getLine(),mlParms);
+			       
       }
 
       // Expect </SIMPLEREQ>

@@ -42,6 +42,9 @@
 #include <Pegasus/Common/Exception.h>
 #include "CIMExportResponseDecoder.h"
 
+// l10n
+#include <Pegasus/Common/MessageLoader.h>
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -107,14 +110,23 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
    if (httpMessage->message.size() == 0)
    {
-        CIMClientMalformedHTTPException* malformedHTTPException =
-            new CIMClientMalformedHTTPException("Empty HTTP response message.")
-;
-        ClientExceptionMessage * response =
-            new ClientExceptionMessage(malformedHTTPException);
 
-        _outputQueue->enqueue(response);
-        return;
+     // l10n
+     
+     // CIMClientMalformedHTTPException* malformedHTTPException =
+     // new CIMClientMalformedHTTPException("Empty HTTP response message.");
+     
+     MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.EMPTY_RESPONSE", "Empty HTTP response message.");
+     String mlString(MessageLoader::getMessage(mlParms));
+     
+     CIMClientMalformedHTTPException* malformedHTTPException =
+       new CIMClientMalformedHTTPException(mlString);
+     
+     ClientExceptionMessage * response =
+       new ClientExceptionMessage(malformedHTTPException);
+     
+     _outputQueue->enqueue(response);
+     return;
    }
 
    httpMessage->parse(startLine, headers, contentLength);
@@ -131,11 +143,20 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         startLine, httpVersion, statusCode, reasonPhrase);
     if (!parsableMessage)
     {
-        CIMClientMalformedHTTPException* malformedHTTPException = new
-            CIMClientMalformedHTTPException("Malformed HTTP response message.")
-;
-        ClientExceptionMessage * response =
-            new ClientExceptionMessage(malformedHTTPException);
+
+      // l10n
+
+      // CIMClientMalformedHTTPException* malformedHTTPException = new
+      //   CIMClientMalformedHTTPException("Malformed HTTP response message.");
+
+      MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.MALFORMED_RESPONSE", "Malformed HTTP response message.");
+      String mlString(MessageLoader::getMessage(mlParms));
+     
+      CIMClientMalformedHTTPException* malformedHTTPException = new
+         CIMClientMalformedHTTPException(mlString);
+
+      ClientExceptionMessage * response =
+	new ClientExceptionMessage(malformedHTTPException);
 
         _outputQueue->enqueue(response);
         return;
@@ -182,14 +203,19 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     }
     catch(UnauthorizedAccess& e)
     {
-         // ATTN-SF-P3-20030115: Need to create a specific exception
-         // to indicate Authentication failure. See JAGae53944.
-
-         const String ERROR_MESSAGE = "Authentication failed.";
-         CannotConnectException* cannotConnectException =
-            new CannotConnectException(ERROR_MESSAGE);
-         ClientExceptionMessage * response =
-            new ClientExceptionMessage(cannotConnectException);
+      // ATTN-SF-P3-20030115: Need to create a specific exception
+      // to indicate Authentication failure. See JAGae53944.
+    
+      // l10n
+      // const String ERROR_MESSAGE = "Authentication failed.";
+  
+      MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.AUTHENTICATION_FAILED", "Authentication failed.");
+      String ERROR_MESSAGE(MessageLoader::getMessage(mlParms));
+      
+      CannotConnectException* cannotConnectException =
+	new CannotConnectException(ERROR_MESSAGE);
+      ClientExceptionMessage * response =
+	new ClientExceptionMessage(cannotConnectException);
 
      _outputQueue->enqueue(response);
         return;
@@ -235,15 +261,43 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
    if (!HTTPMessage::lookupHeader(
 	  headers, "CIMExport", cimOperation, true))
    {
-      CIMClientMalformedHTTPException* malformedHTTPException = new
-            CIMClientMalformedHTTPException("Missing CIMOperation HTTP header")
-;
+
+     // l10n
+
+     // CIMClientMalformedHTTPException* malformedHTTPException = new
+     //    CIMClientMalformedHTTPException("Missing CIMOperation HTTP header");
+
+      MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.MISSING_CIMOP_HEADER", "Missing $0 HTTP header", "CIMOperation");
+      String mlString(MessageLoader::getMessage(mlParms));
+
+     CIMClientMalformedHTTPException* malformedHTTPException = new
+         CIMClientMalformedHTTPException(mlString);
+
         ClientExceptionMessage * response =
             new ClientExceptionMessage(malformedHTTPException);
 
         _outputQueue->enqueue(response);
       return;
    }
+
+   //
+   // Search for "Content-Type" header:
+   //
+
+   String cimContentType;
+
+   if (!HTTPMessage::lookupHeader(
+	  headers, "Content-Type", cimContentType, true))
+   {
+      CIMClientMalformedHTTPException* malformedHTTPException = new
+            CIMClientMalformedHTTPException("Missing CIMContentType HTTP header");
+        ClientExceptionMessage * response =
+            new ClientExceptionMessage(malformedHTTPException);
+
+        _outputQueue->enqueue(response);
+      return;
+   }
+
 
    //
    // Zero-terminate the message:
@@ -264,12 +318,22 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
    if (!String::equalNoCase(cimOperation, "MethodResponse"))
    {
+
+     // l10n
+
+     // CIMClientMalformedHTTPException* malformedHTTPException =
+     //    new CIMClientMalformedHTTPException(
+     //         String("Received CIMOperation HTTP header value \"") +
+     //         cimOperation + "\", expected \"MethodResponse\"");
+
+      MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.EXPECTED_METHODRESPONSE", "Received $0 HTTP header value \"$1\", expected \"$2\"", "CIMOperation", cimOperation, "MethodResponse");
+      String mlString(MessageLoader::getMessage(mlParms));
+
       CIMClientMalformedHTTPException* malformedHTTPException =
-            new CIMClientMalformedHTTPException(
-                String("Received CIMOperation HTTP header value \"") +
-                cimOperation + "\", expected \"MethodResponse\"");
+	new CIMClientMalformedHTTPException(mlString);
+
       ClientExceptionMessage * response =
-          new ClientExceptionMessage(malformedHTTPException);
+	new ClientExceptionMessage(malformedHTTPException);
 
       _outputQueue->enqueue(response);
       return;
@@ -316,16 +380,36 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
       String messageId;
       String protocolVersion;
 
-      if (!XmlReader::getMessageStartTag(parser, messageId, protocolVersion))
-	 throw XmlValidationError(
-	    parser.getLine(), "expected MESSAGE element");
+      if (!XmlReader::getMessageStartTag(parser, messageId, protocolVersion)) {
+
+	// l10n
+
+	// throw XmlValidationError(
+	// parser.getLine(), "expected MESSAGE element");
+	
+	MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.EXPECTED_ELEMENT", "expected $0 element", "MESSAGE");
+	String mlString(MessageLoader::getMessage(mlParms));
+	
+	throw XmlValidationError(parser.getLine(), mlString);
+
+      }
 
       if (!String::equalNoCase(protocolVersion, "1.0"))
       {
-         CIMClientResponseException* responseException =
-                new CIMClientResponseException(
-                    String("Received unsupported protocol version \"") +
-                    protocolVersion + "\", expected \"1.0\"");
+
+	// l10n
+
+	// CIMClientResponseException* responseException =
+	//     new CIMClientResponseException(
+	//          String("Received unsupported protocol version \"") +
+	//          protocolVersion + "\", expected \"1.0\"");
+
+	MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.UNSUPPORTED_PROTOCOL", "Received unsupported protocol version \"$0\", expected \"1.0\"", protocolVersion);
+	String mlString(MessageLoader::getMessage(mlParms));
+	
+	CIMClientResponseException* responseException =
+	  new CIMClientResponseException(mlString);
+
          ClientExceptionMessage * response =
                 new ClientExceptionMessage(responseException);
 
@@ -351,10 +435,18 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
               response = _decodeExportIndicationResponse(parser, messageId);
           else
 	  {
-                // Unrecognized IMethodResponse name attribute
-                throw XmlValidationError(parser.getLine(),
-                    String("Unrecognized IMethodResponse name \"") +
-                        iMethodResponseName + "\"");
+	    // Unrecognized IMethodResponse name attribute
+	    
+	    // l10n
+
+	    // throw XmlValidationError(parser.getLine(),
+	    //	 String("Unrecognized IMethodResponse name \"") +
+	    //          iMethodResponseName + "\"");
+
+	    MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.UNRECOGNIZED_IMETH", "Unrecognized $0 name \"$1\"", "IMethodResponse", iMethodResponseName);
+	    String mlString(MessageLoader::getMessage(mlParms));
+	    
+	    throw XmlValidationError(parser.getLine(), mlString);
            }
 
             //
@@ -365,8 +457,16 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
         }
         else
         {
-            throw XmlValidationError(parser.getLine(),
-                "expected METHODRESPONSE or IMETHODRESPONSE element");
+
+	  // l10n
+
+	  // throw XmlValidationError(parser.getLine(),
+	  //   "expected METHODRESPONSE or IMETHODRESPONSE element");
+	  
+	  MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.EXPECTED_ELEMENT_OR", "expected $0 or $1 element", "METHODRESPONSE", "IMETHODRESPONSE");
+	  String mlString(MessageLoader::getMessage(mlParms));
+	  
+	  throw XmlValidationError(parser.getLine(), mlString);
         }
 
         //

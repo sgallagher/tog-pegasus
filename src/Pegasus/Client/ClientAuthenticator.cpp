@@ -1,37 +1,36 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Base64.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Constants.h>
@@ -52,44 +51,54 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    Constant representing the authentication challenge header.
+    The constant represeting the authentication challenge header.
 */
-static const char* WWW_AUTHENTICATE = "WWW-Authenticate";
+static const String WWW_AUTHENTICATE            = "WWW-Authenticate";
 
 /**
     Constant representing the Basic authentication header.
 */
-static const String BASIC_AUTH_HEADER = "Authorization: Basic ";
+static const String BASIC_AUTH_HEADER           = "Authorization: Basic ";
 
 /**
     Constant representing the Digest authentication header.
 */
-static const String DIGEST_AUTH_HEADER = "Authorization: Digest ";
+static const String DIGEST_AUTH_HEADER          = "Authorization: Digest ";
 
 /**
     Constant representing the local authentication header.
 */
-static const String LOCAL_AUTH_HEADER = "PegasusAuthorization: Local";
+static const String LOCAL_AUTH_HEADER           =
+                             "PegasusAuthorization: Local";
+
+/**
+    Constant representing the local privileged authentication header.
+*/
+static const String LOCALPRIVILEGED_AUTH_HEADER =
+                             "PegasusAuthorization: LocalPrivileged";
 
 
-ClientAuthenticator::ClientAuthenticator()
+
+ClientAuthenticator::ClientAuthenticator(): _challengeReceived(false)
 {
-    clear();
+    clearRequest(true);
 }
 
 ClientAuthenticator::~ClientAuthenticator()
 {
+
 }
 
-void ClientAuthenticator::clear()
+void ClientAuthenticator::clearRequest(Boolean closeConnection)
 {
-    _requestMessage.reset();
-    _userName.clear();
-    _password.clear();
-    _localAuthFile.clear();
-    _localAuthFileContent.clear();
-    _challengeReceived = false;
-    _authType = ClientAuthenticator::NONE;
+    _requestMessage = 0;
+
+    if (closeConnection)
+    {
+        _userName = String::EMPTY;
+        _password = String::EMPTY;
+        _realm = String::EMPTY;
+    }
 }
 
 Boolean ClientAuthenticator::checkResponseHeaderForChallenge(
@@ -98,20 +107,19 @@ Boolean ClientAuthenticator::checkResponseHeaderForChallenge(
     //
     // Search for "WWW-Authenticate" header:
     //
-    const char* authHeader;
+    String authHeader;
     String authType;
     String authRealm;
 
     if (!HTTPMessage::lookupHeader(
-            headers, WWW_AUTHENTICATE, authHeader, false))
+        headers, WWW_AUTHENTICATE, authHeader, false))
     {
         return false;
     }
 
     if (_challengeReceived)
     {
-        // Do not respond to a challenge more than once
-        return false;
+        throw UnauthorizedAccess();
     }
     else
     {
@@ -120,12 +128,16 @@ Boolean ClientAuthenticator::checkResponseHeaderForChallenge(
        //
        // Parse the authentication challenge header
        //
-       if (!_parseAuthHeader(authHeader, authType, authRealm))
+       if(!_parseAuthHeader(authHeader, authType, authRealm))
        {
            throw InvalidAuthHeader();
        }
 
-       if (String::equal(authType, "Local"))
+       if ( String::equal(authType, "LocalPrivileged"))
+       {
+           _authType = ClientAuthenticator::LOCALPRIVILEGED;
+       }
+       else if ( String::equal(authType, "Local"))
        {
            _authType = ClientAuthenticator::LOCAL;
        }
@@ -142,7 +154,8 @@ Boolean ClientAuthenticator::checkResponseHeaderForChallenge(
            throw InvalidAuthHeader();
        }
 
-       if (_authType == ClientAuthenticator::LOCAL)
+       if ( _authType == ClientAuthenticator::LOCAL ||
+           _authType == ClientAuthenticator::LOCALPRIVILEGED )
        {
            String filePath = authRealm;
            FileSystem::translateSlashes(filePath);
@@ -157,14 +170,14 @@ Boolean ClientAuthenticator::checkResponseHeaderForChallenge(
 
                if (!String::equal(dirName, String(PEGASUS_LOCAL_AUTH_DIR)))
                {
-                   // Refuse to respond to the challenge when the file is
-                   // not in the expected directory
-                   return false;
+                   // Cannot access an arbitrary directory
+                   //
+                   throw UnauthorizedAccess();
                }
            }
-
-           _localAuthFile = authRealm;
        }
+
+       _realm = authRealm;
 
        return true;
    }
@@ -173,7 +186,7 @@ Boolean ClientAuthenticator::checkResponseHeaderForChallenge(
 
 String ClientAuthenticator::buildRequestAuthHeader()
 {
-    String challengeResponse;
+    String challengeResponse = String::EMPTY;
 
     switch (_authType)
     {
@@ -196,27 +209,27 @@ String ClientAuthenticator::buildRequestAuthHeader()
                 //
                 // copy userPass string content to Uint8 array for encoding
                 //
-                Buffer userPassArray;
+                Array <Uint8>  userPassArray;
 
                 Uint32 userPassLength = userPass.size();
 
-                userPassArray.reserveCapacity(userPassLength);
+                userPassArray.reserveCapacity( userPassLength );
                 userPassArray.clear();
 
-                for (Uint32 i = 0; i < userPassLength; i++)
+                for( Uint32 i = 0; i < userPassLength; i++ )
                 {
-                    userPassArray.append((char)userPass[i]);
+                    userPassArray.append( (Uint8)userPass[i] );
                 }
 
                 //
                 // base64 encode the user name and password
                 //
-                Buffer encodedArray;
+                Array <Sint8>  encodedArray;
 
-                encodedArray = Base64::encode(userPassArray);
+                encodedArray = Base64::encode( userPassArray );
 
                 challengeResponse.append(
-                    String(encodedArray.getData(), encodedArray.size()));
+                    String( encodedArray.getData(), encodedArray.size() ) );
             }
             break;
 
@@ -227,7 +240,29 @@ String ClientAuthenticator::buildRequestAuthHeader()
         //    if (_challengeReceived)
         //    {
         //        challengeResponse = DIGEST_AUTH_HEADER;
+        //
         //    }
+            break;
+
+        case ClientAuthenticator::LOCALPRIVILEGED:
+
+            challengeResponse = LOCALPRIVILEGED_AUTH_HEADER;
+            challengeResponse.append(" \"");
+
+            if (_userName.size())
+            {
+                 challengeResponse.append(_userName);
+            }
+            else
+            {
+                //
+                // Get the privileged user name on the system
+                //
+                challengeResponse.append(System::getPrivilegedUserName());
+            }
+
+            challengeResponse.append(_buildLocalAuthResponse());
+
             break;
 
         case ClientAuthenticator::LOCAL:
@@ -259,33 +294,23 @@ String ClientAuthenticator::buildRequestAuthHeader()
             break;
 
         default:
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            PEGASUS_ASSERT(0);
             break;
     }
 
-    return challengeResponse;
+    return (challengeResponse);
 }
 
 void ClientAuthenticator::setRequestMessage(Message* message)
 {
-    _requestMessage.reset(message);
+    _requestMessage = message;
 }
+
 
 Message* ClientAuthenticator::getRequestMessage()
 {
-    return _requestMessage.get();
-}
+   return _requestMessage;
 
-void ClientAuthenticator::resetChallengeStatus()
-{
-    _challengeReceived = false;
-    _localAuthFile.clear();
-    _localAuthFileContent.clear();
-}
-
-Message* ClientAuthenticator::releaseRequestMessage()
-{
-    return _requestMessage.release();
 }
 
 void ClientAuthenticator::setUserName(const String& userName)
@@ -308,6 +333,7 @@ void ClientAuthenticator::setAuthType(ClientAuthenticator::AuthType type)
     PEGASUS_ASSERT( (type == ClientAuthenticator::BASIC) ||
          (type == ClientAuthenticator::DIGEST) ||
          (type == ClientAuthenticator::LOCAL) ||
+         (type == ClientAuthenticator::LOCALPRIVILEGED) ||
          (type == ClientAuthenticator::NONE) );
 
     _authType = type;
@@ -318,45 +344,52 @@ ClientAuthenticator::AuthType ClientAuthenticator::getAuthType()
     return (_authType);
 }
 
-String ClientAuthenticator::_getFileContent(const String& filePath)
+String ClientAuthenticator::_getFileContent(String filePath)
 {
-    String translatedFilePath = filePath;
-    FileSystem::translateSlashes(translatedFilePath);
+    String challenge = String::EMPTY;
+
+    FileSystem::translateSlashes(filePath);
 
     //
     // Check whether the file exists or not
     //
-    if (!FileSystem::exists(translatedFilePath))
+    if (!FileSystem::exists(filePath))
     {
-        throw NoSuchFile(translatedFilePath);
+        throw NoSuchFile(filePath);
     }
 
     //
     // Open the challenge file and read the challenge data
     //
-    ifstream ifs(translatedFilePath.getCString());
+#if defined(PEGASUS_OS_OS400)
+    CString tempPath = filePath.getCString();
+    const char * tmp = tempPath;
+    AtoE((char *)tmp);
+    ifstream ifs(tmp, PEGASUS_STD(_CCSID_T(1208)) );
+#else
+    ifstream ifs(filePath.getCString());
+#endif
     if (!ifs)
     {
-        //ATTN: Log error message
-        return String::EMPTY;
+       //ATTN: Log error message
+        return (challenge);
     }
 
-    String fileContent;
     String line;
 
     while (GetLine(ifs, line))
     {
-        fileContent.append(line);
+        challenge.append(line);
     }
 
     ifs.close();
 
-    return fileContent;
+    return (challenge);
 }
 
 String ClientAuthenticator::_buildLocalAuthResponse()
 {
-    String authResponse;
+    String authResponse = String::EMPTY;
 
     if (_challengeReceived)
     {
@@ -365,50 +398,49 @@ String ClientAuthenticator::_buildLocalAuthResponse()
         //
         // Append the file path that is in the realm sent by the server
         //
-        authResponse.append(_localAuthFile);
+        authResponse.append(_realm);
 
         authResponse.append(":");
 
-        if (_localAuthFileContent.size() == 0)
+        //
+        // Read and append the challenge file content
+        //
+        String fileContent = String::EMPTY;
+        try
         {
-            //
-            // Read the challenge file content
-            //
-            try
-            {
-                _localAuthFileContent = _getFileContent(_localAuthFile);
-            }
-            catch (NoSuchFile&)
-            {
-                //ATTN-NB-04-20000305: Log error message to log file
-            }
+            fileContent = _getFileContent(_realm);
         }
-
-        authResponse.append(_localAuthFileContent);
+        catch(NoSuchFile& e)
+        {
+            //ATTN-NB-04-20000305: Log error message to log file
+        }
+        authResponse.append(fileContent);
     }
-
     authResponse.append("\"");
 
-    return authResponse;
+    return (authResponse);
 }
 
 Boolean ClientAuthenticator::_parseAuthHeader(
-    const char* authHeader,
+    const String authHeader,
     String& authType,
     String& authRealm)
 {
+    CString header = authHeader.getCString();
+    const char* pAuthHeader = header;
+
     //
     // Skip the white spaces in the begining of the header
     //
-    while (*authHeader && isspace(*authHeader))
+    while (*pAuthHeader && isspace(*pAuthHeader))
     {
-        ++authHeader;
+        *pAuthHeader++;
     }
 
     //
     // Get the authentication type
     //
-    String type = _getSubStringUptoMarker(&authHeader, CHAR_BLANK);
+    String type = _getSubStringUptoMarker(&pAuthHeader, CHAR_BLANK);
 
     if (!type.size())
     {
@@ -418,13 +450,13 @@ Boolean ClientAuthenticator::_parseAuthHeader(
     //
     // Ignore the start quote
     //
-    _getSubStringUptoMarker(&authHeader, CHAR_QUOTE);
+    _getSubStringUptoMarker(&pAuthHeader, CHAR_QUOTE);
 
 
     //
     // Get the realm ending with a quote
     //
-    String realm = _getSubStringUptoMarker(&authHeader, CHAR_QUOTE);
+    String realm = _getSubStringUptoMarker(&pAuthHeader, CHAR_QUOTE);
 
     if (!realm.size())
     {
@@ -443,36 +475,34 @@ String ClientAuthenticator::_getSubStringUptoMarker(
     const char** line,
     char marker)
 {
-    String result;
+    String result = String::EMPTY;
 
-    if (*line)
+    //
+    // Look for the marker
+    //
+    const char *pos = strchr(*line, marker);
+
+    if (pos)
     {
-        //
-        // Look for the marker
-        //
-        const char *pos = strchr(*line, marker);
-
-        if (pos)
+        if (*line != NULL)
         {
-            if (*line)
-            {
-                Uint32 length = (Uint32)(pos - *line);
-                result.assign(*line, length);
-            }
+            Uint32 length = pos - *line;
 
-            while (*pos == marker)
-            {
-                ++pos;
-            }
-
-            *line = pos;
+            result.assign(*line, length);
         }
-        else
+
+        while (*pos == marker)
         {
-            result.assign(*line);
-
-            *line += strlen(*line);
+            ++pos;
         }
+
+        *line = pos;
+    }
+    else
+    {
+        result.assign(*line);
+
+        *line += strlen(*line);
     }
 
     return result;

@@ -54,6 +54,10 @@ class PEGASUS_COMMON_LINKAGE _MonitorEntry
 	   
       {
       }
+
+      _MonitorEntry() : socket(0), queueId(0), _status(EMPTY), _type(0)
+      {
+      }
       
       Boolean operator ==(const void *key) const 
       {

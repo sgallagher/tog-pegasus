@@ -1,31 +1,31 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,65 +49,65 @@ class PEGASUS_REPOSITORY_LINKAGE AssocInstTable
 public:
 
     /** Appends a row into the association table. There is no checking
-        for duplicate entries (the caller ensures this). The case of
-        the arguments doesn't matter. They are ignored during comparison.
+	for duplicate entries (the caller ensures this). The case of
+	the arguments doesn't matter. They are ignored during comparison.
     */
     static void append(
-        PEGASUS_STD(ofstream)& os,
-        const String& assocInstanceName,
-        const CIMName& assocClassName,
-        const String& fromInstanceName,
-        const CIMName& fromClassName,
-        const CIMName& fromPropertyName,
-        const String& toInstanceName,
-        const CIMName& toClassName,
-        const CIMName& toPropertyName);
+	PEGASUS_STD(ofstream)& os,
+	const String& assocInstanceName,
+	const CIMName& assocClassName,
+	const String& fromInstanceName,
+	const CIMName& fromClassName,
+	const CIMName& fromPropertyName,
+	const String& toInstanceName,
+	const CIMName& toClassName,
+	const CIMName& toPropertyName);
 
     /** Appends a row into the association table. There is no checking
-        for duplicate entries (the caller ensures this). The case of the
-        arguments doesn't matter. Case is ignored during comparison.
+	for duplicate entries (the caller ensures this). The case of the
+	arguments doesn't matter. Case is ignored during comparison.
     */
     static void append(
-        const String& path,
-        const String& assocInstanceName,
-        const CIMName& assocClassName,
-        const String& fromInstanceName,
-        const CIMName& fromClassName,
-        const CIMName& fromPropertyName,
-        const String& toInstanceName,
-        const CIMName& toClassName,
-        const CIMName& toPropertyName);
+	const String& path,
+	const String& assocInstanceName,
+	const CIMName& assocClassName,
+	const String& fromInstanceName,
+	const CIMName& fromClassName,
+	const CIMName& fromPropertyName,
+	const String& toInstanceName,
+	const CIMName& toClassName,
+	const CIMName& toPropertyName);
 
     /** Deletes the given association from the table by removing every entry
-        with an assocInstanceName equal to the assocInstanceName parameter.
-        @returns true if such an association was found.
+	with an assocInstanceName equal to the assocInstanceName parameter.
+	@returns true if such an association was found.
     */
     static Boolean deleteAssociation(
-        const String& path,
-        const CIMObjectPath& assocInstanceName);
+	const String& path,
+	const CIMObjectPath& assocInstanceName);
 
-    /** Finds all associators of the given object. See
-        CIMOperations::associators() for a full description.
+    /** Finds all associators of the given object. See 
+	CIMOperations::associators() for a full description.
     */
     static Boolean getAssociatorNames(
-        const String& path,
-        const CIMObjectPath& objectName,
+	const String& path,
+	const CIMObjectPath& objectName,
         const Array<CIMName>& assocClassList,
         const Array<CIMName>& resultClassList,
         const String& role,
         const String& resultRole,
-        Array<String>& associatorNames);
+	Array<String>& associatorNames);
 
     /** Obtain all references (association instance names) in which the
-        given object is involved. See CIMOperations::associators() for a
-        full description.
+	given object is involved. See CIMOperations::associators() for a 
+	full description.
     */
     static Boolean getReferenceNames(
-        const String& path,
-        const CIMObjectPath& objectName,
-        const Array<CIMName>& resultClassList,
-        const String& role,
-        Array<String>& referenceNames);
+	const String& path,
+	const CIMObjectPath& objectName,
+ 	const Array<CIMName>& resultClassList,
+ 	const String& role,
+	Array<String>& referenceNames);
 
 private:
 

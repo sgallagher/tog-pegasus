@@ -108,6 +108,10 @@ static const CIMName PEGASUS_CLASSNAME_PROVIDERMODULE       =
     CIMName ("PG_ProviderModule");
 static const CIMName PEGASUS_CLASSNAME_PROVIDER             = 
     CIMName ("PG_Provider");
+static const CIMName PEGASUS_CLASSNAME_CAPABILITIESREGISTRATION =
+    CIMName ("PG_CapabilitiesRegistration");
+static const CIMName PEGASUS_CLASSNAME_CONSUMERCAPABILITIES =
+    CIMName ("PG_ConsumerCapabilities");
 static const CIMName PEGASUS_CLASSNAME_PROVIDERCAPABILITIES = 
     CIMName ("PG_ProviderCapabilities");
 static const CIMName PEGASUS_CLASSNAME_INDSUBSCRIPTION      = 
@@ -207,8 +211,17 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 // Wbem service names
 //
 
+
+#ifdef PEGASUS_OS_OS400
+#pragma convert(37)
 #define WBEM_HTTP_SERVICE_NAME "wbem-http"
 #define WBEM_HTTPS_SERVICE_NAME "wbem-https"
+#pragma convert(0)
+#else
+#define WBEM_HTTP_SERVICE_NAME "wbem-http"
+#define WBEM_HTTPS_SERVICE_NAME "wbem-https"
+#endif
+
 
 
 //

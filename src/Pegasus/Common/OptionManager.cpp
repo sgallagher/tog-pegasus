@@ -233,8 +233,15 @@ void OptionManager::mergeCommandLine(int& argc, char**& argv, Boolean abortOnErr
 
 void OptionManager::mergeFile(const String& fileName)
 {
-    // Open the input file:
+   // Open the input file:
+#if defined(PEGASUS_OS_OS400)
+    CString tempPath = fileName.getCString();
+    const char * tmp = tempPath;
+    AtoE((char *)tmp);
+    ifstream is(tmp ,PEGASUS_STD(_CCSID_T(1208)));
+#else
     ifstream is(fileName.getCString());
+#endif
 
     if (!is)
 	throw NoSuchFile(fileName);

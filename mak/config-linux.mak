@@ -94,3 +94,18 @@ endif
 ifdef USE_CONNECTLOCAL
  FLAGS += -DUSE_CONNECTLOCAL
 endif
+
+# l10n
+ifdef PEGASUS_HAS_MESSAGES
+  DEFINES += -DPEGASUS_HAS_MESSAGES
+  ifdef ICU_ROOT
+	MSG_COMPILE = genrb
+	MSG_FLAGS =
+	MSG_SOURCE_EXT = .txt
+	MSG_COMPILE_EXT = .res
+    EXTRA_INCLUDES += -I${ICUROOT}/source/common
+    DEFINES += -DPEGASUS_HAS_ICU
+    SYS_LIBS += -licuuc
+    SYS_LIBS += -licui18n
+  endif
+endif

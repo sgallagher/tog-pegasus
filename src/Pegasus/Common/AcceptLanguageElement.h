@@ -141,7 +141,7 @@ public:
 	/**
 	 * Writes the string representation of this object to the stream
 	 */
-	friend PEGASUS_STD(ostream) &operator<<(PEGASUS_STD(ostream) &stream, AcceptLanguageElement ale);
+	PEGASUS_COMMON_LINKAGE friend PEGASUS_STD(ostream) &operator<<(PEGASUS_STD(ostream) &stream, AcceptLanguageElement ale);
 
 			
 }; // end AcceptLanguageElement

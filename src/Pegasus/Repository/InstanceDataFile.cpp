@@ -1,31 +1,36 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Michael E. Brasher (mbrasher@bmc.com)
+//
+//		Ramnath Ravindran (Ramnath.Ravindran@compaq.com) 03/21/2002
+//			replaced instances of "| ios::binary" with 
+//			PEGASUS_OR_IOS_BINARY
+//
+//              Sushma Fernandes. Hewlett-Packard Company
+//                     sushma_fernandes@hp.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +39,11 @@
 #include "InstanceDataFile.h"
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Tracer.h>
+#if defined(PEGASUS_OS_OS400)
+#include "OS400ConvertChar.h"
+#endif
 
 PEGASUS_USING_STD;
 
@@ -58,17 +67,24 @@ Boolean InstanceDataFile::_openFile(
 #if defined(__GNUC__) && GCC_VERSION >= 30200
     fs.open(path.getCString(), PEGASUS_STD(ios_base::openmode)(mode));
 #else
+#if defined(PEGASUS_OS_OS400)
+    CString tempPath = path.getCString();
+    const char * tmp = tempPath;
+    AtoE((char *)tmp);
+    fs.open(tmp, mode, PEGASUS_STD(_CCSID_T(1208)));
+#else
     fs.open(path.getCString(), mode);
+#endif
 #endif
     PEG_METHOD_EXIT();
     return !!fs;
 }
 
 Boolean InstanceDataFile::loadInstance(
-    const String& path,
+    const String& path, 
     Uint32 index,
-    Uint32 size,
-    Buffer& data)
+    Uint32 size,  
+    Array<Sint8>& data)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceDataFile::loadInstance()");
 
@@ -81,7 +97,7 @@ Boolean InstanceDataFile::loadInstance(
     if (!_openFile(fs, path, ios::in PEGASUS_OR_IOS_BINARY))
     {
         PEG_METHOD_EXIT();
-        return false;
+	return false;
     }
 
     //
@@ -93,7 +109,7 @@ Boolean InstanceDataFile::loadInstance(
     if (!fs)
     {
         PEG_METHOD_EXIT();
-        return false;
+	return false;
     }
 
     //
@@ -106,7 +122,7 @@ Boolean InstanceDataFile::loadInstance(
     if (!fs)
     {
         PEG_METHOD_EXIT();
-        return false;
+	return false;
     }
 
     //
@@ -120,8 +136,8 @@ Boolean InstanceDataFile::loadInstance(
 }
 
 Boolean InstanceDataFile::loadAllInstances(
-    const String& path,
-    Buffer& data)
+    const String& path, 
+    Array<Sint8>& data)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceDataFile::loadAllInstance()");
 
@@ -134,7 +150,7 @@ Boolean InstanceDataFile::loadAllInstances(
     if (!FileSystem::getFileSizeNoCase(path, fileSize))
     {
         PEG_METHOD_EXIT();
-        return false;
+	return false;
     }
 
     //
@@ -146,7 +162,7 @@ Boolean InstanceDataFile::loadAllInstances(
     if (!_openFile(fs, path, ios::in PEGASUS_OR_IOS_BINARY))
     {
         PEG_METHOD_EXIT();
-        return false;
+	return false;
     }
 
     //
@@ -159,7 +175,7 @@ Boolean InstanceDataFile::loadAllInstances(
     if (!fs)
     {
         PEG_METHOD_EXIT();
-        return false;
+	return false;
     }
 
     //
@@ -173,8 +189,8 @@ Boolean InstanceDataFile::loadAllInstances(
 }
 
 Boolean InstanceDataFile::appendInstance(
-    const String& path,
-    const Buffer& data,
+    const String& path, 
+    const Array<Sint8>& data,
     Uint32& index)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceDataFile::appendInstance()");
@@ -184,7 +200,7 @@ Boolean InstanceDataFile::appendInstance(
     //
 
     if (!FileSystem::getFileSizeNoCase(path, index))
-        index = 0;
+	index = 0;
 
     //
     // Open the file for append:
@@ -195,7 +211,7 @@ Boolean InstanceDataFile::appendInstance(
     if (!_openFile(fs, path, ios::app | ios::out PEGASUS_OR_IOS_BINARY))
     {
         PEG_METHOD_EXIT();
-        return false;
+	return false;
     }
 
     //
@@ -208,12 +224,12 @@ Boolean InstanceDataFile::appendInstance(
     // Write the instance:
     //
 
-    fs.write(data.getData(), data.size());
+    fs.write((char*)data.getData(), data.size());
 
     if (!fs)
     {
         PEG_METHOD_EXIT();
-        return false;
+	return false;
     }
 
     //
@@ -238,14 +254,14 @@ Boolean InstanceDataFile::beginTransaction(const String& path)
 
     if (!FileSystem::existsNoCase(path))
     {
-        fileSize = 0;
+	fileSize = 0;
     }
     else
     {
-        if (!FileSystem::getFileSizeNoCase(path, fileSize))
+	if (!FileSystem::getFileSizeNoCase(path, fileSize))
         {
             PEG_METHOD_EXIT();
-            return false;
+	    return false;
         }
     }
 
@@ -257,72 +273,35 @@ Boolean InstanceDataFile::beginTransaction(const String& path)
     // files are getting created in some error conditions.
 
     fstream fs;
-    String rollbackPath = path;
-    rollbackPath.append(".rollback");
 
-    do
+    if (!_openFile(fs, path + ".rollback", ios::out PEGASUS_OR_IOS_BINARY))
     {
-        if (!_openFile(fs, rollbackPath, ios::out PEGASUS_OR_IOS_BINARY))
-        {
-            break;
-        }
-
-        //
-        // Save the size of the data file in the rollback file.
-        //
-
-        char buffer[9];
-        sprintf(buffer, "%08x", fileSize);
-        fs.write(buffer, static_cast<streamsize>(strlen(buffer)));
-
-        if (!fs)
-        {
-            break;
-        }
-
-        //
-        // If the badbit is set, it indicates error in the file write operation.
-        //
-        if (fs.bad())
-        {
-            //
-            // Close the file
-            //
-
-            fs.close();
-            break;
-        }
-
-        //
-        // Close the file.
-        //
-
-        FileSystem::syncWithDirectoryUpdates(fs);
-        fs.close();
-
         PEG_METHOD_EXIT();
-        return true;
+	return false;
     }
-    while(0);
 
-    // Undo the begin transaction for instance data file
-    undoBeginTransaction(path);
+    //
+    // Save the size of the data file in the rollback file.
+    //
+
+    char buffer[9];
+    sprintf(buffer, "%08x", fileSize);
+    fs.write(buffer, strlen(buffer));
+
+    if (!fs)
+    {
+        PEG_METHOD_EXIT();
+	return false;
+    }
+
+    //
+    // Close the file.
+    //
+
+    fs.close();
 
     PEG_METHOD_EXIT();
-    return false;
-}
-
-void InstanceDataFile::undoBeginTransaction(const String& path)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY,"InstanceDataFile::undoBeginTransaction()");
-
-    String rollbackPath = path;
-    rollbackPath.append(".rollback");
-
-    // Remove the incorrect instance data rollback file as a part of cleanup
-    FileSystem::removeFileNoCase(rollbackPath);
-
-    PEG_METHOD_EXIT();
+    return true;
 }
 
 Boolean InstanceDataFile::rollbackTransaction(const String& path)
@@ -337,7 +316,7 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
     if (!FileSystem::existsNoCase(path + ".rollback"))
     {
         PEG_METHOD_EXIT();
-        return true;
+	return true;
     }
 
     //
@@ -346,11 +325,10 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
 
     fstream rollbackFs;
 
-    if (!_openFile(
-            rollbackFs, path + ".rollback", ios::in PEGASUS_OR_IOS_BINARY))
+    if (!_openFile(rollbackFs, path + ".rollback", ios::in PEGASUS_OR_IOS_BINARY))
     {
         PEG_METHOD_EXIT();
-        return false;
+	return false;
     }
 
     //
@@ -363,7 +341,7 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
     if (!rollbackFs)
     {
         PEG_METHOD_EXIT();
-        return false;
+	return false;
     }
 
     buffer[8] = '\0';
@@ -374,16 +352,19 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
     if (!end || *end != '\0' || fileSize < 0)
     {
         PEG_METHOD_EXIT();
-        return false;
+	return false;
     }
 
     rollbackFs.close();
 
     //
-    // If the instance data file does not yet exist, create it
+    // Now truncate the data file to that size:
     //
 
-    if (fileSize == 0)
+    //
+    // If the fileSize is zero, then create the InstanceDataFile and exit.
+    //
+    if ( fileSize == 0 )
     {
         fstream ofs;
 
@@ -394,16 +375,14 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
         }
 
         ofs.close();
+        PEG_METHOD_EXIT();
+        return true;
     }
-
-    //
-    // Truncate the data file to its initial size
-    //
 
     if (!System::truncateFile(path.getCString(), fileSize))
     {
         PEG_METHOD_EXIT();
-        return false;
+	return false;
     }
 
     //
@@ -443,93 +422,89 @@ Boolean InstanceDataFile::compact(
     if (!_openFile(fs, path, ios::in PEGASUS_OR_IOS_BINARY))
     {
         PEG_METHOD_EXIT();
-        return false;
+	return false;
     }
 
     //
     // Open the output file (temporary data file):
     //
 
-    const String outputFilePath = path + ".tmp";
-    String leftoverOutputFilePath;
-
-    // Ensure the output file does not already exist
-    if (FileSystem::existsNoCase(outputFilePath, leftoverOutputFilePath))
-    {
-        if (!FileSystem::removeFile(leftoverOutputFilePath))
-        {
-            PEG_METHOD_EXIT();
-            return false;
-        }
-    }
-
     fstream tmpFs;
 
-    if (!_openFile(tmpFs, outputFilePath, ios::out PEGASUS_OR_IOS_BINARY))
+    if (!_openFile(tmpFs, path + ".tmp", ios::out PEGASUS_OR_IOS_BINARY))
     {
         PEG_METHOD_EXIT();
-        return false;
+	return false;
     }
+
+    Array<Sint8> data;
 
     //
     // Copy over instances which have not been freed:
     //
 
-    Buffer data;
-
     for (Uint32 i = 0, n = freeFlags.size(); i < n; i++)
     {
-        //
-        // If this entry is not free, then copy it over to the output file.
-        //
+	//
+	// If this entry is not free, then copy it over to the
+	// temporary file. Otherwise, pay retail for it.
+	//
 
-        if (!freeFlags[i])
-        {
-            //
-            // Read the next instance:
-            //
+	if (!freeFlags[i])
+	{
+	    //
+	    // Read the next instance:
+	    //
 
-            if (!fs.seekg(indices[i]))
+	    if (!fs.seekg(indices[i]))
             {
-                FileSystem::removeFile(outputFilePath);
                 PEG_METHOD_EXIT();
-                return false;
+		return false;
             }
 
-            data.grow(sizes[i], '\0');
+	    data.grow(sizes[i], '\0');
 
-            fs.read((char*)data.getData(), sizes[i]);
+	    fs.read((char*)data.getData(), sizes[i]);
 
-            if (!fs)
+	    if (!fs)
             {
-                FileSystem::removeFile(outputFilePath);
                 PEG_METHOD_EXIT();
-                return false;
+		return false;
             }
 
-            //
-            //  Write out the next instance:
-            //
+	    //
+	    //  Write out the next instance:
+	    //
 
-            tmpFs.write(data.getData(), sizes[i]);
-        }
+	    tmpFs.write((char*)data.getData(), sizes[i]);
+	}
     }
 
     //
     // Close the files:
     //
-
+    
     fs.close();
-
-    FileSystem::syncWithDirectoryUpdates(tmpFs);
     tmpFs.close();
 
     //
     // Copy the new file over the old one:
     //
 
+    if (!FileSystem::removeFileNoCase(path))
+    {
+        PEG_METHOD_EXIT();
+	return false;
+    }
+
+    if (!FileSystem::renameFileNoCase(path + ".tmp", path))
+    {
+        PEG_METHOD_EXIT();
+	return false;
+    }
+
     PEG_METHOD_EXIT();
-    return FileSystem::renameFile(outputFilePath, path);
+    return true;
 }
 
 PEGASUS_NAMESPACE_END

@@ -138,10 +138,10 @@ const CIMFlavor & CIMQualifier::getFlavor() const
     return _rep->getFlavor();
 }
 
-const Boolean CIMQualifier::getPropagated() const
+const Uint32 CIMQualifier::getPropagated() const
 {
     _checkRep();
-    return _rep->getPropagated();
+    return (_rep->getPropagated()) ? 1 : 0;
 }
 
 void CIMQualifier::setPropagated(Boolean propagated)
@@ -264,7 +264,7 @@ const CIMFlavor & CIMConstQualifier::getFlavor() const
 const Boolean CIMConstQualifier::getPropagated() const
 {
     _checkRep();
-    return _rep->getPropagated();
+    return (_rep->getPropagated()) ? 1 : 0;
 }
 
 Boolean CIMConstQualifier::isUninitialized() const

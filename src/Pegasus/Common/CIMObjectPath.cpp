@@ -1,48 +1,47 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <cctype>
 #include <cstring>
 #include <iostream>
 #include "HashTable.h"
 #include "CIMObjectPath.h"
+#include "Indentor.h"
 #include "CIMName.h"
-#include "CIMValue.h"
+#include "Destroyer.h"
+#include "XmlWriter.h"
 #include "XmlReader.h"
-#include <Pegasus/Common/StringConversion.h>
 #include "ArrayInternal.h"
-#include "HostLocator.h"
-#include "System.h"
-#include "CIMKeyBindingRep.h"
-#include "CIMObjectPathRep.h"
+#include "CIMOMPort.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -78,8 +77,16 @@ static String _escapeSpecialCharacters(const String& str)
     {
         switch (str[i])
         {
-            case '\\':
-                result.append("\\\\");
+            case '\n':
+                result.append("\\n");
+                break;
+
+            case '\r':
+                result.append("\\r");
+                break;
+
+            case '\t':
+                result.append("\\t");
                 break;
 
             case '"':
@@ -94,43 +101,40 @@ static String _escapeSpecialCharacters(const String& str)
     return result;
 }
 
-static int _compare(const void* p1, const void* p2)
+static void _BubbleSort(Array<CIMKeyBinding>& x)
 {
-    const CIMKeyBinding* kb1 = (const CIMKeyBinding*)p1;
-    const CIMKeyBinding* kb2 = (const CIMKeyBinding*)p2;
-
-    return String::compareNoCase(
-        kb1->getName().getString(),
-        kb2->getName().getString());
-}
-
-static void _Sort(Array<CIMKeyBinding>& x)
-{
-    CIMKeyBinding* data = (CIMKeyBinding*)x.getData();
-    Uint32 size = x.size();
+    Uint32 n = x.size();
 
     //
-    //  If the key is a reference, the keys in the reference must also be
+    //  If the key is a reference, the keys in the reference must also be 
     //  sorted
     //
-    for (Uint32 k = 0; k < size; k++)
-    {
-        CIMKeyBinding& kb = data[k];
-
-        if (kb.getType() == CIMKeyBinding::REFERENCE)
+    for (Uint32 k = 0; k < n ; k++)
+        if (x[k].getType () == CIMKeyBinding::REFERENCE)
         {
-            CIMObjectPath tmp(kb.getValue());
-            Array<CIMKeyBinding> keyBindings = tmp.getKeyBindings();
-            _Sort(keyBindings);
-            tmp.setKeyBindings(keyBindings);
-            kb.setValue(tmp.toString());
+            CIMObjectPath tmp (x[k].getValue ());
+            Array <CIMKeyBinding> keyBindings = tmp.getKeyBindings ();
+            _BubbleSort (keyBindings);
+            tmp.setKeyBindings (keyBindings);
+            x[k].setValue (tmp.toString ());
         }
-    }
 
-    if (size < 2)
+    if (n < 2)
         return;
 
-    qsort((void*)data, size, sizeof(CIMKeyBinding), _compare);
+    for (Uint32 i = 0; i < n - 1; i++)
+    {
+        for (Uint32 j = 0; j < n - 1; j++)
+        {
+            if (String::compareNoCase(x[j].getName().getString(), 
+                                      x[j+1].getName().getString()) > 0)
+            {
+                CIMKeyBinding t = x[j];
+                x[j] = x[j+1];
+                x[j+1] = t;
+            }
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -138,6 +142,47 @@ static void _Sort(Array<CIMKeyBinding>& x)
 // CIMKeyBinding
 //
 ////////////////////////////////////////////////////////////////////////////////
+
+class CIMKeyBindingRep
+{
+public:
+    CIMKeyBindingRep()
+    {
+    }
+
+    CIMKeyBindingRep(const CIMKeyBindingRep& x)
+        : _name(x._name), _value(x._value), _type(x._type)
+    {
+    }
+
+    CIMKeyBindingRep(
+        const CIMName& name,
+        const String& value,
+        CIMKeyBinding::Type type)
+        : _name(name), _value(value), _type(type)
+    {
+    }
+
+    ~CIMKeyBindingRep()
+    {
+    }
+
+    CIMKeyBindingRep& operator=(const CIMKeyBindingRep& x)
+    {
+        if (&x != this)
+        {
+            _name = x._name;
+            _value = x._value;
+            _type = x._type;
+        }
+        return *this;
+    }
+
+    CIMName _name;
+    String _value;
+    CIMKeyBinding::Type _type;
+};
+
 
 CIMKeyBinding::CIMKeyBinding()
 {
@@ -149,10 +194,7 @@ CIMKeyBinding::CIMKeyBinding(const CIMKeyBinding& x)
     _rep = new CIMKeyBindingRep(*x._rep);
 }
 
-CIMKeyBinding::CIMKeyBinding(
-    const CIMName& name,
-    const String& value,
-    Type type)
+CIMKeyBinding::CIMKeyBinding(const CIMName& name, const String& value, Type type)
 {
     _rep = new CIMKeyBindingRep(name, value, type);
 }
@@ -179,13 +221,6 @@ CIMKeyBinding::CIMKeyBinding(const CIMName& name, const CIMValue& value)
         break;
     case CIMTYPE_REFERENCE:
         kbType = REFERENCE;
-        break;
-//  case CIMTYPE_REAL32:
-//  case CIMTYPE_REAL64:
-    case CIMTYPE_OBJECT:
-    case CIMTYPE_INSTANCE:
-        // From PEP 194: EmbeddedObjects cannot be keys.
-        throw TypeMismatchException();
         break;
     default:
         kbType = NUMERIC;
@@ -270,12 +305,6 @@ Boolean CIMKeyBinding::equal(CIMValue value)
             kbValue = XmlReader::stringToValue(0, getValue().getCString(),
                                                value.getType());
             break;
-//      case CIMTYPE_REAL32:
-//      case CIMTYPE_REAL64:
-        case CIMTYPE_OBJECT:
-        case CIMTYPE_INSTANCE:
-            // From PEP 194: EmbeddedObjects cannot be keys.
-            return false;
         default:  // Numerics
             if (getType() != NUMERIC) return false;
             kbValue = XmlReader::stringToValue(0, getValue().getCString(),
@@ -293,63 +322,10 @@ Boolean CIMKeyBinding::equal(CIMValue value)
 
 Boolean operator==(const CIMKeyBinding& x, const CIMKeyBinding& y)
 {
-    // Check that the names and types match
-    if (!(x.getName().equal(y.getName())) ||
-        !(x.getType() == y.getType()))
-    {
-        return false;
-    }
-
-    switch (x.getType())
-    {
-    case CIMKeyBinding::REFERENCE:
-        try
-        {
-            // References should be compared as CIMObjectPaths
-            return (CIMObjectPath(x.getValue()) == CIMObjectPath(y.getValue()));
-        }
-        catch (Exception&)
-        {
-            // If CIMObjectPath parsing fails, just compare strings
-            return String::equal(x.getValue(), y.getValue());
-        }
-    case CIMKeyBinding::BOOLEAN:
-        // Case-insensitive comparison is sufficient for booleans
-        return String::equalNoCase(x.getValue(), y.getValue());
-    case CIMKeyBinding::NUMERIC:
-        // Note: This comparison assumes XML syntax for integers
-        // First try comparing as unsigned integers
-        {
-            Uint64 xValue;
-            Uint64 yValue;
-            if (StringConversion::stringToUnsignedInteger(
-                    x.getValue().getCString(), xValue) &&
-                StringConversion::stringToUnsignedInteger(
-                    y.getValue().getCString(), yValue))
-            {
-                return (xValue == yValue);
-            }
-        }
-        // Next try comparing as signed integers
-        {
-            Sint64 xValue;
-            Sint64 yValue;
-            if (StringConversion::stringToSignedInteger(
-                    x.getValue().getCString(), xValue) &&
-                StringConversion::stringToSignedInteger(
-                    y.getValue().getCString(), yValue))
-            {
-                return (xValue == yValue);
-            }
-        }
-        // Note: Keys may not be real values, so don't try comparing as reals
-        // We couldn't parse the numbers, so just compare the strings
-        return String::equal(x.getValue(), y.getValue());
-    default:  // CIMKeyBinding::STRING
-        return String::equal(x.getValue(), y.getValue());
-    }
-
-    PEGASUS_UNREACHABLE(return false;)
+    return
+        x.getName().equal(y.getName()) &&
+        String::equal(x.getValue(), y.getValue()) &&
+        x.getType() == y.getType();
 }
 
 
@@ -359,18 +335,55 @@ Boolean operator==(const CIMKeyBinding& x, const CIMKeyBinding& y)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-template<class REP>
-inline void Ref(REP* rep)
+class CIMObjectPathRep
 {
-        rep->_refCounter++;
-}
+public:
+    CIMObjectPathRep()
+    {
+    }
 
-template<class REP>
-inline void Unref(REP* rep)
-{
-    if (rep->_refCounter.decAndTestIfZero())
-        delete rep;
-}
+    CIMObjectPathRep(const CIMObjectPathRep& x)
+        : _host(x._host), _nameSpace(x._nameSpace),
+        _className(x._className), _keyBindings(x._keyBindings)
+    {
+    }
+
+    CIMObjectPathRep(
+        const String& host,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        const Array<CIMKeyBinding>& keyBindings)
+        : _host(host), _nameSpace(nameSpace),
+        _className(className), _keyBindings(keyBindings)
+    {
+    }
+
+    ~CIMObjectPathRep()
+    {
+    }
+
+    CIMObjectPathRep& operator=(const CIMObjectPathRep& x)
+    {
+        if (&x != this)
+        {
+            _host = x._host;
+            _nameSpace = x._nameSpace;
+            _className = x._className;
+            _keyBindings = x._keyBindings;
+        }
+        return *this;
+    }
+
+    //
+    // Contains port as well (e.g., myhost:1234).
+    //
+    String _host;
+
+    CIMNamespaceName _nameSpace;
+    CIMName _className;
+    Array<CIMKeyBinding> _keyBindings;
+};
+
 
 CIMObjectPath::CIMObjectPath()
 {
@@ -379,8 +392,7 @@ CIMObjectPath::CIMObjectPath()
 
 CIMObjectPath::CIMObjectPath(const CIMObjectPath& x)
 {
-    _rep = x._rep;
-    Ref(_rep);
+    _rep = new CIMObjectPathRep(*x._rep);
 }
 
 CIMObjectPath::CIMObjectPath(const String& objectName)
@@ -389,8 +401,7 @@ CIMObjectPath::CIMObjectPath(const String& objectName)
     CIMObjectPath tmpRef;
     tmpRef.set(objectName);
 
-    _rep = tmpRef._rep;
-    Ref(_rep);
+    _rep = new CIMObjectPathRep(*tmpRef._rep);
 }
 
 CIMObjectPath::CIMObjectPath(
@@ -402,60 +413,27 @@ CIMObjectPath::CIMObjectPath(
     // Test the objectName out to see if we get an exception
     CIMObjectPath tmpRef;
     tmpRef.set(host, nameSpace, className, keyBindings);
-    _rep = tmpRef._rep;
-    Ref(_rep);
+
+    _rep = new CIMObjectPathRep(*tmpRef._rep);
 }
 
 CIMObjectPath::~CIMObjectPath()
 {
-    Unref(_rep);
+    delete _rep;
 }
 
 CIMObjectPath& CIMObjectPath::operator=(const CIMObjectPath& x)
 {
-    if (x._rep != _rep)
-    {
-        Unref(_rep);
-        _rep = x._rep;
-        Ref(_rep);
-    }
+    *_rep = *x._rep;
     return *this;
-}
-
-static inline CIMObjectPathRep* _copyOnWriteCIMObjectPathRep(
-    CIMObjectPathRep* rep)
-{
-    if (rep->_refCounter.get() > 1)
-    {
-        CIMObjectPathRep* tmpRep= new CIMObjectPathRep(*rep);
-        Unref(rep);
-        return tmpRep;
-    }
-    else
-    {
-        return rep;
-    }
 }
 
 void CIMObjectPath::clear()
 {
-    // If there is more than one reference
-    // remove reference and get a new shiny empty representation
-    if (_rep->_refCounter.get() > 1)
-    {
-        Unref(_rep);
-        _rep = new CIMObjectPathRep();
-    }
-    else
-    {
-        // If there is only one reference
-        // no need to copy the data, we own it
-        // just clear the fields
-        _rep->_host.clear();
-        _rep->_nameSpace.clear();
-        _rep->_className.clear();
-        _rep->_keyBindings.clear();
-    }
+    _rep->_host.clear();
+    _rep->_nameSpace.clear();
+    _rep->_className.clear();
+    _rep->_keyBindings.clear();
 }
 
 void CIMObjectPath::set(
@@ -464,23 +442,10 @@ void CIMObjectPath::set(
     const CIMName& className,
     const Array<CIMKeyBinding>& keyBindings)
 {
-    if ((host != String::EMPTY) && !CIMObjectPathRep::isValidHostname(host))
-    {
-        MessageLoaderParms mlParms(
-            "Common.CIMObjectPath.INVALID_HOSTNAME",
-            "$0, reason:\"invalid hostname\"",
-            host);
-
-        throw MalformedObjectNameException(mlParms);
-    }
-
-    _rep = _copyOnWriteCIMObjectPathRep(_rep);
-
-    _rep->_host.assign(host);
-    _rep->_nameSpace = nameSpace;
-    _rep->_className = className;
-    _rep->_keyBindings = keyBindings;
-    _Sort(_rep->_keyBindings);
+   setHost(host);
+   setNameSpace(nameSpace);
+   setClassName(className);
+   setKeyBindings(keyBindings);
 }
 
 Boolean _parseHostElement(
@@ -489,7 +454,7 @@ Boolean _parseHostElement(
     String& host)
 {
     // See if there is a host name (true if it begins with "//"):
-    // Host is of the form <hostname>:<port> and begins with "//"
+    // Host is of the from <hostname>-<port> and begins with "//"
     // and ends with "/":
 
     if (p[0] != '/' || p[1] != '/')
@@ -499,29 +464,73 @@ Boolean _parseHostElement(
 
     p += 2;
 
-    char* slash = strchr(p, '/');
-    if (!slash)
+    //----------------------------------------------------------------------
+    // Validate the hostname. A domain is allowed after the hostname.
+    // Eg. xyz.company.com
+    // Hostnames must match the following regular expression: 
+    // ^([A-Za-z][A-Za-z0-9-]*)(\.[A-Za-z][A-Za-z0-9-]*)*$
+    //----------------------------------------------------------------------
+
+    char* q = p;
+
+    Boolean foundDot = true;
+    while (foundDot == true)
     {
-        MessageLoaderParms mlParms(
-            "Common.CIMObjectPath.MISSING_SLASH_AFTER_HOST",
-            "$0, reason:\"missing slash after hostname\"",
-            objectName);
-        throw MalformedObjectNameException(mlParms);
+        foundDot = false;
+
+        if (!isalpha(*q))
+            throw MalformedObjectNameException(objectName);
+
+        q++;
+
+        while (isalnum(*q) || *q == '-')
+        {
+            q++;
+        }
+
+        if (*q == '.')
+        {
+            q++;
+            foundDot = true;
+        }
+     }
+
+    // We now expect a port (or default the port).
+
+    if (*q == ':')
+    {
+        q++;
+        // Check for a port number:
+
+        if (!isdigit(*q))
+            throw MalformedObjectNameException(objectName);
+        
+        while (isdigit(*q))
+            q++;
+
+        // Finally, assign the host name:
+
+        host.assign(p, q - p);
+    }
+    else
+    {
+        host.assign(p, q - p);
+
+        // Assign the default port number:
+
+        host.append(":");
+        host.append(PEGASUS_CIMOM_DEFAULT_PORT_STRING);
     }
 
-    String hostname = String(p, (Uint32)(slash - p));
-    if (!CIMObjectPathRep::isValidHostname(hostname))
-    {
-        MessageLoaderParms mlParms(
-            "Common.CIMObjectPath.INVALID_HOSTNAME",
-            "$0, reason:\"invalid hostname\"",
-            objectName);
-        throw MalformedObjectNameException(mlParms);
-    }
-    host = hostname;
+    // Check for slash terminating the entire sequence:
 
-    // Do not step past the '/'; it will be consumed by the namespace parser
-    p = slash;
+    if (*q != '/')
+    {
+        host.clear();
+        throw MalformedObjectNameException(objectName);
+    }
+
+    p = ++q;
 
     return true;
 }
@@ -540,7 +549,7 @@ Boolean _parseNamespaceElement(
         return false;
     }
 
-    // A ':' as part of a keybinding value should not be interpreted as
+    // A ':' as part of a keybinding value should not be interpreted as 
     // a namespace delimiter.  Since keybinding pairs follow the first '.'
     // in the object path string, the ':' delimiter only counts if it
     // appears before the '.'.
@@ -559,11 +568,7 @@ Boolean _parseNamespaceElement(
     String namespaceName = String(p, (Uint32)(colon - p));
     if (!CIMNamespaceName::legal(namespaceName))
     {
-        MessageLoaderParms mlParms(
-            "Common.CIMObjectPath.INVALID_NAMESPACE",
-            "$0, reason:\"invalid namespace name\"",
-            objectName);
-        throw MalformedObjectNameException(mlParms);
+        throw MalformedObjectNameException(objectName);
     }
     nameSpace = namespaceName;
 
@@ -572,27 +577,66 @@ Boolean _parseNamespaceElement(
 }
 
 /**
-    ATTN-RK: The DMTF specification for the string form of an
-    object path makes it impossible for a parser to distinguish
-    between a key values of String type and Reference type.
+    ATTN: RK - Association classes have keys whose types are
+    references.  These reference values must be treated specially
+    in the XML encoding, using the VALUE.REFERENCE tag structure.
 
-    Given the ambiguity, this implementation takes a guess at the
-    type of a quoted key value.  If the value can be parsed into
-    a CIMObjectPath with at least one key binding, the type is
-    set to REFERENCE.  Otherwise, the type is set to STRING.
-    Note: This algorithm appears to be in line with what the Sun
-    WBEM Services implementation does.
+    Pegasus had been passing reference values simply as String
+    values.  For example, EnumerateInstanceNames returned
+    KEYVALUEs of string type rather than VALUE.REFERENCEs.
 
-    To be totally correct, it would be necessary to retrieve the
-    class definition and look up the types of the key properties
-    to determine how to interpret the key values.  This is clearly
-    too inefficient for internal transformations between
-    CIMObjectPaths and String values.
+    I've modified the XmlReader::getKeyBindingElement() and
+    XmlWriter::appendInstanceNameElement() methods to read and write
+    the XML in the proper format.  However, making that change
+    required that a CIMObjectPath object be able to distinguish
+    between a key of String type and a key of reference type.
+
+    I've modified the String format of CIMObjectPaths slightly to
+    allow efficient processing of references whose keys are also
+    of reference type.  The "official" form uses the same
+    encoding for key values of String type and of reference type,
+    and so it would be necessary to retrieve the class definition
+    and look up the types of the key properties to determine how
+    to treat the key values.  This is clearly too inefficient for
+    internal transformations between CIMObjectPaths and String
+    values.
+
+    The workaround is to encode a 'R' at the beginning of the
+    value for a key of reference type (before the opening '"').
+    This allows the parser to know a priori whether the key is of
+    String or reference type.
+
+    In this example:
+
+        MyClass.Key1="StringValue",Key2=R"RefClass.KeyA="StringA",KeyB=10"
+
+    Property Key1 of class MyClass is of String type, and so it
+    gets the usual encoding.  Key2 is a reference property, so
+    the extra 'R' is inserted before its encoded value.  Note
+    that this algorithm is recursive, such that RefClass could
+    include KeyC of reference type, which would also get encoded
+    with the 'R' notation.
+
+    The toString() method inserts the 'R' to provide symmetry.  A
+    new CIMKeyBinding type (REFERENCE) has been defined to denote
+    keys in a CIMObjectPath that are of reference type.  This
+    CIMKeyBinding type must be used appropriately for
+    CIMObjectPath::toString() to behave correctly.
+
+    A result of this change is that instances names in the
+    instance repository will include this extra 'R' character.
+    Note that for user-facing uses of the String encoding of
+    instance names (such as might appear in MOF for static
+    association instances or in the CGI client), this solution
+    is non-standard and therefore unacceptable.  It is likely
+    that these points will need to process the more expensive
+    operation of retrieving the class definition to determine
+    the key property types.
 */
 void _parseKeyBindingPairs(
     const String& objectName,
     char*& p,
-    Array<CIMKeyBinding>& keyBindings)
+    Array<CIMKeyBinding>& keyBindings)  
 {
     // Get the key-value pairs:
 
@@ -603,24 +647,13 @@ void _parseKeyBindingPairs(
         char* equalsign = strchr(p, '=');
         if (!equalsign)
         {
-            MessageLoaderParms mlParms(
-                "Common.CIMObjectPath.INVALID_KEYVALUEPAIR",
-                "$0, reason:\"invalid key-value pair, missing equal sign\"",
-                objectName);
-            throw MalformedObjectNameException(mlParms);
+            throw MalformedObjectNameException(objectName);
         }
 
         *equalsign = 0;
 
         if (!CIMName::legal(p))
-        {
-            MessageLoaderParms mlParms(
-                "Common.CIMObjectPath.INVALID_KEYNAME",
-                "$0, reason:\"invalid key-value pair, invalid key name:$1\"",
-                objectName,
-                p);
-            throw MalformedObjectNameException(mlParms);
-        }
+            throw MalformedObjectNameException(objectName);
 
         CIMName keyName (p);
 
@@ -630,79 +663,46 @@ void _parseKeyBindingPairs(
         p = equalsign + 1;
         CIMKeyBinding::Type type;
 
-        if (*p == '"')
+        if (*p == 'R')
         {
-            // Could be CIMKeyBinding::STRING or CIMKeyBinding::REFERENCE
-
             p++;
 
-            Buffer keyValueUTF8(128);
+            type = CIMKeyBinding::REFERENCE;
+
+            if (*p++ != '"')
+                throw MalformedObjectNameException(objectName);
 
             while (*p && *p != '"')
             {
+                // ATTN: need to handle special characters here:
+
                 if (*p == '\\')
-                {
-                    p++;
+                    *p++;
 
-                    if ((*p != '\\') && (*p != '"'))
-                    {
-                        MessageLoaderParms mlParms(
-                            "Common.CIMObjectPath.INVALID_KEYVALUE",
-                            "$0, reason:\"invalid key-value pair, "
-                                "malformed value\"",
-                            objectName);
-                        throw MalformedObjectNameException(mlParms);
-                    }
-                }
-
-                keyValueUTF8.append(*p++);
+                valueString.append(*p++);
             }
 
             if (*p++ != '"')
-            {
-                MessageLoaderParms mlParms(
-                    "Common.CIMObjectPath.INVALID_KEYVALUEPAIR_MISSINGQUOTE",
-                    "$0, reason:\"invalid key-value pair, "
-                        "missing quote in key value\"",
-                    objectName);
-                throw MalformedObjectNameException(mlParms);
-            }
+                throw MalformedObjectNameException(objectName);
+        }
+        else if (*p == '"')
+        {
+            p++;
 
-            // Convert the UTF-8 value to a UTF-16 String
-
-            valueString.assign(
-                (const char*)keyValueUTF8.getData(),
-                keyValueUTF8.size());
-
-            /*
-                Guess at the type of this quoted key value.  If the value
-                can be parsed into a CIMObjectPath with at least one key
-                binding, the type is assumed to be a REFERENCE.  Otherwise,
-                the type is set to STRING.  (See method header for details.)
-             */
             type = CIMKeyBinding::STRING;
 
-            /* Performance shortcut will check for
-               equal sign instead of doing the full
-               CIMObjectPath creation and exception handling
-            */
-            if (strchr(keyValueUTF8.getData(), '='))
+            while (*p && *p != '"')
             {
-                // found an equal sign, high probability for a reference
-                try
-                {
-                    CIMObjectPath testForPath(valueString);
-                    if (testForPath.getKeyBindings().size() > 0)
-                    {
-                        // We've found a reference value!
-                        type = CIMKeyBinding::REFERENCE;
-                    }
-                }
-                catch (const Exception &)
-                {
-                    // Not a reference value; leave type as STRING
-                }
+                // ATTN: need to handle special characters here:
+
+                if (*p == '\\')
+                    *p++;
+
+                valueString.append(*p++);
             }
+
+            if (*p++ != '"')
+                throw MalformedObjectNameException(objectName);
         }
         else if (toupper(*p) == 'T' || toupper(*p) == 'F')
         {
@@ -720,14 +720,7 @@ void _parseKeyBindingPairs(
 
             if (!(((strncmp(p, "TRUE", n) == 0) && n == 4) ||
                   ((strncmp(p, "FALSE", n) == 0) && n == 5)))
-            {
-                MessageLoaderParms mlParms(
-                    "Common.CIMObjectPath.INVALID_BOOLVALUE",
-                    "$0, reason:\"invalid key-value pair, "
-                        "value should be TRUE or FALSE\"",
-                    objectName);
-                throw MalformedObjectNameException(mlParms);
-            }
+                throw MalformedObjectNameException(objectName);
 
             valueString.assign(p, n);
 
@@ -753,34 +746,10 @@ void _parseKeyBindingPairs(
                 isComma = true;
             }
 
-            if (*p == '-')
-            {
-                Sint64 x;
-                if (!StringConversion::stringToSignedInteger(p, x))
-                {
-                    MessageLoaderParms mlParms(
-                        "Common.CIMObjectPath.INVALID_NEGATIVNUMBER_VALUE",
-                        "$0, reason:\"invalid key-value pair, "
-                            "invalid negative number value $1\"",
-                        objectName,
-                        p);
-                    throw MalformedObjectNameException(mlParms);
-                }
-            }
-            else
-            {
-                Uint64 x;
-                if (!StringConversion::stringToUnsignedInteger(p, x))
-                {
-                    MessageLoaderParms mlParms(
-                        "Common.CIMObjectPath.INVALID_NEGATIVNUMBER_VALUE",
-                        "$0, reason:\"invalid key-value pair, "
-                            "invalid number value $1\"",
-                        objectName,
-                        p);
-                    throw MalformedObjectNameException(mlParms);
-                }
-            }
+            Sint64 x;
+
+            if (!XmlReader::stringToSignedInteger(p, x))
+                throw MalformedObjectNameException(objectName);
 
             valueString.assign(p, n);
 
@@ -792,30 +761,23 @@ void _parseKeyBindingPairs(
             p = p + n;
         }
 
-        keyBindings.append(CIMKeyBinding(keyName.getString (), valueString,
+        keyBindings.append(CIMKeyBinding(keyName.getString (), valueString, 
             type));
 
         if (*p)
         {
             if (*p++ != ',')
             {
-                MessageLoaderParms mlParms(
-                    "Common.CIMObjectPath.INVALID_KEYVALUEPAIR_MISSCOMMA",
-                    "$0, reason:\"invalid key-value pair, "
-                        "next key-value pair has to start with comma\"",
-                    objectName);
-                throw MalformedObjectNameException(mlParms);
+                throw MalformedObjectNameException(objectName);
             }
         }
     }
 
-    _Sort(keyBindings);
+    _BubbleSort(keyBindings);
 }
 
-void CIMObjectPath::set(const String& objectName)
+void CIMObjectPath::set(const String& objectName)  
 {
-    // the clear automatically ensures
-    // we have our own copy of the representation
     clear();
 
     //--------------------------------------------------------------------------
@@ -827,7 +789,7 @@ void CIMObjectPath::set(const String& objectName)
 
     // Convert to a C String first:
 
-    CString pCString = objectName.getCString();
+    CString pCString = objectName.getCStringUTF8();
     char* p = const_cast<char*>((const char*) pCString);
     Boolean gotHost;
     Boolean gotNamespace;
@@ -837,11 +799,7 @@ void CIMObjectPath::set(const String& objectName)
 
     if (gotHost && !gotNamespace)
     {
-        MessageLoaderParms mlParms(
-            "Common.CIMObjectPath.MISSING_NAMESPACE",
-            "$0, reason:\"host specified, missing namespace\"",
-            objectName);
-        throw MalformedObjectNameException(mlParms);
+        throw MalformedObjectNameException(objectName);
     }
 
     // Extract the class name:
@@ -852,12 +810,7 @@ void CIMObjectPath::set(const String& objectName)
     {
         if (!CIMName::legal(p))
         {
-            MessageLoaderParms mlParms(
-                "Common.CIMObjectPath.INVALID_CLASSNAME",
-                "$0, reason:\"class name $1 not a legal CIM name\"",
-                objectName,
-                p);
-            throw MalformedObjectNameException(mlParms);
+            throw MalformedObjectNameException(objectName);
         }
 
         // ATTN: remove this later: a reference should only be able to hold
@@ -870,12 +823,7 @@ void CIMObjectPath::set(const String& objectName)
     String className = String(p, (Uint32)(dot - p));
     if (!CIMName::legal(className))
     {
-        MessageLoaderParms mlParms(
-            "Common.CIMObjectPath.INVALID_CLASSNAME",
-            "$0, reason:\"class name $1 not a legal CIM name\"",
-            objectName,
-            className);
-        throw MalformedObjectNameException(mlParms);
+        throw MalformedObjectNameException(objectName);
     }
     _rep->_className = className;
 
@@ -888,7 +836,6 @@ void CIMObjectPath::set(const String& objectName)
 
 CIMObjectPath& CIMObjectPath::operator=(const String& objectName)
 {
-    // set will call clear, which will cause copyOnWrite if necessary
     set(objectName);
     return *this;
 }
@@ -900,18 +847,6 @@ const String& CIMObjectPath::getHost() const
 
 void CIMObjectPath::setHost(const String& host)
 {
-    if ((host != String::EMPTY) &&
-        (host != System::getHostName()) &&
-        !CIMObjectPathRep::isValidHostname(host))
-    {
-        MessageLoaderParms mlParms(
-            "Common.CIMObjectPath.INVALID_HOSTNAME",
-            "$0, reason:\"invalid hostname\"",
-            host);
-        throw MalformedObjectNameException(mlParms);
-    }
-    _rep = _copyOnWriteCIMObjectPathRep(_rep);
-
     _rep->_host = host;
 }
 
@@ -922,7 +857,6 @@ const CIMNamespaceName& CIMObjectPath::getNameSpace() const
 
 void CIMObjectPath::setNameSpace(const CIMNamespaceName& nameSpace)
 {
-    _rep = _copyOnWriteCIMObjectPathRep(_rep);
    _rep->_nameSpace = nameSpace;
 }
 
@@ -933,7 +867,6 @@ const CIMName& CIMObjectPath::getClassName() const
 
 void CIMObjectPath::setClassName(const CIMName& className)
 {
-    _rep = _copyOnWriteCIMObjectPathRep(_rep);
     _rep->_className = className;
 }
 
@@ -944,9 +877,8 @@ const Array<CIMKeyBinding>& CIMObjectPath::getKeyBindings() const
 
 void CIMObjectPath::setKeyBindings(const Array<CIMKeyBinding>& keyBindings)
 {
-    _rep = _copyOnWriteCIMObjectPathRep(_rep);
     _rep->_keyBindings = keyBindings;
-    _Sort(_rep->_keyBindings);
+    _BubbleSort(_rep->_keyBindings);
 }
 
 String CIMObjectPath::toString() const
@@ -978,7 +910,7 @@ String CIMObjectPath::toString() const
     //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
     //  distinguish instanceNames from classNames in every case
     //  The instanceName of a singleton instance of a keyless class has no
-    //  key bindings. See BUG_3302
+    //  key bindings
     //
     if (_rep->_keyBindings.size () != 0)
     {
@@ -997,15 +929,16 @@ String CIMObjectPath::toString() const
                 keyBindings[i].getValue());
 
             CIMKeyBinding::Type type = keyBindings[i].getType();
+        
+            if (type == CIMKeyBinding::REFERENCE)
+                objectName.append('R');
 
-            if (type == CIMKeyBinding::STRING ||
-                type == CIMKeyBinding::REFERENCE)
+            if (type == CIMKeyBinding::STRING || type == CIMKeyBinding::REFERENCE)
                 objectName.append('"');
 
             objectName.append(value);
 
-            if (type == CIMKeyBinding::STRING ||
-                type == CIMKeyBinding::REFERENCE)
+            if (type == CIMKeyBinding::STRING || type == CIMKeyBinding::REFERENCE)
                 objectName.append('"');
 
             if (i + 1 != n)
@@ -1018,90 +951,23 @@ String CIMObjectPath::toString() const
 
 String CIMObjectPath::_toStringCanonical() const
 {
-    CIMObjectPath ref;
-    *ref._rep = *this->_rep;
+    CIMObjectPath ref = *this;
 
-    // Normalize hostname by changing to lower case
-    ref._rep->_host.toLower(); // ICU_TODO:
+    // ATTN-RK-P2-20020510: Need to make hostname and namespace lower case?
 
-    // Normalize namespace by changing to lower case
-    if (!ref._rep->_nameSpace.isNull())
-    {
-        String nameSpaceLower = ref._rep->_nameSpace.getString();
-        nameSpaceLower.toLower(); // ICU_TODO:
-        ref._rep->_nameSpace = nameSpaceLower;
-    }
-
-    // Normalize class name by changing to lower case
-    if (!ref._rep->_className.isNull())
-    {
-        String classNameLower = ref._rep->_className.getString();
-        classNameLower.toLower(); // ICU_TODO:
-        ref._rep->_className = classNameLower;
-    }
+    String classNameLower = ref._rep->_className.getString ();
+    classNameLower.toLower(); // ICU_TODO:  
+    ref._rep->_className = classNameLower;
 
     for (Uint32 i = 0, n = ref._rep->_keyBindings.size(); i < n; i++)
     {
-        // Normalize key binding name by changing to lower case
-        if (!ref._rep->_keyBindings[i]._rep->_name.isNull())
-        {
-            String keyBindingNameLower =
-                ref._rep->_keyBindings[i]._rep->_name.getString();
-            keyBindingNameLower.toLower(); // ICU_TODO:
-            ref._rep->_keyBindings[i]._rep->_name = keyBindingNameLower;
-        }
-
-        // Normalize the key value
-        switch (ref._rep->_keyBindings[i]._rep->_type)
-        {
-        case CIMKeyBinding::REFERENCE:
-            try
-            {
-                // Convert reference to CIMObjectPath and recurse
-                ref._rep->_keyBindings[i]._rep->_value =
-                    CIMObjectPath(ref._rep->_keyBindings[i]._rep->_value).
-                        _toStringCanonical();
-            }
-            catch (Exception&)
-            {
-                // Leave value unchanged if the CIMObjectPath parsing fails
-            }
-            break;
-        case CIMKeyBinding::BOOLEAN:
-            // Normalize the boolean string by changing to lower case
-            ref._rep->_keyBindings[i]._rep->_value.toLower(); // ICU_TODO:
-            break;
-        case CIMKeyBinding::NUMERIC:
-            // Normalize the numeric string by converting to integer and back
-            Uint64 uValue;
-            Sint64 sValue;
-            // First try converting to unsigned integer
-            if (StringConversion::stringToUnsignedInteger(
-                    ref._rep->_keyBindings[i]._rep->_value.getCString(),
-                        uValue))
-            {
-                char buffer[32];  // Should need 21 chars max
-                sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", uValue);
-                ref._rep->_keyBindings[i]._rep->_value = String(buffer);
-            }
-            // Next try converting to signed integer
-            else if (StringConversion::stringToSignedInteger(
-                         ref._rep->_keyBindings[i]._rep->_value.getCString(),
-                             sValue))
-            {
-                char buffer[32];  // Should need 21 chars max
-                sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", sValue);
-                ref._rep->_keyBindings[i]._rep->_value = String(buffer);
-            }
-            // Leave value unchanged if it cannot be converted to an integer
-            break;
-        default:  // CIMKeyBinding::STRING
-            // No normalization required for STRING
-            break;
-        }
+        String keyBindingNameLower = 
+            ref._rep->_keyBindings[i]._rep->_name.getString ();
+        keyBindingNameLower.toLower();
+        ref._rep->_keyBindings[i]._rep->_name = keyBindingNameLower;
     }
 
-    // Note: key bindings are sorted when set in the CIMObjectPath
+    // ATTN-RK-20020826: Need to sort keys?
 
     return ref.toString();
 }
@@ -1109,11 +975,10 @@ String CIMObjectPath::_toStringCanonical() const
 Boolean CIMObjectPath::identical(const CIMObjectPath& x) const
 {
     return
-        (_rep == x._rep) ||
-        (String::equalNoCase(_rep->_host, x._rep->_host) &&
-         _rep->_nameSpace.equal(x._rep->_nameSpace) &&
-         _rep->_className.equal(x._rep->_className) &&
-         (_rep->_keyBindings == x._rep->_keyBindings));
+        String::equal(_rep->_host, x._rep->_host) &&
+        _rep->_nameSpace.equal(x._rep->_nameSpace) &&
+        _rep->_className.equal(x._rep->_className) &&
+        _rep->_keyBindings == x._rep->_keyBindings;
 }
 
 Uint32 CIMObjectPath::makeHashCode() const
@@ -1130,5 +995,14 @@ Boolean operator!=(const CIMObjectPath& x, const CIMObjectPath& y)
 {
     return !operator==(x, y);
 }
+
+#ifndef PEGASUS_REMOVE_DEPRECATED
+PEGASUS_STD(ostream)& operator<<(
+    PEGASUS_STD(ostream)& os,
+    const CIMObjectPath& x)
+{
+    return os << x.toString();
+}
+#endif
 
 PEGASUS_NAMESPACE_END

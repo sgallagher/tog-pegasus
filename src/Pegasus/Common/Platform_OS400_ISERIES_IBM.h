@@ -85,8 +85,6 @@
 
 #define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
 
-#define PEGASUS_HAVE_EBCDIC
-
 #define PEGASUS_HAVE_IOS_BINARY
 
 #define PEGASUS_STATIC_CDECL __cdecl
@@ -98,5 +96,7 @@
 //#define PEGASUS_HAS_PERFINST  comment out until this works
 
 #define PEGASUS_USE_SYSLOGS
+
+//#define PEGASUS_KERBEROS_AUTHENTICATION
 
 #endif /* Pegasus_Platform_OS400_ISERIES_IBM_h */

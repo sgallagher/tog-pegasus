@@ -226,6 +226,7 @@ static const char* _xmlMessages[] =
     "Semantic error"
 };
 
+
 static const char* _xmlKeys[] = 
 {
     "Common.XmlParser.BAD_START_TAG",
@@ -247,8 +248,7 @@ static const char* _xmlKeys[] =
     "Common.XmlParser.SEMANTIC_ERROR"
 };
 
-// l10n TODO replace _formMessage with the commented one and uncomment
-// the new constructors
+// l10n replace _formMessage (comment out the old one)
 /*
 static String _formMessage(Uint32 code, Uint32 line, const String& message)
 {
@@ -312,6 +312,10 @@ XmlException::XmlException(
     MessageLoaderParms& msgParms) 
     : Exception(_formPartialMessage(code, lineNumber))
 {
+	if (msgParms.default_msg.size())
+    {
+    	msgParms.default_msg = ": " + msgParms.default_msg;
+    } 
 	_rep->message.append(MessageLoader::getMessage(msgParms));
 }
 
@@ -485,11 +489,13 @@ void XmlParser::_skipWhitespace(char*& p)
 
 Boolean XmlParser::_getElementName(char*& p)
 {
-    if (!isalpha(*p) && *p != '_')
+    if (!String::isUTF8(p))
 	throw XmlException(XmlException::BAD_START_TAG, _line);
 
-    while (*p && 
-	(isalnum(*p) || *p == '_' || *p == '-' || *p == ':' || *p == '.'))
+    while ((*p) &&
+	   (((*p >= 'A') && (*p <= 'Z')) ||
+	    ((*p >= 'a') && (*p <= 'z')) ||
+	    *p == '_' || *p == '-' || *p == ':' || *p == '.'))
 	p++;
 
     // The next character must be a space:
@@ -513,11 +519,13 @@ Boolean XmlParser::_getOpenElementName(char*& p, Boolean& openCloseElement)
 {
     openCloseElement = false;
 
-    if (!isalpha(*p) && *p != '_')
+    if (!String::isUTF8(p))
 	throw XmlException(XmlException::BAD_START_TAG, _line);
 
-    while (*p && 
-	(isalnum(*p) || *p == '_' || *p == '-' || *p == ':' || *p == '.'))
+    while ((*p) &&
+	   (((*p >= 'A') && (*p <= 'Z')) ||
+	    ((*p >= 'a') && (*p <= 'z')) ||
+	    *p == '_' || *p == '-' || *p == ':' || *p == '.'))
 	p++;
 
     // The next character must be a space:
@@ -547,11 +555,13 @@ Boolean XmlParser::_getOpenElementName(char*& p, Boolean& openCloseElement)
 
 void XmlParser::_getAttributeNameAndEqual(char*& p)
 {
-    if (!isalpha(*p) && *p != '_')
+    if (!String::isUTF8(p))
 	throw XmlException(XmlException::BAD_ATTRIBUTE_NAME, _line);
 
-    while (*p && 
-	(isalnum(*p) || *p == '_' || *p == '-' || *p == ':' || *p == '.'))
+    while ((*p) &&
+	   (((*p >= 'A') && (*p <= 'Z')) ||
+	    ((*p >= 'a') && (*p <= 'z')) ||
+	    *p == '_' || *p == '-' || *p == ':' || *p == '.'))
 	p++;
 
     char* term = p;
@@ -867,7 +877,7 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
 
 	return;
     }
-    else if (isalpha(*p) || *p == '_')
+    else if (String::isUTF8(p))
     {
 	entry.type = XmlEntry::START_TAG;
 	entry.text = p;
@@ -1091,7 +1101,7 @@ Boolean XmlEntry::getAttributeValue(const char* name, String& value) const
     if (!getAttributeValue(name, tmp))
 	return false;
 
-    value = tmp;
+    value = String(tmp,STRING_FLAG_UTF8);
     return true;
 }
 

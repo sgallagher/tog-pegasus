@@ -44,6 +44,9 @@
 #include "CIMExportResponseDecoder.h"
 #include "CIMExportClient.h"
 
+// l10n
+#include <Pegasus/Common/MessageLoader.h>
+
 #include <iostream>
 
 PEGASUS_USING_STD;
@@ -326,12 +329,23 @@ Message* CIMExportClient::_doRequest(
                 CIMResponseMessage* cimResponse = (CIMResponseMessage*)response;
                 if (cimResponse->messageId != messageId)
                 {
-                    CIMClientResponseException responseException(
-                        String("Mismatched response message ID:  Got \"") +
-                        cimResponse->messageId + "\", expected \"" +
-                        messageId + "\".");
-                    delete response;
-	            throw responseException;
+
+		  // l10n
+		  
+		  // CIMClientResponseException responseException(
+		  //   String("Mismatched response message ID:  Got \"") +
+		  //    cimResponse->messageId + "\", expected \"" +
+		  //    messageId + "\".");
+
+
+		  MessageLoaderParms mlParms("ExportClient.CIMExportClient.MISMATCHED_RESPONSE_ID", 
+					     "Mismatched response message ID:  Got \"$0\", expected \"$1\".", cimResponse->messageId, messageId);
+		  String mlString(MessageLoader::getMessage(mlParms));
+
+		  CIMClientResponseException responseException(mlString);
+
+		  delete response;
+		  throw responseException;
                 }
                 if (cimResponse->cimException.getCode() != CIM_ERR_SUCCESS)
                 {
@@ -345,10 +359,22 @@ Message* CIMExportClient::_doRequest(
             }
             else
             {
-                CIMClientResponseException responseException(
-                    "Mismatched response message type.");
-                delete response;
-	        throw responseException;
+
+	      // l10n
+
+
+	      // CIMClientResponseException responseException(
+	      //   "Mismatched response message type.");
+
+		
+	      MessageLoaderParms mlParms("ExportClient.CIMExportClient.MISMATCHED_RESPONSE", 
+					 "Mismatched response message type.");
+	      String mlString(MessageLoader::getMessage(mlParms));
+	      
+	      CIMClientResponseException responseException(mlString);
+
+	      delete response;
+	      throw responseException;
             }
 	}
 

@@ -1,0 +1,7 @@
+
+
+    1. To reindent you code in MSVC IDE just type Ctrl-A and then Alt-F8.
+
+    2. The provider loading system uses RTDL_NOW in dlopen(). In previous version of Pegasus this
+       behavior was affected also by the RTDL_GLOBAL flag - which is now deprecated.
+

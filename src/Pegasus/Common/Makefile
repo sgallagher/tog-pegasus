@@ -113,7 +113,8 @@ SOURCES = \
     XmlReader.cpp \
     XmlWriter.cpp \
     MofWriter.cpp \
-    peg_authorization.cpp 
+    peg_authorization.cpp \
+    CommonUTF.cpp
 
 ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
   ifdef PEGASUS_HAS_SSL

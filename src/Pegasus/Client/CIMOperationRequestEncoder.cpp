@@ -43,13 +43,18 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+
+
+
 CIMOperationRequestEncoder::CIMOperationRequestEncoder(
-    MessageQueue* outputQueue, ClientAuthenticator* authenticator)
+    MessageQueue* outputQueue, ClientAuthenticator* authenticator,
+	Uint32 showOutput)
     :
     MessageQueue(PEGASUS_QUEUENAME_OPREQENCODER),
     _outputQueue(outputQueue),
     _hostName(System::getHostName().getCString()),
-    _authenticator(authenticator)
+    _authenticator(authenticator),
+	_showOutput(showOutput)
 {
 }
 
@@ -205,12 +210,12 @@ void CIMOperationRequestEncoder::_encodeCreateClassRequest(
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
         message->nameSpace, CIMName ("CreateClass"), message->messageId,
         message->getHttpMethod(), 
+
         _authenticator->buildRequestAuthHeader(), 
         message->acceptLanguages,
         message->contentLanguages,
         params);
-
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeGetClassRequest(
@@ -242,7 +247,7 @@ void CIMOperationRequestEncoder::_encodeGetClassRequest(
         message->contentLanguages,        
          params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeModifyClassRequest(
@@ -256,13 +261,13 @@ void CIMOperationRequestEncoder::_encodeModifyClassRequest(
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("ModifyClass"), message->messageId,
         message->getHttpMethod(),
+
         _authenticator->buildRequestAuthHeader(),
         message->acceptLanguages,
         message->contentLanguages,        
          params);
 
-
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeEnumerateClassNamesRequest(
@@ -285,7 +290,7 @@ void CIMOperationRequestEncoder::_encodeEnumerateClassNamesRequest(
         message->contentLanguages,        
          params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeEnumerateClassesRequest(
@@ -319,7 +324,7 @@ void CIMOperationRequestEncoder::_encodeEnumerateClassesRequest(
         message->contentLanguages,	        
          params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeDeleteClassRequest(
@@ -339,7 +344,7 @@ void CIMOperationRequestEncoder::_encodeDeleteClassRequest(
         message->contentLanguages,        
          params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeCreateInstanceRequest(
@@ -358,7 +363,7 @@ void CIMOperationRequestEncoder::_encodeCreateInstanceRequest(
         message->contentLanguages,        
          params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeGetInstanceRequest(
@@ -393,7 +398,7 @@ void CIMOperationRequestEncoder::_encodeGetInstanceRequest(
         message->contentLanguages,        
          params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeModifyInstanceRequest(
@@ -419,7 +424,7 @@ void CIMOperationRequestEncoder::_encodeModifyInstanceRequest(
         message->contentLanguages,        
          params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeEnumerateInstanceNamesRequest(
@@ -434,13 +439,13 @@ void CIMOperationRequestEncoder::_encodeEnumerateInstanceNamesRequest(
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("EnumerateInstanceNames"), 
         message->messageId, message->getHttpMethod(),
+
         _authenticator->buildRequestAuthHeader(),
         message->acceptLanguages,
         message->contentLanguages,        
          params);
 
-
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeEnumerateInstancesRequest(
@@ -477,7 +482,7 @@ void CIMOperationRequestEncoder::_encodeEnumerateInstancesRequest(
         message->contentLanguages,        
          params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeDeleteInstanceRequest(
@@ -496,7 +501,7 @@ void CIMOperationRequestEncoder::_encodeDeleteInstanceRequest(
         message->contentLanguages,        
          params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeGetPropertyRequest(
@@ -518,7 +523,7 @@ void CIMOperationRequestEncoder::_encodeGetPropertyRequest(
         message->contentLanguages,        
          params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeSetPropertyRequest(
@@ -544,7 +549,7 @@ void CIMOperationRequestEncoder::_encodeSetPropertyRequest(
         message->contentLanguages,        
          params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeSetQualifierRequest(
@@ -562,7 +567,7 @@ void CIMOperationRequestEncoder::_encodeSetQualifierRequest(
         message->contentLanguages,        
          params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeGetQualifierRequest(
@@ -582,7 +587,7 @@ void CIMOperationRequestEncoder::_encodeGetQualifierRequest(
         message->contentLanguages,        
          params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeEnumerateQualifiersRequest(
@@ -598,7 +603,7 @@ void CIMOperationRequestEncoder::_encodeEnumerateQualifiersRequest(
         message->contentLanguages,        
          params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeDeleteQualifierRequest(
@@ -618,7 +623,7 @@ void CIMOperationRequestEncoder::_encodeDeleteQualifierRequest(
         message->contentLanguages,        
          params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeReferenceNamesRequest(
@@ -650,7 +655,7 @@ void CIMOperationRequestEncoder::_encodeReferenceNamesRequest(
         message->contentLanguages,        
          params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeReferencesRequest(
@@ -692,7 +697,7 @@ void CIMOperationRequestEncoder::_encodeReferencesRequest(
         message->contentLanguages,        
          params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeAssociatorNamesRequest(
@@ -737,7 +742,7 @@ void CIMOperationRequestEncoder::_encodeAssociatorNamesRequest(
         message->contentLanguages,        
          params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeAssociatorsRequest(
@@ -792,7 +797,7 @@ void CIMOperationRequestEncoder::_encodeAssociatorsRequest(
         message->contentLanguages,        
          params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeExecQueryRequest(
@@ -814,7 +819,7 @@ void CIMOperationRequestEncoder::_encodeExecQueryRequest(
         message->contentLanguages,        
          params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _sendRequest(buffer);
 }
 
 void CIMOperationRequestEncoder::_encodeInvokeMethodRequest(
@@ -827,7 +832,35 @@ void CIMOperationRequestEncoder::_encodeInvokeMethodRequest(
     message->acceptLanguages,
     message->contentLanguages);
     
+    _sendRequest(buffer);
+}
+
+// Enqueue the buffer to the ouptut queue with a conditional display.
+// This function is only enabled if the Pegasus Client trace is enabled.
+// Uses parameter to determine whether to send to console to log.
+void CIMOperationRequestEncoder::_sendRequest(Array<Sint8>& buffer)
+{
+#ifdef PEGASUS_CLIENT_TRACE_ENABLE
+    if (_showOutput & 1)
+    {
+        buffer.append('\0');
+        XmlWriter::indentedPrint(cout, buffer.getData());
+        cout << endl;
+        buffer.remove(buffer.size() - 1);
+    }
+	if (_showOutput & 2)
+    {
+        buffer.append('\0');
+        Logger::put(Logger::STANDARD_LOG,
+					"CIMCLIENT",
+					Logger::TRACE,
+					"CIMOperationRequestEncoder::SendRequest, XML content: $1",
+					buffer.getData());
+        buffer.remove(buffer.size() - 1);
+    }
+#endif
     _outputQueue->enqueue(new HTTPMessage(buffer));
 }
+
 
 PEGASUS_NAMESPACE_END

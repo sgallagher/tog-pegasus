@@ -82,14 +82,6 @@ static const CIMName DYNAMIC_PROPERTY    = CIMName ("DynamicProperty");
 */
 static const CIMName PG_CONFIG_SETTING  = CIMName ("PG_ConfigSetting");
 
-/**
-    Constants representing trace configuration properties
-*/
-#ifdef PEGASUS_DONOT_LIST_TRACE_PROPERTIES
-    static const String TRACE_COMPONENT_PROPERTY_NAME = "traceComponents";
-    static const String TRACE_LEVEL_PROPERTY_NAME     = "traceLevel";
-#endif
-
 void ConfigSettingProvider::getInstance(
 	const OperationContext & context,
         const CIMObjectPath& instanceName,
@@ -450,48 +442,36 @@ void ConfigSettingProvider::enumerateInstances(
 
             for (Uint32 i = 0; i < propertyNames.size(); i++)
             {
+                 Array<String> propertyInfo;
 
-#ifdef PEGASUS_DONOT_LIST_TRACE_PROPERTIES
-                // Check if the property name is traceComponents or traceLevel.
-                // If so then do not list these properties. 
+                 CIMInstance        instance(PG_CONFIG_SETTING);
 
-                if ( ! (propertyNames[i] == TRACE_COMPONENT_PROPERTY_NAME ||
-                        propertyNames[i] == TRACE_LEVEL_PROPERTY_NAME ) )
-                {
-#endif
-                    Array<String> propertyInfo;
+                 propertyInfo.clear();
 
-                    CIMInstance        instance(PG_CONFIG_SETTING);
+                 _configManager->getPropertyInfo(
+                 propertyNames[i], propertyInfo);
 
-                    propertyInfo.clear();
+                 Array<CIMKeyBinding> keyBindings;
+                 keyBindings.append(CIMKeyBinding(PROPERTY_NAME, 
+                 propertyInfo[0], CIMKeyBinding::STRING));
+                 CIMObjectPath instanceName(ref.getHost(), 
+                 ref.getNameSpace(),
+                 PG_CONFIG_SETTING, keyBindings);
 
-                    _configManager->getPropertyInfo(
-                    propertyNames[i], propertyInfo);
-
-                    Array<CIMKeyBinding> keyBindings;
-                    keyBindings.append(CIMKeyBinding(PROPERTY_NAME, 
-                    propertyInfo[0], CIMKeyBinding::STRING));
-                    CIMObjectPath instanceName(ref.getHost(), 
-                    ref.getNameSpace(),
-                    PG_CONFIG_SETTING, keyBindings);
-
-                    // construct the instance
-                    instance.addProperty(CIMProperty(PROPERTY_NAME, 
+                 // construct the instance
+                 instance.addProperty(CIMProperty(PROPERTY_NAME, 
                                          propertyInfo[0]));
-                    instance.addProperty(CIMProperty(DEFAULT_VALUE, 
+                 instance.addProperty(CIMProperty(DEFAULT_VALUE, 
                                          propertyInfo[1]));
-                    instance.addProperty(CIMProperty(CURRENT_VALUE, 
+                 instance.addProperty(CIMProperty(CURRENT_VALUE, 
                                          propertyInfo[2]));
-                    instance.addProperty(CIMProperty(PLANNED_VALUE, 
+                 instance.addProperty(CIMProperty(PLANNED_VALUE, 
                                          propertyInfo[3]));
-                    instance.addProperty(CIMProperty(DYNAMIC_PROPERTY,
-                    Boolean(propertyInfo[4]=="true"?true:false)));
+                 instance.addProperty(CIMProperty(DYNAMIC_PROPERTY,
+                 Boolean(propertyInfo[4]=="true"?true:false)));
 
-                    instance.setPath(instanceName);
-                    instanceArray.append(instance);
-#ifdef PEGASUS_DONOT_LIST_TRACE_PROPERTIES
-                }
-#endif
+                 instance.setPath(instanceName);
+                 instanceArray.append(instance);
             }
         }
         catch(Exception& e)
@@ -545,31 +525,19 @@ void ConfigSettingProvider::enumerateInstanceNames(
 
             for (Uint32 i = 0; i < size; i++)
             {
+                 keyBindings.append(
+                              CIMKeyBinding(PROPERTY_NAME, propertyNames[i],
+                              CIMKeyBinding::STRING));
 
-#ifdef PEGASUS_DONOT_LIST_TRACE_PROPERTIES
-                // Check if the property name is traceComponents or traceLevel.
-                // If so then do not list these properties. 
+                 //
+                 // Convert instance names to References
+                 //
+                 CIMObjectPath ref(hostName, nameSpace, className, 
+                                    keyBindings);
 
-                if ( ! (propertyNames[i] == TRACE_COMPONENT_PROPERTY_NAME ||
-                        propertyNames[i] == TRACE_LEVEL_PROPERTY_NAME ) )
-                {
-#endif
-                    keyBindings.append(
-                                CIMKeyBinding(PROPERTY_NAME, propertyNames[i],
-                                CIMKeyBinding::STRING));
+                 instanceRefs.append(ref);
+                 keyBindings.clear();
 
-                    //
-                    // Convert instance names to References
-                    //
-                    CIMObjectPath ref(hostName, nameSpace, className, 
-                                      keyBindings);
-
-                    instanceRefs.append(ref);
-                    keyBindings.clear();
-
-#ifdef PEGASUS_DONOT_LIST_TRACE_PROPERTIES
-                }
-#endif
             }
         }
         catch(Exception& e)

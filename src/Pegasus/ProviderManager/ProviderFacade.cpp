@@ -29,6 +29,7 @@
 //              Sushma Fernandes, Hewlett-Packard Company 
 //                  (sushma_fernandes@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com) 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -584,28 +585,19 @@ void ProviderFacade::deleteSubscription(
         classNames);
 }
 
-  // CIMIndicationConsumer interface
-void ProviderFacade::handleIndication(
+  // CIMIndicationConsumerProvider interface
+void ProviderFacade::consumeIndication(
    const OperationContext & context,
-   const CIMInstance & indication,
-   IndicationResponseHandler & handler)
+   const String & destinationPath,
+   const CIMInstance & indication)
 {
    
    op_counter ops(&_current_operations);
-   CIMIndicationConsumer * provider = getInterface<CIMIndicationConsumer>(_provider);
-   // handler should be unused
-   provider->handleIndication(
+   CIMIndicationConsumerProvider * provider = getInterface<CIMIndicationConsumerProvider>(_provider);
+   provider->consumeIndication(
       context, 
-      indication, 
-      handler);
-}
-
- void ProviderFacade::handleIndication(
-    const OperationContext & context,
-    const String & url,
-    const CIMInstance& indicationInstance)
-{
-
+      destinationPath,
+      indication); 
 }
 
 PEGASUS_NAMESPACE_END

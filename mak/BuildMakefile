@@ -1,52 +1,75 @@
-#//%LICENSE////////////////////////////////////////////////////////////////
-#//
-#// Licensed to The Open Group (TOG) under one or more contributor license
-#// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-#// this work for additional information regarding copyright ownership.
-#// Each contributor licenses this file to you under the OpenPegasus Open
-#// Source License; you may not use this file except in compliance with the
-#// License.
-#//
-#// Permission is hereby granted, free of charge, to any person obtaining a
-#// copy of this software and associated documentation files (the "Software"),
-#// to deal in the Software without restriction, including without limitation
-#// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-#// and/or sell copies of the Software, and to permit persons to whom the
-#// Software is furnished to do so, subject to the following conditions:
-#//
-#// The above copyright notice and this permission notice shall be included
-#// in all copies or substantial portions of the Software.
-#//
-#// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-#// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-#// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-#// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-#// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#//
-#//////////////////////////////////////////////////////////////////////////
 ###############################################################################
 ##
-## Makefile for managing a Pegasus source tree
+## Makefile for Pegasus CIMOM
 ##
-## NOTE: This Makefile should be executed from the parent directory of the
-## pegasus directory because it may remove and recheckout the pegasus source
-## tree.
+## NOTE: Makefile needs to be executed from the parent directory of 
+## pegasus directory because the path settings are relative and this
+## Makefile may remove and recheckout the pegasus source tree.
 ##
 ## Options:
-##      cleanbuild - Remove the existing pegasus directory, perform a CVS
-##                   checkout of the pegasus source, build, and run tests.
-##      removeall  - Remove the existing pegasus directory.
-##      checkout   - Perform a CVS checkout of the pegasus source.
-##      recheckout - Remove the existing pegasus directory and perform a CVS
-##                   checkout of the pegasus source.
+##      cleanbuild - Removes the existing pegasus directory contents, performs
+##                   checkout, build and runs tests. 
+##      rebuild    - Rebuild and execute tests.
+## 
+###############################################################################
+
+###############################################################################
 ##
-## All pegasus/TestMakefile options are also supported by this Makefile.
+## Platform specific settings for several platforms.
+##
+## NOTE: Please add platform specific environment variables as appropriate. 
 ##
 ###############################################################################
 
-include $(PEGASUS_ROOT)/TestMakefile
+include pegasus/mak/config.mak
+
+# There is a start command for cimserver but no stop today.  Because of problems with
+# the use of cimserver as a service, we simply used the start command to allow us to
+# get on with testing. I know of no CLI to stop a window started with start so that
+# field is blank.  ks 7 April 2002
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+  CIMSERVER_START_SERVICE = cimserver -start
+  CIMSERVER_STOP_SERVICE = cimserver -stop
+  SLEEP =
+  REMOVE_PEGASUS_DIRECTORY = mu rmdirhier pegasus
+  MUEXE = mu.exe
+  COPYMU = copy pegasus\src\utils\mu\$(MUEXE) /y $(MUEXE)
+  MKDIR = pegasus/src/utils/mu/mu mkdirhier
+  TESTS = prestarttests poststarttests
+endif
+
+ifeq ($(OS),HPUX)
+  CIMSERVER_START_SERVICE = cimserver
+  CIMSERVER_STOP_SERVICE = cimserver -s; true
+  SLEEP = sleep 5
+  REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
+  MUEXE = mu
+  COPYMU = cp -f pegasus/src/utils/mu/$(MUEXE) $(BIN_DIR)/$(MUEXE)
+  MKDIR = pegasus/src/utils/mu/mu mkdirhier
+  TESTS = prestarttests poststarttests
+endif
+
+ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
+  CIMSERVER_START_SERVICE = cimserver
+  CIMSERVER_STOP_SERVICE = /usr/bin/ps -ef | /usr/bin/grep cimserver | /usr/bin/grep -v grep | /usr/bin/awk '{print "kill -9 "$$2 |"/usr/bin/ksh"}'
+  SLEEP = sleep 5
+  REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
+  MUEXE = mu
+  COPYMU = cp -f pegasus/src/utils/mu/$(MUEXE) $(BIN_DIR)/$(MUEXE)
+  MKDIR = pegasus/src/utils/mu/mu mkdirhier
+  TESTS = prestarttests poststarttests
+endif
+
+ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
+  CIMSERVER_START_SERVICE = cimserver
+  CIMSERVER_STOP_SERVICE = /bin/ps -ef | /bin/grep cimserver | /bin/grep -v grep | /usr/bin/awk '{print "kill -9 "$$2 |"/bin/bash"}'
+  SLEEP = sleep 5
+  REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
+  MUEXE = mu
+  COPYMU = cp -f pegasus/src/utils/mu/$(MUEXE) $(BIN_DIR)/$(MUEXE)
+  MKDIR = pegasus/src/utils/mu/mu mkdirhier
+  TESTS = prestarttests poststarttests
+endif
 
 ifeq ($(DYNAMIC_SOCKSIFY),TRUE)
   CVS = socksify cvs
@@ -54,10 +77,15 @@ else
   CVS = cvs
 endif
 
-# Explicitly invoke the TestMakefile so that the re-checked-out copy is used.
-cleanbuild: recheckout
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile build
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile alltests
+error: 
+	@ echo "Specify desired makefile option (i.e., cleanbuild, rebuild)"
+
+buildmu:
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/mu -f Makefile
+	$(MKDIR) $(BIN_DIR)
+	$(COPYMU)
+
+cleanbuild: removeall recheckout buildmu all $(TESTS) 
 
 recheckout: removeall checkout
 
@@ -65,4 +93,100 @@ removeall:
 	$(REMOVE_PEGASUS_DIRECTORY)
 
 checkout:
-	$(CVS) checkout -P pegasus
+	$(CVS) checkout pegasus
+
+rebuild: clean buildmu all tests
+
+build: all tests
+
+all: buildmu
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile depend
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile all
+
+doc:
+	$(MAKE) --directory=$(PEGASUS_ROOT)/doc/ProviderSpec -f Makefile
+	$(MAKE) --directory=$(PEGASUS_ROOT)/doc/DevManual -f Makefile
+
+clean:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile clean
+
+repositoryServer: 
+	$(CIMSERVER_STOP_SERVICE)
+	$(SLEEP)
+	$(RMDIRHIER) $(REPOSITORY_ROOT)
+	$(CIMSERVER_START_SERVICE)
+	$(SLEEP)
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryServer
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepositoryServer
+
+prestarttests: 
+	$(CIMSERVER_STOP_SERVICE)
+	$(SLEEP)
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile tests
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install
+
+poststarttests:
+	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile clean
+	$(CIMSERVER_START_SERVICE)
+	$(SLEEP)
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests
+
+tests: $(TESTS)
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+	$(CIMSERVER_STOP_SERVICE)
+	$(MAKE) --directory=$(PEGASUS_ROOT)src/Server -f Makefile uninstall
+endif
+	@ echo Finished Tests
+
+###############################################################################
+##
+## Trace Configuration
+##
+## Options:
+##      XMLTraceOn: Enables XML request and response tracing.
+##      ProviderLoadTraceOn: Enables Provider load tracing.
+##      XML+ProviderLoadTraceOn: Enables both XML request/response and Provider
+##                                 load tracing.
+##      AllTraceOn: Enables all tracing.
+##      AllTraceOff: Disables all tracing.
+##      list: Lists trace settings.
+##
+###############################################################################
+
+XMLTraceOn:
+	cimconfig -s traceComponents=XmlIO -c
+	cimconfig -s traceLevel=3 -c
+	cimconfig -g traceComponents
+	cimconfig -g traceLevel
+
+ProviderLoadTraceOn:
+	cimconfig -s traceComponents=ProvManager,OsAbstraction
+	cimconfig -s traceLevel=3 -c
+	cimconfig -g traceComponents
+	cimconfig -g traceLevel
+
+XML+ProviderLoadTraceOn:
+	cimconfig -s traceComponents=XmlIO,ProvManager,OsAbstraction
+	cimconfig -s traceLevel=3 -c
+	cimconfig -g traceComponents
+	cimconfig -g traceLevel
+
+AllTraceOn:
+	cimconfig -s traceComponents=ALL
+	cimconfig -s traceLevel=3 -c
+	cimconfig -g traceComponents
+	cimconfig -g traceLevel
+
+AllTraceOff:
+	cimconfig -s traceComponents=
+	cimconfig -g traceComponents
+	cimconfig -g traceLevel
+
+list:
+	cimconfig -g traceComponents
+	cimconfig -g traceLevel
+	cimconfig -g traceFilePath
+
+# DO NOT DELETE

@@ -54,9 +54,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 	ContentLanguages::ContentLanguages(Array<LanguageElement> container):LanguageElementContainer(container){}
 	
-	ContentLanguages::ContentLanguages(Array<ContentLanguageElement> container){ 
-		for(int i = 0; i < container.size(); i++)
-			this->container.append(dynamic_cast<LanguageElement &>(container[i]));
+	ContentLanguages::ContentLanguages(Array<ContentLanguageElement> aContainer){ 
+		for(int i = 0; i < aContainer.size(); i++)
+			this->container.append(dynamic_cast<LanguageElement &>(aContainer[i]));
 	}
 
 	ContentLanguages::ContentLanguages(const ContentLanguages &rhs): LanguageElementContainer(rhs){}
@@ -102,6 +102,11 @@ PEGASUS_NAMESPACE_BEGIN
 		return stream;
 	}
 	
+ContentLanguages ContentLanguages::operator=(ContentLanguages rhs){
+	LanguageElementContainer::operator=(rhs);
+	return *this;	
+}
+
 	int ContentLanguages::find(String language_tag){
 		return LanguageElementContainer::find(ContentLanguageElement(language_tag));
 	}

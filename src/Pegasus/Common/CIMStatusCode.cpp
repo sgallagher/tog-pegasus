@@ -128,12 +128,9 @@ const char* cimStatusCodeToString(CIMStatusCode code)
     return "Unrecognized CIM status code";
 }
 
-
 String cimStatusCodeToString(CIMStatusCode code,
 							const ContentLanguages& contentLanguages)
 {
-	// l10n TODO - finish and uncomment this
-	
 	AcceptLanguages acceptLanguages; 
 	MessageLoaderParms parms(_cimMessageKeys[Uint32(code)], _cimMessages[Uint32(code)]);
 	if (contentLanguages.size() == 0) //use AcceptLanguages::EMPTY
@@ -146,22 +143,16 @@ String cimStatusCodeToString(CIMStatusCode code,
 		parms.acceptlanguages = AcceptLanguages(contentLanguages.getLanguageElement(0).getTag());
 		return MessageLoader::getMessage(parms);
 	}
-	
-	
-    //return String("Unrecognized CIM status code");
 }
 
 // l10n 
 ContentLanguages cimStatusCodeToString_Thread(String & message, CIMStatusCode code)
 {
-	// l10n TODO - finish when we have msg ids
-	
 	MessageLoaderParms parms(_cimMessageKeys[Uint32(code)], _cimMessages[Uint32(code)]); 
 	//parms.useThreadLocale = true;
 	message = MessageLoader::getMessage(parms);
 	return parms.contentlanguages;
-
-	//return ContentLanguages::EMPTY;
 }
+
 
 PEGASUS_NAMESPACE_END

@@ -48,6 +48,8 @@
 # include <Pegasus/Common/Platform_TRU64_ALPHA_DECCXX.h>
 #elif defined (PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
 # include <Pegasus/Common/Platform_SOLARIS_SPARC_GNU.h>
+#elif defined (PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+# include <Pegasus/Common/Platform_SOLARIS_SPARC_CC.h>
 #elif defined (PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 # include <Pegasus/Common/Platform_ZOS_ZSERIES_IBM.h>
 #elif defined (PEGASUS_PLATFORM_NSK_NONSTOP_NMCPLUS)
@@ -139,7 +141,11 @@
 #endif
 
 #ifdef PEGASUS_HAVE_IOS_BINARY
+#if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) 
+#define PEGASUS_IOS_BINARY ,std::ios::binary,PEGASUS_STD(_CCSID_T(1208))
+#else
 #define PEGASUS_IOS_BINARY ,std::ios::binary
+#endif
 #define PEGASUS_OR_IOS_BINARY | std::ios::binary
 #else
 #define PEGASUS_IOS_BINARY /* empty */

@@ -232,9 +232,8 @@ Triad<String, String, String> _getProviderRegPair(
 }
 
 void ProviderManagerService::_lookupProviderForAssocClass(
-    const CIMObjectPath & objectPath, 
+    const CIMNamespaceName& nameSpace, 
     const CIMName& assocClassName,
-    const CIMName& resultClassName,
     Array<String>& Locations, 
     Array<String>& providerNames,
     Array<String>& interfaceNames)
@@ -245,18 +244,16 @@ void ProviderManagerService::_lookupProviderForAssocClass(
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::_lookupProviderForAssocClass");
 
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "nameSpace = " + objectPath.getNameSpace().getString() + 
-        "; className = " + objectPath.getClassName().getString());
+        "nameSpace = " + nameSpace.getString() + 
+        "; className = " + assocClassName.getString());
 
     // get the provider and provider module instance from the registration manager
     if(_providerRegistrationManager->lookupAssociationProvider(
-        objectPath.getNameSpace(), objectPath.getClassName(),
-        assocClassName, resultClassName,
-        pInstances, pmInstances) == false)
+        nameSpace, assocClassName, pInstances, pmInstances) == false)
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Provider registration not found for " + objectPath.getNameSpace().getString() +
-            " className " + objectPath.getClassName().getString());
+            "Provider registration not found for " + nameSpace.getString() +
+            " className " + assocClassName.getString());
 
         PEG_METHOD_EXIT();
 		//l10n
@@ -377,7 +374,7 @@ Triad<String, String, String> ProviderManagerService::_lookupMethodProviderForCl
 }
 
 Triad<String, String, String> ProviderManagerService::_lookupConsumerProvider(
-   const CIMObjectPath & objectPath)
+   const String & destinationPath)
 {
    CIMInstance pInstance;
    CIMInstance pmInstance;
@@ -385,14 +382,25 @@ Triad<String, String, String> ProviderManagerService::_lookupConsumerProvider(
    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::_lookupConsumerProvider");
 
    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-		    "Provider registration not found.");
+		    "destinationPath = " + destinationPath);
    
-   PEG_METHOD_EXIT();
-   //l10n
-   //throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
-   throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-        					"ProviderManager.ProviderManagerService.PROVIDER_LOOKUP_FAILED",
+   //
+   // get the provider and provider module instance from the
+   // provider registration manager
+   //
+   if(_providerRegistrationManager->lookupIndicationConsumer(
+        destinationPath, pInstance, pmInstance) == false)
+   {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Provider registration not found.");
+
+        PEG_METHOD_EXIT();
+
+   	throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       		"ProviderManager.ProviderManagerService.PROVIDER_LOOKUP_FAILED",
         					"provider lookup failed."));
+   }
+
    Triad<String, String, String> triad;
    triad = _getProviderRegPair(pInstance, pmInstance);
    
@@ -707,8 +715,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
                 service->handleStopAllProvidersRequest(op, legacy);
 
                 break;
-	    case CIM_CONSUME_INDICATION_REQUEST_MESSAGE:
-	       service->handleConsumeIndicationRequest(op, legacy);
+	    case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
+	       service->handleExportIndicationRequest(op, legacy);
 	       break;
 
             default:
@@ -1424,6 +1432,11 @@ void ProviderManagerService::handleExecuteQueryRequest(AsyncOpNode *op, const Me
 // ATTN: when this is implemented, need to add the language containers to the 
 // OperationContext.  See how the other requests do it.
 
+
+// l10n
+// ATTN: when this is implemented, need to add the language containers to the 
+// OperationContext.  See how the other requests do it.
+
     //
     //  Set HTTP method in response from request
     //
@@ -1489,11 +1502,8 @@ void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Mes
            Array<String> second;
            Array<String> third;
 
-           _lookupProviderForAssocClass(objectPath,
-            //                       request->associationClass,
-            //                       request->resultClass,
-                                     CIMName(),
-                                     CIMName(),
+           _lookupProviderForAssocClass(request->nameSpace,
+                                        request->assocClass,
                                         first, second, third);
 
            for(Uint32 i=0,n=first.size(); i<n; i++)
@@ -1526,7 +1536,7 @@ void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Mes
                    request->resultRole,
                    request->includeQualifiers,
                    request->includeClassOrigin,
-                   request->propertyList.getPropertyNameArray(),
+                   request->propertyList,
                    handler);
 
                STAT_PMS_PROVIDEREND;
@@ -1618,11 +1628,8 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
         Array<String> second;
         Array<String> third;
 
-        _lookupProviderForAssocClass(objectPath,
-        //                             request->associationClass,
-        //                             request->resultClass,
-                                     CIMName(),
-                                     CIMName(),
+        _lookupProviderForAssocClass(request->nameSpace,
+                                     request->assocClass,
                                      first, second, third);
 
         for(Uint32 i=0,n=first.size(); i<n; i++)
@@ -1737,11 +1744,8 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
         Array<String> second;
         Array<String> third;
 
-        _lookupProviderForAssocClass(objectPath,
-        //                             request->associationClass,
-        //                             request->resultClass,
-                                     CIMName(),
-                                     CIMName(),
+        _lookupProviderForAssocClass(request->nameSpace,
+                                     request->resultClass,
                                      first, second, third);
 
         for(Uint32 i=0,n=first.size(); i<n; i++)
@@ -1774,7 +1778,7 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
                 request->role,
                 request->includeQualifiers,
                 request->includeClassOrigin,
-                request->propertyList.getPropertyNameArray(),
+                request->propertyList,
                 handler);
             STAT_PMS_PROVIDEREND;
 
@@ -1862,11 +1866,8 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
         Array<String> second;
         Array<String> third;
 
-        _lookupProviderForAssocClass(objectPath,
-        //                             request->associationClass,
-        //                             request->resultClass,
-                                     CIMName(),
-                                     CIMName(),
+        _lookupProviderForAssocClass(request->nameSpace,
+                                     request->resultClass,
                                      first, second, third);
 
         for(Uint32 i=0,n=first.size(); i<n; i++)
@@ -3099,22 +3100,20 @@ void ProviderManagerService::handleStopAllProvidersRequest(AsyncOpNode *op, cons
     PEG_METHOD_EXIT();
 }
 
-void ProviderManagerService::handleConsumeIndicationRequest(AsyncOpNode *op, 
+void ProviderManagerService::handleExportIndicationRequest(AsyncOpNode *op, 
 				    const Message *message) throw()
 {
-   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handlConsumeIndicationRequest");
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handlExportIndicationRequest");
 
-   CIMConsumeIndicationRequestMessage *request = 
-      dynamic_cast<CIMConsumeIndicationRequestMessage *>(const_cast<Message *>(message));
+   CIMExportIndicationRequestMessage *request = 
+      dynamic_cast<CIMExportIndicationRequestMessage *>(const_cast<Message *>(message));
    
    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
    
    PEGASUS_ASSERT(request != 0 && async != 0);
-   Uint32 type = 3;
    
    CIMResponseMessage * response = 
-      new CIMResponseMessage(
-	 CIM_CONSUME_INDICATION_RESPONSE_MESSAGE,
+      new CIMExportIndicationResponseMessage(
 	 request->messageId,
 	 CIMException(), 
 	 request->queueIds.copyAndPop());
@@ -3128,15 +3127,13 @@ void ProviderManagerService::handleConsumeIndicationRequest(AsyncOpNode *op,
     //
     response->setHttpMethod (request->getHttpMethod ());
 
-
    try
    {
       // get the provider file name and logical name
       Triad<String, String, String> triad =
-	 _getProviderRegPair(request->consumer_provider, request->consumer_module);
+	 _lookupConsumerProvider(request->destinationPath);
       
       // get cached or load new provider module
-      //Provider provider =
       OpProviderHolder ph = 
 	 providerManager.getProvider(triad.first, triad.second, triad.third);
 
@@ -3146,6 +3143,7 @@ void ProviderManagerService::handleConsumeIndicationRequest(AsyncOpNode *op,
        
       OperationContext context;
 
+//L10N_TODO
 //l10n
 // ATTN-CEC 06/04/03 NOTE: I can't find where the consume msg is sent.  This
 // does not appear to be hooked-up.  When it is added, need to
@@ -3155,10 +3153,10 @@ void ProviderManagerService::handleConsumeIndicationRequest(AsyncOpNode *op,
       context.insert(ContentLanguageListContainer(request->contentLanguages));	  
 
       CIMInstance indication_copy = request->indicationInstance;
-      SimpleIndicationResponseHandler handler;
-      ph.GetProvider().handleIndication(context, 
-				indication_copy,
-				handler);
+      pm_service_op_lock op_lock(&ph.GetProvider());
+      ph.GetProvider().consumeIndication(context, 
+				request->destinationPath,
+				indication_copy);
 
    }
    catch(CIMException & e)

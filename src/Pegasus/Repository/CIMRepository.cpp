@@ -29,6 +29,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Karl Schopmeyer(k.schopmeyer@opengroup.org) - extend ref function.
+//              Robert Kieninger, IBM (kieningr@de.ibm.com) - Bugzilla 383
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,6 +56,10 @@
 #include "InstanceDataFile.h"
 #include "AssocInstTable.h"
 #include "AssocClassTable.h"
+
+#if  defined(PEGASUS_OS_OS400)
+#include "OS400ConvertChar.h"
+#endif
 
 #define INDENT_XML_FILES
 
@@ -119,9 +124,14 @@ void _LoadObject(
 void _SaveObject(const String& path, Array<Sint8>& objectXml)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_SaveObject");
-
+#if defined(PEGASUS_OS_OS400)
+    CString tempPath = path.getCString();
+    const char * tmp = tempPath;
+    AtoE((char *)tmp);
+    PEGASUS_STD(ofstream) os(tmp PEGASUS_IOS_BINARY);
+#else
     PEGASUS_STD(ofstream) os(path.getCString() PEGASUS_IOS_BINARY);
-
+#endif
     if (!os)
     {
         PEG_METHOD_EXIT();
@@ -136,38 +146,6 @@ void _SaveObject(const String& path, Array<Sint8>& objectXml)
 #endif
 
     PEG_METHOD_EXIT();
-}
-
-static String _MakeAssocInstPath(
-    const CIMNamespaceName& nameSpace,
-    const String& repositoryRoot)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_MakeAssocInstPath");
-
-    String tmp = namespaceNameToDirName(nameSpace);
-    String returnString(repositoryRoot);
-    returnString.append('/');
-    returnString.append(tmp);
-    returnString.append("/instances/associations");
-
-    PEG_METHOD_EXIT();
-    return returnString;
-}
-
-static String _MakeAssocClassPath(
-    const CIMNamespaceName& nameSpace,
-    const String& repositoryRoot)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_MakeAssocClassPath");
-
-    String tmp = namespaceNameToDirName(nameSpace);
-    String returnString(repositoryRoot);
-    returnString.append('/');
-    returnString.append(tmp);
-    returnString.append("/classes/associations");
-
-    PEG_METHOD_EXIT();
-    return returnString;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -448,7 +426,7 @@ void CIMRepository::deleteClass(
 
     if (isAssociation)
     {
-        String assocFileName = _MakeAssocClassPath(nameSpace, _repositoryRoot);
+        String assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace);
 
         if (FileSystem::exists(assocFileName))
             AssocClassTable::deleteAssociation(assocFileName, className);
@@ -649,7 +627,7 @@ void CIMRepository::deleteInstance(
     // Delete from assocation table (if an assocation).
     //
 
-    String assocFileName = _MakeAssocInstPath(nameSpace, _repositoryRoot);
+    String assocFileName = _nameSpaceManager.getAssocInstPath(nameSpace);
 
     if (FileSystem::exists(assocFileName))
         AssocInstTable::deleteAssociation(assocFileName, instanceName);
@@ -666,7 +644,7 @@ void CIMRepository::_createAssocClassEntries(
     // Open input file:
 
 
-    String assocFileName = _MakeAssocClassPath(nameSpace, _repositoryRoot);
+    String assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace);
     ofstream os;
 
     if (!OpenAppend(os, assocFileName))
@@ -789,7 +767,7 @@ void CIMRepository::_createAssocInstEntries(
 
     // Open input file:
 
-    String assocFileName = _MakeAssocInstPath(nameSpace, _repositoryRoot);
+    String assocFileName = _nameSpaceManager.getAssocInstPath(nameSpace);
     ofstream os;
 
     if (!OpenAppend(os, assocFileName))
@@ -1965,6 +1943,24 @@ Array<CIMObjectPath> CIMRepository::associatorNames(
 
     Array<String> associatorNames;
 
+    // The assocClass parameter implies subclasses, so retrieve them
+    Array<CIMName> assocClassList;
+    if (!assocClass.isNull())
+    {
+        _nameSpaceManager.getSubClassNames(
+            nameSpace, assocClass, true, assocClassList);
+        assocClassList.append(assocClass);
+    }
+
+    // The resultClass parameter implies subclasses, so retrieve them
+    Array<CIMName> resultClassList;
+    if (!resultClass.isNull())
+    {
+        _nameSpaceManager.getSubClassNames(
+            nameSpace, resultClass, true, resultClassList);
+        resultClassList.append(resultClass);
+    }
+
     //
     //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
     //  distinguish instanceNames from classNames in every case
@@ -1973,26 +1969,32 @@ Array<CIMObjectPath> CIMRepository::associatorNames(
     //
     if (objectName.getKeyBindings ().size () == 0)
     {
-        String assocFileName = _MakeAssocClassPath(nameSpace, _repositoryRoot);
+        CIMName className = objectName.getClassName();
+
+        Array<CIMName> classList;
+        _nameSpaceManager.getSuperClassNames(nameSpace, className, classList);
+        classList.append(className);
+
+        String assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace);
 
         AssocClassTable::getAssociatorNames(
             assocFileName,
-            objectName.getClassName(),
-            assocClass,
-            resultClass,
+            classList,
+            assocClassList,
+            resultClassList,
             role,
             resultRole,
             associatorNames);
     }
     else
     {
-        String assocFileName = _MakeAssocInstPath(nameSpace, _repositoryRoot);
+        String assocFileName = _nameSpaceManager.getAssocInstPath(nameSpace);
 
         AssocInstTable::getAssociatorNames(
             assocFileName,
             objectName,
-            assocClass,
-            resultClass,
+            assocClassList,
+            resultClassList,
             role,
             resultRole,
             associatorNames);
@@ -2101,13 +2103,14 @@ Array<CIMObjectPath> CIMRepository::referenceNames(
 
     Array<String> tmpReferenceNames;
 
-    CIMName className = objectName.getClassName();
-
-    Array<CIMName> classList;
-    _nameSpaceManager.getSuperClassNames(nameSpace, className, classList);
-    classList.prepend(className);
-
-    // ATTN: KS 20030428 - Apparently getSuperClassNames returning toplevel twice.
+    // The resultClass parameter implies subclasses, so retrieve them
+    Array<CIMName> resultClassList;
+    if (!resultClass.isNull())
+    {
+        _nameSpaceManager.getSubClassNames(
+            nameSpace, resultClass, true, resultClassList);
+        resultClassList.append(resultClass);
+    }
 
     //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
     //  distinguish instanceNames from classNames in every case
@@ -2116,12 +2119,18 @@ Array<CIMObjectPath> CIMRepository::referenceNames(
     //
     if (objectName.getKeyBindings ().size () == 0)
     {
-        String assocFileName = _MakeAssocClassPath(nameSpace, _repositoryRoot);
+        CIMName className = objectName.getClassName();
+
+        Array<CIMName> classList;
+        _nameSpaceManager.getSuperClassNames(nameSpace, className, classList);
+        classList.append(className);
+
+        String assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace);
 
         if (!AssocClassTable::getReferenceNames(
             assocFileName,
             classList,
-            resultClass,
+            resultClassList,
             role,
             tmpReferenceNames))
         {
@@ -2130,12 +2139,12 @@ Array<CIMObjectPath> CIMRepository::referenceNames(
     }
     else
     {
-        String assocFileName = _MakeAssocInstPath(nameSpace, _repositoryRoot);
+        String assocFileName = _nameSpaceManager.getAssocInstPath(nameSpace);
 
         if (!AssocInstTable::getReferenceNames(
             assocFileName,
             objectName,
-            resultClass,
+            resultClassList,
             role,
             tmpReferenceNames))
         {
@@ -2161,40 +2170,6 @@ Array<CIMObjectPath> CIMRepository::referenceNames(
     PEG_METHOD_EXIT();
     return result;
 }
-
-Array<CIMName> CIMRepository::referencedClassNames(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className,
-    const CIMName& resultClass,
-    const String& role)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::referencedClassNames");
-    Array<String> referenceNames;
-
-    Array<CIMName> referencedNames;
-
-    Array<CIMName> classList;
-    _nameSpaceManager.getSuperClassNames(nameSpace, className, classList);
-    classList.prepend(className);
-
-    // ATTN: KS 20030428 - Apparently getSuperClassNames returning toplevel twice.
-
-        String assocFileName = _MakeAssocClassPath(nameSpace, _repositoryRoot);
-
-        if (!AssocClassTable::getReferencedClassNames(
-            assocFileName,
-            classList,
-            resultClass,
-            role,
-            referencedNames))
-        {
-            // Ignore error! It's okay not to have references.
-        }
-    // ATTN: KS 030301 Probably need a test here to clip off anything above the class names
-    PEG_METHOD_EXIT();
-    
-    return referencedNames;
- }
 
 CIMValue CIMRepository::getProperty(
     const CIMNamespaceName& nameSpace,
@@ -2517,36 +2492,6 @@ void CIMRepository::setDeclContext(RepositoryDeclContext *context)
     _context = context;
 
     PEG_METHOD_EXIT();
-}
-
-String namespaceNameToDirName(const CIMNamespaceName& namespaceName)
-{
-    String dirName = namespaceName.getString();
-
-    for (int i=0; i<dirName.size(); i++)
-    {
-        if (dirName[i] == '/')
-        {
-            dirName[i] = '#';
-        }
-    }
-
-    return dirName;
-}
-
-String dirNameToNamespaceName(const String& dirName)
-{
-    String namespaceName = dirName;
-
-    for (int i=0; i<namespaceName.size(); i++)
-    {
-        if (namespaceName[i] == '#')
-        {
-            namespaceName[i] = '/';
-        }
-    }
-
-    return namespaceName;
 }
 
 PEGASUS_NAMESPACE_END

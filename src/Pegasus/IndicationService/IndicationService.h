@@ -1490,33 +1490,47 @@ private:
     //  Message substrings used in exception messages
     //
 
+    // l10n
+
+    // this one is tricky because it is used in _checkRequiredProperty with the two below
     static const char _MSG_MISSING_REQUIRED [];
 
     static const char _MSG_KEY_PROPERTY [];
+    static const char _MSG_KEY_PROPERTY_KEY [];
 
     static const char _MSG_PROPERTY [];
+    static const char _MSG_PROPERTY_KEY [];
 
     static const char _MSG_PROPERTY_PRESENT [];
-
     static const char _MSG_VALUE_NOT [];
+    static const char _MSG_PROPERTY_PRESENT_BUT_VALUE_NOT_KEY [];
 
     static const char _MSG_NO_PROVIDERS [];
+    static const char _MSG_NO_PROVIDERS_KEY[];
 
     static const char _MSG_NOT_ACCEPTED [];
+    static const char _MSG_NOT_ACCEPTED_KEY [];
 
     static const char _MSG_INVALID_CLASSNAME [];
 
     static const char _MSG_IN_FROM [];
 
+    static const char _MSG_INVALID_CLASSNAME_IN_FROM_PROPERTY_KEY [];
+
     static const char _MSG_EXPIRED [];
+    static const char _MSG_EXPIRED_KEY [];
 
     static const char _MSG_REFERENCED [];
+    static const char _MSG_REFERENCED_KEY [];
 
     static const char _MSG_INVALID_VALUE [];
 
     static const char _MSG_FOR_PROPERTY [];
 
+    static const char _MSG_INVALID_VALUE_FOR_PROPERTY_KEY [];
+
     static const char _MSG_CLASS_NOT_SERVED [];
+    static const char _MSG_CLASS_NOT_SERVED_KEY [];
 };
 
 PEGASUS_NAMESPACE_END

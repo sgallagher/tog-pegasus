@@ -93,7 +93,7 @@ public:
 	 * @return ostream - Returns a representation of this object in AcceptLanguage header format
 	 * according to the RFC
 	 */
-	friend PEGASUS_STD(ostream) & operator<<(PEGASUS_STD(ostream) &stream, AcceptLanguages al);
+	PEGASUS_COMMON_LINKAGE friend PEGASUS_STD(ostream) & operator<<(PEGASUS_STD(ostream) &stream, AcceptLanguages al);
 	
 	/**
 	 * Random access into this container given an index
@@ -153,6 +153,10 @@ public:
 	 * @return int index of element if found, otherwise -1
 	 */
 	int find(String language_tag, Real32 quality);
+	
+	static AcceptLanguages getDefaultAcceptLanguages();
+		
+		
 
 private:
 

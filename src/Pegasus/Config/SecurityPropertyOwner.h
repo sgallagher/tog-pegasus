@@ -222,6 +222,10 @@ private:
     struct ConfigProperty*      _keyFilePath;
 
     struct ConfigProperty*      _trustFilePath;
+
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+    struct ConfigProperty*      _kerberosServiceName;
+#endif
 };
 
 PEGASUS_NAMESPACE_END

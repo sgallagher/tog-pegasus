@@ -50,6 +50,7 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Client/CIMClientException.h>
 #include <Pegasus/Client/Linkage.h>
+#include <Pegasus/Common/AcceptLanguages.h> //l10n
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -220,6 +221,7 @@ public:
     */
     void disconnect();
 
+
 // l10n start
     /** Sets the accept languages that will be used on the next request.
      * Accept languages are the preferred languages that are to be
@@ -250,8 +252,12 @@ public:
      * CIM exceptions, that were returned on the last response..
     */    	
 	ContentLanguages getResponseContentLanguages() const;
+	
+	/**
+	 * 
+	 */
+	void setRequestDefaultLanguages();
 // l10n end	
-
 
     /** The <TT>getClass</TT> method executes a CIM operation that returns
 	a single CIM Class from the

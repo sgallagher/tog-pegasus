@@ -273,7 +273,6 @@ inline Uint32 pegasus_set_thread_specific(PEGASUS_THREAD_KEY_TYPE key,
 } 
 // l10n end
 
-
 inline void PEGASUS_COMMON_LINKAGE exit_thread(PEGASUS_THREAD_RETURN rc)
 {
   _endthreadex(rc);

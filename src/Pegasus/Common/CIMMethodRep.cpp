@@ -1,31 +1,30 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,32 +32,14 @@
 #include "CIMMethod.h"
 #include "CIMMethodRep.h"
 #include "Resolver.h"
+#include "Indentor.h"
 #include "CIMName.h"
 #include "CIMScope.h"
-#include <Pegasus/Common/MessageLoader.h>
-#include "StrLit.h"
+#include "XmlWriter.h"
+#include "MofWriter.h"
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_NAMESPACE_BEGIN
-
-CIMMethodRep::CIMMethodRep(const CIMMethodRep& x) :
-    _name(x._name),
-    _type(x._type),
-    _classOrigin(x._classOrigin),
-    _propagated(x._propagated),
-    _ownerCount(0),
-    _refCounter(1)
-{
-    x._qualifiers.cloneTo(_qualifiers);
-    // Set the CIM name tag.
-    _nameTag = generateCIMNameTag(_name);
-
-    _parameters.reserveCapacity(x._parameters.size());
-
-    for (Uint32 i = 0, n = x._parameters.size(); i < n; i++)
-    {
-        _parameters.append(x._parameters[i].clone());
-    }
-}
 
 CIMMethodRep::CIMMethodRep(
     const CIMName& name,
@@ -66,54 +47,73 @@ CIMMethodRep::CIMMethodRep(
     const CIMName& classOrigin,
     Boolean propagated)
     : _name(name), _type(type),
-    _classOrigin(classOrigin),
-    _propagated(propagated),
-    _ownerCount(0),
-    _refCounter(1)
+    _classOrigin(classOrigin), _propagated(propagated)
 {
-    // ensure name is not null
-    if (name.isNull())
-    {
-        throw UninitializedObjectException();
-    }
-    // Set the CIM name tag.
-    _nameTag = generateCIMNameTag(_name);
+}
+
+CIMMethodRep::~CIMMethodRep()
+{
+
 }
 
 void CIMMethodRep::setName(const CIMName& name)
 {
-    // ensure name is not null
-    if (name.isNull())
-    {
-        throw UninitializedObjectException();
-    }
-    if (_ownerCount != 0 && _name != name)
-    {
-        MessageLoaderParms parms(
-            "Common.CIMMethodRep.CONTAINED_METHOD_NAMECHANGEDEXCEPTION",
-            "Attempted to change the name of a method"
-                " already in a container.");
-        throw Exception(parms);
-    }
     _name = name;
-    // Set the CIM name tag.
-    _nameTag = generateCIMNameTag(_name);
+}
+
+void CIMMethodRep::setClassOrigin(const CIMName& classOrigin)
+{
+    _classOrigin = classOrigin;
 }
 
 void CIMMethodRep::addParameter(const CIMParameter& x)
 {
     if (x.isUninitialized())
-        throw UninitializedObjectException();
+	throw UninitializedObjectException();
 
-    if (findParameter(x.getName()) != PEG_NOT_FOUND)
-    {
+    if (findParameter(x.getName()) != PEG_NOT_FOUND){
+    	//l10n
+		//throw AlreadyExistsException
+            //("parameter \"" + x.getName().getString () + "\"");
         MessageLoaderParms parms("Common.CIMMethodRep.PARAMETER",
-            "parameter \"$0\"",
-            x.getName().getString());
+        						 "parameter \"$0\"",
+        						 x.getName().getString());
         throw AlreadyExistsException(parms);
     }
 
     _parameters.append(x);
+}
+
+Uint32 CIMMethodRep::findParameter(const CIMName& name) const
+{
+    for (Uint32 i = 0, n = _parameters.size(); i < n; i++)
+    {
+	if (name.equal(_parameters[i].getName()))
+	    return i;
+    }
+
+    return PEG_NOT_FOUND;
+}
+
+CIMParameter CIMMethodRep::getParameter(Uint32 index)
+{
+    if (index >= _parameters.size())
+	throw IndexOutOfBoundsException();
+
+    return _parameters[index];
+}
+
+void CIMMethodRep::removeParameter(Uint32 index)
+{
+    if (index >= _parameters.size())
+	throw IndexOutOfBoundsException();
+
+    _parameters.remove (index);
+}
+
+Uint32 CIMMethodRep::getParameterCount() const
+{
+    return _parameters.size();
 }
 
 void CIMMethodRep::resolve(
@@ -133,17 +133,17 @@ void CIMMethodRep::resolve(
     // will throw an exception if the validation fails.
 
     _qualifiers.resolve(
-        declContext,
-        nameSpace,
-        CIMScope::METHOD,
-        false,
-        inheritedMethod._rep->_qualifiers,
-        true);
+	declContext,
+	nameSpace,
+	CIMScope::METHOD,
+	false,
+	inheritedMethod._rep->_qualifiers,
+	true);
 
     // Validate each of the parameters:
 
-    for (Uint32 i = 0; i < _parameters.size(); i++)
-        Resolver::resolveParameter (_parameters[i], declContext, nameSpace);
+    for (size_t i = 0; i < _parameters.size(); i++)
+	Resolver::resolveParameter (_parameters[i], declContext, nameSpace);
 
     _classOrigin = inheritedMethod.getClassOrigin();
 }
@@ -157,46 +157,130 @@ void CIMMethodRep::resolve(
     CIMQualifierList dummy;
 
     _qualifiers.resolve(
-        declContext,
-        nameSpace,
-        CIMScope::METHOD,
-        false,
-        dummy,
-        true);
+	declContext,
+	nameSpace,
+	CIMScope::METHOD,
+	false,
+	dummy,
+	true);
 
     // Validate each of the parameters:
 
-    for (Uint32 i = 0; i < _parameters.size(); i++)
-        Resolver::resolveParameter (_parameters[i], declContext, nameSpace);
+    for (size_t i = 0; i < _parameters.size(); i++)
+	Resolver::resolveParameter (_parameters[i], declContext, nameSpace);
+}
+
+static const char* _toString(Boolean x)
+{
+    return x ? "true" : "false";
+}
+
+void CIMMethodRep::toXml(Array<Sint8>& out) const
+{
+    out << "<METHOD";
+
+    out << " NAME=\"" << _name << "\"";
+
+    out << " TYPE=\"" << cimTypeToString (_type) << "\"";
+
+    if (!_classOrigin.isNull())
+	out << " CLASSORIGIN=\"" << _classOrigin << "\"";
+
+    if (_propagated != false)
+	out << " PROPAGATED=\"" << _toString(_propagated) << "\"";
+
+    out << ">\n";
+
+    _qualifiers.toXml(out);
+
+    for (Uint32 i = 0, n = _parameters.size(); i < n; i++)
+	XmlWriter::appendParameterElement(out, _parameters[i]);
+
+    out << "</METHOD>\n";
+}
+
+/**
+    The BNF for this is;
+    methodDeclaration 	=  [ qualifierList ] dataType methodName
+			   "(" [ parameterList ] ")" ";"
+
+    parameterList 	=  parameter *( "," parameter )
+    Format with qualifiers on one line and declaration on another. Start
+    with newline but none at the end.
+*/
+void CIMMethodRep::toMof(Array<Sint8>& out) const   //ATTNKS:
+{
+    // Output the qualifier list starting on new line
+    if (_qualifiers.getCount())
+	out << "\n";
+
+    _qualifiers.toMof(out);
+
+    // output the type,	MethodName and ParmeterList left enclosure
+    out << "\n" << cimTypeToString (_type) << " " << _name << "(";
+
+    // output the param list separated by commas.
+    
+    for (Uint32 i = 0, n = _parameters.size(); i < n; i++)
+    {
+	// If not first, output comma separator
+	if (i)
+	    out << ", ";
+
+	MofWriter::appendParameterElement(out, _parameters[i]);
+    }
+
+    // output the parameterlist and method terminator
+    out << ");";
+}
+
+
+CIMMethodRep::CIMMethodRep()
+{
+
+}
+
+CIMMethodRep::CIMMethodRep(const CIMMethodRep& x) :
+    Sharable(),
+    _name(x._name),
+    _type(x._type),
+    _classOrigin(x._classOrigin),
+    _propagated(x._propagated)
+{
+    x._qualifiers.cloneTo(_qualifiers);
+
+    _parameters.reserveCapacity(x._parameters.size());
+
+    for (Uint32 i = 0, n = x._parameters.size(); i < n; i++)
+	_parameters.append(x._parameters[i].clone());
 }
 
 Boolean CIMMethodRep::identical(const CIMMethodRep* x) const
 {
-    // If the pointers are the same, the objects must be identical
-    if (this == x)
-    {
-        return true;
-    }
-
     if (!_name.equal (x->_name))
-        return false;
+	return false;
 
     if (_type != x->_type)
-        return false;
+	return false;
 
     if (!_qualifiers.identical(x->_qualifiers))
-        return false;
+	return false;
 
     if (_parameters.size() != x->_parameters.size())
-        return false;
+	return false;
 
     for (Uint32 i = 0, n = _parameters.size(); i < n; i++)
     {
-        if (!_parameters[i].identical(x->_parameters[i]))
-            return false;
+	if (!_parameters[i].identical(x->_parameters[i]))
+	    return false;
     }
 
     return true;
+}
+
+void CIMMethodRep::setType(CIMType type)
+{
+    _type = type;
 }
 
 PEGASUS_NAMESPACE_END

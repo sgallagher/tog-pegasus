@@ -339,16 +339,47 @@ class PEGASUS_COMMON_LINKAGE Thread
 
       void detach(void);
       
+      //
+      //  Gets the Thread object associated with the caller's thread.
+      //  Note: this may return NULL if no Thread object is associated
+      //  with the caller's thread.
+      //
       static Thread * getCurrent();  // l10n
-      
+
+      //
+      //  Sets the Thread object associated with the caller's thread.
+      //  Note: the Thread object must be placed on the heap.
+      //
+      static void setCurrent(Thread * thrd); // l10n	
+
+      //
+      //  Gets the AcceptLanguages object associated with the caller's
+      //  Thread.
+      //  Note: this may return NULL if no Thread object, or no
+      //  AcceptLanguages object, is associated with the caller's thread.  
+      //      
       static AcceptLanguages * getLanguages(); //l10n
       
+      //
+      //  Sets the AcceptLanguages object associated with the caller's
+      //  Thread.
+      //  Note: a Thread object must have been previously associated with
+      //  the caller's thread. 
+      //  Note: the AcceptLanguages object must be placed on the heap.
+      //  
       static void setLanguages(AcceptLanguages *langs); //l10n
       
+      //
+      //  Removes the AcceptLanguages object associated with the caller's
+      //  Thread.
+      //  
       static void clearLanguages(); //l10n      
   
    private:
       Thread();
+
+      static Sint8 initializeKey();  // l10n
+
       inline void create_tsd(const Sint8 *key ) throw(IPCException)
       {
 	 thread_data *tsd = new thread_data(key);
@@ -373,7 +404,8 @@ class PEGASUS_COMMON_LINKAGE Thread
       PEGASUS_THREAD_RETURN _exit_code;
       static Boolean _signals_blocked;
       static PEGASUS_THREAD_KEY_TYPE _platform_thread_key;  //l10n
-      static Boolean _key_initialized; // l10n      
+      static Boolean _key_initialized; // l10n 
+      static Boolean _key_error; // l10n      
       friend class ThreadPool;
 } ;
 

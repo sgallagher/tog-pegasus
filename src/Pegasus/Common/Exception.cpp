@@ -91,8 +91,9 @@ void Exception::setContentLanguages(const ContentLanguages& langs)
 	_rep->contentLanguages = langs;
 } 
 
-// l10n TODO - finish the commented out constructors below 
+
 /*
+
 IndexOutOfBoundsException::IndexOutOfBoundsException()
     : Exception("index out of bounds")
 {

@@ -35,7 +35,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/SSLContextRep.h>
 #include <Pegasus/Common/IPC.h>
-#include <Pegasus/Common/Sharable.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 #include "TLS.h"
 
@@ -68,7 +68,11 @@ SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext)
     if (!( _SSLConnection = SSL_new(_SSLContext->_rep->getContext() )))
     {
         PEG_METHOD_EXIT();
-        throw( SSLException("Could not get SSL Connection Area"));
+        //l10n
+        //throw( SSLException("Could not get SSL Connection Area"));
+        MessageLoaderParms parms("Common.TLS.COULD_NOT_GET_SSL_CONNECTION_AREA",
+            					 "Could not get SSL Connection Area");
+        throw( SSLException(parms));
     }
 
     //
@@ -77,7 +81,11 @@ SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext)
     if (!(SSL_set_fd(_SSLConnection, _socket) ))
     {
         PEG_METHOD_EXIT();
-        throw( SSLException("Could not link socket to SSL Connection"));
+        //l10n
+        //throw( SSLException("Could not link socket to SSL Connection"));
+        MessageLoaderParms parms("Common.TLS.COULD_NOT_LINK_SOCKET",
+            					 "Could not link socket to SSL Connection");
+        throw( SSLException(parms));
     }
 
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: Created SSL socket");

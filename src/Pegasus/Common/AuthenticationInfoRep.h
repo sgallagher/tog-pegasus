@@ -1,31 +1,29 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author:  Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,15 +31,12 @@
 #define Pegasus_AuthenticationInfoRep_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/SSLContext.h>
-#include <Pegasus/Common/AuthHandle.h>
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-#include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
+#include "CIMKerberosSecurityAssociation.h"
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
@@ -49,178 +44,92 @@ PEGASUS_NAMESPACE_BEGIN
 class AuthenticationInfo;
 
 /**
-    This class keeps the authentication information of a connection
+    This class keeps the authentication information of a connection 
     persistent until the connection is destroyed.
 */
 class PEGASUS_COMMON_LINKAGE AuthenticationInfoRep :  public Sharable
 {
 public:
+    enum AuthStatus { NEW_REQUEST, CHALLENGE_SENT, AUTHENTICATED };
 
-    //ATTN: we should be using an enumeration for the authtype instead of a
-    //string.
-    //In the AuthenticationManager, the authtype is set to Basic, Digest, etc
-    //We also need to be able to check whether the type is SSL, so I'm adding a
-    //string here to make it less arbitrary.  PEP165
-    static const String AUTH_TYPE_SSL;
-    static const String AUTH_TYPE_ZOS_LOCAL_DOMIAN_SOCKET;
-    static const String AUTH_TYPE_ZOS_ATTLS;
-
-    AuthenticationInfoRep();
+    AuthenticationInfoRep(Boolean flag);
 
     ~AuthenticationInfoRep();
 
-    void   setConnectionAuthenticated(Boolean connectionAuthenticated);
+    AuthStatus getAuthStatus() const 
+    { 
+        return _authStatus;
+    } 
 
-    String getAuthenticatedUser() const
-    {
+    void   setAuthStatus(AuthStatus status);
+
+    String getAuthenticatedUser() const 
+    { 
         return _authUser;
-    }
+    } 
 
     void   setAuthenticatedUser(const String& userName);
 
-#ifdef PEGASUS_OS_ZOS
+    String getAuthChallenge() const 
+    { 
+        return _authChallenge;
+    } 
 
-    // The connection user is for z/OS only.
-    // On z/OS Unix Local Domain Sockets and sockets
-    // protected by AT-TLS are able to get the user ID of
-    // the connected user.
-    // This information is needed for later authentication
-    // steps.
+    void   setAuthChallenge(const String& challenge);
 
-    String getConnectionUser() const
-    {        return _connectionUser;
-    }
+    String getAuthSecret() const 
+    { 
+        return _authSecret;
+    } 
 
-    void   setConnectionUser(const String& userName);
+    void   setAuthSecret(const String& secret);
 
-#endif
+    Boolean isPrivileged() const 
+    { 
+        return _privileged;
+    } 
 
-    String getAuthenticatedPassword() const
-    {
-        return _authPassword;
-    }
+    void   setPrivileged(Boolean privileged);
 
-    void   setAuthenticatedPassword(const String& password);
+    Boolean isAuthenticated() const 
+    { 
+        return (_authStatus == AUTHENTICATED) ? true : false;
+    } 
 
-    String getLocalAuthFilePath() const
-    {
-        return _localAuthFilePath;
-    }
-
-    void setLocalAuthFilePath(const String& filePath);
-
-    String getLocalAuthSecret() const
-    {
-        return _localAuthSecret;
-    }
-
-    void   setLocalAuthSecret(const String& secret);
-
-    Boolean isConnectionAuthenticated() const
-    {
-        return _connectionAuthenticated;
-    }
-
-    String getAuthType() const
-    {
+    String getAuthType() const 
+    { 
         return _authType;
-    }
+    } 
 
     void   setAuthType(const String& authType);
 
-    void setIpAddress(const String& ipAddress)
-    {
-        _ipAddress = ipAddress;
-    }
-
-    String getIpAddress()
-    {
-        return _ipAddress;
-    }
-
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    CIMKerberosSecurityAssociation* getSecurityAssociation() const
-    {
-        return _securityAssoc.get();
+    CIMKerberosSecurityAssociation* getSecurityAssociation() const 
+    { 
+        return _securityAssoc;
     }
-
+ 
     void setSecurityAssociation();
 #endif
 
-    Array<SSLCertificateInfo*> getClientCertificateChain()
-    {
-        return _clientCertificate;
-    }
-
-    void setClientCertificateChain(
-        Array<SSLCertificateInfo*> clientCertificate);
-
-    void setRemotePrivilegedUserAccessChecked()
-    {
-        _wasRemotePrivilegedUserAccessChecked = true;
-    }
-
-    Boolean getRemotePrivilegedUserAccessChecked()
-    {
-        return _wasRemotePrivilegedUserAccessChecked;
-    }
-
-    void setAuthHandle(const AuthHandle& authHandle)
-    {
-        _authHandle = authHandle;
-    }
-
-    AuthHandle getAuthHandle()
-    {
-        return _authHandle;
-    }
-
-    void setUserRole(const String& userRole)
-    {
-        _userRole = userRole;
-    }
-
-    String getUserRole()
-    {
-        return _userRole;
-    }
-
-    void setExpiredPassword(Boolean status)
-    {
-        _isExpiredPassword = status;
-    }
-
-    Boolean isExpiredPassword() const
-    {
-        return _isExpiredPassword;
-    }
-
 private:
 
-    /** Default Copy Constructor and assignment operator  */
+    /** Constructors  */
+    AuthenticationInfoRep();
+
     AuthenticationInfoRep(const AuthenticationInfoRep& x);
+
     AuthenticationInfoRep& operator=(const AuthenticationInfoRep& x);
 
     String  _authUser;
-    String  _authPassword;
-    String  _localAuthSecret;
-    String  _localAuthFilePath;
-#ifdef PEGASUS_OS_ZOS
-    String  _connectionUser;
-#endif
+    String  _authChallenge;
+    String  _authSecret;
+    Boolean _privileged;
     String  _authType;
-    Boolean _connectionAuthenticated;
-    String  _ipAddress;
+    AuthStatus _authStatus;
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    AutoPtr<CIMKerberosSecurityAssociation> _securityAssoc;//PEP101
+    CIMKerberosSecurityAssociation * _securityAssoc;
 #endif
-    Boolean _wasRemotePrivilegedUserAccessChecked;
-
-    Array<SSLCertificateInfo*> _clientCertificate;
-
-    AuthHandle _authHandle;
-    String _userRole;
-    Boolean _isExpiredPassword;
 };
 
 PEGASUS_NAMESPACE_END

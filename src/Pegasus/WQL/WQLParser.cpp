@@ -1,39 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/InternalException.h>
+#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Common/Mutex.h>
+
 #include <iostream>
 #include "WQLParser.h"
 #include "WQLParserState.h"
@@ -46,7 +45,6 @@ extern void WQL_restart (FILE *input_file);
 PEGASUS_NAMESPACE_BEGIN
 
 WQLParserState* globalParserState = 0;
-static Mutex WQL_mutex;
 
 void WQLParser::parse(
     const char* text,
@@ -54,12 +52,10 @@ void WQLParser::parse(
 {
     PEG_METHOD_ENTER(TRC_WQL,"WQLParser::parse");
 
-     AutoMutex mtx(WQL_mutex);
-
     if (!text)
     {
         PEG_METHOD_EXIT();
-        throw NullPointer();
+	throw NullPointer();
     }
 
     statement.clear();
@@ -67,7 +63,7 @@ void WQLParser::parse(
     globalParserState = new WQLParserState;
     globalParserState->error = false;
     globalParserState->text = text;
-    globalParserState->textSize = (Uint32)(strlen(text) + 1);
+    globalParserState->textSize = strlen(text) + 1;
     globalParserState->offset = 0;
     globalParserState->statement = &statement;
 
@@ -75,11 +71,11 @@ void WQLParser::parse(
 
     if (globalParserState->error)
     {
-        String errorMessage = globalParserState->errorMessage;
-        cleanup();
-        delete globalParserState;
+	String errorMessage = globalParserState->errorMessage;
+	cleanup();
+	delete globalParserState;
         PEG_METHOD_EXIT();
-        throw ParseError(errorMessage);
+	throw ParseError(errorMessage);
     }
 
     cleanup();
@@ -88,13 +84,18 @@ void WQLParser::parse(
 }
 
 void WQLParser::parse(
-    const Buffer& text,
+    const Array<Sint8>& text,
     WQLSelectStatement& statement)
 {
     PEG_METHOD_ENTER(TRC_WQL,"WQLParser::parse");
 
-    parse(text.getData(), statement);
+    if (text.size() == 0 || text[text.size() - 1] != '\0')
+    {
+        PEG_METHOD_EXIT();
+	throw MissingNullTerminator();
+    }
 
+    parse(text.getData(), statement);
     PEG_METHOD_EXIT();
 }
 
@@ -116,7 +117,7 @@ void WQLParser::cleanup()
     Array<char*>& arr = globalParserState->outstandingStrings;
 
     for (Uint32 i = 0, n = arr.size(); i < n; i++)
-        delete [] arr[i];
+	delete [] arr[i];
 
     arr.clear();
 
@@ -151,22 +152,22 @@ int WQLInput(char* buffer, int& numRead, int numRequested)
     // be one or more; this is fixed checked beforehand by WQLParser::parse()).
     //
 
-    int remaining =
-        globalParserState->textSize - globalParserState->offset - 1;
+    int remaining = 
+	globalParserState->textSize - globalParserState->offset - 1;
 
     if (remaining == 0)
     {
-        numRead = 0;
+	numRead = 0;
         PEG_METHOD_EXIT();
-        return 0;
+	return 0;
     }
 
     if (remaining < numRequested)
-        numRequested = remaining;
+	numRequested = remaining;
 
-    memcpy(buffer,
-    globalParserState->text + globalParserState->offset,
-    numRequested);
+    memcpy(buffer, 
+	globalParserState->text + globalParserState->offset, 
+	numRequested);
 
     globalParserState->offset += numRequested;
     numRead = numRequested;

@@ -29,6 +29,9 @@
  
 #include <Pegasus/Common/AcceptLanguages.h>
 #include <Pegasus/Common/Tracer.h>
+#ifdef PEGASUS_HAS_ICU
+#include <unicode/locid.h> 
+#endif
 
 //PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -59,9 +62,9 @@ AcceptLanguages::AcceptLanguages(String hdr): LanguageElementContainer(){
 	PEG_METHOD_EXIT();
 }
 
-AcceptLanguages::AcceptLanguages(Array<AcceptLanguageElement> container) {
-	for(int i = 0; i < container.size(); i++)
-		this->container.append(dynamic_cast<LanguageElement &>(container[i]));
+AcceptLanguages::AcceptLanguages(Array<AcceptLanguageElement> aContainer) {
+	for(int i = 0; i < aContainer.size(); i++)
+		this->container.append(dynamic_cast<LanguageElement &>(aContainer[i]));
 }
 
 String AcceptLanguages::toString() const{
@@ -140,6 +143,16 @@ int AcceptLanguages::find(AcceptLanguageElement element) {
 
 int AcceptLanguages::find(String language_tag, Real32 quality){
 	return find(AcceptLanguageElement(language_tag,quality));
+}
+
+AcceptLanguages AcceptLanguages::getDefaultAcceptLanguages(){
+	#ifdef PEGASUS_HAS_MESSAGES
+		#ifdef PEGASUS_HAS_ICU
+			Locale default_loc = Locale::getDefault();
+			return AcceptLanguages(default_loc.getName());
+		#endif
+	#endif
+	return AcceptLanguages();
 }
 
 void AcceptLanguages::prioritize() {

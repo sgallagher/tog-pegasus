@@ -23,6 +23,11 @@ pegasus_root_undefined:
 	@ exit 1
 endif
 
+# l10n
+ifdef ICU_ROOT
+    ICUROOT =  $(subst \,/,$(ICU_ROOT))
+endif
+
 ifdef PEGASUS_TMP
   TMP_DIR = $(subst \,/,$(PEGASUS_TMP))
 else
@@ -46,6 +51,7 @@ VALID_PLATFORMS = \
     HPUX_IA64_ACC \
     TRU64_ALPHA_DECCXX \
     SOLARIS_SPARC_GNU \
+    SOLARIS_SPARC_CC \
     ZOS_ZSERIES_IBM \
     NSK_NONSTOP_NMCPLUS  
 
@@ -62,6 +68,10 @@ endif
 OBJ_DIR = $(HOME_DIR)/obj/$(DIR)
 BIN_DIR = $(HOME_DIR)/bin
 LIB_DIR = $(HOME_DIR)/lib
+
+# l10n
+# define the location for the compiled messages
+MSG_ROOT = $(HOME_DIR)/msg
 
 # define the location for the repository
 REPOSITORY_DIR = $(HOME_DIR)
@@ -149,6 +159,11 @@ ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_GNU)
   FOUND = true
 endif
 
+ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
+  include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+  FOUND = true
+endif
+
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
    FOUND = true
@@ -167,7 +182,23 @@ pegasus_unknown_platform:
 	@ exit 1
 endif
 
+################################################################################
+##
+##  Set up any platform independent compile conditionals by adding them to
+##  precreated FLAGS parameter.
+##  Assumes that the basic flags have been setup in FLAGS. 
+##  Assumes that compile time flags are controlled with -D CLI option.
+##
+################################################################################
 
+# Setup the conditional compile for client displays.
+# 
+ifdef PEGASUS_CLIENT_TRACE_ENABLE
+  DEFINES+= -DPEGASUS_CLIENT_TRACE_ENABLE
+endif
+
+
+ 
 ############################################################
 #
 # Set up other Make Variables that depend on platform config files

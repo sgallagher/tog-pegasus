@@ -98,7 +98,7 @@ void CIMExportRequestEncoder::_encodeExportIndicationRequest(
    // Note:  Accept-Language will not be set in the request	
    // We will accept the default language of the export server.
    Array<Sint8> buffer = XmlWriter::formatSimpleEMethodReqMessage(
-      message->url.getCString(),
+      message->destinationPath.getCString(),
       _hostName,
       CIMName ("ExportIndication"), 
       message->messageId, 

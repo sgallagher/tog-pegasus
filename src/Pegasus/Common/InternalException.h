@@ -101,7 +101,9 @@ class PEGASUS_COMMON_LINKAGE NullPointer : public Exception
 public:
 
     static const char MSG[];
+
     static const char KEY[];     
+
 
     //NullPointer() : Exception(MSG) { }
 
@@ -487,12 +489,15 @@ class PEGASUS_COMMON_LINKAGE MissingNullTerminator : public Exception
 public:
 
     static const char MSG[];
+
     static const char KEY[];     
+
 
     //MissingNullTerminator() : Exception(MSG) { }
     MissingNullTerminator()  
 	: Exception(MessageLoaderParms(KEY, MSG)) { }  	    
 };
+
 
 //l10n start
 

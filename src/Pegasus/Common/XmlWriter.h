@@ -267,6 +267,12 @@ public:
 	Array<Sint8>& out,
         const String& content);
 
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+    static void appendOKResponseHeader(
+	Array<Sint8>& out,
+        const String& content);
+#endif
+
     static void appendReturnValueElement(
 	Array<Sint8>& out,
 	const CIMValue& value);

@@ -38,6 +38,9 @@
 
 #include "IndicationHandlerService.h"
 
+// l10n
+#include <Pegasus/Common/MessageLoader.h>
+
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
@@ -171,8 +174,13 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 
    if (pos == PEG_NOT_FOUND)
    {
-       cimException = 
-           PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String("Handler without destination"));
+     // l10n
+
+     // cimException = 
+     //   PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String("Handler without destination"));
+
+     cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
+					    MessageLoaderParms("HandlerService.IndicationHandlerService.HANDLER_WITHOUT_DESTINATION", "$0 without destination", "Handler"));
    }
    else
    {
@@ -181,11 +189,22 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 
        if (destination.size() == 0)
        {
+	 // l10n
+
+	 // cimException = 
+	 //   PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String("invalid destination"));
+
            cimException = 
-               PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String("invalid destination"));
+               PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
+					    MessageLoaderParms("HandlerService.IndicationHandlerService.INVALID_DESTINATION", "invalid destination"));
+
        }
+       //
+       // if the URL has format (localhost/CIMListener/...), send message to
+       // ExportServer
+       //	
        else if ((className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML)) &&
-           (destination.subString(0, 9) == String("localhost")))
+                (destination.subString(0, 9) == String("localhost")))
        {
           Array<Uint32> exportServer;
 
@@ -196,7 +215,7 @@ void IndicationHandlerService::_handleIndication(const Message* message)
           CIMExportIndicationRequestMessage* exportmessage =
 	     new CIMExportIndicationRequestMessage(
 	        "1234",
-	        destination.subString(15), //taking localhost:5988 portion out from reg
+	        destination.subString(21), //taking localhost/CIMListener portion out from reg
 	        indication,
 	        QueueIdStack(exportServer[0], getQueueId()),
 	        String::EMPTY,
@@ -247,9 +266,18 @@ void IndicationHandlerService::_handleIndication(const Message* message)
                 	PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
     	      }
           }
-          else
+          else {
+
+	    // l10n
+
+	    // cimException =
+	    // PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String("Failed to load Handler"));
+
              cimException =
-                PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String("Failed to load Handler"));
+                PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
+					    MessageLoaderParms("HandlerService.IndicationHandlerService.FAILED_TO_LOAD", "Failed to load $0", "Handler"));
+
+	  }
        }
    }
 

@@ -54,14 +54,15 @@ PEGASUS_NAMESPACE_BEGIN
 CIMOperationResponseDecoder::CIMOperationResponseDecoder(
     MessageQueue* outputQueue,
     MessageQueue* encoderQueue,
-    ClientAuthenticator* authenticator)
+    ClientAuthenticator* authenticator,
+    Uint32 showInput)
     :
     MessageQueue(PEGASUS_QUEUENAME_OPRESPDECODER),
     _outputQueue(outputQueue),
     _encoderQueue(encoderQueue),
-    _authenticator(authenticator)
+    _authenticator(authenticator),
+    _showInput(showInput)
 {
-
 }
 
 CIMOperationResponseDecoder::~CIMOperationResponseDecoder()
@@ -126,7 +127,6 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     //
     // Get the status line info
     //
-
     String httpVersion;
     Uint32 statusCode;
     String reasonPhrase;
@@ -143,6 +143,28 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         _outputQueue->enqueue(response);
         return;
     }
+
+#ifdef PEGASUS_CLIENT_TRACE_ENABLE
+    if (_showInput & 1)
+    {
+        cout << "CIMOperatonResponseDecoder";
+        httpMessage->printAll(cout);
+    }
+    if (_showInput & 2)
+    {
+        Uint32 size = httpMessage->message.size();
+        char* tmpBuf = new char[size+1];
+
+        strncpy( tmpBuf, httpMessage->message.getData(), size );
+        tmpBuf[size] = '\0';
+        Logger::put(Logger::STANDARD_LOG,
+					"CIMCLIENT",
+					Logger::TRACE,
+					"CIMOperationRequestDecoder::Response, XML content: $1",
+					tmpBuf);
+        delete []tmpBuf;
+    }
+#endif
 
     try
     {
@@ -200,7 +222,6 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     //
     // Check for a success (200 OK) response
     //
-
     if (statusCode != HTTP_STATUSCODE_OK)
     {
         String cimError;
@@ -230,7 +251,6 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     //
     // Search for "CIMOperation" header:
     //
-
     String cimOperation;
 
     if (!HTTPMessage::lookupHeader(
@@ -244,6 +264,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         _outputQueue->enqueue(response);
         return;
     }
+
 
 
 // l10n start
@@ -272,11 +293,27 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 	    return;    	
    }        
 // l10n end   
+    //
+    // Search for "Content-Type" header:
+    //
+
+   String cimContentType;
+
+   if (!HTTPMessage::lookupHeader(
+				  headers, "Content-Type", cimContentType, true))
+   {
+       CIMClientMalformedHTTPException* malformedHTTPException = new
+	 CIMClientMalformedHTTPException("Missing CIMContentType HTTP header");
+       ClientExceptionMessage * response =
+	 new ClientExceptionMessage(malformedHTTPException);
+
+       _outputQueue->enqueue(response);
+       return;
+   }
 
     //
     // Zero-terminate the message:
     //
-
     httpMessage->message.append('\0');
 
     // Calculate the beginning of the content from the message size and
@@ -284,7 +321,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     // character we just added to the end of the message.
 
     content = (Sint8*) httpMessage->message.getData() +
-	httpMessage->message.size() - contentLength - 1;
+        httpMessage->message.size() - contentLength - 1;
 
     //
     // If it is a method response, then dispatch it to be handled:
@@ -474,6 +511,10 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content,
 
         if (response)
         {
+//#ifdef PEGASUS_SNIA_INTEROP_TEST
+//         httpMessage->printAll(cout);
+//#endif
+	
             delete response;
         }
 

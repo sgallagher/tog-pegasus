@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+<MESSAGE ID="080002" PROTOCOLVERSION="1.0">
+<SIMPLERSP>
+<IMETHODRESPONSE NAME="GetInstance">
+<IRETURNVALUE>
+<INSTANCE CLASSNAME="CIM_IndicationHandlerCIMXML">
+<QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
+<VALUE>
+CIM_IndicationHandlerCIMXML describes the destination for Indications to be delivered via HTTP, using a CIMXML representation.
+</VALUE>
+</QUALIFIER>
+<PROPERTY NAME="Caption" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
+</PROPERTY>
+<PROPERTY NAME="Description" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
+</PROPERTY>
+<PROPERTY NAME="Owner" CLASSORIGIN="CIM_IndicationHandler" PROPAGATED="true" TYPE="string">
+</PROPERTY>
+<PROPERTY NAME="OtherPersistenceType" CLASSORIGIN="CIM_IndicationHandler" PROPAGATED="true" TYPE="string">
+</PROPERTY>
+<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="CIM_IndicationHandler" TYPE="string">
+<VALUE>
+CIM_UnitaryComputerSystem
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="SystemName" CLASSORIGIN="CIM_IndicationHandler" TYPE="string">
+<VALUE>
+server001.acme.com
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="CreationClassName" CLASSORIGIN="CIM_IndicationHandler" TYPE="string">
+<VALUE>
+CIM_IndicationHandlerCIMXML
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="Name" CLASSORIGIN="CIM_IndicationHandler" TYPE="string">
+<VALUE>
+Handler02
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="Destination" CLASSORIGIN="CIM_IndicationHandlerCIMXML" TYPE="string">
+<VALUE>
+localhost/CIMListener/test2
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="PersistenceType" CLASSORIGIN="CIM_IndicationHandler" TYPE="uint16">
+<VALUE>
+2
+</VALUE>
+</PROPERTY>
+</INSTANCE>
+</IRETURNVALUE>
+</IMETHODRESPONSE>
+</SIMPLERSP>
+</MESSAGE>
+</CIM>

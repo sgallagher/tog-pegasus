@@ -25,7 +25,9 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,6 +39,9 @@
 #include <Pegasus/Handler/CIMHandler.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/SSLContext.h>
+#include <Pegasus/Config/ConfigManager.h>
+#include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/System.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -115,22 +120,24 @@ public:
             //
             // Get the sslCertificateFilePath property from the Config Manager.
             //
+	    ConfigManager* configManager = ConfigManager::getInstance();
+
             String certPath;
-            certPath = ConfigManager::getInstance()->getCurrentValue(
+            certPath = configManager->getCurrentValue(
                                PROPERTY_NAME__SSLCERT_FILEPATH);
 
             //
             // Get the sslKeyFilePath property from the Config Manager.
             //
             String keyPath;
-            keyPath = ConfigManager::getInstance()->getCurrentValue(
+            keyPath = configManager->getCurrentValue(
                                PROPERTY_NAME__SSLKEY_FILEPATH);
 
             //
             // Get the sslKeyFilePath property from the Config Manager.
             //
             String trustPath = String::EMPTY;
-            trustPath = ConfigManager::getInstance()->getCurrentValue(
+            trustPath = configManager->getCurrentValue(
                                PROPERTY_NAME__SSLTRUST_FILEPATH);
 
             String randFile = String::EMPTY;
@@ -145,44 +152,112 @@ public:
 
             SSLContext sslcontext(trustPath, certPath, keyPath, verifyListenerCertificate, randFile);
 
-	    Monitor* monitor = new Monitor;
-	    HTTPConnector* httpConnector = new HTTPConnector(monitor);
-	    CIMExportClient exportclient(monitor, httpConnector);
+	    Monitor monitor;
+	    HTTPConnector httpConnector( &monitor);
+	    CIMExportClient exportclient( &monitor, &httpConnector);
+
             Uint32 colon = dest.find (":");
-            Uint32 doubleSlash = dest.find ("//");
+
             Uint32 portNumber = 0;
+
             Boolean useHttps = false;
             String destStr = dest;
+	    String hostName;
 
             //
-            // If the URL has https (https://hostname:port/...) then use SSL 
-            // for Indication delivery. If it has http (http://hostname:port/...)
-            // or none (hostname:port/...) then do not use SSL.
+            // If the URL has https (https://hostname:port/... or
+	    // https://hostname/...) then use SSL 
+            // for Indication delivery. If it has http (http://hostname:port/...
+	    // or http://hostname/...) then do not use SSL.
             //
-            if ((colon != PEG_NOT_FOUND) && (doubleSlash != PEG_NOT_FOUND))
+            if (colon != PEG_NOT_FOUND) 
             {
                 String httpStr = dest.subString(0, colon); 
                 if (String::equalNoCase(httpStr, "https"))
                 {
                     useHttps = true;
                 }
-                destStr = dest.subString(doubleSlash + 2, PEG_NOT_FOUND);
+                else if (String::equalNoCase(httpStr, "http"))
+                {
+                    useHttps = false;
+                }
+		else
+		{
+		    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, httpStr);
+		}
             }
+
+	    else
+	    {
+		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, dest);
+	    }
+
+	    String doubleSlash = dest.subString(colon + 1, 2); 
+
+	    if (String::equalNoCase(doubleSlash, "//"))
+	    {
+            	destStr = dest.subString(colon + 3, PEG_NOT_FOUND);
+	    }
+	    else
+	    {
+		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, dest);
+	    }
 
             colon = destStr.find (":");
-            Uint32 slash = destStr.find ("/");
 
-            if ((colon != PEG_NOT_FOUND) && (slash != PEG_NOT_FOUND))
-            {
-                String portStr = destStr.subString (colon + 1, slash);
-                sscanf (portStr.getCString (), "%u", &portNumber);
-            }
+	     //
+	    // get hostname and port number from destination string
+	    //
+	    if (colon != PEG_NOT_FOUND)
+	    {
+	        hostName = destStr.subString (0, colon);
+	        destStr = destStr.subString(colon + 1, PEG_NOT_FOUND);
+
+	        Uint32 slash = destStr.find ("/");
+	        String portStr;
+
+	        if (slash != PEG_NOT_FOUND)
+	        {
+		    portStr = destStr.subString (0, slash);
+	        }
+	        else
+	        {
+		    portStr = destStr.subString (0, PEG_NOT_FOUND);
+	        }
+
+	        sscanf (portStr.getCString (), "%u", &portNumber);  
+	    }
+	    //
+	    // There is no port number in the destination string,
+	    // get port number from system
+	    //
+	    else
+	    {
+	        Uint32 slash = destStr.find ("/");
+	        if (slash != PEG_NOT_FOUND)
+	        { 
+		    hostName = destStr.subString (0, slash);
+	        }
+	        else
+	        {
+		    hostName = destStr.subString (0, PEG_NOT_FOUND);
+		}
+		if (useHttps)
+		{
+		     portNumber = System::lookupPort(WBEM_HTTPS_SERVICE_NAME,
+							WBEM_DEFAULT_HTTPS_PORT); 
+		}
+		else
+		{
+		    portNumber = System::lookupPort(WBEM_HTTP_SERVICE_NAME,
+							WBEM_DEFAULT_HTTP_PORT);
+		}
+	    }	
 
             if (useHttps)
             {
 #ifdef PEGASUS_HAS_SSL
-                exportclient.connect (destStr.subString (0, colon), 
-                    portNumber, sslcontext);
+                exportclient.connect (hostName, portNumber, sslcontext);
 #else
                 PEGASUS_STD(cerr) << "CIMxmlIndicationHandler Error: "
                     << "Cannot do https connection." << PEGASUS_STD(endl);
@@ -190,13 +265,13 @@ public:
             }
             else
             {
-                exportclient.connect (destStr.subString (0, colon), portNumber);
+                exportclient.connect (hostName, portNumber);
             }
 
 // l10n
 	    exportclient.exportIndication(
-                destStr.subString(destStr.find("/")), indicationInstance,
-                contentLanguages);
+		destStr.subString(destStr.find("/")), indicationInstance,
+		contentLanguages);
 	}
 	catch(Exception& e)
         {

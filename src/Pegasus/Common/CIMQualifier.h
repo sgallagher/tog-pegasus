@@ -145,13 +145,15 @@ public:
     */
     const CIMFlavor & getFlavor() const;
 
-    /** Gets the propagated qualifier.
-        @return true if qualifier is propagated, false otherwise.
-	changed from wrong return type Uint32 to Boolean as original intended, see Bug 319
-     */
-    const Boolean getPropagated() const;
 
-    /**	Sets the Propagated flag for the object.
+    /** Gets the Propagated flag for the qualifier.
+        (Note: Although this method is intended to return a Boolean value,
+        changing the return type would break interface compatibility.)
+        @return non-zero if qualifier is propagated, zero otherwise.
+     */
+    const Uint32 getPropagated() const;
+
+    /**	Sets the Propagated flag for the qualifier.
         @param propagated - Flag indicating propagation.
     */
     void setPropagated(Boolean propagated);

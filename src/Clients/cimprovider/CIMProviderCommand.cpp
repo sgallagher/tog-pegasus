@@ -52,6 +52,7 @@
 #include "qycmutiltyUtility.H"
 #include "vfyptrs.cinc"
 #include <stdio.h>
+#include "OS400ConvertChar.h"
 #endif
 
 PEGASUS_USING_STD;
@@ -998,7 +999,7 @@ Uint32 CIMProviderCommand::execute (
         // Open connection with CIMSever
         //
         _client = new CIMClient;
-
+		_client->setRequestDefaultLanguages();
         _client->connectLocal();
 
     }
@@ -1447,16 +1448,17 @@ void CIMProviderCommand::_StopProvider
 		//l10n
    	    //outPrintWriter << STOP_PROVIDER_SUCCESS << endl;
    	    outPrintWriter << localizeMessage(MSG_PATH,
-        								  PROVIDER_ALREADY_STOPPED_KEY,
-        								  PROVIDER_ALREADY_STOPPED) << endl;
+					      STOP_PROVIDER_SUCCESS_KEY,
+					      STOP_PROVIDER_SUCCESS) << endl;
 	}
 	else
 	{
+
 		//l10n
 	    //outPrintWriter << STOP_PROVIDER_FAILURE << endl;
 	    outPrintWriter << localizeMessage(MSG_PATH,
-        								  PROVIDER_ALREADY_STOPPED_KEY,
-        								  PROVIDER_ALREADY_STOPPED) << endl;
+        								  STOP_PROVIDER_FAILURE_KEY,
+        								  STOP_PROVIDER_FAILURE) << endl;
 	}
     }
 
@@ -1858,6 +1860,7 @@ int main (int argc, char* argv [])
     CIMProviderCommand*      command;
     Uint32               retCode;
     
+    MessageLoader::_useProcessLocale = true; //l10n set message loading to process locale
 
 #ifdef PEGASUS_OS_OS400
 
@@ -1871,8 +1874,18 @@ int main (int argc, char* argv [])
       }
   #pragma disable_handler
 
+    // Convert the args to ASCII
+    for(Uint32 i = 0;i< argc;++i)
+    {
+	EtoA(argv[i]);
+    }
+
     // check what environment we are running in, native or qsh
-    if( getenv("SHLVL") == NULL ){  // native mode
+    if( getenv(
+#pragma convert(37)
+	       "SHLVL"
+#pragma convert(0)
+	       ) == NULL ){  // native mode
 	// Check to ensure the user is authorized to use the command,
 	// suppress diagnostic message
 	if(FALSE == ycmCheckCmdAuthorities(1)){

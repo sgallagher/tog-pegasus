@@ -56,9 +56,14 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"traceLevel", "1", 1, 0, 0},
-    {"traceFilePath", "cimserver.trc", 1, 0, 0},
-    {"traceComponents", "", 1, 0, 0},
+#ifdef PEGASUS_OS_HPUX
+    {"traceLevel", "1", 1, 0, 0, 0},
+    {"traceComponents", "", 1, 0, 0, 0},
+#else
+    {"traceLevel", "1", 1, 0, 0, 1},
+    {"traceComponents", "", 1, 0, 0, 1},
+#endif
+    {"traceFilePath", "cimserver.trc", 1, 0, 0, 1},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -141,6 +146,7 @@ void TracePropertyOwner::initialize()
             _traceComponents->dynamic = properties[i].dynamic;
             _traceComponents->domain = properties[i].domain;
             _traceComponents->domainSize = properties[i].domainSize;
+            _traceComponents->externallyVisible = properties[i].externallyVisible;
         }
         else if (String::equalNoCase(properties[i].propertyName, "traceLevel"))
         {
@@ -151,6 +157,7 @@ void TracePropertyOwner::initialize()
             _traceLevel->dynamic = properties[i].dynamic;
             _traceLevel->domain = properties[i].domain;
             _traceLevel->domainSize = properties[i].domainSize;
+            _traceLevel->externallyVisible = properties[i].externallyVisible;
         }
         else if (String::equalNoCase(properties[i].propertyName, "traceFilePath"))
         {
@@ -161,6 +168,7 @@ void TracePropertyOwner::initialize()
             _traceFilePath->dynamic = properties[i].dynamic;
             _traceFilePath->domain = properties[i].domain;
             _traceFilePath->domainSize = properties[i].domainSize;
+            _traceFilePath->externallyVisible = properties[i].externallyVisible;
         }
     }
     if (_traceFilePath->defaultValue != String::EMPTY)
@@ -232,6 +240,14 @@ void TracePropertyOwner::getPropertyInfo(
     propertyInfo.append(configProperty->currentValue);
     propertyInfo.append(configProperty->plannedValue);
     if (configProperty->dynamic)
+    {
+        propertyInfo.append(STRING_TRUE);
+    }
+    else
+    {
+        propertyInfo.append(STRING_FALSE);
+    }
+    if (configProperty->externallyVisible)
     {
         propertyInfo.append(STRING_TRUE);
     }

@@ -36,6 +36,7 @@
 #include "Logger.h"
 #include "System.h"
 #include "Destroyer.h"
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_USING_STD;
 
@@ -125,8 +126,14 @@ public:
 
 	// KS: I put the second test in just in case some trys to create
 	// a completly erronous directory.  At least we will get a message
-	if (!System::isDirectory(lgDir))
-	    cerr << "Logging Disabled";
+	if (!System::isDirectory(lgDir)){
+		//l10n
+	   //cerr << "Logging Disabled";
+	   MessageLoaderParms parms("Common.Logger.LOGGING_DISABLED",
+	   							"Logging Disabled");
+	   			
+	   cerr << MessageLoader::getMessage(parms);
+	}
 
 	CString fileName = _allocLogFileName(homeDirectory, Logger::TRACE_LOG);
 	_logs[Logger::TRACE_LOG].open(fileName, ios::app);
@@ -236,11 +243,8 @@ void Logger::_putInternal(
 	    System::openlog(systemId);
 
             // Log the message
-	    System::syslog(logLevel,(const char*)localizedMsg.getCString());
-// l10n TODO uncomment this line	    
-//	    System::syslog(logLevel,(const char*)localizedMsg.getCStringUTF8());	    
+	    System::syslog(logLevel,(const char*)localizedMsg.getCStringUTF8());	    
 	    
-
             // Close the syslog.
 	    System::closelog();
 
@@ -249,7 +253,8 @@ void Logger::_putInternal(
 	    // Prepend the systemId to the incoming message
 	    String messageString(systemId);
 	    messageString.append(": ");
-	    messageString.append(localizedMsg);  // l10n - TODO need to send as UTF-8
+
+	    messageString.append(localizedMsg);  // l10n 
 
 	    const char* tmp = "";
 	    if (logLevel & Logger::TRACE) tmp =       "TRACE   ";
@@ -258,9 +263,7 @@ void Logger::_putInternal(
 	    if (logLevel & Logger::SEVERE) tmp =      "SEVERE  ";
 	    if (logLevel & Logger::FATAL) tmp =       "FATAL   ";
                 _rep->logOf(logFileType) << System::getCurrentASCIITime()
-                 << " " << tmp << messageString.getCString() << endl;
-// l10n - TODO uncomment this                 
-//               << " " << tmp << messageString.getCStringUTF8() << endl;
+               << " " << tmp << messageString.getCStringUTF8() << endl;
 
        #endif
     }
@@ -289,8 +292,7 @@ void Logger::put(
 			systemId,
 			logComponent,
 			logLevel,
-			formatString,
-//l10n
+			formatString, //l10n
 			String::EMPTY,
 			arg0,
 			arg1,

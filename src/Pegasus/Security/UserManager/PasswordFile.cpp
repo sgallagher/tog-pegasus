@@ -35,6 +35,9 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
+#if defined(PEGASUS_OS_OS400)
+#include "OS400ConvertChar.h"
+#endif
 
 #include <Pegasus/Security/UserManager/PasswordFile.h>
 #include <Pegasus/Security/UserManager/UserExceptions.h>
@@ -186,7 +189,14 @@ void PasswordFile::load (PasswordTable& passwordTable)
     //
     // Open the password file
     //
+#if defined(PEGASUS_OS_OS400)
+    CString tempPath = _passwordFile.getCString();
+    const char * tmp = tempPath;
+    AtoE((char *)tmp);
+    ifstream ifs(tmp, PEGASUS_STD(_CCSID_T(1208)));
+#else
     ifstream ifs(_passwordFile.getCString());
+#endif
     if (!ifs)
     {
     	//l10n
@@ -353,7 +363,14 @@ void PasswordFile::save (PasswordTable& passwordTable)
     //
     // Open the password file for writing
     //
+#if defined(PEGASUS_OS_OS400)
+    CString tempPath = _passwordFile.getCString();
+    const char * tmp = tempPath;
+    AtoE((char *)tmp);
+    ofstream ofs(tmp, PEGASUS_STD(_CCSID_T(1208)));
+#else
     ofstream ofs(_passwordFile.getCString());
+#endif
     if (!ofs)
     {
         PEG_METHOD_EXIT();

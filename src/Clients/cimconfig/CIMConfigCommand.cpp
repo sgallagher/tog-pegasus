@@ -50,6 +50,7 @@
 
 #ifdef PEGASUS_OS_OS400
 #include "qycmutiltyUtility.H"
+#include "OS400ConvertChar.h"
 #include "vfyptrs.cinc"
 #include <stdio.h>
 #endif
@@ -816,20 +817,29 @@ Uint32 CIMConfigCommand::execute (
     //
     // Get environment variables
     //
-
-    const char* env = getenv("PEGASUS_HOME");
-
 #ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+#pragma convert(37)
+    const char* env = getenv("PEGASUS_HOME");
+#pragma convert(0)
     // Set pegasusHome to the env var,if it is set.  Otherwise,
     // use the OS/400 default path.
     if (env != NULL)
-	pegasusHome = env;
+    {
+	char home[256] = {0};
+	if (strlen(env) < 256)
+	{
+	    strcpy(home, env);
+	    EtoA(home);
+	}
+    }
     else
         pegasusHome = OS400_DEFAULT_PEGASUS_HOME;
 
     String currentFile = FileSystem::getAbsolutePath(pegasusHome.getCString(), CURRENT_CONFIG_FILE);
     String plannedFile = FileSystem::getAbsolutePath(pegasusHome.getCString(), PLANNED_CONFIG_FILE);
 #else
+    const char* env = getenv("PEGASUS_HOME");
+
     String currentFile = FileSystem::getAbsolutePath(env, CURRENT_CONFIG_FILE);
     String plannedFile = FileSystem::getAbsolutePath(env, PLANNED_CONFIG_FILE);
 #endif
@@ -868,7 +878,7 @@ Uint32 CIMConfigCommand::execute (
         // Open connection with CIMSever
         //
         _client = new CIMClient;
-
+		_client->setRequestDefaultLanguages(); //l10n
         _client->connectLocal();
 
         connected = true;
@@ -1741,7 +1751,8 @@ int main (int argc, char* argv [])
     CIMConfigCommand*    command;
     Uint32               returnCode;
     
-
+	MessageLoader::_useProcessLocale = true; //l10n set message loading to process locale
+	
 #ifdef PEGASUS_OS_OS400
 
   VFYPTRS_INCDCL;               // VFYPTRS local variables 
@@ -1754,8 +1765,18 @@ int main (int argc, char* argv [])
       }
   #pragma disable_handler 
 
+    // Convert the args to ASCII
+    for(Uint32 i = 0;i< argc;++i)
+    {
+	EtoA(argv[i]);
+    }
+
     // check what environment we are running in, native or qsh
-    if( getenv("SHLVL") == NULL ){  // native mode
+    if( getenv(
+#pragma convert(37)
+	       "SHLVL"
+#pragma convert(0)
+	       ) == NULL ){  // native mode
 	// Check to ensure the user is authorized to use the command,
 	// suppress diagnostic message
 	if(FALSE == ycmCheckCmdAuthorities(1)){

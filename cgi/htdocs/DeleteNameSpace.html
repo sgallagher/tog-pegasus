@@ -11,13 +11,15 @@
     <hr>
     <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="DeleteNameSpace">
+      <input type="hidden" name="hostip" value="localhost">
+	  <input type="hidden" name="portnum" value="5988">
       <p>The <tt>DeleteNameSpace</tt> method deletes an existing namespace in the Pegasus repository.
       <p><b><a href="#NameSpace">NameSpace</a></b>
 	         <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root">&nbsp;
        		Defines the root namespace where the __Namespace class is defined. (DO NOT CHANGE)
       <p><b>NameSpace&nbsp;</b> <INPUT TYPE="text" NAME="DeletionNameSpace" SIZE=30>
       String that defines the namespace to be deleted
-      
+
       <p><INPUT TYPE="submit" VALUE="Submit Request">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <INPUT TYPE="reset" VALUE="Reset Form">
       <p>&nbsp;&nbsp;&nbsp;
@@ -29,16 +31,16 @@
     <p>If successful, the specified Namespace MUST have been removed by the CIM Server. If unsuccessful, one of the following status codes MUST be returned by this method, where the first applicable error in
 the list (starting with the first element of the list, and working down) is the error returned. Any additional method-specific interpretation of the error in is given in parentheses.</p>
      <UL
-        <LI>CIM_ERR_ACCESS_DENIED 
-        <LI>CIM_ERR_NOT_SUPPORTED 
-        <LI>CIM_ERR_INVALID_NAMESPACE 
-        <LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or otherwise incorrect parameters) 
-        <LI>CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the specified namespace) 
-        <LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested CIM Instance does not exist in the specified namespace) 
+        <LI>CIM_ERR_ACCESS_DENIED
+        <LI>CIM_ERR_NOT_SUPPORTED
+        <LI>CIM_ERR_INVALID_NAMESPACE
+        <LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or otherwise incorrect parameters)
+        <LI>CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the specified namespace)
+        <LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested CIM Instance does not exist in the specified namespace)
         <LI>CIM_ERR_FAILED (some other unspecified error occurred)
     </UL>
-   
-    
+
+
       <p><b>&nbsp;</b>
     <hr>
 
@@ -66,17 +68,17 @@ the list (starting with the first element of the list, and working down) is the 
     was never defined.&nbsp; In the next version of CIM Operations over HTTP, the technique will
     be changed to allow for intrinsic methods that permit both creation and
     deletion of namespaces.</p>
-    
+
     <hr>
     <h2>C++ Pegasus API</h2>
-   
-    
+
+
     The following is the CIM operation that is used to create a new namespace.
     <PRE>
     virtual void deleteInstance(
 		const String&amp; nameSpace
     };</PRE>
-    
+
   <hr><p style="margin-top: 0; margin-bottom: 0"> <font size="2">Demonstration
      Prepared by the OpenGroup Manageability Work Group Pegasus Development Team</font>
 
@@ -87,9 +89,14 @@ the list (starting with the first element of the list, and working down) is the 
     S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 03:06:48 PM<!--webbot bot="Timestamp" i-CheckSum="50711" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
      Copyright @ The Open Group 2001&nbsp;</font>
 
+   <script>
+   CreateClass.hostip.value = opener.top.hostip;
+   CreateClass.portnum.value = opener.top.portnum;
+   window.focus();
+   </script>
 
   </body>
-   
-    
+
+
 </html>
 

@@ -59,6 +59,7 @@ class PEGASUS_EXPORT message_module
 	 : _name(name), _capabilities(capabilities),
 	   _messages(messages), _q_id(queue)  { }
       
+      Boolean operator == (const message_module *mm);
       Boolean operator == (const String & name );
       Boolean operator == (const message_module & mm );
       
@@ -84,6 +85,13 @@ class PEGASUS_EXPORT cimom : public MessageQueue
       AsyncDQueue<message_module> _modules;
 };
 
+
+inline Boolean message_module::operator == (const message_module *mm)
+{
+   if(this == mm)
+      return true;
+   return false;
+}
 
 
 inline Boolean message_module::operator == (const String & name )

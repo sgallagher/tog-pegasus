@@ -63,14 +63,6 @@ int main(int argc, char** argv)
     }
 
     {
-        SimpleClassResponseHandler handler = SimpleClassResponseHandler();
-
-        handler.processing();
-        handler.deliver(CIMClass());
-        handler.complete();
-    }
-
-    {
         SimpleInstanceResponseHandler handler = SimpleInstanceResponseHandler();
 
         handler.processing();

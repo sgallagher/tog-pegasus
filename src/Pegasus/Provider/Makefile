@@ -20,7 +20,6 @@ SOURCES = \
     ClientCIMOMHandleRep.cpp \
     CIMProvider.cpp \
     CIMInstanceProvider.cpp \
-    CIMClassProvider.cpp \
     CIMMethodProvider.cpp \
     CIMIndicationProvider.cpp \
     CIMIndicationConsumerProvider.cpp \

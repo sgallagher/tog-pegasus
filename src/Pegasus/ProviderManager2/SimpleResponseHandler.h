@@ -400,43 +400,6 @@ private:
 
 };
 
-class PEGASUS_PPM_LINKAGE SimpleClassResponseHandler : public SimpleResponseHandler, public ClassResponseHandler
-{
-public:
-    SimpleClassResponseHandler(void)
-    {
-    }
-
-    void processing(void) { SimpleResponseHandler::processing(); }
-    void complete(void) { SimpleResponseHandler::complete(); }
-
-    virtual void deliver(const CIMClass & classObj)
-    {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "SimpleResponseHandler: deliver()");
-
-        _objects.append(classObj);
-    }
-
-    virtual void deliver(const Array<CIMClass> & classObjs)
-    {
-        // call deliver for each object in the array
-        for(Uint32 i = 0, n = classObjs.size(); i < n; i++)
-        {
-            deliver(classObjs[i]);
-        }
-    }
-
-    const Array<CIMClass> getObjects(void) const
-    {
-        return _objects;
-    }
-
-private:
-    Array<CIMClass> _objects;
-
-};
-
 PEGASUS_NAMESPACE_END
 
 #endif

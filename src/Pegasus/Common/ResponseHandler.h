@@ -293,21 +293,6 @@ public:
     virtual void deliver(const Array<CIMObject> & objects) = 0;
 };
 
-
-#ifdef PEGASUS_INTERNALONLY
-// This type is used in CIMClassProvider which Pegasus does not support
-//
-// ClassResponseHandler
-//
-class PEGASUS_COMMON_LINKAGE ClassResponseHandler : virtual public ResponseHandler
-{
-public:
-    virtual void deliver(const CIMClass & classObj) = 0;
-
-    virtual void deliver(const Array<CIMClass> & classObjs) = 0;
-};
-#endif
-
 PEGASUS_NAMESPACE_END
 
 #endif

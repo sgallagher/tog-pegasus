@@ -39,7 +39,6 @@
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Provider/CIMProvider.h>
 #include <Pegasus/Provider/CIMInstanceQueryProvider.h>
-#include <Pegasus/Provider/CIMClassProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
 //#include <Pegasus/Provider/CIMQueryProvider.h>
@@ -58,7 +57,6 @@ PEGASUS_NAMESPACE_BEGIN
 // facade with a known interface.
 class PEGASUS_DEFPM_LINKAGE ProviderFacade :
     public CIMInstanceQueryProvider,
-    public CIMClassProvider,
     public CIMAssociationProvider,
     public CIMMethodProvider,
 //    public CIMQueryProvider,
@@ -119,48 +117,6 @@ public:
         const CIMObjectPath & nameSpaceAndClass,
         const QueryExpression & query,
         InstanceResponseHandler & handler);
-
-    // CIMClassProvider interface
-    virtual void getClass(
-        const OperationContext & context,
-        const CIMObjectPath & classReference,
-        const Boolean localOnly,
-        const Boolean includeQualifiers,
-        const Boolean includeClassOrigin,
-        const CIMPropertyList & propertyList,
-        ClassResponseHandler & handler);
-
-    virtual void enumerateClasses(
-        const OperationContext & context,
-        const CIMObjectPath & classReference,
-        const Boolean deepInheritance,
-        const Boolean localOnly,
-        const Boolean includeQualifiers,
-        const Boolean includeClassOrigin,
-        ClassResponseHandler & handler);
-
-    virtual void enumerateClassNames(
-        const OperationContext & context,
-        const CIMObjectPath & classReference,
-        const Boolean deepInheritance,
-        ObjectPathResponseHandler & handler);
-
-    virtual void modifyClass(
-        const OperationContext & context,
-        const CIMObjectPath & classReference,
-        const CIMClass & classObject,
-        ResponseHandler & handler);
-
-    virtual void createClass(
-        const OperationContext & context,
-        const CIMObjectPath & classReference,
-        const CIMClass & classObject,
-        ResponseHandler & handler);
-
-    virtual void deleteClass(
-        const OperationContext & context,
-        const CIMObjectPath & classReference,
-        ResponseHandler & handler);
 
     // CIMAssociationProvider interface
     virtual void associators(

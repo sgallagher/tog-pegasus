@@ -312,9 +312,7 @@ popd
 
 pushd %PEGASUS_ROOT%\src\Pegasus\Provider
 copy CIMAssociationProvider.h %PROVDR_INCL%
-copy CIMBaseProvider.h %PROVDR_INCL%
-copy CIMClassProvider.h %PROVDR_INCL%
-copy CIMIndicationConsumer.h %PROVDR_INCL%
+copy CIMIndicationConsumerProvider.h %PROVDR_INCL%
 copy CIMIndicationProvider.h %PROVDR_INCL%
 copy CIMInstanceProvider.h %PROVDR_INCL%
 copy CIMMethodProvider.h %PROVDR_INCL%

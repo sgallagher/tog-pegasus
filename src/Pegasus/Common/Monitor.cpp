@@ -27,13 +27,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <cstring>
-#include "Monitor.h"
-#include "MessageQueue.h"
-#include "Socket.h"
-#include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/HTTPConnection.h>
+#include "Monitor.h" 
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 # if defined(FD_SETSIZE) && FD_SETSIZE != 1024
@@ -92,7 +86,7 @@ struct MonitorRep
 ////////////////////////////////////////////////////////////////////////////////
 
 Monitor::Monitor()
-   : _module_handle(0), _controller(0), _async(false)
+   : _async(false)
 {
     Socket::initializeInterface();
     _rep = 0;
@@ -106,19 +100,20 @@ Monitor::Monitor()
 }
 
 Monitor::Monitor(Boolean async)
-   : _module_handle(0), _controller(0), _async(async)
+   : _async(async)
 {
     Socket::initializeInterface();
     _rep = 0;
-    _entries.reserveCapacity(32);
-    int i = 0;
-    for( ; i < 32; i++ )
-    {
-       _MonitorEntry entry(0, 0, 0);
-       _entries.append(entry);
-    }
+//     _entries.reserveCapacity(32);
+//     int i = 0;
+//     for( ; i < 32; i++ )
+//     {
+//        _MonitorEntry entry(0, 0, 0);
+//        _entries.append(entry);
+//     }
 
     if( _async == true )
+
     {
        _thread_pool = new ThreadPool(0, 
 				     "Monitor", 
@@ -137,12 +132,7 @@ Monitor::~Monitor()
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                   "deregistering with module controller");
 
-    if(_module_handle != NULL)
-    {
-       _controller->deregister_module(PEGASUS_MODULENAME_MONITOR);
-       _controller = 0;
-       delete _module_handle;
-    }
+
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "deleting rep");
    
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "uninitializing interface");

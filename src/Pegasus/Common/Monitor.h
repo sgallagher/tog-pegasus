@@ -31,14 +31,22 @@
 #define Pegasus_Monitor_h 
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/ModuleController.h>
+#include <Pegasus/Common/MessageQueue.h>
+
+#include <cstring>
+#include <Pegasus/Common/Socket.h>
+#include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/HTTPConnection.h>
+
 
 PEGASUS_NAMESPACE_BEGIN
 
-class  _MonitorEntry
+class PEGASUS_COMMON_LINKAGE _MonitorEntry
 {
    public:
       Sint32 socket;
@@ -90,6 +98,7 @@ class  _MonitorEntry
 
       
 };
+
 
 struct MonitorRep;
 
@@ -162,8 +171,8 @@ public:
 */
 class PEGASUS_COMMON_LINKAGE Monitor
 {
-public:
-enum Type 
+   public:
+      enum Type 
       {
 	 ACCEPTOR, CONNECTOR, CONNECTION
       };
@@ -171,6 +180,7 @@ enum Type
       
     /** Default constructor. */
     Monitor();
+
     Monitor(Boolean async);
     
 
@@ -214,12 +224,10 @@ enum Type
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _dispatch(void *);
       int kill_idle_threads(void );
       
+
 private:
-      
       Array<_MonitorEntry> _entries;
       MonitorRep* _rep;
-      pegasus_module * _module_handle;
-      ModuleController * _controller;
       Boolean _async;
       ThreadPool *_thread_pool;
       Mutex _entry_mut;

@@ -90,18 +90,25 @@ public:
 	REFERENCE
     };
 
+    /// Constructor
     CIMType() : _tag(NONE) { }
 
+    ///  Constructor
     CIMType(Tag tag) : _tag(tag) { }
 
+    /// Constructor
     PEGASUS_EXPLICIT CIMType(Uint32 tag) : _tag(Tag(tag)) { }
 
+    ///  Constructor
     CIMType(const CIMType& x) : _tag(x._tag) { }
 
+    /// operator =
     CIMType& operator=(Tag tag) { _tag = tag; return *this; }
 
+    /// 
     operator Tag() const { return _tag; }
 
+    ///
     Boolean equal(const CIMType& x) const { return x._tag == _tag; }
 
 private:

@@ -699,7 +699,7 @@ int main(int argc, char** argv)
 
 	Monitor monitor;
 	CIMServer server(&monitor, pegasusHome, useSSL);
-
+		
 	// bind throws an exception of the bind fails
 	cout << "Binding to " << address << endl;
 

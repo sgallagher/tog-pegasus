@@ -36,18 +36,13 @@
 #else
 #define SSL_CTX void
 #endif
-
-#if defined(PEGASUS_OS_TYPE_UNIX)
-# include <unistd.h>
-#endif
-
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class SSLContext
+class PEGASUS_EXPORT SSLContext
 {
 public:
 
@@ -64,7 +59,7 @@ private:
 };
 
 #ifdef PEGASUS_HAS_SSL
-class SSLSocket
+class PEGASUS_EXPORT SSLSocket
 {
 public:
 
@@ -105,7 +100,7 @@ private:
 
 // offer a non ssl dummy class for use in MP_Socket
 
-typedef void * SSLSocket;
+typedef PEGASUS_EXPORT void * SSLSocket;
 
 #endif
 

@@ -79,8 +79,7 @@ class PEGASUS_EXPORT context
 		 Uint32 key , 
 		 Uint32 flag ,
 		 Uint8 *uid);
-      
-      
+            
       ~context(void);
       
       inline void reset( Uint32 data_size,

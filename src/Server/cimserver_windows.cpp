@@ -101,6 +101,12 @@ PEGASUS_TRACE;
         Handler::setMessageLogTrace(true);
         pegasusIOLog = true;
     }
+    Boolean useSSL = false;
+    
+    if (String::equal(configManager->getCurrentValue("SSL"), "true"))
+    {
+       useSSL =  true;
+    }
 
 PEGASUS_TRACE;
     
@@ -123,7 +129,7 @@ PEGASUS_TRACE;
 PEGASUS_TRACE;
 	Monitor monitor;
         
-       	CIMServer server(&monitor, *runPath);
+       	CIMServer server(&monitor, *runPath, useSSL);
 	server_windows = &server;
 
 	char* end = 0;

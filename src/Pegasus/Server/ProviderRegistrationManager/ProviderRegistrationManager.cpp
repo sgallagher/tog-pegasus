@@ -1901,12 +1901,9 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
             }
             else
             {
-                _repository->write_unlock();
-
                 //
                 // the provider module class is not registered
                 //
-                PEG_METHOD_EXIT();
 
                 // l10n
 
@@ -1970,10 +1967,8 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                                 CON_PROVIDER);
                     if (_registrationTable->table.contains(_consumerKey))
                     {
-                        _repository->write_unlock();
                         // the instance was already registered
 //L10N_TODO DONE
-                        PEG_METHOD_EXIT();
                         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, String::EMPTY);
                     }
                     else
@@ -1994,8 +1989,6 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
             }
             else
             {
-                _repository->write_unlock();
-
 //L10N_TODO DONE
                 // the provider class was not registered
 
@@ -2089,10 +2082,8 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                      _className, INS_PROVIDER);
                                 if (_registrationTable->table.contains(_capabilityKey))
                                 {
-                                    _repository->write_unlock();
                                     // the instance was already registered
 //L10N_TODO DONE
-                                    PEG_METHOD_EXIT();
                                     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, String::EMPTY);
                                 }
                                 else
@@ -2121,7 +2112,6 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                      _className, ASSO_PROVIDER);
                                 if (_registrationTable->table.contains(_capabilityKey))
                                 {
-                                    _repository->write_unlock();
                                     // the instance was already registered
                                     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, String::EMPTY);
                                 }
@@ -2270,9 +2260,7 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 
                                     if (_registrationTable->table.contains(_capabilityKey))
                                     {
-                                        _repository->write_unlock();
                                         // the instance was already registered
-                                        PEG_METHOD_EXIT();
                                         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, String::EMPTY);
                                     }
 
@@ -2293,9 +2281,7 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                             _className, _supportedMethods[k], MET_PROVIDER);
                                         if (_registrationTable->table.contains(_capabilityKey))
                                         {
-                                            _repository->write_unlock();
                                             // the instance already registered
-                                            PEG_METHOD_EXIT();
                                             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS, String::EMPTY);
 
                                         }
@@ -2312,11 +2298,9 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                         }
 
                         default:
-                            _repository->write_unlock();
                             //
                             //  Error condition: provider type not supported
                             //
-                            PEG_METHOD_EXIT();
                             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
                                                         String::EMPTY);
                             break;
@@ -2332,8 +2316,6 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
             }
             else
             {
-                _repository->write_unlock();
-
                 // the provider class was not registered
                 // l10n
                 // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "PG_Provider class needs "

@@ -189,6 +189,8 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       static AtomicInt _xid;
       friend class cimom;
       friend class CIMServer;
+      friend class monitor_2;
+      
 };
 
 PEGASUS_NAMESPACE_END

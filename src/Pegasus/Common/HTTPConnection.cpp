@@ -614,6 +614,7 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
    } while(events != 0 && !_connectionClosePending);
    return handled_events;
 }
+
 AtomicInt HTTPConnection2::_requestCount(0);
 
 
@@ -624,7 +625,8 @@ HTTPConnection2::HTTPConnection2(pegasus_socket socket,
    _socket(socket), 
    _outputMessageQueue(outputMessageQueue),
    _contentOffset(-1),
-   _contentLength(-1)
+   _contentLength(-1),
+   _closed(0)
 {
    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection2::HTTPConnection2");
 
@@ -636,7 +638,14 @@ HTTPConnection2::HTTPConnection2(pegasus_socket socket,
 HTTPConnection2::~HTTPConnection2()
 {
    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection2::~HTTPConnection2");
-
+   try 
+   {
+      _close_connection();
+   }
+   catch(...)
+   {
+   }
+   
     delete _authInfo;
 
    PEG_METHOD_EXIT();
@@ -645,39 +654,12 @@ HTTPConnection2::~HTTPConnection2()
 
 void HTTPConnection2::handleEnqueue(Message *message)
 {
+
    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection2::handleEnqueue");
-
-   if( ! message || _dying.value() > 0 )
-   {
-      PEG_METHOD_EXIT();
-      return;
-   }
-
-   
-//    Boolean LockAcquired = false;
-
-//   if (pegasus_thread_self() != _connection_mut.get_owner())
-//   {
-//      _connection_mut.lock(pegasus_thread_self());  // Use lock_connection() ?
-//      LockAcquired = true;
-//   }
+ 
 
    switch (message->getType())
    {
-      case SOCKET_MESSAGE:
-      {
-
-         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-            "HTTPConnection2::handleEnqueue - SOCKET_MESSAGE");
-	 
-	 SocketMessage* socketMessage = (SocketMessage*)message;
-
-// 	 if (socketMessage->events & SocketMessage::READ)
-// 	    _handleReadEvent();
-
-	 break;
-      }
-
       case HTTP_MESSAGE:
       {
          Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
@@ -770,23 +752,17 @@ void HTTPConnection2::handleEnqueue(Message *message)
              }
          }
 #endif
-
-	 // ATTN: convert over to asynchronous write scheme:
-
-	 // Send response message to the client (use synchronous I/O for now:
-
+	 //------------------------------------------------------------
+	 // There is no need to convert the write calls to be asynchronous.
+	 // The write is happening on a dedicated thread (not the monitor thread)
+	 // so it is just fine if it blocks. << Tue Oct  7 09:48:06 2003 mdd >>
+	 //------------------------------------------------------------
 
 	 const Array<Sint8>& buffer = httpMessage->message;
  
 	 const Uint32 CHUNK_SIZE = 16 * 1024;
 
 	 SignalHandler::ignore(PEGASUS_SIGPIPE);
-
-	 // use the next four lines to test the SIGABRT handler
-	 //getSigHandle()->registerHandler(PEGASUS_SIGABRT, sig_act);
-	 //getSigHandle()->activate(PEGASUS_SIGABRT);
-	 //Thread t(sigabrt_generator, NULL, false);
-	 //t.run();
 
          Uint32 totalBytesWritten = 0;
 	 for (Uint32 bytesRemaining = buffer.size(); bytesRemaining > 0; )
@@ -799,7 +775,6 @@ void HTTPConnection2::handleEnqueue(Message *message)
 
 	    if (bytesWritten < 0)
 	       break;
-	    //throw ConnectionBroken();
 
             totalBytesWritten += bytesWritten;
 	    bytesRemaining -= bytesWritten;
@@ -823,11 +798,22 @@ void HTTPConnection2::handleEnqueue(Message *message)
 
    delete message;
 
-//    if (LockAcquired)
-//    {
-//       _connection_mut.unlock();  // Use unlock_connection() ?
-//    }
    PEG_METHOD_EXIT();
+}
+
+void HTTPConnection2::enqueue(Message* message) throw(IPCException)
+{
+   _reentry.lock(pegasus_thread_self());
+   if(_closed.value())
+   {
+      delete message;
+      
+   }
+   else
+   {
+      handleEnqueue(message);
+   }
+   _reentry.unlock();
 }
 
 
@@ -907,31 +893,43 @@ void HTTPConnection2::_clearIncoming()
     _incomingBuffer.clear();
 }
 
-void HTTPConnection2::_closeConnection()
-{
-   // return - don't send the close connection message. 
-   // let the monitor dispatch function do the cleanup. 
-   PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection2::_closeConnection");
-   
-   PEG_METHOD_EXIT();
-
-}
-
 void HTTPConnection2::_handleReadEvent(monitor_2_entry* entry)
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection2::_handleReadEvent");
 
     // -- Append all data waiting on socket to incoming buffer:
 
-    lock_connection();
     _socket.disableBlocking();
     Sint32 bytesRead = 0;
     Boolean incompleteSecureReadOccurred = false;
+    Boolean would_block = false;
+
     for (;;)
     {
 	char buffer[4096];
 	
         Sint32 n = _socket.read(buffer, sizeof(buffer));
+
+//------------------------------------------------------------
+// Note on reading non-blocking sockets: 
+// If there is no data to read from a non-blocking socket, the return
+// code from _socket.read will be a -1 and errno will be EWOULDBLOCK.
+// The correct thing to do in this case is nothing at all. The client on 
+// the other end of the connection has not closed the socket, and the 
+// connection will have data to read very soon. The connection needs to 
+// be present in the monitor's select loop so it can be read as soon as the 
+// data arrives. << Tue Oct  7 09:45:37 2003 mdd >>
+//------------------------------------------------------------
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+	if( n == SOCKET_ERROR && WSAGetLastError() == WSAEWOULDBLOCK )
+#else
+	if( n == -1 && errno == EWOULDBLOCK )
+#endif
+	{
+	   would_block = true;
+	}
+
 	if (n <= 0)
 	{
 	    if (_socket.is_secure() && bytesRead == 0)
@@ -954,8 +952,7 @@ void HTTPConnection2::_handleReadEvent(monitor_2_entry* entry)
 
 	    break;
 	}
-	if(n < 0 )
-	   continue;
+
 	
 	_incomingBuffer.append(buffer, n);
 	bytesRead += n;
@@ -991,19 +988,17 @@ void HTTPConnection2::_handleReadEvent(monitor_2_entry* entry)
 
 	_clearIncoming();
 
-        unlock_connection();
-
 	if (bytesRead > 0)
         {
 	   _outputMessageQueue->enqueue(message);
         }
         else if (bytesRead == 0)
-
 	{
+	   if(would_block == false)
+	   {
+	      
 	   Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
 			 "HTTPConnection2::_handleReadEvent - bytesRead == 0 - Conection being closed.");
-	   _closeConnection(); 
-	   entry->set_state(CLOSED);
 	   
 	   //
 	   // decrement request count
@@ -1012,12 +1007,26 @@ void HTTPConnection2::_handleReadEvent(monitor_2_entry* entry)
 	   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
 			 "_requestCount = %d", _requestCount.value());
 	   
-	   PEG_METHOD_EXIT();
-	   return;
+	   _close_connection();
+	   entry->set_state(CLOSED);
+	   }
 	}
     }
     PEG_METHOD_EXIT();
 }
+
+
+void HTTPConnection2::_close_connection(void)
+{
+   _reentry.lock(pegasus_thread_self());
+   
+   _closed = 1;
+   remove_myself(_queueId);
+   _reentry.unlock();
+   
+
+}
+
 
 Uint32 HTTPConnection2::getRequestCount()
 {

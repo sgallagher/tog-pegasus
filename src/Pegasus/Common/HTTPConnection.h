@@ -205,6 +205,8 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection2 : public MessageQueue
       /** Destructor. */
       ~HTTPConnection2();
 
+      virtual void enqueue(Message *) throw(IPCException);
+
       /** This method is called whenever a SocketMessage is enqueued
 	  on the input queue of the HTTPConnection2 object.
       */ 
@@ -221,28 +223,6 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection2 : public MessageQueue
       Uint32 getRequestCount();
 
 
-      void lock_connection(void)
-      {
-         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-            "HTTPConnection2::lock_connection - LOCK REQUESTED");
-	 _connection_mut.lock(pegasus_thread_self());
-         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-            "HTTPConnection2::lock_connection - LOCK ACQUIRED");
-      }
-      
-      void unlock_connection(void)
-      {
-	 _connection_mut.unlock();
-         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-            "HTTPConnection2::unlock_connection - LOCK RELEASED");
-      } 
-      
-      Boolean is_dying(void)
-      {
-	 if( _dying.value() > 0 )
-	    return true;
-	 return false;
-      }
       
       AtomicInt refcount;
 
@@ -256,10 +236,10 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection2 : public MessageQueue
 
       void _getContentLengthAndContentOffset();
 
-      void _closeConnection();
-
       void _handleReadEvent(monitor_2_entry* );
 
+      void _close_connection(void);
+      
       pegasus_socket _socket;
       MessageQueue* _outputMessageQueue;
 
@@ -267,14 +247,14 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection2 : public MessageQueue
       Sint32 _contentLength;
       Array<Sint8> _incomingBuffer;
       AuthenticationInfo* _authInfo;
-      static AtomicInt _requestCount;
-      Mutex _connection_mut;
-      AtomicInt _dying;
-      int _entry_index;
+      AtomicInt _closed;
+      Mutex _reentry;
       
-      friend class Monitor;
+      
+      static AtomicInt _requestCount;
+      
+      friend class monitor_2;
       friend class HTTPAcceptor;
-      friend class HTTPConnector;
 };
 
 

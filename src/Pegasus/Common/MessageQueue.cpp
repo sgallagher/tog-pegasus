@@ -42,6 +42,15 @@ typedef HashTable<Uint32, MessageQueue*, EqualFunc<Uint32>, HashFunc<Uint32> >
 static QueueTable _queueTable(256);
 static Mutex q_table_mut ;
 
+void MessageQueue::remove_myself(Uint32 qid)
+{
+   q_table_mut.lock(pegasus_thread_self());
+   
+   _queueTable.remove(qid);
+   q_table_mut.unlock();
+}
+
+
 Uint32 MessageQueue::getNextQueueId() throw(IPCException)
 {
    static Uint32 _nextQueueId = 2;
@@ -154,7 +163,7 @@ void MessageQueue::enqueue(Message* message) throw(IPCException)
                       "Message: [%s, %d]", 
                       MessageTypeToString(message->getType()), 
                       message->getKey() );
-
+    
     _mut.lock(pegasus_thread_self());
     if (_back)
     {

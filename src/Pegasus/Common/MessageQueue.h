@@ -222,7 +222,11 @@ class PEGASUS_COMMON_LINKAGE MessageQueue
       */
       static Uint32 getNextQueueId() throw(IPCException);
 
+      
+
    protected:
+      static void remove_myself(Uint32);
+      
       Mutex _mut;
       Uint32 _queueId;
       char *_name;

@@ -310,35 +310,45 @@ class HTTPConnection2;
 class PEGASUS_COMMON_LINKAGE monitor_2 
 {
 
-public:
-  
-  monitor_2(void);
-  ~monitor_2(void);
-  monitor_2_entry* add_entry(pegasus_socket& , monitor_2_entry_type, void*, void*);
-  Boolean remove_entry(Sint32 );
-  void tickle(void);
-  void run(void);
-  void stop(void);
-  
-  void* set_session_dispatch( void (*)(monitor_2_entry*));
-  void* set_accept_dispatch( void (*)(monitor_2_entry*));
-  
-  Uint32 getOutstandingRequestCount(void);
-  
+   public:
+      
+      monitor_2(void);
+      ~monitor_2(void);
+      monitor_2_entry* add_entry(pegasus_socket& , monitor_2_entry_type, void*, void*);
+      Boolean remove_entry(Sint32 );
+      void tickle(void);
+      void run(void);
+      void stop(void);
+      
+      void* set_session_dispatch( void (*)(monitor_2_entry*));
+      void* set_accept_dispatch( void (*)(monitor_2_entry*));
+      void* set_idle_dispatch( void(*)(void*));
+      void* set_idle_parm(void* );
+      
+      
+
+      Uint32 getOutstandingRequestCount(void);
+      
       static HTTPConnection2* remove_connection(Sint32 sock);
       static Boolean insert_connection(HTTPConnection2* connection);
       
+      static monitor_2* get_monitor2(void);
+      
 
-private:
+   private:
+      
 
       void _dispatch(void);
       void (*_session_dispatch)(monitor_2_entry*);
       void (*_accept_dispatch)(monitor_2_entry*);
+      void (*_idle_dispatch)(void*);
+      void* _idle_parm;
+      
       AsyncDQueue<monitor_2_entry> _listeners;
       AsyncDQueue<monitor_2_entry> _ready;
       static AsyncDQueue<HTTPConnection2> _connections;
       
-  
+      
       monitor_2_entry _tickler;
       struct sockaddr_in _tickle_addr;
       AtomicInt _die;

@@ -423,6 +423,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL Monitor::_dispatch(void *parm)
 ////************************* monitor 2 *****************************////
 
 
+
+
+
 m2e_rep::m2e_rep(void)
   :Base(), state(IDLE)
 
@@ -591,9 +594,14 @@ void monitor_2_entry::set_sock(pegasus_socket& s)
   
 }
 
+static monitor_2 _m2_instance;
 
 AsyncDQueue<HTTPConnection2> monitor_2::_connections(true, 0);
 
+monitor_2* monitor_2::get_monitor2(void)
+{
+   return &_m2_instance;
+}
 
 monitor_2::monitor_2(void)
   : _session_dispatch(0), _accept_dispatch(0), _listeners(true, 0), 
@@ -681,8 +689,10 @@ void monitor_2::run(void)
   monitor_2_entry* temp;
   while(_die.value() == 0) {
      
-     struct timeval tv = {0, 0};
-
+     struct timeval tv_idle = {60, 0};
+     struct timeval tv_busy = { 0, 100 };
+     
+     
     // place all sockets in the select set 
     FD_ZERO(&rd_fd_set);
     try {
@@ -712,8 +722,10 @@ void monitor_2::run(void)
     // important -  the dispatch routine has pointers to all the 
     // entries that are readable. These entries can be changed but 
     // the pointer must not be tampered with. 
-
-    int events = select(FD_SETSIZE, &rd_fd_set, NULL, NULL, NULL);
+    if(_connections.count() )
+       int events = select(FD_SETSIZE, &rd_fd_set, NULL, NULL, &tv_busy);
+    else
+       int events = select(FD_SETSIZE, &rd_fd_set, NULL, NULL, &tv_idle);
     try {
       _listeners.lock(pegasus_thread_self());
       temp = _listeners.next(0);
@@ -741,7 +753,13 @@ void monitor_2::run(void)
       return;
     }
     // now handle the sockets that are ready to read 
-    _dispatch();
+    if(_ready.count())
+       _dispatch();
+    else
+    {
+       if(_connections.count() == 0 )
+	  _idle_dispatch(_idle_parm);
+    }
   } // while alive 
 }
 
@@ -757,7 +775,20 @@ void* monitor_2::set_accept_dispatch(void (*dp)(monitor_2_entry*))
   void* old = (void*)_accept_dispatch;
   _accept_dispatch = dp;
   return old;
-  
+}
+
+void* monitor_2::set_idle_dispatch(void (*dp)(void*))
+{
+   void* old = (void*)_idle_dispatch;
+   _idle_dispatch = dp;
+   return old;
+}
+
+void* monitor_2::set_idle_parm(void* parm)
+{
+   void* old = _idle_parm;
+   _idle_parm = parm;
+   return old;
 }
 
 
@@ -768,10 +799,6 @@ void monitor_2::_dispatch(void)
 {
    monitor_2_entry* entry;
    
-   if(_ready.count() == 0 )
-      return;
-   
-      
    try 
    {
 

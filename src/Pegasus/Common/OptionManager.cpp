@@ -599,8 +599,6 @@ Boolean Option::isValid(const String& value) const
 	    if (!end || *end != '\0')
 		return false;
 
-	    delete [] tmp;
-
 	    switch (_type)
 	    {
 		case INTEGER: 

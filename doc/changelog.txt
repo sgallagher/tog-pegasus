@@ -22,6 +22,8 @@ Functions added include:
 are put
 5. Added TestClient that executes a series of tests against a server.  This is
 a preliminary version.
+6. Corrected problem with acceptor.bind where failure was being lost. Now
+throws CannotBind exception.
 ----------------------------------------------------------------
 Version 0.97.2
 
@@ -74,5 +76,6 @@ with the complete unit test and client/server test successfully.
 29 May 2001
 
 1.  Implemented CIMRepository::setProperty() and CIMRepository::getProperty().
+
 
 

@@ -1,5 +1,6 @@
+# Name for the Pegasus compiler.
 
-CIMMOFCLI = $(BIN_DIR)/cimmofl
+CIMMOFCLI = cimmofl
 
 # The INTEROPNS variable defines the absolute name of the
 # Pegasus InterOp Namespace.

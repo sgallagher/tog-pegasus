@@ -1,0 +1,14 @@
+//
+//
+//  starting with the problem described in bug 1557
+//
+
+
+// 9/6/2004: duplicated error in 1557 on the following.  The error is
+//    "CIM_RegisteredProfile.instanceID="Co:Project"
+//
+instance of CIM_SubProfileRequiresProfile  {
+    Antecedent = "CIM_RegisteredProfile.instanceID=\"Co:Project:Array\"";
+    Dependent = "CIM_RegisteredProfile.instanceID=\"Co:Project:Array:PoolManipulationCapabilitiesandSettings\"";
+    };
+

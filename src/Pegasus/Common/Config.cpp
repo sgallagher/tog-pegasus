@@ -29,7 +29,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-int numDummyObjects = 0;
+PEGASUS_EXPORT int numDummyObjects = 0;
 
 // This class is used to test the number of global constructions. It is used
 // to test whether shared libraries are really constructing the object created

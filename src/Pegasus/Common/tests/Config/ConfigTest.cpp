@@ -33,7 +33,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
-extern int numDummyObjects;
+PEGASUS_IMPORT extern int numDummyObjects;
 PEGASUS_NAMESPACE_END
 
 int main()

@@ -29,6 +29,8 @@
 #include <fstream>
 #include "Logger.h"
 
+PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
 const Uint32 Logger::TRACE = (1 << 0);

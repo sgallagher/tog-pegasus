@@ -32,6 +32,8 @@
 #include "OptionManager.h"
 #include "Destroyer.h"
 
+PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
 ////////////////////////////////////////////////////////////////////////////////

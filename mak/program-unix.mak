@@ -14,12 +14,24 @@ FULL_PROGRAM=$(BIN_DIR)/$(PROGRAM)$(EXE)
 
 EXE_OUTPUT = $(EXE_OUT) $(FULL_PROGRAM)
 
+ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+    ifdef PEGASUS_HAS_MESSAGES
+        ifdef ICU_ROOT
+            ifdef ICU_INSTALL
+              FLAGS += -L${ICU_INSTALL}/lib
+	      PRFLAGS += -L${ICU_INSTALL}/lib
+	      SYS_LIBS += ${ICU_INSTALL}/lib/libicui18n.x ${ICU_INSTALL}/lib/libicuuc.x
+            endif
+        endif
+    endif
+else
 ifdef PEGASUS_HAS_MESSAGES
     ifdef ICU_ROOT
         ifdef ICU_INSTALL
           SYS_LIBS += -L${ICU_INSTALL}/lib -licui18n -licuuc
         endif
     endif
+endif
 endif
 
 ifdef PEGASUS_PURIFY

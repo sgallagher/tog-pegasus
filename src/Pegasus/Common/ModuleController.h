@@ -109,7 +109,7 @@ class PEGASUS_COMMON_LINKAGE pegasus_module
 	    void (*_shutdown_notify)(Uint32 code, void *);
 
 	    static Message * default_receive_message(Message *msg, void *inst)
-	    { throw NotImplemented("Module Receive");}
+	    { throw NotImplemented("Module Receive"); return 0; }
 
 	    static void default_async_callback(Uint32 handle, Message *msg, void *inst)
 	    { throw NotImplemented("Module Async Receive"); }
@@ -118,7 +118,7 @@ class PEGASUS_COMMON_LINKAGE pegasus_module
 	    { return; }
 
 	    static Message * closed_receive_message(Message *msg, void *inst)
-	    { throw ModuleClosed();}
+	    { throw ModuleClosed(); return 0; }
 
 	    static void closed_async_callback(Uint32 handle, Message *msg, void *inst)
 	    { throw ModuleClosed(); }

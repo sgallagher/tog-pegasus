@@ -33,7 +33,9 @@ ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
 ## DYNAMIC_LIBRARIES is defined appropriately in libraries.mak and Makefile 
 ## files
 ##
-
+## ICU_INSTALL - Specifies the directory path where the ICU lib directory is located.
+##               This will set runtime library search path for ICU libraries to ${ICU_INSTALL}/lib
+##               
      ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
 	$(LINK_WRAPPER) $(CXX) $(PR_FLAGS) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
      else

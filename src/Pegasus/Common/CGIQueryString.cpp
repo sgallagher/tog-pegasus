@@ -27,6 +27,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
+#include <unistd.h>
 #include <cstdio>
 #include <cstdlib>
 #include "CGIQueryString.h"

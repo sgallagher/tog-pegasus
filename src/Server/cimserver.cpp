@@ -132,6 +132,13 @@ void GetEnvironmentVariables(
     FileSystem::translateSlashes(pegasusHome);
 }
 
+void SetEnvironmentVariables(
+    const char* arg0)
+{
+    cout << "PEGASUS_HOME is now " << arg0 << endl;
+    setenv("PEGASUS_HOME",arg0,0);
+}
+
 /** GetOptions function - This function defines the Options Table
     and sets up the options from that table using the config manager.
 */
@@ -191,6 +198,7 @@ void PrintHelp(const char* arg0)
     usage.append ("  options\n");
     usage.append ("    -v          - displays pegasus version number\n");
     usage.append ("    -h          - prints this help message\n");
+    usage.append ("    -D [home]   - sets pegasus home directory\n");
     usage.append ("    -t          - turns tracing on\n");
     usage.append ("    -t          - turns on trace of client IO to console\n");
     usage.append ("    -l          - turns on trace of client IO to trace file\n");
@@ -261,7 +269,8 @@ int main(int argc, char** argv)
             {
                 if (i + 1 < argc) 
                 {
-                    pegasusHome = argv[i + 1];
+                    pegasusHome.assign(argv[i + 1]);
+        	    SetEnvironmentVariables(argv[i + 1]);
                 }
                 else
                 {

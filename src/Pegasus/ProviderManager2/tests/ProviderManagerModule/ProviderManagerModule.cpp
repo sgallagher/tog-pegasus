@@ -40,7 +40,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-String fileName;
+static String fileName;
 
 void Test1(void)
 {

@@ -80,7 +80,7 @@ private:
 
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleCimOperation(void * arg) throw();
 
-    void handleCimRequest(AsyncOpNode *op, const Message * message) throw();
+    void handleCimRequest(AsyncOpNode *op, const Message * message);
 
 private:
     SafeQueue<AsyncOpNode *> _incomingQueue;

@@ -330,10 +330,14 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleCimOperation");
 
+    if(arg == 0)
+    {
+        // thread started with invalid argument.
+        return(PEGASUS_THREAD_RETURN(1));
+    }
+
     // get the service from argument
     ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
-
-    PEGASUS_ASSERT(service != 0);
 
     if(service->_incomingQueue.size() == 0)
     {
@@ -348,9 +352,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 
     AsyncOpNode * op = service->_incomingQueue.dequeue();
 
-    PEGASUS_ASSERT(op != 0 );
-
-    if(op->_request.count() == 0)
+    if((op == 0) || (op->_request.count() == 0))
     {
         MessageQueue * queue = MessageQueue::lookup(op->_source_queue);
 
@@ -364,9 +366,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 
     AsyncRequest * request = static_cast<AsyncRequest *>(op->_request.next(0));
 
-    PEGASUS_ASSERT(request != 0);
-
-    if(request->getType() != async_messages::ASYNC_LEGACY_OP_START)
+    if((request == 0) || (request->getType() != async_messages::ASYNC_LEGACY_OP_START))
     {
         // reply with NAK
 
@@ -375,36 +375,36 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
         return(PEGASUS_THREAD_RETURN(0));
     }
 
-    Message * legacy = static_cast<AsyncLegacyOperationStart *>(request)->get_action();
-
-    if(_isSupportedRequestType(legacy))
+    try
     {
-        Destroyer<Message> xmessage(legacy);
+        Message * legacy = static_cast<AsyncLegacyOperationStart *>(request)->get_action();
 
-        // Set the client's requested language into this service thread.
-        // This will allow functions in this service to return messages
-        // in the correct language.
-        CIMMessage * msg = dynamic_cast<CIMMessage *>(legacy);
-
-        if(msg != 0)
+        if(_isSupportedRequestType(legacy))
         {
-            AcceptLanguages * langs = new AcceptLanguages(msg->acceptLanguages);
+            Destroyer<Message> xmessage(legacy);
 
-            Thread::setLanguages(langs);
-        }
-        else
-        {
-            Thread::clearLanguages();
-        }
+            // Set the client's requested language into this service thread.
+            // This will allow functions in this service to return messages
+            // in the correct language.
+            CIMMessage * msg = dynamic_cast<CIMMessage *>(legacy);
 
-        try
-        {
+            if(msg != 0)
+            {
+                AcceptLanguages * langs = new AcceptLanguages(msg->acceptLanguages);
+
+                Thread::setLanguages(langs);
+            }
+            else
+            {
+                Thread::clearLanguages();
+            }
+
             service->handleCimRequest(op, legacy);
         }
-        catch(...)
-        {
-            // ATTN: log error
-        }
+    }
+    catch(...)
+    {
+        // ATTN: log error
     }
 
     PEG_METHOD_EXIT();
@@ -412,7 +412,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
     return(PEGASUS_THREAD_RETURN(0));
 }
 
-void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * message) throw()
+void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleCimRequest");
 

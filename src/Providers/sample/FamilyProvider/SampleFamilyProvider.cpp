@@ -161,12 +161,19 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
     */
     CDEBUG ("Initialise - Building Assoc Class instances");
     {
+        // Note that this is a nasty assumption. May be a different namespace. Need
+        // to build dynamically
+        String nameSpace = "SampleProvider";
+        String host = System::getHostName();
+        
         CIMName thisClassReference = "TST_PersonDynamic";
         CIMName assocClassName = "TST_LineageDynamic";
         {
             CIMInstance instance(assocClassName);
             CIMObjectPath parent =  _instanceNames[Father];
-            CIMObjectPath child = _instanceNames[Son1];
+            parent.setHost(host);
+            parent.setNameSpace(nameSpace);
+            CIMObjectPath child  = _instanceNames[Son1];
             instance.addProperty(CIMProperty("parent", parent,0,thisClassReference));
             instance.addProperty(CIMProperty("child", child, 0, thisClassReference));
             _instancesLineageDynamic.append(instance);
@@ -174,7 +181,11 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
         {
             CIMInstance instance(assocClassName);
             CIMObjectPath parent =  _instanceNames[Father];
+            parent.setHost(host);
+            parent.setNameSpace(nameSpace);
             CIMObjectPath child = _instanceNames[Son2];
+            child.setHost(host);
+            child.setNameSpace(nameSpace);
         
             instance.addProperty(CIMProperty("parent", parent,0,thisClassReference));
             instance.addProperty(CIMProperty("child", child, 0, thisClassReference));
@@ -183,7 +194,11 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
         {
             CIMInstance instance(assocClassName);
             CIMObjectPath parent =  _instanceNames[Father];
+            parent.setHost(host);
+            parent.setNameSpace(nameSpace);
             CIMObjectPath child = _instanceNames[Daughter1];
+            child.setHost(host);
+            child.setNameSpace(nameSpace);
         
             instance.addProperty(CIMProperty("parent", parent,0,thisClassReference));
             instance.addProperty(CIMProperty("child", child, 0, thisClassReference));
@@ -192,7 +207,11 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
         {
             CIMInstance instance(assocClassName);
             CIMObjectPath parent =  _instanceNames[Mother];
+            parent.setHost(host);
+            parent.setNameSpace(nameSpace);
             CIMObjectPath child = _instanceNames[Daughter1];
+            child.setHost(host);
+            child.setNameSpace(nameSpace);
         
             instance.addProperty(CIMProperty("parent", parent,0,thisClassReference));
             instance.addProperty(CIMProperty("child", child, 0, thisClassReference));
@@ -201,7 +220,11 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
         {
             CIMInstance instance(assocClassName);
             CIMObjectPath parent =  _instanceNames[Mother];
+            parent.setHost(host);
+            parent.setNameSpace(nameSpace);
             CIMObjectPath child = _instanceNames[Son1];
+            child.setHost(host);
+            child.setNameSpace(nameSpace);
         
             instance.addProperty(CIMProperty("parent", parent,0,thisClassReference));
             instance.addProperty(CIMProperty("child", child, 0, thisClassReference));
@@ -210,7 +233,11 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
         {
             CIMInstance instance(assocClassName);
             CIMObjectPath parent =  _instanceNames[Mother];
+            parent.setHost(host);
+            parent.setNameSpace(nameSpace);
             CIMObjectPath child = _instanceNames[Son2];
+            child.setHost(host);
+            child.setNameSpace(nameSpace);
         
             instance.addProperty(CIMProperty("parent", parent,0,thisClassReference));
             instance.addProperty(CIMProperty("child", child, 0, thisClassReference));

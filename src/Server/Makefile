@@ -39,6 +39,8 @@ poststarttests:
 
 install:
 	$(INSTALL_SBIN_PROGRAM)
+	$(MKDIRHIER) $(DEST_VAR_DIR)
+	$(COPY) ssl.cnf $(DEST_VAR_DIR)/ssl.orig
 
 install_run:
 	$(RM) $(PEGASUS_HOME)/cimserver_planned.conf

@@ -25,6 +25,7 @@
 //
 // Modified By: Mary Hinton (m.hinton@verizon.net)
 //              Sushma Fernandes (sushma_fernandes@hp.com)
+//		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -58,6 +59,13 @@ void cim_server_service(int argc, char **argv ) { cimserver_windows_main(argc, a
 int cimserver_fork( ) { return(0); }
 int cimserver_kill( ) { return(0); }
 Boolean isCIMServerRunning( ) { return(false); }
+
+// notify parent process to terminate so user knows that cimserver 
+// is ready to serve CIM requests. If this plateform needs to implement 
+// this functionality, please see sample implementation in cimserver_unix.cpp
+void notify_parent(void)
+{
+}
 
 static void __cdecl cimserver_windows_thread(void *parm) 
 {

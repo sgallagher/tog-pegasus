@@ -34,6 +34,7 @@
 // Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -727,6 +728,10 @@ int main(int argc, char** argv)
 #endif
 
 	server.bind(portNumber);
+
+	// notify parent process to terminate so user knows that cimserver
+	// is ready to serve CIM requests.
+	notify_parent();
 
 	time_t last = 0;
 

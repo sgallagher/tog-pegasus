@@ -23,7 +23,8 @@
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
-// Modified By:  Jenny Yu (jenny_yu@hp.com)
+// Modified By:  Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//		 Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,10 +35,21 @@
 #endif
 #include <fcntl.h>
 #include <unistd.h>
+#include <signal.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+//Note: if you compile with the -DPEGASUS_RETURN_WHEN_READY flag, when the
+//      command cimserver is returned, the cimserver is ready to serve CIM
+//	requests. This functionality has been implemented on the Unix 
+//	plateform. If all the Unix plateforms like to turn on this feature,
+// 	compile flag can be removed.
+
+#ifdef PEGASUS_RETURN_WHEN_READY
+static sig_atomic_t sigflag;
+static sigset_t newmask, oldmask, zeromask;
+#endif
 
 void cim_server_service(int argc, char **argv ) { return; }  
 unsigned int cimserver_remove_nt_service(void) { return(0) ; }
@@ -46,15 +58,44 @@ unsigned int cimserver_install_nt_service(String &pegasusHome ) { return(0) ; }
 const char *fname = "/etc/opt/wbem/cimserver_start.conf";
 pid_t server_pid;
 
+#ifdef PEGASUS_RETURN_WHEN_READY
+static void sig_usr(int signo)
+{
+    sigflag = 1;
+    return;
+}
+#endif
+
 // daemon_init , RW Stevens, "Advance UNIX Programming"
 
 int cimserver_fork(void) 
 { 
+#ifdef PEGASUS_RETURN_WHEN_READY
+    // set up things
+    signal(SIGUSR1, sig_usr);
+    sigemptyset(&zeromask);
+    sigemptyset(&newmask);
+    sigaddset(&newmask, SIGUSR1);
+
+    // block SIGUSR1 and save current signal mask
+    sigprocmask(SIG_BLOCK, &newmask, &oldmask);
+#endif
+ 
   pid_t pid;
   if( (pid = fork() ) < 0) 
     return(-1);
   else if (pid != 0)
+  {
+#ifdef PEGASUS_RETURN_WHEN_READY
+    // parent wait for child
+    while (sigflag == 0)
+        sigsuspend(&zeromask);
+
+    // reset signal mask to original value
+    sigprocmask(SIG_SETMASK, &oldmask, NULL);
+#endif
     exit(0);
+  }
   
   setsid();
   umask(0);
@@ -139,3 +180,12 @@ int cimserver_kill(void)
   return(0);
 }
 
+// notify parent process to terminate so user knows that cimserver
+// is ready to serve CIM requests.
+void notify_parent(void)
+{
+#ifdef PEGASUS_RETURN_WHEN_READY
+  pid_t ppid = getppid();
+  kill(ppid, SIGUSR1);
+#endif
+}

@@ -29,6 +29,9 @@
 //
 // Author: Heather Sterling (hsterl@us.ibm.com), PEP187
 //
+// Modified By:
+//         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//
 //%////////////////////////////////////////////////////////////////////////////
 
 #include "CertificateProvider.h"
@@ -346,9 +349,11 @@ Boolean CertificateProvider::_verifyAuthorization(const String& userName)
 
 /** Constructor
  */
-CertificateProvider::CertificateProvider(CIMRepository* repository) : 
+CertificateProvider::CertificateProvider(CIMRepository* repository,
+                                         SSLContextManager* sslContextMgr) :
 _cimom(0), 
 _repository(repository),
+_sslContextMgr(sslContextMgr),
 _enableAuthentication(false)
 {
 	PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "CertificateProvider::CertificateProvider");
@@ -830,8 +835,9 @@ void CertificateProvider::deleteInstance(
 		handler.processing();
 	
         String certificateFileName = String::EMPTY;
-		String issuerName = String::EMPTY;
-		String userName = String::EMPTY;
+        String issuerName = String::EMPTY;
+        String userName = String::EMPTY;
+        Uint16 truststoreType;
 
 		CIMInstance cimInstance = _repository->getInstance(cimObjectPath.getNameSpace(), cimObjectPath);
 		CIMProperty cimProperty;
@@ -848,8 +854,13 @@ void CertificateProvider::deleteInstance(
 		cimProperty = cimInstance.getProperty(cimInstance.findProperty(USER_NAME_PROPERTY));
         cimProperty.getValue().get(userName);
 
+        cimProperty = cimInstance.getProperty(cimInstance.findProperty(TRUSTSTORE_TYPE_PROPERTY));
+        cimProperty.getValue().get(truststoreType);
+
 		PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Issuer name " + issuerName);
 		PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "User name " + userName);
+        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Truststore type: " +
+                                                      cimProperty.getValue().toString());
 		
         AutoMutex lock(_trustStoreMutex);
 
@@ -861,6 +872,34 @@ void CertificateProvider::deleteInstance(
 				
 				// only delete from repository if we successfully deleted it from the truststore, otherwise it is still technically "trusted"
 		        _repository->deleteInstance(cimObjectPath.getNameSpace(), cimObjectPath);
+
+                //
+                // Request SSLContextManager to delete the certificate from the cache
+                //
+                try
+                {
+                    switch (truststoreType)
+                    {
+                        case SERVER_TRUSTSTORE :
+                            _sslContextMgr->reloadTrustStore(SSLContextManager::SERVER_CONTEXT);
+                            break;
+
+                        case EXPORT_TRUSTSTORE :
+                            _sslContextMgr->reloadTrustStore(SSLContextManager::EXPORT_CONTEXT);
+                            break;
+    
+                        default: break;
+                    }
+                }
+                catch (SSLException& ex)
+                {
+                    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, 
+                        "Trust store reload failed, " + ex.getMessage());
+
+                    MessageLoaderParms parms("ControlProviders.CertificateProvider.TRUSTSTORE_RELOAD_FAILED",
+                        "Trust store reload failed, certificate deletion will not be effective until cimserver restart.");
+                    throw CIMException(CIM_ERR_FAILED, parms);
+                }
 
 				Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 							"The certificate registered to $0 from issuer $1 has been deleted from the truststore.",
@@ -920,6 +959,11 @@ void CertificateProvider::deleteInstance(
 			if (FileSystem::removeFile(crlFileName)) 
 			{
                 PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3, "Successfully deleted CRL file " + crlFileName);
+
+                //
+                // reload the CRL store to refresh the cache
+                //
+                _sslContextMgr->reloadCRLStore();
 
 				Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 							"The CRL from issuer $0 has been deleted.",

@@ -1153,6 +1153,8 @@ en:table {
 
 	ControlProviders.CertificateProvider.EMPTY_CRL:string {"PGS03312: The CRL is empty."}
 
+        ControlProviders.CertificateProvider.TRUSTSTORE_RELOAD_FAILED:string {"PGS03313: Trust store reload failed, certificate deletion will not be effective until cimserver restart."}
+
 
         // ==========================================================
         // Messages for CIMOMHandle
@@ -3860,16 +3862,75 @@ CIM server listening on HTTPS port {0}."}
 
         Server.CIMServer.BIND_FAILED:string {"PGS13200: No CIM server connections are enabled."}
 
-	/**
-        * @note  PGS13201:
-        * @version 2.4
+        // ==========================================================
+        // Messages for SSLContextManager
+        // Please use message prefix "PGS13300"
+        // ==========================================================
+        /*
+        * @note  PGS13300:
+        * @version 2.5
         */
-        Server.CIMServer.EXPORT_TRUST_EMPTY:string {"PGS13201: The \"exportSSLTrustStore\" configuration property must be set when \"enableSSLExportClientVerification\" is true. cimserver not started."}
-	Server.CIMServer.SSL_CLIENT_VERIFICATION_EMPTY_TRUSTSTORE:string {"PGS13201: The \"sslTrustStore\" configuration property must be set if \"sslClientVerificationMode\" is 'required'. cimserver not started."}
-	Server.CIMServer.SSL_CLIENT_VERIFICATION_HTTP_NOT_ENABLED_WITH_REQUIRED:string {"PGS13201: The HTTP port must be enabled if \"sslClientVerificationMode\" is 'required' in order for the cimserver to properly shutdown. cimserver not started."}
-	Server.CIMServer.SSL_CLIENT_VERIFICATION_EMPTY_USERNAME:string {"PGS13201: The \"sslTrustStoreUserName\" property must specify a truststore username to associate with the trusted certificates if \"sslClientVerificationMode\" is 'required' or 'optional', and a truststore is specified. cimserver not started."}
-	Server.CIMServer.SSL_CLIENT_VERIFICATION_INVALID_AUTO_UPDATE_MODE:string {"PGS13201: The \"enableSSLTrustStoreAutoUpdate\" property can only be 'true' if \"sslClientVerificationMode\" is 'optional'. cimserver not started."}
-	Server.CIMServer.SSL_CLIENT_VERIFICATION_INVALID_AUTO_UPDATE_DIRECTORY:string {"PGS13201: The \"sslTrustStore\" value must be a valid directory if \"enableSSLTrustStoreAutoUpdate\" is 'true'. cimserver not started."}
+        Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_TRUSTSTORE:string {"PGS13300: The \"sslTrustStore\" configuration property must be set if \"sslClientVerificationMode\" is 'required'. cimserver not started."}
+
+        /*
+        * @note  PGS13301:
+        * @version 2.5
+        */
+        Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_HTTP_NOT_ENABLED_WITH_REQUIRED:string {"PGS13301: The HTTP port must be enabled if \"sslClientVerificationMode\" is 'required' in order for the cimserver to properly shutdown. cimserver not started."}
+
+        /*
+        * @note  PGS13302:
+        * @version 2.5
+        */
+        Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_USERNAME:string {"PGS13302: The \"sslTrustStoreUserName\" property must specify a truststore username to associate with the trusted certificates if \"sslClientVerificationMode\" is 'required' or 'optional', and a truststore is specified. cimserver not started."}
+
+        /*
+        * @note  PGS13303:
+        * @version 2.5
+        */
+        Pegasus.Server.SSLContextManager.EXPORT_TRUST_EMPTY:string {"PGS13303: The \"exportSSLTrustStore\" configuration property must be set when \"enableSSLExportClientVerification\" is true. cimserver not started."}
+
+        /*
+        * @note  PGS13304:
+        * @version 2.5
+        */
+        Pegasus.Server.SSLContextManager.COULD_NOT_RELOAD_TRUSTSTORE:string {"PGS13304: Could not reload the trust store."}
+
+        /*
+        * @note  PGS13305:
+        * @version 2.5
+        */
+        Pegasus.Server.SSLContextManager.COULD_NOT_RELOAD_TRUSTSTORE_SSL_CONTEXT_NOT_INITIALIZED:string {"PGS13305: Could not reload the trust store, SSL Context is not initialized."}
+
+        /*
+        * @note  PGS13306:
+        * @version 2.5
+        */
+        Pegasus.Server.SSLContextManager.COULD_NOT_RELOAD_CRL_STORE_SSL_CONTEXT_NOT_INITIALIZED:string {"PGS13306: Could not reload the crl store, SSL Context is not initialized."}
+
+        /*
+        * @note  PGS13307:
+        * @version 2.5
+        */
+        Pegasus.Server.SSLContextManager.TRUST_STORE_NOT_CONFIGURED:string {"PGS13307: Could not reload the trust store, the trust store is not configured."}
+
+        /*
+        * @note  PGS13308:
+        * @version 2.5
+        */
+        Pegasus.Server.SSLContextManager.CRL_STORE_NOT_CONFIGURED:string {"PGS13308: Could not reload the crl store, the crl store is not configured."}
+
+        /*
+        * @note  PGS13309:
+        * @version 2.5
+        */
+        Pegasus.Server.SSLContextManager.COULD_NOT_RELOAD_TRUST_OR_CRL_STORE:string {"PGS13309: Could not reload the trust or crl store."}
+
+        /*
+        * @note  PGS13310:
+        * @version 2.5
+        */
+        Pegasus.Server.SSLContextManager.CONFIGURED_TRUST_OR_CRL_STORE_NOT_FOUND:string {"PGS13310: Could not reload the trust or crl store, configured store not found."}
 
 
         // ==========================================================

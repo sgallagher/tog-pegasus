@@ -30,6 +30,7 @@
 // Author: Heather Sterling (hsterl@us.ibm.com), PEP#187
 //
 // Modified By: Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -60,6 +61,7 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
+#include <Pegasus/Server/SSLContextManager.h>
 
 PEGASUS_USING_STD;
 
@@ -81,7 +83,7 @@ public:
 		OTHER_TRUSTSTORE, UNKNOWN_TRUSTSTORE, SERVER_TRUSTSTORE, EXPORT_TRUSTSTORE, CLIENT_TRUSTSTORE
 	};
 
-    CertificateProvider(CIMRepository* repository);
+    CertificateProvider( CIMRepository* repository, SSLContextManager* sslContextMgr);
     virtual ~CertificateProvider(void);
 
     // CIMProvider interface
@@ -141,6 +143,7 @@ private:
 
     CIMOMHandle * _cimom;
     CIMRepository* _repository;
+    SSLContextManager* _sslContextMgr;
 
 	Boolean _enableAuthentication;
 	String _sslTrustStore;

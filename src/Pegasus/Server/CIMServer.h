@@ -158,9 +158,6 @@ public:
 
 private:
 
-    SSLContext* _getSSLContext();
-    SSLContext* _getExportSSLContext();
-
     Boolean _dieNow;
 
 #ifdef PEGASUS_ENABLE_SLP
@@ -188,8 +185,7 @@ private:
     ProviderManagerService* _providerManager;
     ProviderRegistrationManager* _providerRegistrationManager;
     BinaryMessageHandler *_binaryMessageHandler;
-    AutoPtr<SSLContext> _sslcontext; //PEP101
-    AutoPtr<SSLContext> _exportSSLContext; //PEP101
+    SSLContextManager* _sslContextMgr;
     
     void _init(void);
 };

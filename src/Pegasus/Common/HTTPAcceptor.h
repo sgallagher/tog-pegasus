@@ -44,6 +44,7 @@
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/TLS.h>
+#include <Pegasus/Common/IPC.h>
 #if defined(PEGASUS_HAS_SSL)
 #include <Pegasus/Common/SSLContext.h>
 #endif
@@ -83,7 +84,8 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
                    Boolean localConnection,
                    Uint32 portNumber,
                    SSLContext * sslcontext,
-                   Boolean exportConnection);
+                   Boolean exportConnection,
+                   ReadWriteSem* sslContextObjectLock=0);
 
       /** Destructor. */
       ~HTTPAcceptor();
@@ -139,6 +141,7 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
       Uint32  _portNumber;
       SSLContext * _sslcontext;
       Boolean _exportConnection;
+      ReadWriteSem*  _sslContextObjectLock;
 };
 
 PEGASUS_NAMESPACE_END

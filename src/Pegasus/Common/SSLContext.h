@@ -55,6 +55,7 @@ class CIMServer;
 class CIMxmlIndicationHandler;
 class SSLCertificateInfo;
 class SSLCallback;
+class SSLContextManager;
 
 // Pegasus-defined SSL certificate verification callback
 typedef Boolean (SSLCertificateVerifyFunction) (SSLCertificateInfo &certInfo);
@@ -400,6 +401,8 @@ private:
     friend class CIMServer;
 
     friend class CIMxmlIndicationHandler;
+
+    friend class SSLContextManager;
 };
 
 PEGASUS_NAMESPACE_END

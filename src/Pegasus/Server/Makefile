@@ -72,6 +72,7 @@ SOURCES = \
 	HTTPAuthenticatorDelegator.cpp \
 	ShutdownProvider.cpp \
 	ShutdownService.cpp \
+	SSLContextManager.cpp \
 	CIMServer.cpp \
 	CIMServerState.cpp \
 	ProviderMessageFacade.cpp \

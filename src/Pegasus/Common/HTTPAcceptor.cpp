@@ -134,7 +134,8 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
                            Boolean localConnection,
                            Uint32 portNumber,
                            SSLContext * sslcontext,
-                           Boolean exportConnection)
+                           Boolean exportConnection,
+                           ReadWriteSem* sslContextObjectLock)
    : Base(PEGASUS_QUEUENAME_HTTPACCEPTOR),  // ATTN: Need unique names?
      _monitor(monitor),
      _outputMessageQueue(outputMessageQueue),
@@ -143,7 +144,8 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
      _localConnection(localConnection),
      _portNumber(portNumber),
      _sslcontext(sslcontext),
-     _exportConnection(exportConnection)
+     _exportConnection(exportConnection),
+     _sslContextObjectLock(sslContextObjectLock)
 {
    Socket::initializeInterface();
  
@@ -661,12 +663,17 @@ void HTTPAcceptor::_acceptConnection()
    // Create a new conection and add it to the connection list:
 
    AutoPtr<MP_Socket> mp_socket(new MP_Socket(socket, _sslcontext, _exportConnection));
-   if (mp_socket->accept() < 0) 
+
    {
-       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+       ReadLock rlock(*_sslContextObjectLock);
+
+       if (mp_socket->accept() < 0) 
+       {
+           PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                         "HTTPAcceptor: SSL_accept() failed");
-       mp_socket->close();
-      return;
+           mp_socket->close();
+           return;
+       }
    }
 
    HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket, 

@@ -88,6 +88,8 @@ void WebServerQueue::handleEnqueue()
 	    queue->enqueue(responseHTTPMessage);
 	}
     }
+
+    delete message;
 }
 
 Message* WebServerQueue::handleHTTPMessage(HTTPMessage* requestMessage)
@@ -223,9 +225,9 @@ int main()
 
 	const Uint32 FIVE_SECONDS_MSEC = 5 * 1000;
 
-	while (true)
+	for (;;)
 	{
-	    cout << "Loop..." << endl;
+	    // cout << "Loop..." << endl;
 	    monitor->run(FIVE_SECONDS_MSEC);
 	}
     }

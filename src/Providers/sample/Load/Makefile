@@ -48,11 +48,14 @@ repository:
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(SAMPLEPROVIDERNS)" TST_Family.mof
 	@ $(ECHO) +++++ Registering FamilyProvider schema Providers  ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" FamilyProviderSchemaR.mof
+ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 	@ $(ECHO) +++++ Installing the MOF file for CMPI Providers
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(SAMPLEPROVIDERNS)" CWS_FilesAndDir.mof
 	@ $(ECHO) +++++ Registering FilesAndDir schema Providers  ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" CWS_FilesAndDirR.mof
-# Load the sample mofe through the Client interface compiler but do not
+endif
+
+# Load the sample mof through the Client interface compiler but do not
 # clean out the existing version.
 repositoryServer:
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
@@ -76,10 +79,12 @@ repositoryServer:
 	@ cimmof "-n$(SAMPLEPROVIDERNS)" TST_Family.mof
 	@ $(ECHO) +++++ Registering FamilyProvider schema Providers  ...
 	@ cimmof "-n$(INTEROPNS)" FamilyProviderSchemaR.mof
+ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 	@ $(ECHO) +++++ Installing the MOF file for CMPI Providers
 	@ cimmof "-n$(SAMPLEPROVIDERNS)" CWS_FilesAndDir.mof
 	@ $(ECHO) +++++ Registering FilesAndDir schema Providers  ...
 	@ cimmof "-n$(INTEROPNS)" CWS_FilesAndDirR.mof
+endif
 
 removerepository:
 	@ $(ECHO) +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
@@ -97,7 +102,9 @@ unregisterproviders:
 	cimprovider -r -m RT_IndicationProviderModule
 	cimprovider -r -m SampleLocalizedProviderModule
 	cimprovider -r -m SimpleDisplayConsumerModule
+ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 	cimprovider -r -m FilesAndDirectoriesModule
+endif
 
 depend:
 

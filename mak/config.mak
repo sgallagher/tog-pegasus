@@ -244,6 +244,11 @@ ifdef PEGASUS_MONITOR2
 DEFINES+= -DPEGASUS_MONITOR2
 endif
 
+# is the pegasus slp classes
+ifdef PEGASUS_SLP_CLASSES
+	DEFINES+= -DPEGASUS_SLP_CLASSES
+endif
+
 # setup function to enable SLP functions in the Pegasus standard compile
 # Set the environment varaible PEGASUS_ENABLE_SLP to enable SLP code.  
 ifdef PEGASUS_ENABLE_SLP

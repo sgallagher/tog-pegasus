@@ -8,13 +8,14 @@ else
 ifeq ($(OS),HPUX)
 DIRS =  Pegasus Clients Providers Server
 else
-ifdef NO_SLP
-DIRS =  Pegasus Clients Providers Server
+ifdef ($PEGASUS_SLP_CLASSES)
+DIRS = slp Pegasus Clients Providers Server
 else
-DIRS =  Pegasus slp Clients Providers Server utils
+DIRS = Pegasus Clients Providers Server
 endif
 endif
 endif
+
 
 include $(ROOT)/mak/recurse.mak
 

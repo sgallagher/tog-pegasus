@@ -36,22 +36,21 @@
 #include <fstream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Monitor.h>
-#include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Common/TLS.h>
-#include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMObject.h>
+#include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMValue.h>
+#include <Pegasus/Common/CIMParamValue.h>
 #include <Pegasus/Common/CIMNamedInstance.h>
 #include <Pegasus/Common/CIMPropertyList.h>
+#include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Client/CIMClientException.h>
-#include <Pegasus/Client/ClientAuthenticator.h>
 #include <Pegasus/Client/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-class CIMOperationResponseDecoder;
-class CIMOperationRequestEncoder;
 
 //
 // Wbem service name
@@ -63,11 +62,12 @@ class CIMOperationRequestEncoder;
 //
 static const Uint32 WBEM_DEFAULT_PORT =  5988;
 
+class CIMClientRep;
 
 /** This class provides the interface that a client uses to communicate
     with a CIMOM.
 */
-class PEGASUS_CLIENT_LINKAGE CIMClient : public MessageQueue
+class PEGASUS_CLIENT_LINKAGE CIMClient
 {
 public:
 
@@ -95,24 +95,13 @@ public:
     ///
     ~CIMClient();
 
-    /**  TBD
-    */
-    // ATTN-RK-P3-20020416: This should be hidden from client apps
-    virtual void handleEnqueue();
-
     /** TBD
     */
-    Uint32 getTimeOut() const
-    {
-	return _timeOutMilliseconds;
-    }
+    Uint32 getTimeOut() const;
 
     /** Sets the timeout in milliseconds for the CIMClient.
     */
-    void setTimeOut(Uint32 timeOutMilliseconds)
-    {
-	_timeOutMilliseconds = timeOutMilliseconds;
-    }
+    void setTimeOut(Uint32 timeOutMilliseconds);
 
     /** connect - Creates an HTTP connection with the server
         defined by the URL in address.
@@ -137,14 +126,11 @@ public:
             TBD
         </PRE>
     */
-    inline void connect(
+    void connect(
         const String& address,
         const String& userName = String::EMPTY,
         const String& password = String::EMPTY
-    ) throw(CIMClientException)
-    {
-        connect(address, NULL, userName, password);
-    }
+    ) throw(CIMClientException);
 
     /** connect - Creates an HTTP connection with the server
         defined by the URL in address.
@@ -457,24 +443,7 @@ public:
 
 private:
 
-    void _connect(
-        const String& address,
-        SSLContext* sslContext) throw(CIMClientException);
-
-    Message* _doRequest(
-        CIMRequestMessage * request,
-	const Uint32 expectedResponseMessageType) throw(CIMClientException);
-
-    String _getLocalHostName();
-
-    Monitor* _monitor;
-    HTTPConnector* _httpConnector;
-    HTTPConnection* _httpConnection;
-    Uint32 _timeOutMilliseconds;
-    Boolean _connected;
-    CIMOperationResponseDecoder* _responseDecoder;
-    CIMOperationRequestEncoder* _requestEncoder;
-    ClientAuthenticator _authenticator;
+    CIMClientRep* _rep;
 };
 
 PEGASUS_NAMESPACE_END

@@ -95,7 +95,6 @@ SOURCES = \
     Resolver.cpp \
     ResponseHandler.cpp \
     ResponseHandlerRep.cpp \
-    Service.cpp \
     Sharable.cpp \
     Signal.cpp \
     Socket.cpp \

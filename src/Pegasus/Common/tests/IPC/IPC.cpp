@@ -161,12 +161,12 @@ int main()
 
     parm[2]->th->join(&retval);
 
-#endif
-    
     cout << "+++++ passed all tests" << endl; 
 
     // Make sure all threads end
     for (int i = 0; i<4; i++) parm[i]->th->kill(9);
+
+#endif
 
     return 0;
 }

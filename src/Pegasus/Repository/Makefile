@@ -15,6 +15,7 @@ DYNAMIC_LIBRARIES = -lpegcommon
 LIBRARY = pegrepository
 
 SOURCES = \
+    AssocClassTable.cpp \
     AssocInstTable.cpp \
     NameSpaceManager.cpp \
     InheritanceTree.cpp \

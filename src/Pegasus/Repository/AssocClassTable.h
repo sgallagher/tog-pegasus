@@ -26,8 +26,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_AssocInstTable_h
-#define Pegasus_AssocInstTable_h
+#ifndef Pegasus_AssocClassTable_h
+#define Pegasus_AssocClassTable_h
 
 #include <iostream>
 #include <fstream>
@@ -40,54 +40,48 @@ PEGASUS_NAMESPACE_BEGIN
 
 /** Maintains all associations for a given namesspace.
 */
-class PEGASUS_REPOSITORY_LINKAGE AssocInstTable
+class PEGASUS_REPOSITORY_LINKAGE AssocClassTable
 {
 public:
 
-    /** Appends a row into the association table. There is no checking
+    /** Appends a row into the association class table. There is no checking
 	for duplicate entries (the caller ensures this). The case of
 	the arguments doesn't matter. They are ignored during comparison.
     */
     static void append(
 	PEGASUS_STD(ofstream)& os,
-	const String& assocInstanceName,
 	const String& assocClassName,
-	const String& fromInstanceName,
 	const String& fromClassName,
 	const String& fromPropertyName,
-	const String& toInstanceName,
 	const String& toClassName,
 	const String& toPropertyName);
 
-    /** Appends a row into the association table. There is no checking
+    /** Appends a row into the association class table. There is no checking
 	for duplicate entries (the caller ensures this). The case of the
 	arguments doesn't matter. Case is ignored during comparison.
     */
     static void append(
 	const String& path,
-	const String& assocInstanceName,
 	const String& assocClassName,
-	const String& fromInstanceName,
 	const String& fromClassName,
 	const String& fromPropertyName,
-	const String& toInstanceName,
 	const String& toClassName,
 	const String& toPropertyName);
 
     /** Deletes the given association from the table by removing every entry
-	with an assocInstanceName equal to the assocInstanceName parameter.
+	with the given assocClassName.
 	@returns true if such an association was found.
     */
     static Boolean deleteAssociation(
 	const String& path,
-	const CIMReference& assocInstanceName);
+	const String& assocClassName);
 
-    /** Finds all associators of the given object. See 
+    /** Finds all associators of the given class. See 
 	CIMOperations::associators() for a full description.
     */
     static Boolean getAssociatorNames(
 	const String& path,
-	const CIMReference& objectName,
+	const String& className,
         const String& assocClass,
         const String& resultClass,
         const String& role,
@@ -95,21 +89,21 @@ public:
 	Array<String>& associatorNames);
 
     /** Obtain all references (association instance names) in which the
-	given object is involved. See CIMOperations::associators() for a 
+	given class involved. See CIMOperations::associators() for a 
 	full description.
     */
     static Boolean getReferenceNames(
 	const String& path,
-	const CIMReference& objectName,
+	const String& className,
  	const String& resultClass,
  	const String& role,
 	Array<String>& referenceNames);
 
 private:
 
-    AssocInstTable() { /* private */ }
+    AssocClassTable() { /* private */ }
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_AssocInstTable_h */
+#endif /* Pegasus_AssocClassTable_h */

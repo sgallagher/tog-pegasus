@@ -30,21 +30,18 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Exception.h>
-#include "AssocInstTable.h"
+#include "AssocClassTable.h"
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define ASSOC_INSTANCE_NAME_INDEX 0
 #define ASSOC_CLASS_NAME_INDEX 1
-#define FROM_OBJECT_NAME_INDEX 2
-#define FROM_CLASS_NAME_INDEX 3
-#define FROM_PROPERTY_NAME_INDEX 4
-#define TO_OBJECT_NAME_INDEX 5
-#define TO_CLASS_NAME_INDEX 6 
-#define TO_PROPERTY_NAME_INDEX 7
-#define NUM_FIELDS 8
+#define FROM_CLASS_NAME_INDEX 2
+#define FROM_PROPERTY_NAME_INDEX 3
+#define TO_CLASS_NAME_INDEX 4
+#define TO_PROPERTY_NAME_INDEX 5
+#define NUM_FIELDS 5
 
 static inline Boolean _MatchNoCase(const String& x, const String& pattern)
 {
@@ -163,39 +160,30 @@ static void _PutRecord(ofstream& os, Array<String>& fields)
     os << endl;
 }
 
-void AssocInstTable::append(
+void AssocClassTable::append(
     PEGASUS_STD(ofstream)& os,
-    const String& assocInstanceName,
     const String& assocClassName,
-    const String& fromInstanceName,
     const String& fromClassName,
     const String& fromPropertyName,
-    const String& toInstanceName,
     const String& toClassName,
     const String& toPropertyName)
 {
     Array<String> fields;
-    fields.reserve(8);
-    fields.append(assocInstanceName);
+    fields.reserve(5);
     fields.append(assocClassName);
-    fields.append(fromInstanceName);
     fields.append(fromClassName);
     fields.append(fromPropertyName);
-    fields.append(toInstanceName);
     fields.append(toClassName);
     fields.append(toPropertyName);
 
     _PutRecord(os, fields);
 }
 
-void AssocInstTable::append(
+void AssocClassTable::append(
     const String& path,
-    const String& assocInstanceName,
     const String& assocClassName,
-    const String& fromInstanceName,
     const String& fromClassName,
     const String& fromPropertyName,
-    const String& toInstanceName,
     const String& toClassName,
     const String& toPropertyName)
 {
@@ -209,22 +197,19 @@ void AssocInstTable::append(
     // Insert the entry:
 
     Array<String> fields;
-    fields.reserve(8);
-    fields.append(assocInstanceName);
+    fields.reserve(5);
     fields.append(assocClassName);
-    fields.append(fromInstanceName);
     fields.append(fromClassName);
     fields.append(fromPropertyName);
-    fields.append(toInstanceName);
     fields.append(toClassName);
     fields.append(toPropertyName);
 
     _PutRecord(os, fields);
 }
 
-Boolean AssocInstTable::deleteAssociation(
+Boolean AssocClassTable::deleteAssociation(
     const String& path,
-    const CIMReference& assocInstanceName)
+    const String& assocClassName)
 {
     // Open input file:
 
@@ -248,7 +233,7 @@ Boolean AssocInstTable::deleteAssociation(
 
     while (_GetRecord(is, fields))
     {
-	if (assocInstanceName != fields[ASSOC_INSTANCE_NAME_INDEX])
+	if (assocClassName != fields[ASSOC_CLASS_NAME_INDEX])
 	{
 	    _PutRecord(os, fields);
 	    found = true;
@@ -273,9 +258,9 @@ Boolean AssocInstTable::deleteAssociation(
     return found;
 }
 
-Boolean AssocInstTable::getAssociatorNames(
+Boolean AssocClassTable::getAssociatorNames(
     const String& path,
-    const CIMReference& instanceName,
+    const String& className,
     const String& assocClass,
     const String& resultClass,
     const String& role,
@@ -296,13 +281,13 @@ Boolean AssocInstTable::getAssociatorNames(
 
     while (_GetRecord(is, fields))
     {
-	if (instanceName == fields[FROM_OBJECT_NAME_INDEX] &&
+	if (className == fields[FROM_CLASS_NAME_INDEX] &&
 	    _MatchNoCase(fields[ASSOC_CLASS_NAME_INDEX], assocClass) &&
 	    _MatchNoCase(fields[TO_CLASS_NAME_INDEX], resultClass) &&
 	    _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role) &&
 	    _MatchNoCase(fields[TO_PROPERTY_NAME_INDEX], resultRole))
 	{
-	    associatorNames.append(fields[TO_OBJECT_NAME_INDEX]);
+	    associatorNames.append(fields[TO_CLASS_NAME_INDEX]);
 	    found = true;
 	}
     }
@@ -310,9 +295,9 @@ Boolean AssocInstTable::getAssociatorNames(
     return found;
 }
 
-Boolean AssocInstTable::getReferenceNames(
+Boolean AssocClassTable::getReferenceNames(
     const String& path,
-    const CIMReference& instanceName,
+    const String& className,
     const String& resultClass,
     const String& role,
     Array<String>& referenceNames)
@@ -331,12 +316,12 @@ Boolean AssocInstTable::getReferenceNames(
 
     while (_GetRecord(is, fields))
     {
-	if (instanceName == fields[FROM_OBJECT_NAME_INDEX] &&
+	if (className == fields[FROM_CLASS_NAME_INDEX] &&
 	    _MatchNoCase(fields[ASSOC_CLASS_NAME_INDEX], resultClass) &&
 	    _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role))
 	{
-	    if (!Contains(referenceNames, fields[ASSOC_INSTANCE_NAME_INDEX]))
-		referenceNames.append(fields[ASSOC_INSTANCE_NAME_INDEX]);
+	    if (!Contains(referenceNames, fields[ASSOC_CLASS_NAME_INDEX]))
+		referenceNames.append(fields[ASSOC_CLASS_NAME_INDEX]);
 	    found = true;
 	}
     }

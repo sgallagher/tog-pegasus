@@ -440,9 +440,6 @@ void CIMRepository::_createAssocInstEntries(
     }
 }
 
-// ATTN-A: Check to see if the objects referred to by the association
-// really exist and throw an exception if they do not.
-
 void CIMRepository::createInstance(
     const String& nameSpace,
     const CIMInstance& newInstance)

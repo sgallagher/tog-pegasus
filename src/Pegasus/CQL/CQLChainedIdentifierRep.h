@@ -8,6 +8,7 @@
 #include <Pegasus/CQL/CQLIdentifier.h>
 PEGASUS_NAMESPACE_BEGIN 
 class PEGASUS_CQL_LINKAGE CQLScope;
+class PEGASUS_CQL_LINKAGE CQLFactory;
 /**  
 CQLChainedIdentifier class is used for parsing (not resolving)
 the identifier portion of a CQL select statement.  
@@ -71,6 +72,8 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifierRep
     CQLIdentifier getLastIdentifier();
 	
     void applyScopes(Array<CQLScope>& scopes);
+
+    friend class CQLFactory;
 
   private:
 

@@ -70,11 +70,8 @@ String CQLTermRep::toString()
 
 Boolean CQLTermRep::isSimpleValue()
 {
-   if(_Factors.size() == 1 && 
-      _Factors[0].isSimpleValue())
-   {
-      return true;
-   }
+   if(_Factors.size() == 1) 
+      return _Factors[0].isSimpleValue();
    return false;
 }
 

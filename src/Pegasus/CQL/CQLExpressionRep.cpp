@@ -96,11 +96,8 @@ String CQLExpressionRep::toString()
 
 Boolean CQLExpressionRep::isSimpleValue()
 {
-   if(_CQLTerms.size() == 1 && 
-      _CQLTerms[0].isSimpleValue())
-   {
-      return true;
-   }
+   if(_CQLTerms.size() == 1) 
+      return _CQLTerms[0].isSimpleValue();
    return false;
 }
 

@@ -89,6 +89,7 @@ class PEGASUS_CQL_LINKAGE CQLFactorRep
    Boolean operator==(const CQLFactorRep& rep);
    Boolean operator!=(const CQLFactorRep& rep);
    friend class CQLFactory;
+
   private:
 
     CQLExpression _CQLExp;

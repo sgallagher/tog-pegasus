@@ -145,6 +145,8 @@ static const CIMName PEGASUS_CLASSNAME_OBJECTMANAGERCOMMUNICATIONMECHANISM  =
     CIMName ("CIM_ObjectManagerCommunicationMechanism");
 static const CIMName PEGASUS_CLASSNAME_CIMXMLCOMMUNICATIONMECHANISM  = 
     CIMName ("CIM_CIMXMLCommunicationMechanism");
+static const CIMName PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM  = 
+    CIMName ("PG_CIMXMLCommunicationMechanism");
 static const CIMName PEGASUS_CLASSNAME_PROTOCOLADAPTER  = 
     CIMName ("CIM_ProtocolAdapter");
 static const CIMName PEGASUS_CLASSNAME_NAMESPACEINMANAGER  = 

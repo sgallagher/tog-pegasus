@@ -4,7 +4,7 @@
 // Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
 // Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
 // IBM Corp.; EMC Corporation, The Open Group.
-//
+//                                                              config
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
 // deal in the Software without restriction, including without limitation the
@@ -274,8 +274,8 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
 				      PEGASUS_MODULENAME_INTEROPPROVIDER,
 				      PEGASUS_QUEUENAME_CONTROLSERVICE);
-
-     _routing_table.insert_record(PEGASUS_CLASSNAME_OBJECTMANAGERCOMMUNICATIONMECHANISM,
+     
+     _routing_table.insert_record(PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM,
 				      _wild,
 				      DynamicRoutingTable::INTERNAL,
 				      0,
@@ -283,8 +283,8 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
 				      PEGASUS_MODULENAME_INTEROPPROVIDER,
 				      PEGASUS_QUEUENAME_CONTROLSERVICE);
-
-     _routing_table.insert_record(PEGASUS_CLASSNAME_CIMXMLCOMMUNICATIONMECHANISM,
+	 
+     _routing_table.insert_record(PEGASUS_CLASSNAME_PROTOCOLADAPTER,
 				      _wild,
 				      DynamicRoutingTable::INTERNAL,
 				      0,
@@ -292,16 +292,8 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
 				      PEGASUS_MODULENAME_INTEROPPROVIDER,
 				      PEGASUS_QUEUENAME_CONTROLSERVICE);
-
-	 _routing_table.insert_record(PEGASUS_CLASSNAME_PROTOCOLADAPTER,
-				      _wild,
-				      DynamicRoutingTable::INTERNAL,
-				      0,
-				      static_cast<MessageQueueService *>
-				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
-				      PEGASUS_MODULENAME_INTEROPPROVIDER,
-				      PEGASUS_QUEUENAME_CONTROLSERVICE);
-	 _routing_table.insert_record(PEGASUS_CLASSNAME_NAMESPACEINMANAGER,
+	 
+     _routing_table.insert_record(PEGASUS_CLASSNAME_NAMESPACEINMANAGER,
 				      _wild,
 				      DynamicRoutingTable::INTERNAL,
 				      0,

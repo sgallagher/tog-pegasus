@@ -57,7 +57,7 @@ PEGASUS_NAMESPACE_BEGIN
 /** 
     This class provides the functionality necessary to manage SSLContext objects.
  */
-class SSLContextManager
+class PEGASUS_COMMON_LINKAGE SSLContextManager
 {
 public:
     enum SSLContextType
@@ -71,15 +71,14 @@ public:
 
     ~SSLContextManager();
 
-    /**
-        Gets an SSLContext object for use by either the CIM Server or 
-        Indication Server based on the context type.
-
-        @param contextType specifies the SSLContext Type to be created. 
-
-        @return returns an SSLContext object.
-     */
-    SSLContext* getSSLContext(Uint32 contextType);
+    void createSSLContext(
+        Uint32 contextType,
+        const String& trustStore, 
+        const String& certPath,
+        const String& keyPath, 
+        const String& crlStore, 
+        Boolean callback, 
+        const String& randFile);
 
     /**
         Reload the trust store used by either the CIM Server or 
@@ -96,6 +95,11 @@ public:
     void reloadCRLStore();
 
     /**
+        Get a pointer to the sslContext object.
+     */
+    SSLContext*  getSSLContext(Uint32 contextType) const;
+
+    /**
         Get a pointer to the sslContextObjectLock.
      */
     ReadWriteSem*  getSSLContextObjectLock();
@@ -105,7 +109,7 @@ private:
         Create a new store object and load the specified store and return
         a pointer to the new store object.
     */
-    X509_STORE* _getNewX509Store(const String store);
+    X509_STORE* _getNewX509Store(const String& store);
 
     /**
         A lock to control access to the _sslContext and _exportSSLContext 
@@ -117,12 +121,6 @@ private:
     ReadWriteSem _sslContextObjectLock;
     SSLContext* _sslContext; 
     SSLContext* _exportSSLContext;
-
-    String _trustStore;
-
-    String _crlStore;
-
-    String _exportTrustStore;
 };
 
 PEGASUS_NAMESPACE_END

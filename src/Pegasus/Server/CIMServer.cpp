@@ -59,6 +59,7 @@
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/Signal.h>
+#include <Pegasus/Common/SSLContextManager.h>
 
 #include <Pegasus/Repository/CIMRepository.h>
 #include "ProviderMessageFacade.h"
@@ -84,7 +85,6 @@
 #include "ShutdownProvider.h"
 #include "ShutdownService.h"
 #include "BinaryMessageHandler.h"
-#include "SSLContextManager.h"
 #include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/ControlProviders/ConfigSettingProvider/ConfigSettingProvider.h>
 #include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
@@ -494,9 +494,9 @@ void CIMServer::addAcceptor(
           _httpAuthenticatorDelegator,
           localConnection,
           portNumber,
-          useSSL ? _sslContextMgr->getSSLContext(SSLContextManager::EXPORT_CONTEXT) : 0,
+          useSSL ? _getSSLContext(SSLContextManager::EXPORT_CONTEXT) : 0,
           exportConnection,
-          useSSL ? _sslContextMgr->getSSLContextObjectLock() : 0);
+          _sslContextMgr->getSSLContextObjectLock());
     }
     else
     {
@@ -505,9 +505,9 @@ void CIMServer::addAcceptor(
           _httpAuthenticatorDelegator,
           localConnection,
           portNumber,
-          useSSL ? _sslContextMgr->getSSLContext(SSLContextManager::SERVER_CONTEXT) : 0,
+          useSSL ? _getSSLContext(SSLContextManager::SERVER_CONTEXT) : 0,
           exportConnection,
-          useSSL ? _sslContextMgr->getSSLContextObjectLock() : 0);
+          _sslContextMgr->getSSLContextObjectLock());
     }
     _acceptors.append(acceptor);
 }
@@ -700,6 +700,247 @@ Uint32 CIMServer::getOutstandingRequestCount()
     return requestCount;
 }
 
+//
+SSLContext* CIMServer::_getSSLContext(Uint32 contextType)
+{
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::_getSSLContext()");
+
+    static const String PROPERTY_NAME__SSL_CERT_FILEPATH =
+                                           "sslCertificateFilePath";
+    static const String PROPERTY_NAME__SSL_KEY_FILEPATH  = "sslKeyFilePath";
+    static const String PROPERTY_NAME__SSL_TRUST_STORE  = "sslTrustStore";
+    static const String PROPERTY_NAME__EXPORT_SSL_TRUST_STORE =
+                                           "exportSSLTrustStore";
+    static const String PROPERTY_NAME__SSL_CRL_STORE  = "crlStore";
+    static const String PROPERTY_NAME__SSL_CLIENT_VERIFICATION =
+                                           "sslClientVerificationMode";
+    static const String PROPERTY_NAME__SSL_AUTO_TRUST_STORE_UPDATE =
+                                           "enableSSLTrustStoreAutoUpdate";
+    static const String PROPERTY_NAME__SSL_TRUST_STORE_USERNAME =
+                                           "sslTrustStoreUserName";
+    static const String PROPERTY_NAME__HTTP_ENABLED =
+                                           "enableHttpConnection";
+
+    String verifyClient = String::EMPTY;
+    String trustStore = String::EMPTY;
+    String exportTrustStore = String::EMPTY;
+    SSLContext* sslContext = 0;
+
+    //
+    // Get a config manager instance
+    //
+    ConfigManager* configManager = ConfigManager::getInstance();
+
+    if ( contextType == SSLContextManager::SERVER_CONTEXT )
+    {
+        // Note that if invalid values were set for either sslKeyFilePath,
+        // sslCertificateFilePath, crlStore or sslTrustStore, the invalid
+        // paths would have been detected in SecurityPropertyOwner and
+        // terminated the server startup. This happens regardless of whether
+        // or not HTTPS is enabled (not a great design, but that seems to
+        // be how other properties are validated as well)
+        //
+        // Get the sslClientVerificationMode property from the Config
+        // Manager.
+        //
+        verifyClient = configManager->getCurrentValue(
+                                  PROPERTY_NAME__SSL_CLIENT_VERIFICATION);
+
+        //
+        // Get the sslTrustStore property from the Config Manager.
+        //
+        trustStore = configManager->getCurrentValue(
+                                 PROPERTY_NAME__SSL_TRUST_STORE);
+
+        if (trustStore != String::EMPTY)
+        {
+            trustStore = ConfigManager::getHomedPath(trustStore);
+        }
+
+        PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL4,
+            "Server trust store name: " + trustStore);
+
+        //
+        // Get the sslTrustStoreUserName property from the Config Manager.
+        //
+        String trustStoreUserName = String::EMPTY;
+        trustStoreUserName = configManager->getCurrentValue(
+                                  PROPERTY_NAME__SSL_TRUST_STORE_USERNAME);
+
+        if (!String::equal(verifyClient, "disabled"))
+        {
+            //
+            // 'required' setting must have a valid truststore
+            // 'optional' setting can be used with or without a truststore;
+            // log a warning if a truststore is not specified
+            //
+            if (trustStore == String::EMPTY)
+            {
+                if (String::equal(verifyClient, "required"))
+                {
+                    MessageLoaderParms parms(
+                        "Pegasus.Server.CIMServer.SSL_CLIENT_VERIFICATION_EMPTY_TRUSTSTORE",
+                        "The \"sslTrustStore\" configuration property must be set if \"sslClientVerificationMode\" is 'required'. cimserver not started.");
+                    PEG_METHOD_EXIT();
+                    throw SSLException(parms);
+                }
+                else if (String::equal(verifyClient, "optional"))
+                {
+                    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
+                        Logger::WARNING,
+                        "SSL client verification is enabled but no truststore was specified.");
+                }
+            }
+            //
+            // ATTN: 'required' setting must have http port enabled.
+            // If only https is enabled, and a call to shutdown the
+            // cimserver is given, the call will hang and a forced shutdown
+            // will ensue. This is because the CIMClient::connectLocal call
+            // cannot (and should not) specify a truststore to validate the
+            // local server against.  This limitation is being investigated.
+            //
+            if (String::equal(verifyClient, "required"))
+            {
+                String httpEnabled = configManager->getCurrentValue(
+                                              PROPERTY_NAME__HTTP_ENABLED);
+
+                if (!String::equal(httpEnabled, "true"))
+                {
+                    MessageLoaderParms parms(
+                        "Pegasus.Server.CIMServer.SSL_CLIENT_VERIFICATION_HTTP_NOT_ENABLED_WITH_REQUIRED",
+                        "The HTTP port must be enabled if \"sslClientVerificationMode\" is 'required' in order for the cimserver to properly shutdown. cimserver not started.");
+                    PEG_METHOD_EXIT();
+                    throw SSLException(parms);
+                }
+            }
+
+            //
+            // A truststore username must be specified if
+            // sslClientVerificationMode is enabled and the truststore is a
+            // single CA file.  If the truststore is a directory, then the
+            // CertificateProvider should be used to register users with
+            // certificates.
+            //
+            if ((trustStore != String::EMPTY) &&
+                (!FileSystem::isDirectory(trustStore)))
+            {
+                if (trustStoreUserName == String::EMPTY)
+                {
+                    MessageLoaderParms parms(
+                        "Pegasus.Server.CIMServer.SSL_CLIENT_VERIFICATION_EMPTY_USERNAME",
+                        "The \"sslTrustStoreUserName\" property must specify a valid username if \"sslClientVerificationMode\" is 'required' or 'optional' and the truststore is a single CA file. To register individual certificates to users, you must use a truststore directory along with the CertificateProvider.  cimserver not started.");
+                    PEG_METHOD_EXIT();
+                    throw SSLException(parms);
+                }
+            }
+        }
+    }
+    else if ( contextType == SSLContextManager::EXPORT_CONTEXT )
+    {
+        //
+        // Get the exportSSLTrustStore property from the Config Manager.
+        //
+        exportTrustStore = configManager->getCurrentValue(
+                                  PROPERTY_NAME__EXPORT_SSL_TRUST_STORE);
+
+        if (exportTrustStore == String::EMPTY)
+        {
+            MessageLoaderParms parms(
+                "Pegasus.Server.CIMServer.EXPORT_TRUST_EMPTY",
+                "The \"exportSSLTrustStore\" configuration property must be set when \"enableSSLExportClientVerification\" is true. cimserver not started.");
+
+            PEG_METHOD_EXIT();
+            throw Exception(parms);
+        }
+
+        exportTrustStore = ConfigManager::getHomedPath(exportTrustStore);
+
+        PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL4,
+            "Export trust store name: " + exportTrustStore);
+    }
+
+    //
+    // Get the crlStore property from the Config Manager.
+    //
+    String crlStore = configManager->getCurrentValue(
+                               PROPERTY_NAME__SSL_CRL_STORE);
+
+    if (crlStore != String::EMPTY)
+    {
+        crlStore = ConfigManager::getHomedPath(crlStore);
+    }
+
+    //
+    // Get the sslCertificateFilePath property from the Config Manager.
+    //
+    String certPath;
+    certPath = ConfigManager::getHomedPath(
+        configManager->getCurrentValue(PROPERTY_NAME__SSL_CERT_FILEPATH));
+
+    //
+    // Get the sslKeyFilePath property from the Config Manager.
+    //
+    String keyPath;
+    keyPath = ConfigManager::getHomedPath(
+        configManager->getCurrentValue(PROPERTY_NAME__SSL_KEY_FILEPATH));
+
+    String randFile = String::EMPTY;
+
+#ifdef PEGASUS_SSL_RANDOMFILE
+    // NOTE: It is technically not necessary to set up a random file on
+    // the server side, but it is easier to use a consistent interface
+    // on the client and server than to optimize out the random file on
+    // the server side.
+    randFile = ConfigManager::getHomedPath(PEGASUS_SSLSERVER_RANDOMFILE);
+#endif
+
+    if ( contextType == SSLContextManager::SERVER_CONTEXT )
+    {
+        //
+        // Create the SSLContext defined by the configuration properties
+        //
+        if (String::equal(verifyClient, "required"))
+        {
+            PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL2,
+                "SSL Client verification REQUIRED.");
+
+            _sslContextMgr->createSSLContext(SSLContextManager::SERVER_CONTEXT,
+                trustStore, certPath, keyPath, crlStore, false, randFile);
+        }
+        else if (String::equal(verifyClient, "optional"))
+        {
+            PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL2,
+                "SSL Client verification OPTIONAL.");
+
+            _sslContextMgr->createSSLContext(SSLContextManager::SERVER_CONTEXT,
+                trustStore, certPath, keyPath, crlStore, true, randFile);
+        }
+        else if (String::equal(verifyClient, "disabled") ||
+                 verifyClient == String::EMPTY)
+        {
+            PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL2,
+                "SSL Client verification DISABLED.");
+
+            _sslContextMgr->createSSLContext(SSLContextManager::SERVER_CONTEXT,
+                String::EMPTY, certPath, keyPath, crlStore, false, randFile);
+        }
+        sslContext = _sslContextMgr->getSSLContext(SSLContextManager::SERVER_CONTEXT);
+    }
+    else if ( contextType == SSLContextManager::EXPORT_CONTEXT )
+    {
+        //
+        // Note: Trust store is used by default on Export connections,
+        // verification callback function is not used.
+        //
+        _sslContextMgr->createSSLContext(SSLContextManager::EXPORT_CONTEXT,
+            exportTrustStore, certPath, keyPath, crlStore, false, randFile);
+
+        sslContext = _sslContextMgr->getSSLContext(SSLContextManager::EXPORT_CONTEXT);
+    }
+
+    PEG_METHOD_EXIT();
+    return sslContext;
+}
 
 #ifdef PEGASUS_ENABLE_SLP
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _callSLPProvider(void *parm);

@@ -113,6 +113,7 @@ SOURCES = \
     System.cpp \
     TimeValue.cpp \
     SSLContext.cpp \
+    SSLContextManager.cpp \
     TLS.cpp \
     TraceFileHandler.cpp \
     Tracer.cpp \

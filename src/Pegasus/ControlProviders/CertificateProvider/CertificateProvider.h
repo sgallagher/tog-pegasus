@@ -61,7 +61,7 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
-#include <Pegasus/Server/SSLContextManager.h>
+#include <Pegasus/Common/SSLContextManager.h>
 
 PEGASUS_USING_STD;
 

@@ -71,6 +71,7 @@ class IndicationService;
 class ProviderManagerService;
 class ProviderRegistrationManager;
 class BinaryMessageHandler;
+class SSLContextManager;
 
 
 class PEGASUS_SERVER_LINKAGE CIMServer
@@ -188,6 +189,7 @@ private:
     SSLContextManager* _sslContextMgr;
     
     void _init(void);
+    SSLContext* _getSSLContext(Uint32 contextType);
 };
 
 PEGASUS_NAMESPACE_END

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -50,21 +50,21 @@
 // chars has no characters lost on a round trip.  The client sends a Unicode
 // string and char16 in properties for createInstance and modifyInstance.
 // We check these against an expected string and char16. If it miscompares then
-// some Unicode chars were lost.  The Unicode string and char16 are then saved along 
+// some Unicode chars were lost.  The Unicode string and char16 are then saved along
 // with the instance sent by the client. When the client does a getInstance it can
 // compare the string and char16 to an expected values on the client side.
-// 
+//
 // Test Properties: RoundTripString, RoundTripChar
-// 
+//
 // 2) Resource Bundle Test:  One of the properties on the instances
-// returned is a read-only string property where the string is loaded 
+// returned is a read-only string property where the string is loaded
 // from a resource bundle.  The language of the string is determined
 // the preferred languages sent by the client in the AcceptLanguages
 // header.
 //
 // Test Property: ResourceBundleString
 //
-// 3) Content Languages Test.  This tests that the client can set a 
+// 3) Content Languages Test.  This tests that the client can set a
 // r/w string and associate a content language with that string.  The client
 // should be able to retrieve that string with the same associated content
 // language tag.
@@ -75,29 +75,29 @@
 // OVERALL DESIGN NOTE:
 //
 // We have two localized properties (ResourceBundleString
-// and ContentLanguageString).  The first is r/o and the second is r/w. 
+// and ContentLanguageString).  The first is r/o and the second is r/w.
 // The client can set ContentLanguageString with an associated content
-// language tag.  The last content language tag set by the client for this 
+// language tag.  The last content language tag set by the client for this
 // property is stored in instanceLangs[].
 //
 // However, when the client gets an instance, the content language in the response
 // applies to the whole instance.  So, to decide what language to set for returned
 // instance, we do the following:
 //
-// -- If the client had previously set a content language for 
+// -- If the client had previously set a content language for
 // ContentLanguageString, then we will return that string with the
-// content language previously set by the client.  We will try to 
+// content language previously set by the client.  We will try to
 // load the ResourceBundleString from the resource bundle in that
 // same content language.  If that content language is not supported by
 // a resource bundle, this will result in a default string being
 // returned to the client in ResourceBundleString.
 //
-// -- If the client had not previously set a content language for 
+// -- If the client had not previously set a content language for
 // ContentLanguageString, or the last set was empty, then we will
-// load both properties from the resource bundle based on the 
+// load both properties from the resource bundle based on the
 // AcceptLanguages that was set into our thread by Pegasus (this
-// is the same as the AcceptLanguages requested by the client) 
-   
+// is the same as the AcceptLanguages requested by the client)
+
 
 // l10n TODO
 // -- implement test providers for other provider types
@@ -139,14 +139,14 @@ PEGASUS_USING_PEGASUS;
 // Properties on the Sample_ProviderClass
 #define IDENTIFIER_PROP "Identifier"		// Key
 
-// Properties on the Sample_LocalizedProviderClass 
+// Properties on the Sample_LocalizedProviderClass
 #define ROUNDTRIPSTRING_PROP "RoundTripString"	// Property for round trip test (R/W)
 #define ROUNDTRIPCHAR_PROP "RoundTripChar"	// Property for round trip test (R/W)
 #define RB_STRING_PROP "ResourceBundleString" // Property for resource bundle test (R/O)
 #define CONTENTLANG_PROP "ContentLanguageString" // Property from content language test (R/W)
 
 // Properties on the Sample_LocalizedProviderSubClass
-#define TESTSTRING_PROP "TestString"    
+#define TESTSTRING_PROP "TestString"
 
 // The name of the *root* resource bundle.
 #ifndef PEGASUS_OS_OS400
@@ -172,23 +172,23 @@ PEGASUS_USING_PEGASUS;
 #define ROUND_TRIP_ERROR_DFT "LocalizedProvider: Received bad value for round trip string (default message)"
 #define ROUND_TRIP_STRING_DFT "RoundTripString DEFAULT"
 
-// Expected round-trip string from the client. 
+// Expected round-trip string from the client.
 // Note: the dbc0/dc01 pair are UTF-16 surrogates
 static const Char16 roundTripChars[] =
         {
         0x6A19,	0x6E96,	0x842C, 0x570B,	0x78BC,
         0x042E, 0x043D, 0x0438, 0x043A, 0x043E, 0x0434,
-        0x110B, 0x1172, 0x1102, 0x1165, 0x110F, 0x1169, 0x11AE, 
+        0x110B, 0x1172, 0x1102, 0x1165, 0x110F, 0x1169, 0x11AE,
         0x10E3, 0x10DC, 0x10D8, 0x10D9, 0x10DD, 0x10D3, 0x10D8,
-	0xdbc0,	0xdc01, 
+	0xdbc0,	0xdc01,
         0x05D9, 0x05D5, 0x05E0, 0x05D9, 0x05E7, 0x05D0, 0x05B8, 0x05D3,
         0x064A, 0x0648, 0x0646, 0x0650, 0x0643, 0x0648, 0x062F,
         0x092F, 0x0942, 0x0928, 0x093F, 0x0915, 0x094B, 0x0921,
         0x016A, 0x006E, 0x012D, 0x0063, 0x014D, 0x0064, 0x0065, 0x033D,
         0x00E0, 0x248B, 0x0061, 0x2173, 0x0062, 0x1EA6, 0xFF21, 0x00AA, 0x0325, 0x2173, 0x249C, 0x0063,
         0x02C8, 0x006A, 0x0075, 0x006E, 0x026A, 0x02CC, 0x006B, 0x006F, 0x02D0, 0x0064,
-        0x30E6, 0x30CB, 0x30B3, 0x30FC, 0x30C9, 
-        0xFF95, 0xFF86, 0xFF7A, 0xFF70, 0xFF84, 0xFF9E, 
+        0x30E6, 0x30CB, 0x30B3, 0x30FC, 0x30C9,
+        0xFF95, 0xFF86, 0xFF7A, 0xFF70, 0xFF84, 0xFF9E,
         0xC720, 0xB2C8, 0xCF5B, 0x7D71, 0x4E00, 0x78BC,
 	0xdbc0,	0xdc01,
         0x00};
@@ -201,7 +201,7 @@ Char16 hangugo[] = {0xD55C, 0xAD6D, 0xC5B4,
 			0xdbc0,
 			0xdc01,
 'g','l','o','b','a','l',
-			0x00};	
+			0x00};
 
 // Serializes access to the instances arrays during the CIM requests
 Mutex mutex;
@@ -213,7 +213,7 @@ Mutex mutexCH;
 CIMOMHandle _cimom;
 
 // Vars for the indication provider
-static IndicationResponseHandler * _handler = 0; 
+static IndicationResponseHandler * _handler = 0;
 static Boolean _enabled = false;
 static Uint32 _nextUID = 0;
 
@@ -232,7 +232,7 @@ LocalizedProvider::LocalizedProvider() :
 	msgParms.msg_src_path = RESOURCEBUNDLE;
 	contentLangParms.msg_src_path = RESOURCEBUNDLE;
 	notSupportedErrorParms.msg_src_path = RESOURCEBUNDLE;
-	roundTripErrorParms.msg_src_path = RESOURCEBUNDLE;			
+	roundTripErrorParms.msg_src_path = RESOURCEBUNDLE;
 }
 
 LocalizedProvider::~LocalizedProvider(void)
@@ -249,44 +249,44 @@ void LocalizedProvider::initialize(CIMOMHandle & cimom)
 
    // create default instances
 
-   // Instance 1 - Sample_LocalizedProviderClass 
+   // Instance 1 - Sample_LocalizedProviderClass
    CIMInstance instance1(CLASSNAME);
    CIMObjectPath reference1(REFERENCE1);
 
-   instance1.addProperty(CIMProperty(IDENTIFIER_PROP, Uint8(0)));   
-   instance1.addProperty(CIMProperty(ROUNDTRIPSTRING_PROP, String(roundTripChars)));	
+   instance1.addProperty(CIMProperty(IDENTIFIER_PROP, Uint8(0)));
+   instance1.addProperty(CIMProperty(ROUNDTRIPSTRING_PROP, String(roundTripChars)));
    instance1.addProperty(CIMProperty(ROUNDTRIPCHAR_PROP, roundTripChars[0]));
    instance1.setPath(reference1);
-				 
+
    _instances.append(instance1);
    _instanceNames.append(reference1);
    _instanceLangs.append(ContentLanguages::EMPTY);
-	
-   // Instance 2 - Sample_LocalizedProviderClass 
-   CIMInstance instance2(CLASSNAME);	
-   CIMObjectPath reference2(REFERENCE2);	
- 	
-   instance2.addProperty(CIMProperty(IDENTIFIER_PROP, Uint8(1)));   
+
+   // Instance 2 - Sample_LocalizedProviderClass
+   CIMInstance instance2(CLASSNAME);
+   CIMObjectPath reference2(REFERENCE2);
+
+   instance2.addProperty(CIMProperty(IDENTIFIER_PROP, Uint8(1)));
    instance2.addProperty(CIMProperty(ROUNDTRIPSTRING_PROP, String(roundTripChars)));
-   instance2.addProperty(CIMProperty(ROUNDTRIPCHAR_PROP, roundTripChars[0]));	
+   instance2.addProperty(CIMProperty(ROUNDTRIPCHAR_PROP, roundTripChars[0]));
    instance2.setPath(reference2);
 
-   _instances.append(instance2);	
+   _instances.append(instance2);
    _instanceNames.append(reference2);
-   _instanceLangs.append(ContentLanguages::EMPTY);	
+   _instanceLangs.append(ContentLanguages::EMPTY);
 
-   // Instance 3 - Sample_LocalizedProviderSubClass 
-   CIMInstance instance3(SUBCLASSNAME);	
-   CIMObjectPath reference3(REFERENCE3);	
- 	
-   instance3.addProperty(CIMProperty(IDENTIFIER_PROP, Uint8(2)));   
+   // Instance 3 - Sample_LocalizedProviderSubClass
+   CIMInstance instance3(SUBCLASSNAME);
+   CIMObjectPath reference3(REFERENCE3);
+
+   instance3.addProperty(CIMProperty(IDENTIFIER_PROP, Uint8(2)));
    instance3.addProperty(CIMProperty(ROUNDTRIPSTRING_PROP, String(roundTripChars)));
    instance3.addProperty(CIMProperty(ROUNDTRIPCHAR_PROP, roundTripChars[0]));
    instance3.setPath(reference3);
-	
-   _instances.append(instance3);	
+
+   _instances.append(instance3);
    _instanceNames.append(reference3);
-   _instanceLangs.append(ContentLanguages::EMPTY);	
+   _instanceLangs.append(ContentLanguages::EMPTY);
 
 }
 
@@ -343,8 +343,8 @@ void LocalizedProvider::getInstance(
 
            // We need to tag the instance we are returning with the
            // the content language.
-           _setHandlerLanguages(handler, rtnLangs);		
-						
+           _setHandlerLanguages(handler, rtnLangs);
+
            // deliver requested instance
            handler.deliver(foundInstance);
        }   // mutex unlocks here
@@ -405,19 +405,19 @@ void LocalizedProvider::enumerateInstances(
 	  testAL.clear();
 	  testAL.add(AcceptLanguageElement(testLang, float(1.0)));
 	  testParms.acceptlanguages = testAL;
-	  testMsg = MessageLoader::getMessage(testParms);	
+	  testMsg = MessageLoader::getMessage(testParms);
 
 	  if (PEG_NOT_FOUND == testMsg.find(msgLang))
 	  {
 	    throw CIMOperationFailedException("Error in ICU multithread test");
 	  }
 	}  // end for
-#endif 
+#endif
 
         Array<CIMInstance> foundInstances;
         Array<ContentLanguages> foundLangs;
 
-        // Look up the instances 
+        // Look up the instances
         {
             AutoMutex autoMut(mutex);
 
@@ -425,14 +425,11 @@ void LocalizedProvider::enumerateInstances(
             {
                 // Since this provider is supporting 2 classes, only return instances
                 // of the requested class.
-                if (classReference.getClassName().getString() != 
-                               _instanceNames[i].getClassName().getString())
+                if (classReference.getClassName().equal(_instanceNames[i].getClassName()))
                 {
-                    continue;
-                } 
-
-                foundInstances.append(_instances[i].clone());
-                foundLangs.append(ContentLanguages(_instanceLangs[i]));
+                    foundInstances.append(_instances[i].clone());
+                    foundLangs.append(ContentLanguages(_instanceLangs[i]));
+                }
             }
 
             // Get the list of preferred languages that the client requested
@@ -446,13 +443,13 @@ void LocalizedProvider::enumerateInstances(
             for(Uint32 j = 0, k = foundInstances.size(); j < k; j++)
             {
                // Load the localized properties and figure out what content
-               // language to return for this instance, based on the design 
+               // language to return for this instance, based on the design
                // mentioned above.
                ContentLanguages rtnLangs = _loadLocalizedProps(clientAcceptLangs,
                                                            foundLangs[j],
                                                            foundInstances[j]);
 
-               // Since we are returning more than one instance, and the 
+               // Since we are returning more than one instance, and the
                // content language we are returning applies to all the instances,
                // we need to 'aggregate' the languages of all the instances.
                // If all the instances have the same language, then return
@@ -461,21 +458,22 @@ void LocalizedProvider::enumerateInstances(
                // any ContentLanguages to the client.
                if (firstInstance)
                {
-                   // Set the aggregated content language to the first instance lang.	
-                   aggregatedLangs = rtnLangs;	
+                   // Set the aggregated content language to the first instance lang.
+                   aggregatedLangs = rtnLangs;
                    firstInstance = false;
                }
                else if (langMismatch == false && rtnLangs != aggregatedLangs)
                {
-                   // A mismatch was found.  Set the aggegrated content lang to empty	
-                   langMismatch = true;	
+                   // A mismatch was found.  Set the aggegrated content lang to empty
+                   langMismatch = true;
                    aggregatedLangs = ContentLanguages::EMPTY;
                }
-	
+
                // deliver instance
 	       CIMObjectPath localReference = buildRefFromInstance(foundInstances[j]);
 	       foundInstances[j].setPath(localReference);
-               handler.deliver(foundInstances[j]);
+
+           handler.deliver(foundInstances[j]);
             }  // end for
 
             // Set the aggregated content language into the response
@@ -492,19 +490,22 @@ void LocalizedProvider::enumerateInstanceNames(
     ObjectPathResponseHandler & handler)
 {
 	// Not doing any localization here
-	
+
 	// begin processing the request
 	handler.processing();
 
-        {
-           AutoMutex autoMut(mutex);
+    {
+       AutoMutex autoMut(mutex);
 
-	   for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-	   {
-		// deliver reference
-		handler.deliver(_instanceNames[i]);
-	   }
-        }  // mutex unlocks here
+       for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+       {
+           if(classReference.getClassName().equal(_instanceNames[i].getClassName()))
+           {
+               // deliver reference
+               handler.deliver(_instanceNames[i]);
+           }
+       }
+    }  // mutex unlocks here
 
 	// complete processing the request
 	handler.complete();
@@ -519,8 +520,8 @@ void LocalizedProvider::modifyInstance(
     ResponseHandler & handler)
 {
 	// instanceReference does not have the key!
-	CIMObjectPath localReference =	buildRefFromInstance(instanceObject);	
-	
+	CIMObjectPath localReference =	buildRefFromInstance(instanceObject);
+
 	// begin processing the request
 	handler.processing();
 
@@ -538,24 +539,24 @@ void LocalizedProvider::modifyInstance(
                     // round trip string and char16 properties.
                     // This is to test that the Unicode characters got to us properly.
                     // (Note: this call can throw an exception)
-                    _checkRoundTripString(context, instanceObject);				
-			
+                    _checkRoundTripString(context, instanceObject);
+
                     // overwrite existing instance
                     _instances[i] = instanceObject;
-			
+
                     // Get the language that the client tagged to the instance
                     // Note: the ContentLanguageString property is the only r/w string that
                     // can be tagged with a content language.  So the ContentLangauges
                     // for the instance really only applies to that property.
                     ContentLanguages contentLangs = getRequestContentLanguages(context);
 
-                    // Save the language of the ContentLanguageString	
-                    _instanceLangs[i] = contentLangs;			
-			
+                    // Save the language of the ContentLanguageString
+                    _instanceLangs[i] = contentLangs;
+
                     break;
                 }
            }  // end for
-	
+
            if (i == _instanceNames.size())
 	     {
               throw CIMObjectNotFoundException(instanceReference.toString());
@@ -591,7 +592,7 @@ void LocalizedProvider::createInstance(
                                   localReference.toString());
 		}
 	   }
-			
+
 	   // begin processing the request
 	   handler.processing();
 
@@ -599,7 +600,7 @@ void LocalizedProvider::createInstance(
 	   // round trip string and char16 properties.
            // This is to test that the Unicode characters got to us properly.
            // (Note: this call can throw an exception)
-	   _checkRoundTripString(context, instanceObject);	
+	   _checkRoundTripString(context, instanceObject);
 
 	   // add the new instance to the array
 	   _instances.append(instanceObject);
@@ -609,9 +610,9 @@ void LocalizedProvider::createInstance(
 	   // Note: the ContentLanguageString property is the only r/w string that
 	   // can be tagged with a content language.  So the ContentLanguages
 	   // for the instance really only applies to that property.
-           ContentLanguages contentLangs = getRequestContentLanguages(context);	
-	
-	   // Save the language of the ContentLanguageString	
+           ContentLanguages contentLangs = getRequestContentLanguages(context);
+
+	   // Save the language of the ContentLanguageString
 	   _instanceLangs.append(contentLangs);
 
 	   // deliver the new instance
@@ -649,18 +650,18 @@ void LocalizedProvider::deleteInstance(
                 		// Throw an exception with a localized message using the
 	   	         	// AcceptLanguages set into our thread by Pegasus.
 	   	         	// (this equals the AcceptLanguages requested by the client)
-                		//  Note: the exception object will load the string for us. 		
+                		//  Note: the exception object will load the string for us.
                 		throw CIMNotSupportedException(notSupportedErrorParms);
 			}
 			break;
 		}
 	   }
-	
+
 	   if (i == _instanceNames.size())
 		throw CIMObjectNotFoundException(instanceReference.toString());
 
 	   handler.processing();
-	
+
 	   _instanceNames.remove(i);
 	   _instanceLangs.remove(i);
 	   _instances.remove(i);
@@ -729,7 +730,7 @@ void LocalizedProvider::invokeMethod(
     MethodResultResponseHandler & handler)
 {
     handler.processing();
- 
+
     String utf16String(roundTripChars);
     String hangugoString(hangugo);
     String expectedString(roundTripChars);
@@ -741,7 +742,7 @@ void LocalizedProvider::invokeMethod(
     // Compare the AcceptLanguages from the client with the expected lang
     AcceptLanguages acceptLangs = getRequestAcceptLanguages(context);
     AcceptLanguages AL_DE;
-    AL_DE.add(AcceptLanguageElement("de", float(0.8))); 
+    AL_DE.add(AcceptLanguageElement("de", float(0.8)));
     if (acceptLangs != AL_DE)
     {
         throw CIMOperationFailedException(acceptLangs.toString());
@@ -757,10 +758,10 @@ void LocalizedProvider::invokeMethod(
 
     // Set the ContentLanguages in the response.  This is just to test
     // that the language tag is passed to the client.
-    _setHandlerLanguages(handler, CL_DE);	
+    _setHandlerLanguages(handler, CL_DE);
 
     if (objectReference.getClassName().equal (CLASSNAME))
-    {	
+    {
 	if (methodName.equal ("UTFMethod"))
 	{
             // The method was called to test UTF-16 support for input
@@ -789,7 +790,7 @@ void LocalizedProvider::invokeMethod(
 
 		// Test CIMOMHandle localization here, for no other reason than this is a good
 		// spot for it
-		_testCIMOMHandle(); 
+		_testCIMOMHandle();
 
                 // Return the UTF-16 chars in the output parameters
                 handler.deliverParamValue(
@@ -837,10 +838,10 @@ void LocalizedProvider::invokeMethod(
 	}
 	else if (methodName.equal ("setDefaultMessageLoading"))
 	{
-	  // This method is used to change the _useDefaultMsg variable in 
+	  // This method is used to change the _useDefaultMsg variable in
 	  // the MessageLoader, so that messages can be loaded from the
 	  // resource bundles even though $PEGASUS_USE_DEFAULT_MESSAGES is
-	  // set. When ICU is used, $PEGASUS_USE_DEFAULT_MESSAGES is set 
+	  // set. When ICU is used, $PEGASUS_USE_DEFAULT_MESSAGES is set
 	  // during make poststarttests so that default messages are returned
 	  // by the server and the wbemexec tests can pass (these expect the default
 	  // messages).  However, when g11ntest is run, we want messages to be
@@ -848,7 +849,7 @@ void LocalizedProvider::invokeMethod(
 	  Boolean newSetting;
 	  CIMValue newVal = inParameters[0].getValue();
 	  newVal.get( newSetting );
-	  
+
           Boolean oldSetting = MessageLoader::_useDefaultMsg;
 	  MessageLoader::_useDefaultMsg = newSetting;
 
@@ -898,7 +899,7 @@ void LocalizedProvider::createSubscription(
     const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
-  // Don't do anything globalization stuff for this now.  
+  // Don't do anything globalization stuff for this now.
   // This can get complicated (see PEP 58)
 }
 
@@ -909,7 +910,7 @@ void LocalizedProvider::modifySubscription(
     const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
-  // Don't do anything globalization stuff for this now.  
+  // Don't do anything globalization stuff for this now.
   // This can get complicated (see PEP 58)
 }
 
@@ -918,14 +919,14 @@ void LocalizedProvider::deleteSubscription(
     const CIMObjectPath & subscriptionName,
     const Array<CIMObjectPath> & classNames)
 {
-  // Don't do anything globalization stuff for this now.  
+  // Don't do anything globalization stuff for this now.
   // This can get complicated (see PEP 58)
 }
 
 
 // CIMIndicationConsumerProvider interface
 void LocalizedProvider::consumeIndication(const OperationContext& context,
-					const String & url, 
+					const String & url,
 					const CIMInstance& indication)
 {
   // Verify that the utf-16 string and character values got here
@@ -951,7 +952,7 @@ void LocalizedProvider::consumeIndication(const OperationContext& context,
     consumerStatus = 4;
     return;
   }
-    
+
   val = indication.getProperty(pos).getValue();
   Char16 char16;
   val.get(char16);
@@ -960,11 +961,11 @@ void LocalizedProvider::consumeIndication(const OperationContext& context,
     consumerStatus = 5;
     return;
   }
- 
+
   // Verify that the Content-Language of the indication here
   ContentLanguages expectedCL("x-world");
 
-  ContentLanguageListContainer cntr = 
+  ContentLanguageListContainer cntr =
     context.get(ContentLanguageListContainer::NAME);
   ContentLanguages cl = cntr.getLanguages();
   if (cl != expectedCL)
@@ -972,7 +973,7 @@ void LocalizedProvider::consumeIndication(const OperationContext& context,
     consumerStatus = 6;
     return;
   }
-  
+
   // Set the consumer status to success
   consumerStatus = 0;
 }
@@ -982,46 +983,46 @@ void LocalizedProvider::_checkRoundTripString(const OperationContext & context,
 					      const CIMInstance& instanceObject)
 {
     // Get the round trip string sent by the client
-    String roundTripStringProp; 
+    String roundTripStringProp;
     instanceObject.getProperty(instanceObject.findProperty(ROUNDTRIPSTRING_PROP)).
             getValue().
-            get(roundTripStringProp);  
-	
+            get(roundTripStringProp);
+
     // Get the round trip char16 sent by the client
-    Char16 roundTripCharProp; 
+    Char16 roundTripCharProp;
     instanceObject.getProperty(instanceObject.findProperty(ROUNDTRIPCHAR_PROP)).
             getValue().
-            get(roundTripCharProp); 
-	
+            get(roundTripCharProp);
+
     // Now compare the string and char16 from the client to the ones we expect
     // This checks that Unicode chars were not lost
     if ((roundTripString != roundTripStringProp) ||
         (roundTripChars[0] != roundTripCharProp))
     {
 	// A miscompare.  The Unicode was not preserved from the
-	// client, through Pegasus, down to us.  	
-			
+	// client, through Pegasus, down to us.
+
 	// Throw an exception with a localized message using the
 	// AcceptLanguages set into our thread by Pegasus.
 	// (this equals the AcceptLanguages requested by the client)
-	//  Note: the exception object will load the string for us. 
-	throw CIMInvalidParameterException(roundTripErrorParms);		
-    }	
+	//  Note: the exception object will load the string for us.
+	throw CIMInvalidParameterException(roundTripErrorParms);
+    }
 }
 
 AcceptLanguages LocalizedProvider::getRequestAcceptLanguages(const OperationContext & context)
 {
 	// Get the client's list of preferred languages for the response
-	AcceptLanguageListContainer al_container = 
+	AcceptLanguageListContainer al_container =
 		(AcceptLanguageListContainer)context.get(AcceptLanguageListContainer::NAME);
-	return al_container.getLanguages();		
-}	
+	return al_container.getLanguages();
+}
 
 
 ContentLanguages LocalizedProvider::getRequestContentLanguages(	const OperationContext & context)
 {
     // Get the language that the client sent in the request
-    ContentLanguageListContainer cl_container = 
+    ContentLanguageListContainer cl_container =
 		(ContentLanguageListContainer)context.get(ContentLanguageListContainer::NAME);
     return cl_container.getLanguages();
 }
@@ -1032,14 +1033,14 @@ CIMObjectPath LocalizedProvider::buildRefFromInstance(const CIMInstance& instanc
     String local = NAMESPACE;
     local.append(":");
     local.append(instanceObject.getClassName().getString());
-    Uint32 index = instanceObject.findProperty(IDENTIFIER_PROP);	
+    Uint32 index = instanceObject.findProperty(IDENTIFIER_PROP);
     if (index == PEG_NOT_FOUND)
     {
        throw CIMPropertyNotFoundException(IDENTIFIER_PROP);
     }
 
     Uint8 id;
-    instanceObject.getProperty(index).getValue().get(id);   	
+    instanceObject.getProperty(index).getValue().get(id);
     char bfr[8] = {0};
     sprintf(bfr,"%d",id);
     local.append(".");
@@ -1053,18 +1054,18 @@ CIMObjectPath LocalizedProvider::buildRefFromInstance(const CIMInstance& instanc
 ContentLanguages LocalizedProvider::_loadLocalizedProps(
                                              AcceptLanguages & acceptLangs,
                                              ContentLanguages & contentLangs,
-                                             CIMInstance & instance)			
-{												
+                                             CIMInstance & instance)
+{
 	// The content languages to be returned to the client
 	ContentLanguages rtnLangs = ContentLanguages::EMPTY;
-			
+
 	// Attempt to match one of the accept languages from the client with
 	// the last content language saved for ContentLanguageString
 	// (Note:  Using the AcceptLanguages iterator allows us
 	// to scan the client's accept languages in preferred order)
 	AcceptLanguageElement ale = AcceptLanguageElement::EMPTY;
 	ContentLanguageElement cle = ContentLanguageElement::EMPTY;
-			
+
 	Boolean matchFound = false;
 	acceptLangs.itrStart();
 	while((ale = acceptLangs.itrNext()) != AcceptLanguageElement::EMPTY)
@@ -1074,31 +1075,31 @@ ContentLanguages LocalizedProvider::_loadLocalizedProps(
 		{
 			if (ale.getTag() == cle.getTag())
 			{
-				matchFound = true;	
-				break;					
+				matchFound = true;
+				break;
 			}
-		}	
-	}			
-			
+		}
+	}
+
 	if (!matchFound)
 	{
-		// We have not found a match.		
+		// We have not found a match.
 		// Load both localized properties from the resource bundle, using
 		// the AcceptLanguages that was set into our thread by Pegasus.
-		// (this equals the AcceptLanguages requested by the client)		
-		
+		// (this equals the AcceptLanguages requested by the client)
+
 		// First, load the ResourceBundleString and put the string into
 		// the instance we are returning.
 		rtnLangs = _addResourceBundleProp(instance);
 
 		// Load the ContentLanguageString from the resource bundle
 		// into the instance we are returning.
-		ContentLanguages clPropLangs = _addContentLanguagesProp(instance);		
+		ContentLanguages clPropLangs = _addContentLanguagesProp(instance);
 
 		// The calls above returned the ContentLanguages for the language
 		// of the resource bundle that was found.
 		// If the two resource bundle langs don't match then
-		// we have a bug in our resource bundles.					
+		// we have a bug in our resource bundles.
 		if (rtnLangs != clPropLangs)
 		{
 			throw new CIMOperationFailedException(String::EMPTY);
@@ -1118,18 +1119,18 @@ ContentLanguages LocalizedProvider::_loadLocalizedProps(
 	else
 	{
 		// We have found a match.  Attempt
-		// to load ResourceBundleString using the matching 
+		// to load ResourceBundleString using the matching
 		// content language.
-		AcceptLanguages tmpLangs;					
+		AcceptLanguages tmpLangs;
 		tmpLangs.add(ale);
 		(void)_addResourceBundleProp(tmpLangs, instance);
-				
+
 		// Send the matching content language back to the client.
-		rtnLangs.append(cle);				
+		rtnLangs.append(cle);
 	}
-	
-	return rtnLangs;			
-}												
+
+	return rtnLangs;
+}
 
 ContentLanguages LocalizedProvider::_addResourceBundleProp(
                                                   AcceptLanguages & acceptLangs,
@@ -1139,7 +1140,7 @@ ContentLanguages LocalizedProvider::_addResourceBundleProp(
 	// of the languages requested by the caller of this function.
 	msgParms.acceptlanguages = acceptLangs;
 
-	String localizedMsgProp = MessageLoader::getMessage(msgParms);				
+	String localizedMsgProp = MessageLoader::getMessage(msgParms);
 
 	// Replace the string into the instance
 	_replaceRBProperty(instance, localizedMsgProp);
@@ -1153,18 +1154,18 @@ ContentLanguages LocalizedProvider::_addResourceBundleProp(
 ContentLanguages LocalizedProvider::_addResourceBundleProp(
                                                   CIMInstance & instance)
 {
-	// Get the ResourceBundleString of the resource bundle using the 
+	// Get the ResourceBundleString of the resource bundle using the
 	// AcceptLanguages set into our thread by Pegasus.
-	// (this equals the AcceptLanguages requested by the client)	
-	
+	// (this equals the AcceptLanguages requested by the client)
+
 	// First, need to clear any old AcceptLanguages in the message loader
 	// parms because that will override the thread's AcceptLanguages.
-	msgParms.acceptlanguages = AcceptLanguages::EMPTY;	
+	msgParms.acceptlanguages = AcceptLanguages::EMPTY;
 	msgParms.useThreadLocale = true;  // Don't really need to do this
 					// because the default is true
 
-	// Load the string from the resource bundle						
-	String localizedMsgProp = MessageLoader::getMessage(msgParms);				
+	// Load the string from the resource bundle
+	String localizedMsgProp = MessageLoader::getMessage(msgParms);
 
 	// Replace the string into the instance
 	_replaceRBProperty(instance, localizedMsgProp);
@@ -1177,42 +1178,42 @@ ContentLanguages LocalizedProvider::_addResourceBundleProp(
 
 void LocalizedProvider::_replaceRBProperty(CIMInstance & instance, String newProp)
 {
-	// Remove the old string property 
+	// Remove the old string property
 	Uint32 index = instance.findProperty(RB_STRING_PROP);
 	if (index != PEG_NOT_FOUND)
 	{
 		instance.removeProperty(index);
 	}
-			
+
 	// Add the localized string property to the instance
-	instance.addProperty(CIMProperty(RB_STRING_PROP, newProp));	
+	instance.addProperty(CIMProperty(RB_STRING_PROP, newProp));
 }
 
 
 ContentLanguages LocalizedProvider::_addContentLanguagesProp(CIMInstance & instance)
 {
-	// Get the ContentLanguageString out of the resource bundle using the 
+	// Get the ContentLanguageString out of the resource bundle using the
 	// AcceptLanguages set into our thread by Pegasus.
 	// (this equals the AcceptLanguages requested by the client)
 
 	// First, need to clear any old AcceptLanguages in the message loader
 	// parms because that will override the thread's AcceptLanguages.
-	contentLangParms.acceptlanguages = AcceptLanguages::EMPTY;	
+	contentLangParms.acceptlanguages = AcceptLanguages::EMPTY;
 	contentLangParms.useThreadLocale = true;  // Don't really need to do this
-						// because the default is true	
+						// because the default is true
 
-	// Load the string from the resource bundle		
+	// Load the string from the resource bundle
 	String localizedMsgProp = MessageLoader::getMessage(contentLangParms);
 
-	// Remove the old string property 
+	// Remove the old string property
 	Uint32 index = instance.findProperty(CONTENTLANG_PROP);
 	if (index != PEG_NOT_FOUND)
 	{
 		instance.removeProperty(index);
 	}
-			
+
 	// Add the localized string property to the instance
-	instance.addProperty(CIMProperty(CONTENTLANG_PROP, localizedMsgProp));	
+	instance.addProperty(CIMProperty(CONTENTLANG_PROP, localizedMsgProp));
 
 	// The MessageLoader set the contentlanguages member
 	// of msgParms to the language that it found for the message.
@@ -1223,8 +1224,8 @@ void LocalizedProvider::_setHandlerLanguages(ResponseHandler & handler,
                                             ContentLanguages & langs)
 {
     OperationContext context;
-    context.insert(ContentLanguageListContainer(langs));	
-    handler.setContext(context); 
+    context.insert(ContentLanguageListContainer(langs));
+    handler.setContext(context);
 }
 
 
@@ -1285,7 +1286,7 @@ void LocalizedProvider::_testCIMOMHandle()
   // Do a getInstance to our instance provider, asking for the French
   // instance in AcceptLanguages.  Check that the ContentLanguages
   // of the response indicates that French was returned.
-  // NOTE - this test sets the AcceptLanguages in the request 
+  // NOTE - this test sets the AcceptLanguages in the request
   // OperationContext
   //------------------------------------------------------------
 
@@ -1318,9 +1319,9 @@ void LocalizedProvider::_validateCIMOMHandleResponse(String expectedLang)
   // Get the ContentLanguages of the response
   OperationContext responseCtx = _cimom.getResponseContext();
   ContentLanguages responseCL;
-  try 
+  try
   {
-    ContentLanguageListContainer cl_cntr  = 
+    ContentLanguageListContainer cl_cntr  =
       (ContentLanguageListContainer)responseCtx.get(ContentLanguageListContainer::NAME);
     responseCL = cl_cntr.getLanguages();
   }
@@ -1328,13 +1329,13 @@ void LocalizedProvider::_validateCIMOMHandleResponse(String expectedLang)
   {
     // No ContentLanguageListContainer found.
     // If ICU is enabled, then we must get a ContentLanguages in the response.
-#if defined PEGASUS_HAS_MESSAGES 
+#if defined PEGASUS_HAS_MESSAGES
     throw CIMOperationFailedException("Did not get ContentLanguageListContainer from CIMOMHandle");
 #endif
-  }		     
+  }
 
   // Figure out what ContentLanguage we expect
-  ContentLanguages expectedCL("en");  // default to en because this provider sets 
+  ContentLanguages expectedCL("en");  // default to en because this provider sets
                                       // C-L to en by default on getInstance
 #if defined PEGASUS_HAS_MESSAGES
   // If ICU is being used, then we expect back a language other than the default en.
@@ -1378,7 +1379,7 @@ void LocalizedProvider::_generateIndication()
       indicationInstance.addProperty
 	(CIMProperty ("IndicationTime", currentDateTime));
 
-      Array<String> correlatedIndications; 
+      Array<String> correlatedIndications;
       indicationInstance.addProperty
 	(CIMProperty ("CorrelatedIndications", correlatedIndications));
 
@@ -1396,8 +1397,8 @@ void LocalizedProvider::_generateIndication()
       ContentLanguages cl("x-world");
       ctx.insert(ContentLanguageListContainer(cl));
 
-      // deliver the indication 
+      // deliver the indication
       _handler->deliver (ctx, indicationInstance);
     }
-} 
+}
 

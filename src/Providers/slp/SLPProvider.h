@@ -104,26 +104,33 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
 	
 	protected:
 	  
-	    Array<CIMObjectPath> _instanceNames;
+	    // Defines instances of registration class 
+        // that have been registered.
+        Array<CIMObjectPath> _instanceNames;
 	    Array<CIMInstance> _instances;
-	    Array<String> PropertyArray;
+
+	    //Array<String> PropertyArray;
 	    slp_service_agent slp_agent;
 	    CIMOMHandle _ch;
-	    int i;
-        String slpTemplateInstance;
+	    //int i;
+        String _slpTemplateInstance;
+
         CIMNamespaceName _interopNamespace;
 
         void populateRegistrationData(const String &protocol,
             const String& IPAddress,
             const CIMInstance& instance_ObjMgr,
             const CIMInstance& instance_ObjMgrComm);
+
         void issueSLPRegistrations();
+
         String getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& classInfo );
+
         void populateTemplateField(CIMInstance& instance, 
             const String& instanceFieldName,
             const String& regFieldName,
             const String& value);
-        String getHostAddress(String hostName);
+
         String getRegisteredProfileList();
    };
 

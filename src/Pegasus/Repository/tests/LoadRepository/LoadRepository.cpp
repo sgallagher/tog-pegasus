@@ -29,12 +29,22 @@ Boolean ProcessValueObjectElement(CIMRepository& repository, XmlParser& parser)
 	return false;
 
     CIMClass cimClass;
+    CIMQualifierDecl qualifierDecl;
 
-    XmlReader::getClassElement(parser, cimClass);
+    if (XmlReader::getClassElement(parser, cimClass))
+    {
+	cout << "Creating: class ";
+	cout << cimClass.getClassName() << endl;
 
-    cout << "Creating " << cimClass.getClassName() << "..." << endl;
+	repository.createClass(CIMV2_NAMESPACE, cimClass);
+    }
+    else if (XmlReader::getQualifierDeclElement(parser, qualifierDecl))
+    {
+	cout << "Creating: qualifier ";
+	cout << qualifierDecl.getName() << endl;
 
-    repository.createClass(CIMV2_NAMESPACE, cimClass);
+	repository.setQualifier(CIMV2_NAMESPACE, qualifierDecl);
+    }
 
     XmlReader::expectEndTag(parser, "VALUE.OBJECT");
 
@@ -107,7 +117,9 @@ Boolean ProcessCimElement(CIMRepository& repository, XmlParser& parser)
     XmlEntry entry;
 
     if (!parser.next(entry) || entry.type != XmlEntry::XML_DECLARATION)
+    {
 	throw(parser.getLine(), "expected XML declaration");
+    }
 
     if (!XmlReader::testStartTag(parser, entry, "CIM"))
 	return false;

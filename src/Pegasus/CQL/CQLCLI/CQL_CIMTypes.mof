@@ -1,7 +1,7 @@
 // ==================================================================
 // CQL_TestElement 
 // ================================================================== 
-   [Abstract, Version ("2.2.0"), Description (
+   [Version ("2.2.0"), Description (
    "CQL_TestElement is an abstract class that provides a common "  
         "superclass (or top of the inheritance tree) for the "
         "non-association classes in the test Schema.")]
@@ -156,4 +156,20 @@ class CQL_TestPropertyTypes:CQL_TestElement
           "Not Implemented" }]
    uint16 PropertyValueMap;
    
+};
+
+// ===================================================================
+// CQL_TestPropertyTypesMissing
+// ===================================================================
+   
+   [Version ("2.2.0"), Description (
+   "CQL_TestPropertyTypesMissing is a concrete class derived from CQL_TestElement"
+   "that is used by testcases that need a property to be missing.")
+   ] 
+class CQL_TestPropertyTypesMissing:CQL_TestElement 
+{
+      [Description (  
+          "This property will be removed by the test driver "
+          "for the missing property tests.") ]   
+     uint64 MissingProperty;   
 };

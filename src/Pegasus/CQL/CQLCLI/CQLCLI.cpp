@@ -57,51 +57,215 @@ PEGASUS_NAMESPACE_BEGIN
 CQLParserState* globalParserState = 0;
 PEGASUS_NAMESPACE_END
 
-Boolean _applyProjection(Array<CQLSelectStatement>& _statements, Array<CIMInstance>& _instances, String testOption){
-	if(testOption == String::EMPTY || testOption == "2"){
-		cout << "apply projection..." << endl;
+Boolean _applyProjection(Array<CQLSelectStatement>& _statements, 
+                         Array<CIMInstance>& _instances,
+                         String testOption)
+{
+  if(testOption == String::EMPTY || testOption == "2")
+  {
+    cout << "========Apply Projection Results========" << endl;
 
-	}
-	return true;
+    for(Uint32 i = 0; i < _statements.size(); i++)
+    {
+      cout << "======================================" << endl;
+      cout << _statements[i].toString() << endl;
+
+      for(Uint32 j = 0; j < _instances.size(); j++)
+      {
+        cout << "Instance of class " << _instances[j].getClassName().getString() << endl;
+
+        try
+        {
+          CIMInstance projInst = _instances[j].clone();
+
+          // Remove the property "MissingProperty" for the 
+          // testcases that depend on the property being missing.
+          Uint32 missing = projInst.findProperty("MissingProperty");
+          if (missing != PEG_NOT_FOUND)
+          {
+            projInst.removeProperty(missing);
+          }
+
+          _statements[i].applyProjection(projInst);
+
+          Uint32 cnt = projInst.getPropertyCount(); 
+          if (cnt == 0)
+          {
+            cout << "-----No properties left after projection" << endl;
+          }
+
+          for (Uint32 n = 0; n < cnt; n++)
+          {
+            CIMProperty prop = projInst.getProperty(n);
+            CIMValue val = prop.getValue();
+            cout << "-----Prop #" << n << " Name = " << prop.getName().getString();
+            if (val.isNull())
+            {
+              cout << " Value = NULL" << endl;
+            }
+            else
+            {
+              cout << " Value = " << val.toString() << endl;
+            }
+          }
+        }
+        catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
+        catch(...){ cout << "Unknown Exception" << endl;}
+      }
+    }                         
+  }
+
+  return true;
 }
 
-Boolean _validateProperties(Array<CQLSelectStatement>& _statements, Array<CIMInstance>& _instances, String testOption){
-	if(testOption == String::EMPTY || testOption == "4"){
-		cout << "validate properties..." << endl;
-        }
+Boolean _validateProperties(Array<CQLSelectStatement>& _statements, 
+                            Array<CIMInstance>& _instances,
+                            String testOption)
+{
+  if(testOption == String::EMPTY || testOption == "4")
+  {
+    cout << "======Validate Properties Results=======" << endl;
 
-        return true;                                                                                        
+    for(Uint32 i = 0; i < _statements.size(); i++)
+    {
+      cout << "======================================" << endl;
+      cout << _statements[i].toString() << endl;
+
+      try
+      {
+        _statements[i].validateProperties();
+        cout << "----- validate ok" << endl;
+      }
+      catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
+      catch(...){ cout << "Unknown Exception" << endl;}
+    }
+  }
+
+  return true;                                                                                        
 }
 
-Boolean _getPropertyList(Array<CQLSelectStatement>& _statements, Array<CIMInstance>& _instances, String testOption){
-	if(testOption == String::EMPTY || testOption == "3"){
-		cout << "get property list..." << endl;
+void _printPropertyList(CIMPropertyList& propList)
+{
+  if (propList.isNull())
+  {
+    cout << "-----all properties required" << endl;
+  }
+  else if (propList.size() == 0)
+  {
+    cout << "-----no properties required" << endl;
+  }
+  else
+  {
+    for (Uint32 n = 0; n < propList.size(); n++)
+    {
+      cout << "-----Required property " << propList[n].getString() << endl;
+    }
+  }
+}
+
+Boolean _getPropertyList(Array<CQLSelectStatement>& _statements, 
+                         Array<CIMInstance>& _instances,
+                         CIMNamespaceName ns,
+                         String testOption)
+{
+  if(testOption == String::EMPTY || testOption == "3")
+  {
+    cout << "========Get Property List Results=======" << endl;
+
+    for(Uint32 i = 0; i < _statements.size(); i++)
+    {
+      cout << "======================================" << endl;
+      cout << _statements[i].toString() << endl;
+
+      for(Uint32 j = 0; j < _instances.size(); j++)
+      {
+        try
+        {
+          cout << endl << "Get Class Path List" << endl;
+          Array<CIMObjectPath> fromPaths = _statements[i].getClassPathList();
+          for (Uint32 k = 0; k < fromPaths.size(); k++)
+          {
+            cout << "-----" << fromPaths[k].toString() << endl;
+          }
+
+          CIMName className = _instances[j].getClassName();
+          CIMObjectPath classPath (String::EMPTY,
+                                   ns,
+                                   className);
+
+          cout << "Validate Class for " << className.getString() << endl;
+          _statements[i].validateClass(classPath);
+          cout << "-----validate class ok" << endl;
+
+          cout << "Property List for " << className.getString() << endl;
+          CIMPropertyList propList = _statements[i].getPropertyList(classPath);
+          _printPropertyList(propList);
+
+          /* ATTN - uncomment when API is available
+          cout << "SELECT Property List for " << className.getString() << endl;
+          propList.clear();
+          propList = _statements[i].getSelectPropertyList(classPath);
+          _printPropertyList(propList);
+
+          cout << "WHERE Property List for " << className.getString() << endl;
+          propList.clear();
+          propList = _statements[i].getWherePropertyList(classPath);
+          _printPropertyList(propList);
+          */
+
+          cout << "Property List for the FROM class " << endl;
+          propList.clear();
+          propList = _statements[i].getPropertyList();
+          _printPropertyList(propList);
+
+          /* ATTN - uncomment when API is available
+          cout << "SELECT Property List for the FROM class " << endl;
+          propList.clear();
+          propList = _statements[i].getSelectPropertyList();
+          _printPropertyList(propList);
+
+          cout << "WHERE Property List for the FROM class " << endl;
+          propList.clear();
+          propList = _statements[i].getWherePropertyList();
+          _printPropertyList(propList);
+          */
         }
+        catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
+        catch(...){ cout << "Unknown Exception" << endl;}
+      }
+    }                         
+  }
 	
-	return true;
+  return true;
 }
 
-Boolean _evaluate(Array<CQLSelectStatement>& _statements, Array<CIMInstance>& _instances, String testOption){
-	if(testOption == String::EMPTY || testOption == "1"){
-                                                                                                                                                             
-		for(Uint32 i = 0; i < _statements.size(); i++){
-        		printf("\n\nEvaluating query %d :  ",i+1);
-   			cout << _statements[i].toString() << endl << endl;;
-           		for(Uint32 j = 0; j < _instances.size(); j++){
-		  	  try
-		    	  {
-        			Boolean result = _statements[i].evaluate(_instances[j]);
-				cout << _statements[i].toString() << " = ";
-				if(result) printf("TRUE\n\n");
-                		else printf("FALSE\n\n");
-		    	  }
-		  	  catch(Exception e){ cout << e.getMessage() << endl;}
-		  	  catch(...){ cout << "Unknown Exception" << endl;}
-	   		}
-		}
-	}
+Boolean _evaluate(Array<CQLSelectStatement>& _statements,
+                  Array<CIMInstance>& _instances,
+                  String testOption)
+{
+  if(testOption == String::EMPTY || testOption == "1")
+  {                                      
+    for(Uint32 i = 0; i < _statements.size(); i++)
+    {
+      printf("\n\nEvaluating query %d :  ",i+1);
+      cout << _statements[i].toString() << endl << endl;;
 
-	return true;
+      for(Uint32 j = 0; j < _instances.size(); j++)
+      {
+        try
+        {
+          Boolean result = _statements[i].evaluate(_instances[j]);
+          cout << _statements[i].toString() << " = ";
+          if(result) printf("TRUE\n\n");
+          else printf("FALSE\n\n");
+        }
+        catch(Exception e){ cout << e.getMessage() << endl;}
+        catch(...){ cout << "Unknown Exception" << endl;}
+      }
+    }
+  }
+
+  return true;
 }
 
 void help(const char* command){
@@ -162,7 +326,7 @@ int main(int argc, char ** argv)
 	if(className != String::EMPTY){
 		try{
 			const CIMName _testclass(className);
-			_instances = _rep->enumerateInstances( _ns, _testclass,false );
+			_instances = _rep->enumerateInstances( _ns, _testclass, true );  // deep inh true
 		}catch(Exception& e){
 			cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;
 		}
@@ -171,8 +335,8 @@ int main(int argc, char ** argv)
         	const CIMName _testclass(String("CQL_TestPropertyTypes"));
 		const CIMName _testclass1(String("CIM_ComputerSystem"));
 		try{
-        		_instances = _rep->enumerateInstances( _ns, _testclass );
-			_instances.appendArray(_rep->enumerateInstances( _ns, _testclass1 ));
+                  _instances = _rep->enumerateInstances( _ns, _testclass, true ); // deep inh true
+                  _instances.appendArray(_rep->enumerateInstances( _ns, _testclass1, false )); // deep inh false
 		}catch(Exception& e){
 			cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;			
 		}
@@ -214,6 +378,7 @@ int main(int argc, char ** argv)
 						_statements.append(_ss);
 					}catch(Exception& e){
 						cout << endl << endl << "Caught Exception: " << e.getMessage() << endl << endl;
+                                                cout << "Statement with error = " << text << endl;
 						_ss.clear();
 					}
 				}
@@ -223,7 +388,7 @@ int main(int argc, char ** argv)
 		try{
 			_applyProjection(_statements,_instances, testOption);
 			_validateProperties(_statements,_instances, testOption);
-			_getPropertyList(_statements,_instances, testOption);
+			_getPropertyList(_statements,_instances, _ns, testOption);
 			_evaluate(_statements,_instances, testOption);
 		}
 		catch(Exception e){ 

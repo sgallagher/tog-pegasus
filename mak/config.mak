@@ -9,7 +9,11 @@ ifndef ROOT
     ROOT =  $(subst \,/,$(PEGASUS_ROOT))
 endif
 
-include $(ROOT)/env_var.status
+ifdef PEGASUS_ENVVAR_FILE
+  include $(PEGASUS_ENVVAR_FILE)
+else
+  include $(ROOT)/env_var.status
+endif
 
 ifdef PEGASUS_HOME
   HOME_DIR = $(subst \,/,$(PEGASUS_HOME))

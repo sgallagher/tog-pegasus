@@ -1,9 +1,12 @@
-ifndef ROOT
-    ROOT =  $(subst \,/,$(PEGASUS_ROOT))
-endif
-
 ifndef OS
-   include $(ROOT)/mak/config.mak
+ ifndef ROOT
+  ifdef PEGASUS_ROOT
+     ROOT =  $(subst \,/,$(PEGASUS_ROOT))
+  else
+     ROOT = .
+  endif
+ endif
+ include $(ROOT)/mak/config.mak
 endif
 
 ifeq ($(OS),win32)
@@ -17,10 +20,15 @@ ifeq ($(OS),win32)
   MUEXE = mu.exe
   MKDIRHIER = $(MUEXE) mkdirhier
   RMDIRHIER = $(MUEXE) rmdirhier
+  ECHO = mu echo
+  COPY = mu copy
+  CHMOD =
+  CHOWN =
+  CHGRP =
 endif
 
 ifeq ($(OS),HPUX)
-  STRIPCRS =
+  STRIPCRS = 
   DIFF = diff
   REDIRECTERROR = 2>&1
   CIMSERVER_START_SERVICE = cimserver $(CIMSERVER_CONFIG_OPTIONS)
@@ -28,7 +36,43 @@ ifeq ($(OS),HPUX)
   SLEEP = sleep
   REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
   MUEXE = mu
+  MKDIRHIER = mkdir -p
   RMDIRHIER = rm -rf
+  CPDIRHIER = cp -R
+  ECHO = echo
+  COPY = cp
+  TOUCH = touch
+
+  PEGASUS_ENABLE_MAKE_INSTALL = yes
+
+  GENERATE_RANDSEED = randseed
+  OPENSSL_COMMAND = openssl
+  GET_HOSTNAME = `hostname`
+
+  LIB_SUFFIX = .1
+  LIB_LINK_SUFFIX = .sl
+  EXE_SUFFIX =
+
+  Pdr_xr_xr_x = 555
+  P_rwxr_xr_x = 755
+  P_r_xr__r__ = 744
+  P_r__r__r__ = 444
+  P_r________ = 400
+  P_r_xr_xr_x = 555
+  P_rw_r__r__ = 644
+  CHMODDIRHIER = chmod -R
+
+  INSTALL_USR = bin
+  INSTALL_GRP = bin
+  CIMSERVER_USR = root
+  CIMSERVER_GRP = sys 
+  CHMOD = chmod
+  CHOWN = chown
+  CHGRP = chgrp
+  CHOWNDIRHIER = chown -R
+  CHGRPDIRHIER = chgrp -R
+
+  SYMBOLIC_LINK_CMD = ln -f -s
 endif
 
 ifeq ($(OS),solaris)
@@ -42,6 +86,11 @@ ifeq ($(OS),solaris)
   MUEXE = mu
   MKDIRHIER = $(MUEXE) mkdirhier
   RMDIRHIER = $(MUEXE) rmdirhier
+  ECHO = echo
+  COPY = cp
+  CHMOD =
+  CHOWN =
+  CHGRP =
 endif
 
 ifeq ($(OS),linux)
@@ -55,6 +104,12 @@ ifeq ($(OS),linux)
   MUEXE = mu
   MKDIRHIER = mkdir -p
   RMDIRHIER = rm -rf
+  ECHO = echo
+  COPY = cp
+  CHMOD = chmod
+  CHOWN = chown
+  CHGRP = chgrp
+  SYMBOLIC_LINK_CMD = ln
 endif
 
 ifeq ($(OS),zos)
@@ -68,6 +123,11 @@ ifeq ($(OS),zos)
   MUEXE = mu
   MKDIRHIER = mkdir -p
   RMDIRHIER = rm -rf
+  ECHO =
+  COPY = cp
+  CHMOD =
+  CHOWN =
+  CHGRP =
 endif
 
 ifeq ($(OS),VMS)
@@ -81,6 +141,10 @@ ifeq ($(OS),VMS)
   MUEXE = mu
   MKDIRHIER = $(MUEXE) mkdirhier
   RMDIRHIER = $(MUEXE) rmdirhier
+  ECHO =
+  CHMOD =
+  CHOWN =
+  CHGRP =
 endif
 
 ifeq ($(OS),aix)
@@ -94,6 +158,11 @@ ifeq ($(OS),aix)
   MUEXE = mu
   MKDIRHIER = mkdir -p
   RMDIRHIER = rm -rf
+  ECHO = echo
+  COPY = cp
+  CHMOD =
+  CHOWN =
+  CHGRP =
 endif
 
 ifndef TMP_DIR
@@ -129,6 +198,22 @@ rmdirhier: FORCE
 
 rmdirhier_IgnoreError: FORCE
 	@make -f $(ROOT)/mak/commands.mak -i rmdirhier
+
+setpermissions: FORCE
+	$(CHMOD) $(PERMISSIONS) $(OBJECT)
+	$(CHOWN) $(OWNER) $(OBJECT) 
+	$(CHGRP) $(GROUP) $(OBJECT) 
+
+sethierpermissions: FORCE
+	$(CHMODDIRHIER) $(PERMISSIONS) $(OBJECT)
+	$(CHOWNDIRHIER) $(OWNER) $(OBJECT) 
+	$(CHGRPDIRHIER) $(GROUP) $(OBJECT) 
+
+createlink: FORCE
+	$(SYMBOLIC_LINK_CMD) $(OBJECT) $(LINKNAME)
+
+createrandomseed: FORCE
+	$(GENERATE_RANDSEED) $(FILENAME)
 
 testCommands: FORCE
 	$(MAKE) -f $(ROOT)/mak/commands.mak sleep TIME=10

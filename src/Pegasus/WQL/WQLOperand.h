@@ -30,6 +30,7 @@
 #ifndef Pegasus_WQLOperand_h
 #define Pegasus_WQLOperand_h
 
+#include <new>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>

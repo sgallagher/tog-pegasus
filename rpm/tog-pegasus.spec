@@ -488,7 +488,6 @@ echo "PEGASUS_MOF_DIR =        "%PEGASUS_MOF_DIR>> sampleconfig.txt
 echo "PEGASUS_INCLUDE_DIR =    "%PEGASUS_INCLUDE_DEST_PATH >> sampleconfig.txt
 echo "PEGASUS_SAMPLES_DIR =    "%PEGASUS_SAMPLES_DEST_PATH >> sampleconfig.txt
 echo "PEGASUS_BIN_DIR =        "%PEGASUS_BIN_DIR >> sampleconfig.txt
-echo "PEGASUS_PLATFORM =       "%PEGASUS_HARDWARE_PLATFORM >> sampleconfig.txt
 cat sampleconfig.txt %SDK_STAGE_LOC/samples/mak/config.mak > sampleconfig.mak
 install -D -m 0444 sampleconfig.mak %SAMPLES_DEST_PATH/mak/config.mak 
 install -D -m 0444  %SDK_STAGE_LOC/samples/mak/%PEGASUS_HARDWARE_PLATFORM.mak %SAMPLES_DEST_PATH/mak/%PEGASUS_HARDWARE_PLATFORM.mak 

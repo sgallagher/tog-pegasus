@@ -171,6 +171,8 @@ int main(int argc, char** argv)
 	// ATTN: modify when we add daemon
 	cout << PEGASUS_NAME << PEGASUS_VERSION <<
 	     " on port " << address << endl;
+	cout << "Built " << __DATE__ << " " << __TIME__ << endl;
+	cout <<"Started..." <<endl;
 
 	server.bind(address);
 	delete [] address;

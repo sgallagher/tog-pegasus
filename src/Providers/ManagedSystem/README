@@ -18,23 +18,30 @@ following components:
 There are subdirectories for each of the providers.  Within each 
 subdirectory, there may be a "doc" directory with additional information
 (including an HTML document following the WBEMsource template for a 
-Provider Data Sheet).
+Provider Data Sheet), and a "tests" directory with tests (invoked via
+recursion from the ManagedSystem Makefile).
 
-There is a common "tests" directory with tests.
+There is a common "tests" directory with several general tests that
+are not included in the automated test runs (those are in the tests
+directories within each provider directory, as mentioned above).
 
 For the OS provider, the following convention is used for test names
 on the .xml files:
 	PG_OperatingSystem* is a general test expected to pass
+	  (in general tests directory since no automated validation)
  	PG_OS_* is a test that needs to be modified based on 
 		the test machine and is expected to pass
 	PG_OS_Fail*   is a test that is expected to get a CIM
 		error (e.g., an unsupported or ill-formed operation)
+	PG_OS_*rspgood.xml is an expected result of a test (a diff
+		of the CIMOM response and the good result should be empty)
 
 The testing strategy has various dimensions:
 	exercisers that run through various paths to the provider
 		(both supported and unsupported with varients)
 	validaters that check the content of responses
 	automated tests that can be run as part of a nightly build
+		(included in the tests subdirectory of each provider)
 
 Most of the tests are exercisers, some of which are automated (via
 inclusion in the Makefile).  Others are not automated.  At this time,

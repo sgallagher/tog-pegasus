@@ -56,10 +56,17 @@ class WebServerQueue : public MessageQueue
 {
 public:
 
+    WebServerQueue();
+
     virtual void handleEnqueue();
 
     static Message* handleHTTPMessage(HTTPMessage* requestMessage);
 };
+
+WebServerQueue::WebServerQueue()
+    : MessageQueue("WebServer")
+{
+}
 
 void WebServerQueue::handleEnqueue()
 {
@@ -122,11 +129,11 @@ Message* WebServerQueue::handleHTTPMessage(HTTPMessage* requestMessage)
 	    requestUri = "index.html";
 
 	String fullDocumentName = "htdocs/";
-	fullDocumentName += requestUri;
+	fullDocumentName.append(requestUri);
 
 	// Load the document into memory:
 
-	Array<Sint8> content;
+	Array<char> content;
 
 	try
 	{
@@ -154,7 +161,7 @@ Message* WebServerQueue::handleHTTPMessage(HTTPMessage* requestMessage)
 	    char header[256];
 	    sprintf(header, HEADER, strlen(CONTENT));
 
-	    Array<Sint8> buffer;
+	    Array<char> buffer;
 	    buffer.append(header, strlen(header));
 	    buffer.append(CONTENT, strlen(CONTENT));
 
@@ -189,7 +196,7 @@ Message* WebServerQueue::handleHTTPMessage(HTTPMessage* requestMessage)
 	char header[sizeof(HEADER) + 32];
 	sprintf(header, HEADER, content.size(), documentType);
 
-	Array<Sint8> buffer;
+	Array<char> buffer;
 	buffer.append(header, strlen(header));
 	buffer.append(content.getData(), content.size());
 	return new HTTPMessage(buffer);
@@ -220,17 +227,18 @@ int main()
 
 	// Create a queue to receive incoming HTTP messages:
 
-	WebServerQueue* webServerQueueue = new WebServerQueue;
+	WebServerQueue* webServerQueue = new WebServerQueue;
 
 	// Create an acceptor to wait for and accept connections on the
 	// server port.
 
-        HTTPAcceptor* httpAcceptor = new HTTPAcceptor(monitor,webServerQueueue);
+	const Uint32 PORT_NUMBER = 7777;
+        HTTPAcceptor* httpAcceptor = new HTTPAcceptor(
+            monitor, webServerQueue, false, PORT_NUMBER, 0, false);
 
 	// Bind the acceptor to listen on the given port:
 
-	const Uint32 PORT_NUMBER = 7777;
-	httpAcceptor->bind(PORT_NUMBER);
+	httpAcceptor->bind();
 
 	cout << "Binding to port " << PORT_NUMBER << endl;
 

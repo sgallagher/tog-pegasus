@@ -96,7 +96,7 @@ public:
 	if (!System::isDirectory(lgDir))
 	    System::makeDirectory(lgDir);
 
-	// I put the second test in just in case some trys to create
+	// KS: I put the second test in just in case some trys to create
 	// a completly erronous directory.  At least we will get a message
 	if (!System::isDirectory(lgDir))
 	    cout << "Logging Disabled";

@@ -30,6 +30,8 @@
 #include <cstdlib>
 #include "CGIQueryString.h"
 
+PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
 #define PEGASUS_ARRAY_T CGIQueryStringEntry
@@ -64,6 +66,10 @@ static void _ExpandCGIQueryValue(char* value)
 
 	    *p++ = char(tmp);
 	    memcpy(p, p + 2, strlen(p) - 2 + 1);
+	    // CORRECTION, KS. Add decrement. corrects problem with succesive
+	    //             % sequences
+	    p--;
+
 	}
 	else if (*p == '+')
 	    *p = ' ';
@@ -81,7 +87,6 @@ void CGIQueryString::_ParseCGIQueryString(
 	char* name = p;
 
 	// Find equal sign:
-
 	char* equalChar = strchr(p, '=');
 
 	if (!equalChar)

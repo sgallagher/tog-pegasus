@@ -983,12 +983,6 @@ static void PrintObjectNames(
     double elapsedTime)
 {
     PrintHTMLHead("GetInstanceNames", header);
-    // cout << "<html>\n";
-    // PrintHead("GetClassNames");
-    // cout << "<body bgcolor=\"#CCCCCC\">\n";
-
-    // PrintHeader("EnumerateClassNames Result");
-    //PrintRule();
 
     cout << "<table border=1>\n";
     cout << "<tr><th>Object Names</th><tr>\n";
@@ -1097,12 +1091,6 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 	Array<CIMReference> instanceNames = client.enumerateInstanceNames(
 	    nameSpace, className);
 
-	 /* Delete this after test.
-	Array<String> tmpInstanceNames;
-
-	for (Uint32 i = 0; i < instanceNames.size(); i++)
-	    tmpInstanceNames.append(instanceNames[i].toString());
-	*/
 	// Print the CIMReference array
 	PrintObjectNames( "EnumerateInstanceNames Result",
 	    nameSpace, instanceNames, elapsedTime.getElapsed());
@@ -1922,7 +1910,7 @@ static void AssociatorNames(const CGIQueryString& qs)
 	// Generate table of returned CIMReferences
 	// Similar to Instance names response.
 
-	PrintObjectNames( "EnumerateReferenceNames Result",
+	PrintObjectNames( "EnumerateAssociationNames Result",
 	    nameSpace, objectReferences, elapsedTime.getElapsed());
 
     }
@@ -1976,7 +1964,7 @@ int main(int argc, char** argv)
 
 	// Test for debug display. Note needs keyword test.
 	String debug = String::EMPTY;
-	if ((tmp = qs.findValue("debug")))
+	//if ((tmp = qs.findValue("debug")))
 	{
 	    cout << "Query String " << tmp << endl;
 	}

@@ -68,8 +68,33 @@ int main(int argc, char** argv)
 	assert(strcmp(qs.getName(2), "LocalOnly") == 0);
 	assert(strcmp(qs.getValue(2), "true") == 0);
     }
+    
+    
+    // added instance name test ks July 2001
+    // added when correcting error in quoted fields.
+    {
+	char* input = 0;
+	char defaultInput[] = 
+"InstanceName=person.name%3D%22mike%22&LocalOnly=true&PropertyList=NULL";
+	input = defaultInput;
+
+	CGIQueryString qs(input);
+#if 0
+    for (Uint32 i = 0; i < qs.getCount(); i++)
+	{
+	    cout << "name: " << qs.getName(i) << endl;
+	    cout << "value: " << qs.getValue(i) << endl;
+	}
+#endif
+
+    assert(strcmp(qs.getName(0), "InstanceName") == 0);
+    //KS Forgot how to excape the quote character
+    //assert(strcmp(qs.getValue(0), "person.name.""mike""") == 0);
+
+    }
 
     cout << "+++++ passed all tests" << endl;
     exit(0);
     return 0;
 }
+

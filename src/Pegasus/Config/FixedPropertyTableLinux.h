@@ -31,7 +31,7 @@
     {"trace",               "false"},
     {"logtrace",            "false"},
     {"cleanlogs",           "false"},
-    {"severity",            "ALL"},
+    {"logLevel",            "INFORMATION"},
     {"httpPort",            "5988"},
     {"httpsPort",           "5989"},
     {"home",                ""},

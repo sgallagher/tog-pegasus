@@ -755,7 +755,6 @@ void ProviderManagerService::handleInvokeMethodRequest(const Message * message)
 {
         CIMValue cimValue(0);
         Array<CIMParamValue> outParameters;
-        String methodName;
         Status status;
         CIMInstance cimInstance;
 
@@ -825,7 +824,7 @@ void ProviderManagerService::handleInvokeMethodRequest(const Message * message)
                 request->queueIds.copyAndPop(),
                 cimValue,
                 outParameters,
-                methodName);
+                request->methodName);
 
         // preserve message key
         response->setKey(request->getKey());

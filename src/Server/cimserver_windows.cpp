@@ -35,6 +35,7 @@
 #include <process.h>    /* _beginthread, _endthread */
 #include <tchar.h>
 #include <direct.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 #include "service.cpp"
 
@@ -112,11 +113,19 @@ static void __cdecl cimserver_windows_thread(void *parm)
 
   if (!enableHttpConnection && !enableHttpsConnection)
   {
-    Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
-      "Neither HTTP nor HTTPS connection is enabled.  "
-      "CIMServer will not be started.");
-    cerr << "Neither HTTP nor HTTPS connection is enabled.  "
-      "CIMServer will not be started." << endl;
+    //l10n
+    //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
+      //"Neither HTTP nor HTTPS connection is enabled.  "
+      //"CIMServer will not be started.");
+    Logger::put_l(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
+   	  "src.Server.cimserver_windows.HTTP_NOT_ENABLED_SERVER_NOT_STARTING", 
+      "Neither HTTP nor HTTPS connection is enabled.  CIMServer will not be started.");
+     
+    MessageLoaderParms parms("src.Server.cimserver_windows.HTTP_NOT_ENABLED_SERVER_NOT_STARTING",
+    						 "Neither HTTP nor HTTPS connection is enabled.  CIMServer will not be started.");
+    //cerr << "Neither HTTP nor HTTPS connection is enabled.  "
+      //"CIMServer will not be started." << endl;
+    cerr << MessageLoader::getMessage(parms) << endl;
     exit(1);
   }
 
@@ -161,8 +170,12 @@ static void __cdecl cimserver_windows_thread(void *parm)
   Logger::setHomeDirectory(logsDirectory);
 
   // Put server start message to the logger
-  Logger::put(Logger::STANDARD_LOG, PEGASUS_SERVICE_NAME, Logger::INFORMATION,
-              "Started $0 version $1.", PEGASUS_NAME, PEGASUS_VERSION);
+  //l10n
+  //Logger::put(Logger::STANDARD_LOG, PEGASUS_SERVICE_NAME, Logger::INFORMATION,
+              //"Started $0 version $1.", PEGASUS_NAME, PEGASUS_VERSION);
+	Logger::put_l(Logger::STANDARD_LOG, PEGASUS_SERVICE_NAME, Logger::INFORMATION,
+				"src.Server.cimserver_windows.STARTED_VERSION",
+              	"Started $0 version $1.", PEGASUS_NAME, PEGASUS_VERSION);
 
    // try loop to bind the address, and run the server
   try
@@ -175,14 +188,22 @@ static void __cdecl cimserver_windows_thread(void *parm)
     if (enableHttpConnection)
     {
       server_windows->addAcceptor(false, portNumberHttp, false);
-      Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-                  "Listening on HTTP port $0.", portNumberHttp);
+      //l10n
+      //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+                  //"Listening on HTTP port $0.", portNumberHttp);
+      Logger::put_l(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+      				"src.Server.cimserver_windows.LISTENING_ON_PORT",
+                  "Listening on $0 port $1.", "HTTP", portNumberHttp);
     }
     if (enableHttpsConnection)
     {
       server_windows->addAcceptor(false, portNumberHttps, true);
-      Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-                  "Listening on HTTPS port $0.", portNumberHttps);
+      //l10n
+      //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+        //          "Listening on HTTPS port $0.", portNumberHttps);
+      Logger::put_l(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+      				"src.Server.cimserver_windows.LISTENING_ON_PORT",
+                  "Listening on $0 port $1.", "HTTPS", portNumberHttps);
     }
 
     server_windows->bind();

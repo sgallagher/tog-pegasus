@@ -38,6 +38,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 #include <except.h>
 
 #include <stdio.h>
@@ -105,8 +106,14 @@ int cimserver_fork(void)
 					    YCMJOB_CCSID_37,
 					    YCMJOB_THREAD_YES))
   {  // QYCMCIMOM Server Failed on Submit Job
-      Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-		 "cimserver_os400::cimserver_fork() - SBMJOB failed to start the QYCMCIMOM server program!!");
+      //l10n
+      //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+		 //"cimserver_os400::cimserver_fork() - SBMJOB failed to start the QYCMCIMOM server program!!");
+	Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+				"src.Server.cimserver_os400.FAILED_TO_START_SERVER",
+		 		"$0 failed to start the $1 server program!!",
+		 		"cimserver_os400::cimserver_fork() - SBMJOB",
+		 		"QYCMCIMOM");
 
      std::string errCode = rc5;
      std::string srvName = cppServ;
@@ -199,8 +206,13 @@ int cimserver_initialize(void)
  }
   catch (...)
   {
-      Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-		  "cimerver_os400::cimserver_os400_setup() - caught unknown exception\n");
+      //l10n
+      //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+		  //"cimerver_os400::cimserver_os400_setup() - caught unknown exception\n");
+		Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+			"src.Server.cimserver_os400.CAUGHT_UNKNOWN_EXCEPTION",
+		  	"$0 caught unknown exception\n",
+		  	"cimerver_os400::cimserver_os400_setup() -");
 
       return(-1);
   }
@@ -256,8 +268,14 @@ int cimserver_kill(void)
                          ycmCTLCIMID);
       message.joblogIt(UserError,ycmMessage::Diagnostic);
 
-      Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-		  "cimserver_os400::cimserver_kill - FAILED to end the QYCMCIMOM job!!");
+      //l10n
+      //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+		  //"cimserver_os400::cimserver_kill - FAILED to end the QYCMCIMOM job!!");
+	Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+			"src.Server.cimserver_os400.FAILED_TO_END_JOB",
+		  	"$0 FAILED to end the $1 job!!",
+		  	"cimserver_os400::cimserver_kill -",
+		  	"QYCMCIMOM");
 
       return -1; // Note: this return code is ignored by the CIMOM server.
     }

@@ -63,7 +63,7 @@ CIMType& CIMType::operator=(Tag tag)
     return *this;
 }
 
-CIMType::operator Tag() const
+CIMType::operator CIMType::Tag() const
 {
     return _tag;
 }

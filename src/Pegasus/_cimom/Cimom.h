@@ -60,7 +60,7 @@ class PEGASUS_EXPORT message_module
 	   _messages(messages), _q_id(queue)  { }
       
       Boolean operator == (const String & name );
-      Boolean operator == (const message_module & mm );
+      Boolean operator == (message_module & mm );
       
    private:
       String _name;
@@ -94,7 +94,7 @@ inline Boolean message_module::operator == (const String & name )
    
 }
 
-inline Boolean message_module::operator == (const message_module & mm)
+inline Boolean message_module::operator == (message_module & mm)
 {
    if(this == &mm)
       return true;

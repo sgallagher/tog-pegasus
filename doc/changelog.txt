@@ -45,6 +45,14 @@ xml when it generates xml output.
 a common file to reduce the number of files required by the default
 repository implementation.
 
+10. (Mike Brasher) - Fixed minor bug in repository implementation.
+
+11. (Mike Brasher) - Committed fix to missing PARAMETER.REFERENCE XML element.
+
+12. (Mike Brasher) - Committed rework of server into queue approach.
+
+13. (Mike Brasher) - New webserver and webclient examples.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

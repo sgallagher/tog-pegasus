@@ -114,7 +114,7 @@ contained by a CIMReference object.)
 
 */
 
-class  PEGASUS_COMMON_LINKAGE Predicate: public Pegasus::KeyBinding
+class  PEGASUS_COMMON_LINKAGE Predicate: public KeyBinding
 {
    public:
    

@@ -475,14 +475,12 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
     }
     catch (Exception& x)
     {
-        // Shouldn't ever get exceptions other than XmlExceptions.
-        PEGASUS_ASSERT(0);
+        // Might get MalformedObjectNameException, InvalidNameException, etc.
 
         if (response)
         {
             delete response;
         }
-
 
         response = new ClientExceptionMessage(
             new Exception(x.getMessage()));

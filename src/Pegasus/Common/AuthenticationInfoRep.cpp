@@ -40,6 +40,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+const String AuthenticationInfoRep::AUTH_TYPE_SSL = "SSL";
 
 AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
     : 
@@ -50,7 +51,6 @@ AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
     _privileged(false),
     _authType(String::EMPTY),
     _authStatus(NEW_REQUEST),
-    _peerCertificate(0),
     _exportConnection(false)
 { 
     PEG_METHOD_ENTER(
@@ -152,16 +152,6 @@ void   AuthenticationInfoRep::setSecurityAssociation()
     PEG_METHOD_EXIT();
 }
 #endif
-
-void   AuthenticationInfoRep::setPeerCertificate(SSLCertificateInfo* peerCertificate)
-{
-    PEG_METHOD_ENTER(
-                    TRC_AUTHENTICATION, "AuthenticationInfoRep::setPeerCertificate");
-
-    _peerCertificate = peerCertificate;
-
-    PEG_METHOD_EXIT();
-}
 
 void   AuthenticationInfoRep::setExportConnection(Boolean exportConnection)
 {

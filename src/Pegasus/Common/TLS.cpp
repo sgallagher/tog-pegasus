@@ -91,7 +91,7 @@ SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext, Boolean exportConne
     // 
     _SSLCallbackInfo = new SSLCallbackInfo(_SSLContext->getSSLCertificateVerifyFunction());
 
-    if (SSL_set_ex_data(_SSLConnection, SSL_CALLBACK_INDEX, _SSLCallbackInfo)) 
+    if (SSL_set_ex_data(_SSLConnection, SSLCallbackInfo::SSL_CALLBACK_INDEX, _SSLCallbackInfo)) 
     {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "--->SSL: Set callback info");
     }

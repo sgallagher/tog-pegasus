@@ -295,22 +295,6 @@ public:
     }
 #endif
 
-    /** Retrieves the SSL Certificate object 
-    */ 
-    SSLCertificateInfo* getPeerCertificate() const
-    {
-        _checkRep();
-        return _rep->getPeerCertificate();
-    }
-
-    /** Set the SSL Certificate object 
-    */ 
-    void setPeerCertificate(SSLCertificateInfo* peerCertificate) 
-    {
-        _checkRep();
-        _rep->setPeerCertificate(peerCertificate);
-    }
-
     /** Indicate whether the export connection flag is set or not
     */
     Boolean isExportConnection() const

@@ -343,7 +343,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         // Do not append for export requests.
         String cimOperation;
         if (authenticated && 
-			//httpMessage->authInfo->getPeerCertificate() &&
+			(String::equal(httpMessage->authInfo->getAuthType(), AuthenticationInfoRep::AUTH_TYPE_SSL)) &&
 			HTTPMessage::lookupHeader(headers, "CIMOperation", cimOperation, true))
         {
             String trustStoreUserName = configManager->getCurrentValue("sslTrustStoreUserName");

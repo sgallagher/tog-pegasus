@@ -56,6 +56,12 @@ class PEGASUS_COMMON_LINKAGE AuthenticationInfoRep :  public Sharable
 public:
     enum AuthStatus { NEW_REQUEST, CHALLENGE_SENT, AUTHENTICATED };
 
+	//ATTN: we should be using an enumeration for the authtype instead of a string.
+	//In the AuthenticationManager, the authtype is set to Basic, Digest, etc
+	//We also need to be able to check whether the type is SSL, so I'm adding a 
+	//string here to make it less arbitrary.  PEP165
+	static const String AUTH_TYPE_SSL;
+    
     AuthenticationInfoRep(Boolean flag);
 
     ~AuthenticationInfoRep();
@@ -123,13 +129,6 @@ public:
     void setSecurityAssociation();
 #endif
 
-    SSLCertificateInfo* getPeerCertificate() const
-    {
-        return _peerCertificate;
-    }
-
-    void setPeerCertificate(SSLCertificateInfo* peerCertificate);
-
     Boolean isExportConnection() const
     {
         return _exportConnection;
@@ -157,7 +156,6 @@ private:
     AutoPtr<CIMKerberosSecurityAssociation> _securityAssoc;//PEP101
 #endif
 
-    SSLCertificateInfo* _peerCertificate; //PEP165
     Boolean _exportConnection;
 };
 

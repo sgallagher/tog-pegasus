@@ -235,8 +235,9 @@ HTTPConnection::HTTPConnection(
        if (_socket->isPeerVerificationEnabled() && _socket->isCertificateVerified()) 
        {
                _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
-           }
+			   _authInfo->setAuthType(AuthenticationInfoRep::AUTH_TYPE_SSL);
        }
+    }
 
    _responsePending = false;
    _connectionRequestCount = 0;
@@ -1654,7 +1655,8 @@ HTTPConnection2::HTTPConnection2(pegasus_socket socket,
    if (_socket.is_secure() && _socket.isPeerVerificationEnabled() && _socket.isCertificateVerified()) 
    {
            _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
-       }
+		   _authInfo->setAuthType(AuthenticationInfoRep::AUTH_TYPE_SSL);
+   }
 
    PEG_METHOD_EXIT();
 }

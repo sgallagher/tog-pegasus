@@ -629,7 +629,7 @@ void NameSpaceManager::getSubClassNames(
     const String& nameSpaceName,
     const String& className,
     Boolean deepInheritance,
-    Array<String>& subClassNames) const
+    Array<String>& subClassNames) const throw(CIMException)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::getSubClassNames()");
 

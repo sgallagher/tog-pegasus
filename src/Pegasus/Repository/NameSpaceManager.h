@@ -165,7 +165,7 @@ public:
 	const String& nameSpaceName,
 	const String& className,
 	Boolean deepInheritance,
-	Array<String>& subClassNames) const;
+	Array<String>& subClassNames) const const throw(CIMException);
 
     /** Get the names of all superclasses (direct and indirect) of this
 	class.

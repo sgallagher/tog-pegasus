@@ -797,7 +797,9 @@ SSLContext* CIMServer::_getSSLContext()
         // Get the enableSSLAutoTrustStoreUpdate property from the Config Manager.
         //
         String autoUpdate = String::EMPTY;
+#ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE
         autoUpdate = ConfigManager::getInstance()->getCurrentValue(PROPERTY_NAME__SSL_AUTO_TRUST_STORE_UPDATE);
+#endif
 
         //
         // Get the sslTrustStoreUserName property from the Config Manager.
@@ -836,7 +838,7 @@ SSLContext* CIMServer::_getSSLContext()
                 throw SSLException(parms);
             }
         }
-        
+
         // 'autoUpdate' must be used in conjunction with an 'optional' verification mode
         if (String::equal(autoUpdate, "true") && !(String::equal(verifyClient, "optional")))
         {

@@ -4,7 +4,7 @@ include $(ROOT)/mak/config.mak
 
 DIRS = \
     CLITestClients \
-	CGIClient \
+        CGIClient \
     TestClient \
     cliutils \
     cimconfig \
@@ -47,7 +47,10 @@ DIRS_SSLTRUSTMGR = \
     ssltrustmgr 
 
 ifdef PEGASUS_HAS_SSL
-  DIRS += $(DIRS_SSLTRUSTMGR)
+  DIRS += \
+    $(DIRS_SSLTRUSTMGR) \
+    $(DIRS_SSLTRUSTMGR)/tests \
+    TestCertClient
 endif
 
 #The following tests are NOT included as part of the standard

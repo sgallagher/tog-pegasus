@@ -782,7 +782,7 @@ void HTTPConnection2::handleEnqueue(Message *message)
          // not enabled.
          if (_authInfo->isAuthenticated() &&
              _authInfo->getPeerCertificate() && 
-             _authInfo->getPeerCertificate()->getResponseCode() != SSLCertificateInfo::V_OK)
+             _authInfo->getPeerCertificate()->getErrorCode() != SSLCertificateInfo::V_OK)
          {
              _socket.addTrustedClient(_authInfo->getAuthenticatedUser().getCString());
          }

@@ -477,7 +477,7 @@ int main(int argc, char** argv)
 			// If there are requests made, output one line with the total
 			//if (numberOfRequests > 0) {
 				printf(" %-25s%9lu %10lu %10lu %10lu %10lu\n",
-					   pStatName.getCString(),
+					   (const char*)pStatName.getCString(),
 					   numberOfRequests, averageCimomTime,
 					   averageProviderTime, averageRequestSize, 
 					   averageResponseSize);

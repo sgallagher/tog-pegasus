@@ -13,7 +13,7 @@ LIBRARIES = \
 
 ifneq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
   ifneq ($(OS),HPUX)
-    ifndef NO_SLP
+    ifdef PEGASUS_ENABLE_SLP
       LIBRARIES += slp
     endif
   endif

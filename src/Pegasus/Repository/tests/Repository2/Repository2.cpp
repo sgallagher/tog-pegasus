@@ -65,11 +65,11 @@ void TestCreateClass()
     // -- Create repository and "xyz" namespace:
 
     CIMRepository r("./repository");
-    const String NAMESPACE = "xyz";
+    const String NS = "xyz";
 
     try
     {
-	r.createNameSpace(NAMESPACE);
+	r.createNameSpace(NS);
     }
     catch (AlreadyExists&)
     {
@@ -78,7 +78,7 @@ void TestCreateClass()
 
     // -- Declare the key qualifier:
 
-    r.setQualifier(NAMESPACE, CIMQualifierDecl("key",true,CIMScope::PROPERTY));
+    r.setQualifier(NS, CIMQualifierDecl("key",true,CIMScope::PROPERTY));
 
     // -- Construct new class:
 
@@ -92,9 +92,9 @@ void TestCreateClass()
 
     // -- Create the class (get it back and compare):
 
-    r.createClass(NAMESPACE, c1);
+    r.createClass(NS, c1);
     CIMConstClass cc1;
-    cc1 = r.getClass(NAMESPACE, "MyClass");
+    cc1 = r.getClass(NS, "MyClass");
     assert(c1.identical(cc1));
     assert(cc1.identical(c1));
 
@@ -102,9 +102,9 @@ void TestCreateClass()
 
     CIMClass c2("YourClass", "MyClass");
     c2.addProperty(CIMProperty("junk", Real32(66.66)));
-    r.createClass(NAMESPACE, c2);
+    r.createClass(NS, c2);
     CIMConstClass cc2;
-    cc2 = r.getClass(NAMESPACE, "YourClass");
+    cc2 = r.getClass(NS, "YourClass");
     assert(c2.identical(cc2));
     assert(cc2.identical(c2));
     // cc2.print();
@@ -112,15 +112,15 @@ void TestCreateClass()
     // -- Modify "YourClass" (add new property)
 
     c2.addProperty(CIMProperty("newProperty", Uint32(888)));
-    r.modifyClass(NAMESPACE, c2);
-    cc2 = r.getClass(NAMESPACE, "YourClass");
+    r.modifyClass(NS, c2);
+    cc2 = r.getClass(NS, "YourClass");
     assert(c2.identical(cc2));
     assert(cc2.identical(c2));
     // cc2.print();
 
     // -- Enumerate the class names: expect "MyClass", "YourClass"
 
-    Array<String> classNames = r.enumerateClassNames(NAMESPACE, String(), true);
+    Array<String> classNames = r.enumerateClassNames(NS, String(), true);
     BubbleSort(classNames);
     assert(classNames.size() == 2);
     assert(classNames[0] == "MyClass");
@@ -130,16 +130,16 @@ void TestCreateClass()
 
     CIMInstance inst0("MyClass");
     inst0.addProperty(CIMProperty("key", Uint32(111)));
-    r.createInstance(NAMESPACE, inst0);
+    r.createInstance(NS, inst0);
 
     CIMInstance inst1("YourClass");
     inst1.addProperty(CIMProperty("key", Uint32(222)));
-    r.createInstance(NAMESPACE, inst1);
+    r.createInstance(NS, inst1);
 
     // -- Enumerate instances names:
 
     Array<CIMReference> instanceNames = 
-	r.enumerateInstanceNames(NAMESPACE, "MyClass");
+	r.enumerateInstanceNames(NS, "MyClass");
 
     assert(instanceNames.size() == 2);
 
@@ -153,7 +153,7 @@ void TestCreateClass()
 
     // -- Enumerate instances:
 
-    Array<CIMInstance> instances = r.enumerateInstances(NAMESPACE, "MyClass");
+    Array<CIMInstance> instances = r.enumerateInstances(NS, "MyClass");
 
     assert(instances.size() == 2);
 
@@ -170,29 +170,58 @@ void TestCreateClass()
     CIMInstance modifiedInst0("MyClass");
     modifiedInst0.addProperty(CIMProperty("key", Uint32(111)));
     modifiedInst0.addProperty(CIMProperty("message", "Goodbye World"));
-    r.modifyInstance(NAMESPACE, modifiedInst0);
+    r.modifyInstance(NS, modifiedInst0);
 
     // -- Get instance back and see that it is the same as modified one:
 
-    CIMInstance tmpInstance = r.getInstance(NAMESPACE, "MyClass.key=111");
+    CIMInstance tmpInstance = r.getInstance(NS, "MyClass.key=111");
     assert(tmpInstance.identical(modifiedInst0));
     // tmpInstance.print();
 
+    // -- Now modify the "message" property:
+
+    CIMValue messageValue = r.getProperty(NS, "MyClass.key=111", "message");
+    String message;
+    messageValue.get(message);
+    assert(message == "Goodbye World");
+
+    r.setProperty(NS, "MyClass.key=111", "message", CIMValue("Hello World"));
+
+    messageValue = r.getProperty( NS, "MyClass.key=111", "message");
+    messageValue.get(message);
+    assert(message == "Hello World");
+
+    // -- Attempt to modify a key property:
+
+    Boolean failed = false;
+
+    try
+    {
+	r.setProperty(NS, "MyClass.key=111", "key", Uint32(999));
+    }
+    catch (CIMException& e)
+    {
+	assert(e.getCode() == CIMException::FAILED);
+	failed = true;
+    }
+
+    assert(failed);
+
     // -- Delete the instances:
 
-    r.deleteInstance(NAMESPACE, "MyClass.key=111");
-    r.deleteInstance(NAMESPACE, "YourClass.key=222");
+    r.deleteInstance(NS, "MyClass.key=111");
+    r.deleteInstance(NS, "YourClass.key=222");
 
     // -- Delete the qualifier:
 
-    r.deleteQualifier(NAMESPACE, "key");
+    r.deleteQualifier(NS, "key");
 
     // -- Clean up classes:
 
-    r.deleteClass(NAMESPACE, "YourClass");
-    r.deleteClass(NAMESPACE, "MyClass");
+    r.deleteClass(NS, "YourClass");
+    r.deleteClass(NS, "MyClass");
 
-    r.deleteNameSpace(NAMESPACE);
+    r.deleteNameSpace(NS);
 }
 
 void TestQualifiers()
@@ -200,11 +229,11 @@ void TestQualifiers()
     // -- Create repository and "xyz" namespace:
 
     CIMRepository r("./repository");
-    const String NAMESPACE = "xyz";
+    const String NS = "xyz";
 
     try
     {
-	r.createNameSpace(NAMESPACE);
+	r.createNameSpace(NS);
     }
     catch (AlreadyExists&)
     {
@@ -214,20 +243,20 @@ void TestQualifiers()
     // -- Construct a qualifier declaration:
 
     CIMQualifierDecl q("abstract", true, CIMScope::CLASS);
-    r.setQualifier(NAMESPACE, q);
+    r.setQualifier(NS, q);
 
-    CIMQualifierDecl qq = r.getQualifier(NAMESPACE, "abstract");
+    CIMQualifierDecl qq = r.getQualifier(NS, "abstract");
 
     assert(qq.identical(q));
     assert(q.identical(qq));
 
     // -- Delete the qualifier:
 
-    r.deleteQualifier(NAMESPACE, "abstract");
+    r.deleteQualifier(NS, "abstract");
 
     // -- Delete the namespace:
 
-    r.deleteNameSpace(NAMESPACE);
+    r.deleteNameSpace(NS);
 }
 
 int main()

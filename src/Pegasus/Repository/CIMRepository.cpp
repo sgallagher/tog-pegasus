@@ -717,6 +717,15 @@ void CIMRepository::setProperty(
     CIMInstance instance = getInstance(
 	nameSpace, instanceName, false, true);
 
+    // -- Get the class:
+
+    CIMClass cimClass = getClass(nameSpace, instance.getClassName(),
+	false, true);
+
+    // -- Save instance name:
+
+    CIMReference oldRef = instance.getInstanceName(cimClass);
+
     // -- Modify the property (disallow if property is a key):
 
     Uint32 pos = instance.findProperty(propertyName);
@@ -726,13 +735,18 @@ void CIMRepository::setProperty(
 
     CIMProperty prop = instance.getProperty(pos);
 
-    if (prop.isKey())
+    prop.setValue(newValue);
+
+    // -- Disallow if instance name is changed by this operation (attempt
+    // -- to modify a key property.
+
+    CIMReference newRef = instance.getInstanceName(cimClass);
+
+    if (oldRef != newRef)
     {
 	throw PEGASUS_CIM_EXCEPTION(FAILED, 
 	    "setProperty(): attempted to modify a key property");
     }
-
-    prop.setValue(newValue);
 
     // -- Modify the instance:
 

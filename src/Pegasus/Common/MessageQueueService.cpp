@@ -93,7 +93,6 @@ MessageQueueService::~MessageQueueService(void)
    if (_incoming_queue_shutdown.value() == 0 )
    {
       _shutdown_incoming_queue();
-       _req_thread.join();  // ATTN-RK-P3-20020521: Is this redundant?
    }
    _callback_ready.signal();
    _callback_thread.join();

@@ -21,6 +21,7 @@
     -    Need query capability for Compaq.
     -    Threading (and process forking).
     -    Implement protocol module (the default uses ACE).
+    -	 Package up pegasus in Install Shield application.
 
 
     ------------------------------------------------------------------------

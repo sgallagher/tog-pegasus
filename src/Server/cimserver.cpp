@@ -413,7 +413,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
 		    //"Failed to shutdown server: $0", "The repository may be empty.");
 		Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
 			"src.Server.cimserver.SHUTDOWN_FAILED_REPOSITORY_EMPTY",
-		    "Failed to shutdown server: The repository may be empty.");
+		    "Error in server shutdown: The repository may be empty.");
 	}
 	else
 	{
@@ -422,7 +422,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
 			//"Failed to shutdown server: $0", e.getMessage());
 		Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
 			"src.Server.cimserver.SHUTDOWN_FAILED",
-			"Failed to shutdown server: $0", e.getMessage());
+			"Error in server shutdown: $0", e.getMessage());
 	}
 	// Kill the server job.
 	if(cimserver_kill() == -1)

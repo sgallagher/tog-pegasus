@@ -2468,17 +2468,19 @@ CIM server listening on HTTPS port {0}."}
 
 	src.Server.cimserver.UNABLE_CONNECT_SERVER_MAY_NOT_BE_RUNNING:string {"CIMSVR_UNABLE_CONNECT_SERVER_MAY_NOT_BE_RUNNING:  Unable to connect to the CIM server.  CIM server may not be running."}
 
-	src.Server.cimserver.SHUTDOWN_FAILED_REPOSITORY_EMPTY:string {"CIMSVR_SHUTDOWN_FAILED_REPOSITORY_EMPTY: Failed to shut down the CIM server: The repository may be empty."}
+	src.Server.cimserver.SHUTDOWN_FAILED_REPOSITORY_EMPTY:string {"CIMSVR_SHUTDOWN_FAILED_REPOSITORY_EMPTY: Error in server shutdown: The repository may be empty."} //485
+	
+	src.Server.cimserver.SERVER_FORCED_SHUTDOWN:string {"Forced shutdown initiated."} //485
 
 	/**
 	* @comment CIMSVR_SHUTDOWN_FAILED: 
  	* @comment   Substitution {0} is a string containing the exception message
 	*/
-	src.Server.cimserver.SHUTDOWN_FAILED:string {"CIMSVR_SHUTDOWN_FAILED: Failed to shut down the CIM server: {0}"}
+	src.Server.cimserver.SHUTDOWN_FAILED:string {"CIMSVR_SHUTDOWN_FAILED: Error in server shutdown: {0}"} //485
 
 	src.Server.cimserver.REPOSITORY_EMPTY:string {"CIMSVR_REPOSITORY_EMPTY:  The repository may be empty."}
 
-	src.Server.cimserver.TIMEOUT_EXPIRED_SERVER_KILLED:string {"CIMSVR_TIMEOUT_EXPIRED_SERVER_KILLED:  Shutdown timeout expired.  CIM server process is ending."}
+	src.Server.cimserver.TIMEOUT_EXPIRED_SERVER_KILLED:string {"CIMSVR_TIMEOUT_EXPIRED_SERVER_KILLED:  Shutdown timeout expired.  Forced shutdown initiated."} //485
 
 	/**
 	* @comment CIMSVR_MISSING_ARGUMENT:

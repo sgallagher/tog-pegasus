@@ -245,7 +245,7 @@ Boolean FileSystem::openNoCase(PEGASUS_STD(ifstream)& is, const String& path)
     if (!existsNoCase(path, realPath))
 	return false;
 
-    ArrayDestroyer<char> p(_clonePath(path));
+    ArrayDestroyer<char> p(_clonePath(realPath));
 
     is.open(p.getPointer() PEGASUS_IOS_BINARY);
     return !!is;
@@ -261,7 +261,7 @@ Boolean FileSystem::openNoCase(
     if (!existsNoCase(path, realPath))
 	return false;
 
-    ArrayDestroyer<char> p(_clonePath(path));
+    ArrayDestroyer<char> p(_clonePath(realPath));
 
     fs.open(p.getPointer(), mode);
     return !!fs;

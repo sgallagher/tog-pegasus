@@ -42,11 +42,16 @@ DIRS += \
         Provider/CMPI \
         ProviderManager2 \
 	ProviderManager2/Default \
-	ProviderManager2/CMPI \
 	ProviderManager2/ProviderAgent \
 	ProviderManager2/tests \
 	ProviderManager2/Default/tests
 endif
+
+ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+DIRS += \
+	ProviderManager2/CMPI
+endif
+
 
 ifdef ENABLE_REMOTE_CMPI
 DIRS += \

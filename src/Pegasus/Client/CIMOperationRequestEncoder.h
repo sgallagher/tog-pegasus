@@ -33,6 +33,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Client/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

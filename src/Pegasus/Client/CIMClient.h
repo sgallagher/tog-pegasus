@@ -36,7 +36,8 @@
 #include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMObject.h>
-#include <Pegasus/Client/ClientException.h>
+#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Client/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

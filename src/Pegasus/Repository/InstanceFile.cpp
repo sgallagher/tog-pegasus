@@ -24,6 +24,7 @@
 // Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 // Modified By:
+//         Ramnath Ravindran (Ramnath.Ravindan@compaq.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -150,7 +151,7 @@ Boolean InstanceFile::insertInstance(
 
     ArrayDestroyer<char> p(path.allocateCString(4));
     strcat(p.getPointer(), ".tmp");
-    ofstream os(p.getPointer(), ios::app | ios::binary);
+    ofstream os(p.getPointer(), ios::app PEGASUS_OR_IOS_BINARY);
 
     if (!os)
     {
@@ -165,7 +166,7 @@ Boolean InstanceFile::insertInstance(
     if (FileSystem::existsNoCase(path, realPath))
     {
         ArrayDestroyer<char> p(realPath.allocateCString());
-        ifstream is(p.getPointer(), ios::binary);
+        ifstream is(p.getPointer() PEGASUS_IOS_BINARY);
 
         if (!is)
         {
@@ -250,7 +251,7 @@ Boolean InstanceFile::removeInstance(
 
     ArrayDestroyer<char> p(realPath.allocateCString(4));
     strcat(p.getPointer(), ".tmp");
-    ofstream os(p.getPointer(), ios::app | ios::binary);
+    ofstream os(p.getPointer(), ios::app PEGASUS_OR_IOS_BINARY);
 
     if (!os)
     {
@@ -317,7 +318,7 @@ Boolean InstanceFile::modifyInstance(
 
     ArrayDestroyer<char> p(realPath.allocateCString(4));
     strcat(p.getPointer(), ".tmp");
-    ofstream os(p.getPointer(), ios::app | ios::binary);
+    ofstream os(p.getPointer(), ios::app PEGASUS_OR_IOS_BINARY);
 
     if (!os)
     {
@@ -359,7 +360,7 @@ Boolean InstanceFile::_loadData(
     // open the instance file
     //
     ArrayDestroyer<char> p(path.allocateCString());
-    ifstream is(p.getPointer(), ios::in | ios::binary);
+    ifstream is(p.getPointer(), ios::in PEGASUS_OR_IOS_BINARY);
    
     if (!is)
     {
@@ -407,7 +408,7 @@ Boolean InstanceFile::_removeData(
     // Open the instance file 
     //
     ArrayDestroyer<char> q(realPath.allocateCString());
-    ifstream is(q.getPointer(), ios::in | ios::binary);
+    ifstream is(q.getPointer(), ios::in PEGASUS_OR_IOS_BINARY);
 
     if (!is)
     {

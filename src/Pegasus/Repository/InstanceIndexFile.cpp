@@ -24,6 +24,7 @@
 //
 // Modified By:
 //         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -184,7 +185,7 @@ Boolean InstanceIndexFile::lookup(
         return false;
 
     ArrayDestroyer<char> p(realPath.allocateCString());
-    ifstream is(p.getPointer(), ios::binary);
+    ifstream is(p.getPointer() PEGASUS_IOS_BINARY);
 
     if (is)
     {
@@ -252,7 +253,7 @@ Boolean InstanceIndexFile::insert(
 
     ArrayDestroyer<char> p(path.allocateCString(4));
     strcat(p.getPointer(), ".tmp");
-    ofstream os(p.getPointer(), ios::app | ios::binary);
+    ofstream os(p.getPointer(), ios::app PEGASUS_OR_IOS_BINARY);
 
     if (!os)
         return false;
@@ -265,7 +266,7 @@ Boolean InstanceIndexFile::insert(
     if (FileSystem::existsNoCase(path, realPath))
     {
         ArrayDestroyer<char> p(realPath.allocateCString());
-        ifstream is(p.getPointer(), ios::binary);
+        ifstream is(p.getPointer() PEGASUS_IOS_BINARY);
 
         if (!is)
             return false;
@@ -343,7 +344,7 @@ Boolean InstanceIndexFile::remove(
 
     ArrayDestroyer<char> p(path.allocateCString(4));
     strcat(p.getPointer(), ".tmp");
-    ofstream os(p.getPointer(), ios::binary);
+    ofstream os(p.getPointer() PEGASUS_IOS_BINARY);
 
     if (!os)
     {
@@ -408,7 +409,7 @@ Boolean InstanceIndexFile::modify(
 
     ArrayDestroyer<char> p(realPath.allocateCString(4));
     strcat(p.getPointer(), ".tmp");
-    ofstream os(p.getPointer(), ios::binary);
+    ofstream os(p.getPointer() PEGASUS_IOS_BINARY);
 
     if (!os)
     {
@@ -458,7 +459,7 @@ Boolean InstanceIndexFile::appendInstanceNamesTo(
     {
         ArrayDestroyer<char> p(realPath.allocateCString());
 
-        ifstream is(p.getPointer(), ios::binary);
+        ifstream is(p.getPointer() PEGASUS_IOS_BINARY);
 
         if (!is)
             return false;
@@ -529,7 +530,7 @@ Boolean InstanceIndexFile::_removeEntry(
     // Open the index file
     //
     ArrayDestroyer<char> q(path.allocateCString());
-    ifstream is(q.getPointer(), ios::binary);
+    ifstream is(q.getPointer() PEGASUS_IOS_BINARY);
 
     if (!is)
     {

@@ -38,6 +38,12 @@
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Common/CimomMessage.h>
 #include <Pegasus/Common/MessageQueueService.h>
+
+#ifndef min
+#define min(a, b) ((a) < (b) ? (a) : (b)  )
+#endif
+
+#include <bitset>
 PEGASUS_NAMESPACE_BEGIN
 
 class ModuleController;
@@ -157,9 +163,70 @@ class PEGASUS_COMMON_LINKAGE pegasus_module
 class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 {
 
+
    public:
       typedef MessageQueueService Base;
       
+      enum 
+      {
+	 GET_CLIENT_HANDLE,
+	 REGISTER_MODULE,
+	 DEREGISTER_MODULE,
+	 FIND_SERVICE,
+	 FIND_MODULE_IN_SERVICE,
+	 GET_MODULE_REFERENCE,
+	 MODULE_SEND_WAIT,
+	 MODULE_SEND_WAIT_MODULE,
+	 MODULE_SEND_ASYNC,
+	 MODULE_SEND_ASYNC_MODULE,
+	 BLOCKING_THREAD_EXEC,
+	 ASYNC_THREAD_EXEC,
+	 NUMBER_OPERATIONS
+      } ;
+   private: 
+      class PEGASUS_COMMON_LINKAGE client_handle 
+      {
+	 public:
+	    client_handle(void)
+	       : _allowed_operations(0),
+		 _allowed_destinations(0),
+		 _allowed_sources(0),
+		 _identity(NULL)
+	    {
+	    }
+	    
+	    ~client_handle(void);
+
+	 private:
+	    friend class ModuleController;
+	    client_handle(Uint32 operations, 
+			  Uint32 destinations, 
+			  Uint32 sources,
+			  void *identity)
+	       : _allowed_operations(operations),
+		 _allowed_destinations(destinations),
+		 _allowed_sources(sources),
+		 _identity(identity)
+	    {
+	    }
+	    
+	    bitset<NUMBER_OPERATIONS>  _allowed_operations;
+	    bitset<128> _allowed_destinations;
+	    bitset<128> _allowed_sources;
+	    void *_identity;
+	    
+	    Boolean allowed(Uint32 operation, 
+			    Uint32 destination, 
+			    Uint32 source, 
+			    void *identity)
+	    {
+	       return true;
+	    }
+      };
+      
+   public:
+      
+
       ModuleController(const char *name);
       ModuleController(const char *name, 
 		       Sint16 min_threads, 
@@ -171,6 +238,10 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 
       ~ModuleController(void);
 
+      static ModuleController & get_client_handle(const String & controller_name, 
+						  void **handle);
+      
+
       // module api 
       static ModuleController & register_module(const String & controller_name,
 						const String & module_name, 
@@ -181,7 +252,8 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 						pegasus_module **instance = NULL) 
 	 throw(AlreadyExists, IncompatibleTypes);
 
-      Boolean deregister_module(const String & module_name);
+      Boolean deregister_module(const String & module_name)
+	 throw(Permission);
       
       Uint32 find_service(pegasus_module & handle, const String & name) throw(Permission);
 
@@ -205,13 +277,13 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 			      String & destination_module,
 			      AsyncRequest *message) throw(Permission, Deadlock, IPCException);
 
-      // send a message to another service
+      // send an async message to another service
       Boolean ModuleSendAsync(pegasus_module & handle,
 			      Uint32 msg_handle, 
 			      Uint32 destination_q, 
 			      AsyncRequest *message) throw(Permission, IPCException);
 
-      // send a message to another module via another service
+      // send an async message to another module via another service
       Boolean ModuleSendAsync(pegasus_module & handle,
 			      Uint32 msg_handle, 
 			      Uint32 destination_q, 

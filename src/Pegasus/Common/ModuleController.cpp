@@ -353,9 +353,9 @@ ModuleController & ModuleController::register_module(const String & controller_n
 
 
 Boolean ModuleController::deregister_module(const String & module_name)
+   throw (Permission)
+
 {
-
-
    DeRegisteredModule *request = 
       new DeRegisteredModule(get_next_xid(),
 			     0,

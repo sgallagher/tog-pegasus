@@ -113,6 +113,10 @@ CIMServer::CIMServer(
 
     _repository = new CIMRepository(repositoryRootPath);
 
+    // -- Create a UserManager object:
+
+    UserManager* userManager = UserManager::getInstance(_repository);
+
     // -- Create a CIMServerState object:
 
     _serverState = new CIMServerState();
@@ -223,8 +227,6 @@ CIMServer::CIMServer(
     HTTPAuthenticatorDelegator* serverQueue = new HTTPAuthenticatorDelegator(
         _cimOperationRequestDecoder->getQueueId(),
         _cimExportRequestDecoder->getQueueId());
-
-    UserManager* userManager = UserManager::getInstance(_repository);
 
     // Create SSL context
     SSLContext * sslcontext;

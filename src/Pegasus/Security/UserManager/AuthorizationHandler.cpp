@@ -42,6 +42,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/Constants.h>
 
 #include "AuthorizationHandler.h"
 #include "UserExceptions.h"
@@ -51,19 +52,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-//
-//ATTN: The following constant should be placed in a common place.
-//
-/**
-    The constant represeting the authorization class name
-*/
-static const String PG_AUTH_CLASS                 = "PG_Authorization";
-
-/**
-    The constant representing the namespace where the authorization
-    instances reside.
-*/
-static const String AUTHORIZATION_NAMESPACE       = "root/cimv2";
 
 /**
     This constant represents the  User name property in the schema
@@ -136,7 +124,7 @@ AuthorizationHandler::AuthorizationHandler(CIMRepository* repository)
     catch(Exception& e)
     {
 	//ATTN: 
-	cerr << PG_AUTH_CLASS << " class not loaded, ";
+	cerr << PEGASUS_CLASSNAME_AUTHORIZATION << " class not loaded, ";
 	cerr << "No authorizations configured." << endl;
 
         //throw e;
@@ -217,7 +205,7 @@ void AuthorizationHandler::_loadAllAuthorizations()
         // call enumerateInstances of the repository
         //
         namedInstances = _repository->enumerateInstances(
-            AUTHORIZATION_NAMESPACE, PG_AUTH_CLASS); 
+            PEGASUS_NAMESPACENAME_AUTHORIZATION, PEGASUS_CLASSNAME_AUTHORIZATION); 
 
         //
         // get all the user names, namespaces, and authorizations

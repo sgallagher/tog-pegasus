@@ -206,6 +206,8 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 #define WBEM_DEFAULT_HTTP_PORT 5988
 #define WBEM_DEFAULT_HTTPS_PORT 5989
 
+#define SNMP_TRAP_DEFAULT_PORT 162
+
 
 //
 // Wbem service names

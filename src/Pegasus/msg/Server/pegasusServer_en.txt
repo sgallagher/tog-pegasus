@@ -2755,8 +2755,9 @@ CIM server listening on HTTPS port {0}."}
         */
         Handler.snmpIndicationHandler.snmpIndicationHandler.QUALIFIER_MAPPINGS_NOT_FOUND:string {"PGS10602:  CIM qualifier MappingStrings cannot be found"}
 
-         
+	Handler.snmpIndicationHandler.snmpIndicationHandler.FAILED_TO_DELIVER_TRAP::string {"PGS10603: Failed to deliver trap."}
 
+         
         // ==========================================================
         // Messages for CIMxmlIndicationHandler
         //  Please use message prefix "PGS10800" 

@@ -22,7 +22,7 @@
               <VALUE> Pegasus_RT_TestHandler01 </VALUE>
             </PROPERTY>
             <PROPERTY NAME="Destination" TYPE="string"> 
-              <VALUE>localhost/CIMListener/Pegasus_RT_IndicationConsumer</VALUE>
+              <VALUE>localhost/CIMListener/Pegasus_SimpleDisplayConsumer</VALUE>
             </PROPERTY>
           </INSTANCE>
         </IPARAMVALUE>

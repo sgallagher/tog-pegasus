@@ -111,8 +111,8 @@ Boolean CQLSimplePredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
     if (!_rightSide.isSimpleValue())
     {
       MessageLoaderParms parms("CQL.CQLSimplePredicateRep.RHS_ISA_NOT_SIMPLE",
-                               "The expression $0 on the right side of the ISA operator must be a simple value.",
-                                _rightSide.toString());
+       "The expression $0 on the right side of the ISA operator must be a simple value.",
+       _rightSide.toString());
       throw CQLRuntimeException(parms);
     }
 
@@ -131,8 +131,8 @@ Boolean CQLSimplePredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
     if (!_rightSide.isSimpleValue())
     {
       MessageLoaderParms parms("CQL.CQLSimplePredicateRep.RHS_LIKE_NOT_SIMPLE",
-                               "The expression $0 on the right side of the LIKE operator must be a simple value.",
-                                _rightSide.toString());
+       "The expression $0 on the right side of the LIKE operator must be a simple value.",
+       _rightSide.toString());
       throw CQLRuntimeException(parms);
     }
 
@@ -140,8 +140,8 @@ Boolean CQLSimplePredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
     if (!likeRightVal.isResolved())
     {
       MessageLoaderParms parms("CQL.CQLSimplePredicateRep.RHS_LIKE_NOT_LITERAL",
-                               "The expression $0 on the right side of the LIKE operator must be a literal.",
-                                _rightSide.toString());
+       "The expression $0 on the right side of the LIKE operator must be a literal.",
+       _rightSide.toString());
       throw CQLRuntimeException(parms);
     }
 
@@ -246,8 +246,8 @@ void CQLSimplePredicateRep::applyContext(QueryContext& queryContext)
       {
          // There is no valid context for the symbolic constant
         MessageLoaderParms parms("CQL.CQLSimplePredicateRep.RIGHT_STANDALONE_SYMCONST_ERROR",
-                               "The right side of predicate $0 must be a simple property name because a symbolic constant exists on the left side.",
-                                toString());
+         "The right side of predicate $0 must be a simple property name because a symbolic constant exists on the left side.",
+         toString());
         throw CQLSyntaxErrorException(parms);
       }
    }
@@ -281,8 +281,8 @@ void CQLSimplePredicateRep::applyContext(QueryContext& queryContext)
          {
             // There is no valid context for the symbolic constant
            MessageLoaderParms parms("CQL.CQLSimplePredicateRep.LEFT_STANDALONE_SYMCONST_ERROR",
-                               "The left side of predicate $0 must be a simple property name because a symbolic constant exists on the right side.",
-                                toString());
+            "The left side of predicate $0 must be a simple property name because a symbolic constant exists on the right side.",
+             toString());
            throw CQLSyntaxErrorException(parms);
          }
       }
@@ -302,10 +302,17 @@ void CQLSimplePredicateRep::applyContext(QueryContext& queryContext)
           if (!_rightSide.isSimpleValue())
           {
             MessageLoaderParms parms("CQL.CQLSimplePredicateRep.APPLY_CTX_RHS_ISA_NOT_SIMPLE",
-                                     "The right side expression $0 of the ISA operator must be a simple value.",
-                                     _rightSide.toString());
+             "The right side expression $0 of the ISA operator must be a simple value.",
+              _rightSide.toString());
             throw CQLSyntaxErrorException(parms);
           }
+
+          // Add the right side identifier to the list of WHERE
+          // identifiers in the QueryContext
+          QueryChainedIdentifier isaId = _rightSide.getTerms()[0].
+            getFactors()[0].
+            getValue().getChainedIdentifier();
+          queryContext.addWhereIdentifier(isaId);
         }
       }
    }

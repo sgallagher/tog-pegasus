@@ -31,8 +31,6 @@
 #ifndef Cql2Dnf_h
 #define Cql2Dnf_h
 
-#include <Pegasus/Provider/CMPI/cmpidt.h>
-
 #include <Pegasus/Common/Stack.h>
 //#include <Pegasus/WQL/WQLOperation.h>
 //#include <Pegasus/WQL/WQLOperand.h>

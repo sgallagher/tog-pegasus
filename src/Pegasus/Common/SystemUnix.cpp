@@ -175,6 +175,13 @@ void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
 #ifdef PEGASUS_OS_LINUX
     dlclose(libraryHandle);
 #endif
+
+#ifdef PEGASUS_OS_HPUX
+    // ATTN: shl_load will unload the library even if it has been loaded
+    //       multiple times.  No reference count is kept.
+    // ATTN: Failure (return code -1) is ignored.
+    int ignored = shl_unload(shl_t(libraryHandle));
+#endif
 }
 
 String System::dynamicLoadError() {

@@ -37,7 +37,7 @@ SOURCES = \
     ServiceCIMOMHandle.cpp \
     ProviderManager/ProviderManagerQueue.cpp \
     ProviderManager/ProviderModule.cpp \
-	ProviderManager/CIMBaseProviderFacade.cpp \
+	ProviderManager/ProviderFacade.cpp \
     ProviderManager/ProviderBlockedEntry.cpp \
 	ConfigurationManager/ConfigurationManagerQueue.cpp \
 	ConfigurationManager/PG_RegistrationProvider.cpp

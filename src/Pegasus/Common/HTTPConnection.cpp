@@ -260,10 +260,12 @@ Boolean _IsBodylessMessage(const char* line)
 {
     //ATTN: Make sure this is the right place to check for HTTP/1.1 and
     //      HTTP/1.0 that is part of the authentication challenge header.
-    //
+    // ATTN-RK-P2-20020305: How do we make sure we have the complete list?
     const char* METHOD_NAMES[] =
     {
         "GET",
+        "HTTP/1.1 400",
+        "HTTP/1.0 400",
         "HTTP/1.1 401",
         "HTTP/1.0 401"
     };

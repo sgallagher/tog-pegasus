@@ -14,4 +14,4 @@ SOURCES = Parser.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	TestParser
+	$(PROGRAM)

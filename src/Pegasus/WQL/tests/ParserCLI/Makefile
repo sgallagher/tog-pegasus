@@ -8,7 +8,7 @@ include $(ROOT)/mak/config.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = ParserCLI
+PROGRAM = TestParserCLI
 SOURCES = ParserCLI.cpp
 
 include $(ROOT)/mak/program.mak
@@ -24,28 +24,28 @@ tests += test8
 endif
 
 test1:
-	@ ParserCLI "SELECT w,x,y,z FROM ClassName"
+	@ $(PROGRAM) "SELECT w,x,y,z FROM ClassName"
 
 test2:
-	@ ParserCLI "SELECT w,x,y,z FROM ClassName WHERE w = TRUE OR w = FALSE"
+	@ $(PROGRAM) "SELECT w,x,y,z FROM ClassName WHERE w = TRUE OR w = FALSE"
 
 test2a:
-	@ ParserCLI "SELECT w,x,y,z FROM ClassName WHERE w = TRUE AND w != FALSE"	
+	@ $(PROGRAM) "SELECT w,x,y,z FROM ClassName WHERE w = TRUE AND w != FALSE"	
 
 test3:
-	@ ParserCLI "SELECT w,x,y,z FROM ClassName WHERE w = TRUE AND x >= 10 AND y <= 13.10 AND z = \"Ten\"" 
+	@ $(PROGRAM) "SELECT w,x,y,z FROM ClassName WHERE w = TRUE AND x >= 10 AND y <= 13.10 AND z = \"Ten\"" 
 
 test4:
-	@ ParserCLI "SELECT * FROM ClassName WHERE (w = TRUE AND x >= 10 AND y <= 13.10 AND z = \"Ten\") AND NOT w = TRUE IS NOT TRUE"
+	@ $(PROGRAM) "SELECT * FROM ClassName WHERE (w = TRUE AND x >= 10 AND y <= 13.10 AND z = \"Ten\") AND NOT w = TRUE IS NOT TRUE"
 
 test5:
-	@ ParserCLI "SELECT * FROM ClassName WHERE NOT NOT NOT x < 5"
+	@ $(PROGRAM) "SELECT * FROM ClassName WHERE NOT NOT NOT x < 5"
 
 test5a:
-	@ ParserCLI "SELECT w,x,y,z FROM ClassName WHERE w <> FALSE"
-	
+	@ $(PROGRAM) "SELECT w,x,y,z FROM ClassName WHERE w <> FALSE"
+
 test6:
-	@ ParserCLI "SELECT * FROM ClassName WHERE v IS NULL"
+	@ $(PROGRAM) "SELECT * FROM ClassName WHERE v IS NULL"
 
 test7:
-	@ ParserCLI "SELECT * FROM CIM_InstCreation WHERE SourceInstance ISA CIM_ComputerSystem"
+	@ $(PROGRAM) "SELECT * FROM CIM_InstCreation WHERE SourceInstance ISA CIM_ComputerSystem"

@@ -433,7 +433,7 @@ static void TestLocalizedInstances( CIMClient& client, Boolean verboseTest )
       const CIMName className = CLASSNAME;
       Boolean deepInheritance = false;
       Boolean localOnly = false;
-      Boolean includeQualifiers = false;
+      Boolean includeQualifiers = true;
       Boolean includeClassOrigin = false;
       Uint32 testRepeat = 1;
 

@@ -1956,11 +1956,15 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
         //  If so, set to null
         //
         Array <CIMName> propertyNames;
+        Array <CIMName> indicationClassProperties;
         CIMPropertyList propertyList;
         for (Uint32 i = 0; i < indication.getPropertyCount(); i++)
+        {
             propertyNames.append(indication.getProperty(i).getName());
+        }
         propertyList = _checkPropertyList (propertyNames,
-            request->nameSpace, indication.getClassName ());
+            request->nameSpace, indication.getClassName (), 
+            indicationClassProperties);
 
         Array <CIMNamespaceName> nameSpaces;
         nameSpaces.append (request->nameSpace);
@@ -2093,13 +2097,14 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                 // Format indication
                 // Remove properties not listed in SELECT clause from
                 // indication as they are not required to be passed to consumer
-                // If SELECT includes all properties ("*"), pass all properties
-                // to the consumer
+                // If SELECT includes all properties ("*"), it's still necessary
+                // to check, in case provider added properties not in the 
+                // indication class
                 //
+                Array <CIMName> selectPropertyNames;
                 if (!selectStatement.getAllProperties ())
                 {
                     CIMPropertyList selectPropertyList;
-                    Array <CIMName> selectPropertyNames;
 
                     //
                     // Get properties listed in SELECT clause
@@ -2108,20 +2113,25 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                         selectStatement.getSelectPropertyList ();
                     selectPropertyNames =
                         selectPropertyList.getPropertyNameArray ();
+                }
+                else
+                {
+                    selectPropertyNames = indicationClassProperties;
+                }
 
-                    //
-                    // Remove properties not listed in SELECT clause
-                    // from indication
-                    //
-                    for (Uint32 j = 0; j < propertyNames.size(); j++)
+                //
+                // Remove properties not listed in SELECT clause
+                // or properties not in the indication class 
+                // from indication
+                //
+                for (Uint32 j = 0; j < propertyNames.size(); j++)
+                {
+                    if (!ContainsCIMName (selectPropertyNames,
+                                          propertyNames[j]))
                     {
-                        if (!ContainsCIMName (selectPropertyNames,
-                                              propertyNames[j]))
-                        {
-                            formattedIndication.removeProperty(
-                                formattedIndication.findProperty
-                                (propertyNames[j]));
-                        }
+                        formattedIndication.removeProperty(
+                            formattedIndication.findProperty
+                            (propertyNames[j]));
                     }
                 }
 
@@ -4647,15 +4657,17 @@ CIMPropertyList IndicationService::_getPropertyList
             }
         }
 
+        Array <CIMName> indicationClassProperties;
         return _checkPropertyList (propertyArray, nameSpaceName,
-            indicationClassName);
+            indicationClassName, indicationClassProperties);
     }
 }
 
 CIMPropertyList IndicationService::_checkPropertyList
     (const Array <CIMName> & propertyList,
      const CIMNamespaceName & nameSpaceName,
-     const CIMName & indicationClassName) const
+     const CIMName & indicationClassName,
+     Array <CIMName> & indicationClassProperties) const
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "IndicationService::_checkPropertyList");
@@ -4676,9 +4688,10 @@ CIMPropertyList IndicationService::_checkPropertyList
          CIMPropertyList ());
 
     Boolean allProperties = true;
-    for (Uint32 i = 0;
-         i < indicationClass.getPropertyCount () && allProperties; i++)
+    for (Uint32 i = 0; i < indicationClass.getPropertyCount (); i++)
     {
+        indicationClassProperties.append 
+            (indicationClass.getProperty (i).getName ());
         if (!ContainsCIMName (propertyList,
             indicationClass.getProperty (i).getName ()))
         {

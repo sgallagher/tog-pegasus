@@ -495,11 +495,15 @@ private:
     /**
         Checks if the property list includes all properties in the specified 
         class.  If so, a NULL CIMPropertyList is returned.  Otherwise, a
-        CIMPropertyList containing the properties is returned.
+        CIMPropertyList containing the properties is returned.  The list of 
+        property names in the specified indication class is also returned in 
+        the indicationClassProperties parameter.  
 
-        @param   propertyList          the list of property names
-        @param   nameSpaceName         the namespace
-        @param   indicationClassName   the indciation class name
+        @param   propertyList                the list of property names
+        @param   nameSpaceName               the namespace
+        @param   indicationClassName         the indication class name
+        @param   indicationClassProperties   the list of property names in the
+                                               specified indication class
 
         @return  CIMPropertyList of properties referenced by the filter query 
                  select statement
@@ -507,7 +511,8 @@ private:
     CIMPropertyList _checkPropertyList (
         const Array <CIMName> & propertyList,
         const CIMNamespaceName & nameSpaceName,
-        const CIMName & indicationClassName) const;
+        const CIMName & indicationClassName,
+        Array <CIMName> & indicationClassProperties) const;
 
     /**
         Extracts the condition (WHERE Clause) from the specified filter query

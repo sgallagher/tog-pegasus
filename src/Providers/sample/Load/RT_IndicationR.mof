@@ -24,8 +24,14 @@ instance of PG_ProviderCapabilities
     ProviderName = "RT_IndicationProvider";
     CapabilityID = "1";
     ClassName = "RT_TestIndication";
-    Namespaces = { "root/SampleProvider" };
+    Namespaces = { "root/SampleProvider", "root/cimv2" };
     ProviderType = { 4, 5 };  // Indication & Method
     SupportedProperties = NULL;
-    SupportedMethods = {"SendTestIndication"};
+    SupportedMethods = {"SendTestIndication", 
+                        "SendTestIndicationNormal", 
+                        "SendTestIndicationMissingProperty", 
+                        "SendTestIndicationExtraProperty",
+                        "SendTestIndicationMatchingInstance",
+                        "SendTestIndicationUnmatchingNamespace",
+                        "SendTestIndicationUnmatchingClassName"};
 };

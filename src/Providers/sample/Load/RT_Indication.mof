@@ -6,5 +6,11 @@ class RT_TestIndication : CIM_Indication
 	"DataType.IETF | OctetString"}]
     string MethodName;
     [Static] uint32 SendTestIndication();
+    [Static] uint32 SendTestIndicationNormal();
+    [Static] uint32 SendTestIndicationMissingProperty();
+    [Static] uint32 SendTestIndicationExtraProperty();
+    [Static] uint32 SendTestIndicationMatchingInstance();
+    [Static] uint32 SendTestIndicationUnmatchingNamespace();
+    [Static] uint32 SendTestIndicationUnmatchingClassName();
 };
 

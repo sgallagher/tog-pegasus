@@ -33,6 +33,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/OperationContext.h>
+#include <Pegasus/Common/System.h>
 
 
 #include "RT_IndicationProvider.h"
@@ -82,9 +83,36 @@ void _generateIndication (
     {
 	CIMInstance indicationInstance (CIMName("RT_TestIndication"));
 
-        CIMObjectPath path ;
-        path.setNameSpace("root/SampleProvider");
-        path.setClassName("RT_TestIndication");
+        CIMObjectPath path;
+        if (methodName.equal ("SendTestIndicationUnmatchingNamespace"))
+        {
+            //
+            //  For SendTestIndicationUnmatchingNamespace, generate an 
+            //  indication instance with namespace that does not match the 
+            //  subscription instance name included in the operation context
+            //  (nor does it match the namespace for which provider has 
+            //  registered)
+            //
+            path.setNameSpace ("root/cimv2");
+            path.setClassName ("RT_TestIndication");
+        }
+        else if (methodName.equal ("SendTestIndicationUnmatchingClassName"))
+        {
+            //
+            //  For SendTestIndicationUnmatchingClassName, generate an 
+            //  indication instance with classname that does not match the 
+            //  subscription instance name included in the operation context
+            //  (nor does it match the classname for which provider has 
+            //  registered)
+            //
+            path.setNameSpace ("root/SampleProvider");
+            path.setClassName ("CIM_AlertIndication");
+        }
+        else
+        {
+            path.setNameSpace("root/SampleProvider");
+            path.setClassName("RT_TestIndication");
+        }
 
         indicationInstance.setPath(path);
 
@@ -97,25 +125,115 @@ void _generateIndication (
 	indicationInstance.addProperty
             (CIMProperty ("IndicationTime", currentDateTime));
 
-	Array<String> correlatedIndications; 
-	indicationInstance.addProperty
-            (CIMProperty ("CorrelatedIndications", correlatedIndications));
+        //
+        //  For SendTestIndicationMissingProperty, leave out the 
+        //  CorrelatedIndications property
+        //
+        if (!methodName.equal ("SendTestIndicationMissingProperty"))
+        {
+	    Array <String> correlatedIndications; 
+	    indicationInstance.addProperty
+                (CIMProperty ("CorrelatedIndications", correlatedIndications));
+        }
 
-        indicationInstance.addProperty
-            (CIMProperty ("MethodName", CIMValue(methodName.getString())));
+        if ((methodName.equal ("SendTestIndicationNormal")) || 
+            (methodName.equal ("SendTestIndicationMissingProperty")) ||
+            (methodName.equal ("SendTestIndicationExtraProperty")) ||
+            (methodName.equal ("SendTestIndicationMatchingInstance")) ||
+            (methodName.equal ("SendTestIndicationUnmatchingNamespace")) ||
+            (methodName.equal ("SendTestIndicationUnmatchingClassName")))
+        {
+            indicationInstance.addProperty
+                (CIMProperty ("MethodName", CIMValue (methodName.getString())));
+        }
+        else
+        {
+            indicationInstance.addProperty
+                (CIMProperty ("MethodName", 
+                    CIMValue (String ("generateIndication"))));
+        }
         
+        //
+        //  For SendTestIndicationExtraProperty, add an extra property,
+        //  ExtraProperty, that is not a member of the indication class
+        //
+        if (methodName.equal ("SendTestIndicationExtraProperty"))
+        {
+            indicationInstance.addProperty
+                (CIMProperty ("ExtraProperty", 
+                    CIMValue (String ("extraProperty"))));
+        }
+
         CIMIndication cimIndication (indicationInstance);
 
-	// deliver an indication without trapOid 
-        handler->deliver (indicationInstance);
+        //
+        //  For SendTestIndicationMatchingInstance,  
+        //  SendTestIndicationUnmatchingNamespace or
+        //  SendTestIndicationUnmatchingClassName, include 
+        //  SubscriptionInstanceNamesContainer in operation context
+        //
+        if ((methodName.equal ("SendTestIndicationMatchingInstance")) ||
+            (methodName.equal ("SendTestIndicationUnmatchingNamespace")) ||
+            (methodName.equal ("SendTestIndicationUnmatchingClassName")))
+        {
+            Array <CIMObjectPath> subscriptionInstanceNames;
+            Array <CIMKeyBinding> subscriptionKeyBindings;
 
-	// deliver another indication with a trapOid which contains in the
-	// operationContext container  
-	OperationContext context;
+            String filterString;
+            filterString.append ("CIM_IndicationFilter.CreationClassName=\"CIM_IndicationFilter\",Name=\"PIFilter01\",SystemCreationClassName=\"");
+            filterString.append (System::getSystemCreationClassName ());
+            filterString.append ("\",SystemName=\"");
+            filterString.append (System::getFullyQualifiedHostName ());
+            filterString.append ("\"");
+            subscriptionKeyBindings.append (CIMKeyBinding ("Filter",
+                filterString, CIMKeyBinding::REFERENCE));
 
- 	// add trap OID to the context
-	context.insert(SnmpTrapOidContainer("1.3.6.1.4.1.900.2.3.9002.9600"));
-        handler->deliver (context, indicationInstance);
+            String handlerString;
+            handlerString.append ("CIM_IndicationHandlerCIMXML.CreationClassName=\"CIM_IndicationHandlerCIMXML\",Name=\"PIHandler01\",SystemCreationClassName=\"");
+            handlerString.append (System::getSystemCreationClassName ());
+            handlerString.append ("\",SystemName=\"");
+            handlerString.append (System::getFullyQualifiedHostName ());
+            handlerString.append ("\"");
+            subscriptionKeyBindings.append (CIMKeyBinding ("Handler",
+                handlerString, CIMKeyBinding::REFERENCE));
+
+            CIMObjectPath subscriptionPath ("", 
+                CIMNamespaceName ("root/PG_InterOp"),
+                CIMName ("CIM_IndicationSubscription"), 
+                subscriptionKeyBindings);
+            subscriptionInstanceNames.append (subscriptionPath);
+
+	    OperationContext context;
+            context.insert (SubscriptionInstanceNamesContainer
+                (subscriptionInstanceNames));
+
+            handler->deliver (context, indicationInstance);
+        }
+        else
+        {
+	    // deliver an indication without trapOid 
+            handler->deliver (indicationInstance);
+        }
+
+        //
+        //  Only deliver extra indication with trapOid for SendTestIndication
+        //
+        if ((!methodName.equal ("SendTestIndicationNormal")) &&
+            (!methodName.equal ("SendTestIndicationMissingProperty")) &&
+            (!methodName.equal ("SendTestIndicationExtraProperty")) &&
+            (!methodName.equal ("SendTestIndicationMatchingInstance")) && 
+            (!methodName.equal ("SendTestIndicationUnmatchingNamespace")) &&
+            (!methodName.equal ("SendTestIndicationUnmatchingClassName")))
+        {
+	    // deliver another indication with a trapOid which contains in the
+	    // operationContext container  
+	    OperationContext context;
+
+ 	    // add trap OID to the context
+	    context.insert
+                (SnmpTrapOidContainer("1.3.6.1.4.1.900.2.3.9002.9600"));
+            handler->deliver (context, indicationInstance);
+        }
     }
 }
 
@@ -169,7 +287,13 @@ void RT_IndicationProvider::invokeMethod(
         if (objectReference.getClassName().equal ("RT_TestIndication") &&
 	    _enabled)
         {                
-            if(methodName.equal("SendTestIndication"))
+            if ((methodName.equal ("SendTestIndication")) ||
+                (methodName.equal ("SendTestIndicationNormal")) ||
+                (methodName.equal ("SendTestIndicationMissingProperty")) ||
+                (methodName.equal ("SendTestIndicationExtraProperty")) ||
+                (methodName.equal ("SendTestIndicationMatchingInstance")) ||
+                (methodName.equal ("SendTestIndicationUnmatchingNamespace")) ||
+                (methodName.equal ("SendTestIndicationUnmatchingClassName")))
             {
                 sendIndication = true;
                 handler.deliver( CIMValue( 0 ) );
@@ -185,6 +309,6 @@ void RT_IndicationProvider::invokeMethod(
         handler.complete();
 
         if (sendIndication)
-           _generateIndication(_handler,"generateIndication");
+           _generateIndication(_handler, methodName);
 }
 

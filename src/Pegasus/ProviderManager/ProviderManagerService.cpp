@@ -2366,7 +2366,7 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
 		request->classNames[i]);
 
 	    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-	                "ProviderManagerService::handleGetInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+	                "ProviderManagerService::handleCreateSubscriptionRequest - Host name: $0  Name space: $1  Class name: $2",
 	                System::getHostName(),
 	   	        request->nameSpace.getString(),
  	                className.toString());
@@ -3237,7 +3237,7 @@ void ProviderManagerService::_insertEntry (
     const Provider & provider,
     const EnableIndicationsResponseHandler *handler)
 {
-    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
                       "ProviderManagerService::_insertEntry");
 
     String tableKey = _generateKey 
@@ -3252,7 +3252,7 @@ void ProviderManagerService::_insertEntry (
 void ProviderManagerService::_removeEntry(
    const String & key)
 {
-   PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+   PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
 		     "ProviderManagerService::_removeEntry");
    EnableIndicationsResponseHandler *ret = 0;
    
@@ -3270,7 +3270,7 @@ String ProviderManagerService::_generateKey (
 {
     String tableKey;
 
-    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
                       "ProviderManagerService::_generateKey");
 
     //

@@ -2782,7 +2782,7 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
 }
 
 /**$*******************************************************
-    handleEnumerateInstanceNamesRequest
+    handleEnumerateClassNamesRequest
     Passed directly to the CIMRepository
 **********************************************************/
 void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(

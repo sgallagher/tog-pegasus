@@ -174,12 +174,12 @@ int main(int argc, char** argv)
     {
         PEGASUS_STD (cerr) << "Exception: " << e.getMessage () 
                            << PEGASUS_STD (endl);
-        PEGASUS_STD (cerr) << "create sbscription instance failed" 
+        PEGASUS_STD (cerr) << "create subscription instance failed" 
                            << PEGASUS_STD (endl);
         exit (-1);
     }
 
-    PEGASUS_STD (cout) << "+++++ sbscription instances created" 
+    PEGASUS_STD (cout) << "+++++ subscription instances created" 
                        << PEGASUS_STD (endl);
 
     // get dispaly consumer

@@ -58,6 +58,10 @@ class PEGASUS_CIMOM_LINKAGE cimom;
 class PEGASUS_CIMOM_LINKAGE message_module
 {
    public:
+      message_module(void) 
+	 : _name(), _capabilities(0), 
+	   _mask(0), _q_id(0) { }
+      
       message_module(const String & name,
 		     Uint32 capabilities,
 		     Uint32 mask,
@@ -71,7 +75,16 @@ class PEGASUS_CIMOM_LINKAGE message_module
       Boolean operator == (const void *) const;
       Boolean operator == (Uint32) const;
       
-      
+      String & get_name(void) { return _name ; }
+      Uint32 get_capabilities(void) { return _capabilities ; }
+      Uint32 get_mask(void){ return _mask ; }
+      Uint32 get_queue(void) { return _q_id ; }
+
+      void put_name(String & name) { _name.clear(); _name = name; }
+      void put_capabilities(Uint32 capabilities) {  _capabilities = capabilities; }
+      void put_mask(Uint32 mask) { _mask = mask; }
+      void put_queue(Uint32 queue) {  _q_id = queue; }
+
    private:
       String _name;
       Uint32 _capabilities;

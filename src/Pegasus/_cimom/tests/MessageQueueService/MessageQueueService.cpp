@@ -123,7 +123,19 @@ Boolean MessageQueueClient::messageOK(const Message *msg)
 
 void MessageQueueClient::send_test_request(String *greeting, Uint32 qid)
 {
-   
+   test_request *req = 
+      new test_request(get_next_xid(),
+		       get_op(),
+		       qid, 
+		       _queueId,
+		       String("message queue service test client "));
+
+   unlocked_dq<AsyncMessage> replies(true);
+   SendWait(test_request, replies);
+   while( replies.count() )
+   { 
+      delete static_cast<test_response *>(replies.remove_first());
+   }
 }
 
 
@@ -168,6 +180,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
    MessageQueueClient q_client("test client");
    q_client.register_service("test client", _capabilities, _mask);
    
+   Uint32 test_server = 
+
    
 }
 

@@ -46,8 +46,9 @@ class test_request : public AsyncRequest
 		   String message)
 	 : AsyncRequest(0x04100000,
 			Message::getNextKey(), 
-			routing, 
+			routing,
 			0, 
+			op, 
 			destination, 
 			response, 
 			true),
@@ -62,7 +63,7 @@ class test_response : public AsyncReply
    public:
       test_response(Uint32 key, 
 		    Uint32 routing,
-		    AsyncOpNode *op,
+		    AsyncOpNode *op, 
 		    Uint32 result,
 		    Uint32 destination, 
 		    String message)

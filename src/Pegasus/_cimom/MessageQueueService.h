@@ -78,13 +78,16 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       Boolean update_service(Uint32 capabilities, Uint32 mask);
       Boolean deregister_service(void);
       Uint32 get_next_xid(void);
+      Array<Uint32> find_services(void);
+      message_module *enumerate_service(Uint32 queue);
+      
       
       Uint32 _capabilities;
       Uint32 _mask;
-      
+      AsyncOpNode *get_op(void);
+      void return_op(AsyncOpNode *op);
    private: 
-      AsyncOpNode *_get_op(void);
-      void _return_op(AsyncOpNode *op);
+
       cimom *_meta_dispatcher;
       struct timeval _default_op_timeout;
       AtomicInt _die;

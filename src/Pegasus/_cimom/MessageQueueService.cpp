@@ -81,7 +81,7 @@ Message *MessageQueueService::openEnvelope(Message *msg)
    return 0;
 }
 
-AsyncOpNode *MessageQueueService::_get_op(void)
+AsyncOpNode *MessageQueueService::get_op(void)
 {
    AsyncOpNode *op = _meta_dispatcher->get_cached_op();
    if(op == 0 )
@@ -94,7 +94,7 @@ AsyncOpNode *MessageQueueService::_get_op(void)
    return op;
 }
 
-void MessageQueueService::_return_op(AsyncOpNode *op)
+void MessageQueueService::return_op(AsyncOpNode *op)
 {
    PEGASUS_ASSERT(op->read_state() & ASYNC_OPSTATE_RELEASED );
    
@@ -107,8 +107,11 @@ void MessageQueueService::_return_op(AsyncOpNode *op)
 }
 
 
-void MessageQueueService::SendWait(AsyncRequest *request, unlocked_dq<AsyncMessage>& reply_list)
+void MessageQueueService::SendWait(AsyncRequest *request, unlocked_dq<AsyncMessage> *reply_list)
 {
+   if (request == 0 || reply_list == 0 )
+      throw NullPointer();
+   
    AsyncOpNode *op = request->op;
    if(op == 0 )
       return;
@@ -123,7 +126,7 @@ void MessageQueueService::SendWait(AsyncRequest *request, unlocked_dq<AsyncMessa
 	 if (rply != 0 )
 	 {
 	    rply->op = 0;
-	    reply_list.insert_first( rply );
+	    reply_list->insert_first( rply );
 	 }
       }
       // release the opnode, the meta-dispatcher will recycle it for us
@@ -161,8 +164,8 @@ Boolean MessageQueueService::register_service(String name,
 						    capabilities, 
 						    mask,
 						    _queueId);
-   unlocked_dq<AsyncMessage> reply_list;
-   SendWait(msg, reply_list);
+   unlocked_dq<AsyncMessage> reply_list(true);
+   SendWait(msg, &reply_list);
    Boolean registered = false;
    
    AsyncReply *reply = static_cast<AsyncReply *>(reply_list.remove_first());
@@ -196,8 +199,8 @@ Boolean MessageQueueService::update_service(Uint32 capabilities, Uint32 mask)
 						_queueId,
 						_capabilities, 
 						_mask);
-   unlocked_dq<AsyncMessage> reply_list;
-   SendWait(msg, reply_list);
+   unlocked_dq<AsyncMessage> reply_list(true);
+   SendWait(msg, &reply_list);
    Boolean registered = false;
    AsyncReply *reply = static_cast<AsyncReply *>(reply_list.remove_first());
    while(reply)
@@ -210,11 +213,105 @@ Boolean MessageQueueService::update_service(Uint32 capabilities, Uint32 mask)
 	       registered = true;
 	 }
       }
-      
       delete reply;
       reply = static_cast<AsyncReply *>(reply_list.remove_first());
    }
    return registered;
 }
+
+
+void MessageQueueService::find_services(String name, 
+					Uint32 capabilities, 
+					Uint32 mask, 
+					Array<Uint32> *results)
+{
+   
+   if( results == 0 )
+      throw NullPointer();
+   
+   AsyncOpNode *op = get_op();
+   results->clear();
+   
+   FindServiceQueue *req = 
+      new FindServiceQueue(get_next_xid(), 
+			   op, 
+			   _queueId, 
+			   true, 
+			   name, 
+			   capabilities, 
+			   mask);
+   unlocked_dq<AsyncMessage> reply_list(true);
+   
+   SendWait(req, &reply_list);
+   AsyncReply *reply = static_cast<AsyncReply *>(reply_list.remove_first());
+   while(reply)
+   {
+      if( reply->getMask() & message_mask::ha_async)
+      {
+	 if(reply->getMask() & message_mask::ha_reply)
+	 {
+	    if(reply->getType() == async_messages::FIND_SERVICE_Q_RESULT)
+	    {
+	       if( (static_cast<FindServiceQueueResult *>(reply))->result == async_results::OK )
+		  *results = (static_cast<FindServiceQueueResult *>(reply))->qids;
+	    }
+	 }
+      }
+      delete reply;
+      AsyncReply *reply = static_cast<AsyncReply *>(reply_list.remove_first());
+   }
+   return ;
+}
+
+void MessageQueueService::enumerate_service(Uint32 queue, message_module *result)
+{
+   if(result == 0)
+      throw NullPointer();
+   
+   AsyncOpNode *op = get_op();
+   
+   EnumerateService *req 
+      = new EnumerateService(get_next_xid(),
+			     op, 
+			     _queueId, 
+			     true, 
+			     queue);
+   
+   unlocked_dq<AsyncMessage reply_list(true);
+   SendWait(req, &reply_list);
+   AsyncReply *reply = static_cast<AsyncReply *>(reply_list.remove_first());
+   
+   while(reply)
+   {
+      Boolean found = false;
+      
+      if( reply->getMask() & message_mask::ha_async)
+      {
+	 if(reply->getMask() & message_mask::ha_reply)
+	 {
+	    if(reply->getType() == async_messages::ENUMERATE_SERVICE_RESULT)
+	    {
+	       if( (static_cast<EnumerateServiceResult *>(reply))->result == async_results::OK )
+	       {
+		  if( found == false)
+		  {
+		     found = true;
+		     
+		     result->put_name( (static_cast<EnumerateServiceResult *>(reply))->name);
+		     result->put_capabilities((static_cast<EnumerateServiceResult *>(reply))->capabilities);
+		     result->put_mask((static_cast<EnumerateServiceResult *>(reply))->mask);
+		     result->put_queue((static_cast<EnumerateServiceResult *>(reply))->qid);
+		  }
+		  
+	       }
+	    }
+	 }
+      }
+      delete reply;
+      AsyncReply *reply = static_cast<AsyncReply *>(reply_list.remove_first());
+   }
+   return;
+}
+
 
 PEGASUS_NAMESPACE_END

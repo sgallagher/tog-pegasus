@@ -324,6 +324,17 @@ void PrintHelp(const char* arg0)
     cout << MessageLoader::getMessage(parms) << endl;
 }
 
+//This needs to be called at various points in the code depending on the platform and error conditions.
+//We need to delete the _cimServer reference on exit in order for the destructors to get called.
+void deleteCIMServer()
+{
+    if (_cimServer)
+    {
+        delete _cimServer;
+        _cimServer = 0;
+    }
+}
+
 // l10n
 //
 // Dummy function for the Thread object associated with the initial thread.
@@ -1156,10 +1167,6 @@ MessageLoader::_useProcessLocale = false;
     try
     {
 
-
-
-
-
     Monitor monitor;
     //PEP#222
     //CIMServer server(&monitor);
@@ -1338,9 +1345,11 @@ MessageLoader::_useProcessLocale = false;
         if (daemonOption)
                 _cimServerProcess->notify_parent(1);
 
+        deleteCIMServer();
         return 1;
     }
 
+    deleteCIMServer();
     return 0;
 }
 

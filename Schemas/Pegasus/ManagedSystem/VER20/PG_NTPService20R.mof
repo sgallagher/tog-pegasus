@@ -1,0 +1,29 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+   Name = "NTPProviderModule";
+   Location = "NTPProvider";
+   Vendor = "Pegasus Community";
+   Version = "1.0.0";
+   InterfaceType = "C++Default";
+   InterfaceVersion = "2.0.0";
+};
+
+instance of PG_Provider
+{
+   ProviderModuleName = "NTPProviderModule";
+   Name = "NTPProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "NTPProviderModule";
+   ProviderName = "NTPProvider";
+   CapabilityID = "1";
+   ClassName = "PG_NTPService";
+   Namespaces = {"root/cimv2"};
+   ProviderType = { 2 }; // Instance
+   SupportedProperties = NULL; // All properties
+   SupportedMethods = NULL;  // All methods
+};

@@ -132,11 +132,7 @@ SOURCES = \
 ifeq ($(OS),linux)
   ifdef PEGASUS_HAS_SSL
     EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto -lcrypt
-    ifdef PEGASUS_USE_RELEASE_DIRS
-       EXTRA_LINK_ARGUMENTS =  -Xlinker -rpath -Xlinker $(OPENSSL_HOME)/lib
-    else
-       EXTRA_LINK_ARGUMENTS =  -Xlinker -rpath -Xlinker $(OPENSSL_HOME)/lib
-    endif
+    EXTRA_LINK_ARGUMENTS =  -Xlinker -rpath -Xlinker $(OPENSSL_HOME)/lib
   endif
 endif
 

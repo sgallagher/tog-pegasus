@@ -159,9 +159,12 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
    CIMMessage * req = dynamic_cast<CIMMessage *>(request);
    if (req != NULL)
    {
+	if (req->thread_changed())
+        {
 	   AcceptLanguages *langs = 
    			new AcceptLanguages(req->acceptLanguages);	
 	   Thread::setLanguages(langs);   		
+        }
    }
    else
    {

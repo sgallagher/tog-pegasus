@@ -161,9 +161,12 @@ void IndicationService::handleEnqueue(Message* message)
    CIMMessage * msg = dynamic_cast<CIMMessage *>(message);
    if (msg != NULL)
    {
+	if (msg->thread_changed())
+        {
 	   AcceptLanguages *langs = 
    			new AcceptLanguages(msg->acceptLanguages);	
 	   Thread::setLanguages(langs);   		
+        }
    } 
    else
    {

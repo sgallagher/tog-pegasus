@@ -1795,7 +1795,10 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
    CIMMessage * req = dynamic_cast<CIMMessage *>(request);
    if (req != NULL)
    {
+	if (req->thread_changed())
+        {
 	   Thread::setLanguages(new AcceptLanguages(req->acceptLanguages));   		
+        }
    } 
    else
    {

@@ -203,8 +203,14 @@ private:
 
     CIMInstance _buildInstanceSkeleton(const CIMName& className);
 
+    CIMObjectPath InteropProvider::_buildReference(const CIMInstance& instance,
+         const CIMName& className);
+
+    CIMObjectPath InteropProvider::_buildObjectPath(const CIMNamespaceName& name,
+                              const CIMName& className, 
+                              const CIMInstance& instance);
     CIMObjectPath InteropProvider::_buildInstancePath(const CIMNamespaceName& name,
-                              const CIMName className, 
+                              const CIMName& className, 
                               const CIMInstance& instance);
     
     CIMClass _getClass(const CIMNamespaceName& nameSpace, const CIMName& className);
@@ -235,6 +241,12 @@ private:
     CIMInstance _getInstanceCIMNamespace(const CIMNamespaceName & nameSpace);
     //
     CIMInstance _buildInstanceCIMNamespace(const CIMNamespaceName & nameSpace);
+
+
+    Array<CIMInstance> InteropProvider::_buildInstancesNamespaceInManager();
+
+    Array<CIMInstance> InteropProvider::_buildInstancesCommMechanismForManager();
+
     // Repository Instance variable
     //
        CIMRepository*   _repository;

@@ -1,0 +1,242 @@
+<html>
+<head>
+<title>ssltrustmgr</title>
+</head>
+
+<body>
+<ul>
+
+<h2>ssltrustmgr</h2>
+<h4>NAME</h4>
+    <b>ssltrustmgr</b> - add, remove, revoke or list  X509 certificates in a PEM format trust store.
+<h4>SYNOPSIS</h4>
+  <code>
+    <p><b>ssltrustmgr</b> -a [ -t <u>truststore</u> ] -c <u>certuser</u> -f <u>certfile</u></p>
+
+	<p><b>ssltrustmgr</b> -a -T <u>trustpath</u> -f <u>certfile</u></p>
+
+	<p><b>ssltrustmgr</b> -a -R -f <u>crlfile</u></p>
+
+    <p><b>ssltrustmgr</b> -r [ -t <u>truststore</u> | -T <u>trustpath</u> ] -i <u>issuername</u> -n <u>serialnumber</u></p>
+
+	<p><b>ssltrustmgr</b> -r -R -i <u>issuername</u></p>
+
+    <p><b>ssltrustmgr</b> -l [ -t <u>truststore</u> | -T <u>trustpath</u> ] [ -i <u>issuername</u> [ -n <u>serialnumber</u> ] ]</p>
+
+    <p><b>ssltrustmgr</b> -l -R [ -i <u>issuername</u> ]</p>
+
+    <p><b>ssltrustmgr</b> -h | --help</p>
+
+	<p><b>ssltrustmgr</b> -v | --version</p>
+
+  </code>
+
+<h4>Remarks</h4>
+<p>This command will exit with error status if the user executing the command is not a privileged user. The ssltrustmgr command require that the CIM Server is running.</p>
+
+
+<h4>DESCRIPTION</h4>
+<p>The ssltrustmgr command provides a command line interface to manage X509 certificates in a trust store or a Certificate Revocation List (CRL). The command will exit with error status if the trust store or the CRL store does not exist, or they are not in directory format. </p>
+
+<p>The add option of the ssltrustmgr command adds an X509 certificate from <code><u>certfile</u></code> to the specified <code><u>truststore</u></code> or <code><u>trustpath</u></code>, or the CRL from <code><u>crlfile</u></code> to the CRL store. The <code><u>truststore</u></code> names supported are <code><u>cim_trust</u></code> and <code><u>export_trust</u></code>. If no <code><u>truststore</u></code> is specified then <code><u>cim_trust</u></code> is used as the default <code><u>truststore</u></code>. If <code><u>truststore</u></code> is specified then <code><u>certuser</u></code> must be specified. The <code><u>certuser</u></code> specifies the username to be associated with the certificate in the <code><u>certfile</u></code>. If the CRL specified in <code><u>crlfile</u></code> already exists in the CRL store, the existing CRL is overwritten.</p>
+
+<p>The remove option of the ssltrustmgr command removes the X509 certificate matching the specified <code><u>issuername</u></code> and <code><u>serialnumber</u></code> from the specified <code><u>truststore</u></code> or <code><u>trustpath</u></code>. The remove option also removes the CRL from the CRL store for a  specified <code><u>issuername</u></code>.</p>
+
+<p>The list option of the ssltrustmgr command lists the X509 certificates in the specified <code><u>truststore</u></code> or <code><u>trustpath</u></code>. The listing can be filtered by specifying the <code><u>issuername</u></code> and <code><u>serialnumber</u></code>. The list option also lists the CRLs for the specified <code><u>issuername</u></code>.</p>
+
+<h4>OPTIONS</h4>
+   <p><b><code>ssltrustmgr</code></b> recognizes the following options:</p>
+
+<table border="0" cellspacing="1" width=75%
+    style='font-size=10.0pt;font-family:Arial'>
+  <tr>
+    <td width=25%><code>-a</code></td>
+    <td>
+       <br>
+       <p>Adds the specified certificate to the target <code><u>truststore</u></code>,  <code><u>trustpath</u></code> or a CRL store.  If the <code><u>truststore</u></code> or <code><u>trustpath</u></code> does not exist, an error message is returned and no action is taken. If the specified <code><u>certfile</u></code> does not contain an X509 certificate or contain an invalid certificate, an error message is returned and no action is taken. If the specified <code><u>crlfile</u></code> contains an invalid CRL, an error message is returned and no action is taken. If the CRL specified in <code><u>crlfile</u></code> already exists in the CRL store, the existing CRL is overwritten.
+       </p>
+    </td>
+  </tr>
+  <tr>
+    <td width=25%><code>-r</code></td>
+    <td>
+       <br>
+       <p>Removes the certificate matching the <code><u>serialnumber</u></code> issued by the <code><u>issuername</u></code> from the target <code><u>truststore</u></code> or <code><u>trustpath</u></code>.  If no certificate exists for the specified <code><u>issuername</u></code> and <code><u>serialnumber</u></code>, an error message is returned and no action is taken. If <code>-R</code> option is specified, it removes the CRL issued by the specified <code><u>issuername</u></code>.
+       </p>
+    </td>
+  </tr>
+  <tr>
+    <td width=25%><code>-l</code></td>
+    <td>
+       <br>
+       <p>Displays the X509 certificates in the target <code><u>truststore</u></code> or <code><u>trustpath</u></code>. If <code><u>issuername</u></code> and <code><u>serialnumber</u></code> are specified, only the matching certificates are displayed. If <code>-R</code> option is specified, all the CRLs in the CRL store are displayed. If <code><u>issuername</u></code> is specified with <code>-R</code> option, then the CRL issued by that issuer is displayed.
+       </p>
+    </td>
+  </tr>
+  <tr>
+    <td width=25%><code>-R</code></td>
+    <td>
+       <br>
+       <p>Indicates that the requested add, remove or list operation is to be performed on the CRL store. 
+       </p>
+    </td>
+  </tr>
+  <tr>
+    <td width=25%><code>-t <u>truststore</u></code></td>
+    <td>
+       <br>
+       <p>Specifies a trust store name containing zero or more X509 certificates.
+	   </p>
+    </td>
+  </tr>
+  <tr>
+    <td width=25%><code>-T <u>trustpath</u></code></td>
+    <td>
+       <br>
+       <p>Specifies a trust store path containing zero or more X509 certificates.
+	   </p>
+    </td>
+  </tr>
+  <tr>
+    <td width=25%><code>-f <u>certfile</u> / <u>crlfile</u></code></td>
+    <td>
+       <br>
+       <p>Specifies a PEM format file containing an X509 certificate or a CRL.
+	   </p>
+    </td>
+  </tr>
+  <tr>
+    <td width=25%><code>-c <u>certuser</u></code></td>
+    <td>
+       <br>
+       <p>Specifies a username to be associated with the specified certificate. The username specified should be a valid system user on the target system. 
+	   </p>
+    </td>
+  </tr>
+  <tr>
+    <td width=25%><code>-i <u>issuername</u></code></td>
+    <td>
+       <br>
+       <p>Specifies a certificate or a CRL Issuer name.
+	   </p>
+    </td>
+  </tr>
+  <tr>
+    <td width=25%><code>-n <u>serialnumber</u></code></td>
+    <td>
+       <br>
+       <p>Specifies a certificate Serial number.
+	   </p>
+    </td>
+  </tr>
+
+  <tr>
+    <td width=25%><code>-h | --help</code></td>
+    <td>
+       <br>
+       <p>Displays the command help message.
+	   </p>
+    </td>
+  </tr>
+
+  <tr>
+    <td width=25%><code>-v | --version</code></td>
+    <td>
+       <br>
+       <p>Displays the CIMServer version number.
+	   </p>
+    </td>
+  </tr>
+
+ </table>
+
+ </ul>
+
+
+<h4>EXIT STATUS</h4>
+   <p>When an error occurs, an error message is written to stderr and
+   an error value 1 is returned.  The following values are returned:</p>
+
+<ul>
+
+<table border="0" cellspacing="1" width=50%
+    style='font-size=10.0pt;font-family:Arial'>
+  <tr>
+    <td align="center" width=10%>0</td>
+    <td width=90%>Success</td>
+  </tr>
+  <tr>
+    <td align="center" width=10%>1</td>
+    <td width=90%>Error</td>
+  </tr>
+
+ </table>
+
+ </ul>
+
+<h4>EXAMPLES</h4>
+
+<p>Add the X509 certificate in the <code>cert.pem</code> file to the trust store <code>cim_trust</code> on the CIMServer and associate user <code>nag</code> with the certificate:
+</p>
+<p>
+<code>
+ssltrustmgr -a -t cim_trust -c nag -f cert.pem
+</code>
+</p>
+
+<p>Add the X509 certificate in the <code>cert.pem</code> file to the trust store specified by the trust path <code>$PEGASUS_HOME/client_trust</code> (User association is not required when trust path is specified): 
+</p>
+<p> 
+<code>
+ssltrustmgr -a -T $PEGASUS_HOME/client_trust -f cert.pem
+</code>
+</p>
+
+<p>Add the CRL in <code>class1crl.pem</code> to the Certificate Revocation List on the CIMServer:
+</p>
+<p> 
+<code>ssltrustmgr -a -R -f class1crl.pem</code>
+</p>or
+<p>
+<code>ssltrustmgr -aR -f class1crl.pem </code>
+</p>
+
+<p>Remove the certificate matching the specified <code>issuername</code> and <code>serialnumber</code> from the <code>cim_trust</code> trust store:
+</p>
+<p> 
+<code>
+ssltrustmgr -r -i "/C=US/ST=California/L=Cupertino/O=Smart & Secure/OU=Secure Software Division/CN=dev.admin.ss.com" -n 01
+</code>
+</p>
+
+<p>List all the X509 certificates in the <code>export_trust</code> trust store:
+</p>
+<p> 
+<code>
+ssltrustmgr -l -t export_trust
+</code>
+</p>
+
+<p>List all the X509 certificates in the <code>cim_trust</code> trust store:
+</p>
+<p> 
+<code>ssltrustmgr -l </code>
+</p>or
+<p>
+<code>ssltrustmgr -l -t cim_trust</code>
+</p>
+
+
+<p>List the CRL issued by the issuer name: <code>"/C=US/ST=California/L=Cupertino/O=Smart & Secure/OU=Secure Software Division/CN=dev.admin.ss.com"</code>.
+</p>
+<p> 
+<code>
+ssltrustmgr -lR -i "/C=US/ST=California/L=Cupertino/O=Smart & Secure/OU=Secure Software Division/CN=dev.admin.ss.com"
+</code>
+</p>
+
+</ul>
+</body>
+
+</html>
+

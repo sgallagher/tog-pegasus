@@ -361,4 +361,22 @@ UnexpectedOptionException::UnexpectedOptionException (char optionValue) :
     _rep->message.append(MessageLoader::getMessage(parms));
 }
 
+/**
+
+    Constructs an UnexpectedOptionException using the value of the
+    unexpected option string.
+
+    @param  optionValue  the string representing the long option that was
+                         unexpected
+
+ */
+UnexpectedOptionException::UnexpectedOptionException (const String& optionValue) :
+    CommandFormatException (String ())
+{
+    MessageLoaderParms parms("Clients.cliutils.CommandException.UNEXPECTED_OPTION",
+    						 "option \"-$0\" was unexpected",
+    						 optionValue);
+    _rep->message.append(MessageLoader::getMessage(parms));
+}
+
 PEGASUS_NAMESPACE_END

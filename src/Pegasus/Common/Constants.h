@@ -95,6 +95,8 @@ PEGASUS_NAMESPACE_BEGIN
     PEGASUS_QUEUENAME_CONTROLSERVICE "::ShutdownProvider"
 #define PEGASUS_MODULENAME_NAMESPACEPROVIDER \
     PEGASUS_QUEUENAME_CONTROLSERVICE "::NamespaceProvider"
+#define PEGASUS_MODULENAME_CERTIFICATEPROVIDER \
+    PEGASUS_QUEUENAME_CONTROLSERVICE "::CertificateProvider"
 #define PEGASUS_MODULENAME_TEMP \
     PEGASUS_QUEUENAME_CONTROLSERVICE "::temp::do not use this name"
 #define PEGASUS_MODULENAME_MONITOR \
@@ -118,6 +120,10 @@ static const CIMName PEGASUS_CLASSNAME_AUTHORIZATION        =
     CIMName ("PG_Authorization");
 static const CIMName PEGASUS_CLASSNAME_USER                 = 
     CIMName ("PG_User");
+static const CIMName PEGASUS_CLASSNAME_CERTIFICATE          =
+    CIMName ("PG_SSLCertificate");
+static const CIMName PEGASUS_CLASSNAME_CRL                  =
+    CIMName ("PG_SSLCertificateRevocationList");
 static const CIMName PEGASUS_CLASSNAME_PROVIDERMODULE       = 
     CIMName ("PG_ProviderModule");
 static const CIMName PEGASUS_CLASSNAME_PROVIDER             = 
@@ -211,6 +217,8 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_PROVIDERREG   =
 static const CIMNamespaceName PEGASUS_NAMESPACENAME_SHUTDOWN      = 
     PEGASUS_NAMESPACENAME_INTERNAL;
 static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          = 
+    PEGASUS_NAMESPACENAME_INTERNAL;
+static const CIMNamespaceName PEGASUS_NAMESPACENAME_CERTIFICATE   =
     PEGASUS_NAMESPACENAME_INTERNAL;
 
 #ifdef PEGASUS_HAS_PERFINST

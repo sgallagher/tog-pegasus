@@ -364,6 +364,17 @@ public:
      */
     UnexpectedOptionException (char optionValue);
 
+    /**
+
+        Constructs an UnexpectedOptionException using the value of the
+        unexpected option string.
+
+        @param  optionValue  the string representing the option that was
+                             unexpected
+
+     */
+    UnexpectedOptionException (const String& optionValue);
+
 private:
     /**
     

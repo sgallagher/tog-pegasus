@@ -20,7 +20,8 @@ DIRS = \
     g11ntest \
     benchmarkTest \
     cimperf \
-    MCCATestClient
+    MCCATestClient \
+    ssltrustmgr
 
 ifeq ($(OS),HPUX)
   DIRS += \

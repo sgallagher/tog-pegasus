@@ -529,6 +529,87 @@ en:table {
         Clients.cimuser.CIMUserCommand.UNEXPECTED_OPTION:string {"PGC00823: Unexpected option."}
 
 
+	// ==========================================================
+        // Messages for SSLTrustMgr
+	//  Please use message prefix "PGC00900"
+        // ==========================================================
+
+        /**
+ 	* @note Clients.ssltrustmgr.SSLTrustMgr.MENU.STANDARD:
+	*    Do not translate the cimprovider command or options, translate the text 
+	*    that explains the options.
+	*/
+	Clients.ssltrustmgr.SSLTrustMgr.MENU.STANDARD:string {
+	"Usage: ssltrustmgr -a [ -t truststore ] -c certuser -f certfile\n"
+        "ssltrustmgr -a -T trustpath -f certfile\n"
+        "ssltrustmgr -a -R -f crlfile\n"
+        "ssltrustmgr -r [ -t truststore | -T trustpath ] -i issuername -n serialnumber\n"
+        "ssltrustmgr -r -R -i issuernamev
+        "ssltrustmgr -l [ -t truststore | -T trustpath ] [ -i issuername [ -n serialnumber ] ]\n"
+        "ssltrustmgr -l -R [ -i issuername ]\n"
+        "ssltrustmgr -v | --version\n"
+        "ssltrustmgr -h | --help\n"
+        "Options :\n"
+        "    -a              - Adds the specified certificate to the trust store\n"
+        "    -r              - Removes the specified certificate from the trust store\n"
+        "    -l              - Displays the certificates in the trust store\n"
+        "    -R              - Performs requested add, remove or list operation on the CRL store\n"
+        "    -t truststore   - Specifies the target trust store name\n"
+        "    -T trustpath    - Specifies the target trust store path\n"
+        "    -f certfile     - Specifies the PEM format file containing an X509 certificate\n"
+        "    -f crlfile      - Specifies the PEM format file containing a CRL\n"
+        "    -c certuser     - Specifies the user name to be associated with the certificate\n"
+        "    -i issuername   - Specifies the certificate or the CRL issuer name\n"
+        "    -n serialnumber - Specifies the certificate serial number\n"
+        "    -h, --help      - Display this help message\n"
+        "    -v, --version   - Display CIM Server version number\n"
+        "\n"
+        "Usage note: The ssltrustmgr command requires that the CIM Server is running.\n"
+	"\n"
+	}
+
+	/*
+ 	 * @note PGC00900:
+	 *     "ssltrustmgr" should not be translated since it is the name of the command
+	 */
+
+        Clients.ssltrustmgr.SSLTrustMgr.REQUIRED_ARGS_MISSING:string {"PGC00900: Required arguments missing."}
+
+        Clients.ssltrustmgr.SSLTrustMgr.CIMOM_NOT_RUNNING:string {"PGC00901: CIM Server may not be running."}
+
+        Clients.ssltrustmgr.SSLTrustMgr.ADD_CERT_FAILURE:string {"PGC00902: Failed to add certificate."}
+
+        Clients.ssltrustmgr.SSLTrustMgr.ADD_CRL_FAILURE:string {"PGC00903: Failed to add CRL."}
+
+        Clients.ssltrustmgr.SSLTrustMgr.ADD_CERTIFICATE_SUCCESS:string {"PGC00904: Certificate added successfully."}
+
+        Clients.ssltrustmgr.SSLTrustMgr.ADD_CRL_SUCCESS:string {"PGC00905: CRL added successfully."}
+
+        Clients.ssltrustmgr.SSLTrustMgr.REMOVE_CERTIFICATE_SUCCESS:string {"PGC00906: Certificate removed successfully."}
+
+        Clients.ssltrustmgr.SSLTrustMgr.REMOVE_CRL_SUCCESS:string {"PGC00907: CRL removed successfully."}
+
+        Clients.ssltrustmgr.SSLTrustMgr.CERT_ALREADY_EXISTS:string {"PGC00908: Specified certificate already exist."}
+
+        Clients.ssltrustmgr.SSLTrustMgr.CERT_NOT_FOUND:string {"PGC00909: Specified certificate does not exist."}
+
+        Clients.ssltrustmgr.SSLTrustMgr.CRL_NOT_FOUND:string {"PGC00910: Specified certificate does not exist."}
+
+        Clients.ssltrustmgr.SSLTrustMgr.CERT_SCHEMA_NOT_LOADED:string {"PGC00911: Please restore the internal repository on the CIM Server."}
+
+        Clients.ssltrustmgr.SSLTrustMgr.REMOVE_CERT_FAILURE:string {"PGC00912: Failed to remove certificate."}
+
+        Clients.ssltrustmgr.SSLTrustMgr.REVOKE_CERT_FAILURE:string {"PGC00913: Failed to revoke certificate."}
+
+        Clients.ssltrustmgr.SSLTrustMgr.CERT_ALREADY_REVOKED:string {"PGC00914: Specified certificate already revoked."}
+
+        Clients.ssltrustmgr.SSLTrustMgr.REMOVE_CRL_FAILURE:string {"PGC00915: Failed to remove CRL."}
+
+        Clients.ssltrustmgr.SSLTrustMgr.LIST_CERT_FAILURE:string {"PGC00916: Failed to list certificate."}
+
+        Clients.ssltrustmgr.SSLTrustMgr.LIST_CRL_FAILURE:string {"PGC00917: Failed to list CRL."}
+
+
                         // ==========================================================
                         // Start of messages from platform-specific files
                         // ==========================================================

@@ -62,7 +62,6 @@ int main(int argc, char** argv)
     assert(tvx.toMilliseconds() == ((2 * 1000) + 500));
 
 
-
     // Test time difference between two getCurrentTime calls.
     TimeValue tv1 = TimeValue::getCurrentTime();
     System::sleep(5);

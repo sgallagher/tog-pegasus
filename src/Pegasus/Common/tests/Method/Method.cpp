@@ -125,8 +125,11 @@ int main(int argc, char** argv)
         {
         }
 
-        m1.print();
-        cm1.print();
+        if (verbose)
+        {
+            m1.print();
+            cm1.print();
+        }
         Array<Sint8> out;
         cm1.toXml(out);
         cm1.toMof(out);
@@ -152,8 +155,11 @@ int main(int argc, char** argv)
         assert(ccm1.findQualifier("Stuff") == PEG_NOT_FOUND);
         assert(ccm1.findParameter("ipaddress") == PEG_NOT_FOUND);
 
-        m1.print();
-        ccm1.print();
+        if (verbose)
+        {
+            m1.print();
+            ccm1.print();
+        }
 
         ccm1.toXml(out);
       

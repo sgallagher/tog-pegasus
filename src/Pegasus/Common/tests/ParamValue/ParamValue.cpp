@@ -33,6 +33,7 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+static char * verbose;
 
 void test01()
 {
@@ -74,9 +75,12 @@ void test01()
     CIMParamValue a4clone = a4.clone();
     aa.append(a4clone);
 
-    for (Uint32 i=0; i< aa.size(); i++)
+    if (verbose)
     {
-        aa[i].print(cout);
+        for (Uint32 i=0; i< aa.size(); i++)
+        {
+            aa[i].print(cout);
+        }
     }
 
     //
@@ -119,8 +123,10 @@ void test01()
 }
 
 
-int main()
+int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+
     try
     {
         test01();
@@ -130,7 +136,6 @@ int main()
         cout << "Exception: " << e.getMessage() << endl;
     }
 
-    cout << "+++++ passed all tests" << endl;
-
+    cout << argv[0] << " +++++ passed all tests" << endl;
     return 0;
 }

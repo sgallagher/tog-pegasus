@@ -55,11 +55,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 	CQLSelectStatement selectStatement;
 
-	CQLParser parser;
-
 	try
 	{
-	    parser.parse(text, selectStatement);
+	    CQLParser::parse(text, selectStatement);
 	}
 	catch (QueryException&)
 	{

@@ -29,9 +29,25 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CommonUTF.h"
+#include <Pegasus/Common/Array.h>
 #include <cstring>
 
 PEGASUS_NAMESPACE_BEGIN
+
+
+inline Uint8 _hexCharToNumeric(const Uint16 c)
+{
+    Uint8 n;
+
+    if (isdigit(c))
+        n = (c - '0');
+    else if (isupper(c))
+        n = (c - 'A' + 10);
+    else // if (islower(c))
+        n = (c - 'a' + 10);
+
+    return n;
+}
 
 // Note: Caller must ensure that "src" contains "size" bytes.
 int isValid_U8(const Uint8 *src, int size)
@@ -276,4 +292,67 @@ Boolean isUTF8(const char *legal)
 
     return (isValid_U8((const Uint8 *)legal, numBytes));
 }
+
+
+String escapeStringEncoder(const String& Str)
+{
+    String escapeStr;
+    Uint16 escChar;
+    char hexencoding[6];
+    
+    for(Uint32 i = 0; i < Str.size(); ++i)
+    {
+	escChar = Str[i];
+	if(escChar <= 0x7F)
+        {
+	    escapeStr.append(escChar);
+        }
+	else
+	{
+	    memset(hexencoding,0x00,sizeof(hexencoding));
+            sprintf(hexencoding, "%%%03X%X", escChar/16, escChar%16);
+            escapeStr.append(hexencoding);
+	}
+    }
+    return(escapeStr);
+}
+
+String escapeStringDecoder(const String& Str)
+{
+    Uint32 i;
+
+    Array<Uint16> utf16Chars; 
+
+    for (i=0; i< Str.size(); ++i)
+    {
+        if (Str[i] == '%')
+        {
+            Uint8 digit1 = _hexCharToNumeric((Str[++i]));
+            Uint8 digit2 = _hexCharToNumeric((Str[++i]));
+            Uint8 digit3 = _hexCharToNumeric((Str[++i]));
+            Uint8 digit4 = _hexCharToNumeric((Str[++i]));
+
+	    Uint16 decodedChar = (digit1<<12) + (digit2<<8) +
+                                 (digit3<< 4) + (digit4);
+
+            utf16Chars.append(decodedChar);				
+        }
+        else
+        {
+            utf16Chars.append((Uint16)Str[i]);	
+        }
+    }
+
+    // If there was a string to decode...
+    if (Str.size() > 0)
+    {
+        utf16Chars.append('\0');
+        return String((Char16 *)utf16Chars.getData());
+    }
+    else
+    {
+        return String();
+    }
+}
+
 PEGASUS_NAMESPACE_END

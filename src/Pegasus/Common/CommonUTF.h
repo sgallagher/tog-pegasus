@@ -32,6 +32,7 @@
 #define Pegasus_CommonUTF_h
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/String.h>
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
@@ -83,6 +84,22 @@ PEGASUS_COMMON_LINKAGE int UTF8toUTF16 (const Uint8** srcHead,
 		 Uint16* tgtEnd);
 
 PEGASUS_COMMON_LINKAGE Boolean isUTF8(const char*);
+
+/** Escape all characters above 7-bit ASCII.
+    @param String: The string to be escaped Insert text here.
+    @return String: The escaped string.
+*/
+PEGASUS_COMMON_LINKAGE String escapeStringEncoder(const String& Str);
+
+/** decode string returned from escapeString Encoder.
+    @param String: The string to be decoded.
+    @return String: The decoded string.
+
+    Prereq: Only the return string from the escapeStringEncoder can be used 
+            as input.
+*/
+PEGASUS_COMMON_LINKAGE String escapeStringDecoder(const String& Str);
+
 
 PEGASUS_NAMESPACE_END
 

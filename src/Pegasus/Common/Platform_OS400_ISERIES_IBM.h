@@ -115,4 +115,6 @@
 
 #define PEGASUS_USE_RELEASE_DIRS
 
+#define PEGASUS_SUPPORT_UTF8_FILENAME
+
 #endif /* Pegasus_Platform_OS400_ISERIES_IBM_h */

@@ -52,16 +52,16 @@ class FAKE_MESSAGE
 
       char buffer[128];
 
-      Boolean operator==(void *key) const
+      Boolean operator==(const void *key) const
       {
-	 if(_key == (Thread *)key)
+	 if(_key == (const Thread *)key)
 	    return true;
 	 return false;
       }
 
       Boolean operator==(const FAKE_MESSAGE & msg) const
       {
-	 return ( this->operator==((void *)msg._key));
+	 return ( this->operator==((const void *)msg._key));
       }
 
    private:

@@ -74,7 +74,7 @@ class  PEGASUS_COMMON_LINKAGE thread_data
    public:
       static void default_delete(void *data);
       
-      thread_data( Sint8 *key ) : _delete_func(NULL) , _data(NULL), _size(0)
+      thread_data( const Sint8 *key ) : _delete_func(NULL) , _data(NULL), _size(0)
       {
 	 PEGASUS_ASSERT(key != NULL);
 	 size_t keysize = strlen(key);
@@ -84,7 +84,7 @@ class  PEGASUS_COMMON_LINKAGE thread_data
 	 
       }
   
-      thread_data(Sint8 *key, size_t size) : _delete_func(default_delete), _size(size)
+      thread_data(const Sint8 *key, size_t size) : _delete_func(default_delete), _size(size)
       {
 	 PEGASUS_ASSERT(key != NULL);
 	 size_t keysize = strlen(key);
@@ -95,7 +95,7 @@ class  PEGASUS_COMMON_LINKAGE thread_data
 
       }
 
-      thread_data(Sint8 *key, size_t size, void *data) : _delete_func(default_delete), _size(size)
+      thread_data(const Sint8 *key, size_t size, void *data) : _delete_func(default_delete), _size(size)
       {
 	 PEGASUS_ASSERT(key != NULL);
 	 PEGASUS_ASSERT(data != NULL);
@@ -240,7 +240,7 @@ class PEGASUS_COMMON_LINKAGE Thread
       void cleanup_pop(Boolean execute = true) throw(IPCException);
 
       // create and initialize a tsd
-      inline void create_tsd(Sint8 *key, int size, void *buffer) throw(IPCException)
+      inline void create_tsd(const Sint8 *key, int size, void *buffer) throw(IPCException)
       {
 	 thread_data *tsd = new thread_data(key, size, buffer);
 	 try { _tsd.insert_first(tsd); }
@@ -249,20 +249,20 @@ class PEGASUS_COMMON_LINKAGE Thread
 
       // get the buffer associated with the key
       // NOTE: this call leaves the tsd LOCKED !!!! 
-      inline void *reference_tsd(Sint8 *key) throw(IPCException)
+      inline void *reference_tsd(const Sint8 *key) throw(IPCException)
       {
 	 _tsd.lock(); 
-	 thread_data *tsd = _tsd.reference((void *)key);
+	 thread_data *tsd = _tsd.reference((const void *)key);
 	 if(tsd != NULL)
 	    return( (void *)(tsd->_data) );
 	 else
 	    return(NULL);
       }
 
-      inline void *try_reference_tsd(Sint8 *key) throw(IPCException)
+      inline void *try_reference_tsd(const Sint8 *key) throw(IPCException)
       {
 	 _tsd.try_lock();
-	 thread_data *tsd = _tsd.reference((void *)key);
+	 thread_data *tsd = _tsd.reference((const void *)key);
 	 if(tsd != NULL)
 	    return((void *)(tsd->_data) );
 	 else
@@ -278,16 +278,16 @@ class PEGASUS_COMMON_LINKAGE Thread
       }
 
       // delete the tsd associated with the key
-      inline void delete_tsd(Sint8 *key) throw(IPCException)
+      inline void delete_tsd(const Sint8 *key) throw(IPCException)
       {
-	 thread_data *tsd = _tsd.remove((void *)key);
+	 thread_data *tsd = _tsd.remove((const void *)key);
 	 if(tsd != NULL)
 	    delete tsd;
       }
 
-      inline void *remove_tsd(Sint8 *key) throw(IPCException)
+      inline void *remove_tsd(const Sint8 *key) throw(IPCException)
       {
-	 return(_tsd.remove((void *)key));
+	 return(_tsd.remove((const void *)key));
       }
       
       inline void empty_tsd(void) throw(IPCException)
@@ -297,13 +297,13 @@ class PEGASUS_COMMON_LINKAGE Thread
       
       // create or re-initialize tsd associated with the key
       // if the tsd already exists, return the existing buffer
-      thread_data *put_tsd(Sint8 *key, void (*delete_func)(void *), Uint32 size, void *value) 
+      thread_data *put_tsd(const Sint8 *key, void (*delete_func)(void *), Uint32 size, void *value) 
 	 throw(IPCException)
 
       {
 	 PEGASUS_ASSERT(key != NULL);
 	 thread_data *tsd ;
-	 tsd = _tsd.remove((void *)key);  // may throw an IPC exception 
+	 tsd = _tsd.remove((const void *)key);  // may throw an IPC exception 
 	 thread_data *ntsd = new thread_data(key);
 	 ntsd->put_data(delete_func, size, value);
 	 try { _tsd.insert_first(ntsd); }
@@ -330,7 +330,7 @@ class PEGASUS_COMMON_LINKAGE Thread
   
    private:
       Thread();
-      inline void create_tsd(Sint8 *key ) throw(IPCException)
+      inline void create_tsd(const Sint8 *key ) throw(IPCException)
       {
 	 thread_data *tsd = new thread_data(key);
 	 try { _tsd.insert_first(tsd); }
@@ -362,7 +362,7 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
    public:
 
       ThreadPool(Sint16 initial_size,
-		 Sint8 *key,
+		 const Sint8 *key,
 		 Sint16 min,
 		 Sint16 max,
 		 struct timeval & alloc_wait,

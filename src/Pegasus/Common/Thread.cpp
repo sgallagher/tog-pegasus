@@ -87,7 +87,7 @@ void Thread::cleanup_pop(Boolean execute) throw(IPCException)
 #endif
 
 
-//thread_data *Thread::put_tsd(Sint8 *key, void (*delete_func)(void *), Uint32 size, void *value) throw(IPCException)
+//thread_data *Thread::put_tsd(const Sint8 *key, void (*delete_func)(void *), Uint32 size, void *value) throw(IPCException)
 
 
 #ifndef PEGASUS_THREAD_EXIT_NATIVE 
@@ -115,7 +115,7 @@ void Thread::exit_self(PEGASUS_THREAD_RETURN exit_code)
 #endif
 
 ThreadPool::ThreadPool(Sint16 initial_size,
-		       Sint8 *key,
+		       const Sint8 *key,
 		       Sint16 min,
 		       Sint16 max,
 		       struct timeval & alloc_wait,

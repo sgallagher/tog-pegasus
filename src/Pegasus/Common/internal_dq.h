@@ -150,7 +150,7 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
       inline void *remove_first ( void ) { return(remove(PEG_DQUEUE_FIRST) );}
       inline void *remove_last ( void ) { return(remove(PEG_DQUEUE_LAST) );}
 
-      inline void *remove(void *key)
+      inline void *remove(const void *key)
       {
 	 if(key == 0)
 	    return 0;
@@ -180,7 +180,7 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 	 return(ret); 
       }
 
-      inline void *reference(void *key)
+      inline void *reference(const void *key)
       {
 	 if(key == 0)
 	    return 0;
@@ -200,7 +200,7 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 	 return 0;
       }
 
-      inline void *next( void * ref)
+      inline void *next( const void * ref)
       {
 	 if( ref == 0)
 	    _cur = _next;
@@ -210,7 +210,7 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 	 return(_cur->_rep);
       }
 
-      inline void *prev( void * ref)
+      inline void *prev( const void * ref)
       {
 	 if( ref == 0 )
 	    _cur = _prev;
@@ -220,7 +220,7 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 	 return(_cur->_rep);
       }
 
-      inline Boolean exists(void *key) 
+      inline Boolean exists(const void *key) 
       {
 	 if(key == 0 )
 	    return false;
@@ -367,7 +367,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
       inline L *remove_last ( void ) { return(remove(PEG_DQUEUE_LAST) );}
 
             
-      inline virtual L *remove(L *key)
+      inline virtual L *remove(const L *key)
       {
 	 if(key == 0)
 	    return 0;
@@ -399,15 +399,15 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
       }
       
 
-      inline virtual L *remove(void *key) 
+      inline virtual L *remove(const void *key) 
       {
 
 	 if(key == 0)
 	    return 0;
-	 return unlocked_dq<L>::remove(reinterpret_cast<L *>(key));
+	 return unlocked_dq<L>::remove(reinterpret_cast<const L *>(key));
       }
       
-      inline virtual L *reference(void *key) 
+      inline virtual L *reference(const void *key) 
       {
 	 if( key == 0 )
 	    return 0;
@@ -425,7 +425,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
 	 return(0);
       }
 
-      inline virtual L *reference(L *key)
+      inline virtual L *reference(const L *key)
       {
 	 if(key == 0)
 	    return 0;
@@ -444,7 +444,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
       }
 
       
-      inline virtual L *next(void *ref) 
+      inline virtual L *next(const void *ref) 
       {
 	 PEGASUS_ASSERT(this->_isHead);
 	 
@@ -456,7 +456,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
 	 return(_cur->_rep);
       }
       
-      inline virtual L *prev(void *ref) 
+      inline virtual L *prev(const void *ref) 
       {
 	 PEGASUS_ASSERT(this->_isHead);
 	 if( ref == 0 )
@@ -467,7 +467,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq
 	 return(_cur->_rep);
       }
 
-      virtual Boolean exists(void *key) 
+      virtual Boolean exists(const void *key) 
       {
 	 if(key == 0)
 	    return false;

@@ -274,12 +274,20 @@ inline void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE
       throw ListClosed();
    }
    struct timeval now;
+   struct timespec waittime;
    int retcode;
    gettimeofday(&now, NULL);
-   now.tv_usec += (milliseconds * 1000);
+   waittime.tv_sec = now.tv_sec;
+   waittime.tv_nsec = now.tv_usec + (milliseconds * 1000);  // microseconds
+   while (waittime.tv_nsec >= 1000000)
+   {
+       waittime.tv_sec++;
+       waittime.tv_nsec -= 1000000;
+   }
+   waittime.tv_nsec = waittime.tv_nsec * 1000;  // convert to nanoseconds
    do
    {
-      retcode = pthread_cond_timedwait(&_condition, &_cond_mutex->_mutex.mut, (struct timespec *)&now) ;
+      retcode = pthread_cond_timedwait(&_condition, &_cond_mutex->_mutex.mut, &waittime) ;
    } while ( retcode == EINTR ) ;
 
    if(retcode)

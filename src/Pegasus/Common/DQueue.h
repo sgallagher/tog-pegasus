@@ -121,7 +121,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
       }
       
 
-      virtual L *remove_no_lock(void *key) throw(IPCException)
+      virtual L *remove_no_lock(const void *key) throw(IPCException)
       {
 	 if(key == 0 )
 	    return 0;
@@ -131,7 +131,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
 	 return Base::remove(key);
       }
 
-      virtual L *remove_no_lock(L *key) throw(IPCException)
+      virtual L *remove_no_lock(const L *key) throw(IPCException)
       {
 	 if(key == 0)
 	    return 0;
@@ -141,7 +141,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
 	 return Base::remove(key);
       }
       
-      virtual L *remove(void *key) throw(IPCException)
+      virtual L *remove(const void *key) throw(IPCException)
       {
 	 if(key == 0)
 	    return 0;
@@ -155,7 +155,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
 	 return(ret);
       }
 
-      virtual L *reference(void *key) throw(IPCException)
+      virtual L *reference(const void *key) throw(IPCException)
       {
 	 if(key == 0 )
 	    return 0;
@@ -164,7 +164,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
 	 return Base::reference(key);
       }
 
-      inline virtual L *reference(L *key)
+      inline virtual L *reference(const L *key)
       {
 	 if(key == 0 )
 	    return 0;
@@ -173,7 +173,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
 	 return Base::reference(key);
       }
 
-      inline virtual L *remove(L *key)
+      inline virtual L *remove(const L *key)
       {
 	 if(key == 0)
 	    return 0;
@@ -187,14 +187,14 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
 	 return ret;
       }
 
-      virtual L *next( void * ref) throw(IPCException)
+      virtual L *next( const void * ref) throw(IPCException)
       {
 	 if (_mutex->get_owner() != pegasus_thread_self())
 	    throw Permission(pegasus_thread_self()) ;
 	 return Base::next( ref );
       }
       
-      virtual L *prev( void *ref) throw(IPCException)
+      virtual L *prev( const void *ref) throw(IPCException)
       {
 	 if (_mutex->get_owner() != pegasus_thread_self())
 	    throw Permission(pegasus_thread_self());
@@ -207,7 +207,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_
       inline virtual void unlock(void) throw(IPCException) { _mutex->unlock() ; }
       inline virtual void try_lock(void) throw(IPCException) {  _mutex->try_lock(pegasus_thread_self()); }
       
-      virtual Boolean exists(void *key) throw(IPCException) 
+      virtual Boolean exists(const void *key) throw(IPCException) 
       {
 	 if(key == 0)
 	    return false;
@@ -289,7 +289,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 	 unlock();
       }
       
-      inline L *_remove_no_lock(void *key) throw(IPCException)
+      inline L *_remove_no_lock(const void *key) throw(IPCException)
       {
 	 if(_disallow->value() > 0)
 	 {
@@ -303,15 +303,15 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 	 {
 	    if(ret->operator==(key))
 	    {
-	       return static_cast<L *>(Base::remove(static_cast<void *>(ret)));
+	       return static_cast<L *>(Base::remove(static_cast<const void *>(ret)));
 	    }
 	    
-	    ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
+	    ret = static_cast<L *>(Base::next(static_cast<const void *>(ret)));
 	 }
 	 return 0;
       }
 
-      inline L *_remove_no_lock(L *key) throw(IPCException)
+      inline L *_remove_no_lock(const L *key) throw(IPCException)
       {
 	 if(_disallow->value() > 0)
 	 {
@@ -325,10 +325,10 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 	 {
 	    if(ret->operator==(key))
 	    {
-	       return static_cast<L *>(Base::remove(static_cast<void *>(ret)));
+	       return static_cast<L *>(Base::remove(static_cast<const void *>(ret)));
 	    }
 	    
-	    ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
+	    ret = static_cast<L *>(Base::next(static_cast<const void *>(ret)));
 	 }
 	 return 0;
       }
@@ -542,7 +542,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 	 return ret;
       }
 
-      inline virtual L *remove(void *key) throw(IPCException)
+      inline virtual L *remove(const void *key) throw(IPCException)
       {
 	 if(key == 0)
 	    return 0;
@@ -557,7 +557,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 	 return ret;
       }
 
-      virtual L *remove_no_lock(void *key) throw(IPCException)
+      virtual L *remove_no_lock(const void *key) throw(IPCException)
       {
 	 if(key == 0)
 	    return 0;
@@ -576,7 +576,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 	 return ret;
       }
 
-      virtual L *remove_no_lock(L *key) throw(IPCException)
+      virtual L *remove_no_lock(const L *key) throw(IPCException)
       {
 	 if(key == 0)
 	    return 0;
@@ -595,7 +595,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 	 return ret;
       }
       
-      inline L *remove_wait(void *key) throw(IPCException)
+      inline L *remove_wait(const void *key) throw(IPCException)
       {
 	 if(key == 0)
 	    return 0;
@@ -627,23 +627,23 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 	 return ret;
       }
       
-      inline virtual L *next(L *ref) throw(IPCException)
+      inline virtual L *next(const L *ref) throw(IPCException)
       {
 	 if( pegasus_thread_self() != _cond->get_owner())
 	    throw Permission(pegasus_thread_self());
 	 
-	 return static_cast<L *>(Base::next( reinterpret_cast<void *>(ref)));
+	 return static_cast<L *>(Base::next( reinterpret_cast<const void *>(ref)));
       }
 
-      inline virtual L *prev(L *ref) throw(IPCException)
+      inline virtual L *prev(const L *ref) throw(IPCException)
       {
 	 if( pegasus_thread_self() != _cond->get_owner())
 	    throw Permission(pegasus_thread_self());
 	 
-	 return static_cast<L *>(Base::prev( reinterpret_cast<void *>(ref)));
+	 return static_cast<L *>(Base::prev( reinterpret_cast<const void *>(ref)));
       }
 
-      inline virtual L *reference(void *key) throw(IPCException)
+      inline virtual L *reference(const void *key) throw(IPCException)
       {
 	 if( key == 0 )
 	    return 0;
@@ -658,13 +658,13 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 	    {
 	       if(ret->operator==(key))
 		  return ret;
-	       ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
+	       ret = static_cast<L *>(Base::next(static_cast<const void *>(ret)));
 	    }
 	 }
 	 return(0);
       }
 
-      inline virtual L *reference(L *key) throw(IPCException)
+      inline virtual L *reference(const L *key) throw(IPCException)
       {
 	 if(key == 0)
 	    return 0;
@@ -679,7 +679,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 	    {
 	       if(ret->operator==(key))
 		  return ret;
-	       ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
+	       ret = static_cast<L *>(Base::next(static_cast<const void *>(ret)));
 	    }
 	 }
 	 return(0);

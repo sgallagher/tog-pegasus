@@ -173,7 +173,7 @@ class PEGASUS_COMMON_LINKAGE Message
 
       // << Thu Dec 27 10:46:04 2001 mdd >> for use with DQueue container 
       // as used by AsyncOpNode 
-      Boolean operator == (void *msg )
+      Boolean operator == (const void *msg )
       {
 	 if (reinterpret_cast<void *>(this) == msg )
 	    return true;

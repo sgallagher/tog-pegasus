@@ -52,7 +52,7 @@ void * operator new(size_t size)
 void operator delete(void *dead)
 {
    internal_allocator.vs_free(dead); 
-}
+} 
 
 
 // void * operator new(size_t size)

@@ -275,10 +275,7 @@ int main(int argc, char **argv)
    while( requests.value() < NUMBER_MSGS || replies.value() < NUMBER_MSGS )
    {
       pegasus_sleep(1000);
-
-      cout << " wtf " << endl;
-      
-      cout << "total requests: " << requests.value() << " total replies: " << replies.value() << endl;
+//      cout << "total requests: " << requests.value() << " total replies: " << replies.value() << endl;
    }
 
    rw.incoming->shutdown_queue();

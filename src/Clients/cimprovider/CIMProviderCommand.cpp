@@ -1447,16 +1447,16 @@ void CIMProviderCommand::_StopProvider
 		//l10n
    	    //outPrintWriter << STOP_PROVIDER_SUCCESS << endl;
    	    outPrintWriter << localizeMessage(MSG_PATH,
-        								  PROVIDER_ALREADY_STOPPED_KEY,
-        								  PROVIDER_ALREADY_STOPPED) << endl;
+        								  STOP_PROVIDER_SUCCESS_KEY,
+        								  STOP_PROVIDER_SUCCESS) << endl;
 	}
 	else
 	{
 		//l10n
 	    //outPrintWriter << STOP_PROVIDER_FAILURE << endl;
 	    outPrintWriter << localizeMessage(MSG_PATH,
-        								  PROVIDER_ALREADY_STOPPED_KEY,
-        								  PROVIDER_ALREADY_STOPPED) << endl;
+        								  STOP_PROVIDER_FAILURE_KEY,
+        								  STOP_PROVIDER_FAILURE) << endl;
 	}
     }
 

@@ -52,8 +52,8 @@ PEGASUS_NAMESPACE_BEGIN
 CMPIProvider::CMPIProvider(const String & name,
 		   CMPIProviderModule *module,
 		   ProviderVector *mv)
-   : _module(module), _cimom_handle(0), _name(name),
-     _no_unload(0), _rm(0), _status(UNINITIALIZED)
+   : _status(UNINITIALIZED), _module(module), _cimom_handle(0),
+     _name(name), _no_unload(0), _rm(0)
 {
    _current_operations = 1;
    if (mv) miVector=*mv;
@@ -61,8 +61,8 @@ CMPIProvider::CMPIProvider(const String & name,
 }
 
 CMPIProvider::CMPIProvider(CMPIProvider *pr)
-  : _module(pr->_module), _cimom_handle(0), _name(pr->_name),
-    _no_unload(0), _rm(0), _status(UNINITIALIZED)
+  : _status(UNINITIALIZED), _module(pr->_module), _cimom_handle(0),
+    _name(pr->_name), _no_unload(0), _rm(0)
 {
    _current_operations = 1;
    miVector=pr->miVector;
@@ -218,47 +218,52 @@ Boolean CMPIProvider::tryTerminate(void)
 
 void CMPIProvider::_terminate(void)
 {
-    if (broker.clsCache) {
- //       cerr<<"--- CMPIProvider::_terminate() deleting ClassCache "<<endl;
-	ClassCache::Iterator i=broker.clsCache->start();
-	for (; i; i++) {
-	   //cerr<<"--- CMPIProvider::_terminate() deleting class "
- //	      <<i.value()->getClassName().getString()<<endl;
-	   delete i.value(); }
-	delete broker.clsCache;
-    }
-
     const OperationContext opc;
     CMPIStatus rc={CMPI_RC_OK,NULL};
     CMPI_ContextOnStack eCtx(opc);
+    Boolean savedNoUnload=noUnload;
 
     if (miVector.miTypes & CMPI_MIType_Instance) {
        rc=miVector.instMI->ft->cleanup(miVector.instMI,&eCtx);
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
-    }   
+    }
     if (miVector.miTypes & CMPI_MIType_Association) {
        rc=miVector.assocMI->ft->cleanup(miVector.assocMI,&eCtx);
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
-    }   
+    }
     if (miVector.miTypes & CMPI_MIType_Method) {
        rc=miVector.methMI->ft->cleanup(miVector.methMI,&eCtx);
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
-    }   
+    }
     if (miVector.miTypes & CMPI_MIType_Property) {
        rc=miVector.propMI->ft->cleanup(miVector.propMI,&eCtx);
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
-    }   
+    }
     if (miVector.miTypes & CMPI_MIType_Indication) {
        rc=miVector.indMI->ft->cleanup(miVector.indMI,&eCtx);
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
-    }   
+    }
 
+    if (noUnload==false){
+       if (broker.clsCache) {
+          ClassCache::Iterator i=broker.clsCache->start();
+          for (; i; i++) {
+             delete i.value();
+          }
+          delete broker.clsCache;
+          broker.clsCache=NULL;
+       }
+   }
+   else {
+      if (savedNoUnload!=noUnload)
+         _cimom_handle->disallowProviderUnload();
+   }
 }
 
 
 void CMPIProvider::terminate(void)
 {
-    Status savedStatus=_status;     
+    Status savedStatus=_status;
   if(_status == INITIALIZED)
     {
 	// yield before a potentially lengthy operation.
@@ -274,7 +279,7 @@ void CMPIProvider::terminate(void)
        catch(...)
        {
 	  PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
-			       "Exception caught in CMPIProviderFacade::Terminate for " + 
+			       "Exception caught in CMPIProviderFacade::Terminate for " +
 			       _name);
 	throw;
     }

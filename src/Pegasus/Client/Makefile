@@ -9,8 +9,7 @@ LOCAL_DEFINES = -DPEGASUS_CLIENT_INTERNAL -DPEGASUS_INTERNALONLY
 LIBRARY = pegclient
 
 LIBRARIES = \
-    pegcommon \
-    pegrepository
+    pegcommon
 
 PRE_DEPEND_INCLUDES = -I./depends
 

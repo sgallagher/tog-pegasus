@@ -195,7 +195,9 @@ void MessageQueue::enqueue(Message* message) throw(IPCException)
     if( _async == true )
     {
        _workSemaphore.signal();
+       
     }
+    
     
     _mut.unlock();
 

@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%////-*-c++-*-////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
@@ -52,15 +52,15 @@ PEGASUS_NAMESPACE_BEGIN
 
     A technique we encourage, is to declare global queue ids like this:
 
-	<pre>
-	extern const Uint32 GROCERY_QUEUE_ID;
-	</pre>
+    <pre>
+    extern const Uint32 GROCERY_QUEUE_ID;
+    </pre>
 
     And then define them like this:
 
-	<pre>
-	const Uint32 GROCERY_QUEUE_ID = MessageQueue::getNextQueueId();
-	</pre>
+    <pre>
+    const Uint32 GROCERY_QUEUE_ID = MessageQueue::getNextQueueId();
+    </pre>
 
     And then pass them to the constructor of MessageQueue (from the derived
     class). In this way you will secure a unique constant identifier by which
@@ -75,193 +75,196 @@ PEGASUS_NAMESPACE_BEGIN
 */
 class PEGASUS_COMMON_LINKAGE MessageQueue
 {
-public:
+   public:
 
-    /** This constructor places this object on a queue table which is
-	maintained by this class. Each message queue has a queue-id (which
-	may be obtained by calling getQueueId()). The queue-id may be passed
-	to lookupQueue() to obtain a pointer to the corresponding queue).
+      /** This constructor places this object on a queue table which is
+	  maintained by this class. Each message queue has a queue-id (which
+	  may be obtained by calling getQueueId()). The queue-id may be passed
+	  to lookupQueue() to obtain a pointer to the corresponding queue).
 
-	@param queueId the queue id to be used by this object. ONLY PASS IN
-	QUEUE IDS WHICH WERE GENERATED USING MessageQueue::getNextQueueId().
-	Otherwise, you might end up with more than one queue with the same
-	queue id.
-    */
-    MessageQueue(
-	const char * name = 0, 
-	Boolean async = false,
-	Uint32 queueId = MessageQueue::getNextQueueId());
+	  @param queueId the queue id to be used by this object. ONLY PASS IN
+	  QUEUE IDS WHICH WERE GENERATED USING MessageQueue::getNextQueueId().
+	  Otherwise, you might end up with more than one queue with the same
+	  queue id.
+      */
+      MessageQueue(
+	 const char * name = 0, 
+	 Boolean async = false,
+	 Uint32 queueId = MessageQueue::getNextQueueId());
 
-    /** Removes this queue from the queue table. */
-    virtual ~MessageQueue();
+      /** Removes this queue from the queue table. */
+      virtual ~MessageQueue();
 
-    /** Enques a message (places it at the back of the queue).
-	@param message pointer to message to be enqueued.
-	@exception throws NullPointer exception if message parameter is null.
-    */
-    void enqueue(Message* message) throw(IPCException);
+      /** Enques a message (places it at the back of the queue).
+	  @param message pointer to message to be enqueued.
+	  @exception throws NullPointer exception if message parameter is null.
+      */
+      void enqueue(Message* message) throw(IPCException);
 
 
-    /** allows a caller to determine if this message queue is asynchronous or 
-	not .
-    */
-    Boolean isAsync(void) { return _async; }
+      /** allows a caller to determine if this message queue is asynchronous or 
+	  not .
+      */
+      Boolean isAsync(void) { return _async; }
     
-    /** Allows a message queue to decline to enqueue a message. If
-	the message is enqueued returns true. If the queue declines to
-	handle the message returns false and the message is not enqueued
+      /** Allows a message queue to decline to enqueue a message. If
+	  the message is enqueued returns true. If the queue declines to
+	  handle the message returns false and the message is not enqueued
 
-	Note: accept_async() MUST NEVER call handleEnqueue(). Synchronous
-	MessageQueues (those not having a worker thread) must always return 
-	false.
-    */
+	  Note: accept_async() MUST NEVER call handleEnqueue(). Synchronous
+	  MessageQueues (those not having a worker thread) must always return 
+	  false.
+      */
     
-    virtual Boolean accept_async(Message *message) throw(IPCException);
+      virtual Boolean accept_async(Message *message) throw(IPCException);
     
-    /** Dequeues a message (removes it from the front of the queue).
-	@return pointer to message or zero if queue is empty.
-    */
-    Message* dequeue() throw(IPCException);
+      /** Dequeues a message (removes it from the front of the queue).
+	  @return pointer to message or zero if queue is empty.
+      */
+      Message* dequeue() throw(IPCException);
 
-    /** Removes the given message from the queue.
-	@param message to be removed.
-	@exception throws NullPointer if message parameter is null.
-	@exception throws NoSuchMessageOnQueue is message paramter is not
-	    on this queue.
-    */
-    void remove(Message* message) throw(IPCException);
+      /** Removes the given message from the queue.
+	  @param message to be removed.
+	  @exception throws NullPointer if message parameter is null.
+	  @exception throws NoSuchMessageOnQueue is message paramter is not
+	  on this queue.
+      */
+      void remove(Message* message) throw(IPCException);
 
-    /** Find the message with the given type.
-	@parameter type type of message to be found.
-	@return pointer to message if found; null otherwise.
-    */
-    Message* findByType(Uint32 type) throw(IPCException);
+      /** Find the message with the given type.
+	  @parameter type type of message to be found.
+	  @return pointer to message if found; null otherwise.
+      */
+      Message* findByType(Uint32 type) throw(IPCException);
 
-    /** Const version of findByType(). */
-    const Message* findByType(Uint32 type) const throw(IPCException);
+      /** Const version of findByType(). */
+      const Message* findByType(Uint32 type) const throw(IPCException);
 
-    /** Find the message with the given key.
-	@parameter key key of message to be found.
-	@return pointer to message if found; null otherwise.
-    */
-    Message* findByKey(Uint32 key) throw(IPCException);
+      /** Find the message with the given key.
+	  @parameter key key of message to be found.
+	  @return pointer to message if found; null otherwise.
+      */
+      Message* findByKey(Uint32 key) throw(IPCException);
 
-    /** Const version of findByKey(). */
-    const Message* findByKey(Uint32 key) const throw(IPCException);
+      /** Const version of findByKey(). */
+      const Message* findByKey(Uint32 key) const throw(IPCException);
 
-    /** Finds the messages with the given type and key.
-	@param type type of message to be found.
-	@param type key of message to be found.
-	@return pointer to message if found; null otherwise.
-    */
-    Message* find(Uint32 type, Uint32 key) throw(IPCException);
+      /** Finds the messages with the given type and key.
+	  @param type type of message to be found.
+	  @param type key of message to be found.
+	  @return pointer to message if found; null otherwise.
+      */
+      Message* find(Uint32 type, Uint32 key) throw(IPCException);
 
-    /** Const version of find(). */
-    const Message* find(Uint32 type, Uint32 key) const throw(IPCException);
+      /** Const version of find(). */
+      const Message* find(Uint32 type, Uint32 key) const throw(IPCException);
 
-    /** Returns pointer to front message. */
-    Message* front() { return _front; }
+      /** Returns pointer to front message. */
+      Message* front() { return _front; }
 
-    /** Const version of front(). */
-    const Message* front() const { return _front; }
+      /** Const version of front(). */
+      const Message* front() const { return _front; }
 
-    /** Returns pointer to back message. */
-    Message* back() { return _back; }
+      /** Returns pointer to back message. */
+      Message* back() { return _back; }
 
-    /** Const version of back(). */
-    const Message* back() const { return _back; }
+      /** Const version of back(). */
+      const Message* back() const { return _back; }
 
-    /** Returns true if there are no messages on the queue. */
-    Boolean isEmpty() const { return _front == 0; }
+      /** Returns true if there are no messages on the queue. */
+      Boolean isEmpty() const { return _front == 0; }
 
-    /** Returns the number of messages on the queue. */
-    Uint32 getCount() const { return _count; }
+      /** Returns the number of messages on the queue. */
+      Uint32 getCount() const { return _count; }
 
-    /** Retrieve the queue id for this queue. */
-    Uint32 getQueueId() const { return _queueId; }
+      /** Retrieve the queue id for this queue. */
+      Uint32 getQueueId() const { return _queueId; }
 
-    /** Prints the contents of this queue by calling the print() method
-	of each message.
-	@param os stream onto which the output is placed.
-    */
-    void print(PEGASUS_STD(ostream)& os) const throw(IPCException);
+      /** Prints the contents of this queue by calling the print() method
+	  of each message.
+	  @param os stream onto which the output is placed.
+      */
+      void print(PEGASUS_STD(ostream)& os) const throw(IPCException);
 
-    /** Lock this queue. */
-    virtual void lock() throw(IPCException);
+      /** Lock this queue. */
+      virtual void lock() throw(IPCException);
 
-    /** Unlock this queue. */
-    virtual void unlock();
+      /** Unlock this queue. */
+      virtual void unlock();
 
-    /** Provide a string name for this queue to be used by the print method.
-    */
-    virtual const char* getQueueName() const;
+      /** Provide a string name for this queue to be used by the print method.
+       */
+      virtual const char* getQueueName() const;
 
-    /** This method is called after a message has been enqueued. This default
-	implementation does nothing. Derived classes may override this to
-	take some action each time a message is enqueued (for example, this
-	method could handle the incoming message in the thread of the caller
-	of enqueue()).
-    */
-    virtual void handleEnqueue();
+      /** This method is called after a message has been enqueued. This default
+	  implementation does nothing. Derived classes may override this to
+	  take some action each time a message is enqueued (for example, this
+	  method could handle the incoming message in the thread of the caller
+	  of enqueue()).
+      */
+      virtual void handleEnqueue();
 
-    /** This method <b>may</b> be called prior to enqueueing an message.
-	the message queue can inform the caller that it does not want
-	to handle the message by returning false **/
+      /** This method <b>may</b> be called prior to enqueueing an message.
+	  the message queue can inform the caller that it does not want
+	  to handle the message by returning false **/
 
-    virtual Boolean messageOK(const Message *msg) { return true ;}
+      virtual Boolean messageOK(const Message *msg) { return true ;}
 
-    /** Lookup a message queue from a queue id. Note this is an O(1) operation.
-    */
-    static MessageQueue* lookup(Uint32 queueId) throw(IPCException);
+      /** Lookup a message queue from a queue id. Note this is an O(1) operation.
+       */
+      static MessageQueue* lookup(Uint32 queueId) throw(IPCException);
 
-    /** Lookup a message given a queue name. NOte this is an O(N) operation.
-    */
-    static  MessageQueue* lookup(const char *name) throw(IPCException);
+      /** Lookup a message given a queue name. NOte this is an O(N) operation.
+       */
+      static  MessageQueue* lookup(const char *name) throw(IPCException);
 
-    /** Get the next available queue id. It always returns a non-zero
-	queue id an monotonically increases and finally wraps (to one)
-	after reaching the maximum unsigned 32 bit integer.
-    */
-    static Uint32 MessageQueue::getNextQueueId() throw(IPCException);
+      /** Get the next available queue id. It always returns a non-zero
+	  queue id an monotonically increases and finally wraps (to one)
+	  after reaching the maximum unsigned 32 bit integer.
+      */
+      static Uint32 MessageQueue::getNextQueueId() throw(IPCException);
 
-    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL workThread(void * arg);
+      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL workThread(void * arg);
 
-private:
+   protected:
+      Mutex _mut;
+      Uint32 _queueId;
+      char *_name;
 
-    Mutex _mut;
-    Uint32 _queueId;
-    Uint32 _count;
-    Message* _front;
-    Message* _back;
-    char* _name;
-    Boolean _async;
+   private:
+
+
+      Uint32 _count;
+      Message* _front;
+      Message* _back;
+      Boolean _async;
     
-    Thread _workThread;
-    Semaphore _workSemaphore;
+      Thread _workThread;
+      Semaphore _workSemaphore;
 };
 
 inline const Message* MessageQueue::findByType(Uint32 type) const
-     throw(IPCException)
+   throw(IPCException)
 {
-    return ((MessageQueue*)this)->findByType(type);
+   return ((MessageQueue*)this)->findByType(type);
 }
 
 inline const Message* MessageQueue::findByKey(Uint32 key) const
-     throw(IPCException)
+   throw(IPCException)
 {
-    return ((MessageQueue*)this)->findByKey(key);
+   return ((MessageQueue*)this)->findByKey(key);
 }
 
 inline const Message* MessageQueue::find(Uint32 type, Uint32 key) const
-     throw(IPCException)
+   throw(IPCException)
 {
-    return ((MessageQueue*)this)->find(type, key);
+   return ((MessageQueue*)this)->find(type, key);
 }
 
 class NoSuchMessageOnQueue : public Exception
 {
-public:
-    NoSuchMessageOnQueue() : Exception("No such message on this queue") { }
+   public:
+      NoSuchMessageOnQueue() : Exception("No such message on this queue") { }
 };
 
 PEGASUS_NAMESPACE_END

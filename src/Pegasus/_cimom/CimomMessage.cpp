@@ -66,12 +66,13 @@ const Uint32 cimom_messages::REPLY =                    0x00000000;
 const Uint32 cimom_messages::REGISTER_CIM_SERVICE =     0x00000001;
 const Uint32 cimom_messages::DEREGISTER_CIM_SERVICE =   0x00000002;
 const Uint32 cimom_messages::UPDATE_CIM_SERVICE =       0x00000003;
-const Uint32 cimom_messages::IOCTL =                    0x00000004;
-const Uint32 cimom_messages::ASYNC_OP_REPLY =           0x00000005;
-const Uint32 cimom_messages::ASYNC_LEGACY_OP_REPLY =    0x00000006;
+const Uint32 cimom_messages::IOCTL =                    0x00000005;
+const Uint32 cimom_messages::ASYNC_OP_START =           0x00000006;
+const Uint32 cimom_messages::ASYNC_OP_REPLY =           0x00000007;
+const Uint32 cimom_messages::ASYNC_LEGACY_OP_REPLY =    0x00000008;
 
-const Uint32 cimom_messages::FIND_SERVICE_Q =           0x00000007;
-const Uint32 cimom_messages::ENUMERATE_SERVICE =        0x00000008;
+const Uint32 cimom_messages::FIND_SERVICE_Q =           0x00000009;
+const Uint32 cimom_messages::ENUMERATE_SERVICE =        0x0000000a;
 
 // messages handled by services (modules)
  
@@ -83,13 +84,14 @@ const Uint32 service_messages::PAUSE =                      0x00000003;
 const Uint32 service_messages::RESUME =                     0x00000004;
 const Uint32 service_messages::IOCTL =                      0x00000005;
 const Uint32 service_messages::ASYNC_OP_START =             0x00000006;
-const Uint32 service_messages::ASYNC_OP_CANCEL =            0x00000007;
-const Uint32 service_messages::ASYNC_OP_PAUSE =             0x00000008;
-const Uint32 service_messages::ASYNC_OP_RESUME =            0x00000009;
-const Uint32 service_messages::ASYNC_LEGACY_OP_START =      0x0000000a;
+const Uint32 service_messages::ASYNC_OP_REPLY =             0x00000007;
+const Uint32 service_messages::ASYNC_OP_CANCEL =            0x00000008;
+const Uint32 service_messages::ASYNC_OP_PAUSE =             0x00000009;
+const Uint32 service_messages::ASYNC_OP_RESUME =            0x0000000a;
+const Uint32 service_messages::ASYNC_LEGACY_OP_START =      0x0000000b;
 
-const Uint32 service_messages::FIND_SERVICE_Q_RESPONSE =    0x0000000b;
-const Uint32 service_messages::ENUMERATE_SERVICE_RESPONSE = 0x0000000c;
+const Uint32 service_messages::FIND_SERVICE_Q_RESPONSE =    0x0000000c;
+const Uint32 service_messages::ENUMERATE_SERVICE_RESPONSE = 0x0000000d;
 
 
 

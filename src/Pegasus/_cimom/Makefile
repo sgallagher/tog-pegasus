@@ -17,7 +17,8 @@ PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \
 	CimomMessage.cpp \
-	Cimom.cpp
+	Cimom.cpp \
+	MessageQueueService.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

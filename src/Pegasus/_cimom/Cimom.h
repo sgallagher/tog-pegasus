@@ -86,29 +86,33 @@ class PEGASUS_CIMOM_LINKAGE message_module
 
 class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
 {
-   public : cimom(void)
-      : MessageQueue("cimom", false, CIMOM_Q_ID), 
-	_modules(true), 
-	_pending_ops(true, 100), 
-	_completed_ops(true, 100),
-	_internal_ops(true , 100), 
-	_pending_thread( _pending_proc, this, false),
-	_completed_thread( _completed_proc, this, false),
-	_internal(_internal_proc, this, false),
-	_die(0)
+   public : 
+      cimom(void)
+	 : MessageQueue("cimom", false, CIMOM_Q_ID), 
+	   _modules(true), 
+	   _pending_ops(true, 100), 
+	   _completed_ops(true, 100),
+	   _internal_ops(true , 100), 
+	   _pending_thread( _pending_proc, this, false),
+	   _completed_thread( _completed_proc, this, false),
+	   _internal(_internal_proc, this, false),
+	   _die(0)
       { 
 	 pegasus_gettimeofday(&_last_module_change);
 	 _default_op_timeout.tv_sec = 30;
 	 _default_op_timeout.tv_usec = 100;
       }
             
-      ~cimom(void) ;
+      virtual ~cimom(void) ;
             
       Boolean moduleChange(struct timeval last);
       
       Uint32 getModuleCount(void);
       Uint32 getModuleIDs(Uint32 *ids, Uint32 count) throw(IPCException);
-      
+
+      AsyncOpNode *get_cached_op(void) throw(IPCException);
+      void cache_op(AsyncOpNode *op) throw(IPCException);
+            
       void set_default_op_timeout(const struct timeval *buffer);
       void get_default_op_timeout(struct timeval *timeout) const ;
       
@@ -240,6 +244,26 @@ inline Uint32 cimom::getModuleIDs(Uint32 *ids, Uint32 count) throw(IPCException)
    
    return _modules.count();
 }
+
+inline AsyncOpNode *cimom::get_cached_op(void) throw(IPCException)
+{
+   if( _recycle.count() > 0 )
+      return _recycle.remove_first();
+   else 
+      return new AsyncOpNode();
+}
+
+inline void cimom::cache_op(AsyncOpNode *op) throw(IPCException)
+{
+   unlocked_dq<AsyncOpNode> recycle;
+   op->_reset(&recycle);
+   while( recycle.count() )
+   {
+      _recycle.insert_last(recycle.remove_first() );
+   }
+   
+}
+
 
 inline void cimom::set_default_op_timeout(const struct timeval *buffer)
 {

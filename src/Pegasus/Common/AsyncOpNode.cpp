@@ -59,6 +59,7 @@ void AsyncOpNode::_reset(unlocked_dq<AsyncOpNode> *dst_q)
 
    _parent = 0;
    delete _request;
+   _request = 0;
    _response.empty_list();
    _operation_list.reset();
    _state = 0;
@@ -66,6 +67,10 @@ void AsyncOpNode::_reset(unlocked_dq<AsyncOpNode> *dst_q)
    _total_ops = 0;
    _completed_ops = 0;
    dst_q->insert_first(this);
+   while ( _client_sem.count() )
+      _client_sem.wait();
+   PEGASUS_ASSERT( _client_sem.count() == 0 );
+   
    return;
 }
 

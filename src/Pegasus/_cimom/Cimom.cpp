@@ -80,7 +80,7 @@ void cimom::_enqueueResponse(
        if(false == queue->accept_async(response))
        {
 	  delete response;
-       }
+       }    
     }
     return;
 }
@@ -212,8 +212,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_completed_proc(void *parm)
 	 }
 	 // recycle the async op node. This clears the op nodes and piles them 
 	 // up on a list that we can use for recycling. It also clears any children of 
-	 // the op node and flattens the entire tree out into a list. 
-	 current_op->_reset(&recycle_list);
+	 // the op node and flattens the entire tree out into a list.
+         //  current_op->_reset(&recycle_list);
+
 	 // get the next op node
 	 current_op = reply_list.remove_first();
       }
@@ -221,6 +222,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_completed_proc(void *parm)
       current_op = destroy_list.remove_first();
       while(current_op != 0 )
       {
+
+	 // construct a reply message to the original sender 
+	 
 	 current_op->_reset(&recycle_list);
 	 // get the next op node
 	 current_op = destroy_list.remove_first();
@@ -255,54 +259,20 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_completed_proc(void *parm)
 void cimom::handleEnqueue(void)
 {
 
-    Message* request = dequeue();
+    Message* msg = dequeue();
 
-    if (!request)
+    if (!msg)
        return;
-
-    if( _die.value() != 0 )
-    {
-       delete request;
-       return;
-    }
-
-    // local list to store recycled op nodes 
-    unlocked_dq<AsyncOpNode> recycled(true);
 
     //----- PREPROCESSING -----//
     // at a gross level, look at the message and decide if it is for the cimom or
     // for another module
-    Uint32 mask = request->getMask();
+    Uint32 mask = msg->getMask();
     AsyncOpNode *op = 0;
     Uint32 dest_q_id = 0;
-    
-    
-    if( mask & message_mask::type_cimom )
-    {
-       _internal_ops.insert_last(request);
-       return;
-    }
-    else if(mask & message_mask::ha_async)
-    {
-       // an async request 
-       op = (static_cast<AsyncRequest *>(request))->op;
-       dest_q_id = (static_cast<AsyncRequest *>(request))->dest_q;
-       
-       if(op == 0)
-       {
-	  // something is wrong, just drop this message
-	  delete request;
-	  return;
-       }
-       // note the reference map:
-       // request->opnode
-       // we enqueue the request on the appropriate message queue,
-       // and save the op node on our list of new operations.
-       // it is the responsibility of the message queue handling the
-       // message to use the opnode to update the cimom on the 
-       // status of the message's asynchronous operation
-    }
-    else if ( mask == message_mask::type_legacy )
+    MessageQueue *destination = 0;
+        
+    if ( mask == message_mask::type_legacy )
     {
        // create an asynchronous "envelope" for this message
        // first try to get a recycled async op node. If that fails, 
@@ -317,8 +287,7 @@ void cimom::handleEnqueue(void)
        op->_state = ASYNC_OPFLAGS_UNKNOWN;
 
        // place the original (legacy) request within the "envelope"
-       op->put_request(request);
-       
+       op->put_request(msg);
 
        ServiceAsyncLegacyOpStart *async_request = 
 	  new ServiceAsyncLegacyOpStart(Message::getNextKey(),
@@ -326,82 +295,16 @@ void cimom::handleEnqueue(void)
 					op);
 
        // redirect the message pointer to point the the "envelope"
-       request = static_cast<Message *>(async_request);
+       msg = static_cast<Message *>(async_request);
        // reinitialize the mask to reflect the envelope
-       mask = request->getMask();
+       mask = msg->getMask();
        
        // NOTE: 
        // the reference map is as follows:
        // request->opnode->original_request 
     }
     
-
-    //----- ROUTING -----//
-    if( op == 0 || request == 0 )
-       throw NullPointer();
-        
-    MessageQueue *dst_q;
-    
-    // set the operation timeout to the cimom's default timeout interval
-    // the module performing the operation can change the timeout interval
-    // if it needs to. 
-    op->set_timeout_interval(&_default_op_timeout);
-    if(dest_q_id != 0 )
-    {
-       // there is a specific queue that this message is destined for 
-       if( 0 != (dst_q = MessageQueue::lookup(dest_q_id)))
-       {
-	  // give the intended recipient this message
-	  if (true == dst_q->accept_async(request) )
-	     op->_state |= ASYNC_OPSTATE_ACCEPTED ;
-       }
-    }
-    else 
-    {
-       // now give each registered module a chance to handle this request message
-       // for now we bail after one module has accepted the message. 
-       // in the future, multiple modules can concurrently handle the
-       // same message
-       _modules.lock();
-       message_module *module = _modules.next(0);
-       while(module != 0)
-       {
-	  dst_q = MessageQueue::lookup(module->_q_id);
-	  if (dst_q != 0 )
-	  {
-	     if( true == dst_q->accept_async(request))
-	     {
-		op->_state |= ASYNC_OPSTATE_ACCEPTED;
-		break;
-	     }
-	     
-	  }
-	  module = _modules.next(module);
-       }
-       _modules.unlock();
-    }
-    
-    if(op->_state & ASYNC_OPSTATE_ACCEPTED)
-    {
-       _pending_ops.insert_last(op);
-    }
-    else
-    {
-       op->_reset(&recycled);
-    }
-    
-    if( recycled.count() > 0 )
-    {
-       _recycle.lock();
-       op = recycled.remove_first();
-       while(op != 0 )
-       {
-	  _recycle.insert_last_no_lock(op);
-	  op = recycled.remove_first();
-       }
-       _recycle.unlock();
-    }
-    
+    _internal_ops.insert_last(msg);
     return;
 }
 
@@ -424,19 +327,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_internal_proc(void * parm)
       msg = cim_manager->_internal_ops.remove_no_lock(msg);
       // unlock the list 
       cim_manager->_internal_ops.unlock();
-      
-      if (msg != 0)
-      {
-	 Uint32 mask = msg->getMask();
-	 if( mask & message_mask::type_cimom ||
-	     mask & message_mask::type_service ||
-	     mask & message_mask::type_broadcast )
-	 {
-	    cim_manager->_handle_cimom_msg(msg);
-	 }
-	 else
-	    delete msg;
-      }
+      cim_manager->_handle_cimom_msg(msg);
    }
 
    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
@@ -446,6 +337,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_internal_proc(void * parm)
 
 void cimom::_handle_cimom_msg(Message *msg)
 {
+   if (msg == 0 )
+      return;
+   
    Uint32 mask = msg->getMask();
    Uint32 type = msg->getType();
 
@@ -472,7 +366,6 @@ void cimom::_handle_cimom_msg(Message *msg)
 	 // This code block will be put to use when we support phased 
 	 // operations, transactional operations, child operations, 
 	 // or remote operations. 
-	 // <<< Sun Dec 30 20:51:18 2001 mdd >>>
 	 
       }
       
@@ -501,8 +394,54 @@ void cimom::_handle_cimom_msg(Message *msg)
 	 ioctl(static_cast<CimomIoctl *>(msg));
       }
 
-
       delete msg;
+   }
+
+   // this message is for a service. see if we can route it 
+   else if( mask & message_mask::type_service )
+   {
+      Boolean handled = false;
+      if ( mask & message_mask::ha_async )
+      {
+	 Uint32 destination = 0;
+	 MessageQueue *dest_queue = 0;
+	 
+	 if( mask & message_mask::ha_request )
+	 {
+	    destination = ( static_cast<AsyncRequest *>(msg))->dest_q;
+	 }
+	 else if (mask & message_mask::ha_reply)
+	 {
+	    destination = ( static_cast<AsyncReply *>(msg))->dest_q;
+	 }
+	 
+	 if (destination != 0 )
+	 {
+	    dest_queue = MessageQueue::lookup(destination);
+	    handled = dest_queue->accept_async(msg);
+	 }
+	 else
+	 {
+	    _modules.lock();
+	    message_module *module = _modules.next(0);
+	    while(module != 0)
+	    {
+	       dest_queue  = MessageQueue::lookup(module->_q_id);
+	       if (dest_queue != 0 )
+	       {
+		  if( true == (handled = dest_queue->accept_async(msg)))
+		  {
+		     break;
+		  }
+	       }
+	       module = _modules.next(module);
+	    }
+	    _modules.unlock();
+	 }
+      }
+
+      if (handled == false)
+	 delete msg;
    }
    return;
 }
@@ -628,9 +567,13 @@ void cimom::register_module(CimomRegisterService *msg)
       }
    }
 
-   Reply *reply = new Reply(service_messages::REPLY, msg->getKey(), result,
-			    message_mask::type_service | message_mask::ha_reply,
-			    msg->getRouting() );
+   AsyncReply *reply = new AsyncReply(service_messages::REPLY, msg->getKey(), result,
+				      message_mask::type_service | message_mask::ha_reply,
+				      msg->op,
+				      msg->getRouting() );
+   msg->op->put_response(reply);
+   // flag this guy as complete 
+   msg->op->_state |= ASYNC_OPSTATE_COMPLETE;
    _enqueueResponse(msg, reply);
    return;
 

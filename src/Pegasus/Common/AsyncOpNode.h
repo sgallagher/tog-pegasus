@@ -107,6 +107,8 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       void processing(OperationContext *context) throw(IPCException);
       void complete(void) throw(IPCException) ;
       void complete(OperationContext *context) throw(IPCException);
+      void wait(void);
+      
       
    private:
       Semaphore _client_sem;
@@ -141,6 +143,8 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       void _adopt_child(AsyncOpNode *child) ;
       void _disown_child(AsyncOpNode *child) ;
       friend class cimom;
+      friend class MessageQueueService;
+      
 };
 
 
@@ -325,6 +329,7 @@ inline void AsyncOpNode::complete(void)
    _flags |= ASYNC_OPSTATE_COMPLETE;
    gettimeofday(&_updated, NULL);
    _mut.unlock();
+   _client_sem.signal();
    return;
 }
 
@@ -341,6 +346,12 @@ inline void AsyncOpNode::complete(OperationContext *con)
       c = con->remove_context();
    }
    _mut.unlock();
+   _client_sem.signal();
+}
+
+inline void AsyncOpNode::wait(void)
+{
+   _client_sem.wait();
 }
 
 inline  void AsyncOpNode::_set_lifetime(struct timeval *lifetime) 

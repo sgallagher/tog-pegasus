@@ -126,14 +126,18 @@ cimmofParser::setRepository(void) {
 	  if (e.getCode() != CIMException::ALREADY_EXISTS)
 	      throw e;
 	// OK, that's what we expect
-      } catch(Exception &e) {
-	arglist.append(s);
-	arglist.append(e.getMessage());
-	cimmofMessages::getMessage(message, 
-				   cimmofMessages::NAMESPACE_CREATE_ERROR,
-				   arglist);
-	elog(message);
-	return false;
+      } catch(CIMException &e) {
+	if (e.getCode() == CIMException::ALREADY_EXISTS) {
+	  // Not a problem.  Happens all the time.
+	} else {
+	  arglist.append(s);
+	  arglist.append(e.getMessage());
+	  cimmofMessages::getMessage(message, 
+				     cimmofMessages::NAMESPACE_CREATE_ERROR,
+				     arglist);
+	  elog(message);
+	  return false;
+	}
       }
     } else {
       cimmofMessages::getMessage(message, 

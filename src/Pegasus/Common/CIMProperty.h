@@ -294,9 +294,11 @@ public:
 	@param out Parameter for Mof output
     */
     void toMof(Array<Sint8>& out) const;
+#endif
 
 private:
 
+#ifdef PEGASUS_INTERNALONLY
     CIMProperty(CIMPropertyRep* rep);
 
     // This constructor allows the CIMClassRep friend class to cast

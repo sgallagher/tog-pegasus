@@ -83,9 +83,11 @@ public:
     void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
 
     Boolean identical(const CIMParamValue& x) const;
+#endif
 
 private:
 
+#ifdef PEGASUS_INTERNALONLY
     CIMParamValue(CIMParamValueRep* rep);
 
     void _checkRep() const;

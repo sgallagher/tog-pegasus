@@ -4,6 +4,10 @@
 # Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
 # Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
 # IBM Corp.; EMC Corporation, The Open Group.
+# Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+# IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+# Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+# EMC Corporation; VERITAS Software Corporation; The Open Group.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -28,6 +32,7 @@
 #
 # Package spec for PEGASUS 2.4
 #
+%define srcRelease 1
 Summary: OpenPegasus WBEM Services for Linux
 Name: tog-pegasus
 Version: 2.4.1.Beta
@@ -35,7 +40,7 @@ Release: 1
 Group: Systems Management/Base
 Copyright: Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
-Source: ftp://www.opengroup.org/pegasus/tog-pegasus-%{version}-%{release}.tar.gz
+Source: ftp://www.opengroup.org/pegasus/tog-pegasus-%{version}-%{srcRelease}.tar.gz
 Requires: openssl >= 0.9.6 lsb >= 1.3
 Provides: cimserver tog-pegasus-2.4
 BuildRequires: openssl-devel >= 0.9.6
@@ -61,20 +66,39 @@ build WBEM Clients and Providers. It also supports C provider developers via the
 %prep
 [ "$RPM_BUILD_ROOT" != "/" ] && [ -d $RPM_BUILD_ROOT ] && rm -rf $RPM_BUILD_ROOT;
 
-%setup
-
 export PEGASUS_ROOT=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 
 # Needed for CMPI patch
 ln -s $RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION $RPM_BUILD_DIR/$RPM_PACKAGE_NAME
 
 %build
+export PEGASUS_EXTRA_C_FLAGS="-g $RPM_OPT_FLAGS"
+export PEGASUS_EXTRA_CXX_FLAGS="$PEGASUS_EXTRA_C_FLAGS"
+export PEGASUS_EXTRA_LINK_FLAGS="-pie"
 export PEGASUS_ROOT=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 export PEGASUS_HOME=$RPM_BUILD_ROOT/usr/pegasus
-%ifarch ia64
+%ifarch ia64 x86_64
 %define PEGASUS_HARDWARE_PLATFORM LINUX_IA64_GNU
 %else
+%ifarch ppc
+%define PEGASUS_HARDWARE_PLATFORM LINUX_PPC_GNU
+%else
+%ifarch ppc64 pseries
+%define PEGASUS_HARDWARE_PLATFORM LINUX_PPC64_GNU
+%else
+%ifarch s390
+%define PEGASUS_HARDWARE_PLATFORM LINUX_ZSERIES_GNU
+export  PEGASUS_EXTRA_C_FLAGS="PEGASUS_EXTRA_C_FLAGS -fsigned-char"
+%else
+%ifarch s390x zseries
+%define PEGASUS_HARDWARE_PLATFORM LINUX_ZSERIES64_GNU
+export  PEGASUS_EXTRA_C_FLAGS="PEGASUS_EXTRA_C_FLAGS -fsigned-char"
+%else
 %define PEGASUS_HARDWARE_PLATFORM LINUX_IX86_GNU
+%endif
+%endif
+%endif
+%endif
 %endif
 export PEGASUS_PLATFORM=%PEGASUS_HARDWARE_PLATFORM
 
@@ -161,17 +185,17 @@ install -D -m 0755  $PEGASUS_ROOT/rpm/tog-pegasus.rc $RPM_BUILD_ROOT/etc/init.d/
 
 #
 # Programs
-install -D -m 0544  $PEGASUS_HOME/bin/cimauth   $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/cimauth
-install -D -m 0544  $PEGASUS_HOME/bin/cimserver $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/cimserver
-install -D -m 0544  $PEGASUS_HOME/bin/cimservera $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/cimservera
-install -D -m 0544  $PEGASUS_HOME/bin/cimuser   $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/cimuser
-install -D -m 0544  $PEGASUS_HOME/bin/cimconfig $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/cimconfig
-install -D -m 0544  $PEGASUS_HOME/bin/cimprovagt $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/cimprovagt
-install -D -m 0555  $PEGASUS_HOME/bin/cimmof    $RPM_BUILD_ROOT%PEGASUS_BIN_DIR/cimmof
-install -D -m 0555  $PEGASUS_HOME/bin/cimmofl   $RPM_BUILD_ROOT%PEGASUS_BIN_DIR/cimmofl
-install -D -m 0555  $PEGASUS_HOME/bin/cimprovider $RPM_BUILD_ROOT%PEGASUS_BIN_DIR/cimprovider
-install -D -m 0555  $PEGASUS_HOME/bin/osinfo    $RPM_BUILD_ROOT%PEGASUS_BIN_DIR/osinfo
-install -D -m 0555  $PEGASUS_HOME/bin/wbemexec  $RPM_BUILD_ROOT%PEGASUS_BIN_DIR/wbemexec
+install -D -m 0744  $PEGASUS_HOME/bin/cimauth   $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/cimauth
+install -D -m 0744  $PEGASUS_HOME/bin/cimserver $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/cimserver
+install -D -m 0744  $PEGASUS_HOME/bin/cimservera $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/cimservera
+install -D -m 0744  $PEGASUS_HOME/bin/cimuser   $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/cimuser
+install -D -m 0744  $PEGASUS_HOME/bin/cimconfig $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/cimconfig
+install -D -m 0744  $PEGASUS_HOME/bin/cimprovagt $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/cimprovagt
+install -D -m 0755  $PEGASUS_HOME/bin/cimmof    $RPM_BUILD_ROOT%PEGASUS_BIN_DIR/cimmof
+install -D -m 0755  $PEGASUS_HOME/bin/cimmofl   $RPM_BUILD_ROOT%PEGASUS_BIN_DIR/cimmofl
+install -D -m 0755  $PEGASUS_HOME/bin/cimprovider $RPM_BUILD_ROOT%PEGASUS_BIN_DIR/cimprovider
+install -D -m 0755  $PEGASUS_HOME/bin/osinfo    $RPM_BUILD_ROOT%PEGASUS_BIN_DIR/osinfo
+install -D -m 0755  $PEGASUS_HOME/bin/wbemexec  $RPM_BUILD_ROOT%PEGASUS_BIN_DIR/wbemexec
 
 
 # Libraries
@@ -376,12 +400,12 @@ echo "PEGASUS_REPOSITORY_DIR="%PEGASUS_REPOSITORY_DIR >> initrepository.in
 echo "PEGASUS_BIN_DIR="%PEGASUS_BIN_DIR >> initrepository.in
 echo "PEGASUS_CIM_SCHEMA=28" >> initrepository.in
 cat initrepository.in $PEGASUS_ROOT/installs/scripts/init_repository > $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/init_repository
-chmod 0544 $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/init_repository
+chmod 0744 $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/init_repository
 
 #
 # script to add tog-pegasus paths to /etc/profile
 #
-install -D -m 0544 %PEGASUS_INSTALL_SCRIPT_DIR/settogpath $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/settogpath
+install -D -m 0744 %PEGASUS_INSTALL_SCRIPT_DIR/settogpath $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/settogpath
 
 #
 # man pages
@@ -515,7 +539,6 @@ install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/Load/Insta
 install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/Load/MethodProviderR.mof %SAMPLES_DEST_PATH/Providers/Load/MethodProviderR.mof
 install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/Load/SampleProviderSchema.mof %SAMPLES_DEST_PATH/Providers/Load/SampleProviderSchema.mof
 install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/Load/SimpleDisplayConsumerR.mof %SAMPLES_DEST_PATH/Providers/Load/SimpleDisplayConsumerR.mof
-
 cd $RPM_BUILD_ROOT
 rm -Rf $PEGASUS_HOME
 
@@ -546,6 +569,7 @@ then
 fi
 
 %post
+if [ $1 -eq 1 ]; then
 mkdir -p %PEGASUS_LOG_DIR
 %define INSTALL_LOG %PEGASUS_LOG_DIR/install.log
 echo `date` >%INSTALL_LOG 2>&1
@@ -624,25 +648,26 @@ echo " /etc/init.d/tog-pegasus start"
 echo " Stop it:"
 echo " /etc/init.d/tog-pegasus stop"
 echo " To set up PATH and MANPATH in /etc/profile"
-echo " run /opt/tog-pegasus/sbin/settogpath."
+echo " run /opt/tog-pegasus/sbin/settogpath.";
+fi
 
 %preun
-
+if [ $1 -eq 0 ]; then
 # Check if the cimserver is running
 isRunning=`ps -el | grep cimserver | grep -v "grep cimserver"`
 if [ "$isRunning" ]; then
-	%PEGASUS_SBIN_DIR/cimserver -s	
+        %PEGASUS_SBIN_DIR/cimserver -s  
+fi
+# Delete the Link to the rc.* Startup Directories
+/usr/lib/lsb/remove_initd /etc/init.d/tog-pegasus;
 fi
 
-# Delete the Link to the rc.* Startup Directories
-/usr/lib/lsb/remove_initd /etc/init.d/tog-pegasus
-
 %postun
-if [ $1 = 0 ]; then
-	rm -rf %PEGASUS_VARDATA_DIR
+if [ $1 -eq 0 ]; then
+        rm -rf %PEGASUS_VARDATA_DIR
         rm -rf %PEGASUS_PROD_DIR
-	rm -rf %PEGASUS_CONFIG_DIR
-	export LC_ALL=C
+        rm -rf %PEGASUS_CONFIG_DIR
+        export LC_ALL=C
 fi
 
 %files
@@ -797,19 +822,19 @@ fi
 %config %attr(-,root,root) %PEGASUS_VARDATA_DIR/%PEGASUS_PLANNED_CONFIG_FILE
 %config %attr(-,root,root) /etc/init.d/tog-pegasus
 %config %attr(-,root,root) %PAM_CONF/wbem
-%attr(-,root,root) %PEGASUS_SBIN_DIR/cimauth
-%attr(-,root,root) %PEGASUS_SBIN_DIR/cimserver
-%attr(-,root,root) %PEGASUS_SBIN_DIR/cimservera
-%attr(-,root,root) %PEGASUS_SBIN_DIR/cimuser
-%attr(-,root,root) %PEGASUS_SBIN_DIR/cimconfig
-%attr(-,root,root) %PEGASUS_SBIN_DIR/init_repository
-%attr(-,root,root) %PEGASUS_SBIN_DIR/settogpath
-%attr(-,root,root) %PEGASUS_SBIN_DIR/cimprovagt
-%attr(-,root,root) %PEGASUS_BIN_DIR/cimmof
-%attr(-,root,root) %PEGASUS_BIN_DIR/cimmofl
-%attr(-,root,root) %PEGASUS_BIN_DIR/cimprovider
-%attr(-,root,root) %PEGASUS_BIN_DIR/osinfo
-%attr(-,root,root) %PEGASUS_BIN_DIR/wbemexec
+%attr(0544,root,root) %PEGASUS_SBIN_DIR/cimauth
+%attr(0544,root,root) %PEGASUS_SBIN_DIR/cimserver
+%attr(0544,root,root) %PEGASUS_SBIN_DIR/cimservera
+%attr(0544,root,root) %PEGASUS_SBIN_DIR/cimuser
+%attr(0544,root,root) %PEGASUS_SBIN_DIR/cimconfig
+%attr(0544,root,root) %PEGASUS_SBIN_DIR/init_repository
+%attr(0544,root,root) %PEGASUS_SBIN_DIR/settogpath
+%attr(0544,root,root) %PEGASUS_SBIN_DIR/cimprovagt
+%attr(0555,root,root) %PEGASUS_BIN_DIR/cimmof
+%attr(0555,root,root) %PEGASUS_BIN_DIR/cimmofl
+%attr(0555,root,root) %PEGASUS_BIN_DIR/cimprovider
+%attr(0555,root,root) %PEGASUS_BIN_DIR/osinfo
+%attr(0555,root,root) %PEGASUS_BIN_DIR/wbemexec
 %attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libCIMxmlIndicationHandler.so.1
 %attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libConfigSettingProvider.so.1
 %attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libNamespaceProvider.so.1

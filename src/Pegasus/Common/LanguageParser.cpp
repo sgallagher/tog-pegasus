@@ -32,8 +32,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include <cstring>
-#include <iostream>
-#include <cstdlib>
+
 //PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
@@ -195,9 +194,7 @@ void LanguageParser::parseLanguageSubtags(Array<String> &subtags, String languag
     PEG_METHOD_ENTER(TRC_L10N, "LanguageParser::parseLanguageSubtags");
 	Uint32 i;
 	char separator = findSeparator(language_tag.getCString());
-	
 	while( (i = language_tag.find(Char16(separator))) != PEG_NOT_FOUND ){
-			
 			subtags.append(language_tag.subString(0,i));
 			language_tag.remove(0,i + 1);		
 	}
@@ -244,33 +241,16 @@ String LanguageParser::convertPrivateLanguageTag(String language_tag){
 
 Boolean LanguageParser::checkAlpha(CString _str){
 	Uint32 length = (Uint32) strlen(_str);
-	for(Uint32 i = 0; i < length; i++){
-	if (!(((_str[i] >= 'A') && (_str[i] <= 'Z')) ||
-	   ((_str[i] >= 'a') && (_str[i] <= 'z')))) 
-	   		return false;
-	}
-	return true; 
-	    
-	/*for(Uint32 i = 0; i < length; i++)
+	for(Uint32 i = 0; i < length; i++)
 		if( !isalpha(_str[i]) )
 			return false;
-	return true;*/
-}
-
-Boolean LanguageParser::checkAlphaNum(char c){
-	
-	if (!(((c >= 'A') && (c <= 'Z')) ||
-	   ((c >= 'a') && (c <= 'z')) ||
-	   ((c >= '0') && (c <= '9')))) 
-	   		return false;
-	
-	return true; 
+	return true;
 }
 
 char LanguageParser::findSeparator(CString _str){
 	Uint32 length = (Uint32) strlen(_str);
 	for(Uint32 i = 0; i < length; i++)
-		if(!checkAlphaNum(_str[i]))
+		if(!isalnum(_str[i]))
 			return _str[i];
 	return '\0';
 }
@@ -279,7 +259,7 @@ CString LanguageParser::replaceSeparator(CString _s, char new_sep){
 	char * _str = const_cast<char *>((const char*)_s);
 	Uint32 length = (Uint32) strlen(_str);
 	for(Uint32 i = 0; i < length; i++)
-		_str[i] = (!checkAlphaNum(_str[i])) ? new_sep : _str[i];
+		_str[i] = (!isalnum(_str[i])) ? new_sep : _str[i];
 	return (String(_str)).getCString();
 }
 

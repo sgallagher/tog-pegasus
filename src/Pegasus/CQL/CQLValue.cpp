@@ -91,6 +91,11 @@ CQLValue::~CQLValue()
          break;
    }
 }
+
+CQLValue::CQLValue(const CQLValue& val){
+
+}
+
 CQLValue::CQLValue(String inString, NumericType inValueType, Boolean inSign)
 {
    CString cStr = inString.getCString();

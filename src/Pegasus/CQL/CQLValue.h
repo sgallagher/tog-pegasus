@@ -85,6 +85,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
 
     CQLValue(){}
     ~CQLValue();
+    CQLValue(const CQLValue& val);
     CQLValue(String inString, NumericType inValueType,
         Boolean inSign = true);
 

@@ -92,8 +92,69 @@ CQLValue::~CQLValue()
    }
 }
 
-CQLValue::CQLValue(const CQLValue& val){
+CQLValue::CQLValue(const CQLValue& val)
+{
+   switch(val._valueType)
+   {
+      case Boolean_type:
+      {
+         _theValue._B = val._theValue._B;
+         break;
+      }
+      case Sint64_type: 
+      {
+         _theValue._S64 = val._theValue._S64;
+         break;
+      }
+      case Uint64_type: 
+      {
+         _theValue._U64 = val._theValue._U64;
+         break;
+      }
+      case Real_type: 
+      {
+         _theValue._R64 = val._theValue._R64;
+         break;
+      }
+      case String_type:  
+      {
+         _theValue._S = new String(*val._theValue._S);
+         break;
+      }
+      case CIMDateTime_type:  
+      {
+         _theValue._DT = new CIMDateTime(*val._theValue._DT);
+         break;
+      }
+      case CIMReference_type:  
+      {
+         _theValue._OP = new CIMObjectPath(*val._theValue._OP);
+         break;
+      }
+      case CIMInstance_type:  
+      {
+         _theValue._IN = new CIMInstance(*val._theValue._IN);
+         break;
+      }
+      case CIMClass_type:  
+      {
+         _theValue._CL = new CIMClass(*val._theValue._CL);
+         break;
+      }
+      default:
+         break;
+   }
 
+   if(val._CQLChainId != NULL)
+   {
+      _CQLChainId = new CQLChainedIdentifier(*val._CQLChainId);
+   }
+
+    _isResolved = val._isResolved;
+
+    Num_Type = val.Num_Type;
+
+   _valueType = val._valueType;
 }
 
 CQLValue::CQLValue(String inString, NumericType inValueType, Boolean inSign)

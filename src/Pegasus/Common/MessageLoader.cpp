@@ -444,7 +444,13 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 	  // will be used to tell this code to ignore ICU and return the default message.
 	  // This will allow poststarttests to run with ICU installed.
 	  // TODO: remove this function once test cases are compatible with ICU messages
+#ifdef PEGASUS_OS_OS400
+#pragma convert(37)
+#endif
 	  const char* env = getenv("PEGASUS_USE_DEFAULT_MESSAGES");
+#ifdef PEGASUS_OS_OS400
+#pragma convert(0) 
+#endif 
 	  if (env != NULL)
 	    _useDefaultMsg = true;	
 	}

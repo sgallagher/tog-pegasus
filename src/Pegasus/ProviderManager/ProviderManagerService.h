@@ -52,9 +52,6 @@ public:
     ProviderManagerService(ProviderRegistrationManager * providerRegistrationManager);
     virtual ~ProviderManagerService(void);
 
-    // short term hack
-    ProviderManager * getProviderManager(void);
-
 protected:
     virtual Boolean messageOK(const Message * message);
     virtual void handleEnqueue(void);
@@ -111,7 +108,7 @@ protected:
     void handleDeleteSubscriptionRequest(AsyncOpNode *op, const Message *message) throw();
     void handleEnableIndicationsRequest(AsyncOpNode *op, const Message *message) throw();
     void handleDisableIndicationsRequest(AsyncOpNode *op, const Message *message) throw();
-    
+
     void handleDisableModuleRequest(AsyncOpNode *op, const Message *message) throw();
     void handleEnableModuleRequest(AsyncOpNode *op, const Message *message) throw();
 

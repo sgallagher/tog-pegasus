@@ -28,12 +28,12 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "clientRepositoryInterface.h"
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/Exception.h>
+#include "clientRepositoryInterface.h"
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN

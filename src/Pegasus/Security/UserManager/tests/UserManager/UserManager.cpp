@@ -34,14 +34,13 @@
 #include <cassert>
 #include <iostream>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/System.h>
 #include <Pegasus/Security/UserManager/UserManager.h>
 #include <Pegasus/Security/UserManager/UserExceptions.h>
 
 PEGASUS_USING_PEGASUS;
 
 PEGASUS_USING_STD;
-
-static const String GOOD_USER       = "guest";
 
 static const String BAD_USER        = "nosuchuser";
 
@@ -115,13 +114,15 @@ int main()
     // Positive tests
     //
      
+    String goodUser = System::getCurrentLoginName();
+
     exceptionFlag = false;
     try
     {
         //
         // Try to add a valid system user
         //
-        userManager->addUser(GOOD_USER, GOOD_USER);
+        userManager->addUser(goodUser, goodUser);
     }
     catch (DuplicateUser& du)
     {
@@ -138,7 +139,7 @@ int main()
         //
         // Try to modify a valid user's password
         //
-        userManager->modifyUser(GOOD_USER, GOOD_USER, BAD_USER);
+        userManager->modifyUser(goodUser, goodUser, BAD_USER);
     }
     catch (PasswordMismatch& pm)
     {
@@ -155,7 +156,7 @@ int main()
         //
         // Try to remove a valid user
         //
-        userManager->removeUser(GOOD_USER);
+        userManager->removeUser(goodUser);
     }
     catch (Exception& e)
     {

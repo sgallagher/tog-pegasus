@@ -322,7 +322,7 @@ CIMReference CIMInstanceRep::getInstanceName(
 	    CIMType type = value.getType();
 	    String valueStr = value.toString();
 
-	    KeyBinding::Type kbType;
+	    KeyBinding::Type kbType = KeyBinding::STRING;
 
 	    switch (type)
 	    {

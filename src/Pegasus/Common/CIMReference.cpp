@@ -149,6 +149,11 @@ CIMReference::CIMReference(const String& objectName)
     set(objectName);
 }
 
+CIMReference::CIMReference(const char* objectName)
+{
+    set(objectName);
+}
+
 CIMReference::CIMReference(
     const String& host,
     const String& nameSpace,

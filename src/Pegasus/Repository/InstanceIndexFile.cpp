@@ -26,9 +26,11 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <fstream>
+#include <cctype>
+#include <cstdio>
+#include <cstdlib>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <cstdlib>    // for strtol on linux
 #include "InstanceIndexFile.h"
 
 using namespace std;

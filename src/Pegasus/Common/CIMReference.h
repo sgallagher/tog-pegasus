@@ -363,6 +363,9 @@ public:
     /** Initializes this object from a CIM object name. */
     CIMReference(const String& objectName);
 
+    /** Initializes this object from a CIM object name (char* version). */
+    CIMReference(const char* objectName);
+
     /** Constructs a CIMReference from constituent elements.
 	@param host - name of host (e.g., "nemesis-8888").
 	@param nameSpace -  namespace (e.g., "root/cimv20").
@@ -402,6 +405,13 @@ public:
 
     /** Same as set() above except that it is an assignment operator */
     CIMReference& operator=(const String& objectName)
+    {
+	set(objectName);
+	return *this;
+    }
+
+    /** Same as set() above except that it is an assignment operator */
+    CIMReference& operator=(const char* objectName)
     {
 	set(objectName);
 	return *this;

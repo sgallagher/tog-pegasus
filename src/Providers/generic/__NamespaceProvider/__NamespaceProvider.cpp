@@ -98,7 +98,7 @@ public:
 
 	    // find property "name"
 	    Uint32 i = myInstance.findProperty("name");
-	    if (i == -1)
+	    if (i == Uint32(-1))
 		{
 		    throw CIMException(CIMException::INVALID_PARAMETER);
 		    return;

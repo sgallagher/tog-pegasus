@@ -215,15 +215,15 @@ Boolean _HashTableRep::insert(
     Uint32 i = hashCode % _numChains;
     _BucketBase* last = 0;
 
-    for (_BucketBase* bucket = _chains[i]; bucket; bucket = bucket->next)
+    for (_BucketBase* b = _chains[i]; b; b = b->next)
     {
-	if (bucket->equal(key))
+	if (b->equal(key))
 	{
 	    delete bucket;
 	    return false;
 	}
 
-	last = bucket;
+	last = b;
     }
 
     // Insert bucket:

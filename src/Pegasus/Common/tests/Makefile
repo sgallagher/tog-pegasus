@@ -28,6 +28,7 @@ DIRS = \
     QualifierList \
     Queue \
     Scope \
+    Socket \
     Stack \
     Stopwatch \
     String \

@@ -28,6 +28,7 @@
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Amit K Arora (amita@in.ibm.com) for Bug# 1081 (mofFormat())
+//				Willis White (whiwill@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -286,7 +287,6 @@ int main(int argc, char** argv)
     OptionManager om;
 
 //debug code
-	printf("we are in the main programe of cimomperf");
 
     try
     {
@@ -427,7 +427,6 @@ int main(int argc, char** argv)
 			else
 			{
 				statName = "UNKNOWN";
-				printf("no ElementName property found\n");
 			}
 
 			//debug code

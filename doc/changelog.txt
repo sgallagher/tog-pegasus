@@ -169,6 +169,7 @@ will be deleted.
     
 18  (KS) 6 March 2002 - Implemented changes to compiler and flavors to correct the
     definition of CIMFlavors.
+    
 
 19. (Roger Kumpf - HP) 1 Mar 2002 - Reworked the XmlWriter class to
     eliminate many of the redundant memory copies that resulted from the
@@ -200,6 +201,11 @@ will be deleted.
     Specifically, the CIMOperation, CIMProtocolVersion, CIMMethod,
     CIMObject, CIMBatch, CIMExport, and CIMExportBatch headers are
     validated.
+
+21. (KS) 7 March 2002 - Correct error in qualifier propagation processing in
+    qualifierlist.resolve. Temporarily remove the DEFAULT setup on the
+    Compiler qualifier generation. Add tests for resolve processing.
+
 
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001

@@ -133,6 +133,27 @@ InternalCIMOMHandleRep::InternalCIMOMHandleRep(Uint32 out_qid, Uint32 ret_qid)
     }
 }
 
+// Private, unimplemented copy constructor
+InternalCIMOMHandleRep::InternalCIMOMHandleRep(
+    const InternalCIMOMHandleRep& rep)
+    : CIMOMHandleRep(),
+      MessageQueue(PEGASUS_QUEUENAME_INTERNALCLIENT)
+{
+    PEGASUS_ASSERT(0);
+}
+
+// Private, unimplemented assignment operator
+InternalCIMOMHandleRep& InternalCIMOMHandleRep::operator=(
+    const InternalCIMOMHandleRep& rep)
+{
+    PEGASUS_ASSERT(0);
+    return *this;
+}
+
+InternalCIMOMHandleRep::~InternalCIMOMHandleRep()
+{
+}
+
 #ifdef PEGASUS_OS_OS400
 InternalCIMOMHandleRep::InternalCIMOMHandleRep(Uint32 os400UserStateKey)
     : MessageQueue(PEGASUS_QUEUENAME_INTERNALCLIENT),

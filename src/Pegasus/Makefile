@@ -37,7 +37,7 @@ DIRS += \
 else
 DIRS += \
 	ProviderManager \
-	Providermanager/tests
+	ProviderManager/tests
 endif
 	
 DIRS += \

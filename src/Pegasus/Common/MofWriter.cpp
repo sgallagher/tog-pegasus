@@ -47,6 +47,8 @@
 #include "CIMQualifierDeclRep.h"
 #include "CIMReference.h"
 #include "CIMValue.h"
+#include "CIMFlavor.h"
+#include "CIMScope.h"
 #include "XmlWriter.h"
 #include "MofWriter.h"
 #include "Tracer.h"
@@ -673,6 +675,26 @@ String MofWriter::getQualifierFlavor(Uint32 flavor)
         tmp.remove(tmp.size() - 2);
 
     return tmp;
+}
+
+//------------------------------------------------------------------------------
+//
+// getQualifierScope()
+//
+//------------------------------------------------------------------------------
+
+String MofWriter::getQualifierScope(Uint32 scope)
+{
+    if ((scope & CIMScope::ANY) == CIMScope::ANY)
+    {
+        return "any";
+    }
+    else
+    {
+        String tmp = ScopeToString(scope);
+        tmp.toLower();
+        return tmp;
+    }
 }
 
 PEGASUS_NAMESPACE_END

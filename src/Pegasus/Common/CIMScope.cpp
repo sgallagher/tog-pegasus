@@ -72,47 +72,5 @@ String ScopeToString(Uint32 scope)
 
     return tmp;
 }
-/* Generate the output string for Mof by first testing for
-   any and if not any, getting scopeToString and lowercasing
-   the whole thing.
-   Did this becasue XML does not accept the any definition.
-*/
-String ScopeToMofString(Uint32 scope)
-{
-    String tmp = ((scope & CIMScope::ANY) == CIMScope::ANY) ? "any" : ScopeToString(scope);
-
-    tmp.toLower();
-    return tmp;
-}
-void ScopeToXml(Array<Sint8>& out, Uint32 scope)
-{
-    if (scope)
-    {
-	out << "<SCOPE";
-
-	if (scope & CIMScope::CLASS)
-	    out << " CLASS=\"true\"";
-
-	if (scope & CIMScope::ASSOCIATION)
-	    out << " ASSOCIATION=\"true\"";
-
-	if (scope & CIMScope::REFERENCE)
-	    out << " REFERENCE=\"true\"";
-
-	if (scope & CIMScope::PROPERTY)
-	    out << " PROPERTY=\"true\"";
-
-	if (scope & CIMScope::METHOD)
-	    out << " METHOD=\"true\"";
-
-	if (scope & CIMScope::PARAMETER)
-	    out << " PARAMETER=\"true\"";
-
-	if (scope & CIMScope::INDICATION)
-	    out << " INDICATION=\"true\"";
-
-	out << "/>";
-    }
-}
 
 PEGASUS_NAMESPACE_END

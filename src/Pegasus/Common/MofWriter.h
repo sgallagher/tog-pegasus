@@ -92,6 +92,8 @@ public:
 
     static String getQualifierFlavor(Uint32 flavor);
 
+    static String getQualifierScope(Uint32 scope);
+
 private:
 
     MofWriter() { }

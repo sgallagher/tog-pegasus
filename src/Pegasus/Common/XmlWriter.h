@@ -226,6 +226,10 @@ public:
         Array<Sint8>& out,
         Uint32 flavor);
 
+    static void appendScopeElement(
+        Array<Sint8>& out,
+        Uint32 scope);
+
     static void appendMethodCallHeader(
 	Array<Sint8>& out,
 	const char* host,

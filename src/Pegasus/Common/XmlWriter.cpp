@@ -1315,6 +1315,55 @@ void XmlWriter::appendQualifierFlavorEntity(
 
 //------------------------------------------------------------------------------
 //
+// appendScopeElement()
+//
+//     <!ELEMENT SCOPE EMPTY>
+//     <!ATTLIST SCOPE
+//              CLASS        (true|false)      'false'
+//              ASSOCIATION  (true|false)      'false'
+//              REFERENCE    (true|false)      'false'
+//              PROPERTY     (true|false)      'false'
+//              METHOD       (true|false)      'false'
+//              PARAMETER    (true|false)      'false'
+//              INDICATION   (true|false)      'false'>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendScopeElement(
+    Array<Sint8>& out,
+    Uint32 scope)
+{
+    if (scope)
+    {
+        out << "<SCOPE";
+
+        if (scope & CIMScope::CLASS)
+            out << " CLASS=\"true\"";
+
+        if (scope & CIMScope::ASSOCIATION)
+            out << " ASSOCIATION=\"true\"";
+
+        if (scope & CIMScope::REFERENCE)
+            out << " REFERENCE=\"true\"";
+
+        if (scope & CIMScope::PROPERTY)
+            out << " PROPERTY=\"true\"";
+
+        if (scope & CIMScope::METHOD)
+            out << " METHOD=\"true\"";
+
+        if (scope & CIMScope::PARAMETER)
+            out << " PARAMETER=\"true\"";
+
+        if (scope & CIMScope::INDICATION)
+            out << " INDICATION=\"true\"";
+
+        out << "/>";
+    }
+}
+
+//------------------------------------------------------------------------------
+//
 // appendMethodCallHeader()
 //
 //     Build HTTP method call request header.

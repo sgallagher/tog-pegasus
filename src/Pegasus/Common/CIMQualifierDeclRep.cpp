@@ -123,7 +123,7 @@ void CIMQualifierDeclRep::toXml(Array<Sint8>& out) const
 
     out << ">\n";
 
-    ScopeToXml(out, _scope);
+    XmlWriter::appendScopeElement(out, _scope);
     XmlWriter::appendValueElement(out, _value);
 
     out << "</QUALIFIER.DECLARATION>\n";
@@ -179,7 +179,7 @@ void CIMQualifierDeclRep::toMof(Array<Sint8>& out) const
 
     // Output Scope Information
     String scopeString;
-    scopeString = ScopeToMofString(_scope);
+    scopeString = MofWriter::getQualifierScope(_scope);
     //if (scopeString.size())
     //{
 	out << ", Scope(" << scopeString << ")";

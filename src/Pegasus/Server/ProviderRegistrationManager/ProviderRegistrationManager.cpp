@@ -25,6 +25,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Karl Schopmeyer (k.schopmeyer@opengroup.org) - Fix assoc lookup
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -489,7 +490,10 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     return (true);
 }
 
-// ATTN-YZ-P1-20020301: Implement this interface
+// Lookup the association providers associated with a Class. Note that this
+// function returns an array but that should never happen until we reach
+// the point where we are registering multiple providers for the same
+// class
 Boolean ProviderRegistrationManager::lookupAssociationProvider(
     const CIMNamespaceName & nameSpace, 
     const CIMName & className,
@@ -499,15 +503,8 @@ Boolean ProviderRegistrationManager::lookupAssociationProvider(
     Array<CIMInstance>& providerModules)
 {
     // assume assocClassName is empty
-    // algorithm: enumerateClassnames, find all association providers
-    // registered for classes and give back this list
     
-    /*PEGASUS_STD(cout) << "KSTEST ProviderRegistrationManager::lookupAssociationProvider Entry "
-        << " namespace = " << nameSpace.getString()
-        << " className = " << className.getString() 
-        << PEGASUS_STD(endl);*/
-
-    
+    /*** Delete all of this code from earlier version
     Array<CIMName> classNames;
     _repository->read_lock();
     try
@@ -520,9 +517,9 @@ Boolean ProviderRegistrationManager::lookupAssociationProvider(
     catch(...) {}
     _repository->read_unlock();
     
-    /*PEGASUS_STD(cout) << "KSTEST ProviderRegistrationManagr::lookupAssociationProvider post repository "
-        << " returned " << classNames.size() << " classnames." 
-        << PEGASUS_STD(endl); */
+    //PEGASUS_STD(cout) << "KSTEST ProviderRegistrationManagr::lookupAssociationProvider post repository "
+    //    << " returned " << classNames.size() << " classnames." 
+    //    << PEGASUS_STD(endl);
     
     CIMInstance pInstance;
     CIMInstance pmInstance;
@@ -544,13 +541,36 @@ Boolean ProviderRegistrationManager::lookupAssociationProvider(
                              "providerName = " + providerName + " found.");
                 providers.append(pInstance);
                 providerModules.append(pmInstance);
+                PEGASUS_STD(cout) << "KSTEST ProviderRegistrationManagr::lookupAssociationProvider found."
+                    << " Class = " << classNames[i]
+                    <<"  providers.size =" 
+                    << providers.size() << PEGASUS_STD(endl);
             }
         }
-    /*PEGASUS_STD(cout) << "KSTEST ProviderRegistrationManagr::lookupAssociationProvider exit."
-        <<"  providers.size =" 
-        << providers.size() << PEGASUS_STD(endl);*/
-        
     }
+    **********************************/
+    // Lookup the provider for 
+    CIMInstance pInstance;
+    CIMInstance pmInstance;
+    String providerName;
+
+    if (lookupInstanceProvider(
+        nameSpace, className, pInstance, pmInstance, true))
+    {
+        // get the provider name
+        Uint32 pos = pInstance.findProperty(CIMName ("Name"));
+
+        if ( pos != PEG_NOT_FOUND )
+        {
+            pInstance.getProperty(pos).getValue().get(providerName);
+
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                         "providerName = " + providerName + " found.");
+            providers.append(pInstance);
+            providerModules.append(pmInstance);
+        }
+    }
+
     return (providers.size() > 0);
 }
 
@@ -1424,148 +1444,147 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 		{
 		    case _INSTANCE_PROVIDER:
 		    {
-			for (Uint32 k=0; k < namespaces.size(); k++)
-			{
-	    		    Array<CIMInstance> instances;
-
-			    //
-			    // create a key by using namespace, className
-			    // and providerType. Use this key to store the
-			    // instance to the hash table
-			    //
-			    capabilityKey = _generateKey(namespaces[k], 
-						className, INS_PROVIDER); 
-			    instances.append(instance);
-			    _addInitialInstancesToTable(capabilityKey, instances);
-			}
-			break;
+    			for (Uint32 k=0; k < namespaces.size(); k++)
+    			{
+    	    		    Array<CIMInstance> instances;
+    
+    			    //
+    			    // create a key by using namespace, className
+    			    // and providerType. Use this key to store the
+    			    // instance to the hash table
+    			    //
+    			    capabilityKey = _generateKey(namespaces[k], 
+    						className, INS_PROVIDER); 
+    			    instances.append(instance);
+    			    _addInitialInstancesToTable(capabilityKey, instances);
+    			}
+    			break;
 		    }
 
 		    // ATTN-YZ-P1-20020301: Implement this provider
 		    case _ASSOCIATION_PROVIDER:
 		    {
-                        for (Uint32 k=0; k < namespaces.size(); k++)
-                        {
-                            Array<CIMInstance> instances;
+                for (Uint32 k=0; k < namespaces.size(); k++)
+                {
+                    Array<CIMInstance> instances;
 
-                            //
-                            // create a key by using namespace, className
-                            // and providerType. Use this key to store the
-                            // instance to the hash table
-                            //
-                            capabilityKey = _generateKey(namespaces[k], 
-                                                className, ASSO_PROVIDER); 
-                            instances.append(instance);
-                            _addInitialInstancesToTable(capabilityKey, instances);
-                        }
-			break;
+                    //
+                    // create a key by using namespace, className
+                    // and providerType. Use this key to store the
+                    // instance to the hash table
+                    //
+                    capabilityKey = _generateKey(namespaces[k], 
+                                        className, ASSO_PROVIDER); 
+                    instances.append(instance);
+                    _addInitialInstancesToTable(capabilityKey, instances);
+                }
+    			break;
 		    }
 
 		    case _INDICATION_PROVIDER:
 		    {
-			for (Uint32 k=0; k < namespaces.size(); k++)
-			{
-	    		    Array<CIMInstance> instances;
-
-			    ProviderRegistrationTable* capabilities;
-			
-			    //
-			    // create key by using namespace, className and
-			    // providerType, store the instance to the table
-			    //
-			    capabilityKey = _generateKey(namespaces[k],
-					className, IND_PROVIDER);
-
-			    if (_registrationTable->table.lookup(capabilityKey, capabilities))
-			    {
-				// the class is already in the table
-				instances = capabilities->getInstances();
-				instances.append(instance);
-
-				//
-				// remove the entry from the table
-				//
-				delete capabilities;
-				_registrationTable->table.remove(capabilityKey);
-			    }
-			    else
-			    {
-				instances.append(instance);
-			    }
-			    
-			    // Add the entry to the table
-			    _addInitialInstancesToTable(capabilityKey, instances);
-			}	
-
-			break;
+    			for (Uint32 k=0; k < namespaces.size(); k++)
+    			{
+    	    		Array<CIMInstance> instances;
+    
+    			    ProviderRegistrationTable* capabilities;
+    			
+    			    //
+    			    // create key by using namespace, className and
+    			    // providerType, store the instance to the table
+    			    //
+    			    capabilityKey = _generateKey(namespaces[k],
+    					className, IND_PROVIDER);
+    
+    			    if (_registrationTable->table.lookup(capabilityKey, capabilities))
+    			    {
+        				// the class is already in the table
+        				instances = capabilities->getInstances();
+        				instances.append(instance);
+        
+        				//
+        				// remove the entry from the table
+        				//
+        				delete capabilities;
+        				_registrationTable->table.remove(capabilityKey);
+    			    }
+    			    else
+    			    {
+        				instances.append(instance);
+    			    }
+    			    
+    			    // Add the entry to the table
+    			    _addInitialInstancesToTable(capabilityKey, instances);
+    			}	
+    			break;
 		    }
 
 		    case _METHOD_PROVIDER:
 		    {
-			//
-			// get supported methods
-			//
-			Uint32 pos;
-			Boolean suppMethodIsNull = true;
-			CIMValue value;
-			Uint32 methodsCount;
+    			//
+    			// get supported methods
+    			//
+    			Uint32 pos;
+    			Boolean suppMethodIsNull = true;
+    			CIMValue value;
+    			Uint32 methodsCount;
+    
+    			pos = instance.findProperty(_PROPERTY_SUPPORTEDMETHODS);
+    			if (pos != PEG_NOT_FOUND)
+    			{
+    			    value = instance.getProperty(pos).getValue();
+    			    if (!value.isNull())
+                	{
+        				suppMethodIsNull = false;
+        				value.get(supportedMethods);
+        				methodsCount = supportedMethods.size();
+    			    }
+                }
 
-			pos = instance.findProperty(_PROPERTY_SUPPORTEDMETHODS);
-			if (pos != PEG_NOT_FOUND)
-			{
-			    value = instance.getProperty(pos).getValue();
-			    if (!value.isNull())
-            		    {
-				suppMethodIsNull = false;
-				value.get(supportedMethods);
-				methodsCount = supportedMethods.size();
-			    }
-			}
-
-			for (Uint32 k=0; k < namespaces.size(); k++)
-			{
-			    // 
-			    // create a key by using namespace, className, 
-			    // method name and providerType
-			    //
-
-			    if (suppMethodIsNull)
-			    {
-	    		        Array<CIMInstance> instances;
-
-			    	// The provider supports all the methods
-			   	capabilityKey = _generateKey(namespaces[k],
-					className, "{}", MET_PROVIDER);
-
-				instances.append(instance);
-				_addInitialInstancesToTable(capabilityKey, instances);	 
-			    }
-			    else
-			    {
-				for (Uint32 n=0; n < methodsCount; n++)
-				{
-	    		            Array<CIMInstance> instances;
-
-				    capabilityKey = _generateKey(namespaces[k],
-					className, supportedMethods[n], MET_PROVIDER);
-				    instances.append(instance);
-				    _addInitialInstancesToTable(capabilityKey, instances);
-				}
-			    }
-			}
-
-			break;
+    			for (Uint32 k=0; k < namespaces.size(); k++)
+    			{
+    			    // 
+    			    // create a key by using namespace, className, 
+    			    // method name and providerType
+    			    //
+    
+    			    if (suppMethodIsNull)
+    			    {
+                        Array<CIMInstance> instances;
+        
+        			    	// The provider supports all the methods
+        			   	capabilityKey = _generateKey(namespaces[k],
+        					className, "{}", MET_PROVIDER);
+        
+        				instances.append(instance);
+        				_addInitialInstancesToTable(capabilityKey, instances);	 
+    			    }
+    			    else
+    			    {
+    				for (Uint32 n=0; n < methodsCount; n++)
+        				{
+                            Array<CIMInstance> instances;
+        
+        				    capabilityKey = _generateKey(namespaces[k],
+                                className, supportedMethods[n], MET_PROVIDER);
+        				        instances.append(instance);
+        				    _addInitialInstancesToTable(capabilityKey, instances);
+        				}
+    			    }
+    			}
+    
+    			break;
 		    }
 
 		    default:
-			//
-			//  Error condition: provider type not supported
-			//
-                        PEG_METHOD_EXIT();
-			throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-                                                    String::EMPTY);
-			break;
-		}
+    			//
+    			//  Error condition: provider type not supported
+    			//
+                PEG_METHOD_EXIT();
+    			throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+                                                        String::EMPTY);
+    			break;
+    		}
 	    }
     	}
 
@@ -2578,11 +2597,11 @@ void ProviderRegistrationManager::_addInstancesToTable(
  
     if (!_registrationTable->table.insert(key,elementInfo))
     {
-	Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                      "Exception:: Attempt to add duplicate entry to provider reistration hash table.");
-	//ATTN-YZ-P3-20020301:Is this proper exception 
-	PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Can not insert element to the table ");
+    	Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                          "Exception:: Attempt to add duplicate entry to provider reistration hash table.");
+    	//ATTN-YZ-P3-20020301:Is this proper exception 
+    	PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Can not insert element to the table ");
     }
     PEG_METHOD_EXIT();
 }
@@ -2594,19 +2613,18 @@ void ProviderRegistrationManager::_addInitialInstancesToTable(
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
 		     "ProviderRegistrationManager::_addInitialInstancesToTable");
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "key = " + key);
-
+    
     ProviderRegistrationTable* elementInfo = 0;
 
     try
     {
-	elementInfo = new ProviderRegistrationTable(instances);
+    	elementInfo = new ProviderRegistrationTable(instances);
     }
-
     catch (Exception& e)
     {
-	delete elementInfo;
-	PEG_METHOD_EXIT();
-	return;
+    	delete elementInfo;
+    	PEG_METHOD_EXIT();
+    	return;
     }
  
     if (!_registrationTable->table.insert(key,elementInfo))

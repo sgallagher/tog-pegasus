@@ -1,7 +1,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
-// The Open Group, Tivoli Systems
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -21,7 +20,7 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
 //
@@ -31,36 +30,36 @@
 // #include <dlfcn.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/System.h>
-#include "HandlerTable.h"
+#include "ProviderTable.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-HandlerTable::HandlerTable()
+ProviderTable::ProviderTable()
 {
 
 }
 
-CIMHandler* HandlerTable::lookupHandler(const String& handlerId)
+CIMProvider* ProviderTable::lookupProvider(const String& providerId)
 {
-    for (Uint32 i = 0, n = _handlers.size(); i < n; i++)
-	if (String::equal(_handlers[i].handlerId, handlerId))
-	    return _handlers[i].handler;
+    for (Uint32 i = 0, n = _providers.size(); i < n; i++)
+	if (String::equal(_providers[i].providerId, providerId))
+	    return _providers[i].provider;
 
     return 0;
 }
 
-typedef CIMHandler* (*CreateHandlerFunc)();
+typedef CIMProvider* (*CreateProviderFunc)();
 
-CIMHandler* HandlerTable::loadHandler(const String& handlerId)
+CIMProvider* ProviderTable::loadProvider(const String& providerId)
 {
     // Load the dynamic library:
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-    ArrayDestroyer<char> libraryName = handlerId.allocateCString();
+    ArrayDestroyer<char> libraryName = providerId.allocateCString();
 #else
     String unixLibName = getenv("PEGASUS_HOME");
     unixLibName += "/lib/lib";
-    unixLibName += handlerId;
+    unixLibName += providerId;
     unixLibName += ".so";
     ArrayDestroyer<char> libraryName = unixLibName.allocateCString();
 #endif
@@ -78,36 +77,38 @@ CIMHandler* HandlerTable::loadHandler(const String& handlerId)
 #endif
     }
 
-    // Lookup the create handler symbol:
 
-    String tmp = "PegasusCreateHandler_";
-    tmp.append(handlerId);
+
+
+    // Lookup the create provider symbol:
+
+    String tmp = "PegasusCreateProvider_";
+    tmp.append(providerId);
     ArrayDestroyer<char> functionName = tmp.allocateCString();
 
-    CreateHandlerFunc func = (CreateHandlerFunc)System::loadDynamicSymbol(
+    CreateProviderFunc func = (CreateProviderFunc)System::loadDynamicSymbol(
 	libraryHandle, functionName.getPointer());
 
     if (!func)
 	throw DynamicLookupFailed(functionName.getPointer());
 
-    // Create the handler:
+    // Create the provider:
 
-    CIMHandler* handler = func();
+    CIMProvider* provider = func();
 
-    if (!handler)
-	throw CreateHandlerReturnedNull(
-	    libraryName.getPointer(), 
-	    functionName.getPointer());
+    if (!provider)
+	throw CreateProviderReturnedNull(
+	    libraryName.getPointer(), functionName.getPointer());
 
-    if (handler)
+    if (provider)
     {
 	Entry entry;
-	entry.handlerId = handlerId;
-	entry.handler = handler;
-	_handlers.append(entry);
+	entry.providerId = providerId;
+	entry.provider = provider;
+	_providers.append(entry);
     }
 
-    return handler;
+    return provider;
 }
 
 PEGASUS_NAMESPACE_END

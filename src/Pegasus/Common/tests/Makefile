@@ -30,7 +30,6 @@ DIRS = \
     String \
     StrToInstName \
     TimeValue \
-    Tracer \
     ValidateClass \
     Value \
     XmlDump \

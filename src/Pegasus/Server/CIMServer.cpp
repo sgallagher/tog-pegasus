@@ -31,7 +31,7 @@
 #include <cassert>
 #include <cstdio>
 #include <cctype>
-#include <time.h>
+#include <ctime>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/TCPChannel.h>
 #include <Pegasus/Repository/CIMRepository.h>

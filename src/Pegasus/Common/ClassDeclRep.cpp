@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: ClassDeclRep.cpp,v $
+// Revision 1.6  2001/01/28 04:11:03  mike
+// fixed qualifier resolution
+//
 // Revision 1.5  2001/01/26 23:26:53  mike
 // reworked CGI inteface
 //
@@ -361,7 +364,7 @@ void ClassDeclRep::resolve(
 	_qualifiers.resolve(
 	    context,
 	    nameSpace,
-	    Scope::CLASS,
+	    isAssociation() ? Scope::ASSOCIATION : Scope::CLASS,
 	    false,
 	    superClass._rep->_qualifiers);
     }
@@ -390,7 +393,7 @@ void ClassDeclRep::resolve(
 	_qualifiers.resolve(
 	    context,
 	    nameSpace,
-	    Scope::CLASS,
+	    isAssociation() ? Scope::ASSOCIATION : Scope::CLASS,
 	    false,
 	    dummy);
     }

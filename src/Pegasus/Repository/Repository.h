@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Repository.h,v $
-// Revision 1.1  2001/01/14 19:53:56  mike
-// Initial revision
+// Revision 1.2  2001/01/28 04:11:03  mike
+// fixed qualifier resolution
+//
+// Revision 1.1.1.1  2001/01/14 19:53:56  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -199,6 +202,14 @@ public:
     void createNameSpace(const String& nameSpace);
 
     virtual Array<String> enumerateNameSpaces() const;
+
+    /** 
+	This method must be invoked to create the appropriate meta-qualifiers
+	required by CIM (they are not part of the CIM schema; rather they are
+	part of the meta-schema).
+    */
+
+    void createMetaQualifiers(const String& nameSpace);
 
 private:
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Exception.cpp,v $
+// Revision 1.4  2001/01/28 04:11:03  mike
+// fixed qualifier resolution
+//
 // Revision 1.3  2001/01/23 01:25:35  mike
 // Reworked resolve scheme.
 //
@@ -94,6 +97,9 @@ const char BadQualifierScope::MSG[] = "qualifier invalid in this scope: ";
 
 const char BadQualifierOverride::MSG[] = "qualifier not overridable: ";
 
+const char BadQualifierType::MSG[] = 
+    "Type of qualifier different than its declaration: ";
+
 const char NullType::MSG[] = "type is null";
 
 const char AddedReferenceToClass::MSG[] = 
@@ -153,6 +159,8 @@ const char BadDateTimeFormat::MSG[] = "bad datetime format";
 const char IncompatibleTypes::MSG[] = "incompatible types";
 
 const char BadlyFormedCGIQueryString::MSG[] = "badly formed CGI query string";
+
+const char BadInstanceName::MSG[] = "bad instance name: ";
 
 ////////////////////////////////////////////////////////////////////////////////
 //

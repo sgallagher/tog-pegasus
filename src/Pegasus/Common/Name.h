@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Name.h,v $
+// Revision 1.3  2001/01/28 04:11:03  mike
+// fixed qualifier resolution
+//
 // Revision 1.2  2001/01/24 17:17:05  karl
 // add Doc++ comments
 //
@@ -64,27 +67,33 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE Name
 {
 public:
+
     /** Method legal - Determine if the name string input is legal as
     defnined in the Name class definition
     @param - String to test
     @return Returns true if the given name is legal. Throws
     NullPointer exception if name argument is null.
     */
+
     static Boolean legal(const Char16* name);
+
     /** Method legal - Determine if the name string input is legal as
     defnined in the Name class definition
     @param - String to test
     @return Returns true if the given name is legal. Throws
     NullPointer exception if name argument is null.
     */
+
     static Boolean legal(const String& name)
     {
 	return legal(name.getData());
     }
+
     /** Method equal - Compares two names.
     @return Return true if the two names are equal. CIM names are
     case insensitive and so it this method.
     */
+
     static Boolean equal(const String& name1, const String& name2);
 
 private:

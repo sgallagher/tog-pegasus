@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Reference.h,v $
-// Revision 1.1  2001/01/14 19:53:12  mike
-// Initial revision
+// Revision 1.2  2001/01/28 04:11:03  mike
+// fixed qualifier resolution
+//
+// Revision 1.1.1.1  2001/01/14 19:53:12  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -201,6 +204,10 @@ inline Boolean operator==(const Reference& x, const Reference& y)
 {
     return x.identical(y);
 }
+
+PEGASUS_COMMON_LINKAGE void InstanceNameToReference(
+    const String& str,
+    Reference& reference);
 
 PEGASUS_NAMESPACE_END
 

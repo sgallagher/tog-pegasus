@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: String.h,v $
+// Revision 1.3  2001/01/28 04:11:03  mike
+// fixed qualifier resolution
+//
 // Revision 1.2  2001/01/24 16:16:38  karl
 // Incorporate Doc++ Comments as documentation into .h files
 //
@@ -131,6 +134,7 @@ public:
     string. The user is responsible for freeing the result. If any characters
     are truncated, a TruncatedCharacter exception is thrown. This exception may
     be suppressed by passing true as the noThrow argument. */
+
     char* allocateCString(Uint32 extraBytes = 0, Boolean noThrow = false) const;
 
     /** Method appendToCString - Append the given string to a C-string. If the
@@ -175,16 +179,22 @@ public:
     {
 	return append(Char16(c));
     }
+
     /// remove a string
     void remove(Uint32 pos, Uint32 size = Uint32(-1));
+
     /// method subString ATTN:
     String subString(Uint32 pos, Uint32 length = Uint32(-1)) const;
+
     /// Method find - ATTN:
     Uint32 find(Char16 c) const;
+
     /// Method compare - Compare two CIM strings - ATTN:
     static int compare(const Char16* s1, const Char16* s2, Uint32 n);
+
     /// Method compare -- Compare two CIM strings
     static int compare(const Char16* s1, const Char16* s2);
+
     /// ATTN
     static const String EMPTY;
 

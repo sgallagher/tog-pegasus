@@ -16,3 +16,7 @@ depend: $(OBJ_DIR)/target $(ERROR)
 	    @ mu depend \
 		$(subst .cpp,.i,$(i)) $(DEPEND_MAK) $(OBJ_DIR)/ $(NEWLINE) \
 	)
+
+clean-depend:
+	$(RM) $(OBJ_DIR)/depend.mak
+	$(TOUCH) $(OBJ_DIR)/depend.mak

@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Flavor.h,v $
-// Revision 1.1  2001/01/14 19:51:53  mike
-// Initial revision
+// Revision 1.2  2001/01/28 04:11:03  mike
+// fixed qualifier resolution
+//
+// Revision 1.1.1.1  2001/01/14 19:51:53  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -54,7 +57,9 @@ struct PEGASUS_COMMON_LINKAGE Flavor
     static const Uint32 TOINSTANCE;
     static const Uint32 TRANSLATABLE;
 
-    // DEFAULTS = (OVERRIDABLE | TOSUBCLASS)
+    // These are the defaults according to the CIM DTD:
+    // OVERRIDABLE, TOSUBCLASS
+
     static const Uint32 DEFAULTS;
 };
 

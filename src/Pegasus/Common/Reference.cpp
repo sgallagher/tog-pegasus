@@ -23,18 +23,23 @@
 // Author:
 //
 // $Log: Reference.cpp,v $
-// Revision 1.1  2001/01/14 19:53:11  mike
-// Initial revision
+// Revision 1.2  2001/01/28 04:11:03  mike
+// fixed qualifier resolution
+//
+// Revision 1.1.1.1  2001/01/14 19:53:11  mike
+// Pegasus import
 //
 //
 //END_HISTORY
 
 #include <cctype>
+#include <cstring>
 #include "Reference.h"
 #include "Indentor.h"
 #include "Name.h"
 #include "Destroyer.h"
 #include "XmlWriter.h"
+#include "XmlReader.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -284,6 +289,117 @@ const char* KeyBinding::typeToString(Type type)
     }
 
     return "unknown";
+}
+
+// Get an instance name of this form:
+//
+//	ClassName.key1=value1,...,keyN=valueN
+
+
+void InstanceNameToReference(
+    const String& instanceName,
+    Reference& reference)
+{
+    // Convert to a C String first:
+
+    char* p = instanceName.allocateCString();
+
+    // Extract the class name:
+
+    char* dot = strchr(p, '.');
+
+    if (!dot)
+	throw BadInstanceName(instanceName);
+
+    String className(p, dot - p);
+
+    // Advance past dot:
+
+    p = dot + 1;
+
+    // Get the key-value pairs:
+
+    for (p = strtok(p, ","); p; p = strtok(NULL, ","))
+    {
+	// Split about the equal sign:
+
+	char* equal = strchr(p, '=');
+
+	if (!equal)
+	    throw BadInstanceName(instanceName);
+
+	*equal = '\0';
+
+	// Get key part:
+
+	String keyString(p);
+
+	if (!Name::legal(keyString))
+	    throw BadInstanceName(instanceName);
+
+	// Get the value part:
+
+	String valueString;
+	char* q = equal + 1;
+	KeyBinding::Type type;
+
+	if (*q == '"')
+	{
+	    q++;
+
+std::cout << __LINE__ << std::endl;
+	    type = KeyBinding::Type::STRING;
+
+std::cout << __LINE__ << std::endl;
+	    while (*q && *q != '"')
+	    {
+		// ATTN: need to handle special characters here:
+
+		if (*q == '\\')
+		    *q++;
+
+		valueString.append(*q++);
+	    }
+
+std::cout << __LINE__ << std::endl;
+	    if (*q++ != '"')
+		throw BadInstanceName(instanceName);
+std::cout << __LINE__ << std::endl;
+std::cout << "q=" << q << std::endl;
+	    if (*q)
+		throw BadInstanceName(instanceName);
+std::cout << __LINE__ << std::endl;
+	}
+	else if (tolower(*q) == 't' || tolower(*q) == 'f')
+	{
+	    type = KeyBinding::Type::BOOLEAN;
+
+	    char* r = q;
+
+	    while (*r)
+	    {
+		*r = tolower(*r);
+		r++;
+	    }
+
+	    if (strcmp(q, "true") != 0 && strcmp(q, "false") != 0)
+		throw BadInstanceName(instanceName);
+
+	    valueString.assign(q);
+	}
+	else
+	{
+	    Sint64 x;
+
+	    if (!XmlReader::stringToSignedInteger(q, x))
+		throw BadInstanceName(instanceName);
+
+	    valueString.assign(q);
+	}
+
+	std::cout << "key=" << keyString << std::endl;
+	std::cout << "value=" << valueString << std::endl;
+    }
 }
 
 PEGASUS_NAMESPACE_END

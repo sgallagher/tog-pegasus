@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Exception.h,v $
+// Revision 1.4  2001/01/28 04:11:03  mike
+// fixed qualifier resolution
+//
 // Revision 1.3  2001/01/23 01:25:35  mike
 // Reworked resolve scheme.
 //
@@ -194,8 +197,8 @@ public:
 
     static const char MSG[];
 
-    BadQualifierScope(const String& qualifierName) 
-	: Exception(MSG + qualifierName) { }
+    BadQualifierScope(const String& qualifierName, const String& scopeString) 
+	: Exception(MSG + qualifierName + String(" scope=") + scopeString) { }
 };
 
 class PEGASUS_COMMON_LINKAGE BadQualifierOverride : public Exception
@@ -205,6 +208,16 @@ public:
     static const char MSG[];
 
     BadQualifierOverride(const String& qualifierName) 
+	: Exception(MSG + qualifierName) { }
+};
+
+class PEGASUS_COMMON_LINKAGE BadQualifierType : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    BadQualifierType(const String& qualifierName) 
 	: Exception(MSG + qualifierName) { }
 };
 
@@ -541,6 +554,16 @@ public:
     static const char MSG[];
 
     BadlyFormedCGIQueryString() : Exception(MSG) { }
+};
+
+class PEGASUS_COMMON_LINKAGE BadInstanceName : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    BadInstanceName(const String& instanceName) 
+	: Exception(MSG + instanceName) { }
 };
 
 PEGASUS_NAMESPACE_END

@@ -85,27 +85,31 @@
 
      Qualifier Required : boolean = false, Scope(property);
 
-     Qualifier Revision : string = null, Scope(schema, class, association, indication),
-     Flavor(translatable);
+     Qualifier Revision : string = null, 
+	 Scope(schema, class, association, indication), 
+	 Flavor(translatable);
 
      Qualifier Schema : string = null, Scope(property, method),
-     Flavor(disableoverride, translatable);
+	 Flavor(disableoverride, translatable);
 
      Qualifier Source : string = null, Scope(class, association, indication);
 
      Qualifier SourceType : string = null, 
-     Scope(class, association, indication,reference);
+	 Scope(class, association, indication,reference);
 
-     Qualifier Static : boolean = false, Scope(property, method), Flavor(disableoverride);
+     Qualifier Static : boolean = false, 
+	 Scope(property, method), Flavor(disableoverride);
 
-     Qualifier Syntax : string = null, Scope(property, reference, method, parameter);
+     Qualifier Syntax : string = null, 
+	 Scope(property, reference, method, parameter);
 
-     Qualifier SyntaxType : string = null, Scope(property, reference, method, parameter);
+     Qualifier SyntaxType : string = null, 
+	 Scope(property, reference, method, parameter);
 
      Qualifier Terminal : boolean = false, Scope(class);
 
      Qualifier TriggerType : string = null,
-     Scope(class, property, reference, method, association, indication);
+	 Scope(class, property, reference, method, association, indication);
 
      Qualifier Units : string = null, Scope(property, method, parameter),
      Flavor(translatable);
@@ -128,3 +132,4 @@
      Flavor(disableoverride, tosubclass);
 
      Qualifier Write : boolean = false, Scope(property);
+

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Repository.cpp,v $
+// Revision 1.3  2001/01/28 04:11:03  mike
+// fixed qualifier resolution
+//
 // Revision 1.2  2001/01/25 02:12:05  mike
 // Added meta-qualifiers to LoadRepository program.
 //
@@ -936,6 +939,399 @@ Array<String> Repository::enumerateNameSpaces() const
     }
 
     return result;
+}
+
+// Recall flavor defaults: TOSUBCLASS | OVERRIDABLE
+
+void Repository::createMetaQualifiers(const String& nameSpace)
+{
+    // Qualifier CimType : string = null, 
+    //     Scope(property, parameter)
+
+    setQualifier(nameSpace, QualifierDecl("cimtype", String(),
+	Scope::PROPERTY | Scope::REFERENCE | Scope::PARAMETER));
+
+    // Qualifier id : sint32 = null, 
+    //     Scope(any), 
+    //     Flavor(toinstance)
+
+    setQualifier(nameSpace, QualifierDecl("id", Sint32(0),
+	Scope::ANY,
+	Flavor::TOINSTANCE));
+
+    // Qualifier OctetString : boolean = false, Scope(property)
+
+    setQualifier(nameSpace, QualifierDecl("octetstring", false,
+	Scope::PROPERTY));
+    
+    // Qualifier Abstract : boolean = false, 
+    //     Scope(class, association, indication),
+    //     Flavor(disableoverride, restricted);
+
+    setQualifier(nameSpace, QualifierDecl("abstract", false, 
+	Scope::CLASS | Scope::ASSOCIATION | Scope::INDICATION,
+	Flavor::NONE));
+
+    // Qualifier Aggregate : boolean = false, 
+    //    Scope(reference),
+    //    Flavor(disableoverride, tosubclass);
+
+    setQualifier(nameSpace, QualifierDecl("aggregate", false, 
+	Scope::REFERENCE, Flavor::TOSUBCLASS));
+
+    // Qualifier Aggregation : boolean = false, 
+    //     Scope(association),
+    //     Flavor(disableoverride, tosubclass);
+
+    setQualifier(nameSpace, QualifierDecl("aggregation", false, 
+	Scope::ASSOCIATION, Flavor::TOSUBCLASS));
+
+    // Qualifier Alias : string = null, 
+    //     Scope(property, reference, method), 
+    //     Flavor(translatable);
+
+    setQualifier(nameSpace, QualifierDecl("alias", String(),
+	Scope::PROPERTY | Scope::REFERENCE | Scope::METHOD,
+	Flavor::DEFAULTS | Flavor::TRANSLATABLE));
+
+    // Qualifier ArrayType : string = "Bag", 
+    //     Scope(property, parameter);
+
+    setQualifier(nameSpace, QualifierDecl("arraytype", "Bag",
+	Scope::PROPERTY | Scope::PARAMETER));
+
+    // Qualifier Association : boolean = false, 
+    //     Scope(class, association),
+    //     Flavor(disableoverride);
+
+    setQualifier(nameSpace, QualifierDecl("association", false,
+	Scope::CLASS | Scope::ASSOCIATION,
+	Flavor::TOSUBCLASS));
+
+    // Qualifier BitMap : string[], 
+    //     Scope(property, method, parameter);
+
+    setQualifier(nameSpace, QualifierDecl("bitmap", Array<String>(),
+	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER));
+
+    // Qualifier BitValues : string[], 
+    //     Scope(property, method, parameter),
+    //     Flavor(Translatable);
+
+    setQualifier(nameSpace, QualifierDecl("bitvalues", Array<String>(),
+	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER,
+	Flavor::DEFAULTS | Flavor::TRANSLATABLE));
+
+    // Qualifier Counter : boolean = false, 
+    //     Scope(property, method, parameter);
+
+    setQualifier(nameSpace, QualifierDecl("counter", false,
+	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER));
+
+    // Qualifier Delete : boolean = false, 
+    //     Scope(association, reference);
+
+    setQualifier(nameSpace, QualifierDecl("delete", false,
+	Scope::ASSOCIATION | Scope::REFERENCE));
+
+    // Qualifier Description : string = null, 
+    //     Scope(any), 
+    //     Flavor(translatable);
+
+    setQualifier(nameSpace, QualifierDecl("description", String(),
+	Scope::ANY, 
+	Flavor::TRANSLATABLE));
+
+    // Qualifier DisplayName : string = null, 
+    //     Scope(any), 
+    //     Flavor(translatable);
+
+    setQualifier(nameSpace, QualifierDecl("displayname", String(),
+	Scope::ANY,
+	Flavor::DEFAULTS | Flavor::TRANSLATABLE));
+
+    // Qualifier Expensive : boolean = false,
+    //     Scope(property, reference, method, class, association);
+
+    setQualifier(nameSpace, QualifierDecl("expensive", false,
+	Scope::PROPERTY | Scope::REFERENCE | Scope::METHOD | Scope::CLASS |
+	Scope::ASSOCIATION));
+
+    // Qualifier Gauge : boolean = false, 
+    //     Scope(property, method, parameter);
+
+    setQualifier(nameSpace, QualifierDecl("gauge", false,
+	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER));
+
+    // Qualifier Ifdeleted : boolean = false, 
+    //     Scope(association, reference);
+
+    setQualifier(nameSpace, QualifierDecl("ifdeleted", false,
+	Scope::ASSOCIATION | Scope::REFERENCE));
+
+    // Qualifier In : boolean = true, 
+    //     Scope(parameter), 
+    //     Flavor(disableoverride);
+
+    setQualifier(nameSpace, QualifierDecl("in", true,
+	Scope::PARAMETER,
+	Flavor::TOSUBCLASS));
+
+    // Qualifier Indication : boolean = false, 
+    //     Scope(class, indication),
+    //     Flavor(disableoverride);
+
+    setQualifier(nameSpace, QualifierDecl("indication", false,
+	Scope::CLASS | Scope::INDICATION,
+	Flavor::TOSUBCLASS));
+
+    // Qualifier Invisible : boolean = false,
+    //     Scope(reference, association, class, property, method);
+
+    setQualifier(nameSpace, QualifierDecl("invisible", false,
+	Scope::REFERENCE | Scope::ASSOCIATION | Scope::CLASS | Scope::PROPERTY |
+	Scope::METHOD));
+
+    // Qualifier Key : boolean = false, 
+    //     Scope(property, reference),
+    //     Flavor(disableoverride);
+
+    setQualifier(nameSpace, QualifierDecl("key", false,
+	Scope::PROPERTY | Scope::REFERENCE,
+	Flavor::TOSUBCLASS));
+
+    // Qualifier Large : boolean = false, 
+    //     Scope(property, class);
+
+    setQualifier(nameSpace, QualifierDecl("large", false,
+	Scope::PROPERTY | Scope::CLASS));
+
+    // Qualifier MappingStrings : string[],
+    //     Scope(class, property, association, indication, reference);
+
+    setQualifier(nameSpace, QualifierDecl("mappingstrings", Array<String>(),
+	Scope::CLASS | Scope::PROPERTY | Scope::ASSOCIATION | 
+	Scope::INDICATION | Scope::REFERENCE));
+
+    // Qualifier Max : uint32 = null, Scope(reference);
+
+    setQualifier(nameSpace, QualifierDecl("max", Sint32(0),
+	Scope::PROPERTY | Scope::REFERENCE));
+
+    // Qualifier MaxLen : uint32 = null, 
+    //     Scope(property, method, parameter);
+
+#if 0
+    setQualifier(nameSpace, QualifierDecl("maxlen", Uint32(0),
+	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER));
+#else
+    setQualifier(nameSpace, QualifierDecl("maxlen", Sint32(0),
+	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER));
+#endif
+
+    // Qualifier MaxValue : sint64 = null, 
+    //     Scope(property, method, parameter);
+    // ATTN: XML schema requires sint32!
+
+    setQualifier(nameSpace, QualifierDecl("maxvalue", Sint32(0),
+	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER));
+    
+    // Qualifier Min : sint32 = null, Scope(reference);
+
+    setQualifier(nameSpace, QualifierDecl("min", Sint32(0),
+	Scope::REFERENCE));
+
+    // Qualifier MinValue : sint64 = null, 
+    //     Scope(property, method, parameter);
+    // ATTN: Type expected by XML spec is sint32!
+
+    setQualifier(nameSpace, QualifierDecl("minvalue", Sint32(0),
+	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER));
+
+    // Qualifier ModelCorrespondence : string[], 
+    //     Scope(property);
+
+    setQualifier(nameSpace, QualifierDecl("modelcorrespondence", 
+	Array<String>(),
+	Scope::PROPERTY));
+
+    // Qualifier NonLocal : string = null, 
+    //     Scope(reference);
+
+    setQualifier(nameSpace, QualifierDecl("nonlocal", String(),
+	Scope::REFERENCE));
+
+    // Qualifier NullValue : string = null, 
+    //     Scope(property),
+    //     Flavor(tosubclass, disableoverride);
+
+    setQualifier(nameSpace, QualifierDecl("nullvalue", String(),
+	Scope::PROPERTY,
+	Flavor::TOSUBCLASS));
+
+    // Qualifier Out : boolean = false, 
+    //     Scope(parameter), 
+    //     Flavor(disableoverride);
+
+    setQualifier(nameSpace, QualifierDecl("out", false,
+	Scope::PARAMETER,
+	Flavor::TOSUBCLASS));
+
+    // Qualifier Override : string = null, 
+    //     Scope(property, method, reference),
+    //     Flavor(disableoverride);
+
+    setQualifier(nameSpace, QualifierDecl("override", String(),
+	Scope::PROPERTY | Scope::METHOD | Scope::REFERENCE,
+	Flavor::TOSUBCLASS));
+
+    // Qualifier Propagated : string = null, 
+    //     Scope(property, reference),
+    //     Flavor(disableoverride);
+
+    setQualifier(nameSpace, QualifierDecl("propagated", String(),
+	Scope::PROPERTY | Scope::REFERENCE,
+	Flavor::TOSUBCLASS));
+
+    // Qualifier Provider : string = null, 
+    //     Scope(any);
+
+    setQualifier(nameSpace, QualifierDecl("provider", String(),
+	Scope::ANY));
+
+    // Qualifier Read : boolean = true, Scope(property);
+
+    setQualifier(nameSpace, QualifierDecl("read", true,
+	Scope::PROPERTY));
+
+    // Qualifier Required : boolean = false, 
+    //     Scope(property);
+
+    setQualifier(nameSpace, QualifierDecl("required", false,
+	Scope::PROPERTY));
+
+    // Qualifier Revision : string = null,
+    //     Scope(schema, class, association, indication),
+    //     Flavor(translatable);
+    // ATTN: No such scope as Scope::SCHEMA
+
+    setQualifier(nameSpace, QualifierDecl("revision", String(),
+	Scope::CLASS | Scope::ASSOCIATION | Scope::INDICATION,
+	Flavor::DEFAULTS | Flavor::TRANSLATABLE));
+
+    // Qualifier Schema : string = null, 
+    //     Scope(property, method),
+    //     Flavor(disableoverride, translatable);
+
+    setQualifier(nameSpace, QualifierDecl("schema", String(),
+	Scope::PROPERTY | Scope::METHOD,
+	Flavor::TOSUBCLASS | Flavor::TRANSLATABLE));
+
+    // Qualifier Source : string = null, 
+    //     Scope(class, association, indication);
+
+    setQualifier(nameSpace, QualifierDecl("source", String(),
+	Scope::CLASS | Scope::ASSOCIATION | Scope::INDICATION));
+
+    // Qualifier SourceType : string = null,
+    //     Scope(class, association, indication,reference);
+
+    setQualifier(nameSpace, QualifierDecl("sourcetype", String(),
+	Scope::CLASS | Scope::ASSOCIATION | Scope:: INDICATION |
+	Scope::REFERENCE));
+    
+    // Qualifier Static : boolean = false,
+    //     Scope(property, method), Flavor(disableoverride);
+
+    setQualifier(nameSpace, QualifierDecl("static", false,
+	Scope::PROPERTY | Scope::METHOD,
+	Flavor::TOSUBCLASS));
+
+    // Qualifier Syntax : string = null,
+    //     Scope(property, reference, method, parameter);
+
+    setQualifier(nameSpace, QualifierDecl("syntax", String(),
+	Scope::PROPERTY | Scope::REFERENCE | Scope::METHOD | Scope::PARAMETER));
+
+    // Qualifier SyntaxType : string = null,
+    //     Scope(property, reference, method, parameter);
+
+    setQualifier(nameSpace, QualifierDecl("syntaxtype", String(),
+	Scope::PROPERTY | Scope::REFERENCE | Scope::METHOD | Scope::PARAMETER));
+
+    // Qualifier Terminal : boolean = false, 
+    //     Scope(class);
+
+    setQualifier(nameSpace, QualifierDecl("terminal", false,
+	Scope::CLASS));
+
+    // Qualifier TriggerType : string = null,
+    //     Scope(class, property, reference, method, association, indication);
+
+    setQualifier(nameSpace, QualifierDecl("triggertype", String(),
+	Scope::CLASS | Scope::PROPERTY | Scope::REFERENCE | Scope::METHOD |
+	Scope::ASSOCIATION | Scope::INDICATION));
+
+    // Qualifier Units : string = null, 
+    //     Scope(property, method, parameter),
+    //     Flavor(translatable);
+
+    setQualifier(nameSpace, QualifierDecl("units", String(),
+	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER,
+	Flavor::DEFAULTS | Flavor::TRANSLATABLE));
+
+    // Qualifier UnknownValues : string[], 
+    //     Scope(property), 
+    //     Flavor(disableoverride, tosubclass);
+
+    setQualifier(nameSpace, QualifierDecl("unknownvalues", Array<String>(),
+	Scope::PROPERTY,
+	Flavor::TOSUBCLASS));
+
+    // Qualifier UnsupportedValues : string[], 
+    //     Scope(property),
+    //     Flavor(disableoverride, tosubclass);
+
+    setQualifier(nameSpace, QualifierDecl("unsupportedvalues", Array<String>(),
+	Scope::PROPERTY,
+	Flavor::TOSUBCLASS));
+
+    // Qualifier ValueMap : string[], 
+    //     Scope(property, method, parameter);
+
+    setQualifier(nameSpace, QualifierDecl("valuemap", Array<String>(),
+	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER));
+
+    // Qualifier Values : string[], 
+    //     Scope(property, method, parameter),
+    //     Flavor(translatable);
+
+    setQualifier(nameSpace, QualifierDecl("values", Array<String>(),
+	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER,
+	Flavor::DEFAULTS | Flavor::TRANSLATABLE));
+
+    // Qualifier Version : string = null,
+    //     Scope(schema, class, association, indication), 
+    //     Flavor(translatable);
+    // ATTN: No such scope as Scope::SCHEMA
+
+    setQualifier(nameSpace, QualifierDecl("version", String(),
+	Scope::CLASS | Scope::ASSOCIATION | Scope::INDICATION,
+	Flavor::DEFAULTS | Flavor::TRANSLATABLE));
+
+    // Qualifier Weak : boolean = false, 
+    //     Scope(reference),
+    //     Flavor(disableoverride, tosubclass);
+
+    setQualifier(nameSpace, QualifierDecl("weak", false,
+	Scope::REFERENCE,
+	Flavor::TOSUBCLASS));
+
+    // Qualifier Write : boolean = false, 
+    //     Scope(property);
+
+    setQualifier(nameSpace, QualifierDecl("write", false,
+	Scope::PROPERTY));
 }
 
 PEGASUS_NAMESPACE_END

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: QualifierList.cpp,v $
+// Revision 1.4  2001/01/28 04:11:03  mike
+// fixed qualifier resolution
+//
 // Revision 1.3  2001/01/23 01:25:35  mike
 // Reworked resolve scheme.
 //
@@ -111,14 +114,14 @@ void QualifierList::resolve(
 	//----------------------------------------------------------------------
 
 	if (!(q.getType() == qd.getType() && q.isArray() == qd.isArray()))
-	    throw TypeMismatch();
+	    throw BadQualifierType(q.getName());
 
 	//----------------------------------------------------------------------
 	// 3. Check the scope:
 	//----------------------------------------------------------------------
 
 	if (!(qd.getScope() & scope))
-	    throw BadQualifierScope(qd.getName());
+	    throw BadQualifierScope(qd.getName(), ScopeToString(scope));
 
 	//----------------------------------------------------------------------
 	// See if this qualifier is contained in the inheritedQualifiers. If

@@ -16,7 +16,7 @@ endif
 
 DEFINES = -DWIN32
 
-FLAGS = -DPEGASUS_OS_TYPE_WINDOWS -GX -W3 -MDd
+FLAGS = -DPEGASUS_OS_TYPE_WINDOWS -GX -W3 -MDd -O2
 
 RM = mu rm
 
@@ -47,3 +47,5 @@ LIB_SUFFIX = .lib
 SHARED_LIB_SUFFIX = .dll
 
 COPY = mu copy
+
+TOUCH = mu touch

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: PropertyRep.cpp,v $
+// Revision 1.4  2001/01/28 04:11:03  mike
+// fixed qualifier resolution
+//
 // Revision 1.3  2001/01/23 01:25:35  mike
 // Reworked resolve scheme.
 //
@@ -125,10 +128,15 @@ void PropertyRep::resolve(
     // superClass's property with the same name). This method
     // will throw an exception if the validation fails.
 
+    Uint32 scope = Scope::PROPERTY;
+
+    if (_value.getType() == Type::REFERENCE)
+	scope = Scope::REFERENCE;
+
     _qualifiers.resolve(
 	declContext,
 	nameSpace,
-	Scope::PROPERTY,
+	scope,
 	isInstancePart,
 	inheritedProperty._rep->_qualifiers);
 
@@ -142,10 +150,15 @@ void PropertyRep::resolve(
 {
     QualifierList dummy;
 
+    Uint32 scope = Scope::PROPERTY;
+
+    if (_value.getType() == Type::REFERENCE)
+	scope = Scope::REFERENCE;
+
     _qualifiers.resolve(
 	declContext,
 	nameSpace,
-	Scope::PROPERTY,
+	scope,
 	isInstancePart,
 	dummy);
 }

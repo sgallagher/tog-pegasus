@@ -2039,6 +2039,7 @@ Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
     Array<Sint8> tmp;
     CIMObjectPath localObjectPath = path;
     localObjectPath.setNameSpace(nameSpace);
+    localObjectPath.setHost(String::EMPTY);
 
     _appendMessageElementBegin(out, messageId);
     _appendSimpleReqElementBegin(out);
@@ -2056,7 +2057,7 @@ Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
 	tmp,
 	host,
 	methodName,
-	localObjectPath.toString(false),
+	localObjectPath.toString(),
         authenticationHeader,
 	out.size());
     tmp << out;

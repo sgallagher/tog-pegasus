@@ -756,13 +756,13 @@ void CIMObjectPath::setKeyBindings(const Array<KeyBinding>& keyBindings)
     _BubbleSort(_rep->_keyBindings);
 }
 
-String CIMObjectPath::toString(Boolean includeHost) const
+String CIMObjectPath::toString() const
 {
     String objectName;
 
     // Get the host:
 
-    if (_rep->_host.size() && includeHost)
+    if (_rep->_host.size())
     {
         objectName = "//";
         objectName.append(_rep->_host);
@@ -824,7 +824,7 @@ String CIMObjectPath::toString(Boolean includeHost) const
     return objectName;
 }
 
-String CIMObjectPath::_toStringCanonical(Boolean includeHost) const
+String CIMObjectPath::_toStringCanonical() const
 {
     CIMObjectPath ref = *this;
 
@@ -843,7 +843,7 @@ String CIMObjectPath::_toStringCanonical(Boolean includeHost) const
 
     // ATTN-RK-20020826: Need to sort keys?
 
-    return ref.toString(includeHost);
+    return ref.toString();
 }
 
 Boolean CIMObjectPath::identical(const CIMObjectPath& x) const

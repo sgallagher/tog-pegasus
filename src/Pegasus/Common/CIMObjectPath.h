@@ -478,7 +478,7 @@ public:
 
         The building includes the escaping of special characters.
     */
-    String toString(Boolean includeHost=true) const;
+    String toString() const;
 
     /** Returns true if this reference is identical to the one given
         by the x argument. Since CIMObjectPaths are normalized when they
@@ -521,7 +521,7 @@ private:
         into ascending order and classnames and keynames are shifted to
         lower case.
     */
-    String _toStringCanonical(Boolean includeHost=true) const;
+    String _toStringCanonical() const;
 
     CIMObjectPathRep* _rep;
 };

@@ -82,11 +82,15 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL  MessageQueueService::kill_idle_threa
 
 void MessageQueueService::force_shutdown(void)
 {
+
+#ifdef MESSAGEQUEUESERVICE_DEBUG
 	//l10n
    //PEGASUS_STD(cout) << "Forcing shutdown of CIMOM Message Router" << PEGASUS_STD(endl);
    MessageLoaderParms parms("Common.MessageQueueService.FORCING_SHUTDOWN",
 			    "Forcing shutdown of CIMOM Message Router");
    PEGASUS_STD(cout) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
+#endif
+
    //MessageQueueService::_stop_polling = 1;
    MessageQueueService *svc;
    int counter = 0;   
@@ -95,12 +99,14 @@ void MessageQueueService::force_shutdown(void)
    
    while(svc != 0)
    {
+#ifdef MESSAGEQUEUESERVICE_DEBUG
    		//l10n - reuse same MessageLoaderParms to avoid multiple creates
       	//PEGASUS_STD(cout) << "Stopping " << svc->getQueueName() << PEGASUS_STD(endl);
       	parms.msg_id = "Common.MessageQueueService.STOPPING_SERVICE";
    	  	parms.default_msg = "Stopping $0"; 
    	  	parms.arg0 = svc->getQueueName();
    	  	PEGASUS_STD(cout) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
+#endif
       							
       _polling_sem.signal();
       svc->_shutdown_incoming_queue();

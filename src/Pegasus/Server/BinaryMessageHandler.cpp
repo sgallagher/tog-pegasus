@@ -136,8 +136,9 @@ void BinaryMessageHandler::_handle_async_request(AsyncRequest * request)
       // pass all other operations to the default handler
       PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
 		       "Passing message to parent.");
-
+#ifdef BINARYMESSAGEHANDLER_DEBUG
       PEGASUS_STD(cout) << "Unexpected Message: type " << request->getType() << PEGASUS_STD(endl);
+#endif
 
       Base::_handle_async_request(request);
    }

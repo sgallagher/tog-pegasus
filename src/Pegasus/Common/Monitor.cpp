@@ -228,10 +228,10 @@ Boolean Monitor::run(Uint32 milliseconds)
     }
 
     // Fixed in monitor_2 but added because Monitor is still the default monitor.
-    // When fdread.fd_count is 0 don't imediatly return, otherwize this loops out of control 
+    // When _idleEntries is 0 don't imediatly return, otherwize this loops out of control 
     // kicking off kill idle thread threads.  E.g. There is nothing to select on when the cimserver
     // is shutting down.
-    if( fdread.fd_count == 0 )
+    if( _idleEntries == 0 )
     {
         Thread::sleep( milliseconds );
         _entry_mut.unlock();

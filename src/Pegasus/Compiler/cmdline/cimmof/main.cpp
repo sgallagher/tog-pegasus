@@ -292,7 +292,7 @@ os400_return_msg(int ret, String msg_, Boolean qsh)
   // Send good completion message to stdout if the compile worked.
   // Callers of QYCMMOFL *PGM from the native command line will want to see this.
   // Note: in PTF mode the quiet option should be used.
-  if (ret == 0 && !cmdline.quiet())  // chuck2
+  if (ret == 0 && !cmdline.quiet())  
   {
       //l10n
       //cout << "Compile completed successfully." << endl;
@@ -311,7 +311,7 @@ os400_return_msg(int ret, String msg_, Boolean qsh)
       cmd_msg_t    cmdMSG;
       memset((char *)&cmdMSG, ' ', sizeof(cmd_msg_t) ); // init to blanks
       memcpy(cmdMSG.commandName, "QYCMMOFL", 8);  // must be in utf-8
-      CString utf8 = msg_.getCStringUTF8();
+      CString utf8 = msg_.getCString();
       if (strlen((const char *)utf8) <= 200)            // max repl data is 200 chars  
 	  memcpy(cmdMSG.message, utf8, strlen((const char *)utf8));
       else

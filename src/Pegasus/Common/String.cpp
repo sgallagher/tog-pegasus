@@ -347,7 +347,7 @@ String String::subString(Uint32 index, Uint32 length) const
 {
     if (index < size())
     {
-	if (length == PEG_NOT_FOUND)
+	if ((length == PEG_NOT_FOUND) || (length > size() - index))
 	    length = size() - index;
 
 	return String(getChar16Data() + index, length);

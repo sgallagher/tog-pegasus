@@ -29,9 +29,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/OperationContextInternal.h>
+
 #include "CIMMessageSerializer.h"
-#include "XmlWriter.h"
-#include "OperationContextInternal.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -745,16 +746,19 @@ void CIMMessageSerializer::_serializeCIMException(
     Array<Sint8>& out,
     const CIMException& cimException)
 {
-    // ATTN: This implementation is incomplete.  It does not include
-    // ContentLanguages, tracing (file name and line number) information,
-    // or the cimMessage member.
+    TraceableCIMException e(cimException);
 
     // Use a PGCIMEXC element to encapsulate the CIMException encoding
-    // (ATTN: This is not truly necessary and could be removed.)
+    // (Note: This is not truly necessary and could be removed.)
     XmlWriter::append(out, "<PGCIMEXC>\n");
-    XmlWriter::appendValueElement(out, Uint32(cimException.getCode()));
-    XmlWriter::appendValueElement(out, cimException.getMessage());
-    // ATTN: _serializeContentLanguages(out, cimException.getContentLanguages());
+
+    XmlWriter::appendValueElement(out, Uint32(e.getCode()));
+    XmlWriter::appendValueElement(out, e.getMessage());
+    XmlWriter::appendValueElement(out, e.getCIMMessage());
+    XmlWriter::appendValueElement(out, e.getFile());
+    XmlWriter::appendValueElement(out, e.getLine());
+    _serializeContentLanguages(out, e.getContentLanguages());
+
     XmlWriter::append(out, "</PGCIMEXC>\n");
 }
 

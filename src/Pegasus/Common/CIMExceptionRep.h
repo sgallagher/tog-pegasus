@@ -44,7 +44,7 @@ class CIMExceptionRep : public ExceptionRep
 {
 public:
     CIMStatusCode code;
-    const char*   file;
+    String        file;
     Uint32        line;
 };
 

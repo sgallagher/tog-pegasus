@@ -29,10 +29,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/XmlReader.h>
+#include <Pegasus/Common/OperationContextInternal.h>
+#include <Pegasus/Common/System.h>
+
 #include "CIMMessageDeserializer.h"
-#include "XmlReader.h"
-#include "OperationContextInternal.h"
-#include "System.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -713,22 +714,37 @@ void CIMMessageDeserializer::_deserializeCIMException(
 {
     XmlEntry entry;
     CIMValue genericValue;
-    String genericString;
-    Uint32 genericUint32;
-    //ContentLanguages contentLanguages;
+    Uint32 statusCode;
+    String message;
+    String cimMessage;
+    String file;
+    Uint32 line;
+    ContentLanguages contentLanguages;
 
     XmlReader::expectStartTag(parser, entry, "PGCIMEXC");
 
     XmlReader::getValueElement(parser, CIMTYPE_UINT32, genericValue);
-    genericValue.get(genericUint32);
+    genericValue.get(statusCode);
     XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
-    genericValue.get(genericString);
-    // ATTN: _deserializeContentLanguages(parser, contentLanguages);
+    genericValue.get(message);
+    XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+    genericValue.get(cimMessage);
+    XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+    genericValue.get(file);
+    XmlReader::getValueElement(parser, CIMTYPE_UINT32, genericValue);
+    genericValue.get(line);
+    _deserializeContentLanguages(parser, contentLanguages);
 
     XmlReader::expectEndTag(parser, "PGCIMEXC");
 
-    cimException = CIMException(CIMStatusCode(genericUint32), genericString);
-    //cimException.setContentLanguages(contentLanguages);
+    TraceableCIMException e = TraceableCIMException(
+        contentLanguages,
+        CIMStatusCode(statusCode),
+        message,
+        file,
+        line);
+    e.setCIMMessage(cimMessage);
+    cimException = e;
 }
 
 //

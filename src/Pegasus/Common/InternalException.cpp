@@ -55,8 +55,7 @@ AssertionFailureException::AssertionFailureException(
     _rep->message.append("): ");
     _rep->message.append(message);
 
-    // ATTN-RK-P3-20020408: Should define a "test" trace component
-    PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL2, _rep->message);
+    PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2, _rep->message);
 }
 
 const char NullPointer::MSG[] = "null pointer";
@@ -262,7 +261,7 @@ static String _makeCIMExceptionDescription(
 static String _makeCIMExceptionDescription(
     CIMStatusCode code,
     const String& message,
-    const char* file,
+    const String& file,
     Uint32 line)
 {
     String tmp = file;
@@ -279,7 +278,7 @@ static String _makeCIMExceptionDescription(
 TraceableCIMException::TraceableCIMException(
     CIMStatusCode code,
     MessageLoaderParms parms,
-    const char* file,
+    const String& file,
     Uint32 line)
     :
     CIMException(code, parms)
@@ -298,7 +297,7 @@ TraceableCIMException::TraceableCIMException(
 TraceableCIMException::TraceableCIMException(
     CIMStatusCode code,
     const String& message,
-    const char* file,
+    const String& file,
     Uint32 line)
     :
     CIMException(code, message)
@@ -319,7 +318,7 @@ TraceableCIMException::TraceableCIMException(
 	const ContentLanguages& langs,
     CIMStatusCode code,
     const String& message,
-    const char* file,
+    const String& file,
     Uint32 line)
     :
     CIMException(code, message)
@@ -387,6 +386,41 @@ String TraceableCIMException::getTraceDescription() const
             rep->code, getMessage(), rep->file, rep->line);
 
     return traceDescription;
+}
+
+String TraceableCIMException::getCIMMessage() const
+{
+    CIMExceptionRep* rep;
+    rep = reinterpret_cast<CIMExceptionRep*>(_rep);
+    return rep->cimMessage;
+}
+
+void TraceableCIMException::setCIMMessage(const String& cimMessage)
+{
+    CIMExceptionRep* rep;
+    rep = reinterpret_cast<CIMExceptionRep*>(_rep);
+    rep->cimMessage = cimMessage;
+}
+
+String TraceableCIMException::getFile() const
+{
+    CIMExceptionRep* rep;
+    rep = reinterpret_cast<CIMExceptionRep*>(_rep);
+    return rep->file;
+}
+
+Uint32 TraceableCIMException::getLine() const
+{
+    CIMExceptionRep* rep;
+    rep = reinterpret_cast<CIMExceptionRep*>(_rep);
+    return rep->line;
+}
+
+const ContentLanguages& TraceableCIMException::getContentLanguages() const
+{
+    CIMExceptionRep* rep;
+    rep = reinterpret_cast<CIMExceptionRep*>(_rep);
+    return rep->contentLanguages;
 }
 
 PEGASUS_NAMESPACE_END

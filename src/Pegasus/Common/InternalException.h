@@ -587,14 +587,14 @@ public:
     TraceableCIMException(
 	CIMStatusCode code,
 	const String& message,
-	const char* file,
+	const String& file,
 	Uint32 line);
 	
 	//l10n
 	TraceableCIMException(
 	CIMStatusCode code,
 	MessageLoaderParms parms,
-	const char* file,
+	const String& file,
 	Uint32 line);
 
 // l10n
@@ -602,7 +602,7 @@ public:
 	const ContentLanguages& langs,
     CIMStatusCode code,
     const String& message,
-    const char* file,
+    const String& file,
     Uint32 line);
 
     TraceableCIMException(const CIMException & cimException);
@@ -610,18 +610,26 @@ public:
     String getDescription() const;
 
     String getTraceDescription() const;
+
+    String getCIMMessage() const;
+    void setCIMMessage(const String& cimMessage);
+
+    String getFile() const;
+    Uint32 getLine() const;
+    const ContentLanguages& getContentLanguages() const;
 };
 
 #define PEGASUS_CIM_EXCEPTION(CODE, EXTRA_MESSAGE) \
-    TraceableCIMException(CODE, EXTRA_MESSAGE, __FILE__, __LINE__)
+    TraceableCIMException(CODE, EXTRA_MESSAGE, String(__FILE__), __LINE__)
 
 // l10n    
 #define PEGASUS_CIM_EXCEPTION_LANG(LANGS, CODE, EXTRA_MESSAGE) \
-    TraceableCIMException(LANGS, CODE, EXTRA_MESSAGE, __FILE__, __LINE__)  
+    TraceableCIMException( \
+        LANGS, CODE, EXTRA_MESSAGE, String(__FILE__), __LINE__)  
       
 //l10n
 #define PEGASUS_CIM_EXCEPTION_L(CODE, MSG_PARMS) \
-    TraceableCIMException(CODE, MSG_PARMS, __FILE__, __LINE__)
+    TraceableCIMException(CODE, MSG_PARMS, String(__FILE__), __LINE__)
 
 PEGASUS_NAMESPACE_END
 

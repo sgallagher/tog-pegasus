@@ -376,7 +376,7 @@ private:
 	const Uint32 traceComponent,
 	const char* message,
 	const char* fmt,
-	va_list argList=0);
+	va_list argList);
 
     // Traces method enter
     // @param    fileName        filename of the trace originator

@@ -69,8 +69,6 @@ struct bufstate {
 	int    lineno;      // the line number of the file
 };
 
-PEGASUS_MEMORY_FUNCTIONS(bufstate*)
-
 class PEGASUS_COMPILER_LINKAGE  parser {
  private:
   unsigned int _buffer_size;   // the value of the YY_BUFFER_SIZE macro

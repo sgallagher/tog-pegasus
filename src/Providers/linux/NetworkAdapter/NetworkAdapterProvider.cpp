@@ -381,7 +381,8 @@ LinuxNetworkAdapterProvider::interface_is_my_type(
    /* Sanity check on the data. */
    if (classType == NETWORK_ADAPTER_PROVIDER_INVALID ||
        adapter->data_type() == NETWORK_ADAPTER_INVALID)
-      throw NullType();
+      // ATTN: Add more useful failure explanation
+      throw CIMOperationFailedException("Invalid network adapter");
 
    switch (adapter->data_type()) {
    case NETWORK_ADAPTER_ETHERNET:

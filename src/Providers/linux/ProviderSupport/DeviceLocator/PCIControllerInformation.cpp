@@ -37,6 +37,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Provider/ProviderException.h>
 
 #include "PCIControllerInformation.h"
 
@@ -51,7 +52,8 @@ void PCIControllerInformation::AddCapability(Uint16 cap, String const &details,
   if (yesno == "-")  // nothing to do
     return;
   else if (yesno != "+")
-    throw BadFormat();
+    // ATTN: Add more useful failure explanation
+    throw CIMOperationFailedException("Bad format");
 
   capabilities.append(cap);
   capability_descriptions.append(details);
@@ -72,7 +74,7 @@ void PCIControllerInformation::SetDevsel(String const &dstr)
 
 void PCIControllerInformation::SetInterruptPin(String const &pin)
 {
-  switch(pin[0].getCode()) {
+  switch(Uint16(pin[0])) {
   case 'A':
     interrupt_pin.setValue(2);
     break;
@@ -86,7 +88,8 @@ void PCIControllerInformation::SetInterruptPin(String const &pin)
     interrupt_pin.setValue(5);
     break;
   case '?':
-    throw BadFormat();
+    // ATTN: Add more useful failure explanation
+    throw CIMOperationFailedException("Bad format");
     break;
   }
 }

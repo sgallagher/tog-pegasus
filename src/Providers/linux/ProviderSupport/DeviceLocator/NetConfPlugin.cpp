@@ -288,7 +288,7 @@ IPV4NetInformation *NetConfPlugin::getNextDevice(void)
 	  	while(matches[2][matches[2].size()-1]==' '){
 			matches[2].remove(matches[2].size()-1);
 	  	}
-	  } catch (OutOfBounds&){
+	  } catch (IndexOutOfBoundsException&){
 		/* Just break out if we get out of bounds */
 	  }
 	  iface->SetEncapsulation(matches[2]);

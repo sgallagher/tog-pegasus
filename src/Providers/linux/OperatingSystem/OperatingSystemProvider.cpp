@@ -222,12 +222,12 @@ OperatingSystemProvider::_build_instance(const String &className)
 
    //-- fill in all the blanks
    instance.addProperty(CIMProperty("CSCreationClassName",
-	                            "CIM_UnitaryComputerSystem"));
+	                            String("CIM_UnitaryComputerSystem")));
 
    instance.addProperty(CIMProperty("CSName", _hostName()));
 
    instance.addProperty(CIMProperty("CreationClassName",
-	                            OPERATINGSYSTEMCLASSNAME));
+	                            String(OPERATINGSYSTEMCLASSNAME)));
 
    instance.addProperty(CIMProperty("Name", _osName()));
 
@@ -428,8 +428,8 @@ static CIMDateTime time_t_to_CIMDateTime(time_t *time_to_represent)
       snprintf(utc_offset, 20, "%+03ld", 0);
 #endif
       strncat(date_ascii_rep, utc_offset, CIM_DATE_TIME_ASCII_LEN);
-      dt = date_ascii_rep;
-      cout << "dt = " << dt.getString() << endl;
+      dt = String(date_ascii_rep);
+      cout << "dt = " << dt.toString() << endl;
    }
 
    return dt;

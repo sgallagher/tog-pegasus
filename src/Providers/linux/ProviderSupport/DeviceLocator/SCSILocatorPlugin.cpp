@@ -38,8 +38,8 @@
 
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Provider/ProviderException.h>
 #include "SCSILocatorPlugin.h"
 #include "MediaAccessDeviceInformation.h"
 #include "FileReader.h"
@@ -183,7 +183,8 @@ DeviceInformation *SCSILocatorPlugin::getNextDevice(void){
     case MATCH_SCSI_VENDOR:
       /* Description is: manufacturer model revision */
       if (curDevice == NULL)
-	throw BadFormat();
+        // ATTN: Add more useful failure explanation
+        throw CIMOperationFailedException("Bad format");
 	
       descriptionString.append(matches[1]);
       descriptionString.append(" ");
@@ -208,7 +209,8 @@ DeviceInformation *SCSILocatorPlugin::getNextDevice(void){
 	  continue;
         }
       } else {
-	throw BadFormat();
+        // ATTN: Add more useful failure explanation
+        throw CIMOperationFailedException("Bad format");
       }
 
       break;

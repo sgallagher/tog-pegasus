@@ -238,6 +238,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 {
    PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::_loop");
 
+#if defined(PEGASUS_DEBUG)
+   char trace_buf[24];
+   snprintf(trace_buf, 23, "%d", (Uint32)pegasus_thread_self());
+   Tracer::trace(TRC_THREAD, Tracer::LEVEL4, "ThreadPool::_loop entered by %s", trace_buf);
+#endif
+
+   
    Thread *myself = (Thread *)parm;
    if(myself == 0)
    {
@@ -264,28 +271,48 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
    }
    catch(IPCException &)
    {
+#if defined(PEGASUS_DEBUG)
+      Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
+		    "%s: IPCException Caught - EXITING", trace_buf);
+#endif
       PEG_METHOD_EXIT();
       myself->exit_self(0);
    }
    catch(...)
    {
+#if defined(PEGASUS_DEBUG)
+      Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
+		    "%s: Unknown  Exception Caught - EXITING", trace_buf);
+#endif
       PEG_METHOD_EXIT();
       myself->exit_self(0);
    }
    
    if(sleep_sem == 0 || deadlock_timer == 0)
    {
+#if defined(PEGASUS_DEBUG)
+      Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
+		    "%s: NULL Semaphore  - EXITING", trace_buf);
+#endif
       PEG_METHOD_EXIT();
       throw NullPointer();
    }
 
    while(pool->_dying < 1)
    {
+#if defined(PEGASUS_DEBUG)
+      Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
+		    "%s: ThreadPool::_loop - waiting on semaphore", trace_buf);
+#endif
       sleep_sem->wait();
-        
+#if defined(PEGASUS_DEBUG)
+      Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
+		    "%s: ThreadPool::_loop - awakened from semaphore", trace_buf);
+#endif
       // when we awaken we reside on the running queue, not the pool queue
       if(pool->_dying > 0)
 	 break;
+      
 
       PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *_work)(void *) = 0;
       void *parm = 0;
@@ -303,12 +330,20 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       }
       catch(IPCException &)
       {
+#if defined(PEGASUS_DEBUG)
+	 Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
+		       "%s: IPCException Caught - EXITING", trace_buf);
+#endif
 	 PEG_METHOD_EXIT();
 	 myself->exit_self(0);
       }
 
       if(_work == 0)
       {
+#if defined(PEGASUS_DEBUG)
+	 Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
+		       "%s: NULL work pointer - EXITING", trace_buf);
+#endif
          PEG_METHOD_EXIT();
 	 throw NullPointer();
       }
@@ -316,16 +351,32 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       if(_work ==
          (PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void *)) &_undertaker)
       {
+#if defined(PEGASUS_DEBUG)
+	 Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
+		       "%s: Calling the Undertaker", trace_buf);
+#endif
 	 _work(parm);
       }
 
       gettimeofday(deadlock_timer, NULL);
       try 
       {
+#if defined(PEGASUS_DEBUG)	 
+	 Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
+		       "%s: ThreadPool::_loop - calling work routine", trace_buf);
+#endif
 	 _work(parm);
+#if defined(PEGASUS_DEBUG)
+	 Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
+		       "%s: ThreadPool::_loop - returned from work routine", trace_buf);
+#endif
       }
       catch(...)
       {
+#if defined(PEGASUS_DEBUG)
+	 Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
+		       "%s: Unknown  Exception Caught - EXITING");
+#endif
 	 gettimeofday(deadlock_timer, NULL);
       }
       gettimeofday(deadlock_timer, NULL);
@@ -340,6 +391,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       }
       catch(IPCException &)
       {
+#if defined(PEGASUS_DEBUG)
+	 Tracer::trace(__FILE__, __LINE__, TRC_THREAD, Tracer::LEVEL4, 
+		       "%s: IPCException Caught - EXITING", trace_buf);
+#endif
 	 PEG_METHOD_EXIT();
 	 myself->exit_self(0);
       }
@@ -434,6 +489,7 @@ Uint32 ThreadPool::kill_dead_threads(void)
    // first go thread the dead q and clean it up as much as possible
    while(_dead.count() > 0)
    {
+
 #if !defined(PEGASUS_PLATFORM_HPUX_ACC) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
       PEGASUS_STD(cout) << "ThreadPool:: removing and joining dead thread" << PEGASUS_STD(endl);
 #endif
@@ -652,6 +708,7 @@ PEGASUS_THREAD_RETURN ThreadPool::_undertaker( void *parm )
 
  Thread *ThreadPool::_init_thread(void) throw(IPCException)
 {
+   PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::_init_thread");
    Thread *th = (Thread *) new Thread(_loop, this, false);
    // allocate a sleep semaphore and pass it in the thread context
    // initial count is zero, loop function will sleep until
@@ -665,6 +722,7 @@ PEGASUS_THREAD_RETURN ThreadPool::_undertaker( void *parm )
    th->run();
    _current_threads++;
    pegasus_yield();
+   PEG_METHOD_EXIT();
    
    return th;
 }

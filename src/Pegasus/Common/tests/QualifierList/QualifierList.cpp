@@ -83,6 +83,10 @@ int main(int argc, char** argv)
 	assert(qualifiers1.find("Abstract") == 0);
 	assert(qualifiers1.exists("Abstract"));
 	assert(qualifiers1.isTrue("Abstract"));
+	assert(qualifiers1.exists("q1"));
+	assert(!qualifiers1.isTrue("q1"));
+	assert(qualifiers1.exists("q2"));
+	assert(!qualifiers1.isTrue("q2"));
 
 	assert(qualifiers1.find("QualifierDoesNotExist") == PEG_NOT_FOUND);
 	assert(!qualifiers1.exists("QualifierDoesNotExist"));
@@ -98,6 +102,8 @@ int main(int argc, char** argv)
 	assert(qualifiers1.isTrue("Abstract"));
 	assert(qualifiers1.exists("q1"));
 	assert(!qualifiers1.isTrue("q1"));
+	assert(qualifiers1.exists("q2"));
+	assert(!qualifiers1.isTrue("q2"));
 
 	assert(qualifiers1.find("QualifierDoesNotExist") == PEG_NOT_FOUND);
 	assert(!qualifiers1.exists("QualifierDoesNotExist"));
@@ -157,6 +163,7 @@ int main(int argc, char** argv)
 	assert(qualifiers2.isTrue("q1"));
 
 	assert(qualifiers2.exists("q2"));
+	// Should inherit the value from the superclass
 	assert(!qualifiers2.isTrue("q2"));
 
     }

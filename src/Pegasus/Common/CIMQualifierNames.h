@@ -39,6 +39,7 @@ struct PEGASUS_COMMON_LINKAGE CIMQualifierNames
     static const char ABSTRACT[];
     static const char ASSOCIATION[];
     static const char INDICATION[];
+    static const char TERMINAL[];
 };
 
 PEGASUS_NAMESPACE_END

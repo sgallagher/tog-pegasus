@@ -196,7 +196,6 @@ void CIMClassRep::resolve(
     const String& nameSpace)
 {
 	PEG_METHOD_ENTER(TRC_OBJECTRESOLUTION, "CIMClassRep::resolve()");
-
 #if 0
     if (_resolved)
 	throw ClassAlreadyResolved(_reference.getClassName());
@@ -231,8 +230,9 @@ void CIMClassRep::resolve(
 		if isAbstract() && !superclass.isAbstract()
 			throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_SUPERCLASS,_superClassName);
 		*/
-		/*if(superclass.isTrueQualifier("Terminal")
-			throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_SUPERCLASS,_superClassName);*/
+		/*if(superclass.isTrueQualifier(CIMQualifierNames::TERMINAL)
+			throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_SUPERCLASS,_superClassName);
+		*/
 		//----------------------------------------------------------------------
 		// Iterate all the properties of *this* class. Resolve each one and
 		// set the class-origin:

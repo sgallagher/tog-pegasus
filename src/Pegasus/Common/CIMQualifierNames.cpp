@@ -34,5 +34,6 @@ const char CIMQualifierNames::KEY[] = "key";
 const char CIMQualifierNames::ABSTRACT[] = "abstract";
 const char CIMQualifierNames::ASSOCIATION[] = "association";
 const char CIMQualifierNames::INDICATION[] = "indication";
+const char CIMQualifierNames::TERMINAL[] = "terminal";
 
 PEGASUS_NAMESPACE_END

@@ -32,6 +32,7 @@
 #include "CIMName.h"
 #include "Indentor.h"
 #include "XmlWriter.h"
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
@@ -111,11 +112,12 @@ Uint32 CIMQualifierList::findReverse(const String& name) const
 void CIMQualifierList::resolve(
     DeclContext* declContext,
     const String& nameSpace,
-    Uint32 scope, 					// Scope of the entity being resolved.
+    Uint32 scope, 			 // Scope of the entity being resolved.
     Boolean isInstancePart,
     CIMQualifierList& inheritedQualifiers,
     Boolean propagateQualifiers)	// Apparently not used ks 24 mar 2002
 {
+    PEG_METHOD_ENTER(TRC_OBJECTRESOLUTION, "CIMQualifierList::resolve()");
     // For each qualifier in the qualifiers array, the following
     // is checked:
     //
@@ -172,8 +174,6 @@ void CIMQualifierList::resolve(
 		// against the declaration. If the flavor is disableoverride and tosubclass
 		// the resolved qualifier value must be identical to the original
 		//----------------------------------------------------------------------
-
-
 		// Test for Qualifier found in SuperClass. If found and qualifier
 		// is not overridable.
 		// Abstract (not Overridable and restricted) can be found in subclasses
@@ -193,8 +193,6 @@ void CIMQualifierList::resolve(
 		// characteristics (value, type, flavor, etc.) This also leaves the question
 		// of NULL or no values.  The implication is that we must move the value
 		// from the superclass or declaration.
-		//  
-		
 
 		Uint32 pos = inheritedQualifiers.find(q.getName());
 
@@ -262,21 +260,18 @@ void CIMQualifierList::resolve(
     // Propagate qualifiers to subclass or to instance that do not have
     // already have those qualifiers:
     //--------------------------------------------------------------------------
-	//cout << "KSTEST. Loop of inherited qualifiers. Number = " 
-	//	<< inheritedQualifiers.getCount() << endl;
+    //cout << "KSTEST. Inherited qualifiers ct = " << inheritedQualifiers.getCount() << endl;
 
     for (Uint32 i = 0, n = inheritedQualifiers.getCount(); i < n; i++)
     {
 		CIMQualifier iq = inheritedQualifiers.getQualifier(i);
-			//cout << "KSTEST inherited qualifier propagate loop " <<  iq.getName() 
-			//<< " flavor " << iq.getFlavor << " count " << i << endl;
-		
-			// ATTN-DE-P1-This next test is incorrect. It is a temporary, hard-coded
-			// HACK to avoid propagating the "Abstract" Qualifier to subclasses
+		//cout << "KSTEST inherited qualifier propagate loop " <<  iq.getName() 
+		//<< " flavor " << iq.getFlavor << " count " << i << endl;
+	
+		// ATTN-DE-P1-This next test is incorrect. It is a temporary, hard-coded
+		// HACK to avoid propagating the "Abstract" Qualifier to subclasses
 		//if (CIMName::equal(iq.getName(), "Abstract"))
 			//   continue;
-		//<< " flavor= " << iq.getFlavor()
-		//<< " TOSUBCLASS " << (iq.getFlavor() && CIMFlavor::TOSUBCLASS) << endl;
 		
 		if (isInstancePart)
 		{

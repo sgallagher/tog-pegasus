@@ -28,8 +28,6 @@
 
 /*
  CIMQualifier.h - Defines the CIM qualifiers class.
-	This class represents a CIM qualifiers. It is almost identical to
-	CIMQualifierDecl except that it has no scope member.
 
 */
 
@@ -53,6 +51,12 @@ class CIMClassRep;
 
 /** Class CIMQualifier - This class defines the Pegasus implementation of the 
     CIM CIMQualifier \Ref{QUALIFIER}.
+	This class represents a CIM qualifiers. It is almost identical to
+	CIMQualifierDecl except that it has no scope member. \Ref{CIMQualifierDecl}
+    This includes functions to create qualifiers and manipulate/test
+    the individual components of the CIMQualifier.
+    CIMQualifiers are accumulated into lists for use in CIMClasses and CIM Properties
+    using the CIMQualifierList Class and its functions. \Ref{CIMQualifierList}
 */
 class PEGASUS_COMMON_LINKAGE CIMQualifier
 {
@@ -116,7 +120,8 @@ public:
 	return *this;
     }
 
-    /**	CIMMethod
+    /**	getName - Returns the name field from the qualifier
+    @return String containing the qualifier name.
     
     */
     const String& getName() const 
@@ -127,7 +132,7 @@ public:
 
     /**	setName - Sets the qualifier name field in the qualifier object.
 	@param name - String containing the name for the qualifier
-    @exception Throws IllegalName if name argument not legal CIM  identifier.
+	@exception Throws IllegalName if name argument not legal CIM  identifier.
     */
     void setName(const String& name) 
     { 
@@ -135,7 +140,8 @@ public:
 	_rep->setName(name); 
     }
 
-    /** getType - Gets the ATTN:
+    /** getType - Gets the type field from the qualifier object.
+    @return CIMType containing the type for this qualifier /Ref{CIMType}.
     
     */
     CIMType getType() const 
@@ -145,7 +151,7 @@ public:
     }
 
     /**	isArray - Returns true if the qualifier is an array
-	@return Boolean try if array qualifier.
+	@return Boolean true if array qualifier.
     */
     Boolean isArray() const 
     {
@@ -173,19 +179,19 @@ public:
 	_rep->setValue(value); 
     }
 
-	/* setFlavor - Sets the bits defined on input into the Flavor variable
-		for the Qualifier Object.
-		@param flavor - Uint32 defines the flavor bits to be set.
-	*/
+    /* setFlavor - Sets the bits defined on input into the Flavor variable
+	    for the Qualifier Object.
+	    @param flavor - Uint32 defines the flavor bits to be set.
+    */
     void setFlavor(Uint32 flavor) 
     {
 		_checkRep();
 		_rep->setFlavor(flavor);
     }
-	/* unsetFlavor - Resets the bits defined for the flavor 
-		for the Qualifier Object with the input.
-		@param flavor - Uint32 defines the flavor bits to be set.
-	*/
+    /* unsetFlavor - Resets the bits defined for the flavor 
+	    for the Qualifier Object with the input.
+	    @param flavor - Uint32 defines the flavor bits to be set.
+    */
     void unsetFlavor(Uint32 flavor) 
     {
 		_checkRep();
@@ -193,7 +199,7 @@ public:
     }
 
     /**	getFlavor - Gets the Flavor field from a Qualifier
-    @return - Uint32 with the Flavor flags that can be tested
+	@return - Uint32 with the Flavor flags that can be tested
 	against the CIMFlavor constants.
     */
     Uint32 getFlavor() const 
@@ -201,7 +207,7 @@ public:
 	_checkRep();
 	return _rep->getFlavor();
     }
-	/**	isFlavor - Boolean function that determines if particular flavor
+    /**	isFlavor - Boolean function that determines if particular flavor
 	flags are set in the flavor variable of a qualifier.
 	@param flavor - The flavor bits to test.
 	Return True if the defined flavor is set.
@@ -210,37 +216,37 @@ public:
 		do something based on TOSUBCLASS being true
 	</pre>
 		
-	*/
-	Boolean isFlavor(Uint32 flavor) const
-	{
-		return _rep->isFlavor(flavor);
-	}
-	/* resolveFlavor - Function used only in object creation to
-		resolve the combination of a qualifer flavor input and
-		the corresponding inherited flavor from declaration or
-		superclass and set the current qualifier to that
-		definition.	The functions changes the current flavor based
-		on the characteristics of the inheritance.
-		@param inheritedFlavor - The flavor inherited from higher level
-		@param inherited - True if inherited from definition. False if this
-		is definition that inherits from the declaration
-	*/
-	void resolveFlavor(Uint32 inheritedFlavor, Boolean inherited)
-	{
-		_checkRep();
-		_rep->resolveFlavor(inheritedFlavor, inherited);
-	}
+    */
+    Boolean isFlavor(Uint32 flavor) const
+    {
+	    return _rep->isFlavor(flavor);
+    }
+    /* resolveFlavor - Function used only in object creation to
+	    resolve the combination of a qualifer flavor input and
+	    the corresponding inherited flavor from declaration or
+	    superclass and set the current qualifier to that
+	    definition.	The functions changes the current flavor based
+	    on the characteristics of the inheritance.
+	    @param inheritedFlavor - The flavor inherited from higher level
+	    @param inherited - True if inherited from definition. False if this
+	    is definition that inherits from the declaration
+    */
+    void resolveFlavor(Uint32 inheritedFlavor, Boolean inherited)
+    {
+	    _checkRep();
+	    _rep->resolveFlavor(inheritedFlavor, inherited);
+    }
     /**	getPropagated returns the propagated indicator
 	@return Uint32 - TBD
 
-   */
+    */
     const Uint32 getPropagated() const 
     {
 	_checkRep();
 	return _rep->getPropagated(); 
     }
 
-    /**	CIMMethod
+    /**	setPropagated - Sets the Propagated flag for the object.
     
     */
     void setPropagated(Boolean propagated) 
@@ -255,6 +261,7 @@ public:
     operator int() const { return _rep != 0; }
 
     /**	toXml- Converts the CIMQualifier object to XML.
+    @param out The array where the XML output is to be stored.
     
     */
     void toXml(Array<Sint8>& out) const
@@ -265,16 +272,18 @@ public:
 
     /**	print - Converts the CIMQualifier object to XML and 
         sends it to cout.
+	@SeeAlso toXML
 
-   */
+    */
     void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
     {
 	_checkRep();
 	_rep->print(o);
     }
 
-    /**	toXml- Converts the CIMQualifier object to MOF.
-    
+    /**	toMof- Converts the CIMQualifier object to MOF.
+	@param out The Array where the MOF output is stored.
+	Note that the result does not have a zero terminator.
     */
     void toMof(Array<Sint8>& out) const
     {
@@ -283,8 +292,8 @@ public:
     }
 
     /**	printMOF - Converts the CIMQualifier object to XML and 
-        sends it to cout.
-
+        sends it the stream defined.
+	@param o Output stream for the MOF. The default is cout.
    */
     void printMof(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
     {
@@ -298,7 +307,9 @@ public:
    */
     Boolean identical(const CIMConstQualifier& x) const;
 
-    /**	CIMMethod
+    /**	clone Creates an exact copy of the qualifier and returns the
+	new object.
+	@return CIMQualifier New Qualifier object.
     
     */
     CIMQualifier clone() const

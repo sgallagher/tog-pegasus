@@ -9,4 +9,4 @@ SOURCES = DynLoad.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	$(PROGRAM) /home/mbrasher/tog/pegasus_home/lib/libDynLib.so
+	$(PROGRAM) $(PEGASUS_HOME)/lib/libDynLib.so

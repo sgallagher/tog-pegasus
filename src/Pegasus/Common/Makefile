@@ -86,11 +86,14 @@ SOURCES = \
 ## Took these out again. They broke the NT build.
 ##
 ifdef PEGASUS_CONCURRENT
-SOURCES +=  IPC.cpp DQueue.cpp Thread.cpp MT_MessageQueue.cpp 
+SOURCES +=  IPC.cpp DQueue.cpp Thread.cpp
+ifneq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+SOURCES += MT_MessageQueue.cpp
+endif
 endif
 
 ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
-SOURCES += Signal.cpp
+SOURCES += Signal.cpp CIMPredicate.cpp
 endif
 
 SYS_LIBS = ws2_32.lib advapi32.lib

@@ -77,7 +77,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL  MessageQueueService::kill_idle_threa
 
       }
    }
-   exit_thread((PEGASUS_THREAD_RETURN)dead_threads);
    return (PEGASUS_THREAD_RETURN)dead_threads;
 }
 
@@ -161,11 +160,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
       if(_check_idle_flag.value() != 0 )
       {
 	 _check_idle_flag = 0;
-	 Thread th(kill_idle_threads, 0, true);
-         while (!th.run())
-         {
-            pegasus_yield();
-         }
+
+         // If there are insufficent resources to run
+         // kill_idle_threads, then just return.
+         _thread_pool->allocate_and_awaken(service, kill_idle_threads);
       }
    }
    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );

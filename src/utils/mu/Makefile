@@ -13,6 +13,7 @@ OS=unix
 
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
 OS=windows
+BACKWARD_SLASH = 1
 endif
 
 ifeq ($(PEGASUS_PLATFORM),TRU64_ALPHA_DECCXX)
@@ -118,6 +119,16 @@ ifeq ($(OS),hpux)
     PLATFORM_SOURCES = FilesUnix.cpp
 endif
 
+ifdef PEGASUS_MU_BIN_DIR
+  ifdef BACKWARD_SLASH
+     FULL_PROGRAM = $(PEGASUS_MU_BIN_DIR)\$(PROGRAM)
+  else
+     FULL_PROGRAM = $(PEGASUS_MU_BIN_DIR)/$(PROGRAM)
+  endif
+else
+   FULL_PROGRAM = $(PROGRAM)
+endif
+
 SOURCES = \
     $(PLATFORM_SOURCES) \
     DependCmd.cpp \
@@ -153,12 +164,12 @@ HEADERS = \
 
 OBJECTS=$(SOURCES:.cpp=$(OBJ))
 
-$(PROGRAM): $(OBJECTS)
-	$(LXX) $(CXXFLAGS) $(LIBFLAGS) $(SRLFLAGS) $(EXE_OUT)$(PROGRAM) $(OBJECTS)
+$(FULL_PROGRAM): $(OBJECTS)
+	$(LXX) $(CXXFLAGS) $(LIBFLAGS) $(SRLFLAGS) $(EXE_OUT)$(FULL_PROGRAM) $(OBJECTS)
 
 %$(OBJ) : %.cpp
 	$(CXX) -c $(CXXFLAGS) $(DEFINES) $*.cpp
 
 clean:
-	- $(RM) $(PROGRAM)
+	- $(RM) $(FULL_PROGRAM)
 	- $(RM) *$(OBJ)

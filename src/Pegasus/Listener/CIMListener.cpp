@@ -314,7 +314,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CIMListenerService::_listener_routine
 {
   CIMListenerService *svc = reinterpret_cast<CIMListenerService *>(param);
 
-	svc->init();
+  //	svc->init(); bug 1394 
 	while(!svc->terminated())
 	{
 	  svc->runForever();
@@ -398,11 +398,23 @@ void CIMListenerRep::start()
 	// spawn a thread to do this
 	if(_thread_pool==NULL)
 	{
+		CIMListenerService* svc = new CIMListenerService(_portNumber,_sslContext);
+		try
+		{
+		  // Try to initialize the service (bug 1394)
+		  svc->setIndicationDispatcher(_dispatcher);
+		  svc->init(); 
+		}
+		catch(...)
+		{
+		  // Error. Exit without creating the ThreadPool, so that this listener
+		  // is not 'alive'
+		  delete svc;
+		  throw;
+		}
+
 		_thread_pool = new ThreadPool(0, "Listener", 0, 1, 
 			create_time, destroy_time, deadlock_time);
-
-		CIMListenerService* svc = new CIMListenerService(_portNumber,_sslContext);
-		svc->setIndicationDispatcher(_dispatcher);
 
 		_thread_pool->allocate_and_awaken(svc,CIMListenerService::_listener_routine);
 

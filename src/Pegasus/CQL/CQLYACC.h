@@ -63,6 +63,9 @@
 #define UNEXPECTED_CHAR 315
 typedef union {
    char * strValue;
+   int lineno;
+   int tokenpos;
+   char * linebuf;
    String * _string;
    CQLValue * _value;
    CQLSelectStatement * _ss;

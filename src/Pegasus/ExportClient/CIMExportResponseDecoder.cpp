@@ -62,29 +62,38 @@ CIMExportResponseDecoder::CIMExportResponseDecoder(
    _encoderQueue(encoderQueue),
    _authenticator(authenticator)
 {
-
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportResponseDecoder::CIMExportResponseDecoder()");
+    PEG_METHOD_EXIT();
 }
 
 CIMExportResponseDecoder::~CIMExportResponseDecoder()
 {
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportResponseDecoder::~CIMExportResponseDecoder()");
     _outputQueue.release();
     _encoderQueue.release();
     _authenticator.release();
+    PEG_METHOD_EXIT();
 }
 
 void  CIMExportResponseDecoder::setEncoderQueue(MessageQueue* encoderQueue)
 {
+   PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportResponseDecoder::setEncoderQueue()");
    _encoderQueue.release();
    _encoderQueue.reset(encoderQueue);
+   PEG_METHOD_EXIT();
 }
 
 
 void CIMExportResponseDecoder::handleEnqueue()
 {
+   PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportResponseDecoder::handleEnqueue()");
    Message* message = dequeue();
 
    if (!message)
+   {
+      PEG_METHOD_EXIT();
       return;
+   }
    
    switch (message->getType())
    {
@@ -101,10 +110,12 @@ void CIMExportResponseDecoder::handleEnqueue()
    }
 
    delete message;
+   PEG_METHOD_EXIT();
 }
 
 void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 {
+   PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportResponseDecoder::handleHTTPMessage()");
    //
    // Parse the HTTP message:
    //
@@ -134,6 +145,7 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
      malformedHTTPException.release();
      
      _outputQueue->enqueue(response.release());
+     PEG_METHOD_EXIT();
      return;
    }
 
@@ -168,8 +180,9 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
       malformedHTTPException.release();
 
-        _outputQueue->enqueue(response.release());
-        return;
+      _outputQueue->enqueue(response.release());
+      PEG_METHOD_EXIT();
+      return;
     }
 
    try
@@ -184,6 +197,7 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
           Message* reqMessage = _authenticator->getRequestMessage();
           _encoderQueue->enqueue(reqMessage);
 
+          PEG_METHOD_EXIT();
           return;
        }
        else
@@ -211,6 +225,7 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         malformedHTTPException.release();
 
         _outputQueue->enqueue(response.release());
+        PEG_METHOD_EXIT();
         return;
     }
 
@@ -248,6 +263,7 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         httpError.release();
 
         _outputQueue->enqueue(response.release());
+        PEG_METHOD_EXIT();
         return;
     }
 
@@ -278,6 +294,7 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
       malformedHTTPException.release();
 
       _outputQueue->enqueue(response.release());
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -298,6 +315,7 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         malformedHTTPException.release();
 
         _outputQueue->enqueue(response.release());
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -341,14 +359,17 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
       malformedHTTPException.release();
 
       _outputQueue->enqueue(response.release());
+      PEG_METHOD_EXIT();
       return;
    }
 
    _handleMethodResponse(content);
+   PEG_METHOD_EXIT();
 }
 
 void CIMExportResponseDecoder::_handleMethodResponse(char* content)
 {
+   PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportResponseDecoder::_handleMethodResponse()");
    AutoPtr<Message> response;
 
    //
@@ -395,6 +416,7 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
 	MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.EXPECTED_MESSAGE_ELEMENT", "expected MESSAGE element");
 	String mlString(MessageLoader::getMessage(mlParms));
 	
+        PEG_METHOD_EXIT();
 	throw XmlValidationError(parser.getLine(), mlString);
 
       }
@@ -421,6 +443,7 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
          responseException.release();
 
          _outputQueue->enqueue(response.release());
+         PEG_METHOD_EXIT();
 	 return;
       }
 
@@ -453,6 +476,7 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
 	    MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.UNRECOGNIZED_IMETH", "Unrecognized IMethodResponse name \"$0\"", iMethodResponseName);
 	    String mlString(MessageLoader::getMessage(mlParms));
 	    
+            PEG_METHOD_EXIT();
 	    throw XmlValidationError(parser.getLine(), mlString);
            }
 
@@ -473,6 +497,7 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
 	  MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.EXPECTED_METHODRESPONSE_OR_IMETHODRESPONSE_ELEMENT", "expected METHODRESPONSE or IMETHODRESPONSE element");
 	  String mlString(MessageLoader::getMessage(mlParms));
 	  
+          PEG_METHOD_EXIT();
 	  throw XmlValidationError(parser.getLine(), mlString);
         }
 
@@ -500,16 +525,19 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
 // 	Note: Ignore any ContentLanguage set in the export response
 
     _outputQueue->enqueue(response.release());
+    PEG_METHOD_EXIT();
 }
 
 CIMExportIndicationResponseMessage* CIMExportResponseDecoder::_decodeExportIndicationResponse(
    XmlParser& parser, const String& messageId)
 {
+   PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportResponseDecoder::_decodeExportIndicationResponse()");
    XmlEntry entry;
    CIMException cimException;
 
    if (XmlReader::getErrorElement(parser, cimException))
    {
+      PEG_METHOD_EXIT();
       return(new CIMExportIndicationResponseMessage(
 		messageId,
 		cimException,
@@ -525,6 +553,7 @@ CIMExportIndicationResponseMessage* CIMExportResponseDecoder::_decodeExportIndic
          }
       }
 
+      PEG_METHOD_EXIT();
       return(new CIMExportIndicationResponseMessage(
 		messageId,
 		cimException,

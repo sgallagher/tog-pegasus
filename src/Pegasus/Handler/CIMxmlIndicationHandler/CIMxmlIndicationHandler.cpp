@@ -94,7 +94,7 @@ public:
     ContentLanguages& contentLanguages)
     {
         PEG_METHOD_ENTER (TRC_IND_HANDLER, 
-            "CIMxmlIndicationHandler::handleIndication");
+            "CIMxmlIndicationHandler::handleIndication()");
 
         //get destination for the indication
         Uint32 pos = indicationHandlerInstance.findProperty(CIMName ("destination"));
@@ -133,8 +133,8 @@ public:
         {
             static String PROPERTY_NAME__SSLCERT_FILEPATH = "sslCertificateFilePath";
             static String PROPERTY_NAME__SSLKEY_FILEPATH  = "sslKeyFilePath";
-			static String PROPERTY_NAME__ENABLE_HTTPS_CONNECTION = "enableHttpsConnection";
-			static String PROPERTY_NAME__ENABLE_HTTP_CONNECTION = "enableHttpConnection";
+            static String PROPERTY_NAME__ENABLE_HTTPS_CONNECTION = "enableHttpsConnection";
+            static String PROPERTY_NAME__ENABLE_HTTP_CONNECTION = "enableHttpConnection";
 
             //
             // Get the sslCertificateFilePath property from the Config Manager.
@@ -161,12 +161,12 @@ public:
 #endif
 
             //
-			// Get the enableHttpsConnection and enableHttpConnection properties
-			//
-			String enableHttps = configManager->getCurrentValue(
-				PROPERTY_NAME__ENABLE_HTTPS_CONNECTION);
-			String enableHttp = configManager->getCurrentValue(
-				PROPERTY_NAME__ENABLE_HTTP_CONNECTION);
+            // Get the enableHttpsConnection and enableHttpConnection properties
+            //
+            String enableHttps = configManager->getCurrentValue(
+                                    PROPERTY_NAME__ENABLE_HTTPS_CONNECTION);
+            String enableHttp = configManager->getCurrentValue(
+                                    PROPERTY_NAME__ENABLE_HTTP_CONNECTION);
 
             #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
             Monitor monitor;
@@ -310,10 +310,10 @@ public:
             if (useHttps)
             {
 #ifdef PEGASUS_HAS_SSL
-				PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, "Build SSL Context...");
-        
-				SSLContext sslcontext(trustPath, certPath, keyPath, 
-				verifyListenerCertificate, randFile);
+                PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, "Build SSL Context...");
+
+                SSLContext sslcontext(trustPath, 
+                    certPath, keyPath, verifyListenerCertificate, randFile);
                 exportclient.connect (hostName, portNumber, sslcontext);
 #else
 //l10n 485

@@ -71,6 +71,8 @@ CIMExportClient::CIMExportClient(
    _responseDecoder(0),
    _requestEncoder(0)
 {
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::CIMExportClient()");
+    PEG_METHOD_EXIT();
 }
 
 CIMExportClient::CIMExportClient(
@@ -87,16 +89,23 @@ CIMExportClient::CIMExportClient(
    _responseDecoder(0),
    _requestEncoder(0)
 {
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::CIMExportClient()");
+    PEG_METHOD_EXIT();
 }  
 
 CIMExportClient::~CIMExportClient()
 {
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::~CIMExportClient()");
 
-        disconnect();
+    disconnect();
+
+    PEG_METHOD_EXIT();
 }
 
 void CIMExportClient::_connect()
 {
+   PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::_connect()");
+
    // Create response decoder:
     
    _responseDecoder = new CIMExportResponseDecoder(
@@ -108,12 +117,12 @@ void CIMExportClient::_connect()
    {
    #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
       _httpConnection = _httpConnector->connect(_connectHost, 
-					       _connectPortNumber, 
+                 _connectPortNumber, 
                  _connectSSLContext,
                  _responseDecoder);
    #else
        _httpConnection2 = _httpConnector2->connect(_connectHost,
-					       _connectPortNumber,
+                 _connectPortNumber,
                  _connectSSLContext,
                  _responseDecoder);
    #endif
@@ -121,16 +130,19 @@ void CIMExportClient::_connect()
    catch (CannotCreateSocketException& e)
    {
         delete _responseDecoder;
+        PEG_METHOD_EXIT();
         throw e;
    }
    catch (CannotConnectException& e)
    {
         delete _responseDecoder;
+        PEG_METHOD_EXIT();
         throw e;
    }
    catch (InvalidLocatorException& e)
    {
         delete _responseDecoder;
+        PEG_METHOD_EXIT();
         throw e;
    }
     
@@ -147,10 +159,14 @@ void CIMExportClient::_connect()
    _responseDecoder->setEncoderQueue(_requestEncoder);    
 
    _connected = true;
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMExportClient::_disconnect()
 {
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::_disconnect()");
+
     if (_connected)
     {
         //
@@ -194,23 +210,30 @@ void CIMExportClient::_disconnect()
 
         _connected = false;
     }
+    PEG_METHOD_EXIT();
 }
 
 void CIMExportClient::_reconnect()
 {
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::_reconnect()");
     _disconnect();
     _authenticator.setRequestMessage(0);
     _connect();
+    PEG_METHOD_EXIT();
 }
 
 void CIMExportClient::connect(
     const String& host,
     const Uint32 portNumber)
 {
+   PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::connect()");
    // If already connected, bail out!
     
    if (_connected)
+   {
+      PEG_METHOD_EXIT();
       throw AlreadyConnectedException();
+   }
     
     //
     // If the host is empty, set hostName to "localhost"
@@ -231,6 +254,7 @@ void CIMExportClient::connect(
     _connectPortNumber = portNumber;
 
     _connect();
+    PEG_METHOD_EXIT();
 }
 
 void CIMExportClient::connect(
@@ -238,10 +262,15 @@ void CIMExportClient::connect(
     const Uint32 portNumber,
     const SSLContext& sslContext)
 {
-   // If already connected, bail out!
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::connect()");
 
-   if (_connected)
-      throw AlreadyConnectedException();
+    // If already connected, bail out!
+
+    if (_connected)
+    {
+       PEG_METHOD_EXIT();
+       throw AlreadyConnectedException();
+    }
 
     //
     // If the host is empty, set hostName to "localhost"
@@ -269,14 +298,18 @@ void CIMExportClient::connect(
     {
         delete _connectSSLContext;
         _connectSSLContext = 0;
+        PEG_METHOD_EXIT();
         throw;
     }
+    PEG_METHOD_EXIT();
 }
 
 void CIMExportClient::disconnect()
 {
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::disconnect()");
     _disconnect();
     _authenticator.clear();
+    PEG_METHOD_EXIT();
 }
 
 void CIMExportClient::exportIndication(
@@ -284,6 +317,8 @@ void CIMExportClient::exportIndication(
    const CIMInstance& instanceName,
    const ContentLanguages& contentLanguages)
 {
+   PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::exportIndication()");
+
    // encode request
 // l10n  
    CIMRequestMessage* request = new CIMExportIndicationRequestMessage(
@@ -302,6 +337,8 @@ void CIMExportClient::exportIndication(
       (CIMExportIndicationResponseMessage*)message;
     
    Destroyer<CIMExportIndicationResponseMessage> destroyer(response);
+
+   PEG_METHOD_EXIT();
 }
 
 Message* CIMExportClient::_doRequest(
@@ -309,9 +346,12 @@ Message* CIMExportClient::_doRequest(
     const Uint32 expectedResponseMessageType
 )
 {
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::_doRequest()");
+
     if (!_connected)
     {
        delete request;
+       PEG_METHOD_EXIT();
        throw NotConnectedException();
     }
     
@@ -366,6 +406,7 @@ Message* CIMExportClient::_doRequest(
                 Exception* clientException =
                     ((ClientExceptionMessage*)response)->clientException;
                 delete response;
+                PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, "Client Exception Message received.");
 
                 Destroyer<Exception> d(clientException);
 
@@ -378,6 +419,7 @@ Message* CIMExportClient::_doRequest(
                         clientException);
                 if (malformedHTTPException)
                 {
+                    PEG_METHOD_EXIT();
                     throw *malformedHTTPException;
                 }
 
@@ -386,6 +428,7 @@ Message* CIMExportClient::_doRequest(
                         clientException);
                 if (httpErrorException)
                 {
+                    PEG_METHOD_EXIT();
                     throw *httpErrorException;
                 }
 
@@ -393,6 +436,7 @@ Message* CIMExportClient::_doRequest(
                     dynamic_cast<CIMClientXmlException*>(clientException);
                 if (xmlException)
                 {
+                    PEG_METHOD_EXIT();
                     throw *xmlException;
                 }
 
@@ -400,17 +444,20 @@ Message* CIMExportClient::_doRequest(
                     dynamic_cast<CIMClientResponseException*>(clientException);
                 if (responseException)
                 {
+                    PEG_METHOD_EXIT();
                     throw *responseException;
                 }
 
+                PEG_METHOD_EXIT();
                 throw *clientException;
             }
             else if (response->getType() == expectedResponseMessageType)
             {
+                PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, 
+                    "Received expected indication reponse message.");
                 CIMResponseMessage* cimResponse = (CIMResponseMessage*)response;
                 if (cimResponse->messageId != messageId)
                 {
-
 		  // l10n
 		  
 		  // CIMClientResponseException responseException(
@@ -418,35 +465,37 @@ Message* CIMExportClient::_doRequest(
 		  //    cimResponse->messageId + "\", expected \"" +
 		  //    messageId + "\".");
 
-
 		  MessageLoaderParms mlParms("ExportClient.CIMExportClient.MISMATCHED_RESPONSE_ID", 
-					     "Mismatched response message ID:  Got \"$0\", expected \"$1\".", cimResponse->messageId, messageId);
+                      "Mismatched response message ID:  Got \"$0\", expected \"$1\".", 
+                      cimResponse->messageId, messageId);
 		  String mlString(MessageLoader::getMessage(mlParms));
 
 		  CIMClientResponseException responseException(mlString);
 
 		  delete response;
+                  PEG_METHOD_EXIT();
 		  throw responseException;
                 }
                 if (cimResponse->cimException.getCode() != CIM_ERR_SUCCESS)
                 {
+                    PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, 
+                        "Received indication failure message.");
                     CIMException cimException(
                         cimResponse->cimException.getCode(),
                         cimResponse->cimException.getMessage());
                     delete response;
+                    PEG_METHOD_EXIT();
 	            throw cimException;
                 }
+                PEG_METHOD_EXIT();
                 return response;
             }
             else
             {
-
 	      // l10n
-
 
 	      // CIMClientResponseException responseException(
 	      //   "Mismatched response message type.");
-
 		
 	      MessageLoaderParms mlParms("ExportClient.CIMExportClient.MISMATCHED_RESPONSE", 
 					 "Mismatched response message type.");
@@ -455,6 +504,10 @@ Message* CIMExportClient::_doRequest(
 	      CIMClientResponseException responseException(mlString);
 
 	      delete response;
+
+              PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, mlString);
+
+              PEG_METHOD_EXIT();
 	      throw responseException;
             }
 	}
@@ -468,12 +521,15 @@ Message* CIMExportClient::_doRequest(
     //
     try
     {
+        PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, "Doing a _reconnect()...");
         _reconnect();
     }
     catch (...)
     {
     }
 
+    PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, "Connection to the listner timed out.");
+    PEG_METHOD_EXIT();
     //
     // Throw timed out exception:
     //

@@ -58,14 +58,19 @@ CIMExportRequestEncoder::CIMExportRequestEncoder(
    _hostName(System::getHostName().getCString()),
    _authenticator(authenticator)
 {
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportRequestEncoder::CIMExportRequestEncoder()");
+    PEG_METHOD_EXIT();
 }
 
 CIMExportRequestEncoder::~CIMExportRequestEncoder()
 {
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportRequestEncoder::~CIMExportRequestEncoder()");
+    PEG_METHOD_EXIT();
 }
 
 void CIMExportRequestEncoder::handleEnqueue()
 {
+   PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportRequestEncoder::handleEnqueue()");
    Message* message = dequeue();
 
    if (!message)
@@ -87,11 +92,13 @@ void CIMExportRequestEncoder::handleEnqueue()
    // the decoder after receiving the valid response from the server.
    //
    //delete message;
+   PEG_METHOD_EXIT();
 }
 
 void CIMExportRequestEncoder::_encodeExportIndicationRequest(
    CIMExportIndicationRequestMessage* message)
 {
+   PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportRequestEncoder::_encodeExportIndicationRequest()");
    Array<Sint8> params;
 
    XmlWriter::appendInstanceEParameter(
@@ -112,6 +119,7 @@ void CIMExportRequestEncoder::_encodeExportIndicationRequest(
       params);
 
    _outputQueue->enqueue(new HTTPMessage(buffer));
+   PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

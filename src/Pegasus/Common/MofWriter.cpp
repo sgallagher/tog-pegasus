@@ -238,7 +238,6 @@ void MofWriter::appendValueElement(
         out << "null";
         return;
     }
-
     if (value.isArray())
     {
         switch (value.getType())
@@ -487,7 +486,11 @@ void MofWriter::appendValueElement(
             {
                 CIMObjectPath v;
                 value.get(v);
-                _appendValue(out, v);
+                // Bugzilla 210
+                // Note that the _appendValue calls xml writer for some reason.
+                //_appendValue(out, v);
+                appendValueReferenceElement(out, v);
+
                 break;
             }
 
@@ -507,10 +510,8 @@ void MofWriter::appendValueReferenceElement(
     Array<Sint8>& out,
     const CIMObjectPath& reference)
 {
-    //out << "MOF not implemented:\n";
     // Bugzilla 210 - MofWriter outputs XML, not mof for reference
     out << reference.toString();
-    //XmlWriter::appendValueReferenceElement(out, reference, true);
 }
 
 //------------------------------------------------------------------------------

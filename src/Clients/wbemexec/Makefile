@@ -6,6 +6,8 @@ DIR = Clients/wbemexec
 
 include $(ROOT)/mak/config.mak
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 LIBRARIES = \
     pegcommon \
     peggetoopt \

@@ -26,6 +26,8 @@
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Sushma Fernandes, Hewlett-Packard Company
 //              (sushma_fernandes@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -355,7 +357,7 @@ void PG_TestPropertyTypes::createInstance(
 	_testPropertyTypesValue(instanceObject);
 
 	// Determine if a property exists in the class
-	if (!instanceObject.existsProperty("PropertyUint8"))
+	if (instanceObject.findProperty("PropertyUint8") == PEG_NOT_FOUND)
 	{
 		throw CIMException(CIM_ERR_INVALID_PARAMETER);
 	}

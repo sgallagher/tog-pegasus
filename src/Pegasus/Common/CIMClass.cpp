@@ -143,12 +143,6 @@ Uint32 CIMClass::findQualifier(const String& name) const
     return _rep->findQualifier(name);
 }
 
-Boolean CIMClass::existsQualifier(const String& name) const
-{
-    _checkRep();
-    return _rep->existsQualifier(name);
-}
-
 Boolean CIMClass::isTrueQualifier(const String& name) const
 {
     _checkRep();
@@ -192,12 +186,6 @@ Uint32 CIMClass::findProperty(const String& name) const
     return _rep->findProperty(name);
 }
 
-Boolean CIMClass::existsProperty(const String& name) const
-{
-    _checkRep();
-    return _rep->existsProperty(name);
-}
-
 CIMProperty CIMClass::getProperty(Uint32 pos)
 {
     _checkRep();
@@ -233,12 +221,6 @@ Uint32 CIMClass::findMethod(const String& name) const
 {
     _checkRep();
     return _rep->findMethod(name);
-}
-
-Boolean CIMClass::existsMethod(const String& name) const
-{
-    _checkRep();
-    return _rep->existsMethod(name);
 }
 
 CIMMethod CIMClass::getMethod(Uint32 pos)

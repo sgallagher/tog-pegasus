@@ -25,6 +25,8 @@
 //
 // Modified By: Karl Schopmeyer(k.schopmeyer@attglobal.net)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -167,11 +169,6 @@ Uint32 CIMClassRep::findMethod(const String& name) const
     }
 
     return PEG_NOT_FOUND;
-}
-
-Boolean CIMClassRep::existsMethod(const String& name) const
-{
-    return(findMethod(name) == PEG_NOT_FOUND) ? false : true;
 }
 
 CIMMethod CIMClassRep::getMethod(Uint32 pos)

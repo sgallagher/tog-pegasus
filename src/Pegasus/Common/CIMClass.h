@@ -163,13 +163,6 @@ public:
     */
     Uint32 findQualifier(const String& name) const;
 
-    /** existsQualifier - Returns true if the qualifier with the
-    specified name exists in the class
-    @param name String name of the qualifier object being tested.
-    @return True if the qualifier exits.  Otherwise false is returned.
-    */
-    Boolean existsQualifier(const String& name) const;
-
     /** isTrueQualifier - Determines if the qualifier defined by
 	the input parameter exists for the class, is Boolean, and
 	has a value of true.
@@ -223,13 +216,6 @@ public:
     */
     Uint32 findProperty(const String& name) const;
 
-    /** existsProperty - Determines if a property object with the
-	name defined by the input parameter exists in the class.
-	@parm String parameter with the property name.
-	@return True if the property object exists.
-    */
-    Boolean existsProperty(const String& name) const;
-
     // ATTN: Should we not use something like handle for position???
     // ATTN: what is error return?
     /** getProperty - Returns a property representing the property
@@ -278,13 +264,6 @@ public:
 	subsequent getmethod, etc. operations
     */
     Uint32 findMethod(const String& name) const;
-
-     /** existsMethod - Determine if the method object defined by the
-	name input exists
-	@param String representing the name of the method to be found
-	@return True if the method exists
-    */
-    Boolean existsMethod(const String& name) const;
 
     /** getMethod - Gets the method object defined by the
 	input parameter.

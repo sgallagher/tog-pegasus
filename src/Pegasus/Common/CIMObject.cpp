@@ -140,12 +140,6 @@ Uint32 CIMObject::findQualifier(const String& name) const
     return _rep->findQualifier(name);
 }
 
-Boolean CIMObject::existsQualifier(const String& name) const
-{
-    _checkRep();
-    return _rep->existsQualifier(name);
-}
-
 CIMQualifier CIMObject::getQualifier(Uint32 pos)
 {
     _checkRep();
@@ -181,12 +175,6 @@ Uint32 CIMObject::findProperty(const String& name) const
 {
     _checkRep();
     return _rep->findProperty(name);
-}
-
-Boolean CIMObject::existsProperty(const String& name) const
-{
-    _checkRep();
-    return _rep->existsProperty(name);
 }
 
 CIMProperty CIMObject::getProperty(Uint32 pos)

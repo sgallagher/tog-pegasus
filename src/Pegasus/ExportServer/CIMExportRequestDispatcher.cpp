@@ -24,6 +24,8 @@
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -156,9 +158,9 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
 	"PG_IndicationConsumerRegistration")
     {
 	CIMInstance instance = request->indicationInstance;
-	if (instance.existsProperty("ConsumerId") &&
-	    instance.existsProperty("Location") &&
-	    instance.existsProperty("ActionType"))
+	if ((instance.findProperty("ConsumerId") != PEG_NOT_FOUND) &&
+	    (instance.findProperty("Location") != PEG_NOT_FOUND) &&
+	    (instance.findProperty("ActionType") != PEG_NOT_FOUND))
 	{
             String errorDescription;
 	    CIMStatusCode errorCode = _consumerTable.registerConsumer(

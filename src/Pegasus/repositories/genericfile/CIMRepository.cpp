@@ -855,8 +855,8 @@ void CIMRepository::modifyInstance(
                     // ATTN: This is not the most efficient solution
                     CIMClass cimClass = getClass(
                         nameSpace, cimInstance.getClassName(), false);
-                    if (!cimClass.existsProperty(
-                        propertyList.getPropertyName(i)))
+                    if (cimClass.findProperty (propertyList.getPropertyName(i))
+                        == PEG_NOT_FOUND)
                     {
                         // ATTN: This exception may be returned by setProperty
                         throw PEGASUS_CIM_EXCEPTION(

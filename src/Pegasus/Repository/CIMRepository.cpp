@@ -84,7 +84,7 @@ void _LoadObject(
 
     if (!FileSystem::existsNoCase(path, realPath))
     { 
-        String traceString = path + " does not exists.";
+        String traceString = path + " does not exist.";
         PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, traceString);
         PEG_METHOD_EXIT();
         throw CannotOpenFile(path);
@@ -2112,7 +2112,7 @@ void CIMRepository::setQualifier(
     String qualifierFilePath = _nameSpaceManager.getQualifierFilePath(
         nameSpace, qualifierDecl.getName());
 
-    // -- If qualifier alread exists, throw exception:
+    // -- If qualifier already exists, throw exception:
 
     if (FileSystem::existsNoCase(qualifierFilePath))
     {

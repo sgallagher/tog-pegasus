@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -95,11 +96,6 @@ public:
     Uint32 findQualifier(const String& name) const
     {
 	return _qualifiers.find(name);
-    }
-
-    Boolean existsQualifier(const String& name) const
-    {
-	return (findQualifier(name) != PEG_NOT_FOUND) ? true : false;
     }
 
     CIMQualifier getQualifier(Uint32 pos)

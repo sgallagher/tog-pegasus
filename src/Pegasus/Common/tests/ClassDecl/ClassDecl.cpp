@@ -25,6 +25,8 @@
 //
 // Modified By:	Karl Schopmeyer(k.schopmeyer@opengroup.org)
 //              Sushma Fernandes (sushma_fernandes@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -74,8 +76,8 @@ void test01()
     assert(class1.findMethod("isActive") != PEG_NOT_FOUND);
     assert(class1.findMethod("DoesNotExist") == PEG_NOT_FOUND);
 
-    assert(class1.existsMethod("isActive"));
-    assert(!class1.existsMethod("DoesNotExist"));
+    assert(class1.findMethod("isActive") != PEG_NOT_FOUND);
+    assert(class1.findMethod("DoesNotExist") == PEG_NOT_FOUND);
 
     // Now add another method and reconfirm.
 
@@ -91,10 +93,10 @@ void test01()
     assert(class1.findMethod("makeActive") != PEG_NOT_FOUND);
 
     assert(class1.findMethod("DoesNotExist") == PEG_NOT_FOUND);
-    assert(class1.existsMethod("isActive"));
-    assert(class1.existsMethod("makeActive"));
+    assert(class1.findMethod("isActive") != PEG_NOT_FOUND);
+    assert(class1.findMethod("makeActive") != PEG_NOT_FOUND);
 
-    assert(!class1.existsMethod("DoesNotExist"));
+    assert(class1.findMethod("DoesNotExist") == PEG_NOT_FOUND);
 
 
     // Test RemoveMethod function
@@ -109,15 +111,15 @@ void test01()
 
     //ATTN: P3 TODO add tests for different case names
 
-    //Qualifier manipulation tests  (find, exists, remove)
+    //Qualifier manipulation tests  (find, remove)
 
     assert(class1.findQualifier("q1") != PEG_NOT_FOUND);
     assert(class1.findQualifier("q2") != PEG_NOT_FOUND);
     assert(class1.findQualifier("qx") == PEG_NOT_FOUND);
 
-    assert(class1.existsQualifier("q1"));
-    assert(class1.existsQualifier("q2"));
-    assert(class1.existsQualifier("association"));
+    assert(class1.findQualifier("q1") != PEG_NOT_FOUND);
+    assert(class1.findQualifier("q2") != PEG_NOT_FOUND);
+    assert(class1.findQualifier("association") != PEG_NOT_FOUND);
     assert(class1.isAssociation());
 
     // Remove middle Qualifier "q2"
@@ -131,8 +133,7 @@ void test01()
     assert(class1.getQualifierCount() == 2);
 
     assert(class1.findQualifier("q2") == PEG_NOT_FOUND);
-    assert(!class1.existsQualifier("q2"));
-    assert(class1.existsQualifier("q1"));
+    assert(class1.findQualifier("q1") != PEG_NOT_FOUND);
     assert(class1.isAssociation());
 
 
@@ -146,8 +147,7 @@ void test01()
     assert(class1.getQualifierCount() == 1);
 
     assert(class1.findQualifier("q1") == PEG_NOT_FOUND);
-    assert(!class1.existsQualifier("q1"));
-    assert(!class1.existsQualifier("q2"));
+    assert(class1.findQualifier("q2") == PEG_NOT_FOUND);
     assert(class1.isAssociation());
 
 
@@ -160,11 +160,7 @@ void test01()
     assert(class1.findProperty("count") != PEG_NOT_FOUND);
     assert(class1.findProperty("message") != PEG_NOT_FOUND);
 
-    assert(class1.existsProperty("count"));
-    assert(class1.existsProperty("message"));
-
     assert(class1.findProperty("isActive") == PEG_NOT_FOUND);
-    assert(!class1.existsProperty("isActive"));
 
     assert(class1.getPropertyCount() == 2);
 
@@ -173,8 +169,8 @@ void test01()
     posProperty = class1.findProperty("count");
     CIMConstProperty constprop = class1.getProperty(posProperty);
     class1.removeProperty(posProperty);
-    assert(class1.existsProperty("message"));
-    assert(!class1.existsProperty("count"));
+    assert(class1.findProperty("message") != PEG_NOT_FOUND);
+    assert(class1.findProperty("count") == PEG_NOT_FOUND);
 
     assert(class1.getPropertyCount() == 1);
     CIMProperty cp = class1.getProperty( class1.findProperty("message"));
@@ -234,8 +230,6 @@ void test01()
     // Test the findMethod and isMethod functions
     assert(c7.findMethod("DoesNotExist") == PEG_NOT_FOUND);
 
-    assert(!c7.existsMethod("DoesNotExist"));
-     
     assert(c7.isTrueQualifier("dummy") == false);
 
     try
@@ -275,15 +269,13 @@ void test01()
     // Test the findMethod and isMethod functions
     assert(c4.findMethod("DoesNotExist") == PEG_NOT_FOUND);
 
-    assert(!c4.existsMethod("DoesNotExist"));
-
-    //Qualifier manipulation tests  (find, exists, remove)
+    //Qualifier manipulation tests  (find, remove)
 
     assert(c4.findQualifier("qx") == PEG_NOT_FOUND);
 
-    assert(!c4.existsQualifier("q1"));
-    assert(!c4.existsQualifier("q2"));
-    assert(!c4.existsQualifier("association"));
+    assert(c4.findQualifier("q1") == PEG_NOT_FOUND);
+    assert(c4.findQualifier("q2") == PEG_NOT_FOUND);
+    assert(c4.findQualifier("association") == PEG_NOT_FOUND);
 
     posProperty = c4.findProperty("count");
 
@@ -297,7 +289,7 @@ void test01()
 			cout << "Exception: " << e.getMessage() << endl;
     }
 
-    assert(!c4.existsProperty("count"));
+    assert(c4.findProperty("count") == PEG_NOT_FOUND);
 
     assert(c4.getClassName() == "MyClass");
     assert(CIMName::equal(c4.getClassName(), "MyClass"));

@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -145,12 +147,6 @@ Uint32 CIMMethod::findQualifier(const String& name) const
 {
     _checkRep();
     return _rep->findQualifier(name);
-}
-
-Boolean CIMMethod::existsQualifier(const String& name) const
-{
-    _checkRep();
-    return _rep->existsQualifier(name);
 }
 
 CIMQualifier CIMMethod::getQualifier(Uint32 pos)

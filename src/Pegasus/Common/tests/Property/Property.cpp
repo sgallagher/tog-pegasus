@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -110,11 +112,11 @@ void test01()
 	assert(p2.findQualifier("stuf") == PEG_NOT_FOUND);
 	assert(p2.getQualifierCount() == 4);
 
-	assert(p1.existsQualifier("stuff"));
-	assert(p1.existsQualifier("stuff2"));
+	assert(p1.findQualifier("stuff") != PEG_NOT_FOUND);
+	assert(p1.findQualifier("stuff2") != PEG_NOT_FOUND);
 
-	assert(!p1.existsQualifier("stuff21"));
-	assert(!p1.existsQualifier("stuf"));
+	assert(p1.findQualifier("stuff21") == PEG_NOT_FOUND);
+	assert(p1.findQualifier("stuf") == PEG_NOT_FOUND);
 
 	Uint32 posQualifier;
 	posQualifier = p1.findQualifier("stuff");
@@ -123,8 +125,8 @@ void test01()
 
 	p1.removeQualifier(posQualifier);
 	assert(p1.getQualifierCount() == 3);
-	assert(!p1.existsQualifier("stuff"));
-	assert(p1.existsQualifier("stuff2"));
+	assert(p1.findQualifier("stuff") == PEG_NOT_FOUND);
+	assert(p1.findQualifier("stuff2") != PEG_NOT_FOUND);
 
     // Tests for value insertion.
     {

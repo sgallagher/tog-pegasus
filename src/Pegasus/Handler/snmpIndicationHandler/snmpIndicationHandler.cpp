@@ -23,7 +23,8 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -89,9 +90,9 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handler,
             {
             CIMProperty trapProp = indicationClass.getProperty(propPos);
 
-            if (trapProp.existsQualifier("MappingStrings"))
+            qualifierPos = trapProp.findQualifier("MappingStrings");
+            if (qualifierPos != PEG_NOT_FOUND)
             {
-		qualifierPos = trapProp.findQualifier("MappingStrings");
 		trapQualifier = trapProp.getQualifier(qualifierPos);
 		
 		mapstr1.clear();

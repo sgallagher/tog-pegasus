@@ -82,11 +82,6 @@ public:
 	return _qualifiers.find(name);
     }
 
-    Boolean existsQualifier(const String& name) const
-    {
-	return ((_qualifiers.find(name) != PEG_NOT_FOUND) ? true : false);
-    }
-
     CIMQualifier getQualifier(Uint32 pos)
     {
 	return _qualifiers.getQualifier(pos);
@@ -115,8 +110,6 @@ public:
     virtual void addProperty(const CIMProperty& x);
 
     Uint32 findProperty(const String& name) const;
-
-    Boolean existsProperty(const String& name) const;
 
     CIMProperty getProperty(Uint32 pos);
 

@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -184,16 +186,6 @@ public:
 	found
     */
     Uint32 findQualifier(const String& name) const;
-
-    /** existsQualifier - Determines if the qualifier object 
-        defined by the name parameter is attached to this 
-		CIMProperty.
-		@param name String parameter defining name of Qualifier
-		object.
-		@return Returns true if the qualifier is found, else 
-		returns false. 
-    */
-    Boolean existsQualifier(const String& name) const;
 
     /** getQualifier - gets the Qualifier object specified by the
 	pos parameter.

@@ -24,23 +24,25 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//			extend reslove tests for many error cases 22 March 2002
+//			extend resolve tests for many error cases 22 March 2002
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*
 	This module tests the resolve functions from the class objects.
-	Tests defined for valid reslution of classes. This test module sets
-	up mulitple conditions of classes and subclasses and confirms that
+	Tests defined for valid resolution of classes. This test module sets
+	up multiple conditions of classes and subclasses and confirms that
 	the classes are resolved correctly for the superclasses and that
 	the proper information is propagated to subclasses as part of the
-	reslove.
+	resolve.
 	We have tried to test all of the options of resolution including:
 	-resolution of properties and methods.
 	-resolution of class qualifiers
 	-resolution of property and method qualifiers.
 	-options of CIMScope and CIMFlavor
-	-resolution of propogation of qualifiers, properties, and methods to
+	-resolution of propagation of qualifiers, properties, and methods to
 		a subclass.
 	-propagation of the values to subclasses.
 	
@@ -202,14 +204,14 @@ void test01()
         cerr << "Test01 - Resolution Error " << e.getMessage() << endl;
     }
 	// Test results	in superclass
-	assert(class2.existsQualifier("Abstract"));
+	assert(class2.findQualifier("Abstract") != PEG_NOT_FOUND);
 
 	// assert results in subclass
-	assert(class1.existsQualifier("Abstract"));
-	assert(class1.existsQualifier("q1"));
-	assert(class1.existsQualifier("q3"));
-	assert(class1.existsQualifier("q4"));
-	assert(class1.existsQualifier("q5"));
+	assert(class1.findQualifier("Abstract") != PEG_NOT_FOUND);
+	assert(class1.findQualifier("q1") != PEG_NOT_FOUND);
+	assert(class1.findQualifier("q3") != PEG_NOT_FOUND);
+	assert(class1.findQualifier("q4") != PEG_NOT_FOUND);
+	assert(class1.findQualifier("q5") != PEG_NOT_FOUND);
 
     delete context;
 }
@@ -233,7 +235,7 @@ void test01()
 		-Array propagation
 	
 	All tests are confirmed with assertions. Displays are optional except
-	for a few cases where the resolve itself is incorrect and we need remidnders
+	for a few cases where the resolve itself is incorrect and we need reminders
 	to fix it.
 	
 */
@@ -356,7 +358,7 @@ void test02()
 		.addProperty(CIMProperty("onlyInSuperClass", String("Hello")))
 		.addProperty(CIMProperty(propertyWithQualifier))
 
-		// This method to demo proogation of methodto subclass
+		// This method to demo propagation of method to subclass
 		.addMethod(CIMMethod("methodinSuperclass", CIMType::BOOLEAN)
 			.addParameter(CIMParameter("hostname", CIMType::STRING))
 			.addParameter(CIMParameter("port", CIMType::UINT32)));
@@ -382,7 +384,7 @@ void test02()
 		.addQualifier(CIMQualifier("q3", Uint32(99)))
 		.addQualifier(CIMQualifier("toSubclassOverriddable", String("subClass")))
 
-		// the key property should be propogated so do not put in subclass.
+		// the key property should be propagated so do not put in subclass.
 		.addProperty(CIMProperty("message", String("Goodbye")))
 		.addProperty(CIMProperty("count", Uint32(77)))
 		// .addProperty(CIMProperty("ref1", Reference("MyClass.key1=\"fred\"")))
@@ -412,7 +414,7 @@ void test02()
 		XmlWriter::printClassElement(subClass);
 	}
 
-	// Resolved. Now throughly test the results
+	// Resolved. Now thoroughly test the results
 	assert(resolved);    // Should have correctly resolved.
 
 	// Test the results of the resolve of the subclass and superclass
@@ -422,26 +424,28 @@ void test02()
 	// **************************************************
 	if (verbose) cout << "Tst02 - Test Qualifiers" << endl;
 	// Confirm that the qualifiers exist in the superclass that should
-	assert(superClass.existsQualifier("Abstract"));
-	assert(superClass.existsQualifier("ABSTRACT"));
-	assert(!superClass.existsQualifier("Q3"));
-    assert(superClass.existsQualifier("Q1"));
-	assert(superClass.existsQualifier("notToSubclass"));
-	assert(superClass.existsQualifier("toSubClassOverriddable"));
+	assert(superClass.findQualifier("Abstract") != PEG_NOT_FOUND);
+	assert(superClass.findQualifier("ABSTRACT") != PEG_NOT_FOUND);
+	assert(superClass.findQualifier("Q3") == PEG_NOT_FOUND);
+        assert(superClass.findQualifier("Q1") != PEG_NOT_FOUND);
+	assert(superClass.findQualifier("notToSubclass") != PEG_NOT_FOUND);
+	assert(superClass.findQualifier("toSubClassOverriddable") != 
+            PEG_NOT_FOUND);
 	CIMQualifier qt = superClass.getQualifier(superClass.findQualifier("Abstract"));
 
 	// Determine that all required qualifiers exist in the subclass
-	assert(subClass.existsQualifier("q1"));
-	assert(subClass.existsQualifier("Q3"));
-	assert(subClass.existsQualifier("toSubClass"));
-	assert(subClass.existsQualifier("toSubClassOverriddable"));
+	assert(subClass.findQualifier("q1") != PEG_NOT_FOUND);
+	assert(subClass.findQualifier("Q3") != PEG_NOT_FOUND);
+	assert(subClass.findQualifier("toSubClass") != PEG_NOT_FOUND);
+	assert(subClass.findQualifier("toSubClassOverriddable") != 
+            PEG_NOT_FOUND);
 	
 	// Confirm that qualifiers that should not be propagated are not.
-	assert( !subClass.existsQualifier("notToSubclass"));
-	assert(!subClass.existsQualifier("Abstract"));
+	assert(subClass.findQualifier("notToSubclass") == PEG_NOT_FOUND);
+	assert(subClass.findQualifier("Abstract") == PEG_NOT_FOUND);
 
 	// ATTN: Determine if correct value is in the qualifiers in subclass
-	// Need to add a null value qualifier and test its proagation
+	// Need to add a null value qualifier and test its propagation
 	// Need to add an array qualifier and test its propagation.
 	//Uint32 subclass.findQualifier("Q1"
 
@@ -454,15 +458,15 @@ void test02()
 
 	if (verbose) cout << "Tst02 - Test Properties" << endl;
 
-	// Confrim that correct properties exist in superclass
-	assert (superClass.existsProperty("message" ));
-	assert (superClass.existsProperty("onlyInSuperclass" ));
-	assert (superClass.existsProperty("withQualifier" ));
+	// Confirm that correct properties exist in superclass
+	assert (superClass.findProperty("message" ) != PEG_NOT_FOUND);
+	assert (superClass.findProperty("onlyInSuperclass" ) != PEG_NOT_FOUND);
+	assert (superClass.findProperty("withQualifier" ) != PEG_NOT_FOUND);
 
 	//Confirm that correct properties exist in subclass.
-	assert (subClass.existsProperty("message" ));
-	assert (subClass.existsProperty("count" ));
-	assert (subClass.existsProperty("onlyInSuperclass" ));
+	assert (subClass.findProperty("message" ) != PEG_NOT_FOUND);
+	assert (subClass.findProperty("count" ) != PEG_NOT_FOUND);
+	assert (subClass.findProperty("onlyInSuperclass" ) != PEG_NOT_FOUND);
 
 	// Confirm that all properties in superclass have correct classorigin
 	for(Uint32 i = 0; i < superClass.getPropertyCount(); i++)
@@ -508,7 +512,7 @@ void test02()
 	if (verbose) cout << "Tst02 - Test Properties Move with key" << endl;
 
 	{
-		assert (subClass.existsProperty("keyProperty" ));
+		assert (subClass.findProperty("keyProperty") != PEG_NOT_FOUND);
 		Uint32 pos = subClass.findProperty("keyProperty" );
 		assert(pos != PEG_NOT_FOUND);
 		CIMProperty p = subClass.getProperty(pos);
@@ -522,7 +526,7 @@ void test02()
 	}
 
 	// Determine if we moved the qualifier to subclass with the property
-	// Note that the identical test won't work since propogated set..
+	// Note that the identical test won't work since propagated set..
 	if (verbose) cout << "Tst02 - Test Properties with qualifier" << endl;
 
 	{
@@ -537,10 +541,10 @@ void test02()
 		Boolean b;
 		pv.get(b);
 		assert(b == true);
-		assert (p.existsQualifier("toSubClass"));
+		assert (p.findQualifier("toSubClass") != PEG_NOT_FOUND);
 		
 		// Now determine if the value moved.
-		assert(p.existsQualifier("toSubClass"));
+		assert(p.findQualifier("toSubClass") != PEG_NOT_FOUND);
 		Uint32 qpos = p.findQualifier("toSubClass");
 		CIMQualifier q = p.getQualifier(qpos);
 		CIMValue v = q.getValue();
@@ -562,7 +566,8 @@ void test02()
 		{
 		// Test  method in superclass
 		// doublecheck the type and that parameters are in place
-		assert(superClass.existsMethod("methodInSuperclass"));
+		assert(superClass.findMethod("methodInSuperclass") != 
+                    PEG_NOT_FOUND);
 		Uint32 mpos = superClass.findMethod("methodInSuperclass");
 		assert(mpos != PEG_NOT_FOUND);
 		CIMMethod m = superClass.getMethod(mpos);
@@ -592,13 +597,15 @@ void test02()
 		assert(mp2.getType() == CIMType::UINT32);
 
 		// Test for second method
-		assert(superClass.existsMethod("methodInSuperclass"));
+		assert(superClass.findMethod("methodInSuperclass") != 
+                    PEG_NOT_FOUND);
 		}
 
 		// Repeat the above for the subclass and test propagated.
 		// ATTN: KS 22 March Complete this P2 - Testing of method propagation
 		{
-			assert(subClass.existsMethod("isActive"));
+			assert(subClass.findMethod("isActive") != 
+                            PEG_NOT_FOUND);
 			Uint32 mpos = subClass.findMethod("isActive");
 			CIMMethod m = subClass.getMethod(mpos);
 			assert(!m.getPropagated()); 				// should not be propagated
@@ -608,7 +615,8 @@ void test02()
 		// Test for the method propagated from superclass to subclass
 		// Confirm that propagated and marked propagated.
 		{
-			assert(subClass.existsMethod("methodInSuperclass"));
+			assert(subClass.findMethod("methodInSuperclass") != 
+                            PEG_NOT_FOUND);
 			Uint32 mpos = subClass.findMethod("methodInSuperclass");
 			assert(mpos != PEG_NOT_FOUND);
 			CIMMethod m = subClass.getMethod(mpos);
@@ -719,7 +727,7 @@ void test04()
     {
         // should catch error here, q3 invalid qualifier.
 		if(verbose)
-			cout << "Exception correctly detected missing qualifier declaraction: " 
+			cout << "Exception correctly detected missing qualifier declaration: " 
 			<< e.getMessage() << endl;
     }
 	assert(!resolved);
@@ -916,7 +924,7 @@ void test06()
         resolved = false;
 		if(verbose)
 			cout << " Exception is correct. Should not resolve " << e.getMessage() << endl;
-    // ATTN-KS-P3 - Coul add test for correct exception message here.  
+    // ATTN-KS-P3 - Could add test for correct exception message here.  
 	// should be INVALID_SUPERCLASS
 	}
 
@@ -936,7 +944,7 @@ void test07()
 }
 
 //ATTN: KS P1 Mar 7 2002.  Add tests propagation qual, method, propertys as follows:
-//  Confirm that qualifiers are propogated correctly based on flavors
+//  Confirm that qualifiers are propagated correctly based on flavors
 //  Confirm that properties and methods are propagated correctly based on flavors
 //  
 

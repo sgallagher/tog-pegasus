@@ -23,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -566,7 +566,7 @@ void NameSpaceManager::createClass(
     if (superClassName.size() && !it.containsClass(superClassName))
     {
         PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, 
-                         "SuperClass does not exists.");
+                         "SuperClass does not exist.");
         PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_SUPERCLASS, superClassName);
     }

@@ -112,14 +112,6 @@ public:
     */
     Uint32 findQualifier(const String& name) const;
 
-    /**	existsQualifier - Searches the instance for the qualifier object
-        defined by the input parameter.
-	@param String defining the qualifier object to be found.
-	@return - Returns True if  the qualifier object exists or false
-	if the qualifier is not found.
-    */
-    Boolean existsQualifier(const String& name) const;
-
     /**	getQualifier - Retrieves the qualifier object defined by the
 	index input parameter.  @ index for the qualifier object.
 	The index to qualifier objects is zero-origin and continuous
@@ -170,13 +162,6 @@ public:
 	input.
     */
     Uint32 findProperty(const String& name) const;
-
-    /** existsPropery - Determines if a property object with the
-	name defined by the input parameter exists in the class.
-	@parm String parameter with the property name.
-	@return True if the property object exists.
-    */
-    Boolean existsProperty(const String& name) const;
 
     /**	getProperty - Gets the CIMproperty object in the CIMInstance defined
 	by the input index parameter.

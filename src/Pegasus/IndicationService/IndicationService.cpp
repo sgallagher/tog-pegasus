@@ -497,7 +497,8 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
             //  is turned on
             //
             String currentUser = request->userName;
-            if (!instance.existsProperty (PEGASUS_PROPERTYNAME_INDSUB_CREATOR))
+            if (instance.findProperty (PEGASUS_PROPERTYNAME_INDSUB_CREATOR) == 
+                PEG_NOT_FOUND)
             {
                 instance.addProperty (CIMProperty 
                     (PEGASUS_PROPERTYNAME_INDSUB_CREATOR, currentUser));
@@ -556,7 +557,8 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                 //
                 CIMDateTime currentDateTime = 
                     CIMDateTime::getCurrentDateTime ();
-                if (!instance.existsProperty (_PROPERTY_LASTCHANGE))
+                if (instance.findProperty (_PROPERTY_LASTCHANGE) == 
+                    PEG_NOT_FOUND)
                 {
                     instance.addProperty 
                         (CIMProperty (_PROPERTY_LASTCHANGE, currentDateTime));
@@ -586,7 +588,8 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                 //
                 //  Set Subscription Start Time
                 //
-                if (!instance.existsProperty (_PROPERTY_STARTTIME))
+                if (instance.findProperty (_PROPERTY_STARTTIME) == 
+                    PEG_NOT_FOUND)
                 {
                     instance.addProperty 
                         (CIMProperty (_PROPERTY_STARTTIME, startDateTime));
@@ -1018,7 +1021,8 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     CIMDateTime::getCurrentDateTime ();
                 if (newState != currentState)
                 {
-                    if (modifiedInstance.existsProperty (_PROPERTY_LASTCHANGE))
+                    if (modifiedInstance.findProperty (_PROPERTY_LASTCHANGE) !=
+                        PEG_NOT_FOUND)
                     {
                         CIMProperty lastChange = modifiedInstance.getProperty
                             (modifiedInstance.findProperty 
@@ -1069,8 +1073,8 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
 
                     if (setStart)
                     {
-                        if (modifiedInstance.existsProperty 
-                            (_PROPERTY_STARTTIME))
+                        if (modifiedInstance.findProperty (_PROPERTY_STARTTIME)
+                            != PEG_NOT_FOUND)
                         {
                             CIMProperty startTime = modifiedInstance.getProperty
                                 (modifiedInstance.findProperty
@@ -1974,7 +1978,7 @@ void IndicationService::_disableSubscription (
     //
     CIMInstance instance = subscription;
     CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
-    if (!instance.existsProperty (_PROPERTY_LASTCHANGE))
+    if (instance.findProperty (_PROPERTY_LASTCHANGE) == PEG_NOT_FOUND)
     {
         instance.addProperty 
             (CIMProperty (_PROPERTY_LASTCHANGE, currentDateTime));
@@ -2208,7 +2212,7 @@ void IndicationService::_checkRequiredProperty (
     //
     //  Required property must exist in instance
     //
-    if (!instance.existsProperty (propertyName))
+    if (instance.findProperty (propertyName) == PEG_NOT_FOUND)
     {
         missingProperty = true;
     }
@@ -2258,7 +2262,7 @@ void IndicationService::_checkPropertyWithOther (
     //
     //  If the property doesn't exist, add it with the default value
     //
-    if (!instance.existsProperty (propertyName))
+    if (instance.findProperty (propertyName) == PEG_NOT_FOUND)
     {
         instance.addProperty (CIMProperty (propertyName,
             CIMValue (defaultValue)));
@@ -2304,7 +2308,7 @@ void IndicationService::_checkPropertyWithOther (
         //
         if (result == otherValue)
         {
-            if (!instance.existsProperty (otherPropertyName))
+            if (instance.findProperty (otherPropertyName) == PEG_NOT_FOUND)
             {
                 String exceptionStr = _MSG_MISSING_REQUIRED;
                 exceptionStr.append (otherPropertyName);
@@ -2334,7 +2338,7 @@ void IndicationService::_checkPropertyWithOther (
         //  If value is not Other, Other property must not exist
         //  or must be NULL
         //
-        else if (instance.existsProperty (otherPropertyName))
+        else if (instance.findProperty (otherPropertyName) != PEG_NOT_FOUND)
         {
             CIMProperty otherProperty = instance.getProperty
                 (instance.findProperty (otherPropertyName));
@@ -2369,7 +2373,7 @@ String IndicationService::_checkPropertyWithDefault (
     //
     //  If the property doesn't exist, add it with the default value
     //
-    if (!instance.existsProperty (propertyName))
+    if (instance.findProperty (propertyName) == PEG_NOT_FOUND)
     {
         instance.addProperty (CIMProperty (propertyName,
             CIMValue (defaultValue)));
@@ -3367,7 +3371,7 @@ String IndicationService::_getIndicationClassName (
 
     _repository->read_unlock ();
 
-    if (theClass.existsQualifier (_QUALIFIER_INDICATION))
+    if (theClass.findQualifier (_QUALIFIER_INDICATION) != PEG_NOT_FOUND)
     {
         CIMQualifier theQual = theClass.getQualifier (theClass.findQualifier 
             (_QUALIFIER_INDICATION));
@@ -3927,7 +3931,7 @@ Boolean IndicationService::_getTimeRemaining (
     //
     //  Get Subscription Duration
     //
-    if (instance.existsProperty (_PROPERTY_DURATION))
+    if (instance.findProperty (_PROPERTY_DURATION) != PEG_NOT_FOUND)
     {
         CIMValue durationValue;
         durationValue = instance.getProperty 
@@ -3975,7 +3979,7 @@ void IndicationService::_setTimeRemaining (
         //
         //  Add or set the value of the property with the calculated value
         //
-        if (!instance.existsProperty (_PROPERTY_TIMEREMAINING))
+        if (instance.findProperty (_PROPERTY_TIMEREMAINING) == PEG_NOT_FOUND)
         {
             instance.addProperty (CIMProperty 
                 (_PROPERTY_TIMEREMAINING, timeRemaining));

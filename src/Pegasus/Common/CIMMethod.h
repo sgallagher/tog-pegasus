@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -135,13 +137,6 @@ public:
 	@return index of the parameter if found; otherwise PEG_NOT_FOUND.
     */
     Uint32 findQualifier(const String& name) const;
-
-    /** existsQualifier - returns the position of the qualifier with
-	the given name.
-	@param name Name of qualifier to be found.
-	@return index of the parameter if found; otherwise PEG_NOT_FOUND.
-    */
-    Boolean existsQualifier(const String& name) const;
 
     /** getQualifier - Gets the CIMQualifier defined by the index
 	input as a parameter.

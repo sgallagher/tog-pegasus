@@ -71,11 +71,6 @@ Uint32 CIMObjectRep::findProperty(const String& name) const
     return PEG_NOT_FOUND;
 }
 
-Boolean CIMObjectRep::existsProperty(const String& name) const
-{
-    return (findProperty(name) == PEG_NOT_FOUND) ? false : true;
-}
-
 CIMProperty CIMObjectRep::getProperty(Uint32 pos)
 {
     if (pos >= _properties.size())

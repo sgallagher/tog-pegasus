@@ -57,14 +57,11 @@ int main(int argc, char** argv)
 	assert(m1.findQualifier("stuf") == PEG_NOT_FOUND);
 	assert(m1.getQualifierCount() == 2);
 
-	assert(m1.existsQualifier("stuff"));
-	assert(m1.existsQualifier("stuff2"));
-
 	assert(m1.findQualifier("stuff") != PEG_NOT_FOUND);
 	assert(m1.findQualifier("stuff2") != PEG_NOT_FOUND);
 
-	assert(!m1.existsQualifier("stuff21"));
-	assert(!m1.existsQualifier("stuf"));
+	assert(m1.findQualifier("stuff21") == PEG_NOT_FOUND);
+	assert(m1.findQualifier("stuf") == PEG_NOT_FOUND);
 
 	Uint32 posQualifier;
 	posQualifier = m1.findQualifier("stuff");
@@ -73,8 +70,8 @@ int main(int argc, char** argv)
 
 	m1.removeQualifier(posQualifier);
 	assert(m1.getQualifierCount() == 1);
-	assert(!m1.existsQualifier("stuff"));
-	assert(m1.existsQualifier("stuff2"));
+	assert(m1.findQualifier("stuff") == PEG_NOT_FOUND);
+	assert(m1.findQualifier("stuff2") != PEG_NOT_FOUND);
 
         // Tests for Parameters
         assert(m1.findParameter("ipaddress") != PEG_NOT_FOUND);
@@ -97,8 +94,8 @@ int main(int argc, char** argv)
         assert(m2.getPropagated() == true);
 
         const CIMMethod cm1(m1);
-	assert(!cm1.existsQualifier("stuff21"));
-	assert(!cm1.existsQualifier("stuf"));
+	assert(cm1.findQualifier("stuff21") == PEG_NOT_FOUND);
+	assert(cm1.findQualifier("stuf") == PEG_NOT_FOUND);
         assert((cm1.getParameterCount() != 3));
         assert(cm1.findParameter("ipaddress") != PEG_NOT_FOUND);
         assert(cm1.findQualifier("stuff") == PEG_NOT_FOUND);

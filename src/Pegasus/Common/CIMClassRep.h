@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -68,8 +69,6 @@ public:
     void addMethod(const CIMMethod& x);
 
     Uint32 findMethod(const String& name) const;
-
-    Boolean existsMethod(const String& name) const;
 
     CIMMethod getMethod(Uint32 pos);
 

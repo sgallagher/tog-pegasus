@@ -466,43 +466,47 @@ void ProviderRegistrationProvider::createInstance(
 	// properties must be set
 	// OperationalStatus property needs to be set. If not, set to default
 	//
-	if (!instanceObject.existsProperty(_PROPERTY_PROVIDERMODULE_NAME))
+	if (instanceObject.findProperty(_PROPERTY_PROVIDERMODULE_NAME) ==
+            PEG_NOT_FOUND)
 	{
 	    throw CIMException (CIM_ERR_FAILED,
 		"Missing Name which is required property in PG_ProviderModule class.");
 	}
 
-	if (!instanceObject.existsProperty(_PROPERTY_VENDOR))
+	if (instanceObject.findProperty(_PROPERTY_VENDOR) == PEG_NOT_FOUND)
 	{
 	    throw CIMException (CIM_ERR_FAILED,
 		"Missing Vendor which is required property in PG_ProviderModule class.");
 	}
 
-	if (!instanceObject.existsProperty(_PROPERTY_VERSION))
+	if (instanceObject.findProperty(_PROPERTY_VERSION) == PEG_NOT_FOUND)
 	{
 	    throw CIMException (CIM_ERR_FAILED,
 		"Missing Version which is required property in PG_ProviderModule class.");
 	}
 
-	if (!instanceObject.existsProperty(_PROPERTY_INTERFACETYPE))
+	if (instanceObject.findProperty(_PROPERTY_INTERFACETYPE) == 
+            PEG_NOT_FOUND)
 	{
 	    throw CIMException (CIM_ERR_FAILED,
 		"Missing InterfaceType which is required property in PG_ProviderModule class.");
 	}
 
-	if (!instanceObject.existsProperty(_PROPERTY_INTERFACEVERSION))
+	if (instanceObject.findProperty(_PROPERTY_INTERFACEVERSION) == 
+            PEG_NOT_FOUND)
 	{
 	    throw CIMException (CIM_ERR_FAILED,
 		"Missing InterfaceVersion which is required property in PG_ProviderModule class.");
 	}
 
-	if (!instanceObject.existsProperty(_PROPERTY_LOCATION))
+	if (instanceObject.findProperty(_PROPERTY_LOCATION) == PEG_NOT_FOUND)
 	{
 	    throw CIMException (CIM_ERR_FAILED,
 		"Missing Location which is required property in PG_ProviderModule class.");
 	}
 
-	if (!instanceObject.existsProperty(_PROPERTY_OPERATIONALSTATUS))
+	if (instanceObject.findProperty(_PROPERTY_OPERATIONALSTATUS) == 
+            PEG_NOT_FOUND)
 	{
 	    Array<Uint16> _operationalStatus;
 	    _operationalStatus.append(_MODULE_OK);
@@ -517,37 +521,40 @@ void ProviderRegistrationProvider::createInstance(
  	// Namespaces, and ProviderType properties must be set
 	//
 
-	if (!instanceObject.existsProperty(_PROPERTY_PROVIDERMODULENAME))
+	if (instanceObject.findProperty(_PROPERTY_PROVIDERMODULENAME) ==
+            PEG_NOT_FOUND)
 	{
 	    throw CIMException (CIM_ERR_FAILED,
 		"Missing ProviderModuleName which is required property in PG_ProviderCapabilities class.");
 	}
 
-	if (!instanceObject.existsProperty(_PROPERTY_PROVIDERNAME))
+	if (instanceObject.findProperty(_PROPERTY_PROVIDERNAME) == 
+            PEG_NOT_FOUND)
 	{
 	    throw CIMException (CIM_ERR_FAILED,
 		"Missing ProviderName which is required property in PG_ProviderCapabilities class.");
 	}
 
-	if (!instanceObject.existsProperty(_PROPERTY_CAPABILITYID))
+	if (instanceObject.findProperty(_PROPERTY_CAPABILITYID) == 
+            PEG_NOT_FOUND)
 	{
 	    throw CIMException (CIM_ERR_FAILED,
 		"Missing CapabilityID which is required property in PG_ProviderCapabilities class.");
 	}
 
-	if (!instanceObject.existsProperty(_PROPERTY_CLASSNAME))
+	if (instanceObject.findProperty(_PROPERTY_CLASSNAME) == PEG_NOT_FOUND)
 	{
 	    throw CIMException (CIM_ERR_FAILED,
 		"Missing ClassName which is required property in PG_ProviderCapabilities class.");
 	}
 
-	if (!instanceObject.existsProperty(_PROPERTY_NAMESPACES))
+	if (instanceObject.findProperty(_PROPERTY_NAMESPACES) == PEG_NOT_FOUND)
 	{
 	    throw CIMException (CIM_ERR_FAILED,
 		"Missing Namespaces which is required property in PG_ProviderCapabilities class.");
 	}
 
-	if (!instanceObject.existsProperty(_PROPERTY_PROVIDERTYPE))
+	if (instanceObject.findProperty(_PROPERTY_PROVIDERTYPE) == PEG_NOT_FOUND)
 	{
 	    throw CIMException (CIM_ERR_FAILED,
 		"Missing ProviderType which is required property in PG_ProviderCapabilities class.");
@@ -558,13 +565,14 @@ void ProviderRegistrationProvider::createInstance(
 	//
 	// Name and ProviderModuleName properties must be set
 	//
-	if (!instanceObject.existsProperty(_PROPERTY_PROVIDER_NAME))
+	if (instanceObject.findProperty(_PROPERTY_PROVIDER_NAME) == PEG_NOT_FOUND)
 	{
 	    throw CIMException (CIM_ERR_FAILED,
 		"Missing Name which is required property in PG_Provider class.");
 	}
 	
-	if (!instanceObject.existsProperty(_PROPERTY_PROVIDERMODULENAME))
+	if (instanceObject.findProperty(_PROPERTY_PROVIDERMODULENAME) == 
+            PEG_NOT_FOUND)
 	{
 	    throw CIMException (CIM_ERR_FAILED,
 		"Missing ProviderModuleName which is required property in PG_Provider class.");

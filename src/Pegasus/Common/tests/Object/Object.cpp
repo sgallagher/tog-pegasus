@@ -86,10 +86,10 @@ void test01()
     assert(oinstance1.findQualifier("q3") == PEG_NOT_FOUND);
     assert(oinstance1.getQualifierCount() == 4);
 
-    assert(oinstance1.existsQualifier("q1"));
-    assert(oinstance1.existsQualifier("q2"));
-    assert(!oinstance1.existsQualifier("q3"));
-    assert(!oinstance1.existsQualifier("q4"));
+    assert(oinstance1.findQualifier("q1") != PEG_NOT_FOUND);
+    assert(oinstance1.findQualifier("q2") != PEG_NOT_FOUND);
+    assert(oinstance1.findQualifier("q3") == PEG_NOT_FOUND);
+    assert(oinstance1.findQualifier("q4") == PEG_NOT_FOUND);
 
     Uint32 posQualifier;
     posQualifier = oinstance1.findQualifier("q1");
@@ -112,8 +112,8 @@ void test01()
 
     oinstance1.removeQualifier(posQualifier);
     assert(oinstance1.getQualifierCount() == 3);
-    assert(!oinstance1.existsQualifier("q1"));
-    assert(oinstance1.existsQualifier("q2"));
+    assert(oinstance1.findQualifier("q1") == PEG_NOT_FOUND);
+    assert(oinstance1.findQualifier("q2") != PEG_NOT_FOUND);
 
     // Test properties
     oinstance1.addProperty(CIMProperty("message", String("Hello There")));
@@ -123,17 +123,13 @@ void test01()
     assert(oinstance1.findProperty("message") != PEG_NOT_FOUND);
     assert(oinstance1.findProperty("ratio") == PEG_NOT_FOUND);
 
-    assert(oinstance1.existsProperty("count"));
-    assert(oinstance1.existsProperty("message"));
-    assert(!oinstance1.existsProperty("ratio"));
-
     CIMProperty cp =
        oinstance1.getProperty(oinstance1.findProperty("message"));
 
     Uint32 posProperty;
     posProperty = oinstance1.findProperty("count");
     oinstance1.removeProperty(posProperty);
-    assert(!oinstance1.existsProperty("count"));
+    assert(oinstance1.findProperty("count") == PEG_NOT_FOUND);
 
     assert(oinstance1.getPropertyCount() == 1);
 

@@ -124,12 +124,6 @@ Uint32 CIMInstance::findQualifier(const String& name) const
     return _rep->findQualifier(name);
 }
 
-Boolean CIMInstance::existsQualifier(const String& name) const
-{
-    _checkRep();
-    return _rep->existsQualifier(name);
-}
-
 CIMQualifier CIMInstance::getQualifier(Uint32 pos)
 {
     _checkRep();
@@ -159,12 +153,6 @@ Uint32 CIMInstance::findProperty(const String& name) const
 {
     _checkRep();
     return _rep->findProperty(name);
-}
-
-Boolean CIMInstance::existsProperty(const String& name) const
-{
-   _checkRep();
-   return _rep->existsProperty(name);
 }
 
 CIMProperty CIMInstance::getProperty(Uint32 pos) throw(OutOfBounds)

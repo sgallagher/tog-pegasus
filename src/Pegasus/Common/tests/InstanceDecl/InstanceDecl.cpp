@@ -25,6 +25,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 /* This program tests the generation and resolution of instances.  It creates
@@ -86,10 +88,6 @@ void test01()
     assert(class1.findProperty("message") != PEG_NOT_FOUND);
     assert(class1.findProperty("ratio") != PEG_NOT_FOUND);
 
-    assert(class1.existsProperty("count"));
-    assert(class1.existsProperty("message"));
-    assert(class1.existsProperty("ratio"));
-
     class1.resolve(context, NAMESPACE);
     context->addClass(NAMESPACE, class1);
 
@@ -107,11 +105,10 @@ void test01()
     instance1.addProperty(CIMProperty("message", String("Goodbye")));
 
     assert(instance1.findProperty("message") != PEG_NOT_FOUND);
-    assert(instance1.existsProperty("message"));
 
-    assert(!instance1.existsProperty("count"));
-    assert(!instance1.existsProperty("ratio"));
-    assert(!instance1.existsProperty("nuts"));
+    assert(instance1.findProperty("count") == PEG_NOT_FOUND);
+    assert(instance1.findProperty("ratio") == PEG_NOT_FOUND);
+    assert(instance1.findProperty("nuts") == PEG_NOT_FOUND);
     assert(instance1.getPropertyCount() == 1);
 
 	if(verbose)
@@ -125,10 +122,9 @@ void test01()
     // Now test for properties after resolution.
 
     assert(instance1.findProperty("message") != PEG_NOT_FOUND);
-    assert(instance1.existsProperty("message"));
-    assert(instance1.existsProperty("count"));
-    assert(instance1.existsProperty("ratio"));
-    assert(!instance1.existsProperty("nuts"));
+    assert(instance1.findProperty("count") != PEG_NOT_FOUND);
+    assert(instance1.findProperty("ratio") != PEG_NOT_FOUND);
+    assert(instance1.findProperty("nuts") == PEG_NOT_FOUND);
 
     assert(instance1.getPropertyCount() == 3);
     // Now remove a property
@@ -137,10 +133,10 @@ void test01()
     posProperty = instance1.findProperty("count");
     instance1.removeProperty(posProperty);
 
-    assert(instance1.existsProperty("message"));
-    assert(!instance1.existsProperty("count"));
-    assert(instance1.existsProperty("ratio"));
-    assert(!instance1.existsProperty("nuts"));
+    assert(instance1.findProperty("message") != PEG_NOT_FOUND);
+    assert(instance1.findProperty("count") == PEG_NOT_FOUND);
+    assert(instance1.findProperty("ratio") != PEG_NOT_FOUND);
+    assert(instance1.findProperty("nuts") == PEG_NOT_FOUND);
 
     assert(instance1.getPropertyCount() == 2);
  
@@ -150,8 +146,6 @@ void test01()
 
     const CIMInstance instance2 = instance1.clone();
     assert(instance2.identical(instance1));
-    assert(!instance1.existsQualifier("nuts"));
-    assert(!instance2.existsQualifier("nuts"));
     assert(instance1.findQualifier("nuts") == PEG_NOT_FOUND);
     assert(instance2.findQualifier("nuts") == PEG_NOT_FOUND);
     assert(instance1.getQualifierCount() != 4);
@@ -225,9 +219,9 @@ void test02()
     cimInstance.addProperty(CIMProperty("age", Uint8(101)));
 
 
-    assert(cimInstance.existsProperty("first"));
-    assert(cimInstance.existsProperty("last"));
-    assert(cimInstance.existsProperty("age"));
+    assert(cimInstance.findProperty("first") != PEG_NOT_FOUND);
+    assert(cimInstance.findProperty("last") != PEG_NOT_FOUND);
+    assert(cimInstance.findProperty("age") != PEG_NOT_FOUND);
 
     assert(cimInstance.getPropertyCount() == 3);
 

@@ -23,7 +23,8 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -183,14 +184,12 @@ void registerInstanceProvider(
 
 	cout << "registering " << className << " for " 
 		<< providerName << endl;
-	 if (c1.existsQualifier("Provider" ))
+        Uint32 pos = c1.findQualifier("Provider");
+        if (pos != PEG_NOT_FOUND)
 	    {
 		// NOTE that we should modify   
 		cout << "Provider exists" << endl;
-		Uint32 pos;
-		pos = c1.findQualifier("Provider");
-		if (pos != PEG_NOT_FOUND)
-		    c1.removeQualifier(pos);
+		c1.removeQualifier(pos);
 	    }
 	c1.addQualifier(CIMQualifier("Provider", providerName));
 	cout << "Provider " << providerName << " changed." << endl;
@@ -252,13 +251,10 @@ void showOneProviderRegistration(
 {
     try
     {
-      if (c1.existsQualifier("provider"))
-      {
-	  Uint32 pos;
-	  pos = c1.findQualifier("provider");
-
-	  if (pos != PEG_NOT_FOUND)
-	  {
+        Uint32 pos;
+        pos = c1.findQualifier("provider");
+        if (pos != PEG_NOT_FOUND)
+        {
 	      // Display the qualifier.
 	      CIMQualifier q1 = c1.getQualifier(pos);
 
@@ -270,7 +266,6 @@ void showOneProviderRegistration(
   		   << fill.subString(0, 20-name.size())
 		   << providerId
 	           << endl;
-	  }
       }
     }
     catch (Exception& e)
@@ -314,7 +309,7 @@ void showProviderRegistrations (
 
 	for (Uint32 i = 0, n = classList.size(); i < n; i++)
 	{
-	    if (classList[i].existsQualifier("provider"))
+	    if (classList[i].findQualifier("provider") != PEG_NOT_FOUND)
 	    {
 		showOneProviderRegistration(
 			    r,

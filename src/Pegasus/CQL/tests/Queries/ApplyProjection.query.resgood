@@ -133,7 +133,7 @@ Instance of class CQL_TestPropertyTypesMissing
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyStringReal, Value = NULL
 Instance of class CQL_TestPropertyTypes
------Prop #0 Name = PropertyStringReal, Value = 9.1250000000000000E01
+-----Prop #0 Name = PropertyStringReal, Value = 9.1250000000000000E1
 ======================================13
 SELECT PropertyStringArray[1-1] FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement

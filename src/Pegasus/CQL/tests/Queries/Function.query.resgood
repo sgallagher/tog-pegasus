@@ -89,7 +89,7 @@ ERROR!
 Parameter 1 for function UPPERCASE has type Real.  It must be type String.
 
 =========     8     =========
------Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyString = UPPERCASE(-1.2343400000000000e+00)
+-----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyString = UPPERCASE(-1.2343400000000000)
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
@@ -118,7 +118,7 @@ String cannot be empty.
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 TRUE
 =========     11     =========
------Query: SELECT * FROM CQL_TestPropertyTypes  WHERE STRINGTOREAL(PropertyStringReal) = 9.8670000000000002e+01
+-----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE STRINGTOREAL(PropertyStringReal) = 9.8670000000000002e1
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
@@ -770,7 +770,7 @@ ERROR!
 Function STRINGTOREAL has 0 parameters.  It must have between 1 and 1.
 
 =========     85     =========
------Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyReal64 = STRINGTOREAL(3.4339999999999998e-01)
+-----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyReal64 = STRINGTOREAL(3.4339999999999998e-1)
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
@@ -781,7 +781,7 @@ ERROR!
 Parameter 1 for function STRINGTOREAL has type Real.  It must be type String.
 
 =========     86     =========
------Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyReal64 = STRINGTOREAL(3.5350000000000000e+03)
+-----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyReal64 = STRINGTOREAL(3.5350000000000000e3)
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
@@ -872,14 +872,14 @@ FALSE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 TRUE
 =========     95     =========
------Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyStringReal = NUMERICTOSTRING(9.1250000000000000e+01)
+-----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyStringReal = NUMERICTOSTRING(9.1250000000000000e1)
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 FALSE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 TRUE
 =========     96     =========
------Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyStringReal = NUMERICTOSTRING(9.1250000000000000e+01)
+-----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyStringReal = NUMERICTOSTRING(9.1250000000000000e1)
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 FALSE
@@ -900,14 +900,14 @@ TRUE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 FALSE
 =========     99     =========
------Query: SELECT * FROM CQL_TestPropertyTypes  WHERE '9.1250000000000000E01' = NUMERICTOSTRING(9.1250000000000000e+01)
+-----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE '9.1250000000000000E1' = NUMERICTOSTRING(9.1250000000000000e1)
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 TRUE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 TRUE
 =========     100     =========
------Query: SELECT * FROM CQL_TestPropertyTypes  WHERE '6.4000000000000000E01' = NUMERICTOSTRING(PropertyReal64)
+-----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE '6.4000000000000000E1' = NUMERICTOSTRING(PropertyReal64)
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 TRUE

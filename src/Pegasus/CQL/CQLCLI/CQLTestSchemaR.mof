@@ -97,7 +97,7 @@ instance of CQL_TestPropertyTypes
 
    PropertyStringUint = "347";
    PropertyStringSint = "-743";
-   PropertystringReal = "9.1250000000000000E01";	
+   PropertystringReal = "9.1250000000000000E1";	
                                                                                 
    PropertyUint8 = 8;
    PropertyUint8Array = { 0,1,2,3,4,5,6,7,8 };

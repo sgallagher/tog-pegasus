@@ -2,7 +2,8 @@
 # These tests are desined to test the CQL Functions.  Each query statement
 # in this file executes on a set of instances of CQL_TestPropertytypes.
 # The test program should be invoked like this:
-# cqlcli $PEGASUS_ROOT/src/Pegasus/CQL/tests/Queries/Function2.query -test 1 -className CQL_TestPropertytypes
+# cqlcli $PEGASUS_ROOT/src/Pegasus/CQL/tests/Queries/Function.query -test 1 -className CQL_TestPropertytypes
+# The output of this should match the output of Function.query.resgood found in the .../tests/Queries directory.
 ########################
 
 
@@ -148,8 +149,8 @@ select * from CQL_TestPropertyTypes where PropertyStringReal = NUMERICTOSTRING(9
 select * from CQL_TestPropertyTypes where PropertyStringReal = NUMERICTOSTRING(9.125e1)
 select * from CQL_TestPropertyTypes where '255' = NUMERICTOSTRING(PropertyUint8)
 select * from CQL_TestPropertyTypes where '-8' = NUMERICTOSTRING(PropertySint8)
-select * from CQL_TestPropertyTypes where '9.1250000000000000E01' = NUMERICTOSTRING(91.25)
-select * from CQL_TestPropertyTypes where '6.4000000000000000E01' = NUMERICTOSTRING(PropertyReal64)
+select * from CQL_TestPropertyTypes where '9.1250000000000000E1' = NUMERICTOSTRING(91.25)
+select * from CQL_TestPropertyTypes where '6.4000000000000000E1' = NUMERICTOSTRING(PropertyReal64)
 
 # Errors
 select * from CQL_TestPropertyTypes where PropertyStringSint = NUMERICTOSTRING(-743, -10)

@@ -41,12 +41,10 @@
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
-#include <Pegasus/Config/ConfigFileHandler.h>
 
 PEGASUS_USING_STD;
 
@@ -123,11 +121,6 @@ const String ROOT_NAMESPACE                    = "root/cimv2";
 */
 const String PG_AUTH_CLASS                     = "PG_Authorization";
  
-/**
-    The constant representing the string "port".
-*/
-static const char PORT []                      = "port";
-
 
 /**
     The constants representing the messages.
@@ -323,12 +316,6 @@ private:
 	PEGASUS_STD(ostream)&           outPrintWriter,
 	PEGASUS_STD(ostream)&           errPrintWriter
     );
-
-    //
-    //    Configuration File handler
-    //    This handler is used to obtain the port number of the CIMOM
-    //
-    ConfigFileHandler* _configFileHandler;
 
     //
     // The CIM Client reference
@@ -742,71 +729,12 @@ Uint32 CIMAuthCommand::execute (
     ostream& outPrintWriter, 
     ostream& errPrintWriter)
 {
-    String    portNumber    = String::EMPTY;
-    String    pegasusHome   = String::EMPTY;
-
     if ( _operationType == OPERATION_TYPE_UNINITIALIZED )
     {
         //
         // The command was not initialized
         //
         return ( RC_ERROR );
-    }
-
-    //
-    // Get environment variable
-    //
-    String currentFile;
-    String plannedFile;
-
-    const char* env = getenv("PEGASUS_HOME");
-
-    if (!env || env == "")
-    {
-        cerr << "PEGASUS_HOME environment variable undefined," << endl;
-        cerr << "using the configuration files from the current directory." << endl;
-
-        currentFile.append(CURRENT_CONFIG_FILE);
-        plannedFile.append(PLANNED_CONFIG_FILE);
-    }
-    else
-    {
-        pegasusHome = env;
-        FileSystem::translateSlashes(pegasusHome);
-
-        currentFile.append(pegasusHome + "/" + CURRENT_CONFIG_FILE);
-        plannedFile.append(pegasusHome + "/" + PLANNED_CONFIG_FILE);
-    }
-
-    try
-    {
-        //
-        // Open default config files and load current config properties
-        //
-        _configFileHandler = new ConfigFileHandler(
-                                   currentFile, plannedFile, true);
-
-        _configFileHandler->loadCurrentConfigProperties();
-
-	//
-	// Get the port number of the CIMOM
-	//
-        portNumber = _configFileHandler->getCurrentValue(PORT);
-
-    }
-    catch (NoSuchFile& nsf)
-    {
-        portNumber = String::EMPTY;
-    }
-    catch (FileNotReadable& fnr)
-    {
-        errPrintWriter << FILE_NOT_READABLE << fnr.getMessage() << endl;
-        return 1;
-    }
-    catch (ConfigFileSyntaxError& cfse)
-    {
-        errPrintWriter << cfse.getMessage() << endl;
-        return 1 ;
     }
 
     // 
@@ -823,7 +751,7 @@ Uint32 CIMAuthCommand::execute (
         HTTPConnector* connector = new HTTPConnector(monitor);
         _client = new CIMClient(monitor, connector);
 
-        _client->connectLocal(portNumber);
+        _client->connectLocal();
 
     }
     catch(Exception& e)

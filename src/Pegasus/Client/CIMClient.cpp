@@ -135,36 +135,27 @@ void CIMClient::connect(
     _connected = true;
 }
 
-void CIMClient::connectLocal(
-    const String& portNumber,
-    const String& userName)
+void CIMClient::connectLocal()
 {
     String address = String::EMPTY;
-    char * port = (char *)malloc(32);
 
-    if (portNumber.size())
-    {
-        port = portNumber.allocateCString();
-    }
-    else
-    {
-        Uint32 portNum = System::lookupPort(WBEM_SERVICE_NAME, WBEM_DEFAULT_PORT);
-        sprintf(port, "%u", portNum);
-    }
+    Uint32 portNum = System::lookupPort(WBEM_SERVICE_NAME, WBEM_DEFAULT_PORT);
+    char port[32];
+    sprintf(port, "%u", portNum);
 
     //
     // Build address string using local host name and port number
     //
-    address.append(Cat(_getLocalHostName(), ":", port));
-
-    free(port);
+    address.append(_getLocalHostName());
+    address.append(":");
+    address.append(port);
 
     //
     // Set authentication type
     //
     _authenticator->setAuthType(ClientAuthenticator::LOCAL);
 
-    connect(address, userName);
+    connect(address);
 }
 
 void CIMClient::disconnect()

@@ -98,11 +98,6 @@ static const Uint32 OPERATION_TYPE_LIST           = 4;
 const String NAMESPACE                         = "root/cimv2";
  
 /**
-    The constant representing the string "port".
-*/
-static const char PORT []                      = "port";
-
-/**
     The constants representing the string literals.
 */
 static const char PROPERTY_NAME []             = "PropertyName";
@@ -573,7 +568,6 @@ Uint32 CIMConfigCommand::execute (
     String    currentValue  = String::EMPTY;
     String    plannedValue  = String::EMPTY;
     String    pegasusHome   = String::EMPTY;
-    String    portNumber    = String::EMPTY;
 
 
     if ( _operationType == OPERATION_TYPE_UNINITIALIZED )
@@ -616,14 +610,9 @@ Uint32 CIMConfigCommand::execute (
         // Open default config files and load current config properties
         //
         _configFileHandler = new ConfigFileHandler(currentFile, plannedFile, true);
-
-        _configFileHandler->loadCurrentConfigProperties();
-
-        portNumber = _configFileHandler->getCurrentValue(PORT);
     }
     catch (NoSuchFile& nsf)
     {
-        portNumber = String::EMPTY;
     }
     catch (FileNotReadable& fnr)
     {
@@ -650,7 +639,7 @@ Uint32 CIMConfigCommand::execute (
         HTTPConnector* connector = new HTTPConnector(monitor);
         _client = new CIMClient(monitor, connector);
 
-        _client->connectLocal(portNumber);
+        _client->connectLocal();
 
         connected = true;
     }

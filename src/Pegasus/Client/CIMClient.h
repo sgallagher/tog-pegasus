@@ -147,27 +147,26 @@ public:
         const String& password = String::EMPTY);
 
     /** connectLocal - Creates connection to the server for
-        Local clients. The connectLocal differs from the connect function
-        in that the userName is supplied directly with the call.
-        Once the authentication characteristics are set, this
-        function uses connect() to make the connection.
-        @param portNumber - String defining the port number of the server
-        to which the client should connect.
-        @param userName - user name to be used for this connection.
+        Local clients. The connectLocal connects to the CIM server
+        running on the local system in the default location.  The
+        connection is automatically authenticated for the current
+        user.
         @return - No return defined. Failure to connect throws an exception.
         @SeeAlso connect - The exceptions are defined in connect.
     */
-    void connectLocal(
-        const String& portNumber = String::EMPTY,
-        const String& userName = String::EMPTY);
+    void connectLocal();
 
-    /** disconnect - Closes the open connection with the server.
+    /** disconnect - Closes the connection with the server if the connection
+        was open, simply returns if the connection was not open. Clients are
+        expected to use this method to close the open connection before
+        opening a new connection.
         @return - No return defined.
     */
     void disconnect();
 
 
-    /** The <TT>getClass</TT> method  executes a CIM operation that returns a single CIM Class from the
+    /** The <TT>getClass</TT> method executes a CIM operation that returns
+	a single CIM Class from the
 	target Namespace where the ClassName input parameter defines the name of
 	the class to be retrieved.
 

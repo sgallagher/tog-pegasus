@@ -104,11 +104,12 @@ private:
     load config properties from the file 
 
     @exception CannotRenameFile  if failed to rename the config file.
+    @exception CannotOpenFile if failed to set permissions on the config file.
     @exception ConfigFileSyntaxError  if there are synatx error 
                             while parsing the config files.
     */
     void _loadConfigProperties();
-        //throw (CannotRenameFile, ConfigFileSyntaxError);
+        //throw (CannotRenameFile, ConfigFileSyntaxError, CannotOpenFile);
 
 
     /**
@@ -298,12 +299,13 @@ public:
     @exception NoSuchFile  if the specified config file does not exist.
     @exception FileNotReadable  if the specified config file is not readable.
     @exception CannotRenameFile  if failed to rename the config file.
+    @exception CannotOpenFile if failed to set permissions on the config file.
     @exception ConfigFileSyntaxError  if there is synatx error 
                             while parsing the config files.
     */
     void mergeConfigFiles(const String& currentFile, const String& plannedFile);
         //throw (NoSuchFile, FileNotReadable, CannotRenameFile, 
-        //    ConfigFileSyntaxError);
+        //    ConfigFileSyntaxError, CannotOpenFile);
 
     /** 
     Merge the config properties from the default planned config file
@@ -312,12 +314,13 @@ public:
     @exception NoSuchFile  if the default config file does not exist.
     @exception FileNotReadable  if the default config file is not readable.
     @exception CannotRenameFile  if failed to rename the config file.
+    @exception CannotOpenFile if failed to set permissions on the config file.
     @exception ConfigFileSyntaxError  if there are synatx error 
                             while parsing the config files.
     */
     void mergeConfigFiles();
         //throw (NoSuchFile, FileNotReadable, CannotRenameFile, 
-        //    ConfigFileSyntaxError);
+        //    ConfigFileSyntaxError, CannotOpenFile);
 
 
     /** 

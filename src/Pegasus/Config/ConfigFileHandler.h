@@ -88,9 +88,10 @@ public:
     current file.
 
     @exception  CannotRenameFile  if failed to create the backup file.
+    @exception  CannotOpenFile  if failed to set permissions on the config file.
     */
     void copyPlannedFileOverCurrentFile();
-        //throw (CannotRenameFile);
+        //throw (CannotRenameFile, CannotOpenFile);
 
 
     /** 

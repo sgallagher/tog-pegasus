@@ -32,6 +32,7 @@
 
 #include <cctype>
 #include <fstream>
+#include <sys/stat.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Destroyer.h>
@@ -283,12 +284,31 @@ void ConfigFile::save (ConfigTable* confTable)
     //
 #if defined(PEGASUS_OS_OS400)
     ofstream ofs(_configFile.getCStringUTF8(), PEGASUS_STD(_CCSID_T(1208)));
-#elif defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-    ofstream ofs(_configFile.getCStringUTF8(), ios::out, 0644);
 #else
     ofstream ofs(_configFile.getCStringUTF8());
 #endif
     ofs.clear();
+
+    //
+    // Set permissions on the config file to 0644
+    //
+#if defined(PEGASUS_OS_OS400)
+    CString tempName = _configFile.getCString();
+    const char * tmp = tempName;
+    AtoE((char *)tmp);
+    Sint32 ret = chmod(tmp, (S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH));  // set 0644 
+    if ( ret == -1)
+    {
+        throw CannotOpenFile(_configFile);
+    }
+#elif defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS)
+    Sint32 ret = chmod(_configFile.getCStringUTF8(), 
+        (S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH));                      // set 0644 
+    if ( ret == -1)
+    {
+        throw CannotOpenFile(_configFile);
+    }
+#endif
 
     //
     // Write config file header information
@@ -354,12 +374,27 @@ void ConfigFile::replace (const String& fileName)
     //
 #if defined(PEGASUS_OS_OS400)
     ofstream ofs(_configFile.getCStringUTF8(), PEGASUS_STD(_CCSID_T(1208)));
-#elif defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-    ofstream ofs(_configFile.getCStringUTF8(), ios::out, 0644);
 #else
     ofstream ofs(_configFile.getCStringUTF8());
 #endif
     ofs.clear();
+
+    //
+    // Set permissions on the config file
+    //
+#if defined(PEGASUS_OS_OS400)
+    CString tempName = _configFile.getCString();
+    const char * tmp = tempName;
+    AtoE((char *)tmp);
+    Sint32 ret = chmod(tmp, (S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH));  // set 0644 
+#else
+    Sint32 ret = chmod(_configFile.getCStringUTF8(), 
+        (S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH));                      // set 0644 
+#endif
+    if ( ret == -1)
+    {
+        throw CannotOpenFile(_configFile);
+    }
 
     //
     // Read each line of the new file and write to the config file.

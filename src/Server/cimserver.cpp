@@ -216,6 +216,10 @@ void GetOptions(
     {
         throw;
     }
+    catch (CannotOpenFile&)
+    {
+        throw;
+    }
 }
 
 /* PrintHelp - This is temporary until we expand the options manager to allow

@@ -556,6 +556,7 @@ void ConfigManager::mergeConfigFiles(
     {
         _configFileHandler = new ConfigFileHandler(currentFile, plannedFile);
 
+        _loadConfigProperties();
     }
     catch (NoSuchFile& nsf)
     {
@@ -565,8 +566,10 @@ void ConfigManager::mergeConfigFiles(
     {
         throw fnr;
     }
-
-    _loadConfigProperties();
+    catch (CannotOpenFile& cof)
+    {
+        throw cof;
+    }
 }
 
 
@@ -580,6 +583,7 @@ void ConfigManager::mergeConfigFiles()
     {
         _configFileHandler = new ConfigFileHandler();
 
+        _loadConfigProperties();
     }
     catch (NoSuchFile& nsf)
     {
@@ -589,8 +593,10 @@ void ConfigManager::mergeConfigFiles()
     {
         throw fnr;
     }
-
-    _loadConfigProperties();
+    catch (CannotOpenFile& cof)
+    {
+        throw cof;
+    }
 }
 
 

@@ -274,10 +274,20 @@ Boolean ConfigFileHandler::updateCurrentValue (
         // FUTURE: Log this message in a log file.
         //
         PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL3,
-            "Backup configuration file creation failed: " + e.getMessage());
+            "Backup configuration file creation failed: " + 
+            e.getMessage() + ", " + strerror(errno));
 
         return false;
     }
+    catch (CannotOpenFile& cof)
+    {
+        PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL3,
+            "Setting permissions on current configuration file failed: " + 
+            cof.getMessage() + ", " + strerror(errno));
+
+        return false;
+    }
+
     //
     // The current config file would now been created,
     // so set the flag to true.
@@ -356,10 +366,20 @@ Boolean ConfigFileHandler::updatePlannedValue (
         // FUTURE: Log this message in a log file.
         //
         PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL3,
-            "Backup configuration file creation failed: " + e.getMessage());
+            "Backup configuration file creation failed: " + 
+            e.getMessage() + ", " + strerror(errno));
 
         return false;
     }
+    catch (CannotOpenFile& cof)
+    {
+        PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL3,
+            "Setting permissions on planned configuration file failed: " + 
+            cof.getMessage() + ", " + strerror(errno));
+
+        return false;
+    }
+
     //
     // The planned config file would now been created,
     // so set the flag to true.

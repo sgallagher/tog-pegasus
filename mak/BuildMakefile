@@ -58,7 +58,7 @@ removeall:
 	$(REMOVE_PEGASUS_DIRECTORY)
 
 checkout:
-	cvs checkout -r dev pegasus
+	cvs checkout pegasus
 	
 rebuild: clean buildmu all tests
 

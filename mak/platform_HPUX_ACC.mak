@@ -82,7 +82,7 @@ endif
 ifdef PEGASUS_HAS_MESSAGES
   DEFINES += -DPEGASUS_HAS_MESSAGES
   ifdef ICU_ROOT
-        MSG_COMPILE = genrb
+        MSG_COMPILE = ${ICU_INSTALL}/bin/genrb
         MSG_FLAGS =
         MSG_SOURCE_EXT = .txt
         MSG_COMPILE_EXT = .res

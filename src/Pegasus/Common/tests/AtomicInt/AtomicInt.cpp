@@ -29,7 +29,7 @@
 
 #include <cassert>
 #include <Pegasus/Common/IPC.h>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -48,68 +48,49 @@ int main(int argc, char** argv)
 	}
 	i = 5;
 	i++;
-	if( !(i == 6) )
-		throw Exception( "!(i == 6)" );
+	PEGASUS_ASSERT( i == 6 );
 	++i;
-	if( !(i == 7) )
-		throw Exception( "!(i == 7)" );
+	PEGASUS_ASSERT( i == 7 );
 	i--;
-	if( !(i == 6) )
-		throw Exception( "!(i == 6)" );
+	PEGASUS_ASSERT( i == 6 );
 	--i;
-	if( !(i == 5) )
-		throw Exception( "!(i == 5)" );
+	PEGASUS_ASSERT( i == 5 );
 
 	if (verbose) {
 		cout << "Testing: i+Uint32, i+AtomicInt, i-Uint32, etc.. "<<endl;
 	}	
-	if( !((i + 5) == 10) )
-		throw Exception( "!((i + 5)" );
-	if( !(i == 5) )
-		throw Exception( "!(i == 5)" );
+	PEGASUS_ASSERT( (i + 5) == 10 );
+	PEGASUS_ASSERT( i == 5 );
 	j = 1;	
-	if( !(i + j == 6) )
-		throw Exception( "!(i + j == 6)" );
-	if( !(j + i == 6) )
-		throw Exception( "!(j + i == 6)" );
-	if( !(i == 5 && j == 1) )
-		throw Exception( "!(i == 5 && j == 1)" );
+	PEGASUS_ASSERT( i + j == 6 );
+	PEGASUS_ASSERT( j + i == 6 );
+	PEGASUS_ASSERT( i == 5 && j == 1 );
 	i = j - 5; // Ugly.
-	if( !(i.value() > 0) )
-		throw Exception( "!(i.value() > 0)" );
+	PEGASUS_ASSERT( i.value() > 0 );
 	ii = 4;
 	i += ii;
-	if( !(i >= 0) )
-		throw Exception( "!(i >= 0)" );
-	if( !(ii < 5) )
-		throw Exception( "!(ii < 5)" );
-	// if( !(5 > ii) )
+	PEGASUS_ASSERT( i >= 0 );
+	PEGASUS_ASSERT( ii < 5 );
+	//PEGASUS_ASSERT( 5 > ii );
 	jj = 2;
 	ii+= jj + jj;
-	if( !(ii == 8) )
-		throw Exception( "!(ii == 8)" );
-	if( !(jj == 2) )
-		throw Exception( "!(jj == 2)" );
+	PEGASUS_ASSERT( ii == 8 );
+	PEGASUS_ASSERT( jj == 2 );
 
 	i = 20;
 	j = 10;
 	ii = i + j;
-	if( !(i == 20) )
-		throw Exception( "!(i == 20)" );
-	if( !(j == 10) )
-		throw Exception( "!(j == 10)" );
+	PEGASUS_ASSERT( i == 20 );
+	PEGASUS_ASSERT( j == 10 );
 
 	ii = i + 1;
-	if( !(i == 20) )
-		throw Exception( "!(i == 20)" );
+	PEGASUS_ASSERT( i == 20 );
 
 	ii = i - j;
-	if( !(i == 20) )
-		throw Exception( "!(i == 20)" );
+	PEGASUS_ASSERT( i == 20 );
 
 	ii = i - 1;
-	if( !(i == 20) )
-		throw Exception( "!(i == 20)" );
+	PEGASUS_ASSERT( i == 20 );
     }
     catch (Exception & e)
     {

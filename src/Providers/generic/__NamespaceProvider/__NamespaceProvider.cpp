@@ -74,7 +74,7 @@ public:
     // name in the class, returns only that or error if does not exist
     virtual CIMInstance getInstance(
        const String& nameSpace,
-       const CIMReference& instanceName,
+       const CIMObjectPath& instanceName,
        Boolean localOnly = true,
        Boolean includeQualifiers = false,
        Boolean includeClassOrigin = false,
@@ -93,7 +93,7 @@ public:
 
     /** createInstance -- Creates a new namespace
     */
-    virtual CIMReference createInstance(
+    virtual CIMObjectPath createInstance(
 	const String& nameSpace,
 	const CIMInstance& myInstance)
 	{
@@ -126,7 +126,7 @@ public:
 
 	    // get instance name
 	    const String& className = myInstance.getClassName();
-	    CIMReference instanceName = myInstance.getInstanceName(className);
+	    CIMObjectPath instanceName = myInstance.getInstanceName(className);
 
 	    // check if namespace already exists
 	    Array<String> ns;
@@ -162,7 +162,7 @@ public:
     */
     virtual void deleteInstance(
 	const String& nameSpace,
-	const CIMReference& instanceName)
+	const CIMObjectPath& instanceName)
     {
 	DDD(cout << "__NamespaceProvider::deleteInstance" << endl;)
         throw CIMException(CIM_ERR_NOT_SUPPORTED);
@@ -173,11 +173,11 @@ public:
     /** enumerateInstanceNames - Enumerates all of the
         namespace names in the repository
     */
-    Array<CIMReference> enumerateInstanceNames(
+    Array<CIMObjectPath> enumerateInstanceNames(
         const String& nameSpace,
         const String& className)
     {
-        Array<CIMReference> instanceRefs;
+        Array<CIMObjectPath> instanceRefs;
         Array<String> instanceName;
         Array<String> ns;
         
@@ -194,7 +194,7 @@ public:
         }
         
         // Convert to references here so can return references
-        CIMReference ref;
+        CIMObjectPath ref;
         try
         {
             for (Uint32 i = 0; i < instanceName.size(); i++)

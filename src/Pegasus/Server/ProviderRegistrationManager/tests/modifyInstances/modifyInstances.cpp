@@ -44,7 +44,7 @@ void TestModifyInstances(ProviderRegistrationManager prmanager)
     //
     // create Provider module instances
     //
-    CIMReference returnRef;
+    CIMObjectPath returnRef;
 
     CIMClass cimClass(CLASSNAME);
 
@@ -57,7 +57,7 @@ void TestModifyInstances(ProviderRegistrationManager prmanager)
     cimInstance.addProperty(CIMProperty("InterfaceVersion", "2.0"));
     cimInstance.addProperty(CIMProperty("Location", "/tmp/module1"));
 
-    CIMReference instanceName = cimInstance.getInstanceName(cimClass);
+    CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
 
     instanceName.setNameSpace(NAMESPACE);
     instanceName.setClassName(CLASSNAME);
@@ -73,7 +73,7 @@ void TestModifyInstances(ProviderRegistrationManager prmanager)
 
     // create PG_Provider instances
 
-    CIMReference returnRef2;
+    CIMObjectPath returnRef2;
 
     CIMClass cimClass2(CLASSNAME2);
 
@@ -82,7 +82,7 @@ void TestModifyInstances(ProviderRegistrationManager prmanager)
     cimInstance2.addProperty(CIMProperty("ProviderModuleName", "providersModule1"));
     cimInstance2.addProperty(CIMProperty("Name", "PG_ProviderInstance1"));
 
-    CIMReference instanceName2 = cimInstance2.getInstanceName(cimClass2);
+    CIMObjectPath instanceName2 = cimInstance2.getInstanceName(cimClass2);
 
     instanceName2.setNameSpace(NAMESPACE);
     instanceName2.setClassName(CLASSNAME2);
@@ -117,7 +117,7 @@ void TestModifyInstances(ProviderRegistrationManager prmanager)
     supportedProperties.append("PkgStatus");
     supportedProperties.append("PkgIndex");
 
-    CIMReference returnRef3;
+    CIMObjectPath returnRef3;
 
     CIMClass cimClass3(CLASSNAME3);
 
@@ -132,7 +132,7 @@ void TestModifyInstances(ProviderRegistrationManager prmanager)
     cimInstance3.addProperty(CIMProperty("SupportedMethods", supportedMethods));
     cimInstance3.addProperty(CIMProperty("SupportedProperties", supportedProperties));
 
-    CIMReference instanceName3 = cimInstance3.getInstanceName(cimClass3);
+    CIMObjectPath instanceName3 = cimInstance3.getInstanceName(cimClass3);
 
     instanceName3.setNameSpace(NAMESPACE);
     instanceName3.setClassName(CLASSNAME3);
@@ -146,7 +146,7 @@ void TestModifyInstances(ProviderRegistrationManager prmanager)
         throw (e);
     }
 
-    // create CIMReference
+    // create CIMObjectPath
     Array<KeyBinding> keys;
     KeyBinding kb1("ProviderModuleName", "providersModule1", KeyBinding::STRING);
     KeyBinding kb2("ProviderName", "PG_ProviderInstance1", KeyBinding::STRING);

@@ -36,10 +36,10 @@ const String NAMESPACE = "root/cimv2";
 
 void TestCreateSubscriptionInstances(CIMClient& client)
 {
-    Array<CIMReference> filterRef;
+    Array<CIMObjectPath> filterRef;
     Array<KeyBinding> filterKeys;
 
-    Array<CIMReference> handlerRef;
+    Array<CIMObjectPath> handlerRef;
     Array<KeyBinding> handlerKeys;
 
     handlerRef = client.enumerateInstanceNames(NAMESPACE, 

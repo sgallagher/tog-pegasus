@@ -11,9 +11,9 @@ void TestAssociations(CIMRepository& r)
 {
     String nameSpace = "root";
     {
-	CIMReference instanceName = "X.key=\"John Smith\"";
+	CIMObjectPath instanceName = "X.key=\"John Smith\"";
 
-	Array<CIMReference> names = r.associatorNames(
+	Array<CIMObjectPath> names = r.associatorNames(
 	    nameSpace,
 	    instanceName,
 	    "A",
@@ -22,12 +22,12 @@ void TestAssociations(CIMRepository& r)
 	    "right");
 
 	assert(names.size() == 1);
-	Boolean cond = names[0] == CIMReference("Y.key=\"John Jones\"");
+	Boolean cond = names[0] == CIMObjectPath("Y.key=\"John Jones\"");
 	assert(cond);
     }
 
     {
-	CIMReference instanceName = "X.key=\"John Smith\"";
+	CIMObjectPath instanceName = "X.key=\"John Smith\"";
 
 	Array<CIMObjectWithPath> result = r.associators(
 	    nameSpace,
@@ -39,21 +39,21 @@ void TestAssociations(CIMRepository& r)
 
 	assert(result.size() == 1);
 
-	CIMReference cimReference = result[0].getReference();
+	CIMObjectPath cimReference = result[0].getReference();
 	CIMInstance cimInstance = CIMInstance(result[0].getObject());
 
 	CIMClass tmpClass = r.getClass(nameSpace, cimInstance.getClassName());
-	CIMReference tmpInstanceName = cimInstance.getInstanceName(tmpClass);
+	CIMObjectPath tmpInstanceName = cimInstance.getInstanceName(tmpClass);
 
-	Boolean t = tmpInstanceName == CIMReference("Y.key=\"John Jones\"");
+	Boolean t = tmpInstanceName == CIMObjectPath("Y.key=\"John Jones\"");
 	assert(t);
 	// result[0].print();
     }
 
     {
-	CIMReference instanceName = "X.key=\"John Smith\"";
+	CIMObjectPath instanceName = "X.key=\"John Smith\"";
 
-	Array<CIMReference> result = r.referenceNames(
+	Array<CIMObjectPath> result = r.referenceNames(
 	    nameSpace,
 	    instanceName,
 	    "A",
@@ -61,7 +61,7 @@ void TestAssociations(CIMRepository& r)
 
 	assert(result.size() == 1);
 
-	CIMReference tmp = "A."
+	CIMObjectPath tmp = "A."
 	    "left=\"x.key=\\\"John Smith\\\"\","
 	    "right=\"y.key=\\\"John Jones\\\"\"";
 	
@@ -70,7 +70,7 @@ void TestAssociations(CIMRepository& r)
     }
 
     {
-	CIMReference instanceName = "X.key=\"John Smith\"";
+	CIMObjectPath instanceName = "X.key=\"John Smith\"";
 
 	Array<CIMObjectWithPath> result = r.references(
 	    nameSpace,
@@ -83,10 +83,10 @@ void TestAssociations(CIMRepository& r)
 	CIMClass tmpClass = r.getClass(
 	    nameSpace, CIMInstance(result[0].getObject()).getClassName());
 
-	CIMReference tmpInstanceName = 
+	CIMObjectPath tmpInstanceName = 
 	    CIMInstance(result[0].getObject()).getInstanceName(tmpClass);
 
-	CIMReference tmp = "A."
+	CIMObjectPath tmp = "A."
 	    "left=\"x.key=\\\"John Smith\\\"\","
 	    "right=\"y.key=\\\"John Jones\\\"\"";
 	
@@ -98,7 +98,7 @@ void TestAssociations(CIMRepository& r)
     {
 	// First delete the association:
 
-	CIMReference assocInstanceName = "A."
+	CIMObjectPath assocInstanceName = "A."
 	    "left=\"x.key=\\\"John Smith\\\"\","
 	    "right=\"y.key=\\\"John Jones\\\"\"";
 

@@ -35,7 +35,7 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMPropertyList.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMClass.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -67,7 +67,7 @@ public:
     */
     virtual void getClass(
 	const OperationContext & context,
-	const CIMReference & classReference,
+	const CIMObjectPath & classReference,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMClass> & handler) = 0;
@@ -86,7 +86,7 @@ public:
     */
     virtual void enumerateClasses(
 	const OperationContext & context,
-	const CIMReference & classReference,
+	const CIMObjectPath & classReference,
 	const Uint32 flags,
 	ResponseHandler<CIMClass> & handler) = 0;
 
@@ -104,9 +104,9 @@ public:
     */
     virtual void enumerateClassNames(
 	const OperationContext & context,
-	const CIMReference & classReference,
+	const CIMObjectPath & classReference,
 	const Uint32 flags,
-	ResponseHandler<CIMReference> & handler) = 0;
+	ResponseHandler<CIMObjectPath> & handler) = 0;
 
     /**
     @param contex contains security and locale information relevant for the lifetime
@@ -122,7 +122,7 @@ public:
     */
     virtual void modifyClass(
 	const OperationContext & context,
-	const CIMReference & classReference,
+	const CIMObjectPath & classReference,
 	const CIMClass & classObject,
 	ResponseHandler<CIMClass> & handler) = 0;
 
@@ -140,7 +140,7 @@ public:
     */
     virtual void createClass(
 	const OperationContext & context,
-	const CIMReference & classReference,
+	const CIMObjectPath & classReference,
 	const CIMClass & classObject,
 	ResponseHandler<CIMClass> & handler) = 0;
 
@@ -156,7 +156,7 @@ public:
     */
     virtual void deleteClass(
 	const OperationContext & context,
-	const CIMReference & classReference,
+	const CIMObjectPath & classReference,
 	ResponseHandler<CIMClass> & handler) = 0;
 };
 

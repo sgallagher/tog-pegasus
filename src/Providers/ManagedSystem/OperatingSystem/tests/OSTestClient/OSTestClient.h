@@ -102,7 +102,7 @@ class OSTestClient
      // was trying to avoid passing client to each function
      CIMClient _osclient;
 
-     void _validateKeys(CIMReference &cimRef, Boolean verboseTest);
+     void _validateKeys(CIMObjectPath &cimRef, Boolean verboseTest);
      void _validateProperties(CIMInstance &cimInst, Boolean verboseTest);
 
 };

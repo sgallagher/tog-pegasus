@@ -33,7 +33,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -110,7 +110,7 @@ public:
     */
     static Boolean lookup(
 	const String& path, 
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	Uint32& sizeOut,  
 	Uint32& indexOut);
 
@@ -129,7 +129,7 @@ public:
     */
     static Boolean insert(
 	const String& path, 
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
         Uint32 sizeIn,
 	Uint32 indexIn);
 
@@ -144,7 +144,7 @@ public:
     */
     static Boolean remove(
 	const String& path, 
-	const CIMReference& instanceName);
+	const CIMObjectPath& instanceName);
 
     /** Modifies an entry by first removing the old entry and then inserting
         a new entry at the end of the file.  Returns true on success.
@@ -159,7 +159,7 @@ public:
     */
     static Boolean modify(
 	const String& path, 
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
         Uint32 sizeIn,
 	Uint32 indexIn);
 
@@ -181,7 +181,7 @@ public:
     */
     static Boolean appendInstanceNamesTo(
 	const String& path,
-	Array<CIMReference>& instanceNames,
+	Array<CIMObjectPath>& instanceNames,
 	Array<Uint32>& indices,
         Array<Uint32>& sizes);
 
@@ -200,7 +200,7 @@ private:
     */
     static void _appendEntry(
         PEGASUS_STD(ofstream)& os,
-        const CIMReference& instanceName,
+        const CIMObjectPath& instanceName,
         Uint32 sizeIn,
         Uint32 indexIn);
     
@@ -217,7 +217,7 @@ private:
     static Boolean _removeEntry(
         PEGASUS_STD(ofstream)& os,
         const String& path,
-        const CIMReference& instanceName);
+        const CIMObjectPath& instanceName);
 };
 
 PEGASUS_NAMESPACE_END

@@ -70,7 +70,7 @@ void ProviderFacade::terminate(void)
 
 void ProviderFacade::getInstance(
     const OperationContext & context,
-    const CIMReference & instanceReference,
+    const CIMObjectPath & instanceReference,
     const Uint32 flags,
     const CIMPropertyList & propertyList,
     ResponseHandler<CIMInstance> & handler)
@@ -142,7 +142,7 @@ void ProviderFacade::getInstance(
 
 void ProviderFacade::enumerateInstances(
     const OperationContext & context,
-    const CIMReference & classReference,
+    const CIMObjectPath & classReference,
     const Uint32 flags,
     const CIMPropertyList & propertyList,
     ResponseHandler<CIMInstance> & handler)
@@ -162,8 +162,8 @@ void ProviderFacade::enumerateInstances(
 
 void ProviderFacade::enumerateInstanceNames(
     const OperationContext & context,
-    const CIMReference & classReference,
-    ResponseHandler<CIMReference> & handler)
+    const CIMObjectPath & classReference,
+    ResponseHandler<CIMObjectPath> & handler)
 {
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
@@ -178,7 +178,7 @@ void ProviderFacade::enumerateInstanceNames(
 
 void ProviderFacade::modifyInstance(
     const OperationContext & context,
-    const CIMReference & instanceReference,
+    const CIMObjectPath & instanceReference,
     const CIMInstance & instanceObject,
     const Uint32 flags,
     const CIMPropertyList & propertyList,
@@ -198,9 +198,9 @@ void ProviderFacade::modifyInstance(
 
 void ProviderFacade::createInstance(
     const OperationContext & context,
-    const CIMReference & instanceReference,
+    const CIMObjectPath & instanceReference,
     const CIMInstance & instanceObject,
-    ResponseHandler<CIMReference> & handler)
+    ResponseHandler<CIMObjectPath> & handler)
 {
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
@@ -214,7 +214,7 @@ void ProviderFacade::createInstance(
 
 void ProviderFacade::deleteInstance(
     const OperationContext & context,
-    const CIMReference & instanceReference,
+    const CIMObjectPath & instanceReference,
     ResponseHandler<CIMInstance> & handler)
 {
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
@@ -228,7 +228,7 @@ void ProviderFacade::deleteInstance(
 
 void ProviderFacade::getClass(
     const OperationContext & context,
-    const CIMReference & classReference,
+    const CIMObjectPath & classReference,
     const Uint32 flags,
     const CIMPropertyList & propertyList,
     ResponseHandler<CIMClass> & handler)
@@ -238,7 +238,7 @@ void ProviderFacade::getClass(
 
 void ProviderFacade::enumerateClasses(
     const OperationContext & context,
-    const CIMReference & classReference,
+    const CIMObjectPath & classReference,
     const Uint32 flags,
     ResponseHandler<CIMClass> & handler)
 {
@@ -247,16 +247,16 @@ void ProviderFacade::enumerateClasses(
 
 void ProviderFacade::enumerateClassNames(
     const OperationContext & context,
-    const CIMReference & classReference,
+    const CIMObjectPath & classReference,
     const Uint32 flags,
-    ResponseHandler<CIMReference> & handler)
+    ResponseHandler<CIMObjectPath> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::enumerateClassNames");
 }
 
 void ProviderFacade::modifyClass(
     const OperationContext & context,
-    const CIMReference & classReference,
+    const CIMObjectPath & classReference,
     const CIMClass & classObject,
     ResponseHandler<CIMClass> & handler)
 {
@@ -265,7 +265,7 @@ void ProviderFacade::modifyClass(
 
 void ProviderFacade::createClass(
     const OperationContext & context,
-    const CIMReference & classReference,
+    const CIMObjectPath & classReference,
     const CIMClass & classObject,
     ResponseHandler<CIMClass> & handler)
 {
@@ -274,7 +274,7 @@ void ProviderFacade::createClass(
 
 void ProviderFacade::deleteClass(
     const OperationContext & context,
-    const CIMReference & classReference,
+    const CIMObjectPath & classReference,
     ResponseHandler<CIMClass> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::deleteClass");
@@ -282,7 +282,7 @@ void ProviderFacade::deleteClass(
 
 void ProviderFacade::associators(
     const OperationContext & context,
-    const CIMReference & objectName,
+    const CIMObjectPath & objectName,
     const String & associationClass,
     const String & resultClass,
     const String & role,
@@ -308,12 +308,12 @@ void ProviderFacade::associators(
 
 void ProviderFacade::associatorNames(
     const OperationContext & context,
-    const CIMReference & objectName,
+    const CIMObjectPath & objectName,
     const String & associationClass,
     const String & resultClass,
     const String & role,
     const String & resultRole,
-    ResponseHandler<CIMReference> & handler)
+    ResponseHandler<CIMObjectPath> & handler)
 {
     CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
 
@@ -330,7 +330,7 @@ void ProviderFacade::associatorNames(
 
 void ProviderFacade::references(
     const OperationContext & context,
-    const CIMReference & objectName,
+    const CIMObjectPath & objectName,
     const String & resultClass,
     const String & role,
     const Uint32 flags,
@@ -352,10 +352,10 @@ void ProviderFacade::references(
 
 void ProviderFacade::referenceNames(
     const OperationContext & context,
-    const CIMReference & objectName,
+    const CIMObjectPath & objectName,
     const String & resultClass,
     const String & role,
-    ResponseHandler<CIMReference> & handler)
+    ResponseHandler<CIMObjectPath> & handler)
 {
     CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
 
@@ -370,7 +370,7 @@ void ProviderFacade::referenceNames(
 
 void ProviderFacade::getProperty(
     const OperationContext & context,
-    const CIMReference & instanceReference,
+    const CIMObjectPath & instanceReference,
     const String & propertyName,
     ResponseHandler<CIMValue> & handler)
 {
@@ -421,7 +421,7 @@ void ProviderFacade::getProperty(
 
 void ProviderFacade::setProperty(
     const OperationContext & context,
-    const CIMReference & instanceReference,
+    const CIMObjectPath & instanceReference,
     const String & propertyName,
     const CIMValue & newValue,
     ResponseHandler<CIMValue> & handler)
@@ -467,7 +467,7 @@ void ProviderFacade::setProperty(
 
 void ProviderFacade::invokeMethod(
     const OperationContext & context,
-    const CIMReference & objectReference,
+    const CIMObjectPath & objectReference,
     const String & methodName,
     const Array<CIMParamValue> & inParameters,
     Array<CIMParamValue> & outParameters,

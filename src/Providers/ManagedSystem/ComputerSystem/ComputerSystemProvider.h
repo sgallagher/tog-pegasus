@@ -105,35 +105,35 @@ class ComputerSystemProvider: public CIMInstanceProvider
       //-- CIMInstanceProvider methods
 
       void getInstance(const OperationContext& context, 
-		       const CIMReference& ref, 
+		       const CIMObjectPath& ref, 
 		       const Uint32 flags, 
 		       const CIMPropertyList& propertyList,
 		       ResponseHandler<CIMInstance>& handler);
 
       void enumerateInstances(const OperationContext& context, 
-			      const CIMReference& ref, 
+			      const CIMObjectPath& ref, 
 			      const Uint32 flags,
 			      const CIMPropertyList& propertyList,
 			      ResponseHandler<CIMInstance>& handler);
 
       void enumerateInstanceNames(const OperationContext& context, 
-			          const CIMReference& ref,
-			          ResponseHandler<CIMReference>& handler);
+			          const CIMObjectPath& ref,
+			          ResponseHandler<CIMObjectPath>& handler);
    
       void modifyInstance(const OperationContext& context,
-		          const CIMReference& ref,
+		          const CIMObjectPath& ref,
 		          const CIMInstance& instanceObject,
 		          const Uint32 flags,
 		          const CIMPropertyList& propertyList,
 		          ResponseHandler<CIMInstance>& handler );
 
       void createInstance(const OperationContext& context,
-		          const CIMReference& ref,
+		          const CIMObjectPath& ref,
 		          const CIMInstance& instanceObject,
-		          ResponseHandler<CIMReference>& handler );
+		          ResponseHandler<CIMObjectPath>& handler );
  
       void deleteInstance(const OperationContext& context,
-		          const CIMReference& ref,
+		          const CIMObjectPath& ref,
 		          ResponseHandler<CIMInstance>& handler );
  
       void initialize(CIMOMHandle& handle);

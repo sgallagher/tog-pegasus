@@ -194,7 +194,7 @@ void ProviderRegistrationProvider::terminate(void)
 // get registered provider
 void ProviderRegistrationProvider::getInstance(
     const OperationContext & context,
-    const CIMReference & instanceReference,
+    const CIMObjectPath & instanceReference,
     const Uint32 flags,
     const CIMPropertyList & propertyList,
     ResponseHandler<CIMInstance> & handler)
@@ -239,7 +239,7 @@ void ProviderRegistrationProvider::getInstance(
 // get all registered providers
 void ProviderRegistrationProvider::enumerateInstances(
     const OperationContext & context,
-    const CIMReference & classReference,
+    const CIMObjectPath & classReference,
     const Uint32 flags,
     const CIMPropertyList & propertyList,
     ResponseHandler<CIMInstance> & handler)
@@ -287,8 +287,8 @@ void ProviderRegistrationProvider::enumerateInstances(
 // get all registered provider names
 void ProviderRegistrationProvider::enumerateInstanceNames(
     const OperationContext & context,
-    const CIMReference & classReference,
-    ResponseHandler<CIMReference> & handler)
+    const CIMObjectPath & classReference,
+    ResponseHandler<CIMObjectPath> & handler)
 {
     if(!String::equalNoCase(classReference.getNameSpace(), 
       	                    PEGASUS_NAMESPACENAME_INTEROP))
@@ -309,7 +309,7 @@ void ProviderRegistrationProvider::enumerateInstanceNames(
     // begin processing the request
     handler.processing();
 
-    Array<CIMReference> enumInstanceNames;
+    Array<CIMObjectPath> enumInstanceNames;
 
     // get all instance names from repository
     try
@@ -333,7 +333,7 @@ void ProviderRegistrationProvider::enumerateInstanceNames(
 // SupportedProperties, and property of SupportedMethods
 void ProviderRegistrationProvider::modifyInstance(
         const OperationContext & _context,
-        const CIMReference & instanceReference,
+        const CIMObjectPath & instanceReference,
         const CIMInstance & instanceObject,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
@@ -395,14 +395,14 @@ void ProviderRegistrationProvider::modifyInstance(
 // register a provider
 void ProviderRegistrationProvider::createInstance(
     const OperationContext & context,
-    const CIMReference & instanceReference,
+    const CIMObjectPath & instanceReference,
     const CIMInstance & instanceObject,
-    ResponseHandler<CIMReference> & handler)
+    ResponseHandler<CIMObjectPath> & handler)
 {
     String className = instanceReference.getClassName();
     String nameSpace = instanceReference.getNameSpace();
 
-    CIMReference returnReference;
+    CIMObjectPath returnReference;
 
     CIMInstance instance = instanceObject;
 
@@ -556,7 +556,7 @@ void ProviderRegistrationProvider::createInstance(
 // Unregister a provider
 void ProviderRegistrationProvider::deleteInstance(
     const OperationContext & context,
-    const CIMReference & instanceReference,
+    const CIMObjectPath & instanceReference,
     ResponseHandler<CIMInstance> & handler)
 {
     if(!String::equalNoCase(instanceReference.getNameSpace(), 
@@ -594,7 +594,7 @@ void ProviderRegistrationProvider::deleteInstance(
 // Block a provider, unblock a provider, and stop a provider
 void ProviderRegistrationProvider::invokeMethod(
     const OperationContext & context,
-    const CIMReference & objectReference,
+    const CIMObjectPath & objectReference,
     const String & methodName,
     const Array<CIMParamValue> & inParameters,
     Array<CIMParamValue> & outParameters,
@@ -662,7 +662,7 @@ void ProviderRegistrationProvider::invokeMethod(
 	mInstance = _providerRegistrationManager->getInstance(objectReference);
 
 	// get all provider instances which have same module name as moduleName
-	CIMReference providerRef(objectReference.getHost(),
+	CIMObjectPath providerRef(objectReference.getHost(),
 				 objectReference.getNameSpace(),
 				 PEGASUS_CLASSNAME_PROVIDER,
 				 objectReference.getKeyBindings());
@@ -971,13 +971,13 @@ Array<Uint16> ProviderRegistrationProvider::_sendEnableMessageToProviderManager(
 
 // send termination message to subscription service
 void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
-    const CIMReference & ref, const String & moduleName)
+    const CIMObjectPath & ref, const String & moduleName)
 {
     CIMInstance instance;
     String _moduleName;
     Array<CIMInstance> instances;
 
-    CIMReference reference("", PEGASUS_NAMESPACENAME_INTEROP, 
+    CIMObjectPath reference("", PEGASUS_NAMESPACENAME_INTEROP, 
 	PEGASUS_CLASSNAME_PROVIDER, ref.getKeyBindings());
  
     // get all registered providers

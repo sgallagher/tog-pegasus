@@ -83,7 +83,7 @@ public:
     // name in the class, returns only that or error if does not exist
     virtual CIMInstance getInstance(
        const String& nameSpace,
-       const CIMReference& instanceName,
+       const CIMObjectPath& instanceName,
        Boolean localOnly = true,
        Boolean includeQualifiers = false,
        Boolean includeClassOrigin = false,
@@ -122,17 +122,17 @@ public:
     }
 
 
-   virtual Array<CIMReference> enumerateInstanceNames(
+   virtual Array<CIMObjectPath> enumerateInstanceNames(
        const String& nameSpace,
        const String& className)
 
    {
        DDD(cout << "**NAMEOFPROVIDER**::EnumerateInstanceNames()" << endl;) 
-       Array<CIMReference> instanceNameRefs;
+       Array<CIMObjectPath> instanceNameRefs;
       
        // ////////ADD CODE HERE FOR Enumerate Instance Names/////
 
-       // Return the Array of CIMReferences Generated
+       // Return the Array of CIMObjectPath Generated
 	return instanceNameRefs;
    }
 
@@ -152,11 +152,11 @@ public:
     {
 	DDD(cout << "**NAMEOFPROVIDER**::enumerateInstance()" << endl;)
 
-	Array<CIMReference> instanceNameRefs;
+	Array<CIMObjectPath> instanceNameRefs;
 
 	// ////////ADD CODE HERE FOR Enumerate Instance Names/////
 
-	// Return the Array of CIMReferences Generated
+	// Return the Array of CIMObjectPath Generated
 	 return instanceNameRefs;
 	      
     }
@@ -176,7 +176,7 @@ public:
     */
     virtual CIMValue getProperty(
 	const String& nameSpace,
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	const String& propertyName)
     {
 	DDD(cout << "**NAMEOFPROVIDER**::getProperty() called"
@@ -194,7 +194,7 @@ public:
     */
     virtual void setProperty(
 	const String& nameSpace,
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	const String& propertyName,
 	const CIMValue& newValue = CIMValue())
     {
@@ -212,7 +212,7 @@ public:
     */
     virtual CIMValue invokeMethod(
 	const String& nameSpace,
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	const String& methodName,
 	const Array<CIMValue>& inParameters,
 	Array<CIMValue>& outParameters)
@@ -236,7 +236,7 @@ public:
     
     Array<CIMInstance> associators(
 	const String& nameSpace,
-	const CIMReference& objectName,
+	const CIMObjectPath& objectName,
 	const String& assocClass,
 	const String& resultClass,
 	const String& role,
@@ -251,9 +251,9 @@ public:
 	return Array<CIMInstance>();
     }
     
-    Array<CIMReference> associatorNames(
+    Array<CIMObjectPath> associatorNames(
 	const String& nameSpace,
-	const CIMReference& objectName,
+	const CIMObjectPath& objectName,
 	const String& assocClass,
 	const String& resultClass,
 	const String& role,
@@ -262,12 +262,12 @@ public:
 	DDD(cout << "**NAMEOFPROVIDER**::associatorNames() called" << endl;)
 	
 	throw CIMException(CIMException::NOT_SUPPORTED);
-	return Array<CIMReference>();
+	return Array<CIMObjectPath>();
     }
     
     Array<CIMInstance> references(
 	const String& nameSpace,
-	const CIMReference& objectName,
+	const CIMObjectPath& objectName,
 	const String& resultClass,
 	const String& role,
 	Boolean includeQualifiers,
@@ -280,16 +280,16 @@ public:
 	return Array<CIMInstance>();
     }
     
-    Array<CIMReference>referenceNames(
+    Array<CIMObjectPath>referenceNames(
 	const String& nameSpace,
-	const CIMReference& objectName,
+	const CIMObjectPath& objectName,
 	const String& resultClass,
 	const String& role)
     { 
 	DDD(cout << "**NAMEOFPROVIDER**::referenceNames() called" << endl;)
 	
 	throw CIMException(CIMException::NOT_SUPPORTED);
-	return Array<CIMReference>();
+	return Array<CIMObjectPath>();
     }
 
 

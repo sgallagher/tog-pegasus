@@ -33,7 +33,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/System.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 //#include <Pegasus/Common/Exception.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -237,7 +237,7 @@ void CIMOMHandle::enumerateClassNamesAsync(
     const String& nameSpace,
     const String& className,
     Boolean deepInheritance,
-    ResponseHandler<CIMReference> & handler)
+    ResponseHandler<CIMObjectPath> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
@@ -333,7 +333,7 @@ void CIMOMHandle::deleteClassAsync(
 CIMInstance CIMOMHandle::getInstance(
     const OperationContext & context,
     const String& nameSpace,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
@@ -410,7 +410,7 @@ CIMInstance CIMOMHandle::getInstance(
 void CIMOMHandle::getInstanceAsync(
     const OperationContext & context,
     const String& nameSpace,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
@@ -521,7 +521,7 @@ void CIMOMHandle::enumerateInstancesAsync(
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
-Array<CIMReference> CIMOMHandle::enumerateInstanceNames(
+Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
     const OperationContext & context,
     const String& nameSpace,
     const String& className)
@@ -576,9 +576,7 @@ Array<CIMReference> CIMOMHandle::enumerateInstanceNames(
     CIMEnumerateInstanceNamesResponseMessage * response =
        reinterpret_cast<CIMEnumerateInstanceNamesResponseMessage *>(
 	  (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-    Array<CIMReference> cimReferences = response->instanceNames;
-
+    Array<CIMObjectPath> cimReferences = response->instanceNames;
     //_service->return_op(op);
 
     delete asyncRequest;
@@ -593,12 +591,12 @@ void CIMOMHandle::enumerateInstanceNamesAsync(
     const OperationContext & context,
     const String& nameSpace,
     const String& className,
-    ResponseHandler<CIMReference> & handler)
+    ResponseHandler<CIMObjectPath> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
-CIMReference CIMOMHandle::createInstance(
+CIMObjectPath CIMOMHandle::createInstance(
     const OperationContext & context,
     const String& nameSpace,
     const CIMInstance& newInstance)
@@ -615,7 +613,7 @@ CIMReference CIMOMHandle::createInstance(
 	    newInstance,
 	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
-    CIMReference cimReference;
+    CIMObjectPath cimReference;
 
     return(cimReference);
 }
@@ -667,7 +665,7 @@ void CIMOMHandle::modifyInstanceAsync(
 void CIMOMHandle::deleteInstance(
     const OperationContext & context,
     const String& nameSpace,
-    const CIMReference& instanceName)
+    const CIMObjectPath& instanceName)
 {
     if((_service == 0) || (_cimom == 0))
     {
@@ -687,7 +685,7 @@ void CIMOMHandle::deleteInstance(
 void CIMOMHandle::deleteInstanceAsync(
     const OperationContext & context,
     const String& nameSpace,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     ResponseHandler<CIMInstance> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
@@ -730,7 +728,7 @@ void CIMOMHandle::execQueryAsync(
 Array<CIMObject> CIMOMHandle::associators(
     const OperationContext & context,
     const String& nameSpace,
-    const CIMReference& objectName,
+    const CIMObjectPath& objectName,
     const String& assocClass,
     const String& resultClass,
     const String& role,
@@ -766,7 +764,7 @@ Array<CIMObject> CIMOMHandle::associators(
 void CIMOMHandle::associatorsAsync(
     const OperationContext & context,
     const String& nameSpace,
-    const CIMReference& objectName,
+    const CIMObjectPath& objectName,
     const String& assocClass,
     const String& resultClass,
     const String& role,
@@ -779,10 +777,10 @@ void CIMOMHandle::associatorsAsync(
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
-Array<CIMReference> CIMOMHandle::associatorNames(
+Array<CIMObjectPath> CIMOMHandle::associatorNames(
     const OperationContext & context,
     const String& nameSpace,
-    const CIMReference& objectName,
+    const CIMObjectPath& objectName,
     const String& assocClass,
     const String& resultClass,
     const String& role,
@@ -812,12 +810,12 @@ Array<CIMReference> CIMOMHandle::associatorNames(
 void CIMOMHandle::associatorNamesAsync(
     const OperationContext & context,
     const String& nameSpace,
-    const CIMReference& objectName,
+    const CIMObjectPath& objectName,
     const String& assocClass,
     const String& resultClass,
     const String& role,
     const String& resultRole,
-    ResponseHandler<CIMReference> & handler)
+    ResponseHandler<CIMObjectPath> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
@@ -825,7 +823,7 @@ void CIMOMHandle::associatorNamesAsync(
 Array<CIMObject> CIMOMHandle::references(
     const OperationContext & context,
     const String& nameSpace,
-    const CIMReference& objectName,
+    const CIMObjectPath& objectName,
     const String& resultClass,
     const String& role,
     Boolean includeQualifiers,
@@ -857,7 +855,7 @@ Array<CIMObject> CIMOMHandle::references(
 void CIMOMHandle::referencesAsync(
     const OperationContext & context,
     const String& nameSpace,
-    const CIMReference& objectName,
+    const CIMObjectPath& objectName,
     const String& resultClass,
     const String& role,
     Boolean includeQualifiers,
@@ -868,10 +866,10 @@ void CIMOMHandle::referencesAsync(
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
-Array<CIMReference> CIMOMHandle::referenceNames(
+Array<CIMObjectPath> CIMOMHandle::referenceNames(
     const OperationContext & context,
     const String& nameSpace,
-    const CIMReference& objectName,
+    const CIMObjectPath& objectName,
     const String& resultClass,
     const String& role)
 {
@@ -897,10 +895,10 @@ Array<CIMReference> CIMOMHandle::referenceNames(
 void CIMOMHandle::referenceNamesAsync(
     const OperationContext & context,
     const String& nameSpace,
-    const CIMReference& objectName,
+    const CIMObjectPath& objectName,
     const String& resultClass,
     const String& role,
-    ResponseHandler<CIMReference> & handler)
+    ResponseHandler<CIMObjectPath> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
@@ -908,7 +906,7 @@ void CIMOMHandle::referenceNamesAsync(
 CIMValue CIMOMHandle::getProperty(
     const OperationContext & context,
     const String& nameSpace,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     const String& propertyName)
 {
     if((_service == 0) || (_cimom == 0))
@@ -932,7 +930,7 @@ CIMValue CIMOMHandle::getProperty(
 void CIMOMHandle::getPropertyAsync(
     const OperationContext & context,
     const String& nameSpace,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     const String& propertyName,
     ResponseHandler<CIMValue> & handler)
 {
@@ -942,7 +940,7 @@ void CIMOMHandle::getPropertyAsync(
 void CIMOMHandle::setProperty(
     const OperationContext & context,
     const String& nameSpace,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     const String& propertyName,
     const CIMValue& newValue)
 {
@@ -966,7 +964,7 @@ void CIMOMHandle::setProperty(
 void CIMOMHandle::setPropertyAsync(
     const OperationContext & context,
     const String& nameSpace,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     const String& propertyName,
     const CIMValue& newValue,
     ResponseHandler<CIMValue> & handler)
@@ -978,7 +976,7 @@ void CIMOMHandle::setPropertyAsync(
 CIMValue CIMOMHandle::invokeMethod(
     const OperationContext & context,
     const String& nameSpace,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     const String& methodName,
     const Array<CIMParamValue>& inParameters,
     Array<CIMParamValue>& outParameters)
@@ -1002,7 +1000,7 @@ CIMValue CIMOMHandle::invokeMethod(
 void CIMOMHandle::invokeMethodAsync(
     const OperationContext & context,
     const String& nameSpace,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     const String& methodName,
     const Array<CIMParamValue>& inParameters,
     Array<CIMParamValue>& outParameters,

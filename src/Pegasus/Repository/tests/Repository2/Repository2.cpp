@@ -140,7 +140,7 @@ void TestCreateClass()
 
     // -- Enumerate instances names:
 
-    Array<CIMReference> instanceNames = 
+    Array<CIMObjectPath> instanceNames = 
 	r.enumerateInstanceNames(NS, "MyClass");
 
     assert(instanceNames.size() == 2);

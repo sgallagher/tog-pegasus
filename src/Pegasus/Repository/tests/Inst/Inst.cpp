@@ -44,61 +44,61 @@ void _Test01()
     size = 1427;
     index = 0;
     Boolean result = InstanceIndexFile::createEntry(PATH, 
-	CIMReference("X.key1=1001,key2=\"Hello World 1\""), index, size);
+	CIMObjectPath("X.key1=1001,key2=\"Hello World 1\""), index, size);
     assert(result);
 
     size = 1433;
     index = 1427;
     result = InstanceIndexFile::createEntry(PATH, 
-	CIMReference("X.key1=1002,key2=\"Hello World 2\""), index, size);
+	CIMObjectPath("X.key1=1002,key2=\"Hello World 2\""), index, size);
     assert(result);
 
     size = 1428;
     index = 2860;
     result = InstanceIndexFile::createEntry(PATH, 
-	CIMReference("X.key1=1003,key2=\"Hello World 3\""), index, size);
+	CIMObjectPath("X.key1=1003,key2=\"Hello World 3\""), index, size);
     assert(result);
 
     size = 1433;
     index = 4288;
     result = InstanceIndexFile::createEntry(PATH, 
-	CIMReference("X.key1=1004,key2=\"Hello World 4\""), index, size);
+	CIMObjectPath("X.key1=1004,key2=\"Hello World 4\""), index, size);
     assert(result);
 
     size = 1431;
     index = 5721;
     result = InstanceIndexFile::createEntry(PATH, 
-	CIMReference("X.key1=1005,key2=\"Hello World 5\""), index, size);
+	CIMObjectPath("X.key1=1005,key2=\"Hello World 5\""), index, size);
     assert(result);
 
     // delete the 3rd entry
     result = InstanceIndexFile::deleteEntry(PATH, 
-          CIMReference("X.key2=\"Hello World 3\",key1=1003"), freeCount);
+          CIMObjectPath("X.key2=\"Hello World 3\",key1=1003"), freeCount);
     assert(result);
 
     // create a new entry
     size = 1428;
     index = 2860;
     result = InstanceIndexFile::createEntry(
-	PATH, CIMReference("X.key1=1003,key2=\"Hello World 3\""), 
+	PATH, CIMObjectPath("X.key1=1003,key2=\"Hello World 3\""), 
 	index, size);
     assert(result);
 
     // delete the newly created entry
     result = InstanceIndexFile::deleteEntry(PATH, 
-          CIMReference("X.key2=\"Hello World 3\",key1=1003"), freeCount);
+          CIMObjectPath("X.key2=\"Hello World 3\",key1=1003"), freeCount);
     assert(result);
 
     // delete the first entry
     result = InstanceIndexFile::deleteEntry(PATH, 
-	CIMReference("X.key1=1001,key2=\"Hello World 1\""), freeCount);
+	CIMObjectPath("X.key1=1001,key2=\"Hello World 1\""), freeCount);
     assert(result);
 
     // modify the 5th entry
     size = 9999;
     index = 8888;
     result = InstanceIndexFile::modifyEntry(PATH, 
-	CIMReference("X.key1=1005,key2=\"Hello World 5\""), 
+	CIMObjectPath("X.key1=1005,key2=\"Hello World 5\""), 
 	index, size, freeCount);
     assert(result);
 
@@ -112,7 +112,7 @@ void _Test01()
 	Array<Uint32> freeFlags;
 	Array<Uint32> indices;
 	Array<Uint32> sizes;
-	Array<CIMReference> instanceNames;
+	Array<CIMObjectPath> instanceNames;
 
 	Boolean flag = InstanceIndexFile::enumerateEntries(
 	    PATH, freeFlags, indices, sizes, instanceNames, true);
@@ -142,7 +142,7 @@ void _Test01()
 	Array<Uint32> freeFlags;
 	Array<Uint32> indices;
 	Array<Uint32> sizes;
-	Array<CIMReference> instanceNames;
+	Array<CIMObjectPath> instanceNames;
 
         Boolean flag = InstanceIndexFile::enumerateEntries(
             PATH, freeFlags, indices, sizes, instanceNames, true);

@@ -225,7 +225,7 @@ void AssocInstTable::append(
 
 Boolean AssocInstTable::deleteAssociation(
     const String& path,
-    const CIMReference& assocInstanceName)
+    const CIMObjectPath& assocInstanceName)
 {
     // Open input file:
 
@@ -276,7 +276,7 @@ Boolean AssocInstTable::deleteAssociation(
 
 Boolean AssocInstTable::getAssociatorNames(
     const String& path,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     const String& assocClass,
     const String& resultClass,
     const String& role,
@@ -313,7 +313,7 @@ Boolean AssocInstTable::getAssociatorNames(
 
 Boolean AssocInstTable::getReferenceNames(
     const String& path,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     const String& resultClass,
     const String& role,
     Array<String>& referenceNames)

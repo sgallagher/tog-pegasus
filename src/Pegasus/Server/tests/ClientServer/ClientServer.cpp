@@ -192,8 +192,8 @@ static void TestInstanceOperations(CIMClient& client)
 
     // Get the instance and compare with created one:
 
-    CIMReference ref;
-    CIMReference::instanceNameToReference(instanceName, ref);
+    CIMObjectPath ref;
+    CIMObjectPath::instanceNameToReference(instanceName, ref);
     CIMInstance tmp = client.getInstance(NAMESPACE, ref);
 
     // cimInstance.print();

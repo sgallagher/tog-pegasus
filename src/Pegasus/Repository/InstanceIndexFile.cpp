@@ -188,7 +188,7 @@ static Boolean _GetNextRecord(
 
 Boolean InstanceIndexFile::lookupEntry(
     const String& path, 
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     Uint32& indexOut,
     Uint32& sizeOut)
 {
@@ -215,7 +215,7 @@ Boolean InstanceIndexFile::lookupEntry(
 
 Boolean InstanceIndexFile::createEntry(
     const String& path, 
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     Uint32 indexIn,
     Uint32 sizeIn)
 {
@@ -270,7 +270,7 @@ Boolean InstanceIndexFile::createEntry(
 
 Boolean InstanceIndexFile::deleteEntry(
     const String& path, 
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     Uint32& freeCount)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceIndexFile::deleteEntry()");
@@ -323,7 +323,7 @@ Boolean InstanceIndexFile::deleteEntry(
 
 Boolean InstanceIndexFile::modifyEntry(
     const String& path, 
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     Uint32 indexIn,
     Uint32 sizeIn,
     Uint32& freeCount)
@@ -389,7 +389,7 @@ Boolean InstanceIndexFile::enumerateEntries(
     Array<Uint32>& freeFlags,
     Array<Uint32>& indices,
     Array<Uint32>& sizes,
-    Array<CIMReference>& instanceNames,
+    Array<CIMObjectPath>& instanceNames,
     Boolean includeFreeEntries)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceIndexFile::enumerateEntries()");
@@ -564,7 +564,7 @@ Boolean InstanceIndexFile::_openFile(
 
 Boolean InstanceIndexFile::_appendEntry(
     PEGASUS_STD(fstream)& fs,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     Uint32 indexIn,
     Uint32 sizeIn)
 {
@@ -600,7 +600,7 @@ Boolean InstanceIndexFile::_appendEntry(
 
 Boolean InstanceIndexFile::_markEntryFree(
     PEGASUS_STD(fstream)& fs,
-    const CIMReference& instanceName)
+    const CIMObjectPath& instanceName)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceIndexFile::_markEntryFree()");
 
@@ -640,7 +640,7 @@ Boolean InstanceIndexFile::_markEntryFree(
 
 Boolean InstanceIndexFile::_lookupEntry(
     PEGASUS_STD(fstream)& fs,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     Uint32& indexOut,
     Uint32& sizeOut,
     Uint32& entryOffset)
@@ -667,7 +667,7 @@ Boolean InstanceIndexFile::_lookupEntry(
     {
 	if (freeFlag == 0 &&
 	    hashCode == targetHashCode &&
-	    CIMReference(instanceNameTmp) == instanceName)
+	    CIMObjectPath(instanceNameTmp) == instanceName)
 	{
 	    indexOut = index;
 	    sizeOut = size;
@@ -807,7 +807,7 @@ Boolean InstanceIndexFile::hasNonFreeEntries(const String& path)
     Array<Uint32> freeFlags;
     Array<Uint32> indices;
     Array<Uint32> sizes;
-    Array<CIMReference> instanceNames;
+    Array<CIMObjectPath> instanceNames;
 
     if (!InstanceIndexFile::enumerateEntries(
 	path, freeFlags, indices, sizes, instanceNames, false))

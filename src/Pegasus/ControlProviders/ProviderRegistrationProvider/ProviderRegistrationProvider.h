@@ -87,26 +87,26 @@ ProviderRegistrationProvider & operator=(const ProviderRegistrationProvider & ha
     // CIMInstanceProvider interface
     virtual void getInstance(
         const OperationContext & context,
-        const CIMReference & instanceReference,
+        const CIMObjectPath & instanceReference,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
         ResponseHandler<CIMInstance> & handler);
 
     virtual void enumerateInstances(
         const OperationContext & context,
-        const CIMReference & classReference,
+        const CIMObjectPath & classReference,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
         ResponseHandler<CIMInstance> & handler);
 
     virtual void enumerateInstanceNames(
         const OperationContext & context,
-        const CIMReference & classReference,
-        ResponseHandler<CIMReference> & handler);
+        const CIMObjectPath & classReference,
+        ResponseHandler<CIMObjectPath> & handler);
 
     virtual void modifyInstance(
         const OperationContext & context,
-        const CIMReference & instanceReference,
+        const CIMObjectPath & instanceReference,
         const CIMInstance & instanceObject,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
@@ -114,19 +114,19 @@ ProviderRegistrationProvider & operator=(const ProviderRegistrationProvider & ha
 
     virtual void createInstance(
         const OperationContext & context,
-        const CIMReference & instanceReference,
+        const CIMObjectPath & instanceReference,
         const CIMInstance & instanceObject,
-        ResponseHandler<CIMReference> & handler);
+        ResponseHandler<CIMObjectPath> & handler);
 
     virtual void deleteInstance(
         const OperationContext & context,
-        const CIMReference & instanceReference,
+        const CIMObjectPath & instanceReference,
         ResponseHandler<CIMInstance> & handler);
 
     // CIMMethodProvider interface
     virtual void invokeMethod(
         const OperationContext & context,
-        const CIMReference & objectReference,
+        const CIMObjectPath & objectReference,
         const String & methodName,
         const Array<CIMParamValue> & inParameters,
         Array<CIMParamValue> & outParameters,
@@ -147,7 +147,7 @@ protected:
 	CIMEnableModuleRequestMessage * notify_req);
     MessageQueueService * _getIndicationService();
     void _sendTerminationMessageToSubscription(
-	const CIMReference & ref, const String & moduleName);
+	const CIMObjectPath & ref, const String & moduleName);
 };
 
 PEGASUS_NAMESPACE_END

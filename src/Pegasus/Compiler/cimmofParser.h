@@ -196,7 +196,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   void addInstanceAlias(const String &alias, const CIMInstance *cd, 
 		Boolean isInstance);
   // Called when a reference declaration is found
-  CIMReference *newReference(const objectName &oname);
+  CIMObjectPath *newReference(const objectName &oname);
   // Make a clone of a property object, inserting a new value object
   CIMProperty *copyPropertyWithNewValue(const CIMProperty &p,
 					const CIMValue &v) const;

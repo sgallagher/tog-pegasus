@@ -95,7 +95,7 @@ void OSTestClient::testLog(const String& message)
 /**
    _validateKeys method of the OS provider Test Client
   */
-void OSTestClient::_validateKeys(CIMReference &cimRef, 
+void OSTestClient::_validateKeys(CIMObjectPath &cimRef, 
                                  Boolean verboseTest)
 {
    // don't have a try here - want it to be caught by caller
@@ -509,7 +509,7 @@ void OSTestClient::testEnumerateInstanceNames(CIMClient &client,
 
       testLog("OS Provider Test Start EnumerateInstanceNames");
       
-      Array<CIMReference> cimReferences = 
+      Array<CIMObjectPath> cimReferences = 
 	    client.enumerateInstanceNames(NAMESPACE, CLASSNAME);
  
       numberInstances = cimReferences.size();
@@ -564,7 +564,7 @@ void OSTestClient::testEnumerateInstances(CIMClient &client,
 	cout << numberInstances << " instances of PG_OperatingSystem" <<endl;
       for (Uint32 i = 0; i < cimNInstances.size(); i++)
       {
-         CIMReference instanceRef = cimNInstances[i].getInstanceName();
+         CIMObjectPath instanceRef = cimNInstances[i].getInstanceName();
          //String instanceRef = cimNInstances[i].getInstanceName().toString();
          if (verboseTest)
              cout<<"Instance ClassName is "<<instanceRef.getClassName()<<endl; 
@@ -593,7 +593,7 @@ void OSTestClient::testEnumerateInstances(CIMClient &client,
 void OSTestClient::testGetInstance (CIMClient &client,
                                     Boolean verboseTest)
 {
-  CIMReference  getTestRef;    //  will need an instance for Get
+  CIMObjectPath  getTestRef;    //  will need an instance for Get
   
   try
     {
@@ -605,7 +605,7 @@ void OSTestClient::testGetInstance (CIMClient &client,
       // first do an EnumerateInstanceNames - select one to play with 
       // doesn't hurt to keep testing enumerate :-)
  
-      Array<CIMReference> cimReferences = 
+      Array<CIMObjectPath> cimReferences = 
 	    client.enumerateInstanceNames(NAMESPACE, CLASSNAME);
  
       Uint32 numberInstances = cimReferences.size();

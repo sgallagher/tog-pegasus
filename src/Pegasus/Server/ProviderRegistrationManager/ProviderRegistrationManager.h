@@ -84,21 +84,21 @@ public:
 		Array<CIMInstance> & provider,
 		Array<CIMInstance> & providerModule); 
 
-	CIMInstance getInstance(const CIMReference & ref);
+	CIMInstance getInstance(const CIMObjectPath & ref);
 
-	Array<CIMNamedInstance> enumerateInstances(const CIMReference & ref);
+	Array<CIMNamedInstance> enumerateInstances(const CIMObjectPath & ref);
 
-	Array<CIMReference> enumerateInstanceNames(const CIMReference & ref);
+	Array<CIMObjectPath> enumerateInstanceNames(const CIMObjectPath & ref);
 
-	void modifyInstance(const CIMReference & ref, 
+	void modifyInstance(const CIMObjectPath & ref, 
 			    const CIMInstance & instance,
 			    const Uint32 flags,
 			    const Array<String> & propertyList);
 
-	CIMReference createInstance(const CIMReference & ref, 
+	CIMObjectPath createInstance(const CIMObjectPath & ref, 
 		const CIMInstance & instance);
 
-	void deleteInstance(const CIMReference & ref);
+	void deleteInstance(const CIMObjectPath & ref);
 
 	Array<Uint16> getProviderModuleStatus(const String & providerModuleName);
 
@@ -157,10 +157,10 @@ private:
 	void _sendModifyNotifyMessage(const CIMInstance & instance,
 				      const CIMInstance & origInstance);
 
-	CIMReference _createInstance(const CIMReference & ref, 
+	CIMObjectPath _createInstance(const CIMObjectPath & ref, 
 		const CIMInstance & instance, Operation flag);
 
-	void _deleteInstance(const CIMReference & ref, Operation flag);
+	void _deleteInstance(const CIMObjectPath & ref, Operation flag);
 
 };
 

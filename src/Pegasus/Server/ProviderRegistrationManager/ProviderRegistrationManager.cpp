@@ -715,7 +715,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 
 // get registered provider
 CIMInstance ProviderRegistrationManager::getInstance(
-    const CIMReference & instanceReference)
+    const CIMObjectPath & instanceReference)
 {
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
@@ -724,7 +724,7 @@ CIMInstance ProviderRegistrationManager::getInstance(
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
 		     "ProviderRegistrationManager::getInstance");
 
-    CIMReference localReference("", "",
+    CIMObjectPath localReference("", "",
 	instanceReference.getClassName(),
 	instanceReference.getKeyBindings());
 
@@ -761,7 +761,7 @@ CIMInstance ProviderRegistrationManager::getInstance(
 
 // get all registered providers
 Array<CIMNamedInstance> ProviderRegistrationManager::enumerateInstances(
-    const CIMReference & ref)
+    const CIMObjectPath & ref)
 {
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
@@ -805,8 +805,8 @@ Array<CIMNamedInstance> ProviderRegistrationManager::enumerateInstances(
 }
 
 // get all registered provider names
-Array<CIMReference> ProviderRegistrationManager::enumerateInstanceNames(
-    const CIMReference & ref)
+Array<CIMObjectPath> ProviderRegistrationManager::enumerateInstanceNames(
+    const CIMObjectPath & ref)
 {
 
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
@@ -816,7 +816,7 @@ Array<CIMReference> ProviderRegistrationManager::enumerateInstanceNames(
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
 		     "ProviderRegistrationManager::enumerateInstanceNames");
 
-    Array<CIMReference> enumInstanceNames;
+    Array<CIMObjectPath> enumInstanceNames;
 
     _repository->read_lock();
 
@@ -852,14 +852,14 @@ Array<CIMReference> ProviderRegistrationManager::enumerateInstanceNames(
 }
 
 // register a provider
-CIMReference ProviderRegistrationManager::createInstance(
-    const CIMReference & ref,
+CIMObjectPath ProviderRegistrationManager::createInstance(
+    const CIMObjectPath & ref,
     const CIMInstance & instance)
 {
 
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
-    CIMReference cimRef;
+    CIMObjectPath cimRef;
 
     try
     {
@@ -882,7 +882,7 @@ CIMReference ProviderRegistrationManager::createInstance(
 
 // Unregister a provider
 void ProviderRegistrationManager::deleteInstance(
-    const CIMReference & instanceReference)
+    const CIMObjectPath & instanceReference)
 {
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
@@ -909,7 +909,7 @@ void ProviderRegistrationManager::deleteInstance(
 
 // modify a registered provider
 void ProviderRegistrationManager::modifyInstance(
-    const CIMReference & ref,
+    const CIMObjectPath & ref,
     const CIMInstance & cimInstance,
     const Uint32 flags,
     const Array<String> & propertyList)
@@ -921,7 +921,7 @@ void ProviderRegistrationManager::modifyInstance(
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
                      "ProviderRegistrationManager::modifyInstance");
 
-    CIMReference newInstanceRef("", "", ref.getClassName(), ref.getKeyBindings());
+    CIMObjectPath newInstanceRef("", "", ref.getClassName(), ref.getKeyBindings());
 
     CIMInstance givenInstance = cimInstance;
 	
@@ -1048,7 +1048,7 @@ void ProviderRegistrationManager::modifyInstance(
 	//
 	// create the new instance
 	//
-	CIMReference cimRef = _createInstance(ref, instance, OP_MODIFY);
+	CIMObjectPath cimRef = _createInstance(ref, instance, OP_MODIFY);
 
 	//
 	// if only modify SupportedMethods, do not send notification to
@@ -1131,7 +1131,7 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
     Array<Uint16> status)
 {
     CIMInstance instance;
-    CIMReference reference;
+    CIMObjectPath reference;
     Array<CIMNamedInstance> cimNamedInstances;
     String _providerModuleName;
 
@@ -1163,11 +1163,11 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
 	    if (String::equalNoCase(providerModuleName, _providerModuleName))
 	    {
 		//
-		// get CIMReference
+		// get CIMObjectPath
 		//
 		reference = cimNamedInstances[i].getInstanceName();	
 
-		CIMReference newInstancereference("", "",
+		CIMObjectPath newInstancereference("", "",
 		    reference.getClassName(),
 		    reference.getKeyBindings());
 
@@ -1506,15 +1506,15 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 }
 
 // register a provider
-CIMReference ProviderRegistrationManager::_createInstance(
-    const CIMReference & ref,
+CIMObjectPath ProviderRegistrationManager::_createInstance(
+    const CIMObjectPath & ref,
     const CIMInstance & instance,
     Operation flag)
 {
 
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
-    CIMReference cimRef;
+    CIMObjectPath cimRef;
 
     String _providerModule;
     String _providerName;
@@ -1949,17 +1949,17 @@ CIMReference ProviderRegistrationManager::_createInstance(
 
 // Unregister a provider
 void ProviderRegistrationManager::_deleteInstance(
-    const CIMReference & instanceReference,
+    const CIMObjectPath & instanceReference,
     Operation flag)
 {
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
-    CIMReference cimRef;
+    CIMObjectPath cimRef;
 
     String className = instanceReference.getClassName();
     String providerName;
 
-    CIMReference newInstancereference("", "",
+    CIMObjectPath newInstancereference("", "",
 	instanceReference.getClassName(),
 	instanceReference.getKeyBindings());
 
@@ -2084,7 +2084,7 @@ void ProviderRegistrationManager::_deleteInstance(
         if(String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDER))
         {
 	    CIMInstance capInstance;
-	    CIMReference capReference;
+	    CIMObjectPath capReference;
 	    String _providerName;
 	    String _moduleName;
   	    Array<Uint16> providerType;
@@ -2149,7 +2149,7 @@ void ProviderRegistrationManager::_deleteInstance(
 		    //
 		    capReference = enumCapInstances[i].getInstanceName(); 
 
-    		    CIMReference newCapReference("", "",
+    		    CIMObjectPath newCapReference("", "",
 			capReference.getClassName(),
 			capReference.getKeyBindings());
 
@@ -2272,7 +2272,7 @@ void ProviderRegistrationManager::_deleteInstance(
 	    for (Uint32 i = 0, n = enumProviderInstances.size(); i < n; i++)
 	    {
 		CIMInstance providerInstance;
-		CIMReference providerReference;
+		CIMObjectPath providerReference;
 		String _providerModuleName;
 
 		providerInstance = enumProviderInstances[i].getInstance();
@@ -2292,7 +2292,7 @@ void ProviderRegistrationManager::_deleteInstance(
 		    //
 		    providerReference = enumProviderInstances[i].getInstanceName(); 
 
-    		    CIMReference newProviderReference("", "",
+    		    CIMObjectPath newProviderReference("", "",
 			providerReference.getClassName(),
 			providerReference.getKeyBindings());
 
@@ -2313,7 +2313,7 @@ void ProviderRegistrationManager::_deleteInstance(
 	    for (Uint32 i = 0, n = enumCapInstances.size(); i < n; i++)
 	    {
 		CIMInstance capInstance;
-		CIMReference capReference;
+		CIMObjectPath capReference;
 		String _providerModuleName;
 		Array<Uint16> providerType;
 
@@ -2334,7 +2334,7 @@ void ProviderRegistrationManager::_deleteInstance(
 		    //
 		    capReference = enumCapInstances[i].getInstanceName(); 
 
-    		    CIMReference newCapReference("", "",
+    		    CIMObjectPath newCapReference("", "",
 			capReference.getClassName(),
 			capReference.getKeyBindings());
 

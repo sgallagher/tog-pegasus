@@ -35,7 +35,7 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMPropertyList.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMInstance.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -82,7 +82,7 @@ public:
     */
     virtual void getInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler) = 0;
@@ -121,7 +121,7 @@ public:
     */
     virtual void enumerateInstances(
 	const OperationContext & context,
-	const CIMReference & classReference,
+	const CIMObjectPath & classReference,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler) = 0;
@@ -155,8 +155,8 @@ public:
     */
     virtual void enumerateInstanceNames(
 	const OperationContext & context,
-	const CIMReference & classReference,
-	ResponseHandler<CIMReference> & handler) = 0;
+	const CIMObjectPath & classReference,
+	ResponseHandler<CIMObjectPath> & handler) = 0;
 
     /**
     The <TT>modifyInstance</TT> method replaces the current instance specified in the
@@ -195,7 +195,7 @@ public:
     */
     virtual void modifyInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
@@ -225,9 +225,9 @@ public:
     */
     virtual void createInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
-	ResponseHandler<CIMReference> & handler) = 0;
+	ResponseHandler<CIMObjectPath> & handler) = 0;
 
     /**
     Instructs the provider to delete the instance specified by the instanceReference parameter.
@@ -247,7 +247,7 @@ public:
     */
     virtual void deleteInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	ResponseHandler<CIMInstance> & handler) = 0;
 };
 

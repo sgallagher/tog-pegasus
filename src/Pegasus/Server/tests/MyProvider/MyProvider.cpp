@@ -59,7 +59,7 @@ public:
 
     virtual CIMInstance getInstance(
 	const String& nameSpace,
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	Boolean localOnly = true,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
@@ -76,14 +76,14 @@ public:
 	return instance;
     }
 
-    Array<CIMReference> enumerateInstanceNames(
+    Array<CIMObjectPath> enumerateInstanceNames(
 	const String& nameSpace,
 	const String& className) 
     {
-	Array<CIMReference> instanceNames;
+	Array<CIMObjectPath> instanceNames;
 
-	CIMReference ref1 = "Process.pid=777";
-	CIMReference ref2 = "Process.pid=888";
+	CIMObjectPath ref1 = "Process.pid=777";
+	CIMObjectPath ref2 = "Process.pid=888";
 
 	instanceNames.append(ref1);
 	instanceNames.append(ref2);
@@ -92,7 +92,7 @@ public:
     }
     virtual CIMValue getProperty(
 	    const String& nameSpace,
-	    const CIMReference& instanceName,
+	    const CIMObjectPath& instanceName,
 	    const String& propertyName)
     {
 
@@ -114,7 +114,7 @@ public:
     }
     virtual void setProperty(
 		const String& nameSpace,
-		const CIMReference& instanceName,
+		const CIMObjectPath& instanceName,
 		const String& propertyName,
 		const CIMValue& newValue)
 	{

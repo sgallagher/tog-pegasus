@@ -228,7 +228,7 @@ CIMClass CIMRepository::getClass(
 
 Boolean CIMRepository::_getInstanceIndex(
     const String& nameSpace,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     String& className,
     Uint32& size,
     Uint32& index,
@@ -251,7 +251,7 @@ Boolean CIMRepository::_getInstanceIndex(
 
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
-        CIMReference tmpInstanceName = instanceName;
+        CIMObjectPath tmpInstanceName = instanceName;
         tmpInstanceName.setClassName(classNames[i]);
 
         // -- Lookup index of instance:
@@ -270,7 +270,7 @@ Boolean CIMRepository::_getInstanceIndex(
 
 CIMInstance CIMRepository::getInstance(
     const String& nameSpace,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
@@ -333,7 +333,7 @@ void CIMRepository::deleteClass(
 
 void CIMRepository::deleteInstance(
     const String& nameSpace,
-    const CIMReference& instanceName)
+    const CIMObjectPath& instanceName)
 {
     String errMessage;
 
@@ -500,7 +500,7 @@ void CIMRepository::_createAssocInstEntries(
     const String& nameSpace,
     const CIMConstClass& cimClass,
     const CIMInstance& cimInstance,
-    const CIMReference& instanceName)
+    const CIMObjectPath& instanceName)
 {
     // Open input file:
 
@@ -536,10 +536,10 @@ void CIMRepository::_createAssocInstEntries(
                 if (toProp.getType() == CIMType::REFERENCE &&
                     fromProp.getName() != toProp.getName())
                 {
-                    CIMReference fromRef;
+                    CIMObjectPath fromRef;
                     fromProp.getValue().get(fromRef);
 
-                    CIMReference toRef;
+                    CIMObjectPath toRef;
                     toProp.getValue().get(toRef);
 
                     String fromObjectName = fromRef.toString();
@@ -565,7 +565,7 @@ void CIMRepository::_createAssocInstEntries(
     }
 }
 
-CIMReference CIMRepository::createInstance(
+CIMObjectPath CIMRepository::createInstance(
     const String& nameSpace,
     const CIMInstance& newInstance)
 {
@@ -576,7 +576,7 @@ CIMReference CIMRepository::createInstance(
 
     CIMConstClass cimClass;
     cimInstance.resolve(_context, nameSpace, cimClass);
-    CIMReference instanceName = cimInstance.getInstanceName(cimClass);
+    CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
 
     // -- Make sure the class has keys (otherwise it will be impossible to
     // -- create the instance.
@@ -871,7 +871,7 @@ void CIMRepository::modifyInstance(
     CIMConstClass cimClass;
     cimInstance.resolve(_context, nameSpace, cimClass);
 
-    CIMReference instanceName = cimInstance.getInstanceName(cimClass);
+    CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
 
     // -- Disallow if instance name is changed by this operation (attempt
     // -- to modify a key property.
@@ -1000,7 +1000,7 @@ Array<CIMNamedInstance> CIMRepository::enumerateInstances(
     return namedInstances;
 }
 
-Array<CIMReference> CIMRepository::enumerateInstanceNames(
+Array<CIMObjectPath> CIMRepository::enumerateInstanceNames(
     const String& nameSpace,
     const String& className)
 {
@@ -1012,7 +1012,7 @@ Array<CIMReference> CIMRepository::enumerateInstanceNames(
 
     // -- Get instance names from each qualifying instance file for the class:
 
-    Array<CIMReference> instanceNames;
+    Array<CIMObjectPath> instanceNames;
     Array<Uint32> indices;
     Array<Uint32> sizes;
 
@@ -1049,7 +1049,7 @@ Array<CIMInstance> CIMRepository::execQuery(
 
 Array<CIMObjectWithPath> CIMRepository::associators(
     const String& nameSpace,
-    const CIMReference& objectName,
+    const CIMObjectPath& objectName,
     const String& assocClass,
     const String& resultClass,
     const String& role,
@@ -1058,7 +1058,7 @@ Array<CIMObjectWithPath> CIMRepository::associators(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    Array<CIMReference> names = associatorNames(
+    Array<CIMObjectPath> names = associatorNames(
         nameSpace,
         objectName,
         assocClass,
@@ -1077,7 +1077,7 @@ Array<CIMObjectWithPath> CIMRepository::associators(
 
         if (names[i].isClassName())
         {
-            CIMReference tmpRef = names[i];
+            CIMObjectPath tmpRef = names[i];
             tmpRef.setHost(String());
             tmpRef.setNameSpace(String());
 
@@ -1094,7 +1094,7 @@ Array<CIMObjectWithPath> CIMRepository::associators(
         }
         else
         {
-            CIMReference tmpRef = names[i];
+            CIMObjectPath tmpRef = names[i];
             tmpRef.setHost(String());
             tmpRef.setNameSpace(String());
 
@@ -1114,9 +1114,9 @@ Array<CIMObjectWithPath> CIMRepository::associators(
     return result;
 }
 
-Array<CIMReference> CIMRepository::associatorNames(
+Array<CIMObjectPath> CIMRepository::associatorNames(
     const String& nameSpace,
-    const CIMReference& objectName,
+    const CIMObjectPath& objectName,
     const String& assocClass,
     const String& resultClass,
     const String& role,
@@ -1151,11 +1151,11 @@ Array<CIMReference> CIMRepository::associatorNames(
             associatorNames);
     }
 
-    Array<CIMReference> result;
+    Array<CIMObjectPath> result;
 
     for (Uint32 i = 0, n = associatorNames.size(); i < n; i++)
     {
-        CIMReference r = associatorNames[i];
+        CIMObjectPath r = associatorNames[i];
 
         if (r.getHost().size() == 0)
             r.setHost(System::getHostName());
@@ -1171,14 +1171,14 @@ Array<CIMReference> CIMRepository::associatorNames(
 
 Array<CIMObjectWithPath> CIMRepository::references(
     const String& nameSpace,
-    const CIMReference& objectName,
+    const CIMObjectPath& objectName,
     const String& resultClass,
     const String& role,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    Array<CIMReference> names = referenceNames(
+    Array<CIMObjectPath> names = referenceNames(
         nameSpace,
         objectName,
         resultClass,
@@ -1196,7 +1196,7 @@ Array<CIMObjectWithPath> CIMRepository::references(
         // ATTN: getInstance() should this be able to handle instance names
         // with host names and namespaces?
 
-        CIMReference tmpRef = names[i];
+        CIMObjectPath tmpRef = names[i];
         tmpRef.setHost(String());
         tmpRef.setNameSpace(String());
 
@@ -1229,9 +1229,9 @@ Array<CIMObjectWithPath> CIMRepository::references(
     return result;
 }
 
-Array<CIMReference> CIMRepository::referenceNames(
+Array<CIMObjectPath> CIMRepository::referenceNames(
     const String& nameSpace,
-    const CIMReference& objectName,
+    const CIMObjectPath& objectName,
     const String& resultClass,
     const String& role)
 {
@@ -1266,11 +1266,11 @@ Array<CIMReference> CIMRepository::referenceNames(
         }
     }
 
-    Array<CIMReference> result;
+    Array<CIMObjectPath> result;
 
     for (Uint32 i = 0, n = tmpReferenceNames.size(); i < n; i++)
     {
-        CIMReference r = tmpReferenceNames[i];
+        CIMObjectPath r = tmpReferenceNames[i];
 
         if (r.getHost().size() == 0)
             r.setHost(System::getHostName());
@@ -1286,7 +1286,7 @@ Array<CIMReference> CIMRepository::referenceNames(
 
 CIMValue CIMRepository::getProperty(
     const String& nameSpace,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     const String& propertyName)
 {
     // -- Get the index for this instance:
@@ -1324,7 +1324,7 @@ CIMValue CIMRepository::getProperty(
 
 void CIMRepository::setProperty(
     const String& nameSpace,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     const String& propertyName,
     const CIMValue& newValue)
 {
@@ -1434,7 +1434,7 @@ Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
 
 CIMValue CIMRepository::invokeMethod(
     const String& nameSpace,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     const String& methodName,
     const Array<CIMValue>& inParameters,
     Array<CIMValue>& outParameters)
@@ -1538,7 +1538,7 @@ Boolean CIMRepository::_loadAllInstances(
     const String& className,
     Array<CIMNamedInstance>& namedInstances)
 {
-    Array<CIMReference> instanceNames;
+    Array<CIMObjectPath> instanceNames;
     Array<Sint8> data;
     Array<Uint32> indices;
     Array<Uint32> sizes;

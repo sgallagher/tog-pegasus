@@ -1148,12 +1148,12 @@ cimmofParser::PropertyValueFromInstance(CIMInstance &instance,
   return value;
 }
   
-CIMReference *
+CIMObjectPath *
 cimmofParser::newReference(const objectName &oname)
 {
-  CIMReference *ref = 0;
+  CIMObjectPath *ref = 0;
   try {
-    ref = new CIMReference(oname.host(), oname.handle(), oname.className(),
+    ref = new CIMObjectPath(oname.host(), oname.handle(), oname.className(),
 			   oname.KeyBindings());
   } catch(Exception &e) {
     cimmofMessages::arglist arglist;

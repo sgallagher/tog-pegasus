@@ -48,13 +48,13 @@ void TestDeleteInstances(ProviderRegistrationManager prmanager)
    KeyBinding kbp2("Name", "PG_ProviderInstance1", KeyBinding::STRING);
    KeyBinding kbm1("Name", "providersModule1", KeyBinding::STRING);
 
-   CIMReference instanceName;
+   CIMObjectPath instanceName;
 
   try
   {
     for (Uint32 i=1; i<=3; i++)
     {
-      CIMReference instanceName2;
+      CIMObjectPath instanceName2;
       Array<KeyBinding> keys2;
       Array<KeyBinding> keysm;
       Array<KeyBinding> keys;
@@ -64,7 +64,7 @@ void TestDeleteInstances(ProviderRegistrationManager prmanager)
       //
       if (i <= 1)
       {
-        CIMReference returnRef;
+        CIMObjectPath returnRef;
         CIMClass cimClass(CLASSNAME);
         CIMInstance cimInstance(CLASSNAME);
 
@@ -87,7 +87,7 @@ void TestDeleteInstances(ProviderRegistrationManager prmanager)
 
     if (i <= 2 )
     {
-    	CIMReference returnRef2;
+    	CIMObjectPath returnRef2;
 
     	CIMClass cimClass2(CLASSNAME2);
 
@@ -121,7 +121,7 @@ void TestDeleteInstances(ProviderRegistrationManager prmanager)
     supportedMethods.append("test_method1");
     supportedMethods.append("test_method2");
 
-    CIMReference returnRef3;
+    CIMObjectPath returnRef3;
 
     CIMClass cimClass3(CLASSNAME3);
 
@@ -135,7 +135,7 @@ void TestDeleteInstances(ProviderRegistrationManager prmanager)
     cimInstance3.addProperty(CIMProperty("ProviderType", providerType));
     cimInstance3.addProperty(CIMProperty("SupportedMethods", supportedMethods));
 
-    CIMReference instanceName3 = cimInstance3.getInstanceName(cimClass3);
+    CIMObjectPath instanceName3 = cimInstance3.getInstanceName(cimClass3);
 
     instanceName3.setNameSpace(NAMESPACE);
     instanceName3.setClassName(CLASSNAME3);

@@ -721,7 +721,7 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(AsyncOpNode *op
 	request->messageId,
 	CIMException(),
 	request->queueIds.copyAndPop(),
-	Array<CIMReference>());
+	Array<CIMObjectPath>());
 
     PEGASUS_ASSERT(response != 0);
 
@@ -799,7 +799,7 @@ void ProviderManagerService::handleCreateInstanceRequest(AsyncOpNode *op, const 
 	request->messageId,
 	CIMException(),
 	request->queueIds.copyAndPop(),
-	CIMReference());
+	CIMObjectPath());
 
     PEGASUS_ASSERT(response != 0);
 
@@ -1105,7 +1105,7 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
 
     PEGASUS_ASSERT(request != 0 && async != 0 );
 
-    Array<CIMReference> cimReferences;
+    Array<CIMObjectPath> cimReferences;
 
     CIMAssociatorNamesResponseMessage * response =
 	new CIMAssociatorNamesResponseMessage(
@@ -1269,7 +1269,7 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
 
             //CIMPropertyList propertyList(request->propertyList);
 
-            //SimpleResponseHandler<CIMReference> handler;
+            //SimpleResponseHandler<CIMObjectPath> handler;
 
 	    STAT_GETSTARTTIME;
 
@@ -1318,7 +1318,7 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
 
     PEGASUS_ASSERT(request != 0 && async != 0 );
 
-    Array<CIMReference> cimReferences;
+    Array<CIMObjectPath> cimReferences;
 
     CIMReferenceNamesResponseMessage * response =
 	new CIMReferenceNamesResponseMessage(
@@ -1723,13 +1723,13 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
 
 	context.insert(IdentityContainer(request->userName));
 	
-	CIMReference subscriptionName = request->subscriptionInstance.getPath();
+	CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 	
-	Array<CIMReference> classNames;
+	Array<CIMObjectPath> classNames;
 
 	for(Uint32 i = 0, n = request->classNames.size(); i < n; i++)
 	{
-	    CIMReference className(
+	    CIMObjectPath className(
 		System::getHostName(),
 		request->nameSpace,
 		request->classNames[i]);
@@ -1806,13 +1806,13 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
 
 	context.insert(IdentityContainer(request->userName));
 	
-	CIMReference subscriptionName = request->subscriptionInstance.getPath();
+	CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 	
-	Array<CIMReference> classNames;
+	Array<CIMObjectPath> classNames;
 
 	for(Uint32 i = 0, n = request->classNames.size(); i < n; i++)
 	{
-	    CIMReference className(
+	    CIMObjectPath className(
 		System::getHostName(),
 		request->nameSpace,
 		request->classNames[i]);
@@ -1889,13 +1889,13 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
 
 	context.insert(IdentityContainer(request->userName));
 	
-	CIMReference subscriptionName = request->subscriptionInstance.getPath();
+	CIMObjectPath subscriptionName = request->subscriptionInstance.getPath();
 	
-	Array<CIMReference> classNames;
+	Array<CIMObjectPath> classNames;
 
 	for(Uint32 i = 0, n = request->classNames.size(); i < n; i++)
 	{
-	    CIMReference className(
+	    CIMObjectPath className(
 		System::getHostName(),
 		request->nameSpace,
 		request->classNames[i]);

@@ -35,7 +35,7 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMPropertyList.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMInstance.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -71,7 +71,7 @@ public:
     */
     virtual void associators(
 	const OperationContext & context,
-	const CIMReference & objectName,
+	const CIMObjectPath & objectName,
 	const String & associationClass,
 	const String & resultClass,
 	const String & role,
@@ -97,12 +97,12 @@ public:
     */
     virtual void associatorNames(
 	const OperationContext & context,
-	const CIMReference & objectName,
+	const CIMObjectPath & objectName,
 	const String & associationClass,
 	const String & resultClass,
 	const String & role,
 	const String & resultRole,
-	ResponseHandler<CIMReference> & handler) = 0;
+	ResponseHandler<CIMObjectPath> & handler) = 0;
 
     /**
     @param contex contains security and locale information relevant for the lifetime
@@ -122,7 +122,7 @@ public:
     */
     virtual void references(
 	const OperationContext & context,
-	const CIMReference & objectName,
+	const CIMObjectPath & objectName,
 	const String & resultClass,
 	const String & role,
 	const Uint32 flags,
@@ -144,10 +144,10 @@ public:
     */
     virtual void referenceNames(
 	const OperationContext & context,
-	const CIMReference & objectName,
+	const CIMObjectPath & objectName,
 	const String & resultClass,
 	const String & role,
-	ResponseHandler<CIMReference> & handler) = 0;
+	ResponseHandler<CIMObjectPath> & handler) = 0;
 };
 
 PEGASUS_NAMESPACE_END

@@ -32,7 +32,7 @@
 #include <iostream>
 #include <fstream>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 
@@ -80,14 +80,14 @@ public:
     */
     static Boolean deleteAssociation(
 	const String& path,
-	const CIMReference& assocInstanceName);
+	const CIMObjectPath& assocInstanceName);
 
     /** Finds all associators of the given object. See 
 	CIMOperations::associators() for a full description.
     */
     static Boolean getAssociatorNames(
 	const String& path,
-	const CIMReference& objectName,
+	const CIMObjectPath& objectName,
         const String& assocClass,
         const String& resultClass,
         const String& role,
@@ -100,7 +100,7 @@ public:
     */
     static Boolean getReferenceNames(
 	const String& path,
-	const CIMReference& objectName,
+	const CIMObjectPath& objectName,
  	const String& resultClass,
  	const String& role,
 	Array<String>& referenceNames);

@@ -41,7 +41,6 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/Constants.h>
 
 #include "AuthorizationHandler.h"

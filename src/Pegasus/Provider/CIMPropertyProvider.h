@@ -33,7 +33,7 @@
 #include <Pegasus/Provider/CIMBaseProvider.h>
 
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMValue.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -70,7 +70,7 @@ public:
     */
     virtual void getProperty(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const String & propertyName,
 	ResponseHandler<CIMValue> & handler) = 0;
 
@@ -95,7 +95,7 @@ public:
     */
     virtual void setProperty(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const String & propertyName,
 	const CIMValue & newValue,
 	ResponseHandler<CIMValue> & handler) = 0;

@@ -55,7 +55,7 @@ OperatingSystemProvider::~OperatingSystemProvider(void)
 
 void
 OperatingSystemProvider::getInstance(const OperationContext& context,
-				     const CIMReference& ref,
+				     const CIMObjectPath& ref,
 				     const Uint32 flags,
 				     const CIMPropertyList& propertyList,
 				     ResponseHandler<CIMInstance> &handler)
@@ -158,7 +158,7 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
 void
 OperatingSystemProvider::enumerateInstances(
       				const OperationContext& context,
-			        const CIMReference& ref,
+			        const CIMObjectPath& ref,
 			        const Uint32 flags,
 			        const CIMPropertyList& propertyList,
 			        ResponseHandler<CIMInstance>& handler)
@@ -189,10 +189,10 @@ OperatingSystemProvider::enumerateInstances(
 void
 OperatingSystemProvider::enumerateInstanceNames(
       				const OperationContext& context,
-			  	const CIMReference &ref,
-			  	ResponseHandler<CIMReference>& handler )
+			  	const CIMObjectPath &ref,
+			  	ResponseHandler<CIMObjectPath>& handler )
 {
-    CIMReference newref;
+    CIMObjectPath newref;
     String className;
 
     // only support enumerate on our subclass, CIMOM will call us as 
@@ -218,7 +218,7 @@ OperatingSystemProvider::enumerateInstanceNames(
 void
 OperatingSystemProvider::modifyInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags,
 			  	const CIMPropertyList& propertyList,
@@ -231,9 +231,9 @@ OperatingSystemProvider::modifyInstance(
 void
 OperatingSystemProvider::createInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	ResponseHandler<CIMReference>& handler )
+			  	ResponseHandler<CIMObjectPath>& handler )
 {
     throw NotSupported("OperatingSystemProvider "
                        "does not support createInstance");
@@ -242,7 +242,7 @@ OperatingSystemProvider::createInstance(
 void
 OperatingSystemProvider::deleteInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	ResponseHandler<CIMInstance>& handler )
 {
     throw NotSupported("OperatingSystemProvider "
@@ -264,7 +264,7 @@ void OperatingSystemProvider::terminate(void)
 
 
 CIMInstance
-OperatingSystemProvider::_build_instance(const CIMReference& objectReference)
+OperatingSystemProvider::_build_instance(const CIMObjectPath& objectReference)
 {
     CIMInstance instance(objectReference.getClassName());
     OperatingSystem os;
@@ -432,7 +432,7 @@ OperatingSystemProvider::_build_instance(const CIMReference& objectReference)
     return instance;
 }
 
-CIMReference
+CIMObjectPath
 OperatingSystemProvider::_fill_reference(const String &nameSpace,
 				         const String &className)
 {
@@ -461,13 +461,13 @@ OperatingSystemProvider::_fill_reference(const String &nameSpace,
         KeyBinding::STRING));
     keys.append(KeyBinding("Name", name, KeyBinding::STRING));
 
-    return CIMReference(csName, nameSpace, className, keys);
+    return CIMObjectPath(csName, nameSpace, className, keys);
 }
 
 
 void OperatingSystemProvider::invokeMethod(
       				const OperationContext& context,
-    				const CIMReference& objectReference,
+    				const CIMObjectPath& objectReference,
 				const String& methodName,
 				const Array<CIMParamValue>& inParameters,
 				Array<CIMParamValue>& outParameters,

@@ -126,9 +126,9 @@ PARAMETERS        :
 ================================================================================
 */
 void ProcessStatProvider::createInstance(const OperationContext       &context,
-                    const CIMReference           &instanceName,
+                    const CIMObjectPath           &instanceName,
                     const CIMInstance            &instanceObject,
-                    ResponseHandler<CIMReference> &handler)
+                    ResponseHandler<CIMObjectPath> &handler)
 
 {
   // There is no useful meaning to creating an instance
@@ -148,7 +148,7 @@ PARAMETERS        :
 ================================================================================
 */
 void ProcessStatProvider::deleteInstance(const OperationContext       &context,
-                    const CIMReference           &instanceReference,
+                    const CIMObjectPath           &instanceReference,
                     ResponseHandler<CIMInstance> &handler)
 
 { 
@@ -172,7 +172,7 @@ PARAMETERS        :
 */
 void ProcessStatProvider::enumerateInstances(
 	const OperationContext & context,
-	const CIMReference & classReference,
+	const CIMObjectPath & classReference,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
@@ -218,8 +218,8 @@ PARAMETERS        :
 ================================================================================
 */
 void ProcessStatProvider::enumerateInstanceNames(const OperationContext &ctx,
-                            const CIMReference &ref,
-                            ResponseHandler<CIMReference> &handler)
+                            const CIMObjectPath &ref,
+                            ResponseHandler<CIMObjectPath> &handler)
 {
   // cout << "ProcessStatProvider::enumerateInstanceNames()" << endl;
 
@@ -279,7 +279,7 @@ void ProcessStatProvider::enumerateInstanceNames(const OperationContext &ctx,
                                   KeyBinding::STRING));
 
     // Deliver the names
-    handler.deliver(CIMReference(String::EMPTY, // hostname
+    handler.deliver(CIMObjectPath(String::EMPTY, // hostname
                                  ns,
                                  CLASS_UNIX_PROCESS_STAT,
                                  keyBindings));
@@ -305,7 +305,7 @@ PARAMETERS        :
 ================================================================================
 */
 void ProcessStatProvider::getInstance(const OperationContext &ctx,
-                 const CIMReference           &instanceName,
+                 const CIMObjectPath           &instanceName,
                  const Uint32                  flags,
                  const CIMPropertyList        &propertyList,
                  ResponseHandler<CIMInstance> &handler)
@@ -451,7 +451,7 @@ PARAMETERS        :
 ================================================================================
 */
 void ProcessStatProvider::modifyInstance(const OperationContext       &context,
-                    const CIMReference           &instanceName,
+                    const CIMObjectPath           &instanceName,
                     const CIMInstance            &instanceObject,
 		    const Uint32                 flags,
 		    const CIMPropertyList        &propertyList,

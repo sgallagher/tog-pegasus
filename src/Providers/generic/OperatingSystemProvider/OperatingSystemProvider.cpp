@@ -54,14 +54,14 @@ void OperatingSystemProvider::terminate(void)
 
 void OperatingSystemProvider::getInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
 	handler.processing();
 
-	Array<CIMReference> cimReferences = _enumerateInstanceNames(context, instanceReference);
+	Array<CIMObjectPath> cimReferences = _enumerateInstanceNames(context, instanceReference);
 	
 	for(Uint32 i = 0, n = cimReferences.size(); i < n; i++)
 	{
@@ -80,7 +80,7 @@ void OperatingSystemProvider::getInstance(
 
 void OperatingSystemProvider::enumerateInstances(
 	const OperationContext & context,
-	const CIMReference & classReference,
+	const CIMObjectPath & classReference,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
@@ -133,7 +133,7 @@ void OperatingSystemProvider::enumerateInstances(
 			false,
 			Array<String>());
 
-		CIMReference instanceName = cimInstance.getInstanceName(cimclass);
+		CIMObjectPath instanceName = cimInstance.getInstanceName(cimclass);
 
 		// ensure references are fully qualified
 		instanceName.setHost(classReference.getHost());
@@ -148,8 +148,8 @@ void OperatingSystemProvider::enumerateInstances(
 
 void OperatingSystemProvider::enumerateInstanceNames(
 	const OperationContext & context,
-	const CIMReference & classReference,
-	ResponseHandler<CIMReference> & handler)
+	const CIMObjectPath & classReference,
+	ResponseHandler<CIMObjectPath> & handler)
 {
 	// begin processing the request
 	handler.processing();
@@ -169,7 +169,7 @@ void OperatingSystemProvider::enumerateInstanceNames(
 	// convert instances to references;
 	for(Uint32 i = 0, n = cimInstances.size(); i < n; i++)
 	{
-		CIMReference instanceReference = cimInstances[i].getInstanceName(cimclass);
+		CIMObjectPath instanceReference = cimInstances[i].getInstanceName(cimclass);
 
 		// ensure references are fully qualified
 		instanceReference.setHost(classReference.getHost());
@@ -185,7 +185,7 @@ void OperatingSystemProvider::enumerateInstanceNames(
 
 void OperatingSystemProvider::modifyInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
@@ -196,16 +196,16 @@ void OperatingSystemProvider::modifyInstance(
 
 void OperatingSystemProvider::createInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
-	ResponseHandler<CIMReference> & handler)
+	ResponseHandler<CIMObjectPath> & handler)
 {
 	throw NotSupported("OperatingSystem::createInstance");
 }
 
 void OperatingSystemProvider::deleteInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	ResponseHandler<CIMInstance> & handler)
 {
 	throw NotSupported("OperatingSystem::deleteInstance");
@@ -213,7 +213,7 @@ void OperatingSystemProvider::deleteInstance(
 
 Array<CIMInstance> OperatingSystemProvider::_enumerateInstances(
 	const OperationContext & context,
-	const CIMReference & classReference)
+	const CIMObjectPath & classReference)
 {
 	SimpleResponseHandler<CIMInstance> handler;
 
@@ -222,11 +222,11 @@ Array<CIMInstance> OperatingSystemProvider::_enumerateInstances(
 	return(handler._objects);
 }
 
-Array<CIMReference> OperatingSystemProvider::_enumerateInstanceNames(
+Array<CIMObjectPath> OperatingSystemProvider::_enumerateInstanceNames(
 	const OperationContext & context,
-	const CIMReference & classReference)
+	const CIMObjectPath & classReference)
 {
-	SimpleResponseHandler<CIMReference> handler;
+	SimpleResponseHandler<CIMObjectPath> handler;
 
 	enumerateInstanceNames(context, classReference, handler);
 

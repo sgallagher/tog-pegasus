@@ -166,13 +166,13 @@ public:
 
 };
 
-class EnumerateInstanceNamesResponseHandler : public OperationResponseHandler<CIMReference>
+class EnumerateInstanceNamesResponseHandler : public OperationResponseHandler<CIMObjectPath>
 {
 public:
     EnumerateInstanceNamesResponseHandler(
 	CIMEnumerateInstanceNamesRequestMessage * request,
 	CIMEnumerateInstanceNamesResponseMessage * response)
-    : OperationResponseHandler<CIMReference>(request, response)
+    : OperationResponseHandler<CIMObjectPath>(request, response)
     {
     }
 
@@ -184,13 +184,13 @@ public:
 
 };
 
-class CreateInstanceResponseHandler : public OperationResponseHandler<CIMReference>
+class CreateInstanceResponseHandler : public OperationResponseHandler<CIMObjectPath>
 {
 public:
     CreateInstanceResponseHandler(
 	CIMCreateInstanceRequestMessage * request,
 	CIMCreateInstanceResponseMessage * response)
-    : OperationResponseHandler<CIMReference>(request, response)
+    : OperationResponseHandler<CIMObjectPath>(request, response)
     {
     }
 
@@ -270,13 +270,13 @@ public:
 
 };
 
-class AssociatorNamesResponseHandler : public OperationResponseHandler<CIMReference>
+class AssociatorNamesResponseHandler : public OperationResponseHandler<CIMObjectPath>
 {
 public:
     AssociatorNamesResponseHandler(
 	CIMAssociatorNamesRequestMessage * request,
 	CIMAssociatorNamesResponseMessage * response)
-    : OperationResponseHandler<CIMReference>(request, response)
+    : OperationResponseHandler<CIMObjectPath>(request, response)
     {
     }
 
@@ -317,13 +317,13 @@ public:
 
 };
 
-class ReferenceNamesResponseHandler : public OperationResponseHandler<CIMReference>
+class ReferenceNamesResponseHandler : public OperationResponseHandler<CIMObjectPath>
 {
 public:
     ReferenceNamesResponseHandler(
 	CIMReferenceNamesRequestMessage * request,
 	CIMReferenceNamesResponseMessage * response)
-    : OperationResponseHandler<CIMReference>(request, response)
+    : OperationResponseHandler<CIMObjectPath>(request, response)
     {
     }
 

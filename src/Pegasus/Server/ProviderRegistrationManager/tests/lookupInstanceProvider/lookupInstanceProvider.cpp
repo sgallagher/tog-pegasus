@@ -44,7 +44,7 @@ Boolean TestLookupInstanceProvider(ProviderRegistrationManager prmanager)
     //
     // create Provider module instances
     //
-    CIMReference returnRef;
+    CIMObjectPath returnRef;
 
     CIMClass cimClass(CLASSNAME);
 
@@ -57,7 +57,7 @@ Boolean TestLookupInstanceProvider(ProviderRegistrationManager prmanager)
     cimInstance.addProperty(CIMProperty("InterfaceVersion", "2.0"));
     cimInstance.addProperty(CIMProperty("Location", "/tmp/module1"));
 
-    CIMReference instanceName = cimInstance.getInstanceName(cimClass);
+    CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
 
     instanceName.setNameSpace(NAMESPACE);
     instanceName.setClassName(CLASSNAME);
@@ -74,7 +74,7 @@ Boolean TestLookupInstanceProvider(ProviderRegistrationManager prmanager)
 
     // create PG_Provider instances
 
-    CIMReference returnRef2;
+    CIMObjectPath returnRef2;
 
     CIMClass cimClass2(CLASSNAME2);
 
@@ -83,7 +83,7 @@ Boolean TestLookupInstanceProvider(ProviderRegistrationManager prmanager)
     cimInstance2.addProperty(CIMProperty("ProviderModuleName", "providersModule1"));
     cimInstance2.addProperty(CIMProperty("Name", "PG_ProviderInstance1"));
 
-    CIMReference instanceName2 = cimInstance2.getInstanceName(cimClass2);
+    CIMObjectPath instanceName2 = cimInstance2.getInstanceName(cimClass2);
 
     instanceName2.setNameSpace(NAMESPACE);
     instanceName2.setClassName(CLASSNAME2);
@@ -114,7 +114,7 @@ Boolean TestLookupInstanceProvider(ProviderRegistrationManager prmanager)
     supportedMethods.append("test_method1");
     supportedMethods.append("test_method2");
 
-    CIMReference returnRef3;
+    CIMObjectPath returnRef3;
 
     CIMClass cimClass3(CLASSNAME3);
 
@@ -128,7 +128,7 @@ Boolean TestLookupInstanceProvider(ProviderRegistrationManager prmanager)
     cimInstance3.addProperty(CIMProperty("ProviderType", providerType));
     cimInstance3.addProperty(CIMProperty("SupportedMethods", supportedMethods));
 
-    CIMReference instanceName3 = cimInstance3.getInstanceName(cimClass3);
+    CIMObjectPath instanceName3 = cimInstance3.getInstanceName(cimClass3);
 
     instanceName3.setNameSpace(NAMESPACE);
     instanceName3.setClassName(CLASSNAME3);

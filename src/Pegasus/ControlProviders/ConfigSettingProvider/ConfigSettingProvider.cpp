@@ -47,7 +47,7 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/Tracer.h>
@@ -83,7 +83,7 @@ static const char PG_CONFIG_SETTING [] = "PG_ConfigSetting";
 
 void ConfigSettingProvider::getInstance(
 	const OperationContext & context,
-        const CIMReference& instanceName,
+        const CIMObjectPath& instanceName,
 	const Uint32 flags,
         const CIMPropertyList& propertyList,
 	ResponseHandler<CIMInstance> & handler)
@@ -164,7 +164,7 @@ void ConfigSettingProvider::getInstance(
 
 void ConfigSettingProvider::modifyInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
         const CIMInstance& modifiedIns,
 	const Uint32 flags,
         const CIMPropertyList& propertyList,
@@ -345,7 +345,7 @@ void ConfigSettingProvider::modifyInstance(
 
 void ConfigSettingProvider::enumerateInstances(
 	const OperationContext & context,
-	const CIMReference & ref,
+	const CIMObjectPath & ref,
 	const Uint32 flags,
         const CIMPropertyList& propertyList,
 	ResponseHandler<CIMInstance> & handler)
@@ -385,7 +385,7 @@ void ConfigSettingProvider::enumerateInstances(
                 Array<KeyBinding> keyBindings;
                 keyBindings.append(KeyBinding(PROPERTY_NAME, propertyInfo[0],
                     KeyBinding::STRING));
-                CIMReference instanceName(ref.getHost(), ref.getNameSpace(),
+                CIMObjectPath instanceName(ref.getHost(), ref.getNameSpace(),
                     PG_CONFIG_SETTING, keyBindings);
 
                 // construct the instance
@@ -417,13 +417,13 @@ void ConfigSettingProvider::enumerateInstances(
 
 void ConfigSettingProvider::enumerateInstanceNames(
 	const OperationContext & context,
-	const CIMReference & classReference,
-        ResponseHandler<CIMReference> & handler)
+	const CIMObjectPath & classReference,
+        ResponseHandler<CIMObjectPath> & handler)
     {
         PEG_METHOD_ENTER(TRC_CONFIG,
             "ConfigSettingProvider::enumerateInstanceNames()");
 
-        Array<CIMReference> instanceRefs;
+        Array<CIMObjectPath> instanceRefs;
         Array<String>       propertyNames;
         Array<KeyBinding>   keyBindings;
         KeyBinding          kb;
@@ -457,7 +457,7 @@ void ConfigSettingProvider::enumerateInstanceNames(
                 //
                 // Convert instance names to References
                 //
-                CIMReference ref(hostName, nameSpace, className, keyBindings);
+                CIMObjectPath ref(hostName, nameSpace, className, keyBindings);
 
                 instanceRefs.append(ref);
                 keyBindings.clear();

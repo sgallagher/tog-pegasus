@@ -130,9 +130,9 @@ ProcessProvider::~ProcessProvider()
 // ================================================================================
 
 void ProcessProvider::createInstance(const OperationContext &context,
-                    const CIMReference           &instanceName,
+                    const CIMObjectPath           &instanceName,
                     const CIMInstance            &instanceObject,
-                    ResponseHandler<CIMReference> &handler)
+                    ResponseHandler<CIMObjectPath> &handler)
 
 {
   // Current not implemented, but could be done by
@@ -152,7 +152,7 @@ void ProcessProvider::createInstance(const OperationContext &context,
 // ================================================================================
 
 void ProcessProvider::deleteInstance(const OperationContext &context,
-                    const CIMReference           &instanceReference,
+                    const CIMObjectPath           &instanceReference,
                     ResponseHandler<CIMInstance> &handler)
 
 { 
@@ -175,7 +175,7 @@ void ProcessProvider::deleteInstance(const OperationContext &context,
 
 void ProcessProvider::enumerateInstances(
 	const OperationContext & context,
-	const CIMReference & classReference,
+	const CIMObjectPath & classReference,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
@@ -226,8 +226,8 @@ void ProcessProvider::enumerateInstances(
 // ================================================================================
 
 void ProcessProvider::enumerateInstanceNames(const OperationContext &ctx,
-                            const CIMReference &ref,
-                            ResponseHandler<CIMReference> &handler)
+                            const CIMObjectPath &ref,
+                            ResponseHandler<CIMObjectPath> &handler)
 {
     // cout << "ProcessProvider::enumerateInstanceNames()" << endl;
 
@@ -284,7 +284,7 @@ void ProcessProvider::enumerateInstanceNames(const OperationContext &ctx,
                                       KeyBinding::STRING));
 
         // Deliver the names
-        handler.deliver(CIMReference(String::EMPTY, // hostname
+        handler.deliver(CIMObjectPath(String::EMPTY, // hostname
                                      ns,
                                      CLASS_UNIX_PROCESS,
                                      keyBindings));
@@ -316,7 +316,7 @@ void ProcessProvider::enumerateInstanceNames(const OperationContext &ctx,
 // ================================================================================
 
 void ProcessProvider::getInstance(const OperationContext &ctx,
-                 const CIMReference           &instanceName,
+                 const CIMObjectPath           &instanceName,
                  const Uint32                  flags,
                  const CIMPropertyList        &propertyList,
                  ResponseHandler<CIMInstance> &handler)
@@ -458,7 +458,7 @@ PARAMETERS        :
 ================================================================================
 */
 void ProcessProvider::modifyInstance(const OperationContext &context,
-                    const CIMReference           &instanceName,
+                    const CIMObjectPath           &instanceName,
                     const CIMInstance            &instanceObject,
 		    const Uint32                 flags,
 		    const CIMPropertyList        &propertyList,

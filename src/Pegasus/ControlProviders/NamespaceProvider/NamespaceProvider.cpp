@@ -53,7 +53,7 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/Tracer.h>
@@ -82,9 +82,9 @@ static const char CLASSNAME [] = "__namespace";
 
 void NamespaceProvider::createInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
         const CIMInstance& myInstance,
-	ResponseHandler<CIMReference> & handler)
+	ResponseHandler<CIMObjectPath> & handler)
     {
         PEG_METHOD_ENTER(TRC_CONFIG, "NamespaceProvider::createInstance()");
 
@@ -209,7 +209,7 @@ void NamespaceProvider::createInstance(
 
 void NamespaceProvider::deleteInstance(
 	const OperationContext & context,
-        const CIMReference& instanceName,
+        const CIMObjectPath& instanceName,
 	ResponseHandler<CIMInstance> & handler)
     {
         CIMValue                userName ;
@@ -302,7 +302,7 @@ void NamespaceProvider::deleteInstance(
 
 void NamespaceProvider::getInstance(
 	const OperationContext & context,
-        const CIMReference& instanceName,
+        const CIMObjectPath& instanceName,
 	const Uint32 flags,
         const CIMPropertyList& propertyList,
 	ResponseHandler<CIMInstance> & handler)
@@ -418,7 +418,7 @@ void NamespaceProvider::getInstance(
     }
 void NamespaceProvider::enumerateInstances(
 	const OperationContext & context,
-	const CIMReference & ref,
+	const CIMObjectPath & ref,
 	const Uint32 flags,
         const CIMPropertyList& propertyList,
 	ResponseHandler<CIMInstance> & handler)
@@ -461,7 +461,7 @@ void NamespaceProvider::enumerateInstances(
                 Array<KeyBinding> keyBindings;
                 keyBindings.append(KeyBinding(PROPERTY_NAME, propertyInfo[0],
                     KeyBinding::STRING));
-                CIMReference instanceName(ref.getHost(), ref.getNameSpace(),
+                CIMObjectPath instanceName(ref.getHost(), ref.getNameSpace(),
                     __NAMESPACE, keyBindings);
                 */
                 // construct the instance
@@ -492,14 +492,14 @@ void NamespaceProvider::enumerateInstances(
 
 void NamespaceProvider::enumerateInstanceNames(
 	const OperationContext & context,
-	const CIMReference & classReference,
-        ResponseHandler<CIMReference> & handler)
+	const CIMObjectPath & classReference,
+        ResponseHandler<CIMObjectPath> & handler)
     {
         
 	PEG_METHOD_ENTER(TRC_CONFIG,
             "NamespaceProvider::enumerateInstanceNames()");
 
-        Array<CIMReference> instanceRefs;
+        Array<CIMObjectPath> instanceRefs;
         Array<String>       propertyNames;
         Array<KeyBinding>   keyBindings;
         KeyBinding          kb;
@@ -535,7 +535,7 @@ void NamespaceProvider::enumerateInstanceNames(
         }
         
         // Convert to references here so can return references
-        CIMReference ref;
+        CIMObjectPath ref;
         try
         {
             for (Uint32 i = 0; i < instanceName.size(); i++)
@@ -564,7 +564,7 @@ void NamespaceProvider::enumerateInstanceNames(
                 //
                 // Convert instance names to References
                 //
-                CIMReference ref(hostName, nameSpace, className, keyBindings);
+                CIMObjectPath ref(hostName, nameSpace, className, keyBindings);
                 instanceRefs.append(ref);
                 keyBindings.clear();
             }

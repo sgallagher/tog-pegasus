@@ -33,7 +33,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -98,7 +98,7 @@ public:
     */
     static Boolean lookupEntry(
 	const String& path, 
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	Uint32& indexOut,
 	Uint32& sizeOut);
 
@@ -115,7 +115,7 @@ public:
     */
     static Boolean createEntry(
 	const String& path, 
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	Uint32 indexIn,
         Uint32 sizeIn);
 
@@ -126,7 +126,7 @@ public:
     */
     static Boolean deleteEntry(
 	const String& path, 
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	Uint32& freeCount);
 
     /** Modifies an entry by first removing the old entry and then inserting
@@ -140,7 +140,7 @@ public:
     */
     static Boolean modifyEntry(
 	const String& path, 
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	Uint32 indexIn,
         Uint32 sizeIn,
 	Uint32& freeCount);
@@ -161,7 +161,7 @@ public:
 	Array<Uint32>& freeFlags,
 	Array<Uint32>& indices,
         Array<Uint32>& sizes,
-	Array<CIMReference>& instanceNames,
+	Array<CIMObjectPath>& instanceNames,
 	Boolean includeFreeEntries);
 
 
@@ -209,7 +209,7 @@ private:
     */
     static Boolean _appendEntry(
         PEGASUS_STD(fstream)& fs,
-        const CIMReference& instanceName,
+        const CIMObjectPath& instanceName,
         Uint32 indexIn,
         Uint32 sizeIn);
     
@@ -225,14 +225,14 @@ private:
     */
     static Boolean _markEntryFree(
         PEGASUS_STD(fstream)& fs,
-        const CIMReference& instanceName);
+        const CIMObjectPath& instanceName);
 
     /** Helper method for lookupEntry() which takes a file stream rather than
 	a path.
     */
     static Boolean _lookupEntry(
 	PEGASUS_STD(fstream)& fs,
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	Uint32& indexOut,
 	Uint32& sizeOut,
 	Uint32& entryOffset);

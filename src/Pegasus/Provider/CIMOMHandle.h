@@ -143,7 +143,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	const String& nameSpace,
 	const String& className,
 	Boolean deepInheritance,
-	ResponseHandler<CIMReference> & handler);
+	ResponseHandler<CIMObjectPath> & handler);
 
     virtual void createClass(
 	const OperationContext & context,
@@ -181,7 +181,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
     virtual CIMInstance getInstance(
 	const OperationContext & context,
 	const String& nameSpace,
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	Boolean localOnly,
 	Boolean includeQualifiers,
 	Boolean includeClassOrigin,
@@ -190,7 +190,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
     virtual void getInstanceAsync(
 	const OperationContext & context,
 	const String& nameSpace,
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	Boolean localOnly,
 	Boolean includeQualifiers,
 	Boolean includeClassOrigin,
@@ -218,7 +218,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	const CIMPropertyList& propertyList,
 	ResponseHandler<CIMInstance> & handler);
 
-    virtual Array<CIMReference> enumerateInstanceNames(
+    virtual Array<CIMObjectPath> enumerateInstanceNames(
 	const OperationContext & context,
 	const String& nameSpace,
 	const String& className);
@@ -227,9 +227,9 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	const OperationContext & context,
 	const String& nameSpace,
 	const String& className,
-	ResponseHandler<CIMReference> & handler);
+	ResponseHandler<CIMObjectPath> & handler);
 
-    virtual CIMReference createInstance(
+    virtual CIMObjectPath createInstance(
 	const OperationContext & context,
 	const String& nameSpace,
 	const CIMInstance& newInstance);
@@ -258,12 +258,12 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
     virtual void deleteInstance(
 	const OperationContext & context,
 	const String& nameSpace,
-	const CIMReference& instanceName);
+	const CIMObjectPath& instanceName);
 
     virtual void deleteInstanceAsync(
 	const OperationContext & context,
 	const String& nameSpace,
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	ResponseHandler<CIMInstance> & handler);
 
     virtual Array<CIMInstance> execQuery(
@@ -282,7 +282,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
     virtual Array<CIMObject> associators(
 	const OperationContext & context,
 	const String& nameSpace,
-	const CIMReference& objectName,
+	const CIMObjectPath& objectName,
 	const String& assocClass,
 	const String& resultClass,
 	const String& role,
@@ -294,7 +294,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
     virtual void associatorsAsync(
 	const OperationContext & context,
 	const String& nameSpace,
-	const CIMReference& objectName,
+	const CIMObjectPath& objectName,
 	const String& assocClass,
 	const String& resultClass,
 	const String& role,
@@ -304,10 +304,10 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	const CIMPropertyList& propertyList,
 	ResponseHandler<CIMObject> & handler);
 
-    virtual Array<CIMReference> associatorNames(
+    virtual Array<CIMObjectPath> associatorNames(
 	const OperationContext & context,
 	const String& nameSpace,
-	const CIMReference& objectName,
+	const CIMObjectPath& objectName,
 	const String& assocClass,
 	const String& resultClass,
 	const String& role,
@@ -316,17 +316,17 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
     virtual void associatorNamesAsync(
 	const OperationContext & context,
 	const String& nameSpace,
-	const CIMReference& objectName,
+	const CIMObjectPath& objectName,
 	const String& assocClass,
 	const String& resultClass,
 	const String& role,
 	const String& resultRole,
-	ResponseHandler<CIMReference> & handler);
+	ResponseHandler<CIMObjectPath> & handler);
 
     virtual Array<CIMObject> references(
 	const OperationContext & context,
 	const String& nameSpace,
-	const CIMReference& objectName,
+	const CIMObjectPath& objectName,
 	const String& resultClass,
 	const String& role,
 	Boolean includeQualifiers,
@@ -336,7 +336,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
     virtual void referencesAsync(
 	const OperationContext & context,
 	const String& nameSpace,
-	const CIMReference& objectName,
+	const CIMObjectPath& objectName,
 	const String& resultClass,
 	const String& role,
 	Boolean includeQualifiers,
@@ -344,46 +344,46 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	const CIMPropertyList& propertyList,
 	ResponseHandler<CIMObject> & handler);
 
-    virtual Array<CIMReference> referenceNames(
+    virtual Array<CIMObjectPath> referenceNames(
 	const OperationContext & context,
 	const String& nameSpace,
-	const CIMReference& objectName,
+	const CIMObjectPath& objectName,
 	const String& resultClass,
 	const String& role);
 
     virtual void referenceNamesAsync(
 	const OperationContext & context,
 	const String& nameSpace,
-	const CIMReference& objectName,
+	const CIMObjectPath& objectName,
 	const String& resultClass,
 	const String& role,
-	ResponseHandler<CIMReference> & handler);
+	ResponseHandler<CIMObjectPath> & handler);
 
     // property operations
     virtual CIMValue getProperty(
 	const OperationContext & context,
 	const String& nameSpace,
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	const String& propertyName);
 
     virtual void getPropertyAsync(
 	const OperationContext & context,
 	const String& nameSpace,
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	const String& propertyName,
 	ResponseHandler<CIMValue> & handler);
 
     virtual void setProperty(
 	const OperationContext & context,
 	const String& nameSpace,
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	const String& propertyName,
 	const CIMValue& newValue);
 
     virtual void setPropertyAsync(
 	const OperationContext & context,
 	const String& nameSpace,
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	const String& propertyName,
 	const CIMValue& newValue,
 	ResponseHandler<CIMValue> & handler);
@@ -392,7 +392,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
     virtual CIMValue invokeMethod(
 	const OperationContext & context,
 	const String& nameSpace,
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	const String& methodName,
 	const Array<CIMParamValue>& inParameters,
 	Array<CIMParamValue>& outParameters);
@@ -400,7 +400,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
     virtual void invokeMethodAsync(
 	const OperationContext & context,
 	const String& nameSpace,
-	const CIMReference& instanceName,
+	const CIMObjectPath& instanceName,
 	const String& methodName,
 	const Array<CIMParamValue>& inParameters,
 	Array<CIMParamValue>& outParameters,

@@ -45,7 +45,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
     //
     // create Provider module instances
     //
-    CIMReference returnRef;
+    CIMObjectPath returnRef;
 
     CIMClass cimClass(CLASSNAME);
 
@@ -58,7 +58,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
     cimInstance.addProperty(CIMProperty("InterfaceVersion", "2.0"));
     cimInstance.addProperty(CIMProperty("Location", "/tmp/module1"));
 
-    CIMReference instanceName = cimInstance.getInstanceName(cimClass);
+    CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
 
     instanceName.setNameSpace(NAMESPACE);
     instanceName.setClassName(CLASSNAME);
@@ -74,7 +74,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
 
     // create PG_Provider instances
 
-    CIMReference returnRef2;
+    CIMObjectPath returnRef2;
 
     CIMClass cimClass2(CLASSNAME2);
 
@@ -83,7 +83,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
     cimInstance2.addProperty(CIMProperty("ProviderModuleName", "providersModule1"));
     cimInstance2.addProperty(CIMProperty("Name", "PG_ProviderInstance1"));
 
-    CIMReference instanceName2 = cimInstance2.getInstanceName(cimClass2);
+    CIMObjectPath instanceName2 = cimInstance2.getInstanceName(cimClass2);
 
     instanceName2.setNameSpace(NAMESPACE);
     instanceName2.setClassName(CLASSNAME2);
@@ -97,7 +97,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
         throw (e);
     }
 
-    CIMReference returnRef4;
+    CIMObjectPath returnRef4;
 
     CIMClass cimClass4(CLASSNAME2);
 
@@ -106,7 +106,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
     cimInstance4.addProperty(CIMProperty("ProviderModuleName", "providersModule1"));
     cimInstance4.addProperty(CIMProperty("Name", "PG_ProviderInstance2"));
 
-    CIMReference instanceName4 = cimInstance4.getInstanceName(cimClass4);
+    CIMObjectPath instanceName4 = cimInstance4.getInstanceName(cimClass4);
 
     instanceName4.setNameSpace(NAMESPACE);
     instanceName4.setClassName(CLASSNAME2);
@@ -143,7 +143,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
     supportedProperties.append("p4");
     supportedProperties.append("p5");
 
-    CIMReference returnRef3;
+    CIMObjectPath returnRef3;
 
     CIMClass cimClass3(CLASSNAME3);
 
@@ -158,7 +158,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
     cimInstance3.addProperty(CIMProperty("SupportedMethods", supportedMethods));
     cimInstance3.addProperty(CIMProperty("SupportedProperties", supportedProperties));
 
-    CIMReference instanceName3 = cimInstance3.getInstanceName(cimClass3);
+    CIMObjectPath instanceName3 = cimInstance3.getInstanceName(cimClass3);
 
     instanceName3.setNameSpace(NAMESPACE);
     instanceName3.setClassName(CLASSNAME3);
@@ -180,7 +180,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
     supportedProperties2.append("p4");
     supportedProperties2.append("p6");
 
-    CIMReference returnRef5;
+    CIMObjectPath returnRef5;
 
     CIMClass cimClass5(CLASSNAME3);
 
@@ -194,7 +194,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
     cimInstance5.addProperty(CIMProperty("ProviderType", providerType));
     cimInstance5.addProperty(CIMProperty("SupportedProperties", supportedProperties2));
 
-    CIMReference instanceName5 = cimInstance5.getInstanceName(cimClass5);
+    CIMObjectPath instanceName5 = cimInstance5.getInstanceName(cimClass5);
 
     instanceName5.setNameSpace(NAMESPACE);
     instanceName5.setClassName(CLASSNAME3);

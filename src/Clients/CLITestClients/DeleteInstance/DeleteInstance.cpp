@@ -311,7 +311,7 @@ int main(int argc, char** argv)
     }
 
     // Note that this name is does not exist in the system 
-    CIMReference reference = "Process.pid=123456";
+    CIMObjectPath reference = "Process.pid=123456";
     // Question: can this do an exception
     String myReference = argv[1];
     try

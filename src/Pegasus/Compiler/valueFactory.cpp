@@ -180,7 +180,7 @@ CIMValue *
 build_reference_value(const String &rep)
 {
   objectName oname(rep);
-  CIMReference *ref = cimmofParser::Instance()->newReference(oname);
+  CIMObjectPath *ref = cimmofParser::Instance()->newReference(oname);
   CIMValue* v = new CIMValue(*ref);
   delete ref;
   return v;

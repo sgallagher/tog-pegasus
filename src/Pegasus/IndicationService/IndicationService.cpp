@@ -489,7 +489,7 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
 
     CIMException cimException;
 
-    CIMReference instanceRef;
+    CIMObjectPath instanceRef;
 
     CIMInstance instance = request->newInstance.clone ();
 
@@ -887,7 +887,7 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
     CIMEnumerateInstanceNamesRequestMessage* request =
         (CIMEnumerateInstanceNamesRequestMessage*) message;
 
-    Array<CIMReference> enumInstanceNames;
+    Array<CIMObjectPath> enumInstanceNames;
 
     CIMException cimException;
 
@@ -949,7 +949,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
         //
         //  Get the instance name
         //
-        CIMReference instanceReference = 
+        CIMObjectPath instanceReference = 
             request->modifiedInstance.getInstanceName ();
     
         //
@@ -1328,7 +1328,7 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
                 //
                 //  Send Delete requests
                 //
-                CIMReference instanceReference = request->instanceName;
+                CIMObjectPath instanceReference = request->instanceName;
                 instanceReference.setNameSpace (request->nameSpace);
                 _sendDeleteRequests (indicationProviders,
                     request->nameSpace, CIMNamedInstance 
@@ -2427,7 +2427,7 @@ String IndicationService::_checkPropertyWithDefault (
 
 Boolean IndicationService::_canModify (
     const CIMModifyInstanceRequestMessage * request,
-    const CIMReference & instanceReference,
+    const CIMObjectPath & instanceReference,
     CIMInstance & instance)
 {
     const char METHOD_NAME [] = "IndicationService::_canModify";
@@ -2510,7 +2510,7 @@ Boolean IndicationService::_canModify (
 }
 
 Boolean IndicationService::_canDelete (
-    const CIMReference & instanceReference,
+    const CIMObjectPath & instanceReference,
     const String & nameSpace,
     const String & currentUser)
 {
@@ -2635,7 +2635,7 @@ Boolean IndicationService::_canDelete (
                 (subscriptions[i].getInstance().findProperty
                 (propName)).getValue();
             
-            CIMReference ref;
+            CIMObjectPath ref;
             propValue.get (ref);
 
             //
@@ -2713,7 +2713,7 @@ Array <CIMNamedInstance> IndicationService::_getActiveSubscriptions () const
                 //  namespace
                 //  Set namespace here
                 //
-                CIMReference instanceName = 
+                CIMObjectPath instanceName = 
                     subscriptions [j].getInstanceName ();
                 instanceName.setNameSpace (nameSpaceNames [i]);
                 CIMNamedInstance currentInstance 
@@ -2873,7 +2873,7 @@ Array <CIMNamedInstance> IndicationService::_getMatchingSubscriptions (
                         //  include namespace  
                         //  Set namespace here
                         //
-                        CIMReference instanceName = 
+                        CIMObjectPath instanceName = 
                             subscriptions [j].getInstanceName ();
                         instanceName.setNameSpace (nameSpaceNames [i]);
                         CIMNamedInstance currentInstance 
@@ -3040,7 +3040,7 @@ void IndicationService::_getModifiedSubscriptions (
                         //  include namespace  
                         //  Set namespace here
                         //
-                        CIMReference instanceName = 
+                        CIMObjectPath instanceName = 
                             subscriptions [j].getInstanceName ();
                         instanceName.setNameSpace (nameSpaceNames [i]);
                         CIMNamedInstance currentInstance 
@@ -3054,7 +3054,7 @@ void IndicationService::_getModifiedSubscriptions (
                         //  include namespace  
                         //  Set namespace here
                         //
-                        CIMReference instanceName = 
+                        CIMObjectPath instanceName = 
                             subscriptions [j].getInstanceName ();
                         instanceName.setNameSpace (nameSpaceNames [i]);
                         CIMNamedInstance currentInstance 
@@ -3220,7 +3220,7 @@ void IndicationService::_getFilterProperties (
     String & queryLanguage) 
 {
     CIMValue filterValue;
-    CIMReference filterReference;
+    CIMObjectPath filterReference;
     CIMInstance filterInstance;
 
     const char METHOD_NAME [] = "IndicationService::_getFilterProperties";
@@ -3268,7 +3268,7 @@ void IndicationService::_getFilterProperties (
     String & sourceNameSpace) 
 {
     CIMValue filterValue;
-    CIMReference filterReference;
+    CIMObjectPath filterReference;
     CIMInstance filterInstance;
 
     const char METHOD_NAME [] = "IndicationService::_getFilterProperties";
@@ -3311,7 +3311,7 @@ void IndicationService::_getFilterProperties (
     String & query) 
 {
     CIMValue filterValue;
-    CIMReference filterReference;
+    CIMObjectPath filterReference;
     CIMInstance filterInstance;
 
     const char METHOD_NAME [] = "IndicationService::_getFilterProperties";
@@ -3704,7 +3704,7 @@ CIMNamedInstance IndicationService::_getHandler (
     const CIMNamedInstance & subscription) const
 {
     CIMValue handlerValue;
-    CIMReference handlerRef;
+    CIMObjectPath handlerRef;
     CIMInstance handlerInstance;
     const char METHOD_NAME [] = "IndicationService::_getHandler";
 
@@ -3751,7 +3751,7 @@ CIMNamedInstance IndicationService::_getHandler (
 
 Boolean IndicationService::_isTransient (
     const String & nameSpace,
-    const CIMReference & handler) const
+    const CIMObjectPath & handler) const
 {
     CIMValue persistenceValue;
     Uint16 persistenceType;
@@ -3804,7 +3804,7 @@ Boolean IndicationService::_isTransient (
 void IndicationService::_deleteReferencingSubscriptions (
     const String & nameSpace,
     const String & referenceProperty,
-    const CIMReference & handler)
+    const CIMObjectPath & handler)
 {
     Array <CIMNamedInstance> subscriptions;
     const char METHOD_NAME [] = 
@@ -3828,7 +3828,7 @@ void IndicationService::_deleteReferencingSubscriptions (
         CIMValue propValue = subscriptions [i].getInstance ().getProperty
             (subscriptions [i].getInstance ().findProperty
             (referenceProperty)).getValue ();
-        CIMReference ref;
+        CIMObjectPath ref;
         propValue.get (ref);
 
         //
@@ -3847,7 +3847,7 @@ void IndicationService::_deleteReferencingSubscriptions (
             CIMInstance instance = subscriptions [i].getInstance ();
             String creator = instance.getProperty (instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
-            CIMReference instanceName = 
+            CIMObjectPath instanceName = 
                 subscriptions [i].getInstanceName ();
             instanceName.setNameSpace (nameSpace);
             CIMNamedInstance currentInstance 
@@ -3912,7 +3912,7 @@ Boolean IndicationService::_isExpired (
 }
 
 void IndicationService::_deleteExpiredSubscription (
-    CIMReference & subscription)
+    CIMObjectPath & subscription)
 {
     const char METHOD_NAME [] = 
         "IndicationService::_deleteExpiredSubscription";
@@ -4648,7 +4648,7 @@ String IndicationService::_generateKey (
         (subscription.getInstance ().findProperty
         (_PROPERTY_FILTER)).getValue ();
             
-    CIMReference filterRef;
+    CIMObjectPath filterRef;
     filterVal.get (filterRef);
 
     Array <KeyBinding> filterKeyBindings = filterRef.getKeyBindings ();
@@ -4664,7 +4664,7 @@ String IndicationService::_generateKey (
         (subscription.getInstance ().findProperty
         (_PROPERTY_HANDLER)).getValue ();
             
-    CIMReference handlerRef;
+    CIMObjectPath handlerRef;
     handlerVal.get (handlerRef);
 
     Array <KeyBinding> HandlerKeyBindings = handlerRef.getKeyBindings ();

@@ -55,7 +55,7 @@ int main()
     CIMInstance cInstance("PG_ConsumerRegistration");
     cInstance.addProperty(CIMProperty("url", "localhost:5988"));
     cInstance.addProperty(CIMProperty("consumerName", "DisplayConsumer"));
-    CIMReference instanceName3 = cInstance.getInstanceName(cClass);
+    CIMObjectPath instanceName3 = cInstance.getInstanceName(cClass);
     r.createInstance(NAMESPACE, cInstance);
 
     
@@ -69,7 +69,7 @@ int main()
     handlerInstance.addProperty(CIMProperty("SystemName", "NU744781"));
     handlerInstance.addProperty(CIMProperty("CreationClassName", "CIM_IndciationHandlerXMLHTTP"));
     handlerInstance.addProperty(CIMProperty("Name", "snmpIndicationHandler"));
-    CIMReference instanceName1 = handlerInstance.getInstanceName(handlerClass);
+    CIMObjectPath instanceName1 = handlerInstance.getInstanceName(handlerClass);
     r.createInstance(NAMESPACE, handlerInstance);
 
     //Indication
@@ -79,7 +79,7 @@ int main()
     cimInstance.addProperty(CIMProperty("PkgIndex", Uint32(101)));
     cimInstance.addProperty(CIMProperty("trapOid", "1.3.6.1.4.1.11.2.3.1.7.0.4"));
     cimInstance.addProperty(CIMProperty("computerName", "NU744781"));
-    CIMReference instanceName2 = cimInstance.getInstanceName(cimClass);
+    CIMObjectPath instanceName2 = cimInstance.getInstanceName(cimClass);
     r.createInstance(NAMESPACE, cimInstance);
 
     CIMRepository* repository = new CIMRepository("/PegasusRun/repository");

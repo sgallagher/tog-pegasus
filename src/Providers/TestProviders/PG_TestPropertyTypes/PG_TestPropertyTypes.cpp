@@ -121,13 +121,13 @@ void PG_TestPropertyTypes::terminate(void)
 
 void PG_TestPropertyTypes::getInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
 	// synchronously get references
-	Array<CIMReference> references = _enumerateInstanceNames(context, instanceReference);
+	Array<CIMObjectPath> references = _enumerateInstanceNames(context, instanceReference);
 
 	// ensure the InstanceId key is valid
 	Array<KeyBinding> keys = instanceReference.getKeyBindings();
@@ -152,7 +152,7 @@ void PG_TestPropertyTypes::getInstance(
 	}
 
 	// ensure the request object exists
-	if(Contains<CIMReference>(references, instanceReference) == false)
+	if(Contains<CIMObjectPath>(references, instanceReference) == false)
 	{
 		throw CIMException(CIM_ERR_NOT_FOUND);
 	}
@@ -175,7 +175,7 @@ void PG_TestPropertyTypes::getInstance(
 
 void PG_TestPropertyTypes::enumerateInstances(
 	const OperationContext & context,
-	const CIMReference & ref,
+	const CIMObjectPath & ref,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
@@ -212,8 +212,8 @@ void PG_TestPropertyTypes::enumerateInstances(
 
 void PG_TestPropertyTypes::enumerateInstanceNames(
 	const OperationContext & context,
-	const CIMReference & classReference,
-	ResponseHandler<CIMReference> & handler)
+	const CIMObjectPath & classReference,
+	ResponseHandler<CIMObjectPath> & handler)
 {
 
 	// ensure the Namespace is valid
@@ -237,7 +237,7 @@ void PG_TestPropertyTypes::enumerateInstanceNames(
 	// convert instances to references;
 	for(Uint32 i = 0; i < _instances.size(); i++)
 	{
-		CIMReference tempRef = _instances[i].getInstanceName(cimclass);
+		CIMObjectPath tempRef = _instances[i].getInstanceName(cimclass);
 
 		// ensure references are fully qualified
 		tempRef.setHost(classReference.getHost());
@@ -252,7 +252,7 @@ void PG_TestPropertyTypes::enumerateInstanceNames(
 
 void PG_TestPropertyTypes::modifyInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
@@ -265,7 +265,7 @@ void PG_TestPropertyTypes::modifyInstance(
 	}
 
 	// synchronously get references
-	Array<CIMReference> references = _enumerateInstanceNames(context, instanceReference);
+	Array<CIMObjectPath> references = _enumerateInstanceNames(context, instanceReference);
 
 	// ensure the Namespace is valid
 	if (instanceReference.getNameSpace() != "test/static")
@@ -283,7 +283,7 @@ void PG_TestPropertyTypes::modifyInstance(
         _testPropertyTypesValue(instanceObject);
 
 	// ensure the request object exists
-	if(Contains<CIMReference>(references, instanceReference) == false)
+	if(Contains<CIMObjectPath>(references, instanceReference) == false)
 	{
 		throw CIMException(CIM_ERR_NOT_FOUND);
 	}
@@ -304,12 +304,12 @@ void PG_TestPropertyTypes::modifyInstance(
 
 void PG_TestPropertyTypes::createInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
-	ResponseHandler<CIMReference> & handler)
+	ResponseHandler<CIMObjectPath> & handler)
 {
 	// synchronously get references
-	Array<CIMReference> references = _enumerateInstanceNames(context, instanceReference);
+	Array<CIMObjectPath> references = _enumerateInstanceNames(context, instanceReference);
 
 	// ensure the Namespace is valid
 
@@ -339,13 +339,13 @@ void PG_TestPropertyTypes::createInstance(
 //		throw CIMException(CIM_ERR_INVALID_PARAMETER);
 //	}
 
-        // create the CIMReference to return
+        // create the CIMObjectPath to return
         KeyBinding kb1(instanceObject.getProperty(propIndex).getName(),
                        instanceObject.getProperty(propIndex).getValue().toString(),
                        KeyBinding::NUMERIC);
         KeyBinding kb2("CreationClassName", "PG_TestPropertyTypes",
                        KeyBinding::STRING);
-        CIMReference returnReference(instanceReference);
+        CIMObjectPath returnReference(instanceReference);
 	Array<KeyBinding> keys;
         keys.append(kb1);
         keys.append(kb2);
@@ -361,7 +361,7 @@ void PG_TestPropertyTypes::createInstance(
 	}
 
 	// ensure the requested object do not exist
-	if(Contains<CIMReference>(references, instanceReference) == true)
+	if(Contains<CIMObjectPath>(references, instanceReference) == true)
 	{
 		throw CIMException(CIM_ERR_ALREADY_EXISTS);
 	}
@@ -378,11 +378,11 @@ void PG_TestPropertyTypes::createInstance(
 
 void PG_TestPropertyTypes::deleteInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	ResponseHandler<CIMInstance> & handler)
 {
 	// synchronously get references
-	Array<CIMReference> references = _enumerateInstanceNames(context, instanceReference);
+	Array<CIMObjectPath> references = _enumerateInstanceNames(context, instanceReference);
 
 	// ensure the Namespace is valid
 	if (instanceReference.getNameSpace() != "test/static")
@@ -397,7 +397,7 @@ void PG_TestPropertyTypes::deleteInstance(
 	}
 
 	// ensure the requested object exists
-	if(Contains<CIMReference>(references, instanceReference) == false)
+	if(Contains<CIMObjectPath>(references, instanceReference) == false)
 	{
 		throw CIMException(CIM_ERR_NOT_FOUND);
 	}
@@ -417,7 +417,7 @@ void PG_TestPropertyTypes::deleteInstance(
 
 void PG_TestPropertyTypes::getProperty(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const String & propertyName,
 	ResponseHandler<CIMValue> & handler)
 {
@@ -426,7 +426,7 @@ void PG_TestPropertyTypes::getProperty(
 
 void PG_TestPropertyTypes::setProperty(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
 	const String & propertyName,
 	const CIMValue & newValue,
 	ResponseHandler<CIMValue> & handler)
@@ -434,11 +434,11 @@ void PG_TestPropertyTypes::setProperty(
 	throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
-Array<CIMReference> PG_TestPropertyTypes::_enumerateInstanceNames(
+Array<CIMObjectPath> PG_TestPropertyTypes::_enumerateInstanceNames(
 	const OperationContext & context,
-	const CIMReference & classReference)
+	const CIMObjectPath & classReference)
 {
-	SimpleResponseHandler<CIMReference> handler;
+	SimpleResponseHandler<CIMObjectPath> handler;
 
 	enumerateInstanceNames(context, classReference, handler);
 

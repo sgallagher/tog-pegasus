@@ -42,7 +42,7 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/Tracer.h>
@@ -99,9 +99,9 @@ static const char CLASS_NAME_PG_AUTHORIZATION []  = "PG_Authorization";
 //
 void UserAuthProvider::createInstance(
     const OperationContext & context,
-    const CIMReference & instanceReference,
+    const CIMObjectPath & instanceReference,
     const CIMInstance & myInstance,
-    ResponseHandler<CIMReference> & handler)
+    ResponseHandler<CIMObjectPath> & handler)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::createInstance");
 
@@ -282,7 +282,7 @@ void UserAuthProvider::createInstance(
 //
 void UserAuthProvider::deleteInstance(
     const OperationContext & context,
-    const CIMReference& myInstance,
+    const CIMObjectPath& myInstance,
     ResponseHandler<CIMInstance> & handler)
 {
     CIMValue                userName ;
@@ -394,10 +394,10 @@ void UserAuthProvider::deleteInstance(
             //
             // ATTN: Note that the following is a hack, because
             // deleteInstance() in repository does not like
-            // the hostname and namespace included in the CIMReference
+            // the hostname and namespace included in the CIMObjectPath
             // passed to it as a parameter.
             //
-            CIMReference ref("", "",
+            CIMObjectPath ref("", "",
                 myInstance.getClassName(), myInstance.getKeyBindings());
 
             _repository->deleteInstance(
@@ -436,7 +436,7 @@ void UserAuthProvider::deleteInstance(
 //
 void UserAuthProvider::modifyInstance(
     const OperationContext & context,
-    const CIMReference & instanceReference,
+    const CIMObjectPath & instanceReference,
     const CIMInstance& modifiedIns,
     const Uint32 flags,
     const CIMPropertyList & propertyList,
@@ -490,10 +490,10 @@ void UserAuthProvider::modifyInstance(
         //
         // ATTN: Note that the following is a hack, because
         // modifyInstance() in repository does not like
-        // the hostname and namespace included in the CIMReference
+        // the hostname and namespace included in the CIMObjectPath
         // passed to it as a parameter.
         //
-        CIMReference ref("", "",
+        CIMObjectPath ref("", "",
             modifiedIns.getClassName(), instanceReference.getKeyBindings());
 
         CIMNamedInstance namedInstance(ref, modifiedIns);
@@ -529,7 +529,7 @@ void UserAuthProvider::modifyInstance(
 //
 void UserAuthProvider::enumerateInstances(
     const OperationContext & context,
-    const CIMReference & ref,
+    const CIMObjectPath & ref,
     const Uint32 flags,
     const CIMPropertyList& propertyList,
     ResponseHandler<CIMInstance> & handler)
@@ -583,12 +583,12 @@ void UserAuthProvider::enumerateInstances(
 //
 void UserAuthProvider::enumerateInstanceNames(
     const OperationContext & context,
-    const CIMReference & classReference,
-    ResponseHandler<CIMReference> & handler)
+    const CIMObjectPath & classReference,
+    ResponseHandler<CIMObjectPath> & handler)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::enumerateInstanceNames");
 
-    Array<CIMReference> instanceRefs;
+    Array<CIMObjectPath> instanceRefs;
     Array<String>       userNames;
     Array<KeyBinding>   keyBindings;
     KeyBinding          kb;
@@ -622,7 +622,7 @@ void UserAuthProvider::enumerateInstanceNames(
                 //
                 // Convert instance names to References
                 //
-                CIMReference ref(hostName, nameSpace, className, keyBindings);
+                CIMObjectPath ref(hostName, nameSpace, className, keyBindings);
 
                 handler.deliver(ref);
 
@@ -686,7 +686,7 @@ void UserAuthProvider::enumerateInstanceNames(
 //
 void UserAuthProvider::invokeMethod(
     const OperationContext & context,
-    const CIMReference & ref,
+    const CIMObjectPath & ref,
     const String & methodName,
     const Array<CIMParamValue> & inParams,
     Array<CIMParamValue> & outParams,

@@ -172,7 +172,7 @@ static Boolean _GetNextRecord(
 
 Boolean InstanceIndexFile::lookup(
     const String& path, 
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     Uint32& sizeOut,
     Uint32& indexOut)
 {
@@ -201,7 +201,7 @@ Boolean InstanceIndexFile::lookup(
                               error))
         {
             if (hashCode == targetHashCode &&
-                CIMReference(objectName) == instanceName)
+                CIMObjectPath(objectName) == instanceName)
             {
                 indexOut = index;
                 sizeOut = size;
@@ -233,7 +233,7 @@ Boolean InstanceIndexFile::lookup(
 
 Boolean InstanceIndexFile::insert(
     const String& path, 
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     Uint32 sizeIn,
     Uint32 indexIn)
 {
@@ -317,7 +317,7 @@ Boolean InstanceIndexFile::insert(
 
 Boolean InstanceIndexFile::remove(
     const String& path_, 
-    const CIMReference& instanceName)
+    const CIMObjectPath& instanceName)
 {
     //
     // Check for the existence of the instance index file and get the
@@ -378,7 +378,7 @@ Boolean InstanceIndexFile::remove(
 
 Boolean InstanceIndexFile::modify(
     const String& path, 
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     Uint32 sizeIn,
     Uint32 indexIn)
 {
@@ -446,7 +446,7 @@ Boolean InstanceIndexFile::modify(
 
 Boolean InstanceIndexFile::appendInstanceNamesTo(
     const String& path,
-    Array<CIMReference>& instanceNames,
+    Array<CIMObjectPath>& instanceNames,
     Array<Uint32>& indices,
     Array<Uint32>& sizes)
 {
@@ -497,7 +497,7 @@ Boolean InstanceIndexFile::appendInstanceNamesTo(
 
 void InstanceIndexFile::_appendEntry(
     ofstream& os,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     Uint32 sizeIn,
     Uint32 indexIn)
 {
@@ -523,7 +523,7 @@ void InstanceIndexFile::_appendEntry(
 Boolean InstanceIndexFile::_removeEntry(
     ofstream& os,
     const String& path, 
-    const CIMReference& instanceName)
+    const CIMObjectPath& instanceName)
 {
     //
     // Open the index file
@@ -553,7 +553,7 @@ Boolean InstanceIndexFile::_removeEntry(
     while (_GetNextRecord(is, line, hashCode, objectName, index, size, error))
     {
         if (targetHashCode == hashCode &&
-            CIMReference(objectName) == instanceName)
+            CIMObjectPath(objectName) == instanceName)
         {
             //
             // found the entry of the instance to be deleted, keep track 

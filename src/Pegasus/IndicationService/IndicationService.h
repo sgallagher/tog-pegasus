@@ -372,7 +372,7 @@ private:
      */
     Boolean _canModify (
         const CIMModifyInstanceRequestMessage * request,
-        const CIMReference & instanceReference,
+        const CIMObjectPath & instanceReference,
         CIMInstance & instance);
 
     /**
@@ -396,7 +396,7 @@ private:
                  Otherwise throws an exception
      */
     Boolean _canDelete (
-        const CIMReference & instanceReference,
+        const CIMObjectPath & instanceReference,
         const String & nameSpace,
         const String & currentUser);
 
@@ -671,7 +671,7 @@ private:
      */
     Boolean _isTransient (
         const String & nameSpace,
-        const CIMReference & handler) const;
+        const CIMObjectPath & handler) const;
 
     /**
         Deletes subscriptions referencing the specified handler.
@@ -684,7 +684,7 @@ private:
     void _deleteReferencingSubscriptions (
         const String & nameSpace,
         const String & referenceProperty,
-        const CIMReference & handler);
+        const CIMObjectPath & handler);
 
     /**
         Determines if specified Subscription has expired
@@ -707,7 +707,7 @@ private:
         @param   subscription          the subscription reference
      */
     void _deleteExpiredSubscription (
-        CIMReference & subscription);
+        CIMObjectPath & subscription);
 
     /**
         Gets the Subscription Time Remaining property

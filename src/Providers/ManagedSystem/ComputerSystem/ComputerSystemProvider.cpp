@@ -81,7 +81,7 @@ ComputerSystemProvider::~ComputerSystemProvider(void)
 
 void ComputerSystemProvider::getInstance(
     const OperationContext& context,
-    const CIMReference& ref,
+    const CIMObjectPath& ref,
     const Uint32 flags,
     const CIMPropertyList& propertyList,
     ResponseHandler<CIMInstance> &handler)
@@ -136,7 +136,7 @@ void ComputerSystemProvider::getInstance(
 
 void ComputerSystemProvider::enumerateInstances(
       				const OperationContext& context, 
-			        const CIMReference& ref, 
+			        const CIMObjectPath& ref, 
 			        const Uint32 flags, 
 			        const CIMPropertyList& propertyList,
 			        ResponseHandler<CIMInstance>& handler)
@@ -159,8 +159,8 @@ void ComputerSystemProvider::enumerateInstances(
 
 void ComputerSystemProvider::enumerateInstanceNames(
       				const OperationContext& context,
-			  	const CIMReference &ref,
-			  	ResponseHandler<CIMReference>& handler )
+			  	const CIMObjectPath &ref,
+			  	ResponseHandler<CIMObjectPath>& handler )
 {
     String className = ref.getClassName();
     _checkClass(className);
@@ -179,7 +179,7 @@ void ComputerSystemProvider::enumerateInstanceNames(
                              _cs.getHostName(),
                              KeyBinding::STRING));
 
-      handler.deliver(CIMReference(_cs.getHostName(),
+      handler.deliver(CIMObjectPath(_cs.getHostName(),
                                    ref.getNameSpace(),
                                    CLASS_EXTENDED_COMPUTER_SYSTEM,
                                    keys));
@@ -192,7 +192,7 @@ void ComputerSystemProvider::enumerateInstanceNames(
 void 
 ComputerSystemProvider::modifyInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags, 
 			  	const CIMPropertyList& propertyList,
@@ -204,9 +204,9 @@ ComputerSystemProvider::modifyInstance(
 void 
 ComputerSystemProvider::createInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	ResponseHandler<CIMReference>& handler )
+			  	ResponseHandler<CIMObjectPath>& handler )
 {
     throw NotSupported(String::EMPTY);
 }
@@ -214,7 +214,7 @@ ComputerSystemProvider::createInstance(
 void 
 ComputerSystemProvider::deleteInstance(
       				const OperationContext& context,
-			  	const CIMReference& ref,
+			  	const CIMObjectPath& ref,
 			  	ResponseHandler<CIMInstance>& handler )
 {
     throw NotSupported(String::EMPTY);

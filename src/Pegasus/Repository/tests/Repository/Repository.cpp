@@ -131,9 +131,9 @@ void test02()
     // Get instance back:
     //--------------------------------------------------------------------------
 
-    CIMReference instanceName1 = subClassInstance.getInstanceName(subClass);
+    CIMObjectPath instanceName1 = subClassInstance.getInstanceName(subClass);
 
-    CIMReference instanceName2 =
+    CIMObjectPath instanceName2 =
 	"SuperClass.first=\"John\",last=\"Smith\",age=101";
 
     CIMInstance tmp = r.getInstance(NAMESPACE, instanceName2);
@@ -193,7 +193,7 @@ void test03()
     repositoryRoot += "/repository";
     CIMRepository r(repositoryRoot);
 
-    Array<CIMReference> names = r.associatorNames(
+    Array<CIMObjectPath> names = r.associatorNames(
 	"root/cimv2",
 	"X.key=\"John Smith\"");
 

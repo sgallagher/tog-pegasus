@@ -285,7 +285,7 @@ CIMClass CIMRepository::getClass(
 
 Boolean CIMRepository::_getInstanceIndex(
     const String& nameSpace,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     String& className,
     Uint32& index,
     Uint32& size,
@@ -316,7 +316,7 @@ Boolean CIMRepository::_getInstanceIndex(
 
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
-        CIMReference tmpInstanceName = instanceName;
+        CIMObjectPath tmpInstanceName = instanceName;
         tmpInstanceName.setClassName(classNames[i]);
 
 	//
@@ -339,7 +339,7 @@ Boolean CIMRepository::_getInstanceIndex(
 
 CIMInstance CIMRepository::getInstance(
     const String& nameSpace,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
@@ -469,7 +469,7 @@ void _CompactInstanceRepository(
     Array<Uint32> freeFlags;
     Array<Uint32> indices;
     Array<Uint32> sizes;
-    Array<CIMReference> instanceNames;
+    Array<CIMObjectPath> instanceNames;
 
     if (!InstanceIndexFile::enumerateEntries(
 	indexFilePath, freeFlags, indices, sizes, instanceNames, true))
@@ -499,7 +499,7 @@ void _CompactInstanceRepository(
 
 void CIMRepository::deleteInstance(
     const String& nameSpace,
-    const CIMReference& instanceName)
+    const CIMObjectPath& instanceName)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteInstance");
 
@@ -740,7 +740,7 @@ void CIMRepository::_createAssocInstEntries(
     const String& nameSpace,
     const CIMConstClass& cimClass,
     const CIMInstance& cimInstance,
-    const CIMReference& instanceName)
+    const CIMObjectPath& instanceName)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_createAssocInstEntries");
 
@@ -781,10 +781,10 @@ void CIMRepository::_createAssocInstEntries(
                 if (toProp.getType() == CIMType::REFERENCE &&
                     fromProp.getName() != toProp.getName())
                 {
-                    CIMReference fromRef;
+                    CIMObjectPath fromRef;
                     fromProp.getValue().get(fromRef);
 
-                    CIMReference toRef;
+                    CIMObjectPath toRef;
                     toProp.getValue().get(toRef);
 
                     String fromObjectName = fromRef.toString();
@@ -812,7 +812,7 @@ void CIMRepository::_createAssocInstEntries(
     PEG_METHOD_EXIT();
 }
 
-CIMReference CIMRepository::createInstance(
+CIMObjectPath CIMRepository::createInstance(
     const String& nameSpace,
     const CIMInstance& newInstance)
 {
@@ -856,7 +856,7 @@ CIMReference CIMRepository::createInstance(
     CIMInstance cimInstance(newInstance);
     CIMConstClass cimClass;
     cimInstance.resolve(_context, nameSpace, cimClass, false);
-    CIMReference instanceName = cimInstance.getInstanceName(cimClass);
+    CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
 
     //
     // Make sure the class has keys (otherwise it will be impossible to
@@ -1284,7 +1284,7 @@ void CIMRepository::modifyInstance(
     CIMConstClass cimClass;
     cimInstance.resolve(_context, nameSpace, cimClass, false);
 
-    CIMReference instanceName = cimInstance.getInstanceName(cimClass);
+    CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
 
     //
     // Disallow operation if the instance name was changed:
@@ -1426,7 +1426,7 @@ Boolean CIMRepository::_loadAllInstances(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_loadAllInstances");
 
-    Array<CIMReference> instanceNames;
+    Array<CIMObjectPath> instanceNames;
     Array<Sint8> data;
     Array<Uint32> indices;
     Array<Uint32> sizes;
@@ -1557,7 +1557,7 @@ Array<CIMNamedInstance> CIMRepository::enumerateInstances(
     return namedInstances;
 }
 #endif
-Array<CIMReference> CIMRepository::enumerateInstanceNames(
+Array<CIMObjectPath> CIMRepository::enumerateInstanceNames(
     const String& nameSpace,
     const String& className)
 {
@@ -1568,7 +1568,7 @@ Array<CIMReference> CIMRepository::enumerateInstanceNames(
 // of this code to the dispatcher.
 //#define GETSINGLECLASS
 #if defined GETSINGLECLASS
-    Array<CIMReference> instanceNames;
+    Array<CIMObjectPath> instanceNames;
     Array<Uint32> indices;
     Array<Uint32> sizes;
     //
@@ -1613,7 +1613,7 @@ Array<CIMReference> CIMRepository::enumerateInstanceNames(
     // Get instance names from each qualifying instance file for the class:
     //
 
-    Array<CIMReference> instanceNames;
+    Array<CIMObjectPath> instanceNames;
     Array<Uint32> indices;
     Array<Uint32> sizes;
 
@@ -1662,7 +1662,7 @@ Array<CIMInstance> CIMRepository::execQuery(
 
 Array<CIMObjectWithPath> CIMRepository::associators(
     const String& nameSpace,
-    const CIMReference& objectName,
+    const CIMObjectPath& objectName,
     const String& assocClass,
     const String& resultClass,
     const String& role,
@@ -1673,7 +1673,7 @@ Array<CIMObjectWithPath> CIMRepository::associators(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::associators");
 
-    Array<CIMReference> names = associatorNames(
+    Array<CIMObjectPath> names = associatorNames(
         nameSpace,
         objectName,
         assocClass,
@@ -1692,7 +1692,7 @@ Array<CIMObjectWithPath> CIMRepository::associators(
 
         if (names[i].isClassName())
         {
-            CIMReference tmpRef = names[i];
+            CIMObjectPath tmpRef = names[i];
             tmpRef.setHost(String());
             tmpRef.setNameSpace(String());
 
@@ -1709,7 +1709,7 @@ Array<CIMObjectWithPath> CIMRepository::associators(
         }
         else
         {
-            CIMReference tmpRef = names[i];
+            CIMObjectPath tmpRef = names[i];
             tmpRef.setHost(String());
             tmpRef.setNameSpace(String());
 
@@ -1730,9 +1730,9 @@ Array<CIMObjectWithPath> CIMRepository::associators(
     return result;
 }
 
-Array<CIMReference> CIMRepository::associatorNames(
+Array<CIMObjectPath> CIMRepository::associatorNames(
     const String& nameSpace,
-    const CIMReference& objectName,
+    const CIMObjectPath& objectName,
     const String& assocClass,
     const String& resultClass,
     const String& role,
@@ -1769,11 +1769,11 @@ Array<CIMReference> CIMRepository::associatorNames(
             associatorNames);
     }
 
-    Array<CIMReference> result;
+    Array<CIMObjectPath> result;
 
     for (Uint32 i = 0, n = associatorNames.size(); i < n; i++)
     {
-        CIMReference r = associatorNames[i];
+        CIMObjectPath r = associatorNames[i];
 
         if (r.getHost().size() == 0)
             r.setHost(System::getHostName());
@@ -1790,7 +1790,7 @@ Array<CIMReference> CIMRepository::associatorNames(
 
 Array<CIMObjectWithPath> CIMRepository::references(
     const String& nameSpace,
-    const CIMReference& objectName,
+    const CIMObjectPath& objectName,
     const String& resultClass,
     const String& role,
     Boolean includeQualifiers,
@@ -1799,7 +1799,7 @@ Array<CIMObjectWithPath> CIMRepository::references(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::references");
 
-    Array<CIMReference> names = referenceNames(
+    Array<CIMObjectPath> names = referenceNames(
         nameSpace,
         objectName,
         resultClass,
@@ -1817,7 +1817,7 @@ Array<CIMObjectWithPath> CIMRepository::references(
         // ATTN: getInstance() should this be able to handle instance names
         // with host names and namespaces?
 
-        CIMReference tmpRef = names[i];
+        CIMObjectPath tmpRef = names[i];
         tmpRef.setHost(String());
         tmpRef.setNameSpace(String());
 
@@ -1851,9 +1851,9 @@ Array<CIMObjectWithPath> CIMRepository::references(
     return result;
 }
 
-Array<CIMReference> CIMRepository::referenceNames(
+Array<CIMObjectPath> CIMRepository::referenceNames(
     const String& nameSpace,
-    const CIMReference& objectName,
+    const CIMObjectPath& objectName,
     const String& resultClass,
     const String& role)
 {
@@ -1890,11 +1890,11 @@ Array<CIMReference> CIMRepository::referenceNames(
         }
     }
 
-    Array<CIMReference> result;
+    Array<CIMObjectPath> result;
 
     for (Uint32 i = 0, n = tmpReferenceNames.size(); i < n; i++)
     {
-        CIMReference r = tmpReferenceNames[i];
+        CIMObjectPath r = tmpReferenceNames[i];
 
         if (r.getHost().size() == 0)
             r.setHost(System::getHostName());
@@ -1911,7 +1911,7 @@ Array<CIMReference> CIMRepository::referenceNames(
 
 CIMValue CIMRepository::getProperty(
     const String& nameSpace,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     const String& propertyName)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::getProperty");
@@ -1968,7 +1968,7 @@ CIMValue CIMRepository::getProperty(
 
 void CIMRepository::setProperty(
     const String& nameSpace,
-    const CIMReference& instanceName,
+    const CIMObjectPath& instanceName,
     const String& propertyName,
     const CIMValue& newValue)
 {

@@ -43,7 +43,7 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/CIMReference.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/Tracer.h>
@@ -92,9 +92,9 @@ public:
     */
     virtual void createInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
         const CIMInstance& myInstance,
-	ResponseHandler<CIMReference> & handler)
+	ResponseHandler<CIMObjectPath> & handler)
     {
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "");
     }
@@ -108,7 +108,7 @@ public:
     */
     virtual void deleteInstance(
 	const OperationContext & context,
-        const CIMReference& instanceName,
+        const CIMObjectPath& instanceName,
 	ResponseHandler<CIMInstance> & handler)
     {
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "");
@@ -126,7 +126,7 @@ public:
     */
     virtual void getInstance(
 	const OperationContext & context,
-        const CIMReference& instanceName,
+        const CIMObjectPath& instanceName,
 	const Uint32 flags,
         const CIMPropertyList& propertyList,
 	ResponseHandler<CIMInstance> & handler);
@@ -145,7 +145,7 @@ public:
     */
     void modifyInstance(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
+	const CIMObjectPath & instanceReference,
         const CIMInstance& modifiedIns,
 	const Uint32 flags,
         const CIMPropertyList& propertyList,
@@ -163,7 +163,7 @@ public:
     */
     virtual void enumerateInstances(
 	const OperationContext & context,
-	const CIMReference & ref,
+	const CIMObjectPath & ref,
 	const Uint32 flags,
         const CIMPropertyList& propertyList,
 	ResponseHandler<CIMInstance> & handler);
@@ -178,8 +178,8 @@ public:
     */
     virtual void enumerateInstanceNames(
 	const OperationContext & context,
-	const CIMReference & classReference,
-        ResponseHandler<CIMReference> & handler);
+	const CIMObjectPath & classReference,
+        ResponseHandler<CIMObjectPath> & handler);
 
     /**
     Standard initialization function for the provider.

@@ -636,6 +636,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
             }
             else
             {
+               Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                  "ThreadPool::_loop: Failed to remove thread from running queue.");
                PEG_METHOD_EXIT();
 	       return((PEGASUS_THREAD_RETURN)0);
             }
@@ -707,6 +709,16 @@ Boolean ThreadPool::allocate_and_awaken(void *parm,
 
       if (th == 0)
       {
+        // ATTN-DME-P3-20031103: This trace message should not be
+        // be labeled TRC_DISCARDED_DATA, because it does not
+        // necessarily imply that a failure has occurred.  However,
+        // this label is being used temporarily to help isolate
+        // the cause of client timeout problems.
+
+        Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+           "ThreadPool::allocate_and_awaken: Insufficient resources: "
+           " pool = %s, running threads = %d, idle threads = %d, dead threads = %d ",
+           _key, _running.count(), _pool.count(), _dead.count());
          return false;
       }
 

@@ -35,6 +35,7 @@
 //	       David Eger (dteger@us.ibm.com)
 //         Amit K Arora (amita@in.ibm.com) for PEP-101
 //         Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
+//         Amit K Arora (amita@in.ibm.com) for Bug#
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1152,8 +1153,17 @@ int main (int argc, char* argv [])
     } 
     catch (CommandFormatException& cfe) 
     {
-        cerr << WbemExecCommand::COMMAND_NAME << 
-             ": Invalid option. Use '--help' to obtain command syntax" << endl;
+        String msg(cfe.getMessage());
+
+        cerr << WbemExecCommand::COMMAND_NAME << ": " << msg <<  endl;
+
+        if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
+          cerr << WbemExecCommand::COMMAND_NAME <<  
+            ": Invalid option. Use '--help' to obtain command syntax" << endl;
+        else
+          cerr << WbemExecCommand::COMMAND_NAME <<  
+            ": Incorrect usage. Use '--help' to obtain command syntax" << endl;
+
         exit (Command::RC_ERROR);
     }
 

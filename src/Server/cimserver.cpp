@@ -48,6 +48,8 @@
 //
 // Modified By: Amit K Arora, IBM (amitarora@in.ibm.com) - pep 167
 //
+// Modified By: Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2555
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -933,7 +935,12 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
         CString portString = httpsPort.getCString();
         char* end = 0;
         Uint32 port = strtol(portString, &end, 10);
-        assert(end != 0 && *end == '\0');
+        if(!(end != 0 && *end == '\0'))
+        {
+            PEGASUS_STD(cerr) << "Bad HTTPS Port Value" << PEGASUS_STD(endl);
+            exit(1);
+        }
+
 
         //
         // Look up the WBEM-HTTPS port number
@@ -947,8 +954,11 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
         CString portString = httpPort.getCString();
         char* end = 0;
         Uint32 port = strtol(portString, &end, 10);
-        assert(end != 0 && *end == '\0');
-
+        if(!(end != 0 && *end == '\0'))
+        {
+            PEGASUS_STD(cerr) << "Bad HTTP Port Value" << PEGASUS_STD(endl);
+            exit(1);
+        }
         //
         // Look up the WBEM-HTTP port number
         //

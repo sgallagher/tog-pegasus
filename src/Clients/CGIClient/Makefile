@@ -6,6 +6,8 @@ DIR = Clients/CGIClient
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 PROGRAM = CGIClient
 SOURCES = CGIClient.cpp
 

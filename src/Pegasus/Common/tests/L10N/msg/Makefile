@@ -5,14 +5,14 @@ DIR = Pegasus/Common/tests/L10N/msg
 include $(ROOT)/mak/config.mak
 
 # ICU package name
-MSG_PACKAGE = pegasusTest 
+MSG_PACKAGE = pegasusTest
+
 
 # Destination directory for the compiled bundles
 MSG_DIR = $(MSG_ROOT)/test
 
 # NOTE - your .txt files must be named with the package name before the '_'
 MSG_SOURCES = \
-    pegasusTest_root.txt \
     pegasusTest_en.txt \
     pegasusTest_en_us.txt \
     pegasusTest_fr.txt \

@@ -1,4 +1,4 @@
-st_AT_IC:table{
+pegasusTest_st_AT_IC:table{
 
 
 CIMStatusCode.CIM_ERR_SUCCESS:string { "CIM_ERR_SUCCESS: SUCCESSFUL st_at_ic {0}, number = {1}" }

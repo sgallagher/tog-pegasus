@@ -151,14 +151,14 @@ static const char REMOVE_AUTH_SUCCESS[]        =
 static const char NO_AUTHS_FOUND[]             =
 			"No user authorizations found for listing.";
 
-static const char AUTH_SCHEMA_NOT_LOADED []    =
-    "Please make sure that the authorization schema is loaded on the CIMOM.";
+static const char AUTH_SCHEMA_NOT_LOADED []  =
+    "Please restore the internal repository on the CIM Server.";
 
-static const char  REQUIRED_ARGS_MISSING []    =
+static const char REQUIRED_ARGS_MISSING []    =
                         "Required arguments missing.";
 
 static const char AUTH_ALREADY_EXISTS []       =
-                        "Specified user authorizations already exists.";
+                        "Specified user authorizations already exist.";
 
 static const char AUTH_NOT_FOUND []            =
                         "Specified user authorizations were not found.";

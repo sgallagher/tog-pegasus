@@ -114,9 +114,10 @@ static const Uint32 OPERATION_TYPE_LIST           = 4;
 */
 
 static const char NOT_PRIVILEGED_USER []         = 
-                     "Error, you must have superuser privilege to run cimuser."; 
+             "You must have superuser privilege to run this command.";
+
 static const char CIMOM_NOT_RUNNING []         = 
-                        "CIMOM may not be running.";
+                        "CIM Server may not be running.";
 
 static const char ADD_USER_FAILURE []    = 
                         "Failed to add user.";
@@ -142,23 +143,11 @@ static const char CHANGE_PASSWORD_SUCCESS []  =
 static const char PASSWORD_BLANK []  = 
                      "Password cannot be blank. Please re-enter your password.";
 
-static const char ADDING_USER[] =
-			"Adding user...";
-
-static const char MODIFYING_USER[] =
-			"Modifying users password...";
-
-static const char LISTING_USERS[] =
-			"Listing users...";
-
 static const char NO_USERS_FOUND[] =
 			"No users found for listing.";
 
-static const char REMOVING_USER[] = 
-			"Removing user...";
-
 static const char AUTH_SCHEMA_NOT_LOADED []  =
-    "Please make sure that the authentication schema is loaded on the CIMOM.";
+    "Please restore the internal repository on the CIM Server.";
 
 static const char REQUIRED_ARGS_MISSING []        =
                         "Required arguments missing.";
@@ -167,7 +156,7 @@ static const char INVALID_ARGS []        =
                         "Invalid arguments.";
 
 static const char USER_ALREADY_EXISTS []        =
-                        "Specified user name already exists.";
+                        "Specified user name already exist.";
 
 static const char USER_NOT_FOUND []        =
                         "Specified user name was not found.";
@@ -1092,7 +1081,6 @@ void CIMUserCommand::_AddUser
 	newInstance.addProperty ( 
 			  CIMProperty( PROPERTY_NAME_PASSWORD , _password ) );
 
-	outPrintWriter << ADDING_USER << endl;
 	_client->createInstance( PEGASUS_NAMESPACENAME_USER, newInstance );
 	outPrintWriter << ADD_USER_SUCCESS << endl;
 
@@ -1140,7 +1128,6 @@ void CIMUserCommand::_ModifyUser
 	//
 	// Call the invokeMethod with the input parameters
 	// 
-	outPrintWriter << MODIFYING_USER << endl;
 
 	//
 	// Not checking for return code as all error conditions will
@@ -1186,7 +1173,6 @@ void CIMUserCommand::_RemoveUser
             _hostName, PEGASUS_NAMESPACENAME_USER,
             PEGASUS_CLASSNAME_USER, kbArray);
 
-        outPrintWriter << REMOVING_USER << endl;
         _client->deleteInstance(PEGASUS_NAMESPACENAME_USER, reference);
 	outPrintWriter << REMOVE_USER_SUCCESS << endl;
 
@@ -1212,7 +1198,6 @@ void CIMUserCommand::_ListUsers
         //
         // get all the instances of class PG_User
         //
-	outPrintWriter << LISTING_USERS << endl;
         Array<CIMObjectPath> instanceNames =
             _client->enumerateInstanceNames(
 	        PEGASUS_NAMESPACENAME_USER, 

@@ -116,7 +116,7 @@ static const char CIMOM_NOT_RUNNING []         =
                         "CIM server may not be running.";
 
 static const char FILE_NOT_EXIST []            = 
-                        "Configuration files does not exist";
+                        "Configuration files does not exist.";
 
 static const char FILE_NOT_READABLE []         = 
                         "Configuration file not readable.";
@@ -157,7 +157,7 @@ static const char UPDATED_IN_FILE []           =
                         "' updated in configuration file.";
 
 static const char CONFIG_SCHEMA_NOT_LOADED []  =
-    "Please make sure that the config schema is loaded in the CIM server.";
+    "Please restore the internal repository on the CIM Server.";
 
 static const char PROPERTY_NOT_FOUND []        =
                         "Specified property name was not found.";

@@ -50,7 +50,7 @@ $(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) \
     ## DYNAMIC_LIBRARIES must be defined appropriately in the
     ## libraries.mak file that includes this file
     ##
-	$(LINK_COMMAND) $(LINK_ARGUMENTS) -L$(LIB_DIR) $(LINK_OUT)$(FULL_LIB) $(OBJECTS) $(DYNAMIC_LIBRARIES)
+	$(LINK_COMMAND) $(LINK_ARGUMENTS) -L$(LIB_DIR) $(LINK_OUT) $(FULL_LIB) $(OBJECTS) $(DYNAMIC_LIBRARIES)
 
     ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
       ## z/OS needs side definition files to link executables to

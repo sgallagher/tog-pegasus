@@ -659,7 +659,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
                        //"unsupported-protocol-version",
                        //String("CIMProtocolVersion \"") + protocolVersion +
                            //"\" is not supported.");
-         MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMPROTOCOL_VERSION_MISMATCH",
+         MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMPROTOCOL_VERSION_NOT_SUPPORTED",
    								 "CIMProtocolVersion \"$0\" is not supported.",
    								 protocolVersion);
    		sendHttpError(queueId, HTTP_STATUS_NOTIMPLEMENTED, "unsupported-protocol-version",
@@ -920,7 +920,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	      // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
 	      // String("Unrecognized intrinsic method: ") + cimMethodName);
 
-	      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, MessageLoaderParms("Server.CIMOperationRequestDecoder.UNRECOGNIZED_INSTRINSIC_METHOD",
+	      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, MessageLoaderParms("Server.CIMOperationRequestDecoder.UNRECOGNIZED_INTRINSIC_METHOD",
 									     "Unrecognized intrinsic method: $0", cimMethodName));
 
             }

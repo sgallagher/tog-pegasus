@@ -49,7 +49,7 @@ int main()
 	it.insert("A", "");
 	it.check();
 
-	it.print(cout);
+	// it.print(cout);
 
 	{
 	    Array<String> expected;
@@ -103,7 +103,7 @@ int main()
 	InheritanceTree it;
 	it.insertFromPath("./classes");
 	it.check();
-	it.print(cout);
+	// it.print(cout);
     }
     catch (Exception& e)
     {

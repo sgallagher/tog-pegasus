@@ -75,7 +75,7 @@ void test()
 	assert(arr1 == arr2);
 
         NameSpaceManager nsm("./repository");
-        nsm.print(cout);
+        // nsm.print(cout);
 
 	// Delete the namespaces test. Put in when delete installed
 	//for (Uint32 i = 0; i < arr1.size(); i++)

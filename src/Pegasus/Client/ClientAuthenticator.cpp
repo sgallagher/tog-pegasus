@@ -123,7 +123,8 @@ Boolean ClientAuthenticator::checkResponseHeaderForChallenge(
 
     if (_challengeReceived)
     {
-        throw UnauthorizedAccess();
+        // Do not respond to a challenge more than once
+        return false;
     }
     else
     {
@@ -174,9 +175,9 @@ Boolean ClientAuthenticator::checkResponseHeaderForChallenge(
 
                if (!String::equal(dirName, String(PEGASUS_LOCAL_AUTH_DIR)))
                {
-                   // Cannot access an arbitrary directory
-                   //
-                   throw UnauthorizedAccess();
+                   // Refuse to respond to the challenge when the file is
+                   // not in the expected directory
+                   return false;
                }
            }
        }

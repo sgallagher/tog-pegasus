@@ -203,25 +203,10 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         _outputQueue->enqueue(response);
         return;
     }
-    catch(UnauthorizedAccess& e)
-    {
-      // ATTN-SF-P3-20030115: Need to create a specific exception
-      // to indicate Authentication failure. See JAGae53944.
-    
-      // l10n
-      // const String ERROR_MESSAGE = "Authentication failed.";
-  
-      MessageLoaderParms mlParms("ExportClient.CIMExportResponseDecoder.AUTHENTICATION_FAILED", "Authentication failed.");
-      String ERROR_MESSAGE(MessageLoader::getMessage(mlParms));
-      
-      CannotConnectException* cannotConnectException =
-	new CannotConnectException(ERROR_MESSAGE);
-      ClientExceptionMessage * response =
-	new ClientExceptionMessage(cannotConnectException);
 
-     _outputQueue->enqueue(response);
-        return;
-    }
+    // We have the response.  If authentication failed, we will generate a
+    // CIMClientHTTPErrorException below with the "401 Unauthorized" status
+    // in the (re-challenge) response.
 
     //
     // Check for a success (200 OK) response

@@ -61,8 +61,8 @@ PEGASUS_USING_STD;
 
 // Macro puts out message and then does assert error out.
 #define TERMINATE(X) {PEGASUS_STD(cout) << "TestInterop " << X << PEGASUS_STD(endl); assert(false);}
-//#define CDEBUG(X)
-#define CDEBUG(X) PEGASUS_STD(cout) << "InteropTest " << X << PEGASUS_STD(endl)
+#define CDEBUG(X)
+//#define CDEBUG(X) PEGASUS_STD(cout) << "InteropTest " << X << PEGASUS_STD(endl)
 
 
 #include <cstring>
@@ -134,7 +134,7 @@ public:
     Boolean _namespaceDeleteCIM_Namespace(const CIMNamespaceName& name);
     Boolean testClassExists(const CIMName & className);
 
-    // Methods associated iwth overall testing
+    // Methods associated with overall testing
     void testNameSpacesManagement();
     void testSharedNameSpacesManagement();
     CIMInstance getInstanceObjMgr();
@@ -1104,25 +1104,22 @@ void InteropTest::testSharedNameSpacesManagement()
         cout << "Shared Namespace Tests passed" << endl;
 }
 
+/** get the single instance of the object manager class. Note that this function
+    is based on the concept that there is only a single instance of this class 
+    despite the fact that we have no reason to really control this.  The Interop
+    provider generally controls this so we assume it.  There is an assert in
+    the test so that we get an error if there is more than one instance.
+    @return the single instance of the CIM_ObjectManager class.
+*/
 CIMInstance InteropTest::getInstanceObjMgr()
 {
-    CIMClass objectManager =
-        _client.getClass(
-            PEGASUS_NAMESPACENAME_INTEROP,
-            CIM_OBJECTMANAGER_CLASSNAME,
-            false,
-            true,
-            true);
-
-    if (verbose)
-    {
-        cout << "Show the object manager Class element" << endl;
-        XmlWriter::printClassElement(objectManager);
-    }
     Array<CIMInstance> instancesObjMgr = _client.enumerateInstances(
                                              PEGASUS_NAMESPACENAME_INTEROP,
                                              CIM_OBJECTMANAGER_CLASSNAME,
-                                             true, false, true,true, CIMPropertyList());
+                                             false,  // di = false
+                                             false,  // localOnly = false
+                                             false,  // include qualifiers = false
+                                             false, CIMPropertyList());
 
     assert(instancesObjMgr.size() == 1);
 
@@ -1142,7 +1139,24 @@ void InteropTest::testObjectManagerClass()
 {
     try
     {
-    // Test the CIM_ObjectManager Object
+
+        // The get class test is here simply as a means to assure that the class exists
+        // in the defined namespace.
+        CIMClass objectManagerClass =
+            _client.getClass(
+                PEGASUS_NAMESPACENAME_INTEROP,
+                CIM_OBJECTMANAGER_CLASSNAME,
+                false,
+                true,
+                true);
+
+        if (verbose)
+        {
+            cout << "Show the object manager Class element" << endl;
+            XmlWriter::printClassElement(objectManagerClass);
+        }
+
+        // Test the CIM_ObjectManager Object
 
         CIMInstance instanceObjectManager =  getInstanceObjMgr();
 
@@ -1151,7 +1165,7 @@ void InteropTest::testObjectManagerClass()
             cout << "Show the object manager instance element" << endl;
             XmlWriter::printInstanceElement(instanceObjectManager);
         }
-        // Why am I building the path here rather than getting it from the instance?
+        // Rebuild the path from the instance
         CIMObjectPath objectManagerPath = instanceObjectManager.buildPath(CIM_OBJECTMANAGER_CLASSNAME);
 
         // test to confirm that both names and instances return same thing.
@@ -1159,6 +1173,7 @@ void InteropTest::testObjectManagerClass()
                                                  PEGASUS_NAMESPACENAME_INTEROP,
                                                  CIM_OBJECTMANAGER_CLASSNAME);
 
+        // Again assert that there is only one instance
         assert(pathsObjMgr.size() == 1);
 
         CIMObjectPath objectManagerPath1 = instanceObjectManager.getPath();
@@ -1173,9 +1188,12 @@ void InteropTest::testObjectManagerClass()
         // Add code to compare paths, objects, etc. for object manager.
 
         // Right now this test failing.  not sure why.
-        //assert(objectManagerPath1 == objectManagerPath);
+        // assert(objectManagerPath1 == objectManagerPath);
+        // assert (objectManagerPath1 == objectManagerPath);
+        // assert (paths.objMgr[0] == objectManagerPath)
 
-        // Test modification of objectmanager statistics property.
+        // Test existence of properties in instance returned..
+        // NOTE This is a duplication of the loop for all properties test below.
 
         assert (instanceObjectManager.findProperty("gatherstatisticaldata") != PEG_NOT_FOUND);
         assert (instanceObjectManager.findProperty("Name") != PEG_NOT_FOUND);
@@ -1183,7 +1201,19 @@ void InteropTest::testObjectManagerClass()
         assert (instanceObjectManager.findProperty("CreationClassName") != PEG_NOT_FOUND);
         assert (instanceObjectManager.findProperty("SystemName") != PEG_NOT_FOUND);
         assert (instanceObjectManager.findProperty("SystemCreationClassName") != PEG_NOT_FOUND);
+
+        for (Uint32 i = 0 ; i < objectManagerClass.getPropertyCount() ; i++)
+        {
+            CIMConstProperty pl = objectManagerClass.getProperty(i);
+            CIMName propertyName = pl.getName();
+            assert(instanceObjectManager.findProperty(propertyName) != PEG_NOT_FOUND);
+        }
+
+        // Add a test for the different get parameters on instances.
+
+        // Note that we have no way of testing the persistence of the object ID at this point.
     }
+
     // Catch block for all of the CIM_ObjectManager Tests.
     catch(CIMException& e)
     {
@@ -1281,7 +1311,11 @@ void InteropTest::testStatisticsEnable()
         //??? Error here since we only have the one property in the instance.
         try
         {
-             XmlWriter::printInstanceElement(sendInstance);
+            if (verbose)
+            {
+                cout << "Instance to be modified" << endl;
+                XmlWriter::printInstanceElement(sendInstance);
+            }
             _client.modifyInstance(PEGASUS_NAMESPACENAME_INTEROP,
                                 sendInstance,
                                 false,
@@ -1478,7 +1512,7 @@ int main(int argc, char** argv)
     verbose = getenv("PEGASUS_TEST_VERBOSE");
 
     pgmName = argv[0];
-    cout << pgmName << endl;
+
     if (argc > 1)
     {
         String cmd = argv[1];
@@ -1495,17 +1529,18 @@ int main(int argc, char** argv)
 
     try
     {
+        // Create the InteropTest object.
         InteropTest it;
 
-     /* There are three possible commands.
-        on - Turns on the status monitor
-        off - Turns off the status monitor
-        Status - Shows the state of the status monitor
-
-        If no command is input, it reports the current statistics.
-        Note that we do not protect against the user requesting statistics
-        if the monitor is off.
-    */
+         /* There are three possible commands.
+            on - Turns on the status monitor
+            off - Turns off the status monitor
+            Status - Shows the state of the status monitor
+    
+            If no command is input, it reports the current statistics.
+            Note that we do not protect against the user requesting statistics
+            if the monitor is off.
+        */
         if (argc > 1)
         {
             String cmd = argv[1];

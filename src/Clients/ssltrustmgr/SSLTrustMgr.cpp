@@ -519,21 +519,14 @@ SSLTrustMgr::SSLTrustMgr ()
     //
     _operationType       = _OPERATION_TYPE_UNINITIALIZED;
 
-    _trustStore          = String ();
     _trustStoreSet       = false;
-    _trustPath           = String ();
     _trustPathSet        = false;
-    _certFile            = String ();
     _certFileSet         = false;
-    _certUser            = String ();
     _certUserSet         = false;;
-    _issuerName          = String ();
     _issuerNameSet       = false;;
-    _serialNumber        = String ();
     _serialNumberSet     = false;;
     _crlSet              = false;;
 
-    _hostName            = String ();
 #ifdef PEGASUS_SSLTRUSTMGR_REMOTE_CONNECTION 
     _hostNameSet         = false;
     _portNumber          = WBEM_DEFAULT_HTTP_PORT;
@@ -543,9 +536,7 @@ SSLTrustMgr::SSLTrustMgr ()
     sprintf(buffer, "%lu", (unsigned long) _portNumber);
     _portNumberStr       = buffer;
 
-    _userName            = String ();
     _userNameSet         = false;
-    _password            = String ();
     _passwordSet         = false;
     _useSSL              = false;
 #endif /* #ifdef PEGASUS_SSLTRUSTMGR_REMOTE_CONNECTION */
@@ -881,7 +872,7 @@ void SSLTrustMgr::_connectToServer( CIMClient& client,
     throw (Exception)
 {
 #ifdef PEGASUS_SSLTRUSTMGR_REMOTE_CONNECTION
-    String                 host                  = String ();
+    String                 host;
     Uint32                 portNumber            = 0;
     Boolean                connectToLocal        = false;
 
@@ -1629,9 +1620,9 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
 {
     Uint32         i               = 0;
     Uint32         c               = 0;
-    String         timeoutStr      = String ();
-    String         serialNumberStr = String ();
-    String         optString       = String ();
+    String         timeoutStr;
+    String         serialNumberStr;
+    String         optString;
     getoopt        getOpts;
 
     //

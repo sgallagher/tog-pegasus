@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -53,15 +53,15 @@ CIMClass::CIMClass(const CIMClass& x)
 
 CIMClass::CIMClass(const CIMObject& x)
 {
-    // ATTN-RK-P1-20020502: Need to Inc(_rep)?
     if (!(_rep = dynamic_cast<CIMClassRep*>(x._rep)))
 	throw DynamicCastFailed();
+    Inc(_rep);
 }
 
 CIMClass::CIMClass(const CIMObject& x, NoThrow&)
 {
-    // ATTN-RK-P1-20020502: Need to Inc(_rep)?
     _rep = dynamic_cast<CIMClassRep*>(x._rep);
+    Inc(_rep);
 }
 
 CIMClass::CIMClass(
@@ -358,36 +358,36 @@ CIMConstClass::CIMConstClass(const CIMClass& x)
 
 CIMConstClass::CIMConstClass(const CIMObject& x)
 {
-    // ATTN-RK-P1-20020502: Need to Inc(_rep)?
     if (!(_rep = dynamic_cast<CIMClassRep*>(x._rep)))
 	throw DynamicCastFailed();
+    Inc(_rep);
 }
 
 CIMConstClass::CIMConstClass(const CIMConstObject& x)
 {
-    // ATTN-RK-P1-20020502: Need to Inc(_rep)?
     if (!(_rep = dynamic_cast<CIMClassRep*>(x._rep)))
 	throw DynamicCastFailed();
+    Inc(_rep);
 }
 
 CIMConstClass::CIMConstClass(const CIMObject& x, NoThrow&)
 {
-    // ATTN-RK-P1-20020502: Need to Inc(_rep)?
     _rep = dynamic_cast<CIMClassRep*>(x._rep);
+    Inc(_rep);
 }
 
 CIMConstClass::CIMConstClass(const CIMConstObject& x, NoThrow&)
 {
-    // ATTN-RK-P1-20020502: Need to Inc(_rep)?
     _rep = dynamic_cast<CIMClassRep*>(x._rep);
+    Inc(_rep);
 }
 
 CIMConstClass::CIMConstClass(
     const CIMReference& reference,
     const String& superClassName)
 {
-    // ATTN-RK-P1-20020502: Need to Inc(_rep)?
     _rep = new CIMClassRep(reference, superClassName);
+    Inc(_rep);
 }
 
 CIMConstClass& CIMConstClass::operator=(const CIMConstClass& x)

@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -59,15 +59,15 @@ CIMInstance::CIMInstance(const CIMInstance& x)
 
 CIMInstance::CIMInstance(const CIMObject& x)
 {
-    // ATTN-RK-P1-20020502: Need to Inc(_rep)?
     if (!(_rep = dynamic_cast<CIMInstanceRep*>(x._rep)))
 	throw DynamicCastFailed();
+    Inc(_rep);
 }
 
 CIMInstance::CIMInstance(const CIMObject& x, NoThrow&)
 {
-    // ATTN-RK-P1-20020502: Need to Inc(_rep)?
     _rep = dynamic_cast<CIMInstanceRep*>(x._rep);
+    Inc(_rep);
 }
 
 CIMInstance::CIMInstance(const String& className)
@@ -290,28 +290,28 @@ CIMConstInstance::CIMConstInstance(const CIMInstance& x)
 
 CIMConstInstance::CIMConstInstance(const CIMObject& x)
 {
-    // ATTN-RK-P1-20020502: Need to Inc(_rep)?
     if (!(_rep = dynamic_cast<CIMInstanceRep*>(x._rep)))
 	throw DynamicCastFailed();
+    Inc(_rep);
 }
 
 CIMConstInstance::CIMConstInstance(const CIMConstObject& x)
 {
-    // ATTN-RK-P1-20020502: Need to Inc(_rep)?
     if (!(_rep = dynamic_cast<CIMInstanceRep*>(x._rep)))
 	throw DynamicCastFailed();
+    Inc(_rep);
 }
 
 CIMConstInstance::CIMConstInstance(const CIMObject& x, NoThrow&)
 {
-    // ATTN-RK-P1-20020502: Need to Inc(_rep)?
     _rep = dynamic_cast<CIMInstanceRep*>(x._rep);
+    Inc(_rep);
 }
 
 CIMConstInstance::CIMConstInstance(const CIMConstObject& x, NoThrow&)
 {
-    // ATTN-RK-P1-20020502: Need to Inc(_rep)?
     _rep = dynamic_cast<CIMInstanceRep*>(x._rep);
+    Inc(_rep);
 }
 
 CIMConstInstance::CIMConstInstance(const String& className)

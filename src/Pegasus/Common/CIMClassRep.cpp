@@ -22,7 +22,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:	Karl Schopmeyer(k.schopmeyer@attglobal.net)
+// Modified By: Karl Schopmeyer(k.schopmeyer@attglobal.net)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 

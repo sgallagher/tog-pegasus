@@ -130,13 +130,14 @@ static int pTypeToJType[]=
     CIMTYPE_STRING,    public static final int STRING   = 9;  12
     CIMTYPE_DATETIME,  public static final int DATETIME = 13; 12
     CIMTYPE_REFERENCE  public static final int REFERENCE = 0x32+1; 14
+    CIMTYPE_OBJECT     public static final int OBJECT   = 15; 15
 */
-   {10, 1, 2, 3, 4, 5, 6, 7, 8,11,12,14, 9,13,0x32+1};
-//   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
+   {10, 1, 2, 3, 4, 5, 6, 7, 8,11,12,14, 9,13,0x32+1, 15};
+//   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14      15
 
 static int jTypeToPType[]=
-   {0, 1, 2, 3, 4, 5, 6, 7, 8,12, 0, 9,10,12};
-//  0  1  2  3  4  5  6  7  8  9 10 11 12 13
+   {0, 1, 2, 3, 4, 5, 6, 7, 8,12, 0, 9,10,12,14,15}; 
+//  0  1  2  3  4  5  6  7  8  9 10 11 12 13,??,15
 
    static char *jTypeToChars[]= {
         NULL,
@@ -153,7 +154,8 @@ static int jTypeToPType[]=
         "real32",
         "real64",
         "datetime",
-        "char16" };
+        "char16",
+        "object" };
 
 
 class _dataType {

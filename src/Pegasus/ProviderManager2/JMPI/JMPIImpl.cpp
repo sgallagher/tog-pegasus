@@ -2050,6 +2050,14 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMProperty__1addValue
          refarr.append(ref);
       }
       break;
+   case CIMTYPE_OBJECT: {
+         CIMObject obj;
+         cvin->get(obj);
+         Array<CIMObject> objarr;
+         cv.get(objarr);
+         objarr.append(obj);
+      }
+      break;
    default:
       throwCIMException(jEnv,"+++ unsupported type ");
    }
@@ -2599,6 +2607,9 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMValue__1getValue
          }
 //         throwCIMException(jEnv,"+++ DateTime not yet supported");
          break;
+      case CIMTYPE_OBJECT:
+         throwCIMException(jEnv,"+++ Object not yet supported");
+         break;
       default:
       	throwCIMException(jEnv,"+++ unsupported type: ");
       }
@@ -2727,6 +2738,9 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMValue__1getValue
          break;
       case CIMTYPE_DATETIME:
          throwCIMException(jEnv,"+++ DateTime not yet supported");
+         break;
+      case CIMTYPE_OBJECT:
+         throwCIMException(jEnv,"+++ Object not yet supported");
          break;
       default:
       throwCIMException(jEnv,"+++ unsupported type: ");

@@ -78,7 +78,6 @@
 # include <sstream>
 #endif
 
-
 #if  defined(PEGASUS_OS_OS400)
 #include "OS400ConvertChar.h"
 #endif
@@ -90,6 +89,10 @@
 #define PEG_METHOD_ENTER(x,y)  cout<<"--- Enter: "<<y<<endl;
 #define PEG_METHOD_EXIT()
 #endif
+
+
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 /* See bug report 1046
 The following fix  turns off the filtering of enumerate
@@ -106,6 +109,25 @@ NOTE: We did not make these env variable params because
 the test suite must be changed also.*/
 
 // comment this to disable filters #define PEGASUS_ENABLE_INSTANCE_FILTER
+
+//
+//  Enable the filter test. (bug 2334, 1975, 1046) 
+//  (see additional comments below)
+//  
+//  Enabled in these two files
+//  src/Pegasus/Repository/CIMRepository.cpp
+//  Repository/tests/Repository2/Repository2.cpp
+//
+//  The #ifdef PEGASUS_ENABLE_INSTANCE_FILTER statements have been left in
+//  as an easy way to disable this code should any problems arise during
+//  the next week or so with this functionalty. after that the ifdefs 
+//  shall be removed.
+//                                       JR Wunderlch April 5, 05 
+#define PEGASUS_ENABLE_INSTANCE_FILTER
+
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+
 
 PEGASUS_USING_STD;
 

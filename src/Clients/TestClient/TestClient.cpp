@@ -47,7 +47,7 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/XmlWriter.h>
 #if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_OS_LINUX) && !defined(PEGASUS_OS_AIX)
-#include <slp/slp.h>
+// Rempve SLP #include <slp/slp.h>
 #endif
 
 PEGASUS_USING_PEGASUS;
@@ -1092,8 +1092,8 @@ void GetOptions(
 		 		     "Prints help message with command line options "},
 		 {"debug", "false", false, Option::BOOLEAN, 0, 0, "d",
 		              "Not Used "},
-		 {"slp", "false", false, Option::BOOLEAN, 0, 0, "slp",
-		 		 		 "use SLP to find cim servers to test"},
+// remove slp		 {"slp", "false", false, Option::BOOLEAN, 0, 0, "slp",
+//		 		 		 "use SLP to find cim servers to test"},
 		 {"ssl", "false", false, Option::BOOLEAN, 0, 0, "ssl",
 		 		 		 "use SSL"},
 
@@ -1224,8 +1224,9 @@ int main(int argc, char** argv)
     // All arguments remaining in argv go into list.
     // if SLP option set, SLP list goes into set.
     // if SLP false and no args, use default localhost:5988
-    Boolean useSLP =  om.isTrue("slp");
-    cout << "SLP " << (useSLP ? "true" : "false") << endl;
+    //Boolean useSLP =  om.isTrue("slp");
+    Boolean useSLP =  false;
+    // remove SLPcout << "SLP " << (useSLP ? "true" : "false") << endl;
 
     Boolean localConnection = (om.valueEquals("local", "true"))? true: false;
     cout << "localConnection " << (localConnection ? "true" : "false") << endl;
@@ -1245,7 +1246,7 @@ int main(int argc, char** argv)
       connectionList.append("localhost:5988");
 
     // Expand host to add port if not defined
-
+/*
 #if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_OS_LINUX) && !defined(PEGASUS_OS_AIX)
     if( useSLP )
     {
@@ -1265,7 +1266,7 @@ int main(int argc, char** argv)
 		 }
     }
 #endif
-
+*/
 	// Show the connectionlist
     cout << "Connection List size " << connectionList.size() << endl;
     for (Uint32 i = 0; i < connectionList.size(); i++)

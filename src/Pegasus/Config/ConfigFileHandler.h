@@ -31,6 +31,8 @@
 #ifndef Pegasus_ConfigFileHandler_h
 #define Pegasus_ConfigFileHandler_h
 
+#define EMPTY_VALUE "set_empty"
+
 #include <cctype>
 #include <Pegasus/Config/Linkage.h>
 #include <Pegasus/Config/ConfigExceptions.h>
@@ -75,7 +77,8 @@ public:
     */
     ConfigFileHandler (
         const String& currentFile = CURRENT_CONFIG_FILE, 
-        const String& plannedFile = PLANNED_CONFIG_FILE);
+        const String& plannedFile = PLANNED_CONFIG_FILE,
+        const Boolean offLine = false);
             //throw (NoSuchFile, FileNotReadable);
 
 
@@ -226,6 +229,11 @@ private:
     Flag indicating whether the planned config files exists or not.
     */
     Boolean      _plannedFileExist;
+
+    /**
+    Flag indicating whether config file is accessed off line or not.
+    */
+    Boolean      _offLine;
 
 };
 

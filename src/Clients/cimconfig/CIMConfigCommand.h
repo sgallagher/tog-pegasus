@@ -128,6 +128,8 @@ private:
     */
     void _listAllPropertiesInCIMServer
     (
+	ostream&    outPrintWriter,
+	ostream&    errPrintWriter,
         Array <String>&   propertyNames,
         Array <String>&   propertyValues
     );

@@ -150,6 +150,10 @@ repository implementation.
     snmpDeliverTrap class and deliverTrap method will help to implement specific trap 
     delivery mechanism. 
 
+29. (Yi Zhou - HP) 09 Oct 2001 - Changed cimconfig to allow setting property to
+    be NULL. Also, if -u -p specified in the cimconfig, instead of updating
+    property value to be default in the plan file, remove the property from the
+    plan file. Converted ConfigSettingProvider to use provider2 library.
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

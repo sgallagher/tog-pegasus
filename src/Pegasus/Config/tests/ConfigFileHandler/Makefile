@@ -6,7 +6,7 @@ include $(ROOT)/mak/config.mak
 
 include ../libraries.mak
 
-PROGRAM = ConfigFileHanler
+PROGRAM = TestConfigFileHandler
 
 SOURCES = ConfigFileHandler.cpp
 

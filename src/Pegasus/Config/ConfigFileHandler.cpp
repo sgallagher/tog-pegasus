@@ -23,7 +23,7 @@
 //
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Yi Zhou (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -64,7 +64,9 @@ struct ConfigTable
 */
 ConfigFileHandler::ConfigFileHandler (
     const String& currentFile, 
-    const String& plannedFile)
+    const String& plannedFile,
+    const Boolean offLine)
+    : _offLine(offLine)
 {
     String cFile = currentFile;
 
@@ -227,10 +229,14 @@ Boolean ConfigFileHandler::updateCurrentValue (
         }
     }
 
+    String newVal = value;
+    if (String::equal(value, EMPTY_VALUE))
+        newVal = "";
+
     if (!String::equal(value, ""))
     {
         // Store the new property name and value in to the table
-        if (!_currentConfig->table.insert(name, value))
+        if (!_currentConfig->table.insert(name, newVal))
         {
             return false;
         }
@@ -241,7 +247,7 @@ Boolean ConfigFileHandler::updateCurrentValue (
         // Store the new property in current config file.
         _currentConfFile->save(_currentConfig);
     }
-    catch (CannotRenameFile e)
+    catch (CannotRenameFile& e)
     {
         //
         // Back up creation failed
@@ -281,12 +287,16 @@ Boolean ConfigFileHandler::updatePlannedValue (
         }
     }
 
-    if (!String::equal(value, ""))
+    String newVal = value;
+    if (String::equal(value, EMPTY_VALUE))
+        newVal = "";
+
+    if (!String::equal(value, "")) 
     {
         //
         // Store the new property name and value in to the table
         //
-        if (!_plannedConfig->table.insert(name, value))
+        if (!_plannedConfig->table.insert(name, newVal))
         {
             return false;
         }
@@ -295,12 +305,29 @@ Boolean ConfigFileHandler::updatePlannedValue (
     try
     {
         //
-        // Store the new property in current config file.
-            //
+        // Planned file need not exist for off line
+        // configuration setting update.
+        //
+        if (_offLine)
+        {
+            String pFile = _plannedConfFile->getFileName();
+
+            ArrayDestroyer<char> p(pFile.allocateCString());
+            ofstream ofs(p.getPointer());
+            if (!ofs)
+            {
+                throw NoSuchFile(pFile);
+            }
+            ofs.close();
+        }
+
+        //
+        // Store the new property in planned config file.
+        //
         _plannedConfFile->save(_plannedConfig);
 
     }
-    catch (CannotRenameFile e)
+    catch (CannotRenameFile& e)
     {
         //
         // Back up creation failed

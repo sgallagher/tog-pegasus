@@ -23,7 +23,7 @@
 //
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Yi Zhou (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -328,8 +328,16 @@ void TracePropertyOwner::initCurrentValue(
 
     if (String::equalNoCase(_traceComponents->propertyName, name))
     {
-        Tracer::setTraceComponents(value);
-        _traceComponents->currentValue = value;
+	String newValue = value;
+	if (String::equal(newValue, EMPTY_VALUE))
+	{
+		newValue = "";
+	} else
+	{
+		newValue = value;
+	}
+        Tracer::setTraceComponents(newValue);
+        _traceComponents->currentValue = newValue;
     }
     else if (String::equalNoCase(_traceLevel->propertyName, name))
     {
@@ -339,7 +347,7 @@ void TracePropertyOwner::initCurrentValue(
         {
             newValue = _traceLevel->defaultValue;
         }
-   
+	
         if (newValue == "1")
         {
             Tracer::setTraceLevel(Tracer::LEVEL1);
@@ -375,6 +383,11 @@ void TracePropertyOwner::initCurrentValue(
             newValue =  _traceFilePath->defaultValue;
         }
 
+	if (String::equal(newValue, EMPTY_VALUE))
+	{
+            throw InvalidPropertyValue(name,newValue);
+	}
+
         ArrayDestroyer<char> fileName(newValue.allocateCString());
 	if (!Tracer::isValid(fileName.getPointer()))
         {
@@ -408,7 +421,15 @@ void TracePropertyOwner::initPlannedValue(
     // Perform validation
     if (String::equalNoCase(_traceComponents->propertyName, name))
     {
-        _traceComponents->plannedValue= value;
+        String newValue = value;
+        if (String::equal(newValue, EMPTY_VALUE))
+        {
+                newValue = "";
+        } else
+        {
+                newValue = value;
+        }
+        _traceComponents->plannedValue= newValue;
     }
     else if (String::equalNoCase(_traceLevel->propertyName, name))
     {
@@ -429,6 +450,12 @@ void TracePropertyOwner::initPlannedValue(
     }
     else if (String::equalNoCase(_traceFilePath->propertyName, name))
     {
+	String newValue = value;
+	if (String::equal(newValue, EMPTY_VALUE))
+        {
+            throw InvalidPropertyValue(name,newValue);
+        }
+
         if (value == String::EMPTY)
         {
             _traceFilePath->plannedValue = _traceFilePath->defaultValue;

@@ -23,7 +23,7 @@
 //
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Yi Zhou (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,6 +37,7 @@
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/CIMStatusCode.h>
+#include <Pegasus/Common/Exception.h>
 #include <Pegasus/Client/CIMClient.h>
 //#include <Pegasus/Client/ClientException.h>
 #include <Pegasus/Config/ConfigFileHandler.h>
@@ -147,7 +148,7 @@ static const char FAILED_TO_UNSET_PROPERTY []  =
                         "Failed to unset the config property.";
 
 static const char FAILED_TO_LIST_PROPERTIES [] = 
-                        "Failed to list the config properties.";
+                        "Failed to list the config properties. ";
 
 static const char CURRENT_VALUE_OF_PROPERTY [] =
                         "Current value for the property '";
@@ -409,16 +410,6 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
 
                     _propertyValue = property.subString( equalsIndex + 1 );
 
-                    if (String::equal(_propertyValue, String::EMPTY) )
-                    {
-                        //
-                        // The property value was not specified
-                        //
-                        InvalidOptionArgumentException e (property,
-                            OPTION_SET);
-                        throw e;
-                    }
-
                     break;
                 }
 
@@ -630,7 +621,7 @@ Uint32 CIMConfigCommand::execute (
         //
         // Open default config files and load current config properties
         //
-        _configFileHandler = new ConfigFileHandler(currentFile, plannedFile);
+        _configFileHandler = new ConfigFileHandler(currentFile, plannedFile, true);
 
         _configFileHandler->loadCurrentConfigProperties();
 
@@ -641,16 +632,16 @@ Uint32 CIMConfigCommand::execute (
             portNumberStr.append (DEFAULT_PORT_STR);
         }
     }
-    catch (NoSuchFile nsf)
+    catch (NoSuchFile& nsf)
     {
         portNumberStr = DEFAULT_PORT_STR;
     }
-    catch (FileNotReadable fnr)
+    catch (FileNotReadable& fnr)
     {
         errPrintWriter << FILE_NOT_READABLE << fnr.getMessage() << endl;
         return ( RC_ERROR );
     }
-    catch (ConfigFileSyntaxError cfse)
+    catch (ConfigFileSyntaxError& cfse)
     {
         errPrintWriter << cfse.getMessage() << endl;
         return ( RC_ERROR );
@@ -680,7 +671,7 @@ Uint32 CIMConfigCommand::execute (
 
         connected = true;
     }
-    catch(Exception e)
+    catch(Exception& e)
     {
         //
         // Failed to connect, so process the request offline.
@@ -688,17 +679,6 @@ Uint32 CIMConfigCommand::execute (
         // config properties in the planned config file, so load only
         // planned config properties. 
         //
-
-        //
-        // check whether the planned file exists or not
-        //
-        if (!FileSystem::exists(currentFile) || 
-            !FileSystem::exists(plannedFile))
-        {
-            outPrintWriter << CIMOM_NOT_RUNNING << endl <<
-                FILE_NOT_EXIST << " at '" << pegasusHome << "'" << endl;
-            return ( RC_ERROR );
-        }
 
         _configFileHandler->loadPlannedConfigProperties();
         connected = false;
@@ -741,7 +721,7 @@ Uint32 CIMConfigCommand::execute (
                     }
                 }
             }
-            catch (CIMException e)
+            catch (CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
 
@@ -762,28 +742,6 @@ Uint32 CIMConfigCommand::execute (
                     errPrintWriter << FAILED_TO_GET_PROPERTY <<
                         e.getMessage() << endl;
                 }
-                return ( RC_ERROR );
-            }
-
-            if ( _currentValueSet && 
-                 String::equal(currentValue, String::EMPTY) )
-            {
-                errPrintWriter << CURRENT_VALUE_OF_PROPERTY
-                    << _propertyName << IS_NOT_SET << endl;
-                return ( RC_ERROR );
-            }
-            else if ( _plannedValueSet && 
-                 String::equal(plannedValue, String::EMPTY) )
-            {
-                errPrintWriter << PLANNED_VALUE_OF_PROPERTY
-                    << _propertyName << IS_NOT_SET << endl;
-                return ( RC_ERROR );
-            }
-            else if ( _defaultValueSet && 
-                 String::equal(defaultValue, String::EMPTY) )
-            {
-                errPrintWriter << DEFAULT_VALUE_OF_PROPERTY
-                    << _propertyName << IS_NOT_SET << endl;
                 return ( RC_ERROR );
             }
 
@@ -811,8 +769,18 @@ Uint32 CIMConfigCommand::execute (
             {
                 if (connected)
                 {
+		   // If _propertyValue is null, set it to be set_empty
+		   if (_propertyValue == String::EMPTY)
+		   {
+			 _propertyValue = EMPTY_VALUE;
+		   }
                     _updatePropertyInCIMServer( outPrintWriter, 
                         errPrintWriter, _propertyName, _propertyValue);
+
+		    if (String::equal(_propertyValue, EMPTY_VALUE))
+		    {
+			_propertyValue = "";	
+		    }
 
                     if ( _currentValueSet )
                     {
@@ -824,8 +792,8 @@ Uint32 CIMConfigCommand::execute (
                     if ( _plannedValueSet )
                     {
                         outPrintWriter << PLANNED_VALUE_OF_PROPERTY
-                            << _propertyName << IS_SET_TO << _propertyValue
-                            << IN_CIMSERVER << endl;
+                            << _propertyName << IS_SET_TO << "\"" <<_propertyValue
+                            << "\"" << IN_CIMSERVER << endl;
                     }
                 }
                 else
@@ -839,7 +807,6 @@ Uint32 CIMConfigCommand::execute (
                     }
                     else if (_plannedValueSet)
                     {
-
                         if ( !_configFileHandler->updatePlannedValue( 
                             _propertyName, _propertyValue ) )
                         {
@@ -854,7 +821,7 @@ Uint32 CIMConfigCommand::execute (
                         UPDATED_IN_FILE << endl;
                 }
             }
-            catch (CIMException e)
+            catch (CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
 
@@ -924,9 +891,8 @@ Uint32 CIMConfigCommand::execute (
 
                     if ( _plannedValueSet )
                     {
-                        outPrintWriter << PLANNED_VALUE_OF_PROPERTY
-                            << _propertyName <<"' is set to default value"
-                            << IN_CIMSERVER << endl;
+                        outPrintWriter << "Property '" << _propertyName <<
+                       	    IS_UNSET_IN_FILE << endl;
                     }
                 }
                 else
@@ -951,7 +917,7 @@ Uint32 CIMConfigCommand::execute (
                 }
 
             }
-            catch (CIMException e)
+            catch (CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
 
@@ -1009,8 +975,8 @@ Uint32 CIMConfigCommand::execute (
 
                 if (connected)
                 {
-                    _listAllPropertiesInCIMServer( 
-                            propertyNames, propertyValues);
+                    _listAllPropertiesInCIMServer(outPrintWriter, 
+                         errPrintWriter, propertyNames, propertyValues);
 
                 }
                 else
@@ -1055,7 +1021,7 @@ Uint32 CIMConfigCommand::execute (
                 }
                 break;
             }
-            catch (CIMException e)
+            catch (CIMException& e)
             {
                 CIMStatusCode code = e.getCode();
 
@@ -1076,7 +1042,12 @@ Uint32 CIMConfigCommand::execute (
 
                 return ( RC_ERROR );
             }
-            break;
+            catch (TimedOut& timeout)
+            {
+                outPrintWriter << FAILED_TO_LIST_PROPERTIES <<
+                    timeout.getMessage() << endl;
+                return ( RC_ERROR );
+            }
 
         default:
             //
@@ -1147,7 +1118,7 @@ void CIMConfigCommand::_getPropertiesFromCIMServer
         prop = (CIMProperty)cimInstance.getProperty(pos);
         propValues.append(prop.getValue().toString());
     }
-    catch (CIMException e)
+    catch (CIMException& e)
     {
         throw e;
     }
@@ -1195,7 +1166,6 @@ void CIMConfigCommand::_updatePropertyInCIMServer
         {
             Uint32 pos = modifiedInst.findProperty(CURRENT_VALUE);
             CIMProperty prop = (CIMProperty)modifiedInst.getProperty(pos);
-
             modifiedInst.removeProperty(pos);
  
             prop.setValue(CIMValue(propValue));
@@ -1221,7 +1191,7 @@ void CIMConfigCommand::_updatePropertyInCIMServer
         client.modifyInstance(NAMESPACE, modifiedInst);
 
     }
-    catch (CIMException e)
+    catch (CIMException& e)
     {
         throw e;
     }
@@ -1233,6 +1203,8 @@ void CIMConfigCommand::_updatePropertyInCIMServer
  */
 void CIMConfigCommand::_listAllPropertiesInCIMServer
     ( 
+    ostream&    outPrintWriter,
+    ostream&    errPrintWriter,
     Array <String>&   propNames,
     Array <String>&   propValues
     )
@@ -1310,9 +1282,13 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
  
         }
     }
-    catch (CIMException e)
+    catch (CIMException& e)
     {
         throw e;
+    }
+    catch (TimedOut& timeout)
+    {
+        throw timeout;
     }
 
 }
@@ -1346,7 +1322,7 @@ int main (int argc, char* argv [])
     {
         command->setCommand (argc, argv);
     } 
-    catch (CommandFormatException cfe) 
+    catch (CommandFormatException& cfe) 
     {
         if (!String::equal(cfe.getMessage (), ""))
         {

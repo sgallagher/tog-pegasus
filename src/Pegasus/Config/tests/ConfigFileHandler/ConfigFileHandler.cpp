@@ -45,7 +45,8 @@ int main()
 	Array<String> values;
 
 	ConfigFileHandler _config("cimserver_current.conf",  
-            "cimserver_planned.conf");
+            "cimserver_planned.conf", true);
+
 	_config.loadAllConfigProperties();
 	
 	_config.getAllCurrentPropertyNames(all);

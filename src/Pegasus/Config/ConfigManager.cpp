@@ -208,15 +208,15 @@ Boolean ConfigManager::updateCurrentValue(
             return 0;
         }
     }
-    catch (NonDynamicConfigProperty ndcp)
+    catch (NonDynamicConfigProperty& ndcp)
     {
         throw ndcp;
     }
-    catch (InvalidPropertyValue ipv)
+    catch (InvalidPropertyValue& ipv)
     {
         throw ipv;
     }
-    catch (UnrecognizedConfigProperty ucp)
+    catch (UnrecognizedConfigProperty& ucp)
     {
         throw ucp;
     }
@@ -265,15 +265,15 @@ Boolean ConfigManager::updatePlannedValue(
             return 0;
         }
     }
-    catch (NonDynamicConfigProperty ndcp)
+    catch (NonDynamicConfigProperty& ndcp)
     {
         throw ndcp;
     }
-    catch (InvalidPropertyValue ipv)
+    catch (InvalidPropertyValue& ipv)
     {
         throw ipv;
     }
-    catch (UnrecognizedConfigProperty ucp)
+    catch (UnrecognizedConfigProperty& ucp)
     {
         throw ucp;
     }
@@ -405,11 +405,11 @@ void ConfigManager::mergeConfigFiles(
         _configFileHandler = new ConfigFileHandler(currentFile, plannedFile);
 
     }
-    catch (NoSuchFile nsf)
+    catch (NoSuchFile& nsf)
     {
         throw nsf;
     }
-    catch (FileNotReadable fnr)
+    catch (FileNotReadable& fnr)
     {
         throw fnr;
     }
@@ -429,11 +429,11 @@ void ConfigManager::mergeConfigFiles()
         _configFileHandler = new ConfigFileHandler();
 
     }
-    catch (NoSuchFile nsf)
+    catch (NoSuchFile& nsf)
     {
         throw nsf;
     }
-    catch (FileNotReadable fnr)
+    catch (FileNotReadable& fnr)
     {
         throw fnr;
     }
@@ -565,13 +565,13 @@ void ConfigManager::_loadConfigProperties()
                         properties[i].propertyName, value);
                 }
             }
-            catch(UnrecognizedConfigProperty ucp)
+            catch(UnrecognizedConfigProperty& ucp)
             {
                 cerr << ucp.getMessage() <<
                     " : Default value is used." << endl;
                 continue;
             }
-            catch(InvalidPropertyValue ipv)
+            catch(InvalidPropertyValue& ipv)
             {
                 cerr << ipv.getMessage() << 
                     " : Default value is used." << endl;

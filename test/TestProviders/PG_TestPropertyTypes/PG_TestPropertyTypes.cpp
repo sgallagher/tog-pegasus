@@ -39,11 +39,13 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-static PG_TestPropertyTypes provider;
-
-extern "C" PEGASUS_EXPORT CIMBaseProvider* PegasusCreateProvider_PG_TestPropertyTypes()
+extern "C" PEGASUS_EXPORT CIMBaseProvider* PegasusCreateProvider(const String & classname)
 {
-	return((CIMInstanceProvider *)&provider);
+	if (String::equalNoCase(classname, "PG_TestPropertyTypes"))
+	{
+		return(new PG_TestPropertyTypes());
+	}
+	return (0);
 }
 
 PG_TestPropertyTypes::PG_TestPropertyTypes(void)

@@ -23,7 +23,7 @@
 //
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
-// Modified By: 
+// Modified By: Yi Zhou (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -332,6 +332,12 @@ void LogPropertyOwner::initCurrentValue(
     const String& name, 
     const String& value)
 {
+
+    if (String::equal(value, EMPTY_VALUE))
+    {
+            throw InvalidPropertyValue(name,value);
+    }
+
     if (String::equalNoCase(_logtrace->propertyName, name))
     {
         _logtrace->currentValue = value;
@@ -366,6 +372,11 @@ void LogPropertyOwner::initPlannedValue(
     const String& name, 
     const String& value)
 {
+    if (String::equal(value, EMPTY_VALUE))
+    {
+            throw InvalidPropertyValue(name,value);
+    }
+
     if (String::equalNoCase(_logtrace->propertyName, name))
     {
         _logtrace->plannedValue= value;

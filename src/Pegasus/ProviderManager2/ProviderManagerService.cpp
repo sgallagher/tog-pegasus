@@ -286,30 +286,49 @@ void ProviderManagerService::handleCimRequest(
     Message * response = 0;
 
     if ((dynamic_cast<CIMOperationRequestMessage*>(request) != 0) ||
+        (dynamic_cast<CIMIndicationRequestMessage*>(request) != 0) ||
         (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE) ||
         (request->getType() == CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE))
     {
         // Handle CIMOperationRequestMessage, CIMExportIndicationRequestMessage,
-        // and CIMInitializeProviderRequestMessage
+        // CIMIndicationRequestMessage, and CIMInitializeProviderRequestMessage.
+        // (These should be blocked when the provider module is disabled.)
 
-        // Note: The provider ID container is added to the OperationContext
-        // by the CIMOperationRequestDispatcher for all CIM operation
-        // requests to providers, so it does not need to be added again.
+        //
+        // Get the provider module instance to check for a disabled module
+        //
+        CIMInstance providerModule;
 
-        // Get a ProviderIdContainer for ExportIndicationRequestMessage
-        if (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE)
+        CIMIndicationRequestMessage* indRequest =
+            dynamic_cast<CIMIndicationRequestMessage*>(request);
+        if (indRequest != 0)
         {
+            providerModule = indRequest->providerModule;
+        }
+        else if (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE)
+        {
+            // Get a ProviderIdContainer for ExportIndicationRequestMessage
             ProviderIdContainer pidc = _getProviderIdContainer(request);
             request->operationContext.insert(pidc);
+
+            providerModule = pidc.getModule();
+        }
+        else
+        {
+            // The provider ID container is added to the OperationContext
+            // by the CIMOperationRequestDispatcher for all CIM operation
+            // requests to providers, so it does not need to be added again.
+            // CIMInitializeProviderRequestMessage also has a provider ID
+            // container.
+            ProviderIdContainer pidc =
+                request->operationContext.get(ProviderIdContainer::NAME);
+            providerModule = pidc.getModule();
         }
 
         //
         // Check if the target provider is disabled
         //
         Boolean moduleDisabled = false;
-        ProviderIdContainer pidc =
-            request->operationContext.get(ProviderIdContainer::NAME);
-        const CIMInstance providerModule = pidc.getModule();
         Uint32 pos = providerModule.findProperty(CIMName("OperationalStatus"));
         PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
         Array<Uint16> operationalStatus;

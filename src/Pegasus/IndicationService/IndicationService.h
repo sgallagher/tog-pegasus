@@ -177,8 +177,8 @@ private:
 
     /**
         Validates the specified required property in the instance.
-        If the property does not exist, or has a null value, an exceptiuon is 
-        thrown, using the specified message.
+        If the property does not exist, or has a null value, or is not of the 
+        expected type, an exception is thrown, using the specified message.
 
         This function is called by the _canCreate function, and is used to 
         validate the  Filter and Handler properties in Subscription instances,
@@ -189,6 +189,7 @@ private:
 
         @param   instance              instance to be validated
         @param   propertyName          name of property to be validated
+        @param   expectedType          expected CIMType of property value
         @param   message               message to be used in exception
 
         @throw   CIM_ERR_INVALID_PARAMETER  if required property is missing or 
@@ -197,6 +198,7 @@ private:
     void _checkRequiredProperty (
         CIMInstance & instance,
         const CIMName & propertyName,
+        const CIMType expectedType,
         const String & message);
 
     /**
@@ -206,10 +208,12 @@ private:
         If the property exists, but its value is NULL, its value is set to
         the default value.
         If the value of the property is Other, but the corresponding Other___
-        property either does not exist or has a value of NULL, an exception is 
-        thrown.  
+        property either does not exist, has a value of NULL, or is not of the
+        correct type, an exception is thrown.  
         If the value of the property is not Other, but the corresponding
         Other___ property exists and has a non-NULL value, an exception is
+        thrown.
+        If the value of the property is not a supported value, an exception is 
         thrown.
         This function is called by the _canCreate function, and is used to 
         validate the following pairs of properties in Subscription or Handler 
@@ -248,17 +252,45 @@ private:
         Filter and Handler instances, and the Source Namespace property in 
         Filter instances.
 
+        Note: currently all properties validated by this function are of type
+        String.  To use this function in the future with properties of other 
+        types, a type parameter would need to be added, and the default value 
+        would need to be passed as a CIMValue instead of a String.
+
         @param   instance              instance to be validated
         @param   propertyName          name of property to be validated
         @param   defaultValue          default value for property
 
         @return  the value of the property
-
      */
     String _checkPropertyWithDefault (
         CIMInstance & instance,
         const CIMName & propertyName,
         const String & defaultValue);
+
+    /**
+        Validates the specified property in the instance.
+        If the property exists and its value is not NULL, but it is not of
+        the correct type, an exception is thrown.
+        This function is called by the _canCreate function.  It is used to 
+        validate the FailureTriggerTimeInterval, TimeOfLastStateChange, 
+        SubscriptionDuration, SubscriptionStartTime, SubscriptionTimeRemaining,
+        RepeatNotificationInterval, RepeatNotificationGap, and
+        RepeatNotificationCount properties in Subscription instances, the Owner
+        property in Handler instances, and the PortNumber, SNMPSecurityName, 
+        and SNMPEngineID properties in SNMP Mapper Handler instances.
+
+        @param   instance              instance to be validated
+        @param   propertyName          name of property to be validated
+        @param   expectedType          expected CIMType for property
+
+        @throw   CIM_ERR_INVALID_PARAMETER  if property exists and is not null
+                                            but is not of the correct type
+     */
+    void _checkProperty (
+        CIMInstance & instance,
+        const CIMName & propertyName,
+        const CIMType expectedType);
 
     /**
         Determines if the user is authorized to modify the instance, and if the

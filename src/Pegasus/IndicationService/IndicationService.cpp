@@ -2789,8 +2789,10 @@ Boolean IndicationService::_canCreate (
         //  Filter and Handler are key properties for Subscription
         //  No other properties are required
         //
-        _checkRequiredProperty (instance, _PROPERTY_FILTER, _MSG_KEY_PROPERTY);
-        _checkRequiredProperty (instance, _PROPERTY_HANDLER, _MSG_KEY_PROPERTY);
+        _checkRequiredProperty (instance, _PROPERTY_FILTER, CIMTYPE_REFERENCE,
+            _MSG_KEY_PROPERTY);
+        _checkRequiredProperty (instance, _PROPERTY_HANDLER, CIMTYPE_REFERENCE,
+            _MSG_KEY_PROPERTY);
 
         //
         //  Validate the Filter and Handler reference properties
@@ -2845,6 +2847,23 @@ Boolean IndicationService::_canCreate (
             _PROPERTY_OTHERONFATALERRORPOLICY, (Uint16) _ERRORPOLICY_IGNORE, 
             (Uint16) _ERRORPOLICY_OTHER, _validErrorPolicies, 
             _supportedErrorPolicies);
+
+        //
+        //  For each remaining property, verify that if the property exists in 
+        //  the instance it is of the correct type
+        //
+        _checkProperty (instance, _PROPERTY_FAILURETRIGGERTIMEINTERVAL, 
+            CIMTYPE_UINT64);
+        _checkProperty (instance, _PROPERTY_LASTCHANGE, CIMTYPE_DATETIME);
+        _checkProperty (instance, _PROPERTY_DURATION, CIMTYPE_UINT64);
+        _checkProperty (instance, _PROPERTY_STARTTIME, CIMTYPE_DATETIME);
+        _checkProperty (instance, _PROPERTY_TIMEREMAINING, CIMTYPE_UINT64);
+        _checkProperty (instance, _PROPERTY_REPEATNOTIFICATIONINTERVAL, 
+            CIMTYPE_UINT64);
+        _checkProperty (instance, _PROPERTY_REPEATNOTIFICATIONGAP, 
+            CIMTYPE_UINT64);
+        _checkProperty (instance, _PROPERTY_REPEATNOTIFICATIONCOUNT, 
+            CIMTYPE_UINT16);
     } 
     else  // Filter or Handler
     {
@@ -2854,9 +2873,10 @@ Boolean IndicationService::_canCreate (
         //  CreationClassName and Name must exist
         //  If others do not exist, add and set to default
         //
-        _checkRequiredProperty (instance, _PROPERTY_NAME, _MSG_KEY_PROPERTY);
-        _checkRequiredProperty (instance, _PROPERTY_CREATIONCLASSNAME, 
+        _checkRequiredProperty (instance, _PROPERTY_NAME, CIMTYPE_STRING,
             _MSG_KEY_PROPERTY);
+        _checkRequiredProperty (instance, _PROPERTY_CREATIONCLASSNAME, 
+            CIMTYPE_STRING, _MSG_KEY_PROPERTY);
 
         _checkPropertyWithDefault (instance, _PROPERTY_SYSTEMNAME, 
             System::getFullyQualifiedHostName ());
@@ -2869,9 +2889,10 @@ Boolean IndicationService::_canCreate (
             //
             //  Query and QueryLanguage properties are required for Filter
             //
-            _checkRequiredProperty (instance, _PROPERTY_QUERY, _MSG_PROPERTY);
-            _checkRequiredProperty (instance, _PROPERTY_QUERYLANGUAGE, 
+            _checkRequiredProperty (instance, _PROPERTY_QUERY, CIMTYPE_STRING,
                 _MSG_PROPERTY);
+            _checkRequiredProperty (instance, _PROPERTY_QUERYLANGUAGE, 
+                CIMTYPE_STRING, _MSG_PROPERTY);
 
             //
             //  Validate the query language is supported
@@ -2923,6 +2944,12 @@ Boolean IndicationService::_canCreate (
                 (Uint16) _PERSISTENCE_OTHER, _validPersistenceTypes, 
                 _supportedPersistenceTypes);
 
+            //
+            //  For remaining property, verify that if the property exists in 
+            //  the instance it is of the correct type
+            //
+            _checkProperty (instance, _PROPERTY_OWNER, CIMTYPE_STRING);
+
             if (instance.getClassName ().equal 
                 (PEGASUS_CLASSNAME_INDHANDLER_CIMXML) || 
                 instance.getClassName ().equal 
@@ -2933,7 +2960,7 @@ Boolean IndicationService::_canCreate (
                 //  Handler subclass
                 //
                 _checkRequiredProperty (instance, _PROPERTY_DESTINATION, 
-                    _MSG_PROPERTY);
+                    CIMTYPE_STRING, _MSG_PROPERTY);
             }
 
             if (instance.getClassName ().equal 
@@ -2943,21 +2970,30 @@ Boolean IndicationService::_canCreate (
                 //  TargetHost property is required for SNMP
                 //  Handler subclass
                 //
-                _checkRequiredProperty (instance, _PROPERTY_TARGETHOST,
-                    _MSG_PROPERTY);
+                _checkRequiredProperty (instance, _PROPERTY_TARGETHOST, 
+                    CIMTYPE_STRING, _MSG_PROPERTY);
 
                 //
                 //  TargetHostFormat property is required for SNMP
                 //  Handler subclass
                 //
                 _checkRequiredProperty (instance, _PROPERTY_TARGETHOSTFORMAT,
-                    _MSG_PROPERTY);
+                    CIMTYPE_UINT16, _MSG_PROPERTY);
 
                 //
                 //  SNMPVersion property is required for SNMP Handler
                 //
                 _checkRequiredProperty (instance, _PROPERTY_SNMPVERSION,
-                    _MSG_PROPERTY);
+                    CIMTYPE_UINT16, _MSG_PROPERTY);
+                //
+                //  For each remaining property, verify that if the property 
+                //  exists in the instance it is of the correct type
+                //
+                _checkProperty (instance, _PROPERTY_PORTNUMBER, CIMTYPE_UINT32);
+                _checkProperty (instance, _PROPERTY_SNMPSECURITYNAME, 
+                    CIMTYPE_STRING);
+                _checkProperty (instance, _PROPERTY_SNMPENGINEID, 
+                    CIMTYPE_STRING);
             }
         }
 
@@ -2968,13 +3004,13 @@ Boolean IndicationService::_canCreate (
             //
             PEG_METHOD_EXIT ();
 
-	    // l10n
+            // l10n
 
             // throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
-	    // _MSG_CLASS_NOT_SERVED);
+            // _MSG_CLASS_NOT_SERVED);
 
-	    throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
-		     MessageLoaderParms(_MSG_CLASS_NOT_SERVED_KEY, _MSG_CLASS_NOT_SERVED));
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
+            MessageLoaderParms(_MSG_CLASS_NOT_SERVED_KEY, _MSG_CLASS_NOT_SERVED));
         }
     }
 
@@ -2985,6 +3021,7 @@ Boolean IndicationService::_canCreate (
 void IndicationService::_checkRequiredProperty (
     CIMInstance & instance,
     const CIMName & propertyName,
+    const CIMType expectedType,
     const String & message)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
@@ -3015,37 +3052,81 @@ void IndicationService::_checkRequiredProperty (
         {
             missingProperty = true;
         }
+        else
+        {
+            //
+            //  Check that the property value is of the correct type
+            //
+            if ((theValue.getType () != expectedType) || (theValue.isArray ()))
+            {
+                if (theValue.isArray ())
+                {
+                    String exceptionStr = _MSG_INVALID_TYPE;
+                    exceptionStr.append (_MSG_ARRAY_OF);
+                    exceptionStr.append ("$0");
+                    exceptionStr.append (_MSG_FOR_PROPERTY);
+                    exceptionStr.append ("$1");
+
+                    PEG_METHOD_EXIT ();
+                    throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
+                        MessageLoaderParms 
+                            (_MSG_INVALID_TYPE_ARRAY_OF_FOR_PROPERTY_KEY, 
+                            exceptionStr,
+                            cimTypeToString (theValue.getType ()), 
+                            propertyName.getString ()));
+                }
+                else
+                {
+                    String exceptionStr = _MSG_INVALID_TYPE;
+                    exceptionStr.append ("$0");
+                    exceptionStr.append (_MSG_FOR_PROPERTY);
+                    exceptionStr.append ("$1");
+
+                    PEG_METHOD_EXIT ();
+                    throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
+                        MessageLoaderParms 
+                            (_MSG_INVALID_TYPE_FOR_PROPERTY_KEY, 
+                            exceptionStr,
+                            cimTypeToString (theValue.getType ()), 
+                            propertyName.getString ()));
+                }
+            }
+        }
     }
 
     if (missingProperty)
     {
 
-      // l10n
+        // l10n
 
-      String exceptionStr = _MSG_MISSING_REQUIRED;
-      // exceptionStr.append (propertyName.getString());
-      exceptionStr.append ("$0");
-      exceptionStr.append (message);
+        String exceptionStr = _MSG_MISSING_REQUIRED;
+        // exceptionStr.append (propertyName.getString());
+        exceptionStr.append ("$0");
+        exceptionStr.append (message);
 
-      String message_key;
-      if (strcmp(message.getCString(), _MSG_KEY_PROPERTY) == 0) {
-	message_key = _MSG_KEY_PROPERTY_KEY;
-      } else if (strcmp(message.getCString(), _MSG_PROPERTY) == 0) {
-	message_key = _MSG_PROPERTY_KEY;
-      } else {
-	message_key = String("");
-      }
+        String message_key;
+        if (strcmp(message.getCString(), _MSG_KEY_PROPERTY) == 0) 
+        {
+            message_key = _MSG_KEY_PROPERTY_KEY;
+        } 
+        else if (strcmp(message.getCString(), _MSG_PROPERTY) == 0) 
+        {
+            message_key = _MSG_PROPERTY_KEY;
+        } 
+        else 
+        {
+            message_key = String("");
+        }
 
-      PEG_METHOD_EXIT ();
+        PEG_METHOD_EXIT ();
       
-      // l10n
+        // l10n
+        // throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
+        //     exceptionStr);
 
-      // throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
-      //		   exceptionStr);
-
-      throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
-				     MessageLoaderParms(message_key, 
-				     exceptionStr, propertyName.getString()));
+        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
+            MessageLoaderParms(message_key, 
+            exceptionStr, propertyName.getString()));
 
     }
     PEG_METHOD_EXIT ();
@@ -3178,7 +3259,7 @@ void IndicationService::_checkPropertyWithOther (
 
         //
         //  If the value is Other, the Other
-        //  property must exist and value must not be NULL
+        //  property must exist, value must not be NULL and type must be String
         //
         if (result == otherValue)
         {
@@ -3227,6 +3308,25 @@ void IndicationService::_checkPropertyWithOther (
                         MessageLoaderParms(_MSG_PROPERTY_KEY, 
                         exceptionStr,
                         otherPropertyName.getString()));
+                }
+                else if (theOtherValue.getType () != CIMTYPE_STRING)
+                {
+                    //
+                    //  Property exists and is not null, 
+                    //  but is not of correct type
+                    //
+                    String exceptionStr = _MSG_INVALID_TYPE;
+                    exceptionStr.append ("$0");
+                    exceptionStr.append (_MSG_FOR_PROPERTY);
+                    exceptionStr.append ("$1");
+
+                    PEG_METHOD_EXIT ();
+                    throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
+                        MessageLoaderParms 
+                            (_MSG_INVALID_TYPE_FOR_PROPERTY_KEY, 
+                            exceptionStr,
+                            cimTypeToString (theOtherValue.getType ()), 
+                            otherPropertyName.getString ()));
                 }
             }
         }
@@ -3307,6 +3407,25 @@ String IndicationService::_checkPropertyWithDefault (
         {
             theProperty.setValue (CIMValue (defaultValue));
         }
+        else if (theValue.getType () != CIMTYPE_STRING)
+        {
+            //
+            //  Property exists and is not null,
+            //  but is not of correct type
+            //
+            String exceptionStr = _MSG_INVALID_TYPE;
+            exceptionStr.append ("$0");
+            exceptionStr.append (_MSG_FOR_PROPERTY);
+            exceptionStr.append ("$1");
+
+            PEG_METHOD_EXIT ();
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
+                MessageLoaderParms
+                    (_MSG_INVALID_TYPE_FOR_PROPERTY_KEY,
+                    exceptionStr,
+                    cimTypeToString (theValue.getType ()),
+                    propertyName.getString ()));
+        }
         else
         {
             theValue.get (result);
@@ -3314,6 +3433,71 @@ String IndicationService::_checkPropertyWithDefault (
     }
 
     return result;
+
+    PEG_METHOD_EXIT ();
+}
+
+void IndicationService::_checkProperty (
+    CIMInstance & instance,
+    const CIMName & propertyName,
+    const CIMType expectedType)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+        "IndicationService::_checkProperty");
+
+    //
+    //  If the property exists, get it
+    //
+    Uint32 propPos = instance.findProperty (propertyName);
+    if (propPos != PEG_NOT_FOUND)
+    {
+        CIMProperty theProperty = instance.getProperty (propPos);
+        CIMValue theValue = theProperty.getValue ();
+
+        //
+        //  If the value is not null, check the type
+        //
+        if (!theValue.isNull ())
+        {
+            if ((theValue.getType () != expectedType) || (theValue.isArray ()))
+            {
+                //
+                //  Property exists and is not null, but is not of correct type
+                //
+                if (theValue.isArray ())
+                {
+                    String exceptionStr = _MSG_INVALID_TYPE;
+                    exceptionStr.append (_MSG_ARRAY_OF);
+                    exceptionStr.append ("$0");
+                    exceptionStr.append (_MSG_FOR_PROPERTY);
+                    exceptionStr.append ("$1");
+
+                    PEG_METHOD_EXIT ();
+                    throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
+                        MessageLoaderParms 
+                            (_MSG_INVALID_TYPE_ARRAY_OF_FOR_PROPERTY_KEY, 
+                            exceptionStr,
+                            cimTypeToString (theValue.getType ()), 
+                            propertyName.getString ()));
+                }
+                else
+                {
+                    String exceptionStr = _MSG_INVALID_TYPE;
+                    exceptionStr.append ("$0");
+                    exceptionStr.append (_MSG_FOR_PROPERTY);
+                    exceptionStr.append ("$1");
+
+                    PEG_METHOD_EXIT ();
+                    throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
+                        MessageLoaderParms 
+                            (_MSG_INVALID_TYPE_FOR_PROPERTY_KEY, 
+                            exceptionStr,
+                            cimTypeToString (theValue.getType ()), 
+                            propertyName.getString ()));
+                }
+            }
+        }
+    }
 
     PEG_METHOD_EXIT ();
 }

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+  <MESSAGE ID="030032" PROTOCOLVERSION="1.0">
+    <SIMPLEREQ>
+      <IMETHODCALL NAME="CreateInstance">
+        <LOCALNAMESPACEPATH>
+          <NAMESPACE NAME="root"/>
+          <NAMESPACE NAME="PG_InterOp"/>
+        </LOCALNAMESPACEPATH>
+        <IPARAMVALUE NAME="NewInstance">
+          <INSTANCE CLASSNAME="CIM_IndicationSubscription">
+            <PROPERTY.REFERENCE NAME="Filter" 
+                                REFERENCECLASS="CIM_IndicationFilter"> 
+              <VALUE.REFERENCE> 
+                <INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+                  <KEYBINDING NAME="SystemCreationClassName">
+                    <KEYVALUE VALUETYPE="string">
+                    CIM_UnitaryComputerSystem
+                    </KEYVALUE>
+                  </KEYBINDING>
+                  <KEYBINDING NAME="SystemName">
+                    <KEYVALUE VALUETYPE="string">
+                    server001.acme.com
+                    </KEYVALUE>
+                  </KEYBINDING>
+                  <KEYBINDING NAME="CreationClassName">
+                    <KEYVALUE VALUETYPE="string">
+                    CIM_IndicationFilter
+                    </KEYVALUE>
+                  </KEYBINDING>
+                  <KEYBINDING NAME="Name">
+                    <KEYVALUE VALUETYPE="string">
+                    Filter01
+                    </KEYVALUE>
+                  </KEYBINDING>
+                </INSTANCENAME>
+              </VALUE.REFERENCE>
+            </PROPERTY.REFERENCE>
+            <PROPERTY.REFERENCE NAME="Handler" 
+                                REFERENCECLASS="CIM_IndicationHandler"> 
+              <VALUE.REFERENCE> 
+                <INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+                  <KEYBINDING NAME="SystemCreationClassName">
+                    <KEYVALUE VALUETYPE="string">
+                    CIM_UnitaryComputerSystem
+                    </KEYVALUE>
+                  </KEYBINDING>
+                  <KEYBINDING NAME="SystemName">
+                    <KEYVALUE VALUETYPE="string">
+                    server001.acme.com
+                    </KEYVALUE>
+                  </KEYBINDING>
+                  <KEYBINDING NAME="CreationClassName">
+                    <KEYVALUE VALUETYPE="string">
+                    CIM_IndicationHandlerCIMXML
+                    </KEYVALUE>
+                  </KEYBINDING>
+                  <KEYBINDING NAME="Name">
+                    <KEYVALUE VALUETYPE="string">
+                    Handler01
+                    </KEYVALUE>
+                  </KEYBINDING>
+                </INSTANCENAME>
+              </VALUE.REFERENCE>
+            </PROPERTY.REFERENCE>
+            <PROPERTY NAME="OnFatalErrorPolicy" TYPE="uint16">
+              <VALUE> 2 </VALUE>
+            </PROPERTY>
+            <PROPERTY NAME="FailureTriggerTimeInterval" TYPE="uint64">
+              <VALUE> 60 </VALUE>
+            </PROPERTY>
+            <PROPERTY NAME="SubscriptionState" TYPE="uint16"> 
+              <VALUE> 2 </VALUE>
+            </PROPERTY>
+            <PROPERTY NAME="SubscriptionDuration" TYPE="uint64">
+              <VALUE> 60000000000 </VALUE>
+            </PROPERTY>
+            <PROPERTY NAME="SubscriptionTimeRemaining" TYPE="uint64">
+              <VALUE> 60000000000 </VALUE>
+            </PROPERTY>
+            <PROPERTY NAME="RepeatNotificationPolicy" TYPE="uint16">
+              <VALUE> 1 </VALUE>
+            </PROPERTY>
+            <PROPERTY NAME="OtherRepeatNotificationPolicy" TYPE="string">
+              <VALUE> another policy </VALUE>
+            </PROPERTY>
+            <PROPERTY NAME="RepeatNotificationInterval" TYPE="uint64">
+              <VALUE> 60 </VALUE>
+            </PROPERTY>
+            <PROPERTY NAME="RepeatNotificationGap" TYPE="uint64">
+              <VALUE> 30 </VALUE>
+            </PROPERTY>
+            <PROPERTY NAME="RepeatNotificationCount" TYPE="uint16">
+              <VALUE> 5 </VALUE>
+            </PROPERTY>
+          </INSTANCE>
+        </IPARAMVALUE>
+      </IMETHODCALL>
+    </SIMPLEREQ>
+  </MESSAGE>
+</CIM>

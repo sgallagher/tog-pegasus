@@ -125,17 +125,17 @@ static const CIMName _CLASS_PROVIDER_TERMINATED_ALERT =
 //
 
 /**
-    The name of the filter reference property for indication subscription class
+    The name of the Filter reference property for indication subscription class
  */
 static const CIMName _PROPERTY_FILTER = CIMName ("Filter");
 
 /**
-    The name of the handler reference property for indication subscription class
+    The name of the Handler reference property for indication subscription class
  */
 static const CIMName _PROPERTY_HANDLER = CIMName ("Handler");
 
 /**
-    The name of the subscription state property for indication subscription 
+    The name of the Subscription State property for indication subscription 
     class
  */
 static const CIMName _PROPERTY_STATE = CIMName ("SubscriptionState");
@@ -147,14 +147,14 @@ static const CIMName _PROPERTY_STATE = CIMName ("SubscriptionState");
 static const CIMName _PROPERTY_OTHERSTATE = CIMName ("OtherSubscriptionState");
 
 /**
-    The name of the repeat notification policy property for indication
+    The name of the Repeat Notification Policy property for indication
     subscription class
  */
 static const CIMName _PROPERTY_REPEATNOTIFICATIONPOLICY =
     CIMName ("RepeatNotificationPolicy");
 
 /**
-    The name of the other repeat notification policy property for
+    The name of the Other Repeat Notification Policy property for
     indication subscription class
  */
 static const CIMName _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY =
@@ -173,6 +173,13 @@ static const CIMName _PROPERTY_ONFATALERRORPOLICY =
  */
 static const CIMName _PROPERTY_OTHERONFATALERRORPOLICY = 
     CIMName ("OtherOnFatalErrorPolicy");
+
+/**
+    The name of the Failure Trigger Time Interval property for Indication 
+    Subscription class
+ */
+static const CIMName _PROPERTY_FAILURETRIGGERTIMEINTERVAL = 
+    CIMName ("FailureTriggerTimeInterval");
 
 /**
     The name of the Time Of Last State Change property for Indication 
@@ -200,12 +207,33 @@ static const CIMName _PROPERTY_TIMEREMAINING =
     CIMName ("SubscriptionTimeRemaining");
 
 /**
-    The name of the query property for indication filter class
+    The name of the Repeat Notification Interval property for indication
+    subscription class
+ */
+static const CIMName _PROPERTY_REPEATNOTIFICATIONINTERVAL = 
+    CIMName ("RepeatNotificationInterval");
+
+/**
+    The name of the Repeat Notification Gap property for indication
+    subscription class
+ */
+static const CIMName _PROPERTY_REPEATNOTIFICATIONGAP = 
+    CIMName ("RepeatNotificationGap");
+
+/**
+    The name of the Repeat Notification Count property for indication
+    subscription class
+ */
+static const CIMName _PROPERTY_REPEATNOTIFICATIONCOUNT = 
+    CIMName ("RepeatNotificationCount");
+
+/**
+    The name of the Query property for indication filter class
  */
 static const CIMName _PROPERTY_QUERY = CIMName ("Query");
 
 /**
-    The name of the query language property for indication filter class
+    The name of the Query Language property for indication filter class
  */
 static const CIMName _PROPERTY_QUERYLANGUAGE = CIMName ("QueryLanguage");
 
@@ -215,25 +243,25 @@ static const CIMName _PROPERTY_QUERYLANGUAGE = CIMName ("QueryLanguage");
 static const CIMName _PROPERTY_SOURCENAMESPACE = CIMName ("SourceNamespace");
 
 /**
-    The name of the name property for indication filter and indications handler     classes
+    The name of the Name property for indication filter and indications handler     classes
  */
 static const CIMName _PROPERTY_NAME = CIMName ("Name");
 
 /**
-    The name of the creation class name property for indication filter and 
+    The name of the Creation Class Name property for indication filter and 
     indications handler classes
  */
 static const CIMName _PROPERTY_CREATIONCLASSNAME = 
     CIMName ("CreationClassName");
 
 /**
-    The name of the system name property for indication filter and indications 
+    The name of the System Name property for indication filter and indications 
     handler classes
  */
 static const CIMName _PROPERTY_SYSTEMNAME = CIMName ("SystemName");
 
 /**
-    The name of the system creation class name property for indication filter 
+    The name of the System Creation Class Name property for indication filter 
     and indications handler classes
  */
 static const CIMName _PROPERTY_SYSTEMCREATIONCLASSNAME = 
@@ -252,6 +280,11 @@ static const CIMName _PROPERTY_OTHERPERSISTENCETYPE =
     CIMName ("OtherPersistenceType");
 
 /**
+    The name of the Owner property for Indication Handler class
+ */
+static const CIMName _PROPERTY_OWNER = CIMName ("Owner");
+
+/**
     The name of the Destination property for CIM XML Indication Handler 
     subclass
  */
@@ -264,14 +297,34 @@ static const CIMName _PROPERTY_DESTINATION = CIMName ("Destination");
 static const CIMName _PROPERTY_TARGETHOST = CIMName ("TargetHost");
 
 /**
-    The name of the TargetHostFormat property for SNMP Indication Handler subclass
+    The name of the TargetHostFormat property for SNMP Mapper Indication 
+    Handler subclass
  */
 static const CIMName _PROPERTY_TARGETHOSTFORMAT = CIMName ("TargetHostFormat");
 
 /**
-    The name of the SNMPVersion property for SNMP Indication Handler class
+    The name of the SNMP Version property for SNMP Mapper Indication Handler 
+    subclass
  */
 static const CIMName _PROPERTY_SNMPVERSION = CIMName ("SNMPVersion");
+
+/**
+    The name of the Port Number property for SNMP Mapper Indication Handler 
+    subclass
+ */
+static const CIMName _PROPERTY_PORTNUMBER = CIMName ("PortNumber");
+
+/**
+    The name of the SNMP Security Name property for SNMP Mapper Indication 
+    Handler subclass
+ */
+static const CIMName _PROPERTY_SNMPSECURITYNAME = CIMName ("SNMPSecurityName");
+
+/**
+    The name of the SNMP Engine ID property for SNMP Mapper Indication Handler 
+    subclass
+ */
+static const CIMName _PROPERTY_SNMPENGINEID = CIMName ("SNMPEngineID");
 
 /**
     The name of the Alert Type property for Alert Indication class

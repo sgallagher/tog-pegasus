@@ -2631,6 +2631,12 @@ CIM server listening on HTTPS port {0}."}
         src.Server.cimserver.FAILED_TO_SET_PROCESS_LOCALE:string {"PGS10030: Cannot convert the system process locale into a valid Accept-Language format."} //485
 
 
+        /**
+        * @note PGS10031:
+        *    Substitution {0} is a string containing the Exception message
+        */
+        src.Server.cimserver.SERVER_NOT_STARTED:string {"PGS10031: cimserver not started : {0}"}
+
 
         // ==========================================================
         // Messages for IndicationService

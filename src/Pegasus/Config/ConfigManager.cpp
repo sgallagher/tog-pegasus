@@ -558,17 +558,25 @@ void ConfigManager::mergeConfigFiles(
 
         _loadConfigProperties();
     }
-    catch (NoSuchFile& nsf)
+    catch (NoSuchFile&)
     {
-        throw nsf;
+        throw;
     }
-    catch (FileNotReadable& fnr)
+    catch (FileNotReadable&)
     {
-        throw fnr;
+        throw;
     }
-    catch (CannotOpenFile& cof)
+    catch (CannotOpenFile&)
     {
-        throw cof;
+        throw;
+    }
+    catch (UnrecognizedConfigProperty&)
+    {
+        throw;
+    }
+    catch (InvalidPropertyValue&)
+    {
+        throw;
     }
 }
 
@@ -585,17 +593,25 @@ void ConfigManager::mergeConfigFiles()
 
         _loadConfigProperties();
     }
-    catch (NoSuchFile& nsf)
+    catch (NoSuchFile&)
     {
-        throw nsf;
+        throw;
     }
-    catch (FileNotReadable& fnr)
+    catch (FileNotReadable&)
     {
-        throw fnr;
+        throw;
     }
-    catch (CannotOpenFile& cof)
+    catch (CannotOpenFile&)
     {
-        throw cof;
+        throw;
+    }
+    catch (UnrecognizedConfigProperty&)
+    {
+        throw;
+    }
+    catch (InvalidPropertyValue&)
+    {
+        throw;
     }
 }
 
@@ -655,58 +671,63 @@ void ConfigManager::_loadConfigProperties()
     //
     _configFileHandler->loadAllConfigProperties();
 
+    Array<CIMName> propertyNames;
+    Array<String>  propertyValues;
+
+    _configFileHandler->getAllCurrentProperties(propertyNames, propertyValues);
+
+    Uint32 size = propertyNames.size();
+
     //
     // initialize all the property owners with the values
     // from the config files.
     //
-    for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
+    for (Uint32 i = 0; i < size; i++)
     {
-        String value = String::EMPTY;
-
-        if (_configFileHandler->getCurrentValue(
-                CIMName (_properties[i].propertyName), value))
+        //
+        // initialize the current value of the property owner
+        // with the value from the config file handler
+        //
+        try
         {
             //
-            // initialize the current value of the property owner
-            // with the value from the config file handler
+            // get property owner object from the config table.
             //
-            try
+            ConfigPropertyOwner* propertyOwner;
+
+            String propertyName = propertyNames[i].getString();
+
+            if (_propertyTable->ownerTable.lookup(
+                propertyName, propertyOwner))
             {
-                //
-                // get property owner object from the config table.
-                //
-                ConfigPropertyOwner* propertyOwner;
-
-                if (_propertyTable->ownerTable.lookup(
-                    _properties[i].propertyName, propertyOwner))
+                if (propertyOwner->isValid(
+                    propertyName, propertyValues[i]))
                 {
-                    if (propertyOwner->isValid(
-                        _properties[i].propertyName, value))
-                    {
-                        propertyOwner->initCurrentValue(
-                            _properties[i].propertyName, value);
+                    propertyOwner->initCurrentValue(
+                        propertyName, propertyValues[i]);
 
-                        propertyOwner->initPlannedValue(
-                            _properties[i].propertyName, value);
-                    }
-                    else
-                    {
-                        throw InvalidPropertyValue(_properties[i].propertyName,
-                                                   value);
-                    }
+                    propertyOwner->initPlannedValue(
+                        propertyName, propertyValues[i]);
+                }
+                else
+                {
+                    throw InvalidPropertyValue(propertyName, propertyValues[i]);
                 }
             }
-            catch(UnrecognizedConfigProperty& ucp)
+            else
             {
-                PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL2, ucp.getMessage());
-                continue;
+                throw UnrecognizedConfigProperty(propertyName);
             }
-            catch(InvalidPropertyValue& ipv)
-            {
-                PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL2, 
-                    ipv.getMessage() + " : default value is used.");
-                continue;
-            }
+        }
+        catch(UnrecognizedConfigProperty& ucp)
+        {
+            PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL2, ucp.getMessage());
+            throw;
+        }
+        catch(InvalidPropertyValue& ipv)
+        {
+            PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL2, ipv.getMessage());
+            throw;
         }
     }
 }

@@ -770,12 +770,18 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
     }
     catch (Exception& e)
     {
-#ifdef PEGASUS_OS_OS400
-	Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-			"$0: $1",argv[0] ,e.getMessage());
-#else
-        cerr << argv[0] << ": " << e.getMessage() << endl;
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+            "src.Server.cimserver.SERVER_NOT_STARTED",
+            "cimserver not started:  $0", e.getMessage());
+
+#if !defined(PEGASUS_OS_OS400)
+        MessageLoaderParms parms("src.Server.cimserver.SERVER_NOT_STARTED",
+            "cimserver not started: $0", e.getMessage());
+
+        PEGASUS_STD(cerr) << argv[0] << ": " << MessageLoader::getMessage(parms)
+            << PEGASUS_STD(endl);
 #endif
+
         return(1);
     }
 

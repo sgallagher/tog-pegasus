@@ -2,6 +2,8 @@
 				TO-DO List
 				==========
 
+    -	Remove jdaux.exe from CVS repository.
+
     - 	Finalize the headers (put authors in all the modules).
 
     -   Fix the trace function so that it prints out the messages going
@@ -10,9 +12,6 @@
     - 	The TCPChannel::writeN() method blocks when the client and server
 	are in the same process. That is because the client cannot read
 	anything as long as writeN() is blocked on a synchronous write.
-
-    - 	Should ChannelHandler::handleOpen() do the registration with the
-      	selector?
 
     - 	Figure out how to handle getProperty() return type.
 

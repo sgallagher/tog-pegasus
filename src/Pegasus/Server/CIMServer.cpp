@@ -595,6 +595,8 @@ void CIMServer::runForever()
 	  Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
 			"CIMServer::runForever - signal received.  Shutting down.");
 	  ShutdownService::getInstance(this)->shutdown(true, 10, false);
+	  // Set to false must be after call to shutdown.  See
+	  // stopClientConnection.
 	  handleShutdownSignal = false;
 	}
       }
@@ -613,7 +615,14 @@ void CIMServer::stopClientConnection()
     if(_type == OLD) 
     {
         // tell Monitor to stop listening for client connections
-        _monitor->stopListeningForConnections();
+        if (handleShutdownSignal)
+	  // If shutting down, this is in the same thread as runForever.
+	  // No need to wait for the thread to see the stop flag.
+	  _monitor->stopListeningForConnections(false);
+	else
+	  // If not shutting down, this is not in the same thread as runForever.
+	  // Need to wait for the thread to see the stop flag.
+	  _monitor->stopListeningForConnections(true);
 
         //
         // Wait 150 milliseconds to allow time for the Monitor to stop 

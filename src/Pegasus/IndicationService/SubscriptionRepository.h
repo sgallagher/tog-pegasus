@@ -378,7 +378,7 @@ public:
     Array <CIMObjectPath> enumerateInstanceNamesForClass (
         const CIMNamespaceName & nameSpace,
         const CIMName & className,
-        const Boolean includeInheritance = true);
+        Boolean includeInheritance = true);
 
 private:
 

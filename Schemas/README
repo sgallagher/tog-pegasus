@@ -1,0 +1,8 @@
+This directory contains MOF files.
+
+The CIMOMxx directories are the official DMTF MOF files for the
+versions of CIM defined by the xx (ex. 25 for version 2.5).
+
+The other directories are CIM MOF files for the Pegasus project
+including Pegasus extensions and tests.
+

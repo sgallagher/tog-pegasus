@@ -4422,7 +4422,7 @@ Boolean XmlReader::getObjectNameElement(
       
     }
 
-    return false;
+    PEGASUS_UNREACHABLE( return false; )
 }
 
 //------------------------------------------------------------------------------

@@ -26,6 +26,7 @@
 // Author: Frank Scheffler
 //
 // Modified By:  Adrian Schuur (schuur@de.ibm.com)
+//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +41,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+  #include "debug.h"
+#else
 #include <error.h>
+#endif
 #include <stdlib.h>
 #include "io.h"
 
@@ -92,7 +97,11 @@ int io_read_fixed_length ( int fd, void * buf, size_t count )
 		} else {
 
 			count -= bytes;
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 			buf   += bytes;
+#else
+			buf   = (void*) ((long) buf + (long) bytes);
+#endif
 		}
 	}
 	return 0;
@@ -138,7 +147,11 @@ int io_write_fixed_length ( int fd, const void * buf, size_t count )
 		} else {
 
 			count -= bytes;
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 			buf   += bytes;
+#else
+			buf   = (void*) ((long) buf + (long) bytes);
+#endif
 		}
 	}
 	return 0;

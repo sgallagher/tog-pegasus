@@ -26,6 +26,7 @@
 // Author: Frank Scheffler
 //
 // Modified By:  Adrian Schuur (schuur@de.ibm.com)
+//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,9 +43,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+  #include <dll.h>
+#else
 #include <dlfcn.h>
+#endif
 #include <string.h>
+#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 #include <error.h>
+#endif
 #include <errno.h>
 #include "proxy.h"
 //#include "tool.h"
@@ -57,7 +64,11 @@ static void * _load_lib ( const char * libname )
 {
   char filename[255];
   sprintf ( filename, "lib%s.so", libname );
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+  return dllload( filename );
+#else
   return dlopen ( filename, RTLD_LAZY );
+#endif
 }
 
 
@@ -89,7 +100,11 @@ static provider_comm * load_comm_library ( const char * id,
 		char function[255];
 		INIT_COMM_LAYER fp;
 		sprintf ( function, "%s_InitCommLayer", id );
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+		fp = (INIT_COMM_LAYER) dllqueryfn ( (dllhandle *) hLibrary, function );
+#else
 		fp = (INIT_COMM_LAYER) dlsym ( hLibrary, function );
+#endif
 
 		if ( fp != NULL ) {
 			provider_comm * result = fp ( broker, ctx );
@@ -99,14 +114,20 @@ static provider_comm * load_comm_library ( const char * id,
 			TRACE_VERBOSE(("leaving function."));
 			return result;
 		}
-
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+		dllfree ( (dllhandle*) hLibrary );
+#else
 		dlclose ( hLibrary );
+#endif
 	}
-
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+	error_at_line ( 0, errno, __FILE__, __LINE__,
+			"Unable to load/init communication-layer library.");
+#else
 	error_at_line ( 0, 0, __FILE__, __LINE__,
 			"Unable to load/init communication-layer library: %s",
 			dlerror () );
-
+#endif
 	TRACE_VERBOSE(("leaving function."));
 	return NULL;
 }

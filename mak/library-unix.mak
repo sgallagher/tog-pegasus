@@ -24,7 +24,7 @@ ifeq ($(COMPILER),acc)
       endif
     else
         LINK_COMMAND += -Wl,+s -Wl,+b$(LIB_DIR):/usr/lib
-    endif 
+    endif
   endif
   ifdef PEGASUS_DEBUG
     LINK_COMMAND += -g
@@ -59,7 +59,7 @@ ifeq ($(COMPILER),deccxx)
 endif
 
 ifeq ($(COMPILER),ibm)
-  LINK_COMMAND = c++ $(FLAGS)
+  LINK_COMMAND = $(CXX) $(FLAGS)
   LINK_ARGUMENTS = -W "l,XPLINK,dll"
   LINK_OUT = -o
 endif

@@ -26,6 +26,7 @@
 // Author:      Adrian Schuur, schuur@de.ibm.com
 //
 // Modified By:
+//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,6 +36,10 @@
 #include "debug.h"
 #include <stdlib.h>
 #include <Pegasus/Provider/CMPI/cmpipl.h>
+#ifdef CMPI_PLATFORM_ZOS_ZSERIES_IBM
+#include <errno.h>
+#endif
+
 
 static char *resolveFileName (const char *filename)
 {
@@ -84,6 +89,19 @@ static CMPI_THREAD_TYPE newThread
     }
     else pthread_create(&t, NULL, (void *(*)(void *)) start, parm);
     return (CMPI_THREAD_TYPE)t;
+
+#elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
+	#define PTHREAD_CREATE_DETACHED 0
+	pthread_t t;
+	pthread_attr_t tattr;
+	if (detached) {
+		pthread_attr_init(&tattr);
+		pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_DETACHED);
+		pthread_create(&t, &tattr, (void *(*)(void *)) start, parm);
+	}
+	else pthread_create(&t, NULL, (void *(*)(void *)) start, parm);
+
+	return (CMPI_THREAD_TYPE) &t;
 #else
    #error Platform no yet supported
    #error Platform for Remote CMPI daemon no yet supported
@@ -91,15 +109,22 @@ static CMPI_THREAD_TYPE newThread
 #endif
 }
 
+#ifdef CMPI_PLATFORM_ZOS_ZSERIES_IBM
+static int threadOnce (pthread_once_t *once, void (*init)(void))
+{
+	return pthread_once ( once, init );
+}
+#else
+
 static int threadOnce (int *once, void (*init)(void))
 {
 #if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
   return pthread_once ( once, init );
-
 #else
    #error Platform for Remote CMPI daemon no yet supported
 #endif
 }
+#endif /* endif of #ifdef CMPI_PLATFORM_ZOS_ZSERIES_IBM */
 
 
 
@@ -108,6 +133,8 @@ static int createThreadKey(CMPI_THREAD_KEY_TYPE *key, void (*cleanup)(void*))
 {
 #if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
    return pthread_key_create ((pthread_key_t*)key , cleanup );
+#elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
+   return pthread_key_create (key , cleanup );
 #else
    #error Platform for Remote CMPI daemon no yet supported
 #endif
@@ -117,6 +144,9 @@ static int destroyThreadKey(CMPI_THREAD_KEY_TYPE key)
 {
 #if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
    return pthread_key_delete (key);
+#elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
+   // thread keys get deleted at thread-end by system
+   return 0;
 #else
    #error Platform for Remote CMPI daemon no yet supported
 #endif
@@ -126,6 +156,8 @@ static void *getThreadSpecific(CMPI_THREAD_KEY_TYPE key)
 {
  #if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
   return pthread_getspecific(key);
+#elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
+  return (void*) pthread_getspecific_d8_np(key);
 #else
    #error Platform for Remote CMPI daemon no yet supported
 #endif
@@ -134,6 +166,8 @@ static void *getThreadSpecific(CMPI_THREAD_KEY_TYPE key)
 static int setThreadSpecific(CMPI_THREAD_KEY_TYPE key, void * value)
 {
 #if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
+   return pthread_setspecific(key,value);
+#elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
    return pthread_setspecific(key,value);
 #else
    #error Platform for Remote CMPI daemon no yet supported
@@ -149,6 +183,18 @@ static CMPI_MUTEX_TYPE newMutex (int opt)
    pthread_mutex_t *m=calloc(1,sizeof(pthread_mutex_t));
    *m=tmpl;
    return m;
+#elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
+   // pthread_mutex_t init_m;
+   pthread_mutex_t *new_mutex = (pthread_mutex_t*) calloc(1,sizeof(pthread_mutex_t));
+   // PTHREAD_MUTEX_INITIALIZER;
+   errno = 0;
+
+   if (pthread_mutex_init(new_mutex, NULL) != 0)
+   {
+	  TRACE_CRITICAL(("pthread_mutex_init failed: %s",strerror(errno)));
+	  return NULL;
+   }
+   return (CMPI_MUTEX_TYPE) new_mutex;
 #else
    #error Platform for Remote CMPI daemon no yet supported
 #endif
@@ -158,6 +204,12 @@ static void destroyMutex (CMPI_MUTEX_TYPE m)
 {
 #if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
    free(m);
+#elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
+   if (pthread_mutex_destroy((pthread_mutex_t *) m)!=0)
+   {
+	   TRACE_CRITICAL(("pthread_mutex_destroy failed: %s",strerror(errno)));
+   }
+   free((pthread_mutex_t*) m);
 #else
    #error Platform for Remote CMPI daemon no yet supported
 #endif
@@ -167,6 +219,8 @@ static void lockMutex (CMPI_MUTEX_TYPE m)
 {
 #if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
   pthread_mutex_lock ((pthread_mutex_t *)m );
+#elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
+  pthread_mutex_lock ((pthread_mutex_t *)m );
 #else
    #error Platform for Remote CMPI daemon no yet supported
 #endif
@@ -175,6 +229,8 @@ static void lockMutex (CMPI_MUTEX_TYPE m)
 static void unlockMutex (CMPI_MUTEX_TYPE m)
 {
 #if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
+   pthread_mutex_unlock ((pthread_mutex_t *)m );
+#elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
    pthread_mutex_unlock ((pthread_mutex_t *)m );
 #else
    #error Platform for Remote CMPI daemon no yet supported
@@ -190,6 +246,13 @@ static CMPI_COND_TYPE newCondition (int opt)
    pthread_cond_t *c=calloc(1,sizeof(pthread_cond_t));
    *c=tmpl;
    return c;
+#elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
+	pthread_cond_t *c=(pthread_cond_t*) calloc(1,sizeof(pthread_cond_t));;
+    if (pthread_cond_init(c, NULL) != 0)
+	{
+		TRACE_CRITICAL(("pthread_cond_init failed: %s",strerror(errno)));
+	}
+	return (CMPI_COND_TYPE) c;
 #else
    #error Platform for Remote CMPI daemon no yet supported
 #endif
@@ -199,6 +262,12 @@ static void destroyCondition (CMPI_COND_TYPE c)
 {
 #if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
   free(c);
+#elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
+  if (pthread_cond_destroy((pthread_cond_t*) c) != 0)
+  {
+	  TRACE_CRITICAL(("pthread_cond_destroy failed: %s",strerror(errno)));
+  }
+  free((pthread_cond_t*) c);
 #else
    #error Platform for Remote CMPI daemon no yet supported
 #endif
@@ -208,6 +277,8 @@ static int timedCondWait(CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m, struct timespec *w
 {
 #if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
    return pthread_cond_timedwait((pthread_cond_t*)c, (pthread_mutex_t*)m, wait );
+#elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
+   return pthread_cond_timedwait((pthread_cond_t*)c, (pthread_mutex_t*)m, wait );
 #else
    #error Platform for Remote CMPI daemon no yet supported
 #endif
@@ -216,6 +287,8 @@ static int timedCondWait(CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m, struct timespec *w
 static int condWait(CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m)
 {
 #if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
+   return pthread_cond_wait((pthread_cond_t*)c, (pthread_mutex_t*)m);
+#elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
    return pthread_cond_wait((pthread_cond_t*)c, (pthread_mutex_t*)m);
 #else
    #error Platform for Remote CMPI daemon no yet supported

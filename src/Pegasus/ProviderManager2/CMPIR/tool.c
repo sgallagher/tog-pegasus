@@ -26,6 +26,7 @@
 // Author: Frank Scheffler
 //
 // Modified By:  Adrian Schuur (schuur@de.ibm.com)
+//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,8 +41,14 @@
 */
 
 #include <stdio.h>
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#include <dll.h>
+#include <errno.h>
+#else
 #include <dlfcn.h>
+#endif
 #include "tool.h"
+#include "debug.h"
 
 #define GENERIC_ENTRY_POINT(n) \
         typedef CMPI##n##MI * (* GENERIC_##n##MI) ( CMPIBroker * broker, \
@@ -90,8 +97,15 @@
 void * tool_load_lib ( const char * libname )
 {
   char filename[255];
+  void * dllhand;
   sprintf ( filename, "lib%s.so", libname );
+  #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
   return dlopen ( filename, RTLD_LAZY );
+  #else
+	dllhand = (void *) dllload ( filename );
+	if (dllhand == 0) TRACE_CRITICAL( ("Trying to load library: %s failed with %s\n", libname, strerror(errno)) );
+    return dllhand;
+  #endif
 }
 
 
@@ -99,9 +113,16 @@ static void * __get_generic_entry_point ( void * library,
 					  const char * ptype )
 {
 	char entry_point[255];
+	void * dll_entry;
 	sprintf ( entry_point, "_Generic_Create_%sMI", ptype );
 
+    #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 	return dlsym ( library, entry_point );
+    #else
+		dll_entry = (void*) dllqueryfn ( (dllhandle *) library, entry_point );
+		if (dll_entry == 0) TRACE_CRITICAL((stderr,"Getting generic entry point: %s failed with %s\n", entry_point, strerror(errno)));
+		return dll_entry;
+    #endif
 }
 
 
@@ -110,9 +131,16 @@ static void * __get_fixed_entry_point ( const char * provider,
 					const char * ptype )
 {
 	char entry_point[255];
+	void * dll_entry;
 	sprintf ( entry_point, "%s_Create_%sMI", provider, ptype );
 
+    #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 	return dlsym ( library, entry_point );
+    #else
+		dll_entry = (void*)dllqueryfn ( (dllhandle*) library, entry_point );
+		if (dll_entry == 0) TRACE_CRITICAL((stderr,"Getting fixed entry point: %s failed with %s\n", entry_point, strerror(errno)));
+		return dll_entry;
+    #endif
 }
 
 

@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -69,29 +69,29 @@ struct native_property;
   \sa propertyFT in native.h
 */
 struct native_propertyFT {
-	
+
 	//! Adds a new native_property to a list.
 	int (* addProperty) ( struct native_property **,
-			      int, 
+			      int,
 			      const char *,
-			      CMPIType, 
-			      CMPIValueState, 
+			      CMPIType,
+			      CMPIValueState,
 			      CMPIValue * );
 
 	//! Resets the values of an existing native_property, if existant.
-	int (* setProperty) ( struct native_property *, 
+	int (* setProperty) ( struct native_property *,
 			      int,
 			      const char *,
 			      CMPIType,
 			      CMPIValue * );
 
 	//! Looks up a specifix native_property in CMPIData format.
-	CMPIData (* getDataProperty) ( struct native_property *, 
+	CMPIData (* getDataProperty) ( struct native_property *,
 				       const char *,
 				       CMPIStatus * );
 
 	//! Extract an indexed native_property in CMPIData format.
-	CMPIData (* getDataPropertyAt) ( struct native_property *, 
+	CMPIData (* getDataPropertyAt) ( struct native_property *,
 					 unsigned int,
 					 CMPIString **,
 					 CMPIStatus * );
@@ -146,8 +146,8 @@ CMPIDateTime * native_new_CMPIDateTime_fromBinary ( CMPIUint64,
 						    CMPIStatus * );
 CMPIDateTime * native_new_CMPIDateTime_fromChars ( const char *,
 						   CMPIStatus * );
-CMPISelectExp * native_new_CMPISelectExp ( const char *, 
-					   const char *, 
+CMPISelectExp * native_new_CMPISelectExp ( const char *,
+					   const char *,
 					   CMPIArray **,
 					   CMPIStatus * );
 CMPIContext * native_new_CMPIContext ( int mem_state );
@@ -158,7 +158,7 @@ extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
 /****************************************************************************/
 
 extern CMPIBrokerEncFT  native_brokerEncFT;
-struct native_propertyFT propertyFT;
+extern struct native_propertyFT propertyFT;
 
 #endif
 

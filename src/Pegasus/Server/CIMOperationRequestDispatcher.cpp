@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -96,11 +96,11 @@ OperationAggregate::OperationAggregate(CIMRequestMessage* request,
 																			 CIMNamespaceName nameSpace,
 																			 QueryExpressionRep *query,
 																			 String queryLanguage)
-	: _messageId(messageId), 
+	: _messageId(messageId),
 		_msgRequestType(msgRequestType),
-		_dest(dest), 
+		_dest(dest),
 		_nameSpace(nameSpace),
-		_className(className), 
+		_className(className),
 		_query(query),
 		_queryLanguage(queryLanguage),
 		_request(request)
@@ -182,13 +182,13 @@ void OperationAggregate::deleteResponse(const Uint32&pos)
 }
 
 Uint32 OperationAggregate::getRequestType() const
-{ 
+{
 	return _msgRequestType;
 }
 
 
 // There are many response pieces (chunks) from potentially many
-// threads funneling through this function in random order. This isolates a 
+// threads funneling through this function in random order. This isolates a
 // single response (by locking) from a given thread and "resequences" the
 // response as part of one large response. It is crucial that the first
 // response to come through here be sequenced (or indexed) as 0 and the last
@@ -214,7 +214,7 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
 	}
 
 	Boolean isComplete = response.isComplete();
-	
+
 	if (isComplete == true)
 	{
 		_totalReceivedComplete++;
@@ -232,11 +232,11 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
 	// count WHEN the message is marked complete. This may differ from the
 	// following reasons:
 	// 1. An exception occurred in which the correct index could not be set.
-	// 2. Somehow the completed response arrived before the other 
+	// 2. Somehow the completed response arrived before the other
 	//    (non-completed) responses ? (shouldnt happen with the current
-	//    synchronous code). 
+	//    synchronous code).
 	// In either case, a message will be logged and attempt to continue
-	
+
 	if (_totalReceivedComplete == _totalIssued)
 	{
 		if (_totalReceivedExpected == _totalReceived)
@@ -246,8 +246,8 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
 																		 "total responses: $0, "
 																		 "total chunks: $1, "
 																		 "total errors: $2",
-															_totalReceivedComplete, 
-															_totalReceived, 
+															_totalReceivedComplete,
+															_totalReceived,
 															_totalReceivedErrors));
 		}
 		else
@@ -337,7 +337,7 @@ CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher(void)
  * send the given response synchronously using the given aggregation object.
  * return whether the sent message was complete or not. The parameters are
  * pointer references because they can be come invalid from external deletes
- * if the message is complete after queueing. They can be zeroed in this 
+ * if the message is complete after queueing. They can be zeroed in this
  * function preventing the caller from referencing deleted pointers.
  */
 
@@ -362,31 +362,31 @@ CIMOperationRequestDispatcher::_enqueueResponse(OperationAggregate *&poA,
 			case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE :
 				handleEnumerateInstanceNamesResponseAggregation(poA);
 				break;
-				
+
 			case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE :
 				handleEnumerateInstancesResponseAggregation(poA);
 				break;
-				
+
 			case CIM_ASSOCIATORS_REQUEST_MESSAGE :
 				handleAssociatorsResponseAggregation(poA);
 				break;
-				
+
 			case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE :
 				handleAssociatorNamesResponseAggregation(poA);
 				break;
-				
+
 			case CIM_REFERENCES_REQUEST_MESSAGE :
 				handleReferencesResponseAggregation(poA);
 				break;
-				
+
 			case CIM_REFERENCE_NAMES_REQUEST_MESSAGE :
 				handleReferenceNamesResponseAggregation(poA);
 				break;
-				
+
 			case CIM_EXEC_QUERY_REQUEST_MESSAGE :
 				handleExecQueryResponseAggregation(poA);
 				break;
-				
+
 			default :
 				static const char failMsg[] = "Invalid response type to aggregate: ";
 				char typeP[11];
@@ -396,7 +396,7 @@ CIMOperationRequestDispatcher::_enqueueResponse(OperationAggregate *&poA,
 				PEGASUS_ASSERT(0);
 				break;
 		} // switch
-	
+
 		// now take the aggregated response. This is now the one we will work with
 		response = poA->removeResponse(Uint32(0));
 
@@ -404,14 +404,14 @@ CIMOperationRequestDispatcher::_enqueueResponse(OperationAggregate *&poA,
 		response->dest = dest;
 		poA->resequenceResponse(*response);
 		isComplete = response->isComplete();
-	
+
 		// can the destination service queue handle async responses ?
 		// (i.e multiple responses from one request). Certain known ones
 		// cannot handle it. Most notably, the internal client.
 
 		MessageQueue *q = lookup(dest);
 		const char *name = q ? q->getQueueName() : 0;
-		Boolean isDestinationQueueAsync = (name && 
+		Boolean isDestinationQueueAsync = (name &&
 			(strcmp(name, PEGASUS_QUEUENAME_BINARY_HANDLER) == 0 ||
 			 strcmp(name, PEGASUS_QUEUENAME_INTERNALCLIENT) == 0)) ? false : true;
 
@@ -434,7 +434,7 @@ CIMOperationRequestDispatcher::_enqueueResponse(OperationAggregate *&poA,
 		// send it syncronously so that multiple responses will show up in the
 		// receiving queue according to the order that we have set the response
 		// index. If this was a single complete response, we could in theory
-		// send it async (i.e SendForget), however, there is no need to make a 
+		// send it async (i.e SendForget), however, there is no need to make a
 		// condition point based off this.
 
 		if (q)
@@ -444,13 +444,13 @@ CIMOperationRequestDispatcher::_enqueueResponse(OperationAggregate *&poA,
 
 	catch(...)
 	{
-		static const char failMsg[] = 
+		static const char failMsg[] =
 			"Failed to resequence/aggregate/forward response";
 		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 								String(func) + String(failMsg));
-		
+
 		if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-			response->cimException = 
+			response->cimException =
 				CIMException(CIM_ERR_FAILED, String(failMsg));
 	}
 
@@ -460,10 +460,10 @@ CIMOperationRequestDispatcher::_enqueueResponse(OperationAggregate *&poA,
 		delete poA;
 		poA = 0;
 	}
-	
+
 	// after sending, the response has been deleted externally
 	response = 0;
-	
+
 	return isComplete;
 }
 
@@ -619,9 +619,9 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 				      PEGASUS_QUEUENAME_CONTROLSERVICE);
 
 #endif
-	 
+
 #ifdef PEGASUS_ENABLE_SLP
-     
+
      _routing_table.insert_record(PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM,
 				      _wild,
 				      DynamicRoutingTable::INTERNAL,
@@ -630,7 +630,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
 				      PEGASUS_MODULENAME_INTEROPPROVIDER,
 				      PEGASUS_QUEUENAME_CONTROLSERVICE);
-	
+
      _routing_table.insert_record(PEGASUS_CLASSNAME_PROTOCOLADAPTER,
 				      _wild,
 				      DynamicRoutingTable::INTERNAL,
@@ -639,7 +639,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
 				      PEGASUS_MODULENAME_INTEROPPROVIDER,
 				      PEGASUS_QUEUENAME_CONTROLSERVICE);
-	
+
      _routing_table.insert_record(PEGASUS_CLASSNAME_NAMESPACEINMANAGER,
 				      _wild,
 				      DynamicRoutingTable::INTERNAL,
@@ -1156,8 +1156,17 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
     if (_providerRegistrationManager->lookupInstanceProvider(
 	nameSpace, className, pInstance, pmInstance, false,has_no_query))
     {
-    	
-		ProviderIdContainer *providercontainer = new ProviderIdContainer(pmInstance,pInstance);
+		ProviderIdContainer *providercontainer;
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+		String remoteInformation=String::EMPTY;
+		Boolean isRemote=false;
+    	isRemote = _repository->isRemoteNameSpace(nameSpace, remoteInformation);
+		if (isRemote)
+		     providercontainer = new ProviderIdContainer(pmInstance,pInstance,isRemote,remoteInformation);
+		else providercontainer = new ProviderIdContainer(pmInstance,pInstance);
+#else
+		providercontainer = new ProviderIdContainer(pmInstance,pInstance);
+#endif
         (*container) = providercontainer ;
 		// get the provder name
     	Uint32 pos = pInstance.findProperty(CIMName ("Name"));
@@ -1277,7 +1286,17 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
     if (_providerRegistrationManager->lookupMethodProvider(
 	nameSpace, className, methodName, pInstance, pmInstance))
     {
-    	ProviderIdContainer *providercontainer = new ProviderIdContainer(pmInstance,pInstance);
+		ProviderIdContainer *providercontainer;
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+		String remoteInformation=String::EMPTY;
+		Boolean isRemote=false;
+    	isRemote = _repository->isRemoteNameSpace(nameSpace, remoteInformation);
+		if (isRemote)
+		     providercontainer = new ProviderIdContainer(pmInstance,pInstance,isRemote,remoteInformation);
+		else providercontainer = new ProviderIdContainer(pmInstance,pInstance);
+#else
+		providercontainer = new ProviderIdContainer(pmInstance,pInstance);
+#endif
         (*providerIdContainer) = providercontainer ;
 		// get the provder name
     	Uint32 pos = pInstance.findProperty(CIMName ("Name"));
@@ -1584,7 +1603,17 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
 		//we need to change the code to make providerIdContainer accordingly.
 		 if (i==0)
 		 {
-			ProviderIdContainer *providercontainer = new ProviderIdContainer(pmInstances[i],pInstances[i]);
+			 ProviderIdContainer *providercontainer;
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+			 String remoteInformation=String::EMPTY;
+			 Boolean isRemote=false;
+			 isRemote = _repository->isRemoteNameSpace(nameSpace, remoteInformation);
+			 if (isRemote)
+				  providercontainer = new ProviderIdContainer(pmInstances[i],pInstances[i],isRemote,remoteInformation);
+			 else providercontainer = new ProviderIdContainer(pmInstances[i],pInstances[i]);
+#else
+			 providercontainer = new ProviderIdContainer(pmInstance,pInstance);
+#endif
             (*providerIdContainer) = providercontainer ;
 		 }
             // get the provider name
@@ -1816,19 +1845,19 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     //CDEBUG("ForwardRequestForAggregation");
     AsyncOpNode * op = this->get_op();
 
-		// if a response is given, this means the caller wants to run only the 
+		// if a response is given, this means the caller wants to run only the
 		// callback asynchronously
 		if (response)
-		{			
-			AsyncLegacyOperationResult *asyncResponse = 
-				new AsyncLegacyOperationResult(request->getKey(), 
+		{
+			AsyncLegacyOperationResult *asyncResponse =
+				new AsyncLegacyOperationResult(request->getKey(),
 																			 request->getRouting(), op, response);
 
-			// By setting this to complete, this allows ONLY the callback to run 
+			// By setting this to complete, this allows ONLY the callback to run
 			// without going through the typical async request apparatus
 			op->complete();
 			// add the response for async handler
-			op->put_response(asyncResponse);	
+			op->put_response(asyncResponse);
 		}
 
     // If ControlProviderName empty, forward to service.
@@ -3293,7 +3322,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 					cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 																							 String::EMPTY);
 				}
-				
+
 				STAT_PROVIDEREND
 
 				CIMResponseMessage* response = new CIMEnumerateInstancesResponseMessage
@@ -3301,14 +3330,14 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 					 cimNamedInstances);
 
 				STAT_COPYDISPATCHER_REP
-					
+
 				poA->appendResponse(response);
 			} // for all classes and derived classes
-			
+
 			Uint32 numberResponses = poA->numberResponses();
 			Uint32 totalIssued = providerCount + (numberResponses > 0 ? 1 : 0);
 			poA->setTotalIssued(totalIssued);
-			
+
 			if (numberResponses > 0)
 			{
 				handleEnumerateInstancesResponseAggregation(poA);
@@ -3335,7 +3364,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 				continue;
 
 			STAT_PROVIDERSTART
-				
+
 			PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, Formatter::format
 											 (
 												"EnumerateInstances Req. class $0 to svc \"$1\" for "
@@ -3549,9 +3578,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 				// this class is registered to a provider - skip
 				if (providerInfo.hasProvider)
 					continue;
-				
+
 				// If this class does not have a provider
-				
+
 				PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,  Formatter::format
 												 (
 													"EnumerateInstanceNames Req. class $0 to repository, "
@@ -3561,9 +3590,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
 				CIMException cimException;
 				Array<CIMObjectPath> cimInstanceNames;
-				
+
 				STAT_PROVIDERSTART
-					
+
 				try
 				{
 					// Enumerate instances only for this class
@@ -3587,7 +3616,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 					cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 																							 String::EMPTY);
 				}
-				
+
 				STAT_PROVIDEREND
 
 				CIMResponseMessage* response =
@@ -3604,7 +3633,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 			Uint32 numberResponses = poA->numberResponses();
 			Uint32 totalIssued = providerCount + (numberResponses > 0 ? 1 : 0);
 			poA->setTotalIssued(totalIssued);
-			
+
 			if (numberResponses > 0)
 			{
 				handleEnumerateInstanceNamesResponseAggregation(poA);
@@ -3639,7 +3668,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
 			CIMEnumerateInstanceNamesRequestMessage* requestCopy =
 				new CIMEnumerateInstanceNamesRequestMessage(*request);
-			
+
 			requestCopy->className = providerInfo.className;
 
 			if(providerInfo.providerIdContainer.get() != 0)
@@ -4895,7 +4924,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 			delete providerIdContainer;
 			providerIdContainer = NULL;
 	   }
-			 
+
 			CIMResponseMessage * response = 0;
       _forwardRequestToService(
           PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
@@ -5525,7 +5554,7 @@ void CIMOperationRequestDispatcher::handleReferencesResponseAggregation(
         // for each response, move the objects to the first response
     	for (Uint32 j = 0; j < fromResponse->cimObjects.size(); j++)
     	{
-    	
+
             // Test for existence of Namespace and host and if not
             // in the path component, add them.
     	    CIMObjectPath p = fromResponse->cimObjects[j].getPath();

@@ -4,7 +4,12 @@ DIR = Pegasus/ProviderManager2/CMPIR/daemon
 
 include $(ROOT)/mak/config.mak
 
-EXTRA_INCLUDES = $(SYS_INCLUDES) -I .. -I ../native 
+ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+    CXX = cc
+    FLAGS += -W"c,SSCOMM"
+endif
+
+EXTRA_INCLUDES = $(SYS_INCLUDES) -I .. -I ../native
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY -DPEGASUS_DEFAULT_CMPIR -DDEBUG
 

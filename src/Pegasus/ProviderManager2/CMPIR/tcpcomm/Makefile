@@ -1,8 +1,13 @@
 ROOT = ../../../../..
 
-DIR = Pegasus/ProviderManager2/CMPI_/tcpcomm
+DIR = Pegasus/ProviderManager2/CMPIR/tcpcomm
 
 include $(ROOT)/mak/config.mak
+
+ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+    CXX = cc
+    FLAGS += -W"c,SSCOMM"
+endif
 
 EXTRA_INCLUDES = $(SYS_INCLUDES) -I ..
 

@@ -26,6 +26,7 @@
 // Author: Frank Scheffler
 //
 // Modified By:  Adrian Schuur (schuur@de.ibm.com)
+//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1279,7 +1280,11 @@ provider_comm *CMPIRTCPComm_InitCommLayer(CMPIBroker * broker,
         NULL
    };
 
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES
     static int  __once = 0;
+#else
+		pthread_once_t __once = PTHREAD_ONCE_INIT;
+#endif
 
      __init_broker = broker;
      __init_context = ctx;

@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,6 +28,7 @@
 // Author: Frank Scheffler
 //
 // Modified By:  Adrian Schuur (schuur@de.ibm.com)
+//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -54,6 +55,9 @@
 #include <stdarg.h>
 #include <sys/types.h>
 #include <unistd.h>
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#include <strings.h>
+#endif
 
 #define DEBUG_VERBOSE  3
 #define DEBUG_INFO     2
@@ -133,8 +137,8 @@ static int __trace_level ( int level )
 
 	if ( l == NULL ) return 0;
 
-	while ( i-- ) 
-		if ( strcasecmp ( l, __debug_levels[i] ) == 0 ) 
+	while ( i-- )
+		if ( strcasecmp ( l, __debug_levels[i] ) == 0 )
 			return ( level <= i );
 
 	return 0;
@@ -145,9 +149,13 @@ static char * __trace_format ( char * fmt, ... )
 {
 	va_list ap;
 	char * msg = (char *) malloc ( 512 );
-  
+
 	va_start ( ap, fmt );
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+	vsprintf ( msg, fmt, ap );
+#else
 	vsnprintf ( msg, 512, fmt, ap );
+#endif
 	return msg;
 }
 
@@ -186,9 +194,9 @@ static void __start_debugger ()
 					  "OOP-Provider",
 					  pid,
 					  NULL };
-		
+
 			sprintf ( pid, "%d", getppid () );
-			
+
 			execv ( debugger, argv );
 
 			TRACE_CRITICAL(("could not start debugger \"%s\", "
@@ -201,6 +209,25 @@ static void __start_debugger ()
 }
 
 
+#endif
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+static void error_at_line( int a_num, int error, char* filename, int line, char* message, ... )
+{
+   va_list ap;
+   char * msg = (char *) malloc ( 512 );
+
+   va_start ( ap, message );
+   vsprintf ( msg/*, 512*/, message, ap );
+
+   fprintf(stderr, "Error in line %d of file %s: %s - %s\n", line, filename, strerror(error), msg);
+
+   free (msg);
+
+   if (a_num < 0)
+   {
+      exit(a_num);
+   }
+}
 #endif
 
 #endif

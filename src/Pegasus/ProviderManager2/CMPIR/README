@@ -32,7 +32,7 @@ Installation instructions:
 
 2) Update the provider registration by editing the MOF files to state that
    certain providers are to be driven remotely. See CMPIR/tools/README for
-   tolls to mofidify existig registration mof files.
+   tools to modify existig registration mof files.
 
    Remote CMPI support is automatically invoked when CIM requests are issued
    against remote namspaces. See CMPIR/tools/README for defining remote namespaces.

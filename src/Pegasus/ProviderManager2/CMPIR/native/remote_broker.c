@@ -64,9 +64,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #include <dlfcn.h>
-#include <sys/time.h>
 #include <error.h>
+#else
+  #include <dll.h>
+  #include <pthread.h> /*timespec structure define in z/OS */
+#endif
+#include <sys/time.h>
 #include <errno.h>
 
 #include "tool.h"
@@ -229,7 +234,7 @@ static CMPIStatus __indication_mustPoll ( CMPIIndicationMI * mi,
 	return __mi->saved_mi->ft->mustPoll ( __mi->saved_mi, ctx, result,
 					      sexp, ns, cop );
 }
-						 
+
 
 
 //! Relays the request to the actual provider and increases the use count.
@@ -459,7 +464,12 @@ static void __cleanup_remote_broker ( struct __remote_broker * __rb )
 
 
 	TRACE_INFO(("Closing provider module library."));
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 	dlclose ( __rb->library );
+#else
+	dllfree ( (dllhandle *) __rb->library);
+#endif
+
 	__rb->library = NULL;
 
 	TRACE_INFO(("Freeing allocated memory."));
@@ -500,7 +510,7 @@ static CMPIAssociationMI * __get_associationMI ( remote_broker * rb )
 	TRACE_NORMAL(("Retrieving associationMI handle."));
 
 	if ( __rb->associationMI == NULL ) {
-		__rb->associationMI = 
+		__rb->associationMI =
 			tool_load_AssociationMI ( __rb->provider,
 						  __rb->library,
 						  (CMPIBroker *) rb,
@@ -518,7 +528,7 @@ static CMPIMethodMI * __get_methodMI ( remote_broker * rb )
 	TRACE_NORMAL(("Retrieving methodMI handle."));
 
 	if ( __rb->methodMI == NULL ) {
-		__rb->methodMI = 
+		__rb->methodMI =
 			tool_load_MethodMI ( __rb->provider,
 					     __rb->library,
 					     (CMPIBroker *) rb,
@@ -536,7 +546,7 @@ static CMPIPropertyMI * __get_propertyMI ( remote_broker * rb )
 	TRACE_NORMAL(("Retrieving propertyMI handle."));
 
 	if ( __rb->propertyMI == NULL ) {
-		__rb->propertyMI = 
+		__rb->propertyMI =
 			tool_load_PropertyMI ( __rb->provider,
 					       __rb->library,
 					       (CMPIBroker *) rb,
@@ -560,7 +570,7 @@ static CMPIIndicationMI * __get_indicationMI ( remote_broker * rb )
 					     (CMPIBroker *) rb,
 					     __remote_brokers_context ) )
 	     != NULL ) {
-		
+
 		__rb->indicationMI =
 			__track_indicationMI ( mi, (remote_broker *) __rb );
 	}
@@ -568,7 +578,7 @@ static CMPIIndicationMI * __get_indicationMI ( remote_broker * rb )
 }
 
 
-static struct __remote_broker * 
+static struct __remote_broker *
 __new_remote_broker ( const char * comm_layer_id,
 		      const char * broker_address,
 		      const char * provider,
@@ -650,7 +660,12 @@ __new_remote_broker ( const char * comm_layer_id,
            #endif
 
 	   TRACE_INFO(("loading provider module: %s.", provider_module ));
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 	   __rb->library = dlopen ( dlName, RTLD_NOW );
+#else
+	   __rb->library = (void *) dllload ( dlName );
+	   if (__rb->library == 0) TRACE_CRITICAL(("Trying to load library %s failed with %s\n",dlName, strerror(errno)));
+#endif
 	}
 
 	TRACE_VERBOSE(("leaving function."));

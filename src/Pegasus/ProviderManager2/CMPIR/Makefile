@@ -4,9 +4,13 @@ DIR = Pegasus/ProviderManager2/CMPIR
 
 include $(ROOT)/mak/config.mak
 
-EXTRA_INCLUDES = $(SYS_INCLUDES) 
+ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+    CXX = cc
+    FLAGS += -W"c,SSCOMM"
+endif
+EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY -DPEGASUS_CMPI_PROXY_INTERNAl 
+LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY -DPEGASUS_CMPI_PROXY_INTERNAl
 
 LIBRARY = CMPIRProxyProvider
 
@@ -19,7 +23,7 @@ SOURCES = \
    namespace_resolver.c \
    ticket.c \
    tool.c
-   
+
 include $(ROOT)/mak/library.mak
 include $(ROOT)/mak/install.mak
 

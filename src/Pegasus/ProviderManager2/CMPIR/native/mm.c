@@ -26,12 +26,15 @@
 // Author: Frank Scheffler
 //
 // Modified By:  Adrian Schuur (schuur@de.ibm.com)
+//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #include <error.h>
+#endif
 #include <errno.h>
 #include "mm.h"
 #include "native.h"
@@ -52,7 +55,11 @@
 /**
  * flag to ensure MM is initialized only once
  */
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES
 static int __once = 0;
+#else
+pthread_once_t __once = PTHREAD_ONCE_INIT;
+#endif
 
 /**
  * global key to get access to thread-specific memory management data
@@ -64,8 +71,15 @@ static CMPI_THREAD_KEY_TYPE __mm_key;
 void * tool_mm_load_lib ( const char * libname )
 {
   char filename[255];
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+  dllhandle *  lib_handle;
+#endif
   sprintf ( filename, "lib%s.so", libname );
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
   return dlopen ( filename, RTLD_LAZY );
+#else
+  return dllload ( filename );
+#endif
 }
 
 
@@ -75,7 +89,7 @@ void * tool_mm_load_lib ( const char * libname )
  */
 static managed_thread * __init_mt ()
 {
-	managed_thread * mt = 
+	managed_thread * mt =
 		(managed_thread *) calloc ( 1, sizeof ( managed_thread ) );
 
 	__ALLOC_ERROR(!mt);
@@ -168,7 +182,7 @@ void * tool_mm_realloc ( void * oldptr, size_t size )
 
 	__ALLOC_ERROR(!new);
 
-	if ( oldptr != NULL && 
+	if ( oldptr != NULL &&
 	     tool_mm_remove ( oldptr ) ) {
 		tool_mm_add ( new );
 	}
@@ -209,7 +223,7 @@ int tool_mm_add ( void * ptr )
 
 		__ALLOC_ERROR(!mt->objs);
 	}
-  
+
 	return 1;
 }
 void tool_mm_set_broker ( void * broker, void * ctx )
@@ -251,7 +265,7 @@ void * tool_mm_get_broker ( void **ctx )
 int tool_mm_remove ( void * ptr )
 {
 	managed_thread * mt;
-  
+
         CMPI_BrokerExt_Ftab->threadOnce( &__once, __init_mm );
 
 	mt = (managed_thread *)
@@ -274,10 +288,10 @@ int tool_mm_remove ( void * ptr )
 void tool_mm_flush ()
 {
 	managed_thread * mt;
-  
+
         CMPI_BrokerExt_Ftab->threadOnce( &__once, __init_mm );
 
-	mt = (managed_thread *) 
+	mt = (managed_thread *)
         	CMPI_BrokerExt_Ftab->getThreadSpecific( __mm_key );
 
 	if ( mt != NULL ) {

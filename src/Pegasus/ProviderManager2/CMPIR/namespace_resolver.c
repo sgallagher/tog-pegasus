@@ -26,12 +26,13 @@
 // Author: Frank Scheffler
 //
 // Modified By:  Adrian Schuur (schuur@de.ibm.com)
+//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*!
   \file resolver.c
-  \brief Sample resolver. 
+  \brief Sample resolver.
 
   This is a sample resolver component, showing the general functionality
   of a resolver. The results returned upon requests issued by the proxy
@@ -57,7 +58,7 @@
 /****************************************************************************/
 
 
-static void _free_addresses ( provider_address * addr ) 
+static void _free_addresses ( provider_address * addr )
 {
 	if ( addr ) {
 		_free_addresses ( addr->next );
@@ -72,7 +73,7 @@ static provider_address * outofprocess_resolver ( CMPIBroker * broker, const cha
 {
 	provider_address * addr;
 	char *module;
-        
+
         module=broker->xft->resolveFileName(provider);
 
 	addr = (provider_address *) calloc ( 1, sizeof ( provider_address ) );
@@ -86,26 +87,28 @@ static provider_address * outofprocess_resolver ( CMPIBroker * broker, const cha
 }
 
 
-static provider_address * namespace_resolver ( CMPIBroker * broker, 
+static provider_address * namespace_resolver ( CMPIBroker * broker,
         const char * provider, char *hostname)
 {
 	provider_address * addr;
 	char *module,*pnp;
-
-        pnp=strchr(provider,':');
+	char * in_between;
+	in_between = strdup(provider);
 
 	addr = (provider_address *) calloc ( 1, sizeof ( provider_address ) );
 
 	addr->comm_layer_id   = "CMPIRTCPComm";
         addr->dst_address     = strdup ( hostname );
-        if ((pnp=strchr(provider,':'))) {
-	   *pnp=0;
-	   addr->provider_module = strdup ( provider );
-	   *pnp=':';
-	}
-	else addr->provider_module = strdup ( provider );
-	addr->destructor = _free_addresses;
 
+
+	if ((pnp=strchr(in_between,':'))) {
+	   *pnp=0;
+	    addr->provider_module = strdup ( in_between );
+	}
+	else addr->provider_module = strdup ( in_between );
+
+	addr->destructor = _free_addresses;
+    free( in_between );
 	return addr;
 }
 
@@ -116,9 +119,9 @@ provider_address * resolve_instance ( CMPIBroker * broker,
         CMPIStatus irc;
         char *ip;
         provider_address *a=NULL;
-        
+
         CMPIData info=CMGetContextEntry(ctx,"CMPIRRemoteInfo",&irc);
-        
+
         if (irc.rc==CMPI_RC_OK) {
            ip=CMGetCharsPtr(info.value.string,&irc);
            switch (ip[1]) {
@@ -132,7 +135,7 @@ provider_address * resolve_instance ( CMPIBroker * broker,
         }
         else {
         }
-         
+
 	TRACE_NORMAL(("Resolve requested for provider: %s", provider ));
         if (rc) *rc=irc;
 	return a;

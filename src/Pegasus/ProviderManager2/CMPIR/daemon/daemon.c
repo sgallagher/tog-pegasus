@@ -26,6 +26,7 @@
 // Author: Frank Scheffler
 //
 // Modified By:  Adrian Schuur (schuur@de.ibm.com)
+//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +47,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #include <dlfcn.h>
+#else
+#include <dll.h>
+#include <string.h>
+#include <stdio.h>
+#include <errno.h>
+#endif
 
 #include "../native/mm.h"
 #include "remote.h"
@@ -84,8 +92,11 @@ static void __init_remote_comm_lib ( comm_lib * comm )
 	void * hdl = comm->hLibrary = tool_mm_load_lib ( comm->libname );
 
 	if ( hdl ) {
-		START_DAEMON fp =
-			(START_DAEMON) dlsym ( hdl, "start_remote_daemon" );
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+		START_DAEMON fp = (START_DAEMON) dlsym ( hdl, "start_remote_daemon" );
+#else
+		START_DAEMON fp = (START_DAEMON) dllqueryfn ( (dllhandle*) hdl, "start_remote_daemon" );
+#endif
 
 		if ( fp ) {
 			if ( fp () )
@@ -94,8 +105,11 @@ static void __init_remote_comm_lib ( comm_lib * comm )
 			return;
 		}
 	}
-
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 	fprintf ( stderr, "%s\n", dlerror () );
+#else
+	fprintf( stderr, "%s\n", strerror(errno) );
+#endif
 }
 
 

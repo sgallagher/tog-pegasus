@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,6 +28,7 @@
 // Author:      Adrian Schuur, schuur@de.ibm.com
 //
 // Modified By:
+//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,9 +50,14 @@ struct timespec {
 };
 
 #elif defined( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-   #define CMPI_THREAD_CDECL    __cdecl
-   #define CMPI_THREAD_KEY_TYPE  pthread_key_t
 
+#ifndef __cplusplus
+   #define CMPI_THREAD_CDECL
+#else
+   #define CMPI_THREAD_CDECL    __cdecl
+#endif
+
+   #define CMPI_THREAD_KEY_TYPE  pthread_key_t
 #else
    #define CMPI_THREAD_CDECL
    #define CMPI_THREAD_KEY_TYPE unsigned long int

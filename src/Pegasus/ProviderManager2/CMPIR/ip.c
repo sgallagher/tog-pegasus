@@ -26,6 +26,7 @@
 // Author: Frank Scheffler
 //
 // Modified By:  Adrian Schuur (schuur@de.ibm.com)
+//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +39,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#include "debug.h"
+#else
 #include <error.h>
+#endif
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#define _XOPEN_SOURCE_EXTENDED 1
+#include <arpa/inet.h>
+#endif
 #include <errno.h>
 #include <string.h>
 #include <sys/types.h>
@@ -64,26 +73,68 @@ extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
 
 /****************************************************************************/
 
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+in_addr_t inet_addr_ebcdic(const char * ip_inptr)
+{
+    in_addr_t return_addr;
+	char* ip_ptr2 = strdup(ip_inptr);
+	fprintf(stderr,"--ms-->inet_addr_ebcdic(%s)\n",ip_inptr);
+    __atoe(ip_ptr2);
+    return_addr = inet_addr(ip_ptr2);
+    free(ip_ptr2);
+	fprintf(stderr,"--ms-->inet_addr_ebcdic()=%x\n",return_addr);
+    return return_addr;
+}
+#endif
+
 int open_connection ( const char * address, int port )
 {
 	int sockfd;
 	struct sockaddr_in sin;
 	struct hostent * server_host_name;
+// masking unability to transform an ip-address via gethostbyname()
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+	extern int h_errno;
+	in_addr_t broker_ip_address;
+	broker_ip_address = inet_addr_ebcdic(address);
 
-	if ( ( server_host_name = gethostbyname ( address ) ) == NULL ) {
-		error_at_line ( 0, 0, __FILE__, __LINE__,
-				hstrerror ( h_errno ) );
+if ( broker_ip_address != INADDR_NONE )
+{
+	// HERE COMES THE CALL TO GETHOSTBYADDR
+	server_host_name = gethostbyaddr( &(broker_ip_address), sizeof(broker_ip_address), AF_INET);
+	if (server_host_name == NULL )
+	{
+		error_at_line ( 0, 0, __FILE__, __LINE__,strerror(h_errno));
 		return -1;
 	}
-  
+} else {
+#endif
+	if ( ( server_host_name = gethostbyname ( address ) ) == NULL ) {
+		error_at_line ( 0, 0, __FILE__, __LINE__,
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+		strerror ( h_errno ) );
+#else
+				hstrerror ( h_errno ) );
+#endif
+		return -1;
+	}
+// masking end of if case for differing between ip-address and host
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+}
+#endif
+
 	sin.sin_family      = AF_INET;
 	sin.sin_port        = htons ( port );
 	sin.sin_addr.s_addr =
 		( (struct in_addr *) ( server_host_name->h_addr ) )->s_addr;
 
 	if ( ( sockfd = socket ( PF_INET,
-				 SOCK_STREAM, 
+				 SOCK_STREAM,
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+				 0 ) ) == -1 ) {
+#else
 				 IPPROTO_TCP ) ) == -1 ) {
+#endif
 
 		error_at_line ( 0, errno, __FILE__, __LINE__,
 				"failed to create socket" );
@@ -118,7 +169,11 @@ void accept_connections ( int port,
 	CMPI_THREAD_TYPE t;
 
 	int in_socket, listen_socket =
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+		socket ( PF_INET, SOCK_STREAM, 0 );
+#else
 		socket ( PF_INET, SOCK_STREAM, IPPROTO_TCP );
+#endif
 	struct sockaddr_in sin;
 	int sin_len = sizeof ( sin );
 
@@ -135,14 +190,22 @@ void accept_connections ( int port,
 	sin.sin_port = htons ( port );
 
 	if ( bind ( listen_socket, (struct sockaddr *) &sin, sin_len ) ||
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+	     listen ( listen_socket, 15 ) ) {
+#else
 	     listen ( listen_socket, 0 ) ) {
-
+#endif
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 		error ( -1, errno, "cannot listen on port %d", port );
+#else
+		error_at_line ( -1, errno, __FILE__, __LINE__, "cannot listen on port %d", port );
+#endif
+
 	}
 
 	while ( ( in_socket = accept ( listen_socket,
 				       (struct sockaddr *) &sin,
-				       &sin_len ) ) != -1 ) {
+				       (size_t *) &sin_len ) ) != -1 ) {
 
 		setsockopt ( in_socket,
 			     SOL_SOCKET,

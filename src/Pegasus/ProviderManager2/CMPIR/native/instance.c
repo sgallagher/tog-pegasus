@@ -26,6 +26,7 @@
 // Author: Frank Scheffler
 //
 // Modified By:  Adrian Schuur (schuur@de.ibm.com)
+//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +37,7 @@
   This is the native CMPIInstance implementation as used for remote
   providers. It reflects the well-defined interface of a regular
   CMPIInstance, however, it works independently from the management broker.
-  
+
   It is part of a native broker implementation that simulates CMPI data
   types rather than interacting with the entities in a full-grown CIMOM.
 
@@ -82,14 +83,14 @@ static void __release_list ( char ** list )
 static char ** __duplicate_list ( char ** list, int mem_state )
 {
 	char ** result = NULL;
-	
+
 	if ( list ) {
 		size_t size = 1;
 		char ** tmp = list;
 
 		while ( *tmp++ ) ++size;
 
-		result = tool_mm_alloc ( mem_state, size * sizeof ( char * ) );
+		result = (char**) tool_mm_alloc ( mem_state, size * sizeof ( char * ) );
 
 		for ( tmp = result; *list; tmp++ ) {
 
@@ -127,7 +128,7 @@ static CMPIStatus __ift_release ( CMPIInstance * instance )
 		tool_mm_add ( i );
 		tool_mm_add ( i->classname );
 		tool_mm_add ( i->namespace );
-		
+
 		__release_list ( i->property_list );
 		__release_list ( i->key_list );
 
@@ -143,8 +144,8 @@ static CMPIStatus __ift_release ( CMPIInstance * instance )
 static CMPIInstance * __ift_clone ( CMPIInstance * instance, CMPIStatus * rc )
 {
 	struct native_instance * i   = (struct native_instance *) instance;
-	struct native_instance * new = 
-		(struct native_instance *) 
+	struct native_instance * new =
+		(struct native_instance *)
 		tool_mm_alloc ( TOOL_MM_NO_ADD,
 				sizeof ( struct native_instance ) );
 
@@ -256,7 +257,7 @@ static CMPIObjectPath * __ift_getObjectPath ( CMPIInstance * instance,
 	   CMPIArray *kl;
 	   unsigned int e,m;
 
-	   broker=tool_mm_get_broker((void**)&ctx);
+	   broker=(CMPIBroker*) tool_mm_get_broker((void**)&ctx);
 	   kl=broker->eft->getKeyList(broker,ctx,cop,NULL);
            m=kl->ft->getSize(kl,NULL);
 
@@ -394,7 +395,7 @@ CMPIInstance * native_new_CMPIInstance ( CMPIObjectPath * cop,
 	if ( tmp1.rc != CMPI_RC_OK ||
 	     tmp2.rc != CMPI_RC_OK ||
 	     tmp3.rc != CMPI_RC_OK ) {
-    
+
 		if ( rc ) CMSetStatus ( rc, CMPI_RC_ERR_FAILED );
 
 	} else {

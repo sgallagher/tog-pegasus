@@ -53,7 +53,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 #include <error.h>
+#endif
 
 #include "proxy.h"
 #include "resolver.h"

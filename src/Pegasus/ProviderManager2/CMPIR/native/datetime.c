@@ -36,7 +36,7 @@
   This is the native CMPIDateTime implementation as used for remote
   providers. It reflects the well-defined interface of a regular
   CMPIDateTime, however, it works independently from the management broker.
-  
+
   It is part of a native broker implementation that simulates CMPI data
   types rather than interacting with the entities in a full-grown CIMOM.
 
@@ -47,12 +47,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#define _ALL_SOURCE
+#endif
 #include <sys/time.h>
-
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#undef _ALL_SOURCE
+#endif
 #include "mm.h"
 #include "native.h"
 
-
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#define atoll(X) strtoll(X, NULL, 10)
+#endif
 //! Native extension of the CMPIDateTime data type.
 /*!
   This structure stores the information needed to represent time for
@@ -176,7 +183,7 @@ static CMPIString * __dtft_getStringFormat ( CMPIDateTime * dt,
 
 		sprintf ( str_time, "%8.8ld%2.2ld%2.2ld%2.2ld.%6.6ld:000",
 			   days, hrs, mins, secs, usecs );
-		
+
 	} else {
 
 		struct tm tm_time;
@@ -189,10 +196,13 @@ static CMPIString * __dtft_getStringFormat ( CMPIDateTime * dt,
 		}
 
 		tzset ();
-
-		snprintf ( us_utc_time, 11, "%6.6ld%+4.3ld", 
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+		sprintf ( us_utc_time, "%6.6ld%+4.3ld",
 			   usecs, ( daylight != 0 ) * 60 - timezone / 60 );
-
+#else
+		snprintf ( us_utc_time, 11, "%6.6ld%+4.3ld",
+			   usecs, ( daylight != 0 ) * 60 - timezone / 60 );
+#endif
 		strftime ( str_time, 26, "%Y%m%d%H%M%S.", &tm_time );
 
 		strcat ( str_time, us_utc_time );
@@ -252,7 +262,7 @@ static struct native_datetime * __new_datetime ( int mm_add,
 	};
 
 	struct native_datetime * ndt =
-		(struct native_datetime *) 
+		(struct native_datetime *)
 		tool_mm_alloc ( mm_add, sizeof ( struct native_datetime ) );
 
 	ndt->dt        = dt;
@@ -269,7 +279,7 @@ static struct native_datetime * __new_datetime ( int mm_add,
 /*!
   This function calculates the current time and stores it within
   a new native_datetime object.
-  
+
   \param rc return code pointer
 
   \return a pointer to a native CMPIDateTime.
@@ -282,7 +292,7 @@ CMPIDateTime * native_new_CMPIDateTime ( CMPIStatus * rc )
 
 	gettimeofday ( &tv, &tz );
 
-	msecs = (CMPIUint64) 1000000 * (CMPIUint64) tv.tv_sec 
+	msecs = (CMPIUint64) 1000000 * (CMPIUint64) tv.tv_sec
 		+ (CMPIUint64) tv.tv_usec;
 
 	return (CMPIDateTime *) __new_datetime ( TOOL_MM_ADD,
@@ -301,10 +311,10 @@ CMPIDateTime * native_new_CMPIDateTime ( CMPIStatus * rc )
   \param rc return code pointer
 
   \return a pointer to a native CMPIDateTime.
-  
+
   \sa __dtft_getBinaryFormat()
  */
-CMPIDateTime * native_new_CMPIDateTime_fromBinary ( CMPIUint64 time, 
+CMPIDateTime * native_new_CMPIDateTime_fromBinary ( CMPIUint64 time,
 						    CMPIBoolean interval,
 						    CMPIStatus * rc )
 {
@@ -318,7 +328,7 @@ CMPIDateTime * native_new_CMPIDateTime_fromBinary ( CMPIUint64 time,
 //! Creates a native CMPIDateTime given a fixed time in string representation.
 /*!
   This function assumes the given string to have one of the following formats:
-  
+
   - for absolute times: yyyymmddhhmmss.mmmmmmsutc
   - for time intervals: ddddddddhhmmss.mmmmmm:000
 
@@ -355,8 +365,9 @@ CMPIDateTime * native_new_CMPIDateTime_fromChars ( const char * string,
 
 		memset ( &tmp, 0, sizeof ( struct tm ) );
 		tzset ();
-
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 		tmp.tm_gmtoff = timezone;
+#endif
 		tmp.tm_isdst  = daylight;
 		tmp.tm_mday   = atoi ( str + 6 );
 		str[6] = 0;

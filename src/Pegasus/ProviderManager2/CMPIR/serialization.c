@@ -26,6 +26,7 @@
 // Author: Frank Scheffler
 //
 // Modified By:  Adrian Schuur (schuur@de.ibm.com)
+//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,7 +56,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #include <error.h>
+#endif
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#include <arpa/inet.h>	// htonl();
+#endif
 #include <stdlib.h>
 #include <string.h>
 #include <netinet/in.h>
@@ -287,7 +293,7 @@ static CMPIType __deserialize_CMPIType ( int fd )
 
 
 static ssize_t __serialize_CMPIValue ( int fd,
-				       CMPIType type, 
+				       CMPIType type,
 				       CMPIValue * value )
 {
 	TRACE_NORMAL(("serializing type 0x%x CMPIValue.", type));
@@ -331,7 +337,7 @@ static ssize_t __serialize_CMPIValue ( int fd,
 	} else if ( type & CMPI_SIMPLE ) {
 
 		TRACE_INFO(("serializing simple value."));
-		
+
 		switch ( type ) {
 		case CMPI_boolean:
 			return __serialize_UINT8 ( fd, value->boolean );
@@ -550,7 +556,7 @@ static ssize_t __serialize_CMPIData ( int fd, CMPIData data )
 		out += __serialize_CMPIValue ( fd, data.type, &data.value );
 	}
 
-	TRACE_VERBOSE(("leaving function.")); 
+	TRACE_VERBOSE(("leaving function."));
 	return out;
 }
 
@@ -610,7 +616,7 @@ static CMPIStatus __deserialize_CMPIStatus ( int fd, CMPIBroker * broker )
 	TRACE_VERBOSE(("entered function."));
 	TRACE_NORMAL(("deserializing CMPIStatus."));
 
-	rc.rc  = __deserialize_UINT32 ( fd );
+	rc.rc  = (CMPIrc) __deserialize_UINT32 ( fd );
 	rc.msg = __deserialize_CMPIString ( fd, broker );
 
 	TRACE_INFO(("rc: %d\nmsg: %s",
@@ -634,7 +640,7 @@ static ssize_t __serialize_string ( int fd, const char * str )
 	if ( out < 0 ) return -1;
 
 	if ( io_write_fixed_length ( fd, str, len ) ) return -1;
-	
+
 	return len + out;
 }
 
@@ -662,7 +668,7 @@ static char * __deserialize_string_alloc ( int fd )
 static char * __deserialize_string ( int fd, CMPIBroker * broker )
 {
 	char * tmp = __deserialize_string_alloc ( fd );
-	
+
 	if ( tmp ) {
 		CMPIString * str = CMNewString ( broker, tmp, NULL );
 		free ( tmp );
@@ -752,7 +758,7 @@ static CMPIArgs * __deserialize_CMPIArgs ( int fd, CMPIBroker * broker )
 			    CMGetCharsPtr ( argName, NULL ),
 			    data.type, data.state ));
 
-		CMAddArg ( args, 
+		CMAddArg ( args,
 			   CMGetCharsPtr ( argName, NULL ),
 			   &data.value,
 			   data.type );
@@ -788,15 +794,15 @@ static ssize_t __serialize_CMPIObjectPath ( int fd, CMPIObjectPath * cop )
 		TRACE_CRITICAL(("failed to serialize classname."));
 		return -1;
 	}
-		
+
 	tmp = __serialize_CMPIString ( fd, namespace );
 	if ( tmp < 0 ) {
 		TRACE_CRITICAL(("failed to serialize namespace."));
 		return -1;
 	}
-		
+
 	out += tmp;
-	
+
 	tmp = __serialize_UINT32 ( fd, key_count );
 	if ( tmp < 0 ) {
 		TRACE_CRITICAL(("failed to serialize keycount."));
@@ -1036,7 +1042,7 @@ static ssize_t __serialize_CMPISelectExp ( int fd, CMPISelectExp * sexp )
 
 	error_at_line ( -1, 0, __FILE__, __LINE__,
 			"unable to serialize CMPISelectExp." );
-	
+
 	return -1;
 }
 

@@ -219,7 +219,7 @@ void socketcomm_deserialize_context ( int socket,
 			( entry.state & CMPI_nullValue )?
 			CMPI_null: entry.type;
 
-		TRACE_INFO(("adding entry: %s", CMGetCharsPtr ( entryName, NULL ) ));
+		TRACE_INFO(("adding entryName: %s", CMGetCharsPtr ( entryName, NULL ) ));
 
 		CMAddContextEntry ( ctx,
 				    CMGetCharsPtr ( entryName, NULL ),

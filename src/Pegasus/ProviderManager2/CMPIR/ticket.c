@@ -26,6 +26,7 @@
 // Author: Frank Scheffler
 //
 // Modified By:  Adrian Schuur (schuur@de.ibm.com)
+//               Marek Szermutzky, IBM (mszermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,7 +51,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 #include <error.h>
+#endif
 
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
 #include <Pegasus/Provider/CMPI/cmpidt.h>

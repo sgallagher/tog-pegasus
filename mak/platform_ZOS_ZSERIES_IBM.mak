@@ -18,11 +18,11 @@ endif
 DEPEND_DEFINES = -D__IBMCPP__=400
 
 ifdef PEGASUS_DEBUG
-FLAGS = -+ -g -W "c,ASCII,XPLINK,dll,expo,rtti(dynamiccast),langlvl(extended),float(ieee)"
-PR_FLAGS = -+ -g -W "c,ASCII,XPLINK,dll,expo,langlvl(extended),FLOAT(IEEE)" -W "l,XPLINK,dll"
+FLAGS = -g -W "c,ASCII,XPLINK,dll,expo,rtti(dynamiccast),langlvl(extended),float(ieee)"
+PR_FLAGS = -g -W "c,ASCII,XPLINK,dll,expo,langlvl(extended),FLOAT(IEEE)" -W "l,XPLINK,dll"
 else
-FLAGS = -+ -O2 -W "c,ASCII,XPLINK,dll,expo,rtti(dynamiccast),langlvl(extended),float(ieee)"
-PR_FLAGS = -+ -O2 -W "c,ASCII,XPLINK,dll,expo,langlvl(extended),FLOAT(IEEE)" -W "l,XPLINK,dll"
+FLAGS = -O2 -W "c,ASCII,XPLINK,dll,expo,rtti(dynamiccast),langlvl(extended),float(ieee)"
+PR_FLAGS = -O2 -W "c,ASCII,XPLINK,dll,expo,langlvl(extended),FLOAT(IEEE)" -W "l,XPLINK,dll"
 endif
 
 ifdef PEGASUS_ZOS_SECURITY
@@ -40,7 +40,9 @@ endif
 
 SYS_LIBS =
 
-CXX = c++
+CXX = c++ -+
+
+CC = cc
 
 SH = sh
 

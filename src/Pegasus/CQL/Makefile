@@ -49,7 +49,8 @@ SOURCES = \
    CQLValueRep.cpp \
    QueryException.cpp \
    CQLRegularExpression.cpp \
-   CQLUtilities.cpp
+   CQLUtilities.cpp \
+   Cql2Dnf.cpp
 
 include $(ROOT)/mak/library.mak
 include $(ROOT)/mak/install.mak

@@ -28,4 +28,3 @@ endif
 
 
 include $(ROOT)/mak/library.mak
-include $(ROOT)/mak/install.mak

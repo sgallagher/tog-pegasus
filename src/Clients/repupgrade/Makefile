@@ -26,7 +26,6 @@ SYS_LIBS = ws2_32.lib advapi32.lib
 endif
 
 include $(ROOT)/mak/program.mak
-include $(ROOT)/mak/install.mak
 
 tests:
 

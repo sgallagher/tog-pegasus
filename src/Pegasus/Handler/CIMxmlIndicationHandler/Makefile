@@ -19,6 +19,5 @@ SOURCES = CIMxmlIndicationHandler.cpp
 LIBRARY = CIMxmlIndicationHandler
  
 include $(ROOT)/mak/library.mak
-include $(ROOT)/mak/install.mak
 
 tests:

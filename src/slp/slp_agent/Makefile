@@ -33,5 +33,3 @@ include $(ROOT)/mak/library.mak
 
 run:
 	Server $(REPOSITORY_ROOT)
-
-include $(ROOT)/mak/install.mak

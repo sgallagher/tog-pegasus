@@ -19,4 +19,3 @@ SOURCES = \
 	SampleSSPModule.cpp 
 
 include $(ROOT)/mak/dynamic-library.mak
-include $(ROOT)/mak/install.mak

@@ -19,6 +19,5 @@ SOURCES = SystemLogListenerDestination.cpp
 LIBRARY = SystemLogListenerDestination
  
 include $(ROOT)/mak/library.mak
-include $(ROOT)/mak/install.mak
 
 tests:

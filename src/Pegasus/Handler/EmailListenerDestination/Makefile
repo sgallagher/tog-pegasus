@@ -19,6 +19,5 @@ SOURCES = EmailListenerDestination.cpp
 LIBRARY = EmailListenerDestination
  
 include $(ROOT)/mak/library.mak
-include $(ROOT)/mak/install.mak
 
 tests:

@@ -31,6 +31,5 @@ endif
 LIBRARY = snmpIndicationHandler
  
 include $(ROOT)/mak/library.mak
-include $(ROOT)/mak/install.mak
 
 tests:

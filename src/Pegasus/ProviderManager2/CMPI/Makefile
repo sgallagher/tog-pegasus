@@ -65,4 +65,3 @@ OBJECTS_IN_OPTIONFILE = YES
 endif
 
 include $(ROOT)/mak/dynamic-library.mak
-include $(ROOT)/mak/install.mak

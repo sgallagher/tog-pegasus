@@ -62,5 +62,3 @@ ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
 SYS_LIBS += $(PEGASUS_HOME)/lib/pegslp_client.lib
 endif
 endif
-
-include $(ROOT)/mak/install.mak

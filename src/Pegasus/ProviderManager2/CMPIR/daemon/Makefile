@@ -21,7 +21,6 @@ SOURCES = \
    daemon.c
 
 include $(ROOT)/mak/program.mak
-include $(ROOT)/mak/install.mak
 
 tests:
 

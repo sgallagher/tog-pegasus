@@ -27,4 +27,3 @@ tests:
 
 poststarttests:
 
-include $(ROOT)/mak/install.mak

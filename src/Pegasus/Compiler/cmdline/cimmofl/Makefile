@@ -30,4 +30,3 @@ strip-license:
 
 prepend-license:
 
-include $(ROOT)/mak/install.mak

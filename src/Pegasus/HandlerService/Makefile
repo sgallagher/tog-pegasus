@@ -19,4 +19,3 @@ SOURCES = \
     HandlerTable.cpp
 
 include $(ROOT)/mak/library.mak
-include $(ROOT)/mak/install.mak

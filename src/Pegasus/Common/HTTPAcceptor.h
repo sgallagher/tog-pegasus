@@ -41,6 +41,8 @@
 PEGASUS_NAMESPACE_BEGIN
 
 struct HTTPAcceptorRep;
+class Monitor;
+
 
 /** Instances of this class listen on a port and accept conections.
 */

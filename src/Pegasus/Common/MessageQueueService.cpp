@@ -39,7 +39,7 @@ AtomicInt MessageQueueService::_xid(1);
 Mutex MessageQueueService::_meta_dispatcher_mutex;
 
 static struct timeval create_time = {0, 1};
-static struct timeval destroy_time = {10, 0};
+static struct timeval destroy_time = {300, 0};
 static struct timeval deadlock_time = {0, 0};
 
 ThreadPool *MessageQueueService::_thread_pool = 0;
@@ -65,7 +65,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL  MessageQueueService::kill_idle_threa
    
    if( now.tv_sec - last.tv_sec > 300 )
    {
-
       PEGASUS_STD(cout) << "Work Thread Pool currently has " << 
 	 MessageQueueService::_thread_pool->running_count() + 
 	 MessageQueueService::_thread_pool->pool_count() << " Threads." << PEGASUS_STD(endl);

@@ -80,7 +80,7 @@ void _displaySummary(Uint32 count, String& description, String item, Options& op
         cout << endl;
         if ((opts.count) != 97832 && (opts.count != count))
         {
-            cout << "Failed count test. Expected= " << opts.count << " Actual rcvd' " << count << endl;
+            cout << "Failed count test. Expected= " << opts.count << " Actual rcvd= " << count << endl;
             opts.termCondition = 1;
         }
 
@@ -1168,7 +1168,7 @@ void GetOptions(
         {"delay", "0", false, Option::WHOLE_NUMBER, 0, 0, "delay", 
                             "Delay between connection and request "},
 
-        {"count", "97832", false, Option::NATURAL_NUMBER, 0, 0, "count", 
+        {"count", "20000", false, Option::WHOLE_NUMBER, 0, 0, "count", 
                             "Expected count of objects returned if the summary set. Tests this count and display difference. Term nonzero if test fails  "},
 
         {"repeat", "0", false, Option::WHOLE_NUMBER, 0, 0, "-r", 

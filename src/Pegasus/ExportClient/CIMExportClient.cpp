@@ -74,7 +74,7 @@ CIMExportClient::CIMExportClient(
 CIMExportClient::~CIMExportClient()
 {
 
-	disconnect();
+        disconnect();
 }
 
 void CIMExportClient::_connect()
@@ -119,85 +119,7 @@ void CIMExportClient::_connect()
    _connected = true;
 }
 
-void CIMExportClient::_reconnect()
-{
-    disconnect();
-    _connect();
-}
-
-void CIMExportClient::connect(
-    const String& host,
-    const Uint32 portNumber)
-{
-   // If already connected, bail out!
-    
-   if (_connected)
-      throw AlreadyConnectedException();
-    
-    //
-    // If the host is empty, set hostName to "localhost"
-    //
-    String hostName = host;
-    if (host == String::EMPTY)
-    {
-        hostName = "localhost";
-    }
-
-    //
-    // Set authentication information
-    //
-    _authenticator.clearRequest(true);
-    _authenticator.setAuthType(ClientAuthenticator::NONE);
-
-    _connectSSLContext = 0;
-    _connectHost = hostName;
-    _connectPortNumber = portNumber;
-
-    _connect();
-}
-
-void CIMExportClient::connect(
-    const String& host,
-    const Uint32 portNumber,
-    const SSLContext& sslContext)
-{
-   // If already connected, bail out!
-
-   if (_connected)
-      throw AlreadyConnectedException();
-
-    //
-    // If the host is empty, set hostName to "localhost"
-    //
-    String hostName = host;
-    if (host == String::EMPTY)
-    {
-        hostName = "localhost";
-    }
-
-    //
-    // Set authentication information
-    //
-    _authenticator.clearRequest(true);
-    _authenticator.setAuthType(ClientAuthenticator::NONE);
-
-    _connectSSLContext = new SSLContext(sslContext);
-    _connectHost = hostName;
-    _connectPortNumber = portNumber;
-
-    try
-    {
-        _connect();
-    }
-    catch (Exception&)
-    {
-        delete _connectSSLContext;
-        _connectSSLContext = 0;
-        throw;
-    }
-}
-
-void CIMExportClient::disconnect()
+void CIMExportClient::_disconnect()
 {
     if (_connected)
     {
@@ -229,8 +151,6 @@ void CIMExportClient::disconnect()
             _requestEncoder = 0;
         }
 
-        _authenticator.clearRequest(true);
-
         if (_connectSSLContext)
         {
             delete _connectSSLContext;
@@ -239,6 +159,89 @@ void CIMExportClient::disconnect()
 
         _connected = false;
     }
+}
+
+void CIMExportClient::_reconnect()
+{
+    _disconnect();
+    _authenticator.setRequestMessage(0);
+    _connect();
+}
+
+void CIMExportClient::connect(
+    const String& host,
+    const Uint32 portNumber)
+{
+   // If already connected, bail out!
+    
+   if (_connected)
+      throw AlreadyConnectedException();
+    
+    //
+    // If the host is empty, set hostName to "localhost"
+    //
+    String hostName = host;
+    if (host == String::EMPTY)
+    {
+        hostName = "localhost";
+    }
+
+    //
+    // Set authentication information
+    //
+    _authenticator.clear();
+
+    _connectSSLContext = 0;
+    _connectHost = hostName;
+    _connectPortNumber = portNumber;
+
+    _connect();
+}
+
+void CIMExportClient::connect(
+    const String& host,
+    const Uint32 portNumber,
+    const SSLContext& sslContext)
+{
+   // If already connected, bail out!
+
+   if (_connected)
+      throw AlreadyConnectedException();
+
+    //
+    // If the host is empty, set hostName to "localhost"
+    //
+    String hostName = host;
+    if (host == String::EMPTY)
+    {
+        hostName = "localhost";
+    }
+
+    //
+    // Set authentication information
+    //
+    _authenticator.clear();
+
+    _connectSSLContext = new SSLContext(sslContext);
+    _connectHost = hostName;
+    _connectPortNumber = portNumber;
+
+    try
+    {
+        _connect();
+    }
+    catch (Exception&)
+    {
+        delete _connectSSLContext;
+        _connectSSLContext = 0;
+        throw;
+    }
+}
+
+void CIMExportClient::disconnect()
+{
+    _disconnect();
+    _authenticator.clear();
 }
 
 void CIMExportClient::exportIndication(
@@ -280,7 +283,7 @@ Message* CIMExportClient::_doRequest(
     String messageId = XmlWriter::getNextMessageId();
     const_cast<String &>(request->messageId) = messageId;
 
-    _authenticator.clearRequest();
+    _authenticator.setRequestMessage(0);
 
     // ATTN-RK-P2-20020416: We should probably clear out the queue first.
     PEGASUS_ASSERT(getCount() == 0);  // Shouldn't be any messages in our queue

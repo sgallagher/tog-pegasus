@@ -185,9 +185,52 @@ void CIMClientRep::_connect()
     _connected = true;
 }
 
+void CIMClientRep::_disconnect()
+{
+    if (_connected)
+    {
+        //
+        // destroy response decoder
+        //
+        if (_responseDecoder)
+        {
+            delete _responseDecoder;
+            _responseDecoder = 0;
+        }
+
+        //
+        // Close the connection
+        //
+        if (_httpConnector)
+        {
+            _httpConnector->disconnect(_httpConnection);
+            delete _httpConnection;
+            _httpConnection = 0;
+        }
+
+        //
+        // destroy request encoder
+        //
+        if (_requestEncoder)
+        {
+            delete _requestEncoder;
+            _requestEncoder = 0;
+        }
+
+        if (_connectSSLContext)
+        {
+            delete _connectSSLContext;
+            _connectSSLContext = 0;
+        }
+
+        _connected = false;
+    }
+}
+
 void CIMClientRep::_reconnect()
 {
-    disconnect();
+    _disconnect();
+    _authenticator.setRequestMessage(0);
     _connect();
 }
 
@@ -216,8 +259,7 @@ void CIMClientRep::connect(
     //
     // Set authentication information
     //
-    _authenticator.clearRequest(true);
-    _authenticator.setAuthType(ClientAuthenticator::NONE);
+    _authenticator.clear();
 
     if (userName.size())
     {
@@ -263,8 +305,7 @@ void CIMClientRep::connect(
     //
     // Set authentication information
     //
-    _authenticator.clearRequest(true);
-    _authenticator.setAuthType(ClientAuthenticator::NONE);
+    _authenticator.clear();
 
     if (userName.size())
     {
@@ -305,7 +346,7 @@ void CIMClientRep::connectLocal()
     //
     // Set authentication type
     //
-    _authenticator.clearRequest(true);
+    _authenticator.clear();
     _authenticator.setAuthType(ClientAuthenticator::LOCAL);
 
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
@@ -396,47 +437,10 @@ void CIMClientRep::connectLocal()
 
 void CIMClientRep::disconnect()
 {
-    if (_connected)
-    {
-        //
-        // destroy response decoder
-        //
-        if (_responseDecoder)
-        {
-            delete _responseDecoder;
-            _responseDecoder = 0;
-        }
-
-        //
-        // Close the connection
-        //
-        if (_httpConnector)
-        {
-            _httpConnector->disconnect(_httpConnection);
-            delete _httpConnection;
-            _httpConnection = 0;
-        }
-
-        //
-        // destroy request encoder
-        //
-        if (_requestEncoder)
-        {
-            delete _requestEncoder;
-            _requestEncoder = 0;
-        }
-
-        _authenticator.clearRequest(true);
-
-        if (_connectSSLContext)
-        {
-            delete _connectSSLContext;
-            _connectSSLContext = 0;
-        }
-
-        _connected = false;
-    }
+    _disconnect();
+    _authenticator.clear();
 }
+
 
 // l10n start
 AcceptLanguages CIMClientRep::getRequestAcceptLanguages() const
@@ -1074,7 +1078,7 @@ Message* CIMClientRep::_doRequest(
     String messageId = XmlWriter::getNextMessageId();
     const_cast<String &>(request->messageId) = messageId;
 
-    _authenticator.clearRequest();
+    _authenticator.setRequestMessage(0);
 
     // ATTN-RK-P2-20020416: We should probably clear out the queue first.
     PEGASUS_ASSERT(getCount() == 0);  // Shouldn't be any messages in our queue

@@ -212,9 +212,9 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
             // the request message by getting the handle from the ClientAuthenticator.
             //
             Message* reqMessage = _authenticator->getRequestMessage();
-            _authenticator->clearRequest();
             if (reqMessage)
             {
+                _authenticator->setRequestMessage(0);
                 delete reqMessage;
             }
         }

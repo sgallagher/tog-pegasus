@@ -158,6 +158,8 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
 
       void _connect();
 
+      void _disconnect();
+
       void _reconnect();
 
       Message* _doRequest(

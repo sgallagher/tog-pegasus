@@ -167,8 +167,7 @@ void WbemExecClient::connect(
     //
     // Set authentication information
     //
-    _authenticator.clearRequest(true);
-    _authenticator.setAuthType(ClientAuthenticator::NONE);
+    _authenticator.clear();
 
     if (userName.size())
     {
@@ -202,7 +201,7 @@ void WbemExecClient::connectLocal()
     //
     // Set authentication type
     //
-    _authenticator.clearRequest(true);
+    _authenticator.clear();
     _authenticator.setAuthType(ClientAuthenticator::LOCAL);
 
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
@@ -273,7 +272,7 @@ void WbemExecClient::disconnect()
         //
         _httpConnector->disconnect(_httpConnection);
 
-        _authenticator.clearRequest(true);
+        _authenticator.clear();
 
         _connected = false;
     }
@@ -329,7 +328,6 @@ Array<Sint8> WbemExecClient::issueRequest(
     
     HTTPMessage* httpRequest = new HTTPMessage(request);
     
-    _authenticator.clearRequest();
     _authenticator.setRequestMessage(httpRequest);
 
     Boolean finished = false;
@@ -366,7 +364,7 @@ Array<Sint8> WbemExecClient::issueRequest(
     } while (!finished);
     
     HTTPMessage* origRequest = (HTTPMessage*)_authenticator.getRequestMessage();
-    _authenticator.clearRequest();
+    _authenticator.setRequestMessage(0);
     delete origRequest;
 
     Destroyer<HTTPMessage> destroyer(httpResponse);

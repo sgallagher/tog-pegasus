@@ -288,6 +288,8 @@ private:
 
     void _connect();
 
+    void _disconnect();
+
     void _reconnect();
 
     Message* _doRequest(

@@ -75,7 +75,7 @@ public:
     /** Clear the request buffer and other authentication informations
         from the earlier request.
     */
-    void clearRequest(Boolean closeConnection = false);
+    void clear();
 
     /** Set the user name
     */

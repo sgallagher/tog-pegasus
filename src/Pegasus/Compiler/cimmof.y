@@ -62,7 +62,8 @@ extern void cimmof_yy_less(int n);
 /* encountered, then applied to the production they qualify when it    */
 /* is completed.                                                       */
 /* ------------------------------------------------------------------- */
-  Uint32 g_flavor = 0;
+  // KS : simply forced the defaults
+  Uint32 g_flavor = CIMFlavor::DEFAULTS;
   Uint32 g_scope = 0;
   qualifierList g_qualifierList(10);  /* FIXME */
   CIMMethod *g_currentMethod = 0;
@@ -608,23 +609,27 @@ metaElement: TOK_CLASS       { $$ = CIMScope::CLASS;        }
            | TOK_PARAMETER   { $$ = CIMScope::PARAMETER;    }
            | TOK_ANY         { $$ = CIMScope::ANY;          } ;
 
+// Correction KS 4 march 2002 - Set the default if empty
 defaultFlavor: TOK_COMMA flavorHead explicitFlavors TOK_RIGHTPAREN
   { $$ = g_flavor; }
-	   | /* empty */ { $$ = 0; } ;
+	   | /* empty */ { $$ = (CIMFlavor::DEFAULTS); } ;
 
-flavorHead: TOK_FLAVOR TOK_LEFTPAREN { g_flavor = 0; } ;
+// Correction KS 4 March 2002 - set the defaults (was zero)
+// Set the flavors for the defaults required: via DEFAULTS
+
+flavorHead: TOK_FLAVOR TOK_LEFTPAREN { g_flavor = (CIMFlavor::DEFAULTS); } ;
 
 explicitFlavors: explicitFlavor
 
                | explicitFlavors TOK_COMMA explicitFlavor ;
 
-// ATTN: it seems that TOINSTANCE is incorrectly set here!
+// ATTN: it seems that TOINSTANCE is incorrectly set here! KS 5 March 2002 Corrected
 
-explicitFlavor: TOK_ENABLEOVERRIDE  { g_flavor |= CIMFlavor::OVERRIDABLE; }
+explicitFlavor: TOK_ENABLEOVERRIDE  { g_flavor |=   CIMFlavor::OVERRIDABLE; }
               | TOK_DISABLEOVERRIDE { g_flavor &= ~(CIMFlavor::OVERRIDABLE); } 
-              | TOK_RESTRICTED      { g_flavor |= CIMFlavor::TOINSTANCE; }
-              | TOK_TOSUBCLASS      { g_flavor |= CIMFlavor::TOSUBCLASS; }
-              | TOK_TRANSLATABLE    { g_flavor |= CIMFlavor::TRANSLATABLE; } ;
+              | TOK_RESTRICTED      { g_flavor &= ~(CIMFlavor::TOSUBELEMENTS); }
+              | TOK_TOSUBCLASS      { g_flavor |=   CIMFlavor::TOSUBELEMENTS; }
+              | TOK_TRANSLATABLE    { g_flavor |=   CIMFlavor::TRANSLATABLE; } ;
 
 flavor: overrideFlavors { $$ = g_flavor; }
       | /* empty */ { $$ = CIMFlavor::DEFAULTS; };
@@ -674,10 +679,11 @@ qualifier: qualifierName qualifierParameter flavor
   delete v;
  } ;
 
-qualifierName: TOK_SIMPLE_IDENTIFIER { g_flavor = 0; }
+// KS 4 march change g_flavor to set defaults
+qualifierName: TOK_SIMPLE_IDENTIFIER { g_flavor = CIMFlavor::DEFAULTS; }
              | metaElement { 
                         $$ = new String(ScopeToString($1));
-                        g_flavor = 0; } ;
+                        g_flavor = CIMFlavor::DEFAULTS; } ;
 
 qualifierParameter: TOK_LEFTPAREN constantValue TOK_RIGHTPAREN { $$ = $2; }
                   | arrayInitializer { $$ = $1; }

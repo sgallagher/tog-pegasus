@@ -159,6 +159,7 @@ void CIMClient::connect(
     // Set authentication information
     //
     _authenticator.clearRequest(true);
+    _authenticator.setAuthType(ClientAuthenticator::NONE);
 
     if (userName.size())
     {

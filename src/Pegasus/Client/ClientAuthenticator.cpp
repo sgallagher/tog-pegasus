@@ -206,13 +206,13 @@ String ClientAuthenticator::buildRequestAuthHeader()
         //
         //ATTN: Implement Digest Auth challenge handling code here
         //
-        //case ClientAuthenticator::DIGEST:
+        case ClientAuthenticator::DIGEST:
         //    if (_challengeReceived)
         //    {
         //        challengeResponse = DIGEST_AUTH_HEADER;
         //
         //    }
-        //    break;
+            break;
 
         case ClientAuthenticator::LOCALPRIVILEGED:
 
@@ -256,11 +256,15 @@ String ClientAuthenticator::buildRequestAuthHeader()
 
             break;
 
-        default:
+        case ClientAuthenticator::NONE:
             //
             // Gets here only when no authType was set.
             //
             challengeResponse.clear();
+            break;
+
+        default:
+            PEGASUS_ASSERT(0);
             break;
     }
 
@@ -307,7 +311,8 @@ void ClientAuthenticator::setAuthType(ClientAuthenticator::AuthType type)
     PEGASUS_ASSERT( (type == ClientAuthenticator::BASIC) ||
          (type == ClientAuthenticator::DIGEST) ||
          (type == ClientAuthenticator::LOCAL) ||
-         (type == ClientAuthenticator::LOCALPRIVILEGED) );
+         (type == ClientAuthenticator::LOCALPRIVILEGED) ||
+         (type == ClientAuthenticator::NONE) );
 
     _authType = type;
 }

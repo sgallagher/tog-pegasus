@@ -567,14 +567,7 @@ String System::getFullyQualifiedHostName ()
 
 String System::getSystemCreationClassName ()
 {
-#ifdef PEGASUS_OS_HPUX
     return "CIM_ComputerSystem";
-#else
-    //
-    //  ATTN: Implement this method to return the system creation class name
-    //
-    return String::EMPTY;
-#endif
 }
 
 Uint32 System::lookupPort(

@@ -48,9 +48,9 @@ String Guid::getGuid(const String &prefix)
       WCHAR guid_strW[38] = { L"" };
       char guid_str[100];
       ::memset(&guid_str, 0, sizeof(guid_str));
-      if (StringFromGUID2(guid, guid_strW, sizeof(guid_strW)) > 0)
+      const Uint32 numBytes =  sizeof(guid_strW)/sizeof(guid_strW[0]);
+      if (StringFromGUID2(guid, guid_strW, numBytes) > 0)
         {
-          Uint32 numBytes =  sizeof(guid_strW)/sizeof(guid_strW[0]);
           WideCharToMultiByte(CP_ACP, 0, guid_strW, numBytes, guid_str, sizeof(guid_str), NULL, NULL);
           // exclude the first and last chars (i.e., { and })
           for (Uint32 i=1; i<sizeof(guid_str); i++)

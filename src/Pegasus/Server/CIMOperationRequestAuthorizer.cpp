@@ -29,6 +29,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Security/UserManager/UserManager.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/Destroyer.h>
@@ -44,7 +45,7 @@ PEGASUS_USING_STD;
 CIMOperationRequestAuthorizer::CIMOperationRequestAuthorizer(
    MessageQueueService* outputQueue)
    :
-   Base("CIMOperationRequestAuthorizer", MessageQueue::getNextQueueId()),
+   Base(PEGASUS_SERVICENAME_CIMOPREQAUTHORIZER, MessageQueue::getNextQueueId()),
    _outputQueue(outputQueue),
    _serverTerminating(false)
 {
@@ -470,7 +471,7 @@ const char* CIMOperationRequestAuthorizer::getQueueName() const
 
    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
 
-   return "CIMOperationRequestAuthorizer";
+   return PEGASUS_SERVICENAME_CIMOPREQAUTHORIZER;
 }
 
 void CIMOperationRequestAuthorizer::setServerTerminating(Boolean flag)

@@ -41,6 +41,7 @@
 #include <cstdio>
 #include <cctype>
 #include <ctime>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/Tracer.h>
@@ -89,9 +90,7 @@ CIMServer::CIMServer(
     Boolean useSSL)
    : _dieNow(false), _useSSL(useSSL)
 {
-    const char METHOD_NAME[] = "CIMServer::CIMServer()";
-
-    PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::CIMServer()");
 
     static const char CERTIFICATE[] = "/server.pem";
 
@@ -108,7 +107,7 @@ CIMServer::CIMServer(
 
     if (!FileSystem::isDirectory(repositoryRootPath))
     {
-        PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+        PEG_METHOD_EXIT();
 	throw NoSuchDirectory(repositoryRootPath);
     }
 
@@ -125,13 +124,14 @@ CIMServer::CIMServer(
     _handlerService = new IndicationHandlerService(_repository);
 
     // Create the control service
-    ModuleController* controlService = new ModuleController("ModuleController");
+    ModuleController* controlService =
+        new ModuleController(PEGASUS_SERVICENAME_CONTROLSERVICE);
 
     // Create the Configuration control provider
     ProviderMessageFacade * configProvider =
         new ProviderMessageFacade(new ConfigSettingProvider());
-    ModuleController::register_module("ModuleController",
-                                      "ModuleController::ConfigProvider",
+    ModuleController::register_module(PEGASUS_SERVICENAME_CONTROLSERVICE,
+                                      PEGASUS_MODULENAME_CONFIGPROVIDER,
                                       configProvider,
                                       controlProviderReceiveMessageCallback,
                                       0, 0);
@@ -139,8 +139,8 @@ CIMServer::CIMServer(
     // Create the User/Authorization control provider
     ProviderMessageFacade * userAuthProvider =
         new ProviderMessageFacade(new UserAuthProvider(_repository));
-    ModuleController::register_module("ModuleController",
-                                      "ModuleController::UserAuthProvider",
+    ModuleController::register_module(PEGASUS_SERVICENAME_CONTROLSERVICE,
+                                      PEGASUS_MODULENAME_USERAUTHPROVIDER,
                                       userAuthProvider,
                                       controlProviderReceiveMessageCallback,
                                       0, 0);
@@ -148,8 +148,8 @@ CIMServer::CIMServer(
     // Create the Provider Registration control provider
     ProviderMessageFacade * provRegProvider = new ProviderMessageFacade(
         new ProviderRegistrationProvider(_providerRegistrationManager));
-    ModuleController::register_module("ModuleController",
-                                      "ModuleController::ProviderRegistrationProvider",
+    ModuleController::register_module(PEGASUS_SERVICENAME_CONTROLSERVICE,
+                                      PEGASUS_MODULENAME_PROVREGPROVIDER,
                                       provRegProvider,
                                       controlProviderReceiveMessageCallback,
                                       0, 0);
@@ -245,33 +245,29 @@ CIMServer::CIMServer(
     */
     //_cimOperationRequestDispatcher->loadRegisteredProviders();
 
-    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 CIMServer::~CIMServer()
 {
-    const char METHOD_NAME[] = "CIMServer::~CIMServer()";
-
-    PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::~CIMServer()");
 
     // Note: do not delete the acceptor because it belongs to the Monitor
     // which takes care of disposing of it.
 
-    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 void CIMServer::bind(Uint32 port)
 {
-    const char METHOD_NAME[] = "CIMServer::bind()";
-
-    PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::bind()");
 
     // not the best place to build the service url, but it works for now
     // because the address string is accessible  mdday
 
     _acceptor->bind(port);
 
-    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 void CIMServer::runForever()
@@ -283,53 +279,42 @@ void CIMServer::runForever()
 
 void CIMServer::stopClientConnection()
 {
-    const char METHOD_NAME[] = "CIMServer::stopClientConnection()";
-
-    PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::stopClientConnection()");
 
     _acceptor->closeConnectionSocket();
 
-    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 void CIMServer::shutdown()
 {
-    const char METHOD_NAME[] = "CIMServer::shutdown()";
-
-    PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::shutdown()");
 
     _dieNow = true;
 
-    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 void CIMServer::resume()
 {
-    const char METHOD_NAME[] = "CIMServer::resume()";
-
-    PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::resume()");
 
     _acceptor->reopenConnectionSocket();
 
-    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 CIMOperationRequestDispatcher* CIMServer::getDispatcher()
 {
-    const char METHOD_NAME[] = "CIMServer::getDispatcher()";
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::getDispatcher()");
 
-    PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
-
-    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
-
+    PEG_METHOD_EXIT();
     return _cimOperationRequestDispatcher;
 }
 
 void CIMServer::setState(Uint32 state)
 {
-    const char METHOD_NAME[] = "CIMServer::setState()";
-
-    PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::setState()");
 
     _serverState->setState(state);
 
@@ -345,18 +330,17 @@ void CIMServer::setState(Uint32 state)
         _cimOperationRequestDecoder->setServerTerminating(false);
         _cimExportRequestDecoder->setServerTerminating(false);
     }
-    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 Uint32 CIMServer::getOutstandingRequestCount()
 {
-    const char METHOD_NAME[] = "CIMServer::getOutstandingRequestCount()";
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::getOutstandingRequestCount()");
 
-    PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
+    Uint32 requestCount = _acceptor->getOutstandingRequestCount();
 
-    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
-
-    return (_acceptor->getOutstandingRequestCount());
+    PEG_METHOD_EXIT();
+    return requestCount;
 }
 
 PEGASUS_NAMESPACE_END

@@ -27,6 +27,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/HTTPMessage.h>
@@ -44,7 +45,8 @@ PEGASUS_NAMESPACE_BEGIN
 HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
     Uint32 operationMessageQueueId,
     Uint32 exportMessageQueueId)
-   : Base("HTTPAuthDelator", MessageQueue::getNextQueueId()),
+   : Base(PEGASUS_SERVICENAME_HTTPAUTHDELEGATOR,
+          MessageQueue::getNextQueueId()),
     _operationMessageQueueId(operationMessageQueueId),
     _exportMessageQueueId(exportMessageQueueId)
 {
@@ -350,7 +352,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
 const char* HTTPAuthenticatorDelegator::getQueueName() const
 {
-    return "HTTPAuthenticatorDelegator";
+    return PEGASUS_SERVICENAME_HTTPAUTHDELEGATOR;
 }
 
 PEGASUS_NAMESPACE_END

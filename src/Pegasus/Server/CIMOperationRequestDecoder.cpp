@@ -34,6 +34,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <cctype>
 #include <cstdio>
 #include <Pegasus/Common/XmlParser.h>
@@ -52,7 +53,7 @@ PEGASUS_NAMESPACE_BEGIN
 CIMOperationRequestDecoder::CIMOperationRequestDecoder(
    MessageQueueService* outputQueue,
    Uint32 returnQueueId)
-   :  Base("CIMOpRequestDecoder", MessageQueue::getNextQueueId()),
+   :  Base(PEGASUS_SERVICENAME_CIMOPREQDECODER, MessageQueue::getNextQueueId()),
       _outputQueue(outputQueue),
       _returnQueueId(returnQueueId),
       _serverTerminating(false)
@@ -156,7 +157,7 @@ void CIMOperationRequestDecoder::handleEnqueue()
 
 const char* CIMOperationRequestDecoder::getQueueName() const
 {
-   return "CIMOperationRequestDecoder";
+   return PEGASUS_SERVICENAME_CIMOPREQDECODER;
 }
 
 //------------------------------------------------------------------------------

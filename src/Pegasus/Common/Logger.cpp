@@ -25,6 +25,8 @@
 //
 // Modified By: Sushma Fernandes (Hewlett-Packard Company)
 //              sushma_fernandes@hp.com
+// Modified By: Dave Rosckes (IBM)
+//              rosckes@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,8 +37,12 @@
 #include "System.h"
 #include "Destroyer.h"
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-# include <syslog.h>
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) 
+#include <syslog.h>
+#endif
+
+#ifdef PEGASUS_OS_OS400
+#include "qycmmsgclsMessage.H" // ycmMessage class
 #endif
 
 PEGASUS_USING_STD;
@@ -99,7 +105,7 @@ public:
 
     LoggerRep(const String& homeDirectory)
     {
-#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)    
 	// Add test for home directory set.
 
 	// If home directory does not exist, create it.
@@ -206,6 +212,43 @@ void Logger::put(
 
             // Close the syslog.
             closelog();
+
+       #elif defined(PEGASUS_OS_OS400)
+
+	    std::string replacementData = (const char*)logMsg.getCString();
+	    // All messages will go to the joblog. In the future
+	    // some messages may go to other message queues yet
+	    // to be determined.
+	    if ((severity & Logger::TRACE) ||
+		(severity & Logger::INFORMATION))
+	    {
+
+		// turn into ycmMessage so we can put it in the job log
+		ycmMessage theMessage(msgCPxDF80,
+				      CPIprefix,
+				      replacementData,
+				      "Logger",ycmCTLCIMID);
+
+		// put the message in the joblog
+		theMessage.joblogIt(UnitOfWorkError,
+				    ycmMessage::Informational);
+	    }
+
+            if ((severity & Logger::WARNING) ||
+		(severity & Logger::SEVERE)  ||
+                (severity & Logger::FATAL))
+	    {
+		// turn into ycmMessage so we can put it in the job log
+		ycmMessage theMessage(msgCPxDF82,
+                                      CPDprefix,
+                                      replacementData,
+				      "Logger",ycmCTLCIMID);
+
+               // put the message in the joblog
+               theMessage.joblogIt(UnitOfWorkError,
+				   ycmMessage::Diagnostic);
+            }
+
        #else
 	    const char* tmp = "";
 	    if (severity & Logger::TRACE) tmp =       "TRACE   ";

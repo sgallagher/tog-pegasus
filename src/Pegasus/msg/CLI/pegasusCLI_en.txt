@@ -439,7 +439,7 @@ pegasusCLI_en:table {
 
         Clients.cimprovider.CIMProviderCommand.UNEXPECTED_OPTION:string {"CIMPRVCMD_UNEXPECTED_OPTION: Unexpected option."}
 
-		Clients.cimprovider.CIMProviderCommand.PENDING_REQUESTS_STOP_PROVIDER_FAILURE:string {"Failed to disable the provider module.  Provider is busy."}
+		Clients.cimprovider.CIMProviderCommand.PENDING_REQUESTS_STOP_PROVIDER_FAILURE:string {"Failed to disable the provider module.  Provider is busy."} // 485
 
 	// ==========================================================
         // Messages for CIMUserCommand

@@ -892,9 +892,9 @@ pegasusServer_en:table {
 
 	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.SUPERUSER_PRIVILEGE_REQUIRED_UNREGISTER_PROVIDERS:string {"CIMPREGP_SUPERUSER_PRIVILEGE_REQUIRED_UNREGISTER_PROVIDERS: Superuser authority is required to unregister CIM providers."}
 
-	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_FAILED_PROVIDER_BUSY:string {"Failed to disable the provider.  Provider is busy."}
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_FAILED_PROVIDER_BUSY:string {"Failed to disable the provider.  Provider is busy."} // 485
 
-	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_MODULE_FAILED_PROVIDER_BUSY:string {"Failed to disable the provider module.  Provider is busy."}
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_MODULE_FAILED_PROVIDER_BUSY:string {"Failed to disable the provider module.  Provider is busy."}  //485
 
 	/**
 	* @comment CIMPREGP_KEY_NOT_FOUND:
@@ -2620,6 +2620,9 @@ CIM server listening on {0} port {1}."}
 	*/
 	Handler.snmpIndicationHandler.snmpIndicationHandler.QUALIFIER_MAPPINGS_NOT_FOUND:string {"SNMPINDHND_QUALIFIER_MAPPINGS_NOT_FOUND:  CIM qualifier MappingStrings can not be found"}
 	 
+	Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR:string {"CIMxmlIndicationHandler Error: "} // 485
+
+	Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.CANNOT_DO_HTTPS_CONNECTION:string {"Can not do https connection."} // 485
 
         // ==========================================================
         // Messages for snmpDeliverTrap_emanate

@@ -4108,13 +4108,13 @@ Boolean XmlReader::getValueObjectWithPathElement(
     else if (!XmlReader::getClassPathElement(parser, reference))
     {
 
-      // l10n
+      // l10n 485
       
       // throw XmlValidationError(parser.getLine(),
       //    "Expected INSTANCEPATH or CLASSPATH element");
 
       MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_INSTANCEPATH_OR_CLASSPATH_ELEMENT",
-				 "Expected INSTANCEPATH or CLASSPATH element", "INSTANCEPATH", "CLASSPATH");
+				 "Expected INSTANCEPATH or CLASSPATH element");
       
       throw XmlValidationError(parser.getLine(), mlParms);
     }

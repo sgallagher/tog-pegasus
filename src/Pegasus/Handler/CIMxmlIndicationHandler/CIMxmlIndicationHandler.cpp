@@ -256,8 +256,12 @@ public:
 #ifdef PEGASUS_HAS_SSL
                 exportclient.connect (hostName, portNumber, sslcontext);
 #else
-                PEGASUS_STD(cerr) << "CIMxmlIndicationHandler Error: "
-                    << "Cannot do https connection." << PEGASUS_STD(endl);
+//l10n 485
+                //PEGASUS_STD(cerr) << "CIMxmlIndicationHandler Error: "
+                    //<< "Cannot do https connection." << PEGASUS_STD(endl);
+                MessageLoaderParms parms("Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR", "CIMxmlIndicationHandler Error: ");
+                MessageLoaderParms parms1("Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.CANNOT_DO_HTTPS_CONNECTION", "Cannot do https connection.");
+                PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) <<  MessageLoader::getMessage(parms1) << PEGASUS_STD(endl);
 #endif
             }
             else
@@ -265,7 +269,7 @@ public:
                 exportclient.connect (hostName, portNumber);
             }
 
-// l10n
+// l10n 
 	    exportclient.exportIndication(
 		destStr.subString(destStr.find("/")), indicationInstance,
 		contentLanguages);
@@ -274,8 +278,11 @@ public:
         {
             //ATTN: Catch specific exceptions and log the error message 
             // as Indication delivery failed.
-
-            PEGASUS_STD(cerr) << "CIMxmlIndicationHandler Error: " << e.getMessage() 
+//l10n 485
+            //PEGASUS_STD(cerr) << "CIMxmlIndicationHandler Error: " << e.getMessage() 
+	    //<< PEGASUS_STD(endl);
+	    	MessageLoaderParms parms("Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR", "CIMxmlIndicationHandler Error: ");
+	    	PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << e.getMessage() 
 	    << PEGASUS_STD(endl);
         }
     }

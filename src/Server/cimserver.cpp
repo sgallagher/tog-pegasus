@@ -1061,8 +1061,17 @@ MessageLoader::_useProcessLocale = false;
     // to service CIM requests.
     // The run function for the dummy Thread should never be called,
     Thread *dummyInitialThread = new Thread(dummyThreadFunc, NULL, false);
-    Thread::setCurrent(dummyInitialThread);
-    AcceptLanguages default_al = AcceptLanguages::getDefaultAcceptLanguages();
+    Thread::setCurrent(dummyInitialThread); 
+    AcceptLanguages default_al;
+    try{
+    	 default_al = AcceptLanguages::getDefaultAcceptLanguages();   
+    }catch(InvalidAcceptLanguageHeader e){
+    	  Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+				  "src.Server.cimserver.FAILED_TO_SET_PROCESS_LOCALE",
+		    	  "Could not convert the system process locale into a valid AcceptLanguage format.");  
+		  Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+		    				 e.getMessage()); 
+    }
     Thread::setLanguages(new AcceptLanguages(default_al));
     
 

@@ -2612,6 +2612,8 @@ CIM server listening on HTTPS port {0}."}
 	}
 
 
+	src.Server.cimserver.FAILED_TO_SET_PROCESS_LOCALE:string {"Could not convert the system process locale into a valid AcceptLanguage format."} //485
+
         // ==========================================================
         // Messages for IndicationService
 	//  Please use message prefix "CIMINDSVC"

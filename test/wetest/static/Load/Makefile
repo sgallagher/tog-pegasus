@@ -30,6 +30,13 @@ repository:
 	@ echo +++++ Registering Static Tests Schema Providers  ...
 	@ cimmofl -n$(INTEROPNS) StaticTestSchemaR.mof
 
+repositoryServer:
+	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(STATICTESTNS) namespace ...
+	@ cimmof -I$(CIM_MOF_PATH) -n$(STATICTESTNS) $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ echo +++++ Loading Static Test Schema into $(STATICTESTNS) namespace ...
+	@ cimmof -n$(STATICTESTNS) StaticTestSchema.mof
+	@ echo +++++ Registering Static Tests Schema Providers  ...
+	@ cimmof -n$(INTEROPNS) StaticTestSchemaR.mof
 removerepository:
 	@ echo +++++ Removing existing repository named $(STATICTESTNS)
 	@$(RMREPOSITORY) $(STATICTESTNSDIRECTORY)

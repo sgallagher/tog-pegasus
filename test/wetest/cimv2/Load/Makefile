@@ -26,6 +26,10 @@ repository:
 	@ echo +++++ Loading CIM_Schema$(CIM_SCHEMA_VER) into $(TESTCIMV2NS) namespace ...
 	@ cimmofl -I$(CIM_MOF_PATH) -n$(TESTCIMV2NS) $(CIM_MOF_PATH)/CIM_Schema$(CIM_SCHEMA_VER).mof
 
+repositoryServer:
+	@ echo +++++ Loading CIM_Schema$(CIM_SCHEMA_VER) into $(TESTCIMV2NS) namespace ...
+	@ cimmof -I$(CIM_MOF_PATH) -n$(TESTCIMV2NS) $(CIM_MOF_PATH)/CIM_Schema$(CIM_SCHEMA_VER).mof
+
 removerepository:
 	@ echo +++++ Removing existing repository named $(TESTCIMV2NS)
 	@$(RMREPOSITORY) $(TESTCIMV2NSDIRECTORY)

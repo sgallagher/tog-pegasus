@@ -103,15 +103,7 @@ cimmofRepositoryInterface::addClass(const String &nameSpace, CIMClass &Class)
   if (_repository)
     _repository->addClass(nameSpace, &Class);
   if (_client)
-    // Convert CIMClientException to Exception so the caller catches it
-    try
-    {
       _client->addClass(nameSpace, Class);
-    }
-    catch (CIMClientException& e)
-    {
-      throw Exception(e.getMessage());
-    }
 }
 
 void
@@ -196,13 +188,7 @@ cimmofRepositoryInterface::createNameSpace(const String &nameSpace) const
   if (_repository)
     _repository->createNameSpace(nameSpace);
   else if (_client)
-    // Convert CIMClientException to Exception so the caller catches it
-    try
-    {
+  {
       _client->createNameSpace(nameSpace);
-    }
-    catch (CIMClientException& e)
-    {
-      throw Exception(e.getMessage());
-    }
+  }
 }

@@ -17,6 +17,11 @@ repository:
 	$(MAKE) --directory=InterOp repository
 	$(MAKE) --directory=ManagedSystem repository
 
+repositoryServer:
+	$(MAKE) --directory=Internal repositoryServer
+	$(MAKE) --directory=InterOp repositoryServer
+	$(MAKE) --directory=ManagedSystem repositoryServer
+
 clean:
 	$(MAKE) --directory=Internal clean
 	$(MAKE) --directory=InterOp clean

@@ -34,9 +34,16 @@ world: depend all repository
 repository:
 	@ $(MAKE) -SC Schemas/Pegasus repository
 
+repositoryServer:
+	@ $(MAKE) -SC Schemas/Pegasus repositoryServer
+
 testrepository:
 	@ $(MAKE) -SC src/Providers/sample/Load repository
 	@ $(MAKE) -SC test/wetest repository
+
+testrepositoryServer:
+	@ $(MAKE) -SC src/Providers/sample/Load repositoryServer
+	@ $(MAKE) -SC test/wetest repositoryServer
 
 removetestrepository:
 	@ $(MAKE) -SC src/Providers/sample/Load removerepository

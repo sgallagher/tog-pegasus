@@ -110,6 +110,14 @@ doc:
 clean:
 	$(MAKE) --directory=pegasus -f Makefile clean
 
+repositoryServer: 
+	$(CIMSERVER_STOP_SERVICE)
+	$(SLEEP)
+	$(RMDIRHIER) $(REPOSITORY_ROOT)
+	$(CIMSERVER_START_SERVICE)
+	$(SLEEP)
+	$(MAKE) --directory=pegasus -f Makefile repositoryServer
+	$(MAKE) --directory=pegasus -f Makefile testrepositoryServer
 		
 prestarttests: 
 	$(CIMSERVER_STOP_SERVICE)

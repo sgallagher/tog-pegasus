@@ -45,6 +45,15 @@ repository:
 	@ $(CIMMOFCLI) -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
 	$(LOADEXTSCHEMA)
 
+repositoryServer:
+	@ echo +++++ Loading CIM_Schema$(CIM_SCHEMA_VER) into $(MANAGEDSYSTEMNS) namespace ...
+	@ cimmof -I$(CIM_MOF_PATH) -n$(MANAGEDSYSTEMNS) $(CIM_MOF_PATH)/CIM_Schema$(CIM_SCHEMA_VER).mof
+	@ echo +++++ Loading PG_ManagedSystemSchema$(PG_SCHEMA_VER) into $(MANAGEDSYSTEMNS) namespace ...
+	@ cimmof  -I$(PG_MOF_PATH) -n$(MANAGEDSYSTEMNS) $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER).mof
+	@ echo +++++ Registering Providers for PG_ManagedSystemSchema$(PG_SCHEMA_VER) ...
+	@ cimmof -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
+	$(LOADEXTSCHEMA)
+
 clean:
 	@ echo +++++ Removing existing Repository named $(MANAGEDSYSTEMNS)
 	@ $(RMREPOSITORY) $(MANAGEDSYSTEMNSDIRECTORY)

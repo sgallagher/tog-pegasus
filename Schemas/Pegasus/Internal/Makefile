@@ -33,6 +33,12 @@ repository:
 	@ echo +++++ Loading PG_InternalSchema$(PG_SCHEMA_VER).mof into $(INTERNALNS) namespace...
 	@ $(CIMMOFCLI) -I$(PG_MOF_PATH) -n$(INTERNALNS) $(PG_MOF_PATH)/PG_InternalSchema$(PG_SCHEMA_VER).mof
 
+repositoryServer:
+	@ echo +++++ Loading CIM_Qualifiers$(CIM_SCHEMA_VER) into $(INTERNALNS) namespace ...
+	@ cimmof  -n$(INTERNALNS) ../CIM_Qualifiers$(CIM_SCHEMA_VER).mof
+	@ echo +++++ Loading PG_InternalSchema$(PG_SCHEMA_VER).mof into $(INTERNALNS) namespace...
+	@ cimmof  -I$(PG_MOF_PATH) -n$(INTERNALNS) $(PG_MOF_PATH)/PG_InternalSchema$(PG_SCHEMA_VER).mof
+
 clean:
 	@ echo +++++ Removing existing CIM Repository named $(REPOSITORY_ROOT)
 	@ $(RMREPOSITORY) $(INTERNALNSDIRECTORY)

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,7 +30,9 @@
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //         (carolann_graves@hp.com)
 //
-// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+// Modified By:
+//      Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//      Chip Vincent (cvincent@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +49,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_USING_PEGASUS;
 
-static IndicationResponseHandler * _handler = 0; 
+static IndicationResponseHandler * _handler = 0;
 static Boolean _enabled = false;
 static Uint32 _nextUID = 0;
 static Uint32 _numSubscriptions = 0;
@@ -64,7 +66,7 @@ RT_IndicationProvider::RT_IndicationProvider (void) throw ()
                 _enabled = false;
                 _nextUID = 0;
                 _numSubscriptions = 0;
-        #endif	
+        #endif
 }
 
 RT_IndicationProvider::~RT_IndicationProvider (void) throw ()
@@ -85,7 +87,7 @@ void RT_IndicationProvider::enableIndications (
     IndicationResponseHandler & handler)
 {
     //
-    //  enableIndications should not be called if indications have already been 
+    //  enableIndications should not be called if indications have already been
     //  enabled
     //
     if (_enabled)
@@ -120,10 +122,10 @@ void _generateIndication (
         if (methodName.equal ("SendTestIndicationUnmatchingNamespace"))
         {
             //
-            //  For SendTestIndicationUnmatchingNamespace, generate an 
-            //  indication instance with namespace that does not match the 
+            //  For SendTestIndicationUnmatchingNamespace, generate an
+            //  indication instance with namespace that does not match the
             //  subscription instance name included in the operation context
-            //  (nor does it match the namespace for which provider has 
+            //  (nor does it match the namespace for which provider has
             //  registered)
             //
             path.setNameSpace ("root/cimv2");
@@ -131,11 +133,14 @@ void _generateIndication (
         }
         else if (methodName.equal ("SendTestIndicationUnmatchingClassName"))
         {
+            // the indication class name and object path class must match
+            indicationInstance = CIMInstance("CIM_AlertIndication");
+
             //
-            //  For SendTestIndicationUnmatchingClassName, generate an 
-            //  indication instance with classname that does not match the 
+            //  For SendTestIndicationUnmatchingClassName, generate an
+            //  indication instance with classname that does not match the
             //  subscription instance name included in the operation context
-            //  (nor does it match the classname for which provider has 
+            //  (nor does it match the classname for which provider has
             //  registered)
             //
             path.setNameSpace ("root/SampleProvider");
@@ -145,7 +150,7 @@ void _generateIndication (
         {
             //
             //  For SendTestIndicationSubclass, generate an indication instance
-            //  of a the RT_TestIndicationSubclass subclass 
+            //  of a the RT_TestIndicationSubclass subclass
             //
             path.setNameSpace ("root/SampleProvider");
             path.setClassName ("RT_TestIndicationSubclass");
@@ -168,17 +173,17 @@ void _generateIndication (
             (CIMProperty ("IndicationTime", currentDateTime));
 
         //
-        //  For SendTestIndicationMissingProperty, leave out the 
+        //  For SendTestIndicationMissingProperty, leave out the
         //  CorrelatedIndications property
         //
         if (!methodName.equal ("SendTestIndicationMissingProperty"))
         {
-	    Array <String> correlatedIndications; 
+	    Array <String> correlatedIndications;
 	    indicationInstance.addProperty
                 (CIMProperty ("CorrelatedIndications", correlatedIndications));
         }
 
-        if ((methodName.equal ("SendTestIndicationNormal")) || 
+        if ((methodName.equal ("SendTestIndicationNormal")) ||
             (methodName.equal ("SendTestIndicationSubclass")) ||
             (methodName.equal ("SendTestIndicationMissingProperty")) ||
             (methodName.equal ("SendTestIndicationExtraProperty")) ||
@@ -192,10 +197,10 @@ void _generateIndication (
         else
         {
             indicationInstance.addProperty
-                (CIMProperty ("MethodName", 
+                (CIMProperty ("MethodName",
                     CIMValue (String ("generateIndication"))));
         }
-        
+
         //
         //  For SendTestIndicationExtraProperty, add an extra property,
         //  ExtraProperty, that is not a member of the indication class
@@ -203,17 +208,17 @@ void _generateIndication (
         if (methodName.equal ("SendTestIndicationExtraProperty"))
         {
             indicationInstance.addProperty
-                (CIMProperty ("ExtraProperty", 
+                (CIMProperty ("ExtraProperty",
                     CIMValue (String ("extraProperty"))));
         }
 
         CIMIndication cimIndication (indicationInstance);
 
         //
-        //  For SendTestIndicationSubclass,  
-        //  SendTestIndicationMatchingInstance,  
+        //  For SendTestIndicationSubclass,
+        //  SendTestIndicationMatchingInstance,
         //  SendTestIndicationUnmatchingNamespace or
-        //  SendTestIndicationUnmatchingClassName, include 
+        //  SendTestIndicationUnmatchingClassName, include
         //  SubscriptionInstanceNamesContainer in operation context
         //
         if ((methodName.equal ("SendTestIndicationSubclass")) ||
@@ -242,9 +247,9 @@ void _generateIndication (
             subscriptionKeyBindings.append (CIMKeyBinding ("Handler",
                 handlerString, CIMKeyBinding::REFERENCE));
 
-            CIMObjectPath subscriptionPath ("", 
+            CIMObjectPath subscriptionPath ("",
                 CIMNamespaceName ("root/PG_InterOp"),
-                CIMName ("CIM_IndicationSubscription"), 
+                CIMName ("CIM_IndicationSubscription"),
                 subscriptionKeyBindings);
             subscriptionInstanceNames.append (subscriptionPath);
 
@@ -256,7 +261,7 @@ void _generateIndication (
         }
         else
         {
-	    // deliver an indication without trapOid 
+	    // deliver an indication without trapOid
             handler->deliver (indicationInstance);
         }
 
@@ -267,12 +272,12 @@ void _generateIndication (
             (!methodName.equal ("SendTestIndicationSubclass")) &&
             (!methodName.equal ("SendTestIndicationMissingProperty")) &&
             (!methodName.equal ("SendTestIndicationExtraProperty")) &&
-            (!methodName.equal ("SendTestIndicationMatchingInstance")) && 
+            (!methodName.equal ("SendTestIndicationMatchingInstance")) &&
             (!methodName.equal ("SendTestIndicationUnmatchingNamespace")) &&
             (!methodName.equal ("SendTestIndicationUnmatchingClassName")))
         {
 	    // deliver another indication with a trapOid which contains in the
-	    // operationContext container  
+	    // operationContext container
 	    OperationContext context;
 
  	    // add trap OID to the context
@@ -338,7 +343,7 @@ void RT_IndicationProvider::invokeMethod(
 
         if (objectReference.getClassName().equal ("RT_TestIndication") &&
 	    _enabled)
-        {                
+        {
             if ((methodName.equal ("SendTestIndication")) ||
                 (methodName.equal ("SendTestIndicationNormal")) ||
                 (methodName.equal ("SendTestIndicationMissingProperty")) ||
@@ -352,9 +357,9 @@ void RT_IndicationProvider::invokeMethod(
             }
         }
 
-        else if ((objectReference.getClassName ().equal 
+        else if ((objectReference.getClassName ().equal
             ("RT_TestIndicationSubclass")) && _enabled)
-        {                
+        {
             if (methodName.equal ("SendTestIndicationSubclass"))
             {
                 sendIndication = true;
@@ -377,11 +382,11 @@ void RT_IndicationProvider::invokeMethod(
 void RT_IndicationProvider::_checkOperationContext(const OperationContext& context,
                                                   const String &  funcName)
 {
-	 // 
+	 //
 	 // Test the filter query container
 	 //
 	 SubscriptionFilterQueryContainer qContainer = context.get(SubscriptionFilterQueryContainer::NAME);
-    if (qContainer.getFilterQuery() == String::EMPTY) 
+    if (qContainer.getFilterQuery() == String::EMPTY)
     {
       PEGASUS_STD(cout) << funcName << "- empty filter query" << PEGASUS_STD(endl);
       throw CIMOperationFailedException(funcName + "- empty filter query");
@@ -398,7 +403,7 @@ void RT_IndicationProvider::_checkOperationContext(const OperationContext& conte
       PEGASUS_STD(cout) << funcName << "- incorrect source namespace" << PEGASUS_STD(endl);
       throw CIMOperationFailedException(funcName + "- incorrect source namespace");
     }
- 
+
     try
     {
       //
@@ -416,7 +421,7 @@ void RT_IndicationProvider::_checkOperationContext(const OperationContext& conte
     catch (Exception & e)
     {
       PEGASUS_STD(cout) << funcName << "- parse error: " << e.getMessage() << PEGASUS_STD(endl);
-      throw CIMOperationFailedException(funcName + "- parse error: " + e.getMessage()); 
+      throw CIMOperationFailedException(funcName + "- parse error: " + e.getMessage());
     }
 
     //
@@ -424,11 +429,11 @@ void RT_IndicationProvider::_checkOperationContext(const OperationContext& conte
     // Note:  since this only contains the WHERE clause, the condition could be empty (and will
     // be for some testcases)
     //
-    SubscriptionFilterConditionContainer cContainer = context.get(SubscriptionFilterConditionContainer::NAME); 
+    SubscriptionFilterConditionContainer cContainer = context.get(SubscriptionFilterConditionContainer::NAME);
 	 if (cContainer.getQueryLanguage() == String::EMPTY)
     {
       PEGASUS_STD(cout) << funcName << "- empty filter condition lang" << PEGASUS_STD(endl);
-      throw CIMOperationFailedException(funcName + "- empty filter condition lang"); 
+      throw CIMOperationFailedException(funcName + "- empty filter condition lang");
     }
 }
 

@@ -2,6 +2,6 @@ ROOT = ../..
 
 include $(ROOT)/mak/config.mak
 
-DIRS = CGIClient
+DIRS = CGIClient TestClient
 
 include $(ROOT)/mak/recurse.mak

@@ -209,7 +209,7 @@ int main(int argc, char** argv)
     }
     catch(Exception &e) 
     {
-	  cerr << "Internal Error: " << e.getMessage() <<
+	  cerr << "Pegasus Exception: " << e.getMessage() <<
 	      " connecting to " << location << endl;
     }
 
@@ -229,7 +229,8 @@ int main(int argc, char** argv)
 	}
 	catch(Exception& e)
 	{
-	    PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+	    PEGASUS_STD(cerr) << "Pegasus Exception: " << e.getMessage() <<
+		" ClassName = " << className << PEGASUS_STD(endl);
 	    exit(1);
 	}
 

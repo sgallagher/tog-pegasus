@@ -255,7 +255,7 @@ void InheritanceTree::insertFromPath(const String& path)
 
 	// Ignore files without dots in them:
 
-	if (dot == Uint32(-1))
+	if (dot == PEG_NOT_FOUND)
 	    continue;
 
 	String className = fileName.subString(0, dot);

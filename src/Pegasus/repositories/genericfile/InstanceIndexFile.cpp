@@ -177,7 +177,7 @@ Boolean InstanceIndexFile::lookup(
     Uint32& sizeOut,
     Uint32& indexOut)
 {
-    indexOut = Uint32(-1);
+    indexOut = PEG_NOT_FOUND;
 
     String realPath;
 

@@ -413,12 +413,12 @@ OperatingSystemProvider::_fill_reference(const String &nameSpace,
 
     if (!os.getCSName(csName))
     {
-        throw CIMException(CIM_ERR_FAILED);
+       csName = "Unknown";
     }
 
     if (!os.getName(name))
     {
-        throw CIMException(CIM_ERR_FAILED);
+       name = "Unknown";
     }
 
     keys.append(KeyBinding("CSCreationClassName", 

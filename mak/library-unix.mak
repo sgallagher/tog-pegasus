@@ -23,7 +23,13 @@ ifeq ($(COMPILER),acc)
         LINK_COMMAND += -Wl,+cdp,$(PEGASUS_PLATFORM_SDKROOT)/usr/lib:/usr/lib -Wl,+cdp,$(PEGASUS_HOME)/lib:/opt/wbem/lib
       endif
     else
-      LINK_COMMAND += -Wl,+s -Wl,+b$(LIB_DIR):/usr/lib
+     ifdef PEGASUS_HAS_SSL
+        ifdef PEGASUS_USE_SSL_SHAREDLIB
+          LINK_COMMAND += -Wl,+s -Wl,+b$(LIB_DIR):/usr/lib:$(OPENSSL_HOME)/lib
+        endif
+      else
+        LINK_COMMAND += -Wl,+s -Wl,+b$(LIB_DIR):/usr/lib
+      endif
     endif 
   endif
   ifdef PEGASUS_DEBUG
@@ -38,11 +44,26 @@ endif
 
 ifeq ($(COMPILER),gnu)
   ifneq ($(PEGASUS_PLATFORM),DARWIN_PPC_GNU)
-  LINK_COMMAND = g++ -shared
-  LINK_ARGUMENTS = -Wl,-hlib$(LIBRARY)$(LIB_SUFFIX)
+    ifdef PEGASUS_HAS_SSL
+      ifdef PEGASUS_USE_SSL_SHAREDLIB
+        ifdef PEGASUS_USE_RELEASE_DIRS
+          LINK_COMMAND = g++ -shared
+          LINK_ARGUMENTS = -Wl,-hlib$(LIBRARY)$(LIB_SUFFIX) -Wl,-rpath /usr/lib/pegasus
+        else
+          LINK_COMMAND = g++ -shared
+          LINK_ARGUMENTS = -Wl,-hlib$(LIBRARY)$(LIB_SUFFIX) -Wl,-rpath $(OPENSSL_HOME)/lib
+        endif
+      else
+        LINK_COMMAND = g++ -shared
+        LINK_ARGUMENTS = -Wl,-hlib$(LIBRARY)$(LIB_SUFFIX)
+      endif
+    else
+      LINK_COMMAND = g++ -shared
+      LINK_ARGUMENTS = -Wl,-hlib$(LIBRARY)$(LIB_SUFFIX)
+    endif
   else
-  LINK_COMMAND = g++ -dynamiclib
-  LINK_ARGUMENTS = --helplib$(LIBRARY)$(LIB_SUFFIX) -ldl
+    LINK_COMMAND = g++ -dynamiclib
+    LINK_ARGUMENTS = --helplib$(LIBRARY)$(LIB_SUFFIX) -ldl
   endif
   LINK_OUT = -o
 endif

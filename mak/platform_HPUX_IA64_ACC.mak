@@ -19,3 +19,10 @@ FLAGS += +Z +DD64 -AA -mt
 ifdef PEGASUS_PAM_AUTHENTICATION
   SYS_LIBS += -L$(PAMLIB_HOME) -lpam
 endif
+
+ifdef PEGASUS_HAS_SSL
+  ifdef PEGASUS_USE_SSL_SHAREDLIB
+    SYS_LIBS += -L$(OPENSSL_HOME)/lib
+    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib
+  endif
+endif

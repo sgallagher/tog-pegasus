@@ -1,5 +1,11 @@
-class ValidMof3 {
-[key] uint16 id;
-uint32 B [2];
-uint16 C [];
-};
+/* cmt 0 (1st, at the beginning) */
+
+class ValidMof3_commented {   // cmt 1
+/** cmt 1.5 (tricky?) **/
+[key] uint16 id;    /* cmt 2 */
+/* cmt 3 */ uint32 B  /* cmt 3.1 ******/  /**/  [2];
+uint16 /* cmt 4 line 1 ...
+          ...   line 2 ...     
+          ...   line 3 ...*/   C [];
+};  
+/* cmt last */

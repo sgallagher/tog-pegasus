@@ -5,6 +5,13 @@
 #include "memobjs.h"
 #include "cimmof_tab.h"
 
+/*--- change history (recent) ---------------------------------------------
+
+      7/29/2004, Ed Boden, bug 1330; support for slash-asterick comments.
+
+-------------------------------------------------------------------------*/
+
+
 /* ATTN-DME-DEFERRED-20020516 - MOF COMPILER ALIASING DISABLED           */
 /* To enable aliasing add the following two lines                        */
 /* $[_$0-9a-zA-Z]+                     { return(TOK_ALIAS_IDENTIFIER); } */
@@ -80,6 +87,19 @@ class                                 { return(TOK_CLASS); }
                                       return(TOK_CHAR_VALUE); }
 \"[^\"\n]*[\"\n]                    { cimmof_lval.strval = new String(yytext);
                                       return(TOK_STRING_VALUE); }
+\/\*                                { /* rational for this over approaches that use
+                                         reg exp's to go through the comment is that
+                                         this approach will not overflow flex's buffer, 
+                                         even for very long comments.
+                                      */
+                                      int c1=0, c2=yyinput();
+                                      for (;;) {
+                                          if (c2==EOF) break;
+                                          if (c1=='*' && c2=='/') break;
+                                          c1=c2;
+                                          c2=yyinput();
+                                          }                               
+                                      }
 [Nn][Uu][Ll][Ll]                    { return(TOK_NULL_VALUE); }
 [Tt][Rr][Uu][Ee]                    { return(TOK_TRUE); }
 [Ff][Aa][Ll][Ss][Ee]                { return(TOK_FALSE); }

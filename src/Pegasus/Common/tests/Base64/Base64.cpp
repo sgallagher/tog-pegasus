@@ -108,7 +108,7 @@ int main()
         // confirm that the character A is created, 6 characters
 
         out = Base64::encode(in);
-        assert(out.size() == 6);
+        assert(out.size() == 4);
         for (Uint32 i = 0; i <out.size(); i++ )
         {
             assert(out[i] = 'A');    

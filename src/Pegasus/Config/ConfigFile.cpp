@@ -281,7 +281,7 @@ void ConfigFile::save (ConfigTable* confTable)
     //
 #if defined(PEGASUS_OS_OS400)
     ofstream ofs(_configFile.getCStringUTF8(), PEGASUS_STD(_CCSID_T(1208)));
-#elif defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)
+#elif defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
     ofstream ofs(_configFile.getCStringUTF8(), ios::out, 0644);
 #else
     ofstream ofs(_configFile.getCStringUTF8());
@@ -352,7 +352,7 @@ void ConfigFile::replace (const String& fileName)
     //
 #if defined(PEGASUS_OS_OS400)
     ofstream ofs(_configFile.getCStringUTF8(), PEGASUS_STD(_CCSID_T(1208)));
-#elif defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)
+#elif defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
     ofstream ofs(_configFile.getCStringUTF8(), ios::out, 0644);
 #else
     ofstream ofs(_configFile.getCStringUTF8());

@@ -44,8 +44,11 @@ SOURCES = \
 
 LIBRARIES = \
 	pegcommon \
-	pegprovider \
-	NTPProviderSecurity
+	pegprovider 
+
+ifeq ($(OS),HPUX)
+  LIBRARIES += NTPProviderSecurity
+endif
 
 DYNAMIC_LIBRARIES = \
 	-lpegcommon \

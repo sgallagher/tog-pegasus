@@ -390,7 +390,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
 	    cimserver_exit(1);
 #endif
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 	    if (kill_rc != -1)
             {
                 cout << "Shutdown timeout expired.  CIM Server process killed." << endl;
@@ -808,7 +808,7 @@ int main(int argc, char** argv)
     } 
 #endif
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     umask(S_IWGRP|S_IWOTH);
 
     //
@@ -894,7 +894,7 @@ int main(int argc, char** argv)
 
 	time_t last = 0;
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
         //
         // create a file to indicate that the cimserver has started and
         // save the process id of the cimserver process in the file
@@ -968,7 +968,7 @@ int main(int argc, char** argv)
             "$0 stopped.", PEGASUS_NAME);
 #endif
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
         //
         // close the file created at startup time to indicate that the 
         // cimserver has terminated normally.

@@ -34,6 +34,8 @@
 #include "ConfigFileDirLinux.h"
 #elif PEGASUS_PLATFORM_HPUX_ACC
 #include "ConfigFileDirHpux.h"
+#elif PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#include "ConfigFileDirZos.h"
 #else
 /**
     Default file name for the current configuration.

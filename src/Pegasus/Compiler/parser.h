@@ -46,10 +46,10 @@
 #ifndef _PARSER_H_
 #define _PARSER_H_
 
+#include <Pegasus/Common/Config.h>
 #include <cstdio>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Stack.h>
-#include <Pegasus/Common/Config.h>
 #include <Pegasus/Compiler/Linkage.h>
 
 PEGASUS_USING_STD;

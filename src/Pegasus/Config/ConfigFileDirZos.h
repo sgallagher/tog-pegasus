@@ -21,59 +21,41 @@
 //
 //==============================================================================
 //
-// Author: Markus Mueller (mmueller@de.ibm.com)
+// Author: Warren Otsuka, Hewlett-Packard Company (warren.otsuka@hp.com)
 //
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+// Modified for zOS by:
 //
+//         Marek Szermutzky, IBM (MSzermutzky@de.ibm.com)
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Platform_ZOS_ZSERIES_IBM_h
-#define Pegasus_Platform_ZOS_ZSERIES_IBM_h
+#ifdef PEGASUS_USE_RELEASE_DIRS
+/**
+    Default file name for the current configuration.
+*/
+static char CURRENT_CONFIG_FILE [] = "/etc/pegasus/cimserver_current.conf";
 
-// added for Native ASCII Support
-#pragma runopts("FILETAG(AUTOCVT,AUTOTAG)")
+/**
+    Default file name for the planned configuration.
+*/
+static char PLANNED_CONFIG_FILE [] = "/etc/pegasus/cimserver_planned.conf";
 
-//#define _XOPEN_SOURCE_EXTENDED 1
-//#define _OPEN_SYS 1
-#define _MSE_PROTOS
-#define _OPEN_SOURCE 3
-// timezone
-#define _ALL_SOURCE
-// longlong
-//#define _LONG_LONG 1
+/**
+    Default file name for the cimserver startup file containing the PID.
+*/
+static char CIMSERVER_START_FILE [] = "/var/cache/pegasus/cimserver_start.conf";
+#else
+/**
+    Default file name for the current configuration.
+*/
+static char CURRENT_CONFIG_FILE [] = "cimserver_current.conf";
 
-#include <limits.h>
+/**
+    Default file name for the planned configuration.
+*/
+static char PLANNED_CONFIG_FILE [] = "cimserver_planned.conf";
 
-#include <cstddef>
-
-#define PEGASUS_OS_TYPE_UNIX
-
-#define PEGASUS_OS_ZOS
-
-#define PEGASUS_ARCHITECTURE_ZSERIES
-
-#define PEGASUS_COMPILER_IBM
-
-#define PEGASUS_UINT64 unsigned long long int
-
-#define PEGASUS_SINT64 long long int
-
-#define PEGASUS_HAVE_NAMESPACES
-
-#define PEGASUS_HAVE_EXPLICIT
-
-#define PEGASUS_HAVE_MUTABLE
-
-#define PEGASUS_HAVE_FOR_SCOPE
-
-#define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
-
-// removed as Pegasus will work with Native ASCII support on zOS
-// #define PEGASUS_HAVE_EBCDIC
-
-#define PEGASUS_STATIC_CDECL __cdecl
-
-#define PEGASUS_HAS_SIGNALS
-
-#endif /* Pegasus_Platform_ZOS_ZSERIES_IBM_h */
+/**
+    Default file name for the cimserver startup file containing the PID.
+*/
+static char CIMSERVER_START_FILE [] = "/tmp/cimserver_start.conf";
+#endif

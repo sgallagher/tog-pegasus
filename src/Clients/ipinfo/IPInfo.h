@@ -281,7 +281,7 @@ private:
 class IPRouteInfo
 {
   public:
-    IPRouteInfo(CIMClient &client, const Boolean enableDebug, 
+    IPRouteInfo(CIMClient &client, Boolean enableDebug, 
                 ostream& outPrintWriter, ostream& errPrintWriter);
     ~IPRouteInfo(void);
 
@@ -313,7 +313,7 @@ class IPRouteInfo
 class IPPEpInfo
 {
   public:
-    IPPEpInfo(CIMClient &client, const Boolean enableDebug,
+    IPPEpInfo(CIMClient &client, Boolean enableDebug,
               ostream &outPrintWriter, ostream &errPrintWriter);
     ~IPPEpInfo(void);
 
@@ -343,7 +343,7 @@ class IPPEpInfo
 class BIPTLEpInfo
 {
   public:
-    BIPTLEpInfo(CIMClient &client, const Boolean enableDebug,
+    BIPTLEpInfo(CIMClient &client, Boolean enableDebug,
                 ostream& outPrintWriter, ostream& errPrintWriter);
     ~BIPTLEpInfo(void);
 

@@ -15,11 +15,11 @@ DEFINES += -DPEGASUS_DISABLE_KILLING_HUNG_THREADS
 DEPEND_DEFINES = -D__IBMCPP__=400
 
 ifdef PEGASUS_DEBUG
-FLAGS = -+ -g -W "c,XPLINK,dll,expo,rtti(dynamiccast),langlvl(extended),float(ieee)"
-PR_FLAGS = -+ -g -W "c,XPLINK,dll,expo,FLOAT(IEEE)" -W "l,XPLINK,dll"
+FLAGS = -+ -g -W "c,ASCII,XPLINK,dll,expo,rtti(dynamiccast),langlvl(extended),float(ieee)"
+PR_FLAGS = -+ -g -W "c,ASCII,XPLINK,dll,expo,langlvl(extended),FLOAT(IEEE)" -W "l,XPLINK,dll"
 else
-FLAGS = -+ -O2 -W "c,XPLINK,dll,expo,rtti(dynamiccast),langlvl(extended),float(ieee)"
-PR_FLAGS = -+ -O2 -W "c,XPLINK,dll,expo,langlvl(extended),FLOAT(IEEE)" -W "l,XPLINK,dll"
+FLAGS = -+ -O2 -W "c,ASCII,XPLINK,dll,expo,rtti(dynamiccast),langlvl(extended),float(ieee)"
+PR_FLAGS = -+ -O2 -W "c,ASCII,XPLINK,dll,expo,langlvl(extended),FLOAT(IEEE)" -W "l,XPLINK,dll"
 endif
 
 SYS_LIBS =

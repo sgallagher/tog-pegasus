@@ -61,7 +61,9 @@ Sint32 Socket::read(Sint32 socket, void* ptr, Uint32 size)
     return ::recv(socket, (char*)ptr, size, 0);
 #elif defined(PEGASUS_OS_ZOS)
     int i=::read(socket, (char*)ptr, size);
+#ifdef PEGASUS_HAVE_EBCDIC
     __atoe_l((char *)ptr,size);
+#endif
     return i;
 #elif defined(PEGASUS_OS_OS400)
     int i=::read(socket, (char*)ptr, size);
@@ -80,7 +82,9 @@ Sint32 Socket::write(Sint32 socket, const void* ptr, Uint32 size)
     char * ptr2 = (char *)malloc(size);
     int i;
     memcpy(ptr2,ptr,size);
+#ifdef PEGASUS_HAVE_EBCDIC
     __etoa_l(ptr2,size);
+#endif
     i = ::write(socket, ptr2, size);
     free(ptr2);
     return i;

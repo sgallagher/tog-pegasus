@@ -25,7 +25,7 @@
 //
 // Modified By:  Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //		 Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
+//       Marek Szermutzky, IBM (ddt6szer@de.ibm.com)
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <sys/types.h>
@@ -36,7 +36,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <Pegasus/Common/Signal.h>
-
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#include <sys/ps.h>
+#endif
 #define MAX_WAIT_TIME 25
 
 PEGASUS_USING_PEGASUS;
@@ -187,6 +189,33 @@ int get_proc(int pid)
 }
 #endif
 
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+Boolean isProcRunning(pid_t pid)
+{
+    W_PSPROC buf;                                                              
+    int token = 0;
+    memset(&buf, 0x00, sizeof(buf));                                           
+    buf.ps_conttyptr =(char *) malloc(buf.ps_conttylen =PS_CONTTYBLEN);        
+    buf.ps_pathptr   =(char *) malloc(buf.ps_pathlen   =PS_PATHBLEN);          
+    buf.ps_cmdptr    =(char *) malloc(buf.ps_cmdlen    =PS_CMDBLEN);
+
+    token = w_getpsent(token, &buf, sizeof(buf));                              
+    do {                                                                       
+        token = w_getpsent(token, &buf, sizeof(buf));                          
+        if (buf.ps_pid==pid) {
+            free(buf.ps_conttyptr);                                                    
+            free(buf.ps_pathptr);                                                      
+            free(buf.ps_cmdptr);
+            return true;
+        }
+    } while(token>0);
+
+    free(buf.ps_conttyptr);                                                    
+    free(buf.ps_pathptr);                                                      
+    free(buf.ps_cmdptr);
+    return false;
+}
+#endif
 
 Boolean isCIMServerRunning(void)
 {
@@ -194,7 +223,7 @@ Boolean isCIMServerRunning(void)
   pid_t pid = 0;
 
   // open the file containing the CIMServer process ID
-  pid_file = fopen(CIMSERVER_START_FILE, "rw");
+  pid_file = fopen(CIMSERVER_START_FILE, "r");
   if (!pid_file)
   {
       return false;
@@ -232,7 +261,9 @@ Boolean isCIMServerRunning(void)
       return true;
   }
 #endif
-
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+    return isProcRunning(pid);
+#endif
   return false;
 }
 
@@ -280,7 +311,11 @@ int cimserver_kill(void)
       kill(pid, SIGKILL);
   }
 #endif
-
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+  if (isProcRunning(pid)) {
+      kill(pid, SIGKILL);
+  }
+#endif
   // remove the file
   System::removeFile(CIMSERVER_START_FILE);
   

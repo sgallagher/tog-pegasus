@@ -237,6 +237,7 @@ Building Pegasus:
 	LINUX_IX86_GNU 
 	AIX_RS_IBMCXX 
 	HPUX_PARISC_ACC
+	ZOS_ZSERIES_IBM
 
     This identifier has the following form:
 

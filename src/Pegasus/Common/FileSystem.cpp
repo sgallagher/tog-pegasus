@@ -73,7 +73,7 @@ Boolean FileSystem::getCurrentDirectory(String& path)
     char tmp[4096];
 
     if (!System::getCurrentDirectory(tmp, sizeof(tmp) - 1))
-	return false;
+        return false;
 
     path.append(tmp);
     return true;
@@ -99,34 +99,34 @@ Boolean FileSystem::existsNoCase(const String& path, String& realPath)
 
     if (slash)
     {
-	*slash = '\0';
-	fileName = slash + 1;
-	dirPath = p;
+        *slash = '\0';
+        fileName = slash + 1;
+        dirPath = p;
 
-	if (*fileName == '\0')
-	    return false;
+        if (*fileName == '\0')
+            return false;
     }
     else
     {
-	fileName = p;
-	dirPath = ".";
+        fileName = p;
+        dirPath = ".";
     }
 
 
     for (Dir dir(dirPath); dir.more(); dir.next())
     {
-	if (System::strcasecmp(fileName, dir.getName()) == 0)
-	{
-	    if (strcmp(dirPath, ".") == 0)
-		realPath = dir.getName();
-	    else
-	    {
-		realPath = dirPath;
-		realPath.append('/');
-		realPath.append(dir.getName());
-	    }
-	    return true;
-	}
+        if (System::strcasecmp(fileName, dir.getName()) == 0)
+        {
+            if (strcmp(dirPath, ".") == 0)
+                realPath = dir.getName();
+            else
+            {
+                realPath = dirPath;
+                realPath.append('/');
+                realPath.append(dir.getName());
+            }
+            return true;
+        }
     }
 
     return false;
@@ -160,19 +160,19 @@ void FileSystem::loadFileToMemory(
     Uint32 fileSize;
 
     if (!getFileSize(fileName, fileSize))
-	throw CannotOpenFile(fileName);
+        throw CannotOpenFile(fileName);
 
     FILE* fp = fopen(fileName.getCString(), "rb");
 
     if (fp == NULL)
-	throw CannotOpenFile(fileName);
+        throw CannotOpenFile(fileName);
 
     array.reserveCapacity(fileSize);
     char buffer[4096];
     size_t n;
 
     while ((n = fread(buffer, 1, sizeof(buffer), fp)) > 0)
-        array.append(buffer, n);
+        array.append(buffer, static_cast<Uint32>(n));
 
     fclose(fp);
 }
@@ -184,27 +184,27 @@ Boolean FileSystem::compareFiles(
     Uint32 fileSize1;
 
     if (!getFileSize(path1, fileSize1))
-	throw CannotOpenFile(path1);
+        throw CannotOpenFile(path1);
 
     Uint32 fileSize2;
 
     if (!getFileSize(path2, fileSize2))
-	throw CannotOpenFile(path2);
+        throw CannotOpenFile(path2);
 
     if (fileSize1 != fileSize2)
-	return false;
+        return false;
 
     FILE* fp1 = fopen(path1.getCString(), "rb");
 
     if (fp1 == NULL)
-	throw CannotOpenFile(path1);
+        throw CannotOpenFile(path1);
 
     FILE* fp2 = fopen(path2.getCString(), "rb");
 
     if (fp2 == NULL)
     {
-	fclose(fp1);
-	throw CannotOpenFile(path2);
+        fclose(fp1);
+        throw CannotOpenFile(path2);
     }
 
     int c1;
@@ -212,12 +212,12 @@ Boolean FileSystem::compareFiles(
 
     while ((c1 = fgetc(fp1)) != EOF && (c2 = fgetc(fp2)) != EOF)
     {
-	if (c1 != c2)
-	{
-	    fclose(fp1);
-	    fclose(fp2);
-	    return false;
-	}
+        if (c1 != c2)
+        {
+            fclose(fp1);
+            fclose(fp2);
+            return false;
+        }
     }
 
     fclose(fp1);
@@ -244,7 +244,7 @@ Boolean FileSystem::openNoCase(PEGASUS_STD(ifstream)& is, const String& path)
     String realPath;
 
     if (!existsNoCase(path, realPath))
-	return false;
+        return false;
 
     is.open(_clonePath(realPath) PEGASUS_IOS_BINARY);
 
@@ -259,7 +259,7 @@ Boolean FileSystem::openNoCase(
     String realPath;
 
     if (!existsNoCase(path, realPath))
-	return false;
+        return false;
 #if defined(__GNUC__) && GCC_VERSION >= 30200
     fs.open(_clonePath(realPath), PEGASUS_STD(ios_base::openmode)(mode));
 #else
@@ -299,31 +299,31 @@ Boolean FileSystem::removeDirectoryHier(const String& path)
     // Get contents of current directory
 
     if (!FileSystem::getDirectoryContents(path,fileList))
-	return false;
+        return false;
 
     // for files-in-directory, delete or recall removedir
 
     for (Uint32 i = 0, n = fileList.size(); i < n; i++)
     {   
-	String newPath = path;	 // extend path	to subdir
-	newPath.append("/");
-	newPath.append(fileList[i]);
-	
-	if (FileSystem::isDirectory(newPath))
-	{
-	    // Recall ourselves with extended path
-	    if (!FileSystem::removeDirectoryHier(newPath))
-		return false; 
-	}
+        String newPath = path;   // extend path to subdir
+        newPath.append("/");
+        newPath.append(fileList[i]);
+        
+        if (FileSystem::isDirectory(newPath))
+        {
+            // Recall ourselves with extended path
+            if (!FileSystem::removeDirectoryHier(newPath))
+                return false; 
+        }
 
-	else
-	{
+        else
+        {
           if (!FileSystem::removeFile(newPath))
-		return false;
-	}
+                return false;
+        }
     }
 
-    return removeDirectory(path);	
+    return removeDirectory(path);       
 }
 
 //
@@ -345,22 +345,22 @@ Boolean FileSystem::getDirectoryContents(
 
     try
     { 
-	for (Dir dir(path); dir.more(); dir.next())
-	{
-	    String name = dir.getName();
+        for (Dir dir(path); dir.more(); dir.next())
+        {
+            String name = dir.getName();
 
-	    if (String::equal(name, ".") || String::equal(name, ".."))
-		continue;
+            if (String::equal(name, ".") || String::equal(name, ".."))
+                continue;
 
-	    paths.append(name);
-	}
-	return true;
+            paths.append(name);
+        }
+        return true;
     }
 
     // Catch the Dir exception
     catch(CannotOpenDirectory&)
     {
-    	return false;
+        return false;
     }
 }
 
@@ -381,8 +381,8 @@ void FileSystem::translateSlashes(String& path)
 {
     for (Uint32 i = 0; i < path.size(); i++)
     {
-	if (path[i] == '\\')
-	    path[i] = '/';
+        if (path[i] == '\\')
+            path[i] = '/';
     }
 }
 
@@ -439,13 +439,13 @@ String FileSystem::getAbsoluteFileName(const String &paths, const String &filena
 #if defined(PEGASUS_OS_VMS)
           root = filename;
 #else
-	  root = path + "/" + filename;
+          root = path + "/" + filename;
 #endif
-	  break;
+          break;
         } else
-	  {
-	  //  cout << "File does not exist.\n";
-	  }
+          {
+          //  cout << "File does not exist.\n";
+          }
   } while (tempPath.size() > 0);
   return root;
 }

@@ -27,7 +27,7 @@ CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/CIM25
 # option of the mof compiler needs to be set.
 # *****
 ifeq ($(CIM_SCHEMA_DIR), $(PEGASUS_ROOT)/Schemas/CIMPrelim271)
-ALLOW_EXPERIMENTAL = -aE
+ALLOW_EXPERIMENTAL = "-aE"
 else
 ALLOW_EXPERIMENTAL =
 endif
@@ -36,11 +36,11 @@ repository:
 	@ $(ECHO) +++++ Removing existing repository named $(TESTCIMV2NS)
 	@$(RMREPOSITORY) $(TESTCIMV2NSDIRECTORY)
 	@ $(ECHO) +++++ Loading CIM_Schema$(CIM_SCHEMA_VER) into $(TESTCIMV2NS) namespace ...
-	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n$(TESTCIMV2NS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Schema$(CIM_SCHEMA_VER).mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-I$(CIM_SCHEMA_DIR)" -n$(TESTCIMV2NS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Schema$(CIM_SCHEMA_VER).mof
 
 repositoryServer:
 	@ $(ECHO) +++++ Loading CIM_Schema$(CIM_SCHEMA_VER) into $(TESTCIMV2NS) namespace ...
-	@ cimmof -I$(CIM_SCHEMA_DIR) -n$(TESTCIMV2NS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Schema$(CIM_SCHEMA_VER).mof
+	@ cimmof "-I$(CIM_SCHEMA_DIR)" -n$(TESTCIMV2NS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Schema$(CIM_SCHEMA_VER).mof
 
 removerepository:
 	@ $(ECHO) +++++ Removing existing repository named $(TESTCIMV2NS)

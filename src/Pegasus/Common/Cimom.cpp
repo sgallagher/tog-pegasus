@@ -297,6 +297,12 @@ cimom::~cimom(void)
    if (_routed_queue_shutdown.value() == 0 )
       _routed_ops.shutdown_queue();
    _routing_thread.join();
+
+   // ATTN: For some reason, _modules.empty_list() is not freeing the modules
+   while (_modules.count())
+   {
+      delete _modules.remove_first();
+   }
    _modules.empty_list();
    
    return;
@@ -580,7 +586,8 @@ void cimom::deregister_module(Uint32 quid)
       if (temp->_q_id == quid)
       {
 	 _modules.remove_no_lock(temp);
-	
+         // ATTN: Need this delete?
+         // delete temp;
 	 break;
       }
       temp = _modules.next(temp);

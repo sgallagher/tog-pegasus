@@ -208,7 +208,7 @@ void Test2(void)
 
         handler.complete();
 
-        throw Exception("Failed to detect too few objects in CIMGetInstanceResponseHandler::deliver().");
+        throw Exception("Failed to detect too few objects in CIMGetInstanceResponseHandler::complete().");
     }
     catch(Exception &)
     {
@@ -276,7 +276,7 @@ void Test2(void)
 
         handler.complete();
 
-        throw Exception("Failed to detect too few objects in CIMGetInstanceResponseHandler::deliver().");
+        throw Exception("Failed to detect too few objects in CIMGetInstanceResponseHandler::complete().");
     }
     catch(Exception &)
     {

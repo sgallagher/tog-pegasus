@@ -303,6 +303,7 @@ public:
         const String& messageId_,
 	const String& nameSpace_,
 	const CIMNamedInstance& modifiedInstance_,
+	Boolean includeQualifiers_,
 	const CIMPropertyList& propertyList_,
 	QueueIdStack queueIds_) 
 	:
@@ -310,6 +311,7 @@ public:
 	    CIM_MODIFY_INSTANCE_REQUEST_MESSAGE, messageId_, queueIds_),
 	nameSpace(nameSpace_),
 	modifiedInstance(modifiedInstance_),
+	includeQualifiers(includeQualifiers_),
 	propertyList(propertyList_)
     {
 
@@ -317,6 +319,7 @@ public:
 
     String nameSpace;
     CIMNamedInstance modifiedInstance;
+    Boolean includeQualifiers;
     CIMPropertyList propertyList;
 };
 

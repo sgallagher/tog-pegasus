@@ -310,6 +310,7 @@ void CIMProviderHandle::modifyInstance(
 	const OperationContext & context,
     const String& nameSpace,
     const CIMNamedInstance& modifiedInstance,
+    Boolean includeQualifiers,
     const CIMPropertyList& propertyList)
 {
 	_provider->modifyInstance(
@@ -321,6 +322,7 @@ void CIMProviderHandle::modifyInstanceAsync(
 	const OperationContext & context,
     const String& nameSpace,
     const CIMNamedInstance& modifiedInstance,
+    Boolean includeQualifiers,
     const CIMPropertyList& propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {

@@ -342,6 +342,7 @@ void CIMClient::modifyClass(
 void CIMClient::modifyInstance(
     const String& nameSpace,
     const CIMNamedInstance& modifiedInstance,
+    Boolean includeQualifiers,
     const CIMPropertyList& propertyList)
 {
     String messageId = XmlWriter::getNextMessageId();
@@ -350,6 +351,7 @@ void CIMClient::modifyInstance(
 	messageId,
 	nameSpace,
 	modifiedInstance,
+	includeQualifiers,
 	propertyList,
 	QueueIdStack());
     

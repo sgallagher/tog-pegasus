@@ -371,6 +371,10 @@ void CIMOperationRequestEncoder::_encodeModifyInstanceRequest(
     XmlWriter::appendNamedInstanceParameter(
 	params, "ModifiedInstance", message->modifiedInstance);
 	
+    if (message->includeQualifiers != true)
+	XmlWriter::appendBooleanParameter(
+	    params, "IncludeQualifiers", false);
+
     if (!message->propertyList.isNull())
 	XmlWriter::appendPropertyListParameter(
 	    params, message->propertyList);

@@ -610,6 +610,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 		OperationContext(),
                 request->nameSpace,
                 request->modifiedInstance,
+                request->includeQualifiers,
                 request->propertyList);
         }
         else
@@ -617,6 +618,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
             _repository->modifyInstance(
                 request->nameSpace,
                 request->modifiedInstance,
+                request->includeQualifiers,
                 request->propertyList);
         }
     }

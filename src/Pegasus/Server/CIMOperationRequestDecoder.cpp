@@ -782,12 +782,15 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
     const String& nameSpace)
 {
     CIMNamedInstance modifiedInstance;
+    Boolean includeQualifiers = true;
     CIMPropertyList propertyList;
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
 	if (CompareNoCase(name, "ModifiedInstance") == 0)
 	    XmlReader::getNamedInstanceElement(parser, modifiedInstance);
+	else if (CompareNoCase(name, "IncludeQualifiers") == 0)
+	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
 	else if (CompareNoCase(name, "PropertyList") == 0)
 	{
 	    CIMValue pl;
@@ -811,6 +814,7 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
 	    messageId,
 	    nameSpace,
 	    modifiedInstance,
+	    includeQualifiers,
 	    propertyList,
 	    QueueIdStack(queueId, _returnQueueId));
 

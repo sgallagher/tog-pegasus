@@ -103,6 +103,7 @@ public:
     virtual void modifyInstance(
         const String& nameSpace,
         const CIMNamedInstance& modifiedInstance,
+        Boolean includeQualifiers = true,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
     /// enumerateClasses
@@ -111,7 +112,7 @@ public:
         const String& className = String::EMPTY,
         Boolean deepInheritance = false,
         Boolean localOnly = true,
-        Boolean includeQualifiers  = true,
+        Boolean includeQualifiers = true,
         Boolean includeClassOrigin = false);
 
     /// enumerateClassNames

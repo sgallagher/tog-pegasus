@@ -649,10 +649,12 @@ void CIMRepository::modifyClass(
     _SaveObject(classFilePath, cimClass);
 }
 
-// ATTN: It is critical that the propertyList is respected
+// ATTN: It is critical that the propertyList and includeQualifiers
+// parameters are respected
 void CIMRepository::modifyInstance(
     const String& nameSpace,
     const CIMNamedInstance& modifiedInstance,
+    Boolean includeQualifiers,
     const CIMPropertyList& propertyList)
 {
     String errMessage;
@@ -1142,7 +1144,7 @@ void CIMRepository::setProperty(
     CIMNamedInstance namedInstance;
     namedInstance.set(instanceName, instance);
 
-    modifyInstance(nameSpace, namedInstance, propertyList);
+    modifyInstance(nameSpace, namedInstance, false, propertyList);
 }
 
 CIMQualifierDecl CIMRepository::getQualifier(

@@ -200,12 +200,14 @@ public:
 		const OperationContext & context,
 		const String& nameSpace,
 		const CIMNamedInstance& modifiedInstance,
+		Boolean includeQualifiers,
 		const CIMPropertyList& propertyList) = 0;
 
 	virtual void modifyInstanceAsync(
 		const OperationContext & context,
 		const String& nameSpace,
 		const CIMNamedInstance& modifiedInstance,
+		Boolean includeQualifiers,
 		const CIMPropertyList& propertyList,
 		ResponseHandler<CIMInstance> & handler) = 0;
 

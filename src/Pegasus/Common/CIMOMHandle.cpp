@@ -527,12 +527,14 @@ void CIMOMHandle::modifyInstance(
 	const OperationContext & context,
 	const String& nameSpace,
 	const CIMNamedInstance& modifiedInstance,
+	Boolean includeQualifiers,
 	const CIMPropertyList& propertyList)
 {
 	Message* request = new CIMModifyInstanceRequestMessage(
 		XmlWriter::getNextMessageId(),
 		nameSpace,
 		modifiedInstance,
+		includeQualifiers,
 		propertyList,
 		QueueIdStack(_inputQueue->getQueueId()));
 
@@ -557,6 +559,7 @@ void CIMOMHandle::modifyInstanceAsync(
 	const OperationContext & context,
     const String& nameSpace,
     const CIMNamedInstance& modifiedInstance,
+    Boolean includeQualifiers,
 	const CIMPropertyList& propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {

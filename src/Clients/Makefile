@@ -7,9 +7,13 @@ DIRS = \
     TestClient \
     cliutils \
     cimconfig \
+    cimconfig/tests \
     cimuser \
+    cimuser/tests \
     cimauth \
+    cimprovider \
     wbemexec \
+    wbemexec/tests \
     ToMofClient
 
 include $(ROOT)/mak/recurse.mak

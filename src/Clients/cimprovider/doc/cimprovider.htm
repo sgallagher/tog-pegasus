@@ -1,0 +1,122 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.77 [en] (Windows NT 5.0; U) [Netscape]">
+   <meta name="Template" content="C:\hp\i\ms\off97pro\32.0\Office\html.dot">
+   <title>cimprovider</title>
+<!-- saved from url=(0049)http://haweb/wbem/learnings/Clients/cimprovider.html -->
+</head>
+<body link="#0000FF" vlink="#800080">
+
+<h3>
+cimprovider</h3>
+
+<h4>
+Name</h4>
+
+<blockquote><b>cimprovider</b> - disable, enable, remove or list registered providers or provider  modules.</blockquote>
+
+<h4>
+Synopsis</h4>
+
+<blockquote><tt><b>cimprovider</b> -d -m <i>module</i> </tt>
+<p><tt><b>cimprovider</b> -e -m <i>module</i> </tt>
+<p><tt><b>cimprovider</b> -r -m <i>module</i> [ -p <i>provider</i> ] </tt>
+<p><tt><b>cimprovider</b> -l [ -m <i>module</i> ]</tt></blockquote>
+
+<h4>
+Remarks</h4>
+
+<dl>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This command
+can be executed by privileged user(s) only.
+<br>&nbsp;
+<dt>
+<b>Limitations</b></dt>
+
+<blockquote>This command can be executed to disable/enable/remove one provider
+module or provider at a time.</blockquote>
+</dl>
+
+<h4>
+Description</h4>
+
+<blockquote>The cimprovider command provides a command line interface to 
+upgrade CIM providers. In order to use cimprovider command, the specified 
+provider module or provider has to be registered through pegasus provider registration mechanism.
+<p>The first form of cimprovider allows to place the specified provider module 
+in the disbaled state. When a specified provider module is in the disbaled state, any
+new requests to the providers which are contained in the specified provider module will be blocked.
+<p>The second form of cimprovider allows to place the providers which are contained in the specified provider module back 
+to the service from the disabled state. Now, the providers which are contained in the 
+specified provider module is ready to accept new requestes.
+<p>The third form of cimprovider allows to remove all the instances which have same 
+provider module name as the specified provider module or all the instances which have
+same provider module name and provider name as specified.
+<p>The last form of this command allows for all the registered provider modules to be listed or all the providers which are in the specified provider module to be listed.
+<p>Specifying no options with the cimprovider command will display the command
+usage.</blockquote>
+
+<h4>
+Options</h4>
+
+<blockquote>The cimprovider command recognizes the following options:</blockquote>
+
+<blockquote><tt>-d -m</tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Indicates that a CIM provider module is in the disable state.
+<p><tt>-e -m</tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Indicates that a CIM provider module is in the service from the disabled state.
+<p><tt>-r -m</tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Indicates that all the instances which contains the specified provider module are to be removed.
+<p><tt>-r -m -p</tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Indicates that all the instances which contains the specified provider module and provider are to be removed.
+<p><tt>-l </tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Displays all the registered provider modules.
+<p><tt>-l -m</tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Displays all the registered providers which are in the specified provider module.</blockquote>
+
+<h4>
+Return Values</h4>
+
+<blockquote>cimprovider returns one of the following values:</blockquote>
+
+<blockquote><tt>0</tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Successful completion.
+<p><tt>1</tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Error</blockquote>
+
+<blockquote>When an error occurs, an explanatory error message is written
+to stderr and an error value 1 is returned.</blockquote>
+
+<h4>
+Examples</h4>
+
+<blockquote>The following command places the service of provider module "OperatingSystemProvider" in the disabled state.</blockquote>
+
+<blockquote><tt><b>cimprovider</b> -d -m OperatingSystemProvider</tt></blockquote>
+
+<blockquote>The following command places "OperatingSystemProvider" provider module back to the service from the disabled state.</blockquote>
+
+<blockquote><tt><b>cimprovider</b> -e -m OperatingSystemProvider</tt></blockquote>
+
+<blockquote>The following command removes all the instances which contains "OperatingSystemProvider" provider module name.</blockquote>
+
+<blockquote><tt><b>cimprovider</b> -r -m OperatingSystemProvider</tt></blockquote>
+<blockquote>The following command removes all the instances which contains "OperatingSystemProvider" provider module name and "PG_OperatingSystemProvider" provider name.</blockquote>
+
+<blockquote><tt><b>cimprovider</b> -r -m OperatingSystemProvider -p PG_OperatingSystemProvider</tt></blockquote>
+
+<blockquote>The following command displays the list of registered provider modules.</blockquote>
+
+<blockquote><tt><b>cimprovider</b> -l </tt></blockquote>
+
+<blockquote>The following command displays the list of registered providers which are in the "OperatingSystemProvider" provider module.</blockquote>
+
+<blockquote><tt><b>cimprovider</b> -l -m OperatingSystemProvider </tt></blockquote>
+
+<h4>
+Author</h4>
+
+<blockquote><b>cimprovider</b> was developed by the Hewlett-Packard Company.</blockquote>
+
+</body>
+</html>

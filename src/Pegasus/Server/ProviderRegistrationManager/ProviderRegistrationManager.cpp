@@ -2307,9 +2307,10 @@ void ProviderRegistrationManager::_deleteInstance(
 		    {
 	    	        String _providerModuleName;
 		    
-			instances[j].getProperty(instances[j].findProperty(
-			_PROPERTY_PROVIDERMODULENAME)).getValue().get(_providerModuleName);
-
+		      Uint32 pos = instances[j].findProperty(_PROPERTY_PROVIDERMODULENAME);
+		      if ( pos != PEGASUS_NOT_FOUND )
+		      {
+			instances[j].getProperty(pos).getValue().get(_providerModuleName);
 			if (String::equalNoCase(deletedProviderModuleName, _providerModuleName))
 		    	{
 			    if (instances.size() == 1)
@@ -2322,6 +2323,7 @@ void ProviderRegistrationManager::_deleteInstance(
 				j = j - 1;
 			    }
 		        }
+		      }
 		    }
 		}
 	    }

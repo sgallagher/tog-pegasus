@@ -534,6 +534,11 @@ void ProviderRegistrationProvider::invokeMethod(
     Array<CIMParamValue> & outParameters,
     ResponseHandler<CIMValue> & handler)
 {
+// ATTN-YZ-20020411: Add code to send message to provider manager to 
+// execute the stop and start methods
+
+   throw CIMException (CIM_ERR_NOT_SUPPORTED);
+
 /* ATTN-YZ-P1-20020301: Modify this function because schema is changed
     String className = objectReference.getClassName();
 	

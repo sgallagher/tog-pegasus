@@ -77,10 +77,16 @@ Boolean CQLPredicateRep::isSimpleValue(){
 	return (_simplePredicate.isSimpleValue());
 }
 String CQLPredicateRep::toString(){
-	if(_terminal)
+	printf("CQLPredicateRep::toString()\n");
+	if(_terminal){
+	printf("CQLPredicateRep::toString()_terminal\n");
 		return _simplePredicate.toString();
-	if(isSimple())
-		return _predicates[0].toString();
+	}
+	if(isSimple()){
+	printf("CQLPredicateRep::toString()isSimple\n");
+		return _simplePredicate.toString();
+	}
+	printf("CQLPredicateRep::toString()else\n");
 	String s;
 	for(Uint32 i = 0; i < _predicates.size(); i++){
 		s.append(_predicates[i].toString());

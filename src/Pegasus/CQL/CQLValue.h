@@ -38,11 +38,10 @@
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
 #include <Pegasus/CQL/CQLScope.h>
-
 #include <Pegasus/CQL/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
+class PEGASUS_CQL_LINKAGE CQLFactory;
     enum NumericType { Hex, Binary,  Decimal, Real};
     enum CQLValueType { Null_type, Sint64_type, Uint64_type, Real_type, String_type,
                         CIMDateTime_type,  CIMReference_type, CQLIdentifier_type,
@@ -127,6 +126,8 @@ class PEGASUS_CQL_LINKAGE CQLValue
      */
 
     void resolve(CIMInstance CI, QueryContext& inQueryCtx);
+
+    CQLValue& operator=(const CQLValue& rhs);
 
     /** operator == compares two CQLValue objects for equality and
                             performs type checking.
@@ -285,19 +286,19 @@ class PEGASUS_CQL_LINKAGE CQLValue
     Boolean like(const CQLValue& inVal);
    
    void invert();
-   CQLChainedIdentifier getChainedIdentifier();
-   Uint64 getUint();
-   Sint64 getSint();
-   Real64 getReal();
-   String getString();
-   Boolean getBool();
-   CIMDateTime getDateTime();
-   CIMObjectPath getReference();
-   CIMInstance getInstance();
-   CIMClass getClass();
-   String toString();
+   CQLChainedIdentifier getChainedIdentifier()const;
+   Uint64 getUint()const;
+   Sint64 getSint()const;
+   Real64 getReal()const;
+   String getString()const;
+   Boolean getBool()const;
+   CIMDateTime getDateTime()const;
+   CIMObjectPath getReference()const;
+   CIMInstance getInstance()const;
+   CIMClass getClass()const;
+   String toString()const;
    void applyScopes(Array<CQLScope> inScopes);
-   
+   friend class CQLFactory; 
   private:
     Boolean _areClassesInline(CIMClass c1,CIMClass c2, QueryContext& in);
    Boolean _validate(const CQLValue& x);
@@ -318,7 +319,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
     } _theValue;
 
 
-    CQLChainedIdentifier* _CQLChainId;
+    CQLChainedIdentifier _CQLChainId;
 
     Boolean _isResolved;
 

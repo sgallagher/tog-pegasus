@@ -21,7 +21,7 @@ CQLFactorRep::CQLFactorRep(const CQLFactorRep* rep)
    _simpleValue = rep->_simpleValue;
 }
 
-CQLFactorRep::CQLFactorRep(CQLValue& inCQLVal)
+CQLFactorRep::CQLFactorRep(const CQLValue& inCQLVal)
 {
    _CQLVal = inCQLVal;
    _simpleValue = true;
@@ -84,17 +84,16 @@ CQLExpression CQLFactorRep::getCQLExpression()
 
 String CQLFactorRep::toString()
 {
+	printf("CQLFactorRep::toString()\n");
+	if(_simpleValue){
+		 return _CQLVal.toString();
+	}
    if(_CQLFunct != CQLFunction())
    {
       return _CQLFunct.toString();
-   }
-   else if(_CQLExp != CQLExpression())
+   }else
    {
       return _CQLExp.toString();
-   }
-   else
-   {
-      return _CQLVal.toString();
    }
 }
 

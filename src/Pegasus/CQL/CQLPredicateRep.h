@@ -142,6 +142,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicateRep
     that need tobe evaluated.
       */
     Boolean _terminal;
+    Boolean _isSimple;
 
 };
 

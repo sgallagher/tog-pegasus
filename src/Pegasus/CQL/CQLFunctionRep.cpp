@@ -72,6 +72,7 @@ CQLValue CQLFunctionRep::resolveValue(CIMInstance CI, QueryContext& queryCtx)
 
 String CQLFunctionRep::toString()
 {
+	printf("CQLFunctionRep::toString()\n");
    String returnStr;
 
    char buffer[32];  // Should need 21 chars max

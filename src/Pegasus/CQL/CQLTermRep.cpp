@@ -53,6 +53,7 @@ void CQLTermRep::appendOperation(FactorOpType inFactorOpType, CQLFactor inFactor
 
 String CQLTermRep::toString()
 {
+	printf("CQLTermRep::toString()\n");
    String returnStr;
 
    returnStr.append(_Factors[0].toString());

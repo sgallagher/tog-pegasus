@@ -23,7 +23,7 @@ CQLPredicate::CQLPredicate(const CQLSimplePredicate& inSimplePredicate, Boolean 
 
 CQLPredicate::CQLPredicate(const CQLPredicate& inPredicate, Boolean inInverted)
 {
-	_rep = new CQLPredicateRep(inPredicate,inInverted);
+	_rep = new CQLPredicateRep(inPredicate._rep);
 }
 
 CQLPredicate::~CQLPredicate(){

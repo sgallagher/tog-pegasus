@@ -53,7 +53,7 @@ class PEGASUS_CQL_LINKAGE CQLFactor
   public:
    CQLFactor();
 
-    CQLFactor(CQLValue& inCQLVal);
+    CQLFactor(const CQLValue& inCQLVal);
 
     CQLFactor(CQLExpression& inCQLExp);
 

@@ -75,6 +75,7 @@ class PEGASUS_CQL_LINKAGE CQLExpressionRep
       */
     Array<CQLTerm> _CQLTerms;
 
+    Boolean _isSimple;
 };
 
 PEGASUS_NAMESPACE_END

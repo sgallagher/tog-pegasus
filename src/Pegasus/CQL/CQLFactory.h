@@ -31,7 +31,8 @@ enum FactoryType { Identifier, ChainedIdentifier, Value, Function, Factor, Term,
 class PEGASUS_CQL_LINKAGE CQLFactory
 {
   public:
-
+  //CQLFactory();
+  //~CQLFactory();
   void* makeObject(CQLIdentifier* obj, FactoryType target);
   void* makeObject(CQLChainedIdentifier* obj, FactoryType target);
   void* makeObject(CQLValue* obj, FactoryType target);
@@ -68,6 +69,7 @@ class PEGASUS_CQL_LINKAGE CQLFactory
   CQLChainedIdentifier _chainedIdentifier;
   CQLIdentifier _identifier;
   CQLValue _value;
+  Array<CQLPredicate*> _predicates;
 };                                                                          
 PEGASUS_NAMESPACE_END
 #endif

@@ -1,0 +1,4 @@
+select * from class
+select * from class where class = 5
+select * from class where class <= 10
+select * from class where class = 'blah'

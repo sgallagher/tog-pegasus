@@ -1,15 +1,22 @@
 #include "CQLFactory.h"
 
 PEGASUS_NAMESPACE_BEGIN
+/*
+CQLFactory::CQLFactory(){
 
+}
+
+CQLFactory::~CQLFactory(){
+	for(Uint32 i = 0; i < _predicates.size(); i++){
+		if(_predicates[i]) delete _predicates[i];
+	}
+}
+*/
 void* CQLFactory::makeObject(CQLIdentifier* obj, FactoryType target){
-	//printf("%s\n",(const char*)(obj->toString().getCString()));
-	//printf("%s\n",(const char*)(_cid.toString().getCString()));
+printf("CQLFactory::makeObject(identifier)\n");
+	_chainedIdentifier = CQLChainedIdentifier(*obj);
 	switch(target){
 	  case ChainedIdentifier:
-		_chainedIdentifier = CQLChainedIdentifier(*obj);
-		//printf("%d\n",_chainedIdentifier.size());
-		//printf("%s\n",(const char*)(_chainedIdentifier.toString().getCString()));
 		return &_chainedIdentifier;
 		break;
 	  case Identifier:
@@ -21,9 +28,10 @@ void* CQLFactory::makeObject(CQLIdentifier* obj, FactoryType target){
         }
 }
 void* CQLFactory::makeObject(CQLChainedIdentifier* obj, FactoryType target){
+printf("CQLFactory::makeObject(chainedidentifier)\n");
+	_value = CQLValue(*obj);
 	switch(target){
           case Value:
-		_value = CQLValue(*obj);
                 return &_value;
                 break;
           case ChainedIdentifier:
@@ -36,9 +44,11 @@ void* CQLFactory::makeObject(CQLChainedIdentifier* obj, FactoryType target){
 
 }
 void* CQLFactory::makeObject(CQLValue* obj, FactoryType target){
+printf("CQLFactory::makeObject(value)\n");
+	_factor = CQLFactor(*obj);
+	CQLValue val = _factor._rep->_CQLVal;
 	switch(target){
           case Factor:
-		_factor = CQLFactor(*obj);
                 return &_factor;
                 break;
           case Value:
@@ -51,9 +61,10 @@ void* CQLFactory::makeObject(CQLValue* obj, FactoryType target){
 
 }
 void* CQLFactory::makeObject(CQLFunction* obj, FactoryType target){
+printf("CQLFactory::makeObject(function)\n");
+	_factor = CQLFactor(*obj);
         switch(target){
           case Factor:
-		_factor = CQLFactor(*obj);
                 return &_factor;
                 break;
           default:
@@ -62,9 +73,10 @@ void* CQLFactory::makeObject(CQLFunction* obj, FactoryType target){
         }
 }
 void* CQLFactory::makeObject(CQLFactor* obj, FactoryType target){
+printf("CQLFactory::makeObject(factor)\n");
+	_term = CQLTerm(*obj);
 	switch(target){
           case Term:
-		_term = CQLTerm(*obj);
                 return &_term;
                 break;
           case Factor:
@@ -77,9 +89,10 @@ void* CQLFactory::makeObject(CQLFactor* obj, FactoryType target){
 
 }
 void* CQLFactory::makeObject(CQLTerm* obj, FactoryType target){
+printf("CQLFactory::makeObject(term)\n");
+	_expression = CQLExpression(*obj);
 	switch(target){
           case Expression:
-		_expression = CQLExpression(*obj);
                 return &_expression;
                 break;
           case Term:
@@ -92,9 +105,10 @@ void* CQLFactory::makeObject(CQLTerm* obj, FactoryType target){
 
 }
 void* CQLFactory::makeObject(CQLExpression* obj, FactoryType target){
+printf("CQLFactory::makeObject(expression)\n");
+	_simplePredicate = CQLSimplePredicate(*obj);
 	switch(target){
           case SimplePredicate:
-		_simplePredicate = CQLSimplePredicate(*obj);
                 return &_simplePredicate;
                 break;
           case Expression:
@@ -107,9 +121,10 @@ void* CQLFactory::makeObject(CQLExpression* obj, FactoryType target){
 
 }
 void* CQLFactory::makeObject(CQLSimplePredicate* obj, FactoryType target){
+printf("CQLFactory::makeObject(simplepredicate)\n");
+	_predicate = CQLPredicate(*obj);
 	switch(target){
           case Predicate:
-		_predicate = CQLPredicate(*obj);
                 return &_predicate;
                 break;
           default:
@@ -181,8 +196,8 @@ void* CQLFactory::getObject(CQLChainedIdentifier* obj, FactoryType target){
 	switch(target){
           case Identifier:
 		if(obj->_rep->_subIdentifiers.size() > 0){
-                	_identifier = obj->_rep->_subIdentifiers[0];
-                	return &_identifier;
+                	return &(obj->_rep->_subIdentifiers[0]);
+                	//return &_identifier;
 		}
 		return NULL;
           default:
@@ -193,8 +208,8 @@ void* CQLFactory::getObject(CQLChainedIdentifier* obj, FactoryType target){
 void* CQLFactory::getObject(CQLValue* obj, FactoryType target){
 	switch(target){
           case ChainedIdentifier:
-                _chainedIdentifier = obj->getChainedIdentifier();
-                return &_chainedIdentifier;
+                return &(obj->_CQLChainId);
+                //return &_chainedIdentifier;
           default:
                 return NULL;
                 break;
@@ -204,8 +219,8 @@ void* CQLFactory::getObject(CQLValue* obj, FactoryType target){
 void* CQLFactory::getObject(CQLFactor* obj, FactoryType target){
         switch(target){
           case Function:
-		_function =  obj->getCQLFunction();
-		return &_function;
+		return &(obj->_rep->_CQLFunct);
+		//return &_function;
           default:
                 return NULL;
                 break;
@@ -216,11 +231,11 @@ void* CQLFactory::getObject(CQLFactor* obj, FactoryType target){
 void* CQLFactory::getObject(CQLTerm* obj, FactoryType target){
         switch(target){
 	  case Factor:
-		_factor = obj->getFactors()[0];
-		return &_factor;
+		return &(obj->getFactors()[0]);
+		//return &_factor;
           case Function:
 		_factor = obj->getFactors()[0];
-		return getObject(&_factor,target);
+		return getObject(&(obj->getFactors()[0]),target);
           default:
                 return NULL;
                 break;
@@ -230,12 +245,12 @@ void* CQLFactory::getObject(CQLTerm* obj, FactoryType target){
 void* CQLFactory::getObject(CQLExpression* obj, FactoryType target){
         switch(target){
 	  case Term:
-		_term = obj->getTerms()[0];
-		return &_term;
+		return  &(obj->getTerms()[0]);
+		//return &_term;
           case Factor:
           case Function:
 		_term = obj->getTerms()[0];
-		return getObject(&_term, target);
+		return getObject(&(obj->getTerms()[0]), target);
           default:
 		return NULL;
                 break;
@@ -245,12 +260,13 @@ void* CQLFactory::getObject(CQLExpression* obj, FactoryType target){
 void* CQLFactory::getObject(CQLSimplePredicate* obj, FactoryType target){
         switch(target){
 	  case Expression:
-		_expression =  obj->getLeftExpression();
+		return &(obj->_rep->_leftSide);
+		//return &_expression;
           case Term:
           case Factor:
           case Function:
 		_expression =  obj->getLeftExpression();
-		return getObject(&_expression, target);
+		return getObject(&(obj->_rep->_leftSide), target);
           default:
                 return NULL;
                 break;
@@ -260,15 +276,15 @@ void* CQLFactory::getObject(CQLSimplePredicate* obj, FactoryType target){
 void* CQLFactory::getObject(CQLPredicate* obj, FactoryType target){
         switch(target){
           case SimplePredicate:
-		_simplePredicate = obj->getSimplePredicate();
-                return &_simplePredicate;
+		return &(obj->_rep->_simplePredicate);
+                //return &_simplePredicate;
                 break;
 	  case Expression:
 	  case Term:
 	  case Factor:
 	  case Function:
 		_simplePredicate = obj->getSimplePredicate();
-		return getObject(&_simplePredicate, target);
+		return getObject(&(obj->_rep->_simplePredicate), target);
           default:
                 return NULL;
                 break;

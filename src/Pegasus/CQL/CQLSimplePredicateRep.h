@@ -17,7 +17,7 @@ class PEGASUS_CQL_LINKAGE QueryContext;
 class CQLSimplePredicateRep
 {
   public:
-    CQLSimplePredicateRep(){}
+    CQLSimplePredicateRep();
 
     CQLSimplePredicateRep(const CQLExpression& inExpression);
 
@@ -76,7 +76,7 @@ class CQLSimplePredicateRep
     CQLExpression _rightSide;
 
     ExpressionOpType _operator;
-
+    Boolean _isSimple;
 };
 PEGASUS_NAMESPACE_END
 

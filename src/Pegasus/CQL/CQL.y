@@ -79,12 +79,12 @@ PEGASUS_NAMESPACE_END
 %token <strValue> DIV 
 %token <strValue> IS 
 %token <strValue> _NULL 
-%token <_opType> EQ
-%token <_opType> NE 
-%token <_opType> GT 
-%token <_opType> LT 
-%token <_opType> GE 
-%token <_opType> LE 
+%token <_opType> _EQ
+%token <_opType> _NE 
+%token <_opType> _GT 
+%token <_opType> _LT 
+%token <_opType> _GE 
+%token <_opType> _LE 
 %token <_opType> _ISA 
 %token <_opType> _LIKE 
 %token <strValue> NOT _AND _OR 
@@ -288,7 +288,6 @@ literal : literal_string
           {
               sprintf(msg,"BISON::literal->literal_string\n");
 	      printf_(msg);
-
               $$ = new CQLValue(*$1);
           }
         | decimal_value
@@ -594,7 +593,9 @@ arith : term
             sprintf(msg,"BISON::arith->term\n");
 	    printf_(msg);
 
-            $$ = $1;
+	    CQLPredicate* _pred = new CQLPredicate(*$1);
+	    _factory._predicates.append(_pred);
+            $$ = _pred;
         }
      /* | arith PLUS term
         {
@@ -626,46 +627,57 @@ value_symbol : HASH literal_string
 
 arith_or_value_symbol : arith
                         {
-                            printf("BISON::arith_or_value_symbol->arith\n");
+                            sprintf(msg,"BISON::arith_or_value_symbol->arith\n");
+			    printf_(msg);
+
+			    $$ = $1;
                         }
                       | value_symbol
                         {
 			    /* make into predicate */
-                            printf("BISON::arith_or_value_symbol->value_symbol\n");
+                            sprintf(msg,"BISON::arith_or_value_symbol->value_symbol\n");
+			    printf_(msg);
+
 			    CQLFactor _fctr(*$1);
 			    $$ = (CQLPredicate*)(_factory.makeObject(&_fctr, Predicate));
                         }
 ;
 
-comp_op : EQ 
+comp_op : _EQ 
           {
-              sprintf(msg,"BISON::comp_op->EQ\n");
+              sprintf(msg,"BISON::comp_op->_EQ\n");
 	      printf_(msg);
+	      $$ = EQ;
           }
-        | NE
+        | _NE
           {
-              sprintf(msg,"BISON::comp_op->NE\n");
+              sprintf(msg,"BISON::comp_op->_NE\n");
 	      printf_(msg);
+	      $$ = NE;
           }
-        | GT 
+        | _GT 
           {
-              sprintf(msg,"BISON::comp_op->GT\n");
+              sprintf(msg,"BISON::comp_op->_GT\n");
 	      printf_(msg);
+	      $$ = GT;
           }
-        | LT
+        | _LT
           {
-              sprintf(msg,"BISON::comp_op->LT\n");
+              sprintf(msg,"BISON::comp_op->_LT\n");
 	      printf_(msg);
+	      $$ = LT;
           }
-        | GE
+        | _GE
           {
-              sprintf(msg,"BISON::comp_op->GE\n");
+              sprintf(msg,"BISON::comp_op->_GE\n");
 	      printf_(msg);
+	      $$ = GE;
           }
-        | LE
+        | _LE
           {
-              sprintf(msg,"BISON::comp_op->LE\n");
+              sprintf(msg,"BISON::comp_op->_LE\n");
 	      printf_(msg);
+	      $$ = LE;
           }
 ;
 
@@ -698,18 +710,28 @@ comp : arith
        }
      | arith comp_op arith_or_value_symbol
        {
-	/* check both predicates for isSimple(), pull out both left expressions, make simplepredicate with comp_op, create and forward predicate 
-           printf("BISON::comp->arith comp_op arith_or_value_symbol\n");
-	   CQLSimplePredicate *tmp = new CQLSimplePredicate(*$1, *$3, $2);
-           $$ = new CQLPredicate(*tmp);*/
+           sprintf(msg,"BISON::comp->arith comp_op arith_or_value_symbol\n");
+	   printf_(msg);
+	   if($1->isSimple() && $3->isSimple()){
+		CQLExpression* _exp1 = (CQLExpression*)(_factory.getObject($1,Predicate,Expression));
+		CQLExpression* _exp2 = (CQLExpression*)(_factory.getObject($3,Predicate,Expression));
+	   	CQLSimplePredicate _sp(*_exp1, *_exp2, $2);
+           	$$ = new CQLPredicate(_sp);
+	   }else{
+		/* error */
+	   }
        }
      | value_symbol comp_op arith
        {
-	  /* make sure $3 isSimple(), get its expression, make simplepred->predicate, make expression from $1, then proceed
            printf("BISON::comp->value_symbol comp_op arith\n");
-           CQLExpression *tmpexpr = (CQLExpression*)(_factory.makeObject(new CQLFactor(*$1), Expression));
-	   CQLSimplePredicate * tmp = new CQLSimplePredicate(*tmpexpr, *$3, $2);
-           $$ = new CQLPredicate(*tmp);*/
+	   if($3->isSimple()){
+           	CQLExpression* _exp1 = (CQLExpression*)(_factory.makeObject($1, Expression));
+	        CQLExpression* _exp2 = (CQLExpression*)(_factory.getObject($3,Predicate,Expression));
+	   	CQLSimplePredicate _sp(*_exp1, *_exp2, $2);
+           	$$ = new CQLPredicate(_sp);
+	   }else{
+		/* error */
+	   }
        }
      | arith _ISA identifier
        {
@@ -937,6 +959,7 @@ search_condition : expr
                    {
                         sprintf(msg,"BISON::search_condition->expr\n");
 			printf_(msg);
+			printf("%s\n",(const char*)($1->toString().getCString()));
 			globalParserState->statement->setPredicate(*$1);
                    }
 ;
@@ -946,6 +969,7 @@ optional_where : {;}
                  {
                      sprintf(msg,"BISON::optional_where->WHERE search_condition\n");
 		     printf_(msg);
+		     globalParserState->statement->setHasWhereClause();
                  }
 ;
 

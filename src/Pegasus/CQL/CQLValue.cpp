@@ -35,6 +35,7 @@
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/CQL/CQLIdentifier.h>
 
+#include <Pegasus/CQL/CQLFactory.h>
 
 
 
@@ -145,10 +146,7 @@ CQLValue::CQLValue(const CQLValue& val)
          break;
    }
 
-   if(val._CQLChainId != NULL)
-   {
-      _CQLChainId = new CQLChainedIdentifier(*val._CQLChainId);
-   }
+      _CQLChainId = val._CQLChainId;
 
     _isResolved = val._isResolved;
 
@@ -223,7 +221,8 @@ CQLValue::CQLValue(String inString, NumericType inValueType, Boolean inSign)
 
 CQLValue::CQLValue(CQLChainedIdentifier inCQLIdent)
 {
-   _CQLChainId = new CQLChainedIdentifier(inCQLIdent); 
+   _CQLChainId = inCQLIdent; 
+   _valueType = CQLIdentifier_type;
    _isResolved = false;
 }
 
@@ -301,7 +300,7 @@ void CQLValue::resolve(CIMInstance CI, QueryContext& inQueryCtx)
    CQLIdentifier classNameID;       // Determine if we have Alias/Class/Property 
    String className;                // Alias/Class Name
    Array<CQLIdentifier> Idstrings = 
-      _CQLChainId->getSubIdentifiers(); // Array of Identifiers to process
+      _CQLChainId.getSubIdentifiers(); // Array of Identifiers to process
    Uint32 index = 0;                // Counter for looping through Identifiers
    
    CIMClass ScopeClass;             // CIMClass for the scope of Identifier
@@ -559,7 +558,43 @@ void CQLValue::resolve(CIMInstance CI, QueryContext& inQueryCtx)
    } // loop
 } // end of function
 
-
+CQLValue& CQLValue::operator=(const CQLValue& rhs){
+printf("CQLValue::operator=\n");
+	if(&rhs != this){
+		_valueType = rhs._valueType;
+		_theValue = rhs._theValue;
+		switch(_valueType){
+			case String_type:
+				_theValue._S = new String(rhs.getString());
+				break;
+			case CIMDateTime_type:
+         			_theValue._DT = new CIMDateTime(rhs.getDateTime());
+         			break;
+      			case CIMReference_type:
+         			_theValue._OP = new CIMObjectPath(rhs.getReference());
+         			break;
+      			case CIMInstance_type:
+         			_theValue._IN = new CIMInstance(rhs.getInstance());
+         			break;
+      			case CIMClass_type:
+         			_theValue._CL = new CIMClass(rhs.getClass());
+         			break;
+			case Boolean_type:
+      			case Sint64_type:
+      			case Uint64_type:
+			case Real_type:
+			case Null_type:
+			case CQLIdentifier_type:
+			case CQLIgnore_type:
+			default:
+				break;
+		}
+		_CQLChainId = rhs._CQLChainId;
+		_isResolved = rhs._isResolved;
+		Num_Type = rhs.Num_Type;
+	}
+	return *this;
+}
 Boolean CQLValue::operator==(const CQLValue& x)
 {
    if(!_validate(x))
@@ -1600,12 +1635,12 @@ void CQLValue::invert()
    }
 }
 
-CQLChainedIdentifier CQLValue::getChainedIdentifier()
+CQLChainedIdentifier CQLValue::getChainedIdentifier()const
 {
-   return *_CQLChainId;
+   return _CQLChainId;
 }
 
-Uint64 CQLValue::getUint()
+Uint64 CQLValue::getUint()const
 {
    if(_valueType != Uint64_type)
    {
@@ -1614,7 +1649,7 @@ Uint64 CQLValue::getUint()
    return _theValue._U64;
 }
 
-Boolean CQLValue::getBool()
+Boolean CQLValue::getBool()const
 {
    if(_valueType != Boolean_type)
    {
@@ -1623,7 +1658,7 @@ Boolean CQLValue::getBool()
    return _theValue._B;
 }
 
-Sint64 CQLValue::getSint()
+Sint64 CQLValue::getSint()const
 {
    if(_valueType != Sint64_type)
    {
@@ -1632,7 +1667,7 @@ Sint64 CQLValue::getSint()
    return _theValue._S64;
 }
 
-Real64 CQLValue::getReal()
+Real64 CQLValue::getReal()const
 {
    if(_valueType != Real_type)
    {
@@ -1641,7 +1676,7 @@ Real64 CQLValue::getReal()
    return _theValue._R64;
 }
 
-String CQLValue::getString()
+String CQLValue::getString()const
 {
    if(_valueType != String_type)
    {
@@ -1650,7 +1685,7 @@ String CQLValue::getString()
    return *_theValue._S;
 }
 
-CIMDateTime CQLValue::getDateTime()
+CIMDateTime CQLValue::getDateTime()const
 {
    if(_valueType != CIMDateTime_type)
    {
@@ -1660,7 +1695,7 @@ CIMDateTime CQLValue::getDateTime()
    return *_theValue._DT;
 }
 
-CIMObjectPath CQLValue::getReference()
+CIMObjectPath CQLValue::getReference()const
 {
    if(_valueType != CIMReference_type)
    {
@@ -1669,7 +1704,7 @@ CIMObjectPath CQLValue::getReference()
    return *_theValue._OP;
 }
 
-CIMInstance CQLValue::getInstance()
+CIMInstance CQLValue::getInstance()const
 {
    if(_valueType != CIMInstance_type)
    {
@@ -1678,7 +1713,7 @@ CIMInstance CQLValue::getInstance()
    return *_theValue._IN;
 }
 
-CIMClass CQLValue::getClass()
+CIMClass CQLValue::getClass()const
 {
    if(_valueType != CIMClass_type)
    {
@@ -1688,7 +1723,7 @@ CIMClass CQLValue::getClass()
    return *_theValue._CL;
 }
 
-String CQLValue::toString()
+String CQLValue::toString()const
 {
    switch(_valueType)
    {
@@ -1733,6 +1768,9 @@ String CQLValue::toString()
       case CIMClass_type:  
          return _theValue._CL->getPath().toString();
          break;
+      case CQLIdentifier_type:
+	return _CQLChainId.toString();
+	break;
       default:
          break;
    }
@@ -1741,10 +1779,10 @@ String CQLValue::toString()
 
 void CQLValue::applyScopes(Array<CQLScope> inScope)
 {
-   if(_CQLChainId == NULL)
+ /*  if(_CQLChainId == NULL)
    {
       return;
-   }
+   }*/
 
    CQLChainedIdentifier sci;
 
@@ -1752,17 +1790,17 @@ void CQLValue::applyScopes(Array<CQLScope> inScope)
    {
       sci = inScope[i].getTarget();
   
-      if(!_CQLChainId->isSubChain(sci))
+      if(!_CQLChainId.isSubChain(sci))
       {
          return;
       }
 
-      for(Uint32 j = 0; j < _CQLChainId->size(); ++j)
+      for(Uint32 j = 0; j < _CQLChainId.size(); ++j)
       {
-         if(sci.getLastIdentifier().getName() == (*_CQLChainId)[j].getName())
+         if(sci.getLastIdentifier().getName() == (_CQLChainId)[j].getName())
          {
             // Will need to do more processing. When spec better defined.
-            (*_CQLChainId)[i].applyScope(inScope[i].getScope().getString());
+            (_CQLChainId)[i].applyScope(inScope[i].getScope().getString());
          }
       }
    }

@@ -422,38 +422,38 @@ Z [Zz]
 }
 
 "=" { 
-    printf("LEX: %s [EQ] ", yytext);
-    return EQ; 
+    printf("LEX: %s [_EQ] ", yytext);
+    return _EQ; 
 }
 
 "!=" { 
 
-    printf("LEX: %s [NE] ", yytext);
-    return NE; 
+    printf("LEX: %s [_NE] ", yytext);
+    return _NE; 
 }
 
 "<=" { 
 
-    printf("LEX: %s [LE] ", yytext);
-    return LE; 
+    printf("LEX: %s [_LE] ", yytext);
+    return _LE; 
 }
 
 "<" { 
 
-    printf("LEX: %s [LT] ", yytext);
-    return LT; 
+    printf("LEX: %s [_LT] ", yytext);
+    return _LT; 
 }
 
 ">=" { 
 
-    printf("LEX: %s [GE] ", yytext);
-    return GE; 
+    printf("LEX: %s [_GE] ", yytext);
+    return _GE; 
 }
 
 ">" { 
 
-    printf("LEX: %s [GT] ", yytext);
-    return GT; 
+    printf("LEX: %s [_GT] ", yytext);
+    return _GT; 
 }
 
 {IDENT_CHAR}({IDENT_CHAR}|{DECIMAL_DIGIT})*  {

@@ -20,7 +20,7 @@ CQLFactor::CQLFactor(const CQLFactor& inCQLFact)
 	_rep = new CQLFactorRep(inCQLFact._rep);
 }
 
-CQLFactor::CQLFactor(CQLValue& inCQLVal)
+CQLFactor::CQLFactor(const CQLValue& inCQLVal)
 {
 	_rep = new CQLFactorRep(inCQLVal);
 }

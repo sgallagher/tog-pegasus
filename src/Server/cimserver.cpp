@@ -208,7 +208,7 @@ void PrintHelp(const char* arg0)
     usage.append ("    -v          - displays CIM Server version number\n");
     usage.append ("    -h          - prints this help message\n");
     usage.append ("    -s          - shuts down CIM Server\n");
-#ifndef PEGASUS_OS_HPUX
+#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
     usage.append ("    -D [home]   - sets pegasus home directory\n");
 #endif
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
@@ -219,7 +219,7 @@ void PrintHelp(const char* arg0)
     usage.append ("                - sets CIM Server configuration property\n");
 
     cout << endl;
-#if defined(PEGASUS_OS_HPUX)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
     cout << PLATFORM_PRODUCT_NAME << " " << PLATFORM_PRODUCT_VERSION << endl;
 #else
     cout << PEGASUS_NAME << PEGASUS_VERSION << endl;
@@ -419,7 +419,7 @@ int main(int argc, char** argv)
                 //
                 if (*option == OPTION_VERSION)
                 {
-#if defined(PEGASUS_OS_HPUX)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
                     cout << PLATFORM_PRODUCT_VERSION << endl;
 #else
                     cout << PEGASUS_VERSION << endl;
@@ -434,7 +434,7 @@ int main(int argc, char** argv)
                     PrintHelp(argv[0]);
                     exit(0);
                 }
-#ifndef PEGASUS_OS_HPUX
+#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
                 else if (*option == OPTION_HOME)
                 {
                     if (i + 1 < argc)
@@ -589,7 +589,7 @@ int main(int argc, char** argv)
         // Might be more logical to clean before set.
         // ATTN: Need tool to completely disable logging.
 
-#ifndef PEGASUS_OS_HPUX
+#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
         Logger::setHomeDirectory(logsDirectory);
 #endif
 
@@ -617,7 +617,7 @@ int main(int argc, char** argv)
         httpsPort = configManager->getCurrentValue("httpsPort");
 
         // Leave this in until people get familiar with the logs.
-#ifndef PEGASUS_OS_HPUX
+#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
         cout << "Logs Directory = " << logsDirectory << endl;
 #endif
 
@@ -701,7 +701,7 @@ int main(int argc, char** argv)
     }
 
     // Put out startup up message.
-#ifndef PEGASUS_OS_HPUX
+#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
     cout << PEGASUS_NAME << PEGASUS_VERSION <<
 	 " on port " << address << endl;
     cout << "Built " << __DATE__ << " " << __TIME__ << endl;
@@ -771,7 +771,7 @@ int main(int argc, char** argv)
 	// bind throws an exception if the bind fails
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
 	cout << "Binding to domain socket" << endl;
-#elif !defined(PEGASUS_OS_HPUX)
+#elif !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
 	cout << "Binding to " << address << endl;
 #endif
 
@@ -802,12 +802,12 @@ int main(int argc, char** argv)
             fclose(pid_file);
         }
 #endif
-#ifndef PEGASUS_OS_HPUX
+#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
 	cout << "Started. " << endl;
 #endif
 
         // Put server started message to the logger
-#ifdef PEGASUS_OS_HPUX
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
         Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
                     "Started $0 version $1 on port $2.",
                     PLATFORM_PRODUCT_NAME, PLATFORM_PRODUCT_VERSION, address);

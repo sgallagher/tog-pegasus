@@ -35,7 +35,7 @@
 #include "System.h"
 #include "Destroyer.h"
 
-#ifdef PEGASUS_OS_HPUX
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
 # include <syslog.h>
 #endif
 
@@ -99,7 +99,7 @@ public:
 
     LoggerRep(const String& homeDirectory)
     {
-#ifndef PEGASUS_OS_HPUX
+#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
 	// Add test for home directory set.
 
 	// If home directory does not exist, create it.
@@ -184,7 +184,7 @@ void Logger::put(
         String logMsg = Formatter::format(formatString,
                 arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 
-        #ifdef PEGASUS_OS_HPUX
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
             // FUTURE-SF-P3-20020517 : Use the Syslog on HP-UX. Eventually only 
             // certain messages will go to the Syslog and others to the 
             // Pegasus Logger.

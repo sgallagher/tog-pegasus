@@ -64,7 +64,10 @@ $(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) \
 	cp $(ROOT)/src/$(DIR)/lib$(LIBRARY).x $(LIB_DIR)
     endif
     ifeq ($(OS),HPUX)
-	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX)
+	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX) PLATFORM_SUFFIX=sl
+    endif
+    ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU)
+	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX) PLATFORM_SUFFIX=so
     endif
   else
 	$(LINK_COMMAND) $(LINK_ARGUMENTS) $(LINK_OUT) $(FULL_LIB) $(OBJECTS) $(FULL_LIBRARIES) $(EXTRA_LIBRARIES)
@@ -76,6 +79,6 @@ clean-lib: $(ERROR)
 	rm -f $(FULL_LIB)
 
 ln:
-	ln -f -s $(LIBRARY)$(SUFFIX) $(LIBRARY).sl
+	ln -f -s $(LIBRARY)$(SUFFIX) $(LIBRARY).$(PLATFORM_SUFFIX)
 
 FILES_TO_CLEAN = $(OBJECTS) $(FULL_LIB)

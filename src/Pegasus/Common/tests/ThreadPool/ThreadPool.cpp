@@ -50,13 +50,15 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func(void *parm)
 {
    Uint32 sleep_interval = (Uint32)parm;
-   
-   cout << "thread " << (Uint32)pegasus_thread_self() << " sleeping..." << endl;
+      
+   //cout << "thread " << (Uint32)pegasus_thread_self() << " sleeping for " << sleep_interval << " ms" << endl;
+   cout << "*";
    pegasus_sleep(sleep_interval);
-   cout << "thread " << (Uint32)pegasus_thread_self() << " awakening..." << endl;
-   return reinterpret_cast<PEGASUS_THREAD_RETURN>(0);
+   cout << "~";
+   
+   //cout << "thread " << (Uint32)pegasus_thread_self() << " awakening..." << endl;
+   return 0;
 }
-
 
 int main(int argc, char **argv)
 {
@@ -74,22 +76,22 @@ int main(int argc, char **argv)
       try 
       {
 	 tp.allocate_and_awaken((void *)0, work_func );
-	 tp.allocate_and_awaken((void *)1, work_func );
-	 tp.allocate_and_awaken((void *)2, work_func );
-	 tp.allocate_and_awaken((void *)3, work_func );
-	 tp.allocate_and_awaken((void *)4, work_func );
-	 tp.allocate_and_awaken((void *)5, work_func );
-	 tp.allocate_and_awaken((void *)6, work_func );
-	 tp.allocate_and_awaken((void *)7, work_func );
-	 tp.allocate_and_awaken((void *)8, work_func );
-	 tp.allocate_and_awaken((void *)9, work_func );
 	 tp.allocate_and_awaken((void *)10, work_func );
-	 tp.allocate_and_awaken((void *)11, work_func );
-	 tp.allocate_and_awaken((void *)12, work_func );
-	 tp.allocate_and_awaken((void *)13, work_func );
-	 tp.allocate_and_awaken((void *)14, work_func );
-	 tp.allocate_and_awaken((void *)15, work_func );
-	 tp.allocate_and_awaken((void *)16, work_func );
+	 tp.allocate_and_awaken((void *)20, work_func );
+	 tp.allocate_and_awaken((void *)30, work_func );
+	 tp.allocate_and_awaken((void *)40, work_func );
+	 tp.allocate_and_awaken((void *)50, work_func );
+	 tp.allocate_and_awaken((void *)60, work_func );
+	 tp.allocate_and_awaken((void *)70, work_func );
+	 tp.allocate_and_awaken((void *)80, work_func );
+	 tp.allocate_and_awaken((void *)90, work_func );
+	 tp.allocate_and_awaken((void *)10, work_func );
+	 tp.allocate_and_awaken((void *)110, work_func );
+	 tp.allocate_and_awaken((void *)120, work_func );
+	 tp.allocate_and_awaken((void *)130, work_func );
+	 tp.allocate_and_awaken((void *)140, work_func );
+	 tp.allocate_and_awaken((void *)150, work_func );
+	 tp.allocate_and_awaken((void *)1600, work_func );
       }  
       catch(Deadlock & dl)
       {
@@ -105,7 +107,7 @@ int main(int argc, char **argv)
    cout << "deadlock detection and cleanup successful, exiting" << endl;
    while(tp.running_count() )
    {
-      sleep(1);
+      pegasus_sleep(1);
    }
    
    return(1);

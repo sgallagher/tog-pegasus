@@ -117,7 +117,7 @@ inline int pegasus_gettimeofday(struct timeval *tv)
 		return(-1);
 	_ftime( &timebuffer );
 	tv->tv_sec = timebuffer.time;
-	tv->tv_usec = ( timebuffer.millitm / 1000 );
+	tv->tv_usec = ( timebuffer.millitm * 1000 );
 	return(0);
 }
 	
@@ -190,8 +190,9 @@ inline void PEGASUS_EXPORT exit_thread(PEGASUS_THREAD_RETURN rc)
 
 inline void PEGASUS_EXPORT pegasus_sleep(int ms)
 {
-  Sleep(ms);
+   Sleep(ms);
 }
+
 
 inline void PEGASUS_EXPORT destroy_thread(PEGASUS_THREAD_TYPE th, PEGASUS_THREAD_RETURN rc)
 {

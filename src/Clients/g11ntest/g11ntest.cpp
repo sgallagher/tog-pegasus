@@ -1275,6 +1275,7 @@ static void TestLocalizedInstances( CIMClient& client,
                   cout << "Checking for es returned in the exception" << endl;	
 
                 MYASSERT(CL_ES == client.getResponseContentLanguages());
+                MYASSERT(CL_ES == ce.getContentLanguages());
                 Uint32 n = message.find("ES");
                 MYASSERT(n != PEG_NOT_FOUND);			
               }
@@ -1436,6 +1437,10 @@ static void TestServerMessages( CIMClient& client,
                       if (verboseTest)
                           cout << "Note: Expecting message = " << expectedMsg 
                                << " from the server" << endl;
+
+		      // Sanity check to make sure that the exception does not just have
+		      // the class name (see bug 1686)
+		      MYASSERT(expectedMsg.size() != CLASSNAME.getString().size());
                    }
 
                    // Verify the message and the content languages returned
@@ -1443,6 +1448,7 @@ static void TestServerMessages( CIMClient& client,
 //                    cout << "Checking the server error message." << endl;
                    MYASSERT(expectedMsg == ce.getMessage());
                    MYASSERT(expectedCL == client.getResponseContentLanguages());
+                   MYASSERT(expectedCL == ce.getContentLanguages());
                 }
                 else
                 {

@@ -1465,7 +1465,7 @@ CIMObjectPath InteropProvider::_buildInstancePath(const CIMNamespaceName& name,
     @param canidate namespace
     @return - true if found
 */
-Boolean _isNamespace(
+static Boolean _isNamespace(
             Array<CIMNamespaceName>& namespaceNames,
 	        CIMNamespaceName& namespaceName)
 {

@@ -112,7 +112,7 @@ static const CIMName NAMESPACE_CLASSNAME  = CIMName ("__Namespace");
 static const CIMName NAMESPACE_PROPERTYNAME  = CIMName ("Name");
 static const CIMNamespaceName ROOTNS  = CIMNamespaceName ("root");
 
-Boolean _isNamespace(
+static Boolean _isNamespace(
         Array<CIMNamespaceName>& namespaceNames,
 	CIMNamespaceName& namespaceName)
 

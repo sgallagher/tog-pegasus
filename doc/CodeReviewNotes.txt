@@ -18,3 +18,7 @@
 	    if (condition) {
 
 	    }
+
+    5.	Makedepend utility was made the default depend
+	utility on some platforms. The deafault should be
+	"mu depend".

@@ -54,6 +54,13 @@
 
 #define OS400_DEFAULT_PEGASUS_HOME "/QIBM/UserData/OS400/CIM"
 
+#define OS400_DEFAULT_MESSAGE_SOURCE "/QIBM/ProdData/OS400/CIM/msg" // l10n
+
+#define PEGASUS_HAS_ICU  // l10n ICU libraries are available, this switch
+                         // is defined as part of the various platform make files
+                         
+#define PEGASUS_HAS_MESSAGES  // turns on localized message loading
+
 #define PEGASUS_OS_TYPE_UNIX
 
 #include <ifs.cleinc>
@@ -88,7 +95,7 @@
 
 #define PEGASUS_LOCAL_DOMAIN_SOCKET
 
-//#define PEGASUS_HAS_PERFINST  remove this until the stat provider works
+//#define PEGASUS_HAS_PERFINST  comment out until this works
 
 #define PEGASUS_USE_SYSLOGS
 

@@ -186,6 +186,33 @@ inline PEGASUS_THREAD_TYPE pegasus_thread_self(void)
    return (* ((PEGASUS_THREAD_TYPE *) &pt));
 }
 
+// l10n start
+typedef pthread_key_t PEGASUS_THREAD_KEY_TYPE;
+
+inline Uint32 pegasus_key_create(PEGASUS_THREAD_KEY_TYPE * key)
+{
+	// Note: a destructor is not supported 
+	// (because not supported on Windows (?))
+	return pthread_key_create(key, NULL);
+} 
+
+inline Uint32 pegasus_key_delete(PEGASUS_THREAD_KEY_TYPE key)
+{
+	return pthread_key_delete(key);
+} 
+
+inline void * pegasus_get_thread_specific(PEGASUS_THREAD_KEY_TYPE key)
+{
+	return pthread_getspecific(key);
+} 
+
+inline Uint32 pegasus_set_thread_specific(PEGASUS_THREAD_KEY_TYPE key,
+										 void * value)
+{
+	return pthread_setspecific(key, value);
+} 
+// l10n end
+
 inline void destroy_thread(PEGASUS_THREAD_TYPE th, PEGASUS_THREAD_RETURN rc)
 {
    pthread_cancel(*(pthread_t *) &th);

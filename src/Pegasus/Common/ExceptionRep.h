@@ -34,6 +34,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/ContentLanguages.h>	//l10n
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -41,6 +42,7 @@ class ExceptionRep
 {
 public:
     String message;
+    ContentLanguages contentLanguages;  // l10n
 };
 
 PEGASUS_NAMESPACE_END

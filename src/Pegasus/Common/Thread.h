@@ -35,6 +35,7 @@
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/DQueue.h>
+#include <Pegasus/Common/AcceptLanguages.h>  // l10n
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -337,6 +338,14 @@ class PEGASUS_COMMON_LINKAGE Thread
       }
 
       void detach(void);
+      
+      static Thread * getCurrent();  // l10n
+      
+      static AcceptLanguages * getLanguages(); //l10n
+      
+      static void setLanguages(AcceptLanguages *langs); //l10n
+      
+      static void clearLanguages(); //l10n      
   
    private:
       Thread();
@@ -363,6 +372,8 @@ class PEGASUS_COMMON_LINKAGE Thread
       void *_thread_parm;
       PEGASUS_THREAD_RETURN _exit_code;
       static Boolean _signals_blocked;
+      static PEGASUS_THREAD_KEY_TYPE _platform_thread_key;  //l10n
+      static Boolean _key_initialized; // l10n      
       friend class ThreadPool;
 } ;
 

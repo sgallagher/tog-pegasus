@@ -33,6 +33,8 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/ContentLanguages.h> //l10n
+#include <Pegasus/Common/MessageLoader.h>  // l10n
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -113,7 +115,18 @@ enum CIMStatusCode
     CIM_ERR_METHOD_NOT_FOUND = 17
 };
 
+// l10n - TODO the first func should go away - once all Pegasus is globalized
 PEGASUS_COMMON_LINKAGE const char* cimStatusCodeToString(CIMStatusCode code);
+
+// l10n
+PEGASUS_COMMON_LINKAGE String cimStatusCodeToString(CIMStatusCode code,
+								const ContentLanguages &contentLanguages);
+								
+// l10n 
+PEGASUS_COMMON_LINKAGE ContentLanguages cimStatusCodeToString_Thread(
+												String & message, 
+												CIMStatusCode code);								
+								
 
 PEGASUS_NAMESPACE_END
 

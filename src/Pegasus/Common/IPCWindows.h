@@ -239,6 +239,39 @@ inline PEGASUS_THREAD_TYPE PEGASUS_COMMON_LINKAGE pegasus_thread_self(void)
    return((PEGASUS_THREAD_TYPE)GetCurrentThreadId());
 }
 
+// l10n start
+typedef PEGASUS_THREAD_KEY_TYPE DWORD;
+
+inline Uint32 pegasus_key_create(PEGASUS_THREAD_KEY_TYPE * key)
+{
+	// Note: destructor is not supported
+	*key = TlsAlloc();
+	if (*key == -1)
+		return 1;
+	return 0;	
+} 
+
+inline Uint32 pegasus_key_delete(PEGASUS_THREAD_KEY_TYPE key)
+{
+	if (TlsFree(key))
+		return 0;
+	return 1;			
+} 
+
+inline void * pegasus_get_thread_specific(PEGASUS_THREAD_KEY_TYPE key)
+{
+	return TlsGetValue(key);
+} 
+
+inline Uint32 pegasus_set_thread_specific(PEGASUS_THREAD_KEY_TYPE key,
+										 void * value)
+{
+	if (TlsSetValue(key, value))
+		return 0;
+	return 1;
+} 
+// l10n end
+
 inline void PEGASUS_COMMON_LINKAGE exit_thread(PEGASUS_THREAD_RETURN rc)
 {
   _endthreadex(rc);

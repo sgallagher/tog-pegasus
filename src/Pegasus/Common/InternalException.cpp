@@ -28,12 +28,13 @@
 // Modified By: Jenny Yu (jenny_yu@am.exch.hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
-//
+// 
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>
 #include "InternalException.h"
 #include <Pegasus/Common/CIMExceptionRep.h>
+#include <Pegasus/Common/ContentLanguages.h>  // l10n
 #include "Tracer.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -120,6 +121,14 @@ const char ParseError::MSG[] = "parse error: ";
 
 const char MissingNullTerminator::MSG[] = "missing null terminator: ";
 
+//l10n
+const char MalformedLanguageHeader::MSG[] = "malformed language header: ";
+
+const char InvalidAcceptLanguageHeader::MSG[] = "invalid acceptlanguage header: ";
+
+const char InvalidContentLanguageHeader::MSG[] = "invalid contentlanguage header: ";
+//l10n
+
 const char InvalidAuthHeader::MSG[] = "Invalid Authorization header";
 
 const char UnauthorizedAccess::MSG[] = "Unauthorized access";
@@ -149,6 +158,45 @@ static String _makeCIMExceptionDescription(
     {
         tmp.append(": \"");
         tmp.append(message);
+        tmp.append("\"");
+    }
+    return tmp;
+}
+
+// l10n
+//
+// Creates a description without source file name and line number.
+//
+static String _makeCIMExceptionDescription(
+    CIMStatusCode code,
+    const String& message,
+    ContentLanguages &contentLanguages)
+{
+    String tmp;
+    tmp = cimStatusCodeToString(code, contentLanguages);
+    if (message != String::EMPTY)
+    {
+        tmp.append(": \"");
+        tmp.append(message);
+        tmp.append("\"");
+    }
+    return tmp;
+}
+
+// l10n
+//
+// Creates a description without source file name and line number.
+//
+static String _makeCIMExceptionDescription(
+    const String& cimMessage,
+    const String& extraMessage)
+{
+    String tmp;
+    tmp = cimMessage;
+    if (extraMessage != String::EMPTY)
+    {
+        tmp.append(": \"");
+        tmp.append(extraMessage);
         tmp.append("\"");
     }
     return tmp;
@@ -185,6 +233,30 @@ TraceableCIMException::TraceableCIMException(
     rep = reinterpret_cast<CIMExceptionRep*>(_rep);
     rep->file = file;
     rep->line = line;
+
+// l10n
+	// Localize the cim message from the code.  Use the language of
+	// the current thread.
+	rep->contentLanguages = cimStatusCodeToString_Thread(rep->cimMessage, code);
+}
+
+// l10n
+TraceableCIMException::TraceableCIMException(
+	const ContentLanguages& langs,
+    CIMStatusCode code,
+    const String& message,
+    const char* file,
+    Uint32 line)
+    :
+    CIMException(code, message)
+{
+    CIMExceptionRep* rep;
+    rep = reinterpret_cast<CIMExceptionRep*>(_rep);
+    rep->file = file;
+    rep->line = line;
+
+// l10n
+	rep->contentLanguages = langs;
 }
 
 TraceableCIMException::TraceableCIMException(const CIMException & cimException)
@@ -197,6 +269,9 @@ TraceableCIMException::TraceableCIMException(const CIMException & cimException)
     right = reinterpret_cast<CIMExceptionRep*>(t->_rep);
     left->file = right->file;
     left->line = right->line;
+// l10n    
+    left->contentLanguages = right->contentLanguages;    
+    left->cimMessage = right->cimMessage;
 }
 
 //
@@ -209,7 +284,21 @@ String TraceableCIMException::getDescription() const
 #else
     CIMExceptionRep* rep;
     rep = reinterpret_cast<CIMExceptionRep*>(_rep);
-    return _makeCIMExceptionDescription(rep->code, getMessage());
+// l10n  - TODO uncomment when CIMStatus code is done
+	return _makeCIMExceptionDescription(rep->code, getMessage());  
+/*	
+	if (rep->cimMessage == String::EMPTY)
+	{
+	    return _makeCIMExceptionDescription(rep->code, 
+    										getMessage(),
+    										rep->contentLanguages);    		
+	}
+	else
+	{
+		return _makeCIMExceptionDescription(rep->cimMessage,
+											getMessage());
+	}
+*/
 #endif
 }
 

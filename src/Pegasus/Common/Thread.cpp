@@ -51,6 +51,10 @@ void thread_data::default_delete(void * data)
 }
 
 Boolean Thread::_signals_blocked = false;
+// l10n
+PEGASUS_THREAD_KEY_TYPE Thread::_platform_thread_key;
+Boolean Thread::_key_initialized = false;
+
 
 // for non-native implementations
 #ifndef PEGASUS_THREAD_CLEANUP_NATIVE
@@ -115,6 +119,61 @@ void Thread::exit_self(PEGASUS_THREAD_RETURN exit_code)
 
 #endif
 
+// l10n start
+Thread * Thread::getCurrent()
+{
+    PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::getCurrent");	
+	if (!Thread::_key_initialized)
+		return NULL;    
+	return (Thread *)pegasus_get_thread_specific(_platform_thread_key); 
+}
+
+AcceptLanguages * Thread::getLanguages()
+{
+    PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::getLanguages");		
+    
+	Thread * curThrd = Thread::getCurrent();
+	if (curThrd == NULL)
+		return NULL;
+   	AcceptLanguages * acceptLangs =
+   		 (AcceptLanguages *)curThrd->reference_tsd("acceptLanguages");
+	curThrd->dereference_tsd();
+    PEG_METHOD_EXIT(); 	
+	return acceptLangs;
+}
+
+void Thread::setLanguages(AcceptLanguages *langs) //l10n
+{
+   PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::setLanguages");
+   		
+   Thread * currentThrd = Thread::getCurrent();
+   if (currentThrd != NULL)
+   {
+   		// deletes the old tsd and creates a new one
+		currentThrd->put_tsd("acceptLanguages",
+			thread_data::default_delete, 
+			sizeof(AcceptLanguages *),
+			langs);   		
+   }
+   
+   PEG_METHOD_EXIT();    		
+}
+
+void Thread::clearLanguages() //l10n
+{
+   PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::clearLanguages");
+   	
+   Thread * currentThrd = Thread::getCurrent();
+   if (currentThrd != NULL)
+   {
+   		// deletes the old tsd
+		currentThrd->delete_tsd("acceptLanguages");   		
+   }
+   
+   PEG_METHOD_EXIT();   		
+}
+// l10n end      
+
 DQueue<ThreadPool> ThreadPool::_pools(true);
 
 
@@ -177,6 +236,12 @@ ThreadPool::ThreadPool(Sint16 initial_size,
    }
    _pools.insert_last(this);
    
+   // l10n
+   if (!Thread::_key_initialized)
+   {
+	   pegasus_key_create(&Thread::_platform_thread_key);
+	   Thread::_key_initialized = true;	
+   }
 }
 
 
@@ -235,6 +300,9 @@ ThreadPool::~ThreadPool(void)
    catch(...)
    {
    }
+   
+   // l10n
+   pegasus_key_delete(Thread::_platform_thread_key);   
 }
 
 // make this static to the class
@@ -248,6 +316,14 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       PEG_METHOD_EXIT();
       throw NullPointer();
    }
+   
+// l10n
+   // Set myself into thread specific storage
+   // This will allow code to get its own Thread  
+   pegasus_set_thread_specific(Thread::_platform_thread_key, (void *) myself);
+   Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
+          "just set myself into thread specific storage");   
+   
    ThreadPool *pool = (ThreadPool *)myself->get_parm();
    if(pool == 0 ) 
    {
@@ -332,6 +408,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       {
 	 gettimeofday(deadlock_timer, NULL);
       }
+      
       gettimeofday(deadlock_timer, NULL);
       if( blocking_sem != 0 )
 	 blocking_sem->signal();
@@ -667,6 +744,7 @@ PEGASUS_THREAD_RETURN ThreadPool::_undertaker( void *parm )
    
    th->put_tsd("deadlock timer", thread_data::default_delete, sizeof(struct timeval), (void *)dldt);
    // thread will enter _loop(void *) and sleep on sleep_sem until we signal it
+  
    th->run();
    _current_threads++;
    pegasus_yield();
@@ -680,7 +758,6 @@ PEGASUS_THREAD_RETURN ThreadPool::_undertaker( void *parm )
       throw NullPointer();
    _pool.insert_first(th);
 }
-
 
 
 PEGASUS_NAMESPACE_END

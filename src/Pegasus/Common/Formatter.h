@@ -116,6 +116,8 @@ public:
 	}
 
 	String toString() const;
+	
+	friend class MessageLoader;  //l10n
 
     private:
 
@@ -147,6 +149,7 @@ public:
 	const Arg& arg7 = Arg(),
 	const Arg& arg8 = Arg(),
 	const Arg& arg9 = Arg());
+	
 };
 
 PEGASUS_NAMESPACE_END

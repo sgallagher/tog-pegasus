@@ -44,6 +44,8 @@ public:
     CIMStatusCode code;
     const char*   file;
     Uint32        line;
+// l10n    
+	String        cimMessage;
 };
 
 PEGASUS_NAMESPACE_END

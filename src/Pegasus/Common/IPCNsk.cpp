@@ -47,6 +47,28 @@ inline void try_crit(PEGASUS_CRIT_TYPE *crit) {}
 inline void destroy_crit(PEGASUS_CRIT_TYPE *crit) {}
 inline void exit_crit(PEGASUS_CRIT_TYPE *crit) {}
 PEGASUS_THREAD_TYPE pegasus_thread_self(void) {}
+// l10n start
+inline Uint32 pegasus_key_create(PEGASUS_THREAD_KEY_TYPE * key)
+{
+	return 0;
+} 
+
+inline Uint32 pegasus_key_delete(PEGASUS_THREAD_KEY_TYPE key)
+{
+	return 0;
+} 
+
+inline void * pegasus_get_thread_specific(PEGASUS_THREAD_KEY_TYPE key)
+{
+	return 0;
+} 
+
+inline Uint32 pegasus_set_thread_specific(PEGASUS_THREAD_KEY_TYPE key,
+										 void * value)
+{
+	return 0;
+} 
+// l10n end
 void exit_thread(PEGASUS_THREAD_RETURN rc) {}
 void sleep(int ms) {}
 inline void pegasus_yield(void) {}

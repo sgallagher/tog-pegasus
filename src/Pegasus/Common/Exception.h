@@ -40,10 +40,11 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMStatusCode.h>
+#include <Pegasus/Common/MessageLoader.h>  // l10n
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/ContentLanguages.h>  // l10n
 
 PEGASUS_NAMESPACE_BEGIN
-
 class ExceptionRep;
 
 /** 
@@ -64,11 +65,19 @@ public:
     ///
     Exception(const Exception& exception);
 
+// l10n
+    Exception(const MessageLoaderParms& msgParms);
+
     ///
     virtual ~Exception();
 
     ///
     virtual const String& getMessage() const;
+    
+// l10n
+    virtual const ContentLanguages& getContentLanguages() const;
+    
+	virtual void setContentLanguages(const ContentLanguages& langs);    
 
 protected:
 
@@ -77,6 +86,7 @@ protected:
     ExceptionRep * _rep;
 };
 
+// l10n TODO - uncomment the new constructors
 
 ///
 class PEGASUS_COMMON_LINKAGE IndexOutOfBoundsException : public Exception
@@ -92,6 +102,7 @@ class PEGASUS_COMMON_LINKAGE AlreadyExistsException : public Exception
 public:
     ///
     AlreadyExistsException(const String& message);
+//  AlreadyExistsException(const MessageLoaderParms& msgParms);
 };
 
 ///
@@ -100,6 +111,7 @@ class PEGASUS_COMMON_LINKAGE InvalidNameException : public Exception
 public:
     ///
     InvalidNameException(const String& name);
+//	InvalidNameException(const MessageLoaderParms& msgParms);    
 };
 
 ///
@@ -108,6 +120,7 @@ class PEGASUS_COMMON_LINKAGE InvalidNamespaceNameException : public Exception
 public:
     ///
     InvalidNamespaceNameException(const String& name);
+//	InvalidNamespaceNameException(const MessageLoaderParms& msgParms);    
 };
 
 ///
@@ -152,6 +165,7 @@ class PEGASUS_COMMON_LINKAGE MalformedObjectNameException : public Exception
 public:
     ///
     MalformedObjectNameException(const String& objectName);
+//	MalformedObjectNameException(const MessageLoaderParms& msgParms);    
 };
 
 ///
@@ -160,6 +174,7 @@ class PEGASUS_COMMON_LINKAGE BindFailedException : public Exception
 public:
     ///
     BindFailedException(const String& message);
+//	BindFailedException(const MessageLoaderParms& msgParms);    
 };
 
 ///
@@ -168,6 +183,7 @@ class PEGASUS_COMMON_LINKAGE InvalidLocatorException : public Exception
 public:
     ///
     InvalidLocatorException(const String& locator);
+//	InvalidLocatorException(const MessageLoaderParms& msgParms);   
 };
 
 ///
@@ -184,6 +200,7 @@ class PEGASUS_COMMON_LINKAGE CannotConnectException : public Exception
 public:
     ///
     CannotConnectException(const String& message);
+//	CannotConnectException(const MessageLoaderParms& msgParms);   
 };
 
 ///
@@ -216,6 +233,7 @@ class PEGASUS_COMMON_LINKAGE SSLException: public Exception
 public:
     ///
     SSLException(const String& message);
+//	SSLException(const MessageLoaderParms& msgParms);    
 };
 
 ///
@@ -223,7 +241,8 @@ class PEGASUS_COMMON_LINKAGE DateTimeOutOfRangeException : public Exception
 {
 public:
     ///
-    DateTimeOutOfRangeException(const String& message); 
+    DateTimeOutOfRangeException(const String& message);
+//	DateTimeOutOfRangeException(const MessageLoaderParms& msgParms);     
 }; 
 
 /** The CIMException defines the CIM exceptions that are formally defined in
@@ -237,6 +256,11 @@ public:
     CIMException(
 	CIMStatusCode code = CIM_ERR_SUCCESS,
 	const String& message = String::EMPTY);
+	
+// l10n	
+    CIMException(
+	CIMStatusCode code,
+	const MessageLoaderParms& msgParms);	
 
     ///
     CIMException(const CIMException & cimException);

@@ -78,12 +78,52 @@ static const char* _cimMessages[] =
     "CIM_ERR_METHOD_NOT_FOUND: The specified extrinsic method does not exist"
 };
 
+// l10n TOD0 - the first func should go away when all Pegasus is globalized
+
 const char* cimStatusCodeToString(CIMStatusCode code)
 {
     if (Uint32(code) < CIM_ERR_METHOD_NOT_FOUND)
 	return _cimMessages[Uint32(code)];
 
     return "Unrecognized CIM status code";
+}
+
+
+String cimStatusCodeToString(CIMStatusCode code,
+							const ContentLanguages& contentLanguages)
+{
+	// l10n TODO - finish and uncomment this
+	/*
+	AcceptLanguages acceptLanguages; 
+	if (contentLanguages.size() == 0)
+	{
+		return MessageLoader::getMessage(....use AcceptLanguages::EMPTY)
+	} 
+	else
+	{
+		build AcceptLanguages from contentLanguages, use in getMessage
+	}
+	*/
+	
+    return String("Unrecognized CIM status code");
+}
+
+// l10n 
+ContentLanguages cimStatusCodeToString_Thread(String & message, CIMStatusCode code)
+{
+	// l10n TODO - finish when we have msg ids
+/*	
+	String msgId = "abc";
+	String dftMsg = message;
+*/
+	
+/*	
+	MessageLoaderParms parms(msgId, dftMsg);
+	parms.useThreadLocale = true;
+	message = MessageLoader::getMessage(parms);
+	return parms.contentlanguages;
+*/
+	return ContentLanguages::EMPTY;
 }
 
 PEGASUS_NAMESPACE_END

@@ -19,6 +19,14 @@ SOURCES = \
     AsyncOpNode.cpp \
     AuthenticationInfoRep.cpp \
     Base64.cpp \
+    LanguageParser.cpp \
+    LanguageElement.cpp \
+    AcceptLanguageElement.cpp \
+    ContentLanguageElement.cpp \
+    LanguageElementContainer.cpp \
+    AcceptLanguages.cpp \
+    ContentLanguages.cpp \
+    MessageLoader.cpp \
     CGIQueryString.cpp \
     Char16.cpp \
     CIMClass.cpp \

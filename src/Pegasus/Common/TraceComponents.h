@@ -120,7 +120,8 @@ static char const* TRACE_COMPONENT_LIST[] =
     "ControlProvider",
     "AsyncOpNode",
     "CIMOMHandle",
-    "BinaryMessageHandler"
+    "BinaryMessageHandler",
+    "L10N"
 };
 /** Constants identifying the Trace components. These constants are used by 
     the component to identify its Trace messages. The component ID needs to
@@ -176,7 +177,8 @@ enum TRACE_COMPONENT_ID
     TRC_CONTROLPROVIDER,
     TRC_ASYNC_OPNODE,
     TRC_CIMOM_HANDLE,
-    TRC_BINARY_MSG_HANDLER
+    TRC_BINARY_MSG_HANDLER,
+    TRC_L10N
 };
 
 PEGASUS_NAMESPACE_END

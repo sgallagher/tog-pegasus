@@ -395,7 +395,10 @@ Uint64 OperatingSystem::GetMaxProcessMemorySize(void) const
 
     ::GetSystemInfo(&sys);
 
-    MaxProcessMemorySize = (DWORD(sys.lpMaximumApplicationAddress) - DWORD(sys.lpMinimumApplicationAddress)) / 1024;
+    MaxProcessMemorySize =
+                (reinterpret_cast<char *>(sys.lpMaximumApplicationAddress) -
+                 reinterpret_cast<char *>(sys.lpMinimumApplicationAddress))
+                                / 1024;
 
     return(MaxProcessMemorySize);
 }

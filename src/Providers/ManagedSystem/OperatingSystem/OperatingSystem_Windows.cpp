@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -36,13 +36,13 @@
 //
 //%////////////////////////////////////////////////////////////////////////////
 
-#include <windows.h>  
+#include <windows.h>
 
 #include "OperatingSystem.h"
 
 #include <sstream>
 #include <iomanip>
-   
+
 
 OperatingSystem::OperatingSystem(void)
 {
@@ -85,7 +85,7 @@ Boolean OperatingSystem::getName(String& osName)
 
     ::GetVersionEx(&osvi);
 
-  
+
     // Get the Base Windows Platform
     switch (osvi.dwPlatformId)
     {
@@ -110,22 +110,22 @@ Boolean OperatingSystem::getName(String& osName)
             if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 0)
             {
                 versionName.assign("Microsoft Windows 95");
-                if ( osvi.szCSDVersion[1] == 'C' || 
+                if ( osvi.szCSDVersion[1] == 'C' ||
                      osvi.szCSDVersion[1] == 'B' )
                      versionName.append("OSR2");
-            } 
+            }
 
             if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 10)
             {
                 versionName.assign("Microsoft Windows 98");
                 if ( osvi.szCSDVersion[1] == 'A' )
                     versionName.append("SE" );
-            } 
+            }
 
             if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 90)
             {
                 versionName.assign("Microsoft Windows Me");
-            } 
+            }
             break;
 
         case VER_PLATFORM_WIN32s:
@@ -134,16 +134,16 @@ Boolean OperatingSystem::getName(String& osName)
             break;
     }
 
-        
+
     // The following block may be used as a guide to get additional platform
     // information, if the Windows Platform SDK is installed with Visual C++.
     // If so, remember to use the OSVERSIONINFOEX structure instead of
     // OSVERSIONINFO as given in this implementation.
 
-    // NOTE : Additional code changes and header information may be 
+    // NOTE : Additional code changes and header information may be
     // required to make the following block work
-    
-    /* 
+
+    /*
         // Test for the workstation type.
         if ( osvi.wProductType == VER_NT_WORKSTATION )
         {
@@ -178,16 +178,16 @@ Boolean OperatingSystem::getName(String& osName)
                      versionName.append( " Server" );
              }
 
-             else  // Windows NT 4.0 
+             else  // Windows NT 4.0
              {
                  if( osvi.wSuiteMask & VER_SUITE_ENTERPRISE )
                      versionName.append ("Server 4.0, Enterprise Edition" );
                  else
                      versionName.append ( "Server 4.0" );
-             }   
+             }
         } // EndIf for VER_NT_SERVER
      */
-     
+
     osName.assign(versionName);
     return true;
 }
@@ -372,7 +372,7 @@ Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32& numberOfLicensedUsers)
 
 Boolean OperatingSystem::getNumberOfUsers(Uint32& numberOfUsers)
 {
-    return false; 
+    return false;
 }
 
 Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
@@ -382,7 +382,7 @@ Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
 
 Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32& mMaxProcesses)
 {
-    return false; 
+    return false;
 }
 
 Boolean OperatingSystem::getTotalSwapSpaceSize(Uint64& mTotalSwapSpaceSize)
@@ -404,7 +404,7 @@ Boolean OperatingSystem::getTotalVirtualMemorySize(Uint64& total)
 
    total = mem.dwTotalVirtual / 1024;
 
-   if (total) 
+   if (total)
       return true;
    else
       return false;
@@ -515,7 +515,10 @@ Boolean OperatingSystem::getMaxProcessMemorySize(Uint64& maxProcessMemorySize)
 
    ::GetSystemInfo(&sys);
 
-   maxProcessMemorySize = (DWORD(sys.lpMaximumApplicationAddress) - DWORD(sys.lpMinimumApplicationAddress)) / 1024;
+   maxProcessMemorySize =
+                (reinterpret_cast<char *>(sys.lpMaximumApplicationAddress) -
+                 reinterpret_cast<char *>(sys.lpMinimumApplicationAddress))
+                                / 1024;
 
    return(true);
 }

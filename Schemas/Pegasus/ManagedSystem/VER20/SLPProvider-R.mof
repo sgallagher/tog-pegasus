@@ -22,7 +22,7 @@ instance of PG_ProviderCapabilities
     ProviderModuleName = "SLPProvider";
     ProviderName = "SLPProvider";
     CapabilityID = "1";
-    ClassName = "CIM_WBEMSLPTemplate";
+    ClassName = "PG_WBEMSLPTemplate";
     Namespaces = { "root/cimv2" };
     ProviderType = { 2 };
     SupportedProperties = NULL;

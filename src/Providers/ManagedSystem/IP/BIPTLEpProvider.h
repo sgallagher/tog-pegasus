@@ -104,7 +104,12 @@ private:
   // private member to store handle passed by initialize()
   CIMOMHandle _cimomHandle;
 
-  Array<CIMKeyBinding> _constructKeyBindings(const IPInterface&);
+  Array<CIMKeyBinding> _constructKeyBindings(const CIMNamespaceName &nameSpace,
+					     const IPInterface &ipif);
+
+  Array<CIMKeyBinding> _constructReference(const CIMName className,
+					   const String sysName,
+					   const String instName);
 
   // Used to add properties to an instance
   CIMInstance _constructInstance(const CIMName &clnam,

@@ -249,7 +249,7 @@ void IPPEpProvider::enumerateInstanceNames(const OperationContext &ctx,
 
 #ifdef DEBUG
     cout << "IPPEpProvider::enumerateInstanceNames() _ifList Initialized"
-   	 << endl;
+    	 << endl;
 #endif
 
     for (i = 0; i < _ifList.size(); i++)
@@ -475,6 +475,7 @@ void IPPEpProvider::terminate()
 #ifdef DEBUG
   cout << "IPPEpProvider::terminate()" << endl;
 #endif
+
   delete this;
 }
 
@@ -642,11 +643,6 @@ CIMInstance IPPEpProvider::_constructInstance(
       inst.addProperty(CIMProperty(PROPERTY_OTHER_TYPE_DESCRIPTION,s));
     }
   }
-
-#ifdef DEBUG
-  cout << "IPPEpProvider::_constructInstance() -- OtherTypeDescription set"
-	<< endl;
-#endif
 
 // CIM_IPProtocolEndpoint
 

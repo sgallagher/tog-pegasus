@@ -260,7 +260,7 @@ void IPRouteProvider::enumerateInstanceNames(const OperationContext &ctx,
 
 #ifdef DEBUG
     cout << "IPRouteProvider::enumerateInstanceNames() _rList Initialized"
-   	 << endl;
+    	 << endl;
 #endif
 
     for (i = 0; i < _rList.size(); i++)
@@ -297,7 +297,7 @@ void IPRouteProvider::getInstance(const OperationContext &ctx,
                  const Boolean includeClassOrigin,
                  const CIMPropertyList        &propertyList,
                  InstanceResponseHandler &handler)
-{	
+{
 #ifdef DEBUG
   cout << "IPRouteProvider::getInstance(" << instanceName.toString() << ")" 
        << endl;
@@ -523,6 +523,7 @@ void IPRouteProvider::terminate()
 #ifdef DEBUG
   cout << "IPRouteProvider::terminate()" << endl;
 #endif
+
   delete this;
 }
 
@@ -634,10 +635,8 @@ CIMInstance IPRouteProvider::_constructInstance(
 #endif
 
   String s;
-  Uint16 i16;
   CIMDateTime d;
   Boolean b;
-  int i;
 
   CIMInstance inst(className);
 

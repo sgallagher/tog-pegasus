@@ -85,10 +85,6 @@ NOTES             :
 */
 Boolean IPInterface::getDescription(String& s) const
 {
-#ifdef DEBUG
-  cout << "IPInterface::getDescription()" << endl;
-#endif
-
   String sn;
 
   if (getSystemName(sn))
@@ -166,9 +162,6 @@ NOTES             :
 */
 Boolean IPInterface::getSystemName(String& s)
 {
-#ifdef DEBUG
-  cout << "IPInterface::getSystemName()" << endl;
-#endif
   s = _hostname;
   return true;
 }
@@ -202,10 +195,6 @@ NOTES             :
 */
 Boolean IPInterface::getProtocolType(Uint16& i16) const
 {
-
-#ifdef DEBUG
-  cout << "IPInterface::getProtocolType()" << endl;
-#endif
 
 /*
   From the MOF for CIM_ProtocolEndpoint.ProtocolType:
@@ -297,10 +286,6 @@ NOTES             :
 */
 Boolean IPInterface::getAddressType(Uint16& i16) const
 {
-#ifdef DEBUG
-  cout << "IPInterface::getAddressType()" << endl;
-#endif
-
   /*
       From CIM v2.6.0 MOF for CIM_IPProtocolEndpoint.AddressType:
 	 ValueMap {"0", "1", "2"},
@@ -333,10 +318,6 @@ NOTES             :
 */
 Boolean IPInterface::getIPVersionSupport(Uint16& i16) const
 {
-#ifdef DEBUG
-  cout << "IPInterface::getIPVersionSupport()" << endl;
-#endif
-
   /*
       From CIM v2.6.0 MOF for CIM_IPProtocolEndpoint.IPVersionSupport:
 	 ValueMap {"0", "1", "2"},
@@ -392,10 +373,6 @@ NOTES             :
 */
 String IPInterface::get_LANInterfaceName(void) const
 {
-#ifdef DEBUG
-  cout << "IPInterface::get_LANInterfaceName()" << endl;
-#endif
-
   // Get rid of everything after the colon (":") if the name is of the
   // form "lanX:Y", e.g. "lan0:1".
 
@@ -423,10 +400,6 @@ NOTES             :
 */
 Boolean IPInterface::bindsToLANInterface(void) const
 {
-#ifdef DEBUG
-  cout << "IPInterface::bindsToLANInterface()" << endl;
-#endif
-
   // if this is a local ("lo") interface, then it doesn't bind to
   // an actual LAN Interface
 
@@ -449,12 +422,8 @@ NOTES             :
 */
 void IPInterface::initSystemName(void)
 {
-  struct hostent *he;
-  char hn[MAXHOSTNAMELEN];
-
-#ifdef DEBUG
-  cout << "IPInterface::initSystemName()" << endl;
-#endif
+    struct hostent *he;
+    char hn[MAXHOSTNAMELEN];
 
     // Only initialize _hostname if it's not already been done.
     // We need to do this check since we don't know which provider
@@ -631,24 +600,12 @@ InterfaceList::InterfaceList()
 
   // Create the interface list entries
 
-#ifdef DEBUG
-  cout << "Creating interface list entries" << endl;
-#endif
-
   for (i=0; i < numip ; i++) {
 
     IPInterface _ipif;
 
-#ifdef DEBUG
-    cout << "Creating interface list entry #" << i << endl;
-#endif
-
     t.s_addr = addr_buf[i].Addr;
     _ipif.set_address(inet_ntoa(t));
-
-#ifdef DEBUG
-    cout << "IP Address: " << inet_ntoa(t) << endl;
-#endif
 
     // ATTN-LEW-2002-07-30: Enhance this to deal with IPv6 too.
     _ipif.set_protocol(PROTOCOL_IPV4);
@@ -658,18 +615,11 @@ InterfaceList::InterfaceList()
 	if (sin->sin_addr.s_addr == t.s_addr)
 	{
 	    _ipif.set_simpleIfName(ifconf.ifc_req[j].ifr_name);
-#ifdef DEBUG
-	    cout << "Interface: " << ifconf.ifc_req[j].ifr_name << endl;
-#endif
         }
     } /* for */
 
     t.s_addr = addr_buf[i].NetMask;
     _ipif.set_subnetMask(inet_ntoa(t));
-
-#ifdef DEBUG
-    cout << "Subnet Mask: " << inet_ntoa(t) << endl;
-#endif
 
     _ifl.push_back(_ipif);   // Add another IP interface to the list
 
@@ -715,10 +665,6 @@ Boolean InterfaceList::findInterface(const String &ifName,
 {
     // ifName has the format <Protocol>_<InterfaceName>,
     // for example "IPv4_lan0".
-
-#ifdef DEBUG
-    cout << "InterfaceList::findInterface()" << endl;
-#endif
 
     int i;
 
@@ -940,10 +886,6 @@ NOTES             :
 */
 Boolean IPRoute::getAddressType(Uint16& i16) const
 {
-#ifdef DEBUG
-  cout << "IPRoute::getAddressType()" << endl;
-#endif
-
   /*
       From CIM v2.6.0 MOF for CIM_IPRoute.AddressType:
 	 ValueMap {"0", "1", "2"},
@@ -1091,10 +1033,6 @@ RouteList::RouteList()
 
   // Create the IP Route List entries
 
-#ifdef DEBUG
-  cout << "Creating IP Route list entries" << endl;
-#endif
-
   for (i=0; i < count ; i++)
   {
 
@@ -1103,10 +1041,6 @@ RouteList::RouteList()
     // check to see that this is a valid type to represent
     if (route_buf[i].Type == 3 || route_buf[i].Type == 4)
     {
-#ifdef DEBUG
-	cout << "Creating IP Route list entry #" << i << endl;
-#endif
-
         t.s_addr = route_buf[i].Dest;
 	_ipr.set_destAddr(inet_ntoa(t));
 
@@ -1164,10 +1098,6 @@ Boolean RouteList::findRoute(const String &destAddr,
 			     const Uint16 &addrType,
 			     IPRoute      &ipRInst) const
 {
-#ifdef DEBUG
-    cout << "RouteList::findRoute()" << endl;
-#endif
-
     int i;
 
     for (i = 0; i < _iprl.size(); i++)
@@ -1190,8 +1120,8 @@ Boolean RouteList::findRoute(const String &destAddr,
 
 #ifdef DEBUG
    cout << "RouteList::findRoute(): NOT FOUND destAddr=" << destAddr <<
-	", destMask=" << destMask <<
-	", addrType=" << addrType << endl;
+    	", destMask=" << destMask <<
+    	", addrType=" << addrType << endl;
 #endif
 
     // IP Route not found

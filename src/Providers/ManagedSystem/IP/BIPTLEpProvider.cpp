@@ -240,7 +240,7 @@ void BIPTLEpProvider::enumerateInstanceNames(const OperationContext &ctx,
 
 #ifdef DEBUG
     cout << "BIPTLEpProvider::enumerateInstanceNames() _ifList Initialized"
-   	 << endl;
+      	 << endl;
 #endif
 
     for (i = 0; i < _ifList.size(); i++)
@@ -253,7 +253,7 @@ void BIPTLEpProvider::enumerateInstanceNames(const OperationContext &ctx,
 	    handler.deliver(
 		CIMObjectPath(String::EMPTY, // hostname
 			nameSpace, CLASS_PG_BINDS_IP_TO_LAN_ENDPOINT,
-			_constructKeyBindings(_ipif) ) );
+			_constructKeyBindings(nameSpace, _ipif) ) );
 	}
     }
 
@@ -332,9 +332,6 @@ void BIPTLEpProvider::getInstance(const OperationContext &ctx,
       {
         keysFound |= 1;
 	lepName = refName;
-#ifdef DEBUG
-        cout << "BIPTLEpProvider::getInstance(): lepName=" << lepName << endl;
-#endif
       }
       else
          throw CIMInvalidParameterException(keyValue+": bad value for key "+
@@ -350,9 +347,6 @@ void BIPTLEpProvider::getInstance(const OperationContext &ctx,
       {
         keysFound |= 2;
 	ipeName = refName;
-#ifdef DEBUG
-        cout << "BIPTLEpProvider::getInstance(): ipeName=" << ipeName << endl;
-#endif
       }
       else
          throw CIMInvalidParameterException(keyValue+": bad value for key "+
@@ -467,6 +461,7 @@ void BIPTLEpProvider::terminate()
 #ifdef DEBUG
   cout << "BIPTLEpProvider::terminate()" << endl;
 #endif
+
   delete this;
 }
 
@@ -482,54 +477,48 @@ PARAMETERS        : className, Process
 ================================================================================
 */
 Array<CIMKeyBinding> BIPTLEpProvider::_constructKeyBindings(
-					const IPInterface& _ipif)
+					const CIMNamespaceName &nameSpace,
+					const IPInterface &_ipif)
 {
 #ifdef DEBUG
   cout << "BIPTLEpProvider::_constructKeyBindings()" << endl;
 #endif
 
   Array<CIMKeyBinding> keyBindings;
-  String s;
-  String _a, _d;   // Antecedent and Dependent REF strings
+  String s, sn;
+  CIMObjectPath op;
 
-  // Reference BNF:  <Qualifyingclass>.<key1>=<value1>[,<keyx>=<valuex>]*
-
-  // Build the references
-
-  _a = CLASS_CIM_LAN_ENDPOINT.getString() + String(".") +
-       PROPERTY_SYSTEM_CREATION_CLASS_NAME.getString() + String("=\"") +
-       CLASS_CIM_UNITARY_COMPUTER_SYSTEM.getString() + String("\",") +
-       PROPERTY_SYSTEM_NAME.getString() + String("=\"");
-
-  _d = CLASS_CIM_IP_PROTOCOL_ENDPOINT.getString() + String(".") +
-       PROPERTY_SYSTEM_CREATION_CLASS_NAME.getString() + String("=\"") +
-       CLASS_CIM_UNITARY_COMPUTER_SYSTEM.getString() + String("\",") +
-       PROPERTY_SYSTEM_NAME.getString() + String("=\"");
-
-  if (_ipif.getSystemName(s))
-  {
-      _a.append (s);
-      _d.append (s);
-  }
-  else
+  if (_ipif.getSystemName(sn) == false)
   {
 	throw CIMNotSupportedException(
 		String("Host-specific module doesn't support Key `") +
 		PROPERTY_SYSTEM_NAME.getString() + String("'"));
   }
 
-  _a.append (String("\",") + PROPERTY_CREATION_CLASS_NAME.getString() + 
-        String("=\"") + CLASS_CIM_LAN_ENDPOINT.getString() + String("\",") +
-	PROPERTY_NAME.getString() + String("=\"") + 
-        _ipif.get_LANInterfaceName());
+  // Construct the key bindings
+  op = CIMObjectPath(sn, //hostname
+		       nameSpace,
+		       CLASS_CIM_LAN_ENDPOINT,
+                       _constructReference(
+		                   CLASS_CIM_LAN_ENDPOINT,
+				   sn,_ipif.get_LANInterfaceName()) );
 
-  _d.append (String("\",") + PROPERTY_CREATION_CLASS_NAME.getString() + 
-        String("=\"") + CLASS_CIM_IP_PROTOCOL_ENDPOINT.getString() + 
-        String("\",") + PROPERTY_NAME.getString() + String("=\""));
+  keyBindings.append(CIMKeyBinding(PROPERTY_ANTECEDENT,
+                                   op.toString(),
+                                   CIMKeyBinding::REFERENCE));
 
   if (_ipif.getName(s))
   {
-	_d.append (s);
+	  op = CIMObjectPath(sn, //hostname
+			       nameSpace,
+			       CLASS_CIM_IP_PROTOCOL_ENDPOINT,
+                               _constructReference(
+			                   CLASS_CIM_IP_PROTOCOL_ENDPOINT,
+					   sn,s) );
+
+	  keyBindings.append(CIMKeyBinding(PROPERTY_DEPENDENT,
+			     op.toString(),
+                             CIMKeyBinding::REFERENCE));
   }
   else
   {
@@ -538,28 +527,57 @@ Array<CIMKeyBinding> BIPTLEpProvider::_constructKeyBindings(
 		PROPERTY_NAME.getString() + String("'"));
   }
 
-  _a.append ("\"");
-  _d.append ( "\"");
-
-#ifdef DEBUG
-  cout << "BIPTLEpProvider::_constructKeyBindings(): Antecedent = `" +
-	_a + "'"  << endl;
-  cout << "BIPTLEpProvider::_constructKeyBindings(): Dependent = `" +
-	_d + "'"  << endl;
-#endif
-
-  // Construct the key bindings
-  keyBindings.append(CIMKeyBinding(PROPERTY_ANTECEDENT,
-	    	                _a, CIMKeyBinding::REFERENCE));
-
-  keyBindings.append(CIMKeyBinding(PROPERTY_DEPENDENT,
-		                _d, CIMKeyBinding::REFERENCE));
-
 #ifdef DEBUG
   cout << "BIPTLEpProvider::_constructKeyBindings() -- done" << endl;
 #endif
 
   return keyBindings;
+}
+
+
+/*
+================================================================================
+NAME              : _constructReference
+DESCRIPTION       : Constructs a reference pointing to the appropriate class
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+PARAMETERS        : className, Process
+================================================================================
+*/
+Array<CIMKeyBinding> BIPTLEpProvider::_constructReference(
+					CIMName className, String sysName,
+					String instName)
+{
+#ifdef DEBUG
+  cout << "BIPTLEpProvider::_constructReference()" << endl;
+#endif
+
+  Array<CIMKeyBinding> kba;
+
+  // Construct the key bindings
+  kba.append(CIMKeyBinding(PROPERTY_SYSTEM_CREATION_CLASS_NAME,
+	    	                CLASS_CIM_UNITARY_COMPUTER_SYSTEM.getString(),
+				CIMKeyBinding::STRING));
+
+  kba.append(CIMKeyBinding(PROPERTY_SYSTEM_NAME,
+	    	                sysName,
+				CIMKeyBinding::STRING));
+
+  kba.append(CIMKeyBinding(PROPERTY_CREATION_CLASS_NAME,
+	    	                className.getString(),
+				CIMKeyBinding::STRING));
+
+  kba.append(CIMKeyBinding(PROPERTY_NAME,
+	    	                instName,
+				CIMKeyBinding::STRING));
+
+#ifdef DEBUG
+  cout << "BIPTLEpProvider::_constructReference() -- done" << endl;
+#endif
+
+  return kba;
 }
 
 /*
@@ -595,7 +613,7 @@ CIMInstance BIPTLEpProvider::_constructInstance(
   inst.setPath(CIMObjectPath(String::EMPTY, // hostname
                              nameSpace,
                              CLASS_PG_BINDS_IP_TO_LAN_ENDPOINT,
-                             _constructKeyBindings(_ipif)));
+                             _constructKeyBindings(nameSpace, _ipif)));
 
 // ======================================================
 // The following properties are in CIM_ServiceAccessPoint
@@ -670,12 +688,6 @@ Boolean BIPTLEpProvider::_goodPERefKeys(const CIMObjectPath &instName,
       CIMName keyName = kb.getName();
       String keyValue = kb.getValue();
 
-#ifdef DEBUG
-      cout << "BIPTLEpProvider::_goodPERefKeys(): keyName=" << 
-              keyName.getString() <<
-              ", keyValue=" << keyValue << endl;
-#endif
-
       // SystemCreationClassName
       if (keyName.equal (PROPERTY_SYSTEM_CREATION_CLASS_NAME))
       {
@@ -721,11 +733,6 @@ Boolean BIPTLEpProvider::_goodPERefKeys(const CIMObjectPath &instName,
 
    } // for
    
-#ifdef DEBUG
-   cout << "BIPTLEpProvider::_goodPERefKeys(): rccn =" << rccn <<
-           ", rname=" << rname << endl;
-#endif
-
   // We could get here if we didn't get all the keys, which
   // could happen if the right number of keys were supplied,
   // and they all had valid names and values, but there were

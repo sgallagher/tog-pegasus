@@ -34,7 +34,7 @@
 #include <cstdlib>
 #include <cctype>
 #include <iostream>
-#include <ostream>
+//#include <ostream>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
@@ -79,10 +79,11 @@ public:
 	 * @param variant String - variant ex: rab-oof
 	 * @param quality Real32 - quality associated with the language, defaults to 1.0
 	 */
-	LanguageElement::LanguageElement(String language, 
-									 String country,
-									 String variant,
-									 Real32 quality = 1);
+	LanguageElement(String language, 
+				 String country,
+				 String variant,
+				 Real32 quality = 1);
+
 	/** 
 	 * Constructor
 	 * @param language_tag String language value

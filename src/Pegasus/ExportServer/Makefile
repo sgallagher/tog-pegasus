@@ -10,6 +10,7 @@ LIBRARY = pegexportserver
 
 LIBRARIES = \
     $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX) \
+    $(LIB_DIR)/$(LIB_PREFIX)pegconfig$(LIB_SUFFIX) \
     $(LIB_DIR)/$(LIB_PREFIX)pegprovider2$(LIB_SUFFIX) \
     $(LIB_DIR)/$(LIB_PREFIX)pegrepository$(LIB_SUFFIX) 
 

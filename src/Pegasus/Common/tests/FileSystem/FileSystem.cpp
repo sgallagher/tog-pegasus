@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
-// Revision 1.1  2001/01/14 19:53:46  mike
-// Initial revision
+// Revision 1.2  2001/01/14 23:39:04  mike
+// fixed broken regression test
+//
+// Revision 1.1.1.1  2001/01/14 19:53:46  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -50,6 +53,17 @@ int main()
 
     Array<String> paths;
     assert( FileSystem::getDirectoryContents("./testdir", paths) );
+
+
+    for (Uint32 i = 0; i < paths.getSize(); i++)
+    {
+	if (paths[i] == "CVS")
+	{
+	    paths.remove(i);
+	    break;
+	}
+    }
+
     BubbleSort(paths);
     assert(paths.getSize() == 3);
     assert(paths[0] == "a");

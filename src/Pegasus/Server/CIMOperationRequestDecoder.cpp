@@ -538,7 +538,28 @@ void CIMOperationRequestDecoder::handleMethodCall(
          return;
       }
 
-      if (strcmp(dtdVersion, "2.0") != 0)
+      // We accept DTD version 2.x (see Bugzilla 1556)
+
+      Boolean dtdVersionAccepted = false;
+
+      if ((dtdVersion[0] == '2') &&
+          (dtdVersion[1] == '.') &&
+          (dtdVersion[2] != 0))
+      {
+         // Verify that all characters after the '.' are digits
+         Uint32 index = 2;
+         while (isdigit(dtdVersion[index]))
+         {
+            index++;
+         }
+
+         if (dtdVersion[index] == 0)
+         {
+            dtdVersionAccepted = true;
+         }
+      }
+
+      if (!dtdVersionAccepted)
       {
       	//l10n
          //sendHttpError(queueId,
@@ -596,9 +617,30 @@ void CIMOperationRequestDecoder::handleMethodCall(
          return;
       }
 
-      // We only support protocol version 1.0
+      // We accept protocol version 1.x (see Bugzilla 1556)
 
-      if (!String::equalNoCase(protocolVersion, "1.0"))
+      Boolean protocolVersionAccepted = false;
+
+      if ((protocolVersion.size() >= 3) &&
+          (protocolVersion[0] == '1') &&
+          (protocolVersion[1] == '.'))
+      {
+         // Verify that all characters after the '.' are digits
+         Uint32 index = 2;
+         while ((index < protocolVersion.size()) &&
+                (protocolVersion[index] >= '0') &&
+                (protocolVersion[index] <= '9'))
+         {
+            index++;
+         }
+
+         if (index == protocolVersion.size())
+         {
+            protocolVersionAccepted = true;
+         }
+      }
+
+      if (!protocolVersionAccepted)
       {
          // See Specification for CIM Operations over HTTP section 4.3
          //l10n

@@ -1719,7 +1719,8 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
                         //  Remove entries from the subscription hash tables
                         //
                         _removeFromHashTables (subscriptionInstance,
-                            indicationSubclasses, sourceNamespaceName);
+                            indicationSubclasses, sourceNamespaceName,
+                            indicationProviders);
                     }
                 }
             }
@@ -4479,9 +4480,9 @@ Boolean IndicationService::_providerInUse (
                       "IndicationService::_providerInUse");
 
     //
-    // Do not call any other methods that need _activeSubscriptionsTableLock
+    //  The caller must acquire a lock on the Active Subscriptions table
+    //  before calling
     //
-    ReadLock lock (_activeSubscriptionsTableLock);
 
     //
     //  Iterate through the subscription table
@@ -6313,18 +6314,7 @@ void IndicationService::_handleCreateResponseAggregation (
         //  At least one provider accepted the subscription
         //
 
-        //
-        //  Check each provider to see if it is not yet in use by any 
-        //  subscription, and therefore must be enabled
-        //
         Array <ProviderClassList> enableProviders;
-        for (Uint32 k = 0; k < acceptedProviders.size (); k++)
-        {
-            if (!_providerInUse (acceptedProviders [k].provider))
-            {
-                enableProviders.append (acceptedProviders [k]);
-            }
-        }
 
         if (operationAggregate->getOrigType () ==
             CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE)
@@ -6343,36 +6333,17 @@ void IndicationService::_handleCreateResponseAggregation (
             //
             //  Update the entry in the active subscriptions hash table
             //
-            String activeSubscriptionsKey = _generateActiveSubscriptionsKey
-                (request->subscriptionInstance.getPath ());
-            ActiveSubscriptionsTableEntry tableValue;
-            if (_lockedLookupActiveSubscriptionsEntry (activeSubscriptionsKey,
-                tableValue))
-            {
-                tableValue.providers.append (provider);
-                {
-                    WriteLock lock (_activeSubscriptionsTableLock);
-                    _removeActiveSubscriptionsEntry (activeSubscriptionsKey);
-                    _insertActiveSubscriptionsEntry (tableValue.subscription, 
-                        tableValue.providers);
-                }
+            enableProviders = _updateHashTable
+                (request->subscriptionInstance.getPath (), provider, true);
 
-                //
-                //  Send Enable message to each provider that accepted 
-                //  subscription
-                //
+            //
+            //  Send Enable message to each provider that accepted 
+            //  subscription
+            //
+            if (enableProviders.size () > 0)
+            {
                 _sendEnable (enableProviders, 
                     operationAggregate->getOrigRequest ());
-            }
-            else
-            {
-                PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL2, 
-                    "Subscription (" + activeSubscriptionsKey +
-                    ") not found in ActiveSubscriptionsTable");
-                //
-                //  The subscription may have been deleted in the mean time
-                //  If so, no further update is required
-                //
             }
         }
         else if (operationAggregate->getOrigType () ==
@@ -6404,40 +6375,20 @@ void IndicationService::_handleCreateResponseAggregation (
                 }
             }
 
-
             //
             //  Update the entry in the active subscriptions hash table
             //
-            String activeSubscriptionsKey = _generateActiveSubscriptionsKey
-                (request->subscriptionInstance.getPath ());
-            ActiveSubscriptionsTableEntry tableValue;
-            if (_lockedLookupActiveSubscriptionsEntry (activeSubscriptionsKey,
-                tableValue))
-            {
-                tableValue.providers.append (provider);
-                {
-                    WriteLock lock (_activeSubscriptionsTableLock);
-                    _removeActiveSubscriptionsEntry (activeSubscriptionsKey);
-                    _insertActiveSubscriptionsEntry (tableValue.subscription, 
-                        tableValue.providers);
-                }
+            enableProviders = _updateHashTable
+                (request->subscriptionInstance.getPath (), provider, true);
     
-                //
-                //  Send Enable message to each provider that accepted 
-                //  subscription
-                //
+            //
+            //  Send Enable message to each provider that accepted 
+            //  subscription
+            //
+            if (enableProviders.size () > 0)
+            {
                 _sendEnable (enableProviders, 
                     operationAggregate->getOrigRequest ());
-            }
-            else
-            {
-                //
-                //  The subscription may have been deleted in the mean time
-                //  If so, no further update is required
-                //
-                PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL2, 
-                    "Subscription (" + activeSubscriptionsKey +
-                    ") not found in ActiveSubscriptionsTable");
             }
         }
         else if (operationAggregate->getOrigType () ==
@@ -6474,7 +6425,7 @@ void IndicationService::_handleCreateResponseAggregation (
                 //
                 //  Insert entries into the subscription hash tables
                 //
-                _insertToHashTables (instance, 
+                enableProviders = _insertToHashTables (instance, 
                     acceptedProviders,
                     operationAggregate->getIndicationSubclasses (), 
                     request->nameSpace);
@@ -6496,7 +6447,8 @@ void IndicationService::_handleCreateResponseAggregation (
             //
             //  Insert entries into the subscription hash tables
             //
-            _insertToHashTables (request->subscriptionInstance, 
+            enableProviders = _insertToHashTables 
+                (request->subscriptionInstance, 
                 acceptedProviders,
                 operationAggregate->getIndicationSubclasses (), 
                 request->nameSpace);
@@ -6730,6 +6682,8 @@ void IndicationService::_handleDeleteResponseAggregation (
         (CIMDeleteSubscriptionRequestMessage *) 
             operationAggregate->getRequest (0);
 
+    Array <ProviderClassList> disableProviders;
+
     if (operationAggregate->getOrigType () ==
         CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE)
     {
@@ -6740,39 +6694,10 @@ void IndicationService::_handleDeleteResponseAggregation (
         //
         //  Update the entry in the active subscriptions hash table
         //
-        String activeSubscriptionsKey = _generateActiveSubscriptionsKey
-            (request->subscriptionInstance.getPath ());
-        ActiveSubscriptionsTableEntry tableValue;
-        if (_lockedLookupActiveSubscriptionsEntry (activeSubscriptionsKey,
-            tableValue))
-        {
-            Uint32 providerIndex = _providerInList (origRequest->provider, 
-                tableValue);
-            if (providerIndex != PEG_NOT_FOUND)
-            {
-                tableValue.providers.remove (providerIndex);
-                {
-                WriteLock lock (_activeSubscriptionsTableLock);
-                _removeActiveSubscriptionsEntry (activeSubscriptionsKey);
-                _insertActiveSubscriptionsEntry (tableValue.subscription,
-                    tableValue.providers);
-                }
-            }
-            else
-            {
-                PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL2, 
-                    "Provider (" + origRequest->provider.getPath().toString() +
-                    ") not found in list for Subscription (" +
-                    activeSubscriptionsKey +
-                    ") in ActiveSubscriptionsTable");
-            }
-        }
-        else
-        {
-            PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL2, 
-                "Subscription (" + activeSubscriptionsKey +
-                ") not found in ActiveSubscriptionsTable");
-        }
+        ProviderClassList provider;
+        provider.provider = origRequest->provider;
+        disableProviders = _updateHashTable
+            (request->subscriptionInstance.getPath (), provider, false);
     }
 
     //
@@ -6784,21 +6709,11 @@ void IndicationService::_handleDeleteResponseAggregation (
         //
         //  Remove entries from the subscription hash tables
         //
-        _removeFromHashTables (request->subscriptionInstance, 
+        disableProviders = _removeFromHashTables 
+            (request->subscriptionInstance, 
             operationAggregate->getIndicationSubclasses (), 
-            request->nameSpace);
-    }
-
-    //
-    //  Check each provider to see if it's still in use by any subscription
-    //
-    Array <ProviderClassList> disableProviders;
-    for (Uint32 j = 0; j < checkProviders.size (); j++)
-    {
-        if (!_providerInUse (checkProviders [j].provider))
-        {
-            disableProviders.append (checkProviders [j]);
-        }
+            request->nameSpace,
+            checkProviders);
     }
 
     //
@@ -7111,7 +7026,7 @@ void IndicationService::_lockedRemoveSubscriptionClassesEntry (
     PEG_METHOD_EXIT ();
 }
 
-void IndicationService::_insertToHashTables (
+Array <ProviderClassList> IndicationService::_insertToHashTables (
     const CIMInstance & subscription,
     const Array <ProviderClassList> & providers,
     const Array <CIMName> & indicationSubclassNames,
@@ -7120,11 +7035,25 @@ void IndicationService::_insertToHashTables (
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
                       "IndicationService::_insertToHashTables");
 
+    Array <ProviderClassList> enableProviders;
+
     //
     //  Insert entry into active subscriptions table 
     //
     {
         WriteLock lock(_activeSubscriptionsTableLock);
+
+        //
+        //  If provider is not yet in the table, add to list of 
+        //  providers to enable
+        //
+        for (Uint32 i = 0; i < providers.size (); i++)
+        {
+            if (!_providerInUse (providers [i].provider))
+            {
+                enableProviders.append (providers [i]);
+            }
+        }
         _insertActiveSubscriptionsEntry (subscription, providers);
     }
 
@@ -7163,15 +7092,95 @@ void IndicationService::_insertToHashTables (
     }
 
     PEG_METHOD_EXIT ();
+    return enableProviders;
 }
 
-void IndicationService::_removeFromHashTables (
+Array <ProviderClassList> IndicationService::_updateHashTable (
+    const CIMObjectPath & subscriptionPath,
+    const ProviderClassList & provider,
+    Boolean addProvider)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_updateHashTable");
+
+    Array <ProviderClassList> providers;
+
+    String activeSubscriptionsKey = _generateActiveSubscriptionsKey
+        (subscriptionPath);
+    ActiveSubscriptionsTableEntry tableValue;
+    if (_lockedLookupActiveSubscriptionsEntry (activeSubscriptionsKey,
+        tableValue))
+    {
+        Uint32 providerIndex = _providerInList (provider.provider, tableValue);
+        if (addProvider)
+        {
+            if (providerIndex == PEG_NOT_FOUND)
+            {
+                tableValue.providers.append (provider);
+            }
+            else
+            {
+                CIMInstance p = provider.provider;
+                PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL2, 
+                    "Provider " + _getProviderLogString (p) +
+                    " already in list for Subscription (" +
+                    activeSubscriptionsKey +
+                    ") in ActiveSubscriptionsTable");
+            }
+        }
+        else
+        {
+            if (providerIndex != PEG_NOT_FOUND)
+            {
+                tableValue.providers.remove (providerIndex);
+            }
+            else
+            {
+                CIMInstance p = provider.provider;
+                PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL2, 
+                    "Provider " + _getProviderLogString (p) +
+                    " not found in list for Subscription (" +
+                    activeSubscriptionsKey +
+                    ") in ActiveSubscriptionsTable");
+            }
+        }
+        {
+            WriteLock lock (_activeSubscriptionsTableLock);
+            _removeActiveSubscriptionsEntry (activeSubscriptionsKey);
+            if (!_providerInUse (provider.provider))
+            {
+                providers.append (provider);
+            }
+            _insertActiveSubscriptionsEntry (tableValue.subscription, 
+                tableValue.providers);
+        }
+    }
+    else
+    {
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL2, 
+            "Subscription (" + activeSubscriptionsKey +
+            ") not found in ActiveSubscriptionsTable");
+
+        //
+        //  The subscription may have been deleted in the mean time
+        //  If so, no further update is required
+        //
+    }
+
+    PEG_METHOD_EXIT ();
+    return providers;
+}
+
+Array <ProviderClassList> IndicationService::_removeFromHashTables (
     const CIMInstance & subscription,
     const Array <CIMName> & indicationSubclassNames,
-    const CIMNamespaceName & sourceNamespaceName)
+    const CIMNamespaceName & sourceNamespaceName,
+    const Array <ProviderClassList> & providers)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
                       "IndicationService::_removeFromHashTables");
+
+    Array <ProviderClassList> disableProviders;
 
     //
     //  Remove entry from active subscriptions table 
@@ -7181,6 +7190,14 @@ void IndicationService::_removeFromHashTables (
 
         _removeActiveSubscriptionsEntry (
             _generateActiveSubscriptionsKey (subscription.getPath ()));
+
+        for (Uint32 i = 0; i < providers.size (); i++)
+        {
+            if (!_providerInUse (providers [i].provider))
+            {
+                disableProviders.append (providers [i]);
+            }
+        }
     }
 
     //
@@ -7236,6 +7253,7 @@ void IndicationService::_removeFromHashTables (
     }
 
     PEG_METHOD_EXIT ();
+    return disableProviders;
 }
 
 CIMInstance IndicationService::_createAlertInstance (

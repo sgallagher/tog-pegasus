@@ -591,8 +591,12 @@ private:
     /**
         Determines if the specified provider is currently in use serving one or
         more subscriptions in the Active Subscriptions table.  This function is
-        called when a subscription instance has been deleted, to determine if
-        a Disable Indications request must be sent to the provider.
+        called when a provider is added to or removed from the Active 
+        Subscriptions table, to determine if an Enable or Disable Indications 
+        request must be sent to the provider.
+
+        NOTE: The caller must acquire a lock on the Active Subscriptions table 
+        before calling.
 
         @param   provider          the provider instance
 
@@ -1229,12 +1233,31 @@ private:
         @param   providers               the list of providers
         @param   indicationSubclassNames the list of indication subclass names
         @param   sourceNamespaceName     the source namespace name
+
+        @return  list of (0 or more) providers that must be enabled
      */
-    void _insertToHashTables (
+    Array <ProviderClassList> _insertToHashTables (
         const CIMInstance & subscription,
         const Array <ProviderClassList> & providers,
         const Array <CIMName> & indicationSubclassNames,
         const CIMNamespaceName & sourceNamespaceName);
+
+    /**
+        Updates an entry in the Active Subscriptions table to either add a 
+        provider to or remove a provider from the list of providers serving the
+        subscription.
+
+        @param   subscriptionPath        the subscription object path
+        @param   provider                the provider
+        @param   addProvider             indicates if adding or removing 
+                                         provider
+
+        @return  list of (0 or 1) provider that must be enabled or disabled
+     */
+    Array <ProviderClassList> _updateHashTable (
+        const CIMObjectPath & subscriptionPath,
+        const ProviderClassList & provider,
+        Boolean addProvider);
 
     /**
         Removes entries (or updates entries) in the Active Subscriptions and 
@@ -1243,11 +1266,16 @@ private:
         @param   subscription            the subscription instance
         @param   indicationSubclassNames the list of indication subclass names
         @param   sourceNamespaceName     the source namespace name
+        @param   providers               the list of providers that had been 
+                                         serving the subscription
+
+        @return  list of (0 or more) providers that must be disabled
      */
-    void _removeFromHashTables (
+    Array <ProviderClassList> _removeFromHashTables (
         const CIMInstance & subscription,
         const Array <CIMName> & indicationSubclassNames,
-        const CIMNamespaceName & sourceNamespaceName);
+        const CIMNamespaceName & sourceNamespaceName,
+        const Array <ProviderClassList> & providers);
 
     /**
         Creates an alert instance of the specified class.

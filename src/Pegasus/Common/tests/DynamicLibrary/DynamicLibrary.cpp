@@ -40,8 +40,8 @@ PEGASUS_USING_STD;
 static const String VALID_FILE_NAME = "DynLib.dll";
 static const String INVALID_FILE_NAME = "BADDynLib.dll";
 #else
-static const String VALID_FILE_NAME "libDynLib.so";
-static const String INVALID_FILE_NAME "libBADDynLib.so";
+static const String VALID_FILE_NAME = "libDynLib.so";
+static const String INVALID_FILE_NAME = "libBADDynLib.so";
 #endif
 
 // load a valid module, export a symbol, call it, and unload module

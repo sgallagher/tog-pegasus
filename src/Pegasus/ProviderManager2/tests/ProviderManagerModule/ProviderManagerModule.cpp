@@ -51,6 +51,10 @@ PEGASUS_USING_STD;
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 static const String FILE_NAME = "TestProviderManager.dll";
+#elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+static const String FILE_NAME = "libTestProviderManager.sl";
+#elif defined (PEGASUS_OS_OS400)
+static const String FILE_NAME = "TestProviderManager";
 #else
 static const String FILE_NAME = "libTestProviderManager.so";
 #endif

@@ -57,7 +57,7 @@ void language_delete(void * data)
    if( data != NULL)
    {
       AcceptLanguages * al = static_cast<AcceptLanguages *>(data);
-      ::operator delete(al);
+      delete al;
    }
 }
 // l10n end

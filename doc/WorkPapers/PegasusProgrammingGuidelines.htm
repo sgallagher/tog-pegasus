@@ -15,7 +15,7 @@
 
 <b>AUTHORS:</b>&nbsp;M. Brasher, K. Schopmeyer
 <p><font size="1">Last Update <!--webbot bot="Timestamp"
-S-Type="EDITED" S-Format="%A, %B %d, %Y %I:%M %p" startspan -->Tuesday, July 24, 2001 08:48 PM<!--webbot bot="Timestamp" i-CheckSum="54098" endspan -->
+S-Type="EDITED" S-Format="%A, %B %d, %Y %I:%M %p" startspan -->Thursday, July 26, 2001 06:10 PM<!--webbot bot="Timestamp" i-CheckSum="6014" endspan -->
 </font></p>
 <p>Revision Status</p>
 <table border="1" width="80%">
@@ -38,10 +38,10 @@ S-Type="EDITED" S-Format="%A, %B %d, %Y %I:%M %p" startspan -->Tuesday, July 24,
     <td width="25%">&nbsp;</td>
   </tr>
   <tr>
-    <td width="25%">&nbsp;</td>
-    <td width="25%">&nbsp;</td>
-    <td width="25%">&nbsp;</td>
-    <td width="25%">&nbsp;</td>
+    <td width="25%">0.3</td>
+    <td width="25%">26 July 2001</td>
+    <td width="25%">K. Schopmeyer</td>
+    <td width="25%">Add documentation on licensing.</td>
   </tr>
   <tr>
     <td width="25%">&nbsp;</td>
@@ -58,14 +58,14 @@ contributing to the Pegasus Project</p>
 
 <p>NOTE: This is a draft copy for comment.</p>
 
-<p>RULES and Suggestions - A number of the guidelines below are absolute rules
+<p>RULES and GUIDELINES - A number of the guidelines below are absolute rules
 that we must follow in the Pegasus project.&nbsp; These are the things that will
 help insure portability and effective interoperability of the components.</p>
 
-<p>Other area are &quot;suggestions&quot; that we strongly suggest be followed
+<p>Other area are &quot;guidelines&quot; that we strongly suggest be followed
 so that 1) the code will be readable and usable, 2) we develop a single look to
 our source code, etc.&nbsp; In some cases, there may be reasons to bypass some
-of these suggestiions but we strongly encourage everybody to follow them.&nbsp;
+of these guidelines but we strongly encourage everybody to follow them.&nbsp;
 In fact, if there is a real reason we will change to what the group wants and
 suggestions.</p>
 
@@ -177,7 +177,7 @@ Changes must work on all platforms. Commits must not break any
     platform.
 
 Always write a regression test for everything.
-<p>No warnings should be committed.
+<p>No files with warnings should be committed to CVS.
 
 Test big changes on at least Windows and Unix (or Linux)
 
@@ -195,7 +195,7 @@ is also broken for everybody that gets the new code.</p>
 
 <h2>Using Outside Code and Libraries</h2>
 
-<p>This is an opensource project.&nbsp; All code that is contributed to this
+<p>This is an open source project.&nbsp; All code that is contributed to this
 project must be open source and must be made available under the standard
 license used by the Pegasus project. Do not use any outside libraries that do
 not meet this criteria.&nbsp; Further, every reference to outside code make it
@@ -204,7 +204,22 @@ potential portability problems.&nbsp; At the same time, there may be real
 reasons to use outside code and libraries at times. Thus, for example, the
 initial project used the ACE_wrappers libraries extensively but with the
 objective of eventually providing a replacement.&nbsp; That replacement has been
-produced, partly because ACE was not available on all of the platforms</p>
+produced, partly because ACE was not available on all of the platforms.</p>
+
+<p>All code submitted to the Pegasus core source libraries is to be made available
+under the standard license used by Pegasus.&nbsp; If any code is to be taken
+from other open source projects, we expect that the code recognize both the
+requirements of the Pegasus standard license and the other license (ex. if we
+were to share code with the Caldera OpenWBEM) project, we would have to show
+both their license and our licenses.</p>
+
+<p>All code input to the Pegasus project must include the license statement.</p>
+
+<p>If there is a case of code that we want to use on the Pegasus project but
+that is licensed outside of the above rules, it can be included only with the
+specific permission of the Pegasus project management.&nbsp; We will be very
+hesitant to do this since it could mean weakening the whole open source nature
+of the project and would greatly complicate our license arrangements.</p>
 
 <h2>Using Make</h2>
 
@@ -229,7 +244,51 @@ builds, and license changes.
 
 <h2>Portability Issues</h2>
 
-<p>TBD</p>
+<OL>
+<LI>In .h files the following identifiers must be surrounded by	the PEGASUS_STD() macro (which
+pretends std:: to the argument).<br>
+<br>
+<font face="Courier New">	    ostream<br>
+	    istream<br>
+	    cout<br>
+	    cerr<br>
+</font><br>
+	Do not use this macro in .cpp files. Instead put the following<br>
+	at the beginning of the file:<br>
+<br>
+	    PEGASUS_USING_STD;<br>
+<br>
+<LI>The following does not compile with some compilers.<br>
+<br>
+	    class X<br>
+	    {<br>
+	    public:<br>
+<br>
+		static const Uint32 COLOR = 225;<br>
+	    };<br>
+<br>
+	Use this instead:<br>
+<br>
+	    class X<br>
+	    {<br>
+	    public:<br>
+<br>
+		static const Uint32 COLOR;<br>
+	    };<br>
+<br>
+	And place this in the .cpp file:<br>
+<br>
+	    const Uint32 X::COLOR = 255;<br>
+<br>
+	Or use enumerated types:<br>
+<br>
+	    class X<br>
+	    {<br>
+	    public:<br>
+<br>
+		enum { COLOR = 225 };<br>
+	    };<br>
+</OL>
 
 <h2>The Source Tree Structure</h2>
 

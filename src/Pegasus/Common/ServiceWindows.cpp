@@ -123,7 +123,8 @@ static void _terminate(DWORD error)
 static DWORD _serviceThread(LPDWORD param)
 {
     ClientData* clientData = (ClientData*)param;
-    return _serviceHandler->main(clientData->argc, clientData->argv);
+    int status = _serviceHandler->main(clientData->argc, clientData->argv);
+    return status;
 }
 
 static void _serviceCtrlHandler(DWORD controlCode) 
@@ -214,10 +215,9 @@ static void _serviceMain(DWORD argc, LPTSTR *argv)
 
     // Create the service thread:
 
-    DWORD id;
-
     _clientData.argc = argc;
     _clientData.argv = argv;
+    DWORD id;
 
     _threadHandle = CreateThread(
 	0, 0, (LPTHREAD_START_ROUTINE)_serviceThread, &_clientData, 0, &id); 

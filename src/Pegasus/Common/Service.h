@@ -35,9 +35,11 @@ PEGASUS_NAMESPACE_BEGIN
     from a terimal window). It is registered using the run() method which 
     arranges to call the methods of this class at various times.
 */
-class ServiceHandler
+class PEGASUS_COMMON_LINKAGE ServiceHandler
 {
 public:
+
+    virtual ~ServiceHandler();
 
     /** Called by the Service::run() method. The argc and argv arguments give
 	the arguments to the program. In Windows this method is called in
@@ -73,7 +75,7 @@ public:
     run detached from a terminal device. The sole run() method starts the
     service.
 */
-class Service
+class PEGASUS_COMMON_LINKAGE Service
 {
 public:
 

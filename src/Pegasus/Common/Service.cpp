@@ -36,4 +36,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+ServiceHandler::~ServiceHandler() 
+{ 
+
+}
+
 PEGASUS_NAMESPACE_END

@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -34,12 +34,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-Exception::Exception(const String& message) : _message(message) 
-{ 
+Exception::Exception(const String& message) : _message(message)
+{
 
 }
 
-Exception::Exception(const char* message) : _message(message) 
+Exception::Exception(const char* message) : _message(message)
 {
 
 }
@@ -50,7 +50,7 @@ Exception::~Exception()
 }
 
 AssertionFailureException::AssertionFailureException(
-    const char* file, 
+    const char* file,
     size_t line,
     const String& message) : Exception(String())
 {
@@ -87,32 +87,32 @@ const char BadQualifierScope::MSG[] = "qualifier invalid in this scope: ";
 
 const char BadQualifierOverride::MSG[] = "qualifier not overridable: ";
 
-const char BadQualifierType::MSG[] = 
+const char BadQualifierType::MSG[] =
     "CIMType of qualifier different than its declaration: ";
 
 const char NullType::MSG[] = "type is null";
 
-const char AddedReferenceToClass::MSG[] = 
+const char AddedReferenceToClass::MSG[] =
     "attempted to add reference to a non-association class: ";
 
-const char ClassAlreadyResolved::MSG[] = 
+const char ClassAlreadyResolved::MSG[] =
     "attempt to resolve a class that is already resolved: ";
 
-const char ClassNotResolved::MSG[] = 
+const char ClassNotResolved::MSG[] =
     "class is not yet resolved: ";
 
-const char InstanceAlreadyResolved::MSG[] = 
+const char InstanceAlreadyResolved::MSG[] =
     "attempted to resolve a instance that is already resolved";
 
-const char InstantiatedAbstractClass::MSG[] = 
+const char InstantiatedAbstractClass::MSG[] =
     "attempted to instantiate an abstract class ";
 
 const char NoSuchProperty::MSG[] = "no such property: ";
 
-const char TruncatedCharacter::MSG[] = 
+const char TruncatedCharacter::MSG[] =
     "truncated character during conversion from Char16 to char";
 
-const char ExpectedReferenceValue::MSG[] = 
+const char ExpectedReferenceValue::MSG[] =
     "Expected CIMValue object to be CIMType::REFERENCE or CIMType::REFERENCE_ARRAY "
     "in this context";
 
@@ -170,7 +170,7 @@ const char IllformedObjectName::MSG[] = "illformed object name: ";
 
 const char DynamicLoadFailed::MSG[] = "load of dynamic library failed: ";
 
-const char DynamicLookupFailed::MSG[] = 
+const char DynamicLookupFailed::MSG[] =
     "lookup of symbol in dynamic library failed: ";
 
 const char CannotOpenDirectory::MSG[] = "cannot open directory: ";
@@ -227,7 +227,7 @@ static String _makeCIMExceptionDescription(
 // Creates a description with source file name and line number.
 //
 static String _makeCIMExceptionDescription(
-    CIMStatusCode code, 
+    CIMStatusCode code,
     const String& message,
     const char* file,
     Uint32 line)
@@ -247,25 +247,17 @@ static String _makeCIMExceptionDescription(
 }
 
 CIMException::CIMException(
-    CIMStatusCode code, 
+    CIMStatusCode code,
     const String& message,
     const char* file,
     Uint32 line)
-    : 
+    :
     Exception(message),
     _code(code),
     _file(file),
     _line(line)
 {
 
-}
-
-CIMException::CIMException(const CIMException& cimException)
-    : Exception(cimException.getMessage()),
-    _code(cimException._code),
-    _file(cimException._file),
-    _line(cimException._line)
-{
 }
 
 //
@@ -282,13 +274,13 @@ String CIMException::getDescription() const
 
 //
 // Returns a description string with filename and line number information
-// specifically for tracing. 
+// specifically for tracing.
 //
 String CIMException::getTraceDescription() const
 {
     String traceDescription =
         _makeCIMExceptionDescription(_code, getMessage(), _file, _line);
-    
+
     return traceDescription;
 }
 

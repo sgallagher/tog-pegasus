@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -33,10 +33,11 @@
 #ifndef Pegasus_Exception_h
 #define Pegasus_Exception_h
 
-#include <cstring>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMStatusCode.h>
+
+#include <cstring>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -77,8 +78,8 @@ public:
 	const String& message);
 };
 
-/** define PEGASUS_ASSERT assertion statement.  This statement tests the 
-    condition defined by the parameters and if not True executes an 
+/** define PEGASUS_ASSERT assertion statement.  This statement tests the
+    condition defined by the parameters and if not True executes an
 
     <pre>
     throw AssertionFailureException
@@ -94,7 +95,7 @@ public:
 	    throw AssertionFailureException(__FILE__, __LINE__, #COND); \
 	} \
     } while (0)
-    
+
 /* Macro to Create the equivalent of an assert but without the
    termination.  This can be used as a temporary marker for asserts
    that are not working.  Prints out the error but continues.
@@ -137,7 +138,7 @@ public:
 class PEGASUS_COMMON_LINKAGE AlreadyExists : public Exception
 {
 public:
-  
+
     static const char MSG[];
 
     AlreadyExists(const String& x = String()) : Exception(MSG + x) { }
@@ -521,7 +522,7 @@ public:
 #define PEGASUS_CIM_EXCEPTION(CODE, EXTRA_MESSAGE) \
     CIMException(CODE, EXTRA_MESSAGE, __FILE__, __LINE__)
 
-/** The CIMException defines the CIM exceptions that are formally defined in 
+/** The CIMException defines the CIM exceptions that are formally defined in
     the CIM Operations over HTTP specification.
     @example
     <PRE>
@@ -537,17 +538,16 @@ public:
 	const String& message = String::EMPTY,
 	const char* file = "",
 	Uint32 line = 0);
-    CIMException(const CIMException& cimException);
 
     CIMStatusCode getCode() const { return _code; }
     String getDescription() const;
     String getTraceDescription() const;
 
 private:
-
     CIMStatusCode  _code;
     const char*    _file;
     Uint32         _line;
+
 };
 
 class PEGASUS_COMMON_LINKAGE StackUnderflow : public Exception
@@ -742,13 +742,13 @@ class PEGASUS_COMMON_LINKAGE BufferTooSmall
 {
 public:
 
-    BufferTooSmall(Uint32 needed)  
+    BufferTooSmall(Uint32 needed)
     {
 	required_size = needed;
     }
 
     Uint32 required_size;
-      
+
 private:
 
     BufferTooSmall(void);

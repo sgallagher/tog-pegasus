@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMInstanceRep.cpp,v $
+// Revision 1.7  2001/04/25 07:44:35  mike
+// Documented the heck out of the CIMReference class.
+//
 // Revision 1.6  2001/04/08 01:13:21  mike
 // Changed "ConstCIM" to "CIMConst"
 //
@@ -314,7 +317,6 @@ void CIMInstanceRep::print(std::ostream &os) const
 String CIMInstanceRep::getInstanceName(const CIMConstClass& cimClass) const
 {
     // ATTN-A: should we disallow keys on arrays and reals?
-    // ATTN-A: shift the case of each identifier to lower case:
 
     // First append the class name:
 

@@ -20,41 +20,7 @@
 //END_LICENSE
 //BEGIN_HISTORY
 //
-// Author:
-//
-// $Log: CIMReference.cpp,v $
-// Revision 1.5  2001/04/13 18:26:33  mike
-// Fixed more memory leaks.
-//
-// Revision 1.4  2001/04/13 18:20:51  mike
-// Ported so Solaris.
-// Fixed memory leaks.
-//
-// Revision 1.3  2001/03/04 21:57:34  bob
-// Changed print methods to take a stream instead of hardcoded cout
-//
-// Revision 1.2  2001/02/26 04:33:28  mike
-// Fixed many places where cim names were be compared with operator==(String,String).
-// Changed all of these to use CIMName::equal()
-//
-// Revision 1.1  2001/02/18 18:39:06  mike
-// new
-//
-// Revision 1.1  2001/02/16 02:07:06  mike
-// Renamed many classes and headers (using new CIM prefixes).
-//
-// Revision 1.4  2001/02/11 05:42:33  mike
-// new
-//
-// Revision 1.3  2001/01/28 07:05:18  mike
-// added instance name/reference converters
-//
-// Revision 1.2  2001/01/28 04:11:03  mike
-// fixed qualifier resolution
-//
-// Revision 1.1.1.1  2001/01/14 19:53:11  mike
-// Pegasus import
-//
+// Author: Michael E. Brasher
 //
 //END_HISTORY
 
@@ -74,6 +40,56 @@ PEGASUS_NAMESPACE_BEGIN
 // class and that the property names are really keys and that all keys
 // of the class or used. Also be sure that there is a valid conversion 
 // between the string value and the value of that property.
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Local routines:
+//
+////////////////////////////////////////////////////////////////////////////////
+
+int _Compare(const String& s1_, const String& s2_)
+{
+    const Char16* s1 = s1_.getData();
+    const Char16* s2 = s2_.getData();
+
+    while (*s1 && *s2)
+    {
+	char c1 = tolower(*s1++);
+	char c2 = tolower(*s2++);
+	int r = c1 - c2;
+
+	if (r)
+	    return r;
+    }
+
+    if (*s2)
+	return -1;
+    else if (*s1)
+	return 1;
+
+    return 0;
+}
+
+static void _BubbleSort(Array<KeyBinding>& x) 
+{
+    Uint32 n = x.getSize();
+
+    if (n < 2)
+	return;
+
+    for (Uint32 i = 0; i < n - 1; i++)
+    {
+	for (Uint32 j = 0; j < n - 1; j++)
+	{
+	    if (_Compare(x[j].getName(), x[j+1].getName()) > 0)
+	    {
+		KeyBinding t = x[j];
+		x[j] = x[j+1];
+		x[j+1] = t;
+	    }
+	}
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -123,7 +139,7 @@ CIMReference::CIMReference(const CIMReference& x)
     : _host(x._host), _nameSpace(x._nameSpace), 
     _className(x._className), _keyBindings(x._keyBindings)
 {
-
+    _BubbleSort(_keyBindings);
 }
 
 CIMReference::CIMReference(
@@ -175,6 +191,7 @@ void CIMReference::set(
     _nameSpace = nameSpace;
     _className = className;
     _keyBindings = keyBindings;
+    _BubbleSort(_keyBindings);
 }
 
 void CIMReference::setNameSpace(const String& nameSpace)

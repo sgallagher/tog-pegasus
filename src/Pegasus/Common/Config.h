@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Config.h,v $
+// Revision 1.7  2001/04/25 07:44:35  mike
+// Documented the heck out of the CIMReference class.
+//
 // Revision 1.6  2001/04/13 22:20:03  mike
 // new
 //
@@ -67,5 +70,7 @@
 
 #define PEGASUS_TRACE \
     std::cout << __FILE__ << '(' << __LINE__ << ')' << std::endl
+
+#define OUT(X) std::cout << #X << "=[" << X << "]" << std::endl
 
 #endif  /* Pegasus_Config_h */

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Array.h,v $
+// Revision 1.16  2001/04/25 07:44:35  mike
+// Documented the heck out of the CIMReference class.
+//
 // Revision 1.15  2001/04/24 00:00:14  mike
 // Ported compiler to use String and Array (rather than STL equivalents)
 //
@@ -676,7 +679,7 @@ Boolean operator==(const Array<T>& x, const Array<T>& y)
 }
 
 template<class T>
-void BubbleSort(Array<T>& x)
+void BubbleSort(Array<T>& x) 
 {
     Uint32 n = x.getSize();
 

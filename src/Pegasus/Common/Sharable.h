@@ -52,19 +52,20 @@ public:
     Sharable() : _ref(1) { }
 
     virtual ~Sharable();
-
-    Uint32 getRef() const { return _ref.value(); }
+    Uint32 getRef() const { return _ref; }
+    //    Uint32 getRef() const { return _ref.value(); }
 
     friend void Inc(const Sharable* sharable);
 
     friend void Dec(const Sharable* sharable);
 
 private:
-
-    AtomicInt _ref;
+    Uint32 _ref;
+    //    AtomicInt _ref;
 };
 
 inline void Inc(const Sharable* x)
+
 {
     if (x)
 	((Sharable*)x)->_ref++;
@@ -72,8 +73,11 @@ inline void Inc(const Sharable* x)
 
 inline void Dec(const Sharable* x)
 {
-    if (x && ((Sharable*)x)->_ref.DecAndTestIfZero())
+    if (x && --((Sharable*)x)->_ref == 0)
 	delete (Sharable*)x;
+
+    //    if (x && ((Sharable*)x)->_ref.DecAndTestIfZero())
+    //	delete (Sharable*)x;
 }
 
 PEGASUS_NAMESPACE_END

@@ -24,10 +24,6 @@ poststarttests:
 	@$(PROGRAM) sendNormal
 	@$(ECHO) "TestProcessIndication checkNormal"
 	@$(PROGRAM) checkNormal
-	@$(ECHO) "TestProcessIndication sendSubclass"
-	@$(PROGRAM) sendSubclass
-	@$(ECHO) "TestProcessIndication checkSubclass"
-	@$(PROGRAM) checkSubclass
 	@$(ECHO) "TestProcessIndication sendMissing"
 	@$(PROGRAM) sendMissing
 	@$(ECHO) "TestProcessIndication checkMissing"

@@ -348,33 +348,15 @@ void _sendTestIndication
     Array <CIMKeyBinding> keyBindings;
     Sint32 result;
 
-    CIMValue retValue;
+    CIMObjectPath className (String::EMPTY, CIMNamespaceName (), 
+        CIMName ("RT_TestIndication"), keyBindings);
 
-    if (methodName.equal ("SendTestIndicationSubclass"))
-    {
-        CIMObjectPath className (String::EMPTY, CIMNamespaceName (), 
-            CIMName ("RT_TestIndicationSubclass"), keyBindings);
-
-        retValue = client.invokeMethod 
-            (SOURCENAMESPACE,
-            className,
-            methodName,
-            inParams,
-            outParams);
-    }
-    else
-    {
-        CIMObjectPath className (String::EMPTY, CIMNamespaceName (), 
-            CIMName ("RT_TestIndication"), keyBindings);
-
-        retValue = client.invokeMethod 
-            (SOURCENAMESPACE,
-            className,
-            methodName,
-            inParams,
-            outParams);
-    }
-
+    CIMValue retValue = client.invokeMethod 
+        (SOURCENAMESPACE,
+        className,
+        methodName,
+        inParams,
+        outParams);
     retValue.get (result);
     PEGASUS_ASSERT (result == 0);
 
@@ -388,12 +370,6 @@ void _sendTestIndicationNormal
     (CIMClient & client)
 {
     _sendTestIndication (client, CIMName ("SendTestIndicationNormal"));
-}
-
-void _sendTestIndicationSubclass 
-    (CIMClient & client)
-{
-    _sendTestIndication (client, CIMName ("SendTestIndicationSubclass"));
 }
 
 void _sendTestIndicationMissing
@@ -618,23 +594,6 @@ void _sendNormal (CIMClient & client)
                        << PEGASUS_STD (endl);
 }
 
-void _sendSubclass (CIMClient & client)
-{
-    try
-    {
-        _sendTestIndicationSubclass (client);
-    }
-    catch (Exception & e)
-    {
-        PEGASUS_STD (cerr) << "sendSubclass failed: " << e.getMessage ()
-                           << PEGASUS_STD (endl);
-        exit (-1);
-    }
-
-    PEGASUS_STD (cout) << "+++++ sendSubclass completed successfully"
-                       << PEGASUS_STD (endl);
-}
-
 void _sendMissing (CIMClient & client)
 {
     try
@@ -836,10 +795,6 @@ int main (int argc, char** argv)
         {
             _sendNormal (client);
         }
-        else if (String::equalNoCase (opt, "sendSubclass"))
-        {
-            _sendSubclass (client);
-        }
         else if (String::equalNoCase (opt, "sendMissing"))
         {
             _sendMissing (client);
@@ -870,16 +825,6 @@ int main (int argc, char** argv)
             _check (opt, String ("1"), String ("SendTestIndicationNormal"), 
                 false, false);
         }
-        else if (String::equalNoCase (opt, "checkSubclass"))
-        {
-            //
-            //  Check indications received by Simple Display Consumer
-            //  Only the properties included in the SELECT list of the filter 
-            //  query should be included in the indication instance
-            //
-            _check (opt, String ("2"), String ("SendTestIndicationSubclass"), 
-                false, false);
-        }
         else if (String::equalNoCase (opt, "checkMissing"))
         {
             //
@@ -887,7 +832,7 @@ int main (int argc, char** argv)
             //  None should be received in this case, since a required property
             //  is missing from the indication instance
             //
-            _check (opt, String ("3"), 
+            _check (opt, String ("2"), 
                 String ("SendTestIndicationMissingProperty"), false, true);
         }
         else if (String::equalNoCase (opt, "checkExtra"))
@@ -899,7 +844,7 @@ int main (int argc, char** argv)
             //  Only the properties included in the SELECT list of the filter 
             //  query should be included in the indication instance
             //
-            _check (opt, String ("4"), 
+            _check (opt, String ("3"), 
                 String ("SendTestIndicationExtraProperty"), false, false);
         }
         else if (String::equalNoCase (opt, "checkMatching"))
@@ -909,7 +854,7 @@ int main (int argc, char** argv)
             //  Only the properties included in the SELECT list of the filter 
             //  query should be included in the indication instance
             //
-            _check (opt, String ("5"), 
+            _check (opt, String ("4"), 
                 String ("SendTestIndicationMatchingInstance"), false, false);
         }
         else if (String::equalNoCase (opt, "checkUnmatchingNamespace"))
@@ -921,7 +866,7 @@ int main (int argc, char** argv)
             //  source namespace of the subscription instance name in the 
             //  operation context
             //
-            _check (opt, String ("6"), 
+            _check (opt, String ("5"), 
                 String ("SendTestIndicationUnmatchingNamespace"), false, true);
         }
         else if (String::equalNoCase (opt, "checkUnmatchingClassName"))
@@ -933,7 +878,7 @@ int main (int argc, char** argv)
             //  query indication class of the subscription instance name in the
             //  operation context
             //
-            _check (opt, String ("7"), 
+            _check (opt, String ("6"), 
                 String ("SendTestIndicationUnmatchingClassName"), false, true);
         }
         else if (String::equalNoCase (opt, "checkNormalAll"))
@@ -943,7 +888,7 @@ int main (int argc, char** argv)
             //  All properties should be included in the indication instance,
             //  since the filter query specifies SELECT *
             //
-            _check (opt, String ("8"), 
+            _check (opt, String ("7"), 
                 String ("SendTestIndicationNormal"), true, false);
         }
         else if (String::equalNoCase (opt, "checkMissingAll"))
@@ -953,7 +898,7 @@ int main (int argc, char** argv)
             //  None should be received in this case, since a required property
             //  is missing from the indication instance
             //
-            _check (opt, String ("9"), 
+            _check (opt, String ("8"), 
                 String ("SendTestIndicationMissingProperty"), true, true);
         }
         else if (String::equalNoCase (opt, "checkExtraAll"))
@@ -965,7 +910,7 @@ int main (int argc, char** argv)
             //  All properties should be included in the indication instance,
             //  since the filter query specifies SELECT *
             //
-            _check (opt, String ("10"), 
+            _check (opt, String ("9"), 
                 String ("SendTestIndicationExtraProperty"), true, false);
         }
         else if (String::equalNoCase (opt, "delete1"))

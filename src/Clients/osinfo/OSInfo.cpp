@@ -386,6 +386,7 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
     String         GetOptString   = String ();
     getoopt        getOpts;
 
+    _operationType = OPERATION_TYPE_UNINITIALIZED;
     //
     //  Construct GetOptString
     //

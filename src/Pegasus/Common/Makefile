@@ -145,7 +145,7 @@ endif
 ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
 AIX_LIB_PRIORITY=-20
   ifdef PEGASUS_HAS_SSL
-    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl
+    EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
   endif
 endif
 

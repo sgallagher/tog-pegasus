@@ -89,8 +89,8 @@ ifdef PEGASUS_CONCURRENT
 SOURCES +=  IPC.cpp DQueue.cpp Thread.cpp MT_MessageQueue.cpp 
 endif
 
-ifdef ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
-SOURCES += Signal.cpp 
+ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
+SOURCES += Signal.cpp
 endif
 
 SYS_LIBS = ws2_32.lib advapi32.lib

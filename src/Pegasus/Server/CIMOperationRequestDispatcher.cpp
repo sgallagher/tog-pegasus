@@ -236,16 +236,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 				      PEGASUS_MODULENAME_NAMESPACEPROVIDER,
 				      PEGASUS_QUEUENAME_CONTROLSERVICE);
 
-#ifndef PEGASUS_ENABLE_SLP
-	 _routing_table.insert_record(PEGASUS_CLASSNAME_NAMESPACE,
-				      _wild,
-				      DynamicRoutingTable::INTERNAL,
-				      0,
-				      static_cast<MessageQueueService *>
-				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
-				      PEGASUS_MODULENAME_NAMESPACEPROVIDER,
-				      PEGASUS_QUEUENAME_CONTROLSERVICE);
-#else
+#ifdef PEGASUS_ENABLE_SLP
 	 _routing_table.insert_record(PEGASUS_CLASSNAME_NAMESPACE,
 				      _wild,
 				      DynamicRoutingTable::INTERNAL,

@@ -148,7 +148,7 @@ printf("CQLFactory::makeObject(simplepredicate)\n");
                 break;
         }
 }
-
+/*
 CQLValue CQLFactory::getValue(CQLFactor* obj){
 	if(obj->isSimpleValue()){
 		return obj->getValue();
@@ -184,7 +184,7 @@ CQLValue CQLFactory::getValue(CQLPredicate* obj){
 	}
 	return CQLValue();
 }
-
+*/
 void* CQLFactory::getObject(void* inObject, FactoryType inObjectType, FactoryType targetType){
 	switch(inObjectType){
 		case Predicate:
@@ -370,5 +370,5 @@ void CQLFactory::setObject(CQLPredicate* predicate, void* obj, FactoryType objTy
 		break;
 	}
 } 
-void CQLFactory::print(){printf("%s\n",(const char*)(_chainedIdentifier.toString().getCString()));}
+//void CQLFactory::print(){printf("%s\n",(const char*)(_chainedIdentifier.toString().getCString()));}
 PEGASUS_NAMESPACE_END

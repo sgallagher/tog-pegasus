@@ -338,8 +338,10 @@ array_index : expr
                   sprintf(msg,"BISON::array_index->expr\n");
 		  printf_(msg);
 
-		  CQLValue tmp = _factory.getValue((CQLPredicate*)$1);
-		  $$ = new String(tmp.toString());
+		  //CQLValue tmp = _factory.getValue((CQLPredicate*)$1);
+		  //$$ = new String(tmp.toString());
+		  CQLValue* _val = (CQLValue*)_factory.getObject($1,Predicate,Value);
+		  $$ = new String(_val->toString());
 		  printf("BISON::array_index->expr %s\n",(const char*)$$->getCString());
               }
 ;

@@ -49,13 +49,13 @@ class PEGASUS_CQL_LINKAGE CQLFactory
   void* makeObject(CQLTerm* obj, FactoryType target);
   void* makeObject(CQLExpression* obj, FactoryType target);
   void* makeObject(CQLSimplePredicate* obj, FactoryType target);
-
+/*
   CQLValue getValue(CQLFactor* obj);
   CQLValue getValue(CQLTerm* obj);
   CQLValue getValue(CQLExpression* obj);
   CQLValue getValue(CQLSimplePredicate* obj);
   CQLValue getValue(CQLPredicate* obj);
-
+*/
   void* getObject(void* inObject, FactoryType inObjectType, FactoryType targetType);
 
   void* getObject(CQLChainedIdentifier* obj, FactoryType target);
@@ -67,7 +67,7 @@ class PEGASUS_CQL_LINKAGE CQLFactory
   void* getObject(CQLPredicate* obj, FactoryType target);
  
   void setObject(CQLPredicate* predicate, void* obj, FactoryType objType);
-  void print(); 
+/*  void print(); 
   CQLPredicate _predicate;
   CQLSimplePredicate _simplePredicate;
   CQLExpression _expression;
@@ -77,7 +77,7 @@ class PEGASUS_CQL_LINKAGE CQLFactory
   CQLChainedIdentifier _chainedIdentifier;
   CQLIdentifier _identifier;
   CQLValue _value;
-
+*/
   Array<CQLObjectPtr> _makeObjectPredicates;
   Array<CQLObjectPtr> _makeObjectSimplePredicates;
   Array<CQLObjectPtr> _makeObjectExpressions;

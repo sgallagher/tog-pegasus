@@ -29,6 +29,7 @@ DIRS = \
     Config/tests \
     Repository/tests \
     Server/tests \
+    Server/ProviderRegistrationManager/tests \
     ExportServer/tests \
     Client/tests \
     Compiler/tests \

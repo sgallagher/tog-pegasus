@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: Dir.cpp,v $
+// Revision 1.5  2001/04/11 05:05:15  mike
+// porting
+//
 // Revision 1.4  2001/04/11 05:02:48  mike
 // Porting
 //
@@ -38,3 +41,7 @@
 #else
 # error "Unsupported platform"
 #endif
+
+PEGASUS_NAMESPACE_BEGIN
+
+PEGASUS_NAMESPACE_END

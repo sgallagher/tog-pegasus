@@ -61,6 +61,10 @@
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/ModuleController.h>
+#include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/AutoPtr.h>
+
 
 PEGASUS_USING_STD;
 
@@ -356,6 +360,18 @@ void ConfigSettingProvider::modifyInstance(
                         MessageLoaderParms("ControlProviders.ConfigSettingProvider.ConfigSettingProvider.UPDATE_CURRENT_VALUE_FAILED",
                         				   "Failed to update the current value."));
                 }
+		
+		// It is unset, get current value which is default
+                if (currentValueIsNull)
+                {
+                    currentValue = _configManager->getCurrentValue(
+                        configPropertyName);
+                }
+
+                // send notify config change message to ProviderManager Service
+                _sendNotifyConfigChangeMessage(configPropertyName, 
+                                               currentValue,
+                                               true);
             }
 
             //
@@ -377,6 +393,18 @@ void ConfigSettingProvider::modifyInstance(
                         MessageLoaderParms("ControlProviders.ConfigSettingProvider.ConfigSettingProvider.UPDATE_PLANNED_VALUE_FAILED",
                         				   "Failed to update the planned value."));
                 }
+
+		// It is unset, get planned value which is default
+                if (plannedValueIsNull)
+                {
+                    plannedValue = _configManager->getPlannedValue(
+                        configPropertyName);
+                }
+
+                // send notify config change message to ProviderManager Service
+                _sendNotifyConfigChangeMessage(configPropertyName, 
+                                               plannedValue,
+                                               false);
             }
         }
         catch (NonDynamicConfigProperty& ndcp)
@@ -577,6 +605,70 @@ void ConfigSettingProvider::_verifyAuthorization(const String& userName)
 
         PEG_METHOD_EXIT();
     }
+
+//
+// send notify config change message to provider manager service
+//
+void ConfigSettingProvider::_sendNotifyConfigChangeMessage(
+    const String& propertyName,
+    const String& newPropertyValue,
+    Boolean currentValueModified)
+{
+    PEG_METHOD_ENTER(TRC_CONFIG,
+        "ConfigSettingProvider::_sendNotifyConfigChangeMessage");
+
+    pegasus_internal_identity _id = peg_credential_types::PROVIDER;
+    ModuleController * _controller;
+    ModuleController::client_handle *_client_handle;
+
+    _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
+    if(_client_handle == NULL)
+    {
+        PEG_METHOD_EXIT();
+        throw UninitializedObjectException();      
+    }
+
+    MessageQueue * queue = MessageQueue::lookup(
+        PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
+
+    MessageQueueService * service = dynamic_cast<MessageQueueService *>(queue);
+
+    if (service != NULL)
+    {
+        // create CIMNotifyConfigChangeRequestMessage
+        CIMNotifyConfigChangeRequestMessage * notify_req =
+            new CIMNotifyConfigChangeRequestMessage (
+            XmlWriter::getNextMessageId (),
+            propertyName,
+            newPropertyValue,
+            currentValueModified,
+            QueueIdStack(service->getQueueId()));
+
+        // create request envelope
+        AsyncLegacyOperationStart asyncRequest(
+            service->get_next_xid(),
+            NULL,
+            service->getQueueId(),
+            notify_req,
+            service->getQueueId());
+
+        AutoPtr<AsyncReply> asyncReply( 
+            _controller->ClientSendWait(*_client_handle,
+            service->getQueueId(),
+            &asyncRequest));
+
+        AutoPtr<CIMNotifyConfigChangeResponseMessage> response(
+            reinterpret_cast<CIMNotifyConfigChangeResponseMessage *>(
+            (static_cast<AsyncLegacyOperationResult *>
+            (asyncReply.get()))->get_result()));
+
+        if (response->cimException.getCode() != CIM_ERR_SUCCESS)
+        {
+            CIMException e = response->cimException;
+            throw (e);
+	}
+    }
+}
 
 PEGASUS_NAMESPACE_END
 

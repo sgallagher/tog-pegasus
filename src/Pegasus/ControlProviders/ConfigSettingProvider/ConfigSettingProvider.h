@@ -26,6 +26,7 @@
 // Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//            : Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -218,6 +219,21 @@ private:
                                         priviliged user.
     */
     void _verifyAuthorization(const String& user);
+
+    /** 
+    send notify config change message to provider manager service. 
+
+    @param propertyName    The name of the property to update. 
+    @param propertyValue   The new value of the property. 
+    @param currentValueModified    Specifies whether the current value or 
+                                   planned value is modified.
+                                   true - current value modified;
+                                   false - planned value modified
+    */
+    void _sendNotifyConfigChangeMessage(
+        const String& propertyName,
+        const String& newPropertyValue,
+        Boolean currentValueModified);
 
     //
     // Config Manager Instance variable

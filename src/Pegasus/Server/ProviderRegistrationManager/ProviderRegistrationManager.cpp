@@ -47,6 +47,7 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/OperationContextInternal.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 #include "ProviderRegistrationTable.h"
 
@@ -3595,22 +3596,22 @@ void ProviderRegistrationManager::_sendInitializeProviderMessage(
 	    providerModule, provider));
 
         // create request envelope
-        AsyncLegacyOperationStart * asyncRequest =
-            new AsyncLegacyOperationStart (
+        AsyncLegacyOperationStart asyncRequest(
             service->get_next_xid(),
             NULL,
             service->getQueueId(),
             notify_req,
             service->getQueueId());
 
-        AsyncReply * asyncReply = 
+        AutoPtr<AsyncReply> asyncReply( 
             _controller->ClientSendWait(*_client_handle,
             service->getQueueId(),
-            asyncRequest);
+            &asyncRequest));
 
-	CIMInitializeProviderResponseMessage * response =
+	AutoPtr<CIMInitializeProviderResponseMessage> response(
 	    reinterpret_cast<CIMInitializeProviderResponseMessage *>(
-	    (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+	    (static_cast<AsyncLegacyOperationResult *>(asyncReply.
+	    get()))->get_result()));
 
         if (response->cimException.getCode() != CIM_ERR_SUCCESS)
 	{
@@ -3619,10 +3620,6 @@ void ProviderRegistrationManager::_sendInitializeProviderMessage(
 	    Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
 		Logger::WARNING, PROVIDER_CANNOT_BE_LOAD_KEY,
 		PROVIDER_CANNOT_BE_LOAD, e.getMessage());
-
-	    delete asyncRequest;
-	    delete asyncReply;
-	    delete response;
 	}
     }
 }

@@ -19,6 +19,7 @@ LIBRARIES = \
 
 SOURCES = \
 	WQLSelectStatement.cpp \
+	WQLSelectStatementRep.cpp \
 	WQLYACC.cpp \
 	WQLLEX.cpp \
 	WQLSimplePropertySource.cpp \

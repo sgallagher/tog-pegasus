@@ -1181,23 +1181,51 @@ CIMInvokeMethodResponseMessage* CIMOperationResponseDecoder::_decodeInvokeMethod
 	    outParameters,
 	    methodName));
     }
-    else if (XmlReader::testStartTag(parser, entry, "RETURNVALUE"))
+    else
     {
-	XmlReader::getValueElement(parser, CIMType::STRING, value);
+        Boolean isReturnValue = false;
+        Boolean isParamValue = false;
+        Boolean gotReturnValue = false;
 
-	XmlReader::testEndTag(parser, "RETURNVALUE");
+        while ((isReturnValue =
+                    XmlReader::testStartTag(parser, entry, "RETURNVALUE")) ||
+               (isParamValue = XmlReader::getParamValueTag(parser, paramName)))
+        {
+            if (isReturnValue)
+            {
+                // ATTN: Need to determine the correct type
+	        XmlReader::getValueElement(parser, CIMType::STRING, value);
+        	XmlReader::testEndTag(parser, "RETURNVALUE");
 
-	while (XmlReader::getParamValueTag(parser, paramName))
-	{
-	    //XmlReader::getValueElement(parser, CIMType::NONE, inValue);
-	    XmlReader::getStringValueElement(parser, inValue, true);
+                if (gotReturnValue)
+                {
+	            throw XmlValidationError(parser.getLine(),
+	                "unexpected RETURNVALUE element");
+                }
+                gotReturnValue = true;
+            }
+            else    // isParamValue == true
+            {
+                // ATTN: Need to determine the correct type
+	        //XmlReader::getValueElement(parser, CIMType::NONE, inValue);
+	        XmlReader::getStringValueElement(parser, inValue, true);
 
-	    outParameters.append(CIMParamValue(
-		CIMParameter(paramName, CIMType::STRING),
-		CIMValue(inValue)));
+	        outParameters.append(CIMParamValue(
+		    CIMParameter(paramName, CIMType::STRING),
+		    CIMValue(inValue)));
 	
-	    XmlReader::expectEndTag(parser, "PARAMVALUE");
-	}
+	        XmlReader::expectEndTag(parser, "PARAMVALUE");
+            }
+
+            isReturnValue = false;
+            isParamValue = false;
+        }
+
+        if (!gotReturnValue)
+        {
+            throw XmlValidationError(parser.getLine(),
+                "expected ERROR or RETURNVALUE element");
+        }
 
 	return(new CIMInvokeMethodResponseMessage(
 	    messageId,
@@ -1207,11 +1235,6 @@ CIMInvokeMethodResponseMessage* CIMOperationResponseDecoder::_decodeInvokeMethod
 	    value,
 	    outParameters,
 	    methodName));
-    }
-    else
-    {
-	throw XmlValidationError(parser.getLine(),
-	    "expected ERROR or RETURNVALUE element");
     }
 }
 

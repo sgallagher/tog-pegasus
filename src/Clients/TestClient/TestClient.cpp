@@ -539,7 +539,15 @@ void GetOptions(
 		 {"slp", "false", false, Option::BOOLEAN, 0, 0, "slp", 
 		 		 		 "use SLP to find cim servers to test"},
 		 {"ssl", "false", false, Option::BOOLEAN, 0, 0, "ssl", 
-		 		 		 "use SSL"}
+		 		 		 "use SSL"}, 
+
+		 {"local", "false", false, Option::BOOLEAN, 0, 0, "local",
+		 		 		 "Use local connection mechanism"},
+		 {"user", "", false, Option::STRING, 0, 0, "user",
+		 		 		 "Specifies user name" },
+
+		 {"password", "", false, Option::STRING, 0, 0, "password",
+		 		 		 "Specifies password" }
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
 
@@ -616,6 +624,19 @@ int main(int argc, char** argv)
     globalNamespace = localNameSpace;
     cout << "Namespace = " << localNameSpace << endl;
 
+    String userName;
+    om.lookupValue("user", userName);
+    if (userName != String::EMPTY)
+    {
+       cout << "Username = " << userName << endl;
+    }
+
+    String password;
+    om.lookupValue("password", password);
+    if (password != String::EMPTY)
+    {
+       cout << "password = " << password << endl;
+    }
 
     Boolean verboseTest = (om.valueEquals("verbose", "true")) ? true :false;
 
@@ -629,8 +650,12 @@ int main(int argc, char** argv)
     // if SLP false and no args, use default localhost:5988
     Boolean useSLP =  (om.valueEquals("slp", "true"))? true: false;
     cout << "SLP " << (useSLP ? "true" : "false") << endl;
+
+    Boolean localConnection = (om.valueEquals("local", "true"))? true: false;
+    cout << "localConnection " << (localConnection ? "true" : "false") << endl;
+
     Array<String> connectionList;
-    if (argc > 1)
+    if (argc > 1 && !localConnection)
 		 for (Sint32 i = 1; i < argc; i++)
 		     connectionList.append(argv[i]);
 
@@ -660,7 +685,6 @@ int main(int argc, char** argv)
     }
 #endif
     Boolean useSSL =  (om.valueEquals("ssl", "true"))? true: false;
-    
 
     cout << "Connection List size " << connectionList.size() << endl;
     for (Uint32 i = 0; i < connectionList.size(); i++)
@@ -678,16 +702,25 @@ int main(int argc, char** argv)
 	   CIMClient client(60 * 1000);
 
 	   char * connection = connectionList[i].allocateCString();
-	   cout << "connecting to " << connection << endl;
            if (useSSL)
            {
                String certpath("/home/markus/src/pegasus/server.pem");
                SSLContext * sslcontext = new SSLContext(certpath);
+	       cout << "connecting to " << connection << endl;
 	       client.connect(connection, sslcontext);
            }
            else
            {
-	       client.connect(connection);
+               if (om.valueEquals("local", "true"))
+               {
+	           cout << "Using local connection mechanism " << endl;
+                   client.connectLocal();
+               }
+               else 
+               {
+	           cout << "connecting to " << connection << endl;
+                   client.connect(connection, userName, password);
+               }
            }
 	   delete [] connection;
 

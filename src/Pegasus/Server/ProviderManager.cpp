@@ -187,6 +187,16 @@ void ProviderManager::createProviderBlockTable(Array<CIMNamedInstance> & namedin
 	}
 }
 
+Uint32 ProviderManager::_stopProvider(Uint32 providerIndex)
+{
+    // Terminate the provider, unload its library, and remove its entry
+    _providers[providerIndex].getProvider()->terminate();
+    // ATTN: Only unload if this is the last provider loaded from this library
+    _providers[providerIndex].unload();
+    _providers.remove(providerIndex);
+    return(0);
+}
+    
 Uint32 ProviderManager::stopProvider(const String & providerName)
 {
     // check list for requested provider. If found, terminate the
@@ -195,15 +205,12 @@ Uint32 ProviderManager::stopProvider(const String & providerName)
     {
         if(String::equalNoCase(providerName, _providers[i].getProviderName()))
         {
-	    // get provider handle
-	    _providers[i].getProvider()->terminate();
-	    _providers[i].unload();
-            return(0);
+	    return _stopProvider(i);
         }
     }
     
     // if provider is not loaded, just return
-	return (0);
+    return (0);
 }
     
 void ProviderManager::shutdownAllProviders(const String & providerName, const String & className)
@@ -217,7 +224,7 @@ void ProviderManager::shutdownAllProviders(const String & providerName, const St
         if ( !(String::equalNoCase(providerName, _providers[i].getProviderName()) &&
                String::equalNoCase(className, _providers[i].getClassName())))
         {
-            _providers[i].getProvider()->terminate();
+	    _stopProvider(i);
         }
     }
 }

@@ -73,6 +73,7 @@ protected:
 
 private:
 	void _addProviderToTable(const String & providerName, Boolean blockFlag);
+	Uint32 _stopProvider(Uint32 providerIndex);
 
 };
 

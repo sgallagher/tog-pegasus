@@ -325,7 +325,9 @@ public:
         MessageQueueService * target = 0)
     : OperationResponseHandler(request, response),
         _source(source),
-        _target(target)
+        _target(target),
+	_request_copy(*request),
+	_response_copy(*response)
     {
         PEGASUS_ASSERT(_source != 0);
 
@@ -359,7 +361,7 @@ public:
         // create message
         CIMProcessIndicationRequestMessage * request =
             new CIMProcessIndicationRequestMessage(
-            getRequest()->messageId,
+	     _request_copy.messageId,
             cimInstance.getPath().getNameSpace(),
             cimInstance,
             QueueIdStack(_target->getQueueId(), _source->getQueueId()));
@@ -406,6 +408,10 @@ public:
 protected:
     MessageQueueService * _source;
     MessageQueueService * _target;
+
+private:
+    CIMEnableIndicationsRequestMessage _request_copy;
+    CIMEnableIndicationsResponseMessage _response_copy;
 };
 
 PEGASUS_NAMESPACE_END

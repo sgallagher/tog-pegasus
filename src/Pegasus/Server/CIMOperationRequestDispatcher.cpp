@@ -44,11 +44,14 @@
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Formatter.h>
-
+#include <Pegasus/Server/reg_table.h>
 PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 //#define LIMIT_ENUM_TO_ONE_LEVEL
+
+static DynamicRoutingTable _routing_table;
+
 
 
 CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
@@ -70,6 +73,9 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
         configManager->getCurrentValue("enableAssociationTraversal"), "true");
    _enableIndicationService = String::equal(
         configManager->getCurrentValue("enableIndicationService"), "true");
+
+   _routing_table = DynamicRoutingTable::get_rw_routing_table();
+   
 
    PEG_METHOD_EXIT();
 }
@@ -111,85 +117,184 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
    String& service,
    String& provider)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::_lookupInternalProvider");
-    // Clear the strings since used as test later. Poor code but true now
-    service =  String::EMPTY;
-    provider = String::EMPTY;
 
-    if (className.equal (PEGASUS_CLASSNAME_CONFIGSETTING) &&
-        nameSpace.equal (PEGASUS_NAMESPACENAME_CONFIG))
-    {
-        service = PEGASUS_QUEUENAME_CONTROLSERVICE;
-        provider = PEGASUS_MODULENAME_CONFIGPROVIDER;
-	PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-	    "Internal provider  Service = " + service + " provider " + provider + " found.");
-        PEG_METHOD_EXIT();
-        return true;
-    }
-    if ((className.equal (PEGASUS_CLASSNAME_AUTHORIZATION) &&
-         nameSpace.equal (PEGASUS_NAMESPACENAME_AUTHORIZATION)) ||
-        (className.equal (PEGASUS_CLASSNAME_USER) &&
-         nameSpace.equal (PEGASUS_NAMESPACENAME_USER)))
-    {
-        service = PEGASUS_QUEUENAME_CONTROLSERVICE;
-        provider = PEGASUS_MODULENAME_USERAUTHPROVIDER;
-	PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-	    "Internal provider  Service = " + service + " provider " + provider + " found.");
-        PEG_METHOD_EXIT();
-        return true;
-    }
-    if (className.equal (PEGASUS_CLASSNAME_SHUTDOWN) &&
-        nameSpace.equal (PEGASUS_NAMESPACENAME_SHUTDOWN))
-    {
-        service = PEGASUS_QUEUENAME_CONTROLSERVICE;
-        provider = PEGASUS_MODULENAME_SHUTDOWNPROVIDER;
-	PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-	    "Internal provider  Service = " + service + " provider " + provider + " found.");
-        PEG_METHOD_EXIT();
-        return true;
-    }
-    if (className.equal (PEGASUS_CLASSNAME___NAMESPACE) ||
-	className.equal (PEGASUS_CLASSNAME_NAMESPACE))
-    {
-        service = PEGASUS_QUEUENAME_CONTROLSERVICE;
-        provider = PEGASUS_MODULENAME_NAMESPACEPROVIDER;
-	PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-	    "Internal provider  Service = " + service + " provider " + provider + " found.");
-        PEG_METHOD_EXIT();
-        return true;
-    }
+   static AtomicInt _initialized = 0;
+   static Mutex _monitor;
 
-    if ((className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE) ||
-         className.equal (PEGASUS_CLASSNAME_PROVIDER) ||
-         className.equal (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES)) &&
-         nameSpace.equal (PEGASUS_NAMESPACENAME_PROVIDERREG))
-    {
-        service = PEGASUS_QUEUENAME_CONTROLSERVICE;
-        provider = PEGASUS_MODULENAME_PROVREGPROVIDER;
-	PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-	    "Internal provider  Service = " + service + " provider " + provider + " found.");
-        PEG_METHOD_EXIT();
-        return true;
-    }
-    if (_enableIndicationService &&
-        (className.equal (PEGASUS_CLASSNAME_INDSUBSCRIPTION) ||
-         className.equal (PEGASUS_CLASSNAME_INDHANDLER) ||
-         className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
-         className.equal (PEGASUS_CLASSNAME_INDHANDLER_SNMP) ||
-         className.equal (PEGASUS_CLASSNAME_INDFILTER)))
-    {
-        service = PEGASUS_QUEUENAME_INDICATIONSERVICE;
-        provider = String::EMPTY;
-	PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-	    "Internal provider  Service = "
-	     + service + " provider " + provider + " found.");
-        PEG_METHOD_EXIT();
-        return true;
-    }
-    PEG_METHOD_EXIT();
-    return false;
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+		    "CIMOperationRequestDispatcher::_lookupInternalProvider");
+   // Clear the strings since used as test later. Poor code but true now
+   
+   service =  String::EMPTY;
+   provider = String::EMPTY;
+   CIMNamespaceName _wild;
+   _wild.clear();
+   if(_initialized == 0)
+   {
+      _monitor.lock(pegasus_thread_self());
+      if(_initialized.value() == 0 )
+      {
+	 _routing_table.insert_record(PEGASUS_CLASSNAME_CONFIGSETTING,
+				      PEGASUS_NAMESPACENAME_CONFIG, 
+				      DynamicRoutingTable::INTERNAL,
+				      0, 
+				      static_cast<MessageQueueService *>
+				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+				      PEGASUS_MODULENAME_CONFIGPROVIDER, 
+				      PEGASUS_QUEUENAME_CONTROLSERVICE);
+	  
+
+	 _routing_table.insert_record(PEGASUS_CLASSNAME_AUTHORIZATION,
+				      PEGASUS_NAMESPACENAME_AUTHORIZATION, 
+				      DynamicRoutingTable::INTERNAL,
+				      0, 
+				      static_cast<MessageQueueService *>
+				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+				      PEGASUS_MODULENAME_USERAUTHPROVIDER,
+				      service = PEGASUS_QUEUENAME_CONTROLSERVICE);
+	  
+	 _routing_table.insert_record(PEGASUS_CLASSNAME_USER,
+				      PEGASUS_NAMESPACENAME_USER, 
+				      DynamicRoutingTable::INTERNAL,
+				      0, 
+				      static_cast<MessageQueueService *>
+				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+				      PEGASUS_MODULENAME_USERAUTHPROVIDER,
+				      service = PEGASUS_QUEUENAME_CONTROLSERVICE);
+       
+	 _routing_table.insert_record(PEGASUS_CLASSNAME_SHUTDOWN,
+				      PEGASUS_NAMESPACENAME_SHUTDOWN, 
+				      DynamicRoutingTable::INTERNAL,
+				      0, 
+				      static_cast<MessageQueueService *>
+				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+				      PEGASUS_MODULENAME_SHUTDOWNPROVIDER,
+				      PEGASUS_QUEUENAME_CONTROLSERVICE);
+
+
+	 _routing_table.insert_record(PEGASUS_CLASSNAME___NAMESPACE,
+				      _wild, 
+				      DynamicRoutingTable::INTERNAL,
+				      0, 
+				      static_cast<MessageQueueService *>
+				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+				      PEGASUS_MODULENAME_NAMESPACEPROVIDER,
+				      PEGASUS_QUEUENAME_CONTROLSERVICE);
+	  
+	 _routing_table.insert_record(PEGASUS_CLASSNAME_NAMESPACE,
+				      _wild, 
+				      DynamicRoutingTable::INTERNAL,
+				      0, 
+				      static_cast<MessageQueueService *>
+				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+				      PEGASUS_MODULENAME_NAMESPACEPROVIDER,
+				      PEGASUS_QUEUENAME_CONTROLSERVICE);
+	  
+	  
+	 _routing_table.insert_record(PEGASUS_CLASSNAME_PROVIDERMODULE,
+				      PEGASUS_NAMESPACENAME_PROVIDERREG, 
+				      DynamicRoutingTable::INTERNAL,
+				      0, 
+				      static_cast<MessageQueueService *>
+				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+				      PEGASUS_MODULENAME_PROVREGPROVIDER,
+				      PEGASUS_QUEUENAME_CONTROLSERVICE);
+	  
+	  
+	 _routing_table.insert_record(PEGASUS_CLASSNAME_PROVIDER,
+				      PEGASUS_NAMESPACENAME_PROVIDERREG, 
+				      DynamicRoutingTable::INTERNAL,
+				      0, 
+				      static_cast<MessageQueueService *>
+				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+				      PEGASUS_MODULENAME_PROVREGPROVIDER,
+				      PEGASUS_QUEUENAME_CONTROLSERVICE);
+	  
+	 _routing_table.insert_record(PEGASUS_CLASSNAME_PROVIDERCAPABILITIES,
+				      PEGASUS_NAMESPACENAME_PROVIDERREG, 
+				      DynamicRoutingTable::INTERNAL,
+				      0, 
+				      static_cast<MessageQueueService *>
+				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+				      PEGASUS_MODULENAME_PROVREGPROVIDER,
+				      PEGASUS_QUEUENAME_CONTROLSERVICE);
+	  
+	  
+	 if (_enableIndicationService)
+	 {
+
+
+	     
+
+	    _routing_table.insert_record(PEGASUS_CLASSNAME_INDSUBSCRIPTION,
+					 _wild, 
+					 DynamicRoutingTable::INTERNAL,
+					 0, 
+					 static_cast<MessageQueueService *>
+					 (MessageQueue::lookup(PEGASUS_QUEUENAME_INDICATIONSERVICE)),
+					 String::EMPTY,
+					 PEGASUS_QUEUENAME_INDICATIONSERVICE);
+
+
+	    _routing_table.insert_record(PEGASUS_CLASSNAME_INDHANDLER,
+					 _wild, 
+					 DynamicRoutingTable::INTERNAL,
+					 0, 
+					 static_cast<MessageQueueService *>
+					 (MessageQueue::lookup(PEGASUS_QUEUENAME_INDICATIONSERVICE)),
+					 String::EMPTY,
+					 PEGASUS_QUEUENAME_INDICATIONSERVICE);
+
+	    _routing_table.insert_record(PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
+					 _wild, 
+					 DynamicRoutingTable::INTERNAL,
+					 0, 
+					 static_cast<MessageQueueService *>
+					 (MessageQueue::lookup(PEGASUS_QUEUENAME_INDICATIONSERVICE)),
+					 String::EMPTY,
+					 PEGASUS_QUEUENAME_INDICATIONSERVICE);
+
+	    _routing_table.insert_record(PEGASUS_CLASSNAME_INDHANDLER_SNMP,
+					 _wild, 
+					 DynamicRoutingTable::INTERNAL,
+					 0, 
+					 static_cast<MessageQueueService *>
+					 (MessageQueue::lookup(PEGASUS_QUEUENAME_INDICATIONSERVICE)),
+					 String::EMPTY,
+					 PEGASUS_QUEUENAME_INDICATIONSERVICE);
+
+	    _routing_table.insert_record(PEGASUS_CLASSNAME_INDFILTER,
+					 _wild, 
+					 DynamicRoutingTable::INTERNAL,
+					 0, 
+					 static_cast<MessageQueueService *>
+					 (MessageQueue::lookup(PEGASUS_QUEUENAME_INDICATIONSERVICE)),
+					 String::EMPTY,
+					 PEGASUS_QUEUENAME_INDICATIONSERVICE);
+
+	 }
+	 _initialized = 1;
+      }
+
+      _monitor.unlock();
+   }
+    
+   MessageQueueService *router = 
+      _routing_table.get_routing(className, 
+				 nameSpace, 
+				 DynamicRoutingTable::INTERNAL, 
+				 0, 
+				 provider, 
+				 service);
+   PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+		    "Internal provider  Service = " + service + " provider " + provider + " found.");       
+
+   PEG_METHOD_EXIT();
+   if(router)
+      return true;
+   return false;
 }
+ 
 
 /* _getSubClassNames - Gets the names of all subclasses of the defined
     class (including the class) and returns it in an array of strings. Uses a similar
@@ -255,9 +360,28 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
     CIMInstance pInstance;
     CIMInstance pmInstance;
     String providerName;
-
+    String serviceName;
+    
     PEG_METHOD_ENTER(TRC_DISPATCHER,
                      "CIMOperationRequestDispatcher::_lookupInstanceProvider");
+
+    MessageQueueService *router = 
+       _routing_table.get_routing(className, 
+				  nameSpace, 
+				  DynamicRoutingTable::INSTANCE, 
+				  0, 
+				  providerName, 
+				  serviceName);
+    if(router)
+    {
+       
+       PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+			"providerName = " + providerName + " found.");
+       PEG_METHOD_EXIT();
+       return (providerName);
+    }
+    
+
     if (_providerRegistrationManager->lookupInstanceProvider(
 	nameSpace, className, pInstance, pmInstance, false))
     {
@@ -366,6 +490,25 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
     CIMInstance pInstance;
     CIMInstance pmInstance;
     String providerName;
+    String serviceName;
+    
+    MessageQueueService *router = 
+       _routing_table.get_routing(className, 
+				  nameSpace, 
+				  DynamicRoutingTable::METHOD, 
+				  0, 
+				  providerName, 
+				  serviceName);
+    if(router)
+    {
+       
+       PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+			"providerName = " + providerName + " found.");
+       PEG_METHOD_EXIT();
+       return (providerName);
+    }
+
+
 
     if (_providerRegistrationManager->lookupMethodProvider(
 	nameSpace, className, methodName, pInstance, pmInstance))

@@ -5,7 +5,8 @@ include $(ROOT)/mak/config.mak
 DIRS = \
 #	LoadProcessClass \
 	SendMailIndicationDispatcher \
-	XmlIndicationDispatcher
+	XmlIndicationDispatcher \
+        reg_table
 
 #	MyProvider \
 

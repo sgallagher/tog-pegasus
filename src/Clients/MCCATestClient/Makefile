@@ -43,24 +43,24 @@ repository:
 
 # Loading Core mof into the two new test namespaces	
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into root/test/A namespace ...
-	@ cimmof "-R$(REPOSITORY_DIR)" "-I$(CIM_SCHEMA_DIR)" "-n/root/test/A" $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ cimmof "-I$(CIM_SCHEMA_DIR)" "-n/root/test/A" $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into root/test/B namespace ...
-	@ cimmof "-R$(REPOSITORY_DIR)" "-I$(CIM_SCHEMA_DIR)" "-n/root/test/B" $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ cimmof  "-I$(CIM_SCHEMA_DIR)" "-n/root/test/B" $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 
 # Loading MCCA_TestClass into the two namespaces
 	@ $(ECHO) +++++ Loading MCCA_TestClass into root/test/A namespace ...
-	@ cimmof "-R$(REPOSITORY_DIR)" "-nroot/test/A" MCCA_TestClass.mof
+	@ cimmof  "-nroot/test/A" MCCA_TestClass.mof
 	@ $(ECHO) +++++ Loading MCCA_TestClass into root/test/B namespace ...
-	@ cimmof "-R$(REPOSITORY_DIR)" "-nroot/test/B" MCCA_TestClass.mof
+	@ cimmof  "-nroot/test/B" MCCA_TestClass.mof
 # Loading Association Schema definition into both namespaces		
 	@ $(ECHO) +++++ Loading MCCA_TestAssocClass into root/test/A namespace ...
-	@ cimmof "-R$(REPOSITORY_DIR)" "-nroot/test/A" $(ROOT)/src/Providers/TestProviders/MCCA_TestAssocProvider/MCCA_TestAssocPrvSchema.mof
+	@ cimmof  "-nroot/test/A" $(ROOT)/src/Providers/TestProviders/MCCA_TestAssocProvider/MCCA_TestAssocPrvSchema.mof
 	@ $(ECHO) +++++ Loading MCCA_TestAssocClass into root/test/B namespace ...
-	@ cimmof "-R$(REPOSITORY_DIR)" "-nroot/test/B" $(ROOT)/src/Providers/TestProviders/MCCA_TestAssocProvider/MCCA_TestAssocPrvSchema.mof
+	@ cimmof  "-nroot/test/B" $(ROOT)/src/Providers/TestProviders/MCCA_TestAssocProvider/MCCA_TestAssocPrvSchema.mof
 # Registering Provider in PG_InterOp
 	@ $(ECHO) +++++ Loading  MCCA_TestAssocClass provider definitions into PG_InterOp namespace ...
-	@ cimmof "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" $(ROOT)/src/Providers/TestProviders/MCCA_TestAssocProvider/MCCA_TestAssocPrvReg.mof
+	@ cimmof  "-n$(INTEROPNS)" $(ROOT)/src/Providers/TestProviders/MCCA_TestAssocProvider/MCCA_TestAssocPrvReg.mof
 
 removeclasses:
 # Removing test repository without cimserver knowing it	

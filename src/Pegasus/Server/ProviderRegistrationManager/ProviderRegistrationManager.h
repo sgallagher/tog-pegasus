@@ -73,10 +73,12 @@ public:
 		String& location, 
 		Uint16& status);
 
-	Array <CIMInstance> getIndicationProviders(
+	Boolean getIndicationProviders(
 		const String & nameSpace, 
 		const String & className,
-		const Array<String>& requiredProperties); 
+		const Array<String>& requiredProperties,
+		Array<CIMInstance> & provider,
+		Array<CIMInstance> & providerModule); 
 
 	CIMInstance getInstance(const CIMReference & ref);
 

@@ -34,11 +34,11 @@ include $(ROOT)/mak/program.mak
 repository:
 	@ echo +++++ Loading QueryExpression Test Schema into $(QEXPRTESTNS) namespace ...
 	@ cimmofl -R$(REPOSITORY_DIR) -n$(QEXPRTESTNS) QExprTestSchema.mof
-	@ cimmofl -n$(QEXPRTESTNS) QExprTestSchemaR.mof
+	@ cimmofl -R$(REPOSITORY_DIR) -n$(QEXPRTESTNS) QExprTestSchemaR.mof
 
 repositoryServer:
 	@ echo +++++ Loading QueryExpression Test Schema into $(QEXPRTESTNS) namespace ...
-	@ cimmof -R$(REPOSITORY_DIR) -n$(QEXPRTESTNS) QExprTestSchema.mof
+	@ cimmof -n$(QEXPRTESTNS) QExprTestSchema.mof
 	@ cimmof -n$(QEXPRTESTNS) QExprTestSchemaR.mof
 
 tests: 

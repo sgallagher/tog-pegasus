@@ -22,3 +22,9 @@
     5.	Makedepend utility was made the default depend
 	utility on some platforms. The deafault should be
 	"mu depend".
+
+    6.	Regression tests should only print this:
+
+	    "+++++ passed all tests"
+
+	Extraneous output should be removed.

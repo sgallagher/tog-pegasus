@@ -1,6 +1,5 @@
 // We have one shared library module with three providers
 // in it: IPPEpProvider, BindsIPToLANEpProvider, and IPRouteProvider
-// Only the first one for now . . .
 
 instance of PG_ProviderModule 
 {

@@ -1,6 +1,3 @@
-//ATTN-SLC-P2-24-Apr-02: Needs license header like other MOFs? - BZ #54
-
-
 instance of PG_ProviderModule 
 {
    Name = "OperatingSystemModule";

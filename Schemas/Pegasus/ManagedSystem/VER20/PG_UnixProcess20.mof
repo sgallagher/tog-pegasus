@@ -1,19 +1,9 @@
 // ===================================================================
 // Title:       UNIX Processes, Threads, and Statistics
-// Filename:    UnixProcess.mof
+// Filename:    PG_UnixProcess20.mof
 // Version:     2.6 Preliminary +
 // Release:     0
 // Date:        2002/03/14
-// ===================================================================
-// Copyright "2001" Distributed Management Task Force, Inc. (DMTF).
-// All rights reserved.  
-// DMTF is a not-for-profit association of industry members dedicated 
-// to promoting enterprise and systems management and interoperability
-// DMTF specifications and documents may be reproduced for uses
-// consistent with this purpose by members and non-members, 
-// provided that correct attribution is given. 
-// As DMTF specifications may be revised from time to time, 
-// the particular version and release cited should always be noted.
 // ===================================================================
 // Author:      DMTF System and Devices Working Group
 //		    Jim Metcalfe
@@ -49,6 +39,17 @@
 //
 // ==================================================================
 
+// ===================================================================
+// Copyright 1998-2003 Distributed Management Task Force, Inc. (DMTF).
+// All rights reserved.
+// DMTF is a not-for-profit association of industry members dedicated
+// to promoting enterprise and systems management and interoperability.
+// DMTF specifications and documents may be reproduced for uses
+// consistent with this purpose by members and non-members,
+// provided that correct attribution is given.
+// As DMTF specifications may be revised from time to time,
+// the particular version and release date should always be noted.
+// ===================================================================
 
 // ==================================================================
 // ManagedElement
@@ -261,6 +262,153 @@ class CIM_Process : CIM_LogicalElement {
 };
 
 
+// ==================================================================
+//    StatisticalInformation
+// ================================================================== 
+   [Abstract, Description ( 
+     "CIM_StatisticalInformation is a root class for any arbitrary " 
+     "collection of statistical data and/or metrics applicable to " 
+     "one or more ManagedSystemElements.") ] 
+class CIM_StatisticalInformation : CIM_ManagedElement { 
+      [MaxLen (256), Description ( 
+        "The Name property defines the label by which the statistic " 
+        "or metric is known. When subclassed, the property can be " 
+        "overridden to be a Key property. ") ] 
+   string Name; 
+};
+
+
+// ==================================================================
+//    Statistics
+// ================================================================== 
+   [Association, Description ( 
+     "CIM_Statistics is an association that relates Managed" 
+     "Elements to the StatisticalGroup(s) that apply to them.") ]
+class CIM_Statistics { 
+      [Key, Description (
+        "The statistic information/object.") ] 
+   CIM_StatisticalInformation REF Stats; 
+      [Key, Description ( 
+        "The ManagedElement for which statistical or metric " 
+        "data is defined.") ] 
+   CIM_ManagedElement REF Element;
+};
+
+
+// ===================================================================
+// Thread
+// ===================================================================
+   [Description (
+     "Threads represent the ability to execute units of a Process "
+     "or task in parallel.  A Process can have many Threads, each "
+     "of which is weak to the Process.") ]
+class CIM_Thread : CIM_LogicalElement {
+      [Propagated("CIM_Process.CSCreationClassName"),
+       Key, MaxLen (256),
+       Description ("The scoping ComputerSystem's CreationClassName.") ]
+   string  CSCreationClassName;
+      [Propagated("CIM_Process.CSName"),
+       Key, MaxLen (256),
+       Description ("The scoping ComputerSystem's Name.") ]
+   string CSName;
+      [Propagated("CIM_Process.OSCreationClassName"),
+       Key, MaxLen (256),
+       Description ("The scoping OperatingSystem's CreationClassName.") ]
+   string OSCreationClassName;
+      [Propagated("CIM_Process.OSName"),
+       Key, MaxLen (256),
+       Description ("The scoping OperatingSystem's Name.") ]
+   string OSName;
+      [Propagated("CIM_Process.CreationClassName"),
+       Key, MaxLen (256),
+       Description ("The scoping Process' CreationClassName.") ]
+   string ProcessCreationClassName;
+      [Propagated("CIM_Process.Handle"),
+       Key, MaxLen (256),
+       Description ("The scoping Process' Handle.") ]
+   string ProcessHandle;
+      [Key, MaxLen(256),
+       Description (
+        "CreationClassName indicates the name of the class or the "
+        "subclass used in the creation of an instance. When used "
+        "with the other key properties of this class, this property "
+        "allow all instances of this class and its subclasses to "
+        "be uniquely identified.") ]
+   string CreationClassName;
+      [Key, MaxLen(256),
+       Description ("A string used to identify the Thread.") ]
+   string Handle;
+      [Description (
+        "Priority indicates the urgency or importance of execution "
+        "of a Thread. A Thread may have a different priority than "
+        "its owning Process. If this information is not available "
+        "for a Thread, a value of 0 should be used.") ]
+   uint32 Priority;
+      [Description (
+        "Indicates the current operating condition of the Thread. " 
+        "Values include ready (2), running (3), and blocked (4), "
+        "among others."),
+       Values {"Unknown", "Other", "Ready", "Running", 
+               "Blocked", "Suspended Blocked", "Suspended Ready"}]
+   uint16 ExecutionState;
+      [Description (
+      "Time in kernel mode, in milliseconds. If this information "
+      "is not available, a value of 0 should be used."),
+       Units("MilliSeconds") ]
+   uint64 KernelModeTime;
+      [Description (
+        "Time in user mode, in milliseconds. If this information is "
+        "not available, a value of 0 should be used."),
+       Units("MilliSeconds") ]
+   uint64 UserModeTime;
+};
+
+
+// ===================================================================
+// ProcessThread
+// ===================================================================
+   [Association, Aggregation, Description (
+     "A link between a Process and the Thread(s) running in the "
+     "context of this Process.") ]
+class CIM_ProcessThread : CIM_Component {
+      [Override ("GroupComponent"), Aggregate, Min (1), Max (1),
+       Description ("The Process.") ]
+   CIM_Process REF GroupComponent;
+      [Override ("PartComponent"), Weak,
+       Description (
+        "The Thread running in the context of the Process.") ]
+   CIM_Thread REF PartComponent;
+};
+
+// ==========================================================================
+// End of Copyright 1998-2003 Distributed Management Task Force, Inc. (DMTF).
+// ==========================================================================
+
+//%2003////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//=============================================================================
+
 // ===================================================================
 //  PG_UnixProcess
 // ===================================================================
@@ -320,23 +468,6 @@ class PG_UnixProcess : CIM_Process {
    string ProcessWaitingForEvent;
 
 };
-
-
-// ==================================================================
-//    StatisticalInformation
-// ================================================================== 
-   [Abstract, Description ( 
-     "CIM_StatisticalInformation is a root class for any arbitrary " 
-     "collection of statistical data and/or metrics applicable to " 
-     "one or more ManagedSystemElements.") ] 
-class CIM_StatisticalInformation : CIM_ManagedElement { 
-      [MaxLen (256), Description ( 
-        "The Name property defines the label by which the statistic " 
-        "or metric is known. When subclassed, the property can be " 
-        "overridden to be a Key property. ") ] 
-   string Name; 
-};
-
 
 // ===================================================================
 //  PG_UnixProcessStatisticalInformation
@@ -447,23 +578,6 @@ class PG_UnixProcessStatisticalInformation : CIM_StatisticalInformation {
 
 
 // ==================================================================
-//    Statistics
-// ================================================================== 
-   [Association, Description ( 
-     "CIM_Statistics is an association that relates Managed" 
-     "Elements to the StatisticalGroup(s) that apply to them.") ]
-class CIM_Statistics { 
-      [Key, Description (
-        "The statistic information/object.") ] 
-   CIM_StatisticalInformation REF Stats; 
-      [Key, Description ( 
-        "The ManagedElement for which statistical or metric " 
-        "data is defined.") ] 
-   CIM_ManagedElement REF Element;
-};
-
-
-// ==================================================================
 //    PG_UnixProcessStatistics
 // ================================================================== 
     [Association, Version ("2.2.0"), Description ( 
@@ -479,92 +593,6 @@ class PG_UnixProcessStatistics : CIM_Statistics {
         [Key, Override ("Stats"), Weak, Description (
          "The UNIX Process statistical information/object.") ] 
     PG_UnixProcessStatisticalInformation REF Stats; 
-};
-
-
-// ===================================================================
-// Thread
-// ===================================================================
-   [Description (
-     "Threads represent the ability to execute units of a Process "
-     "or task in parallel.  A Process can have many Threads, each "
-     "of which is weak to the Process.") ]
-class CIM_Thread : CIM_LogicalElement {
-      [Propagated("CIM_Process.CSCreationClassName"),
-       Key, MaxLen (256),
-       Description ("The scoping ComputerSystem's CreationClassName.") ]
-   string  CSCreationClassName;
-      [Propagated("CIM_Process.CSName"),
-       Key, MaxLen (256),
-       Description ("The scoping ComputerSystem's Name.") ]
-   string CSName;
-      [Propagated("CIM_Process.OSCreationClassName"),
-       Key, MaxLen (256),
-       Description ("The scoping OperatingSystem's CreationClassName.") ]
-   string OSCreationClassName;
-      [Propagated("CIM_Process.OSName"),
-       Key, MaxLen (256),
-       Description ("The scoping OperatingSystem's Name.") ]
-   string OSName;
-      [Propagated("CIM_Process.CreationClassName"),
-       Key, MaxLen (256),
-       Description ("The scoping Process' CreationClassName.") ]
-   string ProcessCreationClassName;
-      [Propagated("CIM_Process.Handle"),
-       Key, MaxLen (256),
-       Description ("The scoping Process' Handle.") ]
-   string ProcessHandle;
-      [Key, MaxLen(256),
-       Description (
-        "CreationClassName indicates the name of the class or the "
-        "subclass used in the creation of an instance. When used "
-        "with the other key properties of this class, this property "
-        "allow all instances of this class and its subclasses to "
-        "be uniquely identified.") ]
-   string CreationClassName;
-      [Key, MaxLen(256),
-       Description ("A string used to identify the Thread.") ]
-   string Handle;
-      [Description (
-        "Priority indicates the urgency or importance of execution "
-        "of a Thread. A Thread may have a different priority than "
-        "its owning Process. If this information is not available "
-        "for a Thread, a value of 0 should be used.") ]
-   uint32 Priority;
-      [Description (
-        "Indicates the current operating condition of the Thread. " 
-        "Values include ready (2), running (3), and blocked (4), "
-        "among others."),
-       Values {"Unknown", "Other", "Ready", "Running", 
-               "Blocked", "Suspended Blocked", "Suspended Ready"}]
-   uint16 ExecutionState;
-      [Description (
-      "Time in kernel mode, in milliseconds. If this information "
-      "is not available, a value of 0 should be used."),
-       Units("MilliSeconds") ]
-   uint64 KernelModeTime;
-      [Description (
-        "Time in user mode, in milliseconds. If this information is "
-        "not available, a value of 0 should be used."),
-       Units("MilliSeconds") ]
-   uint64 UserModeTime;
-};
-
-
-// ===================================================================
-// ProcessThread
-// ===================================================================
-   [Association, Aggregation, Description (
-     "A link between a Process and the Thread(s) running in the "
-     "context of this Process.") ]
-class CIM_ProcessThread : CIM_Component {
-      [Override ("GroupComponent"), Aggregate, Min (1), Max (1),
-       Description ("The Process.") ]
-   CIM_Process REF GroupComponent;
-      [Override ("PartComponent"), Weak,
-       Description (
-        "The Thread running in the context of the Process.") ]
-   CIM_Thread REF PartComponent;
 };
 
 

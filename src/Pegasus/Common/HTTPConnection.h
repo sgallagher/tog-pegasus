@@ -47,6 +47,7 @@
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/pegasus_socket.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -82,7 +83,7 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
       HTTPConnection(
 	 Monitor* monitor,
 	 //Sint32 socket, 
-	 MP_Socket * socket, 
+	 AutoPtr<MP_Socket>& socket, 
 	 MessageQueue * ownerMessageQueue,
 	 MessageQueue * outputMessageQueue);
             
@@ -154,7 +155,7 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
       Monitor* _monitor;
 
       //Sint32 _socket;
-      MP_Socket* _socket;
+      AutoPtr<MP_Socket> _socket;
       MessageQueue* _ownerMessageQueue;
       MessageQueue* _outputMessageQueue;
 

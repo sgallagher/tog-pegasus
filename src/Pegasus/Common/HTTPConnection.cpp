@@ -115,13 +115,13 @@ void * sigabrt_generator(void * parm)
 HTTPConnection::HTTPConnection(
     Monitor* monitor,
     //Sint32 socket, 
-    MP_Socket* socket, 
+    AutoPtr<MP_Socket>& socket, 
     MessageQueue* ownerMessageQueue,
     MessageQueue* outputMessageQueue)
     : 
    Base(PEGASUS_QUEUENAME_HTTPCONNECTION), 
    _monitor(monitor),
-   _socket(socket), 
+   _socket(socket.get()), 
    _ownerMessageQueue(ownerMessageQueue),
    _outputMessageQueue(outputMessageQueue),
    _contentOffset(-1),
@@ -144,7 +144,7 @@ HTTPConnection::~HTTPConnection()
    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::~HTTPConnection");
 
     _socket->close();
-    delete _socket;
+    //delete _socket;
     delete _authInfo;
 
    PEG_METHOD_EXIT();

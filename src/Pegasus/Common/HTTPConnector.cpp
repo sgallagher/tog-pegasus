@@ -333,7 +333,7 @@ HTTPConnection* HTTPConnector::connect(
 
    // Create HTTPConnection object:
 
-   MP_Socket * mp_socket = new MP_Socket(socket, sslContext);
+   AutoPtr<MP_Socket> mp_socket(new MP_Socket(socket, sslContext));
    if (mp_socket->connect() < 0) {
       char portStr [32];
       sprintf (portStr, "%u", portNumber);
@@ -360,6 +360,8 @@ HTTPConnection* HTTPConnector::connect(
    }
 
    // Save the socket for cleanup later:
+
+   mp_socket.release();
 
    _rep->connections.append(connection);
 

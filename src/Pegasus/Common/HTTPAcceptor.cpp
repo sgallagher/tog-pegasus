@@ -587,7 +587,7 @@ void HTTPAcceptor::_acceptConnection()
 
    // Create a new conection and add it to the connection list:
 
-   MP_Socket * mp_socket = new MP_Socket(socket, _sslcontext);
+   AutoPtr<MP_Socket> mp_socket(new MP_Socket(socket, _sslcontext));
    if (mp_socket->accept() < 0) 
    {
        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
@@ -614,6 +614,8 @@ void HTTPAcceptor::_acceptConnection()
       Socket::close(socket);
       return;
    }
+
+   mp_socket.release();
 
    // Save the socket for cleanup later:
    connection->_entry_index = index;

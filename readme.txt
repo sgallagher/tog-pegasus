@@ -5,6 +5,9 @@ Author: Mike Brasher, Karl Schopmeyer
 
 HISTORY_BEGIN
 $Log: readme.txt,v $
+Revision 1.2  2001/01/20 22:44:43  karl
+retrofit for provider interfaces
+
 Revision 1.1  2001/01/15 04:26:04  karl
 added Readme
 
@@ -149,6 +152,7 @@ Pegasus                         - Root directory
     doc                     Miscelaneous Pegasus Documents. Includes the DMTF XML for CIM 2.4
     html                    HTML files for the Browser test client.
     mak                     General make files (used by the root make and other makes)
+    Repository		    This Directory containes the created repository
     src                     All Pegasus Source Files
         ACEExamples         Test directrory with examples of the use of ACE (developers)
         Pegasus
@@ -287,7 +291,7 @@ You may type "mu" to get a list of valid commands. Here are some
 of them:
 
 
-    echo, rm, rmdirhier, mkdirhier, copy, pwd, depend
+    rm, rmdirhier, mkdirhier, echo, touch, pwd, copy, move, compare depend
 
 
 The MU utility supports globing (expansion of wildcards) so

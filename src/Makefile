@@ -2,7 +2,7 @@ ROOT = ..
 
 include $(ROOT)/mak/config.mak
 
-DIRS = Pegasus
+DIRS = Pegasus Clients
 
 include $(ROOT)/mak/recurse.mak
 

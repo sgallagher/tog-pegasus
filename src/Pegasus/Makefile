@@ -14,7 +14,6 @@ DIRS = \
     Protocol \
     Client \
     Server \
-    CGI \
     $(TEST_DIRS)
 
 include $(ROOT)/mak/recurse.mak

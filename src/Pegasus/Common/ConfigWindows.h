@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: ConfigWindows.h,v $
-// Revision 1.1  2001/01/14 19:50:40  mike
-// Initial revision
+// Revision 1.2  2001/01/20 22:44:44  karl
+// retrofit for provider interfaces
+//
+// Revision 1.1.1.1  2001/01/14 19:50:40  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -86,6 +89,12 @@ PEGASUS_NAMESPACE_BEGIN
 # define PEGASUS_SERVER_LINKAGE __declspec(dllexport)
 #else
 # define PEGASUS_SERVER_LINKAGE __declspec(dllimport)
+#endif
+
+#ifdef PEGASUS_PROVIDER_INTERNAL
+# define PEGASUS_PROVIDER_LINKAGE __declspec(dllexport)
+#else
+# define PEGASUS_PROVIDER_LINKAGE __declspec(dllimport)
 #endif
 
 #define for if (0) ; else for

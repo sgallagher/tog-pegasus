@@ -4,4 +4,3 @@ LIBRARIES = \
     pegrepository \
     pegserver \
     pegprovider \
-    pegprovider2

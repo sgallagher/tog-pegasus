@@ -26,7 +26,8 @@ LIBRARIES = \
     pegexportserver \
     pegrepository \
     pegconfig \
-    pegcommon 
+    pegcommon \
+    pegservice
 
 ifndef PEGASUS_DISABLE_PERFINST
 LIBRARIES += \

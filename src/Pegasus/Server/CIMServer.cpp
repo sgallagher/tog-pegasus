@@ -41,8 +41,7 @@
 
 //debugging
 
-#define DDD(X) X
-//#define DDD(X) //X
+#define DDD(X) // X
 
 #include <iostream>
 

@@ -449,18 +449,24 @@ void CIMReference::set(const String& objectName)
 
 void CIMReference::setNameSpace(const String& nameSpace)
 {
-   String temp;
+    String temp;
 
-   // check each namespace segment (delimted by '\\') for correctness
-   for(Uint32 i = 0; i < nameSpace.size(); i += temp.size() + 1) {
-      // isolate the segment beginning at i and ending at the first ocurrance of '\\' after i or eos
-      temp = nameSpace.subString(i, nameSpace.subString(i).find('\\'));
+    // check each namespace segment (delimted by '\\') for correctness
 
-      // check segment for correctness
-      if(!CIMName::legal(temp)) {
-         throw(IllegalName());
-      }
-   }
+    for(Uint32 i = 0; i < nameSpace.size(); i += temp.size() + 1) 
+    {
+        // isolate the segment beginning at i and ending at the first 
+	// ocurrance of '/' after i or eos
+
+	temp = nameSpace.subString(i, nameSpace.subString(i).find('/'));
+
+	// check segment for correctness
+
+	if(!CIMName::legal(temp)) 
+	{
+	    throw(IllegalName());
+	}
+    }
 
    _nameSpace = nameSpace;
 }

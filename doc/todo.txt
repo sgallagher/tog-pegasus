@@ -1,6 +1,20 @@
 Urgent
 ======
 
+    -   Fix problem with cimserver not running properly when run without
+	options.
+
+    -   Put cimserver back in the makefile.
+
+    -   Resolve whether the backslash should be permitted int namespaces.
+
+    -   Work on developer's guidlines document.
+
+	    No STL (or other third party software).
+	    Indent by three.
+	    Braces on the next line.
+	    Always run regression tests before committing and do cvs -q update.
+
     -   Add CIMOM handle to provider interface.
 
     -	Fix case sensitivity problems in repository (just add an _Open method

@@ -33,8 +33,7 @@ using namespace std;
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define DDD(X) X
-//#define DDD(X) //X
+#define DDD(X) // X
 
 // ATTN-A: manage lifetime of all these objects. Do a walkthrough!
 // ATTN-B: add methods for getting the remote hostname and port!

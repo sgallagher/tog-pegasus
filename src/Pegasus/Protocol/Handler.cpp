@@ -195,8 +195,7 @@ void Handler::log() const
     char* tmp = os.str();
 
     Logger::put(Logger::TRACE_LOG, "Handler",Logger::INFORMATION,
-	       "RCVD================\n $0", tmp);
-
+       "RCVD================\n $0", tmp);
 }
 
 /** Handler::log generates a log entry for the message.
@@ -430,11 +429,14 @@ int Handler::handleMessage()
 	cout << "========== RECEIVED ==========" << endl;
 	print();
     }
+
     // printMessage(cout, _message);
+
     if (_messageLogTrace)
 	log();
-	//log(Logger::TRACE_LOG, "Handler",Logger::INFORMATION, 
-	//		"RCVD================\n $0");
+
+    //log(Logger::TRACE_LOG, "Handler",Logger::INFORMATION, 
+    //		"RCVD================\n $0");
 
     return 0;
 }

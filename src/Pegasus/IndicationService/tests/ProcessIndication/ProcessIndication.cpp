@@ -145,6 +145,10 @@ Boolean _checkIndicationLog
                 return false;
             }
             String header = log.subString (0, newline);
+            if (header [header.size () - 1] == '\r')
+            {
+                header = header.subString (0, newline - 1);
+            }
             if (!String::equal (header, 
                 "++++++++++++++ Received Indication +++++++++++++++++"))
             {
@@ -180,6 +184,10 @@ Boolean _checkIndicationLog
                     return false;
                 }
                 String line = log.subString (0, newline);
+                if (line [line.size () - 1] == '\r')
+                {
+                    line = line.subString (0, newline - 1);
+                }
                 Uint32 eq = line.find (String (" = "));
                 if (eq == PEG_NOT_FOUND)
                 {
@@ -250,6 +258,10 @@ Boolean _checkIndicationLog
                 return false;
             }
             String footer = log.subString (0, newline);
+            if (footer [footer.size () - 1] == '\r')
+            {
+                footer = footer.subString (0, newline - 1);
+            }
             if (!String::equal (footer,
                 "++++++++++++++++++++++++++++++++++++++++++++++++++++"))
             {
@@ -259,6 +271,10 @@ Boolean _checkIndicationLog
             if (log.size () > newline + 1)
             {
                 log = log.subString (newline + 1);
+                if (log [0] == '\r')
+                {
+                    log = log.subString (1);
+                }
                 if ((log.size () != 1) || (log [0] != '\n'))
                 {
                     _renameLogFile (indicationLogFileName);
@@ -277,7 +293,7 @@ Boolean _checkIndicationLog
             FileSystem::removeFile (indicationLogFileName);
             return true;
         }
-        catch (CannotOpenFile & cof)
+        catch (CannotOpenFile &)
         {
             _renameLogFile (indicationLogFileName);
             return false;
@@ -750,13 +766,13 @@ int main (int argc, char** argv)
     catch (Exception & e)
     {
         PEGASUS_STD (cerr) << e.getMessage () << PEGASUS_STD (endl);
-        exit (-1);
+        return -1;
     }
 
     if (argc != 2)
     {
         _usage ();
-        exit (1);
+        return 1;
     }
 
     else
@@ -914,9 +930,9 @@ int main (int argc, char** argv)
             PEGASUS_STD (cerr) << "Invalid option: " << opt 
                 << PEGASUS_STD (endl);
             _usage ();
-            exit (-1);
+            return -1;
         }
     }
 
-    exit (0);
+    return 0;
 }

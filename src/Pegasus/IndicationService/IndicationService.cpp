@@ -535,7 +535,7 @@ void IndicationService::_initialize (void)
             //  Skip it
             //
             invalidInstance = true;
-            break;
+            continue;
         }
 
 //l10n start
@@ -1093,7 +1093,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
                 //  This instance from the repository is corrupted
                 //  Skip it
                 //
-                break;
+                continue;
             }
             enumInstances [i].removeProperty
                 (enumInstances [i].findProperty

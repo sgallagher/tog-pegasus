@@ -469,16 +469,19 @@ CIMException::CIMException(const CIMException & cimException)
 
 CIMException& CIMException::operator=(const CIMException & cimException)
 {
-    CIMExceptionRep* left;
-    CIMExceptionRep* right;
-    left = reinterpret_cast<CIMExceptionRep*>(this->_rep);
-    right = reinterpret_cast<CIMExceptionRep*>(cimException._rep);
-    left->message = right->message;
-    left->contentLanguages = right->contentLanguages;  // l10n    
-    left->cimMessage = right->cimMessage;  // l10n
-    left->code = right->code;
-    left->file = right->file;
-    left->line = right->line;
+    if (&cimException != this)
+    {
+        CIMExceptionRep* left;
+        CIMExceptionRep* right;
+        left = reinterpret_cast<CIMExceptionRep*>(this->_rep);
+        right = reinterpret_cast<CIMExceptionRep*>(cimException._rep);
+        left->message = right->message;
+        left->contentLanguages = right->contentLanguages;  // l10n    
+        left->cimMessage = right->cimMessage;  // l10n
+        left->code = right->code;
+        left->file = right->file;
+        left->line = right->line;
+    }
     return *this;
 }
 

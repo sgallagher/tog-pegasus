@@ -34,12 +34,13 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/ProviderManager2/Linkage.h>
 
 #include <Pegasus/Common/QueryExpressionRep.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class QueryExpressionFactory {
+class PEGASUS_PPM_LINKAGE QueryExpressionFactory {
   public:
    static QueryExpressionRep* routeBuildQueryExpressionRep(
            String queryLanguage,

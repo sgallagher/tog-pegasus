@@ -36,13 +36,13 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 
-#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class CIMRepository;
 
-class PEGASUS_SERVER_LINKAGE ProviderRegistrarInitializer
+class PEGASUS_PPM_LINKAGE ProviderRegistrarInitializer
 {
 public:
     ProviderRegistrarInitializer(void);
@@ -52,7 +52,7 @@ public:
 
 };
 
-class PEGASUS_SERVER_LINKAGE RegistrationRecord
+class PEGASUS_PPM_LINKAGE RegistrationRecord
 {
 public:
     String className;

@@ -45,26 +45,24 @@
 
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
-#include <Pegasus/Repository/CIMRepository.h>
-
+#include <Pegasus/Query/QueryCommon/QueryContext.h>
 PEGASUS_NAMESPACE_BEGIN
 
 struct CMPI_SelectExp : CMPISelectExp {
-   CMPI_SelectExp(const OperationContext& ct, CIMRepository *repository, String _ns, String cond_, String lang_);
+   CMPI_SelectExp(const OperationContext& ct, QueryContext *context, String cond_, String lang_);
    CMPI_SelectExp(WQLSelectStatement*);
    CMPI_Object *next,*prev;
    const char **props;
    Array<CIMObjectPath> classNames;
    const OperationContext ctx;
    SubscriptionFilterConditionContainer* fcc;
-   String _namespace;
    String cond,lang;
    CMPI_Wql2Dnf *wql_dnf;
    CMPI_Cql2Dnf *cql_dnf;
    CMPI_Tableau *tableau;
    WQLSelectStatement *wql_stmt;
    CQLSelectStatement *cql_stmt;
-   CIMRepository *_repository;
+   QueryContext *_context;
 };
 
 PEGASUS_NAMESPACE_END

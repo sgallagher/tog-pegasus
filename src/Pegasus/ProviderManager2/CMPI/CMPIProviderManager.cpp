@@ -57,6 +57,7 @@
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Server/CIMServer.h>
 
+#include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 #include <Pegasus/ProviderManager2/ProviderType.h>
 #include <Pegasus/ProviderManager2/ProviderName.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProviderModule.h>
@@ -112,10 +113,6 @@ CMPIProviderManager::CMPIProviderManager(Mode m)
    mode=m;
    if (getenv("CMPI_TRACE")) _cmpi_trace=1;
    else _cmpi_trace=0;
-//   _repository=ProviderManagerService::getRepository();
-   ProviderManagerService *provService =ProviderManagerService::providerManagerService;
-	_repository=
-		provService->_repository;
    _subscriptionInitComplete = false;
 }
 
@@ -138,6 +135,8 @@ CMPIProviderManager::~CMPIProviderManager(void)
 		selxTab.lookup(i.key(), selx);
 		if (selx->eSelx)
 			delete selx->eSelx;
+        if (selx->qContext)
+			delete selx->qContext;
 		delete selx;
 		selxTab.remove(i.key());
 		selx=NULL;
@@ -1754,13 +1753,17 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 		SubscriptionFilterConditionContainer sub_cntr =  request->operationContext.get
 								(SubscriptionFilterConditionContainer::NAME);
 
+		CIMOMHandleQueryContext *_context= new CIMOMHandleQueryContext(CIMNamespaceName(request->nameSpace.getString()),
+										*pr._cimom_handle);
+
 		CMPI_SelectExp *eSelx=new CMPI_SelectExp(context,
-						_repository,
-						request->nameSpace.getString(),
+						_context,
         				request->query,
         				sub_cntr.getQueryLanguage());
 
         srec->eSelx=eSelx;
+	    srec->qContext=_context;
+
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
@@ -1911,6 +1914,8 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         selxTab.lookup(sPathString,srec);
 
         CMPI_SelectExp *eSelx=srec->eSelx;
+		CIMOMHandleQueryContext *qContext=srec->qContext;
+
         CMPI_ObjectPathOnStack eRef(eSelx->classNames[0]);
         selxTab.remove(sPathString);
 
@@ -1965,7 +1970,8 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
            &eRef,prec==NULL);
 
        STAT_PMS_PROVIDEREND;
-       
+
+	   delete qContext;       
 	   delete eSelx;
 	   delete srec;
 

@@ -43,8 +43,7 @@
 #include "CMPI_SelectExpAccessor_CQL.h"
 
 #include <Pegasus/WQL/WQLInstancePropertySource.h>
-#include <Pegasus/Repository/CIMRepository.h>
-#include <Pegasus/Repository/RepositoryQueryContext.h>
+#include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 #include <Pegasus/CQL/CQLSelectStatement.h>
 #include <Pegasus/CQL/CQLParser.h>
 #include <Pegasus/WQL/WQLParser.h>
@@ -92,22 +91,13 @@ extern "C" {
 
 		if (sx->cql_stmt == NULL)
 	      {
-			CIMNamespaceName _ns (sx->_namespace);
-		if (_ns.isNull ())
-		{
-		  // Take that! It should never happend, but you never known.
-		  CMSetStatus (rc, CMPI_RC_ERR_INVALID_NAMESPACE);
-		  return false;
-		}
 		/* The constructor should set this to a valid pointer. */
-		if (sx->_repository == NULL) {
+		if (sx->_context == NULL) {
 			CMSetStatus (rc, CMPI_RC_ERROR_SYSTEM);
 			return false;
 		}
-		RepositoryQueryContext rep_ctx (_ns, sx->_repository);
-
 		CQLSelectStatement *selectStatement =
-		  new CQLSelectStatement (sx->lang, sx->cond, rep_ctx);
+		  new CQLSelectStatement (sx->lang, sx->cond, *sx->_context);
 		try
 		{
 		  CQLParser::parse (sx->cond, *selectStatement);
@@ -158,7 +148,7 @@ extern "C" {
 			return false;
 	}
     /* CIM:CQL */
-#if 0
+#if PEGASUS_CMPI_CQL_PROVIDER
     if (strncmp (sx->lang.getCString (), CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) ==
 	0)
       {
@@ -206,7 +196,7 @@ extern "C" {
 	 else
 		return false;
 	}
-#if 0	
+#if PEGASUS_CMPI_CQL_PROVIDER
     if (strncmp (sx->lang.getCString (), CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) == 0)
 	{
 		if (_check_CQL(sx, rc)) 
@@ -247,27 +237,18 @@ extern "C" {
 	  	}
 		sc = (CMPISelectCond *) new CMPI_SelectCond (sx->tableau, 0);
       }
-#if 0
+#if PEGASUS_CMPI_CQL_PROVIDER
     if (strncmp (sx->lang.getCString (), CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) == 0)
       {
 		if (sx->cql_dnf == NULL)
 		{
-		/* Extract the namespace string. This value is defined by the constructor. */
-			CIMNamespaceName _ns (sx->_namespace);
-
-			if (_ns.isNull ()) {
-				CMSetStatus (rc, CMPI_RC_ERR_INVALID_NAMESPACE);
-				return NULL;
-			}
-
 			/* The constructor should set this to a valid pointer. */
-			if (sx->_repository == NULL) {
+			if (sx->_context == NULL) {
 				CMSetStatus (rc, CMPI_RC_ERROR_SYSTEM);
 				return NULL;
 			}
 		
-			RepositoryQueryContext rep_ctx (_ns, sx->_repository);
-			CQLSelectStatement selectStatement (sx->lang, sx->cond, rep_ctx);
+			CQLSelectStatement selectStatement (sx->lang, sx->cond, sx->_context);
 			CMPI_Cql2Dnf *dnf = NULL;
 			try
 			{
@@ -321,8 +302,8 @@ static CMPISelectExpFT selx_FT={
 
 CMPISelectExpFT *CMPI_SelectExp_Ftab=&selx_FT;
 
-CMPI_SelectExp::CMPI_SelectExp(const OperationContext& ct,CIMRepository *repository, String _ns, String cond_, String lang_)
-  :  ctx(ct),  _namespace(_ns), cond(cond_), lang(lang_), _repository(repository) {
+CMPI_SelectExp::CMPI_SelectExp(const OperationContext& ct, QueryContext *context, String cond_, String lang_)
+  :  ctx(ct),   cond(cond_), lang(lang_), _context(context) {
    props=NULL;
    ft=CMPI_SelectExp_Ftab;
    wql_dnf=NULL;
@@ -343,6 +324,7 @@ CMPI_SelectExp::CMPI_SelectExp(WQLSelectStatement* st)
    wql_stmt=st;
    cql_stmt=NULL;
    tableau=NULL;
+   _context = NULL;
 }
 
 PEGASUS_NAMESPACE_END

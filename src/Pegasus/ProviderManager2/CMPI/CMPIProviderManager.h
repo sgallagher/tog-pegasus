@@ -41,7 +41,6 @@
 #include <Pegasus/ProviderManager2/ProviderName.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>
 #include <Pegasus/Common/OperationContextInternal.h>
-#include <Pegasus/Repository/CIMRepository.h>
 
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
@@ -49,6 +48,7 @@
 #include <Pegasus/ProviderManager2/CMPI/CMPILocalProviderManager.h>
 #include <Pegasus/ProviderManager2/CMPI/Linkage.h>
 
+#include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 PEGASUS_NAMESPACE_BEGIN
 
 struct CMPI_SelectExp;
@@ -86,6 +86,7 @@ public:
    struct indSelectRecord {
       indSelectRecord() : eSelx(NULL) {}
       CMPI_SelectExp *eSelx;
+	  CIMOMHandleQueryContext *qContext;
    };
 
    typedef HashTable<String,indProvRecord*,  EqualFunc<String>,HashFunc<String> > IndProvTab;
@@ -100,7 +101,6 @@ protected:
     CMPILocalProviderManager providerManager;
 
     Mode mode;
-    CIMRepository *_repository;
 
     Message * handleUnsupportedRequest(const Message * message);
 

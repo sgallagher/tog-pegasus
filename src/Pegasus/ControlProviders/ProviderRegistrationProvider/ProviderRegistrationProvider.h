@@ -30,9 +30,9 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/ControlProviders/ProviderRegistrationProvider/Linkage.h>
 
+#include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
-#include <Pegasus/Common/ModuleController.h>
 
 #include <Pegasus/Common/AcceptLanguages.h> // l10n
 

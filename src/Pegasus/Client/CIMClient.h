@@ -93,7 +93,7 @@ public:
     CIMClient(Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
 
     ///
-    ~CIMClient();
+    virtual ~CIMClient();
 
     /** TBD
     */

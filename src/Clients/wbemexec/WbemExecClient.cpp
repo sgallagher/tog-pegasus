@@ -78,8 +78,8 @@ WbemExecClient::WbemExecClient(Uint32 timeOutMilliseconds)
     _httpConnection(0),
     _timeOutMilliseconds(timeOutMilliseconds),
     _connected(false),
-    _password( String::EMPTY ) ,
-    _isRemote( false )
+    _isRemote( false ),
+    _password( String::EMPTY )
 {
     //
     // Create Monitor and HTTPConnector

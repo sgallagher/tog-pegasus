@@ -289,6 +289,12 @@ void shutdownCIMOM(Boolean forceOption, Uint32 timeoutValue)
 	    "$0 terminated on port $1.", PEGASUS_NAME, portNumberStr);
 
     }
+    catch(CIMClientCIMException& e)
+    {
+        PEGASUS_STD(cerr) << "Failed to shutdown server: ";
+        PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
+        exit(1);
+    }
     catch(CIMClientException& e)
     {
         //
@@ -314,12 +320,6 @@ void shutdownCIMOM(Boolean forceOption, Uint32 timeoutValue)
             exit(1);
         }
 #endif
-    }
-    catch(CIMClientCIMException& e)
-    {
-        PEGASUS_STD(cerr) << "Failed to shutdown server: ";
-        PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
-        exit(1);
     }
     catch(Exception& e)
     {

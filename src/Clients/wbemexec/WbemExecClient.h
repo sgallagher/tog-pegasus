@@ -72,7 +72,7 @@ public:
     WbemExecClient(Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
 
     ///
-    ~WbemExecClient();
+    virtual ~WbemExecClient();
 
     /**  TBD
     */
@@ -182,7 +182,7 @@ public:
 
     /** ATTN TBD
     */
-    virtual Array<Sint8> issueRequest(
+    Array<Sint8> issueRequest(
 	const Array<Sint8>& request
     ) throw(NotConnected, TimedOut);
 

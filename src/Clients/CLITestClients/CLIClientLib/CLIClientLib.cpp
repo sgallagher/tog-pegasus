@@ -240,7 +240,7 @@ int enumerateClassNames(CIMClient& client, Options& opts)
             << endl;
     }
     // Added to allow "" string input to represent NULL CIMName.
-    CIMName& myClassName = CIMName();
+    CIMName myClassName = CIMName();
     if (opts.className != "")
     {
         myClassName = opts.className;
@@ -279,7 +279,7 @@ int enumerateClasses(CIMClient& client, Options& opts)
             << endl;
     }
     // Added to allow "" string input to represent NULL CIMName.
-    CIMName& myClassName = CIMName();
+    CIMName myClassName = CIMName();
     if (opts.className != "")
     {
         myClassName = opts.className;

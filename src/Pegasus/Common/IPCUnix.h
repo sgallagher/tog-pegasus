@@ -41,7 +41,9 @@
 #include <unistd.h>
 
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-#include <asm/atomic.h>
+
+// #include <asm/atomic.h>
+
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
@@ -120,8 +122,9 @@ typedef struct {
 
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 #define PEGASUS_ATOMIC_INT_NATIVE = 1
-#define PEGASUS_OLD_ATOMIC_INT = 1
-typedef atomic_t PEGASUS_ATOMIC_TYPE ;
+// #define PEGASUS_OLD_ATOMIC_INT = 1
+// typedef atomic_t PEGASUS_ATOMIC_TYPE ;
+typedef pthread_spinlock_t PEGASUS_ATOMIC_TYPE ;
 
 #endif // linux platform atomic type
 

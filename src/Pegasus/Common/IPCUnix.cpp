@@ -786,7 +786,7 @@ AtomicInt::~AtomicInt() { pthread_spin_destroy(&_crit);}
 AtomicInt::AtomicInt(const AtomicInt& original) 
 {
    pthread_spin_init(&_crit,0);
-   _rep = original.value();
+   _rep = const_cast<AtomicInt &>(original).value();
 }
 
 AtomicInt& AtomicInt::operator=(Uint32 i) 
@@ -801,7 +801,7 @@ AtomicInt& AtomicInt::operator=(const AtomicInt& original)
 {
    if(this != &original)
    {
-      int i = original.value();
+      int i = const_cast<AtomicInt &>(original).value();
       pthread_spin_lock(&_crit);
       _rep = i;
       pthread_spin_unlock(&_crit);
@@ -854,7 +854,7 @@ void AtomicInt::operator--(int)
 
 Uint32 AtomicInt::operator+(const AtomicInt& val)
 {
-    int i = val.value();
+    int i = const_cast<AtomicInt &>(val).value();
     pthread_spin_lock(&_crit);
     i += _rep;
     pthread_spin_unlock(&_crit);
@@ -872,7 +872,7 @@ Uint32 AtomicInt::operator+(Uint32 val)
 
 Uint32 AtomicInt::operator-(const AtomicInt& val)
 {
-    int i = val.value();
+    int i = const_cast<AtomicInt &>(val).value();
     pthread_spin_lock(&_crit);
     i = _rep - i;
     pthread_spin_unlock(&_crit);
@@ -890,7 +890,7 @@ Uint32 AtomicInt::operator-(Uint32 val)
 
 AtomicInt& AtomicInt::operator+=(const AtomicInt& val)
 {
-    int i = val.value();
+    int i = const_cast<AtomicInt &>(val).value();
     pthread_spin_lock(&_crit);
     _rep += i;
     pthread_spin_unlock(&_crit);
@@ -907,7 +907,7 @@ AtomicInt& AtomicInt::operator+=(Uint32 val)
 
 AtomicInt& AtomicInt::operator-=(const AtomicInt& val)
 {
-    int i = val.value();
+    int i = const_cast<AtomicInt &>(val).value();
     pthread_spin_lock(&_crit);
     _rep -= i;
     pthread_spin_unlock(&_crit);

@@ -32,6 +32,10 @@
 #include <Pegasus/Common/Selector.h>
 #include <Pegasus/Handler/CIMHandler.h>
 
+#ifdef PEGASUS_OS_HPUX
+# include <unistd.h>
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;

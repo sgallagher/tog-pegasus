@@ -15,7 +15,6 @@ DIRS = \
     Compare \
     DateTime \
     Dir \
-    DQueue \
     FileSystem \
     InstanceDecl \
     Method \
@@ -50,5 +49,9 @@ DIRS = \
 #    MessageQueueService \
 #    WebServer \
 #    async_callback \
+
+ifneq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+DIRS += DQueue
+endif
 
 include $(ROOT)/mak/recurse.mak

@@ -429,125 +429,108 @@ PredicateTree::~PredicateTree(void)
    delete _pred;
 }
 
+PredicateTree::PredicateTree(const PredicateReference& pred)
+   : _mut(), _truth_value(true), _logical_op(AND),
+     _peers(true), _children(true)
+{
+   _pred = new PredicateReference(pred);
+}
+
 Boolean PredicateTree::evaluate(void)
 {
-   if(_children.count())
-   {
-      Boolean truth = true;
-      _truth_value = true;
-      PredicateTree *children = NULL;
-
-// rw lock may be more appropriate
-      _children.lock();
-      while( NULL != ( children = _children.next(children)))
-      {
-	 truth = children->evaluate();
-	 switch(_logical_op)
-	 {
-	    case AND:
-	       if(truth)
-		  continue;
-	       else 
-	       {
-		  _truth_value = false;
-		  break;
-	       }
-	       break;
-	    case OR:
-	       if(truth)
-		  break;
-	       else
-	       {
-		  _truth_value = false;
-		  continue;
-	       }
-	    case NOT:
-	       if(truth)
-	       {
-		  _truth_value = false;
-		  break;
-	       }
-	       else 
-		  continue;
-	    default:
-	       break;
-	 }
-	 if(_truth_value == false)
-	    break;
-      }
-      _children.unlock();
-   }
-
-   if( _truth_value == true && _peers.count() )
-   {
-      Boolean truth = true;
-      PredicateTree *peers = NULL;
-      _peers.lock();
-      // need to change this. 
-      // don't need peers, if we recurse on children then 
-      // peers are simply a set of children that have the same parent. 
-      // i.e., siblings and not peers
-      if ( NULL != (peers = _peers.next(peers)))
-      {
-	 peers->evaluate();
-	 switch(_logical_op)
-	 {
-	    case AND:
-	       if(truth)
-		  continue;
-	       else 
-	       {
-		  _truth_value = false;
-		  break;
-	       }
-	       break;
-	    case OR:
-	       if(truth)
-		  break;
-	       else
-	       {
-		  _truth_value = false;
-		  continue;
-	       }
-	    case NOT:
-	       if(truth)
-	       {
-		  _truth_value = false;
-		  break;
-	       }
-	       else 
-		  continue;
-	    default:
-	       break;
-	 }
-	 if(_truth_value == false)
-	    break;
-      }
-      _peers.unlock();
-   }
-   if(_truth_value == true && _pred != NULL)
+   if(_pred != NULL)
    {
       Boolean truth =  _pred->evaluate();
       switch(_logical_op)
       {
 	 case AND:
 	    if(truth == false)
+	    {
 	       _truth_value = false;
+	       return _truth_value;
+	    }
+	    else
+	       _truth_value = true;
 	    break;
 	 case OR:
-	    if(truth != true)
+	    if(truth == true)
+	    {
+	       _truth_value = true;
+	       return _truth_value;
+	    }
+	    else
 	       _truth_value = false;
 	    break;
 	 case NOT:
 	    if(truth == true)
+	    {
 	       _truth_value = false;
+	       return _truth_value;
+	    }
+	    else
+	       _truth_value = true;
 	    break;
 	 default:
+	    _truth_value = true;
 	    break;
       }
    }
+   else 
+      _truth_value = true;
+
+   if(_children.count())
+   {
+      PredicateTree *children = NULL;
+
+// rw lock may be more appropriate
+// try ... catch 
+      try 
+      {
+	 _children.lock();
+      }
+      catch ( IPCException& e)
+      {
+	 throw;
+      }
+      
+      while( NULL != ( children = _children.next(children)))
+      {
+	 Boolean truth = children->evaluate();
+	 switch(_logical_op)
+	 {
+	    case AND:
+	       if(truth == false )
+	       {
+		  _truth_value = false;
+		  _children.unlock();
+		  return _truth_value;
+	       }
+	       break;
+	    case OR:
+	       if(truth == true)
+	       {
+		  _truth_value = true;
+		  _children.unlock();
+		  return _truth_value;
+	       }
+	       else
+		  _truth_value = false;
+	       break;
+	    case NOT:
+	       if(truth == true)
+	       {
+		  _truth_value = false
+		  _children.unlock();
+		  return _truth_value;
+	       }
+	       break;
+	    default:
+	       break;
+	 }
+      }
+      _children.unlock();
+   }
    return _truth_value;
-   
 }
 
 

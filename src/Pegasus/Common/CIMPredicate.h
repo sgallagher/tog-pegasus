@@ -194,6 +194,13 @@ class PEGASUS_COMMON_LINKAGE PredicateReference : public CIMReference
 
       void setPredicates(const Array<Predicate>& predicates);
 
+// inline these guys. 
+      void setCheckInterval(const struct timeval *tv);
+      void getCheckInterval(struct timeval *buffer) const ;
+      
+      void setPersistInterval(const struct timeval *tv);
+      void getPersistInterval(struct timeval *buffer) const ;
+
       Boolean identical(const CIMReference& x) const;
       Boolean identical(const PredicateReference& x) const;
       Boolean evaluate(void);
@@ -205,6 +212,8 @@ class PEGASUS_COMMON_LINKAGE PredicateReference : public CIMReference
       }
       
    private:
+      struct timeval _check_interval;
+      struct timeval _persist_interval;
       Boolean _truth_value;
       LogicalOperator _logical_op;
       Array<Predicate> _predicates;
@@ -222,7 +231,6 @@ class PEGASUS_COMMON_LINKAGE CIMQuery
    public:
       CIMQuery(void);
       virtual ~CIMQuery(void);
-      
       virtual PredicateTree *parse(void) = 0;
 };
 
@@ -232,18 +240,24 @@ class PEGASUS_COMMON_LINKAGE PredicateTree
 
       PredicateTree();
       ~PredicateTree(); 
-      Boolean evaluate(void);
+      PredicateTree(const PredicateReference &pred);
+      Boolean evaluate(void) throw(IPCException);
       void lock(void) throw(IPCException) { _mut.lock(pegasus_thread_self()); }
       void unlock(void) throw(IPCException) { _mut.unlock(); }
-// get rid of peers 
-      void _add_peer(PredicateReference *pr) throw(IPCException)
-      {
-	 _peers.insert_last(pr);
-      }
-      
       void _addChild(PredicateTree *cd) throw(IPCException)
       {
 	 _children.insert_last(cd);
+      }
+      // identity operators are for DQueue operations 
+      Boolean operator==(const void *key) const
+      { 
+	 if(key == (void *)this) 
+	    return true; 
+	 return false; 
+      }
+      Boolean operator ==(const PredicateTree & b) const 
+      {
+	 return(operator==((const void *)&b));
       }
    private:
       PredicateTree(const PredicateTree& x);
@@ -251,7 +265,6 @@ class PEGASUS_COMMON_LINKAGE PredicateTree
       Mutex _mut;
       Boolean _truth_value;
       LogicalOperator _logical_op;
-      DQueue<PredicateTree> _peers;
       DQueue<PredicateTree> _children;
       PredicateReference *_pred;
       friend class CIMQuery;

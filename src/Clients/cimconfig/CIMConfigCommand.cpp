@@ -1392,9 +1392,20 @@ int main (int argc, char* argv [])
       }
   #pragma disable_handler 
 
-    if(FALSE == ycmCheckCmdAuthorities())
-    { 
-      return -9;
+    // check what environment we are running in, native or qsh
+    if( getenv("SHLVL") == NULL ){  // native mode
+	// Check to ensure the user is authorized to use the command,
+	// suppress diagnostic message
+	if(FALSE == ycmCheckCmdAuthorities(1)){
+	  exit(CPFDF80_RC);
+	}
+    }
+    else{ // qsh mode
+	// Check to ensure the user is authorized to use the command
+	// ycmCheckCmdAuthorities() will send a diagnostic message to qsh
+	if(FALSE == ycmCheckCmdAuthorities()){
+	  exit(CPFDF80_RC);
+	}
     }
       
 #endif

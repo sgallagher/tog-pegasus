@@ -79,11 +79,22 @@ main(int argc, char ** argv) {
     }
   #pragma disable_handler
 
-  // Check to ensure the user is authorized to use the command
-  if(FALSE == ycmCheckCmdAuthorities())
-  { 
-    return -9;
-  }
+  // check what environment we are running in, native or qsh
+    if( getenv("SHLVL") == NULL ){  // native mode
+	// Check to ensure the user is authorized to use the command,
+	// suppress diagnostic message, send escape message
+	if(FALSE == ycmCheckCmdAuthorities(1)){
+	  ycmSend_Message_Escape(CPFDF80_RC);
+	  return CPFDF80_RC;
+	}
+    }
+    else{ // qsh mode
+	// Check to ensure the user is authorized to use the command
+	// ycmCheckCmdAuthorities() will send a diagnostic message to qsh
+	if(FALSE == ycmCheckCmdAuthorities()){
+	  return CPFDF80_RC;
+	}
+    }
 
 #endif
 
@@ -185,17 +196,7 @@ main(int argc, char ** argv) {
       memcpy(message_.MsgType, "*DIAG     ", 10); 
       ycmSend_Message(&message_);
 
-      
-      message_t    message;	// Message information
-      cmd_error_t  cmdError; // structure to hold the command and error reason code
-      memset((char *)&cmdError, ' ', sizeof(cmd_error_t) ); // init to blanks
-      memcpy(cmdError.commandName, "QYCMMOFL", 7);
-      memcpy(cmdError.reasonCode, "03", 2 );
-      memcpy(message.MsgId, "CPFDF81", 7);
-      memcpy(message.MsgData, (char *)&cmdError, sizeof(cmd_error_t) );
-      message.MsgLen = sizeof(cmd_error_t);
-      memcpy(message.MsgType, "*DIAG     ", 10); 
-      ycmSend_Message(&message);
+      ycmSend_Message_Escape(CPFDF81_RC, "03", "QYCMMOFL");
   }
 #endif
 

@@ -258,9 +258,24 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
   switch (getType(argv[0])) {
   case 1: cmdlinedata.set_is_local();
     #ifdef PEGASUS_OS_OS400  
-    	if(ycmServerIsActive(YCMSERVER_ACTIVE, YCMCIMMOFL)) 
-		// server is running, lets exit
-		return -1; 
+    	// check if we are in qsh, if we are NOT running in a qsh environment then
+      // send and escape message,
+      // if we ARE then call ycmServerIsActive without the quiet option 
+      if( getenv("SHLVL") == NULL ){  // native mode
+	  if(ycmServerIsActive(YCMSERVER_ACTIVE, YCMCIMMOFL, 1)) {
+	      // previous call's message was suppressed,
+              // server is running, send escape message and return
+	      ycmSend_Message_Escape(CPFDF81_RC, "01", "QYCMMOFL",4);
+	      return CPFDF81_RC;
+	  }
+      }
+      else{ // qsh mode
+	  if(ycmServerIsActive(YCMSERVER_ACTIVE, YCMCIMMOFL)) {
+	      // server is running, the previous call sent a
+	      // diagnostic message, lets return
+	      return CPFDF81_RC;
+	  }
+      } 
     #endif 
     break;
   default: cmdlinedata.reset_is_local();

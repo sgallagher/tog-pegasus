@@ -244,6 +244,7 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 #define PEGASUS_LOCAL_AUTH_DIR            "/tmp"
 // ATTN: Relocate this relative to PEGASUS_HOME
 #define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/tmp/cimxml.socket"
+#define PEGASUS_PAM_STANDALONE_PROC_NAME  "bin/cimservera"
 
 #ifdef PEGASUS_USE_RELEASE_DIRS
 # if defined(PEGASUS_OS_HPUX)
@@ -259,6 +260,8 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 #  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/var/opt/wbem/socket/cimxml.socket"
 #  undef PEGASUS_CORE_DIR
 #  define PEGASUS_CORE_DIR                  "/var/opt/wbem"
+#  undef PEGASUS_PAM_STANDALONE_PROC_NAME
+#  define PEGASUS_PAM_STANDALONE_PROC_NAME  "/opt/wbem/sbin/cimservera"
 # elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
 #  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/var/cache/pegasus/client.pem"
@@ -270,6 +273,8 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 #  define PEGASUS_LOCAL_AUTH_DIR            "/var/cache/pegasus/localauth"
 #  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH
 #  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/var/cache/pegasus/cimxml.socket"
+#  undef PEGASUS_PAM_STANDALONE_PROC_NAME
+#  define PEGASUS_PAM_STANDALONE_PROC_NAME  "/usr/sbin/cimservera"
 # endif
 #endif
 

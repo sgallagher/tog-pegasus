@@ -38,10 +38,53 @@
 #include <Pegasus/Common/IPC.h>
 #include "BasicAuthenticator.h"
 
+
 #include <Pegasus/Security/Authentication/Linkage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
+
+/** This class provides PAM basic authentication by communicating with a
+    standalone process.
+*/
+
+#if defined(PEGASUS_USE_PAM_STANDALONE_PROC)
+
+class PEGASUS_SECURITY_LINKAGE PAMBasicAuthenticatorStandAlone
+{
+public:
+
+    /** constructor. */
+    PAMBasicAuthenticatorStandAlone();
+
+    /** destructor. */
+    ~PAMBasicAuthenticatorStandAlone();
+
+    /** Verify the authentication of the requesting user.
+        @param userName String containing the user name
+        @param password String containing the user password
+        @return true on successful authentication, false otherwise
+    */
+    Boolean authenticate(
+        const String& userName,
+        const String& password);
+
+private:
+    /**
+        A mutex to serialize authentication calls.
+    */
+    static Mutex  _authSerializeMutex;
+
+    String        _realm;
+
+    Boolean _authenticateByPAM(
+        const String& userName,
+        const String& password);
+
+    void _createPAMStandalone();
+};
+
+#endif /* if defined(PEGASUS_USE_PAM_STANDALONE_PROC) */
 
 /** This class provides PAM basic authentication implementation by extending
     the BasicAuthenticator.
@@ -100,12 +143,14 @@ private:
 	const String& userName,
 	const String& password);
 
-#if defined (PEGASUS_OS_HPUX)
+#if defined (PEGASUS_USE_PAM_STANDALONE_PROC)
     Boolean	_usePAM;
 
     Boolean _authenticateByPwnam(
 	const char* userName,
 	const String& password);
+
+    PAMBasicAuthenticatorStandAlone* _pamBasicAuthenticatorStandAlone;
 #endif
 };
 

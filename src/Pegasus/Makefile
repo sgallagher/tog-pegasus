@@ -39,6 +39,11 @@ DIRS += \
 	ProviderManager2/tests \
 	ProviderManager2/Default/tests
 endif
+
+ifdef PEGASUS_USE_PAM_STANDALONE_PROC
+DIRS += \
+	Security/Cimservera
+endif
 	
 DIRS += \
 	Server \

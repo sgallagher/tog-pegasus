@@ -29,7 +29,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//		Karl Schopmeyer (k.schopmeyer@opengroup.org)
+//		        Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -55,6 +55,52 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+// Class to aggregate and amanage the information about classes and providers
+// this simply masks some of the confusion of control providers, etc. today.
+
+class PEGASUS_SERVER_LINKAGE ProviderInfo
+{
+public:
+    ProviderInfo()
+    {
+    }
+    ProviderInfo(CIMName& className)
+            : _className(className), 
+              _magicNumber(54321)
+    {
+    }
+    ProviderInfo(CIMName className, String& serviceName, String& controlProviderName)
+        :   _className(className), _serviceName(serviceName),
+            _controlProviderName(controlProviderName),
+            _magicNumber(54321)
+    {
+    }
+    ~ProviderInfo()
+    {
+    }
+    void setClassName(CIMName className)
+    {
+    _className = className;
+    }
+    CIMName getClassName()
+    {
+        return _className;
+    }
+    void setServiceName(String& serviceName)
+    {
+        _serviceName = serviceName; 
+    }
+    String getServiceName()
+    {
+        return _serviceName;
+    }
+String _controlProviderName;
+String _serviceName;
+CIMName _className;
+Boolean _hasProvider;
+private:
+Uint32 _magicNumber;
+};
 
 /* Class to manage the aggregation of data required by post processors. This
     class is private to the dispatcher. An instance is created by the operation
@@ -64,27 +110,52 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_SERVER_LINKAGE OperationAggregate
 {
 public:
-
+    /* Operation Aggregate constructor.  Builds an aggregate
+        object.
+        @param request
+        @param msgRequestType
+        #param messageId
+        This version will be dropped.  Dest is always required.
+    */
     OperationAggregate(CIMRequestMessage* request,
                                 Uint32 msgRequestType,
                                 String messageId)
     : _messageId(messageId), _msgRequestType(msgRequestType),
       _request(request), _totalIssued(0), _magicNumber(12345)
     {}
+    /* Operation Aggregate constructor.  Builds an aggregate
+        object.
+        @param request
+        @param msgRequestType
+        @param messageId
+        @param dest
+        
+        NOTE: This is the version we will generally use
+    */
+
+    OperationAggregate(CIMRequestMessage* request,
+                                Uint32 msgRequestType,
+                                String messageId,
+                                Uint32 dest)
+    : _messageId(messageId), _msgRequestType(msgRequestType),
+      _request(request), _totalIssued(0), _magicNumber(12345),
+      _dest(dest)
+    {}
+
 
     ~OperationAggregate()
     {
         _magicNumber = 0;
         delete _request;
     }
+    // Sets the total issued to the input parameter
+    void setTotalIssued(Uint32 i) {_totalIssued = i; }
 
-    void setTotalIssued(Uint32 i)
-    {
-	_totalIssued = i;
-    }
-
+    // Tests validity by checking the magic number we put into the
+    // packet.
     Boolean valid() {return(_magicNumber == 12345)? true: false; }
-
+    
+    // Returns count of total responses collected into this aggregation
     Uint32 totalIssued() { return _totalIssued; }
 
     // Append a new entry to the response list.  Return value indicates
@@ -92,12 +163,16 @@ public:
     Boolean appendResponse(CIMResponseMessage* response)
     {
         _appendResponseMutex.lock(pegasus_thread_self());
-	_responseList.append(response);
+        _responseList.append(response);
         Boolean returnValue = (totalIssued() == numberResponses());
         _appendResponseMutex.unlock();
         return returnValue;
     }
-
+    // increment the cound of requests issued
+    void inc()
+    {
+        _totalIssued++;
+    }
     Uint32 numberResponses() { return _responseList.size(); }
 
     CIMResponseMessage* getResponse(const Uint32& pos)
@@ -115,7 +190,7 @@ public:
     
     String _messageId;
     Uint32 _msgRequestType;
-    Uint32 dest;
+    Uint32 _dest;
     Array<CIMName> classes;
     Array<String> serviceNames;
     Array<String> controlProviderNames;
@@ -274,6 +349,10 @@ public:
     	String& serviceName,
     	String& controlProviderName);
 
+      Array<ProviderInfo> _lookupAllAssociationProviders(
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName);
+
       Boolean _lookupNewAssociationProvider(
           const CIMNamespaceName& nameSpace, 
           const CIMName& className,
@@ -282,8 +361,8 @@ public:
         
       Array<String> _lookupAssociationProvider(
     	const CIMNamespaceName& nameSpace, const CIMName& className,
-        const CIMName& assocClassName = CIMName(),
-        const CIMName& resultClassName = CIMName());
+        const CIMName& assocClass = CIMName(),
+        const CIMName& resultClass = CIMName());
 
       String _lookupMethodProvider(const CIMNamespaceName& nameSpace,
     	const CIMName& className, const CIMName& methodName);
@@ -333,6 +412,7 @@ public:
 
       Boolean _enableAssociationTraversal;
       Boolean _enableIndicationService;
+      Uint32 _maximumEnumerateBreadth;
 
       // << Tue Feb 12 08:48:09 2002 mdd >> meta dispatcher integration
       virtual void _handle_async_request(AsyncRequest *req);

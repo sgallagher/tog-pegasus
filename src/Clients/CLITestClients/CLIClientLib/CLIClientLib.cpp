@@ -707,7 +707,7 @@ int referenceNames(CIMClient& client, Options& opts)
             << "Namespace = " << opts.nameSpace
             << ", ObjectPath = " << opts.objectName
             << ", resultClass = " << opts.resultClass
-            << ", resulRole = " << opts.role
+            << ", role = " << opts.role
             << endl;
     }
     if (opts.time) opts.elapsedTime.reset();
@@ -1112,15 +1112,18 @@ void GetOptions(
         {"assocClass", "", false, Option::STRING, 0, 0, "ac",
                             "Defines a assocClass string for Associator calls"},
         
-        {"AssocRole", "", false, Option::STRING, 0, 0, "ar",
+        {"assocRole", "", false, Option::STRING, 0, 0, "ar",
                             "Defines a role string for Associatiors AssocRole parameter"},
+
+        {"role", "", false, Option::STRING, 0, 0, "r",
+                            "Defines a role string for reference role parameter"},
 
         
         {"resultClass", "", false, Option::STRING, 0, 0, "rc",
                             "Defines a resultClass string for References and Associatiors "},
         
         {"resultRole", "", false, Option::STRING, 0, 0, "rr",
-                            "Defines a role string for References, etc. "},
+                            "Defines a role string for associators operation resultRole parameter. "},
 
         {"inputParameters", "", false, Option::STRING, 0, 0, "ip",
                             "Defines an invokeMethod input parameter list. Format is p1=v1,p2=v2,..,pn=vn (without spaces) "},
@@ -1319,9 +1322,9 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     {
         // we need to deliver String::EMPTY when no param.
         if (tempResultRole != "")
-            opts.role = tempResultRole;
+            opts.resultRole = tempResultRole;
         if (verboseTest)
-           cout << "resultrole = " << opts.resultRole << endl;
+           cout << "resultRole = " << opts.resultRole << endl;
     }
 
     om.lookupValue("location", opts.location);

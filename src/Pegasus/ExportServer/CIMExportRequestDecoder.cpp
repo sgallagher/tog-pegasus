@@ -200,7 +200,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    // Validate the "CIMExport" header:
 
    Boolean exportHeaderFound = HTTPMessage::lookupHeader(
-      headers, "*CIMExport", cimExport, true);
+      headers, "CIMExport", cimExport, true);
    // If the CIMExport header was missing, the HTTPAuthenticatorDelegator
    // would not have passed the message to us.
    PEGASUS_ASSERT(exportHeaderFound);
@@ -224,7 +224,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    // Validate the "CIMExportBatch" header:
 
    cimExportBatchFlag = HTTPMessage::lookupHeader(
-          headers, "*CIMExportBatch", cimExportBatch, true);
+          headers, "CIMExportBatch", cimExportBatch, true);
    if (cimExportBatchFlag)
    {
       // The Specification for CIM Operations over HTTP reads:
@@ -242,14 +242,14 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    // Save these headers for later checking
 
    if (!HTTPMessage::lookupHeader(
-          headers, "*CIMProtocolVersion", cimProtocolVersion, true))
+          headers, "CIMProtocolVersion", cimProtocolVersion, true))
    {
       // Mandated by the Specification for CIM Operations over HTTP
       cimProtocolVersion.assign("1.0");
    }
 
    if (HTTPMessage::lookupHeader(
-          headers, "*CIMExportMethod", cimExportMethod, true))
+          headers, "CIMExportMethod", cimExportMethod, true))
    {
       if (cimExportMethod == String::EMPTY)
       {

@@ -251,18 +251,16 @@ Boolean HTTPMessage::lookupHeader(
     Array<HTTPHeader>& headers,
     const String& fieldName,
     String& fieldValue,
-    Boolean wildCardMatch)
+    Boolean allowNamespacePrefix)
 {
     for (Uint32 i = 0, n = headers.size(); i < n; i++)
     {
-	Boolean equal = false;
-
-	if (wildCardMatch && String::matchNoCase(headers[i].first, fieldName))
-	    equal = true;
-	else if (String::equalNoCase(headers[i].first, fieldName))
-	    equal = true;
-
-	if (equal)
+        if (String::equalNoCase(headers[i].first, fieldName) ||
+            (allowNamespacePrefix && (headers[i].first.size() >= 3) &&
+             isdigit(char(headers[i].first[0])) &&
+             isdigit(char(headers[i].first[1])) &&
+             (headers[i].first[2] == Char16('-')) &&
+             String::equalNoCase(headers[i].first.subString(3), fieldName)))
 	{
 	    fieldValue = headers[i].second;
 	    return true;

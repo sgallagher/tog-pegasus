@@ -109,13 +109,13 @@ void HTTPOptions::handleHTTPMessage(HTTPMessage* httpMessage)
       //SocketMessage* socketMessage = (SocketMessage*)httpMessage;
 
       if (HTTPMessage::lookupHeader(
-	     headers, "*CIMOperation", cimOperation, true))
+	     headers, "CIMOperation", cimOperation, true))
       {
 	 //_operationMessageQueue->enqueue(socketMessage);
 	 _operationMessageQueue->enqueue(httpMessage);
       }
       else if (HTTPMessage::lookupHeader(
-		  headers, "*CIMExport", cimOperation, true))
+		  headers, "CIMExport", cimOperation, true))
       {
 	 //_exportMessageQueue->enqueue(socketMessage);
 	 _exportMessageQueue->enqueue(httpMessage);

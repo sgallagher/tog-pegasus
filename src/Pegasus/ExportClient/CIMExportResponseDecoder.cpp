@@ -143,7 +143,7 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
    String cimOperation;
 
    if (!HTTPMessage::lookupHeader(
-	  headers, "*CIMExport", cimOperation, true))
+	  headers, "CIMExport", cimOperation, true))
    {
       // ATTN: error discarded at this time!
       return;

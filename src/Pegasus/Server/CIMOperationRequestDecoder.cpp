@@ -226,7 +226,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    // Validate the "CIMOperation" header:
 
    Boolean operationHeaderFound = HTTPMessage::lookupHeader(
-      headers, "*CIMOperation", cimOperation, true);
+      headers, "CIMOperation", cimOperation, true);
    // If the CIMOperation header was missing, the HTTPAuthenticatorDelegator
    // would not have passed the message to us.
    PEGASUS_ASSERT(operationHeaderFound);
@@ -251,7 +251,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    // Validate the "CIMBatch" header:
 
    cimBatchFlag = HTTPMessage::lookupHeader(
-       headers, "*CIMBatch", cimBatch, true);
+       headers, "CIMBatch", cimBatch, true);
    if (cimBatchFlag)
    {
       // The Specification for CIM Operations over HTTP reads:
@@ -270,13 +270,13 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    // Save these headers for later checking
 
    if (!HTTPMessage::lookupHeader(
-       headers, "*CIMProtocolVersion", cimProtocolVersion, true))
+       headers, "CIMProtocolVersion", cimProtocolVersion, true))
    {
       // Mandated by the Specification for CIM Operations over HTTP
       cimProtocolVersion.assign("1.0");
    }
 
-   if (HTTPMessage::lookupHeader(headers, "*CIMMethod", cimMethod, true))
+   if (HTTPMessage::lookupHeader(headers, "CIMMethod", cimMethod, true))
    {
       if (cimMethod == String::EMPTY)
       {
@@ -287,7 +287,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
          return;
       }
    }
-   if (HTTPMessage::lookupHeader(headers, "*CIMObject", cimObject, true))
+   if (HTTPMessage::lookupHeader(headers, "CIMObject", cimObject, true))
    {
       if (cimObject == String::EMPTY)
       {

@@ -330,7 +330,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             String cimOperation;
 
             if (HTTPMessage::lookupHeader(
-                headers, "*CIMOperation", cimOperation, true))
+                headers, "CIMOperation", cimOperation, true))
             {
                 MessageQueue* queue =
                     MessageQueue::lookup(_operationMessageQueueId);
@@ -344,7 +344,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 }
             }
             else if (HTTPMessage::lookupHeader(
-                headers, "*CIMExport", cimOperation, true))
+                headers, "CIMExport", cimOperation, true))
             {
                 MessageQueue* queue =
                     MessageQueue::lookup(_exportMessageQueueId);

@@ -72,7 +72,7 @@ class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
 	 Array<HTTPHeader>& headers,
 	 const String& fieldName,
 	 String& fieldValue,
-	 Boolean wildCardMatch = false);
+	 Boolean allowNamespacePrefix = false);
 
       static Boolean parseRequestLine(
 	 const String& startLine,

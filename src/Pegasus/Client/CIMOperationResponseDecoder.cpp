@@ -174,7 +174,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     String cimOperation;
 
     if (!HTTPMessage::lookupHeader(
-	headers, "*CIMOperation", cimOperation, true))
+	headers, "CIMOperation", cimOperation, true))
     {
         CIMClientMalformedHTTPException malformedHTTPException(
             "Missing CIMOperation HTTP header");

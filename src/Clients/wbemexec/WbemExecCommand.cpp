@@ -28,6 +28,13 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+// define asprintf used to implement ultostr on Linux
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#define _GNU_SOURCE
+#include <features.h>
+#include <stdio.h>
+#endif
+
 #include <iostream>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/Config.h>
@@ -794,6 +801,12 @@ Uint32 WbemExecCommand::execute (ostream& outPrintWriter,
              1                  if an error occurs in executing the command
   
  */
+PEGASUS_NAMESPACE_END
+
+// exclude main from the Pegasus Namespace
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
+
 int main (int argc, char* argv []) 
 {
     WbemExecCommand    command = WbemExecCommand ();
@@ -815,4 +828,3 @@ int main (int argc, char* argv [])
     exit (rc);
 }
 
-PEGASUS_NAMESPACE_END

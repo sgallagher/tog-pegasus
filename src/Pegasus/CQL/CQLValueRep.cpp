@@ -41,7 +41,7 @@
 #include <Pegasus/CQL/CQLRegularExpression.h>
 #include <Pegasus/CQL/CQLFactory.h>
 #include <Pegasus/Query/QueryCommon/QueryException.h>
-
+#include <Pegasus/CQL/CQLUtilities.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -100,65 +100,80 @@ CQLValueRep::CQLValueRep(const String& inString, CQLValue::NumericType inValueTy
 
    switch(inValueType)
    {
-      case CQLValue::Hex:
-         if(inSign)
-         {
-            _theValue.set((Uint64)strtoul((const char*)cStr,&endP,16));
-            _valueType = CQLValue::Uint64_type;
-         }
-         else
-         {
-            _theValue.set((Sint64)strtol((const char *)cStr,&endP,16));
-            _valueType = CQLValue::Sint64_type;
-         }
-         
-         break;
-      case CQLValue::Binary:
-         if(inSign)
-         {
-            _theValue.set((Uint64)strtoul((const char *)cStr,&endP,2));
-            _valueType = CQLValue::Uint64_type;
-         }
-         else
-         {
-            _theValue.set((Sint64)strtol((const char *)cStr,&endP,2));
-            _valueType = CQLValue::Sint64_type;
-         }
-         break;
-      case CQLValue::Decimal:
-         if(inSign)
-         {
-            _theValue.set((Uint64)strtoul((const char *)cStr,&endP,10));
-            _valueType = CQLValue::Uint64_type;
-         }
-         else
-         {
-            _theValue.set((Sint64)strtol((const char *)cStr,&endP,10));
-            _valueType = CQLValue::Sint64_type;
-         }
-         break;
-      case CQLValue::Real:
-         if(inSign)
-         {
-            _theValue.set((Real64)strtod((const char *)cStr,&endP));
-            _valueType = CQLValue::Real_type;
-         }
-         else
-         {
-            _theValue.set((Real64)strtod((const char *)cStr,&endP));
-            _valueType = CQLValue::Real_type;
-         }
-         break;
-      default:
-	MessageLoaderParms mload(String("CQL.CQLValueRep.CONSTRUCTOR_FAILURE"),
-				 String("Undefined case in constructor."));
-	throw CQLRuntimeException(mload);
-
-	break;
+   case CQLValue::Hex:
+     {
+       String tmp("0x");
+       tmp.append(inString);
+       if(inSign)
+	 {
+	   _theValue.set(CQLUtilities::stringToUint64(tmp));
+	   _valueType = CQLValue::Uint64_type;
+	 }
+       else
+	 {
+	   _theValue.set(CQLUtilities::stringToSint64(inString));
+	   _valueType = CQLValue::Sint64_type;
+	 }
+     }
+     break;
+   case CQLValue::Binary:
+     {
+       String tmp("b");
+       tmp.append(inString);
+       if(inSign)
+	 {
+	   _theValue.set(CQLUtilities::stringToUint64(tmp));
+	   _valueType = CQLValue::Uint64_type;
+	 }
+       else
+	 {
+	   _theValue.set(CQLUtilities::stringToSint64(tmp));
+	   _valueType = CQLValue::Sint64_type;
+	 }
+       break;
+     }
+   case CQLValue::Decimal:
+     {
+       String tmp;
+       tmp.append(inString);
+       if(inSign)
+	 {
+	   _theValue.set(CQLUtilities::stringToUint64(tmp));
+	   _valueType = CQLValue::Uint64_type;
+	 }
+       else
+	 {
+	   _theValue.set(CQLUtilities::stringToSint64(tmp));
+	   _valueType = CQLValue::Sint64_type;
+	 }
+     }
+     break;
+   case CQLValue::Real:
+     {
+       String tmp;
+       tmp.append(inString);
+       if(inSign)
+	 {
+	   _theValue.set(CQLUtilities::stringToReal64(tmp));
+	   _valueType = CQLValue::Real_type;
+	 }
+       else
+	 {
+	   _theValue.set(CQLUtilities::stringToReal64(tmp));
+	   _valueType = CQLValue::Real_type;
+	 }
+     }
+     break;
+   default:
+     MessageLoaderParms mload(String("CQL.CQLValueRep.CONSTRUCTOR_FAILURE"),
+			      String("Undefined case in constructor."));
+     throw CQLRuntimeException(mload);
+     
+     break;
    }
-
+   
    _isResolved = true;
-
+   
    PEG_METHOD_EXIT();
 }
 

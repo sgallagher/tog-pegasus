@@ -19,7 +19,7 @@
 //
 //==============================================================================
 //
-// Author: Karl ScMike Brasher (mbrasher@bmc.com)
+// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 // Modified By:
 //
@@ -33,8 +33,8 @@
 PEGASUS_NAMESPACE_BEGIN
 
 const char PEGASUS_NAME[] = "Pegasus CIM Server - ";
-const char PEGASUS_VERSION[] = "Version 0.97";
+const char PEGASUS_VERSION[] = "Version 0.97.1";
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_CLASSNAME_h */
+#endif /* Pegasus_Version_h */

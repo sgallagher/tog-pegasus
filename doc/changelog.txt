@@ -23,6 +23,9 @@ Version 0.98.0 - Work in progress
 5. (Mike Brasher) - Added queue ids concept (using hash table which maps
    ids to queue pointers).
 
+6. (Mike Brasher) - Started integration of message queues with ServerHandler
+   and Dispatcher.
+
 ------------------------------------------------------------------------------
 --
 

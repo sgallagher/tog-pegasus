@@ -9,7 +9,6 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 LIBRARY = pegcommon
 
 SOURCES = \
-    Dir.cpp \
     String.cpp \
     Array.cpp \
     Operations.cpp \
@@ -20,6 +19,7 @@ SOURCES = \
     DateTime.cpp \
     DeclContext.cpp \
     Destroyer.cpp \
+    Dir.cpp \
     Exception.cpp \
     FileSystem.cpp \
     Flavor.cpp \

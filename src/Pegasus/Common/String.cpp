@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: String.cpp,v $
+// Revision 1.3  2001/02/11 17:19:30  mike
+// added reverseFind() method
+//
 // Revision 1.2  2001/02/11 05:42:33  mike
 // new
 //
@@ -290,6 +293,20 @@ Uint32 String::find(Char16 c) const
     {
 	if (*p == c)
 	    return  p - first;
+    }
+
+    return Uint32(-1);
+}
+
+Uint32 String::reverseFind(Char16 c) const
+{
+    const Char16* first = getData();
+    const Char16* last = getData() + getLength();
+
+    while (last != first)
+    {
+	if (*--last == c)
+	    return last - first;
     }
 
     return Uint32(-1);

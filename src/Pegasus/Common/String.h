@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: String.h,v $
+// Revision 1.7  2001/02/11 17:19:30  mike
+// added reverseFind() method
+//
 // Revision 1.6  2001/02/11 05:42:33  mike
 // new
 //
@@ -197,10 +200,14 @@ public:
     */
     String subString(Uint32 pos, Uint32 length = Uint32(-1)) const;
 
-    /** Find the position of the first occurence of the character given by
-	c. If the character is not found, -1 is returned.
+    /** Find the position of the first occurence of the character c.
+	If the character is not found, -1 is returned.
     */
     Uint32 find(Char16 c) const;
+
+    /** Same as find() but start looking in reverse (last character first).
+    */
+    Uint32 reverseFind(Char16 c) const;
 
     /** Compare the first n characters of the two strings. Return -1 if s1
 	is lexographically less than s2. If they are equavalent return 0.

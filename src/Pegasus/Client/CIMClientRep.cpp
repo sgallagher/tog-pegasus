@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,16 +29,18 @@
 //
 // Author: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
-// Modified By:  Dan Gorey (djgorey@us.ibm.com)
-//               Amit Arora (amita@in.ibm.com) for Bug#1170
-//				 Marek Szermutzky (MSzermutzky@de.ibm.com) for PEP#139 Stage1
-//				 Seema Gupta (gseema@in.ibm.com) for PEP135
+// Modified By: Dan Gorey (djgorey@us.ibm.com)
+//              Amit Arora (amita@in.ibm.com) for Bug#1170
+//              Marek Szermutzky (MSzermutzky@de.ibm.com) for PEP#139 Stage1
+//              Seema Gupta (gseema@in.ibm.com) for PEP135
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
-//               Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
-//               Amit Arora (amita@in.ibm.com) for Bug#2040
-//               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//               Willis White, IBM <whiwill@us.ibm.com)
-//               Josephine Eskaline Joyce, IBM <jojustin@in.ibm.com) for Bug#2108
+//              Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
+//              Amit Arora (amita@in.ibm.com) for Bug#2040
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Willis White, IBM <whiwill@us.ibm.com)
+//              Josephine Eskaline Joyce, IBM <jojustin@in.ibm.com) for Bug#2108
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -147,7 +149,7 @@ void CIMClientRep::_connect()
     //
     // Create response decoder:
     //
-    AutoPtr<CIMOperationResponseDecoder> responseDecoder(new 
+    AutoPtr<CIMOperationResponseDecoder> responseDecoder(new
         CIMOperationResponseDecoder(this, _requestEncoder.get(), &_authenticator
         , showInput));
 
@@ -159,7 +161,7 @@ void CIMClientRep::_connect()
                                               _connectPortNumber,
                                               _connectSSLContext.get(),
                                               responseDecoder.get()));
-  
+
     //
     // Create request encoder:
     //
@@ -173,7 +175,7 @@ void CIMClientRep::_connect()
 
     AutoPtr<CIMOperationRequestEncoder> requestEncoder(new CIMOperationRequestEncoder(
             httpConnection.get(), connectHost, &_authenticator, showOutput));
-    
+
     _responseDecoder.reset(responseDecoder.release());
     _httpConnection.reset(httpConnection.release());
     _requestEncoder.reset(requestEncoder.release());
@@ -189,7 +191,7 @@ void CIMClientRep::_disconnect()
         // destroy response decoder
         //
         _responseDecoder.reset();
-        
+
 
         //
         // Close the connection
@@ -346,7 +348,7 @@ void CIMClientRep::connectLocal()
 
         _connect();
     }
-    catch(CannotConnectException &e)
+    catch(const CannotConnectException &)
     {
         //
         // Look up the WBEM HTTPS port number for the local system
@@ -407,9 +409,9 @@ void CIMClientRep::disconnect()
 }
 
 
-Boolean CIMClientRep::isConnected()
+Boolean CIMClientRep::isConnected() const throw()
 {
-	return _connected;
+    return _connected;
 }
 
 
@@ -484,7 +486,7 @@ CIMInstance CIMClientRep::getInstance(
     const CIMPropertyList& propertyList
 )
 {
-	compareObjectPathtoCurrentConnection(instanceName);
+    compareObjectPathtoCurrentConnection(instanceName);
 
     AutoPtr<CIMRequestMessage> request(new CIMGetInstanceRequestMessage(
         String::EMPTY,
@@ -530,7 +532,7 @@ void CIMClientRep::deleteInstance(
     const CIMObjectPath& instanceName
 )
 {
-	compareObjectPathtoCurrentConnection(instanceName);
+    compareObjectPathtoCurrentConnection(instanceName);
     AutoPtr<CIMRequestMessage> request(new CIMDeleteInstanceRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -569,7 +571,7 @@ CIMObjectPath CIMClientRep::createInstance(
     const CIMInstance& newInstance
 )
 {
-	compareObjectPathtoCurrentConnection(newInstance.getPath());
+    compareObjectPathtoCurrentConnection(newInstance.getPath());
     AutoPtr<CIMRequestMessage> request(new CIMCreateInstanceRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -612,7 +614,7 @@ void CIMClientRep::modifyInstance(
     const CIMPropertyList& propertyList
 )
 {
-	compareObjectPathtoCurrentConnection(modifiedInstance.getPath());
+    compareObjectPathtoCurrentConnection(modifiedInstance.getPath());
     AutoPtr<CIMRequestMessage> request(new CIMModifyInstanceRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -775,7 +777,7 @@ Array<CIMObject> CIMClientRep::associators(
     const CIMPropertyList& propertyList
 )
 {
-	compareObjectPathtoCurrentConnection(objectName);	
+    compareObjectPathtoCurrentConnection(objectName);
     AutoPtr<CIMRequestMessage> request(new CIMAssociatorsRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -808,7 +810,7 @@ Array<CIMObjectPath> CIMClientRep::associatorNames(
     const String& resultRole
 )
 {
-	compareObjectPathtoCurrentConnection(objectName);
+    compareObjectPathtoCurrentConnection(objectName);
     AutoPtr<CIMRequestMessage> request(new CIMAssociatorNamesRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -839,7 +841,7 @@ Array<CIMObject> CIMClientRep::references(
     const CIMPropertyList& propertyList
 )
 {
-	compareObjectPathtoCurrentConnection(objectName);	
+    compareObjectPathtoCurrentConnection(objectName);
     AutoPtr<CIMRequestMessage> request(new CIMReferencesRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -868,7 +870,7 @@ Array<CIMObjectPath> CIMClientRep::referenceNames(
     const String& role
 )
 {
-	compareObjectPathtoCurrentConnection(objectName);	
+    compareObjectPathtoCurrentConnection(objectName);
     AutoPtr<CIMRequestMessage> request(new CIMReferenceNamesRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -893,7 +895,7 @@ CIMValue CIMClientRep::getProperty(
     const CIMName& propertyName
 )
 {
-	compareObjectPathtoCurrentConnection(instanceName);
+    compareObjectPathtoCurrentConnection(instanceName);
     AutoPtr<CIMRequestMessage> request(new CIMGetPropertyRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -918,7 +920,7 @@ void CIMClientRep::setProperty(
     const CIMValue& newValue
 )
 {
-	compareObjectPathtoCurrentConnection(instanceName);		
+    compareObjectPathtoCurrentConnection(instanceName);
     AutoPtr<CIMRequestMessage> request(new CIMSetPropertyRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -1026,10 +1028,10 @@ CIMValue CIMClientRep::invokeMethod(
     // ATTN-RK-P3-20020301: Do we need to make sure the caller didn't specify
     // a host name in the instanceName?
 
-	// solved with PEP#139 Stage1 as other CIMOMs contained in the object path
-	// will cause a TypeMisMatchException
+    // solved with PEP#139 Stage1 as other CIMOMs contained in the object path
+    // will cause a TypeMisMatchException
 
-	compareObjectPathtoCurrentConnection(instanceName);
+    compareObjectPathtoCurrentConnection(instanceName);
     AutoPtr<CIMRequestMessage> request(new CIMInvokeMethodRequestMessage(
         String::EMPTY,
         nameSpace,
@@ -1072,14 +1074,14 @@ Message* CIMClientRep::_doRequest(
     //
     //  Set HTTP method in request to POST
     //
-	//Bug 478/418 - Change this to do post call, not mpost
+    //Bug 478/418 - Change this to do post call, not mpost
     request->setHttpMethod (HTTP_METHOD__POST);
 
 // l10n
     // Set the Accept-Languages and Content-Languages into
     // the request message
 
-	request->operationContext.set(AcceptLanguageListContainer(requestAcceptLanguages));
+    request->operationContext.set(AcceptLanguageListContainer(requestAcceptLanguages));
     request->operationContext.set(ContentLanguageListContainer(requestContentLanguages));
 
 
@@ -1131,9 +1133,9 @@ Message* CIMClientRep::_doRequest(
 
                 AutoPtr<Exception> d(clientException);
 
-		// Make the ContentLanguage of the exception available through
-		// the CIMClient API (its also available in the exception).
-		responseContentLanguages = clientException->getContentLanguages();
+                // Make the ContentLanguage of the exception available through
+                // the CIMClient API (its also available in the exception).
+                responseContentLanguages = clientException->getContentLanguages();
 
                 //
                 // Determine and throw the specific class of client exception
@@ -1169,7 +1171,7 @@ Message* CIMClientRep::_doRequest(
                     throw *responseException;
                 }
 
-								CIMException* cimException =
+                CIMException* cimException =
                     dynamic_cast<CIMException*>(clientException);
                 if (cimException)
                 {
@@ -1204,19 +1206,19 @@ Message* CIMClientRep::_doRequest(
                     throw responseException;
                 }
 
-		// l10n
+                // l10n
                 // Get the Content-Languages from the response's operationContext
-		// and make available through the CIMClient API
+                // and make available through the CIMClient API
                 responseContentLanguages =
-		  ((ContentLanguageListContainer)cimResponse->operationContext.get
-		   (ContentLanguageListContainer::NAME)).getLanguages();
+                  ((ContentLanguageListContainer)cimResponse->operationContext.get
+                   (ContentLanguageListContainer::NAME)).getLanguages();
 
                 if (cimResponse->cimException.getCode() != CIM_ERR_SUCCESS)
                 {
                     CIMException cimException(
                         cimResponse->cimException.getCode(),
                         cimResponse->cimException.getMessage());
-		    cimException.setContentLanguages(responseContentLanguages);
+                    cimException.setContentLanguages(responseContentLanguages);
                     delete response;
                     throw cimException;
                 }
@@ -1225,19 +1227,19 @@ Message* CIMClientRep::_doRequest(
                 /* if excicution gets here everytihng is working correctly and a proper response
                 was generated and recived */
 
-                //check that client side statistics are valid before handing them to the 
+                //check that client side statistics are valid before handing them to the
                 // client application via a call back
                 Boolean re_check = perfDataStore->checkMessageIDandType(cimResponse->messageId,
                                                                         cimResponse->getType());
 
-                if (re_check && !perfDataStore->getStatError() && perfDataStore->isClassRegistered()) 
-                {  
+                if (re_check && !perfDataStore->getStatError() && perfDataStore->isClassRegistered())
+                {
                    //if callback method throws an exception it will be seen by the client
                    //no try/catch block is used here intentionaly - becasue exceptions
-                   //come from the client application so client app. should handle them                     
+                   //come from the client application so client app. should handle them
                    ClientOpPerformanceData item = perfDataStore->createPerfDataStruct();
                    perfDataStore->handler_prt->handleClientOpPerformanceData(item);
-                                   
+
                 }//end of if statmet that call the callback method
                 return response;
             }
@@ -1293,110 +1295,110 @@ String CIMClientRep::_getLocalHostName()
     return hostname;
 }
 
-void CIMClientRep::compareObjectPathtoCurrentConnection(CIMObjectPath obj) throw(TypeMismatchException)
+void CIMClientRep::compareObjectPathtoCurrentConnection(const CIMObjectPath& obj)
 {
 
-	String ObjHost = obj.getHost();
-	// test if a host is given at all, if not everything is fine and we leave it at that
-	if (ObjHost==String::EMPTY)
-	{
-		return;
-	}
-	
+    String ObjHost = obj.getHost();
+    // test if a host is given at all, if not everything is fine and we leave it at that
+    if (ObjHost==String::EMPTY)
+    {
+        return;
+    }
+
     MessageLoaderParms typeMismatchMessage;
-	// splitting the port from hostname as we have to compare both separate
-	int i = ObjHost.find(":");
-	String ObjPort = String::EMPTY;
-	// only if there is a ":" we should split a port address from hostname string
-	if (i > 0)
-	{
-		ObjPort = ObjHost.subString(i+1);
-		ObjHost.remove(i);
+    // splitting the port from hostname as we have to compare both separate
+    int i = ObjHost.find(":");
+    String ObjPort = String::EMPTY;
+    // only if there is a ":" we should split a port address from hostname string
+    if (i > 0)
+    {
+        ObjPort = ObjHost.subString(i+1);
+        ObjHost.remove(i);
 
-		// lets see who we are really connected to
-		// should stand in UInt32 _connectPortNumber and String _connectHost;
+        // lets see who we are really connected to
+        // should stand in UInt32 _connectPortNumber and String _connectHost;
 
-		// comparing the stuff
-		// first the easy part, comparing the ports
-		Uint32 objectport = strtoul((const char*) ObjPort.getCString(), NULL, 0);
+        // comparing the stuff
+        // first the easy part, comparing the ports
+        Uint32 objectport = strtoul((const char*) ObjPort.getCString(), NULL, 0);
 
-		// if port in object path does not equal port of connection throw a TypeMismatch Exception
-		if (objectport != _connectPortNumber)
-		{
+        // if port in object path does not equal port of connection throw a TypeMismatch Exception
+        if (objectport != _connectPortNumber)
+        {
 
 
-			typeMismatchMessage = MessageLoaderParms("Client.CIMClientRep.TYPEMISMATCH_PORTMISMATCH",
-													 "Failed validation of CIM object path: port of CIMClient connection($0) and port of object path($1) not equal",
-													 _connectPortNumber, objectport);
-			throw TypeMismatchException(typeMismatchMessage);
-		}
-	}
+            typeMismatchMessage = MessageLoaderParms("Client.CIMClientRep.TYPEMISMATCH_PORTMISMATCH",
+                                                     "Failed validation of CIM object path: port of CIMClient connection($0) and port of object path($1) not equal",
+                                                     _connectPortNumber, objectport);
+            throw TypeMismatchException(typeMismatchMessage);
+        }
+    }
 
-	// lets retrieve ip addresses for both hostnames
-	Uint32 ipObjectPath, ipConnection = 0xFFFFFFFF;
-	ipObjectPath = System::_acquireIP((const char *) ObjHost.getCString());
-	if (ipObjectPath == 0x7F000001)
-	{
-		// localhost or ip address of 127.0.0.1
-		// still for compare we need the real ip address
-		ipObjectPath = System::_acquireIP((const char *) System::getHostName().getCString());
-	}
-	if (ipObjectPath == 0xFFFFFFFF)
-	{
-		// bad formatted ip address or not resolveable
-		typeMismatchMessage = MessageLoaderParms("Client.CIMClientRep.TYPEMISMATCH_OBJECTPATH_IP_UNRESOLVEABLE",
-												 "Failed validation of CIM object path: failed to resolve IP address($0) from object path",
-												 ObjHost);
-		throw TypeMismatchException(typeMismatchMessage);
-	}
+    // lets retrieve ip addresses for both hostnames
+    Uint32 ipObjectPath, ipConnection = 0xFFFFFFFF;
+    ipObjectPath = System::_acquireIP((const char *) ObjHost.getCString());
+    if (ipObjectPath == 0x7F000001)
+    {
+        // localhost or ip address of 127.0.0.1
+        // still for compare we need the real ip address
+        ipObjectPath = System::_acquireIP((const char *) System::getHostName().getCString());
+    }
+    if (ipObjectPath == 0xFFFFFFFF)
+    {
+        // bad formatted ip address or not resolveable
+        typeMismatchMessage = MessageLoaderParms("Client.CIMClientRep.TYPEMISMATCH_OBJECTPATH_IP_UNRESOLVEABLE",
+                                                 "Failed validation of CIM object path: failed to resolve IP address($0) from object path",
+                                                 ObjHost);
+        throw TypeMismatchException(typeMismatchMessage);
+    }
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
-	// a local domain socket connection is represented as empty _connectHost
-	if (_connectHost == String::EMPTY)
-	{
-		// ok, it is the localhost, so lets compare with that given
-		ipConnection = 0x7F000001;
-		// return;
-	} else
-	{
-		ipConnection = System::_acquireIP((const char *) _connectHost.getCString());
-	}
-#else	
-	ipConnection = System::_acquireIP((const char *) _connectHost.getCString());
+    // a local domain socket connection is represented as empty _connectHost
+    if (_connectHost == String::EMPTY)
+    {
+        // ok, it is the localhost, so lets compare with that given
+        ipConnection = 0x7F000001;
+        // return;
+    } else
+    {
+        ipConnection = System::_acquireIP((const char *) _connectHost.getCString());
+    }
+#else
+    ipConnection = System::_acquireIP((const char *) _connectHost.getCString());
 #endif
-	if (ipConnection == 0x7F000001)
-	{
-		// localhost or ip address of 127.0.0.1
-		// still for compare we need the real ip address
-		ipConnection = System::_acquireIP((const char *) System::getHostName().getCString());
-	}
-	if (ipConnection == 0xFFFFFFFF)
-	{
-		// bad formatted ip address or not resolveable
-		typeMismatchMessage = MessageLoaderParms("Client.CIMClientRep.TYPEMISMATCH_CIMCLIENTCONNECTION_IP_UNRESOLVEABLE",
+    if (ipConnection == 0x7F000001)
+    {
+        // localhost or ip address of 127.0.0.1
+        // still for compare we need the real ip address
+        ipConnection = System::_acquireIP((const char *) System::getHostName().getCString());
+    }
+    if (ipConnection == 0xFFFFFFFF)
+    {
+        // bad formatted ip address or not resolveable
+        typeMismatchMessage = MessageLoaderParms("Client.CIMClientRep.TYPEMISMATCH_CIMCLIENTCONNECTION_IP_UNRESOLVEABLE",
                                                  "Failed validation of CIM object path: failed to resolve IP address($0) of CIMClient connection",
-												 _connectHost);
-		throw TypeMismatchException(typeMismatchMessage);
-	}
+                                                 _connectHost);
+        throw TypeMismatchException(typeMismatchMessage);
+    }
 
-	if (ipObjectPath != ipConnection)
-	{
-		typeMismatchMessage = MessageLoaderParms("Client.CIMClientRep.TYPEMISMATCH_OBJECTPATHS_NOTEQUAL",
+    if (ipObjectPath != ipConnection)
+    {
+        typeMismatchMessage = MessageLoaderParms("Client.CIMClientRep.TYPEMISMATCH_OBJECTPATHS_NOTEQUAL",
                                                  "Failed validation of CIM object path: host of CIMClient connection($0) and object path($1) not equal",
-												 _connectHost,
-												 ObjHost);
-		throw TypeMismatchException(typeMismatchMessage);
-	}
+                                                 _connectHost,
+                                                 ObjHost);
+        throw TypeMismatchException(typeMismatchMessage);
+    }
 
 }
 
 
 void CIMClientRep::registerClientOpPerformanceDataHandler(ClientOpPerformanceDataHandler & handler)
-{    
+{
    ClientPerfDataStore* perfDataStore = ClientPerfDataStore::Instance();
    perfDataStore->handler_prt = &handler;
    perfDataStore->setClassRegistered(true);
 }
-    
+
 
 void CIMClientRep::deregisterClientOpPerformanceDataHandler()
 {

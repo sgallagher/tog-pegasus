@@ -34,8 +34,8 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Client/Attribute.h>
-#include <Pegasus/Client/CIMServerDescription.h>
+#include <Pegasus/Common/Attribute.h>
+#include <Pegasus/Common/CIMServerDescription.h>
 #include <Pegasus/Client/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -130,6 +130,3 @@ private:
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_CIMServerDiscovery_h */
-
-
-

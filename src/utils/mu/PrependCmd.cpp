@@ -4,18 +4,11 @@
 #include "PrependCmd.h"
 #include "Files.h"
 
-int PrependCmd(const vector<string>& args)
+static int _Prepend(
+    const string& arg0,
+    const string& prependFile,
+    const string& changeFile)
 {
-    // -- Check arguments:
-
-    if (args.size() < 3)
-    {
-	cerr << args[0] << ": insufficient arguments" << endl;
-	return 1;
-    }
-
-    string prependFile = args[1];
-    string changeFile = args[2];
 
     // -- Open first input file:
 
@@ -23,7 +16,7 @@ int PrependCmd(const vector<string>& args)
 
     if (!is1)
     {
-	cerr << args[0] << ": failed to open \"" << prependFile << "\"" << endl;
+	cerr << arg0 << ": failed to open \"" << prependFile << "\"" << endl;
 	return 1;
     }
 
@@ -33,7 +26,7 @@ int PrependCmd(const vector<string>& args)
 
     if (!is2)
     {
-	cerr << args[0] << ": failed to open \"" << changeFile << "\"" << endl;
+	cerr << arg0 << ": failed to open \"" << changeFile << "\"" << endl;
 	return 1;
     }
 
@@ -45,7 +38,7 @@ int PrependCmd(const vector<string>& args)
 
     if (!os)
     {
-	cerr << args[0] << ": failed to open \"" << tmpFileName << "\"" << endl;
+	cerr << arg0 << ": failed to open \"" << tmpFileName << "\"" << endl;
 	return 1;
     }
 
@@ -67,13 +60,43 @@ int PrependCmd(const vector<string>& args)
 
     if (!CopyFile(tmpFileName, changeFile))
     {
-	cerr << args[0] << ": failed to copy file" << endl;
+	cerr << arg0 << ": failed to copy file" << endl;
 	return 1;
     }
 
     // -- Remove the temporary file:
 
     RemoveFile(tmpFileName);
+
+    return 0;
+}
+
+int PrependCmd(const vector<string>& args)
+{
+    // -- Check arguments:
+
+    if (args.size() < 3)
+    {
+	cerr << args[0] << ": insufficient arguments" << endl;
+	return 1;
+    }
+
+    // -- Create glob list:
+
+    vector<string> fileNames;
+
+    for (size_t i = 2; i < args.size(); i++)
+	Glob(args[i], fileNames);
+
+    // -- For each matching file:
+
+    for (size_t i = 0; i < fileNames.size(); i++)
+    {
+	int result = _Prepend(args[0], args[1], fileNames[i]);
+
+	if (result != 0)
+	    return result;
+    }
 
     return 0;
 }

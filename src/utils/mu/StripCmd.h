@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 
-// Usage: strip start-pattern end-pattern filename
+// Usage: strip start-pattern end-pattern filenames...
 
 int StripCmd(const vector<string>& args);
 

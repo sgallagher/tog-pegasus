@@ -46,6 +46,7 @@ static int _Strip(
 	{
 	    foundStart = true;
 	    inside = true;
+	    continue;
 	}
 
 	if (!inside)

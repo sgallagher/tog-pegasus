@@ -262,7 +262,7 @@ static bool _contains_special_chars(const string& str)
 	strchr(p, '[') || strchr(p, ']') || strchr(p, '*') || strchr(p, '?');
 }
 
-bool Glob(const string& pattern_, vector<string>& filenames_out)
+bool Glob(const string& pattern_, vector<string>& fileNames)
 {
     // Remove trailing slashes:
 
@@ -278,7 +278,7 @@ bool Glob(const string& pattern_, vector<string>& filenames_out)
     _SplitPath(pattern, dirname, basename);
 
     if (!_contains_special_chars(basename))
-	filenames_out.push_back(pattern_);
+	fileNames.push_back(pattern_);
     else
     {
 	// Find all files in the given directory MatchStringing the pattern:
@@ -296,9 +296,9 @@ bool Glob(const string& pattern_, vector<string>& filenames_out)
 		found = true;
 
 		if (dirname == ".")
-		    filenames_out.push_back(filenames[i]);
+		    fileNames.push_back(filenames[i]);
 		else
-		    filenames_out.push_back(dirname + "/" + filenames[i]);
+		    fileNames.push_back(dirname + "/" + filenames[i]);
 	    }
 	}
 

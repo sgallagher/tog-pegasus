@@ -622,7 +622,7 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
   x = strtod((const char *) temp, &end);
   if (*end || (errno == ERANGE))
   {
-    MessageLoaderParms mload(String("CQL.CQLUtilities.OONVERSION_REAL_ERROR"),
+    MessageLoaderParms mload(String("CQL.CQLUtilities.CONVERSION_REAL_ERROR"),
                              String("String $0 was unable to be converted to a Real64.  It could be out of range."),
                              stringNum);
     throw CQLRuntimeException(mload);    

@@ -60,7 +60,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 VERIFY_CERTIFICATE verify_certificate;
 
-static int cert_verify(SSL_CTX *ctx, char *cert_file, char *key_file)
+static int cert_verify(SSL_CTX *ctx, const char *cert_file, const char *key_file)
 {
     PEG_METHOD_ENTER(TRC_SSL, "cert_verify()");
 

@@ -416,7 +416,6 @@ Boolean WbemExecCommand::_handleResponse( Channel*               channel,
 		    clientAuthenticator->setPassword( _password );
 		  }
 	      }
-
 	    challengeResponse << httpHeaders;
 	    
 	    String authHeader = clientAuthenticator->buildRequestAuthHeader();
@@ -434,7 +433,6 @@ Boolean WbemExecCommand::_handleResponse( Channel*               channel,
 	  {
             // Received an HTTP error response
             // Output the HTTP error message and exit
-	    
 	    oStream << startLine << endl;
 	    for (Uint32 i = 0, n = headers.size(); i < n; i++)
 	      {
@@ -655,7 +653,6 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     //
     channel = _getHTTPChannel (outPrintWriter);
     channel->writeN (message.getData (), message.size ());
-
     //
     //  Get handler and wait for response
     //
@@ -675,7 +672,6 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
                          outPrintWriter, errPrintWriter ) == true )
     {
       // Wait for final response
-      
       handler->clear();
       if (!handler->waitForResponse (_timeout))
         {

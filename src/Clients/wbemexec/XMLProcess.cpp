@@ -37,6 +37,7 @@
 #include <Pegasus/Common/XmlConstants.h>
 #include <Pegasus/Common/Base64.h>
 #include "HttpConstants.h"
+#include "Handler.h"
 #include "XMLProcess.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -171,7 +172,7 @@ Array <Sint8> XMLProcess::encapsulate( XmlParser parser,
                                        Boolean useHTTP11,
                                        ClientAuthenticator* clientAuthenticator,
                                        Boolean useAuthentication,
-                                       Array <Sint8> content,
+                                       Array <Sint8>& content,
                                        Array <Sint8>& httpHeaders
                                        )
     throw (XmlValidationError, XmlSemanticError, WbemExecException)
@@ -214,11 +215,60 @@ Array <Sint8> XMLProcess::encapsulate( XmlParser parser,
             if ((strcmp (p, HTTP_METHOD_MPOST) == 0) || 
                 (strcmp (p, HTTP_METHOD_POST) == 0))
             {
-                //
-                //  Return message as is
-                //
-                message << content;
-                return (message);
+	      //
+	      //  This is a special request used for testing.
+	      //  It includes the HTTP header.
+	      //  Return the message as is.
+	      //
+
+	      // Split out header and payload for possible auth challenge
+
+	      Uint32 headerLen = 0;
+	      const char *messageChars;
+	      messageChars = content.getData();
+	      const char *start = messageChars;
+	      const char *end   = start + strlen( messageChars );
+	      Uint32 messageLen = strlen( messageChars );
+	      char *term = 
+		Handler::FindTerminator( start, messageLen );
+	      if( ( term ) && ( term > start ) )
+		{
+		  headerLen = term - start;
+		  httpHeaders.clear();
+		  httpHeaders.append( start, headerLen+1 );
+		}
+	      message << httpHeaders;
+
+	      // Strip off headers and terminator chars from payload
+
+	      content.remove( 0, headerLen );
+	      for( const char *searchP = start + headerLen;
+		   searchP < end;
+		   searchP++ )
+		{
+		  if( ( *searchP == '\n' ) ||
+		      ( *searchP == '\r' ) )
+		    {
+		      content.remove( 0 );
+		    }
+		  else
+		    break;
+		}
+
+	      //
+	      // Set the authentication header if authentication required
+	      //
+	      if( useAuthentication )
+		{
+		  String authHeader = clientAuthenticator->buildRequestAuthHeader();
+		  if (authHeader.size())
+		    {
+		      message << authHeader << HTTP_CRLF;
+		    }
+		}
+	      message << HTTP_CRLF;
+	      message << content;
+	      return (message);
             }
             else
             {

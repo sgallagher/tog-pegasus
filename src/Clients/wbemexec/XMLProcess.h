@@ -127,7 +127,7 @@ public:
                                       Boolean useHTTP11,
                                       ClientAuthenticator* clientAuthenticator,
                                       Boolean useAuthentication,
-                                      Array <Sint8> content,
+                                      Array <Sint8>& content,
                                       Array <Sint8>& httpHeaders) 
         throw (XmlValidationError, XmlSemanticError, WbemExecException);
 

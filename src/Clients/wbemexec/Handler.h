@@ -100,6 +100,7 @@ public:
         _messageLogTrace = flag;
     }
 
+    static char* FindTerminator(const char* data, Uint32 size)
     ;
 
 private:

@@ -247,7 +247,7 @@ void Handler::logMessage(LogFileType logFileType, String& subsystem, Uint32
     Note we extended this to test for two LF (/n/n) since a number of
     browsers and other client tools use this.
 */
-static char* _FindTerminator(const char* data, Uint32 size)
+char* Handler::FindTerminator(const char* data, Uint32 size)
 {
     const char* p = data;
     const char* end = p + size;
@@ -367,7 +367,7 @@ Boolean Handler::handleInput(Channel* channel)
         {
             char* m = (char*)_message.getData();
             Uint32 mSize = _message.size();
-            char* term = _FindTerminator(m, mSize);
+            char* term = FindTerminator(m, mSize);
 
             if (term)
             {

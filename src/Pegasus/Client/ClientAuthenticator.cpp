@@ -90,7 +90,6 @@ ClientAuthenticator::~ClientAuthenticator()
 void ClientAuthenticator::clearRequest(Boolean closeConnection)
 {
     _requestMessage = 0;
-    _challengeReceived = false;
 
     if (closeConnection)
     {
@@ -113,44 +112,52 @@ Boolean ClientAuthenticator::checkResponseHeaderForChallenge(
     if (!HTTPMessage::lookupHeader(
         headers, WWW_AUTHENTICATE, authHeader, false))
     {
-        _challengeReceived = false;
         return false;
     }
 
-    _challengeReceived = true;
-
-    //
-    // Parse the authentication challenge header
-    //
-    if(!_parseAuthHeader(authHeader, authType, authRealm))
+    if (_challengeReceived)
     {
+        //ATTN-DME-P1-20000527: this needs to be changed to
+        //      throw and ACCESS_DENIED_EXCEPTION.
         throw InvalidAuthHeader();
-    }
-
-    if ( String::equal(authType, "LocalPrivileged"))
-    {
-        _authType = ClientAuthenticator::LOCALPRIVILEGED;
-    }
-    else if ( String::equal(authType, "Local"))
-    {
-        _authType = ClientAuthenticator::LOCAL;
-    }
-    else if ( String::equal(authType, "Basic"))
-    {
-        _authType = ClientAuthenticator::BASIC;
-    }
-    else if ( String::equal(authType, "Digest"))
-    {
-        _authType = ClientAuthenticator::DIGEST;
     }
     else
     {
-        throw InvalidAuthHeader();
-    }
+       _challengeReceived = true;
 
-    _realm = authRealm;
+       //
+       // Parse the authentication challenge header
+       //
+       if(!_parseAuthHeader(authHeader, authType, authRealm))
+       {
+           throw InvalidAuthHeader();
+       }
 
-    return true;
+       if ( String::equal(authType, "LocalPrivileged"))
+       {
+           _authType = ClientAuthenticator::LOCALPRIVILEGED;
+       }
+       else if ( String::equal(authType, "Local"))
+       {
+           _authType = ClientAuthenticator::LOCAL;
+       }
+       else if ( String::equal(authType, "Basic"))
+       {
+           _authType = ClientAuthenticator::BASIC;
+       }
+       else if ( String::equal(authType, "Digest"))
+       {
+           _authType = ClientAuthenticator::DIGEST;
+       }
+       else
+       {
+           throw InvalidAuthHeader();
+       }
+
+       _realm = authRealm;
+
+       return true;
+   }
 }
 
 
@@ -266,14 +273,6 @@ String ClientAuthenticator::buildRequestAuthHeader()
         default:
             PEGASUS_ASSERT(0);
             break;
-    }
-
-    //
-    // Reset the flag
-    //
-    if (_challengeReceived)
-    {
-        _challengeReceived = false;
     }
 
     return (challengeResponse);

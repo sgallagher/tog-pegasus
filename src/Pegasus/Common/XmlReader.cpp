@@ -42,7 +42,9 @@
 #include "CIMClass.h"
 #include "CIMInstance.h"
 #include "CIMObject.h"
+#include "CIMParamValue.h"
 
+PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 static const Uint32 MESSAGE_SIZE = 128;
@@ -3045,6 +3047,78 @@ Boolean XmlReader::getEMethodResponseStartTag(
     if (!entry.getAttributeValue("NAME", name))
 	throw XmlValidationError(parser.getLine(),
 	    "Missing EXPMETHODRESPONSE.NAME attribute");
+
+    return true;
+}
+
+//------------------------------------------------------------------------------
+//
+// getMethodCallStartTag()
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getMethodCallStartTag(
+    XmlParser& parser, 
+    const char*& name)
+{
+    XmlEntry entry;
+
+    if (!testStartTag(parser, entry, "METHODCALL"))
+	return false;
+
+    // Get METHODCALL.NAME attribute:
+
+    if (!entry.getAttributeValue("NAME", name))
+	throw XmlValidationError(parser.getLine(),
+	    "Missing METHODCALL.NAME attribute");
+
+    return true;
+}
+
+//------------------------------------------------------------------------------
+//
+// getMethodResponseStartTag()
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getMethodResponseStartTag(
+    XmlParser& parser, 
+    const char*& name)
+{
+    XmlEntry entry;
+
+    if (!testStartTag(parser, entry, "METHODRESPONSE"))
+	return false;
+
+    // Get METHODRESPONSE.NAME attribute:
+
+    if (!entry.getAttributeValue("NAME", name))
+	throw XmlValidationError(parser.getLine(),
+	    "Missing METHODRESPONSE.NAME attribute");
+
+    return true;
+}
+
+//------------------------------------------------------------------------------
+//
+// getParamValueTag()
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getParamValueTag(
+    XmlParser& parser, 
+    const char*& name)
+{
+    XmlEntry entry;
+
+    if (!testStartTag(parser, entry, "PARAMVALUE"))
+	return false;
+
+    // Get IPARAMVALUE.NAME attribute:
+
+    if (!entry.getAttributeValue("NAME", name))
+	throw XmlValidationError(parser.getLine(),
+	    "Missing PARAMVALUE.NAME attribute");
 
     return true;
 }

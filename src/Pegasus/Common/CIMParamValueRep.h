@@ -1,31 +1,29 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,76 +31,109 @@
 #define Pegasus_ParamValueRep_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/InternalException.h>
+#include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/CIMValue.h>
-#include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/Buffer.h>
+#include <Pegasus/Common/Sharable.h>
+#include <Pegasus/Common/CIMQualifier.h>
+#include <Pegasus/Common/CIMQualifierList.h>
+#include <Pegasus/Common/CIMParameter.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMParamValueRep
+class DeclContext;
+class CIMConstParameter;
+
+class PEGASUS_COMMON_LINKAGE CIMParamValueRep : public Sharable
 {
 public:
 
     CIMParamValueRep(
-        String parameterName,
-        CIMValue value,
-        Boolean isTyped=true);
+	CIMParameter parameter,
+	CIMValue value,
+	Boolean isArray,
+	Uint32 arraySize,
+	const String& referenceClassName);
 
-    const String & getParameterName() const
+    ~CIMParamValueRep();
+
+    Boolean isArray() const
     {
-        return _parameterName;
+	return _isArray;
     }
 
-    const CIMValue & getValue() const
+    Uint32 getAraySize() const
     {
-        return _value;
+	return _arraySize;
     }
 
-    Boolean isTyped() const
+    const String& getReferenceClassName() const 
     {
-        return _isTyped;
+	return _referenceClassName; 
     }
 
-    void setParameterName(String& parameterName);
+    const CIMParameter getParameter() const 
+    { 
+	return _parameter; 
+    }
 
-    void setValue(CIMValue& value);
+    const CIMValue getValue() const 
+    { 
+	return _value; 
+    }
 
-    void setIsTyped(Boolean isTyped);
+    void setParameter(CIMParameter parameter);
+
+    void setValue(CIMValue value);
+
+    void addQualifier(const CIMQualifier& qualifier)
+    {
+	_qualifiers.add(qualifier);
+    }
+
+    CIMQualifier getQualifier(Uint32 pos)
+    {
+	return _qualifiers.getQualifier(pos);
+    }
+
+    CIMConstQualifier getQualifier(Uint32 pos) const
+    {
+	return _qualifiers.getQualifier(pos);
+    }
+
+    Uint32 getQualifierCount() const
+    {
+	return _qualifiers.getCount();
+    }
+
+    void resolve(DeclContext* declContext, const String& nameSpace);
+
+    void toXml(Array<Sint8>& out) const;
+
+    void toMof(Array<Sint8>& out) const;
+
+    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
+
+    Boolean identical(const CIMParamValueRep* x) const;
 
     CIMParamValueRep* clone() const
     {
-        return new CIMParamValueRep(*this);
-    }
-
-    void Inc()
-    {
-       _refCounter++;
-    }
-
-    void Dec()
-    {
-        if (_refCounter.decAndTestIfZero())
-            delete this;
+	return new CIMParamValueRep(*this);
     }
 
 private:
 
+    CIMParamValueRep();
+
     CIMParamValueRep(const CIMParamValueRep& x);
 
-    CIMParamValueRep();    // Unimplemented
-    CIMParamValueRep& operator=(const CIMParamValueRep& x);    // Unimplemented
+    CIMParamValueRep& operator=(const CIMParamValueRep& x);
 
-    String _parameterName;
+    CIMParameter _parameter;
     CIMValue _value;
-    Boolean _isTyped;
-
-    // reference counter as member to avoid
-    // virtual function resolution overhead
-    AtomicInt _refCounter;
-
-    friend class CIMBuffer;
+    Boolean _isArray;
+    Uint32 _arraySize;
+    String _referenceClassName;
+    CIMQualifierList _qualifiers;
 };
 
 PEGASUS_NAMESPACE_END

@@ -103,6 +103,25 @@ repository implementation.
 23. (Sushma Fernandes - HP) 27 Sep 2001 - Added tracing code in
     ProviderTable.cpp and SystemUnix.cpp to indicate progress of loading
     a provider library.
+
+24. (Nitin Upasani - HP) 05 Oct 2001 - implementation of InvokeMethod interface for the 
+    provider. InvokeMethod currently uses CIMValue as type for inParameters and 
+    outParameters, which are unable to give information about param name, type and value.
+    This should be changed to CIMParamValue which will help providers to know details of
+    the parameter name and type along with value passed through InvoleMethod call. 
+    Current implementation uses CIMParamValue as parameters while travelling through message 
+    queues and converts it back to array of CIMValue before calling Provider API (which 
+    needs to be changed later). 
+
+    Also added are two test programs: 
+	
+    src/Pegasus/Common/tests/ParamValue - which demonstrate use of CIMParamValue class.
+	
+    src/Pegasus/Client/tests/InvokeMethod - which makes call to InvokeMethod and 
+    displays the return value. Current implementation assumes that provider had returned 
+    true value and outParameters (which are now hard coded in CIMOperationRequestDispatcher 
+    to implement functionality) which are passed as response of InvokeMethod to client.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

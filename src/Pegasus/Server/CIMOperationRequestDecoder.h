@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -22,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -202,6 +203,20 @@ public:
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
+
+    void decodeInvokeMethodRequest(
+        Uint32 queueId,
+	XmlParser& parser, 
+	const String& messageId,
+	const CIMReference& reference,
+	const String& cimMethodName);
+        
+    void sendMethodError(
+	Uint32 queueId, 
+	const String& messageId,
+	const String& methodName,
+	CIMStatusCode code,
+	const String& description);
 
 private:
 

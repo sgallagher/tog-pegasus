@@ -23,8 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
-//         Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -431,11 +430,11 @@ Array<Sint8>& XmlWriter::appendBooleanParameter(
 
 //------------------------------------------------------------------------------
 //
-// appendStringParameter()
+// appendStringIParameter()
 //
 //------------------------------------------------------------------------------
 
-Array<Sint8>& XmlWriter::appendStringParameter(
+Array<Sint8>& XmlWriter::appendStringIParameter(
     Array<Sint8>& out,
     const char* name,
     const String& str)
@@ -761,11 +760,11 @@ String XmlWriter::getNextMessageId()
 
 //------------------------------------------------------------------------------
 //
-// XmlWriter::formatSimpleReqMessage()
+// XmlWriter::formatSimpleIMethodReqMessage()
 //
 //------------------------------------------------------------------------------
 
-Array<Sint8> XmlWriter::formatSimpleReqMessage(
+Array<Sint8> XmlWriter::formatSimpleIMethodReqMessage(
     const char* host,
     const String& nameSpace,
     const char* iMethodName,
@@ -993,6 +992,153 @@ Array<Sint8> XmlWriter::formatEMethodResponseHeader(
     out << nn << "-CIMExport: MethodResponse\r\n\r\n";
     out << content;
     return out;
+}
+
+//------------------------------------------------------------------------------
+//
+// XmlWriter::formatSimpleMethodReqMessage()
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
+    const char* host,
+    const String& nameSpace,
+    const char* iMethodName,
+    const String& messageId,
+    const Array<Sint8>& body)
+{
+    return XmlWriter::formatMPostHeader(
+	host,
+	"MethodCall",
+	iMethodName,
+	nameSpace,
+	XmlWriter::formatMessageElement(
+	    messageId,
+	    XmlWriter::formatSimpleReqElement(
+		XmlWriter::formatMethodCallElement(
+		    iMethodName,
+		    nameSpace, 
+		    body))));
+}
+
+//------------------------------------------------------------------------------
+//
+// formatMethodCallElement()
+//
+//     <!ELEMENT METHODCALL (LOCALNAMESPACEPATH,IPARAMVALUE*)>
+//     <!ATTLIST METHODCALL %CIMName;>
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8> XmlWriter::formatMethodCallElement(
+    const char* name,
+    const String& nameSpace,
+    const Array<Sint8>& iParamValues)
+{
+    Array<Sint8> out;
+    out << "<METHODCALL NAME=\"" << name << "\">\n";
+    out << iParamValues;
+    out << "</METHODCALL>\n";
+    return out;
+}
+
+Array<Sint8> XmlWriter::formatSimpleMethodRspMessage(
+    const char* iMethodName,
+    const String& messageId,
+    const Array<Sint8>& body)
+{
+    /*return XmlWriter::formatMethodResponseHeader(
+        XmlWriter::formatMessageElement(
+	    messageId,
+            XmlWriter::formatSimpleRspElement(
+                XmlWriter::formatMethodResponseElement(
+                    iMethodName,
+                    XmlWriter::formatReturnValueElement(body)))));*/
+    return XmlWriter::formatMethodResponseHeader(
+        XmlWriter::formatMessageElement(
+	    messageId,
+            XmlWriter::formatSimpleRspElement(
+                XmlWriter::formatMethodResponseElement(
+                    iMethodName,
+                    body))));
+}
+
+//------------------------------------------------------------------------------
+//
+// formatMethodResponseElement()
+//
+//     <!ELEMENT METHODRESPONSE (ERROR|IRETURNVALUE?)>
+//     <!ATTLIST METHODRESPONSE %CIMName;>
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8> XmlWriter::formatMethodResponseElement(
+    const char* name,
+    const Array<Sint8>& body)
+{
+    Array<Sint8> out;
+    out << "<METHODRESPONSE NAME=\"" << name << "\">\n";
+    out << body;
+    out << "</METHODRESPONSE>\n";
+    return out;
+}
+
+//------------------------------------------------------------------------------
+//
+// appendStringParameter()
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8>& XmlWriter::appendStringParameter(
+    Array<Sint8>& out,
+    const char* name,
+    const String& str)
+{
+    Array<Sint8> tmp;
+    tmp << "<VALUE>";
+    appendSpecial(tmp, str);
+    tmp << "</VALUE>\n";
+    return formatParamValueElement(out, name, tmp);
+}
+
+//------------------------------------------------------------------------------
+//
+// formatParamValueElement()
+//
+//     <!ELEMENT PARAMVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE
+//         |INSTANCENAME|CLASSNAME|QUALIFIER.DECLARATION
+//         |CLASS|INSTANCE|VALUE.NAMEDINSTANCE)?>
+//     <!ATTLIST PARAMVALUE %CIMName;>
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8>& XmlWriter::formatParamValueElement(
+    Array<Sint8>& out,
+    const char* name,
+    const Array<Sint8>& body)
+{
+    out << "<PARAMVALUE NAME=\"" << name << "\">\n";
+    out << body;
+    out << "</PARAMVALUE>\n";
+    return out;
+}
+
+//------------------------------------------------------------------------------
+//
+// formatReturnValueElement()
+//
+//      <!ELEMENT RETURNVALUE (CLASSNAME*|INSTANCENAME*|VALUE*|
+//          VALUE.OBJECTWITHPATH*|VALUE.OBJECTWITHLOCALPATH*|VALUE.OBJECT*|
+//          OBJECTPATH*|QUALIFIER.DECLARATION*|VALUE.ARRAY?|VALUE.REFERENCE?|
+//          CLASS*|INSTANCE*|VALUE.NAMEDINSTANCE*)>
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8> XmlWriter::formatReturnValueElement(
+    const Array<Sint8>& body)
+{
+    Array<Sint8> out;
+    return out << "<RETURNVALUE>\n" << body << "</RETURNVALUE>\n";
 }
 
 PEGASUS_NAMESPACE_END

@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -22,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -178,61 +179,80 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 
 	const char* iMethodResponseName = 0;
 
-	if (!XmlReader::getIMethodResponseStartTag(parser, iMethodResponseName))
+	if (XmlReader::getIMethodResponseStartTag(parser, iMethodResponseName))
+	{
+	    //
+	    // Dispatch the method:
+	    //
+
+	    if (EqualNoCase(iMethodResponseName, "GetClass"))
+		_decodeGetClassResponse(parser, messageId);
+	    else if (EqualNoCase(iMethodResponseName, "GetInstance"))
+		_decodeGetInstanceResponse(parser, messageId);
+	    else if (EqualNoCase(iMethodResponseName, "EnumerateClassNames"))
+		_decodeEnumerateClassNamesResponse(parser, messageId);
+	    else if (EqualNoCase(iMethodResponseName, "References"))
+		_decodeReferencesResponse(parser, messageId);
+	    else if (EqualNoCase(iMethodResponseName, "ReferenceNames"))
+		_decodeReferenceNamesResponse(parser, messageId);
+	    else if (EqualNoCase(iMethodResponseName, "AssociatorNames"))
+		_decodeAssociatorNamesResponse(parser, messageId);
+	    else if (EqualNoCase(iMethodResponseName, "Associators"))
+		_decodeAssociatorsResponse(parser, messageId);
+	    else if (EqualNoCase(iMethodResponseName, "CreateInstance"))
+		_decodeCreateInstanceResponse(parser, messageId);
+	    else if (EqualNoCase(iMethodResponseName,"EnumerateInstanceNames"))
+		_decodeEnumerateInstanceNamesResponse(parser, messageId);
+	    else if (EqualNoCase(iMethodResponseName, "DeleteQualifier"))
+		_decodeDeleteQualifierResponse(parser, messageId);
+	    else if (EqualNoCase(iMethodResponseName, "GetQualifier"))
+		_decodeGetQualifierResponse(parser, messageId);
+	    else if (EqualNoCase(iMethodResponseName, "SetQualifier"))
+		_decodeSetQualifierResponse(parser, messageId);
+	    else if (EqualNoCase(iMethodResponseName, "EnumerateQualifiers"))
+		_decodeEnumerateQualifiersResponse(parser, messageId);
+	    else if (EqualNoCase(iMethodResponseName, "EnumerateClasses"))
+		_decodeEnumerateClassesResponse(parser, messageId);
+	    else if (EqualNoCase(iMethodResponseName, "CreateClass"))
+		_decodeCreateClassResponse(parser, messageId);
+	    else if (EqualNoCase(iMethodResponseName, "ModifyClass"))
+		_decodeModifyClassResponse(parser, messageId);
+	    else if (EqualNoCase(iMethodResponseName, "ModifyInstance"))
+		_decodeModifyInstanceResponse(parser, messageId);
+	    else if (EqualNoCase(iMethodResponseName, "DeleteClass"))
+		_decodeDeleteClassResponse(parser, messageId);
+	    else if (EqualNoCase(iMethodResponseName, "DeleteInstance"))
+		_decodeDeleteInstanceResponse(parser, messageId);
+	    //else
+	    //{
+		//ATTN: This message is received due to InvokeMethod 
+		//from Serevr
+		//return;
+	    //}
+	
+	    //
+	    // Handle end tags:
+	    //
+
+	    XmlReader::expectEndTag(parser, "IMETHODRESPONSE");
+	}
+	else if (XmlReader::getMethodResponseStartTag(parser, 
+	    iMethodResponseName))
+	{
+	    _decodeInvokeMethodResponse(parser, messageId, iMethodResponseName);
+
+	    //
+	    // Handle end tags:
+	    //
+	    XmlReader::expectEndTag(parser, "METHODRESPONSE");
+	}
+	else
 	{
 	    // ATTN: error ignored for now!
 
 	    return;
 	}
 
-	//
-	// Dispatch the method:
-	//
-
-	if (EqualNoCase(iMethodResponseName, "GetClass"))
-	    _decodeGetClassResponse(parser, messageId);
-	else if (EqualNoCase(iMethodResponseName, "GetInstance"))
-	    _decodeGetInstanceResponse(parser, messageId);
-	else if (EqualNoCase(iMethodResponseName, "EnumerateClassNames"))
-	    _decodeEnumerateClassNamesResponse(parser, messageId);
-	else if (EqualNoCase(iMethodResponseName, "References"))
-	    _decodeReferencesResponse(parser, messageId);
-	else if (EqualNoCase(iMethodResponseName, "ReferenceNames"))
-	    _decodeReferenceNamesResponse(parser, messageId);
-	else if (EqualNoCase(iMethodResponseName, "AssociatorNames"))
-	    _decodeAssociatorNamesResponse(parser, messageId);
-	else if (EqualNoCase(iMethodResponseName, "Associators"))
-	    _decodeAssociatorsResponse(parser, messageId);
-	else if (EqualNoCase(iMethodResponseName, "CreateInstance"))
-	    _decodeCreateInstanceResponse(parser, messageId);
-	else if (EqualNoCase(iMethodResponseName,"EnumerateInstanceNames"))
-	    _decodeEnumerateInstanceNamesResponse(parser, messageId);
-	else if (EqualNoCase(iMethodResponseName, "DeleteQualifier"))
-	    _decodeDeleteQualifierResponse(parser, messageId);
-	else if (EqualNoCase(iMethodResponseName, "GetQualifier"))
-	    _decodeGetQualifierResponse(parser, messageId);
-	else if (EqualNoCase(iMethodResponseName, "SetQualifier"))
-	    _decodeSetQualifierResponse(parser, messageId);
-	else if (EqualNoCase(iMethodResponseName, "EnumerateQualifiers"))
-	    _decodeEnumerateQualifiersResponse(parser, messageId);
-	else if (EqualNoCase(iMethodResponseName, "EnumerateClasses"))
-	    _decodeEnumerateClassesResponse(parser, messageId);
-	else if (EqualNoCase(iMethodResponseName, "CreateClass"))
-	    _decodeCreateClassResponse(parser, messageId);
-	else if (EqualNoCase(iMethodResponseName, "ModifyClass"))
-	    _decodeModifyClassResponse(parser, messageId);
-	else if (EqualNoCase(iMethodResponseName, "ModifyInstance"))
-	    _decodeModifyInstanceResponse(parser, messageId);
-	else if (EqualNoCase(iMethodResponseName, "DeleteClass"))
-	    _decodeDeleteClassResponse(parser, messageId);
-	else if (EqualNoCase(iMethodResponseName, "DeleteInstance"))
-	    _decodeDeleteInstanceResponse(parser, messageId);
-
-	//
-	// Handle end tags:
-	//
-
-	XmlReader::expectEndTag(parser, "IMETHODRESPONSE");
 	XmlReader::expectEndTag(parser, "SIMPLERSP");
 	XmlReader::expectEndTag(parser, "MESSAGE");
 	XmlReader::expectEndTag(parser, "CIM");
@@ -950,6 +970,63 @@ void CIMOperationResponseDecoder::_decodeAssociatorsResponse(
     {
 	throw XmlValidationError(parser.getLine(),
 	    "expected ERROR or IRETURNVALUE element");
+    }
+}
+
+void CIMOperationResponseDecoder::_decodeInvokeMethodResponse(
+    XmlParser& parser, const String& messageId, const String& methodName)
+{
+    XmlEntry entry;
+    CIMStatusCode code;
+    const char* description = 0;
+
+    CIMValue value;
+    Array<CIMParamValue> outParameters;
+    const char* paramName;
+    String inValue;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_outputQueue->enqueue(new CIMInvokeMethodResponseMessage(
+	    messageId,
+	    code,
+	    description,
+	    QueueIdStack(),
+	    value,
+	    outParameters,
+	    methodName));
+    }
+    else if (XmlReader::testStartTag(parser, entry, "RETURNVALUE"))
+    {
+	XmlReader::getValueElement(parser, CIMType::STRING, value);
+
+	XmlReader::testEndTag(parser, "RETURNVALUE");
+
+	while (XmlReader::getParamValueTag(parser, paramName))
+	{
+	    //XmlReader::getValueElement(parser, CIMType::NONE, inValue);
+	    XmlReader::getStringValueElement(parser, inValue, true);
+
+	    outParameters.append(CIMParamValue(
+		CIMParameter(paramName, CIMType::STRING),
+		CIMValue(inValue)));
+	
+	    XmlReader::expectEndTag(parser, "PARAMVALUE");
+	}
+
+	_outputQueue->enqueue(new CIMInvokeMethodResponseMessage(
+	    messageId,
+	    CIM_ERR_SUCCESS,
+	    String(),
+	    QueueIdStack(),
+	    value,
+	    outParameters,
+	    methodName));
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or RETURNVALUE element");
     }
 }
 

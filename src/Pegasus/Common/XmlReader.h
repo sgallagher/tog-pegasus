@@ -50,6 +50,7 @@ class CIMParameter;
 class CIMMethod;
 class CIMObject;
 class CIMObjectWithPath;
+class CIMParamValue;
 
 class PEGASUS_COMMON_LINKAGE XmlReader
 {
@@ -363,6 +364,18 @@ public:
 	const char*& name);
 
     static Boolean getEMethodResponseStartTag(
+	XmlParser& parser, 
+	const char*& name);
+
+    static Boolean getMethodCallStartTag(
+	XmlParser& parser, 
+	const char*& name);
+
+    static Boolean getMethodResponseStartTag(
+	XmlParser& parser, 
+	const char*& name);
+
+    static Boolean getParamValueTag(
 	XmlParser& parser, 
 	const char*& name);
 

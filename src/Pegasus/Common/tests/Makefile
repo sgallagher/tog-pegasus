@@ -40,7 +40,8 @@ DIRS = \
     DynLoad \
     Logger \
     WebServer \
-    WebClient
+    WebClient \
+    ParamValue
 
 ifeq ($(OS),linux)
 DIRS += IPC Thread

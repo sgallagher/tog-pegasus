@@ -129,7 +129,7 @@ public:
 	const char* parameterName,
 	Boolean flag);
 
-    static Array<Sint8>& appendStringParameter(
+    static Array<Sint8>& appendStringIParameter(
 	Array<Sint8>& out,
 	const char* parameterName,
 	const String& str);
@@ -186,7 +186,7 @@ public:
 	const char* text, 
 	Uint32 indentChars = 2);
 
-    static Array<Sint8> formatSimpleReqMessage(
+    static Array<Sint8> formatSimpleIMethodReqMessage(
 	const char* host,
 	const String& nameSpace,
 	const char* iMethodName,
@@ -233,6 +233,40 @@ public:
 
     static Array<Sint8> formatEMethodResponseHeader(
 	const Array<Sint8>& content);
+
+    static Array<Sint8> formatSimpleMethodReqMessage(
+	const char* host,
+	const String& nameSpace,
+	const char* iMethodName,
+	const String& messageId,
+	const Array<Sint8>& body);
+
+    static Array<Sint8> formatMethodCallElement(
+	const char* name,
+	const String& nameSpace,
+	const Array<Sint8>& iParamValues);
+
+    static Array<Sint8> formatSimpleMethodRspMessage(
+	const char* iMethodName,
+        const String& messageId,
+	const Array<Sint8>& body);
+
+    static Array<Sint8> formatMethodResponseElement(
+	const char* name,
+	const Array<Sint8>& iParamValues);
+
+    static Array<Sint8>& appendStringParameter(
+	Array<Sint8>& out,
+	const char* parameterName,
+	const String& str);
+
+    static Array<Sint8>& formatParamValueElement(
+	Array<Sint8>& out,
+	const char* name,
+	const Array<Sint8>& body);
+    
+    static Array<Sint8> formatReturnValueElement(
+	const Array<Sint8>& body);
 
 private:
 

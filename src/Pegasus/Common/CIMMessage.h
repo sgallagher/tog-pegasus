@@ -32,6 +32,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Message.h>
+#include <Pegasus/Common/CIMParamValue.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
@@ -723,6 +724,7 @@ public:
     String nameSpace;
 };
 
+
 class CIMInvokeMethodRequestMessage : public CIMRequestMessage
 {
 public:
@@ -732,7 +734,7 @@ public:
 	const String& nameSpace_,
 	const CIMReference& instanceName_,
 	const String& methodName_,
-	const Array<CIMValue>& inParameters_,
+	const Array<CIMParamValue>& inParameters_,
 	QueueIdStack queueIds_)
 	:
 	CIMRequestMessage(
@@ -748,7 +750,7 @@ public:
     String nameSpace;
     CIMReference instanceName;
     String methodName;
-    Array<CIMValue> inParameters;
+    Array<CIMParamValue> inParameters;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMGetClassResponseMessage 
@@ -1203,18 +1205,21 @@ public:
         CIMStatusCode errorCode_,
 	const String& errorDescription_,
 	const QueueIdStack& queueIds_,
-	CIMValue& value_,
-        const Array<CIMValue>& outParameters_)
+	CIMValue& retValue_,
+        const Array<CIMParamValue>& outParameters_,
+	const String& methodName_)
         :
         CIMResponseMessage(CIM_INVOKE_METHOD_RESPONSE_MESSAGE, 
 	    messageId_, errorCode_, errorDescription_, queueIds_),
-	value(value_),
-        outParameters(outParameters_)
+	retValue(retValue_),
+        outParameters(outParameters_),
+	methodName(methodName_)
     {
     }
 
-    CIMValue value;
-    Array<CIMValue> outParameters;
+    CIMValue retValue;
+    Array<CIMParamValue> outParameters;
+    String methodName;
 };
 
 PEGASUS_NAMESPACE_END

@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -22,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By: Yi Zhou (yi_zhou@hp.com)
+// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -193,8 +195,10 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
 	handleMethodCall(queueId, content);
     }
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationRequestDecoder::"
-				 "handleHTTPMessage()");
+    
+    PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationRequestDecoder::"
+   				 "handleHTTPMessage()");
+    
 }
 
 
@@ -252,111 +256,155 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
 	// Expect <IMETHODCALL ...>
 
-	if (!XmlReader::getIMethodCallStartTag(parser, cimMethodName))
+	if (XmlReader::getIMethodCallStartTag(parser, cimMethodName))
+	{	    
+	    // Expect <LOCALNAMESPACEPATH ...>
+
+	    String nameSpace;
+
+	    if (!XmlReader::getLocalNameSpacePathElement(parser, nameSpace))
+	    {
+		throw XmlValidationError(parser.getLine(), 
+		    "expected LOCALNAMESPACEPATH element");
+	    }
+
+	    // Delegate to appropriate method to handle:
+
+	    if (CompareNoCase(cimMethodName, "GetClass") == 0)
+		decodeGetClassRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "GetInstance") == 0)
+		decodeGetInstanceRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "EnumerateClassNames") == 0)
+		decodeEnumerateClassNamesRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "References") == 0)
+		decodeReferencesRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "ReferenceNames") == 0)
+		decodeReferenceNamesRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "AssociatorNames") == 0)
+		decodeAssociatorNamesRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "Associators") == 0)
+		decodeAssociatorsRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "CreateInstance") == 0)
+		decodeCreateInstanceRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "EnumerateInstanceNames") == 0)
+		decodeEnumerateInstanceNamesRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "DeleteQualifier") == 0)
+		decodeDeleteQualifierRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "GetQualifier") == 0)
+		decodeGetQualifierRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "SetQualifier") == 0)
+		decodeSetQualifierRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "EnumerateQualifiers") == 0)
+		decodeEnumerateQualifiersRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "EnumerateClasses") == 0)
+		decodeEnumerateClassesRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "EnumerateClassNames") == 0)
+		decodeEnumerateClassNamesRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "EnumerateInstances") == 0)
+		decodeEnumerateInstancesRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "CreateClass") == 0)
+		decodeCreateClassRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "ModifyClass") == 0)
+		decodeModifyClassRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "ModifyInstance") == 0)
+		decodeModifyInstanceRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "DeleteClass") == 0)
+		decodeDeleteClassRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "DeleteInstance") == 0)
+		decodeDeleteInstanceRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "GetProperty") == 0)
+		decodeGetPropertyRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else if (CompareNoCase(cimMethodName, "SetProperty") == 0)
+		decodeSetPropertyRequest(
+		    queueId, parser, messageId, nameSpace);
+	    else
+	    {
+		String description = "Unknown intrinsic method: ";
+		description += cimMethodName;
+
+		sendError(
+		    queueId, 
+		    messageId,
+		    cimMethodName,
+		    CIM_ERR_FAILED,
+		    description);
+
+		return;
+	    }
+
+	    // Expect </IMETHODCALL>
+
+	    XmlReader::expectEndTag(parser, "IMETHODCALL");
+	}
+	// Expect <METHODCALL ...>
+	else if (XmlReader::getMethodCallStartTag(parser, cimMethodName))
+	{	    
+	    // Expect <LOCALINSTANCEPATH ...>
+
+	    CIMReference reference;
+
+	    if (!XmlReader::getLocalInstancePathElement(parser, reference))
+	    {
+	    	throw XmlValidationError(parser.getLine(), 
+	    	    "expected LOCALINSTANCEPATH element");
+	    }
+
+	    // Delegate to appropriate method to handle:
+
+	    if (cimMethodName != NULL)
+	    {
+		decodeInvokeMethodRequest(
+		    queueId, 
+		    parser, 
+		    messageId, 
+		    reference, 
+		    cimMethodName);
+	    }
+	    else
+	    {
+		String description = "Unknown extrinsic method: ";
+		description += cimMethodName;
+
+		sendMethodError(
+		    queueId, 
+		    messageId,
+		    cimMethodName,
+		    CIM_ERR_FAILED,
+		    description);
+
+		return;
+	    }
+	    // Expect </METHODCALL>
+
+	    XmlReader::expectEndTag(parser, "METHODCALL");
+	}
+	else
 	{
 	    throw XmlValidationError(parser.getLine(), 
 		"expected IMETHODCALL element");
 	}
-
-	// Expect <LOCALNAMESPACEPATH ...>
-
-	String nameSpace;
-
-	if (!XmlReader::getLocalNameSpacePathElement(parser, nameSpace))
-	{
-	    throw XmlValidationError(parser.getLine(), 
-		"expected LOCALNAMESPACEPATH element");
-	}
-
-	// Delegate to appropriate method to handle:
-
-	if (CompareNoCase(cimMethodName, "GetClass") == 0)
-	    decodeGetClassRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "GetInstance") == 0)
-	    decodeGetInstanceRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "EnumerateClassNames") == 0)
-	    decodeEnumerateClassNamesRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "References") == 0)
-	    decodeReferencesRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "ReferenceNames") == 0)
-	    decodeReferenceNamesRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "AssociatorNames") == 0)
-	    decodeAssociatorNamesRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "Associators") == 0)
-	    decodeAssociatorsRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "CreateInstance") == 0)
-	    decodeCreateInstanceRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "EnumerateInstanceNames") == 0)
-	    decodeEnumerateInstanceNamesRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "DeleteQualifier") == 0)
-	    decodeDeleteQualifierRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "GetQualifier") == 0)
-	    decodeGetQualifierRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "SetQualifier") == 0)
-	    decodeSetQualifierRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "EnumerateQualifiers") == 0)
-	    decodeEnumerateQualifiersRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "EnumerateClasses") == 0)
-	    decodeEnumerateClassesRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "EnumerateClassNames") == 0)
-	    decodeEnumerateClassNamesRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "EnumerateInstances") == 0)
-	    decodeEnumerateInstancesRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "CreateClass") == 0)
-	    decodeCreateClassRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "ModifyClass") == 0)
-	    decodeModifyClassRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "ModifyInstance") == 0)
-	    decodeModifyInstanceRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "DeleteClass") == 0)
-	    decodeDeleteClassRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "DeleteInstance") == 0)
-	    decodeDeleteInstanceRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "GetProperty") == 0)
-	    decodeGetPropertyRequest(
-                queueId, parser, messageId, nameSpace);
-	else if (CompareNoCase(cimMethodName, "SetProperty") == 0)
-	    decodeSetPropertyRequest(
-                queueId, parser, messageId, nameSpace);
-	else
-	{
-	    String description = "Unknown intrinsic method: ";
-	    description += cimMethodName;
-
-	    sendError(
-		queueId, 
-		messageId,
-		cimMethodName,
-		CIM_ERR_FAILED,
-		description);
-
-	    return;
-	}
-
-	// Expect </IMETHODCALL>
-
-	XmlReader::expectEndTag(parser, "IMETHODCALL");
 
 	// Expect </SIMPLEREQ>
 
@@ -372,12 +420,13 @@ void CIMOperationRequestDecoder::handleMethodCall(
     }
     catch (Exception& e)
     {
-	sendError(
+    	sendError(
 	    queueId, 
 	    messageId,
 	    cimMethodName,
 	    CIM_ERR_FAILED,
 	    e.getMessage());
+	//return;
     }
 }
 
@@ -1076,6 +1125,63 @@ void CIMOperationRequestDecoder::decodeSetPropertyRequest(
 {
     // ATTN: implement this!
     PEGASUS_ASSERT(0);
+}
+
+void CIMOperationRequestDecoder::decodeInvokeMethodRequest(
+    Uint32 queueId,
+    XmlParser& parser, 
+    const String& messageId,
+    const CIMReference& reference,
+    const String& cimMethodName)
+{
+    Array<CIMParamValue> inParameters;
+    
+    const char* paramName;
+    String inValue;
+    
+    while (XmlReader::getParamValueTag(parser, paramName))
+    {
+	//XmlReader::getValueElement(parser, CIMType::NONE, inValue);
+	XmlReader::getStringValueElement(parser, inValue, true);
+
+	inParameters.append(CIMParamValue(
+	    CIMParameter(paramName, CIMType::STRING),
+	    CIMValue(inValue)));
+	
+	XmlReader::expectEndTag(parser, "PARAMVALUE");
+    }
+
+    CIMInvokeMethodRequestMessage* request =     
+	new CIMInvokeMethodRequestMessage(
+	    messageId, 
+	    reference.getNameSpace(), 
+	    reference, 
+	    cimMethodName.allocateCString(),
+	    inParameters,
+	    QueueIdStack(queueId, _returnQueueId));
+
+    _outputQueue->enqueue(request);
+}
+
+void CIMOperationRequestDecoder::sendMethodError(
+    Uint32 queueId, 
+    const String& messageId,
+    const String& cimMethodName,
+    CIMStatusCode code,
+    const String& description) 
+{
+    ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
+    ArrayDestroyer<char> tmp2(description.allocateCString());
+
+    Array<Sint8> message = XmlWriter::formatMethodResponseHeader(
+	XmlWriter::formatMessageElement(
+	    messageId,
+	    XmlWriter::formatSimpleRspElement(
+		XmlWriter::formatMethodResponseElement(
+		    tmp1.getPointer(),
+		    XmlWriter::formatErrorElement(code, tmp2.getPointer())))));
+    
+    sendResponse(queueId, message);
 }
 
 PEGASUS_NAMESPACE_END

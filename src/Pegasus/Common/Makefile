@@ -14,7 +14,9 @@ NEW_SOURCES = \
     HTTPConnection.cpp \
     HTTPConnector.cpp  \
     HTTPMessage.cpp \
-    HTTPDelegator.cpp
+    HTTPDelegator.cpp \
+    CIMParamValue.cpp \
+    CIMParamValueRep.cpp
 
 SOURCES = \
     $(NEW_SOURCES) \

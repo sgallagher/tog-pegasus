@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -23,6 +24,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Yi Zhou (yi_zhou@hp.com)
+//              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -234,8 +236,9 @@ void CIMOperationResponseEncoder::handleEnqueue()
 		(CIMEnumerateQualifiersResponseMessage*)message);
 	    break;
 
-	// ATTN: implement this:
 	case CIM_INVOKE_METHOD_RESPONSE_MESSAGE:
+	    encodeInvokeMethodResponse(
+		(CIMInvokeMethodResponseMessage*)message); 
 	    break;
     }
 
@@ -623,6 +626,70 @@ void CIMOperationResponseEncoder::encodeAssociatorsResponse(
 	"Associators", response->messageId, body);
 
     sendResponse(response->queueIds.top(), message);
+}
+
+void CIMOperationResponseEncoder::encodeInvokeMethodResponse(
+    CIMInvokeMethodResponseMessage* response)
+{
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+        sendMethodError(response, response->methodName);
+	return;
+    }
+
+    Array<Sint8> body;
+    response->retValue.toXml(body);
+
+    body = XmlWriter::formatReturnValueElement(body);
+
+    for (Uint8 i = 0; i < response->outParameters.size(); i++)
+    {
+	XmlWriter::appendStringParameter(
+	    body, 
+	    response->outParameters[i].getParameter().getName().allocateCString(),
+	    response->outParameters[i].getValue().toString());
+    }
+
+    Array<Sint8> message = XmlWriter::formatSimpleMethodRspMessage(
+	response->methodName.allocateCString(), response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
+}
+
+void CIMOperationResponseEncoder::sendMethodError(
+    Uint32 queueId, 
+    const String& messageId,
+    const String& cimMethodName,
+    CIMStatusCode code,
+    const String& description) 
+{
+    ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
+    ArrayDestroyer<char> tmp2(description.allocateCString());
+
+    Array<Sint8> message = XmlWriter::formatMethodResponseHeader(
+	XmlWriter::formatMessageElement(
+	    messageId,
+	    XmlWriter::formatSimpleRspElement(
+		XmlWriter::formatMethodResponseElement(
+		    tmp1.getPointer(),
+		    XmlWriter::formatErrorElement(code, tmp2.getPointer())))));
+    
+    sendResponse(queueId, message);
+}
+
+void CIMOperationResponseEncoder::sendMethodError(
+    CIMResponseMessage* response,
+    const String& cimMethodName)
+{
+    Uint32 queueId = response->queueIds.top();
+    response->queueIds.pop();
+
+    sendMethodError(
+	queueId,
+	response->messageId, 
+	cimMethodName, 
+	response->errorCode, 
+	response->errorDescription);
 }
 
 PEGASUS_NAMESPACE_END

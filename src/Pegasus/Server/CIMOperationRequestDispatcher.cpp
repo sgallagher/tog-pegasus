@@ -1,5 +1,7 @@
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -21,13 +23,16 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:  Nag Boranna (nagaraja_boranna@hp.com)
+// Modified By: Nag Boranna (nagaraja_boranna@hp.com)
+//              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com) 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "CIMOperationRequestDispatcher.h"
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/CIMOMHandle.h>
+#include <Pegasus/Provider2/CIMMethodProvider.h>
+
+#include "CIMOperationRequestDispatcher.h"
 #include "ProviderTable.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -238,8 +243,9 @@ void CIMOperationRequestDispatcher::handleEnqueue()
 		(CIMEnumerateQualifiersRequestMessage*)request);
 	    break;
 
-	// ATTN: implement this!
 	case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
+	    handleInvokeMethodRequest(
+		(CIMInvokeMethodRequestMessage*)request);
 	    break;
     }
 
@@ -1120,6 +1126,84 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 	    errorDescription,
 	    request->queueIds.copyAndPop(),
 	    qualifierDeclarations);
+
+    _enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
+    CIMInvokeMethodRequestMessage* request)
+{
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription;
+
+    CIMValue retValue(0);
+
+    Array<CIMParamValue> outParameters;
+    
+    Array<CIMValue> outParams;
+    Array<CIMValue> inParams;
+    
+    try
+    {
+	CIMProvider* provider = _lookupProviderForClass(
+    	    request->nameSpace, request->instanceName.getClassName());
+
+    	// converting Array<CIMargument> to Array<CIMvalue>
+	for (Uint8 i = 0; i < request->inParameters.size(); i++)
+	    inParams.append(request->inParameters[i].getValue());
+
+	if (provider)
+	{ 
+	    retValue = provider->invokeMethod(
+		request->nameSpace,
+		request->instanceName, 
+		request->methodName,
+		inParams, 
+		outParams);
+	}
+	else
+	{
+	    retValue.set(1);
+	    errorCode = CIM_ERR_SUCCESS;
+	    errorDescription = "Provider not available";
+	}
+    }
+    catch (CIMException& exception)
+    {
+	errorCode = exception.getCode();
+	errorDescription = exception.getMessage();
+    }
+    catch (Exception& exception)
+    {
+	errorCode = CIM_ERR_FAILED;
+	errorDescription = exception.getMessage();
+    }
+
+    // converting Array<CIMvalue> to Array<CIMvalue> Array<CIMargument>
+    /*for (Uint8 j = 0; j < outParams.size(); j++)
+    {
+	outParameters.append(CIMParamValue(
+	    CIMParameter("ATTN: What's name?", outParams[j].getType()), 
+	    outParams[j]));
+    }*/
+
+    // ATTN: Assuming provider returned true and following parameters
+    outParameters.append(CIMParamValue(
+	CIMParameter("param1", CIMType::STRING), 
+	CIMValue("HP")));
+    outParameters.append(CIMParamValue(
+	CIMParameter("param2", CIMType::STRING), 
+	CIMValue("CA")));
+    
+    CIMInvokeMethodResponseMessage* response =
+	new CIMInvokeMethodResponseMessage(
+	    request->messageId,
+	    errorCode,
+	    errorDescription,
+	    request->queueIds.copyAndPop(),
+	    retValue,
+	    outParameters,
+	    request->methodName);
 
     _enqueueResponse(request, response);
 }

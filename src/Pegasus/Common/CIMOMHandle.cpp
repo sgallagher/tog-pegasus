@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -23,6 +24,7 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Mike Brasher (mbrasher@bmc.com)
+//              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -702,8 +704,8 @@ CIMValue CIMOMHandle::invokeMethod(
 	const String& nameSpace,
 	const CIMReference& instanceName,
 	const String& methodName,
-	const Array<CIMValue>& inParameters,
-	Array<CIMValue>& outParameters)
+	const Array<CIMParamValue>& inParameters,
+	Array<CIMParamValue>& outParameters)
 {
 	Message* request = new CIMInvokeMethodRequestMessage(
 		XmlWriter::getNextMessageId(),
@@ -731,7 +733,7 @@ CIMValue CIMOMHandle::invokeMethod(
 
 	outParameters = response->outParameters;
 	
-	return(response->value);
+	return(response->retValue);
 }
 
 Message * CIMOMHandle::_waitForResponse(

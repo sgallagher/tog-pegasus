@@ -80,7 +80,6 @@ public:
         qualifier is an array type with fixed value array. The default is
         zero indicating that the qualifier declaration is not a fixed size
         array.
-        @exception IllegalName if name argument not legal CIM identifier.
     */
     CIMQualifierDecl(
         const CIMName& name, 
@@ -102,9 +101,6 @@ public:
 
     /** setName - Puts the name into a CIMQualifierdecl
         @param Name CIMName containing name to be put on this qualifier.
-        This must be a legal qualifier name.
-        @exception - Throws IllegalName if name argument not a legal
-        CIM Qualifier name
     */
     void setName(const CIMName& name);
 
@@ -211,7 +207,6 @@ public:
         if not specified is CIMFlavor::DEFAULTS
         @arraysize Optional integer with array size for fixed size arrays.  If
         not supplied, assumes 0.
-        @exception IllegalName if name argument not legal CIM identifier.
     */
     CIMConstQualifierDecl(
         const CIMName& name, 

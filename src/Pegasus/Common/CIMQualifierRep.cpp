@@ -57,9 +57,6 @@ CIMQualifierRep::CIMQualifierRep(
     _propagated(propagated)
 {
     //cout << "KSTEST Qualifer create " << name << " Flavor " << flavor << endl;
-	if (!CIMName::legal(name))
-	throw IllegalName();
-
     if (_value.getType() == CIMTYPE_NONE)
 	throw NullType();
 }
@@ -71,9 +68,6 @@ CIMQualifierRep::~CIMQualifierRep()
 
 void CIMQualifierRep::setName(const CIMName& name) 
 {
-    if (!CIMName::legal(name))
-	throw IllegalName();
-
     _name = name; 
 }
 

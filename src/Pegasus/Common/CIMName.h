@@ -107,6 +107,13 @@ private:
 };
 
 #if 0
+// Defining this causes ambiguous operator== errors between String and CIMName
+PEGASUS_COMMON_LINKAGE Boolean operator==(
+    const CIMName& name1,
+    const CIMName& name2);
+#endif
+
+#if 0
 PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
     PEGASUS_STD(ostream)& os,
     const CIMName& name);

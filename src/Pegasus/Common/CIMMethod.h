@@ -69,7 +69,6 @@ public:
 	@param type CIM data type of method to create
 	@param classOrigin
 	@param propagated
-	@return Throws IllegalName if name argument not legal CIM identifier.
     */
     CIMMethod(
 	const CIMName& name,
@@ -90,7 +89,6 @@ public:
 
     /** setName - Set the method name
 	@param name
-	@exception IllegalName if name argument not legal CIM identifier.
     */
     void setName(const CIMName& name);
 
@@ -234,7 +232,6 @@ public:
 
     CIMConstMethod(const CIMMethod& x);
 
-    // Throws IllegalName if name argument not legal CIM identifier.
     CIMConstMethod(
 	const CIMName& name,
 	CIMType type,

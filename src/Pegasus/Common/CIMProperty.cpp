@@ -253,8 +253,6 @@ CIMConstProperty::CIMConstProperty(const CIMProperty& x)
     Inc(_rep = x._rep);
 }
 
-// Throws IllegalName if name argument not legal CIM identifier.
-
 CIMConstProperty::CIMConstProperty(
     const CIMName& name,
     const CIMValue& value,

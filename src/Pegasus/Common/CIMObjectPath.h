@@ -412,8 +412,7 @@ public:
         const String& host,
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-        const KeyBindingArray& keyBindings = getKeyBindingArray()) 
-        throw(IllformedObjectName, IllegalName);
+        const KeyBindingArray& keyBindings = getKeyBindingArray());
 
     /** Set the reference from an object name . */
       void set(const String& objectName) throw(IllformedObjectName);
@@ -445,15 +444,12 @@ public:
     void setHost(const String& host);
 
     /** getNameSpace - returns the namespace component of the
-        CIMObjectPath as a String.
+        CIMObjectPath as a CIMNamespaceName.
     */
     const CIMNamespaceName& getNameSpace() const;
 
     /** Sets the namespace component.
-        @param String representing the Namespace. The functions tests for
-        a legal name.
-        @exception Throws IllegalName if form of the namespace is illegal.
-        Pegasus does a limited check on name
+        @param CIMNamespaceName representing the namespace.
     */
     void setNameSpace(const CIMNamespaceName& nameSpace);
 
@@ -465,11 +461,6 @@ public:
     /** Sets the classname component of the CIMObjectPath object to the input
         parameter.
         @param className CIMName containing the className.
-        @exception Throws IllegalName if form of className is illegal.
-        A CIM name must match the following regular expression:
-        <PRE>
-           [A-Z-a-z_][A-Za-z_0-9]*
-        </PRE>
     */
     void setClassName(const CIMName& className);
 

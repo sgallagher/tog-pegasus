@@ -59,17 +59,11 @@ CIMMethodRep::~CIMMethodRep()
 
 void CIMMethodRep::setName(const CIMName& name)
 {
-    if (!CIMName::legal(name))
-	throw IllegalName();
-
     _name = name;
 }
 
 void CIMMethodRep::setClassOrigin(const CIMName& classOrigin)
 {
-    if (!CIMName::legal(classOrigin))
-	throw IllegalName();
-
     _classOrigin = classOrigin;
 }
 

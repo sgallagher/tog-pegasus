@@ -49,9 +49,6 @@ CIMParameterRep::CIMParameterRep(
     _isArray(isArray), _arraySize(arraySize), 
     _referenceClassName(referenceClassName)
 {
-    if (!CIMName::legal(name))
-	throw IllegalName();
-
     if (_type == CIMTYPE_NONE)
 	throw NullType();
 
@@ -82,9 +79,6 @@ CIMParameterRep::~CIMParameterRep()
 
 void CIMParameterRep::setName(const CIMName& name) 
 {
-    if (!CIMName::legal(name))
-	throw IllegalName();
-
     _name = name; 
 }
 

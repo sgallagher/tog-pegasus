@@ -144,6 +144,13 @@ Boolean CIMName::equal(const String& name1, const String& name2) throw()
 #endif
 
 #if 0
+Boolean operator==(const CIMName& name1, const CIMName& name2)
+{
+    return name1.equal(name2);
+}
+#endif
+
+#if 0
 PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const CIMName& name)
 {
     os << name.toString();

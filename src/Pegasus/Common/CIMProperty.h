@@ -86,8 +86,6 @@ public:
         @param propagated (optional) If true defines the property as 
         propagated  /Ref{propagated properties}
         @return	The constructed property object
-		@exception Throws "IllegalName" if name argumentis not legal a CIM 
-		name /Ref{CIMName}.
     */
     CIMProperty(
 	const CIMName& name,
@@ -115,9 +113,7 @@ public:
     // ATTN: P3 please hide this. The only way a name should be
     // set is through a constructor.
     /** setName - Set the property name.
-		@param Name to set
-		@exception IllegalName if name 
-        argument is not legal CIM identifier.
+		@param name Name to set as parameter name
     */
     void setName(const CIMName& name);
 
@@ -282,8 +278,6 @@ public:
     CIMConstProperty(const CIMConstProperty& x);
 
     CIMConstProperty(const CIMProperty& x);
-
-    // Throws IllegalName if name argument not legal CIM identifier.
 
     CIMConstProperty(
 	const CIMName& name,

@@ -70,13 +70,10 @@ public:
 
     PEGASUS_EXPLICIT CIMInstance(const CIMObject& x) throw(DynamicCastFailed);
 
-    //  ATTN: Clarify the defintion of legal CIM identifier.
     /**	Constructor - Creates an Instance object with the classname
 	from the input parameters
 	@param - CIMName className to be used with new instance object
 	@return The new instance object
-	@exception Throws IllegalName if className argument not legal CIM
-	identifier.
     */
     CIMInstance(const CIMName& className);
 
@@ -280,7 +277,6 @@ public:
     PEGASUS_EXPLICIT CIMConstInstance(const CIMConstObject& x)
         throw(DynamicCastFailed);
 
-    // Throws IllegalName if className argument not legal CIM identifier.
     CIMConstInstance(const CIMName& className);
 
     CIMConstInstance& operator=(const CIMConstInstance& x);

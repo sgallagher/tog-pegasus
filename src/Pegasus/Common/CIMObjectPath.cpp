@@ -372,7 +372,7 @@ void CIMObjectPath::set(
     const String& host,
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
-    const Array<KeyBinding>& keyBindings)  throw(IllformedObjectName, IllegalName)
+    const Array<KeyBinding>& keyBindings)
 {
    setHost(host);
    setNameSpace(nameSpace);

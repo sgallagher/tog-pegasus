@@ -82,7 +82,6 @@ public:
 	SuperClassName
 	@param className CIMObjectPath representing name of the class being created
 	@param superClassName CIMName representing name of the SuperClass
-	@return Throws IllegalName if className argument illegal CIM identifier.
 	<pre>
 	    CIMClass NewCass("MyClass", "YourClass");
 	</pre>
@@ -135,14 +134,9 @@ public:
     */
     const CIMName& getSuperClassName() const;
 
-    // ATTN define what's a legal class name
     /**	setSuperClassName - Sets the name of the parent class from
 	the input parameter. \REF{CLASSNAME}.
 	@param CIMName defining parent name.
-	@return Throws IllegalName if superClassName argument not legal CIM
-	identifier
-	@exception throws IllegalName if the name is not correct. See
-	\URL[ClassNames]{DefinitionofTerms.html#CLASSNAME}
     */
     void setSuperClassName(const CIMName& superClassName);
 

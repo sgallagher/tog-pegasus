@@ -94,11 +94,7 @@ public:
         for this parameter is CIMFlavor::NONE.
         @param propoagated - Boolean defining whether this is a propagated
         qualifier.  This is an optional parameter with default = false
-        @return -Returns the instantiated qualifier object or throws an
-        exception if the name argument is illegal
-    
-        @exception Throws IllegalName if name argument not legal CIM 
-        identifier.
+        @return -Returns the instantiated qualifier object
     */
     CIMQualifier(
 	const CIMName& name, 
@@ -119,7 +115,6 @@ public:
 
     /**	setName - Sets the qualifier name field in the qualifier object.
 	@param name - CIMName containing the name for the qualifier
-	@exception Throws IllegalName if name argument not legal CIM identifier.
     */
     void setName(const CIMName& name);
 
@@ -228,8 +223,6 @@ public:
     CIMConstQualifier(const CIMConstQualifier& x);
 
     CIMConstQualifier(const CIMQualifier& x);
-
-    // Throws IllegalName if name argument not legal CIM identifier.
 
     CIMConstQualifier(
 	const CIMName& name, 

@@ -52,9 +52,6 @@ CIMPropertyRep::CIMPropertyRep(
     _referenceClassName(referenceClassName), _classOrigin(classOrigin),
     _propagated(propagated)
 {
-    if (!CIMName::legal(name))
-		throw IllegalName();
-
     if (arraySize && (!value.isArray() || value.getArraySize() != arraySize))
 		throw IncompatibleTypes();
 
@@ -81,17 +78,11 @@ CIMPropertyRep::~CIMPropertyRep()
 
 void CIMPropertyRep::setName(const CIMName& name)
 {
-    if (!CIMName::legal(name))
-	throw IllegalName();
-
     _name = name;
 }
 
 void CIMPropertyRep::setClassOrigin(const CIMName& classOrigin)
 {
-    if (!CIMName::legal(classOrigin))
-	throw IllegalName();
-
     _classOrigin = classOrigin;
 }
 

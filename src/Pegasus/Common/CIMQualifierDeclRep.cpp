@@ -59,9 +59,6 @@ CIMQualifierDeclRep::CIMQualifierDeclRep(
     _arraySize(arraySize)
 {
     //cout << "KSTEST Qualifier Declflavor " << flavor << endl;
-    if (!CIMName::legal(name))
-	throw IllegalName();
-
     if (_value.getType() == CIMTYPE_NONE)
 	throw NullType();
 
@@ -92,9 +89,6 @@ CIMQualifierDeclRep::~CIMQualifierDeclRep()
 
 void CIMQualifierDeclRep::setName(const CIMName& name)
 {
-    if (!CIMName::legal(name))
-	throw IllegalName();
-
     _name = name;
 }
 

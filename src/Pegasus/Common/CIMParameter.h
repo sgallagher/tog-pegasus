@@ -58,7 +58,6 @@ public:
 
     CIMParameter(const CIMParameter& x);
 
-    // Throws IllegalName if name argument not legal CIM identifier.
     CIMParameter(
 	const CIMName& name, 
 	CIMType type,
@@ -133,7 +132,6 @@ public:
 
     CIMConstParameter(const CIMParameter& x);
 
-    // Throws IllegalName if name argument not legal CIM identifier.
     CIMConstParameter(
 	const CIMName& name, 
 	CIMType type,

@@ -57,15 +57,14 @@ public:
 
 	char buffer[1024];
 
-	for (;;)
-	{
-	    Sint32 size = channel->read(buffer, sizeof(buffer));
+	Sint32 size = channel->read(buffer, sizeof(buffer));
 
-	    if (size <= 0)
-		return false;
+	if (size <= 0)
+	    return false;
 
-	    channel->write(buffer, size);
-	}
+	cout << "size=" << size << endl;
+
+	channel->write(buffer, size);
 
 	return true;
     }
@@ -95,7 +94,7 @@ int main()
     while (true)
     {
 	cout << "Loop..." << endl;
-	selector->select(5000);
+	selector->select(10000);
     }
 
     return 0;

@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: WindowsSelector.cpp,v $
+// Revision 1.4  2001/04/08 22:06:31  mike
+// New acceptor
+//
 // Revision 1.3  2001/04/08 08:28:20  mike
 // Added more windows channel implementation code.
 //
@@ -42,6 +45,8 @@ PEGASUS_NAMESPACE_BEGIN
 #define FD_SETSIZE 4096
 
 #include <winsock.h>
+
+using namespace std;
 
 // This wrapper routine is needed to allow the select() WINSOCK routine to be 
 // called from the Selector::select() method. Using the global namespace
@@ -192,13 +197,19 @@ Boolean WindowsSelector::select(Uint32 milliseconds)
 		removeHandler(handler);
 
 	    if (reasons & WRITE)
+	    {
 		FD_CLR(desc, &_rep->active_wr_fd_set);
+	    }
 
 	    if (reasons & EXCEPTION)
+	    {
 		FD_CLR(desc, &_rep->active_ex_fd_set);
+	    }
 
 	    if (reasons & READ)
+	    {
 		FD_CLR(desc, &_rep->active_rd_fd_set);
+	    }
 
 	    count--;
 	    return true;

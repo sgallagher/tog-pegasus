@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: WindowsChannel.cpp,v $
+// Revision 1.4  2001/04/08 22:06:31  mike
+// New acceptor
+//
 // Revision 1.3  2001/04/08 19:20:04  mike
 // more TCP work
 //
@@ -216,7 +219,7 @@ Boolean WindowsChannel::handle(Sint32 desc, Uint32 reasons)
     if (desc != _desc)
 	return false;
 
-    if (reasons | Selector::READ)
+    if (reasons & Selector::READ)
     {
 	if (!_handler->handleInput(this))
 	{
@@ -224,7 +227,7 @@ Boolean WindowsChannel::handle(Sint32 desc, Uint32 reasons)
 	    return false;
 	}
     }
-    else if (reasons | Selector::WRITE)
+    else if (reasons & Selector::WRITE)
     {
 	if (!_handler->handleOutput(this))
 	{
@@ -374,7 +377,8 @@ Channel* WindowsChannelConnector::connect(const char* addressString)
 
     _selector->addHandler(
 	desc, 
-	Selector::READ | Selector::WRITE | Selector::EXCEPTION,
+	// Selector::READ | Selector::WRITE | Selector::EXCEPTION,
+	Selector::READ | Selector::EXCEPTION,
 	channel);
 
     handler->handleOpen(channel);
@@ -489,7 +493,7 @@ Boolean WindowsChannelAcceptor::handle(Sint32 desc, Uint32 reasons)
 
     _selector->addHandler(
 	slaveDesc, 
-	Selector::READ | Selector::WRITE | Selector::EXCEPTION,
+	Selector::READ | Selector::EXCEPTION,
 	channel);
 
     handler->handleOpen(channel);

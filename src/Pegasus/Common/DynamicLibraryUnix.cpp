@@ -39,11 +39,7 @@
 #include "OS400SystemState.h"  // OS400LoadDynamicLibrary, etc
 #endif
 
-#include <iostream>
-
 PEGASUS_NAMESPACE_BEGIN
-
-PEGASUS_USING_STD;
 
 Boolean DynamicLibrary::load(void)
 {
@@ -60,8 +56,6 @@ Boolean DynamicLibrary::load(void)
     _handle = OS400_LoadDynamicLibrary((const char *)cstr);
     #endif
 
-    cout << "DynamicLibrary::load() -> dlopen():"<< _handle << endl;
-
     return(isLoaded());
 }
 
@@ -69,8 +63,6 @@ Boolean DynamicLibrary::unload(void)
 {
     // ensure the module is loaded
     PEGASUS_ASSERT(isLoaded() == true);
-
-    cout << "DynamicLibrary::unload() -> dlclose():"<< _handle << endl;
 
     #if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_TRU64)
     dlclose(_handle);

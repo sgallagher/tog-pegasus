@@ -33,6 +33,7 @@
 //                  (carolann_graves@hp.com)
 //              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
+//              Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2333,#2351
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -641,21 +642,37 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
     //
     for (i =  options.first (); i <  options.last (); i++)
     {
-        if (options [i].getType () == Optarg::LONGFLAG)
+        if (options[i].getType () == Optarg::LONGFLAG)
         {
-            //PEP 167 : long flags newly added to this command
+            if (options[i].getopt () == LONG_HELP)
+            {
+                if (_operationType != OPERATION_TYPE_UNINITIALIZED)
+                {
+                    String param = String (LONG_HELP);
+                    //
+                    // More than one operation option was found
+                    //
+                    UnexpectedOptionException e (param);
+                    throw e;
+                }
 
-            if(options [i].getopt () == LONG_HELP)
                _operationType = OPERATION_TYPE_HELP;
-            else if (options [i].getopt () == LONG_VERSION)
-               _operationType = OPERATION_TYPE_VERSION;
+            }
+            else if (options[i].getopt () == LONG_VERSION)
+            {
+                if (_operationType != OPERATION_TYPE_UNINITIALIZED)
+                {
+                    String param = String (LONG_VERSION);
+                    //
+                    // More than one operation option was found
+                    //
+                    UnexpectedOptionException e (param);
+                    throw e;
+                }
 
-            c = options [i].getopt () [0];
-            
-            //PEP 167 change
-            //UnexpectedOptionException e (c);
-            //throw e;
-        } 
+               _operationType = OPERATION_TYPE_VERSION;
+            }
+        }
         else if (options [i].getType () == Optarg::REGULAR)
         {
             //

@@ -31,7 +31,7 @@
 //               (carolann_graves@hp.com)
 //               Amit K Arora, IBM (amita@in.ibm.com) for PEP-101
 //               Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
-//               Amit K Arora, IBM (amita@in.ibm.com) for Bug#2311, Bug#2333
+//               Amit K Arora, IBM (amita@in.ibm.com) Bug#2311,#2333,#2351
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -765,20 +765,36 @@ void CIMProviderCommand::setCommand (
     //
     for (i =  options.first (); i <  options.last (); i++)
     {
-        if (options [i].getType () == Optarg::LONGFLAG)
+        if (options[i].getType () == Optarg::LONGFLAG)
         {
-            //PEP 167 : long flags newly added to this command
+            if (options[i].getopt () == LONG_HELP)
+            {
+                if (_operationType != OPERATION_TYPE_UNINITIALIZED)
+                {
+                    String param = String (LONG_HELP);
+                    //
+                    // More than one operation option was found
+                    //
+                    UnexpectedOptionException e (param);
+                    throw e;
+                }
 
-            if(options [i].getopt () == LONG_HELP)
                _operationType = OPERATION_TYPE_HELP;
-            else if (options [i].getopt () == LONG_VERSION)
+            }
+            else if (options[i].getopt () == LONG_VERSION)
+            {
+                if (_operationType != OPERATION_TYPE_UNINITIALIZED)
+                {
+                    String param = String (LONG_VERSION);
+                    //
+                    // More than one operation option was found
+                    //
+                    UnexpectedOptionException e (param);
+                    throw e;
+                }
+
                _operationType = OPERATION_TYPE_VERSION;
-
-            c = options [i].getopt () [0];
-
-            //PEP 167 change
-            //UnexpectedOptionException e (c);
-            //throw e;
+            }
         }
         else if (options [i].getType () == Optarg::REGULAR)
         {

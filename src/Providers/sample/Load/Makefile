@@ -30,6 +30,7 @@ repository:
 	@ echo +++++ Loading SampleProvider class definitions into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl -R$(REPOSITORY_DIR) -n$(SAMPLEPROVIDERNS) SampleProviderSchema.mof
 	@ cimmofl -R$(REPOSITORY_DIR) -n$(SAMPLEPROVIDERNS) RT_Indication.mof
+	@ cimmofl -R$(REPOSITORY_DIR) -n$(SAMPLEPROVIDERNS) ClientTest.mof
 	@ echo +++++ Registering Sample Providers  ...
 	@ cimmofl -R$(REPOSITORY_DIR) -n$(INTEROPNS) SampleProviderSchemaR.mof
 	@ echo +++++ Installing the Family MOF file for the association provider
@@ -47,6 +48,7 @@ repositoryServer:
 	@ echo +++++ Loading SampleProvider class definitions into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmof -n$(SAMPLEPROVIDERNS) SampleProviderSchema.mof
 	@ cimmof -n$(SAMPLEPROVIDERNS) RT_Indication.mof
+	@ cimmof -n$(SAMPLEPROVIDERNS) ClientTest.mof
 	@ echo +++++ Registering SampleProvider schema Providers  ...
 	@ cimmof -n$(INTEROPNS) SampleProviderSchemaR.mof
 

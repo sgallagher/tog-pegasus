@@ -115,8 +115,6 @@ public:
 
     void toMof(Array<Sint8>& out) const;
 
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
-
     Boolean identical(const CIMParameterRep* x) const;
 
     CIMParameterRep* clone() const

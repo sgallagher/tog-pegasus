@@ -31,6 +31,7 @@
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMFlavor.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -57,10 +58,10 @@ int main(int argc, char** argv)
 
 	if (verbose)
 	{
-		q1.print();
-		q2.print();
-		q3.print();
-		q4.print();
+		XmlWriter::printQualifierElement(q1);
+		XmlWriter::printQualifierElement(q2);
+		XmlWriter::printQualifierElement(q3);
+		XmlWriter::printQualifierElement(q4);
 	}
 
 	// Note effective march 27 2002, Qualifier no longer get the default flavor from
@@ -134,7 +135,7 @@ int main(int argc, char** argv)
 
 	if (verbose)
 	{
-		q4.print();
+		XmlWriter::printQualifierElement(q4);
 	}
 
     }

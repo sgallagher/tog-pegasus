@@ -218,12 +218,6 @@ Boolean CIMObject::identical(const CIMConstObject& x) const
     return _rep->identical(x._rep);
 }
 
-void CIMObject::toXml(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toXml(out);
-}
-
 CIMObject CIMObject::clone() const
 {
     _checkRep();
@@ -395,12 +389,6 @@ Boolean CIMConstObject::isNull() const
     return (_rep == 0)? true : false;
 }
 
-void CIMConstObject::toXml(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toXml(out);
-}
-
 Boolean CIMConstObject::identical(const CIMConstObject& x) const
 {
     x._checkRep();
@@ -481,16 +469,6 @@ CIMReference& CIMObjectWithPath::getReference()
 CIMObject& CIMObjectWithPath::getObject()
 {
     return _object;
-}
-
-void CIMObjectWithPath::toXml(Array<Sint8>& out) const
-{
-    out << "<VALUE.OBJECTWITHPATH>\n";
-
-    _reference.toXml(out, false);
-    _object.toXml(out);
-
-    out << "</VALUE.OBJECTWITHPATH>\n";
 }
 
 PEGASUS_NAMESPACE_END

@@ -234,18 +234,6 @@ Boolean CIMProperty::isNull() const
     return (_rep == 0)? true : false;
 }
 
-void CIMProperty::toXml(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toXml(out);
-}
-
-void CIMProperty::print(PEGASUS_STD(ostream)& o) const
-{
-    _checkRep();
-    _rep->print(o);
-}
-
 void CIMProperty::toMof(Array<Sint8>& out) const
 {
     _checkRep();
@@ -405,18 +393,6 @@ Uint32 CIMConstProperty::getQualifierCount() const
 Boolean CIMConstProperty::isNull() const
 {
     return (_rep == 0)? true : false;
-}
-
-void CIMConstProperty::toXml(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toXml(out);
-}
-
-void CIMConstProperty::print(PEGASUS_STD(ostream)& o) const
-{
-    _checkRep();
-    _rep->print(o);
 }
 
 void CIMConstProperty::toMof(Array<Sint8>& out) const

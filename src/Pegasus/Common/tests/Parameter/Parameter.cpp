@@ -28,6 +28,7 @@
 
 #include <cassert>
 #include <Pegasus/Common/CIMParameter.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -41,18 +42,18 @@ void test01()
     CIMParameter p1("message", CIMType::STRING);
     p1.addQualifier(CIMQualifier("in", true));
 	if(verbose)
-		p1.print(cout);
+		XmlWriter::printParameterElement(p1, cout);
 
     CIMParameter p2("message2", CIMType::STRING);
     p2.addQualifier(CIMQualifier("in", true));
 	if(verbose)
-		p2.print(cout);
+		XmlWriter::printParameterElement(p2, cout);
 
     CIMParameter p3("message3", CIMType::STRING);
     p3.setName("message3a");
     assert(p3.getName() == "message3a");
 	if(verbose)
-		p3.print(cout);
+		XmlWriter::printParameterElement(p3, cout);
     assert(p3.getType() == CIMType::STRING);;
 
     //
@@ -60,7 +61,7 @@ void test01()
     //
     CIMParameter p1clone = p1.clone();
 	if(verbose)
-		p1clone.print(cout);
+		XmlWriter::printParameterElement(p1clone, cout);
 
     //
     // toMof
@@ -74,7 +75,7 @@ void test01()
     //
     Array<Sint8> xmlOut;
 	if(verbose)
-		p1.toXml(xmlOut);
+		XmlWriter::appendParameterElement(xmlOut, p1);
 
     //
     // identical
@@ -131,16 +132,16 @@ void test01()
     CIMConstParameter cp4("message4", CIMType::STRING);
 
 	if(verbose)
-		cp1.print(cout);
+		XmlWriter::printParameterElement(cp1, cout);
 
     assert(cp3.getName() == "message3a");
     assert(cp3.getType() == CIMType::STRING);;
 
     const CIMParameter cp1clone = cp1.clone();
 	if(verbose)
-		cp1clone.print(cout);
+		XmlWriter::printParameterElement(cp1clone, cout);
 
-    cp1.toXml(xmlOut);
+    XmlWriter::appendParameterElement(xmlOut, cp1);
 
     assert(cp1.identical(cp1) == true);
     assert(cp1.identical(cp2) == false);

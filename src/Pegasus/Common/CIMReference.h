@@ -527,21 +527,12 @@ public:
     */
     Boolean identical(const CIMReference& x) const;
 
-    /** Encodes this CIMReference object as XML.
-	@param out argument in which to place results
-    */
-    void toXml(Array<Sint8>& out, Boolean putValueWrapper = true) const;
-
 #ifdef PEGASUS_INTERNALONLY
     /** Encodes this CIMreference object as MOF.
 	@param out argument in which to place results
     */
     void toMof(Array<Sint8>& out, Boolean putValueWrapper = true) const;
 #endif
-
-    /** Prints the XML encoding of this object.
-    */
-    void print(PEGASUS_STD(ostream)& os = PEGASUS_STD(cout)) const;
 
     /** Generates hash code for the given reference. Two identical references
 	generate the same hash code (despite any subtle differences such as

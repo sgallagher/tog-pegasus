@@ -113,14 +113,6 @@ void CIMQualifierRep::toXml(Array<Sint8>& out) const
     out << "</QUALIFIER>\n";
 }
 
-void CIMQualifierRep::print(PEGASUS_STD(ostream) &os) const
-{
-    Array<Sint8> tmp;
-    toXml(tmp);
-    tmp.append('\0');
-    os << tmp.getData() << PEGASUS_STD(endl);
-}
-
 /** toMof Generates MOF output for a qualifier.
     The BNF for this is:
     <pre>

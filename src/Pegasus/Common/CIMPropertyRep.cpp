@@ -236,14 +236,6 @@ void CIMPropertyRep::toXml(Array<Sint8>& out) const
     }
 }
 
-void CIMPropertyRep::print(PEGASUS_STD(ostream) &os) const
-{
-    Array<Sint8> tmp;
-    toXml(tmp);
-    tmp.append('\0');
-    os << tmp.getData() << PEGASUS_STD(endl);
-}
-
 /** toMof - returns the MOF for the CIM Property Object in the parameter.
     The BNF for the property MOF is:
     <pre>

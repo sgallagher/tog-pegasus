@@ -166,22 +166,10 @@ Boolean CIMParameter::isNull() const
     return (_rep == 0)? true : false;
 }
 
-void CIMParameter::toXml(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toXml(out);
-}
-
 void CIMParameter::toMof(Array<Sint8>& out) const
 {
     _checkRep();
     _rep->toMof(out);
-}
-
-void CIMParameter::print(PEGASUS_STD(ostream)& o) const
-{
-    _checkRep();
-    _rep->print(o);
 }
 
 Boolean CIMParameter::identical(const CIMConstParameter& x) const
@@ -311,18 +299,6 @@ Uint32 CIMConstParameter::getQualifierCount() const
 Boolean CIMConstParameter::isNull() const
 {
     return (_rep == 0)? true : false;
-}
-
-void CIMConstParameter::toXml(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toXml(out);
-}
-
-void CIMConstParameter::print(PEGASUS_STD(ostream)& o) const
-{
-    _checkRep();
-    _rep->print(o);
 }
 
 Boolean CIMConstParameter::identical(const CIMConstParameter& x) const

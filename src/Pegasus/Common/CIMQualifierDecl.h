@@ -156,17 +156,9 @@ public:
     Boolean isNull() const;
 #endif
     
-    /** toXml  Generates XML output for the Qualifier Declaration object.
-    */
-    void toXml(Array<Sint8>& out) const;
-
     /** toMof  Generates MOF output for the Qualifier Declaration object.
     */
     void toMof(Array<Sint8>& out) const;
-
-    /** print Output the XML for the Qualifier Declaration object to stdout.
-    */
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
 
     /** identical Compares two qualifier declarations
         @return Returns true if they are identical
@@ -184,8 +176,10 @@ private:
     void _checkRep() const;
 
     CIMQualifierDeclRep* _rep;
+
     friend class CIMConstQualifierDecl;
     friend class CIMClassRep;
+    friend class XmlWriter;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -258,12 +252,6 @@ public:
 #ifdef PEGASUS_INTERNALONLY
     ///
     Boolean isNull() const;
-
-    ///
-    void toXml(Array<Sint8>& out) const;
-
-    ///
-    void print(PEGASUS_STD(ostream)& o=PEGASUS_STD(cout)) const;
 #endif
 
     ///
@@ -277,7 +265,9 @@ private:
     void _checkRep() const;
 
     CIMQualifierDeclRep* _rep;
+
     friend class CIMQualifierDecl;
+    friend class XmlWriter;
 };
 
 #define PEGASUS_ARRAY_T CIMQualifierDecl

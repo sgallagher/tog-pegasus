@@ -78,22 +78,18 @@ public:
 #ifdef PEGASUS_INTERNALONLY
     Boolean isNull() const;
 
-    void toXml(Array<Sint8>& out) const;
-
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
-
     Boolean identical(const CIMParamValue& x) const;
 #endif
 
 private:
 
-#ifdef PEGASUS_INTERNALONLY
     CIMParamValue(CIMParamValueRep* rep);
 
     void _checkRep() const;
-#endif
 
     CIMParamValueRep* _rep;
+
+    friend class XmlWriter;
 };
 
 #define PEGASUS_ARRAY_T CIMParamValue

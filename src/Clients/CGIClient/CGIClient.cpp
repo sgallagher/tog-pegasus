@@ -50,6 +50,7 @@ Pegasus.
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -621,7 +622,7 @@ void PrintClass(
         cout << "\n<h2>XML</h2>\n";
 
         cout << "<pre>";
-        cimClass.print();
+        XmlWriter::printClassElement(cimClass);
         cout << "</pre>\n";  */
     }
     cout << "</body>\n" << "</html>\n";
@@ -1008,7 +1009,7 @@ void PrintGetQualifier(
     cout << "\n<h2>XML</h2>\n";
 
     cout << "<pre>";
-    qualifierDecl.print();
+    XmlWriter::printQualifierDeclElement(qualifierDecl);
     cout << "</pre>\n";
 
     cout << "</body>\n";

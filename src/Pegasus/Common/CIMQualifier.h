@@ -190,17 +190,6 @@ public:
     Boolean isNull() const;
 #endif
 
-    /**	toXml- Converts the CIMQualifier object to XML.
-        @param out The array where the XML output is to be stored.
-    */
-    void toXml(Array<Sint8>& out) const;
-
-    /**	print - Converts the CIMQualifier object to XML and 
-        sends it to cout.
-	@SeeAlso toXML
-    */
-    void print(PEGASUS_STD(ostream)& o=PEGASUS_STD(cout)) const;
-
     /**	toMof- Converts the CIMQualifier object to MOF.
 	@param out The Array where the MOF output is stored.
 	Note that the result does not have a zero terminator.
@@ -231,8 +220,10 @@ private:
     void _checkRep() const;
 
     CIMQualifierRep* _rep;
+
     friend class CIMConstQualifier;
     friend class CIMClassRep;
+    friend class XmlWriter;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -289,10 +280,6 @@ public:
     Boolean isNull() const;
 #endif
 
-    void toXml(Array<Sint8>& out) const;
-
-    void print(PEGASUS_STD(ostream)& o=PEGASUS_STD(cout)) const;
-
     Boolean identical(const CIMConstQualifier& x) const;
 
     CIMQualifier clone() const;
@@ -302,7 +289,9 @@ private:
     void _checkRep() const;
 
     CIMQualifierRep* _rep;
+
     friend class CIMQualifier;
+    friend class XmlWriter;
 };
 
 PEGASUS_MEMORY_FUNCTIONS(CIMQualifier)

@@ -277,14 +277,14 @@ int main(int argc, char** argv)
 	    ;
 
             if (verbose)
-	        qual1.print();
+	        XmlWriter::printQualifierDeclElement(qual1);
 	    Array<Sint8> tmp;
 	    qual1.toMof(tmp);
 	    tmp.append('\0');
             if (verbose)
 	        cout << "Qualifier Test\n" << tmp.getData() << "\n\n";
             if (verbose)
-	        q2.print();
+	        XmlWriter::printQualifierDeclElement(q2);
 	    Array<Sint8> tmp1;
 	    q2.toMof(tmp1);
 	    tmp1.append('\0');

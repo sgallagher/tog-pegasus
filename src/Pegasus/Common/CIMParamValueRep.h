@@ -72,8 +72,6 @@ public:
 
     void toXml(Array<Sint8>& out) const;
 
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
-
     Boolean identical(const CIMParamValueRep* x) const;
 
     CIMParamValueRep* clone() const

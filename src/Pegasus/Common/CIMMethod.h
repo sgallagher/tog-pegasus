@@ -215,15 +215,6 @@ public:
     Boolean isNull() const;
 #endif
 
-    /** toXML - puts XML encoding of this CIMMethod object into out 
-	argument. 
-    */
-    void toXml(Array<Sint8>& out) const;
-
-    /** print - formats and prints this CIMmethod (in CIM XML encoded form). 
-    */
-    void print(PEGASUS_STD(ostream)& o=PEGASUS_STD(cout)) const;
-
     /** toMof - puts MOF encoding of this object into out arguemnt. 
     */ 
     void toMof(Array<Sint8>& out) const;
@@ -246,6 +237,7 @@ private:
 
     CIMMethodRep* _rep;
     friend class CIMConstMethod;
+    friend class XmlWriter;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMConstMethod
@@ -293,10 +285,6 @@ public:
 
 #ifdef PEGASUS_INTERNALONLY
     Boolean isNull() const;
-
-    void toXml(Array<Sint8>& out) const;
-
-    void print(PEGASUS_STD(ostream)& o=PEGASUS_STD(cout)) const;
 #endif
 
     Boolean identical(const CIMConstMethod& x) const;
@@ -311,6 +299,7 @@ private:
 
     friend class CIMMethod;
     friend class CIMMethodRep;
+    friend class XmlWriter;
 };
 
 #define PEGASUS_ARRAY_T CIMMethod

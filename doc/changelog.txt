@@ -249,6 +249,12 @@ TAG: Version_1_09.
     Fixed few display messages in CIMConfigCommand.cpp to show meaningfule
     messages when CIM server is not running.
 
+41. (Roger Kumpf - HP) 15 May 2002 - Moved CIM*::toXml() methods to
+    XmlWriter::append*Element().  Moved CIM*::print() methods to
+    XmlWriter::print*Element().  Putting this function in XmlWriter
+    instead of the CIM* classes keeps those internal methods out of
+    the published client and provider APIs.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

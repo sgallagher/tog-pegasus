@@ -195,14 +195,6 @@ void CIMQualifierDeclRep::toMof(Array<Sint8>& out) const
 }
 
 
-void CIMQualifierDeclRep::print(PEGASUS_STD(ostream) &os) const
-{
-    Array<Sint8> tmp;
-    toXml(tmp);
-    tmp.append('\0');
-    os << tmp.getData() << PEGASUS_STD(endl);
-}
-
 void CIMQualifierDeclRep::printMof(PEGASUS_STD(ostream) &os) const
 {
     Array<Sint8> tmp;

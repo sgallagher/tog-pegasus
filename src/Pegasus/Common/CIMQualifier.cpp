@@ -163,18 +163,6 @@ Boolean CIMQualifier::isNull() const
     return (_rep == 0)? true : false;
 }
 
-void CIMQualifier::toXml(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toXml(out);
-}
-
-void CIMQualifier::print(PEGASUS_STD(ostream)& o) const
-{
-    _checkRep();
-    _rep->print(o);
-}
-
 void CIMQualifier::toMof(Array<Sint8>& out) const
 {
     _checkRep();
@@ -322,18 +310,6 @@ const Uint32 CIMConstQualifier::getPropagated() const
 Boolean CIMConstQualifier::isNull() const
 {
     return (_rep == 0)? true : false;
-}
-
-void CIMConstQualifier::toXml(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toXml(out);
-}
-
-void CIMConstQualifier::print(PEGASUS_STD(ostream)& o) const
-{
-    _checkRep();
-    _rep->print(o);
 }
 
 Boolean CIMConstQualifier::identical(const CIMConstQualifier& x) const

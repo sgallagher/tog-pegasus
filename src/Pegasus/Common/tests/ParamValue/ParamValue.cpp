@@ -30,6 +30,7 @@
 
 #include <cassert>
 #include <Pegasus/Common/CIMParamValue.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -79,7 +80,7 @@ void test01()
     {
         for (Uint32 i=0; i< aa.size(); i++)
         {
-            aa[i].print(cout);
+            XmlWriter::printParamValueElement(aa[i], cout);
         }
     }
 
@@ -87,7 +88,7 @@ void test01()
     // toXml
     //
     Array<Sint8> xmlOut;
-    a4clone.toXml(xmlOut);
+    XmlWriter::appendParamValueElement(xmlOut, a4clone);
 
     //
     // identical

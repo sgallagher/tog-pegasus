@@ -121,20 +121,4 @@ CIMNamedInstance CIMNamedInstance::clone() const
     return ni;
 }
 
-//------------------------------------------------------------------------------
-//
-// <!ELEMENT VALUE.NAMEDINSTANCE (INSTANCENAME,INSTANCE)>
-//
-//------------------------------------------------------------------------------
-
-void CIMNamedInstance::toXml(Array<Sint8>& out) const
-{
-    out << "<VALUE.NAMEDINSTANCE>\n";
-
-    XmlWriter::appendInstanceNameElement(out, _rep->instanceName);
-    XmlWriter::appendInstanceElement(out, _rep->instance);
-
-    out << "</VALUE.NAMEDINSTANCE>\n";
-}
-
 PEGASUS_NAMESPACE_END

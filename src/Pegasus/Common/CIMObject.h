@@ -259,10 +259,6 @@ public:
 #ifdef PEGASUS_INTERNALONLY
     /**	isNull() - ATTN: */
     Boolean isNull() const;
-
-    /** Convert object to XML format.
-    */
-    void toXml(Array<Sint8>& out) const;
 #endif
 
 private:
@@ -350,10 +346,6 @@ public:
 
 #ifdef PEGASUS_INTERNALONLY
     Boolean isNull() const;
-
-    void toXml(Array<Sint8>& out) const;
-
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
 #endif
 
 private:
@@ -416,12 +408,6 @@ public:
     /**
     */
     CIMObject& getObject();
-
-#ifdef PEGASUS_INTERNALONLY
-    /**
-    */
-    void toXml(Array<Sint8>& out) const;
-#endif
 
 private:
 

@@ -29,6 +29,7 @@
 #include <cassert>
 #include <Pegasus/Common/CIMMethod.h>
 #include <Pegasus/Common/DeclContext.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -127,11 +128,11 @@ int main(int argc, char** argv)
 
         if (verbose)
         {
-            m1.print();
-            cm1.print();
+            XmlWriter::printMethodElement(m1);
+            XmlWriter::printMethodElement(cm1);
         }
         Array<Sint8> out;
-        cm1.toXml(out);
+        XmlWriter::appendMethodElement(out, cm1);
         cm1.toMof(out);
 
         Boolean nullMethod = cm1.isNull(); 
@@ -157,11 +158,11 @@ int main(int argc, char** argv)
 
         if (verbose)
         {
-            m1.print();
-            ccm1.print();
+            XmlWriter::printMethodElement(m1);
+            XmlWriter::printMethodElement(ccm1);
         }
 
-        ccm1.toXml(out);
+        XmlWriter::appendMethodElement(out, ccm1);
       
         CIMConstMethod ccm2(ccm1);
         CIMConstMethod ccm3;

@@ -116,18 +116,6 @@ Boolean CIMParamValue::isNull() const
     return (_rep == 0)? true : false;
 }
 
-void CIMParamValue::toXml(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toXml(out);
-}
-
-void CIMParamValue::print(PEGASUS_STD(ostream) &o) const
-{
-    _checkRep();
-    _rep->print(o);
-}
-
 Boolean CIMParamValue::identical(const CIMParamValue& x) const
 {
     x._checkRep();

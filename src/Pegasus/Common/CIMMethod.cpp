@@ -229,18 +229,6 @@ Boolean CIMMethod::isNull() const
     return (_rep == 0)? true : false;
 }
 
-void CIMMethod::toXml(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toXml(out);
-}
-
-void CIMMethod::print(PEGASUS_STD(ostream)& o) const
-{
-    _checkRep();
-    _rep->print(o);
-}
-
 void CIMMethod::toMof(Array<Sint8>& out) const
 {
     _checkRep();
@@ -384,18 +372,6 @@ Uint32 CIMConstMethod::getParameterCount() const
 Boolean CIMConstMethod::isNull() const
 {
     return (_rep == 0)? true : false;
-}
-
-void CIMConstMethod::toXml(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toXml(out);
-}
-
-void CIMConstMethod::print(PEGASUS_STD(ostream)& o) const
-{
-    _checkRep();
-    _rep->print(o);
 }
 
 Boolean CIMConstMethod::identical(const CIMConstMethod& x) const

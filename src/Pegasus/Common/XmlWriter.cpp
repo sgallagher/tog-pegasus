@@ -38,8 +38,19 @@
 #include "CIMClassRep.h"
 #include "CIMInstance.h"
 #include "CIMInstanceRep.h"
-#include "CIMValue.h"
+#include "CIMProperty.h"
+#include "CIMPropertyRep.h"
+#include "CIMMethod.h"
+#include "CIMMethodRep.h"
+#include "CIMParameter.h"
+#include "CIMParameterRep.h"
+#include "CIMParamValue.h"
+#include "CIMParamValueRep.h"
+#include "CIMQualifier.h"
+#include "CIMQualifierRep.h"
 #include "CIMQualifierDecl.h"
+#include "CIMQualifierDeclRep.h"
+#include "CIMValue.h"
 #include "XmlWriter.h"
 #include "XmlParser.h"
 #include "Tracer.h"
@@ -346,7 +357,7 @@ void XmlWriter::appendInstanceNameElement(
         if (keyBindings[i].getType() == KeyBinding::REFERENCE)
         {
             CIMReference ref = keyBindings[i].getValue();
-            ref.toXml(out);
+            appendValueReferenceElement(out, ref, true);
         }
         else {
             out << "<KEYVALUE VALUETYPE=\"";
@@ -540,7 +551,7 @@ inline void _appendValue(Array<Sint8>& out, const CIMDateTime& x)
 
 inline void _appendValue(Array<Sint8>& out, const CIMReference& x)
 {
-    x.toXml(out);
+    XmlWriter::appendValueReferenceElement(out, x, true);
 }
 
 void _appendValueArray(Array<Sint8>& out, const CIMReference* p, Uint32 size)
@@ -572,11 +583,6 @@ void _appendValueArray(Array<Sint8>& out, const T* p, Uint32 size)
 //
 // appendValueElement()
 //
-//    Converts a CIMValue object to XML. The XML is appended
-//    to the Array provided with the call.  Returns the result as an
-//    XML element wrapped in the <VALUE>, <VALUE.ARRAY>, <VALUE.REFERENCE>,
-//    or <VALUE.REFARRAY> tags. If the CIMValue is Null, nothing is appended.
-//
 //    <!ELEMENT VALUE (#PCDATA)>
 //    <!ELEMENT VALUE.ARRAY (VALUE*)>
 //    <!ELEMENT VALUE.REFERENCE
@@ -587,7 +593,7 @@ void _appendValueArray(Array<Sint8>& out, const T* p, Uint32 size)
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendValueElement(
-    Array<Sint8>& out, 
+    Array<Sint8>& out,
     const CIMValue& value)
 {
     if (value.isNull())
@@ -867,18 +873,126 @@ void XmlWriter::printValueElement(
 
 //------------------------------------------------------------------------------
 //
+// appendValueObjectWithPathElement()
+//
+//     <!ELEMENT VALUE.OBJECTWITHPATH
+//         ((CLASSPATH,CLASS)|(INSTANCEPATH,INSTANCE))>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendValueObjectWithPathElement(
+    Array<Sint8>& out,
+    const CIMObjectWithPath& objectWithPath)
+{
+    out << "<VALUE.OBJECTWITHPATH>\n";
+
+    appendValueReferenceElement(out, objectWithPath.getReference(), false);
+    appendObjectElement(out, objectWithPath.getObject());
+
+    out << "</VALUE.OBJECTWITHPATH>\n";
+}
+
+//------------------------------------------------------------------------------
+//
+// appendValueReferenceElement()
+//
+//    <!ELEMENT VALUE.REFERENCE
+//        (CLASSPATH|LOCALCLASSPATH|CLASSNAME|INSTANCEPATH|LOCALINSTANCEPATH|
+//         INSTANCENAME)>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendValueReferenceElement(
+    Array<Sint8>& out,
+    const CIMReference& reference,
+    Boolean putValueWrapper)
+{
+    if (putValueWrapper)
+        out << "<VALUE.REFERENCE>\n";
+
+    // See if it is a class or instance reference (instance references have
+    // key-bindings; class references do not).
+
+    KeyBindingArray kbs = reference.getKeyBindingArray();
+    if (kbs.size())
+    {
+        if (reference.getHost().size())
+        {
+            appendInstancePathElement(out, reference);
+        }
+        else if (reference.getNameSpace().size())
+        {
+            appendLocalInstancePathElement(out, reference);
+        }
+        else
+        {
+            appendInstanceNameElement(out, reference);
+        }
+    }
+    else
+    {
+        if (reference.getHost().size())
+        {
+            appendClassPathElement(out, reference);
+        }
+        else if (reference.getNameSpace().size())
+        {
+            appendLocalClassPathElement(out, reference);
+        }
+        else
+        {
+            appendClassNameElement(out, reference.getClassName());
+        }
+    }
+
+    if (putValueWrapper)
+        out << "</VALUE.REFERENCE>\n";
+}
+
+void XmlWriter::printValueReferenceElement(
+    const CIMReference& reference,
+    PEGASUS_STD(ostream)& os)
+{
+    Array<Sint8> tmp;
+    appendValueReferenceElement(tmp, reference, true);
+    tmp.append('\0');
+    indentedPrint(os, tmp.getData());
+}
+
+//------------------------------------------------------------------------------
+//
+// appendValueNamedInstanceElement()
+//
+//     <!ELEMENT VALUE.NAMEDINSTANCE (INSTANCENAME,INSTANCE)>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendValueNamedInstanceElement(
+    Array<Sint8>& out,
+    const CIMNamedInstance& namedInstance)
+{
+    out << "<VALUE.NAMEDINSTANCE>\n";
+
+    appendInstanceNameElement(out, namedInstance.getInstanceName());
+    appendInstanceElement(out, namedInstance.getInstance());
+
+    out << "</VALUE.NAMEDINSTANCE>\n";
+}
+
+//------------------------------------------------------------------------------
+//
 // appendClassElement()
 //
 //     <!ELEMENT CLASS
 //         (QUALIFIER*,(PROPERTY|PROPERTY.ARRAY|PROPERTY.REFERENCE)*,METHOD*)>
-//     <!ATTLIST CLASS 
+//     <!ATTLIST CLASS
 //         %CIMName;
 //         %SuperClass;>
 //
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendClassElement(
-    Array<Sint8>& out, 
+    Array<Sint8>& out,
     const CIMConstClass& cimclass)
 {
     cimclass._checkRep();
@@ -907,7 +1021,7 @@ void XmlWriter::printClassElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendInstanceElement(
-    Array<Sint8>& out, 
+    Array<Sint8>& out,
     const CIMConstInstance& instance)
 {
     instance._checkRep();
@@ -920,6 +1034,253 @@ void XmlWriter::printInstanceElement(
 {
     Array<Sint8> tmp;
     appendInstanceElement(tmp, instance);
+    tmp.append('\0');
+    os << tmp.getData() << PEGASUS_STD(endl);
+}
+
+//------------------------------------------------------------------------------
+//
+// appendObjectElement()
+//
+// May refer to a CLASS or an INSTANCE
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendObjectElement(
+    Array<Sint8>& out,
+    const CIMConstObject& object)
+{
+    // ATTN-RK-P3-20020515: This could use some work
+    try
+    {
+        CIMConstClass c(object);
+        appendClassElement(out, c);
+    }
+    catch (DynamicCastFailed)
+    {
+        try
+        {
+            CIMConstInstance i(object);
+            appendInstanceElement(out, i);
+        }
+        catch (DynamicCastFailed)
+        {
+            PEGASUS_ASSERT(0);
+        }
+    }
+}
+
+//------------------------------------------------------------------------------
+//
+// appendPropertyElement()
+//
+//     <!ELEMENT PROPERTY (QUALIFIER*,VALUE?)>
+//     <!ATTLIST PROPERTY
+//              %CIMName;
+//              %CIMType;           #REQUIRED
+//              %ClassOrigin;
+//              %Propagated;>
+//
+//     <!ELEMENT PROPERTY.ARRAY (QUALIFIER*,VALUE.ARRAY?)>
+//     <!ATTLIST PROPERTY.ARRAY
+//              %CIMName;
+//              %CIMType;           #REQUIRED
+//              %ArraySize;
+//              %ClassOrigin;
+//              %Propagated;>
+//
+//     <!ELEMENT PROPERTY.REFERENCE (QUALIFIER*,VALUE.REFERENCE?)>
+//     <!ATTLIST PROPERTY.REFERENCE
+//              %CIMName;
+//              %ReferenceClass;
+//              %ClassOrigin;
+//              %Propagated;>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendPropertyElement(
+    Array<Sint8>& out,
+    const CIMConstProperty& property)
+{
+    property._checkRep();
+    property._rep->toXml(out);
+}
+
+void XmlWriter::printPropertyElement(
+    const CIMConstProperty& property,
+    PEGASUS_STD(ostream)& os)
+{
+    Array<Sint8> tmp;
+    appendPropertyElement(tmp, property);
+    tmp.append('\0');
+    os << tmp.getData() << PEGASUS_STD(endl);
+}
+
+//------------------------------------------------------------------------------
+//
+// appendMethodElement()
+//
+//     <!ELEMENT METHOD (QUALIFIER*,
+//         (PARAMETER|PARAMETER.REFERENCE|PARAMETER.ARRAY|PARAMETER.REFARRAY)*)>
+//     <!ATTLIST METHOD
+//              %CIMName;
+//              %CIMType;          #IMPLIED
+//              %ClassOrigin;
+//              %Propagated;>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendMethodElement(
+    Array<Sint8>& out,
+    const CIMConstMethod& method)
+{
+    method._checkRep();
+    method._rep->toXml(out);
+}
+
+void XmlWriter::printMethodElement(
+    const CIMConstMethod& method,
+    PEGASUS_STD(ostream)& os)
+{
+    Array<Sint8> tmp;
+    appendMethodElement(tmp, method);
+    tmp.append('\0');
+    os << tmp.getData() << PEGASUS_STD(endl);
+}
+
+//------------------------------------------------------------------------------
+//
+// appendParameterElement()
+//
+//     <!ELEMENT PARAMETER (QUALIFIER*)>
+//     <!ATTLIST PARAMETER
+//              %CIMName;
+//              %CIMType;      #REQUIRED>
+//
+//     <!ELEMENT PARAMETER.REFERENCE (QUALIFIER*)>
+//     <!ATTLIST PARAMETER.REFERENCE
+//              %CIMName;
+//              %ReferenceClass;>
+//
+//     <!ELEMENT PARAMETER.ARRAY (QUALIFIER*)>
+//     <!ATTLIST PARAMETER.ARRAY
+//              %CIMName;
+//              %CIMType;           #REQUIRED
+//              %ArraySize;>
+//
+//     <!ELEMENT PARAMETER.REFARRAY (QUALIFIER*)>
+//     <!ATTLIST PARAMETER.REFARRAY
+//              %CIMName;
+//              %ReferenceClass;
+//              %ArraySize;>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendParameterElement(
+    Array<Sint8>& out,
+    const CIMConstParameter& parameter)
+{
+    parameter._checkRep();
+    parameter._rep->toXml(out);
+}
+
+void XmlWriter::printParameterElement(
+    const CIMConstParameter& parameter,
+    PEGASUS_STD(ostream)& os)
+{
+    Array<Sint8> tmp;
+    appendParameterElement(tmp, parameter);
+    tmp.append('\0');
+    os << tmp.getData() << PEGASUS_STD(endl);
+}
+
+//------------------------------------------------------------------------------
+//
+// appendParamValueElement()
+//
+//     <!ELEMENT PARAMVALUE (VALUE|VALUE.REFERENCE|VALUE.ARRAY|VALUE.REFARRAY)?>
+//     <!ATTLIST PARAMVALUE
+//              %CIMName;>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendParamValueElement(
+    Array<Sint8>& out,
+    const CIMParamValue& paramValue)
+{
+    paramValue._checkRep();
+    paramValue._rep->toXml(out);
+}
+
+void XmlWriter::printParamValueElement(
+    const CIMParamValue& paramValue,
+    PEGASUS_STD(ostream)& os)
+{
+    Array<Sint8> tmp;
+    appendParamValueElement(tmp, paramValue);
+    tmp.append('\0');
+    os << tmp.getData() << PEGASUS_STD(endl);
+}
+
+//------------------------------------------------------------------------------
+//
+// appendQualifierElement()
+//
+//     <!ELEMENT QUALIFIER (VALUE|VALUE.ARRAY)>
+//     <!ATTLIST QUALIFIER
+//              %CIMName;
+//              %CIMType;               #REQUIRED
+//              %Propagated;
+//              %QualifierFlavor;>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendQualifierElement(
+    Array<Sint8>& out,
+    const CIMConstQualifier& qualifier)
+{
+    qualifier._checkRep();
+    qualifier._rep->toXml(out);
+}
+
+void XmlWriter::printQualifierElement(
+    const CIMConstQualifier& qualifier,
+    PEGASUS_STD(ostream)& os)
+{
+    Array<Sint8> tmp;
+    appendQualifierElement(tmp, qualifier);
+    tmp.append('\0');
+    os << tmp.getData() << PEGASUS_STD(endl);
+}
+
+//------------------------------------------------------------------------------
+//
+// appendQualifierDeclElement()
+//
+//     <!ELEMENT QUALIFIER.DECLARATION (SCOPE?,(VALUE|VALUE.ARRAY)?)>
+//     <!ATTLIST QUALIFIER.DECLARATION
+//              %CIMName;
+//              %CIMType;                       #REQUIRED
+//              ISARRAY        (true|false)     #IMPLIED
+//              %ArraySize;
+//              %QualifierFlavor;>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendQualifierDeclElement(
+    Array<Sint8>& out,
+    const CIMConstQualifierDecl& qualifierDecl)
+{
+    qualifierDecl._checkRep();
+    qualifierDecl._rep->toXml(out);
+}
+
+void XmlWriter::printQualifierDeclElement(
+    const CIMConstQualifierDecl& qualifierDecl,
+    PEGASUS_STD(ostream)& os)
+{
+    Array<Sint8> tmp;
+    appendQualifierDeclElement(tmp, qualifierDecl);
     tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }
@@ -1473,7 +1834,7 @@ void XmlWriter::appendNamedInstanceIParameter(
     const CIMNamedInstance& namedInstance)
 {
     _appendIParamValueElementBegin(out, name);
-    namedInstance.toXml(out);
+    appendValueNamedInstanceElement(out, namedInstance);
     _appendIParamValueElementEnd(out);
 }
 
@@ -1546,7 +1907,7 @@ void XmlWriter::appendQualifierDeclarationIParameter(
     const CIMConstQualifierDecl& qualifierDecl)
 {
     _appendIParamValueElementBegin(out, name);
-    qualifierDecl.toXml(out);
+    appendQualifierDeclElement(out, qualifierDecl);
     _appendIParamValueElementEnd(out);
 }
 
@@ -1595,7 +1956,7 @@ Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
     appendLocalObjectPathElement(out, localObjectPath);
     for (Uint32 i=0; i < parameters.size(); i++)
     {
-        parameters[i].toXml(out);
+        appendParamValueElement(out, parameters[i]);
     }
     _appendMethodCallElementEnd(out);
     _appendSimpleReqElementEnd(out);

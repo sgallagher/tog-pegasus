@@ -176,7 +176,7 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
 	{
 	    CIMReference myReference(instanceName);
 	    cout << "CIMReference for delete";
-	    myReference.print(cout);
+	    XmlWriter::printValueReferenceElement(myReference, cout);
 	    client.deleteInstance(globalNamespace, myReference);
 	}
 	catch(CIMClientException& e)

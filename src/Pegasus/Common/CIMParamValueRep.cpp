@@ -72,14 +72,6 @@ void CIMParamValueRep::toXml(Array<Sint8>& out) const
     out << "</PARAMVALUE>\n";
 }
 
-void CIMParamValueRep::print(PEGASUS_STD(ostream) &os) const 
-{
-    Array<Sint8> tmp;
-    toXml(tmp);
-    tmp.append('\0');
-    os << tmp.getData() << PEGASUS_STD(endl);
-}
-
 Boolean CIMParamValueRep::identical(const CIMParamValueRep* x) const
 {
     if (_parameterName != x->_parameterName)

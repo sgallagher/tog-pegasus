@@ -50,7 +50,7 @@ void test01()
 
     if (verbose)
     {
-        r.print();
+        XmlWriter::printValueReferenceElement(r);
         cout << r.toStringCanonical() << endl;
     }
 

@@ -479,12 +479,12 @@ void CIMClassRep::toXml(Array<Sint8>& out) const
     // Parameters:
 
     for (Uint32 i = 0, n = _properties.size(); i < n; i++)
-	_properties[i].toXml(out);
+	XmlWriter::appendPropertyElement(out, _properties[i]);
 
     // Methods:
 
     for (Uint32 i = 0, n = _methods.size(); i < n; i++)
-	_methods[i].toXml(out);
+	XmlWriter::appendMethodElement(out, _methods[i]);
 
     // Class closing element:
 

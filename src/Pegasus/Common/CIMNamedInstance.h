@@ -126,14 +126,6 @@ public:
     /** Makes a deep copy (clone) of the given object. */
     CIMNamedInstance clone() const;
 
-    /**
-        Creates an XML transformation of the CIMNamedInstance compatible
-        with the DMTF Specification for the Representation of CIM in XML.
-
-        @param out The byte array into which the XML encoding is written.
-    */
-    void toXml(Array<Sint8>& out) const;
-
 private:
 
     CIMNamedInstanceRep* _rep;

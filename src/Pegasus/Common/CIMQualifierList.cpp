@@ -212,7 +212,8 @@ void CIMQualifierList::resolve(
 					<< " decl flavor " << qd.getFlavor() << " Flavor " << q.getFlavor()
 					<< " Not override " << !qd.isFlavor(CIMFlavor::OVERRIDABLE)
 					<< " tosubclass " <<  qd.isFlavor(CIMFlavor::TOSUBCLASS) << endl;
-				qd.print(); q.print();
+				XmlWriter::printQualifierDeclElement(qd);
+				XmlWriter::printQualifierElement(q);
 					//throw BadQualifierOverride(q.getName());
 			}
 			//cout <<  qd.getFlavor() << endl;*/
@@ -226,7 +227,8 @@ void CIMQualifierList::resolve(
 				<< " decl flavor " << qd.getFlavor() << " Flavor " << q.getFlavor()
 				<< " Not override " << !qd.isFlavor(CIMFlavor::OVERRIDABLE)
 				<< " tosubclass " <<  qd.isFlavor(CIMFlavor::TOSUBCLASS) << endl;            
-			 qd.print(); q.print(); */
+			 XmlWriter::printQualifierDeclElement(qd);
+			 XmlWriter::printQualifierElement(q); */
 		}
 		else   			// qualifier exists in superclass 
 		{	////// Make Const again
@@ -243,7 +245,8 @@ void CIMQualifierList::resolve(
 					<< "   Superclass flavor " << iq.getFlavor()
 					<< " Flavor " << q.getFlavor() 
 					<< endl;
-				iq.print(); q.print();*/
+			        XmlWriter::printQualifierElement(iq);
+			        XmlWriter::printQualifierElement(q); */
 				// test if values the same.
 				CIMValue qv = q.getValue();
 				CIMValue iqv = iq.getValue();
@@ -296,7 +299,7 @@ void CIMQualifierList::resolve(
 void CIMQualifierList::toXml(Array<Sint8>& out) const
 {
     for (Uint32 i = 0, n = _qualifiers.size(); i < n; i++)
-	_qualifiers[i].toXml(out);
+	XmlWriter::appendQualifierElement(out, _qualifiers[i]);
 }
 
 /** toMof - Generates MOF output for a list of CIM Qualifiers.

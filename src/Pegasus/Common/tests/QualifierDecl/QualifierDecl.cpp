@@ -30,8 +30,11 @@
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/CIMFlavor.h>
 #include <Pegasus/Common/CIMScope.h>
+#include <Pegasus/Common/XmlWriter.h>
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+
 static char * verbose;	 // Flag to control test IO
 
 void test01()
@@ -43,7 +46,7 @@ void test01()
         CIMFlavor::TOINSTANCE);
 
     if(verbose)
-		qual1.print();
+		XmlWriter::printQualifierDeclElement(qual1);
 
     CIMQualifierDecl q2("Abstract", true, CIMScope::CLASS);
     CIMQualifierDecl q3 = q2;
@@ -122,7 +125,7 @@ void test02()
         CIMFlavor::TOINSTANCE);
 
     if(verbose)
-		cq1.print();
+		XmlWriter::printQualifierDeclElement(cq1);
 
     CIMConstQualifierDecl cq2("Abstract", true, CIMScope::CLASS);
     CIMConstQualifierDecl cq3;

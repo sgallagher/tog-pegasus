@@ -202,7 +202,7 @@ void CIMInstanceRep::toXml(Array<Sint8>& out) const
     // Parameters:
 
     for (Uint32 i = 0, n = _properties.size(); i < n; i++)
-	_properties[i].toXml(out);
+	XmlWriter::appendPropertyElement(out, _properties[i]);
 
     // Class closing element:
 

@@ -580,7 +580,7 @@ int main(int argc, char** argv)
 
                     if(isXMLOutput)
                     {
-                        tmp.print(cout);            
+                        XmlWriter::printQualifierDeclElement(tmp, cout);            
                     }
                     else
                     {

@@ -146,22 +146,10 @@ Boolean CIMQualifierDecl::isNull() const
     return (_rep == 0)? true : false;
 }
 
-void CIMQualifierDecl::toXml(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toXml(out);
-}
-
 void CIMQualifierDecl::toMof(Array<Sint8>& out) const
 {
     _checkRep();
     _rep->toMof(out);
-}
-
-void CIMQualifierDecl::print(PEGASUS_STD(ostream)& o) const
-{
-    _checkRep();
-    _rep->print(o);
 }
 
 Boolean CIMQualifierDecl::identical(const CIMConstQualifierDecl& x) const
@@ -293,18 +281,6 @@ Uint32 CIMConstQualifierDecl::getArraySize() const
 Boolean CIMConstQualifierDecl::isNull() const
 {
     return (_rep == 0)? true : false;
-}
-
-void CIMConstQualifierDecl::toXml(Array<Sint8>& out) const
-{
-    _checkRep();
-    _rep->toXml(out);
-}
-
-void CIMConstQualifierDecl::print(PEGASUS_STD(ostream)& o) const
-{
-    _checkRep();
-    _rep->print(o);
 }
 
 Boolean CIMConstQualifierDecl::identical(const CIMConstQualifierDecl& x) const

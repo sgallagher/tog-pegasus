@@ -278,17 +278,6 @@ public:
     /// ATTN: documentation
     Boolean isNull() const;
 
-    /** toXML  - Converts the object to XML and puts the
-	resutl in the out parameter
-	@param out Parameter for XML output
-    */
-    void toXml(Array<Sint8>& out) const;
-
-    /** print - Converts the object to XML and output
-    	it to cout
-    */
-    void print(PEGASUS_STD(ostream)& o = PEGASUS_STD(cout)) const;
-
     /** toMof  - Converts the object to Mof and puts the
 	resutl in the out parameter
 	@param out Parameter for Mof output
@@ -298,7 +287,6 @@ public:
 
 private:
 
-#ifdef PEGASUS_INTERNALONLY
     CIMProperty(CIMPropertyRep* rep);
 
     // This constructor allows the CIMClassRep friend class to cast
@@ -311,7 +299,7 @@ private:
     friend class CIMConstProperty;
     friend class CIMClassRep;
     friend class CIMInstanceRep;
-#endif
+    friend class XmlWriter;
 
     CIMPropertyRep* _rep;
 };
@@ -379,11 +367,8 @@ public:
 #ifdef PEGASUS_INTERNALONLY
     Boolean isNull() const;
 
-    void toXml(Array<Sint8>& out) const;
-
-    void print(PEGASUS_STD(ostream)& o = PEGASUS_STD(cout)) const;
-
     void toMof(Array<Sint8>& out) const;
+#endif
 
 private:
 
@@ -393,7 +378,7 @@ private:
 
     friend class CIMProperty;
     friend class CIMPropertyRep;
-#endif
+    friend class XmlWriter;
 };
 
 #define PEGASUS_ARRAY_T CIMProperty

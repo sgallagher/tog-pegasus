@@ -149,8 +149,6 @@ public:
 
     void toXml(Array<Sint8>& out) const;
 
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
-
     void toMof(Array<Sint8>& out) const;
 
     Boolean identical(const CIMPropertyRep* x) const;

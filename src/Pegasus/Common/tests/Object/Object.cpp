@@ -30,6 +30,7 @@
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -139,7 +140,7 @@ void test01()
     if (verbose)
     {
         Array<Sint8> xmlOut;
-        oinstance1.toXml(xmlOut);
+        XmlWriter::appendObjectElement(xmlOut, oinstance1);
     }
     
 }
@@ -201,7 +202,7 @@ void test02()
     if (verbose)
     {
         Array<Sint8> xmlOut;
-        ccloneObj.toXml(xmlOut);
+        XmlWriter::appendObjectElement(xmlOut, ccloneObj);
     }
 
     // Test qualifiers
@@ -270,7 +271,7 @@ void test03()
     if(verbose)
     {
         Array<Sint8> xmlOut;
-        myObj.toXml(xmlOut);
+        XmlWriter::appendObjectElement(xmlOut, myObj);
     }
 }
 

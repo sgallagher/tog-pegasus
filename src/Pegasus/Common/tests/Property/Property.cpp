@@ -29,6 +29,7 @@
 #include <cassert>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMPropertyList.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -55,10 +56,10 @@ void test01()
 
     if(verbose)
     {
-	   p1.print(cout);
-	   p2.print(cout);
-	   p1clone.print(cout);
-	   p2clone.print(cout);
+	   XmlWriter::printPropertyElement(p1, cout);
+	   XmlWriter::printPropertyElement(p2, cout);
+	   XmlWriter::printPropertyElement(p1clone, cout);
+	   XmlWriter::printPropertyElement(p2clone, cout);
     }
 
     // Test toMof
@@ -68,8 +69,8 @@ void test01()
 
     // Test toXml
        Array<Sint8> xmlOut;
-       p1.toXml(xmlOut);
-       p2.toXml(xmlOut);
+       XmlWriter::appendPropertyElement(xmlOut, p1);
+       XmlWriter::appendPropertyElement(xmlOut, p2);
 
     // Test name
         String name;
@@ -159,12 +160,12 @@ void test02()
         CIMConstProperty cp1clone = cp1.clone(true);
 
         if(verbose)
-	    cp1.print(cout);
+	    XmlWriter::printPropertyElement(cp1, cout);
 
         Array<Sint8> mofOut;
         cp1.toMof(mofOut);
         Array<Sint8> xmlOut;
-        cp1.toXml(xmlOut);
+        XmlWriter::appendPropertyElement(xmlOut, cp1);
 
         assert(cp1.getName() == "message");
         assert(cp1.getType() == CIMType::STRING);

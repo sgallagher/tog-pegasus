@@ -97,11 +97,7 @@ public:
     Boolean isNull() const;
 #endif
 
-    void toXml(Array<Sint8>& out) const;
-
     void toMof(Array<Sint8>& out) const;
-
-    void print(PEGASUS_STD(ostream)& o=PEGASUS_STD(cout)) const;
 
     Boolean identical(const CIMConstParameter& x) const;
 
@@ -115,6 +111,7 @@ private:
 
     CIMParameterRep* _rep;
     friend class CIMConstParameter;
+    friend class XmlWriter;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -165,10 +162,6 @@ public:
 
 #ifdef PEGASUS_INTERNALONLY
     Boolean isNull() const;
-
-    void toXml(Array<Sint8>& out) const;
-
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
 #endif
 
     Boolean identical(const CIMConstParameter& x) const;
@@ -181,6 +174,7 @@ private:
 
     CIMParameterRep* _rep;
     friend class CIMParameter;
+    friend class XmlWriter;
 };
 
 #define PEGASUS_ARRAY_T CIMParameter

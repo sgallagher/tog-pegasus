@@ -39,16 +39,21 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Indentor.h>
+#include <Pegasus/Common/CIMObject.h>
+#include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/CIMProperty.h>
+#include <Pegasus/Common/CIMMethod.h>
+#include <Pegasus/Common/CIMParameter.h>
+#include <Pegasus/Common/CIMQualifier.h>
+#include <Pegasus/Common/CIMQualifierDecl.h>
+#include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMNamedInstance.h>
 #include <Pegasus/Common/CIMParamValue.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-class CIMConstQualifierDecl;
-class CIMConstClass;
-class CIMConstInstance;
 
 class PEGASUS_COMMON_LINKAGE XmlWriter
 {
@@ -132,6 +137,23 @@ public:
         const CIMValue& value,
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
+    static void appendValueObjectWithPathElement(
+        Array<Sint8>& out,
+        const CIMObjectWithPath& objectWithPath);
+
+    static void appendValueReferenceElement(
+        Array<Sint8>& out,
+        const CIMReference& reference,
+        Boolean putValueWrapper);
+
+    static void printValueReferenceElement(
+        const CIMReference& reference,
+        PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
+
+    static void appendValueNamedInstanceElement(
+        Array<Sint8>& out,
+        const CIMNamedInstance& namedInstance);
+
     static void appendClassElement(
         Array<Sint8>& out,
         const CIMConstClass& cimclass);
@@ -146,6 +168,58 @@ public:
 
     static void printInstanceElement(
         const CIMConstInstance& instance,
+        PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
+
+    static void appendObjectElement(
+        Array<Sint8>& out,
+        const CIMConstObject& object);
+
+    static void appendPropertyElement(
+        Array<Sint8>& out,
+        const CIMConstProperty& property);
+
+    static void printPropertyElement(
+        const CIMConstProperty& property,
+        PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
+
+    static void appendMethodElement(
+        Array<Sint8>& out,
+        const CIMConstMethod& method);
+
+    static void printMethodElement(
+        const CIMConstMethod& method,
+        PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
+
+    static void appendParameterElement(
+        Array<Sint8>& out,
+        const CIMConstParameter& parameter);
+
+    static void printParameterElement(
+        const CIMConstParameter& parameter,
+        PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
+
+    static void appendParamValueElement(
+        Array<Sint8>& out,
+        const CIMParamValue& paramValue);
+
+    static void printParamValueElement(
+        const CIMParamValue& paramValue,
+        PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
+
+    static void appendQualifierElement(
+        Array<Sint8>& out,
+        const CIMConstQualifier& qualifier);
+
+    static void printQualifierElement(
+        const CIMConstQualifier& qualifier,
+        PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
+
+    static void appendQualifierDeclElement(
+        Array<Sint8>& out,
+        const CIMConstQualifierDecl& qualifierDecl);
+
+    static void printQualifierDeclElement(
+        const CIMConstQualifierDecl& qualifierDecl,
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
     static void appendMethodCallHeader(

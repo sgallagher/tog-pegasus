@@ -2054,8 +2054,7 @@ void CIMRepository::setQualifier(
     // -- Save qualifier:
 
     Array<Sint8> qualifierDeclXml;
-    qualifierDecl.toXml(qualifierDeclXml);
-    //XmlWriter::appendQualifierDeclElement(qualifierDeclXml, qualifierDecl);
+    XmlWriter::appendQualifierDeclElement(qualifierDeclXml, qualifierDecl);
     _SaveObject(qualifierFilePath, qualifierDeclXml);
 
     PEG_METHOD_EXIT();

@@ -121,12 +121,12 @@ void test01()
 
 	if(verbose)
 	{
-		q1.print();
-		q2.print();
-		q3.print();
-		q4.print();
-		q5.print();
-		key.print();
+		XmlWriter::printQualifierDeclElement(q1);
+		XmlWriter::printQualifierDeclElement(q2);
+		XmlWriter::printQualifierDeclElement(q3);
+		XmlWriter::printQualifierDeclElement(q4);
+		XmlWriter::printQualifierDeclElement(q5);
+		XmlWriter::printQualifierDeclElement(key);
 	}
 
     context->addQualifierDecl(NAMESPACE, q1);
@@ -299,17 +299,17 @@ void test02()
 
       if(verbose)
 	  {
-		  q1.print();
-		  q2.print();
-		  q3.print();
-		  abstract.print();
-		  association.print();
-		  key.print();
-		  notToSubclass.print();
-		  toSubclass.print();
-		  toSubclassOverridable.print();
-		  nullValue.print();
-		  arrayValue.print();
+		  XmlWriter::printQualifierDeclElement(q1);
+		  XmlWriter::printQualifierDeclElement(q2);
+		  XmlWriter::printQualifierDeclElement(q3);
+		  XmlWriter::printQualifierDeclElement(abstract);
+		  XmlWriter::printQualifierDeclElement(association);
+		  XmlWriter::printQualifierDeclElement(key);
+		  XmlWriter::printQualifierDeclElement(notToSubclass);
+		  XmlWriter::printQualifierDeclElement(toSubclass);
+		  XmlWriter::printQualifierDeclElement(toSubclassOverridable);
+		  XmlWriter::printQualifierDeclElement(nullValue);
+		  XmlWriter::printQualifierDeclElement(arrayValue);
 	  }
 	// add our test qualifiers to the namespace
     context->addQualifierDecl(NAMESPACE, q1);
@@ -755,10 +755,10 @@ void test05()
 
 	if(verbose)
 	{
-		propertyQualifier.print();
-		classQualifier.print();
-		key.print();
-		association.print();
+		XmlWriter::printQualifierDeclElement(propertyQualifier);
+		XmlWriter::printQualifierDeclElement(classQualifier);
+		XmlWriter::printQualifierDeclElement(key);
+		XmlWriter::printQualifierDeclElement(association);
 	}
     context->addQualifierDecl(NAMESPACE, key);
     context->addQualifierDecl(NAMESPACE, association);

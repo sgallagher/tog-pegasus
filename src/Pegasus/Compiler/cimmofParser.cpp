@@ -683,7 +683,7 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
       if (qualifier) 
       {
 	cout << "<VALUE.OBJECT>" << endl;
-	qualifier->print(PEGASUS_STD(cout));
+	XmlWriter::printQualifierDeclElement(*qualifier, PEGASUS_STD(cout));
 	cout << "</VALUE.OBJECT>" << endl;
 	cout << endl;
       }
@@ -695,7 +695,7 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
       cimmofMessages::getMessage(header, cimmofMessages::ADD_QUALIFIER);
       trace(header, "");
       if (qualifier) 
-	qualifier->print(_cmdline->traceos()); 
+	XmlWriter::printQualifierDeclElement(*qualifier, _cmdline->traceos());
     }
   }
  

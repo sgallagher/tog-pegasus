@@ -597,7 +597,8 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
    Array<Sint8> body;
 
    for (Uint32 i = 0; i < response->cimNamedInstances.size(); i++)
-      response->cimNamedInstances[i].toXml(body);
+      XmlWriter::appendValueNamedInstanceElement(
+          body, response->cimNamedInstances[i]);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "EnumerateInstances", response->messageId, body);
@@ -758,7 +759,7 @@ void CIMOperationResponseEncoder::encodeGetQualifierResponse(
    }
 
    Array<Sint8> body;
-   response->cimQualifierDecl.toXml(body);
+   XmlWriter::appendQualifierDeclElement(body, response->cimQualifierDecl);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "GetQualifier", response->messageId, body);
@@ -787,7 +788,7 @@ void CIMOperationResponseEncoder::encodeEnumerateQualifiersResponse(
    Array<Sint8> body;
 
    for (Uint32 i = 0; i < response->qualifierDeclarations.size(); i++)
-      response->qualifierDeclarations[i].toXml(body);
+      XmlWriter::appendQualifierDeclElement(body, response->qualifierDeclarations[i]);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "EnumerateQualifiers", response->messageId, body);
@@ -844,7 +845,7 @@ void CIMOperationResponseEncoder::encodeReferenceNamesResponse(
    for (Uint32 i = 0; i < response->objectNames.size(); i++)
    {
       body << "<OBJECTPATH>\n";
-      response->objectNames[i].toXml(body, false);
+      XmlWriter::appendValueReferenceElement(body, response->objectNames[i], false);
       body << "</OBJECTPATH>\n";
    }
 
@@ -875,7 +876,7 @@ void CIMOperationResponseEncoder::encodeReferencesResponse(
    Array<Sint8> body;
 
    for (Uint32 i = 0; i < response->cimObjects.size(); i++)
-      response->cimObjects[i].toXml(body);
+      XmlWriter::appendValueObjectWithPathElement(body, response->cimObjects[i]);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "References", response->messageId, body);
@@ -906,7 +907,7 @@ void CIMOperationResponseEncoder::encodeAssociatorNamesResponse(
    for (Uint32 i = 0; i < response->objectNames.size(); i++)
    {
       body << "<OBJECTPATH>\n";
-      response->objectNames[i].toXml(body, false);
+      XmlWriter::appendValueReferenceElement(body, response->objectNames[i], false);
       body << "</OBJECTPATH>\n";
    }
 
@@ -937,7 +938,7 @@ void CIMOperationResponseEncoder::encodeAssociatorsResponse(
    Array<Sint8> body;
 
    for (Uint32 i = 0; i < response->cimObjects.size(); i++)
-      response->cimObjects[i].toXml(body);
+      XmlWriter::appendValueObjectWithPathElement(body, response->cimObjects[i]);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "Associators", response->messageId, body);
@@ -966,7 +967,7 @@ void CIMOperationResponseEncoder::encodeExecQueryResponse(
    Array<Sint8> body;
 
    for (Uint32 i = 0; i < response->cimObjects.size(); i++)
-      response->cimObjects[i].toXml(body);
+      XmlWriter::appendValueObjectWithPathElement(body, response->cimObjects[i]);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       "ExecQuery", response->messageId, body);
@@ -1004,7 +1005,7 @@ void CIMOperationResponseEncoder::encodeInvokeMethodResponse(
 
    for (Uint32 i=0; i < response->outParameters.size(); i++)
    {
-      response->outParameters[i].toXml(body);
+      XmlWriter::appendParamValueElement(body, response->outParameters[i]);
    }
 
    Array<Sint8> message = XmlWriter::formatSimpleMethodRspMessage(

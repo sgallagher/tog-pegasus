@@ -35,6 +35,9 @@
             </INSTANCE>
           </VALUE.NAMEDINSTANCE>
         </IPARAMVALUE>
+        <IPARAMVALUE NAME="IncludeQualifiers">
+          <VALUE> false </VALUE>
+        </IPARAMVALUE>
         <IPARAMVALUE NAME="PropertyList">
           <VALUE.ARRAY>
             <VALUE> SupportedProperties </VALUE>

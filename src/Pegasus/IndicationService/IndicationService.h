@@ -209,41 +209,68 @@ private:
         of the target class, and the properties required to process the
         subscription are all contained in the list of target properties.
 
-        @param   targetClass       the target class
-        @param   targetProperties  the list of target properties
+        @param   targetClass       the supported class
+        @param   nameSpaces        the list of supported namespaces
+        @param   targetProperties  the list of supported properties
 
         @return   list of CIMNamedInstance subscriptions
      */
     Array <CIMNamedInstance> _getMatchingSubscriptions (
         const String & targetClass,
+        const Array <String> nameSpaces,
         const CIMPropertyList & targetProperties) const;
 
     /**
         Retrieves lists of enabled subscription instances in all namespaces
         that are either newly supported or previously supported, based on the
-        target class and the old and new property lists.  For subscriptions
-        based on the target class, the newSubscriptions list returned contains
-        the subscriptions for which the properties required to process the
-        subscription are all contained in the list of new properties, but are
-        not all contained in the list of old properties.  The
-        formerSubscriptions list returned contains the subscriptions for which
-        the properties required to process the subscription are not all
-        contained in the list of new properties, but are all contained in the
-        list of old properties.
+        supported class, the supported namespaces before and after modification,
+        and the supported properties before and after modification.  For 
+        subscriptions based on the target class, the newSubscriptions list 
+        returned contains the subscriptions for which the properties required 
+        to process the subscription are all contained in the new list of 
+        supported properties, but are not all contained in the old list of 
+        supported properties, and/or the filter source namespace is contained in
+        the new list if supported namespaces, but is not contained in the old 
+        list of supported namespaces.  The formerSubscriptions list returned 
+        contains the subscriptions for which the properties required to process
+        the subscription are not all contained in the new list of supported 
+        properties, but are all contained in the old list of supported 
+        properties, and/or the filter source namespace is not contained in the 
+        new list if supported namespaces, but is contained in the old list of 
+        supported namespaces.
 
-        @param   targetClass          the target class
-        @param   newProperties        the list of new properties
-        @param   oldProperties        the list of old properties
+        @param   targetClass          the supported class
+        @param   newNameSpaces        namespaces supported after modification
+        @param   oldNameSpaces        namespaces supported before modification
+        @param   newProperties        properties supported after modification
+        @param   oldProperties        properties supported before modification
         @param   newSubscriptions     the list of newly supported subscriptions
         @param   formerSubscriptions  the list of previously supported
                                           subscriptions
      */
     void _getModifiedSubscriptions (
         const String & targetClass,
+        const Array <String> & newNameSpaces,
+        const Array <String> & oldNameSpaces,
         const CIMPropertyList & newProperties,
         const CIMPropertyList & oldProperties,
         Array <CIMNamedInstance> & newSubscriptions,
         Array <CIMNamedInstance> & formerSubscriptions);
+
+    /**
+        Determines if all of the required properties in the specified list
+        are contained in the specified list of supported properties.
+        that are served by the specified provider.
+
+        @param   requiredProperties  the required properties
+        @param   propertyList        the supported properties
+
+        @return   true if all required properties are supported
+                  false otherwise
+     */
+    Boolean _inPropertyList (
+        const CIMPropertyList & requiredProperties,
+        const CIMPropertyList & propertyList);
 
     /**
         Retrieves list of enabled subscription instances in all namespaces,
@@ -484,14 +511,21 @@ private:
         @param   queryLanguage         the query language in which the filter
                                            query is expressed
         @param   subscription          the subscription to be enabled
+        @param   userName              the userName for authentication
+        @param   authType              the authentication type
+
+        @return  True if at least one provider accepted the subscription
+                 False otherwise
      */
-    void _sendEnableRequests (
+    Boolean _sendEnableRequests (
         const Array <struct ProviderClassList> & indicationProviders,
         const String & nameSpace,
         const CIMPropertyList & propertyList,
         const String & condition,
         const String & queryLanguage,
-        const CIMNamedInstance & subscription);
+        const CIMNamedInstance & subscription,
+        const String & userName,
+        const String & authType = String::EMPTY);
 
     /**
         Sends modify subscription request for the specified subscription
@@ -505,6 +539,8 @@ private:
         @param   queryLanguage         the query language in which the filter
                                            query is expressed
         @param   subscription          the subscription to be modified
+        @param   userName              the userName for authentication
+        @param   authType              the authentication type
      */
     void _sendModifyRequests (
         const Array <struct ProviderClassList> & indicationProviders,
@@ -512,7 +548,9 @@ private:
         const CIMPropertyList & propertyList,
         const String & condition,
         const String & queryLanguage,
-        const CIMNamedInstance & subscription);
+        const CIMNamedInstance & subscription,
+        const String & userName,
+        const String & authType = String::EMPTY);
 
     /**
         Sends disable subscription request for the specified subscription
@@ -521,11 +559,15 @@ private:
         @param   indicationProviders   list of providers with associated classes
         @param   nameSpace             the namespace name
         @param   subscription          the subscription to be modified
+        @param   userName              the userName for authentication
+        @param   authType              the authentication type
      */
     void _sendDisableRequests (
         const Array <struct ProviderClassList> & indicationProviders,
         const String & nameSpace,
-        const CIMNamedInstance & subscription);
+        const CIMNamedInstance & subscription,
+        const String & userName,
+        const String & authType = String::EMPTY);
 
     /**
         Creates an alert instance of the specified class.
@@ -889,6 +931,16 @@ private:
      */
     static const char   _PROPERTY_PROVIDER_TYPE [];
 
+
+    //
+    //  Qualifier names
+    //
+
+    /**
+        The name of the Indication qualifier for classes
+     */
+    static const char   _QUALIFIER_INDICATION [];
+
     //
     //  Service names
     //
@@ -944,11 +996,15 @@ private:
 
     static const char _MSG_NO_PROVIDERS [];
 
+    static const char _MSG_NOT_ACCEPTED [];
+
     static const char _MSG_INVALID_CLASSNAME [];
 
     static const char _MSG_IN_FROM [];
 
     static const char _MSG_EXPIRED [];
+
+    static const char _MSG_REFERENCED [];
 };
 
 PEGASUS_NAMESPACE_END

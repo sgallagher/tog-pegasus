@@ -3,30 +3,7 @@
 <MESSAGE ID="010011" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="CreateInstance">
-<IRETURNVALUE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
-<KEYBINDING NAME="CreationClassName">
-<KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
-</KEYVALUE>
-</KEYBINDING>
-<KEYBINDING NAME="Name">
-<KEYVALUE VALUETYPE="string">
-Filter11
-</KEYVALUE>
-</KEYBINDING>
-<KEYBINDING NAME="SystemCreationClassName">
-<KEYVALUE VALUETYPE="string">
-CIM_UnitaryComputerSystem
-</KEYVALUE>
-</KEYBINDING>
-<KEYBINDING NAME="SystemName">
-<KEYVALUE VALUETYPE="string">
-server001.acme.com
-</KEYVALUE>
-</KEYBINDING>
-</INSTANCENAME>
-</IRETURNVALUE>
+<ERROR CODE="4" DESCRIPTION="CIM_ERR_INVALID_PARAMETER: One or more parameter values passed to the method were invalid: &quot;Invalid indication class name CIM_ManagedElement in FROM clause of PG_IndicationFilter Query property&quot;"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

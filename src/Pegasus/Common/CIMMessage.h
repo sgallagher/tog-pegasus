@@ -960,6 +960,10 @@ class CIMInvokeMethodRequestMessage : public CIMRequestMessage
       String userName;
 };
 
+//
+//  ATTN-CAKG-P2-20020326: To Be Removed - once the ProviderManagerService
+//  has been modified to use the new messages
+//
 class CIMEnableIndicationSubscriptionRequestMessage : public CIMRequestMessage
 {
    public:
@@ -967,6 +971,7 @@ class CIMEnableIndicationSubscriptionRequestMessage : public CIMRequestMessage
       CIMEnableIndicationSubscriptionRequestMessage(
 	 const String & messageId_,
 	 const String & nameSpace_,
+	 const CIMNamedInstance & subscription_,
 	 const Array<String> & classNames_,
 	 const CIMInstance & provider_,
 	 const CIMInstance & providerModule_,
@@ -974,17 +979,9 @@ class CIMEnableIndicationSubscriptionRequestMessage : public CIMRequestMessage
 	 const Uint16 repeatNotificationPolicy_,
 	 const String & condition_,
 	 const String & queryLanguage_,
-	 const CIMNamedInstance & subscription_,
 	 QueueIdStack queueIds_,
 	 const String& authType_ = String::EMPTY,
 	 const String& userName_ = String::EMPTY,
-         //
-         //  ATTN-CAKG-P1-20020318: the following four parameters will be
-         //  removed as soon as possible; these are no longer needed, since
-         //  the threshholding parameters will not be passed in the operation
-         //  context -- they can be obtained from the subscription instance
-         //  (which will now be passed in the operation context).
-         //
 	 const String & otherRepeatNotificationPolicy_ = String::EMPTY,
 	 const CIMDateTime & repeatNotificationInterval_ = CIMDateTime (),
 	 const CIMDateTime & repeatNotificationGap_ = CIMDateTime (),
@@ -1006,14 +1003,6 @@ class CIMEnableIndicationSubscriptionRequestMessage : public CIMRequestMessage
 	 repeatNotificationCount (repeatNotificationCount_),
 	 condition (condition_),
 	 queryLanguage (queryLanguage_),
-         //
-         //  ATTN-CAKG-P1-20020318: A CIMNamedInstance is now passed, since both
-         //  the CIMInstance and CIMReference are needed for the indication
-         //  provider API.  Since message recipients are currently still
-         //  expecting a CIMInstance, subscription is currently being set to the
-         //  CIMInstance part of the CIMNamedInstance; this will be modified as
-         //  soon as possible to set subscription to the CIMNamedInstance
-         //
 	 subscription (subscription_.getInstance ()),
 	 authType(authType_),
 	 userName(userName_)
@@ -1026,23 +1015,21 @@ class CIMEnableIndicationSubscriptionRequestMessage : public CIMRequestMessage
       CIMInstance providerModule;
       CIMPropertyList propertyList;
       Uint16 repeatNotificationPolicy;
-      //
-      //  ATTN-CAKG-P1-20020318: following 4 attributes to be removed soon
-      //
       String otherRepeatNotificationPolicy;
       CIMDateTime repeatNotificationInterval;
       CIMDateTime repeatNotificationGap;
       Uint16 repeatNotificationCount;
       String condition;
       String queryLanguage;
-      //
-      //  ATTN-CAKG-P1-20020318: type to be changed to CIMNamedInstance soon
-      //
       CIMInstance subscription;
       String authType;
       String userName;
 };
 
+//
+//  ATTN-CAKG-P2-20020326: To Be Removed - once the ProviderManagerService
+//  has been modified to use the new messages
+//
 class CIMModifyIndicationSubscriptionRequestMessage : public CIMRequestMessage
 {
    public:
@@ -1050,6 +1037,7 @@ class CIMModifyIndicationSubscriptionRequestMessage : public CIMRequestMessage
       CIMModifyIndicationSubscriptionRequestMessage(
 	 const String & messageId_,
 	 const String & nameSpace_,
+	 const CIMNamedInstance & subscription_,
 	 const Array<String> & classNames_,
 	 const CIMInstance & provider_,
 	 const CIMInstance & providerModule_,
@@ -1057,17 +1045,9 @@ class CIMModifyIndicationSubscriptionRequestMessage : public CIMRequestMessage
 	 const Uint16 repeatNotificationPolicy_,
 	 const String & condition_,
 	 const String & queryLanguage_,
-	 const CIMNamedInstance & subscription_,
 	 QueueIdStack queueIds_,
 	 const String& authType_ = String::EMPTY,
 	 const String& userName_ = String::EMPTY,
-         //
-         //  ATTN-CAKG-P1-20020318: the following four parameters will be
-         //  removed as soon as possible; these are no longer needed, since
-         //  the threshholding parameters will not be passed in the operation
-         //  context -- they can be obtained from the subscription instance
-         //  (which will now be passed in the operation context).
-         //
 	 const String & otherRepeatNotificationPolicy_ = String::EMPTY,
 	 const CIMDateTime & repeatNotificationInterval_ = CIMDateTime (),
 	 const CIMDateTime & repeatNotificationGap_ = CIMDateTime (),
@@ -1089,14 +1069,6 @@ class CIMModifyIndicationSubscriptionRequestMessage : public CIMRequestMessage
 	 repeatNotificationCount (repeatNotificationCount_),
 	 condition (condition_),
 	 queryLanguage (queryLanguage_),
-         //
-         //  ATTN-CAKG-P1-20020318: A CIMNamedInstance is now passed, since both
-         //  the CIMInstance and CIMReference are needed for the indication
-         //  provider API.  Since message recipients are currently still
-         //  expecting a CIMInstance, subscription is currently being set to the
-         //  CIMInstance part of the CIMNamedInstance; this will be modified as
-         //  soon as possible to set subscription to the CIMNamedInstance
-         //
 	 subscription (subscription_.getInstance ()),
 	 authType(authType_),
 	 userName(userName_)
@@ -1109,23 +1081,21 @@ class CIMModifyIndicationSubscriptionRequestMessage : public CIMRequestMessage
       CIMInstance providerModule;
       CIMPropertyList propertyList;
       Uint16 repeatNotificationPolicy;
-      //
-      //  ATTN-CAKG-P1-20020318: following 4 attributes to be removed soon
-      //
       String otherRepeatNotificationPolicy;
       CIMDateTime repeatNotificationInterval;
       CIMDateTime repeatNotificationGap;
       Uint16 repeatNotificationCount;
       String condition;
       String queryLanguage;
-      //
-      //  ATTN-CAKG-P1-20020318: type to be changed to CIMNamedInstance soon
-      //
       CIMInstance subscription;
       String authType;
       String userName;
 };
 
+//
+//  ATTN-CAKG-P2-20020326: To Be Removed - once the ProviderManagerService
+//  has been modified to use the new messages
+//
 class CIMDisableIndicationSubscriptionRequestMessage : public CIMRequestMessage
 {
    public:
@@ -1133,10 +1103,10 @@ class CIMDisableIndicationSubscriptionRequestMessage : public CIMRequestMessage
       CIMDisableIndicationSubscriptionRequestMessage(
 	 const String & messageId_,
 	 const String & nameSpace_,
+	 const CIMNamedInstance & subscription_,
 	 const Array<String> & classNames_,
 	 const CIMInstance & provider_,
 	 const CIMInstance & providerModule_,
-	 const CIMNamedInstance & subscription_,
 	 QueueIdStack queueIds_,
 	 const String& authType_ = String::EMPTY,
 	 const String& userName_ = String::EMPTY)
@@ -1149,14 +1119,6 @@ class CIMDisableIndicationSubscriptionRequestMessage : public CIMRequestMessage
 	 classNames (classNames_),
 	 provider (provider_),
 	 providerModule (providerModule_),
-         //
-         //  ATTN-CAKG-P1-20020318: A CIMNamedInstance is now passed, since both
-         //  the CIMInstance and CIMReference are needed for the indication
-         //  provider API.  Since message recipients are currently still
-         //  expecting a CIMInstance, subscription is currently being set to the
-         //  CIMInstance part of the CIMNamedInstance; this will be modified as
-         //  soon as possible to set subscription to the CIMNamedInstance
-         //
 	 subscription (subscription_.getInstance ()),
 	 authType(authType_),
 	 userName(userName_)
@@ -1167,9 +1129,6 @@ class CIMDisableIndicationSubscriptionRequestMessage : public CIMRequestMessage
       Array<String> classNames;
       CIMInstance provider;
       CIMInstance providerModule;
-      //
-      //  ATTN-CAKG-P1-20020318: type to be changed to CIMNamedInstance soon
-      //
       CIMInstance subscription;
       String authType;
       String userName;
@@ -1293,78 +1252,153 @@ class CIMCreateSubscriptionRequestMessage : public CIMRequestMessage
 {
    public:
 
-      CIMCreateSubscriptionRequestMessage(
-	  const String& messageId_,
-	  const String & nameSpace_,
-	  const CIMInstance & subscriptionInstance_,
-	  const Array<String> & classNames_,
-	  QueueIdStack queueIds_)
-	 :
-	 CIMRequestMessage(
-	     CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE,
-	     messageId_,
-	     queueIds_),
-	 nameSpace(nameSpace_),
-	 subscriptionInstance(subscriptionInstance_),
-	 classNames(classNames_)
-      {
-      }
+    CIMCreateSubscriptionRequestMessage(
+        const String& messageId_,
+        const String & nameSpace_,
+        //
+        //  ATTN-CAKG-P2-20020326: May want to change to CIMNamedInstance -
+        //  Both the instance and instance name (CIMReference) are needed, so 
+        //  it would be convenient to have the CIMNamedInstance
+        //
+        const CIMInstance & subscriptionInstance_,
+        const Array<String> & classNames_,
+        const CIMInstance & provider_,
+        const CIMInstance & providerModule_,
+        const CIMPropertyList & propertyList_,
+        const Uint16 repeatNotificationPolicy_,
+        const String & condition_,
+        const String & queryLanguage_,
+        QueueIdStack queueIds_,
+        const String & authType_ = String::EMPTY,
+        const String & userName_ = String::EMPTY)
+        :
+        CIMRequestMessage(
+            CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE,
+            messageId_,
+            queueIds_),
+        nameSpace (nameSpace_),
+        subscriptionInstance(subscriptionInstance_),
+        classNames(classNames_),
+        provider (provider_),
+        providerModule (providerModule_),
+        propertyList (propertyList_),
+        repeatNotificationPolicy (repeatNotificationPolicy_),
+        condition (condition_),
+        queryLanguage (queryLanguage_),
+	authType(authType_),
+	userName(userName_)
+    {
+    }
 
-      String nameSpace;
-      CIMInstance subscriptionInstance;
-      Array<String> classNames;
+    String nameSpace;
+    CIMInstance subscriptionInstance;
+    Array <String> classNames;
+    CIMInstance provider;
+    CIMInstance providerModule;
+    CIMPropertyList propertyList;
+    Uint16 repeatNotificationPolicy;
+    String condition;
+    String queryLanguage;
+    String authType;
+    String userName;
 };
 
 class CIMModifySubscriptionRequestMessage : public CIMRequestMessage
 {
    public:
 
-      CIMModifySubscriptionRequestMessage(
-	  const String& messageId_,
-	  const String & nameSpace_,
-	  const CIMInstance & subscriptionInstance_,
-	  const Array<String> & classNames_,
-	  QueueIdStack queueIds_)
-	 :
-	 CIMRequestMessage(
-             CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE,
-	     messageId_,
-	     queueIds_),
-	 nameSpace(nameSpace_),
-	 subscriptionInstance(subscriptionInstance_),
-	 classNames(classNames_)
-      {
-      }
+    CIMModifySubscriptionRequestMessage(
+        const String& messageId_,
+        const String & nameSpace_,
+        //
+        //  ATTN-CAKG-P2-20020326: May want to change to CIMNamedInstance -
+        //  Both the instance and instance name (CIMReference) are needed, so 
+        //  it would be convenient to have the CIMNamedInstance
+        //
+        const CIMInstance & subscriptionInstance_,
+        const Array<String> & classNames_,
+        const CIMInstance & provider_,
+        const CIMInstance & providerModule_,
+        const CIMPropertyList & propertyList_,
+        const Uint16 repeatNotificationPolicy_,
+        const String & condition_,
+        const String & queryLanguage_,
+        QueueIdStack queueIds_,
+        const String & authType_ = String::EMPTY,
+        const String & userName_ = String::EMPTY)
+        :
+        CIMRequestMessage(
+            CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE,
+            messageId_,
+            queueIds_),
+        nameSpace(nameSpace_),
+        subscriptionInstance(subscriptionInstance_),
+        classNames(classNames_),
+        provider (provider_),
+        providerModule (providerModule_),
+        propertyList (propertyList_),
+        repeatNotificationPolicy (repeatNotificationPolicy_),
+        condition (condition_),
+        queryLanguage (queryLanguage_),
+	authType(authType_),
+	userName(userName_)
+    {
+    }
 
-      String nameSpace;
-      CIMInstance subscriptionInstance;
-      Array<String> classNames;
+    String nameSpace;
+    CIMInstance subscriptionInstance;
+    Array<String> classNames;
+    CIMInstance provider;
+    CIMInstance providerModule;
+    CIMPropertyList propertyList;
+    Uint16 repeatNotificationPolicy;
+    String condition;
+    String queryLanguage;
+    String authType;
+    String userName;
 };
 
 class CIMDeleteSubscriptionRequestMessage : public CIMRequestMessage
 {
    public:
 
-      CIMDeleteSubscriptionRequestMessage(
-	  const String& messageId_,
-	  const String & nameSpace_,
-	  const CIMInstance & subscriptionInstance_,
-	  const Array<String> & classNames_,
-	  QueueIdStack queueIds_)
-	 :
-	 CIMRequestMessage(
-             CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE,
-	     messageId_,
-	     queueIds_),
-	 nameSpace(nameSpace_),
-	 subscriptionInstance(subscriptionInstance_),
-	 classNames(classNames_)
-      {
-      }
+    CIMDeleteSubscriptionRequestMessage(
+        const String& messageId_,
+        const String & nameSpace_,
+        //
+        //  ATTN-CAKG-P2-20020326: May want to change to CIMNamedInstance -
+        //  Both the instance and instance name (CIMReference) are needed, so 
+        //  it would be convenient to have the CIMNamedInstance
+        //
+        const CIMInstance & subscriptionInstance_,
+        const Array<String> & classNames_,
+        const CIMInstance & provider_,
+        const CIMInstance & providerModule_,
+        QueueIdStack queueIds_,
+        const String& authType_ = String::EMPTY,
+        const String& userName_ = String::EMPTY)
+        :
+        CIMRequestMessage(
+            CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE,
+	    messageId_,
+	    queueIds_),
+        nameSpace(nameSpace_),
+        subscriptionInstance(subscriptionInstance_),
+        classNames(classNames_),
+        provider (provider_),
+        providerModule (providerModule_),
+	authType(authType_),
+	userName(userName_)
+    {
+    }
 
-      String nameSpace;
-      CIMInstance subscriptionInstance;
-      Array<String> classNames;
+    String nameSpace;
+    CIMInstance subscriptionInstance;
+    Array<String> classNames;
+    CIMInstance provider;
+    CIMInstance providerModule;
+    String authType;
+    String userName;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMGetClassResponseMessage
@@ -1840,6 +1874,10 @@ class CIMInvokeMethodResponseMessage : public CIMResponseMessage
       String methodName;
 };
 
+//
+//  ATTN-CAKG-P2-20020326: To Be Removed - once the ProviderManagerService
+//  has been modified to use the new messages
+//
 class CIMEnableIndicationSubscriptionResponseMessage : public CIMResponseMessage
 {
    public:
@@ -1856,6 +1894,10 @@ class CIMEnableIndicationSubscriptionResponseMessage : public CIMResponseMessage
       }
 };
 
+//
+//  ATTN-CAKG-P2-20020326: To Be Removed - once the ProviderManagerService
+//  has been modified to use the new messages
+//
 class CIMModifyIndicationSubscriptionResponseMessage : public CIMResponseMessage
 {
    public:
@@ -1872,6 +1914,10 @@ class CIMModifyIndicationSubscriptionResponseMessage : public CIMResponseMessage
       }
 };
 
+//
+//  ATTN-CAKG-P2-20020326: To Be Removed - once the ProviderManagerService
+//  has been modified to use the new messages
+//
 class CIMDisableIndicationSubscriptionResponseMessage :
    public CIMResponseMessage
 {

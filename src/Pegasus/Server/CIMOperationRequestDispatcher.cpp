@@ -2344,36 +2344,9 @@ void CIMOperationRequestDispatcher::handleEnableIndicationSubscriptionRequest(
       "CIMOperationRequestDispatcher::"
           "handleEnableIndicationSubscriptionRequest()");
 
-   CIMResponseMessage * response;
-
-   //
-   // check the class name for an "external provider"
-   //
-   String providerName = _lookupIndicationProvider(
-      request->nameSpace, request->classNames[0]);
-
-   if(providerName.size() != 0)
-   {
-      CIMEnableIndicationSubscriptionRequestMessage* requestCopy =
-          new CIMEnableIndicationSubscriptionRequestMessage(*request);
-
-      _forwardRequestToService(
-          String("Server::ProviderManagerService"), requestCopy, response);
-
-      _enqueueResponse(request, response);
-
-      PEG_METHOD_EXIT();
-      return;
-   }
-
-   response =
-      new CIMEnableIndicationSubscriptionResponseMessage (
-	 request->messageId,
-	 CIM_ERR_FAILED,
-	 "Class in request is without Provider",
-	 request->queueIds.copyAndPop ());
-
-   _enqueueResponse (request, response);
+    //
+    //  ATTN-CAKG-P3-20020326: This method to be removed - no longer used
+    //
 
    PEG_METHOD_EXIT();
 }
@@ -2385,42 +2358,9 @@ void CIMOperationRequestDispatcher::handleModifyIndicationSubscriptionRequest(
       "CIMOperationRequestDispatcher::"
           "handleModifyIndicationSubscriptionRequest()");
 
-   CIMResponseMessage * response;
-
-   //  ATTN: Provider to be loaded is known to serve all classes
-   //  in classNames list.  The getProvider function requires a class
-   //  name.  There is no form that takes only the provider name.
-   //  Currently, the first class name in the list is passed to
-   //  getProvider.  It shouldn't matter which class name is passed in.
-
-   //
-   // check the class name for an "external provider"
-   //
-   String providerName = _lookupIndicationProvider(
-      request->nameSpace, request->classNames[0]);
-
-   if(providerName.size() != 0)
-   {
-      CIMModifyIndicationSubscriptionRequestMessage* requestCopy =
-          new CIMModifyIndicationSubscriptionRequestMessage(*request);
-
-      _forwardRequestToService(
-          String("Server::ProviderManagerService"), requestCopy, response);
-
-      _enqueueResponse(request, response);
-
-      PEG_METHOD_EXIT();
-      return;
-   }
-
-   response =
-      new CIMModifyIndicationSubscriptionResponseMessage (
-	 request->messageId,
-	 CIM_ERR_FAILED,
-	 "Provider not available",
-	 request->queueIds.copyAndPop ());
-
-   _enqueueResponse (request, response);
+    //
+    //  ATTN-CAKG-P3-20020326: This method to be removed - no longer used
+    //
 
    PEG_METHOD_EXIT();
 }
@@ -2432,42 +2372,9 @@ void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
       "CIMOperationRequestDispatcher::"
           "handleDisableIndicationSubscriptionRequest()");
 
-   CIMResponseMessage * response;
-
-   //  ATTN: Provider to be loaded is known to serve all classes
-   //  in classNames list.  The getProvider function requires a class
-   //  name.  There is no form that takes only the provider name.
-   //  Currently, the first class name in the list is passed to
-   //  getProvider.  It shouldn't matter which class name is passed in.
-
-   //
-   // check the class name for an "external provider"
-   //
-   String providerName = _lookupIndicationProvider(
-      request->nameSpace, request->classNames[0]);
-
-   if(providerName.size() != 0)
-   {
-      CIMDisableIndicationSubscriptionRequestMessage* requestCopy =
-          new CIMDisableIndicationSubscriptionRequestMessage(*request);
-
-      _forwardRequestToService(
-          String("Server::ProviderManagerService"), requestCopy, response);
-
-      _enqueueResponse(request, response);
-
-      PEG_METHOD_EXIT();
-      return;
-   }
-
-   response =
-      new CIMDisableIndicationSubscriptionResponseMessage (
-	 request->messageId,
-	 CIM_ERR_FAILED,
-	 "Provider not available",
-	 request->queueIds.copyAndPop ());
-
-   _enqueueResponse (request, response);
+    //
+    //  ATTN-CAKG-P3-20020326: This method to be removed - no longer used
+    //
 
    PEG_METHOD_EXIT();
 }

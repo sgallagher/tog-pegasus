@@ -22,7 +22,7 @@
               <VALUE> Filter11 </VALUE>
             </PROPERTY>
             <PROPERTY NAME="Query" TYPE="string"> 
-              <VALUE> SELECT * FROM CIM_ProcessIndication </VALUE>
+              <VALUE> SELECT * FROM CIM_ManagedElement </VALUE>
             </PROPERTY>
             <PROPERTY NAME="QueryLanguage" TYPE="string"> 
               <VALUE> WQL1 </VALUE>

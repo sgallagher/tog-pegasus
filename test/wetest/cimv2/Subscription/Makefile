@@ -12,21 +12,17 @@ XMLSCRIPTS = \
     CreateSubscription01 CreateSubscription02 CreateSubscription03 \
     CreateSubscription04 CreateSubscription05 CreateSubscription06 \
     CreateSubscription07 CreateSubscription08 CreateSubscription09 \
-    EnumerateFilters01 EnumerateFilters02 \
-    EnumerateHandlers01 EnumerateHandlers02 \
-    EnumerateSubscriptions01 EnumerateSubscriptions02 \
-    GetFilter01 GetFilter02 GetFilter03 GetFilter04 GetFilter05 GetFilter06 \
-    GetHandler01 GetHandler02 GetHandler03 \
-    GetSubscription01 GetSubscription02 GetSubscription03 \
-    GetSubscription04 GetSubscription05 GetSubscription06 \
-    GetSubscription07 GetSubscription08 GetSubscription09 \
+    EnumerateFilters01 \
+    EnumerateHandlers01 \
+    EnumerateSubscriptions01 \
     CreateModule03 CreateProvider03 \
     CreateCapability03 \
-    ModifyCapability01 ModifyCapability02 \
+    ModifyCapability01 \
     ModifyFilter01 \
     ModifyHandler01 \
     ModifySubscription01 ModifySubscription02 \
     ModifySubscription03 ModifySubscription04 \
+    DeleteFilter07 DeleteHandler04 \
     DeleteSubscription01 DeleteSubscription02 DeleteSubscription03 \
     DeleteSubscription04 DeleteSubscription05 DeleteSubscription06 \
     DeleteSubscription07 DeleteSubscription08 DeleteSubscription09 \
@@ -37,10 +33,22 @@ XMLSCRIPTS = \
     DeleteHandler09 EnumerateSubscriptions04 \
     DeleteFilter01 \
     CreateFilter07 CreateFilter08 CreateFilter09 CreateFilter10 \
+    CreateFilter11 \
     CreateHandler04 CreateHandler05 CreateHandler06 CreateHandler07 \
     CreateHandler08 \
     CreateSubscription10 CreateSubscription11 CreateSubscription12 \
-    CreateSubscription13
+    CreateSubscription13 \
+    CreateFilter12
+#   EnumerateFilters01 EnumerateFilters02 \
+#   EnumerateHandlers01 EnumerateHandlers02 \
+#   EnumerateSubscriptions01 EnumerateSubscriptions02 \
+#   GetFilter01 GetFilter02 GetFilter03 GetFilter04 GetFilter05 GetFilter06 \
+#   GetHandler01 GetHandler02 GetHandler03 \
+#   GetSubscription01 GetSubscription02 GetSubscription03 \
+#   GetSubscription04 GetSubscription05 GetSubscription06 \
+#   GetSubscription07 GetSubscription08 GetSubscription09 \
+#   ModifyCapability01 ModifyCapability02 \
+#   CreateFilter11 CreateFilter12 \
 #   DeleteCapability01 \
 #   DeleteCapability02 \
 #   DeleteCapability03 \

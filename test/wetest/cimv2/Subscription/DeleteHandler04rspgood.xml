@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+<MESSAGE ID="140004" PROTOCOLVERSION="1.0">
+<SIMPLERSP>
+<IMETHODRESPONSE NAME="DeleteInstance">
+<ERROR CODE="1" DESCRIPTION="CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: &quot;A Filter or Handler referenced by a subscription may not be deleted&quot;"/>
+</IMETHODRESPONSE>
+</SIMPLERSP>
+</MESSAGE>
+</CIM>

@@ -5663,8 +5663,8 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
    }
 
    // l10n
-   CIMException cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_METHOD_NOT_AVAILABLE,
-	   request->methodName.getString());
+	 CIMException cimException =
+     PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.CIMOperationRequestDispatcher.PROVIDER_NOT_AVAILABLE","Provider not available"));
 
    // CIMException cimException =
    // PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Provider not available");

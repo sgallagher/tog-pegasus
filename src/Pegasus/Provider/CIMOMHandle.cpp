@@ -28,6 +28,7 @@
 
 #include "CIMOMHandle.h"
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Destroyer.h>
@@ -49,7 +50,8 @@ CIMOMHandle::CIMOMHandle(void)
 CIMOMHandle::CIMOMHandle(MessageQueueService * service)
    : _service(service), _cimom(0), _id(peg_credential_types::PROVIDER)
 {
-    MessageQueue * queue = MessageQueue::lookup("CIMOpRequestDispatcher");
+    MessageQueue * queue =
+        MessageQueue::lookup(PEGASUS_SERVICENAME_CIMOPREQDISPATCHER);
 
     _cimom = dynamic_cast<MessageQueueService *>(queue);
     _controller = &(ModuleController::get_client_handle(_id, &_client_handle));

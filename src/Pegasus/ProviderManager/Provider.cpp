@@ -120,7 +120,7 @@ Boolean Provider::tryTerminate(void)
       }
       // yield before a potentially lengthy operation.
       pegasus_yield();
-      if(terminated = true)
+      if(terminated == true)
 	 _module->unloadModule();
    }
    catch(...)

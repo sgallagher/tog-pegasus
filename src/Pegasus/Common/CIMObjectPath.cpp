@@ -824,7 +824,7 @@ String CIMObjectPath::toString(Boolean includeHost) const
     return objectName;
 }
 
-String CIMObjectPath::toStringCanonical(Boolean includeHost) const
+String CIMObjectPath::_toStringCanonical(Boolean includeHost) const
 {
     CIMObjectPath ref = *this;
 
@@ -841,6 +841,8 @@ String CIMObjectPath::toStringCanonical(Boolean includeHost) const
         ref._rep->_keyBindings[i]._rep->_name = keyBindingNameLower;
     }
 
+    // ATTN-RK-20020826: Need to sort keys?
+
     return ref.toString(includeHost);
 }
 
@@ -855,7 +857,7 @@ Boolean CIMObjectPath::identical(const CIMObjectPath& x) const
 
 Uint32 CIMObjectPath::makeHashCode() const
 {
-    return HashFunc<String>::hash(toStringCanonical());
+    return HashFunc<String>::hash(_toStringCanonical());
 }
 
 Boolean operator==(const CIMObjectPath& x, const CIMObjectPath& y)

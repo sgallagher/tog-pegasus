@@ -480,12 +480,6 @@ public:
     */
     String toString(Boolean includeHost=true) const;
 
-    /** Stringizes object into canonical form (in which all keys are sorted
-        into ascending order and classnames and keynames are shifted to
-        lower case.
-    */
-    String toStringCanonical(Boolean includeHost=true) const;
-
     /** Returns true if this reference is identical to the one given
         by the x argument. Since CIMObjectPaths are normalized when they
         are created, any differences in the ordering of keybindings is accounted
@@ -522,6 +516,12 @@ private:
         const String& objectName,
         char*& p,
         Array<KeyBinding>& keyBindings);
+
+    /** Stringizes object into canonical form (in which all keys are sorted
+        into ascending order and classnames and keynames are shifted to
+        lower case.
+    */
+    String _toStringCanonical(Boolean includeHost=true) const;
 
     CIMObjectPathRep* _rep;
 };

@@ -60,7 +60,7 @@ void test01()
     if (verbose)
     {
         XmlWriter::printValueReferenceElement(r);
-        cout << r.toStringCanonical() << endl;
+        cout << r.toString() << endl;
     }
 
     Array<Sint8> mofOut;

@@ -100,6 +100,9 @@ repository implementation.
       "Indications to be delivered via HTTP, using a cimXML "
       "representation."), Handler ("CIMxmlIndicationHandler") ]
 
+23. (Sushma Fernandes - HP) 27 Sep 2001 - Added tracing code in
+    ProviderTable.cpp and SystemUnix.cpp to indicate progress of loading
+    a provider library.
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

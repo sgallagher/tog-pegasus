@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Ben Heilbronn (ben_heilbronn@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -30,6 +30,7 @@
 // #include <dlfcn.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/Tracer.h>
 #include "ProviderTable.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -52,6 +53,10 @@ typedef CIMProvider* (*CreateProviderFunc)();
 
 CIMProvider* ProviderTable::loadProvider(const String& providerId)
 {
+    const char METHOD_NAME[] = "ProviderTable::loadProvider()";
+
+    PEG_FUNC_ENTER(TRC_PROV_MANAGER, METHOD_NAME);
+
     // Load the dynamic library:
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -108,6 +113,7 @@ CIMProvider* ProviderTable::loadProvider(const String& providerId)
 	_providers.append(entry);
     }
 
+    PEG_FUNC_EXIT(TRC_PROV_MANAGER, METHOD_NAME);
     return provider;
 }
 

@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Ben Heilbronn (ben_heilbronn@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,6 +41,7 @@
 #include <sys/types.h>
 #include <cstdio>
 #include <time.h>
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -147,6 +148,10 @@ Boolean System::renameFile(const char* oldPath, const char* newPath)
 
 DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
 {
+    const char METHOD_NAME[] = "System::loadDynamicLibrary()";
+
+    PEG_FUNC_ENTER(TRC_OS_ABSTRACTION, METHOD_NAME);
+
 #if defined(PEGASUS_OS_HPUX)
     char* p = strcpy(new char[strlen(fileName) + 4], fileName);
     char* dot = strrchr(p, '.');
@@ -157,21 +162,30 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
     *dot = '\0';
     strcat(p, ".sl");
 
+    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2, 
+		  "Attempting to load library %s", p);
     void* handle = shl_load(p, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
+    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2, 
+		  "After loading lib %s, error code is %d", p, errno);
     delete [] p;
 
+    PEG_FUNC_EXIT(TRC_OS_ABSTRACTION, METHOD_NAME);
     return DynamicLibraryHandle(handle);
 #else
 
 # ifdef PEGASUS_OS_TRU64
+    PEG_FUNC_EXIT(TRC_OS_ABSTRACTION, METHOD_NAME);
     return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW));
 # elif defined(PEGASUS_OS_ZOS)
+    PEG_FUNC_EXIT(TRC_OS_ABSTRACTION, METHOD_NAME);
     return DynamicLibraryHandle(dllload(fileName));
 # else
+    PEG_FUNC_EXIT(TRC_OS_ABSTRACTION, METHOD_NAME);
     return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW | RTLD_GLOBAL));
 # endif
 
 #endif
+
 }
 
 void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)

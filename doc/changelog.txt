@@ -29,6 +29,9 @@ to work indepently of the repository. (grb)
 7. Extend testclient (clients/testclient) tests and functions. ks 19 June 2001
 8. CV added const to CIMOperations modifyInstance, createInstance, modifyClass,
 createClass to protect caller's object.
+9. CV added CIMQueryProvider and CIMAssociationProvider to the Provider2 directory. These
+interfaces allow very smart providers to perform advances operations. CIMProviderStub has
+been updated to support the new interfaces. Needs testing.
 ---------------------------------------------------------------
 Version 0.97.3 - Released 5 June 2001
 

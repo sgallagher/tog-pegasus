@@ -92,9 +92,11 @@ class PEGASUS_SERVER_LINKAGE HTTPAuthenticatorDelegator : public MessageQueueSer
 	 Uint32 queueId,
 	 const String& authResponse);
 
-      void _sendError(
-	 Uint32 queueId,
-	 const String errorMessage);
+      void _sendHttpError(
+         Uint32 queueId,
+         const String& status,
+         const String& cimError = String::EMPTY,
+         const String& pegasusError = String::EMPTY);
 
       Uint32 _operationMessageQueueId;
 

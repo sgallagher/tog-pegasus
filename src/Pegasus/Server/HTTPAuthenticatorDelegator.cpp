@@ -145,22 +145,24 @@ void HTTPAuthenticatorDelegator::_sendChallenge(
 }
 
 
-void HTTPAuthenticatorDelegator::_sendError(
+void HTTPAuthenticatorDelegator::_sendHttpError(
     Uint32 queueId,
-    const String errorMessage)
+    const String& status,
+    const String& cimError,
+    const String& pegasusError)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
-        "HTTPAuthenticatorDelegator::_sendError");
+        "HTTPAuthenticatorDelegator::_sendHttpError");
 
     //
     // build error response message
     //
 
     Array<Sint8> message;
-    //
-    //ATTN: Need an ErrorResponseHeader() in XmlWriter
-    //
-    //message = XmlWriter::formatErrorResponseHeader(errorMessage);
+    message = XmlWriter::formatHttpErrorRspMessage(
+        status,
+        cimError,
+        pegasusError);
 
     _sendResponse(queueId, message);
 
@@ -277,10 +279,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     if (methodName != "M-POST" && methodName != "POST")
     {
         // Only POST and M-POST are implemented by this server
-        Array<Sint8> message;
-        message = XmlWriter::formatHttpErrorRspMessage(
-            HTTP_STATUS_NOTIMPLEMENTED);
-        _sendResponse(queueId, message);
+        _sendHttpError(queueId,
+                       HTTP_STATUS_NOTIMPLEMENTED);
     }
     else if ((httpMethod == HTTP_METHOD_M_POST) &&
              (httpVersion == "HTTP/1.0"))
@@ -288,10 +288,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         //
         //  M-POST method is not valid with version 1.0
         //
-        Array<Sint8> message;
-        message = XmlWriter::formatHttpErrorRspMessage(
-            HTTP_STATUS_BADREQUEST);
-        _sendResponse(queueId, message);
+        _sendHttpError(queueId,
+                       HTTP_STATUS_BADREQUEST);
     }
     else
     {
@@ -338,7 +336,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     }
                     else
                     {
-                        _sendError(queueId, "Invalid Request");
+                        _sendHttpError(queueId,
+                                       HTTP_STATUS_BADREQUEST,
+                                       String::EMPTY,
+                                       "Authorization header error");
                     }
 
                     PEG_METHOD_EXIT();
@@ -347,10 +348,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             }
             catch (CannotOpenFile &cof)
             {
-                Array<Sint8> errMsg; 
-                errMsg = XmlWriter::formatHttpErrorRspMessage(
-                   HTTP_STATUS_INTERNALSERVERERROR);
-                _sendResponse(queueId, errMsg);
+                _sendHttpError(queueId,
+                               HTTP_STATUS_INTERNALSERVERERROR);
                 PEG_METHOD_EXIT();
                 return;
                 
@@ -402,7 +401,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     }
                     else
                     {
-                        _sendError(queueId, "Invalid Request");
+                        _sendHttpError(queueId,
+                                       HTTP_STATUS_BADREQUEST,
+                                       String::EMPTY,
+                                       "Authorization header error");
                     }
 
                     PEG_METHOD_EXIT();
@@ -437,7 +439,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     }
                     else
                     {
-                        _sendError(queueId, "Invalid Request");
+                        _sendHttpError(queueId,
+                                       HTTP_STATUS_BADREQUEST,
+                                       String::EMPTY,
+                                       "Authorization header error");
                     }
 
                     PEG_METHOD_EXIT();
@@ -616,9 +621,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 		   catch(exception & e)
 		     {
 		       delete httpMessage;
-		       Array<Sint8> message;
-		       message = XmlWriter::formatHttpErrorRspMessage(HTTP_STATUS_REQUEST_TOO_LARGE);
-		       _sendResponse(queueId, message);
+                       _sendHttpError(queueId,
+                                      HTTP_STATUS_REQUEST_TOO_LARGE);
 		       PEG_METHOD_EXIT();
 		       deleteMessage = false;
 		       return;
@@ -669,10 +673,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 // without the CIMError header since this request must not be
                 // processed as a CIM request.
 
-                Array<Sint8> message;
-                message = XmlWriter::formatHttpErrorRspMessage(
-                    HTTP_STATUS_BADREQUEST);
-                _sendResponse(queueId, message);
+                _sendHttpError(queueId,
+                               HTTP_STATUS_BADREQUEST);
                 PEG_METHOD_EXIT();
                 return;
             } // bad request
@@ -693,7 +695,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             }
             else
             {
-                _sendError(queueId, "Invalid Request");
+                _sendHttpError(queueId,
+                               HTTP_STATUS_BADREQUEST,
+                               String::EMPTY,
+                               "Authorization header error");
             }
         }
     } // M-POST and POST processing

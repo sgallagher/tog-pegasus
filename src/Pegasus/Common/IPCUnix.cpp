@@ -24,6 +24,7 @@
 //
 // Modified By: Mike Day (mdday@us.ibm.com) -- added native implementation
 // of AtomicInt class, exceptions
+//         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -331,6 +332,7 @@ Condition::~Condition()
 //-----------------------------------------------------------------
 
 #if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+		&& !defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
 Semaphore::Semaphore(Uint32 initial) 
 {
    if(initial > SEM_VALUE_MAX)

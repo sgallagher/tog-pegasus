@@ -22,7 +22,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By
+//         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +33,8 @@
 #define PEGASUS_OS_TYPE_WINDOWS
 
 #define PEGASUS_IOS_BINARY ,std::ios::binary
+
+#define PEGASUS_OR_IOS_BINARY | std::ios::binary
 
 #define PEGASUS_EXPORT __declspec(dllexport)
 

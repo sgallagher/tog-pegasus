@@ -23,11 +23,12 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
+//         Brian Bobryk (Brian.Bobryk@compaq.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Platform_AIX_RS_IBMCXX_h
-#define Pegasus_Platform_AIX_RS_IBMCXX_h
+#ifndef Pegasus_Platform_TRU64_ALPHA_DECCXX_h
+#define Pegasus_Platform_TRU64_ALPHA_DECCXX_h
 
 #include <cstdlib>
 #include <Pegasus/Common/ConfigUnix.h>
@@ -42,7 +43,9 @@
 
 #define PEGASUS_SINT64 long long
 
-// #define PEGASUS_HAVE_NAMESPACES
+#define PEGASUS_HAVE_NAMESPACES
+
+#define PEGASUS_HAVE_NO_STD
 
 #define PEGASUS_HAVE_EXPLICIT
 
@@ -58,4 +61,6 @@
 
 #define PEGASUS_SUPPRESS_UNREACHABLE_STATEMENTS
 
-#endif /* Pegasus_Platform_AIX_RS_IBMCXX_h */
+#define PEGASUS_SUPPORTS_DYNLIB
+
+#endif /* Pegasus_Platform_TRU64_ALPHA_DECCXX_h */

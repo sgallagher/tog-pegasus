@@ -25,6 +25,7 @@
 //
 // Modified By: 
 //         Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//		   Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,6 +40,7 @@
 #define PEGASUS_EXPORT /* empty */
 #define PEGASUS_IMPORT /* empty */
 #define PEGASUS_IOS_BINARY /* empty */
+#define PEGASUS_OR_IOS_BINARY /* empty */
 #define PEGASUS_COMMON_LINKAGE /* empty */
 #define PEGASUS_REPOSITORY_LINKAGE /* empty */
 #define PEGASUS_PROTOCOL_LINKAGE /* empty */

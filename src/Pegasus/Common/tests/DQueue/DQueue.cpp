@@ -22,6 +22,7 @@
 // Author: Mike Day (mdday@us.ibm.com)
 //
 // Modified By:
+//         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -84,7 +85,7 @@ typedef struct
 
 AtomicInt replies;
 AtomicInt requests;
-Mutex msg_mutex;
+Pegasus::Mutex msg_mutex;
 
 const Uint32 NUMBER_MSGS = 100000; 
 const int NUMBER_CLIENTS = 20;

@@ -48,6 +48,9 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 
+#define PEGASUS_SINT64_MIN (PEGASUS_SINT64_LITERAL(0x8000000000000000))
+#define PEGASUS_UINT64_MAX PEGASUS_UINT64_LITERAL(0xFFFFFFFFFFFFFFFF)
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 FILE *CQL_in;
@@ -56,6 +59,39 @@ int CQL_parse();
 PEGASUS_NAMESPACE_BEGIN
 CQLParserState* globalParserState = 0;
 PEGASUS_NAMESPACE_END
+
+void hackInstances(Array<CIMInstance>& instances)
+{
+  for (Uint32 i=0; i < instances.size(); i++)
+  {
+    CIMInstance inst = instances[i];
+    // Only hack it if it is an instance of CQL_TestPropertyTypes
+    if (inst.getClassName() ==  "CQL_TestPropertyTypes")
+    {
+      // The properties which the mof compiler messes up will be removed and added manually.
+      // Start with Instance #1
+      Uint64 instID;
+      inst.getProperty(inst.findProperty("InstanceID")).getValue().get(instID);
+      if (instID == 1)
+      {
+        // PropertyReal32 = -32.0
+        inst.removeProperty(inst.findProperty("PropertyReal32"));
+        Real32 real32Val = -32.0;        
+        inst.addProperty(CIMProperty("PropertyReal32", CIMValue(real32Val)));
+      }
+      // Then do Instance #2
+      else if (instID == 2)
+      {
+       // PropertySint64 = -9223372036854775808
+        inst.removeProperty(inst.findProperty("PropertySint64"));
+      //  Sint64 sint64Val = -9223372036854775808;
+        Sint64 sint64Val = PEGASUS_SINT64_MIN;      
+        inst.addProperty(CIMProperty("PropertySint64", CIMValue(sint64Val)));
+      }
+    }
+  }
+}
+
 
 void printProperty(CIMProperty& prop, Uint32 propNum, String& prefix)
 {
@@ -358,12 +394,15 @@ Boolean _evaluate(Array<CQLSelectStatement>& _statements,
                   Array<CIMInstance>& _instances,
                   String testOption)
 {
+  // Not liking how the mof compiler is working with CQL_TestPropertyTypes, so I am going to hack the instances so that they have the values I need for the function tests.
+  hackInstances(_instances);
+  
   if(testOption == String::EMPTY || testOption == "1")
   {       
       cout << "=========Evaluate Query==============" << endl;                             
     for(Uint32 i = 0; i < _statements.size(); i++)
     {
-      cout << "======================================" << i << endl;
+      cout << "=========     " << i << "     =========" << endl;
       cout << "-----Query: " << _statements[i].toString() << endl << endl;;
 
       for(Uint32 j = 0; j < _instances.size(); j++)
@@ -372,11 +411,10 @@ Boolean _evaluate(Array<CQLSelectStatement>& _statements,
         {
           cout << "-----Instance: " << _instances[j].getPath().toString() << endl;
           Boolean result = _statements[i].evaluate(_instances[j]);
-          cout << "Inst # " << j << ": " <<  _statements[i].toString() << " = ";
           if(result) printf("TRUE\n");
           else printf("FALSE\n");
         }
-        catch(Exception e){ cout << _statements[i].toString() << " = ERROR!" << endl << e.getMessage() << endl << endl;}
+        catch(Exception e){ cout << "ERROR!" << endl << e.getMessage() << endl << endl;}
         catch(...){ cout << "Unknown Exception" << endl;}
       }
     }
@@ -626,6 +664,60 @@ void buildEmbeddedObjects(CIMNamespaceName& ns,
   instances.append(embSub);
 }
 
+
+Boolean populateInstances(Array<CIMInstance>& _instances, String& className, CIMNamespaceName& _ns, CIMRepository* _rep)
+{
+  String embSubName("CQL_EmbeddedSubClass");
+  String embBaseName("CQL_EmbeddedBase");
+  
+  if(className != String::EMPTY && className != embSubName && className != embBaseName)
+  {
+    // If the classname was specified, and was not an embedded object class, then
+    // load its instances from the repository.
+    try
+    {
+      const CIMName _testclass(className);
+      _instances = _rep->enumerateInstances( _ns, _testclass, true );  // deep inh true
+    }
+    catch(Exception& e){
+      cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;
+      return false;
+    }
+  }
+  else
+  { 
+    // load all the non-embedded instances we support
+    cout << endl << "Using default class names to test queries. " << endl << endl;
+    const CIMName _testclass1(String("CQL_TestElement"));
+    const CIMName _testclass2(String("CIM_ComputerSystem"));
+    try
+    {
+      // Deep inh = true for CQL_TestElement to also get CQL_TestPropertyTypes
+      // and CQL_TestPropertyTypesMissing
+      _instances = _rep->enumerateInstances( _ns, _testclass1, true ); // deep inh true
+
+      // Deep inh = false to only get the CIM_ComputerSystem
+      _instances.appendArray(_rep->enumerateInstances( _ns, _testclass2, false )); // deep inh false
+    }
+    catch(Exception& e)
+    {
+      cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;
+      return false;
+    }
+
+    if (className == embSubName || className == embBaseName)
+    {
+      // If the embedded object classname was specified, then build its instances.
+      // Note: this will remove the other instances from the array.
+      buildEmbeddedObjects(_ns,
+                           _instances,
+                           _rep);
+    }
+  }
+  return true;
+}
+
+
 void help(const char* command){
 	cout << command << " queryFile [option]" << endl;
 	cout << " options:" << endl;
@@ -641,171 +733,129 @@ void help(const char* command){
 
 int main(int argc, char ** argv)
 {
-	// process options
+  // process options
   if(argc == 1 || (argc > 1 && strcmp(argv[1],"-h") == 0) ){
     help(argv[0]);
     exit(0);
   }
 
-	String testOption;
-   String className = String::EMPTY;
-	String nameSpace;
+  String testOption;
+  String className = String::EMPTY;
+  String nameSpace;
 
-	for(int i = 0; i < argc; i++){
-		if((strcmp(argv[i],"-test") == 0) && (i+1 < argc))
-                        testOption = argv[i+1];
-		if((strcmp(argv[i],"-className") == 0) && (i+1 < argc))
-                	className = argv[i+1];
-		if((strcmp(argv[i],"-nameSpace") == 0) && (i+1 < argc))
-                        nameSpace = argv[i+1];
-	}
+  for(int i = 0; i < argc; i++){
+    if((strcmp(argv[i],"-test") == 0) && (i+1 < argc))
+      testOption = argv[i+1];
+    if((strcmp(argv[i],"-className") == 0) && (i+1 < argc))
+      className = argv[i+1];
+    if((strcmp(argv[i],"-nameSpace") == 0) && (i+1 < argc))
+      nameSpace = argv[i+1];
+  }
 
-	Array<CQLSelectStatement> _statements;
-
-	// setup test environment
-	const char* env = getenv("PEGASUS_HOME");
-        String repositoryDir(env);
-        repositoryDir.append("/repository");
-
-	CIMNamespaceName _ns;
-	if(nameSpace != String::EMPTY){
-		_ns = nameSpace;
-	}else{
-		cout << "Using root/SampleProvider as default namespace." << endl;
-      _ns = String("root/SampleProvider");
-	}
-
-   CIMRepository* _rep = new CIMRepository(repositoryDir);
-   RepositoryQueryContext _ctx(_ns, _rep);
-	String lang("CIM:CQL");
-   String query("dummy statement");
-	CQLSelectStatement _ss(lang,query,_ctx);
-   if (_ss.getQuery() != query || _ss.getQueryLanguage() != lang)
-   {
-     cout << "ERROR: unable to get query or query language from select statement" << endl;
-     return 1;
-   }
-
-	char text[1024];
-	char* _text;
-
-	// setup Test Instances
-   String embSubName("CQL_EmbeddedSubClass");
-   String embBaseName("CQL_EmbeddedBase");
-	Array<CIMInstance> _instances;
-	if(className != String::EMPTY && className != embSubName && className != embBaseName)
-   {
-      // If the classname was specified, and was not an embedded object class, then
-      // load its instances from the repository.
-		try
-      {
-        const CIMName _testclass(className);
-        _instances = _rep->enumerateInstances( _ns, _testclass, true );  // deep inh true
-                }
-                catch(Exception& e){
-                  cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;
-                  return 1;
-		}
-	}
-   else
-   { 
-      // load all the non-embedded instances we support
-		cout << endl << "Using default class names to test queries. " << endl << endl;
-		const CIMName _testclass1(String("CQL_TestElement"));
-		const CIMName _testclass2(String("CIM_ComputerSystem"));
-		try
-      {
-        // Deep inh = true for CQL_TestElement to also get CQL_TestPropertyTypes
-        // and CQL_TestPropertyTypesMissing
-        _instances = _rep->enumerateInstances( _ns, _testclass1, true ); // deep inh true
-
-        // Deep inh = false to only get the CIM_ComputerSystem
-        _instances.appendArray(_rep->enumerateInstances( _ns, _testclass2, false )); // deep inh false
-		}
-      catch(Exception& e)
-      {
-        cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;
-        return 1;
-      }
-      
-      if (className == embSubName || className == embBaseName)
-      {
-        // If the embedded object classname was specified, then build its instances.
-        // Note: this will remove the other instances from the array.
-        buildEmbeddedObjects(_ns,
-                             _instances,
-                             _rep);
-      }
-	}
+  Array<CQLSelectStatement> _statements;
   
-	// demo setup
-	if(argc == 3 && strcmp(argv[2],"Demo") == 0){
-		cout << "Running Demo..." << endl;
-		_instances.clear();
-		const CIMName _testclassDEMO(String("CIM_Process"));
-		_instances.appendArray(_rep->enumerateInstances( _ns, _testclassDEMO ));
-		_instances.remove(6,6);
-	}
+  // setup test environment
+  const char* env = getenv("PEGASUS_HOME");
+  String repositoryDir(env);
+  repositoryDir.append("/repository");
 
-	for(Uint32 i = 0; i < _instances.size(); i++){
-	   CIMObjectPath op = _instances[i].getPath();
-           op.setHost("somesystem.somecountry.somecompany.com");
-           _instances[i].setPath(op);
-	}	
-	// setup input stream
-	if(argc >= 2){
-		ifstream queryInputSource(argv[1]);
-		if(!queryInputSource){
-			cout << "Cannot open input file.\n" << endl;
-			return 1;
-                }
-                int statementsInError = 0;
-                  while(!queryInputSource.eof()){
-                    queryInputSource.getline(text, 1024);
-                    char* _ptr = text;
-                    _text = strcat(_ptr,"\n");	
-                    // check for comments and ignore
-                    // a comment starts with a # as the first non whitespace character on the line
-                    char _comment = '#';
-                    int i = 0;
-                    while(text[i] == ' ' || text[i] == '\t') i++; // ignore whitespace
-                    if(text[i] != _comment)
-                      if(!(strlen(_text) < 2)){
-                        try {
-                        CQLParser::parse(text,_ss);
-                        _statements.append(_ss);
-                        } // end-try
-                        catch(Exception& e){
-                          cout << "Caught Exception: " << e.getMessage()  << endl;
-                          cout << "Statement with error = " << text << endl;
-                          _ss.clear();
-                          statementsInError++;
-                        } // end-catch
-                      } // end-if
-                  } // end-while
-                  queryInputSource.close();
-                  if (statementsInError)
-                  {
-                    cout << "There were " << statementsInError << " statements that did NOT parse.  Aborting." << endl;
-                   // return 1;
-                  }
-		try{
-			_applyProjection(_statements,_instances, testOption);
-			_validateProperties(_statements,_instances, testOption);
-			_getPropertyList(_statements,_instances, _ns, testOption);
-			_evaluate(_statements,_instances, testOption);
-			_normalize(_statements,_instances, testOption);
-		}
-		catch(Exception e){ 
-			cout << e.getMessage() << endl; 
-		}
-		catch(...){
-			cout << "CAUGHT ... BADNESS HAPPENED!!!" << endl;
-		}
-	}else{
-		cout << "Invalid number of arguments.\n" << endl;
-	}
+  CIMNamespaceName _ns;
+  if(nameSpace != String::EMPTY){
+    _ns = nameSpace;
+  }else{
+    cout << "Using root/SampleProvider as default namespace." << endl;
+    _ns = String("root/SampleProvider");
+  }
 
-    	return 0;                                                                                                              
+  CIMRepository* _rep = new CIMRepository(repositoryDir);
+  RepositoryQueryContext _ctx(_ns, _rep);
+  String lang("CIM:CQL");
+  String query("dummy statement");
+  CQLSelectStatement _ss(lang,query,_ctx);
+  if (_ss.getQuery() != query || _ss.getQueryLanguage() != lang)
+  {
+    cout << "ERROR: unable to get query or query language from select statement" << endl;
+    return 1;
+  }
+
+
+  char text[1024];
+  char* _text;
+
+  // setup Test Instances
+  Array<CIMInstance> _instances;
+
+  if (!populateInstances(_instances, className, _ns, _rep))
+    return 1;
+
+  // demo setup
+  if(argc == 3 && strcmp(argv[2],"Demo") == 0){
+    cout << "Running Demo..." << endl;
+    _instances.clear();
+    const CIMName _testclassDEMO(String("CIM_Process"));
+    _instances.appendArray(_rep->enumerateInstances( _ns, _testclassDEMO ));
+    _instances.remove(6,6);
+  }
+
+  for(Uint32 i = 0; i < _instances.size(); i++){
+    CIMObjectPath op = _instances[i].getPath();
+    op.setHost("somesystem.somecountry.somecompany.com");
+    _instances[i].setPath(op);
+  }	
+  // setup input stream
+  if(argc >= 2){
+    ifstream queryInputSource(argv[1]);
+    if(!queryInputSource){
+      cout << "Cannot open input file.\n" << endl;
+      return 1;
+    }
+    int statementsInError = 0;
+    while(!queryInputSource.eof()){
+      queryInputSource.getline(text, 1024);
+      char* _ptr = text;
+      _text = strcat(_ptr,"\n");	
+      // check for comments and ignore
+      // a comment starts with a # as the first non whitespace character on the line
+      char _comment = '#';
+      int i = 0;
+      while(text[i] == ' ' || text[i] == '\t') i++; // ignore whitespace
+      if(text[i] != _comment)
+        if(!(strlen(_text) < 2)){
+          try {
+            CQLParser::parse(text,_ss);
+            _statements.append(_ss);
+          } // end-try
+          catch(Exception& e){
+            cout << "Caught Exception: " << e.getMessage()  << endl;
+            cout << "Statement with error = " << text << endl;
+            _ss.clear();
+            statementsInError++;
+          } // end-catch
+        } // end-if
+    } // end-while
+    queryInputSource.close();
+    if (statementsInError)
+    {
+      cout << "There were " << statementsInError << " statements that did NOT parse." << endl;
+      // return 1;
+    }
+    try{
+      _applyProjection(_statements,_instances, testOption);
+      _validateProperties(_statements,_instances, testOption);
+      _getPropertyList(_statements,_instances, _ns, testOption);
+      _evaluate(_statements,_instances, testOption);
+      _normalize(_statements,_instances, testOption);
+    }
+    catch(Exception e){ 
+      cout << e.getMessage() << endl; 
+    }
+    catch(...){
+      cout << "CAUGHT ... BADNESS HAPPENED!!!" << endl;
+    }
+  }else{
+    cout << "Invalid number of arguments.\n" << endl;
+  }
+
+  return 0;                                                                                                              
 }
 

@@ -61,7 +61,7 @@ public:
 
     virtual ~Exception();
 
-    const String& getMessage() const;
+    virtual const String& getMessage() const;
 
 protected:
 

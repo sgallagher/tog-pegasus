@@ -24,7 +24,10 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Rudy Schuet (rudy.schuet@compaq.com) 11/12/01
-//              added nsk platform support
+//					added nsk platform support
+//				Ramnath Ravindran (Ramnath.Ravindran@compaq.com) 03/21/2002
+//					replaced instances of "| ios::binary" with 
+//					PEGASUS_OR_IOS_BINARY
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -47,8 +50,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 Boolean System::copyFile(const char* fromPath, const char* toPath)
 {
-    ifstream is(fromPath, ios::binary);
-    ofstream os(toPath, ios::binary);
+    ifstream is(fromPath PEGASUS_IOS_BINARY);
+    ofstream os(toPath PEGASUS_IOS_BINARY);
 
     char c;
 

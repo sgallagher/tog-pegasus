@@ -57,68 +57,98 @@ PEGASUS_NAMESPACE_BEGIN
 CQLParserState* globalParserState = 0;
 PEGASUS_NAMESPACE_END
 
-Boolean _applyProjection(Array<CQLSelectStatement>& _statements, Array<CIMInstance>& _instances){
-	/*
-                        CIMInstance projInst = _instances[0].clone();
-                        _statements[i].applyProjection(projInst);
-                        for (Uint32 n = 0; n < projInst.getPropertyCount(); n++)
-                          {
-                            CIMProperty prop = projInst.getProperty(n);
-                            CIMValue val = prop.getValue();
-                            cout << "Prop #" << n << " name = " << prop.getName().getString();
-                            cout << " Value = " << val.toString() << endl;
-                          }
-        */
+Boolean _applyProjection(Array<CQLSelectStatement>& _statements, Array<CIMInstance>& _instances, String testOption){
+	if(testOption == String::EMPTY || testOption == "2"){
+		cout << "apply projection..." << endl;
+
+	}
 	return true;
 }
 
-Boolean _validateProperties(Array<CQLSelectStatement>& _statements, Array<CIMInstance>& _instances){
+Boolean _validateProperties(Array<CQLSelectStatement>& _statements, Array<CIMInstance>& _instances, String testOption){
+	if(testOption == String::EMPTY || testOption == "4"){
+		cout << "validate properties..." << endl;
+        }
+
         return true;                                                                                        
 }
 
-Boolean _getPropertyList(Array<CQLSelectStatement>& _statements, Array<CIMInstance>& _instances){
-        /*
-                        CIMObjectPath cname(String::EMPTY,
-                                            "root/cimv2",
-                                            "CIM_Indication");
-                        CIMPropertyList list = _statements[i].getPropertyList(cname);
-                        Array<CIMName> names = list.getPropertyNameArray();
-                        for (Uint32 n = 0; n < names.size(); n++)
-                          {
-                            cout << "Required: " << names[i].getString() << endl;
-                          }
-        */
+Boolean _getPropertyList(Array<CQLSelectStatement>& _statements, Array<CIMInstance>& _instances, String testOption){
+	if(testOption == String::EMPTY || testOption == "3"){
+		cout << "get property list..." << endl;
+        }
+	
 	return true;
 }
 
-Boolean _evaluate(Array<CQLSelectStatement>& _statements, Array<CIMInstance>& _instances){
-	for(Uint32 i = 0; i < _statements.size(); i++){
-        	printf("\n\nEvaluating query %d :  ",i+1);
-   		cout << _statements[i].toString() << endl << endl;;
-           	for(Uint32 j = 0; j < _instances.size(); j++){
-		  try
-		    {
-        		Boolean result = _statements[i].evaluate(_instances[j]);
-			cout << _statements[i].toString() << " = ";
-			if(result) printf("TRUE\n\n");
-                	else printf("FALSE\n\n");
-		    }
-		  catch(Exception e){ cout << e.getMessage() << endl;}
-		  catch(...){ cout << "Unknown Exception" << endl;}
-	   	}
-	}                                                                            
+Boolean _evaluate(Array<CQLSelectStatement>& _statements, Array<CIMInstance>& _instances, String testOption){
+	if(testOption == String::EMPTY || testOption == "1"){
+                                                                                                                                                             
+		for(Uint32 i = 0; i < _statements.size(); i++){
+        		printf("\n\nEvaluating query %d :  ",i+1);
+   			cout << _statements[i].toString() << endl << endl;;
+           		for(Uint32 j = 0; j < _instances.size(); j++){
+		  	  try
+		    	  {
+        			Boolean result = _statements[i].evaluate(_instances[j]);
+				cout << _statements[i].toString() << " = ";
+				if(result) printf("TRUE\n\n");
+                		else printf("FALSE\n\n");
+		    	  }
+		  	  catch(Exception e){ cout << e.getMessage() << endl;}
+		  	  catch(...){ cout << "Unknown Exception" << endl;}
+	   		}
+		}
+	}
+
 	return true;
+}
+
+void help(const char* command){
+	cout << command << " queryFile [option]" << endl;
+	cout << " options:" << endl;
+	cout << " -test: ";
+	cout << "1 = evaluate" << endl << "        2 = apply projection" << endl << "        3 = get property list" << endl;
+	cout << "        4 = validate properties" << endl;
+	cout << " -className class" << endl;
+	cout << " -nameSpace namespace (Example: root/SampleProvider)" << endl << endl;
 }
 
 int main(int argc, char ** argv)
 {
+	String testOption = String::EMPTY;
+        String className = String::EMPTY;
+	String nameSpace = String::EMPTY;
+
+	// process options
+	if(argc == 1 || (argc > 1 && strcmp(argv[1],"-h") == 0) ){
+               	help(argv[0]);
+               	exit(0);
+	}
+
+	for(int i = 0; i < argc; i++){
+		if((strcmp(argv[i],"-test") == 0) && (i+1 < argc))
+                        testOption = argv[i+1];
+		if((strcmp(argv[i],"-className") == 0) && (i+1 < argc))
+                	className = argv[i+1];
+		if((strcmp(argv[i],"-nameSpace") == 0) && (i+1 < argc))
+                        nameSpace = argv[i+1];
+	}
+
 	Array<CQLSelectStatement> _statements;
 
-	// init parser state
+	// setup test environment
 	const char* env = getenv("PEGASUS_HOME");
         String repositoryDir(env);
         repositoryDir.append("/repository");
-        CIMNamespaceName _ns("root/SampleProvider");
+
+	CIMNamespaceName _ns;
+	if(nameSpace != String::EMPTY){
+		_ns = nameSpace;
+	}else{
+		cout << "Using root/SampleProvider as default namespace." << endl;
+        	_ns = String("root/SampleProvider");
+	}
         CIMRepository* _rep = new CIMRepository(repositoryDir);
         RepositoryQueryContext _ctx(_ns, _rep);
 	String lang("CIM:CQL");
@@ -128,18 +158,38 @@ int main(int argc, char ** argv)
 	char* _text;
 
 	// setup Test Instances
-        const CIMName _testclass(String("CQL_TestPropertyTypes"));
-	const CIMName _testclass1(String("CIM_ComputerSystem"));
-        Array<CIMInstance> _instances = _rep->enumerateInstances( _ns, _testclass );
-	_instances.appendArray(_rep->enumerateInstances( _ns, _testclass1 ));
+	Array<CIMInstance> _instances;
+	if(className != String::EMPTY){
+		try{
+			const CIMName _testclass(className);
+			_instances = _rep->enumerateInstances( _ns, _testclass,false );
+		}catch(Exception& e){
+			cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;
+		}
+	}else{ // load default class names
+		cout << endl << "Using default class names to test queries. " << endl << endl;
+        	const CIMName _testclass(String("CQL_TestPropertyTypes"));
+		const CIMName _testclass1(String("CIM_ComputerSystem"));
+		try{
+        		_instances = _rep->enumerateInstances( _ns, _testclass );
+			_instances.appendArray(_rep->enumerateInstances( _ns, _testclass1 ));
+		}catch(Exception& e){
+			cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;			
+		}
+	}
 
 	// demo setup
-	if(argc == 3){
+	if(argc == 3 && strcmp(argv[2],"Demo") == 0){
+		cout << "Running Demo..." << endl;
 		_instances.clear();
 		const CIMName _testclassDEMO(String("CIM_Process"));
 		_instances.appendArray(_rep->enumerateInstances( _ns, _testclassDEMO ));
 		_instances.remove(6,6);
 	}
+	
+	cout << "testOption = " << testOption << endl;
+	cout << "className = " << className << endl;
+	cout << "nameSpace = " << nameSpace << endl;
 
 	// setup input stream
 	if(argc >= 2){
@@ -163,7 +213,7 @@ int main(int argc, char ** argv)
 						CQLParser::parse(text,_ss);
 						_statements.append(_ss);
 					}catch(Exception& e){
-						cout << endl << "Caught Exception: " << e.getMessage() << endl << endl;
+						cout << endl << endl << "Caught Exception: " << e.getMessage() << endl << endl;
 						_ss.clear();
 					}
 				}
@@ -171,10 +221,10 @@ int main(int argc, char ** argv)
 		}
 		queryInputSource.close();
 		try{
-			_applyProjection(_statements,_instances);
-			_validateProperties(_statements,_instances);
-			_getPropertyList(_statements,_instances);
-			_evaluate(_statements,_instances);
+			_applyProjection(_statements,_instances, testOption);
+			_validateProperties(_statements,_instances, testOption);
+			_getPropertyList(_statements,_instances, testOption);
+			_evaluate(_statements,_instances, testOption);
 		}
 		catch(Exception e){ 
 			cout << e.getMessage() << endl; 

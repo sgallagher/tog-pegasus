@@ -16,10 +16,9 @@ ifneq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
     LIBRARIES = pegcommon
 endif
 
-SOURCES = slp.cpp
-## TO build and test THE NEW SLP agent: comment out the previous line, 
-## uncomment the next line: 
-#SOURCES = peg_slp_agent.cpp slp.cpp
+
+
+SOURCES = peg_slp_agent.cpp 
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

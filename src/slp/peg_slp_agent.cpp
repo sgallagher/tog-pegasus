@@ -50,7 +50,7 @@ class sa_reg_params
       sa_reg_params(void);
       sa_reg_params(const sa_reg_params&);
       sa_reg_params& operator=(const sa_reg_params&);
-      
+       
 };
 
 

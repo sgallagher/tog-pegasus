@@ -85,7 +85,7 @@ int main(int argc, char ** argv)
         repositoryDir.append("/repository");
         CIMNamespaceName _ns("root/cimv2");
         CIMRepository* _rep = new CIMRepository(repositoryDir);
-        RepositoryQueryContext* _ctx = new RepositoryQueryContext(_ns, _rep);
+        RepositoryQueryContext _ctx(_ns, _rep);
 	String lang("CIM:CQL");
         String query("");
 	CQLSelectStatement _ss(lang,query,_ctx);

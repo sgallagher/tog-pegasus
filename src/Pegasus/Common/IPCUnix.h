@@ -83,7 +83,7 @@ typedef struct {
     pthread_t owner;
 } PEGASUS_MUTEX_HANDLE ;
 
-#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_GNU
+#ifdef PEGASUS_OS_SOLARIS
 typedef _cleanup_t PEGASUS_CLEANUP_HANDLE;
 #else
 typedef struct _pthread_cleanup_buffer  PEGASUS_CLEANUP_HANDLE;

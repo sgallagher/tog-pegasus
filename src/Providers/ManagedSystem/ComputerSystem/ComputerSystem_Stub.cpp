@@ -35,8 +35,7 @@
 #include "ComputerSystem.h"
 
 PEGASUS_USING_STD;
-
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 ComputerSystem::ComputerSystem()
 {
@@ -215,6 +214,3 @@ String ComputerSystem::getHostName(void)
 {
   return String::EMPTY;
 }
-
-PEGASUS_NAMESPACE_END
-

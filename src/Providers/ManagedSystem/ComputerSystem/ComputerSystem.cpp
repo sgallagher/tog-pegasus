@@ -27,6 +27,7 @@
 //              added nsk platform support
 //
 //%/////////////////////////////////////////////////////////////////////////////
+
 #include "ComputerSystem.h"
 
 #if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)

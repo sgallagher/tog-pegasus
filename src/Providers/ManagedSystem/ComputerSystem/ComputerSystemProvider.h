@@ -33,19 +33,26 @@
 
 #define PROVIDER_NAME "ComputerSystemProvider"
 
+#include "ComputerSystem.h"
+
+#include <Pegasus/Provider/CIMInstanceProvider.h>
+
 // Class Names
-#define CLASS_CIM_COMPUTER_SYSTEM "CIM_ComputerSystem"
-#define CLASS_CIM_UNITARY_COMPUTER_SYSTEM "CIM_UnitaryComputerSystem"
+
+#define CLASS_CIM_COMPUTER_SYSTEM            "CIM_ComputerSystem"
+#define CLASS_CIM_UNITARY_COMPUTER_SYSTEM    "CIM_UnitaryComputerSystem"
+#define CLASS_EXTENDED_COMPUTER_SYSTEM       "PG_ComputerSystem"
 
 // Property Names
+
 // CIM_ManagedElement
 #define PROPERTY_CAPTION                     "Caption"
 #define PROPERTY_DESCRIPTION                 "Description"
 
 // CIM_ManagedSystemElement
-#define PROPERTY_INSTALL_DATE                 "InstallDate"
+#define PROPERTY_INSTALL_DATE                "InstallDate"
 // Name is overridden in CIM_ComputerSystem
-// #define PROPERTY_NAME                        "Name"
+// #define PROPERTY_NAME                     "Name"
 #define PROPERTY_STATUS                      "Status"
 
 // CIM_LogicalElement
@@ -55,13 +62,13 @@
 #define PROPERTY_CREATION_CLASS_NAME         "CreationClassName"
 #define PROPERTY_NAME                        "Name"
 // NameFormat is overridden in CIM_ComputerSystem
-// #define PROPERTY_NAME_FORMAT                "NameFormat"
+// #define PROPERTY_NAME_FORMAT              "NameFormat"
 #define PROPERTY_PRIMARY_OWNER_NAME          "PrimaryOwnerName"
 #define PROPERTY_PRIMARY_OWNER_CONTACT       "PrimaryOwnerContact"
 #define PROPERTY_ROLES                       "Roles"
 
 // CIM_ComputerSystem
-#define PROPERTY_NAME_FORMAT                  "NameFormat"
+#define PROPERTY_NAME_FORMAT                 "NameFormat"
 #define PROPERTY_OTHER_IDENTIFYING_INFO      "OtherIdentifyingInfo"
 #define PROPERTY_IDENTIFYING_DESCRIPTIONS    "IdentifyingDescriptions"
 #define PROPERTY_DEDICATED                   "Dedicated"
@@ -77,22 +84,17 @@
 #define PROPERTY_POWER_STATE                 "PowerState"
 #define PROPERTY_WAKE_UP_TYPE                "WakeUpType"
 
-#define CLASS_EXTENDED_COMPUTER_SYSTEM "PG_ComputerSystem"
-
-// Property Names
+// PG_ComputerSystem
 #define PROPERTY_IDENTIFICATION_NUMBER       "IdentificationNumber"
 #define PROPERTY_PRIMARY_OWNER_PAGER         "PrimaryOwnerPager"
 #define PROPERTY_SECONDARY_OWNER_CONTACT     "SecondaryOwnerContact"
-#define PROPERTY_SECONDARY_OWNER_NAME        "secondaryOwnerName"
+#define PROPERTY_SECONDARY_OWNER_NAME        "SecondaryOwnerName"
 #define PROPERTY_SECONDARY_OWNER_PAGER       "SecondaryOwnerPager"
 #define PROPERTY_SERIAL_NUMBER               "SerialNumber"
 
-#include "ComputerSystem.h"
 
-#include <iostream>
-#include <Pegasus/Provider/CIMInstanceProvider.h>
-
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
 
 class ComputerSystemProvider: public CIMInstanceProvider
 {
@@ -148,6 +150,5 @@ class ComputerSystemProvider: public CIMInstanceProvider
       void _checkClass(String& className);
 };
 
-PEGASUS_NAMESPACE_END
 
 #endif

@@ -1,6 +1,3 @@
-#ifndef _COMPUTERSYSTEM_H
-#define _COMPUTERSYSTEM_H
-
 //%////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2002 BMC Software, Hewlett-Packard Company, IBM,
@@ -31,6 +28,9 @@
 //
 //%/////////////////////////////////////////////////////////////////////////
 
+#ifndef _COMPUTERSYSTEM_H
+#define _COMPUTERSYSTEM_H
+
 #define CAPTION "Computer System"
 #define DESCRIPTION "This is the CIM_ComputerSystem object"
 #define NAME_FORMAT "IP"
@@ -38,7 +38,8 @@
 
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
 
 class ComputerSystem
 {
@@ -88,6 +89,5 @@ class ComputerSystem
 
 };
 
-PEGASUS_NAMESPACE_END
 
 #endif

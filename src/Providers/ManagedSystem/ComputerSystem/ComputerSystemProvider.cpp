@@ -54,12 +54,22 @@
 //  enumerateInstances()
 //  getInstance()
 
+// ==========================================================================
+// includes
+// ==========================================================================
+
 #include "ComputerSystemProvider.h"
 #include "ComputerSystem.h"
 
-PEGASUS_USING_STD;
+// ==========================================================================
+// defines
+// ==========================================================================
 
-PEGASUS_NAMESPACE_BEGIN
+#define NUMKEYS_COMPUTER_SYSTEM              2
+
+
+PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
 
 ComputerSystemProvider::ComputerSystemProvider(void)
 {
@@ -82,26 +92,28 @@ void ComputerSystemProvider::getInstance(
     Array<KeyBinding> keys = ref.getKeyBindings();
 
     //-- make sure we're the right instance
-    unsigned int keyCount = 2;
+    unsigned int keyCount = NUMKEYS_COMPUTER_SYSTEM;
     String keyName;
     String keyValue;
 
     if (keys.size() != keyCount)
-        throw CIMException(CIM_ERR_INVALID_PARAMETER);
+        throw InvalidParameter("Wrong number of keys");
 
     for (unsigned int ii = 0; ii < keys.size(); ii++)
     {
          keyName = keys[ii].getName();
          keyValue = keys[ii].getValue();
 
-         if ( keyName == "CreationClassName" &&
-              (keyValue == CLASS_CIM_COMPUTER_SYSTEM ||
-               keyValue == CLASS_CIM_UNITARY_COMPUTER_SYSTEM ||
-               keyValue == CLASS_EXTENDED_COMPUTER_SYSTEM) )
+         if ( String::equalNoCase(keyName,PROPERTY_CREATION_CLASS_NAME) &&
+              (String::equalNoCase(keyValue,CLASS_CIM_COMPUTER_SYSTEM) ||
+               String::equalNoCase(keyValue,CLASS_CIM_UNITARY_COMPUTER_SYSTEM) ||
+               String::equalNoCase(keyValue,CLASS_EXTENDED_COMPUTER_SYSTEM) ||
+               String::equalNoCase(keyValue,String::EMPTY)) )
          {
               keyCount--;
          }
-         else if ( keyName == "Name" && keyValue == _cs.getHostName() )
+         else if ( String::equalNoCase(keyName,"Name") &&
+                   String::equalNoCase(keyValue,_cs.getHostName()) )
          {
               keyCount--;
          }
@@ -109,7 +121,7 @@ void ComputerSystemProvider::getInstance(
 
      if (keyCount)
      {
-        throw CIMException(CIM_ERR_INVALID_PARAMETER);
+        throw InvalidParameter(String::EMPTY);
      }
 
     // return instance of specified class
@@ -133,10 +145,14 @@ void ComputerSystemProvider::enumerateInstances(
     _checkClass(className);
 
     handler.processing();
-    // unlike getInstance, enumeration returns instance from
-    // deepest class supported
-    CIMInstance instance = _buildInstance(CLASS_EXTENDED_COMPUTER_SYSTEM);
-    handler.deliver(instance);
+
+    // Deliver instance only if request was for leaf class
+    if (String::equalNoCase(className,CLASS_EXTENDED_COMPUTER_SYSTEM))
+    {
+      CIMInstance instance = _buildInstance(CLASS_EXTENDED_COMPUTER_SYSTEM);
+      handler.deliver(instance);
+    }
+
     handler.complete();
     return;
 }
@@ -148,22 +164,28 @@ void ComputerSystemProvider::enumerateInstanceNames(
 {
     String className = ref.getClassName();
     _checkClass(className);
-    KeyBindingArray keys;
-
-    keys.append(KeyBinding(PROPERTY_CREATION_CLASS_NAME,
-                           CLASS_EXTENDED_COMPUTER_SYSTEM,
-                           KeyBinding::STRING));
-    keys.append(KeyBinding(PROPERTY_NAME,
-                           _cs.getHostName(),
-                           KeyBinding::STRING));
 
     handler.processing();
-    handler.deliver(CIMReference(_cs.getHostName(),
-                                 ref.getNameSpace(),
-                                 CLASS_EXTENDED_COMPUTER_SYSTEM,
-                                 keys));
-    handler.complete();
 
+    // Deliver instance only if request was for leaf class
+    if (String::equalNoCase(className,CLASS_EXTENDED_COMPUTER_SYSTEM))
+    {
+      KeyBindingArray keys;
+
+      keys.append(KeyBinding(PROPERTY_CREATION_CLASS_NAME,
+                             CLASS_EXTENDED_COMPUTER_SYSTEM,
+                             KeyBinding::STRING));
+      keys.append(KeyBinding(PROPERTY_NAME,
+                             _cs.getHostName(),
+                             KeyBinding::STRING));
+
+      handler.deliver(CIMReference(_cs.getHostName(),
+                                   ref.getNameSpace(),
+                                   CLASS_EXTENDED_COMPUTER_SYSTEM,
+                                   keys));
+    }
+
+    handler.complete();
     return;
 }
 
@@ -176,7 +198,7 @@ ComputerSystemProvider::modifyInstance(
 			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler<CIMInstance>& handler )
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw NotSupported(String::EMPTY);
 }
 
 void 
@@ -186,7 +208,7 @@ ComputerSystemProvider::createInstance(
 			  	const CIMInstance& instanceObject,
 			  	ResponseHandler<CIMReference>& handler )
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw NotSupported(String::EMPTY);
 }
 
 void 
@@ -195,7 +217,7 @@ ComputerSystemProvider::deleteInstance(
 			  	const CIMReference& ref,
 			  	ResponseHandler<CIMInstance>& handler )
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw NotSupported(String::EMPTY);
 }
 
 void ComputerSystemProvider::initialize(CIMOMHandle& handle)
@@ -285,8 +307,6 @@ void ComputerSystemProvider::_checkClass(String& className)
         !String::equalNoCase(className, CLASS_CIM_UNITARY_COMPUTER_SYSTEM) &&
         !String::equalNoCase(className, CLASS_EXTENDED_COMPUTER_SYSTEM))
     {
-        throw CIMException(CIM_ERR_NOT_SUPPORTED);
+        throw NotSupported(String::EMPTY);
     }
 }
-PEGASUS_NAMESPACE_END
-

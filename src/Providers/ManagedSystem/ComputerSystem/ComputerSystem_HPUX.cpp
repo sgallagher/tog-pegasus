@@ -34,11 +34,11 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>     // gethostname()
-#include <sys/socket.h> // gethostbyname()
-#include <netinet/in.h> // "
-#include <netdb.h>      // "
-#include <time.h>
+#include <unistd.h>      // gethostname()
+#include <sys/socket.h>  // gethostbyname()
+#include <netinet/in.h>  // gethostbyname()
+#include <netdb.h>       // gethostbyname()
+#include <time.h>        // localtime()
 #include <sys/utsname.h> // uname()
 
 #include <Pegasus/Common/Exception.h>
@@ -50,8 +50,7 @@
 #define GEN_INFO_GROUP_ID 2
 
 PEGASUS_USING_STD;
-
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 static String _serialNumber;
 static String _hostName;
@@ -196,12 +195,10 @@ Boolean ComputerSystem::getInitialLoadInfo(CIMProperty& p)
   // perhaps this can change dynamically, so don't do it
   // in initialize()
   FILE *s = fopen("/stand/bootconf","r");
-  if (s == 0) throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                          "/stand/bootconf: can't open");
+  if (s == 0) throw OperationFailure("/stand/bootconf: can't open");
   char buf[100];
   if (fgets(buf,100,s) == 0)
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                "/stand/bootconf: can't read");
+    throw OperationFailure("/stand/bootconf: can't read");
   fclose(s);
   Array<String> res;
   res.append(String(buf));
@@ -328,12 +325,10 @@ void ComputerSystem::initialize(void)
 
   // get model using command
   FILE *s = popen("/usr/bin/model","r");
-  if (s == 0) throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                          "/usr/bin/model: command not found");
+  if (s == 0) throw OperationFailure("/usr/bin/model: command not found");
   char buf[100];
   if (fgets(buf,100,s) == 0)
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                "/usr/bin/model: no output");
+    throw OperationFailure("/usr/bin/model: no output");
   pclose(s);
   _model.append(String(buf));
 
@@ -358,8 +353,7 @@ void ComputerSystem::initialize(void)
   struct stat st;
   // get get modification time of file
   if (0 != stat("/stand/vmunix", &st))
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                "/stand/vmunix: can't access");
+    throw OperationFailure("/stand/vmunix: can't access");
   // convert to a usable format
   struct tm *t = localtime(&st.st_mtime);
   // convert to CIMDateTime format
@@ -474,6 +468,3 @@ String ComputerSystem::getHostName(void)
 {
   return _hostName;
 }
-
-PEGASUS_NAMESPACE_END
-

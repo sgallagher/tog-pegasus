@@ -21,23 +21,21 @@
 //
 //=============================================================================
 //
-// Author: Christopher Neufeld <neufeld@linuxcare.com>
-//         David Kennedy       <dkennedy@linuxcare.com>
-//
-// Modified By: David Kennedy       <dkennedy@linuxcare.com>
-//              Christopher Neufeld <neufeld@linuxcare.com>
-//              Al Stone            <ahs3@fc.hp.com>
-//              Mike Glantz         <michael_glantz@hp.com>
+// Author: Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
 //
 //%////////////////////////////////////////////////////////////////////////////
 
-#include "ComputerSystemProvider.h"
+#ifndef _TEST_COMPUTER_SYSTEM_PROVIDER_H
+#define _TEST_COMPUTER_SYSTEM_PROVIDER_H
+
+// ==========================================================================
+// Includes.
+// ==========================================================================
+
+#include "../ComputerSystem.h"
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-extern "C" 
-PEGASUS_EXPORT CIMBaseProvider* PegasusCreateProvider(const String& providerName)
-{
-  return new ComputerSystemProvider;
-}
+
+#endif

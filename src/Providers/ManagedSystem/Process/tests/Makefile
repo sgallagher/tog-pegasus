@@ -19,23 +19,48 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
+#//=============================================================================
+#//
+#// Author: Christopher Neufeld <neufeld@linuxcare.com>
+#//         David Kennedy       <dkennedy@linuxcare.com>
+#//
+#// Modified By: 
+#//         David Kennedy       <dkennedy@linuxcare.com>
+#//         Christopher Neufeld <neufeld@linuxcare.com>
+#//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
+#//
 #//%////////////////////////////////////////////////////////////////////////////
-#
-# Recurse the directories defined in DIRS
-#
 
-ROOT = ../../..
+ROOT = $(PEGASUS_ROOT)
+
+DIR = Providers/ManagedSystem/Process/tests
 
 include $(ROOT)/mak/config.mak
 
-DIRS =  \
-        OperatingSystem \
-        OperatingSystem/tests \
-        OperatingSystem/tests/OSTestClient \
-        ComputerSystem \
-        ComputerSystem/tests \
-        Process \
-        Process/tests
+PROGRAM = ProcessProviderTestClient
 
-include $(ROOT)/mak/recurse.mak
+POSTSTARTTESTS =
+ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+  POSTSTARTTESTS = $(PROGRAM)
+endif
 
+EXTRA_INCLUDES =
+
+SOURCES = \
+	../ProcessPlatform.cpp \
+	TestProcessProvider.cpp
+
+LIBRARIES = \
+	pegcommon \
+	pegclient
+
+include $(ROOT)/mak/program.mak
+
+general:
+
+tests:
+
+poststarttests:
+	$(POSTSTARTTESTS)
+
+depend:

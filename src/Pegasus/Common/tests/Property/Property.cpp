@@ -244,12 +244,14 @@ void test03()
 //Test reference type properties
 void test04()
 {
+    // Create reference type property from string input and reference class name
     String p =  "//localhost/root/SampleProvider:TST_PersonDynamic.Name=\"Father\"";
     CIMObjectPath path = p;
         
-    CIMProperty p1(CIMName ("message"), path, 0, CIMName("TST_Person"));
+    String referenceClassName = "TST_Person";
+    CIMProperty p1(CIMName ("message"), path, 0, CIMName(referenceClassName));
     assert(!p1.isArray());
-    assert(p1.getReferenceClassName() == CIMName("TST_Person"));
+    assert(p1.getReferenceClassName() == CIMName(referenceClassName));
     assert(p1.getType() == CIMTYPE_REFERENCE);
     
     CIMValue v1;
@@ -259,8 +261,31 @@ void test04()
     CIMObjectPath pathout;
     v1.get(pathout);
     assert( pathout == path );
+
+    if(verbose)
+        XmlWriter::printPropertyElement(p1, cout);
+
+    // Now create an empty property, one used in class declaration for a reference
+    CIMProperty p2(CIMName ("parent"), CIMObjectPath(), 0, CIMName(referenceClassName));
+    assert(!p2.isArray());
+    assert(p2.getReferenceClassName() == CIMName(referenceClassName));
+    assert(p2.getType() == CIMTYPE_REFERENCE);
+
+    CIMValue v2;
+    v2 = p2.getValue();
+    assert(v2.getType() ==  CIMTYPE_REFERENCE);
+    // ATTN: KS 27 Feb 2003. Why does the following test not work. I assume that the value should
+    // b e null in this case.
+    //assert(v2.isNull());
+    CIMObjectPath pathout2;
+    v1.get(pathout2);
+
     
+    if(verbose)
+        XmlWriter::printPropertyElement(p2, cout);
 }
+
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");

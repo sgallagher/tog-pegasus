@@ -196,11 +196,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void *
    
    while ( service->_die.value() == 0 ) 
    {
-      if(service->_incoming.count() > 0 )
-      {
 	 try 
 	 {
-	    operation = service->_incoming.remove_first();
+	    operation = service->_incoming.remove_first_wait();
 	 }
 	 catch(ListClosed & )
 	 {
@@ -212,36 +210,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void *
 	    operation->_service_ptr = service;
 	    service->_handle_incoming_operation(operation);
 	 }
-      }
-       if( service->_callback.count() > 0 )
-      {
-	 service->_callback.lock(); 
-	 operation = service->_callback.next(0);
-	 while( operation != NULL )
-	 {
-	    if( ASYNC_OPSTATE_COMPLETE & operation->read_state())
-	    {
-	       operation = service->_callback.remove_no_lock(operation);
-	       service->_callback.unlock();
-	       PEGASUS_ASSERT(operation != NULL);
-	       operation->_thread_ptr = myself;
-	       operation->_service_ptr = service;
-	       service->_handle_async_callback(operation);
-	       service->_callback.lock();
-	       operation = service->_callback.next(operation);
-	       continue;
-	    }
-	    pegasus_yield();
-	    operation = service->_callback.next(operation);
-	 }
-	 service->_callback.unlock();
-      }
-      if( (service->_incoming.count() == 0) && (service->_callback.count() == 0 ) )
-	 myself->sleep(1);
-      else 
-	 myself->thread_switch();
    }
-      
+
    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
    return(0);
 }
@@ -916,6 +886,8 @@ Boolean MessageQueueService::register_service(String name,
 						    capabilities, 
 						    mask,
 						    _queueId);
+   msg->dest = CIMOM_Q_ID;
+   
    Boolean registered = false;
    AsyncReply *reply = static_cast<AsyncReply *>(SendWait( msg ));
    
@@ -994,6 +966,8 @@ void MessageQueueService::find_services(String name,
 			   name, 
 			   capabilities, 
 			   mask);
+   
+   req->dest = CIMOM_Q_ID;
    
    AsyncMessage *reply = SendWait(req); 
    if(reply)

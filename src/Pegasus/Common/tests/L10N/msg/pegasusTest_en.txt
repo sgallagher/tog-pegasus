@@ -1,2 +1,2 @@
-pegasusTest_en:table{
+en:table{
 }

@@ -15,4 +15,6 @@ Fixing diff file error
 
 Checking Head still works
 
+CHecking debugging removed OK
+
 

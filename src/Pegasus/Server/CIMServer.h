@@ -50,6 +50,7 @@ class CIMOperationRequestAuthorizer;
 class CIMExportRequestDispatcher;
 class CIMExportResponseEncoder;
 class CIMExportRequestDecoder;
+class ProviderRegistrationManager;
 class HTTPAcceptor;
 
 class IndicationHandlerService;
@@ -114,6 +115,8 @@ public:
 
     CIMOperationRequestDispatcher* getDispatcher();
 
+    ProviderRegistrationManager* getProviderRegistrationManager();
+
 private:
 
     Boolean _dieNow;
@@ -129,6 +132,8 @@ private:
     CIMExportRequestDispatcher* _cimExportRequestDispatcher;
     CIMExportResponseEncoder* _cimExportResponseEncoder;
     CIMExportRequestDecoder* _cimExportRequestDecoder;
+
+    ProviderRegistrationManager* _providerRegistrationManager;
 
     HTTPAcceptor*   _acceptor;
     CIMServerState* _serverState;

@@ -53,6 +53,7 @@
 #include <Pegasus/HandlerService/IndicationHandlerService.h>
 #include <Pegasus/IndicationService/IndicationService.h>
 #include <Pegasus/ProviderManager/ProviderManagerService.h>
+#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include "CIMServer.h"
 #include "CIMOperationRequestDispatcher.h"
 #include "CIMOperationResponseEncoder.h"
@@ -172,6 +173,8 @@ CIMServer::CIMServer(
         _cimOperationRequestDecoder->getQueueId(),
         _cimExportRequestDecoder->getQueueId());
 
+    _providerRegistrationManager = new ProviderRegistrationManager(repository);
+
     UserManager* userManager = UserManager::getInstance(repository);
 
     // Create SSL context
@@ -271,6 +274,15 @@ CIMOperationRequestDispatcher* CIMServer::getDispatcher()
     PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
 
     return _cimOperationRequestDispatcher;
+}
+
+ProviderRegistrationManager* CIMServer::getProviderRegistrationManager()
+{
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::getProviderRegistrationManager()");
+
+    PEG_METHOD_EXIT();
+
+    return _providerRegistrationManager;
 }
 
 void CIMServer::setState(Uint32 state)

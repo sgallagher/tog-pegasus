@@ -1,5 +1,5 @@
-# Testcases for applyProjection (no embedded objects)
-
+# Testcases for applyProjection
+# TODO - add embedded object testcases
 #
 # Single property - error cases
 SELECT #'OK' FROM CQL_TestPropertyTypes
@@ -19,7 +19,7 @@ SELECT PropertyString FROM CQL_TestElement
 # Single property - instance is not related to FROM class
 SELECT PropertyString FROM CQL_ComputerSystem
 #
-# Single property list
+# Single property list, all value types 
 SELECT PropertyString FROM CQL_TestPropertyTypes
 SELECT PropertyStringUint FROM CQL_TestPropertyTypes
 SELECT PropertyStringSint FROM CQL_TestPropertyTypes
@@ -47,9 +47,18 @@ SELECT PropertySint16Array FROM CQL_TestPropertyTypes
 SELECT PropertySint32 FROM CQL_TestPropertyTypes
 SELECT PropertySint32Array[1] FROM CQL_TestPropertyTypes
 SELECT PropertySint32Array FROM CQL_TestPropertyTypes
+SELECT PropertySint64 FROM CQL_TestPropertyTypes
+SELECT PropertySint64Array[1] FROM CQL_TestPropertyTypes
+SELECT PropertySint64Array FROM CQL_TestPropertyTypes
 SELECT PropertyBoolean FROM CQL_TestPropertyTypes
 SELECT PropertyBooleanArray[1] FROM CQL_TestPropertyTypes
 SELECT PropertyBooleanArray FROM CQL_TestPropertyTypes
+SELECT PropertyReal32 FROM CQL_TestPropertyTypes
+SELECT PropertyReal32Array[1] FROM CQL_TestPropertyTypes
+SELECT PropertyReal32Array FROM CQL_TestPropertyTypes
+SELECT PropertyReal64 FROM CQL_TestPropertyTypes
+SELECT PropertyReal64Array[1] FROM CQL_TestPropertyTypes
+SELECT PropertyReal64Array FROM CQL_TestPropertyTypes
 SELECT PropertyDatetime FROM CQL_TestPropertyTypes
 SELECT PropertyDatetimeArray[1] FROM CQL_TestPropertyTypes
 SELECT PropertyDatetimeArray FROM CQL_TestPropertyTypes
@@ -59,18 +68,18 @@ SELECT PropertyChar16Array FROM CQL_TestPropertyTypes
 SELECT PropertyValueMap FROM CQL_TestPropertyTypes
 #
 # Multiple property list
-SELECT PropertyStringArray, PropertyDatetime, PropertySint8, PropertyUint32, PropertyChar16Array FROM CQL_TestPropertyTypes
+SELECT PropertyReal32Array, PropertyDatetime, PropertySint8, PropertyReal32, PropertyChar16Array FROM CQL_TestPropertyTypes
 #
-# Multiple property list, with errors
-SELECT PropertyStringArray, PropertyDatetime, PropertySint8, PropertyUint32, PropertyChar16Array[1] FROM CQL_TestPropertyTypes
-SELECT PropertyStringArray, PropertyDatetime, PropertyNonExistent, PropertyUint32, PropertyChar16Array FROM CQL_TestPropertyTypes
-SELECT PropertyStringArray, PropertyDatetime, PropertySint8, PropertyUint32, PropertyChar16Array FROM CIM_ANonExistentClass
+# Multiple property list, with errors   
+SELECT PropertyReal32Array, PropertyDatetime, PropertySint8, PropertyReal32, PropertyChar16Array[1] FROM CQL_TestPropertyTypes
+SELECT PropertyReal32Array, PropertyDatetime, PropertyNonExistent, PropertyReal32, PropertyChar16Array FROM CQL_TestPropertyTypes
+SELECT PropertyReal32Array, PropertyDatetime, PropertySint8, PropertyReal32, PropertyChar16Array FROM CIM_ANonExistentClass
 #
 # Multiple property - instance is subclass of FROM class
-SELECT PropertyStringArray, PropertyDatetime, PropertySint8, PropertyUint32, PropertyChar16Array FROM CQL_TestElement
+SELECT PropertyReal32Array, PropertyDatetime, PropertySint8, PropertyReal32, PropertyChar16Array FROM CQL_TestElement
 #
 # Multiple property - instance is not related to FROM class
-SELECT PropertyStringArray, PropertyDatetime, PropertySint8, PropertyUint32, PropertyChar16Array FROM CQL_ComputerSystem
+SELECT PropertyReal32Array, PropertyDatetime, PropertySint8, PropertyReal32, PropertyChar16Array FROM CQL_ComputerSystem
 #
 # FROM class context tests
 SELECT CQL_TestPropertyTypes.PropertyBooleanArray FROM CQL_TestPropertyTypes
@@ -83,7 +92,7 @@ SELECT CQL_TestPropertyTypes.PropertyBooleanArray FROM CQL_OperatingSystem
 #
 # Wildcard tests - FROM class is a subclass CQL_TestElement
 SELECT * FROM CQL_TestPropertyTypes
-SELECT CQL_TestPropertyTypes.* FROM CQL_TestPropertyTypes
+SELECT CQL_TestPropertyTypes.* FROM CQL_TestPropertyTypes 
 SELECT Alias.* FROM CQL_TestPropertyTypes alias
 SELECT PropertyString, * FROM CQL_TestPropertyTypes
 #
@@ -112,9 +121,3 @@ SELECT Alias.alias::PropertyString FROM CQL_TestPropertyTypes alias
 SELECT CQL_TestPropertyTypes::PropertyString FROM CQL_TestElement
 SELECT CQL_TestElement.CQL_TestPropertyTypes::PropertyString FROM CQL_TestElement
 SELECT Alias.CQL_TestPropertyTypes::PropertyString FROM CQL_TestElement AS alias
-
-# Combined scoping and wildcard tests - scoping class is subclass of FROM
-SELECT CQL_TestPropertyTypes::PropertyString, * FROM CQL_TestElement
-
-# Combined scoping and wildcard tests - scoping class is superclass of FROM
-SELECT CQL_TestElement::InstanceID, * FROM CQL_TestPropertyTypes

@@ -74,6 +74,12 @@ class PEGASUS_SERVER_LINKAGE HTTPAuthenticatorDelegator : public MessageQueueSer
 	 Uint32 queueId, 
 	 Array<Sint8>& message); 
 
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+      void _sendSuccess( 
+	 Uint32 queueId, 
+	 const String& authResponse);
+#endif 
+
       void _sendChallenge(
 	 Uint32 queueId,
 	 const String& authResponse);

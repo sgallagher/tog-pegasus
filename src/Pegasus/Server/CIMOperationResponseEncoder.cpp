@@ -94,6 +94,10 @@ void CIMOperationResponseEncoder::sendResponse(
 		  queue,
 		  httpMessage->message.getData());
 
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+      httpMessage->authInfo = (AuthenticationInfo *)99;
+#endif
+
       queue->enqueue(httpMessage);
 
 #ifdef PEGASUS_CCOVER

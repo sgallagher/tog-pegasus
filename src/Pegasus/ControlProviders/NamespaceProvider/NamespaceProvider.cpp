@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -23,7 +23,7 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By: 
+// Modified By:
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -76,24 +76,24 @@ PEGASUS_NAMESPACE_BEGIN
  * Version 1.0
  *
  * 2.5. Namespace Manipulation
- * There are no intrinsic methods defined specifically for the 
- * purpose of manipulating CIM Namespaces. However, the modelling 
- * of a CIM Namespace using the class __Namespace, together with 
- * the requirement that the root Namespace MUST be supported by 
- * all CIM Servers, implies that all Namespace operations can be 
+ * There are no intrinsic methods defined specifically for the
+ * purpose of manipulating CIM Namespaces. However, the modelling
+ * of a CIM Namespace using the class __Namespace, together with
+ * the requirement that the root Namespace MUST be supported by
+ * all CIM Servers, implies that all Namespace operations can be
  * supported.
  *
  * For example:
  *
- * Enumeration of all child Namespaces of a particular Namespace 
- * is realized by calling the intrinsic method 
- * EnumerateInstanceNames against the parent Namespace, 
- * specifying a value for the ClassName parameter of __Namespace. 
+ * Enumeration of all child Namespaces of a particular Namespace
+ * is realized by calling the intrinsic method
+ * EnumerateInstanceNames against the parent Namespace,
+ * specifying a value for the ClassName parameter of __Namespace.
  *
- * Creation of a child Namespace is realized by calling the 
- * intrinsic method CreateInstance against the parent Namespace, 
- * specifying a value for the NewInstance parameter which defines 
- * a valid instance of the class __Namespace and whose Name 
+ * Creation of a child Namespace is realized by calling the
+ * intrinsic method CreateInstance against the parent Namespace,
+ * specifying a value for the NewInstance parameter which defines
+ * a valid instance of the class __Namespace and whose Name
  * property is the desired name of the new Namespace.
  *
 */
@@ -127,7 +127,7 @@ Boolean _isChild(
 
 {
    //
-   //  If length of namespace name is shorter than or equal to the 
+   //  If length of namespace name is shorter than or equal to the
    //  length of parent namespace name, cannot be a child
    //
    if (namespaceName.size () <= parentNamespaceName.size ())
@@ -153,7 +153,7 @@ void _getKeyValue (
 
 {
        //Validate key property
-       
+
        Uint32 pos;
        CIMValue propertyValue;
 
@@ -171,7 +171,7 @@ void _getKeyValue (
        propertyValue = namespaceInstance.getProperty(pos).getValue();
        if (propertyValue.getType() != CIMType::STRING)
        {
-           throw InvalidParameter("Invalid type for property: " 
+           throw InvalidParameter("Invalid type for property: "
                                  + String(NAMESPACE_PROPERTYNAME));
        }
 
@@ -189,7 +189,7 @@ void _getKeyValue (
 {
 
        Array<KeyBinding> kbArray = instanceName.getKeyBindings();
-       if ((kbArray.size() == 1) && 
+       if ((kbArray.size() == 1) &&
                 (kbArray[0].getName() == NAMESPACE_PROPERTYNAME))
        {
            childNamespaceName = kbArray[0].getValue();
@@ -209,14 +209,14 @@ void _generateFullNamespaceName(
 	String& fullNamespaceName)
 
 {
-       // If isRelativeName is true, then the parentNamespace 
+       // If isRelativeName is true, then the parentNamespace
        // MUST exist
        //
        if (isRelativeName)
        {
           if (!_isNamespace(namespaceNames, parentNamespaceName))
           {
-             throw ObjectNotFound("Parent namespace does not exist: " 
+             throw ObjectNotFound("Parent namespace does not exist: "
                                       + parentNamespaceName);
           }
           // Create full namespace name by prepending parentNamespaceName
@@ -267,7 +267,7 @@ void NamespaceProvider::createInstance(
 
 	PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
 	       "childNamespaceName = " + childNamespaceName +
-	       ", isRelativeName = " + 
+	       ", isRelativeName = " +
 	       (isRelativeName?String("true"):String("false")) +
 	       ", parentNamespaceName = " + parentNamespaceName);
 
@@ -281,7 +281,7 @@ void NamespaceProvider::createInstance(
            Array<String> namespaceNames;
 	   namespaceNames = _repository->enumerateNameSpaces();
 
-           _generateFullNamespaceName(namespaceNames, parentNamespaceName, 
+           _generateFullNamespaceName(namespaceNames, parentNamespaceName,
 			             childNamespaceName, isRelativeName,
 				     newNamespaceName);
 
@@ -309,7 +309,7 @@ void NamespaceProvider::createInstance(
        // return key (i.e., CIMObjectPath) for newly created namespace
 
        Array<KeyBinding> keyBindings;
-       keyBindings.append(KeyBinding(NAMESPACE_PROPERTYNAME, 
+       keyBindings.append(KeyBinding(NAMESPACE_PROPERTYNAME,
 	         isRelativeName?childNamespaceName:parentNamespaceName,
                                      KeyBinding::STRING));
        CIMObjectPath newInstanceReference (String::EMPTY, parentNamespaceName,
@@ -326,7 +326,7 @@ void NamespaceProvider::createInstance(
 void NamespaceProvider::deleteInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceName,
-	ResponseHandler<CIMInstance> & handler)
+	ResponseHandler<void> & handler)
     {
         PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "NamespaceProvider::deleteInstance");
 
@@ -372,7 +372,7 @@ void NamespaceProvider::deleteInstance(
            Array<String> namespaceNames;
 	   namespaceNames = _repository->enumerateNameSpaces();
 
-           _generateFullNamespaceName(namespaceNames, parentNamespaceName, 
+           _generateFullNamespaceName(namespaceNames, parentNamespaceName,
 			             childNamespaceName, isRelativeName,
 				     deleteNamespaceName);
 
@@ -401,10 +401,10 @@ void NamespaceProvider::deleteInstance(
        }
 
        _repository->write_unlock();
-       
+
        // complete processing the request
        handler.complete();
- 
+
        PEG_METHOD_EXIT();
        return ;
     }
@@ -460,7 +460,7 @@ void NamespaceProvider::getInstance(
            Array<String> namespaceNames;
 	   namespaceNames = _repository->enumerateNameSpaces();
 
-           _generateFullNamespaceName(namespaceNames, parentNamespaceName, 
+           _generateFullNamespaceName(namespaceNames, parentNamespaceName,
 			             childNamespaceName, isRelativeName,
 				     getNamespaceName);
 
@@ -495,15 +495,15 @@ void NamespaceProvider::getInstance(
        //
        // construct the instance
        //
-       instance.addProperty(CIMProperty(NAMESPACE_PROPERTYNAME, 
+       instance.addProperty(CIMProperty(NAMESPACE_PROPERTYNAME,
 	   isRelativeName?childNamespaceName:parentNamespaceName));
        //instance.setPath(instanceName);
 
        handler.deliver(instance);
-       
+
        // complete processing the request
        handler.complete();
- 
+
        PEG_METHOD_EXIT();
        return ;
     }
@@ -585,7 +585,7 @@ void NamespaceProvider::enumerateInstances(
        }
 
        _repository->read_unlock();
-       
+
        handler.deliver(instanceArray);
 
        // complete processing the request
@@ -599,7 +599,7 @@ void NamespaceProvider::enumerateInstanceNames(
 	const CIMObjectPath & classReference,
         ResponseHandler<CIMObjectPath> & handler)
     {
-        
+
 	PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "NamespaceProvider::enumerateInstanceNames()");
 
@@ -648,7 +648,7 @@ void NamespaceProvider::enumerateInstanceNames(
 		          namespaceNames[i].subString(parentNamespaceName.size()+1,
 			     namespaceNames[i].size()-parentNamespaceName.size()-1),
                              KeyBinding::STRING));
-                  CIMObjectPath ref(String::EMPTY, parentNamespaceName, 
+                  CIMObjectPath ref(String::EMPTY, parentNamespaceName,
 				  NAMESPACE_CLASSNAME, keyBindings);
                   instanceRefs.append(ref);
                   PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,

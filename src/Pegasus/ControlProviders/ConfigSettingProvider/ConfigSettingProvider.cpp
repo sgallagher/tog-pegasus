@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -25,7 +25,7 @@
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Sushma Fernandes, Hewlett-Packard Company 
+//              Sushma Fernandes, Hewlett-Packard Company
 //                                (sushma_fernandes@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
@@ -168,12 +168,12 @@ void ConfigSettingProvider::modifyInstance(
         const CIMInstance& modifiedIns,
 	const Uint32 flags,
         const CIMPropertyList& propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	ResponseHandler<void> & handler)
     {
         PEG_METHOD_ENTER(TRC_CONFIG, "ConfigSettingProvider::modifyInstance()");
 
         //
-        // get userName 
+        // get userName
         //
         String userName;
         try
@@ -509,7 +509,7 @@ void ConfigSettingProvider::_verifyAuthorization(const String& userName)
         if ( System::isPrivilegedUser(userName) == false )
         {
             PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, 
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED,
                 "Must be a privileged user to do this CIM operation.");
         }
 

@@ -1838,8 +1838,9 @@ Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * me
         indProvRecord *provRec;
         if (provTab.lookup(providerName,provRec)) {
            provRec->enabled=true;
+		   ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
            provRec->handler=new EnableIndicationsResponseHandler(
-               request, response, request->provider, _indicationCallback);
+               request, response, req_provider, _indicationCallback); 
         }
 
         Boolean remote=false;

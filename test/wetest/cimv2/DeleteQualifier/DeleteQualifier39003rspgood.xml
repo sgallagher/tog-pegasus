@@ -3,7 +3,7 @@
 <MESSAGE ID="39003" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="DeleteQualifier">
-<ERROR CODE="6" DESCRIPTION="CIMRepository.cpp(1385): CIM_ERR_NOT_FOUND: The requested object could not be found: &quot;NonExistentQualifier&quot;"/>
+<ERROR CODE="6" DESCRIPTION="CIMRepository.cpp(1462): CIM_ERR_NOT_FOUND: The requested object could not be found: &quot;NonExistentQualifier&quot;"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

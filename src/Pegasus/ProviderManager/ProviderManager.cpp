@@ -135,6 +135,35 @@ void ProviderManager::unloadProvider(
     }
 }
 
+void ProviderManager::shutdownAllProviders()
+{
+    //
+    // terminate all providers
+    //
+    //for (Uint32 i = 0, n = _providers.size(); i < n; i++)
+    //for(Uint32 i = _providers.size(); i > 0;)
+
+    Uint32 numProviders = _providers.size();
+
+    while (numProviders > 0)
+    {
+	try
+	{
+	    _providers[0].terminateProvider();
+	    //_providers[0].terminate();
+
+	    _providers.remove(0);
+            numProviders--;
+	}
+	catch(...)
+	{
+            Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+                "Error occurred while terminating provider $0.", 
+                _providers[0].getName());
+	}
+    }
+}
+
 // ATTN: disabled temporarily
 /*
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::monitorThread(void * arg)

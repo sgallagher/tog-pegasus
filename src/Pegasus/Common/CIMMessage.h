@@ -1197,6 +1197,21 @@ public:
     String userName;
 };
 
+class CIMStopAllProvidersRequestMessage : public CIMRequestMessage
+{
+   public:
+    CIMStopAllProvidersRequestMessage(
+        const String& messageId_,
+        QueueIdStack queueIds_)
+        :
+        CIMRequestMessage(
+            CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE,
+            messageId_,
+            queueIds_)
+    {
+    }
+};
+
 class PEGASUS_COMMON_LINKAGE CIMGetClassResponseMessage
     : public CIMResponseMessage
 {
@@ -1737,6 +1752,22 @@ public:
     }
 
     Array<Uint16> operationalStatus;
+};
+
+class PEGASUS_COMMON_LINKAGE CIMStopAllProvidersResponseMessage
+   : public CIMResponseMessage
+{
+   public:
+
+      CIMStopAllProvidersResponseMessage(
+         const String& messageId_,
+         const CIMException& cimException_,
+         const QueueIdStack& queueIds_)
+         :
+         CIMResponseMessage(CIM_STOP_ALL_PROVIDERS_RESPONSE_MESSAGE,
+                            messageId_, cimException_, queueIds_)
+      {
+      }
 };
 
 PEGASUS_NAMESPACE_END

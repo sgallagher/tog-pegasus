@@ -74,7 +74,6 @@ class PEGASUS_COMMON_LINKAGE async_results
       static const Uint32 ASYNC_CHILD_STARTED;
       static const Uint32 CIM_PAUSED;
       static const Uint32 CIM_STOPPED;
-      
 };
 
 
@@ -91,6 +90,7 @@ class PEGASUS_COMMON_LINKAGE async_messages
       static const Uint32 CIMSERVICE_STOP;
       static const Uint32 CIMSERVICE_PAUSE;
       static const Uint32 CIMSERVICE_RESUME;
+      static const Uint32 PROVIDERS_STOP;
 
       static const Uint32 ASYNC_OP_START;
       static const Uint32 ASYNC_OP_RESULT;
@@ -415,6 +415,21 @@ class PEGASUS_COMMON_LINKAGE CimServiceResume : public AsyncRequest
       
       
       virtual ~CimServiceResume(void)
+      {
+
+      }
+};
+
+class PEGASUS_COMMON_LINKAGE CimProvidersStop : public AsyncRequest
+{
+   public:
+      CimProvidersStop(Uint32 routing, 
+		       AsyncOpNode *operation, 
+		       Uint32 destination, 
+		       Uint32 response, 
+		       Boolean blocking);
+            
+      virtual ~CimProvidersStop(void) 
       {
 
       }

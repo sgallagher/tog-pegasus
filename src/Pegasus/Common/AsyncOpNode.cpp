@@ -139,4 +139,8 @@ void AsyncOpNode::_reset(unlocked_dq<AsyncOpNode> *dst_q)
    return;
 }
 
+#define PEGASUS_ARRAY_T AsyncOpNode*
+# include "ArrayImpl.h"
+#undef PEGASUS_ARRAY_T
+
 PEGASUS_NAMESPACE_END

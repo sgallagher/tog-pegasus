@@ -79,4 +79,22 @@ void Provider::terminate(void)
     _module.unload();
 }
 
+void Provider::terminateProvider(void)
+{
+    // NOTE: yield before a potentially lengthy operation.
+    pegasus_yield();
+
+    ProviderFacade::terminate();
+
+    // NOTE: yield before a potentially lengthy operation.
+    pegasus_yield();
+
+    if(_provider != 0)
+    {
+        delete _provider;
+
+        _provider = 0;
+    }
+}
+
 PEGASUS_NAMESPACE_END

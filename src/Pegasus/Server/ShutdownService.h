@@ -34,10 +34,10 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/Server/CIMServer.h>
-//#include <Pegasus/ProviderManager/ProviderManagerService.h>
-//#include <Pegasus/ProviderManager/ProviderManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -76,16 +76,41 @@ PEGASUS_NAMESPACE_BEGIN
 // wait periodically until the requests are all processed or until the
 // timeout expires before shutting down CIMServer.
 //
-// If timeout expires and there are still requests outstanding, and the
-// force shutdown option was not specified, CIMServer will be set back to
-// its RUNNING state.
-//
 ///////////////////////////////////////////////////////////////////////////////
 */
 
 class PEGASUS_SERVER_LINKAGE ShutdownService
 {
 public:
+
+    class callback_data
+    {
+        public:
+            Message *reply;
+            Semaphore client_sem;
+            ShutdownService & cimom_handle;
+
+            callback_data(ShutdownService *handle)
+               : reply(0), client_sem(0), cimom_handle(*handle)
+            {
+            }
+            ~callback_data()
+            {
+               delete reply;
+            }
+
+            Message *get_reply(void)
+            {
+               Message *ret = reply;
+               reply = NULL;
+               return ret;
+            }
+
+        private:
+            callback_data(void);
+    };
+
+    static void async_callback(Uint32 user_data, Message *reply, void *parm);
 
     /**
     Construct the singleton instance of the ShutdownService and return a
@@ -98,16 +123,17 @@ public:
     */
     void shutdown(Boolean force, Uint32 timeout);
 
+protected:
+
+    static pegasus_internal_identity        _id;
+    static ModuleController *               _controller;
+    static ModuleController::client_handle *_client_handle;
+
 private:
 
-    static ShutdownService* _instance;
-
+    static ShutdownService*         _instance;
     static CIMServer*               _cimserver;
-    //static ProviderManagerService*  _providerManagerService;
-    //static ProviderManager*         _providerManager;
-
-    static Uint32     _operationTimeout;
-    static Uint32     _shutdownTimeout;
+    static Uint32                   _shutdownTimeout;
 
     //
     // This is meant to be a singleton, so the constructor and the
@@ -124,11 +150,15 @@ private:
 
     void _resumeCIMServer();
 
-    void _shutdownSubscriptionService();
+    void _shutdownCimomServices();
+
+    void _sendShutdownRequestToService(const char * serviceName);
 
     void _shutdownProviders();
 
     void _initTimeoutValues(Uint32 timeoutParmValue);
+
+    Boolean _waitUntilNoMoreRequests();
 
 };
 

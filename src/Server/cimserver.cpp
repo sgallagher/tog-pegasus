@@ -47,7 +47,7 @@
 //
 // To shutdown pegasus, use the -s option:
 // 
-// cimserver -s [-f] [-T timeout_value]
+// cimserver -s [-T timeout_value]
 //
 // To run pegasus as an NT service, there are FOUR  different possibilities:
 //
@@ -205,7 +205,7 @@ void PrintHelp(const char* arg0)
     usage.append ("    -t          - turns on trace of client IO to console\n");
     usage.append ("    -l          - turns on trace of client IO to trace file\n");
     usage.append ("    -d          - runs pegasus as a daemon\n");
-    usage.append ("    -s [-f] [-T timeout] \n");
+    usage.append ("    -s [-T timeout] \n");
     usage.append ("                - shuts down pegasus\n");
     usage.append ("    -cleanlogs  - clears the log files at startup\n");
     usage.append ("    -install    - installs pegasus as a Windows NT Service\n");
@@ -223,7 +223,7 @@ void PrintHelp(const char* arg0)
     cout << usage << endl;
 }
 
-void shutdownCIMOM(Boolean forceOption, Uint32 timeoutValue)
+void shutdownCIMOM(Uint32 timeoutValue)
 {
     //
     // Create CIMClient object
@@ -249,21 +249,29 @@ void shutdownCIMOM(Boolean forceOption, Uint32 timeoutValue)
     try
     {
         client.connectLocal();
+
+        //
+        // set client timeout to 10 seconds more than the shutdown timeout
+        // so that the command client does not timeout before the cimserver 
+        // terminates
+        //
+        client.setTimeOut( (timeoutValue + 10)*1000 );
     }
     catch(CIMClientException& e)
     {
         Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
             "Failed to connect to $0 $1.", PEGASUS_NAME, e.getMessage());
 
-        PEGASUS_STD(cerr) << "Failed to connect to server: ";
-        PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
+        PEGASUS_STD(cerr) << "Unable to connect to CIM Server." << PEGASUS_STD(endl);
+        PEGASUS_STD(cerr) << "CIM Server may not be running." << PEGASUS_STD(endl);
+        //PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
         exit(0);
     }
 
     try
     {
         //
-        // construct CIMObjectPath 
+        // construct CIMObjectPath
         //
         String referenceStr = "//";
         referenceStr.append(hostStr);
@@ -276,8 +284,9 @@ void shutdownCIMOM(Boolean forceOption, Uint32 timeoutValue)
         Array<CIMParamValue> inParams;
         Array<CIMParamValue> outParams;
 
+        // set force option to true for now
         inParams.append(CIMParamValue("force",
-            CIMValue(Boolean(forceOption))));
+            CIMValue(Boolean(true))));
 
         inParams.append(CIMParamValue("timeout",
             CIMValue(Uint32(timeoutValue))));
@@ -351,11 +360,9 @@ int main(int argc, char** argv)
     Boolean useSSL = false;
     Boolean daemonOption = false;
     Boolean shutdownOption = false;
-    Boolean forceOption = false;
     Boolean timeoutOption = false;
     String  timeoutStr  = String::EMPTY;
     long timeoutValue  = 0;
-
 
     //
     // Get environment variables:
@@ -439,6 +446,17 @@ int main(int argc, char** argv)
                 //
                 else if (*option == OPTION_SHUTDOWN)
                 {
+
+                    //
+                    // check to see if user is root
+                    //
+                    if (!System::isPrivilegedUser())
+                    {
+                        cout << "You must have superuser privilege to run ";
+                        cout << "cimserver." << endl;
+                        exit(0);
+                    }
+
                     //
                     // Check to see if shutdown has already been specified:
                     //
@@ -447,33 +465,8 @@ int main(int argc, char** argv)
                         cout << "Duplicate shutdown option specified." << endl;
                         exit(0);
                     }
+
                     shutdownOption = true;
- 
-                    // remove the option from the command line
-                    memmove(&argv[i], &argv[i + 1], (argc-i) * sizeof(char*));
-                    argc--;   
-                }
-                else if (*option == OPTION_FORCE)
-                {
-                    //
-                    // Check to see if shutdown has been specified:
-                    //
-                    if (!shutdownOption)
-                    {
-                        cout << "Invalid option -" << option << endl;
-                        exit(0);
-                    }
-
-                    //
-                    // Check to see if force has already been specified:
-                    //
-                    if (forceOption)
-                    {
-                        cout << "Duplicate force option specified." << endl;
-                        exit(0);
-                    }
-
-                    forceOption = true;
  
                     // remove the option from the command line
                     memmove(&argv[i], &argv[i + 1], (argc-i) * sizeof(char*));
@@ -643,7 +636,7 @@ int main(int argc, char** argv)
                 }
             }
 
-            shutdownCIMOM(forceOption, timeoutValue);
+            shutdownCIMOM(timeoutValue);
 
             cout << "Pegasus CIM Server terminated." << endl;
             exit(0);

@@ -37,16 +37,21 @@
 #include <Pegasus/Server/ShutdownExceptions.h>
 #include <Pegasus/Server/CIMServerState.h>
 #include <Pegasus/Server/ShutdownService.h>
-#include <Pegasus/Server/CIMOperationRequestDispatcher.h>
+#include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/Message.h>
+#include <Pegasus/Common/CimomMessage.h>
+#include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/MessageQueueService.h>
+#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Logger.h>
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    The constants representing the shutdown timeout property names
+    The constant representing the shutdown timeout property name
 */
-static String TIMEOUT_PROPERTY = "operationTimeout";
 static String SHUTDOWN_TIMEOUT_PROPERTY = "shutdownTimeout";
 
 /**
@@ -57,16 +62,30 @@ ShutdownService* ShutdownService::_instance = 0;
 /**
 Initialize all other class variables
 */
-CIMServer*              ShutdownService::_cimserver = 0;
-//ProviderManagerService* ShutdownService::_providerManagerService = 0;
-//ProviderManager*        ShutdownService::_providerManager = 0;
-Uint32                  ShutdownService::_operationTimeout = 0;
-Uint32                  ShutdownService::_shutdownTimeout = 0;
+CIMServer*                       ShutdownService::_cimserver = 0;
+Uint32                           ShutdownService::_shutdownTimeout = 0;
+pegasus_internal_identity        ShutdownService::_id = 0;
+ModuleController*                ShutdownService::_controller = 0;
+ModuleController::client_handle* ShutdownService::_client_handle = 0;
 
 /** Constructor. */
 ShutdownService::ShutdownService(CIMServer* cimserver)
 {
     _cimserver = cimserver;
+
+    //
+    // get client identify
+    //
+    _id = peg_credential_types::MODULE;
+
+    //
+    // get module controller
+    //
+    _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
+    if((_client_handle == NULL))
+    {
+        ThrowUninitializedHandle();
+    }
 }
 
 /** Destructor. */
@@ -98,76 +117,72 @@ void ShutdownService::shutdown(Boolean force, Uint32 timeout)
     Boolean timeoutExpired = false;
     Boolean noMoreRequests = false;
 
-    //
-    // get ProviderManagerService
-    //
-    //MessageQueue * providerManagerServiceQueue =
-    //    MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
-
-    //_providerManagerService =
-    //   dynamic_cast<ProviderManagerService *> (providerManagerServiceQueue);
-
-    //
-    // get an instance of the ProviderManager
-    //
-    //_providerManager = _providerManagerService->getProviderManager();
-
-    //
-    // set CIMServer state to TERMINATING
-    //
-    _cimserver->setState(CIMServerState::TERMINATING);
-
-    //
-    // Tell the CIMServer to stop accepting new client connection requests.
-    //
-    _cimserver->stopClientConnection();
-
-    //
-    // get shutdown timeout values
-    //
-    _initTimeoutValues(timeout);
-
-    //
-    // Determine if there are any outstanding CIM operation requests
-    // (take into account that one of the request is the shutdown request).
-    //
-    // Loop and wait one second until either there is no more requests
-    // or until timeout expires.
-    //
-    Uint32 maxWaitTime = _operationTimeout; // maximum wait time in milliseconds
-    Uint32 waitTime = 1000;                 // one second wait interval
-
-    Uint32 requestCount = _cimserver->getOutstandingRequestCount();
-
-    while ( requestCount > 1 && maxWaitTime > 0)
+    try
     {
-         System::sleep(waitTime);
-         requestCount = _cimserver->getOutstandingRequestCount();
-         maxWaitTime = maxWaitTime - waitTime;
-    }
+        //
+        // set CIMServer state to TERMINATING
+        //
+        _cimserver->setState(CIMServerState::TERMINATING);
 
-    if (requestCount == 1)
-    {
-        noMoreRequests = true;
-    }
+        //
+        // Tell the CIMServer to stop accepting new client connection requests.
+        //
+        _cimserver->stopClientConnection();
 
-    //
-    // If no more requests or force shutdown option is specified, proceed
-    // to shutdown the CIMServer
-    //
-    if ( noMoreRequests || force )
-    {
+        //
+        // get shutdown timeout values
+        //
+        _initTimeoutValues(timeout);
+
+        //
+        // Determine if there are any outstanding CIM operation requests
+        // (take into account that one of the request is the shutdown request).
+        //
+        Uint32 requestCount = _cimserver->getOutstandingRequestCount();
+
+        if (requestCount > 1)
+        {
+            noMoreRequests = _waitUntilNoMoreRequests();
+        }
+        else
+        {
+            noMoreRequests = true;
+        }
+
+        //
+        // proceed to shutdown the CIMServer
+        //
         _shutdownCIMServer();
     }
-    else
+    catch(CIMException & e)
     {
-        _resumeCIMServer();
+        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+            "Error occured during CIMServer shutdown: $0.", 
+            e.getMessage());
+    }
+    catch(Exception & e)
+    {
+        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+            "Error occured during CIMServer shutdown: $0.", 
+            e.getMessage());
     }
 
     //
     // All done
     //
     return;
+}
+
+/**********************************************************/
+/*  callback                                              */
+/**********************************************************/
+void ShutdownService::async_callback(Uint32 user_data,
+    Message *reply,
+    void *parm)
+{
+   callback_data *cb_data = reinterpret_cast<callback_data *>(parm);
+   cb_data->reply = reply;
+   cb_data->client_sem.signal();
 }
 
 /**********************************************************/
@@ -187,37 +202,25 @@ void ShutdownService::_initTimeoutValues(Uint32 timeout)
     //
     if (timeout > 0)
     {
-        _operationTimeout = timeout;
+        _shutdownTimeout = timeout;
     }
     else
     {
-        String configTimeout= configManager->getCurrentValue(TIMEOUT_PROPERTY);
+        String configTimeout = 
+            configManager->getCurrentValue(SHUTDOWN_TIMEOUT_PROPERTY);
         ArrayDestroyer<char> timeoutCString(configTimeout.allocateCString());
-        _operationTimeout = strtol(timeoutCString.getPointer(), (char **)0,10);
+        _shutdownTimeout = strtol(timeoutCString.getPointer(), (char **)0,10);
     }
-
-    //
-    // get shutdown timeout value from ConfigManager
-    //
-    String shutdownTimeout= configManager->getCurrentValue(SHUTDOWN_TIMEOUT_PROPERTY);
-    ArrayDestroyer<char> shutdownTimeoutCString(shutdownTimeout.allocateCString());
-    _shutdownTimeout = strtol(shutdownTimeoutCString.getPointer(), (char **)0, 10);
 
     return;
 }
 
 void ShutdownService::_shutdownCIMServer()
 {
-/*
     //
-    // Shutdown the Indication Subscription Service
+    // Shutdown the Cimom services
     //
-    _shutdownSubscriptionService();
-*/
-
-    // ATTN: Shutdown the Indication Handlers?
-
-    // ATTN: Shutdown the Indication Processing Service?
+    _shutdownCimomServices();
 
     //
     // Shutdown the providers
@@ -232,62 +235,285 @@ void ShutdownService::_shutdownCIMServer()
     return;
 }
 
-void ShutdownService::_resumeCIMServer()
+void ShutdownService::_shutdownCimomServices()
 {
     //
-    // resume CIMServer
+    // Shutdown the Indication Service
     //
-    try
-    {
-        //_cimserver->resume();
-    }
-    catch (Exception& e)
-    {
-        throw UnableToResumeServerException();
-    }
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_INDICATIONSERVICE);
+
+    // Shutdown the Indication Handler Service
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_INDHANDLERMANAGER);
 
     //
-    // reset CIMServer state to RUNNING
+    // shutdown  Authenticator Delegator Service
     //
-    //_cimserver->setState(CIMServerState::RUNNING);
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_HTTPAUTHDELEGATOR);
 
     //
-    // now inform the client that CIM server has resumed.
+    // shutdown  CIM Operation Request Authorizer Service
     //
-    throw ServerResumedException();
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_OPREQAUTHORIZER);
+
+    //
+    // shutdown  CIM Operation Request Decoder Service
+    //
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_OPREQDECODER);
+
+    //
+    // shutdown  CIM Operation Request Dispatcher Service
+    //
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_OPREQDISPATCHER);
+
+    //
+    // shutdown  CIM Export Request Decoder Service
+    //
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_EXPORTREQDECODER);
+
+    //
+    // shutdown  CIM Export Request Dispatcher Service
+    //
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER);
+
+    return;
 }
 
-void ShutdownService::_shutdownSubscriptionService()
+void ShutdownService::_sendShutdownRequestToService(const char * serviceName)
 {
-    String subscriptionProviderName = PEGASUS_CLASSNAME_INDSUBSCRIPTION;
+    MessageQueue* queue = 
+        MessageQueue::lookup(serviceName);
+
+    if (queue == 0)
+    {
+        // service not found, just return
+        return;
+    }
+
+    MessageQueueService * _service = dynamic_cast<MessageQueueService *>(queue);
+    Uint32 _queueId = _service->getQueueId();
+
+    // 
+    // create stop request
+    //
+    CimServiceStop *stopRequest = 
+        new CimServiceStop(
+                _service->get_next_xid(),    // routing
+                NULL,                        // operation
+                _queueId,                    // destination
+                _controller->getQueueId(),   // response
+                true);                       // blocking
+
+// ATTN-JY-P2-05162002: call ClientSendWait, until asyn_callback is fixed
 
     //
-    // find the Subscription Service provider and shut it down
+    // Now send Stop request to service
     //
-    //_providerManager->stopProvider(subscriptionProviderName);
+    AsyncMessage *reply  = _controller->ClientSendWait(*_client_handle,
+                                                        _queueId,
+                                                        stopRequest);
+
+    delete stopRequest;
+
+// ATTN-YZ-P2-05032002: Temporarily removed, until asyn_callback fixed
+/*
+    //
+    // create callback data structure
+    //
+    callback_data *cb_data = new callback_data(this);
+
+    //
+    // Now send Stop request to service
+    //
+    if (false  == _controller->ClientSendAsync(*_client_handle,
+                                               0,
+                                               _queueId,
+                                               stopRequest,
+                                               ShutdownService::async_callback,
+                                               (void *)cb_data) )
+    {
+        delete cb_data;
+        throw CIMException(CIM_ERR_NOT_FOUND);
+    }
+
+    cb_data->client_sem.wait();
+    AsyncReply * asyncReply = static_cast<AsyncReply *>(cb_data->get_reply()) ;
+ 
+    //
+    // check result
+    //
+    if (asyncReply != NULL)
+    {
+        if (asyncReply->result == async_results::CIM_STOPPED)
+        {
+            Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+                "Service $0 $1", serviceName, "stopped.");
+        }
+        else
+        {
+            Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+                "Failed to stop service $0.", serviceName);
+        }
+    }
+
+    delete stopRequest;
+    delete asyncReply;
+    delete cb_data;
+*/
 
     return;
 }
 
 void ShutdownService::_shutdownProviders()
 {
-    String shutdownProviderName = "ShutdownProvider";
+    //
+    // get provider manager service
+    //
+    MessageQueue * queue = 
+        MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
+
+    if (queue == 0)
+        return;
+
+    MessageQueueService * _service = dynamic_cast<MessageQueueService *>(queue);
+    Uint32 _queueId = _service->getQueueId();
+
+    // 
+    // create stop all providers request
+    //
+    CIMStopAllProvidersRequestMessage * stopRequest =
+            new CIMStopAllProvidersRequestMessage(
+                XmlWriter::getNextMessageId (),
+                QueueIdStack(_queueId));
 
     //
-    // Terminate all the providers (except the ShutdownProvider!)
+    // create async request message
     //
-    // ATTN:  Need to make use of the provider shutdown timeout
-    //        when asyn provider API is supported.
+    AsyncLegacyOperationStart * asyncRequest =
+        new AsyncLegacyOperationStart (
+            _service->get_next_xid(),
+            NULL,
+            _queueId,
+            stopRequest,
+            _queueId);
+
+// ATTN-JY-P2-05162002: call ClientSendWait, until asyn_callback is fixed
+
+    AsyncReply * asyncReply = _controller->ClientSendWait(*_client_handle,
+                                                          _queueId,
+                                                          asyncRequest);
+    CIMStopAllProvidersResponseMessage * response =
+       reinterpret_cast<CIMStopAllProvidersResponseMessage *>(
+         (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+
+    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
+    {
+        CIMException e = response->cimException;
+        delete stopRequest;
+        delete asyncRequest;
+        delete asyncReply;
+        delete response;
+        throw (e);
+    }
+
+    //delete stopRequest;
+    delete asyncRequest;
+    delete asyncReply;
+    delete response;
+
+// ATTN-JY-P2-05162002: Comment out, until asyn_callback is fixed
+/*
     //
+    // create callback data structure
+    //
+    callback_data *cb_data = new callback_data(this);
+
+    if (false  == _controller->ClientSendAsync(*_client_handle,
+                                               0,
+                                               _queueId,
+                                               asyncRequest,
+                                               ShutdownService::async_callback,
+                                               (void *)cb_data) )
+    {
+        delete stopRequest;
+        delete asyncRequest;
+        delete cb_data;
+        throw CIMException(CIM_ERR_NOT_FOUND);
+    }
+
+    cb_data->client_sem.wait();
+    AsyncReply * asyncReply = static_cast<AsyncReply *>(cb_data->get_reply()) ;
 
     //
-    // ATTN: providers are automatically unloaded when the
-    // provider manager service is shutdown
+    // check result
     //
-    //_providerManager->shutdownAllProviders(shutdownProviderName,
-    //                                       PEGASUS_CLASSNAME_SHUTDOWN);
+    if (asyncReply != NULL)
+    {
+        if (asyncReply->result == async_results::OK)
+        {
+            Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+                "Providers terminated successfully.");
+        }
+        else
+        {
+            Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+                "Error occured while terminating providers.");
+        }
+
+    }
+
+    //delete stopRequest;
+    delete asyncRequest;
+    delete asyncReply;
+    delete cb_data;
+*/
 
     return;
+}
+
+Boolean ShutdownService::_waitUntilNoMoreRequests()
+{
+    Uint32 maxWaitTime = _shutdownTimeout;  // maximum wait time in seconds
+    Uint32 waitInterval = 1;                // one second wait interval
+
+    Uint32 requestCount = _cimserver->getOutstandingRequestCount();
+
+    // create a mutex
+    Mutex _mutex = Mutex();
+
+    // create a condition 
+    Condition _cond = Condition(_mutex);
+
+    //
+    // Loop and wait one second until either there is no more requests
+    // or until timeout expires.
+    //
+    while ( requestCount > 1 && maxWaitTime > 0)
+    {
+         // lock the mutex
+         _mutex.lock(pegasus_thread_self());
+
+         try
+         {
+            _cond.unlocked_timed_wait(waitInterval*1000, pegasus_thread_self());
+         }
+         catch (TimeOut to)
+         {
+             requestCount = _cimserver->getOutstandingRequestCount();
+             maxWaitTime = maxWaitTime - waitInterval;
+         }
+         catch (...)
+         {
+             maxWaitTime = 0;
+         }
+
+         // unlock the mutex
+         _mutex.unlock();
+    } 
+
+    if (requestCount > 1)
+        return false;
+    else
+        return true;
 }
 
 PEGASUS_NAMESPACE_END

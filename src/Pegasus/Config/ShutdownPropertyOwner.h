@@ -191,7 +191,6 @@ private:
     /**
     The timeout property owned by this class
     */
-    struct ConfigProperty*      _operationTimeout;
     struct ConfigProperty*      _shutdownTimeout;
 };
 

@@ -111,8 +111,7 @@ CIMServer::CIMServer(
     // -- Save the monitor or create a new one:
 
     _monitor = monitor;
-//    _monitor->set_async(true);
-    
+
     repositoryRootPath =
 	    ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
 
@@ -364,17 +363,53 @@ void CIMServer::setState(Uint32 state)
 
     _serverState->setState(state);
 
+    //
+    // get the configured authentication and authorization flags
+    //
+    ConfigManager* configManager = ConfigManager::getInstance();
+
+    Boolean requireAuthentication = false;
+    Boolean requireAuthorization = false;
+
+    if (String::equal(
+        configManager->getCurrentValue("requireAuthentication"), "true"))
+    {
+        requireAuthentication = true;
+    }
+
+    if (String::equal(
+        configManager->getCurrentValue("requireAuthorization"), "true"))
+    {
+        requireAuthorization = true;
+    }
+
     if (state == CIMServerState::TERMINATING)
     {
         // tell decoder that CIMServer is terminating
         _cimOperationRequestDecoder->setServerTerminating(true);
         _cimExportRequestDecoder->setServerTerminating(true);
+
+        // tell authorizer that CIMServer is terminating ONLY if
+        // authentication and authorization are enabled
+        //
+        if ( requireAuthentication && requireAuthorization )
+        {
+            _cimOperationRequestAuthorizer->setServerTerminating(true);
+        }
     }
     else
     {
         // tell decoder that CIMServer is not terminating
         _cimOperationRequestDecoder->setServerTerminating(false);
         _cimExportRequestDecoder->setServerTerminating(false);
+
+        // tell authorizer that CIMServer is terminating ONLY if
+        // authentication and authorization are enabled
+        //
+        if ( requireAuthentication && requireAuthorization )
+        {
+            _cimOperationRequestAuthorizer->setServerTerminating(false);
+        }
     }
     PEG_METHOD_EXIT();
 }

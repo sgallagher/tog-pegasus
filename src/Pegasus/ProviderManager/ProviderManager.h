@@ -23,6 +23,7 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
+//              Jenny Yu, Hewlett-Packard Company(jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,6 +50,11 @@ public:
 
     void loadProvider(const String & fileName, const String & providerName);
     void unloadProvider(const String & fileName, const String & providerName);
+
+    void shutdownAllProviders();
+
+private:
+    Provider _loadProvider(const String & fileName, const String & providerName);
 
 protected:
     Mutex _mutex;

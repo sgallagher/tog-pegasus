@@ -46,13 +46,9 @@ PEGASUS_NAMESPACE_BEGIN
 ///////////////////////////////////////////////////////////////////////////////
 //  ShutdownPropertyOwner
 //
-//  The operationTimeout property is the timeout value in seconds that the
-//  cimom uses to wait for CIM operations to complete before shutting down
-//  the cimom.  The default is 2 seconds.
-//
 //  The shutdownTimeout property is the timeout value in seconds that the
-//  cimom uses to wait for the shutdown process to complete (this includes
-//  terminating active providers).  The default value is 5 seconds.
+//  cimom uses to wait for all the outstanding CIM operations to complete
+//  before shutting down the cimserver.  The default value is 60 seconds.
 //
 //  When a new timeout property is added, make sure to add the property name
 //  and the default attributes of that property in the table below.
@@ -61,26 +57,22 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"operationTimeout", "2", 0, 0, 0},
-    {"shutdownTimeout", "5", 0, 0, 0},
+    {"shutdownTimeout", "60", 0, 0, 0},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 
-static long MIN_OPERATION_TIMEOUT = 2;
-static long MIN_SHUTDOWN_TIMEOUT = 5;
+static long MIN_SHUTDOWN_TIMEOUT = 30;
 
 /** Constructor  */
 ShutdownPropertyOwner::ShutdownPropertyOwner()
 {
-    _operationTimeout = new ConfigProperty;
     _shutdownTimeout = new ConfigProperty;
 }
 
 /** Destructor  */
 ShutdownPropertyOwner::~ShutdownPropertyOwner()
 {
-    delete _operationTimeout;
     delete _shutdownTimeout;
 }
 
@@ -94,17 +86,7 @@ void ShutdownPropertyOwner::initialize()
         //
         // Initialize the properties with default values
         //
-        if (String::equalNoCase(properties[i].propertyName, "operationTimeout"))
-        {
-            _operationTimeout->propertyName = properties[i].propertyName;
-            _operationTimeout->defaultValue = properties[i].defaultValue;
-            _operationTimeout->currentValue = properties[i].defaultValue;
-            _operationTimeout->plannedValue = properties[i].defaultValue;
-            _operationTimeout->dynamic = properties[i].dynamic;
-            _operationTimeout->domain = properties[i].domain;
-            _operationTimeout->domainSize = properties[i].domainSize;
-        }
-        else if (String::equalNoCase(properties[i].propertyName, "shutdownTimeout"))
+        if (String::equalNoCase(properties[i].propertyName, "shutdownTimeout"))
         {
             _shutdownTimeout->propertyName = properties[i].propertyName;
             _shutdownTimeout->defaultValue = properties[i].defaultValue;
@@ -120,11 +102,7 @@ void ShutdownPropertyOwner::initialize()
 struct ConfigProperty* ShutdownPropertyOwner::_lookupConfigProperty(
     const String& name)
 {
-    if (String::equalNoCase(_operationTimeout->propertyName, name))
-    {
-        return _operationTimeout;
-    }
-    else if (String::equalNoCase(_shutdownTimeout->propertyName, name))
+    if (String::equalNoCase(_shutdownTimeout->propertyName, name))
     {
         return _shutdownTimeout;
     }
@@ -260,20 +238,7 @@ Boolean ShutdownPropertyOwner::isValid(const String& name, const String& value)
     long timeoutValue = strtol(tmp, (char **)0, 10);
     delete [] tmp;
 
-    if (String::equalNoCase(_operationTimeout->propertyName, name))
-    {
-        // Check if the timeout value is greater than the minimum allowed
-        //
-        if ( timeoutValue > MIN_OPERATION_TIMEOUT )
-        {
-            return true;
-        }
-        else
-        {
-            return false; 
-        }
-    }
-    else if (String::equalNoCase(_shutdownTimeout->propertyName, name))
+    if (String::equalNoCase(_shutdownTimeout->propertyName, name))
     {
         // Check if the timeout value is greater than the minimum allowed
         //

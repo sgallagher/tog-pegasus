@@ -111,6 +111,7 @@ protected:
 
     void handleDisableModuleRequest(AsyncOpNode *op, const Message *message) throw();
     void handleEnableModuleRequest(AsyncOpNode *op, const Message *message) throw();
+    void handleStopAllProvidersRequest(AsyncOpNode *op, const Message *message) throw();
 
 protected:
     ThreadPool _threadPool;

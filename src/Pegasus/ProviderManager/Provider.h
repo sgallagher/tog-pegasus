@@ -49,6 +49,7 @@ public:
 
     virtual void initialize(CIMOMHandle & cimom);
     virtual void terminate(void);
+    virtual void terminateProvider(void);
 
     String getName(void) const;
 

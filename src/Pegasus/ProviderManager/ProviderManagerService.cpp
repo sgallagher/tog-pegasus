@@ -35,6 +35,7 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/StatisticalData.h>
+#include <Pegasus/Common/Logger.h>
 
 #include <Pegasus/ProviderManager/ProviderManager.h>
 #include <Pegasus/ProviderManager/ProviderFacade.h>
@@ -511,6 +512,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
                 break;
             case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
                 service->handleEnableModuleRequest(op, legacy);
+
+                break;
+            case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
+                service->handleStopAllProvidersRequest(op, legacy);
 
                 break;
             default:
@@ -2150,6 +2155,41 @@ void ProviderManagerService::handleEnableModuleRequest(AsyncOpNode *op, const Me
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+}
+
+void ProviderManagerService::handleStopAllProvidersRequest(AsyncOpNode *op, const
+Message * message) throw()
+{
+    CIMStopAllProvidersRequestMessage * request =
+        dynamic_cast<CIMStopAllProvidersRequestMessage *>(const_cast<Message *>(message));
+    AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+
+    PEGASUS_ASSERT(request != 0 && async != 0);
+
+    //
+    // tell the provider manager to shutdown all the providers
+    //
+    providerManager.shutdownAllProviders();
+
+    CIMStopAllProvidersResponseMessage * response =
+        new CIMStopAllProvidersResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop());
+
+    PEGASUS_ASSERT(response != 0);
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    AsyncLegacyOperationResult *async_result =
+       new AsyncLegacyOperationResult(
+          async->getKey(),
+          async->getRouting(),
+          op,
+          response);
+
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0 );
 }
 
 PEGASUS_NAMESPACE_END

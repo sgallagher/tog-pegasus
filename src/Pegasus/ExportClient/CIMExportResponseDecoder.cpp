@@ -230,7 +230,8 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         }
 
         CIMClientHTTPErrorException* httpError =
-            new CIMClientHTTPErrorException(statusCode, cimError, pegasusError)
+            new CIMClientHTTPErrorException(statusCode, reasonPhrase,
+                                            cimError, pegasusError)
 ;
         ClientExceptionMessage * response =
             new ClientExceptionMessage(httpError);

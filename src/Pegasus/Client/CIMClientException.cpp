@@ -60,19 +60,26 @@ class CIMClientHTTPErrorExceptionRep : public ExceptionRep
 {
 public:
     Uint32 httpStatusCode;
+    String reasonPhrase;
     String cimError;
     String cimErrorDetail;
 };
 
 static String _makeHTTPErrorMessage(
     Uint32 httpStatusCode, 
+    const String& reasonPhrase,
     const String& cimError,
     const String& cimErrorDetail)
 {
-    String tmp = "HTTP Error (status code ";
+    String tmp = "HTTP Error (";
     char buffer[32];
     sprintf(buffer, "%u", httpStatusCode);
     tmp.append(buffer);
+    if (reasonPhrase != String::EMPTY)
+    {
+        tmp.append(" ");
+        tmp.append(reasonPhrase);
+    }
     tmp.append(")");
 
     if ((cimError != String::EMPTY) || (cimErrorDetail != String::EMPTY))
@@ -102,9 +109,27 @@ CIMClientHTTPErrorException::CIMClientHTTPErrorException(
 {
     CIMClientHTTPErrorExceptionRep * tmp = 
         new CIMClientHTTPErrorExceptionRep ();
-    tmp->message = _makeHTTPErrorMessage (httpStatusCode, cimError,
-        cimErrorDetail);
+    tmp->message = _makeHTTPErrorMessage (httpStatusCode, String::EMPTY,
+                                          cimError, cimErrorDetail);
     tmp->httpStatusCode = httpStatusCode;
+    tmp->reasonPhrase = String::EMPTY;
+    tmp->cimError = cimError;
+    tmp->cimErrorDetail = cimErrorDetail;
+    _rep = tmp;
+}
+
+CIMClientHTTPErrorException::CIMClientHTTPErrorException(
+    Uint32 httpStatusCode, 
+    const String& reasonPhrase,
+    const String& cimError,
+    const String& cimErrorDetail)
+{
+    CIMClientHTTPErrorExceptionRep * tmp = 
+        new CIMClientHTTPErrorExceptionRep ();
+    tmp->message = _makeHTTPErrorMessage (httpStatusCode, reasonPhrase,
+                                          cimError, cimErrorDetail);
+    tmp->httpStatusCode = httpStatusCode;
+    tmp->reasonPhrase = reasonPhrase;
     tmp->cimError = cimError;
     tmp->cimErrorDetail = cimErrorDetail;
     _rep = tmp;
@@ -119,6 +144,7 @@ CIMClientHTTPErrorException::CIMClientHTTPErrorException(
     CIMClientHTTPErrorExceptionRep * rep;
     rep = reinterpret_cast<CIMClientHTTPErrorExceptionRep*>(httpError._rep);
     tmp->httpStatusCode = rep->httpStatusCode;
+    tmp->reasonPhrase = rep->reasonPhrase;
     tmp->cimError = rep->cimError;
     tmp->cimErrorDetail = rep->cimErrorDetail;
     _rep = tmp;

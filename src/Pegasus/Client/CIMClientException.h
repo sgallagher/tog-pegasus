@@ -62,6 +62,12 @@ public:
     ///
     CIMClientHTTPErrorException(
         Uint32 httpStatusCode,
+        const String& reasonPhrase,
+        const String& cimError,
+        const String& cimErrorDetail);
+    ///
+    CIMClientHTTPErrorException(
+        Uint32 httpStatusCode,
         const String& cimError,
         const String& cimErrorDetail);
     ///

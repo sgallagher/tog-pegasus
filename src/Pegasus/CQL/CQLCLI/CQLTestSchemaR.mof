@@ -148,4 +148,5 @@ instance of CIM_ComputerSystem
 {
    Description = "Computer System";
    EnabledState = 2;
+   ResetCapability = 3;
 };

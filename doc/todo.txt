@@ -1,4 +1,11 @@
 
+    -   If it is the case that a reference may only refer to an instance,
+	then we must derive new types for representing object paths.
+
+    -   Many CIM operations interfaces are incorrect: GetInstance() for example
+	takes a namespace and a CIMReference (which also may contain the 
+	namespace). According to the standard, it should take an "InstanceName".
+
     -   Need way of signaling the cimserver so that it will reload the
 	class inheritance table (after a MOF compile).
     

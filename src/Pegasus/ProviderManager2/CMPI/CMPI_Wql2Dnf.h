@@ -204,7 +204,6 @@ protected:
     //friend WQLSelectStatement;
 };
 
-
 PEGASUS_NAMESPACE_END
 
 #endif /* CMPI_Wql2Dnf_h */

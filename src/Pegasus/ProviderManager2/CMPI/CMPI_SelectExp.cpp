@@ -288,7 +288,7 @@ extern "C"
               CQLParser::parse (sx->cond, selectStatement);
               dnf = new CMPI_Cql2Dnf (selectStatement);
             }
-            catch (Exception & e)
+            catch (Exception &)
             {
               if (dnf)
                 delete dnf;

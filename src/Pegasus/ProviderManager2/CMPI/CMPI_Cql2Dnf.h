@@ -44,10 +44,8 @@
 #include "CMPI_Query2Dnf.h"
 
 PEGASUS_NAMESPACE_BEGIN
-#undef  PEGASUS_COMMON_LINKAGE
-#define PEGASUS_COMMON_LINKAGE
-#include <Pegasus/Common/Linkage.h>
-  class CMPI_Cql2Dnf
+
+class CMPI_Cql2Dnf
 {
 public:
   CMPI_Cql2Dnf ();

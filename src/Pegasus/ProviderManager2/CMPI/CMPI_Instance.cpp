@@ -172,7 +172,7 @@ extern "C" {
          try {
             cp.setValue(v);
          }
-         catch (TypeMismatchException &e) {
+         catch (TypeMismatchException &) {
 #ifdef PEGASUS_DEBUG
            cerr<<"-+- TypeMisMatch exception for: "<<name<<endl;
            if (getenv("CMPI_CHECKTYPES")!=NULL) {

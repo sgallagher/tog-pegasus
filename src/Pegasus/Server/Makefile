@@ -67,6 +67,11 @@ LIBRARIES += \
 	InteropProvider
 endif
 
+ifndef PEGASUS_DISABLE_CQL
+LIBRARIES += \
+	CIMQueryCapabilitiesProvider
+endif
+
 ifdef PEGASUS_HAS_SSL
 LIBRARIES += \
 	CertificateProvider

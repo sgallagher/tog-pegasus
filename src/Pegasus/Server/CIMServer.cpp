@@ -38,7 +38,7 @@
 //         Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
 //         Dan Gorey, IBM (djgorey@us.ibm.com)
 //         Heather Sterling, IBM (hsterl@us.ibm.com)
-//         Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//         Amit K Arora, IBM (amita@in.ibm.com) for PEP 193
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -100,6 +100,10 @@
 
 #ifdef PEGASUS_HAS_SSL
 #include <Pegasus/ControlProviders/CertificateProvider/CertificateProvider.h>
+#endif
+
+#ifndef PEGASUS_DISABLE_CQL
+#include <Pegasus/ControlProviders/QueryCapabilitiesProvider/CIMQueryCapabilitiesProvider.h>
 #endif
 
 #if defined(PEGASUS_HAS_PERFINST) ||  defined(PEGASUS_ENABLE_SLP)
@@ -326,6 +330,18 @@ void CIMServer::_init(void)
          new ProviderMessageFacade(new CIMOMStatDataProvider());
      ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                        PEGASUS_MODULENAME_CIMOMSTATDATAPROVIDER,                                       cimomstatdataProvider,
+                                       controlProviderReceiveMessageCallback,
+                                       0, 0);
+#endif
+
+#ifndef PEGASUS_DISABLE_CQL
+
+   // Create the Query Capabilities control provider
+     ProviderMessageFacade * cimquerycapprovider =
+         new ProviderMessageFacade(new CIMQueryCapabilitiesProvider());
+     ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
+                                       PEGASUS_MODULENAME_CIMQUERYCAPPROVIDER,
+                                       cimquerycapprovider,
                                        controlProviderReceiveMessageCallback,
                                        0, 0);
 #endif

@@ -31,6 +31,7 @@
 //                (carolann_graves@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
 //				Willis White (whiwill@us.ibm.com) Bug 1596
+//              Amit K Arora, IBM (amitarora@in.ibm.com) for PEP 193
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -109,6 +110,10 @@ PEGASUS_NAMESPACE_BEGIN
      PEGASUS_QUEUENAME_CONTROLSERVICE "::CIMOMStatDataProvider"
 #endif
 
+#ifndef PEGASUS_DISABLE_CQL
+ #define PEGASUS_MODULENAME_CIMQUERYCAPPROVIDER \
+     PEGASUS_QUEUENAME_CONTROLSERVICE "::CIMQueryCapabilitiesProvider"
+#endif
 
 //
 // CIM Class Names
@@ -154,6 +159,11 @@ static const CIMName PEGASUS_CLASSNAME___NAMESPACE          =
 #ifdef PEGASUS_HAS_PERFINST
 static const CIMName PEGASUS_CLASSNAME_CIMOMSTATDATA      =
     CIMName ("CIM_CIMOMStatisticalData");
+#endif
+
+#ifndef PEGASUS_DISABLE_CQL
+static const CIMName PEGASUS_CLASSNAME_CIMQUERYCAPABILITIES   =
+    CIMName ("CIM_QueryCapabilities");
 #endif
 
 #if defined(PEGASUS_HAS_PERFINST) || defined(PEGASUS_ENABLE_SLP)
@@ -226,6 +236,10 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMOMSTATDATA =
     PEGASUS_NAMESPACENAME_CIMV2;
 #endif
 
+#ifndef PEGASUS_DISABLE_CQL
+static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
+    PEGASUS_NAMESPACENAME_CIMV2;
+#endif
 
 //
 // HTTP Header Tags, Status Codes, and Reason Phrases

@@ -44,6 +44,7 @@
 //               Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
 //               Heather Sterling, IBM (hsterl@us.ibm.com), PEP#187
+//               Amit K Arora, IBM (amita@in.ibm.com), for PEP 193
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -592,6 +593,17 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 							(MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
 							PEGASUS_MODULENAME_CIMOMSTATDATAPROVIDER,
 							PEGASUS_QUEUENAME_CONTROLSERVICE);
+#endif
+
+#ifndef PEGASUS_DISABLE_CQL
+         _routing_table.insert_record(PEGASUS_CLASSNAME_CIMQUERYCAPABILITIES,
+                                   //PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES,
+                                      _wild,
+                                      DynamicRoutingTable::INTERNAL,
+                                      0,
+                                      static_cast<MessageQueueService *> (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                                      PEGASUS_MODULENAME_CIMQUERYCAPPROVIDER,
+                                      PEGASUS_QUEUENAME_CONTROLSERVICE);
 #endif
 
 #if defined(PEGASUS_HAS_PERFINST) || defined(PEGASUS_ENABLE_SLP)

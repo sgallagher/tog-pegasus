@@ -93,6 +93,13 @@ DIRS += \
 
 endif
 
+ifndef PEGASUS_DISABLE_CQL
+DIRS += \
+	ControlProviders/QueryCapabilitiesProvider \
+	ControlProviders/QueryCapabilitiesProvider/tests
+endif
+
+
 ifdef PEGASUS_HAS_SSL
 DIRS += \
 	ControlProviders/CertificateProvider

@@ -168,7 +168,7 @@ AcceptLanguages AcceptLanguages::getDefaultAcceptLanguages(){
 			EtoA(strcpy(tmp_,tmp));
 			try{
 			    return AcceptLanguages(tmp_);
-			}catch(InvalidAcceptLanguageHeader e){
+			}catch(InvalidAcceptLanguageHeader& e){
 			   Logger::put_l(Logger::ERROR_LOG,System::CIMSERVER,Logger::SEVERE,
 		      "src.Server.cimserver.FAILED_TO_GET_PROCESS_LOCALE",
 		      "Could not convert the system locale to a valid accept-language format");
@@ -177,7 +177,7 @@ AcceptLanguages AcceptLanguages::getDefaultAcceptLanguages(){
                       #else
 			try{
 			    return AcceptLanguages(default_loc.getName());
-			}catch(InvalidAcceptLanguageHeader e){
+			}catch(InvalidAcceptLanguageHeader& e){
 			   Logger::put_l(Logger::ERROR_LOG,System::CIMSERVER,Logger::SEVERE,
 		      "src.Server.cimserver.FAILED_TO_GET_PROCESS_LOCALE",
 		      "Could not convert the system locale to a valid accept-language format");

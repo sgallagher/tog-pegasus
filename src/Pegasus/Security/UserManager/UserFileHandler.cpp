@@ -170,11 +170,11 @@ void UserFileHandler::_loadAllUsers ()
         _passwordTable.clear();
         _passwordFile->load(_passwordTable);
     }
-    catch (CannotOpenFile cof)
+    catch (CannotOpenFile&)
     {
         _passwordTable.clear();
         PEG_METHOD_EXIT();
-        throw cof;
+        throw;
     }
     PEG_METHOD_EXIT();
 }
@@ -196,7 +196,7 @@ void UserFileHandler::_Update(
     {
         _mutex->timed_lock(_MUTEX_TIMEOUT, pegasus_thread_self());
     }
-    catch (TimeOut e)
+    catch (TimeOut&)
     {
     	//l10n
 	//throw PEGASUS_CIM_EXCEPTION( CIM_ERR_FAILED, 
@@ -205,7 +205,7 @@ void UserFileHandler::_Update(
 	throw PEGASUS_CIM_EXCEPTION_L( CIM_ERR_FAILED, MessageLoaderParms("Security.UserManager.UserFileHandler.TIMEOUT",
 									"Timed out trying to perform requested operation.Please re-try the operation again."));
     }
-    catch (WaitFailed e)
+    catch (WaitFailed&)
     {
     //l10n
 	//throw PEGASUS_CIM_EXCEPTION( CIM_ERR_FAILED, 
@@ -214,7 +214,7 @@ void UserFileHandler::_Update(
 	throw PEGASUS_CIM_EXCEPTION_L( CIM_ERR_FAILED, MessageLoaderParms("Security.UserManager.UserFileHandler.TIMEOUT",
 									"Timed out trying to perform requested operation.Please re-try the operation again."));
     }
-    catch (Deadlock e)
+    catch (Deadlock&)
     {
     //l10n
 	//throw PEGASUS_CIM_EXCEPTION( CIM_ERR_FAILED, 

@@ -181,29 +181,29 @@ void GetOptions(
 
         cm->mergeCommandLine(argc, argv);
     }
-    catch (NoSuchFile nsf)
+    catch (NoSuchFile&)
     {
-        throw nsf;
+        throw;
     }
-    catch (FileNotReadable fnr)
+    catch (FileNotReadable&)
     {
-        throw fnr;
+        throw;
     }
-    catch (CannotRenameFile ftrf)
+    catch (CannotRenameFile&)
     {
-        throw ftrf;
+        throw;
     }
-    catch (ConfigFileSyntaxError cfse)
+    catch (ConfigFileSyntaxError&)
     {
-        throw cfse;
+        throw;
     }
-    catch(UnrecognizedConfigProperty ucp)
+    catch(UnrecognizedConfigProperty&)
     {
-        throw ucp;
+        throw;
     }
-    catch(InvalidPropertyValue ipv)
+    catch(InvalidPropertyValue&)
     {
-        throw ipv;
+        throw;
     }
 }
 
@@ -770,7 +770,7 @@ int main(int argc, char** argv)
             useSLP =  true;
         }
     }
-    catch (UnrecognizedConfigProperty e)
+    catch (UnrecognizedConfigProperty& e)
     {
 
 #ifdef PEGASUS_OS_OS400

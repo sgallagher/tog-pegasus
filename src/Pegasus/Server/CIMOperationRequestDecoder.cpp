@@ -1103,7 +1103,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
          {
              headerObjectReference.set(cimObjectInHeader);
          }
-         catch (Exception e)
+         catch (Exception&)
          {
          	//l10n
             //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",

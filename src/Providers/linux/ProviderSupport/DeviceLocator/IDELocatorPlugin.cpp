@@ -154,7 +154,7 @@ DeviceInformation *IDELocatorPlugin::getNextDevice(void){
       try {
         setOption(dirIndex);
       }
-      catch (Exception *e){
+      catch (Exception&){
 	delete curDeviceInformation;
         return NULL;
       }

@@ -434,7 +434,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         getOpts [i].Value (_portNumber);
                     }
-                    catch (TypeMismatchException)
+                    catch (TypeMismatchException&)
                     {
                         InvalidOptionArgumentException e (_portNumberStr,
                             _OPTION_PORTNUMBER);
@@ -478,7 +478,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         getOpts [i].Value (_timeout);
                     }
-                    catch (TypeMismatchException)
+                    catch (TypeMismatchException&)
                     {
                         InvalidOptionArgumentException e (timeoutStr,
                             _OPTION_TIMEOUT);
@@ -534,7 +534,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         getOpts [i].Value (_iterations);
                     }
-                    catch (TypeMismatchException)
+                    catch (TypeMismatchException&)
                     {
                         InvalidOptionArgumentException e (_iterationsStr,
                             _OPTION_ITERATIONS);
@@ -561,7 +561,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         getOpts [i].Value (_testID);
                     }
-                    catch (TypeMismatchException)
+                    catch (TypeMismatchException&)
                     {
                         InvalidOptionArgumentException e (_testIDStr,
                             _OPTION_TESTID);

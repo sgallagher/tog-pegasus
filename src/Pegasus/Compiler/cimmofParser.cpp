@@ -583,7 +583,7 @@ cimmofParser::addClass(CIMClass *classdecl)
       }
       wlog(message);
    }
-  } catch(AlreadyExistsException) {
+  } catch(AlreadyExistsException&) {
     //ATTN: P1 2001 BB  We should be able to modify the class through the compiler
     // 04/26/2003 GM  See cimmofParser::updateClass() for info on why modify was not 
     // done here
@@ -780,7 +780,7 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
   }
   try {
     _repository.addQualifier(getNamespacePath(), *qualifier);
-  } catch(CIMException e) {
+  } catch(CIMException& e) {
     if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
       // OK, just skip it for now.
       // In a later implementation we will overwrite if the compiler
@@ -792,7 +792,7 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
       elog(message);
       maybeThrowParseError(message);
     }
-  } catch(Exception e) {
+  } catch(Exception& e) {
     // ATTN:2001 P1 BB  at the time of writing, the Common code does not throw
     // an CIM_ERR_ALREADY_EXISTS CIMException.  It might at any time.
     arglist.append(e.getMessage());
@@ -901,13 +901,13 @@ cimmofParser::applyProperty(CIMClass &c, CIMProperty &p)
   String message;
   try {
     c.addProperty(p);
-  } catch(UninitializedObjectException) {
+  } catch(UninitializedObjectException&) {
     cimmofMessages::getMessage(message,
 			       cimmofMessages::UNINITIALIZED_PROPERTY_ERROR,
 			       arglist);
     elog(message);
     maybeThrowParseError(message);
-  } catch(AlreadyExistsException) {
+  } catch(AlreadyExistsException&) {
     cimmofMessages::getMessage(message,
 			       cimmofMessages::PROPERTY_ALREADY_EXISTS_WARNING,
 			       arglist);
@@ -1030,13 +1030,13 @@ cimmofParser::applyMethod(CIMClass &c, CIMMethod &m) {
   arglist.append(c.getClassName().getString());
   try {
     c.addMethod(m);
-  } catch(UninitializedObjectException) {
+  } catch(UninitializedObjectException&) {
     cimmofMessages::getMessage(message, 
 			       cimmofMessages::UNINITIALIZED_PARAMETER_ERROR,
 			       arglist);
     elog(message);
     maybeThrowParseError(message);
-  } catch(AlreadyExistsException) {
+  } catch(AlreadyExistsException&) {
     cimmofMessages::getMessage(message,
 			       cimmofMessages::METHOD_ALREADY_EXISTS_WARNING,
 			       arglist);

@@ -195,7 +195,7 @@ Boolean CIMObject::isClass () const
         const CIMClass c (*this);
         return true;
     }
-    catch (DynamicCastFailedException)
+    catch (DynamicCastFailedException&)
     {
         return false;
     }
@@ -208,7 +208,7 @@ Boolean CIMObject::isInstance () const
         const CIMInstance i (*this);
         return true;
     }
-    catch (DynamicCastFailedException)
+    catch (DynamicCastFailedException&)
     {
         return false;
     }
@@ -349,7 +349,7 @@ Boolean CIMConstObject::isClass() const
         const CIMConstClass c(*this);
         return true;
     }
-    catch (DynamicCastFailedException)
+    catch (DynamicCastFailedException&)
     {
         return false;
     }
@@ -362,7 +362,7 @@ Boolean CIMConstObject::isInstance() const
         const CIMConstInstance i(*this);
         return true;
     }
-    catch (DynamicCastFailedException)
+    catch (DynamicCastFailedException&)
     {
         return false;
     }

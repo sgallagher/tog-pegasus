@@ -76,7 +76,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			//cout << "PEGASUS_HAS_ICU is NOT defined, using default message" << endl;
 			return formatDefaultMessage(parms);
 		#endif	
-		}catch(Exception e){
+		}catch(Exception&){
 			return String("AN INTERNAL ERROR OCCURED IN MESSAGELOADER: ").append(parms.default_msg);	
 		}	
 		PEG_METHOD_EXIT();			

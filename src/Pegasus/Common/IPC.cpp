@@ -200,7 +200,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    {
 	       _rwlock._wlock.try_lock(pegasus_thread_self());
 	    }
-	    catch(IPCException e) 
+	    catch(IPCException& e) 
 	    {
 	       _rwlock._internal_lock.unlock();
 	       caught = &e;

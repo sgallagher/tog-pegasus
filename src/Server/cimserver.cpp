@@ -192,29 +192,29 @@ void GetOptions(
 
         cm->mergeCommandLine(argc, argv);
     }
-    catch (NoSuchFile nsf)
+    catch (NoSuchFile&)
     {
-        throw nsf;
+        throw;
     }
-    catch (FileNotReadable fnr)
+    catch (FileNotReadable&)
     {
-        throw fnr;
+        throw;
     }
-    catch (CannotRenameFile ftrf)
+    catch (CannotRenameFile&)
     {
-        throw ftrf;
+        throw;
     }
-    catch (ConfigFileSyntaxError cfse)
+    catch (ConfigFileSyntaxError&)
     {
-        throw cfse;
+        throw;
     }
-    catch(UnrecognizedConfigProperty ucp)
+    catch(UnrecognizedConfigProperty&)
     {
-        throw ucp;
+        throw;
     }
-    catch(InvalidPropertyValue ipv)
+    catch(InvalidPropertyValue&)
     {
-        throw ipv;
+        throw;
     }
 }
 
@@ -883,7 +883,7 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
 
 
     }
-    catch (UnrecognizedConfigProperty e)
+    catch (UnrecognizedConfigProperty& e)
     {
 
 #ifdef PEGASUS_OS_OS400
@@ -986,7 +986,7 @@ MessageLoader::_useProcessLocale = false;
     try{
     	 default_al = AcceptLanguages::getDefaultAcceptLanguages();   
     	 Thread::setLanguages(new AcceptLanguages(default_al));
-    }catch(InvalidAcceptLanguageHeader e){
+    }catch(InvalidAcceptLanguageHeader& e){
     	  Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
 				  "src.Server.cimserver.FAILED_TO_SET_PROCESS_LOCALE",
 		    	  "Could not convert the system process locale into a valid AcceptLanguage format.");  

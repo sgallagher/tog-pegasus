@@ -1639,7 +1639,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
 		{
 			newValue = XmlReader::stringArrayToValue(0, constCharPtrArray, type);
 		}
-		catch (XmlSemanticError e)
+		catch (XmlSemanticError&)
 		{
 			PEG_METHOD_EXIT();
 			throw PEGASUS_CIM_EXCEPTION(
@@ -1664,7 +1664,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
 		{
 			newValue = XmlReader::stringToValue(0, stringValue.getCString(), type);
 		}
-		catch (XmlSemanticError e)
+		catch (XmlSemanticError&)
 		{
 			PEG_METHOD_EXIT();
 			throw PEGASUS_CIM_EXCEPTION(

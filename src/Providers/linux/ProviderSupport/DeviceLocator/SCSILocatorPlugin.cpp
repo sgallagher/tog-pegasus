@@ -152,7 +152,7 @@ int SCSILocatorPlugin::setDeviceSearchCriteria(Uint16 base_class, Uint16 sub_cla
 	try {
 		fileReader->SetSearchRegexps(regex_patts);
 	}
-	catch (Exception * e) {
+	catch (Exception&) {
 		/* Error compiling regexs */
 		return -1;
 	}

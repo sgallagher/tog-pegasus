@@ -956,7 +956,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
          {
              headerObjectReference.set(cimObjectInHeader);
          }
-         catch (Exception e)
+         catch (Exception&)
          {
             sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
                           String("Could not parse CIMObject value \"") +

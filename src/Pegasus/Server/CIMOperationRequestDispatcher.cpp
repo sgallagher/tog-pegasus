@@ -5438,7 +5438,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
       {
 	 newValue = XmlReader::stringArrayToValue(0, constCharPtrArray, type);
       }
-      catch (XmlSemanticError e)
+      catch (XmlSemanticError&)
       {
          for (Uint32 k=0; k<charPtrArray.size(); k++)
          {
@@ -5485,7 +5485,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
       {
 	 newValue = XmlReader::stringToValue(0, stringValue.getCString(), type);
       }
-      catch (XmlSemanticError e)
+      catch (XmlSemanticError&)
       {
          PEG_METHOD_EXIT();
 

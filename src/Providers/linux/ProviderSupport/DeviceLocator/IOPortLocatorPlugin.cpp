@@ -110,7 +110,7 @@ int IOPortLocatorPlugin::setDeviceSearchCriteria(Uint16 base_class, Uint16 sub_c
   	try {
 	  	fileReader->SetSearchRegexps(trial_regex_patterns);
   	}
-  	catch (Exception * e) {
+  	catch (Exception&) {
 	  	/* Error compiling regexs */
 	  	return -1;
   	}

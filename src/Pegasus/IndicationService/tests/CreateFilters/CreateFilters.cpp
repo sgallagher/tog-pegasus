@@ -133,7 +133,7 @@ int main(int argc, char** argv)
     {
         TestCreateFilterInstances(client);
     }
-    catch (Exception e)
+    catch (Exception& e)
     {
         PEGASUS_STD (cout) << "Exception: " << e.getMessage () 
                            << PEGASUS_STD (endl);

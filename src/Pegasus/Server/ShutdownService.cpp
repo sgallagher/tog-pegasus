@@ -471,7 +471,7 @@ Boolean ShutdownService::_waitUntilNoMoreRequests(Boolean requestPending)
          {
             _cond.unlocked_timed_wait(waitInterval*1000, pegasus_thread_self());
          }
-         catch (TimeOut to)
+         catch (TimeOut&)
          {
              requestCount = _cimserver->getOutstandingRequestCount();
              maxWaitTime = maxWaitTime - waitInterval;

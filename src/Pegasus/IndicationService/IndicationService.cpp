@@ -1209,11 +1209,11 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
             instance = _repository->getInstance (request->nameSpace, 
                 instanceReference);
         } 
-        catch (Exception e)
+        catch (Exception&)
         {
             _repository->read_unlock ();
             PEG_METHOD_EXIT ();
-            throw e;
+            throw;
         }
 
         _repository->read_unlock ();
@@ -1631,11 +1631,11 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
                 subscriptionInstance = _repository->getInstance 
                     (request->nameSpace, request->instanceName);
                 }
-                catch (Exception e)
+                catch (Exception&)
                 {
                     _repository->read_unlock ();
                     PEG_METHOD_EXIT ();
-                    throw e;
+                    throw;
                 }
 
                 _repository->read_unlock ();
@@ -3459,11 +3459,11 @@ Boolean IndicationService::_canDelete (
     {
         instance = _repository->getInstance (nameSpace, instanceReference);
     }
-    catch (Exception e)
+    catch (Exception&)
     {
         _repository->read_unlock ();
         PEG_METHOD_EXIT ();
-        throw e;
+        throw;
     }
 
     _repository->read_unlock ();
@@ -3514,11 +3514,11 @@ Boolean IndicationService::_canDelete (
         refClass = _repository->getClass (nameSpace,
             instanceReference.getClassName ());
     }
-    catch (Exception e)
+    catch (Exception&)
     {
         _repository->read_unlock ();
         PEG_METHOD_EXIT ();
-        throw e;
+        throw;
     }
 
     _repository->read_unlock ();
@@ -4061,11 +4061,11 @@ Array <CIMNamespaceName> IndicationService::_getNameSpaceNames (void) const
     {
         nameSpaceNames = _repository->enumerateNameSpaces ();
     }
-    catch (Exception e)
+    catch (Exception&)
     {
         _repository->read_unlock ();
         PEG_METHOD_EXIT ();
-        throw e;
+        throw;
     }
 
     _repository->read_unlock ();
@@ -4092,7 +4092,7 @@ Array <CIMInstance> IndicationService::_getSubscriptions (
         subscriptions = _repository->enumerateInstances
             (nameSpaceName, PEGASUS_CLASSNAME_INDSUBSCRIPTION);
     }
-    catch (CIMException e)
+    catch (CIMException& e)
     {
         //
         //  Some namespaces may not include the subscription class
@@ -4282,11 +4282,11 @@ void IndicationService::_getFilterProperties (
         filterInstance = _repository->getInstance (nameSpaceName, 
             filterReference);
     }
-    catch (Exception e)
+    catch (Exception&)
     {
         _repository->read_unlock ();
         PEG_METHOD_EXIT ();
-        throw e;
+        throw;
     }
 
     _repository->read_unlock ();
@@ -4329,11 +4329,11 @@ void IndicationService::_getFilterProperties (
         filterInstance = _repository->getInstance (nameSpaceName, 
             filterReference);
     }
-    catch (Exception e)
+    catch (Exception&)
     {
         _repository->read_unlock ();
         PEG_METHOD_EXIT ();
-        throw e;
+        throw;
     }
 
     _repository->read_unlock ();
@@ -4371,11 +4371,11 @@ void IndicationService::_getFilterProperties (
         filterInstance = _repository->getInstance (nameSpaceName, 
             filterReference);
     }
-    catch (Exception e)
+    catch (Exception&)
     {
         _repository->read_unlock ();
         PEG_METHOD_EXIT ();
-        throw e;
+        throw;
     }
 
     _repository->read_unlock ();
@@ -4453,11 +4453,11 @@ CIMName IndicationService::_getIndicationClassName (
             false,
             CIMPropertyList());
     }
-    catch (Exception e)
+    catch (Exception&)
     {
         _repository->read_unlock ();
         PEG_METHOD_EXIT ();
-        throw e;
+        throw;
     }
 
     _repository->read_unlock ();
@@ -4530,11 +4530,11 @@ Array <CIMName> IndicationService::_getIndicationSubclasses (
         indicationSubclasses = _repository->enumerateClassNames
             (nameSpace, indicationClassName, true);
     }
-    catch (Exception e)
+    catch (Exception&)
     {
         _repository->read_unlock ();
         PEG_METHOD_EXIT ();
-        throw e;
+        throw;
     }
 
     _repository->read_unlock ();
@@ -4712,11 +4712,11 @@ CIMPropertyList IndicationService::_checkPropertyList
         indicationClass = _repository->getClass (nameSpaceName, 
             indicationClassName, false, false);
     }
-    catch (Exception e)
+    catch (Exception&)
     {
         _repository->read_unlock ();
         PEG_METHOD_EXIT ();
-        throw e;
+        throw;
     }
 
     _repository->read_unlock ();
@@ -4797,11 +4797,11 @@ CIMInstance IndicationService::_getHandler (
         handlerInstance = _repository->getInstance 
             (subscription.getPath ().getNameSpace (), handlerRef);
     }
-    catch (Exception e)
+    catch (Exception&)
     {
         _repository->read_unlock ();
         PEG_METHOD_EXIT ();
-        throw e;
+        throw;
     }
 
     _repository->read_unlock ();
@@ -4837,11 +4837,11 @@ Boolean IndicationService::_isTransient (
     {
         instance = _repository->getInstance (nameSpace, handler);
     }
-    catch (Exception e)
+    catch (Exception&)
     {
         _repository->read_unlock ();
         PEG_METHOD_EXIT ();
-        throw e;
+        throw;
     }
 
     _repository->read_unlock ();
@@ -5039,11 +5039,11 @@ void IndicationService::_deleteExpiredSubscription (
         subscriptionInstance = _repository->getInstance 
             (nameSpace, subscription);
     }
-    catch (Exception e)
+    catch (Exception&)
     {
         _repository->read_unlock ();
         PEG_METHOD_EXIT ();
-        throw e;
+        throw;
     }
 
     _repository->read_unlock ();

@@ -112,7 +112,7 @@ void DefaultInstanceProvider::_copyClass(
         // connect to the CIM server as a client
         client.connectLocal();
     }
-    catch( Exception ex )
+    catch( Exception& ex )
     {
         const String msg = "Connect failed. " + ex.getMessage();
         throw CIMOperationFailedException( msg );
@@ -131,7 +131,7 @@ void DefaultInstanceProvider::_copyClass(
                                    localOnly, includeQualifiers,
                                    includeClassOrigin);
     }
-    catch( Exception ex )
+    catch( Exception& ex )
     {
         const String msg = "Get Class failed. " + ex.getMessage();
         throw CIMOperationFailedException( msg );
@@ -150,7 +150,7 @@ void DefaultInstanceProvider::_copyClass(
     {
         _repository->createClass( nameSpace, cimClass );
     }
-    catch( Exception ex )
+    catch( Exception& ex )
     {
         const String msg = "Create Class failed. " + ex.getMessage();
         _repository->write_unlock();
@@ -193,7 +193,7 @@ void DefaultInstanceProvider::_copySuperClasses(
                 cimClass = _repository->getClass(nameSpace, 
                                           superClasses[i-1].getClassName());
             }
-            catch (Exception e)
+            catch (Exception&)
             {
                 //
                 // Super class does not exist, create the super class
@@ -202,7 +202,7 @@ void DefaultInstanceProvider::_copySuperClasses(
                 {
                     _repository->createClass( nameSpace, superClasses[i-1] );
                 }
-                catch( Exception ex )
+                catch( Exception& ex )
                 {
                     const String msg  = "Create superClass failed. " + ex.getMessage();
                     _repository->write_unlock();
@@ -229,7 +229,7 @@ void DefaultInstanceProvider::_copySuperClasses(
         // add superclass to array
         superClasses.append(superClass);
     }
-    catch( Exception ex )
+    catch( Exception& ex )
     {
         const String msg = "Get Super Class failed. " + ex.getMessage();
         throw CIMOperationFailedException( msg );
@@ -259,10 +259,10 @@ Boolean DefaultInstanceProvider::_nameSpaceExists(
     {
         nameSpaceNames = _repository->enumerateNameSpaces();
     }
-    catch (Exception e)
+    catch (Exception&)
     {
         _repository->read_unlock ();
-        throw e;
+        throw;
     }
     _repository->read_unlock ();
 
@@ -298,7 +298,7 @@ void DefaultInstanceProvider::_copyNameSpace(const String & nameSpace,
         // create the new name space
         _repository->createNameSpace(nameSpace);
     }
-    catch( Exception ex )
+    catch( Exception& ex )
     {
         const String msg = "Failed to create namespace: " + ex.getMessage();
         throw CIMOperationFailedException( msg );
@@ -311,7 +311,7 @@ void DefaultInstanceProvider::_copyNameSpace(const String & nameSpace,
         // connect to the CIM server as a client
         client.connectLocal();
     }
-    catch( Exception ex )
+    catch( Exception& ex )
     {
         const String msg = "Connect failed. " + ex.getMessage();
         throw CIMOperationFailedException( msg );
@@ -331,7 +331,7 @@ void DefaultInstanceProvider::_copyNameSpace(const String & nameSpace,
             {
                 _repository->setQualifier( nameSpace, quals[i] );
             } 
-            catch( Exception ex ) 
+            catch( Exception& ex ) 
             {
                 const String msg = "Failed to copy qualifiers. " + ex.getMessage();
                 throw CIMOperationFailedException( msg );
@@ -341,7 +341,7 @@ void DefaultInstanceProvider::_copyNameSpace(const String & nameSpace,
         // disconnect from the server
         client.disconnect();
     }
-    catch( Exception ex )
+    catch( Exception& ex )
     {
         const String msg = "Copy class failed. " + ex.getMessage();
         throw CIMOperationFailedException( msg );
@@ -383,7 +383,7 @@ void DefaultInstanceProvider::getInstance(
             CIMClass cimClass = _repository->getClass(nameSpace, className);
             _repository->read_unlock ();
         }
-        catch (Exception e)
+        catch (Exception&)
         {
             // class does not exist
             _repository->read_unlock ();
@@ -414,12 +414,11 @@ void DefaultInstanceProvider::getInstance(
              includeClassOrigin,
              propertyList);
         }
-        catch( Exception ex )
+        catch( Exception& ex )
         {
             _repository->read_unlock();
             const String msg = "Get Instance failed. " + ex.getMessage();
             throw CIMOperationFailedException( msg );
-            throw CIMOperationFailedException( ex.getMessage() );
         }
         _repository->read_unlock();
 
@@ -465,7 +464,7 @@ void DefaultInstanceProvider::enumerateInstances(
             CIMClass cimClass = _repository->getClass(nameSpace, className);
             _repository->read_unlock ();
         }
-        catch (Exception e)
+        catch (Exception&)
         {
             // class does not exist
             _repository->read_unlock ();
@@ -495,7 +494,7 @@ void DefaultInstanceProvider::enumerateInstances(
               true,
               propertyList);
         }
-        catch( Exception ex )
+        catch( Exception& ex )
         {
             _repository->read_unlock();
             const String msg = "Enumerate Instances failed. " + ex.getMessage();
@@ -543,7 +542,7 @@ void DefaultInstanceProvider::enumerateInstanceNames(
             CIMClass cimClass = _repository->getClass(nameSpace, className);
             _repository->read_unlock ();
         }
-        catch (Exception e)
+        catch (Exception&)
         {
             // class does not exist
             _repository->read_unlock ();
@@ -618,7 +617,7 @@ void DefaultInstanceProvider::modifyInstance(
             CIMClass cimClass = _repository->getClass(nameSpace, className);
             _repository->read_unlock ();
         }
-        catch (Exception e)
+        catch (Exception&)
         {
             // class does not exist
             _repository->read_unlock ();
@@ -647,7 +646,7 @@ void DefaultInstanceProvider::modifyInstance(
                 includeQualifiers,
                 propertyList);
         }
-        catch( Exception ex )
+        catch( Exception& ex )
         {
             _repository->write_unlock();
             const String msg = "Modify Instance failed. " + ex.getMessage();
@@ -692,7 +691,7 @@ void DefaultInstanceProvider::createInstance(
             CIMClass cimClass = _repository->getClass(nameSpace, className);
             _repository->read_unlock();
         }
-        catch (Exception e)
+        catch (Exception&)
         {
             // class does not exist
             _repository->read_unlock();
@@ -757,7 +756,7 @@ void DefaultInstanceProvider::deleteInstance(
         {
             CIMClass cimClass = _repository->getClass(nameSpace, className);
         }
-        catch (Exception e)
+        catch (Exception&)
         {
             // Class does not exist.  Copy the class.
             //

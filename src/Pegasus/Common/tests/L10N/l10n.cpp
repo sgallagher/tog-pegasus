@@ -104,7 +104,7 @@ void drive_LanguageParser(){
 
 		assert( false ); //should not get here
 
-	}catch(InvalidAcceptLanguageHeader e){}
+	}catch(InvalidAcceptLanguageHeader&){}
 
 		
 
@@ -294,7 +294,7 @@ void drive_AcceptLanguages(){
 
 		assert(false); //should not get here
 
-	}catch(InvalidAcceptLanguageHeader e){}	
+	}catch(InvalidAcceptLanguageHeader&){}	
 
 }
 
@@ -376,7 +376,7 @@ void drive_ContentLanguages(){
 
 		assert(false); //should not get here
 
-	}catch(InvalidContentLanguageHeader e){}	
+	}catch(InvalidContentLanguageHeader&){}	
 
 		
 

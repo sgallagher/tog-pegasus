@@ -134,7 +134,7 @@ int main(int argc, char** argv)
     {
         Handler1Ref = CreateHandler1Instance (client);
     }
-    catch (Exception e)
+    catch (Exception& e)
     {
         PEGASUS_STD (cerr) << "Exception: " << e.getMessage () 
                            << PEGASUS_STD (endl);
@@ -154,7 +154,7 @@ int main(int argc, char** argv)
         Filter1Ref = CreateFilterInstance (client, query1, name1);
         Filter2Ref = CreateFilterInstance (client, query2, name2);
     }
-    catch (Exception e)
+    catch (Exception& e)
     {
         PEGASUS_STD (cerr) << "Exception: " << e.getMessage () 
                            << PEGASUS_STD (endl);
@@ -172,7 +172,7 @@ int main(int argc, char** argv)
         Subscription2Ref = 
           CreateSbscriptionInstance (client, Handler1Ref, Filter2Ref);
     }
-    catch (Exception e)
+    catch (Exception& e)
     {
         PEGASUS_STD (cerr) << "Exception: " << e.getMessage () 
                            << PEGASUS_STD (endl);
@@ -214,7 +214,7 @@ int main(int argc, char** argv)
             generateIndication(client);
 	}
     }
-    catch (Exception e)
+    catch (Exception& e)
     {
         PEGASUS_STD (cerr) << "Exception: " << e.getMessage () 
                            << PEGASUS_STD (endl);
@@ -236,7 +236,7 @@ int main(int argc, char** argv)
         DeleteInstance (client, Filter2Ref);
         DeleteInstance (client, Handler1Ref);
     }
-    catch (Exception e)
+    catch (Exception& e)
     {
         PEGASUS_STD (cerr) << "Exception: " << e.getMessage () 
                            << PEGASUS_STD (endl);

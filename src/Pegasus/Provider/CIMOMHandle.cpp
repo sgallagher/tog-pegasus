@@ -568,7 +568,7 @@ Message *CIMOMHandle::_cimom_handle_rep::do_request(Message *request,
        else
 	  _msg_avail.wait();
     }
-    catch(TimeOut)
+    catch(TimeOut&)
     {
        PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
 			"timeout waiting for response");

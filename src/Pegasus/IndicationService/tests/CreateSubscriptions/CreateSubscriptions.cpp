@@ -84,7 +84,7 @@ int main(int argc, char** argv)
     {
         TestCreateSubscriptionInstances (client);
     }
-    catch (Exception e)
+    catch (Exception& e)
     {
         PEGASUS_STD (cerr) << "Exception: " << e.getMessage ()
                            << PEGASUS_STD (endl);

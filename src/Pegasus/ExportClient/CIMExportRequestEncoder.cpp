@@ -39,7 +39,6 @@
 #include <Pegasus/Common/Config.h>
 #include <iostream>
 #include <Pegasus/Common/Constants.h>
-#include <Pegasus/Common/System.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/AcceptLanguages.h>  // l10n
@@ -51,11 +50,13 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMExportRequestEncoder::CIMExportRequestEncoder(
-   MessageQueue* outputQueue, ClientAuthenticator* authenticator)
+   MessageQueue* outputQueue,
+   const String& hostName,
+   ClientAuthenticator* authenticator)
    : 
    MessageQueue(PEGASUS_QUEUENAME_EXPORTREQENCODER),
    _outputQueue(outputQueue),
-   _hostName(System::getHostName().getCString()),
+   _hostName(hostName.getCString()),
    _authenticator(authenticator)
 {
     PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportRequestEncoder::CIMExportRequestEncoder()");

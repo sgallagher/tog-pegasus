@@ -189,8 +189,16 @@ void CIMClientRep::_connect()
     //
     // Create request encoder:
     //
+    String connectHost = _connectHost;
+    if (connectHost.size())
+    {
+        char portStr[32];
+        sprintf(portStr, ":%u", _connectPortNumber);
+        connectHost.append(portStr);
+    }
+
     _requestEncoder = new CIMOperationRequestEncoder(
-        _httpConnection, &_authenticator, showOutput);
+        _httpConnection, connectHost, &_authenticator, showOutput);
 
     _responseDecoder->setEncoderQueue(_requestEncoder);
 
@@ -355,6 +363,9 @@ void CIMClientRep::connectLocal()
     _authenticator.setAuthType(ClientAuthenticator::LOCAL);
 
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+    _connectSSLContext.reset(0);
+    _connectHost = String::EMPTY;
+    _connectPortNumber = 0;
     _connect();
 #else
 

@@ -55,10 +55,14 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportRequestEncoder
    public:
       /** Constuctor.
 	  @param outputQueue queue to receive encoded HTTP messages.
+          @param hostName Name of the target host for the encoded requests.
+                          I.e., the value of the HTTP Host header.
 	  @param authenticator client authenticator. 
       */
       CIMExportRequestEncoder(
-	 MessageQueue* outputQueue, ClientAuthenticator* authenticator);
+         MessageQueue* outputQueue,
+         const String& hostName,
+         ClientAuthenticator* authenticator);
 
       /** Destructor. */
       ~CIMExportRequestEncoder();

@@ -52,9 +52,13 @@ public:
 
     /** Constuctor.
 	@param outputQueue queue to receive encoded HTTP messages.
+        @param hostName Name of the target host for the encoded requests.
+                        I.e., the value of the HTTP Host header.
     */
     CIMOperationRequestEncoder(
-        MessageQueue* outputQueue, ClientAuthenticator* authenticator,
+        MessageQueue* outputQueue,
+        const String& hostName,
+        ClientAuthenticator* authenticator,
         Uint32 showOutput);
 
     /** Destructor. */

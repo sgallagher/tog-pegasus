@@ -37,7 +37,6 @@
 #include <Pegasus/Common/Config.h>
 #include <iostream>
 #include <Pegasus/Common/Constants.h>
-#include <Pegasus/Common/System.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include "CIMOperationRequestEncoder.h"
@@ -47,17 +46,17 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 
-
-
 CIMOperationRequestEncoder::CIMOperationRequestEncoder(
-    MessageQueue* outputQueue, ClientAuthenticator* authenticator,
-	Uint32 showOutput)
+    MessageQueue* outputQueue,
+    const String& hostName,
+    ClientAuthenticator* authenticator,
+    Uint32 showOutput)
     :
     MessageQueue(PEGASUS_QUEUENAME_OPREQENCODER),
     _outputQueue(outputQueue),
-    _hostName(System::getHostName().getCString()),
+    _hostName(hostName.getCString()),
     _authenticator(authenticator),
-	_showOutput(showOutput)
+    _showOutput(showOutput)
 {
 }
 

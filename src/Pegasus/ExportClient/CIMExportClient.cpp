@@ -149,12 +149,20 @@ void CIMExportClient::_connect()
     
    // Create request encoder:
     
+   String connectHost = _connectHost;
+   if (connectHost.size())
+   {
+       char portStr[32];
+       sprintf(portStr, ":%u", _connectPortNumber);
+       connectHost.append(portStr);
+   }
+
    #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
    _requestEncoder = new CIMExportRequestEncoder(
-      _httpConnection, &_authenticator);
+      _httpConnection, connectHost, &_authenticator);
    #else
    _requestEncoder = new CIMExportRequestEncoder(
-      _httpConnection2, &_authenticator);
+      _httpConnection2, connectHost, &_authenticator);
    #endif
 
    _responseDecoder->setEncoderQueue(_requestEncoder);    

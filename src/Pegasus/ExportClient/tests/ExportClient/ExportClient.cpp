@@ -40,11 +40,20 @@ PEGASUS_USING_STD;
 
 const String NAMESPACE = "root/cimv2";
 
-static void TestGetClass(CIMExportClient& client)
+static void TestExportIndication(CIMExportClient& client)
 {
-    CIMClass c = client.getClass(
-	NAMESPACE, "CIM_ComputerSystem", false, false, true);
-    c.print(cout);
+    CIMInstance indication(CIMName("My_IndicationClass"));
+    indication.addProperty(CIMProperty(CIMName("DeviceName"), String("Disk")));
+    indication.addProperty(CIMProperty(CIMName("DeviceId"), Uint32(1)));
+
+    try
+    {
+        client.exportIndication("/CIMListener/consumer1", indication);
+    }
+    catch (CIMException& e)
+    {
+        PEGASUS_ASSERT(e.getCode() == CIM_ERR_NOT_SUPPORTED);
+    }
 }
 
 int main(int argc, char** argv)
@@ -60,8 +69,8 @@ int main(int argc, char** argv)
   #endif
 
 	CIMExportClient client(monitor, httpConnector);
-	client.connect("localhost:8888");
-	TestGetClass(client);
+	client.connect("localhost", 5988);
+	TestExportIndication(client);
     }
     catch(Exception& e)
     {

@@ -550,9 +550,17 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         //
         //  Encapsulate XML request in an HTTP request
         //
-        message = XMLProcess::encapsulate( parser, _hostName, 
+
+        String hostName = String::EMPTY;
+        if (_hostNameSet && _hostName.size())
+        {
+            hostName = _hostName + String(":") + _portNumberStr;
+        }
+
+        message = XMLProcess::encapsulate( parser, hostName, 
                                            _useMPost, _useHTTP11,
                                            content, httpHeaders );
+
         if (_debugOutput1)
         {
           outPrintWriter << message.getData () << endl;

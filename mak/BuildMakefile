@@ -66,6 +66,10 @@ all: buildmu
 	$(MAKE) --directory=pegasus -f Makefile depend
 	$(MAKE) --directory=pegasus -f Makefile all
 
+doc:
+	$(MAKE) --directory=pegasus/doc/ProviderSpec -f Makefile
+	$(MAKE) --directory=pegasus/doc/DevManual -f Makefile
+
 clean:
 	$(MAKE) --directory=pegasus -f Makefile clean
 

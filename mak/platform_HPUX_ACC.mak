@@ -48,10 +48,6 @@ ifdef PEGASUS_NOASSERTS
  DEFINES += -DNDEBUG
 endif
 
-ifdef PEGASUS_RETURN_WHEN_READY
- DEFINES += -DPEGASUS_RETURN_WHEN_READY
-endif
-
 ##
 ## The following flags need to be set or unset 
 ## to compile-in the code required for PAM authentication

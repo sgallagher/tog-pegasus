@@ -37,14 +37,15 @@
 #include <unistd.h>
 #include <signal.h>
 
+// Note: on the Unix platform, PEGASUS_RETURN_WHEN_READY flag is turned on 
+//       by default. This means that the cimserver is ready to serve CIM
+//	 requests when the command cimserver is returned. If you like to 
+// 	 turn off this feature on your platform, just undefine this flag for
+// 	 your platform.
+#define PEGASUS_RETURN_WHEN_READY
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-
-//Note: if you compile with the -DPEGASUS_RETURN_WHEN_READY flag, when the
-//      command cimserver is returned, the cimserver is ready to serve CIM
-//	requests. This functionality has been implemented on the Unix 
-//	plateform. If all the Unix plateforms like to turn on this feature,
-// 	compile flag can be removed.
 
 #ifdef PEGASUS_RETURN_WHEN_READY
 static sig_atomic_t sigflag;

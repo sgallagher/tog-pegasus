@@ -75,6 +75,7 @@ static int yygrowstack();
             f) Alias Handling
   */
 
+
 #define YYSTACKSIZE 2000
 
 #include <cstdlib>
@@ -95,6 +96,8 @@ static int yygrowstack();
 #include "qualifierList.h"
 #include "objname.h"
 
+/*include any useful debugging stuff here*/
+
 /* Debugging the parser.  Debugging is provided through
    1. debug functions in Bison that are controlled by a compile time
       flag (YYDEBUG) and a runtime flag (yydebug) which is redefined
@@ -108,15 +111,17 @@ static int yygrowstack();
 /* Enable this define to compie Bison/Yacc tracing*/
 /* ATTN: p3 03092003 ks Enabling this flag currently causes a compile error*/
 
-/*#define YYDEBUG*/
+#define YYDEBUG 1
 /*static int cimmof_debug;*/
 
 /*extern cimmofParser g_cimmofParser;*/
 
-extern int cimmof_lex(void);
-extern int cimmof_error(...);
+extern int   cimmof_lex(void);
+extern int   cimmof_error(...);
 extern char *cimmof_text;
-extern void cimmof_yy_less(int n);
+extern void  cimmof_yy_less(int n);
+extern int   cimmof_leng;
+
 
 /* ------------------------------------------------------------------- */
 /* These globals provide continuity between various pieces of a        */
@@ -166,114 +171,113 @@ cimmof_error(const char *msg) {
   /* printf("Error: %s\n", msg);*/
 }
 
-  
-#line 130 "cimmof.y"
+#line 135 "cimmof.y"
 typedef union {
-  struct pragma *pragma;
-  int              ival;
-  /*  char             *strval;*/
-  String *         strval;
-  CIMName *         cimnameval;
-  CIMType        datatype;
-  CIMValue *          value;
-  String *         strptr;
-  CIMQualifier *      qualifier;
-  CIMScope *          scope;
-  CIMFlavor *         flavor;
-  CIMProperty *       property;
-  CIMMethod *         method;
-  CIMClass *      mofclass;
-  CIMQualifierDecl *   mofqualifier;
-  CIMInstance *   instance;
-  CIMObjectPath *  reference;
-  modelPath *     modelpath;
-  CIMKeyBinding *    keybinding;
-  TYPED_INITIALIZER_VALUE * typedinitializer;
+  /*char                     *strval;*/
+  CIMClass                 *mofclass;
+  CIMFlavor                *flavor;
+  CIMInstance              *instance;
+  CIMKeyBinding            *keybinding;
+  CIMMethod                *method;
+  CIMName                  *cimnameval;
+  CIMObjectPath            *reference;
+  CIMProperty              *property;
+  CIMQualifier             *qualifier;
+  CIMQualifierDecl         *mofqualifier;
+  CIMScope                 *scope;
+  CIMType                   datatype;
+  CIMValue                 *value;
+  int                       ival;
+  modelPath                *modelpath;
+  String                   *strptr;
+  String                   *strval;
+  struct pragma            *pragma;
+  TYPED_INITIALIZER_VALUE  *typedinitializer;
 } YYSTYPE;
-#line 194 "y.tab.c"
+#line 198 "y.tab.c"
 #define YYERRCODE 256
-#define TOK_LEFTCURLYBRACE 257
-#define TOK_RIGHTCURLYBRACE 258
-#define TOK_RIGHTSQUAREBRACKET 259
-#define TOK_LEFTSQUAREBRACKET 260
-#define TOK_LEFTPAREN 261
-#define TOK_RIGHTPAREN 262
-#define TOK_COLON 263
-#define TOK_SEMICOLON 264
-#define TOK_POSITIVE_DECIMAL_VALUE 265
-#define TOK_SIGNED_DECIMAL_VALUE 266
-#define TOK_EQUAL 267
-#define TOK_COMMA 268
-#define TOK_CLASS 269
-#define TOK_REAL_VALUE 270
-#define TOK_CHAR_VALUE 271
-#define TOK_STRING_VALUE 272
-#define TOK_NULL_VALUE 273
-#define TOK_OCTAL_VALUE 274
-#define TOK_HEX_VALUE 275
-#define TOK_BINARY_VALUE 276
-#define TOK_TRUE 277
-#define TOK_FALSE 278
-#define TOK_DQUOTE 279
-#define TOK_PERIOD 280
-#define TOK_SIMPLE_IDENTIFIER 281
-#define TOK_ALIAS_IDENTIFIER 282
-#define TOK_PRAGMA 283
-#define TOK_INCLUDE 284
-#define TOK_AS 285
-#define TOK_INSTANCE 286
-#define TOK_OF 287
-#define TOK_QUALIFIER 288
-#define TOK_SCOPE 289
-#define TOK_SCHEMA 290
-#define TOK_ASSOCIATION 291
-#define TOK_INDICATION 292
-#define TOK_PROPERTY 293
-#define TOK_REFERENCE 294
+#define TOK_ALIAS_IDENTIFIER 257
+#define TOK_ANY 258
+#define TOK_AS 259
+#define TOK_ASSOCIATION 260
+#define TOK_BINARY_VALUE 261
+#define TOK_CHAR_VALUE 262
+#define TOK_CLASS 263
+#define TOK_COLON 264
+#define TOK_COMMA 265
+#define TOK_DISABLEOVERRIDE 266
+#define TOK_DQUOTE 267
+#define TOK_DT_BOOL 268
+#define TOK_DT_CHAR16 269
+#define TOK_DT_CHAR8 270
+#define TOK_DT_DATETIME 271
+#define TOK_DT_REAL32 272
+#define TOK_DT_REAL64 273
+#define TOK_DT_SINT16 274
+#define TOK_DT_SINT32 275
+#define TOK_DT_SINT64 276
+#define TOK_DT_SINT8 277
+#define TOK_DT_STR 278
+#define TOK_DT_UINT16 279
+#define TOK_DT_UINT32 280
+#define TOK_DT_UINT64 281
+#define TOK_DT_UINT8 282
+#define TOK_ENABLEOVERRIDE 283
+#define TOK_END_OF_FILE 284
+#define TOK_EQUAL 285
+#define TOK_FALSE 286
+#define TOK_FLAVOR 287
+#define TOK_HEX_VALUE 288
+#define TOK_INCLUDE 289
+#define TOK_INDICATION 290
+#define TOK_INSTANCE 291
+#define TOK_LEFTCURLYBRACE 292
+#define TOK_LEFTPAREN 293
+#define TOK_LEFTSQUAREBRACKET 294
 #define TOK_METHOD 295
-#define TOK_PARAMETER 296
-#define TOK_ANY 297
-#define TOK_REF 298
-#define TOK_FLAVOR 299
-#define TOK_ENABLEOVERRIDE 300
-#define TOK_DISABLEOVERRIDE 301
-#define TOK_RESTRICTED 302
-#define TOK_TOSUBCLASS 303
-#define TOK_TRANSLATABLE 304
-#define TOK_DT_STR 305
-#define TOK_DT_BOOL 306
-#define TOK_DT_DATETIME 307
-#define TOK_DT_UINT8 308
-#define TOK_DT_SINT8 309
-#define TOK_DT_UINT16 310
-#define TOK_DT_SINT16 311
-#define TOK_DT_UINT32 312
-#define TOK_DT_SINT32 313
-#define TOK_DT_UINT64 314
-#define TOK_DT_SINT64 315
-#define TOK_DT_CHAR8 316
-#define TOK_DT_CHAR16 317
-#define TOK_DT_REAL32 318
-#define TOK_DT_REAL64 319
-#define TOK_UNEXPECTED_CHAR 320
-#define TOK_END_OF_FILE 321
+#define TOK_NULL_VALUE 296
+#define TOK_OCTAL_VALUE 297
+#define TOK_OF 298
+#define TOK_PARAMETER 299
+#define TOK_PERIOD 300
+#define TOK_POSITIVE_DECIMAL_VALUE 301
+#define TOK_PRAGMA 302
+#define TOK_PROPERTY 303
+#define TOK_QUALIFIER 304
+#define TOK_REAL_VALUE 305
+#define TOK_REF 306
+#define TOK_REFERENCE 307
+#define TOK_RESTRICTED 308
+#define TOK_RIGHTCURLYBRACE 309
+#define TOK_RIGHTPAREN 310
+#define TOK_RIGHTSQUAREBRACKET 311
+#define TOK_SCHEMA 312
+#define TOK_SCOPE 313
+#define TOK_SEMICOLON 314
+#define TOK_SIGNED_DECIMAL_VALUE 315
+#define TOK_SIMPLE_IDENTIFIER 316
+#define TOK_STRING_VALUE 317
+#define TOK_TOSUBCLASS 318
+#define TOK_TRANSLATABLE 319
+#define TOK_TRUE 320
+#define TOK_UNEXPECTED_CHAR 321
 const short cimmof_lhs[] = {                                        -1,
-    0,   60,   60,   61,   61,   61,   61,   56,   55,   27,
-   28,   28,   63,   63,   65,   65,   66,   66,   66,   54,
-   53,   67,   68,   26,   69,   69,   69,   70,   46,   46,
-   51,   50,   71,   52,    6,    7,    8,    8,   47,   25,
-   24,   39,   39,   39,   30,   30,   11,   11,   11,   29,
-   29,   29,   29,   15,   15,   12,   12,   13,   13,   13,
-   13,   13,   18,   18,   18,   18,   18,   40,   40,   10,
-   10,    9,   14,   14,   21,   21,   23,   22,   20,   20,
-   19,   32,   41,   41,   33,    3,   16,   16,   17,   59,
-   58,   72,   73,   73,   74,   62,   62,   75,    5,   42,
-   57,   48,   34,   76,   35,   35,   36,   36,   36,   36,
-   36,   36,   36,   36,   36,   38,   38,   77,   78,   78,
-   79,   79,   79,   79,   79,   37,   37,   80,   80,   43,
-   43,   43,   43,   43,   44,   44,   44,   44,   44,   44,
-   44,   44,   44,   45,   45,   64,   64,   81,   82,   82,
-   49,    4,    4,   31,   31,   31,   31,    1,    2,
+    0,   60,   60,   61,   61,   61,   61,   23,   22,    4,
+    5,    5,   63,   63,   65,   65,   66,   66,   66,   20,
+   19,   67,   68,    3,   69,   69,   69,   70,    9,    9,
+   27,   26,   71,   28,   36,   37,   38,   38,   10,    2,
+    1,   15,   15,   15,   57,   57,   52,   52,   52,   56,
+   56,   56,   56,   34,   34,   53,   53,   42,   42,   42,
+   42,   42,   39,   39,   39,   39,   39,   16,   16,   51,
+   51,   50,   33,   33,   47,   47,   49,   48,   41,   41,
+   40,   21,   17,   17,   18,   45,   54,   54,   55,   14,
+   13,   72,   73,   73,   74,   62,   62,   75,   35,   25,
+   24,   59,   30,   76,   31,   31,   32,   32,   32,   32,
+   32,   32,   32,   32,   32,   12,   12,   77,   78,   78,
+   79,   79,   79,   79,   79,   11,   11,   80,   80,    6,
+    6,    6,    6,    6,    7,    7,    7,    7,    7,    7,
+    7,    7,    7,    8,    8,   64,   64,   81,   82,   82,
+   29,   46,   46,   58,   58,   58,   58,   43,   44,
 };
 const short cimmof_len[] = {                                         2,
     1,    2,    0,    1,    1,    1,    1,    2,    5,    1,
@@ -294,175 +298,181 @@ const short cimmof_len[] = {                                         2,
     3,    1,    1,    3,    3,    1,    0,    1,    1,
 };
 const short cimmof_defred[] = {                                      0,
-  148,    0,    0,    0,   97,    0,    6,    5,    0,    7,
-    1,    0,    4,    0,   96,    0,  158,    0,    0,  107,
-  152,  108,  109,  110,  111,  112,  113,  114,  115,    0,
-  153,    0,    8,    0,   90,    2,    0,    0,    0,  149,
-    0,    0,    0,    0,    0,    0,   17,   19,   18,    0,
-    0,   15,    0,    0,   93,   10,    0,    0,    0,    0,
-  156,    0,  146,    0,   72,    0,   99,  159,    0,  132,
-  133,  134,  135,  136,  137,  138,  139,  140,  141,  142,
-  143,  144,  145,    0,  130,  131,    0,    0,    0,   14,
-   35,    0,    0,    0,    0,    0,   16,    0,    0,   94,
-    0,    0,    0,   74,   63,   64,   59,   60,   57,   65,
-   66,   67,   69,   68,   70,    0,   54,   56,    0,   58,
-   62,    0,    0,  121,  122,  123,  124,  125,  151,  128,
+  148,    0,    0,    0,    0,    7,    0,    6,    5,   97,
+    1,    0,    4,    0,   96,    0,    0,  158,    0,  115,
+  109,  107,  110,  113,  114,  111,  112,  108,  152,  153,
+    0,    0,   90,    0,    8,    2,    0,    0,  149,    0,
+    0,    0,    0,    0,    0,    0,    0,   93,    0,   18,
+   17,   19,    0,    0,   15,   10,    0,    0,    0,    0,
+  156,    0,    0,  146,   72,    0,   99,  159,    0,  133,
+  143,  134,  144,  145,  138,  140,  142,  136,  132,  137,
+  139,  141,  135,    0,  130,  131,    0,    0,    0,    0,
+    0,   94,   14,   35,    0,    0,    0,    0,    0,   16,
+    0,    0,    0,   67,   60,   68,   66,   57,   65,   63,
+   59,   74,   64,   69,   62,    0,   58,   56,   70,    0,
+   54,    0,    0,  122,  121,  123,  124,  125,  151,  128,
     0,  150,   98,  100,    0,    0,    0,    0,    0,    0,
-  105,    0,    0,    0,   21,   33,   31,    0,    0,   13,
-    0,   92,   89,   87,    0,    9,   91,   71,   73,    0,
-  155,  154,  129,   43,    0,    0,  102,  104,    0,    0,
-  101,  103,    0,   36,    0,    0,    0,    0,   25,   23,
-   20,   51,    0,   50,   52,   78,   53,   76,   75,    0,
+  105,    0,   92,    0,    0,   21,    0,    0,   33,   31,
+    0,   13,   89,   87,    0,    9,   91,    0,   73,   71,
+  155,  154,  129,    0,   43,    0,  102,  104,    0,    0,
+  101,    0,  103,    0,   51,   52,   50,   53,   76,   75,
+   78,    0,    0,    0,    0,   25,   23,   20,   36,    0,
    11,   55,   42,   45,  118,    0,  119,  106,    0,    0,
-   32,    0,   29,    0,   30,   22,    0,   81,    0,    0,
-   95,  116,    0,   37,   34,   39,   40,    0,   26,   79,
-    0,    0,  120,   28,    0,   77,   86,    0,   83,    0,
-    0,    0,   85,   47,   48,   49,   84,
+   81,   95,   32,    0,   29,    0,   30,    0,   22,    0,
+    0,    0,  116,   79,    0,    0,   39,   40,    0,   26,
+   37,   34,  120,    0,   77,   28,   86,    0,   83,    0,
+    0,    0,   84,   48,   49,   85,   47,
 };
 const short cimmof_dgoto[] = {                                       4,
-   19,   69,  228,   39,   66,   92,  175,  200,  115,  116,
-  233,  117,  118,  185,  119,  102,  186,  120,  209,  210,
-  187,  188,  189,  144,  218,  145,   57,  156,  190,  167,
-   62,  222,  229,   88,  140,   31,  129,  139,  136,  121,
-  230,    5,   84,   85,   86,  204,  205,   45,   40,   94,
-   47,   48,   95,   49,    6,    7,    8,    9,   10,   11,
-   12,   13,   33,   14,   51,   52,  149,  181,  178,  179,
-  147,   35,   54,   55,   15,   89,  170,  196,  130,  131,
+  145,  219,  146,   57,  156,   84,   85,   86,  206,  207,
+  129,  139,    5,    6,  136,  115,  228,  229,   96,   50,
+  216,    7,    8,    9,   10,   97,   51,   52,   39,   88,
+  140,   30,  176,  116,   66,   98,  190,  211,  117,  199,
+  200,  118,   19,   69,  230,   40,  178,  179,  180,  119,
+  120,  236,  121,  102,  181,  182,  167,   62,   45,   11,
+   12,   13,   35,   14,   54,   55,  148,  188,  185,  186,
+  150,   33,   47,   48,   15,   89,  170,  196,  130,  131,
    16,   41,
 };
-const short cimmof_sindex[] = {                                   -247,
-    0, -251, -143,    0,    0, -222,    0,    0, -208,    0,
-    0, -247,    0, -254,    0, -143,    0, -219, -195,    0,
-    0,    0,    0,    0,    0,    0,    0,    0,    0, -175,
-    0, -206,    0, -184,    0,    0, -158, -163, -172,    0,
- -245, -145, -144, -108, -138, -135,    0,    0,    0, -203,
- -159,    0, -156, -141,    0,    0, -154, -158,   24,   38,
-    0, -207,    0, -143,    0, -130,    0,    0, -128,    0,
+const short cimmof_sindex[] = {                                   -142,
+    0, -266,  -78,    0, -264,    0, -260,    0,    0,    0,
+    0, -142,    0, -150,    0,  -78, -253,    0, -244,    0,
     0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-    0,    0,    0, -125,    0,    0, -153, -131,  -73,    0,
-    0, -157, -142, -121, -117, -119,    0, -127, -106,    0,
- -126, -104, -154,    0,    0,    0,    0,    0,    0,    0,
-    0,    0,    0,    0,    0, -145,    0,    0, -241,    0,
-    0, -102, -101,    0,    0,    0,    0,    0,    0,    0,
- -207,    0,    0,    0, -215, -103,  -98,  -91,  -99, -217,
-    0,  -69,    0, -125,    0,    0,    0, -184,  -51,    0,
-  -32,    0,    0,    0, -158,    0,    0,    0,    0,   52,
-    0,    0,    0,    0,  -45,  -32,    0,    0,  -46, -207,
-    0,    0,  -73,    0,  -41, -103, -139, -187,    0,    0,
-    0,    0, -145,    0,    0,    0,    0,    0,    0,  -48,
-    0,    0,    0,    0,    0, -185,    0,    0, -145,  -36,
-    0,  -71,    0,  -52,    0,    0, -184,    0,  -33, -158,
-    0,    0, -207,    0,    0,    0,    0, -125,    0,    0,
-  -49,  -47,    0,    0,  -29,    0,    0,  -31,    0,  -20,
-    2,  -29,    0,    0,    0,    0,    0,
+ -198, -232,    0, -280,    0,    0, -263, -205,    0, -262,
+ -252, -230, -212,   58, -161, -207, -276,    0, -194,    0,
+    0,    0,   -3, -203,    0,    0, -143, -263, -167, -129,
+    0, -247,  -78,    0,    0, -188,    0,    0, -185,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0, -168,    0,    0, -186, -137,  -64, -149,
+ -171,    0,    0,    0, -165, -148, -160, -157, -159,    0,
+ -101, -106, -143,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0, -226,    0,    0,    0, -230,
+    0, -145, -141,    0,    0,    0,    0,    0,    0,    0,
+ -247,    0,    0,    0, -274, -115, -132, -114, -151, -240,
+    0, -241,    0,    0, -168,    0, -232, -133,    0,    0,
+ -139,    0,    0,    0, -263,    0,    0, -122,    0,    0,
+    0,    0,    0, -127,    0, -241,    0,    0, -104, -247,
+    0,  -64,    0, -230,    0,    0,    0,    0,    0,    0,
+    0, -117, -115,   27, -221,    0,    0,    0,    0,  -98,
+    0,    0,    0,    0,    0, -213,    0,    0,  -74, -263,
+    0,    0,    0, -105,    0, -116,    0, -232,    0, -230,
+ -112, -247,    0,    0,  -97,  -63,    0,    0, -168,    0,
+    0,    0,    0, -111,    0,    0,    0,  -59,    0,  -77,
+ -111, -219,    0,    0,    0,    0,    0,
 };
 const short cimmof_rindex[] = {                                      1,
     0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
     0,    1,    0,    0,    0,    0,    0,    0,    0,    0,
     0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-    0, -124,    0,  -28,    0,    0,    0,    0, -230,    0,
+    0, -109,    0,   43,    0,    0,    0,    0,    0, -208,
+    0,    0,    0,    0,    0,    0, -109,    0,    0,    0,
+    0,    0,    0,   43,    0,    0, -146,    0,    0,    0,
+    0, -243,    0,    0,    0,    0,    0,    0,    0,    0,
     0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
- -124,    0,    0,  -28,    0,    0, -210,    0,    0,    0,
-    0, -240,    0,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0, -250,    0,    0,    0, -103,    0,    0,
     0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-    0,    0,    0, -147,    0,    0,    0,  -27,    0,    0,
+    0,  -83,  -82,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0, -202,
     0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-    0,  -22,   -8,    0,    0,    0,    0,    0,    0,    0,
-    0,    0,    0,    0,    0, -242,    0,    0,    0,    0,
-    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
- -234,    0,    0,    0,    0,  -17,    0,    0,    0,    0,
-    0,    0, -221, -177,    0,    0,    0, -250,    0,    0,
+ -231,    0,    0,    0,    0,  -51,    0,    0,    0,    0,
+    0,    0,    0, -170, -273,    0,  -19,    0,    0,    0,
     0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
     0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-    0,    0,    0,    0,  -10,   -9,    0,    0,    0,    0,
-    0,    0,  -25,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0, -100,    0,    0,    0,    0,    0,    0,
+    0,    0,  -99,    0,    0,    0,    0,    0,    0,  -96,
     0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-    0,    0,    0,    0,    0,    0, -124,    0,    0,    0,
-    0,    0,    0,    0,    0,    0,    0, -182,    0,    0,
-    0,    0,    0,    0,    0,    0,    0,    0,    0,  -21,
+    0,    0,    0,    0,    0,    0,    0,   43,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0, -211,    0,
+    0,    0,    0,    0,    0,    0,    0,  -54,    0,    0,
     0,    0,    0,    0,    0,    0,    0,
 };
 const short cimmof_gindex[] = {                                      0,
-    0,    0,    0,  254,    0,    0,    0,    0,  -37,    0,
-    0, -149,  -53,  -39,    0,  157,  160,    0,    0,    0,
-   31,    0,    0,    0,    0,    0,  -55,    0,   97,   88,
-    0,    0,   33,    0,    0,  -81,    0,    0, -134,    0,
-    0,    0,  -44,    0,    0,    0,    0,    0,  202,    0,
-    0,    0,    0,    0,    0,    0,    0,    0,    0,  257,
-    0,    0,    0,  -30,    0,  220,    0,    0,    0,   76,
-    0,    0,    0,  231,    0,    0,    0,    0, -122,    0,
+    0,    0,    0,  -53,    0,  -47,    0,    0,    0,    0,
+    0,    0,    0,    0, -135,    0,    0,  -12,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,  157,    0,
+    0,  -80,  -40,    0,    0,    0,    0,    0,    0,    0,
+    0,  -52,    0,    0,    0,  219,   -9,    0,    0,  -39,
+    0,    0, -147,  121,  126,   62,   47,    0,    0,  220,
+    0,    0,    0,  -30,    0,  179,    0,    0,    0,   28,
+    0,    0,    0,  190,    0,    0,    0,    0, -124,    0,
     0,    0,
 };
-#define YYTABLESIZE 330
+#define YYTABLESIZE 359
 const short cimmof_table[] = {                                      61,
-    3,   50,  103,   53,   67,   93,  123,  141,  163,  176,
-  192,   27,    1,   63,   37,   61,  159,   27,  127,   61,
-   50,   61,   64,   53,  126,   61,  160,  127,  157,   17,
-  147,   38,   18,  126,   32,    2,   61,  157,   41,   24,
-    3,   42,   41,  164,  172,   41,   88,  197,   34,  165,
-  173,   46,   88,    1,  147,  147,  147,  147,  147,  147,
-  147,  147,  147,  147,  147,   43,  147,  147,  147,  157,
-  157,  157,  157,  157,  206,    1,  212,   91,  158,   44,
-  207,  234,  213,  224,   59,   44,   44,   44,   60,   44,
-  223,  198,  124,  125,  126,  127,  128,  184,   96,  191,
-    1,   70,   71,   72,   73,   74,   75,   76,   77,   78,
-   79,   80,  184,   81,   82,   83,   99,  177,    1,   44,
-   44,  202,   56,   58,   98,   20,   65,   68,   90,   87,
-  101,  133,  203,  134,  135,  137,  138,   21,  143,  151,
-  142,   56,  146,  148,  150,  208,   22,   23,   24,   25,
-   26,   27,   28,   29,  221,  153,  147,  152,  155,  161,
-  162,  214,  168,  166,  171,   70,   71,   72,   73,   74,
-   75,   76,   77,   78,   79,   80,  177,   81,   82,   83,
-  147,  147,  147,  147,  147,  147,  147,  147,  147,  147,
-  147,  235,  147,  147,  147,   20,   70,   71,   72,   73,
-   74,   75,   76,   77,   78,   79,   80,  169,   81,   82,
-   83,  174,  180,  193,  195,  211,   22,   23,   24,   25,
-   26,   27,   28,   29,   59,  199,  216,  215,  217,  220,
-  225,  226,  105,  106,   12,  231,  117,  107,  108,   65,
-  182,  110,  111,  112,  113,  114,  183,  232,   88,  153,
-   46,  227,  147,   38,   46,   80,   30,   82,   59,  157,
-  154,  236,  194,  201,  237,  132,  105,  106,   36,  147,
-   97,  107,  108,   65,  109,  110,  111,  112,  113,  114,
-  183,  104,  219,  153,  100,    0,  147,    0,  105,  106,
-    0,    0,    0,  107,  108,   65,  109,  110,  111,  112,
-  113,  114,  105,  106,    0,    0,    0,  107,  108,   65,
-  122,  110,  111,  112,  113,  114,  105,  106,    0,    0,
-    0,  107,  108,   65,  109,  110,  111,  112,  113,  114,
+    3,   46,   67,   53,  103,   95,  163,  123,  141,  183,
+  192,   44,   63,    1,   44,  153,   46,    1,  124,  104,
+  105,  127,   17,   53,  172,  174,  164,   32,   49,   59,
+   60,   34,   91,  126,   44,  125,  165,  153,  158,   42,
+   44,  104,  105,  208,  106,  197,  107,  174,   43,   18,
+   59,  212,   56,   44,  175,  109,  157,  157,   64,  110,
+  126,    1,   61,  111,   61,   44,  106,  127,  107,  173,
+  127,  128,   59,  113,  157,   65,  108,  109,  114,  126,
+  160,  110,  159,  226,  237,  111,   65,  223,  209,  177,
+    1,  198,   58,  104,  105,  113,  213,   65,   44,  157,
+  114,  191,  157,   87,   68,   99,   61,   61,   90,  157,
+  157,   61,   37,  177,   41,  101,  184,   88,  106,   93,
+  107,  133,   24,   41,  134,  135,  137,  138,  108,  109,
+  204,  104,  105,  110,  201,  142,  205,  111,  104,  105,
+   38,  112,  143,   41,  147,   88,  215,  113,  151,   65,
+  144,    1,  114,  149,  152,  153,  106,  155,  107,    2,
+  168,    3,  171,  106,  161,  107,  122,  109,  162,  166,
+  221,  110,  169,  108,  109,  111,  189,  184,  110,   20,
+  187,   21,  111,  193,   22,  113,  210,   65,  195,  214,
+  114,  234,  113,   20,   65,   21,  202,  114,   22,  218,
+  217,  222,  224,  225,  227,  231,  147,  232,   12,   88,
+  117,   23,   82,   46,   46,   80,   24,   38,  233,  132,
+   25,   31,  235,  157,   26,   23,  154,  194,   27,  203,
+   24,   36,  100,   28,   25,  220,   92,   29,   26,    0,
+    0,    0,   27,    0,    0,   27,    0,   28,  147,  147,
+    0,  147,  147,  147,  147,  147,  147,  147,  147,  147,
+  147,  147,  147,  147,   70,   71,    0,   72,   73,   74,
+   75,   76,   77,   78,   79,   80,   81,   82,   83,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+   27,  147,    0,    0,   70,   71,  147,   72,   73,   74,
+   75,   76,   77,   78,   79,   80,   81,   82,   83,    0,
+  147,  147,   94,  147,  147,  147,  147,  147,  147,  147,
+  147,  147,  147,  147,  147,   70,   71,    0,   72,   73,
+   74,   75,   76,   77,   78,   79,   80,   81,   82,   83,
+    0,    0,   56,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,  147,
 };
-const short cimmof_check[] = {                                      39,
-    0,   32,   58,   34,   42,   50,   60,   89,  131,  144,
-  160,  262,  260,  259,  269,  258,  258,  268,  259,  262,
-   51,  264,  268,   54,  259,  268,  268,  268,  259,  281,
-  281,  286,  284,  268,  257,  283,  279,  268,  260,  261,
-  288,  261,  264,  259,  262,  267,  257,  170,  257,  265,
-  268,  258,  263,  260,  305,  306,  307,  308,  309,  310,
-  311,  312,  313,  314,  315,  261,  317,  318,  319,  300,
-  301,  302,  303,  304,  262,  260,  262,  281,  116,  262,
-  268,  231,  268,  218,  257,  268,  264,  263,  261,  267,
-  213,  173,  300,  301,  302,  303,  304,  151,  258,  155,
-  260,  305,  306,  307,  308,  309,  310,  311,  312,  313,
-  314,  315,  166,  317,  318,  319,  258,  148,  260,  267,
-  268,  177,  281,  287,  281,  269,  272,  272,  264,  268,
-  285,  262,  177,  262,  260,  289,  268,  281,  281,  267,
-  298,  281,  264,  261,  264,  183,  290,  291,  292,  293,
-  294,  295,  296,  297,  210,  282,  281,  264,  263,  262,
-  262,  199,  261,  267,  264,  305,  306,  307,  308,  309,
-  310,  311,  312,  313,  314,  315,  207,  317,  318,  319,
-  305,  306,  307,  308,  309,  310,  311,  312,  313,  314,
-  315,  231,  317,  318,  319,  269,  305,  306,  307,  308,
-  309,  310,  311,  312,  313,  314,  315,  299,  317,  318,
-  319,  281,  264,  259,  261,  264,  290,  291,  292,  293,
-  294,  295,  296,  297,  257,  267,  298,  264,  281,  263,
-  280,  279,  265,  266,  257,  267,  264,  270,  271,  272,
-  273,  274,  275,  276,  277,  278,  279,  268,  257,  282,
-  268,  281,  281,  264,  264,  281,    3,  279,  257,  103,
-  101,  231,  166,  176,  232,   64,  265,  266,   12,  269,
-   51,  270,  271,  272,  273,  274,  275,  276,  277,  278,
-  279,  258,  207,  282,   54,   -1,  286,   -1,  265,  266,
-   -1,   -1,   -1,  270,  271,  272,  273,  274,  275,  276,
-  277,  278,  265,  266,   -1,   -1,   -1,  270,  271,  272,
-  273,  274,  275,  276,  277,  278,  265,  266,   -1,   -1,
-   -1,  270,  271,  272,  273,  274,  275,  276,  277,  278,
+const short cimmof_check[] = {                                      40,
+    0,   32,   42,   34,   58,   53,  131,   60,   89,  145,
+  158,  285,  265,  294,  265,  257,   47,  294,  266,  261,
+  262,  265,  289,   54,  265,  267,  301,  292,  309,  292,
+  293,  292,  309,  265,  285,  283,  311,  257,  265,  293,
+  314,  261,  262,  265,  286,  170,  288,  267,  293,  316,
+  292,  265,  316,  265,  296,  297,  265,  266,  311,  301,
+  308,  294,  265,  305,  267,  264,  286,  311,  288,  310,
+  318,  319,  292,  315,  283,  317,  296,  297,  320,  311,
+  120,  301,  309,  219,  232,  305,  317,  212,  310,  142,
+  294,  172,  298,  261,  262,  315,  310,  317,  310,  308,
+  320,  155,  311,  265,  317,  309,  309,  310,  316,  318,
+  319,  314,  263,  166,  285,  259,  147,  264,  286,  314,
+  288,  310,  293,  294,  310,  294,  313,  265,  296,  297,
+  184,  261,  262,  301,  174,  285,  184,  305,  261,  262,
+  291,  309,  314,  314,  293,  292,  200,  315,  306,  317,
+  316,  294,  320,  314,  314,  257,  286,  264,  288,  302,
+  293,  304,  314,  286,  310,  288,  296,  297,  310,  285,
+  210,  301,  287,  296,  297,  305,  316,  208,  301,  258,
+  314,  260,  305,  311,  263,  315,  285,  317,  293,  264,
+  320,  232,  315,  258,  317,  260,  314,  320,  263,  316,
+  306,  314,  300,  267,  316,  265,  316,  285,  292,  292,
+  314,  290,  267,  265,  314,  316,  295,  314,  231,   63,
+  299,    3,  232,  103,  303,  290,  101,  166,  307,  183,
+  295,   12,   54,  312,  299,  208,   47,  316,  303,   -1,
+   -1,   -1,  307,   -1,   -1,  265,   -1,  312,  268,  269,
+   -1,  271,  272,  273,  274,  275,  276,  277,  278,  279,
+  280,  281,  282,  263,  268,  269,   -1,  271,  272,  273,
+  274,  275,  276,  277,  278,  279,  280,  281,  282,   -1,
+   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,
+  310,  291,   -1,   -1,  268,  269,  316,  271,  272,  273,
+  274,  275,  276,  277,  278,  279,  280,  281,  282,   -1,
+  268,  269,  316,  271,  272,  273,  274,  275,  276,  277,
+  278,  279,  280,  281,  282,  268,  269,   -1,  271,  272,
+  273,  274,  275,  276,  277,  278,  279,  280,  281,  282,
+   -1,   -1,  316,   -1,   -1,   -1,   -1,   -1,   -1,   -1,
+   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,  316,
 };
 #define YYFINAL 4
 #ifndef YYDEBUG
@@ -477,22 +487,22 @@ const char * const cimmof_name[] = {
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"TOK_LEFTCURLYBRACE",
-"TOK_RIGHTCURLYBRACE","TOK_RIGHTSQUAREBRACKET","TOK_LEFTSQUAREBRACKET",
-"TOK_LEFTPAREN","TOK_RIGHTPAREN","TOK_COLON","TOK_SEMICOLON",
-"TOK_POSITIVE_DECIMAL_VALUE","TOK_SIGNED_DECIMAL_VALUE","TOK_EQUAL","TOK_COMMA",
-"TOK_CLASS","TOK_REAL_VALUE","TOK_CHAR_VALUE","TOK_STRING_VALUE",
-"TOK_NULL_VALUE","TOK_OCTAL_VALUE","TOK_HEX_VALUE","TOK_BINARY_VALUE",
-"TOK_TRUE","TOK_FALSE","TOK_DQUOTE","TOK_PERIOD","TOK_SIMPLE_IDENTIFIER",
-"TOK_ALIAS_IDENTIFIER","TOK_PRAGMA","TOK_INCLUDE","TOK_AS","TOK_INSTANCE",
-"TOK_OF","TOK_QUALIFIER","TOK_SCOPE","TOK_SCHEMA","TOK_ASSOCIATION",
-"TOK_INDICATION","TOK_PROPERTY","TOK_REFERENCE","TOK_METHOD","TOK_PARAMETER",
-"TOK_ANY","TOK_REF","TOK_FLAVOR","TOK_ENABLEOVERRIDE","TOK_DISABLEOVERRIDE",
-"TOK_RESTRICTED","TOK_TOSUBCLASS","TOK_TRANSLATABLE","TOK_DT_STR","TOK_DT_BOOL",
-"TOK_DT_DATETIME","TOK_DT_UINT8","TOK_DT_SINT8","TOK_DT_UINT16","TOK_DT_SINT16",
-"TOK_DT_UINT32","TOK_DT_SINT32","TOK_DT_UINT64","TOK_DT_SINT64","TOK_DT_CHAR8",
-"TOK_DT_CHAR16","TOK_DT_REAL32","TOK_DT_REAL64","TOK_UNEXPECTED_CHAR",
-"TOK_END_OF_FILE",
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"TOK_ALIAS_IDENTIFIER","TOK_ANY",
+"TOK_AS","TOK_ASSOCIATION","TOK_BINARY_VALUE","TOK_CHAR_VALUE","TOK_CLASS",
+"TOK_COLON","TOK_COMMA","TOK_DISABLEOVERRIDE","TOK_DQUOTE","TOK_DT_BOOL",
+"TOK_DT_CHAR16","TOK_DT_CHAR8","TOK_DT_DATETIME","TOK_DT_REAL32",
+"TOK_DT_REAL64","TOK_DT_SINT16","TOK_DT_SINT32","TOK_DT_SINT64","TOK_DT_SINT8",
+"TOK_DT_STR","TOK_DT_UINT16","TOK_DT_UINT32","TOK_DT_UINT64","TOK_DT_UINT8",
+"TOK_ENABLEOVERRIDE","TOK_END_OF_FILE","TOK_EQUAL","TOK_FALSE","TOK_FLAVOR",
+"TOK_HEX_VALUE","TOK_INCLUDE","TOK_INDICATION","TOK_INSTANCE",
+"TOK_LEFTCURLYBRACE","TOK_LEFTPAREN","TOK_LEFTSQUAREBRACKET","TOK_METHOD",
+"TOK_NULL_VALUE","TOK_OCTAL_VALUE","TOK_OF","TOK_PARAMETER","TOK_PERIOD",
+"TOK_POSITIVE_DECIMAL_VALUE","TOK_PRAGMA","TOK_PROPERTY","TOK_QUALIFIER",
+"TOK_REAL_VALUE","TOK_REF","TOK_REFERENCE","TOK_RESTRICTED",
+"TOK_RIGHTCURLYBRACE","TOK_RIGHTPAREN","TOK_RIGHTSQUAREBRACKET","TOK_SCHEMA",
+"TOK_SCOPE","TOK_SEMICOLON","TOK_SIGNED_DECIMAL_VALUE","TOK_SIMPLE_IDENTIFIER",
+"TOK_STRING_VALUE","TOK_TOSUBCLASS","TOK_TRANSLATABLE","TOK_TRUE",
+"TOK_UNEXPECTED_CHAR",
 };
 const char * const cimmof_rule[] = {
 "$accept : mofSpec",
@@ -879,23 +889,23 @@ yyreduce:
     switch (yyn)
     {
 case 4:
-#line 281 "cimmof.y"
+#line 284 "cimmof.y"
 { /* FIXME: Where do we put directives? */ }
 break;
 case 5:
-#line 283 "cimmof.y"
+#line 286 "cimmof.y"
 { cimmofParser::Instance()->addQualifier(yyvsp[0].mofqualifier); delete yyvsp[0].mofqualifier; }
 break;
 case 6:
-#line 285 "cimmof.y"
+#line 288 "cimmof.y"
 { cimmofParser::Instance()->addClass(yyvsp[0].mofclass); }
 break;
 case 7:
-#line 287 "cimmof.y"
+#line 290 "cimmof.y"
 { cimmofParser::Instance()->addInstance(yyvsp[0].instance); }
 break;
 case 8:
-#line 297 "cimmof.y"
+#line 303 "cimmof.y"
 {
     YACCTRACE("classDeclaration");
     if (g_currentAlias != String::EMPTY)
@@ -903,7 +913,7 @@ case 8:
 }
 break;
 case 9:
-#line 304 "cimmof.y"
+#line 311 "cimmof.y"
 {
     /* create new instance of class with className and superclassName*/
     /* put returned class object on stack*/
@@ -923,44 +933,44 @@ case 9:
 }
 break;
 case 10:
-#line 322 "cimmof.y"
-{  }
+#line 330 "cimmof.y"
+{}
 break;
 case 11:
-#line 324 "cimmof.y"
+#line 333 "cimmof.y"
 { yyval.cimnameval = new CIMName(*yyvsp[0].cimnameval); }
 break;
 case 12:
-#line 325 "cimmof.y"
+#line 334 "cimmof.y"
 { yyval.cimnameval = new CIMName(); }
 break;
 case 17:
-#line 333 "cimmof.y"
+#line 345 "cimmof.y"
 {
   YACCTRACE("classFeature:applyProperty");
   cimmofParser::Instance()->applyProperty(*g_currentClass, *yyvsp[0].property); delete yyvsp[0].property; }
 break;
 case 18:
-#line 336 "cimmof.y"
+#line 348 "cimmof.y"
 {
   YACCTRACE("classFeature:applyMethod");
   cimmofParser::Instance()->applyMethod(*g_currentClass, *yyvsp[0].method); }
 break;
 case 19:
-#line 339 "cimmof.y"
+#line 351 "cimmof.y"
 {
   YACCTRACE("classFeature:applyProperty");
   cimmofParser::Instance()->applyProperty(*g_currentClass, *yyvsp[0].property); delete yyvsp[0].property; }
 break;
 case 20:
-#line 352 "cimmof.y"
+#line 369 "cimmof.y"
 {
   YACCTRACE("methodDeclaration");
   yyval.method = yyvsp[-2].method;
 }
 break;
 case 21:
-#line 361 "cimmof.y"
+#line 380 "cimmof.y"
 {
     YACCTRACE("methodHead");
     if (g_currentMethod)
@@ -979,11 +989,11 @@ case 21:
 }
 break;
 case 24:
-#line 382 "cimmof.y"
+#line 404 "cimmof.y"
 { yyval.cimnameval = new CIMName(*yyvsp[0].strval); }
 break;
 case 28:
-#line 392 "cimmof.y"
+#line 416 "cimmof.y"
 { 
   /* ATTN: P2 2002 Question Need to create default value including type?*/
   
@@ -1009,15 +1019,15 @@ case 28:
 }
 break;
 case 29:
-#line 416 "cimmof.y"
+#line 441 "cimmof.y"
 { yyval.datatype = yyvsp[0].datatype; }
 break;
 case 30:
-#line 417 "cimmof.y"
+#line 442 "cimmof.y"
 { yyval.datatype = CIMTYPE_REFERENCE; }
 break;
 case 31:
-#line 427 "cimmof.y"
+#line 458 "cimmof.y"
 {
     /* set body to stack and apply qualifier list*/
     /* ATTN: the apply qualifer only works here because*/
@@ -1031,7 +1041,7 @@ case 31:
 }
 break;
 case 32:
-#line 440 "cimmof.y"
+#line 472 "cimmof.y"
 {
   CIMValue *v = valueFactory::createValue(yyvsp[-3].datatype, yyvsp[-1].ival, 
                       (yyvsp[0].typedinitializer->type == CIMMOF_NULL_VALUE), yyvsp[0].typedinitializer->value);
@@ -1047,7 +1057,7 @@ case 32:
 }
 break;
 case 34:
-#line 465 "cimmof.y"
+#line 504 "cimmof.y"
 {
   String s(*yyvsp[-4].strval);
   if (!String::equal(*yyvsp[-1].strval, String::EMPTY))
@@ -1063,54 +1073,54 @@ case 34:
 }
 break;
 case 35:
-#line 479 "cimmof.y"
+#line 519 "cimmof.y"
 { yyval.strval = yyvsp[0].strval; }
 break;
 case 36:
-#line 481 "cimmof.y"
+#line 522 "cimmof.y"
 { yyval.strval = yyvsp[0].strval; }
 break;
 case 37:
-#line 483 "cimmof.y"
+#line 525 "cimmof.y"
 { yyval.strval = yyvsp[0].strval; }
 break;
 case 38:
-#line 484 "cimmof.y"
+#line 526 "cimmof.y"
 { yyval.strval = new String(String::EMPTY); }
 break;
 case 39:
-#line 486 "cimmof.y"
+#line 529 "cimmof.y"
 {  
                           g_referenceClassName = *yyvsp[-1].cimnameval; }
 break;
 case 40:
-#line 489 "cimmof.y"
+#line 533 "cimmof.y"
 { yyval.cimnameval = new CIMName(*yyvsp[0].strval); }
 break;
 case 41:
-#line 491 "cimmof.y"
+#line 536 "cimmof.y"
 { yyval.cimnameval = new CIMName(*yyvsp[0].strval); }
 break;
 case 42:
-#line 495 "cimmof.y"
+#line 541 "cimmof.y"
 { yyval.ival = valueFactory::Stoi(*yyvsp[-1].strval);
 		   delete yyvsp[-1].strval;
                  }
 break;
 case 43:
-#line 498 "cimmof.y"
+#line 544 "cimmof.y"
 { yyval.ival = 0; }
 break;
 case 44:
-#line 499 "cimmof.y"
+#line 545 "cimmof.y"
 { yyval.ival = -1; }
 break;
 case 45:
-#line 501 "cimmof.y"
+#line 548 "cimmof.y"
 { yyval.typedinitializer = yyvsp[0].typedinitializer; }
 break;
 case 46:
-#line 502 "cimmof.y"
+#line 549 "cimmof.y"
 {   /* empty */
                   g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
                   g_typedInitializerValue.value = new String(String::EMPTY); 
@@ -1118,19 +1128,19 @@ case 46:
               }
 break;
 case 47:
-#line 508 "cimmof.y"
+#line 556 "cimmof.y"
 { yyval.strval = yyvsp[0].strval; }
 break;
 case 48:
-#line 509 "cimmof.y"
+#line 557 "cimmof.y"
 { yyval.strval = yyvsp[0].strval; }
 break;
 case 49:
-#line 510 "cimmof.y"
+#line 558 "cimmof.y"
 { yyval.strval = yyvsp[0].strval; }
 break;
 case 50:
-#line 516 "cimmof.y"
+#line 565 "cimmof.y"
 { 
            g_typedInitializerValue.type = CIMMOF_CONSTANT_VALUE;
            g_typedInitializerValue.value =  yyvsp[0].strval; 
@@ -1138,7 +1148,7 @@ case 50:
            }
 break;
 case 51:
-#line 522 "cimmof.y"
+#line 571 "cimmof.y"
 {
            g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
            g_typedInitializerValue.value = new String(String::EMPTY); 
@@ -1146,7 +1156,7 @@ case 51:
            }
 break;
 case 52:
-#line 528 "cimmof.y"
+#line 577 "cimmof.y"
 { 
            g_typedInitializerValue.type = CIMMOF_ARRAY_VALUE;
            g_typedInitializerValue.value =  yyvsp[0].strval; 
@@ -1154,7 +1164,7 @@ case 52:
            }
 break;
 case 53:
-#line 534 "cimmof.y"
+#line 583 "cimmof.y"
 { 
            g_typedInitializerValue.type = CIMMOF_REFERENCE_VALUE;
            g_typedInitializerValue.value =  yyvsp[0].strval; 
@@ -1162,12 +1172,12 @@ case 53:
            }
 break;
 case 54:
-#line 542 "cimmof.y"
+#line 592 "cimmof.y"
 { 
             *yyval.strval = valueFactory::stringWComma(String(*yyvsp[0].strval)); }
 break;
 case 55:
-#line 545 "cimmof.y"
+#line 595 "cimmof.y"
 {
                 YACCTRACE("constantValues:1, Value= " << *yyvsp[0].strval);
                 (*yyval.strval).append(","); 
@@ -1177,116 +1187,118 @@ case 55:
               }
 break;
 case 56:
-#line 556 "cimmof.y"
+#line 607 "cimmof.y"
 {yyval.strval = yyvsp[0].strval;}
 break;
 case 57:
-#line 557 "cimmof.y"
+#line 608 "cimmof.y"
 { yyval.strval = new String(String::EMPTY); }
 break;
 case 58:
-#line 559 "cimmof.y"
+#line 611 "cimmof.y"
 { yyval.strval = yyvsp[0].strval; }
 break;
 case 59:
-#line 560 "cimmof.y"
+#line 612 "cimmof.y"
 { yyval.strval = yyvsp[0].strval; }
 break;
 case 60:
-#line 561 "cimmof.y"
+#line 613 "cimmof.y"
 { yyval.strval =  yyvsp[0].strval; }
 break;
 case 61:
-#line 562 "cimmof.y"
+#line 614 "cimmof.y"
 { }
 break;
 case 62:
-#line 563 "cimmof.y"
+#line 615 "cimmof.y"
 { yyval.strval = new String(yyvsp[0].ival ? "T" : "F"); }
 break;
 case 65:
-#line 567 "cimmof.y"
+#line 620 "cimmof.y"
 {
                    yyval.strval = new String(cimmofParser::Instance()->oct_to_dec(*yyvsp[0].strval));
                    delete yyvsp[0].strval; }
 break;
 case 66:
-#line 570 "cimmof.y"
+#line 623 "cimmof.y"
 {
                    yyval.strval = new String(cimmofParser::Instance()->hex_to_dec(*yyvsp[0].strval));
 	           delete yyvsp[0].strval; }
 break;
 case 67:
-#line 573 "cimmof.y"
+#line 626 "cimmof.y"
 {
                  yyval.strval = new String(cimmofParser::Instance()->binary_to_dec(*yyvsp[0].strval));
 	           delete yyvsp[0].strval; }
 break;
 case 68:
-#line 577 "cimmof.y"
+#line 631 "cimmof.y"
 { yyval.ival = 0; }
 break;
 case 69:
-#line 578 "cimmof.y"
+#line 632 "cimmof.y"
 { yyval.ival = 1; }
 break;
 case 70:
-#line 580 "cimmof.y"
+#line 635 "cimmof.y"
 { yyval.strval = yyvsp[0].strval; }
 break;
 case 71:
-#line 582 "cimmof.y"
+#line 637 "cimmof.y"
 { 
                 (*yyval.strval).append(*yyvsp[0].strval);  delete yyvsp[0].strval;
               }
 break;
 case 72:
-#line 587 "cimmof.y"
+#line 643 "cimmof.y"
 { 
-   String oldrep = *yyvsp[0].strval;
-   String s(oldrep), s1(String::EMPTY);
+   /*String oldrep = *$1;*/
+   /*String s(oldrep), s1(String::EMPTY);*/
    /* Handle quoted quote*/
-   int len = s.size();
-   if (s[len] == '\n') {
-     /* error: new line inside a string constant unless it is quoted*/
-     if (s[len - 2] == '\\') {
-       if (len > 3)
-	 s1 = s.subString(1, len-3);
-     } else {
-       cimmof_error("New line in string constant");
-     }
-     cimmofParser::Instance()->increment_lineno();
-   } else { /* Can only be a quotation mark*/
-     if (s[len - 2] == '\\') {  /* if it is quoted*/
-       if (len > 3)
-	 s1 = s.subString(1, len-3);
-       s1.append('\"');
-       cimmof_yy_less(len-1);
-     } else { /* This is the normal case:  real quotes on both end*/
-       s1 = s.subString(1, len - 2) ;
-     }
-   }
-   delete yyvsp[0].strval; yyval.strval = new String(s1);
+   /*int len = s.size();*/
+   /*if (s[len] == '\n') {*/
+       /*error: new line inside a string constant unless it is quoted*/
+       /*if (s[len - 2] == '\\') {*/
+           /*if (len > 3)*/
+	        /*s1 = s.subString(1, len-3);*/
+       /*} else {*/
+           /*cimmof_error("New line in string constant");*/
+           /*}*/
+       /*cimmofParser::Instance()->increment_lineno();*/
+   /*} else { // Can only be a quotation mark*/
+       /*if (s[len - 2] == '\\') {  // if it is quoted*/
+           /*if (len > 3) s1 = s.subString(1, len-3);*/
+           /*s1.append('\"');*/
+           /*cimmof_yy_less(len-1);*/
+       /*} else { // This is the normal case:  real quotes on both end*/
+           /*s1 = s.subString(1, len - 2) ;*/
+           /*}*/
+       /*}*/
+   /*delete $1;*/
+   yyval.strval = /*new String(s1);*/
+        new String(*yyvsp[0].strval);
+   delete yyvsp[0].strval;
 }
 break;
 case 73:
-#line 616 "cimmof.y"
+#line 675 "cimmof.y"
 { yyval.strval = yyvsp[-1].strval; }
 break;
 case 74:
-#line 618 "cimmof.y"
+#line 677 "cimmof.y"
 { yyval.strval = new String(String::EMPTY); }
 break;
 case 75:
-#line 620 "cimmof.y"
+#line 680 "cimmof.y"
 {}
 break;
 case 76:
-#line 621 "cimmof.y"
+#line 681 "cimmof.y"
 {  }
 break;
 case 77:
-#line 624 "cimmof.y"
+#line 685 "cimmof.y"
 { 
   /* The objectName string is decomposed for syntactical purposes */
   /* and reassembled here for later parsing in creation of an objname instance */
@@ -1302,41 +1314,43 @@ case 77:
 }
 break;
 case 78:
-#line 638 "cimmof.y"
+#line 700 "cimmof.y"
 {
-  /* convert somehow from alias to a CIM object name*/
-  delete yyvsp[0].strval;
-}
+        /* convert somehow from alias to a CIM object name*/
+        yyerror("'alias' is not yet supported (see bugzilla 14).");
+        YYABORT;
+        delete yyvsp[0].strval;
+        }
 break;
 case 79:
-#line 644 "cimmof.y"
+#line 709 "cimmof.y"
 { }
 break;
 case 80:
-#line 645 "cimmof.y"
+#line 710 "cimmof.y"
 { yyval.strval = new String(String::EMPTY); }
 break;
 case 81:
-#line 647 "cimmof.y"
+#line 713 "cimmof.y"
 {}
 break;
 case 82:
-#line 649 "cimmof.y"
+#line 716 "cimmof.y"
 {
              modelPath *m = new modelPath((*yyvsp[-2].cimnameval).getString(), g_KeyBindingArray);
              g_KeyBindingArray.clear(); 
              delete yyvsp[-2].cimnameval;}
 break;
 case 83:
-#line 654 "cimmof.y"
+#line 722 "cimmof.y"
 { yyval.ival = 0; }
 break;
 case 84:
-#line 655 "cimmof.y"
+#line 723 "cimmof.y"
 { yyval.ival = 0; }
 break;
 case 85:
-#line 658 "cimmof.y"
+#line 727 "cimmof.y"
 {
 		CIMKeyBinding *kb = new CIMKeyBinding(*yyvsp[-2].strval, *yyvsp[0].strval,
                                modelPath::KeyBindingTypeOf(*yyvsp[0].strval));
@@ -1346,15 +1360,19 @@ case 85:
 	        delete yyvsp[0].strval; }
 break;
 case 87:
-#line 668 "cimmof.y"
-{ yyval.strval = yyvsp[0].strval; }
+#line 739 "cimmof.y"
+{ 
+              yyerror("'alias' is not yet supported (see bugzilla 14).");
+              YYABORT;
+              yyval.strval = yyvsp[0].strval;
+              }
 break;
 case 88:
-#line 669 "cimmof.y"
+#line 744 "cimmof.y"
 { yyval.strval = new String(String::EMPTY); }
 break;
 case 90:
-#line 682 "cimmof.y"
+#line 763 "cimmof.y"
 { 
   yyval.instance = g_currentInstance; 
   if (g_currentAlias != String::EMPTY)
@@ -1362,7 +1380,7 @@ case 90:
 }
 break;
 case 91:
-#line 689 "cimmof.y"
+#line 772 "cimmof.y"
 {
   if (g_currentInstance)
     delete g_currentInstance;
@@ -1376,7 +1394,7 @@ case 91:
 }
 break;
 case 95:
-#line 712 "cimmof.y"
+#line 801 "cimmof.y"
 {
   cimmofParser *cp = cimmofParser::Instance();
   /* ATTN: P1 InstanceUpdate function 2001 BB  Instance update needs work here and CIMOM */
@@ -1403,6 +1421,7 @@ case 95:
                  (yyvsp[-1].typedinitializer->type == CIMMOF_NULL_VALUE),
                  yyvsp[-1].typedinitializer->value);
 
+
   /*   4. create a clone property with the new value*/
   CIMProperty *newprop = cp->copyPropertyWithNewValue(*oldprop, *v);
 
@@ -1420,36 +1439,36 @@ case 95:
 }
 break;
 case 96:
-#line 763 "cimmof.y"
+#line 857 "cimmof.y"
 {
     /*printf("compilerDirectiveInclude "); */
 }
 break;
 case 97:
-#line 767 "cimmof.y"
+#line 861 "cimmof.y"
 {
     /*printf("compilerDirectivePragma ");*/
 }
 break;
 case 98:
-#line 773 "cimmof.y"
+#line 868 "cimmof.y"
 {
   cimmofParser::Instance()->enterInlineInclude(*yyvsp[-1].strval); delete yyvsp[-1].strval;
 }
 break;
 case 99:
-#line 778 "cimmof.y"
+#line 873 "cimmof.y"
 { yyval.strval = yyvsp[0].strval; }
 break;
 case 100:
-#line 782 "cimmof.y"
+#line 878 "cimmof.y"
 { cimmofParser::Instance()->processPragma(*yyvsp[-3].strval, *yyvsp[-1].strval); 
 		   delete yyvsp[-3].strval;
 		   delete yyvsp[-1].strval;
 		   }
 break;
 case 101:
-#line 797 "cimmof.y"
+#line 896 "cimmof.y"
 {
 /*    CIMQualifierDecl *qd = new CIMQualifierDecl($2, $3, $4, $5);*/
 	yyval.mofqualifier = cimmofParser::Instance()->newQualifierDecl(*yyvsp[-4].strval, yyvsp[-3].value, *yyvsp[-2].scope, *yyvsp[-1].flavor);
@@ -1458,7 +1477,7 @@ case 101:
 }
 break;
 case 102:
-#line 806 "cimmof.y"
+#line 905 "cimmof.y"
 {
     yyval.value = valueFactory::createValue(yyvsp[-2].datatype, yyvsp[-1].ival, 
                 yyvsp[0].typedinitializer->type == CIMMOF_NULL_VALUE, yyvsp[0].typedinitializer->value);
@@ -1466,182 +1485,186 @@ case 102:
 }
 break;
 case 103:
-#line 812 "cimmof.y"
+#line 912 "cimmof.y"
 { yyval.scope = yyvsp[-1].scope; }
 break;
 case 104:
-#line 814 "cimmof.y"
+#line 915 "cimmof.y"
 { 
     g_scope = CIMScope (CIMScope::NONE); }
 break;
 case 105:
-#line 817 "cimmof.y"
+#line 919 "cimmof.y"
 { yyval.scope = yyvsp[0].scope; }
 break;
 case 106:
-#line 819 "cimmof.y"
+#line 921 "cimmof.y"
 { yyval.scope->addScope(*yyvsp[0].scope); }
 break;
 case 107:
-#line 822 "cimmof.y"
+#line 925 "cimmof.y"
 { yyval.scope = new CIMScope(CIMScope::CLASS);        }
 break;
 case 108:
-#line 824 "cimmof.y"
+#line 927 "cimmof.y"
 { yyval.scope = new CIMScope(CIMScope::CLASS); }
 break;
 case 109:
-#line 825 "cimmof.y"
+#line 928 "cimmof.y"
 { yyval.scope = new CIMScope(CIMScope::ASSOCIATION);  }
 break;
 case 110:
-#line 826 "cimmof.y"
+#line 929 "cimmof.y"
 { yyval.scope = new CIMScope(CIMScope::INDICATION);   }
 break;
 case 111:
-#line 828 "cimmof.y"
+#line 931 "cimmof.y"
 { yyval.scope = new CIMScope(CIMScope::PROPERTY);     }
 break;
 case 112:
-#line 829 "cimmof.y"
+#line 932 "cimmof.y"
 { yyval.scope = new CIMScope(CIMScope::REFERENCE);    }
 break;
 case 113:
-#line 830 "cimmof.y"
+#line 933 "cimmof.y"
 { yyval.scope = new CIMScope(CIMScope::METHOD);       }
 break;
 case 114:
-#line 831 "cimmof.y"
+#line 934 "cimmof.y"
 { yyval.scope = new CIMScope(CIMScope::PARAMETER);    }
 break;
 case 115:
-#line 832 "cimmof.y"
+#line 935 "cimmof.y"
 { yyval.scope = new CIMScope(CIMScope::ANY);          }
 break;
 case 116:
-#line 836 "cimmof.y"
+#line 940 "cimmof.y"
 { yyval.flavor = &g_flavor; }
 break;
 case 117:
-#line 837 "cimmof.y"
+#line 941 "cimmof.y"
 { yyval.flavor = new CIMFlavor (CIMFlavor::NONE); }
 break;
 case 118:
-#line 842 "cimmof.y"
+#line 947 "cimmof.y"
 {g_flavor = CIMFlavor (CIMFlavor::NONE);}
 break;
 case 121:
-#line 858 "cimmof.y"
+#line 964 "cimmof.y"
 { g_flavor.addFlavor (CIMFlavor::ENABLEOVERRIDE); }
 break;
 case 122:
-#line 859 "cimmof.y"
+#line 965 "cimmof.y"
 { g_flavor.addFlavor (CIMFlavor::DISABLEOVERRIDE); }
 break;
 case 123:
-#line 860 "cimmof.y"
+#line 966 "cimmof.y"
 { g_flavor.addFlavor (CIMFlavor::RESTRICTED); }
 break;
 case 124:
-#line 861 "cimmof.y"
+#line 967 "cimmof.y"
 { g_flavor.addFlavor (CIMFlavor::TOSUBELEMENTS); }
 break;
 case 125:
-#line 862 "cimmof.y"
+#line 968 "cimmof.y"
 { g_flavor.addFlavor (CIMFlavor::TRANSLATABLE); }
 break;
 case 126:
-#line 864 "cimmof.y"
+#line 971 "cimmof.y"
 { yyval.flavor = &g_flavor; }
 break;
 case 127:
-#line 865 "cimmof.y"
+#line 972 "cimmof.y"
 { yyval.flavor = new CIMFlavor (CIMFlavor::NONE); }
 break;
 case 130:
-#line 871 "cimmof.y"
+#line 980 "cimmof.y"
 { yyval.datatype = yyvsp[0].datatype; }
 break;
 case 131:
-#line 872 "cimmof.y"
+#line 981 "cimmof.y"
 { yyval.datatype = yyvsp[0].datatype; }
 break;
 case 132:
-#line 873 "cimmof.y"
+#line 982 "cimmof.y"
 { yyval.datatype = CIMTYPE_STRING;   }
 break;
 case 133:
-#line 874 "cimmof.y"
+#line 983 "cimmof.y"
 { yyval.datatype = CIMTYPE_BOOLEAN;  }
 break;
 case 134:
-#line 875 "cimmof.y"
+#line 984 "cimmof.y"
 { yyval.datatype = CIMTYPE_DATETIME; }
 break;
 case 135:
-#line 877 "cimmof.y"
+#line 987 "cimmof.y"
 { yyval.datatype = CIMTYPE_UINT8;  }
 break;
 case 136:
-#line 878 "cimmof.y"
+#line 988 "cimmof.y"
 { yyval.datatype = CIMTYPE_SINT8;  }
 break;
 case 137:
-#line 879 "cimmof.y"
+#line 989 "cimmof.y"
 { yyval.datatype = CIMTYPE_UINT16; }
 break;
 case 138:
-#line 880 "cimmof.y"
+#line 990 "cimmof.y"
 { yyval.datatype = CIMTYPE_SINT16; }
 break;
 case 139:
-#line 881 "cimmof.y"
+#line 991 "cimmof.y"
 { yyval.datatype = CIMTYPE_UINT32; }
 break;
 case 140:
-#line 882 "cimmof.y"
+#line 992 "cimmof.y"
 { yyval.datatype = CIMTYPE_SINT32; }
 break;
 case 141:
-#line 883 "cimmof.y"
+#line 993 "cimmof.y"
 { yyval.datatype = CIMTYPE_UINT64; }
 break;
 case 142:
-#line 884 "cimmof.y"
+#line 994 "cimmof.y"
 { yyval.datatype = CIMTYPE_SINT64; }
 break;
 case 143:
-#line 885 "cimmof.y"
+#line 995 "cimmof.y"
 { yyval.datatype = CIMTYPE_CHAR16; }
 break;
 case 144:
-#line 887 "cimmof.y"
+#line 998 "cimmof.y"
 { yyval.datatype =CIMTYPE_REAL32; }
 break;
 case 145:
-#line 888 "cimmof.y"
+#line 999 "cimmof.y"
 { yyval.datatype =CIMTYPE_REAL64; }
 break;
 case 147:
-#line 899 "cimmof.y"
-{ }
+#line 1012 "cimmof.y"
+{ 
+                 /*yydebug = 1; stderr = stdout;*/
+                 }
 break;
 case 148:
-#line 901 "cimmof.y"
+#line 1018 "cimmof.y"
 { 
+
+    /*yydebug = 1; stderr = stdout;*/
     YACCTRACE("qualifierListbegin");
     g_qualifierList.init(); }
 break;
 case 149:
-#line 905 "cimmof.y"
+#line 1026 "cimmof.y"
 { }
 break;
 case 150:
-#line 906 "cimmof.y"
+#line 1027 "cimmof.y"
 { }
 break;
 case 151:
-#line 909 "cimmof.y"
+#line 1032 "cimmof.y"
 {
   cimmofParser *p = cimmofParser::Instance();
   /* The qualifier value can't be set until we know the contents of the*/
@@ -1656,18 +1679,18 @@ case 151:
  }
 break;
 case 152:
-#line 922 "cimmof.y"
+#line 1047 "cimmof.y"
 { 
     g_flavor = CIMFlavor (CIMFlavor::NONE); }
 break;
 case 153:
-#line 924 "cimmof.y"
+#line 1049 "cimmof.y"
 { 
                         yyval.strval = new String((*yyvsp[0].scope).toString ());
                         g_flavor = CIMFlavor (CIMFlavor::NONE); }
 break;
 case 154:
-#line 929 "cimmof.y"
+#line 1056 "cimmof.y"
 {
                     g_typedInitializerValue.type = CIMMOF_CONSTANT_VALUE;
                     g_typedInitializerValue.value =  yyvsp[-1].strval;
@@ -1675,7 +1698,7 @@ case 154:
                     }
 break;
 case 155:
-#line 935 "cimmof.y"
+#line 1062 "cimmof.y"
 {
                     g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
                     g_typedInitializerValue.value = new String(String::EMPTY);
@@ -1683,7 +1706,7 @@ case 155:
                     }
 break;
 case 156:
-#line 941 "cimmof.y"
+#line 1068 "cimmof.y"
 {
                     g_typedInitializerValue.type = CIMMOF_ARRAY_VALUE;
                     g_typedInitializerValue.value =  yyvsp[0].strval;
@@ -1691,7 +1714,7 @@ case 156:
                     }
 break;
 case 157:
-#line 946 "cimmof.y"
+#line 1073 "cimmof.y"
 {   /* empty */
                     g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
                     g_typedInitializerValue.value = new String(String::EMPTY);
@@ -1699,14 +1722,14 @@ case 157:
                     }
 break;
 case 158:
-#line 952 "cimmof.y"
+#line 1080 "cimmof.y"
 { yyval.strval = yyvsp[0].strval; }
 break;
 case 159:
-#line 954 "cimmof.y"
+#line 1083 "cimmof.y"
 { yyval.strval = yyvsp[0].strval; }
 break;
-#line 1710 "y.tab.c"
+#line 1733 "y.tab.c"
     }
     yyssp -= yym;
     yystate = *yyssp;

@@ -75,16 +75,16 @@ _lookup_attrs(const String &save_url, Array<Attribute>& attribs,const SLPClientO
     struct slp_client *client = NULL;
     lslpMsg responses, *attrReplyEntry;
     
-    const int8 *scopes;
-    const int8 *spi;
-    int8 *iface;
-    int8 *addr;
-    const int8 *type;
-    const int8 *predicate;
+    const char *scopes;
+    const char *spi;
+    char *iface;
+    char *addr;
+    const char *type;
+    const char *predicate;
     int16 port;
     BOOL dir_agent;
     
-    int8* tags = (int8*)NULL;
+    char* tags = (char*)NULL;
     int16 converge=(int16)0;
     if(0==save_url.size()){
         /* Pilot error */
@@ -176,12 +176,12 @@ CIMServerDiscoveryRep::lookup(const Array<Attribute> & criteria, const SLPClient
   struct slp_client *client = NULL;
   lslpMsg responses, *srvReplyEntry;
   
-  const int8 *scopes; // = strdup("DEFAULT");
-  const int8 *spi; // = strdup("DSA");
-  int8 *iface; // = NULL;
-  int8 *addr; // = NULL;
-  const int8 *type; // = strdup("service:wbem");
-  const int8 *predicate; // = NULL;
+  const char *scopes; // = strdup("DEFAULT");
+  const char *spi; // = strdup("DSA");
+  char *iface; // = NULL;
+  char *addr; // = NULL;
+  const char *type; // = strdup("service:wbem");
+  const char *predicate; // = NULL;
   int16 port; // = 427;
   BOOL dir_agent; // = FALSE;
  

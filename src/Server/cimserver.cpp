@@ -921,17 +921,14 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
 #endif
         }
 
+#if defined(PEGASUS_DEBUG)
         // Leave this in until people get familiar with the logs.
-#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) && \
-!defined(PEGASUS_OS_OS400)
         //l10n
         //cout << "Logs Directory = " << logsDirectory << endl;
         MessageLoaderParms parms("src.Server.cimserver.LOGS_DIRECTORY",
             				     "Logs Directory = ");
         cout << MessageLoader::getMessage(parms) << logsDirectory << endl;
 #endif
-
-
     }
     catch (UnrecognizedConfigProperty& e)
     {
@@ -1011,9 +1008,8 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
             return(1);
         }
     }
+#if defined(PEGASUS_DEBUG)
     // Put out startup up message.
-#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) && \
-!defined(PEGASUS_OS_OS400)
     cout << PEGASUS_NAME << PEGASUS_VERSION << endl;
     //l10n
     //cout << "Built " << __DATE__ << " " << __TIME__ << endl;
@@ -1178,7 +1174,7 @@ MessageLoader::_useProcessLocale = false;
 		      "Listening on local connection socket.");
 #endif
 
-#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) && !defined(PEGASUS_OS_OS400)
+#if defined(PEGASUS_DEBUG)
         if (enableHttpConnection)
         {
             //l10n
@@ -1222,7 +1218,7 @@ MessageLoader::_useProcessLocale = false;
 
 	time_t last = 0;
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
         //
         // create a file to indicate that the cimserver has started and
         // save the process id of the cimserver process in the file
@@ -1241,8 +1237,7 @@ MessageLoader::_useProcessLocale = false;
         }
 #endif
 
-#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) && \
-!defined(PEGASUS_OS_OS400)
+#if defined(PEGASUS_DEBUG)
 	cout << "Started. " << endl;
 #endif
 	

@@ -31,6 +31,7 @@
 //         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //         Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
 //         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//         Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -104,7 +105,9 @@ CIMServer::CIMServer(
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::CIMServer()");
 
-    static const char CERTIFICATE[] = "/server.pem";
+    static String PROPERTY_NAME__SSLCERT_FILEPATH = 
+                                "sslCertificateFilePath"; 
+
 
     String repositoryRootPath = String::EMPTY;
 
@@ -268,8 +271,18 @@ CIMServer::CIMServer(
     SSLContext * sslcontext;
     if (_useSSL)
     {
-        String certPath = ConfigManager::getPegasusHome();
-        certPath.append(CERTIFICATE);
+        //
+        // Get an instance of the ConfigManager.
+        //
+        ConfigManager*  configManager;
+        configManager = ConfigManager::getInstance();
+
+        //
+        // Get the CertificateFilePath property from the Config Manager.
+        //
+        String certPath;
+        certPath = configManager->getCurrentValue(
+                               PROPERTY_NAME__SSLCERT_FILEPATH);
 
         sslcontext = new SSLContext(certPath, verifyClientCertificate);
     }

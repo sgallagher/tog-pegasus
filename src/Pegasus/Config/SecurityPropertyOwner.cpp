@@ -25,6 +25,7 @@
 //
 // Modified By: 
 //       Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
+//       Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
 //
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -55,6 +56,7 @@ static struct ConfigPropertyRow properties[] =
     {"enableNamespaceAuthorization", "false", 0, 0, 0},
     {"httpAuthType", "Basic", 0, 0, 0},
     {"passwordFilePath", "cimserver.passwd", 0, 0, 0},
+    {"sslCertificateFilePath", "server.pem", 0, 0, 0}, 
     {"enableRemotePrivilegedUserAccess", "false", 0, 0, 0},
 };
 
@@ -68,6 +70,7 @@ SecurityPropertyOwner::SecurityPropertyOwner()
     _enableNamespaceAuthorization = new ConfigProperty;
     _httpAuthType = new ConfigProperty;
     _passwordFilePath = new ConfigProperty();
+    _certificateFilePath = new ConfigProperty();
     _enableRemotePrivilegedUserAccess = new ConfigProperty();
 }
 
@@ -78,6 +81,7 @@ SecurityPropertyOwner::~SecurityPropertyOwner()
     delete _enableNamespaceAuthorization;
     delete _httpAuthType;
     delete _passwordFilePath;
+    delete _certificateFilePath;
     delete _enableRemotePrivilegedUserAccess;
 }
 
@@ -146,6 +150,27 @@ void SecurityPropertyOwner::initialize()
             }
         }
         else if (String::equalNoCase(
+			    properties[i].propertyName, 
+			    "sslCertificateFilePath"))
+        {  
+            _certificateFilePath->propertyName = properties[i].propertyName;
+            _certificateFilePath->defaultValue = properties[i].defaultValue;
+            _certificateFilePath->plannedValue = properties[i].defaultValue;
+            _certificateFilePath->dynamic = properties[i].dynamic;
+            _certificateFilePath->domain = properties[i].domain;
+            _certificateFilePath->domainSize = properties[i].domainSize;
+
+            // 
+            // Initialize SSL cert file path to $PEGASUS_HOME/server.pem
+            //
+	    if ( _certificateFilePath->currentValue == String::EMPTY )
+	    {
+                _certificateFilePath->currentValue += ConfigManager::getPegasusHome();
+                _certificateFilePath->currentValue.append("/");
+                _certificateFilePath->currentValue += _certificateFilePath->defaultValue;
+            }
+        } 
+        else if (String::equalNoCase(
             properties[i].propertyName, "enableRemotePrivilegedUserAccess"))
         {
             _enableRemotePrivilegedUserAccess->propertyName = properties[i].propertyName;
@@ -178,6 +203,10 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
     else if (String::equalNoCase(_passwordFilePath->propertyName, name))
     {
         return _passwordFilePath;
+    }
+    else if (String::equalNoCase(_certificateFilePath->propertyName, name))
+    {  
+        return _certificateFilePath;
     }
     else if (String::equalNoCase(
                  _enableRemotePrivilegedUserAccess->propertyName, name))
@@ -408,6 +437,40 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
                 }
             }
         }
+    }
+    else if (String::equalNoCase(_certificateFilePath->propertyName, name))
+    {  
+	String fileName(value);
+
+        //
+        // Check if the file path is empty
+        //
+        if (fileName == String::EMPTY || fileName== "")
+        {
+            return false;
+        }
+
+	//
+        // Check if the file path is a directory
+	//
+        FileSystem::translateSlashes(fileName);
+        if (FileSystem::isDirectory(fileName))
+        {
+            return false;
+        }
+
+	//
+        // Check if the file exists and is readable
+	//
+        if (FileSystem::exists(fileName))
+        {
+            if (!FileSystem::canRead(fileName))
+            {
+                return false;
+            }
+         }
+
+        return true;
     }
     else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
     {

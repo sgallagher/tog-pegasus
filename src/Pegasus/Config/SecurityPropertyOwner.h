@@ -25,6 +25,7 @@
 //
 // Modified By: Sushma Fernandes, Hewlett-Packard Company
 //                                (sushma_fernandes@hp.com)
+//              Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -212,6 +213,8 @@ private:
     struct ConfigProperty*      _passwordFilePath;
 
     struct ConfigProperty*      _enableRemotePrivilegedUserAccess;
+
+    struct ConfigProperty*      _certificateFilePath;
 
 };
 

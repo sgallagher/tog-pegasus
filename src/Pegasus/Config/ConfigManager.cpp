@@ -26,6 +26,7 @@
 // Modified By: Sushma Fernandes, Hewlett-Packard Company
 //                  (sushma_fernandes@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -130,6 +131,7 @@ static struct OwnerEntry _properties[] =
     {"enableNamespaceAuthorization", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"httpAuthType",        (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"passwordFilePath",    (ConfigPropertyOwner* )ConfigManager::securityOwner},
+    {"sslCertificateFilePath", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"repositoryIsDefaultInstanceProvider", (ConfigPropertyOwner* )ConfigManager::repositoryOwner},
     {"shutdownTimeout",     (ConfigPropertyOwner* )ConfigManager::shutdownOwner},
     {"repositoryDir",       (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},

@@ -144,7 +144,7 @@ class PEGASUS_EXPORT SimpleThread
 static void default_delete(void * data) 
 { 
    if( data != NULL)
-      std::operator delete(data); 
+      PEGASUS_STD(operator) delete(data); 
 }
 
 class  PEGASUS_EXPORT thread_data
@@ -168,7 +168,7 @@ class  PEGASUS_EXPORT thread_data
 	 _key = new Sint8 [keysize + 1];
 	 memcpy(_key, key, keysize);
 	 _key[keysize] = 0x00;
-	 _data = std:: operator new ( _size );
+	 _data = PEGASUS_STD(operator) new ( _size );
 
       }
 
@@ -181,7 +181,7 @@ class  PEGASUS_EXPORT thread_data
 	 _key = new Sint8[keysize + 1];
 	 memcpy(_key, key, keysize);
 	 _key[keysize] = 0x00;
-	 _data = std::operator new(_size);
+	 _data = PEGASUS_STD(operator) new(_size);
 	 memcpy(_data, data, size);
       }
 

@@ -79,16 +79,19 @@ protected:
 	class IndicationThread : public Thread
 	{
 	public:
-		IndicationThread(void) throw();
+		IndicationThread(ResponseHandler<CIMIndication> & handler) throw();
 		virtual ~IndicationThread(void) throw();
 	
 		static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL run(void *) throw();
 	
+	private:
+		ResponseHandler<CIMIndication> * _pHandler;
+
 	};
 
 protected:
 	CIMOMHandle _cimom;
-	Array<String> _indications;
+	IndicationThread * pThread;
 
 };
 

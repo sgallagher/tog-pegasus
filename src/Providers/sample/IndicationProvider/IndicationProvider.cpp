@@ -35,7 +35,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-IndicationProvider::IndicationProvider(void)
+IndicationProvider::IndicationProvider(void) : pThread(0)
 {
 }
 
@@ -61,14 +61,16 @@ void IndicationProvider::provideIndication(
 	const Array<String> & propertyList,
 	ResponseHandler<CIMIndication> & handler)
 {
-	// acknowlegde request
+	// ensure the provider supports the type of indication requested.
+	if(!String::equalNoCase(classReference.getClassName(), "sample_indication"))
+	{
+		throw InvalidClass(classReference.getClassName());
+	}
+	
+	// acknowledge request
 	handler.processing();
-
-	// save the pertinant indication information (classReference and handler). the other parameters
-	// are optional and ignored by this provider.
-	_indications.append();
-
-	// do not complete request until cancelIndication()
+	
+	pThread = new IndicationThread(handler);
 }
 
 void IndicationProvider::updateIndication(
@@ -95,12 +97,12 @@ void IndicationProvider::cancelIndication(
 	// acknowledge request
 	handler.processing();
 		
-	// attempt to erase the indication entry
-	if(_indications.erase(classReference) != 1)
+	if(pThread != 0)
 	{
-		throw CIMException(CIM_ERR_NOT_FOUND);
+		delete pThread;
+		pThread = 0;
 	}
-	
+
 	// complete request
 	handler.complete();
 }
@@ -111,38 +113,46 @@ void IndicationProvider::checkIndication(
 	const Array<String> & propertyList,
 	ResponseHandler<CIMIndication> & handler)
 {
-	// acknowledge request
-	handler.processing();
-	
-	// do nothing
-
-	// complete request
-	handler.complete();
+	throw NotSupported("IndicationProvider::checkIndication");
 }
 
-IndicationProvider::IndicationThread::IndicationThread(void) :
+IndicationProvider::IndicationThread::IndicationThread(
+	ResponseHandler<CIMIndication> & handler) :
 	Thread(run, this, false)
 {
+	_pHandler = &handler;
+	
+	Thread::run();
 }
 
 IndicationProvider::IndicationThread::~IndicationThread(void)
 {
 }
 
-PEGASUS_THREAD_RETURN __stdcall IndicationProvider::IndicationThread::run(void * pv)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL IndicationProvider::IndicationThread::run(
+	void * pv)
 {
-	IndicationThread * pThread = (IndicationThread *)pv;
+	if(pv == 0)
+	{
+		return(0);
+	}
+
+	IndicationThread * pThread = reinterpret_cast<IndicationThread *>(pv);
 	
+	pThread->_pHandler->processing();
+
 	while(true)
 	{
 		// create indication
-		CIMClass indication("Sample_Indication");
+		CIMIndication indication("Sample_Indication");
 
 		// send indication
-		_handler->deliver(indication);
+		pThread->_pHandler->deliver(indication);
 		
 		pThread->sleep(30000);
 	}
+
+	pThread->exit_self(1);
 }
 
 PEGASUS_NAMESPACE_END

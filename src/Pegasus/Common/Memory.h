@@ -29,7 +29,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -53,6 +54,7 @@
 #define Pegasus_Memory_h
 
 #include <cstring>
+#include <memory.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/Char16.h>

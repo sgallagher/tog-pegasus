@@ -41,7 +41,7 @@ HEX_IDENT 0[Xx]
 POSITIVE_DECIMAL_DIGIT [1-9]
 DECIMAL_DIGIT [0-9]
 BLANK [ \t]
-IDENT_CHAR [A-Za-z_\x80-\xFF]
+IDENT_CHAR [0-9A-Za-z_\x80-\xFF]
 PROP_CHAR [A-Za-z0-9_\[\]\-\#\']
 
 A [Aa]

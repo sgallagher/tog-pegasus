@@ -68,6 +68,8 @@ static Service pegasus_service(PEGASUS_SERVICE_NAME);
 static HANDLE pegasus_service_event = NULL;
 static LPCSTR g_cimservice_key  = TEXT("SYSTEM\\CurrentControlSet\\Services\\%s");
 static LPCSTR g_cimservice_home = TEXT("home");
+static int g_argc = 0;
+static char **g_argv = 0;
 
 //  Constants representing the command line options.
 static const char OPTION_INSTALL[] = "install";
@@ -115,8 +117,7 @@ void signal_shutdown()
 //-------------------------------------------------------------------------
 static unsigned __stdcall cimserver_windows_thread( void* parm )
 {
-	int argc = 0;
-	int rc = cimserver_run( argc, 0, false );
+	int rc = cimserver_run( g_argc, g_argv, false );
 	SetEvent(pegasus_service_event);
 	_endthreadex( rc );
 	return rc;
@@ -140,6 +141,8 @@ int cimserver_windows_main(int flag, int argc, char *argv[])
 		//
 
 		unsigned threadid = 0;
+        g_argc = argc;
+        g_argv = argv;
 		HANDLE hThread = (HANDLE)_beginthreadex( NULL, 0, cimserver_windows_thread, NULL, 0, &threadid );
 		if( hThread == NULL )
 			return 1;
@@ -292,7 +295,7 @@ bool cimserver_remove_nt_service(char *service_name)
 //-------------------------------------------------------------------------
 // START
 //-------------------------------------------------------------------------
-bool cimserver_start_nt_service(char *service_name) 
+bool cimserver_start_nt_service(char *service_name, int num_args, char **service_args) 
 {
   Service::ReturnCode status = Service::SERVICE_RETURN_SUCCESS;
 
@@ -301,6 +304,11 @@ bool cimserver_start_nt_service(char *service_name)
     {
       pegasus_service.SetServiceName(service_name);
     }
+
+  if(num_args > 0 && service_args != NULL)
+  {
+      pegasus_service.SetServiceArgs(num_args, service_args);
+  }
 
   status = pegasus_service.Start(5);
 
@@ -548,11 +556,19 @@ int platform_run( int argc, char** argv, Boolean shutdownOption )
 				// Start as a NT service
 				//
 				char *opt_arg = NULL;
+                int num_args = 0;
 				if (i+1 < argc)
 				{
 					opt_arg = argv[i+1];                    
+                    num_args = argc - 3;
 				}
-				if(cimserver_start_nt_service(opt_arg))
+                else
+                {
+                    num_args = argc - 2;
+                }
+
+                char **service_args = &argv[1];
+				if(cimserver_start_nt_service(opt_arg, num_args, service_args))
 				{
 					//l10n
 					//cout << "\nPegasus started as NT Service";

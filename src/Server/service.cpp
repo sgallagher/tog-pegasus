@@ -205,7 +205,7 @@ Service::Start(int wait_time)
  
       if (service == NULL) 
         status = get_error(GetLastError(), "open");
-      else if (!StartService(service, 0, NULL))
+      else if (!StartService(service, g_argc, (const char **)g_argv))
         status = get_error(GetLastError(), "start");
       else 
         {

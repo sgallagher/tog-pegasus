@@ -114,6 +114,12 @@ public:
     {
       g_service_name = service_name;
     }
+
+  static void SetServiceArgs(int num_args, char **service_args)
+    {
+      g_argv = service_args;
+      g_argc = num_args;
+    }
   static char *GetServiceName(void)
     {
       return g_service_name;

@@ -191,15 +191,11 @@ int main(int argc, char** argv)
 {
 
 
-//    CIMRepository r("../repository") ;
-
-//   ProviderRegistrationManager prmanager(&r);
-
     try
     {
 	CIMClient client;
 	
-	client.connect("localhost:5988");
+	client.connectLocal();
 	TestCreateInstances(client);
     }
 

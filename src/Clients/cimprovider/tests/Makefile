@@ -5,7 +5,7 @@ DIR = Clients/cimprovider/tests
 include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/test.mak
 
-RESULTFILE =  $(ROOT)/src/$(DIR)/result
+RESULTFILE =  $(TMP_DIR)/result
 MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
 
 tests:

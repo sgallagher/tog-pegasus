@@ -124,7 +124,7 @@ static const Uint32 OPERATION_TYPE_LIST           = 4;
 static const char NOT_PRIVILEGED_USER []         = 
                      "Error, you must have superuser privilege to run cimprovider."; 
 static const char CIMOM_NOT_RUNNING []         = 
-                        "CIMOM may not be running.";
+                        "The CIM server may not be running.";
 
 static const char DELETE_PROVIDER_FAILURE []    = 
                         "Failed to delete...";

@@ -151,7 +151,7 @@ int main(int argc, char** argv)
 {
 
 
-    CIMRepository r("../repository") ;
+    CIMRepository r("/tmp/repository") ;
 
     ProviderRegistrationManager prmanager(&r);
 

@@ -209,7 +209,7 @@ int main(int argc, char** argv)
 
     try
     {
-	client.connect("localhost:5988");
+	client.connectLocal();
 	TestModifyInstances(client);
     }
 

@@ -30,8 +30,6 @@
 
 #include "ProviderRegistrationManager.h"
 
-#include <Pegasus/Provider/SimpleResponseHandler.h>
-
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/HashTable.h>
@@ -1520,12 +1518,18 @@ void ProviderRegistrationManager::_initialRegistrationTable()
     {
         errorCode = exception.getCode();
         errorDescription = exception.getMessage();
-	throw CIMException(CIM_ERR_FAILED, errorDescription);
+
+	if (errorCode != CIM_ERR_INVALID_NAMESPACE)
+	{
+	    PEG_METHOD_EXIT();
+	    throw CIMException(CIM_ERR_FAILED, errorDescription);
+	}
     }
     catch (Exception& exception)
     {
         errorCode = CIM_ERR_FAILED;
         errorDescription = exception.getMessage();
+	PEG_METHOD_EXIT();
 	throw CIMException(CIM_ERR_FAILED, errorDescription);
     }
 

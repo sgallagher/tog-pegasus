@@ -164,6 +164,8 @@ public:
 	<pre>
 	    String test = "abc";
 	    char* p = test.allocateCString();
+	    ...
+	    delete [] p;
 	</pre>
     */
     char* allocateCString(Uint32 extraBytes = 0, Boolean noThrow = false) const;

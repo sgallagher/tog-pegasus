@@ -43,6 +43,7 @@
 #include <Pegasus/Server/CIMServer.h>
 #include <Pegasus/Server/Dispatcher.h>
 #include <Pegasus/Common/lslp-perl-lib.h>
+#include <Pegasus/Common/String.h>
 
 
 //debugging
@@ -159,6 +160,11 @@ public:
 	const String& nameSpace);
 
     void handleEnumerateClasses(
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
+
+    void handleEnumerateInstances(
 	XmlParser& parser, 
 	const String& messageId,
 	const String& nameSpace);
@@ -496,6 +502,8 @@ int ServerHandler::handleMethodCall()
 	handleEnumerateQualifiers(parser, messageId, nameSpace);
     else if (CompareNoCase(iMethodCallName, "EnumerateClasses") == 0)
 	handleEnumerateClasses(parser, messageId, nameSpace);
+    else if (CompareNoCase(iMethodCallName, "EnumerateInstances") == 0)
+	handleEnumerateInstances(parser, messageId, nameSpace);
     else if (CompareNoCase(iMethodCallName, "CreateClass") == 0)
 	handleCreateClass(parser, messageId, nameSpace);
     else if (CompareNoCase(iMethodCallName, "ModifyClass") == 0)
@@ -577,7 +585,7 @@ void ServerHandler::handleGetClass(
 	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
 	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
 	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
-
+	//ATTN: PropertyList
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
@@ -654,7 +662,7 @@ void ServerHandler::handleGetInstance(
 	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
 	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
 	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
-
+	//ATTN: PropertyList
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
@@ -1136,6 +1144,85 @@ void ServerHandler::handleEnumerateClasses(
 
     outputN(message);
 }
+
+//------------------------------------------------------------------------------
+//
+// ServerHandler::handleEnumerateClasses()
+//
+//------------------------------------------------------------------------------
+
+void ServerHandler::handleEnumerateInstances(
+    XmlParser& parser, 
+    const String& messageId,
+    const String& nameSpace)
+{
+    //--------------------------------------------------------------------------
+    // <!ELEMENT IPARAMVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE
+    //     |INSTANCENAME|CLASSNAME|QUALIFIER.DECLARATION
+    //     |CLASS|INSTANCE|VALUE.NAMEDINSTANCE)?>
+    // <!ATTLIST IPARAMVALUE %CIMName;>
+    //--------------------------------------------------------------------------
+
+    String className;
+    Boolean deepInheritance = false;
+    Boolean localOnly = true;
+    Boolean includeQualifiers = true;
+    Boolean includeClassOrigin = false;
+    Array<String> propertyList = EmptyStringArray();
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "ClassName") == 0)
+	    XmlReader::getClassNameElement(parser, className, true);
+	else if (CompareNoCase(name, "DeepInheritance") == 0)
+	    XmlReader::getBooleanValueElement(parser, deepInheritance, true);
+	else if (CompareNoCase(name, "LocalOnly") == 0)
+	    XmlReader::getBooleanValueElement(parser, localOnly, true);
+	else if (CompareNoCase(name, "IncludeQualifiers") == 0)
+	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
+	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
+	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
+	//ATTN: Property List
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    Array<CIMInstance> instances;
+    
+    try
+    {
+	instances = _dispatcher->enumerateInstances(
+	    nameSpace,
+	    className,
+	    deepInheritance,
+	    localOnly,
+	    includeQualifiers,
+	    includeClassOrigin,
+	    propertyList);
+    }
+    catch (CIMException& e)
+    {
+	sendError(messageId, "EnumerateInstances", 
+	    e.getCode(), e.codeToString(e.getCode()));
+	return;
+    }
+    catch (Exception&)
+    {
+	sendError(messageId, "EnumerateInstances", CIMException::FAILED, 
+	    CIMException::codeToString(CIMException::FAILED));
+	return;
+    }
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < instances.size(); i++)
+	instances[i].toXml(body);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"EnumerateInstances", messageId, body);
+
+    outputN(message);
+}
+
 
 //------------------------------------------------------------------------------
 //

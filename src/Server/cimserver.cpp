@@ -323,20 +323,18 @@ int main(int argc, char** argv)
     if (om.valueEquals("options", "true"))
 	om.print();
 
+    Boolean useSLP = (om.valueEquals("slp", "true")) ? true: false;
+
     // Put server start message to the logger
     Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
 	"Start $0 $1 port $2 $3 ",
 		PEGASUS_NAME, 
 		PEGASUS_VERSION,
 		address,
-		(pegasusIOTrace ? " Tracing": " "));
+		(pegasusIOTrace ? " Tracing": " "),
+		(useSLP ? " SLP on " : " SLP off "));
 
-    Boolean useSLP = false;;
-
-    if(om.valueEquals("slp", "true")) 
-      useSLP = true;
-
-    // do we need to run as a daemon ?
+// do we need to run as a daemon ?
     String daemonOption;
     if(om.lookupValue("daemon", daemonOption) && daemonOption == "true") 
       {

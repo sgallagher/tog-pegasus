@@ -26,6 +26,7 @@ code.  The committed files are generated from flex 2.5.4 and bison 1,28.
 6.  Added Compiler/compilerDeclContext.{cpp,h} and makefile changes.
 This change paves the way for upcoming changes that will allow the compiler
 to work indepently of the repository. (grb)
+7. Extend testclient (clients/testclient) tests and functions. ks 19 June 2001
 ---------------------------------------------------------------
 Version 0.97.3 - Released 5 June 2001
 

@@ -378,6 +378,15 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
 
 /** GetOptions function - This function defines the Options Table
     and sets up the options from that table using the option manager.
+    const char* optionName;
+    const char* defaultValue;
+    int required;
+    Option::Type type;
+    char** domain;
+    Uint32 domainSize;
+    const char* commandLineOptionName;
+    const char* optionHelpMessage;
+    
 */
 void GetOptions(
     OptionManager& om,
@@ -394,9 +403,6 @@ void GetOptions(
 	{"repeat", "1", false, Option::WHOLE_NUMBER, 0, 0, "r",
 			"specifies port number to listen on" },
 	
-	{"port", "5988", false, Option::WHOLE_NUMBER, 0, 0, "port",
-			"specifies port number to listen on" },
-
 	{"namespace", "root/cimv2", false, Option::STRING, 0, 0, "-n",
 			"specifies namespace to use for test" },
 
@@ -410,7 +416,7 @@ void GetOptions(
 		    "Prints help message with command line options "},
 	{"debug", "false", false, Option::BOOLEAN, 0, 0, "d", 
 	             "Not Used "},
-	{"slp", "true", false, Option::BOOLEAN, 0, 0, "d", 
+	{"slp", "false", false, Option::BOOLEAN, 0, 0, "slp", 
 			"use SLP to find cim servers to test"}
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
@@ -449,8 +455,10 @@ void PrintHelp(const char* arg0)
 
 int main(int argc, char** argv)
 {
+
   LSLP_LIB_SRVRPLY *replies = NULL, *thisReply = NULL;
-  char* connection = "localhost:5988";
+
+  // char connection[50] = "localhost:5988";
   char *address_string = NULL;
   
 
@@ -498,36 +506,40 @@ int main(int argc, char** argv)
     // Check to see if user asked for help (-h otpion):
     String helpOption;
 
-    if (om.lookupValue("help", helpOption) && helpOption == "true")
+    if (om.valueEquals("verbose", "true"))
     {
 	PrintHelp(argv[0]);
 	om.printHelp();
 	exit(0);
     }
 
-
-    Boolean verboseTest = false;
-    if (om.valueEquals("verbose", "true"))
-	verboseTest = true;
+    Boolean verboseTest = (om.valueEquals("verbose", "true")) ? true :false;
 
     Boolean activeTest = false;
     if (om.valueEquals("active", "true"))
 	activeTest = true;
      
-    
-    Boolean useSLP;
-    if(om.valueEquals("slp", "true")) 
-      useSLP = true;
+    // here we determine the list of systems to test.
+    // All arguments remaining in argv go into list.
+    // if SLP option set, SLP list goes into set.
+    // if SLP false and no args, use default localhost:5988
+    Boolean useSLP =  (om.valueEquals("slp", "true"))? true: false;
+    cout << "SLP " << (useSLP ? "true" : "false") << endl;
+    Array<String> connectionList;
+    if (argc > 1)
+	for (Uint32 i = 1; i < argc; i++)
+	    connectionList.append(argv[i]);
 
-    int argvIndex = 1;
-    if(useSLP == false && argc > 1)
-      connection= argv[argvIndex++];
-    else if ( lslp_lib_init("pegasus_cim_client", 
+    // substitute the default only if noslp and no params
+    if(useSLP == false && argc < 2)
+      connectionList.append("localhost:5988");
+
+    if (useSLP && ( lslp_lib_init("pegasus_cim_client", 
 			    "239.255.255.253",   
 			    "0.0.0.0", 
-			    427, NULL ) ) // try slp
-      { 
-	cout << "Use SLP to get URL" << endl;
+			    427, NULL )) ) // try slp
+    { 
+	cout << "passed lslp_lib_init" << endl;
 	replies = (LSLP_LIB_SRVRPLY *)lslp_lib_converge_srv_req("pegasus_cim_client",
 								"service:cim.pegasus",
 								"(namespace=*)",
@@ -535,26 +547,52 @@ int main(int argc, char** argv)
 	if(replies != NULL) 
 	  {
 	    thisReply = replies->next;
-	    if  (! thisReply->isHead ) 
+	    cout << "Test SLP" << endl;
+	    while  ((! thisReply->isHead) && (thisReply != NULL) ) 
 	      {
-		connection = (address_string = lslp_lib_get_addr_string_from_url(thisReply->url) );
+		//connection = (address_string = 
+		//lslp_lib_get_addr_string_from_url(thisReply->url) );
+		connectionList.append(
+		    lslp_lib_get_addr_string_from_url(thisReply->url));
 		thisReply = thisReply->next;
+		//cout << "SLP returned " << connection << endl;
 	      }
 	  }
+    }
+    cout << "Connection List size " << connectionList.size() << endl;
+    for (Uint32 i = 0; i < connectionList.size(); i++)
+	cout << "Connection " << i << " address " << connectionList[i] << 
+						    endl; 
+    //exit (0);
+    /*
+    if( thisReply != NULL && ( ! thisReply->isHead ) )
+      {
+	// reinitialize the connection string
+	connection = (address_string = lslp_lib_get_addr_string_from_url(thisReply->url) );
+	thisReply = thisReply->next;
       }
-    
-    do {
+    else
+	// get next cmd line argument if one exists.
+	if (argc > argvIndex)
+	    connection = argv[argvIndex++];
+	else
+	  connection = NULL;
 
-      if(connection == NULL)
-	continue;
+    */
+    
+    for (Uint32 i = 0; i < connectionList.size(); i++)
+    {
 
       try
 	{
 	  Stopwatch elapsedTime;
-	  cout << "connecting to " << connection << endl;
 	  Selector selector;
 	  CIMClient client(&selector);
+
+	  char * connection = connectionList[i].allocateCString();
+	  cout << "connecting to " << connection << endl;
 	  client.connect(connection);
+	  delete [] connection;
 
 	  testStatus("Test NameSpace Operations");
 
@@ -596,22 +634,8 @@ int main(int argc, char** argv)
 	  PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
 	  //	exit(1);
 	}
+    }
       
-
-      if( thisReply != NULL && ( ! thisReply->isHead ) )
-	{
-	  // reinitialize the connection string
-	  connection = (address_string = lslp_lib_get_addr_string_from_url(thisReply->url) );
-	  thisReply = thisReply->next;
-	}
-      else
-	  // get next cmd line argument if one exists.
-	  if (argc > argvIndex)
-	      connection = argv[argvIndex++];
-	  else
-	    connection = NULL;
-    
-    } while ( connection != NULL ); 
 
     PEGASUS_STD(cout) << "+++++ passed all tests" << PEGASUS_STD(endl);
     lslp_lib_deinit("pegasus_cim_client");
@@ -619,10 +643,16 @@ int main(int argc, char** argv)
 }
 
 /*
-    TODO:  1. put in the option manager
-           2. Make passive tests only option.
+    TODO:  1. put in the option manager	   DONE
+           2. Make passive tests only option. DONE
 	   3. Make test loop tool
-	   4. Make display an option
+	   4. Make display an option	 DONE
 	   5. Make test multiple systems.
-	   6.
+	   6. Get rid of diagnostics and clean display
+	   7. Add correct successful at end
+	   8. Make OO
+	   9. Add associations test
+	   10. Add cim references test.
+	   11. Add test all namespaces test.
+	   
 */

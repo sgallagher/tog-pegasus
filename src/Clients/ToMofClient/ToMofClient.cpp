@@ -29,9 +29,12 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <cassert>
-#include <Pegasus/Common/Selector.h>
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/HTTPConnector.h>
+
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Stopwatch.h>
@@ -153,8 +156,8 @@ void GetOptions(
 		 {"help", "false", false, Option::BOOLEAN, 0, 0, "h",
 		 		     "Prints help message with command line options "},
 
-		 {"debug", "false", false, Option::BOOLEAN, 0, 0, "d", 
-		              "Not Used "},
+		 {"qualifiers", "false", false, Option::BOOLEAN, 0, 0, "q", 
+		              "If set, show the qualifier declarations "},
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
 
@@ -179,7 +182,7 @@ void GetOptions(
 void PrintHelp(const char* arg0)
 {
     cout << '\n';
-    cout << "TestClient" << endl;
+    cout << "ToMofClient" << endl;
     cout << '\n';
     cout << "Usage: " << arg0 << endl;
     cout << endl;
@@ -193,8 +196,12 @@ void PrintHelp(const char* arg0)
 
 int main(int argc, char** argv)
 {   
-    if (argc != 2)
-	ErrorExit("One Argument (classname) required");
+    Boolean singleClass = true;
+    
+    String className;
+
+    if (argc < 2)
+	singleClass = false;
 
     String pegasusHome;
     pegasusHome = "/";
@@ -217,29 +224,75 @@ int main(int argc, char** argv)
     }
     catch (Exception& e)
     {
-		 cerr << argv[0] << ": " << e.getMessage() << endl;
+        cout << "Error Qualifier Enumeration:" << endl;
+        cerr << argv[0] << ": " << e.getMessage() << endl;
 		 exit(1);
     }
 
+    String localNameSpace;
+    if(om.lookupValue("namespace", localNameSpace))
+      {
+       nameSpace = localNameSpace;
+       cout << "Namespace = " << localNameSpace << endl;
+
+      }
+    cout << "Namespace = " << localNameSpace << endl;
+    
+    cout << "Namespace = " << nameSpace << endl;
+
+    // Check to see if user asked for help (-h otpion):
+    String helpOption;
+
+    Boolean showQualifiers = (om.valueEquals("qualifiers", "true")) ? true :false;
+
+    Boolean showInstances = (om.valueEquals("instances", "true")) ? true :false;
+
+    Boolean showAll = (om.valueEquals("all", "true")) ? true :false;
+
     Array<String> connectionList;
     connectionList.append("localhost:5988");
-
-    Selector selector;
-    CIMClient client(&selector, 60 * 1000);
-
     char * connection = connectionList[0].allocateCString();
     cout << "connecting to " << connection << endl;
-    client.connect(connection);
 
 
-    Boolean singleClass = true;
+    Monitor* monitor = new Monitor;
+    HTTPConnector* httpConnector = new HTTPConnector(monitor);
+    CIMClient client(monitor, httpConnector);
+    client.connect("localhost:5988");
+
+    if (showQualifiers | showAll)
+    {
+	try
+	{
+        // Enumerate the qualifiers:
+
+        Array<CIMQualifierDecl> qualifierDecls 
+            = client.enumerateQualifiers(nameSpace);
+
+        for (Uint32 i = 0; i < qualifierDecls.size(); i++)
+        {
+            CIMQualifierDecl tmp = qualifierDecls[i];
+            Array<Sint8> x;
+
+            tmp.toMof(x);
+
+            x.append('\0');
+
+            mofFormat(cout, x.getData(), 4);
+            cout << endl;
+        }
+        	}
+	 catch(Exception& e)
+	{
+	    ErrorExit(e.getMessage());
+	}
+    }
+
     
     if (singleClass)
     {
 	try
 	{
-	    String className;
-	    className = argv[1];
 	    Boolean localOnly = true;
 	    Boolean includeQualifiers = true;
 	    Boolean includeClassOrigin = true;
@@ -268,7 +321,8 @@ int main(int argc, char** argv)
     {
 	try
 	{
-	    Boolean deepInheritance = true;
+
+            Boolean deepInheritance = true;
 	    Boolean localOnly = false;
 	    Boolean includeQualifiers = false;
 	    Boolean includeClassOrigin = true;
@@ -299,7 +353,12 @@ int main(int argc, char** argv)
 	     cout << "Error Class Enumeration:" << endl;
 	     cout << e.getMessage() << endl;
 	}
-    }  
+    } 
+
+    if (showInstances)
+    {
+        
+    }
     return 0; 
 } 
 //PEGASUS_NAMESPACE_END

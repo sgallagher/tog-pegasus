@@ -109,7 +109,18 @@ Boolean CQLSelectStatementRep::evaluate(const CIMInstance& inCI)
   if (!hasWhereClause())
     return true;
   else
-    return _predicate.evaluate(inCI, *_ctx);
+  {
+    try
+    {
+      return _predicate.evaluate(inCI, *_ctx);
+    }
+    catch (UninitializedObjectException& )
+    {
+      // The null contagion rule.
+      // ATTN change this to a specific CQLException
+      return false;
+    }
+  }
 }
 
 void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)

@@ -1,4 +1,6 @@
+#include <Pegasus/Common/InternalException.h>
 #include "CQLPredicate.h"
+#include "CQLSimplePredicate.h"
 #include "CQLPredicateRep.h"
 #include <Pegasus/CQL/CQLFactory.h>
 #include <Pegasus/CQL/QueryContext.h>
@@ -32,12 +34,50 @@ CQLPredicateRep::CQLPredicateRep(const CQLPredicateRep* rep){
 
 Boolean CQLPredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
 {
-   return false;
+  Boolean result = false; 
+
+  if (isSimple())
+  {
+    result = _simplePredicate.evaluate(CI, QueryCtx);
+  }
+  else
+  {
+    PEGASUS_ASSERT(_predicates.size() % 2 == 0);
+ 
+    result = _predicates[0].evaluate(CI, QueryCtx); 
+    for (Uint32 i = 1; i < _predicates.size() - 1; i++)
+    {
+      if (_operators[i] == AND)
+      {
+	Uint32 j = i;
+	Boolean andResult = _predicates[j].evaluate(CI, QueryCtx);
+	while (_operators[j] == AND)
+	{
+	  if (andResult == true)
+	    andResult = andResult && _predicates[j+1].evaluate(CI, QueryCtx);
+	  
+	  j++;
+	}
+	
+	result = result || andResult;
+
+	i = j;
+      }
+
+      result = result || _predicates[i+1].evaluate(CI, QueryCtx); 
+
+      if (result == true)
+	return (getInverted()) ? !result : result;
+    }
+  } 
+
+  return (getInverted()) ? !result : result;
 }
 
 Boolean CQLPredicateRep::isTerminal(){
 	return _terminal;
 }
+
 Boolean CQLPredicateRep::getInverted(){
 	return _invert;
 }

@@ -1,3 +1,4 @@
+#include <Pegasus/Common/InternalException.h>
 #include "CQLSimplePredicate.h"
 #include "CQLSimplePredicateRep.h"
 //#include <Pegasus/CQL/CQLExpression.h>
@@ -45,7 +46,76 @@ CQLSimplePredicateRep::CQLSimplePredicateRep(const CQLSimplePredicateRep* rep){
 
 Boolean CQLSimplePredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
 {
-	return false;
+  CQLValue leftVal = _leftSide.resolveValue(CI, QueryCtx);
+
+  if (isSimple())
+  {
+    PEGASUS_ASSERT(_operator == IS_NULL || _operator == IS_NOT_NULL);
+
+    return (_operator == IS_NULL) ? leftVal.isNull() : !leftVal.isNull();
+  }
+
+  PEGASUS_ASSERT(_operator != IS_NULL && _operator != IS_NOT_NULL);
+
+  if (leftVal.isNull())
+  {
+    // The null contagion rule
+    // ATTN - change this to a specific CQLException so that it can
+    // be caught above
+    throw UninitializedObjectException(); 
+  }
+
+  CQLValue rightVal = _rightSide.resolveValue(CI, QueryCtx);
+
+  if (rightVal.isNull())
+  {
+    // The null contagion rule
+    // ATTN - change this to a specific CQLException so that it can
+    // be caught above
+    throw UninitializedObjectException(); 
+  }
+
+  switch(_operator)
+  {
+  case LT:
+    return leftVal < rightVal;
+    break;
+
+  case GT:
+    return leftVal > rightVal;
+    break;
+
+  case LE:
+    return leftVal <= rightVal;
+    break;
+
+  case GE:
+    return leftVal >= rightVal;
+    break;
+
+  case EQ:
+    return leftVal == rightVal;
+    break;
+
+  case NE:
+    return leftVal != rightVal;
+    break;
+
+  case ISA:
+    return leftVal.isa(rightVal, QueryCtx);
+    break;
+
+  case LIKE:
+    return leftVal.like(rightVal);
+    break;
+
+  case IS_NULL:
+  case IS_NOT_NULL:
+    // Never get here due to the assert.
+    break;
+  }
+
+  return true;  // keep the compiler happy
 }
 
 CQLExpression CQLSimplePredicateRep::getLeftExpression()

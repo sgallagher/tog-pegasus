@@ -1,0 +1,180 @@
+List Users
+Listing users...
+root
+guest
+www
+Display usage - error
+cimuser: Required arguments missing.
+usage: cimuser -a -u username [ -w password ] 
+               -m -u username [ -w old password ] [ -n new password ] 
+               -r -u username 
+               -l 
+
+Display Usage - error
+cimuser: option "-m" was unexpected
+usage: cimuser -a -u username [ -w password ] 
+               -m -u username [ -w old password ] [ -n new password ] 
+               -r -u username 
+               -l 
+
+Display Usage - error
+cimuser: Required arguments missing.
+usage: cimuser -a -u username [ -w password ] 
+               -m -u username [ -w old password ] [ -n new password ] 
+               -r -u username 
+               -l 
+
+Display Usage - error
+cimuser: Required arguments missing.
+usage: cimuser -a -u username [ -w password ] 
+               -m -u username [ -w old password ] [ -n new password ] 
+               -r -u username 
+               -l 
+
+Display Usage - error
+cimuser: option "-r" was unexpected
+usage: cimuser -a -u username [ -w password ] 
+               -m -u username [ -w old password ] [ -n new password ] 
+               -r -u username 
+               -l 
+
+Display Usage - error
+cimuser: option "-m" was unexpected
+usage: cimuser -a -u username [ -w password ] 
+               -m -u username [ -w old password ] [ -n new password ] 
+               -r -u username 
+               -l 
+
+Display Usage - error
+cimuser: option "-l" was unexpected
+usage: cimuser -a -u username [ -w password ] 
+               -m -u username [ -w old password ] [ -n new password ] 
+               -r -u username 
+               -l 
+
+Remove user lp
+Removing user...
+Failed to remove user.
+CIMClient.cpp(960): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The specified user is not a valid CIM user, user name: lp."
+Add user lp
+Adding user...
+User added successfully.
+Add invalid system user nouser
+Adding user...
+Failed to add user.
+CIMClient.cpp(960): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The specified user is not a valid user on the local system , user name: nouser"
+Modify correct password
+Modifying users password...
+Password changed successfully.
+Add user lp again - error
+Adding user...
+Failed to add user.
+CIMClient.cpp(960): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "User already exists, user name: lp"
+Add a user not existing on system - error
+Adding user...
+Failed to add user.
+CIMClient.cpp(960): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The specified user is not a valid user on the local system , user name: test"
+Display usage - error
+cimuser: User name is required.
+usage: cimuser -a -u username [ -w password ] 
+               -m -u username [ -w old password ] [ -n new password ] 
+               -r -u username 
+               -l 
+
+Display usage - error
+cimuser: User name is required.
+usage: cimuser -a -u username [ -w password ] 
+               -m -u username [ -w old password ] [ -n new password ] 
+               -r -u username 
+               -l 
+
+Modify password
+Modifying users password...
+Failed to change password.
+CIMClient.cpp(960): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "UserManagerProvider.cpp(723): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The specified password does not match user's current password, user name: lp""
+Modify wrong password - error
+Modifying users password...
+Failed to change password.
+CIMClient.cpp(960): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "UserManagerProvider.cpp(723): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The specified password does not match user's current password, user name: lp""
+Modify wrong user name - error
+Modifying users password...
+Failed to change password.
+CIMClient.cpp(960): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "UserManagerProvider.cpp(723): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The specified user is not a valid CIM user, user name: test1.""
+Display usage - error
+cimuser: User name is required.
+usage: cimuser -a -u username [ -w password ] 
+               -m -u username [ -w old password ] [ -n new password ] 
+               -r -u username 
+               -l 
+
+Display usage - error
+cimuser: Missing required value for flag u
+usage: cimuser -a -u username [ -w password ] 
+               -m -u username [ -w old password ] [ -n new password ] 
+               -r -u username 
+               -l 
+
+Remove user lp
+Removing user...
+User removed successfully.
+Remove user test1 - error
+Removing user...
+Failed to remove user.
+CIMClient.cpp(960): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The specified user is not a valid CIM user, user name: test1."
+Remove user lp again
+Removing user...
+Failed to remove user.
+CIMClient.cpp(960): CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The specified user is not a valid CIM user, user name: lp."
+Duplicate -a parameter
+cimuser: duplicate "-a" option
+usage: cimuser -a -u username [ -w password ] 
+               -m -u username [ -w old password ] [ -n new password ] 
+               -r -u username 
+               -l 
+
+Duplicate -r parameter
+cimuser: duplicate "-r" option
+usage: cimuser -a -u username [ -w password ] 
+               -m -u username [ -w old password ] [ -n new password ] 
+               -r -u username 
+               -l 
+
+Duplicate -m parameter
+cimuser: duplicate "-m" option
+usage: cimuser -a -u username [ -w password ] 
+               -m -u username [ -w old password ] [ -n new password ] 
+               -r -u username 
+               -l 
+
+Duplicate -l parameter
+cimuser: duplicate "-l" option
+usage: cimuser -a -u username [ -w password ] 
+               -m -u username [ -w old password ] [ -n new password ] 
+               -r -u username 
+               -l 
+
+Same password for old and new params
+Error, new and old passwords cannot be same.
+Renaming passwd file
+Adding user...
+User added successfully.
+Listing users...
+root
+guest
+www
+lp
+Removing user...
+User removed successfully.
+Listing users...
+root
+guest
+www
+Adding user...
+User added successfully.
+Listing users...
+root
+guest
+www
+lp
+Removing user...
+User removed successfully.

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -38,57 +38,57 @@
 //
 // XmlParser
 //
-//	This file contains a simple non-validating XML parser. Here are 
-//	serveral rules for well-formed XML:
+//      This file contains a simple non-validating XML parser. Here are
+//      serveral rules for well-formed XML:
 //
-//	    1.	Documents must begin with an XML declaration:
+//          1.  Documents must begin with an XML declaration:
 //
-//		<?xml version="1.0" standalone="yes"?>
+//              <?xml version="1.0" standalone="yes"?>
 //
-//	    2.	Comments have the form:
+//          2.  Comments have the form:
 //
-//		<!-- blah blah blah -->
+//              <!-- blah blah blah -->
 //
-//	    3. The following entity references are supported:
+//          3. The following entity references are supported:
 //
-//		&amp - ampersand
-//	 	&lt - less-than
-//		&gt - greater-than
-//		&quot - full quote
-//		&apos - apostrophe
+//              &amp - ampersand
+//              &lt - less-than
+//              &gt - greater-than
+//              &quot - full quote
+//              &apos - apostrophe
 //
 //             as well as character (numeric) references:
 
 //              &#49; - decimal reference for character '1'
 //              &#x31; - hexadecimal reference for character '1'
 //
-//	    4. Element names and attribute names take the following form:
+//          4. Element names and attribute names take the following form:
 //
-//		[A-Za-z_][A-Za-z_0-9-.:]
+//              [A-Za-z_][A-Za-z_0-9-.:]
 //
-//	    5.	Arbitrary data (CDATA) can be enclosed like this:
+//          5.  Arbitrary data (CDATA) can be enclosed like this:
 //
-//		    <![CDATA[
-//		    ...
-//		    ]]>
+//                  <![CDATA[
+//                  ...
+//                  ]]>
 //
-//	    6.	Element names and attributes names are case-sensitive.
+//          6.  Element names and attributes names are case-sensitive.
 //
-//	    7.	XmlAttribute values must be delimited by full or half quotes.
-//		XmlAttribute values must be delimited.
+//          7.  XmlAttribute values must be delimited by full or half quotes.
+//              XmlAttribute values must be delimited.
 //
-//	    8.  <!DOCTYPE...>
+//          8.  <!DOCTYPE...>
 //
 // TODO:
 //
 //      ATTN: KS P1 4 Mar 2002. Review the following TODOs to see if there is work.
-//	Handle <!DOCTYPE...> sections which are complicated (containing
+//      Handle <!DOCTYPE...> sections which are complicated (containing
 //        rules rather than references to files).
 //
-//	Remove newlines from string literals:
+//      Remove newlines from string literals:
 //
 //          Example: <xyz x="hello
-//		world">
+//              world">
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -118,14 +118,14 @@ static void _printValue(const char* p)
 {
     for (; *p; p++)
     {
-	if (*p == '\n')
-	    PEGASUS_STD(cout) << "\\n";
-	else if (*p == '\r')
-	    PEGASUS_STD(cout) << "\\r";
-	else if (*p == '\t')
-	    PEGASUS_STD(cout) << "\\t";
-	else
-	    PEGASUS_STD(cout) << *p;
+        if (*p == '\n')
+            PEGASUS_STD(cout) << "\\n";
+        else if (*p == '\r')
+            PEGASUS_STD(cout) << "\\r";
+        else if (*p == '\t')
+            PEGASUS_STD(cout) << "\\t";
+        else
+            PEGASUS_STD(cout) << *p;
     }
 }
 
@@ -154,12 +154,12 @@ static EntityReference _references[] =
 //
 // Section 2.3 of XML 1.0 Standard (http://www.w3.org/TR/REC-xml)
 // defines white space as:
-// S    ::=    (#x20 | #x9 | #xD | #xA)+ 
+// S    ::=    (#x20 | #x9 | #xD | #xA)+
 static int _isspace(char c)
 {
-	if (c == ' ' || c == '\r' || c == '\t' || c == '\n')
-		return 1;
-	return 0;
+        if (c == ' ' || c == '\r' || c == '\t' || c == '\n')
+                return 1;
+        return 0;
 }
 
 
@@ -169,17 +169,16 @@ static Uint32 _REFERENCES_SIZE = (sizeof(_references) / sizeof(_references[0]));
 
 static void _normalize(char* text)
 {
-    Uint32 length = strlen(text);
     char* p = text;
-    char* end = p + length;
+    char* end = p + strlen(text);
 
     // Remove leading spaces:
 
     while (_isspace(*p))
-		p++;
+                p++;
 
     if (p != text)
-	memmove(text, p, end - p + 1);
+        memmove(text, p, end - p + 1);
 
     p = text;
 
@@ -187,39 +186,39 @@ static void _normalize(char* text)
 
     for (;;)
     {
-	// Advance to the next space:
+        // Advance to the next space:
 
-	while (*p && !_isspace(*p))
-	    p++;
+        while (*p && !_isspace(*p))
+            p++;
 
-	if (!*p)
-	    break;
+        if (!*p)
+            break;
 
-	// Advance to the next non-space:
+        // Advance to the next non-space:
 
-	char* q = p++;
+        char* q = p++;
 
-	while (_isspace(*p))
-	    p++;
+        while (_isspace(*p))
+            p++;
 
-	// Discard trailing spaces (if we are at the end):
+        // Discard trailing spaces (if we are at the end):
 
-	if (!*p)
-	{
-	    *q = '\0';
-	    break;
-	}
+        if (!*p)
+        {
+            *q = '\0';
+            break;
+        }
 
-	// Remove the redundant spaces:
+        // Remove the redundant spaces:
 
-	Uint32 n = p - q;
+        const size_t n = p - q;
 
-	if (n > 1)
-	{
-	    *q++ = ' ';
-	    memmove(q, p, end - p + 1);
-	    p = q;
-	}
+        if (n > 1)
+        {
+            *q++ = ' ';
+            memmove(q, p, end - p + 1);
+            p = q;
+        }
     }
 }
 
@@ -250,7 +249,7 @@ static const char* _xmlMessages[] =
     "Semantic error"
 };
 
-static const char* _xmlKeys[] = 
+static const char* _xmlKeys[] =
 {
     "Common.XmlParser.BAD_START_TAG",
     "Common.XmlParser.BAD_END_TAG",
@@ -265,7 +264,7 @@ static const char* _xmlKeys[] =
     "Common.XmlParser.MALFORMED_REFERENCE",
     "Common.XmlParser.EXPECTED_COMMENT_OR_CDATA",
     "Common.XmlParser.START_END_MISMATCH",
-    "Common.XmlParser.UNCLOSED_TAGS", 
+    "Common.XmlParser.UNCLOSED_TAGS",
     "Common.XmlParser.MULTIPLE_ROOTS",
     "Common.XmlParser.VALIDATION_ERROR",
     "Common.XmlParser.SEMANTIC_ERROR"
@@ -284,8 +283,8 @@ static String _formMessage(Uint32 code, Uint32 line, const String& message)
 
     if (message.size())
     {
-	result.append(": ");
-	result.append(message);
+        result.append(": ");
+        result.append(message);
     }
 
     return result;
@@ -296,14 +295,14 @@ static MessageLoaderParms _formMessage(Uint32 code, Uint32 line, const String& m
 {
     String dftMsg = _xmlMessages[Uint32(code) - 1];
     String key = _xmlKeys[Uint32(code) - 1];
-	String msg = message;
+        String msg = message;
 
     dftMsg.append(": on line $0");
     if (message.size())
     {
-    	msg = ": " + msg;
-    	dftMsg.append("$1");
-    }    
+        msg = ": " + msg;
+        dftMsg.append("$1");
+    }
 
     return MessageLoaderParms(key, dftMsg, line ,msg);
 }
@@ -314,15 +313,15 @@ static MessageLoaderParms _formPartialMessage(Uint32 code, Uint32 line)
     String key = _xmlKeys[Uint32(code) - 1];
 
     dftMsg.append(": on line $0");
- 
+
     return MessageLoaderParms(key, dftMsg, line);
 }
 
 
 XmlException::XmlException(
-    XmlException::Code code, 
+    XmlException::Code code,
     Uint32 lineNumber,
-    const String& message) 
+    const String& message)
     : Exception(_formMessage(code, lineNumber, message))
 {
 
@@ -330,16 +329,16 @@ XmlException::XmlException(
 
 
 XmlException::XmlException(
-    XmlException::Code code, 
+    XmlException::Code code,
     Uint32 lineNumber,
-    MessageLoaderParms& msgParms) 
+    MessageLoaderParms& msgParms)
     : Exception(_formPartialMessage(code, lineNumber))
 {
-	if (msgParms.default_msg.size())
+        if (msgParms.default_msg.size())
     {
-    	msgParms.default_msg = ": " + msgParms.default_msg;
-    } 
-	_rep->message.append(MessageLoader::getMessage(msgParms));
+        msgParms.default_msg = ": " + msgParms.default_msg;
+    }
+        _rep->message.append(MessageLoader::getMessage(msgParms));
 }
 
 
@@ -397,7 +396,7 @@ XmlSemanticError::XmlSemanticError(
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-XmlParser::XmlParser(char* text) : _line(1), _text(text), _current(text), 
+XmlParser::XmlParser(char* text) : _line(1), _text(text), _current(text),
     _restoreChar('\0'), _foundRoot(false)
 {
 
@@ -407,9 +406,9 @@ Boolean XmlParser::next(XmlEntry& entry)
 {
     if (!_putBackStack.isEmpty())
     {
-	entry = _putBackStack.top();
-	_putBackStack.pop();
-	return true;
+        entry = _putBackStack.top();
+        _putBackStack.pop();
+        return true;
     }
 
     // If a character was overwritten with a null-terminator the last
@@ -420,9 +419,9 @@ Boolean XmlParser::next(XmlEntry& entry)
 
     if (_restoreChar && !*_current)
     {
-	nullTerminator = _current;
-	*_current = _restoreChar;
-	_restoreChar = '\0';
+        nullTerminator = _current;
+        *_current = _restoreChar;
+        _restoreChar = '\0';
     }
 
     // Skip over any whitespace:
@@ -431,61 +430,61 @@ Boolean XmlParser::next(XmlEntry& entry)
 
     if (!*_current)
     {
-	if (nullTerminator)
-	    *nullTerminator = '\0';
+        if (nullTerminator)
+            *nullTerminator = '\0';
 
-	if (!_stack.isEmpty())
-	    throw XmlException(XmlException::UNCLOSED_TAGS, _line);
+        if (!_stack.isEmpty())
+            throw XmlException(XmlException::UNCLOSED_TAGS, _line);
 
-	return false;
+        return false;
     }
 
     // Either a "<...>" or content begins next:
 
     if (*_current == '<')
     {
-	_current++;
-	_getElement(_current, entry);
+        _current++;
+        _getElement(_current, entry);
 
-	if (nullTerminator)
-	    *nullTerminator = '\0';
+        if (nullTerminator)
+            *nullTerminator = '\0';
 
-	if (entry.type == XmlEntry::START_TAG)
-	{
-	    if (_stack.isEmpty() && _foundRoot)
-		throw XmlException(XmlException::MULTIPLE_ROOTS, _line);
+        if (entry.type == XmlEntry::START_TAG)
+        {
+            if (_stack.isEmpty() && _foundRoot)
+                throw XmlException(XmlException::MULTIPLE_ROOTS, _line);
 
-	    _foundRoot = true;
-	    _stack.push((char*)entry.text);
-	}
-	else if (entry.type == XmlEntry::END_TAG)
-	{
-	    if (_stack.isEmpty())
-		throw XmlException(XmlException::START_END_MISMATCH, _line);
+            _foundRoot = true;
+            _stack.push((char*)entry.text);
+        }
+        else if (entry.type == XmlEntry::END_TAG)
+        {
+            if (_stack.isEmpty())
+                throw XmlException(XmlException::START_END_MISMATCH, _line);
 
-	    if (strcmp(_stack.top(), entry.text) != 0)
-		throw XmlException(XmlException::START_END_MISMATCH, _line);
+            if (strcmp(_stack.top(), entry.text) != 0)
+                throw XmlException(XmlException::START_END_MISMATCH, _line);
 
-	    _stack.pop();
-	}
+            _stack.pop();
+        }
 
-	return true;
+        return true;
     }
     else
     {
-	entry.type = XmlEntry::CONTENT;
-	entry.text = _current;
-	_getContent(_current);
-	_restoreChar = *_current;
-	*_current = '\0';
+        entry.type = XmlEntry::CONTENT;
+        entry.text = _current;
+        _getContent(_current);
+        _restoreChar = *_current;
+        *_current = '\0';
 
-	if (nullTerminator)
-	    *nullTerminator = '\0';
+        if (nullTerminator)
+            *nullTerminator = '\0';
 
-	_substituteReferences((char*)entry.text);
-	_normalize((char*)entry.text);
+        _substituteReferences((char*)entry.text);
+        _normalize((char*)entry.text);
 
-	return true;
+        return true;
     }
 }
 
@@ -503,10 +502,10 @@ void XmlParser::_skipWhitespace(char*& p)
 {
     while (*p && _isspace(*p))
     {
-	if (*p == '\n')
-	    _line++;
+        if (*p == '\n')
+            _line++;
 
-	p++;
+        p++;
     }
 }
 
@@ -515,28 +514,28 @@ Boolean XmlParser::_getElementName(char*& p)
     if (!(((*p >= 'A') && (*p <= 'Z')) ||
           ((*p >= 'a') && (*p <= 'z')) ||
           (*p == '_')))
-	throw XmlException(XmlException::BAD_START_TAG, _line);
+        throw XmlException(XmlException::BAD_START_TAG, _line);
     p++;
 
     while ((*p) &&
-	   (((*p >= 'A') && (*p <= 'Z')) ||
-	    ((*p >= 'a') && (*p <= 'z')) ||
-	    ((*p >= '0') && (*p <= '9')) ||
-	    *p == '_' || *p == '-' || *p == ':' || *p == '.'))
-	p++;
+           (((*p >= 'A') && (*p <= 'Z')) ||
+            ((*p >= 'a') && (*p <= 'z')) ||
+            ((*p >= '0') && (*p <= '9')) ||
+            *p == '_' || *p == '-' || *p == ':' || *p == '.'))
+        p++;
 
     // The next character must be a space:
 
     if (_isspace(*p))
     {
-	*p++ = '\0';
-	_skipWhitespace(p);
+        *p++ = '\0';
+        _skipWhitespace(p);
     }
 
     if (*p == '>')
     {
-	*p++ = '\0';
-	return true;
+        *p++ = '\0';
+        return true;
     }
 
     return false;
@@ -549,36 +548,36 @@ Boolean XmlParser::_getOpenElementName(char*& p, Boolean& openCloseElement)
     if (!(((*p >= 'A') && (*p <= 'Z')) ||
           ((*p >= 'a') && (*p <= 'z')) ||
           (*p == '_')))
-	throw XmlException(XmlException::BAD_START_TAG, _line);
+        throw XmlException(XmlException::BAD_START_TAG, _line);
     p++;
 
     while ((*p) &&
-	   (((*p >= 'A') && (*p <= 'Z')) ||
-	    ((*p >= 'a') && (*p <= 'z')) ||
-	    ((*p >= '0') && (*p <= '9')) ||
-	    *p == '_' || *p == '-' || *p == ':' || *p == '.'))
-	p++;
+           (((*p >= 'A') && (*p <= 'Z')) ||
+            ((*p >= 'a') && (*p <= 'z')) ||
+            ((*p >= '0') && (*p <= '9')) ||
+            *p == '_' || *p == '-' || *p == ':' || *p == '.'))
+        p++;
 
     // The next character must be a space:
 
     if (_isspace(*p))
     {
-	*p++ = '\0';
-	_skipWhitespace(p);
+        *p++ = '\0';
+        _skipWhitespace(p);
     }
 
     if (*p == '>')
     {
-	*p++ = '\0';
-	return true;
+        *p++ = '\0';
+        return true;
     }
 
     if (p[0] == '/' && p[1] == '>')
     {
-	openCloseElement = true;
-	*p = '\0';
-	p += 2;
-	return true;
+        openCloseElement = true;
+        *p = '\0';
+        p += 2;
+        return true;
     }
 
     return false;
@@ -589,22 +588,22 @@ void XmlParser::_getAttributeNameAndEqual(char*& p)
     if (!(((*p >= 'A') && (*p <= 'Z')) ||
           ((*p >= 'a') && (*p <= 'z')) ||
           (*p == '_')))
-	throw XmlException(XmlException::BAD_ATTRIBUTE_NAME, _line);
+        throw XmlException(XmlException::BAD_ATTRIBUTE_NAME, _line);
     p++;
 
     while ((*p) &&
-	   (((*p >= 'A') && (*p <= 'Z')) ||
-	    ((*p >= 'a') && (*p <= 'z')) ||
-	    ((*p >= '0') && (*p <= '9')) ||
-	    *p == '_' || *p == '-' || *p == ':' || *p == '.'))
-	p++;
+           (((*p >= 'A') && (*p <= 'Z')) ||
+            ((*p >= 'a') && (*p <= 'z')) ||
+            ((*p >= '0') && (*p <= '9')) ||
+            *p == '_' || *p == '-' || *p == ':' || *p == '.'))
+        p++;
 
     char* term = p;
 
     _skipWhitespace(p);
 
     if (*p != '=')
-	throw XmlException(XmlException::BAD_ATTRIBUTE_NAME, _line);
+        throw XmlException(XmlException::BAD_ATTRIBUTE_NAME, _line);
 
     p++;
 
@@ -618,15 +617,15 @@ void XmlParser::_getAttributeValue(char*& p)
     // ATTN-B: handle values contained in semiquotes:
 
     if (*p != '"' && *p != '\'')
-	throw XmlException(XmlException::BAD_ATTRIBUTE_VALUE, _line);
+        throw XmlException(XmlException::BAD_ATTRIBUTE_VALUE, _line);
 
     char startChar = *p++;
 
     while (*p && *p != startChar)
-	p++;
+        p++;
 
     if (*p != startChar)
-	throw XmlException(XmlException::BAD_ATTRIBUTE_VALUE, _line);
+        throw XmlException(XmlException::BAD_ATTRIBUTE_VALUE, _line);
 
     *p++ = '\0';
 }
@@ -637,20 +636,20 @@ void XmlParser::_getComment(char*& p)
 
     for (; *p; p++)
     {
-	if (p[0] == '-' && p[1] == '-')
-	{
-	    if (p[2] != '>')
-	    {
-		throw XmlException(
-		    XmlException::MINUS_MINUS_IN_COMMENT, _line);
-	    }
+        if (p[0] == '-' && p[1] == '-')
+        {
+            if (p[2] != '>')
+            {
+                throw XmlException(
+                    XmlException::MINUS_MINUS_IN_COMMENT, _line);
+            }
 
-	    // Find end of comment (excluding whitespace):
+            // Find end of comment (excluding whitespace):
 
-	    *p = '\0';
-	    p += 3;
-	    return;
-	}
+            *p = '\0';
+            p += 3;
+            return;
+        }
     }
 
     // If it got this far, then the comment is unterminated:
@@ -664,14 +663,14 @@ void XmlParser::_getCData(char*& p)
 
     for (; *p; p++)
     {
-	if (p[0] == ']' && p[1] == ']' && p[2] == '>')
-	{
-	    *p = '\0';
-	    p += 3;
-	    return;
-	}
-	else if (*p == '\n')
-	    _line++;
+        if (p[0] == ']' && p[1] == ']' && p[2] == '>')
+        {
+            *p = '\0';
+            p += 3;
+            return;
+        }
+        else if (*p == '\n')
+            _line++;
     }
 
     // If it got this far, then the comment is unterminated:
@@ -685,12 +684,12 @@ void XmlParser::_getDocType(char*& p)
 
     for (; *p && *p != '>'; p++)
     {
-	if (*p == '\n')
-	    _line++;
+        if (*p == '\n')
+            _line++;
     }
 
     if (*p != '>')
-	throw XmlException(XmlException::UNTERMINATED_DOCTYPE, _line);
+        throw XmlException(XmlException::UNTERMINATED_DOCTYPE, _line);
 
     p++;
 }
@@ -699,21 +698,21 @@ void XmlParser::_getContent(char*& p)
 {
     while (*p && *p != '<')
     {
-	if (*p == '\n')
-	    _line++;
+        if (*p == '\n')
+            _line++;
 
-	p++;
+        p++;
     }
 }
 
 void XmlParser::_substituteReferences(char* text)
 {
-    Uint32 rem = strlen(text);
+    size_t rem = strlen(text);
 
     for (char* p = text; *p; p++, rem--)
     {
-	if (*p == '&')
-	{
+        if (*p == '&')
+        {
             // Process character or entity reference
 
             Uint16 referenceChar = 0;
@@ -847,7 +846,7 @@ void XmlParser::_substituteReferences(char* text)
             char* q = p + referenceLength;
             rem = rem - referenceLength + 1;
             memmove(p + 1, q, rem);
-	}
+        }
     }
 }
 
@@ -863,73 +862,73 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
 
     if (*p == '?')
     {
-	entry.type = XmlEntry::XML_DECLARATION;
-	entry.text = ++p;
+        entry.type = XmlEntry::XML_DECLARATION;
+        entry.text = ++p;
 
-	Boolean openCloseElement = false;
+        Boolean openCloseElement = false;
 
-	if (_getElementName(p))
-	    return;
+        if (_getElementName(p))
+            return;
     }
     else if (*p == '!')
     {
-	p++;
+        p++;
 
-	// Expect a comment or CDATA:
+        // Expect a comment or CDATA:
 
-	if (p[0] == '-' && p[1] == '-')
-	{
-	    p += 2;
-	    entry.type = XmlEntry::COMMENT;
-	    entry.text = p;
-	    _getComment(p);
-	    return;
-	}
-	else if (memcmp(p, "[CDATA[", 7) == 0)
-	{
-	    p += 7;
-	    entry.type = XmlEntry::CDATA;
-	    entry.text = p;
-	    _getCData(p);
-	    return;
-	}
-	else if (memcmp(p, "DOCTYPE", 7) == 0)
-	{
-	    entry.type = XmlEntry::DOCTYPE;
-	    entry.text = _EMPTY_STRING;
-	    _getDocType(p);
-	    return;
-	}
-	throw(XmlException(XmlException::EXPECTED_COMMENT_OR_CDATA, _line));
+        if (p[0] == '-' && p[1] == '-')
+        {
+            p += 2;
+            entry.type = XmlEntry::COMMENT;
+            entry.text = p;
+            _getComment(p);
+            return;
+        }
+        else if (memcmp(p, "[CDATA[", 7) == 0)
+        {
+            p += 7;
+            entry.type = XmlEntry::CDATA;
+            entry.text = p;
+            _getCData(p);
+            return;
+        }
+        else if (memcmp(p, "DOCTYPE", 7) == 0)
+        {
+            entry.type = XmlEntry::DOCTYPE;
+            entry.text = _EMPTY_STRING;
+            _getDocType(p);
+            return;
+        }
+        throw(XmlException(XmlException::EXPECTED_COMMENT_OR_CDATA, _line));
     }
     else if (*p == '/')
     {
-	entry.type = XmlEntry::END_TAG;
-	entry.text = ++p;
+        entry.type = XmlEntry::END_TAG;
+        entry.text = ++p;
 
-	if (!_getElementName(p))
-	    throw(XmlException(XmlException::BAD_END_TAG, _line));
+        if (!_getElementName(p))
+            throw(XmlException(XmlException::BAD_END_TAG, _line));
 
-	return;
+        return;
     }
     else if ((((*p >= 'A') && (*p <= 'Z')) ||
               ((*p >= 'a') && (*p <= 'z')) ||
               (*p == '_')))
     {
-	entry.type = XmlEntry::START_TAG;
-	entry.text = p;
+        entry.type = XmlEntry::START_TAG;
+        entry.text = p;
 
-	Boolean openCloseElement = false;
+        Boolean openCloseElement = false;
 
-	if (_getOpenElementName(p, openCloseElement))
-	{
-	    if (openCloseElement)
-		entry.type = XmlEntry::EMPTY_TAG;
-	    return;
-	}
+        if (_getOpenElementName(p, openCloseElement))
+        {
+            if (openCloseElement)
+                entry.type = XmlEntry::EMPTY_TAG;
+            return;
+        }
     }
     else
-	throw XmlException(XmlException::BAD_START_TAG, _line);
+        throw XmlException(XmlException::BAD_START_TAG, _line);
 
     //--------------------------------------------------------------------------
     // Grab all the attributes:
@@ -937,73 +936,73 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
 
     for (;;)
     {
-	if (entry.type == XmlEntry::XML_DECLARATION)
-	{
-	    if (p[0] == '?' && p[1] == '>')
-	    {
-		p += 2;
-		return;
-	    }
-	}
-	else if (entry.type == XmlEntry::START_TAG && p[0] == '/' && p[1] =='>')
-	{
-	    entry.type = XmlEntry::EMPTY_TAG;
-	    p += 2;
-	    return;
-	}
-	else if (*p == '>')
-	{
-	    p++;
-	    return;
-	}
+        if (entry.type == XmlEntry::XML_DECLARATION)
+        {
+            if (p[0] == '?' && p[1] == '>')
+            {
+                p += 2;
+                return;
+            }
+        }
+        else if (entry.type == XmlEntry::START_TAG && p[0] == '/' && p[1] =='>')
+        {
+            entry.type = XmlEntry::EMPTY_TAG;
+            p += 2;
+            return;
+        }
+        else if (*p == '>')
+        {
+            p++;
+            return;
+        }
 
-	XmlAttribute attr;
-	attr.name = p;
-	_getAttributeNameAndEqual(p);
+        XmlAttribute attr;
+        attr.name = p;
+        _getAttributeNameAndEqual(p);
 
-	if (*p != '"' && *p != '\'')
-	    throw XmlException(XmlException::BAD_ATTRIBUTE_VALUE, _line);
+        if (*p != '"' && *p != '\'')
+            throw XmlException(XmlException::BAD_ATTRIBUTE_VALUE, _line);
 
-	attr.value = p + 1;
-	_getAttributeValue(p);
+        attr.value = p + 1;
+        _getAttributeValue(p);
 
-	if (entry.type == XmlEntry::XML_DECLARATION)
-	{
-	    // The next thing must a space or a "?>":
+        if (entry.type == XmlEntry::XML_DECLARATION)
+        {
+            // The next thing must a space or a "?>":
 
-	    if (!(p[0] == '?' && p[1] == '>') && !_isspace(*p))
-	    {
-		throw XmlException(
-		    XmlException::BAD_ATTRIBUTE_VALUE, _line);
-	    }
-	}
-	else if (!(*p == '>' || (p[0] == '/' && p[1] == '>') || _isspace(*p)))
-	{
-	    // The next thing must be a space or a '>':
+            if (!(p[0] == '?' && p[1] == '>') && !_isspace(*p))
+            {
+                throw XmlException(
+                    XmlException::BAD_ATTRIBUTE_VALUE, _line);
+            }
+        }
+        else if (!(*p == '>' || (p[0] == '/' && p[1] == '>') || _isspace(*p)))
+        {
+            // The next thing must be a space or a '>':
 
-	    throw XmlException(XmlException::BAD_ATTRIBUTE_VALUE, _line);
-	}
+            throw XmlException(XmlException::BAD_ATTRIBUTE_VALUE, _line);
+        }
 
-	_skipWhitespace(p);
+        _skipWhitespace(p);
 
-	if (entry.attributeCount == XmlEntry::MAX_ATTRIBUTES)
-	    throw XmlException(XmlException::TOO_MANY_ATTRIBUTES, _line);
+        if (entry.attributeCount == XmlEntry::MAX_ATTRIBUTES)
+            throw XmlException(XmlException::TOO_MANY_ATTRIBUTES, _line);
 
-	_substituteReferences((char*)attr.value);
-	entry.attributes[entry.attributeCount++] = attr;
+        _substituteReferences((char*)attr.value);
+        entry.attributes[entry.attributeCount++] = attr;
     }
 }
 
 static const char* _typeStrings[] =
 {
-    "XML_DECLARATION", 
-    "START_TAG", 
-    "EMPTY_TAG", 
-    "END_TAG", 
+    "XML_DECLARATION",
+    "START_TAG",
+    "EMPTY_TAG",
+    "END_TAG",
     "COMMENT",
     "CDATA",
     "DOCTYPE",
-    "CONTENT" 
+    "CONTENT"
 };
 
 void XmlEntry::print() const
@@ -1013,20 +1012,20 @@ void XmlEntry::print() const
     Boolean needQuotes = type == XmlEntry::CDATA || type == XmlEntry::CONTENT;
 
     if (needQuotes)
-	PEGASUS_STD(cout) << "\"";
-	
+        PEGASUS_STD(cout) << "\"";
+
     _printValue(text);
 
     if (needQuotes)
-	PEGASUS_STD(cout) << "\"";
+        PEGASUS_STD(cout) << "\"";
 
     PEGASUS_STD(cout) << '\n';
 
     for (Uint32 i = 0; i < attributeCount; i++)
     {
-	PEGASUS_STD(cout) << "    " << attributes[i].name << "=\"";
-	_printValue(attributes[i].value);
-	PEGASUS_STD(cout) << "\"" << PEGASUS_STD(endl);
+        PEGASUS_STD(cout) << "    " << attributes[i].name << "=\"";
+        _printValue(attributes[i].value);
+        PEGASUS_STD(cout) << "\"" << PEGASUS_STD(endl);
     }
 }
 
@@ -1035,8 +1034,8 @@ const XmlAttribute* XmlEntry::findAttribute(
 {
     for (Uint32 i = 0; i < attributeCount; i++)
     {
-	if (strcmp(attributes[i].name, name) == 0)
-	    return &attributes[i];
+        if (strcmp(attributes[i].name, name) == 0)
+            return &attributes[i];
     }
 
     return 0;
@@ -1045,41 +1044,41 @@ const XmlAttribute* XmlEntry::findAttribute(
 // Find first non-whitespace character (set first) and last non-whitespace
 // character (set last one past this). For example, consider this string:
 //
-//	"   87     "
+//      "   87     "
 //
 // The first pointer would point to '8' and the last pointer woudl point one
 // beyond '7'.
 
 static void _findEnds(
-    const char* str, 
-    const char*& first, 
+    const char* str,
+    const char*& first,
     const char*& last)
 {
     first = str;
 
     while (_isspace(*first))
-	first++;
+        first++;
 
     if (!*first)
     {
-	last = first;
-	return;
+        last = first;
+        return;
     }
 
     last = first + strlen(first);
 
     while (last != first && _isspace(last[-1]))
-	last--;
+        last--;
 }
 
 Boolean XmlEntry::getAttributeValue(
-    const char* name, 
+    const char* name,
     Uint32& value) const
 {
     const XmlAttribute* attr = findAttribute(name);
 
     if (!attr)
-	return false;
+        return false;
 
     const char* first;
     const char* last;
@@ -1089,20 +1088,20 @@ Boolean XmlEntry::getAttributeValue(
     long tmp = strtol(first, &end, 10);
 
     if (!end || end != last)
-	return false;
+        return false;
 
     value = Uint32(tmp);
     return true;
 }
 
 Boolean XmlEntry::getAttributeValue(
-    const char* name, 
+    const char* name,
     Real32& value) const
 {
     const XmlAttribute* attr = findAttribute(name);
 
     if (!attr)
-	return false;
+        return false;
 
     const char* first;
     const char* last;
@@ -1112,20 +1111,20 @@ Boolean XmlEntry::getAttributeValue(
     double tmp = strtod(first, &end);
 
     if (!end || end != last)
-	return false;
+        return false;
 
-    value = Uint32(tmp);
+    value = static_cast<Real32>(tmp);
     return true;
 }
 
 Boolean XmlEntry::getAttributeValue(
-    const char* name, 
+    const char* name,
     const char*& value) const
 {
     const XmlAttribute* attr = findAttribute(name);
 
     if (!attr)
-	return false;
+        return false;
 
     value = attr->value;
     return true;
@@ -1136,7 +1135,7 @@ Boolean XmlEntry::getAttributeValue(const char* name, String& value) const
     const char* tmp;
 
     if (!getAttributeValue(name, tmp))
-	return false;
+        return false;
 
     value = String(tmp);
     return true;
@@ -1144,7 +1143,7 @@ Boolean XmlEntry::getAttributeValue(const char* name, String& value) const
 
 void XmlAppendCString(Array<char>& out, const char* str)
 {
-    out.append(str, strlen(str));
+    out.append(str, static_cast<Uint32>(strlen(str)));
 }
 
 PEGASUS_NAMESPACE_END

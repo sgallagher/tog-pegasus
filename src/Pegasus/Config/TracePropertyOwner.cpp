@@ -1,49 +1,44 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
+// Author: Nag Boranna (nagaraja_boranna@hp.com)
+//
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////
-//
+// 
 // This file has implementation for the trace property owner class.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/MessageLoader.h>
-#include <Pegasus/Common/StringConversion.h>
-#include "ConfigManager.h"
-#include "TracePropertyOwner.h"
-#include "ConfigExceptions.h"
+#include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Config/TracePropertyOwner.h>
+
 
 PEGASUS_USING_STD;
 
@@ -58,442 +53,320 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-#ifdef PEGASUS_OS_HPUX
-    {"traceLevel", "0", IS_DYNAMIC, IS_HIDDEN},
-    {"traceComponents", "", IS_DYNAMIC, IS_HIDDEN},
-    {"traceMemoryBufferKbytes", "10240", IS_STATIC, IS_HIDDEN},
-    {"traceFacility", "File", IS_DYNAMIC, IS_HIDDEN},
-    {"traceFileSizeKBytes", "1048576", IS_DYNAMIC, IS_HIDDEN},
-    {"numberOfTraceFiles", "3", IS_DYNAMIC, IS_HIDDEN},
-#elif defined(PEGASUS_OS_PASE)
-    {"traceLevel", "0", IS_DYNAMIC, IS_VISIBLE},
-    {"traceComponents", "", IS_DYNAMIC, IS_VISIBLE},
-    {"traceMemoryBufferKbytes", "10240", IS_STATIC, IS_VISIBLE},
-    {"traceFacility", "File", IS_DYNAMIC, IS_VISIBLE},
-    {"traceFileSizeKBytes", "1048576", IS_DYNAMIC, IS_VISIBLE},
-    {"numberOfTraceFiles", "3", IS_DYNAMIC, IS_VISIBLE},
-#elif defined(PEGASUS_OS_ZOS)
-    {"traceLevel", "2", IS_DYNAMIC, IS_VISIBLE},
-    {"traceComponents", "All", IS_DYNAMIC, IS_VISIBLE},
-    {"traceMemoryBufferKbytes", "10240", IS_STATIC, IS_VISIBLE},
-    {"traceFacility", "Memory", IS_DYNAMIC, IS_VISIBLE},
-    {"traceFileSizeKBytes", "1048576", IS_DYNAMIC, IS_VISIBLE},
-    {"numberOfTraceFiles", "3", IS_DYNAMIC, IS_VISIBLE},
-#else
-# if defined (PEGASUS_USE_RELEASE_CONFIG_OPTIONS)
-    {"traceLevel", "0", IS_DYNAMIC, IS_HIDDEN},
-    {"traceComponents", "", IS_DYNAMIC, IS_HIDDEN},
-    {"traceMemoryBufferKbytes", "10240", IS_STATIC, IS_HIDDEN},
-    {"traceFacility", "File", IS_DYNAMIC, IS_HIDDEN},
-    {"traceFileSizeKBytes", "1048576", IS_DYNAMIC, IS_HIDDEN},
-    {"numberOfTraceFiles", "3", IS_DYNAMIC, IS_HIDDEN},
-# else
-    {"traceLevel", "0", IS_DYNAMIC, IS_VISIBLE},
-    {"traceComponents", "", IS_DYNAMIC, IS_VISIBLE},
-    {"traceMemoryBufferKbytes", "10240", IS_STATIC, IS_VISIBLE},
-    {"traceFacility", "File", IS_DYNAMIC, IS_VISIBLE},
-    {"traceFileSizeKBytes", "1048576", IS_DYNAMIC, IS_VISIBLE},
-    {"numberOfTraceFiles", "3", IS_DYNAMIC, IS_VISIBLE},
-# endif
-#endif
-#if defined(PEGASUS_OS_ZOS)
-# if defined(PEGASUS_USE_RELEASE_DIRS)
-    {"traceFilePath", "/tmp/cimserver.trc", IS_DYNAMIC, IS_VISIBLE},
-# else
-    {"traceFilePath", "cimserver.trc", IS_DYNAMIC, IS_VISIBLE},
-# endif
-#elif defined(PEGASUS_OS_PASE)
-    {"traceFilePath", "/tmp/cimserver.trc", IS_DYNAMIC, IS_VISIBLE},
-#else
-    {"traceFilePath", "trace/cimserver.trc", IS_DYNAMIC, IS_VISIBLE},
-#endif
+    {"traceLevel", "1", 1, 0, 0},
+    {"traceFilePath", "cimom.trace", 1, 0, 0},
+    {"traceComponents", "", 1, 0, 0},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 
-static const char TRACE_POSSIBLE_VALUE [] = "Possible Values: ";
-
-//
-// Checks if the trace level is valid
-//
-Boolean TracePropertyOwner::isLevelValid(const String& traceLevel) const
-{
-    //
-    // Check if the level is valid
-    //
-    return (traceLevel == "0" || traceLevel == "1" ||
-            traceLevel == "2" || traceLevel == "3" ||
-            traceLevel == "4" || traceLevel == "5");
-}
-
-
-//
-// Get the appropriate trace level
-//
-Uint32 TracePropertyOwner::getTraceLevel(const String& traceLevel)
-{
-    if ( traceLevel == "0")
-    {
-        return Tracer::LEVEL0;
-    }
-    else if ( traceLevel == "1" )
-    {
-        return Tracer::LEVEL1;
-    }
-    else if ( traceLevel == "2" )
-    {
-        return Tracer::LEVEL2;
-    }
-    else if ( traceLevel == "3" )
-    {
-        return Tracer::LEVEL3;
-    }
-    else if ( traceLevel == "4" )
-    {
-        return Tracer::LEVEL4;
-    }
-    else if ( traceLevel == "5" )
-    {
-        return Tracer::LEVEL5;
-    }
-    else
-    {
-        return Tracer::LEVEL0;
-    }
-}
 
 /** Constructors  */
-TracePropertyOwner::TracePropertyOwner():
-   _initialized(false)
+TracePropertyOwner::TracePropertyOwner()
 {
-    _traceLevel.reset(new ConfigProperty);
-    _traceFilePath.reset(new ConfigProperty);
-    _traceComponents.reset(new ConfigProperty);
-    _traceFacility.reset(new ConfigProperty);
-    _traceMemoryBufferKbytes.reset(new ConfigProperty);
-    _traceFileSizeKBytes.reset(new ConfigProperty);
-    _numberOfTraceFiles.reset(new ConfigProperty);
-}
-
-/**
-    Initialize the config properties.
-*/
-void TracePropertyOwner::initialize()
-{
-    //
-    // Initialize the properties with default values only once !
-    //
-    if (_initialized)
-    {
-        return;
-    }
+    _traceLevel = new ConfigProperty;
+    _traceFilePath = new ConfigProperty;
+    _traceComponents = new ConfigProperty;
 
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equal(properties[i].propertyName, "traceComponents"))
+        //
+        // Initialize the properties with default values
+        //
+        if (String::equalNoCase(properties[i].propertyName, "traceComponents"))
         {
             _traceComponents->propertyName = properties[i].propertyName;
             _traceComponents->defaultValue = properties[i].defaultValue;
             _traceComponents->currentValue = properties[i].defaultValue;
             _traceComponents->plannedValue = properties[i].defaultValue;
             _traceComponents->dynamic = properties[i].dynamic;
-            _traceComponents->externallyVisible =
-                properties[i].externallyVisible;
-
-            Tracer::setTraceComponents(_traceComponents->defaultValue);
+            _traceComponents->domain = properties[i].domain;
+            _traceComponents->domainSize = properties[i].domainSize;
         }
-        else if (String::equal(properties[i].propertyName, "traceLevel"))
+        else if (String::equalNoCase(properties[i].propertyName, "traceLevel"))
         {
             _traceLevel->propertyName = properties[i].propertyName;
             _traceLevel->defaultValue = properties[i].defaultValue;
             _traceLevel->currentValue = properties[i].defaultValue;
             _traceLevel->plannedValue = properties[i].defaultValue;
             _traceLevel->dynamic = properties[i].dynamic;
-            _traceLevel->externallyVisible =
-                properties[i].externallyVisible;
-
-            PEGASUS_ASSERT(_traceLevel->defaultValue.size()!= 0);
-
-            Tracer::setTraceLevel(getTraceLevel(_traceLevel->defaultValue));
-
+            _traceLevel->domain = properties[i].domain;
+            _traceLevel->domainSize = properties[i].domainSize;
         }
-        else if (String::equal(
-                     properties[i].propertyName, "traceFilePath"))
+        else if (String::equalNoCase(properties[i].propertyName, "traceFilePath"))
         {
             _traceFilePath->propertyName = properties[i].propertyName;
             _traceFilePath->defaultValue = properties[i].defaultValue;
             _traceFilePath->currentValue = properties[i].defaultValue;
             _traceFilePath->plannedValue = properties[i].defaultValue;
             _traceFilePath->dynamic = properties[i].dynamic;
-            _traceFilePath->externallyVisible =
-                properties[i].externallyVisible;
+            _traceFilePath->domain = properties[i].domain;
+            _traceFilePath->domainSize = properties[i].domainSize;
+        }
+    }
 
-            // set the default value in the Trace
-            Uint32 retCode = Tracer::setTraceFile(ConfigManager::getHomedPath(
-                _traceFilePath->defaultValue).getCString());
-            if ( retCode == 1 )
-            {
-                Logger::put_l(
-                    Logger::ERROR_LOG,System::CIMSERVER,Logger::WARNING,
-                    MessageLoaderParms(
-                    "Config.TracePropertyOwner.UNABLE_TO_WRITE_TRACE_FILE",
-                    "Unable to write to trace file $0",
-                    _traceFilePath->defaultValue));
-                _traceFilePath->currentValue.clear();
+    if (_traceFilePath->defaultValue != String::EMPTY)
+    {
+	// Get the value of environment variable PEGASUS_HOME to set the
+	// default trace filepath
+	// The default trace file location is <$PEGASUS_HOME/logs>
+        const char* tmp = getenv("PEGASUS_HOME");
+
+        String pegasusHome(tmp);
+        pegasusHome.append("/logs/");
+
+	// Create $PEGASUS_HOME/logs directory if it does not exist
+        if (! FileSystem::isDirectory(pegasusHome))
+	{
+	    if (! FileSystem::makeDirectory(pegasusHome))
+	    {
+	        Logger::put(Logger::DEBUG_LOG,"TracePropertyOwner",
+		    Logger::WARNING,
+	            "Unable to create $0 directory",pegasusHome);
+	        Logger::put(Logger::DEBUG_LOG,"TracePropertyOwner",
+		    Logger::WARNING,
+	            "Creating the trace file in the current directory");
+		pegasusHome = String::EMPTY; 
             }
-
         }
-        else if (String::equal(
-                     properties[i].propertyName, "traceMemoryBufferKbytes"))
-        {
-            _traceMemoryBufferKbytes->propertyName = properties[i].propertyName;
-            _traceMemoryBufferKbytes->defaultValue = properties[i].defaultValue;
-            _traceMemoryBufferKbytes->currentValue = properties[i].defaultValue;
-            _traceMemoryBufferKbytes->plannedValue = properties[i].defaultValue;
-            _traceMemoryBufferKbytes->dynamic = properties[i].dynamic;
-            _traceMemoryBufferKbytes->externallyVisible =
-                properties[i].externallyVisible;
+        pegasusHome += _traceFilePath->defaultValue;
+        FileSystem::translateSlashes(pegasusHome);
 
-            PEGASUS_ASSERT(_traceMemoryBufferKbytes->defaultValue.size()!= 0);
+        ArrayDestroyer<char> fileName(pegasusHome.allocateCString());
+        Uint32 retCode = Tracer::setTraceFile(fileName.getPointer());
 
-            Uint32 bufferSize;
-            Tracer::tracePropertyToUint32(
-                _traceMemoryBufferKbytes->defaultValue, bufferSize );
-            Tracer::setTraceMemoryBufferSize(bufferSize);
-
+	// Check whether the filepath was set
+	if ( retCode == 1 )
+	{
+	     Logger::put(Logger::DEBUG_LOG,"TracePropertyOwner",
+	        Logger::WARNING,
+	       "Unable to write to trace file $0",pegasusHome);
         }
-        else if (String::equal(
-                     properties[i].propertyName, "traceFacility"))
+	_traceFilePath->currentValue = pegasusHome;
+    }
+    if (_traceLevel->defaultValue != String::EMPTY)
+    {
+        if ( _traceLevel->defaultValue == "1")
         {
-            _traceFacility->propertyName = properties[i].propertyName;
-            _traceFacility->defaultValue = properties[i].defaultValue;
-            _traceFacility->currentValue = properties[i].defaultValue;
-            _traceFacility->plannedValue = properties[i].defaultValue;
-            _traceFacility->dynamic = properties[i].dynamic;
-            _traceFacility->externallyVisible =
-                properties[i].externallyVisible;
-
-            PEGASUS_ASSERT(_traceFacility->defaultValue.size()!= 0);
-
-            Tracer::setTraceFacility(_traceFacility->defaultValue);
+            Tracer::setTraceLevel(Tracer::LEVEL1);
         }
-        else if (String::equalNoCase(
-                       properties[i].propertyName, "traceFileSizeKBytes"))
+        else if ( _traceLevel->defaultValue == "2")
         {
-            _traceFileSizeKBytes->propertyName = properties[i].propertyName;
-            _traceFileSizeKBytes->defaultValue = properties[i].defaultValue;
-            _traceFileSizeKBytes->currentValue = properties[i].defaultValue;
-            _traceFileSizeKBytes->plannedValue = properties[i].defaultValue;
-            _traceFileSizeKBytes->dynamic = properties[i].dynamic;
-            _traceFileSizeKBytes->externallyVisible =
-                   properties[i].externallyVisible;
-
-            String value = _traceFileSizeKBytes->defaultValue;
-            PEGASUS_ASSERT(value.size());
-
-            Tracer::setMaxTraceFileSize(value);
+            Tracer::setTraceLevel(Tracer::LEVEL2);
         }
-        else if (String::equalNoCase(
-                          properties[i].propertyName, "numberOfTraceFiles"))
+        else if ( _traceLevel->defaultValue == "3")
         {
-            _numberOfTraceFiles->propertyName = properties[i].propertyName;
-            _numberOfTraceFiles->defaultValue = properties[i].defaultValue;
-            _numberOfTraceFiles->currentValue = properties[i].defaultValue;
-            _numberOfTraceFiles->plannedValue = properties[i].defaultValue;
-            _numberOfTraceFiles->dynamic = properties[i].dynamic;
-            _numberOfTraceFiles->externallyVisible =
-                     properties[i].externallyVisible;
-
-            PEGASUS_ASSERT(_numberOfTraceFiles->defaultValue.size()!= 0);
-
-            Tracer::setMaxTraceFileNumber(_numberOfTraceFiles->currentValue);
-
+            Tracer::setTraceLevel(Tracer::LEVEL3);
+        }
+        else if ( _traceLevel->defaultValue == "4")
+        {
+            Tracer::setTraceLevel(Tracer::LEVEL4);
         }
     }
-    _initialized = true;
 }
 
-struct ConfigProperty* TracePropertyOwner::_lookupConfigProperty(
-    const String& name) const
+/** Destructor  */
+TracePropertyOwner::~TracePropertyOwner()
 {
-    if (String::equal(_traceComponents->propertyName, name))
-    {
-        return _traceComponents.get();
-    }
-    else if (String::equal(_traceLevel->propertyName, name))
-    {
-        return _traceLevel.get();
-    }
-    else if (String::equal(_traceFilePath->propertyName, name))
-    {
-        return _traceFilePath.get();
-    }
-    else if (String::equal(_traceFacility->propertyName, name))
-    {
-        return _traceFacility.get();
-    }
-    else if (String::equal(_traceMemoryBufferKbytes->propertyName, name))
-    {
-        return _traceMemoryBufferKbytes.get();
-    }
-    else if (String::equalNoCase(_traceFileSizeKBytes->propertyName, name))
-    {
-        return _traceFileSizeKBytes.get();
-    }
-    else if (String::equalNoCase(_numberOfTraceFiles->propertyName, name))
-    {
-        return _numberOfTraceFiles.get();
-    }
-    else
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
+    delete _traceLevel;
+    delete _traceFilePath;
+    delete _traceComponents;
 }
 
-/**
-    Get information about the specified property.
+/** 
+Get information about the specified property.
 */
 void TracePropertyOwner::getPropertyInfo(
-    const String& name,
-    Array<String>& propertyInfo) const
+    const String& name, 
+    Array<String>& propertyInfo) throw (UnrecognizedConfigProperty)
 {
-    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
+    propertyInfo.clear();
 
-    buildPropertyInfo(name, configProperty, propertyInfo);
-}
-
-/*
-    Get supplementary help information.
-*/
-String TracePropertyOwner::getPropertyHelpSupplement(
-    const String& name) const
-{
-    String localPropertyInfo;
-    // Used to get list of trace components from the Tracer itself
-    // for the Possible values list. Note that this does not show up
-    // in the message bundle.
     if (String::equalNoCase(_traceComponents->propertyName, name))
     {
-       // Set list of possible traceComponent Strings
-        const Uint32 _NUM_COMPONENTS = Tracer::_NUM_COMPONENTS;
-        localPropertyInfo.append("\n");
-
-        localPropertyInfo.append(loadMessage(
-            "Config.TracePropertyOwner.TRACECOMPONENTS_POSSIBLE_VALUE",
-            TRACE_POSSIBLE_VALUE));
-
-        String possibleValues = "\n    ALL ";
-        Uint32 lineSize = possibleValues.size();
-        // Get the list of traceComponents from Tracer and append to formatted
-        // string
-        for ( Uint32 index = 0;index < _NUM_COMPONENTS; index++)
+        propertyInfo.append(_traceComponents->propertyName);
+        propertyInfo.append(_traceComponents->defaultValue);
+        propertyInfo.append(_traceComponents->currentValue);
+        propertyInfo.append(_traceComponents->plannedValue);
+        if (_traceComponents->dynamic)
         {
-            if ((strlen(Tracer::TRACE_COMPONENT_LIST[index]) + lineSize) >= 79)
-            {
-                possibleValues.append("\n    ");
-                lineSize = 5;
-            }
-            possibleValues.append(Tracer::TRACE_COMPONENT_LIST[index]);
-            possibleValues.append(" ");
-
-            lineSize += (strlen(Tracer::TRACE_COMPONENT_LIST[index]) + 1);
+            propertyInfo.append(STRING_TRUE);
         }
-        possibleValues = possibleValues.subString(0, possibleValues.size() - 1);
-        localPropertyInfo.append(possibleValues);
+        else
+        {
+            propertyInfo.append(STRING_FALSE);
+        }
     }
-    return localPropertyInfo;
+    else if (String::equalNoCase(_traceLevel->propertyName, name))
+    {
+        propertyInfo.append(_traceLevel->propertyName);
+        propertyInfo.append(_traceLevel->defaultValue);
+        propertyInfo.append(_traceLevel->currentValue);
+        propertyInfo.append(_traceLevel->plannedValue);
+        if (_traceLevel->dynamic)
+        {
+            propertyInfo.append(STRING_TRUE);
+        }
+        else
+        {
+            propertyInfo.append(STRING_FALSE);
+        }
+    }
+    else if (String::equalNoCase(_traceFilePath->propertyName, name))
+    {
+        propertyInfo.append(_traceFilePath->propertyName);
+        propertyInfo.append(_traceFilePath->defaultValue);
+        propertyInfo.append(_traceFilePath->currentValue);
+        propertyInfo.append(_traceFilePath->plannedValue);
+        if (_traceFilePath->dynamic)
+        {
+            propertyInfo.append(STRING_TRUE);
+        }
+        else
+        {
+            propertyInfo.append(STRING_FALSE);
+        }
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
 }
 
-/**
-    Get default value of the specified property.
+/** 
+Get default value of the specified property.
 */
-String TracePropertyOwner::getDefaultValue(const String& name) const
+const String TracePropertyOwner::getDefaultValue(const String& name)
+    throw (UnrecognizedConfigProperty)
 {
-    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
-    return configProperty->defaultValue;
+    if (String::equalNoCase(_traceComponents->propertyName, name))
+    {
+        return (_traceComponents->defaultValue);
+    }
+    else if (String::equalNoCase(_traceLevel->propertyName, name))
+    {
+        return (_traceLevel->defaultValue);
+    }
+    else if (String::equalNoCase(_traceFilePath->propertyName, name))
+    {
+        return (_traceFilePath->defaultValue);
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
 }
 
-/**
-    Get current value of the specified property.
+/** 
+Get current value of the specified property.
 */
-String TracePropertyOwner::getCurrentValue(const String& name) const
+const String TracePropertyOwner::getCurrentValue(const String& name)
+    throw (UnrecognizedConfigProperty)
 {
-    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
-    return configProperty->currentValue;
+    if (String::equalNoCase(_traceComponents->propertyName, name))
+    {
+        return (_traceComponents->currentValue);
+    }
+    else if (String::equalNoCase(_traceLevel->propertyName, name))
+    {
+        return (_traceLevel->currentValue);
+    }
+    else if (String::equalNoCase(_traceFilePath->propertyName, name))
+    {
+        return (_traceFilePath->currentValue);
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
 }
 
-/**
-    Get planned value of the specified property.
+/** 
+Get planned value of the specified property.
 */
-String TracePropertyOwner::getPlannedValue(const String& name) const
+const String TracePropertyOwner::getPlannedValue(const String& name)
+    throw (UnrecognizedConfigProperty)
 {
-    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
-    return configProperty->plannedValue;
+    if (String::equalNoCase(_traceComponents->propertyName, name))
+    {
+        return (_traceComponents->plannedValue);
+    }
+    else if (String::equalNoCase(_traceLevel->propertyName, name))
+    {
+        return (_traceLevel->plannedValue);
+    }
+    else if (String::equalNoCase(_traceFilePath->propertyName, name))
+    {
+        return (_traceFilePath->plannedValue);
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
 }
 
-/**
-    Init current value of the specified property to the specified value.
+/** 
+Init current value of the specified property to the specified value.
 */
 void TracePropertyOwner::initCurrentValue(
-    const String& name,
+    const String& name, 
     const String& value)
+    throw (UnrecognizedConfigProperty, InvalidPropertyValue)
 {
-    if (String::equal(_traceComponents->propertyName, name))
+    Uint32 retCode;
+
+    if (String::equalNoCase(_traceComponents->propertyName, name))
     {
+        Tracer::setTraceComponents(value);
         _traceComponents->currentValue = value;
-        Tracer::setTraceComponents(_traceComponents->currentValue);
     }
-    else if (String::equal(_traceLevel->propertyName, name))
+    else if (String::equalNoCase(_traceLevel->propertyName, name))
     {
-        _traceLevel->currentValue = value;
-        Uint32 traceLevel = getTraceLevel(_traceLevel->currentValue);
-        Tracer::setTraceLevel(traceLevel);
-    }
-    else if (String::equal(_traceFilePath->propertyName, name))
-    {
-        _traceFilePath->currentValue = value;
-        Uint32 retCode = Tracer::setTraceFile(ConfigManager::getHomedPath(
-            _traceFilePath->currentValue).getCString());
-        if ( retCode == 1 )
+        String newValue = value;
+
+        if (newValue == String::EMPTY)
         {
-            Logger::put_l(
-                Logger::ERROR_LOG,System::CIMSERVER,Logger::WARNING,
-                MessageLoaderParms(
-                "Config.TracePropertyOwner.UNABLE_TO_WRITE_TRACE_FILE",
-                "Unable to write to trace file $0",
-                _traceFilePath->currentValue));
-            _traceFilePath->currentValue.clear();
+            newValue = _traceLevel->defaultValue;
         }
+   
+        if (newValue == "1")
+        {
+            Tracer::setTraceLevel(Tracer::LEVEL1);
+        }
+        else if (newValue == "2")
+        {
+            Tracer::setTraceLevel(Tracer::LEVEL2);
+        }
+        else if (newValue == "3")
+        {
+            Tracer::setTraceLevel(Tracer::LEVEL3);
+        }
+        else if (newValue == "4")
+        {
+            Tracer::setTraceLevel(Tracer::LEVEL4);
+        }
+        else
+        {
+            throw InvalidPropertyValue(name, value); 
+        }
+        _traceLevel->currentValue = newValue;
     }
-    else if (String::equal(_traceFacility->propertyName, name))
+    else if (String::equalNoCase(_traceFilePath->propertyName, name))
     {
-        _traceFacility->currentValue = value;
-        //set trace facility
-        Tracer::setTraceFacility(value);
+        String newValue = value;
 
-        //should take effect only when the tracing is on "File"
-        Tracer::setMaxTraceFileSize(_traceFileSizeKBytes->currentValue);
-        Tracer::setMaxTraceFileNumber(value);
-    }
-    else if (String::equal(_traceMemoryBufferKbytes->propertyName, name))
-    {
-        Uint32 bufferSize;
+        if (newValue == String::EMPTY)
+        {
+            newValue =  _traceFilePath->defaultValue;
+        }
 
-        _traceMemoryBufferKbytes->currentValue = value;
-
-        Tracer::tracePropertyToUint32( value, bufferSize );
-        Tracer::setTraceMemoryBufferSize(bufferSize);
-    }
-    else if (String::equalNoCase(_traceFileSizeKBytes->propertyName,name))
-    {
-        _traceFileSizeKBytes->currentValue = value;
-        Tracer::setMaxTraceFileSize(value);
-
-    }
-    else if (String::equalNoCase(_numberOfTraceFiles->propertyName,name))
-    {
-         _numberOfTraceFiles->currentValue = value;
-         Tracer::setMaxTraceFileNumber(value);
+        ArrayDestroyer<char> fileName(newValue.allocateCString());
+        retCode = Tracer::setTraceFile(fileName.getPointer());
+        if (retCode == 1)
+        {
+            throw InvalidPropertyValue(name, newValue); 
+        }
+        _traceFilePath->currentValue = newValue;
     }
     else
     {
@@ -502,171 +375,152 @@ void TracePropertyOwner::initCurrentValue(
 }
 
 
-/**
-    Init planned value of the specified property to the specified value.
+/** 
+Init planned value of the specified property to the specified value.
 */
 void TracePropertyOwner::initPlannedValue(
-    const String& name,
+    const String& name, 
     const String& value)
+    throw (UnrecognizedConfigProperty, InvalidPropertyValue)
 {
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
-    configProperty->plannedValue = value;
+    // Perform validation
+    if (String::equalNoCase(_traceComponents->propertyName, name))
+    {
+        _traceComponents->plannedValue= value;
+    }
+    else if (String::equalNoCase(_traceLevel->propertyName, name))
+    {
+        if (value == String::EMPTY)
+        {
+            _traceLevel->plannedValue = _traceLevel->defaultValue;
+        }
+        // Validate Trace Level
+        // Level should be between 1 and 4
+        else if (value == "1" || value == "2" || value == "3" || value == "4")
+        {
+            _traceLevel->plannedValue= value;
+        }
+        else
+        {
+            throw InvalidPropertyValue(name, value); 
+        }
+    }
+    else if (String::equalNoCase(_traceFilePath->propertyName, name))
+    {
+        if (value == String::EMPTY)
+        {
+            _traceFilePath->plannedValue = _traceFilePath->defaultValue;
+        }
+        else
+        {
+            // Validate Trace File
+            ofstream outFile;
+    
+            outFile.open(value.allocateCString(),ofstream::app);
+
+            if (outFile.good())
+            {
+                _traceFilePath->plannedValue= value;
+                outFile.close();
+            }
+            else
+            {
+                outFile.close();
+                throw InvalidPropertyValue(name, value); 
+            }
+            _traceFilePath->plannedValue= value;
+        }
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
 }
 
-/**
-    Update current value of the specified property to the specified value.
+/** 
+Update current value of the specified property to the specified value.
 */
 void TracePropertyOwner::updateCurrentValue(
-    const String& name,
-    const String& value,
-    const String& userName,
-    Uint32 timeoutSeconds)
+    const String& name, 
+    const String& value) 
+    throw (NonDynamicConfigProperty, InvalidPropertyValue,
+            UnrecognizedConfigProperty)
 {
     //
     // make sure the property is dynamic before updating the value.
     //
     if (!isDynamic(name))
     {
-        throw NonDynamicConfigProperty(name);
+        throw NonDynamicConfigProperty(name); 
     }
 
     //
-    // Update does the same thing as initialization
+    // Since the validations done in initCurrrentValue are sufficient and 
+    // no additional validations required for update, we will call 
+    // initCurrrentValue.
     //
     initCurrentValue(name, value);
 }
 
 
-/**
-    Update planned value of the specified property to the specified value.
+/** 
+Update planned value of the specified property to the specified value.
 */
 void TracePropertyOwner::updatePlannedValue(
-    const String& name,
+    const String& name, 
     const String& value)
+    throw (InvalidPropertyValue, UnrecognizedConfigProperty)
 {
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
-    configProperty->plannedValue = value;
+    //
+    // Since the validations done in initPlannedValue are sufficient and 
+    // no additional validations required for update, we will call 
+    // initPlannedValue.
+    //
+    initPlannedValue(name, value);
 }
 
-/**
-    Checks to see if the given value is valid or not.
+/** 
+Checks to see if the given value is valid or not.
 */
-Boolean TracePropertyOwner::isValid(
-    const String& name,
-    const String& value) const
+Boolean TracePropertyOwner::isValid(const String& name, const String& value)
+    throw (UnrecognizedConfigProperty)
 {
-    if (String::equal(_traceComponents->propertyName, name))
+    if (String::equalNoCase(_traceComponents->propertyName, name))
     {
-        String newValue          = value;
-        String invalidComponents;
-
-        //
-        // Check if the trace components are valid
-        //
-        if (!Tracer::isValidComponents(newValue,invalidComponents))
-        {
-            throw InvalidPropertyValue(name, invalidComponents);
-        }
-
-        return true;
+        return 1;
     }
-    else if (String::equal(_traceLevel->propertyName, name))
+    else if (String::equalNoCase(_traceLevel->propertyName, name))
     {
-        //
-        // Check if the level is valid
-        //
-        if ( isLevelValid( value ) )
+        // Validate Trace Level
+        // Level should be between 1 and 4
+        // This validation should be updated incase if new levels are added
+        // in future
+        if (value == "1" || value == "2" || value == "3" || value == "4")
         {
-            return true;
+            return 1;
         }
         else
         {
-            throw InvalidPropertyValue(name, value);
+            return 0;
         }
     }
-    else if (String::equal(_traceFilePath->propertyName, name))
+    else if (String::equalNoCase(_traceFilePath->propertyName, name))
     {
-        //
-        // Check if the file path is valid.  An empty string is currently
-        // considered a valid value; the traceFilePath is set to the empty
-        // string when a trace file cannot be opened successfully.
-        //
-        if ((value != String::EMPTY) &&
-            !Tracer::isValidFileName((const char*)value.getCString()))
+        // Validate trace file
+        ofstream outFile;
+        ArrayDestroyer<char> fileName(value.allocateCString());
+        outFile.open(fileName.getPointer(),ofstream::app);
+
+        if (outFile.good())
         {
-            throw InvalidPropertyValue(name, value);
+            outFile.close();
+            return 1;
         }
-        return true;
-    }
-    else if (String::equal(_traceFacility->propertyName, name))
-    {
-        //
-        // Check if the trace facility is valid
-        //
-        if (!Tracer::isValidTraceFacility(value))
+        else
         {
-            throw InvalidPropertyValue(name, value);
+            outFile.close();
+            return 0;
         }
-        return true;
-    }
-    else if (String::equal(_traceMemoryBufferKbytes->propertyName, name))
-    {
-        Boolean retCode = false;
-        Uint32 size = 0;
-
-        //
-        // Ckeck if the trace memeory buffer size is valid
-        //
-        retCode = Tracer::tracePropertyToUint32(value ,size);
-
-        if (!retCode || (size > PEGASUS_TRC_BUFFER_MAX_SIZE_KB) ||
-                        (size < PEGASUS_TRC_BUFFER_MIN_SIZE_KB))
-        {
-            throw InvalidPropertyValue(name, value);
-        }
-        return true;
-    }
-    else if (String::equalNoCase(_traceFileSizeKBytes->propertyName,name))
-    {
-        Uint32 traceFileSizeKBytes = 0;
-        const Uint32 minimumFileSizeKBytes = 10240;
-        const Uint32 maximumFileSizeKBytes = 2097152;
-
-        if ( Tracer::tracePropertyToUint32( value, traceFileSizeKBytes))
-        {
-           throw InvalidPropertyValue(name, value);
-        }
-
-         /* checking File size greater than 10MB
-            and less than 2GB */
-         if (traceFileSizeKBytes < minimumFileSizeKBytes ||
-                    traceFileSizeKBytes > maximumFileSizeKBytes)
-         {
-             throw InvalidPropertyValue(name, value);
-         }
-
-        return true;
-    }
-    else if (String::equalNoCase(_numberOfTraceFiles->propertyName,name))
-    {
-         Uint32 numberOfTraceFiles = 0;
-         const Uint32 minimumNumberOfTraceFiles = 3;
-         const Uint32 maximumNumberOfTraceFiles = 20;
-
-         if ( Tracer::tracePropertyToUint32( value, numberOfTraceFiles))
-         {
-             throw InvalidPropertyValue(name, value);
-         }
-
-         /* checking number of files greater 3
-                 and less than 20 */
-         if(numberOfTraceFiles < minimumNumberOfTraceFiles ||
-                           numberOfTraceFiles > maximumNumberOfTraceFiles)
-         {
-             throw InvalidPropertyValue(name, value);
-         }
-
-         return true;
     }
     else
     {
@@ -674,13 +528,29 @@ Boolean TracePropertyOwner::isValid(
     }
 }
 
-/**
-    Checks to see if the specified property is dynamic or not.
+/** 
+Checks to see if the specified property is dynamic or not.
 */
-Boolean TracePropertyOwner::isDynamic(const String& name) const
+Boolean TracePropertyOwner::isDynamic(const String& name)
+    throw (UnrecognizedConfigProperty)
 {
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
-    return (configProperty->dynamic == IS_DYNAMIC);
+    if (String::equalNoCase(_traceComponents->propertyName, name))
+    {
+        return (_traceComponents->dynamic);
+    }
+    else if (String::equalNoCase(_traceLevel->propertyName, name))
+    {
+        return (_traceLevel->dynamic);
+    }
+    else if (String::equalNoCase(_traceFilePath->propertyName, name))
+    {
+        return (_traceFilePath->dynamic);
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
 }
+
 
 PEGASUS_NAMESPACE_END

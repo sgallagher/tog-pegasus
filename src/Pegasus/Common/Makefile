@@ -57,6 +57,8 @@ SOURCES = \
     OptionManager.cpp \
     Pair.cpp \
     Queue.cpp \
+    TraceFileHandler.cpp \
+    Tracer.cpp \
     Selector.cpp \
     Service.cpp \
     Sharable.cpp \

@@ -25,7 +25,20 @@ Version 1.1 - July 2001 Development branch (Work in Progress)
    see pegasus/src/Clients/wbemexec/tests/readme for information on running the
    test script.
 
+4. (Sushma Fernandes - HP)  Implementation of Trace Framework.  Please
+   refer to the documentation in src/Pegasus/Common/doc/TracingDevGuide.pdf and
+   src/Pegasus/Common/doc/TracingUserGuide.pdf for more information on using
+   the Trace framework. Classes defined are src/Pegasus/Common/Tracer.cpp and
+   src/Pegasus/Common/TraceFileHandler.cpp.
 
+5. (Nag Boranna - HP)  Implementation of Config Framework, Config Provider and
+   Config CLI. Please refer to the documentation
+   in pegasus/doc/WorkPapers/CIMOMConfigurationWorkPaper.pdf and the man page
+   in pegasus/src/Clients/cimconfig/doc/cimconfig.html for more information on
+   using the config framework and cimconfig CLI. Make sure to load the config
+   mof (src/gmake config) before starting the cimserver. A simple test script
+   is included. Please see pegasus/src/Clients/wbemexec/tests/readme for 
+   information on running the test script.
 ---------------------------------------------------------------------------
 Version 0.99.x (Fixes to version 0.99) in Process
 NOTE: Please do not input anything to this branch except for critical

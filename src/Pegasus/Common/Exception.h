@@ -22,6 +22,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
+// Modified By: Nag Boranna (nagaraja_boranna@hp.com)
+//
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -344,6 +346,17 @@ public:
 
     NoSuchFile(const String& fileName) : Exception(MSG + fileName) { }
 };
+
+/// ATTN:
+class PEGASUS_COMMON_LINKAGE FileNotReadable : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    FileNotReadable(const String& fileName) : Exception(MSG + fileName) { }
+};
+
 class PEGASUS_COMMON_LINKAGE CannotBindToAddress : public Exception
 {
 public:

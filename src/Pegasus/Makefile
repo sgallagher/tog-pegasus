@@ -7,6 +7,7 @@ TEST_DIRS = \
 
 DIRS = \
     Common \
+    Config \
     Repository \
     Protocol \
     Client \
@@ -21,6 +22,7 @@ DIRS = \
     Compiler/load \
     Compiler/cmdline \
     Common/tests \
+    Config/tests \
     Repository/tests \
     Server/tests \
     Client/tests \

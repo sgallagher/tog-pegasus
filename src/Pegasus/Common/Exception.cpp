@@ -22,6 +22,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
+// Modified By: Nag Boranna (nagaraja_boranna@hp.com)
+//
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -117,6 +119,8 @@ const char IllegalTypeTag::MSG[] = "illegal type tag";
 const char TypeMismatch::MSG[] = "type mismatch";
 
 const char NoSuchFile::MSG[] = "no such file: ";
+
+const char FileNotReadable::MSG[] = "file not readable: ";
 
 const char CannotBindToAddress::MSG[] = "cannot bind to address: ";
 

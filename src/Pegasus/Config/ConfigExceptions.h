@@ -1,31 +1,29 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
+// Author: Nag Boranna (nagaraja_boranna@hp.com)
+//
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,93 +36,98 @@
 #ifndef Pegasus_ConfigExceptions_h
 #define Pegasus_ConfigExceptions_h
 
-#include <Pegasus/Config/Linkage.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/MessageLoader.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-/**
-    UnrecognizedCommandLineOption Exception class
+
+/** 
+MissingCommandLineOptionArgument Exception class 
 */
-class UnrecognizedCommandLineOption : public Exception
+class MissingCommandLineOptionArgument : public Exception
 {
 public:
-    UnrecognizedCommandLineOption();
+    MissingCommandLineOptionArgument(const String& optionName)
+        : Exception("Missing command line option argument: " + optionName) { }
 };
 
 
-/**
-    InvalidPropertyValue Exception class
+/** 
+InvalidPropertyValue Exception class 
 */
-class PEGASUS_CONFIG_LINKAGE InvalidPropertyValue : public Exception
+class InvalidPropertyValue : public Exception
 {
 public:
-    InvalidPropertyValue(const String& name, const String& value);
-protected:
-    InvalidPropertyValue(const MessageLoaderParms& theMessage);
+    InvalidPropertyValue(const String& name, const String& value)
+        : Exception("Invalid property value: " + name + "=\"" + value + "\"") { }
 };
 
 
-/**
-    InvalidDirectoryPropertyValue Exception class
+/** 
+DuplicateOption Exception class 
 */
-class InvalidDirectoryPropertyValue
-   : public InvalidPropertyValue
+class DuplicateOption : public Exception
 {
 public:
-    InvalidDirectoryPropertyValue(const String& name, const String& value);
+    DuplicateOption(const String& name)
+        : Exception("Duplicate option: " + name) { }
 };
 
-/**
-    InvalidListenAddressPropertyValue Exception class
-*/
-class InvalidListenAddressPropertyValue
-   : public InvalidPropertyValue
-{
-public:
-    InvalidListenAddressPropertyValue(const String& name, const String& value);
-};
 
-/**
-    ConfigFileSyntaxError Exception class
+/** 
+ConfigFileSyntaxError Exception class 
 */
 class ConfigFileSyntaxError : public Exception
 {
 public:
-    ConfigFileSyntaxError(const String& file, Uint32 line);
+    ConfigFileSyntaxError(const String& file, Uint32 line)
+        : Exception(_formatMessage(file, line)) { }
 
     static String _formatMessage(const String& file, Uint32 line);
 };
 
 
-/**
-    UnrecognizedConfigProperty Exception class
+/** 
+UnrecognizedConfigFileOption Exception class 
+*/
+class UnrecognizedConfigFileOption : public Exception
+{
+public:
+    UnrecognizedConfigFileOption(const String& name)
+        : Exception("Unrecognized config file option: " + name) { }
+};
+
+
+/** 
+MissingRequiredOptionValue Exception class 
+*/
+class MissingRequiredOptionValue : public Exception
+{
+public:
+    MissingRequiredOptionValue(const String& name)
+        : Exception("Missing required option value: " + name) { }
+};
+
+
+/** 
+UnrecognizedConfigProperty Exception class 
 */
 class UnrecognizedConfigProperty : public Exception
 {
 public:
-    UnrecognizedConfigProperty(const String& name);
+    UnrecognizedConfigProperty(const String& name)
+        : Exception("Unrecognized config property: " + name) { }
 };
 
-/**
-    NonDynamicConfigProperty Exception class
+/** 
+NonDynamicConfigProperty Exception class 
 */
 class NonDynamicConfigProperty : public Exception
 {
 public:
-    NonDynamicConfigProperty(const String& name);
+    NonDynamicConfigProperty(const String& name)
+        : Exception("NonDynamic config property: " + name) { }
 };
-
-/**
-    FailedSaveProperties Exception class
-*/
-class FailedSaveProperties : public Exception
-{
-public:
-    FailedSaveProperties(const String& reason);
-};
-
 
 PEGASUS_NAMESPACE_END
 

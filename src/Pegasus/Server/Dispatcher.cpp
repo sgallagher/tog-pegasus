@@ -21,7 +21,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By:  Nag Boranna (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -557,9 +557,23 @@ void Dispatcher::handleModifyInstanceRequest(
 
     try
     {
-	_repository->modifyInstance(
-	    request->nameSpace,
-	    request->modifiedInstance);
+// HP-Nag
+        CIMProvider* provider = _lookupProviderForClass(
+            request->nameSpace, request->modifiedInstance.getClassName());
+
+        if (provider)
+        {
+            provider->modifyInstance(
+                request->nameSpace,
+                request->modifiedInstance);
+        }
+// HP-Nag
+        else
+        {
+            _repository->modifyInstance(
+                request->nameSpace,
+                request->modifiedInstance);
+        }
     }
     catch (CIMException& exception)
     {

@@ -21,64 +21,60 @@
 //
 //==============================================================================
 //
-//
-// Author: Nag Boranna, Hewlett-Packard Company
-//         (nagaraja_boranna@hp.com)
+// Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-#include <cassert>
-#include <fstream>
-#include <iostream>
-#include <cstdio>
-#include <Pegasus/Config/ConfigManager.h>
+#ifndef Pegasus_UnrecognizedPropertyException_h
+#define Pegasus_UnrecognizedPropertyException_h
 
-PEGASUS_USING_STD;
-PEGASUS_USING_PEGASUS;
+#define UNRECOGNIZED_PROPERTY_ERR  "Error:  Unrecognized property name."
+#define UNRECOGNIZED_PROPERTY_ERR1 "Property '"
+#define UNRECOGNIZED_PROPERTY_ERR2 "' is not recognized."
 
 
-int main()
+#include <Pegasus/Config/PropertyException.h>
+
+
+PEGASUS_NAMESPACE_BEGIN
+
+
+/**
+ * Exception class indicating that a property name is not recognized.
+ *
+ * @author Hewlett-Packard Company
+ */
+class UnrecognizedPropertyException : public PropertyException
 {
-    try
+public:
+
+    /**
+     * Constructor that uses a default message.
+     */
+    UnrecognizedPropertyException() :
+        PropertyException(String ())
     {
-	Array<String> all;
-	Array<String> info;
-
-	ConfigManager* _config;
-	_config = ConfigManager::getInstance();
-
-	_config->mergeConfigFiles();
-
-	_config->getAllPropertyNames(all);
-
-	for (int i = 0; i < all.size(); i++)
-	{
-		info.clear();
-		_config->getPropertyInfo(all[i], info);
-
-	}
-
-	_config->updateCurrentValue(all[7], "New Current Value");
-	_config->updatePlannedValue(all[7], "New Planned Value");
-
-	for (int i = 0; i < all.size(); i++)
-	{
-                info.clear();
-                _config->getPropertyInfo(all[i], info);
-
-	}
-    }
-    catch (Exception& e)
-    {
-		cerr << "Exception: " << e.getMessage() << endl;
-		exit(1);
+        _message = UNRECOGNIZED_PROPERTY_ERR;
     }
 
-    cout << "++++ passed all tests" << endl;
 
-    return 0;
-}
+    /**
+     * Constructor that generates a message based on the name of the property
+     * that is not recognized.
+     *
+     * @param propertyName The name of the property that is not recognized.
+     */
+    UnrecognizedPropertyException(String propertyName) :
+        PropertyException(String ())
+    {
+        _message = UNRECOGNIZED_PROPERTY_ERR1 ;
+        _message.append (propertyName);
+        _message.append (UNRECOGNIZED_PROPERTY_ERR2);
+    }
+};
+
+#endif /* Pegasus_UnrecognizedPropertyException_h */
 

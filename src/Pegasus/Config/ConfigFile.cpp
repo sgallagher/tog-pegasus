@@ -1,31 +1,29 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
+// Author: Nag Boranna (nagaraja_boranna@hp.com)
+//
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,11 +32,12 @@
 #include <fstream>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Executor.h>
+#include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/Logger.h>
 
-#include "ConfigExceptions.h"
-#include "ConfigFile.h"
+#include <Pegasus/Config/ConfigExceptions.h>
+#include <Pegasus/Config/ConfigFile.h>
+
 
 PEGASUS_USING_STD;
 
@@ -53,7 +52,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// ConfigTable
+// ConfigTable 
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef HashTable<String, String, EqualFunc<String>, HashFunc<String> > Table;
@@ -73,75 +72,84 @@ static const char* ConfigHeader [] = {
     "##                  CIM Server configuration file                     ##",
     "##                                                                    ##",
     "########################################################################",
-    "",
+    " ",    
     "########################################################################",
     "#                                                                      #",
-    "# The configuration in this file is loaded by the CIM Server at        #",
-    "# start-up.  This file is updated by the CIM Server when the           #",
-    "# configuration changes.                                               #",
+    "# This is the configuration file for the CIMOM. The configuration      #",
+    "# properties in this file are loaded in to CIMOM at startup.           #",
+    "# CIMOM updates this file with the changes in the configurations.      #",
     "#                                                                      #",
-    "# Do not edit this file directly.  Instead, use the cimconfig command  #",
-    "# to update the CIM Server configuration.                              #",
+    "# It is recommended that user do not edit this file, instead use       #",
+    "# CIMConfigCommand to make any changes to the CIMOM configurations.    #",
     "#                                                                      #",
     "########################################################################",
-    ""
+    " "
 };
 
 static const int HEADER_SIZE = sizeof(ConfigHeader) / sizeof(ConfigHeader[0]);
 
 
-/**
-    Constructor.
+/** 
+    Constructor. 
 */
 ConfigFile::ConfigFile (const String& fileName)
+    throw (NoSuchFile, FileNotReadable)
 {
     _configFile = fileName;
 
     _configBackupFile = fileName + ".bak";
+
+
+    //
+    // check whether the file exists or not
+    //
+    if (!FileSystem::exists(_configFile))
+    {
+        throw NoSuchFile(_configFile);
+    }
+
+
+    //
+    // check whether the file is readable or not
+    //
+    if (!FileSystem::canRead(_configFile))
+    {
+        throw FileNotReadable(_configFile);
+    }
+
 }
 
-/**
-    Destructor.
+/** 
+    Destructor. 
 */
 ConfigFile::~ConfigFile ()
 {
+
 }
 
 
-/**
+/** 
     Get the name of the configuration file.
 */
-String ConfigFile::getFileName () const
+String ConfigFile::getFileName ()
 {
-    return _configFile;
+    return ( _configFile );
 }
 
 
-/**
+/** 
     Load the properties from the config file.
 */
-void ConfigFile::load(ConfigTable* confTable)
+void ConfigFile::load (ConfigTable* confTable)
+    throw (ConfigFileSyntaxError)
 {
     String line;
 
     //
-    // Delete the backup configuration file
-    //
-
-    if (FileSystem::exists(_configBackupFile))
-    {
-        Executor::removeFile(_configBackupFile.getCString());
-    }
-
-    //
     // Open the config file
     //
-    ifstream ifs(_configFile.getCString());
-
-    if (!ifs)
-    {
-        return;
-    }
+    ArrayDestroyer<char> p(_configFile.allocateCString());
+    ifstream ifs(p.getPointer());
 
     //
     // Read each line of the file
@@ -153,7 +161,7 @@ void ConfigFile::load(ConfigTable* confTable)
         //
         // Skip leading whitespace
         //
-        const Char16* p = line.getChar16Data();
+        const Char16* p = line.getData();
 
         while (*p && isspace(*p))
         {
@@ -176,7 +184,7 @@ void ConfigFile::load(ConfigTable* confTable)
         //
         // Get the property name
         //
-        String name;
+        String name = String::EMPTY;
 
         if (!(isalpha(*p) || *p == '_'))
         {
@@ -184,11 +192,11 @@ void ConfigFile::load(ConfigTable* confTable)
             throw ConfigFileSyntaxError(_configFile, lineNumber);
         }
 
-        name.append(*p++);
+        name += *p++;
 
         while (isalnum(*p) || *p == '_')
         {
-            name.append(*p++);
+            name += *p++;
         }
 
         //
@@ -221,11 +229,11 @@ void ConfigFile::load(ConfigTable* confTable)
         //
         // Get the value
         //
-        String value;
+        String value = String::EMPTY;
 
         while (*p)
         {
-            value.append(*p++);
+            value += *p++;
         }
 
         //
@@ -235,13 +243,9 @@ void ConfigFile::load(ConfigTable* confTable)
         {
             //
             // Duplicate property, ignore the new property value.
-            // FUTURE: Log this message in a log file.
             //
-            PEG_TRACE((TRC_CONFIG, Tracer::LEVEL2,
-                "Duplicate property '%s', value '%s' is ignored.",
-                (const char*)name.getCString(),
-                (const char*)value.getCString()));
-
+            Logger::put(Logger::ERROR_LOG, "CIMConfig", Logger::INFORMATION,
+            "Duplicate property: $0, value $1 ignores.", name, value);
         }
     }
 
@@ -249,121 +253,97 @@ void ConfigFile::load(ConfigTable* confTable)
 }
 
 
-/**
+/** 
     Save the properties to the config file.
 */
-void ConfigFile::save(ConfigTable* confTable)
+void ConfigFile::save (ConfigTable* confTable)
+    throw (CannotRenameFile)
 {
     //
     // Delete the backup configuration file
     //
-    if (FileSystem::exists(_configBackupFile))
-    {
-        Executor::removeFile(_configBackupFile.getCString());
-    }
+    FileSystem::removeFile(_configBackupFile);
 
     //
     // Rename the configuration file as a backup file
     //
-
-    if (FileSystem::exists(_configFile))
+    if (!FileSystem::renameFile(_configFile, _configBackupFile))
     {
-        if (Executor::renameFile(
-            _configFile.getCString(), _configBackupFile.getCString()) != 0)
-        {
-            throw CannotRenameFile(_configFile);
-        }
+        throw CannotRenameFile(_configFile);
     }
 
     //
     // Open the config file for writing
     //
-
-    FILE* ofs = Executor::openFile(_configFile.getCString(), 'w');
-
-    if (!ofs)
-    {
-        throw CannotOpenFile(_configFile);
-    }
+    ArrayDestroyer<char> p(_configFile.allocateCString());
+    ofstream ofs(p.getPointer());
+    ofs.clear();
 
     //
     // Write config file header information
     //
-
     for (int index = 0; index < HEADER_SIZE; index++)
     {
-        fputs(ConfigHeader[index], ofs);
-        fputc('\n', ofs);
+        ofs << ConfigHeader[index] << endl;
     }
+
+    ofs << endl;
 
     //
     // Save config properties and values to the file
     //
-
     for (Table::Iterator i = confTable->table.start(); i; i++)
     {
-        CString key = i.key().getCString();
-        CString value = i.value().getCString();
-        fprintf(ofs, "%s=%s\n", (const char*)key, (const char*)value);
+        ofs << i.key() << "=" << i.value() << endl;
     }
 
-    fclose(ofs);
-
-#if !defined(PEGASUS_OS_TYPE_WINDOWS)
-    // Note:  The Executor process sets the permissions to 0644 when it
-    // opens the config file for writing.
-    if (Executor::detectExecutor() != 0)
-    {
-        //
-        // Set permissions on the config file to 0644
-        //
-        if (!FileSystem::changeFilePermissions(
-                _configFile,
-                (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)))    // set 0644
-        {
-            throw CannotChangeFilePerm(_configFile);
-        }
-    }
-#endif
+    ofs.close();
 }
 
 
-/**
+/** 
     Replace the properties in the config file with the properties from
     the given file.
 */
 void ConfigFile::replace (const String& fileName)
+    throw (NoSuchFile, FileNotReadable, CannotRenameFile)
 {
+    String line;
+
+    //
+    // check whether the file exist or not.
+    //
+    if (!FileSystem::exists(fileName))
+    {
+        throw NoSuchFile(fileName);
+    }
+
+    //
+    // check whether the file is readable or not
+    //
+    if (!FileSystem::canRead(fileName))
+    {
+        throw FileNotReadable(fileName);
+    }
+
     //
     // Open the given config file for reading
     //
-
-    FILE* ifs = fopen(fileName.getCString(), "r");
-
-    if (!ifs)
-    {
-        throw CannotOpenFile(fileName);
-    }
+    ArrayDestroyer<char> q(fileName.allocateCString());
+    ifstream ifs(q.getPointer());
 
     //
     // Delete the backup configuration file
     //
-
-    if (FileSystem::exists(_configBackupFile))
-    {
-        Executor::removeFile(_configBackupFile.getCString());
-    }
+    FileSystem::removeFile(_configBackupFile);
 
     //
     // Rename the existing config file as a backup file
     //
-
     if (FileSystem::exists(_configFile))
     {
-        if (Executor::renameFile(
-            _configFile.getCString(), _configBackupFile.getCString()) != 0)
+        if (!FileSystem::renameFile(_configFile, _configBackupFile))
         {
-            fclose(ifs);
             throw CannotRenameFile(_configFile);
         }
     }
@@ -371,43 +351,25 @@ void ConfigFile::replace (const String& fileName)
     //
     // Open the existing config file for writing
     //
-
-    FILE* ofs = Executor::openFile(_configFile.getCString(), 'w');
-
-    if (!ofs)
-    {
-        fclose(ifs);
-        throw CannotOpenFile(_configFile);
-    }
+    ArrayDestroyer<char> p(_configFile.allocateCString());
+    ofstream ofs(p.getPointer());
+    ofs.clear();
 
     //
     // Read each line of the new file and write to the config file.
     //
+    for (Uint32 lineNumber = 1; GetLine(ifs, line); lineNumber++)
+    {
+        ofs << line << endl;
+    }
 
-    char buffer[4096];
-
-    while ((fgets(buffer, sizeof(buffer), ifs)) != NULL)
-        fputs(buffer, ofs);
-
-    //
+    // 
     // Close the file handles
     //
-
-    fclose(ifs);
-    fclose(ofs);
-
-#if !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-# if !defined(PEGASUS_OS_TYPE_WINDOWS)
-    //
-    // Set permissions on the config file to 0644
-    //
-    if (!FileSystem::changeFilePermissions(_configFile,
-        (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)))    // set 0644
-    {
-        throw CannotChangeFilePerm(_configFile);
-    }
-# endif
-#endif /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION */
+    ifs.close();
+    ofs.close();
 }
 
+
 PEGASUS_NAMESPACE_END
+

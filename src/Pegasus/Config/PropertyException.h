@@ -21,64 +21,40 @@
 //
 //==============================================================================
 //
-//
-// Author: Nag Boranna, Hewlett-Packard Company
-//         (nagaraja_boranna@hp.com)
+// Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-#include <cassert>
-#include <fstream>
-#include <iostream>
-#include <cstdio>
-#include <Pegasus/Config/ConfigManager.h>
+#ifndef Pegasus_PropertyException_h
+#define Pegasus_PropertyException_h
 
-PEGASUS_USING_STD;
-PEGASUS_USING_PEGASUS;
+#include <Pegasus/Common/Exception.h>
 
 
-int main()
+PEGASUS_NAMESPACE_BEGIN
+
+
+/**
+ * Abstract exception class for errors involving configuration properties.
+ *
+ * @author Hewlett-Packard Company
+ */
+class PropertyException : public Exception
 {
-    try
-    {
-	Array<String> all;
-	Array<String> info;
+public:
 
-	ConfigManager* _config;
-	_config = ConfigManager::getInstance();
+    /**
+     *
+     *  Constructs a PropertyException with the specified message.
+     *
+     *  @param  exceptionMessage  a string containing the exception message
+     *
+     */
+    PropertyException (const String& exceptionMessage);
 
-	_config->mergeConfigFiles();
+};
 
-	_config->getAllPropertyNames(all);
-
-	for (int i = 0; i < all.size(); i++)
-	{
-		info.clear();
-		_config->getPropertyInfo(all[i], info);
-
-	}
-
-	_config->updateCurrentValue(all[7], "New Current Value");
-	_config->updatePlannedValue(all[7], "New Planned Value");
-
-	for (int i = 0; i < all.size(); i++)
-	{
-                info.clear();
-                _config->getPropertyInfo(all[i], info);
-
-	}
-    }
-    catch (Exception& e)
-    {
-		cerr << "Exception: " << e.getMessage() << endl;
-		exit(1);
-    }
-
-    cout << "++++ passed all tests" << endl;
-
-    return 0;
-}
-
+#endif  /* Pegasus_PropertyException_h */

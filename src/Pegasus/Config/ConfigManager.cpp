@@ -1,49 +1,71 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//=============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-//  ConfigManager
+//  ConfigManager 
 /////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Logger.h>
-#include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Config/ConfigExceptions.h>
+#include <Pegasus/Config/ConfigManager.h>
 
-#include "ConfigExceptions.h"
-#include "ConfigManager.h"
+/////////////////////////////////////////////////////////////////////////////
+//
+//  When a new property owner is created be sure to include property 
+//  owner header file here.
+//
+/////////////////////////////////////////////////////////////////////////////
+
+#include <Pegasus/Config/DefaultPropertyOwner.h>
+#include <Pegasus/Config/TracePropertyOwner.h>
+#include <Pegasus/Config/LogPropertyOwner.h>
+
+
+PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+
+/////////////////////////////////////////////////////////////////////////////
+//  PropertyOwnerTable 
+/////////////////////////////////////////////////////////////////////////////
+
+typedef HashTable<String,
+    ConfigPropertyOwner*,EqualFunc<String>,HashFunc<String> > Table;
+
+struct OwnerTable
+{
+    Table table;
+};
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -52,696 +74,432 @@ PEGASUS_NAMESPACE_BEGIN
 //
 /////////////////////////////////////////////////////////////////////////////
 
-TracePropertyOwner ConfigManager::traceOwner;
-LogPropertyOwner ConfigManager::logOwner;
-DefaultPropertyOwner ConfigManager::defaultOwner;
-SecurityPropertyOwner ConfigManager::securityOwner;
-RepositoryPropertyOwner ConfigManager::repositoryOwner;
-ShutdownPropertyOwner ConfigManager::shutdownOwner;
-FileSystemPropertyOwner ConfigManager::fileSystemOwner;
-ProviderDirPropertyOwner ConfigManager::providerDirOwner;
-NormalizationPropertyOwner ConfigManager::normalizationOwner;
-
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-IndicationServicePropertyOwner ConfigManager::indicationServiceOwner;
-#endif
-
-/////////////////////////////////////////////////////////////////////////////
-//
-//   When a new property is created be sure to add the new property name
-//   and the owner object to the OwnerEntry table below.
-//
-/////////////////////////////////////////////////////////////////////////////
-
-struct OwnerEntry
-{
-    const char* propertyName;
-    ConfigPropertyOwner* propertyOwner;
-};
-
-static struct OwnerEntry _properties[] =
-{
-    {"traceLevel",
-         (ConfigPropertyOwner*)&ConfigManager::traceOwner},
-    {"traceComponents",
-         (ConfigPropertyOwner*)&ConfigManager::traceOwner},
-    {"traceFilePath",
-         (ConfigPropertyOwner*)&ConfigManager::traceOwner},
-    {"traceFacility",
-         (ConfigPropertyOwner*)&ConfigManager::traceOwner},
-    {"traceMemoryBufferKbytes",
-         (ConfigPropertyOwner*)&ConfigManager::traceOwner},
-    {"traceFileSizeKBytes",
-         (ConfigPropertyOwner*)&ConfigManager::traceOwner},
-    {"numberOfTraceFiles",
-         (ConfigPropertyOwner*)&ConfigManager::traceOwner},
-#if !defined(PEGASUS_USE_SYSLOGS)
-    {"logdir",
-         (ConfigPropertyOwner*)&ConfigManager::logOwner},
-    {"maxLogFileSizeKBytes",
-         (ConfigPropertyOwner*)&ConfigManager::logOwner},
-#endif
-    {"logLevel",
-         (ConfigPropertyOwner*)&ConfigManager::logOwner},
-    {"enableHttpConnection",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-    {"enableHttpsConnection",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-    {"httpPort",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-    {"httpsPort",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-    {"daemon",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-#ifdef PEGASUS_ENABLE_SLP
-    {"slp",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-    {"slpProviderStartupTimeout",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-#endif
-    {"enableAssociationTraversal",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-    {"enableIndicationService",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-    {"enableAuthentication",
-         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
-    {"enableNamespaceAuthorization",
-         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
-    {"httpAuthType",
-         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
-    {"passwordFilePath",
-         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
-    {"sslCertificateFilePath",
-         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
-    {"sslKeyFilePath",
-         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
-    {"sslTrustStore",
-         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
-    {"sslBackwardCompatibility",
-         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
-#ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
-    {"crlStore",
-         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
-#endif
-    {"sslClientVerificationMode",
-         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
-    {"sslTrustStoreUserName",
-         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    {"kerberosServiceName",
-         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
-#endif
-#ifdef PEGASUS_OS_ZOS
-    {"enableCFZAPPLID",
-         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
-#endif
-    {"sslCipherSuite",
-         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
-    {"repositoryIsDefaultInstanceProvider",
-         (ConfigPropertyOwner*)&ConfigManager::repositoryOwner},
-    {"enableBinaryRepository",
-         (ConfigPropertyOwner*)&ConfigManager::repositoryOwner},
-    {"shutdownTimeout",
-         (ConfigPropertyOwner*)&ConfigManager::shutdownOwner},
-    {"repositoryDir",
-         (ConfigPropertyOwner*)&ConfigManager::fileSystemOwner},
-    {"providerManagerDir",
-         (ConfigPropertyOwner*)&ConfigManager::fileSystemOwner},
-    {"providerDir",
-         (ConfigPropertyOwner*)&ConfigManager::providerDirOwner},
-    {"enableRemotePrivilegedUserAccess",
-         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
-    {"enableSubscriptionsForNonprivilegedUsers",
-         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
-#ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
-    {"authorizedUserGroups",
-         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
-#endif
-    {"messageDir",
-         (ConfigPropertyOwner*)&ConfigManager::fileSystemOwner},
-#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-    {"enableNormalization",
-         (ConfigPropertyOwner*)&ConfigManager::normalizationOwner},
-    {"excludeModulesFromNormalization",
-         (ConfigPropertyOwner*)&ConfigManager::normalizationOwner},
-#endif
-    {"forceProviderProcesses",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-    {"maxProviderProcesses",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-#ifdef PEGASUS_ENABLE_AUDIT_LOGGER
-    {"enableAuditLog",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-#endif
-#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
-      {"webRoot",
-               (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-      {"indexFile",
-               (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-      {"mimeTypesFile",
-               (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-#endif
-    {"socketWriteTimeout",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-    {"idleConnectionTimeout",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-    {"maxFailedProviderModuleRestarts",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-    {"listenAddress",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-    {"hostname",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-    {"fullyQualifiedHostName",
-        (ConfigPropertyOwner*)&ConfigManager::defaultOwner}
-
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-    ,{"maxIndicationDeliveryRetryAttempts",
-        (ConfigPropertyOwner*)&ConfigManager::indicationServiceOwner},
-    {"minIndicationDeliveryRetryInterval",
-        (ConfigPropertyOwner*)&ConfigManager::indicationServiceOwner}
-#endif
-};
-
-const Uint32 NUM_PROPERTIES = sizeof(_properties) / sizeof(_properties[0]);
+static TracePropertyOwner*      traceOwner   = new TracePropertyOwner;
+static LogPropertyOwner*        logOwner     = new LogPropertyOwner;
+static DefaultPropertyOwner*    defaultOwner = new DefaultPropertyOwner;
 
 
 /////////////////////////////////////////////////////////////////////////////
 //
-//   To use a fixed value for a property rather than delegating to a property
-//   owner, add the property to the FixedValueEntry table below.  An entry in
-//   the OwnerEntry table above for this same property will be initialized
-//   and given the (fixed) initial current value, but will thereafter be
-//   ignored.
-//
-//   Fixed values are only returned by getDefaultValue(), getCurrentValue(),
-//   and getPlannedValue().  All other methods will treat fixed properties as
-//   unrecognized properties.
+//   When a new property is created be sure to add the new property name 
+//   and the owner object to the PropertyList below.
 //
 /////////////////////////////////////////////////////////////////////////////
 
-struct FixedValueEntry
-{
-    const char* propertyName;
-    const char* fixedValue;
+static struct PropertyList properties[] =
+{   
+    {"traceLevel",          (ConfigPropertyOwner* )traceOwner},
+    {"traceFilePath",       (ConfigPropertyOwner* )traceOwner},
+    {"traceComponents",     (ConfigPropertyOwner* )traceOwner},
+    {"logtrace",            (ConfigPropertyOwner* )logOwner},
+    {"logdir",              (ConfigPropertyOwner* )logOwner},
+    {"cleanlogs",           (ConfigPropertyOwner* )logOwner},
+    {"logs",                (ConfigPropertyOwner* )logOwner},
+    {"severity",            (ConfigPropertyOwner* )logOwner},
+    {"port",                (ConfigPropertyOwner* )defaultOwner},
+    {"options",             (ConfigPropertyOwner* )defaultOwner},
+    {"daemon",              (ConfigPropertyOwner* )defaultOwner},
+    {"install",             (ConfigPropertyOwner* )defaultOwner},
+    {"remove",              (ConfigPropertyOwner* )defaultOwner},
+    {"slp",                 (ConfigPropertyOwner* )defaultOwner}
 };
 
-static struct FixedValueEntry _fixedValues[] =
-{
-#include "FixedPropertyTable.h"
-};
+const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 
-const Uint32 NUM_FIXED_PROPERTIES =
-    sizeof(_fixedValues) / sizeof( _fixedValues[0]);
 
 
 /**
-    Initialize the default PEGASUS_HOME location, the default is set to the
-    current directory.
+Constants representing the command line options.
 */
-const String ConfigManager::PEGASUS_HOME_DEFAULT = ".";
+static const char OPTION_VERSION     = 'v';
 
-String ConfigManager::_pegasusHome = PEGASUS_HOME_DEFAULT;
+static const char OPTION_HELP        = 'h';
 
-//
-// The singleton ConfigManager instance
-//
-AutoPtr<ConfigManager> ConfigManager::_instance;
+static const char OPTION_TRACE       = 't';
+
+static const char OPTION_LOG_TRACE   = 'l';
+
+
+/** Initialize. */
+ConfigManager* ConfigManager::_instance = 0;
 
 
 /** Constructor. */
-ConfigManager::ConfigManager()
-    : useConfigFiles(false)
+ConfigManager::ConfigManager ()
 {
     //
     // Initialize the instance variables
     //
-    _propertyTable.reset(new PropertyTable);
-
-    //
-    // Initialize the property owners
-    //
-    _initPropertyTable();
+    _propertyOwnerTable = new OwnerTable;
+    _trace = false;
+    _logTrace = false;
+    _version = false;
+    _help = false;
 }
 
-/**
-    Get a reference to the singleton ConfigManager instance.  If no
-    ConfigManager instance exists, construct one.
-*/
-ConfigManager* ConfigManager::getInstance()
+/** Destructor. */
+ConfigManager::~ConfigManager()
 {
-    if (!_instance.get())
+    if (_propertyOwnerTable)
     {
-        _instance.reset(new ConfigManager());
+        delete _propertyOwnerTable;
     }
-    return _instance.get();
+
+    if (_configFileHandler)
+    {
+        delete _configFileHandler;
+    }
 }
 
 
-/**
-    Initialize the current value of a config property
+/** 
+    Construct the singleton instance ConfigManager and return 
+    a pointer to that instance.
 */
-Boolean ConfigManager::initCurrentValue(
-    const String& propertyName,
-    const String& propertyValue)
+ConfigManager* ConfigManager::getInstance() 
 {
-    ConfigPropertyOwner* propertyOwner = 0;
-
-    //
-    // get property owner object from the config table.
-    //
-    if (!_propertyTable->ownerTable.lookup(propertyName, propertyOwner))
+    if (!_instance) 
     {
-        throw UnrecognizedConfigProperty(propertyName);
+        _instance = new ConfigManager();
     }
-
-    if (useConfigFiles && !propertyOwner->isValid(propertyName, propertyValue))
-    {
-        throw InvalidPropertyValue(propertyName, propertyValue);
-    }
-
-    //
-    // update the value with the property owner
-    //
-    propertyOwner->initCurrentValue(propertyName, propertyValue);
-
-    Boolean success = true;
-    if (useConfigFiles)
-    {
-        try
-        {
-            // update the value in the current config file
-            success = _configFileHandler->updateCurrentValue(
-                          propertyName,
-                          propertyValue,
-                          String(),
-                          0,
-                          false);
-        }
-        catch (Exception& e)
-        {
-            throw FailedSaveProperties(e.getMessage());
-        }
-    }
-    return success;
+    return _instance;
 }
 
-/**
-    Update current value of a property.
+
+/** 
+Update current value of a property.
 */
 Boolean ConfigManager::updateCurrentValue(
-    const String& name,
-    const String& value,
-    const String& userName,
-    Uint32 timeoutSeconds,
-    Boolean unset)
+    const String& name, 
+    const String& value) 
+    throw (NonDynamicConfigProperty, InvalidPropertyValue, 
+            UnrecognizedConfigProperty)
 {
+    String prevValue = String::EMPTY;
 
     //
     // get property owner object from the config table.
     //
     ConfigPropertyOwner* propertyOwner;
 
-    if (!_propertyTable->ownerTable.lookup(name, propertyOwner))
+    if (!_propertyOwnerTable->table.lookup(name, propertyOwner))
     {
-        throw UnrecognizedConfigProperty(name);
+        throw UnrecognizedConfigProperty(name); 
     }
 
-    //
-    // keep a copy of the existing config value
-    //
-    String prevValue = propertyOwner->getCurrentValue(name);
-
-    //
-    // ask owner to update the current value
-    //
-    if (unset)
+    try
     {
-        propertyOwner->updateCurrentValue(
-            name,
-            propertyOwner->getDefaultValue(name),
-            userName,
-            timeoutSeconds);
-    }
-    else
-    {
-        if (useConfigFiles && !propertyOwner->isValid(name, value))
-        {
-            throw InvalidPropertyValue(name, value);
-        }
+        //
+        // keep a copy of the existing config value
+        //
+        prevValue = propertyOwner->getCurrentValue(name);
 
-        propertyOwner->updateCurrentValue(
-            name, value, userName, timeoutSeconds);
-    }
+        //
+        // ask owner to update the current value to new value
+        //
+        propertyOwner->updateCurrentValue(name, value);
 
-    if (useConfigFiles)
-    {
-        try
-        {
-            //
-            // update the new value in the current config file
-            //
-            if (!_configFileHandler->updateCurrentValue(
-                name, value, userName, timeoutSeconds, unset))
-            {
-                // Failed to update the current value, so roll back.
-                propertyOwner->updateCurrentValue(
-                    name, prevValue, userName, timeoutSeconds);
-                return false;
-            }
-        }
-        catch (Exception& e)
+        //
+        // update the new value in the current config file
+        //
+        if (!_configFileHandler->updateCurrentValue(name, value))
         {
             // Failed to update the current value, so roll back.
-            propertyOwner->updateCurrentValue(
-                name, prevValue, userName, timeoutSeconds);
-            throw FailedSaveProperties(e.getMessage());
+            propertyOwner->updateCurrentValue(name, prevValue);
+            return 0;
         }
     }
-
-    return true;
+    catch (NonDynamicConfigProperty ndcp)
+    {
+        throw ndcp;
+    }
+    catch (InvalidPropertyValue ipv)
+    {
+        throw ipv;
+    }
+    catch (UnrecognizedConfigProperty ucp)
+    {
+        throw ucp;
+    }
+    return 1;
 }
 
 
-/**
+/** 
 Update planned value of a property.
 */
 Boolean ConfigManager::updatePlannedValue(
-    const String& name,
-    const String& value,
-    Boolean unset)
+    const String& name, 
+    const String& value)
+    throw (NonDynamicConfigProperty, InvalidPropertyValue, 
+            UnrecognizedConfigProperty)
 {
+    String prevValue = String::EMPTY;
 
     //
     // get property owner object from the config table.
     //
     ConfigPropertyOwner* propertyOwner;
 
-    if (!_propertyTable->ownerTable.lookup(name, propertyOwner))
+    if (!_propertyOwnerTable->table.lookup(name, propertyOwner))
     {
-        throw UnrecognizedConfigProperty(name);
+        throw UnrecognizedConfigProperty(name); 
     }
 
-    //
-    // keep a copy of the existing config value
-    //
-    String prevValue = propertyOwner->getPlannedValue(name);
-
-    //
-    // ask owner to update the planned value to new value
-    //
-    if (unset)
+    try
     {
-        propertyOwner->updatePlannedValue(name,
-            propertyOwner->getDefaultValue(name));
-    }
-    else
-    {
-        if (useConfigFiles && !propertyOwner->isValid(name, value))
-        {
-            throw InvalidPropertyValue(name, value);
-        }
+        //
+        // keep a copy of the existing config value
+        //
+        prevValue = propertyOwner->getPlannedValue(name);
 
+        //
+        // ask owner to update the planned value to new value
+        //
         propertyOwner->updatePlannedValue(name, value);
-    }
 
-    if (useConfigFiles)
-    {
-        try
-        {
-            //
-            // update the new value in the planned config file
-            //
-            if (!_configFileHandler->updatePlannedValue(name, value, unset))
-            {
-                // Failed to update the planned value, so roll back.
-                propertyOwner->updatePlannedValue(name, prevValue);
-                return false;
-            }
-        }
-        catch (Exception& e)
+        //
+        // update the new value in the planned config file
+        //
+        if (!_configFileHandler->updatePlannedValue(name, value))
         {
             // Failed to update the planned value, so roll back.
             propertyOwner->updatePlannedValue(name, prevValue);
-            throw FailedSaveProperties(e.getMessage());
+            return 0;
         }
     }
-
-    return true;
+    catch (NonDynamicConfigProperty ndcp)
+    {
+        throw ndcp;
+    }
+    catch (InvalidPropertyValue ipv)
+    {
+        throw ipv;
+    }
+    catch (UnrecognizedConfigProperty ucp)
+    {
+        throw ucp;
+    }
+    return 1;
 }
 
 
-/**
+/** 
 Validate the value of a specified property.
 */
 Boolean ConfigManager::validatePropertyValue(
-    const String& name,
+    const String& name, 
     const String& value)
+    throw (UnrecognizedConfigProperty)
 {
     //
     // get property owner object from config table
     //
     ConfigPropertyOwner* propertyOwner;
 
-    if (!_propertyTable->ownerTable.lookup(name, propertyOwner))
+    if (!_propertyOwnerTable->table.lookup(name, propertyOwner))
     {
-        throw UnrecognizedConfigProperty(name);
+        throw UnrecognizedConfigProperty(name); 
     }
 
-    return propertyOwner->isValid(name, value);
+    return (propertyOwner->isValid(name, value));
 }
 
-/**
-Get default value of the specified property.
+
+/** 
+Get current value of the specified property.
 */
-String ConfigManager::getDefaultValue(const String& name) const
+String ConfigManager::getCurrentValue(const String& name)
+    throw (UnrecognizedConfigProperty)
 {
-    String fixedValue;
-    if (_fixedValueCheck(name, fixedValue))
-    {
-        return fixedValue;
-    }
-
     //
     // get property owner object from config table
     //
     ConfigPropertyOwner* propertyOwner;
 
-    if (!_propertyTable->ownerTable.lookup(name, propertyOwner))
+    if (!_propertyOwnerTable->table.lookup(name, propertyOwner))
     {
-        throw UnrecognizedConfigProperty(name);
+        throw UnrecognizedConfigProperty(name); 
     }
 
-    return propertyOwner->getDefaultValue(name);
-}
-
-/**
-    Get current value of the specified property.
-*/
-String ConfigManager::getCurrentValue(const String& name) const
-{
-    String fixedValue;
-    if (_fixedValueCheck(name, fixedValue))
-    {
-        return fixedValue;
-    }
-
-    //
-    // get property owner object from config table
-    //
-    ConfigPropertyOwner* propertyOwner;
-
-    if (!_propertyTable->ownerTable.lookup(name, propertyOwner))
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
-
-    return propertyOwner->getCurrentValue(name);
+    return (propertyOwner->getCurrentValue(name));
 }
 
 
-/**
+/** 
 Get planned value of the specified property.
 */
-String ConfigManager::getPlannedValue(const String& name) const
-{
-    String fixedValue;
-    if (_fixedValueCheck(name, fixedValue))
-    {
-        return fixedValue;
-    }
-
-    //
-    // get property owner object from config table
-    //
-    ConfigPropertyOwner* propertyOwner;
-
-    if (!_propertyTable->ownerTable.lookup(name, propertyOwner))
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
-
-    return propertyOwner->getPlannedValue(name);
-}
-
-/**
-Get help on specified attribute
-*/
-void ConfigManager::getPropertyHelp(
-    const String& name,
-    String& propertyHelp) const
+String ConfigManager::getPlannedValue(const String& name)
+    throw (UnrecognizedConfigProperty)
 {
     //
     // get property owner object from config table
     //
     ConfigPropertyOwner* propertyOwner;
-    if ( !_propertyTable->ownerTable.lookup(name,
-        propertyOwner))
+
+    if (!_propertyOwnerTable->table.lookup(name, propertyOwner))
     {
-        throw UnrecognizedConfigProperty(name);
+        throw UnrecognizedConfigProperty(name); 
     }
-    propertyHelp.append(propertyOwner->getPropertyHelp(name));
-    propertyHelp.append(propertyOwner->getPropertyHelpSupplement(name));
+
+    return (propertyOwner->getPlannedValue(name));
 }
 
-/**
+
+/** 
 Get all the attributes of the specified property.
 */
 void ConfigManager::getPropertyInfo(
-    const String& name,
-    Array<String>& propertyInfo) const
+    const String& name, 
+    Array<String>& propertyInfo)
+    throw (UnrecognizedConfigProperty)
 {
     //
     // get property owner object from config table
     //
     ConfigPropertyOwner* propertyOwner;
 
-    if (!_propertyTable->ownerTable.lookup(name, propertyOwner))
+    if (!_propertyOwnerTable->table.lookup(name, propertyOwner))
     {
-        throw UnrecognizedConfigProperty(name);
+        throw UnrecognizedConfigProperty(name); 
     }
 
     propertyOwner->getPropertyInfo(name, propertyInfo);
 }
 
 
-/**
+/** 
 Get a list of all property names.
 */
-void ConfigManager::getAllPropertyNames(
-    Array<String>& propertyNames,
-    Boolean includeHiddenProperties) const
+void ConfigManager::getAllPropertyNames(Array<String>& propertyNames)
 {
-    Array<String> propertyInfo;
     propertyNames.clear();
 
-    for (OwnerTable::Iterator i = _propertyTable->ownerTable.start(); i; i++)
+    for (Table::Iterator i = _propertyOwnerTable->table.start(); i; i++)
     {
-        if (includeHiddenProperties)
-        {
-            propertyNames.append(i.key());
-        }
-        else
-        {
-            //
-            // Check if property is to be externally visible or not.
-            // If the property should not be externally visible do not list the
-            // property information.
-            //
-            propertyInfo.clear();
-            getPropertyInfo(i.key(), propertyInfo);
-
-            if (propertyInfo[5] == STRING_TRUE)
-            {
-                propertyNames.append(i.key());
-            }
-        }
+        propertyNames.append(i.key());
     }
 }
 
 
-/**
-    Merge the config properties from the specified planned config file
-    with the properties in the specified current config file.
+/** 
+Merge the config properties from the specified planned config file
+with the properties in the specified current config file.
 */
 void ConfigManager::mergeConfigFiles(
-    const String& currentFile,
+    const String& currentFile, 
     const String& plannedFile)
+    throw (NoSuchFile, FileNotReadable, CannotRenameFile, 
+        ConfigFileSyntaxError)
 {
-    PEGASUS_ASSERT(useConfigFiles);
+    try
+    {
+        _configFileHandler = new ConfigFileHandler(currentFile, plannedFile);
 
-    _configFileHandler.reset(new ConfigFileHandler(currentFile, plannedFile));
-
-    //
-    // copy the contents of planned config file over
-    // the current config file
-    //
-    _configFileHandler->copyPlannedFileOverCurrentFile();
-
-    _loadConfigProperties();
+        _loadConfigProperties();
+    }
+    catch (NoSuchFile nsf)
+    {
+        throw nsf;
+    }
+    catch (FileNotReadable fnr)
+    {
+        throw fnr;
+    }
+    catch (CannotRenameFile ftrf)
+    {
+        throw ftrf;
+    }
+    catch (ConfigFileSyntaxError cfse)
+    {
+        throw cfse;
+    }
 }
 
 
-/**
-    Merge the config properties from the default planned config file
-    with the properties in the default current config file.
+/** 
+Merge the config properties from the default planned config file
+with the properties in the default current config file.
 */
 void ConfigManager::mergeConfigFiles()
+    throw (NoSuchFile, FileNotReadable, CannotRenameFile, 
+        ConfigFileSyntaxError)
 {
-    PEGASUS_ASSERT(useConfigFiles);
+    try
+    {
+        _configFileHandler = new ConfigFileHandler();
 
-    _configFileHandler.reset(new ConfigFileHandler());
-
-    //
-    // copy the contents of planned config file over
-    // the current config file
-    //
-    _configFileHandler->copyPlannedFileOverCurrentFile();
-
-    _loadConfigProperties();
+        _loadConfigProperties();
+    }
+    catch (NoSuchFile nsf)
+    {
+        throw nsf;
+    }
+    catch (FileNotReadable fnr)
+    {
+        throw fnr;
+    }
+    catch (CannotRenameFile ftrf)
+    {
+        throw ftrf;
+    }
+    catch (ConfigFileSyntaxError cfse)
+    {
+        throw cfse;
+    }
 }
 
 
-/**
-Load the config properties from the current and planned files.
-*/
-void ConfigManager::loadConfigFiles()
-{
-    PEGASUS_ASSERT(useConfigFiles);
-
-    _configFileHandler.reset(new ConfigFileHandler());
-
-    _loadConfigProperties();
-}
-
-
-/**
-    Merge config properties specified on the command line
+/** 
+Merge config properties specified on the command line 
 */
 void ConfigManager::mergeCommandLine(int& argc, char**& argv)
+    throw (UnrecognizedConfigProperty, MissingCommandLineOptionArgument,
+        InvalidPropertyValue)
 {
-    // Remove the command name from the command line
-    if (argc > 0)
-    {
-        memmove(&argv[0], &argv[1], (argc) * sizeof(char*));
-        argc--;
-    }
+    Boolean booleanOption;
 
-    //
-    //  Merge properties from the command line
-    //
-    for (Sint32 i = 0; i < argc; )
+
+    for (int i = 1; i < argc; )
     {
         const char* arg = argv[i];
 
+        // Check for -option
         if (*arg == '-')
         {
-            throw UnrecognizedCommandLineOption();
-        }
+            // Get the option
+            const char* option = arg + 1;
 
-        // Set porperty with command line value.
-        if (!_initPropertyWithCommandLineOption(arg))
+            if (*option == OPTION_VERSION)
+            {
+                _version = true;
+            }
+            else if (*option == OPTION_HELP)
+            {
+                _help = true;
+            }
+            else if (*option == OPTION_TRACE)
+            {
+                _trace = true;
+            }
+            else if (*option == OPTION_LOG_TRACE)
+            {
+                _logTrace = true;
+            }
+            else
+            {
+                throw UnrecognizedConfigProperty(option);
+            }
+        }
+        else
         {
-            throw UnrecognizedConfigProperty(arg);
+            // Get the config option
+            const char* configOption = argv[i];
+
+            if (!_initPropertyWithCommandLineOption(configOption))
+            {
+                throw UnrecognizedConfigProperty(configOption); 
+            }
         }
 
         // Remove the option from the command line
@@ -751,12 +509,17 @@ void ConfigManager::mergeCommandLine(int& argc, char**& argv)
 }
 
 
-/**
-    load config properties from the file
+/** 
+load config properties from the file 
 */
 void ConfigManager::_loadConfigProperties()
+    throw (CannotRenameFile, ConfigFileSyntaxError)
 {
-    PEGASUS_ASSERT(useConfigFiles);
+    //
+    // copy the contents of planned config file over
+    // the current config file
+    //
+    _configFileHandler->copyPlannedFileOverCurrentFile();
 
     //
     // load all the properties from the current and planned
@@ -764,325 +527,132 @@ void ConfigManager::_loadConfigProperties()
     //
     _configFileHandler->loadAllConfigProperties();
 
-    Array<CIMName> propertyNames;
-    Array<String>  propertyValues;
-
-    _configFileHandler->getAllCurrentProperties(propertyNames, propertyValues);
-
-    Uint32 size = propertyNames.size();
-
     //
-    // initialize all the property owners with the values
-    // from the config files.
+    // initialize all the property owners and add them to 
+    // the config table.
     //
-    for (Uint32 i = 0; i < size; i++)
+    for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
+        String value = String::EMPTY;
+
+        value.assign(_configFileHandler->getCurrentValue(
+            properties[i].propertyName));
+
         //
         // initialize the current value of the property owner
         // with the value from the config file handler
         //
-        try
+        //if (!String::equal(value, String::EMPTY))
+        if (value != String::EMPTY)
         {
-            //
-            // get property owner object from the config table.
-            //
-            ConfigPropertyOwner* propertyOwner;
-
-            String propertyName = propertyNames[i].getString();
-
-            if (_propertyTable->ownerTable.lookup(
-                propertyName, propertyOwner))
-            {
-                if (propertyOwner->isValid(
-                    propertyName, propertyValues[i]))
-                {
-                    propertyOwner->initCurrentValue(
-                        propertyName, propertyValues[i]);
-
-                    propertyOwner->initPlannedValue(
-                        propertyName, propertyValues[i]);
-                }
-                else
-                {
-                    throw InvalidPropertyValue(propertyName, propertyValues[i]);
-                }
-            }
-            else
-            {
-                // if the property is a fixed property then just log that
-                // this property is not supported and continue.  In all other
-                // cases terminate the cimserver
-                if (_propertyTable->fixedValueTable.contains(propertyName))
-                {
-                    Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
-                        Logger::WARNING,
-                        MessageLoaderParms(
-                            "Config.ConfigManager.NOTSUPPORTED_CONFIG_PROPERTY",
-                            "Configuration property $0 is not supported. "
-                                "Setting ignored.",
-                            propertyName));
-                }
-                else
-                {
-                    throw UnrecognizedConfigProperty(propertyName);
-                }
-            }
+            properties[i].propertyOwner->initCurrentValue(
+                properties[i].propertyName, value);
         }
-        catch (UnrecognizedConfigProperty& ucp)
-        {
-            PEG_TRACE_CSTRING(TRC_CONFIG, Tracer::LEVEL1,
-                (const char*)ucp.getMessage().getCString());
-            throw;
-        }
-        catch (InvalidPropertyValue& ipv)
-        {
-            PEG_TRACE_CSTRING(TRC_CONFIG, Tracer::LEVEL1,
-                (const char*)ipv.getMessage().getCString());
-            throw;
-        }
+
+        //
+        // add config property and its owner object to config table
+        //
+        _propertyOwnerTable->table.insert(properties[i].propertyName,
+            properties[i].propertyOwner);
     }
 }
 
 
-/**
-    Initialize config property with the value specified in the command line.
+/** 
+Initialize config property with the value specified 
+in the command line.
 */
 Boolean ConfigManager::_initPropertyWithCommandLineOption(
-    const String& option)
+    const String& option) 
+        throw (InvalidPropertyValue, UnrecognizedConfigProperty)
 {
-    Uint32 pos = option.find('=');
+    ConfigPropertyOwner* propertyOwner = 0;
 
+    String propertyName = String::EMPTY;
+    String propertyValue = String::EMPTY;
+
+    String configOption = option;
+
+    Uint32 pos = configOption.find('=');
     if (pos == PEG_NOT_FOUND)
     {
         //
         // The property value was not specified
         //
-        throw UnrecognizedConfigProperty(option);
+        throw UnrecognizedConfigProperty(configOption); 
     }
 
     //
     // Get the property name and value
     //
-    String propertyName = option.subString(0, pos);
-    String propertyValue = option.subString(pos + 1);
-
-    return initCurrentValue(propertyName, propertyValue);
-}
-
-/**
-    Initialize config property owners and add them to the property owner table
-*/
-void ConfigManager::_initPropertyTable()
-{
-    //
-    // add config property and its fixed value to fixed value table
-    //
-    for (Uint32 i = 0; i < NUM_FIXED_PROPERTIES; i++)
-    {
-        _propertyTable->fixedValueTable.insert(_fixedValues[i].propertyName,
-            _fixedValues[i].fixedValue);
-    }
+    propertyName.append(configOption.subString(0, pos));
+    propertyValue.append(configOption.subString(pos+1));
 
     //
-    // add config property and its owner object to owners table (but only if
-    // the property is not also listed in the fixed value table.
+    // get property owner object from the config table.
     //
-    for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
+    if (!_propertyOwnerTable->table.lookup(propertyName, propertyOwner))
     {
-        const char* fixedValue = 0;
-
-        _properties[i].propertyOwner->initialize();
-
-        if (!_propertyTable->fixedValueTable.lookup(
-                _properties[i].propertyName, fixedValue))
-        {
-            _propertyTable->ownerTable.insert(_properties[i].propertyName,
-                _properties[i].propertyOwner);
-        }
-        else
-        {
-            //
-            // Set the value for the fixed properties
-            //
-            _properties[i].propertyOwner->initCurrentValue(
-                _properties[i].propertyName, fixedValue);
-        }
-    }
-}
-
-Boolean ConfigManager::_fixedValueCheck(const String& name,String & value) const
-{
-    //
-    // Check for a property with a fixed value
-    //
-    const char* fixedValue = 0;
-
-    _propertyTable->fixedValueTable.lookup(name, fixedValue);
-
-    // no fixed property 'name' in FixedPropertyTable, bail out
-    if (0 == fixedValue)
-    {
-        return false;
+        throw UnrecognizedConfigProperty(propertyName); 
     }
 
-    // if the fixed value is set to blank, need to replace the value with
-    // the system-supplied host name
-    if (String::equalNoCase(name, "fullyQualifiedHostName"))
+    if (propertyOwner->isValid(propertyName, propertyValue))
     {
-        if (0 == strlen(fixedValue))
-        {
-            value.assign(System::getFullyQualifiedHostName());
-        }
-        else
-        {
-            value.assign(fixedValue);
-            System::setFullyQualifiedHostName(value);
-        }
-        // returning here already to avoid the following and in this case
-        // unnecessary string compare and assign
-        return true;
-    }
-    if (String::equalNoCase(name, "hostname"))
-    {
-        if (0 == strlen(fixedValue))
-        {
-            value.assign(System::getHostName());
-        }
-        else
-        {
-            value.assign(fixedValue);
-            System::setHostName(value);
-        }
-        // returning here already to avoid the following and in this case
-        // unnecessary assign
-        return true;
-    }
-    value.assign(fixedValue);
-    return true;
-}
-
-/**
-    Get Pegasus Home
-*/
-String ConfigManager::getPegasusHome()
-{
-    return _pegasusHome;
-}
-
-/**
-    Set Pegasus Home variable
-*/
-void ConfigManager::setPegasusHome(const String& home)
-{
-    if (home != String::EMPTY)
-    {
-        _pegasusHome = home;
-    }
-}
-
-/**
-    Get the homed path for a given property.
-*/
-String ConfigManager::getHomedPath(const String& value)
-{
-    String homedPath;
-
-    if (value.size() != 0 )
-    {
-        if (System::is_absolute_path((const char *)value.getCString()))
-        {
-            return value;
-        }
+        //
+        // update the value with the property owner
+        //
+        propertyOwner->initCurrentValue(propertyName, propertyValue);
 
         //
-        // Get the pegasusHome and prepend it
+        // update the value in the current config file
         //
-
-        String temp = value;
-        Uint32 pos = 0;
-        Uint32 token = 0;
-        do
-        {
-            if ((pos = temp.find(FileSystem::getPathDelimiter())) ==
-                    PEG_NOT_FOUND)
-            {
-                pos = temp.size();
-                token = 0;
-            }
-            else
-            {
-                token = 1;
-            }
-
-            if (System::is_absolute_path(
-                    (const char *)temp.subString(0, pos).getCString()))
-            {
-                homedPath.append(temp.subString(0,pos));
-            }
-            else
-            {
-                homedPath.append(_pegasusHome + "/" + temp.subString(0, pos));
-            }
-
-            if (token == 1)
-            {
-                homedPath.append(FileSystem::getPathDelimiter());
-            }
-            temp.remove(0, pos + token);
-        } while (temp.size() > 0);
+        return (_configFileHandler->updateCurrentValue(
+            propertyName, propertyValue));
     }
-    return homedPath;
-}
-
-Boolean ConfigManager::parseBooleanValue(const String& propertyValue)
-{
-    return String::equalNoCase(propertyValue, "true");
-}
-
-Boolean ConfigManager::isValidBooleanValue(const String& value)
-{
-    if ((String::equalNoCase(value, STRING_TRUE)) ||
-        (String::equalNoCase(value, STRING_FALSE)))
+    else
     {
-        return true;
+        throw InvalidPropertyValue(propertyName, propertyValue);
     }
-    return false;
+
+    return 0;
 }
-Array<HostAddress> ConfigManager::getListenAddress(const String &propertyValue)
+
+
+/**
+Check if the help flag is set or not.
+*/
+Boolean ConfigManager::isHelpFlagSet()
 {
-    Array<String> interfaces = DefaultPropertyOwner::parseAndGetListenAddress (
-        propertyValue);
-
-    HostAddress theAddress;
-    Array<HostAddress> listenAddrs;
-    for(Uint32 i = 0, n = interfaces.size(); i < n; i++)
-    {
-        theAddress.setHostAddress(interfaces[i]);
-        listenAddrs.append(theAddress);
-    }
-    return listenAddrs;
+    return _help;
 }
 
-String ConfigManager::getDynamicAttributeStatus(const String& name)
+
+/**
+Check if the version flag is set or not.
+*/
+Boolean ConfigManager::isVersionFlagSet()
 {
-    //
-    // get property owner object from config table
-    //
-    ConfigPropertyOwner* propertyOwner;
-    if ( !_propertyTable->ownerTable.lookup(name, propertyOwner))
-    {
-        throw UnrecognizedConfigProperty(name);
-    }
-
-    Boolean _isDynamic = propertyOwner->isDynamic(name);
-
-    MessageLoaderParms parms(
-        (_isDynamic? "Config.ConfigManager.DYNAMIC":
-                     "Config.ConfigManager.STATIC"),
-        (_isDynamic? "Dynamic" : "Static"));
-
-    parms.msg_src_path = "pegasus/pegasusServer";
-    return MessageLoader::getMessage(parms);
+    return _version;
 }
+
+
+/**
+Check if the trace flag is set or not.
+*/
+Boolean ConfigManager::isTraceFlagSet()
+{
+    return _trace;
+}
+
+
+/**
+Check if the log trace flag is set or not.
+*/
+Boolean ConfigManager::isLogTraceFlagSet()
+{
+    return _logTrace;
+}
+
 
 PEGASUS_NAMESPACE_END
+

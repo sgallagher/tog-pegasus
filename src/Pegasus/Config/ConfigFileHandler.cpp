@@ -1,43 +1,40 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
+// Author: Nag Boranna (nagaraja_boranna@hp.com)
+//
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 #include <fstream>
-#include <errno.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Executor.h>
-#include "ConfigFileHandler.h"
-#include "ConfigManager.h"
+#include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/Logger.h>
+#include <Pegasus/Config/ConfigFileHandler.h>
+
 
 PEGASUS_USING_STD;
 
@@ -51,7 +48,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// ConfigTable
+// ConfigTable 
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef HashTable<String, String, EqualFunc<String>, HashFunc<String> > Table;
@@ -62,97 +59,45 @@ struct ConfigTable
 };
 
 
-/**
+/** 
     Constructor.
 */
-ConfigFileHandler::ConfigFileHandler(
-    const String& currentFile,
-    const String& plannedFile,
-    const Boolean offLine)
-    : _offLine(offLine)
+ConfigFileHandler::ConfigFileHandler (
+    const String& currentFile, 
+    const String& plannedFile) throw (NoSuchFile, FileNotReadable)
 {
-    String cFile;
-    String pFile;
+    String cFile = currentFile;
 
-    //
-    // Set the current and planned config files
-    //
-    cFile = ConfigManager::getHomedPath(currentFile);
+    String pFile = plannedFile;
 
-    pFile = ConfigManager::getHomedPath(plannedFile);
+    try
+    {
+        _currentConfFile = new ConfigFile(cFile);
+    }
+    catch (NoSuchFile nsf) 
+    { 
+        // Current file need not exist, so ignore this
+        // exception. The planned file will get copied
+        // on to the current file.
+    }
 
-    //
-    // Initialize instance variables.
-    //
-
-    _currentFileExist = true;
-    _plannedFileExist = true;
-
-
-    _currentConfFile.reset(new ConfigFile(cFile));
-    _plannedConfFile.reset(new ConfigFile(pFile));
+    _plannedConfFile = new ConfigFile(pFile);
 
     _currentConfig = new ConfigTable;
     _plannedConfig = new ConfigTable;
-
-    //
-    // check whether the planned file exists or not
-    //
-    if (!FileSystem::exists(pFile))
-    {
-        _plannedFileExist = false;
-        return;
-    }
-
-    //
-    // check whether the file is readable or not
-    //
-    if (!FileSystem::canRead(pFile))
-    {
-        throw FileNotReadable(pFile);
-    }
-
-    //
-    // check whether the current file exists or not
-    //
-    if (!FileSystem::exists(cFile))
-    {
-        _currentFileExist = false;
-        //
-        // Current file need not exist.
-        // try creating one so that planned file contents
-        // can be copied over.
-        //
-
-        FILE* is = Executor::openFile(cFile.getCString(), 'w');
-
-        if (!is)
-        {
-            // unable to create file
-            PEG_TRACE((TRC_CONFIG, Tracer::LEVEL1,
-                "Failed to create config file: %s",
-                 (const char*)cFile.getCString()));
-            throw NoSuchFile(cFile);
-        }
-
-        fclose(is);
-    }
-
-    //
-    // check whether the file is readable or not
-    //
-    if (!FileSystem::canRead(cFile))
-    {
-        throw FileNotReadable(cFile);
-    }
-
 }
 
-/**
-    Destructor.
+/** 
+    Destructor. 
 */
-ConfigFileHandler::~ConfigFileHandler()
+ConfigFileHandler::~ConfigFileHandler ()
 {
+    //
+    // delete file handlers
+    //
+    delete _currentConfFile;
+    delete _plannedConfFile;
+
     //
     // delete tables
     //
@@ -160,36 +105,26 @@ ConfigFileHandler::~ConfigFileHandler()
     delete _plannedConfig;
 }
 
-/**
-    Overwrites config properties in the current config file with the
-    the config properties from the planned config file.
+/** 
+    Overwrites config properties in the current config file with the 
+    the config properties from the planned config file. 
 
     The content of the current config file will be copied in to a
-    backup (.bak) file before copying planned file contents over the
+    backup (.bak) file before copying planned file contents over the 
     current file.
 */
 void ConfigFileHandler::copyPlannedFileOverCurrentFile()
+    throw (CannotRenameFile)
 {
-    if (_plannedFileExist)
-    {
-        _currentConfFile->replace(_plannedConfFile->getFileName());
-        _currentFileExist = true;
-    }
-    else if (_currentFileExist)
-    {
-        //
-        // Remove the current file
-        //
-
-        Executor::removeFile(
-            _currentConfFile->getFileName().getCString());
-    }
+    _currentConfFile->replace(_plannedConfFile->getFileName());
 }
 
-/**
+
+/** 
     Load the config properties from the config files.
 */
-void ConfigFileHandler::loadAllConfigProperties()
+void ConfigFileHandler::loadAllConfigProperties ()
+    throw (ConfigFileSyntaxError)
 {
     loadCurrentConfigProperties();
 
@@ -197,54 +132,47 @@ void ConfigFileHandler::loadAllConfigProperties()
 }
 
 
-/**
+/** 
     Load the config properties from the current config file.
 */
-void ConfigFileHandler::loadCurrentConfigProperties()
+void ConfigFileHandler::loadCurrentConfigProperties ()
+    throw (ConfigFileSyntaxError)
 {
-    if (_currentFileExist)
-    {
-        _currentConfFile->load(_currentConfig);
-    }
+    _currentConfFile->load(_currentConfig);
 }
 
 
-/**
+/** 
     Load the config properties from the planned config file.
 */
-void ConfigFileHandler::loadPlannedConfigProperties()
+void ConfigFileHandler::loadPlannedConfigProperties ()
+    throw (ConfigFileSyntaxError)
 {
-    if (_plannedFileExist)
-    {
-        _plannedConfFile->load(_plannedConfig);
-    }
+    _plannedConfFile->load(_plannedConfig);
 }
 
 
-/**
-    Update the specified property name and value in the current
-    config file.
+/** 
+    Update the specified property name and value in the current 
+    config file.  
 */
-Boolean ConfigFileHandler::updateCurrentValue(
-    const CIMName& name,
-    const String& value,
-    const String& userName,
-    Uint32 timeoutSeconds,
-    Boolean unset)
+Boolean ConfigFileHandler::updateCurrentValue (
+    const String& name, 
+    const String& value)
 {
     // Remove the old property name and value from the table
-    if (_currentConfig->table.contains(name.getString()))
+    if (_currentConfig->table.contains(name))
     {
-        if (!_currentConfig->table.remove(name.getString()))
+        if (!_currentConfig->table.remove(name))
         {
             return false;
         }
     }
 
-    if (!unset)
+    if (!String::equal(value, ""))
     {
         // Store the new property name and value in to the table
-        if (!_currentConfig->table.insert(name.getString(), value))
+        if (!_currentConfig->table.insert(name, value))
         {
             return false;
         }
@@ -255,51 +183,46 @@ Boolean ConfigFileHandler::updateCurrentValue(
         // Store the new property in current config file.
         _currentConfFile->save(_currentConfig);
     }
-    catch (Exception& e)
+    catch (CannotRenameFile e)
     {
-        PEG_TRACE((TRC_CONFIG, Tracer::LEVEL1,
-            "Can not save current configuration: %s",
-            (const char*)e.getMessage().getCString()));
+        //
+        // Back up creation failed
+        //
+        Logger::put(Logger::ERROR_LOG, "CIMConfig", Logger::WARNING,
+            "Renaming config file as backup config file failed: $0.", 
+            e.getMessage());
 
-        throw;
+        return false;
     }
-
-    //
-    // The current config file would now been created,
-    // so set the flag to true.
-    //
-    _currentFileExist = true;
-
     return true;
 }
 
 
-/**
-    Update the specified property name and value in the planned
-    config file.
+/** 
+    Update the specified property name and value in the planned 
+    config file.  
 */
-Boolean ConfigFileHandler::updatePlannedValue(
-    const CIMName& name,
-    const String& value,
-    Boolean unset)
+Boolean ConfigFileHandler::updatePlannedValue (
+    const String& name, 
+    const String& value)
 {
     //
     // Remove the old property name and value from the table
     //
-    if (_plannedConfig->table.contains(name.getString()))
+    if (_plannedConfig->table.contains(name))
     {
-        if (!_plannedConfig->table.remove(name.getString()))
+        if (!_plannedConfig->table.remove(name))
         {
             return false;
         }
     }
 
-    if (!unset)
+    if (!String::equal(value, ""))
     {
         //
         // Store the new property name and value in to the table
         //
-        if (!_plannedConfig->table.insert(name.getString(), value))
+        if (!_plannedConfig->table.insert(name, value))
         {
             return false;
         }
@@ -308,158 +231,115 @@ Boolean ConfigFileHandler::updatePlannedValue(
     try
     {
         //
-        // Planned file need not exist for off line
-        // configuration setting update.
-        //
-        if (_offLine)
-        {
-            String pFile = _plannedConfFile->getFileName();
-
-            FILE* fs = Executor::openFile(pFile.getCString(), 'w');
-
-            if (!fs)
-            {
-                PEG_TRACE((TRC_CONFIG, Tracer::LEVEL1,
-                    "Failed to create config file: %s",
-                    (const char*)pFile.getCString()));
-                throw NoSuchFile(pFile);
-            }
-
-            fclose(fs);
-        }
-
-        //
-        // Store the new property in planned config file.
+        // Store the new property in current config file.
         //
         _plannedConfFile->save(_plannedConfig);
-
     }
-    catch (Exception& e)
+    catch (CannotRenameFile e)
     {
-        PEG_TRACE((TRC_CONFIG, Tracer::LEVEL1,
-            "Can not save planned configuration: %s",
-             (const char*)e.getMessage().getCString()));
+        //
+        // Back up creation failed
+        //
+        Logger::put(Logger::ERROR_LOG, "CIMConfig", Logger::WARNING,
+            "Renaming config file as backup config file failed: $0.", 
+            e.getMessage());
 
-        throw;
+        return false;
     }
-
-    //
-    // The planned config file would now been created,
-    // so set the flag to true.
-    //
-    _plannedFileExist = true;
 
     return true;
 }
 
 
-/**
-    Get the current property value for the specified property name.
+/** 
+    Get the current property value for the specified property name. 
 */
-Boolean ConfigFileHandler::getCurrentValue(
-    const CIMName& name,
-    String& value) const
+String ConfigFileHandler::getCurrentValue (const String& name)
 {
-    if (_currentFileExist)
-    {
-        return _currentConfig->table.lookup(name.getString(), value);
-    }
+    String value;
 
-    return false;
+    _currentConfig->table.lookup(name, value);
+
+    return (value);
 }
 
 
-/**
-    Get the planned property value for the specified property name.
+/** 
+    Get the planned property value for the specified property name. 
 */
-Boolean ConfigFileHandler::getPlannedValue(
-    const CIMName& name,
-    String& value) const
+String ConfigFileHandler::getPlannedValue (const String& name)
 {
-    if (_plannedFileExist)
-    {
-        return _plannedConfig->table.lookup(name.getString(), value);
-    }
+    String value;
 
-    return false;
+    _plannedConfig->table.lookup(name, value);
+
+    return (value);
 }
 
 
-/**
+/** 
     Get all current property names.
 */
-void ConfigFileHandler::getAllCurrentPropertyNames(
-    Array<CIMName>& propertyNames)
+void ConfigFileHandler::getAllCurrentPropertyNames (Array<String>& propertyNames)
 {
     propertyNames.clear();
 
-    if (_currentFileExist)
+    for (Table::Iterator i = _currentConfig->table.start(); i; i++)
     {
-        for (Table::Iterator i = _currentConfig->table.start(); i; i++)
-        {
-            propertyNames.append(i.key());
-        }
+        propertyNames.append(i.key());
     }
 }
 
 
-/**
+/** 
     Get all current property names and values.
 */
-void ConfigFileHandler::getAllCurrentProperties(
-    Array<CIMName>& propertyNames,
+void ConfigFileHandler::getAllCurrentProperties (
+    Array<String>& propertyNames, 
     Array<String>& propertyValues)
 {
     propertyNames.clear();
     propertyValues.clear();
 
-    if (_currentFileExist)
+    for (Table::Iterator i = _currentConfig->table.start(); i; i++)
     {
-        for (Table::Iterator i = _currentConfig->table.start(); i; i++)
-        {
-            propertyNames.append(i.key());
-            propertyValues.append(i.value());
-        }
+        propertyNames.append(i.key());
+        propertyValues.append(i.value());
     }
 }
 
 
-/**
+/** 
     Get all planned property names and values.
 */
-void ConfigFileHandler::getAllPlannedPropertyNames(
-    Array<CIMName>& propertyNames)
+void ConfigFileHandler::getAllPlannedPropertyNames (
+    Array<String>& propertyNames)
 {
     propertyNames.clear();
 
-    if (_plannedFileExist)
+    for (Table::Iterator i = _plannedConfig->table.start(); i; i++)
     {
-        for (Table::Iterator i = _plannedConfig->table.start(); i; i++)
-        {
-            propertyNames.append(i.key());
-        }
+        propertyNames.append(i.key());
     }
 }
 
 
-/**
+/** 
     Get all planned config property names and values.
 */
-void ConfigFileHandler::getAllPlannedProperties(
-    Array<CIMName>& propertyNames,
+void ConfigFileHandler::getAllPlannedProperties (
+    Array<String>& propertyNames, 
     Array<String>& propertyValues)
 {
     propertyNames.clear();
     propertyValues.clear();
 
-    if (_plannedFileExist)
+    for (Table::Iterator i = _plannedConfig->table.start(); i; i++)
     {
-        for (Table::Iterator i = _plannedConfig->table.start(); i; i++)
-        {
-            propertyNames.append(i.key());
-            propertyValues.append(i.value());
-        }
+        propertyNames.append(i.key());
+        propertyValues.append(i.value());
     }
 }
 
 PEGASUS_NAMESPACE_END
+

@@ -45,7 +45,8 @@ class PEGASUS_REPOSITORY_LINKAGE AssocTable
 public:
 
     /** Appends a row into the association table. There is no checking
-	for duplicate entries (the caller ensures this).
+	for duplicate entries (the caller ensures this). The case of
+	the arguments doesn't matter. They are ignored during comparison.
     */
     static void append(
 	PEGASUS_STD(ofstream)& os,
@@ -59,7 +60,8 @@ public:
 	const String& toPropertyName);
 
     /** Appends a row into the association table. There is no checking
-	for duplicate entries (the caller ensures this).
+	for duplicate entries (the caller ensures this). The case of the
+	arguments doesn't matter. Case is ignored during comparison.
     */
     static void append(
 	const String& path,
@@ -87,7 +89,7 @@ public:
     */
     static Boolean deleteAssociation(
 	const String& path,
-	const String& assocInstanceName);
+	const CIMReference& assocInstanceName);
 
     /** Finds all associators of the given object. See 
 	CIMOperations::associators() for a full description.

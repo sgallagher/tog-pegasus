@@ -109,6 +109,15 @@ void _SaveObject(const String& path, const Object& object)
 #endif
 }
 
+String _MakeAssocPath(
+    const String& nameSpace,
+    const String& repositoryRoot)
+{
+    String tmp = nameSpace;
+    tmp.translate('/', '#');
+    return String(Cat(repositoryRoot, "/", tmp, "/associations"));
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -297,6 +306,14 @@ void CIMRepository::deleteInstance(
 	throw PEGASUS_CIM_EXCEPTION(FAILED,
 	    "unexpected failure in CIMRepository::deleteInstance()");
     }
+
+    // -- Remove if from the association table (if it is really association).
+    // -- We ignore the return value intentionally. If it is an association,
+    // -- true is returned. Otherwise, true is returned.
+
+    String assocFileName = _MakeAssocPath(nameSpace, _repositoryRoot);
+    AssocTable::deleteAssociation(
+	assocFileName, instanceName);
 }
 
 void CIMRepository::createClass(
@@ -357,15 +374,9 @@ void CIMRepository::_createAssociationEntries(
     const CIMInstance& cimInstance,
     const CIMReference& instanceName)
 {
-    // Form the association file name:
-
-    String tmpNameSpace = nameSpace;
-    tmpNameSpace.translate('/', '#');
-    String assocFileName =
-	Cat(_repositoryRoot, "/", tmpNameSpace, "/associations");
-
     // Open input file:
 
+    String assocFileName = _MakeAssocPath(nameSpace, _repositoryRoot);
     ofstream os;
 
     if (!OpenAppend(os, assocFileName))
@@ -425,6 +436,9 @@ void CIMRepository::_createAssociationEntries(
 	}
     }
 }
+
+// ATTN-A: Check to see if the objects referred to by the association
+// really exist and throw an exception if they do not.
 
 void CIMRepository::createInstance(
     const String& nameSpace,
@@ -732,13 +746,7 @@ Array<CIMReference> CIMRepository::associatorNames(
     const String& role,
     const String& resultRole)
 {
-    // Form the association file name:
-
-    String tmpNameSpace = nameSpace;
-    tmpNameSpace.translate('/', '#');
-    String assocFileName =
-	Cat(_repositoryRoot, "/", tmpNameSpace, "/associations");
-
+    String assocFileName = _MakeAssocPath(nameSpace, _repositoryRoot);
     Array<String> associatorNames;
 
     if (!AssocTable::getAssociatorNames(
@@ -805,13 +813,7 @@ Array<CIMReference> CIMRepository::referenceNames(
     const String& resultClass,
     const String& role)
 {
-    // Form the association file name:
-
-    String tmpNameSpace = nameSpace;
-    tmpNameSpace.translate('/', '#');
-    String assocFileName =
-	Cat(_repositoryRoot, "/", tmpNameSpace, "/associations");
-
+    String assocFileName = _MakeAssocPath(nameSpace, _repositoryRoot);
     Array<String> tmpReferenceNames;
 
     if (!AssocTable::getReferenceNames(

@@ -248,7 +248,7 @@ Boolean AssocTable::containsObject(
 
 Boolean AssocTable::deleteAssociation(
     const String& path,
-    const String& assocInstanceName)
+    const CIMReference& assocInstanceName)
 {
     // Open input file:
 

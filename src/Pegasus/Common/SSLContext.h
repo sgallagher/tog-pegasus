@@ -39,8 +39,7 @@
 #include <Pegasus/Common/Linkage.h>
 
 #ifdef PEGASUS_HAS_SSL
-#define OPENSSL_NO_KRB5 1
-#include <openssl/ssl.h>
+typedef struct x509_store_st X509_STORE;
 #else
 #define X509_STORE void
 #endif
@@ -73,11 +72,11 @@ class PEGASUS_COMMON_LINKAGE SSLCallbackInfo
 {
 public:
     
-	// index to the application-specific data in the SSL connection object
+    // index to the application-specific data in the SSL connection object
     static const int SSL_CALLBACK_INDEX;
 
     SSLCallbackInfo(SSLCertificateVerifyFunction* verifyCert,
-					X509_STORE* crlStore = NULL);  
+                    X509_STORE* crlStore = NULL);  
 
     ~SSLCallbackInfo(); 
 
@@ -87,7 +86,7 @@ private:
 
     SSLCertificateInfo* _peerCertificate;
 
-	X509_STORE* _crlStore;
+    X509_STORE* _crlStore;
 
     friend class SSLSocket;
 
@@ -275,7 +274,7 @@ private:
     // OperationContext classes
     friend class SSLSocket;
 
-	friend class SSLCallback;
+    friend class SSLCallback;
 };
 
 /** This class provides the interface that a client uses to create
@@ -323,14 +322,14 @@ public:
     */
     String getKeyPath() const;
 
-	//PEP187
-	/** Gets the certificate revocation list path of the SSLContext object.
+    //PEP187
+    /** Gets the certificate revocation list path of the SSLContext object.
     @return a string containing the crl path
     */
     String getCRLPath() const;
 
-	//PEP187
-	/** Gets the certificate revocation store of the SSLContext object.
+    //PEP187
+    /** Gets the certificate revocation store of the SSLContext object.
     @return a string containing the crl store
     */
     X509_STORE* getCRLStore() const;
@@ -367,13 +366,13 @@ public:
         const String& randomFile);
 
 
-	//PEP187
-	/** Constructor for a SSLContext object. This constructor is intended
+    //PEP187
+    /** Constructor for a SSLContext object. This constructor is intended
     to be used by the CIMServer or CIMClient.
     @param trustStore file path of the trust store.
     @param certPath  file path of the server certificate.
     @param keyPath  file path of the private key. 
-	@param crlPath file path of the certificate revocation list.
+    @param crlPath file path of the certificate revocation list.
     @param verifyCert  function pointer to a certificate verification
     call back function.  A null pointer indicates that no callback is
     requested for certificate verification.
@@ -386,7 +385,7 @@ public:
         const String& trustStore,
         const String& certPath,
         const String& keyPath,
-		const String& crlPath,
+        const String& crlPath,
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile);
 

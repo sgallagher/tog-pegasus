@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: String.cpp,v $
+// Revision 1.5  2001/04/10 22:42:55  karl
+// Correct error in String find
+//
 // Revision 1.4  2001/04/09 20:18:47  karl
 // add find substring function
 //
@@ -274,8 +277,26 @@ int main()
 	assert(t1.find(t5)==-1);
 	assert(t1.find(t6)==-1);
 	assert(t1.find("cde")==2);
+	assert(t1.find("def")==3);
 	assert(t1.find("xyz")==-1);
 	assert(t1.find("a") ==0);
+
+	// test for the case where string
+	// partly occurs and then later
+	// completely occurs
+        String s = "this is an apple";
+	assert(s.find("apple")==11);
+	assert(s.find("appld")==-1);
+	assert(s.find("this")==0);
+	assert(s.find("t")==0);
+	assert(s.find("e")==15);
+	s = "a";
+	assert(s.find("b")==-1);
+	assert(s.find("a")==0);
+	assert(s.find(s)==0);
+	s = "aaaapple";
+	assert(s.find("apple")==3);
+
     }
 
 

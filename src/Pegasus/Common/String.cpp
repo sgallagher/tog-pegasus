@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: String.cpp,v $
+// Revision 1.7  2001/04/10 22:42:55  karl
+// Correct error in String find
+//
 // Revision 1.6  2001/04/09 20:18:47  karl
 // add find substring function
 //
@@ -52,8 +55,8 @@
 #include "String.h"
 
 // For debugging
-// #include <iostream>
-//using namespace std;
+#include <iostream>
+using namespace std;
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -325,32 +328,32 @@ Uint32 String::find(Char16 c) const
     return Uint32(-1);
 }
 
-Uint32 String::find(String& s) const
+Uint32 String::find(const String& s) const
 {
-    // const Char16* first = getData();
-    const Char16* ps = s.getData();
-
-    // If find first substr char
-    Uint32 loc;
-    if ((loc = find(*ps)) != -1)
+    const Char16* pSubStr = s.getData();
+    const Char16* pStr = getData();
+    Uint32 subStrLen = s.getLength();
+    Uint32 strLen = getLength();
+    
+    // loop to find first char match
+    Uint32 loc = 0;
+    for( ; loc <= (strLen-subStrLen); loc++)
     {
-        // Set p = Point to next char.
-	// Note we retest first char.
-	const Char16* p = getData() + loc;
+	if (*pStr++ == *pSubStr)  // match first char
+	{
+	    // point to substr 2nd char
+	    const Char16* p = pSubStr + 1;
 
-	// Get length of substring
-	Uint32 n = s.getLength();
-
-	// No match if substr longer than remaining string
-	if ((loc + n) > getLength())
-	    return Uint32(-1);
-
-	// Test remaining char for equal
-	for (Uint32 i = 0; n > i; i++)
-	    if (*p++ != *ps++ )
-		return Uint32(-1);
-    } 
-    return loc;
+	    // Test remaining chars for equal
+	    Uint32 i = 1;
+	    for (; i < subStrLen; i++)
+		if (*pStr++ != *p++ )
+		    {pStr--; break;} // break from loop
+	    if (i == subStrLen)
+		return loc;
+	}
+    }
+    return -1;
 }
 // ATTN:KS 5 apr 2000 Need to add the Char16* version.
 Uint32 String::find(const char* s) const

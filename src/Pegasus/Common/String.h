@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: String.h,v $
+// Revision 1.13  2001/04/10 22:42:55  karl
+// Correct error in String find
+//
 // Revision 1.12  2001/04/09 20:18:47  karl
 // add find substring function
 //
@@ -340,7 +343,7 @@ public:
 	@param s -  String object to be found in the String
 	@return Position of the substring in the String or -1 if not 
 	found. */
-    Uint32 find(String& s) const;
+    Uint32 find(const String& s) const;
 
     /** Find substring
 	@ param - 16 bit character pointer

@@ -12,7 +12,10 @@
     <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="CreateNameSpace">
       <p>The <tt>CreateNameSpace</tt> method creates a new namespace in the Pegasus repository.
-      <p><b>NameSpace Name</b> <INPUT TYPE="text" NAME="NameSpace" SIZE=30>
+      <p><b><a href="#NameSpace">NameSpace</a></b>
+	         <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root">&nbsp;
+       		Defines the root namespace where the __Namespace class is defined. (DO NOT CHANGE)
+      <p><b>New NameSpace Name</b> <INPUT TYPE="text" NAME="NewNameSpace" SIZE=30>
       String that defines the namespace to be created.&nbsp;
       
       <p><INPUT TYPE="submit" VALUE="Submit Request">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

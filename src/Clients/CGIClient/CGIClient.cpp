@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.17  2001/02/21 01:53:08  karl
+// Namespaces stuff
+//
 // Revision 1.16  2001/02/19 21:42:30  karl
 // namespace create
 //
@@ -1145,37 +1148,31 @@ static void CreateNameSpace(const CGIQueryString& qs)
 
     const char* tmp;
 
-    if ((tmp = qs.findValue("NameSpace")))
+    if ((tmp = qs.findValue("NewNameSpace")))
 	nameSpaceName = tmp;
-
-    cout << "tmp " << tmp;
 
     // Create the instance
     CIMInstance newInstance("__Namespace");
     newInstance.addProperty(CIMProperty("name", nameSpaceName));
-     try
+    try
     {
 	// Time the connection
 	Stopwatch elapsedTime;
-    	cout << "Before call" << endl;
 	CIMClient client;
 	client.connect("localhost", 8888);
     
-	// Call enumerate Instances CIM Method
+	// Call create Instances CIM Method for class __Namespace
 	client.createInstance(nameSpace, newInstance);
-	cout << "after call" << endl;
+	PrintHTMLHead("CreateNameSpace", "Create a NameSpace Result");
+	cout << "<h1>Namespace " << nameSpaceName << " Created</H1>";
+	cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
+	cout << "</body>\n" << "</html>\n";
     } 
 
     catch(Exception& e)
     {
 	ErrorExit(e.getMessage());
     }
-
-
-
-    String message = "CreateNameSpace Under Construction: "; 
-    ErrorExit(message);
-
 }
 
 static void DeleteNameSpace(const CGIQueryString& qs)
@@ -1210,8 +1207,7 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
     if ((tmp = qs.findValue("ClassName")))
 	className = tmp;
 
-    // Invoke the method:
-
+    // Invoke the method: 
     try
     {
 	// Time the connection
@@ -1259,8 +1255,6 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
 	    href.append("&");
     
 	    href.append("InstanceName=&");
-
-    
 	    href.append("DeepInheritance=true");
 
 	    PrintA(href, work);
@@ -1275,10 +1269,7 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
 	cout << "<p>Returned " << instanceNames.getSize() << " Names";
 	cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
 	cout << "</body>\n" << "</html>\n";
-	
-	
-	
-	
+         
 	}
     catch(Exception& e)
     {

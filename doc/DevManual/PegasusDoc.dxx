@@ -1,6 +1,9 @@
 /* PegasusDoc.dxx - Top Level file for Developer Documentation.
 This file defines the document strucuture and provides the introduction
 	$Log: PegasusDoc.dxx,v $
+	Revision 1.11  2001/02/21 01:53:08  karl
+	Namespaces stuff
+	
 	Revision 1.10  2001/02/20 14:06:05  karl
 	name changes
 	
@@ -123,6 +126,8 @@ Table stuff to see if it worksl
     		//@Include: ..\..\src\Pegasus\Common\CIMFlavor.h
     		//@Include: ..\..\src\Pegasus\Common\Char16.h
         	//@Include: ..\..\src\Pegasus\Common\DeclContext.h
+        	//@Include: ..\..\src\Pegasus\Common\Exception.h
+        	
 	//@}
     //@Include: Interfaces.dxx
        //@{

@@ -299,7 +299,14 @@ Boolean Monitor::run(Uint32 milliseconds)
 		   }
 		   _entries[indx]._status = _MonitorEntry::BUSY;
                    // If allocate_and_awaken failure, retry on next iteration
-		   _thread_pool->allocate_and_awaken((void *)q, _dispatch);
+                   if (!_thread_pool->allocate_and_awaken((void *)q, _dispatch))
+                   {
+                      Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                          "Monitor::run: Insufficient resources to process request.");
+                      _entries[indx]._status = _MonitorEntry::IDLE;
+                      _entry_mut.unlock();
+                      return true;
+                   }
 		}
 		else
 		{

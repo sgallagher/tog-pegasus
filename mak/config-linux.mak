@@ -30,12 +30,6 @@ LIB_SUFFIX = .so.$(MAJOR_VERSION_NUMBER)
 
 DEFINES += -DPEGASUS_HAS_SIGNALS
 
-ifdef PEGASUS_USES_GCCV3
-  SYS_INCLUDES = -I/usr/include/g++-3
-else
-  SYS_INCLUDES = -I/usr/include/g++
-endif
-
 SYS_LIBS = -ldl -lpthread -lcrypt
 
 ifdef PEGASUS_HAS_SSL

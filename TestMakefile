@@ -27,14 +27,14 @@ system = localhost
 ###############################################################################
 
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-  CIMSERVER_START_SERVICE = start cimserver
-  CIMSERVER_STOP_SERVICE =
+  CIMSERVER_START_SERVICE = cimserver -start
+  CIMSERVER_STOP_SERVICE = cimserver -stop
   SLEEP =
   REMOVE_PEGASUS_DIRECTORY = mu rmdirhier pegasus
   MUEXE = mu.exe
   COPYMU = copy src\utils\mu\$(MUEXE) /y $(MUEXE)
   MKDIR = src/utils/mu/mu mkdirhier
-  TESTS = prestarttests
+  TESTS = prestarttests poststarttests
 endif
 
 ifeq ($(OS),HPUX)
@@ -114,6 +114,10 @@ poststarttests:
 	$(MAKE) -f Makefile poststarttests
 
 tests: $(TESTS)
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+	$(CIMSERVER_STOP_SERVICE)
+	$(MAKE) --directory=src/Server -f Makefile uninstall
+endif
 	@ echo Finished Tests
 
 ###############################################################################

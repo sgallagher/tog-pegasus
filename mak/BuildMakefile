@@ -28,14 +28,14 @@ include pegasus/mak/config.mak
 # get on with testing. I know of no CLI to stop a window started with start so that
 # field is blank.  ks 7 April 2002
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-  CIMSERVER_START_SERVICE = start cimserver
-  CIMSERVER_STOP_SERVICE =
+  CIMSERVER_START_SERVICE = cimserver -start
+  CIMSERVER_STOP_SERVICE = cimserver -stop
   SLEEP =
   REMOVE_PEGASUS_DIRECTORY = mu rmdirhier pegasus
   MUEXE = mu.exe
   COPYMU = copy pegasus\src\utils\mu\$(MUEXE) /y $(MUEXE)
   MKDIR = pegasus/src/utils/mu/mu mkdirhier
-  TESTS = prestarttests
+  TESTS = prestarttests poststarttests
 endif
 
 ifeq ($(OS),HPUX)
@@ -134,6 +134,10 @@ poststarttests:
 	$(MAKE) --directory=pegasus -f Makefile poststarttests
 
 tests: $(TESTS)
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+	$(CIMSERVER_STOP_SERVICE)
+	$(MAKE) --directory=src/Server -f Makefile uninstall
+endif
 	@ echo Finished Tests
 
 ###############################################################################

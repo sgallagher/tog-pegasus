@@ -50,10 +50,18 @@ install:
 	$(COPY) client.pem $(PEGASUS_HOME)
 	$(COPY) ssl.rnd    $(PEGASUS_HOME)
 	$(COPY) ssl.cnf    $(PEGASUS_HOME)
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+	$(PEGASUS_HOME)/bin/cimserver -install
+endif
+
+uninstall:
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+	$(PEGASUS_HOME)/bin/cimserver -remove
+endif
 
 run: install
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-	cimserver -l
+	cimserver -start
 else
 	cimserver
 endif

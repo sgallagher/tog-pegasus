@@ -53,6 +53,7 @@
 #include <Pegasus/Common/pegasus_socket.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/ContentLanguages.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -151,6 +152,9 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
       AtomicInt refcount;
 
       CIMException cimException;
+
+			// list of content languages
+			ContentLanguages contentLanguages;
 
    private:
 

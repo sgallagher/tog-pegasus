@@ -205,62 +205,6 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
 	if (error != CIM_ERR_SUCCESS)
 	{
 		_totalReceivedErrors++;
-		
-		// keep track of the first error
-		if (_cimException.getCode() == CIM_ERR_SUCCESS)
-			_cimException = response.cimException;
-	}
-	
-	// ATTN:  KNOWN open issue within PEP-140
-	// Set content languages to EMPTY until support for it can be placed in the 
-	// HTTP trailer. The architecture committee has decided it is better to have
-	// the languages ALWAYS (for now) set to EMPTY rather than the languages of 
-	// the first chunk! The correct behavior is to set the content language in 
-	// the trailer if ALL chunks agree on the language, otherwise there is a 
-	// mismatch and should be set to EMPTY.
-	// REMOVE this line when the trailer support is complete and modify the code
-	// below this.
-
-	response.operationContext.set(ContentLanguageListContainer(ContentLanguages::EMPTY));
-
-	// contentLanguages handling:
-	// All responses should be matched according to the first response. If
-	// the first is empty, then all should be empty. If the first has a defined
-	// content languages, then the rest should match it. This behavior has been
-	// modified for support of async messages, whereas before (when all 
-	// responses were completely read in) any 2 responses that did not match 
-	// their content language was reset to empty. This however, cannot be done
-	// now that part of the message may have already been sent out.
-	
-	const OperationContext::Container &container = response.operationContext.
-		get(ContentLanguageListContainer::NAME);
-	
-	ContentLanguages contentLanguages = 
-		dynamic_cast<const ContentLanguageListContainer *>(&container)->getLanguages();
-		
-	if (_totalReceived == 0)
-	{
-		/// Get the language of the first response. this may be empty
-		PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, 
-										 Formatter::format(String(func + "language:$0"),
-																			 contentLanguages.toString()));
-		_contentLanguages = contentLanguages;
-	}
-	else
-	{
-		if (contentLanguages != _contentLanguages)
-		{
-			// Found a mismatch. reset to first one
-			PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-											 Formatter::format(String(func+"language mismatch:$0"),
-																				 contentLanguages.toString()));
-			response.operationContext.
-				set(ContentLanguageListContainer(_contentLanguages));
-		}
-	}
-
-	if (error != CIM_ERR_SUCCESS)
-	{
 		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 								String(func + "Response has error. "
 											 "Name Space: $0  Class name: $1 Response Sequence: $2"),
@@ -3423,9 +3367,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 				}
 				else
 				{
-					// ++EMC: TMF - Do not add in localOnly properties
-					// _addPropertiesToArray(localPropertyListArray,cimClassLocal);
-					//  --EMC: end
+					_addPropertiesToArray(localPropertyListArray,cimClassLocal);
 					CIMPropertyList pl(localPropertyListArray);
 					requestCopy->propertyList = pl;
 				}

@@ -210,8 +210,6 @@ private:
 		Uint32 _totalReceivedComplete;
 		Uint32 _totalReceivedExpected;
 		Uint32 _totalReceivedErrors;
-		CIMException _cimException;
-		ContentLanguages _contentLanguages;
 };
 
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueueService

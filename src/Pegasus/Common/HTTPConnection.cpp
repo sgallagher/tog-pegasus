@@ -101,6 +101,7 @@ static const char headerNameError[] = "CIMError";
 static const char headerNameCode[] = "CIMStatusCode";
 static const char headerNameDescription[] = "CIMStatusCodeDescription";
 static const char headerNameOperation[] = "CIMOperation";
+static const char headerNameContentLanguage[] = "Content-Language";
 
 // the names comes from the HTTP specification on chunked transfer encoding
 
@@ -243,7 +244,7 @@ HTTPConnection::HTTPConnection(
                _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
 			   _authInfo->setAuthType(AuthenticationInfoRep::AUTH_TYPE_SSL);
 			   _authInfo->setClientCertificate(_socket->getPeerCertificate());
-       } 
+       }
     }
 
    _responsePending = false;
@@ -383,6 +384,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 		Uint32 messageIndex = message.getIndex();
 		Boolean isChunkResponse = false;
 		Boolean isChunkRequest = false;
+		Boolean isFirstException = false;
 
 		if (_isClient() == false)
 		{
@@ -414,9 +416,21 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 			{
 				httpStatus = httpMessage.cimException.getMessage();
 				if (cimException.getCode() == CIM_ERR_SUCCESS)
+				{
 					cimException = httpMessage.cimException;
+					// set language to first error language (overriding anything there)
+					contentLanguages = cimException.getContentLanguages();
+					isFirstException = true;
+				}
 			}
-
+			else if (cimException.getCode() == CIM_ERR_SUCCESS)
+			{
+				if (isFirst == true)
+					contentLanguages = httpMessage.contentLanguages;
+				else if (httpMessage.contentLanguages != contentLanguages)
+					contentLanguages = ContentLanguages::EMPTY;
+				else contentLanguages = httpMessage.contentLanguages;
+			}
 			// check to see if the client requested chunking OR trailers. trailers
 			// are tightly integrated with chunking, so it can also be used.
 
@@ -428,8 +442,26 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 			{
 				// we are not sending chunks because the client did not request it
 
-				if (httpMessage.cimException.getCode() != CIM_ERR_SUCCESS)
+				// save the entire FIRST error response for non-chunked error responses
+				// this will be used as the error message
+
+				if (isFirstException == true)
 				{
+					// this shouldnt happen, but this is defensive ...
+					if (messageLength == 0)
+					{
+						CIMStatusCode code = httpMessage.cimException.getCode();
+						String httpDetail(cimStatusCodeToString(code));
+						char s[21];
+						sprintf(s, "%u", code); 
+						String httpStatus(s);
+						Array<Sint8> message = XmlWriter::formatHttpErrorRspMessage
+							(httpStatus, String(), httpDetail);
+						messageLength = message.size();
+						message.reserveCapacity(messageLength+1);
+						messageStart =(Sint8 *) message.getData();
+						messageStart[messageLength] = 0;
+					}
 					cimException = CIMException(cimException.getCode(),
 																			String(messageStart, messageLength));
 				}
@@ -451,7 +483,6 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
 				if (isLast == false)
 				{
-					
 					// this tells the send loop below to do nothing until we are at the
 					// last response
 					bytesRemaining = 0;
@@ -473,7 +504,6 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 						messageStart = (Sint8 *) buffer.getData();
 						messageStart[messageLength] = 0;
 					}
-
 					bytesRemaining = messageLength;
 				}
 
@@ -609,9 +639,38 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
 				} // if content length was found
 
-				if (isChunkRequest == false && isLast == false)
-					bytesRemaining = 0;
+				if (isChunkRequest == false)
+				{
+					if (isLast == true)
+					{
+						if (contentLanguages != ContentLanguages::EMPTY)
+						{
+							// we must insert the content-language into the header
+							Array<Sint8> contentLanguagesString;
 
+							// this is the keyword:value(s) + header line terminator
+							contentLanguagesString << headerNameContentLanguage << 
+								headerNameTerminator << 
+								contentLanguages.toString().getCString() <<
+								headerLineTerminator;
+							
+							Uint32 insertOffset = headerLength -	headerLineTerminatorLength;
+							messageLength = contentLanguagesString.size() + buffer.size();
+							buffer.reserveCapacity(messageLength+1);
+							messageLength = contentLanguagesString.size();
+							messageStart = (Sint8 *)contentLanguagesString.getData();
+							// insert the content language line before end of header
+							// note: this can be expensive on large payloads
+							buffer.insert(insertOffset, messageStart, messageLength);
+							messageLength = buffer.size();
+							// null terminate
+							messageStart = (Sint8 *) buffer.getData();
+							messageStart[messageLength] = 0;
+							bytesRemaining = messageLength;
+						} // if there were any content languages
+					} // if this is the last chunk
+					else bytesRemaining = 0;
+				} // if chunk request is false
 			} // if this is the first chunk containing the header
 			else
 			{
@@ -662,11 +721,11 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 			bytesRemaining -= bytesWritten;
 
 			// put in trailer header.
-
 			Array<Sint8> trailer;
 			trailer << headerNameTrailer << headerNameTerminator << 
 				_mpostPrefix << headerNameCode <<	headerValueSeparator << 
-				_mpostPrefix << headerNameDescription << headerLineTerminator;
+				_mpostPrefix << headerNameDescription << headerValueSeparator <<
+				headerNameContentLanguage << headerLineTerminator;
 			sendStart = (Sint8 *)trailer.getData();
 			bytesToWrite = trailer.size();
 			bytesWritten = _socket->write(sendStart, bytesToWrite);
@@ -753,6 +812,15 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 								headerNameTerminator << httpDescription << headerLineTerminator;
 					}
 
+					// Add Content-Language to the trailer if requested
+					if (contentLanguages != ContentLanguages::EMPTY)
+					{
+						trailer << _mpostPrefix 
+										<< headerNameContentLanguage << headerNameTerminator  
+										<< contentLanguages.toString() 
+										<< headerLineTerminator;
+					}
+
 					// now add chunkBodyTerminator
 					trailer << chunkBodyTerminator;
 				} // if isLast
@@ -784,8 +852,6 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 	{
 		_incomingBuffer.clear();
 		_transferEncodingTEValues.clear();
-
-
 
 		//
 		// decrement request count
@@ -1009,6 +1075,23 @@ void HTTPConnection::_getContentLengthAndContentOffset() throw (Exception)
 																	"unimplemented transfer-encoding value");
 					_contentLength = -1;
 				}
+				else if (System::strcasecmp(line, headerNameContentLanguage) == 0)
+				{
+					// note: if this is a chunked header, then this will be ignored later
+					String contentLanguagesString(valueStart, valueEnd-valueStart+1);
+					try 
+					{	
+						contentLanguages = ContentLanguages(contentLanguagesString);
+					}
+					catch(...)
+					{
+						Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
+													"HTTPConnection: ERROR: contentLanguages had parsing"
+													" failure. clearing languages. error data=%s", 
+													(const char *)contentLanguagesString.getCString());
+						contentLanguages = ContentLanguages::EMPTY;
+					}
+				}
 				else if (System::strcasecmp(line, headerNameTransferTE) == 0)
 				{
 					_transferEncodingTEValues.clear();
@@ -1073,6 +1156,7 @@ void HTTPConnection::_clearIncoming()
     _contentLength = -1;
     _incomingBuffer.clear();
 		_mpostPrefix.clear();
+		contentLanguages.clear();
 }
 
 void HTTPConnection::_closeConnection()
@@ -1386,6 +1470,31 @@ void HTTPConnection::_handleReadEventTransferEncoding() throw (Exception)
 							headerNameTerminator + descriptionValue + headerLineTerminator;
 
 					} // if found a cim status code
+
+					// Get Content-Language out of the trailer, if it is there
+					String contentLanguagesString;
+					found = httpTrailer.lookupHeader(headers, 
+																					 headerNameContentLanguage, 
+																					 contentLanguagesString,
+																					 true);
+
+					contentLanguages = ContentLanguages::EMPTY;
+					if (found == true && contentLanguagesString.size() > 0)
+					{
+						try 
+						{
+							contentLanguages = ContentLanguages(contentLanguagesString);
+						}
+						catch(...)
+						{
+							Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
+														"HTTPConnection: ERROR: contentLanguages had parsing"
+														" failure. clearing languages. error data=%s", 
+														(const char *)contentLanguagesString.getCString());
+							contentLanguages = ContentLanguages::EMPTY;
+						}
+					}
+
 				} // else not a cim error
 			} // if optional trailer present
       
@@ -1628,6 +1737,9 @@ void HTTPConnection::_handleReadEvent()
     {
 	HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
         message->authInfo = _authInfo.get();
+
+				// add any content languages
+				message->contentLanguages = contentLanguages;
 
         //
         // increment request count 

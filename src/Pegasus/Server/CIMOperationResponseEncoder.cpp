@@ -91,7 +91,9 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 																					Array<Sint8> *bodygiven)
 {
 	static String funcname = "CIMOperationResponseEncoder::sendResponse: ";
-	PEG_METHOD_ENTER(TRC_DISPATCHER, String(funcname + "for class " + name).getCString());
+	String funcnameClassS = String(funcname + "for class " + name);
+	CString funcnameClass = funcnameClassS.getCString();
+	PEG_METHOD_ENTER(TRC_DISPATCHER, funcnameClass);
 
 	if (! response)
 	{
@@ -128,11 +130,12 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 	String &messageId = response->messageId;
 	CIMException &cimException = response->cimException;
 	Array<Sint8> message;
-	const OperationContext::Container &container = 
-		response->operationContext.get(ContentLanguageListContainer::NAME);
-	const ContentLanguageListContainer &listContainer =
-		*dynamic_cast<const ContentLanguageListContainer *>(&container);
-	ContentLanguages language = listContainer.getLanguages();
+
+	// Note: the language is ALWAYS passed empty to the xml formatters because
+	// it is HTTPConnection that needs to make the decision of whether to add
+	// the languages to the HTTP message.
+	ContentLanguages contentLanguage;
+
 	CIMName cimName(name);
 	Uint32 messageIndex = response->getIndex();
 	Boolean isFirst = messageIndex == 0 ? true : false;
@@ -170,9 +173,11 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 	{
 		STAT_SERVEREND_ERROR
 
+		// only process the FIRST error
 		if (httpQueue->cimException.getCode() == CIM_ERR_SUCCESS)
 		{
-
+			// NOTE: even if this error occurs in the middle, HTTPConnection will
+			// flush the entire queued message and reformat.
 			if (isChunkRequest == false)
 				message = formatError(name, messageId, httpMethod, cimException);
 
@@ -182,19 +187,21 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 			{
 				String msg = TraceableCIMException(cimException).getDescription();
 				String uriEncodedMsg = XmlWriter::encodeURICharacters(msg);
-				cimException = CIMException(cimException.getCode(), uriEncodedMsg);
+				CIMException cimExceptionUri(cimException.getCode(), uriEncodedMsg);
+				cimExceptionUri.setContentLanguages(cimException.getContentLanguages());
+				cimException = cimExceptionUri;
 			}
 
 		} // if first error in response stream
 
 		// never put the error in chunked response (because it will end up in
-		// the trailer), so just use the non-error response formatter so send
+		// the trailer), so just use the non-error response formatter to send
 		// more data
 
 		if (isChunkRequest == true)
 		{
-			message = formatResponse(cimName, messageId, httpMethod, 
-															 language, body, serverTime, isFirst, isLast);
+			message = formatResponse(cimName, messageId, httpMethod, contentLanguage,
+															 body, serverTime, isFirst, isLast);
 		}
 	}
 	else
@@ -203,8 +210,8 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 		STAT_SERVEREND
 		try
 		{
-			message = formatResponse(cimName, messageId, httpMethod, 
-															 language, body, serverTime, isFirst, isLast);
+			message = formatResponse(cimName, messageId, httpMethod, contentLanguage,
+															 body, serverTime, isFirst, isLast);
 		}
 
 #ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
@@ -220,7 +227,6 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 			 (CIM_ERR_FAILED,
 				MessageLoaderParms("Server.CIMOperationResponseEncoder.OUT_OF_MEMORY", 
 													 OUT_OF_MEMORY_MESSAGE));
-		 response->cimException = cimException;
 		 // try again with new error and no body
 		 body.clear();
 		 sendResponse(response, name, isImplicit);
@@ -234,6 +240,21 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 	AutoPtr<HTTPMessage> httpMessage(new HTTPMessage(message, 0, &cimException));
 	httpMessage->setComplete(isLast);
 	httpMessage->setIndex(messageIndex);
+
+	if (cimException.getCode() != CIM_ERR_SUCCESS)
+	{
+		httpMessage->contentLanguages = cimException.getContentLanguages();
+	}
+	else
+	{
+		const OperationContext::Container &container = 
+			response->operationContext.get(ContentLanguageListContainer::NAME);
+		const ContentLanguageListContainer &listContainer =
+			*dynamic_cast<const ContentLanguageListContainer *>(&container);
+		contentLanguage = listContainer.getLanguages();
+		httpMessage->contentLanguages = contentLanguage;
+	}
+
 	Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2, 
 											httpMessage->message.getData(),
 											httpMessage->message.size());

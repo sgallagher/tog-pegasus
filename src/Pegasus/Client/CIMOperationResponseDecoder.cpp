@@ -292,40 +292,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     }
 
 
-// l10n start
-    ContentLanguages contentLanguages  = ContentLanguages::EMPTY;
-    try
-    {
-        // Get and validate the Content-Language header, if set
-        String contentLanguageHeader;
-        if (HTTPMessage::lookupHeader(
-                headers,
-                "Content-Language",
-                contentLanguageHeader,
-                false) == true)
-        {
-            contentLanguages = ContentLanguages(contentLanguageHeader);
-        }
-    }
-    catch (Exception &)
-    {
-        // l10n
-
-        // CIMClientMalformedHTTPException* malformedHTTPException = new
-        //  CIMClientMalformedHTTPException("Malformed Content-Language header.");
-
-        MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.MALFORMED_CONTENT", "Malformed Content-Language header.");
-        String mlString(MessageLoader::getMessage(mlParms));
-
-        CIMClientMalformedHTTPException* malformedHTTPException =
-            new CIMClientMalformedHTTPException(mlString);
-
-        ClientExceptionMessage * response =
-            new ClientExceptionMessage(malformedHTTPException);
-
-        _outputQueue->enqueue(response);
-        return;
-    }
+		// l10n start
 // l10n end
     //
     // Search for "Content-Type" header:
@@ -407,7 +374,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
         CIMException* cimStatusException =
             new CIMException(cimStatusCodeNumber,cimStatusCodeDescription);
-        cimStatusException->setContentLanguages(contentLanguages);
+        cimStatusException->setContentLanguages(httpMessage->contentLanguages);
         ClientExceptionMessage * response =
             new ClientExceptionMessage(cimStatusException);
         _outputQueue->enqueue(response);
@@ -452,8 +419,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         return;
     }
 
-    _handleMethodResponse(content,
-        contentLanguages);  // l10n
+    _handleMethodResponse(content, httpMessage->contentLanguages);  // l10n
 }
 
 void CIMOperationResponseDecoder::_handleMethodResponse(char* content,
@@ -1692,7 +1658,6 @@ CIMInvokeMethodResponseMessage* CIMOperationResponseDecoder::_decodeInvokeMethod
     const String& methodName,
     Boolean isEmptyMethodresponseTag)
 {
-    XmlEntry entry;
     CIMException cimException;
 
     CIMParamValue paramValue;

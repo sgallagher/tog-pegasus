@@ -25,7 +25,7 @@
 //
 // Author: Dong Xiang, EMC Corporation (xiang_dong@emc.com)
 //
-// Modified By:
+// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1811
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +47,7 @@ public:
      * Destroys the object.  This is needed so that an object of a
      * subclass can be correctly destroyed thru an Iterator pointer.
      */
-    virtual ~Iterator();
+    virtual ~Iterator() {};
 
 	/**
    * Returns <tt>true</tt> if the iteration has more elements. (In other

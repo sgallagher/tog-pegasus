@@ -93,7 +93,7 @@ public:
 	 * @return ostream - Returns a representation of this object in AcceptLanguage header format
 	 * according to the RFC
 	 */
-	friend PEGASUS_STD(ostream) & operator<<(PEGASUS_STD(ostream) &stream, AcceptLanguages al);
+	PEGASUS_COMMON_LINKAGE friend PEGASUS_STD(ostream) & operator<<(PEGASUS_STD(ostream) &stream, AcceptLanguages al);
 	
 	/**
 	 * Assignment 

@@ -698,10 +698,6 @@ Uint32 CIMValue::getArraySize() const
 // the minute. Note that the case statement is not complete. None missing.
 void CIMValue::clear()
 {
-    // ATTN: KS P1 should we be setting NULL=true here????. Right now it only
-    // clears the value component. Note that the last thing we do is init
-    // and that does the isNull=false.
-    // 
     if (_isArray)
     {
 	switch (_type)
@@ -830,19 +826,16 @@ void CIMValue::toXml(Array<Sint8>& out, Boolean forceTag) const
 	{
 	    case CIMType::BOOLEAN:
 	    {
-                // ATTN-RK-P3-20020220: Why can't this just use
-                // _toXml(out, _u._booleanArray->data(), _u._booleanArray->size);
-                // like everybody else?
-		out << "<VALUE.ARRAY>\n";
-
-		for (Uint32 i = 0, n = _u._booleanArray->size; i < n; i++)
-		{
-		    out << "<VALUE>";
-		    _toXml(out, Boolean(_u._booleanArray->data()[i]));
-		    out << "</VALUE>\n";
-		}
-
-		out << "</VALUE.ARRAY>\n";
+                _toXml(out, _u._booleanArray->data(), _u._booleanArray->size);
+                // ATTN-RK-P3-20020220: Is there a reason to do it this way?
+		//out << "<VALUE.ARRAY>\n";
+		//for (Uint32 i = 0, n = _u._booleanArray->size; i < n; i++)
+		//{
+		//    out << "<VALUE>";
+		//    _toXml(out, Boolean(_u._booleanArray->data()[i]));
+		//    out << "</VALUE>\n";
+		//}
+		//out << "</VALUE.ARRAY>\n";
 		break;
 	    }
 

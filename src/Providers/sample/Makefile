@@ -4,7 +4,6 @@ DIRS = \
 	InstanceProvider \
 	MethodProvider \
 	PropertyProvider \
-	QueryProvider \
-	HelloWorldProvider
+	QueryProvider
 
 include $(PEGASUS_ROOT)/mak/recurse.mak

@@ -29,7 +29,9 @@
 //
 // Author: Chuck Carmack (carmack@us.ibm.com)
 //
-// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
+// Modified By:
+//      Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
+//      Chip Vincent (cvincent@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -103,7 +105,6 @@
 // -- implement test providers for other provider types
 
 #include <Pegasus/Common/Config.h>
-#include <iostream>
 #include <cassert>
 #include <cstdlib>
 #include <fstream>
@@ -237,7 +238,6 @@ LocalizedProvider::LocalizedProvider() :
 
 LocalizedProvider::~LocalizedProvider(void)
 {
-
 }
 
 void LocalizedProvider::initialize(CIMOMHandle & cimom)
@@ -287,7 +287,6 @@ void LocalizedProvider::initialize(CIMOMHandle & cimom)
    _instances.append(instance3);
    _instanceNames.append(reference3);
    _instanceLangs.append(ContentLanguages::EMPTY);
-
 }
 
 void LocalizedProvider::terminate(void)
@@ -310,47 +309,48 @@ void LocalizedProvider::getInstance(
 	// to be returned in the response.
 	AcceptLanguages clientAcceptLangs = getRequestAcceptLanguages(context);
 
-        CIMObjectPath instanceName = CIMObjectPath(
-            String(),
-            NAMESPACE,
-            instanceReference.getClassName(),
-            instanceReference.getKeyBindings());
+    CIMObjectPath localReference(
+        String(),
+        instanceReference.getNameSpace(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
 
-
-        CIMInstance foundInstance;
-        ContentLanguages foundLang;
+    CIMInstance foundInstance;
+    ContentLanguages foundLang;
 
 	// instance index corresponds to reference index
+    {
+        AutoMutex autoMut(mutex);
+
+        for(Uint32 i = 0, n = _instances.size(); i < n; i++)
         {
-           AutoMutex autoMut(mutex);
+            if(localReference == _instanceNames[i])
+            {
+                foundInstance = _instances[i].clone();
+                foundLang = ContentLanguages(_instanceLangs[i]);
 
-	   for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-	   {
-		if(instanceName == _instanceNames[i])
-		{
-                        foundInstance = _instances[i].clone();
-                        foundLang = ContentLanguages(_instanceLangs[i]);
+                break;
+            }
+        }  // end for
 
-			break;
-		}
-	   }  // end for
+        // Load the localized properties and figure out what content
+        // language to return, based on the design mentioned above.
+        ContentLanguages rtnLangs =
+            _loadLocalizedProps(
+                clientAcceptLangs,
+                foundLang,
+                foundInstance);
 
-           // Load the localized properties and figure out what content
-           // language to return, based on the design mentioned above.
-           ContentLanguages rtnLangs = _loadLocalizedProps(clientAcceptLangs,
-                                                       foundLang,
-                                                       foundInstance);
+        // We need to tag the instance we are returning with the
+        // the content language.
+        _setHandlerLanguages(handler, rtnLangs);
 
-           // We need to tag the instance we are returning with the
-           // the content language.
-           _setHandlerLanguages(handler, rtnLangs);
+        // deliver requested instance
+        handler.deliver(foundInstance);
+    }   // mutex unlocks here
 
-           // deliver requested instance
-           handler.deliver(foundInstance);
-       }   // mutex unlocks here
-
-       // complete processing the request
-       handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 void LocalizedProvider::enumerateInstances(
@@ -409,7 +409,7 @@ void LocalizedProvider::enumerateInstances(
 
 	  if (PEG_NOT_FOUND == testMsg.find(msgLang))
 	  {
-	    throw CIMOperationFailedException("Error in ICU multithread test");
+          throw CIMOperationFailedException("Error in ICU multithread test");
 	  }
 	}  // end for
 #endif
@@ -519,8 +519,22 @@ void LocalizedProvider::modifyInstance(
     const CIMPropertyList & propertyList,
     ResponseHandler & handler)
 {
-	// instanceReference does not have the key!
-	CIMObjectPath localReference =	buildRefFromInstance(instanceObject);
+    CIMObjectPath localReference(
+        String(),
+        instanceReference.getNameSpace(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
+
+    if(localReference.getKeyBindings().size() == 0)
+    {
+        // try to get the keys from the instance
+        localReference = buildRefFromInstance(instanceObject);
+    }
+
+    if(localReference.getKeyBindings().size() == 0)
+    {
+        throw CIMOperationFailedException("cannot determine instance name.");
+    }
 
 	// begin processing the request
 	handler.processing();
@@ -542,7 +556,11 @@ void LocalizedProvider::modifyInstance(
                     _checkRoundTripString(context, instanceObject);
 
                     // overwrite existing instance
-                    _instances[i] = instanceObject;
+                    CIMInstance modifiedInstance(instanceObject);
+
+                    modifiedInstance.setPath(localReference);
+
+                    _instances[i] = modifiedInstance;
 
                     // Get the language that the client tagged to the instance
                     // Note: the ContentLanguageString property is the only r/w string that
@@ -574,8 +592,22 @@ void LocalizedProvider::createInstance(
     const CIMInstance & instanceObject,
     ObjectPathResponseHandler & handler)
 {
-	// instanceReference does not have the key!
-	CIMObjectPath localReference =	buildRefFromInstance(instanceObject);
+    CIMObjectPath localReference(
+        String(),
+        instanceReference.getNameSpace(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
+
+    if(localReference.getKeyBindings().size() == 0)
+    {
+        // try to get the keys from the instance
+        localReference = buildRefFromInstance(instanceObject);
+    }
+
+    if(localReference.getKeyBindings().size() == 0)
+    {
+        throw CIMOperationFailedException("cannot determine instance name.");
+    }
 
         {
            AutoMutex autoMut(mutex);
@@ -602,15 +634,20 @@ void LocalizedProvider::createInstance(
            // (Note: this call can throw an exception)
 	   _checkRoundTripString(context, instanceObject);
 
-	   // add the new instance to the array
-	   _instances.append(instanceObject);
-	   _instanceNames.append(localReference);
+       // update the object's path
+       CIMInstance newInstance(instanceObject);
 
-	   // Get the language that the client tagged to the instance
+       newInstance.setPath(localReference);
+
+	   // add the new instance to the array
+	   _instances.append(newInstance);
+	   _instanceNames.append(newInstance.getPath());
+
+       // Get the language that the client tagged to the instance
 	   // Note: the ContentLanguageString property is the only r/w string that
 	   // can be tagged with a content language.  So the ContentLanguages
 	   // for the instance really only applies to that property.
-           ContentLanguages contentLangs = getRequestContentLanguages(context);
+       ContentLanguages contentLangs = getRequestContentLanguages(context);
 
 	   // Save the language of the ContentLanguageString
 	   _instanceLangs.append(contentLangs);
@@ -630,42 +667,44 @@ void LocalizedProvider::deleteInstance(
 {
 	// We're not going to support this for instances 0, 1, or 2
 
-        CIMObjectPath instanceName = CIMObjectPath(
-            String(),
-            NAMESPACE,
-            instanceReference.getClassName(),
-            instanceReference.getKeyBindings());
+    CIMObjectPath localReference(
+        String(),
+        instanceReference.getNameSpace(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
 
+    {
+        AutoMutex autoMut(mutex);
+
+        // instance index corresponds to reference index
+        Uint32 i = 0;
+
+        for(Uint32 n = _instanceNames.size(); i < n; i++)
         {
-           AutoMutex autoMut(mutex);
-
-	   // instance index corresponds to reference index
-	   Uint32 i = 0;
-	   for(Uint32 n = _instanceNames.size(); i < n; i++)
-           {
-		if(instanceName == _instanceNames[i])
-		{
-			if (i < 3)
-			{
-                		// Throw an exception with a localized message using the
+            if(localReference == _instanceNames[i])
+            {
+                if (i < 3)
+                {
+                    // Throw an exception with a localized message using the
 	   	         	// AcceptLanguages set into our thread by Pegasus.
 	   	         	// (this equals the AcceptLanguages requested by the client)
-                		//  Note: the exception object will load the string for us.
-                		throw CIMNotSupportedException(notSupportedErrorParms);
-			}
-			break;
-		}
-	   }
+                    //  Note: the exception object will load the string for us.
+                    throw CIMNotSupportedException(notSupportedErrorParms);
+                }
 
-	   if (i == _instanceNames.size())
-		throw CIMObjectNotFoundException(instanceReference.toString());
+                break;
+            }
+        }
 
-	   handler.processing();
+        if (i == _instanceNames.size())
+            throw CIMObjectNotFoundException(instanceReference.toString());
+
+        handler.processing();
 
 	   _instanceNames.remove(i);
 	   _instanceLangs.remove(i);
 	   _instances.remove(i);
-        }  // mutex unlocks here
+    }  // mutex unlocks here
 
 	handler.complete();
 }
@@ -1029,26 +1068,29 @@ ContentLanguages LocalizedProvider::getRequestContentLanguages(	const OperationC
 
 CIMObjectPath LocalizedProvider::buildRefFromInstance(const CIMInstance& instanceObject)
 {
-    // Build the local reference (maybe there is a better way to do this)
-    String local = NAMESPACE;
-    local.append(":");
-    local.append(instanceObject.getClassName().getString());
-    Uint32 index = instanceObject.findProperty(IDENTIFIER_PROP);
-    if (index == PEG_NOT_FOUND)
+    CIMObjectPath cimObjectPath(
+        String(),
+        NAMESPACE,
+        instanceObject.getClassName());
+
+    Array<CIMKeyBinding> keys;
+
+    Uint32 pos = instanceObject.findProperty(IDENTIFIER_PROP);
+
+    if(pos != PEG_NOT_FOUND)
     {
-       throw CIMPropertyNotFoundException(IDENTIFIER_PROP);
+        CIMConstProperty cimProperty = instanceObject.getProperty(pos);
+
+        keys.append(CIMKeyBinding(cimProperty.getName(), cimProperty.getValue()));
+    }
+    else
+    {
+        throw CIMPropertyNotFoundException(IDENTIFIER_PROP);
     }
 
-    Uint8 id;
-    instanceObject.getProperty(index).getValue().get(id);
-    char bfr[8] = {0};
-    sprintf(bfr,"%d",id);
-    local.append(".");
-    local.append(IDENTIFIER_PROP);
-    local.append("=");
-    local.append(bfr);
-    CIMObjectPath localReference(local);
-    return localReference;
+    cimObjectPath.setKeyBindings(keys);
+
+    return(cimObjectPath);
 }
 
 ContentLanguages LocalizedProvider::_loadLocalizedProps(

@@ -237,7 +237,7 @@ CIMOperationType Message::convertMessageTypetoCIMOpType(Uint32 type)
           CIMOperationType cT;
 
 
-          in_type = type%40;      /* groups request/response message by type ie. getClassRequestMessage 
+          in_type = type%38;      /* groups request/response message by type ie. getClassRequestMessage 
                                 (type = 1) gives the same result as getClassResponseMessage (type = 41)*/
 
          if (in_type < 3) {

@@ -1819,7 +1819,7 @@ void CIMRepository::modifyInstance(
                     CIMProperty origProperty = cimInstance.getProperty(origPos);
                     for (Uint32 j=0; j<origProperty.getQualifierCount(); j++)
                     {
-                        newProperty.addQualifier(origProperty.getQualifier(i));
+                        newProperty.addQualifier(origProperty.getQualifier(j));
                     }
                 }
 

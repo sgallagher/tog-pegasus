@@ -10,12 +10,12 @@
     </table>
     <hr>
   <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
-       <INPUT TYPE="hidden" NAME="Operation" VALUE="EnumerateInstances">
+       <INPUT TYPE="hidden" NAME="Operation" VALUE="EnumerateInstanceNames">
        <p>
 
      <a name="TOP"></a>
 
-         This request enumerates the namespaces defined in the repository. This is not a CIM intrinsic method.<p><b><a href="#NameSpace">NameSpace</a></b>
+         This request enumerates the namespaces defined in the repository. This is not a CIM intrinsic method but uses CIM enumerateInstance.<p><b><a href="#NameSpace">NameSpace</a></b>
 	         <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root">&nbsp;
        Defined the root namespace where the __Namespace class is defined.<p><b><a href="#ClassName">ClassName</a></b> <INPUT TYPE="text" NAME="ClassName" SIZE=30 VALUE="__Namespace">&nbsp;&nbsp;
        Defined the __Namespace class within the repository
@@ -50,11 +50,10 @@
        namespaces.</p>
        <hr>
        <p style="line-height: 100%; margin-top: 0; margin-bottom: 0"><font size="1">Last
-       Modified <!--webbot bot="Timestamp" startspan S-Type="EDITED"
-       S-Format="%A, %B %d, %Y %I:%M:%S %p" -->Sunday, February 18, 2001 04:27:08 AM<!--webbot
-       bot="Timestamp" I-CheckSum="5960" endspan -->
+       Modified <!--webbot bot="Timestamp" S-Type="EDITED"
+       S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, February 19, 2001 05:13:56 AM<!--webbot bot="Timestamp" i-CheckSum="5667" endspan -->
        &nbsp;&nbsp;&nbsp;&nbsp; Copyright @ The Open Group 2001&nbsp;</font>
-      <p>&nbsp;
+      <p>
     </form>
     <p>
   </body>

@@ -18,7 +18,7 @@
         <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
       String that defines the target namespace. See <a href="getnamespaces.html">NameSpace
       Operations</a> for more information.<p><b><a href="http://www.opengroup.org/management#className">ClassName</a></b> <INPUT TYPE="text" NAME="ClassName" SIZE=30>&nbsp;
-      Defines the name of the Class to be retrieved. Null (no entry) lists all
+      Defines the name of the Class that is the basis for the enumeration.. Null (no entry) lists all
       class names in the Namespace<p><b><a href="#DeepInheritance">DeepInheritance</a></b>
         <INPUT TYPE="checkbox" NAME="DeepInheritance" VALUE="true" checked>&nbsp;
       If true return names of all subclasses of specified class. If false, only
@@ -55,7 +55,9 @@
     target namespace
 
     <p><a name="className"><b>className</b></a> - The <TT>ClassName</TT> input parameter defines the Class
-    that is the basis for the enumeration.&nbsp;
+    that is the basis for the enumeration.&nbsp;Note that the class named is not
+    retrieved as part of the enumeration. Thus, if there are no subclasses to
+    the named class, zero classe names are returned.
 
     <p><a name="DeepInheritance"><b>DeepInheritance</b></a> - If the DeepInheritance input parameter is true, this
     specifies that the names of all subclasses of the specified Class should be
@@ -63,7 +65,7 @@
     names of all Classes in the target Namespace should be returned).  If false,
     only the names of immediate child subclasses are returned (if the ClassName
     input parameter is NULL, this implies that the names of all base Classes in
-    the target Namespace should be returned).
+    the target Namespace should be returned.
     <hr>
 
     <h2>C++ Call</h2>

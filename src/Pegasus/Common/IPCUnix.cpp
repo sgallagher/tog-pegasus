@@ -682,6 +682,7 @@ Semaphore::~Semaphore()
    pthread_mutex_destroy(&_semaphore.mutex);
 }
 
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
 // cleanup function 
 extern "C"
 static void semaphore_cleanup(void *arg)
@@ -690,6 +691,7 @@ static void semaphore_cleanup(void *arg)
    PEGASUS_SEM_HANDLE *s = (PEGASUS_SEM_HANDLE *)arg;
    pthread_mutex_unlock(&s->mutex);
 }
+#endif
 
 
 // block until this semaphore is in a signalled state
@@ -700,8 +702,9 @@ void Semaphore::wait(void)
 
    // Push cleanup function onto cleanup stack
    // The mutex will unlock if the thread is killed early
-   //pthread_cleanup_push(semaphore_cleanup, &_semaphore);
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
    native_cleanup_push(&semaphore_cleanup, &_semaphore);
+#endif
 
    // Keep track of the number of waiters so that <sema_post> works correctly.
    _semaphore.waiters++;
@@ -719,11 +722,14 @@ void Semaphore::wait(void)
    // Decrement the semaphore's count.
    _count--;
 
-   // Release mutex to leave critical section.
-   //pthread_mutex_unlock (&_semaphore.mutex);
     // Since we push an unlock onto the cleanup stack
    // We will pop it off to release the mutex when leaving the critical section.
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
    native_cleanup_pop(1);
+#else
+   // Release mutex to leave critical section.
+   pthread_mutex_unlock (&_semaphore.mutex);
+#endif
 }
 
 void Semaphore::try_wait(void) throw(WaitFailed)

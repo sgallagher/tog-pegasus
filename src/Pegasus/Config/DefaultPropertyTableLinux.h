@@ -50,6 +50,7 @@
     {"enableIndicationService", "true", 0, 0, 0, 1},
     {"enableSubscriptionsForNonprivilegedUsers", "false", 0, 0, 0, 1},
     {"enableRemotePrivilegedUserAccess", "true", 0, 0, 0, 1},
+    {"repositoryIsDefaultInstanceProvider", "false", 0, 0, 0, 0},
     // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", 0, 0, 0},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
 #ifdef PEGASUS_USE_232_CLIENT_VERIFICATION

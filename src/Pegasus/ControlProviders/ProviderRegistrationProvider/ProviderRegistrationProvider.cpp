@@ -522,9 +522,17 @@ void ProviderRegistrationProvider::createInstance(
         //
         // Validate the UserContext property
         //
+        CIMValue userContextValue;
         Uint32 userContextIndex = instanceObject.findProperty(
             PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT);
+
         if (userContextIndex != PEG_NOT_FOUND)
+        {
+            userContextValue =
+                instanceObject.getProperty(userContextIndex).getValue();
+        }
+
+        if (!userContextValue.isNull())
         {
 #ifdef PEGASUS_DISABLE_PROV_USERCTXT
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
@@ -533,22 +541,21 @@ void ProviderRegistrationProvider::createInstance(
                 "The UserContext property in the PG_ProviderModule class is "
                     "not supported."));
 #else
-            Uint16 userContextValue;
-            instanceObject.getProperty(userContextIndex).getValue()
-                .get(userContextValue);
+            Uint16 userContext;
+            userContextValue.get(userContext);
 
             if (!(
 # ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
-                  (userContextValue == PG_PROVMODULE_USERCTXT_REQUESTOR) ||
+                  (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR) ||
 # endif
 # ifndef PEGASUS_DISABLE_PROV_USERCTXT_DESIGNATED
-                  (userContextValue == PG_PROVMODULE_USERCTXT_DESIGNATED) ||
+                  (userContext == PG_PROVMODULE_USERCTXT_DESIGNATED) ||
 # endif
 # ifndef PEGASUS_DISABLE_PROV_USERCTXT_PRIVILEGED
-                  (userContextValue == PG_PROVMODULE_USERCTXT_PRIVILEGED) ||
+                  (userContext == PG_PROVMODULE_USERCTXT_PRIVILEGED) ||
 # endif
 # ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
-                  (userContextValue == PG_PROVMODULE_USERCTXT_CIMSERVER) ||
+                  (userContext == PG_PROVMODULE_USERCTXT_CIMSERVER) ||
 # endif
                   0))
             {
@@ -558,11 +565,11 @@ void ProviderRegistrationProvider::createInstance(
                             "ProviderRegistrationProvider."
                             "UNSUPPORTED_USERCONTEXT_VALUE",
                         "Unsupported UserContext value: \"$0\".",
-                        userContextValue));
+                        userContext));
             }
 
             // DesignatedUserContext property is required when UserContext == 3
-            if (userContextValue == PG_PROVMODULE_USERCTXT_DESIGNATED)
+            if (userContext == PG_PROVMODULE_USERCTXT_DESIGNATED)
             {
                 Uint32 designatedUserIndex = instanceObject.findProperty(
                     PEGASUS_PROPERTYNAME_MODULE_DESIGNATEDUSER);

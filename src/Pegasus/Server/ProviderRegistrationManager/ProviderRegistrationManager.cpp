@@ -1862,6 +1862,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             instance = cimNamedInstances[i];
             reference = cimNamedInstances[i].getPath ();
             String vendor, version, interfaceType, interfaceVersion, location;
+            Boolean userContextSpecified = false;
             Uint16 userContext;
 
             //
@@ -1917,8 +1918,13 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 
             if (posUserContext != PEG_NOT_FOUND)
             {
-                instance.getProperty(posUserContext).getValue().get(
-                    userContext);
+                CIMValue userContextValue =
+                    instance.getProperty(posUserContext).getValue();
+                if (!userContextValue.isNull())
+                {
+                    userContextSpecified = true;
+                    userContextValue.get(userContext);
+                }
             }
 
             if (posModuleName == PEG_NOT_FOUND || providerModuleName.size() == 0 ||
@@ -1929,9 +1935,10 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                 interfaceVersion.size() == 0 ||
                 posLocation == PEG_NOT_FOUND || location.size() == 0
 #ifdef PEGASUS_DISABLE_PROV_USERCTXT
-                || (posUserContext != PEG_NOT_FOUND)
+                || (userContextSpecified)
 #else
-                || (!(
+                || (userContextSpecified &&
+                    !(
 # ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
                       (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR) ||
 # endif
@@ -1944,7 +1951,11 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 # ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
                       (userContext == PG_PROVMODULE_USERCTXT_CIMSERVER) ||
 # endif
-                      0))
+                      0)) ||
+                   ((userContext == PG_PROVMODULE_USERCTXT_DESIGNATED) &&
+                    ((posDesignatedUser == PEG_NOT_FOUND) ||
+                     (instance.getProperty(posDesignatedUser).getValue().
+                          isNull())))
 #endif
                )
             {

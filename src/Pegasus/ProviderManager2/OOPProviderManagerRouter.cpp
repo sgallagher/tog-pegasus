@@ -1343,7 +1343,12 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
             PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT);
         if (pos != PEG_NOT_FOUND)
         {
-            providerModule.getProperty(pos).getValue().get(userContext);
+            CIMValue userContextValue =
+                providerModule.getProperty(pos).getValue();
+            if (!userContextValue.isNull())
+            {
+                userContextValue.get(userContext);
+            }
         }
 
         if (userContext == 0)

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Repository.cpp,v $
+// Revision 1.8  2001/02/17 00:35:57  bob
+// Addec <cstdio> for sprintf on linux
+//
 // Revision 1.7  2001/02/16 02:06:09  mike
 // Renamed many classes and headers.
 //
@@ -49,6 +52,7 @@
 //END_HISTORY
 
 #include <cctype>
+#include <cstdio>  // for sprintf on linux
 #include <fstream>
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/Destroyer.h>

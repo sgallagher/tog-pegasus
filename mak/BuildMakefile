@@ -71,6 +71,8 @@ clean:
 
 		
 prestarttests: 
+	$(CIMSERVER_STOP_SERVICE)
+	$(SLEEP)
 	$(MAKE) --directory=pegasus -f Makefile repository
 	$(MAKE) --directory=pegasus -f Makefile config
 	$(MAKE) --directory=pegasus -f Makefile user

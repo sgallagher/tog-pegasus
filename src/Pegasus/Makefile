@@ -29,10 +29,10 @@ DIRS = \
     Client/tests \
     Compiler/tests \
     Security/UserManager/tests \
-    Security/Authentication/tests \
     Server/IndicationService/tests 
 
 #    Subscription \
-#    Subscription/tests 
+#    Subscription/tests \
+#    Security/Authentication/tests
 
 include $(ROOT)/mak/recurse.mak

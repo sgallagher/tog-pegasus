@@ -7,13 +7,20 @@ DIRS = \
     TestClient \
     cliutils \
     cimconfig \
-    cimconfig/tests \
     cimuser \
-    cimuser/tests \
     cimauth \
     cimprovider \
     wbemexec \
     wbemexec/tests \
     ToMofClient
+
+#The following tests are NOT included as part of the standard
+#regession test.  The cimuser tests require PrivilegedUser
+#access to execute successfully.  The cimconfig tests modify
+#configuration files.
+
+XDIRS = \
+    cimconfig/tests \
+    cimuser/tests 
 
 include $(ROOT)/mak/recurse.mak

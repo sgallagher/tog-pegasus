@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.19  2001/03/13 01:22:02  karl
+// Add delete Namespace
+//
 // Revision 1.18  2001/03/05 19:54:49  mike
 // Fixed earlier boo boo (renamed CimException to CIMException).
 //
@@ -103,7 +106,9 @@ Pegasus.
 #include <cstdlib>
 #include <Pegasus/Common/CGIQueryString.h>
 #include <Pegasus/Client/CIMClient.h>
-// #include <Pegasus/Common/Stopwatch.h>
+#include <Pegasus/Common/Stopwatch.h>
+
+#define HAVE_STOPWATCH
 
 using namespace Pegasus;
 using namespace std;
@@ -353,6 +358,7 @@ void PrintObjectProperties(
     {
 	CIMProperty property = object.getProperty(i);
 	const CIMValue& value = property.getValue();
+
 	// Define href with the property name
 	String href = "/pegasus/cgi-bin/CGIClient?";
 	href.append("Operation=GetPropertyDeclaration&");
@@ -411,7 +417,7 @@ void PrintQualifiers(OBJECT& object)
 /** Prepare an HTML table with a header and an entry
     for each method defined in the class with the CIMName
     and type of the CIMMethod in each entry
-    @param Classdecl - Class for which methods to be output
+    @param cimClass - Class for which methods to be output
 */
 void PrintClassMethods(CIMClass& cimClass)
 {
@@ -526,6 +532,7 @@ static void GetClass(const CGIQueryString& qs)
     Boolean localOnly = true;
     Boolean includeQualifiers = true;
     Boolean includeClassOrigin = false;
+
     // Process possible input fields
     // Wierd because the form entry only sends info if
     // 
@@ -659,10 +666,12 @@ static void PrintClassNames(
     cout << " in " << elapsedTime << " Seconds</p>\n";
     cout << "</body>\n" << "</html>\n";
 }
-/** EnumerateClassNames gets the parameters for NameSpace
-and ClassName and calls the  enumerate class name
-CIMOperation.
-The returned array in sent to printclassnames
+
+/**
+    EnumerateClassNames gets the parameters for NameSpace
+    and ClassName and calls the  enumerate class name
+    CIMOperation.
+    The returned array in sent to printclassnames
 */
 static void EnumerateClassNames(const CGIQueryString& qs)
 {
@@ -713,6 +722,8 @@ static void EnumerateClassNames(const CGIQueryString& qs)
     }
 }
 
+/** DeleteClass - Deletes the class defined on input
+*/
 static void DeleteClass(const CGIQueryString& qs)
 {
     String nameSpace = GetNameSpaceQueryField(qs);
@@ -1180,6 +1191,7 @@ static void CreateNameSpace(const CGIQueryString& qs)
 	client.connect("localhost", 8888);
     
 	// Call create Instances CIM Method for class __Namespace
+	cout << "Creating " << nameSpaceName;
 	client.createInstance(nameSpace, newInstance);
 	PrintHTMLHead("CreateNameSpace", "Create a NameSpace Result");
 	cout << "<h1>Namespace " << nameSpaceName << " Created</H1>";
@@ -1195,22 +1207,65 @@ static void CreateNameSpace(const CGIQueryString& qs)
 	ErrorExit(e.getMessage());
     }
 }
-
+/**
+DeleteNameSpace - Deletes the Namespace defined.
+Namespace deletion is done by deleting the instance of
+__Namespace defined by the input parameter
+*/
 static void DeleteNameSpace(const CGIQueryString& qs)
 {
   // Get NameSpace:
     String nameSpace = GetNameSpaceQueryField(qs);
 
-    // Get ClassName:
-    String nameSpaceName;
-    String className;
-
+    // Get NameSpaceName to delete:
+    String nameSpaceToDelete;
     const char* tmp;
+    if ((tmp = qs.findValue("DeletionNameSpace")))
+	nameSpaceToDelete= tmp;
 
-    if ((tmp = qs.findValue("ClassName")))
-	className = tmp;
-    String message = "operation deleteNameSpace Under Construction: ";
-    ErrorExit(message);
+    // Create Instance Name
+    String instanceName = "__Namespace.name=\"";
+    instanceName.append(nameSpaceToDelete);
+    instanceName.append("\"");
+
+    // Create Instance Reference. Name must be in form Reference
+    CIMReference referenceName;
+    try
+    {
+	CIMReference::instanceNameToReference(instanceName,referenceName);
+    }
+    catch(Exception& e)
+    {
+	ErrorExit(e.getMessage());
+    } 
+    // Now make connection and Delete the instance
+    // Deleting the Instance of __Namespace deletes
+    // the Namespace.
+    try
+    {  
+			 	// Time the connection
+#ifdef HAVE_STOPWATCH
+	Stopwatch elapsedTime;
+#endif
+	CIMClient client;
+	client.connect("localhost", 8888);
+    
+	// Call delete Instances CIM Method for class __Namespace
+	client.deleteInstance(nameSpace, referenceName);
+	PrintHTMLHead("DeleteNameSpace", "Delete a NameSpace Result");
+	cout << "<h1>Namespace " << nameSpaceToDelete << " Deleted</H1>";
+
+#ifdef HAVE_STOPWATCH
+	cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
+#else
+	cout << " in " << 0.0 << " Seconds</p>\n";
+#endif
+	cout << "</body>\n" << "</html>\n";
+    } 
+    catch(Exception& e)
+    {
+	ErrorExit(e.getMessage());
+    }
 
 }
 

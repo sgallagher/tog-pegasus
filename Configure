@@ -34,17 +34,28 @@ mkdir -p $install_dir
 mkdir -p $binaries_dir
 
 system=`uname -s` 
-machine=`uname -m`
+machine=`uname -m | sed -e 's/\/[0-9,a-z,A-Z]*//'`
 
 case "$system:$machine" in
+	SunOS:*)
+	  #Check for GNU compiler
+	  if [ -e "`which gcc`" ]; then
+		platform="SOLARIS_SPARC_GNU";
+	  else
+		platform="SOLARIS_SPARC_CC";
+	  fi
+	  ;;
 	AIX:*)
 	  platform="AIX_RS_IBMCXX"
 	  ;;
+	HP-UX:ia64)
+	  platform="HPUX_IA64_ACC"
+	  ;;
+	HP-UX:9000)
+	  platform="HPUX_PARISC_ACC"
+	  ;;
 	HP-UX:*)
-	  echo "Options are: HPUX_ACC HPUX_IA64_ACC HPUX_PARISC_ACC"
-	  echo -n "Please enter your platform: "
-	  read input
-	  platform=$input
+	  platform="HPUX_ACC"
 	  ;;
 	Linux:i686)
 	  platform="LINUX_IX86_GNU"

@@ -73,8 +73,9 @@ SOURCES = \
     CGIQueryString.cpp \
     MT_MessageQueue.cpp\
     IPC.cpp\
+	Thread.cpp
 #    DQueue.cpp\
-    Thread.cpp
+#    Thread.cpp
 #ifeq ($(OS),linux)
 #SOURCES +=  IPC.cpp DQueue.cpp Thread.cpp
 #endif

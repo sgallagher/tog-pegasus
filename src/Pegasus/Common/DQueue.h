@@ -57,7 +57,7 @@ template<class L> class PEGASUS_EXPORT DQueue {
   inline void insert_first(DQueue & head) throw (IPCException)
     { 
       head._mutex.lock(pegasus_thread_self());
-      _prev = head; 
+      _prev = &head; 
       _next = head._next; 
       head._next->_prev = this; 
       head._next = this;   
@@ -68,7 +68,7 @@ template<class L> class PEGASUS_EXPORT DQueue {
   inline void insert_last(DQueue & head) throw(IPCException)
     {
       head._mutex.lock(pegasus_thread_self()) ;
-      _next = head;
+      _next = &head;
       _prev = head._prev;
       head._prev->next = this;
       head._prev = this;
@@ -154,7 +154,7 @@ public:
   L *ret = NULL;
 
   if( _count > 0 ) {
-    _mutex.lock();
+    _mutex.lock(pegasus_thread_self());
     DQueue *temp = _next;
     while ( temp->_isHead == false ) {
       if( temp->_rep->operator==( key ) ) {

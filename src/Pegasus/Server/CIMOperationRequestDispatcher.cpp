@@ -94,8 +94,14 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
    _enableIndicationService = String::equal(
         configManager->getCurrentValue("enableIndicationService"), "true");
 
-
-   // ATTN: KS 20030429 Bypass this until we get it into the config manager
+   //
+   //  Get the maximum breadth of enum parameter from config if it exists.
+   //
+   // ATTN: KS 20030602 Bypass param acquistion until we get it into the config manager
+   // Config param removed for Pegasus 2.2 and until PEP 66 resolved.  In place,
+   // we simply allow anything through by setting the breadth to large number.
+// #define  MAXENUMBREADTHTESTENABLED
+#ifdef MAXENUMBREADTHTESTENABLED
    String maxEnumBreadthOption = String::EMPTY;;
    try
    {
@@ -106,6 +112,10 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
    {
    _maximumEnumerateBreadth=50;
    }
+#else
+   // As part of disabling the test for now, we set to very large number.
+   _maximumEnumerateBreadth = 1000;
+#endif
 
    _routing_table = DynamicRoutingTable::get_rw_routing_table();
 

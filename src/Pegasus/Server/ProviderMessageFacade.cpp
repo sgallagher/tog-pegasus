@@ -30,6 +30,7 @@
 //                   (carolann_graves@hp.com)
 //               Dan Gorey, IBM (djgorey@us.ibm.com)
 //               Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//				 Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -71,8 +72,9 @@ Message * ProviderMessageFacade::handleRequestMessage(Message * message) throw()
 
    if(msg != NULL)
    {
-   	AcceptLanguages *langs = new AcceptLanguages(msg->acceptLanguages);
-   	Thread::setLanguages(langs);
+   	AcceptLanguages *langs = new AcceptLanguages(((AcceptLanguageListContainer)msg->operationContext.get
+		   (AcceptLanguageListContainer:: NAME)).getLanguages());
+	Thread::setLanguages(langs);
    }
    else
    {
@@ -188,13 +190,10 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) th
 	// convert arguments
 	OperationContext context;
 
-	// add the user name to the context
-	context.insert(IdentityContainer(request->userName));
-
-//l10n
-	// add the langs to the context
-	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-	context.insert(ContentLanguageListContainer(request->contentLanguages));
+	// add the user name and accept and content Languages to the context
+	context.insert(request->operationContext.get(IdentityContainer::NAME));
+	context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
 	CIMPropertyList propertyList(request->propertyList);
 
@@ -280,13 +279,11 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
 	// convert arguments
 	OperationContext context;
 
-	// add the user name to the context
-	context.insert(IdentityContainer(request->userName));
+	// add the user name and accept and content Languages to the context
+	context.insert(request->operationContext.get(IdentityContainer::NAME));
+	context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
-//l10n
-	// add the langs to the context
-	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-	context.insert(ContentLanguageListContainer(request->contentLanguages));
 
 	CIMPropertyList propertyList(request->propertyList);
 
@@ -357,13 +354,10 @@ Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * 
 	// convert arguments
 	OperationContext context;
 
-	// add the user name to the context
-	context.insert(IdentityContainer(request->userName));
-
-//l10n
-	// add the langs to the context
-	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-	context.insert(ContentLanguageListContainer(request->contentLanguages));
+	// add the user name and accept and content Languages to the context
+	context.insert(request->operationContext.get(IdentityContainer::NAME));
+	context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
 	SimpleObjectPathResponseHandler handler;
 
@@ -431,13 +425,10 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
 	// convert arguments
 	OperationContext context;
 
-	// add the user name to the context
-	context.insert(IdentityContainer(request->userName));
-
-//l10n
-	// add the langs to the context
-	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-	context.insert(ContentLanguageListContainer(request->contentLanguages));
+	// add the user name and accept and content Languages to the context
+	context.insert(request->operationContext.get(IdentityContainer::NAME));
+	context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
 	SimpleObjectPathResponseHandler handler;
 
@@ -521,13 +512,10 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
 	// convert arguments
 	OperationContext context;
 
-	// add the user name to the context
-	context.insert(IdentityContainer(request->userName));
-
-//l10n
-	// add the langs to the context
-	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-	context.insert(ContentLanguageListContainer(request->contentLanguages));
+	// add the user name and accept and content Languages to the context
+	context.insert(request->operationContext.get(IdentityContainer::NAME));
+	context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
 	CIMPropertyList propertyList(request->propertyList);
 
@@ -592,12 +580,10 @@ Message * ProviderMessageFacade::_handleDeleteInstanceRequest(Message * message)
 	// convert arguments
 	OperationContext context;
 
-	context.insert(IdentityContainer(request->userName));
-
-//l10n
-	// add the langs to the context
-	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-	context.insert(ContentLanguageListContainer(request->contentLanguages));
+	// add the user name and accept and content Languages to the context
+	context.insert(request->operationContext.get(IdentityContainer::NAME));
+	context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
 	SimpleResponseHandler handler;
 
@@ -875,13 +861,10 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) t
 	// convert arguments
 	OperationContext context;
 
-	// add the user name to the context
-	context.insert(IdentityContainer(request->userName));
-
-//l10n
-	// add the langs to the context
-	context.insert(AcceptLanguageListContainer(request->acceptLanguages));
-	context.insert(ContentLanguageListContainer(request->contentLanguages));
+	// add the user name and accept and content Languages to the context
+	context.insert(request->operationContext.get(IdentityContainer::NAME));
+	context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
 	CIMObjectPath instanceReference(request->instanceName);
 

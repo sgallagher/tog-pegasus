@@ -183,6 +183,13 @@ static void destroyCondition (CMPI_COND_TYPE c)
    delete (Condition*)c;
 }
 
+static int condWait (CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m)
+{
+   // need to take care of mutex
+   ((Condition*)c)->unlocked_wait(Thread::getCurrent()->self());
+   return 0;
+}
+
 static int timedCondWait(CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m, struct timespec *wait)
 {
 
@@ -248,8 +255,9 @@ static CMPIBrokerExtFT brokerExt_FT={
 
      newCondition,
      destroyCondition,
+     condWait,
      timedCondWait,
-     NULL                       // Signal not supported yet
+     signalCondition                       // Signal not supported yet
 };
 
 CMPIBrokerExtFT *CMPI_BrokerExt_Ftab=&brokerExt_FT;

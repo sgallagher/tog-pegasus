@@ -212,6 +212,16 @@ static int timedCondWait(CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m, struct timespec *w
 #endif
 }
 
+static int condWait(CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m)
+{
+#if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
+   return pthread_cond_wait((pthread_cond_t*)c, (pthread_mutex_t*)m);
+#else
+   #error Platform for Remote CMPI daemon no yet supported
+#endif
+}
+
+
 
 static CMPIBrokerExtFT brokerExt_FT={
      CMPICurrentVersion,
@@ -236,6 +246,7 @@ static CMPIBrokerExtFT brokerExt_FT={
      newCondition,
      destroyCondition,
      timedCondWait,
+     condWait,
      NULL                       // Signal not supported yet
 };
 

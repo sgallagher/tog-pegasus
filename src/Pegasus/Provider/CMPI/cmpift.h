@@ -611,6 +611,9 @@ extern "C" {
      void (*destroyCondition)
         (CMPI_COND_TYPE);
 
+     int (*condWait)
+        (CMPI_COND_TYPE cond, CMPI_MUTEX_TYPE mutex);
+
      int (*timedCondWait)
         (CMPI_COND_TYPE cond, CMPI_MUTEX_TYPE mutex, struct timespec *wait);
 

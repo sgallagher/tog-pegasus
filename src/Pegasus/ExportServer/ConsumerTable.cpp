@@ -27,12 +27,12 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <cstdlib>
 #include <cstdlib>
 #include <cctype>
 #include <fstream>
 #include <cstdio>
-#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/System.h>

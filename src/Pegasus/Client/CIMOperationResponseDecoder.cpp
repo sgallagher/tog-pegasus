@@ -1581,7 +1581,7 @@ CIMInvokeMethodResponseMessage* CIMOperationResponseDecoder::_decodeInvokeMethod
 		  //   "unexpected RETURNVALUE element");
 
 		  MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_RETURNVALUE_ELEMENT",
-					     "expected RETURNVALUE element");
+					     "unexpected RETURNVALUE element");
 		  
 		  throw XmlValidationError(parser.getLine(), mlParms);
                 }

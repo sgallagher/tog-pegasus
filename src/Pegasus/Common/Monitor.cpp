@@ -221,14 +221,24 @@ Boolean Monitor::run(Uint32 milliseconds)
        }
     }
     
-
     int events = select(FD_SETSIZE, &fdread, NULL, NULL, &tv);
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-    if(events && events != SOCKET_ERROR )
+    if(events == SOCKET_ERROR)
 #else
-    if(events && events != -1 )
+    if(events == -1)
 #endif
+    {
+       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+          "Monitor::run - errorno = %d has occurred on select.", errno);
+       // The EBADF error indicates that one or more or the file
+       // descriptions was not valid. This could indicate that
+       // the _entries structure has been corrupted or that
+       // we have a synchronization error.
+
+       PEGASUS_ASSERT(errno != EBADF);
+    }
+    else if (events)
     {
        for( int indx = 0; indx < (int)_entries.size(); indx++)
        {
@@ -308,10 +318,9 @@ int  Monitor::solicitSocketMessages(
 
    PEG_METHOD_ENTER(TRC_HTTP, "Monitor::solicitSocketMessages");
 
-   int index = -1;
    _entry_mut.lock(pegasus_thread_self());
    
-   for(index = 0; index < (int)_entries.size(); index++)
+   for(int index = 0; index < (int)_entries.size(); index++)
    {
       try 
       {
@@ -331,13 +340,14 @@ int  Monitor::solicitSocketMessages(
       }
 
    }
-      _entry_mut.unlock();
+   _entry_mut.unlock();
    PEG_METHOD_EXIT();
-   return index;
+   return -1;
 }
 
 void Monitor::unsolicitSocketMessages(Sint32 socket)
 {
+
     PEG_METHOD_ENTER(TRC_HTTP, "Monitor::unsolicitSocketMessages");
     _entry_mut.lock(pegasus_thread_self());
     
@@ -356,11 +366,20 @@ void Monitor::unsolicitSocketMessages(Sint32 socket)
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL Monitor::_dispatch(void *parm)
 {
    HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(parm);
-   
+
    dst->run(1);
-   if(  dst->_monitor->_entries.size() > (Uint32)dst->_entry_index )
-      dst->_monitor->_entries[dst->_entry_index]._status = _MonitorEntry::IDLE;
-   
+   dst->_monitor->_entry_mut.lock(pegasus_thread_self());
+
+   // It shouldn't be necessary to set status = _MonitorEntry::IDLE
+   // if the connection is being closed.  However, the current logic
+   // in Monitor::run requires this value to be set for the close
+   // to be processed. 
+   dst->_monitor->_entries[dst->_entry_index]._status = _MonitorEntry::IDLE;
+   if (dst->_connectionClosePending)
+   {
+      dst->_dying = 1;
+   }
+   dst->_monitor->_entry_mut.unlock();
    return 0;
 }
 

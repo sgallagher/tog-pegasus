@@ -128,7 +128,8 @@ HTTPConnection::HTTPConnection(
    _ownerMessageQueue(ownerMessageQueue),
    _outputMessageQueue(outputMessageQueue),
    _contentOffset(-1),
-   _contentLength(-1)
+   _contentLength(-1),
+   _connectionClosePending(false)
 {
    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::HTTPConnection");
 
@@ -155,7 +156,9 @@ void HTTPConnection::handleEnqueue(Message *message)
 {
    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::handleEnqueue");
 
-   if( ! message || _dying.value() > 0 )
+   PEGASUS_ASSERT(_dying.value() == 0);
+
+   if( ! message )
    {
       PEG_METHOD_EXIT();
       return;
@@ -444,7 +447,7 @@ void HTTPConnection::_closeConnection()
    // return - don't send the close connection message. 
    // let the monitor dispatch function do the cleanup. 
    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::_closeConnection");
-   _dying = 1;
+   _connectionClosePending = true; 
    PEG_METHOD_EXIT();
 
 //     Message* message= new CloseConnectionMessage(_socket->getSocket));
@@ -568,24 +571,29 @@ Uint32 HTTPConnection::getRequestCount()
 
 Boolean HTTPConnection::run(Uint32 milliseconds)
 {
-   if( _dying.value() > 0)
-      return false;
+   PEGASUS_ASSERT(_dying.value() == 0);
    
    Boolean handled_events = false;
    int events = 0;
    
    fd_set fdread; // , fdwrite;
+   struct timeval tv = { 0, 1 };
    do 
    {
-      struct timeval tv = { 0, 1 };
       FD_ZERO(&fdread);
       FD_SET(getSocket(), &fdread);
       events = select(FD_SETSIZE, &fdread, NULL, NULL, &tv);
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-      if(events && events != SOCKET_ERROR && _dying.value() == 0 )
+      if(events == SOCKET_ERROR)
 #else
-      if(events && events != -1 && _dying.value() == 0 )
+      if(events == -1)
 #endif
+      {
+	 return false;
+      }
+
+      PEGASUS_ASSERT(_dying.value() == 0);
+      if (events)
       {
 	 events = 0;
 	 if( FD_ISSET(getSocket(), &fdread))
@@ -598,22 +606,14 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
 	    }
 	    catch(...)
 	    {
-	       _monitor->_entries[_entry_index]._status = _MonitorEntry::IDLE;
 	       return true;
 	    }
 	    handled_events = true;
 	 }
-	 else 
-	    break;
       }
-      else
-	 break;
-   } while(events != 0 && _dying.value() == 0);
-   _monitor->_entries[_entry_index]._status = _MonitorEntry::IDLE;
+   } while(events != 0 && !_connectionClosePending);
    return handled_events;
 }
-
-
 AtomicInt HTTPConnection2::_requestCount(0);
 
 

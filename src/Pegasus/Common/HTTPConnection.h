@@ -169,7 +169,23 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
       AuthenticationInfo* _authInfo;
       static AtomicInt _requestCount;
       Mutex _connection_mut;
+
+      // ATTN-DE-P2-20030926::TODO::Recommend that the _dying
+      // variable be moved to the MonitorEntry structure (Monitor.h)
+
+      // A non-zero value of _dying indicates that this connection
+      // is being closed and the HTTPConnection structure deleted.
+      // Once this value has been set to a non-zero value, this
+      // connection MUST not be used.  Accessing the HTTPConnection
+      // structure after this flag has been set can result in memory
+      // corruption and segmentation faults.
       AtomicInt _dying;
+
+      // The _connectionClosePending flag will be set to true if
+      // the connection receives close connection socket message.
+      // This flag is used to set the _dying value.
+      Boolean _connectionClosePending;
+
       int _entry_index;
       
       friend class Monitor;

@@ -3189,8 +3189,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
     Array<CIMName> localPropertyListArray;
 
-    Boolean rtn;
-
+    Boolean rtn = false;
     // Create a propertyList that represents the combination
     // of the propertyList and the localOnly attribute.
     rtn = _mergePropertyLists(cimClass,
@@ -3465,8 +3464,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
             #endif
             
             // if this is deep inheritance request and the original property list requested all
-            // properties, we must expand the property list for each subclass.
-            if(request->deepInheritance && request->propertyList.isNull())
+            // properties and it is localOnly, we must expand the property list for each subclass.
+            if(request->deepInheritance && request->propertyList.isNull() && request->localOnly)
             {
                 _addPropertiesToArray(localPropertyListArray, cimClass);
 

@@ -45,7 +45,7 @@
 //      CIMObjectManager
 //      CIM_ObjectManagerCommunicationMechanism
 //      CIM_CIMXMLCommunicationMechanism
-//      CIM_ProtocolAdapter
+//      CIM_ProtocolAdapter  (Note: Removed because deprecated class in cim 2.9)
 //      CIM_Namespace (Effective Pegasus 2.4 we use PG_Namespace which
 //      is a subclass of CIM_Namespace with additional properties for
 //      shared namespaces.
@@ -222,12 +222,13 @@ enum targetClass{
         CIM_OBJECTMANAGER = 2,
         PG_CIMXMLCOMMUNICATIONMECHANISM = 3,
         CIM_NAMESPACEINMANAGERINST =4,
-        CIM_COMMMECHANISMFORMANAGERINST=5
+        CIM_COMMMECHANISMFORMANAGERINST=5,
+        CIM_NAMESPACEINMANAGER=6
     };
     
  enum targetAssocClass{
-     CIM_NAMESPACEINMANAGER =1,
-     CIM_COMMMECHANISMFORMANAGER=2
+     CIM_NAMESPACEINMANAGERASSOC = 1,
+     CIM_COMMMECHANISMFORMANAGERASSOC=2
  };
 
 //***************************************************************
@@ -307,7 +308,7 @@ String _getHostAddress(String hostName)
   return ipAddress;
 }
 
- Array<String> _getFunctionalProfiles(Array<Uint16> profiles)
+ Array<String> _getFunctionalProfiles(Array<Uint16> & profiles)
  {
      Array<String> profileDescriptions;
      profiles.append(2); profileDescriptions.append("Basic Read");
@@ -515,6 +516,9 @@ static targetClass _verifyValidClassInput(const CIMName& className)
     if (className.equal(PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME))
         return PG_CIMXMLCOMMUNICATIONMECHANISM;
 
+    if (className.equal(CIM_NAMESPACEINMANAGER_CLASSNAME))
+        return CIM_NAMESPACEINMANAGER;
+
     // Last entry, reverse test and return OK if PG_Namespace
     // Note: Changed to PG_Namespace for CIM 2.4
     if (!className.equal(PG_NAMESPACE_CLASSNAME))
@@ -530,14 +534,15 @@ static targetAssocClass _verifyValidAssocClassInput(const CIMName& className)
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_verifyValidAssocClassInput");
     if (className.equal(CIM_NAMESPACEINMANAGER_CLASSNAME))
-        return CIM_NAMESPACEINMANAGER;
+        return CIM_NAMESPACEINMANAGERASSOC;
+
     // Last entry, reverse test and return OK if CIM_CommMech....
     if (!className.equal(CIM_COMMMECHANISMFORMANAGER_CLASSNAME))
         throw CIMNotSupportedException
             (className.getString() + " not supported by Interop Provider");
 
     PEG_METHOD_EXIT();
-    return CIM_COMMMECHANISMFORMANAGER;
+    return CIM_COMMMECHANISMFORMANAGERASSOC;
 }
 
 /* validate the authorization of the user name against the namespace.
@@ -692,10 +697,12 @@ CIMInstance InteropProvider::_buildInstancePGCIMXMLCommunicationMechanism(
     //CreationClassName
     _setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_CREATIONCLASSNAME,PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME.getString());
 
-    //Name, this CommunicationMechanism.
-    _setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_NAME, PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME.getString());
+    //Name, this CommunicationMechanism.  We need to make it unique.  To do this
+    // we simply append the commtype to the classname since we have max of two right
+    // now.
+    _setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_NAME, (String("PEGASUSCOMM") + namespaceType));
 
-    // CommunicationMechanism Property
+    // CommunicationMechanism Property - Force to 2.
     _setPropertyValue(instance, OM_COMMUNICATIONMECHANISM, Uint16(2));
 
     //Functional Profiles Supported Property.
@@ -714,6 +721,7 @@ CIMInstance InteropProvider::_buildInstancePGCIMXMLCommunicationMechanism(
     Array<Uint16> authentications;
     Array<String> authenticationDescriptions;
 
+    // Note that we have fixed authentication here. 
     authentications.append(3); authenticationDescriptions.append("Basic");
 
     _setPropertyValue(instance, OM_AUTHENTICATIONMECHANISMSSUPPORTED, authentications);
@@ -722,7 +730,7 @@ CIMInstance InteropProvider::_buildInstancePGCIMXMLCommunicationMechanism(
     
     _setPropertyValue(instance, OM_VERSION, CIMXMLProtocolVersion);
 
-    _setPropertyValue(instance, "namespaceType", namespaceType);
+    // Obsolete function _setPropertyValue(instance, "namespaceType", namespaceType);
 
     _setPropertyValue(instance, "IPAddress", IPAddress);
 
@@ -1772,6 +1780,13 @@ void InteropProvider::getInstance(
             return;
         }
         
+        if (classEnum == CIM_NAMESPACEINMANAGER)
+        {
+            handler.complete();
+            PEG_METHOD_EXIT();
+            return;
+        }
+
         // Get List of namespaces
         Array<CIMNamespaceName> namespaceNames;
         namespaceNames = _enumerateNameSpaces();
@@ -1861,6 +1876,13 @@ void InteropProvider::enumerateInstances(
             return;
         }
 
+
+        if (classEnum == CIM_NAMESPACEINMANAGER)
+        {
+            handler.complete();
+            PEG_METHOD_EXIT();
+            return;
+        }
 
         if (classEnum == PG_NAMESPACE)
         {
@@ -2047,6 +2069,13 @@ void InteropProvider::enumerateInstanceNames(
             return;
         }
 
+        if (classEnum == CIM_NAMESPACEINMANAGER)
+        {
+            handler.complete();
+            PEG_METHOD_EXIT();
+            return;
+        }
+
         if (classEnum == PG_NAMESPACE)
         {
             Array<CIMInstance> instances = _getInstancesCIMNamespace(false,
@@ -2179,10 +2208,10 @@ void InteropProvider::referenceNames(
 
     Array<CIMInstance> assocInstances;
 
-    if (classEnum == CIM_COMMMECHANISMFORMANAGER)
+    if (classEnum == CIM_COMMMECHANISMFORMANAGERASSOC)
         assocInstances = _buildInstancesCommMechanismForManager();
 
-    if (classEnum == CIM_NAMESPACEINMANAGER)
+    if (classEnum == CIM_NAMESPACEINMANAGERASSOC)
         assocInstances = _buildInstancesNamespaceInManager();
 
     _filterAssocInstances(assocInstances, resultClass, role);

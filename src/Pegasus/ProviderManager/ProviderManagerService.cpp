@@ -1175,7 +1175,7 @@ void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Mes
     PEGASUS_ASSERT(request != 0 && async != 0);
 
     Array<CIMObject> cimObjects;
-
+    /****************************************** Old Code replaced
     CIMAssociatorsResponseMessage * response =
         new CIMAssociatorsResponseMessage(
         request->messageId,
@@ -1194,7 +1194,98 @@ void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Mes
         async->getRouting(),
         op,
         response);
+   ***********************************************************************/
+   // Bugzilla Report xxx, 16 Feb 2003, Associators function in Provider Manager service 
+   // returns not implemented.
+       CIMAssociatorsResponseMessage * response =
+           new CIMAssociatorsResponseMessage(
+           request->messageId,
+           CIMException(),
+           request->queueIds.copyAndPop(),
+           cimObjects);
 
+       PEGASUS_ASSERT(response != 0);
+
+       // preserve message key
+       response->setKey(request->getKey());
+       // create a handler for this request
+       AssociatorsResponseHandler handler(request, response);
+
+       // process the request
+       try
+       {
+           // make target object path
+           CIMObjectPath objectPath(
+               System::getHostName(),
+               request->nameSpace,
+               request->objectName.getClassName());
+
+           objectPath.setKeyBindings(request->objectName.getKeyBindings());
+
+           // get the provider file name and logical name
+           Array<String> first;
+           Array<String> second;
+           Array<String> third;
+
+           _lookupProviderForAssocClass(objectPath,
+           //                             request->associationClass,
+           //                             request->resultClass,
+                                        String::EMPTY,
+                                        String::EMPTY,
+                                        first, second, third);
+
+           for(Uint32 i=0,n=first.size(); i<n; i++)
+           {
+               // get cached or load new provider module
+               Provider provider =
+                  providerManager.getProvider(first[i], second[i], third[i]);
+
+               // convert arguments
+               OperationContext context;
+
+               // add the user name to the context
+               context.insert(IdentityContainer(request->userName));
+
+               STAT_GETSTARTTIME;
+
+               provider.associators(
+                   context,
+                   objectPath,
+                   request->assocClass,
+                   request->resultClass,
+                   request->role,
+                   request->resultRole,
+                   request->includeQualifiers,
+                   request->includeClassOrigin,
+                   request->propertyList.getPropertyNameArray(),
+                   handler);
+
+               STAT_PMS_PROVIDEREND;
+
+           } // end for loop
+       }
+       catch(CIMException & e)
+       {
+           handler.setStatus(e.getCode(), e.getMessage());
+       }
+       catch(Exception & e)
+       {
+           handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+       }
+       catch(...)
+       {
+           handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+       }
+
+       AsyncLegacyOperationResult *async_result =
+           new AsyncLegacyOperationResult(
+           async->getKey(),
+           async->getRouting(),
+           op,
+           response);
+
+
+   //****************************************** Replacement to here
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
 }
 

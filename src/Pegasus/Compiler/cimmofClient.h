@@ -49,7 +49,7 @@
 #ifndef CIMMOF_CLIENT_H_
 #define CIMMOF_CLIENT_H_
 
-#include <Pegasus/Common/config.h>
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include "compilerCommonDefs.h"
 #include <Pegasus/Client/CIMClient.h>

@@ -7,10 +7,10 @@ DIRS = \
     Config \
     Repository \
     getoopt \
+    Client \
     Compiler \
     Compiler/load \
     Compiler/cmdline \
-    Client \
     ExportClient \
     Provider \
     ProviderManager \

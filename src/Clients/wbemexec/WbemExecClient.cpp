@@ -93,23 +93,23 @@ void WbemExecClient::handleEnqueue()
 void WbemExecClient::_connect(
     const String& address,
     SSLContext* sslContext
-) throw(Exception)
+) throw(CannotCreateSocket, CannotConnect, InvalidLocator, UnexpectedFailure)
 {
     //
     // Attempt to establish a connection:
     //
-    try
-    {
+    //try
+    //{
 	_httpConnection = _httpConnector->connect(address,
                                                   sslContext,
                                                   this);
-    }
+    //}
     // Could catch CannotCreateSocket, CannotConnect, InvalidLocator, or
     // UnexpectedFailure
-    catch (Exception& e)
-    {
-        throw e;
-    }
+    //catch (Exception& e)
+    //{
+    //    throw e;
+    //}
     
     _connected = true;
 }
@@ -119,7 +119,8 @@ void WbemExecClient::connect(
     SSLContext* sslContext,
     const String& userName,
     const String& password
-) throw(AlreadyConnected, InvalidLocator, Exception)
+) throw(AlreadyConnected, InvalidLocator, CannotCreateSocket,
+        CannotConnect, UnexpectedFailure)
 {
     //
     // If already connected, bail out!
@@ -152,7 +153,9 @@ void WbemExecClient::connect(
 }
 
 
-void WbemExecClient::connectLocal(SSLContext* sslContext) throw(AlreadyConnected, Exception)
+void WbemExecClient::connectLocal(SSLContext* sslContext)
+    throw(AlreadyConnected, InvalidLocator, CannotCreateSocket,
+          CannotConnect, UnexpectedFailure)
 {
     //
     // If already connected, bail out!

@@ -120,7 +120,8 @@ public:
         const String& address,
         const String& userName = String::EMPTY,
         const String& password = String::EMPTY
-    ) throw(AlreadyConnected, InvalidLocator, Exception)
+    ) throw(AlreadyConnected, InvalidLocator, CannotCreateSocket,
+            CannotConnect, UnexpectedFailure)
     {
         connect(address, NULL, userName, password);
     }
@@ -154,7 +155,8 @@ public:
         SSLContext* sslContext,
         const String& userName = String::EMPTY,
         const String& password = String::EMPTY
-    ) throw(AlreadyConnected, InvalidLocator, Exception);
+    ) throw(AlreadyConnected, InvalidLocator, CannotCreateSocket,
+            CannotConnect, UnexpectedFailure);
 
     /** connectLocal - Creates connection to the server for
         Local clients. The connectLocal connects to the CIM server
@@ -165,7 +167,9 @@ public:
         @return - No return defined. Failure to connect throws an exception.
         @SeeAlso connect - The exceptions are defined in connect.
     */
-    void connectLocal(SSLContext* sslContext = NULL) throw(AlreadyConnected, Exception);
+    void connectLocal(SSLContext* sslContext = NULL)
+        throw(AlreadyConnected, InvalidLocator, CannotCreateSocket,
+              CannotConnect, UnexpectedFailure);
 
     /** disconnect - Closes the connection with the server if the connection
         was open, simply returns if the connection was not open. Clients are
@@ -186,7 +190,9 @@ private:
 
     void _connect(
         const String& address,
-        SSLContext* sslContext) throw(Exception);
+        SSLContext* sslContext)
+      throw(CannotCreateSocket, CannotConnect, InvalidLocator,
+            UnexpectedFailure);
 
     Message* _doRequest(HTTPMessage * request) throw(TimedOut);
 

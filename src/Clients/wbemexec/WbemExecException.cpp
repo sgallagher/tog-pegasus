@@ -162,7 +162,7 @@ const char*  WbemExecException::_messageStrings [] =
     "Invalid XML request: ",
     "Invalid input: expected XML request, or HTTP M-POST or POST method request",
     "Failed to allocate additional memory ",
-    "Internal error "
+    "Internal error: "
 };
 
 /**

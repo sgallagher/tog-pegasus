@@ -190,14 +190,14 @@ WbemExecCommand::WbemExecCommand ()
     usage.append (" httpversion ] [ -");
     usage.append (_OPTION_HTTPMETHOD);
     usage.append (" httpmethod ] [ -");
-    usage.append (_OPTION_SSL);
-    usage.append (" SSL ] [ -");
     usage.append (_OPTION_TIMEOUT);
     usage.append (" timeout ] [ -");
     usage.append (_OPTION_USERNAME);
     usage.append (" username ] [ -");
     usage.append (_OPTION_PASSWORD);
-    usage.append (" password ] [ inputfilepath ] ");
+    usage.append (" password ] [ -");
+    usage.append (_OPTION_SSL);
+    usage.append (" ] [ inputfilepath ]");
 
     setUsage (usage);
 }
@@ -225,7 +225,7 @@ WbemExecCommand::WbemExecCommand ()
     //
     //  Construct host address
     //
-    if (!_hostNameSet)
+    if ((!_hostNameSet) && (!_portNumberSet))
       {
         connectToLocal = true;
       }
@@ -550,22 +550,9 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
           outPrintWriter << message.getData () << endl;
         }
     }
-    catch (XmlValidationError& xve)
-    {
-        WbemExecException e 
-            (WbemExecException::INVALID_XML, xve.getMessage ());
-        throw e;
-    }
-    catch (XmlSemanticError& xse)
-    {
-        WbemExecException e 
-            (WbemExecException::INVALID_XML, xse.getMessage ());
-        throw e;
-    }
     catch (XmlException& xe)
     {
-        WbemExecException e
-            (WbemExecException::INVALID_XML, xe.getMessage ());
+        WbemExecException e(WbemExecException::INVALID_XML, xe.getMessage ());
         throw e;
     }
     catch (WbemExecException& e)
@@ -574,10 +561,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     }
     catch (Exception& ex)
     {
-        // Note: Should never get here, unless there is an internal
-        // exception thrown
-        WbemExecException e
-            (WbemExecException::INTERNAL_ERROR, ex.getMessage ());
+        WbemExecException e(WbemExecException::CONNECT_FAIL, ex.getMessage ());
         throw e;
     }
 

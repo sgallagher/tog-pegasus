@@ -67,8 +67,10 @@ REPOSITORY_ROOT = $(REPOSITORY_DIR)/repository
 # Update the following two environment variables to 
 # change the version.
 
-CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/CIM25
-CIM_SCHEMA_VER=25
+#CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/CIM25
+#CIM_SCHEMA_VER=25
+CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/CIMPrelim271
+CIM_SCHEMA_VER=27
 
 LEX = flex
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMQualifierList.h,v $
+// Revision 1.5  2001/03/05 16:18:34  mike
+// fixed possible memory leak
+//
 // Revision 1.4  2001/03/04 21:57:34  bob
 // Changed print methods to take a stream instead of hardcoded cout
 //
@@ -69,7 +72,7 @@ public:
 
     CIMQualifier& getQualifier(Uint32 pos) { return _qualifiers[pos]; }
 
-    const CIMConstQualifier& getQualifier(Uint32 pos) const 
+    const CIMQualifier& getQualifier(Uint32 pos) const 
     {
 	return _qualifiers[pos];
     }

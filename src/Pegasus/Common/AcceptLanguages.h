@@ -159,6 +159,10 @@ public:
 	 * @return int index of element if found, otherwise -1
 	 */
 	int find(String language_tag, Real32 quality);
+	
+	static AcceptLanguages getDefaultAcceptLanguages();
+		
+		
 
 private:
 

@@ -212,6 +212,7 @@ void PrintHelp(const char* arg0)
     /**
         Build the usage string for the config command.
     */
+    /* l10n
     String usage = String (USAGE);
     usage.append (COMMAND_NAME);
     usage.append (" [ [ options ] | [ configProperty=value, ... ] ]\n");
@@ -247,6 +248,58 @@ void PrintHelp(const char* arg0)
 #endif
     cout << endl;
     cout << usage << endl;
+    */
+    
+    String usage = String (USAGE);
+    usage.append (COMMAND_NAME);
+    usage.append (" [ [ options ] | [ configProperty=value, ... ] ]\n");
+    usage.append ("  options\n");
+    usage.append ("    -v              - displays CIM Server version number\n");
+    usage.append ("    -h              - prints this help message\n");
+    usage.append ("    -s              - shuts down CIM Server\n");
+#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+    //usage.append ("    -D [home]       - sets pegasus home directory\n");
+    usage.append("$0");
+#endif
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+    usage.append ("    -install [name] - installs pegasus as a Windows NT Service\n");
+    usage.append ("                      [name] is optional and overrides the\n");
+    usage.append ("                      default CIM Server Service Name\n");
+    usage.append ("    -remove [name]  - removes pegasus as a Windows NT Service\n");
+    usage.append ("                      [name] is optional and overrides the\n");
+    usage.append ("                      default CIM Server Service Name\n");
+    usage.append ("    -start [name]   - starts pegasus as a Windows NT Service\n");
+    usage.append ("                      [name] is optional and overrides the\n");
+    usage.append ("                      default CIM Server Service Name\n");
+    usage.append ("    -stop [name]    - stops pegasus as a Windows NT Service\n");
+    usage.append ("                      [name] is optional and overrides the\n");
+    usage.append ("                      default CIM Server Service Name\n\n");
+#endif
+    usage.append ("  configProperty=value\n");
+    usage.append ("                    - sets CIM Server configuration property\n");
+
+    cout << endl;
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+    cout << PLATFORM_PRODUCT_NAME << " " << PLATFORM_PRODUCT_VERSION << endl;
+#else
+    cout << PEGASUS_NAME << PEGASUS_VERSION << endl;
+#endif
+    cout << endl;
+    
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+    MessageLoaderParms parms("src.Server.cimserver.MENU.WINDOWS",
+    						 usage,
+    						 "    -D [home]       - sets pegasus home directory\n");
+#elif !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+	MessageLoaderParms parms("src.Server.cimserver.MENU.STANDARD",
+    						 usage,
+    						 "    -D [home]       - sets pegasus home directory\n");
+#else
+	MessageLoaderParms parms("src.Server.cimserver.MENU.STANDARD",
+    						 usage);
+#endif
+    //cout << usage << endl;
+    cout << MessageLoader::getMessage(parms) << endl;
 }
 
 // l10n
@@ -298,7 +351,11 @@ void shutdownCIMOM(Uint32 timeoutValue)
     catch(Exception& e)
     {
 #ifdef PEGASUS_OS_OS400
-	Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+	//l10n
+	//Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+		    //"Unable to connect to CIM Server.  CIM Server may not be running." );
+	Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+			"src.Server.cimserver.UNABLE_CONNECT_SERVER_MAY_NOT_BE_RUNNING",
 		    "Unable to connect to CIM Server.  CIM Server may not be running." );
 	// The server job may still be active but not responding.
 	// Kill the job if it exists.
@@ -306,8 +363,12 @@ void shutdownCIMOM(Uint32 timeoutValue)
 	   cimserver_exit(2);
 	cimserver_exit(1);
 #else
-        PEGASUS_STD(cerr) << "Unable to connect to CIM Server." << PEGASUS_STD(endl);
-        PEGASUS_STD(cerr) << "CIM Server may not be running." << PEGASUS_STD(endl);
+        //l10n
+        //PEGASUS_STD(cerr) << "Unable to connect to CIM Server." << PEGASUS_STD(endl);
+        //PEGASUS_STD(cerr) << "CIM Server may not be running." << PEGASUS_STD(endl);
+        MessageLoaderParms parms("src.Server.cimserver.UNABLE_CONNECT_SERVER_MAY_NOT_BE_RUNNING",
+        						 "Unable to connect to CIM Server.\nCIM Server may not be running.\n");
+        PEGASUS_STD(cerr) << MessageLoader::getMessage(parms);
 #endif
         cimserver_exit(1);
     }
@@ -351,23 +412,38 @@ void shutdownCIMOM(Uint32 timeoutValue)
 
 	if (e.getCode() == CIM_ERR_INVALID_NAMESPACE)
 	{
-	    Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-		    "Failed to shutdown server: $0", "The repository may be empty.");
+	    //l10n
+	    //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+		    //"Failed to shutdown server: $0", "The repository may be empty.");
+		Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+			"src.Server.cimserver.SHUTDOWN_FAILED_REPOSITORY_EMPTY",
+		    "Failed to shutdown server: The repository may be empty.");
 	}
 	else
 	{
-	    Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+	    //l10n
+	    //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+			//"Failed to shutdown server: $0", e.getMessage());
+		Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+			"src.Server.cimserver.SHUTDOWN_FAILED",
 			"Failed to shutdown server: $0", e.getMessage());
 	}
 	// Kill the server job.
 	if(cimserver_kill() == -1)
 	   cimserver_exit(2);
 #else
-        PEGASUS_STD(cerr) << "Failed to shutdown server: ";
+        //l10n
+        //PEGASUS_STD(cerr) << "Failed to shutdown server: ";
+        MessageLoaderParms parms("src.Server.cimserver.SHUTDOWN_FAILED",
+        						 "Failed to shutdown server: ");
+        PEGASUS_STD(cerr) << MessageLoader::getMessage(parms);
         if (e.getCode() == CIM_ERR_INVALID_NAMESPACE)
         {
-            PEGASUS_STD(cerr) << "The repository may be empty.";
-            PEGASUS_STD(cerr) << PEGASUS_STD(endl);
+            //PEGASUS_STD(cerr) << "The repository may be empty.";
+            //PEGASUS_STD(cerr) << PEGASUS_STD(endl);
+            MessageLoaderParms parms("src.Server.cimserver.REPOSITORY_EMPTY",
+        						 	 "The repository may be empty.");
+        	PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
         }
         else
         {
@@ -413,7 +489,11 @@ void shutdownCIMOM(Uint32 timeoutValue)
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 	    if (kill_rc != -1)
             {
-                cout << "Shutdown timeout expired.  CIM Server process killed." << endl;
+                //l10n
+                //cout << "Shutdown timeout expired.  CIM Server process killed." << endl;
+                MessageLoaderParms parms("src.Server.cimserver.TIMEOUT_EXPIRED_SERVER_KILLED",
+                						 "Shutdown timeout expired.  CIM Server process killed.");
+                cout << MessageLoader::getMessage(parms) << endl;
                 exit(0);
             }
 #endif
@@ -435,6 +515,11 @@ int main(int argc, char** argv)
     Boolean daemonOption = false;
     Boolean shutdownOption = false;
     Uint32 timeoutValue  = 0;
+
+//l10n
+// Set Message loading to process locale
+MessageLoader::_useProcessLocale = true; 
+//l10n
 
 #ifdef PEGASUS_OS_OS400
     // Initialize Pegasus home to the shipped OS/400 directory.
@@ -510,7 +595,12 @@ int main(int argc, char** argv)
                     }
                     else
                     {
-                        cout << "Missing argument for option -" << option << endl;
+                        //l10n
+                        //cout << "Missing argument for option -" << option << endl;
+                        MessageLoaderParms parms("src.Server.cimserver.MISSING_ARGUMENT",
+                						 "Missing argument for option -$0",
+                						 String(option));
+                		cout << MessageLoader::getMessage(parms) << endl;
                         exit(0);
                     }
 
@@ -526,8 +616,12 @@ int main(int argc, char** argv)
                         (strlen(option) == 1))
                 {
 		    System::bindVerbose = true;
-                    cout << "Unsupported debug option, BIND_VERBOSE, enabled." 
-                         << endl;
+                    //l10n
+                    //cout << "Unsupported debug option, BIND_VERBOSE, enabled." 
+                         //<< endl;
+                    MessageLoaderParms parms("src.Server.cimserver.UNSUPPORTED_DEBUG_OPTION",
+                						 "Unsupported debug option, BIND_VERBOSE, enabled.");
+                	cout << MessageLoader::getMessage(parms) << endl;
                     // remove the option from the command line
                     memmove(&argv[i], &argv[i + 1], (argc-i) * sizeof(char*));
                     argc--;   
@@ -545,8 +639,13 @@ int main(int argc, char** argv)
 #ifndef PEGASUS_OS_OS400
                     if (!System::isPrivilegedUser(System::getEffectiveUserName()))
                     {
-                        cout << "You must have superuser privilege to run ";
-                        cout << "cimserver." << endl;
+                        //l10n
+                        //cout << "You must have superuser privilege to run ";
+                        //cout << "cimserver." << endl;
+                        MessageLoaderParms parms("src.Server.cimserver.SUPERVISOR_PRIVALEDGE_TO_RUN_SERVER",
+                        						 "You must have superuser privilege to run cimserver.");
+                       
+                        cout << MessageLoader::getMessage(parms) << endl;
                         exit(0);
                     }
 #endif
@@ -556,7 +655,12 @@ int main(int argc, char** argv)
                     //
                     if (shutdownOption)
                     {
-                        cout << "Duplicate shutdown option specified." << endl;
+                        //l10n
+                        //cout << "Duplicate shutdown option specified." << endl;
+                        MessageLoaderParms parms("src.Server.cimserver.DUPLICATE_SHUTDOWN_OPTION",
+                        						 "Duplicate shutdown option specified.");
+                       
+                        cout << MessageLoader::getMessage(parms) << endl;
                         exit(0);
                     }
 
@@ -580,7 +684,13 @@ int main(int argc, char** argv)
                   }
                   if(cimserver_install_nt_service(opt_arg))
                   {
-                      cout << "\nPegasus installed as NT Service";
+                     //l10n
+                      //cout << "\nPegasus installed as NT Service";
+                      MessageLoaderParms parms("src.Server.cimserver.INSTALLED_NT_SERVICE",
+                        					   "\n$0 installed as NT Service",
+                        					   "Pegasus");
+                       
+                      cout << MessageLoader::getMessage(parms) << endl;
                       exit(0);
                   }
                   else
@@ -600,7 +710,13 @@ int main(int argc, char** argv)
                   }
                   if(cimserver_remove_nt_service(opt_arg))
                   {
-                      cout << "\nPegasus removed as NT Service";
+                      //l10n
+                      //cout << "\nPegasus removed as NT Service";
+                      MessageLoaderParms parms("src.Server.cimserver.REMOVED_NT_SERVICE",
+                        					   "\n$0 removed as NT Service",
+                        					   "Pegasus");
+                       
+                      cout << MessageLoader::getMessage(parms) << endl;
                       exit(0);
                   }
                   else
@@ -621,7 +737,13 @@ int main(int argc, char** argv)
                   }
                   if(cimserver_start_nt_service(opt_arg))
                   {
-                      cout << "\nPegasus started as NT Service";
+                      //l10n
+                      //cout << "\nPegasus started as NT Service";
+                      MessageLoaderParms parms("src.Server.cimserver.STARTED_NT_SERVICE",
+                        					   "\n$0 started as NT Service",
+                        					   "Pegasus");
+                       
+                      cout << MessageLoader::getMessage(parms) << endl;
                       exit(0);
                   }
                   else
@@ -641,7 +763,13 @@ int main(int argc, char** argv)
                   }
                   if(cimserver_stop_nt_service(opt_arg))
                   {
-                      cout << "\nPegasus stopped as NT Service";
+                      //l10n
+                      //cout << "\nPegasus stopped as NT Service";
+                      MessageLoaderParms parms("src.Server.cimserver.STOPPED_NT_SERVICE",
+                        					   "\n$0 stopped as NT Service",
+                        					   "Pegasus");
+                       
+                      cout << MessageLoader::getMessage(parms) << endl;
                       exit(0);
                   }
                   else
@@ -709,11 +837,18 @@ int main(int argc, char** argv)
 #ifndef PEGASUS_LOCAL_DOMAIN_SOCKET
     if (!enableHttpConnection && !enableHttpsConnection)
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            "Neither HTTP nor HTTPS connection is enabled.  "
-            "CIMServer will not be started.");
-        cerr << "Neither HTTP nor HTTPS connection is enabled.  "
-            "CIMServer will not be started." << endl;
+        //l10n
+        //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            //"Neither HTTP nor HTTPS connection is enabled.  "
+            //"CIMServer will not be started.");
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+        	"src.Server.cimserver.HTTP_NOT_ENABLED_SERVER_NOT_STARTING",
+            "Neither HTTP nor HTTPS connection is enabled.  CIMServer will not be started.");
+        //cerr << "Neither HTTP nor HTTPS connection is enabled.  "
+            //"CIMServer will not be started." << endl;
+        MessageLoaderParms parms("src.Server.cimserver.HTTP_NOT_ENABLED_SERVER_NOT_STARTING",
+        						 "Neither HTTP nor HTTPS connection is enabled.  CIMServer will not be started.");
+        cerr << MessageLoader::getMessage(parms) << endl;
         exit(1);
     }
 #endif
@@ -759,10 +894,19 @@ int main(int argc, char** argv)
             shutdownCIMOM(timeoutValue);
 
 #ifdef PEGASUS_OS_OS400
-	    Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
-			"CIM Server stopped.");  
+	    //l10n
+	    //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
+			//"CIM Server stopped.");  
+		Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
+			"src.Server.cimserver.SERVER_STOPPED",
+			"$0 Server stopped.", "CIM");
 #else
-            cout << "CIM Server stopped." << endl;
+			//l10n
+            //cout << "CIM Server stopped." << endl;
+            MessageLoaderParms parms("src.Server.cimserver.SERVER_STOPPED",
+            						 "$0 Server stopped.",
+            						 "CIM");
+            cout << MessageLoader::getMessage(parms) << endl;
 #endif
             cimserver_exit(0);
         }
@@ -770,7 +914,11 @@ int main(int argc, char** argv)
         // Leave this in until people get familiar with the logs.
 #if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) && \
 !defined(PEGASUS_OS_OS400)
-        cout << "Logs Directory = " << logsDirectory << endl;
+        //l10n
+        //cout << "Logs Directory = " << logsDirectory << endl;
+        MessageLoaderParms parms("src.Server.cimserver.LOGS_DIRECTORY",
+            				     "Logs Directory = ");
+        cout << MessageLoader::getMessage(parms) << logsDirectory << endl;
 #endif
 
         if (String::equal(configManager->getCurrentValue("slp"), "true"))
@@ -782,10 +930,19 @@ int main(int argc, char** argv)
     {
 
 #ifdef PEGASUS_OS_OS400
-	Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-		    "Error: $0",e.getMessage());  
+	//l10n
+	//Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+		    //"Error: $0",e.getMessage());  
+	Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+			"src.Server.cimserver.ERROR",
+		    "Error: $0",e.getMessage()); 
 #else
-	cout << "Error: " << e.getMessage() << endl;
+	//l10n
+	//cout << "Error: " << e.getMessage() << endl;
+	MessageLoaderParms parms("src.Server.cimserver.ERROR",
+							 "Error: $0",
+							 e.getMessage());
+	cout << MessageLoader::getMessage(parms) << endl;
 #endif
     }
 
@@ -824,11 +981,22 @@ int main(int argc, char** argv)
 #if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) && \
 !defined(PEGASUS_OS_OS400)
     cout << PEGASUS_NAME << PEGASUS_VERSION << endl;
-    cout << "Built " << __DATE__ << " " << __TIME__ << endl;
-    cout <<"Starting..."
-	 << (useSLP ? " SLP reg. " : " No SLP ")
-	<< endl;
+    //l10n
+    //cout << "Built " << __DATE__ << " " << __TIME__ << endl;
+    //cout <<"Starting..."
+    MessageLoaderParms parms("src.Server.cimserver.STARTUP_MESSAGE",
+    						 "Built $0 $1\nStarting...",
+    						 __DATE__,
+    						 __TIME__);
+    cout << MessageLoader::getMessage(parms)
+	 	 << (useSLP ? " SLP reg. " : " No SLP ")
+		 << endl;
 #endif
+
+//l10n
+// reset message loading to NON-process locale
+MessageLoader::_useProcessLocale = false; 
+//l10n
 
     // do we need to run as a daemon ?
     if (daemonOption)
@@ -860,14 +1028,21 @@ int main(int argc, char** argv)
     // The run function for the dummy Thread should never be called,
     Thread *dummyInitialThread = new Thread(dummyThreadFunc, NULL, false);
     Thread::setCurrent(dummyInitialThread);
+    AcceptLanguages default_al = AcceptLanguages::getDefaultAcceptLanguages();
+    Thread::setLanguages(new AcceptLanguages(default_al));
+    
 
 #ifdef PEGASUS_OS_OS400
     // Special server initialization code for OS/400.
     if (cimserver_initialize() != 0)
     {
 	// do some logging here!
-	Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-		    "CIM Server failed to initialize");  
+	//l10n
+	//Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+		    //"CIM Server failed to initialize"); 
+	Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+				  "src.Server.cimserver.SERVER_FAILED_TO_INITIALIZE",
+		    	  "CIM Server failed to initialize");  
 	exit(-1);
     } 
 #endif
@@ -883,8 +1058,12 @@ int main(int argc, char** argv)
     //
     if(isCIMServerRunning())
     {
-	cout << "Unable to start CIMServer." << endl;
-	cout << "CIMServer is already running." << endl;
+	//l10n
+		//cout << "Unable to start CIMServer." << endl;
+		//cout << "CIMServer is already running." << endl;
+		MessageLoaderParms parms("src.Server.cimserver.UNABLE_TO_START_SERVER_ALREADY_RUNNING",
+								 "Unable to start $0.\n$1 is already running.",
+								 "CIMServer","CIMServer");
 
 	//
         // notify parent process (if there is a parent process) to terminate
@@ -920,32 +1099,57 @@ int main(int argc, char** argv)
         if (enableHttpConnection)
         {
             server.addAcceptor(false, portNumberHttp, false);
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-                        "Listening on HTTP port $0.", portNumberHttp);
+            //l10n
+            //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+                        //"Listening on HTTP port $0.", portNumberHttp);
+                        
+            Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+            				"src.Server.cimserver.LISTENING_ON_PORT"
+                        	"Listening on $0 port $1.", "HTTP",portNumberHttp);
         }
         if (enableHttpsConnection)
         {
             server.addAcceptor(false, portNumberHttps, true);
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-                        "Listening on HTTPS port $0.", portNumberHttps);
+            //l10n
+            //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+                        //"Listening on HTTPS port $0.", portNumberHttps);
+            Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+            				"src.Server.cimserver.LISTENING_ON_PORT"
+                        	"Listening on $0 port $1.", "HTTPS",portNumberHttps);
         }
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
         server.addAcceptor(true, 0, false);
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-                    "Listening on local connection socket.");
+        //l10n
+        //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+                    //"Listening on local connection socket.");
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+            				"src.Server.cimserver.LISTENING_ON_LOCAL"
+                        	"Listening on local connection socket.");
 #endif
 
 #if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) && !defined(PEGASUS_OS_OS400)
         if (enableHttpConnection)
         {
-            cout << "Listening on HTTP port " << portNumberHttp << endl;
+            //l10n
+            //cout << "Listening on HTTP port " << portNumberHttp << endl;
+            MessageLoaderParms parms("src.Server.cimserver.LISTENING_ON_PORT",
+            						 "Listening on $0 port $1.", "HTTP",portNumberHttp);
+           	cout << MessageLoader::getMessage(parms) << endl;
         }
         if (enableHttpsConnection)
         {
-            cout << "Listening on HTTPS port " << portNumberHttps << endl;
+            //l10n
+            //cout << "Listening on HTTPS port " << portNumberHttps << endl;
+            MessageLoaderParms parms("src.Server.cimserver.LISTENING_ON_PORT",
+            						 "Listening on $0 port $1.", "HTTPS",portNumberHttps);
+           	cout << MessageLoader::getMessage(parms) << endl;
         }
 # ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
-        cout << "Listening on local connection socket" << endl;
+        //l10n
+        //cout << "Listening on local connection socket" << endl;
+        MessageLoaderParms parms("src.Server.cimserver.LISTENING_ON_LOCAL",
+            					 "Listening on local connection socket.");
+        cout << MessageLoader::getMessage(parms) << endl;
 # endif
 #endif
 
@@ -985,11 +1189,21 @@ int main(int argc, char** argv)
 
         // Put server started message to the logger
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+        //l10n
+        //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+                    //"Started $0 version $1.",
+                    //PLATFORM_PRODUCT_NAME, PLATFORM_PRODUCT_VERSION);
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+        			"src.Server.cimserver.STARTED_VERSION",
                     "Started $0 version $1.",
                     PLATFORM_PRODUCT_NAME, PLATFORM_PRODUCT_VERSION);
 #else
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+		//l10n
+        //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+                    //"Started $0 version $1.",
+                    //PEGASUS_NAME, PEGASUS_VERSION);
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+        			"src.Server.cimserver.STARTED_VERSION",
                     "Started $0 version $1.",
                     PEGASUS_NAME, PEGASUS_VERSION);
 #endif
@@ -1026,10 +1240,18 @@ int main(int argc, char** argv)
 	//
         // Put server shutdown message to the logger
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+        //l10n
+        //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+            //"$0 stopped.", PLATFORM_PRODUCT_NAME);
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+        	"src.Server.cimserver.STOPPED",
             "$0 stopped.", PLATFORM_PRODUCT_NAME);
 #else
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+		//l10n
+        //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+            //"$0 stopped.", PEGASUS_NAME);
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+        	"src.Server.cimserver.STOPPED",
             "$0 stopped.", PEGASUS_NAME);
 #endif
 
@@ -1043,11 +1265,19 @@ int main(int argc, char** argv)
     }
     catch(Exception& e)
     {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-		    "Error: $0", e.getMessage()); 
+	//l10n
+	//Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+		    //"Error: $0", e.getMessage()); 
+	Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+			"src.Server.cimserver.ERROR",
+		    "Error: $0", e.getMessage());  
 
 #ifndef PEGASUS_OS_OS400
-	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+	//l10n
+	//PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+	MessageLoaderParms parms("src.Server.cimserver.ERROR",
+							 "Error: $0", e.getMessage());
+	PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
 #endif
 
 	//

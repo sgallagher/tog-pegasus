@@ -268,11 +268,6 @@ void CIMQualifierList::resolve(
 		//cout << "KSTEST inherited qualifier propagate loop " <<  iq.getName() 
 		//<< " flavor " << iq.getFlavor << " count " << i << endl;
 	
-		// ATTN-DE-P1-This next test is incorrect. It is a temporary, hard-coded
-		// HACK to avoid propagating the "Abstract" Qualifier to subclasses
-		//if (CIMName::equal(iq.getName(), "Abstract"))
-			//   continue;
-		
 		if (isInstancePart)
 		{
 			if (!iq.isFlavor(CIMFlavor::TOINSTANCE))

@@ -377,6 +377,10 @@ static CIMInstance _resolveInstance(
         }
     }
 
+    /*
+    // ATTN: this section of code is disabled because it completes the instance. that is, it
+    // adds missing properties and default values, which is not desireable at this time.
+
     // apply reference instance properties
     for(Uint32 i = 0, n = referenceInstance.getPropertyCount(); i < n; i++)
     {
@@ -391,6 +395,7 @@ static CIMInstance _resolveInstance(
     // apply specified instance properties
     for(Uint32 i = 0, n = cimInstance.getPropertyCount(); i < n; i++)
     {
+        // ATTN: convert const property to non const
         CIMProperty cimProperty = cimInstance.getProperty(i).clone();
 
         Uint32 pos = newInstance.findProperty(cimProperty.getName());
@@ -402,7 +407,35 @@ static CIMInstance _resolveInstance(
 
         DEBUG_PRINT("updating property - " << cimProperty.getName().getString());
 
-        newInstance.getProperty(pos).setValue(cimProperty.getValue());
+        //newInstance.getProperty(pos).setValue(cimProperty.getValue());
+        CIMProperty referenceProperty = newInstace.getProperty(pos);
+
+        newInstance.addProperty(_resolveProperty(referenceProperty, cimProperty, includeQualifiers, includeClassOrigin));
+    }
+    */
+
+    // ATTN: this section of code replaces the section above so that only properties specified by the provider are
+    // returned. properties not in the reference instance are implicitly dropped.
+
+    // apply ONLY specified instance properties
+    for(Uint32 i = 0, n = cimInstance.getPropertyCount(); i < n; i++)
+    {
+        // ATTN: convert const property to non const
+        CIMProperty cimProperty = cimInstance.getProperty(i).clone();
+
+        Uint32 pos = referenceInstance.findProperty(cimProperty.getName());
+
+        if(pos == PEG_NOT_FOUND)
+        {
+            // throw invalid property
+        }
+
+        // ATTN: convert const property to non const
+        CIMProperty referenceProperty = referenceInstance.getProperty(pos).clone();
+
+        DEBUG_PRINT("adding property - " << cimProperty.getName().getString());
+
+        newInstance.addProperty(_resolveProperty(referenceProperty, cimProperty, includeQualifiers, includeClassOrigin));
     }
 
     // update keys

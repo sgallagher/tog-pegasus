@@ -59,7 +59,6 @@
 
 #define PEGASUS_HAVE_BOOLEAN
 
-// #define PEGASUS_EXPLICIT_INSTANTIATION
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif

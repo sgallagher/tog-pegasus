@@ -27,7 +27,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-//#if defined(PEGASUS_EXPLICIT_INSTANTIATION) || !defined(PEGASUS_ARRAY_T)
 // Only include if not included as general template or if explicit instantiation
 #if !defined(Pegasus_ArrayInter_h) || defined(PEGASUS_ARRAY_T)
 #if !defined(PEGASUS_ARRAY_T)
@@ -198,4 +197,3 @@ private:
 };
 
 #endif //!defined(Pegasus_ArrayInter_h) || !defined(PEGASUS_ARRAY_T)
-//#endif /*defined(PEGASUS_EXPLICIT_INSTANTIATION) || !defined(PEGASUS_ARRAY_T)*/

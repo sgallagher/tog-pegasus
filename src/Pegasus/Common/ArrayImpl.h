@@ -27,7 +27,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-//#if defined(PEGASUS_EXPLICIT_INSTANTIATION) || !defined(PEGASUS_ARRAY_T)
 // Only include if not included as general template or if explicit instantiation
 #if !defined(Pegasus_ArrayImpl_h) || defined(PEGASUS_ARRAY_T)
 #if !defined(PEGASUS_ARRAY_T)
@@ -381,4 +380,3 @@ PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::_data() const
 }
 
 #endif //!defined(Pegasus_ArrayImpl_h) || !defined(PEGASUS_ARRAY_T)
-//#endif /*defined(PEGASUS_EXPLICIT_INSTANTIATION) || !defined(PEGASUS_ARRAY_T)*/

@@ -59,6 +59,4 @@
 
 #define PEGASUS_HAVE_BOOLEAN
 
-// #define PEGASUS_EXPLICIT_INSTANTIATION
-
 #endif /* Pegasus_Platform_SOLARIS_SPARC_GNU_h */

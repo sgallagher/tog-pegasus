@@ -34,26 +34,27 @@ world: depend all repository
 
 # The repository Target removes and rebuilds the CIM repository
 
+# Note: Arguments must be quoted to preserve upper case characters in VMS.
 repository: FORCE
-	@ $(MAKE) -SC Schemas/Pegasus repository
+	@ $(MAKE) "-SC" Schemas/Pegasus repository
 
 repositoryServer: FORCE
-	@ $(MAKE) -SC Schemas/Pegasus repositoryServer
+	@ $(MAKE) "-SC" Schemas/Pegasus repositoryServer
 
 testrepository: FORCE
-	@ $(MAKE) -SC src/Providers/sample/Load repository
-	@ $(MAKE) -SC test/wetest repository
-	@ $(MAKE) -SC src/Clients/benchmarkTest/Load repository
+	@ $(MAKE) "-SC" src/Providers/sample/Load repository
+	@ $(MAKE) "-SC" test/wetest repository
+	@ $(MAKE) "-SC" src/Clients/benchmarkTest/Load repository
 
 testrepositoryServer: FORCE
-	@ $(MAKE) -SC src/Providers/sample/Load repositoryServer
-	@ $(MAKE) -SC test/wetest repositoryServer
-	@ $(MAKE) -SC src/Clients/benchmarkTest/Load repositoryServer
+	@ $(MAKE) "-SC" src/Providers/sample/Load repositoryServer
+	@ $(MAKE) "-SC" test/wetest repositoryServer
+	@ $(MAKE) "-SC" src/Clients/benchmarkTest/Load repositoryServer
 
 removetestrepository: FORCE
-	@ $(MAKE) -SC src/Providers/sample/Load removerepository
-	@ $(MAKE) -SC test/wetest removerepository
-	@ $(MAKE) -SC src/Clients/benchmarkTest/Load removerepository
+	@ $(MAKE) "-SC" src/Providers/sample/Load removerepository
+	@ $(MAKE) "-SC" test/wetest removerepository
+	@ $(MAKE) "-SC" src/Clients/benchmarkTest/Load removerepository
 
 config:
 	@ $(ROOT)/SetConfig_EnvVar

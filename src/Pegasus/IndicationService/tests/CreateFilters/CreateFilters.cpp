@@ -30,8 +30,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Common/HTTPConnector.h>
-#include <Pegasus/Client/CIMClient.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -113,9 +111,7 @@ void TestCreateFilterInstances(CIMClient& client)
 
 int main(int argc, char** argv)
 {
-    Monitor* monitor = new Monitor;
-    HTTPConnector* httpConnector = new HTTPConnector(monitor);
-    CIMClient client(monitor, httpConnector);
+    CIMClient client;
     client.connect("localhost:5988");
 
     try 

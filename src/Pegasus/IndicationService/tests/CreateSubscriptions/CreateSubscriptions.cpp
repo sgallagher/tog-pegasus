@@ -28,7 +28,6 @@
 #include <Pegasus/Common/Config.h>
 #include <cassert>
 #include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Common/HTTPConnector.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -75,9 +74,7 @@ void TestCreateSubscriptionInstances(CIMClient& client)
 
 int main(int argc, char** argv)
 {
-    Monitor* monitor = new Monitor;
-    HTTPConnector* httpConnector = new HTTPConnector(monitor);
-    CIMClient client(monitor, httpConnector);
+    CIMClient client;
     client.connect("localhost:5988");
 
     try

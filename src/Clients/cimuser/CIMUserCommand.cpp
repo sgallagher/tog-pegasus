@@ -42,8 +42,6 @@
 #include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/HTTPConnector.h>
-#include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
 
@@ -879,12 +877,9 @@ Uint32 CIMUserCommand::execute (
         //
         // Open connection with CIMSever
         //
-        Monitor* monitor = new Monitor;
-        HTTPConnector* connector = new HTTPConnector(monitor);
-        _client = new CIMClient(monitor, connector);
+        _client = new CIMClient;
 
         _client->connectLocal();
-
     }
     catch(Exception& e)
     {

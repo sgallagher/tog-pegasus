@@ -206,6 +206,34 @@ will be deleted.
     qualifierlist.resolve. Temporarily remove the DEFAULT setup on the
     Compiler qualifier generation. Add tests for resolve processing.
 
+22. (Roger Kumpf - HP) 8 Mar 2002 - Simplified CIMClient API construction.
+    Previously, the client application constructed a client API using:
+
+        Monitor* monitor = new Monitor;
+        HTTPConnector* connector;
+        connector = new HTTPConnector(monitor);
+        Uint32 timeoutMillis = 60 * 1000;    // optional
+
+        CIMClient client(monitor, connector, timeoutMillis);
+
+    With this change, the client application now looks like:
+
+        Uint32 timeoutMillis = 60 * 1000;    // optional
+
+        CIMClient client(timeoutMillis);
+
+    The old style allowed an SSL context to be specified in the HTTPConnector
+    constructor.  It seems that the SSL context is really a property of a
+    connection rather than of the client API.  So instead of adding an SSL
+    context parameter to the CIMClient constructor, I added it to the CIMClient
+    connect() method.  There are now forms of the connect() method with and
+    without an SSL context.  Similar changes were made in the HTTPConnector
+    class to allow specification of an SSL context in the connect() method
+    rather than in the constructor.
+
+    NOTE:  Client applications are affected and must be updated with this
+    change.  I've already updated all the clients that are checked in and
+    included in the Pegasus build.
 
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001

@@ -28,8 +28,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <cassert>
-#include <Pegasus/Common/Monitor.h>
-#include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Client/CIMClient.h>
 
 PEGASUS_USING_PEGASUS;
@@ -312,15 +310,13 @@ int main(int argc, char** argv)
 {
     try
     {
-	Monitor* monitor = new Monitor;
-	HTTPConnector* httpConnector = new HTTPConnector(monitor);
-        // Test SSL
+	CIMClient client;
 #if 0
+        // Test SSL
         String certpath("/home/markus/src/pegasus/server.pem");
         SSLContext * sslcontext = new SSLContext(certpath);
-	HTTPConnector* httpConnector = new HTTPConnector(monitor,sslcontext);
+	client.connect("localhost:5988", sslcontext);
 #endif
-	CIMClient client(monitor, httpConnector);
 
 	client.connect("localhost:5988");
 

@@ -30,9 +30,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <cassert>
-#include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/TLS.h>
-#include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
@@ -676,24 +674,21 @@ int main(int argc, char** argv)
       try
       {
 	   Stopwatch elapsedTime;
-	   Monitor* monitor = new Monitor;
-	   //HTTPConnector* connector = new HTTPConnector(monitor);
 
-	   HTTPConnector* connector;
+	   CIMClient client(60 * 1000);
+
+	   char * connection = connectionList[i].allocateCString();
+	   cout << "connecting to " << connection << endl;
            if (useSSL)
            {
                String certpath("/home/markus/src/pegasus/server.pem");
                SSLContext * sslcontext = new SSLContext(certpath);
-	       connector = new HTTPConnector(monitor, sslcontext);
+	       client.connect(connection, sslcontext);
            }
            else
-	       connector = new HTTPConnector(monitor);
-
-	   CIMClient client(monitor, connector, 60 * 1000);
-
-	   char * connection = connectionList[i].allocateCString();
-	   cout << "connecting to " << connection << endl;
-	   client.connect(connection);
+           {
+	       client.connect(connection);
+           }
 	   delete [] connection;
 
 	   testStart("Test NameSpace Operations");

@@ -88,7 +88,6 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Server/ShutdownService.h>
 #include <Pegasus/Common/Destroyer.h>
 #ifndef PEGASUS_OS_ZOS
@@ -222,9 +221,7 @@ void shutdownCIMOM(Boolean forceOption, Uint32 timeoutValue)
     //
     // Create CIMClient object
     //
-    Monitor* monitor = new Monitor;
-    HTTPConnector* httpConnector = new HTTPConnector(monitor);
-    CIMClient client(monitor, httpConnector);
+    CIMClient client;
 
     //
     // Get the port number

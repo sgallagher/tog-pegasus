@@ -33,8 +33,6 @@
 #include <Pegasus/getoopt/getoopt.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/Monitor.h>
-#include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/CIMStatusCode.h>
@@ -635,9 +633,7 @@ Uint32 CIMConfigCommand::execute (
         //
         // Open connection with CIMSever
         //
-        Monitor* monitor = new Monitor;
-        HTTPConnector* connector = new HTTPConnector(monitor);
-        _client = new CIMClient(monitor, connector);
+        _client = new CIMClient;
 
         _client->connectLocal();
 

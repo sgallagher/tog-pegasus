@@ -28,8 +28,6 @@
 #include <Pegasus/Common/Config.h>
 #include <cassert>
 #include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Common/HTTPConnector.h>
-#include <Pegasus/Client/CIMClient.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -38,9 +36,7 @@ const String NAMESPACE = "root/cimv2";
 
 int main(int argc, char** argv)
 {
-    Monitor* monitor = new Monitor;
-    HTTPConnector* httpConnector = new HTTPConnector(monitor);
-    CIMClient client(monitor, httpConnector);
+    CIMClient client;
     client.connect("localhost:5988");
 
     //Indication

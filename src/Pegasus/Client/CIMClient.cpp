@@ -52,19 +52,20 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMClient::CIMClient(
-    Monitor* monitor,
-    HTTPConnector* httpConnector,
-    Uint32 timeOutMilliseconds)
+CIMClient::CIMClient(Uint32 timeOutMilliseconds)
     : 
-    _monitor(monitor), 
-    _httpConnector(httpConnector),
     _timeOutMilliseconds(timeOutMilliseconds),
     _connected(false),
     _responseDecoder(0),
     _requestEncoder(0),
     _httpConnection(0)
 {
+    //
+    // Create Monitor and HTTPConnector
+    //
+    _monitor = new Monitor();
+    _httpConnector = new HTTPConnector(_monitor);
+
     //
     // Create client authenticator
     //
@@ -74,6 +75,8 @@ CIMClient::CIMClient(
 CIMClient::~CIMClient()
 {
    delete _authenticator;
+   delete _httpConnector;
+   delete _monitor;
 }
 
 void CIMClient::handleEnqueue()
@@ -88,6 +91,7 @@ const char* CIMClient::getQueueName() const
 
 void CIMClient::connect(
     const String& address,
+    SSLContext * sslContext,
     const String& userName,
     const String& password)
 {
@@ -105,7 +109,9 @@ void CIMClient::connect(
     
     try
     {
-	_httpConnection = _httpConnector->connect(address, _responseDecoder);
+	_httpConnection = _httpConnector->connect(address,
+                                                  sslContext,
+                                                  _responseDecoder);
     }
     catch (Exception& e)
     {
@@ -1054,16 +1060,7 @@ String CIMClient::_getLocalHostName()
 
     if (!hostname.size())
     {
-#ifdef PEGASUS_ACCEPT_ONLY_LOCAL_CONNECTIONS
-        struct sockaddr_in address;
-
-        memset(&address, 0, sizeof(address));
-
-        address.sin_addr.s_addr = INADDR_LOOPBACK;
-        hostname.assign(inet_ntoa(address.sin_addr));
-#else
         hostname.assign(System::getHostName());
-#endif
     }
 
     return hostname;

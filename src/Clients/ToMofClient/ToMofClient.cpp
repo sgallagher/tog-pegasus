@@ -32,8 +32,6 @@
 #include <Pegasus/Common/Config.h>
 #include <cassert>
 #include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Common/HTTPConnector.h>
 
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
@@ -257,9 +255,7 @@ int main(int argc, char** argv)
     cout << "connecting to " << connection << endl;
 
 
-    Monitor* monitor = new Monitor;
-    HTTPConnector* httpConnector = new HTTPConnector(monitor);
-    CIMClient client(monitor, httpConnector);
+    CIMClient client;
     client.connect("localhost:5988");
 
     if (showQualifiers | showAll)

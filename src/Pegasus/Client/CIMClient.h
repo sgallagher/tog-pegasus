@@ -53,7 +53,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class Monitor;
 class CIMOperationResponseDecoder;
 class CIMOperationRequestEncoder;
 
@@ -73,31 +72,23 @@ public:
     enum { DEFAULT_TIMEOUT_MILLISECONDS = 20000 };
 
     /** Constructor for a CIM Client object.
-    @param monitor Defines the monitor object to be used with this
-    CIMClient object.
-    @param httpConnector defines the connector object to use with
-    this CIMClient object. The connector defines TBD.
     @param timeOutMilliseconds Defines the number of milliseconds
     of inactivity before the connection will timeout
+    // ATTN-RK-P3-20020308: This means the time the CIMClient will wait for
+    // a response to an outstanding request, right?  Not inactivity on the
+    // connection?  If a request times out, does the connection remain
+    // active?
     
     <PRE>
-        Monitor* monitor = new Monitor;
-        HTTPConnector* connector;
-        connector = new HTTPConnector(monitor);
-
-        CIMClient client(monitor, connector, 60 * 1000);
+        CIMClient client(60 * 1000);
 
         char * connection = connectionList[i].allocateCString();
         cout << "connecting to " << connection << endl;
         client.connect(connection);
-    
     </PRE>
-    @exception TBD
+    @exception ATTN-TBD
     */
-    CIMClient(
-	Monitor* monitor,
-	HTTPConnector* httpConnector,
-	Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
+    CIMClient(Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
 
     ///
     ~CIMClient();
@@ -141,8 +132,36 @@ public:
             TBD
         </PRE>
     */
+    inline void connect(
+        const String& address,
+        const String& userName = String::EMPTY,
+        const String& password = String::EMPTY)
+    {
+        connect(address, NULL, userName, password);
+    }
+
+    /** connect - Creates an HTTP connection with the server
+        defined by the URL in address.
+        @param address - String defining the URL of the server
+        to which the client should connect
+        @param sslContext - The SSL context to use for this connection
+        @param userName - String containing the name of the user
+        the client is connecting as.
+        @param password - String containing the password of the user
+        the client is connecting as.
+        @return - No return defined. Failure to connect throws an exception
+        @exception AlreadyConnected if connection already established
+        @exception InvalidLocator
+        @exception CannotCreateSocket
+        @exception CannotConnect
+        @exception UnexpectedFailure
+        <PRE>
+            TBD
+        </PRE>
+    */
     void connect(
         const String& address,
+        SSLContext * sslContext,
         const String& userName = String::EMPTY,
         const String& password = String::EMPTY);
 

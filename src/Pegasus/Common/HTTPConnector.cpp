@@ -141,15 +141,7 @@ struct HTTPConnectorRep
 
 HTTPConnector::HTTPConnector(Monitor* monitor)
    : Base("HTTPConnector", MessageQueue::getNextQueueId()),
-     _monitor(monitor), _sslcontext(NULL)
-{
-   _rep = new HTTPConnectorRep;
-   Socket::initializeInterface();
-}
-
-HTTPConnector::HTTPConnector(Monitor* monitor, SSLContext * sslcontext)
-   : Base("HTTPConnector", MessageQueue::getNextQueueId()),
-     _monitor(monitor), _sslcontext(sslcontext)
+     _monitor(monitor)
 {
    _rep = new HTTPConnectorRep;
    Socket::initializeInterface();
@@ -222,6 +214,7 @@ const char* HTTPConnector::getQueueName() const
 
 HTTPConnection* HTTPConnector::connect(
    const String& locator, 
+   SSLContext * sslContext,
    MessageQueue* outputMessageQueue)
 {
    Sint32 socket;
@@ -297,7 +290,7 @@ HTTPConnection* HTTPConnector::connect(
 
    // Create HTTPConnection object:
 
-   MP_Socket * mp_socket = new MP_Socket(socket, _sslcontext);
+   MP_Socket * mp_socket = new MP_Socket(socket, sslContext);
    if (mp_socket->connect() < 0) {
       throw CannotConnect(locator);
    }

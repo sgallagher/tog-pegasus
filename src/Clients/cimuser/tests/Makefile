@@ -18,6 +18,7 @@ clean:
 poststarttests:
 	@$(RM) $(RESULTFILE)
 	@$(MAKE) -i -s poststarttests_ignoreerror
+	@$(STRIPCRS)
 	$(COMPARERESULTS)
 	@$(ECHO) +++ Test passed +++
 

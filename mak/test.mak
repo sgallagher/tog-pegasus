@@ -2,12 +2,14 @@ ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
   CIMSERVER_START_SERVICE = 
   CIMSERVER_STOP_SERVICE = 
   SLEEP =
-  DIFF = stripcrs $(RESULTFILE) | mu compare
+  STRIPCRS = stripcrs $(RESULTFILE) | stripcrs $(MASTERRESULTFILE)
+  DIFF = mu compare
   REDIRECTERROR = 2>&1
 else
   CIMSERVER_START_SERVICE = cimserver -d
   CIMSERVER_STOP_SERVICE = /usr/bin/ps -ef | /usr/bin/grep cimserver | /usr/bin/grep -v grep | /usr/bin/awk '{print "kill -9 "$$2 |"/usr/bin/sh"}'
   SLEEP = sleep 5
+  STRIPCRS =
   DIFF = diff
   REDIRECTERROR = 2>&1
 endif

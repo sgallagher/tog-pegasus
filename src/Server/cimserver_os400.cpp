@@ -119,14 +119,15 @@ int cimserver_fork(void)
 		 		"cimserver_os400::cimserver_fork() - SBMJOB",
 		 		"QYCMCIMOM");
 
-     std::string errCode = rc5;
-     std::string srvName = cppServ;
-     std::string replacementData = errCode + srvName;
+
+     char chData[sizeof(rc5)+sizeof(cppServ)];
+     strcpy((char *)&chData,rc5);
+     strcat(chData,cppServ);
 
 #pragma convert(37)
-     ycmMessage message(msgCPDDF80,
-                        CPDprefix,
-                        replacementData,
+     ycmMessage message("CPDDF80",
+                        chData,
+			strlen(chData),
                         "cimserver_os400::cimserver_fork()",
                         ycmCTLCIMID,
 			utf8);
@@ -256,24 +257,24 @@ int cimserver_kill(void)
 #pragma convert(37)
   char rc2[3] = "02"; // CIMOM server failed to end
   char cppServ[10] = "QYCMCIMOM";
-  std::string number = YCMJOB_ALL_NUMBERS; // parameter passed to job::find method
 
   // Construct a ycmJob object
   ycmJob cppJob(YCMJOB_SRVNAME_10, YCMJOB_SRVUSER_10);
   // Find the QYCMCIMOM job
-  char cppStatus  = cppJob.find(number);
+  char cppStatus  = cppJob.find(YCMJOB_ALL_NUMBERS);
 
   if (cppStatus == YCMJOB_FOUND)       // CIMOM Server is Running
   {
-    if (cppJob.end(cppJob.getNumber(), 'C', 30) == YCMJOB_END_FAILED)
+    if (cppJob.end((char *)cppJob.getNumber().c_str(), 'C', 30) == YCMJOB_END_FAILED)
     {
-      std::string errCode = rc2;
-      std::string srvName = cppServ;
-      std::string replacementData = errCode + srvName;
 
-      ycmMessage message(msgCPDDF81,
-                         CPDprefix,
-                         replacementData,
+      char chData[sizeof(rc2)+sizeof(cppServ)];
+      strcpy((char *)&chData,rc2);
+      strcat(chData,cppServ);
+
+      ycmMessage message("CPDDF81",
+                         chData,
+			 strlen(chData),
                          "cimserver_os400::cimserver_kill()",
                          ycmCTLCIMID,
 			 utf8);
@@ -303,13 +304,12 @@ int cimserver_kill(void)
 ////////////////////////////////////////////////////
 Boolean isCIMServerRunning(void)
 {
-  std::string number = YCMJOB_ALL_NUMBERS; // parameter passed to job::find method
 
   // Construct a ycmJob object
   ycmJob cppJob(YCMJOB_SRVNAME_10, YCMJOB_SRVUSER_10);
 
   // Find the QYCMCIMOM job
-  char cppStatus  = cppJob.find(number);
+  char cppStatus  = cppJob.find(YCMJOB_ALL_NUMBERS);
 
   if (cppStatus == YCMJOB_FOUND)       // CIMOM Server is Running
   {

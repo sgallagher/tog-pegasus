@@ -67,8 +67,10 @@ void RT_IndicationConsumer::handleIndication(
     //
     try
     {
-        indicationInstance.getProperty(indicationInstance.findProperty(
-                     PROPERTY_NAME_INDICATIONID)).getValue().get(indicationID);
+
+        indicationID = indicationInstance.getProperty(
+                            indicationInstance.findProperty(
+                            PROPERTY_NAME_INDICATIONID)).getValue().toString();
      }
      catch (...)
      {
@@ -102,7 +104,7 @@ void RT_IndicationConsumer::handleIndication(
         methodName = UNKNOWN;
      }
 
-    cout << "Indication ID = " << indicationID << ", IndicationTime = " <<
+    cout << "IndicationID = " << indicationID << ", IndicationTime = " <<
         indicationTime << ", MethodName = " << methodName << endl;
 }
 

@@ -14,7 +14,7 @@ Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=40
     <IPARAMVALUE NAME="NewIndication">
      <INSTANCE CLASSNAME="PG_IndicationConsumerRegistration" >
       <PROPERTY NAME="ConsumerId" TYPE="string">
-       <VALUE>/cimom/Pegasus_RT_IndicationConsumer</VALUE>
+       <VALUE>cimom/Pegasus_RT_IndicationConsumer</VALUE>
       </PROPERTY>
       <PROPERTY NAME="Location" TYPE="string">
        <VALUE>RT_IndicationConsumer</VALUE>

@@ -1,4 +1,4 @@
-M-POST /cimom/Pegasus_RT_IndicationConsumer HTTP/1.1
+M-POST cimom/Pegasus_RT_IndicationConsumer HTTP/1.1
 HOST: 
 Content-Type: application/xml; charset="utf-8"
 Content-Length: 671

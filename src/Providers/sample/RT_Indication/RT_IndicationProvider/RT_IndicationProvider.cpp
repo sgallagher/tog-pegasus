@@ -42,6 +42,10 @@ void _generateIndication (
     ResponseHandler <CIMIndication> * handler,
     const String methodName);
 
+void _generateIndication (
+    ResponseHandler <CIMIndication> & handler,
+    const String methodName);
+
 RT_IndicationProvider::RT_IndicationProvider (void) throw ()
 {
 }
@@ -64,7 +68,9 @@ void RT_IndicationProvider::enableIndications (
     _enabled = true;
     _handler = &handler;
 cout << "enable RT_IndicationProvider" << " _handler = " << _handler << endl;
-    _handler->processing ();
+    handler.processing ();
+    _generateIndication(handler, "enableSubscription");
+//    _generateIndication(_handler, "enableSubscription");
 }
 
 void _generateIndication (
@@ -73,15 +79,16 @@ void _generateIndication (
 {
     if (_enabled)
     {
-        cout << "_generateIndication RT_IndicationProvider" 
-             << " handler = " << handler << endl;
-        CIMInstance indicationInstance ("root/SampleProvider:PG_TestIndication");
+        cout << "_generateIndication RT_IndicationProvider" << endl;
+        CIMInstance indicationInstance ("root/SampleProvider:RT_TestIndication");
 
         indicationInstance.addProperty
             (CIMProperty ("IndicationTime", CIMValue (CIMDateTime ())));
 
+        char buffer[32];
+        sprintf(buffer, "%d", _nextUID++);
         indicationInstance.addProperty
-            (CIMProperty ("IndicationID", _nextUID++ ));
+            (CIMProperty ("IndicationID",String(buffer)));
 
         indicationInstance.addProperty
             (CIMProperty ("MethodName", methodName));
@@ -92,9 +99,36 @@ void _generateIndication (
     }
 }
 
+void _generateIndication (
+    ResponseHandler <CIMIndication> & handler,
+    const String methodName)
+{
+    if (_enabled)
+    {
+        cout << "_generateIndication RT_IndicationProvider" << endl;
+
+        CIMInstance indicationInstance ("root/SampleProvider:RT_TestIndication");
+
+        indicationInstance.addProperty
+            (CIMProperty ("IndicationTime", CIMValue (CIMDateTime ())));
+
+        char buffer[32];
+        sprintf(buffer, "%d", _nextUID++);
+        indicationInstance.addProperty
+            (CIMProperty ("IndicationID",String(buffer)));
+
+        indicationInstance.addProperty
+            (CIMProperty ("MethodName", methodName));
+        
+        CIMIndication cimIndication (indicationInstance);
+
+        handler.deliver (indicationInstance);
+    }
+}
+
 void RT_IndicationProvider::disableIndications (void)
 {
-cout << "disable RT_IndicationProvider" << " _handler = " << _handler << endl;
+cout << "disable RT_IndicationProvider" << endl;
     _enabled = false;
     _handler->complete ();
 }
@@ -106,8 +140,8 @@ void RT_IndicationProvider::createSubscription (
     const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
-//cout << "create AlertIndicationProvider" << endl;
-    _generateIndication(_handler, "createSubscription");
+//cout << "RT_IndicationProvider::createSubscription" << endl;
+//  _generateIndication(_handler, "createSubscription");
 }
 
 void RT_IndicationProvider::modifySubscription (
@@ -125,7 +159,7 @@ void RT_IndicationProvider::deleteSubscription (
     const CIMObjectPath & subscriptionName,
     const Array <CIMObjectPath> & classNames)
 {
-    _generateIndication(_handler, "deleteSubscription");
+//    _generateIndication(_handler, "deleteSubscription");
 }
 
 void RT_IndicationProvider::invokeMethod(
@@ -136,7 +170,7 @@ void RT_IndicationProvider::invokeMethod(
         Array<CIMParamValue> & outParameters,
         ResponseHandler<CIMValue> & handler)
 {
-cout << "invokeMethod RT_IndicationProvider" << " _handler = " << _handler << endl;
+cout << "invokeMethod RT_IndicationProvider" << endl;
         Boolean sendIndication = false;
         handler.processing();
 

@@ -66,8 +66,6 @@ server001.acme.com
 A string defining &quot;Other&quot; values for OnFatalErrorPolicy. This value MUST be set to a non NULL value when OnFatalErrorPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherOnFatalErrorPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -80,9 +78,6 @@ The FailureTriggerTimeInterval is used by the client to specify a recommended mi
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -90,8 +85,6 @@ Seconds
 A string defining &quot;Other&quot; values for SubscriptionState. This value MUST be set to a non NULL value when SubscriptionState is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherSubscriptionState MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -109,9 +102,6 @@ SubscriptionDuration defines the desired length of the subscription. Indications
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -139,8 +129,6 @@ Seconds
 A string defining &quot;Other&quot; values for RepeatNotificationPolicy. This value MUST be set to a non NULL value when RepeatNotificationPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherRepeatNotificationPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -153,9 +141,6 @@ Defines the time interval for the repeat notification policy calculation.
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -168,9 +153,6 @@ Defines the gap interval for the repeat notification policy calculation.
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -178,9 +160,6 @@ Seconds
 Defines the count property for the repeat notification policy calculation.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
@@ -323,8 +302,6 @@ server001.acme.com
 A string defining &quot;Other&quot; values for OnFatalErrorPolicy. This value MUST be set to a non NULL value when OnFatalErrorPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherOnFatalErrorPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -337,9 +314,6 @@ The FailureTriggerTimeInterval is used by the client to specify a recommended mi
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -347,8 +321,6 @@ Seconds
 A string defining &quot;Other&quot; values for SubscriptionState. This value MUST be set to a non NULL value when SubscriptionState is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherSubscriptionState MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -366,9 +338,6 @@ SubscriptionDuration defines the desired length of the subscription. Indications
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -396,8 +365,6 @@ Seconds
 A string defining &quot;Other&quot; values for RepeatNotificationPolicy. This value MUST be set to a non NULL value when RepeatNotificationPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherRepeatNotificationPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -410,9 +377,6 @@ Defines the time interval for the repeat notification policy calculation.
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -425,9 +389,6 @@ Defines the gap interval for the repeat notification policy calculation.
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -435,9 +396,6 @@ Seconds
 Defines the count property for the repeat notification policy calculation.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
@@ -580,8 +538,6 @@ server001.acme.com
 A string defining &quot;Other&quot; values for OnFatalErrorPolicy. This value MUST be set to a non NULL value when OnFatalErrorPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherOnFatalErrorPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -594,9 +550,6 @@ The FailureTriggerTimeInterval is used by the client to specify a recommended mi
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -604,8 +557,6 @@ Seconds
 A string defining &quot;Other&quot; values for SubscriptionState. This value MUST be set to a non NULL value when SubscriptionState is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherSubscriptionState MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -623,9 +574,6 @@ SubscriptionDuration defines the desired length of the subscription. Indications
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -653,8 +601,6 @@ Seconds
 A string defining &quot;Other&quot; values for RepeatNotificationPolicy. This value MUST be set to a non NULL value when RepeatNotificationPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherRepeatNotificationPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -667,9 +613,6 @@ Defines the time interval for the repeat notification policy calculation.
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -682,9 +625,6 @@ Defines the gap interval for the repeat notification policy calculation.
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -692,9 +632,6 @@ Seconds
 Defines the count property for the repeat notification policy calculation.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
@@ -837,8 +774,6 @@ server001.acme.com
 A string defining &quot;Other&quot; values for OnFatalErrorPolicy. This value MUST be set to a non NULL value when OnFatalErrorPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherOnFatalErrorPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -851,9 +786,6 @@ The FailureTriggerTimeInterval is used by the client to specify a recommended mi
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -861,8 +793,6 @@ Seconds
 A string defining &quot;Other&quot; values for SubscriptionState. This value MUST be set to a non NULL value when SubscriptionState is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherSubscriptionState MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -880,9 +810,6 @@ SubscriptionDuration defines the desired length of the subscription. Indications
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -910,8 +837,6 @@ Seconds
 A string defining &quot;Other&quot; values for RepeatNotificationPolicy. This value MUST be set to a non NULL value when RepeatNotificationPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherRepeatNotificationPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -924,9 +849,6 @@ Defines the time interval for the repeat notification policy calculation.
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -939,9 +861,6 @@ Defines the gap interval for the repeat notification policy calculation.
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -949,9 +868,6 @@ Seconds
 Defines the count property for the repeat notification policy calculation.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
@@ -1094,8 +1010,6 @@ server001.acme.com
 A string defining &quot;Other&quot; values for OnFatalErrorPolicy. This value MUST be set to a non NULL value when OnFatalErrorPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherOnFatalErrorPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1108,9 +1022,6 @@ The FailureTriggerTimeInterval is used by the client to specify a recommended mi
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1118,8 +1029,6 @@ Seconds
 A string defining &quot;Other&quot; values for SubscriptionState. This value MUST be set to a non NULL value when SubscriptionState is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherSubscriptionState MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1137,9 +1046,6 @@ SubscriptionDuration defines the desired length of the subscription. Indications
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1167,8 +1073,6 @@ Seconds
 A string defining &quot;Other&quot; values for RepeatNotificationPolicy. This value MUST be set to a non NULL value when RepeatNotificationPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherRepeatNotificationPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1181,9 +1085,6 @@ Defines the time interval for the repeat notification policy calculation.
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1196,9 +1097,6 @@ Defines the gap interval for the repeat notification policy calculation.
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1206,9 +1104,6 @@ Seconds
 Defines the count property for the repeat notification policy calculation.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
@@ -1351,8 +1246,6 @@ server001.acme.com
 A string defining &quot;Other&quot; values for OnFatalErrorPolicy. This value MUST be set to a non NULL value when OnFatalErrorPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherOnFatalErrorPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1365,9 +1258,6 @@ The FailureTriggerTimeInterval is used by the client to specify a recommended mi
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1375,8 +1265,6 @@ Seconds
 A string defining &quot;Other&quot; values for SubscriptionState. This value MUST be set to a non NULL value when SubscriptionState is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherSubscriptionState MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1394,9 +1282,6 @@ SubscriptionDuration defines the desired length of the subscription. Indications
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1424,8 +1309,6 @@ Seconds
 A string defining &quot;Other&quot; values for RepeatNotificationPolicy. This value MUST be set to a non NULL value when RepeatNotificationPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherRepeatNotificationPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1438,9 +1321,6 @@ Defines the time interval for the repeat notification policy calculation.
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1453,9 +1333,6 @@ Defines the gap interval for the repeat notification policy calculation.
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1463,9 +1340,6 @@ Seconds
 Defines the count property for the repeat notification policy calculation.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
@@ -1608,8 +1482,6 @@ server001.acme.com
 A string defining &quot;Other&quot; values for OnFatalErrorPolicy. This value MUST be set to a non NULL value when OnFatalErrorPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherOnFatalErrorPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1622,9 +1494,6 @@ The FailureTriggerTimeInterval is used by the client to specify a recommended mi
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1632,8 +1501,6 @@ Seconds
 A string defining &quot;Other&quot; values for SubscriptionState. This value MUST be set to a non NULL value when SubscriptionState is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherSubscriptionState MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1651,9 +1518,6 @@ SubscriptionDuration defines the desired length of the subscription. Indications
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1681,8 +1545,6 @@ Seconds
 A string defining &quot;Other&quot; values for RepeatNotificationPolicy. This value MUST be set to a non NULL value when RepeatNotificationPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherRepeatNotificationPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1695,9 +1557,6 @@ Defines the time interval for the repeat notification policy calculation.
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1710,9 +1569,6 @@ Defines the gap interval for the repeat notification policy calculation.
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1720,9 +1576,6 @@ Seconds
 Defines the count property for the repeat notification policy calculation.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
@@ -1865,8 +1718,6 @@ server001.acme.com
 A string defining &quot;Other&quot; values for OnFatalErrorPolicy. This value MUST be set to a non NULL value when OnFatalErrorPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherOnFatalErrorPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1879,9 +1730,6 @@ The FailureTriggerTimeInterval is used by the client to specify a recommended mi
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1889,8 +1737,6 @@ Seconds
 A string defining &quot;Other&quot; values for SubscriptionState. This value MUST be set to a non NULL value when SubscriptionState is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherSubscriptionState MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1908,9 +1754,6 @@ SubscriptionDuration defines the desired length of the subscription. Indications
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1938,8 +1781,6 @@ Seconds
 A string defining &quot;Other&quot; values for RepeatNotificationPolicy. This value MUST be set to a non NULL value when RepeatNotificationPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherRepeatNotificationPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1952,9 +1793,6 @@ Defines the time interval for the repeat notification policy calculation.
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1967,9 +1805,6 @@ Defines the gap interval for the repeat notification policy calculation.
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -1977,9 +1812,6 @@ Seconds
 Defines the count property for the repeat notification policy calculation.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
@@ -2122,8 +1954,6 @@ server001.acme.com
 A string defining &quot;Other&quot; values for OnFatalErrorPolicy. This value MUST be set to a non NULL value when OnFatalErrorPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherOnFatalErrorPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -2136,9 +1966,6 @@ The FailureTriggerTimeInterval is used by the client to specify a recommended mi
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -2146,8 +1973,6 @@ Seconds
 A string defining &quot;Other&quot; values for SubscriptionState. This value MUST be set to a non NULL value when SubscriptionState is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherSubscriptionState MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -2165,9 +1990,6 @@ SubscriptionDuration defines the desired length of the subscription. Indications
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -2195,8 +2017,6 @@ Seconds
 A string defining &quot;Other&quot; values for RepeatNotificationPolicy. This value MUST be set to a non NULL value when RepeatNotificationPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherRepeatNotificationPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -2209,9 +2029,6 @@ Defines the time interval for the repeat notification policy calculation.
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -2224,9 +2041,6 @@ Defines the gap interval for the repeat notification policy calculation.
 Seconds
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -2234,9 +2048,6 @@ Seconds
 Defines the count property for the repeat notification policy calculation.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-0
-</VALUE>
 </PROPERTY>
 <PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>

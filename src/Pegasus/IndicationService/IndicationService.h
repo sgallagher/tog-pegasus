@@ -64,9 +64,9 @@ struct HandlerRef
 
 /**
 
-    IndicationService class is the provider that serves the
+    IndicationService class is the service that serves the
     CIM_IndicationSubscription, CIM_IndicationFilter, and CIM_IndicationHandler
-    classes.
+    classes, and processes indications.
 
     @author  Hewlett-Packard Company
 
@@ -77,11 +77,6 @@ class PEGASUS_SERVER_LINKAGE IndicationService : public MessageQueueService
 public:
 
     typedef MessageQueueService Base;
-
-    /**
-        Operation types for the NotifyProviderRegistration API
-     */
-    enum Operation {OP_CREATE = 1, OP_DELETE = 2, OP_MODIFY = 3};
 
     /**
         Constructs an IndicationSubscription instance and initializes instance
@@ -99,76 +94,12 @@ public:
 
     AtomicInt dienow;
 
+    /**
+        Operation types for the NotifyProviderRegistration message
+     */
+    enum Operation {OP_CREATE = 1, OP_DELETE = 2, OP_MODIFY = 3};
+
 private:
-
-    CIMRepository* _repository;
-
-    /**
-        Integer representing queue ID for accessing Provider Manager Service
-     */
-    Uint32 _providerManager;
-
-    /**
-        Integer representing queue ID for accessing Repository Service
-     */
-    //Uint32 _repository;
-
-    /**
-        Integer representing queue ID for accessing Handler Manager Service
-     */
-    Uint32 _handlerService;
-
-
-    /**
-        Values for the Subscription State property of the Subscription class,
-        as defined in the CIM Events MOF
-     */
-    enum SubscriptionState {_STATE_UNKNOWN = 0, _STATE_OTHER = 1, 
-         _STATE_ENABLED = 2, _STATE_ENABLEDDEGRADED = 3, _STATE_DISABLED = 4};
-
-    /**
-        Values for the Repeat Notification Policy property of the Subscription 
-        class, as defined in the CIM Events MOF
-     */
-    enum RepeatNotificationPolicy {_POLICY_UNKNOWN = 0, _POLICY_OTHER = 1,
-         _POLICY_NONE = 2, _POLICY_SUPPRESS = 3, _POLICY_DELAY = 4};
-
-    /**
-        Values for the On Fatal Error Policy property of the Subscription 
-        class, as defined in the CIM Events MOF
-     */
-    enum OnFatalErrorPolicy {_ERRORPOLICY_OTHER = 1, _ERRORPOLICY_IGNORE = 2, 
-        _ERRORPOLICY_DISABLE = 3, _ERRORPOLICY_REMOVE = 4};
-
-    /**
-        Values for the Persistence Type property of the Handler class, 
-        as defined in the CIM Events MOF
-     */
-    enum PersistenceType {_PERSISTENCE_OTHER = 1, _PERSISTENCE_PERMANENT = 2, 
-        _PERSISTENCE_TRANSIENT = 3};
-
-    /**
-        Values for the Perceived Severity property of the Alert Indication 
-        class, as defined in the CIM Events MOF
-     */
-    enum PerceivedSeverity {_SEVERITY_UNKNOWN = 0, _SEVERITY_OTHER = 1, 
-         _SEVERITY_INFORMATION = 2, _SEVERITY_WARNING = 3, _SEVERITY_MINOR = 4,
-         _SEVERITY_MAJOR = 5, _SEVERITY_CRITICAL = 6, _SEVERITY_FATAL = 7};
-
-    /**
-        Values for the Probable Cause property of the Alert Indication 
-        class, as defined in the CIM Events MOF
-        Note: not all possible values have been included
-     */
-    enum ProbableCause {_CAUSE_UNKNOWN = 0, _CAUSE_OTHER = 1};
-
-    /**
-        Values for the Alert Type property of the Alert Indication class, 
-        as defined in the CIM Events MOF
-     */
-    enum AlertType {_TYPE_OTHER = 1, _TYPE_COMMUNICATIONS = 2, _TYPE_QOS = 3,
-         _TYPE_PROCESSING = 4, _TYPE_DEVICE = 5, _TYPE_ENVIRONMENTAL = 6,
-         _TYPE_MODELCHANGE = 7, _TYPE_SECURITY = 8};
 
     void _initialize (void);
 
@@ -207,11 +138,66 @@ private:
     void _handleNotifyProviderTerminationRequest(const Message * message);
 
     /**
-        Determines if it is legal to delete an instance. Subscription
-        instances may always be deleted. Filter and Handler instances
+        Ensures that all subscription classes in the repository include the
+        Creator property.
+
+        @throw   CIMException               if any error except 
+                                            CIM_ERR_INVALID_CLASS occurs
+     */
+    void _checkClasses (void);
+
+    /**
+        Determines if it is legal to create an instance. 
+        Checks for existence of all key and required properties.  Checks that 
+        properties that MUST NOT exist (based on values of other properties), 
+        do not exist.  For any property that has a default value, if it does 
+        not exist, adds the property with the default value.
+
+        @param   instance              instance to be created
+        @param   nameSpace             namespace for instance to be created
+
+        @throw   CIM_ERR_INVALID_PARAMETER  if instance is invalid
+        @throw   CIM_ERR_NOT_SUPPORTED      if the specified class is not 
+                                            supported
+
+        @return  True if the instance can be created
+                 otherwise throws an exception
+     */
+    Boolean _canCreate (
+        CIMInstance & instance,
+        const String & nameSpace);
+
+    /**
+        Determines if the specified modification is supported.
+
+        @param   request               modification request
+        @param   instance              instance to be modified
+
+        @throw   CIM_ERR_NOT_SUPPORTED      if the specified modificastion is 
+                                            not supported
+        @throw   CIM_ERR_ACCESS_DENIED      if the user is not authorized to
+                                            modify the instance
+
+        @return  True if the instance can be modified
+                 otherwise throws an exception
+     */
+    Boolean _canModify (
+        const CIMModifyInstanceRequestMessage * request,
+        const CIMReference & instanceReference,
+        const CIMInstance & instance);
+
+    /**
+        Determines if it is legal to delete an instance.  Subscription
+        instances may always be deleted.  Filter and Handler instances
         may only be deleted if they are not being referenced by any
         Subscription instances.  Authorization checks are NOT performed
         by _canDelete.
+
+        @param   instanceReference     reference for instance to be deleted
+        @param   nameSpace             namespace for instance to be deleted
+
+        @return  True if the instance can be deleted
+                 False otherwise
      */
     Boolean _canDelete (
         const CIMReference & instanceReference,
@@ -421,6 +407,16 @@ private:
         const CIMInstance & instance) const;
 
     /**
+        Deletes specified subscription 
+
+        @param   nameSpace             the name space
+        @param   subscription          the subscription reference
+     */
+    void _deleteExpiredSubscription (
+        const String & nameSpace,
+        const CIMReference & subscription);
+
+    /**
         Sets the Subscription Time Remaining property
 
         Calculates time remaining from Subscription Start Time, Subscription 
@@ -437,7 +433,7 @@ private:
 
     /**
         Gets the parameter values required to enable the subscription request.
-        If no indciation providers are found, condition and queryLanguage are 
+        If no indication providers are found, condition and queryLanguage are 
         set to empty string.
 
         @param   nameSpace             Input namespace name
@@ -457,6 +453,18 @@ private:
         CIMPropertyList & propertyList,
         String & condition,
         String & queryLanguage);
+
+    /**
+        Gets the parameter values required to disable the subscription request.
+
+        @param   nameSpace             Input namespace name
+        @param   subscription          Input subscription instance
+
+        @return  List of providers with associated classes to disable
+     */
+    Array <struct ProviderClassList> _getDisableParams (
+        const String & nameSpaceName,
+        const CIMInstance & subscriptionInstance);
 
     /**
         Sends enable subscription request for the specified subscription
@@ -540,6 +548,75 @@ private:
 
     WQLSimplePropertySource _getPropertySourceFromInstance(
         CIMInstance & indicationInstance);
+
+    CIMRepository* _repository;
+
+    /**
+        Integer representing queue ID for accessing Provider Manager Service
+     */
+    Uint32 _providerManager;
+
+    /**
+        Integer representing queue ID for accessing Handler Manager Service
+     */
+    Uint32 _handlerService;
+
+    /**
+        Integer representing queue ID for accessing Repository Service
+     */
+    //Uint32 _repository;
+
+
+    /**
+        Values for the Subscription State property of the Subscription class,
+        as defined in the CIM Events MOF
+     */
+    enum SubscriptionState {_STATE_UNKNOWN = 0, _STATE_OTHER = 1, 
+         _STATE_ENABLED = 2, _STATE_ENABLEDDEGRADED = 3, _STATE_DISABLED = 4};
+
+    /**
+        Values for the Repeat Notification Policy property of the Subscription 
+        class, as defined in the CIM Events MOF
+     */
+    enum RepeatNotificationPolicy {_POLICY_UNKNOWN = 0, _POLICY_OTHER = 1,
+         _POLICY_NONE = 2, _POLICY_SUPPRESS = 3, _POLICY_DELAY = 4};
+
+    /**
+        Values for the On Fatal Error Policy property of the Subscription 
+        class, as defined in the CIM Events MOF
+     */
+    enum OnFatalErrorPolicy {_ERRORPOLICY_OTHER = 1, _ERRORPOLICY_IGNORE = 2, 
+        _ERRORPOLICY_DISABLE = 3, _ERRORPOLICY_REMOVE = 4};
+
+    /**
+        Values for the Persistence Type property of the Handler class, 
+        as defined in the CIM Events MOF
+     */
+    enum PersistenceType {_PERSISTENCE_OTHER = 1, _PERSISTENCE_PERMANENT = 2, 
+        _PERSISTENCE_TRANSIENT = 3};
+
+    /**
+        Values for the Perceived Severity property of the Alert Indication 
+        class, as defined in the CIM Events MOF
+     */
+    enum PerceivedSeverity {_SEVERITY_UNKNOWN = 0, _SEVERITY_OTHER = 1, 
+         _SEVERITY_INFORMATION = 2, _SEVERITY_WARNING = 3, _SEVERITY_MINOR = 4,
+         _SEVERITY_MAJOR = 5, _SEVERITY_CRITICAL = 6, _SEVERITY_FATAL = 7};
+
+    /**
+        Values for the Probable Cause property of the Alert Indication 
+        class, as defined in the CIM Events MOF
+        Note: not all possible values have been included
+     */
+    enum ProbableCause {_CAUSE_UNKNOWN = 0, _CAUSE_OTHER = 1};
+
+    /**
+        Values for the Alert Type property of the Alert Indication class, 
+        as defined in the CIM Events MOF
+     */
+    enum AlertType {_TYPE_OTHER = 1, _TYPE_COMMUNICATIONS = 2, _TYPE_QOS = 3,
+         _TYPE_PROCESSING = 4, _TYPE_DEVICE = 5, _TYPE_ENVIRONMENTAL = 6,
+         _TYPE_MODELCHANGE = 7, _TYPE_SECURITY = 8};
 
     //
     //  Class names

@@ -49,372 +49,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-//
-//  Class names
-//
-
-/**
-    The name of the indication subscription class
- */
-const char   IndicationService::_CLASS_SUBSCRIPTION []  = 
-                 "CIM_IndicationSubscription";
-
-/**
-    The name of the indication filter class
- */
-const char   IndicationService::_CLASS_FILTER []        = 
-                 "CIM_IndicationFilter";
-
-/**
-    The name of the indication handler class
- */
-const char   IndicationService::_CLASS_HANDLER []       = 
-                 "CIM_IndicationHandler";
-
-/**
-    The name of the CIMXML Indication Handler class
- */
-const char   IndicationService::_CLASS_HANDLERCIMXML [] = 
-                 "CIM_IndicationHandlerCIMXML";
-
-/**
-    The name of the SNMP Indication Handler class
- */
-const char   IndicationService::_CLASS_HANDLERSNMP []   = 
-                 "CIM_IndicationHandlerSNMP";
-
-/**
-    The name of the Indication class
- */
-const char   IndicationService::_CLASS_INDICATION []    = "CIM_Indication";
-
-/**
-    The name of the CIMOM Shutdown alert indication class
- */
-//
-//  ATTN: Update once CimomShutdownAlertIndication has been defined
-//
-const char   IndicationService::_CLASS_CIMOM_SHUTDOWN_ALERT [] =
-                 "CIM_AlertIndication";
-
-/**
-    The name of the No Provider alert indication class
- */
-//
-//  ATTN: Update once NoProviderAlertIndication has been defined
-//
-const char   IndicationService::_CLASS_NO_PROVIDER_ALERT [] =
-                 "CIM_AlertIndication";
-
-/**
-    The name of the CIMOM shutdown alert indication class
- */
-//
-//  ATTN: Update once ProviderTerminatedAlertIndication has been defined
-//
-const char   IndicationService::_CLASS_PROVIDER_TERMINATED_ALERT [] =
-                 "CIM_AlertIndication";
-
-/**
-    The name of the Provider Capabilities class
- */
-const char   IndicationService::_CLASS_PROVIDER_CAPABILITIES [] = 
-                 "CIM_ProviderCapabilities";
-
-//
-//  Property names
-//
-
-/**
-    The name of the filter reference property for indication subscription class
- */
-const char   IndicationService::_PROPERTY_FILTER []     = "Filter";
-
-/**
-    The name of the handler reference property for indication subscription class
- */
-const char   IndicationService::_PROPERTY_HANDLER []     = "Handler";
-
-/**
-    The name of the subscription state property for indication subscription 
-    class
- */
-const char   IndicationService::_PROPERTY_STATE []      = 
-                 "SubscriptionState";
-
-/**
-    The name of the Other Subscription State property for Indication 
-    Subscription class
- */
-const char   IndicationService::_PROPERTY_OTHERSTATE [] = 
-                 "OtherSubscriptionState";
-
-/**
-    The name of the repeat notification policy property for indication
-    subscription class
- */
-const char   IndicationService::_PROPERTY_REPEATNOTIFICATIONPOLICY [] =
-                 "RepeatNotificationPolicy";
-
-/**
-    The name of the other repeat notification policy property for
-    indication subscription class
- */
-const char   IndicationService::_PROPERTY_OTHERREPEATNOTIFICATIONPOLICY []
-                 = "OtherRepeatNotificationPolicy";
-
-/**
-    The name of the repeat notification interval property for indication
-    subscription class
- */
-const char   IndicationService::_PROPERTY_REPEATNOTIFICATIONINTERVAL [] =
-                 "RepeatNotificationInterval";
-
-/**
-    The name of the repeat notification gap property for indication
-    subscription class
- */
-const char   IndicationService::_PROPERTY_REPEATNOTIFICATIONGAP [] =
-                 "RepeatNotificationGap";
-
-/**
-    The name of the repeat notification count property for indication
-    subscription class
- */
-const char   IndicationService::_PROPERTY_REPEATNOTIFICATIONCOUNT [] =
-                 "RepeatNotificationCount";
-
-/**
-    The name of the On Fatal Error Policy property for Indication Subscription 
-    class
- */
-const char   IndicationService::_PROPERTY_ONFATALERRORPOLICY [] = 
-                 "OnFatalErrorPolicy";
-
-/**
-    The name of the Other On Fatal Error Policy property for Indication 
-    Subscription class
- */
-const char   IndicationService::_PROPERTY_OTHERONFATALERRORPOLICY [] = 
-                 "OtherOnFatalErrorPolicy";
-
-/**
-    The name of the Time Of Last State Change property for Indication 
-    Subscription class
- */
-const char   IndicationService::_PROPERTY_LASTCHANGE []      = 
-                 "TimeOfLastStateChange";
-
-/**
-    The name of the Subscription Start Time property for Indication 
-    Subscription class
- */
-const char   IndicationService::_PROPERTY_STARTTIME []      = 
-                 "SubscriptionStartTime";
-
-/**
-    The name of the Subscription Duration property for Indication 
-    Subscription class
- */
-const char   IndicationService::_PROPERTY_DURATION []      = 
-                 "SubscriptionDuration";
-
-/**
-    The name of the Subscription Time Remaining property for Indication 
-    Subscription class
- */
-const char   IndicationService::_PROPERTY_TIMEREMAINING []      = 
-                 "SubscriptionTimeRemaining";
-
-/**
-    The name of the query property for indication filter class
- */
-const char   IndicationService::_PROPERTY_QUERY []      = "Query";
-
-/**
-    The name of the query language property for indication filter class
- */
-const char   IndicationService::_PROPERTY_QUERYLANGUAGE [] = 
-                 "QueryLanguage";
-
-/**
-    The name of the Source Namespace property for indication filter class
- */
-const char   IndicationService::_PROPERTY_SOURCENAMESPACE [] = 
-                 "SourceNamespace";
-
-/**
-    The name of the name property for indication filter and indications handler     classes
- */
-const char   IndicationService::_PROPERTY_NAME []       = "Name";
-
-/**
-    The name of the creation class name property for indication filter and 
-    indications handler classes
- */
-const char   IndicationService::_PROPERTY_CREATIONCLASSNAME [] = 
-             "CreationClassName";
-
-/**
-    The name of the system name property for indication filter and indications 
-    handler classes
- */
-const char   IndicationService::_PROPERTY_SYSTEMNAME [] = "SystemName";
-
-/**
-    The name of the system creation class name property for indication filter 
-    and indications handler classes
- */
-const char   IndicationService::_PROPERTY_SYSTEMCREATIONCLASSNAME [] = 
-             "SystemCreationClassName";
-
-/**
-    The name of the Persistence Type property for Indication Handler class
- */
-const char   IndicationService::_PROPERTY_PERSISTENCETYPE [] = 
-                 "PersistenceType";
-
-/**
-    The name of the Other Persistence Type property for Indication Handler 
-    class
- */
-const char   IndicationService::_PROPERTY_OTHERPERSISTENCETYPE [] = 
-                 "OtherPersistenceType";
-
-/**
-    The name of the Destination property for Indication Handler subclasses
- */
-const char   IndicationService::_PROPERTY_DESTINATION [] = "Destination";
-
-/**
-    The name of the SNMP Type property for SNMP Indication Handler class
- */
-const char   IndicationService::_PROPERTY_SNMPTYPE [] = "snmpType";
-
-/**
-    The name of the Alert Type property for Alert Indication class
- */
-const char   IndicationService::_PROPERTY_ALERTTYPE [] = "AlertType";
-
-/**
-    The name of the Other Alert Type property for Alert Indication class
- */
-const char   IndicationService::_PROPERTY_OTHERALERTTYPE [] = 
-             "OtherAlertType";
-
-/**
-    The name of the Perceived Severity property for Alert Indication class
- */
-const char   IndicationService::_PROPERTY_PERCEIVEDSEVERITY [] = 
-             "PerceivedSeverity";
-
-/**
-    The name of the Probable Cause property for Alert Indication class
- */
-const char   IndicationService::_PROPERTY_PROBABLECAUSE [] = 
-             "ProbableCause";
-
-/**
-    The name of the Provider Name property for Provider Capabilities class
- */
-const char   IndicationService::_PROPERTY_PROVIDER_NAME [] =
-             "ProviderName";
-
-/**
-    The name of the Class Name property for Provider Capabilities class
- */
-const char   IndicationService::_PROPERTY_CLASS_NAME [] =
-             "ClassName";
-
-/**
-    The name of the Supported Properties property for Provider Capabilities
-    class
- */
-const char   IndicationService::_PROPERTY_SUPPORTED_PROPERTIES [] =
-             "SupportedProperties";
-
-/**
-    The name of the Provider Type property for Provider Capabilities class
- */
-const char   IndicationService::_PROPERTY_PROVIDER_TYPE [] =
-             "ProviderType";
-
-/**
-    The name of the Creator property for a class
- */
-const char   IndicationService::_PROPERTY_CREATOR [] = 
-             "Creator";
-
-//
-//  Service names
-//
-
-/**
-    The string identifying the service name of the Provider Manager Service
- */
-const char IndicationService::_SERVICE_PROVIDERMANAGER [] = 
-               "Server::ProviderManagerService";
-
-/**
-    The string identifying the service name of the Handler Manager Service 
- */
-const char IndicationService::_SERVICE_HANDLERMANAGER [] = 
-               "IndicationHandlerService";
-
-/**
-    The string identifying the service name of the Repository Service 
- */
-const char IndicationService::_SERVICE_REPOSITORY [] = 
-               "Server::RepositoryService";
-
-//
-//  Other literal values
-//
-
-/**
-    The integer representing the Indication value for the Provider Type
-    property of the Provider Capabilities class
- */
-const Uint16 IndicationService::_VALUE_INDICATION       = 4;
-
-/**
-    The WHERE keyword in WQL
- */
-const char   IndicationService::_QUERY_WHERE []         = "WHERE";
-
-/**
-    The string representing the asterisk all properties symbol in WQL
- */
-const char   IndicationService::_QUERY_ALLPROPERTIES [] = "*";
-
-
-//
-//  Message substrings used in exception messages
-//
-
-const char IndicationService::_MSG_MISSING_REQUIRED [] = "Missing required ";
-
-const char IndicationService::_MSG_KEY_PROPERTY [] = " key property";
-
-const char IndicationService::_MSG_PROPERTY [] = " property";
-
-const char IndicationService::_MSG_PROPERTY_PRESENT [] = 
-    " property present, but ";
-
-const char IndicationService::_MSG_VALUE_NOT [] = " value not ";
-
-const char IndicationService::_MSG_NO_PROVIDERS [] = 
-    "There are no providers capable of serving the subscription";
-
-const char IndicationService::_MSG_INVALID_CLASSNAME [] = 
-    "Invalid indication class name ";
-
-const char IndicationService::_MSG_IN_FROM [] = " in FROM clause of ";
-
-const char IndicationService::_MSG_EXPIRED [] = 
-    "Expired subscription may not be modified; has been deleted";
-
-
 IndicationService::IndicationService (CIMRepository* repository)
     : Base ("Server::IndicationService", MessageQueue::getNextQueueId ()),
          _repository (repository)
@@ -584,72 +218,9 @@ void IndicationService::_initialize (void)
     //
 
     //
-    //  Get list of namespaces in repository
+    //  Make sure subscription classes include Creator property
     //
-    Array <String> nameSpaceNames = _repository->enumerateNameSpaces ();
-
-    //
-    //  Check for subscriptions in each namespace in the repository
-    //
-    for (Uint8 i = 0; i < nameSpaceNames.size (); i++)
-    {
-        //
-        //  Make sure subscription classes include Creator property
-        //
-        try
-        {
-            CIMClass subscriptionClass = _repository->getClass 
-                (nameSpaceNames [i], _CLASS_SUBSCRIPTION);
-            if (!subscriptionClass.existsProperty (_PROPERTY_CREATOR))
-            {
-                subscriptionClass.addProperty (CIMProperty (_PROPERTY_CREATOR,
-                    CIMValue (String::EMPTY)));
-                _repository->modifyClass (nameSpaceNames [i], 
-                    subscriptionClass);
-            }
-            CIMClass filterClass = _repository->getClass (nameSpaceNames [i], 
-                _CLASS_FILTER);
-            if (!filterClass.existsProperty (_PROPERTY_CREATOR))
-            {
-                filterClass.addProperty (CIMProperty (_PROPERTY_CREATOR,
-                    CIMValue (String::EMPTY)));
-                _repository->modifyClass (nameSpaceNames [i], filterClass);
-            }
-            CIMClass cimxmlHandlerClass = _repository->getClass 
-                (nameSpaceNames [i], _CLASS_HANDLERCIMXML);
-            if (!cimxmlHandlerClass.existsProperty (_PROPERTY_CREATOR))
-            {
-                cimxmlHandlerClass.addProperty (CIMProperty (_PROPERTY_CREATOR,
-                    CIMValue (String::EMPTY)));
-                _repository->modifyClass (nameSpaceNames [i], 
-                    cimxmlHandlerClass);
-            }
-            CIMClass snmpHandlerClass = _repository->getClass 
-                (nameSpaceNames [i], _CLASS_HANDLERSNMP);
-            if (!snmpHandlerClass.existsProperty (_PROPERTY_CREATOR))
-            {
-                snmpHandlerClass.addProperty (CIMProperty (_PROPERTY_CREATOR,
-                    CIMValue (String::EMPTY)));
-                _repository->modifyClass (nameSpaceNames [i], snmpHandlerClass);
-            }
-        }
-        catch (CIMException e)
-        {
-            //
-            //  Some namespaces may not include the subscription class
-            //  In that case, just continue with the next namespace
-            //
-            if (e.getCode () == CIM_ERR_INVALID_CLASS)
-            {
-                continue;
-            }
-            else
-            {
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw e;
-            }
-        }
-    }
+    _checkClasses ();
 
     //
     //  Get existing active subscriptions from each namespace in the repository
@@ -674,16 +245,10 @@ void IndicationService::_initialize (void)
             CIMClass subscriptionClass = _repository->getClass 
                 (activeSubscriptions [i].nameSpaceName, _CLASS_SUBSCRIPTION);
 
-            //
-            //  Delete the subscription instance
-            //
-            _repository->write_lock ();
-
-            _repository->deleteInstance (activeSubscriptions [i].nameSpaceName,
-                activeSubscriptions [i].subscription.getInstanceName 
-                (subscriptionClass));
-
-            _repository->write_unlock ();
+            _deleteExpiredSubscription (activeSubscriptions [i].nameSpaceName,
+                activeSubscriptions [i].subscription.getInstanceName
+                    (subscriptionClass));
+                
             continue;
         }
 
@@ -803,524 +368,165 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
 
     CIMReference instanceRef;
 
-    CIMValue subscriptionStateValue;
-    Uint16 subscriptionState;
-    CIMValue repeatPolicyValue;
-    Uint16 repeatNotificationPolicy;
-    CIMValue errorPolicyValue;
-    Uint16 onFatalErrorPolicy;
-    CIMValue persistenceValue;
-    Uint16 persistenceType;
-
     CIMInstance instance = request->newInstance.clone ();
 
     try
     {
-        // REVIEW: Derived classes of CIM_IndicationSubscription not
-        // handled. It is reasonable for a user to derive from this
-        // class and add extra properties.
-
-        // REVIEW: how does the provider manager know to forward
-        // requests to this service? Is it by class name? If so,
-        // shouldn't the provider use an is-a operator on the new
-        // class?
-
-        //
-        //  Check all required properties exist
-        //  For a property that has a default value, if it does not exist,
-        //  add property with default value
-        //
-        if (instance.getClassName () == _CLASS_SUBSCRIPTION)
+        if (_canCreate (instance, request->nameSpace))
         {
             //
-            //  Filter and Handler are key properties for Subscription
-            //  No other properties are required
+            //  Add creator property to Instance
+            //  ATTN: need method to get current user
             //
-            if (!instance.existsProperty (_PROPERTY_FILTER))
-            {
-                String exceptionStr = _MSG_MISSING_REQUIRED;
-                exceptionStr.append (_PROPERTY_FILTER);
-                exceptionStr.append (_MSG_KEY_PROPERTY);
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                    exceptionStr);
-            }
+            String currentUser = String::EMPTY;
+            instance.addProperty (CIMProperty (_PROPERTY_CREATOR, currentUser));
     
-            if (!instance.existsProperty (_PROPERTY_HANDLER))
-            {
-                String exceptionStr = _MSG_MISSING_REQUIRED;
-                exceptionStr.append (_PROPERTY_HANDLER);
-                exceptionStr.append (_MSG_KEY_PROPERTY);
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                    exceptionStr);
-            }
-
             //
-            //  Default value for Subscription State is Enabled
+            //  If the instance is of the CIM_IndicationSubscription class
+            //  and subscription state is enabled, determine if any providers
+            //  can serve the subscription
             //
-            if (!instance.existsProperty (_PROPERTY_STATE))
-            {
-                instance.addProperty (CIMProperty (_PROPERTY_STATE,
-                    CIMValue ((Uint16) _STATE_ENABLED)));
-            }
-            else
+            Uint16 subscriptionState;
+            String condition;
+            String queryLanguage;
+            CIMPropertyList requiredProperties;
+            Array <struct ProviderClassList> indicationProviders;
+            if (instance.getClassName () == _CLASS_SUBSCRIPTION)
             {
                 //
                 //  Get subscription state
                 //
+                CIMValue subscriptionStateValue;
                 subscriptionStateValue = instance.getProperty
                     (instance.findProperty (_PROPERTY_STATE)).getValue ();
                 subscriptionStateValue.get (subscriptionState);
 
-                //
-                //  If Subscription State is Other, Other Subscription State
-                //  property must exist
-                //
-                if ((subscriptionState == _STATE_OTHER) &&
-                    (!instance.existsProperty (_PROPERTY_OTHERSTATE)))
+                if ((subscriptionState == _STATE_ENABLED) ||
+                    (subscriptionState == _STATE_ENABLEDDEGRADED))
                 {
-                    String exceptionStr = _MSG_MISSING_REQUIRED;
-                    exceptionStr.append (_PROPERTY_OTHERSTATE);
-                    exceptionStr.append (_MSG_PROPERTY);
-                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                        exceptionStr);
-                }
-
-                //
-                //  If Subscription State is not Other, 
-                //  Other Subscription State property must not exist
-                //
-                else if (instance.existsProperty (_PROPERTY_OTHERSTATE))
-                {
-                    String exceptionStr = _PROPERTY_OTHERSTATE;
-                    exceptionStr.append (_MSG_PROPERTY_PRESENT);
-                    exceptionStr.append (_PROPERTY_STATE);
-                    exceptionStr.append (_MSG_VALUE_NOT);
-                    exceptionStr.append (_STATE_OTHER);
-                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                        exceptionStr);
-                }
-            }
-
-            //
-            //  Default value for Repeat Notification Policy is None
-            //
-            if (!instance.existsProperty (_PROPERTY_REPEATNOTIFICATIONPOLICY))
-            {
-                instance.addProperty (CIMProperty 
-                    (_PROPERTY_REPEATNOTIFICATIONPOLICY, 
-                    CIMValue ((Uint16) _POLICY_NONE)));
-            }
-
-            else
-            {
-                //
-                //  Get Repeat Notification Policy
-                //
-                repeatPolicyValue = instance.getProperty (instance.findProperty
-                    (_PROPERTY_REPEATNOTIFICATIONPOLICY)).getValue ();
-                repeatPolicyValue.get (repeatNotificationPolicy);
-
-                //
-                //  If Repeat Notification Policy is Other, 
-                //  Other Repeat Notification Policy property must exist
-                //
-                if ((repeatNotificationPolicy == _POLICY_OTHER) &&
-                    (!instance.existsProperty 
-                    (_PROPERTY_OTHERREPEATNOTIFICATIONPOLICY)))
-                {
-                    String exceptionStr = _MSG_MISSING_REQUIRED;
-                    exceptionStr.append 
-                        (_PROPERTY_OTHERREPEATNOTIFICATIONPOLICY);
-                    exceptionStr.append (_MSG_PROPERTY);
-                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                        exceptionStr);
-                }
-
-                //
-                //  If Repeat Notification Policy is not Other, 
-                //  Other Repeat Notification Policy property must not exist
-                //
-                else if (instance.existsProperty 
-                    (_PROPERTY_OTHERREPEATNOTIFICATIONPOLICY))
-                {
-                    String exceptionStr = 
-                        _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY;
-                    exceptionStr.append (_MSG_PROPERTY_PRESENT);
-                    exceptionStr.append (_PROPERTY_REPEATNOTIFICATIONPOLICY);
-                    exceptionStr.append (_MSG_VALUE_NOT);
-                    exceptionStr.append (_POLICY_OTHER);
-                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                        exceptionStr);
-                }
-            }
-
-            //
-            //  Default value for On Fatal Error Policy is Ignore
-            //
-            if (!instance.existsProperty (_PROPERTY_ONFATALERRORPOLICY))
-            {
-                instance.addProperty (CIMProperty 
-                    (_PROPERTY_ONFATALERRORPOLICY, 
-                    CIMValue ((Uint16) _ERRORPOLICY_IGNORE)));
-            }
-            else
-            {
-                //
-                //  Get On Fatal Error Policy
-                //
-                errorPolicyValue = instance.getProperty (instance.findProperty 
-                    (_PROPERTY_ONFATALERRORPOLICY)).getValue ();
-                errorPolicyValue.get (onFatalErrorPolicy);
-
-                //
-                //  If On Fatal Error Policy is Other, Other On Fatal Error 
-                //  Policy property must exist
-                //
-                if ((onFatalErrorPolicy == _ERRORPOLICY_OTHER) &&
-                    (!instance.existsProperty 
-                    (_PROPERTY_OTHERONFATALERRORPOLICY)))
-                {
-                    String exceptionStr = _MSG_MISSING_REQUIRED;
-                    exceptionStr.append (_PROPERTY_OTHERONFATALERRORPOLICY);
-                    exceptionStr.append (_MSG_PROPERTY);
-                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                        exceptionStr);
-                }
-
-                //
-                //  If On Fatal Error Policy is not Other, 
-                //  Other On Fatal Error Policy property must not exist
-                //
-                else if (instance.existsProperty 
-                    (_PROPERTY_OTHERONFATALERRORPOLICY))
-                {
-                    String exceptionStr = _PROPERTY_OTHERONFATALERRORPOLICY;
-                    exceptionStr.append (_MSG_PROPERTY_PRESENT);
-                    exceptionStr.append (_PROPERTY_ONFATALERRORPOLICY);
-                    exceptionStr.append (_MSG_VALUE_NOT);
-                    exceptionStr.append (_ERRORPOLICY_OTHER);
-                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                        exceptionStr);
-                }
-            }
-
-        } 
-        else  // Filter or Handler
-        {
-            //
-            //  Name, CreationClassName, SystemName, and SystemCreationClassName
-            //  are key properties for Filter and Handler  
-            //  CreationClassName and Name must exist
-            //  If others do not exist, add and set to default
-            //
-            if (!instance.existsProperty (_PROPERTY_NAME))
-            {
-                String exceptionStr = _MSG_MISSING_REQUIRED;
-                exceptionStr.append (_PROPERTY_NAME);
-                exceptionStr.append (_MSG_KEY_PROPERTY);
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                    exceptionStr);
-            }
     
-            if (!instance.existsProperty (_PROPERTY_CREATIONCLASSNAME))
-            {
-                String exceptionStr = _MSG_MISSING_REQUIRED;
-                exceptionStr.append (_PROPERTY_CREATIONCLASSNAME);
-                exceptionStr.append (_MSG_KEY_PROPERTY);
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                    exceptionStr);
-            }
+                    _getEnableParams (request->nameSpace, instance,
+                        indicationProviders, requiredProperties, condition, 
+                        queryLanguage);
     
-            if (!instance.existsProperty (_PROPERTY_SYSTEMNAME))
-            {
-                instance.addProperty (CIMProperty (_PROPERTY_SYSTEMNAME,
-                    System::getHostName ()));
-            }
-    
-            if (!instance.existsProperty (_PROPERTY_SYSTEMCREATIONCLASSNAME))
-            {
-                //
-                //  ATTN: need method to get System Creation Class Name
-                //
-                instance.addProperty (CIMProperty 
-                    (_PROPERTY_SYSTEMCREATIONCLASSNAME, 
-                    "CIM_UnitaryComputerSystem"));
-            }
-    
-            if (instance.getClassName () == _CLASS_FILTER)
-            {
-                //
-                //  Query and QueryLanguage properties are required for Filter
-                //
-                if (!instance.existsProperty (_PROPERTY_QUERY))
-                {
-                    String exceptionStr = _MSG_MISSING_REQUIRED;
-                    exceptionStr.append (_PROPERTY_QUERY);
-                    exceptionStr.append (_MSG_PROPERTY);
-                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                        exceptionStr);
-                }
-                if (!instance.existsProperty (_PROPERTY_QUERYLANGUAGE))
-                {
-                    String exceptionStr = _MSG_MISSING_REQUIRED;
-                    exceptionStr.append (_PROPERTY_QUERYLANGUAGE);
-                    exceptionStr.append (_MSG_PROPERTY);
-                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                        exceptionStr);
-                }
-
-                //
-                //  Default value for Source Namespace is the namespace of the
-                //  Filter registration
-                //
-                if (!instance.existsProperty (_PROPERTY_SOURCENAMESPACE))
-                {
-                    instance.addProperty (CIMProperty 
-                        (_PROPERTY_SOURCENAMESPACE, request->nameSpace));
-                }
-            }
-
-            //
-            //  Currently only two direct subclasses of Indication handler 
-            //  class are supported -- further subclassing is not currently 
-            //  supported
-            //
-            else if ((instance.getClassName () == _CLASS_HANDLERCIMXML) ||
-                     (instance.getClassName () == _CLASS_HANDLERSNMP))
-            {
-                //
-                //  Default value for Persistence Type is Permanent
-                //
-                if (!instance.existsProperty (_PROPERTY_PERSISTENCETYPE))
-                {
-                    instance.addProperty (CIMProperty 
-                        (_PROPERTY_PERSISTENCETYPE, 
-                        CIMValue ((Uint16) _PERSISTENCE_PERMANENT)));
-                }
-                else
-                {
-                    //
-                    //  Get Persistence Type
-                    //
-                    persistenceValue = instance.getProperty 
-                        (instance.findProperty 
-                        (_PROPERTY_PERSISTENCETYPE)).getValue ();
-                    persistenceValue.get (persistenceType);
-    
-                    //
-                    //  If Persistence Type is Other, Other Persistence Type
-                    //  property must exist
-                    //
-                    if ((persistenceType == _PERSISTENCE_OTHER) &&
-                        (!instance.existsProperty 
-                        (_PROPERTY_OTHERPERSISTENCETYPE)))
+                    if (indicationProviders.size () == 0)
                     {
-                        String exceptionStr = _MSG_MISSING_REQUIRED;
-                        exceptionStr.append (_PROPERTY_OTHERPERSISTENCETYPE);
-                        exceptionStr.append (_MSG_PROPERTY);
+                        //
+                        //  There are no providers that can support this 
+                        //  subscription
+                        //
                         PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                            exceptionStr);
-                    }
-    
-                    //
-                    //  If Persistence Type is not Other, 
-                    //  Other Persistence Type property must not exist
-                    //
-                    else if (instance.existsProperty 
-                        (_PROPERTY_OTHERPERSISTENCETYPE))
-                    {
-                        String exceptionStr = _PROPERTY_OTHERPERSISTENCETYPE;
-                        exceptionStr.append (_MSG_PROPERTY_PRESENT);
-                        exceptionStr.append (_PROPERTY_PERSISTENCETYPE);
-                        exceptionStr.append (_MSG_VALUE_NOT);
-                        exceptionStr.append (_PERSISTENCE_OTHER);
-                        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                            exceptionStr);
+                        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
+                            _MSG_NO_PROVIDERS);
                     }
                 }
-
-                //
-                //  Destination property is required for CIMXML and SNMP 
-                //  Handler subclasses
-                //
-                if (!instance.existsProperty (_PROPERTY_DESTINATION))
-                {
-                    String exceptionStr = _MSG_MISSING_REQUIRED;
-                    exceptionStr.append (_PROPERTY_DESTINATION);
-                    exceptionStr.append (_MSG_PROPERTY);
-                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                        exceptionStr);
-                }
-
-                if (instance.getClassName () == _CLASS_HANDLERSNMP)
-                {
-                    //
-                    //  SNMP Type property is required for SNMP Handler
-                    //
-                    if (!instance.existsProperty (_PROPERTY_SNMPTYPE))
-                    {
-                        String exceptionStr = _MSG_MISSING_REQUIRED;
-                        exceptionStr.append (_PROPERTY_SNMPTYPE);
-                        exceptionStr.append (_MSG_PROPERTY);
-                        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
-                            exceptionStr);
-                    }
-                }
-            }
-
-            else
-            {
-                //
-                //  A class not currently served by the Indication Service
-                //
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw CIMException (CIM_ERR_INVALID_PARAMETER);
-            }
-        }
     
-        //
-        //  Add creator property to Instance
-        //  ATTN: need method to get current user
-        //
-        String currentUser = String::EMPTY;
-        instance.addProperty (CIMProperty (_PROPERTY_CREATOR, currentUser));
-
-        //
-        //  If the instance is of the CIM_IndicationSubscription class
-        //  and subscription state is enabled, determine if any providers
-        //  can serve the subscription
-        //
-        String condition;
-        String queryLanguage;
-        CIMPropertyList requiredProperties;
-        Array <struct ProviderClassList> indicationProviders;
-        if (instance.getClassName () == _CLASS_SUBSCRIPTION)
-        {
-            if ((subscriptionState == _STATE_ENABLED) ||
-                (subscriptionState == _STATE_ENABLEDDEGRADED))
-            {
-
-                _getEnableParams (request->nameSpace, instance,
-                    indicationProviders, requiredProperties, condition, 
-                    queryLanguage);
-
-                if (indicationProviders.size () == 0)
+                //
+                //  Set Time of Last State Change to current date time
+                //  ATTN: need method to get current date time in CIMDateTime 
+                //  format
+                //
+                CIMDateTime currentDateTime = CIMDateTime ();
+                if (!instance.existsProperty (_PROPERTY_LASTCHANGE))
                 {
-                    //
-                    //  There are no providers that can support this 
-                    //  subscription
-                    //
-                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
-                        _MSG_NO_PROVIDERS);
+                    instance.addProperty 
+                        (CIMProperty (_PROPERTY_LASTCHANGE, currentDateTime));
+                }
+                else 
+                {
+                    CIMProperty lastChange = instance.getProperty 
+                        (instance.findProperty (_PROPERTY_LASTCHANGE));
+                    lastChange.setValue (CIMValue (currentDateTime));
+                }
+    
+                //
+                //  Set Subscription Start Time to current date time
+                //
+                if (!instance.existsProperty (_PROPERTY_STARTTIME))
+                {
+                    instance.addProperty 
+                        (CIMProperty (_PROPERTY_STARTTIME, currentDateTime));
+                }
+                else 
+                {
+                    CIMProperty startTime = instance.getProperty 
+                        (instance.findProperty (_PROPERTY_STARTTIME));
+                    startTime.setValue (CIMValue (currentDateTime));
                 }
             }
-
-            //
-            //  Set Time of Last State Change to current date time
-            //  ATTN: need method to get current date time in CIMDateTime format
-            //
-            CIMDateTime currentDateTime = CIMDateTime ();
-            if (!instance.existsProperty (_PROPERTY_LASTCHANGE))
-            {
-                instance.addProperty 
-                    (CIMProperty (_PROPERTY_LASTCHANGE, currentDateTime));
-            }
-            else 
-            {
-                CIMProperty lastChange = instance.getProperty 
-                    (instance.findProperty (_PROPERTY_LASTCHANGE));
-                lastChange.setValue (CIMValue (currentDateTime));
-            }
-
-            //
-            //  Set Subscription Start Time to current date time
-            //
-            if (!instance.existsProperty (_PROPERTY_STARTTIME))
-            {
-                instance.addProperty 
-                    (CIMProperty (_PROPERTY_STARTTIME, currentDateTime));
-            }
-            else 
-            {
-                CIMProperty startTime = instance.getProperty 
-                    (instance.findProperty (_PROPERTY_STARTTIME));
-                startTime.setValue (CIMValue (currentDateTime));
-            }
-        }
-
-        //
-        //  Create instance in repository
-        //
-        _repository->write_lock ();
     
-        try 
-        {
-            instanceRef = _repository->createInstance (request->nameSpace, 
-                instance);
-        }
-        catch (Exception & exception)
-        {
+            //
+            //  Create instance in repository
+            //
+            _repository->write_lock ();
+        
+            try 
+            {
+                instanceRef = _repository->createInstance (request->nameSpace, 
+                    instance);
+            }
+            catch (Exception & exception)
+            {
 // ATTN: << Tue Feb 26 18:10:09 2002 mdd >>
 // Nitin - need to catch AlreadyExists so you can unlock the repository 
-            errorCode = CIM_ERR_FAILED;
-            errorDescription = exception.getMessage ();
-            _repository->write_unlock ();
-            CIMCreateInstanceResponseMessage* response =
-                new CIMCreateInstanceResponseMessage(
-                    request->messageId,
-                    errorCode,
-                    errorDescription,
-                    request->queueIds.copyAndPop(),
-                    instanceRef);
-
-            _enqueueResponse(request, response);
-
-            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-        }
-    
-        _repository->write_unlock ();
-    
-        //
-        //  If the instance is of the CIM_IndicationSubscription class
-        //  and subscription state is enabled, send enable request to 
-        //  indication providers
-        //
-        if (instance.getClassName () == _CLASS_SUBSCRIPTION)
-        {
-            if ((subscriptionState == _STATE_ENABLED) ||
-                (subscriptionState == _STATE_ENABLEDDEGRADED))
-            {
                 //
-                //  Send enable request message to each provider
+                //  Unlock repository in case of exception
                 //
-                _sendEnableRequests (indicationProviders, request->nameSpace, 
-                    requiredProperties, condition, queryLanguage, instance);
+                errorCode = CIM_ERR_FAILED;
+                errorDescription = exception.getMessage ();
+                _repository->write_unlock ();
+                CIMCreateInstanceResponseMessage* response =
+                    new CIMCreateInstanceResponseMessage(
+                        request->messageId,
+                        errorCode,
+                        errorDescription,
+                        request->queueIds.copyAndPop(),
+                        instanceRef);
+    
+                //
+                //  Preserve message key
+                //
+                response->setKey (request->getKey ());
+    
+                //
+                //  Set response destination
+                //
+                response->dest = request->queueIds.top ();
+    
+                Base::_enqueueResponse (request, response);
+    
+                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                return;
+            }
         
-                //
-                //  Send start message to each provider
-                //
-                for (Uint8 i = 0; i < indicationProviders.size (); i++)
+            _repository->write_unlock ();
+        
+            //
+            //  If the instance is of the CIM_IndicationSubscription class
+            //  and subscription state is enabled, send enable request to 
+            //  indication providers
+            //
+            if (instance.getClassName () == _CLASS_SUBSCRIPTION)
+            {
+                if ((subscriptionState == _STATE_ENABLED) ||
+                    (subscriptionState == _STATE_ENABLEDDEGRADED))
                 {
                     //
-                    //  ATTN: start message has not yet been defined
+                    //  Send enable request message to each provider
                     //
+                    _sendEnableRequests (indicationProviders, 
+                        request->nameSpace, requiredProperties, condition, 
+                        queryLanguage, instance);
+            
+                    //
+                    //  Send start message to each provider
+                    //
+                    for (Uint8 i = 0; i < indicationProviders.size (); i++)
+                    {
+                        //
+                        //  ATTN: start message has not yet been defined
+                        //
+                    }
                 }
             }
         }
@@ -1344,7 +550,17 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
             request->queueIds.copyAndPop(),
             instanceRef);
 
-    _enqueueResponse(request, response);
+    //
+    //  Preserve message key
+    //
+    response->setKey (request->getKey ());
+    
+    //
+    //  Set response destination
+    //
+    response->dest = request->queueIds.top ();
+    
+    Base::_enqueueResponse (request, response);
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
@@ -1407,18 +623,17 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
         request->queueIds.copyAndPop(),
         instance);
 
-    // preserve message key
+    //
+    //  Preserve message key
+    //
     response->setKey (request->getKey ());
-
-    // lookup the message queue
-    MessageQueue * queue = MessageQueue::lookup (request->queueIds.top ());
-
-    PEGASUS_ASSERT (queue != 0);
-
-    // enqueue the response
-    queue->enqueue (response);
-
-    //_enqueueResponse (request, response);
+    
+    //
+    //  Set response destination
+    //
+    response->dest = request->queueIds.top ();
+    
+    Base::_enqueueResponse (request, response);
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
@@ -1488,18 +703,17 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
             request->queueIds.copyAndPop(),
             enumInstances);
 
-    // preserve message key
-    response->setKey(request->getKey());
-
-    // lookup the message queue
-    MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
-
-    PEGASUS_ASSERT(queue != 0);
-
-    // enqueue the response
-    queue->enqueue(response);
-
-    //_enqueueResponse(request, response);
+    //
+    //  Preserve message key
+    //
+    response->setKey (request->getKey ());
+    
+    //
+    //  Set response destination
+    //
+    response->dest = request->queueIds.top ();
+    
+    Base::_enqueueResponse (request, response);
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
@@ -1580,69 +794,249 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
         //
         CIMReference instanceReference = 
             request->modifiedInstance.getInstanceName ();
+    
+        //
+        //  Get instance from repository
+        //
+        CIMInstance instance = _repository->getInstance
+            (request->nameSpace, instanceReference);
+
+        if (_canModify (request, instanceReference, instance))
+        {
+            //
+            //  Check for expired subscription
+            //
+            if ((instance.existsProperty (_PROPERTY_DURATION)) &&
+                (_isExpired (instance)))
+            {
+                //
+                //  Delete the subscription instance
+                //
+                _deleteExpiredSubscription (request->nameSpace,
+                    instanceReference);
+    
+                String exceptionStr = _MSG_EXPIRED;
+                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, exceptionStr);
+            }
+    
+            if (request->propertyList.getNumProperties () > 0)
+            {
+                //
+                //  Get current state from instance
+                //
+                CIMValue subscriptionStateValue;
+                Uint16 currentState;
+                subscriptionStateValue = instance.getProperty 
+                    (instance.findProperty (_PROPERTY_STATE)).getValue ();
+                subscriptionStateValue.get (currentState);
         
-        //
-        //  Currently, only modification allowed is of Subscription State 
-        //  property in Subscription class
-        //
-        if (instanceReference.getClassName () != _CLASS_SUBSCRIPTION)
-        {
-            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-            throw CIMException (CIM_ERR_NOT_SUPPORTED);
+                //
+                //  Get new state 
+                //
+                Uint16 newState;
+                subscriptionStateValue = 
+                    request->modifiedInstance.getInstance ().getProperty
+                    (request->modifiedInstance.getInstance ().findProperty
+                    (_PROPERTY_STATE)).getValue ();
+    
+                subscriptionStateValue.get (newState);
+        
+                //
+                //  If Subscription State has changed,
+                //  Set Time of Last State Change to current date time
+                //  ATTN: need method to get current date time in CIMDateTime 
+                //  format
+                //
+                if (newState != currentState)
+                {
+                    CIMDateTime currentDateTime = CIMDateTime ();
+                    CIMProperty lastChange = instance.getProperty
+                        (instance.findProperty (_PROPERTY_LASTCHANGE));
+                    lastChange.setValue (CIMValue (currentDateTime));
+                }
+    
+                //
+                //  If subscription is to be enabled, determine if there are 
+                //  any indication providers that can serve the subscription
+                //
+                Array <struct ProviderClassList> indicationProviders;
+                CIMPropertyList requiredProperties;
+                String condition;
+                String queryLanguage;
+        
+                if (((newState == _STATE_ENABLED) || 
+                     (newState == _STATE_ENABLEDDEGRADED))
+                    && ((currentState != _STATE_ENABLED) && 
+                        (currentState != _STATE_ENABLEDDEGRADED)))
+                {
+                    //
+                    //  Subscription was previously not enabled but is now to 
+                    //  be enabled
+                    //
+                    _getEnableParams (request->nameSpace, instance,
+                        indicationProviders, requiredProperties, condition, 
+                        queryLanguage);
+    
+                    if (indicationProviders.size () == 0)
+                    {
+                        //
+                        //  There are no providers that can support this 
+                        //  subscription
+                        //
+                        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
+                            _MSG_NO_PROVIDERS);
+                    }
+                }
+    
+                //
+                //  Modify the instance in the repository
+                //
+                _repository->write_lock ();
+    
+                try
+                {
+                    _repository->modifyInstance (request->nameSpace,
+                        CIMNamedInstance (instanceReference, 
+                        request->modifiedInstance.getInstance ()), 
+                        request->includeQualifiers, request->propertyList);
+                }
+                catch (Exception & exception)
+                {
+                    //
+                    //  Unlock repository in case of exception
+                    //
+                    _repository->write_unlock ();
+    
+                    errorCode = CIM_ERR_FAILED;
+                    errorDescription = exception.getMessage ();
+    
+                    CIMModifyInstanceResponseMessage* response =
+                        new CIMModifyInstanceResponseMessage (
+                            request->messageId,
+                            errorCode,
+                            errorDescription,
+    	                request->queueIds.copyAndPop ());
+        
+                    //
+                    //  Preserve message key
+                    //
+                    response->setKey (request->getKey ());
+    
+                    //
+                    //  Set response destination
+                    //
+                    response->dest = request->queueIds.top ();
+    
+                    Base::_enqueueResponse (request, response);
+        
+                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                    return;
+                }
+                
+               _repository->write_unlock ();
+    
+                //
+                //  If subscription is newly enabled, send enable requests
+                //  and start providers
+                //
+                if (((newState == _STATE_ENABLED) || 
+                     (newState == _STATE_ENABLEDDEGRADED))
+                    && ((currentState != _STATE_ENABLED) && 
+                        (currentState != _STATE_ENABLEDDEGRADED)))
+                {
+                    _sendEnableRequests (indicationProviders, 
+                        request->nameSpace, requiredProperties, condition, 
+                        queryLanguage, instance);
+    
+                    //
+                    //  Send start message to each provider
+                    //
+                    for (Uint8 i = 0; i < indicationProviders.size (); i++)
+                    {
+                        //
+                        //  ATTN: start message has not yet been defined
+                        //
+                    }
+                }
+                else if ((newState == _STATE_DISABLED) &&
+                         ((currentState == _STATE_ENABLED) ||
+                          (currentState == _STATE_ENABLEDDEGRADED)))
+                {
+                    //
+                    //  Subscription was previously enabled but is now to be 
+                    //  disabled
+                    //
+                    Array <struct ProviderClassList> indicationProviders;
+                    indicationProviders = _getDisableParams 
+                        (request->nameSpace, instance);
+    
+                    //
+                    //  Send disable requests
+                    //
+                    if (indicationProviders.size () > 0)
+                    {
+                        _sendDisableRequests (indicationProviders, 
+                            request->nameSpace, instance);
+                    }
+                }
+            }
         }
+    }
+    catch (CIMException& exception)
+    {
+        errorCode = exception.getCode ();
+        errorDescription = exception.getMessage ();
+    }
+    catch (Exception& exception)
+    {
+        errorCode = CIM_ERR_FAILED;
+        errorDescription = exception.getMessage ();
+    }
 
+    CIMModifyInstanceResponseMessage* response =
+        new CIMModifyInstanceResponseMessage(
+            request->messageId,
+            errorCode,
+            errorDescription,
+            request->queueIds.copyAndPop());
 
-        //
-        //  ATTN:  Need to get value of PARTIAL_INSTANCE flag from 
-        //  operation context
-        //
-        /*if (!(flags & OperationFlag::PARTIAL_INSTANCE))
-        {
-            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-            throw CIMException (CIM_ERR_NOT_SUPPORTED);
-        }*/
+    //
+    //  Preserve message key
+    //
+    response->setKey (request->getKey ());
+    
+    //
+    //  Set response destination
+    //
+    response->dest = request->queueIds.top ();
+    
+    Base::_enqueueResponse (request, response);
 
-        if (request->includeQualifiers)
-        {
-            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-            throw CIMException (CIM_ERR_NOT_SUPPORTED);
-        }
+    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+}
 
-        //
-        //  Request is invalid if property list is null, meaning all properties
-        //  are to be updated
-        //
-        if (request->propertyList.isNull ())
-        {
-            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-            throw CIMException (CIM_ERR_NOT_SUPPORTED);
-        }
+void IndicationService::_handleDeleteInstanceRequest (const Message* message)
+{
+    const char METHOD_NAME [] = 
+        "IndicationService::_handleDeleteInstanceRequest";
 
-        //
-        //  Request is invalid if more than one property is specified
-        //
-        else if (request->propertyList.getNumProperties () > 1)
-        {
-            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-            throw CIMException (CIM_ERR_NOT_SUPPORTED);
-        }
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
 
-        //
-        //  For request to be valid, zero or one property must be specified
-        //  If one property specified, it must be Subscription State property
-        //
-        else if ((request->propertyList.getNumProperties () == 1) &&
-                 (request->propertyList.getPropertyName (0) != _PROPERTY_STATE))
-        {
-            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-            throw CIMException (CIM_ERR_NOT_SUPPORTED);
-        }
+    CIMDeleteInstanceRequestMessage* request = 
+        (CIMDeleteInstanceRequestMessage*) message;
 
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription;
+
+    try
+    {
         //
         //  Get creator from instance
         //
         CIMInstance instance = _repository->getInstance
-            (request->nameSpace, instanceReference);
+            (request->nameSpace, request->instanceName);
 
         String creator = instance.getProperty (instance.findProperty 
             (_PROPERTY_CREATOR)).getValue ().toString ();
@@ -1653,10 +1047,10 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
         String currentUser = String::EMPTY;
 
         //
-        //  Current user must be privileged user or instance Creator to modify
+        //  Current user must be privileged user or instance Creator to delete
         //  ATTN: need method to determine if current user is Privileged
         //
-        if (/*(!System::isPrivilegedUser (currentUser)) && */ 
+        if (/*(!System::isPrivilegedUser (currentUser) && */ 
             (currentUser != creator))
         {
             PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
@@ -1664,364 +1058,109 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
         }
 
         //
-        //  Check for expired subscription
+        //  Check if instance may be deleted -- a filter or handler instance 
+        //  referenced by a subscription instance may not be deleted
         //
-        if ((instance.existsProperty (_PROPERTY_DURATION)) &&
-            (_isExpired (instance)))
+        if (_canDelete (request->instanceName, request->nameSpace))
         {
-            //
-            //  Delete the subscription instance
-            //
-            _repository->write_lock ();
-
-            _repository->deleteInstance (request->nameSpace, instanceReference);
-
-            _repository->write_unlock ();
-
-            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-
-            String exceptionStr = _MSG_EXPIRED;
-            throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, exceptionStr);
-        }
-
-        if (request->propertyList.getNumProperties () > 0)
-        {
-            //
-            //  Get current state from instance
-            //
-            CIMValue subscriptionStateValue;
-            Uint16 currentState;
-            subscriptionStateValue = instance.getProperty 
-                (instance.findProperty (_PROPERTY_STATE)).getValue ();
-            subscriptionStateValue.get (currentState);
-    
-            //
-            //  Get new state 
-            //
-            Uint16 newState;
-            subscriptionStateValue = 
-                request->modifiedInstance.getInstance ().getProperty
-                (request->modifiedInstance.getInstance ().findProperty
-                (_PROPERTY_STATE)).getValue ();
-
-            subscriptionStateValue.get (newState);
-    
-            //
-            //  If Subscription State has changed,
-            //  Set Time of Last State Change to current date time
-            //  ATTN: need method to get current date time in CIMDateTime format
-            //
-            if (newState != currentState)
+            if (request->instanceName.getClassName () == _CLASS_SUBSCRIPTION)
             {
-                CIMDateTime currentDateTime = CIMDateTime ();
-                CIMProperty lastChange = instance.getProperty
-                    (instance.findProperty (_PROPERTY_LASTCHANGE));
-                lastChange.setValue (CIMValue (currentDateTime));
-            }
-
-            //
-            //  Modify the instance in the repository
-            //
-            _repository->write_lock ();
-
-            _repository->modifyInstance (request->nameSpace,
-                CIMNamedInstance (instanceReference, 
-                request->modifiedInstance.getInstance ()), 
-                request->includeQualifiers, request->propertyList);
-
-           _repository->write_unlock ();
-
-            if (((newState == _STATE_ENABLED) || 
-                 (newState == _STATE_ENABLEDDEGRADED))
-                && ((currentState != _STATE_ENABLED) && 
-                    (currentState != _STATE_ENABLEDDEGRADED)))
-            {
-                //
-                //  Subscription was previously not enabled but is now to be 
-                //  enabled
-                //
-
+                CIMInstance subscriptionInstance;
                 Array <struct ProviderClassList> indicationProviders;
-                CIMPropertyList requiredProperties;
-                String condition;
-                String queryLanguage;
-    
-                _getEnableParams (request->nameSpace, instance,
-                    indicationProviders, requiredProperties, condition, 
-                    queryLanguage);
 
-                if (indicationProviders.size () == 0)
-                {
-                    //
-                    //  There are no providers that can support this 
-                    //  subscription
-                    //
-                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
-                        _MSG_NO_PROVIDERS);
-                }
-        
-                _sendEnableRequests (indicationProviders, request->nameSpace, 
-                    requiredProperties, condition, queryLanguage, instance);
+                subscriptionInstance = _repository->getInstance 
+                    (request->nameSpace, request->instanceName);
+
+                indicationProviders = _getDisableParams 
+                    (request->nameSpace, subscriptionInstance);
 
                 //
-                //  Send start message to each provider
+                //  Send disable requests
                 //
-                for (Uint8 i = 0; i < indicationProviders.size (); i++)
-                {
-                    //
-                    //  ATTN: start message has not yet been defined
-                    //
-                }
+                _sendDisableRequests (indicationProviders,
+                    request->nameSpace, subscriptionInstance);
             }
-            else if ((newState == _STATE_DISABLED) &&
-                     ((currentState == _STATE_ENABLED) ||
-                      (currentState == _STATE_ENABLEDDEGRADED)))
-            {
-                //
-                //  Subscription was previously enabled but is now to be 
-                //  disabled
-		//
 
-		String filterQuery;
-		WQLSelectStatement selectStatement;
-		String indicationClassName;
-		Array <String> indicationSubclasses;
-		Array <struct ProviderClassList> indicationProviders;
-
-		//
-		//  Get filter query
-		//
-		filterQuery = _getFilterQuery (instance, request->nameSpace);
-		selectStatement = _getSelectStatement (filterQuery);
-        
-		//
-		//  Get indication class name from filter query (FROM clause)
-		//
-		indicationClassName = _getIndicationClassName (selectStatement,
-		    request->nameSpace);
-        
-		//
-		//  Get list of subclass names for indication class
-		//
-		indicationSubclasses = _repository->enumerateClassNames 
-		    (request->nameSpace, indicationClassName, true);
-                indicationSubclasses.append (indicationClassName);
-        
-		CIMPropertyList properties;
-    
-		//
-		//  Get property list from filter query (FROM and WHERE 
-		//  clauses)
-		//
-		if ((selectStatement.getSelectPropertyNameCount () > 0) ||
-		    (selectStatement.getWherePropertyNameCount () > 0))
-		{
-		    properties = _getPropertyList (selectStatement);
-		}
-    
-		//
-		//  Get indication provider class lists
-		//
-		indicationProviders = _getIndicationProviders 
-		    (request->nameSpace, indicationClassName, 
-                     indicationSubclasses, properties);
-    
-		//
-		//  Send disable requests
-		//
-                if (indicationProviders.size () > 0)
-                {
-		    _sendDisableRequests (indicationProviders, 
-                        request->nameSpace, instance);
-                }
-	    }
-	}
-    }
-    catch (CIMException& exception)
-    {
-	errorCode = exception.getCode ();
-	errorDescription = exception.getMessage ();
-    }
-    catch (Exception& exception)
-    {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage ();
-    }
-
-    CIMModifyInstanceResponseMessage* response =
-	new CIMModifyInstanceResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop());
-
-    // preserve message key
-    response->setKey (request->getKey ());
-
-    // lookup the message queue
-    MessageQueue * queue = MessageQueue::lookup (request->queueIds.top ());
-
-    PEGASUS_ASSERT (queue != 0);
-
-    // enqueue the response
-    queue->enqueue (response);
-
-    //_enqueueResponse (request, response);
-
-    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-}
-
-void IndicationService::_handleDeleteInstanceRequest (const Message* message)
-{
-    const char METHOD_NAME [] = 
-	"IndicationService::_handleDeleteInstanceRequest";
-
-    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
-
-    CIMDeleteInstanceRequestMessage* request = 
-	(CIMDeleteInstanceRequestMessage*) message;
-
-    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-    String errorDescription;
-
-    try
-    {
-	//
-	//  Get creator from instance
-	//
-	CIMInstance instance = _repository->getInstance
-	    (request->nameSpace, request->instanceName);
-
-	String creator = instance.getProperty (instance.findProperty 
-	    (_PROPERTY_CREATOR)).getValue ().toString ();
-
-	//
-	//  ATTN: need method to get current user
-	//
-	String currentUser = String::EMPTY;
-
-	//
-	//  Current user must be privileged user or instance Creator to delete
-        //  ATTN: need method to determine if current user is Privileged
-	//
-	if (/*(!System::isPrivilegedUser (currentUser) && */ 
-            (currentUser != creator))
-	{
-	    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-	    throw CIMException (CIM_ERR_ACCESS_DENIED);
-	}
-
-	//
-	//  Check if instance may be deleted -- a filter or handler instance 
-	//  referenced by a subscription instance may not be deleted
-	//
-	if (_canDelete (request->instanceName, request->nameSpace))
-	{
-	    if (request->instanceName.getClassName () == _CLASS_SUBSCRIPTION)
-	    {
-		CIMInstance subscriptionInstance;
-		String filterQuery;
-		WQLSelectStatement selectStatement;
-		String indicationClassName;
-		Array <String> indicationSubclasses;
-		Array <struct ProviderClassList> indicationProviders;
-
-		subscriptionInstance = _repository->getInstance 
-		    (request->nameSpace, request->instanceName);
-
-		//
-		//  Get filter query
-		//
-		filterQuery = _getFilterQuery (subscriptionInstance,
-		    request->nameSpace);
-		selectStatement = _getSelectStatement (filterQuery);
-        
-		//
-		//  Get indication class name from filter query (FROM clause)
-		//
-		indicationClassName = _getIndicationClassName (selectStatement,
-		    request->nameSpace);
-        
-		//
-		//  Get list of subclass names for indication class
-		//
-		indicationSubclasses = _repository->enumerateClassNames 
-		    (request->nameSpace, indicationClassName, true);
-                indicationSubclasses.append (indicationClassName);
-
-		CIMPropertyList properties;
-
-		//
-		//  Get property list from filter query (FROM and WHERE
-		//  clauses)
-		//
-		if ((selectStatement.getSelectPropertyNameCount () > 0) ||
-		    (selectStatement.getWherePropertyNameCount () > 0))
-		{
-		    properties = _getPropertyList (selectStatement);
-		}
-        
-		//
-		//  Get indication provider class lists
-		//
-		indicationProviders = _getIndicationProviders 
-		    (request->nameSpace, indicationClassName, 
-                     indicationSubclasses, properties);
-    
-		//
-		//  Send disable requests
-		//
-		_sendDisableRequests (indicationProviders,
-		    request->nameSpace, subscriptionInstance);
-	    }
-
-	    //
-	    //  Delete instance from repository
-	    //
+            //
+            //  Delete instance from repository
+            //
             _repository->write_lock ();
 
-	    _repository->deleteInstance (request->nameSpace, 
-                request->instanceName);
+            try
+            {
+                _repository->deleteInstance (request->nameSpace, 
+                    request->instanceName);
+            }
+            catch (Exception & exception)
+            {
+                //
+                //  Unlock repository in case of exception
+                //
+                _repository->write_unlock ();
+
+                errorCode = CIM_ERR_FAILED;
+                errorDescription = exception.getMessage ();
+
+                CIMDeleteInstanceResponseMessage* response =
+                    new CIMDeleteInstanceResponseMessage (
+                        request->messageId,
+                        errorCode,
+                        errorDescription,
+                        request->queueIds.copyAndPop ());
+
+                //
+                //  Preserve message key
+                //
+                response->setKey (request->getKey ());
+
+                //
+                //  Set response destination
+                //
+                response->dest = request->queueIds.top ();
+
+                Base::_enqueueResponse (request, response);
+
+                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                return;
+            }
 
             _repository->write_unlock ();
-	}
-	else
-	{
-	    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
-	}
+        }
+        else
+        {
+            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+            throw CIMException (CIM_ERR_NOT_SUPPORTED);
+        }
     }
     catch (CIMException& exception)
     {
-	errorCode = exception.getCode ();
-	errorDescription = exception.getMessage ();
+        errorCode = exception.getCode ();
+        errorDescription = exception.getMessage ();
     }
     catch (Exception& exception)
     {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage ();
+        errorCode = CIM_ERR_FAILED;
+        errorDescription = exception.getMessage ();
     }
 
     CIMDeleteInstanceResponseMessage* response =
-	new CIMDeleteInstanceResponseMessage(
-	    request->messageId,
-	    errorCode,
-	    errorDescription,
-	    request->queueIds.copyAndPop());
+        new CIMDeleteInstanceResponseMessage(
+            request->messageId,
+            errorCode,
+            errorDescription,
+            request->queueIds.copyAndPop());
 
-    // preserve message key
+    //
+    //  Preserve message key
+    //
     response->setKey (request->getKey ());
-
-    // lookup the message queue
-    MessageQueue * queue = MessageQueue::lookup (request->queueIds.top ());
-
-    PEGASUS_ASSERT (queue != 0);
-
-    // enqueue the response
-    queue->enqueue (response);
-
-    //_enqueueResponse (request, response);
+    
+    //
+    //  Set response destination
+    //
+    response->dest = request->queueIds.top ();
+    
+    Base::_enqueueResponse (request, response);
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
@@ -2148,7 +1287,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
 //cout << "IndicationService::_handleNotifyProviderRegistrationRequest" << endl;
 
     CIMNotifyProviderRegistrationRequestMessage* request = 
-	(CIMNotifyProviderRegistrationRequestMessage*) message;
+        (CIMNotifyProviderRegistrationRequestMessage*) message;
 
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
@@ -2336,6 +1475,627 @@ void IndicationService::_handleNotifyProviderTerminationRequest
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
 
+void IndicationService::_checkClasses (void)
+{
+    const char METHOD_NAME [] = "IndicationService::_checkClasses";
+
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
+    //
+    //  Get list of namespaces in repository
+    //
+    Array <String> nameSpaceNames = _repository->enumerateNameSpaces ();
+
+    //
+    //  Check for subscription classes in each namespace in the repository
+    //
+    for (Uint8 i = 0; i < nameSpaceNames.size (); i++)
+    {
+        //
+        //  Make sure subscription classes include Creator property
+        //
+        try
+        {
+            CIMClass subscriptionClass = _repository->getClass 
+                (nameSpaceNames [i], _CLASS_SUBSCRIPTION);
+            if (!subscriptionClass.existsProperty (_PROPERTY_CREATOR))
+            {
+                subscriptionClass.addProperty (CIMProperty (_PROPERTY_CREATOR,
+                    CIMValue (String::EMPTY)));
+
+                _repository->write_lock ();
+
+                try
+                {
+                    _repository->modifyClass (nameSpaceNames [i], 
+                        subscriptionClass);
+                }
+                catch (Exception & exception)
+                {
+                    //
+                    //  ATTN: Log a message??
+                    //
+                }
+
+                _repository->write_unlock ();
+            }
+            CIMClass filterClass = _repository->getClass (nameSpaceNames [i], 
+                _CLASS_FILTER);
+            if (!filterClass.existsProperty (_PROPERTY_CREATOR))
+            {
+                filterClass.addProperty (CIMProperty (_PROPERTY_CREATOR,
+                    CIMValue (String::EMPTY)));
+
+                _repository->write_lock ();
+
+                try
+                {
+                    _repository->modifyClass (nameSpaceNames [i], filterClass);
+                }
+                catch (Exception & exception)
+                {
+                    //
+                    //  ATTN: Log a message??
+                    //
+                }
+
+                _repository->write_unlock ();
+            }
+            CIMClass cimxmlHandlerClass = _repository->getClass 
+                (nameSpaceNames [i], _CLASS_HANDLERCIMXML);
+            if (!cimxmlHandlerClass.existsProperty (_PROPERTY_CREATOR))
+            {
+                cimxmlHandlerClass.addProperty (CIMProperty (_PROPERTY_CREATOR,
+                    CIMValue (String::EMPTY)));
+
+                _repository->write_lock ();
+
+                try
+                {
+                    _repository->modifyClass (nameSpaceNames [i], 
+                        cimxmlHandlerClass);
+                }
+                catch (Exception & exception)
+                {
+                    //
+                    //  ATTN: Log a message??
+                    //
+                }
+
+                _repository->write_unlock ();
+            }
+            CIMClass snmpHandlerClass = _repository->getClass 
+                (nameSpaceNames [i], _CLASS_HANDLERSNMP);
+            if (!snmpHandlerClass.existsProperty (_PROPERTY_CREATOR))
+            {
+                snmpHandlerClass.addProperty (CIMProperty (_PROPERTY_CREATOR,
+                    CIMValue (String::EMPTY)));
+
+                _repository->write_lock ();
+
+                try
+                {
+                    _repository->modifyClass (nameSpaceNames [i], 
+                        snmpHandlerClass);
+                }
+                catch (Exception & exception)
+                {
+                    //
+                    //  ATTN: Log a message??
+                    //
+                }
+
+                _repository->write_unlock ();
+            }
+        }
+        catch (CIMException e)
+        {
+            //
+            //  Some namespaces may not include the subscription class
+            //  In that case, just continue with the next namespace
+            //
+            if (e.getCode () == CIM_ERR_INVALID_CLASS)
+            {
+                continue;
+            }
+            else
+            {
+                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                throw e;
+            }
+        }
+    }
+}
+
+Boolean IndicationService::_canCreate (
+    CIMInstance & instance,
+    const String & nameSpace)
+{
+    CIMValue subscriptionStateValue;
+    Uint16 subscriptionState;
+    CIMValue repeatPolicyValue;
+    Uint16 repeatNotificationPolicy;
+    CIMValue errorPolicyValue;
+    Uint16 onFatalErrorPolicy;
+    CIMValue persistenceValue;
+    Uint16 persistenceType;
+
+    const char METHOD_NAME [] = "IndicationService::_canCreate";
+
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
+    // REVIEW: Derived classes of CIM_IndicationSubscription not
+    // handled. It is reasonable for a user to derive from this
+    // class and add extra properties.
+
+    // REVIEW: how does the provider manager know to forward
+    // requests to this service? Is it by class name? If so,
+    // shouldn't the provider use an is-a operator on the new
+    // class?
+
+    //
+    //  Check all required properties exist
+    //  For a property that has a default value, if it does not exist,
+    //  add property with default value
+    //
+    if (instance.getClassName () == _CLASS_SUBSCRIPTION)
+    {
+        //
+        //  Filter and Handler are key properties for Subscription
+        //  No other properties are required
+        //
+        if (!instance.existsProperty (_PROPERTY_FILTER))
+        {
+            String exceptionStr = _MSG_MISSING_REQUIRED;
+            exceptionStr.append (_PROPERTY_FILTER);
+            exceptionStr.append (_MSG_KEY_PROPERTY);
+            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+            throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                exceptionStr);
+        }
+
+        if (!instance.existsProperty (_PROPERTY_HANDLER))
+        {
+            String exceptionStr = _MSG_MISSING_REQUIRED;
+            exceptionStr.append (_PROPERTY_HANDLER);
+            exceptionStr.append (_MSG_KEY_PROPERTY);
+            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+            throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                exceptionStr);
+        }
+
+        //
+        //  Default value for Subscription State is Enabled
+        //
+        if (!instance.existsProperty (_PROPERTY_STATE))
+        {
+            instance.addProperty (CIMProperty (_PROPERTY_STATE,
+                CIMValue ((Uint16) _STATE_ENABLED)));
+        }
+        else
+        {
+            //
+            //  Get subscription state
+            //
+            subscriptionStateValue = instance.getProperty
+                (instance.findProperty (_PROPERTY_STATE)).getValue ();
+            subscriptionStateValue.get (subscriptionState);
+
+            //
+            //  If Subscription State is Other, Other Subscription State
+            //  property must exist
+            //
+            if ((subscriptionState == _STATE_OTHER) &&
+                (!instance.existsProperty (_PROPERTY_OTHERSTATE)))
+            {
+                String exceptionStr = _MSG_MISSING_REQUIRED;
+                exceptionStr.append (_PROPERTY_OTHERSTATE);
+                exceptionStr.append (_MSG_PROPERTY);
+                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                    exceptionStr);
+            }
+
+            //
+            //  If Subscription State is not Other, 
+            //  Other Subscription State property must not exist
+            //
+            else if (instance.existsProperty (_PROPERTY_OTHERSTATE))
+            {
+                String exceptionStr = _PROPERTY_OTHERSTATE;
+                exceptionStr.append (_MSG_PROPERTY_PRESENT);
+                exceptionStr.append (_PROPERTY_STATE);
+                exceptionStr.append (_MSG_VALUE_NOT);
+                exceptionStr.append (_STATE_OTHER);
+                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                    exceptionStr);
+            }
+        }
+
+        //
+        //  Default value for Repeat Notification Policy is None
+        //
+        if (!instance.existsProperty (_PROPERTY_REPEATNOTIFICATIONPOLICY))
+        {
+            instance.addProperty (CIMProperty 
+                (_PROPERTY_REPEATNOTIFICATIONPOLICY, 
+                CIMValue ((Uint16) _POLICY_NONE)));
+        }
+
+        else
+        {
+            //
+            //  Get Repeat Notification Policy
+            //
+            repeatPolicyValue = instance.getProperty (instance.findProperty
+                (_PROPERTY_REPEATNOTIFICATIONPOLICY)).getValue ();
+            repeatPolicyValue.get (repeatNotificationPolicy);
+
+            //
+            //  If Repeat Notification Policy is Other, 
+            //  Other Repeat Notification Policy property must exist
+            //
+            if ((repeatNotificationPolicy == _POLICY_OTHER) &&
+                (!instance.existsProperty 
+                (_PROPERTY_OTHERREPEATNOTIFICATIONPOLICY)))
+            {
+                String exceptionStr = _MSG_MISSING_REQUIRED;
+                exceptionStr.append 
+                    (_PROPERTY_OTHERREPEATNOTIFICATIONPOLICY);
+                exceptionStr.append (_MSG_PROPERTY);
+                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                    exceptionStr);
+            }
+
+            //
+            //  If Repeat Notification Policy is not Other, 
+            //  Other Repeat Notification Policy property must not exist
+            //
+            else if (instance.existsProperty 
+                (_PROPERTY_OTHERREPEATNOTIFICATIONPOLICY))
+            {
+                String exceptionStr = 
+                    _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY;
+                exceptionStr.append (_MSG_PROPERTY_PRESENT);
+                exceptionStr.append (_PROPERTY_REPEATNOTIFICATIONPOLICY);
+                exceptionStr.append (_MSG_VALUE_NOT);
+                exceptionStr.append (_POLICY_OTHER);
+                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                    exceptionStr);
+            }
+        }
+
+        //
+        //  Default value for On Fatal Error Policy is Ignore
+        //
+        if (!instance.existsProperty (_PROPERTY_ONFATALERRORPOLICY))
+        {
+            instance.addProperty (CIMProperty 
+                (_PROPERTY_ONFATALERRORPOLICY, 
+                CIMValue ((Uint16) _ERRORPOLICY_IGNORE)));
+        }
+        else
+        {
+            //
+            //  Get On Fatal Error Policy
+            //
+            errorPolicyValue = instance.getProperty (instance.findProperty 
+                (_PROPERTY_ONFATALERRORPOLICY)).getValue ();
+            errorPolicyValue.get (onFatalErrorPolicy);
+
+            //
+            //  If On Fatal Error Policy is Other, Other On Fatal Error 
+            //  Policy property must exist
+            //
+            if ((onFatalErrorPolicy == _ERRORPOLICY_OTHER) &&
+                (!instance.existsProperty 
+                (_PROPERTY_OTHERONFATALERRORPOLICY)))
+            {
+                String exceptionStr = _MSG_MISSING_REQUIRED;
+                exceptionStr.append (_PROPERTY_OTHERONFATALERRORPOLICY);
+                exceptionStr.append (_MSG_PROPERTY);
+                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                    exceptionStr);
+            }
+
+            //
+            //  If On Fatal Error Policy is not Other, 
+            //  Other On Fatal Error Policy property must not exist
+            //
+            else if (instance.existsProperty 
+                (_PROPERTY_OTHERONFATALERRORPOLICY))
+            {
+                String exceptionStr = _PROPERTY_OTHERONFATALERRORPOLICY;
+                exceptionStr.append (_MSG_PROPERTY_PRESENT);
+                exceptionStr.append (_PROPERTY_ONFATALERRORPOLICY);
+                exceptionStr.append (_MSG_VALUE_NOT);
+                exceptionStr.append (_ERRORPOLICY_OTHER);
+                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                    exceptionStr);
+            }
+        }
+
+    } 
+    else  // Filter or Handler
+    {
+        //
+        //  Name, CreationClassName, SystemName, and SystemCreationClassName
+        //  are key properties for Filter and Handler  
+        //  CreationClassName and Name must exist
+        //  If others do not exist, add and set to default
+        //
+        if (!instance.existsProperty (_PROPERTY_NAME))
+        {
+            String exceptionStr = _MSG_MISSING_REQUIRED;
+            exceptionStr.append (_PROPERTY_NAME);
+            exceptionStr.append (_MSG_KEY_PROPERTY);
+            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+            throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                exceptionStr);
+        }
+
+        if (!instance.existsProperty (_PROPERTY_CREATIONCLASSNAME))
+        {
+            String exceptionStr = _MSG_MISSING_REQUIRED;
+            exceptionStr.append (_PROPERTY_CREATIONCLASSNAME);
+            exceptionStr.append (_MSG_KEY_PROPERTY);
+            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+            throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                exceptionStr);
+        }
+
+        if (!instance.existsProperty (_PROPERTY_SYSTEMNAME))
+        {
+            instance.addProperty (CIMProperty (_PROPERTY_SYSTEMNAME,
+                System::getHostName ()));
+        }
+
+        if (!instance.existsProperty (_PROPERTY_SYSTEMCREATIONCLASSNAME))
+        {
+            //
+            //  ATTN: need method to get System Creation Class Name
+            //
+            instance.addProperty (CIMProperty 
+                (_PROPERTY_SYSTEMCREATIONCLASSNAME, 
+                "CIM_UnitaryComputerSystem"));
+        }
+
+        if (instance.getClassName () == _CLASS_FILTER)
+        {
+            //
+            //  Query and QueryLanguage properties are required for Filter
+            //
+            if (!instance.existsProperty (_PROPERTY_QUERY))
+            {
+                String exceptionStr = _MSG_MISSING_REQUIRED;
+                exceptionStr.append (_PROPERTY_QUERY);
+                exceptionStr.append (_MSG_PROPERTY);
+                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                    exceptionStr);
+            }
+            if (!instance.existsProperty (_PROPERTY_QUERYLANGUAGE))
+            {
+                String exceptionStr = _MSG_MISSING_REQUIRED;
+                exceptionStr.append (_PROPERTY_QUERYLANGUAGE);
+                exceptionStr.append (_MSG_PROPERTY);
+                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                    exceptionStr);
+            }
+
+            //
+            //  Default value for Source Namespace is the namespace of the
+            //  Filter registration
+            //
+            if (!instance.existsProperty (_PROPERTY_SOURCENAMESPACE))
+            {
+                instance.addProperty (CIMProperty 
+                    (_PROPERTY_SOURCENAMESPACE, nameSpace));
+            }
+        }
+
+        //
+        //  Currently only two direct subclasses of Indication handler 
+        //  class are supported -- further subclassing is not currently 
+        //  supported
+        //
+        else if ((instance.getClassName () == _CLASS_HANDLERCIMXML) ||
+                 (instance.getClassName () == _CLASS_HANDLERSNMP))
+        {
+            //
+            //  Default value for Persistence Type is Permanent
+            //
+            if (!instance.existsProperty (_PROPERTY_PERSISTENCETYPE))
+            {
+                instance.addProperty (CIMProperty 
+                    (_PROPERTY_PERSISTENCETYPE, 
+                    CIMValue ((Uint16) _PERSISTENCE_PERMANENT)));
+            }
+            else
+            {
+                //
+                //  Get Persistence Type
+                //
+                persistenceValue = instance.getProperty 
+                    (instance.findProperty 
+                    (_PROPERTY_PERSISTENCETYPE)).getValue ();
+                persistenceValue.get (persistenceType);
+
+                //
+                //  If Persistence Type is Other, Other Persistence Type
+                //  property must exist
+                //
+                if ((persistenceType == _PERSISTENCE_OTHER) &&
+                    (!instance.existsProperty 
+                    (_PROPERTY_OTHERPERSISTENCETYPE)))
+                {
+                    String exceptionStr = _MSG_MISSING_REQUIRED;
+                    exceptionStr.append (_PROPERTY_OTHERPERSISTENCETYPE);
+                    exceptionStr.append (_MSG_PROPERTY);
+                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                        exceptionStr);
+                }
+
+                //
+                //  If Persistence Type is not Other, 
+                //  Other Persistence Type property must not exist
+                //
+                else if (instance.existsProperty 
+                    (_PROPERTY_OTHERPERSISTENCETYPE))
+                {
+                    String exceptionStr = _PROPERTY_OTHERPERSISTENCETYPE;
+                    exceptionStr.append (_MSG_PROPERTY_PRESENT);
+                    exceptionStr.append (_PROPERTY_PERSISTENCETYPE);
+                    exceptionStr.append (_MSG_VALUE_NOT);
+                    exceptionStr.append (_PERSISTENCE_OTHER);
+                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                        exceptionStr);
+                }
+            }
+
+            //
+            //  Destination property is required for CIMXML and SNMP 
+            //  Handler subclasses
+            //
+            if (!instance.existsProperty (_PROPERTY_DESTINATION))
+            {
+                String exceptionStr = _MSG_MISSING_REQUIRED;
+                exceptionStr.append (_PROPERTY_DESTINATION);
+                exceptionStr.append (_MSG_PROPERTY);
+                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                    exceptionStr);
+            }
+
+            if (instance.getClassName () == _CLASS_HANDLERSNMP)
+            {
+                //
+                //  SNMP Type property is required for SNMP Handler
+                //
+                if (!instance.existsProperty (_PROPERTY_SNMPTYPE))
+                {
+                    String exceptionStr = _MSG_MISSING_REQUIRED;
+                    exceptionStr.append (_PROPERTY_SNMPTYPE);
+                    exceptionStr.append (_MSG_PROPERTY);
+                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
+                        exceptionStr);
+                }
+            }
+        }
+
+        else
+        {
+            //
+            //  A class not currently served by the Indication Service
+            //
+            PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+            throw CIMException (CIM_ERR_NOT_SUPPORTED);
+        }
+    }
+
+    return true;
+    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+}
+
+Boolean IndicationService::_canModify (
+    const CIMModifyInstanceRequestMessage * request,
+    const CIMReference & instanceReference,
+    const CIMInstance & instance)
+{
+    const char METHOD_NAME [] = "IndicationService::_canModify";
+
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
+    //
+    //  Currently, only modification allowed is of Subscription State 
+    //  property in Subscription class
+    //
+    if (instanceReference.getClassName () != _CLASS_SUBSCRIPTION)
+    {
+        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        throw CIMException (CIM_ERR_NOT_SUPPORTED);
+    }
+
+    //
+    //  ATTN:  Need to get value of PARTIAL_INSTANCE flag from 
+    //  operation context
+    //
+    /*if (!(flags & OperationFlag::PARTIAL_INSTANCE))
+    {
+        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        throw CIMException (CIM_ERR_NOT_SUPPORTED);
+    }*/
+
+    if (request->includeQualifiers)
+    {
+        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        throw CIMException (CIM_ERR_NOT_SUPPORTED);
+    }
+
+    //
+    //  Request is invalid if property list is null, meaning all properties
+    //  are to be updated
+    //
+    if (request->propertyList.isNull ())
+    {
+        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        throw CIMException (CIM_ERR_NOT_SUPPORTED);
+    }
+
+    //
+    //  Request is invalid if more than one property is specified
+    //
+    else if (request->propertyList.getNumProperties () > 1)
+    {
+        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        throw CIMException (CIM_ERR_NOT_SUPPORTED);
+    }
+
+    //
+    //  For request to be valid, zero or one property must be specified
+    //  If one property specified, it must be Subscription State property
+    //
+    else if ((request->propertyList.getNumProperties () == 1) &&
+             (request->propertyList.getPropertyName (0) != _PROPERTY_STATE))
+    {
+        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        throw CIMException (CIM_ERR_NOT_SUPPORTED);
+    }
+
+    //
+    //  Get creator from instance
+    //
+    String creator = instance.getProperty (instance.findProperty 
+        (_PROPERTY_CREATOR)).getValue ().toString ();
+
+    //
+    //  ATTN: need method to get current user
+    //
+    String currentUser = String::EMPTY;
+
+    //
+    //  Current user must be privileged user or instance Creator to modify
+    //  ATTN: need method to determine if current user is Privileged
+    //
+    if (/*(!System::isPrivilegedUser (currentUser)) && */ 
+        (currentUser != creator))
+    {
+        PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+        throw CIMException (CIM_ERR_ACCESS_DENIED);
+    }
+
+    return true;
+    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+}
 
 Boolean IndicationService::_canDelete (
     const CIMReference & instanceReference,
@@ -3638,8 +3398,17 @@ void IndicationService::_deleteReferencingSubscriptions (
             //
             _repository->write_lock ();
 
-            _repository->deleteInstance (nameSpace, 
-                subscriptions [i].getInstanceName ());
+            try
+            {
+                _repository->deleteInstance (nameSpace, 
+                    subscriptions [i].getInstanceName ());
+            }
+            catch (Exception & exception)
+            {
+                //
+                //  ATTN: Log a message??
+                //
+            }
 
             _repository->write_unlock ();
         }
@@ -3701,6 +3470,36 @@ Boolean IndicationService::_isExpired (
         PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
         return false /* true */;
     }
+}
+
+void IndicationService::_deleteExpiredSubscription (
+    const String & nameSpace,
+    const CIMReference & subscription)
+{
+    const char METHOD_NAME [] = 
+        "IndicationService::_deleteExpiredSubscription";
+
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
+    //
+    //  Delete the subscription instance
+    //
+    _repository->write_lock ();
+
+    try
+    {
+        _repository->deleteInstance (nameSpace, subscription);
+    }
+    catch (Exception & exception)
+    {
+        //
+        //  ATTN: Log a message??
+        //
+    }
+
+    _repository->write_unlock ();
+
+    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 }
 
 void IndicationService::_setTimeRemaining (
@@ -3837,6 +3636,61 @@ void IndicationService::_getEnableParams (
     }
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+}
+    
+Array <struct ProviderClassList> IndicationService::_getDisableParams (
+    const String & nameSpaceName,
+    const CIMInstance & subscriptionInstance)
+{
+    String filterQuery;
+    WQLSelectStatement selectStatement;
+    String indicationClassName;
+    Array <String> indicationSubclasses;
+    CIMPropertyList propertyList;
+    Array <struct ProviderClassList> indicationProviders;
+
+    const char METHOD_NAME [] = "IndicationService::_getDisableParams";
+
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
+    //
+    //  Get filter query
+    //
+    filterQuery = _getFilterQuery (subscriptionInstance, nameSpaceName);
+    selectStatement = _getSelectStatement (filterQuery);
+    
+    //
+    //  Get indication class name from filter query (FROM clause)
+    //
+    indicationClassName = _getIndicationClassName (selectStatement,
+        nameSpaceName);
+    
+    //
+    //  Get list of subclass names for indication class
+    //
+    indicationSubclasses = _repository->enumerateClassNames (nameSpaceName, 
+        indicationClassName, true);
+    indicationSubclasses.append (indicationClassName);
+    
+    //
+    //  Get property list from filter query (FROM and WHERE 
+    //  clauses)
+    //
+    if ((selectStatement.getSelectPropertyNameCount () > 0) ||
+        (selectStatement.getWherePropertyNameCount () > 0))
+    {
+        propertyList = _getPropertyList (selectStatement);
+    }
+
+    //
+    //  Get indication provider class lists
+    //
+    indicationProviders = _getIndicationProviders 
+        (nameSpaceName, indicationClassName, indicationSubclasses, 
+         propertyList);
+
+    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    return indicationProviders;
 }
     
 void IndicationService::_sendEnableRequests
@@ -4357,5 +4211,372 @@ WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
 
     return (source);
 }
+
+
+//
+//  Class names
+//
+
+/**
+    The name of the indication subscription class
+ */
+const char   IndicationService::_CLASS_SUBSCRIPTION []  = 
+                 "CIM_IndicationSubscription";
+
+/**
+    The name of the indication filter class
+ */
+const char   IndicationService::_CLASS_FILTER []        = 
+                 "CIM_IndicationFilter";
+
+/**
+    The name of the indication handler class
+ */
+const char   IndicationService::_CLASS_HANDLER []       = 
+                 "CIM_IndicationHandler";
+
+/**
+    The name of the CIMXML Indication Handler class
+ */
+const char   IndicationService::_CLASS_HANDLERCIMXML [] = 
+                 "CIM_IndicationHandlerCIMXML";
+
+/**
+    The name of the SNMP Indication Handler class
+ */
+const char   IndicationService::_CLASS_HANDLERSNMP []   = 
+                 "CIM_IndicationHandlerSNMP";
+
+/**
+    The name of the Indication class
+ */
+const char   IndicationService::_CLASS_INDICATION []    = "CIM_Indication";
+
+/**
+    The name of the CIMOM Shutdown alert indication class
+ */
+//
+//  ATTN: Update once CimomShutdownAlertIndication has been defined
+//
+const char   IndicationService::_CLASS_CIMOM_SHUTDOWN_ALERT [] =
+                 "CIM_AlertIndication";
+
+/**
+    The name of the No Provider alert indication class
+ */
+//
+//  ATTN: Update once NoProviderAlertIndication has been defined
+//
+const char   IndicationService::_CLASS_NO_PROVIDER_ALERT [] =
+                 "CIM_AlertIndication";
+
+/**
+    The name of the CIMOM shutdown alert indication class
+ */
+//
+//  ATTN: Update once ProviderTerminatedAlertIndication has been defined
+//
+const char   IndicationService::_CLASS_PROVIDER_TERMINATED_ALERT [] =
+                 "CIM_AlertIndication";
+
+/**
+    The name of the Provider Capabilities class
+ */
+const char   IndicationService::_CLASS_PROVIDER_CAPABILITIES [] = 
+                 "CIM_ProviderCapabilities";
+
+//
+//  Property names
+//
+
+/**
+    The name of the filter reference property for indication subscription class
+ */
+const char   IndicationService::_PROPERTY_FILTER []     = "Filter";
+
+/**
+    The name of the handler reference property for indication subscription class
+ */
+const char   IndicationService::_PROPERTY_HANDLER []     = "Handler";
+
+/**
+    The name of the subscription state property for indication subscription 
+    class
+ */
+const char   IndicationService::_PROPERTY_STATE []      = 
+                 "SubscriptionState";
+
+/**
+    The name of the Other Subscription State property for Indication 
+    Subscription class
+ */
+const char   IndicationService::_PROPERTY_OTHERSTATE [] = 
+                 "OtherSubscriptionState";
+
+/**
+    The name of the repeat notification policy property for indication
+    subscription class
+ */
+const char   IndicationService::_PROPERTY_REPEATNOTIFICATIONPOLICY [] =
+                 "RepeatNotificationPolicy";
+
+/**
+    The name of the other repeat notification policy property for
+    indication subscription class
+ */
+const char   IndicationService::_PROPERTY_OTHERREPEATNOTIFICATIONPOLICY []
+                 = "OtherRepeatNotificationPolicy";
+
+/**
+    The name of the repeat notification interval property for indication
+    subscription class
+ */
+const char   IndicationService::_PROPERTY_REPEATNOTIFICATIONINTERVAL [] =
+                 "RepeatNotificationInterval";
+
+/**
+    The name of the repeat notification gap property for indication
+    subscription class
+ */
+const char   IndicationService::_PROPERTY_REPEATNOTIFICATIONGAP [] =
+                 "RepeatNotificationGap";
+
+/**
+    The name of the repeat notification count property for indication
+    subscription class
+ */
+const char   IndicationService::_PROPERTY_REPEATNOTIFICATIONCOUNT [] =
+                 "RepeatNotificationCount";
+
+/**
+    The name of the On Fatal Error Policy property for Indication Subscription 
+    class
+ */
+const char   IndicationService::_PROPERTY_ONFATALERRORPOLICY [] = 
+                 "OnFatalErrorPolicy";
+
+/**
+    The name of the Other On Fatal Error Policy property for Indication 
+    Subscription class
+ */
+const char   IndicationService::_PROPERTY_OTHERONFATALERRORPOLICY [] = 
+                 "OtherOnFatalErrorPolicy";
+
+/**
+    The name of the Time Of Last State Change property for Indication 
+    Subscription class
+ */
+const char   IndicationService::_PROPERTY_LASTCHANGE []      = 
+                 "TimeOfLastStateChange";
+
+/**
+    The name of the Subscription Start Time property for Indication 
+    Subscription class
+ */
+const char   IndicationService::_PROPERTY_STARTTIME []      = 
+                 "SubscriptionStartTime";
+
+/**
+    The name of the Subscription Duration property for Indication 
+    Subscription class
+ */
+const char   IndicationService::_PROPERTY_DURATION []      = 
+                 "SubscriptionDuration";
+
+/**
+    The name of the Subscription Time Remaining property for Indication 
+    Subscription class
+ */
+const char   IndicationService::_PROPERTY_TIMEREMAINING []      = 
+                 "SubscriptionTimeRemaining";
+
+/**
+    The name of the query property for indication filter class
+ */
+const char   IndicationService::_PROPERTY_QUERY []      = "Query";
+
+/**
+    The name of the query language property for indication filter class
+ */
+const char   IndicationService::_PROPERTY_QUERYLANGUAGE [] = 
+                 "QueryLanguage";
+
+/**
+    The name of the Source Namespace property for indication filter class
+ */
+const char   IndicationService::_PROPERTY_SOURCENAMESPACE [] = 
+                 "SourceNamespace";
+
+/**
+    The name of the name property for indication filter and indications handler     classes
+ */
+const char   IndicationService::_PROPERTY_NAME []       = "Name";
+
+/**
+    The name of the creation class name property for indication filter and 
+    indications handler classes
+ */
+const char   IndicationService::_PROPERTY_CREATIONCLASSNAME [] = 
+             "CreationClassName";
+
+/**
+    The name of the system name property for indication filter and indications 
+    handler classes
+ */
+const char   IndicationService::_PROPERTY_SYSTEMNAME [] = "SystemName";
+
+/**
+    The name of the system creation class name property for indication filter 
+    and indications handler classes
+ */
+const char   IndicationService::_PROPERTY_SYSTEMCREATIONCLASSNAME [] = 
+             "SystemCreationClassName";
+
+/**
+    The name of the Persistence Type property for Indication Handler class
+ */
+const char   IndicationService::_PROPERTY_PERSISTENCETYPE [] = 
+                 "PersistenceType";
+
+/**
+    The name of the Other Persistence Type property for Indication Handler 
+    class
+ */
+const char   IndicationService::_PROPERTY_OTHERPERSISTENCETYPE [] = 
+                 "OtherPersistenceType";
+
+/**
+    The name of the Destination property for Indication Handler subclasses
+ */
+const char   IndicationService::_PROPERTY_DESTINATION [] = "Destination";
+
+/**
+    The name of the SNMP Type property for SNMP Indication Handler class
+ */
+const char   IndicationService::_PROPERTY_SNMPTYPE [] = "snmpType";
+
+/**
+    The name of the Alert Type property for Alert Indication class
+ */
+const char   IndicationService::_PROPERTY_ALERTTYPE [] = "AlertType";
+
+/**
+    The name of the Other Alert Type property for Alert Indication class
+ */
+const char   IndicationService::_PROPERTY_OTHERALERTTYPE [] = 
+             "OtherAlertType";
+
+/**
+    The name of the Perceived Severity property for Alert Indication class
+ */
+const char   IndicationService::_PROPERTY_PERCEIVEDSEVERITY [] = 
+             "PerceivedSeverity";
+
+/**
+    The name of the Probable Cause property for Alert Indication class
+ */
+const char   IndicationService::_PROPERTY_PROBABLECAUSE [] = 
+             "ProbableCause";
+
+/**
+    The name of the Provider Name property for Provider Capabilities class
+ */
+const char   IndicationService::_PROPERTY_PROVIDER_NAME [] =
+             "ProviderName";
+
+/**
+    The name of the Class Name property for Provider Capabilities class
+ */
+const char   IndicationService::_PROPERTY_CLASS_NAME [] =
+             "ClassName";
+
+/**
+    The name of the Supported Properties property for Provider Capabilities
+    class
+ */
+const char   IndicationService::_PROPERTY_SUPPORTED_PROPERTIES [] =
+             "SupportedProperties";
+
+/**
+    The name of the Provider Type property for Provider Capabilities class
+ */
+const char   IndicationService::_PROPERTY_PROVIDER_TYPE [] =
+             "ProviderType";
+
+/**
+    The name of the Creator property for a class
+ */
+const char   IndicationService::_PROPERTY_CREATOR [] = 
+             "Creator";
+
+//
+//  Service names
+//
+
+/**
+    The string identifying the service name of the Provider Manager Service
+ */
+const char IndicationService::_SERVICE_PROVIDERMANAGER [] = 
+               "Server::ProviderManagerService";
+
+/**
+    The string identifying the service name of the Handler Manager Service 
+ */
+const char IndicationService::_SERVICE_HANDLERMANAGER [] = 
+               "IndicationHandlerService";
+
+/**
+    The string identifying the service name of the Repository Service 
+ */
+const char IndicationService::_SERVICE_REPOSITORY [] = 
+               "Server::RepositoryService";
+
+//
+//  Other literal values
+//
+
+/**
+    The integer representing the Indication value for the Provider Type
+    property of the Provider Capabilities class
+ */
+const Uint16 IndicationService::_VALUE_INDICATION       = 4;
+
+/**
+    The WHERE keyword in WQL
+ */
+const char   IndicationService::_QUERY_WHERE []         = "WHERE";
+
+/**
+    The string representing the asterisk all properties symbol in WQL
+ */
+const char   IndicationService::_QUERY_ALLPROPERTIES [] = "*";
+
+
+//
+//  Message substrings used in exception messages
+//
+
+const char IndicationService::_MSG_MISSING_REQUIRED [] = "Missing required ";
+
+const char IndicationService::_MSG_KEY_PROPERTY [] = " key property";
+
+const char IndicationService::_MSG_PROPERTY [] = " property";
+
+const char IndicationService::_MSG_PROPERTY_PRESENT [] = 
+    " property present, but ";
+
+const char IndicationService::_MSG_VALUE_NOT [] = " value not ";
+
+const char IndicationService::_MSG_NO_PROVIDERS [] = 
+    "There are no providers capable of serving the subscription";
+
+const char IndicationService::_MSG_INVALID_CLASSNAME [] = 
+    "Invalid indication class name ";
+
+const char IndicationService::_MSG_IN_FROM [] = " in FROM clause of ";
+
+const char IndicationService::_MSG_EXPIRED [] = 
+    "Expired subscription may not be modified; has been deleted";
+
 
 PEGASUS_NAMESPACE_END

@@ -538,30 +538,43 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
       return;
    }
 
-   //
-   // check the class name for subscription, filter and handler
-   //
-   if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
-      String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
-      String::equalNoCase(className, "CIM_IndicationHandlerSNMP") ||
-      String::equalNoCase(className, "CIM_IndicationFilter"))
-   {
-      //
-      // Send to the indication service. It will generate the
-      // appropriate response message.
-      //
+    //
+    // check the class name for subscription, filter and handler
+    //
+    if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
+       String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
+       String::equalNoCase(className, "CIM_IndicationHandlerSNMP") ||
+       String::equalNoCase(className, "CIM_IndicationFilter"))
+    {
+        //
+        //  Send to the indication service
+        //
+        Array <Uint32> iService;
 
-      // lookup IndicationService
-      MessageQueue * queue = MessageQueue::lookup("Server::IndicationService");
+        find_services (String ("Server::IndicationService"), 0, 0, &iService);
 
-      PEGASUS_ASSERT(queue != 0);
+        AsyncOpNode * op = this->get_op ();
 
-      // forward to indication service. make a copy becuase the original request is
-      // deleted by this service.
-      queue->enqueue(new CIMGetInstanceRequestMessage(*request));
+        AsyncLegacyOperationStart * req =
+            new AsyncLegacyOperationStart (
+                get_next_xid (),
+                op,
+                iService [0],
+                new CIMGetInstanceRequestMessage (*request),
+                this->getQueueId ());
 
-      return;
-   }
+        AsyncReply* reply = SendWait (req);
+        CIMGetInstanceResponseMessage * response =
+            reinterpret_cast <CIMGetInstanceResponseMessage *>
+            ((static_cast <AsyncLegacyOperationResult *>
+            (reply))->get_result ());
+
+        _enqueueResponse (request, response);
+
+        delete reply;
+        delete req;
+        return;
+    }
 
    // get provider for class
    String providerName = _lookupProviderForClass(request->nameSpace, className);
@@ -705,30 +718,43 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
       return;
    }
 
-   //
-   // check the class name for subscription, filter and handler
-   //
-   if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
-      String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
-      String::equalNoCase(className, "CIM_IndicationHandlerSNMP") ||
-      String::equalNoCase(className, "CIM_IndicationFilter"))
-   {
-      //
-      // Send to the indication service. It will generate the
-      // appropriate response message.
-      //
+    //
+    // check the class name for subscription, filter and handler
+    //
+    if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
+       String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
+       String::equalNoCase(className, "CIM_IndicationHandlerSNMP") ||
+       String::equalNoCase(className, "CIM_IndicationFilter"))
+    {
+        //
+        //  Send to the indication service
+        //
+        Array <Uint32> iService;
 
-      // lookup IndicationService
-      MessageQueue * queue = MessageQueue::lookup("Server::IndicationService");
+        find_services (String ("Server::IndicationService"), 0, 0, &iService);
 
-      PEGASUS_ASSERT(queue != 0);
+        AsyncOpNode * op = this->get_op ();
 
-      // forward to indication service. make a copy becuase the original request is
-      // deleted by this service.
-      queue->enqueue(new CIMDeleteInstanceRequestMessage(*request));
+        AsyncLegacyOperationStart * req =
+            new AsyncLegacyOperationStart (
+                get_next_xid (),
+                op,
+                iService [0],
+                new CIMDeleteInstanceRequestMessage (*request),
+                this->getQueueId ());
 
-      return;
-   }
+        AsyncReply* reply = SendWait (req);
+        CIMDeleteInstanceResponseMessage * response =
+            reinterpret_cast <CIMDeleteInstanceResponseMessage *>
+            ((static_cast <AsyncLegacyOperationResult *> 
+            (reply))->get_result ());
+
+        _enqueueResponse (request, response);
+         
+        delete reply;
+        delete req;
+        return;
+    }
 
    String providerName = _lookupProviderForClass(request->nameSpace, className);
 
@@ -1086,30 +1112,43 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
       return;
    }
 
-   //
-   // check the class name for subscription, filter and handler
-   //
-   if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
-      String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
-      String::equalNoCase(className, "CIM_IndicationHandlerSNMP") ||
-      String::equalNoCase(className, "CIM_IndicationFilter"))
-   {
-      //
-      // Send to the indication service. It will generate the
-      // appropriate response message.
-      //
+    //
+    // check the class name for subscription, filter and handler
+    //
+    if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
+       String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
+       String::equalNoCase(className, "CIM_IndicationHandlerSNMP") ||
+       String::equalNoCase(className, "CIM_IndicationFilter"))
+    {
+        //
+        //  Send to the indication service
+        //
+        Array <Uint32> iService;
 
-      // lookup IndicationService
-      MessageQueue * queue = MessageQueue::lookup("Server::IndicationService");
+        find_services (String ("Server::IndicationService"), 0, 0, &iService);
 
-      PEGASUS_ASSERT(queue != 0);
+        AsyncOpNode * op = this->get_op ();
 
-      // forward to indication service. make a copy becuase the original request is
-      // deleted by this service.
-      queue->enqueue(new CIMModifyInstanceRequestMessage(*request));
+        AsyncLegacyOperationStart * req =
+            new AsyncLegacyOperationStart (
+                get_next_xid (),
+                op,
+                iService [0],
+                new CIMModifyInstanceRequestMessage (*request),
+                this->getQueueId ());
 
-      return;
-   }
+        AsyncReply* reply = SendWait (req);
+        CIMModifyInstanceResponseMessage * response =
+            reinterpret_cast <CIMModifyInstanceResponseMessage *>
+            ((static_cast <AsyncLegacyOperationResult *> 
+            (reply))->get_result ());
+
+        _enqueueResponse (request, response);
+         
+        delete reply;
+        delete req;
+        return;
+    }
 
    // check the class name for an "external provider"
    String providerName = _lookupProviderForClass(request->nameSpace, className);
@@ -1301,31 +1340,44 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
       return;
    }
 
-   //
-   // check the class name for subscription, filter and handler
-   //
-   if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
-      String::equalNoCase(className, "CIM_IndicationHandler") ||
-      String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
-      String::equalNoCase(className, "CIM_IndicationHandlerSNMP") ||
-      String::equalNoCase(className, "CIM_IndicationFilter"))
-   {
-      //
-      // Send to the indication service. It will generate the
-      // appropriate response message.
-      //
+    //
+    // check the class name for subscription, filter and handler
+    //
+    if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
+       String::equalNoCase(className, "CIM_IndicationHandler") ||
+       String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
+       String::equalNoCase(className, "CIM_IndicationHandlerSNMP") ||
+       String::equalNoCase(className, "CIM_IndicationFilter"))
+    {
+        //
+        //  Send to the indication service
+        //
+        Array <Uint32> iService;
 
-      // lookup IndicationService
-      MessageQueue * queue = MessageQueue::lookup("Server::IndicationService");
+        find_services (String ("Server::IndicationService"), 0, 0, &iService);
 
-      PEGASUS_ASSERT(queue != 0);
+        AsyncOpNode * op = this->get_op ();
 
-      // forward to indication service. make a copy becuase the original request is
-      // deleted by this service.
-      queue->enqueue(new CIMEnumerateInstancesRequestMessage(*request));
+        AsyncLegacyOperationStart * req =
+            new AsyncLegacyOperationStart (
+                get_next_xid (),
+                op,
+                iService [0],
+                new CIMEnumerateInstancesRequestMessage (*request),
+                this->getQueueId ());
 
-      return;
-   }
+        AsyncReply* reply = SendWait (req);
+        CIMEnumerateInstancesResponseMessage * response =
+            reinterpret_cast <CIMEnumerateInstancesResponseMessage *>
+            ((static_cast <AsyncLegacyOperationResult *> 
+            (reply))->get_result ());
+
+        _enqueueResponse (request, response);
+         
+        delete reply;
+        delete req;
+        return;
+    }
 
    // check the class name for an "external provider"
    String providerName = _lookupProviderForClass(request->nameSpace, className);
@@ -1429,31 +1481,44 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
       return;
    }
 
-   //
-   // check the class name for subscription, filter and handler
-   //
-   if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
-      String::equalNoCase(className, "CIM_IndicationHandler") ||
-      String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
-      String::equalNoCase(className, "CIM_IndicationHandlerSNMP") ||
-      String::equalNoCase(className, "CIM_IndicationFilter"))
-   {
-      //
-      // Send to the indication service. It will generate the
-      // appropriate response message.
-      //
+    //
+    // check the class name for subscription, filter and handler
+    //
+    if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
+       String::equalNoCase(className, "CIM_IndicationHandler") ||
+       String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
+       String::equalNoCase(className, "CIM_IndicationHandlerSNMP") ||
+       String::equalNoCase(className, "CIM_IndicationFilter"))
+    {
+        //
+        //  Send to the indication service
+        //
+        Array <Uint32> iService;
 
-      // lookup IndicationService
-      MessageQueue * queue = MessageQueue::lookup("Server::IndicationService");
+        find_services (String ("Server::IndicationService"), 0, 0, &iService);
 
-      PEGASUS_ASSERT(queue != 0);
+        AsyncOpNode * op = this->get_op ();
 
-      // forward to indication service. make a copy becuase the original request is
-      // deleted by this service.
-      queue->enqueue(new CIMEnumerateInstanceNamesRequestMessage(*request));
+        AsyncLegacyOperationStart * req =
+            new AsyncLegacyOperationStart (
+                get_next_xid (),
+                op,
+                iService [0],
+                new CIMEnumerateInstanceNamesRequestMessage (*request),
+                this->getQueueId ());
 
-      return;
-   }
+        AsyncReply* reply = SendWait (req);
+        CIMEnumerateInstanceNamesResponseMessage * response =
+            reinterpret_cast <CIMEnumerateInstanceNamesResponseMessage *>
+            ((static_cast <AsyncLegacyOperationResult *> 
+            (reply))->get_result ());
+
+        _enqueueResponse (request, response);
+         
+        delete reply;
+        delete req;
+        return;
+    }
 
    // check the class name for an "external provider"
    String providerName = _lookupProviderForClass(request->nameSpace, className);

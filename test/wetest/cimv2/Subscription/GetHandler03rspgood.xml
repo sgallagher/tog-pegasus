@@ -16,8 +16,6 @@
 The Caption property is a short textual description (one-line string) of the object.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="Description" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -25,8 +23,6 @@ The Caption property is a short textual description (one-line string) of the obj
 The Description property provides a textual description of the object.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="Owner" CLASSORIGIN="CIM_IndicationHandler" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -34,8 +30,6 @@ The Description property provides a textual description of the object.
 The name of the entity that created and/or maintains this Handler.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="OtherPersistenceType" CLASSORIGIN="CIM_IndicationHandler" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
@@ -43,8 +37,6 @@ The name of the entity that created and/or maintains this Handler.
 This value MUST be set to a non NULL value when the PersistenceType is 1 (&quot;Other&quot;). For all other values of PersistenceType, the value of OtherPersistenceType MUST be NULL.
 </VALUE>
 </QUALIFIER>
-<VALUE>
-</VALUE>
 </PROPERTY>
 <PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="CIM_IndicationHandlerSNMP" TYPE="string">
 <VALUE>

@@ -5,7 +5,6 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                       mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_query/slp_query.cpp,v 1.1 2003/12/17 18:05:31 tony Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -38,11 +37,20 @@
 /**** define the following token to import labels from the slp_client library *****/
 #define SLP_LIB_IMPORT
 #include "../slp_client/slp_client.h"
- 
-int8 *type, *addr, *scopes, *iface, *predicate, *spi;
-int16 port = 427, converge;
-BOOL dir_agent = FALSE;
-BOOL test = FALSE;
+
+
+static int8 *type;
+static int8 *addr;
+static int8 *scopes;
+static int8 *_interface;
+static int8 *predicate;
+static  int8 *spi;
+static int16 port = 427, converge;
+static BOOL dir_agent = FALSE;
+static BOOL test = FALSE;
+static BOOL parsable= FALSE;
+static int8 fs='\t', rs='\n';
+
 
 void free_globals(void)
 {
@@ -52,8 +60,8 @@ void free_globals(void)
     free(addr);
   if(scopes != NULL)
     free(scopes);
-  if(iface != NULL)
-    free(iface);
+  if(_interface != NULL)
+    free(_interface);
   if(predicate != NULL)
     free(predicate);
   if(spi != NULL)
@@ -75,10 +83,12 @@ void usage(void)
   printf("         [--converge=convergence-cycles]\n");
   printf("         [--spi=security-parameters-index] (not used)\n");
   printf("         [--test] (tests parameters)\n");
+  printf("         [--fs=field-separator]\n");
+  printf("         [--rs=record-separator]\n");
   printf("\n");
   printf("All parameters must be a single string containing no spaces.\n");
   printf("Always use the format of <parameter>=<value>.\n");
-  printf("Parameters enclosed in brackets are not optional.\n");
+  printf("Parameters enclosed in brackets are optional.\n");
     
    
 }
@@ -130,9 +140,9 @@ BOOL get_options(int argc, char *argv[])
 	bptr = argv[i] + 2;
 	while(*bptr != '=') bptr++;
 	bptr++;
-	if(iface != NULL)
-	  free(iface);
-	iface = strdup(bptr);
+	if(_interface != NULL)
+	  free(_interface);
+	_interface = strdup(bptr);
       } else if(TRUE == lslp_pattern_match(argv[i] + 2, "use_da=true*", FALSE)) {
 	dir_agent = TRUE;
       } else if(TRUE == lslp_pattern_match(argv[i] + 2, "test*", FALSE)) {
@@ -142,6 +152,18 @@ BOOL get_options(int argc, char *argv[])
 	while(*bptr != '=') bptr++;
 	bptr++;
 	converge = (int16)strtoul(bptr, NULL, 10);
+      } else if(TRUE == lslp_pattern_match(argv[i] + 2, "fs=*", FALSE)){
+	bptr = argv[i] + 2;
+	while(*bptr != '=') bptr++;
+	bptr++;
+	fs = *bptr;
+	parsable=TRUE;
+      } else if(TRUE == lslp_pattern_match(argv[i] + 2, "rs=*", FALSE)){
+	bptr = argv[i] + 2;
+	while(*bptr != '=') bptr++;
+	bptr++;
+	rs = *bptr;
+	parsable=TRUE;
       }
     }
   }
@@ -167,7 +189,7 @@ int main(int argc, char **argv)
     }
     
     if(NULL != (client = create_slp_client(addr, 
-					   iface, 
+					   _interface, 
 					   port, 
 					   "DSA", 
 					   scopes, 
@@ -184,11 +206,14 @@ int main(int argc, char **argv)
 	SOCKADDR_IN address;
 	address.sin_port = htons(port);
 	address.sin_family = AF_INET;
-	if(addr != NULL)
+	if(addr != NULL) {
 	  address.sin_addr.s_addr = inet_addr(addr);
-	else
+	  client->unicast_srv_req(client, type, predicate, scopes, &address);
+	} else {
 	  address.sin_addr.s_addr = _LSLP_MCAST;
-	client->unicast_srv_req(client, type, predicate, scopes, &address);
+	  client->converge_srv_req(client, type, predicate, scopes);
+	}
+	
       }
       
       responses.isHead = TRUE;
@@ -197,8 +222,12 @@ int main(int argc, char **argv)
       client->get_response(client, &responses);
       while( ! _LSLP_IS_EMPTY(&responses)) {
 	temp = responses.next;
-	if(temp->type == srvRply) 
-	  lslp_print_srv_rply(temp);
+	if(temp->type == srvRply) {
+	  if(parsable == TRUE )
+	    lslp_print_srv_rply_parse(temp, fs, rs);
+	  else
+	    lslp_print_srv_rply(temp);
+	}
 	_LSLP_UNLINK(temp);
 	lslpDestroySLPMsg(temp, LSLP_DESTRUCTOR_DYNAMIC);
       }
@@ -207,6 +236,6 @@ int main(int argc, char **argv)
   }
   
   free_globals();
-  return(0);
+  return 1;
 
 }

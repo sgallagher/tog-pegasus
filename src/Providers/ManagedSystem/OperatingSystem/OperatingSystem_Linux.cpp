@@ -1,7 +1,9 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%2003////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
-// The Open Group, Tivoli Systems
+// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
+// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
+// IBM Corp.; EMC Corporation, The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -20,28 +22,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-///////////////////////////////////////////////////////////////////////////////
-//
-// Copyright (c) 2002 BMC Software, Hewlett-Packard Company, IBM,
-// The Open Group, Tivoli Systems
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
-// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
-// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
-// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//=============================================================================
 //
 // Author: Al Stone <ahs3@fc.hp.com>
 //         Christopher Neufeld <neufeld@linuxcare.com>
@@ -146,7 +126,7 @@ Boolean OperatingSystem::getName(String& osName)
                if (fgets(buffer, MAXPATHLEN, vf) != NULL)
 	       {
                   buffer_s.assign(buffer);
-	    
+
 		  // parse the text to extract Distribution Name
 		  buffer_index = buffer_s.find(" release");
 		  if ( buffer_index != PEG_NOT_FOUND )
@@ -234,7 +214,7 @@ Boolean OperatingSystem::getDescription(String& description)
   */
 Boolean OperatingSystem::getInstallDate(CIMDateTime& installDate)
 {
-// ATTN-SLC-P2-17-Apr-02:  Implement getInstallDate for Linux 
+// ATTN-SLC-P2-17-Apr-02:  Implement getInstallDate for Linux
 
    return false;
 }
@@ -474,7 +454,7 @@ Boolean OperatingSystem::getNumberOfUsers(Uint32& numberOfUsers)
     struct utmpx * utmpp;
 
     numberOfUsers = 0;
-    
+
     while ((utmpp = getutxent()) != NULL)
     {
         if (utmpp->ut_type == USER_PROCESS)
@@ -556,7 +536,7 @@ Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32& mMaxProcesses)
          fclose(vf);
       }
     mMaxProcesses = count;
-    return true; 
+    return true;
    }
    return false;
 }
@@ -598,7 +578,7 @@ Boolean OperatingSystem::getTotalSwapSpaceSize(Uint64& mTotalSwapSpaceSize)
    if(mTotalSwapSpaceSize) return true;
    else return false;
 }
- 
+
 /** _totalVM method for Linux implementation of OS Provider
 
     Calculates TotalVirtualMemory as the sum of totalSwap
@@ -711,7 +691,7 @@ Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
 
 /**
    getTotalVisibleMemorySize method for Linux implementation of OS Provider
- 
+
    Was returning FreePhysical - correct? diabled it.
   */
 Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
@@ -750,17 +730,17 @@ Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
 
 /**
    getSizeStoredInPagingFiles method for Linux implementation of OS Provider
- 
+
    Was returning TotalSwap - correct? diabled it.
   */
 Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64& total)
 {
     return false;
 }
- 
+
 /**
    getFreeSpaceInPagingFiles method for Linux implementation of OS Provider
- 
+
    Was returning TotalVirtualMemory - correct? diabled it.
   */
 Boolean OperatingSystem::getFreeSpaceInPagingFiles(
@@ -824,7 +804,7 @@ Boolean OperatingSystem::getMaxProcsPerUser (Uint32& maxProcsPerUser)
 {
     return sysconf(_SC_CHILD_MAX);
 }
-     
+
 /**
    getSystemUpTime method for Linux implementation of OS Provider
 
@@ -883,9 +863,9 @@ Boolean OperatingSystem::getOperatingSystemCapability(String& scapability)
    Invokes as via system system call, so have full checking of user's
    authorization (already authenticated by CIMOM)
 
-   Don't we want to do some additional cleanup before actually 
+   Don't we want to do some additional cleanup before actually
    invoking the reboot command?  For example, we know the CIMOM is up
-   and running.  Perhaps set the OS state to 'Stopping' and do a 
+   and running.  Perhaps set the OS state to 'Stopping' and do a
    graceful shutdown of the CIMOM (at least)?
 
    */

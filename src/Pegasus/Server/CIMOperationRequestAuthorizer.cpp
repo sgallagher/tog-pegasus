@@ -223,12 +223,11 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 	 cimMethodName = "EnumerateInstanceNames";
 	 break;
 
-	 //ATTN: Implement this when ExecQuery is implemented in the decoder
       case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-	 //userName = ((CIMExecQueryRequestMessage*)request)->userName;
-	 //authType = ((CIMExecQueryRequestMessage*)request)->authType;
-	 //nameSpace = ((CIMExecQueryRequestMessage*)request)->nameSpace;
-	 //cimMethodName = "ExecQuery";
+	 userName = ((CIMExecQueryRequestMessage*)request)->userName;
+	 authType = ((CIMExecQueryRequestMessage*)request)->authType;
+	 nameSpace = ((CIMExecQueryRequestMessage*)request)->nameSpace;
+	 cimMethodName = "ExecQuery";
 	 break;
 
       case CIM_ASSOCIATORS_REQUEST_MESSAGE:
@@ -306,36 +305,6 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 	 authType = ((CIMInvokeMethodRequestMessage*)request)->authType;
 	 nameSpace = ((CIMInvokeMethodRequestMessage*)request)->nameSpace;
 	 cimMethodName = "InvokeMethod";
-	 break;
-
-      case CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-	 userName = 
-	    ((CIMEnableIndicationSubscriptionRequestMessage*)request)->userName;
-	 authType = 
-	    ((CIMEnableIndicationSubscriptionRequestMessage*)request)->authType;
-	 nameSpace = 
-	    ((CIMEnableIndicationSubscriptionRequestMessage*)request)->nameSpace;
-	 cimMethodName = "EnableIndicationSubscription";
-	 break;
-
-      case CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-	 userName = 
-	    ((CIMModifyIndicationSubscriptionRequestMessage*)request)->userName;
-	 authType = 
-	    ((CIMModifyIndicationSubscriptionRequestMessage*)request)->authType;
-	 nameSpace = 
-	    ((CIMModifyIndicationSubscriptionRequestMessage*)request)->nameSpace;
-	 cimMethodName = "ModifyIndicationSubscription";
-	 break;
-
-      case CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-	 userName = 
-	    ((CIMDisableIndicationSubscriptionRequestMessage*)request)->userName;
-	 authType = 
-	    ((CIMDisableIndicationSubscriptionRequestMessage*)request)->authType;
-	 nameSpace = 
-	    ((CIMDisableIndicationSubscriptionRequestMessage*)request)->nameSpace;
-	 cimMethodName = "DisableIndicationSubscription";
 	 break;
 
       default:

@@ -7,3 +7,6 @@
     B	Support qualified property names (e.g., x.y.z).
 
     B	Support the ISA operator (e.g., ClassNameA ISA ClassNameB).
+
+    B	Implement function notation.
+

@@ -73,7 +73,12 @@ static Boolean _Evaluate(
     {
 	case WQLOperand::NULL_VALUE:
 	{
-	    // ATTN-A: not sure what to do here:
+	    // This cannot happen since expressions of the form
+	    // OPERAND OPERATOR NULL are converted to unary form.
+	    // For example: "count IS NULL" is treated as a unary
+	    // operation in which IS_NULL is the unary operation
+	    // and count is the the unary operand.
+
 	    PEGASUS_ASSERT(0);
 	    break;
 	}
@@ -262,14 +267,36 @@ Boolean WQLSelectStatement::evaluateWhereClause(
 	    // ATTN-A: implement these next!
 	    //
 
-	    case WQL_IS_NULL:
 	    case WQL_IS_TRUE:
-	    case WQL_IS_FALSE:
-	    case WQL_IS_NOT_NULL:
-	    case WQL_IS_NOT_TRUE:
 	    case WQL_IS_NOT_FALSE:
-		PEGASUS_ASSERT(0);
+	    {
+		PEGASUS_ASSERT(stack.size() >= 1);
 		break;
+	    }
+
+	    case WQL_IS_FALSE:
+	    case WQL_IS_NOT_TRUE:
+	    {
+		PEGASUS_ASSERT(stack.size() >= 1);
+		stack.top() = !stack.top();
+		break;
+	    }
+
+	    case WQL_IS_NULL:
+	    {
+		PEGASUS_ASSERT(stack.size() >= 1);
+		WQLOperand& x = that->_operands[j++];
+		stack.push(x.getType() == WQLOperand::NULL_VALUE);
+		break;
+	    }
+
+	    case WQL_IS_NOT_NULL:
+	    {
+		PEGASUS_ASSERT(stack.size() >= 1);
+		WQLOperand& x = that->_operands[j++];
+		stack.push(x.getType() != WQLOperand::NULL_VALUE);
+		break;
+	    }
 	}
     }
 

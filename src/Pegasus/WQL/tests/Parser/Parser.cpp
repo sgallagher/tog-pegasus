@@ -58,7 +58,7 @@ void test01()
 
     Array<Sint8> text;
     text.append(TEXT, sizeof(TEXT));
-    cout << text.getData() << endl;
+    // cout << text.getData() << endl;
 
     // 
     // Parse the text:
@@ -69,11 +69,9 @@ void test01()
     try
     {
 	WQLParser::parse(text, statement);
-	statement.print();
-
-	Boolean result = statement.evaluateWhereClause(&source);
-
-	cout << "result=" << result << endl;
+	// statement.print();
+	// Boolean result = statement.evaluateWhereClause(&source);
+	// cout << "result=" << result << endl;
     }
     catch (Exception& e)
     {
@@ -84,54 +82,8 @@ void test01()
 
 int main(int argc, char** argv)
 {
-    // test01();
-    // exit(1);
+    test01();
 
-    //
-    // Check arguments:
-    //
-
-    if (argc < 2)
-    {
-	cerr << "Usage: " << argv[0] << " wql-text..." << endl;
-	exit(1);
-    }
-
-    // 
-    // Append all arguments together to from a single string:
-    //
-
-    Array<Sint8> text;
-
-    for (int i = 1; i < argc; i++)
-    {
-	text.append(argv[i], strlen(argv[i]));
-
-	if (i + 1 !=  argc)
-	    text.append("\n", 1);
-    }
-
-    text.append('\0');
-
-    // PEGASUS_OUT(text.getData());
-
-    // 
-    // Parse the text:
-    //
-
-    WQLSelectStatement statement;
-
-    try
-    {
-	WQLParser::parse(text, statement);
-    }
-    catch (Exception& e)
-    {
-	cerr << "Exception: " << e.getMessage() << endl;
-	exit(1);
-    }
-
-    statement.print();
-
+    cout << "+++++ passed all tests" << endl;
     return 0;
 }

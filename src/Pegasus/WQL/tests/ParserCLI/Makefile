@@ -1,6 +1,6 @@
 ROOT = ../../../../..
 
-DIR = Pegasus/WQL/tests/Parser
+DIR = Pegasus/WQL/tests/ParserCLI
 
 LIBRARIES = \
     $(LIB_DIR)/$(LIB_PREFIX)pegwql$(LIB_SUFFIX) \
@@ -8,36 +8,36 @@ LIBRARIES = \
 
 include $(ROOT)/mak/config.mak
 
-PROGRAM = TestParser
-SOURCES = Parser.cpp
+PROGRAM = ParserCLI
+SOURCES = ParserCLI.cpp
 
 include $(ROOT)/mak/program.mak
 
 tests:
 
 test1:
-	TestParser "select * from MyClass"
+	ParserCLI "select * from MyClass"
 
 test2:
-	TestParser \
+	ParserCLI \
 	    "SELECT min,max,count,flag" \
 	    "FROM MyClass" \
 	    "WHERE min > 10 AND max < 90 OR count > 10 AND flag = TRUE"
 
 test3:
-	TestParser \
+	ParserCLI \
 	    "SELECT *" \
 	    "FROM MyClass" \
 	    "WHERE min > 10 AND max < 90 OR count IS NULL"
 
-test3:
-	TestParser \
+test4:
+	ParserCLI \
 	    "SELECT *" \
 	    "FROM MyClass" \
 	    "WHERE x >= 10 OR y > 90 AND z = 500"
 
-test4:
-	TestParser \
+test5:
+	ParserCLI \
 	    "SELECT *" \
 	    "FROM MyClass" \
 	    "WHERE (x >= 10 OR y > 90) AND z = 500"

@@ -69,7 +69,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 SignalHandler::SignalHandler()
 {
-    for(Uint32 i=0;i <= PEGASUS_NSIG;i++)
+    for(unsigned i=0;i <= PEGASUS_NSIG;i++)
     {
        register_handler &rh = reg_handler[i];
        rh.signum = i;
@@ -84,7 +84,7 @@ SignalHandler::~SignalHandler()
     deactivateAll();
 }
 
-void SignalHandler::verifySignum(Uint32 signum)
+void SignalHandler::verifySignum(unsigned signum)
 {
     if ( signum > PEGASUS_NSIG )
     {
@@ -93,13 +93,13 @@ void SignalHandler::verifySignum(Uint32 signum)
 }
 
 SignalHandler::register_handler& 
-SignalHandler::getHandler(Uint32 signum)
+SignalHandler::getHandler(unsigned signum)
 {
     verifySignum(signum);
     return(reg_handler[signum]);
 }
 
-void SignalHandler::registerHandler(Uint32 signum, signal_handler _sighandler)
+void SignalHandler::registerHandler(unsigned signum, signal_handler _sighandler)
 {
     register_handler &rh = getHandler(signum);
     AutoMutex autoMut(reg_mutex);
@@ -107,7 +107,7 @@ void SignalHandler::registerHandler(Uint32 signum, signal_handler _sighandler)
     rh.sh = _sighandler;
 }
 
-void SignalHandler::activate(Uint32 signum)
+void SignalHandler::activate(unsigned signum)
 {
     register_handler &rh = getHandler(signum);
     AutoMutex autoMut(reg_mutex);
@@ -129,7 +129,7 @@ void SignalHandler::activate(Uint32 signum)
     delete sig_acts;
 }
 
-void SignalHandler::deactivate(Uint32 signum)
+void SignalHandler::deactivate(unsigned signum)
 {
     register_handler &rh = getHandler(signum);
     AutoMutex autoMut(reg_mutex);
@@ -148,7 +148,7 @@ void SignalHandler::deactivate_i(register_handler &rh)
 void SignalHandler::deactivateAll()
 {
     AutoMutex autoMut(reg_mutex);
-    for (Uint32 i=0; i <= PEGASUS_NSIG; i++)
+    for (unsigned i=0; i <= PEGASUS_NSIG; i++)
     {
         register_handler &rh = reg_handler[i];
         if (rh.active)
@@ -158,7 +158,7 @@ void SignalHandler::deactivateAll()
     }
 }
 
-void SignalHandler::ignore(Uint32 signum)
+void SignalHandler::ignore(unsigned signum)
 {
 
     verifySignum(signum);
@@ -184,16 +184,16 @@ SignalHandler::SignalHandler() { }
 
 SignalHandler::~SignalHandler() { }
 
-void SignalHandler::registerHandler(Uint32 signum, signal_handler _sighandler)
+void SignalHandler::registerHandler(unsigned signum, signal_handler _sighandler)
 { }
 
-void SignalHandler::activate(Uint32 signum) { }
+void SignalHandler::activate(unsigned signum) { }
 
-void SignalHandler::deactivate(Uint32 signum) { }
+void SignalHandler::deactivate(unsigned signum) { }
 
 void SignalHandler::deactivateAll() { }
 
-void SignalHandler::ignore(Uint32 signum) { }
+void SignalHandler::ignore(unsigned signum) { }
 
 #endif // PEGASUS_HAS_SIGNALS
 

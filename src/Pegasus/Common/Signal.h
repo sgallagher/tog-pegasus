@@ -98,23 +98,27 @@ public:
 
     // these functions should throw exceptions
 
-    void registerHandler(Uint32 signum, signal_handler _sighandler);
+    void registerHandler(unsigned signum, signal_handler _sighandler);
 
-    void activate(Uint32 signum);
+    void activate(unsigned signum);
 
     //void activateAll();
 
-    void deactivate(Uint32 signum);
+    void deactivate(unsigned signum);
 
     void deactivateAll();
 
-    static void ignore(Uint32 signum);
+    static void ignore(unsigned signum);
 
 private:
 
 #ifdef PEGASUS_HAS_SIGNALS
-    static const Uint32 PEGASUS_NSIG = 32;
-    static void verifySignum(Uint32 signum);
+    enum
+    {
+        PEGASUS_NSIG = 32
+    };
+
+    static void verifySignum(unsigned signum);
 
     typedef struct {
         int signum;
@@ -128,7 +132,7 @@ private:
 
     void deactivate_i(register_handler &rh);
 
-    register_handler &getHandler(Uint32 sigum);
+    register_handler &getHandler(unsigned sigum);
 #endif
 
 };

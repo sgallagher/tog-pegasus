@@ -39,6 +39,9 @@
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/MessageQueue.h>
+#ifdef PEGASUS_INDICATION_PERFINST
+#include <Pegasus/Common/Stopwatch.h>
+#endif
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/XmlWriter.h>
@@ -103,12 +106,11 @@ void IndicationService::_handle_async_request(AsyncRequest *req)
     {
         req->op->processing();
         handle_CimServiceStop(static_cast<CimServiceStop *>(req));
+
         //
         //  Call _terminate
         //
         _terminate ();
-
-
     }
     else if (req->getType () == async_messages::CIMSERVICE_START)
     {
@@ -120,7 +122,6 @@ void IndicationService::_handle_async_request(AsyncRequest *req)
     {
        try 
        {
-	  
 	  req->op->processing();
 	  Message *legacy = 
 	     (static_cast<AsyncLegacyOperationStart *>(req)->get_action());
@@ -143,8 +144,9 @@ void IndicationService::_handle_async_request(AsyncRequest *req)
 
 void IndicationService::handleEnqueue(Message* message)
 {
-
-
+#ifdef PEGASUS_INDICATION_PERFINST
+    Stopwatch stopWatch;
+#endif
 	  
    switch(message->getType())
    {
@@ -273,6 +275,13 @@ void IndicationService::handleEnqueue(Message* message)
 			  + String(MessageTypeToString(message->getType())));
 	 break;
    }
+
+#ifdef PEGASUS_INDICATION_PERFINST
+    double elapsed = stopWatch.getElapsed ();
+
+    Tracer::trace (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2, 
+        "%s: %.3f seconds", MessageTypeToString (message->getType ()), elapsed);
+#endif
 	  
    delete message;
 }
@@ -287,6 +296,10 @@ void IndicationService::handleEnqueue(void)
 
 void IndicationService::_initialize (void)
 {
+#ifdef PEGASUS_INDICATION_PERFINST
+    Stopwatch stopWatch;
+#endif
+
     Array <CIMInstance> activeSubscriptions;
     Array <CIMInstance> noProviderSubscriptions;
     Array <ProviderClassList> enableProviders;
@@ -340,7 +353,7 @@ void IndicationService::_initialize (void)
     //
     //  Get existing active subscriptions from each namespace in the repository
     //
-    activeSubscriptions = _getActiveSubscriptions ();
+    activeSubscriptions = _getActiveSubscriptionsFromRepository ();
     noProviderSubscriptions.clear ();
 
     String condition;
@@ -362,9 +375,10 @@ void IndicationService::_initialize (void)
         }
 
         CIMNamespaceName sourceNameSpace;
+        Array <CIMName> indicationSubclasses;
         _getCreateParams 
             (activeSubscriptions [i].getPath ().getNameSpace (),
-            activeSubscriptions [i], indicationProviders,
+            activeSubscriptions [i], indicationSubclasses, indicationProviders,
             propertyList, sourceNameSpace, condition, queryLanguage);
 
         if (indicationProviders.size () == 0)
@@ -429,6 +443,14 @@ void IndicationService::_initialize (void)
                 enableProviders.append (indicationProviders [j]);
             }
         }
+
+        //
+        //  NOTE: Once bugzilla #63 is fixed, the list of providers passed to 
+        //  this function must be not those attempted to enable, but those who 
+        //  were successfully enabled (response received)
+        //
+        _insertToHashTables (activeSubscriptions [i], enableProviders, 
+            indicationSubclasses, sourceNameSpace);
     }  // for each active subscription
 
     //
@@ -444,6 +466,9 @@ void IndicationService::_initialize (void)
         CIMInstance indicationInstance = _createAlertInstance
             (_CLASS_NO_PROVIDER_ALERT, noProviderSubscriptions);
 
+        Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+            "Sending NoProvider Alert for %d subscriptions",
+            noProviderSubscriptions.size ());
         _sendAlerts (noProviderSubscriptions, indicationInstance);
     }
 
@@ -458,6 +483,13 @@ void IndicationService::_initialize (void)
         _sendEnable (enableProviders [m]);
     }
 
+#ifdef PEGASUS_INDICATION_PERFINST
+    double elapsed = stopWatch.getElapsed ();
+
+    Tracer::trace (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+        "%s: %.3f seconds", "Initialize", elapsed);
+#endif
+
     PEG_METHOD_EXIT ();
 }
 
@@ -469,21 +501,27 @@ void IndicationService::_terminate (void)
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, "IndicationService::_terminate");
 
     //
-    //  Get existing active subscriptions from each namespace in the repository
+    //  Get existing active subscriptions from hash table
     //
     activeSubscriptions = _getActiveSubscriptions ();
 
-    //
-    //  Create CimomShutdownAlertIndication instance
-    //  ATTN: CimomShutdownAlertIndication must be defined
-    //
-    indicationInstance = _createAlertInstance (_CLASS_CIMOM_SHUTDOWN_ALERT,
-        activeSubscriptions);
-
-    //
-    //  Send CimomShutdownAlertIndication to each unique handler instance
-    //
-    _sendAlerts (activeSubscriptions, indicationInstance);
+    if (activeSubscriptions.size () > 0)
+    {
+        //
+        //  Create CimomShutdownAlertIndication instance
+        //  ATTN: CimomShutdownAlertIndication must be defined
+        //
+        indicationInstance = _createAlertInstance (_CLASS_CIMOM_SHUTDOWN_ALERT,
+            activeSubscriptions);
+    
+        //
+        //  Send CimomShutdownAlertIndication to each unique handler instance
+        //
+        Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+            "Sending CIMServerShutdown Alert for %d subscriptions",
+            activeSubscriptions.size ());
+        _sendAlerts (activeSubscriptions, indicationInstance);
+    }
 
     PEG_METHOD_EXIT ();
 }
@@ -536,7 +574,9 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
             String queryLanguage;
             CIMPropertyList requiredProperties;
             CIMNamespaceName sourceNameSpace;
+            Array <CIMName> indicationSubclasses;
             Array <ProviderClassList> indicationProviders;
+
             if (instance.getClassName ().equal 
                 (PEGASUS_CLASSNAME_INDSUBSCRIPTION))
             {
@@ -551,11 +591,11 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                 if ((subscriptionState == _STATE_ENABLED) ||
                     (subscriptionState == _STATE_ENABLEDDEGRADED))
                 {
-    
                     _getCreateParams (request->nameSpace, instance,
-                        indicationProviders, requiredProperties, 
-                        sourceNameSpace, condition, queryLanguage);
-    
+                        indicationSubclasses, indicationProviders, 
+                        requiredProperties, sourceNameSpace, condition, 
+                        queryLanguage);
+
                     if (indicationProviders.size () == 0)
                     {
                         //
@@ -711,6 +751,15 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                         //
                         _sendEnable (indicationProviders [i]);
                     }
+
+                    //
+                    //  NOTE: Once bugzilla #63 is fixed, the list of providers
+                    //  passed to this function must be not those attempted to 
+                    //  enable, but those who were successfully enabled 
+                    //  (response received)
+                    //
+                    _insertToHashTables (instance, indicationProviders,
+                        indicationSubclasses, sourceNameSpace);
                 }
             }
         }
@@ -1152,6 +1201,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                 CIMNamespaceName sourceNameSpace;
                 String condition;
                 String queryLanguage;
+                Array <CIMName> indicationSubclasses;
         
                 if (((newState == _STATE_ENABLED) || 
                      (newState == _STATE_ENABLEDDEGRADED))
@@ -1163,8 +1213,9 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     //  be enabled
                     //
                     _getCreateParams (request->nameSpace, instance,
-                        indicationProviders, requiredProperties, 
-                        sourceNameSpace, condition, queryLanguage);
+                        indicationSubclasses, indicationProviders, 
+                        requiredProperties, sourceNameSpace, condition, 
+                        queryLanguage);
     
                     if (indicationProviders.size () == 0)
                     {
@@ -1270,6 +1321,18 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                         //
                         _sendEnable (indicationProviders [i]);
                     }
+
+                    //
+                    //  Insert entries into the subscription hash tables
+                    //
+                    //
+                    //  NOTE: Once bugzilla #63 is fixed, the list of providers
+                    //  passed to this function must be not those attempted to 
+                    //  enable, but those who were successfully enabled 
+                    //  (response received)
+                    //
+                    _insertToHashTables (instance, indicationProviders,
+                        indicationSubclasses, sourceNameSpace);
                 }
                 else if ((newState == _STATE_DISABLED) &&
                          ((currentState == _STATE_ENABLED) ||
@@ -1280,21 +1343,27 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     //  disabled
                     //
                     Array <ProviderClassList> indicationProviders;
-                    indicationProviders = _getDeleteParams 
-                        (request->nameSpace, instance);
+                    indicationProviders = _getDeleteParams (request->nameSpace,
+                        instance, indicationSubclasses, sourceNameSpace);
     
                     //
                     //  Send Delete requests
                     //
+                    instanceReference.setNameSpace (request->nameSpace);
+                    instance.setPath (instanceReference);
                     if (indicationProviders.size () > 0)
                     {
-                        instanceReference.setNameSpace (request->nameSpace);
-                        instance.setPath (instanceReference);
                         _sendDeleteRequests (indicationProviders, 
                             request->nameSpace,
                             instance,
                             request->userName, request->authType);
                     }
+
+                    //
+                    //  Remove entries from the subscription hash tables
+                    //
+                    _removeFromHashTables (instance, indicationSubclasses, 
+                        sourceNameSpace);
                 }
             }
         }
@@ -1380,8 +1449,11 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
 
                 _repository->read_unlock ();
 
+                Array <CIMName> indicationSubclasses;
+                CIMNamespaceName sourceNamespaceName;
                 indicationProviders = _getDeleteParams 
-                    (request->nameSpace, subscriptionInstance);
+                    (request->nameSpace, subscriptionInstance, 
+                    indicationSubclasses, sourceNamespaceName);
 
                 //
                 //  Send Delete requests
@@ -1392,6 +1464,12 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
                 _sendDeleteRequests (indicationProviders,
                     request->nameSpace, subscriptionInstance,
                     request->userName, request->authType);
+
+                //
+                //  Remove entries from subscription hash tables
+                //
+                _removeFromHashTables (subscriptionInstance, 
+                    indicationSubclasses, sourceNamespaceName);
             }
 
             //
@@ -1493,6 +1571,11 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
 
 void IndicationService::_handleProcessIndicationRequest (const Message* message)
 {
+#ifdef PEGASUS_INDICATION_PERFINST
+    Stopwatch stopWatch;
+    double elapsed;
+#endif
+
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
                       "IndicationService::_handleProcessIndicationRequest");
 
@@ -1517,13 +1600,14 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 
     CIMInstance handler;
     CIMInstance indication = request->indicationInstance;
-    PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4, 
-		     "Received Indication " + 
-		     indication.getClassName().getString());
+
+    PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL4, 
+        "Received Indication " + indication.getClassName().getString());
+
     try
     {
-        WQLSimplePropertySource propertySource = _getPropertySourceFromInstance(
-            indication);
+        WQLSimplePropertySource propertySource = 
+            _getPropertySourceFromInstance (indication);
 
         //
         //  Check if property list contains all properties of class
@@ -1541,18 +1625,50 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 
         if (request->subscriptionInstanceNames.size() > 0)
         {
+#ifdef PEGASUS_INDICATION_PERFINST
+            stopWatch.reset ();
+#endif
+
             for (Uint8 i = 0; i < request->subscriptionInstanceNames.size(); 
                  i++)
             {
-                CIMInstance instance = _repository->getInstance 
-                    (request->nameSpace, request->subscriptionInstanceNames[i]);
-                matchedSubscriptions.append (instance);
+                //
+                //  Look up the subscription in the active subscriptions table
+                //
+                String activeSubscriptionsKey = _generateActiveSubscriptionsKey
+                    (request->subscriptionInstanceNames [i]);
+                ActiveSubscriptionsTableEntry tableValue;
+                if (_activeSubscriptionsTable.lookup (activeSubscriptionsKey, 
+                    tableValue))
+                {
+                    matchedSubscriptions.append (tableValue.subscription);
+                }
             }
+
+#ifdef PEGASUS_INDICATION_PERFINST
+            elapsed = stopWatch.getElapsed ();
+
+            Tracer::trace (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2, 
+                "%s: %.3f seconds", 
+                "Look up Subscriptions", elapsed);
+#endif
         }
         else
         {
+#ifdef PEGASUS_INDICATION_PERFINST
+            stopWatch.reset ();
+#endif
+
             matchedSubscriptions = _getMatchingSubscriptions(
                 indication.getClassName (), nameSpaces, propertyList);
+
+#ifdef PEGASUS_INDICATION_PERFINST
+            elapsed = stopWatch.getElapsed ();
+
+            Tracer::trace (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2, 
+                "%s: %.3f seconds", 
+                "Get Matching Subscriptions", elapsed);
+#endif
         }
 
         for (Uint8 i = 0; i < matchedSubscriptions.size(); i++)
@@ -1585,10 +1701,22 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 
             if (selectStatement.hasWhereClause())
             {
+#ifdef PEGASUS_INDICATION_PERFINST
+                stopWatch.reset ();
+#endif
+
                 if (!selectStatement.evaluateWhereClause(&propertySource))
                 {
                     match = false;
                 }
+
+#ifdef PEGASUS_INDICATION_PERFINST
+                elapsed = stopWatch.getElapsed ();
+
+                Tracer::trace (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2, 
+                    "%s: %.3f seconds", 
+                    "Evaluate WHERE clause", elapsed);
+#endif
             }
 
             if (match)
@@ -1651,7 +1779,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                     _queueId);
 
                 PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4, 
-                    "Sending (SendForget) Indication to " + 
+                    "Sending (SendWait) Indication to " + 
                     ((MessageQueue::lookup(_handlerService)) ? 
                     String(((MessageQueue::lookup
                     (_handlerService))->getQueueName())) : 
@@ -1715,7 +1843,6 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     CIMPropertyList newPropertyNames = request->newPropertyNames;
     CIMPropertyList oldPropertyNames = request->oldPropertyNames;
 
-
     Array <CIMInstance> newSubscriptions;
     Array <CIMInstance> formerSubscriptions;
     Array <ProviderClassList> indicationProviders;
@@ -1776,7 +1903,6 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     indicationProvider.classList.append (className);
     indicationProviders.append (indicationProvider);
 
-//cout << "newSubscriptions.size (): " << newSubscriptions.size () << endl;
     if (newSubscriptions.size () > 0)
     {
         CIMPropertyList requiredProperties;
@@ -1790,9 +1916,10 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         for (Uint8 i = 0; i < newSubscriptions.size (); i++)
         {
             CIMNamespaceName sourceNameSpace;
+            Array <CIMName> indicationSubclasses;
             _getCreateParams 
                 (newSubscriptions [i].getPath ().getNameSpace (), 
-                newSubscriptions [i], 
+                newSubscriptions [i], indicationSubclasses,
                 requiredProperties, sourceNameSpace, condition, queryLanguage);
 
             //
@@ -1806,56 +1933,108 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
 
             //
-            //  Look up the subscription-provider pair in the subscription table
-            //  If the entry is there, send a Modify request, 
-            //  Otherwise, send a Create request
+            //  Look up the subscription in the active subscriptions table
             //
-            String tableKey = _generateKey 
-                (newSubscriptions [i], indicationProviders [i].provider);
-            if (_subscriptionTable.contains (tableKey))
+            String activeSubscriptionsKey = _generateActiveSubscriptionsKey
+                (newSubscriptions [i].getPath ());
+            ActiveSubscriptionsTableEntry tableValue;
+            if (_activeSubscriptionsTable.lookup (activeSubscriptionsKey,
+                tableValue))
             {
+                Boolean update = false;
+                ProviderClassList providerClasses;
+
                 //
-                //  ATTN-CAKG-P3-20030226: Add test case
+                //  If the provider is already in the subscription's list, 
+                //  send a Modify request, otherwise send a Create request
                 //
-//cout << "case A: table contains key" << endl;
+                Uint32 providerIndex = _providerInList (provider, tableValue);
+                if (providerIndex != PEG_NOT_FOUND)
+                {
+                    //
+                    //  Send Modify requests
+                    //
+                    _sendModifyRequests (indicationProviders,
+                        newSubscriptions [i].getPath ().getNameSpace (), 
+                        requiredProperties, condition, queryLanguage, 
+                        newSubscriptions [i], creator);
+
+                    Uint32 classIndex = _classInList (className,
+                        tableValue.providers [providerIndex]);
+                    if (classIndex == PEG_NOT_FOUND)
+                    {
+                        //
+                        //  Provider is already serving this subscription, but 
+                        //  not for this class 
+                        //
+                        update = true;
+                        tableValue.providers [providerIndex].classList.append 
+                            (className);
+                    }
+                }
+                else
+                {
+                    //
+                    //  Provider was not previously serving this subscription
+                    //
+                    update = true;
+                    tableValue.providers.append (indicationProvider);
+
+                    //
+                    //  Send Create requests
+                    //
+                    if (!_sendCreateRequests (indicationProviders,
+                        sourceNameSpace, requiredProperties, condition, 
+                        queryLanguage, newSubscriptions [i], creator))
+                    {
+                        PEG_METHOD_EXIT ();
+                        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, 
+                            _MSG_NOT_ACCEPTED);
+                    }
+        
+                    //
+                    //  Send Enable message to each provider
+                    //
+                    for (Uint8 j = 0; j < indicationProviders.size (); j++)
+                    {
+                        //
+                        //  Send Enable message
+                        //
+                        _sendEnable (indicationProviders [j]);
+                    }
+                }
+
                 //
-                //  Send Modify requests
+                //  NOTE: Once bugzilla #63 is fixed, the update must only
+                //  be done if the provider responds successfully to the
+                //  enable request
                 //
-                _sendModifyRequests (indicationProviders,
-                    newSubscriptions [i].getPath ().getNameSpace (), 
-                    requiredProperties, condition, queryLanguage, 
-                    newSubscriptions [i], creator);
-            }
+                if (update)
+                {
+                    _activeSubscriptionsTable.remove (activeSubscriptionsKey);
+#ifdef PEGASUS_INDICATION_HASHTRACE
+                    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, 
+                        Tracer::LEVEL3, 
+                        "REMOVED _activeSubscriptionsTable entry: " + 
+                        activeSubscriptionsKey);
+#endif
+                    _insertActiveSubscriptionsEntry (tableValue.subscription,
+                        tableValue.providers);
+                }
+            }  // subscription found in table
             else
             {
-//cout << "case B: table does not contain key" << endl;
                 //
-                //  Send Create requests
+                //  Subscription not found in Active Subscriptions table
                 //
-                if (!_sendCreateRequests (indicationProviders,
-                    sourceNameSpace, requiredProperties, condition, 
-                    queryLanguage, newSubscriptions [i], creator))
-                {
-                    PEG_METHOD_EXIT ();
-                    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, 
-                        _MSG_NOT_ACCEPTED);
-                }
-    
+
                 //
-                //  Send Enable message to each provider
+                //  ATTN-CAKG-P3-20030403: Log a message
                 //
-                for (Uint8 j = 0; j < indicationProviders.size (); j++)
-                {
-                    //
-                    //  Send Enable message
-                    //
-                    _sendEnable (indicationProviders [j]);
-                }
             }
         }
     }
 
-//cout << "formerSubscriptions.size (): " << formerSubscriptions.size () << endl;
     if (formerSubscriptions.size () > 0)
     {
         CIMPropertyList requiredProperties;
@@ -1877,61 +2056,93 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
 
             //
-            //  Look up the subscription-provider pair in the subscription table
+            //  Look up the subscription in the active subscriptions table
             //  If class list contains only the class name from the current
             //  operation, send a Delete request
             //  Otherwise, send a Modify request
             //
-            String tableKey = _generateKey 
-                (formerSubscriptions [i], indicationProviders [i].provider);
-            SubscriptionTableEntry tableValue;
-            if (_subscriptionTable.lookup (tableKey, tableValue))
+            String activeSubscriptionsKey = _generateActiveSubscriptionsKey
+                (formerSubscriptions [i].getPath ());
+            ActiveSubscriptionsTableEntry tableValue;
+            if (_activeSubscriptionsTable.lookup (activeSubscriptionsKey,
+                tableValue))
             {
-//cout << "table contains key" << endl;
-                //
-                //  If class list contains only the class name from the current
-                //  delete, send a Delete request
-                //
-                if ((tableValue.classList.size () == 1) &&
-                    (tableValue.classList [0].equal (className)))
+                Uint32 providerIndex = _providerInList (provider, tableValue);
+                if (providerIndex != PEG_NOT_FOUND)
                 {
-//cout << "case C: classlist contains only this class" << endl;
-                    _sendDeleteRequests (indicationProviders,
-                        formerSubscriptions [i].getPath ().getNameSpace (), 
-                        formerSubscriptions [i], creator);
-                }
+                    //
+                    //  If class list contains only the class name from the 
+                    //  current delete, send a Delete request
+                    //
+                    if ((tableValue.providers [providerIndex].classList.size () 
+                            == 1) &&
+                        (tableValue.providers [providerIndex].classList 
+                            [0].equal (className)))
+                    {
+                        _sendDeleteRequests (indicationProviders,
+                            formerSubscriptions [i].getPath ().getNameSpace (), 
+                            formerSubscriptions [i], creator);
 
-                //
-                //  Otherwise, send a Modify request
-                //
+                        tableValue.providers.remove (providerIndex);
+                    }
+    
+                    //
+                    //  Otherwise, send a Modify request
+                    //
+                    else
+                    {
+                        Uint32 classIndex = _classInList (className, 
+                            tableValue.providers [providerIndex]);
+                        if (classIndex != PEG_NOT_FOUND)
+                        {
+                        CIMNamespaceName sourceNameSpace;
+                        Array <CIMName> indicationSubclasses;
+                        _getCreateParams 
+                            (formerSubscriptions [i].getPath ().getNameSpace (),
+                            formerSubscriptions [i], indicationSubclasses,
+                            requiredProperties, sourceNameSpace, condition, 
+                            queryLanguage);
+
+                        //
+                        //  Send Modify requests
+                        //
+                        _sendModifyRequests (indicationProviders,
+                            formerSubscriptions [i].getPath ().getNameSpace (), 
+                            requiredProperties, condition, queryLanguage, 
+                            formerSubscriptions [i], creator);
+
+                        tableValue.providers [providerIndex].classList.remove 
+                            (classIndex);
+                        }
+                        else
+                        {
+                            //
+                            //  ATTN-CAKG-P3-20030403: Log a message
+                            //
+                        }
+                    }
+                    _activeSubscriptionsTable.remove (activeSubscriptionsKey);
+#ifdef PEGASUS_INDICATION_HASHTRACE
+                    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, 
+                        Tracer::LEVEL3, 
+                        "REMOVED _activeSubscriptionsTable entry: " + 
+                        activeSubscriptionsKey);
+#endif
+                    _insertActiveSubscriptionsEntry (tableValue.subscription,
+                        tableValue.providers);
+                }
                 else
                 {
                     //
-                    //  ATTN-CAKG-P3-20030226: Add test case
+                    //  The subscription was not served by the provider 
                     //
-//cout << "case D: classlist contains more" << endl;
-                    CIMNamespaceName sourceNameSpace;
-                    _getCreateParams 
-                        (formerSubscriptions [i].getPath ().getNameSpace (),
-                        formerSubscriptions [i], 
-                        requiredProperties, sourceNameSpace, condition, 
-                        queryLanguage);
-
-                    //
-                    //  Send Modify requests
-                    //
-                    _sendModifyRequests (indicationProviders,
-                        formerSubscriptions [i].getPath ().getNameSpace (), 
-                        requiredProperties, condition, queryLanguage, 
-                        formerSubscriptions [i], creator);
                 }
             }
             else
             {
                 //
-                //  An error condition
+                //  ATTN-CAKG-P3-20030403: Log a message
                 //
-                //cout << "Error on delete: table does not contain key" << endl;
             }
         }
 
@@ -1952,8 +2163,57 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         //
         //  Send NoProviderAlertIndication to each unique handler instance
         //
+        Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+            "Sending NoProvider Alert for %d subscriptions",
+            formerSubscriptions.size ());
         _sendAlerts (formerSubscriptions, indicationInstance);
     }
+
+    PEG_METHOD_EXIT ();
+}
+
+Uint32 IndicationService::_providerInList 
+    (const CIMInstance & provider, 
+     const ActiveSubscriptionsTableEntry & tableValue)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_providerInList");
+
+    //
+    //  Look for the provider in the list
+    //
+    for (Uint8 i = 0; i < tableValue.providers.size (); i++)
+    {
+        if (tableValue.providers [i].provider.identical (provider))
+        {
+            return i;
+        }
+    }
+
+    return PEG_NOT_FOUND;
+
+    PEG_METHOD_EXIT ();
+}
+
+Uint32 IndicationService::_classInList 
+    (const CIMName & className, 
+     const ProviderClassList & providerClasses)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_classInList");
+
+    //
+    //  Look for the class in the list
+    //
+    for (Uint8 i = 0; i < providerClasses.classList.size (); i++)
+    {
+        if (providerClasses.classList [i].equal (className))
+        {
+            return i;
+        }
+    }
+
+    return PEG_NOT_FOUND;
 
     PEG_METHOD_EXIT ();
 }
@@ -1977,34 +2237,38 @@ void IndicationService::_handleNotifyProviderTerminationRequest
         //
         //  Get list of affected subscriptions
         //
+        //  _getProviderSubscriptions also updates the Active Subscriptions 
+        //  hash table, and implements each subscription's On Fatal Error 
+        //  policy, if necessary
+        //
         providerSubscriptions.clear ();
         providerSubscriptions = _getProviderSubscriptions (providers [i]);
     
-        //
-        //  ATTN-CAKG-P2-20020426: For each subscription, if the terminated 
-        //  provider was the only provider serving the subscription, 
-        //  implement the subscription's On Fatal Error Policy
-        //
-
-        //
-        //  NOTE: When a provider that was previously serving a subscription 
-        //  no longer serves the subscription due to a provider termination, 
-        //  an alert is always sent, even if there are still other providers 
-        //  serving the subscription
-        //
-    
-        //
-        //  Create ProviderTerminatedAlertIndication instance
-        //  ATTN: ProviderTerminatedAlertIndication must be defined
-        //
-        indicationInstance = _createAlertInstance 
-            (_CLASS_PROVIDER_TERMINATED_ALERT, providerSubscriptions);
-    
-        //
-        //  Send ProviderTerminatedAlertIndication to each unique handler 
-        //  instance
-        //
-        _sendAlerts (providerSubscriptions, indicationInstance);
+        if (providerSubscriptions.size () > 0)
+        {
+            //
+            //  NOTE: When a provider that was previously serving a subscription
+            //  no longer serves the subscription due to a provider termination,
+            //  an alert is always sent, even if there are still other providers
+            //  serving the subscription
+            //
+        
+            //
+            //  Create ProviderTerminatedAlertIndication instance
+            //  ATTN: ProviderTerminatedAlertIndication must be defined
+            //
+            indicationInstance = _createAlertInstance 
+                (_CLASS_PROVIDER_TERMINATED_ALERT, providerSubscriptions);
+        
+            //
+            //  Send ProviderTerminatedAlertIndication to each unique handler 
+            //  instance
+            //
+            Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+                "Sending ProviderDisabled Alert for %d subscriptions",
+                providerSubscriptions.size ());
+            _sendAlerts (providerSubscriptions, indicationInstance);
+        }
     }
 
     PEG_METHOD_EXIT ();
@@ -2735,7 +2999,8 @@ Boolean IndicationService::_canDelete (
 }
 
 
-Array <CIMInstance> IndicationService::_getActiveSubscriptions () const
+Array <CIMInstance> 
+IndicationService::_getActiveSubscriptionsFromRepository () const
 {
     Array <CIMInstance> activeSubscriptions;
     Array <CIMNamespaceName> nameSpaceNames;
@@ -2744,7 +3009,7 @@ Array <CIMInstance> IndicationService::_getActiveSubscriptions () const
     Uint16 subscriptionState;
 
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
-                      "IndicationService::_getActiveSubscriptions");
+        "IndicationService::_getActiveSubscriptionsFromRepository");
 
     //
     //  Get list of namespaces in repository
@@ -2801,6 +3066,29 @@ Array <CIMInstance> IndicationService::_getActiveSubscriptions () const
     return activeSubscriptions;
 }
 
+Array <CIMInstance> IndicationService::_getActiveSubscriptions () const
+{
+    Array <CIMInstance> activeSubscriptions;
+
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_getActiveSubscriptions");
+              
+    //
+    //  Iterate through the subscription table
+    //
+    for (ActiveSubscriptionsTable::Iterator i =
+        _activeSubscriptionsTable.start (); i; i++)
+    {
+        //
+        //  Append subscription to the list
+        //
+        activeSubscriptions.append (i.value ().subscription);
+    }
+
+    PEG_METHOD_EXIT ();
+    return activeSubscriptions;
+}
+
 
 Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
     const CIMName & supportedClass,
@@ -2808,148 +3096,99 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
     const CIMPropertyList & supportedProperties) 
 {
     Array <CIMInstance> matchingSubscriptions;
-    Array <CIMNamespaceName> nameSpaceNames;
     Array <CIMInstance> subscriptions;
-    CIMValue subscriptionStateValue;
-    Uint16 subscriptionState;
 
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
                       "IndicationService::_getMatchingSubscriptions");
 
-    //
-    //  Get list of namespaces in repository
-    //
-    nameSpaceNames = _getNameSpaceNames ();
-
-    //
-    //  Get existing subscriptions from each namespace in the repository
-    //
-    for (Uint8 i = 0; i < nameSpaceNames.size (); i++)
+    for (Uint8 i = 0; i < nameSpaces.size (); i++)
     {
-
         //
-        //  Get existing subscriptions in current namespace
+        //  Look up the indicationClass-sourceNamespace pair in the 
+        //  Subscription Classes table
         //
-        subscriptions = _getSubscriptions (nameSpaceNames [i]);
-
-        //
-        //  Process each subscription
-        //
-        for (Uint8 j = 0; j < subscriptions.size (); j++)
+        String subscriptionClassesKey = _generateSubscriptionClassesKey 
+            (supportedClass, nameSpaces [i]);
+        SubscriptionClassesTableEntry tableValue;
+        if (_subscriptionClassesTable.lookup (subscriptionClassesKey, 
+            tableValue))
         {
-            //
-            //  Get subscription state
-            //
-            subscriptionStateValue = 
-                subscriptions [j].getProperty
-                (subscriptions [j].findProperty 
-                (_PROPERTY_STATE)).getValue ();
-            subscriptionStateValue.get (subscriptionState);
-    
-            //
-            //  Process each enabled subscription
-            //
-            if ((subscriptionState == _STATE_ENABLED) ||
-                (subscriptionState == _STATE_ENABLEDDEGRADED))
+            subscriptions = tableValue.subscriptions;
+            for (Uint8 j = 0; j < subscriptions.size (); j++)
             {
-                String filterQuery;
-                WQLSelectStatement selectStatement;
-                CIMName indicationClassName;
-                Array <CIMName> indicationSubclasses;
-                CIMNamespaceName sourceNameSpace;
-                CIMPropertyList propertyList;
-                Boolean match;
+                Boolean match = true;
 
                 //
-                //  Get filter properties
+                //  If supported properties is null (all properties)
+                //  the subscription can be supported
                 //
-                _getFilterProperties (subscriptions [j],
-                    nameSpaceNames [i], filterQuery, sourceNameSpace);
-                selectStatement = _getSelectStatement (filterQuery);
-            
-                //
-                //  Get indication class name from filter query (FROM clause)
-                //
-                indicationClassName = _getIndicationClassName (selectStatement,
-                    sourceNameSpace);
-            
-                //
-                //  Get list of subclass names for indication class
-                //
-                indicationSubclasses = _getIndicationSubclasses
-                    (sourceNameSpace, indicationClassName);
-
-                //
-                //  Is current subscription for the supported class and one of
-                //  the supported namespaces?
-                //
-                if ((Contains (indicationSubclasses, supportedClass)) &&
-                    (Contains (nameSpaces, sourceNameSpace)))
+                if (!supportedProperties.isNull ())
                 {
-                    match = true;
+                    String filterQuery;
+                    WQLSelectStatement selectStatement;
+                    CIMName indicationClassName;
+                    CIMNamespaceName sourceNameSpace;
+                    CIMPropertyList propertyList;
 
                     //
-                    //  If supported properties is null (all properties)
-                    //  the subscription can be supported
+                    //  Get filter properties
                     //
-                    if (!supportedProperties.isNull ())
+                    _getFilterProperties (subscriptions [j],
+                        nameSpaces [i], filterQuery, sourceNameSpace);
+                    selectStatement = _getSelectStatement (filterQuery);
+            
+                    //
+                    //  Get indication class name from filter query
+                    //
+                    indicationClassName = _getIndicationClassName 
+                        (selectStatement, sourceNameSpace);
+            
+                    //
+                    //  Get property list from filter query (FROM and 
+                    //  WHERE clauses)
+                    //
+                    propertyList = _getPropertyList (selectStatement,
+                        sourceNameSpace, indicationClassName);
+                
+                    //
+                    //  If the subscription requires all properties,
+                    //  but supported property list does not include all 
+                    //  properties, the subscription cannot be supported
+                    //
+                    if (propertyList.isNull ())
+                    {
+                        match = false;
+                    }
+                    else 
                     {
                         //
-                        //  Get property list from filter query (FROM and 
-                        //  WHERE clauses)
+                        //  Compare subscription property list
+                        //  with supported property list
                         //
-                        propertyList = _getPropertyList (selectStatement,
-                            sourceNameSpace, indicationClassName);
-                
-                        //
-                        //  If the subscription requires all properties,
-                        //  but supported property list does not include all 
-                        //  properties, the subscription cannot be supported
-                        //
-                        if (propertyList.isNull ())
+                        for (Uint8 k = 0; 
+                             k < propertyList.size () && match; 
+                             k++)
                         {
-                            match = false;
-                        }
-                        else 
-                        {
-                            //
-                            //  Compare subscription property list
-                            //  with supported property list
-                            //
-                            for (Uint8 k = 0; 
-                                 k < propertyList.size () && match; 
-                                 k++)
+                            if (!ContainsCIMName
+                                (supportedProperties.getPropertyNameArray(),
+                                propertyList[k]))
                             {
-                                if (!ContainsCIMName
-                                    (supportedProperties.getPropertyNameArray(),
-                                    propertyList[k]))
-                                {
-                                    match = false;
-                                }
+                                match = false;
                             }
                         }
                     }
+                }
 
+                if (match)
+                {
                     //
                     //  Add current subscription to list
                     //
-                    if (match)
-                    {
-                        //
-                        //  CIMInstances returned from repository do not 
-                        //  include namespace  
-                        //  Set namespace here
-                        //
-                        CIMObjectPath instanceName = 
-                            subscriptions [j].getPath ();
-                        instanceName.setNameSpace (nameSpaceNames [i]);
-                        subscriptions [j].setPath (instanceName);
-                        matchingSubscriptions.append (subscriptions [j]);
-                    }
-                }  // if subscription includes supported class
-            }  // if subscription is enabled
-        }  // for each subscription
-    }  // for each namespace
+                    matchingSubscriptions.append (subscriptions [j]);
+                }
+            }
+        }
+    }
 
     PEG_METHOD_EXIT ();
     return matchingSubscriptions;
@@ -2964,10 +3203,9 @@ void IndicationService::_getModifiedSubscriptions (
     Array <CIMInstance> & newSubscriptions,
     Array <CIMInstance> & formerSubscriptions)
 {
-    Array <CIMNamespaceName> nameSpaceNames;
-    Array <CIMInstance> subscriptions;
-    CIMValue subscriptionStateValue;
-    Uint16 subscriptionState;
+    Array <CIMInstance> newList;
+    Array <CIMInstance> formerList;
+    Array <CIMInstance> bothList;
 
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
                       "IndicationService::_getModifiedSubscriptions");
@@ -2976,153 +3214,181 @@ void IndicationService::_getModifiedSubscriptions (
     formerSubscriptions.clear ();
 
     //
-    //  Get list of namespaces in repository
+    //  For each newly supported namespace, lookup to retrieve list of 
+    //  subscriptions for the indication class-source namespace pair
     //
-    nameSpaceNames = _getNameSpaceNames ();
-
-    //
-    //  Get existing subscriptions from each namespace in the repository
-    //
-    for (Uint8 i = 0; i < nameSpaceNames.size (); i++)
+    for (Uint8 i = 0; i < newNameSpaces.size (); i++)
     {
-
         //
-        //  Get existing subscriptions in current namespace
+        //  Look up the indicationClass-sourceNamespace pair in the
+        //  Subscription Classes table
         //
-        subscriptions = _getSubscriptions (nameSpaceNames [i]);
-
-        //
-        //  Process each subscription
-        //
-        for (Uint8 j = 0; j < subscriptions.size (); j++)
+        String subscriptionClassesKey = _generateSubscriptionClassesKey
+            (supportedClass, newNameSpaces [i]);
+        SubscriptionClassesTableEntry tableValue;
+        if (_subscriptionClassesTable.lookup (subscriptionClassesKey,
+            tableValue))
         {
-            //
-            //  Get subscription state
-            //
-            subscriptionStateValue = 
-                subscriptions [j].getProperty
-                (subscriptions [j].findProperty 
-                (_PROPERTY_STATE)).getValue ();
-            subscriptionStateValue.get (subscriptionState);
-    
-            //
-            //  Process each enabled subscription
-            //
-            if ((subscriptionState == _STATE_ENABLED) ||
-                (subscriptionState == _STATE_ENABLEDDEGRADED))
+            for (Uint8 j = 0; j < tableValue.subscriptions.size (); j++)
+                newList.append (tableValue.subscriptions [j]);
+        }
+    }
+
+    //
+    //  For each formerly supported namespace, lookup to retrieve list of 
+    //  subscriptions for the indication class-source namespace pair
+    //
+    for (Uint8 k = 0; k < oldNameSpaces.size (); k++)
+    {
+        //
+        //  Look up the indicationClass-sourceNamespace pair in the
+        //  Subscription Classes table
+        //
+        String subscriptionClassesKey = _generateSubscriptionClassesKey
+            (supportedClass, oldNameSpaces [k]);
+        SubscriptionClassesTableEntry tableValue;
+        if (_subscriptionClassesTable.lookup (subscriptionClassesKey,
+            tableValue))
+        {
+            for (Uint8 m = 0; m < tableValue.subscriptions.size (); m++)
+                formerList.append (tableValue.subscriptions [m]);
+        }
+    }
+
+    //
+    //  Find subscriptions that appear in both lists, and move them to a third 
+    //  list
+    //
+    Sint8 found;
+    for (Uint8 p = 0; p < newList.size (); p++)
+    {
+        found = -1;
+        for (Uint8 q = 0; q < formerList.size (); q++)
+        {
+            if (newList [p].identical (formerList [q]))
             {
-                String filterQuery;
-                WQLSelectStatement selectStatement;
-                CIMName indicationClassName;
-                Array <CIMName> indicationSubclasses;
-                CIMNamespaceName sourceNameSpace;
-                CIMPropertyList requiredProperties;
-                Boolean newMatch;
-                Boolean formerMatch;
+                found = q;
+                bothList.append (newList [p]);
+                break;
+            }
+        }
+        if (found >= 0)
+        {
+            newList.remove (p);
+            p--;
+            formerList.remove (found);
+        }
+    }
 
-                //
-                //  Get filter properties
-                //
-                _getFilterProperties (subscriptions [j],
-                    nameSpaceNames [i], filterQuery, sourceNameSpace);
-                selectStatement = _getSelectStatement (filterQuery);
-            
-                //
-                //  Get indication class name from filter query (FROM clause)
-                //
-                indicationClassName = _getIndicationClassName (selectStatement,
-                    sourceNameSpace);
-            
-                //
-                //  Get list of subclass names for indication class
-                //
-                indicationSubclasses = _getIndicationSubclasses
-                    (sourceNameSpace, indicationClassName);
+    //
+    //  For indicationClassName-sourceNamespace pair that is now supported, but 
+    //  previously was not, add to list of newly supported subscriptions if 
+    //  required properties are now supported
+    //
+    for (Uint8 n = 0; n < newList.size (); n++)
+    {
+        String filterQuery;
+        WQLSelectStatement selectStatement;
+        CIMName indicationClassName;
+        CIMNamespaceName sourceNameSpace;
+        CIMPropertyList requiredProperties;
 
-                //
-                //  Is current subscription for the supported class?
-                //
-                if (Contains (indicationSubclasses, supportedClass))
-                {
-                    newMatch = false;
-                    formerMatch = false;
+        //
+        //  Get filter properties
+        //
+        _getFilterProperties (newList [n],
+            newList [n].getPath ().getNameSpace (), filterQuery, 
+            sourceNameSpace);
+        selectStatement = _getSelectStatement (filterQuery);
+    
+        //
+        //  Get indication class name from filter query (FROM clause)
+        //
+        indicationClassName = _getIndicationClassName (selectStatement,
+            sourceNameSpace);
+    
+        //
+        //  Get property list from filter query (FROM and WHERE 
+        //  clauses)
+        //
+        requiredProperties = _getPropertyList (selectStatement,
+            sourceNameSpace, indicationClassName);
 
-                    //
-                    //  Get property list from filter query (FROM and WHERE 
-                    //  clauses)
-                    //
-                    requiredProperties = _getPropertyList (selectStatement,
-                        sourceNameSpace, indicationClassName);
+        //
+        //  Check if required properties are now supported
+        //
+        if (_inPropertyList (requiredProperties, newProperties))
+        {
+            newSubscriptions.append (newList [n]);
+        }
+    }
 
-                    //
-                    //  If source namespace is now supported, but previously 
-                    //  was not, check if required properties are now supported
-                    //
-                    if ((Contains (newNameSpaces, sourceNameSpace)) &&
-                        (!Contains (oldNameSpaces, sourceNameSpace)))
-                    {
-                        newMatch = _inPropertyList (requiredProperties, 
-                            newProperties);
-                    }
+    //
+    //  For indicationClassName-sourceNamespace pair that was previously 
+    //  supported, but now is not, add to list of formerly supported 
+    //  subscriptions
+    //
+    for (Uint8 f = 0; f < formerList.size (); f++)
+    {
+        formerSubscriptions.append (formerList [f]);
+    }
 
-                    //
-                    //  If source namespace was previously supported, but now 
-                    //  is not, check if required properties were previously 
-                    //  supported
-                    //
-                    else if ((Contains (oldNameSpaces, sourceNameSpace)) &&
-                             (!Contains (newNameSpaces, sourceNameSpace)))
-                    {
-                        formerMatch = _inPropertyList (requiredProperties, 
-                            oldProperties);
-                    }
+    //
+    //  For indicationClassName-sourceNamespace pair that is now supported, 
+    //  and was also previously supported, add to appropriate list, based on
+    //  required properties 
+    //
+    for (Uint8 b = 0; b < bothList.size (); b++)
+    {
+        String filterQuery;
+        WQLSelectStatement selectStatement;
+        CIMName indicationClassName;
+        CIMNamespaceName sourceNameSpace;
+        CIMPropertyList requiredProperties;
+        Boolean newMatch = false;
+        Boolean formerMatch = false;
 
-                    //
-                    //  If source namespace was previously supported, and still 
-                    //  is supported, check required properties 
-                    //
-                    else if ((Contains (newNameSpaces, sourceNameSpace)) &&
-                        (Contains (oldNameSpaces, sourceNameSpace)))
-                    {
-                        newMatch = _inPropertyList (requiredProperties, 
-                            newProperties);
-                        formerMatch = _inPropertyList (requiredProperties, 
-                            oldProperties);
-                    }
+        //
+        //  Get filter properties
+        //
+        _getFilterProperties (bothList [b],
+            bothList [b].getPath ().getNameSpace (), filterQuery, 
+            sourceNameSpace);
+        selectStatement = _getSelectStatement (filterQuery);
+    
+        //
+        //  Get indication class name from filter query (FROM clause)
+        //
+        indicationClassName = _getIndicationClassName (selectStatement,
+            sourceNameSpace);
+    
+        //
+        //  Get property list from filter query (FROM and WHERE 
+        //  clauses)
+        //
+        requiredProperties = _getPropertyList (selectStatement,
+            sourceNameSpace, indicationClassName);
 
-                    //
-                    //  Add current subscription to appropriate list
-                    //
-                    if (newMatch && !formerMatch)
-                    {
-                        //
-                        //  CIMInstances returned from repository do not 
-                        //  include namespace  
-                        //  Set namespace here
-                        //
-                        CIMObjectPath instanceName = 
-                            subscriptions [j].getPath ();
-                        instanceName.setNameSpace (nameSpaceNames [i]);
-                        subscriptions [j].setPath (instanceName);
-                        newSubscriptions.append (subscriptions [j]);
-                    }
-                    else if (!newMatch && formerMatch)
-                    {
-                        //
-                        //  CIMInstances returned from repository do not 
-                        //  include namespace  
-                        //  Set namespace here
-                        //
-                        CIMObjectPath instanceName = 
-                            subscriptions [j].getPath ();
-                        instanceName.setNameSpace (nameSpaceNames [i]);
-                        subscriptions [j].setPath (instanceName);
-                        formerSubscriptions.append (subscriptions [j]);
-                    }
-                }  // if subscription includes supported class
-            }  // if subscription is enabled
-        }  // for each subscription
-    }  // for each namespace
+        //
+        //  Check required properties 
+        //
+        newMatch = _inPropertyList (requiredProperties, 
+            newProperties);
+        formerMatch = _inPropertyList (requiredProperties, 
+            oldProperties);
+
+        //
+        //  Add current subscription to appropriate list
+        //
+        if (newMatch && !formerMatch)
+        {
+            newSubscriptions.append (bothList [b]);
+        }
+        else if (!newMatch && formerMatch)
+        {
+            formerSubscriptions.append (bothList [b]);
+        }
+    }
 
     PEG_METHOD_EXIT ();
 }
@@ -3132,7 +3398,7 @@ Array <CIMNamespaceName> IndicationService::_getNameSpaceNames (void) const
     Array <CIMNamespaceName> nameSpaceNames;
 
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
-                      "IndicationService::__getNameSpaceNames");
+                      "IndicationService::_getNameSpaceNames");
 
     _repository->read_lock ();
 
@@ -3250,14 +3516,52 @@ Array <CIMInstance> IndicationService::_getProviderSubscriptions (
     //
     //  Iterate through the subscription table
     //
-    for (SubscriptionTable::Iterator i = _subscriptionTable.start (); i; i++)
+    for (ActiveSubscriptionsTable::Iterator i =
+        _activeSubscriptionsTable.start (); i; i++)
     {
         //
         //  If provider matches, append subscription to the list
         //
-        if (i.value ().provider.identical (provider))
+        for (Uint8 j = 0; j < i.value ().providers.size (); j++)
         {
-            providerSubscriptions.append (i.value ().subscription);
+            ActiveSubscriptionsTableEntry tableValue = i.value ();
+            if (tableValue.providers [j].provider.identical (provider))
+            {
+                //
+                //  Add the subscription to the list
+                //
+                providerSubscriptions.append (tableValue.subscription);
+
+                //
+                //  Remove the provider from the list of providers serving the 
+                //  subscription
+                //
+                tableValue.providers.remove (j);
+                _activeSubscriptionsTable.remove (i.key ());
+#ifdef PEGASUS_INDICATION_HASHTRACE
+                PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, 
+                    Tracer::LEVEL3, 
+                    "REMOVED _activeSubscriptionsTable entry: " + i.key ());
+#endif
+
+                if (tableValue.providers.size () > 0)
+                {
+                    //
+                    //  Insert updated entry into Active Subscriptions table
+                    //
+                    _insertActiveSubscriptionsEntry (tableValue.subscription,
+                        tableValue.providers);
+                }
+                else
+                {
+                    //
+                    //  If the terminated provider was the only provider serving
+                    //  the subscription, implement the subscription's On Fatal 
+                    //  Error Policy
+                    //
+                    _handleError (tableValue.subscription);
+                }
+            }
         }
     }
 
@@ -3882,8 +4186,10 @@ void IndicationService::_deleteReferencingSubscriptions (
         if (handler == ref)
         {
             Array <ProviderClassList> indicationProviders;
+            Array <CIMName> indicationSubclasses;
+            CIMNamespaceName sourceNamespaceName;
             indicationProviders = _getDeleteParams (nameSpace, 
-                subscriptions [i]);
+                subscriptions [i], indicationSubclasses, sourceNamespaceName);
 
             //
             //  Send Delete requests
@@ -3981,7 +4287,6 @@ void IndicationService::_deleteExpiredSubscription (
         //
         //  ATTN-CAKG-P3-20020425: Log a message
         //
-        //cout << "Exception: " << exception.getMessage () << endl;
     }
 
     _repository->write_unlock ();
@@ -4103,6 +4408,7 @@ void IndicationService::_setTimeRemaining (
 void IndicationService::_getCreateParams (
     const CIMNamespaceName & nameSpaceName,
     const CIMInstance & subscriptionInstance,
+    Array <CIMName> & indicationSubclasses,
     Array <ProviderClassList> & indicationProviders,
     CIMPropertyList & propertyList,
     CIMNamespaceName & sourceNameSpace,
@@ -4112,7 +4418,6 @@ void IndicationService::_getCreateParams (
     String filterQuery;
     WQLSelectStatement selectStatement;
     CIMName indicationClassName;
-    Array <CIMName> indicationSubclasses;
     condition = String::EMPTY;
     queryLanguage = String::EMPTY;
 
@@ -4169,6 +4474,7 @@ void IndicationService::_getCreateParams (
 void IndicationService::_getCreateParams (
     const CIMNamespaceName & nameSpaceName,
     const CIMInstance & subscriptionInstance,
+    Array <CIMName> & indicationSubclasses,
     CIMPropertyList & propertyList,
     CIMNamespaceName & sourceNameSpace,
     String & condition,
@@ -4206,18 +4512,30 @@ void IndicationService::_getCreateParams (
         condition = _getCondition (filterQuery);
     }
 
+    //
+    //  Get indication class name from filter query (FROM clause)
+    //
+    indicationClassName = _getIndicationClassName (selectStatement,
+        sourceNameSpace);
+    
+    //
+    //  Get list of subclass names for indication class
+    //
+    indicationSubclasses = _getIndicationSubclasses (sourceNameSpace,
+        indicationClassName);
+
     PEG_METHOD_EXIT ();
 }
     
 Array <ProviderClassList> IndicationService::_getDeleteParams (
     const CIMNamespaceName & nameSpaceName,
-    const CIMInstance & subscriptionInstance)
+    const CIMInstance & subscriptionInstance,
+    Array <CIMName> & indicationSubclasses,
+    CIMNamespaceName & sourceNameSpace)
 {
     String filterQuery;
-    CIMNamespaceName sourceNameSpace;
     WQLSelectStatement selectStatement;
     CIMName indicationClassName;
-    Array <CIMName> indicationSubclasses;
     CIMPropertyList propertyList;
     Array <ProviderClassList> indicationProviders;
 
@@ -4251,11 +4569,22 @@ Array <ProviderClassList> IndicationService::_getDeleteParams (
         sourceNameSpace, indicationClassName);
 
     //
-    //  Get indication provider class lists
+    //  Get indication provider class lists from Active Subscriptions table
     //
-    indicationProviders = _getIndicationProviders 
-        (sourceNameSpace, indicationClassName, indicationSubclasses, 
-         propertyList);
+    String activeSubscriptionsKey = _generateActiveSubscriptionsKey
+        (subscriptionInstance.getPath ());
+    ActiveSubscriptionsTableEntry tableValue;
+    if (_activeSubscriptionsTable.lookup (activeSubscriptionsKey, 
+                    tableValue))
+    {
+        indicationProviders = tableValue.providers;
+    }
+    else
+    {
+        //
+        //  ATTN-CAKG-P3-20030403: Log a message
+        //
+    }
 
     PEG_METHOD_EXIT ();
     return indicationProviders;
@@ -4287,25 +4616,13 @@ void IndicationService::_sendCreateRequestsCallBack(AsyncOpNode *op,
    PEGASUS_ASSERT(response != 0);
    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
    {
-      //cout << "Create accepted: " << response->messageId << endl;
       
-      //
-      //  Insert entry into subscription table 
-      //
-      service->_insertEntry(*(epl->cni), epl->pcl->provider, epl->pcl->classList);
-      
-//      service->_insertEntry (subscription, indicationProviders [i].provider,
-//			     indicationProviders [i].classList);
    }
    else
    {
       //
       //  ATTN-CAKG-P3-20020326: Log a message
       //
-      
-      //cout << "Create rejected: " << response->messageId << endl;
-      //cout << "Error code: " << response->cimException.getCode () << endl;
-      //cout << response->cimException.getMessage () << endl;
    }
    
    delete epl;
@@ -4370,7 +4687,6 @@ Boolean IndicationService::_sendCreateRequests
 		 QueueIdStack (_providerManager, getQueueId ()),
 		 authType,
 		 userName);
-//cout << "Create message ID: " << request->messageId << endl;
 	
         AsyncOpNode* op = this->get_op(); 
 
@@ -4436,18 +4752,6 @@ void IndicationService::_sendModifyRequestsCallBack (
     PEGASUS_ASSERT(response != 0);
     if (response->cimException.getCode () == CIM_ERR_SUCCESS)
     {
-        //cout << "Modify accepted: " << response->messageId << endl;
-   
-        //
-        //  Remove old entry from subscription table and insert 
-        //  updated entry
-        //
-        String tableKey = service->_generateKey
-            (* (epl->cni), epl->pcl->provider);
-        service->_subscriptionTable.remove (tableKey);
-        //cout << "Old entry removed: " << tableKey << endl;
-        service->_insertEntry (* (epl->cni), epl->pcl->provider, 
-            epl->pcl->classList);
     }
     else
     {
@@ -4455,9 +4759,6 @@ void IndicationService::_sendModifyRequestsCallBack (
         //  ATTN-CAKG-P3-20020326: Log a message
         //  Should the table entry be updated anyway?
         //
-        //cout << "Modify rejected: " << response->messageId << endl;
-        //cout << "Error code: " << response->cimException.getCode () << endl;
-        //cout << response->cimException.getMessage () << endl;
     }
 
     delete epl;
@@ -4519,7 +4820,6 @@ void IndicationService::_sendModifyRequests
 	     QueueIdStack (_providerManager, getQueueId ()),
 	     authType,
 	     userName);
-//cout << "Modify message ID: " << request->messageId << endl;
 
         AsyncOpNode* op = this->get_op();
 
@@ -4576,14 +4876,6 @@ void IndicationService::_sendDeleteRequestsCallBack (
     PEGASUS_ASSERT (response != 0);
     if (response->cimException.getCode () == CIM_ERR_SUCCESS)
     {
-        //cout << "Delete accepted: " << response->messageId << endl;
-        //
-        //  Remove entry from subscription table 
-        //
-        String tableKey = service->_generateKey 
-            (*(epl->cni), epl->pcl->provider);
-        service->_subscriptionTable.remove (tableKey);
-        //cout << "Entry removed: " << tableKey << endl;
     }
     else
     {
@@ -4591,9 +4883,6 @@ void IndicationService::_sendDeleteRequestsCallBack (
         //  ATTN-CAKG-P3-20020326: Log a message
         //  Should the table entry be removed anyway?
         //
-        //cout << "Delete rejected: " << response->messageId << endl;
-        //cout << "Error code: " << response->cimException.getCode () << endl;
-        //cout << response->cimException.getMessage () << endl;
     }
 
     delete epl;
@@ -4637,7 +4926,6 @@ void IndicationService::_sendDeleteRequests
 	     QueueIdStack (_providerManager, getQueueId ()),
 	     authType,
 	     userName);
-//cout << "Delete message ID: " << request->messageId << endl;
 	
         AsyncOpNode* op = this->get_op();
 
@@ -4662,82 +4950,290 @@ void IndicationService::_sendDeleteRequests
     PEG_METHOD_EXIT ();
 }
 
-String IndicationService::_generateKey (
-    const CIMInstance & subscription,
-    const CIMInstance & provider)
+String IndicationService::_generateActiveSubscriptionsKey (
+    const CIMObjectPath & subscriptionRef)
 {
-    String tableKey;
+    String activeSubscriptionsKey;
 
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
-                      "IndicationService::_generateKey");
+                      "IndicationService::_generateActiveSubscriptionsKey");
 
     //
     //  Append subscription namespace name to key
     //
-    tableKey.append (subscription.getPath ().getNameSpace ().getString());
+    activeSubscriptionsKey.append 
+        (subscriptionRef.getNameSpace ().getString());
+
+    //
+    //  Get filter and handler key bindings from subscription reference
+    //
+    Array<CIMKeyBinding> subscriptionKB = subscriptionRef.getKeyBindings ();
+    Array<CIMKeyBinding> filterKB;
+    Array<CIMKeyBinding> handlerKB;
+    for (Uint8 i = 0; i < subscriptionKB.size (); i++)
+    {
+        if ((subscriptionKB [i].getName () == _PROPERTY_FILTER) &&
+            (subscriptionKB [i].getType () == CIMKeyBinding::REFERENCE))
+        {
+            CIMObjectPath filterRef (subscriptionKB [i].getValue ());
+            filterKB = filterRef.getKeyBindings ();
+        }
+        if ((subscriptionKB [i].getName () == _PROPERTY_HANDLER) &&
+            (subscriptionKB [i].getType () == CIMKeyBinding::REFERENCE))
+        {
+            CIMObjectPath handlerRef (subscriptionKB [i].getValue ());
+            handlerKB = handlerRef.getKeyBindings ();
+        }
+    }
 
     //
     //  Append subscription filter key values to key
     //
-    CIMValue filterVal = subscription.getProperty
-        (subscription.findProperty
-        (_PROPERTY_FILTER)).getValue ();
-            
-    CIMObjectPath filterRef;
-    filterVal.get (filterRef);
-
-    Array <CIMKeyBinding> filterKeyBindings = filterRef.getKeyBindings ();
-    for (Uint8 i = 0; i < filterKeyBindings.size (); i++)
+    for (Uint8 j = 0; j < filterKB.size (); j++)
     {
-        tableKey.append (filterKeyBindings [i].getValue ());
+        activeSubscriptionsKey.append (filterKB [j].getValue ());
     }
 
     //
     //  Append subscription handler key values to key
     //
-    CIMValue handlerVal = subscription.getProperty
-        (subscription.findProperty
-        (_PROPERTY_HANDLER)).getValue ();
-            
-    CIMObjectPath handlerRef;
-    handlerVal.get (handlerRef);
-
-    Array <CIMKeyBinding> HandlerKeyBindings = handlerRef.getKeyBindings ();
-    for (Uint8 i = 0; i < HandlerKeyBindings.size (); i++)
+    for (Uint8 k = 0; k < handlerKB.size (); k++)
     {
-        tableKey.append (HandlerKeyBindings [i].getValue ());
+        activeSubscriptionsKey.append (handlerKB [k].getValue ());
     }
 
-    //
-    //  Append provider key values to key
-    //
-    String providerName = provider.getProperty (provider.findProperty
-        (_PROPERTY_PROVIDERNAME)).getValue ().toString ();
-    String providerModuleName = provider.getProperty (provider.findProperty
-        (_PROPERTY_PROVIDERMODULENAME)).getValue ().toString ();
-    tableKey.append (providerName);
-    tableKey.append (providerModuleName);
-
     PEG_METHOD_EXIT ();
-    return tableKey;
+    return activeSubscriptionsKey;
 }
 
-void IndicationService::_insertEntry (
+void IndicationService::_insertActiveSubscriptionsEntry (
     const CIMInstance & subscription,
-    const CIMInstance & provider,
-    const Array <CIMName> classList)
+    const Array <ProviderClassList> & providers)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
-                      "IndicationService::_insertEntry");
+                      "IndicationService::_insertActiveSubscriptionsEntry");
 
-    String tableKey = _generateKey 
-        (subscription, provider);
-    SubscriptionTableEntry entry;
+    String activeSubscriptionsKey = _generateActiveSubscriptionsKey 
+        (subscription.getPath ());
+    ActiveSubscriptionsTableEntry entry;
     entry.subscription = subscription;
-    entry.provider = provider;
-    entry.classList = classList;
-    _subscriptionTable.insert (tableKey, entry);
-//cout << "Entry inserted: " << tableKey << endl;
+    entry.providers = providers;
+    _activeSubscriptionsTable.insert (activeSubscriptionsKey, entry);
+
+#ifdef PEGASUS_INDICATION_HASHTRACE
+    String traceString;
+    traceString.append (activeSubscriptionsKey);
+    traceString.append (" Providers: ");
+    for (Uint8 i = 0; i < providers.size (); i++)
+    {
+        String providerName = providers [i].provider.getProperty 
+            (providers [i].provider.findProperty 
+            (_PROPERTY_NAME)).getValue ().toString ();
+        traceString.append (providerName);
+        traceString.append ("  Classes: ");
+        for (Uint8 j = 0; j < providers[i].classList.size (); j++)
+        {
+             traceString.append (providers[i].classList[j].getString());   
+             traceString.append ("  ");
+        }
+    }
+    
+    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL3, 
+        "INSERTED _activeSubscriptionsTable entry: " + traceString);
+#endif
+
+    PEG_METHOD_EXIT ();
+}
+
+String IndicationService::_generateSubscriptionClassesKey (
+    const CIMName & indicationClassName,
+    const CIMNamespaceName & sourceNamespaceName)
+{
+    String subscriptionClassesKey;
+
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_generateSubscriptionClassesKey");
+
+    //
+    //  Append indication class name to key
+    //
+    subscriptionClassesKey.append (indicationClassName.getString ());
+
+    //
+    //  Append source namespace name to key
+    //
+    subscriptionClassesKey.append (sourceNamespaceName.getString ());
+
+    PEG_METHOD_EXIT ();
+    return subscriptionClassesKey;
+}
+
+void IndicationService::_insertSubscriptionClassesEntry (
+    const CIMName & indicationClassName,
+    const CIMNamespaceName & sourceNamespaceName,
+    const Array <CIMInstance> & subscriptions)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_insertSubscriptionClassesEntry");
+
+    String subscriptionClassesKey = _generateSubscriptionClassesKey
+        (indicationClassName, sourceNamespaceName);
+    SubscriptionClassesTableEntry entry;
+    entry.indicationClassName = indicationClassName;
+    entry.sourceNamespaceName = sourceNamespaceName;
+    entry.subscriptions = subscriptions;
+    _subscriptionClassesTable.insert (subscriptionClassesKey, entry);
+
+#ifdef PEGASUS_INDICATION_HASHTRACE
+    String traceString;
+    traceString.append (subscriptionClassesKey);
+    traceString.append (" Subscriptions: ");
+    for (Uint8 i = 0; i < subscriptions.size (); i++)
+    {
+        traceString.append (subscriptions [i].getPath ().toString());   
+        traceString.append ("  ");
+    }
+    
+    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL3, 
+        "INSERTED _subscriptionClassesTable entry: " + traceString);
+#endif
+
+    PEG_METHOD_EXIT ();
+}
+
+void IndicationService::_insertToHashTables (
+    const CIMInstance & subscription,
+    const Array <ProviderClassList> & providers,
+    const Array <CIMName> & indicationSubclassNames,
+    const CIMNamespaceName & sourceNamespaceName)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_insertToHashTables");
+
+    //
+    //  Insert entry into active subscriptions table 
+    //
+    _insertActiveSubscriptionsEntry (subscription, providers);
+
+    //
+    //  Insert or update entries in subscription classes table 
+    //
+    for (Uint8 i = 0; i < indicationSubclassNames.size (); i++)
+    {
+        String subscriptionClassesKey = _generateSubscriptionClassesKey
+            (indicationSubclassNames [i], sourceNamespaceName);
+        SubscriptionClassesTableEntry tableValue;
+        if (_subscriptionClassesTable.lookup (subscriptionClassesKey,
+            tableValue))
+        {
+            //
+            //  If entry exists for this IndicationClassName-SourceNamespace 
+            //  pair, remove old entry and insert new entry
+            //
+            Array <CIMInstance> subscriptions = tableValue.subscriptions;
+            subscriptions.append (subscription);
+            _subscriptionClassesTable.remove (subscriptionClassesKey);
+#ifdef PEGASUS_INDICATION_HASHTRACE
+            PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL3, 
+                "REMOVED _subscriptionClassesTable entry: " + 
+                subscriptionClassesKey);
+#endif
+            _insertSubscriptionClassesEntry (indicationSubclassNames [i],
+                sourceNamespaceName, subscriptions);
+        }
+        else
+        {
+            //
+            //  If no entry exists for this 
+            //  IndicationClassName-SourceNamespace pair, insert new entry
+            //
+            Array <CIMInstance> subscriptions;
+            subscriptions.append (subscription);
+            _insertSubscriptionClassesEntry (indicationSubclassNames [i],
+                sourceNamespaceName, subscriptions);
+        }
+    }
+
+    PEG_METHOD_EXIT ();
+}
+
+void IndicationService::_removeFromHashTables (
+    const CIMInstance & subscription,
+    const Array <CIMName> & indicationSubclassNames,
+    const CIMNamespaceName & sourceNamespaceName)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_removeFromHashTables");
+
+    //
+    //  Remove entry from active subscriptions table 
+    //
+    String activeSubscriptionsKey = _generateActiveSubscriptionsKey
+        (subscription.getPath ());
+    _activeSubscriptionsTable.remove (activeSubscriptionsKey);
+
+#ifdef PEGASUS_INDICATION_HASHTRACE
+    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL3, 
+        "REMOVED _activeSubscriptionsTable entry: " + 
+        activeSubscriptionsKey);
+#endif
+
+    //
+    //  Remove or update entries in subscription classes table 
+    //
+    for (Uint8 i = 0; i < indicationSubclassNames.size (); i++)
+    {
+        String subscriptionClassesKey = _generateSubscriptionClassesKey
+            (indicationSubclassNames [i], sourceNamespaceName);
+        SubscriptionClassesTableEntry tableValue;
+        if (_subscriptionClassesTable.lookup (subscriptionClassesKey,
+            tableValue))
+        {
+            //
+            //  If entry exists for this IndicationClassName-SourceNamespace 
+            //  pair, remove subscription from the list
+            //
+            Array <CIMInstance> subscriptions = tableValue.subscriptions;
+            for (Uint8 j = 0; j < subscriptions.size (); j++)
+            {
+                if (subscriptions [j].getPath().identical 
+                   (subscription.getPath()))
+                {
+                    subscriptions.remove (j);
+                }
+            }
+
+            //
+            //  Remove the old entry
+            //
+            _subscriptionClassesTable.remove (subscriptionClassesKey);
+#ifdef PEGASUS_INDICATION_HASHTRACE
+            PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL3, 
+                "REMOVED _subscriptionClassesTable entry: " + 
+                subscriptionClassesKey);
+#endif
+
+            //
+            //  If there are still subscriptions in the list, insert the 
+            //  new entry
+            //
+            if (subscriptions.size () > 0)
+            {
+                _insertSubscriptionClassesEntry (indicationSubclassNames [i],
+                    sourceNamespaceName, subscriptions);
+            }
+        }
+        else
+        {
+            //
+            //  Entry not found in Subscription Classes table
+            //
+
+            //
+            //  ATTN-CAKG-P3-20030403: Log a message
+            //
+        }
+    }
 
     PEG_METHOD_EXIT ();
 }
@@ -4821,13 +5317,9 @@ void IndicationService::_sendAlertsCallBack(AsyncOpNode *op,
    PEGASUS_ASSERT(response != 0);
    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
    {
-      //cout << "Alert accepted: " << response->messageId << endl;
    }
    else
    {
-      //cout << "Alert rejected: " << response->messageId << endl;
-      //cout << "Error code: " << response->cimException.getCode () << endl;
-      //cout << response->cimException.getMessage () << endl;
    }
    
    //
@@ -4845,6 +5337,8 @@ void IndicationService::_sendAlertsCallBack(AsyncOpNode *op,
    delete asyncReply;
    op->release();
    service->return_op(op);
+
+    PEG_METHOD_EXIT ();
 }
 
 
@@ -4860,11 +5354,17 @@ void IndicationService::_sendAlerts (
 
     handlers.clear ();
 
+    PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL4, 
+        "Sending alert: " + alertInstance.getClassName().getString());
+
     //
     //  Get list of unique handler instances for all subscriptions in list
     //
     for (Uint8 i = 0; i < subscriptions.size (); i++)
     {
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL4, 
+            "Alert subscription: " + subscriptions [i].getPath().toString());
+
         //
         //  Get handler instance
         //
@@ -4901,7 +5401,6 @@ void IndicationService::_sendAlerts (
                 handlers[k],
                 alertInstance,
                 QueueIdStack (_handlerService, getQueueId ()));
-//cout << "Alert message ID: " << handler_request->messageId << endl;
 
         AsyncOpNode* op = this->get_op();
      
@@ -4952,13 +5451,9 @@ void IndicationService::_sendEnableCallBack(AsyncOpNode *op,
 
     if (response->cimException.getCode () == CIM_ERR_SUCCESS)
     {
-      //cout << "Enable accepted: " << response->messageId << endl;
     }
     else
     {
-      //cout << "Enable rejected: " << response->messageId << endl;
-      //cout << "Error code: " << response->cimException.getCode () << endl;
-      //cout << response->cimException.getMessage () << endl;
     }
 
    //
@@ -4989,7 +5484,6 @@ void IndicationService::_sendEnable (
              enableProvider.provider,
              enableProvider.providerModule,
              QueueIdStack (_providerManager, getQueueId ()));
-//cout << "Enable message ID: " << request->messageId << endl;
 
     AsyncOpNode* op = this->get_op (); 
 

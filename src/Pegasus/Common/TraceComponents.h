@@ -25,6 +25,8 @@
 //
 // Modified By: Yi Zhou (yi_zhou@hp.com)
 //              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -102,6 +104,7 @@ static char const* TRACE_COMPONENT_LIST[] =
     "Shutdown",
     "Server",
     "IndicationService",
+    "IndicationServiceInternal",
     "ConfigurationManager",
     "MessageQueueService",
     "ProviderManager",
@@ -157,6 +160,7 @@ enum TRACE_COMPONENT_ID
     TRC_SHUTDOWN,
     TRC_SERVER,
     TRC_INDICATION_SERVICE,
+    TRC_INDICATION_SERVICE_INTERNAL,
     TRC_CONFIGURATION_MANAGER,
     TRC_MESSAGEQUEUESERVICE,
     TRC_PROVIDERMANAGER,

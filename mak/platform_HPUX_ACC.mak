@@ -54,6 +54,14 @@ ifdef PEGASUS_NOASSERTS
  DEFINES += -DNDEBUG
 endif
 
+ifdef PEGASUS_INDICATION_PERFINST
+  DEFINES += -DPEGASUS_INDICATION_PERFINST
+endif
+
+ifdef PEGASUS_INDICATION_HASHTRACE
+  DEFINES += -DPEGASUS_INDICATION_HASHTRACE
+endif
+
 ##
 ## The following flags need to be set or unset 
 ## to compile-in the code required for PAM authentication

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+  <MESSAGE ID="160005" PROTOCOLVERSION="1.0">
+    <SIMPLEREQ>
+      <IMETHODCALL NAME="CreateInstance">
+        <LOCALNAMESPACEPATH>
+          <NAMESPACE NAME="root"/>
+          <NAMESPACE NAME="PG_InterOp"/>
+        </LOCALNAMESPACEPATH>
+        <IPARAMVALUE NAME="NewInstance">
+          <INSTANCE CLASSNAME="PG_ProviderCapabilities">
+            <PROPERTY NAME="ProviderModuleName" TYPE="string"> 
+              <VALUE> ProcessIndicationProviderModule </VALUE>
+            </PROPERTY>
+            <PROPERTY NAME="ProviderName" TYPE="string"> 
+              <VALUE> ProcessIndicationProvider2 </VALUE>
+            </PROPERTY>
+            <PROPERTY NAME="CapabilityID" TYPE="string"> 
+              <VALUE> ProcessIndicationProviderCapability5 </VALUE>
+            </PROPERTY>
+            <PROPERTY NAME="ClassName" TYPE="string"> 
+              <VALUE> CIM_SNMPTrapIndication </VALUE>
+            </PROPERTY>
+            <PROPERTY.ARRAY NAME="Namespaces" TYPE="string"> 
+              <VALUE.ARRAY>
+                <VALUE> root/PG_InterOp </VALUE>
+              </VALUE.ARRAY>
+            </PROPERTY.ARRAY>
+            <PROPERTY.ARRAY NAME="ProviderType" TYPE="uint16"> 
+              <VALUE.ARRAY>
+                <VALUE> 4 </VALUE>
+              </VALUE.ARRAY>
+            </PROPERTY.ARRAY>
+            <PROPERTY.ARRAY NAME="SupportedProperties" TYPE="string"> 
+            </PROPERTY.ARRAY>
+          </INSTANCE>
+        </IPARAMVALUE>
+      </IMETHODCALL>
+    </SIMPLEREQ>
+  </MESSAGE>
+</CIM>

@@ -41,6 +41,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Config/ConfigManager.h>
 
 #include "LocalAuthFile.h"
 
@@ -57,7 +58,7 @@ const Uint32 RANDOM_SEED     =  100;
 //
 // File path used to create temporary random file
 //
-const char TMP_FILE_PATH []  =  "/var/opt/wbem/tmp/cimclient";
+const char TMP_AUTH_FILE_NAME []  =  "/cimclient_";
 
 //
 // Constant representing the int buffer size
@@ -79,6 +80,15 @@ LocalAuthFile::LocalAuthFile(const String& userName)
     PEG_METHOD_ENTER(TRC_AUTHENTICATION, "LocalAuthFile::LocalAuthFile()");
 
     srandom(RANDOM_SEED);
+
+    //
+    // get the configured temporary authentication file path
+    //
+    ConfigManager* configManager = ConfigManager::getInstance();
+
+    _authFilePath = configManager->getCurrentValue("tempLocalAuthDir");
+
+    _authFilePath.append(TMP_AUTH_FILE_NAME);
 
     PEG_METHOD_EXIT();
 }
@@ -108,12 +118,12 @@ String LocalAuthFile::create()
     sequenceCount++;
 
     char extension[INT_BUFFER_SIZE];
-    sprintf(extension,"%d", sequenceCount + milliSecs);
+    sprintf(extension,"_%d", sequenceCount + milliSecs);
     extension[strlen(extension)] = 0;
 
     String filePath = String::EMPTY;
 
-    filePath.append(TMP_FILE_PATH);
+    filePath.append(_authFilePath);
     filePath.append(_userName);
     filePath.append(extension);
 

@@ -81,6 +81,8 @@ private:
 
     String  _filePathName;
 
+    String  _authFilePath;
+
     String  _challenge;
 };
 

@@ -110,6 +110,7 @@ struct PropertyList ConfigManager::properties[] =
     {"remove",              (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"slp",                 (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"SSL",                 (ConfigPropertyOwner* )ConfigManager::defaultOwner},
+    {"tempLocalAuthDir",    (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"requireAuthentication", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"requireAuthorization",  (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"httpAuthType",        (ConfigPropertyOwner* )ConfigManager::securityOwner},

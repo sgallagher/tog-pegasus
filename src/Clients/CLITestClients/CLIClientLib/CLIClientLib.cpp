@@ -35,6 +35,7 @@
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com) 
 //              Josephine Eskaline Joyce(jojustin@in.ibm.com) for Bug #1664
+//              Amit K Arora (amita@in.ibm.com) for Bug#2926
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/Common/Config.h>
@@ -127,17 +128,16 @@ Boolean _selectInstance(CIMClient& client, Options& opts, const CIMName& classNa
     is selected, returns False.
 */
 Boolean _conditionalSelectInstance(CIMClient& client, Options& opts,
-    const String& objectName, CIMObjectPath & instancePath)
+    CIMObjectPath & instancePath)
 {
-    CIMObjectPath thisObject(objectName);
     // if class level and interactive set.
-    if ((thisObject.getKeyBindings().size() == 0) && opts.interactive)
+    if ((instancePath.getKeyBindings().size() == 0) && opts.interactive)
     {
         // Ask the user to select an instance
         
-        return(_selectInstance(client, opts, CIMName(opts.objectName), thisObject));
+        return(_selectInstance(client, opts, CIMName(opts.objectName), instancePath));
     }
-    return(false);
+    return(true);
 }
 
 
@@ -1054,9 +1054,8 @@ int referenceNames(CIMClient& client, Options& opts)
             << endl;
     }
     // do conditional select of instance if params properly set.
-    CIMObjectPath thisObjectPath; 
-    if (!_conditionalSelectInstance(client, opts,
-            opts.objectName, thisObjectPath))
+    CIMObjectPath thisObjectPath(opts.objectName); 
+    if (!_conditionalSelectInstance(client, opts, thisObjectPath))
         return(0);
 
     if (opts.time) opts.elapsedTime.reset();
@@ -1118,10 +1117,8 @@ int references(CIMClient& client, Options& opts)
     }
 
     // do conditional select of instance if params properly set.
-    CIMObjectPath thisObjectPath; 
-    if(!_conditionalSelectInstance(client, opts,
-                opts.objectName, thisObjectPath))
-
+    CIMObjectPath thisObjectPath(opts.objectName); 
+    if (!_conditionalSelectInstance(client, opts, thisObjectPath))
         return(0);
 
     if (opts.time) opts.elapsedTime.reset();
@@ -1178,9 +1175,8 @@ int associatorNames(CIMClient& client, Options& opts)
     }
 
     // do conditional select of instance if params properly set.
-    CIMObjectPath thisObjectPath; 
-    if(!_conditionalSelectInstance(client, opts,
-        opts.objectName, thisObjectPath))
+    CIMObjectPath thisObjectPath(opts.objectName); 
+    if(!_conditionalSelectInstance(client, opts, thisObjectPath))
         return(0);
 
     if (opts.time) opts.elapsedTime.reset();
@@ -1247,9 +1243,8 @@ int associators(CIMClient& client, Options& opts)
     }
 
     // do conditional select of instance if params properly set.
-    CIMObjectPath thisObjectPath; 
-    if(!_conditionalSelectInstance(client, opts,
-        opts.objectName, thisObjectPath))
+    CIMObjectPath thisObjectPath(opts.objectName); 
+    if(!_conditionalSelectInstance(client, opts, thisObjectPath))
         return(0);
 
     if (opts.time) opts.elapsedTime.reset();

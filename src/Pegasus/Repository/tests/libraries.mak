@@ -1,3 +1,4 @@
 LIBRARIES = \
     pegrepository \
+    pegconfig \
     pegcommon

@@ -145,8 +145,8 @@ void HTTPAcceptor::handleEnqueue(Message *message)
 	 }
       }
 
-     Default:
-      // Attn: need unexpected message error!
+      default:
+      // ATTN: need unexpected message error!
       break;
    };
 
@@ -233,7 +233,7 @@ void HTTPAcceptor::_bind()
    // Bind socket to port:
 
    if (::bind(_rep->socket, 
-	      (struct sockaddr*)(void*)&_rep->address, 
+	      reinterpret_cast<struct sockaddr*>(&_rep->address), 
 	      sizeof(_rep->address)) < 0)
    {
       Socket::close(_rep->socket);
@@ -365,7 +365,7 @@ void HTTPAcceptor::_acceptConnection()
    Sint32 socket = accept(
       _rep->socket, (struct sockaddr*)&address, (socklen_t *)&n);
 #else
-   Sint32 socket = accept(_rep->socket, (struct sockaddr*)&address, &n);
+   Sint32 socket = accept(_rep->socket, reinterpret_cast<struct sockaddr*>(&address), &n);
 #endif
 
    if (socket < 0)

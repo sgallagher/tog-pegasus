@@ -13,9 +13,8 @@ PROGRAM = TestCQLValue
 LIBRARIES = \
    pegcommon \
    pegquerycommon \
-   pegprovider \
-   pegrepository \
-   pegcql
+   pegcql \
+   pegrepository
 
 
 SOURCES = CQLValue.cpp

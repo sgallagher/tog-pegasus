@@ -60,7 +60,8 @@ const char* OK    = "ACK\n\0";
 const char* CMD   = "COMMAND\n\0";
 const char* QUIT  = "QUIT\n\0";
 
-AtomicInt cmd_tx, cmd_rx, ready, domain_ready;
+AtomicInt cmd_tx, cmd_rx, ready, domain_ready, accept_error;
+
 monitor_2 mon;
 void pipe_handler(int signum)
 {
@@ -137,8 +138,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL domain_socket(void *parm)
    PEGASUS_SOCKLEN_SIZE peer_size = sizeof(peer);
 
    pegasus_socket connected = listener.accept(&peer, &peer_size);
+   if((Sint32)connected == -1) 
+   {
+      accept_error = 1;
+   }
    
-     
    while((Sint32)connected >= 0)
    {
       FD_ZERO(&fd_listen);
@@ -214,10 +218,10 @@ int main(int argc, char** argv)
    while(ready.value() == 0){
      pegasus_sleep(10);
    }
-
+   
    connector.connect((struct sockaddr *)&peer, peer_size);
    cmd_tx = 0;
-
+   
    while(cmd_tx.value() < 10 )
    {
       unsigned char buf[256];
@@ -265,9 +269,19 @@ int main(int argc, char** argv)
       pegasus_sleep(10);
       
    }
+
    
    domain_connector.connect((struct sockaddr *)&un_peer, peer_size);
 
+
+   if(accept_error.value() )
+   {
+      th_domain.cancel();
+      th_domain.join();
+			
+      cout << argv[0] << " failed" << endl;
+      return 1;
+   }
    cmd_tx = 0;
    while(cmd_tx.value() < 10 )
    {

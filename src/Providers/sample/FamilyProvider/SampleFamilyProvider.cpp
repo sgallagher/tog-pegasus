@@ -50,6 +50,7 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
        "SampleFamilyProvider::initialize");
 
     CDEBUG ("initialize");
+	_cimom = cimom;
     {   /*
         // Create the classes so we have something to build from. This should not have to 
         // be here but we cannot get to repository yet.
@@ -66,8 +67,8 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
         
         _referencedClass = class1;
 
-		//XmlWriter::printClassElement(_referencedClass);
-		//MofWriter::printClassElement(_referencedClass);
+		XmlWriter::printClassElement(_referencedClass);
+		MofWriter::printClassElement(_referencedClass);
 
         // Create the association class
         CIMClass a1("TST_Lineage");
@@ -158,18 +159,12 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
     // Now make the instances for the associations
     //
     
-    /* Lets go to the path stuff rather than the separate referece object.
-    instance0.setPath(CIMObjectPath("//localhost/root/cimv2:MyClass.Foo=1"));
-    assert(instance0.getPath() == CIMObjectPath("//localhost/root/cimv2:MyClass.Foo=1"));
-    
-	CIMObjectPath r1 ("atp:77", CIMNamespaceName ("root/cimv25"), 
-            CIMName ("TennisPlayer"));
-    
-    */
     CDEBUG ("Initialise - Building Assoc Class instances");
     {
         // Note that this is a nasty assumption. May be a different namespace. Need
         // to build dynamically
+        // This namespacename is used to set the namespace in the references.
+        // We should set it dynamically.
         String nameSpace = "SampleProvider";
         String host = System::getHostName();
         
@@ -261,7 +256,6 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
     // From the enumerateinstancenames  Why the R
     // TST_Lineage.child=R"Person.name=\"Sofi\"",parent=R"Person.name=\"Mike\""
     
-    CDEBUG ("initialize - 4 ");
     PEG_METHOD_EXIT();
 }
 
@@ -304,7 +298,6 @@ void SampleFamilyProvider::getInstance(
 		{
 			// deliver requested instance
 			handler.deliver(_instances[i]);
-
 			break;
 		}
 	}
@@ -324,8 +317,28 @@ void SampleFamilyProvider::enumerateInstances(
 {
     PEG_METHOD_ENTER(TRC_PROVIDER,
        "SampleFamilyProvider::enumerateInstances");
-    PEGASUS_STD(cout) << "KSTEST enumerateInstances SampleFamilyProvider "  << PEGASUS_STD(endl);
-	
+    CDEBUG("enumerateInstances");
+	CIMClass cimClass;
+	try
+    {
+    cimClass = _cimom.getClass(
+		OperationContext(),
+		classReference.getNameSpace(),
+		classReference.getClassName(),
+		false,
+		false,
+		false,
+		CIMPropertyList());
+    }
+    catch(CIMException& e)
+    {
+        CDEBUG("Exception hit " << e.getMessage());
+        // ATTN: KS 20030303 - Add an exception return here.
+    }
+
+    //XmlWriter::printClassElement(cimClass);
+    //MofWriter::printClassElement(cimClass);
+
     // begin processing the request
 	handler.processing();
 
@@ -341,7 +354,6 @@ void SampleFamilyProvider::enumerateInstances(
      }
     if (myClass == CIMName("tst_lineagedynamic"))
     {
-    	PEGASUS_STD(cout) << "KSTEST tst_Lineagedynamic instances " << _instancesLineageDynamic.size() << PEGASUS_STD(endl);
         for(Uint32 i = 0, n = _instancesLineageDynamic.size(); i < n; i++)
     	{
     		// deliver reference
@@ -376,14 +388,32 @@ void SampleFamilyProvider::enumerateInstanceNames(
 	handler.processing();
 
     CIMName myClass = classReference.getClassName();
+    CIMClass cimClass;
+	try
+    {
+    cimClass = _cimom.getClass(
+		OperationContext(),
+		classReference.getNameSpace(),
+		classReference.getClassName(),
+		false,
+		false,
+		false,
+		CIMPropertyList());
+    }
+    catch(CIMException& e)
+    {
+        CDEBUG("Exception hit " << e.getMessage());
+        // ATTN: KS 20030303 - Add an exception return here.
+    }
 
+    CDEBUG("EnumerateInstanceNames for class = " << myClass);
     //ATTN: Modify this to dynamically deliver the Names from the instances and hopefully
     // use the same code base as the enumerateinstances 
     if (myClass == CIMName("tst_persondynamic"))
     {
     	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     	{
-            handler.deliver(_instances[i].buildPath(_referencedClass));
+            handler.deliver(_instances[i].buildPath(cimClass));
     	}
      }
     if (myClass == CIMName("tst_lineagedynamic"))
@@ -394,7 +424,7 @@ void SampleFamilyProvider::enumerateInstanceNames(
     	}
 
     }
-    //ATTN KS This one is in error since we did not build the corresponding class.
+    //ATTN KS This one is in error since we did not build the corresponding instances.
     if (myClass ==  CIMName("tst_labeledlineagedynamic"))
     {
     	for(Uint32 i = 0, n = _instancesLabeledLineageDynamic.size(); i < n; i++)
@@ -838,17 +868,17 @@ void SampleFamilyProvider::referenceNames(
         // Note that here we test to determine if the returned object name equals resultClass
         // or any of its subclasses
         
-        CIMObjectPath r = _instanceNamesLineageDynamic[i];
-        PEGASUS_STD(cout) << "KSTEST Result Class = " << resultClass.getString() 
-            << " Role = " << role
-            << PEGASUS_STD(endl);
-        if (resultClass.isNull() || r.getClassName().equal(resultClass))
+        //CIMObjectPath objectPath = _instanceNamesLineageDynamic[i];
+        CIMObjectPath objectPath =  _instancesLineageDynamic[i].buildPath(_referencedClass);
+        CDEBUG("Result Class = " << resultClass.getString() << " Role = " << role);
+        if (resultClass.isNull() || objectPath.getClassName().equal(resultClass))
         {
-            if (r.getHost().size() == 0)
-                r.setHost(host);
+            if (objectPath.getHost().size() == 0)
+                objectPath.setHost(host);
     
-            if (r.getNameSpace().isNull())
-                r.setNameSpace(nameSpace);
+            if (objectPath.getNameSpace().isNull())
+                objectPath.setNameSpace(nameSpace);
+            handler.deliver(objectPath);
         }
 	}
     

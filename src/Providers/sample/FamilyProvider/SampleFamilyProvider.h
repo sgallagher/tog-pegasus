@@ -135,6 +135,7 @@ public:
     
 
 protected:
+    CIMOMHandle _cimom;
 	// save for the class objects that we use
     CIMClass _referencedClass;
     CIMClass _assocClass;

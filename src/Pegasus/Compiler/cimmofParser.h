@@ -116,9 +116,9 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   // Methods that implement or override base class methods
   //------------------------------------------------------------------
   // establish an input buffer given an input file stream
-  int setInputBuffer(const FILE *f);
+  int setInputBuffer(const FILE *f, Boolean closeCurrent);
   // establish an input buffer given an existing context (YY_BUFFERSTATE)
-  int setInputBuffer(void *buffstate);
+  int setInputBuffer(void *buffstate, Boolean closeCurrent);
   // Dig into an include file given its name
   int enterInlineInclude(const String &filename);
   // Dig into an include file given an input file stream

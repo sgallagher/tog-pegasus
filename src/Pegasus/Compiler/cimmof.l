@@ -24,7 +24,17 @@ void * create_cimmof_buffer_wrapper(const FILE *f, int size) {
   return (void *)yy_create_buffer((FILE *)f, size);
 }
 
-int switch_to_buffer_wrapper(void *buffstate) {
+int switch_to_buffer_wrapper(void *buffstate, Boolean closeCurrent) {
+  if (closeCurrent)
+  {
+     if (yyin != NULL)
+     {
+        fflush(yyin);
+        fclose(yyin);
+        yyin = NULL;
+     }
+     yy_delete_buffer(YY_CURRENT_BUFFER);
+  }
   yy_switch_to_buffer((YY_BUFFER_STATE)buffstate);
   return 0;
 }

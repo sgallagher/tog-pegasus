@@ -68,7 +68,7 @@ parser::setInputBufferFromName(const String &filename) {
   if (f) {
     set_current_filename(filename);
     set_lineno(1);
-    return setInputBuffer(f);
+    return setInputBuffer(f, false);
   } else {
     return 1;
   }
@@ -83,7 +83,7 @@ int
 parser::wrap() {
   bufstate *v = pop_statebuff();
   if (v) {
-    setInputBuffer(v->buffer_state);
+    setInputBuffer(v->buffer_state, true);
     set_current_filename(v->filename);
     set_lineno(v->lineno);
     delete v;

@@ -90,9 +90,11 @@ class PEGASUS_COMPILER_LINKAGE  parser {
   virtual int wrap();         // handle the end of the current stream
 
   int setInputBufferFromName(const String &filename); // start parsing this file
-  virtual int setInputBuffer(const FILE *f) = 0;  // start parsing this handle
+  virtual int setInputBuffer(const FILE *f, 
+                       Boolean closeCurrent) = 0;  // start parsing this handle
   //  int setInputBuffer(const char *buf);   // start parsing this String
-  virtual int setInputBuffer(void *buffstate) = 0; // start parsing this buffer
+  virtual int setInputBuffer(void *buffstate,
+                       Boolean closeCurrent) = 0; // start parsing this buffer
 
   // given a file stream, treat it as an include file
   virtual int enterInlineInclude(const FILE *f) = 0;

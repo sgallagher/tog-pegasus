@@ -62,7 +62,7 @@ PEGASUS_USING_STD;
 //
 extern int get_yy_buf_size_wrapper();
 extern void *get_cimmof__current_buffer_wrapper();
-extern int switch_to_buffer_wrapper(void *buffstate);
+extern int switch_to_buffer_wrapper(void *buffstate, Boolean closeCurrent);
 extern void *create_cimmof_buffer_wrapper(const FILE *f, int size);
 
 const char LexerError::MSG[] = "";
@@ -238,18 +238,18 @@ cimmofParser::getNamespacePath() const {
 // buffer state or from an open file handle
 //-------------------------------------------------------------------
 int
-cimmofParser::setInputBuffer(const FILE *f) {
+cimmofParser::setInputBuffer(const FILE *f, Boolean closeCurrent) {
   void *buf = create_cimmof_buffer_wrapper(f, get_buffer_size());
   if (buf)
-    return setInputBuffer(buf);
+    return setInputBuffer(buf, closeCurrent);
   else
     return -1;
 }
 
 int
-cimmofParser::setInputBuffer(void *buffstate)
+cimmofParser::setInputBuffer(void *buffstate, Boolean closeCurrent)
 {
-  return switch_to_buffer_wrapper(buffstate);
+  return switch_to_buffer_wrapper(buffstate, closeCurrent);
 };
 
 //--------------------------------------------------------------------
@@ -298,7 +298,7 @@ cimmofParser::enterInlineInclude(const FILE *f) {
     push_statebuff(bs);
     set_current_filename(_includefile);
     set_lineno(0);
-    return setInputBuffer(f);
+    return setInputBuffer(f, false);
   }
   return 1;
 }

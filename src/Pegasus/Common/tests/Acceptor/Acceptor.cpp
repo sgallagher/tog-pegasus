@@ -59,17 +59,12 @@ public:
 
 	for (;;)
 	{
-cout << "LOOP" << endl;
 	    Sint32 size = channel->read(buffer, sizeof(buffer));
 
-
-	    if (size == 0)
+	    if (size <= 0)
 		return false;
 
-#if 1
-	    for (Uint32 i = 0; i < size; i++)
-		cout << buffer[i];
-#endif
+	    channel->write(buffer, size);
 	}
 
 	return true;
@@ -94,19 +89,10 @@ int main()
 
     Selector* selector = Selector::create();
 
-    WindowsChannelConnector connector(factory, selector);
+    WindowsChannelAcceptor acceptor(factory, selector);
+    assert(acceptor.bind("7777"));
 
-    Channel* channel = connector.connect("localhost:7777");
-    assert(channel);
-
-    channel->enableBlocking();
-
-    char MESSAGE[] = "GET / HTTP/1.0\r\n\r\n";
-
-    Sint32 size = channel->writeN(MESSAGE, strlen(MESSAGE));
-    assert(size == strlen(MESSAGE));
-
-    for (;;)
+    while (true)
     {
 	cout << "Loop..." << endl;
 	selector->select(5000);

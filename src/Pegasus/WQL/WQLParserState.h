@@ -46,7 +46,13 @@ struct WQLParserState
     // Text containing SELECT statement (must be null-terminated).
     //
 
-    Array<Sint8> text;
+    const char* text;
+
+    //
+    // Size in bytes (including null terminator) of the text.
+    //
+
+    Uint32 textSize;
 
     //
     // Offset to current parser position in the above text.

@@ -29,6 +29,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/Destroyer.h>
 #include <iostream>
 #include "WQLParser.h"
 #include "WQLParserState.h"
@@ -42,15 +43,18 @@ PEGASUS_NAMESPACE_BEGIN
 WQLParserState* globalParserState = 0;
 
 void WQLParser::parse(
-    const Array<Sint8>& text,
+    const char* text,
     WQLSelectStatement& statement)
 {
-    if (text.size() == 0 || text[text.size() - 1] != '\0')
-	throw MissingNullTerminator();
+    if (!text)
+	throw NullPointer();
+
+    statement.clear();
 
     globalParserState = new WQLParserState;
     globalParserState->error = false;
     globalParserState->text = text;
+    globalParserState->textSize = strlen(text) + 1;
     globalParserState->offset = 0;
     globalParserState->statement = &statement;
 
@@ -66,6 +70,25 @@ void WQLParser::parse(
 
     cleanup();
     delete globalParserState;
+}
+
+void WQLParser::parse(
+    const Array<Sint8>& text,
+    WQLSelectStatement& statement)
+{
+    if (text.size() == 0 || text[text.size() - 1] != '\0')
+	throw MissingNullTerminator();
+
+    parse(text.getData(), statement);
+}
+
+void WQLParser::parse(
+    const String& text,
+    WQLSelectStatement& statement)
+{
+    char* tmpText = text.allocateCString();
+    ArrayDestroyer<char> destroyer(tmpText);
+    parse(tmpText, statement);
 }
 
 void WQLParser::cleanup()
@@ -97,7 +120,7 @@ int WQLInput(char* buffer, int& numRead, int numRequested)
     //
 
     int remaining = 
-	globalParserState->text.size() - globalParserState->offset - 1;
+	globalParserState->textSize - globalParserState->offset - 1;
 
     if (remaining == 0)
     {
@@ -109,7 +132,7 @@ int WQLInput(char* buffer, int& numRead, int numRequested)
 	numRequested = remaining;
 
     memcpy(buffer, 
-	globalParserState->text.getData() + globalParserState->offset, 
+	globalParserState->text + globalParserState->offset, 
 	numRequested);
 
     globalParserState->offset += numRequested;

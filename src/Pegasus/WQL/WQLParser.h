@@ -164,8 +164,7 @@ public:
 	Please note that this method is not thread safe. It must be guarded 
 	with mutexes by the caller.
 
-	@param text null terminated array of characters containing a SELECT
-	    statement.
+	@param text null-terminated C-string which points to SQL statement.
 	@param statement object which holds the compiled version of the SELECT
 	    statement upon return.
 	@exception ParseError if text is not a valid SELECT statement.
@@ -173,7 +172,19 @@ public:
 	    terminated with a null. 
     */
     static void parse(
+	const char* text,
+	WQLSelectStatement& statement);
+
+    /** Version of parse() taking an array of characters.
+    */
+    static void parse(
 	const Array<Sint8>& text,
+	WQLSelectStatement& statement);
+
+    /** Version of parse() taking a string.
+    */
+    static void parse(
+	const String& text,
 	WQLSelectStatement& statement);
 
 private:

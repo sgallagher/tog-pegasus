@@ -26,67 +26,43 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifdef OS_TYPE_WINDOWS
-# define FD_SETSIZE 1024
-# include <winsock.h>
-#else
-# include <sys/types.h>
-# include <sys/socket.h>
-# include <sys/time.h>
-# include <netinet/in.h>
-# include <netdb.h>
-# include <arpa/inet.h>
-# include <unistd.h>
-#endif
-
+#include "Selector.h"
+#include <cstdlib>
 #include <cstring>
-#include "Monitor.h"
-#include "MessageQueue.h"
-
-PEGASUS_USING_STD;
+#include <cctype>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Routines for starting and stoping socket interface.
+// Local routines:
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-extern Uint32 _socketInterfaceRefCount;
-
-static void _OpenSocketInterface()
+static inline int _select_wrapper(
+    int nfds,
+    fd_set* rd_fd_set,
+    fd_set* wr_fd_set,
+    fd_set* ex_fd_set,
+    struct timeval* tv)
 {
-#ifdef OS_TYPE_WINDOWS
-    if (_socketInterfaceRefCount == 0)
-    {
-	WSADATA tmp;
-
-	if (WSAStartup(0x202, &tmp) == SOCKET_ERROR)
-	    WSACleanup();
-    }
-
-    _socketInterfaceRefCount++;
-#endif
-}
-
-static void _CloseSocketInterface()
-{
-#ifdef OS_TYPE_WINDOWS
-    _socketInterfaceRefCount--;
-
-    if (_socketInterfaceRefCount == 0)
-	WSACleanup();
-#endif
+    return select(FD_SETSIZE, rd_fd_set, wr_fd_set, ex_fd_set, tv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// MonitorRep
+// SelectorRep
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-struct MonitorRep
+struct SelectorRep
 {
     fd_set rd_fd_set;
     fd_set wr_fd_set;
@@ -98,15 +74,14 @@ struct MonitorRep
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Monitor
+// Selector
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-Monitor::Monitor()
-{
-    _OpenSocketInterface();
 
-    _rep = new MonitorRep;
+Selector::Selector()
+{
+    _rep = new SelectorRep;
     FD_ZERO(&_rep->rd_fd_set);
     FD_ZERO(&_rep->wr_fd_set);
     FD_ZERO(&_rep->ex_fd_set);
@@ -115,24 +90,16 @@ Monitor::Monitor()
     FD_ZERO(&_rep->active_ex_fd_set);
 }
 
-Monitor::~Monitor()
+Selector::~Selector()
 {
-    _CloseSocketInterface();
+    for (Uint32 i = 0, n = _entries.size(); i < n; i++)
+	delete _entries[i].handler;
+
+    delete _rep;
 }
 
-Boolean Monitor::run(Uint32 milliseconds)
+Boolean Selector::select(Uint32 milliseconds)
 {
-#ifdef OS_TYPE_WINDOWS
-
-    // Windows select() has a strange little bug. It returns immediately if
-    // there are no descriptors in the set even if the timeout is non-zero.
-    // To work around this, we call Sleep() for now:
-
-    if (_entries.size() == 0)
-	Sleep(milliseconds);
-
-#endif
-
     // Check for events on the selected file descriptors. Only do this if
     // there were no undispatched events from last time.
 
@@ -144,11 +111,11 @@ Boolean Monitor::run(Uint32 milliseconds)
 	memcpy(&_rep->active_wr_fd_set, &_rep->wr_fd_set, sizeof(fd_set));
 	memcpy(&_rep->active_ex_fd_set, &_rep->ex_fd_set, sizeof(fd_set));
 
-	const Uint32 SEC = milliseconds / 1000;
-	const Uint32 USEC = (milliseconds % 1000) * 1000;
-	struct timeval tv = { SEC, USEC };
+	const Uint32 seconds = milliseconds / 1000;
+	const Uint32 microseconds = (milliseconds % 1000) * 1000;
+	struct timeval tv = { seconds, microseconds };
 
-	count = select(
+	count = _select_wrapper(
 	    FD_SETSIZE,
 	    &_rep->active_rd_fd_set,
 	    &_rep->active_wr_fd_set,
@@ -157,51 +124,49 @@ Boolean Monitor::run(Uint32 milliseconds)
 
 	if (count == 0)
 	    return false;
-#ifdef OS_TYPE_WINDOWS
 	else if (count == SOCKET_ERROR)
-#else
-	else if (count == -1)
-#endif
 	{
 	    count = 0;
 	    return false;
 	}
     }
 
+    // Dispatch any handler events:
+
     for (Uint32 i = 0, n = _entries.size(); i < n; i++)
     {
-	Sint32 socket = _entries[i].socket;
-	Uint32 events = 0;
+	Sint32 desc = _entries[i].desc;
+	Uint32 reasons = 0;
 
-	if (FD_ISSET(socket, &_rep->active_rd_fd_set))
-	    events |= SocketMessage::READ;
+	if (FD_ISSET(desc, &_rep->active_rd_fd_set))
+	    reasons |= READ;
 
-	if (FD_ISSET(socket, &_rep->active_wr_fd_set))
-	    events |= SocketMessage::WRITE;
+	if (FD_ISSET(desc, &_rep->active_wr_fd_set))
+	    reasons |= WRITE;
 
-	if (FD_ISSET(socket, &_rep->active_ex_fd_set))
-	    events |= SocketMessage::EXCEPTION;
+	if (FD_ISSET(desc, &_rep->active_ex_fd_set))
+	    reasons |= EXCEPTION;
 
-	if (events)
+	if (reasons)
 	{
-	    MessageQueue* queue = MessageQueue::lookup(_entries[i].queueId);
+	    SelectorHandler* handler = _entries[i].handler;
 
-	    if (!queue)
-		unsolicitSocketMessages(_entries[i].queueId);
+	    if (!handler->handle(desc, reasons))
+		removeHandler(handler);
 
-	    if (events & SocketMessage::WRITE)
+	    if (reasons & WRITE)
 	    {
-		FD_CLR(socket, &_rep->active_wr_fd_set);
+		FD_CLR(desc, &_rep->active_wr_fd_set);
 	    }
 
-	    if (events & SocketMessage::EXCEPTION)
+	    if (reasons & EXCEPTION)
 	    {
-		FD_CLR(socket, &_rep->active_ex_fd_set);
+		FD_CLR(desc, &_rep->active_ex_fd_set);
 	    }
 
-	    if (events & SocketMessage::READ)
+	    if (reasons & READ)
 	    {
-		FD_CLR(socket, &_rep->active_rd_fd_set);
+		FD_CLR(desc, &_rep->active_rd_fd_set);
 	    }
 
 	    count--;
@@ -212,32 +177,32 @@ Boolean Monitor::run(Uint32 milliseconds)
     return false;
 }
 
-Boolean Monitor::solicitSocketMessages(
-    Sint32 socket, 
-    Uint32 events,
-    Uint32 queueId)
+Boolean Selector::addHandler(
+    Sint32 desc,
+    Uint32 reasons,
+    SelectorHandler* handler)
 {
     // See whether a handler is already registered for this one:
 
-    Uint32 pos = _findEntry(socket);
+    Uint32 pos = _findEntry(desc);
 
-    if (pos != PEGASUS_NOT_FOUND)
+    if (pos != PEG_NOT_FOUND)
 	return false;
 
-    // Set the events:
+    // Set the reasons:
 
-    if (events & SocketMessage::READ)
-	FD_SET(socket, &_rep->rd_fd_set);
+    if (reasons & READ)
+	FD_SET(desc, &_rep->rd_fd_set);
 
-    if (events & SocketMessage::WRITE)
-	FD_SET(socket, &_rep->wr_fd_set);
+    if (reasons & WRITE)
+	FD_SET(desc, &_rep->wr_fd_set);
 
-    if (events & SocketMessage::EXCEPTION)
-	FD_SET(socket, &_rep->ex_fd_set);
+    if (reasons & EXCEPTION)
+	FD_SET(desc, &_rep->ex_fd_set);
 
     // Add the entry to the list:
 
-    _MonitorEntry entry = { socket, queueId };
+    SelectorEntry entry = { desc, handler };
     _entries.append(entry);
 
     // Success!
@@ -245,35 +210,27 @@ Boolean Monitor::solicitSocketMessages(
     return true;
 }
 
-Boolean Monitor::unsolicitSocketMessages(Sint32 socket)
+Boolean Selector::removeHandler(SelectorHandler* handler)
 {
-    // Look for the given entry and remove it:
+    // Look for the given handler and remove it!
 
     for (Uint32 i = 0, n = _entries.size(); i < n; i++)
     {
-	if (_entries[i].socket == socket)
+	if (_entries[i].handler == handler)
 	{
-	    Sint32 socket = _entries[i].socket;
-	    FD_CLR(socket, &_rep->rd_fd_set);
-	    FD_CLR(socket, &_rep->wr_fd_set);
-	    FD_CLR(socket, &_rep->ex_fd_set);
+	    Sint32 desc = _entries[i].desc;
+	    FD_CLR(desc, &_rep->rd_fd_set);
+	    FD_CLR(desc, &_rep->wr_fd_set);
+	    FD_CLR(desc, &_rep->ex_fd_set);
 	    _entries.remove(i);
+	    delete handler;
 	    return true;
 	}
     }
 
+    // Not found:
+
     return false;
-}
-
-Uint32 Monitor::_findEntry(Sint32 socket) const
-{
-    for (Uint32 i = 0, n = _entries.size(); i < n; i++)
-    {
-	if (_entries[i].socket == socket)
-	    return i;
-    }
-
-    return PEG_NOT_FOUND;
 }
 
 PEGASUS_NAMESPACE_END

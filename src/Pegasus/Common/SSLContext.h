@@ -46,9 +46,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 class SSLCertificateInfoRep;
 class SSLContextRep;
+class SSLContext;
 class SSLSocket;
 class CIMServer;
-class CIMClient;
 class CIMxmlIndicationHandler;
 
 
@@ -222,6 +222,13 @@ private:
 
     SSLCertificateInfoRep* _rep;
 
+#if defined(PEGASUS_USE_232_CLIENT_VERIFICATION) && defined(PEGASUS_USE_EXPERIMENTAL_INTERFACES)
+    // SSLContext needs to use the private constructor to create
+    // a certificate object to pass to the AuthenticationInfo and
+    // OperationContext classes
+    friend class SSLContext;
+#endif
+
     friend int prepareForCallback(int, X509_STORE_CTX*);
 };
 
@@ -240,7 +247,7 @@ class PEGASUS_COMMON_LINKAGE SSLContext
 public:
 
     /** Constructor for a SSLContext object.
-    @param trustPath file path of the trust store
+    @param trustStore file path of the trust store
     @param verifyCert  function pointer to a certificate verification
     call back function.  A null pointer indicates that no callback is
     requested for certificate verification.
@@ -250,7 +257,7 @@ public:
     @exception SSLException indicates failure to create an SSL context.
     */
     SSLContext(
-        const String& trustPath,
+        const String& trustStore,
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile = String::EMPTY);
 
@@ -266,30 +273,12 @@ public:
 
     ~SSLContext();
 
-    /** Constructor for a SSLContext object. This constructor is intended
-    to be used by the CIMServer or CIMClient only.
-    @param trustPath file path of the trust store.
-    @param certPath  file path of the server certificate.
-    @param KeyPath  file path of the private key. 
-    @param verifyCert  function pointer to a certificate verification
-    call back function.  A null pointer indicates that no callback is
-    requested for certificate verification.
-    @param randomFile  file path of a random file that is used as a seed
-    for random number generation by OpenSSL.
-
-    @exception SSLException indicates failure to create an SSL context.
-    */
-    SSLContext(
-        const String& trustPath,
-        const String& certPath,
-        const String& keyPath,
-        SSLCertificateVerifyFunction* verifyCert,
-        const String& randomFile);
+#if defined(PEGASUS_USE_232_CLIENT_VERIFICATION) && defined(PEGASUS_USE_EXPERIMENTAL_INTERFACES)
 
     /** Gets the truststore path of the SSLContext object.  This may be a CA file or a directory.
     @return a string containing the truststore path.
     */
-    String getTrustPath() const;
+    String getTrustStore() const;
     
     /** Gets the x509 certificate path of the SSLContext object.
     @return a string containing the certificate path.
@@ -301,7 +290,58 @@ public:
     */
     String getKeyPath() const;
 
+    /** Returns whether peer verification is ON of OFF
+    Corresponds to what the SSL_CTX_set_verify
+    @return true if verification is on; false otherwise
+    */
+    Boolean isPeerVerificationEnabled() const;
+
+    /** Returns whether enableSSLTrustStoreAutoUpdate is ON or OFF
+    If on, untrusted certificates sent with privileged credentials will
+    be automatically added to the server's truststore
+    @return true if auto update is on; false otherwise
+    */
+    Boolean isTrustStoreAutoUpdateEnabled() const;
+
+#endif
+
+#ifndef PEGASUS_USE_232_CLIENT_VERIFICATION
 private:
+#endif
+    /** Constructor for a SSLContext object. This constructor is intended
+    to be used by the CIMServer or CIMClient (with PEGASUS_USE_232_CLIENT_VERIFICATION) only.
+    @param trustStore file path of the trust store.
+    @param certPath  file path of the server certificate.
+    @param KeyPath  file path of the private key. 
+    @param verifyCert  function pointer to a certificate verification
+    call back function.  A null pointer indicates that no callback is
+    requested for certificate verification.
+    @param randomFile  file path of a random file that is used as a seed
+    for random number generation by OpenSSL.
+
+    @exception SSLException indicates failure to create an SSL context.
+    */
+    SSLContext(
+        const String& trustStore,
+        const String& certPath,
+        const String& keyPath,
+        SSLCertificateVerifyFunction* verifyCert,
+        const String& randomFile);
+
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
+private:
+#endif
+
+#if defined(PEGASUS_USE_232_CLIENT_VERIFICATION) && defined(PEGASUS_USE_EXPERIMENTAL_INTERFACES)
+    SSLContext(
+        const String& trustStore,
+        const String& certPath,
+        const String& keyPath,
+        SSLCertificateVerifyFunction* verifyCert,
+        Boolean trustStoreAutoUpdate,
+        Boolean failIfNoPeerCert,
+        const String& randomFile);
+#endif
 
 #ifdef PEGASUS_USE_DEPRECATED_INTERFACES
     SSLContext(
@@ -318,8 +358,6 @@ private:
     friend class SSLSocket;
 
     friend class CIMServer;
-
-    friend class CIMClient;
 
     friend class CIMxmlIndicationHandler;
 };

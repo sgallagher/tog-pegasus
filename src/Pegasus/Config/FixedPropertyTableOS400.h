@@ -46,8 +46,11 @@
     {"passwordFilePath",                         "cimserver.passwd"},
     {"sslCertificateFilePath",                   "server.pem"},
     {"sslKeyFilePath",                           "file.pem"},
-    {"sslTrustFilePath",                         "client.pem"},
-    {"enableSSLClientVerification",              "false"},
+    {"sslTrustStore",                         "client.pem"},
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
+    {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
+    {"enableSSLTrustStoreAutoUpdate", "false", 0, 0, 0, 1},
+#endif
     {"enableSubscriptionsForNonprivilegedUsers", "true"},
     {"httpsPort",                                "5989"},
     {"enableHttpsConnection",                    "false"},

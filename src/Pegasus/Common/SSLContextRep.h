@@ -71,8 +71,8 @@ class PEGASUS_COMMON_LINKAGE SSLContextRep
 
 public:
 
-    /** Constructor for a SSLContextRep object.
-    @param trustPath  trust store file path
+/** Constructor for a SSLContextRep object.
+    @param trustStore  trust store file path
     @param certPath  server certificate file path
     @param keyPath  server key file path
     @param verifyCert  function pointer to a certificate verification
@@ -83,11 +83,22 @@ public:
     @exception SSLException  exception indicating failure to create a context.
     */
     SSLContextRep(
-        const String& trustPath,
+        const String& trustStore,
         const String& certPath = String::EMPTY,
         const String& keyPath = String::EMPTY,
         SSLCertificateVerifyFunction* verifyCert = NULL,
         const String& randomFile = String::EMPTY);
+
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
+    SSLContextRep(
+        const String& trustStore,
+        const String& certPath = String::EMPTY,
+        const String& keyPath = String::EMPTY,
+        SSLCertificateVerifyFunction* verifyCert = NULL,
+        Boolean trustStoreAutoUpdate = false,
+        Boolean failIfNoPeerCert = false,
+        const String& randomFile = String::EMPTY);
+#endif
 
     SSLContextRep(const SSLContextRep& sslContextRep);
 
@@ -95,11 +106,18 @@ public:
 
     SSL_CTX * getContext() const;
 
-    CString getTrustPath() const;
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
+    CString getTrustStore() const;
 
     CString getCertPath() const;
 
     CString getKeyPath() const;
+
+    Boolean isPeerVerificationEnabled() const;
+
+    Boolean isTrustStoreAutoUpdateEnabled() const;
+                                                                      
+#endif
 
     /*
     Initialize the SSL locking environment. 
@@ -119,11 +137,17 @@ private:
     void _randomInit(const String& randomFile);
     Boolean _verifyPrivateKey(SSL_CTX *ctx, const char *keyFilePath);
 
-    CString _trustPath;
+    CString _trustStore;
     CString _certPath;
     CString _keyPath;
     String _randomFile;
     SSL_CTX * _sslContext;
+
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
+    Boolean _verifyPeer;
+    Boolean _trustStoreAutoUpdate;
+    Boolean _failIfNoPeerCert;
+#endif
 
     /*
        Mutex containing the SSL locks.

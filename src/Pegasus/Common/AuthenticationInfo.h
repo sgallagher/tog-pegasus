@@ -295,7 +295,7 @@ public:
     }
 #endif
 
-
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
 #ifdef PEGASUS_HAS_SSL
     /** Retrieves the SSL Certificate object 
     */ 
@@ -336,6 +336,7 @@ public:
         _checkRep();
         _rep->setCertificateStatus(certificateStatus);
     }
+#endif
 #endif
 
 private:

@@ -64,6 +64,7 @@ class PEGASUS_COMMON_LINKAGE SSLSocket
 {
 public:
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
     //added for client-side SSL auth -hns
     //these parameters allow us to accept the handshake regardless of certificate status
     //and determine later on in the process whether the client is authenticated by
@@ -75,6 +76,7 @@ public:
       CERT_SUCCESS,           //certificate is received and verified against truststore
       CERT_FAILURE            //certificate is received but fails verification against truststore
     };
+#endif
 
     SSLSocket(Sint32 socket, SSLContext * sslcontext)
         throw(SSLException);
@@ -103,11 +105,13 @@ public:
 
     Sint32 connect();
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
     SSLCertificateInfo* getPeerCertificate();
 
     certificateStatusFlag getCertificateStatus();
 
     Boolean addTrustedClient();
+#endif
 
 private:
 
@@ -117,7 +121,10 @@ private:
     Sint32 _socket;
     SSLContext * _SSLContext;
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
     certificateStatusFlag _certificateStatus;
+#endif
+
 };
 #else
 
@@ -161,12 +168,14 @@ public:
 
     Sint32 connect();
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
 #ifdef PEGASUS_HAS_SSL
     SSLCertificateInfo* getPeerCertificate();
 
     Sint32 getCertificateStatus();
 
     Boolean addTrustedClient();
+#endif
 #endif
 
     union {

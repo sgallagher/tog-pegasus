@@ -134,6 +134,7 @@ HTTPConnection::HTTPConnection(
    _socket->disableBlocking();
    _authInfo = new AuthenticationInfo(true);
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
 #ifdef PEGASUS_HAS_SSL
    // add SSL verification information to the authentication information
    if (_socket->isSecure()) 
@@ -141,6 +142,7 @@ HTTPConnection::HTTPConnection(
        _authInfo->setCertificateStatus(_socket->getCertificateStatus());
        _authInfo->setPeerCertificate(_socket->getPeerCertificate());
    }
+#endif
 #endif
 
    _responsePending = false;
@@ -270,6 +272,7 @@ void HTTPConnection::handleEnqueue(Message *message)
         bytesRemaining -= bytesWritten;
      }
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
 #ifdef PEGASUS_HAS_SSL
     Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
                   "Authenticated = %d; Privileged= %d; Certificate_status= %d",
@@ -277,12 +280,15 @@ void HTTPConnection::handleEnqueue(Message *message)
 
     // if the client sent an untrusted certificate and was authenticated with
     // root credentials, add the certificate to the truststore 
+    // This will only add the certificate if enableSSLTrustStoreAutoUpdate
+    // is true in the SSLContext
     if (_authInfo->getCertificateStatus() == SSLSocket::CERT_FAILURE &&
          _authInfo->isAuthenticated() &&
          System::isPrivilegedUser(_authInfo->getAuthenticatedUser())) 
     {
          _socket->addTrustedClient();
     }
+#endif
 #endif
 
      //
@@ -652,6 +658,7 @@ HTTPConnection2::HTTPConnection2(pegasus_socket socket,
 
    _authInfo = new AuthenticationInfo(true);
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
 #ifdef PEGASUS_HAS_SSL
    // add SSL verification information to the authentication information
    if (_socket.is_secure()) 
@@ -659,6 +666,7 @@ HTTPConnection2::HTTPConnection2(pegasus_socket socket,
        _authInfo->setCertificateStatus(_socket.getCertificateStatus());
        _authInfo->setPeerCertificate(_socket.getPeerCertificate());
    }
+#endif
 #endif
 
    PEG_METHOD_EXIT();
@@ -756,6 +764,7 @@ void HTTPConnection2::handleEnqueue(Message *message)
         bytesRemaining -= bytesWritten;
      }
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
 #ifdef PEGASUS_HAS_SSL
     Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
                   "Authenticated = %d; Privileged= %d; Certificate_status= %d",
@@ -769,6 +778,7 @@ void HTTPConnection2::handleEnqueue(Message *message)
     {
          _socket.addTrustedClient();
     }
+#endif
 #endif
 
      //

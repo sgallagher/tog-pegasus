@@ -43,6 +43,9 @@
 
 #include "TLS.h"
 
+// switch on if 'server needs certified client'
+// this is for client certification that does not use PEGASUS_USE_232_CLIENT_CERTIFICATION (PEP#165)
+//#define CLIENT_CERTIFY
 
 //
 // use the following definitions only if SSL is available
@@ -90,8 +93,9 @@ SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext)
         throw SSLException(parms);
     }
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
     // test for client verification
-    if (_SSLContext->getTrustPath() != String::EMPTY) 
+    if (_SSLContext->isPeerVerificationEnabled()) 
     {
         _certificateStatus = NO_CERT;
     }
@@ -99,6 +103,7 @@ SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext)
     {
         _certificateStatus = VERIFICATION_DISABLED;
     } 
+#endif
 
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: Created SSL socket");
 
@@ -237,31 +242,29 @@ redo_accept:
     }
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Accepted");
 
-    // modified by hns for client ssl auth
-    // If enableSSLClientVerification is not enabled then the trustpath is not passed to the SSLContext
-    // Since we cannot access Config from here, just test whether or not the trustpath is set to
-    // determine if we should verify client certificates.
-    if (_SSLContext->getTrustPath() != String::EMPTY) 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
+    if (_SSLContext->isPeerVerificationEnabled()) 
     {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Attempting to certify client");
 
-    // get client's certificate
-    X509 * client_cert = SSL_get_peer_certificate(_SSLConnection);
-    if (client_cert != NULL)
-    {
+        // get client's certificate
+        X509 * client_cert = SSL_get_peer_certificate(_SSLConnection);
+        if (client_cert != NULL)
+        {
             int verifyResult = SSL_get_verify_result(_SSLConnection);
             Tracer::trace(TRC_SSL, Tracer::LEVEL3, "Verification Result:  %d", verifyResult );
             
             if (verifyResult == X509_V_OK)
             {
-           PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
-               "---> SSL: Client Certificate verified.");
+                
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
+                    "---> SSL: Client Certificate verified.");
                 _certificateStatus = CERT_SUCCESS;
             }
-       else
-       {
-           PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
-               "---> SSL: Client Certificate not verified");    
+            else
+            {
+               PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
+                   "---> SSL: Client Certificate not verified");    
                 _certificateStatus = CERT_FAILURE;
             }
 
@@ -294,6 +297,38 @@ redo_accept:
     {
         _certificateStatus = VERIFICATION_DISABLED;
     }
+
+#else
+// this is the old way of certifying clients
+#ifdef CLIENT_CERTIFY
+    // get client's certificate
+    // this is usually not needed 
+    X509 * client_cert = SSL_get_peer_certificate(_SSLConnection);
+    if (client_cert != NULL)
+    {
+       if (SSL_get_verify_result(_SSLConnection) == X509_V_OK)
+       {
+           PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
+               "---> SSL: Client Certificate verified.");
+       }
+       else
+       {
+           PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
+               "---> SSL: Client Certificate not verified");    
+           PEG_METHOD_EXIT();
+           return -1;
+       }
+
+       X509_free (client_cert);
+    }
+    else
+    {
+       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Client not certified");
+       PEG_METHOD_EXIT();
+       return -1;
+    }
+#endif // CLIENT_CERTIFY
+#endif // PEGASUS_USE232_CLIENT_VERIFICATION
 
     PEG_METHOD_EXIT();
     return ssl_rc;
@@ -365,6 +400,7 @@ redo_connect:
     return ssl_rc;
     }
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
 SSLCertificateInfo* SSLSocket::getPeerCertificate() 
 { 
     return _SSLCertificate; 
@@ -379,16 +415,24 @@ Boolean SSLSocket::addTrustedClient()
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::addTrustedClient()");
 
-    //retrieve client certificate and add it to the TRUST_DIRECTORY
+    // check whether we have authority to automatically update truststore
+    if (!_SSLContext->isTrustStoreAutoUpdateEnabled())
+    {
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Cannot add client certificate -- TrustStoreAutoUpdate is disabled.");
+        return false;
+    }
+
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Attempting to add client certificate to truststore.");
+
     X509 *client_cert = SSL_get_peer_certificate(_SSLConnection);
 
     if (client_cert != NULL)
     {
         unsigned long hashVal = X509_subject_name_hash(client_cert);
 
-        String trustPath = _SSLContext->getTrustPath();
+        String trustStore = _SSLContext->getTrustStore();
     
-        if (trustPath == String::EMPTY)
+        if (trustStore == String::EMPTY || String::equal(trustStore, "none"))
         {
             // bail if we cannot find the truststore directory
             PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Cannot add client -- truststore directory invalid.");
@@ -418,10 +462,11 @@ Boolean SSLSocket::addTrustedClient()
         
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Searching for files like " + hashString);
 
-        if (FileSystem::isDirectory(trustPath)) 
+        FileSystem::translateSlashes(trustStore); 
+        if (FileSystem::isDirectory(trustStore)) 
         {
             Array<String> trustedCerts;
-            if (FileSystem::getDirectoryContents(trustPath, trustedCerts)) 
+            if (FileSystem::getDirectoryContents(trustStore, trustedCerts)) 
             {
                 Uint32 count = trustedCerts.size();
                 for (Uint32 i = 0; i < count; i++)
@@ -447,11 +492,11 @@ Boolean SSLSocket::addTrustedClient()
         //create new file with subject_hash.index in trust directory
         //copy client certificate into this file
         //now we trust this client and no longer need to check local OS credentials
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Attempting to add trusted client to " + trustPath);
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Attempting to add trusted client to " + trustStore);
         
         char filename[1024];
         sprintf(filename, "%s/%s.%d", 
-                (const char*)trustPath.getCString(),
+                (const char*)trustStore.getCString(),
                 (const char*)hashString.getCString(), 
                 index);
         
@@ -463,11 +508,15 @@ Boolean SSLSocket::addTrustedClient()
         BIO_free_all(outFile);
 
         X509_free(client_cert);
+
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+			    "SSLSocket - Client certificate added to truststore.");
     }
 
     PEG_METHOD_EXIT();
     return true;
 }
+#endif // PEGASUS_USE_232_CLIENT_VERIFICATION
 
 //
 // MP_Socket (Multi-purpose Socket class
@@ -588,13 +637,14 @@ Sint32 MP_Socket::connect()
     return 0;
 }
 
-#ifdef PEGASUS_HAS_SSL
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
 SSLCertificateInfo* MP_Socket::getPeerCertificate()
 {
     if (_isSecure)
     {
         return (_sslsock->getPeerCertificate());
     }
+    return NULL;
 }
 
 Sint32 MP_Socket::getCertificateStatus()
@@ -603,6 +653,7 @@ Sint32 MP_Socket::getCertificateStatus()
     {
         return (_sslsock->getCertificateStatus());
     }
+    return 0;
 }
 
 Boolean MP_Socket::addTrustedClient()
@@ -611,6 +662,7 @@ Boolean MP_Socket::addTrustedClient()
     {
         return (_sslsock->addTrustedClient());
     }
+    return false;
 }
 #endif
 

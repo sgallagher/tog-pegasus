@@ -45,7 +45,10 @@
     {"enableIndicationService", "true", 0, 0, 0, 1},
     // Removed for now because unresolved PEP {"maximumEnumerationBreadth", "50", 0, 0, 0},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
-    {"enableSSLClientVerification", "false", 0, 0, 0, 1}
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
+    {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
+    {"enableSSLTrustStoreAutoUpdate", "false", 0, 0, 0, 1},
+#endif
 #else
     {"httpPort", "5988", 0, 0, 0, 1},
     {"httpsPort", "5989", 0, 0, 0, 1},
@@ -58,7 +61,10 @@
     {"enableIndicationService", "true", 0, 0, 0, 1},
     {"maximumEnumerationBreadth", "50", 0, 0, 0, 1},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
-    {"enableSSLClientVerification", "false", 0, 0, 0, 1}
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
+    {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
+    {"enableSSLTrustStoreAutoUpdate", "false", 0, 0, 0, 1},
+#endif
 #endif
 
 #endif /* Pegasus_DefaultPropertyTableHpux_h */

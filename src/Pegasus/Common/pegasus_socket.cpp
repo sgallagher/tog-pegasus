@@ -114,10 +114,12 @@ class PEGASUS_COMMON_LINKAGE abstract_socket : public Sharable
       virtual Boolean incompleteReadOccurred(Sint32 retCode) = 0;
       virtual Boolean is_secure(void) = 0;
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
 #ifdef PEGASUS_HAS_SSL
       virtual SSLCertificateInfo* getPeerCertificate(void) = 0; 
       virtual Sint32 getCertificateStatus(void) = 0;    
       virtual Boolean addTrustedClient(void) = 0;   
+#endif
 #endif
 
       virtual void set_close_on_exec(void) = 0;
@@ -171,10 +173,12 @@ class empty_socket_rep : public abstract_socket
        Boolean incompleteReadOccurred(Sint32 retCode) { return false;}
        Boolean is_secure(void) { return false;}
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
 #ifdef PEGASUS_HAS_SSL
       SSLCertificateInfo* getPeerCertificate(void) { return NULL; } 
       Sint32 getCertificateStatus(void) { return 0;}    
       Boolean addTrustedClient(void) { return false;}   
+#endif
 #endif
 
       void set_close_on_exec(void) { }
@@ -233,10 +237,12 @@ class bsd_socket_rep : public abstract_socket
       virtual Boolean incompleteReadOccurred(Sint32 retCode);
       virtual Boolean is_secure(void);
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
 #ifdef PEGASUS_HAS_SSL
       virtual SSLCertificateInfo* getPeerCertificate(void); 
       virtual Sint32 getCertificateStatus(void);    
       virtual Boolean addTrustedClient(void);       
+#endif
 #endif
 
       void set_close_on_exec(void);
@@ -553,6 +559,7 @@ Boolean bsd_socket_rep::is_secure(void)
    return false;
 }
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
 #ifdef PEGASUS_HAS_SSL
 SSLCertificateInfo* bsd_socket_rep::getPeerCertificate(void)
 {
@@ -568,6 +575,7 @@ Boolean bsd_socket_rep::addTrustedClient(void)
 {
     return false;
 }
+#endif
 #endif
 
 void bsd_socket_rep::set_close_on_exec(void)
@@ -643,7 +651,7 @@ class ssl_socket_rep : public bsd_socket_rep
       virtual Boolean incompleteReadOccurred(Sint32 retCode);
       virtual Boolean is_secure(void);
 
-#ifdef PEGASUS_HAS_SSL
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
       virtual SSLCertificateInfo* getPeerCertificate(void); 
       virtual Sint32 getCertificateStatus(void);
       virtual Boolean addTrustedClient(void);   
@@ -806,7 +814,7 @@ Boolean ssl_socket_rep::is_secure(void)
    return _init();
 }
 
-#ifdef PEGASUS_HAS_SSL
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
 SSLCertificateInfo* ssl_socket_rep::getPeerCertificate(void)
 {
    return _internal_socket->getPeerCertificate();
@@ -1029,6 +1037,7 @@ Boolean pegasus_socket::is_secure(void)
    return _rep->is_secure();
 }
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
 #ifdef PEGASUS_HAS_SSL
 SSLCertificateInfo* pegasus_socket::getPeerCertificate(void)
 {
@@ -1044,6 +1053,7 @@ Boolean pegasus_socket::addTrustedClient(void)
 {
    return _rep->addTrustedClient();
 }
+#endif 
 #endif 
 
 void pegasus_socket::set_close_on_exec(void)

@@ -213,11 +213,14 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::handleHTTPMessage");
 
-    //modified for SSL client verification -hns
-    //client may have already authenticated via SSL
-    //Boolean authenticated = false;
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
+    // client may have already authenticated via SSL
     Boolean authenticated = httpMessage->authInfo->getAuthStatus();
+#else
+    Boolean authenticated = false;
+#endif
     deleteMessage = true;
+
 
     // ATTN-RK-P3-20020408: This check probably shouldn't be necessary, but
     // we're getting an empty message when the client closes the connection
@@ -299,8 +302,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
     httpMessage->message.append('\0');
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
     if (!authenticated) 
     {
+#endif
         //
         // Search for Authorization header:
         //
@@ -456,7 +461,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     }
 #endif
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
     } //end BIG if(!authenticated)
+#endif
 
         if ( authenticated || !enableAuthentication )
         {

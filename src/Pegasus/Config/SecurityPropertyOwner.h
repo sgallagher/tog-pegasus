@@ -222,9 +222,12 @@ private:
 
     struct ConfigProperty*      _keyFilePath;
 
-    struct ConfigProperty*      _trustFilePath;
+    struct ConfigProperty*      _trustStore;
 
-    struct ConfigProperty*      _enableSSLClientVerification;
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
+    struct ConfigProperty*      _sslClientVerificationMode;
+    struct ConfigProperty*      _enableSSLTrustStoreAutoUpdate;
+#endif
 
     struct ConfigProperty*      _enableSubscriptionsForNonprivilegedUsers;
 

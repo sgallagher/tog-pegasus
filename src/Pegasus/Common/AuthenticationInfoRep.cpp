@@ -60,9 +60,11 @@ AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
     _securityAssoc = NULL;
 #endif
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
 #ifdef PEGASUS_HAS_SSL
     _peerCertificate = NULL;
     _certificateStatus = 0;
+#endif    
 #endif    
 
     PEG_METHOD_EXIT();
@@ -170,6 +172,7 @@ void   AuthenticationInfoRep::setSecurityAssociation()
 }
 #endif
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
 #ifdef PEGASUS_HAS_SSL
 void   AuthenticationInfoRep::setPeerCertificate(SSLCertificateInfo* peerCertificate)
 {
@@ -200,6 +203,7 @@ void   AuthenticationInfoRep::setCertificateStatus(Sint32 certificateStatus)
 
     PEG_METHOD_EXIT();
 }
+#endif
 #endif
 
 PEGASUS_NAMESPACE_END

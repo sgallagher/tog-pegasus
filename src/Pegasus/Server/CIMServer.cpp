@@ -651,8 +651,8 @@ Uint32 CIMServer::getOutstandingRequestCount()
     return requestCount;
 }
 
-// added by hns for client ssl auth
-Boolean verifyClientCallback(SSLCertificateInfo &certInfo)
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
+Boolean verifyClientOptionalCallback(SSLCertificateInfo &certInfo)
 {
     // Note: For now, this function returns true all the time, i.e. 
     // all clients are trusted.  This allows the SSL handshake to
@@ -662,45 +662,102 @@ Boolean verifyClientCallback(SSLCertificateInfo &certInfo)
     //PEGASUS_STD(cout) << "Verify client callback \n";
     return true;
 }
+#endif
 
 SSLContext* CIMServer::_getSSLContext()
 {
     static String PROPERTY_NAME__SSLCERT_FILEPATH = "sslCertificateFilePath";
     static String PROPERTY_NAME__SSLKEY_FILEPATH  = "sslKeyFilePath";
-    static String PROPERTY_NAME__SSLTRUST_FILEPATH  = "sslTrustFilePath";
-    static String PROPERTY_NAME__SSLCLIENT_VERIFICATION = "enableSSLClientVerification";
+    static String PROPERTY_NAME__SSLTRUST_STORE  = "sslTrustStore";
+    static String PROPERTY_NAME__SSLCLIENT_VERIFICATION = "sslClientVerificationMode";
+    static String PROPERTY_NAME__SSLAUTO_TRUSTSTORE_UPDATE = "enableSSLTrustStoreAutoUpdate";
 
 
     if (_sslcontext == 0)
     {
-        //
-        // Get the enableSSLClientVerification property from the Config Manager.
-        //
-        
-        String verifyClient = String::EMPTY;
-        verifyClient = ConfigManager::getInstance()->getCurrentValue(
-                               PROPERTY_NAME__SSLCLIENT_VERIFICATION);
+       
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
+        // Note that if invalid values were set for either sslKeyFilePath, sslCertificateFilePath, or sslTrustStore
+        // the invalid paths would have been detected in SecurityPropertyOwner and terminated the server startup.
+        // This happens regardless of whether or not HTTPS is enabled (not a great design, but too late to change it for 2.3.2)
 
         //
-        // Get the sslTrustFilePath property from the Config Manager.
+        // Get the sslClientVerificationMode property from the Config Manager.
         //
-        String trustPath = String::EMPTY;
-        trustPath = ConfigManager::getInstance()->getCurrentValue(
-                               PROPERTY_NAME__SSLTRUST_FILEPATH);
+        String verifyClient = String::EMPTY;
+        verifyClient = ConfigManager::getInstance()->getCurrentValue(PROPERTY_NAME__SSLCLIENT_VERIFICATION);
+
+        //
+        // Get the sslTrustStore property from the Config Manager.
+        //
+        String trustStore = String::EMPTY;
+        trustStore = ConfigManager::getInstance()->getCurrentValue(PROPERTY_NAME__SSLTRUST_STORE);
+
+        if (!String::equal(trustStore, "none")) 
+        {
+            trustStore = ConfigManager::getHomedPath(
+                ConfigManager::getInstance()->getCurrentValue(PROPERTY_NAME__SSLTRUST_STORE));
+        }
+
+        //
+        // Get the enableSSLAutoTrustStoreUpdate property from the Config Manager.
+        //
+        String autoUpdate = String::EMPTY;
+        autoUpdate = ConfigManager::getInstance()->getCurrentValue(PROPERTY_NAME__SSLAUTO_TRUSTSTORE_UPDATE);
+
+        // a truststore must be specified if sslClientVerificationMode is not disabled
+        // specify 'none' to explicitly state no truststore is desired
+        if (!String::equal(verifyClient, "disabled") &&
+            (String::equal(trustStore, String::EMPTY) || String::equal(trustStore, "")) ) 
+        {
+            // log this
+            MessageLoaderParms parms("Server.CIMServer.INVALID_CONFIGURATION",
+                                     "Must specify a truststore if sslClientVerificationMode is not disabled.  Specify 'none' for no truststore");
+            throw SSLException(parms);
+        }
+
+        // 'required' setting must have a valid truststore
+        if (String::equal(verifyClient, "required") &&
+            String::equal(trustStore, "none")) 
+        {
+            // log this
+            MessageLoaderParms parms("Server.CIMServer.INVALID_CONFIGURATION",
+                                     "Must specify a valid truststore if sslClientVerificationMode is REQUIRED");
+            throw SSLException(parms);
+        }
+
+        // 'autoUpdate' must be used in conjunction with a truststore DIRECTORY
+        FileSystem::translateSlashes(trustStore);                              
+        if (!String::equal(verifyClient, "disabled") &&
+            String::equal(autoUpdate, "true") &&
+            !FileSystem::isDirectory(trustStore)) 
+        {
+            // log this  
+            MessageLoaderParms parms("Server.CIMServer.INVALID_CONFIGURATION",
+                         "Must specify a truststore directory if enableSSLTrustStoreAutoUpdate is TRUE");
+            throw SSLException(parms);
+        }
+        
+        // set this to empty for the SSLContext constructor if no trustpath is specified
+        if (String::equal(trustStore, "none")) 
+        {
+            trustStore = String::EMPTY;
+        }
+#endif
 
         //
         // Get the sslCertificateFilePath property from the Config Manager.
         //
         String certPath;
-        certPath = ConfigManager::getInstance()->getCurrentValue(
-                               PROPERTY_NAME__SSLCERT_FILEPATH);
+        certPath = ConfigManager::getHomedPath(
+            ConfigManager::getInstance()->getCurrentValue(PROPERTY_NAME__SSLCERT_FILEPATH));
 
         //
         // Get the sslKeyFilePath property from the Config Manager.
         //
         String keyPath;
-        keyPath = ConfigManager::getInstance()->getCurrentValue(
-                               PROPERTY_NAME__SSLKEY_FILEPATH);
+        keyPath = ConfigManager::getHomedPath(
+            ConfigManager::getInstance()->getCurrentValue(PROPERTY_NAME__SSLKEY_FILEPATH));
 
         String randFile = String::EMPTY;
 
@@ -712,20 +769,40 @@ SSLContext* CIMServer::_getSSLContext()
         randFile = ConfigManager::getHomedPath(PEGASUS_SSLSERVER_RANDOMFILE);
 #endif
 
-        // modified by hns for ssl client verification
-        // only send trustpath to SSLContext if the enableSSLClientVerification flag is set
-        if (String::compareNoCase(verifyClient, "true") == 0)
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
+        Boolean trustStoreAutoUpdate =  (String::equal(autoUpdate, "true") ? true : false);   
+
+        if (String::equal(verifyClient, "required"))
         {
-            Tracer::trace(TRC_SSL, Tracer::LEVEL3,
-                "SSL Client verification ON.");
-            _sslcontext = new SSLContext(trustPath, certPath, keyPath, (SSLCertificateVerifyFunction*)verifyClientCallback, randFile);
+            Tracer::trace(TRC_SSL, Tracer::LEVEL2,
+                "SSL Client verification REQUIRED.");
+            _sslcontext = new SSLContext(trustStore, certPath, keyPath, 0, false, true, randFile);
         } 
+        else if (String::equal(verifyClient, "optional"))
+        {
+            Tracer::trace(TRC_SSL, Tracer::LEVEL2,
+                "SSL Client verification OPTIONAL.");
+            _sslcontext = new SSLContext(trustStore, certPath, keyPath, (SSLCertificateVerifyFunction*)verifyClientOptionalCallback, trustStoreAutoUpdate, false, randFile);
+        }
+        else if (String::equal(verifyClient, "disabled") ||
+                 verifyClient == String::EMPTY 
+                 || verifyClient == "")
+        {
+            Tracer::trace(TRC_SSL, Tracer::LEVEL2,
+                "SSL Client verification DISABLED.");
+            _sslcontext = new SSLContext(String::EMPTY, certPath, keyPath, 0, false, false, randFile);
+        }
         else 
         {
-            Tracer::trace(TRC_SSL, Tracer::LEVEL3,
-                "SSL Client verification OFF.");
-            _sslcontext = new SSLContext(String::EMPTY, certPath, keyPath, 0, randFile);
+            MessageLoaderParms parms("Server.CIMServer.INVALID_CONFIGURATION",
+                         "Invalid sslClientVerificationMode setting");
+            throw SSLException(parms);
         }
+
+#else
+            _sslcontext = new SSLContext(String::EMPTY, certPath, keyPath, 0, randFile);
+#endif
+
     }
 
     return _sslcontext;

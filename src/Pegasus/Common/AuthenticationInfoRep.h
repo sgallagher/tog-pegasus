@@ -126,6 +126,7 @@ public:
     void setSecurityAssociation();
 #endif
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
 #ifdef PEGASUS_HAS_SSL
     SSLCertificateInfo* getPeerCertificate() const
     {
@@ -140,6 +141,7 @@ public:
     }
 
     void setCertificateStatus(Sint32 certificateStatus);
+#endif
 #endif
 
 private:
@@ -162,9 +164,11 @@ private:
     CIMKerberosSecurityAssociation * _securityAssoc;
 #endif
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
 #ifdef PEGASUS_HAS_SSL
     Sint32 _certificateStatus;  
     SSLCertificateInfo* _peerCertificate; 
+#endif
 #endif
 };
 

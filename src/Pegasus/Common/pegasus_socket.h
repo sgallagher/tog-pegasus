@@ -148,10 +148,12 @@ public:
   Boolean incompleteReadOccurred(Sint32 retCode);
   Boolean is_secure(void);
 
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
 #ifdef PEGASUS_HAS_SSL
   SSLCertificateInfo* getPeerCertificate(void);  
   Sint32 getCertificateStatus(void);    
   Boolean addTrustedClient(void);       
+#endif
 #endif
 
     void set_close_on_exec(void);

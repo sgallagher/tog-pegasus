@@ -38,7 +38,10 @@
     {"remove",              "false"},
     {"slp",                 "false"},
     {"enableAuthentication", "true"},
-    {"enableSSLClientVerification", "false"},
+#ifdef PEGASUS_USE_232_CLIENT_VERIFICATION
+    {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
+    {"enableSSLTrustStoreAutoUpdate", "false", 0, 0, 0, 1},
+#endif
     {"httpAuthType",        "Basic"},
     {"repositoryIsDefaultInstanceProvider", "false"},
 #endif
@@ -49,7 +52,7 @@
     {"passwordFilePath",    "/etc/pegasus/cimserver.passwd"},
     {"sslCertificateFilePath", "/etc/pegasus/server.pem"},
     {"sslKeyFilePath",      "/etc/pegasus/file.pem"},
-    {"sslTrustFilePath",      "/etc/pegasus/client.pem"},
+    {"sslTrustStore",      "/etc/pegasus/client.pem"},
     {"repositoryDir",       "/var/lib/pegasus/repository"},
     {"providerDir",         "/usr/lib/pegasus/providers:/usr/lib/openwbem/cimpiproviders:/usr/lib/cmpi"},
 #endif

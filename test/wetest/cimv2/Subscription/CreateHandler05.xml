@@ -5,7 +5,7 @@
       <IMETHODCALL NAME="CreateInstance">
         <LOCALNAMESPACEPATH>
           <NAMESPACE NAME="root"/>
-          <NAMESPACE NAME="cimv2"/>
+          <NAMESPACE NAME="PG_InterOp"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="NewInstance">
           <INSTANCE CLASSNAME="PG_IndicationHandlerSNMPMapper">
@@ -19,7 +19,7 @@
               <VALUE> PG_IndicationHandlerSNMPMapper </VALUE>
             </PROPERTY>
             <PROPERTY NAME="Name" TYPE="string"> 
-              <VALUE> MissingDestination </VALUE>
+              <VALUE> MissingTrapDestination </VALUE>
             </PROPERTY>
             <PROPERTY NAME="SNMPVersion" TYPE="string"> 
               <VALUE> SNMPv2 </VALUE>

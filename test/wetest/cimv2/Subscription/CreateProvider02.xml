@@ -5,7 +5,7 @@
       <IMETHODCALL NAME="CreateInstance">
         <LOCALNAMESPACEPATH>
           <NAMESPACE NAME="root"/>
-          <NAMESPACE NAME="cimv2"/>
+          <NAMESPACE NAME="PG_InterOp"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="NewInstance">
           <INSTANCE CLASSNAME="PG_Provider">

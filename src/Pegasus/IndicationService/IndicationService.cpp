@@ -40,7 +40,6 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/OperationFlag.h>
-#include <Pegasus/Server/CIMOperationRequestDispatcher.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/WQL/WQLParser.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
@@ -53,10 +52,10 @@ PEGASUS_NAMESPACE_BEGIN
 
 IndicationService::IndicationService (
     CIMRepository * repository,
-    CIMServer * server)
+    ProviderRegistrationManager * providerRegManager)
     : Base ("Server::IndicationService", MessageQueue::getNextQueueId ()),
          _repository (repository),
-         _server (server)
+         _providerRegManager (providerRegManager)
 {
     //
     //  ATTN: This call to _initialize is here temporarily -- in future, it
@@ -223,12 +222,6 @@ void IndicationService::_initialize (void)
     //
 
     //
-    //  Get handle to Provider Registration Manager
-    //
-    _providerRegManager = 
-        _server->getDispatcher ()->getProviderRegistrationManager ();
-
-    //
     //  Make sure subscription classes include Creator property
     //
     _checkClasses ();
@@ -285,7 +278,7 @@ void IndicationService::_initialize (void)
         _sendEnableRequests (indicationProviders, 
             activeSubscriptions [i].getInstanceName ().getNameSpace (),
             propertyList, condition, queryLanguage,
-            activeSubscriptions [i].getInstance ());
+            activeSubscriptions [i]);
 
         //
         //  Merge provider list into list of unique providers to start
@@ -578,7 +571,8 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                     //
                     _sendEnableRequests (indicationProviders, 
                         request->nameSpace, requiredProperties, condition, 
-                        queryLanguage, instance);
+                        queryLanguage, 
+                        CIMNamedInstance (instanceRef, instance));
             
                     //
                     //  Send start message to each provider
@@ -1042,7 +1036,8 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                 {
                     _sendEnableRequests (indicationProviders, 
                         request->nameSpace, requiredProperties, condition, 
-                        queryLanguage, instance);
+                        queryLanguage,
+                        CIMNamedInstance (instanceReference, instance));
     
                     //
                     //  Send start message to each provider
@@ -1072,7 +1067,8 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     if (indicationProviders.size () > 0)
                     {
                         _sendDisableRequests (indicationProviders, 
-                            request->nameSpace, instance);
+                            request->nameSpace,
+                            CIMNamedInstance (instanceReference, instance));
                     }
                 }
             }
@@ -1143,10 +1139,6 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
         //  instance
         //
         String currentUser = request->userName;
-//cout << "creator: " << creator << endl;
-//cout << "currentUser: " << currentUser << endl;
-//cout << "System::isPrivilegedUser (currentUser): " << 
-         //System::isPrivilegedUser (currentUser) << endl;
         if ((creator != String::EMPTY) &&
             (!System::isPrivilegedUser (currentUser)) &&
             (currentUser != creator))
@@ -1176,7 +1168,8 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
                 //  Send disable requests
                 //
                 _sendDisableRequests (indicationProviders,
-                    request->nameSpace, subscriptionInstance);
+                    request->nameSpace, CIMNamedInstance 
+                    (request->instanceName, subscriptionInstance));
             }
 
             //
@@ -1482,7 +1475,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             _sendEnableRequests (indicationProviders,
                 newSubscriptions [i].getInstanceName ().getNameSpace (), 
                 requiredProperties, condition, queryLanguage, 
-                newSubscriptions [i].getInstance ());
+                newSubscriptions [i]);
 
             //
             //  Send start message to each provider
@@ -1509,7 +1502,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         {
             _sendDisableRequests (indicationProviders,
                 formerSubscriptions [i].getInstanceName ().getNameSpace (),
-                formerSubscriptions [i].getInstance ());
+                formerSubscriptions [i]);
         }
 
         //
@@ -1955,7 +1948,7 @@ Boolean IndicationService::_canCreate (
         if (!instance.existsProperty (_PROPERTY_SYSTEMNAME))
         {
             instance.addProperty (CIMProperty (_PROPERTY_SYSTEMNAME,
-                System::getHostName ()));
+                System::getFullyQualifiedHostName ()));
         }
 
         if (!instance.existsProperty (_PROPERTY_SYSTEMCREATIONCLASSNAME))
@@ -1965,7 +1958,7 @@ Boolean IndicationService::_canCreate (
             //
             instance.addProperty (CIMProperty 
                 (_PROPERTY_SYSTEMCREATIONCLASSNAME, 
-                "CIM_UnitaryComputerSystem"));
+                System::getSystemCreationClassName ()));
         }
 
         if (instance.getClassName () == _CLASS_FILTER)
@@ -2205,10 +2198,6 @@ Boolean IndicationService::_canModify (
     //  instance
     //
     String currentUser = request->userName;
-//cout << "creator: " << creator << endl;
-//cout << "currentUser: " << currentUser << endl;
-//cout << "System::isPrivilegedUser (currentUser): " << 
-         //System::isPrivilegedUser (currentUser) << endl;
     if ((creator != String::EMPTY) &&
         (!System::isPrivilegedUser (currentUser)) && 
         (currentUser != creator))
@@ -2880,6 +2869,33 @@ String IndicationService::_getFilterQuery (
     return (filterQuery);
 }
 
+String IndicationService::_getSourceNameSpace (
+    const CIMInstance & subscription,
+    const String & nameSpaceName) const
+{
+    CIMValue filterValue;
+    CIMReference filterReference;
+    CIMInstance filterInstance;
+    String sourceNameSpace;
+
+    const char METHOD_NAME [] = "IndicationService::_getSourceNameSpace";
+
+    PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
+
+    filterValue = subscription.getProperty (subscription.findProperty
+        (_PROPERTY_FILTER)).getValue ();
+
+    filterValue.get (filterReference);
+
+    filterInstance = _repository->getInstance (nameSpaceName, filterReference);
+
+    sourceNameSpace = filterInstance.getProperty (filterInstance.findProperty 
+        (_PROPERTY_SOURCENAMESPACE)).getValue ().toString ();
+
+    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+    return (sourceNameSpace);
+}
+
 String IndicationService::_getFilterQueryLanguage (
     const CIMInstance & subscription,
     const String & nameSpaceName) const
@@ -2985,7 +3001,6 @@ Array <struct ProviderClassList>
         const Array <String> & indicationSubclasses,
         const CIMPropertyList & requiredPropertyList) const
 {
-    Array <String> requiredProperties;
     struct ProviderClassList provider;
     Array <struct ProviderClassList> indicationProviders;
     Array <CIMInstance> providerInstances;
@@ -2995,18 +3010,6 @@ Array <struct ProviderClassList>
     const char METHOD_NAME [] = "IndicationService::_getIndicationProviders";
 
     PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
-
-    //
-    //  If all properties are required, must pass empty array
-    //
-    if (requiredPropertyList.isNull ())
-    {
-        requiredProperties.clear ();
-    }
-    else
-    {
-        requiredProperties = requiredPropertyList.getPropertyNameArray ();
-    }
 
     //
     //  For each indication subclass, get providers
@@ -3021,7 +3024,7 @@ Array <struct ProviderClassList>
         if (_providerRegManager->getIndicationProviders
                 (nameSpace,
                  indicationSubclasses [i],
-                 requiredProperties,
+                 requiredPropertyList,
                  providerInstances,
                  providerModuleInstances))
         {
@@ -3129,6 +3132,10 @@ CIMPropertyList IndicationService::_getPropertyList
             }
         }
     }
+
+    //
+    //  ATTN: Check if list includes all properties?
+    //
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
     return (CIMPropertyList (propertyList));
@@ -3275,7 +3282,7 @@ void IndicationService::_deleteReferencingSubscriptions (
             //  Send disable requests
             //
             _sendDisableRequests (indicationProviders, nameSpace, 
-                subscriptions [i].getInstance ());
+                subscriptions [i]);
 
             //
             //  Delete referencing subscription instance from repository
@@ -3471,6 +3478,7 @@ void IndicationService::_getEnableParams (
     WQLSelectStatement selectStatement;
     String indicationClassName;
     Array <String> indicationSubclasses;
+    String sourceNameSpace;
     condition = String::EMPTY;
     queryLanguage = String::EMPTY;
     const char METHOD_NAME [] = "IndicationService::_getEnableParams";
@@ -3507,10 +3515,15 @@ void IndicationService::_getEnableParams (
     }
 
     //
+    //  Get filter source namespace
+    //
+    sourceNameSpace = _getSourceNameSpace (subscriptionInstance, nameSpaceName);
+
+    //
     //  Get indication provider class lists
     //
     indicationProviders = _getIndicationProviders 
-        (nameSpaceName, indicationClassName, indicationSubclasses, 
+        (sourceNameSpace, indicationClassName, indicationSubclasses, 
          propertyList);
 //cout << "Indication Providers to enable: " << indicationProviders.size () 
 //<< endl;
@@ -3540,6 +3553,7 @@ Array <struct ProviderClassList> IndicationService::_getDisableParams (
     const CIMInstance & subscriptionInstance)
 {
     String filterQuery;
+    String sourceNameSpace;
     WQLSelectStatement selectStatement;
     String indicationClassName;
     Array <String> indicationSubclasses;
@@ -3580,10 +3594,15 @@ Array <struct ProviderClassList> IndicationService::_getDisableParams (
     }
 
     //
+    //  Get filter source namespace
+    //
+    sourceNameSpace = _getSourceNameSpace (subscriptionInstance, nameSpaceName);
+
+    //
     //  Get indication provider class lists
     //
     indicationProviders = _getIndicationProviders 
-        (nameSpaceName, indicationClassName, indicationSubclasses, 
+        (sourceNameSpace, indicationClassName, indicationSubclasses, 
          propertyList);
 //cout << "Indication Providers to disable: " << indicationProviders.size () 
 //<< endl;
@@ -3598,52 +3617,21 @@ void IndicationService::_sendEnableRequests
      const CIMPropertyList & propertyList,
      const String & condition,
      const String & queryLanguage,
-     const CIMInstance & subscription)
+     const CIMNamedInstance & subscription)
 {
     CIMValue propValue;
     Uint16 repeatNotificationPolicy;
-    String otherRepeatNotificationPolicy;
-    CIMDateTime repeatNotificationInterval;
-    CIMDateTime repeatNotificationGap;
-    Uint16 repeatNotificationCount;
     const char METHOD_NAME [] = "IndicationService::_sendEnableRequests";
 
     PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
 
     //
-    //  Get thresholding parameter values from subscription instance
+    //  Get repeat notification policy value from subscription instance
     //
-
-    propValue = subscription.getProperty (subscription.findProperty 
+    propValue = subscription.getInstance ().getProperty 
+        (subscription.getInstance ().findProperty 
         (_PROPERTY_REPEATNOTIFICATIONPOLICY)).getValue ();
     propValue.get (repeatNotificationPolicy);
-    if ((repeatNotificationPolicy != _POLICY_UNKNOWN) &&
-        (repeatNotificationPolicy != _POLICY_NONE))
-    {
-        propValue = subscription.getProperty (subscription.findProperty 
-            (_PROPERTY_REPEATNOTIFICATIONINTERVAL)).getValue ();
-        propValue.get (repeatNotificationInterval);
-        propValue = subscription.getProperty (subscription.findProperty 
-            (_PROPERTY_REPEATNOTIFICATIONGAP)).getValue ();
-        propValue.get (repeatNotificationGap);
-        propValue = subscription.getProperty (subscription.findProperty 
-            (_PROPERTY_REPEATNOTIFICATIONCOUNT)).getValue ();
-        propValue.get (repeatNotificationCount);
-
-        //
-        //  ATTN: Threshold parameter values must go into Operation Context
-        //
-    }
-    if (repeatNotificationPolicy == _POLICY_OTHER)
-    {
-        propValue = subscription.getProperty (subscription.findProperty 
-            (_PROPERTY_OTHERREPEATNOTIFICATIONPOLICY)).getValue ();
-        propValue.get (otherRepeatNotificationPolicy);
-
-        //
-        //  ATTN: Threshold parameter values must go into Operation Context
-        //
-    }
 
     //
     //  Send enable request to each provider
@@ -3659,10 +3647,6 @@ void IndicationService::_sendEnableRequests
                 indicationProviders [i].providerModule,
                 propertyList,
                 repeatNotificationPolicy,
-                otherRepeatNotificationPolicy,
-                repeatNotificationInterval,
-                repeatNotificationGap,
-                repeatNotificationCount,
                 condition,
                 queryLanguage,
                 subscription,
@@ -3714,51 +3698,21 @@ void IndicationService::_sendModifyRequests
      const CIMPropertyList & propertyList,
      const String & condition,
      const String & queryLanguage,
-     const CIMInstance & subscription)
+     const CIMNamedInstance & subscription)
 {
     CIMValue propValue;
     Uint16 repeatNotificationPolicy;
-    String otherRepeatNotificationPolicy;
-    CIMDateTime repeatNotificationInterval;
-    CIMDateTime repeatNotificationGap;
-    Uint16 repeatNotificationCount;
     const char METHOD_NAME [] = "IndicationService::_sendModifyRequests";
 
     PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
 
     //
-    //  Get thresholding parameter values from subscription instance
+    //  Get repeat notification policy value from subscription instance
     //
-    propValue = subscription.getProperty (subscription.findProperty
+    propValue = subscription.getInstance ().getProperty 
+        (subscription.getInstance ().findProperty
         (_PROPERTY_REPEATNOTIFICATIONPOLICY)).getValue ();
     propValue.get (repeatNotificationPolicy);
-    if ((repeatNotificationPolicy != _POLICY_UNKNOWN) &&
-        (repeatNotificationPolicy != _POLICY_NONE))
-    {
-        propValue = subscription.getProperty (subscription.findProperty
-            (_PROPERTY_REPEATNOTIFICATIONINTERVAL)).getValue ();
-        propValue.get (repeatNotificationInterval);
-        propValue = subscription.getProperty (subscription.findProperty
-            (_PROPERTY_REPEATNOTIFICATIONGAP)).getValue ();
-        propValue.get (repeatNotificationGap);
-        propValue = subscription.getProperty (subscription.findProperty
-            (_PROPERTY_REPEATNOTIFICATIONCOUNT)).getValue ();
-        propValue.get (repeatNotificationCount);
-
-        //
-        //  ATTN: Threshold parameter values must go into Operation Context
-        //
-    }
-    if (repeatNotificationPolicy == _POLICY_OTHER)
-    {
-        propValue = subscription.getProperty (subscription.findProperty
-            (_PROPERTY_OTHERREPEATNOTIFICATIONPOLICY)).getValue ();
-        propValue.get (otherRepeatNotificationPolicy);
-
-        //
-        //  ATTN: Threshold parameter values must go into Operation Context
-        //
-    }
 
     //
     //  Send modify request to each provider
@@ -3774,10 +3728,6 @@ void IndicationService::_sendModifyRequests
                 indicationProviders [i].providerModule,
                 propertyList,
                 repeatNotificationPolicy,
-                otherRepeatNotificationPolicy,
-                repeatNotificationInterval,
-                repeatNotificationGap,
-                repeatNotificationCount,
                 condition,
                 queryLanguage,
                 subscription,
@@ -3817,7 +3767,7 @@ void IndicationService::_sendModifyRequests
 void IndicationService::_sendDisableRequests
     (const Array <struct ProviderClassList> & indicationProviders,
      const String & nameSpace,
-     const CIMInstance & subscription)
+     const CIMNamedInstance & subscription)
 {
     const char METHOD_NAME [] = "IndicationService::_sendDisableRequests";
 

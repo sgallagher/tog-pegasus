@@ -5,7 +5,7 @@
       <IMETHODCALL NAME="EnumerateInstanceNames">
         <LOCALNAMESPACEPATH>
           <NAMESPACE NAME="root"/>
-          <NAMESPACE NAME="cimv2"/>
+          <NAMESPACE NAME="PG_InterOp"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="ClassName">
           <CLASSNAME NAME="PG_IndicationSubscription"/>

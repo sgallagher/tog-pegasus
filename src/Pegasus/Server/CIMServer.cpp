@@ -112,7 +112,8 @@ CIMServer::CIMServer(
                                             _providerRegistrationManager,
                                             this);
 
-    _indicationService = new IndicationService(_repository, this);
+    _indicationService = new IndicationService
+        (_repository, _providerRegistrationManager);
 
     _cimOperationResponseEncoder
 	= new CIMOperationResponseEncoder;

@@ -73,6 +73,22 @@ String System::getHostName()
   else return String();                           
 } 
 
+String System::getFullyQualifiedHostName ()
+{
+    //
+    //  ATTN: Implement this method to return the fully qualified host name
+    //
+    return String::EMPTY;
+}
+
+String System::getSystemCreationClassName ()
+{
+    //
+    //  ATTN: Implement this method to return the system creation class name
+    //
+    return String::EMPTY;
+}
+
 Uint32 System::lookupPort(
     const char * serviceName,
     Uint32 defaultPort)

@@ -56,7 +56,7 @@ WQL1
 </PROPERTY>
 <PROPERTY NAME="SourceNamespace" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
 <VALUE>
-root/cimv2
+root/PG_InterOp
 </VALUE>
 </PROPERTY>
 </INSTANCE>

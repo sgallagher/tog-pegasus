@@ -14,6 +14,7 @@ LIBRARIES = \
     pegcommon \
     pegprovider \
     pegrepository \
+    pegprm \
     pegwql
 
 SOURCES = \

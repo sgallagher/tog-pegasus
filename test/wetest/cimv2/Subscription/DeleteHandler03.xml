@@ -5,7 +5,7 @@
       <IMETHODCALL NAME="DeleteInstance">
         <LOCALNAMESPACEPATH>
           <NAMESPACE NAME="root"/>
-          <NAMESPACE NAME="cimv2"/>
+          <NAMESPACE NAME="PG_InterOp"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="InstanceName">
           <INSTANCENAME CLASSNAME="PG_IndicationHandlerSNMPMapper">

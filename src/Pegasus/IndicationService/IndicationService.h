@@ -38,7 +38,6 @@
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Repository/CIMRepository.h>
-#include <Pegasus/Server/CIMServer.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/WQL/WQLParser.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
@@ -76,7 +75,7 @@ public:
      */
     IndicationService (
         CIMRepository * repository,
-        CIMServer * server);
+        ProviderRegistrationManager * providerRegManager);
 
     virtual ~IndicationService(void);
 
@@ -267,6 +266,19 @@ private:
         @return  String containing the filter query
      */
     String _getFilterQuery (
+        const CIMInstance & subscription,
+        const String & nameSpaceName) const;
+
+    /**
+        Retrieves the string value of the filter source namespace property
+        for the specified subscription instance.
+
+        @param   subscription      the subscription instance
+        @param   nameSpaceName     the namespace name
+
+        @return  String containing the filter source namespace
+     */
+    String _getSourceNameSpace (
         const CIMInstance & subscription,
         const String & nameSpaceName) const;
 
@@ -479,7 +491,7 @@ private:
         const CIMPropertyList & propertyList,
         const String & condition,
         const String & queryLanguage,
-        const CIMInstance & subscription);
+        const CIMNamedInstance & subscription);
 
     /**
         Sends modify subscription request for the specified subscription
@@ -500,7 +512,7 @@ private:
         const CIMPropertyList & propertyList,
         const String & condition,
         const String & queryLanguage,
-        const CIMInstance & subscription);
+        const CIMNamedInstance & subscription);
 
     /**
         Sends disable subscription request for the specified subscription
@@ -513,7 +525,7 @@ private:
     void _sendDisableRequests (
         const Array <struct ProviderClassList> & indicationProviders,
         const String & nameSpace,
-        const CIMInstance & subscription);
+        const CIMNamedInstance & subscription);
 
     /**
         Creates an alert instance of the specified class.
@@ -545,7 +557,10 @@ private:
 
     CIMRepository * _repository;
 
-    CIMServer * _server;
+    /**
+        Handle to Provider Registration Manager
+     */
+    ProviderRegistrationManager * _providerRegManager;
 
     /**
         Integer representing queue ID for accessing Provider Manager Service
@@ -561,11 +576,6 @@ private:
         Integer representing queue ID for accessing Repository Service
      */
     //Uint32 _repository;
-
-    /**
-        Handle to Provider Registration Manager
-     */
-    ProviderRegistrationManager * _providerRegManager;
 
     /**
         Values for the Subscription State property of the Subscription class,

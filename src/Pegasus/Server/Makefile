@@ -3,8 +3,7 @@ ROOT = ../../..
 DIR = Pegasus/Server
 
 OBJECT_DIRS = \
-	ConfigurationManager \
-	../IndicationService
+	ConfigurationManager
 
 include $(ROOT)/mak/config.mak
 
@@ -24,6 +23,7 @@ LIBRARIES = \
     peguser \
     peglocalauth \
     peghandlerservice \
+    pegindicationservice \
     pegwql \
     pegprm
 
@@ -40,8 +40,7 @@ SOURCES = \
     CIMServerState.cpp \
     ServiceCIMOMHandle.cpp \
     ConfigurationManager/ConfigurationManagerQueue.cpp \
-    ConfigurationManager/PG_RegistrationProvider.cpp \
-    ../IndicationService/IndicationService.cpp
+    ConfigurationManager/PG_RegistrationProvider.cpp 
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

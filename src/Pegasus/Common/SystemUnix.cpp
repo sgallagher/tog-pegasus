@@ -267,6 +267,46 @@ String System::getHostName()
     return hostname;
 }
 
+String System::getFullyQualifiedHostName ()
+{
+#ifdef PEGASUS_OS_HPUX
+    char hostName [MAXHOSTNAMELEN];
+    struct hostent *he;
+    String fqName;
+
+    if (gethostname (hostName, MAXHOSTNAMELEN) != 0)
+    {
+        return String::EMPTY;
+    }
+
+    if (he = gethostbyname (hostName))
+    {
+       strcpy (hostName, he->h_name);
+    }
+
+    fqName.assign (hostName);
+
+    return fqName;
+#else
+    //
+    //  ATTN: Implement this method to return the fully qualified host name
+    //
+    return String::EMPTY;
+#endif
+}
+
+String System::getSystemCreationClassName ()
+{
+#ifdef PEGASUS_OS_HPUX
+    return "CIM_ComputerSystem";
+#else
+    //
+    //  ATTN: Implement this method to return the system creation class name
+    //
+    return String::EMPTY;
+#endif
+}
+
 Uint32 System::lookupPort(
     const char * serviceName, 
     Uint32 defaultPort)

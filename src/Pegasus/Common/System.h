@@ -118,6 +118,8 @@ public:
 	const char* symbolName);
 
     static String getHostName();
+    static String getFullyQualifiedHostName ();
+    static String getSystemCreationClassName ();
 
     static Uint32 lookupPort(
         const char * serviceName,

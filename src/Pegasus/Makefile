@@ -4,6 +4,7 @@ include $(ROOT)/mak/config.mak
 
 
 DIRS = \
+    suballoc \
     Common \
     Config \
     Repository \

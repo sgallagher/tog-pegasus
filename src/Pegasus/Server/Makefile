@@ -6,11 +6,12 @@ include $(ROOT)/mak/config.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY
+LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY -DPEGASUS_DEBUG_MEMORY
 
 LIBRARY = pegserver
 
 LIBRARIES = \
+    suballoc \
     pegcommon \
     pegrepository \
     pegprovider \

@@ -42,7 +42,10 @@ class ExceptionRep
 {
 public:
     String message;
-    ContentLanguages contentLanguages;  // l10n
+// l10n
+    String cimMessage;  // Contains the message for the CIM error code
+// l10n
+    ContentLanguages contentLanguages;  
 };
 
 PEGASUS_NAMESPACE_END

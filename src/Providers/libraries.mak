@@ -3,4 +3,5 @@ LIBRARIES = \
     pegconfig \
     pegrepository \
     pegserver \
-    pegprovider
+    pegprovider \
+    pegprovidermanager

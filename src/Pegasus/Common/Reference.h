@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Reference.h,v $
+// Revision 1.7  2001/01/29 02:23:44  mike
+// Added support for GetInstance operation
+//
 // Revision 1.6  2001/01/28 19:07:07  karl
 // add DOC++ comments
 //
@@ -84,13 +87,16 @@ public:
     { 
 	return _name; 
     }
+
     /** method setName
-    ATTN:
+	ATTN:
     */
+
     void setName(const String& name) 
     { 
 	_name = name; 
     }
+
     /// method getValue - ATTN:
     const String& getValue() const 
     { 

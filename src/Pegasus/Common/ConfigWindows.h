@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: ConfigWindows.h,v $
+// Revision 1.3  2001/01/29 02:23:44  mike
+// Added support for GetInstance operation
+//
 // Revision 1.2  2001/01/20 22:44:44  karl
 // retrofit for provider interfaces
 //
@@ -61,40 +64,44 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define PEGASUS_EXPORT __declspec(dllexport)
+
+#define PEGASUS_IMPORT __declspec(dllimport)
+
 #ifdef PEGASUS_COMMON_INTERNAL
-# define PEGASUS_COMMON_LINKAGE __declspec(dllexport)
+# define PEGASUS_COMMON_LINKAGE PEGASUS_EXPORT
 #else
-# define PEGASUS_COMMON_LINKAGE __declspec(dllimport)
+# define PEGASUS_COMMON_LINKAGE PEGASUS_IMPORT
 #endif
 
 #ifdef PEGASUS_REPOSITORY_INTERNAL
-# define PEGASUS_REPOSITORY_LINKAGE __declspec(dllexport)
+# define PEGASUS_REPOSITORY_LINKAGE PEGASUS_EXPORT
 #else
-# define PEGASUS_REPOSITORY_LINKAGE __declspec(dllimport)
+# define PEGASUS_REPOSITORY_LINKAGE PEGASUS_IMPORT
 #endif
 
 #ifdef PEGASUS_PROTOCOL_INTERNAL
-# define PEGASUS_PROTOCOL_LINKAGE __declspec(dllexport)
+# define PEGASUS_PROTOCOL_LINKAGE PEGASUS_EXPORT
 #else
-# define PEGASUS_PROTOCOL_LINKAGE __declspec(dllimport)
+# define PEGASUS_PROTOCOL_LINKAGE PEGASUS_IMPORT
 #endif
 
 #ifdef PEGASUS_CLIENT_INTERNAL
-# define PEGASUS_CLIENT_LINKAGE __declspec(dllexport)
+# define PEGASUS_CLIENT_LINKAGE PEGASUS_EXPORT
 #else
-# define PEGASUS_CLIENT_LINKAGE __declspec(dllimport)
+# define PEGASUS_CLIENT_LINKAGE PEGASUS_IMPORT
 #endif
 
 #ifdef PEGASUS_SERVER_INTERNAL
-# define PEGASUS_SERVER_LINKAGE __declspec(dllexport)
+# define PEGASUS_SERVER_LINKAGE PEGASUS_EXPORT
 #else
-# define PEGASUS_SERVER_LINKAGE __declspec(dllimport)
+# define PEGASUS_SERVER_LINKAGE PEGASUS_IMPORT
 #endif
 
 #ifdef PEGASUS_PROVIDER_INTERNAL
-# define PEGASUS_PROVIDER_LINKAGE __declspec(dllexport)
+# define PEGASUS_PROVIDER_LINKAGE PEGASUS_EXPORT
 #else
-# define PEGASUS_PROVIDER_LINKAGE __declspec(dllimport)
+# define PEGASUS_PROVIDER_LINKAGE PEGASUS_IMPORT
 #endif
 
 #define for if (0) ; else for

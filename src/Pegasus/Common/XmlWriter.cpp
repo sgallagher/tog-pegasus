@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: XmlWriter.cpp,v $
-// Revision 1.1  2001/01/14 19:53:36  mike
-// Initial revision
+// Revision 1.2  2001/01/29 02:23:44  mike
+// Added support for GetInstance operation
+//
+// Revision 1.1.1.1  2001/01/14 19:53:36  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -480,6 +483,22 @@ Array<Sint8>& XmlWriter::appendClassParameter(
 {
     Array<Sint8> tmp;
     classDecl.toXml(tmp);
+    return formatIParamValueElement(out, parameterName, tmp);
+}
+
+//------------------------------------------------------------------------------
+//
+// appendInstanceNameParameter()
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8>& XmlWriter::appendInstanceNameParameter(
+    Array<Sint8>& out,
+    const char* parameterName,
+    const Reference& instanceName)
+{
+    Array<Sint8> tmp;
+    instanceName.instanceNameToXml(tmp);
     return formatIParamValueElement(out, parameterName, tmp);
 }
 

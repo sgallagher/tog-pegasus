@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Exception.cpp,v $
+// Revision 1.5  2001/01/29 02:23:44  mike
+// Added support for GetInstance operation
+//
 // Revision 1.4  2001/01/28 04:11:03  mike
 // fixed qualifier resolution
 //
@@ -161,6 +164,11 @@ const char IncompatibleTypes::MSG[] = "incompatible types";
 const char BadlyFormedCGIQueryString::MSG[] = "badly formed CGI query string";
 
 const char BadInstanceName::MSG[] = "bad instance name: ";
+
+const char DynamicLoadFailed::MSG[] = "load of dynamic library failed: ";
+
+const char DynamicLookupFailed::MSG[] = 
+    "lookup of symbol in dynamic library failed: ";
 
 ////////////////////////////////////////////////////////////////////////////////
 //

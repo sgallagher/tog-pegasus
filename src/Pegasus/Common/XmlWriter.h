@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: XmlWriter.h,v $
-// Revision 1.1  2001/01/14 19:53:36  mike
-// Initial revision
+// Revision 1.2  2001/01/29 02:23:44  mike
+// Added support for GetInstance operation
+//
+// Revision 1.1.1.1  2001/01/14 19:53:36  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -44,6 +47,7 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Indentor.h>
+#include <Pegasus/Common/Reference.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -148,6 +152,11 @@ public:
 	Array<Sint8>& out,
 	const char* parameterName,
 	const ConstClassDecl& classDecl);
+
+    static Array<Sint8>& appendInstanceNameParameter(
+	Array<Sint8>& out,
+	const char* parameterName,
+	const Reference& instanceName);
 
     static Array<Sint8>& appendQualifierDeclarationParameter(
 	Array<Sint8>& out,

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Exception.h,v $
+// Revision 1.5  2001/01/29 02:23:44  mike
+// Added support for GetInstance operation
+//
 // Revision 1.4  2001/01/28 04:11:03  mike
 // fixed qualifier resolution
 //
@@ -564,6 +567,26 @@ public:
 
     BadInstanceName(const String& instanceName) 
 	: Exception(MSG + instanceName) { }
+};
+
+class PEGASUS_COMMON_LINKAGE DynamicLoadFailed : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    DynamicLoadFailed(const String& libraryName) 
+	: Exception(MSG + libraryName) { }
+};
+
+class PEGASUS_COMMON_LINKAGE DynamicLookupFailed : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    DynamicLookupFailed(const String& symbolName) 
+	: Exception(MSG + symbolName) { }
 };
 
 PEGASUS_NAMESPACE_END

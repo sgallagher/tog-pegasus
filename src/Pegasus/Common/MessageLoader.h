@@ -263,6 +263,8 @@ private:
 
 	static void initPegasusMsgHome();
 	
+	static void checkDefaultMsgLoading();
+	
 	static String pegasus_MSG_HOME;
 	
 	#ifdef PEGASUS_HAS_ICU

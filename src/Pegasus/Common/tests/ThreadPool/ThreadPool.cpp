@@ -48,6 +48,63 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
+
+AtomicInt _canceled( 0 );
+AtomicInt _completed;
+
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL thread_routine( void* param )
+{
+	while( _canceled.value() == 0 )
+	{
+	   pegasus_sleep(1);
+	   
+	}
+	return 0;
+}
+
+static struct timeval create_time = {0, 1};
+static struct timeval destroy_time = {0, 0};
+static struct timeval deadlock_time = {0, 0};
+
+void TestThreadPool()
+{
+	_canceled = 0;
+
+	ThreadPool* pool = new ThreadPool(
+		0, "Tester", 0, 1, 
+		create_time, destroy_time, deadlock_time );
+
+	pool->allocate_and_awaken( 0, thread_routine );
+
+	_canceled = 1;
+
+	// This would give the thread time to exit and so 
+	// you wouldn't see the bugs.
+	//pegasus_sleep( 100 );
+
+	delete pool;
+	_completed = 1;
+	
+}
+
+int _testnum = 0;
+
+
+void TestThreadPool2()
+{
+   int done = 0;
+	while( done < 10000 )
+	{
+		printf( "Steve Hills ThreadPool crash test, iteration:  %d\n", ++done );
+		TestThreadPool();
+		
+	}
+}
+
+
+
+
 AtomicInt function_count;
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func_blocking(void *parm)
@@ -93,13 +150,16 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func(void *parm)
 int main(int argc, char **argv) 
 { 
    
+   TestThreadPool2();
+   PEGASUS_STD(cout) << "Steve Hills test finished, executing normal ThreadPool test" << PEGASUS_STD(endl);
+   
 #if defined(PEGASUS_DEBUG)
    Tracer::setTraceComponents("All");
    Tracer::setTraceLevel(Tracer::LEVEL4);
    Tracer::setTraceFile("thread_pool_trace.txt");
 #endif
    struct timeval await = { 0, 40000 };
-   struct timeval dwait = { 1, 0 };
+   struct timeval dwait = { 5, 0 };
    struct timeval deadwait = { 0, 80000 }; 
 
    ThreadPool tp(0, "test pool ",  0, 6, await, dwait, deadwait);   
@@ -199,6 +259,11 @@ int main(int argc, char **argv)
       tp.kill_dead_threads();
       pegasus_sleep(1);
    }
+
+
+   
+   while(_completed.value() == 0 )
+      pegasus_sleep(100);
    
 
    cout << argv[0] << " +++++ passed all tests" << endl;

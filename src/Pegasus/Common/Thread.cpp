@@ -64,7 +64,7 @@ void language_delete(void * data)
 
 Boolean Thread::_signals_blocked = false;
 // l10n
-PEGASUS_THREAD_KEY_TYPE Thread::_platform_thread_key = -1;
+PEGASUS_THREAD_KEY_TYPE Thread::_platform_thread_key;
 Boolean Thread::_key_initialized = false;
 Boolean Thread::_key_error = false;
 
@@ -308,10 +308,15 @@ ThreadPool::ThreadPool(Sint16 initial_size,
 
 ThreadPool::~ThreadPool(void)
 {
+   
    try 
-   {
+   {      
+      {
+	 auto_mutex(&(this->_monitor));
+	 _dying++;
+      }
+      
       _pools.remove(this);
-      _dying++;
       Thread *th = 0;
       th = _pool.remove_first();
       while(th != 0)
@@ -324,7 +329,7 @@ ThreadPool::~ThreadPool(void)
 	    throw NullPointer();
 	 }
 	 
-	 sleep_sem->signal();
+
 	 sleep_sem->signal();
 	 th->dereference_tsd();
 	 // signal the thread's sleep semaphore
@@ -334,19 +339,22 @@ ThreadPool::~ThreadPool(void)
 	 delete th;
 	 th = _pool.remove_first();
       }
-      th = _running.remove_first();
-      while(th != 0)
-      {
-	 // signal the thread's sleep semaphore
-	 th->cancel();
-	 th->join();
-	 th->empty_tsd();
-	 delete th;
-	 th = _running.remove_first();
-      }
+
       th = _dead.remove_first();
       while(th != 0)
       {
+	 Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
+	 
+	 if(sleep_sem == 0)
+	 {
+	    th->dereference_tsd();
+	    throw NullPointer();
+	 }
+	 
+
+	 sleep_sem->signal();
+	 th->dereference_tsd();
+	 
 	 // signal the thread's sleep semaphore
 	 th->cancel();
 	 th->join();
@@ -354,10 +362,40 @@ ThreadPool::~ThreadPool(void)
 	 delete th;
 	 th = _dead.remove_first();
       }
+      {
+	 
+	 auto_mutex(&(this->_monitor));
+      th = _running.remove_first();
+      while(th != 0)
+      {	 
+	 // signal the thread's sleep semaphore
+	 Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
+	 if(sleep_sem == 0 )
+	 {
+	    th->dereference_tsd();
+	    throw NullPointer();
+	 }
+	 
+	 sleep_sem->signal();
+	 th->dereference_tsd();
+	 
+	 th->cancel();
+
+	 // ensure that th->run() has a chance to execute so that the join will not
+	 // block
+	 th->join();
+	 th->empty_tsd();
+	 delete th;
+	 th = _running.remove_first();
+      }
+      }
+      
    }
+
    catch(...)
    {
    }
+
 }
 
 // make this static to the class
@@ -383,27 +421,33 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       PEG_METHOD_EXIT();
       throw NullPointer();
    }
+
    Semaphore *sleep_sem = 0;
    Semaphore *blocking_sem = 0;
    
    struct timeval *deadlock_timer = 0;
-
+   int* in_loop;
+   
    try
    {
       sleep_sem = (Semaphore *)myself->reference_tsd("sleep sem");
       myself->dereference_tsd();
       deadlock_timer = (struct timeval *)myself->reference_tsd("deadlock timer");
       myself->dereference_tsd(); 
+      in_loop = (int*) myself->reference_tsd("in loop");
+      if(in_loop)
+	 *in_loop = 1;
+      myself->dereference_tsd();
    }
    catch(IPCException &)
    {
       PEG_METHOD_EXIT();
-      myself->exit_self(0);
+      return(0);
    }
    catch(...)
    {
       PEG_METHOD_EXIT();
-      myself->exit_self(0);
+      return(0);
    }
    
    if(sleep_sem == 0 || deadlock_timer == 0)
@@ -412,14 +456,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       throw NullPointer();
    }
 
-   while(pool->_dying < 1)
+   while(pool->_dying.value() < 1)
    {
       sleep_sem->wait();
         
       // when we awaken we reside on the running queue, not the pool queue
-      if(pool->_dying > 0)
-	 break;
 
+      
       PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *_work)(void *) = 0;
       void *parm = 0;
 
@@ -437,7 +480,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       catch(IPCException &)
       {
 	 PEG_METHOD_EXIT();
-	 myself->exit_self(0);
+	 return(0);
       }
 
       if(_work == 0)
@@ -455,27 +498,45 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       gettimeofday(deadlock_timer, NULL);
       try 
       {
+	 {
+	    auto_mutex(&(pool->_monitor));
+	    if(pool->_dying.value())
+	    {
+	       break;
+	    }
+	 }
 	 _work(parm);
       }
       catch(...)
       {
-	 gettimeofday(deadlock_timer, NULL);
+	 return((PEGASUS_THREAD_RETURN)0);
       }
       
-      gettimeofday(deadlock_timer, NULL);
-      if( blocking_sem != 0 )
-	 blocking_sem->signal();
+
       
       // put myself back onto the available list
       try
       {
-	 pool->_running.remove((void *)myself);
-	 pool->_link_pool(myself);
+	 auto_mutex(&(pool->_monitor));
+	 if(pool->_dying.value() == 0)
+	 {
+	    gettimeofday(deadlock_timer, NULL);
+	    if( blocking_sem != 0 )
+	       blocking_sem->signal();
+      
+	    pool->_running.remove((void *)myself);
+	    pool->_pool.insert_first(myself);
+	 }
+	 else
+	 {
+	    PEG_METHOD_EXIT();
+	    return((PEGASUS_THREAD_RETURN)0);
+	 }
       }
       catch(IPCException &)
       {
 	 PEG_METHOD_EXIT();
-	 myself->exit_self(0);
+	 return((PEGASUS_THREAD_RETURN)0);
       }
    }
    // wait to be awakend by the thread pool destructor
@@ -497,12 +558,28 @@ void ThreadPool::allocate_and_awaken(void *parm,
    PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::allocate_and_awaken");
    struct timeval start;
    gettimeofday(&start, NULL);
-
-   Thread *th = _pool.remove_first();
+   Thread *th = 0;
+   
+   try 
+   {
+      auto_mutex(&(this->_monitor));
+      if(_dying.value())
+      {
+	 return;
+      }
+      th = _pool.remove_first();
+   }
+   catch(...)
+   {
+      return;
+      
+   }
+   
    
    // wait for the right interval and try again
-   while (th == 0 && _dying < 1)
+   while (th == 0 && _dying.value() < 1)
    {
+      // will throw an IPCException& 
       _check_deadlock(&start) ;
       
       if(_max_threads == 0 || _current_threads < _max_threads)
@@ -511,11 +588,22 @@ void ThreadPool::allocate_and_awaken(void *parm,
 	 continue;
       }
       pegasus_yield();
-      th = _pool.remove_first();
+      try
+      {
+	 auto_mutex(&(this->_monitor));
+	 if(_dying.value())
+	 {
+	    return;
+	 }
+	 th = _pool.remove_first();
+      }
+      catch(...)
+      {
+	 return ;
+      }
    }
 
-
-   if(_dying < 1)
+   if(_dying.value() < 1)
    {
       // initialize the thread data with the work function and parameters
       Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
@@ -531,26 +619,48 @@ void ThreadPool::allocate_and_awaken(void *parm,
       th->delete_tsd("blocking sem");
       if(blocking != 0 )
 	 th->put_tsd("blocking sem", NULL, sizeof(Semaphore *), blocking);
-      
-      // put the thread on the running list
-      _running.insert_first(th);
-
-      // signal the thread's sleep semaphore to awaken it
-      Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
-
-      if(sleep_sem == 0)
+      try 
       {
+	 auto_mutex(&(this->_monitor));
+	 if(_dying.value())
+	 {
+	    th->cancel();
+	    th->join();
+	    delete th;
+	    return;
+	 }
+	 
+	 // put the thread on the running list
+
+
+	 _running.insert_first(th);
+      // signal the thread's sleep semaphore to awaken it
+	 Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
+	 
+	 if(sleep_sem == 0)
+	 {
+	    th->dereference_tsd();
+	    PEG_METHOD_EXIT();
+	    throw NullPointer();
+	 }
+	 Tracer::trace(TRC_THREAD, Tracer::LEVEL4, "Signal thread to awaken");
+	 sleep_sem->signal();
 	 th->dereference_tsd();
-         PEG_METHOD_EXIT();
-	 throw NullPointer();
       }
-      Tracer::trace(TRC_THREAD, Tracer::LEVEL4, "Signal thread to awaken");
-      sleep_sem->signal();
-      th->dereference_tsd();
+      catch(...)
+      {
+	 PEG_METHOD_EXIT();
+	 return;
+      }
+      
    }
    else
-      _pool.insert_first(th);
-
+   {
+      th->cancel();
+      th->join();
+      delete th;
+   }
+   
    PEG_METHOD_EXIT();
 }
 
@@ -566,16 +676,30 @@ Uint32 ThreadPool::kill_dead_threads(void)
    Uint32 bodies = 0;
    
    // first go thread the dead q and clean it up as much as possible
-   while(_dead.count() > 0)
+   try 
    {
-      Tracer::trace(TRC_THREAD, Tracer::LEVEL4, "ThreadPool:: removing and joining dead thread");
-      Thread *dead = _dead.remove_first();
-      if(dead == 0)
-	 throw NullPointer();
-      dead->join();
-      delete dead;
+      auto_mutex(&(this->_monitor));
+      if(_dying.value() )
+      {
+	 return 0;
+      }
+      
+      while(_dead.count() > 0 && _dying.value() == 0 )
+      {
+	 Tracer::trace(TRC_THREAD, Tracer::LEVEL4, "ThreadPool:: removing and joining dead thread");
+	 Thread *dead = _dead.remove_first();
+	 
+	 if(dead == 0)
+	    throw NullPointer();
+	 dead->join();
+	 delete dead;
+      }
    }
-
+   catch(...)
+   {
+   }
+   
+   
    DQueue<Thread> * map[2] =
       {
 	 &_pool, &_running
@@ -604,12 +728,18 @@ Uint32 ThreadPool::kill_dead_threads(void)
 #else
    for( ; i < 2; i++)
 #endif
-   { 
+   {
+      auto_mutex(&(this->_monitor)); 
       q = map[i];
       if(q->count() > 0 )
       {
 	 try
 	 {
+	    if(_dying.value())
+	    {
+	       return bodies;
+	    }
+	    
 	    q->try_lock();
 	 }
 	 catch(...)
@@ -713,13 +843,15 @@ Uint32 ThreadPool::kill_dead_threads(void)
 	    pegasus_sleep(1);
 	 }
 	 q->unlock();
-	 while (needed.value() > 0)
-	 {
-	    _link_pool(_init_thread());
-	    needed--;
-	    pegasus_sleep(0);
-	 }
       }
+   }
+   if(_dying.value() )
+      return bodies;
+   
+   while (needed.value() > 0)   {
+      _link_pool(_init_thread());
+      needed--;
+      pegasus_sleep(0);
    }
     return bodies; 
 }
@@ -798,6 +930,10 @@ PEGASUS_THREAD_RETURN ThreadPool::_undertaker( void *parm )
    th->put_tsd("deadlock timer", thread_data::default_delete, sizeof(struct timeval), (void *)dldt);
    // thread will enter _loop(void *) and sleep on sleep_sem until we signal it
   
+
+   // put a special object in the tsd that allows the ThreadPool destructor to 
+   // see if the thread has successfully entered ThreadPool:: _loop
+   
    th->run();
    _current_threads++;
    pegasus_yield();
@@ -809,7 +945,23 @@ PEGASUS_THREAD_RETURN ThreadPool::_undertaker( void *parm )
 {
    if(th == 0)
       throw NullPointer();
-   _pool.insert_first(th);
+   try 
+   {
+      
+      auto_mutex(&(this->_monitor));
+      if(_dying.value())
+      {
+	 th->cancel();
+	 th->join();
+	 delete th;
+      }
+      
+      _pool.insert_first(th);
+      
+   }
+   catch(...)
+   {
+   }
 }
 
 

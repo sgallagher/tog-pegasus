@@ -556,6 +556,8 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
       DQueue<Thread> _running;
       DQueue<Thread> _dead;
       AtomicInt _dying;
+      Mutex _monitor;
+      
       static void _sleep_sem_del(void *p);
       
       void _check_deadlock(struct timeval *start) throw(Deadlock);

@@ -589,7 +589,6 @@ void pegasus_acceptor::close_all_acceptors(void)
 {
    try 
    {
-      
       pegasus_acceptor* temp = acceptors.remove_first();
       while(temp)
       {

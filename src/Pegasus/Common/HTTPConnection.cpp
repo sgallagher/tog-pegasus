@@ -1025,10 +1025,9 @@ void HTTPConnection2::_handleReadEvent(monitor_2_entry* entry)
 	_contentLength != -1 && 
 	(Sint32(_incomingBuffer.size()) >= _contentLength + _contentOffset))
     {
-
-
 	if (bytesRead > 0)
         {
+	   delete entry;
 	   HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
 	   message->authInfo = _authInfo;
 	   
@@ -1060,6 +1059,8 @@ void HTTPConnection2::_handleReadEvent(monitor_2_entry* entry)
 	   
 	   _close_connection();
 	   entry->set_state(CLOSED);
+	   delete entry;
+	   
 	   }
 	}
     }
@@ -1105,7 +1106,6 @@ void HTTPConnection2::connection_dispatch(monitor_2_entry* entry)
   HTTPConnection2* myself = (HTTPConnection2*) entry->get_dispatch();
   myself->_socket = entry->get_sock();
   myself->_handleReadEvent(entry);
-  delete entry;
   
 }
 

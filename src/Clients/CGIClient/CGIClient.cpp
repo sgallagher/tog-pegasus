@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.5  2001/01/31 09:26:32  karl
+// Update CGIClient for instances
+//
 // Revision 1.4  2001/01/31 08:41:45  mike
 // updated makefile
 //
@@ -220,11 +223,15 @@ or instances.	 This prints an HTML table of the properties
 fields including name, type, value, ClassOrigin, and propagated.
 The name is wrapped in an href so a click will get detailed
 property information.
+@param nameSpace. Used to query for namespace value.  WHY???
+@parm object - Either the class or instance object address
+@param includeClassOrigin to be used to define tests on getting this field
 */
 template<class OBJECT>
 void PrintObjectProperties(
     const String& nameSpace,
-    OBJECT& object)
+    OBJECT& object,
+    Boolean includeClassOrigin)
 {
     PrintPropertiesTableHeader("Properties:");
     // Loop for each property
@@ -257,6 +264,7 @@ void PrintObjectProperties(
 	else
 	    cout << "<td>null</td>\n";
 	// Output the ClassOrigin
+	// ATTN: Make this optional
 	cout << "<td>" << property.getClassOrigin() << "</td>\n";
 	// Output the Propagated field
 	cout << "<td>" << (property.getPropagated() ? "true" : "false");
@@ -312,15 +320,32 @@ void PrintClassMethods(ClassDecl& classDecl)
 
     cout << "</table>\n";
 }
-
+/** PrintClass - Print an HTML page with the characteristics of
+the Class defined in the call including:
+<UL>
+    <LI>ClassName
+    <LI>Qualifiers
+    <LI>Properties
+    <LI>Methods
+<UL>
+@param String with nameSpace
+@param pointer to class
+@param localOnly
+@param includeQualifiers
+@param includClassOrigin
+*/
 void PrintClass(
     const String& nameSpace,
-    ClassDecl& classDecl)
+    ClassDecl& classDecl,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin)
 {
     PrintHTMLHead("GetClass", classDecl.getClassName());
     
-    PrintQualifiers(classDecl);
-    PrintObjectProperties(nameSpace, classDecl);
+    if (includeQualifiers)
+	PrintQualifiers(classDecl);
+    PrintObjectProperties(nameSpace, classDecl,includeClassOrigin);
     PrintClassMethods(classDecl);
 
     cout << "</body>\n";
@@ -338,15 +363,17 @@ level so they do not appear in the Instance page.
 */
 void PrintInstance(
 const String& nameSpace,
-    InstanceDecl& instanceDecl)
+    InstanceDecl& instanceDecl,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin)
 {
     PrintHTMLHead("GetInstance", instanceDecl.getClassName());
     PrintQualifiers(instanceDecl);
-    PrintObjectProperties(nameSpace, instanceDecl);
+    PrintObjectProperties(nameSpace, instanceDecl, localOnly);
 
     cout << "</body>\n";
     cout << "</html>\n";
-
 }
 
 void PrintPropertyDeclaration(Property& property)
@@ -378,11 +405,20 @@ static void GetClass(const CGIQueryString& qs)
     if (!className.getLength())
 	ErrorExit("ClassName parameter is null");
 
-    // ATTN: handle these later!
-
+    // Process Checkbox items that become call opptions
+    // Set the Defaults
     Boolean localOnly = true;
     Boolean includeQualifiers = true;
     Boolean includeClassOrigin = false;
+    // Process possible input fields
+    // Wierd because the form entry only sends info if
+    // 
+    if (!(tmp = qs.findValue("LocalOnly")))
+	localOnly = false;
+    if (!(tmp = qs.findValue("IncludeQualifiers")))
+	includeQualifiers = false;
+    if (tmp = qs.findValue("IncludeClassOrigin"))
+	includeClassOrigin = true;
 
     try
     {
@@ -390,11 +426,10 @@ static void GetClass(const CGIQueryString& qs)
 	client.connect("localhost", 8888);
 
 	ClassDecl classDecl = client.getClass(nameSpace, className,
-	    localOnly, includeClassOrigin, includeClassOrigin);
+	    localOnly, includeQualifiers, includeClassOrigin);
 
-	PrintClass(nameSpace, classDecl);
-    }
-    catch(Exception& e)
+	PrintClass(nameSpace, classDecl,localOnly, includeQualifiers, 
+	    includeClassOrigin); } catch(Exception& e)
     {
 	ErrorExit(e.getMessage());
     }
@@ -871,8 +906,8 @@ static void GetInstance(const CGIQueryString& qs)
 	InstanceDecl instanceDecl = client.getInstance(nameSpace, 
 	    referenceName, localOnly, includeClassOrigin, includeClassOrigin);
 
-	PrintInstance(nameSpace, instanceDecl);
-    }
+	PrintInstance(nameSpace, instanceDecl, localOnly, includeQualifiers, 
+		includeClassOrigin); }
     catch(Exception& e)
     {
 	ErrorExit(e.getMessage());

@@ -662,6 +662,7 @@ monitor_2::monitor_2(void)
     PEGASUS_SOCKLEN_SIZE peer_size = sizeof(peer);
 
     pegasus_socket accepted = temp.accept((struct sockaddr*)&peer, &peer_size);
+    
     monitor_2_entry* _tickle = new monitor_2_entry(accepted, INTERNAL, 0, 0);
     _tickle->set_state(BUSY);
     
@@ -689,9 +690,7 @@ void monitor_2::run(void)
   monitor_2_entry* temp;
   while(_die.value() == 0) {
      
-     struct timeval tv_idle = {60, 0};
-     struct timeval tv_busy = { 0, 100 };
-     
+     struct timeval tv_idle = { 60, 0 };
      
     // place all sockets in the select set 
     FD_ZERO(&rd_fd_set);
@@ -699,7 +698,7 @@ void monitor_2::run(void)
       _listeners.lock(pegasus_thread_self());
       temp = _listeners.next(0);
       while(temp != 0 ){
-	if(temp->get_state() == CLOSED ){
+	if(temp->get_state() == CLOSED ) {
 	  monitor_2_entry* closed = temp;
 	  temp = _listeners.next(closed);
 	  _listeners.remove_no_lock(closed);
@@ -723,9 +722,15 @@ void monitor_2::run(void)
     // entries that are readable. These entries can be changed but 
     // the pointer must not be tampered with. 
     if(_connections.count() )
-       int events = select(FD_SETSIZE, &rd_fd_set, NULL, NULL, &tv_busy);
+       int events = select(FD_SETSIZE, &rd_fd_set, NULL, NULL, NULL);
     else
        int events = select(FD_SETSIZE, &rd_fd_set, NULL, NULL, &tv_idle);
+    
+    if(_die.value())
+    {
+       break;
+    }
+    
     try {
       _listeners.lock(pegasus_thread_self());
       temp = _listeners.next(0);
@@ -761,6 +766,7 @@ void monitor_2::run(void)
 	  _idle_dispatch(_idle_parm);
     }
   } // while alive 
+
 }
 
 void* monitor_2::set_session_dispatch(void (*dp)(monitor_2_entry*))
@@ -862,7 +868,6 @@ void monitor_2::stop(void)
 {
   _die = 1;
   tickle();
-  
   // shut down the listener list, free the list nodes
   _tickler.get_sock().close();
   _listeners.shutdown_queue();
@@ -875,7 +880,11 @@ void monitor_2::tickle(void)
       '0','0'
     };
   
+  _tickler.get_sock().disableBlocking();
+  
   _tickler.get_sock().write(&_buffer, 2);
+  _tickler.get_sock().enableBlocking();
+  
 }
 
 

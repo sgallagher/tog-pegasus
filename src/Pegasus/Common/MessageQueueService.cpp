@@ -80,18 +80,19 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL  MessageQueueService::kill_idle_threa
 }
 
 
-void MessageQueueService::force_shutdown(void)
+void MessageQueueService::force_shutdown(Boolean destroy_flag)
 {
 
 #ifdef MESSAGEQUEUESERVICE_DEBUG
 	//l10n
-   //PEGASUS_STD(cout) << "Forcing shutdown of CIMOM Message Router" << PEGASUS_STD(endl);
    MessageLoaderParms parms("Common.MessageQueueService.FORCING_SHUTDOWN",
 			    "Forcing shutdown of CIMOM Message Router");
    PEGASUS_STD(cout) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
 #endif
+   PEGASUS_STD(cout) << "MessageQueueService::force_shutdown()" << PEGASUS_STD(endl);
+   
 
-   //MessageQueueService::_stop_polling = 1;
+
    MessageQueueService *svc;
    int counter = 0;   
    _polling_list.lock();
@@ -101,7 +102,6 @@ void MessageQueueService::force_shutdown(void)
    {
 #ifdef MESSAGEQUEUESERVICE_DEBUG
    		//l10n - reuse same MessageLoaderParms to avoid multiple creates
-      	//PEGASUS_STD(cout) << "Stopping " << svc->getQueueName() << PEGASUS_STD(endl);
       	parms.msg_id = "Common.MessageQueueService.STOPPING_SERVICE";
    	  	parms.default_msg = "Stopping $0"; 
    	  	parms.arg0 = svc->getQueueName();
@@ -118,19 +118,23 @@ void MessageQueueService::force_shutdown(void)
 
    _polling_sem.signal();
 
-  while ( counter != 0) {
-	Thread::sleep(100);
-	_polling_list.lock();
-	svc = _polling_list.next(0);
-	while (svc != 0 ) {
-		if (svc ->_incoming_queue_shutdown.value() == 1 ) {
-			counter--;
-		}
-		svc  = _polling_list.next(svc);
-	}
-	_polling_list.unlock();
-   }
+   PEGASUS_STD(cout) << "Force shutdown found " << counter << " services" << PEGASUS_STD(endl);
+   
    MessageQueueService::_stop_polling = 1;
+   
+   if(destroy_flag == true) 
+   {
+
+      svc = _polling_list.remove_last();
+      while(svc)
+      {
+	 PEGASUS_STD(cout) << "preparing to delete " << svc->getQueueName() << PEGASUS_STD(endl);
+	 
+	 delete svc;
+	 svc = _polling_list.remove_last();
+      }
+      
+   }
 }
 
 
@@ -240,26 +244,18 @@ MessageQueueService::MessageQueueService(const char *name,
 MessageQueueService::~MessageQueueService(void)
 {
    _die = 1;
-   // IBM-KR: This causes a new message (IO_CLOSE) to be spawned, which 
-   // doesn't get picked up anyone. The idea was that the message would be
-   // picked up handle_AsyncIoctl which closes the queue and does cleaning.
-   // That described behavior has never surfaced itself. If it does appear, 
-   // uncomment the if ( ..) { } block below.
 
-   // Note: The handle_AsyncIcotl does get called when force_shutdown(void) gets
-   // called during Pegasus shutdown procedure (in case you ever wondered).
- 
-   //if (_incoming_queue_shutdown.value() == 0 )
-   //{
-   //   _shutdown_incoming_queue();
-   //}
+   if (_incoming_queue_shutdown.value() == 0 )
+   {
+      _shutdown_incoming_queue();
+   }
    _callback_ready.signal();
-//   _callback_thread.join();
    
    _meta_dispatcher_mutex.lock(pegasus_thread_self());
    _service_count--;
    if (_service_count.value() == 0 )
    {
+
       _stop_polling++;
       _polling_sem.signal();
       _polling_thread->join();
@@ -268,6 +264,7 @@ MessageQueueService::~MessageQueueService(void)
       _meta_dispatcher->_shutdown_routed_queue();
       delete _meta_dispatcher;
       _meta_dispatcher = 0;
+
       delete _thread_pool;
       _thread_pool = 0;
    }
@@ -282,6 +279,7 @@ MessageQueueService::~MessageQueueService(void)
 
 void MessageQueueService::_shutdown_incoming_queue(void)
 {
+   
    
    if (_incoming_queue_shutdown.value() > 0 )
       return ;
@@ -304,8 +302,6 @@ void MessageQueueService::_shutdown_incoming_queue(void)
    msg->op->_request.insert_first(msg);
    
    _incoming.insert_last_wait(msg->op);
-
-//   _req_thread.join();
 
 }
 
@@ -507,12 +503,6 @@ void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation)
       else 
       {
 	 PEGASUS_ASSERT(rq != 0 );
-	 // ATTN: optimization
-	 // << Wed Mar  6 15:00:39 2002 mdd >>
-	 // put thread and queue into the asyncopnode structure. 
-         //  (static_cast<AsyncMessage *>(rq))->_myself = operation->_thread_ptr;
-         //   (static_cast<AsyncMessage *>(rq))->_service = operation->_service_ptr;
-	 // done << Tue Mar 12 14:49:07 2002 mdd >>
 	 operation->unlock();
 	 _handle_async_request(static_cast<AsyncRequest *>(rq));
       }
@@ -652,17 +642,6 @@ Boolean MessageQueueService::accept_async(AsyncOpNode *op)
       _polling_sem.signal();
       return true;
    }
-//    else
-//    {
-//       if(  (rq != 0 && (true == MessageQueueService::messageOK(rq))) || 
-// 	   (rp != 0 && ( true == MessageQueueService::messageOK(rp) )) &&  
-// 	   _die.value() == 0)
-//       {
-// 	 MessageQueueService::_incoming.insert_last_wait(op);
-// 	 return true;
-//       }
-//    }
-   
    return false;
 }
 
@@ -672,23 +651,6 @@ Boolean MessageQueueService::messageOK(const Message *msg)
       return false;
    return true;
 }
-
-
-// made pure virtual 
-// << Wed Mar  6 15:11:31 2002 mdd >> 
-// void MessageQueueService::handleEnqueue(Message *msg)
-// {
-//    if ( msg )
-//       delete msg;
-// }
-
-// made pure virtual 
-// << Wed Mar  6 15:11:56 2002 mdd >>
-// void MessageQueueService::handleEnqueue(void)
-// {
-//     Message *msg = dequeue();
-//     handleEnqueue(msg);
-// }
 
 void MessageQueueService::handle_heartbeat_request(AsyncRequest *req)
 {
@@ -719,12 +681,13 @@ void MessageQueueService::handle_AsyncIoctl(AsyncIoctl *req)
    {
       case AsyncIoctl::IO_CLOSE:
       {
-	 // save my bearings 
-//	 Thread *myself = req->op->_thread_ptr;
+
 	 MessageQueueService *service = static_cast<MessageQueueService *>(req->op->_service_ptr);
 	 
-	 // respond to this message.
-	 // _make_response(req, async_results::OK);
+	 // respond to this message. this is fire and forget, so we don't need to delete anything. 
+	 // this takes care of two problems that were being found 
+	 // << Thu Oct  9 10:52:48 2003 mdd >>
+	  _make_response(req, async_results::OK);
 	 // ensure we do not accept any further messages
 
 	 // ensure we don't recurse on IO_CLOSE
@@ -747,23 +710,15 @@ void MessageQueueService::handle_AsyncIoctl(AsyncIoctl *req)
 	    }
 	    if( operation )
 	    {
-//	       operation->_thread_ptr = myself;
 	       operation->_service_ptr = service;
 	       service->_handle_incoming_operation(operation);
 	    }
 	    else
 	       break;
 	 } // message processing loop
-
+	 
 	 // shutdown the AsyncDQueue
 	 service->_incoming.shutdown_queue();
-	 AsyncOpNode *op = req->op;
-	 op->_request.remove_first();
-	 op->release();
-	 return_op(op);
-	 delete req;
-	 // exit the thread ! 
-//	 myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
 	 return;
       }
 

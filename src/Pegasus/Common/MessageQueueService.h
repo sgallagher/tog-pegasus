@@ -118,7 +118,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
 	 return _thread_pool->running_count() + _thread_pool->dead_count() + _thread_pool->pool_count();
       }
       static ThreadPool *get_thread_pool(void);
-      static void force_shutdown(void);
+      static void force_shutdown(Boolean destroy_flag = false);
       
       Uint32 _mask;
       AtomicInt _die;

@@ -334,7 +334,6 @@ ThreadPool::~ThreadPool(void)
 	 delete th;
 	 th = _pool.remove_first();
       }
-
       th = _running.remove_first();
       while(th != 0)
       {
@@ -345,7 +344,6 @@ ThreadPool::~ThreadPool(void)
 	 delete th;
 	 th = _running.remove_first();
       }
-
       th = _dead.remove_first();
       while(th != 0)
       {

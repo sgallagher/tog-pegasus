@@ -886,14 +886,14 @@ wbemexec: Invalid XML request: Validation error: on line 12: missing CLASSNAME.N
 Invalid input: input starts with neither xml declaration, nor HTTP M-POST or POST method request (GET method)
 wbemexec ./cimreqerr01.http
  
-wbemexec: Invalid input: expected XML request, or HTTP M-POST or POST method request
+wbemexec: Invalid input: expected XML request
  
  
 Invalid input: input starts with neither xml declaration, nor HTTP M-POST
 or POST method request (missing HTTP method)
 wbemexec ./cimreqerr02.http
  
-wbemexec: Invalid input: expected XML request, or HTTP M-POST or POST method request
+wbemexec: Invalid input: expected XML request
  
  
 Invalid input: input starts with neither xml declaration, nor valid HTTP

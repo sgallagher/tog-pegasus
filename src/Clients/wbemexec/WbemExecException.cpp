@@ -118,28 +118,13 @@ const Uint32 WbemExecException::INVALID_XML = 8;
  */
 const Uint32 WbemExecException::INVALID_INPUT = 9;
 
-
-/**
-  
-    Exception identifier indicating malloc error.
-  
- */
-const Uint32 WbemExecException::MALLOC_ERROR = 10;
-
-/**
-  
-    Exception identifier indicating internal error.
-  
- */
-const Uint32 WbemExecException::INTERNAL_ERROR = 11;
-
 /**
   
     Maximum valid exception identifier.  This value must be updated when
     a new exception identifier and message are added.
   
  */
-const Uint32 WbemExecException::MAX_ID = WbemExecException::INTERNAL_ERROR;
+const Uint32 WbemExecException::MAX_ID = WbemExecException::INVALID_INPUT;
 
 /**
 
@@ -160,9 +145,7 @@ const char*  WbemExecException::_messageStrings [] =
     "Failed to connect to CIM server: ",
     "Timed out waiting for response ",
     "Invalid XML request: ",
-    "Invalid input: expected XML request, or HTTP M-POST or POST method request",
-    "Failed to allocate additional memory ",
-    "Internal error: "
+    "Invalid input: expected XML request"
 };
 
 /**

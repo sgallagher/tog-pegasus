@@ -1,5 +1,19 @@
 CHANGE LOG FOR PEGASUS
 
+
+---------------------------------------------------------------
+Version 0.97.3
+
+1. (KS)OptionManager (CPP and H), Logger (CPP and H), Handler (CPP and H), CIMServer (both)
+Functions added include:
+	a. Enable trace to log file.
+	b. Add option so that you can trace to console or trace to logfile (-l is
+	   trace to log, -t is trace to console).
+	c. add parameter in optionsrow for help message and enable the capture
+	   of these messages in Options class.  Also added help print that prints these things out.  However, format not to beautiful.
+	d. Eliminate a couple of messages coming from __Namespace provider.
+	e. Extend the Clients\testclient so he does tests on Namespace.
+2.
 ----------------------------------------------------------------
 Version 0.97.2
 

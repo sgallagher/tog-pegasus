@@ -284,6 +284,22 @@ repository implementation.
     (TraceFileHandler.cpp, Thread.cpp, etc) have been updated to include
     nsk platform links. 
 
+41. (Roger Kumpf - HP) 14 Nov 2001 Changed the behavior of the CIMValue
+    toString() method for CIMValues of String type.  The old behavior
+    returned an XML encoding of the String with special characters
+    replaced by their UTF-8 equivalents.  For example, a CIMValue of a"b
+    would be returned as a&quot;b.  The new behavior just returns the
+    String value directly with no translation.  (Note that
+    CIMValue.toXml() may still be used to get the XML-encoded value.)
+
+    This change was necessary in part to correct the behavior of the
+    repository.  CreateInstance stores the instance name returned by
+    CIMInstance.getInstanceName(), which is built using calls to
+    CIMValue.toString().  GetInstance searches for the instance name
+    without UTF-8 encoding of special characters.  For GetInstance to
+    be successful, CreateInstance must have stored the instance name
+    in that same form, without special character encoding.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

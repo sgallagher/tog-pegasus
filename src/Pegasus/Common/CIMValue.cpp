@@ -1893,7 +1893,9 @@ String CIMValue::toString() const
 		break;
 
 	    case CIMType::STRING:
-		_toXml(out, *_u._stringValue);
+		// ATTN: RK - Removed encoding of special characters
+		//_toXml(out, *_u._stringValue);
+		out << *_u._stringValue;
 		break;
 
 	    case CIMType::DATETIME:

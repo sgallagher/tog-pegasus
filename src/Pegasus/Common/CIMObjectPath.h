@@ -46,6 +46,7 @@ PEGASUS_NAMESPACE_BEGIN
 class CIMObjectPath;
 class CIMKeyBindingRep;
 class CIMObjectPathRep;
+class CIMValue;
 
 /** The CIMKeyBinding class associates a key name, value, and type.
     It is used by the reference class to represent key bindings.
@@ -64,13 +65,20 @@ public:
     CIMKeyBinding(const CIMKeyBinding& x);
 
     /** Construct a CIMKeyBinding with a name, value, and type
-        @param name CIMName name for the key for this binding object.
+        @param name CIMName for the key for this binding object.
         @param value String value for this key.
-        @param type
-        <pre>
-        </pre>
+        @param type CIMKeyBinding::Type representing the type of this key.
     */
     CIMKeyBinding(const CIMName& name, const String& value, Type type);
+
+#ifdef PEGASUS_FUTURE
+    /** Construct a CIMKeyBinding with a name and CIMValue, mapping from
+        CIMValue types to CIMKeyBinding types.
+        @param name CIMName for the key for this binding object.
+        @param value CIMValue from which to extract the value for this key.
+    */
+    CIMKeyBinding(const CIMName& name, const CIMValue& value);
+#endif
 
     /** Destructor */
     ~CIMKeyBinding();
@@ -96,6 +104,10 @@ public:
 
     /** Modifier */
     void setType(Type type);
+
+#ifdef PEGASUS_FUTURE
+    Boolean equal(CIMValue value);
+#endif
 
 private:
 

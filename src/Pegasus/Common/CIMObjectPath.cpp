@@ -184,6 +184,34 @@ CIMKeyBinding::CIMKeyBinding(const CIMName& name, const String& value, Type type
     _rep = new CIMKeyBindingRep(name, value, type);
 }
 
+#ifdef PEGASUS_FUTURE
+CIMKeyBinding::CIMKeyBinding(const CIMName& name, const CIMValue& value)
+{
+    String kbValue = value.toString();
+    Type kbType;
+
+    switch (value.getType())
+    {
+    case CIMTYPE_BOOLEAN:
+        kbType = BOOLEAN;
+        break;
+    case CIMTYPE_CHAR16:
+    case CIMTYPE_STRING:
+    case CIMTYPE_DATETIME:
+        kbType = STRING;
+        break;
+    case CIMTYPE_REFERENCE:
+        kbType = REFERENCE;
+        break;
+    default:
+        kbType = NUMERIC;
+        break;
+    }
+
+    _rep = new CIMKeyBindingRep(name, kbValue, kbType);
+}
+#endif
+
 CIMKeyBinding::~CIMKeyBinding()
 {
     delete _rep;
@@ -224,6 +252,42 @@ void CIMKeyBinding::setType(CIMKeyBinding::Type type)
 {
     _rep->_type = type;
 }
+
+#ifdef PEGASUS_FUTURE
+Boolean CIMKeyBinding::equal(CIMValue value)
+{
+    CIMValue kbValue;
+
+    try
+    {
+        switch (value.getType())
+        {
+        case CIMTYPE_CHAR16:
+            kbValue.set(getValue()[0]);
+            break;
+        case CIMTYPE_DATETIME:
+            kbValue.set(CIMDateTime(getValue()));
+            break;
+        case CIMTYPE_STRING:
+            kbValue.set(getValue());
+            break;
+        case CIMTYPE_REFERENCE:
+            kbValue.set(CIMObjectPath(getValue()));
+            break;
+        default:  // Boolean and numerics
+            kbValue = XmlReader::stringToValue(0, getValue().getCString(),
+                                               value.getType());
+            break;
+        }
+    }
+    catch (...)  // Just catch Exception?
+    {
+        return false;
+    }
+
+    return value.equal(kbValue);
+}
+#endif
 
 Boolean operator==(const CIMKeyBinding& x, const CIMKeyBinding& y)
 {

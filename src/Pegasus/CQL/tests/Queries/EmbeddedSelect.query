@@ -151,7 +151,14 @@ SELECT EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestPropertyTypes::InstanceId,
 # EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestPropertyTypes::InstanceId => scope is subclass, ignore  
 # EmbObjBase.CQL_EmbeddedTestElement::CS.*                                 => wildcard causes missing properties
 SELECT EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestPropertyTypes::InstanceId, EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestElement::InstanceId, EmbObjBase.CQL_EmbeddedTestElement::CS.*, EmbObjBase.CQL_EmbeddedTestElement::SomeString FROM CQL_EmbeddedSubClass FROM CQL_EmbeddedSubClass
-
+#
+# Testing resolve on embedded objects
+#
+SELECT * FROM CQL_EmbeddedSubClass WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState = 2
+SELECT * FROM CQL_EmbeddedSubClass WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState = 3
+SELECT * FROM CQL_EmbeddedSubClass WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS = CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS
+SELECT * FROM CQL_EmbeddedSubClass WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState = CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState
+SELECT * FROM CQL_EmbeddedSubClass WHERE CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::someClass = CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::someClass
 
 
 

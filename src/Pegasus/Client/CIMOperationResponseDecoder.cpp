@@ -229,6 +229,14 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     if (!HTTPMessage::lookupHeader(
 	headers, "CIMOperation", cimOperation, true))
     {
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+            if (getenv("PEGASUS_CLIENT_TRACE"))
+            {
+                cout << "Missing CIMOperation HTTP header on this response" << endl;
+                httpMessage->printAll(cout);
+            }
+#endif
+        
         CIMClientMalformedHTTPException* malformedHTTPException = new
             CIMClientMalformedHTTPException("Missing CIMOperation HTTP header");
         ClientExceptionMessage * response =

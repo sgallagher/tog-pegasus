@@ -3793,8 +3793,6 @@ CIM server listening on HTTPS port {0}."}
         * @version 2.4
         */
         Common.AnonymousPipe.CREATE_PIPE_FAILED:string {"PGS13400: Failed to create pipe."}
-}
-
 
 	// ==========================================================
         // Messages for ProviderManager.OOPProviderManagerRouter
@@ -3908,4 +3906,12 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {0} is an error status code.  This is a number.
         */
         Common.Monitor.TICKLE_ACCEPT:string {"PGS14207: Received error number {0} while accepting the internal socket connection."}
+
+
+
+// ==============================================================================
+// END OF RESOURCE BUNDLE
+// DO NOT ADD MESSAGES AFTER THE FOLLOWING '}' 
+// ==============================================================================
+}
 

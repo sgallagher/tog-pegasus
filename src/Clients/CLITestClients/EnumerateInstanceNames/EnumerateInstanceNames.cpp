@@ -202,9 +202,15 @@ int main(int argc, char** argv)
        	client.connect(location);
     } 
     
+    catch(CIMClientException& e)
+    {
+	  cerr << "CIMClientException connecting to : " << location << endl;
+	  cerr << e.getMessage() << endl;
+    }
     catch(Exception &e) 
     {
-	  cerr << "Internal Error:" << e.getMessage() << endl;
+	  cerr << "Internal Error: " << e.getMessage() <<
+	      " connecting to " << location << endl;
     }
 
 
@@ -217,11 +223,16 @@ int main(int argc, char** argv)
 	for (Uint32 i = 0; i < instanceNames.size(); i++)
 	    cout << instanceNames[i] << endl;
     }
-    catch(Exception& e)
-    {
-	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	exit(1);
-    }
+	catch(CIMClientException& e)
+	{
+	      cerr << "CIMClientException : " << className << endl;
+	      cerr << e.getMessage() << endl;
+	}
+	catch(Exception& e)
+	{
+	    PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+	    exit(1);
+	}
 
     return 0;
 }

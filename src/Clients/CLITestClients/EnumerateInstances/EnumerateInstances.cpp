@@ -305,42 +305,53 @@ int main(int argc, char** argv)
        	client.connect(location);
     } 
     
+    catch(CIMClientException& e)
+    {
+	  cerr << "CIMClientException connecting to : " << location << endl;
+	  cerr << e.getMessage() << endl;
+    }
     catch(Exception &e) 
     {
-	  cerr << "Internal Error:" << e.getMessage() << endl;
+	  cerr << "Internal Error: " << e.getMessage() <<
+	      " connecting to " << location << endl;
     }
-	try
-	{
-            Boolean localOnly = false;
-            Boolean deepInheritance = false;
-            Boolean includeQualifiers = false;
-            Boolean includeClassOrigin = false;
+    try
+    {
+	Boolean localOnly = false;
+	Boolean deepInheritance = false;
+	Boolean includeQualifiers = false;
+	Boolean includeClassOrigin = false;
 
-            Array<CIMNamedInstance> namedInstances; 
-            namedInstances = client.enumerateInstances(nameSpace,
-                                                       className,
-                                                       deepInheritance,
-                                                       localOnly,
-                                                       includeQualifiers,
-                                                       includeClassOrigin);
+	Array<CIMNamedInstance> namedInstances; 
+	namedInstances = client.enumerateInstances(nameSpace,
+						   className,
+						   deepInheritance,
+						   localOnly,
+						   includeQualifiers,
+						   includeClassOrigin);
 
-        // Output the returned instances
+    // Output the returned instances
 	for (Uint32 i = 0; i < namedInstances.size(); i++)
-        {
-            CIMInstance instance = namedInstances[i].getInstance();
-            if(isXMLOutput)
-                instance.print(cout);
-            else
-            {
-                Array<Sint8> x;
-                instance.toMof(x);
-
-                x.append('\0');
-
-                mofFormat(cout, x.getData(), 4);
-            }
-
-        }
+	{
+	    CIMInstance instance = namedInstances[i].getInstance();
+	    if(isXMLOutput)
+		instance.print(cout);
+	    else
+	    {
+		Array<Sint8> x;
+		instance.toMof(x);
+	
+		x.append('\0');
+	
+		mofFormat(cout, x.getData(), 4);
+	    }
+	
+	}
+    }
+    catch(CIMClientException& e)
+    {
+	  cerr << "CIMClientException : " << className << endl;
+	  cerr << e.getMessage() << endl;
     }
     catch(Exception& e)
     {

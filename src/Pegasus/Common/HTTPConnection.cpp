@@ -28,6 +28,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
+
 #ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
 #include <Pegasus/Common/Signal.h>
 #endif

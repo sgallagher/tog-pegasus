@@ -2049,16 +2049,19 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                 //  subscription's OnFatalErrorPolicy
                 //
 
-                response = 
-                    reinterpret_cast<CIMProcessIndicationResponseMessage *>
+                CIMHandleIndicationResponseMessage* handler_response = 
+                    reinterpret_cast<CIMHandleIndicationResponseMessage *>
                     ((static_cast<AsyncLegacyOperationResult *>
                     (async_reply))->get_result());
+                delete handler_response;
 
                 //
                 //  Recipient deletes request
                 //
 
                 delete async_reply;
+                op->release();
+                this->return_op(op);
             }
         }
     }
@@ -5765,6 +5768,12 @@ void IndicationService::_sendCreateRequests
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
                       "IndicationService::_sendCreateRequests");
 
+    // If there are no providers to accept the subscription, just return
+    if (indicationProviders.size() == 0)
+    {
+        return;
+    }
+
     //
     //  Get repeat notification policy value from subscription instance
     //
@@ -5923,6 +5932,12 @@ void IndicationService::_sendModifyRequests
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
                       "IndicationService::_sendModifyRequests");
 
+    // If there are no providers to accept the subscription update, just return
+    if (indicationProviders.size() == 0)
+    {
+        return;
+    }
+
     //
     //  Get repeat notification policy value from subscription instance
     //
@@ -6035,6 +6050,12 @@ void IndicationService::_sendDeleteRequests
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
                       "IndicationService::_sendDeleteRequests");
+
+    // If there are no providers to delete the subscription, just return
+    if (indicationProviders.size() == 0)
+    {
+        return;
+    }
 
     CIMRequestMessage * aggRequest;
 
@@ -7494,6 +7515,12 @@ void IndicationService::_sendEnable (
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, "IndicationService::_sendEnable");
 
+    // If there are no providers to enable, just return
+    if (enableProviders.size() == 0)
+    {
+        return;
+    }
+
     CIMRequestMessage * aggRequest;
 
     if (origRequest == 0)
@@ -7608,6 +7635,12 @@ void IndicationService::_sendDisable (
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, 
         "IndicationService::_sendDisable");
+
+    // If there are no providers to disable, just return
+    if (disableProviders.size() == 0)
+    {
+        return;
+    }
 
     CIMRequestMessage * aggRequest;
 

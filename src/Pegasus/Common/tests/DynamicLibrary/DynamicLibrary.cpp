@@ -29,7 +29,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By:	Sean Keenan (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,6 +48,9 @@ static const String INVALID_FILE_NAME = "BADDynLib.dll";
 #elif defined(PEGASUS_OS_DARWIN)
 static const String VALID_FILE_NAME = "libDynLib.dylib";
 static const String INVALID_FILE_NAME = "libBADDynLib.dylib";
+#elif defined(PEGASUS_OS_VMS)
+static const String VALID_FILE_NAME = "TestDynLib";
+static const String INVALID_FILE_NAME = "BADTestDynLib";
 #else
 static const String VALID_FILE_NAME = "libDynLib.so";
 static const String INVALID_FILE_NAME = "libBADDynLib.so";

@@ -31,6 +31,8 @@
 //
 // Modified By:
 //              Steve Hills (steve.hills@ncr.com)
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/IPC.h>
@@ -254,7 +256,14 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm)
       catch(IPCException& e)
       {
       e = e;
+#if defined (PEGASUS_OS_VMS)
+     // 
+     // myself is a long-long-unsigned.
+     // 
+      printf ("Exception while trying to put local storage: %llu\n", myself);
+#else
       cout << "Exception while trying to put local storage: " << myself << endl;
+#endif
       abort();
       }
       try 
@@ -323,7 +332,14 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm)
       catch(IPCException& e)
       {
 	 e = e;
+#if defined (PEGASUS_OS_VMS)
+      // 
+      // myself is a long-long-unsigned.
+      // 
+      printf ("Exception while trying to delete local storage: %llu\n", myself);
+#else
 	 cout << "Exception while trying to delete local storage: " << myself << endl;
+#endif
 	 abort();
       }
       i++;
@@ -417,11 +433,15 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test4_thread( void* parm )
 	// Simulate a deadlocked thread
 	while( true )
 	{
-                #if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
-			pthread_testcancel();
-		#endif
-		pegasus_sleep( 2000 );
+#if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU) || defined(PEGASUS_OS_VMS)
+           // 
+           // sleep is NOT a thread cancellation point
+           //  for VMS.
+           // 
+	   pthread_testcancel();
+#endif
+	   pegasus_sleep( 2000 );
 	}
-	thread->exit_self( (PEGASUS_THREAD_RETURN)52 );
-	return( (PEGASUS_THREAD_RETURN)52 );
+	PEGASUS_UNREACHABLE (thread->exit_self( (PEGASUS_THREAD_RETURN)52 );
+	return( (PEGASUS_THREAD_RETURN)52 );)
 }

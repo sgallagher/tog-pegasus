@@ -31,6 +31,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//		Sean Keenan (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -390,7 +391,11 @@ void GetOptions(
 
     om.registerOptions(optionsTable, NUM_OPTIONS);
 
+#if defined (PEGASUS_OS_VMS)
+    String configFile = "cimserver.conf";
+#else
     String configFile = pegasusHome + "/cimserver.conf";
+#endif
 
     cout << "Config file from " << configFile << endl;
 
@@ -419,6 +424,7 @@ int main(int argc, char** argv)
 
     String pegasusHome;
     pegasusHome = "/";
+
     // GetEnvironmentVariables(argv[0], pegasusHome);
 
     // Get options (from command line and from configuration file); this

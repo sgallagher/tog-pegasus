@@ -33,13 +33,14 @@
 //                  (carolann_graves@hp.com)
 //              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/Common/Config.h>
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>
-#if defined(PEGASUS_OS_TYPE_UNIX)
+#if defined(PEGASUS_OS_TYPE_UNIX) || defined(PEGASUS_OS_VMS)
 #include <errno.h>
 #endif
 #include "CIMName.h"

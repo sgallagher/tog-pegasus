@@ -34,6 +34,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Willis White (whiwill@ibm.com) PEP #192
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,6 +56,8 @@
 # include <Pegasus/Common/CIMDateTimeUnix.cpp>
 #elif defined(PEGASUS_OS_TYPE_NSK)
 # include <Pegasus/Common/CIMDateTimeNsk.cpp>
+#elif defined(PEGASUS_OS_VMS)
+# include <Pegasus/Common/CIMDateTimeVms.cpp>
 #else
 # error "Unsupported platform"
 #endif

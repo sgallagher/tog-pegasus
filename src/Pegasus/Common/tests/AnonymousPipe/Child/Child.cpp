@@ -32,6 +32,7 @@
 //
 // Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
 //              David Dillard, VERITAS Software Corp.
+//		Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -40,6 +41,13 @@
 #include <Pegasus/Common/AnonymousPipe.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/InternalException.h>
+
+#if defined (PEGASUS_OS_VMS)
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <errno.h>
+#endif
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -70,6 +78,16 @@ int main (int argc, char * argv [])
         AutoPtr <AnonymousPipe> pipeToParent 
             (new AnonymousPipe (NULL, writeHandle));
 
+#if defined (PEGASUS_OS_VMS)
+            //
+            //  Child: Close parent handles
+            //
+            pipeFromParent->closeWriteHandle ();
+            pipeToParent->closeReadHandle ();
+#endif
+#if defined (PEGASUS_OS_VMS)
+#else
+#endif
         //
         //  Test readBuffer and writeBuffer
         //
@@ -123,6 +141,9 @@ int main (int argc, char * argv [])
         writeBufferStatus = pipeToParent->writeBuffer
             ((const char *) &bufferLength, sizeof (Uint32));
 
+#if defined (PEGASUS_OS_VMS)
+#else
+#endif
         if (writeBufferStatus == AnonymousPipe::STATUS_SUCCESS)
         {
             writeBufferStatus = pipeToParent->writeBuffer 

@@ -32,11 +32,16 @@
 // Modified By:  Amit K Arora, IBM (amita@in.ibm.com) for Bug#1188
 //               David Dillard, VERITAS Software Corp.
 //                   (david.dillard@veritas.com)
+//		 Sean Keenan (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/AsyncOpNode.h>
 #include <Pegasus/Common/InternalException.h>
+
+#if defined(PEGASUS_OS_VMS)
+#include <stdio.h>
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 

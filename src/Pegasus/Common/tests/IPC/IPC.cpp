@@ -30,6 +30,7 @@
 // Author: Markus Mueller (sedgewick_de@yahoo.de)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -146,9 +147,15 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL deq(void * parm)
     }
 
     if (verbose)
+#if defined (PEGASUS_OS_VMS)
+      // 
+      // pegasus_thread_self returns long-long-unsigned.
+      // 
+      printf("Received Cancel Message, %llu about to end\n", pegasus_thread_self());
+#else
         cout << "Received Cancel Message, " << pegasus_thread_self() <<
             " about to end\n";
-
+#endif
     my_thread->exit_self(0);
     return NULL;
 }

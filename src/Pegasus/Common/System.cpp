@@ -36,6 +36,7 @@
 //					PEGASUS_OR_IOS_BINARY
 //              Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
 //              Dave Sudlik, IBM (dsudlik@us.ibm.com) for Bug#1462
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -64,6 +65,8 @@
 # include "SystemUnix.cpp"
 #elif defined(PEGASUS_OS_TYPE_NSK)
 # include "SystemNsk.cpp"
+#elif defined(PEGASUS_OS_VMS)
+# include "SystemVms.cpp"
 #else
 # error "Unsupported platform"
 #endif

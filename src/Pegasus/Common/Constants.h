@@ -34,6 +34,7 @@
 //              Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
 //				Willis White (whiwill@us.ibm.com) Bug 1596
 //              Amit K Arora, IBM (amitarora@in.ibm.com) for PEP 193
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -382,6 +383,16 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #  define PEGASUS_PAM_STANDALONE_PROC_NAME  "/opt/lsb-pegasus/sbin/cimservera"
 #  undef PEGASUS_PROVIDER_AGENT_PROC_NAME
 #  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/opt/lsb-pegasus/sbin/cimprovagt"
+# elif defined(PEGASUS_OS_VMS)
+#  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
+#  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/var/opt/wbem/client.pem"
+#  undef PEGASUS_SSLCLIENT_RANDOMFILE
+#  define PEGASUS_SSLCLIENT_RANDOMFILE      "/var/opt/wbem/ssl.rnd"
+#  undef PEGASUS_SSLSERVER_RANDOMFILE
+#  define PEGASUS_SSLSERVER_RANDOMFILE      "/var/opt/wbem/cimserver.rnd"
+#  undef PEGASUS_PAM_STANDALONE_PROC_NAME
+#  undef PEGASUS_PROVIDER_AGENT_PROC_NAME
+#  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/var/opt/wbem/bin/cimprovagt"
 # endif
 #endif
 

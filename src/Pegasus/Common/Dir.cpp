@@ -31,6 +31,7 @@
 //
 // Modified By: Rudy chuet (rudy.schuet@compaq.com) 11/12/01
 //              added nsk platform support
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,6 +43,8 @@
 # include "DirUnix.cpp"
 #elif defined(PEGASUS_OS_TYPE_NSK)
 # include "DirNsk.cpp"
+#elif defined(PEGASUS_OS_VMS)
+# include "DirVms.cpp"
 #else
 # error "Unsupported platform"
 #endif

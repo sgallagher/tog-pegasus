@@ -36,6 +36,7 @@
 //              Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -63,6 +64,14 @@ typedef unsigned long mode_t;
 
 PEGASUS_NAMESPACE_BEGIN
 
+
+#if defined(PEGASUS_OS_VMS)
+    // 
+    // Needed to save filename. We do NOT use dlopen and dlsym.
+    // VMS implementation uses OS specific code for these functions.
+    // 
+    static String saveFileName;
+#endif
 
 /** This is an opaque type which is used to represent dynamic library
     handles returned by the System::loadDynamicLibrary() method and
@@ -145,6 +154,13 @@ public:
     static DynamicSymbolHandle loadDynamicSymbol(
 	DynamicLibraryHandle libraryHandle,
 	const char* symbolName);
+
+#if defined(PEGASUS_OS_VMS)
+    static DynamicSymbolHandle loadVmsDynamicSymbol(
+        const char* symbolName, 
+        const char* fileName, 
+        const char *vmsProviderDir);
+#endif
 
     static String getHostName();
     static String getFullyQualifiedHostName ();
@@ -311,6 +327,7 @@ public:
 
     // System ID constants for Logger::put and Logger::trace
     static const String CIMLISTENER;
+
 };
 
 PEGASUS_NAMESPACE_END

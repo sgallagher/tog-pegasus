@@ -37,6 +37,7 @@
 //         Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //         Amit Arora, IBM (amita@in.ibm.com) for Bug#2541
 //         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//         Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -109,7 +110,7 @@ public:
 
     struct sockaddr* address;
 
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_VMS)
    size_t address_size;
 #elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || (defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) && !defined(SUNOS_5_6))
    socklen_t address_size;
@@ -353,7 +354,7 @@ void HTTPAcceptor::_bind()
 
 // set the close-on-exec bit for this file handle.
 // any unix that forks needs this bit set. 
-#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#if !defined PEGASUS_PLATFORM_WIN32_IX86_MSVC && !defined(PEGASUS_OS_VMS)
    int sock_flags;
  if( (sock_flags = fcntl(_rep->socket, F_GETFD, 0)) < 0)
    {
@@ -594,7 +595,7 @@ void HTTPAcceptor::_acceptConnection()
    // Accept the connection (populate the address):
 
    struct sockaddr* accept_address;
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_VMS)
    size_t address_size;
 #elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || (defined(PEGASUS_OS_SOLARIS) && !defined(SUNOS_5_6))
    socklen_t address_size;
@@ -634,7 +635,7 @@ void HTTPAcceptor::_acceptConnection()
    }
 
 // set the close on exec flag 
-#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#if !defined PEGASUS_PLATFORM_WIN32_IX86_MSVC && !defined(PEGASUS_OS_VMS)
    int sock_flags;
  if( (sock_flags = fcntl(socket, F_GETFD, 0)) < 0)
    {

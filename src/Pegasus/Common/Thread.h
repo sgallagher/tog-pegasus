@@ -34,6 +34,7 @@
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -634,6 +635,8 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
 # include "ThreadzOS_inline.h"
 #elif defined(PEGASUS_OS_TYPE_UNIX)
 # include "ThreadUnix_inline.h"
+#elif defined(PEGASUS_OS_VMS)
+# include "ThreadVms_inline.h"
 #endif
 
 PEGASUS_NAMESPACE_END

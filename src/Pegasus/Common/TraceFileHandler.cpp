@@ -33,6 +33,7 @@
 //              added nsk platform support
 //              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1527
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -47,6 +48,8 @@
 # include <Pegasus/Common/TraceFileHandlerUnix.cpp>
 #elif defined(PEGASUS_OS_TYPE_NSK)
 # include <Pegasus/Common/TraceFileHandlerNsk.cpp>
+#elif defined(PEGASUS_OS_VMS)
+# include <Pegasus/Common/TraceFileHandlerVms.cpp>
 #else
 # error "Unsupported platform"
 #endif
@@ -81,6 +84,12 @@ TraceFileHandler::~TraceFileHandler ()
     if (_fileHandle)
     {
         fclose(_fileHandle);
+#if defined(PEGASUS_OS_VMS)
+//
+// Clear out the pointer just in case.
+//
+        _fileHandle = 0;
+#endif
     }
     if (_fileName)
     {
@@ -119,7 +128,17 @@ Uint32 TraceFileHandler::setFileName(const char* fileName)
     {
 	return 1;
     }
-
+#if defined(PEGASUS_OS_VMS)
+    // Check if a file is already open, if so close it
+    if (_fileHandle)
+    {
+        fclose(_fileHandle);
+//
+// Clear out the pointer just in case.
+//
+        _fileHandle = 0;
+    }
+#endif
     _fileHandle = _openFile(fileName);
 
     if (!_fileHandle)

@@ -29,12 +29,16 @@
 // 
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
-// Modified By:
+// Modified By:	Sean Keenan (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
  
 #include <Pegasus/Common/AcceptLanguageElement.h>
 #include <Pegasus/Common/LanguageElementRep.h>
+
+#if defined(PEGASUS_OS_VMS)
+#include <stdio.h>
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 

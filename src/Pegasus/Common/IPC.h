@@ -33,10 +33,11 @@
 //         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
 //         David Eger (dteger@us.ibm.com)
 //         Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//         Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#if !defined(PEGASUS_OS_SOLARIS) && !defined(PEGASUS_OS_LSB)
+#if !defined(PEGASUS_OS_SOLARIS) && !defined(PEGASUS_OS_LSB) && !defined(PEGASUS_OS_VMS)
 #define PEGASUS_NEED_CRITICAL_TYPE
 #endif
 
@@ -66,6 +67,8 @@
 # include "IPCOs400.h"
 #elif defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
 # include "IPCUnix.h"
+#elif defined(PEGASUS_OS_VMS)
+# include "IPCVms.h"
 #else
 # error "Unsupported platform"
 #endif
@@ -676,6 +679,8 @@ class PEGASUS_COMMON_LINKAGE Condition
 # include "IPCUnix_inline.h"
 #elif defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
 # include "IPCUnix_inline.h"
+#elif defined(PEGASUS_OS_VMS)
+# include "IPCVms_inline.h"
 #endif
 
 PEGASUS_NAMESPACE_END

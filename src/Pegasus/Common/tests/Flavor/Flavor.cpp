@@ -30,7 +30,7 @@
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company 
 //         (carolann_graves@hp.com)
 //
-// Modified By: 
+// Modified By: Sean Keenan (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -52,7 +52,7 @@ static const CIMFlavor CIMFLAVOR_ALL = CIMFlavor::OVERRIDABLE +
 
 void test01 ()
 {
-    #if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+    #if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU) || defined (PEGASUS_OS_VMS)
 	static const CIMFlavor CIMFLAVOR_ALL = CIMFlavor::OVERRIDABLE +
     CIMFlavor::TOSUBCLASS + CIMFlavor::TOINSTANCE + CIMFlavor::TRANSLATABLE +
     CIMFlavor::DISABLEOVERRIDE + CIMFlavor::RESTRICTED;

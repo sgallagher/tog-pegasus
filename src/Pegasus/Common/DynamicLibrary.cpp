@@ -30,6 +30,7 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:
+//	Sean Keenan, Hewlett Packard Company <sean.keenan@hp.com>
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +44,8 @@
 # include "DynamicLibraryHPUX.cpp"
 #elif defined(PEGASUS_OS_TYPE_UNIX)
 # include "DynamicLibraryUnix.cpp"
+#elif defined(PEGASUS_OS_VMS)
+# include "DynamicLibraryVms.cpp"
 #else
 # error "Unsupported platform"
 #endif

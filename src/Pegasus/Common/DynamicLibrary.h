@@ -29,7 +29,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Sean Keenan (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -56,17 +56,20 @@ class PEGASUS_COMMON_LINKAGE DynamicLibrary
 {
 public:
     #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-    typedef HMODULE LIBRARY_HANDLE;
-    typedef int LIBRARY_SYMBOL;
+      typedef HMODULE LIBRARY_HANDLE;
+      typedef int LIBRARY_SYMBOL;
     #elif defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_DARWIN)
-    typedef void * LIBRARY_HANDLE;
-    typedef void * LIBRARY_SYMBOL;
+      typedef void * LIBRARY_HANDLE;
+      typedef void * LIBRARY_SYMBOL;
     #elif defined(PEGASUS_OS_OS400)
-    typedef int LIBRARY_HANDLE;
-    typedef void * LIBRARY_SYMBOL;
+      typedef int LIBRARY_HANDLE;
+      typedef void * LIBRARY_SYMBOL;
     #elif defined(PEGASUS_OS_ZOS)
-    typedef dllhandle * LIBRARY_HANDLE;
-    typedef void * LIBRARY_SYMBOL;
+      typedef dllhandle * LIBRARY_HANDLE;
+      typedef void * LIBRARY_SYMBOL;
+    #elif defined(PEGASUS_OS_VMS)
+      typedef void * LIBRARY_HANDLE;
+      typedef void * LIBRARY_SYMBOL;
     #endif
 
 public:
@@ -85,10 +88,24 @@ public:
     String getFileName(void) const;
     LIBRARY_HANDLE getHandle(void) const;
     LIBRARY_SYMBOL getSymbol(const String & symbolName);
+// 
+// VMS implementation uses OS specific code for these functions.
+// 
+#if defined(PEGASUS_OS_VMS)
+    LIBRARY_SYMBOL getVmsSymbol(const char* symbolName, const char* fileName, const char *vmsProviderDir);
+#endif
 
 private:
     String _fileName;
     LIBRARY_HANDLE _handle;
+// 
+// Needed to save filename. We do NOT use dlopen and dlsym.
+// VMS implementation uses OS specific code for these functions.
+// 
+#if defined(PEGASUS_OS_VMS)
+    String vmsSaveFileName;
+#endif
+
 
 };
 

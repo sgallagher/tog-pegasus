@@ -32,6 +32,7 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+// 		Sean Keenan (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,6 +49,8 @@
 # include "AnonymousPipeWindows.cpp"
 #elif defined (PEGASUS_OS_TYPE_UNIX)
 # include "AnonymousPipeUnix.cpp"
+#elif defined (PEGASUS_OS_VMS)
+# include "AnonymousPipeVms.cpp"
 #else
 # error "Unsupported platform"
 #endif

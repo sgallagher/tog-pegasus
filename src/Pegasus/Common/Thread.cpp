@@ -33,6 +33,7 @@
 //              added nsk platform support
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -47,6 +48,8 @@
 # include "ThreadUnix.cpp"
 #elif defined(PEGASUS_OS_TYPE_NSK)
 # include "ThreadNsk.cpp"
+#elif defined(PEGASUS_OS_VMS)
+# include "ThreadVms.cpp"
 #else
 # error "Unsupported platform"
 #endif

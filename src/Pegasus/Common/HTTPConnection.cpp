@@ -43,6 +43,7 @@
 //         Amit Arora, IBM (amita@in.ibm.com) for Bug#2541
 //         David Dillard, VERITAS Software Corp. (david.dillard@veritas.com)
 //         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//         Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1706,7 +1707,17 @@ void HTTPConnection::_handleReadEvent()
         return;
       }
       
-      bytesRead += n;
+	bytesRead += n;
+#if defined (PEGASUS_OS_VMS)
+        if (n < sizeof(buffer))
+        {
+           //
+           // Read is smaller than the buffer size.
+           // No more to read, continue.
+           //
+           break;
+        }
+#endif
     }
 
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4,

@@ -33,6 +33,7 @@
 // Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//		Sean Keenan (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,6 +51,14 @@
 #include <windows.h>
 #elif defined (PEGASUS_OS_OS400)
 # include <unistd.cleinc>
+#elif defined (PEGASUS_OS_VMS)
+# include <perror.h>
+# include <climsgdef.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
+# include <processes.h>
+# include <unixio.h>
 #else
 # include <unistd.h>
 #endif
@@ -85,6 +94,7 @@ int main ()
 
         AutoArrayPtr <char> childReadHandle (new char [32]);
         AutoArrayPtr <char> childWriteHandle (new char [32]);
+
         pipeToChild->exportReadHandle (childReadHandle.get ());
         pipeFromChild->exportWriteHandle (childWriteHandle.get ());
 
@@ -130,6 +140,56 @@ int main ()
                 << endl;
             PEGASUS_ASSERT (0);
         }
+#elif defined (PEGASUS_OS_VMS)
+        //
+        //  fork and exec the child process
+        //
+        int status,
+            cstatus;
+
+        status = vfork ();
+        switch (status)
+        {
+          case 0:
+            if ((status = execl ((const char *) childPathCStr, 
+                                 (const char *) childPathCStr, 
+                                 childReadHandle.get (),
+                                 childWriteHandle.get (), 
+                                 (char *) 0)) 
+                                 == -1)
+            {
+              //
+              //  execl failed: close pipe handles
+              //
+              pipeToChild->closeReadHandle ();
+              pipeToChild->closeWriteHandle ();
+              pipeFromChild->closeReadHandle ();
+              pipeFromChild->closeWriteHandle ();
+
+              cerr << "Parent failed to execl: " << strerror (errno) << endl;
+              PEGASUS_ASSERT (0);
+            }
+            break;
+
+          case -1:
+            //
+            //  fork failed: close pipe handles
+            //
+            pipeToChild->closeReadHandle ();
+            pipeToChild->closeWriteHandle ();
+            pipeFromChild->closeReadHandle ();
+            pipeFromChild->closeWriteHandle ();
+
+            cerr << "Parent failed to fork: " << strerror (errno) << endl;
+            PEGASUS_ASSERT (0);
+            break;
+
+          default:
+            //
+            //  Parent: Close child handles 
+            //
+            pipeToChild->closeReadHandle ();
+            pipeFromChild->closeWriteHandle ();
 #else
         //
         //  fork and exec the child process
@@ -352,6 +412,11 @@ int main ()
         readBufferStatus = pipeFromChild->readBuffer ((char *) &bufferLength, 
             sizeof (Uint32));
         PEGASUS_ASSERT (readBufferStatus == AnonymousPipe::STATUS_CLOSED);
+
+#if defined (PEGASUS_OS_VMS)
+          break;
+        }
+#endif
     }
     catch (Exception & e)
     {

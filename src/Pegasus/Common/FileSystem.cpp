@@ -33,8 +33,10 @@
 //         Ramnath Ravindran(Ramnath.Ravindran@compaq.com)
 //         Amit K Arora, IBM (amita@in.ibm.com)
 //         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//         Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //         David Dillard, VERITAS Software Corp.
 //             (david.dillard@veritas.com)
+//         Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -433,8 +435,12 @@ String FileSystem::getAbsoluteFileName(const String &paths, const String &filena
         }
         path = tempPath.subString(0, pos);
         tempPath.remove(0,pos+token);
-        if (FileSystem::exists( path + "/" + filename ) == true) {
+        if (FileSystem::exists( path + "/" + filename) == true) {
+#if defined(PEGASUS_OS_VMS)
+          root = filename;
+#else
 	  root = path + "/" + filename;
+#endif
 	  break;
         } else
 	  {
@@ -460,6 +466,8 @@ String FileSystem::buildLibraryFileName(const String &libraryName)
     fileName = libraryName;
 #elif defined(PEGASUS_OS_DARWIN)
     fileName = String("lib") + libraryName + String(".dylib");
+#elif defined(PEGASUS_OS_VMS)
+    fileName = String("lib") + libraryName;
 #else
     fileName = String("lib") + libraryName + String(".so");
 #endif

@@ -33,6 +33,7 @@
 //				Mar 2002 - Add more tests for flavors
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//		Sean Keenan (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -58,7 +59,7 @@ static const CIMFlavor CIMFLAVOR_ALL = CIMFlavor::OVERRIDABLE +
 */
 int main(int argc, char** argv)
 {
-    #if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+    #if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU) || defined (PEGASUS_OS_VMS)
 	static const CIMFlavor CIMFLAVOR_ALL = CIMFlavor::OVERRIDABLE +
     CIMFlavor::TOSUBCLASS + CIMFlavor::TOINSTANCE + CIMFlavor::TRANSLATABLE +
     CIMFlavor::DISABLEOVERRIDE + CIMFlavor::RESTRICTED;

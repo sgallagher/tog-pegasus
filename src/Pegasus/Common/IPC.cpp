@@ -32,6 +32,7 @@
 // Modified By: Mike Day (mdday@us.ibm.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,6 +42,8 @@
 # include "IPCWindows.cpp"
 #elif defined(PEGASUS_OS_TYPE_UNIX)
 # include "IPCUnix.cpp" 
+#elif defined(PEGASUS_OS_VMS)
+# include "IPCVms.cpp"
 #else
 # error "Unsupported platform"
 #endif

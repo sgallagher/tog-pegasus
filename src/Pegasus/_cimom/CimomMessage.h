@@ -105,7 +105,7 @@ class PEGASUS_CIMOM_LINKAGE Request : public Message
 	      Uint32 routing = 0)
 	 : Message(type, key, routing, mask), queues(queue_ids) {   }
 
-      virtual ~Request(void);
+      virtual ~Request(void) { }
 
       QueueIdStack queues;
 } ;
@@ -121,7 +121,7 @@ class PEGASUS_CIMOM_LINKAGE Reply : public Message
 	 : Message(type, key, routing, mask),
 	   result(result_code) {  }
 
-      virtual ~Reply(void);
+      virtual ~Reply(void) { };
 
       Uint32 result;
 } ;
@@ -140,7 +140,7 @@ class PEGASUS_CIMOM_LINKAGE Ioctl : public Request
 	 : Request(type, key, queue_ids, mask, routing),
 	   code(code), uint(uint_param), pparam(pointer_param) { }
 
-      virtual ~Ioctl(void);
+      virtual ~Ioctl(void) { };
 
       Uint32 code;
       Uint32 uint;
@@ -160,7 +160,7 @@ class PEGASUS_CIMOM_LINKAGE CimomHeartBeat : public Reply
       {
       }
 
-      virtual ~CimomHeartBeat(void);
+      virtual ~CimomHeartBeat(void) { };
 
 } ;
 
@@ -180,7 +180,7 @@ class PEGASUS_CIMOM_LINKAGE CimomRegisterService : public Request
 	   name(module_name), capabilities(module_capabilities),
 	   mask(module_mask ), q_id(module_queue)  {   }
 
-      virtual ~CimomRegisterService(void);
+      virtual ~CimomRegisterService(void) { };
 
       String name;
       Uint32 capabilities;
@@ -202,7 +202,7 @@ class PEGASUS_CIMOM_LINKAGE CimomDeregisterService : public Request
 		   (message_mask::type_cimom | message_mask::ha_request) ),
 	   q_id(module_queue) {  }
 
-      virtual ~CimomDeregisterService();
+      virtual ~CimomDeregisterService(void) { };
 
       Uint32 q_id;
 } ;
@@ -224,7 +224,7 @@ class PEGASUS_CIMOM_LINKAGE CimomUpdateService : public Request
 	  capabilities(module_capabilities), mask(module_mask),
 	  q_id(module_queue) {  }
 
-      virtual ~CimomUpdateService();
+      virtual ~CimomUpdateService(void) { };
 
       Uint32 capabilities;
       Uint32 mask;
@@ -253,7 +253,7 @@ class PEGASUS_CIMOM_LINKAGE CimomIoctl : public Ioctl
 		 pointer_param,
 		 routing) { }
 
-      ~CimomIoctl(void);
+      virtual ~CimomIoctl(void) { };
 };
 
 class PEGASUS_CIMOM_LINKAGE CimomAsyncOpReply : public Reply
@@ -266,7 +266,8 @@ class PEGASUS_CIMOM_LINKAGE CimomAsyncOpReply : public Reply
 	 : Reply(MSG_CIMOM_ASYNC_OP_REPLY, key, result_code,
 		 ( message_mask::type_cimom | message_mask::ha_reply), routing),
 	   op(operation) {  }
-      virtual ~CimomAsyncOpReply(void);
+
+	  virtual ~CimomAsyncOpReply(void) { };
 
       AsyncOpNode *op;
 };
@@ -284,7 +285,7 @@ class PEGASUS_CIMOM_LINKAGE ServiceAsyncReq : public Request
 		   ( message_mask::type_service | message_mask::ha_request) ),
 	   op(operation) {  }
 
-      virtual ~ServiceAsyncReq(void);
+      virtual ~ServiceAsyncReq(void) { };
 
       AsyncOpNode *op;
 } ;
@@ -298,7 +299,7 @@ class PEGASUS_CIMOM_LINKAGE ServiceAsyncOpStart : public ServiceAsyncReq
 			Uint32 routing = 0)
 	 : ServiceAsyncReq(MSG_SERVICE_ASYNC_OP_START, key, queue_ids, operation, routing)  {  }
 
-      virtual ~ServiceAsyncOpStart(void);
+      virtual ~ServiceAsyncOpStart(void) { };
 };
 
 class PEGASUS_CIMOM_LINKAGE ServiceAsyncOpCancel : public ServiceAsyncReq
@@ -310,7 +311,7 @@ class PEGASUS_CIMOM_LINKAGE ServiceAsyncOpCancel : public ServiceAsyncReq
 			 Uint32 routing = 0)
 	 : ServiceAsyncReq(MSG_SERVICE_ASYNC_OP_CANCEL, key, queue_ids, operation, routing) {  }
 
-      virtual ~ServiceAsyncOpCancel(void);
+      virtual ~ServiceAsyncOpCancel(void) { };
 
 };
 
@@ -323,7 +324,7 @@ class PEGASUS_CIMOM_LINKAGE ServiceAsyncOpPause : public ServiceAsyncReq
 			 Uint32 routing = 0)
 	 : ServiceAsyncReq(MSG_SERVICE_ASYNC_OP_PAUSE, key, queue_ids, operation, routing) {  }
 
-      virtual ~ServiceAsyncOpPause(void);
+      virtual ~ServiceAsyncOpPause(void) { };
 
 };
 
@@ -336,7 +337,7 @@ class PEGASUS_CIMOM_LINKAGE ServiceAsyncOpResume : public ServiceAsyncReq
 			 Uint32 routing = 0)
 	 : ServiceAsyncReq(MSG_SERVICE_ASYNC_OP_RESUME, key, queue_ids, operation, routing) {  }
 
-      virtual ~ServiceAsyncOpResume(void);
+      virtual ~ServiceAsyncOpResume(void) { };
 
 };
 
@@ -358,7 +359,7 @@ class PEGASUS_CIMOM_LINKAGE ServiceIoctl : public Ioctl
 		 pointer_param,
 		 routing) { }
 
-      ~ServiceIoctl(void);
+      virtual ~ServiceIoctl(void) { };
 };
 
 

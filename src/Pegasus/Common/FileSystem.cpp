@@ -41,25 +41,19 @@ PEGASUS_NAMESPACE_BEGIN
 
 // Clone the path as a C String but discard trailing slash if any:
 
-static char* _clonePath(const String& path)
+static CString _clonePath(const String& path)
 {
-    char* p = path.allocateCString();
+    String clone = path;
 
-    if (!*p)
-	return p;
+    if (clone.size() && clone[clone.size()-1] == '/')
+        clone.remove(clone.size()-1);
 
-    char* last = p + path.size() - 1;
-
-    if (*last == '/')
-	*last = '\0';
-
-    return p;
+    return clone.getCString();
 }
 
 Boolean FileSystem::exists(const String& path)
 {
-    ArrayDestroyer<char> p(_clonePath(path));
-    return System::exists(p.getPointer());
+    return System::exists(_clonePath(path));
 }
 
 Boolean FileSystem::getCurrentDirectory(String& path)
@@ -77,11 +71,11 @@ Boolean FileSystem::getCurrentDirectory(String& path)
 Boolean FileSystem::existsNoCase(const String& path, String& realPath)
 {
     realPath.clear();
-    ArrayDestroyer<char> destroyer(_clonePath(path));
-    char* p = destroyer.getPointer();
+    CString cpath = _clonePath(path);
+    const char* p = cpath;
 
     const char* dirPath;
-    char* fileName;
+    const char* fileName;
     char* slash = strrchr(p, '/');
 
     if (slash)
@@ -121,26 +115,22 @@ Boolean FileSystem::existsNoCase(const String& path, String& realPath)
 
 Boolean FileSystem::canRead(const String& path)
 {
-    ArrayDestroyer<char> p(_clonePath(path));
-    return System::canRead(p.getPointer());
+    return System::canRead(_clonePath(path));
 }
 
 Boolean FileSystem::canWrite(const String& path)
 {
-    ArrayDestroyer<char> p(_clonePath(path));
-    return System::canWrite(p.getPointer());
+    return System::canWrite(_clonePath(path));
 }
 
 Boolean FileSystem::getFileSize(const String& path, Uint32& size)
 {
-    ArrayDestroyer<char> p(_clonePath(path));
-    return System::getFileSize(p.getPointer(), size);
+    return System::getFileSize(_clonePath(path), size);
 }
 
 Boolean FileSystem::removeFile(const String& path)
 {
-    ArrayDestroyer<char> p(_clonePath(path));
-    return System::removeFile(p.getPointer());
+    return System::removeFile(_clonePath(path));
 }
 
 void FileSystem::loadFileToMemory(
@@ -152,9 +142,7 @@ void FileSystem::loadFileToMemory(
     if (!getFileSize(fileName, fileSize))
 	throw CannotOpenFile(fileName);
 
-    char* tmp = fileName.allocateCString();
-    FILE* fp = fopen(tmp, "rb");
-    delete [] tmp;
+    FILE* fp = fopen(fileName.getCString(), "rb");
 
     if (fp == NULL)
 	throw CannotOpenFile(fileName);
@@ -186,16 +174,12 @@ Boolean FileSystem::compareFiles(
     if (fileSize1 != fileSize2)
 	return false;
 
-    char* tmp1 = path1.allocateCString();
-    FILE* fp1 = fopen(tmp1, "rb");
-    delete [] tmp1;
+    FILE* fp1 = fopen(path1.getCString(), "rb");
 
     if (fp1 == NULL)
 	throw CannotOpenFile(path1);
 
-    char* tmp2 = path2.allocateCString();
-    FILE* fp2 = fopen(tmp2, "rb");
-    delete [] tmp2;
+    FILE* fp2 = fopen(path2.getCString(), "rb");
 
     if (fp2 == NULL)
     {
@@ -225,18 +209,14 @@ Boolean FileSystem::renameFile(
     const String& oldPath,
     const String& newPath)
 {
-    ArrayDestroyer<char> p(oldPath.allocateCString());
-    ArrayDestroyer<char> q(newPath.allocateCString());
-    return System::renameFile(p.getPointer(), q.getPointer());
+    return System::renameFile(oldPath.getCString(), newPath.getCString());
 }
 
 Boolean FileSystem::copyFile(
     const String& fromPath,
     const String& toPath)
 {
-    ArrayDestroyer<char> p(fromPath.allocateCString());
-    ArrayDestroyer<char> q(toPath.allocateCString());
-    return System::copyFile(p.getPointer(), q.getPointer());
+    return System::copyFile(fromPath.getCString(), toPath.getCString());
 }
 
 Boolean FileSystem::openNoCase(PEGASUS_STD(ifstream)& is, const String& path)
@@ -246,9 +226,7 @@ Boolean FileSystem::openNoCase(PEGASUS_STD(ifstream)& is, const String& path)
     if (!existsNoCase(path, realPath))
 	return false;
 
-    ArrayDestroyer<char> p(_clonePath(realPath));
-
-    is.open(p.getPointer() PEGASUS_IOS_BINARY);
+    is.open(_clonePath(realPath) PEGASUS_IOS_BINARY);
     return !!is;
 }
 
@@ -262,34 +240,28 @@ Boolean FileSystem::openNoCase(
     if (!existsNoCase(path, realPath))
 	return false;
 
-    ArrayDestroyer<char> p(_clonePath(realPath));
-
-    fs.open(p.getPointer(), mode);
+    fs.open(_clonePath(realPath), mode);
     return !!fs;
 }
 
 Boolean FileSystem::isDirectory(const String& path)
 {
-    ArrayDestroyer<char> p(_clonePath(path));
-    return System::isDirectory(p.getPointer());
+    return System::isDirectory(_clonePath(path));
 }
 
 Boolean FileSystem::changeDirectory(const String& path)
 {
-    ArrayDestroyer<char> p(_clonePath(path));
-    return System::changeDirectory(p.getPointer());
+    return System::changeDirectory(_clonePath(path));
 }
 
 Boolean FileSystem::makeDirectory(const String& path)
 {
-    ArrayDestroyer<char> p(_clonePath(path));
-    return System::makeDirectory(p.getPointer());
+    return System::makeDirectory(_clonePath(path));
 }
 
 Boolean FileSystem::removeDirectory(const String& path)
 {
-    ArrayDestroyer<char> p(_clonePath(path));
-    return System::removeDirectory(p.getPointer());
+    return System::removeDirectory(_clonePath(path));
 }
 
 Boolean FileSystem::removeDirectoryHier(const String& path)

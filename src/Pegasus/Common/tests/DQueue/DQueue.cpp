@@ -268,10 +268,8 @@ int main(int argc, char **argv)
     }
     String traceFile (tmpDir);
     traceFile.append("/dq_memory_trace");
-    ArrayDestroyer <char> traceFileD (traceFile.allocateCString ());
-    const char* DQTraceFile = traceFileD.getPointer ();
 
-   Tracer::setTraceFile (DQTraceFile); 
+   Tracer::setTraceFile (traceFile.getCString()); 
    Tracer::setTraceComponents("Memory");  
    Tracer::setTraceLevel(Tracer::LEVEL4); 
    dq_handle = new peg_suballocator::SUBALLOC_HANDLE();

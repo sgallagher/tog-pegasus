@@ -141,8 +141,7 @@ void UserManager::addUser(const String& userName, const String& password)
     //
     // Check if the user is a valid system user
     //
-    ArrayDestroyer<char> un(userName.allocateCString());
-    if ( !System::isSystemUser( un.getPointer() ) )
+    if ( !System::isSystemUser( userName.getCString() ) )
     {
         PEG_METHOD_EXIT();
 	throw InvalidSystemUser(userName); 

@@ -1000,7 +1000,7 @@ void CIMOperationResponseEncoder::encodeInvokeMethodResponse(
    }
 
    Array<Sint8> message = XmlWriter::formatSimpleMethodRspMessage(
-      _CString(response->methodName), response->messageId, body);
+      response->methodName.getCString(), response->messageId, body);
 
    STAT_SERVEREND
 

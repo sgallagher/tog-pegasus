@@ -234,9 +234,7 @@ void OptionManager::mergeCommandLine(int& argc, char**& argv, Boolean abortOnErr
 void OptionManager::mergeFile(const String& fileName)
 {
     // Open the input file:
-
-    ArrayDestroyer<char> p(fileName.allocateCString());
-    ifstream is(p.getPointer());
+    ifstream is(fileName.getCString());
 
     if (!is)
 	throw NoSuchFile(fileName);
@@ -411,9 +409,7 @@ Boolean OptionManager::lookupIntegerValue(const String& name, Uint32& value) con
     String valueString;
     if (lookupValue(name, valueString))
     {
-	char* CValueString = valueString.allocateCString();
-	value = atol(CValueString);
-	delete [] CValueString;
+	value = atol(valueString.getCString());
 	return true;
     }
     else
@@ -596,7 +592,7 @@ Boolean Option::isValid(const String& value) const
 	case NATURAL_NUMBER:
 	case WHOLE_NUMBER:
 	{
-	    char* tmp = value.allocateCString();
+	    CString tmp = value.getCString();
 	    char* end = 0;
 	    long x = strtol(tmp, &end, 10);
 

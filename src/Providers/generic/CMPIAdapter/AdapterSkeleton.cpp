@@ -94,9 +94,7 @@ void CMPIAdapter::initialize(CIMOMHandle& cimomHandle)
 
     cerr << "try to load file " << _libraryName << endl;
     // dynamically load the provider library
-    ArrayDestroyer<char> fileName = _libraryName.allocateCString();
-
-    _library = System::loadDynamicLibrary(fileName.getPointer());
+    _library = System::loadDynamicLibrary(_libraryName.getCString());
 
     if(_library == 0)
     {

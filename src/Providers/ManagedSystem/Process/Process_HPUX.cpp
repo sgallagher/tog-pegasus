@@ -943,9 +943,7 @@ Boolean Process::findProcess(const String& handle)
   int stat;
 
   // Convert handle to an integer
-  char *h = handle.allocateCString();
-  int pid = atoi(h);
-  delete [] h;
+  int pid = atoi(handle.getCString());
 
   // loop ends with stat==0, meaning number of entries
   // returned was zero

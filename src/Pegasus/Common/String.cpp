@@ -40,6 +40,39 @@ PEGASUS_NAMESPACE_BEGIN
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// CString
+//
+///////////////////////////////////////////////////////////////////////////////
+
+CString::CString()
+    : _rep(0)
+{
+}
+
+CString::CString(const CString& cstr)
+{
+    _rep = new char[strlen(cstr._rep)+1];
+    _rep = strcpy(_rep, cstr._rep);
+}
+
+CString::CString(char* cstr)
+    : _rep(cstr)
+{
+}
+
+CString::~CString()
+{
+    if (_rep)
+        delete [] _rep;
+}
+
+CString::operator const char*() const
+{
+    return _rep;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // String
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -235,11 +268,10 @@ const Char16* String::getData() const
     return _rep->c16a.getData();
 }
 
-char* String::allocateCString(Uint32 extraBytes, Boolean& truncatedCharacters) const
+CString String::getCString() const
 {
-    truncatedCharacters = false;
     Uint32 n = size() + 1;
-    char* str = new char[n + extraBytes];
+    char* str = new char[n];
     char* p = str;
     const Char16* q = getData();
 
@@ -248,17 +280,11 @@ char* String::allocateCString(Uint32 extraBytes, Boolean& truncatedCharacters) c
 	Uint16 c = *q++;
 	*p++ = char(c);
 
-	if (c & 0xff00)
-	    truncatedCharacters = true;
+	//if (c & 0xff00)
+	//    truncatedCharacters = true;
     }
 
-    return str;
-}
-
-char* String::allocateCString(Uint32 extraBytes) const
-{
-    Boolean truncatedCharacters = false;
-    return allocateCString(extraBytes, truncatedCharacters);
+    return CString(str);
 }
 
 Char16& String::operator[](Uint32 index)

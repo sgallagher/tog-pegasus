@@ -167,8 +167,7 @@ void PasswordFile::load (PasswordTable& passwordTable)
     //
     // Open the password file
     //
-    ArrayDestroyer<char> p(_passwordFile.allocateCString());
-    ifstream ifs(p.getPointer());
+    ifstream ifs(_passwordFile.getCString());
     if (!ifs)
     {
         Logger::put(Logger::ERROR_LOG, "UserManager", Logger::SEVERE,
@@ -316,8 +315,7 @@ void PasswordFile::save (PasswordTable& passwordTable)
     //
     // Open the password file for writing
     //
-    ArrayDestroyer<char> p(_passwordFile.allocateCString());
-    ofstream ofs(p.getPointer());
+    ofstream ofs(_passwordFile.getCString());
     if (!ofs)
     {
         PEG_METHOD_EXIT();

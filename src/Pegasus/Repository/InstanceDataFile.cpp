@@ -63,8 +63,7 @@ Boolean InstanceDataFile::_openFile(
     // File does not exist so create it:
     //
 
-    ArrayDestroyer<char> p(path.allocateCString());
-    fs.open(p.getPointer(), mode);
+    fs.open(path.getCString(), mode);
 
     PEG_METHOD_EXIT();
     return !!fs;
@@ -369,9 +368,7 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
         return true;
     }
 
-    ArrayDestroyer<char> tmp(path.allocateCString());
-
-    if (!System::truncateFile(tmp.getPointer(), fileSize))
+    if (!System::truncateFile(path.getCString(), fileSize))
     {
         PEG_METHOD_EXIT();
 	return false;

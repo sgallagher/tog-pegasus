@@ -234,9 +234,7 @@ Boolean ShutdownPropertyOwner::isValid(const String& name, const String& value)
     //
     // convert timeout string to integer
     //
-    char* tmp = value.allocateCString();
-    long timeoutValue = strtol(tmp, (char **)0, 10);
-    delete [] tmp;
+    long timeoutValue = strtol(value.getCString(), (char **)0, 10);
 
     if (String::equalNoCase(_shutdownTimeout->propertyName, name))
     {

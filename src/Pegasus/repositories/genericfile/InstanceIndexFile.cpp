@@ -184,8 +184,7 @@ Boolean InstanceIndexFile::lookup(
     if (!FileSystem::existsNoCase(path, realPath))
         return false;
 
-    ArrayDestroyer<char> p(realPath.allocateCString());
-    ifstream is(p.getPointer(), ios::binary);
+    ifstream is(realPath.getCString(), ios::binary);
 
     if (is)
     {
@@ -251,9 +250,7 @@ Boolean InstanceIndexFile::insert(
             return false;
     }
 
-    ArrayDestroyer<char> p(path.allocateCString(4));
-    strcat(p.getPointer(), ".tmp");
-    ofstream os(p.getPointer(), ios::app | ios::binary);
+    ofstream os((path+".tmp").getCString(), ios::app | ios::binary);
 
     if (!os)
         return false;
@@ -265,8 +262,7 @@ Boolean InstanceIndexFile::insert(
     String realPath;
     if (FileSystem::existsNoCase(path, realPath))
     {
-        ArrayDestroyer<char> p(realPath.allocateCString());
-        ifstream is(p.getPointer(), ios::binary);
+        ifstream is(realPath.getCString(), ios::binary);
 
         if (!is)
             return false;
@@ -342,9 +338,7 @@ Boolean InstanceIndexFile::remove(
             return false;
     }
 
-    ArrayDestroyer<char> p(path.allocateCString(4));
-    strcat(p.getPointer(), ".tmp");
-    ofstream os(p.getPointer(), ios::binary);
+    ofstream os((path+".tmp").getCString(), ios::binary);
 
     if (!os)
     {
@@ -407,9 +401,7 @@ Boolean InstanceIndexFile::modify(
         }
     }
 
-    ArrayDestroyer<char> p(realPath.allocateCString(4));
-    strcat(p.getPointer(), ".tmp");
-    ofstream os(p.getPointer(), ios::binary);
+    ofstream os((realPath+".tmp").getCString(), ios::binary);
 
     if (!os)
     {
@@ -457,9 +449,7 @@ Boolean InstanceIndexFile::appendInstanceNamesTo(
 
     if (FileSystem::existsNoCase(path, realPath))
     {
-        ArrayDestroyer<char> p(realPath.allocateCString());
-
-        ifstream is(p.getPointer(), ios::binary);
+        ifstream is(realPath.getCString(), ios::binary);
 
         if (!is)
             return false;
@@ -529,8 +519,7 @@ Boolean InstanceIndexFile::_removeEntry(
     //
     // Open the index file
     //
-    ArrayDestroyer<char> q(path.allocateCString());
-    ifstream is(q.getPointer(), ios::binary);
+    ifstream is(path.getCString(), ios::binary);
 
     if (!is)
     {

@@ -44,8 +44,8 @@ void _Test01()
 {
     String indexPath (tmpDir);
     indexPath.append("/X.idx");
-    ArrayDestroyer <char> ipd (indexPath.allocateCString ());
-    const char* PATH = ipd.getPointer ();
+    CString ipd = indexPath.getCString();
+    const char* PATH = ipd;
     Uint32 index;
     Uint32 size;
     Uint32 freeCount = 0;
@@ -175,8 +175,8 @@ void _Test02()
 {
     String instancesPath (tmpDir);
     instancesPath.append("/X.instances");
-    ArrayDestroyer <char> ipd (instancesPath.allocateCString ());
-    const char* PATH = ipd.getPointer ();
+    CString ipd = instancesPath.getCString();
+    const char* PATH = ipd;
 
     //
     // Append some instances:

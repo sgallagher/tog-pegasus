@@ -156,7 +156,7 @@ void OSInfo::displayProperties()
    DateTime and returns a user-readable string of the format
    month day-of-month, year  hour:minute:second (value-hrs-GMT-offset)
    */
-static void formatCIMDateTime (char* cimString, char* dateTime)
+static void formatCIMDateTime (const char* cimString, char* dateTime)
 {
    int year = 0;
    int month = 0;
@@ -186,7 +186,7 @@ static void formatCIMDateTime (char* cimString, char* dateTime)
       case 12 : { sprintf(monthString, "Dec"); break; }
       // covered all knowned cases, if get to default, just 
       // return the input string as received.
-      default : { dateTime = cimString; return; }
+      default : { strcpy(dateTime, cimString); return; }
    }
    
    sprintf(dateTime, "%s %d, %d  %d:%d:%d (%03d%02d)",
@@ -268,15 +268,14 @@ void OSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
          char bdateString[80];
 
          inst.getProperty(j).getValue().get(bdate);
-         ArrayDestroyer <char> dtStr (bdate.toString ().allocateCString ());
-         char * str = dtStr.getPointer ();
+         CString dtStr = bdate.toString().getCString();
          if (!cimFormat) 
          { // else leave in raw CIM
-            formatCIMDateTime(str, bdateString);
+            formatCIMDateTime(dtStr, bdateString);
          }
          else
          {
-            sprintf(bdateString,"%s",str);
+            sprintf(bdateString,"%s",(const char*)dtStr);
          }
          osBootUpTime.assign(bdateString);
       }   // end if LastBootUpTime 
@@ -288,15 +287,14 @@ void OSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
          char ldateString[80];
 
          inst.getProperty(j).getValue().get(ldate);
-         ArrayDestroyer <char> dtStr (ldate.toString ().allocateCString ());
-         char * str = dtStr.getPointer ();
+         CString dtStr = ldate.toString().getCString();
          if (!cimFormat) 
          { // else leave in raw CIM
-            formatCIMDateTime(str, ldateString);
+            formatCIMDateTime(dtStr, ldateString);
          }
          else
          {
-            sprintf(ldateString,"%s",str);
+            sprintf(ldateString,"%s",(const char*)dtStr);
          }
          osLocalDateTime.assign(ldateString);
       }   // end if LocalDateTime 

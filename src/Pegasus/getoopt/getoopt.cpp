@@ -115,7 +115,7 @@ Optarg::Value(String &s) const { s = _value; }
 //  Fill in a caller-provided int with the integer conversion of the value.
 void Optarg::Value (int &i) const  throw (IncompatibleTypesException)
 {
-    _CString cs(_value);
+    CString cs = _value.getCString();
     const char* s = cs;
     Boolean valid = true;
     Uint32 j;
@@ -144,7 +144,7 @@ void Optarg::Value (int &i) const  throw (IncompatibleTypesException)
 //  Fill in a caller-provided unsigned int
 void Optarg::Value (unsigned int &i) const throw (IncompatibleTypesException)
 {
-    _CString cs(_value);
+    CString cs = _value.getCString();
     const char* s = cs;
     Boolean valid = true;
     Uint32 j;
@@ -170,25 +170,22 @@ void Optarg::Value (unsigned int &i) const throw (IncompatibleTypesException)
     }
 }
 
-//  Fill in a call-provided unsigned int
-void
-Optarg::Value(long &l) const {
-  _CString cs(_value);
-  l = (long)atoi(cs);
-}
-
 //  Fill in a caller-provided long
 void
-Optarg::Value(unsigned long &l) const {
-  _CString cs(_value);
-  l = (unsigned long)atoi(cs);
+Optarg::Value(long &l) const {
+  l = (long)atoi(_value.getCString());
 }
 
-//  Ditto unsigned long
+//  Fill in a caller-provided unsigned long
+void
+Optarg::Value(unsigned long &l) const {
+  l = (unsigned long)atoi(_value.getCString());
+}
+
+//  Fill in a caller-provided double
 void
 Optarg::Value(double &d) const {
-  _CString cs(_value);
-  d = (double)atof(cs);
+  d = (double)atof(_value.getCString());
 }
 
 //--------------------------------------------------------------------

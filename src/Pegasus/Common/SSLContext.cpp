@@ -190,7 +190,7 @@ SSLContextRep::SSLContextRep(const String& certPath,
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::SSLContextRep()");
 
-    _certPath = certPath.allocateCString();
+    _certPath = certPath.getCString();
 
     verify_certificate = verifyCert;
 
@@ -213,10 +213,7 @@ SSLContextRep::SSLContextRep(const String& certPath,
        //
        if ( randomFile != String::EMPTY )
        {
-          ArrayDestroyer<char> pRandomFile(randomFile.allocateCString());
-          char* randFilename = pRandomFile.getPointer();
-   
-          int ret = RAND_load_file(randFilename, -1);
+          int ret = RAND_load_file(randomFile.getCString(), -1);
           if ( ret < 0 )
           {
             PEG_METHOD_EXIT();
@@ -305,7 +302,6 @@ SSLContextRep::~SSLContextRep()
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::~SSLContextRep()");
 
-    free(_certPath);
     SSL_CTX_free(_SSLContext);
 
     PEG_METHOD_EXIT();

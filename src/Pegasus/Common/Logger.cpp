@@ -66,7 +66,7 @@ Uint32 Logger::_writeControlMask = 0xF;   // Set all on by default
     mask for level of severity are all driven from configuration
     input.
 */
-static char* _allocLogFileName(
+static CString _allocLogFileName(
     const String& homeDirectory,
     Logger::LogFileType logFileType)
 {
@@ -90,7 +90,7 @@ static char* _allocLogFileName(
     result.append(homeDirectory);
     result.append('/');
     result.append(logFileName);
-    return result.allocateCString();
+    return result.getCString();
 }
 
 class LoggerRep
@@ -103,7 +103,7 @@ public:
 	// Add test for home directory set.
 
 	// If home directory does not exist, create it.
-	char* lgDir = homeDirectory.allocateCString();
+	CString lgDir = homeDirectory.getCString();
 
 	if (!System::isDirectory(lgDir))
 	    System::makeDirectory(lgDir);
@@ -112,24 +112,18 @@ public:
 	// a completly erronous directory.  At least we will get a message
 	if (!System::isDirectory(lgDir))
 	    cerr << "Logging Disabled";
-	delete [] lgDir;
 
-
-	char* fileName = _allocLogFileName(homeDirectory, Logger::TRACE_LOG);
+	CString fileName = _allocLogFileName(homeDirectory, Logger::TRACE_LOG);
 	_logs[Logger::TRACE_LOG].open(fileName, ios::app);
-	delete [] fileName;
 
 	fileName = _allocLogFileName(homeDirectory, Logger::STANDARD_LOG);
 	_logs[Logger::STANDARD_LOG].open(fileName, ios::app);
-	delete [] fileName;
 
 	fileName = _allocLogFileName(homeDirectory, Logger::ERROR_LOG);
 	_logs[Logger::ERROR_LOG].open(fileName, ios::app);
-	delete [] fileName;
 
 	fileName = _allocLogFileName(homeDirectory, Logger::DEBUG_LOG);
 	_logs[Logger::DEBUG_LOG].open(fileName, ios::app);
-	delete [] fileName;
 #endif 
 
     }
@@ -189,7 +183,6 @@ void Logger::put(
 
         String logMsg = Formatter::format(formatString,
                 arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
-        ArrayDestroyer<char> logMsgCString(logMsg.allocateCString());
 
         #ifdef PEGASUS_OS_HPUX
             // FUTURE-SF-P3-20020517 : Use the Syslog on HP-UX. Eventually only 
@@ -209,7 +202,7 @@ void Logger::put(
             openlog("cimserver", LOG_PID|LOG_CONS, LOG_DAEMON);
 
             // Log the message
-            syslog(syslogLevel, "%s", logMsgCString.getPointer());
+            syslog(syslogLevel, "%s", (const char*)logMsg.getCString());
 
             // Close the syslog.
             closelog();
@@ -221,7 +214,7 @@ void Logger::put(
 	    if (severity & Logger::SEVERE) tmp =      "SEVERE  ";
 	    if (severity & Logger::FATAL) tmp =       "FATAL   ";
                 _rep->logOf(logFileType) << System::getCurrentASCIITime() 
-                 << " " << tmp << logMsgCString.getPointer() << endl;
+                 << " " << tmp << logMsg << endl;
        #endif
 
     }
@@ -231,10 +224,8 @@ void Logger::clean(const String& directory)
 {
     //String logFiles = logsDirectory;
     //logFiles.append("/PegasusTrace.log");
-    //char* lgFiles = logFiles.allocateCString();
     //cout << "Delete logs in " << logFiles << endl;
-    //System::removeFile(lgFiles);
-    //delete [] lgFiles;
+    //System::removeFile(logFiles.getCString());
     //for (i = xx; i < yy; i++)
     //(
     //_allocateLogFileName(directory, i)

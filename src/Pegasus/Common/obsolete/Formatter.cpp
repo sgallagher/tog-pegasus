@@ -21,9 +21,8 @@ void IntIns::insert(Array<Sint8>& out) const
 
 void StringIns::insert(Array<Sint8>& out) const
 {
-    char* tmp = _x.allocateCString();
+    CString tmp = _x.getCString();
     out.append(tmp, strlen(tmp));
-    delete [] tmp;
 }
 
 void Formatter::format(

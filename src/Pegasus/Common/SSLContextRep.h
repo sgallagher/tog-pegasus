@@ -73,7 +73,7 @@ private:
 
     SSL_CTX * _SSLContext;
 
-    char * _certPath;
+    CString _certPath;
 };
 
 PEGASUS_NAMESPACE_END

@@ -38,19 +38,14 @@ PEGASUS_NAMESPACE_BEGIN
 // Clone the string to a plain old C-String and null out
 // trailing slash (if any).
 
-static char* _clonePath(const String& path)
+static CString _clonePath(const String& path)
 {
-    char* p = path.allocateCString();
+    String clone = path;
 
-    if (!*p)
-	return p;
+    if (clone.size() && clone[clone.size()-1] == '/')
+        clone.remove(clone.size()-1);
 
-    char* last = p + path.size() - 1;
-
-    if (*last == '/')
-	*last = '\0';
-
-    return p;
+    return clone.getCString();
 }
 
 struct DirRep
@@ -61,9 +56,8 @@ struct DirRep
 
 Dir::Dir(const String& path)
 {
-    ArrayDestroyer<char> p(_clonePath(path));
     _rep = new DirRep;
-    _rep->dir = opendir(p.getPointer());
+    _rep->dir = opendir(_clonePath(path));
 
     if (_rep->dir)
     {

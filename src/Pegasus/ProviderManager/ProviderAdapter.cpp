@@ -275,11 +275,8 @@ PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::_loadlibrary() " << file
 
 #endif
     // dynamically load the provider library
-    ArrayDestroyer<char> tempFileName = adapterFileName.allocateCString();
-
-
     DynamicLibraryHandle library =
-            System::loadDynamicLibrary(tempFileName.getPointer());
+            System::loadDynamicLibrary(adapterFileName.getCString());
 
     if (library == 0)
     {

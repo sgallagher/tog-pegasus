@@ -114,7 +114,7 @@ String System::encryptPassword(const char* password, const char* salt)
     return (String("dummy"));
 }
 
-Boolean System::isSystemUser(char* userName)
+Boolean System::isSystemUser(const char* userName)
 {
     // ATTN: Implement this method to verify if user is vaild 
     //       on the local system

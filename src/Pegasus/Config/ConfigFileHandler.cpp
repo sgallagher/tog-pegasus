@@ -124,8 +124,7 @@ ConfigFileHandler::ConfigFileHandler (
         // try creating one so that planned file contents
         // can be copied over.
         //
-        ArrayDestroyer<char> p(cFile.allocateCString());
-        ofstream ofs(p.getPointer());
+        ofstream ofs(cFile.getCString());
         if (!ofs)
         {
             throw NoSuchFile(cFile);
@@ -315,8 +314,7 @@ Boolean ConfigFileHandler::updatePlannedValue (
         {
             String pFile = _plannedConfFile->getFileName();
 
-            ArrayDestroyer<char> p(pFile.allocateCString());
-            ofstream ofs(p.getPointer());
+            ofstream ofs(pFile.getCString());
             if (!ofs)
             {
                 throw NoSuchFile(pFile);

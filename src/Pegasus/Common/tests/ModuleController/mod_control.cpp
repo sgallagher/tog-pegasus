@@ -276,7 +276,7 @@ ModuleController::client_handle *test_module::get_client_handle(void)
 {
    if(_client_handle == NULL)
    {
-      char *temp = _controller_name.allocateCString();
+      CString temp = _controller_name.getCString();
       if( temp )
       {
 	 try 

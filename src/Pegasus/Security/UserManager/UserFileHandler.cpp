@@ -301,9 +301,7 @@ void UserFileHandler::addUserEntry(
     // encrypt password
     _GetSalt(salt);
 
-    ArrayDestroyer<char> pw(password.allocateCString());
-
-    encryptedPassword = System::encryptPassword(pw.getPointer(),salt);
+    encryptedPassword = System::encryptPassword(password.getCString(),salt);
 
     // add the user to the cache and password file
     _Update(ADD_USER,userName, encryptedPassword);
@@ -344,9 +342,7 @@ void UserFileHandler::modifyUserEntry(
     // encrypt new password
     _GetSalt(salt);
 
-    ArrayDestroyer<char> npw(newPassword.allocateCString());
-
-    encryptedPassword = System::encryptPassword(npw.getPointer(),salt);
+    encryptedPassword = System::encryptPassword(newPassword.getCString(),salt);
 
     _Update(MODIFY_USER, userName, encryptedPassword);
 
@@ -415,11 +411,9 @@ Boolean UserFileHandler::verifyCIMUserPassword (
     }
 
     saltStr = curPassword.subString(0,2);
-    ArrayDestroyer<char> oldsalt(saltStr.allocateCString());
-    ArrayDestroyer<char> pw(password.allocateCString());
 
     encryptedPassword =
-                System::encryptPassword(pw.getPointer(),oldsalt.getPointer());
+        System::encryptPassword(password.getCString(),saltStr.getCString());
 
     if ( curPassword != encryptedPassword )
     {

@@ -130,12 +130,12 @@ String LocalAuthFile::create()
     filePath.append(_authFilePath);
     filePath.append(_userName);
     filePath.append(extension);
+    CString filePathCString = filePath.getCString();
 
     //
     // 1. Create a file name for authentication.
     //
-    ArrayDestroyer<char> p(filePath.allocateCString());
-    ofstream outfs(p.getPointer());
+    ofstream outfs(filePathCString);
     if (!outfs)
     {
         // unable to create file
@@ -149,7 +149,7 @@ String LocalAuthFile::create()
     //
     // 2. Set file permission to read only by the owner.
     //
-    Sint32 ret = chmod(p.getPointer(), S_IRUSR);
+    Sint32 ret = chmod(filePathCString, S_IRUSR);
     if ( ret == -1)
     {
         PEG_METHOD_EXIT();
@@ -227,8 +227,7 @@ Boolean LocalAuthFile::_changeFileOwner(const String& fileName)
 
     struct passwd*        userPasswd;
 
-    ArrayDestroyer<char> pUserName(_userName.allocateCString());
-    userPasswd = getpwnam(pUserName.getPointer());
+    userPasswd = getpwnam(_userName.getCString());
 
     if ( userPasswd  == NULL)
     {
@@ -236,9 +235,7 @@ Boolean LocalAuthFile::_changeFileOwner(const String& fileName)
         return (false);
     }
     
-    ArrayDestroyer<char> pFileName(fileName.allocateCString());
-
-    Sint32 ret = chown(pFileName.getPointer(), userPasswd->pw_uid, userPasswd->pw_gid);
+    Sint32 ret = chown(fileName.getCString(), userPasswd->pw_uid, userPasswd->pw_gid);
     if ( ret == -1)
     {
         PEG_METHOD_EXIT();

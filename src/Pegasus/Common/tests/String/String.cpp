@@ -79,13 +79,10 @@ int main(int argc, char** argv)
     }
 
     {
-	// Test allocateCString
+	// Test getCString
 	const char STR0[] = "one two three four";
 	String s = STR0;
-	char* tmp = s.allocateCString();
-	assert(strcmp(tmp, STR0) == 0);
-	const char STR1[] = "zero ";
-	delete [] tmp;
+	assert(strcmp(s.getCString(), STR0) == 0);
     }
 
     {
@@ -158,10 +155,9 @@ int main(int argc, char** argv)
 
 	const char STR0[] = "one two three four";
 	String s = STR0;
-	char* tmp = s.allocateCString();
+	CString tmp = s.getCString();
 	assert(tmp == s);
 	assert(s == tmp);
-	delete [] tmp;
     }
 
     {

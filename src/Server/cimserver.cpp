@@ -594,8 +594,7 @@ int main(int argc, char** argv)
         {
             String configTimeout = 
                 configManager->getCurrentValue("shutdownTimeout");
-            ArrayDestroyer<char> timeoutCString(configTimeout.allocateCString());
-            timeoutValue = strtol(timeoutCString.getPointer(), (char **)0, 10);
+            timeoutValue = strtol(configTimeout.getCString(), (char **)0, 10);
             
             shutdownCIMOM(timeoutValue);
 
@@ -642,11 +641,10 @@ int main(int argc, char** argv)
 
     if (useSSL)
     {
-        char* p = httpsPort.allocateCString();
 	char* end = 0;
-	Uint32 port = strtol(p, &end, 10);
+        CString portString = httpsPort.getCString();
+	Uint32 port = strtol(portString, &end, 10);
 	assert(end != 0 && *end == '\0');
-	delete [] p;
 
         //
         // Look up the WBEM-HTTPS port number 
@@ -656,11 +654,10 @@ int main(int argc, char** argv)
     }
     else
     {
-        char* p = httpPort.allocateCString();
 	char* end = 0;
-	Uint32 port = strtol(p, &end, 10);
+        CString portString = httpPort.getCString();
+	Uint32 port = strtol(portString, &end, 10);
 	assert(end != 0 && *end == '\0');
-	delete [] p;
 
         //
         // Look up the WBEM-HTTP port number 
@@ -712,8 +709,6 @@ int main(int argc, char** argv)
 	serviceURL.append(host_name);
 	serviceURL.append(":");
 	serviceURL.append(address);
-	char *url = serviceURL.allocateCString();
-	//	free(host_name);
 #endif
 
 	Monitor monitor(true);
@@ -775,8 +770,8 @@ int main(int argc, char** argv)
 	  {
 	    if(  (time(NULL) - last ) > 60 ) 
 	    {
-	      if( discovery != NULL && url != NULL )
-		discovery->srv_reg_all(url,  
+	      if( discovery != NULL && serviceURL.size() )
+		discovery->srv_reg_all(serviceURL.getCString(),
 				       "(namespace=root/cimv2)",
 				       "service:cim.pegasus", 
 				       "DEFAULT", 

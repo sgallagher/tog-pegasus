@@ -44,9 +44,8 @@ struct DirRep
 
 Dir::Dir(const String& path)
 {
-    ArrayDestroyer<char> p(strcat(path.allocateCString(2), "/*"));
     _rep = new DirRep;
-    _rep->file = _findfirst(p.getPointer(), &_rep->findData);
+    _rep->file = _findfirst((path+"/*").getCString(), &_rep->findData);
 
     if (_rep->file == -1)
     {

@@ -56,46 +56,44 @@ typedef CIMHandler* (*CreateHandlerFunc)();
 CIMHandler* HandlerTable::loadHandler(const String& handlerId)
 {
     // Load the dynamic library:
+    String libraryName;
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-    ArrayDestroyer<char> libraryName = handlerId.allocateCString();
+    libraryName = handlerId;
 #else
-    String unixLibName = 
+    libraryName = 
               ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    unixLibName.append("/lib");
-    unixLibName.append(handlerId);
+    libraryName.append("/lib");
+    libraryName.append(handlerId);
 #ifdef PEGASUS_OS_HPUX
-    unixLibName.append(".sl");
+    libraryName.append(".sl");
 #else
-    unixLibName.append(".so");
+    libraryName.append(".so");
 #endif
-    ArrayDestroyer<char> libraryName = unixLibName.allocateCString();
 #endif
 
     DynamicLibraryHandle libraryHandle = 
-	System::loadDynamicLibrary(libraryName.getPointer());
+	System::loadDynamicLibrary(libraryName.getCString());
 
     if (!libraryHandle) {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-	throw DynamicLoadFailed(libraryName.getPointer());
+	throw DynamicLoadFailed(libraryName);
 #else
-        unixLibName = System::dynamicLoadError();
-        ArrayDestroyer<char> errorMsg = unixLibName.allocateCString();
-	throw DynamicLoadFailed(errorMsg.getPointer());
+        String errorMsg = System::dynamicLoadError();
+	throw DynamicLoadFailed(errorMsg);
 #endif
     }
 
     // Lookup the create handler symbol:
 
-    String tmp = "PegasusCreateHandler_";
-    tmp.append(handlerId);
-    ArrayDestroyer<char> functionName = tmp.allocateCString();
+    String functionName = "PegasusCreateHandler_";
+    functionName.append(handlerId);
 
     CreateHandlerFunc func = (CreateHandlerFunc)System::loadDynamicSymbol(
-	libraryHandle, functionName.getPointer());
+	libraryHandle, functionName.getCString());
 
     if (!func)
-	throw DynamicLookupFailed(functionName.getPointer());
+	throw DynamicLookupFailed(functionName);
 
     // Create the handler:
 
@@ -103,8 +101,8 @@ CIMHandler* HandlerTable::loadHandler(const String& handlerId)
 
     if (!handler)
 	throw CreateHandlerReturnedNull(
-	    libraryName.getPointer(), 
-	    functionName.getPointer());
+	    libraryName, 
+	    functionName);
 
     if (handler)
     {

@@ -238,8 +238,7 @@ void Tracer::_traceString(
     {
         if (_isTraceEnabled(traceComponent,traceLevel))
         {
-            ArrayDestroyer<char> traceMsg(traceString.allocateCString());
-            trace(traceComponent,traceLevel,"%s",traceMsg.getPointer());
+            trace(traceComponent,traceLevel,"%s",traceString.getCString());
         }
     }
 }
@@ -263,8 +262,7 @@ void Tracer::_traceString(
     {
         if ( _isTraceEnabled( traceComponent, traceLevel ) )
         {
-            ArrayDestroyer<char> traceMsg(traceString.allocateCString());
-            trace(fileName,lineNum,traceComponent,traceLevel,"%s",traceMsg.getPointer());
+            trace(fileName,lineNum,traceComponent,traceLevel,"%s",traceString.getCString());
         }
     }
 }
@@ -398,7 +396,7 @@ void Tracer::_trace(
 
     // Get the current system time and prepend to message
     String currentTime = System::getCurrentASCIITime();
-    ArrayDestroyer<char> timeStamp(currentTime.allocateCString());
+    CString timeStamp = currentTime.getCString();
 
     //
     // Allocate messageHeader. 
@@ -406,14 +404,14 @@ void Tracer::_trace(
     //
     msgHeader = new char [strlen(message)
         + strlen(TRACE_COMPONENT_LIST[traceComponent]) 
-	+ strlen(timeStamp.getPointer()) + _STRLEN_MAX_PID_TID];
+	+ strlen(timeStamp) + _STRLEN_MAX_PID_TID];
 
     // Construct the message header
     // The message header is in the following format 
     // timestamp: <component name> [file name:line number]
     if (strcmp(message,"") != 0)
     {
-        sprintf(msgHeader,"%s: %s %s",timeStamp.getPointer(),
+        sprintf(msgHeader,"%s: %s %s",(const char*)timeStamp,
             TRACE_COMPONENT_LIST[traceComponent] ,message);
     }
     else
@@ -431,7 +429,7 @@ void Tracer::_trace(
         sprintf(tmpBuffer, "[%u:%u]: ", System::getPID(),
                 Uint32(pegasus_thread_self()));
 
-        sprintf(msgHeader,"%s: %s %s ",timeStamp.getPointer(),
+        sprintf(msgHeader,"%s: %s %s ",(const char*)timeStamp,
             TRACE_COMPONENT_LIST[traceComponent] ,tmpBuffer );
         delete []tmpBuffer;
     }

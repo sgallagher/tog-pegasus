@@ -931,7 +931,7 @@ Uint32 OperatingSystem::_reboot()
    const char *paths[] = { "/sbin", "/usr/sbin", "/usr/local/sbin", NULL };
    struct stat sbuf;
    String fname;
-   char *p;
+   CString p;
    Uint32 result;
 
 // ATTN-SLC-P2-17-Apr-02: this method not invoked for HP-UX (run as root)
@@ -943,17 +943,15 @@ Uint32 OperatingSystem::_reboot()
 	 fname = paths[ii];
 	 fname.append("/");
 	 fname.append(reboot[jj]);
-	 p = fname.allocateCString();
+	 p = fname.getCString();
 	 if (stat(p, &sbuf) == 0 && (sbuf.st_mode & S_IXUSR))
 	 {
 	    result = 2;
 	    if (system(p) == 0)
 	       result = 0;
 
-	    delete [] p;
 	    return result;
 	 }
-	 delete [] p;
       }
    }
    return result;
@@ -965,7 +963,7 @@ Uint32 OperatingSystem::_shutdown()
    const char *paths[] = { "/sbin", "/usr/sbin", "/usr/local/sbin", NULL };
    struct stat sbuf;
    String fname;
-   char *p;
+   CString p;
    Uint32 result;
 
 // ATTN-SLC-P2-17-Apr-02: this method not invoked for HP-UX (run as root)
@@ -978,17 +976,15 @@ Uint32 OperatingSystem::_shutdown()
 	 fname = paths[ii];
 	 fname.append("/");
 	 fname.append(poweroff[jj]);
-	 p = fname.allocateCString();
+	 p = fname.getCString();
 	 if (stat(p, &sbuf) == 0 && (sbuf.st_mode & S_IXUSR))
 	 {
 	    result = 2;
 	    if (system(p) == 0)
 	       result = 0;
 
-	    delete [] p;
 	    return result;
 	 }
-	 delete [] p;
       }
    }
    return result;

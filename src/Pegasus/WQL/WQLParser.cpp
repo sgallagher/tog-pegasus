@@ -104,9 +104,7 @@ void WQLParser::parse(
 {
     PEG_METHOD_ENTER(TRC_WQL,"WQLParser::parse");
 
-    char* tmpText = text.allocateCString();
-    ArrayDestroyer<char> destroyer(tmpText);
-    parse(tmpText, statement);
+    parse(text.getCString(), statement);
 
     PEG_METHOD_EXIT();
 }

@@ -292,14 +292,12 @@ void XmlWriter::appendLocalNameSpacePathElement(
 {
     out << "<LOCALNAMESPACEPATH>\n";
 
-    char* tmp = nameSpace.allocateCString();
-
-    for (char* p = strtok(tmp, "/"); p; p = strtok(NULL, "/"))
+    char* nameSpaceCopy = strdup(nameSpace.getCString());
+    for (const char* p = strtok(nameSpaceCopy, "/"); p; p = strtok(NULL, "/"))
     {
 	out << "<NAMESPACE NAME=\"" << p << "\"/>\n";
     }
-
-    delete [] tmp;
+    delete nameSpaceCopy;
 
     out << "</LOCALNAMESPACEPATH>\n";
 }
@@ -2099,13 +2097,12 @@ Array<Sint8> XmlWriter::formatSimpleMethodErrorRspMessage(
     const String& messageId,
     const CIMException& cimException)
 {
-    ArrayDestroyer<char> tmp1(methodName.allocateCString());
     Array<Sint8> out;
     Array<Sint8> tmp;
 
     _appendMessageElementBegin(out, messageId);
     _appendSimpleRspElementBegin(out);
-    _appendMethodResponseElementBegin(out, tmp1.getPointer());
+    _appendMethodResponseElementBegin(out, methodName.getCString());
     _appendErrorElement(out, cimException);
     _appendMethodResponseElementEnd(out);
     _appendSimpleRspElementEnd(out);
@@ -2199,13 +2196,12 @@ Array<Sint8> XmlWriter::formatSimpleIMethodErrorRspMessage(
     const String& messageId,
     const CIMException& cimException)
 {
-    ArrayDestroyer<char> tmp1(iMethodName.allocateCString());
     Array<Sint8> out;
     Array<Sint8> tmp;
 
     _appendMessageElementBegin(out, messageId);
     _appendSimpleRspElementBegin(out);
-    _appendIMethodResponseElementBegin(out, tmp1.getPointer());
+    _appendIMethodResponseElementBegin(out, iMethodName.getCString());
     _appendErrorElement(out, cimException);
     _appendIMethodResponseElementEnd(out);
     _appendSimpleRspElementEnd(out);
@@ -2444,13 +2440,12 @@ Array<Sint8> XmlWriter::formatSimpleEMethodErrorRspMessage(
     const String& messageId,
     const CIMException& cimException)
 {
-    ArrayDestroyer<char> tmp1(eMethodName.allocateCString());
     Array<Sint8> out;
     Array<Sint8> tmp;
 
     _appendMessageElementBegin(out, messageId);
     _appendSimpleExportRspElementBegin(out);
-    _appendEMethodResponseElementBegin(out, tmp1.getPointer());
+    _appendEMethodResponseElementBegin(out, eMethodName.getCString());
     _appendErrorElement(out, cimException);
     _appendEMethodResponseElementEnd(out);
     _appendSimpleExportRspElementEnd(out);

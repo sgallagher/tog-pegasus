@@ -373,25 +373,19 @@ inline String FileSystem::getAbsolutePath(
 
 inline Boolean Open(PEGASUS_STD(ifstream)& is, const String& path)
 {
-    char* tmpPath = path.allocateCString();
-    is.open(tmpPath);
-    delete [] tmpPath;
+    is.open(path.getCString());
     return !!is;
 }
 
 inline Boolean Open(PEGASUS_STD(ofstream)& os, const String& path)
 {
-    char* tmpPath = path.allocateCString();
-    os.open(tmpPath);
-    delete [] tmpPath;
+    os.open(path.getCString());
     return !!os;
 }
 
 inline Boolean OpenAppend(PEGASUS_STD(ofstream)& os, const String& path)
 {
-    char* tmpPath = path.allocateCString();
-    os.open(tmpPath, PEGASUS_STD(ios::app));
-    delete [] tmpPath;
+    os.open(path.getCString(), PEGASUS_STD(ios::app));
     return !!os;
 }
 

@@ -114,19 +114,17 @@ int main(int argc, char** argv)
         t1.append("/TestDirectory2");
         String tf (tmpDir);
         tf.append("/TestFile.txt");
-        ArrayDestroyer <char> tfd (tf.allocateCString ());
-        const char* f = tfd.getPointer ();
+        CString f = tf.getCString();
         String tf1 (tmpDir);
         tf1.append("/TestFile1.txt");
-        ArrayDestroyer <char> tf1d (tf1.allocateCString ());
-        const char* f1 = tf1d.getPointer ();
+        CString f1 = tf1.getCString();
 
 	FileSystem::makeDirectory(t);
 	assert(FileSystem::isDirectory(t));
 	FileSystem::removeDirectory(t);
 	assert(!FileSystem::isDirectory(t));
 
-	// Tests for remove hiearchy command
+	// Tests for remove hierarchy command
 	// ATTN: Removed following until next test ks
 	// because remove hiearchy does not work yet.
 	FileSystem::makeDirectory(t);
@@ -142,12 +140,12 @@ int main(int argc, char** argv)
   	ofstream of1(f);
 	of1 << "test" << endl;
 	of1.close();
-	assert(FileSystem::exists(f));
+	assert(FileSystem::exists(tf));
 
   	ofstream of2(f1);
 	of2 << "test" << endl;
 	of2.close();
-	assert(FileSystem::exists(f1));
+	assert(FileSystem::exists(tf1));
 
 	// Create a second level directory
 	FileSystem::makeDirectory(t1);
@@ -175,16 +173,12 @@ int main(int argc, char** argv)
     }
     // Test renameFile:
     {
-        String rf1 (tmpDir);
-        rf1.append("/file1.txt");
-        ArrayDestroyer <char> rf1d (rf1.allocateCString ());
-        const char* FILE1 = rf1d.getPointer ();
-        String rf2 (tmpDir);
-        rf2.append("/file2.txt");
-        ArrayDestroyer <char> rf2d (rf2.allocateCString ());
-        const char* FILE2 = rf2d.getPointer ();
+        String FILE1 (tmpDir);
+        FILE1.append("/file1.txt");
+        String FILE2 (tmpDir);
+        FILE2.append("/file2.txt");
 
-  	ofstream of1(FILE1);
+  	ofstream of1(FILE1.getCString());
 	of1 << "test" << endl;
 	of1.close();
 	assert(FileSystem::exists(FILE1));

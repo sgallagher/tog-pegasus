@@ -61,9 +61,9 @@ int
 parser::setInputBufferFromName(const String &filename) {
 #ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
   // 't' not supported on OS/400
-  FILE *f = fopen(_CString(filename),"r");
+  FILE *f = fopen(filename.getCString(),"r");
 #else
-  FILE *f = fopen(_CString(filename),"rt");
+  FILE *f = fopen(filename.getCString(),"rt");
 #endif
   if (f) {
     set_current_filename(filename);
@@ -107,5 +107,5 @@ parser::log_parse_error(char *token, const char *errmsg) const {
   sprintf(buf, "%d", _lineno);
   String s = _current_filename + ":" + buf + ": " + errmsg + " before `" 
     + token + "'\n";
-  throw ParserLexException(_CString(s));
+  throw ParserLexException(s);
 }

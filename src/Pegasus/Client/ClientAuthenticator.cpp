@@ -335,8 +335,7 @@ String ClientAuthenticator::_getFileContent(String filePath)
     //
     // Open the challenge file and read the challenge data
     //
-    ArrayDestroyer<char> p(filePath.allocateCString());
-    ifstream ifs(p.getPointer());
+    ifstream ifs(filePath.getCString());
     if (!ifs)
     {
        //ATTN: Log error message
@@ -394,9 +393,8 @@ Boolean ClientAuthenticator::_parseAuthHeader(
     String& authType,
     String& authRealm)
 {
-    ArrayDestroyer<char> header(authHeader.allocateCString());
-
-    const char* pAuthHeader = header.getPointer();
+    CString header = authHeader.getCString();
+    const char* pAuthHeader = header;
 
     //
     // Skip the white spaces in the begining of the header

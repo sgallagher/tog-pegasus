@@ -409,10 +409,8 @@ ModuleController & ModuleController::register_module(const String & controller_n
    
 
    Array<Uint32> services;
-   char *temp = controller_name.allocateCString();
    
-   MessageQueue *message_queue = MessageQueue::lookup(temp);
-   delete [] temp;
+   MessageQueue *message_queue = MessageQueue::lookup(controller_name.getCString());
    
    if ((message_queue == NULL) || ( false == message_queue->isAsync() ))
    {

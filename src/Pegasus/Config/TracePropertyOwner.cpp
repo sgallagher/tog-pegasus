@@ -280,17 +280,17 @@ void TracePropertyOwner::initCurrentValue(
 	Tracer::setTraceComponents(_traceComponents->currentValue);
         if (_traceFilePath->currentValue != String::EMPTY && _traceComponents->currentValue != String::EMPTY)
         {
-
-            ArrayDestroyer<char> fileName(_traceFilePath->currentValue.allocateCString());
-	    if (Tracer::isValidFileName(fileName.getPointer()))
+            CString fileName = _traceFilePath->currentValue.getCString();
+	    if (Tracer::isValidFileName(fileName))
 	    { 
-                Uint32 retCode = Tracer::setTraceFile(fileName.getPointer());
+                Uint32 retCode = Tracer::setTraceFile(fileName);
 	        // Check whether the filepath was set
 	        if ( retCode == 1 )
 	        {
 	            Logger::put(Logger::DEBUG_LOG,"TracePropertyOwner",
 	                Logger::WARNING,
-	                "Unable to write to trace file $0",fileName.getPointer());
+	                "Unable to write to trace file $0",
+	                (const char*)fileName);
 
 	            _traceFilePath->currentValue = "";
                 }
@@ -305,24 +305,22 @@ void TracePropertyOwner::initCurrentValue(
     }
     else if (String::equalNoCase(_traceFilePath->propertyName, name))
     {
-        ArrayDestroyer<char> fileName(value.allocateCString());
         _traceFilePath->currentValue = value;
         if (_traceFilePath->currentValue != String::EMPTY && 
             _traceComponents->currentValue != String::EMPTY)
         {
-
-            ArrayDestroyer<char> 
-                fileName(_traceFilePath->currentValue.allocateCString());
-	    if (Tracer::isValidFileName(fileName.getPointer()))
+            CString fileName = _traceFilePath->currentValue.getCString();
+	    if (Tracer::isValidFileName(fileName))
 	    { 
-                Uint32 retCode = Tracer::setTraceFile(fileName.getPointer());
+                Uint32 retCode = Tracer::setTraceFile(fileName);
 
 	        // Check whether the filepath was set
 	        if ( retCode == 1 )
 	        {
 	            Logger::put(Logger::DEBUG_LOG,"TracePropertyOwner",
 	             Logger::WARNING,
-	             "Unable to write to trace file $0", fileName.getPointer());
+	             "Unable to write to trace file $0",
+	             (const char*)fileName);
 	            _traceFilePath->currentValue = "";
                 }
             }
@@ -422,8 +420,7 @@ Boolean TracePropertyOwner::isValid(const String& name, const String& value)
         {
             throw InvalidPropertyValue(name, value);
         }
-        ArrayDestroyer<char> fileName(value.allocateCString());
-	if (!Tracer::isValidFileName(fileName.getPointer()))
+	if (!Tracer::isValidFileName(value.getCString()))
 	{
 	    throw InvalidPropertyValue(name, value);
 	}

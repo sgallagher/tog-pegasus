@@ -260,15 +260,14 @@ int
 cimmofParser::enterInlineInclude(const String &filename) {
   int ret = 1;
   FILE *f = 0;
-  char *fqname = (char *)filename.allocateCString();
 
-  f = fopen(fqname, "r");
+  f = fopen(filename.getCString(), "r");
   if (!f) {
     if (_cmdline) {
       const Array<String> &include_paths = _cmdline->get_include_paths();
       for (unsigned int i = 0; i < include_paths.size(); i++) {
-	String s = include_paths[i] + "/" + fqname;
-	if ( (f = fopen(_CString(s), "r")) ) {
+	String s = include_paths[i] + "/" + filename;
+	if ( (f = fopen(s.getCString(), "r")) ) {
 	  _includefile = s;
 	  break;
 	}	 
@@ -277,13 +276,13 @@ cimmofParser::enterInlineInclude(const String &filename) {
       return ret;
     }
   } else {
-    _includefile = fqname;
+    _includefile = filename;
   }
   if (f) {
      ret = enterInlineInclude((const FILE *)f);
   } else {
     // ATTN:  need to throw an exception when include file not found. error only
-    cerr << "Could not open include file " << fqname << endl;
+    cerr << "Could not open include file " << filename << endl;
   }
   return ret;
 }

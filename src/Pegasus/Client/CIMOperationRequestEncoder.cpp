@@ -46,15 +46,13 @@ CIMOperationRequestEncoder::CIMOperationRequestEncoder(
     :
     MessageQueue(PEGASUS_QUEUENAME_OPREQENCODER),
     _outputQueue(outputQueue),
+    _hostName(System::getHostName().getCString()),
     _authenticator(authenticator)
 {
-    String tmpHostName = System::getHostName();
-    _hostName = tmpHostName.allocateCString();
 }
 
 CIMOperationRequestEncoder::~CIMOperationRequestEncoder()
 {
-    delete [] _hostName;
 }
 
 void CIMOperationRequestEncoder::handleEnqueue()
@@ -684,7 +682,7 @@ void CIMOperationRequestEncoder::_encodeInvokeMethodRequest(
 {
     Array<Sint8> buffer = XmlWriter::formatSimpleMethodReqMessage(_hostName,
 	message->nameSpace, message->instanceName,
-	_CString(message->methodName),
+	message->methodName.getCString(),
 	message->inParameters, message->messageId,
 	_authenticator->buildRequestAuthHeader());
     

@@ -136,8 +136,7 @@ void ConfigFile::load (ConfigTable* confTable)
     //
     // Open the config file
     //
-    ArrayDestroyer<char> p(_configFile.allocateCString());
-    ifstream ifs(p.getPointer());
+    ifstream ifs(_configFile.getCString());
     if (!ifs)
     {
         return;
@@ -273,8 +272,7 @@ void ConfigFile::save (ConfigTable* confTable)
     //
     // Open the config file for writing
     //
-    ArrayDestroyer<char> p(_configFile.allocateCString());
-    ofstream ofs(p.getPointer());
+    ofstream ofs(_configFile.getCString());
     ofs.clear();
 
     //
@@ -310,8 +308,7 @@ void ConfigFile::replace (const String& fileName)
     //
     // Open the given config file for reading
     //
-    ArrayDestroyer<char> q(fileName.allocateCString());
-    ifstream ifs(q.getPointer());
+    ifstream ifs(fileName.getCString());
 
     //
     // Delete the backup configuration file
@@ -336,8 +333,7 @@ void ConfigFile::replace (const String& fileName)
     //
     // Open the existing config file for writing
     //
-    ArrayDestroyer<char> p(_configFile.allocateCString());
-    ofstream ofs(p.getPointer());
+    ofstream ofs(_configFile.getCString());
     ofs.clear();
 
     //

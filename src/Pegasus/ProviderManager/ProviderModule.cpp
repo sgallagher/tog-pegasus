@@ -122,9 +122,7 @@ void ProviderModule::load(void)
     }
 
     // dynamically load the provider library
-    ArrayDestroyer<char> fileName = _fileName.allocateCString();
-
-    _library = System::loadDynamicLibrary(fileName.getPointer());
+    _library = System::loadDynamicLibrary(_fileName.getCString());
 
     if(_library == 0)
     {
@@ -134,7 +132,7 @@ void ProviderModule::load(void)
         throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
     }
 
-    // find libray entry point
+    // find library entry point
     CIMBaseProvider * (*createProvider)(const String &) = 0;
 
     createProvider = (CIMBaseProvider * (*)(const String &))System::loadDynamicSymbol(

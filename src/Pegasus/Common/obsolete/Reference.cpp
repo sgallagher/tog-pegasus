@@ -134,8 +134,7 @@ void Reference::setFromReference(const String& referencePath)
     _className.clear();
     _keyValuePairs.clear();
 
-    char* referencePathCString = referencePath.allocateCString();
-    ArrayDestroyer<char> dummy(referencePathCString);
+    CString referencePathCString = referencePath.getCString();
     const char* start = referencePathCString;
     const char* current = start;
 

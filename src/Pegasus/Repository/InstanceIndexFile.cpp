@@ -529,8 +529,7 @@ Boolean InstanceIndexFile::_openFile(
 	    // File does not exist so create it:
 	    //
 
-            ArrayDestroyer<char> p(path.allocateCString());
-            fs.open(p.getPointer(), ios::out PEGASUS_OR_IOS_BINARY);
+            fs.open(path.getCString(), ios::out PEGASUS_OR_IOS_BINARY);
 
             if (!fs)
             {

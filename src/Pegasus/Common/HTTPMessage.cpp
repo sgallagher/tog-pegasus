@@ -334,8 +334,7 @@ Boolean HTTPMessage::parseStatusLine(
     Uint32 statusCodePos = space1 + 1;
     String statusCodeStr;
     statusCodeStr = statusLine.subString(statusCodePos, space2 - statusCodePos);
-    ArrayDestroyer<char> statusCodeCharStr(statusCodeStr.allocateCString());
-    if (!sscanf(statusCodeCharStr.getPointer(), "%u", &statusCode))
+    if (!sscanf(statusCodeStr.getCString(), "%u", &statusCode))
         return false;
 
     // Extract the reason phrase:

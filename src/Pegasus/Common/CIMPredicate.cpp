@@ -88,12 +88,13 @@ static Boolean evaluate_string(String ref, ExpressionOperator op, String pred)
 
 static Boolean evaluate_int(String ref, ExpressionOperator op, String pred)
 {
-   
-   char *ref_string = ref.allocateCString();
+   CString ref_c = ref.getCString();
+   char *ref_string = ref_c;
    if(ref_string == NULL)
       return false;
    
-   char *pred_string = pred.allocateCString();
+   CString pred_c = pred.getCString();
+   char *pred_string = pred_c;
    if (pred_string == NULL)
       return false;
    

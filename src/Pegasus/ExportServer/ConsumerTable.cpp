@@ -72,8 +72,7 @@ ConsumerTable::ConsumerTable()
     //
     // Open the config file
     //
-    ArrayDestroyer<char> p(consumerFile.allocateCString());
-    ifstream ifs(p.getPointer());
+    ifstream ifs(consumerFile.getCString());
     if (!ifs)
     {
         return;
@@ -224,8 +223,7 @@ CIMStatusCode ConsumerTable::registerConsumer(
 	    //
 	    // Open the config file
 	    //
-            ArrayDestroyer<char> p(consumerFile.allocateCString());
-            ofstream ofs(p.getPointer());
+            ofstream ofs(consumerFile.getCString());
 
             if (!ofs)
 	    {
@@ -266,50 +264,48 @@ CIMIndicationConsumer* ConsumerTable::loadConsumer(const String& consumerId)
     if (consumerName.size() != 0)
     {
 	// Load the dynamic library:
+        String libraryName;
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-	ArrayDestroyer<char> libraryName = consumerName.allocateCString();
+	libraryName = consumerName;
 #else
-        String unixLibName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-	unixLibName.append("/lib");
-	unixLibName.append(consumerName);
+        libraryName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+	libraryName.append("/lib");
+	libraryName.append(consumerName);
 #ifdef PEGASUS_OS_HPUX
-	unixLibName.append(".sl");
+	libraryName.append(".sl");
 #else
-	unixLibName.append(".so");
+	libraryName.append(".so");
 #endif
-	ArrayDestroyer<char> libraryName = unixLibName.allocateCString();
 #endif
 
 	DynamicLibraryHandle libraryHandle = 
-	    System::loadDynamicLibrary(libraryName.getPointer());
+	    System::loadDynamicLibrary(libraryName.getCString());
 
 	if (!libraryHandle) {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
             PEG_METHOD_EXIT();
-	    throw DynamicLoadFailed(libraryName.getPointer());
+	    throw DynamicLoadFailed(libraryName);
 #else
-	    unixLibName = System::dynamicLoadError();
-	    ArrayDestroyer<char> errorMsg = unixLibName.allocateCString();
+	    String errorMsg = System::dynamicLoadError();
             PEG_METHOD_EXIT();
-	    throw DynamicLoadFailed(errorMsg.getPointer());
+	    throw DynamicLoadFailed(errorMsg);
 #endif
 	}
 
 	// Lookup the create consumer symbol:
 
-	String tmp = "PegasusCreateIndicationConsumer_";
-	tmp.append(consumerName);
-	ArrayDestroyer<char> functionName = tmp.allocateCString();
+	String functionName = "PegasusCreateIndicationConsumer_";
+	functionName.append(consumerName);
 
 	CreateIndicationConsumerFunc func = 
 	    (CreateIndicationConsumerFunc)System::loadDynamicSymbol(
-	    libraryHandle, functionName.getPointer());
+	    libraryHandle, functionName.getCString());
 
 	if (!func)
         {
             PEG_METHOD_EXIT();
-	    throw DynamicLookupFailed(functionName.getPointer());
+	    throw DynamicLookupFailed(functionName);
         }
 
 	// Create the consumer:
@@ -320,8 +316,8 @@ CIMIndicationConsumer* ConsumerTable::loadConsumer(const String& consumerId)
         {
             PEG_METHOD_EXIT();
 	    throw CreateIndicationConsumerReturnedNull(
-		libraryName.getPointer(), 
-		functionName.getPointer());
+		libraryName, 
+		functionName);
         }
 
 	if (consumer)

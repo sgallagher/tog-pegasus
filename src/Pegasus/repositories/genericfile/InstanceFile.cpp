@@ -148,9 +148,7 @@ Boolean InstanceFile::insertInstance(
         }
     }
 
-    ArrayDestroyer<char> p(path.allocateCString(4));
-    strcat(p.getPointer(), ".tmp");
-    ofstream os(p.getPointer(), ios::app | ios::binary);
+    ofstream os((path+".tmp").getCString(), ios::app | ios::binary);
 
     if (!os)
     {
@@ -164,8 +162,7 @@ Boolean InstanceFile::insertInstance(
     String realPath;
     if (FileSystem::existsNoCase(path, realPath))
     {
-        ArrayDestroyer<char> p(realPath.allocateCString());
-        ifstream is(p.getPointer(), ios::binary);
+        ifstream is(realPath.getCString(), ios::binary);
 
         if (!is)
         {
@@ -248,9 +245,7 @@ Boolean InstanceFile::removeInstance(
         }
     }
 
-    ArrayDestroyer<char> p(realPath.allocateCString(4));
-    strcat(p.getPointer(), ".tmp");
-    ofstream os(p.getPointer(), ios::app | ios::binary);
+    ofstream os((realPath+".tmp").getCString(), ios::app | ios::binary);
 
     if (!os)
     {
@@ -315,9 +310,7 @@ Boolean InstanceFile::modifyInstance(
         }
     }
 
-    ArrayDestroyer<char> p(realPath.allocateCString(4));
-    strcat(p.getPointer(), ".tmp");
-    ofstream os(p.getPointer(), ios::app | ios::binary);
+    ofstream os((realPath+".tmp").getCString(), ios::app | ios::binary);
 
     if (!os)
     {
@@ -358,8 +351,7 @@ Boolean InstanceFile::_loadData(
     //
     // open the instance file
     //
-    ArrayDestroyer<char> p(path.allocateCString());
-    ifstream is(p.getPointer(), ios::in | ios::binary);
+    ifstream is(path.getCString(), ios::in | ios::binary);
    
     if (!is)
     {
@@ -406,8 +398,7 @@ Boolean InstanceFile::_removeData(
     //
     // Open the instance file 
     //
-    ArrayDestroyer<char> q(realPath.allocateCString());
-    ifstream is(q.getPointer(), ios::in | ios::binary);
+    ifstream is(realPath.getCString(), ios::in | ios::binary);
 
     if (!is)
     {

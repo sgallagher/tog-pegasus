@@ -116,28 +116,25 @@ void snmpDeliverTrap_emanate::deliverTrap(
     initialize();
 
     // TRAP OID: getting trapOid
-    ArrayDestroyer<char> _trapOid(trapOid.allocateCString());
-    _trapOid.getPointer()[strlen(_trapOid.getPointer())-1] = '\0';
-    OID *sendtrapOid = MakeOIDFromDot(_trapOid.getPointer());
+    CString _trapOid = trapOid.getCString();
+    _trapOid[strlen(_trapOid)-1] = '\0';
+    OID *sendtrapOid = MakeOIDFromDot(_trapOid);
 
     // Destination : converting destination into Transport
-    ArrayDestroyer<char> trap_dest(destination.allocateCString());
     TransportInfo   global_ti;
     global_ti.type = SR_IP_TRANSPORT;
-    global_ti.t_ipAddr = inet_addr(trap_dest.getPointer());
+    global_ti.t_ipAddr = inet_addr(destination.getCString());
     global_ti.t_ipPort = htons((unsigned short)GetSNMPTrapPort());
 
     // Community Name
-    ArrayDestroyer<char> _community(community.allocateCString());
     OctetString* community_name = MakeOctetStringFromText(
-                                      _community.getPointer());
+                                      community.getCString());
 
     // getting IP address of the host
-    ArrayDestroyer<char> hostname(System::getHostName().allocateCString());
     char **p;
     struct hostent *hp;
     struct in_addr in;
-    hp=gethostbyname(hostname.getPointer());
+    hp=gethostbyname(System::getHostName().getCString());
     p = hp->h_addr_list;
     (void)memcpy(&in.s_addr, *p, sizeof(in.s_addr));
     char* IP_string = inet_ntoa(in);
@@ -203,8 +200,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
 	for (Uint8 i = 1; i < oids.size()-1; i++)
             ent = ent + "." + oids[i];
 
-	ArrayDestroyer<char> gtrap(ent.allocateCString());
-        genTrap = atoi(gtrap.getPointer()) - 1;
+        genTrap = atoi(ent.getCString()) - 1;
         enterpriseOid = sendtrapOid;
     }
     else
@@ -214,8 +210,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
 	ent = oids[0];
 	for (Uint8 i = 1; i < oids.size()-1; i++)
             ent = ent + "." + oids[i];
-	ArrayDestroyer<char> strap(oids[oids.size()-1].allocateCString());
-        specTrap = atoi(strap.getPointer());
+        specTrap = atoi(oids[oids.size()-1].getCString());
 
         if (oids[oids.size()-2] == "0")
         {
@@ -223,8 +218,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
 	    for (Uint8 i = 1; i < oids.size()-2; i++)
 		ent = ent + "." + oids[i];
 
-	    ArrayDestroyer<char> _ent(ent.allocateCString());
-            enterpriseOid = MakeOIDFromDot(_ent.getPointer());
+            enterpriseOid = MakeOIDFromDot(ent.getCString());
         }
         else
         {
@@ -232,17 +226,13 @@ void snmpDeliverTrap_emanate::deliverTrap(
             for (Uint8 i = 1; i < oids.size()-1; i++)
                 ent = ent + "." + oids[i];
 
-            ArrayDestroyer<char> _ent(ent.allocateCString());
-            enterpriseOid = MakeOIDFromDot(_ent.getPointer());
+            enterpriseOid = MakeOIDFromDot(ent.getCString());
         }
     }
 
     for(Uint32 i = 0; i < vbOids.size(); i++)
     {
-        ArrayDestroyer<char> _vbOid(vbOids[i].allocateCString());
-        ArrayDestroyer<char> _vbValue(vbValues[i].allocateCString());
-
-	if ((object = MakeOIDFromDot(_vbOid.getPointer())) == NULL)
+	if ((object = MakeOIDFromDot(vbOids[i].getCString())) == NULL)
         {
             cout << "Invalid OID received: " << vbOids[i] << endl;
             return;
@@ -250,7 +240,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
 
         if (vbTypes[i] == String("OctetString"))
         {
-            newValue = CloneOctetString(MakeOctetStringFromText(_vbValue.getPointer()));
+            newValue = CloneOctetString(MakeOctetStringFromText(vbValues[i].getCString()));
             if (newValue == NULL)
             {
                 cout << "Invalid Value provided : " << vbValues[i] << endl;

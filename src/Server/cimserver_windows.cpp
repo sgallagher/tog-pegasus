@@ -125,7 +125,7 @@ static void __cdecl cimserver_windows_thread(void *parm)
     {
         portOption = configManager->getCurrentValue("httpPort");
     }
-    char* address = portOption.allocateCString();
+    CString address = portOption.getCString();
 
     // Set up the Logger
     Logger::setHomeDirectory("./logs");
@@ -133,7 +133,7 @@ static void __cdecl cimserver_windows_thread(void *parm)
     // Put server start message to the logger
     Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
 	"Start $0 %1 port $2 $3 ", 88, PEGASUS_NAME, PEGASUS_VERSION,
-		address, (pegasusIOTrace ? " Tracing": " "));
+		(const char*)address, (pegasusIOTrace ? " Tracing": " "));
      // try loop to bind the address, and run the server
     try
     {
@@ -147,8 +147,6 @@ static void __cdecl cimserver_windows_thread(void *parm)
 	assert(end != 0 && *end == '\0');
 	
 	server_windows->bind(portNumber);
-
-	delete [] address;
 
 	while(!server_windows->terminated())
 	{
@@ -331,7 +329,8 @@ Uint32 cimserver_install_nt_service(String &pegasusHome )
   SC_HANDLE service_handle, sc_manager;
   Uint32 ccode = 0;
   pegasusHome.append("\\bin\\cimserver.exe");
-  LPCSTR path_name = pegasusHome.allocateCString() ;
+  CString pegHome = pegasusHome.getCString() ;
+  LPCSTR path_name = (const char*) pegHome;
   if(NULL != (sc_manager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS))) 
     {
       if(NULL != (service_handle = CreateService(sc_manager, 

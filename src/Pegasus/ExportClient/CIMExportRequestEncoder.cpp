@@ -47,15 +47,13 @@ CIMExportRequestEncoder::CIMExportRequestEncoder(
    : 
    Base(PEGASUS_QUEUENAME_EXPORTREQENCODER),
    _outputQueue(outputQueue),
+   _hostName(System::getHostName().getCString()),
    _authenticator(authenticator)
 {
-   String tmpHostName = System::getHostName();
-   _hostName = tmpHostName.allocateCString();
 }
 
 CIMExportRequestEncoder::~CIMExportRequestEncoder()
 {
-   delete [] _hostName;
 }
 
 void CIMExportRequestEncoder::handleEnqueue(Message *message)
@@ -94,13 +92,11 @@ void CIMExportRequestEncoder::_encodeExportIndicationRequest(
 {
    Array<Sint8> params;
 
-   ArrayDestroyer<char> requestUri(message->url.allocateCString());
-
    XmlWriter::appendInstanceIParameter(
       params, "NewIndication", message->indicationInstance);
 	
    Array<Sint8> buffer = XmlWriter::formatSimpleEMethodReqMessage(
-      requestUri.getPointer(),
+      message->url.getCString(),
       _hostName,
       "ExportIndication", 
       message->messageId, 

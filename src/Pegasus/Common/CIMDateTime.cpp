@@ -140,9 +140,8 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
 {
     clear();
 
-    ArrayDestroyer <char> dtStr (dateTimeStr.allocateCString ());
-
-    const char* str = dtStr.getPointer ();
+    CString dtStr = dateTimeStr.getCString();
+    const char* str = dtStr;
 
     // Be sure the incoming string is the proper length:
 

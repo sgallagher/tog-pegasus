@@ -109,8 +109,6 @@ void GetDocument(
     // Build HTTP (request) message:
 
     char buffer[4096];
-    char* tmpDocument = document.allocateCString();
-    char* tmpHost = host.allocateCString();
 
     sprintf(buffer, 
 	"GET %s HTTP/1.1\r\n"
@@ -121,11 +119,8 @@ void GetDocument(
 	"Host: %s\r\n"
 	"Connection: Keep-Alive\r\n"
 	"\r\n",
-	tmpDocument,
-	tmpHost);
-
-    delete [] tmpDocument;
-    delete [] tmpHost;
+	document.getCString(),
+	host.getCString());
 
     Array<Sint8> message;
     message.append(buffer, strlen(buffer));

@@ -105,8 +105,7 @@ void _SaveObject(const String& path, const Object& object)
     Array<Sint8> out;
     object.toXml(out);
 
-    ArrayDestroyer<char> destroyer(path.allocateCString());
-    PEGASUS_STD(ofstream) os(destroyer.getPointer() PEGASUS_IOS_BINARY);
+    PEGASUS_STD(ofstream) os(path.getCString() PEGASUS_IOS_BINARY);
 
     if (!os)
         throw CannotOpenFile(path);

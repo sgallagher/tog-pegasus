@@ -238,8 +238,7 @@ void UserAuthProvider::createInstance(
             //
             // Check if the user is a valid system user
             //
-            ArrayDestroyer<char> un(userNameStr.allocateCString());
-                if ( !System::isSystemUser( un.getPointer() ) )
+            if ( !System::isSystemUser( userNameStr.getCString() ) )
             {
                 InvalidSystemUser isu(userNameStr);
                 throw isu;

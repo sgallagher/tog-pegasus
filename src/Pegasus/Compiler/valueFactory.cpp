@@ -68,11 +68,10 @@ valueFactory::Stoi(const String &val) {
     case '0': s.append("0"); break;
     }
   }
-  return atol(_CString(s));
+  return atol(s.getCString());
 #else
   long longValue;
-  ArrayDestroyer<char> valCharStr(val.allocateCString());
-  if (!sscanf(valCharStr.getPointer(), "%ld", &longValue))
+  if (!sscanf(val.getCString(), "%ld", &longValue))
   {
 //   ATTN-DME-P3-20020602: How should this error condition be handled?
      return 0;
@@ -102,7 +101,7 @@ Stof(const String &val) {
     case 'e': s.append("E"); break;
     }
   }
-  return atof(_CString(s));
+  return atof(s.getCString());
 }
 
 static CIMDateTime &

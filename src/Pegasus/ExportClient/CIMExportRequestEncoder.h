@@ -69,7 +69,7 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportRequestEncoder
 	 CIMExportIndicationRequestMessage* message);
 
       MessageQueue* _outputQueue;
-      char* _hostName;
+      CString _hostName;
       ClientAuthenticator* _authenticator;
 };
 

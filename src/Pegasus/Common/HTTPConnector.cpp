@@ -71,12 +71,12 @@ static Boolean _ParseLocator(
 {
    // Extract the hostname:port expression (e.g., www.book.com:8080):
 
-   hostname = locator.allocateCString();
+   hostname = strdup(locator.getCString());
    char* p = strchr(hostname, ':');
 
    if (!p)
    {
-      delete [] hostname;
+      delete hostname;
       return false;
    }
 
@@ -87,7 +87,7 @@ static Boolean _ParseLocator(
 
    if (!end || *end != '\0')
    {
-      delete [] hostname;
+      delete hostname;
       return false;
    }
 
@@ -257,11 +257,11 @@ HTTPConnection* HTTPConnector::connect(
 
    if (!_MakeAddress(hostname, port, address))
    {
-      delete [] hostname;
+      delete hostname;
       throw InvalidLocatorException(locator);
    }
 
-   delete [] hostname;
+   delete hostname;
 
    // Create the socket:
 

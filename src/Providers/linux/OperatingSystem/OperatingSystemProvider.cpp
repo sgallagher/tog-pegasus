@@ -744,7 +744,7 @@ Uint32 OperatingSystemProvider::Reboot()
    const char *paths[] = { "/sbin", "/usr/sbin", "/usr/local/sbin", NULL };
    struct stat sbuf;
    String fname;
-   char *p;
+   CString p;
    Uint32 result;
 
    result = 1;
@@ -755,17 +755,15 @@ Uint32 OperatingSystemProvider::Reboot()
 	 fname = paths[ii];
 	 fname.append("/");
 	 fname.append(reboot[jj]);
-	 p = fname.allocateCString();
+	 p = fname.getCString();
 	 if (stat(p, &sbuf) == 0 && (sbuf.st_mode & S_IXUSR))
 	 {
 	    result = 2;
 	    if (system(p) == 0)
 	       result = 0;
 
-	    delete [] p;
 	    return result;
 	 }
-	 delete [] p;
       }
    }
    return result;
@@ -777,7 +775,7 @@ Uint32 OperatingSystemProvider::Shutdown()
    const char *paths[] = { "/sbin", "/usr/sbin", "/usr/local/sbin", NULL };
    struct stat sbuf;
    String fname;
-   char *p;
+   CString p;
    Uint32 result;
 
    result = 1;
@@ -788,17 +786,15 @@ Uint32 OperatingSystemProvider::Shutdown()
 	 fname = paths[ii];
 	 fname.append("/");
 	 fname.append(poweroff[jj]);
-	 p = fname.allocateCString();
+	 p = fname.getCString();
 	 if (stat(p, &sbuf) == 0 && (sbuf.st_mode & S_IXUSR))
 	 {
 	    result = 2;
 	    if (system(p) == 0)
 	       result = 0;
 
-	    delete [] p;
 	    return result;
 	 }
-	 delete [] p;
       }
    }
    return result;

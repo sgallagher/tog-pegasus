@@ -160,7 +160,7 @@ public:
 
     @return             true if the username is valid, else false
     */
-    static Boolean isSystemUser(char* userName);
+    static Boolean isSystemUser(const char* userName);
 
     /**
     Checks whether the given user is a privileged user.

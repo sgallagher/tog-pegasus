@@ -310,8 +310,9 @@ DynamicSymbolHandle System::loadDynamicSymbol(
         return DynamicSymbolHandle(proc);
     }
 
-    ArrayDestroyer<char> _p((String("_") + symbolName).allocateCString());
-    if (shl_findsym((shl_t*)libraryHandle, _p.getPointer(), TYPE_UNDEFINED,
+    if (shl_findsym((shl_t*)libraryHandle,
+                    (String("_") + symbolName).getCString(),
+                    TYPE_UNDEFINED,
                     &proc) == 0)
     {
         return DynamicSymbolHandle(proc);
@@ -497,7 +498,7 @@ String System::encryptPassword(const char* password, const char* salt)
 #endif
 }
 
-Boolean System::isSystemUser(char* userName)
+Boolean System::isSystemUser(const char* userName)
 {
     //
     //  get the password entry for the user
@@ -518,8 +519,7 @@ Boolean System::isPrivilegedUser(const String userName)
     struct passwd   *result;
     char            pwdBuffer[1024];
 
-    ArrayDestroyer<char> userName_(userName.allocateCString());
-    if (getpwnam_r(userName_.getPointer(), &pwd, pwdBuffer, 1024, &result) == 0)
+    if (getpwnam_r(userName.getCString(), &pwd, pwdBuffer, 1024, &result) == 0)
     {
         if ( pwd.pw_uid == 0 )
         {

@@ -40,7 +40,31 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class String;
 class StringRep;
+
+/** The CString class provides access to an 8-bit String representation.
+*/
+class CString
+{
+public:
+
+    CString();
+
+    CString(const CString& cstr);
+
+    ~CString();
+
+    operator const char*() const;
+
+private:
+
+    CString(char* cstr);
+
+    friend class String;
+
+    char* _rep;
+};
 
 /**
     The Pegasus String C++ Class implements the CIM string type.
@@ -154,33 +178,20 @@ public:
     */
     const Char16* getData() const;
 
-    /** allocateCString - allocates an 8 bit representation of this String 
-	object. The user is responsible for freeing the result. If any 
-	characters are truncated, the truncatedCharacters argument is set
-        to true.  Extra characters may be allocated at the end of the
-	new string by passing a non-zero value to the extraBytes argument.
-	
-	@param extraBytes Defines the number of extra characters to be
-	allocated at the end of the new string. Default is zero.
-	
+    /** getCString - Create an 8-bit representation of this String object.
+
 	@param truncatedCharacters Output parameter specifying whether any
         characters were truncated in the conversion.
 	
-	@return pointer to the new representation of the string
-	
+        @return CString object that provides access to the 8-bit String
+        representation
+
 	<pre>
 	    String test = "abc";
-	    char* p = test.allocateCString();
-	    ...
-	    delete [] p;
+            printf("test = %s\n", (const char*)test.getCString());
 	</pre>
     */
-    char* allocateCString(
-        Uint32 extraBytes,
-        Boolean& truncatedCharacters) const;
-
-    /** allocateCString companion that does not require an output parameter */
-    char* allocateCString(Uint32 extraBytes = 0) const;
+    CString getCString() const;
 
     /** Returns the specified character of the String object.
 	@param index Index of the character to access
@@ -464,39 +475,6 @@ PEGASUS_COMMON_LINKAGE Boolean operator>=(
 PEGASUS_COMMON_LINKAGE int CompareNoCase(const char* s1, const char* s2);
 
 PEGASUS_COMMON_LINKAGE int EqualNoCase(const char* s1, const char* s2);
-
-#ifdef PEGASUS_INTERNALONLY
-/*  This is an internal class to be used by the internal Pegasus
-    components only. It provides an easy way to create an 8-bit string
-    representation on the fly without calling allocateCString() and
-    then worrying about deleting the string. The underscore before the
-    class name denotes that this class is internal, unsupported, undocumented,
-    and may be removed in future releases.
-*/
-class _CString
-{
-public:
-
-    _CString(const String& str)
-    {
-	_rep = str.allocateCString();
-    }
-
-    ~_CString()
-    {
-	delete [] _rep;
-    }
-
-    operator const char*() const
-    {
-	return _rep;
-    }
-
-private:
-
-    char* _rep;
-};
-#endif
 
 PEGASUS_NAMESPACE_END
 

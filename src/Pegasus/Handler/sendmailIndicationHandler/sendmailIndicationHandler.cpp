@@ -115,8 +115,8 @@ void sendmailIndicationHandler::handleIndication(
         CIMConstProperty instanceProp = indicationInstance.getProperty(i);
         fprintf(sendmailFile,
                 "%s\t%s\n",
-                (const char *)_CString(instanceProp.getName()),
-                (const char *)_CString(instanceProp.getValue().toString()));
+                (const char *)String(instanceProp.getName()).getCString(),
+                (const char *)instanceProp.getValue().toString().getCString());
     }
     fclose(sendmailFile);
 
@@ -126,7 +126,7 @@ void sendmailIndicationHandler::handleIndication(
     sprintf(sendcmd,
             "%s %s %s %s",
             "/usr/sbin/sendmail",
-            (const char *)_CString(dest),
+            (const char *)dest.getCString(),
             "<",
             _MAIL_FILE_NAME);
 

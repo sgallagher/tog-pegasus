@@ -88,8 +88,8 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define CDEBUG(X)
-//#define CDEBUG(X) PEGASUS_STD(cout) << "InteropProvider " << X << PEGASUS_STD(endl)
+//#define CDEBUG(X)
+#define CDEBUG(X) PEGASUS_STD(cout) << "InteropProvider " << X << PEGASUS_STD(endl)
 //#define CDEBUG(X) Logger::put (Logger::DEBUG_LOG, "Linux_ProcessorProvider", Logger::INFORMATION, "$0", X)
 //#define CDEBUG(X) {std::stringstream ss; std::string r;ss << X;ss>>r; PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, r)}
  
@@ -116,6 +116,9 @@ static const CIMNamespaceName ROOTNS  = CIMNamespaceName ("root");
 // Property names for CIM_ObjectManager Class
 static const CIMName OM_GATHERSTATISTICALDATA  =
  CIMName ("GatherStatisticalData");
+// Property for the slp template.
+static const CIMName OM_DESCRIPTION =
+    CIMName("Description");
 
 
 // Property Names for ObjectManagerCommunicationMechanism Class
@@ -175,6 +178,39 @@ enum targetClass{
 //***************************************************************
 // Provider Utility Functions
 //***************************************************************
+
+/** Builds the UUID string for this CIMOM.
+**/
+String buildUUIDString()
+{
+    
+   //UUID Generation code starts 
+   //Uses "libuuid.a" in /usr/lib directory. Make sure it's there. Also Makefile has "-luuid" added to $EXTRA_LIBRARIES
+   /*
+   uuid_t outUUID;
+   int j;
+   char strUUID[37], tempstrUUID[3];
+   
+   uuid_generate_random(outUUID);
+   strcpy(strUUID, "");
+   //uuid(6B29FC40-CA47-1067-B31D-00DD010662DA) 
+   for(j=0;j<16;j++)
+   {
+       sprintf(tempstrUUID, "%2.2x", outUUID[j]);
+       tempstrUUID[2]='\0';
+       strcat(strUUID,tempstrUUID);
+       if(j==3 || j==7 || j==11)
+           strcat(strUUID,"-");
+   }
+   strUUID[36]='\0';
+   strUUID = "TESTUUID1234567890"
+   */
+   //UUID Generation code ends
+
+    String strUUID = "6B29FC40-CA47-1067-B31D-00DD010662DA";
+    //strUUID[36]='\0';
+    return (String(strUUID));
+}
 
 /* Test the keys in the CIM_Namespace for valid values
    This includes all of the keys above the name key.
@@ -319,8 +355,8 @@ Array<CIMNamespaceName> InteropProvider::_enumerateNameSpaces()
     return(namespaceNames);
 }
 
-/* get the CIM_Namespace Class defintion from the repository or
-   from local static storage.
+/* get a class defintion. Gets the class defined by
+    the parameters. Generates exception of class not defined.
    @param namespace in which to look for the class.
    @param name of class to get.
    @return the CIMClass object
@@ -333,6 +369,7 @@ CIMClass InteropProvider::_getClass(const CIMNamespaceName& nameSpace,
             "InteropProvider::_getClass");
     CIMClass myClass;
     CDEBUG("_getClass: Get Class from repository. Namespace= " << nameSpace << " Class= " <<  className.getString());
+    // ATTN: The inUnitialized function is NOT necessary.
     if (myClass.isUninitialized())
     {
         try
@@ -391,7 +428,7 @@ targetClass _verifyValidClassInput(const CIMName& className)
     if (className.equal(CIM_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME))
     {
         PEG_METHOD_EXIT();
-        return CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM;
+        return CIM_CIMXMLCOMMUNICATIONMECHANISM;
     }
 
     // Last entry, reverse test and returnOK if CIM_Namespace
@@ -425,12 +462,16 @@ String _validateUserID(const OperationContext & context)
     return userName;
 }
 
-
+/** Add the keys common to a number of the Interop instances to the provided
+    instance. This includes SystemCreationClassName and System Name
+    @param instance of CIMInstance to which these are to be added.
+*/
 void _buildInstanceCommonKeys(CIMInstance& instance)
 {
     
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_buildInstanceCommonKeys()");
+    
     String SystemCreationClassName = System::getSystemCreationClassName ();
     if (SystemCreationClassName == String::EMPTY)
     {
@@ -438,57 +479,24 @@ void _buildInstanceCommonKeys(CIMInstance& instance)
         SystemCreationClassName = "CIM_ComputerSystem";
     }
 
-    String SystemName = System::getHostName();
-
     // Add property SystemCreationClassName
     instance.addProperty(
         (CIMProperty(CIM_NAMESPACE_PROPERTY_SYSTEMCREATIONCLASSNAME,
                      SystemCreationClassName)));
+
     // Add property SystemName
+    String SystemName = System::getHostName();
     instance.addProperty(
         (CIMProperty(CIM_NAMESPACE_PROPERTY_SYSTEMNAME,
                      SystemName)));
+    
     PEG_METHOD_EXIT();
 }
 
-CIMInstance _buildInstancCIMXMLCommunicationMechanism()
-{
-    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-            "InteropProvider::_buildInstanceCIMXMLCommunicationMechanism()");
-    
-    CIMInstance instance(CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME);
-
-    _buildInstanceCommonKeys(instance);
-
-    //CreationClassName
-    instance.addProperty(
-        (CIMProperty(CIM_NAMESPACE_PROPERTY_CREATIONCLASSNAME,
-            CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME.getString() )));
-    
-    String name = "PegasusCommunicationMechanism";
-
-    //Name, this CommunicationMechanism.
-    instance.addProperty(
-        (CIMProperty(CIM_NAMESPACE_PROPERTY_NAME,
-                     name )));
-
-    // CommunicationMechanism Property
-    instance.addProperty(
-        (CIMProperty(OM_COMMUNICATIONMECHANISM,
-                     Uint16(2) )));
-
-    // CommunicationMechanism Property
-    instance.addProperty(
-        (CIMProperty(OM_COMMUNICATIONMECHANISM,
-                     Uint16(2) )));
-
-    PEG_METHOD_EXIT();
-    return(instance);
-}
 
 /* build instance of the CIMObjectManagerCommunicationClass
 */
-CIMInstance _buildInstancCIMObjectCommunicationMechanism()
+CIMInstance _buildInstancCIMObjectManagerCommunicationMechanism()
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_buildInstanceCIMObjectCommunicationMechanism()");
@@ -503,12 +511,12 @@ CIMInstance _buildInstancCIMObjectCommunicationMechanism()
         (CIMProperty(CIM_NAMESPACE_PROPERTY_CREATIONCLASSNAME,
             CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME.getString() )));
     
-    String name = "PegasusCIMXMLCommunicationMechanism";
+    //String name = "PegasusCIMXMLCommunicationMechanism";
     //Name, this CommunicationMechanism. The use of this name is not
     // clear right now
     instance.addProperty(
         (CIMProperty(CIM_NAMESPACE_PROPERTY_NAME,
-                     name )));
+                     CIM_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME.getString() )));
 
     // CommunicationMechanism Property. Set to 2, CIMXML for now.
     instance.addProperty(
@@ -547,7 +555,92 @@ CIMInstance _buildInstancCIMObjectCommunicationMechanism()
     Array<Uint16> authentications;
     Array<String> authenticationDescriptions;
 
-    profiles.append(3); profileDescriptions.append("Basic");
+    // The following is a hack, supplying values from fixed info.
+    authentications.append(3); authenticationDescriptions.append("basic");
+
+    CIMValue authenticationValue(authentications);
+    CIMValue authenticationDescriptionsValue(authenticationDescriptions);
+    instance.addProperty(
+        (CIMProperty(OM_AUTHENTICATIONMECHANISMSSUPPORTED,
+                     authenticationValue )));
+    instance.addProperty(
+        (CIMProperty(OM_AUTHENTICATIONMECHANISMDESCRIPTIONS,
+                     authenticationDescriptionsValue )));
+    
+    //Version property
+    instance.addProperty(
+        (CIMProperty(OM_VERSION,
+                     CIMXMLProtocolVersion )));
+
+    PEG_METHOD_EXIT();
+    return(instance);
+}
+
+
+CIMInstance _buildInstancCIMXMLCommunicationMechanism()
+{
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+            "InteropProvider::_buildInstanceCIMXMLCommunicationMechanism()");
+    CDEBUG("_BuildInstanceCIMXMLCommunicationMechanism");
+    CIMInstance instance(CIM_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME);
+
+    _buildInstanceCommonKeys(instance);
+
+    //CreationClassName
+    instance.addProperty(
+        (CIMProperty(CIM_NAMESPACE_PROPERTY_CREATIONCLASSNAME,
+            CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME.getString() )));
+    
+    //Name, this CommunicationMechanism.
+    String name = "PegasusCommunicationMechanism";
+    instance.addProperty(
+        (CIMProperty(CIM_NAMESPACE_PROPERTY_NAME,
+                     name )));
+
+    // CommunicationMechanism Property
+    instance.addProperty(
+        (CIMProperty(OM_COMMUNICATIONMECHANISM,
+                     Uint16(2) )));
+
+    // CommunicationMechanism Property
+    // KS why duplicate property add.  Should not work.
+    //instance.addProperty(
+    //    (CIMProperty(OM_COMMUNICATIONMECHANISM,
+    //                 Uint16(2) )));
+
+    //Functional Profiles Supported Property.
+    Array<Uint16> profiles;
+    Array<String> profileDescriptions;
+
+    profiles.append(2); profileDescriptions.append("Basic Read");
+    profiles.append(3); profileDescriptions.append("Basic Write");
+    profiles.append(4); profileDescriptions.append("Schema Manipulation");
+    profiles.append(5); profileDescriptions.append("Instance Manipulation");
+    profiles.append(6); profileDescriptions.append("Association Traversal");
+    profiles.append(8); profileDescriptions.append("Qualifier Declaration");
+    profiles.append(9); profileDescriptions.append("Indications");
+
+    CIMValue profileValue(profiles);
+    CIMValue profileDescriptionsValue(profileDescriptions);
+    
+    instance.addProperty(
+        (CIMProperty(OM_FUNCTIONALPROFILESSUPPORTED,
+                     profileValue )));
+    instance.addProperty(
+        (CIMProperty(OM_FUNCTIONALPROFILEDESCRIPTIONS,
+                     profileDescriptionsValue )));
+
+    // Multiple OperationsSupported Property
+    instance.addProperty(
+        (CIMProperty(OM_MULTIPLEOPERATIONSSUPPORTED,
+                     Boolean(false) )));
+
+    // AuthenticationMechanismsSupported Property
+
+    Array<Uint16> authentications;
+    Array<String> authenticationDescriptions;
+
+    authentications.append(3); authenticationDescriptions.append("basic");
 
     CIMValue authenticationValue(authentications);
     CIMValue authenticationDescriptionsValue(authenticationDescriptions);
@@ -563,7 +656,6 @@ CIMInstance _buildInstancCIMObjectCommunicationMechanism()
     instance.addProperty(
         (CIMProperty(OM_VERSION,
                      CIMXMLProtocolVersion )));
-
     PEG_METHOD_EXIT();
     return(instance);
 }
@@ -580,12 +672,14 @@ CIMInstance _buildInstancCIMObjectCommunicationMechanism()
    3. Current time
 
 */
-String _getObjectManagerName()
+String buildObjectManagerName()
 {
     String objectManagerName = PegasusInstanceIDGlobalPrefix;
     objectManagerName.append("_");
     objectManagerName.append(System::getHostName());
     objectManagerName.append(System::getCurrentASCIITime());
+
+    String strUUID = "6B29FC40-CA47-1067-B31D-00DD010662DA";
     return (objectManagerName);
 }
 
@@ -641,11 +735,27 @@ CIMInstance InteropProvider::_buildInstanceCIMObjectManager()
     //Name, this CIMObject Manager.
     instanceOfCIMObjectManager.addProperty(
         (CIMProperty(CIM_NAMESPACE_PROPERTY_NAME,
-                     _getObjectManagerName() )));
+                     buildObjectManagerName() )));
+
+    // Gets the object manager class for some info
+    CIMClass objMgrClass = _getClass(_operationNamespace, "CIM_ObjectManager");
+    Uint32 pos;
+    String description;
+    if (pos = objMgrClass.findQualifier(CIMName("description")) != PEG_NOT_FOUND)
+    {
+        CIMQualifier q = objMgrClass.getQualifier(pos);
+        // ATTN: We should be able to clone the qualifier over.Easier.
+        CIMValue v = q.getValue();
+        description = v.toString();
+        instanceOfCIMObjectManager.addQualifier(
+            (CIMQualifier("Description", description)));
+    }
+
 
     //Property GatherStatisticalData. Note that today we do not
     // have a dynamic activation for this value.
     
+
 #ifdef PEGASUS_HAS_PERFINST
     Boolean gatherStatData = true;
 #else
@@ -795,7 +905,10 @@ CIMInstance _buildInstanceCIMNamespace(const CIMNamespaceName & nameSpace)
         (CIMProperty(CIM_NAMESPACE_PROPERTY_NAME,
                      nameSpace.getString() )));
 
+    // ATTN: KS 16 Jan 2004 We are not supplying this property right now because we do
+    // not know what to put into it.
     //ClassInfo
+    /*
     instance.addProperty(
         (CIMProperty(CIM_NAMESPACE_PROPERTY_CLASSINFO,
                      ClassInfo)));
@@ -804,6 +917,7 @@ CIMInstance _buildInstanceCIMNamespace(const CIMNamespaceName & nameSpace)
     instance.addProperty(
         (CIMProperty(CIM_NAMESPACE_PROPERTY_DESCRIPTIONOFCLASSINFO,
                      DescriptionOfClassInfo)));
+    */
     CDEBUG("_buildInstnaceCIMNamespace properties built. returning instance");
     PEG_METHOD_EXIT();
     return(instance);
@@ -1400,8 +1514,10 @@ void InteropProvider::getInstance(
         
         if (classEnum == CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM)
         {
-            CIMInstance instance = _buildInstancCIMObjectCommunicationMechanism();
-            handler.deliver(instance);
+            // At this point there are no instances of this class.
+            // It is specialized to CIMXMLCommunicationMechanism
+            //CIMInstance instance = _buildInstancCIMObjectCommunicationMechanism();
+            //handler.deliver(instance);
             handler.complete();
             PEG_METHOD_EXIT();
             return;
@@ -1504,11 +1620,13 @@ void InteropProvider::enumerateInstances(
     InstanceResponseHandler & handler)
     {
         PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::enumerateInstances()");
-        CDEBUG("EnumerateInstances");
         // Verify that ClassName is correct and get value
+
         targetClass classEnum  = _verifyValidClassInput(ref.getClassName());    
         
-        String userName = _validateUserID(context);
+        // operation namespace needed internally to get class.
+        _operationNamespace = ref.getNameSpace();
+        //String userName = _validateUserID(context);
         
         // The following 3 classes deliver a single instance because
         // that is all there is today.
@@ -1523,13 +1641,14 @@ void InteropProvider::enumerateInstances(
         
         if (classEnum == CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM)
         {
-            CIMInstance instance = _buildInstancCIMObjectCommunicationMechanism();
-            handler.deliver(instance);
+            // At this point there are instances of this class.  It is specialized
+            // to the CIMXMLCommunicationMechanism class.
+            //CIMInstance instance = _buildInstancCIMObjectCommunicationMechanism();
+            //handler.deliver(instance);
             handler.complete();
             PEG_METHOD_EXIT();
             return;
         }
-
 
         if (classEnum == CIM_CIMXMLCOMMUNICATIONMECHANISM)
         {
@@ -1618,6 +1737,7 @@ void InteropProvider::enumerateInstanceNames(
 
         targetClass classEnum  = _verifyValidClassInput(classReference.getClassName());    
     
+        String userName = _validateUserID(context);
         // begin processing the request
         handler.processing();
         
@@ -1636,11 +1756,13 @@ void InteropProvider::enumerateInstanceNames(
         
         if (classEnum == CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM)
         {
-            CIMInstance instance = _buildInstancCIMObjectCommunicationMechanism();
-            CIMObjectPath ref = _buildInstancePath(CIMNamespaceName(),
-                CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME, instance);
-            handler.deliver(ref);
-            handler.complete();
+            // At this point there are no instances of this class. It is specialized
+            // to CIMXMLCommunicationMechanism.
+            //CIMInstance instance = _buildInstancCIMObjectCommunicationMechanism();
+            //CIMObjectPath ref = _buildInstancePath(CIMNamespaceName(),
+            //    CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME, instance);
+            //handler.deliver(ref);
+            //handler.complete();
             PEG_METHOD_EXIT();
             return;
         }
@@ -1658,7 +1780,6 @@ void InteropProvider::enumerateInstanceNames(
 
         }
     	
-        String userName = _validateUserID(context);
 
         // ATTN: Move this trace
         CIMNamespaceName parentNamespaceName = classReference.getNameSpace();
@@ -1668,7 +1789,6 @@ void InteropProvider::enumerateInstanceNames(
         
         // Get list of all namespaces
         Array<CIMNamespaceName> namespaceNames = _enumerateNameSpaces();
-        CDEBUG("Found " << namespaceNames.size() << " namespaces.");
 
         // Build the cimObjectPath for each namespace found
         for (Uint32 i = 0; i < namespaceNames.size(); i++)

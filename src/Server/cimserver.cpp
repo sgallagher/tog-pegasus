@@ -50,6 +50,8 @@
 //
 // Modified By: Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2555
 //
+// Modified By: Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2032
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -250,16 +252,16 @@ void PrintHelp(const char* arg0)
     usage.append ("    -D [home]       - sets pegasus home directory\n");
 #endif
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
-    usage.append ("    -install [name] - installs pegasus as a Windows NT Service\n");
+    usage.append ("    -install [name] - installs pegasus as a Windows Service\n");
     usage.append ("                      [name] is optional and overrides the\n");
     usage.append ("                      default CIM Server Service Name\n");
-    usage.append ("    -remove [name]  - removes pegasus as a Windows NT Service\n");
+    usage.append ("    -remove [name]  - removes pegasus as a Windows Service\n");
     usage.append ("                      [name] is optional and overrides the\n");
     usage.append ("                      default CIM Server Service Name\n");
-    usage.append ("    -start [name]   - starts pegasus as a Windows NT Service\n");
+    usage.append ("    -start [name]   - starts pegasus as a Windows Service\n");
     usage.append ("                      [name] is optional and overrides the\n");
     usage.append ("                      default CIM Server Service Name\n");
-    usage.append ("    -stop [name]    - stops pegasus as a Windows NT Service\n");
+    usage.append ("    -stop [name]    - stops pegasus as a Windows Service\n");
     usage.append ("                      [name] is optional and overrides the\n");
     usage.append ("                      default CIM Server Service Name\n\n");
 #endif

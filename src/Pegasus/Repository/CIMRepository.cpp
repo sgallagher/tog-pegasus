@@ -110,13 +110,13 @@ void _SaveObject(const String& path, const Object& object)
 #endif
 }
 
-String _MakeAssocPath(
+String _MakeAssocInstPath(
     const String& nameSpace,
     const String& repositoryRoot)
 {
     String tmp = nameSpace;
     tmp.translate('/', '#');
-    return String(Cat(repositoryRoot, "/", tmp, "/associations"));
+    return String(Cat(repositoryRoot, "/", tmp, "/instances/associations"));
 }
 
 
@@ -312,7 +312,7 @@ void CIMRepository::deleteInstance(
     // -- We ignore the return value intentionally. If it is an association,
     // -- true is returned. Otherwise, true is returned.
 
-    String assocFileName = _MakeAssocPath(nameSpace, _repositoryRoot);
+    String assocFileName = _MakeAssocInstPath(nameSpace, _repositoryRoot);
 
 
     if (FileSystem::exists(assocFileName))
@@ -371,7 +371,7 @@ void CIMRepository::createClass(
 
 ------------------------------------------------------------------------------*/
 
-void CIMRepository::_createAssociationEntries(
+void CIMRepository::_createAssocInstEntries(
     const String& nameSpace,
     const CIMConstClass& cimClass,
     const CIMInstance& cimInstance,
@@ -379,7 +379,7 @@ void CIMRepository::_createAssociationEntries(
 {
     // Open input file:
 
-    String assocFileName = _MakeAssocPath(nameSpace, _repositoryRoot);
+    String assocFileName = _MakeAssocInstPath(nameSpace, _repositoryRoot);
     ofstream os;
 
     if (!OpenAppend(os, assocFileName))
@@ -478,7 +478,7 @@ void CIMRepository::createInstance(
 
     if (cimClass.isAssociation())
     {
-	_createAssociationEntries(nameSpace,
+	_createAssocInstEntries(nameSpace,
 	    cimClass, cimInstance, instanceName);
     }
 
@@ -774,7 +774,7 @@ Array<CIMReference> CIMRepository::associatorNames(
     const String& role,
     const String& resultRole)
 {
-    String assocFileName = _MakeAssocPath(nameSpace, _repositoryRoot);
+    String assocFileName = _MakeAssocInstPath(nameSpace, _repositoryRoot);
     Array<String> associatorNames;
 
     // The return value of this function is ignored since it is okay for
@@ -859,7 +859,7 @@ Array<CIMReference> CIMRepository::referenceNames(
     const String& resultClass,
     const String& role)
 {
-    String assocFileName = _MakeAssocPath(nameSpace, _repositoryRoot);
+    String assocFileName = _MakeAssocInstPath(nameSpace, _repositoryRoot);
     Array<String> tmpReferenceNames;
 
     if (!AssocInstTable::getReferenceNames(

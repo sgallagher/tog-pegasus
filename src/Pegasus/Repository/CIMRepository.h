@@ -261,7 +261,7 @@ private:
 	const String& className,
 	Uint32 index) const;
 
-    void _createAssociationEntries(
+    void _createAssocInstEntries(
 	const String& nameSpace,
 	const CIMConstClass& cimClass,
 	const CIMInstance& cimInstance,

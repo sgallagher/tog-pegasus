@@ -39,6 +39,7 @@
 //         Sushma Fernandes, IBM (sushma@hp.com) for Bug#2057
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
 //         Amit Arora, IBM (amita@in.ibm.com) for Bug#2541
+//         David Dillard, VERITAS Software Corp. (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -110,11 +111,11 @@ static const char headerNameTerminator[] = ": ";
 static const char headerValueSeparator[] = ", ";
 static const char headerLineTerminator[] = CRLF;
 static const char headerTerminator[] = CRLF CRLF;
-static const Sint8 chunkLineTerminator[] = CRLF;
-static const Sint8 chunkTerminator[] = CRLF;
-static const Sint8 chunkBodyTerminator[] = CRLF;
-static const Sint8 trailerTerminator[] = CRLF;
-static const Sint8 chunkExtensionTerminator[] = ";";
+static const char chunkLineTerminator[] = CRLF;
+static const char chunkTerminator[] = CRLF;
+static const char chunkBodyTerminator[] = CRLF;
+static const char trailerTerminator[] = CRLF;
+static const char chunkExtensionTerminator[] = ";";
 
 // string sizes
 
@@ -332,7 +333,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
   static const char func[] = "HTTPConnection::_handleWriteEvent";
 	String httpStatus;
 	HTTPMessage& httpMessage = *(HTTPMessage*)&message;
-	Array<Sint8>& buffer = httpMessage.message;
+	Array<char>& buffer = httpMessage.message;
 	Boolean isFirst = message.isFirst();
 	Boolean isLast = message.isComplete();
 	Sint32 totalBytesWritten = 0;
@@ -380,7 +381,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 		// 3 handler.complete()   : deliver() + isLast = true
 		
 		Uint32 bytesRemaining = messageLength;
-		Sint8 *messageStart = (Sint8 *)buffer.getData();
+		char *messageStart = (char *) buffer.getData();
 		Uint32 bytesToWrite = httpTcpBufferSize;
 		Uint32 messageIndex = message.getIndex();
 		Boolean isChunkResponse = false;
@@ -391,8 +392,8 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 		{
 			// for null termination
 			buffer.reserveCapacity(messageLength + 1);
-			messageStart = (Sint8 *)buffer.getData();
-			messageStart[messageLength] = 0;
+			messageStart = (char *) buffer.getData();
+            buffer[messageLength] = 0;
 
 			if (isFirst == true)
 			{
@@ -456,12 +457,12 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 						char s[21];
 						sprintf(s, "%u", code); 
 						String httpStatus(s);
-						Array<Sint8> message = XmlWriter::formatHttpErrorRspMessage
+						Array<char> message = XmlWriter::formatHttpErrorRspMessage
 							(httpStatus, String(), httpDetail);
 						messageLength = message.size();
 						message.reserveCapacity(messageLength+1);
-						messageStart =(Sint8 *) message.getData();
-						messageStart[messageLength] = 0;
+						messageStart = (char *) message.getData();
+						message[messageLength] = 0;
 					}
 					cimException = CIMException(cimException.getCode(),
 																			String(messageStart, messageLength));
@@ -476,8 +477,8 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 					_incomingBuffer.appendArray(buffer);
 					buffer.clear();
 					// null terminate
-					messageStart = (Sint8 *) _incomingBuffer.getData();
-					messageStart[messageLength] = 0;
+					messageStart = (char *) _incomingBuffer.getData();
+					_incomingBuffer[messageLength] = 0;
 					// put back in buffer, so the httpMessage parser can work below
 					_incomingBuffer.swap(buffer);
 				}
@@ -497,13 +498,13 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 						_incomingBuffer.clear();
 						String messageS = cimException.getMessage();
 						CString messageC = messageS.getCString();
-						messageStart = (char *)(const char *)messageC;
+						messageStart = (char *) (const char *) messageC;
 						messageLength = messageS.size();
 						buffer.reserveCapacity(messageLength+1);
 						buffer.append(messageStart, messageLength);
 						// null terminate
-						messageStart = (Sint8 *) buffer.getData();
-						messageStart[messageLength] = 0;
+						messageStart = (char *) buffer.getData();
+						buffer[messageLength] = 0;
 					}
 					bytesRemaining = messageLength;
 				}
@@ -537,13 +538,13 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 				Boolean isValid = httpMessage.
 					parseStatusLine(startLine, httpVersion, httpStatusCode,reasonPhrase);
 				Uint32 headerLength = messageLength - contentLength;
-				Sint8 save = messageStart[headerLength];
+				char save = messageStart[headerLength];
 				messageStart[headerLength] = 0;
 			
-				Sint8 *contentLengthStart = 
+				char *contentLengthStart = 
 					strstr(messageStart, headerNameContentLength);
 
-				Sint8 *contentLengthEnd = contentLengthStart ? 
+				char* contentLengthEnd = contentLengthStart ? 
 					strstr(contentLengthStart, headerLineTerminator) : 0;
 				
 				messageStart[headerLength] = save;
@@ -614,7 +615,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 					if (isChunkResponse == false)
 					{
 						// overwrite the content length number with the actual byte count
-						Sint8 *contentLengthNumberStart = contentLengthStart + 
+						char *contentLengthNumberStart = contentLengthStart + 
 							headerNameContentLengthLength + headerNameTerminatorLength;
 						char format[6];
 						sprintf (format, "%%.%uu", numberAsStringLength);
@@ -647,7 +648,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 						if (contentLanguages != ContentLanguages::EMPTY)
 						{
 							// we must insert the content-language into the header
-							Array<Sint8> contentLanguagesString;
+							Array<char> contentLanguagesString;
 
 							// this is the keyword:value(s) + header line terminator
 							contentLanguagesString << headerNameContentLanguage << 
@@ -659,13 +660,13 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 							messageLength = contentLanguagesString.size() + buffer.size();
 							buffer.reserveCapacity(messageLength+1);
 							messageLength = contentLanguagesString.size();
-							messageStart = (Sint8 *)contentLanguagesString.getData();
+							messageStart = (char *)contentLanguagesString.getData();
 							// insert the content language line before end of header
 							// note: this can be expensive on large payloads
 							buffer.insert(insertOffset, messageStart, messageLength);
 							messageLength = buffer.size();
 							// null terminate
-							messageStart = (Sint8 *) buffer.getData();
+							messageStart = (char *) buffer.getData();
 							messageStart[messageLength] = 0;
 							bytesRemaining = messageLength;
 						} // if there were any content languages
@@ -704,7 +705,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 		//t.run();
 		
 		static const char errorSocket[] = "socket write error";
-		Sint8 *sendStart = messageStart;
+		char *sendStart = messageStart;
 		Sint32 bytesWritten = 0;
 		
 		if (isFirst == true && isChunkResponse == true && bytesToWrite > 0)
@@ -722,12 +723,12 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 			bytesRemaining -= bytesWritten;
 
 			// put in trailer header.
-			Array<Sint8> trailer;
+			Array<char> trailer;
 			trailer << headerNameTrailer << headerNameTerminator << 
 				_mpostPrefix << headerNameCode <<	headerValueSeparator << 
 				_mpostPrefix << headerNameDescription << headerValueSeparator <<
 				headerNameContentLanguage << headerLineTerminator;
-			sendStart = (Sint8 *)trailer.getData();
+			sendStart = (char *) trailer.getData();
 			bytesToWrite = trailer.size();
 			bytesWritten = _socket->write(sendStart, bytesToWrite);
 
@@ -786,7 +787,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 			{
 				// send chunk terminator, on the last chunk, it is the chunk body
 				// terminator
-				Array<Sint8> trailer;
+				Array<char> trailer;
 				trailer << chunkLineTerminator;
 
 				// on the last chunk, attach the last chunk termination sequence:
@@ -826,7 +827,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 					trailer << chunkBodyTerminator;
 				} // if isLast
 
-				sendStart = (Sint8 *)trailer.getData();
+				sendStart = (char *) trailer.getData();
 				Sint32 chunkBytesToWrite = (Sint32) trailer.size();
 				bytesWritten = _socket->write(sendStart, chunkBytesToWrite);
 				if (bytesWritten < 0)
@@ -1266,8 +1267,8 @@ void HTTPConnection::_handleReadEventTransferEncoding() throw (Exception)
   if (_transferEncodingChunkOffset == 0)
     _transferEncodingChunkOffset = (Uint32) _contentOffset;
 
-  Sint8 *headerStart = (Sint8 *) _incomingBuffer.getData();
-  Sint8 *messageStart = headerStart;
+  char *headerStart = (char *) _incomingBuffer.getData();
+  char *messageStart = headerStart;
 
   // loop thru the received data (so far) and strip out all chunked meta data.
 	// this logic assumes that the data read in may be only partial at any point
@@ -1290,8 +1291,8 @@ void HTTPConnection::_handleReadEventTransferEncoding() throw (Exception)
     Uint32 remainderLength = messageLength - _transferEncodingChunkOffset;
 
 		// the start of the first fully non-parsed chunk of this interation
-    Sint8 *chunkLineStart = messageStart + _transferEncodingChunkOffset;
-    Sint8 *chunkLineEnd = chunkLineStart;
+    char *chunkLineStart = messageStart + _transferEncodingChunkOffset;
+    char *chunkLineEnd = chunkLineStart;
 
     // Find the end of the hex string representing the data portion length of 
 		// the current chunk. Note that we must hit at least one non-hexdigit 
@@ -1316,7 +1317,7 @@ void HTTPConnection::_handleReadEventTransferEncoding() throw (Exception)
       _throwEventFailure(HTTP_STATUS_REQUEST_TOO_LARGE,
 												 "stated chunk length too large");
 
-		Sint8 *chunkExtensionStart = chunkLineEnd;
+		char *chunkExtensionStart = chunkLineEnd;
     chunkLineEnd = strstr(chunkLineEnd, chunkLineTerminator);
 
     // If we have not received the chunk line terminator yet, then return and
@@ -1385,8 +1386,8 @@ void HTTPConnection::_handleReadEventTransferEncoding() throw (Exception)
       {
         Uint32 trailerLength =  remainderLength - chunkBodyTerminatorLength;
         Uint32 trailerOffset = _transferEncodingChunkOffset;
-        Sint8 *trailerStart = messageStart + trailerOffset; 
-        Sint8 *trailerTerminatorStart = trailerStart + trailerLength - 
+        char *trailerStart = messageStart + trailerOffset; 
+        char *trailerTerminatorStart = trailerStart + trailerLength - 
 					trailerTerminatorLength;
 
         // no trailer terminator before end of chunk body ?
@@ -1395,7 +1396,7 @@ void HTTPConnection::_handleReadEventTransferEncoding() throw (Exception)
           _throwEventFailure(HTTP_STATUS_BADREQUEST, 
 														 "No chunk trailer terminator received");
 
-				Array<Sint8> trailer;
+				Array<char> trailer;
 				// add a dummy startLine so that the parser works
 				trailer << " " << headerLineTerminator;
 
@@ -1428,7 +1429,7 @@ void HTTPConnection::_handleReadEventTransferEncoding() throw (Exception)
 					// we have a cim error. parse the header to get the original http 
 					// level error if any, otherwise, we have to make one up.
 
-					Array<Sint8> header(messageStart, headerLength);
+					Array<char> header(messageStart, headerLength);
 					String startLine;
 					Array<HTTPHeader> headers;
 					Uint32 contentLength = 0;
@@ -1499,7 +1500,7 @@ void HTTPConnection::_handleReadEventTransferEncoding() throw (Exception)
 				} // else not a cim error
 			} // if optional trailer present
       
-      Sint8 *chunkBodyTerminatorStart = 
+      char *chunkBodyTerminatorStart = 
         messageStart + _transferEncodingChunkOffset;
 
 			// look for chunk body terminator
@@ -1535,7 +1536,7 @@ void HTTPConnection::_handleReadEventTransferEncoding() throw (Exception)
 
 				_incomingBuffer.append(headerLineTerminator, headerLineTerminatorLength);
 				// null terminate - the buffer is at least as long after removing
-				Sint8 *data = (Sint8 *)_incomingBuffer.getData();
+				char *data = (char *)_incomingBuffer.getData();
 				data[_incomingBuffer.size()] = 0;
 				_contentLength = 0;
 				_contentOffset = 0;
@@ -1588,7 +1589,7 @@ void HTTPConnection::_handleReadEventFailure(String &httpStatusWithDetail,
 
   Tracer::trace(__FILE__, __LINE__, TRC_HTTP, Tracer::LEVEL2, combined);
   _requestCount++;
-  Array<Sint8> message;
+  Array<char> message;
   message = XmlWriter::formatHttpErrorRspMessage(httpStatus, cimError, 
 																								 httpDetail);
   HTTPMessage* httpMessage = new HTTPMessage(message);
@@ -1687,7 +1688,7 @@ void HTTPConnection::_handleReadEvent()
         _incomingBuffer.reserveCapacity(size + 1);
         _incomingBuffer.append(buffer, n);
         // put a null on it. This is safe sice we have reserved an extra byte
-        Sint8 *data = (Sint8 *)_incomingBuffer.getData();
+        char *data = (char *)_incomingBuffer.getData();
         data[size] = 0;
       }
 
@@ -1954,7 +1955,7 @@ void HTTPConnection2::handleEnqueue(Message *message)
 	 // so it is just fine if it blocks. << Tue Oct  7 09:48:06 2003 mdd >>
 	 //------------------------------------------------------------
 
-	 const Array<Sint8>& buffer = httpMessage->message;
+	 const Array<char>& buffer = httpMessage->message;
  
 	 const Uint32 CHUNK_SIZE = 16 * 1024;
 

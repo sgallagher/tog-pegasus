@@ -30,9 +30,11 @@
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Karl Schopmeyer, (k.schopmeyer@opengroup.org)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
 //              Adriann Schuur (schuur@de.ibm.com) PEP 164
 //              Dave Sudlik, IBM (dsudlik@us.ibm.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -60,23 +62,23 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-inline void _toString(Array<Sint8>& out, Boolean x)
+inline void _toString(Array<char>& out, Boolean x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _toString(Array<Sint8>& out, Uint8 x) { XmlWriter::append(out, Uint32(x)); }
-inline void _toString(Array<Sint8>& out, Sint8 x) { XmlWriter::append(out, Sint32(x)); }
-inline void _toString(Array<Sint8>& out, Uint16 x) { XmlWriter::append(out, Uint32(x)); }
-inline void _toString(Array<Sint8>& out, Sint16 x) { XmlWriter::append(out, Sint32(x)); }
-inline void _toString(Array<Sint8>& out, Uint32 x) { XmlWriter::append(out, x); }
-inline void _toString(Array<Sint8>& out, Sint32 x) { XmlWriter::append(out, x); }
-inline void _toString(Array<Sint8>& out, Uint64 x) { XmlWriter::append(out, x); }
-inline void _toString(Array<Sint8>& out, Sint64 x) { XmlWriter::append(out, x); }
-inline void _toString(Array<Sint8>& out, Real32 x) { XmlWriter::append(out, Real64(x)); }
-inline void _toString(Array<Sint8>& out, Real64 x) { XmlWriter::append(out, x); }
+inline void _toString(Array<char>& out, Uint8 x) { XmlWriter::append(out, Uint32(x)); }
+inline void _toString(Array<char>& out, Sint8 x) { XmlWriter::append(out, Sint32(x)); }
+inline void _toString(Array<char>& out, Uint16 x) { XmlWriter::append(out, Uint32(x)); }
+inline void _toString(Array<char>& out, Sint16 x) { XmlWriter::append(out, Sint32(x)); }
+inline void _toString(Array<char>& out, Uint32 x) { XmlWriter::append(out, x); }
+inline void _toString(Array<char>& out, Sint32 x) { XmlWriter::append(out, x); }
+inline void _toString(Array<char>& out, Uint64 x) { XmlWriter::append(out, x); }
+inline void _toString(Array<char>& out, Sint64 x) { XmlWriter::append(out, x); }
+inline void _toString(Array<char>& out, Real32 x) { XmlWriter::append(out, Real64(x)); }
+inline void _toString(Array<char>& out, Real64 x) { XmlWriter::append(out, x); }
 
-inline void _toString(Array<Sint8>& out, Char16 x)
+inline void _toString(Array<char>& out, Char16 x)
 {
     // We need to convert the Char16 to UTF8 then append the UTF8
     // character into the array.
@@ -99,31 +101,31 @@ inline void _toString(Array<Sint8>& out, Char16 x)
 		&strtgt,
 		endtgt);
 
-    out.append((Sint8 *)str, UTF_8_COUNT_TRAIL_BYTES(str[0]) +1);
+    out.append(str, UTF_8_COUNT_TRAIL_BYTES(str[0]) +1);
 }
 
-inline void _toString(Array<Sint8>& out, const String& x)
+inline void _toString(Array<char>& out, const String& x)
 {
     out << x;
 }
 
-inline void _toString(Array<Sint8>& out, const CIMDateTime& x)
+inline void _toString(Array<char>& out, const CIMDateTime& x)
 {
     out << x.toString();
 }
 
-inline void _toString(Array<Sint8>& out, const CIMObjectPath& x)
+inline void _toString(Array<char>& out, const CIMObjectPath& x)
 {
     out << x.toString();
 }
 
-inline void _toString(Array<Sint8>& out, const CIMObject& x)
+inline void _toString(Array<char>& out, const CIMObject& x)
 {
     out << x.toString();
 }
 
 template<class T>
-void _toString(Array<Sint8>& out, const T* p, Uint32 size)
+void _toString(Array<char>& out, const T* p, Uint32 size)
 {
     while (size--)
     {
@@ -1621,7 +1623,7 @@ Boolean CIMValue::equal(const CIMValue& x) const
 
 String CIMValue::toString() const
 {
-    Array<Sint8> out;
+    Array<char> out;
 
     //ATTN: Not sure what we should do with getstring for Null CIMValues
     //Choice return empty string or exception out.

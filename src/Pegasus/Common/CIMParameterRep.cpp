@@ -28,7 +28,9 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -107,7 +109,7 @@ void CIMParameterRep::resolve(
 	true);
 }
 
-void CIMParameterRep::toXml(Array<Sint8>& out) const
+void CIMParameterRep::toXml(Array<char>& out) const
 {
     if (_isArray)
     {
@@ -197,7 +199,7 @@ void CIMParameterRep::toXml(Array<Sint8>& out) const
 	
     Format on a single line.
     */
-void CIMParameterRep::toMof(Array<Sint8>& out) const
+void CIMParameterRep::toMof(Array<char>& out) const
 {
     // Output the qualifiers for the parameter
     _qualifiers.toMof(out);

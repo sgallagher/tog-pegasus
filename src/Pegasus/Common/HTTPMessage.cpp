@@ -32,6 +32,8 @@
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP101
 //				Seema Gupta (gseema@in.ibm.com) for Bug#1096
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -91,7 +93,7 @@ static char* _FindSeparator(const char* data, Uint32 size)
 }
 
 HTTPMessage::HTTPMessage(
-    const Array<Sint8>& message_, 
+    const Array<char>& message_, 
     Uint32 queueId_, const CIMException *cimException_)
     :
     Message(HTTP_MESSAGE), 
@@ -130,7 +132,7 @@ void HTTPMessage::parse(
 
     char* data = (char*)message.getData();
     Uint32 size = message.size();
-    char* line = (char*)data;
+    char* line = data;
     char* sep;
     Boolean firstTime = true;
 
@@ -142,7 +144,7 @@ void HTTPMessage::parse(
 	{
 	    // Establish pointer to content (account for "\n" and "\r\n").
 
-	    Sint8* content = line + ((*sep == '\r') ? 2 : 1);
+	    char* content = line + ((*sep == '\r') ? 2 : 1);
 
 	    // Determine length of content:
 
@@ -158,7 +160,7 @@ void HTTPMessage::parse(
 	{
 	    // Find the colon:
 
-	    Sint8* colon = 0;
+	    char* colon = 0;
 
 	    for (Uint32 i = 0; i < lineLength; i++)
 	    {
@@ -175,7 +177,7 @@ void HTTPMessage::parse(
 	    {
 		// Get the name part:
 
-		Sint8* end;
+		char* end;
 
 		for (end = colon - 1; end > line && isspace(*end); end--)
 		    ;
@@ -186,7 +188,7 @@ void HTTPMessage::parse(
 
 		// Get the value part:
 
-		Sint8* start;
+		char* start;
 
 		for (start = colon + 1; start < sep && isspace(*start); start++)
 		    ;
@@ -216,7 +218,7 @@ void HTTPMessage::printAll(ostream& os) const
     parse(startLine, headers, contentLength);
 
     // get pointer to start of data.
-    const Sint8* content = message.getData() + message.size() - contentLength;
+    const char* content = message.getData() + message.size() - contentLength;
     // Print the first line:
 
     os << endl << startLine << endl;
@@ -242,14 +244,14 @@ void HTTPMessage::printAll(ostream& os) const
 
     for (Uint32 i = 0; i < contentLength; i++)
     {
-	//Sint8 c = content[i];
+	//char c = content[i];
 
 	if (image)
 	{
 	    if ((i % 60) == 0)
 		os << endl;
 
-	    Sint8 c = content[i];
+	    char c = content[i];
 
 	    if (c >= ' ' && c < '~')
 		os << c;

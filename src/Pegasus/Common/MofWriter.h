@@ -57,15 +57,15 @@ class PEGASUS_COMMON_LINKAGE MofWriter
 public:
 
     static void appendValueElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMValue& value);
 
     static void appendValueReferenceElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMObjectPath& reference);
 
     static void appendClassElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMConstClass& cimclass);
 
     static void printClassElement(
@@ -73,27 +73,27 @@ public:
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
     static void appendInstanceElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMConstInstance& instance);
 
     static void appendPropertyElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMConstProperty& property);
 
     static void appendMethodElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMConstMethod& method);
 
     static void appendParameterElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMConstParameter& parameter);
 
     static void appendQualifierElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMConstQualifier& qualifier);
 
     static void appendQualifierDeclElement(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMConstQualifierDecl& qualifierDecl);
 
     static String getQualifierFlavor(const CIMFlavor & flavor);

@@ -27,7 +27,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -118,9 +119,9 @@ public:
 
     void resolve(DeclContext* declContext, const CIMNamespaceName& nameSpace);
 
-    void toXml(Array<Sint8>& out) const;
+    void toXml(Array<char>& out) const;
 
-    void toMof(Array<Sint8>& out) const;
+    void toMof(Array<char>& out) const;
 
     Boolean identical(const CIMParameterRep* x) const;
 

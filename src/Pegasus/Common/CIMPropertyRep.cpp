@@ -28,7 +28,9 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -206,7 +208,7 @@ static const char* _toString(Boolean x)
     return x ? "true" : "false";
 }
 
-void CIMPropertyRep::toXml(Array<Sint8>& out) const
+void CIMPropertyRep::toXml(Array<char>& out) const
 {
     if (_value.isArray())
     {
@@ -298,7 +300,7 @@ void CIMPropertyRep::toXml(Array<Sint8>& out) const
     Format with qualifiers on one line and declaration on another. Start
     with newline but none at the end.
 */
-void CIMPropertyRep::toMof(Array<Sint8>& out) const  //ATTNKS:
+void CIMPropertyRep::toMof(Array<char>& out) const  //ATTNKS:
 {
     //Output the qualifier list
     if (_qualifiers.getCount())

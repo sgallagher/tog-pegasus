@@ -28,7 +28,9 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -97,7 +99,7 @@ static const char* _toString(Boolean x)
     return x ? "true" : "false";
 }
 
-void CIMQualifierDeclRep::toXml(Array<Sint8>& out) const
+void CIMQualifierDeclRep::toXml(Array<char>& out) const
 {
     out << "<QUALIFIER.DECLARATION";
     out << " NAME=\"" << _name << "\"";
@@ -140,7 +142,7 @@ void CIMQualifierDeclRep::toXml(Array<Sint8>& out) const
     ")"
     </pre>
 */
-void CIMQualifierDeclRep::toMof(Array<Sint8>& out) const
+void CIMQualifierDeclRep::toMof(Array<char>& out) const
 {
     out << "\n";
 

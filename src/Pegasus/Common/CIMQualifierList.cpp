@@ -29,7 +29,9 @@
 //
 // Modified By:	Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -340,7 +342,7 @@ void CIMQualifierList::resolve(
     }
 }
 
-void CIMQualifierList::toXml(Array<Sint8>& out) const
+void CIMQualifierList::toXml(Array<char>& out) const
 {
     for (Uint32 i = 0, n = _qualifiers.size(); i < n; i++)
 	XmlWriter::appendQualifierElement(out, _qualifiers[i]);
@@ -354,7 +356,7 @@ void CIMQualifierList::toXml(Array<Sint8>& out) const
     </pre>
     Produces qualifiers as a string on without nl.
     */
-void CIMQualifierList::toMof(Array<Sint8>& out) const
+void CIMQualifierList::toMof(Array<char>& out) const
 {
     // if no qualifiers, return
     if (_qualifiers.size() == 0)
@@ -379,7 +381,7 @@ void CIMQualifierList::toMof(Array<Sint8>& out) const
 
 void CIMQualifierList::print(PEGASUS_STD(ostream) &os) const
 {
-    Array<Sint8> tmp;
+    Array<char> tmp;
     toXml(tmp);
     tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);

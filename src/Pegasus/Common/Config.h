@@ -171,11 +171,11 @@ PEGASUS_NAMESPACE_BEGIN
 
 typedef bool Boolean;  // If platform w/o bool, add flag and include Boolean.h
 typedef unsigned char Uint8;
-typedef char Sint8;
+typedef signed char Sint8;
 typedef unsigned short Uint16;
-typedef short Sint16;
+typedef signed short Sint16;
 typedef unsigned int Uint32;
-typedef int Sint32;
+typedef signed int Sint32;
 typedef float Real32;
 typedef double Real64;
 typedef PEGASUS_UINT64 Uint64;

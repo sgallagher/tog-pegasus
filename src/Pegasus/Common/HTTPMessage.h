@@ -31,6 +31,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //		   Seema Gupta (gseema@in.ibm.com) for Bug#1096
+//         David Dillard, VERITAS Software Corp.  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -62,12 +63,12 @@ class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
   
       typedef Message Base;
       
-      HTTPMessage(const Array<Sint8>& message_, Uint32 queueId_ = 0,
+      HTTPMessage(const Array<char>& message_, Uint32 queueId_ = 0,
 									const CIMException *cimException_ = 0);
 
       HTTPMessage(const HTTPMessage & msg);
 
-      Array<Sint8> message;
+      Array<char> message;
       Uint32 queueId;
       AuthenticationInfo* authInfo;
       AcceptLanguages acceptLanguages;

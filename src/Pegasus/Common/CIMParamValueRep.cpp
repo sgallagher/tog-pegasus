@@ -29,7 +29,9 @@
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -60,7 +62,7 @@ CIMParamValueRep::~CIMParamValueRep()
 //         %ParamType;>
 //
 //------------------------------------------------------------------------------
-void CIMParamValueRep::toXml(Array<Sint8>& out) const
+void CIMParamValueRep::toXml(Array<char>& out) const
 {
     out << "<PARAMVALUE NAME=\"" << _parameterName << "\"";
 

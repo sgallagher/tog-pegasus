@@ -28,7 +28,9 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -150,9 +152,9 @@ public:
 	Boolean isInstancePart,
 	Boolean propagateQualifiers);
 
-    void toXml(Array<Sint8>& out) const;
+    void toXml(Array<char>& out) const;
 
-    void toMof(Array<Sint8>& out) const;
+    void toMof(Array<char>& out) const;
 
     Boolean identical(const CIMPropertyRep* x) const;
 

@@ -31,6 +31,8 @@
 //         Ramnath Ravindran(Ramnath.Ravindran@compaq.com)
 //         Amit K Arora, IBM (amita@in.ibm.com)
 //         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//         David Dillard, VERITAS Software Corp.
+//             (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -148,7 +150,7 @@ Boolean FileSystem::removeFile(const String& path)
 }
 
 void FileSystem::loadFileToMemory(
-    Array<Sint8>& array,
+    Array<char>& array,
     const String& fileName)
 {
     Uint32 fileSize;

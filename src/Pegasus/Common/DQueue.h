@@ -450,27 +450,6 @@ template<class L>L *DQueue<L>::remove(const L *key) throw(IPCException)
    return(ret);
 }
 
-template<class L> L *DQueue<L>::reference(const void *key) throw(IPCException)
-{
-   if(key == 0)
-      return 0;
-   
-   if( pegasus_thread_self() != _mutex->get_owner())
-      throw Permission(pegasus_thread_self());
-   
-   if( _actual_count->value() ) 
-   {
-      L *ret = static_cast<L *>(Base::next(0));
-      while(ret != 0)
-      {
-	 if(ret->operator==(key))
-	    return ret;
-	 ret = static_cast<L *>(Base::next(static_cast<const void *>(ret)));
-      }
-   }
-   return(0);
-}
-
 template<class L> L *DQueue<L>::reference(const L *key)
 {
    if(key == 0)
@@ -490,6 +469,27 @@ template<class L> L *DQueue<L>::reference(const L *key)
       }
    }
 	 return(0);
+}
+
+template<class L> L *DQueue<L>::reference(const void *key) throw(IPCException)
+{
+   if(key == 0)
+      return 0;
+   
+   if( pegasus_thread_self() != _mutex->get_owner())
+      throw Permission(pegasus_thread_self());
+   
+   if( _actual_count->value() ) 
+   {
+      L *ret = static_cast<L *>(Base::next(0));
+      while(ret != 0)
+      {
+	 if(ret->operator==(key))
+	    return ret;
+	 ret = static_cast<L *>(Base::next(static_cast<const void *>(ret)));
+      }
+   }
+   return(0);
 }
 
 template<class L> L * DQueue<L>::next( const void * ref) throw(IPCException)

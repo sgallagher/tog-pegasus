@@ -28,6 +28,8 @@
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -75,7 +77,7 @@ public:
 
     void setIsTyped(Boolean isTyped);
 
-    void toXml(Array<Sint8>& out) const;
+    void toXml(Array<char>& out) const;
 
     CIMParamValueRep* clone() const
     {

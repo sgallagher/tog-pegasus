@@ -28,6 +28,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -164,7 +166,7 @@ public:
 	@exception CannotOpenFile
     */
     static void loadFileToMemory(
-	Array<Sint8>& array,
+	Array<char>& array,
 	const String& fileName);
 
     /** Determines whether two files have exactly the same content.

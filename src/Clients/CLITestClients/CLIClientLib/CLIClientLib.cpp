@@ -1812,7 +1812,7 @@ void mofFormat(
         }
 
     }
-    delete var;
+    delete [] var;
 }
 
 PEGASUS_NAMESPACE_END

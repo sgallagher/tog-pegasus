@@ -150,7 +150,7 @@ void mofFormat(
 	}
 
     }
-    delete var;
+    delete [] var;
 }
 
 void GetOptions(

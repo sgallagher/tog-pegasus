@@ -549,7 +549,7 @@ void mofFormat(
 	}
 
     }
-    delete var;
+    delete [] var;
 }
 
 /** PrintClassMethods - Print a table of the methods for the class

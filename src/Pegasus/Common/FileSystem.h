@@ -34,6 +34,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/InternalException.h>
+#include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Linkage.h>
 #include <fstream>
 
@@ -367,7 +368,7 @@ inline String FileSystem::getAbsolutePath(
 
     if (filename != String::EMPTY)
     {
-        if ((filename[0] != '/') && path && path[0])
+        if (!System::is_absolute_path(filename.getCString()) && path && path[0])
         {
             absolutePath.append(path);
             absolutePath.append('/');

@@ -30,6 +30,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/Tracer.h>
 #include <iostream>
 #include "WQLParser.h"
 #include "WQLParserState.h"
@@ -46,8 +47,13 @@ void WQLParser::parse(
     const char* text,
     WQLSelectStatement& statement)
 {
+    PEG_METHOD_ENTER(TRC_WQL,"WQLParser::parse");
+
     if (!text)
+    {
+        PEG_METHOD_EXIT();
 	throw NullPointer();
+    }
 
     statement.clear();
 
@@ -65,40 +71,56 @@ void WQLParser::parse(
 	String errorMessage = globalParserState->errorMessage;
 	cleanup();
 	delete globalParserState;
+        PEG_METHOD_EXIT();
 	throw ParseError(errorMessage);
     }
 
     cleanup();
     delete globalParserState;
+    PEG_METHOD_EXIT();
 }
 
 void WQLParser::parse(
     const Array<Sint8>& text,
     WQLSelectStatement& statement)
 {
+    PEG_METHOD_ENTER(TRC_WQL,"WQLParser::parse");
+
     if (text.size() == 0 || text[text.size() - 1] != '\0')
+    {
+        PEG_METHOD_EXIT();
 	throw MissingNullTerminator();
+    }
 
     parse(text.getData(), statement);
+    PEG_METHOD_EXIT();
 }
 
 void WQLParser::parse(
     const String& text,
     WQLSelectStatement& statement)
 {
+    PEG_METHOD_ENTER(TRC_WQL,"WQLParser::parse");
+
     char* tmpText = text.allocateCString();
     ArrayDestroyer<char> destroyer(tmpText);
     parse(tmpText, statement);
+
+    PEG_METHOD_EXIT();
 }
 
 void WQLParser::cleanup()
 {
+    PEG_METHOD_ENTER(TRC_WQL,"WQLParser::cleanup");
+
     Array<char*>& arr = globalParserState->outstandingStrings;
 
     for (Uint32 i = 0, n = arr.size(); i < n; i++)
 	delete [] arr[i];
 
     arr.clear();
+
+    PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END
@@ -107,13 +129,18 @@ PEGASUS_USING_PEGASUS;
 
 int WQL_error(char* errorMessage)
 {
+    PEG_METHOD_ENTER(TRC_WQL,"WQL_error");
+
     globalParserState->error = true;
     globalParserState->errorMessage = errorMessage;
+
+    PEG_METHOD_EXIT();
     return -1;
 }
 
 int WQLInput(char* buffer, int& numRead, int numRequested)
 {
+    PEG_METHOD_ENTER(TRC_WQL,"WQLInput");
     //
     // Be sure to account for the null terminator (the size of the text will
     // be one or more; this is fixed checked beforehand by WQLParser::parse()).
@@ -125,6 +152,7 @@ int WQLInput(char* buffer, int& numRead, int numRequested)
     if (remaining == 0)
     {
 	numRead = 0;
+        PEG_METHOD_EXIT();
 	return 0;
     }
 
@@ -138,5 +166,6 @@ int WQLInput(char* buffer, int& numRead, int numRequested)
     globalParserState->offset += numRequested;
     numRead = numRequested;
 
+    PEG_METHOD_EXIT();
     return numRead;
 }

@@ -31,6 +31,7 @@
 //              Bapu Patil (bapu_patil@hp.com)
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
+//              Amit K Arora (amita@in.ibm.com) for PEP101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -80,7 +81,6 @@
 #include <netdb.h>
 #include "System.h"
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/InternalException.h>
 #ifdef PEGASUS_ZOS_SECURITY
 #include "DynamicLibraryzOS_inline.h"

@@ -29,6 +29,7 @@
 //              sushma_fernandes@hp.com
 // Modified By: Dave Rosckes (IBM)
 //              rosckes@us.ibm.com
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +38,6 @@
 #include <cstring>
 #include "Logger.h"
 #include "System.h"
-#include "Destroyer.h"
 #include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_USING_STD;

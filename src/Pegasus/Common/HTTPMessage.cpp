@@ -28,6 +28,7 @@
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Dave Rosckes (rosckes@us.ibm.com)
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +36,6 @@
 #include <iostream>
 #include <cctype>
 #include "HTTPMessage.h"
-#include "Destroyer.h"
 
 PEGASUS_USING_STD;
 

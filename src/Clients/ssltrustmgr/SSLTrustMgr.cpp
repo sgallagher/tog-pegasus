@@ -814,9 +814,9 @@ SSLTrustMgr::SSLTrustMgr ()
 #ifdef PEGASUS_HAS_ICU
 
     MessageLoaderParms menuparms(
-        "Clients.ssltrustmgr.SSLTrustMgr.MENU.STANDARD", usage);
+        "Clients.ssltrustmgr.SSLTrustMgr.MENU.STANDARD", _usage);
     menuparms.msg_src_path = MSG_PATH;
-    usage = MessageLoader::getMessage(menuparms);
+    _usage = MessageLoader::getMessage(menuparms);
 
 #endif
 

@@ -26,12 +26,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-/*
-
-CIMInstance.h File defines the Class used to create, instantiate, and modify
-CIM Instances
-
-*/
 #ifndef Pegasus_Instance_h
 #define Pegasus_Instance_h
 
@@ -51,9 +45,8 @@ class CIMConstInstance;
 class CIMObject;
 class CIMConstObject;
 
-/** Class CIMInstance	- The CIMInstance class represents the instance of
-    a CIM class in Pegasus. It is used manipulate instances and the
-    characteristics of instances
+/** This class represents the instance of a CIM class. It is used manipulate 
+    instances and their parts.
 */
 class PEGASUS_COMMON_LINKAGE CIMInstance
 {
@@ -583,4 +576,3 @@ private:
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Instance_h */
-

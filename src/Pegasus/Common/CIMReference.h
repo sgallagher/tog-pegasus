@@ -614,7 +614,12 @@ private:
 
     void classNameToXml(Array<Sint8>& out) const;
 
+    //
+    // Contains port as well (e.g., myhost:1234).
+    //
+
     String _host;
+
     String _nameSpace;
     String _className;
     Array<KeyBinding> _keyBindings;

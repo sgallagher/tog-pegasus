@@ -44,6 +44,18 @@ void test01()
     }
 
     {
+    String on1;
+    on1 = "//atp/root/cimv25:TennisPlayer.last=\"Rafter\",first=\"Patrick\"";
+
+    String on2;
+    on2="//atp:5988/root/cimv25:TennisPlayer.first=\"Patrick\",last=\"Rafter\"";
+
+    CIMReference r = on1;
+    assert(r.toString() != on1);
+    assert(r.toString() == on2);
+    }
+
+    {
     CIMReference r1 = "MyClass.z=true,y=1234,x=\"Hello World\"";
     CIMReference r2 = "myclass.X=\"Hello World\",Z=true,Y=1234";
     CIMReference r3 = "myclass.X=\"Hello\",Z=true,Y=1234";

@@ -36,6 +36,7 @@
 #include "XmlWriter.h"
 #include "XmlReader.h"
 #include "Array.h"
+#include "CIMOMPort.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -348,29 +349,42 @@ void CIMReference::set(const String& objectName)
 	while (isalnum(*q) || *q == '-')
 	    q++;
 
-	// We now expect a colon (before the port):
+	// We now expect a port (or default the port).
 
-	if (*q != ':')
-	    throw IllformedObjectName(objectName);
-
-	q++;
-
-	// Check for a port number:
-
-	if (!isdigit(*q))
-	    throw IllformedObjectName(objectName);
-	
-	while (isdigit(*q))
+	if (*q == ':')
+	{
 	    q++;
+	    // Check for a port number:
+
+	    if (!isdigit(*q))
+		throw IllformedObjectName(objectName);
+	    
+	    while (isdigit(*q))
+		q++;
+
+	    // Check for slash terminating the entire sequence:
+
+	    if (*q != '/')
+		throw IllformedObjectName(objectName);
+
+	    // Finally, assign the host name:
+
+	    _host.assign(p, q - p);
+	}
+	else
+	{
+	    _host.assign(p, q - p);
+
+	    // Assign the default port number:
+
+	    _host.append(":");
+	    _host.append(PEGASUS_CIMOM_DEFAULT_PORT_STRING);
+	}
 
 	// Check for slash terminating the entire sequence:
 
 	if (*q != '/')
 	    throw IllformedObjectName(objectName);
-
-	// Finally, assign the host name:
-
-	_host.assign(p, q - p);
 
 	p = ++q;
 

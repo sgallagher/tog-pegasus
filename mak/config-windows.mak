@@ -51,3 +51,7 @@ COPY = mu copy
 TOUCH = mu touch
 
 ECHO = mu echo
+
+LEX = flex
+
+YACC = bison

@@ -137,7 +137,7 @@ cimmof_error(char *msg) {
 %token TOK_CLASS
 %token TOK_REAL_VALUE
 %token TOK_CHAR_VALUE
-%token <strval> TOK_STRING_VALUE
+%token TOK_STRING_VALUE
 %token TOK_NULL_VALUE
 %token TOK_OCTAL_VALUE
 %token TOK_HEX_VALUE
@@ -146,7 +146,7 @@ cimmof_error(char *msg) {
 %token TOK_FALSE
 %token TOK_DQUOTE
 %token TOK_PERIOD
-%token <strval> TOK_SIMPLE_IDENTIFIER
+%token TOK_SIMPLE_IDENTIFIER
 %token TOK_ALIAS_IDENTIFIER
 %token TOK_PRAGMA
 %token TOK_INCLUDE
@@ -196,7 +196,7 @@ cimmof_error(char *msg) {
 %type <strval> stringValue stringValues defaultValue initializer constantValue
 %type <strval> arrayInitializer referenceInitializer constantValues 
 %type <strval> integerValue TOK_REAL_VALUE TOK_CHAR_VALUE qualifierParameter
-%type <strval> className superClass TOK_ALIAS_IDENTIFIER  alias aliasIdentifier
+%type <strval> superClass TOK_ALIAS_IDENTIFIER  alias aliasIdentifier
 %type <strval> namespaceHandle namespaceHandleRef modelPath
 
 %type <ival> flavor defaultFlavor array metaElements metaElement scope

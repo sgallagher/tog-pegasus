@@ -79,6 +79,8 @@ main(int argc, char ** argv) {
 	try {
 	  ret = p->parse();
 	} catch(Exception e) {
+		cerr << p->get_current_filename() << "(";
+		cerr << p->get_lineno() << "): ";
 		cerr << "Parsing error: " << e.getMessage() << endl;
 	}
       } else {
@@ -90,6 +92,8 @@ main(int argc, char ** argv) {
     int ret =  p->parse();
     }
     catch(Exception e) {
+	    cerr << p->get_current_filename() << "(";
+	    cerr << p->get_lineno() << "): ";
 	    cerr << "Parsing error: "  << e.getMessage() << endl;
     }
   }

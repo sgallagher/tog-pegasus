@@ -140,6 +140,7 @@ DIRS += \
     ExportServer/tests \
     Client/tests \
     Compiler/tests \
+    Compiler/cmdline/tests \
     Security/Authentication/tests \
     Security/UserManager/tests \
     IndicationService/tests \

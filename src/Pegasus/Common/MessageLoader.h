@@ -54,132 +54,139 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /** <I><B>Experimental Interface</B></I><BR>
-    MessageLoaderParms class is basically a stuct class containing public 
-    variables that control the way MessageLoader behaves. MessageLoader uses 
-    the fields in this class to decide where and how to load messages from the 
-    message resources.
-*/
-class PEGASUS_COMMON_LINKAGE MessageLoaderParms
-{
+ * MessageLoaderParms class is basically a stuct class containing public variables that control
+ * the way MessageLoader behaves. MessageLoader uses the fields in this class to decide where and
+ * how to load messages from the message resources.
+ */
+
+class PEGASUS_COMMON_LINKAGE MessageLoaderParms{
+	
 public:
 	
-    // String msg_id: unique message identifier for a particular message in a 
-    // message resource
-    String msg_id;	
-    
-    // String default_msg: the default message to use if a message cannot be 
-    // loaded from a message resource
-    String default_msg;     
-    
-    // String msg_src_path: this path tells MessageLoader where to find message
-    // resources it can be empty, fully qualified or relative to $PEGASUS_HOME
-    String msg_src_path;
-    
-    // AcceptLanguages acceptlanguages: This contains the languages that are 
-    // acceptable by the caller of MessageLoader::getMessage(). That is, 
-    // MessageLoader will do its best to return a message in a language that 
-    // was specified in this container.  This container is naturally ordered 
-    // using the quality values attached to the languages and MessageLoader 
-    // iterates through this container in its natural ordering. This container
-    // is used by MessageLoader to load messages if it is not empty.
-    AcceptLanguages acceptlanguages;
-    
-    // ContentLanguages contentlanguages: This is set by 
-    // MessageLoader::getMessage() after a message has
-    // been loaded from either a message resource or the default message.  
-    // After the call to MessageLoader::getMessage() the caller can check the 
-    // MessageLoaderParms.contentlanguages object to see what MessageLoader 
-    // set it to. In all cases where a message is returned from 
-    // MessageLoader::getMessage(), this field will be set to match the
-    // language that the message was found in.
-    ContentLanguages contentlanguages;
-    
-    // Boolean useProcessLocale: Default is false, if true, MessageLoader 
-    // uses the system default language
-    // to loads messages from.
-    Boolean useProcessLocale;
-    
-    // Boolean useThreadLocale: Default is true, this tells MessageLoader to 
-    // use the AcceptLanguages container from the current Pegasus thread.
-    Boolean useThreadLocale;
-    
-    // Boolean useICUfallback: Default is false.  Only relevant if 
-    // PEGASUS_HAS_ICU is defined.  MessageLoader::getMessage() default 
-    // behaviour is to extract messages for the langauge exactly
-    // matching an available message resource.  If this is set to true, 
-    // the MessageLoader is free to extract a message from a less specific 
-    // message resource according to its search algorithm.
-#ifdef PEGASUS_HAS_ICU
-    Boolean useICUfallback;
-#endif
-    
-    // Formatter::Arg0-9: These are assigned the various substitutions 
-    // necessary to properly format the message being extracted.  
-    // MessageLoader substitutes these in the correct places in the message
-    // being returned from MessageLoader::getMessage()
-    Formatter::Arg arg0; 
-    Formatter::Arg arg1;
-    Formatter::Arg arg2;
-    Formatter::Arg arg3;
-    Formatter::Arg arg4;
-    Formatter::Arg arg5;
-    Formatter::Arg arg6;
-    Formatter::Arg arg7;
-    Formatter::Arg arg8;
-    Formatter::Arg arg9;
-    
+	/*
+	 * String msg_id: unique message identifier for a particular message in a message resource
+	 */
+	String msg_id;	
+	
+	/*
+	 * String default_msg: the default message to use if a message cannot be loaded from a message resource
+	 */		
+	String default_msg;     
+	
+	/*
+	 * String msg_src_path: this path tells MessageLoader where to find message resources
+	 * it can be empty, fully qualified or relative to $PEGASUS_HOME
+	 */
+	String msg_src_path;
+	
+	/*
+	 * AcceptLanguages acceptlanguages: This contains the languages that are acceptable by the caller
+	 * of MessageLoader::getMessage(). That is, MessageLoader will do its best to return a message in 
+	 * a language that was specified in this container.  This container is naturally ordered using the quality 
+	 * values attached to the languages and MessageLoader iterates through this container in its natural 
+	 * ordering.  This container is used by MessageLoader to load messages if it is not empty.
+	 */
+	AcceptLanguages acceptlanguages;
+	
+	/*
+	 * ContentLanguages contentlanguages: This is set by MessageLoader::getMessage() after a message has
+	 * been loaded from either a message resource or the default message.  After the call to MessageLoader::getMessage()
+	 * the caller can check the MessageLoaderParms.contentlanguages object to see what MessageLoader set it to.
+	 * In all cases where a message is returned from MessageLoader::getMessage(), this field will be set to match the
+	 * language that the message was found in.
+	 */
+	ContentLanguages contentlanguages;
+	
+	/*
+	 * Boolean useProcessLocale: Default is false, if true, MessageLoader uses the system default language
+	 * to loads messages from.
+	 */
+	Boolean useProcessLocale;
+	
+	/*
+	 * Boolean useThreadLocale: Default is true, this tells MessageLoader to use the AcceptLanguages container
+	 * from the current Pegasus thread.
+	 */
+	Boolean useThreadLocale;
+	
+	/*
+	 * Boolean useICUfallback: Default is false.  Only relevant if PEGASUS_HAS_ICU is defined.
+	 * MessageLoader::getMessage() default behaviour is to extract messages for the langauge exactly
+	 * matching an available message resource.  If this is set to true, the MessageLoader is free to extract
+	 * a message from a less specific message resource according to its search algorithm.
+	 */
+	#ifdef PEGASUS_HAS_ICU
+	Boolean useICUfallback;
+	#endif
+	
+	/*
+	 * const Formatter::Arg&0-9: These are assigned the various substitutions necessary to properly format
+	 * the message being extracted.  MessageLoader substitutes these in the correct places in the message
+	 * being returned from MessageLoader::getMessage()
+	 */
+	Formatter::Arg arg0; 
+	Formatter::Arg arg1;
+	Formatter::Arg arg2;
+	Formatter::Arg arg3;
+	Formatter::Arg arg4;
+	Formatter::Arg arg5;
+	Formatter::Arg arg6;
+	Formatter::Arg arg7;
+	Formatter::Arg arg8;
+	Formatter::Arg arg9;
+	
     /** Constructor */
     MessageLoaderParms();
 
     /** Constructor */
     MessageLoaderParms(
-	String id, 
-	String msg, 
-	Formatter::Arg arg0,
-	Formatter::Arg arg1,
-	Formatter::Arg arg2,
-	Formatter::Arg arg3,
-	Formatter::Arg arg4,
-	Formatter::Arg arg5 = Formatter::DEFAULT_ARG,
-	Formatter::Arg arg6 = Formatter::DEFAULT_ARG,
-	Formatter::Arg arg7 = Formatter::DEFAULT_ARG,
-	Formatter::Arg arg8 = Formatter::DEFAULT_ARG,
-	Formatter::Arg arg9 = Formatter::DEFAULT_ARG);
+	const String& id, 
+	const String& msg, 
+	const Formatter::Arg& arg0,
+	const Formatter::Arg& arg1,
+	const Formatter::Arg& arg2,
+	const Formatter::Arg& arg3,
+	const Formatter::Arg& arg4,
+	const Formatter::Arg& arg5 = Formatter::DEFAULT_ARG,
+	const Formatter::Arg& arg6 = Formatter::DEFAULT_ARG,
+	const Formatter::Arg& arg7 = Formatter::DEFAULT_ARG,
+	const Formatter::Arg& arg8 = Formatter::DEFAULT_ARG,
+	const Formatter::Arg& arg9 = Formatter::DEFAULT_ARG);
 
     /** Constructor */
     MessageLoaderParms(
-	String id, 
-	String msg);
+	const String& id, 
+	const String& msg);
     
     /** Constructor */
     MessageLoaderParms(
-	String id, 
-	String msg, 
-	Formatter::Arg arg0);
+	const String& id, 
+	const String& msg, 
+	const Formatter::Arg& arg0);
 
     /** Constructor */
     MessageLoaderParms(
-	String id, 
-	String msg, 
-	Formatter::Arg arg0,
-	Formatter::Arg arg1);
+	const String& id, 
+	const String& msg, 
+	const Formatter::Arg& arg0,
+	const Formatter::Arg& arg1);
 
     /** Constructor */
     MessageLoaderParms(
-	String id, 
-	String msg, 
-	Formatter::Arg arg0,
-	Formatter::Arg arg1,
-	Formatter::Arg arg2);
+	const String& id, 
+	const String& msg, 
+	const Formatter::Arg& arg0,
+	const Formatter::Arg& arg1,
+	const Formatter::Arg& arg2);
 
     /** Constructor */
     MessageLoaderParms(
-	String id, 
-	String msg, 
-	Formatter::Arg arg0,
-	Formatter::Arg arg1,
-	Formatter::Arg arg2,
-	Formatter::Arg arg3);
+	const String& id, 
+	const String& msg, 
+	const Formatter::Arg& arg0,
+	const Formatter::Arg& arg1,
+	const Formatter::Arg& arg2,
+	const Formatter::Arg& arg3);
 
     MessageLoaderParms(
 	const char* id, 
@@ -199,15 +206,17 @@ public:
     /** Converts to string. */
     String toString();
 
+    ~MessageLoaderParms();
+
 private:
 
     void _init();
-};
+}; // end MessageLoaderParms
 
 
-/** <I><B>Experimental Interface</B></I><BR>
-  MessageLoader is a static class resposible for looking up messages in message resources. 
-  For specific behaviour details of this class see the Globalization HOWTO.
+/*
+ * MessageLoader is a static class resposible for looking up messages in message resources. 
+ * For specific behaviour details of this class see the Globalization HOWTO.
  */
 
 class PEGASUS_COMMON_LINKAGE MessageLoader{

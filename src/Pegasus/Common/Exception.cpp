@@ -63,108 +63,12 @@ Exception::Exception(const Exception& exception)
 // l10n
 Exception::Exception(const MessageLoaderParms& msgParms)
 {
-    _init(msgParms);
-}
-
-void Exception::_init(const MessageLoaderParms& msgParms)
-{
     _rep = new ExceptionRep();
     _rep->message = MessageLoader::getMessage(
     	const_cast<MessageLoaderParms &>(msgParms));
     // Must be after MessageLoader::getMessage call    
     _rep->contentLanguages = msgParms.contentlanguages;
 }
-
-//{/////////////////////////////////////////////////////////////////////////////
-
-Exception::Exception( 
-    String id, 
-    String msg, 
-    Formatter::Arg arg0, 
-    Formatter::Arg arg1,
-    Formatter::Arg arg2,
-    Formatter::Arg arg3,
-    Formatter::Arg arg4,
-    Formatter::Arg arg5,
-    Formatter::Arg arg6,
-    Formatter::Arg arg7,
-    Formatter::Arg arg8,
-    Formatter::Arg arg9)
-{
-    _init(MessageLoaderParms(id, msg, arg0, arg1, arg2, arg3, arg4, arg5,
-	arg6, arg7, arg8, arg9));
-}
-
-Exception::Exception( 
-    String id, 
-    String msg)
-{
-    _init(MessageLoaderParms(id, msg));
-}
-
-Exception::Exception( 
-    String id, 
-    String msg, 
-    Formatter::Arg arg0)
-{
-    _init(MessageLoaderParms(id, msg, arg0));
-}
-
-Exception::Exception( 
-    String id, 
-    String msg, 
-    Formatter::Arg arg0,
-    Formatter::Arg arg1)
-{
-    _init(MessageLoaderParms(id, msg, arg0, arg1));
-}
-
-Exception::Exception( 
-    String id, 
-    String msg, 
-    Formatter::Arg arg0,
-    Formatter::Arg arg1,
-    Formatter::Arg arg2)
-{
-    _init(MessageLoaderParms(id, msg, arg0, arg1, arg2));
-}
-
-Exception::Exception( 
-    String id, 
-    String msg, 
-    Formatter::Arg arg0,
-    Formatter::Arg arg1,
-    Formatter::Arg arg2,
-    Formatter::Arg arg3)
-{
-    _init(MessageLoaderParms(id, msg, arg0, arg1, arg2, arg3));
-}
-
-Exception::Exception(
-    const char* id, 
-    const char* msg)
-{
-    _init(MessageLoaderParms(id, msg));
-}
-
-Exception::Exception(
-    const char* id, 
-    const char* msg, 
-    const String& arg0)
-{
-    _init(MessageLoaderParms(id, msg, arg0));
-}
-
-Exception::Exception(
-    const char* id, 
-    const char* msg, 
-    const String& arg0,
-    const String& arg1)
-{
-    _init(MessageLoaderParms(id, msg, arg0, arg1));
-}
-
-//}/////////////////////////////////////////////////////////////////////////////
 
 Exception::Exception()
 {
@@ -201,7 +105,7 @@ IndexOutOfBoundsException::IndexOutOfBoundsException()
 */
 
 IndexOutOfBoundsException::IndexOutOfBoundsException()
-    : Exception("Common.Exception.INDEX_OUT_OF_BOUNDS_EXCEPTION","index out of bounds")
+    : Exception(MessageLoaderParms("Common.Exception.INDEX_OUT_OF_BOUNDS_EXCEPTION","index out of bounds"))
 {
 }
 
@@ -213,15 +117,15 @@ AlreadyExistsException::AlreadyExistsException(const String& message)
 */
 
 AlreadyExistsException::AlreadyExistsException(const String& message)
-    : Exception("Common.Exception.ALREADY_EXISTS_EXCEPTION",
+    : Exception(MessageLoaderParms("Common.Exception.ALREADY_EXISTS_EXCEPTION",
     								"already exists: $0",    								
-    								 message)
+    								 message))
 {
 }
 
 AlreadyExistsException::AlreadyExistsException(MessageLoaderParms& msgParms)
-    : Exception("Common.Exception.ALREADY_EXISTS_EXCEPTION",
-    								"already exists: ")
+    : Exception(MessageLoaderParms("Common.Exception.ALREADY_EXISTS_EXCEPTION",
+    								"already exists: "))
 {
 	_rep->message.append(MessageLoader::getMessage(msgParms));
 }
@@ -234,15 +138,15 @@ InvalidNameException::InvalidNameException(const String& name)
 */
 
 InvalidNameException::InvalidNameException(const String& message)
-    : Exception("Common.Exception.INVALID_NAME_EXCEPTION",
+    : Exception(MessageLoaderParms("Common.Exception.INVALID_NAME_EXCEPTION",
     								"invalid CIM name: $0",
-    								 message)
+    								 message))
 {
 }
 
 InvalidNameException::InvalidNameException(MessageLoaderParms& msgParms)
-    : Exception("Common.Exception.INVALID_NAME_EXCEPTION",
-    								"invalid CIM name: ")
+    : Exception(MessageLoaderParms("Common.Exception.INVALID_NAME_EXCEPTION",
+    								"invalid CIM name: "))
 {
 	_rep->message.append(MessageLoader::getMessage(msgParms));
 }
@@ -256,15 +160,15 @@ InvalidNamespaceNameException::InvalidNamespaceNameException(const String& name)
 
 
 InvalidNamespaceNameException::InvalidNamespaceNameException(const String& name)
-    : Exception("Common.Exception.INVALID_NAMESACE_NAME_EXCEPTION",
+    : Exception(MessageLoaderParms("Common.Exception.INVALID_NAMESACE_NAME_EXCEPTION",
     								"invalid CIM namespace name: $0",
-    								 name)
+    								 name))
 {
 }
 
 InvalidNamespaceNameException::InvalidNamespaceNameException(MessageLoaderParms& msgParms)
-    : Exception("Common.Exception.INVALID_NAMESPACE_NAME_EXCEPTION",
-    								"invalid CIM namespace name: ")
+    : Exception(MessageLoaderParms("Common.Exception.INVALID_NAMESPACE_NAME_EXCEPTION",
+    								"invalid CIM namespace name: "))
 {
 	_rep->message.append(MessageLoader::getMessage(msgParms));
 }
@@ -277,8 +181,8 @@ UninitializedObjectException::UninitializedObjectException()
 */
 
 UninitializedObjectException::UninitializedObjectException()
-    : Exception("Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
-    								"uninitialized object")
+    : Exception(MessageLoaderParms("Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
+    								"uninitialized object"))
 {
 }
 
@@ -290,21 +194,21 @@ TypeMismatchException::TypeMismatchException()
 */
 
 TypeMismatchException::TypeMismatchException()
-    : Exception("Common.Exception.TYPE_MISMATCH_EXCEPTION",
-    								"type mismatch")
+    : Exception(MessageLoaderParms("Common.Exception.TYPE_MISMATCH_EXCEPTION",
+    								"type mismatch"))
 {
 }
 
 TypeMismatchException::TypeMismatchException(const String& message)
-    : Exception("Common.Exception.TYPE_MISMATCH_EXCEPTION",
-    								"type mismatch: $0",message)
+    : Exception(MessageLoaderParms("Common.Exception.TYPE_MISMATCH_EXCEPTION",
+    								"type mismatch: $0",message))
 {
 
 }
 
 TypeMismatchException::TypeMismatchException(MessageLoaderParms& msgParms)
-    : Exception("Common.Exception.TYPE_MISMATCH_EXCEPTION",
-    								"type mismatch: ")
+    : Exception(MessageLoaderParms("Common.Exception.TYPE_MISMATCH_EXCEPTION",
+    								"type mismatch: "))
 {
     _rep->message.append(MessageLoader::getMessage(msgParms));
 }
@@ -317,8 +221,8 @@ DynamicCastFailedException::DynamicCastFailedException()
 */
 
 DynamicCastFailedException::DynamicCastFailedException()
-    : Exception("Common.Exception.DYNAMIC_CAST_FAILED_EXCEPTION",
-    								"dynamic cast failed")
+    : Exception(MessageLoaderParms("Common.Exception.DYNAMIC_CAST_FAILED_EXCEPTION",
+    								"dynamic cast failed"))
 {
 }
 
@@ -330,8 +234,8 @@ InvalidDateTimeFormatException::InvalidDateTimeFormatException()
 */
 
 InvalidDateTimeFormatException::InvalidDateTimeFormatException()
-    : Exception("Common.Exception.INVALID_DATETIME_FORMAT_EXCEPTION",
-    								"invalid datetime format")
+    : Exception(MessageLoaderParms("Common.Exception.INVALID_DATETIME_FORMAT_EXCEPTION",
+    								"invalid datetime format"))
 {
 }
 
@@ -344,15 +248,15 @@ MalformedObjectNameException::MalformedObjectNameException(
 */
 
 MalformedObjectNameException::MalformedObjectNameException(const String& message)
-    : Exception("Common.Exception.MALFORMED_OBJECT_NAME_EXCEPTION",
+    : Exception(MessageLoaderParms("Common.Exception.MALFORMED_OBJECT_NAME_EXCEPTION",
     								"malformed object name: $0",
-    								 message)
+    								 message))
 {
 }
 
 MalformedObjectNameException::MalformedObjectNameException(MessageLoaderParms& msgParms)
-    : Exception("Common.Exception.MALFORMED_OBJECT_NAME_EXCEPTION",
-    								"malformed object name: ")
+    : Exception(MessageLoaderParms("Common.Exception.MALFORMED_OBJECT_NAME_EXCEPTION",
+    								"malformed object name: "))
 {
 	_rep->message.append(MessageLoader::getMessage(msgParms));
 }
@@ -365,15 +269,15 @@ BindFailedException::BindFailedException(const String& message)
 */
 
 BindFailedException::BindFailedException(const String& message)
-    : Exception("Common.Exception.BIND_FAILED_EXCEPTION",
+    : Exception(MessageLoaderParms("Common.Exception.BIND_FAILED_EXCEPTION",
     								"Bind failed: $0",
-    								 message)
+    								 message))
 {
 }
 
 BindFailedException::BindFailedException(MessageLoaderParms& msgParms)
-    : Exception("Common.Exception.BIND_FAILED_EXCEPTION",
-    								"Bind failed: ")
+    : Exception(MessageLoaderParms("Common.Exception.BIND_FAILED_EXCEPTION",
+    								"Bind failed: "))
 {
 	_rep->message.append(MessageLoader::getMessage(msgParms));
 }
@@ -386,15 +290,15 @@ InvalidLocatorException::InvalidLocatorException(const String& locator)
 */
 
 InvalidLocatorException::InvalidLocatorException(const String& message)
-    : Exception("Common.Exception.INVALID_LOCATOR_EXCEPTION",
+    : Exception(MessageLoaderParms("Common.Exception.INVALID_LOCATOR_EXCEPTION",
     								"Invalid locator: $0",
-    								 message)
+    								 message))
 {
 }
 
 InvalidLocatorException::InvalidLocatorException(MessageLoaderParms& msgParms)
-    : Exception("Common.Exception.INVALID_LOCATOR_EXCEPTION",
-    								"Invalid locator: ")
+    : Exception(MessageLoaderParms("Common.Exception.INVALID_LOCATOR_EXCEPTION",
+    								"Invalid locator: "))
 {
 	_rep->message.append(MessageLoader::getMessage(msgParms));
 }
@@ -407,8 +311,8 @@ CannotCreateSocketException::CannotCreateSocketException()
 */
 
 CannotCreateSocketException::CannotCreateSocketException()
-    : Exception("Common.Exception.CANNOT_CREATE_SOCKET_EXCEPTION",
-    								"Cannot create socket")
+    : Exception(MessageLoaderParms("Common.Exception.CANNOT_CREATE_SOCKET_EXCEPTION",
+    								"Cannot create socket"))
 {
 }
 
@@ -432,8 +336,8 @@ AlreadyConnectedException::AlreadyConnectedException()
 */
 
 AlreadyConnectedException::AlreadyConnectedException()
-    : Exception("Common.Exception.ALREADY_CONNECTED_EXCEPTION",
-    								"already connected")
+    : Exception(MessageLoaderParms("Common.Exception.ALREADY_CONNECTED_EXCEPTION",
+    								"already connected"))
 {
 }
 
@@ -445,8 +349,8 @@ NotConnectedException::NotConnectedException()
 */
 
 NotConnectedException::NotConnectedException()
-    : Exception("Common.Exception.NOT_CONNECTED_EXCEPTION",
-    								"not connected")
+    : Exception(MessageLoaderParms("Common.Exception.NOT_CONNECTED_EXCEPTION",
+    								"not connected"))
 {
 }
 
@@ -458,8 +362,8 @@ ConnectionTimeoutException::ConnectionTimeoutException()
 */
 
 ConnectionTimeoutException::ConnectionTimeoutException()
-    : Exception("Common.Exception.CONNECTION_TIMEOUT_EXCEPTION",
-    								"connection timed out")
+    : Exception(MessageLoaderParms("Common.Exception.CONNECTION_TIMEOUT_EXCEPTION",
+    								"connection timed out"))
 {
 }
 
@@ -471,15 +375,15 @@ SSLException::SSLException(const String& message)
 */
 
 SSLException::SSLException(const String& message)
-    : Exception("Common.Exception.SSL_EXCEPTION",
+    : Exception(MessageLoaderParms("Common.Exception.SSL_EXCEPTION",
     								"SSL Exception: $0" ,
-    								 message)
+    								 message))
 {
 }
 
 SSLException::SSLException(MessageLoaderParms& msgParms)
-    : Exception("Common.Exception.SSL_EXCEPTION",
-    								"SSL Exception: " )
+    : Exception(MessageLoaderParms("Common.Exception.SSL_EXCEPTION",
+    								"SSL Exception: " ))
 {
 	_rep->message.append(MessageLoader::getMessage(msgParms));
 }
@@ -492,15 +396,15 @@ DateTimeOutOfRangeException::DateTimeOutOfRangeException(const String& message)
 */
 
 DateTimeOutOfRangeException::DateTimeOutOfRangeException(const String& message)
-    : Exception("Common.Exception.DATETIME_OUT_OF_RANGE_EXCEPTION",
+    : Exception(MessageLoaderParms("Common.Exception.DATETIME_OUT_OF_RANGE_EXCEPTION",
     								"DateTime is out of range : $0" ,
-    								 message)
+    								 message))
 {
 }
 
 DateTimeOutOfRangeException::DateTimeOutOfRangeException(MessageLoaderParms& msgParms)
-    : Exception("Common.Exception.DATETIME_OUT_OF_RANGE_EXCEPTION",
-    								"DateTime is out of range : " )
+    : Exception(MessageLoaderParms("Common.Exception.DATETIME_OUT_OF_RANGE_EXCEPTION",
+    								"DateTime is out of range : " ))
 {
 	_rep->message.append(MessageLoader::getMessage(msgParms));
 }

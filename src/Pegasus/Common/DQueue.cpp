@@ -36,6 +36,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-Mutex BaseDQueue::_alloc_mut;
+
 
 PEGASUS_NAMESPACE_END

@@ -41,12 +41,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct BaseDQueue
-{
-      static Mutex _alloc_mut;
-};
-
-template<class L> class DQueue : public internal_dq, public BaseDQueue
+template<class L> class DQueue : public internal_dq
 {
    public:
        static void *operator new(size_t size);
@@ -58,6 +53,7 @@ template<class L> class DQueue : public internal_dq, public BaseDQueue
       DQueue *_dq_next;
       static DQueue<L> *_headOfFreeList;
       static const int BLOCK_SIZE;
+      static Mutex _alloc_mut;
       
    public:
       typedef internal_dq Base;
@@ -96,7 +92,7 @@ template<class L> class DQueue : public internal_dq, public BaseDQueue
 
  
 
-template<class L> class AsyncDQueue: public internal_dq, public BaseDQueue
+template<class L> class AsyncDQueue: public internal_dq
 {
 
    public:
@@ -115,6 +111,7 @@ template<class L> class AsyncDQueue: public internal_dq, public BaseDQueue
 
       static AsyncDQueue *_headOfFreeList;
       static const int BLOCK_SIZE;
+      static Mutex _alloc_mut;
       
       void _insert_prep(void) throw(IPCException);
       void _insert_recover(void) throw(IPCException);
@@ -169,6 +166,7 @@ template<class L> class AsyncDQueue: public internal_dq, public BaseDQueue
       
 template<class L> DQueue<L> * DQueue<L>::_headOfFreeList = 0;
 template<class L> const int DQueue<L>::BLOCK_SIZE = 200;
+template<class L> Mutex DQueue<L>::_alloc_mut;
 
 template<class L> void *DQueue<L>::operator new(size_t size)
 {
@@ -215,6 +213,7 @@ template<class L> void DQueue<L>::operator delete(void *dead, size_t size)
 
 template<class L> AsyncDQueue<L> * AsyncDQueue<L>::_headOfFreeList =0;
 template<class L> const int AsyncDQueue<L>::BLOCK_SIZE = 20;
+template<class L> Mutex AsyncDQueue<L>::_alloc_mut;
 
 template<class L> void * AsyncDQueue<L>::operator new(size_t size)
 {

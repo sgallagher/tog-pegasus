@@ -46,21 +46,7 @@ PEGASUS_NAMESPACE_BEGIN
 AssertionFailureException::AssertionFailureException(
     const char* file,
     size_t line,
-    const char* message) : Exception(String::EMPTY)
-{
-    _init(file, line, message);
-}
-
-AssertionFailureException::AssertionFailureException(
-    const char* file,
-    size_t line,
     const String& message) : Exception(String::EMPTY)
-{
-    _init(file, line, message);
-}
-
-void AssertionFailureException::_init(
-    const char* file, size_t line, const String& message)
 {
     char lineStr[32];
     sprintf(lineStr, "%u", Uint32(line));

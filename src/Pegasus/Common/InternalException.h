@@ -50,13 +50,9 @@ class PEGASUS_COMMON_LINKAGE AssertionFailureException : public Exception
 public:
 
     AssertionFailureException(
-	const char* file, size_t line, const char* message);
-
-    AssertionFailureException(
-	const char* file, size_t line, const String& message);
-
-private:
-    void _init(const char* file, size_t line, const String& message);
+	const char* file,
+	size_t line,
+	const String& message);
 };
 
 /** define PEGASUS_ASSERT assertion statement.  This statement tests the
@@ -111,7 +107,7 @@ public:
 
     //NullPointer() : Exception(MSG) { }
 
-    NullPointer() : Exception(KEY, MSG) { }    
+    NullPointer() : Exception(MessageLoaderParms(KEY, MSG)) { }    
 };
 
 // ATTN: P3  KS documentation Required
@@ -127,7 +123,7 @@ public:
 
 // NOTE - MSG needs to have a $0 arg for all the substitution cases	
   UndeclaredQualifier(const String& qualifierName) 
-	: Exception(KEY, MSG, qualifierName) { }  	
+	: Exception(MessageLoaderParms(KEY, MSG, qualifierName)) { }  	
 };
 
 // ATTN: P3  KS documentation Required
@@ -143,10 +139,10 @@ public:
 
 	
 	BadQualifierScope(const String& qualifierName, const String& scopeString)
-						 : Exception(KEY, 
+						 : Exception(MessageLoaderParms(KEY, 
 														MSG,
 														qualifierName,
-														scopeString) { }	
+														scopeString)) { }	
 														
 };
 
@@ -162,7 +158,7 @@ public:
 	//: Exception(MSG + qualifierName) { }
 	
     BadQualifierOverride(const String& qualifierName)
-    : Exception(KEY, MSG, qualifierName) { }	
+    : Exception(MessageLoaderParms(KEY, MSG, qualifierName)) { }	
 };
 
 class PEGASUS_COMMON_LINKAGE BadQualifierType : public Exception
@@ -176,7 +172,7 @@ public:
 	//: Exception(MSG + qualifierName) { }
 	
     BadQualifierType(const String& qualifierName) 
-	: Exception(KEY, MSG, qualifierName) { }		
+	: Exception(MessageLoaderParms(KEY, MSG, qualifierName)) { }		
 };
 
 // ATTN: P3  KS documentation Required
@@ -191,7 +187,7 @@ public:
 	//: Exception(MSG + className) { }
 	
     ClassAlreadyResolved(const String& className) 
-	: Exception(KEY, MSG, className) { }		
+	: Exception(MessageLoaderParms(KEY, MSG, className)) { }		
 };
 
 // ATTN: P3  KS documentation Required
@@ -206,7 +202,7 @@ public:
 	//: Exception(MSG + className) { }
 	
     ClassNotResolved(const String& className) 
-	: Exception(KEY, MSG, className) { }		
+	: Exception(MessageLoaderParms(KEY, MSG, className)) { }		
 };
 
 // ATTN: P3  KS documentation Required
@@ -221,7 +217,7 @@ public:
     // : Exception(MSG) { }
      
     InstanceAlreadyResolved() 
-	: Exception(KEY, MSG) { }	     
+	: Exception(MessageLoaderParms(KEY, MSG)) { }	     
 };
 
 // ATTN: P3  KS documentation Required
@@ -236,7 +232,7 @@ public:
      //: Exception(MSG + className) { }
      
     InstantiatedAbstractClass(const String& className) 
-	: Exception(KEY, MSG, className) { }	     
+	: Exception(MessageLoaderParms(KEY, MSG, className)) { }	     
 };
 
 // ATTN: P3  KS documentation Required
@@ -251,7 +247,7 @@ public:
 	//: Exception(MSG + propertyName) { }
 	
     NoSuchProperty(const String& propertyName) 
-	: Exception(KEY, MSG, propertyName) { }	
+	: Exception(MessageLoaderParms(KEY, MSG, propertyName)) { }	
 };
 
 // ATTN: P3  KS documentation Required
@@ -265,7 +261,7 @@ public:
    // NoSuchFile(const String& fileName) : Exception(MSG + fileName) { }
     
     NoSuchFile(const String& fileName) 
-	: Exception(KEY, MSG, fileName) { }    
+	: Exception(MessageLoaderParms(KEY, MSG, fileName)) { }    
 };
 
 // ATTN: P3  KS documentation Required
@@ -279,7 +275,7 @@ public:
     //FileNotReadable(const String& fileName) : Exception(MSG + fileName) { }
     
     FileNotReadable(const String& fileName) 
-	: Exception(KEY, MSG, fileName) { }     
+	: Exception(MessageLoaderParms(KEY, MSG, fileName)) { }     
 };
 
 // ATTN: P3  KS documentation Required
@@ -293,7 +289,7 @@ public:
     //CannotRemoveDirectory(const String& path) : Exception(MSG + path) { }
     
     CannotRemoveDirectory(const String& path) 
-	: Exception(KEY, MSG, path) { }     
+	: Exception(MessageLoaderParms(KEY, MSG, path)) { }     
 };
 
 // ATTN: P3  KS documentation Required
@@ -306,7 +302,7 @@ public:
 
     //CannotRemoveFile(const String& path) : Exception(MSG + path) { }
     CannotRemoveFile(const String& path)  
-	: Exception(KEY, MSG, path) { }         
+	: Exception(MessageLoaderParms(KEY, MSG, path)) { }         
 };
 
 // ATTN: P3  KS documentation Required
@@ -319,7 +315,7 @@ public:
 
     //CannotRenameFile(const String& path) : Exception(MSG + path) { }
     CannotRenameFile(const String& path)  
-	: Exception(KEY, MSG, path) { }      
+	: Exception(MessageLoaderParms(KEY, MSG, path)) { }      
 };
 
 // ATTN: P3  KS documentation Required
@@ -333,7 +329,7 @@ public:
     //NoSuchDirectory(const String& directoryName)
 	//: Exception(MSG + directoryName) { }
     NoSuchDirectory(const String& directoryName)  
-	: Exception(KEY, MSG, directoryName) { }  	
+	: Exception(MessageLoaderParms(KEY, MSG, directoryName)) { }  	
 };
 
 // ATTN: P3  KS documentation Required
@@ -347,7 +343,7 @@ public:
     //CannotCreateDirectory(const String& path)
 	//: Exception(MSG + path) { }
     CannotCreateDirectory(const String& path)  
-	: Exception(KEY, MSG, path) { }  	
+	: Exception(MessageLoaderParms(KEY, MSG, path)) { }  	
 };
 
 // ATTN: P3  KS documentation Required
@@ -361,7 +357,7 @@ public:
     //CannotOpenFile(const String& path)
 	//: Exception(MSG + path) { }
     CannotOpenFile(const String& path)  
-	: Exception(KEY, MSG, path) { }  	
+	: Exception(MessageLoaderParms(KEY, MSG, path)) { }  	
 };
 
 // ATTN: P3  KS documentation Required
@@ -374,7 +370,7 @@ public:
 
    // NotImplemented(const String& method) : Exception(MSG + method) { }
     NotImplemented(const String& method)  
-	: Exception(KEY, MSG, method) { }      
+	: Exception(MessageLoaderParms(KEY, MSG, method)) { }      
 };
 
 class PEGASUS_COMMON_LINKAGE StackUnderflow : public Exception
@@ -386,7 +382,7 @@ public:
 
     //StackUnderflow() : Exception(MSG) { }
     StackUnderflow()  
-	: Exception(KEY, MSG) { }      
+	: Exception(MessageLoaderParms(KEY, MSG)) { }      
 };
 
 class PEGASUS_COMMON_LINKAGE StackOverflow : public Exception
@@ -398,7 +394,7 @@ public:
 
     //StackOverflow() : Exception(MSG) { }
     StackOverflow()  
-	: Exception(KEY, MSG) { }       
+	: Exception(MessageLoaderParms(KEY, MSG)) { }       
 };
 
 class PEGASUS_COMMON_LINKAGE QueueUnderflow : public Exception
@@ -410,7 +406,7 @@ public:
 
     //QueueUnderflow() : Exception(MSG) { }
     QueueUnderflow()  
-	: Exception(KEY, MSG) { }       
+	: Exception(MessageLoaderParms(KEY, MSG)) { }       
 };
 
 class PEGASUS_COMMON_LINKAGE BadFormat : public Exception
@@ -422,7 +418,7 @@ public:
 
     //BadFormat() : Exception(MSG) { }
     BadFormat()  
-	: Exception(KEY, MSG) { }   
+	: Exception(MessageLoaderParms(KEY, MSG)) { }   
 };
 
 class PEGASUS_COMMON_LINKAGE BadlyFormedCGIQueryString : public Exception
@@ -434,7 +430,7 @@ public:
 
     //BadlyFormedCGIQueryString() : Exception(MSG) { }
     BadlyFormedCGIQueryString()  
-	: Exception(KEY, MSG) { }       
+	: Exception(MessageLoaderParms(KEY, MSG)) { }       
 };
 
 class PEGASUS_COMMON_LINKAGE DynamicLoadFailed : public Exception
@@ -448,7 +444,7 @@ public:
 	//: Exception(MSG + libraryName) { }
 	
     DynamicLoadFailed(const String& libraryName)  
-	: Exception(KEY, MSG, libraryName) { }  		
+	: Exception(MessageLoaderParms(KEY, MSG, libraryName)) { }  		
 };
 
 class PEGASUS_COMMON_LINKAGE DynamicLookupFailed : public Exception
@@ -461,7 +457,7 @@ public:
     //DynamicLookupFailed(const String& symbolName)
 	//: Exception(MSG + symbolName) { }
     DynamicLookupFailed(const String& symbolName)  
-	: Exception(KEY, MSG, symbolName) { }  		
+	: Exception(MessageLoaderParms(KEY, MSG, symbolName)) { }  		
 };
 
 class PEGASUS_COMMON_LINKAGE CannotOpenDirectory : public Exception
@@ -473,7 +469,7 @@ public:
 
     //CannotOpenDirectory(const String& path) : Exception(MSG + path) { }
     CannotOpenDirectory(const String& path)  
-	: Exception(KEY, MSG, path) { }  	    
+	: Exception(MessageLoaderParms(KEY, MSG, path)) { }  	    
 };
 
 class PEGASUS_COMMON_LINKAGE ParseError : public Exception
@@ -485,7 +481,7 @@ public:
 
     //ParseError(const String& message) : Exception(MSG + message) { }
     ParseError(const String& message)  
-	: Exception(KEY, MSG, message) { }  	    
+	: Exception(MessageLoaderParms(KEY, MSG, message)) { }  	    
 };
 
 class PEGASUS_COMMON_LINKAGE MissingNullTerminator : public Exception
@@ -497,7 +493,7 @@ public:
 
     //MissingNullTerminator() : Exception(MSG) { }
     MissingNullTerminator()  
-	: Exception(KEY, MSG) { }  	    
+	: Exception(MessageLoaderParms(KEY, MSG)) { }  	    
 };
 
 //l10n start
@@ -511,7 +507,7 @@ public:
 
     //MalformedLanguageHeader(const String& error) : Exception(MSG + error) { }
     MalformedLanguageHeader(const String& error)  
-	: Exception(KEY, MSG, error) { }      
+	: Exception(MessageLoaderParms(KEY, MSG, error)) { }      
 };
 
 
@@ -524,7 +520,7 @@ public:
 
     //InvalidAcceptLanguageHeader(const String& error) : Exception(MSG + error) { }
     InvalidAcceptLanguageHeader(const String& error)  
-	: Exception(KEY, MSG, error) { }          
+	: Exception(MessageLoaderParms(KEY, MSG, error)) { }          
 };
 
 class PEGASUS_COMMON_LINKAGE InvalidContentLanguageHeader: public Exception
@@ -536,7 +532,7 @@ public:
 
     //InvalidContentLanguageHeader(const String& error) : Exception(MSG + error) { }
     InvalidContentLanguageHeader(const String& error)  
-	: Exception(KEY, MSG, error) { }       
+	: Exception(MessageLoaderParms(KEY, MSG, error)) { }       
 };
 
 //l10n end
@@ -550,7 +546,7 @@ public:
 
     //InvalidAuthHeader() : Exception(MSG) { }
     InvalidAuthHeader()  
-	: Exception(KEY, MSG) { }       
+	: Exception(MessageLoaderParms(KEY, MSG)) { }       
 };
 
 class PEGASUS_COMMON_LINKAGE UnauthorizedAccess: public Exception
@@ -562,7 +558,7 @@ public:
 
     //UnauthorizedAccess() : Exception(MSG) { }
     UnauthorizedAccess()  
-	: Exception(KEY, MSG) { }       
+	: Exception(MessageLoaderParms(KEY, MSG)) { }       
 };
 
 class PEGASUS_COMMON_LINKAGE IncompatibleTypesException : public Exception

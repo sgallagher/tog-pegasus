@@ -622,9 +622,9 @@ public:
     //OMMissingCommandLineOptionArgument(const String& optionName)
 	//: Exception("Missing command line option argument: " + optionName) { }
 	OMMissingCommandLineOptionArgument(const String& optionName)
-	: Exception("Common.OptionManager.MISSING_CMD_LINE_OPTION",
-	"Missing command line option argument: $0",
-	optionName) { }
+	: Exception(MessageLoaderParms("Common.OptionManager.MISSING_CMD_LINE_OPTION",
+											 "Missing command line option argument: $0",
+											 optionName)) { }
 };
 
 /** Exception class */
@@ -636,10 +636,10 @@ public:
     //OMInvalidOptionValue(const String& name, const String& value)
 	//: Exception("Invalid option value: " + name + "=\"" + value + "\"") { }
 	OMInvalidOptionValue(const String& name, const String& value)
-	: Exception("Common.OptionManager.INVALID_OPTION_VALUE",
+	: Exception(MessageLoaderParms("Common.OptionManager.INVALID_OPTION_VALUE",
 											 "Invalid option value: $0=\"$1\"",
 											 name,
-											 value) { }
+											 value)) { }
 };
 
 /** Exception class */
@@ -650,9 +650,9 @@ public:
     //OMDuplicateOption(const String& name)
 	//: Exception("Duplicate option: " + name) { }
 	OMDuplicateOption(const String& name)
-	: Exception("Common.OptionManager.DUPLICATE_OPTION",
+	: Exception(MessageLoaderParms("Common.OptionManager.DUPLICATE_OPTION",
 											 "Duplicate option: $0",
-											 name) { }
+											 name)) { }
 };
 
 /** Exception class */
@@ -674,9 +674,9 @@ public:
     //OMUnrecognizedConfigFileOption(const String& name)
 	//: Exception("Unrecognized config file option: " + name) { }
 	OMUnrecognizedConfigFileOption(const String& name)
-	: Exception("Common.OptionManager.UNRECOGNIZED_CONFIG_FILE_OPTION",
+	: Exception(MessageLoaderParms("Common.OptionManager.UNRECOGNIZED_CONFIG_FILE_OPTION",
 											 "Unrecognized config file option: $0",
-											 name) { }
+											 name)) { }
 };
 
 /** Exception class */
@@ -687,9 +687,9 @@ public:
     //OMMissingRequiredOptionValue(const String& name)
 	//: Exception("Missing required option value: " + name) { }
 	OMMissingRequiredOptionValue(const String& name)
-	: Exception("Common.OptionManager.MISSING_REQUIRED_OPTION",
+	: Exception(MessageLoaderParms("Common.OptionManager.MISSING_REQUIRED_OPTION",
 											 "Missing required option value: $0",
-											 name) { }
+											 name)) { }
 };
 
 /** Exception class */
@@ -700,9 +700,9 @@ public:
    // OMMBadCmdLineOption(const String& name)
 	//: Exception("Parameter not Valid: " + name) { }
 	OMMBadCmdLineOption(const String& name)
-	: Exception("Common.OptionManager.PARAMETER_NOT_VALID",
+	: Exception(MessageLoaderParms("Common.OptionManager.PARAMETER_NOT_VALID",
 											 "Parameter not Valid: $0",
-											 name) { }
+											 name)) { }
 };
 
 

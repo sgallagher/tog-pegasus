@@ -139,6 +139,7 @@ make --directory=mak -f SDKMakefile stageSDK \
 %define PEGASUS_SSL_KEY_FILE       file.pem
 %define PEGASUS_SSL_CERT_FILE      server.pem
 %define PEGASUS_SSL_TRUSTSTORE     client.pem
+%define PEGASUS_INSTALL_SCRIPT_DIR $PEGASUS_ROOT/installs/scripts
 #
 # Make directories
 mkdir -p $RPM_BUILD_ROOT%PEGASUS_VARDATA_DIR/{log,cache,repository}
@@ -374,6 +375,11 @@ echo "PEGASUS_BIN_DIR="%PEGASUS_BIN_DIR >> initrepository.in
 echo "PEGASUS_CIM_SCHEMA=28" >> initrepository.in
 cat initrepository.in $PEGASUS_ROOT/installs/scripts/init_repository > $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/init_repository
 chmod 0544 $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/init_repository
+
+#
+# script to add tog-pegasus paths to /etc/profile
+#
+install -D -m 0544 %PEGASUS_INSTALL_SCRIPT_DIR/settogpath $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/settogpath
 
 #
 # man pages
@@ -684,6 +690,8 @@ echo " To start Pegasus manually:"
 echo " /etc/init.d/tog-pegasus start"
 echo " Stop it:"
 echo " /etc/init.d/tog-pegasus stop"
+echo " To set up PATH and MANPATH in /etc/profile"
+echo " run /opt/tog-pegasus/sbin/settogpath."
 
 %preun
 
@@ -862,6 +870,7 @@ fi
 %attr(-,root,root) %PEGASUS_SBIN_DIR/cimuser
 %attr(-,root,root) %PEGASUS_SBIN_DIR/cimconfig
 %attr(-,root,root) %PEGASUS_SBIN_DIR/init_repository
+%attr(-,root,root) %PEGASUS_SBIN_DIR/settogpath
 %attr(-,root,root) %PEGASUS_BIN_DIR/cimmof
 %attr(-,root,root) %PEGASUS_BIN_DIR/cimmofl
 %attr(-,root,root) %PEGASUS_BIN_DIR/cimprovider

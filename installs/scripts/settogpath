@@ -1,0 +1,19 @@
+#!/bin/bash
+# Set global PATH and MANPATH for tog-pegasus
+
+echo "Executing this script will add the tog-pegasus binary directories,"
+echo "/opt/tog-pegasus/bin and /opt/tog-pegasus/sbin, to the global $PATH. "
+echo "It will also add the tog-pegasus man page directory,"
+echo "/opt/tog-pegasus/share/man, to the global $MANPATH."
+read -r -p "Do you want to continue? (y/n) " ANSWER
+if (test $ANSWER = 'y') || (test $ANSWER = 'Y'); then
+  echo "export PATH=\$PATH:/opt/tog-pegasus/bin:/opt/tog-pegasus/sbin" >> /etc/profile
+  echo "if test -x /usr/bin/manpath; then" >> /etc/profile
+  if test -f /etc/redhat-release; then
+     echo "  MANPATH=\`/usr/bin/manpath -w\`" >> /etc/profile
+  else
+     echo "  MANPATH=\`/usr/bin/manpath -q\`" >> /etc/profile
+  fi
+  echo "  export MANPATH=\$MANPATH:/opt/tog-pegasus/share/man" >> /etc/profile
+  echo "fi" >> /etc/profile
+fi

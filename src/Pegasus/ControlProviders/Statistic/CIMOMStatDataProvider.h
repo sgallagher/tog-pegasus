@@ -36,6 +36,8 @@
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include <math.h>
+#include <iostream.h>
+
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -92,10 +94,12 @@ public:
 		ResponseHandler & handler);
 
    CIMInstance getInstance(Uint16 type);
+   Uint16 getOpType(Uint16 type);
 
    protected:
       CIMObjectPath _references[StatisticalData::NUMBER_OF_TYPES];
 	  CIMDateTime toDateTime(Sint64 date);
+	  void checkObjectManager();
 
 };
 

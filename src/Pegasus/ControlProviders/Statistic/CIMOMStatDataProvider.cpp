@@ -106,8 +106,10 @@ void CIMOMStatDataProvider::enumerateInstances(
 	{
 	   // deliver instance
 		handler.deliver(getInstance(i));
+		
 	}
 
+//	printf("have all the instances\n");
 	// complete processing the request
 	handler.complete();
 }
@@ -165,31 +167,35 @@ CIMInstance CIMOMStatDataProvider::getInstance(Uint16 type)
    char buffer[32];
    sprintf(buffer, "%u", type);
 
+   checkObjectManager();
+
    CIMDateTime cimom_time = toDateTime(sd->cimomTime[type]);
    CIMDateTime provider_time = toDateTime(sd->providerTime[type]);
+   Uint16 mof_type = getOpType(type);
 
+   //printf("this is returned form getOpType %d\n",mof_type);
 
    CIMInstance requestedInstance("CIM_CIMOMStatisticalData");
    requestedInstance.addProperty(CIMProperty("InstanceID",
       CIMValue("CIM_CIMOMStatisticalData"+String(buffer))));
    requestedInstance.addProperty(CIMProperty("OperationType",
-      CIMValue(type)));
-   requestedInstance.addProperty(CIMProperty("NumberOfRequests",
-      CIMValue(sd->numCalls[type])));
+      CIMValue(mof_type)));
+   requestedInstance.addProperty(CIMProperty("NumberOfOperations",
+      CIMValue((Uint64)sd->numCalls[type])));
    requestedInstance.addProperty(CIMProperty("CimomElapsedTime",
       CIMValue(cimom_time)));
    requestedInstance.addProperty(CIMProperty("ProviderElapsedTime",
       CIMValue(provider_time)));
    requestedInstance.addProperty(CIMProperty("RequestSize",
-      CIMValue(sd->requestSize[type])));
+      CIMValue((Uint64)sd->requestSize[type])));
    requestedInstance.addProperty(CIMProperty("ResponseSize",
-      CIMValue(sd->responseSize[type])));
+      CIMValue((Uint64)sd->responseSize[type])));
    requestedInstance.addProperty(CIMProperty("ElementName",
       CIMValue(StatisticalData::requestName[type])));
    requestedInstance.addProperty( CIMProperty("Description",
-      CIMValue(String("CIMOM performance statistics for CIM request type <reqx>"))));
+      CIMValue(String("CIMOM performance statistics for CIM request "))));
    requestedInstance.addProperty(CIMProperty("Caption",
-      CIMValue(String("CIMOM performance statistics for CIM request type <reqx>"))));
+      CIMValue(String("CIMOM performance statistics for CIM request"))));
    
 
    return requestedInstance;
@@ -198,42 +204,117 @@ CIMInstance CIMOMStatDataProvider::getInstance(Uint16 type)
 
 CIMDateTime CIMOMStatDataProvider::toDateTime(Sint64 date)
 {
-          
-	//break millisecond value into days, hours, minutes, seconds and milliseconds
-	//turn each number into a string and append them to each other
 
-	Sint64 ndays = floor (date/86400000000);	//one day = 8.64*10^10 millisecond
-	Sint64 rem = date % 86400000000;		//rem_1 is remander of above operation
-	char buf_day[8];
-	sprintf(buf_day,"%08d",ndays);
+        //break millisecond value into days, hours, minutes, seconds and milliseconds
+        //turn each number into a string and append them to each other
 
-	Sint64 nhour = floor (rem/3600000000);	//one hour = 3.6*10^9 milliseconds
-	Sint64 rem_2 = rem%3600000000;		//rem_2 is remander of above operation
-	char buf_hour[2];
-	sprintf(buf_hour,"%02d",nhour);
+        Sint64 ndays = floor (date/86400000000);        //one day = 8.64*10^10 millisecond
+        Sint64 rem = date % 86400000000;                //rem_1 is remander of above operation
+        char buf_day[8];
+        sprintf(buf_day,"%08d",ndays);
 
-	Sint64 nmin = floor (rem_2/60000000);  // one minute = 6*10^7
-	Sint64 rem_3 = rem_2%60000000;
-	char buf_minute[2];
-	sprintf(buf_minute,"%02d",nmin);
+String test = String(buf_day);
 
-	Sint64 nsecond = floor (rem_3/1000000);	//one second = 10^6 milliseconds 
-	char buf_second[2];
-	sprintf(buf_second,"%02d",nsecond);
 
-	Sint64 nmilsec = rem_3%1000000;
-	char buf_milsec[6];
-	sprintf(buf_milsec,"%06d",nmilsec);
+        Sint64 nhour = floor (rem/3600000000);  //one hour = 3.6*10^9 milliseconds
+        Sint64 rem_2 = rem%3600000000;    //rem_2 is remander of above operation
+        char buf_hour[2];
+        sprintf(buf_hour,"%02d",nhour);
+
+String hour = String(buf_hour);
+String dh = test.append(String(buf_hour));
+//printf("this is test now after append\n");// %s\n", test.getCString());
+
+        Sint64 nmin = floor (rem_2/60000000);  // one minute = 6*10^7
+        Sint64 rem_3 = rem_2%60000000;
+        char buf_minute[2];
+        sprintf(buf_minute,"%02d",nmin);
+
+String dhm = dh.append(String(buf_minute));
+//printf("after second append this is test %s\n", test.getCString());
+
+        Sint64 nsecond = floor (rem_3/1000000); //one second = 10^6 milliseconds
+        char buf_second[2];
+        sprintf(buf_second,"%02d",nsecond);
+
+String dhms = dhm.append(String(buf_second));
+//printf("after third append this is test\n");// %s \n",test.getCString());
+
+
+        Sint64 nmilsec = rem_3%1000000;
+        char buf_milsec[11];
+        sprintf(buf_milsec,".%06d:000",nmilsec);
+
+//printf("this is milsec -\n");// %s",buf_milsec);
+
+String dhmsm = dhms.append(String(buf_milsec));
+	CIMDateTime ans(dhmsm);
+
+        return ans;
+
+}
+
+void CIMOMStatDataProvider::checkObjectManager()
+{
 	
+	StatisticalData* sData = StatisticalData::current();
 
-	//build result
-	char whole[26];
-	int dlen = sprintf(whole,"%08s%02s%02s%02s.%06s:000"\
-		,buf_day,buf_hour,buf_minute,buf_second,buf_milsec);
-	String str(whole);
-	CIMDateTime ans(str);
-	return ans;
+	if (!sData->copyGSD)
+	{  //set all values to 0 if CIM_ObjectManager is False
 
+		for (Uint16 i=0; i<StatisticalData::length; i++)
+		{
+		  sData->numCalls[i] = 0;
+		  sData->cimomTime[i] = 0;      
+		  sData->providerTime[i] = 0;
+		  sData->responseSize[i] = 0;
+		  sData->requestSize[i] = 0;
+		}
+//		printf("just set all tha values of StatistcalData to 0\n");
+
+	}
+
+//	printf("at the end of the checkObjectManager func\n");
+}
+
+
+
+
+Uint16 CIMOMStatDataProvider::getOpType(Uint16 type)
+{
+	Uint16 ty, outType;
+// the rang of operation types is defined in Message.cpp as 1-113. For operation types
+// with values grater then 39 fourty is subtracted (in StatisticalData.h and Message.cpp
+
+// This conversion makes make the OperationType attribute of the CIM_CIMOMStatisticalData
+// instances agree with DMTF spec.
+		
+
+
+	ty = type;
+
+ 	if ((ty==0) || (ty==1))
+ 		{outType = type+3;
+	//	printf("ty was 0 or 1\n");
+	}
+ 
+ 	else if ((ty >=3) && (ty <= 23))
+ 		{outType = ty + 2;
+	//	printf("ty was between 3 and 23\n");
+	}
+ 
+ 	else if ((ty == 2) || ((ty > 23) && (ty < 73)))
+ 		{ outType = 1;
+	//	printf("ty was between 32 and 73 or it was 2\n");
+	}
+ 
+ 	else 
+ 	{ outType = 0;
+	//printf("ty was out of this world\n");
+	}
+
+//	printf("about to return form getOpType\n");
+	return outType;
 }
 
 

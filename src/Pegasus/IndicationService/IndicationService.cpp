@@ -4733,7 +4733,9 @@ void IndicationService::_sendAlertsCallBack(AsyncOpNode *op,
    //  again
    //
 
-   delete _handler;
+// << Mon Jul 15 09:59:16 2002 mdd >> handler is allocated as an element in an array, 
+// don't delete here. 
+//   delete _handler; 
    delete request;
    delete response;
    delete asyncRequest;

@@ -16,7 +16,12 @@ Extended the HTTP message ID to allow for non-numeric message IDs.
 4. Broke out RepositoryDeclContext class from Repository/CIMRepository.cpp
 and created RepositoryDeclContext.{cpp,h}.  This is the first step in
 revamping the compiler to work independently of the repository (grb).
-
+5. Created new makefile Compiler/Makefile.grammar and modified
+Compiler/Makefile; and added cimmof_tab.{cpp,h} and cimmof_lex.cpp.
+Now when you build normally, you will get the committed grammar and parser
+files instead of generating your own for a particular platform.  This should
+prevent back-level lex and yacc implementations from generating troublesome
+code.  The committed files are generated from flex 2.5.4 and bison 1,28.
 
 ---------------------------------------------------------------
 Version 0.97.3 - Released 5 June 2001

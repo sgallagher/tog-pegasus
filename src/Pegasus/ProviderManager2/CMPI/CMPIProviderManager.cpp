@@ -1025,9 +1025,8 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,&pr.broker);
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
-		SubscriptionFilterConditionContainer sub_cntr =  request->operationContext.get
-										(SubscriptionFilterConditionContainer::NAME);
-        const CString queryLan=(sub_cntr.getQueryLanguage()).getCString();
+
+        const CString queryLan=request->queryLanguage.getCString();
         const CString query=request->query.getCString();
 
         CMPIFlags flgs=0;

@@ -1,10 +1,9 @@
-ifndef OS
-    ifndef ROOT
-        ifdef PEGASUS_ROOT
-            ROOT =  $(subst \,/,$(PEGASUS_ROOT))
-        else
-            ROOT = .
-        endif
+# Ensure that config.mak is included (so that the OS variable is set correctly)
+ifndef ROOT
+    ifdef PEGASUS_ROOT
+        ROOT =  $(subst \,/,$(PEGASUS_ROOT))
+    else
+        ROOT = .
     endif
     include $(ROOT)/mak/config.mak
 endif

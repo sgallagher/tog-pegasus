@@ -104,13 +104,13 @@ Monitor::Monitor(Boolean async)
 {
     Socket::initializeInterface();
     _rep = 0;
-//     _entries.reserveCapacity(32);
-//     int i = 0;
-//     for( ; i < 32; i++ )
-//     {
-//        _MonitorEntry entry(0, 0, 0);
-//        _entries.append(entry);
-//     }
+    _entries.reserveCapacity(32);
+    int i = 0;
+    for( ; i < 32; i++ )
+    {
+       _MonitorEntry entry(0, 0, 0);
+       _entries.append(entry);
+    }
 
     if( _async == true )
 

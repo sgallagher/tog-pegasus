@@ -33,23 +33,18 @@
 
 LIBRARIES = \
     pegcommon \
-    pegrepository \
-    pegclient \
+    pegprovider \
     DeviceLocator \
     FileReader
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
 DYNAMIC_LIBRARIES = \
     $(LIB_DIR)/$(LIB_PREFIX)pegcommon.x \
-    $(LIB_DIR)/$(LIB_PREFIX)pegrepository.x \
-    $(LIB_DIR)/$(LIB_PREFIX)pegprotocol.x \
-    $(LIB_DIR)/$(LIB_PREFIX)pegclient.x
+    $(LIB_DIR)/$(LIB_PREFIX)pegprovider.x
 else
 DYNAMIC_LIBRARIES = \
     -lpegcommon \
-    -lpegrepository \
-    -lpegprotocol \
-    -lpegclient \
+    -lpegprovider \
     -lDeviceLocator \
     -lFileReader
 endif

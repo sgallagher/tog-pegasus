@@ -160,7 +160,7 @@ void cimom::handleEnqueue(void)
 
        ServiceAsyncOpStart *async_request = 
 	  new ServiceAsyncOpStart(Message::getNextKey(),
-				  QueueIdStack(_CIMOM_Q_ID, _CIMOM_Q_ID),
+				  QueueIdStack(CIMOM_Q_ID, CIMOM_Q_ID),
 				  op);
 
        // redirect the message pointer to point the the "envelope"
@@ -248,7 +248,7 @@ void cimom::register_module(CimomRegisterService *msg)
       {
 	 _modules.insert_first(new_mod);
       }
-      catch(IPCException& e)
+      catch(IPCException&)
       {
 	 result = cimom_results::INTERNAL_ERROR;
       }
@@ -296,7 +296,8 @@ Uint32 cimom::get_module_q(const String & name)
    message_module *ret = _modules.next( 0 );
    while( ret != 0 )
    {
-      if (ret == name )
+#error "seems to be a logic error! we noticed it as a warning in MSVC++"
+      if (ret == name)
 	 break;
       ret = _modules.next(ret);
    }

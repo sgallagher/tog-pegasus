@@ -60,7 +60,7 @@ void Thread::cleanup_push( void (*routine)(void *), void *parm) throw(IPCExcepti
     {
 	_cleanup.insert_first(cu); 
     } 
-    catch(IPCException& e) 
+    catch(IPCException&) 
     { 
 	delete cu;
 	throw; 
@@ -75,7 +75,7 @@ void Thread::cleanup_pop(Boolean execute) throw(IPCException)
     { 
 	cu = _cleanup.remove_first() ;
     }
-    catch(IPCException& e) 
+    catch(IPCException&) 
     {
 	PEGASUS_ASSERT(0); 
      }
@@ -100,7 +100,7 @@ void Thread::exit_self(PEGASUS_THREAD_RETURN exit_code)
        { 
 	   cleanup_pop(true); 
        }
-       catch(IPCException& e) 
+       catch(IPCException&) 
        { 
 	  PEGASUS_ASSERT(0); 
 	  break; 
@@ -216,7 +216,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       deadlock_timer = (struct timeval *)myself->reference_tsd("deadlock timer");
       myself->dereference_tsd();
    }
-   catch(IPCException & e)
+   catch(IPCException &)
    {
       myself->exit_self(0);
    }
@@ -242,7 +242,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 	 parm = myself->reference_tsd("work parm");
 	 myself->dereference_tsd();
       }
-      catch(IPCException & e)
+      catch(IPCException &)
       {
 	 myself->exit_self(0);
       }
@@ -258,7 +258,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 	 pool->_running.remove((void *)myself);
 	 pool->_link_pool(myself);
       }
-      catch(IPCException & e)
+      catch(IPCException &)
       {
 	 myself->exit_self(0);
       }
@@ -297,7 +297,7 @@ void ThreadPool::allocate_and_awaken(void *parm,
 	    th = _pool.remove_first();
 	 }
       }
-      catch(TimeOut & to)
+      catch(TimeOut &)
       {
 	 if(_current_threads < _max_threads)
 	 {
@@ -390,7 +390,7 @@ void ThreadPool::kill_dead_threads(void)
 	 {
 	    q->try_lock();
 	 }
-	 catch(AlreadyLocked & a)
+	 catch(AlreadyLocked &)
 	 {
 	    q++;
 	    continue;
@@ -406,7 +406,7 @@ void ThreadPool::kill_dead_threads(void)
 	    {
 	       dtp = (struct timeval *)th->try_reference_tsd("deadlock timer");
 	    }
-	    catch(AlreadyLocked & a)
+	    catch(AlreadyLocked &)
 	    {
 	       th = q->next(th);
 	       continue;

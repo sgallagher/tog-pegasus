@@ -101,6 +101,11 @@
 // debug information":
 #pragma warning( disable : 4786 )
 
+// Suppress this warning: "class <XXX> needs to have dll-interface to be used 
+// by clients of class <YYY>"
 #pragma warning ( disable : 4251 )
+
+// Suppress this warning : "'this' : used in base member initializer list"
+#pragma warning ( disable : 4355 )
 
 #endif  /* Pegasus_ConfigWindows_h */

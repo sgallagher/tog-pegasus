@@ -40,53 +40,66 @@ typedef HashTable<Uint32, MessageQueue*, EqualFunc<Uint32>, HashFunc<Uint32> >
 static QueueTable _queueTable(128);
 static Mutex q_table_mut = Mutex();
 
-static Uint32 _GetNextQueueId() throw(IPCException)
+Uint32 MessageQueue::getNextQueueId() throw(IPCException)
 {
+   static Uint32 _nextQueueId = 1;
 
-   static Uint32 _queueId = 2;
+   //
+   // Lock mutex:
+   //
+
    static Mutex _id_mut = Mutex();
-
    _id_mut.lock(pegasus_thread_self());
 
-   // Handle wrap-around!
-   if (_queueId == 0)
-      _queueId = MessageQueue::_CIMOM_Q_ID;
-   Uint32 ret = _queueId++;
+   // Assign next queue id. Handle wrap around and never assign zero as
+   // a queue id:
+
+   if (_nextQueueId == 0)
+      _nextQueueId = 1;
+
+   Uint32 queueId = _nextQueueId++;
+
+   //
+   // Unlock mutex:
+   //
+
    _id_mut.unlock();
 
-   return ret;
+   return queueId;
 }
 
-Uint32 MessageQueue::_CIMOM_Q_ID = 1;
-
-MessageQueue::MessageQueue(const char * name, Boolean async)
-	: _mut( ), _count(0), _front(0), _back(0),
-	  _async(async),
-	  _workThread(MessageQueue::workThread, this, false),
-	  _workSemaphore(0)
-
-
+MessageQueue::MessageQueue(
+    const char* name, 
+    Boolean async,
+    Uint32 queueId)
+    : 
+    _queueId(queueId), _count(0), _front(0), _back(0), _async(async), 
+    _workThread(MessageQueue::workThread, this, false), _workSemaphore(0)
 {
-   if(name != NULL)
-   {
-      strncpy(_name, name, 25);
-      _name[25] = 0x00;
-   }
-   else
-      memset(_name, 0x00,25);
+    //
+    // Copy the name:
+    //
+
+    if (!name)
+	name = "";
+
+    _name = new char[strlen(name) + 1];
+    strcpy(_name, name);
+
+    //
+    // Insert into queue table:
+    //
 
     q_table_mut.lock(pegasus_thread_self());
 
-    while (!_queueTable.insert(_queueId = _GetNextQueueId(), this))
+    while (!_queueTable.insert(_queueId, this))
        ;
+
     q_table_mut.unlock();
 
     
     if(_async == true)
-    {
        _workThread.run();
-    }
-    
 }
 
 MessageQueue::~MessageQueue()
@@ -103,7 +116,10 @@ MessageQueue::~MessageQueue()
        _workSemaphore.signal();// wake thread
        _workThread.join();     // wait for thread to complete
     }
+
+    // Free the name:
     
+    delete [] _name;
 }
 
 

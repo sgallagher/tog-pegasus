@@ -78,3 +78,18 @@
     26. Revisit use of bit masks in provider interfaces.
 
     27. Revisit provider loading/manager etc.
+
+    28. Consolidate CIMOM handles.
+
+    29. Get rid of directories containing .old extensions.
+
+    30. Use constant global queue ids as described in MessagQueue.h
+	docs.
+
+    31. Is the Facade class necessary.
+
+    32. Response handler need not have to action methods (for single
+	and multiple objects).
+
+    33. Clean up warnings on NT.
+

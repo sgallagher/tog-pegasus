@@ -85,9 +85,8 @@ class PEGASUS_CIMOM_LINKAGE message_module
 
 class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
 {
-  
    public : cimom(void)
-      : MessageQueue("cimom"), _modules(true), 
+      : MessageQueue("cimom", false, CIMOM_Q_ID), _modules(true), 
 	_internal_ops(true ), 	_pending_ops(true, 100), 
 	_completed_ops(true, 100),
 	_pending_thread( _pending_proc, this, false),

@@ -37,6 +37,13 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+//
+// This identifier is the queue id for CIMOM queue. It is initialized in
+// CimomMessage.cpp by calling MessageQueue::getNextQueueId(). Note that
+// this value is passed in the constructor for the CIMOM queue.
+//
+extern const Uint32 CIMOM_Q_ID;
+
 class AsyncOpNode;
 
 class cimom_results
@@ -549,7 +556,7 @@ class PEGASUS_CIMOM_LINKAGE ServiceResume : public AsyncRequest
 //    Reply *reply = new CimomAsyncReply(request->getKey, ASYNC_STARTED, request->op);
 
 
-//    MessageQueue *queue = MessageQueue::lookup( MessageQueue::_CIMOM_Q_ID  );
+//    MessageQueue *queue = MessageQueue::lookup(CIMOM_Q_ID);
 //    queue->enqueue(reply);
 // }
 

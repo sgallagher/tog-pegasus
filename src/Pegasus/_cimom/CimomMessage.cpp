@@ -31,6 +31,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+const Uint32 CIMOM_Q_ID = MessageQueue::getNextQueueId();
+
 const Uint32 cimom_results::OK =                        0x00000000;
 const Uint32 cimom_results::PARAMETER_ERROR =           0x00000001;
 const Uint32 cimom_results::MODULE_ALREADY_REGISTERED = 0x00000002;

@@ -117,7 +117,7 @@ CmpiStatus CmpiBaseMI::cleanup(CmpiContext& ctx) {
 }
 
 int CmpiBaseMI::isUnloadable() const {
-   return 0; 
+   return 1; 
 }
 
 //---------------------------------------------------
@@ -1013,6 +1013,10 @@ CmpiData::operator CmpiArray() const {
    if (!(data.type&CMPI_ARRAY))
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
    else return CmpiArray(data.value.array);
+}
+
+int CmpiData::isNullValue() const {
+  return (data.state & CMPI_nullValue);
 }
 
 

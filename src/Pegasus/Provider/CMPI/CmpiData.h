@@ -222,6 +222,10 @@ public:
    /** Extracting ObjectPath.
    */
    operator CmpiObjectPath() const;
+
+   /** test for null value
+   */
+   int isNullValue() const;
 };
 
 #endif

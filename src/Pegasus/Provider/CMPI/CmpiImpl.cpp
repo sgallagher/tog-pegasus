@@ -636,7 +636,7 @@ void CmpiIndicationMI::driveEnableIndications
   try {
    CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
    CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
-   return nmi->enableIndications
+   nmi->enableIndications
      ();
   } catch (CmpiStatus& stat) {
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
@@ -649,7 +649,7 @@ void CmpiIndicationMI::driveDisableIndications
   try {
    CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
    CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
-   return nmi->disableIndications
+   nmi->disableIndications
      ();
   } catch (CmpiStatus& stat) {
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;

@@ -41,6 +41,7 @@
 #include <Pegasus/Common/CIMScope.h>
 #include <Pegasus/Compiler/compilerCommonDefs.h>
 #include <iostream>
+#include <Pegasus/common/PegasusVersion.h>
 #include "valueFactory.h"
 #include "cimmofMessages.h"
 
@@ -305,7 +306,10 @@ cimmofParser::parse()
       if (_cmdline->xml_output() ) 
       {
 	  cout << "<?xml version=\"1.0\"?>" << endl;
-          cout << "<CIM CIMVERSION=\"2.0\" DTDVERSION=\"2.0\">" << endl;
+	  cout << "<!-- Open Group Pegasus CIM Compiler V "
+	       << PEGASUS_VERSION << " Built " << __DATE__
+	       << " -->" << endl; 
+	  cout << "<CIM CIMVERSION=\"2.0\" DTDVERSION=\"2.0\">" << endl;
 	  cout << "<DECLARATION>" << endl;
 	  cout << "<DECLGROUP>" << endl;
       }

@@ -21,3 +21,5 @@ endif
 SYS_LIBS = -ldl
 
 CXX = g++
+
+SH = sh

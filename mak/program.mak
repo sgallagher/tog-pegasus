@@ -28,6 +28,8 @@ include $(ROOT)/mak/build.mak
 
 include $(ROOT)/mak/headers.mak
 
+include $(ROOT)/mak/sub.mak
+
 -include $(OBJ_DIR)/depend.mak
 
 include $(ROOT)/mak/misc.mak

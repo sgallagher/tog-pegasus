@@ -52,3 +52,5 @@ LEX = flex
 YACC = bison
 
 SYS_LIBS = ws2_32.lib advapi32.lib
+
+SH = bash

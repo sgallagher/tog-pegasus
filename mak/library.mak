@@ -52,6 +52,8 @@ include $(ROOT)/mak/headers.mak
 
 include $(ROOT)/mak/docxx.mak
 
+include $(ROOT)/mak/sub.mak
+
 -include $(OBJ_DIR)/depend.mak
 
 include $(ROOT)/mak/misc.mak

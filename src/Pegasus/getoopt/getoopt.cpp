@@ -112,7 +112,8 @@ Optarg::Value(String &s) const { s = _value; }
 //  Fill in a caller-provided int with the integer conversion of the value.
 void Optarg::Value (int &i) const  throw (IncompatibleTypes)
 {
-    const char* s = _CString (_value);
+    _CString cs(_value);
+    const char* s = cs;
     Boolean valid = true;
     Uint32 j;
     for (j = 0; j < strlen (s); j++)
@@ -140,9 +141,11 @@ void Optarg::Value (int &i) const  throw (IncompatibleTypes)
 //  Fill in a caller-provided unsigned int
 void Optarg::Value (unsigned int &i) const throw (IncompatibleTypes)
 {
-    const char* s = _CString (_value);
+    _CString cs(_value);
+    const char* s = cs;
     Boolean valid = true;
     Uint32 j;
+
     for (j = 0; j < strlen (s); j++)
     {
         if ((!isdigit (s [j])) && (!isspace (s [j])))
@@ -167,19 +170,22 @@ void Optarg::Value (unsigned int &i) const throw (IncompatibleTypes)
 //  Fill in a call-provided unsigned int
 void
 Optarg::Value(long &l) const {
-  l = (long)atoi(_CString(_value));
+  _CString cs(_value);
+  l = (long)atoi(cs);
 }
 
 //  Fill in a caller-provided long
 void
 Optarg::Value(unsigned long &l) const {
-  l = (unsigned long)atoi(_CString(_value));
+  _CString cs(_value);
+  l = (unsigned long)atoi(cs);
 }
 
 //  Ditto unsigned long
 void
 Optarg::Value(double &d) const {
-  d = (double)atof(_CString(_value));
+  _CString cs(_value);
+  d = (double)atof(cs);
 }
 
 //--------------------------------------------------------------------

@@ -296,7 +296,7 @@ CIMServerDiscoveryRep::~CIMServerDiscoveryRep()
 }
 
 Array<CIMServerDescription>
-CIMServerDiscoveryRep::lookup(const Array<Attribute> & criteria)
+CIMServerDiscoveryRep::lookup(const Array<Attribute> & criteria, const SLPClientOptions* options)
 {
   SLPError result;
   SLPHandle hslp;

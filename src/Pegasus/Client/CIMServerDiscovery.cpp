@@ -31,6 +31,48 @@
 
 #include "CIMServerDiscovery.h"
 
+#include <string.h> // for strdup
+
+PEGASUS_NAMESPACE_BEGIN
+/////////////////////////////////////////////////////////////////////////////
+// SLPClientOptions
+// Filthy hack. User is responsible for adjusting values, 
+// and for new/delete of any struct used
+/////////////////////////////////////////////////////////////////////////////
+SLPClientOptions::SLPClientOptions(){
+	//initialise everything
+	target_address  = NULL;
+	local_interface  = NULL;
+	target_port = 427;
+	spi = NULL;
+	scopes = strdup("DEFAULT");
+	service_type = strdup("service:wbem");
+	predicate = NULL;
+	use_directory_agent = false;
+}
+SLPClientOptions::~SLPClientOptions(){
+	// free all pointers
+	free(target_address);
+	free(local_interface);
+	free(spi);
+	free(scopes);
+	free(service_type);
+	free(predicate);
+}
+void SLPClientOptions::print() const{
+	printf("target_address %s\n",target_address!=NULL?target_address:"NULL");
+	printf("local_interface %s\n",local_interface!=NULL?local_interface:"NULL");
+	printf("target_port %d\n",target_port);
+	printf("spi %s\n",spi!=NULL?spi:"NULL");
+	printf("scopes %s\n",scopes!=NULL?scopes:"NULL");
+	printf("service_type %s\n",service_type!=NULL?service_type:"NULL");
+	printf("predicate %s\n",predicate!=NULL?predicate:"NULL");
+	printf("use_directory_agent %d\n",use_directory_agent==0?"false":"true");
+}
+
+
+PEGASUS_NAMESPACE_END
+
 #ifdef PEGASUS_SLP_CLIENT_INTERFACE_WRAPPER
 # include "PegasusSLPWrapper.cpp"
 #elif OPENSLP_SLP_CLIENT_INTERFACE_WRAPPER
@@ -38,6 +80,9 @@
 #else
 // No interface wrapper selected
 PEGASUS_NAMESPACE_BEGIN
+/////////////////////////////////////////////////////////////////////////////
+// CIMServerDiscoveryRep
+/////////////////////////////////////////////////////////////////////////////
 CIMServerDiscoveryRep::CIMServerDiscoveryRep()
 {
 }
@@ -47,7 +92,7 @@ CIMServerDiscoveryRep::~CIMServerDiscoveryRep()
 }
 
 Array<CIMServerDescription>
-CIMServerDiscoveryRep::lookup(const Array<Attribute> & criteria)
+CIMServerDiscoveryRep::lookup(const Array<Attribute> & criteria, const SLPClientOptions* options)
 {
   Array<CIMServerDescription> connections;
   return connections;
@@ -74,16 +119,16 @@ CIMServerDiscovery::~CIMServerDiscovery()
 }
 
 Array<CIMServerDescription>
-CIMServerDiscovery::lookup()
+CIMServerDiscovery::lookup(const SLPClientOptions* options)
 {
   Array<Attribute> criteria;
-  return _rep->lookup(criteria);
+  return _rep->lookup(criteria,options);
 }
 
 Array<CIMServerDescription>
-CIMServerDiscovery::lookup(const Array<Attribute> & criteria)
+CIMServerDiscovery::lookup(const Array<Attribute> & criteria, const SLPClientOptions* options)
 {
-  return _rep->lookup(criteria);
+  return _rep->lookup(criteria,options);
 }
 
 PEGASUS_NAMESPACE_END

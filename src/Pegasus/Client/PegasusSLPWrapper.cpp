@@ -61,27 +61,52 @@ CIMServerDiscoveryRep::~CIMServerDiscoveryRep()
 }
 
 Array<CIMServerDescription>
-CIMServerDiscoveryRep::lookup(const Array<Attribute> & criteria)
+CIMServerDiscoveryRep::lookup(const Array<Attribute> & criteria, const SLPClientOptions* options)
 {
   struct slp_client *client = NULL;
   lslpMsg responses, *srvReplyEntry;
-  int8 *scopes = strdup("DEFAULT");
-  int8 *iface = NULL;
-  int8 *addr = NULL;
-  int8 *type = strdup("service:wbem");
-  int8 *predicate = NULL;
-  int16 port = 427;
-  BOOL dir_agent = FALSE;
   
+  int8 *scopes; // = strdup("DEFAULT");
+  int8 *spi; // = strdup("DSA");
+  int8 *iface; // = NULL;
+  int8 *addr; // = NULL;
+  int8 *type; // = strdup("service:wbem");
+  int8 *predicate; // = NULL;
+  int16 port; // = 427;
+  BOOL dir_agent; // = FALSE;
+ 
+  if((SLPClientOptions*)NULL == options){
+	  addr = NULL;
+	  iface = NULL;
+	  port = 427;
+	  scopes = "DEFAULT";
+	  spi="DSA";
+	  type = "service:wbem";
+	  predicate = NULL;
+	  dir_agent = FALSE;
+  }else{
+	  scopes = (char*)options->scopes;
+	  spi = (char*)options->spi;
+	  iface = options->local_interface;
+	  addr = options->target_address;
+	  type = options->service_type;
+	  predicate = options->predicate;
+	  port = options->target_port;
+	  dir_agent = options->use_directory_agent==true?1:0;
+	  options->print();
+	  
+  }
   Array<CIMServerDescription> connections;
   
-  if (NULL != (client = create_slp_client(addr, 
-           iface, 
-           port, 
-           "DSA", 
-           scopes, 
-           FALSE, 
-           dir_agent)))
+  if (NULL != (client = create_slp_client(
+				  addr, // target_addr
+				  iface, // local_interface
+				  port, // target_port
+				  spi, // spi
+				  scopes, // scopes
+				  FALSE, // should_listen
+				  dir_agent // use_das
+				  )))
     {
       if (addr != NULL && inet_addr(addr) == inet_addr("127.0.0.1"))
         {
@@ -92,10 +117,11 @@ CIMServerDiscoveryRep::lookup(const Array<Attribute> & criteria)
           SOCKADDR_IN address;
           address.sin_port = htons(port);
           address.sin_family = AF_INET;
-          if (addr != NULL)
+          if (addr != NULL){
             address.sin_addr.s_addr = inet_addr(addr);
-          else
+	  }else{
             address.sin_addr.s_addr = _LSLP_MCAST;
+	  }
           client->unicast_srv_req(client, type, predicate, scopes, &address);
         }
 

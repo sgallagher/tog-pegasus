@@ -92,21 +92,18 @@ void CIMExportRequestDecoder::sendEMethodError(
     sendResponse(queueId, message);
 }
 
-void CIMExportRequestDecoder::sendBadRequestError(
-    Uint32 queueId,
-    const String& cimError)
+void CIMExportRequestDecoder::sendHttpError(
+   Uint32 queueId,
+   const String& status,
+   const String& cimError,
+   const String& messageBody)
 {
     Array<Sint8> message;
-    XmlWriter::appendBadRequestResponseHeader(message, cimError);
-    sendResponse(queueId, message);
-}
+    message = XmlWriter::formatHttpErrorRspMessage(
+        status,
+        cimError,
+        messageBody);
 
-void CIMExportRequestDecoder::sendNotImplementedError(
-    Uint32 queueId,
-    const String& cimError)
-{
-    Array<Sint8> message;
-    XmlWriter::appendNotImplementedResponseHeader(message, cimError);
     sendResponse(queueId, message);
 }
 
@@ -231,7 +228,9 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
          //     status "400 Bad Request". The CIM Server MUST include a
          //     CIMError header in the response with a value of
          //     unsupported-operation.
-         sendBadRequestError(queueId, "unsupported-operation");
+         sendHttpError(queueId,
+                       HTTP_STATUS_BADREQUEST,
+                       "unsupported-operation");
          return;
       }
 
@@ -247,7 +246,9 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
          //     CIMExportBatch header is present, but the Listener does not
          //     support Multiple Exports, then it MUST fail the request and
          //     return a status of "501 Not Implemented".
-         sendNotImplementedError(queueId, "multiple-requests-unsupported");
+         sendHttpError(queueId,
+                       HTTP_STATUS_NOTIMPLEMENTED,
+                       "multiple-requests-unsupported");
          return;
       }
 
@@ -333,13 +334,17 @@ void CIMExportRequestDecoder::handleMethodRequest(
 
       if (strcmp(cimVersion, "2.0") != 0)
       {
-         sendNotImplementedError(queueId, "unsupported-cim-version");
+         sendHttpError(queueId,
+                       HTTP_STATUS_NOTIMPLEMENTED,
+                       "unsupported-cim-version");
          return;
       }
 
       if (strcmp(dtdVersion, "2.0") != 0)
       {
-         sendNotImplementedError(queueId, "unsupported-dtd-version");
+         sendHttpError(queueId,
+                       HTTP_STATUS_NOTIMPLEMENTED,
+                       "unsupported-dtd-version");
          return;
       }
 
@@ -358,7 +363,9 @@ void CIMExportRequestDecoder::handleMethodRequest(
 
       if (!String::equalNoCase(protocolVersion, cimProtocolVersionInHeader))
       {
-         sendBadRequestError(queueId, "header-mismatch");
+         sendHttpError(queueId,
+                       HTTP_STATUS_BADREQUEST,
+                       "header-mismatch");
          return;
       }
 
@@ -367,7 +374,9 @@ void CIMExportRequestDecoder::handleMethodRequest(
       if (!String::equalNoCase(protocolVersion, "1.0"))
       {
          // See Specification for CIM Operations over HTTP section 4.3
-         sendNotImplementedError(queueId, "unsupported-protocol-version");
+         sendHttpError(queueId,
+                       HTTP_STATUS_NOTIMPLEMENTED,
+                       "unsupported-protocol-version");
          return;
       }
    }

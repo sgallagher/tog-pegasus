@@ -223,7 +223,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     {
         // Only POST and M-POST are implemented by this server
         Array<Sint8> message;
-        XmlWriter::appendNotImplementedResponseHeader(message);
+        message = XmlWriter::formatHttpErrorRspMessage(
+            HTTP_STATUS_NOTIMPLEMENTED);
         _sendResponse(queueId, message);
     }
     else
@@ -375,7 +376,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 // processed as a CIM request.
 
                 Array<Sint8> message;
-                XmlWriter::appendBadRequestResponseHeader(message);
+                message = XmlWriter::formatHttpErrorRspMessage(
+                    HTTP_STATUS_BADREQUEST);
                 _sendResponse(queueId, message);
                 PEG_METHOD_EXIT();
                 return;

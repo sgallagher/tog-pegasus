@@ -50,6 +50,10 @@ class CIMConstQualifierDecl;
 class CIMConstClass;
 class CIMConstInstance;
 
+#define HTTP_STATUS_BADREQUEST     "400 Bad Request"
+#define HTTP_STATUS_UNAUTHORIZED   "401 Unauthorized"
+#define HTTP_STATUS_NOTIMPLEMENTED "501 Not Implemented"
+
 class PEGASUS_COMMON_LINKAGE XmlWriter
 {
 public:
@@ -126,17 +130,15 @@ public:
 	Array<Sint8>& out,
 	Uint32 contentLength);
 
+    static void appendHttpErrorResponseHeader(
+	Array<Sint8>& out,
+	const String& status,
+	const String& cimError = String::EMPTY,
+	Uint32 contentLength = 0);
+
     static void appendUnauthorizedResponseHeader(
 	Array<Sint8>& out,
         const String& content);
-
-    static void appendBadRequestResponseHeader(
-	Array<Sint8>& out,
-        const String& cimError = String::EMPTY);
-
-    static void appendNotImplementedResponseHeader(
-	Array<Sint8>& out,
-        const String& cimError = String::EMPTY);
 
     static void appendReturnValueElement(
 	Array<Sint8>& out,
@@ -204,6 +206,11 @@ public:
 	Array<Sint8>& out,
 	const char* name,
 	const CIMConstQualifierDecl& qualifierDecl);
+
+    static Array<Sint8> formatHttpErrorRspMessage(
+	const String& status,
+	const String& cimError = String::EMPTY,
+	const String& messageBody = String::EMPTY);
 
     static Array<Sint8> formatSimpleMethodReqMessage(
 	const char* host,

@@ -69,13 +69,11 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
 	 CIMStatusCode code,
 	 const String& description);
 
-      void sendBadRequestError(
-         Uint32 queueId,
-         const String& cimError = String::EMPTY);
-
-      void sendNotImplementedError(
-         Uint32 queueId,
-         const String& cimError = String::EMPTY);
+      void sendHttpError(
+	 Uint32 queueId,
+	 const String& status,
+	 const String& cimError = String::EMPTY,
+	 const String& messageBody = String::EMPTY);
 
       virtual void handleEnqueue(Message *);
 

@@ -471,6 +471,38 @@ void XmlWriter::appendMethodResponseHeader(
 
 //------------------------------------------------------------------------------
 //
+// appendHttpErrorResponseHeader()
+//
+//     Build HTTP error response header.
+//
+//     Returns error response message in the following format:
+//
+//        HTTP/1.1 400 Bad Request  (using specified status code)
+//        CIMError: <error type>    (only if specified by caller)
+//        Content-Length: 123       (using the given content length, if not 0)
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendHttpErrorResponseHeader(
+    Array<Sint8>& out,
+    const String& status,
+    const String& cimError,
+    Uint32 contentLength)
+{
+    out << "HTTP/1.1 " << status << "\r\n";
+    if (cimError != String::EMPTY)
+    {
+        out << "CIMError: " << cimError << "\r\n";
+    }
+    if (contentLength != 0)
+    {
+        out << "Content-Length: " << contentLength << "\r\n";
+    }
+    out << "\r\n";
+}
+
+//------------------------------------------------------------------------------
+//
 // appendUnauthorizedResponseHeader()
 //
 //     Build HTTP authentication response header for unauthorized requests.
@@ -492,7 +524,7 @@ void XmlWriter::appendUnauthorizedResponseHeader(
     Array<Sint8>& out,
     const String& content)
 {
-    out << "HTTP/1.1 401 Unauthorized\r\n";
+    out << "HTTP/1.1 " HTTP_STATUS_UNAUTHORIZED "\r\n";
     out << content << "\r\n";
     out << "\r\n";
 
@@ -504,68 +536,6 @@ void XmlWriter::appendUnauthorizedResponseHeader(
 //    out << "<H2>TEST" << "401 Unauthorized" << "</H2>\r\n";
 //    out << "<HR>\r\n";
 //    out << "</BODY></HTML>\r\n";
-}
-
-//------------------------------------------------------------------------------
-//
-// appendBadRequestResponseHeader()
-//
-//     Build HTTP response header for bad requests.
-//
-//     Returns Bad Request message in the following format:
-//
-//        HTTP/1.1 400 Bad Request
-//        CIMError: <error text>    (only if specified by caller)
-//        <HTML><HEAD>
-//        <TITLE>400 Bad Request</TITLE>
-//        </HEAD><BODY BGCOLOR="#99cc99">
-//        <H2>TEST400 Bad Request</H2>
-//        <HR>
-//        </BODY></HTML>
-//
-//------------------------------------------------------------------------------
-
-void XmlWriter::appendBadRequestResponseHeader(
-    Array<Sint8>& out,
-    const String& cimError)
-{
-    out << "HTTP/1.1 400 Bad Request\r\n";
-    if (cimError != String::EMPTY)
-    {
-        out << "CIMError: " << cimError << "\r\n";
-    }
-    out << "\r\n";
-}
-
-//------------------------------------------------------------------------------
-//
-// appendNotImplementedResponseHeader()
-//
-//     Build HTTP 501 Not Implemented response header
-//
-//     Returns Not Implemented message in the following format:
-//
-//        HTTP/1.1 501 Not Implemented
-//        <HTML><HEAD>
-//        <TITLE>501 Not Implemented</TITLE>
-//        CIMError: <error text>    (only if specified by caller)
-//        </HEAD><BODY BGCOLOR="#99cc99">
-//        <H2>TEST501 Not Implemented</H2>
-//        <HR>
-//        </BODY></HTML>
-//
-//------------------------------------------------------------------------------
-
-void XmlWriter::appendNotImplementedResponseHeader(
-    Array<Sint8>& out,
-    const String& cimError)
-{
-    out << "HTTP/1.1 501 Not Implemented\r\n";
-    if (cimError != String::EMPTY)
-    {
-        out << "CIMError: " << cimError << "\r\n";
-    }
-    out << "\r\n";
 }
 
 //------------------------------------------------------------------------------
@@ -1052,6 +1022,30 @@ void XmlWriter::appendQualifierDeclarationIParameter(
     _appendIParamValueElementBegin(out, name);
     qualifierDecl.toXml(out);
     _appendIParamValueElementEnd(out);
+}
+
+//------------------------------------------------------------------------------
+//
+// XmlWriter::formatHttpErrorRspMessage()
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8> XmlWriter::formatHttpErrorRspMessage(
+    const String& status,
+    const String& cimError,
+    const String& messageBody)
+{
+    Array<Sint8> out;
+    Array<Sint8> tmp;
+
+    if (messageBody != String::EMPTY)
+    {
+        out << messageBody << "\n";
+    }
+    appendHttpErrorResponseHeader(tmp, status, cimError, out.size());
+    tmp << out;
+
+    return tmp;
 }
 
 //------------------------------------------------------------------------------

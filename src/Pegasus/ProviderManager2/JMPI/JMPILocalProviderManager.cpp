@@ -305,7 +305,7 @@ JMPIProvider::OpProviderHolder JMPILocalProviderManager::getProvider(
         ccode = _provider_ctrl( GET_PROVIDER, &strings, &ph );
     }
     catch (Exception e) {
-       std::cerr<<"--- loading proxy: "<<e.getMessage()<<std::endl;
+       cerr<<"--- loading proxy: "<<e.getMessage()<<endl;
        PEG_METHOD_EXIT();
         throw;
    }

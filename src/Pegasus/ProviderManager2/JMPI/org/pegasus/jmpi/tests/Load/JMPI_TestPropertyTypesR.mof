@@ -33,7 +33,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "2";
    ClassName = "JMPI_TestPropertyTypes";
    Namespaces = {"test/static"};
-   ProviderType = { 2 }; // Instance
+   ProviderType = { 2, 5 }; // Instance and Method
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
 };

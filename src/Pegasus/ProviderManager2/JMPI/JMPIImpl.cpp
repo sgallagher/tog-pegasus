@@ -53,6 +53,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 JavaVM *JMPIjvm::jvm=NULL;
 JvmVector JMPIjvm::jv;
+int JMPIjvm::trace=0;
 
 typedef struct {
   int clsIndex;
@@ -204,13 +205,16 @@ int JMPIjvm::initJVM()
    char classpath[1024]="-Djava.class.path=";
    JNIEnv *env;
 
-   std::cerr<<"--- JPIjvm::initJVM()\n";
+   if (getenv("JMPI_TRACE")) trace=1;
+   else trace=0;
+
+   if (trace) cerr<<"--- JPIjvm::initJVM()\n";
    jv.initRc=0;
 
    envcp=getenv("CLASSPATH");
    if (envcp==NULL) {
       jv.initRc=1;
-      std::cerr<<"--- jmpiJvm::initJVM(): No PEGASUS_PROVIDER_CLASSPATH environment variable found\n";
+      cerr<<"--- jmpiJvm::initJVM(): No PEGASUS_PROVIDER_CLASSPATH environment variable found\n";
       return -1;
    }
 
@@ -241,7 +245,7 @@ int JMPIjvm::initJVM()
    }
 
 //   dlopen("libjmpiVM.so",RTLD_NOW);
-//   std::cerr<<"--- JPIjvm::initJVM(): selfloading done\n";
+//   cerr<<"--- JPIjvm::initJVM(): selfloading done\n";
 
    return res;
 }
@@ -269,8 +273,8 @@ jobject JMPIjvm::getProvider(JNIEnv *env, String jar, String cln,
    }
 
    /*
-   std::cout<<"--- jar: "<<jar<<std::endl;
-   std::cout<<"--- cln: "<<cln<<std::endl;
+   cout<<"--- jar: "<<jar<<endl;
+   cout<<"--- cln: "<<cln<<endl;
 
    jstring jjar=env->NewStringUTF((const char*)jar.getCString());
    jstring jcln=env->NewStringUTF((const char*)cln.getCString());
@@ -279,14 +283,14 @@ jobject JMPIjvm::getProvider(JNIEnv *env, String jar, String cln,
       jjar,jcln);
    if (env->ExceptionCheck()) {
       env->ExceptionDescribe();
-      std::cerr<<"--- Unable to instantiate provider "<<cn<<std::endl;
+      cerr<<"--- Unable to instantiate provider "<<cn<<endl;
  //     return NULL;
    }
 */
 
    scls=getGlobalClassRef(env,(const char*)cln.getCString());
    if (env->ExceptionCheck()) {
-      std::cerr<<"--- Provider "<<cn<<" not found"<<std::endl;
+      cerr<<"--- Provider "<<cn<<" not found"<<endl;
       return NULL;
    }
 	*cls=scls;
@@ -295,7 +299,7 @@ jobject JMPIjvm::getProvider(JNIEnv *env, String jar, String cln,
    jobject lProv=env->NewObject(*cls,id);
    gProv=(jobject)env->NewGlobalRef(lProv);
    if (env->ExceptionCheck()) {
-      std::cerr<<"--- Unable to instantiate provider "<<cn<<std::endl;
+      cerr<<"--- Unable to instantiate provider "<<cn<<endl;
       return NULL;
    }
    return gProv;
@@ -312,7 +316,7 @@ jobject JMPIjvm::getProvider(JNIEnv *env, const char *cn, jclass *cls)
 
    scls=getGlobalClassRef(env,cn);
    if (env->ExceptionCheck()) {
-      std::cerr<<"--- Provider "<<cn<<" not found"<<std::endl;
+      cerr<<"--- Provider "<<cn<<" not found"<<endl;
       return NULL;
    }
 	*cls=scls;
@@ -321,7 +325,7 @@ jobject JMPIjvm::getProvider(JNIEnv *env, const char *cn, jclass *cls)
    jobject lProv=env->NewObject(*cls,id);
    gProv=(jobject)env->NewGlobalRef(lProv);
    if (env->ExceptionCheck()) {
-      std::cerr<<"--- Unable to instantiate provider "<<cn<<std::endl;
+      cerr<<"--- Unable to instantiate provider "<<cn<<endl;
       return NULL;
    }
    return gProv;
@@ -337,7 +341,8 @@ void JMPIjvm::checkException(JNIEnv *env)
 
    if (env->ExceptionCheck()) {
       jthrowable err=env->ExceptionOccurred();
-//      env->ExceptionDescribe();
+      if (trace)
+         env->ExceptionDescribe();
       env->ExceptionClear();
       if (err) {
          msg=(jstring)env->CallObjectMethod(err,JMPIjvm::jv.ThrowableGetMessage);
@@ -354,12 +359,13 @@ void JMPIjvm::checkException(JNIEnv *env)
             strncpy(hcp,cp,511);
             env->ReleaseStringUTFChars(msg,cp);
             m=String(hcp);
-	      }
-//	      std::cerr<<"--- exception: "<<hcp1<<" ("<<hcp<<") "<<std::endl;
+         }
+	 if (trace)
+            cerr<<"--- throwing Pegasus exception: "<<hcp1<<" ("<<hcp<<") "<<endl;
          throw CIMException((CIMStatusCode)code,m);
       }
    }
-} 
+}
 
 /**************************************************************************
  * name         - NewPlatformString

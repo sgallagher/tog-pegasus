@@ -25,6 +25,7 @@ PACKAGEDIR = org/pegasus/jmpi
    CIMQualifier.class \
    CIMDataType.class \
    InstanceProvider.class \
+   MethodProvider.class \
    AssociatorProvider.class \
    UnsignedNumber.class \
    UnsignedInt16.class \

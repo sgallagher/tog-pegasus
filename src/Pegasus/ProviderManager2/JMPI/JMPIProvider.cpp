@@ -36,6 +36,7 @@
 #include <Pegasus/ProviderManager2/JMPI/JMPIProviderModule.h>
 
 PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_STD;
 
 
 // set current operations to 1 to prevent an unload
@@ -91,7 +92,8 @@ void JMPIProvider::initialize(CIMOMHandle& cimom)
 
     _cimom_handle=&cimom;
     JvmVector *jv;
-    std::cerr<<"--- JMPIProvider::Initialize()"<<std::endl;
+    if (JMPIjvm::trace)
+       cerr<<"--- JMPIProvider::Initialize()"<<endl;
     JNIEnv *env=JMPIjvm::attachThread(&jv);
     jmethodID id=env->GetMethodID((jclass)jProviderClass,"initialize",
        "(Lorg/pegasus/jmpi/CIMOMHandle;)V");

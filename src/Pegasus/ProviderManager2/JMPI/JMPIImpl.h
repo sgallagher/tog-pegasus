@@ -75,11 +75,12 @@ typedef struct jvmVector {
 
 class JMPIjvm {
  public:
+   static int trace;
    static JavaVM *jvm;
    static JvmVector jv;
    JMPIjvm();
   ~JMPIjvm();
-  
+
    static JNIEnv* attachThread(JvmVector **jvp);
    static void detachThread();
    static jobject getProvider(JNIEnv *env, const char *cn, jclass *cls) ;
@@ -194,10 +195,10 @@ class _dataType {
 #define ObjectToString		instMethodIDs[25]
 #define ThrowableGetMessage	instMethodIDs[26]
 #define CIMExceptionGetID	instMethodIDs[27]
-#define CIMExceptionGetCode instMethodIDs[34]
+#define CIMExceptionGetCode     instMethodIDs[34]
 #define PropertyCInst   	instMethodIDs[29]
-#define VectorRemoveElementAt   	instMethodIDs[31]
-#define CIMPropertyNew		instMethodIDs[14]
+#define VectorRemoveElementAt   instMethodIDs[31]
+#define CIMPropertyNewI		instMethodIDs[14]
 #define CIMValueCInst		instMethodIDs[32]
 
 //extern "C" JNIEnv* attachThread(JvmVector**);

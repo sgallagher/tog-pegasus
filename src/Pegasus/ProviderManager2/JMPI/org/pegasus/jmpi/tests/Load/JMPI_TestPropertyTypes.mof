@@ -90,5 +90,7 @@ class JMPI_TestPropertyTypes:JMPI_TestElement
       [Description (
       "a char16 property of JMPI_TestPropertyTypes")]
    char16 PropertyChar16;
+
+   String SayHello();
       
 };

@@ -11,7 +11,8 @@ DIRS = \
 	EnumerateInstances\
 	ErrorXml\
 	ModifyInstance\
-	DeleteInstance
+	DeleteInstance \
+	InvokeMethod
 
 
 # Property

@@ -46,7 +46,7 @@ import org.pegasus.jmpi.*;
 import java.util.*;
 
 
-public class JMPI_TestPropertyTypes implements InstanceProvider
+public class JMPI_TestPropertyTypes implements InstanceProvider, MethodProvider 
 {
    CIMOMHandle ch;
 
@@ -389,6 +389,17 @@ public class JMPI_TestPropertyTypes implements InstanceProvider
                                CIMClass cimClass)
                         throws CIMException {
       return null;
+   }
+
+   public CIMValue invokeMethod(CIMObjectPath op,
+                               String method,
+			       Vector in,
+                               Vector out) throws CIMException {
+
+      if (method.equalsIgnoreCase("SayHello"))
+         return new CIMValue(new String("hello"));
+
+      throw new CIMException(CIMException.CIM_ERR_METHOD_NOT_AVAILABLE);
    }
 }
 

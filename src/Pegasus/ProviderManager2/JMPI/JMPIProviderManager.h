@@ -112,9 +112,9 @@ protected:
 /*
     Message * handleGetPropertyRequest(const Message * message) throw();
     Message * handleSetPropertyRequest(const Message * message) throw();
-* /
+*/
     Message * handleInvokeMethodRequest(const Message * message) throw();
-
+/*
     Message * handleCreateSubscriptionRequest(const Message * message) throw();
 //    Message * handleModifySubscriptionRequest(const Message * message) throw();
     Message * handleDeleteSubscriptionRequest(const Message * message) throw();

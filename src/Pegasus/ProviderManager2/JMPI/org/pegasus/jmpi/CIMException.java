@@ -74,8 +74,8 @@ public class CIMException  extends Exception {
       CIM_ERR_INVALID_QUERY,
       CIM_ERR_METHOD_NOT_AVAILABLE,
       CIM_ERR_METHOD_NOT_FOUND
-   };   
-           
+   };
+
    String msg;
    String id;
 
@@ -92,6 +92,11 @@ public class CIMException  extends Exception {
       if (code>=0 && code<=17)
          id=code2string[code];
       else id=CIM_ERR_FAILED;
+      msg=m;
+   }
+
+   public CIMException(String strId, String m) {
+      id=strId;
       msg=m;
    }
 
@@ -112,7 +117,7 @@ public class CIMException  extends Exception {
    public String toString() {
       return(id+" ("+msg+")");
    }
-    
+
    static {
    }
 };

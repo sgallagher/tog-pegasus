@@ -35,13 +35,14 @@
 #include "JMPIProviderManager.h"
 
 PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
    const String & providerManagerName)
 {
     if(String::equalNoCase(providerManagerName, "JMPI"))
     {
-        std::cerr<<"--- JMPI Provider Manager activated"<<std::endl;
+        cerr<<"--- JMPI Provider Manager activated"<<endl;
         return(new JMPIProviderManager(JMPIProviderManager::CMPI_MODE));
     }
     return(0);

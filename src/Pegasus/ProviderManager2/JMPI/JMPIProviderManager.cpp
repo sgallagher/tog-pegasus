@@ -133,11 +133,11 @@ Message * JMPIProviderManager::processMessage(Message * request) throw()
         response = handleReferenceNamesRequest(request);
 
         break;
-/*    case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
+    case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
         response = handleInvokeMethodRequest(request);
 
         break;
-    case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
+/*    case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
         response = handleCreateSubscriptionRequest(request);
 
         break;
@@ -330,7 +330,7 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
         JMPIjvm::checkException(env);
         handler.processing();       
 	if (inst) {
-           CIMInstance *ci=((CIMInstance*)env->CallIntMethod(inst,JMPIjvm::jv.CIMInstanceCInst)); 
+           CIMInstance *ci=((CIMInstance*)env->CallIntMethod(inst,JMPIjvm::jv.CIMInstanceCInst));
            handler.deliver(*ci);
         }
         handler.complete();
@@ -425,7 +425,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
               JMPIjvm::checkException(env);
 	      jobject jInst=env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
               JMPIjvm::checkException(env);
-              CIMInstance inst=*((CIMInstance*)env->CallIntMethod(jInst,JMPIjvm::jv.CIMInstanceCInst)); 
+              CIMInstance inst=*((CIMInstance*)env->CallIntMethod(jInst,JMPIjvm::jv.CIMInstanceCInst));
               JMPIjvm::checkException(env);
 	      
    //           const CIMObjectPath& op=inst.getPath();
@@ -440,7 +440,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
     }
     HandlerCatch(handler);
     
-    if (env) JMPIjvm::detachThread();	
+    if (env) JMPIjvm::detachThread();
     
     PEG_METHOD_EXIT();
 
@@ -1056,7 +1056,7 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
         env=JMPIjvm::attachThread(&jv);
 
         jobject jRef=env->NewObject(jv->CIMObjectPathClassRef,
-	               jv->CIMObjectPathNewI,(jint)&objectPath);        
+	               jv->CIMObjectPathNewI,(jint)&objectPath);
 	JMPIjvm::checkException(env);
 
         jstring rRole=env->NewStringUTF(request->role.getCString());
@@ -1148,9 +1148,9 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         // convert arguments
         OperationContext context;
 
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
+        context.insert(request->operationContext.get(IdentityContainer::NAME));
+        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
 
   	JMPIProvider & pr=ph.GetProvider();
 
@@ -1165,9 +1165,9 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         env=JMPIjvm::attachThread(&jv);
 
         jobject jRef=env->NewObject(jv->CIMObjectPathClassRef,
-	               jv->CIMObjectPathNewI,(jint)&objectPath);        
+	               jv->CIMObjectPathNewI,(jint)&objectPath);
 	JMPIjvm::checkException(env);
-        
+
         jstring rRole=env->NewStringUTF(request->role.getCString());
 	JMPIjvm::checkException(env);
 
@@ -1177,7 +1177,7 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
         jmethodID id=env->GetMethodID((jclass)pr.jProviderClass,"referenceNames",
            "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;)Ljava/util/Vector;");
-	   
+
         JMPIjvm::checkException(env);
 
         jobject jVec=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,rRole);
@@ -1185,14 +1185,14 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
         STAT_PMS_PROVIDEREND;
 
-        handler.processing();       
+        handler.processing();
 	if (jVec) {
 	   for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
                JMPIjvm::checkException(env);
 	      jobject jCop=env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
               JMPIjvm::checkException(env);
               CIMObjectPath *cop=((CIMObjectPath*)env->CallIntMethod
-	         (jCop,JMPIjvm::jv.CIMObjectPathCInst)); 
+	         (jCop,JMPIjvm::jv.CIMObjectPathCInst));
               JMPIjvm::checkException(env);
               handler.deliver(*cop);
  	   }
@@ -1200,16 +1200,15 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         handler.complete();
     }
     HandlerCatch(handler);
-    
-    if (env) JMPIjvm::detachThread();	
-    
+
+    if (env) JMPIjvm::detachThread();
+
     PEG_METHOD_EXIT();
 
     return(response);
 }
 
 
-/*
 Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message) throw()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
@@ -1217,6 +1216,7 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
     HandlerIntroMethod(InvokeMethod,message,request,response,
                  handler);
+    JNIEnv *env=NULL;
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "JMPIProviderManager::handleInvokeMethodRequest - Host name: $0  Name space: $1  Class name: $2",
@@ -1242,57 +1242,77 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
         // convert arguments
         OperationContext context;
 
-		context.insert(request->operationContext.get(IdentityContainer::NAME));
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
+        context.insert(request->operationContext.get(IdentityContainer::NAME));
+        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
 
-        CIMObjectPath instanceReference(request->instanceName);
-
-        // ATTN: propagate namespace
-        instanceReference.setNameSpace(request->nameSpace);
-
-        // forward request
  	JMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.invokeMethod: " + pr.getName());
 
-	CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
-        CMPI_ObjectPathOnStack eRef(objectPath);
-        CMPI_ResultOnStack eRes(handler,&pr.broker);
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
-        CMPI_ArgsOnStack eArgsIn(request->inParameters);
-        Array<CIMParamValue> outArgs;
-        CMPI_ArgsOnStack eArgsOut(outArgs);
-        CString mName=request->methodName.getString().getCString();
+	JvmVector *jv;
+        env=JMPIjvm::attachThread(&jv);
 
-        CMPIFlags flgs=0;
-        eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+        jobject jRef=env->NewObject(jv->CIMObjectPathClassRef,
+	               jv->CIMObjectPathNewI,(jint)&objectPath);
+	JMPIjvm::checkException(env);
 
-        JMPIProvider::pm_service_op_lock op_lock(&pr);
+        jstring jMethod=env->NewStringUTF(request->methodName.getString().getCString());
+	JMPIjvm::checkException(env);
+
+        jobject jVecIn=env->NewObject(jv->VectorClassRef,jv->VectorNew);
+        JMPIjvm::checkException(env);
+
+        for (int i=0,m=request->inParameters.size(); i<m; i++) {
+           const CIMParamValue & parm=request->inParameters[i];
+	   const CIMValue v=parm.getValue();
+           CIMProperty *p=new CIMProperty(parm.getParameterName(),v,v.getArraySize());
+           jobject prop=env->NewObject(jv->CIMPropertyClassRef,
+	      jv->CIMPropertyNewI,(jint)p);
+           env->CallVoidMethod(jVecIn,jv->VectorAddElement,prop);
+	}
+
+        jobject jVecOut=env->NewObject(jv->VectorClassRef,jv->VectorNew);
+        JMPIjvm::checkException(env);
 
         STAT_GETSTARTTIME;
 
-        rc=pr.miVector.methMI->ft->invokeMethod(
-           pr.miVector.methMI,&eCtx,&eRes,&eRef,CHARS(mName),&eArgsIn,&eArgsOut);
+        jmethodID id=env->GetMethodID((jclass)pr.jProviderClass,"invokeMethod",
+           "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
+	    "Ljava/util/Vector;Ljava/util/Vector;)Lorg/pegasus/jmpi/CIMValue;");
+        JMPIjvm::checkException(env);
+
+        jobject jValue=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,jMethod,
+	   jVecIn,jVecOut);
+        JMPIjvm::checkException(env);
 
         STAT_PMS_PROVIDEREND;
 
-        if (rc.rc!=CMPI_RC_OK)
-	   throw CIMException((CIMStatusCode)rc.rc);
+        handler.processing();
 
-       for (int i=0,s=outArgs.size(); i<s; i++)
-           handler.deliverParamValue(outArgs[i]);
-       handler.complete();
+        CIMValue *v=((CIMValue*)env->CallIntMethod(jValue,JMPIjvm::jv.CIMValueCInst));
+	handler.deliver(*v);
+
+        for (int i=0,m=env->CallIntMethod(jVecOut,JMPIjvm::jv.VectorSize); i<m; i++) {
+           JMPIjvm::checkException(env);
+	   jobject jProp=env->CallObjectMethod(jVecOut,JMPIjvm::jv.VectorElementAt,i);
+           JMPIjvm::checkException(env);
+           CIMProperty *p=((CIMProperty*)env->CallIntMethod(jProp,JMPIjvm::jv.PropertyCInst));
+           JMPIjvm::checkException(env);
+           handler.deliverParamValue(CIMParamValue(p->getName().getString(),p->getValue()));
+        }
+        handler.complete();
     }
     HandlerCatch(handler);
-    
+
+    if (env) JMPIjvm::detachThread();
+
     PEG_METHOD_EXIT();
 
-    return(response); 
+    return(response);
 }
-*//*
+/*
 struct indProvRecord {
    indProvRecord() : enabled(false), count(1), handler(NULL) {}
    Boolean enabled;

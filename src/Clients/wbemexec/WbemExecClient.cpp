@@ -343,13 +343,6 @@ void WbemExecClient::_addAuthHeader(HTTPMessage*& httpMessage)
 
 Boolean WbemExecClient::_checkNeedToResend(HTTPMessage* httpMessage)
 {
-    // ATTN: Is this check necessary?
-    if (httpMessage->message.size() == 0)
-    {
-        // We're done, send (empty) response back to the user.
-        return false;
-    }
-
     //
     // Parse the HTTP message:
     //
@@ -360,38 +353,11 @@ Boolean WbemExecClient::_checkNeedToResend(HTTPMessage* httpMessage)
 
     httpMessage->parse(startLine, headers, contentLength);
 
-#if 0 // Need this?
-    //
-    // Get the status line info
-    //
-
-    String httpVersion;
-    Uint32 statusCode;
-    String reasonPhrase;
-
-    Boolean parsableMessage = HTTPMessage::parseStatusLine(
-        startLine, httpVersion, statusCode, reasonPhrase);
-    if (!parsableMessage)
-    {
-        // We're done, send (garbage) response back to the user.
-        return false;
-    }
-#endif
-
     try
     {
-        if (_authenticator.checkResponseHeaderForChallenge(headers))
-        {
-            // Not done yet
-            return true;
-        }
-        else
-        {
-            // Received a valid/error response from the server.  We're done.
-            return false;
-        }
+        return _authenticator.checkResponseHeaderForChallenge(headers);
     }
-    catch(InvalidAuthHeader& e)
+    catch(InvalidAuthHeader&)
     {
         // We're done, send (garbage) response back to the user.
         return false;

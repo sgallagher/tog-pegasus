@@ -237,7 +237,7 @@ public:
 
 	@param option option to be registerd.
 	@exception NullPointer exception if option argument is null.
-	@exception DuplicateOption if option already defined.
+	@exception OptionManagerDuplicateOption if option already defined.
     */
     void registerOption(Option* option);
 
@@ -263,7 +263,7 @@ public:
 	&param argc number of argument on the command line.
 	&param argv list of command line arguments.
 	&exception InvalidOptionValue if validation fails.
-	&exception MissingCommandLineOptionArgument
+	&exception OptionManagerMissingCommandLineOptionArgument
     */
     void mergeCommandLine(int& argc, char**& argv);
 
@@ -282,7 +282,7 @@ public:
     /** After merging, this method is called to check for required options
 	that were not merged (specified).
 
-	&exception MissingRequiredRequiredOption
+	&exception OptionManagerMissingRequiredRequiredOption
     */
     void checkRequiredOptions() const;
 
@@ -587,58 +587,58 @@ struct OptionRow
 */
  
 /** Exception class */
-class MissingCommandLineOptionArgument : public Exception
+class OptionManagerMissingCommandLineOptionArgument : public Exception
 {
 public:
 
-    MissingCommandLineOptionArgument(const String& optionName)
+    OptionManagerMissingCommandLineOptionArgument(const String& optionName)
 	: Exception("Missing command line option argument: " + optionName) { }
 };
 
 /** Exception class */
-class InvalidOptionValue : public Exception
+class OptionManagerInvalidOptionValue : public Exception
 {
 public:
 
-    InvalidOptionValue(const String& name, const String& value)
+    OptionManagerInvalidOptionValue(const String& name, const String& value)
 	: Exception("Invalid option value: " + name + "=\"" + value + "\"") { }
 };
 
 /** Exception class */
-class DuplicateOption : public Exception
+class OptionManagerDuplicateOption : public Exception
 {
 public:
 
-    DuplicateOption(const String& name)
+    OptionManagerDuplicateOption(const String& name)
 	: Exception("Duplicate option: " + name) { }
 };
 
 /** Exception class */
-class ConfigFileSyntaxError : public Exception
+class OptionManagerConfigFileSyntaxError : public Exception
 {
 public:
 
-    ConfigFileSyntaxError(const String& file, Uint32 line)
+    OptionManagerConfigFileSyntaxError(const String& file, Uint32 line)
 	: Exception(_formatMessage(file, line)) { }
 
     static String _formatMessage(const String& file, Uint32 line);
 };
 
 /** Exception class */
-class UnrecognizedConfigFileOption : public Exception
+class OptionManagerUnrecognizedConfigFileOption : public Exception
 {
 public:
 
-    UnrecognizedConfigFileOption(const String& name)
+    OptionManagerUnrecognizedConfigFileOption(const String& name)
 	: Exception("Unrecognized config file option: " + name) { }
 };
 
 /** Exception class */
-class MissingRequiredOptionValue : public Exception
+class OptionManagerMissingRequiredOptionValue : public Exception
 {
 public:
 
-    MissingRequiredOptionValue(const String& name)
+    OptionManagerMissingRequiredOptionValue(const String& name)
 	: Exception("Missing required option value: " + name) { }
 };
 

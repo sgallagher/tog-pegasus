@@ -90,7 +90,7 @@ void OptionManager::registerOption(Option* option)
 	throw NullPointer();
 
     if (lookupOption(option->getOptionName()))
-	throw DuplicateOption(option->getOptionName());
+	throw OptionManagerDuplicateOption(option->getOptionName());
 
     _options.append(option);
 }
@@ -189,7 +189,7 @@ void OptionManager::mergeCommandLine(int& argc, char**& argv)
 	    if (option->getType() != Option::BOOLEAN)
 	    {
 		if (i + 1 == argc)
-		    throw MissingCommandLineOptionArgument(arg);
+		    throw OptionManagerMissingCommandLineOptionArgument(arg);
 
 		optionArgument = argv[i + 1];
 	    }
@@ -197,7 +197,7 @@ void OptionManager::mergeCommandLine(int& argc, char**& argv)
 	    // Validate the value:
 
 	    if (!option->isValid(optionArgument))
-		throw InvalidOptionValue(arg, optionArgument);
+		throw OptionManagerInvalidOptionValue(arg, optionArgument);
 
 	    // Set the value:
 
@@ -260,7 +260,7 @@ void OptionManager::mergeFile(const String& fileName)
 	String ident;
 
 	if (!(isalpha(*p) || *p == '_'))
-	    throw ConfigFileSyntaxError(fileName, lineNumber);
+	    throw OptionManagerConfigFileSyntaxError(fileName, lineNumber);
 
 	ident += *p++;
 
@@ -275,7 +275,7 @@ void OptionManager::mergeFile(const String& fileName)
 	// Expect an equal sign:
 
 	if (*p != '=')
-	    throw ConfigFileSyntaxError(fileName, lineNumber);
+	    throw OptionManagerConfigFileSyntaxError(fileName, lineNumber);
 	p++;
 
 	// Skip whitespace after equal sign:
@@ -286,7 +286,7 @@ void OptionManager::mergeFile(const String& fileName)
 	// Expect open quote:
 
 	if (*p != '"')
-	    throw ConfigFileSyntaxError(fileName, lineNumber);
+	    throw OptionManagerConfigFileSyntaxError(fileName, lineNumber);
 	p++;
 
 	// Get the value:
@@ -322,7 +322,7 @@ void OptionManager::mergeFile(const String& fileName)
 			break;
 
 		    case '\0':
-			throw ConfigFileSyntaxError(fileName, lineNumber);
+			throw OptionManagerConfigFileSyntaxError(fileName, lineNumber);
 
 		    default:
 			value += *p;
@@ -337,7 +337,7 @@ void OptionManager::mergeFile(const String& fileName)
 	// Expect close quote:
 
 	if (*p != '"')
-	    throw ConfigFileSyntaxError(fileName, lineNumber);
+	    throw OptionManagerConfigFileSyntaxError(fileName, lineNumber);
 	p++;
 
 	// Skip whitespace through end of line:
@@ -346,17 +346,17 @@ void OptionManager::mergeFile(const String& fileName)
 	    p++;
 
 	if (*p)
-	    throw ConfigFileSyntaxError(fileName, lineNumber);
+	    throw OptionManagerConfigFileSyntaxError(fileName, lineNumber);
 
 	// Now that we have the identifier and value, merge it:
 
 	Option* option = (Option*)lookupOption(ident);
 
 	if (!option)
-	    throw UnrecognizedConfigFileOption(ident);
+	    throw OptionManagerUnrecognizedConfigFileOption(ident);
 
 	if (!option->isValid(value))
-	    throw InvalidOptionValue(ident, value);
+	    throw OptionManagerInvalidOptionValue(ident, value);
 
 	option->setValue(value);
     }
@@ -369,7 +369,7 @@ void OptionManager::checkRequiredOptions() const
 	const Option* option = _options[i];
 
 	if (option->getRequired() && !option->isResolved())
-	    throw MissingRequiredOptionValue(option->getOptionName());
+	    throw OptionManagerMissingRequiredOptionValue(option->getOptionName());
     }
 }
 
@@ -451,7 +451,8 @@ void OptionManager::printOptionsHelp() const
 	cout << " -";
 	cout << option->getCommandLineOptionName() << "  ";
 	cout << option->getOptionName() << " ";
-	cout << option->getOptionHelpMessage() << "\n";
+	cout << option->getOptionHelpMessage();
+        cout << " Default(" << option->getDefaultValue() << ")\n";
     }
     cout << endl;
 
@@ -490,7 +491,7 @@ Option::Option(
     _resolved(false)
 {
     if (!isValid(_value))
-	throw InvalidOptionValue(_optionName, _value);
+	throw OptionManagerInvalidOptionValue(_optionName, _value);
 }
 
 Option::Option(const Option& x) 
@@ -601,7 +602,7 @@ Boolean Option::isValid(const String& value) const
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-String ConfigFileSyntaxError::_formatMessage(
+String OptionManagerConfigFileSyntaxError::_formatMessage(
     const String& file, Uint32 line)
 {
     char buffer[32];

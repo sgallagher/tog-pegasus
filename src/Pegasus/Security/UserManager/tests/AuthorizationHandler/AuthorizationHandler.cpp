@@ -116,7 +116,8 @@ int main()
 
         String temp = authHandler->getAuthorization(testUser, nameSpace);
 
-        assert(String::equal(temp, "rw") || String::equal(temp, "wr"));
+        if (testUser != "root")
+           assert(String::equal(temp, "rw") || String::equal(temp, "wr"));
 
         temp = authHandler->getAuthorization("root", nameSpace);
         assert(String::equal(temp, "w"));
@@ -131,9 +132,9 @@ int main()
 
         authHandler->setAuthorization("root", nameSpace, "w");
 
-        assert(authHandler->verifyAuthorization(testUser, nameSpace, "GetInstance"));
-
-
+        if (testUser != "root") 
+           assert(authHandler->verifyAuthorization(testUser, nameSpace, 
+                   "GetInstance"));
         assert(!authHandler->verifyAuthorization("root", nameSpace, "GetInstance"));
 
         authHandler->setAuthorization("root", nameSpace, "r");
@@ -141,7 +142,8 @@ int main()
         assert(!authHandler->verifyAuthorization("root", nameSpace, "SetProperty"));
 
         authHandler->removeAuthorization("root", nameSpace);
-        authHandler->removeAuthorization(testUser, nameSpace);
+        if (testUser != "root")
+           authHandler->removeAuthorization(testUser, nameSpace);
     }
     catch(Exception& e)
     {

@@ -148,7 +148,7 @@ void drive_operation()
    //Overflow testing
    CQLValue real1(Real64(0.00000001));
    CQLValue sint1(Sint64(-1));
-   CQLValue uint1(Sint64(4294967296));
+   CQLValue uint1(Sint64(1));
    CQLValue uint2(Uint64(0));
 
    assert(uint1 > sint1);

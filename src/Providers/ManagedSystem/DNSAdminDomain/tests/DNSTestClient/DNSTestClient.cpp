@@ -84,7 +84,7 @@ DNSTestClient::_validateKeys(CIMObjectPath &cimRef,
                              Boolean verboseTest)
 {
    	// don't have a try here - want it to be caught by caller
-   	Array<KeyBinding> keyBindings = cimRef.getKeyBindings();
+   	Array<CIMKeyBinding> keyBindings = cimRef.getKeyBindings();
 
    	if (verboseTest)
       	cout << "Retrieved " << keyBindings.size() << " keys" <<endl;

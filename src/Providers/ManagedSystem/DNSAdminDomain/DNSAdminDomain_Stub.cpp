@@ -45,28 +45,35 @@ DNSFileOk()
     return true;
 }
 
+// This function retrieves the local host name
+Boolean
+DNSAdminDomain::getLocalHostName(String & hostName)
+{
+    return true;
+}
+
 
 // Verify and return name property
 Boolean 
-DNSAdminDomain::getName(char name[]) {
+DNSAdminDomain::getName(String &) {
     return true;
 }
 
 // Return SearchList property, if exists.
-void
-DNSAdminDomain::getSearchList(char srclst[]) {
-    return;
+Boolean
+DNSAdminDomain::getSearchList(Array<String> &) {
+    return true;
 }
 
 // Verify and return Addresses property
 Boolean
-DNSAdminDomain::getAddresses(char addrlst[]) {
+DNSAdminDomain::getAddresses(Array<String> &) {
     return true;
 }
 
 // Read domain name, addresses e search list from /etc/resolv.conf
 Boolean
-DNSAdminDomain::getDNSInfo(String &domain, Array<String> &srcl, Array<String> &addr) 
+DNSAdminDomain::getDNSInfo(void) 
 {
     return true;
 }    

@@ -104,7 +104,7 @@ Boolean DNSTestClient::goodNameFormat(const String &nf,
 {
    if (verbose)
       cout<<"Checking NameFormat " << nf << endl;
-   return (String::equalNoCase(nf, NAMEFORMAT));
+   return (String::equalNoCase(nf, NAME_FORMAT));
 }
 
 /* GoodSearchList method for the DNS Provider Test Client 
@@ -112,13 +112,17 @@ Boolean DNSTestClient::goodNameFormat(const String &nf,
    Checks the specified values against the expected array 
    values and returns TRUE if the same, else FALSE 
  */
-Boolean DNSTestClient::goodSearchList(const String &src, 
+Boolean DNSTestClient::goodSearchList(const Array<String> &src, 
                                    	  Boolean verbose)
 {
    if (verbose)
-      cout<<"Checking SearchList " << src << endl;
+   {
+      cout << "Checking SearchList";
+      for (int i=0; i<src.size(); i++) cout << " " << src[i];
+      cout << endl;
+   }
 
-   cout<<"- No check written for DNS SearchList " << endl;
+   cout << "- No check written for DNS SearchList " << endl;
    return true;
 }
 
@@ -127,11 +131,15 @@ Boolean DNSTestClient::goodSearchList(const String &src,
    Checks the specified values against the expected array 
    values and returns TRUE if the same, else FALSE 
 */
-Boolean DNSTestClient::goodAddresses(const String &addr, 
+Boolean DNSTestClient::goodAddresses(const Array<String> &addr, 
                                      Boolean verbose)
 {
    if (verbose)
-      cout<<"Checking Addresses " << addr << endl;
+   {
+      cout<<"Checking Addresses ";
+      for (int i=0; i<addr.size(); i++) cout << " " << addr[i];
+      cout << endl;
+   }
 
    cout<<"- No check written for DNS Addresses " << endl;
    return true;

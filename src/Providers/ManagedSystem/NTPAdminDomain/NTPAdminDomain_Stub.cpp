@@ -73,6 +73,21 @@ NTPAdminDomain::getNTPInfo()
 }
 
 //------------------------------------------------------------------------------
+// FUNCTION: getLocalHostName
+//
+// REMARKS: Retrieves the local host name
+//
+// PARAMETERS:  [OUT] hostName -> string that will contain the local host name
+//
+// RETURN: TRUE if local hostname is valid, FALSE otherwise
+//------------------------------------------------------------------------------
+Boolean
+NTPAdminDomain::getLocalHostName(String & hostName) 
+{
+    return true;
+}
+
+//------------------------------------------------------------------------------
 // FUNCTION: getCreationClassName
 //
 // REMARKS: returns the CreationClassName property

@@ -30,6 +30,9 @@
 #include <Pegasus/Provider/ProviderException.h>    
 #include "DNSAdminDomainProvider.h"
 
+//used by gethostname function
+#include <unistd.h>
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 

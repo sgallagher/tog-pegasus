@@ -52,8 +52,10 @@ NTPTestClient::goodCreationClassName(String & param, Boolean verbose)
    // Insert here source code to assign the variable retValue
 
    if(verbose)
+   {
       // Insert here source code to display debug messages
       // Sample: cout<< "Checking " << param << " against " << retValue <<endl;
+   }
    return ok;
 }
 
@@ -71,8 +73,10 @@ NTPTestClient::goodName(String & param, Boolean verbose)
 
    // Insert here source code to assign the variable retValue
    if(verbose)
+   {
       // Insert here source code to display debug messages
       // Sample: cout<< "Checking " << param << " against " << retValue <<endl;
+   }
 
    return ok;
 }
@@ -92,8 +96,10 @@ NTPTestClient::goodCaption(String & param, Boolean verbose)
    // Insert here source code to assign the variable retValue
 
    if(verbose)
+   {
       // Insert here source code to display debug messages
       // Sample: cout<< "Checking " << param << " against " << retValue <<endl;
+   }
 
    return ok;
 }
@@ -113,8 +119,10 @@ NTPTestClient::goodDescription(String & param, Boolean verbose)
    // Insert here source code to assign the variable retValue
 
    if(verbose)
+   {
       // Insert here source code to display debug messages
       // Sample: cout<< "Checking " << param << " against " << retValue <<endl;
+   }
 
    return ok;
 }
@@ -134,8 +142,10 @@ NTPTestClient::goodServerAddress(Array<String> & param, Boolean verbose)
    // Insert here source code to assign the variable retValue
 
    if(verbose)
+   {
       // Insert here source code to display debug messages
       // Sample: cout<< "Checking " << param << " against " << retValue <<endl;
+   }
 
    return ok;
 }
@@ -155,7 +165,10 @@ NTPTestClient::goodNameFormat(String & param, Boolean verbose)
    // Insert here source code to assign the variable retValue
 
    if(verbose)
+   {
       // Insert here source code to display debug messages
       // Sample: cout<< "Checking " << param << " against " << retValue <<endl;
+   }
 
    return ok;
+}

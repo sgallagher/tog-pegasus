@@ -37,7 +37,11 @@ DIRS =  \
         Process \
         Process/tests \
         Processor \
-        Processor/tests
+        Processor/tests \
+        DNSAdminDomain \
+        DNSAdminDomain/tests/DNSTestClient \
+        NTPAdminDomain \
+        NTPAdminDomain/tests/NTPTestClient
 
 include $(ROOT)/mak/recurse.mak
 

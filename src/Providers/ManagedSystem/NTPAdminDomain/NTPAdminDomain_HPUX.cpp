@@ -42,6 +42,9 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+//used by gethostname function
+#include <unistd.h>
+
 #include "NTPAdminDomainProvider.h"
 
 //------------------------------------------------------------------------------

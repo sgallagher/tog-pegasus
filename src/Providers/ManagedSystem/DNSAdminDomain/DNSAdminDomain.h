@@ -35,9 +35,6 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/Pair.h>
 
-//used by gethostname function
-#include <unistd.h>
-
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 

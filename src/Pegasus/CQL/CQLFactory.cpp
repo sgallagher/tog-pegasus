@@ -14,13 +14,67 @@ struct CQLObjectPtr {
 CQLFactory::CQLFactory(){
 
 }
-
+*/
 CQLFactory::~CQLFactory(){
-	for(Uint32 i = 0; i < _predicates.size(); i++){
-		if(_predicates[i]) delete _predicates[i];
+	cleanup();
+}
+
+void CQLFactory::cleanup(){
+	cleanupArray(_makeObjectIdentifiers, Identifier);
+	cleanupArray(_makeObjectChainedIdentifiers, ChainedIdentifier);
+	cleanupArray(_makeObjectValues, Value);
+	cleanupArray(_makeObjectFunctions, Function);
+	cleanupArray(_makeObjectFactors, Factor);
+	cleanupArray(_makeObjectTerms, Term);
+	cleanupArray(_makeObjectExpressions, Expression);
+	cleanupArray(_makeObjectSimplePredicates, SimplePredicate);
+	cleanupArray(_makeObjectPredicates, Predicate);
+	cleanupArray(_getObjectIdentifiers, Identifier);
+        cleanupArray(_getObjectChainedIdentifiers, ChainedIdentifier);
+        cleanupArray(_getObjectValues, Value);
+        cleanupArray(_getObjectFunctions, Function);
+        cleanupArray(_getObjectFactors, Factor);
+        cleanupArray(_getObjectTerms, Term);
+        cleanupArray(_getObjectExpressions, Expression);
+        cleanupArray(_getObjectSimplePredicates, SimplePredicate);
+        cleanupArray(_getObjectPredicates, Predicate);
+}
+void CQLFactory::cleanupArray(Array<CQLObjectPtr>& arr, FactoryType type){
+	for(Uint32 i=0;i < arr.size(); i++){
+		if(arr[i]._ptr){
+			switch(type){
+			   case Predicate:
+				delete (CQLPredicate*)(arr[i]._ptr);
+				break;
+			   case SimplePredicate:
+                                delete (CQLSimplePredicate*)(arr[i]._ptr);
+                                break;
+			   case Expression:
+                                delete (CQLExpression*)(arr[i]._ptr);
+                                break;
+			   case Term:
+                                delete (CQLTerm*)(arr[i]._ptr);
+                                break;
+			   case Factor:
+                                delete (CQLFactor*)(arr[i]._ptr);
+                                break;
+			   case Function:
+                                delete (CQLFunction*)(arr[i]._ptr);
+                                break;
+			   case Value:
+                                delete (CQLValue*)(arr[i]._ptr);
+                                break;
+			   case ChainedIdentifier:
+                                delete (CQLChainedIdentifier*)(arr[i]._ptr);
+                                break;
+			   case Identifier:
+                                delete (CQLIdentifier*)(arr[i]._ptr);
+                                break;
+			}
+		}
 	}
 }
-*/
+
 void* CQLFactory::makeObject(CQLIdentifier* obj, FactoryType target){
 printf("CQLFactory::makeObject(identifier)\n");
 	_CQLObjectPtr._ptr = new CQLChainedIdentifier(*obj);
@@ -148,43 +202,7 @@ printf("CQLFactory::makeObject(simplepredicate)\n");
                 break;
         }
 }
-/*
-CQLValue CQLFactory::getValue(CQLFactor* obj){
-	if(obj->isSimpleValue()){
-		return obj->getValue();
-	}
-	return CQLValue();
-}
 
-CQLValue CQLFactory::getValue(CQLTerm* obj){
-	if(obj->isSimpleValue()){
-		 _factor = obj->getFactors()[0];
-		return getValue(&_factor);
-	}
-	return CQLValue();
-}
-
-CQLValue CQLFactory::getValue(CQLExpression* obj){
-        if(obj->isSimpleValue()){
-		 _term = (obj->getTerms())[0];
-		return getValue(&_term);
-	}
-	return CQLValue();
-}
-
-CQLValue CQLFactory::getValue(CQLSimplePredicate* obj){
-	_expression = obj->getLeftExpression();
-	return getValue(&_expression);
-}
-
-CQLValue CQLFactory::getValue(CQLPredicate* obj){
-        if(obj->isSimple()){
-		_simplePredicate = obj->getSimplePredicate();
-		return getValue(&_simplePredicate);
-	}
-	return CQLValue();
-}
-*/
 void* CQLFactory::getObject(void* inObject, FactoryType inObjectType, FactoryType targetType){
 	switch(inObjectType){
 		case Predicate:
@@ -370,5 +388,4 @@ void CQLFactory::setObject(CQLPredicate* predicate, void* obj, FactoryType objTy
 		break;
 	}
 } 
-//void CQLFactory::print(){printf("%s\n",(const char*)(_chainedIdentifier.toString().getCString()));}
 PEGASUS_NAMESPACE_END

@@ -172,6 +172,9 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
 
 void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
 {
+#ifdef PEGASUS_OS_LINUX
+    dlclose(libraryHandle);
+#endif
 }
 
 String System::dynamicLoadError() {

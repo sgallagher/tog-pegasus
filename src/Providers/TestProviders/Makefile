@@ -16,6 +16,7 @@ DIRS = \
 	InstanceProvider \
 	InstanceProvider/testclient \
 	UserContextTestProvider \
-	UserContextTestProvider/testclient
+	UserContextTestProvider/testclient \
+	DynamicIndicationProvider
 
 include $(ROOT)/mak/recurse.mak

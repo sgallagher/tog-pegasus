@@ -148,15 +148,6 @@ void CIMListener::resume()
     PEG_METHOD_EXIT();
 }
 
-CIMExportRequestDispatcher* CIMListener::getDispatcher()
-{
-    PEG_METHOD_ENTER(TRC_SERVER, "CIMListener::getDispatcher()");
-
-    PEG_METHOD_EXIT();
-
-    return _cimExportRequestDispatcher;
-}
-
 Uint32 CIMListener::getOutstandingRequestCount()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMListener::getOutstandingRequestCount()");

@@ -312,11 +312,6 @@ CIMServer::CIMServer(
 
     _acceptor = new HTTPAcceptor(_monitor, serverQueue, sslcontext);
 
-    /** load registered providers from repository, and creates
-        provider block table
-    */
-    //_cimOperationRequestDispatcher->loadRegisteredProviders();
-
     PEG_METHOD_EXIT();
 }
 
@@ -383,14 +378,6 @@ void CIMServer::resume()
     _acceptor->reopenConnectionSocket();
 
     PEG_METHOD_EXIT();
-}
-
-CIMOperationRequestDispatcher* CIMServer::getDispatcher()
-{
-    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::getDispatcher()");
-
-    PEG_METHOD_EXIT();
-    return _cimOperationRequestDispatcher;
 }
 
 void CIMServer::setState(Uint32 state)

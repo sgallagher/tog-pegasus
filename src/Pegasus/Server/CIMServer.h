@@ -115,8 +115,6 @@ public:
 
     Uint32 getOutstandingRequestCount();
 
-    CIMOperationRequestDispatcher* getDispatcher();
-
 private:
 
     Boolean _dieNow;

@@ -99,8 +99,6 @@ public:
 
     Uint32 getOutstandingRequestCount();
 
-    CIMExportRequestDispatcher* getDispatcher();
-
 private:
 
     Boolean _dieNow;

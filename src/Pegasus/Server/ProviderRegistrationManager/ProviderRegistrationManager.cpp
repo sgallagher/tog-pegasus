@@ -49,123 +49,6 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-   The name of the operational status property 
-*/
-static const CIMName _PROPERTY_OPERATIONALSTATUS = 
-    CIMName ("OperationalStatus");
-
-/**
-   The name of the provider module name  property for provider capabilities 
-   class and PG_Provider class
-*/
-static const CIMName _PROPERTY_PROVIDERMODULENAME = 
-    CIMName ("ProviderModuleName");
-
-/**
-   The name of the Name property for PG_ProviderModule class
-*/
-static const CIMName _PROPERTY_PROVIDERMODULE_NAME = CIMName ("Name");
-
-/**
-   The name of the CapabilitiesID property for provider capabilities class
-*/
-static const CIMName _PROPERTY_CAPABILITIESID = CIMName ("CapabilityID");
-
-/**
-   The name of the provider name  property for provider capabilities class
-*/
-static const CIMName _PROPERTY_PROVIDERNAME = CIMName ("ProviderName");
-
-/**
-   The name of the classname property for provider capabilities class
-*/
-static const CIMName _PROPERTY_CLASSNAME = CIMName ("ClassName");
-
-/**
-   The name of the Namespace property for provider capabilities class
-*/
-static const CIMName _PROPERTY_NAMESPACES = CIMName ("Namespaces");
-
-/**
-   The name of the provider type  property for provider capabilities class
-*/
-static const CIMName _PROPERTY_PROVIDERTYPE = CIMName ("ProviderType");
-
-/**
-   The name of the supported properties property for provider capabilities class
-*/
-static const CIMName _PROPERTY_SUPPORTEDPROPERTIES = 
-    CIMName ("SupportedProperties");
-
-/**
-   The name of the supported methods property for provider capabilities class
-*/
-static const CIMName _PROPERTY_SUPPORTEDMETHODS = CIMName ("SupportedMethods");
-
-/**
-   The name of the Name property for PG_Provider class
-*/
-static const CIMName _PROPERTY_PROVIDER_NAME = CIMName ("Name");
-
-/**
-   Registered instance provider 
-*/
-static const char INS_PROVIDER [] = "Instance";
-
-/**
-   Registered Association provider 
-*/
-static const char ASSO_PROVIDER [] = "Association";
-
-/**
-   Registered Indication provider 
-*/
-static const char IND_PROVIDER [] = "Indication";
-
-/**
-   Registered Method provider 
-*/
-static const char MET_PROVIDER [] = "Method";
-
-/**
-   Registered module
-*/
-static const char MODULE_KEY [] = "Module";
-
-static const char MODULE_NOT_FOUND [] = " Can not find the provider module.";
-static const char PROVIDER_NOT_FOUND [] = " Can not find the provider.";
-static const char CAPABILITY_NOT_REGISTERED [] = " Provider capability has not been registered yet.";
-
-/**
-   Registered instance provider type
-*/
-static const Uint16 _INSTANCE_PROVIDER    = 2;
-
-/**
-   Registered association provider type
-*/
-static const Uint16 _ASSOCIATION_PROVIDER    = 3;
-
-/**
-   Registered indication provider type
-*/
-static const Uint16 _INDICATION_PROVIDER    = 4;
-
-/**
-   Registered method provider type
-*/
-static const Uint16 _METHOD_PROVIDER    = 5;
-
-/**
-   Provider status
-*/
-static const Uint16 _PROVIDER_OK        = 2;
-
-static const Uint16 _PROVIDER_STOPPING   = 9;
-
-static const Uint16 _PROVIDER_STOPPED   = 10;
-
-/**
     Hash table to store providerModule, provider, and providerCapabilities 
      instances.
 */
@@ -1248,13 +1131,12 @@ void ProviderRegistrationManager::_initialRegistrationTable()
     String errorDescription;
     CIMInstance instance;
     CIMObjectPath reference;
-    String providerModuleName;
     String providerName;
+    String providerModuleName;
     String className;
     String capabilityKey;
     Array<String> namespaces;
     Array<Uint16> providerType;
-    Array<Uint16> status;
     Array<String> supportedMethods;
     Array<CIMInstance> cimNamedInstances;
   
@@ -1285,52 +1167,103 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 
     	for(Uint32 i = 0, n=cimNamedInstances.size(); i < n; i++)
     	{
+    	    Array<Uint16> status;
 	    Array<CIMInstance> instances;
             instance = cimNamedInstances[i];
 	    reference = cimNamedInstances[i].getPath ();
+	    String vendor, version, interfaceType, interfaceVersion, location;
 
-	    // get provider module name
-            instance.getProperty(instance.findProperty
-            (_PROPERTY_PROVIDERMODULE_NAME)).getValue().get(providerModuleName);
+	    //
+            // Name, Version, InterfaceType, InterfaceVersion, and Location
+            // properties must be set, otherwise, property OperationalStatus
+	    // is set to Error.
+            //
+	    Uint32 posModuleName = instance.findProperty(_PROPERTY_PROVIDERMODULE_NAME);
+	    Uint32 posVendor = instance.findProperty(_PROPERTY_VENDOR);
+	    Uint32 posVersion = instance.findProperty(_PROPERTY_VERSION);
+	    Uint32 posInterfaceType = instance.findProperty(_PROPERTY_INTERFACETYPE);
+	    Uint32 posInterfaceVersion = instance.findProperty(_PROPERTY_INTERFACEVERSION);
+	    Uint32 posLocation = instance.findProperty(_PROPERTY_LOCATION);
+
+	    if (posModuleName != PEG_NOT_FOUND)
+	    {
+		// get provider module name
+                instance.getProperty(posModuleName).getValue().get(providerModuleName);
+	    }
+	    else
+	    {
+		providerModuleName.clear();
+	    }
+
+	    if (posVendor != PEG_NOT_FOUND)
+	    {
+                instance.getProperty(posVendor).getValue().get(vendor);
+	    }
+	
+	    if (posVersion != PEG_NOT_FOUND)
+	    {
+                instance.getProperty(posVersion).getValue().get(version);
+	    }
+	
+	    if (posInterfaceType != PEG_NOT_FOUND)
+	    {
+                instance.getProperty(posInterfaceType).getValue().get(interfaceType);
+	    }
+	
+	    if (posInterfaceVersion != PEG_NOT_FOUND)
+	    {
+                instance.getProperty(posInterfaceVersion).getValue().get(interfaceVersion);
+	    }
+	
+	    if (posLocation != PEG_NOT_FOUND)
+	    {
+                instance.getProperty(posLocation).getValue().get(location);
+	    }
+	
+	    if (posModuleName == PEG_NOT_FOUND || providerModuleName.size() == 0 ||
+		posVendor == PEG_NOT_FOUND || vendor.size() == 0 ||
+		posVersion == PEG_NOT_FOUND || version.size() == 0 ||
+		posInterfaceType == PEG_NOT_FOUND || interfaceType.size() == 0 ||
+		posInterfaceVersion == PEG_NOT_FOUND || 
+		interfaceVersion.size() == 0 ||
+		posLocation == PEG_NOT_FOUND || location.size() == 0)
+	    {
+		status.append(_MODULE_ERROR);
+		_setStatus(status, instance);
+	    }
+
 	
 	    // get operational status
 	    Uint32 pos = instance.findProperty(_PROPERTY_OPERATIONALSTATUS);
 	    
  	    if (pos != PEG_NOT_FOUND)
 	    {
-                //
-                //  ATTN-CAKG-P2-20020821: Check for null status?
-                //
 		instance.getProperty(pos).getValue().get(status);
 	    }
 
-	    for (Uint32 j=0; j < status.size(); j++)
+	    //
+	    // If operationalStatus is not set, set it to OK
+	    //
+	    if (status.size() == 0)
 	    {
-		if (status[j] == _PROVIDER_STOPPING)
-		{
-		    // if operational status is stopping
-		    // change module status to be Stopped
-		    status.remove(j);
-		    status.append(_PROVIDER_STOPPED);
+		status.append(_PROVIDER_OK);
+		_setStatus(status, instance);
 
-		    CIMObjectPath newInstancereference("", 
-                        CIMNamespaceName (),
-                    	reference.getClassName(),
-                    	reference.getKeyBindings());
-		  
-		    //
-                    // update repository
-                    //
-                    _repository->setProperty(
-                        PEGASUS_NAMESPACENAME_INTEROP,
-                        newInstancereference, _PROPERTY_OPERATIONALSTATUS,
-                        status);
+	    }
+	    else
+	    {
+	    	for (Uint32 j=0; j < status.size(); j++)
+	    	{
+		    if (status[j] == _PROVIDER_STOPPING)
+		    {
+		        // if operational status is stopping
+		        // change module status to be Stopped
+		        status.remove(j);
+		        status.append(_PROVIDER_STOPPED);
 
-		    // get new instance
-		    instance = _repository->getInstance(
-                        PEGASUS_NAMESPACENAME_INTEROP,
-                        newInstancereference);
-		}
+			_setStatus(status, instance);
+		    }
+	        }
 	    }
 
 	    //
@@ -2984,6 +2917,20 @@ void ProviderRegistrationManager::_sendMessageToSubscription(
     	    delete asyncRequest;
     	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, String::EMPTY);
         }
+    }
+}
+
+void ProviderRegistrationManager::_setStatus(
+    const Array<Uint16> & status, 
+    CIMInstance & instance)
+{
+    Uint32 pos = instance.findProperty(_PROPERTY_OPERATIONALSTATUS);
+
+    if (pos != PEG_NOT_FOUND)
+    { 
+        instance.getProperty(pos).setValue(CIMValue(status));  
+
+    	_repository->modifyInstance(PEGASUS_NAMESPACENAME_INTEROP, instance);
     }
 }
 

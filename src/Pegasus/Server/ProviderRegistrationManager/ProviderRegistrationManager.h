@@ -47,7 +47,154 @@ PEGASUS_NAMESPACE_BEGIN
 struct RegistrationTable;
 
 struct ClassNamespaceTable;
- 
+
+/**
+   The name of the operational status property 
+*/
+static const CIMName _PROPERTY_OPERATIONALSTATUS = 
+    CIMName ("OperationalStatus");
+
+/**
+   The name of the provider module name  property for provider capabilities 
+   class and PG_Provider class
+*/
+static const CIMName _PROPERTY_PROVIDERMODULENAME = 
+    CIMName ("ProviderModuleName");
+
+/**
+   The name of the Name property for PG_ProviderModule class
+*/
+static const CIMName _PROPERTY_PROVIDERMODULE_NAME = CIMName ("Name");
+
+/**
+   The name of the Vendor property for PG_ProviderModule class
+*/
+static const CIMName _PROPERTY_VENDOR  = CIMName ("Vendor");
+
+/**
+   The name of the Version property for PG_ProviderModule class
+*/
+static const CIMName _PROPERTY_VERSION  = CIMName ("Version");
+
+/**
+   The name of the interface type property for PG_ProviderModule class
+*/
+static const CIMName _PROPERTY_INTERFACETYPE  = CIMName ("InterfaceType");
+
+/**
+   The name of the interface version property for PG_ProviderModule class
+*/
+static const CIMName _PROPERTY_INTERFACEVERSION  = CIMName ("InterfaceVersion");
+
+/**
+   The name of the location property for PG_ProviderModule class
+*/
+static const CIMName _PROPERTY_LOCATION  = CIMName ("Location");
+
+/**
+   The name of the CapabilitiesID property for provider capabilities class
+*/
+static const CIMName _PROPERTY_CAPABILITIESID = CIMName ("CapabilityID");
+
+/**
+   The name of the provider name  property for provider capabilities class
+*/
+static const CIMName _PROPERTY_PROVIDERNAME = CIMName ("ProviderName");
+
+/**
+   The name of the classname property for provider capabilities class
+*/
+static const CIMName _PROPERTY_CLASSNAME = CIMName ("ClassName");
+
+/**
+   The name of the Namespace property for provider capabilities class
+*/
+static const CIMName _PROPERTY_NAMESPACES = CIMName ("Namespaces");
+
+/**
+   The name of the provider type  property for provider capabilities class
+*/
+static const CIMName _PROPERTY_PROVIDERTYPE = CIMName ("ProviderType");
+
+/**
+   The name of the supported properties property for provider capabilities class
+*/
+static const CIMName _PROPERTY_SUPPORTEDPROPERTIES = 
+    CIMName ("SupportedProperties");
+
+/**
+   The name of the supported methods property for provider capabilities class
+*/
+static const CIMName _PROPERTY_SUPPORTEDMETHODS = CIMName ("SupportedMethods");
+
+/**
+   The name of the Name property for PG_Provider class
+*/
+static const CIMName _PROPERTY_PROVIDER_NAME = CIMName ("Name");
+
+/**
+   Registered instance provider 
+*/
+static const char INS_PROVIDER [] = "Instance";
+
+/**
+   Registered Association provider 
+*/
+static const char ASSO_PROVIDER [] = "Association";
+
+/**
+   Registered Indication provider 
+*/
+static const char IND_PROVIDER [] = "Indication";
+
+/**
+   Registered Method provider 
+*/
+static const char MET_PROVIDER [] = "Method";
+
+/**
+   Registered module
+*/
+static const char MODULE_KEY [] = "Module";
+
+static const char MODULE_NOT_FOUND [] = " Can not find the provider module.";
+static const char PROVIDER_NOT_FOUND [] = " Can not find the provider.";
+static const char CAPABILITY_NOT_REGISTERED [] = " Provider capability has not been registered yet.";
+
+/**
+   Registered instance provider type
+*/
+static const Uint16 _INSTANCE_PROVIDER    = 2;
+
+/**
+   Registered association provider type
+*/
+static const Uint16 _ASSOCIATION_PROVIDER    = 3;
+
+/**
+   Registered indication provider type
+*/
+static const Uint16 _INDICATION_PROVIDER    = 4;
+
+/**
+   Registered method provider type
+*/
+static const Uint16 _METHOD_PROVIDER    = 5;
+
+/**
+   Provider status
+*/
+static const Uint16 _PROVIDER_OK        = 2;
+
+static const Uint16 _PROVIDER_STOPPING   = 9;
+
+static const Uint16 _PROVIDER_STOPPED   = 10;
+
+/**
+   Module status
+*/
+static const Uint16 _MODULE_ERROR        = 6;
+
 class PEGASUS_PRM_LINKAGE ProviderRegistrationManager
 {
 public:
@@ -165,6 +312,8 @@ private:
 		const CIMInstance & instance, Operation flag);
 
 	void _deleteInstance(const CIMObjectPath & ref, Operation flag);
+
+	void _setStatus(const Array<Uint16> & status, CIMInstance & moduleInstance); 
 
 };
 

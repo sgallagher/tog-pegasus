@@ -78,6 +78,10 @@ void _displaySummary(Uint32 count, String& description, String item, Options& op
         if(opts.time && opts.repeat)
             cout << " " << opts.saveElapsedTime;
         cout << endl;
+        if ((opts.count) != 97832 && (opts.count != count))
+        {
+            cout << "Failed count test. Expected= " << opts.count << " Actual rcvd' " << count << endl;
+        }
 
 }
 
@@ -1172,8 +1176,8 @@ void GetOptions(
         {"delay", "0", false, Option::WHOLE_NUMBER, 0, 0, "delay", 
                             "Delay between connection and request "},
 
-        {"count", "0", false, Option::WHOLE_NUMBER, 0, 0, "count", 
-                            "Expected count of objects returned "},
+        {"count", "97832", false, Option::NATURAL_NUMBER, 0, 0, "count", 
+                            "Expected count of objects returned if  "},
 
         {"repeat", "0", false, Option::WHOLE_NUMBER, 0, 0, "-r", 
                             "Number of times to repeat the function. Zero means one time "},
@@ -1596,6 +1600,17 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
         cout << "Repeat Count " << opts.repeat << endl;
     }
 
+    if(!om.lookupIntegerValue("count", opts.count))
+    {
+            opts.count = 97832;
+    }
+    if (opts.verboseTest)
+    {
+        if (opts.count != 97832)
+        {
+        cout << "Comparison Count " << opts.repeat << endl;
+        }
+    }
 
     /*  Property List parameter.
         Separate an input stream into an array of Strings

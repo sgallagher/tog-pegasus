@@ -194,7 +194,7 @@ struct  OPTION_STRUCT
     Uint32 delay;
     Uint32 trace;
 
-    Sint32 count;
+    Uint32 count;
     Uint32 repeat;
     Boolean time;
     Stopwatch elapsedTime;

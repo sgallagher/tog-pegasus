@@ -43,6 +43,68 @@ SampleFamilyProvider::~SampleFamilyProvider(void)
 {
 }
 
+
+String _toStringPropertyList(const CIMPropertyList& pl)
+{
+    String tmp;
+    for (Uint32 i = 0; i < pl.size() ; i++)
+    {
+        if (i > 0)
+            tmp.append(", ");
+        tmp.append(pl[i].getString());
+    }
+    return(tmp);
+}
+String _showPropertyList(const CIMPropertyList& pl)
+{
+    if (pl.isNull())
+        return("NULL");
+
+    String tmp = "size= ";
+
+    tmp.append((pl.size() == 0) ? "Empty" : _toStringPropertyList(pl));
+    return(tmp);
+}
+
+/** determine of the the input property is in the list.
+    @param property list
+    @param name of property to compare
+*/
+Boolean _returnThisProperty(const CIMPropertyList& pl, const CIMName& pn)
+{
+    if (pl.isNull())
+        return(true);
+    if (pl.size() == 0)
+        return(false);
+
+	for (Uint32 i = 0; i < pl.size() ; i++)
+	{
+		// if name found in propertyList return true
+		if (pn.equal(pl[i].getString()))
+        {
+			return(true);
+        }
+	}
+	return(false);
+}
+
+CIMInstance _filterProperties(const CIMInstance& instance , const CIMPropertyList& pl)
+{
+    if (pl.isNull())
+        return instance;
+
+    // Note that this removes in descending order to keep indexes the same.
+    // That is a hack.  it should search and then remove.
+    CIMInstance rtnInstance = instance;
+    for (Uint32 i = instance.getPropertyCount() - 1 ; i >= 0 ; i--)
+    {
+        if (!_returnThisProperty(pl, instance.getProperty(i).getName()))
+            rtnInstance.removeProperty(i);
+    }
+
+    return(rtnInstance);
+}
+
 /** _filterInstancesToTargetPaths - Takes as input a list of associations along with the
     filters and returns the CIMObjectpaths that pass the filters.  This function is intended
     to operate on the list returned from the references and filter on the result class information.
@@ -191,10 +253,12 @@ Array<CIMInstance> _filterReferenceNames(
     return( foundList );
 }
 
-CIMInstance _buildPersonDynamicInstance(String& data)
+CIMInstance _buildPersonDynamicInstance(String& data, String& secondProperty, Uint32 counterProperty)
 {
     CIMInstance instance("TST_PersonDynamic");
     instance.addProperty(CIMProperty("Name", data));   // key
+    instance.addProperty(CIMProperty("secondProperty", secondProperty));
+    instance.addProperty(CIMProperty("counter", counterProperty));
     return(instance);
 }
 
@@ -314,16 +378,16 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
     String _daughter1("Daughter1");
     String _daughter2("Daughter2");
     Uint32 Father = _instances.size();
-    _instances.append(_buildPersonDynamicInstance(_father));
+    _instances.append(_buildPersonDynamicInstance(_father, String("one"), 1));
     //CIMObjectPath reference("TST_PersonDynamic.Name=\"Father\"");
     Uint32 Mother = _instances.size();
-    _instances.append(_buildPersonDynamicInstance(_mother));
+    _instances.append(_buildPersonDynamicInstance(_mother, String("two"), 2));
     Uint32 Son1 = _instances.size();
-    _instances.append(_buildPersonDynamicInstance(_son1));
+    _instances.append(_buildPersonDynamicInstance(_son1, String("three"), 3));
     Uint32 Son2 = _instances.size();
-    _instances.append(_buildPersonDynamicInstance(_son2));
+    _instances.append(_buildPersonDynamicInstance(_son2, String("four"), 4));
     Uint32 Daughter1 = _instances.size();
-    _instances.append(_buildPersonDynamicInstance(_daughter1));
+    _instances.append(_buildPersonDynamicInstance(_daughter1, String("five"), 5));
 
     CDEBUG ("initialize - referenced Class Instances Built");
     for(Uint32 i = 0, n = _instances.size(); i < n; i++)
@@ -417,6 +481,8 @@ void SampleFamilyProvider::getInstance(
 	handler.processing();
     CIMName myClass = instanceReference.getClassName();
 
+    CDEBUG("PropertyList = " << _showPropertyList(propertyList));
+
     if (myClass == CIMName("tst_persondynamic"))
     {
     	// instance index corresponds to reference index
@@ -425,7 +491,7 @@ void SampleFamilyProvider::getInstance(
     		if(localReference == _instances[i].buildPath(_referencedClass))
     		{
     			// deliver requested instance
-    			handler.deliver(_instances[i]);
+    			handler.deliver(_filterProperties(_instances[i], propertyList));
     			break;
     		}
     	}
@@ -438,7 +504,7 @@ void SampleFamilyProvider::getInstance(
     		if(localReference == _instances[i].buildPath(_assocClass))
     		{
     			// deliver requested instance
-    			handler.deliver(_instancesLineageDynamic[i]);
+    			handler.deliver(_filterProperties(_instancesLineageDynamic[i], propertyList));
     			break;
     		}
     	}
@@ -452,11 +518,10 @@ void SampleFamilyProvider::getInstance(
     		if(localReference == _instances[i].buildPath(_assocLabeledClass))
     		{
     			// deliver requested instance
-    			handler.deliver(_instancesLabeledLineageDynamic[i]);
+    			handler.deliver(_filterProperties(_instancesLabeledLineageDynamic[i],propertyList));
     			break;
     		}
     	}
-
     }
 
 	// complete processing the request
@@ -474,6 +539,7 @@ void SampleFamilyProvider::enumerateInstances(
     CDEBUG("enumerateInstances");
     CIMNamespaceName nameSpace = classReference.getNameSpace();
 
+    CDEBUG("PropertyList = " << _showPropertyList(propertyList));
     //XmlWriter::printClassElement(cimClass);
     //MofWriter::printClassElement(cimClass);
 
@@ -486,8 +552,7 @@ void SampleFamilyProvider::enumerateInstances(
     {
         for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     	{
-    		// deliver reference
-    		handler.deliver(_instances[i]);
+    		handler.deliver(_filterProperties(_instances[i], propertyList));
     	}
      }
     if (myClass == CIMName("tst_lineagedynamic"))
@@ -495,7 +560,7 @@ void SampleFamilyProvider::enumerateInstances(
         for(Uint32 i = 0, n = _instancesLineageDynamic.size(); i < n; i++)
     	{
     		// deliver reference
-    		handler.deliver(_instancesLineageDynamic[i]);
+    		handler.deliver(_filterProperties(_instances[i], propertyList));
     	}
 
     }
@@ -504,9 +569,8 @@ void SampleFamilyProvider::enumerateInstances(
     	for(Uint32 i = 0, n = _instancesLabeledLineageDynamic.size(); i < n; i++)
     	{
     		// deliver reference
-    		handler.deliver(_instancesLabeledLineageDynamic[i]);
+    		handler.deliver(_filterProperties(_instances[i], propertyList));
     	}
-
     }
 
 	// complete processing the request
@@ -809,6 +873,8 @@ void SampleFamilyProvider::associators(
     // begin processing the request
     // Get the namespace and host names to create the CIMObjectPath
 
+    CDEBUG("PropertyList = " << _showPropertyList(propertyList));
+
     String host = System::getHostName();
     CIMNamespaceName nameSpace = objectName.getNameSpace();
     CIMName myClass = objectName.getClassName();
@@ -944,8 +1010,6 @@ void SampleFamilyProvider::associatorNames(
 	// complete processing the request
 	handler.complete();
 
-
-
 }
 
 void SampleFamilyProvider::references(
@@ -959,6 +1023,9 @@ void SampleFamilyProvider::references(
 	ObjectResponseHandler & handler)
 {
 	CDEBUG("references");
+    
+    CDEBUG("PropertyList = " << _showPropertyList(propertyList));
+
     // Get the namespace and host names to create the CIMObjectPath
     //String nameSpace = "root/SampleProvider";
     String host = System::getHostName();

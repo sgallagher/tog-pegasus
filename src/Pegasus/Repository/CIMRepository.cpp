@@ -22,7 +22,10 @@
 //
 // Author:
 //
-// $Log: Repository.cpp,v $
+// $Log: CIMRepository.cpp,v $
+// Revision 1.1  2001/02/18 18:50:50  mike
+// new
+//
 // Revision 1.8  2001/02/17 00:35:57  bob
 // Addec <cstdio> for sprintf on linux
 //
@@ -62,7 +65,7 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/DeclContext.h>
 #include <Pegasus/Common/DeclContext.h>
-#include "Repository.h"
+#include "CIMRepository.h"
 #include "InstanceIndexFile.h"
 
 #define INDENT_XML_FILES

@@ -22,7 +22,10 @@
 //
 // Author:
 //
-// $Log: Repository.h,v $
+// $Log: CIMRepository.h,v $
+// Revision 1.1  2001/02/18 18:50:50  mike
+// new
+//
 // Revision 1.9  2001/02/18 02:49:01  mike
 // Removed ugly workarounds for MSVC++ 5.0 (using SP3 now)
 //

@@ -23,6 +23,9 @@
 // Author: Mike Brasher
 //
 // $Log: Stopwatch.h,v $
+// Revision 1.2  2001/02/17 19:58:54  karl
+// Add Linkage
+//
 // Revision 1.1  2001/02/16 02:08:26  mike
 // Renamed several classes
 //
@@ -36,24 +39,41 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/**
+/** Stopwatch - A class for measuring elapsed time
+Stopwatch is a class for measuring time intervals within the environment. It 
+is intended to be a developers tool primarily.
 
 */
-class Stopwatch
+class PEGASUS_COMMON_LINKAGE  Stopwatch
 {
 private:
     Uint64 _start;
 
 public:
-    
+
+    /**	stopwatch constructor. The constructor creates the object and
+    starts the timer
+    @example Stopwatch time;
+    */
     Stopwatch();
 
+    /**	Reset Stopwatch	resets an existing Stopwatch object to the 
+    current time value
+    */
     void reset();
 
+    /**	getElapsed - Get the elapsed time for the defined stopwatch.
+    @return Returns the elapsed time value as a double
+    */
     double getElapsed() const;
 
+    /**	printElapsed method sends the current value of the timer and
+    sends it to standardout as a string with the word seconds attached
+    
+    */
     void printElapsed();
-
+    /** sleep
+    */
     static void sleep(double seconds);
 };
 

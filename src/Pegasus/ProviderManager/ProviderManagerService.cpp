@@ -49,6 +49,32 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+
+// auto variable to protect provider during operations
+
+class pm_service_op_lock 
+{
+   private:
+      pm_service_op_lock(void);
+      
+   public:
+      pm_service_op_lock(Provider *provider)
+	 : _provider(provider)
+      {
+	 _provider->protect();
+      }
+      
+      ~pm_service_op_lock(void)
+      {
+	 _provider->unprotect();
+      }
+      
+      Provider *_provider;
+      
+};
+
+
+
 //
 // Provider module status
 //
@@ -715,7 +741,7 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
 			 provider.getName());
 	
         // forward request
-	provider._cimom_handle->protect();
+	pm_service_op_lock op_lock(&provider);
         provider.getInstance(
             context,
             objectPath,
@@ -723,7 +749,6 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
             request->includeClassOrigin,
             propertyList,
             handler);
-	provider._cimom_handle->unprotect();
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
@@ -812,7 +837,7 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.enumerateInstances: " + 
 			 provider.getName());
-	provider._cimom_handle->protect();
+	pm_service_op_lock op_lock(&provider);
         provider.enumerateInstances(
             context,
             objectPath,
@@ -820,7 +845,6 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
             request->includeClassOrigin,
             propertyList,
             handler);
-	provider._cimom_handle->unprotect();
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
@@ -905,12 +929,11 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(AsyncOpNode *op
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.enumerateInstanceNames: " + 
 			 provider.getName());
-	provider._cimom_handle->protect();
+	pm_service_op_lock op_lock(&provider);
         provider.enumerateInstanceNames(
             context,
             objectPath,
             handler);
-	provider._cimom_handle->unprotect();
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
@@ -998,13 +1021,12 @@ void ProviderManagerService::handleCreateInstanceRequest(AsyncOpNode *op, const 
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.createInstance: " + 
 			 provider.getName());
-	provider._cimom_handle->protect();
+	pm_service_op_lock op_lock(&provider);
         provider.createInstance(
             context,
             objectPath,
             request->newInstance,
             handler);
-	provider._cimom_handle->unprotect();
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
@@ -1091,7 +1113,7 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.modifyInstance: " + 
 			 provider.getName());
-	provider._cimom_handle->protect();
+	pm_service_op_lock op_lock(&provider);
         provider.modifyInstance(
             context,
             objectPath,
@@ -1099,7 +1121,6 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
             request->includeQualifiers,
             propertyList,
             handler);
-	provider._cimom_handle->unprotect();
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
@@ -1185,12 +1206,11 @@ void ProviderManagerService::handleDeleteInstanceRequest(AsyncOpNode *op, const 
 			 "Calling provider.deleteInstance: " +
 			 provider.getName());
 
-	provider._cimom_handle->protect();
+	pm_service_op_lock op_lock(&provider);
         provider.deleteInstance(
             context,
             objectPath,
             handler);
-	provider._cimom_handle->unprotect();
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
@@ -1356,7 +1376,7 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
             // add the user name to the context
             context.insert(IdentityContainer(request->userName));
 
-	    provider._cimom_handle->protect();
+	    pm_service_op_lock op_lock(&provider);
             provider.associatorNames(
                 context,
                 objectPath,
@@ -1365,7 +1385,7 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
                 request->role,
                 request->resultRole,
                 handler);
-	    provider._cimom_handle->unprotect();
+
             STAT_PMS_PROVIDEREND;
 
         } // end for loop
@@ -1461,7 +1481,7 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
 	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			     "Calling provider.references: " + 
 			     provider.getName());
-	    provider._cimom_handle->protect();
+	    pm_service_op_lock op_lock(&provider);
             provider.references(
                 context,
                 objectPath,
@@ -1471,7 +1491,6 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
                 request->includeClassOrigin,
                 request->propertyList.getPropertyNameArray(),
                 handler);
-	    provider._cimom_handle->unprotect();
             STAT_PMS_PROVIDEREND;
 
         } // end for loop
@@ -1570,14 +1589,14 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
 	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			     "Calling provider.referenceNames: " + 
 			     provider.getName());
-	    provider._cimom_handle->protect();
+	pm_service_op_lock op_lock(&provider);
             provider.referenceNames(
                 context,
                 objectPath,
                 request->resultClass,
                 request->role,
                 handler);
-	    provider._cimom_handle->unprotect();
+
             STAT_PMS_PROVIDEREND;
 
         } // end for loop
@@ -1670,13 +1689,13 @@ void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Mes
 			 provider.getName());
 	
         // forward request
-	provider._cimom_handle->protect();
+	pm_service_op_lock op_lock(&provider);
         provider.getProperty(
             context,
             objectPath,
             propertyName,
             handler);
-	provider._cimom_handle->unprotect();
+
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
@@ -1766,14 +1785,13 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
 			 provider.getName());
 	
         // forward request
-	provider._cimom_handle->protect();
+	pm_service_op_lock op_lock(&provider);
         provider.setProperty(
             context,
             objectPath,
             propertyName,
             propertyValue,
             handler);
-	provider._cimom_handle->unprotect();
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
@@ -1869,14 +1887,13 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.invokeMethod: " + 
 			 provider.getName());
-	provider._cimom_handle->protect();
+	pm_service_op_lock op_lock(&provider);
         provider.invokeMethod(
             context,
             instanceReference,
             request->methodName,
             request->inParameters,
             handler);
-	provider._cimom_handle->unprotect();
 
         STAT_PMS_PROVIDEREND;
     }
@@ -1969,14 +1986,13 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.createSubscription: " + 
 			 provider.getName());
-	provider._cimom_handle->protect();
+	pm_service_op_lock op_lock(&provider);
 	provider.createSubscription(
 	    context,
 	    subscriptionName,
 	    classNames,
 	    propertyList,
 	    repeatNotificationPolicy);
-	provider._cimom_handle->unprotect();
 	
 	
     }
@@ -2068,14 +2084,13 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.modifySubscription: " + 
 			 provider.getName());
-	provider._cimom_handle->protect();
+	pm_service_op_lock op_lock(&provider);
         provider.modifySubscription(
             context,
             subscriptionName,
             classNames,
             propertyList,
             repeatNotificationPolicy);
-	provider._cimom_handle->unprotect();
     }
     catch(CIMException & e)
     {
@@ -2161,12 +2176,11 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			 "Calling provider.deleteSubscription: " + 
 			 provider.getName());
-	provider._cimom_handle->protect();
+	pm_service_op_lock op_lock(&provider);
         provider.deleteSubscription(
             context,
             subscriptionName,
             classNames);
-	provider._cimom_handle->unprotect();
     }
     catch(CIMException & e)
     {

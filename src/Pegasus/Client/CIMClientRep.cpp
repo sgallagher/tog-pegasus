@@ -1385,8 +1385,8 @@ Uint32 CIMClientRep::_acquireIP(const char* hostname)
 	if (!hostname) return 0xFFFFFFFF;
 
 #ifdef PEGASUS_OS_OS400
-	char ebcdicHost[256];
-	if (strlen(hostname) < 256)
+	char ebcdicHost[PEGASUS_MAXHOSTNAMELEN];
+	if (strlen(hostname) < PEGASUS_MAXHOSTNAMELEN)
 		strcpy(ebcdicHost, hostname);
 	else
 		return 0xFFFFFFFF;
@@ -1408,10 +1408,10 @@ Uint32 CIMClientRep::_acquireIP(const char* hostname)
 #elif defined(PEGASUS_OS_OS400)
 		entry = gethostbyname(ebcdicHost);
 #elif defined(PEGASUS_OS_ZOS)
-		char hostName[ MAXHOSTNAMELEN + 1 ];
+		char hostName[ PEGASUS_MAXHOSTNAMELEN ];
 		if (String::equalNoCase("localhost",String(hostname)))
 		{
-			gethostname( hostName, sizeof( hostName ) );
+			gethostname( hostName, PEGASUS_MAXHOSTNAMELEN );
 			entry = gethostbyname(hostName);
 		} else
 		{

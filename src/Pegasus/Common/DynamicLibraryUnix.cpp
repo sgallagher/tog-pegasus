@@ -35,8 +35,6 @@
 #include <dlfcn.h>
 #elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
 #include <dlfcn.h>
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-#include <dll.h>
 #elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 #include <fcntl.h>
 #include <unistd.cleinc>
@@ -97,7 +95,7 @@ DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(const String & symbolNa
         #if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX)
         func = (LIBRARY_SYMBOL)::dlsym(_handle, (const char *)cstr);
         #elif defined(PEGASUS_OS_ZOS)
-        func = dllqueryfn((dllhandle *)_handle, (const char *)cstr));
+        func = (LIBRARY_SYMBOL) dllqueryfn(_handle, (const char *)cstr);
         #elif defined(PEGASUS_OS_OS400)
         func = (LIBRARY_SYMBOL)OS400_LoadDynamicSymbol(_handle, (const char *)cstr);
         #endif

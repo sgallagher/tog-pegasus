@@ -524,7 +524,11 @@ monitor_2::monitor_2(void)
     temp.socket(PF_INET, SOCK_STREAM, 0);
     // initialize the address
     memset(&_tickle_addr, 0, sizeof(_tickle_addr));
+#ifdef PEGASUS_OS_ZOS
+    _tickle_addr.sin_addr.s_addr = inet_addr_ebcdic("127.0.0.1");
+#else
     _tickle_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+#endif
     _tickle_addr.sin_family = PF_INET;
     _tickle_addr.sin_port = 0;
 
@@ -540,7 +544,11 @@ monitor_2::monitor_2(void)
     tickler.socket(PF_INET, SOCK_STREAM, 0);
     struct sockaddr_in _addr;
     memset(&_addr, 0, sizeof(_addr));
+#ifdef PEGASUS_OS_ZOS    
+    _addr.sin_addr.s_addr = inet_addr_ebcdic("127.0.0.1");
+#else
     _addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+#endif
     _addr.sin_family = PF_INET;
     _addr.sin_port = 0;
     tickler.bind((struct sockaddr*)&_addr, sizeof(_addr));

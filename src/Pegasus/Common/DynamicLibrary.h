@@ -40,6 +40,10 @@
 #include <windows.h>
 #endif
 
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#include <dll.h>
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_COMMON_LINKAGE DynamicLibrary
@@ -53,6 +57,9 @@ public:
     typedef void * LIBRARY_SYMBOL;
     #elif defined(PEGASUS_OS_OS400)
     typedef int LIBRARY_HANDLE;
+    typedef void * LIBRARY_SYMBOL;
+    #elif defined(PEGASUS_OS_ZOS)
+    typedef dllhandle * LIBRARY_HANDLE;
     typedef void * LIBRARY_SYMBOL;
     #endif
 

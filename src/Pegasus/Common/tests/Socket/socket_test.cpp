@@ -209,7 +209,11 @@ int main(int argc, char** argv)
    struct sockaddr_in peer;
    PEGASUS_SOCKLEN_SIZE peer_size = sizeof(peer);
    memset(&peer, 0, peer_size);
-    peer.sin_addr.s_addr = inet_addr("127.0.0.1");
+#ifdef PEGASUS_OS_ZOS
+   peer.sin_addr.s_addr = inet_addr_ebcdic("127.0.0.1");
+#else
+   peer.sin_addr.s_addr = inet_addr("127.0.0.1");
+#endif
    peer.sin_family= AF_INET;
    peer.sin_port = htons(PORTNO);
 

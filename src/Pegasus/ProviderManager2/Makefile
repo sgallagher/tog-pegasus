@@ -1,6 +1,6 @@
 ROOT = ../../..
 
-DIR = Pegasus/ProviderManager
+DIR = Pegasus/ProviderManager2
 
 include $(ROOT)/mak/config.mak
 

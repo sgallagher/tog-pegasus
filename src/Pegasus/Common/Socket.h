@@ -57,6 +57,9 @@
 # include <sys/socket.h>
 #endif
 #include <Pegasus/Common/Linkage.h>
+#ifdef PEGASUS_OS_ZOS
+#   include <Pegasus/Common/SocketzOS_inline.h>
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 

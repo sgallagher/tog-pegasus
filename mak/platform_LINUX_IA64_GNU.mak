@@ -20,6 +20,14 @@ ifdef PEGASUS_PAM_AUTHENTICATION
  DEFINES += -DPEGASUS_PAM_AUTHENTICATION -DPEGASUS_NO_PASSWORDFILE
 endif
 
+##
+## The following flag needs to be set to compile in code for
+## not listing the trace configuration properties. This will cause
+## the trace configuration properties, traceComponents and traceLevel
+## not to be listed when using the cimconfig -l command.
+##
+DEFINES += -DPEGASUS_DONOT_LIST_TRACE_PROPERTIES
+
 ifdef PEGASUS_DEBUG
 FLAGS = -g -W -Wall -Wno-unused  -fPIC -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
 else

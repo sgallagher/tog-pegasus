@@ -63,9 +63,10 @@ typedef struct _managed_thread managed_thread;
 
 #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #include <dlfcn.h>
+#include <sys/types.h>
 #else
 #include <dll.h>
-#include <sys/types.h>
+#include <stddef.h>
 #endif
 
 //! Per-Thread management structure.

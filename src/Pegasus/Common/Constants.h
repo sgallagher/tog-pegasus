@@ -140,6 +140,8 @@ static const CIMName PEGASUS_CLASSNAME___NAMESPACE          =
 // Interop Classes Accessed through Interop Control Provider
 static const CIMName PEGASUS_CLASSNAME_NAMESPACE            = 
     CIMName ("CIM_Namespace");
+static const CIMName PEGASUS_CLASSNAME_PGNAMESPACE            = 
+    CIMName ("PG_Namespace");
 static const CIMName PEGASUS_CLASSNAME_OBJECTMANAGER            = 
     CIMName ("CIM_ObjectManager");
 static const CIMName PEGASUS_CLASSNAME_OBJECTMANAGERCOMMUNICATIONMECHANISM  = 

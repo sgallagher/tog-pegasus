@@ -76,7 +76,7 @@ static struct ConfigPropertyRow properties[] =
     {"sslTrustFilePath", "client.pem", 0, 0, 0, 1}, 
     {"enableNamespaceAuthorization", "false", 0, 0, 0, 1},
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    {"kerberosServiceName", "cimom", 0, 0, 0, 1}
+    {"kerberosServiceName", "cimom", 0, 0, 0, 1},
 #endif
     {"enableSubscriptionsForNonprivilegedUsers", "true", 0, 0, 0, 0},
 };

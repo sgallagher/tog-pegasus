@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -47,7 +47,7 @@ PEGASUS_USING_STD;
 int main(int argc, char** argv)
 {
     Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
-    
+
 	char* input = 0;
     char defaultInput[] = "NameSpace=root%2Fcimv2&ClassName=&LocalOnly=true";
 
@@ -75,13 +75,13 @@ int main(int argc, char** argv)
 	assert(strcmp(qs.getName(2), "LocalOnly") == 0);
 	assert(strcmp(qs.getValue(2), "true") == 0);
     }
-    
-    
+
+
     // added instance name test ks July 2001
     // added when correcting error in quoted fields.
     {
 	char* input = 0;
-	char defaultInput[] = 
+	char defaultInput[] =
 "InstanceName=person.name%3D%22mike%22&LocalOnly=true&PropertyList=NULL";
 	input = defaultInput;
 
@@ -92,7 +92,7 @@ int main(int argc, char** argv)
 			cout << "name: " << qs.getName(i) << endl;
 			cout << "value: " << qs.getValue(i) << endl;
 		}
-		
+
 	}
 
     assert(strcmp(qs.getName(0), "InstanceName") == 0);
@@ -102,7 +102,6 @@ int main(int argc, char** argv)
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;
-    exit(0);
     return 0;
 }
 

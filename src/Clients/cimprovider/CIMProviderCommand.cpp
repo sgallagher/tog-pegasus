@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -83,20 +83,20 @@ static const char MSG_PATH [] 				= "pegasus/pegasusCLI";
 static const char COMMAND_NAME []              = "cimprovider";
 
 /**
-    The name of the Name property for PG_ProviderModule class 
+    The name of the Name property for PG_ProviderModule class
 */
 static const CIMName _PROPERTY_PROVIDERMODULE_NAME = CIMName ("Name");
 
 /**
    The name of the operational status property
 */
-static const CIMName _PROPERTY_OPERATIONALSTATUS  = 
+static const CIMName _PROPERTY_OPERATIONALSTATUS  =
     CIMName ("OperationalStatus");
 
 /**
    The name of the provider module name  property for PG_Provider class
 */
-static const CIMName _PROPERTY_PROVIDERMODULENAME = 
+static const CIMName _PROPERTY_PROVIDERMODULENAME =
     CIMName ("ProviderModuleName");
 
 /**
@@ -160,88 +160,88 @@ static const Uint32 OPERATION_TYPE_VERSION        = 6;
     The constants representing the messages.
 */
 
-static const char NOT_PRIVILEGED_USER []         = 
-                     "Error, you must have superuser privilege to run cimprovider."; 
-                     
-static const char NOT_PRIVILEGED_USER_KEY [] = 
+static const char NOT_PRIVILEGED_USER []         =
+                     "Error, you must have superuser privilege to run cimprovider.";
+
+static const char NOT_PRIVILEGED_USER_KEY [] =
 		"Clients.cimprovider.CIMProviderCommand.NOT_PRIVILEGED_USER";
-		                    
-static const char CIMOM_NOT_RUNNING []         = 
+
+static const char CIMOM_NOT_RUNNING []         =
                         "The CIM server may not be running.";
 
 static const char CIMOM_NOT_RUNNING_KEY [] =
 		"Clients.cimprovider.CIMProviderCommand.CIMOM_NOT_RUNNING";
 
-static const char DELETE_PROVIDER_FAILURE []    = 
+static const char DELETE_PROVIDER_FAILURE []    =
                         "Failed to delete...";
 
 static const char DELETE_PROVIDER_FAILURE_KEY []    =
 		"Clients.cimprovider.CIMProviderCommand.DELETE_PROVIDER_FAILURE";
 
 
-static const char START_PROVIDER_FAILURE []    = 
+static const char START_PROVIDER_FAILURE []    =
                         "Failed to enable provider module.";
 
 static const char START_PROVIDER_FAILURE_KEY []    =
 		"Clients.cimprovider.CIMProviderCommand.START_PROVIDER_FAILURE";
 
-static const char STOP_PROVIDER_FAILURE []  = 
+static const char STOP_PROVIDER_FAILURE []  =
                         "Failed to disable provider module.";
 
 static const char PENDING_REQUESTS_STOP_PROVIDER_FAILURE_KEY []  =
 		"Clients.cimprovider.CIMProviderCommand.PENDING_REQUESTS_STOP_PROVIDER_FAILURE";
-		
+
 static const char PENDING_REQUESTS_STOP_PROVIDER_FAILURE []  =
 		"Failed to disable provider module: Provider is busy.";
 
-static const char STOP_PROVIDER_FAILURE_KEY []  = 
+static const char STOP_PROVIDER_FAILURE_KEY []  =
 		"Clients.cimprovider.CIMProviderCommand.STOP_PROVIDER_FAILURE";
 
-static const char LIST_PROVIDERS_FAILURE [] = 
+static const char LIST_PROVIDERS_FAILURE [] =
                         "Failed to list... ";
 
 static const char LIST_PROVIDERS_FAILURE_KEY [] =
 		"Clients.cimprovider.CIMProviderCommand.LIST_PROVIDERS_FAILURE";
 
-static const char DELETE_PROVIDER_MODULE_SUCCESS []    = 
+static const char DELETE_PROVIDER_MODULE_SUCCESS []    =
                         "Provider module deleted successfully.";
 
-static const char DELETE_PROVIDER_MODULE_SUCCESS_KEY []    = 
-		"Clients.cimprovider.CIMProviderCommand.DELETE_PROVIDER_SUCCESS";		
-
-static const char DELETE_PROVIDER_SUCCESS []    = 
-                        "Provider deleted successfully.";
-
-static const char DELETE_PROVIDER_SUCCESS_KEY []    = 
+static const char DELETE_PROVIDER_MODULE_SUCCESS_KEY []    =
 		"Clients.cimprovider.CIMProviderCommand.DELETE_PROVIDER_SUCCESS";
 
-static const char START_PROVIDER_SUCCESS []  = 
+static const char DELETE_PROVIDER_SUCCESS []    =
+                        "Provider deleted successfully.";
+
+static const char DELETE_PROVIDER_SUCCESS_KEY []    =
+		"Clients.cimprovider.CIMProviderCommand.DELETE_PROVIDER_SUCCESS";
+
+static const char START_PROVIDER_SUCCESS []  =
                         "Provider module enabled successfully.";
 
-static const char START_PROVIDER_SUCCESS_KEY []  = 
+static const char START_PROVIDER_SUCCESS_KEY []  =
 		"Clients.cimprovider.CIMProviderCommand.START_PROVIDER_SUCCESS";
 
-static const char STOP_PROVIDER_SUCCESS []  = 
+static const char STOP_PROVIDER_SUCCESS []  =
                         "Provider module disabled successfully.";
 
 static const char STOP_PROVIDER_SUCCESS_KEY []  =
 		"Clients.cimprovider.CIMProviderCommand.STOP_PROVIDER_SUCCESS";
 
-static const char PROVIDER_ALREADY_STOPPED []  = 
+static const char PROVIDER_ALREADY_STOPPED []  =
                         "Provider module already disabled.";
 
 static const char PROVIDER_ALREADY_STOPPED_KEY []  =
 		"Clients.cimprovider.CIMProviderCommand.PROVIDER_ALREADY_STOPPED";
 
-static const char PROVIDER_ALREADY_STARTED []  = 
+static const char PROVIDER_ALREADY_STARTED []  =
                         "Provider module already enabled.";
 
-static const char PROVIDER_ALREADY_STARTED_KEY []  = 
+static const char PROVIDER_ALREADY_STARTED_KEY []  =
 		"Clients.cimprovider.CIMProviderCommand.PROVIDER_ALREADY_STARTED";
 
-static const char CANNOT_START_PROVIDER []  = 
+static const char CANNOT_START_PROVIDER []  =
                         "Provider module can not be enabled since it is disabling.";
-                        
+
 static const char CANNOT_START_PROVIDER_KEY []  =
 		"Clients.cimprovider.CIMProviderCommand.CANNOT_START_PROVIDER";
 
@@ -265,7 +265,7 @@ static const char DELETEING_PROVIDER_KEY[] =
 
 static const char STARTING_PROVIDER_MODULE[] =
 			"Enabling provider module...";
-			
+
 static const char STARTING_PROVIDER_MODULE_KEY[] =
 		"Clients.cimprovider.CIMProviderCommand.STARTING_PROVIDER_MODULE";
 
@@ -316,10 +316,10 @@ static const char INVALID_ARGS []        =
 
 static const char INVALID_ARGS_KEY []        =
 		"Clients.cimprovider.CIMProviderCommand.INVALID_ARGS";
-		
+
 static const char UNEXPECTED_OPTION [] = "Unexpected Option.";
 
-static const char UNEXPECTED_OPTION_KEY [] = 
+static const char UNEXPECTED_OPTION_KEY [] =
 	"Clients.cimprovider.CIMProviderCommand.UNEXPECTED_OPTION";
 
 static const char   LONG_HELP []  = "help";
@@ -390,38 +390,38 @@ static const CIMName   STOP_METHOD             = CIMName ("stop");
 static const CIMName   START_METHOD            = CIMName ("start");
 
 /**
-This is a CLI used to update providers of the CIM Server.  This command supports 
-operations to stop, start, list and delete provider or module.  
+This is a CLI used to update providers of the CIM Server.  This command supports
+operations to stop, start, list and delete provider or module.
 
 @author Yi Zhou, Hewlett-Packard Company
 */
 
-class CIMProviderCommand : public Command 
+class CIMProviderCommand : public Command
 {
 
 public:
 
-    /**    
+    /**
         Constructs a CIMProviderCommand and initializes instance variables.
     */
     CIMProviderCommand ();
 
     //
     // Overrides the virtual function setCommand from Command class
-    // This is defined as an empty function. 
+    // This is defined as an empty function.
     //
     void setCommand (
-		      Uint32                   argc, 
+		      Uint32                   argc,
 		      char*                    argv [])
 		      throw (CommandFormatException)
     {
-        // Empty function 
+        // Empty function
     }
 
     /**
-    Parses the command line, validates the options, and sets instance 
+    Parses the command line, validates the options, and sets instance
     variables based on the option arguments. This implementation of
-    setCommand includes the parameters for output and error stream. 
+    setCommand includes the parameters for output and error stream.
 
     @param  ostream    The stream to which command output is written.
     @param  ostream    The stream to which command errors are written.
@@ -432,9 +432,9 @@ public:
                                      the command line
     */
     void setCommand (
-                      ostream&                outPrintWriter, 
+                      ostream&                outPrintWriter,
                       ostream&                errPrintWriter,
-		      Uint32                  argc, 
+		      Uint32                  argc,
 		      char*                   argv []);
 
     /**
@@ -445,7 +445,7 @@ public:
     @return  0        if the command is successful
              1        if an error occurs in executing the command
     */
-    Uint32 execute ( 
+    Uint32 execute (
 		      ostream&                outPrintWriter,
                       ostream&                errPrintWriter);
 
@@ -457,21 +457,21 @@ private:
     //
     // @param ostream        The stream to which command output is written.
     // @param ostream        The stream to which command errors are written.
-    // 
+    //
     // @exception CIMException  if failed to delete provider module
     //
     void _deleteProvider
         (
-        ostream&    		outPrintWriter, 
+        ostream&    		outPrintWriter,
         ostream&    		errPrintWriter
-        ); 
+        );
 
     //
-    // Start a provider or module 
+    // Start a provider or module
     //
     // @param ostream          The stream to which command output is written.
     // @param ostream          The stream to which command errors are written.
-    // 
+    //
     // @exception CIMException  if failed to start provider module
     //
     void _StartProvider
@@ -481,8 +481,8 @@ private:
         );
 
     //
-    // Stop a provider or module 
-    //  
+    // Stop a provider or module
+    //
     // @param ostream          The stream to which command output is written.
     // @param ostream          The stream to which command errors are written.
     //
@@ -490,13 +490,13 @@ private:
     //
     void _StopProvider
         (
-        ostream&		outPrintWriter, 
+        ostream&		outPrintWriter,
         ostream&		errPrintWriter
-        ); 
+        );
 
     //
-    // List all the registered providers or modules.       
-    // 
+    // List all the registered providers or modules.
+    //
     // @param ostream        The stream to which command output is written.
     // @param ostream        The stream to which command errors are written.
     //
@@ -536,7 +536,7 @@ private:
     AutoPtr<CIMClient>   _client;//PEP101
 
     //
-    // The host name. 
+    // The host name.
     //
     String        _hostName;
 
@@ -551,7 +551,7 @@ private:
     String        _providerName;
 
     //
-    // The type of operation specified on the command line. 
+    // The type of operation specified on the command line.
     //
     Uint32        _operationType;
 
@@ -600,7 +600,7 @@ CIMProviderCommand::CIMProviderCommand ()
 #endif
 
     /**
-        Build the usage string for the config command.  
+        Build the usage string for the config command.
     */
 
     usage.reserveCapacity(200);
@@ -657,22 +657,22 @@ CIMProviderCommand::CIMProviderCommand ()
     usage.append("    -r         - Remove specified provider module and its contained providers\n");
     usage.append("    -s         - Display the status of registered provider modules\n");
     usage.append("    --version  - Display CIM Server version number\n");
-    
+
 //l10n localize usage
 #ifdef PEGASUS_HAS_ICU
-	
+
 	#ifdef PEGASUS_OS_OS400
-	
+
 		MessageLoaderParms menuparms("Clients.cimprovider.CIMProviderCommand.MENU.PEGASUS_OS_OS400",usage);
 		menuparms.msg_src_path = MSG_PATH;
 		usage = MessageLoader::getMessage(menuparms);
-	
+
 	#else
-		
+
 		MessageLoaderParms menuparms("Clients.cimprovider.CIMProviderCommand.MENU.STANDARD",usage);
 		menuparms.msg_src_path = MSG_PATH;
 		usage = MessageLoader::getMessage(menuparms);
-		
+
 	#endif
 
 #endif
@@ -683,14 +683,14 @@ CIMProviderCommand::CIMProviderCommand ()
 
 
 /**
-    Parses the command line, validates the options, and sets instance 
+    Parses the command line, validates the options, and sets instance
     variables based on the option arguments.
 */
 void CIMProviderCommand::setCommand (
-                        ostream& outPrintWriter, 
+                        ostream& outPrintWriter,
                         ostream& errPrintWriter,
-			Uint32   argc, 
-			char*    argv []) 
+			Uint32   argc,
+			char*    argv [])
 {
     Uint32            i                = 0;
     Uint32            c                = 0;
@@ -779,23 +779,23 @@ void CIMProviderCommand::setCommand (
             //PEP 167 change
             //UnexpectedOptionException e (c);
             //throw e;
-        } 
+        }
         else if (options [i].getType () == Optarg::REGULAR)
         {
             //
             //  The cimprovider command has no non-option argument options
             //
-            UnexpectedArgumentException e (options [i].Value ()); 
+            UnexpectedArgumentException e (options [i].Value ());
             throw e;
-        } 
+        }
         else /* if (options [i].getType () == Optarg::FLAG) */
         {
 
             c = options [i].getopt () [0];
 
-            switch (c) 
+            switch (c)
             {
-                case OPTION_DISABLE: 
+                case OPTION_DISABLE:
                 {
                     if (_operationType != OPERATION_TYPE_UNINITIALIZED)
                     {
@@ -811,7 +811,7 @@ void CIMProviderCommand::setCommand (
                         //
                         // More than one disable provider option was found
                         //
-                        DuplicateOptionException e (OPTION_DISABLE); 
+                        DuplicateOptionException e (OPTION_DISABLE);
                         throw e;
                     }
 
@@ -868,7 +868,7 @@ void CIMProviderCommand::setCommand (
                     break;
                 }
 
-                case OPTION_LIST: 
+                case OPTION_LIST:
                 {
                     if (_operationType != OPERATION_TYPE_UNINITIALIZED)
                     {
@@ -884,7 +884,7 @@ void CIMProviderCommand::setCommand (
                         //
                         // More than one list option was found
                         //
-                        DuplicateOptionException e (OPTION_LIST); 
+                        DuplicateOptionException e (OPTION_LIST);
                         throw e;
                     }
                     _operationType = OPERATION_TYPE_LIST;
@@ -950,7 +950,7 @@ void CIMProviderCommand::setCommand (
  #endif
 
             //PEP#167 - 2 new cases added below for HELP and VERSION
-            case OPTION_HELP: 
+            case OPTION_HELP:
             {
                 if (_operationType != OPERATION_TYPE_UNINITIALIZED)
                 {
@@ -966,13 +966,13 @@ void CIMProviderCommand::setCommand (
                     //
                     // More than one list option was found
                     //
-                    DuplicateOptionException e (OPTION_HELP); 
+                    DuplicateOptionException e (OPTION_HELP);
                     throw e;
                 }
                 _operationType = OPERATION_TYPE_HELP;
                 break;
             }
-            case OPTION_VERSION: 
+            case OPTION_VERSION:
             {
                 if (_operationType != OPERATION_TYPE_UNINITIALIZED)
                 {
@@ -988,7 +988,7 @@ void CIMProviderCommand::setCommand (
                     //
                     // More than one list option was found
                     //
-                    DuplicateOptionException e (OPTION_VERSION); 
+                    DuplicateOptionException e (OPTION_VERSION);
                     throw e;
                 }
                 _operationType = OPERATION_TYPE_VERSION;
@@ -996,8 +996,8 @@ void CIMProviderCommand::setCommand (
             }
 
                 default:
-		{ 
-		    // 
+		{
+		    //
 		    // Should never get here
 		    //
 		    break;
@@ -1006,26 +1006,26 @@ void CIMProviderCommand::setCommand (
         }
     }
 
-    // 
+    //
     // Some more validations
     //
     if ( _operationType == OPERATION_TYPE_UNINITIALIZED )
     {
         //
-        // No operation type was specified 
-        // Show the usage 
+        // No operation type was specified
+        // Show the usage
         //
         CommandFormatException e ( REQUIRED_ARGS_MISSING );
         throw e;
     }
-	
+
     if ( _operationType == OPERATION_TYPE_DISABLE )
     {
 	if ( _providerSet )
 	{
-		//l10n						
+		//l10n
 	    //CommandFormatException e("Unexpected Option.");
-	    
+
 	    CommandFormatException e(localizeMessage(MSG_PATH,
 	    										 UNEXPECTED_OPTION_KEY,
 	    										 UNEXPECTED_OPTION));
@@ -1101,7 +1101,7 @@ void CIMProviderCommand::setCommand (
     Executes the command and writes the results to the PrintWriters.
 */
 Uint32 CIMProviderCommand::execute (
-    ostream& outPrintWriter, 
+    ostream& outPrintWriter,
     ostream& errPrintWriter)
 {
     if ( _operationType == OPERATION_TYPE_UNINITIALIZED )
@@ -1132,7 +1132,7 @@ Uint32 CIMProviderCommand::execute (
     }
 #endif
 
-    // 
+    //
     // Get local host name
     //
     _hostName.assign(System::getHostName());
@@ -1147,7 +1147,7 @@ Uint32 CIMProviderCommand::execute (
     catch (Exception & e)
     {
         errPrintWriter << e.getMessage() << endl;
-        return ( RC_ERROR );        
+        return ( RC_ERROR );
     }
 
     try
@@ -1202,7 +1202,7 @@ Uint32 CIMProviderCommand::execute (
         								  DELETE_PROVIDER_FAILURE) << endl;
         	outPrintWriter << localizeMessage(MSG_PATH,
         								  PG_PROVIDER_SCHEMA_NOT_LOADED_KEY,
-        								  PG_PROVIDER_SCHEMA_NOT_LOADED) << endl;							  
+        								  PG_PROVIDER_SCHEMA_NOT_LOADED) << endl;
                 }
                 else
                 {
@@ -1216,7 +1216,7 @@ Uint32 CIMProviderCommand::execute (
                 return ( RC_ERROR );
             }
 
-            break; 
+            break;
 
             case OPERATION_TYPE_ENABLE:
             try
@@ -1245,7 +1245,7 @@ Uint32 CIMProviderCommand::execute (
         								  START_PROVIDER_FAILURE) << endl;
         			outPrintWriter << localizeMessage(MSG_PATH,
         								  PG_PROVIDER_SCHEMA_NOT_LOADED_KEY,
-        								  PG_PROVIDER_SCHEMA_NOT_LOADED) << endl;					  
+        								  PG_PROVIDER_SCHEMA_NOT_LOADED) << endl;
                 }
                 else
                 {
@@ -1288,7 +1288,7 @@ Uint32 CIMProviderCommand::execute (
         								  STOP_PROVIDER_FAILURE) << endl;
         			outPrintWriter << localizeMessage(MSG_PATH,
         								  PG_PROVIDER_SCHEMA_NOT_LOADED,
-        								  PG_PROVIDER_SCHEMA_NOT_LOADED) << endl;					  
+        								  PG_PROVIDER_SCHEMA_NOT_LOADED) << endl;
                 }
                 else
                 {
@@ -1332,8 +1332,8 @@ Uint32 CIMProviderCommand::execute (
         								  LIST_PROVIDERS_FAILURE) << endl;
         			outPrintWriter << localizeMessage(MSG_PATH,
         								  PG_PROVIDER_SCHEMA_NOT_LOADED_KEY,
-        								  PG_PROVIDER_SCHEMA_NOT_LOADED) << endl;					  
-        								  
+        								  PG_PROVIDER_SCHEMA_NOT_LOADED) << endl;
+
                 }
                 else
                 {
@@ -1362,11 +1362,11 @@ Uint32 CIMProviderCommand::execute (
 */
 void CIMProviderCommand::_deleteProvider
     (
-    ostream&    outPrintWriter, 
+    ostream&    outPrintWriter,
     ostream&    errPrintWriter
-    ) 
+    )
 {
-    
+
     try
     {
 	if ( _moduleSet )
@@ -1387,12 +1387,12 @@ void CIMProviderCommand::_deleteProvider
 	    keys.append(kb1);
 	    keys.append(kb2);
 	    providerRef.setKeyBindings(keys);
-	
+
 	//l10n
 	    //outPrintWriter << DELETEING_PROVIDER << endl;
 	    outPrintWriter << localizeMessage(MSG_PATH,
         								  DELETEING_PROVIDER_KEY,
-        								  DELETEING_PROVIDER) << endl;	
+        								  DELETEING_PROVIDER) << endl;
 
 	    _client->deleteInstance(
 		PEGASUS_NAMESPACENAME_PROVIDERREG,
@@ -1414,7 +1414,7 @@ void CIMProviderCommand::_deleteProvider
 	    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_PROVIDERREG);
 	    moduleRef.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
 
-	    CIMKeyBinding kb1(CIMName ("Name"), _moduleName, 
+	    CIMKeyBinding kb1(CIMName ("Name"), _moduleName,
                 CIMKeyBinding::STRING);
 	    Array<CIMKeyBinding> keys;
 	    keys.append(kb1);
@@ -1452,11 +1452,11 @@ void CIMProviderCommand::_deleteProvider
 //
 void CIMProviderCommand::_StartProvider
     (
-    ostream&    outPrintWriter, 
+    ostream&    outPrintWriter,
     ostream&    errPrintWriter
-    ) 
+    )
 {
-    
+
     try
     {
 	CIMObjectPath ref;
@@ -1472,13 +1472,13 @@ void CIMProviderCommand::_StartProvider
 	    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_PROVIDERREG);
 	    moduleRef.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
 
-	    CIMKeyBinding kb1(CIMName ("Name"), _moduleName, 
+	    CIMKeyBinding kb1(CIMName ("Name"), _moduleName,
                 CIMKeyBinding::STRING);
 	    Array<CIMKeyBinding> keys;
 	    keys.append(kb1);
 
 	    moduleRef.setKeyBindings(keys);
-	    
+
 	    ref = moduleRef;
 //l10n
 	    //outPrintWriter << STARTING_PROVIDER_MODULE << endl;
@@ -1541,13 +1541,13 @@ void CIMProviderCommand::_StartProvider
 }
 
 //
-// Disable the provider module 
+// Disable the provider module
 //
 void CIMProviderCommand::_StopProvider
     (
-    ostream&    outPrintWriter, 
+    ostream&    outPrintWriter,
     ostream&    errPrintWriter
-    ) 
+    )
 {
     try
     {
@@ -1564,13 +1564,13 @@ void CIMProviderCommand::_StopProvider
 	    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_PROVIDERREG);
 	    moduleRef.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
 
-	    CIMKeyBinding kb1(CIMName ("Name"), _moduleName, 
+	    CIMKeyBinding kb1(CIMName ("Name"), _moduleName,
                 CIMKeyBinding::STRING);
 	    Array<CIMKeyBinding> keys;
 	    keys.append(kb1);
 
 	    moduleRef.setKeyBindings(keys);
-	    
+
 	    ref = moduleRef;
 //l10n
 	    //outPrintWriter << STOPING_PROVIDER_MODULE << endl;
@@ -1636,7 +1636,7 @@ void CIMProviderCommand::_StopProvider
     get a list of all registered provider modules or their status or providers.
  */
 void CIMProviderCommand::_ListProviders
-    ( 
+    (
     ostream&    outPrintWriter,
     ostream&    errPrintWriter
     )
@@ -1656,7 +1656,7 @@ void CIMProviderCommand::_ListProviders
 	{
 	    // get registered providers which are in the specified module
 	    instanceNames = _client->enumerateInstanceNames(
-				PEGASUS_NAMESPACENAME_PROVIDERREG, 
+				PEGASUS_NAMESPACENAME_PROVIDERREG,
 				PEGASUS_CLASSNAME_PROVIDER);
 
 	    if ( instanceNames.size() == 0 )
@@ -1666,7 +1666,7 @@ void CIMProviderCommand::_ListProviders
  	  	cerr << localizeMessage(MSG_PATH,
         								  ERR_PROVIDER_NOT_REGISTERED_KEY,
         								  ERR_PROVIDER_NOT_REGISTERED) << endl;
-        exit(-1);	
+        exit(-1);
 	    }
 	    else
 	    {
@@ -1690,8 +1690,8 @@ void CIMProviderCommand::_ListProviders
 			moduleExist = true;
 		    	outPrintWriter << providerName << endl;;
 		    }
-	        }  
-		
+	        }
+
 		if (!moduleExist)
 		{
 			//l10n
@@ -1707,7 +1707,7 @@ void CIMProviderCommand::_ListProviders
 	{
 	    // Get all registered provider modules
     	    moduleInstances = _client->enumerateInstances(
-				PEGASUS_NAMESPACENAME_PROVIDERREG, 
+				PEGASUS_NAMESPACENAME_PROVIDERREG,
 				PEGASUS_CLASSNAME_PROVIDERMODULE);
 	    if ( moduleInstances.size() == 0 )
 	    {
@@ -1716,11 +1716,11 @@ void CIMProviderCommand::_ListProviders
  	  	cerr << localizeMessage(MSG_PATH,
         								  ERR_MODULE_NOT_REGISTERED_KEY,
         								  ERR_MODULE_NOT_REGISTERED) << endl;
-		exit(-1);	
+		exit(-1);
 	    }
 	    else
 	    {
-	        // List all the registered provider modules 
+	        // List all the registered provider modules
 	        for (Uint32 i = 0; i < moduleInstances.size(); i++)
 	        {
 		    CIMInstance& instance = moduleInstances[i];
@@ -1728,7 +1728,7 @@ void CIMProviderCommand::_ListProviders
 			instance.findProperty(_PROPERTY_PROVIDERMODULE_NAME)).getValue().get(moduleName);
 		    moduleNames.append(moduleName);
 		    instances.append(instance);
-	        }  
+	        }
 
 		_printList(moduleNames, instances, outPrintWriter, errPrintWriter);
 	    }
@@ -1768,7 +1768,7 @@ CIMInstance CIMProviderCommand::_getModuleInstance()
  	cerr << localizeMessage(MSG_PATH,
         								  ERR_MODULE_NOT_REGISTERED_KEY,
         								  ERR_MODULE_NOT_REGISTERED) << endl;
-	exit(-1);	
+	exit(-1);
     }
     catch (Exception& exception)
     {
@@ -1778,9 +1778,9 @@ CIMInstance CIMProviderCommand::_getModuleInstance()
  	cerr << localizeMessage(MSG_PATH,
         								  ERR_MODULE_NOT_REGISTERED_KEY,
         								  ERR_MODULE_NOT_REGISTERED) << endl;
-	exit(-1);	
+	exit(-1);
     }
-    
+
     // Keep the compiler happy
     return CIMInstance();
 }
@@ -1817,7 +1817,7 @@ CIMInstance CIMProviderCommand::_getProviderInstance()
         cerr << localizeMessage(MSG_PATH,
         								  ERR_PROVIDER_NOT_REGISTERED_KEY,
         								  ERR_PROVIDER_NOT_REGISTERED) << endl;
-	exit(-1);	
+	exit(-1);
     }
     catch (Exception& exception)
     {
@@ -1827,17 +1827,17 @@ CIMInstance CIMProviderCommand::_getProviderInstance()
         cerr << localizeMessage(MSG_PATH,
         								  ERR_PROVIDER_NOT_REGISTERED_KEY,
         								  ERR_PROVIDER_NOT_REGISTERED) << endl;
-	exit(-1);	
+	exit(-1);
     }
-    
+
     // Keep the compiler happy
     return CIMInstance();
 }
 
 // Print out registered modules and status
-void CIMProviderCommand::_printList(Array<String> & moduleNames, 
+void CIMProviderCommand::_printList(Array<String> & moduleNames,
 				    Array<CIMInstance> & instances,
-				    ostream& outPrintWriter, 
+				    ostream& outPrintWriter,
 				    ostream& errPrintWriter)
 {
     Uint32 maxLength=0;
@@ -1856,7 +1856,7 @@ void CIMProviderCommand::_printList(Array<String> & moduleNames,
 		maxLength = moduleNames[i].size();
 	    }
 	}
-	
+
 	output = "MODULE";
 
 	for (Uint32 i = 0; i < maxLength; i++)
@@ -1869,7 +1869,7 @@ void CIMProviderCommand::_printList(Array<String> & moduleNames,
 
 	for (Uint32 i =0; i < instances.size(); i++)
 	{
-	    output = moduleNames[i]; 
+	    output = moduleNames[i];
 	    length = maxLength +6 - moduleNames[i].size();
 
 	    for (Uint32 j = 0; j < length; j++)
@@ -1880,7 +1880,7 @@ void CIMProviderCommand::_printList(Array<String> & moduleNames,
 	    Uint32 pos = instances[i].findProperty(_PROPERTY_OPERATIONALSTATUS);
 	    if (pos == PEG_NOT_FOUND)
 	    {
-		_status.append(0);		
+		_status.append(0);
 	    }
 	    else
 	    {
@@ -1989,7 +1989,7 @@ void CIMProviderCommand::_printList(Array<String> & moduleNames,
 	    }
 	    outPrintWriter << output << endl;
 	}
-	
+
     }
     else
     {
@@ -2017,11 +2017,11 @@ PEGASUS_USING_STD;
 */
 ///////////////////////////////////////////////////////////////////////////////
 
-int main (int argc, char* argv []) 
+int main (int argc, char* argv [])
 {
     AutoPtr<CIMProviderCommand>  command;
     Uint32               retCode;
-    
+
     MessageLoader::_useProcessLocale = true; //l10n set message loading to process locale
 
 #ifdef PEGASUS_OS_OS400
@@ -2066,15 +2066,15 @@ int main (int argc, char* argv [])
 
     command.reset(new CIMProviderCommand ());
 
-    try 
+    try
     {
         command->setCommand ( cout, cerr, argc, argv);
-    } 
-    catch (CommandFormatException& cfe) 
+    }
+    catch (CommandFormatException& cfe)
     {
         if (!String::equal(cfe.getMessage (), ""))
         {
-            cerr << COMMAND_NAME << ": " <<  "Invalid option. Use '-h' " 
+            cerr << COMMAND_NAME << ": " <<  "Invalid option. Use '-h' "
                  << "or '--help' to obtain command syntax" << endl;
         }
         return 1;
@@ -2082,6 +2082,6 @@ int main (int argc, char* argv [])
 
     retCode = command->execute (cout, cerr);
 
-    exit(retCode);
-    return (0);
+    //exit(retCode);
+    return (retCode);
 }

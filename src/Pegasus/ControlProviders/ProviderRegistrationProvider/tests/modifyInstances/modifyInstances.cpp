@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -57,15 +57,15 @@ void TestModifyInstances(CIMClient& client)
 
     CIMInstance cimInstance(CLASSNAME);
 
-    cimInstance.addProperty(CIMProperty(CIMName ("Name"), 
+    cimInstance.addProperty(CIMProperty(CIMName ("Name"),
         String("providersModule1")));
     cimInstance.addProperty(CIMProperty(CIMName ("Vendor"), String("HP")));
     cimInstance.addProperty(CIMProperty(CIMName ("Version"), String("2.0")));
-    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceType"), 
+    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceType"),
         String("C++Default")));
-    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceVersion"), 
+    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceVersion"),
         String("2.1.0")));
-    cimInstance.addProperty(CIMProperty(CIMName ("Location"), 
+    cimInstance.addProperty(CIMProperty(CIMName ("Location"),
         String("/tmp/module1")));
 
     CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
@@ -90,9 +90,9 @@ void TestModifyInstances(CIMClient& client)
 
     CIMInstance cimInstance2(CLASSNAME2);
 
-    cimInstance2.addProperty(CIMProperty(CIMName ("ProviderModuleName"), 
+    cimInstance2.addProperty(CIMProperty(CIMName ("ProviderModuleName"),
         String("providersModule1")));
-    cimInstance2.addProperty(CIMProperty(CIMName ("Name"), 
+    cimInstance2.addProperty(CIMProperty(CIMName ("Name"),
         String("PG_ProviderInstance1")));
 
     CIMObjectPath instanceName2 = cimInstance2.buildPath(cimClass2);
@@ -120,7 +120,7 @@ void TestModifyInstances(CIMClient& client)
 
     namespaces.append("root/cimv2");
     namespaces.append("root/cimv3");
-    
+
     providerType.append(4);
     providerType.append(5);
 
@@ -136,20 +136,20 @@ void TestModifyInstances(CIMClient& client)
 
     CIMInstance cimInstance3(CLASSNAME3);
 
-    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderModuleName"), 
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderModuleName"),
         String("providersModule1")));
-    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderName"), 
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderName"),
         String("PG_ProviderInstance1")));
-    cimInstance3.addProperty(CIMProperty(CIMName ("CapabilityID"), 
+    cimInstance3.addProperty(CIMProperty(CIMName ("CapabilityID"),
         String("capability1")));
-    cimInstance3.addProperty(CIMProperty(CIMName ("ClassName"), 
+    cimInstance3.addProperty(CIMProperty(CIMName ("ClassName"),
         String("TestSoftwarePkg")));
     cimInstance3.addProperty(CIMProperty(CIMName ("Namespaces"), namespaces));
-    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderType"), 
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderType"),
         providerType));
-    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedMethods"), 
+    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedMethods"),
         supportedMethods));
-    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedProperties"), 
+    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedProperties"),
         supportedProperties));
 
     CIMObjectPath instanceName3 = cimInstance3.buildPath(cimClass3);
@@ -168,24 +168,24 @@ void TestModifyInstances(CIMClient& client)
 
     // create CIMObjectPath
     Array<CIMKeyBinding> keys;
-    CIMKeyBinding kb1(CIMName ("ProviderModuleName"), "providersModule1", 
+    CIMKeyBinding kb1(CIMName ("ProviderModuleName"), "providersModule1",
         CIMKeyBinding::STRING);
-    CIMKeyBinding kb2(CIMName ("ProviderName"), "PG_ProviderInstance1", 
+    CIMKeyBinding kb2(CIMName ("ProviderName"), "PG_ProviderInstance1",
         CIMKeyBinding::STRING);
-    CIMKeyBinding kb3(CIMName ("CapabilityID"), "capability1", 
+    CIMKeyBinding kb3(CIMName ("CapabilityID"), "capability1",
         CIMKeyBinding::STRING);
- 
+
     keys.append(kb1);
     keys.append(kb2);
     keys.append(kb3);
- 
+
     instanceName3.setKeyBindings(keys);
 
     Array <String> supportedMethods2;
     Array <String> namespaces2;
     Array<CIMName> propertyList;
 
-    // create new instance which will replace cimInstance3 
+    // create new instance which will replace cimInstance3
     CIMInstance cimInstance4(CLASSNAME3);
     namespaces2.append("root/cimv4");
     namespaces2.append("root/cimv5");
@@ -194,12 +194,12 @@ void TestModifyInstances(CIMClient& client)
     supportedMethods2.append("test_method3");
 
     cimInstance4.addProperty(CIMProperty(CIMName ("Namespaces"), namespaces2));
-    cimInstance4.addProperty(CIMProperty(CIMName ("SupportedMethods"), 
+    cimInstance4.addProperty(CIMProperty(CIMName ("SupportedMethods"),
         supportedMethods2));
 
     propertyList.append(CIMName ("Namespaces"));
     propertyList.append(CIMName ("SupportedMethods"));
-   
+
     CIMInstance modifyedInstance(cimInstance4);
     modifyedInstance.setPath (instanceName3);
 
@@ -212,7 +212,7 @@ void TestModifyInstances(CIMClient& client)
         throw (e);
     }
 
-    CIMKeyBinding kbm1(CIMName ("Name"), "providersModule1", 
+    CIMKeyBinding kbm1(CIMName ("Name"), "providersModule1",
         CIMKeyBinding::STRING);
     Array<CIMKeyBinding> keyms;
     keyms.append(kbm1);
@@ -241,6 +241,6 @@ int main(int argc, char** argv)
     }
 
     PEGASUS_STD(cout) << "+++++ passed all tests" << PEGASUS_STD(endl);
-    
-    exit (0);
+
+    return 0;
 }

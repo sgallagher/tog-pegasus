@@ -68,6 +68,8 @@ PEGASUS_NAMESPACE_BEGIN
 #define PEGASUS_QUEUENAME_EXPORTREQDISPATCHER "CIMExportRequestDispatcher"
 #define PEGASUS_QUEUENAME_EXPORTRESPENCODER   "CIMExportResponseEncoder"
 
+#define PEGASUS_QUEUENAME_WBEMEXECCLIENT      "WbemExecClient"
+
 //
 // ModuleController Module Names
 //

@@ -81,7 +81,18 @@ void _generateIndication (
 {
     if (_enabled)
     {
-	CIMInstance indicationInstance (CIMName("RT_TestIndication"));
+        CIMInstance indicationInstance;
+
+        if (methodName.equal ("SendTestIndicationSubclass"))
+        {
+            CIMInstance theIndication (CIMName ("RT_TestIndicationSubclass"));
+            indicationInstance = theIndication;
+        }
+        else
+        {
+            CIMInstance theIndication (CIMName ("RT_TestIndication"));
+            indicationInstance = theIndication;
+        }
 
         CIMObjectPath path;
         if (methodName.equal ("SendTestIndicationUnmatchingNamespace"))
@@ -107,6 +118,15 @@ void _generateIndication (
             //
             path.setNameSpace ("root/SampleProvider");
             path.setClassName ("CIM_AlertIndication");
+        }
+        else if (methodName.equal ("SendTestIndicationSubclass"))
+        {
+            //
+            //  For SendTestIndicationSubclass, generate an indication instance
+            //  of a the RT_TestIndicationSubclass subclass 
+            //
+            path.setNameSpace ("root/SampleProvider");
+            path.setClassName ("RT_TestIndicationSubclass");
         }
         else
         {
@@ -137,6 +157,7 @@ void _generateIndication (
         }
 
         if ((methodName.equal ("SendTestIndicationNormal")) || 
+            (methodName.equal ("SendTestIndicationSubclass")) ||
             (methodName.equal ("SendTestIndicationMissingProperty")) ||
             (methodName.equal ("SendTestIndicationExtraProperty")) ||
             (methodName.equal ("SendTestIndicationMatchingInstance")) ||
@@ -167,12 +188,14 @@ void _generateIndication (
         CIMIndication cimIndication (indicationInstance);
 
         //
-        //  For SendTestIndicationMatchingInstance,  
+        //  For SendTestIndicationSubclass,  
+        //  SendTestIndicationMatchingInstance,  
         //  SendTestIndicationUnmatchingNamespace or
         //  SendTestIndicationUnmatchingClassName, include 
         //  SubscriptionInstanceNamesContainer in operation context
         //
-        if ((methodName.equal ("SendTestIndicationMatchingInstance")) ||
+        if ((methodName.equal ("SendTestIndicationSubclass")) ||
+            (methodName.equal ("SendTestIndicationMatchingInstance")) ||
             (methodName.equal ("SendTestIndicationUnmatchingNamespace")) ||
             (methodName.equal ("SendTestIndicationUnmatchingClassName")))
         {
@@ -219,6 +242,7 @@ void _generateIndication (
         //  Only deliver extra indication with trapOid for SendTestIndication
         //
         if ((!methodName.equal ("SendTestIndicationNormal")) &&
+            (!methodName.equal ("SendTestIndicationSubclass")) &&
             (!methodName.equal ("SendTestIndicationMissingProperty")) &&
             (!methodName.equal ("SendTestIndicationExtraProperty")) &&
             (!methodName.equal ("SendTestIndicationMatchingInstance")) && 
@@ -297,7 +321,17 @@ void RT_IndicationProvider::invokeMethod(
             {
                 sendIndication = true;
                 handler.deliver( CIMValue( 0 ) );
-             }
+            }
+        }
+
+        else if ((objectReference.getClassName ().equal 
+            ("RT_TestIndicationSubclass")) && _enabled)
+        {                
+            if (methodName.equal ("SendTestIndicationSubclass"))
+            {
+                sendIndication = true;
+                handler.deliver( CIMValue( 0 ) );
+            }
         }
 
         else

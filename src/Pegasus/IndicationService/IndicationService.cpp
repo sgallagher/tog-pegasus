@@ -1815,11 +1815,51 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
             request->nameSpace, indication.getClassName (), 
             indicationClassProperties);
 
+        //
+        //  Retrieve the matching subscriptions based on the class name and 
+        //  namespace of the generated indication
+        //  If the provider did not include subscriptions in the 
+        //  SubscriptionInstanceNamesContainer, the matchedSubscriptions
+        //  represent the subscriptions to which the indication should be 
+        //  forwarded, if the filter criteria are met
+        //
         Array <CIMNamespaceName> nameSpaces;
         nameSpaces.append (request->nameSpace);
 
+#ifdef PEGASUS_INDICATION_PERFINST
+        stopWatch.reset ();
+#endif
+
+        matchedSubscriptions = _getMatchingSubscriptions(
+            indication.getClassName (), nameSpaces, propertyList,
+            true, request->provider);
+
+#ifdef PEGASUS_INDICATION_PERFINST
+        elapsed = stopWatch.getElapsed ();
+
+        Tracer::trace (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+            "%s: %.3f seconds",
+            "Get Matching Subscriptions", elapsed);
+#endif
+
+        //
+        //  If the provider included subscriptions in the 
+        //  SubscriptionInstanceNamesContainer, verify that each subscription 
+        //  specified by the provider matches the class name and namespace of 
+        //  the generated indication by looking for the subscription instance 
+        //  in the list of matching subscriptions from the Subscription Classes
+        //  table
+        //  The subset of subscriptions included by the provider that also 
+        //  appear in the matchedSubscriptions list represent the subscriptions
+        //  to which the indication should be forwarded, if the filter criteria
+        //  are met
+        //  Any subscription included by the provider but not matching the 
+        //  the class name and namespace of the generated indication is ignored 
+        //
         if (request->subscriptionInstanceNames.size() > 0)
         {
+            Array <CIMInstance> providedSubscriptions;
+
 #ifdef PEGASUS_INDICATION_PERFINST
             stopWatch.reset ();
 #endif
@@ -1835,22 +1875,24 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                     (request->subscriptionInstanceNames [i], tableValue))
                 {
                     //
-                    //  Check that subscription filter indication class and
-                    //  source namespace match that of generated indication
+                    //  Verify that each subscription specified by the provider
+                    //  matches the class name and namespace of the generated 
+                    //  indication by looking for the subscription instance in 
+                    //  the list of matching subscriptions
                     //
-                    CIMNamespaceName sourceNameSpace;
-                    CIMName indicationClassName;
-                    _subscriptionRepository->getFilterProperties
-                        (tableValue.subscription,
-                        tableValue.subscription.getPath ().getNameSpace (),
-                        filterQuery, sourceNameSpace);
-                    selectStatement = _getSelectStatement (filterQuery);
-                    indicationClassName = _getIndicationClassName
-                        (selectStatement, sourceNameSpace);
-                    if ((sourceNameSpace == request->nameSpace) &&
-                        (indicationClassName == indication.getClassName ()))
+                    Boolean found = false;
+                    for (Uint32 i = 0; i < matchedSubscriptions.size(); i++)
                     {
-                        matchedSubscriptions.append (tableValue.subscription);
+                        if (matchedSubscriptions [i].identical 
+                            (tableValue.subscription))
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found)
+                    {
+                        providedSubscriptions.append (tableValue.subscription);
                     }
                 }
             }
@@ -1862,26 +1904,14 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                 "%s: %.3f seconds",
                 "Look up Subscriptions", elapsed);
 #endif
-        }
-        else
-        {
-#ifdef PEGASUS_INDICATION_PERFINST
-            stopWatch.reset ();
-#endif
-
-            matchedSubscriptions = _getMatchingSubscriptions(
-                indication.getClassName (), nameSpaces, propertyList,
-                true, request->provider);
-
-#ifdef PEGASUS_INDICATION_PERFINST
-            elapsed = stopWatch.getElapsed ();
-
-            Tracer::trace (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-                "%s: %.3f seconds",
-                "Get Matching Subscriptions", elapsed);
-#endif
+            matchedSubscriptions = providedSubscriptions;
         }
 
+        //
+        //  For each matching subscription, determine whether the filter 
+        //  criteria are met by the generated indication, and if so, forward to
+        //  the handler
+        //
         for (Uint32 i = 0; i < matchedSubscriptions.size(); i++)
         {
             match = true;

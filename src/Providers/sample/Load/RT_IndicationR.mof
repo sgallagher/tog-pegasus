@@ -27,6 +27,7 @@ instance of PG_ProviderCapabilities
     Namespaces = { "root/SampleProvider", "root/cimv2" };
     ProviderType = { 4, 5 };  // Indication & Method
     SupportedProperties = NULL;
+    //  Note: these methods are not implemented in the subclass
     SupportedMethods = {"SendTestIndication", 
                         "SendTestIndicationNormal", 
                         "SendTestIndicationMissingProperty", 
@@ -34,4 +35,16 @@ instance of PG_ProviderCapabilities
                         "SendTestIndicationMatchingInstance",
                         "SendTestIndicationUnmatchingNamespace",
                         "SendTestIndicationUnmatchingClassName"};
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "RT_IndicationProviderModule";
+    ProviderName = "RT_IndicationProvider";
+    CapabilityID = "2";
+    ClassName = "RT_TestIndicationSubclass";
+    Namespaces = { "root/SampleProvider", "root/cimv2" };
+    ProviderType = { 4, 5 };  // Indication & Method
+    SupportedProperties = NULL;
+    SupportedMethods = {"SendTestIndicationSubclass"};
 };

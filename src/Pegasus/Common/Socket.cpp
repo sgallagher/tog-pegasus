@@ -29,7 +29,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2513
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -93,15 +93,18 @@ Sint32 Socket::write(Sint32 socket, const void* ptr, Uint32 size)
 
 void Socket::close(Sint32 socket)
 {
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    closesocket(socket);
-#else
-#if (__GNUC__) && !defined(PEGASUS_OS_SOLARIS) && !defined(PEGASUS_OS_DARWIN) && !defined(PEGASUS_OS_LSB)
-    TEMP_FAILURE_RETRY(::close(socket));
-#else
-    ::close(socket);
-#endif
-#endif
+  if(-1 != socket)
+   {
+    #ifdef PEGASUS_OS_TYPE_WINDOWS
+    if(!closesocket(socket)) socket=-1;
+    #else
+    #if (__GNUC__) && !defined(PEGASUS_OS_SOLARIS) && !defined(PEGASUS_OS_DARWIN) && !defined(PEGASUS_OS_LSB)
+       if(!TEMP_FAILURE_RETRY(::close(socket))) socket = -1;
+    #else
+       if(!::close(socket)) socket = -1;
+    #endif
+    #endif
+   }
 }
 
 int Socket::close2(Sint32 socket)

@@ -3,7 +3,7 @@
 <MESSAGE ID="43004" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="ModifyClass">
-<ERROR CODE="10" DESCRIPTION="CIMClassRep.cpp(238): CIM_ERR_INVALID_SUPERCLASS: Operation cannot be carried out since the specified superclass does not exist: &quot;No&quot;"/>
+<ERROR CODE="10" DESCRIPTION="CIMClassRep.cpp(197): CIM_ERR_INVALID_SUPERCLASS: Operation cannot be carried out since the specified superclass does not exist: &quot;No&quot;"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

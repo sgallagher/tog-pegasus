@@ -31,7 +31,7 @@
 #define Pegasus_PG_TestPropertyTypes_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider2/CIMInstanceProvider.h>
+#include <Pegasus/Provider/CIMInstanceProvider.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -59,7 +59,7 @@ public:
 		const CIMReference & ref,
 		const Uint32 flags,
 		const Array<String> & propertyList,
-		ResponseHandler<CIMNamedInstance> & handler);
+		ResponseHandler<CIMInstance> & handler);
 
 	virtual void enumerateInstanceNames(
 		const OperationContext & context,

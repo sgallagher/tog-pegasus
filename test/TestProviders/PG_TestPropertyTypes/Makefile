@@ -10,8 +10,7 @@ LIBRARY = PG_TestPropertyTypes
 
 LIBRARIES = \
     pegcommon \
-    pegprovider \
-    pegprovider2
+    pegprovider 
 	
 SOURCES = \
    PG_TestPropertyTypes.cpp

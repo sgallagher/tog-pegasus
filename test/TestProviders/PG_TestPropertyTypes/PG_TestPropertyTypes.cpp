@@ -28,10 +28,9 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Repository/CIMRepository.h>
-#include <Pegasus/Provider2/CIMInstanceProvider.h>
-#include <Pegasus/Provider2/SimpleResponseHandler.h>
-#include <Pegasus/Provider2/OperationFlag.h>
+#include <Pegasus/Provider/CIMInstanceProvider.h>
+#include <Pegasus/Provider/SimpleResponseHandler.h>
+#include <Pegasus/Provider/OperationFlag.h>
 
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/CIMProperty.h>
@@ -52,6 +51,7 @@ extern "C" PEGASUS_EXPORT CIMBaseProvider* PegasusCreateProvider(const String & 
 
 PG_TestPropertyTypes::PG_TestPropertyTypes(void)
 {
+cout << "PG_TestPropertyTypes:: PG_TestPropertyTypes" << endl;
 }
 
 PG_TestPropertyTypes::~PG_TestPropertyTypes(void)
@@ -176,7 +176,7 @@ void PG_TestPropertyTypes::enumerateInstances(
 	const CIMReference & ref,
 	const Uint32 flags,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMNamedInstance> & handler)
+	ResponseHandler<CIMInstance> & handler)
 {
 
 	// ensure the Namespace is valid
@@ -199,16 +199,9 @@ void PG_TestPropertyTypes::enumerateInstances(
 	// get class definition from repository
 	CIMClass cimclass = _cimom.getClass(context, ref.getNameSpace(), ref.getClassName(), false, true, true, CIMPropertyList());
 
-	// convert instances to references;
 	for(Uint32 i = 0; i < _instances.size(); i++)
 	{
-		CIMReference tempRef = _instances[i].getInstanceName(cimclass);
-
-		// ensure references are fully qualified
-		tempRef.setHost(ref.getHost());
-		tempRef.setNameSpace(ref.getNameSpace());
-
-		handler.deliver(CIMNamedInstance(tempRef, _instances[i]));
+		handler.deliver( _instances[i]);
 	}
 
 	// complete processing the request
@@ -224,6 +217,7 @@ void PG_TestPropertyTypes::enumerateInstanceNames(
 	// ensure the Namespace is valid
 	if (classReference.getNameSpace() != "test/static")
 	{
+		cout << "PG_TestPropertyTypes::enumerateInstanceNames failed" << endl;
 		throw CIMException(CIM_ERR_INVALID_NAMESPACE);
 	}
 
@@ -313,14 +307,21 @@ void PG_TestPropertyTypes::createInstance(
 	const CIMInstance & instanceObject,
 	ResponseHandler<CIMReference> & handler)
 {
+        cout << "PG_TestPropertyTypes::createInstance" << endl;
+        cout << "getNameSpace = " << instanceReference.getNameSpace() << endl;
 	// synchronously get references
 	Array<CIMReference> references = _enumerateInstanceNames(context, instanceReference);
 
 	// ensure the Namespace is valid
+
+        cout << "getNameSpace = " << instanceReference.getNameSpace() << endl;
 	if (instanceReference.getNameSpace() != "test/static")
 	{
+		cout << "PG_TestPropertyTypes::createInstance failed " << endl;
 		throw CIMException(CIM_ERR_INVALID_NAMESPACE);
 	}
+
+        cout << "after namespace tests" << endl;
 
 	// ensure the class existing in the specified namespace
 	if (instanceReference.getClassName() != "PG_TestPropertyTypes")

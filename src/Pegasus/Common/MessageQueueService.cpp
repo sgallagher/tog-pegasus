@@ -46,12 +46,7 @@ ThreadPool *MessageQueueService::_thread_pool = 0;
 
 DQueue<MessageQueueService> MessageQueueService::_polling_list(true);
 
-void MessageQueueService::_exit_routine(void)
-{
-   _stop_polling = 1;
-   _polling_sem.signal();
-
-}
+Thread* MessageQueueService::_polling_thread = 0;
 
 
 int MessageQueueService::kill_idle_threads(void)
@@ -84,8 +79,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
       _polling_sem.wait();
       if(_stop_polling.value() != 0 )
       {
-	 list->unlock();
-	 myself->exit_self((PEGASUS_THREAD_RETURN) 1 );
+         break;
       }
       
       list->lock();
@@ -104,10 +98,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
    return(0);
 }
-
-Thread MessageQueueService::_polling_thread(polling_routine, 
-					    reinterpret_cast<void *>(&_polling_list), 
-					    false);
 
 
 Semaphore MessageQueueService::_polling_sem(0);
@@ -149,9 +139,11 @@ MessageQueueService::MessageQueueService(const char *name,
       }
       _thread_pool = new ThreadPool(0, "MessageQueueService", 0, 0,
 				    create_time, destroy_time, deadlock_time);  
-      atexit(_exit_routine);
       
-      _polling_thread.run();
+      _polling_thread = new Thread(polling_routine, 
+			           reinterpret_cast<void *>(&_polling_list), 
+			           false);
+      _polling_thread->run();
    }
    _service_count++;
 
@@ -186,7 +178,8 @@ MessageQueueService::~MessageQueueService(void)
    {
       _stop_polling++;
       _polling_sem.signal();
-      _polling_thread.join();
+      _polling_thread->join();
+      delete _polling_thread;
       _meta_dispatcher->_shutdown_routed_queue();
       delete _meta_dispatcher;
       _meta_dispatcher = 0;
@@ -194,7 +187,6 @@ MessageQueueService::~MessageQueueService(void)
    }
    _meta_dispatcher_mutex.unlock();
    _polling_list.remove(this);
-   _polling_sem.signal();
 } 
 
 void MessageQueueService::_shutdown_incoming_queue(void)

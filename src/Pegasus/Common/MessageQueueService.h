@@ -162,7 +162,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       
       AsyncDQueue<AsyncOpNode> _incoming;
       DQueue<AsyncOpNode> _callback;
-      static Thread _polling_thread;
+      static Thread* _polling_thread;
       static Semaphore _polling_sem;
       static AtomicInt _stop_polling;
       

@@ -1,0 +1,52 @@
+a:link
+{
+	color: rgb(0,102,153); 
+}
+a:visited
+{
+	color: rgb(0,153,102); 
+} 
+a:active 
+{
+	color: rgb(0,102,102);
+}
+body
+{
+	font-family: Arial, Helvetica;
+	background-color: rgb(204,204,153);
+	color: rgb(0,51,51);
+}
+table
+{
+	table-border-color-light: rgb(102,204,204);
+	table-border-color-dark: rgb(0,102,102); 
+}
+h1, h2, h3, h4, h5, h6
+{
+	font-family: Times New Roman, Times;
+}
+h1
+{
+	color: rgb(0,153,153);
+}
+h2
+{
+	color: rgb(102,102,102); 
+}
+h3
+{
+	color: rgb(153,153,102); 
+}
+h4
+{
+	color: rgb(0,153,153);
+}
+h5
+{
+	color: rgb(102,102,102);
+}
+h6
+{
+	color: rgb(153,153,102);
+}
+

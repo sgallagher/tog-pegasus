@@ -1,0 +1,258 @@
+CHANGE LOG FOR PEGASUS
+
+
+---------------------------------------------------------------------------
+Version 1.1 - July 2001 Development branch (Work in Progress)
+
+1. (Nitin Upasani - HP) Implementation of handleIndication() to deliver 
+   indication by defining IndicationDispatcher, HandlerTable, CIMHandler 
+   and ExportClient classes. the indication. 
+
+   Also implemented CIMxmlIndicationHandler and sendmailIndicationHandler to 
+   make the delivery of indications over Xml-HTTP and email respectively.
+
+   Provided examples for HandlerTable, XmlIndicationDelivery and 
+   SendMailIndicationDelivery to support this implementation.
+
+---------------------------------------------------------------------------
+Version 0.99.x (Fixes to version 0.99) in Process
+NOTE: Please do not input anything to this branch except for critical
+fixes.  This is, in effect, 1.0 and we do not want to use it for
+development.
+
+----------------------------------------------------------------------------
+
+Version 0.98.0 - Work in progress (This number skipped)
+Version -.99.0 - Tagged as version 0.99,17 July 8:00 am - KS
+
+1. (Mike Brasher) Added support for class association operations
+    (references(), associators(), referenceNames(), associatorNames()).
+
+2. (Jenny Yu - HP) Fixed problem in CGIClient.cpp to handle double quotes
+   in the HTML URL reference for passing instance names.
+
+3. (Mike Brasher) Mass substitution to prepend CIM_ERR to CIM Status Codes.
+
+4. (Mike Brasher) Added CIM Message types in preparation for qeueing.
+
+3. (Denise E. - HP) HP-UX specific changes to lslp-perl-linux,h and slp.h to
+   allow slp to compile.
+
+4. (Mike Brasher) - Finalized CIM messages.
+
+5. (Mike Brasher) - Added queue ids concept (using hash table which maps
+   ids to queue pointers).
+
+6. (Mike Brasher) - Started integration of message queues with ServerHandler
+   and Dispatcher.
+
+7. (Chip Vincent) - Update Provider2 interfaces. Made changes to Dispatcher
+and
+   CIMProvider to support both interfaces. Added CIMOMHandle and sample
+   ResponseHandler for Provider2 interface.
+
+8. (Mike Brasher) - Replaced dispatcher with a queue-based dispatcher.
+
+9. (Mike Brasher) - Retrofited CIMOMHandle to be queue-based.
+
+10. (Mike Brasher) - Changed CIMOMHandle to carry repository pointer.
+
+11. (Mike Brasher) - Ported to TRU64.
+
+12. (Mike Brasher) - Fixed compiler error on Linux.
+
+------------------------------------------------------------------------------
+--
+
+Version 0.97.4 - Tag Created for 0.97.4 and snapshot 7 July 2001
+
+1. Deamonizaiton added to CIMServer.cpp by Mike Day.  This includes code bothe
+for NT and Linux platforms.
+
+2. KS Changed the namespace cimv20 to cimv2 and the default port from 888 to
+5988.
+NOTE: 5988 is now the officially recognized preferred port for a CIMServer by
+the DMTF.
+
+3. KS Corrected some errors found in interoperability testing during the DMTF
+Fusion event.  THis included a) extended the test for end of HTTP header from
+CR/LF/CR/LF to also allow LF/LF.  Not strictly legal but widely used. b).
+Extended the HTTP message ID to allow for non-numeric message IDs.
+
+4. Broke out RepositoryDeclContext class from Repository/CIMRepository.cpp
+and created RepositoryDeclContext.{cpp,h}.  This is the first step in
+revamping the compiler to work independently of the repository (grb).
+
+5. Created new makefile Compiler/Makefile.grammar and modified
+Compiler/Makefile; and added cimmof_tab.{cpp,h} and cimmof_lex.cpp.
+Now when you build normally, you will get the committed grammar and parser
+files instead of generating your own for a particular platform.  This should
+prevent back-level lex and yacc implementations from generating troublesome
+code.  The committed files are generated from flex 2.5.4 and bison 1,28.
+(grb)
+
+6.  Added Compiler/compilerDeclContext.{cpp,h} and makefile changes.
+This change paves the way for upcoming changes that will allow the compiler
+to work indepently of the repository. (grb)
+
+7. Extend testclient (clients/testclient) tests and functions. ks 19 June 2001
+
+8. CV added const to CIMOperations modifyInstance, createInstance,
+modifyClass,
+createClass to protect caller's object.
+
+9. CV added CIMQueryProvider and CIMAssociationProvider to the Provider2
+directory. These
+interfaces allow very smart providers to perform advances operations.
+CIMProviderStub has
+been updated to support the new interfaces. Needs testing.
+
+10. Added rpm packaging support and shell script based build process. MM
+
+11. Changed Make so make tests no longer rebuilds repository.  To rebuild
+repository you make world, make rebuild or make repository. ks
+
+12. Added associators() and associatorNames() operations to CIM repository.
+    (MEB)
+
+13. More on association implementation (all four operations supported).
+    Need to handle deletion of associations and protocol stubs still.
+    Need to test class associations (rather than just instance associations).
+    Need to handle deleteInstance().
+    (MEB)
+
+14. slp client code integrated as pegasus-style c++ library. (MDD)
+
+15. (Karl)Update CGI Client to correct number of errors and install
+AssociationName
+and ReferenceName functions.  This included extensive update to the HTML
+pages.
+
+16. (Denise E.) Changes to slp client support code for HPUX (
+
+17. (Markus Mueller) Additional changes to support dynamic libraries. Fixed
+ProviderTable tests. Fixed build process (slp with PEGASUS_SUPPORTS_DYNLIB).
+Made cimserver accept the -D flag to eliminate the need for environment
+variables.
+
+18. (Mike Brasher) Added support for Associators(), AssociatorNames(),
+    References() and ReferenceNames() CIM operations. These only operate
+    on instances at this time. They will operate on classes soon.
+
+19. (Mike Glantz) Extended and modified dynamic support
+    changes to (1) work on HP-UX and (2) have all images and libraries
+    buildable per the value of PEGASUS_SUPPORTS_DYNLIB. The biggest
+    change is to program.mak and library-unix.mak, removing specific
+    lists of dynamic library specs and putting them in the Makefile
+    and libraries.mak files that build the actual targets (lots of
+    these now have DYNAMIC_LIBRARIES defined).
+
+20. (Karl) added basic Queue function to common (based on array) and added
+    tests for stack and queue.
+
+------------------------------------------------------------------------------
+--
+
+Version 0.97.3 - Released 5 June 2001
+
+1. (KS)OptionManager (CPP and H), Logger (CPP and H), Handler (CPP and H),
+CIMServer (both)
+Functions added include:
+	a. Enable trace to log file.
+	b. Add option so that you can trace to console or trace to logfile (-l
+	is
+	   trace to log, -t is trace to console).
+	c. add parameter in optionsrow for help message and enable the capture
+	   of these messages in Options class.  Also added help print that
+	   prints these things out.  However, format not to beautiful.
+	d. Eliminate a couple of messages coming from __Namespace provider.
+	e. Extend the Clients\testclient so he does tests on Namespace.
+2. (KS)Extended Log to show time, severity.
+
+3. (KS)Added getCurrentASCIITime functions to System.x
+
+4. (KS)Extended options on CIMServer including 1. option to determine where
+logs
+are put
+
+5. (KS)Added TestClient that executes a series of tests against a server.
+This is a preliminary version.
+
+6. (KS)Corrected problem with acceptor.bind where failure was being lost. Now
+throws CannotBind exception.
+
+7. (KS)Added logger entry to XMLParser for errors.  NOTE: At this point it may
+not
+print out all of the message.  At the least it prints out the error message
+and components of the message causing the problem.
+
+8. (KS)Added clean option to server but temprarily disabled.
+
+9. (KS)Fixed problem where logs were not created unless logs directory already
+existed.
+
+10. (Mike Brasher) Added "Test" prefix to all test program names.
+
+------------------------------------------------------------------------------
+--
+Version 0.97.2
+
+1. Extend HP UX port to correctly load Dynamic Load Libraries.
+2. Extend Formatter for Boolean and Uint32 types.
+3. Change CIM Server to use Trace (-t) flag.  This also changed
+   Handler.h to work off of flag.
+4. Minor corrections to __Namespace Provider.
+5. Extend tests for Formatter, String, and other modules.
+6. Correct errors in documentation.
+7. New working papers (provider interface).
+8. Add Providerreg.exe tool.
+9. Add trace output for messages sent from the Server.
+
+------------------------------------------------------------------------------
+--
+
+23 May 2001 Version 0.97.1 Tags as version_0_971
+
+1. Add PEG_NOT_FOUND symbol to replace Uint32(-1) in any of the object
+find functions.  Note: This symbol is defined in config.h. (ks).
+
+2. Port To HP UX.  This required a number of changes particularly in the area
+of dynamic lib loaading.
+
+
+------------------------------------------------------------------------------
+--
+
+21 May 2001  Version 0.97 - Tagged as version_0_97
+
+1. Added methods in CIMClass, CIMInstance, for existance of properties,
+qualifiers, methods.
+2. Add methods in CIMClass, CIMInstance to remove properties, qualifier,
+methods.
+3. Added CIMmethod and CIMProperty in CIMMethod to text for existance of
+qualifiers and to
+remove qualifiers.
+4. Ported to AIX. NOTE: This port was done using an earlier version of the AIX
+compiler.  It probably imposed more limitations than would be required with
+the current compiler.  This version of the port produces an excessively large
+common module due to template bloat.  That problem will be fixed in a future
+change to the port. Also there are a log of duplicate symbol warnings generate
+by the AIC compiler but these cause no problems.  The port has been tested
+with the complete unit test and client/server test successfully.
+
+--------------------------------------------------------------------------
+
+23 May 2001
+
+1.  Ported to HPUX
+
+--------------------------------------------------------------------------
+
+29 May 2001
+
+1.  Implemented CIMRepository::setProperty() and CIMRepository::getProperty().
+
+
+
+
+

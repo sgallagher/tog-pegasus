@@ -118,6 +118,8 @@ class PEGASUS_CQL_LINKAGE CQLValue
    CQLValue(Boolean inBool);
    CQLValue(CIMClass inClass);
    CQLValue(CQLValueRep rhs);
+   CQLValue(CIMObject inObject);
+   CQLValue(CIMValue inVal);
 
     /**  This method is used to ask an identifier to resolve itself to 
            a number or string (primitive value).

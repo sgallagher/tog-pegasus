@@ -93,6 +93,16 @@ CQLValue::CQLValue(CIMClass inClass)
    _rep = new CQLValueRep(inClass);
 }
 
+CQLValue::CQLValue(CIMObject inObject)
+{
+   _rep = new CQLValueRep(inObject);
+}
+
+CQLValue::CQLValue(CIMValue inVal)
+{
+   _rep = new CQLValueRep(inVal);
+}
+
 CQLValue::CQLValue(CIMObjectPath inObjPath)
 {  
    _rep = new CQLValueRep(inObjPath);

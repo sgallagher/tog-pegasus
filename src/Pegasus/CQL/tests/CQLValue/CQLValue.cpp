@@ -43,6 +43,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/CQL/CQLValue.h>
+#include <Pegasus/CQL/CQLValueRep.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/CQL/RepositoryQueryContext.h>
@@ -174,6 +175,12 @@ void drive_operation()
    CQLValue d4(String("AHELLO"));
    CQLValue d5(String("ZHELLO"));
 
+   String tmp1 =  d1.getString();
+   CQLValue tmp3 = d2+d3;
+   String tmp2 = tmp3.getString();
+
+   // cout  << tmp1 << endl;
+   //cout << tmp2 << endl;
 
    assert(d1 == d2 + d3);
    assert(d1 != d2 + d4);
@@ -204,6 +211,145 @@ void drive_operation()
    assert(e2 == e6);
    assert(e3 == e7);
    assert(e4 == e8);
+
+   Array<Uint64> array1;
+
+   array1.append(1);
+   array1.append(2);
+   array1.append(3);
+   array1.append(4);
+   array1.append(5);
+   array1.append(6);
+   array1.append(7);
+   array1.append(8);
+   array1.append(9);
+   array1.append(10);
+
+ Array<Sint64> array2;
+
+   array2.append(1);
+   array2.append(2);
+   array2.append(3);
+   array2.append(4);
+   array2.append(5);
+   array2.append(6);
+   array2.append(7);
+   array2.append(8);
+   array2.append(9);
+   array2.append(10);
+   array2.append(3);
+
+ Array<Real64> array3;
+
+   array3.append(1.00);
+   array3.append(2.00);
+   array3.append(3.00);
+   array3.append(9.00);
+   array3.append(10.00);
+   array3.append(3.00);
+   array3.append(4.00);
+   array3.append(5.00);
+   array3.append(6.00);
+   array3.append(7.00);
+   array3.append(8.00);
+
+   Array<Uint64> array4;
+
+   array4.append(1);
+   array4.append(23);
+   array4.append(3);
+   array4.append(4);
+   array4.append(5);
+   array4.append(6);
+   array4.append(7);
+   array4.append(88);
+   array4.append(9);
+   array4.append(10);
+
+ Array<Sint64> array5;
+
+   array5.append(-1);
+   array5.append(2);
+   array5.append(3);
+   array5.append(4);
+   array5.append(5);
+   array5.append(-6);
+   array5.append(7);
+   array5.append(8);
+   array5.append(9);
+   array5.append(10);
+   array5.append(-3);
+
+ Array<Real64> array6;
+
+   array6.append(1.23);
+   array6.append(2.00);
+   array6.append(3.00);
+   array6.append(9.00);
+   array6.append(10.00);
+   array6.append(3.00);
+   array6.append(4.14);
+   array6.append(5.00);
+   array6.append(6.00);
+   array6.append(7.00);
+   array6.append(8.00);
+
+   CIMValue cv1(array1);
+   CIMValue cv2(array2);
+   CIMValue cv3(array3);
+   CIMValue cv4(array4);
+   CIMValue cv5(array5);
+   CIMValue cv6(array6);
+ 
+   CQLValue vr1(cv1);
+   CQLValue vr2(cv1);
+   CQLValue vr3(cv2);
+   CQLValue vr4(cv3);
+   CQLValue vr5(cv4);
+   CQLValue vr6(cv5);
+   CQLValue vr7(cv6);
+ 
+   assert(vr1 == vr2);
+   assert(vr1 == vr3);
+   assert(vr1 == vr4);
+   assert(vr4 == vr3);
+
+   assert(vr1 != vr5);
+   assert(vr3 != vr6);
+   assert(vr4 != vr7);
+
+   const CIMName _cimName(String("CIM_OperatingSystem"));
+
+   CIMInstance _i1(_cimName);
+   CIMProperty _p1(CIMName("Description"),CIMValue(String("Dave Rules")));
+   CIMProperty _p2(CIMName("EnabledState"),CIMValue(Uint16(2)));
+   CIMProperty _p3(CIMName("CurrentTimeZone"),CIMValue(Sint16(-600)));
+   CIMProperty _p4(CIMName("TimeOfLastStateChange"),
+                  CIMValue(CIMDateTime(String("20040811105625.000000-360"))));
+                                    
+   _i1.addProperty(_p1);
+   _i1.addProperty(_p2);
+   _i1.addProperty(_p3);
+   _i1.addProperty(_p4);
+
+   CIMInstance _i2(_cimName);
+   CIMProperty _p5(CIMName("Description"),CIMValue(String("Dave Rules Everything")));
+   CIMProperty _p6(CIMName("EnabledState"),CIMValue(Uint16(2)));
+   CIMProperty _p7(CIMName("CurrentTimeZone"),CIMValue(Sint16(-600)));
+   CIMProperty _p8(CIMName("TimeOfLastStateChange"),
+                  CIMValue(CIMDateTime(String("20040811105625.000000-360"))));
+                                    
+   _i2.addProperty(_p5);
+   _i2.addProperty(_p6);
+   _i2.addProperty(_p7);
+   _i2.addProperty(_p8);
+
+   CQLValue cql1(_i1);
+   CQLValue cql2(_i1);
+   CQLValue cql3(_i2);
+   CQLValue cql4(_i2);
+
+   //assert(cql1 == cql1);
 
    return;
 }

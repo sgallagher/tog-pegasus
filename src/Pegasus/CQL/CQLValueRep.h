@@ -79,6 +79,8 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
    CQLValueRep(const CIMInstance& inInstance);
    CQLValueRep(const Boolean inBool);
    CQLValueRep(const CIMClass& inClass);
+   CQLValueRep(const CIMObject& inObject);
+   CQLValueRep(const CIMValue& inVal);
 
     /**  This method is used to ask an identifier to resolve itself to 
            a number or string (primitive value).
@@ -276,6 +278,7 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
    void _setValue(CIMValue cv, Sint64 Index = -1);
    void _process_value(CIMProperty& propObj,CQLIdentifier& _id,const QueryContext& inQueryContext);
    Boolean _compareObjects(CIMObject& _in1, CIMObject& _in2);
+   Boolean _compareArray(const CQLValueRep& _in);
 
    CIMValue _theValue;
 
@@ -285,8 +288,7 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
 
    CQLValue::CQLValueType _valueType;
 
-
-
+   String _ArrayType;
 };
 
 #ifndef PEGASUS_ARRAY_T

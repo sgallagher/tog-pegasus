@@ -10,14 +10,6 @@ LIBRARIES = \
     pegwmiserver \
     pegclient
 
-ifneq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-  ifneq ($(OS),HPUX)
-    ifndef NO_SLP
-      LIBRARIES += slp
-    endif
-  endif
-endif
-
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY 

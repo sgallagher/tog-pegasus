@@ -109,9 +109,6 @@
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Server/ShutdownService.h>
 #include <Pegasus/Common/Destroyer.h>
-#if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX) && ! defined(PEGASUS_NO_SLP)
-#include <slp/slp.h>
-#endif
 
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
@@ -880,20 +877,6 @@ int main(int argc, char** argv)
     // try loop to bind the address, and run the server
     try
     {
-#if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX) && ! defined(PEGASUS_NO_SLP)
-        char slp_address[32];
-      	slp_client *discovery = new slp_client() ;;
-        String serviceURL;
-	serviceURL.assign("service:cim.pegasus://");
-	String host_name = slp_get_host_name();
-	serviceURL.append(host_name);
-	serviceURL.append(":");
-        // ATTN: Fix this to work for multiple connections
-        sprintf(slp_address, "%u",
-                enableHttpConnection ? portNumberHttp : portNumberHttps);
-        serviceURL.append(slp_address);
-#endif
-
 	Monitor monitor(true);
 	CIMServer server(&monitor);
 
@@ -981,23 +964,6 @@ int main(int argc, char** argv)
         //
 	while( !server.terminated() )
 	{
-#if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX) && ! defined(PEGASUS_NO_SLP)
-	  if(useSLP  ) 
-	  {
-	    if(  (time(NULL) - last ) > 60 ) 
-	    {
-	      if( discovery != NULL && serviceURL.size() )
-		discovery->srv_reg_all(serviceURL.getCString(),
-				       "(namespace=root/cimv2)",
-				       "service:cim.pegasus", 
-				       "DEFAULT", 
-				       70) ;
-	      time(&last);
-	    }
-	  
-	    discovery->service_listener();
-	  }
-#endif
 	  server.runForever();
 	}
 

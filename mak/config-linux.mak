@@ -74,11 +74,6 @@ else
 FLAGS += -O2 -fPIC -W -Wall -Wno-unused -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
 endif
 
-ifdef PEGASUS_NO_SLP
-  FLAGS += -DPEGASUS_NO_SLP
-  NO_SLP = true
-endif
-
 ifdef PEGASUS_HAS_PERFINST
   FLAGS += -DPEGASUS_HAS_PERFINST
 endif

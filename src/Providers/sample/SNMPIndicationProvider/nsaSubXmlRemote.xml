@@ -8,14 +8,14 @@
           <NAMESPACE NAME="PG_InterOp"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="NewInstance">
-          <INSTANCE CLASSNAME="PG_IndicationSubscription">
+          <INSTANCE CLASSNAME="CIM_IndicationSubscription">
             <QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
               <VALUE>TRUE</VALUE> 
             </QUALIFIER>
             <PROPERTY.REFERENCE NAME="Filter" 
-                                REFERENCECLASS="PG_IndicationFilter"> 
+                                REFERENCECLASS="CIM_IndicationFilter"> 
               <VALUE.REFERENCE> 
-                <INSTANCENAME CLASSNAME="PG_IndicationFilter">
+                <INSTANCENAME CLASSNAME="CIM_IndicationFilter">
                   <KEYBINDING NAME="SystemCreationClassName">
                     <KEYVALUE VALUETYPE="string">
                     CIM_UnitaryComputerSystem
@@ -28,7 +28,7 @@
                   </KEYBINDING>
                   <KEYBINDING NAME="CreationClassName">
                     <KEYVALUE VALUETYPE="string">
-                    PG_IndicationFilter
+                    CIM_IndicationFilter
                     </KEYVALUE>
                   </KEYBINDING>
                   <KEYBINDING NAME="Name">
@@ -40,9 +40,9 @@
               </VALUE.REFERENCE>
             </PROPERTY.REFERENCE>
             <PROPERTY.REFERENCE NAME="Handler" 
-                                REFERENCECLASS="PG_IndicationHandler"> 
+                                REFERENCECLASS="CIM_IndicationHandler"> 
               <VALUE.REFERENCE> 
-                <INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+                <INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
                   <KEYBINDING NAME="SystemCreationClassName">
                     <KEYVALUE VALUETYPE="string">
                     CIM_UnitaryComputerSystem
@@ -55,7 +55,7 @@
                   </KEYBINDING>
                   <KEYBINDING NAME="CreationClassName">
                     <KEYVALUE VALUETYPE="string">
-                    PG_IndicationHandlerCIMXML
+                    CIM_IndicationHandlerCIMXML
                     </KEYVALUE>
                   </KEYBINDING>
                   <KEYBINDING NAME="Name">

@@ -8,7 +8,7 @@
           <NAMESPACE NAME="PG_InterOp"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="ClassName">
-          <CLASSNAME NAME="PG_IndicationHandlerCIMXML"/>
+          <CLASSNAME NAME="CIM_IndicationHandlerCIMXML"/>
         </IPARAMVALUE>
       </IMETHODCALL>
     </SIMPLEREQ>

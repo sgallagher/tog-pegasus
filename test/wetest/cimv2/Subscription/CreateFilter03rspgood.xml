@@ -4,10 +4,10 @@
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="CreateInstance">
 <IRETURNVALUE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">

@@ -8,11 +8,11 @@
           <NAMESPACE NAME="PG_InterOp"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="NewInstance">
-          <INSTANCE CLASSNAME="PG_IndicationSubscription">
+          <INSTANCE CLASSNAME="CIM_IndicationSubscription">
             <PROPERTY.REFERENCE NAME="Filter" 
-                                REFERENCECLASS="PG_IndicationFilter"> 
+                                REFERENCECLASS="CIM_IndicationFilter"> 
               <VALUE.REFERENCE> 
-                <INSTANCENAME CLASSNAME="PG_IndicationFilter">
+                <INSTANCENAME CLASSNAME="CIM_IndicationFilter">
                   <KEYBINDING NAME="SystemCreationClassName">
                     <KEYVALUE VALUETYPE="string">
                     </KEYVALUE>
@@ -34,9 +34,9 @@
               </VALUE.REFERENCE>
             </PROPERTY.REFERENCE>
             <PROPERTY.REFERENCE NAME="Handler" 
-                                REFERENCECLASS="PG_IndicationHandler"> 
+                                REFERENCECLASS="CIM_IndicationHandler"> 
               <VALUE.REFERENCE> 
-                <INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+                <INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
                   <KEYBINDING NAME="SystemCreationClassName">
                     <KEYVALUE VALUETYPE="string">
                     </KEYVALUE>

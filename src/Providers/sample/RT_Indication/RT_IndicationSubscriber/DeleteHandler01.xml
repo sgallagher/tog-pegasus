@@ -8,7 +8,7 @@
           <NAMESPACE NAME="PG_InterOp"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="InstanceName">
-          <INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+          <INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
             <KEYBINDING NAME="SystemCreationClassName">
               <KEYVALUE VALUETYPE="string">
               </KEYVALUE>

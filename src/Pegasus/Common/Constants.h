@@ -111,15 +111,15 @@ static const CIMName PEGASUS_CLASSNAME_PROVIDER             =
 static const CIMName PEGASUS_CLASSNAME_PROVIDERCAPABILITIES = 
     CIMName ("PG_ProviderCapabilities");
 static const CIMName PEGASUS_CLASSNAME_INDSUBSCRIPTION      = 
-    CIMName ("PG_IndicationSubscription");
+    CIMName ("CIM_IndicationSubscription");
 static const CIMName PEGASUS_CLASSNAME_INDHANDLER           = 
-    CIMName ("PG_IndicationHandler");
+    CIMName ("CIM_IndicationHandler");
 static const CIMName PEGASUS_CLASSNAME_INDHANDLER_CIMXML    = 
-    CIMName ("PG_IndicationHandlerCIMXML");
+    CIMName ("CIM_IndicationHandlerCIMXML");
 static const CIMName PEGASUS_CLASSNAME_INDHANDLER_SNMP      = 
     CIMName ("PG_IndicationHandlerSNMPMapper");
 static const CIMName PEGASUS_CLASSNAME_INDFILTER            = 
-    CIMName ("PG_IndicationFilter");
+    CIMName ("CIM_IndicationFilter");
 static const CIMName PEGASUS_CLASSNAME_SHUTDOWN             = 
     CIMName ("PG_ShutdownService");
 static const CIMName PEGASUS_CLASSNAME___NAMESPACE          = 

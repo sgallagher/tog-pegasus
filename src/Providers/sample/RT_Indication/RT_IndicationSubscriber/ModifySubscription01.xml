@@ -9,10 +9,10 @@
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="ModifiedInstance">
           <VALUE.NAMEDINSTANCE>
-            <INSTANCENAME CLASSNAME="PG_IndicationSubscription">
+            <INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
               <KEYBINDING NAME="Filter">
                 <VALUE.REFERENCE>
-                  <INSTANCENAME CLASSNAME="PG_IndicationFilter">
+                  <INSTANCENAME CLASSNAME="CIM_IndicationFilter">
                     <KEYBINDING NAME="CreationClassName">
                       <KEYVALUE VALUETYPE="string">
                       </KEYVALUE>
@@ -35,7 +35,7 @@
               </KEYBINDING>
               <KEYBINDING NAME="Handler">
                 <VALUE.REFERENCE>
-                  <INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+                  <INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
                     <KEYBINDING NAME="CreationClassName">
                       <KEYVALUE VALUETYPE="string">
                       </KEYVALUE>
@@ -57,7 +57,7 @@
                 </VALUE.REFERENCE>
               </KEYBINDING>
             </INSTANCENAME>
-            <INSTANCE CLASSNAME="PG_IndicationSubscription">
+            <INSTANCE CLASSNAME="CIM_IndicationSubscription">
               <PROPERTY NAME="SubscriptionState" TYPE="uint16"> 
                 <VALUE> 4 </VALUE>
               </PROPERTY>

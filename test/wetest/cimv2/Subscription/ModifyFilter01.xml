@@ -9,10 +9,10 @@
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="ModifiedInstance">
           <VALUE.NAMEDINSTANCE>
-            <INSTANCENAME CLASSNAME="PG_IndicationFilter">
+            <INSTANCENAME CLASSNAME="CIM_IndicationFilter">
               <KEYBINDING NAME="CreationClassName">
                 <KEYVALUE VALUETYPE="string">
-                PG_IndicationFilter
+                CIM_IndicationFilter
                 </KEYVALUE>
               </KEYBINDING>
               <KEYBINDING NAME="Name">
@@ -31,7 +31,7 @@
                 </KEYVALUE>
               </KEYBINDING>
             </INSTANCENAME>
-            <INSTANCE CLASSNAME="PG_IndicationFilter">
+            <INSTANCE CLASSNAME="CIM_IndicationFilter">
               <PROPERTY NAME="QueryLanguage" TYPE="string">
                 <VALUE> WQL2 </VALUE>
               </PROPERTY>

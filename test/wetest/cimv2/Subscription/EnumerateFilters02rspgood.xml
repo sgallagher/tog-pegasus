@@ -5,10 +5,10 @@
 <IMETHODRESPONSE NAME="EnumerateInstances">
 <IRETURNVALUE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -27,47 +27,47 @@ server001.acme.com
 </KEYVALUE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="PG_IndicationFilter">
+<INSTANCE CLASSNAME="CIM_IndicationFilter">
 <QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
 <VALUE>
-PG_IndicationFilter defines the criteria for generating an Indication and what data should be returned in the Indication. It is derived from CIM_ManagedElement to allow modeling the dependency of the filter on a specific service.
+CIM_IndicationFilter defines the criteria for generating an Indication and what data should be returned in the Indication. It is derived from CIM_ManagedElement to allow modeling the dependency of the filter on a specific service.
 </VALUE>
 </QUALIFIER>
 <PROPERTY NAME="Caption" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="Description" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 CIM_UnitaryComputerSystem
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SystemName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="SystemName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 server001.acme.com
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="CreationClassName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="CreationClassName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
-PG_IndicationFilter
+CIM_IndicationFilter
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="Name" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="Name" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 Filter01
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="Query" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="Query" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 SELECT * FROM CIM_ProcessIndication
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="QueryLanguage" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="QueryLanguage" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 WQL1
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SourceNamespace" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 root/PG_InterOp
 </VALUE>
@@ -75,10 +75,10 @@ root/PG_InterOp
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -97,47 +97,47 @@ server001.acme.com
 </KEYVALUE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="PG_IndicationFilter">
+<INSTANCE CLASSNAME="CIM_IndicationFilter">
 <QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
 <VALUE>
-PG_IndicationFilter defines the criteria for generating an Indication and what data should be returned in the Indication. It is derived from CIM_ManagedElement to allow modeling the dependency of the filter on a specific service.
+CIM_IndicationFilter defines the criteria for generating an Indication and what data should be returned in the Indication. It is derived from CIM_ManagedElement to allow modeling the dependency of the filter on a specific service.
 </VALUE>
 </QUALIFIER>
 <PROPERTY NAME="Caption" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="Description" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 CIM_UnitaryComputerSystem
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SystemName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="SystemName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 server001.acme.com
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="CreationClassName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="CreationClassName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
-PG_IndicationFilter
+CIM_IndicationFilter
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="Name" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="Name" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 Filter02
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="Query" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="Query" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 SELECT IndicationTime, IndicationIdentifier, CorrelatedIndications FROM CIM_ProcessIndication
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="QueryLanguage" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="QueryLanguage" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 WQL1
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SourceNamespace" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 root/PG_InterOp
 </VALUE>
@@ -145,10 +145,10 @@ root/PG_InterOp
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -167,47 +167,47 @@ server001.acme.com
 </KEYVALUE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="PG_IndicationFilter">
+<INSTANCE CLASSNAME="CIM_IndicationFilter">
 <QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
 <VALUE>
-PG_IndicationFilter defines the criteria for generating an Indication and what data should be returned in the Indication. It is derived from CIM_ManagedElement to allow modeling the dependency of the filter on a specific service.
+CIM_IndicationFilter defines the criteria for generating an Indication and what data should be returned in the Indication. It is derived from CIM_ManagedElement to allow modeling the dependency of the filter on a specific service.
 </VALUE>
 </QUALIFIER>
 <PROPERTY NAME="Caption" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="Description" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 CIM_UnitaryComputerSystem
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SystemName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="SystemName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 server001.acme.com
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="CreationClassName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="CreationClassName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
-PG_IndicationFilter
+CIM_IndicationFilter
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="Name" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="Name" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 Filter03
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="Query" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="Query" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 SELECT IndicationTime FROM CIM_ProcessIndication
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="QueryLanguage" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="QueryLanguage" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 WQL1
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SourceNamespace" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 root/PG_InterOp
 </VALUE>
@@ -215,10 +215,10 @@ root/PG_InterOp
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -237,47 +237,47 @@ server001.acme.com
 </KEYVALUE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="PG_IndicationFilter">
+<INSTANCE CLASSNAME="CIM_IndicationFilter">
 <QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
 <VALUE>
-PG_IndicationFilter defines the criteria for generating an Indication and what data should be returned in the Indication. It is derived from CIM_ManagedElement to allow modeling the dependency of the filter on a specific service.
+CIM_IndicationFilter defines the criteria for generating an Indication and what data should be returned in the Indication. It is derived from CIM_ManagedElement to allow modeling the dependency of the filter on a specific service.
 </VALUE>
 </QUALIFIER>
 <PROPERTY NAME="Caption" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="Description" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 CIM_UnitaryComputerSystem
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SystemName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="SystemName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 server001.acme.com
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="CreationClassName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="CreationClassName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
-PG_IndicationFilter
+CIM_IndicationFilter
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="Name" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="Name" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 Filter04
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="Query" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="Query" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 SELECT IndicationTime, IndicationIdentifier FROM CIM_ProcessIndication WHERE IndicationTime IS NOT NULL
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="QueryLanguage" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="QueryLanguage" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 WQL1
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SourceNamespace" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 root/PG_InterOp
 </VALUE>
@@ -285,10 +285,10 @@ root/PG_InterOp
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -307,47 +307,47 @@ server001.acme.com
 </KEYVALUE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="PG_IndicationFilter">
+<INSTANCE CLASSNAME="CIM_IndicationFilter">
 <QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
 <VALUE>
-PG_IndicationFilter defines the criteria for generating an Indication and what data should be returned in the Indication. It is derived from CIM_ManagedElement to allow modeling the dependency of the filter on a specific service.
+CIM_IndicationFilter defines the criteria for generating an Indication and what data should be returned in the Indication. It is derived from CIM_ManagedElement to allow modeling the dependency of the filter on a specific service.
 </VALUE>
 </QUALIFIER>
 <PROPERTY NAME="Caption" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="Description" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 CIM_UnitaryComputerSystem
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SystemName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="SystemName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 server001.acme.com
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="CreationClassName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="CreationClassName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
-PG_IndicationFilter
+CIM_IndicationFilter
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="Name" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="Name" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 Filter05
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="Query" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="Query" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 SELECT * FROM CIM_ProcessIndication WHERE IndicationTime IS NOT NULL
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="QueryLanguage" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="QueryLanguage" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 WQL1
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SourceNamespace" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 root/PG_InterOp
 </VALUE>
@@ -355,10 +355,10 @@ root/PG_InterOp
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -377,47 +377,47 @@ server001.acme.com
 </KEYVALUE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="PG_IndicationFilter">
+<INSTANCE CLASSNAME="CIM_IndicationFilter">
 <QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
 <VALUE>
-PG_IndicationFilter defines the criteria for generating an Indication and what data should be returned in the Indication. It is derived from CIM_ManagedElement to allow modeling the dependency of the filter on a specific service.
+CIM_IndicationFilter defines the criteria for generating an Indication and what data should be returned in the Indication. It is derived from CIM_ManagedElement to allow modeling the dependency of the filter on a specific service.
 </VALUE>
 </QUALIFIER>
 <PROPERTY NAME="Caption" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="Description" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 CIM_UnitaryComputerSystem
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SystemName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="SystemName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 server001.acme.com
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="CreationClassName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="CreationClassName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
-PG_IndicationFilter
+CIM_IndicationFilter
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="Name" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="Name" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 Filter06
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="Query" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="Query" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 SELECT * FROM CIM_AlertIndication WHERE AlertType = 5
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="QueryLanguage" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="QueryLanguage" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 WQL1
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SourceNamespace" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
+<PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 root/PG_InterOp
 </VALUE>

@@ -3,7 +3,7 @@
 <MESSAGE ID="010011" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="CreateInstance">
-<ERROR CODE="4" DESCRIPTION="CIM_ERR_INVALID_PARAMETER: One or more parameter values passed to the method were invalid: &quot;Invalid indication class name CIM_ManagedElement in FROM clause of PG_IndicationFilter Query property&quot;"/>
+<ERROR CODE="4" DESCRIPTION="CIM_ERR_INVALID_PARAMETER: One or more parameter values passed to the method were invalid: &quot;Invalid indication class name CIM_ManagedElement in FROM clause of CIM_IndicationFilter Query property&quot;"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

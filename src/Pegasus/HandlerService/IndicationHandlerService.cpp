@@ -147,9 +147,9 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 
    Uint32 pos = PEG_NOT_FOUND;
 
-   if (className.equal (CIMName ("PG_IndicationHandlerCIMXML")))
+   if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML))
        pos = handler.findProperty(CIMName ("destination"));
-   else if (className.equal (CIMName ("PG_IndicationHandlerSNMPMapper")))
+   else if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_SNMP))
        pos = handler.findProperty(CIMName ("TrapDestination"));
 
    if (pos == PEG_NOT_FOUND)
@@ -167,7 +167,7 @@ void IndicationHandlerService::_handleIndication(const Message* message)
            cimException = 
                PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String("invalid destination"));
        }
-       else if ((className.equal (CIMName ("PG_IndicationHandlerCIMXML"))) &&
+       else if ((className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML)) &&
            (destination.subString(0, 9) == String("localhost")))
        {
           Array<Uint32> exportServer;
@@ -238,9 +238,9 @@ CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
 {
    String handlerId;
 
-   if (className.equal (CIMName ("PG_IndicationHandlerCIMXML")))
+   if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML))
        handlerId = String("CIMxmlIndicationHandler");
-   else if (className.equal (CIMName ("PG_IndicationHandlerSNMPMapper")))
+   else if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_SNMP))
        handlerId = String("snmpIndicationHandler");
    else
        return 0;

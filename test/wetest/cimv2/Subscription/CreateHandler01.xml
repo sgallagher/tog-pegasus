@@ -8,7 +8,7 @@
           <NAMESPACE NAME="PG_InterOp"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="NewInstance">
-          <INSTANCE CLASSNAME="PG_IndicationHandlerCIMXML">
+          <INSTANCE CLASSNAME="CIM_IndicationHandlerCIMXML">
             <PROPERTY NAME="SystemCreationClassName" TYPE="string">
               <VALUE> CIM_UnitaryComputerSystem </VALUE>
             </PROPERTY>
@@ -16,7 +16,7 @@
               <VALUE> server001.acme.com </VALUE>
             </PROPERTY>
             <PROPERTY NAME="CreationClassName" TYPE="string"> 
-              <VALUE> PG_IndicationHandlerCIMXML </VALUE>
+              <VALUE> CIM_IndicationHandlerCIMXML </VALUE>
             </PROPERTY>
             <PROPERTY NAME="Name" TYPE="string"> 
               <VALUE> Handler01 </VALUE>

@@ -5,13 +5,13 @@
 <IMETHODRESPONSE NAME="EnumerateInstances">
 <IRETURNVALUE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="PG_IndicationSubscription">
+<INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
 <KEYBINDING NAME="Filter">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -34,10 +34,10 @@ server001.acme.com
 </KEYBINDING>
 <KEYBINDING NAME="Handler">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationHandlerCIMXML
+CIM_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -59,10 +59,10 @@ server001.acme.com
 </VALUE.REFERENCE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="PG_IndicationSubscription">
+<INSTANCE CLASSNAME="CIM_IndicationSubscription">
 <QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
 <VALUE>
-PG_IndicationSubscription describes a flow of Indications. The flow is specified by the referenced Filter, and directed to the referenced destination or process in the Handler. Property values of the referenced PG_IndicationFilter instance and PG_IndicationHandler instance MAY significantly effect the definition of the subscription. E.g., a subscription associated with a &quot;Transient&quot; destination MAY be deleted when the destination terminates or is no longer available.
+CIM_IndicationSubscription describes a flow of Indications. The flow is specified by the referenced Filter, and directed to the referenced destination or process in the Handler. Property values of the referenced CIM_IndicationFilter instance and CIM_IndicationHandler instance MAY significantly effect the definition of the subscription. E.g., a subscription associated with a &quot;Transient&quot; destination MAY be deleted when the destination terminates or is no longer available.
 </VALUE>
 </QUALIFIER>
 <QUALIFIER NAME="ASSOCIATION" TYPE="boolean" PROPAGATED="true" OVERRIDABLE="false">
@@ -70,28 +70,28 @@ PG_IndicationSubscription describes a flow of Indications. The flow is specified
 TRUE
 </VALUE>
 </QUALIFIER>
-<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="PG_IndicationFilter" CLASSORIGIN="PG_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -112,12 +112,12 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="PG_IndicationHandler" CLASSORIGIN="PG_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="CIM_IndicationHandler" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationHandlerCIMXML
+CIM_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -138,17 +138,17 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY NAME="SubscriptionState" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="SubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
@@ -156,13 +156,13 @@ server001.acme.com
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="PG_IndicationSubscription">
+<INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
 <KEYBINDING NAME="Filter">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -185,10 +185,10 @@ server001.acme.com
 </KEYBINDING>
 <KEYBINDING NAME="Handler">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationHandlerCIMXML
+CIM_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -210,10 +210,10 @@ server001.acme.com
 </VALUE.REFERENCE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="PG_IndicationSubscription">
+<INSTANCE CLASSNAME="CIM_IndicationSubscription">
 <QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
 <VALUE>
-PG_IndicationSubscription describes a flow of Indications. The flow is specified by the referenced Filter, and directed to the referenced destination or process in the Handler. Property values of the referenced PG_IndicationFilter instance and PG_IndicationHandler instance MAY significantly effect the definition of the subscription. E.g., a subscription associated with a &quot;Transient&quot; destination MAY be deleted when the destination terminates or is no longer available.
+CIM_IndicationSubscription describes a flow of Indications. The flow is specified by the referenced Filter, and directed to the referenced destination or process in the Handler. Property values of the referenced CIM_IndicationFilter instance and CIM_IndicationHandler instance MAY significantly effect the definition of the subscription. E.g., a subscription associated with a &quot;Transient&quot; destination MAY be deleted when the destination terminates or is no longer available.
 </VALUE>
 </QUALIFIER>
 <QUALIFIER NAME="ASSOCIATION" TYPE="boolean" PROPAGATED="true" OVERRIDABLE="false">
@@ -221,26 +221,26 @@ PG_IndicationSubscription describes a flow of Indications. The flow is specified
 TRUE
 </VALUE>
 </QUALIFIER>
-<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="PG_IndicationFilter" CLASSORIGIN="PG_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -261,12 +261,12 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="PG_IndicationHandler" CLASSORIGIN="PG_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="CIM_IndicationHandler" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationHandlerCIMXML
+CIM_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -287,22 +287,22 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY NAME="SubscriptionState" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="SubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint64">
+<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint64">
 <VALUE>
 1
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
@@ -310,13 +310,13 @@ server001.acme.com
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="PG_IndicationSubscription">
+<INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
 <KEYBINDING NAME="Filter">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -339,10 +339,10 @@ server001.acme.com
 </KEYBINDING>
 <KEYBINDING NAME="Handler">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationHandlerCIMXML
+CIM_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -364,10 +364,10 @@ server001.acme.com
 </VALUE.REFERENCE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="PG_IndicationSubscription">
+<INSTANCE CLASSNAME="CIM_IndicationSubscription">
 <QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
 <VALUE>
-PG_IndicationSubscription describes a flow of Indications. The flow is specified by the referenced Filter, and directed to the referenced destination or process in the Handler. Property values of the referenced PG_IndicationFilter instance and PG_IndicationHandler instance MAY significantly effect the definition of the subscription. E.g., a subscription associated with a &quot;Transient&quot; destination MAY be deleted when the destination terminates or is no longer available.
+CIM_IndicationSubscription describes a flow of Indications. The flow is specified by the referenced Filter, and directed to the referenced destination or process in the Handler. Property values of the referenced CIM_IndicationFilter instance and CIM_IndicationHandler instance MAY significantly effect the definition of the subscription. E.g., a subscription associated with a &quot;Transient&quot; destination MAY be deleted when the destination terminates or is no longer available.
 </VALUE>
 </QUALIFIER>
 <QUALIFIER NAME="ASSOCIATION" TYPE="boolean" PROPAGATED="true" OVERRIDABLE="false">
@@ -375,26 +375,26 @@ PG_IndicationSubscription describes a flow of Indications. The flow is specified
 TRUE
 </VALUE>
 </QUALIFIER>
-<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="PG_IndicationFilter" CLASSORIGIN="PG_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -415,12 +415,12 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="PG_IndicationHandler" CLASSORIGIN="PG_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="CIM_IndicationHandler" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationHandlerCIMXML
+CIM_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -441,22 +441,22 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY NAME="SubscriptionState" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="SubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint64">
+<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint64">
 <VALUE>
 1000000000
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
@@ -464,13 +464,13 @@ server001.acme.com
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="PG_IndicationSubscription">
+<INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
 <KEYBINDING NAME="Filter">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -493,10 +493,10 @@ server001.acme.com
 </KEYBINDING>
 <KEYBINDING NAME="Handler">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationHandlerCIMXML
+CIM_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -518,10 +518,10 @@ server001.acme.com
 </VALUE.REFERENCE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="PG_IndicationSubscription">
+<INSTANCE CLASSNAME="CIM_IndicationSubscription">
 <QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
 <VALUE>
-PG_IndicationSubscription describes a flow of Indications. The flow is specified by the referenced Filter, and directed to the referenced destination or process in the Handler. Property values of the referenced PG_IndicationFilter instance and PG_IndicationHandler instance MAY significantly effect the definition of the subscription. E.g., a subscription associated with a &quot;Transient&quot; destination MAY be deleted when the destination terminates or is no longer available.
+CIM_IndicationSubscription describes a flow of Indications. The flow is specified by the referenced Filter, and directed to the referenced destination or process in the Handler. Property values of the referenced CIM_IndicationFilter instance and CIM_IndicationHandler instance MAY significantly effect the definition of the subscription. E.g., a subscription associated with a &quot;Transient&quot; destination MAY be deleted when the destination terminates or is no longer available.
 </VALUE>
 </QUALIFIER>
 <QUALIFIER NAME="ASSOCIATION" TYPE="boolean" PROPAGATED="true" OVERRIDABLE="false">
@@ -529,28 +529,28 @@ PG_IndicationSubscription describes a flow of Indications. The flow is specified
 TRUE
 </VALUE>
 </QUALIFIER>
-<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="PG_IndicationFilter" CLASSORIGIN="PG_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -571,12 +571,12 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="PG_IndicationHandler" CLASSORIGIN="PG_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="CIM_IndicationHandler" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationHandlerCIMXML
+CIM_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -597,17 +597,17 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY NAME="SubscriptionState" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="SubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
@@ -615,13 +615,13 @@ server001.acme.com
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="PG_IndicationSubscription">
+<INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
 <KEYBINDING NAME="Filter">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -644,10 +644,10 @@ server001.acme.com
 </KEYBINDING>
 <KEYBINDING NAME="Handler">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationHandlerCIMXML
+CIM_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -669,10 +669,10 @@ server001.acme.com
 </VALUE.REFERENCE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="PG_IndicationSubscription">
+<INSTANCE CLASSNAME="CIM_IndicationSubscription">
 <QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
 <VALUE>
-PG_IndicationSubscription describes a flow of Indications. The flow is specified by the referenced Filter, and directed to the referenced destination or process in the Handler. Property values of the referenced PG_IndicationFilter instance and PG_IndicationHandler instance MAY significantly effect the definition of the subscription. E.g., a subscription associated with a &quot;Transient&quot; destination MAY be deleted when the destination terminates or is no longer available.
+CIM_IndicationSubscription describes a flow of Indications. The flow is specified by the referenced Filter, and directed to the referenced destination or process in the Handler. Property values of the referenced CIM_IndicationFilter instance and CIM_IndicationHandler instance MAY significantly effect the definition of the subscription. E.g., a subscription associated with a &quot;Transient&quot; destination MAY be deleted when the destination terminates or is no longer available.
 </VALUE>
 </QUALIFIER>
 <QUALIFIER NAME="ASSOCIATION" TYPE="boolean" PROPAGATED="true" OVERRIDABLE="false">
@@ -680,28 +680,28 @@ PG_IndicationSubscription describes a flow of Indications. The flow is specified
 TRUE
 </VALUE>
 </QUALIFIER>
-<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="PG_IndicationFilter" CLASSORIGIN="PG_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -722,12 +722,12 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="PG_IndicationHandler" CLASSORIGIN="PG_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="CIM_IndicationHandler" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationHandlerCIMXML
+CIM_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -748,17 +748,17 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY NAME="SubscriptionState" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="SubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
@@ -766,13 +766,13 @@ server001.acme.com
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="PG_IndicationSubscription">
+<INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
 <KEYBINDING NAME="Filter">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -795,10 +795,10 @@ server001.acme.com
 </KEYBINDING>
 <KEYBINDING NAME="Handler">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationHandlerCIMXML
+CIM_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -820,10 +820,10 @@ server001.acme.com
 </VALUE.REFERENCE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="PG_IndicationSubscription">
+<INSTANCE CLASSNAME="CIM_IndicationSubscription">
 <QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
 <VALUE>
-PG_IndicationSubscription describes a flow of Indications. The flow is specified by the referenced Filter, and directed to the referenced destination or process in the Handler. Property values of the referenced PG_IndicationFilter instance and PG_IndicationHandler instance MAY significantly effect the definition of the subscription. E.g., a subscription associated with a &quot;Transient&quot; destination MAY be deleted when the destination terminates or is no longer available.
+CIM_IndicationSubscription describes a flow of Indications. The flow is specified by the referenced Filter, and directed to the referenced destination or process in the Handler. Property values of the referenced CIM_IndicationFilter instance and CIM_IndicationHandler instance MAY significantly effect the definition of the subscription. E.g., a subscription associated with a &quot;Transient&quot; destination MAY be deleted when the destination terminates or is no longer available.
 </VALUE>
 </QUALIFIER>
 <QUALIFIER NAME="ASSOCIATION" TYPE="boolean" PROPAGATED="true" OVERRIDABLE="false">
@@ -831,28 +831,28 @@ PG_IndicationSubscription describes a flow of Indications. The flow is specified
 TRUE
 </VALUE>
 </QUALIFIER>
-<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="PG_IndicationFilter" CLASSORIGIN="PG_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -873,12 +873,12 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="PG_IndicationHandler" CLASSORIGIN="PG_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="CIM_IndicationHandler" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationHandlerCIMXML
+CIM_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -899,17 +899,17 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY NAME="SubscriptionState" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="SubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
@@ -917,13 +917,13 @@ server001.acme.com
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="PG_IndicationSubscription">
+<INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
 <KEYBINDING NAME="Filter">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -946,10 +946,10 @@ server001.acme.com
 </KEYBINDING>
 <KEYBINDING NAME="Handler">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationHandlerCIMXML
+CIM_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -971,10 +971,10 @@ server001.acme.com
 </VALUE.REFERENCE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="PG_IndicationSubscription">
+<INSTANCE CLASSNAME="CIM_IndicationSubscription">
 <QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
 <VALUE>
-PG_IndicationSubscription describes a flow of Indications. The flow is specified by the referenced Filter, and directed to the referenced destination or process in the Handler. Property values of the referenced PG_IndicationFilter instance and PG_IndicationHandler instance MAY significantly effect the definition of the subscription. E.g., a subscription associated with a &quot;Transient&quot; destination MAY be deleted when the destination terminates or is no longer available.
+CIM_IndicationSubscription describes a flow of Indications. The flow is specified by the referenced Filter, and directed to the referenced destination or process in the Handler. Property values of the referenced CIM_IndicationFilter instance and CIM_IndicationHandler instance MAY significantly effect the definition of the subscription. E.g., a subscription associated with a &quot;Transient&quot; destination MAY be deleted when the destination terminates or is no longer available.
 </VALUE>
 </QUALIFIER>
 <QUALIFIER NAME="ASSOCIATION" TYPE="boolean" PROPAGATED="true" OVERRIDABLE="false">
@@ -982,28 +982,28 @@ PG_IndicationSubscription describes a flow of Indications. The flow is specified
 TRUE
 </VALUE>
 </QUALIFIER>
-<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="PG_IndicationFilter" CLASSORIGIN="PG_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1024,12 +1024,12 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="PG_IndicationHandler" CLASSORIGIN="PG_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="CIM_IndicationHandler" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationHandlerCIMXML
+CIM_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1050,17 +1050,17 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY NAME="SubscriptionState" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="SubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 4
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
@@ -1068,13 +1068,13 @@ server001.acme.com
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="PG_IndicationSubscription">
+<INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
 <KEYBINDING NAME="Filter">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1097,10 +1097,10 @@ server001.acme.com
 </KEYBINDING>
 <KEYBINDING NAME="Handler">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationHandlerCIMXML
+CIM_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1122,10 +1122,10 @@ server001.acme.com
 </VALUE.REFERENCE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="PG_IndicationSubscription">
+<INSTANCE CLASSNAME="CIM_IndicationSubscription">
 <QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
 <VALUE>
-PG_IndicationSubscription describes a flow of Indications. The flow is specified by the referenced Filter, and directed to the referenced destination or process in the Handler. Property values of the referenced PG_IndicationFilter instance and PG_IndicationHandler instance MAY significantly effect the definition of the subscription. E.g., a subscription associated with a &quot;Transient&quot; destination MAY be deleted when the destination terminates or is no longer available.
+CIM_IndicationSubscription describes a flow of Indications. The flow is specified by the referenced Filter, and directed to the referenced destination or process in the Handler. Property values of the referenced CIM_IndicationFilter instance and CIM_IndicationHandler instance MAY significantly effect the definition of the subscription. E.g., a subscription associated with a &quot;Transient&quot; destination MAY be deleted when the destination terminates or is no longer available.
 </VALUE>
 </QUALIFIER>
 <QUALIFIER NAME="ASSOCIATION" TYPE="boolean" PROPAGATED="true" OVERRIDABLE="false">
@@ -1133,28 +1133,28 @@ PG_IndicationSubscription describes a flow of Indications. The flow is specified
 TRUE
 </VALUE>
 </QUALIFIER>
-<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="PG_IndicationFilter" CLASSORIGIN="PG_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1175,12 +1175,12 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="PG_IndicationHandler" CLASSORIGIN="PG_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="CIM_IndicationHandler" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationHandlerCIMXML
+CIM_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1201,17 +1201,17 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY NAME="SubscriptionState" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="SubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
@@ -1219,13 +1219,13 @@ server001.acme.com
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="PG_IndicationSubscription">
+<INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
 <KEYBINDING NAME="Filter">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1273,10 +1273,10 @@ server001.acme.com
 </VALUE.REFERENCE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="PG_IndicationSubscription">
+<INSTANCE CLASSNAME="CIM_IndicationSubscription">
 <QUALIFIER NAME="Description" TYPE="string" PROPAGATED="true" TRANSLATABLE="true">
 <VALUE>
-PG_IndicationSubscription describes a flow of Indications. The flow is specified by the referenced Filter, and directed to the referenced destination or process in the Handler. Property values of the referenced PG_IndicationFilter instance and PG_IndicationHandler instance MAY significantly effect the definition of the subscription. E.g., a subscription associated with a &quot;Transient&quot; destination MAY be deleted when the destination terminates or is no longer available.
+CIM_IndicationSubscription describes a flow of Indications. The flow is specified by the referenced Filter, and directed to the referenced destination or process in the Handler. Property values of the referenced CIM_IndicationFilter instance and CIM_IndicationHandler instance MAY significantly effect the definition of the subscription. E.g., a subscription associated with a &quot;Transient&quot; destination MAY be deleted when the destination terminates or is no longer available.
 </VALUE>
 </QUALIFIER>
 <QUALIFIER NAME="ASSOCIATION" TYPE="boolean" PROPAGATED="true" OVERRIDABLE="false">
@@ -1284,28 +1284,28 @@ PG_IndicationSubscription describes a flow of Indications. The flow is specified
 TRUE
 </VALUE>
 </QUALIFIER>
-<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="PG_IndicationFilter" CLASSORIGIN="PG_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="PG_IndicationFilter">
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-PG_IndicationFilter
+CIM_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1326,7 +1326,7 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="PG_IndicationHandler" CLASSORIGIN="PG_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="CIM_IndicationHandler" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
 <INSTANCENAME CLASSNAME="PG_IndicationHandlerSNMPMapper">
 <KEYBINDING NAME="CreationClassName">
@@ -1352,17 +1352,17 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY NAME="SubscriptionState" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="SubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>

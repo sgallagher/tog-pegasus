@@ -37,28 +37,28 @@ PG_IndicationHandlerSNMP describes the destination for Indications to be deliver
 </PROPERTY>
 <PROPERTY NAME="Description" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="Owner" CLASSORIGIN="PG_IndicationHandler" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="Owner" CLASSORIGIN="CIM_IndicationHandler" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="OtherPersistenceType" CLASSORIGIN="PG_IndicationHandler" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherPersistenceType" CLASSORIGIN="CIM_IndicationHandler" PROPAGATED="true" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="SNMPCommunityName" CLASSORIGIN="PG_IndicationHandlerSNMPMapper" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="PG_IndicationHandler" TYPE="string">
+<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="CIM_IndicationHandler" TYPE="string">
 <VALUE>
 CIM_UnitaryComputerSystem
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SystemName" CLASSORIGIN="PG_IndicationHandler" TYPE="string">
+<PROPERTY NAME="SystemName" CLASSORIGIN="CIM_IndicationHandler" TYPE="string">
 <VALUE>
 server001.acme.com
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="CreationClassName" CLASSORIGIN="PG_IndicationHandler" TYPE="string">
+<PROPERTY NAME="CreationClassName" CLASSORIGIN="CIM_IndicationHandler" TYPE="string">
 <VALUE>
 PG_IndicationHandlerSNMPMapper
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="Name" CLASSORIGIN="PG_IndicationHandler" TYPE="string">
+<PROPERTY NAME="Name" CLASSORIGIN="CIM_IndicationHandler" TYPE="string">
 <VALUE>
 Handler03
 </VALUE>
@@ -73,7 +73,7 @@ localhost
 SNMPv2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="PersistenceType" CLASSORIGIN="PG_IndicationHandler" TYPE="uint16">
+<PROPERTY NAME="PersistenceType" CLASSORIGIN="CIM_IndicationHandler" TYPE="uint16">
 <VALUE>
 2
 </VALUE>

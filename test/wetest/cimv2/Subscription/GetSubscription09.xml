@@ -8,13 +8,13 @@
           <NAMESPACE NAME="PG_InterOp"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="InstanceName">
-          <INSTANCENAME CLASSNAME="PG_IndicationSubscription">
+          <INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
             <KEYBINDING NAME="Filter">
               <VALUE.REFERENCE>
-                <INSTANCENAME CLASSNAME="PG_IndicationFilter">
+                <INSTANCENAME CLASSNAME="CIM_IndicationFilter">
                   <KEYBINDING NAME="CreationClassName">
                     <KEYVALUE VALUETYPE="string">
-                    PG_IndicationFilter
+                    CIM_IndicationFilter
                     </KEYVALUE>
                   </KEYBINDING>
                   <KEYBINDING NAME="Name">

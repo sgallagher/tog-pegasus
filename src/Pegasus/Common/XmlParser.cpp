@@ -226,6 +226,7 @@ static const char* _xmlMessages[] =
     "Semantic error"
 };
 
+static const char* _xmlKeys[] = 
 {
     "Common.XmlParser.BAD_START_TAG",
     "Common.XmlParser.BAD_END_TAG",

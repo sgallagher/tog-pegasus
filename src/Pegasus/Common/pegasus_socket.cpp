@@ -43,9 +43,9 @@
 #ifndef PEGASUS_OS_OS400
 #   include <unistd.h>
 #else
-#   include <unistd.cleinc>
+#   include <unistd.cleinc> 
 #endif
-#   include <string.h>  // added by rk for memcpy
+#   include <string.h> 
 # include <cstdlib>
 # include <errno.h>
 # include <fcntl.h>
@@ -55,6 +55,13 @@
 # include <sys/socket.h>
 # include <errno.h>
 #endif
+
+# ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+#  include <unistd.h>
+#  include <sys/un.h>
+#  include <Pegasus/Common/Constants.h>
+# endif
+
 
 #include <Pegasus/Common/Sharable.h>
 
@@ -157,7 +164,7 @@ class empty_socket_rep : public abstract_socket
 
 /** 
  * internet socket class
- * designed to be overriden by ssl_socket_rep and file_socket_rep
+ * designed to be overriden by ssl_socket_rep
  * 
  */
 class bsd_socket_rep : public abstract_socket
@@ -173,7 +180,7 @@ class bsd_socket_rep : public abstract_socket
       // used to allow the accept method to work
       bsd_socket_rep(int sock);
 
-      operator Sint32() const;
+      virtual operator Sint32() const;
       int socket(int sock_type, int sock_style, int sock_protocol, void *ssl_context = 0);
       
       virtual Sint32 read(void* ptr, Uint32 size);
@@ -218,8 +225,8 @@ class bsd_socket_rep : public abstract_socket
 	    }
       };
 
+   protected:
       static struct _library_init _lib_init;
-      
       int _socket;
       void *_ssl_context;
       int _errno;
@@ -488,6 +495,13 @@ abstract_socket* bsd_socket_factory::make_socket(void)
 
 
 
+#ifdef PEGASUS_HAS_SSL
+
+abstract_socket* bsd_socket_factory::make_socket(SSLContext *ctx)
+{
+   return new bsd_socket_rep();
+}
+
 
 /**
  * ssl_socket_rep - derived from bsd_socket 
@@ -502,24 +516,22 @@ class ssl_socket_rep : public bsd_socket_rep
       /** 
        * map to pegasus_socket::sock_err 
        */
-
-
-
+      typedef bsd_socket_rep Base;
+      
       ssl_socket_rep(void);
       ~ssl_socket_rep(void);
-      // used to allow the accept method to work
-      ssl_socket_rep(int sock);
+      ssl_socket_rep(SSLContext *);
       
       Sint32 read(void* ptr, Uint32 size);
-      virtual Sint32 write(const void* ptr, Uint32 size);
-      virtual int close(void);
-      virtual int send (void *buffer, size_t size, int flags);
-      virtual int recv (void *buffer, size_t size, int flags);
+      Sint32 write(const void* ptr, Uint32 size);
+      int close(void);
 
-      virtual Boolean incompleteReadOccurred(Sint32 retCode);
-      virtual Boolean is_secure(void);
-      virtual const char* get_err_string(void);
+      Boolean incompleteReadOccurred(Sint32 retCode);
+      Boolean is_secure(void);
+      const char* get_err_string(void);
 
+      void set_ctx(SSLContext *);
+      
    private:
 
       ssl_socket_rep& operator=(const ssl_socket_rep& );
@@ -535,12 +547,126 @@ class ssl_socket_rep : public bsd_socket_rep
       };
 
       static struct ss_library_init _lib_init;
-      SSLSocket internal_socket;
 
+      Boolean _init(void);
+      
+
+      // << Thu Aug 14 12:29:21 2003 mdd >> _internal_socket
+      // is created by this class, it is ok to delete
+      // upon instance destruction
+      SSLSocket* _internal_socket;
+
+      // << Thu Aug 14 12:28:54 2003 mdd >> never delete 
+      // the ctx, it is created outside of this class
+      SSLContext* _ctx;
+      AtomicInt _initialized;
+      
 };
 
+ssl_socket_rep::ssl_socket_rep(void)
+   : Base(), _internal_socket(0), _ctx(0), _initialized(0)
+{
+}
 
 
+ssl_socket_rep::ssl_socket_rep(SSLContext *ctx)
+   :Base(), _internal_socket(0), _ctx(ctx), _initialized(0)
+{
+}
+
+ssl_socket_rep::~ssl_socket_rep()
+{
+   delete _internal_socket;
+}
+
+void ssl_socket_rep::set_ctx(SSLContext *ctx)
+{
+   _ctx = ctx;
+}
+
+
+Boolean ssl_socket_rep::_init(void)
+{
+   if(_ctx == 0 )
+      return false;
+
+   if(_internal_socket && _initialized.value())
+      return true;
+   if(_internal_socket != 0 && _initialized.value() == 0 )
+      delete _internal_socket;
+   _internal_socket = new SSLSocket(_socket, _ctx);
+   if(_internal_socket)
+   {
+      _initialized = 1;
+      return true;
+   }
+   return false;
+}
+
+Sint32 ssl_socket_rep::read(void* ptr, Uint32 size)
+{
+   if(true == _init())
+      return _internal_socket->read(ptr, size);
+   else 
+      return -1;
+   
+}
+
+Sint32 ssl_socket_rep::write(const void* ptr, Uint32 size)
+{
+   if(true == _init())
+      return _internal_socket->write(ptr, size);
+   else 
+      return -1;
+}
+
+int ssl_socket_rep::close(void)
+{
+   if(true == _init())
+      _internal_socket->close();
+   return Base::close();
+}
+
+Boolean ssl_socket_rep::incompleteReadOccurred(Sint32 retCode)
+{
+   if(true == _init())
+      return _internal_socket->incompleteReadOccurred(retCode);
+   else 
+      return false;
+}
+
+Boolean ssl_socket_rep::is_secure(void)
+{
+   return _init();
+}
+
+const char* ssl_socket_rep::get_err_string(void)
+{
+   return "ssl error string";
+}
+
+
+ssl_socket_factory::ssl_socket_factory(void)
+{
+}
+
+
+ssl_socket_factory::~ssl_socket_factory(void)
+{
+}
+
+abstract_socket* ssl_socket_factory::make_socket(void)
+{
+   return new ssl_socket_rep();
+}
+
+abstract_socket* ssl_socket_factory::make_socket(SSLContext *ctx)
+{
+   return new ssl_socket_rep(ctx);
+}
+
+
+#endif // PEGASUS_HAS_SSL 
 /** 
  * pegasus_socket - the high level socket object in pegasus
  * 
@@ -708,6 +834,139 @@ const char* pegasus_socket::get_err_string(void)
 {
    return _rep->get_err_string();
 }
+
+
+#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+
+/** 
+ * unix domain socket class
+ * 
+ */
+class unix_socket_rep : public bsd_socket_rep
+{
+   public:
+
+      typedef bsd_socket_rep Base;
+      
+      /** 
+       * map to pegasus_socket::sock_err 
+       */
+
+      unix_socket_rep(void);
+      virtual ~unix_socket_rep(void);
+      // used to allow the accept method to work
+      unix_socket_rep(int sock);
+
+      virtual int close(void);
+      int enableBlocking(void);
+      int disableBlocking(void);
+
+      virtual int bind (struct sockaddr *addr, size_t length);
+     
+      // change size_t to size_t for ZOS and windows
+      virtual abstract_socket* accept(struct sockaddr *addr, size_t *length_ptr);
+
+
+   private:
+
+      unix_socket_rep& operator=(const unix_socket_rep& );
+
+   protected:
+      int _socket;
+      int _errno;
+      char _strerr[256];
+};
+
+
+
+
+/** 
+ * default constructor for an (uninitialized) bsd socket 
+ */
+unix_socket_rep::unix_socket_rep(void)
+   : Base()
+{
+   
+}
+
+unix_socket_rep::unix_socket_rep(int sock)
+   : Base(sock)
+{
+
+}
+
+
+/** 
+ * default destructor for bsd_socket_rep
+ *
+ */
+unix_socket_rep::~unix_socket_rep(void)
+{
+}
+
+
+int unix_socket_rep::close(void)
+{
+   int ccode = Base::close();
+//   ::unlink(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
+   return ccode;
+}
+
+
+
+int  unix_socket_rep::enableBlocking(void)
+{
+   return Base::enableBlocking();
+}
+
+int unix_socket_rep::disableBlocking(void)
+{
+   return Base::disableBlocking();
+}
+
+
+/** 
+ * default implementation allows reuseof address
+ * sockaddr structure needs to be fully initialized or call will fail
+ */
+int unix_socket_rep::bind (struct sockaddr *addr, size_t length)
+{
+
+   // first unlink the local domain file if it exists
+   ::unlink(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
+   return Base::bind(addr, length);
+}
+
+abstract_socket* unix_socket_rep::accept(struct sockaddr *addr, size_t *length_ptr)
+{
+   int new_sock = ::accept(_socket, addr, length_ptr);
+   if(new_sock == -1)
+   {
+      _errno = errno;
+      return 0;
+   }
+
+   unix_socket_rep *rep = new unix_socket_rep(new_sock);
+   // set the close-on-exec flag 
+   rep->set_close_on_exec();
+   return rep;
+}
+
+unix_socket_factory::unix_socket_factory(void)
+{
+}
+
+unix_socket_factory::~unix_socket_factory(void)
+{
+}
+
+abstract_socket* unix_socket_factory::make_socket(void)
+{
+   return new unix_socket_rep();
+}
+
+#endif // domain socket 
+
 
 
 

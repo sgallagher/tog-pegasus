@@ -104,6 +104,7 @@ SSLSocket::~SSLSocket()
     PEG_METHOD_EXIT();
 }
 
+
 Boolean SSLSocket::incompleteReadOccurred(Sint32 retCode)
 {
     retCode = SSL_get_error(_SSLConnection, retCode);

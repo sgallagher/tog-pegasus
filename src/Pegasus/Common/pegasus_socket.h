@@ -33,6 +33,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/TLS.h>
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 #include <windows.h>
 # ifndef _WINSOCKAPI_
@@ -146,7 +147,11 @@ class PEGASUS_COMMON_LINKAGE socket_factory
       }
       
       virtual abstract_socket *make_socket(void) = 0;
+#ifdef PEGASUS_HAS_SSL
+      virtual abstract_socket *make_socket(SSLContext *) = 0;
+#endif
 };
+
 
 
 /**
@@ -158,8 +163,42 @@ class PEGASUS_COMMON_LINKAGE bsd_socket_factory : public socket_factory
       bsd_socket_factory(void);
       ~bsd_socket_factory(void);
       abstract_socket *make_socket(void);
+#ifdef PEGASUS_HAS_SSL
+      abstract_socket *make_socket(SSLContext* );
+#endif
 };
 
+
+
+#ifdef PEGASUS_HAS_SSL
+
+class PEGASUS_COMMON_LINKAGE ssl_socket_factory : public socket_factory
+{
+
+   public:
+      ssl_socket_factory(void);
+      ~ssl_socket_factory(void);
+      abstract_socket* make_socket(void);
+      abstract_socket* make_socket(SSLContext* );
+};
+
+
+
+#endif 
+
+
+# ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+
+class PEGASUS_COMMON_LINKAGE unix_socket_factory : public socket_factory
+{
+   public:
+      unix_socket_factory(void);
+      ~unix_socket_factory(void);
+      abstract_socket* make_socket(void);
+};
+
+
+#endif
 
 PEGASUS_NAMESPACE_END
 

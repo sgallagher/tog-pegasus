@@ -31,7 +31,7 @@
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Thread.h>
-#include <Pegasus/Common/Socket.h>
+#include <Pegasus/Common/pegasus_socket.h>
 #include <sys/types.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #else
@@ -42,7 +42,11 @@
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
-
+# ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+#  include <unistd.h>
+#  include <sys/un.h>
+#  include <Pegasus/Common/Constants.h>
+# endif
 
 
 PEGASUS_USING_STD;
@@ -123,7 +127,68 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL remote_socket(void *parm)
    return 0;
 }
 
+# ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
 
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL domain_socket(void *parm)
+{
+   Thread * my_handle = reinterpret_cast<Thread *>(parm);
+   
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+#else
+   signal(SIGPIPE, SIG_IGN);
+#endif
+   static unix_socket_factory sf;
+   pegasus_socket listener(&sf);
+   
+   // create the underlying socket
+   listener.socket(AF_UNIX, SOCK_STREAM, 0);
+
+   
+   // initialize the address
+   struct sockaddr_un addr;
+   memset(&addr, 0, sizeof(addr));
+   addr.sun_family = AF_UNIX;
+   strcpy(addr.sun_path, PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
+   
+   listener.bind((struct sockaddr *)&addr, sizeof(addr));
+   listener.listen(15);
+   
+   // initialize select loop
+
+   fd_set fd_listen;
+   FD_ZERO(&fd_listen);
+   FD_SET( (Sint32)listener, &fd_listen );
+   
+   int events = select(FD_SETSIZE, &fd_listen, NULL, NULL, NULL);
+   
+   struct sockaddr peer;
+   size_t peer_size = sizeof(peer);
+   
+   pegasus_socket connected = listener.accept(&peer, &peer_size);
+   
+   while(1)
+   {
+      FD_ZERO(&fd_listen);
+      FD_SET((Sint32)connected, &fd_listen);
+      
+      events = select(FD_SETSIZE, &fd_listen, NULL, NULL, NULL);
+
+      unsigned char buf[256];
+      memset(&buf, 0, 256);
+      Sint32 bytes = connected.read((void *)&buf, 255);
+      bytes = connected.write(&OK, 4);
+      cmd_rx++;
+      
+      if(! strncmp(QUIT, (const char *)buf, 5))
+	 break;
+   }
+   
+   connected.shutdown(2);
+   connected.close();
+   return 0;
+}
+
+#endif // domain socket 
 
 int main(int argc, char** argv)
 {
@@ -169,6 +234,7 @@ int main(int argc, char** argv)
       connector.read(buf, 255);
       cmd_tx++;
    }
+
    connector.write(QUIT, 5);
    cmd_tx++;
 
@@ -178,6 +244,52 @@ int main(int argc, char** argv)
    th_listener.cancel();
    th_listener.join();
    
+
+
+# ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+
+   Thread th_domain(domain_socket, NULL, false);
+   th_domain.run();
+
+   static unix_socket_factory uf;
+   pegasus_socket domain_connector(&uf);
+   domain_connector.socket(AF_UNIX, SOCK_STREAM, 0);
+   
+   // initialize the address
+   struct sockaddr_un un_addr;
+   memset(&un_addr, 0, sizeof(un_addr));
+   un_addr.sun_family = AF_UNIX;
+   strcpy(un_addr.sun_path, PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
+
+   domain_connector.bind((struct sockaddr *)&un_addr, sizeof(un_addr));
+   
+   struct sockaddr_un un_peer;
+   peer_size = sizeof(un_peer);
+   
+   strcpy(un_peer.sun_path, PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
+   un_peer.sun_family = AF_UNIX;
+   
+   domain_connector.connect((struct sockaddr *)&un_peer, peer_size);
+   
+   cmd_tx = 0;
+   while(cmd_tx.value() < 10 )
+   {
+      unsigned char buf[256];
+      domain_connector.write(CMD, 8);
+      domain_connector.read(buf, 255);
+      cmd_tx++;
+   }
+   domain_connector.write(QUIT, 5);
+   cmd_tx++;
+   
+   while( cmd_rx.value() < cmd_tx.value() )
+      pegasus_sleep(1);
+
+   th_domain.cancel();
+   th_domain.join();
+			 
+#endif // domain socket 
+
    cout << argv[0] << " +++++ passed all tests" << endl;
    return 0;
 }

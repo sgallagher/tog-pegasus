@@ -35,7 +35,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 
-const String NAMESPACE = "root/std/cimv2";
+String NAMESPACE = "root/cimv2";
 
 /** ErrorExit - Print out the error message as an
     and get out.
@@ -69,8 +69,12 @@ void GetOptions(
 	{"repeat", "1", false, Option::WHOLE_NUMBER, 0, 0, "r",
 			"specifies port number to listen on" },
 	
-	{"port", "8888", false, Option::WHOLE_NUMBER, 0, 0, "port",
+	{"port", "5988", false, Option::WHOLE_NUMBER, 0, 0, "port",
 			"specifies port number to listen on" },
+
+	{"namespace", "root/cimv2", false, Option::STRING, 0, 0, "-n",
+			"specifies namespace to use for test" },
+
 	{"version", "false", false, Option::BOOLEAN, 0, 0, "v",
 			"Displays Pegasus Version "},
 	{"help", "false", false, Option::BOOLEAN, 0, 0, "h",
@@ -320,11 +324,50 @@ static void TestInstanceOperations(CIMClient& client)
 
 int main(int argc, char** argv)
 {
-    char* connection = "localhost:8888";
+    char* connection = "localhost:5988";
     if (argc > 1)
 	 connection= argv[1];
     Uint32 repetitions = 1;
 
+    // Get environment variables:
+
+    String pegasusHome;
+    pegasusHome = "/";
+    // GetEnvironmentVariables(argv[0], pegasusHome);
+
+    // Get options (from command line and from configuration file); this
+    // removes corresponding options and their arguments fromt he command
+    // line.
+
+    // Get options (from command line and from configuration file); this
+    // removes corresponding options and their arguments fromt he command
+    // line.
+
+    OptionManager om;
+
+    try
+    {
+	GetOptions(om, argc, argv, pegasusHome);
+	// om.print();
+    }
+    catch (Exception& e)
+    {
+	cerr << argv[0] << ": " << e.getMessage() << endl;
+	exit(1);
+    }
+
+    // Check to see if we should (can) remove Pegasus as an NT service
+
+    String localNameSpace;
+    if(om.lookupValue("namespace", localNameSpace))
+      {
+       NAMESPACE = localNameSpace;
+       cout << "Namespace = " << localNameSpace << endl;
+
+      }
+    cout << "Namespace = " << localNameSpace << endl;
+    
+    cout << "Namespace = " << NAMESPACE << endl;
     try
     {
 	cout << "connecting to " << connection << endl;
@@ -335,7 +378,7 @@ int main(int argc, char** argv)
 	TestNameSpaceOperations(client);
 	
 	testStatus("Test Qualifier Operations");
-	//TestQualifierOperations(client);
+	TestQualifierOperations(client);
 	testStatus("Test Class Operations");
 	TestClassOperations(client);
 	testStatus("Test Instance Operations");

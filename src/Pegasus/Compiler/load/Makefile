@@ -11,8 +11,8 @@ tests:
 	@ $(RMDIRHIER) $(REPOSITORY_ROOT)
 	@ echo +++++ Loading CIM_Core.mof into root namespace...
 	@ cimmof -I$(MOF_PATH) -nroot $(MOF_PATH)/CIM_Core25.mof
-	@ echo +++++ Loading CIM_Schema25.mof into root/cimv20 namespace...
-	@ cimmof -I$(MOF_PATH) -nroot/cimv20 $(MOF_PATH)/CIM_Schema25.mof
+	@ echo +++++ Loading CIM_Schema25.mof into root/cimv2 namespace...
+	@ cimmof -I$(MOF_PATH) -nroot/cimv2 $(MOF_PATH)/CIM_Schema25.mof
 
 clean:
 

@@ -154,7 +154,7 @@ void GetOptions(
 
     om.registerOptions(optionsTable, NUM_OPTIONS);
 
-    String configFile = pegasusHome + "/cimserver.conf";
+    String configFile = pegasusHome + "/testclient.conf";
 
     cout << "Config file from " << configFile << endl;
 

@@ -29,6 +29,7 @@
 //         Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //         Dave Rosckes (rosckes@us.ibm.com)
+//         Amit Arora, IBM (amita@in.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -634,6 +635,7 @@ HTTPConnection2::~HTTPConnection2()
    try 
    {
       _close_connection();
+	  _socket.close();
    }
    catch(...)
    {

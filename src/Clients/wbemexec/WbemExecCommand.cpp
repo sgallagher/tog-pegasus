@@ -35,7 +35,7 @@
 //	       David Eger (dteger@us.ibm.com)
 //         Amit K Arora (amita@in.ibm.com) for PEP-101
 //         Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
-//         Amit K Arora (amita@in.ibm.com) for Bug#2333
+//         Amit K Arora (amita@in.ibm.com) for Bug#2333, #2351
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -728,16 +728,37 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
     //
     for (i =  getOpts.first (); i <  getOpts.last (); i++)
     {
-        if (getOpts [i].getType () == Optarg::LONGFLAG)
+        if (getOpts[i].getType () == Optarg::LONGFLAG)
         {
-            //PEP 167 : long flags newly added to this command
+            if (getOpts[i].getopt () == LONG_HELP)
+            {
+                if (_operationType != OPERATION_TYPE_UNINITIALIZED)
+                {
+                    String param = String (LONG_HELP);
+                    //
+                    // More than one operation option was found
+                    //
+                    UnexpectedOptionException e (param);
+                    throw e;
+                }
 
-            if(getOpts [i].getopt () == LONG_HELP)
                _operationType = OPERATION_TYPE_HELP;
-            else if (getOpts [i].getopt () == LONG_VERSION)
-               _operationType = OPERATION_TYPE_VERSION;
+            }
+            else if (getOpts[i].getopt () == LONG_VERSION)
+            {
+                if (_operationType != OPERATION_TYPE_UNINITIALIZED)
+                {
+                    String param = String (LONG_VERSION);
+                    //
+                    // More than one operation option was found
+                    //
+                    UnexpectedOptionException e (param);
+                    throw e;
+                }
 
-        } 
+               _operationType = OPERATION_TYPE_VERSION;
+            }
+        }
         else if (getOpts [i].getType () == Optarg::REGULAR)
         {
             //

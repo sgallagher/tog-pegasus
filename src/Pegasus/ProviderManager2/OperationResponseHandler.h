@@ -195,13 +195,23 @@ public:
         #endif
     }
 
-    #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     virtual void deliver(const CIMInstance & cimInstance)
     {
-        // Normalize (if seeded, otherwise do nothing) and pass to subclass method for delivery.
+        if(cimInstance.isUninitialized())
+        {
+            MessageLoaderParms message(
+                "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
+                "The object is not initialized.");
+
+            throw CIMException(CIM_ERR_FAILED, message);
+        }
+
+        #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
         SimpleInstanceResponseHandler::deliver(_normalizer.processInstance(cimInstance));
+        #else
+        SimpleInstanceResponseHandler::deliver(cimInstance);
+        #endif
     }
-    #endif
 
 protected:
     virtual String getClass(void) const
@@ -270,13 +280,23 @@ public:
         #endif
     }
 
-    #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     virtual void deliver(const CIMInstance & cimInstance)
     {
-        // Normalize (if seeded, otherwise do nothing) and pass to subclass method for delivery.
+        if(cimInstance.isUninitialized())
+        {
+            MessageLoaderParms message(
+                "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
+                "The object is not initialized.");
+
+            throw CIMException(CIM_ERR_FAILED, message);
+        }
+
+        #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
         SimpleInstanceResponseHandler::deliver(_normalizer.processInstance(cimInstance));
+        #else
+        SimpleInstanceResponseHandler::deliver(cimInstance);
+        #endif
     }
-    #endif
 
 protected:
     virtual String getClass(void) const
@@ -332,13 +352,23 @@ public:
         #endif
     }
 
-    #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     virtual void deliver(const CIMObjectPath & cimObjectPath)
     {
-        // Normalize (if seeded, otherwise do nothing) and pass to subclass method for delivery.
+        if(cimObjectPath.getClassName().isNull())
+        {
+            MessageLoaderParms message(
+                "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
+                "The object is not initialized.");
+
+            throw CIMException(CIM_ERR_FAILED, message);
+        }
+
+        #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
         SimpleObjectPathResponseHandler::deliver(_normalizer.processInstanceObjectPath(cimObjectPath));
+        #else
+        SimpleObjectPathResponseHandler::deliver(cimObjectPath);
+        #endif
     }
-    #endif
 
 protected:
     virtual String getClass(void) const

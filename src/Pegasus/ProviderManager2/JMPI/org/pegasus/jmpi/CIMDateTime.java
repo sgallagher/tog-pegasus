@@ -44,7 +44,8 @@ public class CIMDateTime {
    private native int    _datetime(String n);
    private native int    _datetimeempty();
    private native boolean _after(int c, int d);
-       
+   private native boolean _before(int c, int d);
+
    private static String GMT = "GMT";
    private static int UTC_MULTIPLIER = 60000;
    private native void _finalize(int cdt);
@@ -60,11 +61,11 @@ public class CIMDateTime {
    int cInst() {
       return cInst;
    }
-   
+
    public CIMDateTime() {
       cInst=_datetimeempty();
    }
-   
+
    /**
     * Builds a CIMDateTime from a String that is compliant with the
     * CIM specification for absolute or interval date/times
@@ -90,12 +91,16 @@ public class CIMDateTime {
       return _after(cInst, d.cInst());
    }
 
+   public boolean before(CIMDateTime d) {
+      return _before(cInst, d.cInst());
+   }
+
    private String getDateString(java.util.Date d) {
       Calendar cal = Calendar.getInstance( TimeZone.getTimeZone(GMT));
-      cal.setTime(d);					
+      cal.setTime(d);
       int UTCOffset = ((cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET))/UTC_MULTIPLIER);
       StringBuffer newString = new StringBuffer();
-      
+
       newString.append(padZero(4,cal.get(Calendar.YEAR)));
       newString.append(padZero(2,cal.get(Calendar.MONTH)+1));
       newString.append(padZero(2,cal.get(Calendar.DAY_OF_MONTH)));

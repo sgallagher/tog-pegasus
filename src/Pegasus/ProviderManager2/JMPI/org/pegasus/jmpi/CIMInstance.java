@@ -41,8 +41,9 @@ import java.util.*;
     with the CIMClient instance methods like createInstance or setInstance
     to manipulate instances within a namespace.
  */
-public class CIMInstance {
+public class CIMInstance implements CIMElement {
    int cInst;
+   String name;
    private native int    _new();
    private native int    _newCn(String n);
    private native void   _setName(int cInst, String n);
@@ -55,15 +56,15 @@ public class CIMInstance {
    private native int    _clone(int cInst);
    private native String _toString(int cInst);    
    private native void   _finalize(int ci);
-   
+
    protected void finalize() {
       _finalize(cInst);
    }
- 
+
    CIMInstance(int ci) {
      cInst=ci;
    }
-   
+
    int cInst() {
       return cInst;
    }
@@ -73,14 +74,20 @@ public class CIMInstance {
  //  }
 
    public CIMInstance(String cn) {
+      name=cn;
       cInst=_newCn(cn);
    }
 
    public void setName(String n) {
+      name=n;
       _setName(cInst,n);
    }
 
-    /**
+   public String getName() {
+      return name;
+   }
+
+   /**
         sets property value for the CIM value
         @param String property name to set
         @param CIMValue a CIMProperty value

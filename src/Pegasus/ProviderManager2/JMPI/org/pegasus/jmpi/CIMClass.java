@@ -45,7 +45,7 @@ import java.util.Vector;
     a set of properties, methods, and associations).
  */
 
-public class CIMClass
+public class CIMClass implements CIMElement
 {
    int cInst;
    private native int     _newInstance(int cInst);
@@ -92,7 +92,11 @@ public class CIMClass
    public String getName() {
       return _getName(cInst);
    }
-   
+
+   public void setName(String n) {
+      // not done yet
+   }
+
     /**
        getQualifier - get the specified CIM Qualifier in this class
 

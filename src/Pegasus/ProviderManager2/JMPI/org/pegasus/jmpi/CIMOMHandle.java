@@ -23,7 +23,7 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com 
+// Author:      Adrian Schuur, schuur@de.ibm.com
 //
 // Modified By: Magda
 //
@@ -36,7 +36,8 @@ import java.util.*;
 public class CIMOMHandle
 {
    int cInst;
-   private native int _getClass(int inst, int cop, boolean localOnly) 
+   String name;
+   private native int _getClass(int inst, int cop, boolean localOnly)
       throws CIMException;
    private native void _enumClass(int inst, int cop, boolean localOnly, Vector vec)
       throws CIMException;
@@ -46,61 +47,69 @@ public class CIMOMHandle
       throws CIMException;
    private native void _enumInstances(int cInst, int cop, boolean deep, boolean localOnly, Vector vec)
       throws CIMException;
-   private native int _getInstance(int cInst, int cop, boolean localOnly)   
+   private native int _getInstance(int cInst, int cop, boolean localOnly)
+      throws CIMException;
+   private native void _deliverEvent(int cInst, String nm, String ns, int ind)
       throws CIMException;
    private native void _finalize(int ch);
 
    protected void finalize() {
       //   _finalize(cInst);
    }
-      
-   CIMOMHandle(int ci) {
+
+   CIMOMHandle(int ci, String nm) {
       cInst=ci;
+      name=nm;
    }
-   
-   public CIMClass getClass(CIMObjectPath name, boolean localOnly) 
+
+   public CIMClass getClass(CIMObjectPath name, boolean localOnly)
          throws CIMException {
       return new CIMClass(_getClass(cInst,name.cInst,localOnly));
    }
-   
-   public Enumeration enumClass(CIMObjectPath name, boolean localOnly) 
+
+   public Enumeration enumClass(CIMObjectPath name, boolean localOnly)
          throws CIMException {
       Vector vec=new Vector();
       _enumClass(cInst,name.cInst,localOnly,vec);
       return vec.elements();
    }
-   
-   public CIMValue getProperty(CIMObjectPath cop,String n) 
+
+   public CIMValue getProperty(CIMObjectPath cop,String n)
          throws CIMException {
       int val = _getProperty(cInst, cop.cInst(), n);
       if (val != -1)
          return new CIMValue(val);
       return null;
    }
-   
+
 
    public void deleteInstance(CIMObjectPath cop)
-          throws CIMException { 
+          throws CIMException {
       _deleteInstance(cInst, cop.cInst());
    }
-   
 
-   public Enumeration enumInstances(CIMObjectPath cop,boolean deep,boolean localOnly) 
-         throws CIMException { 
+
+   public Enumeration enumInstances(CIMObjectPath cop,boolean deep,boolean localOnly)
+         throws CIMException {
       Vector vec = new Vector();
       _enumInstances(cInst, cop.cInst(), deep, localOnly, vec);
       return vec.elements();
    }
-   
 
-   public CIMInstance getInstance(CIMObjectPath cop,boolean localOnly) 
+
+   public CIMInstance getInstance(CIMObjectPath cop,boolean localOnly)
          throws CIMException { //to be implemented
       int inst=_getInstance(cInst, cop.cInst, localOnly);
       if (inst !=-1)
          return new CIMInstance(inst);
       return null;
    }
-      
+
+   public void deliverEvent(String ns, CIMInstance ind)
+        throws CIMException {
+      _deliverEvent(cInst,name,ns,ind.cInst);
+   }
+
    static {
       System.loadLibrary("JMPIProviderManager");
    }

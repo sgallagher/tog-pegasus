@@ -2,12 +2,7 @@ ROOT=../../../..
 
 include $(ROOT)/mak/config.mak
 
-_NEW_DIRS = \
-    WebClient \
-    WebServer
-
 DIRS = \
-    $(NEW_DIRS) \
     Config \
     HashTable \
     Resolve \
@@ -43,7 +38,9 @@ DIRS = \
     Reference \
     DynLib \
     DynLoad \
-    Logger
+    Logger \
+    WebServer \
+    WebClient
 
 ifeq ($(OS),linux)
 SOURCES += IPC

@@ -28,6 +28,7 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // Modified By: Seema Gupta (gseema@in.ibm.com)
+//              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //				
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -66,7 +67,7 @@ static mofCompilerOptions cmdline;
 
 extern "C++" int processCmdLine(int, char **, mofCompilerOptions &, ostream &);
 
-extern "C++" ostream& help(ostream& os);
+extern "C++" ostream& help(ostream& os, char* progname);
 
 #ifndef DISABLE_CIMMOFL_WARNING 
 extern "C++" ostream& cimmofl_warning(ostream& os);
@@ -134,8 +135,13 @@ main(int argc, char ** argv) {
   try {
     ret = processCmdLine(argc, argv, cmdline, cerr);
   } catch (ArgumentErrorsException &e) {
-    cerr << e.getMessage() << endl;
-    help(cerr);
+    
+    cerr << argv[0] << 
+             ": Invalid option. Use '--help' to obtain command syntax" << endl;
+    
+    //PEP167 - comment display of help message
+    //cerr << e.getMessage() << endl;
+    //help(cerr, argv[0]);
     ret =  PEGASUS_CIMMOF_CIM_EXCEPTION;
   } catch (CmdlineNoRepository &e) {
     cerr << e.getMessage() << endl;

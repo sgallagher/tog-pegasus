@@ -30,6 +30,7 @@
 // Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
 //               (carolann_graves@hp.com)
 //               Amit K Arora, IBM (amita@in.ibm.com) for PEP-101
+//              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -106,7 +107,7 @@ static const CIMName _PROPERTY_PROVIDER_NAME = CIMName ("Name");
     The usage string for this command.  This string is displayed
     when an error occurs in parsing or validating the command line.
 */
-static const char USAGE []                     = "usage: ";
+static const char USAGE []                     = "Usage: ";
 
 /**
     This constant represents the getoopt argument designator
@@ -142,6 +143,17 @@ static const Uint32 OPERATION_TYPE_ENABLE         = 3;
     This constant represents a list operation
 */
 static const Uint32 OPERATION_TYPE_LIST           = 4;
+
+/**
+    This constant represents a help operation
+*/
+static const Uint32 OPERATION_TYPE_HELP           = 5;
+
+/**
+    This constant represents a version display operation
+*/
+static const Uint32 OPERATION_TYPE_VERSION        = 6;
+
 
 /**
     The constants representing the messages.
@@ -309,6 +321,10 @@ static const char UNEXPECTED_OPTION [] = "Unexpected Option.";
 static const char UNEXPECTED_OPTION_KEY [] = 
 	"Clients.cimprovider.CIMProviderCommand.UNEXPECTED_OPTION";
 
+static const char   LONG_HELP []  = "help";
+
+static const char   LONG_VERSION []  = "version";
+
 /**
     The option character used to specify disable a provider module.
 */
@@ -343,6 +359,16 @@ static const char   OPTION_LIST                = 'l';
     The option character used to specify get module status.
 */
 static const char   OPTION_STATUS                = 's';
+
+/**
+    The option character used to display help info.
+*/
+static const char   OPTION_HELP                = 'h';
+
+/**
+    The option character used to display version info.
+*/
+static const char   OPTION_VERSION             = 'v';
 
 #ifdef PEGASUS_OS_OS400
 /**
@@ -543,6 +569,8 @@ private:
     //
     Boolean	_statusSet;
 
+    String usage;
+
 #ifdef PEGASUS_OS_OS400
     //
     // The flag to indicate whether standard output and standard error are suppressed
@@ -573,44 +601,63 @@ CIMProviderCommand::CIMProviderCommand ()
     /**
         Build the usage string for the config command.  
     */
-    String usage;
+
     usage.reserveCapacity(200);
     usage.append(USAGE);
     usage.append(COMMAND_NAME);
 
 #ifdef PEGASUS_OS_OS400
-    usage.append(" -").append(OPTION_DISABLE);
+    usage.append("  [ -").append(OPTION_DISABLE);
     usage.append(" -").append(OPTION_MODULE).append(" module ");
-    usage.append("[ -").append(OPTION_QUIET_VALUE).append(" ]\n");
+    usage.append("[ -").append(OPTION_QUIET_VALUE).append(" ] ]\n");
 
-    usage.append("                   -").append(OPTION_ENABLE);
+    usage.append("                    [ -").append(OPTION_ENABLE);
     usage.append(" -").append(OPTION_MODULE).append(" module ");
-    usage.append("[ -").append(OPTION_QUIET_VALUE).append(" ]\n");
+    usage.append("[ -").append(OPTION_QUIET_VALUE).append(" ] ]\n");
 
-    usage.append("                   -").append(OPTION_REMOVE);
+    usage.append("                    [ -").append(OPTION_REMOVE);
     usage.append(" -").append(OPTION_MODULE).append(" module");
     usage.append(" [ -").append(OPTION_PROVIDER).append(" provider ] ");
-    usage.append("[ -").append(OPTION_QUIET_VALUE).append(" ]\n");
+    usage.append("[ -").append(OPTION_QUIET_VALUE).append(" ] ]\n");
 
-    usage.append("                   -").append(OPTION_LIST);
+    usage.append("                    [ -").append(OPTION_LIST);
     usage.append(" [ -").append(OPTION_STATUS);
-    usage.append(" | -").append(OPTION_MODULE).append(" module ] \n");
+    usage.append(" | -").append(OPTION_MODULE).append(" module ] ] \n");
 #else
-    usage.append(" -").append(OPTION_DISABLE);
-    usage.append(" -").append(OPTION_MODULE).append(" module \n");
+    usage.append("  [ -").append(OPTION_DISABLE);
+    usage.append(" -").append(OPTION_MODULE).append(" module ] ");
 
-    usage.append("                   -").append(OPTION_ENABLE);
-    usage.append(" -").append(OPTION_MODULE).append(" module \n");
+    usage.append("[ -").append(OPTION_ENABLE);
+    usage.append(" -").append(OPTION_MODULE).append(" module ]\n");
 
-    usage.append("                   -").append(OPTION_REMOVE);
+    usage.append("                    [ -").append(OPTION_REMOVE);
     usage.append(" -").append(OPTION_MODULE).append(" module");
-    usage.append(" [ -").append(OPTION_PROVIDER).append(" provider ] \n");
+    usage.append(" [ -").append(OPTION_PROVIDER).append(" provider ] ]\n");
 
-    usage.append("                   -").append(OPTION_LIST);
+    usage.append("                    [ -").append(OPTION_LIST);
     usage.append(" [ -").append(OPTION_STATUS);
-    usage.append(" | -").append(OPTION_MODULE).append(" module ] \n");
+    usage.append(" | -").append(OPTION_MODULE).append(" module ] ]\n");
 #endif
+    //PEP167 changes - common for all platforms
+    usage.append("                    [ -").append(OPTION_HELP).append(" ] [ --")
+         .append(LONG_HELP).append(" ] ");
 
+    usage.append("[ --").append(LONG_VERSION).append(" ] \n");
+
+    usage.append("Options : \n");
+    usage.append("    -d         - Disable the specified CIM provider module\n");
+    usage.append("    -e         - Enable the specified CIM provider module\n");
+    usage.append("    -h, --help - Display this help message\n");
+    usage.append("    -l         - Display all the registered provider modules\n");
+    usage.append("    -m         - Specify the provider module for the operation\n");
+    usage.append("    -p         - Specify the provider for the operation\n");
+#ifdef PEGASUS_OS_OS400
+    usage.append("    -q         - Specify quiet mode, avoiding output to stdout or stderr\n");
+#endif
+    usage.append("    -r         - Remove specified provider module and its contained providers\n");
+    usage.append("    -s         - Display the status of registered provider modules\n");
+    usage.append("    --version  - Display CIM Server version number\n");
+    
 //l10n localize usage
 #ifdef PEGASUS_HAS_ICU
 	
@@ -689,12 +736,19 @@ void CIMProviderCommand::setCommand (
     optString.append(OPTION_MODULE);
     optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
 #endif
+    //PEP167 changes - common for all platforms
+    optString.append(OPTION_LIST);
+    optString.append(OPTION_HELP);
 
     //
     //  Initialize and parse options
     //
     getoopt options ("");
     options.addFlagspec(optString);
+
+    //PEP#167 - adding long flag for options : 'help' and 'version'
+    options.addLongFlagspec(LONG_HELP,getoopt::NOARG);
+    options.addLongFlagspec(LONG_VERSION,getoopt::NOARG);
 
     options.parse (argc, argv);
 
@@ -713,14 +767,18 @@ void CIMProviderCommand::setCommand (
     {
         if (options [i].getType () == Optarg::LONGFLAG)
         {
-            //
-            //  This path should not be hit
-            //  The cimprovider command has no LONGFLAG options
-            //
+            //PEP 167 : long flags newly added to this command
+
+            if(options [i].getopt () == LONG_HELP)
+               _operationType = OPERATION_TYPE_HELP;
+            else if (options [i].getopt () == LONG_VERSION)
+               _operationType = OPERATION_TYPE_VERSION;
+
             c = options [i].getopt () [0];
 
-            UnexpectedOptionException e (c);
-            throw e;
+            //PEP 167 change
+            //UnexpectedOptionException e (c);
+            //throw e;
         } 
         else if (options [i].getType () == Optarg::REGULAR)
         {
@@ -891,6 +949,52 @@ void CIMProviderCommand::setCommand (
  	        }
  #endif
 
+            //PEP#167 - 2 new cases added below for HELP and VERSION
+            case OPTION_HELP: 
+            {
+                if (_operationType != OPERATION_TYPE_UNINITIALIZED)
+                {
+                    //
+                    // More than one operation option was found
+                    //
+                    UnexpectedOptionException e (OPTION_HELP);
+                    throw e;
+                }
+
+                if (options.isSet (OPTION_HELP) > 1)
+                {
+                    //
+                    // More than one list option was found
+                    //
+                    DuplicateOptionException e (OPTION_HELP); 
+                    throw e;
+                }
+                _operationType = OPERATION_TYPE_HELP;
+                break;
+            }
+            case OPTION_VERSION: 
+            {
+                if (_operationType != OPERATION_TYPE_UNINITIALIZED)
+                {
+                    //
+                    // More than one operation option was found
+                    //
+                    UnexpectedOptionException e (OPTION_VERSION);
+                    throw e;
+                }
+
+                if (options.isSet (OPTION_VERSION) > 1)
+                {
+                    //
+                    // More than one list option was found
+                    //
+                    DuplicateOptionException e (OPTION_VERSION); 
+                    throw e;
+                }
+                _operationType = OPERATION_TYPE_VERSION;
+                break;
+            }
+
                 default:
 		{ 
 		    // 
@@ -1006,6 +1110,18 @@ Uint32 CIMProviderCommand::execute (
         // The command was not initialized
         //
         return 1;
+    }
+    //PEP#167 - Added Options HELP and VERSION
+    //PEP#167 - CIMServer need not be running for these to work
+    else if (_operationType == OPERATION_TYPE_HELP)
+    {
+        cerr << usage << endl;
+        return (RC_SUCCESS);
+    }
+    else if(_operationType == OPERATION_TYPE_VERSION)
+    {
+        cerr << "Version " << PEGASUS_VERSION << endl;
+        return (RC_SUCCESS);
     }
 
 #ifdef PEGASUS_OS_OS400
@@ -1958,9 +2074,9 @@ int main (int argc, char* argv [])
     {
         if (!String::equal(cfe.getMessage (), ""))
         {
-            cerr << COMMAND_NAME << ": " << cfe.getMessage () << endl;
+            cerr << COMMAND_NAME << ": " <<  "Invalid option. Use '-h' " 
+                 << "or '--help' to obtain command syntax" << endl;
         }
-        cerr << command->getUsage () << endl;
         return 1;
     }
 

@@ -30,6 +30,7 @@
 // Modified By:  Gerarda Marquez (gmarquez@us.ibm.com)
 //               -- PEP 43 changes
 //               Seema Gupta (gseema@in.ibm.com)
+//               Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //               
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -54,14 +55,16 @@ enum opttypes {FILESPEC,
 	       ALLOWFLAG,
 #ifndef PEGASUS_OS_HPUX
 	       SYNTAXFLAG,
-	       FILELIST,
+//PEP167     FILELIST, 
 	       TRACEFLAG,
 	       XMLFLAG,
 #endif
 #ifdef PEGASUS_OS_OS400
 	       QUIETFLAG,
 #endif
-	       OPTEND};
+	       VERSIONFLAG,
+             OPTEND_CIMMOF,    //PEP167
+             OPTEND_CIMMOFL};  //PEP167
 
 struct optspec {
   char *flag;

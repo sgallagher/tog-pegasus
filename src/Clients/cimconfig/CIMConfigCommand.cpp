@@ -32,6 +32,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
+//              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -80,7 +81,7 @@ static const char COMMAND_NAME []              = "cimconfig";
     The usage string for this command.  This string is displayed
     when an error occurs in parsing or validating the command line.
 */
-static const char USAGE []                     = "usage: ";
+static const char USAGE []                     = "Usage: ";
 
 /**
     This constant represents the getoopt argument designator
@@ -117,6 +118,15 @@ static const Uint32 OPERATION_TYPE_UNSET          = 3;
 */
 static const Uint32 OPERATION_TYPE_LIST           = 4;
 
+/**
+    This constant represents a help operation
+*/
+static const Uint32 OPERATION_TYPE_HELP           = 5;
+
+/**
+    This constant represents a version display operation
+*/
+static const Uint32 OPERATION_TYPE_VERSION        = 6;
 
 /**
     The constants representing the string literals.
@@ -386,6 +396,12 @@ static const char NO_PROPERTIES_FOUND_IN_FILE [] =
 static const char NO_PROPERTIES_FOUND_IN_FILE_KEY [] = 
 	"Clients.CIMConfig.CIMConfigCommand.NO_PROPERTIES_FOUND_IN_FILE";
 
+static const char REQUIRED_ARGS_MISSING []        =
+                        "Required arguments missing.";
+
+static const char REQUIRED_ARGS_MISSING_KEY []        = "Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING";
+
+
 //l10n end default messages and keys
 
 /**
@@ -430,7 +446,19 @@ static const char   OPTION_PLANNED_VALUE       = 'p';
 */
 static const char   OPTION_DEFAULT_VALUE       = 'd';
 
+/**
+    The option character used to display help info.
+*/
+static const char   OPTION_HELP                = 'h';
 
+/**
+    The option character used to display version info.
+*/
+static const char   OPTION_VERSION             = 'v';
+
+static const char   LONG_HELP []  = "help";
+
+static const char   LONG_VERSION []  = "version";
 
 /**
     Constructs a CIMConfigCommand and initializes instance variables.
@@ -455,49 +483,71 @@ CIMConfigCommand::CIMConfigCommand ()
     /**
         Build the usage string for the config command.  
     */
-    String usage;
     usage.reserveCapacity(200);
     usage.append(USAGE);
     
     usage.append(COMMAND_NAME);
 #ifdef PEGASUS_OS_OS400
-    usage.append(" -").append(OPTION_GET).append(" name");
+    usage.append(" [ -").append(OPTION_GET).append(" name");
     usage.append(" [ -").append(OPTION_CURRENT_VALUE); 
     usage.append(" ] [ -").append(OPTION_DEFAULT_VALUE);
     usage.append(" ] [ -").append(OPTION_PLANNED_VALUE);
-    usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ]\n");
+    usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ] ]\n");
 
-    usage.append("                 -").append(OPTION_SET).append(" name=value");
+    usage.append("                 [ -").append(OPTION_SET).append(" name=value");
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
     usage.append(" ] [ -").append(OPTION_PLANNED_VALUE);
-    usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ]\n");
+    usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ] ]\n");
 
-    usage.append("                 -").append(OPTION_UNSET).append(" name");
+    usage.append("                 [ -").append(OPTION_UNSET).append(" name");
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
     usage.append(" ] [ -").append(OPTION_PLANNED_VALUE);
-    usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ]\n");
+    usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ] ]\n");
 
-    usage.append("                 -").append(OPTION_LIST);
+    usage.append("                 [ -").append(OPTION_LIST);
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
-    usage.append(" | -").append(OPTION_PLANNED_VALUE).append(" ]\n");
+    usage.append(" | -").append(OPTION_PLANNED_VALUE).append(" ] ]\n");
 #else  
-    usage.append(" -").append(OPTION_GET).append(" name");
+    usage.append(" [ -").append(OPTION_GET).append(" name");
     usage.append(" [ -").append(OPTION_CURRENT_VALUE); 
     usage.append(" ] [ -").append(OPTION_DEFAULT_VALUE);
-    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE).append(" ]\n");
+    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE).append(" ] ]\n");
 
-    usage.append("                 -").append(OPTION_SET).append(" name=value");
+    usage.append("                 [ -").append(OPTION_SET).append(" name=value");
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
-    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE).append(" ]\n");
+    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE).append(" ] ]\n");
 
-    usage.append("                 -").append(OPTION_UNSET).append(" name");
+    usage.append("                 [ -").append(OPTION_UNSET).append(" name");
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
-    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE).append(" ]\n");
+    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE).append(" ] ]\n");
 
-    usage.append("                 -").append(OPTION_LIST);
+    usage.append("                 [ -").append(OPTION_LIST);
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
-    usage.append(" | -").append(OPTION_PLANNED_VALUE).append(" ]\n");
+    usage.append(" | -").append(OPTION_PLANNED_VALUE).append(" ] ]\n");
 #endif
+
+    usage.append("                 [ -").append(OPTION_HELP).append(" ] [ --")
+         .append(LONG_HELP).append(" ] ");
+
+    usage.append("[ --").append(LONG_VERSION).append(" ] \n");
+
+    usage.append("Options : \n");
+    usage.append("    -c         - Use current configuration\n");
+    usage.append("    -d         - Use default configuration\n");
+    usage.append("    -g         - Get the value of specified configuration property\n");
+    usage.append("    -h, --help - Display this help message\n");
+    usage.append("    -l         - Display all the configuration properties\n");
+    usage.append("    -p         - Configuration used on next CIM Server start\n");
+#ifdef PEGASUS_OS_OS400
+    usage.append("    -q         - Specify quiet mode, avoiding output to stdout or stderr\n");
+#endif
+    usage.append("    -s         - Add or Update configuration property value\n");
+    usage.append("    -u         - Reset configuration property to its default value\n");
+    usage.append("    --version  - Display CIM Server version number\n");
+
+    usage.append("\nUsage note: The cimconfig command can be used to update the next planned\n"); 
+    usage.append( "configuration without having the CIM Server running. All other options \n");
+    usage.append( "of the cimconfig command require that the CIM Server is running.");
 	
 //l10n localize usage
 #ifdef PEGASUS_HAS_ICU
@@ -564,12 +614,16 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
 #ifdef PEGASUS_OS_OS400
     optString.append(OPTION_QUIET_VALUE);
 #endif
+    optString.append(OPTION_HELP);
 
     //
     //  Initialize and parse options
     //
     getoopt options ("");
     options.addFlagspec(optString);
+    //PEP#167 - adding long flag for options : 'help' and 'version'
+    options.addLongFlagspec(LONG_HELP,getoopt::NOARG);
+    options.addLongFlagspec(LONG_VERSION,getoopt::NOARG);
 
     options.parse (argc, argv);
 
@@ -589,14 +643,18 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
     {
         if (options [i].getType () == Optarg::LONGFLAG)
         {
-            //
-            //  This path should not be hit
-            //  The cimconfig command has no LONGFLAG options
-            //
-            c = options [i].getopt () [0];
+            //PEP 167 : long flags newly added to this command
 
-            UnexpectedOptionException e (c);
-            throw e;
+            if(options [i].getopt () == LONG_HELP)
+               _operationType = OPERATION_TYPE_HELP;
+            else if (options [i].getopt () == LONG_VERSION)
+               _operationType = OPERATION_TYPE_VERSION;
+
+            c = options [i].getopt () [0];
+            
+            //PEP 167 change
+            //UnexpectedOptionException e (c);
+            //throw e;
         } 
         else if (options [i].getType () == Optarg::REGULAR)
         {
@@ -803,6 +861,52 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                     break;
                 }
 
+                //PEP#167 - 2 new cases added below for HELP and VERSION
+                case OPTION_HELP: 
+                {
+                    if (_operationType != OPERATION_TYPE_UNINITIALIZED)
+                    {
+                        //
+                        // More than one operation option was found
+                        //
+                        UnexpectedOptionException e (OPTION_HELP);
+                        throw e;
+                    }
+
+                    if (options.isSet (OPTION_HELP) > 1)
+                    {
+                        //
+                        // More than one list option was found
+                        //
+                        DuplicateOptionException e (OPTION_HELP); 
+                        throw e;
+                    }
+                    _operationType = OPERATION_TYPE_HELP;
+                    break;
+                }
+                case OPTION_VERSION: 
+                {
+                    if (_operationType != OPERATION_TYPE_UNINITIALIZED)
+                    {
+                        //
+                        // More than one operation option was found
+                        //
+                        UnexpectedOptionException e (OPTION_VERSION);
+                        throw e;
+                    }
+
+                    if (options.isSet (OPTION_VERSION) > 1)
+                    {
+                        //
+                        // More than one list option was found
+                        //
+                        DuplicateOptionException e (OPTION_VERSION); 
+                        throw e;
+                    }
+                    _operationType = OPERATION_TYPE_VERSION;
+                    break;
+                }
+
 #ifdef PEGASUS_OS_OS400
                  // check for quiet option before processing the rest of the options
 		case OPTION_QUIET_VALUE:
@@ -827,7 +931,8 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
         // No operation type was specified; throw exception
         // so that usage can be displayed.
         //
-        CommandFormatException e ("");
+        //l10n change was missing and added while implementing PEP#167 changes
+        CommandFormatException e (localizeMessage(MSG_PATH,REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING));
         throw e;
     }
 
@@ -915,6 +1020,18 @@ Uint32 CIMConfigCommand::execute (
         // The command was not initialized
         //
         return ( RC_ERROR );
+    }
+    //PEP#167 - Added Options HELP and VERSION
+    //PEP#167 - CIMServer need not be running for these to work
+    else if (_operationType == OPERATION_TYPE_HELP)
+    {
+        cerr << usage << endl;
+        return (RC_SUCCESS);
+    }
+    else if(_operationType == OPERATION_TYPE_VERSION)
+    {
+        cerr << "Version " << PEGASUS_VERSION << endl;
+        return (RC_SUCCESS);
     }
 
     //
@@ -1906,9 +2023,9 @@ int main (int argc, char* argv [])
     {
         if (!String::equal(cfe.getMessage (), ""))
         {
-            cerr << COMMAND_NAME << ": " << cfe.getMessage () << endl;
+            cerr << COMMAND_NAME << ": " <<  "Invalid option. Use '-h' " 
+                 << "or '--help' to obtain command syntax" << endl;
         }
-        cerr << command->getUsage () << endl;
         exit (-1);
     }
 

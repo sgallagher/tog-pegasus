@@ -29,6 +29,7 @@
 //
 // Modified By: Gerarda Marquez (gmarquez@us.ibm.com)
 //              -- PEP 43
+//              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,6 +46,7 @@
 #include <iostream>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/PegasusVersion.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -87,49 +89,82 @@ cimmofl_warning(ostream &os) {
 #endif
 
 ostream & 
-help(ostream &os) {
+help(ostream &os, char* progname) {
 	
 //l10n menu
-  String help = "MOF Compiler version ";
-  help.append(COMPILER_VERSION).append("\n\n");
+  //PEP167 change
+  String help;
 #ifdef PEGASUS_OS_HPUX
-  help.append("Usage: cimmof [-h] [-w] [-uc] [-aE | -aV | -aEV] [-I path] [-n namespace] [file, ...]\n");
-  help.append( "    -h           - show this help \n");
-  help.append( "    -w           - suppress warnings \n");
-  help.append( "    -I path      - specify an include path \n");
-  help.append( "    -n namespace - override the default CIMRepository namespace \n");
-  help.append( "  -uc   -- allow update of an existing class definition.\n");
-  help.append( "  -aE   -- allow creation, either through addition or modification, of Experimental classes.\n");
-  help.append( "  -aV   -- allow both Major and Down Revision Schema changes.\n");
-  help.append( "  -aEV  -- allow both Experimental and Version Schema changes.\n");
+  help.append("Usage: ").append(progname);
+  help.append(" [ -h ] [ --help ] [ --version ] [ -w ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ] [ -n namespace ] [ --namespace namespace ] <mof_file1 mof_file2...>\n");
+  help.append("Options : \n");  
+  help.append( "    -aE          - Allow Experimental Schema changes\n");
+  help.append( "    -aEV         - Allow both Experimental and Version Schema changes\n");
+  help.append( "    -aV          - Allow both Major and Down Revision Schema changes\n");
+  help.append( "    -h, --help   - Display this help message \n");
+  help.append( "    -I           - Specify an include path \n");
+  help.append( "    -n           - Override the default CIM Repository namespace \n");
+  help.append( "    -uc          - Allow update of an existing class definition\n");
+  help.append( "    --version    - Display CIM Server version\n");
+  help.append( "    -w           - Suppress warning messages \n");
 #else
-#ifndef PEGASUS_OS_OS400
-  help.append( "Usage: cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] -ffile\n");
-  help.append( "       cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [mof_files...]\n");
-#else
-  help.append( "Usage: cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [-q] -ffile\n");
-  help.append( "       cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [-q] mof_files...\n");
-#endif
-  help.append( "  -h, --help -- show this help.\n");
-  help.append( "  -E -- syntax check only.\n");
-  help.append( "  -w -- suppress warnings.\n");
-  help.append( "  -uc   -- allow update of an existing class definition.\n");
-  help.append( "  -aE   -- allow creation, either through addition or modification, of Experimental classes.\n");
-  help.append( "  -aV   -- allow both Major and Down Revision Schema changes.\n");
-  help.append( "  -aEV  -- allow both Experimental and Version Schema changes.\n");
+  help.append("Usage: ").append(progname);
+  help.append( " [ -h ] [ --help ] [ --version ] [ -E ] [ -w ]\n");
+  if(String::equalNoCase(progname,"cimmofl"))
+      help.append(" "); //Display alignment, if cimmofl is used
+  help.append("              [ -uc ] [ -aE | -aV | -aEV ]\n");
+  if(String::equalNoCase(progname,"cimmofl"))
+      help.append(" "); //Display alignment, if cimmofl is used
+  help.append( "              [ -I path ] [ -n namespace ] [ --namespace namespace ]\n");
+  if(String::equalNoCase(progname,"cimmofl"))
+      help.append(" "); //Display alignment, if cimmofl is used
+  help.append("              [ --xml ] [ --trace ]");
 #ifdef PEGASUS_OS_OS400
-  help.append( "  -q -- suppress all messages except command line usage errors.\n");
+  help.append(" [ -q ] ");
 #endif
-  help.append( "  -Rrepository -- specify the repository path (cimmofl) or hostname:portnumber (cimmof)\n");
-  help.append( "  --CIMRepository=repository -- specify repository path or hostname:portnumber.\n");
-  help.append( "  -Ipath -- specify an include path.\n");
-  help.append( "  -ffile -- specify file containing a list of MOFs to compile.\n");
-  help.append( " --file=file -- specify file containing list of MOFs.\n");
-  help.append( " -npath -- override the default CIMRepository namespace (root/cimv2).\n");
-  help.append( " --namespace=path -- override default CIMRepository namespace (root/cimv2).\n");
-  help.append( " --xml -- output XML only, to stdout.  Do not update repository.\n");
-  help.append( " --trace or --trace=ttracefile -- trace to file (default to stdout).\n");
+  if(String::equalNoCase(progname,"cimmofl"))
+  {
+      help.append("\n               [ -R repository ] [ --CIMRepository repository ] ");
+  }
+
+  help.append("\n");
+  if(String::equalNoCase(progname,"cimmofl"))
+      help.append(" "); //Display alignment, if cimmofl is used
+  help.append("              <mof_file1 mof_file2...>\n");
+  help.append("Options : \n");  
+  help.append( "    -aE             - Allow Experimental Schema changes\n");
+  help.append( "    -aEV            - Allow both Experimental and Version Schema changes\n");
+  help.append( "    -aV             - Allow both Major and Down Revision Schema changes\n");
+  // PEP167 - '--CIMRepository' disabled for cimmof ONLY.
+  if(String::equalNoCase(progname,"cimmofl"))
+      help.append( "    --CIMRepository - Specify the repository path\n");
+  help.append( "    -E              - Syntax check only\n");
+  help.append( "    -h, --help      - Display this help message\n");
+  help.append( "    -I              - Specify an include path\n");
+  help.append( "    -n              - Override default CIM Repository namespace (root/cimv2)\n");
+  help.append( "    --namespace     - Override default CIM Repository namespace (root/cimv2)\n");
+#ifdef PEGASUS_OS_OS400
+  help.append( "    -q              - Suppress all messages except command line usage errors\n");
 #endif
+  // PEP167 - '-R' disabled for cimmof ONLY.
+  if(String::equalNoCase(progname,"cimmofl"))
+      help.append( "    -R              - Specify the repository path\n");
+  //PEP167 - Remove and disable 'f' and 'file' options. No longer required
+  //help.append( "  -ffile -- specify file containing a list of MOFs to compile.\n");
+  //help.append( " --file=file -- specify file containing list of MOFs.\n");
+  help.append( "    --trace         - Trace to file (default to stdout)\n");
+  help.append( "    -uc             - Allow update of an existing class definition\n");
+  help.append( "    --version       - Display CIM Server version\n");
+  help.append( "    -w              - Suppress warning messages\n");
+  help.append( "    --xml           - Output XML only, to stdout. Do not update repository\n");
+#endif
+
+  if(String::equalNoCase(progname,"cimmofl"))
+  {
+      help.append("\n\nWarning: Use of cimmofl can corrupt the CIM Server Repository.\n");
+      help.append("         cimmofl should only be used under very controlled situations.\n");
+      help.append("         cimmof is the recommended OpenPegasus MOF compiler.\n");
+  }
 
 // now localize the menu based on platform, use help as the default menu which
 // has been appropriately built above for the specific platform
@@ -172,18 +207,19 @@ static struct optspec optspecs[] =
     {(char*)"", FILESPEC, false, getoopt::NOARG},
     {(char*)"h", HELPFLAG, false, getoopt::NOARG},
     {(char*)"help", HELPFLAG, true, getoopt::NOARG},
+    {(char*)"version", VERSIONFLAG, true, getoopt::NOARG},
     {(char*)"n", NAMESPACE, false, getoopt::MUSTHAVEARG},
     {(char*)"namespace", NAMESPACE, true, getoopt::MUSTHAVEARG}, 
     {(char*)"I", INCLUDEPATH, false, getoopt::MUSTHAVEARG},
-    {(char*)"Include", INCLUDEPATH, true, getoopt::MUSTHAVEARG},
+    //PEP167 - not required
+    //{(char*)"Include", INCLUDEPATH, true, getoopt::MUSTHAVEARG},
     {(char*)"w", SUPPRESSFLAG, false, getoopt::NOARG},
-    {(char*)"R", REPOSITORYNAME, false, getoopt::MUSTHAVEARG},
-    {(char*)"CIMRepository", REPOSITORYNAME, true, getoopt::MUSTHAVEARG},
     {(char*)"u", UPDATEFLAG, false, getoopt::MUSTHAVEARG},
     {(char*)"a", ALLOWFLAG, false, getoopt::MUSTHAVEARG},
 #ifndef PEGASUS_OS_HPUX
-    {(char*)"f", FILELIST, false, getoopt::MUSTHAVEARG},
-    {(char*)"filelist", FILELIST, true, getoopt::MUSTHAVEARG},
+    //PEP167 - 'f' and 'filelist' options disabled as per PEP
+    //{(char*)"f", FILELIST, false, getoopt::MUSTHAVEARG},
+    //{(char*)"filelist", FILELIST, true, getoopt::MUSTHAVEARG},
     {(char*)"E", SYNTAXFLAG, false, getoopt::NOARG}, 
     {(char*)"trace", TRACEFLAG, true, getoopt::OPTIONALARG},
     {(char*)"xml", XMLFLAG, true, getoopt::NOARG},
@@ -191,15 +227,22 @@ static struct optspec optspecs[] =
 #ifdef PEGASUS_OS_OS400
     {(char*)"q", QUIETFLAG, false, getoopt::NOARG},
 #endif
-    {(char*)"", OPTEND, false, getoopt::NOARG}
+    {(char*)"", OPTEND_CIMMOF, false, getoopt::NOARG},
+    {(char*)"R", REPOSITORYNAME, false, getoopt::MUSTHAVEARG},
+    {(char*)"CIMRepository", REPOSITORYNAME, true, getoopt::MUSTHAVEARG},
+    {(char*)"", OPTEND_CIMMOFL, false, getoopt::NOARG}
 };
 
+//PEP167 change - 2nd argument char* added
 static void
-setCmdLineOpts(getoopt &cmdline) {
+setCmdLineOpts(getoopt &cmdline, char* progname) {
   for (unsigned int i = 0; ; i++) {
     const optspec &o = optspecs[i];
-    if (o.catagory == OPTEND)
-      break;
+    //PEP167 change
+    if(String::equalNoCase(progname,"cimmofl") && o.catagory == OPTEND_CIMMOF) continue;
+    else if(String::equalNoCase(progname,"cimmofl") && o.catagory == OPTEND_CIMMOFL) break;
+    else if(String::equalNoCase(progname,"cimmof") && o.catagory == OPTEND_CIMMOF) break;
+
     if (o.flag == "")
       continue;
     if (o.islong)
@@ -210,17 +253,23 @@ setCmdLineOpts(getoopt &cmdline) {
   }
 }
 
+//PEP167 change - 2nd argument char* added
 static opttypes
-catagorize(const Optarg &arg) {
+catagorize(const Optarg &arg, char* progname) {
   
   for (unsigned int i = 0; ; i++) {
     const optspec &o = optspecs[i];
-    if (o.catagory == OPTEND)
-      break;
+    //PEP167 change
+    if(String::equalNoCase(progname,"cimmofl") && o.catagory == OPTEND_CIMMOF) continue;
+    else if(String::equalNoCase(progname,"cimmofl") && o.catagory == OPTEND_CIMMOFL) break;
+    else if(String::equalNoCase(progname,"cimmof") && o.catagory == OPTEND_CIMMOF) break;
     if (arg.getName() == o.flag)
       return o.catagory;
   }
-  return OPTEND;
+  if(String::equalNoCase(progname,"cimmof"))
+      return OPTEND_CIMMOF;
+  else 
+      return OPTEND_CIMMOFL;
 }
 
 static void
@@ -316,7 +365,7 @@ int
 processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 	       ostream &helpos = cerr) {
   getoopt cmdline;
-  setCmdLineOpts(cmdline);
+  setCmdLineOpts(cmdline, argv[0]);
   cmdline.parse(argc, argv);
   switch (getType(argv[0])) {
   case 1: cmdlinedata.set_is_local();
@@ -354,15 +403,20 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
     MessageLoaderParms parms("Compiler.cmdline.cimmof.CMDLINE_ERRORS",
     						 "Command line errors:\n");
     String msg = MessageLoader::getMessage(parms);						 
-    cmdline.printErrors(msg);
+    //PEP167 change
+    //cmdline.printErrors(msg);
     throw ArgumentErrorsException(msg);
   }
   for (unsigned int i = cmdline.first(); i < cmdline.last(); i++) {
     const Optarg &arg = cmdline[i];
-    opttypes c = catagorize(arg);
+    opttypes c = catagorize(arg, argv[0]);
     switch (c)
       {
-      case HELPFLAG:  help(helpos);
+      case VERSIONFLAG:  
+          cerr << "Version " << PEGASUS_VERSION << endl;
+          return(-1);
+          break;
+      case HELPFLAG:  help(helpos, argv[0]);
 	return(-1);
         break;
       case INCLUDEPATH:cmdlinedata.add_include_path(arg.optarg());
@@ -461,14 +515,15 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 	break;
       case XMLFLAG: cmdlinedata.set_xmloutput();
 	break;
-      case FILELIST: {
+    //PEP167 commenting FILELIST option
+/*      case FILELIST: {
 	int stat = process_filelist(arg.optarg(), cmdlinedata);
 	// ATTN: P1 BB 2001 On Process filelist error should throw an exception
 	if (stat != 1) {
 	  return stat;
 	}
 	break;
-      }
+      }*/
 #endif
 #ifdef PEGASUS_OS_OS400
       case QUIETFLAG: cmdlinedata.set_quiet();
@@ -476,7 +531,8 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 #endif
       case FILESPEC: cmdlinedata.add_filespecs(arg.optarg());
 	break;
-      case OPTEND: return -1;  // shouldn't happen
+      case OPTEND_CIMMOFL:
+      case OPTEND_CIMMOF: return -1;  // shouldn't happen
 	break;
       }
   }

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Repository.h,v $
+// Revision 1.4  2001/02/06 17:04:03  karl
+// add documentation
+//
 // Revision 1.3  2001/01/31 08:20:51  mike
 // Added dispatcher framework.
 // Added enumerateInstanceNames.
@@ -40,7 +43,7 @@
 //
 // Repository.h
 //
-//	This interface contains a method for each operation defined in 
+//	This interface contains a method for each operation defined in
 // 	the "Specification for CIM Operations over HTTP".
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,15 +60,19 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class RepositoryDeclContext;
+/** Class Repository - This class represents the repository interfaces.
+This class is derived from the Pegasus Operations interface adding certain
+methods specifically required for the repository.
+*/
 
 class PEGASUS_REPOSITORY_LINKAGE Repository : public Operations
 {
 public:
-
+    /// Constructor
     Repository(const String& path);
-    
+    /// Descructor
     virtual ~Repository();
-
+    /// virtual class ClassDecl. From the operations class
     virtual ClassDecl getClass(
 	const String& nameSpace,
 	const String& className,
@@ -73,7 +80,7 @@ public:
 	Boolean includeQualifiers = true,
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = _getStringArray());
-
+    /// getInstance
     virtual InstanceDecl getInstance(
 	const String& nameSpace,
 	const Reference& instanceName,
@@ -81,31 +88,31 @@ public:
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = _getStringArray());
-
+    /// deleteClass
     virtual void deleteClass(
 	const String& nameSpace,
 	const String& className);
-
+    /// deleteInstance
     virtual void deleteInstance(
 	const String& nameSpace,
 	const Reference& instanceName);
-
+    /// createClass
     virtual void createClass(
 	const String& nameSpace,
 	ClassDecl& newClass);
-
+    /// createInstance
     virtual void createInstance(
 	const String& nameSpace,
 	const InstanceDecl& newInstance) ;
-
+    /// modifyClass
     virtual void modifyClass(
 	const String& nameSpace,
 	ClassDecl& modifiedClass);
-
+    /// modifyInstance
     virtual void modifyInstance(
 	const String& nameSpace,
 	const InstanceDecl& modifiedInstance);
-
+    /// enumerateClasses
     virtual Array<ClassDecl> enumerateClasses(
 	const String& nameSpace,
 	const String& className = String::EMPTY,
@@ -113,12 +120,12 @@ public:
 	Boolean localOnly = true,
 	Boolean includeQualifiers  = true,
 	Boolean includeClassOrigin = false);
-
+    /// enumerateClassNames
     virtual Array<String> enumerateClassNames(
 	const String& nameSpace,
 	const String& className = String::EMPTY,
 	Boolean deepInheritance = false);
-
+    /// enumerateInstances
     virtual Array<InstanceDecl> enumerateInstances(
 	const String& nameSpace,
 	const String& className,
@@ -127,15 +134,15 @@ public:
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = _getStringArray());
-
+    /// enumerateInstanceNames
     virtual Array<Reference> enumerateInstanceNames(
 	const String& nameSpace,
 	const String& className);
-
+    /// execQuery
     virtual Array<InstanceDecl> execQuery(
 	const String& queryLanguage,
 	const String& query) ;
-
+    /// associators
     virtual Array<InstanceDecl> associators(
 	const String& nameSpace,
 	const Reference& objectName,
@@ -146,7 +153,7 @@ public:
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = _getStringArray());
-
+    /// associateNames
     virtual Array<Reference> associatorNames(
 	const String& nameSpace,
 	const Reference& objectName,
@@ -154,7 +161,7 @@ public:
 	const String& resultClass = String::EMPTY,
 	const String& role = String::EMPTY,
 	const String& resultRole = String::EMPTY);
-
+    /// references
     virtual Array<InstanceDecl> references(
 	const String& nameSpace,
 	const Reference& objectName,
@@ -163,39 +170,39 @@ public:
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = _getStringArray());
-
+    /// referenceNames
     virtual Array<Reference> referenceNames(
 	const String& nameSpace,
 	const Reference& objectName,
 	const String& resultClass = String::EMPTY,
 	const String& role = String::EMPTY);
-
+    /// getProperty
     virtual Value getProperty(
 	const String& nameSpace,
 	const Reference& instanceName,
 	const String& propertyName);
-
+    /// setProperty
     virtual void setProperty(
 	const String& nameSpace,
 	const Reference& instanceName,
 	const String& propertyName,
 	const Value& newValue = Value());
-
+    /// getQualifier
     virtual QualifierDecl getQualifier(
 	const String& nameSpace,
 	const String& qualifierName);
-
+    /// setQualifier
     virtual void setQualifier(
 	const String& nameSpace,
 	const QualifierDecl& qualifierDecl);
-
+    /// virtual deleteQualifier
     virtual void deleteQualifier(
 	const String& nameSpace,
 	const String& qualifierName);
-
+    /// enumerateQualifiers
     virtual Array<QualifierDecl> enumerateQualifiers(
 	const String& nameSpace);
-
+    /// Virtual value
     virtual Value invokeMethod(
 	const String& nameSpace,
 	const Reference& instanceName,
@@ -203,11 +210,20 @@ public:
 	const Array<Value>& inParameters,
 	Array<Value>& outParameters);
 
+    /** Method createNameSpace - Creates a new namespace in the repository
+    @param String with the name of the namespace
+    @exception - ???
+    ATTN: What happens if the namespace already exists.
+    */
     void createNameSpace(const String& nameSpace);
 
+    /** Method enumerateNameSpaces - Get all of the namespaces in the
+    repository. \Ref{NAMESPACE}
+    @return Array of strings with the namespaces
+    */
     virtual Array<String> enumerateNameSpaces() const;
 
-    /** 
+    /** Method createMetaQualifiers - ATTN:
 	This method must be invoked to create the appropriate meta-qualifiers
 	required by CIM (they are not part of the CIM schema; rather they are
 	part of the meta-schema).
@@ -229,3 +245,4 @@ private:
 PEGASUS_NAMESPACE_END
 
 #endif /* PegasusRepository_Repository_h */
+

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: DateTime.h,v $
+// Revision 1.3  2001/02/06 17:04:03  karl
+// add documentation
+//
 // Revision 1.2  2001/01/24 13:54:09  karl
 // Add Doc++ Document Comments
 //
@@ -33,8 +36,8 @@
 //END_HISTORY
 
 /*
-DateTime Header File.  This file contains the public defintion of the CIM
-DateTime Type It defines the C++ Class DateTime
+DateTime Header File.  This file contains the public definition of the CIM
+DateTime Type. It defines the C++ Class DateTime
 */
 ////////////////////////////////////////////////////////////////////////////////
 //

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Operations.h,v $
+// Revision 1.8  2001/02/06 17:04:03  karl
+// add documentation
+//
 // Revision 1.7  2001/02/02 21:59:45  karl
 // fix enuminstances and some DOC++
 //
@@ -48,7 +51,7 @@
 //
 //END_HISTORY
 
-/** @name Client Operations Header file (Operations.h) - Header File for Pegasus
+/* @name Client Operations Header file (Operations.h) - Header File for Pegasus
 External Client API.
  This library (operations.h) defines the external APIs for the Pegasus MSB.
  These are synchronous calls and match the operations defined by the DMTF
@@ -67,23 +70,32 @@ External Client API.
 
 
 PEGASUS_NAMESPACE_BEGIN
-/** @name The Operations Class
-    This class defines the external client operations for the MSB
-    These operations are based on the WBEM operations defined in the
-    DMTF HTTP operations Specification.
-    They duplicate the names, functions, and parameters of those
-    Operations.
-*/
 
+/** @name The Operations Class.
+    This class defines the external client operations for Pegasus These
+    operations are based on the WBEM operations defined in the DMTF CIM
+    Operations over HTTP operations Specification. They duplicate the names,
+    functions, and parameters of those Operations. Each WBEM operation is a
+    method in this class.
+
+    This library (operations.h) defines the external APIs for the Pegasus MSB.
+    These are synchronous calls and match the operations defined by the DMTF in
+    the document "Specification for CIM Operations over HTTP" Version 1.0 with
+    errata
+
+    The Operations class is used by other classes such as the client, provider,
+    and repository classes to instantiate the operations interfaces.
+
+*/
 class PEGASUS_COMMON_LINKAGE Operations
 {
 public:
-    /**
-        This is a description of operations methods
+    /** Constructor method
+
     */
     Operations();
     /**
-        This is a description of ~operations destructor method
+        Destructor method
     */
     virtual ~Operations();
 
@@ -92,7 +104,6 @@ public:
 	    {
 		return Array<String>();
 	    }
-
 
     /** The <TT>GetClass</TT> method returns a single CIM Class from the
     target Namespace where the ClassName input parameter defines the name of
@@ -163,7 +174,6 @@ public:
 	    <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
     </UL>
     */
-
     virtual ClassDecl getClass(
 	    const String& nameSpace,
 	    const String& className,
@@ -248,7 +258,6 @@ public:
 	    Boolean includeQualifiers = false,
 	    Boolean includeClassOrigin = false,
 	    const Array<String>& propertyList = _getStringArray()) = 0;
-
 
 
     /** The <TT>DeleteClass</TT> method deletes a single CIM Class from the
@@ -510,7 +519,7 @@ public:
         Superclass.
         <LI>Any Property, Method or Qualifier previously defined in the Subclass
         but not defined in the Superclass, and which is not present in the
-        <TT>ModifiedClass</TT> parameter, is removed from the Subclass. 
+        <TT>ModifiedClass</TT> parameter, is removed from the Subclass.
         <LI>If a Property is specified in the <TT>ModifiedClass</TT>
         parameter, the value assigned to that property therein (including
         NULL) becomes the default value of the property for the Subclass.
@@ -545,7 +554,7 @@ public:
 
 
     @return If successful, the specified Class MUST have been updated by
-    the CIM Server. 
+    the CIM Server.
 
     The request to modify the Class MUST fail if the Server cannot update any
     existing Subclasses or Instances of that Class in a consistent manner.
@@ -559,11 +568,11 @@ public:
     <UL>
       <LI>CIM_ERR_ACCESS_DENIED
       <LI>CIM_ERR_NOT_SUPPORTED
-      <LI>CIM_ERR_INVALID_NAMESPACE 
+      <LI>CIM_ERR_INVALID_NAMESPACE
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
         duplicate, unrecognized or otherwise incorrect parameters)
       <LI>CIM_ERR_NOT_FOUND (the CIM Class does not
-        exist) 
+        exist)
       <LI>CIM_ERR_INVALID_SUPERCLASS (the putative CIM Class
         declares a non-existent or incorrect superclass)
       <LI>CIM_ERR_CLASS_HAS_CHILDREN (the modification could
@@ -573,7 +582,7 @@ public:
       <LI>CIM_ERR_CLASS_HAS_INSTANCES (the modification could
         not be performed because it was not possible to update
         the instances of
-        the Class in a consistent fashion) 
+        the Class in a consistent fashion)
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)
      </LI></UL>
     */
@@ -591,7 +600,7 @@ public:
     identifies the name of the Instance to be modified, and defines the set of
     changes (which MUST be correct amendments to the Instance as
     defined by the CIM Specification) to be made to the current Instance
-    definition. 
+    definition.
 
     In processing the modifcation of the Instance, the following rules MUST
     be conformed to by the CIM Server:
@@ -609,7 +618,7 @@ public:
         <TT>CLASSORIGIN</TT> attribute value from that defined in the Class.
         <LI>Any Qualifier previously defined in the Instance but not
         defined in the Class, and which is not present in the
-        <TT>ModifiedInstance</TT> parameter, is removed from the Instance. 
+        <TT>ModifiedInstance</TT> parameter, is removed from the Instance.
 
         <LI>If a Property is specified in the <TT>ModifiedInstance</TT>
         parameter, the value assigned to that property therein
@@ -653,14 +662,14 @@ public:
     parentheses
 
     <UL>
-      <LI>CIM_ERR_ACCESS_DENIED 
+      <LI>CIM_ERR_ACCESS_DENIED
       <LI>CIM_ERR_NOT_SUPPORTED
-      <LI>CIM_ERR_INVALID_NAMESPACE 
+      <LI>CIM_ERR_INVALID_NAMESPACE
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
         duplicate, unrecognized or otherwise incorrect parameters)
       <LI>CIM_ERR_INVALID_CLASS (the CIM Class of which this is
         to be a new Instance does not exist)
-      <LI>CIM_ERR_NOT_FOUND (the CIM Instance does not exist) 
+      <LI>CIM_ERR_NOT_FOUND (the CIM Instance does not exist)
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI></UL>
     */
     virtual void modifyInstance(
@@ -676,7 +685,7 @@ public:
     namespace \Ref{NAMESPACE}
 
     @param className The <TT>ClassName</TT> input parameter defines the Class
-    that is the basis for the enumeration. 
+    that is the basis for the enumeration.
 
     @param DeepInheritance If the <TT>DeepInheritance</TT> input
     parameter is <TT>true</TT>, this specifies that all subclasses of
@@ -722,7 +731,7 @@ public:
     <UL>
       <LI>CIM_ERR_ACCESS_DENIED
       <LI>CIM_ERR_NOT_SUPPORTED
-      <LI>CIM_ERR_INVALID_NAMESPACE 
+      <LI>CIM_ERR_INVALID_NAMESPACE
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
         duplicate, unrecognized or otherwise incorrect parameters)
       <LI>CIM_ERR_INVALID_CLASS (the CIM Class that is the
@@ -747,7 +756,7 @@ public:
     target namespace \Ref{NAMESPACE}
 
     @param className The <TT>ClassName</TT> input parameter defines the Class
-    that is the basis for the enumeration. 
+    that is the basis for the enumeration.
 
     @param DeepInheritance If the DeepInheritance input parameter is true, this
     specifies that the names of all subclasses of the specified Class should be
@@ -769,7 +778,7 @@ public:
     <UL>
       <LI>CIM_ERR_ACCESS_DENIED
       <LI>CIM_ERR_NOT_SUPPORTED
-      <LI>CIM_ERR_INVALID_NAMESPACE 
+      <LI>CIM_ERR_INVALID_NAMESPACE
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
         duplicate, unrecognized or otherwise incorrect parameters)
       <LI>CIM_ERR_INVALID_CLASS (the CIM Class that is the
@@ -859,7 +868,7 @@ public:
 	<UL>
 	  <LI>CIM_ERR_ACCESS_DENIED
 	  <LI>CIM_ERR_NOT_SUPPORTED
-	  <LI>CIM_ERR_INVALID_NAMESPACE 
+	  <LI>CIM_ERR_INVALID_NAMESPACE
 	  <LI>CIM_ERR_INVALID_PARAMETER (including missing,
 		duplicate, unrecognized or otherwise incorrect parameters)
 	  <LI>CIM_ERR_INVALID_CLASS (the CIM Class that is the
@@ -898,7 +907,7 @@ public:
     <UL>
       <LI>CIM_ERR_ACCESS_DENIED
       <LI>CIM_ERR_NOT_SUPPORTED
-      <LI>CIM_ERR_INVALID_NAMESPACE 
+      <LI>CIM_ERR_INVALID_NAMESPACE
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
       duplicate, unrecognized or otherwise incorrect parameters)
       <LI>CIM_ERR_INVALID_CLASS (the CIM Class that is the
@@ -934,13 +943,13 @@ public:
     <UL>
       <LI>CIM_ERR_ACCESS_DENIED
       <LI>CIM_ERR_NOT_SUPPORTED
-      <LI>CIM_ERR_INVALID_NAMESPACE 
+      <LI>CIM_ERR_INVALID_NAMESPACE
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
       duplicate, unrecognized or otherwise incorrect parameters)
       <LI>CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED (the requested query language is
       not recognized)
       <LI>CIM_ERR_INVALID_QUERY (the query is not a valid query in the
-      specified query language) 
+      specified query language)
       <LI>CIM_ERR_FAILED (some other unspecified error ccurred)</LI>
      </UL>
     */
@@ -1033,7 +1042,7 @@ public:
     <UL>
       <LI>CIM_ERR_ACCESS_DENIED
       <LI>CIM_ERR_NOT_SUPPORTED
-      <LI>CIM_ERR_INVALID_NAMESPACE 
+      <LI>CIM_ERR_INVALID_NAMESPACE
       <LI>CIM_ERR_INVALID_PARAMETER (including
       missing,duplicate, unrecognized or
         otherwise incorrect parameters)
@@ -1186,7 +1195,7 @@ public:
     <UL>
       <LI>CIM_ERR_ACCESS_DENIED
       <LI>CIM_ERR_NOT_SUPPORTED
-      <LI>CIM_ERR_INVALID_NAMESPACE 
+      <LI>CIM_ERR_INVALID_NAMESPACE
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
       	duplicate, unrecognized or otherwise incorrect parameters)
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
@@ -1321,7 +1330,7 @@ public:
       <LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested
       CIM Instance does not exist in the specified namespace)
       <LI>CIM_ERR_NO_SUCH_PROPERTY (the CIM Instance does exist, but the
-      requested Property does not) 
+      requested Property does not)
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
     </UL>
     */
@@ -1361,7 +1370,7 @@ public:
       <LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested
       	CIM Instance does not exist in the specified namespace)
       <LI>CIM_ERR_NO_SUCH_PROPERTY (the CIM Instance does exist, but the
-      	requested Property does not) 
+      	requested Property does not)
       <LI>CIM_ERR_TYPE_MISMATCH (the supplied value is incompatible with the
       	type of the Property)
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
@@ -1486,6 +1495,9 @@ PEGASUS_NAMESPACE_END
 
 
 #endif /* Pegasus_Operations_h */
+
+
+
 
 
 

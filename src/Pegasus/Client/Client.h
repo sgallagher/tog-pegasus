@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Client.h,v $
+// Revision 1.3  2001/02/06 17:04:03  karl
+// add documentation
+//
 // Revision 1.2  2001/01/31 08:20:51  mike
 // Added dispatcher framework.
 // Added enumerateInstanceNames.
@@ -50,35 +53,40 @@
 PEGASUS_NAMESPACE_BEGIN
 
 struct ClientRep;
-
+/** Class Client - This class defines the client interfaces for Pegasus.
+These are the interfaces that could be used by a CIM Client written in C++.
+These interfaces are based completely on the operations interfaces defined in
+the Pegasus Operations.h file with some extensions for the client interface.
+@see "The Operations Class"
+*/
 class PEGASUS_CLIENT_LINKAGE Client : public Operations
 {
 public:
 
     enum { DEFAULT_TIMEOUT_MILLISECONDS = 20000 };
-
+    ///
     Client(Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
-
+    ///
     ~Client();
-
-    Uint32 getTimeOut() const 
+    ///
+    Uint32 getTimeOut() const
     {
-	return _timeOutMilliseconds; 
+	return _timeOutMilliseconds;
     }
-
+    ///
     void setTimeOut(Uint32 timeOutMilliseconds)
     {
-	_timeOutMilliseconds = timeOutMilliseconds; 
+	_timeOutMilliseconds = timeOutMilliseconds;
     }
-    
+     ///
     void connect(const char* hostName, Uint32 port);
-
+    ///
     void get(const char* document) const;
-
+    ///
     void runOnce();
-
+    ///
     void runForever();
-
+    ///
     virtual ClassDecl getClass(
 	const String& nameSpace,
 	const String& className,
@@ -86,7 +94,7 @@ public:
 	Boolean includeQualifiers = true,
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = _getStringArray());
-
+    ///
     virtual InstanceDecl getInstance(
 	const String& nameSpace,
 	const Reference& instanceName,
@@ -94,31 +102,31 @@ public:
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = _getStringArray());
-
+    ///
     virtual void deleteClass(
 	const String& nameSpace,
 	const String& className);
-
+    ///
     virtual void deleteInstance(
 	const String& nameSpace,
 	const Reference& instanceName);
-
+    ///
     virtual void createClass(
 	const String& nameSpace,
 	ClassDecl& newClass);
-
+    ///
     virtual void createInstance(
 	const String& nameSpace,
 	const InstanceDecl& newInstance) ;
-
+    ///
     virtual void modifyClass(
 	const String& nameSpace,
 	ClassDecl& modifiedClass);
-
+    ///
     virtual void modifyInstance(
 	const String& nameSpace,
 	const InstanceDecl& modifiedInstance);
-
+    ///
     virtual Array<ClassDecl> enumerateClasses(
 	const String& nameSpace,
 	const String& className = String::EMPTY,
@@ -126,12 +134,12 @@ public:
 	Boolean localOnly = true,
 	Boolean includeQualifiers  = true,
 	Boolean includeClassOrigin = false);
-
+    ///
     virtual Array<String> enumerateClassNames(
 	const String& nameSpace,
 	const String& className = String::EMPTY,
 	Boolean deepInheritance = false);
-
+    ///
     virtual Array<InstanceDecl> enumerateInstances(
 	const String& nameSpace,
 	const String& className,
@@ -140,15 +148,15 @@ public:
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = _getStringArray());
-
+    ///
     virtual Array<Reference> enumerateInstanceNames(
 	const String& nameSpace,
 	const String& className);
-
+    ///
     virtual Array<InstanceDecl> execQuery(
 	const String& queryLanguage,
 	const String& query) ;
-
+    ///
     virtual Array<InstanceDecl> associators(
 	const String& nameSpace,
 	const Reference& objectName,
@@ -159,7 +167,7 @@ public:
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = _getStringArray());
-
+    ///
     virtual Array<Reference> associatorNames(
 	const String& nameSpace,
 	const Reference& objectName,
@@ -167,7 +175,7 @@ public:
 	const String& resultClass = String::EMPTY,
 	const String& role = String::EMPTY,
 	const String& resultRole = String::EMPTY);
-
+    ///
     virtual Array<InstanceDecl> references(
 	const String& nameSpace,
 	const Reference& objectName,
@@ -176,39 +184,39 @@ public:
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = _getStringArray());
-
+    ///
     virtual Array<Reference> referenceNames(
 	const String& nameSpace,
 	const Reference& objectName,
 	const String& resultClass = String::EMPTY,
 	const String& role = String::EMPTY);
-
+    ///
     virtual Value getProperty(
 	const String& nameSpace,
 	const Reference& instanceName,
 	const String& propertyName);
-
+    ////
     virtual void setProperty(
 	const String& nameSpace,
 	const Reference& instanceName,
 	const String& propertyName,
 	const Value& newValue = Value());
-
+    ///
     virtual QualifierDecl getQualifier(
 	const String& nameSpace,
 	const String& qualifierName);
-
+    ///
     virtual void setQualifier(
 	const String& nameSpace,
 	const QualifierDecl& qualifierDeclaration);
-
+    ///
     virtual void deleteQualifier(
 	const String& nameSpace,
 	const String& qualifierName);
-
+    ///
     virtual Array<QualifierDecl> enumerateQualifiers(
 	const String& nameSpace);
-
+    ///
     virtual Value invokeMethod(
 	const String& nameSpace,
 	const Reference& instanceName,
@@ -233,3 +241,4 @@ private:
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Client_h */
+

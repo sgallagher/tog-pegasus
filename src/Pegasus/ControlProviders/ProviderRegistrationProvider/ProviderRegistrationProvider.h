@@ -72,8 +72,6 @@ public:
       };
 
 
-    static void async_callback(Uint32 user_data, Message *reply, void *parm);
-
     ProviderRegistrationProvider(
         ProviderRegistrationManager* providerRegistrationManager);
     virtual ~ProviderRegistrationProvider(void);

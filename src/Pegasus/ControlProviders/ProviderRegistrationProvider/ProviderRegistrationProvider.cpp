@@ -637,10 +637,10 @@ void ProviderRegistrationProvider::invokeMethod(
     String userName = container.getUserName();
 
     // if (!System::isPrivilegedUser(userName)) 
-//     {
-// 	throw CIMException (CIM_ERR_ACCESS_DENIED,
-// 	    "You must have superuser privilege to disable or enable providers."); 	
-//     }
+    {
+	throw CIMException (CIM_ERR_ACCESS_DENIED,
+	    "You must have superuser privilege to disable or enable providers."); 	
+    }
 
     if(!String::equalNoCase(objectReference.getNameSpace(), 
       	                    PEGASUS_NAMESPACENAME_INTEROP))

@@ -238,8 +238,8 @@ String CIMOperationRequestDispatcher::_lookupIndicationProvider(
 Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
    const String& nameSpace,
    const String& className,
-   const String& assocClassName = String::EMPTY,
-   const String& resultClassName = String::EMPTY)
+   const String& assocClassName,
+   const String& resultClassName)
 {
     Array<CIMInstance> pInstances; // Provider
     Array<CIMInstance> pmInstances; // ProviderModule

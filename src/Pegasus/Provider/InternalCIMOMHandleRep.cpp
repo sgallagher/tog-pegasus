@@ -405,11 +405,11 @@ Message* InternalCIMOMHandleRep::do_request(
             cimmsg->operationContext.insert(IdentityContainer(identity_cntr.getUserName()));
 		#endif 			
         }
-        catch (Exception e)
+        catch (Exception &)
         {
 			// for OS400 don't proceed if there is an exception, otherwise create an empty identity container.
 			#ifdef PEGASUS_OS_OS400
-				throw e
+				throw ;
 			#else
 			cimmsg->operationContext.insert(IdentityContainer(String::EMPTY));
 			#endif

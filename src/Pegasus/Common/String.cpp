@@ -51,6 +51,38 @@ static inline void _SkipWhitespace(const Char16*& p)
 }
 #endif
 
+Uint32 _strnlen(const char* str, Uint32 n)
+{
+    if (!str)
+	throw NullPointer();
+
+    for (Uint32 i=0; i<n; i++)
+    {
+        if (!*str)
+        {
+            return i;
+        }
+    }
+
+    return n;
+}
+
+Uint32 _strnlen(const Char16* str, Uint32 n)
+{
+    if (!str)
+	throw NullPointer();
+
+    for (Uint32 i=0; i<n; i++)
+    {
+        if (!*str)
+        {
+            return i;
+        }
+    }
+
+    return n;
+}
+
 inline Uint32 StrLen(const char* str)
 {
     if (!str)
@@ -84,8 +116,7 @@ String::String(const String& x) : _rep(x._rep)
 
 String::String(const String& x, Uint32 n)
 {
-    _rep.append('\0');
-    append(x.getData(), n);
+    assign(x.getData(), n);
 }
 
 String::String(const Char16* x) : _rep(x, StrLen(x) + 1)
@@ -100,22 +131,12 @@ String::String(const Char16* x, Uint32 n)
 
 String::String(const char* str)
 {
-    Uint32 n = ::strlen(str) + 1;
-    reserve(n);
-
-    while (n--)
-	_rep.append(*str++);
+    assign(str);
 }
 
 String::String(const char* str, Uint32 n_)
 {
-    Uint32 n = _pegasusMin(strlen(str), n_);
-    reserve(n + 1);
-
-    while (n--)
-	_rep.append(*str++);
-
-    _rep.append('\0');
+    assign(str, n_);
 }
 
 String& String::assign(const Char16* x)
@@ -128,7 +149,7 @@ String& String::assign(const Char16* x)
 String& String::assign(const Char16* str, Uint32 n)
 {
     _rep.clear();
-    Uint32 m = _pegasusMin(StrLen(str), n);
+    Uint32 m = _strnlen(str, n);
     _rep.append(str, m);
     _rep.append('\0');
     return *this;
@@ -137,13 +158,12 @@ String& String::assign(const Char16* str, Uint32 n)
 String& String::assign(const char* x)
 {
     _rep.clear();
-    Uint32 n = strlen(x);
-    _rep.reserve(n + 1);
+
+    Uint32 n = strlen(x) + 1;
+    _rep.reserve(n);
 
     while (n--)
 	_rep.append(*x++);
-
-    _rep.append('\0');
 
     return *this;
 }
@@ -152,7 +172,7 @@ String& String::assign(const char* x, Uint32 n_)
 {
     _rep.clear();
 
-    Uint32 n = _pegasusMin(strlen(x), n_);
+    Uint32 n = _strnlen(x, n_);
     _rep.reserve(n + 1);
 
     while (n--)
@@ -225,7 +245,7 @@ const Char16 String::operator[](Uint32 i) const
 
 String& String::append(const Char16* str, Uint32 n)
 {
-    Uint32 m = _pegasusMin(StrLen(str), n);
+    Uint32 m = _strnlen(str, n);
     _rep.reserve(_rep.size() + m);
     _rep.remove(_rep.size() - 1);
     _rep.append(str, m);

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.27  2001/04/18 11:51:32  karl
+// get and set property
+//
 // Revision 1.26  2001/04/12 09:57:39  mike
 // Post Channel Port to Linux
 //
@@ -1197,28 +1200,31 @@ static void EnumerateInstances(const CGIQueryString& qs)
     String nameSpace = GetNameSpaceQueryField(qs);
 
     // Get ClassName:
-    String instanceName;
+    // String instanceName;
     String propertyName;
 
-const char* tmp;
+    const char* inputInstanceName;
+    const char* tmp;
 
-    if (!(tmp = qs.findValue("InstanceName")))
+    if (!(inputInstanceName = qs.findValue("InstanceName")))
 	ErrorExit("Missing InstanceName field");
-    cout << "DEBUG GetProperty " << __LINE__ << endl;
+    cout << "DEBUG GetProperty " << __LINE__
+	<< " Name " << inputInstanceName << endl;
     // This must be modified for the toString ATTN KS
     CIMReference referenceName;
 
+    // Convert instanceName to referenceName
     try
     {
-	CIMReference::instanceNameToReference(tmp,referenceName);
+	CIMReference::instanceNameToReference(
+	    inputInstanceName,referenceName);
     }
     catch(Exception& e)
     {
         ErrorExit(e.getMessage());
     }
-
     if (!(tmp = qs.findValue("PropertyName")))
-	ErrorExit("Missing InstanceName field");
+	ErrorExit("Missing propertyName field");
     else
 	propertyName = tmp;
     cout << "GetProperty " << __LINE__ << endl;
@@ -1228,23 +1234,31 @@ const char* tmp;
 	    Selector selector;
 	    CIMClient client(&selector);
 	    client.connect("localhost:8888");
-	    cout << "DEBUG GetProperty " << __LINE__ << endl;
 
 	    CIMValue value = client.getProperty(nameSpace,
 		referenceName, propertyName);
-	    cout << "DEBUG GetProperty " << __LINE__ << endl;
 
-	    cout << "DEBUG value" << TypeToString(value.getType()) << "\n";
 
-		   String valueString = value.toString();
+	    PrintHTMLHead("GetProperty", "GetProperty Return");
 
-		   if (valueString.getLength())
-		       cout << " " << valueString << " \n";
-		   else
-		       cout << " null \n";
-	    //ATTN: Stopped here with the GetProperty
-	    //PrintInstance(nameSpace, cimInstance, localOnly,
-	    //includeQualifiers, includeClassOrigin);
+	    
+	    cout << "<B>Instance = </B> " <<
+		inputInstanceName << "\n";
+
+	    cout << "<B>Property = </B> " << propertyName << "\n\n";
+	    cout << "<B>Value Type = </B>";
+
+	    cout <<  TypeToString(value.getType()) << "\n\n";
+
+	    String valueString = value.toString();
+	    cout << "<B>Value = </B> "; 
+
+	    if (valueString.getLength())
+	       cout << " " << valueString << " \n\n";
+	    else
+	       cout << " NULL \n\n";
+
+	    cout << "</body>\n" << "</html>\n";
 	}
 	catch(Exception& e)
 	{

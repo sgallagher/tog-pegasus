@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Handler.cpp,v $
+// Revision 1.5  2001/04/18 11:51:33  karl
+// get and set property
+//
 // Revision 1.4  2001/04/12 09:57:40  mike
 // Post Channel Port to Linux
 //
@@ -339,7 +342,7 @@ void Handler::handleClose(Channel* channel)
 
 int Handler::handleMessage()
 {
-    D( cout << "Handler::handleMessage()" << endl; )
+    // D( cout << "Handler::handleMessage()" << endl; )
 
     if (getenv("PEGASUS_TRACE_PROTOCOL"))
     {

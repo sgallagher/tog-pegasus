@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: XmlWriter.h,v $
+// Revision 1.10  2001/04/18 11:51:33  karl
+// get and set property
+//
 // Revision 1.9  2001/04/08 01:13:22  mike
 // Changed "ConstCIM" to "CIMConst"
 //
@@ -195,6 +198,10 @@ public:
     static Array<Sint8>& appendInstanceNameElement(
 	Array<Sint8>& out,
 	const CIMReference& instanceName);
+
+    static Array<Sint8>& appendPropertyNameParameter(
+	Array<Sint8>& out,
+	const String& propertyName);
 
     static void indentedPrint(
 	std::ostream& os,

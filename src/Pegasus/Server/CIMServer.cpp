@@ -23,6 +23,9 @@
 // Author: Mike Brasher
 //
 // $Log: CIMServer.cpp,v $
+// Revision 1.10  2001/04/18 11:51:33  karl
+// get and set property
+//
 // Revision 1.9  2001/04/12 09:57:40  mike
 // Post Channel Port to Linux
 //
@@ -69,6 +72,9 @@
 #include <Pegasus/Protocol/Handler.h>
 #include <Pegasus/Server/CIMServer.h>
 #include <Pegasus/Server/Dispatcher.h>
+
+//debugging
+#include <iostream>
 
 using namespace std;
 
@@ -188,6 +194,19 @@ public:
 	XmlParser& parser, 
 	Uint32 messageId,
 	const String& nameSpace);
+
+    void handleGetProperty(
+	XmlParser& parser, 
+	Uint32 messageId,
+	const String& nameSpace);
+
+    void handleSetProperty(
+	XmlParser& parser, 
+	Uint32 messageId,
+	const String& nameSpace);
+
+
+
 
 private:
 
@@ -442,6 +461,12 @@ cout << "CONTENT[" << (char*)getContent() << "]" << endl;
 	handleModifyClass(parser, messageId, nameSpace);
     else if (strcmp(iMethodCallName, "DeleteClass") == 0)
 	handleDeleteClass(parser, messageId, nameSpace);
+    else if (strcmp(iMethodCallName, "GetProperty") == 0)
+	handleGetProperty(parser, messageId, nameSpace);
+    else if (strcmp(iMethodCallName, "SetProperty") == 0)
+	handleSetProperty(parser, messageId, nameSpace);
+
+
 
     //--------------------------------------------------------------------------
     // Handle end tags:
@@ -1231,6 +1256,180 @@ void ServerHandler::handleDeleteClass(
 
     _channel->writeN(message.getData(), message.getSize());
 }
+
+//------------------------------------------------------------------------------
+//
+// ServerHandler::handleGetProoperty()
+//
+// <!ELEMENT IPARAMVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE
+//     |INSTANCENAME|CLASSNAME|QUALIFIER.DECLARATION
+//     |CLASS|INSTANCE|VALUE.NAMEDINSTANCE)?>
+// <!ATTLIST IPARAMVALUE %CIMName;>
+//------------------------------------------------------------------------------
+
+void ServerHandler::handleGetProperty(
+    XmlParser& parser, 
+    Uint32 messageId,
+    const String& nameSpace)
+{
+
+    /// This is a really sloppy way to get the instance anme
+    CIMReference instanceName;
+    String propertyName;
+    CIMValue cimValueRtn;
+
+    cout << "CIMSERVER::handleGetProperty " << endl;
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	CIMValue cimValue; 
+	if (strcmp(name, "InstanceName") == 0)
+       {
+	   String className;
+	   Array<KeyBinding> keyBindings;
+	   XmlReader::getInstanceNameElement(parser, className, keyBindings);
+
+	   // ATTN: do we need the namespace here?
+
+	   instanceName.set(String(), String(), className, keyBindings);
+       }
+
+       // Get the Property Name field
+       // How do we know if we got everything??
+       else if (strcmp(name, "PropertyName") == 0)
+	   XmlReader::getValueElement(parser, CIMType::STRING, cimValue);
+
+       XmlReader::expectEndTag(parser, "IPARAMVALUE");
+
+       //propertyName = cimValue.data;
+       propertyName = "pid";
+
+       cout << "DEBUG CIMSERVER:handlegetProperty "
+		     << propertyName << endl;
+    }
+
+    
+    try
+    {
+	cimValueRtn = _dispatcher->getProperty(
+	    nameSpace,
+	    instanceName,
+	    propertyName);
+    }
+    catch (CIMException& e)
+    {
+	sendError(messageId, "GetProperty", 
+	    e.getCode(), e.codeToString(e.getCode()));
+	return;
+    }
+    catch (Exception&)
+    {
+	sendError(messageId, "GetProperty", CIMException::FAILED, 
+	    CIMException::codeToString(CIMException::FAILED));
+	return;
+    }
+
+    // Here is where we format the parm part of the response.
+    // neet to format the CIMValue here in the response
+    //for (Uint32 i = 0; i < classNames.getSize(); i++)
+    //    XmlWriter::appendClassNameElement(body, classNames[i]);
+    // We need to put propertyValue on this thing.  Note
+    // Lets assume that at this point we have cimvalue with
+    // everything defined.  It will only be on the move back
+    // through XML that we lose the typing.
+//<?xml version="1.0" encoding="utf-8" ?>
+//  <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+//   <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
+//    <SIMPLERSP>
+//     <IMETHODRESPONSE NAME="GetProperty">
+//      <IRETURNVALUE>
+//       <VALUE>6752332</VALUE>
+//      </IRETURNVALUE>
+//     </IMETHODRESPONSE>
+//    </SIMPLERSP>
+//   </MESSAGE>
+// </CIM>
+
+    Array<Sint8> body;
+
+    cimValueRtn.toXml(body);
+
+	// body contains <value>value</value> to return
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"GetProperty", body);
+    cout << "DEBUG CIMServer:IhandleGetProperty " <<
+	cimValueRtn.toString() << endl;
+
+    _channel->writeN(message.getData(), message.getSize());
+}
+
+
+//------------------------------------------------------------------------------
+//
+// ServerHandler::handleSetProperty()
+//
+//------------------------------------------------------------------------------
+
+void ServerHandler::handleSetProperty(
+    XmlParser& parser, 
+    Uint32 messageId,
+    const String& nameSpace)
+{
+    //--------------------------------------------------------------------------
+    // <!ELEMENT IPARAMVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE
+    //     |INSTANCENAME|CLASSNAME|QUALIFIER.DECLARATION
+    //     |CLASS|INSTANCE|VALUE.NAMEDINSTANCE)?>
+    // <!ATTLIST IPARAMVALUE %CIMName;>
+    //--------------------------------------------------------------------------
+
+    String className;
+    Boolean deepInheritance = false;
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (strcmp(name, "ClassName") == 0)
+	    XmlReader::getClassNameElement(parser, className, true);
+	else if (strcmp(name, "DeepInheritance") == 0)
+	    XmlReader::getBooleanValueElement(parser, deepInheritance, true);
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    Array<String> classNames;
+    
+    try
+    {
+	classNames = _dispatcher->enumerateClassNames(
+	    nameSpace,
+	    className,
+	    deepInheritance);
+    }
+    catch (CIMException& e)
+    {
+	sendError(messageId, "EnumerateClassNames", 
+	    e.getCode(), e.codeToString(e.getCode()));
+	return;
+    }
+    catch (Exception&)
+    {
+	sendError(messageId, "EnumerateClassNames", CIMException::FAILED, 
+	    CIMException::codeToString(CIMException::FAILED));
+	return;
+    }
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < classNames.getSize(); i++)
+	XmlWriter::appendClassNameElement(body, classNames[i]);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"EnumerateClassNames", body);
+
+    _channel->writeN(message.getData(), message.getSize());
+}
+
+
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //

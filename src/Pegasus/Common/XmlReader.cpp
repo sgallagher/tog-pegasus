@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: XmlReader.cpp,v $
+// Revision 1.8  2001/04/18 11:51:32  karl
+// get and set property
+//
 // Revision 1.7  2001/04/13 21:53:47  karl
 // add get and set property
 //
@@ -58,6 +61,9 @@
 #include "CIMInstance.h"
 
 PEGASUS_NAMESPACE_BEGIN
+//debug
+#include <iostream>
+using namespace std;
 
 static const Uint32 MESSAGE_SIZE = 128;
 
@@ -923,7 +929,6 @@ Boolean XmlReader::getValueElement(
     // Get VALUE start tag:
 
     XmlEntry entry;
-
     if (!testStartTagOrEmptyTag(parser, entry, "VALUE"))
 	return false;
 
@@ -932,22 +937,29 @@ Boolean XmlReader::getValueElement(
     // Get VALUE content:
 
     const char* valueString = "";
+    // cout << "DEBUG XMLReader:getValueElement " << __LINE__ ;
 
     if (!empty)
     {
 	if (testContentOrCData(parser, entry))
 	    valueString = entry.text;
+	//cout << "DEBUG XMLReader:getValueElement " << __LINE__
+	//    <<  " valueString " << valueString ;
 
 	expectEndTag(parser, "VALUE");
     }
 
     value = stringToValue(parser.getLine(), valueString,type);
+    //cout << "DEBUG XMLReader:getValueElement " << __LINE__
+    //	<< " value " << value;
     return true;
 }
+
 
 //----------------------------------------------------------------------------
 //
 // getPropertyValue
+//     Use: Decode property value from getPropertyResponse
 //     Expect (ERROR|IRETURNVALUE).!ELEMENT VALUE (#PCDATA)>
 //
 //	PropertyValue:
@@ -965,8 +977,13 @@ Boolean XmlReader::getPropertyValue(
 {
     //Test for Element value type
     CIMType type = CIMType::STRING;
+
     if (XmlReader::getValueElement(parser, type, cimValue))
+    {
+	//cout << "DEBUG xmlReader::getPropertyValue " << __LINE__
+	//    << " CimValue = " << cimValue.toString << endl;
 	return true;
+    }
 
     //Test for Element.array value
     if(XmlReader::getValueArrayElement(parser, type, cimValue))
@@ -2704,6 +2721,11 @@ Boolean XmlReader::getBooleanValueElement(
 
     return true;
 }
+
+
+
+
+
 
 //------------------------------------------------------------------------------
 //

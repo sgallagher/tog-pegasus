@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: XmlWriter.cpp,v $
+// Revision 1.11  2001/04/18 11:51:33  karl
+// get and set property
+//
 // Revision 1.10  2001/04/13 18:20:51  mike
 // Ported so Solaris.
 // Fixed memory leaks.
@@ -543,6 +546,23 @@ Array<Sint8>& XmlWriter::appendInstanceParameter(
     instance.toXml(tmp);
     return formatIParamValueElement(out, parameterName, tmp);
 }
+
+//----------------------------------------------------------
+//
+//  appendPropertyNameParameter()
+//   	
+//     </IPARAMVALUE>
+//     <IPARAMVALUE NAME="PropertyName"><VALUE>FreeSpace</VALUE></IPARAMVALUE>
+//
+//     USE: Create parameter for getProperty operation
+//==========================================================
+Array<Sint8>& XmlWriter::appendPropertyNameParameter(
+    Array<Sint8>& out,
+    const String& propertyName)
+{
+    Array<Sint8> tmp;
+    tmp << "<VALUE>" << propertyName << "</VALUE>\n"; 
+    return formatIParamValueElement(out,"PropertyName", tmp);}
 
 //------------------------------------------------------------------------------
 //

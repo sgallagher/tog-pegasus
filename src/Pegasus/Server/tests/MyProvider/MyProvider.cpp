@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: MyProvider.cpp,v $
+// Revision 1.11  2001/04/18 11:51:33  karl
+// get and set property
+//
 // Revision 1.10  2001/03/30 01:59:14  karl
 // clean up get property
 //
@@ -60,6 +63,8 @@ using namespace std;
 
 PEGASUS_NAMESPACE_BEGIN
 
+static CIMValue* savedCIMValue;
+
 class MyProvider : public CIMProvider
 {
 public:
@@ -82,7 +87,7 @@ public:
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = StringArray())
     {
-	cout << "__NamespaceProvider::getInstance() called" << endl;
+	cout << "MyProvider::getInstance() called" << endl;
 
 	String tmp;
 	CIMReference::referenceToInstanceName(instanceName, tmp);
@@ -118,11 +123,13 @@ public:
 	    const CIMReference& instanceName,
 	    const String& propertyName)
     {
-	cout << "__NamespaceProvider::getProperty() called" << endl;
 
 	String tmp;
 	CIMReference::referenceToInstanceName(instanceName, tmp);
-	cout << "instanceName=" << tmp << endl;
+	cout << "MyProvider::getProperty() called" <<
+	    " instanceName= " << tmp <<
+	    " CIM Saved Value = " << savedCIMValue->toString <<
+	    " propertyName = " << propertyName << endl;
 
 	
 	CIMInstance instance("Process");
@@ -130,17 +137,45 @@ public:
 	instance.addProperty(CIMProperty("name", "awk"));
 	instance.addProperty(CIMProperty("age", Uint32(300)));
 
-
 	//ATTN: Simply return fixed value
 	CIMValue result(Uint32(-77));
 	return result;
 
     }
+    virtual void setProperty(
+		const String& nameSpace,
+		const CIMReference& instanceName,
+		const String& propertyName,
+		const CIMValue& newValue)
+	{
+	    cout << "MyProvider::setProperty() called" << endl;
+
+	    String tmp;
+	    CIMReference::referenceToInstanceName(instanceName, tmp);
+	    cout << "MyProvider::setProperty() called" <<
+		" instanceName= " << tmp << 
+		" Saved CIM Value " << savedCIMValue->toString <<
+		" propertyName = " << propertyName << endl;
+
+	    
+
+	    CIMInstance instance("Process");
+	    instance.addProperty(CIMProperty("pid", Uint32(2001)));
+	    instance.addProperty(CIMProperty("name", "awk"));
+	    instance.addProperty(CIMProperty("age", Uint32(300)));
+
+
+	    return;
+
+	}
+
 
 
     void initialize(CIMRepository& repository)
     {
 	cout << "MyProvider::initialize() called" << endl;
+	CIMValue tmp(Uint32(932));
+	savedCIMValue = &tmp;
     }
 };
 

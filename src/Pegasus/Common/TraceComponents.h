@@ -125,7 +125,8 @@ static char const* TRACE_COMPONENT_LIST[] =
     "BinaryMessageHandler",
     "L10N",
     "ExportClient",
-    "Listener"
+    "Listener",
+    "DiscardedData"
 };
 /** Constants identifying the Trace components. These constants are used by 
     the component to identify its Trace messages. The component ID needs to
@@ -184,7 +185,8 @@ enum TRACE_COMPONENT_ID
     TRC_BINARY_MSG_HANDLER,
     TRC_L10N,
     TRC_EXPORT_CLIENT,
-    TRC_LISTENER
+    TRC_LISTENER,
+    TRC_DISCARDED_DATA
 };
 
 PEGASUS_NAMESPACE_END

@@ -863,7 +863,7 @@ void System::syslog(Uint32 severity, const char *data)
                               strlen(data),
 			          "Logger",
                               ycmCTLCIMID,
-			          utf8);
+			          TRUE);
 #pragma convert(0)
 
 	// put the message in the joblog
@@ -882,7 +882,7 @@ void System::syslog(Uint32 severity, const char *data)
                               strlen(data),
 			          "Logger",
                               ycmCTLCIMID,
-			          utf8);
+			          TRUE);
 #pragma convert(0)
 	// put the message in the joblog
 	theMessage.joblogIt(UnitOfWorkError,

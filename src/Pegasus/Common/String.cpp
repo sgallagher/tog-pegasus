@@ -468,6 +468,7 @@ void String::toLower()
 #ifdef PEGASUS_HAS_ICU
     Char16* utf16str; 
     UnicodeString UniStr((const UChar *)_rep->c16a.getData(), (int32_t)size());
+    UniStr.append((UChar)'\0');
     UniStr = UniStr.toLower();
     utf16str = (Char16 *)UniStr.getTerminatedBuffer();
     assign(utf16str);

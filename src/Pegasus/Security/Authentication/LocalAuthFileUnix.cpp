@@ -139,10 +139,7 @@ String LocalAuthFile::create()
     // 1. Create a file name for authentication.
     //
 #if defined(PEGASUS_OS_OS400)
-    CString tempPath = filePathCString;
-    const char * tmp = tempPath;
-    AtoE((char *)tmp);
-    ofstream outfs(tmp, PEGASUS_STD(_CCSID_T(1208)));
+    ofstream outfs(filePathCString, PEGASUS_STD(_CCSID_T(1208)));
 #else
     ofstream outfs(filePathCString);
 #endif

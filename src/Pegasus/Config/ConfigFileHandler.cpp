@@ -130,12 +130,9 @@ ConfigFileHandler::ConfigFileHandler (
         // can be copied over.
         //
 #if defined(PEGASUS_OS_OS400)
-	CString tempPath = cFile.getCString();
-	const char * tmp = tempPath;
-	AtoE((char *)tmp);
-	ofstream ofs(tmp, PEGASUS_STD(_CCSID_T(1208)));
+	ofstream ofs(cFile.getCStringUTF8(), PEGASUS_STD(_CCSID_T(1208)));
 #else
-        ofstream ofs(cFile.getCString());
+        ofstream ofs(cFile.getCStringUTF8());
 #endif
         if (!ofs)
         {
@@ -327,12 +324,9 @@ Boolean ConfigFileHandler::updatePlannedValue (
             String pFile = _plannedConfFile->getFileName();
 
 #if defined(PEGASUS_OS_OS400)
-	    CString tempPath = pFile.getCString();
-	    const char * tmp = tempPath;
-	    AtoE((char *)tmp);
-	    ofstream ofs(tmp, PEGASUS_STD(_CCSID_T(1208)));
+	    ofstream ofs(pFile.getCStringUTF8(), PEGASUS_STD(_CCSID_T(1208)));
 #else
-            ofstream ofs(pFile.getCString());
+            ofstream ofs(pFile.getCStringUTF8());
 #endif
             if (!ofs)
             {

@@ -68,12 +68,9 @@ Boolean InstanceDataFile::_openFile(
     fs.open(path.getCString(), PEGASUS_STD(ios_base::openmode)(mode));
 #else
 #if defined(PEGASUS_OS_OS400)
-    CString tempPath = path.getCString();
-    const char * tmp = tempPath;
-    AtoE((char *)tmp);
-    fs.open(tmp, mode, PEGASUS_STD(_CCSID_T(1208)));
+    fs.open(path.getCStringUTF8(), mode, PEGASUS_STD(_CCSID_T(1208)));
 #else
-    fs.open(path.getCString(), mode);
+    fs.open(path.getCStringUTF8(), mode);
 #endif
 #endif
     PEG_METHOD_EXIT();

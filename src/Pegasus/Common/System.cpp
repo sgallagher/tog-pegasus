@@ -63,18 +63,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 Boolean System::copyFile(const char* fromPath, const char* toPath)
 {
-#if defined(PEGASUS_OS_OS400)
-    AtoE((char *)fromPath);
-    AtoE((char *)toPath);
-#endif
-
     ifstream is(fromPath PEGASUS_IOS_BINARY);
     ofstream os(toPath PEGASUS_IOS_BINARY);
-
-#if defined(PEGASUS_OS_OS400)
-    EtoA((char *)fromPath);
-    EtoA((char *)toPath);
-#endif
 
     char c;
 

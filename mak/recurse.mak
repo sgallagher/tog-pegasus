@@ -26,3 +26,7 @@ docxx: $(RECURSE_DEPENDS) $(ERROR)
 
 sub: $(RECURSE_DEPENDS) $(ERROR)
 	@ $(foreach i,$(CLEAN_DIRS),$(MAKESH) $(MAKE) -SC $(i) sub $(NL))
+
+general: $(RECURSE_DEPENDS) $(ERROR)
+	@ $(foreach i,$(DIRS),$(MAKESH) $(MAKE) -SC $(i) general OPTION=$(OPTION) $(NL))
+

@@ -6,3 +6,17 @@ strip-license:
 
 prepend-license:
 	mu prepend $(ROOT)/doc/license.txt *.h *.cpp
+
+ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+
+ifeq ($(OPTION),1)
+general:
+	muplus sourcelist -Dpegasus/src/$(DIR) *.cpp
+endif
+
+ifeq ($(OPTION),2)
+general:
+	@$(foreach i, $(SOURCES),  printf "%s " "pegasus/src/$(DIR)/$(i)" >> $(PEGASUS_HOME)/Sources;)
+endif
+
+endif

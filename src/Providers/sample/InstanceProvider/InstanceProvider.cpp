@@ -48,21 +48,21 @@ void InstanceProvider::initialize(CIMOMHandle& cimom)
 	_cimom = cimom;
 
 	// create default instances
-	CIMInstance instance1("Instance");
+	CIMInstance instance1("Sample_DummyInstance");
 
 	instance1.addProperty(CIMProperty("Identifier", Uint8(1)));   // key
 	instance1.addProperty(CIMProperty("Message", String("Hello World")));
 
 	_instances.append(instance1);
 
-	CIMInstance instance2("Instance");
+	CIMInstance instance2("Sample_DummyInstance");
 
 	instance2.addProperty(CIMProperty("Identifier", Uint8(2)));   // key
 	instance2.addProperty(CIMProperty("Message", String("Hey Planet")));
 
 	_instances.append(instance2);
 
-	CIMInstance instance3("Instance");
+	CIMInstance instance3("Sample_DummyInstance");
 
 	instance3.addProperty(CIMProperty("Identifier", Uint8(3)));   // key
 	instance3.addProperty(CIMProperty("Message", String("Yo Earth")));

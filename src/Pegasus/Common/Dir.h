@@ -48,6 +48,9 @@ typedef struct
     struct _finddata_t findData;
 } DirRep;
 #elif defined(PEGASUS_OS_TYPE_UNIX)
+#ifdef PEGASUS_OS_SOLARIS
+#include <sys/param.h>
+#endif
 #include <dirent.h>
 
 // ATTN: If a platform is found that does not have the readdir_r interface,
@@ -55,7 +58,7 @@ typedef struct
 // Otherwise, the old readdir code can be removed.
 #define PEGASUS_HAS_READDIR_R
 
-typedef struct
+typedef struct DirRep
 {
     DIR* dir;
 #ifdef PEGASUS_OS_OS400
@@ -80,7 +83,7 @@ public:
 #endif
 #endif
 #endif
-} DirRep;
+};
 #endif
 
 /** The Dir class provides a platform independent way of iterating the

@@ -11,7 +11,7 @@ The CMPI header files are being standardized and will be (or by the time you
 read this, already are) frozen.  However, the Pegasus 2.4 release is done 
 earlier than the anticipated date for freezing the CMPI standard. 
 Hence to not provide the developer with a possibly not-frozen interface, 
-the CMPI header files are not shipped as part of the SDK (openwbem-devel RPM). 
+the CMPI header files are not shipped as part of the SDK (openpegasus-devel RPM). 
 But they are part of the CVS and source tarball. Please visit
 http://cvs.opengroup.org/cgi-bin/viewcvs.cgi/pegasus/src/Pegasus/Provider/CMPI/
 to retrieve the frozen CMPI files.

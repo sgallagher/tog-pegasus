@@ -32,6 +32,8 @@
 
 #include "ProviderManagerService.h"
 
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/ProviderManager/ProviderFacade.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Provider/OperationFlag.h>
@@ -343,9 +345,16 @@ Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMOb
 			#ifdef PEGASUS_OS_TYPE_WINDOWS
 			fileName = providerLocation + String(".dll");
 			#elif defined(PEGASUS_OS_HPUX)
-			fileName = providerLocation + getenv("PEGASUS_HOME") + String("/lib/lib") + _providerName + String(".sl");
+			fileName = ConfigManager::getHomedPath(
+                            ConfigManager::getInstance()->getCurrentValue(
+                                "providerDir")) + String("/lib") +
+                                providerName + String(".sl");
 			#else
-			fileName = providerLocation + getenv("PEGASUS_HOME") + String("/lib/lib") + _providerName + String(".so");
+			// fileName = providerLocation + getenv("PEGASUS_HOME") + String("/lib/lib") + _providerName + String(".so");
+			fileName = ConfigManager::getHomedPath(
+                            ConfigManager::getInstance()->getCurrentValue(
+                                "providerDir")) + String("/lib") +
+                                providerName + String(".so");
 			#endif
 
 			return(Pair<String, String>(fileName, providerName));

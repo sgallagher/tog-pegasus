@@ -55,12 +55,10 @@ PEGASUS_NAMESPACE_BEGIN
 //
 // Wbem service name
 //
-#define WBEM_SERVICE_NAME          "wbem-http"
+#define WBEM_HTTP_SERVICE_NAME          "wbem-http"
 
-//
-// Wbem default local port number
-//
-static const Uint32 WBEM_DEFAULT_PORT =  5988;
+#define WBEM_HTTPS_SERVICE_NAME         "wbem-https"
+
 
 class CIMClientRep;
 
@@ -166,11 +164,10 @@ public:
         running on the local system in the default location.  The
         connection is automatically authenticated for the current
         user.
-        @param sslContext - The SSL context to use for this connection
         @return - No return defined. Failure to connect throws an exception.
         @SeeAlso connect - The exceptions are defined in connect.
     */
-    void connectLocal(SSLContext* sslContext = NULL) throw(CIMClientException);
+    void connectLocal() throw(CIMClientException);
 
     /** disconnect - Closes the connection with the server if the connection
         was open, simply returns if the connection was not open. Clients are

@@ -53,16 +53,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-// ATTN: Put these in a central location
-//
-// Wbem service name
-//
-#define WBEM_SERVICE_NAME          "wbem-http"
-
-//
-// Wbem default local port number
-//
-static const Uint32 WBEM_DEFAULT_PORT =  5988;
 
 static const char PASSWORD_PROMPT []  =
                      "Please enter your password: ";
@@ -71,6 +61,13 @@ static const char PASSWORD_BLANK []  =
                      "Password cannot be blank. Please re-enter your password.";
 
 static const Uint32 MAX_PW_RETRIES =  3;
+
+
+static Boolean verifyServerCertificate(CertificateInfo &certInfo)
+{
+    //ATTN-NB-03-05132002: Add code to handle server certificate verification.
+    return true;
+}
 
 WbemExecClient::WbemExecClient(Uint32 timeOutMilliseconds)
     : 
@@ -167,7 +164,7 @@ void WbemExecClient::connect(
 }
 
 
-void WbemExecClient::connectLocal(SSLContext* sslContext)
+void WbemExecClient::connectLocal()
     throw(AlreadyConnected, InvalidLocator, CannotCreateSocket,
           CannotConnect, UnexpectedFailure)
 {
@@ -177,23 +174,7 @@ void WbemExecClient::connectLocal(SSLContext* sslContext)
     if (_connected)
 	throw AlreadyConnected();
 
-    String address;
-
-#ifndef PEGASUS_LOCAL_DOMAIN_SOCKET
-    //
-    // Look up the WBEM port number for the local system
-    //
-    Uint32 portNum = System::lookupPort(WBEM_SERVICE_NAME, WBEM_DEFAULT_PORT);
-    char port[32];
-    sprintf(port, "%u", portNum);
-
-    //
-    // Build address string using local host name and port number
-    //
-    address.append(_getLocalHostName());
-    address.append(":");
-    address.append(port);
-#endif
+    String      address = String::EMPTY;
 
     //
     // Set authentication type
@@ -201,7 +182,79 @@ void WbemExecClient::connectLocal(SSLContext* sslContext)
     _authenticator.clearRequest(true);
     _authenticator.setAuthType(ClientAuthenticator::LOCAL);
 
-    _connect(address, sslContext);
+#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+    _connect(address, NULL);
+#else
+
+    try
+    {
+        //
+        // Look up the WBEM HTTP port number for the local system
+        //
+        Uint32 portNum = System::lookupPort(WBEM_HTTP_SERVICE_NAME, WBEM_DEFAULT_PORT);
+        char port[32];
+        sprintf(port, "%u", portNum);
+
+        //
+        // Build address string using local host name and port number
+        //
+        address.assign(_getLocalHostName());
+        address.append(":");
+        address.append(port);
+
+        SSLContext  *sslContext = NULL;
+
+        _connect(address, sslContext);
+    }
+    catch(CannotConnect &e)
+    {
+        //
+        // Look up the WBEM HTTPS port number for the local system
+        //
+        Uint32 portNum = System::lookupPort(WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_PORT);
+        char port[32];
+        sprintf(port, "%u", portNum);
+
+        //
+        // Build address string using local host name and port number
+        //
+        address.assign(_getLocalHostName());
+        address.append(":");
+        address.append(port);
+
+        //
+        // Create SSLContext
+        //
+
+        // ATTN-NB-02-05152002: Remove PEGASUS_HOME dependency for certificate and random file.
+        //
+        const char* pegasusHome = getenv("PEGASUS_HOME");
+
+        String certpath = String::EMPTY;
+        if (pegasusHome)
+        {
+               certpath.append(pegasusHome);
+               certpath.append("/");
+        }
+        certpath.append(CERTIFICATE);
+
+        String randFile = String::EMPTY;
+
+#ifdef PEGASUS_SSL_RANDOMFILE
+        if (pegasusHome)
+        {
+            randFile.append(pegasusHome);
+            randFile.append("/");
+        }
+        randFile.append(RANDOMFILE);
+#endif
+
+        SSLContext * sslContext =
+            new SSLContext(certpath, verifyServerCertificate, randFile, true);
+
+        _connect(address, sslContext);
+    }
+#endif
     _isRemote = false;
 }
 

@@ -259,6 +259,10 @@ TAG: Version_1_09.
     a new MofWriter class as MofWriter::append*Element().  Moved
     CIM*::printMof() methods to MofWriter::print*Element().
 
+43. (Nag Boranna - HP) 16 May 2002 - HP-Nag: Implemented SSL handling in 
+    CIMClient.cpp for local connection and modified the CLIs to not to pass 
+    SSLContext to the client api. 
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

@@ -42,6 +42,22 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+// ATTN: Put these in a central location
+//
+// Wbem service name
+#define WBEM_HTTP_SERVICE_NAME          "wbem-http"
+
+#define WBEM_HTTPS_SERVICE_NAME         "wbem-https"
+
+//
+// Wbem default local port number
+//
+static const Uint32 WBEM_DEFAULT_PORT =  5988;
+
+static const char CERTIFICATE[] = "server.pem";
+
+static const char RANDOMFILE[]  = "ssl.rnd";
+
 
 /** This class provides the interface that a client uses to communicate
     with a CIMOM.
@@ -163,11 +179,10 @@ public:
         running on the local system in the default location.  The
         connection is automatically authenticated for the current
         user.
-        @param sslContext - The SSL context to use for this connection
         @return - No return defined. Failure to connect throws an exception.
         @SeeAlso connect - The exceptions are defined in connect.
     */
-    void connectLocal(SSLContext* sslContext = NULL)
+    void connectLocal()
         throw(AlreadyConnected, InvalidLocator, CannotCreateSocket,
               CannotConnect, UnexpectedFailure);
 

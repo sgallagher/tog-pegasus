@@ -26,6 +26,7 @@
 //
 // Modified By:
 //         Bapu Patil, Hewlett-Packard Company ( bapu_patil@hp.com )
+//         Nag Boranna, Hewlett-Packard Company ( nagaraja_boranna@hp.com )
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -39,14 +40,6 @@ PEGASUS_USING_STD;
 
 const String NAMESPACE = "root/cimv2";
 
-static const char CERTIFICATE[] = "server.pem";
-static const char RANDOMFILE[] = "ssl.rnd";
-
-static Boolean verifyCertificate(CertificateInfo &certInfo)
-{
-    //ATTN-NB-03-05132002: Add code to handle server certificate verification.
-    return true;
-}
 
 static void TestGetClass(CIMClient& client)
 {
@@ -336,66 +329,11 @@ static void TestReferenceClassNames(CIMClient& client)
 
 int main(int argc, char** argv)
 {
-
-    Boolean useSSL =  false;
-
-    if ( argc > 1 )
-    {
-      char *temp = argv[1];
-      if ( ! String::compareNoCase(temp, "-ssl") )
-      {
-        cout << "SSL Enabled " << endl;
-        useSSL = true;
-      }
-      else
-      {
-        cout << "SSL not Enabled " << endl;
-      }
-    }
     try
     {
 	CIMClient client;
 
-        if (useSSL)
-        {
-
-               //
-               // Get environment variables:
-               //
-               const char* pegasusHome = getenv("PEGASUS_HOME");
-
-               String certpath = String::EMPTY;
-               if (pegasusHome)
-               {
-                     certpath.append(pegasusHome);
-                     certpath.append("/");
-               }
-               certpath.append(CERTIFICATE);
-
-
-#ifdef PEGASUS_SSL_RANDOMFILE
-
-               String randFile = String::EMPTY;
-               if (pegasusHome)
-               {
-                  randFile.append(pegasusHome);
-                  randFile.append("/");
-               }
-               randFile.append(RANDOMFILE);
-
-               SSLContext * sslcontext =
-                   new SSLContext(certpath, verifyCertificate, randFile, true);
-#else
-               SSLContext * sslcontext =
-                   new SSLContext(certpath, verifyCertificate, String::EMPTY, true);
-#endif
-
-               client.connectLocal(sslcontext);
-        }
-        else
-        { 
-	      client.connectLocal();
-        }
+        client.connectLocal();
 
 	TestGetClass(client);
 	TestQualifierOperations(client);

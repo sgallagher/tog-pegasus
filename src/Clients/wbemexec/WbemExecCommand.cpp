@@ -141,9 +141,6 @@ static const char PASSWORD_PROMPT []  =
 static const char PASSWORD_BLANK []  = 
                      "Password cannot be blank. Please re-enter your password.";
 
-static const char CERTIFICATE[] = "server.pem";
-static const char RANDOMFILE[]  = "ssl.rnd";
-
 static Boolean verifyCertificate(CertificateInfo &certInfo)
 {
     //ATTN-NB-03-05132002: Add code to handle server certificate verification.
@@ -248,46 +245,40 @@ WbemExecCommand::WbemExecCommand ()
 
     if( _useSSL )
       {
-
-	//
-	// Get environment variables:
-	//
-	const char* pegasusHome = getenv("PEGASUS_HOME");
-	
-	String certpath = String::EMPTY;
-	if (pegasusHome)
-	  {
-	    certpath.append(pegasusHome);
-	    certpath.append("/");
-	  }
-	certpath.append(CERTIFICATE);
-	
-	
-#ifdef PEGASUS_SSL_RANDOMFILE
-	
-	String randFile = String::EMPTY;
-	if (pegasusHome)
-	  {
-	    randFile.append(pegasusHome);
-	    randFile.append("/");
-	  }
-	randFile.append(RANDOMFILE);
-	
-        SSLContext * sslcontext =
-            new SSLContext(certpath, verifyCertificate, randFile, true);
-#else
-        SSLContext * sslcontext =
-            new SSLContext(certpath, verifyCertificate, String::EMPTY, true);
-#endif
-
 	if( connectToLocal )
-	  {
-	    client.connectLocal( sslcontext );
-	  }
+	{
+	    client.connectLocal();
+	}
 	else
-	  {
+	{
+	    //
+	    // Get environment variables:
+	    //
+	    const char* pegasusHome = getenv("PEGASUS_HOME");
+	
+	    String certpath = String::EMPTY;
+	    if (pegasusHome)
+	      {
+	        certpath.append(pegasusHome);
+	        certpath.append("/");
+	      }
+	    certpath.append(CERTIFICATE);
+	
+	    String randFile = String::EMPTY;
+
+#ifdef PEGASUS_SSL_RANDOMFILE
+	    if (pegasusHome)
+	      {
+	        randFile.append(pegasusHome);
+	        randFile.append("/");
+	      }
+	    randFile.append(RANDOMFILE);
+#endif
+            SSLContext * sslcontext =
+                new SSLContext(certpath, verifyCertificate, randFile, true);
+
 	    client.connect( address, sslcontext,  _userName, _password );
-	  }
+	}
       }
     else
       { 
@@ -452,7 +443,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     }
     if( !_portNumberSet )
     {
-        _portNumber = System::lookupPort( WBEM_SERVICE_NAME,
+        _portNumber = System::lookupPort( WBEM_HTTP_SERVICE_NAME,
     				          WBEM_DEFAULT_PORT );
         char buffer[32];
         sprintf( buffer, "%lu", (unsigned long) _portNumber );

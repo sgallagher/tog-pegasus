@@ -59,6 +59,17 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+//
+// Wbem default local port number
+//
+static const Uint32 WBEM_DEFAULT_PORT =  5988;
+
+
+//ATTN-NB-02-05152002: Finalize the certificate and random file locations
+static const char CERTIFICATE[] = "server.pem";
+
+static const char RANDOMFILE[] = "ssl.rnd";
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // CIMClientRep
@@ -106,7 +117,7 @@ public:
         const String& password = String::EMPTY
     ) throw(CIMClientException);
 
-    void connectLocal(SSLContext* sslContext = NULL) throw(CIMClientException);
+    void connectLocal() throw(CIMClientException);
 
     void disconnect();
 
@@ -301,6 +312,11 @@ private:
     SSLContext* _connectSSLContext;
 };
 
+static Boolean verifyServerCertificate(CertificateInfo &certInfo)
+{
+    //ATTN-NB-03-05132002: Add code to handle server certificate verification.
+    return true;
+}
 
 CIMClientRep::CIMClientRep(Uint32 timeOutMilliseconds)
     : 
@@ -432,7 +448,7 @@ void CIMClientRep::connect(
 }
 
 
-void CIMClientRep::connectLocal(SSLContext* sslContext) throw(CIMClientException)
+void CIMClientRep::connectLocal() throw(CIMClientException)
 {
     //
     // If already connected, bail out!
@@ -440,23 +456,7 @@ void CIMClientRep::connectLocal(SSLContext* sslContext) throw(CIMClientException
     if (_connected)
 	throw CIMClientAlreadyConnectedException();
 
-    String address;
-
-#ifndef PEGASUS_LOCAL_DOMAIN_SOCKET
-    //
-    // Look up the WBEM port number for the local system
-    //
-    Uint32 portNum = System::lookupPort(WBEM_SERVICE_NAME, WBEM_DEFAULT_PORT);
-    char port[32];
-    sprintf(port, "%u", portNum);
-
-    //
-    // Build address string using local host name and port number
-    //
-    address.append(_getLocalHostName());
-    address.append(":");
-    address.append(port);
-#endif
+    String      address = String::EMPTY;
 
     //
     // Set authentication type
@@ -464,7 +464,79 @@ void CIMClientRep::connectLocal(SSLContext* sslContext) throw(CIMClientException
     _authenticator.clearRequest(true);
     _authenticator.setAuthType(ClientAuthenticator::LOCAL);
 
-    _connect(address, sslContext);
+#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+    _connect(address, NULL);
+#else
+
+    try
+    {
+        //
+        // Look up the WBEM HTTP port number for the local system
+        //
+        Uint32 portNum = System::lookupPort(WBEM_HTTP_SERVICE_NAME, WBEM_DEFAULT_PORT);
+        char port[32];
+        sprintf(port, "%u", portNum);
+
+        //
+        // Build address string using local host name and port number
+        //
+        address.assign(_getLocalHostName());
+        address.append(":");
+        address.append(port);
+
+        SSLContext  *sslContext = NULL;
+
+        _connect(address, sslContext);
+    }
+    catch(CIMClientCannotConnectException &e)
+    {
+        //
+        // Look up the WBEM HTTPS port number for the local system
+        //
+        Uint32 portNum = System::lookupPort(WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_PORT);
+        char port[32];
+        sprintf(port, "%u", portNum);
+
+        //
+        // Build address string using local host name and port number
+        //
+        address.assign(_getLocalHostName());
+        address.append(":");
+        address.append(port);
+
+        //
+        // Create SSLContext
+        //
+
+        // ATTN-NB-02-05152002: Remove PEGASUS_HOME dependency for certificate and random file.
+        //
+        const char* pegasusHome = getenv("PEGASUS_HOME");
+
+        String certpath = String::EMPTY;
+        if (pegasusHome)
+        {
+               certpath.append(pegasusHome);
+               certpath.append("/");
+        }
+        certpath.append(CERTIFICATE);
+
+        String randFile = String::EMPTY;
+
+#ifdef PEGASUS_SSL_RANDOMFILE
+        if (pegasusHome)
+        {
+            randFile.append(pegasusHome);
+            randFile.append("/");
+        }
+        randFile.append(RANDOMFILE);
+#endif
+
+        SSLContext * sslContext =
+            new SSLContext(certpath, verifyServerCertificate, randFile, true);
+
+        _connect(address, sslContext);
+    }
+#endif
 }
 
 void CIMClientRep::disconnect()
@@ -1244,9 +1316,9 @@ void CIMClient::connect(
     _rep->connect(address, sslContext, userName, password);
 }
 
-void CIMClient::connectLocal(SSLContext* sslContext) throw(CIMClientException)
+void CIMClient::connectLocal() throw(CIMClientException)
 {
-    _rep->connectLocal(sslContext);
+    _rep->connectLocal();
 }
 
 void CIMClient::disconnect()

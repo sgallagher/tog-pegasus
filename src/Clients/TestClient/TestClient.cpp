@@ -986,8 +986,13 @@ int main(int argc, char** argv)
 		 for (Sint32 i = 1; i < argc; i++)
 		     connectionList.append(argv[i]);
 
+    Boolean useSSL =  om.isTrue("ssl");
+
+    // use the ssl port if ssl us specified
+    if (useSSL)
+      connectionList.append("localhost:5989");
     // substitute the default only if noslp and no params
-    if(useSLP == false && argc < 2)
+    else if(useSLP == false && argc < 2)
       connectionList.append("localhost:5988");
 
     // Expand host to add port if not defined
@@ -1011,7 +1016,6 @@ int main(int argc, char** argv)
 		 }
     }
 #endif
-    Boolean useSSL =  om.isTrue("ssl");
 
 	// Show the connectionlist
     cout << "Connection List size " << connectionList.size() << endl;
@@ -1033,43 +1037,38 @@ int main(int argc, char** argv)
 		     cout << "Client created" << endl;
                      if (useSSL)
 		     {
-
-                        //
-                        // Get environment variables:
-                        //
-                        const char* pegasusHome = getenv("PEGASUS_HOME");
-
-                        String certpath = String::EMPTY;
-                        if (pegasusHome)
-                        {
-                               certpath.append(pegasusHome);
-                               certpath.append("/");
-                        }
-                        certpath.append(CERTIFICATE);
-
-#ifdef PEGASUS_SSL_RANDOMFILE
-                        String randFile = String::EMPTY;
-                        if (pegasusHome)
-                        {
-                              randFile.append(pegasusHome);
-                              randFile.append("/");
-                        }
-                        randFile.append(RANDOMFILE);
-
-                        SSLContext * sslcontext = 
-                            new SSLContext(certpath, verifyCertificate, randFile, true);
-#else
-                        SSLContext * sslcontext = 
-                            new SSLContext(certpath, verifyCertificate, String::EMPTY, true);
-#endif
-
 			if (om.isTrue("local"))
 			{
-			     cout << "Using local SSL connection mechanism " << endl;
-     			     client.connectLocal(sslcontext);
+			     cout << "Using local connection mechanism " << endl;
+     			     client.connectLocal();
 			}
 			else 
 			{
+                            //
+                            // Get environment variables:
+                            //
+                            const char* pegasusHome = getenv("PEGASUS_HOME");
+
+                            String certpath = String::EMPTY;
+                            if (pegasusHome)
+                            {
+                                   certpath.append(pegasusHome);
+                                   certpath.append("/");
+                            }
+                            certpath.append(CERTIFICATE);
+
+                            String randFile = String::EMPTY;
+#ifdef PEGASUS_SSL_RANDOMFILE
+                            if (pegasusHome)
+                            {
+                                  randFile.append(pegasusHome);
+                                  randFile.append("/");
+                            }
+                            randFile.append(RANDOMFILE);
+#endif
+                            SSLContext * sslcontext = 
+                                new SSLContext(certpath, verifyCertificate, randFile, true);
+
                             cout << "connecting to " << connectionList[i] << " using SSL" << endl;
 		            client.connect(connectionList[i], sslcontext, userName, password);
                         }

@@ -248,7 +248,6 @@ HTTPConnection* HTTPConnector::connect(
 
    if (!_ParseLocator(locator, hostname, port))
    {
-      delete [] hostname;
       throw InvalidLocator(locator);
    }
 

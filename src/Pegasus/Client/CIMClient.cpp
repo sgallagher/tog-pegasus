@@ -1463,8 +1463,6 @@ String CIMClientRep::_getLocalHostName()
 CIMClient::CIMClient()
 {
     _rep = new CIMClientRep();
-
-// l10n TODO - default AcceptLanguages to the process locale    
 }
 
 CIMClient::~CIMClient()

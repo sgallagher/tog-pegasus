@@ -25,6 +25,7 @@
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //              Mike Day IBM Corporation (mdday@us.ibm.com)
+//              Adrian Schuur, schuur@de.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -94,7 +95,9 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
 			     "Creating Provider Module " + *(parms->fileName) );
 	    
-	    module = new ProviderModule(*(parms->fileName));
+	    // added parameters to re-activate ProviderAdapter  ( A Schuur )
+	       
+	       module = new ProviderModule(*(parms->fileName),*(parms->interfaceName));
 	    _modules.insert((*parms->fileName), module);
 	 }
 	 else 

@@ -25,6 +25,7 @@
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
+//              Adrian Schuur, IBM (schuur@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -94,7 +95,7 @@ class PEGASUS_SERVER_LINKAGE ProviderModule
       String _providerName;
 
       String _interfaceName;
-      String _interfaceFilename; // for later use with interface registration
+      String _interfaceFileName; // for later use with interface registration
       ProviderAdapter * _adapter;
 
       CIMProvider * _provider;

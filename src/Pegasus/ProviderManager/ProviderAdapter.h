@@ -23,7 +23,7 @@
 //
 // Author: Markus Mueller (sedgewick_de@yahoo.de)
 //
-// Modified By:
+// Modified By: Adrian Schuur - schuur@de.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,21 +50,15 @@ class PEGASUS_SERVER_LINKAGE ProviderAdapter
 public:
 	ProviderAdapter(const String & adapterName,
                         const String & providerName,
-                        const String & className = String::EMPTY);
-
+                        const String & modName);
 	virtual ~ProviderAdapter(void);
-
 	const String & getAdapterName(void) const;
-
 	const String & getProviderName(void) const;
-
-	//void load(void);
-	//void unload(void);
-
 	virtual CIMProvider * getProvider(void) const;
 
 protected:
-	String _adapterName;
+	String _adapterName; //_adapterName;
+	String _providerLocation;
 	String _providerName;
 	String _className;
 	CIMProvider * _adapter;
@@ -82,15 +76,10 @@ public:
 
 	ProviderAdapter * addAdapter(const String & adapterName,
 	                             const String & adapterFileName,
-	                             const String & providerName,
-                                     const String & className = String::EMPTY);
+	                             const String & providerLocation,
+                                     const String & providerName);
 	void deleteAdapter(const String & adapterName);
 	void deleteAdapter(const DynamicLibraryHandle & adapterlib);
-
-	//void load(void);
-	//void unload(void);
-
-	//virtual CIMProvider * getProvider(void) const;
         static ProviderAdapterManager * get_pamgr();
         void list(void);
 
@@ -100,12 +89,12 @@ private:
 	Array<DynamicLibraryHandle> _listOfAdapterLibs;
 	Array<Uint32> _listOfAdapterCounts;
         Mutex _listMutex;
-        DynamicLibraryHandle _loadlibrary(const String & adapterName,
+        DynamicLibraryHandle loadAdapter(const String & adapterName,
                                           const String & adapterFileName);
-        ProviderAdapter * _load(const DynamicLibraryHandle & library,
+        ProviderAdapter * loadProvider(const DynamicLibraryHandle & library,
                                 const String & adapterName,
-	                        const String & providerName,
-                                const String & className = String::EMPTY);
+	                        const String & providerLocation,
+	                        const String & providerName);
 };
 
 PEGASUS_NAMESPACE_END

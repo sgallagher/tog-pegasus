@@ -23,7 +23,7 @@
 //
 // Author: Markus Mueller (sedgewick_de@yahoo.de)
 //
-// Modified By:
+// Modified By: Adrian Schuur - schuur@de.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,8 +38,10 @@
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include "ProviderAdapter.h"
 #include <Pegasus/Config/ConfigManager.h>
-#define PROVIDERADAPTER_DEBUG(X)  //X
 
+#define PROVIDERADAPTER_DEBUG(X) X
+
+PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -51,12 +53,13 @@ static ProviderAdapterManager * pamgr;
 //
 
 ProviderAdapter::ProviderAdapter(const String & adapterName,
-                                 const String & providerName,
-                                 const String & className) :
-    _adapterName(adapterName), _providerName(providerName),
-    _className(className)
+                                 const String & providerLocation,
+                                 const String & providerName) :
+    _adapterName(adapterName), _providerLocation(providerLocation),
+    _providerName(providerName)
 {
-PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapter::ProviderAdapter\n"; )
+PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapter::ProviderAdapter "<<
+     _adapterName<<" "<<_providerLocation<<"\n"; )
 }
 
 ProviderAdapter::~ProviderAdapter()
@@ -66,7 +69,7 @@ PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapter::~ProviderAdapter\n"; )
 }
 
 const String & ProviderAdapter::getAdapterName() const {return _adapterName;}
-const String & ProviderAdapter::getProviderName() const {return _providerName;}
+const String & ProviderAdapter::getProviderName() const {return _providerLocation;}
 CIMProvider * ProviderAdapter::getProvider(void) const {return _adapter;}
 
 //
@@ -104,25 +107,26 @@ PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::get_pamgr()\n"; )
 ProviderAdapter * ProviderAdapterManager::addAdapter(
                                  const String & adapterName,
                                  const String & adapterFileName,
-                                 const String & providerName,
-                                 const String & className)
+                                 const String & providerLocation,
+                                 const String & providerName)
 {
-PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::addAdapter()\n"; )
+PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::addAdapter(): "
+       <<adapterName<<" "<<providerLocation<<" "<<providerName<<"\n"; )
 
    _listMutex.lock(pegasus_thread_self());
-   ProviderAdapter * pad = NULL;
-   DynamicLibraryHandle library;
+   ProviderAdapter *pad=NULL;
+   DynamicLibraryHandle adapter;
 
    // lookup adapterName
    Uint32 n = _listOfAdapterNames.size();
 
-   if (n == 0)
-   {
-       PROVIDERADAPTER_DEBUG (cerr << "No entries -> load adapter\n";)
+   if (n == 0) {
+       PROVIDERADAPTER_DEBUG (
+          cerr<<"ProviderAdapterManager::addAdapter(): No entries -> load adapter\n";)
        try {
-           library = _loadlibrary(adapterName, adapterFileName);
-           pad = _load(library,adapterName, providerName, className);
-           _listOfAdapterLibs.append(library);
+           adapter=loadAdapter(adapterName, adapterFileName);
+           pad=loadProvider(adapter,adapterName,providerLocation,providerName);
+           _listOfAdapterLibs.append(adapter);
            _listOfAdapterNames.append(adapterName);
            _listOfAdapterCounts.append(1);
        }
@@ -137,12 +141,13 @@ PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::addAdapter()\n"; )
    {
        if (String::equal(_listOfAdapterNames[i],adapterName))
        {
-           PROVIDERADAPTER_DEBUG( cerr << "Found adapter entry\n";)
+           PROVIDERADAPTER_DEBUG(
+	     cerr<<"ProviderAdapterManager::addAdapter(): Found adapter entry\n";)
            _listOfAdapterCounts[i]++;
 
-           library = _listOfAdapterLibs[i];
+           adapter=_listOfAdapterLibs[i];
            try {
-               pad = _load(library,adapterName, providerName, className);
+               pad=loadProvider(adapter,adapterName,providerLocation,providerName);
            }
            catch (Exception & e) {
                PROVIDERADAPTER_DEBUG (cerr << e.getMessage();)
@@ -153,11 +158,12 @@ PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::addAdapter()\n"; )
        // not found, so we have to load the adapter
        if (i==n-1)
        {
-           PROVIDERADAPTER_DEBUG (cerr << "New entry -> load adapter\n";)
+           PROVIDERADAPTER_DEBUG (
+	      cerr<<"ProviderAdapterManager::addAdapter(): New entry -> load adapter\n";)
            try {
-               library = _loadlibrary(adapterName, adapterFileName);
-               pad = _load(library,adapterName, providerName, className);
-              _listOfAdapterLibs.append(library);
+               adapter=loadAdapter(adapterName, adapterFileName);
+               pad=loadProvider(adapter,adapterName,providerLocation,providerName);
+              _listOfAdapterLibs.append(adapter);
               _listOfAdapterNames.append(adapterName);
               _listOfAdapterCounts.append(1);
            }
@@ -214,68 +220,12 @@ PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::deleteAdapter()\n"; )
     _listMutex.unlock();
 }
 
-DynamicLibraryHandle ProviderAdapterManager::_loadlibrary(
+DynamicLibraryHandle ProviderAdapterManager::loadAdapter(
                                  const String & adapterName,
                                  const String & adapterFileName)
 {
-#if 0
-    CIMOMHandle my_cimom;
-
-    PROVIDERADAPTER_DEBUG (cerr << "_loadlibrary\n";)
-    String fileName;
-
-    CIMReference ref =
-       String("WBEM_ProviderProtocolAdapter.name=\"")+ adapterName+
-       String("\",CreationClassName=\"\",") +
-       String("SystemCreationClassName=\"\",") +
-       String("SystemName=\"\"");
-    CIMInstance ci;
-
-    try {
-    ci = my_cimom.getInstance(OperationContext(),
-                         String("root/cimv2"),
-                         ref, false,true,true,CIMPropertyList());
-    } catch (Exception & e) {
-        PROVIDERADAPTER_DEBUG (cerr << "getInstance failed :" <<  e.getMessage() << endl;)
-        //
-        // HACK - just during test
-        //          create the class we know to exist
-        //
-        CIMClass cc = my_cimom.getClass(OperationContext(),
-                String("root/cimv2"),"WBEM_ProviderProtocolAdapter",false,
-                true, true, CIMPropertyList());
-        ci = CIMInstance("WBEM_ProviderProtocolAdapter");
-        ci.addProperty(CIMProperty("name",CIMValue(adapterName)));
-        ci.addProperty(CIMProperty("SystemCreationClassName",
-                                   CIMValue(String::EMPTY)));
-        ci.addProperty(CIMProperty("CreationClassName",
-                                   CIMValue(String::EMPTY)));
-        ci.addProperty(CIMProperty("SystemName",
-                                   CIMValue(String::EMPTY)));
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    fileName = adapterName + String(".dll");
-#elif defined(PEGASUS_OS_HPUX)
-    fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->
-               getCurrentValue("providerDir")) + String("/lib") +
-               adapterName + String(".sl");
-#elif defined(PEGASUS_OS_OS400)
-    fileName = adapterName;
-#else
-    fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->
-               getCurrentValue("providerDir")) + String("/lib") +
-               adapterName + String(".so");
-#endif
-        ci.addProperty(CIMProperty("LibPath",CIMValue(fileName)));
-        my_cimom.createInstance(OperationContext(), String("root/cimv2"), ci);
-    }
-
-    // getProperty "LibPath"
-    CIMProperty cprop = ci.getProperty(ci.findProperty("LibPath"));
-    cprop.getValue().get(fileName);
-
-PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::_loadlibrary() " << fileName << endl; )
-
-#endif
+PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::loadAdapter(): "<<
+                            adapterFileName<<"\n"; )
     // dynamically load the provider library
     DynamicLibraryHandle library =
             System::loadDynamicLibrary(adapterFileName.getCString());
@@ -283,52 +233,52 @@ PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::_loadlibrary() " << file
     if (library == 0)
     {
         String errorString =
-             "Cannot load library, error: " + System::dynamicLoadError();
+             "Cannot load providerAdapter, error: " + System::dynamicLoadError();
         throw Exception("AdapterLoadFailure (" +
               adapterName + "):" + errorString);
     }
     return library;
 }
 
-ProviderAdapter * ProviderAdapterManager::_load(
+ProviderAdapter * ProviderAdapterManager::loadProvider(
                                  const DynamicLibraryHandle & library,
                                  const String & adapterName,
-                                 const String & providerName,
-                                 const String & className)
+                                 const String & providerLocation,
+				 const String & providerName)
 {
-PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::_load()\n"; )
+PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::loadProvider(): "<<
+             providerLocation<<"\n"; )
 
     // Calling entry point of Provider Adapter
-    ProviderAdapter * (* create_pa)(const String &,
-                                    const String &) = 0;
-    create_pa = (ProviderAdapter * (*)(const String &, const String &))
+    ProviderAdapter*(*create_pa)(const String &,const String &) = 0;
+
+    create_pa=(ProviderAdapter*(*)(const String &,const String &))
     System::loadDynamicSymbol(library,"PegasusCreateProviderAdapter");
 
-    if (create_pa != 0)
-    {
-        ProviderAdapter * pa = create_pa(adapterName, providerName);
-        if (pa == 0)
+    if (create_pa!=0) {
+        ProviderAdapter *pa=create_pa(providerLocation,providerName);
+        if (pa==0)
         {
             System::unloadDynamicLibrary(library);
-            String errorString = "entry point returned null.";
+            String errorString = "entry point returned null\n";
             throw Exception("AdapterLoadFailure (" +
                    adapterName + "):" + errorString);
         }
 
         // test primary interface
-        if (dynamic_cast<ProviderAdapter *>(pa) == 0)
+        if (dynamic_cast<ProviderAdapter*>(pa) == 0)
         {
             System::unloadDynamicLibrary(library);
-            String errorString = "adapter is not a ProviderAdapter.";
+            String errorString = "adapter is not a ProviderAdapter\n";
             throw Exception("AdapterLoadFailure (" +
                    adapterName + "):" + errorString);
         }
 
         // test secondary interface
-        if (dynamic_cast<CIMProvider *>(pa) == 0)
+        if (dynamic_cast<CIMProvider*>(pa) == 0)
         {
             System::unloadDynamicLibrary(library);
-            String errorString = "adapter is not a CIMProvider.";
+            String errorString = "adapter is not a CIMProvider\n";
             throw Exception("AdapterLoadFailure (" +
                    adapterName + "):" + errorString);
         }

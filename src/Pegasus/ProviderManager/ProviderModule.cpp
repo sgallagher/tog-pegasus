@@ -27,6 +27,7 @@
 //      Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //		Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //     Mike Day, IBM (mdday@us.ibm.com)
+//     Adrian Schuur, IBM (schuur@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,14 +40,43 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
+    // added support to re-activate ProviderAdapter  ( A Schuur )
+
+/*
 ProviderModule::ProviderModule(const String & fileName)
    : _fileName(fileName), 
      _ref_count(0),
      _library(0)
 {
+    _interfaceFileName=String::EMPTY;
     _library = System::loadDynamicLibrary((const char *)_fileName.getCString());
 }
+*/
+ProviderModule::ProviderModule(const String & fileName, const String & interfaceName)
+   : _fileName(fileName),
+     _interfaceName(interfaceName),
+     _ref_count(0),
+     _library(0)
+{
+     _interfaceFileName=String::EMPTY;
+     if (_interfaceName.size()>0) {
+        #ifdef PEGASUS_OS_TYPE_WINDOWS
+	   _interfaceFileName=_InterfaceName+String("Adapter.dll");
+	#elif PEGASUS_OS_HPUX
+	   _interfaceFileName=ConfigManager::getHomedPath(
+	      ConfigManager::getInstance()->getCurrentValue("providerDir"))+
+	      String("/lib")+interfaceName+String("Adapter.sl");
+       #elif defined(PEGASUS_OS_OS400)
+           _interrfaceFileName=interfaceName+String("Adapter");
+	#else
+	   _interfaceFileName=ConfigManager::getHomedPath(
+	      ConfigManager::getInstance()->getCurrentValue("providerDir"))+
+	      String("/lib")+interfaceName+String("Adapter.so");
+	#endif
+     }
+}
 
+/*
 ProviderModule::ProviderModule(const String & fileName,
                                const String & providerName)
     : _fileName(fileName), 
@@ -55,6 +85,7 @@ ProviderModule::ProviderModule(const String & fileName,
       _provider(0)
 {
 }
+*/
 
 ProviderModule::ProviderModule(const String & fileName,
                                const String & providerName,
@@ -69,7 +100,7 @@ ProviderModule::ProviderModule(const String & fileName,
 
 {
     // currently without interface registration
-    _interfaceFilename = String::EMPTY;
+    _interfaceFileName = String::EMPTY;
 
     if (_interfaceName.size() > 0)
         if (!( String::equalNoCase(_interfaceName, "C++Standard") ||
@@ -77,18 +108,18 @@ ProviderModule::ProviderModule(const String & fileName,
                String::equalNoCase(_interfaceName, "PG_DefaultC++") ))
         {
             #ifdef PEGASUS_OS_TYPE_WINDOWS
-            _interfaceFilename = _interfaceName + String(".dll");
+            _interfaceFileName = _interfaceName + String(".dll");
             #elif defined(PEGASUS_OS_HPUX)
-            _interfaceFilename = ConfigManager::getHomedPath(
+            _interfaceFileName = ConfigManager::getHomedPath(
                 ConfigManager::getInstance()->getCurrentValue("providerDir"));
-            _interfaceFilename.append(
+            _interfaceFileName.append(
                 String("/lib") + _interfaceName + String(".sl"));
             #elif defined(PEGASUS_OS_OS400)
-            _interfaceFilename = _interfaceName;
+            _interfaceFileName = _interfaceName;
             #else
-            _interfaceFilename = ConfigManager::getHomedPath(
+            _interfaceFileName = ConfigManager::getHomedPath(
                 ConfigManager::getInstance()->getCurrentValue("providerDir"));
-            _interfaceFilename.append(
+            _interfaceFileName.append(
                 String("/lib") + _interfaceName + String(".so"));
             #endif
         }
@@ -99,11 +130,13 @@ ProviderModule::ProviderModule(const ProviderModule & pm)
       _library(pm._library),
       _providerName(pm._providerName),
       _interfaceName(pm._interfaceName),
-      _interfaceFilename(pm._interfaceFilename),
+      _interfaceFileName(pm._interfaceFileName),
       _provider(pm._provider),
       _refCount(pm._refCount)
 {
 }
+
+
 
 
 ProviderModule::~ProviderModule(void)
@@ -116,28 +149,19 @@ CIMProvider *ProviderModule::load(const String & providerName)
 
 
     // get the interface adapter library first
-    _adapter = 0;
-    if (_interfaceFilename.size() > 0)
-    {
-        _adapter = ProviderAdapterManager::get_pamgr()->addAdapter(
-                                          _interfaceName, _interfaceFilename,
-                                          _providerName);
+    CIMProvider *provider = 0;
 
-        _provider = dynamic_cast<CIMProvider *>(_adapter);
-
-        if (_provider == NULL)
-        {
-            String errorString = "ProviderAdapter is no CIMProvider";
-            throw Exception("ProviderLoadFailure (" + _providerName + "):" +
-                errorString);
+    if (_interfaceFileName.size()>0) {
+      _adapter=ProviderAdapterManager::get_pamgr()->addAdapter(
+	      _interfaceName,_interfaceFileName,_fileName,providerName);
+      provider=dynamic_cast<CIMBaseProvider*>(_adapter);
+      if (provider==NULL) {
+	throw Exception("ProviderLoadFailure ("+providerName+
+			"Provider is not a BaseProvider");
         }
-
-        return _provider;
+      _ref_count++;
+      return provider;
     }
-
-
-   CIMProvider *provider = 0;
-
 
     // dynamically load the provider library
 

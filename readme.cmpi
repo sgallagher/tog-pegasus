@@ -38,6 +38,61 @@ The packages prefixed by the string sblim-cmpi contain CMPI providers for
 various classes. See http://www-124.ibm.com/developerworks/projects/sblim .
 
 
+Using CQL with CMPI
+-------------------
+
+ To use CQL support for indications and exec query you will have to use
+ the Pegasus/Provider/CMPI/cmpi_cql.h header file with one new function.
+ You also  you need to define PEGASUS_USE_EXPERIMENTAL in your 
+ code to take advantage of these CQL utility functions. The reason is that 
+ the CMPI standard 1.0 is unclear on one thing:
+ 
+   - CMNewSelectExp. One of arguments passed is a 'projection' array. The
+     spec does not explain exactly what in such array. Implementation of
+     CMPI that also implemented WQL put a string representation of the 
+     properties, as "SystemName", "Hostname", etc. But that is not neccesarily
+     the case with CQL, where you can have chained identifiers such as
+     "CIM_OperatingSystem::SystemName". In other words, the CMPI standard
+     needs to clarify this and to make the existing providers backward 
+     supported, this utility function - CMPI_CQL_NewSelectExp is provided
+     until the CMPI standard comes up with a conclusion on this.
+
+  When the CMPI provides a resolution on these issues, this utility
+  interface will be gone and unsupported.
+
+  Questions and Answers:
+Q1: Is the CMPI Specification really ambiguous or does it 
+just not support CQL? If it's ambiguous should it be fixed 
+before it goes final?
+
+A1:. Page 96 of the CMPI review spec states (line 2899-2901): The *projection output argument is 
+a pointer to a CMPIArray structure of CMPIString entries containing projection specification. 
+It shall be set to NULL if no projection is defined.. To clarify any ambigiuity, an e-mail to the
+ CMPI review group was sent, which would add the following: The projection specification is query 
+language specific. Hence the entries format of the projection output array CMPIString might be 
+different depending on the query language. Be sure to check the lang argument for the query language your 
+provider will support. . To guard the provider from DMTF's CQL possible ways it can be represented in 
+a string format, and since the CQL is experimental, the CMNewSelectExp will NOT support CQL. 
+The CMPI_CQL_NewSelect will support both CQL and WQL.
+
+
+AQ:What happens if an existing Provider is passed a CQL 
+statement and issues a newSelectExp call?  Does it return 
+an error?
+
+A2: The error code CMPI_RC_ERR_QUERY_LANGUAGE_NOT_SUPPORTED would be set.
+
+
+Q3: Both CMNewSelectExp and CMPI_CQL_NewSelectExp return a 
+CMPISelectExp. Is there anyway to determine whether the 
+CMPISelectExp represents a CQL or WQL expression?
+
+A3:Not from the scope of the CMPISelectExp structure. Please note that the routine
+ that would exercise the CMPISelectExp has a char *lang passed in as argument. 
+This char *lang* can be used to easily determine what query language is used.
+
+
+
 Registering CMPI providers with Pegasus
 ---------------------------------------
 

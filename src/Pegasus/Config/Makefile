@@ -9,7 +9,7 @@ LOCAL_DEFINES = -DPEGASUS_CONFIG_INTERNAL -DPEGASUS_INTERNALONLY
 LIBRARY = pegconfig
 
 LIBRARIES = \
-    pegcommon
+	pegcommon
 
 ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
 EXTRA_LIBRARIES += -lCstd
@@ -24,11 +24,12 @@ SOURCES = \
 	DefaultPropertyOwner.cpp \
 	FileSystemPropertyOwner.cpp \
 	LogPropertyOwner.cpp \
+	NormalizationPropertyOwner.cpp \
 	TracePropertyOwner.cpp \
-        SecurityPropertyOwner.cpp \
-        RepositoryPropertyOwner.cpp \
+	SecurityPropertyOwner.cpp \
+	RepositoryPropertyOwner.cpp \
 	ProviderDirPropertyOwner.cpp \
-        ShutdownPropertyOwner.cpp
+	ShutdownPropertyOwner.cpp
 
 include $(ROOT)/mak/library.mak
 include $(ROOT)/mak/install.mak

@@ -37,8 +37,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    { "enableNormalization", "false", 0, 0, 0, 1 },
-    { "excludeModulesFromNormalization", "", 0, 0, 0, 1 }
+    { "enableNormalization", "false", IS_STATIC, 0, 0, IS_VISIBLE },
+    { "excludeModulesFromNormalization", "", IS_STATIC, 0, 0, IS_VISIBLE }
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);

@@ -339,16 +339,41 @@ class PEGASUS_COMMON_LINKAGE Thread
 
       void detach(void);
       
+      //
+      //  Gets the Thread object associated with the caller's thread.
+      //  Note: this may return NULL	
+      //
       static Thread * getCurrent();  // l10n
-      
+
+      //
+      //  Sets the Thread object associated with the caller's thread
+      //
+      static void setCurrent(Thread * thrd); // l10n	
+
+      //
+      //  Gets the AcceptLanguages associated with the caller's
+      //  Thread.
+      //  Note: this may return NULL	
+      //      
       static AcceptLanguages * getLanguages(); //l10n
       
+      //
+      //  Sets the AcceptLanguages associated with the caller's
+      //  Thread.
+      //  
       static void setLanguages(AcceptLanguages *langs); //l10n
       
+      //
+      //  Removes the AcceptLanguages associated with the caller's
+      //  Thread.
+      //  
       static void clearLanguages(); //l10n      
   
    private:
       Thread();
+
+      static Sint8 initializeKey();  // l10n
+
       inline void create_tsd(const Sint8 *key ) throw(IPCException)
       {
 	 thread_data *tsd = new thread_data(key);

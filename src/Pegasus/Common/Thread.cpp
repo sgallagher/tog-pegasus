@@ -120,18 +120,63 @@ void Thread::exit_self(PEGASUS_THREAD_RETURN exit_code)
 #endif
 
 // l10n start
+Sint8 Thread::initializeKey()
+{
+   PEG_METHOD_ENTER(TRC_THREAD, "Thread::initializeKey");
+   if (!Thread::_key_initialized)
+   {
+	if (pegasus_key_create(&Thread::_platform_thread_key) == 0)
+	{
+        	Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
+	        	  "Thread: able to create a thread key");   
+	   	Thread::_key_initialized = true;	
+	}
+	else
+	{
+       		Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
+	        	  "Thread: ERROR - unable to create a thread key"); 
+		return -1;
+	}
+   }
+
+   PEG_METHOD_EXIT();
+   return 0;  
+}
+
 Thread * Thread::getCurrent()
 {
-    PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::getCurrent");	
-	if (!Thread::_key_initialized)
-		return NULL;  
+    PEG_METHOD_ENTER(TRC_THREAD, "Thread::getCurrent");	
+    if (Thread::initializeKey() == 0)
+    {
+	return NULL;  
+    }
     PEG_METHOD_EXIT();  
-	return (Thread *)pegasus_get_thread_specific(_platform_thread_key); 
+    return (Thread *)pegasus_get_thread_specific(_platform_thread_key); 
+}
+
+void Thread::setCurrent(Thread * thrd)
+{
+   PEG_METHOD_ENTER(TRC_THREAD, "Thread::setCurrent");
+   if (Thread::initializeKey() == 0)
+   {
+   	if (pegasus_set_thread_specific(Thread::_platform_thread_key,
+								 (void *) thrd) == 0)
+        {
+        	Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
+	        	  "Successful set Thread * into thread specific storage");   
+        }
+        else
+        {
+        	Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
+	        	  "ERROR: got error setting Thread * into thread specific storage");   
+        }
+   }
+   PEG_METHOD_EXIT();  
 }
 
 AcceptLanguages * Thread::getLanguages()
 {
-    PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::getLanguages");		
+    PEG_METHOD_ENTER(TRC_THREAD, "Thread::getLanguages");		
     
 	Thread * curThrd = Thread::getCurrent();
 	if (curThrd == NULL)
@@ -145,7 +190,7 @@ AcceptLanguages * Thread::getLanguages()
 
 void Thread::setLanguages(AcceptLanguages *langs) //l10n
 {
-   PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::setLanguages");
+   PEG_METHOD_ENTER(TRC_THREAD, "Thread::setLanguages");
    		
    Thread * currentThrd = Thread::getCurrent();
    if (currentThrd != NULL)
@@ -162,7 +207,7 @@ void Thread::setLanguages(AcceptLanguages *langs) //l10n
 
 void Thread::clearLanguages() //l10n
 {
-   PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::clearLanguages");
+   PEG_METHOD_ENTER(TRC_THREAD, "Thread::clearLanguages");
    	
    Thread * currentThrd = Thread::getCurrent();
    if (currentThrd != NULL)
@@ -236,23 +281,6 @@ ThreadPool::ThreadPool(Sint16 initial_size,
       _link_pool(_init_thread());
    }
    _pools.insert_last(this);
-   
-   // l10n
-   if (!Thread::_key_initialized)
-   {
-	if (pegasus_key_create(&Thread::_platform_thread_key) == 0)
-	{
-        	Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
-	        	  "ThreadPool: able to create a thread key");   
-	   	Thread::_key_initialized = true;	
-	}
-	else
-	{
-       		Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
-	        	  "ThreadPool: ERROR - unable to create a thread key");   
-printf("ThreadPool: ERROR - unable to create a thread key\n");
-	}
-   }
 }
 
 
@@ -328,27 +356,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 // l10n
    // Set myself into thread specific storage
    // This will allow code to get its own Thread
-   if (Thread::_key_initialized)  
-   {
-   	if (pegasus_set_thread_specific(Thread::_platform_thread_key,
-								 (void *) myself) == 0)
-        {
-        	Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
-	        	  "just set myself into thread specific storage");   
-        }
-        else
-        {
-printf("ThreadPool: ERROR setting tls\n");
-        	Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
-	        	  "ERROR: got error setting thread specific storage");   
-        }
-   }
-   else
-   {
-        Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
-	          "ERROR: thread key is not initialized");   
-   }
-   
+   Thread::setCurrent(myself);	
+
    ThreadPool *pool = (ThreadPool *)myself->get_parm();
    if(pool == 0 ) 
    {

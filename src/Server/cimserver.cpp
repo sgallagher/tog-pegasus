@@ -249,6 +249,18 @@ void PrintHelp(const char* arg0)
     cout << usage << endl;
 }
 
+// l10n
+//
+// Dummy function for the Thread object associated with the initial thread.
+// Since the initial thread is used to process CIM requests, this is
+// needed to localize the exceptions thrown during CIM request processing.
+// Note: This function should never be called! 
+// 
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL dummyThreadFunc(void *parm)
+{
+   return((PEGASUS_THREAD_RETURN)0);	
+}
+
 //
 // cimserver_exit: platform specific exit routine calls
 //         
@@ -838,6 +850,17 @@ int main(int argc, char** argv)
 	
     }
 
+// l10n
+    // Now we are after the fork...
+    // Create a dummy Thread object that can be used to store the
+    // AcceptLanguages object for CIM requests that are serviced
+    // by this thread (initial thread of server).  Need to do this
+    // because this thread is not in a ThreadPool, but is used
+    // to service CIM requests.
+    // The run function for the dummy Thread should never be called,
+    Thread *dummyInitialThread = new Thread(dummyThreadFunc, NULL, false);
+    Thread::setCurrent(dummyInitialThread);
+
 #ifdef PEGASUS_OS_OS400
     // Special server initialization code for OS/400.
     if (cimserver_initialize() != 0)
@@ -848,6 +871,7 @@ int main(int argc, char** argv)
 	exit(-1);
     } 
 #endif
+
 
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     umask(S_IWGRP|S_IWOTH);

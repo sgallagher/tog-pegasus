@@ -51,11 +51,10 @@
     {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     // Removed for now because unresolved PEP {"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
- #ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
     {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableSSLTrustStoreAutoUpdate", "false", IS_STATIC, 0, 0, IS_VISIBLE},
- #endif
-    {"enableProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE}
+    {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
 #else
     {"httpPort", "5988", IS_STATIC, 0, 0, IS_VISIBLE},
     {"httpsPort", "5989", IS_STATIC, 0, 0, IS_VISIBLE},
@@ -69,11 +68,10 @@
     {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0, IS_VISIBLE},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
- #ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
     {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableSSLTrustStoreAutoUpdate", "false", IS_STATIC, 0, 0, IS_VISIBLE},
- #endif
-    {"enableProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE}
+    {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
 #endif
 
 #endif /* Pegasus_DefaultPropertyTableVms_h */

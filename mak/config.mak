@@ -255,6 +255,9 @@ ifdef PEGASUS_ENABLE_SLP
   DEFINES+= -DPEGASUS_ENABLE_SLP
 endif
 
+# compile in the experimental APIs
+DEFINES+= -DPEGASUS_USE_EXPERIMENTAL_INTERFACES
+
  
 ############################################################
 #

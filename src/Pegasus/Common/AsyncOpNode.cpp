@@ -48,12 +48,13 @@ AsyncOpNode::~AsyncOpNode(void)
    delete _response;
 }
 
-void AsyncOpNode::reset(unlocked_dq<AsyncOpNode> *dst_q)
+
+void AsyncOpNode::_reset(unlocked_dq<AsyncOpNode> *dst_q)
 {
    AsyncOpNode *child = _children.remove_first();
    while( child != 0 )
    {
-      child->reset(dst_q);
+      child->_reset(dst_q);
       child = _children.remove_first();
    }
 

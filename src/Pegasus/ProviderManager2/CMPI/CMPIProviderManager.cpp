@@ -119,6 +119,8 @@ CMPIProviderManager::~CMPIProviderManager(void)
 	for (IndProvTab::Iterator i = provTab.start(); i; i++)
 	{
         provTab.lookup(i.key(),prec);
+		if (prec->handler)
+			delete prec->handler;
 		delete prec;
         provTab.remove(i.key());
         prec=NULL;
@@ -1863,6 +1865,8 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         indProvRecord *prec=NULL;
         provTab.lookup(providerName,prec);
         if (--prec->count<=0) {
+		   if (prec->handler)
+				   delete prec->handler;
 		   delete prec;
            provTab.remove(providerName);
            prec=NULL;

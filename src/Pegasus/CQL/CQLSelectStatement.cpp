@@ -152,4 +152,22 @@ Boolean CQLSelectStatement::appendWhereIdentifier(const CQLChainedIdentifier& x)
    return _rep->appendWhereIdentifier(x);
 }
 
+String CQLSelectStatement::toString(){
+	return _rep->toString();
+}
+
+void CQLSelectStatement::setHasWhereClause(){
+	_rep->setHasWhereClause();
+}
+
+Boolean CQLSelectStatement::hasWhereClause(){
+	return _rep->hasWhereClause();
+}
+
+void CQLSelectStatement::clear(){
+	_rep->clear();
+	if(_rep) delete _rep;
+	_rep = new CQLSelectStatementRep();
+}
+
 PEGASUS_NAMESPACE_END

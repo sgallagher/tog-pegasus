@@ -75,7 +75,10 @@ CQLSelectStatementRep& CQLSelectStatementRep::operator=(const CQLSelectStatement
 
 Boolean CQLSelectStatementRep::evaluate(const CIMInstance& inCI)
 {
-   return false;
+  if (!hasWhereClause())
+    return true;
+  else
+    return _predicate.evaluate(inCI, *_ctx);
 }
 
 void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
@@ -127,6 +130,36 @@ Boolean CQLSelectStatementRep::appendWhereIdentifier(const CQLChainedIdentifier&
 {
   _whereIdentifiers.append(x);
   return true;
+}
+
+String CQLSelectStatementRep::toString(){
+    printf("CQLSelectStatementRep::toString()\n");
+	String s("SELECT ");
+	for(Uint32 i = 0; i < _selectIdentifiers.size(); i++){
+		s.append(_selectIdentifiers[i].toString());
+	}	
+	s.append(" FROM ");
+	Array<CQLIdentifier> _ids = _ctx->getFromList();
+	for(Uint32 i = 0; i < _ids.size(); i++){
+		s.append(_ids[i].toString());
+	}
+	if(_hasWhereClause){
+		s.append(" WHERE ");
+		s.append(_predicate.toString());
+	}
+	return s;
+}
+
+void CQLSelectStatementRep::setHasWhereClause(){
+        _hasWhereClause = true;
+}
+
+Boolean CQLSelectStatementRep::hasWhereClause(){
+        return _hasWhereClause;
+}
+
+void  CQLSelectStatementRep::clear(){
+	_ctx->clear();
 }
 
 PEGASUS_NAMESPACE_END

@@ -107,5 +107,9 @@ Array<CQLIdentifier> QueryContext::getFromList() const
 	return _fromList;
 }
 
+void QueryContext::clear(){
+	_fromList.clear();
+}
+
 PEGASUS_NAMESPACE_END
 

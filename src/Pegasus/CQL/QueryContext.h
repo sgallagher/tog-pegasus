@@ -68,6 +68,8 @@ class PEGASUS_CQL_LINKAGE QueryContext
 
         Array<CQLIdentifier> getFromList() const;
 
+        void clear();
+
    protected:
 
 	QueryContext(const QueryContext& ctx);

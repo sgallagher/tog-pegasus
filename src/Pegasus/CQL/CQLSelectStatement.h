@@ -209,6 +209,14 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
            */
         const CQLChainedIdentifier& x);
 
+    String toString();
+
+    void setHasWhereClause();
+
+    Boolean hasWhereClause();
+
+    void clear();
+
   private:
 	CQLSelectStatementRep* _rep;
 

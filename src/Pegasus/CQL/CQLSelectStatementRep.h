@@ -209,6 +209,14 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
            */
         const CQLChainedIdentifier& x);
 
+    String toString();
+
+    void setHasWhereClause();
+
+    Boolean hasWhereClause();
+
+    void clear();
+
   protected:
     /** 
         // The list of CQL identifiers being selected. For example, see
@@ -237,6 +245,8 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
        NOT IMPLEMENTED IN PEGASUS V2.5
        */
     Array<CQLChainedIdentifier> _whereIdentifiers;
+
+    Boolean _hasWhereClause;
 
   private:
     CQLPredicate _predicate;

@@ -26,7 +26,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                       mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.h,v 1.1 2003/12/17 18:05:31 tony Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.h,v 1.2 2004/01/09 20:06:43 tony Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -745,9 +745,6 @@ char *slp_get_host_name( char *buf, int buf_size  );
 		       const int8 *scopes, 
 		       const int8 *predicate) ;
  lslpMsg *get_response( struct slp_client *client , lslpMsg *head);
- int find_das(struct slp_client *client, 
-	       const int8 *predicate, 
-	       const int8 *scopes);
  void discovery_cycle ( struct slp_client *client, 
 			 const int8 *type, 
 			 const int8 *predicate, 
@@ -952,6 +949,9 @@ char *slp_get_host_name( char *buf, int buf_size  );
 
 /***** Functions Exported by the library *****/
 
+SLP_STORAGE_DECL int find_das(struct slp_client *client, 
+	       const int8 *predicate, 
+	       const int8 *scopes);
 SLP_STORAGE_DECL BOOL  lslp_pattern_match(const int8 *s, const int8 *p, BOOL case_sensitive);
 SLP_STORAGE_DECL struct slp_client *create_slp_client(const int8 *target_addr, 
 							     const int8 *local_interface, 

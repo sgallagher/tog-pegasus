@@ -576,12 +576,16 @@ CIMClassRep::CIMClassRep(const CIMClassRep& x) :
 	_methods.append(x._methods[i].clone());
 }
 
-Boolean CIMClassRep::identical(const CIMClassRep* x) const
+Boolean CIMClassRep::identical(const CIMObjectRep* x) const
 {
     if (!CIMObjectRep::identical(x))
 	return false;
 
-    if (_superClassName != x->_superClassName)
+    const CIMClassRep* tmprep = dynamic_cast<const CIMClassRep*>(x);
+    if (!tmprep)
+        return false;
+
+    if (_superClassName != tmprep->_superClassName)
 	return false;
 
     //
@@ -590,7 +594,7 @@ Boolean CIMClassRep::identical(const CIMClassRep* x) const
 
     {
 	const Array<CIMMethod>& tmp1 = _methods;
-	const Array<CIMMethod>& tmp2 = x->_methods;
+	const Array<CIMMethod>& tmp2 = tmprep->_methods;
 
 	if (tmp1.size() != tmp2.size())
 	    return false;
@@ -608,7 +612,7 @@ Boolean CIMClassRep::identical(const CIMClassRep* x) const
 	}
     }
 
-    if (_resolved != x->_resolved)
+    if (_resolved != tmprep->_resolved)
 	return false;
 
     return true;

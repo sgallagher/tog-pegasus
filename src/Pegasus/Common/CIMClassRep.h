@@ -85,7 +85,7 @@ public:
 	DeclContext* context,
 	const String& nameSpace);
 
-    Boolean identical(const CIMClassRep* x) const;
+    virtual Boolean identical(const CIMObjectRep* x) const;
 
     void toXml(Array<Sint8>& out) const;
 

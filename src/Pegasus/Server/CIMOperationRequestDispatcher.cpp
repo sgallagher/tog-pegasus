@@ -5461,31 +5461,42 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesResponseAggregation(
         poA->_className.getString(),
         poA->numberResponses());
 
-    // Aggregate the multiple responses into one response.  This moves the
-    // individual objects from response 1 ... n to the first response
-    // working backward and deleting each response off the end of the array
-    //CDEBUG("AssociatorNames aggregating responses. Count =  " << poA->numberResponses());
-    for(Uint32 i = poA->numberResponses() - 1; i > 0; i--)
+		// This double loop has 2 purposes:
+    // 1. To work backward and delete each response off the end of the array
+		//    and append each instance to the list of instances of the first
+		//    element in the array.
+		// 2. fill in host, namespace on all instances on all elements of array
+		//    if they have been left out. This is required because XML reader
+		//    will fail without them populated
+
+		Uint32 i = poA->numberResponses() - 1;
+		do
     {
     	CIMAssociatorNamesResponseMessage *fromResponse =
-    	    (CIMAssociatorNamesResponseMessage *)poA->getResponse(i);
-        // For this response, move the objects to the zeroth response.
-        //CDEBUG("AssociatorNames aggregation from " << i << "contains " << fromResponse->objectNames.size());
-    	for (Uint32 j = 0; j < fromResponse->objectNames.size(); j++)
+				(CIMAssociatorNamesResponseMessage *)poA->getResponse(i);
+
+    	for (Uint32 j = 0, n = fromResponse->objectNames.size(); j < n; j++)
     	{
-            // Insert path information if it is not already installed
-            if (fromResponse->objectNames[j].getHost().size() == 0)
-                fromResponse->objectNames[j].setHost(cimAggregationLocalHost);
+				CIMObjectPath &p = fromResponse->objectNames[j];
 
-            if (fromResponse->objectNames[j].getNameSpace().isNull())
-                fromResponse->objectNames[j].setNameSpace(poA->_nameSpace);
+				if (p.getHost().size() == 0)
+					p.setHost(cimAggregationLocalHost);
 
-            toResponse->objectNames.append(fromResponse->objectNames[j]);
+				if (p.getNameSpace().isNull())
+					p.setNameSpace(poA->_nameSpace);
+
+				// only append if we are not the first response
+				if (i > 0)
+					toResponse->objectNames.append(p);
     	}
-    	poA->deleteResponse(i);
 
-    }
-    //CDEBUG("AssociatorNames aggregation. Returns responce count " << toResponse->objectNames.size());
+    	// only delete if we are not the first response, else we're done
+			if (i == 0)
+				break;
+			else poA->deleteResponse(i--);
+
+    } while (true);
+
     PEG_METHOD_EXIT();
 }
 
@@ -5506,36 +5517,43 @@ void CIMOperationRequestDispatcher::handleAssociatorsResponseAggregation(
         poA->_className.getString(),
         poA->numberResponses());
 
-    // Work backward and delete each response off the end of the array
-    for(Uint32 i = poA->numberResponses() - 1; i > 0; i--)
+		// This double loop has 2 purposes:
+    // 1. To work backward and delete each response off the end of the array
+		//    and append each instance to the list of instances of the first
+		//    element in the array.
+		// 2. fill in host, namespace on all instances on all elements of array
+		//    if they have been left out. This is required because XML reader
+		//    will fail without them populated
+
+		Uint32 i = poA->numberResponses() - 1;
+		do
     {
     	CIMAssociatorsResponseMessage *fromResponse =
     	    (CIMAssociatorsResponseMessage *)poA->getResponse(i);
 
-    	for (Uint32 j = 0; j < fromResponse->cimObjects.size(); j++)
+    	for (Uint32 j = 0, n = fromResponse->cimObjects.size(); j < n; j++)
     	{
-    	    // Test and complete path if necessary.  Required because
-            // XML not correct without full path.
-            CIMObjectPath p = fromResponse->cimObjects[j].getPath();
-            Boolean isChanged = false;
-            if (p.getHost().size() ==0)
-            {
-                isChanged = true;
-                p.setHost(cimAggregationLocalHost);
-            }
-            if (p.getNameSpace().isNull())
-            {
-                isChanged = true;
-                p.setNameSpace(poA->_nameSpace);
-            }
-            if (isChanged)
-            {
-                fromResponse->cimObjects[j].setPath(p);
-            }
-    	    toResponse->cimObjects.append(fromResponse->cimObjects[j]);
+				const CIMObject &object = fromResponse->cimObjects[j];
+				CIMObjectPath &p = const_cast<CIMObjectPath &>(object.getPath());
+
+				if (p.getHost().size() ==0)
+					p.setHost(cimAggregationLocalHost);
+
+				if (p.getNameSpace().isNull())
+					p.setNameSpace(poA->_nameSpace);
+
+				// only append if we are not the first response
+				if (i > 0)
+					toResponse->cimObjects.append(object);
     	}
-    	poA->deleteResponse(i);
-    }
+
+			// only delete if we are not the first response, else we're done
+			if (i == 0)
+				break;
+			else poA->deleteResponse(i--);
+
+    } while (true);
+
     PEG_METHOD_EXIT();
 }
 
@@ -5556,39 +5574,45 @@ void CIMOperationRequestDispatcher::handleReferencesResponseAggregation(
         poA->_className.getString(),
         poA->numberResponses());
 
-    // Work backward copying the names to the first response
-    // and delete each response off the end of the array
-    for(Uint32 i = poA->numberResponses() - 1; i > 0; i--)
+		// This double loop has 2 purposes:
+    // 1. To work backward and delete each response off the end of the array
+		//    and append each instance to the list of instances of the first
+		//    element in the array.
+		// 2. fill in host, namespace on all instances on all elements of array
+		//    if they have been left out. This is required because XML reader
+		//    will fail without them populated
+
+		Uint32 i = poA->numberResponses() - 1;
+		do
     {
     	CIMReferencesResponseMessage *fromResponse =
-    	    (CIMReferencesResponseMessage *)poA->getResponse(i);
+				(CIMReferencesResponseMessage *)poA->getResponse(i);
 
-        // for each response, move the objects to the first response
-    	for (Uint32 j = 0; j < fromResponse->cimObjects.size(); j++)
+    	for (Uint32 j = 0, n = fromResponse->cimObjects.size(); j < n; j++)
     	{
+				// Test and complete path if necessary. Required because
+				// XML not correct without full path.
+				const CIMObject &object = fromResponse->cimObjects[j];
+				CIMObjectPath &p = const_cast<CIMObjectPath &>(object.getPath());
 
-            // Test for existence of Namespace and host and if not
-            // in the path component, add them.
-    	    CIMObjectPath p = fromResponse->cimObjects[j].getPath();
-            Boolean isChanged = false;
-            if (p.getHost().size() ==0)
-            {
-                isChanged = true;
-                p.setHost(cimAggregationLocalHost);
-            }
-            if (p.getNameSpace().isNull())
-            {
-                isChanged = true;
-                p.setNameSpace(poA->_nameSpace);
-            }
-            if (isChanged)
-            {
-                fromResponse->cimObjects[j].setPath(p);
-            }
-            toResponse->cimObjects.append(fromResponse->cimObjects[j]);
+				if (p.getHost().size() == 0)
+					p.setHost(cimAggregationLocalHost);
+
+				if (p.getNameSpace().isNull())
+					p.setNameSpace(poA->_nameSpace);
+
+				// only append if we are not the first response
+				if (i > 0)
+					toResponse->cimObjects.append(object);
     	}
-    	poA->deleteResponse(i);
-    }
+
+			// only delete if we are not the first response, else we're done
+			if (i == 0)
+				break;
+			else poA->deleteResponse(i--);
+
+    } while (true);
+
     PEG_METHOD_EXIT();
 }
 
@@ -5610,28 +5634,41 @@ void CIMOperationRequestDispatcher::handleReferenceNamesResponseAggregation(
         poA->_className.getString(),
         poA->numberResponses());
 
-    // Aggregate all names into the first response, deleting the others.
-    // Work backwards for efficiency.
-    // For responses 1 ... n, move the names to the zeroth response
-    for(Uint32 i = poA->numberResponses() - 1; i > 0; i--)
+		// This double loop has 2 purposes:
+    // 1. To work backward and delete each response off the end of the array
+		//    and append each instance to the list of instances of the first
+		//    element in the array.
+		// 2. fill in host, namespace on all instances on all elements of array
+		//    if they have been left out. This is required because XML reader
+		//    will fail without them populated
+
+		Uint32 i = poA->numberResponses() - 1;
+		do
     {
-    	CIMReferenceNamesResponseMessage *fromResponse =
-    	    (CIMReferenceNamesResponseMessage *)poA->getResponse(i);
+			CIMReferenceNamesResponseMessage *fromResponse =
+				(CIMReferenceNamesResponseMessage *)poA->getResponse(i);
 
-        // Move each object name to the zeroth response.
-        for (Uint32 j = 0; j < fromResponse->objectNames.size(); j++)
+    	for (Uint32 j = 0, n = fromResponse->objectNames.size(); j < n; j++)
     	{
-            // Insert path information if it is not already in
-            if (fromResponse->objectNames[j].getHost().size() == 0)
-                fromResponse->objectNames[j].setHost(cimAggregationLocalHost);
+				CIMObjectPath &p = fromResponse->objectNames[j];
 
-            if (fromResponse->objectNames[j].getNameSpace().isNull())
-                fromResponse->objectNames[j].setNameSpace(poA->_nameSpace);
+				if (p.getHost().size() == 0)
+					p.setHost(cimAggregationLocalHost);
 
-            toResponse->objectNames.append(fromResponse->objectNames[j]);
+				if (p.getNameSpace().isNull())
+					p.setNameSpace(poA->_nameSpace);
+
+				// only append if we are not the first response
+				if (i > 0)
+					toResponse->objectNames.append(p);
     	}
-    	poA->deleteResponse(i);
-    }
+
+    	// only delete if we are not the first response, else we're done
+			if (i == 0)
+				break;
+			else poA->deleteResponse(i--);
+
+    } while (true);
 
     PEG_METHOD_EXIT();
 }

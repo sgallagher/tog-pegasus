@@ -46,6 +46,7 @@ VALID_PLATFORMS = \
     HPUX_IA64_ACC \
     TRU64_ALPHA_DECCXX \
     SOLARIS_SPARC_GNU \
+    SOLARIS_SPARC_CC \
     ZOS_ZSERIES_IBM \
     NSK_NONSTOP_NMCPLUS  
 
@@ -145,6 +146,11 @@ ifeq ($(PEGASUS_PLATFORM),TRU64_ALPHA_DECCXX)
 endif
 
 ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_GNU)
+  include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+  FOUND = true
+endif
+
+ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
   include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
   FOUND = true
 endif

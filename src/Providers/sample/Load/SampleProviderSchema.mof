@@ -14,7 +14,7 @@ class Sample_InstanceProviderClass : Sample_ProviderClass
 
 class Sample_MethodProviderClass : Sample_ProviderClass
 {
-	string SayHello();
+	string SayHello( [IN] string Name, [OUT] string place);
 };
 
 class Sample_IndicationProviderClass : CIM_Indication

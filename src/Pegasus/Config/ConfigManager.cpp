@@ -462,8 +462,11 @@ Merge config properties specified on the command line
 void ConfigManager::mergeCommandLine(int& argc, char**& argv)
 {
     // Remove the command name from the command line
-    memmove(&argv[0], &argv[1], (argc) * sizeof(char*));
-    argc--;
+    if (argc > 0)
+    {
+        memmove(&argv[0], &argv[1], (argc) * sizeof(char*));
+        argc--;
+    }
 
     //
     //  Merge properties from the command line

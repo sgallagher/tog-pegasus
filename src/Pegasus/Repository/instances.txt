@@ -8,8 +8,8 @@
 <h1>Layout</h1>
 
 All files belonging to the instance repository are stored under the
-repository/instances directory. For each class two files are maintained:
-and index file (with a ".idx" extension) and an instance file which bears
+repository/instances directory. For each class, two files are maintained:
+an index file (with a ".idx" extension) and an instance file which bears
 the name of the class whose instances it contains. For example, suppose 
 there is a class called "Zebra". Then two files are used to manage its 
 instances:
@@ -23,10 +23,10 @@ The first line of the index file indicates how many instances have been
 modified or deleted since the last reorganization of the instance file.
 When this number--called a dirty count--reaches a configurable limit, the 
 index file and instance file are reorganized to reclaim unused space; 
-unused space is left by delete and modify operations (discussed later). 
-The dirty count is expressed as eight hex digits (the number had to have a 
-fixed size so that it could be updated in place without having to rewrite 
-the index file).
+unused space (or gaps) is left by delete and modify operations (discussed 
+later). The dirty count is expressed as eight hex digits (the number had to 
+have a fixed size so that it could be updated in place without having to 
+rewrite the index file).
 
 Each subsequent line of the index file corresponds to an instance contained 
 in the instance file. Each line has the following fields:
@@ -46,11 +46,11 @@ in the instance file. Each line has the following fields:
 	hash code of the key and look for entries with the same hash code.
 	It is still necessary to compare the keys when the hash codes are
 	the same (since collisions are possible), but only when they are the
-	same which is statistically rare.
+	same which is rare and hence this scheme saves many comparisons.
     </li>
 
     <li>
-    offset - offset within the instance file where the instance begins.
+    offset - offset within the instance file to where the instance begins.
     </li>
 
     <li>
@@ -63,7 +63,7 @@ in the instance file. Each line has the following fields:
 	This key is in standard form which we define as follows: all property 
 	names are shifted to lower case and the key-bindings are sorted by
 	property names (in this way it suffices to compare key expressions to
-	determine if two compound keys refer to the same instance.
+	determine if two compound keys refer to the same instance).
     </li>
 
     </ul>
@@ -80,13 +80,13 @@ Here is a sample index file:
     0 38B42754 4293 1431 Y.key1=1005,key2="Hello World 5"
     </pre>
 
-First notice that the dirty count is equal to two and that two entries are 
-marked as deleted (these quantities must be equal). This indicates that the 
-instance file has two instances which are no longer used. The space used by 
-these instances will be reclaimed during reorganization.
+Notice that the dirty count is equal to two and that two entries are marked 
+as deleted (these quantities must be equal). This indicates that the instance 
+file has two instances which are no longer used. The space used by these 
+instances will be reclaimed during reorganization.
 
 The layout of the instance file is trivial. Instances are always appended to
-to the instance file. The instances are kept end-to-end in the file.
+the the instance file. The instances are kept end-to-end in the file.
 
 <h1>Operations</h1>
 
@@ -94,7 +94,7 @@ There are three operations which may be performed on the instance repository.
 create, modify, and delete. This section describes how these operations affect 
 the index and instance file. Note that the process described below for 
 performing the three operations actually contains extra steps described in
-thd "Recovery" section.
+the "Recovery" section.
 
 Creation. During creation, the instance is appended to the instance file and
 an entry is appended to the index file. If an instance with the same key is
@@ -103,7 +103,7 @@ found, then the operation is disallowed.
 Deletion. To delete an instance, the corresponding entry in the index file is 
 marked as deleted (by changing the first column from '0' to '1'). And then the 
 dirty count is incremented and updated. If the dirty count has reached the 
-configured threshold, then the index and instance files are reogranized (see
+configured threshold, the index and instance files are reogranized (see
 the section entitled "Reorganization" for an explanation of how this is 
 done).
 

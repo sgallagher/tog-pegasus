@@ -30,7 +30,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
-//				Seema Gupta (gseema@in.ibm.com) for PEP135
+//              Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1212,21 +1212,26 @@ void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
         termination_req->operationContext.set(AcceptLanguageListContainer(al));
 
         // create request envelope
-        AsyncLegacyOperationStart * asyncRequest =
-            new AsyncLegacyOperationStart (
-                _service->get_next_xid(),
-                NULL,
-                _queueId,
-                termination_req,
-                _queueId);
+        AsyncLegacyOperationStart asyncRequest
+            (_service->get_next_xid(),
+            NULL,
+            _queueId,
+            termination_req,
+            _queueId);
 
-        if( false  == _controller->ClientSendForget(
-                           *_client_handle,
-                           _queueId,
-                           asyncRequest))
+        AutoPtr <AsyncReply> asyncReply
+            (_controller->ClientSendWait (* _client_handle, _queueId,
+            &asyncRequest));
+        
+        AutoPtr <CIMNotifyProviderTerminationResponseMessage> response
+            (reinterpret_cast <CIMNotifyProviderTerminationResponseMessage *>
+            ((dynamic_cast <AsyncLegacyOperationResult *>
+            (asyncReply.get ()))->get_result ()));
+        
+        if (response->cimException.getCode () != CIM_ERR_SUCCESS)
         {
-            delete asyncRequest;
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, String::EMPTY);
+            CIMException e = response->cimException;
+            throw (e);
         }
     }
 }
@@ -1563,7 +1568,7 @@ Sint16 ProviderRegistrationProvider::_enableModule(
 		    //
 		    // if there are indication capability instances
 		    //
-		    if (capInstances.size() != 0)
+                    if (capInstances.size() != 0)
 		    {
 		        _sendEnableMessageToSubscription(updatedModuleInstance,
 		  					 pInstance,

@@ -98,11 +98,12 @@ Monitor::Monitor()
 Monitor::~Monitor()
 {
    printf("deregistering with module controller\n");
-   
+
    if(_module_handle != NULL)
     {
        _controller->deregister_module(PEGASUS_MODULENAME_MONITOR);
        _controller = 0;
+       delete _module_handle;
     }
    printf("deleting rep\n");
    

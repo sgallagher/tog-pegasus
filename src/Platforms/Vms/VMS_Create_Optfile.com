@@ -1,3 +1,47 @@
+$! VMS_Create_Optfile.com
+$  env = f$parse(f$environment("PROCEDURE"),,,"NAME")
+$  v=f$verify(0+f$integer(f$trnlnm("''env'"+"_VERIFY")))
+$  Goto Run_Begin
+$!
+$! Use the above "env" symbol to enable "set verify" 
+$!     $define VMS_CREATE_OPTFILE_VERIFY 1	
+$!
+$!%2005////////////////////////////////////////////////////////////////////////
+$!
+$! Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+$! Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+$! Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+$! IBM Corp.; EMC Corporation, The Open Group.
+$! Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+$! IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+$! Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+$! EMC Corporation; VERITAS Software Corporation; The Open Group.
+$!
+$! Permission is hereby granted, free of charge, to any person obtaining a copy
+$! of this software and associated documentation files (the "Software"), to
+$! deal in the Software without restriction, including without limitation the
+$! rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+$! sell copies of the Software, and to permit persons to whom the Software is
+$! furnished to do so, subject to the following conditions:
+$! 
+$! THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+$! ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+$! "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+$! LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+$! PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+$! HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+$! ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+$! WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+$!
+$!==============================================================================
+$!
+$! Author: <Author's Name> (<Authors EMAIL>)
+$!
+$! Modified By:
+$!
+$!%/////////////////////////////////////////////////////////////////////////////
+$ !
+$Run_Begin:
 $ !
 $ !set verify
 $ !
@@ -27,7 +71,6 @@ $  'MyOut "%VMSCROPT - P6 = ''P6'"
 $  'MyOut "%VMSCROPT - P7 = ''P7'"
 $  'MyOut "%VMSCROPT - P8 = ''P8'"
 $ ! 
-$ ! Exit
 $ !
 $ ! Use the program name to open a new .opt file
 $ ! 
@@ -148,7 +191,7 @@ $ ! Looking for "SHARE_COPY"
 $ ! 
 $  if P5 .eqs. ""
 $  Then
-$    Exit
+$    Goto run_exit
 $  Endif
 $ ! 
 $  'MyOut "%VMSCROPT - SHARE_COPY defined"
@@ -181,86 +224,87 @@ $ !
 $  Close optfile
 $makefile_loop9_exit3:
 $ ! 
-$  Exit
+$  Goto run_exit
+
 $ !
 $optfile_eof:
-$ exit
+$ Goto run_exit
 $ ! 
 $makefile_openerror1:
-$    Write sys$output "%VMSCROPT - Can't find makefile! 1 - ''mfile'"
+$ Write sys$output "%VMSCROPT - Can't find makefile! 1 - ''mfile'"
 $ ! 
-$  Exit
+$ Goto run_exit
 $ ! 
 $makefile_openerror2:
-$    Write sys$output "%VMSCROPT - Can't find makefile! 2 - ''mfile'"
+$ Write sys$output "%VMSCROPT - Can't find makefile! 2 - ''mfile'"
 $ ! 
-$  Exit
+$ Goto run_exit
 $ ! 
 $makefile_openerror3:
-$    Write sys$output "%VMSCROPT - Can't find makefile! 3 - ''mfile'"
+$ Write sys$output "%VMSCROPT - Can't find makefile! 3 - ''mfile'"
 $ ! 
-$  Exit
+$ Goto run_exit
 $ ! 
 $makefile_openerror4:
-$    Write sys$output "%VMSCROPT - Can't find makefile! 4 - ''mfile'"
+$ Write sys$output "%VMSCROPT - Can't find makefile! 4 - ''mfile'"
 $ ! 
-$  Exit
+$ Goto run_exit
 $ ! 
 $makefile_readerror:
-$    Write sys$output "%VMSCROPT - Error reading makefile! - ''mfile'"
+$ Write sys$output "%VMSCROPT - Error reading makefile! - ''mfile'"
 $ ! 
-$  Exit
+$ Goto run_exit
 $ ! 
 $makefile2_openerror:
-$    Write sys$output "%VMSCROPT - Can't find makefile! - ''mfile1'"
-$    Show Default
+$ Write sys$output "%VMSCROPT - Can't find makefile! - ''mfile1'"
+$ Show Default
 $ ! 
-$  Exit
+$ Goto run_exit
 $ ! 
 $makefile_readerror1:
-$    Write sys$output "%VMSCROPT - Error reading makefile! - ''mfile1'"
+$ Write sys$output "%VMSCROPT - Error reading makefile! - ''mfile1'"
 $ ! 
-$  Exit
+$ Goto run_exit
 $ ! 
 $optfile_openerror:
-$    Write sys$output "%VMSCROPT - Can't open options file! - ''Optname'"
+$ Write sys$output "%VMSCROPT - Can't open options file! - ''Optname'"
 $ ! 
-$  Exit
+$ Goto run_exit
 $ ! 
 $optfile_writeerror:
-$    Write sys$output "%VMSCROPT - Error writing options file! - ''Optname'"
+$ Write sys$output "%VMSCROPT - Error writing options file! - ''Optname'"
 $ ! 
-$  Exit
+$ Goto run_exit
 $ !
 $run_error1:
 $ ! 
-$  Write sys$output "%VMSCROPT - Can't find option filename!"
-$  Exit
+$ Write sys$output "%VMSCROPT - Can't find option filename!"
+$ Goto run_exit
 $ ! 
 $run_error2:
 $ ! 
-$  Write Sys$output "%VMSCROPT - Makefile.; libraries.mak line is not right!"
-$  Close 'mfile
-$  Close 'Optname
-$  Exit
+$ Write Sys$output "%VMSCROPT - Makefile.; libraries.mak line is not right!"
+$ Close 'mfile
+$ Close 'Optname
+$ Goto run_exit
 $ ! 
 $run_error1:
 $ ! 
-$  Exit
+$ Goto run_exit
 $ ! 
 $run_error1:
 $ ! 
-$  Exit
+$ Goto run_exit
 $ ! 
 $run_error3:
 $ ! 
-$  Exit
+$ Goto run_exit
 $ ! 
 $run_error0:
 $ ! 
-$  Exit
+$ Goto run_exit
 $ ! 
 $ ! 
 $ ! 
-$ exit
-$ !
+$run_exit:
+$ Exit 1+0*f$verify(v)

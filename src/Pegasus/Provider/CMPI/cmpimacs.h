@@ -140,12 +140,12 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 
 #ifndef DOC_ONLY
   #ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
- #define EXTERN_C __declspec(dllexport)
+ #define CMPI_EXTERN_C __declspec(dllexport)
   #else
  #ifdef __cplusplus
-      #define EXTERN_C extern "C"
+      #define CMPI_EXTERN_C extern "C"
     #else
-      #define EXTERN_C
+      #define CMPI_EXTERN_C
     #endif
 #endif
 #endif
@@ -1971,7 +1971,7 @@ CMPIInstanceMI* CMInstanceMIStub(chars pfx, chars pn,
    pfx##DeleteInstance, \
    pfx##ExecQuery, \
   }; \
-  EXTERN_C \
+  CMPI_EXTERN_C \
   CMPIInstanceMI* pn##_Create_InstanceMI(CMPIBroker* brkr,CMPIContext *ctx) { \
    static CMPIInstanceMI mi={ \
       NULL, \
@@ -2018,7 +2018,7 @@ CMPIAssociationMI* CMAssociationMIStub(chars pfx, chars pn,
    pfx##References, \
    pfx##ReferenceNames, \
   }; \
-  EXTERN_C \
+  CMPI_EXTERN_C \
   CMPIAssociationMI* pn##_Create_AssociationMI(CMPIBroker* brkr,CMPIContext *ctx) { \
    static CMPIAssociationMI mi={ \
       NULL, \
@@ -2059,7 +2059,7 @@ CMPIMethodMI* CMMethodMIStub(chars pfx, chars pn,
    pfx##MethodCleanup, \
    pfx##InvokeMethod, \
   }; \
-  EXTERN_C \
+  CMPI_EXTERN_C \
   CMPIMethodMI* pn##_Create_MethodMI(CMPIBroker* brkr,CMPIContext *ctx) { \
    static CMPIMethodMI mi={ \
       NULL, \
@@ -2103,7 +2103,7 @@ CMPIPropertyMI* CMPropertyMIStub(chars pfx, chars pn,
    pfx##SetProperty, \
    pfx##GetProperty, \
   }; \
-  EXTERN_C \
+  CMPI_EXTERN_C \
   CMPIPropertyMI* pn##_Create_PropertyMI(CMPIBroker* brkr,CMPIContext *ctx) { \
    static CMPIPropertyMI mi={ \
       NULL, \
@@ -2157,7 +2157,7 @@ CMPIIndicationMI* CMIndicationMIStub(chars pfx, chars pn,
    pfx##DeActivateFilter, \
    CMIndicationMIStubExtensions(pfx) \
  }; \
-  EXTERN_C \
+  CMPI_EXTERN_C \
   CMPIIndicationMI* pn##_Create_IndicationMI(CMPIBroker* brkr,CMPIContext *ctx) { \
    static CMPIIndicationMI mi={ \
       NULL, \

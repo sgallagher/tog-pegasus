@@ -13,7 +13,8 @@ DIRS = \
     Client \
     ExportClient \
     Provider \
-    ExportServer \
+    ProviderManager \
+	ExportServer \
     Listener \
     Security/UserManager \
     Security/Authentication \

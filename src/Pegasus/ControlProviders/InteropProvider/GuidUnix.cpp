@@ -25,74 +25,37 @@
 //
 // Author: Tony Fiorentino (fiorentino_tony@emc.com)
 //
-// Modified By: Keith Petley (keithp@veritas.com)
-//
-//%/////////////////////////////////////////////////////////////////////////////
-
-#include "CIMServerDescription.h"
+PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMServerDescription::CIMServerDescription()
+String Guid::getGuid(const String &prefix)
 {
-}
+  Uint32 seconds(0), milliSeconds(0);
+  System::getCurrentTime(seconds, milliSeconds);
+  CIMValue secondsValue(seconds);
+  CIMValue milliSecondsValue(milliSeconds);
+  String ipAddress("127.0.0.1");
+  String hostName(System::getHostName());
 
-CIMServerDescription::CIMServerDescription(const String & url) :
-  _serviceLocationTcp(url), _port(PEG_NOT_FOUND)
-{
-}
-
-CIMServerDescription::~CIMServerDescription()
-{
-}
-
-String
-CIMServerDescription::getUrl()
-{
-  return _serviceLocationTcp;
-}
-
-String
-CIMServerDescription::getValue(const String & attributeName, const String & defaultValue)
-{
-Array <String> vals;
-	if(getValues(attributeName, vals) == false || vals.size() == 0) {
-		return defaultValue;
-	} else {
-		return vals[0];
-	}
-}
-
-Boolean
-CIMServerDescription::getValues(const String & attributeName, Array <String> & attributeValue)
-{
-  // find the attribute entry
-  for (Uint32 idx=0; idx<_attributes.size(); idx++)
+  struct hostent * phostent;
+  struct in_addr   inaddr;
+  
+  if ((phostent = ::gethostbyname((const char *)hostName.getCString())) != NULL)
     {
-      if (String::equalNoCase(_attributes[idx].getTag(), attributeName))
-        {
-	  attributeValue = _attributes[idx].getValues();
-          return true;
-        }
+      ::memcpy( &inaddr, phostent->h_addr,4);
+      ipAddress = ::inet_ntoa( inaddr );
     }
 
-  return false;
-}
+  // change the dots to dashes
+  for (Uint32 i=0; i<ipAddress.size(); i++)
+    {
+      if (ipAddress[i] == Char16('.'))
+        ipAddress[i] = Char16('-');
+    }
 
-Array<Attribute>
-CIMServerDescription::getAttributes()
-{
-  return _attributes;
+  return (secondsValue.toString() + milliSecondsValue.toString() + "-" + ipAddress);
 }
-
-void
-CIMServerDescription::setAttributes(const Array<Attribute> & attributes)
-{
-  _attributes = attributes;
-}
-
-#define PEGASUS_ARRAY_T CIMServerDescription
-#include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END
+// END_OF_FILE

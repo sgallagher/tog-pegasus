@@ -1,0 +1,57 @@
+#pragma Locale ("en_US")
+
+
+// ==================================================================
+// WBEMSLPTemplate
+// ==================================================================
+[ Version ("2.0.0"), Description (
+    "Defines the attributes in a Pegasus SLP template. This template is "
+    "based on the DMTF WBEM SLP Template.  Each property in the class "
+    "represents one object in the template registration." ) ]
+class PG_WBEMSLPTemplate {
+   [key, Description ("Unique key for the class") ]
+   string InstanceID;
+   string template_type="wbem";
+   string template_version="1.0";
+   string template_description="This template describes the attributes used for advertising CIM Servers.";
+   string template_url_syntax;
+   string service_hi_name;
+  [Description ("This string is used as a description of the CIM service "
+    "for human interfaces. This attribute MUST be the "
+    "CIM_ObjectManager.Description property value.") ]
+   string service_hi_description;
+   string service_id;
+   string service_location_tcp;
+   string CommunicationMechanism;
+   string OtherCommunicationMechanismDescription;
+   string ProtocolVersion;
+   string CIM_InteropSchemaNamespace;
+   string ProfilesSupported;
+   string OtherProfileDescription;
+   boolean MultipleOperationsSupported;
+   string AuthenticationMechanismsSupported;
+   string OtherAuthenticationDescription;
+   string Namespace;
+   string classinfo;
+   string FunctionalProfilesSupported;
+   string FunctionalProfileDescriptions;
+   
+   [ Description ("String representing the complete registered template. "
+       "This string is primarily a diagnostic to see what the produced template "
+       "looks like.")]
+   string RegisteredTemplate;
+   
+   [Description ("Time that this entry was registered with the SA") ]
+   datetime registeredTime;
+   
+   [Description ("Initiate the registration process based on the CIMServer "
+   "characteristics.") ]
+   Sint32 register();
+   
+   [ Description ("Remove any existing SLP registrations.") ]
+   Sint32 unregister();
+   
+   [ Description ("Force an update to any existing registrations.") ]
+   Sint32 update();
+   
+};

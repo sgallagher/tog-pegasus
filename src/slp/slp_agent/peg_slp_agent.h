@@ -40,7 +40,7 @@
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Exception.h>
 #include "Linkage.h"
-#include "slp_client/src/cmd-utils/slp_client/slp_client.h"
+#include "../slp_client/src/cmd-utils/slp_client/slp_client.h"
 
 PEGASUS_NAMESPACE_BEGIN
 

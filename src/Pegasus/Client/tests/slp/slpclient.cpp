@@ -48,33 +48,17 @@ int main(int argc, char** argv)
 
       Array<Attribute> criteria;
       Attribute attr(PEG_WBEM_SLP_SERVICE_ID"="PEG_WBEM_SLP_SERVICE_ID_DEFAULT);
-//      criteria.append(attr);
-//      Array<CIMServerDescription> connections = disco.lookup(criteria);
       Array<CIMServerDescription> connections = disco.lookup();
 
       for (Uint32 i=0; i<connections.size(); i++)
         {
-          CIMClient client;
-          String host(connections[i].getValue("host", "localhost"));
-          String port(connections[i].getValue("port", "5988"));
-          Uint32 port_number = atoi((const char *)port.getCString());
-
-          try
+          PEGASUS_STD(cout) << "\n======================================================" << PEGASUS_STD(endl);
+          PEGASUS_STD(cout) << connections[i].getUrl() << PEGASUS_STD(endl);
+          PEGASUS_STD(cout) << "======================================================" << PEGASUS_STD(endl);
+          Array<Attribute> attributes = connections[i].getAttributes();
+          for (Uint32 j=0; j<attributes.size(); j++)
             {
-              PEGASUS_STD(cout) << "Attempting connection: '" << host << "' using port '"<< port << "'" << PEGASUS_STD(endl);
-              Array<Attribute> attributes = connections[i].getAttributes();
-              for (Uint32 j=0; j<attributes.size(); j++)
-                {
-                  PEGASUS_STD(cout) << "===> '" << attributes[j] << "'" << PEGASUS_STD(endl);
-                }
-              client.connect(host, port_number, "", "");
-              PEGASUS_STD(cout) << "Successful connection: '" << host << "' using port '"<< port << "'" << PEGASUS_STD(endl);
-              client.disconnect();
-              PEGASUS_STD(cout) << "Disconnected connection: '" << host << "' using port '"<< port << "'" << PEGASUS_STD(endl);
-            }
-          catch(Exception& e)
-            {
-              PEGASUS_STD(cerr) << "Skip connection: " << e.getMessage() << PEGASUS_STD(endl);
+              PEGASUS_STD(cout) << "'" << attributes[j] << "'" << PEGASUS_STD(endl);
             }
         }
 

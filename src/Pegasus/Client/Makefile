@@ -20,6 +20,12 @@ LIBRARY = pegclient
 LIBRARIES = \
     pegcommon
 
+ifdef PEGASUS_ENABLE_SLP
+ifneq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+LIBRARIES += pegslp_client
+endif
+endif
+
 PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \
@@ -41,12 +47,14 @@ endif
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-SYS_LIBS = ws2_32.lib advapi32.lib
-ifdef PEGASUS_ENABLE_SLP
-SYS_LIBS += $(PEGASUS_HOME)/lib/slp_client.lib
-endif
-endif
-
 include $(ROOT)/mak/library.mak
+
+ifdef PEGASUS_ENABLE_SLP
+$(SOURCES): slp_client
+slp_client :
+	@ $(MAKE) -SC $(ROOT)/src/slp/slp_client
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+SYS_LIBS = $(PEGASUS_HOME)/lib/pegslp_client.lib ws2_32.lib advapi32.lib
+endif
+endif
 

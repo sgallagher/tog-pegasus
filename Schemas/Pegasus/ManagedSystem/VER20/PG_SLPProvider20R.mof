@@ -1,0 +1,30 @@
+#pragma locale ("en_US")
+instance of PG_ProviderModule 
+{
+    Description = "Instance Provider for the InterOp classes";
+    Caption = "Instance Provider for the InterOp classes";
+    Name = "SLPProviderModule";
+    Vendor = "Pegasus Community";
+    Version = "2.0.0";
+    InterfaceType = "C++Default";
+    InterfaceVersion = "2.1.0";
+    Location = "SLPProvider";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "SLPProviderModule";
+    Name = "SLPProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "SLPProviderModule";
+    ProviderName = "SLPProvider";
+    CapabilityID = "1";
+    ClassName = "PG_WBEMSLPTemplate";
+    Namespaces = { "root/PG_Internal" };
+    ProviderType = { 2, 5 };  // instance and method
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};

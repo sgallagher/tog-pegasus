@@ -200,16 +200,53 @@ public:
 
 private:
 
-    CIMObjectPath InteropProvider::_buildInstancePath(const CIMNamespaceName& name,
-                              const CIMName className, 
+
+    CIMInstance _buildInstanceSkeleton(const CIMName& className);
+
+    CIMObjectPath _buildReference(const CIMInstance& instance,
+         const CIMName& className);
+
+    CIMObjectPath _buildObjectPath(const CIMNamespaceName& name,
+                              const CIMName& className, 
+                              const CIMInstance& instance);
+    CIMObjectPath _buildInstancePath(const CIMNamespaceName& name,
+                              const CIMName& className, 
                               const CIMInstance& instance);
     
     CIMClass _getClass(const CIMNamespaceName& nameSpace, const CIMName& className);
 
     Array<CIMNamespaceName> _enumerateNameSpaces();
     
-    CIMInstance _buildInstanceCIMObjectManager();
+    CIMInstance _buildInstancePGCIMXMLCommunicationMechanism(
+        const String& namespaceType,
+        const String& IPAddress,
+        const Boolean& includeQualifiers,
+        const Boolean& includeClassOrigin,
+        const CIMPropertyList& propertyList);
+
+    Array<CIMInstance> _buildInstancesPGCIMXMLCommunicationMechanism(
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList);
+
+    CIMInstance _buildInstanceCIMObjectManager(const Boolean includeQualifiers,
+                                           const Boolean includeClassOrigin,
+                                           const CIMPropertyList& propertyList);
+
+    Array<CIMInstance> _getInstancesCIMNamespace(const Boolean& includeQualifiers,
+                                            const Boolean& includeClassOrigin,
+                                            const CIMPropertyList& propertyList);
+
+
+    CIMInstance _getInstanceCIMNamespace(const CIMNamespaceName & nameSpace);
     //
+    CIMInstance _buildInstanceCIMNamespace(const CIMNamespaceName & nameSpace);
+
+
+    Array<CIMInstance> _buildInstancesNamespaceInManager();
+
+    Array<CIMInstance> _buildInstancesCommMechanismForManager();
+
     // Repository Instance variable
     //
        CIMRepository*   _repository;

@@ -25,74 +25,49 @@
 //
 // Author: Tony Fiorentino (fiorentino_tony@emc.com)
 //
-// Modified By: Keith Petley (keithp@veritas.com)
-//
-//%/////////////////////////////////////////////////////////////////////////////
 
-#include "CIMServerDescription.h"
+#include <windows.h>
+#include <objbase.h>
+
+PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMServerDescription::CIMServerDescription()
+String Guid::getGuid(const String &prefix)
 {
-}
+  GUID guid;
+  String strUUID;
+  HRESULT hres = CoCreateGuid(&guid);
 
-CIMServerDescription::CIMServerDescription(const String & url) :
-  _serviceLocationTcp(url), _port(PEG_NOT_FOUND)
-{
-}
-
-CIMServerDescription::~CIMServerDescription()
-{
-}
-
-String
-CIMServerDescription::getUrl()
-{
-  return _serviceLocationTcp;
-}
-
-String
-CIMServerDescription::getValue(const String & attributeName, const String & defaultValue)
-{
-Array <String> vals;
-	if(getValues(attributeName, vals) == false || vals.size() == 0) {
-		return defaultValue;
-	} else {
-		return vals[0];
-	}
-}
-
-Boolean
-CIMServerDescription::getValues(const String & attributeName, Array <String> & attributeValue)
-{
-  // find the attribute entry
-  for (Uint32 idx=0; idx<_attributes.size(); idx++)
+  if (hres == S_OK)
     {
-      if (String::equalNoCase(_attributes[idx].getTag(), attributeName))
+      WCHAR guid_strW[38] = { L"" };
+      char guid_str[100];
+      ::memset(&guid_str, 0, sizeof(guid_str));
+      if (StringFromGUID2(guid, guid_strW, sizeof(guid_strW)) > 0)
         {
-	  attributeValue = _attributes[idx].getValues();
-          return true;
+          Uint32 numBytes =  sizeof(guid_strW)/sizeof(guid_strW[0]);
+          WideCharToMultiByte(CP_ACP, 0, guid_strW, numBytes, guid_str, sizeof(guid_str), NULL, NULL);
+          // exclude the first and last chars (i.e., { and })
+          for (Uint32 i=1; i<sizeof(guid_str); i++)
+            {
+              if (guid_str[i] != '}')
+                {
+                  strUUID.append(Char16(guid_str[i]));
+                }
+              else
+                {
+                  break;
+                }
+            }
         }
+      if (prefix == String::EMPTY)
+        return strUUID;
+      else
+        return (prefix + strUUID);
     }
-
-  return false;
+  return (String::EMPTY);
 }
-
-Array<Attribute>
-CIMServerDescription::getAttributes()
-{
-  return _attributes;
-}
-
-void
-CIMServerDescription::setAttributes(const Array<Attribute> & attributes)
-{
-  _attributes = attributes;
-}
-
-#define PEGASUS_ARRAY_T CIMServerDescription
-#include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END
+// END_OF_FILE

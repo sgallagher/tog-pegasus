@@ -95,6 +95,8 @@ PEGASUS_NAMESPACE_BEGIN
     PEGASUS_QUEUENAME_CONTROLSERVICE "::temp::do not use this name"
 #define PEGASUS_MODULENAME_MONITOR \
     PEGASUS_QUEUENAME_CONTROLSERVICE "::Monitor"
+#define PEGASUS_MODULENAME_INTEROPPROVIDER \
+    PEGASUS_QUEUENAME_CONTROLSERVICE "::InteropProvider"
 
 //
 // CIM Class Names
@@ -132,9 +134,29 @@ static const CIMName PEGASUS_CLASSNAME_SHUTDOWN             =
     CIMName ("PG_ShutdownService");
 static const CIMName PEGASUS_CLASSNAME___NAMESPACE          = 
     CIMName ("__Namespace");
+
+#ifdef PEGASUS_ENABLE_SLP
+// Interop Classes Accessed through Interop Control Provider
 static const CIMName PEGASUS_CLASSNAME_NAMESPACE            = 
     CIMName ("CIM_Namespace");
+static const CIMName PEGASUS_CLASSNAME_OBJECTMANAGER            = 
+    CIMName ("CIM_ObjectManager");
+static const CIMName PEGASUS_CLASSNAME_OBJECTMANAGERCOMMUNICATIONMECHANISM  = 
+    CIMName ("CIM_ObjectManagerCommunicationMechanism");
+static const CIMName PEGASUS_CLASSNAME_CIMXMLCOMMUNICATIONMECHANISM  = 
+    CIMName ("CIM_CIMXMLCommunicationMechanism");
+static const CIMName PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM  = 
+    CIMName ("PG_CIMXMLCommunicationMechanism");
+static const CIMName PEGASUS_CLASSNAME_PROTOCOLADAPTER  = 
+    CIMName ("CIM_ProtocolAdapter");
+static const CIMName PEGASUS_CLASSNAME_NAMESPACEINMANAGER  = 
+    CIMName ("CIM_NamespaceInManager");
 
+// slp Class which operates slp provider. Started by system
+
+static const CIMName PEGASUS_CLASSNAME_WBEMSLPTEMPLATE             = 
+    CIMName ("PG_WBEMSLPTEMPLATE");
+#endif
 
 //
 // Property Names

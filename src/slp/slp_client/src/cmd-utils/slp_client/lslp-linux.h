@@ -26,7 +26,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-linux.h,v 1.1 2003/12/17 18:05:31 tony Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-linux.h,v 1.2 2004/06/03 23:22:30 tony Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -67,7 +67,13 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <pthread.h>
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #include <semaphore.h>
+#endif
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#include <netdb.h>
+#include <strings.h>
+#endif
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
@@ -91,6 +97,12 @@ typedef unsigned long long uint64;
 typedef uint32 BOOL;
 #ifdef __cplusplus
 extern "C" {
+#endif
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#include "configzOS_inline.h"
+#endif
+#ifdef PEGASUS_OS_SOLARIS
+#include "lslp-solaris.h"
 #endif
 
 void _lslp_term(int sig) ;
@@ -125,13 +137,23 @@ void  hug_num_to_ascii(uint64 val, int8 *buf, int32 radix, BOOL is_neg);
 #define WAIT_TIMEOUT LSLP_WAIT_TIMEOUT
 #define LSLP_WAIT_ABANDONDED 0xffffffff
 
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#define _LSLP_SLEEP(m) \
+  { if(m) { \
+		if (m<=1000) \
+		{ usleep(1); } else { \
+			sleep( m / 1000000000);	\
+			usleep((m % 1000000000) / 1000); \
+		} \
+  } }
+#else
 #define _LSLP_SLEEP(m) \
   { if(m) { \
       struct timespec wait_time , actual_time; \
       wait_time.tv_sec = (m / 1000); ; wait_time.tv_nsec = (((m % 1000) * 1000) * 1000);  \
       nanosleep(&wait_time, &actual_time); \
   } }
-  
+#endif  
 
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
@@ -192,17 +214,23 @@ void  hug_num_to_ascii(uint64 val, int8 *buf, int32 radix, BOOL is_neg);
 #define _LSLP_LISTEN(a, b) listen((int)(a), (int)(b))
 #define _LSLP_ACCEPT(a, b, c) accept((int)(a), (struct sockaddr *)(b), (socklen_t *)(c))
 #define _LSLP_SEND(a, b, c, d) send((int)(a), (const void *)(b), (size_t)(c), (int)(d))
+#ifndef _LSLP_SENDTO
 #define _LSLP_SENDTO(a, b, c, d, e, f) \
            sendto((int)(a), (const void *)(b), (size_t)(c), (int)(d), \
                   (const struct sockaddr *)(e), (socklen_t)(f)) 
+#endif
 #define _LSLP_RECV(a, b, c, d) recv((int)(a), (void *)(b), (size_t)(c), (int)(d))
+#ifndef _LSLP_RECV_FROM
 #define _LSLP_RECV_FROM(a, b, c, d, e, f) \
            recvfrom((int)(a), (void *)(b), (size_t)(c), (int)(d), \
                     (struct sockaddr *)(e), (socklen_t *)(f))
+#endif
 #define _LSLP_GETHOSTBYNAME(a) gethostbyname((const char *)(a))
 #define _LSLP_GETHOSTBYADDR(a, b, c) gethostbyaddr( (const void *)(a), (socklen_t)(b), (int)(c))
+#ifndef _LSLP_SETSOCKOPT
 #define _LSLP_SETSOCKOPT(a, b, c, d, e) \
            setsockopt((int)(a), (int)(b), (int)(c), (const void *)(d), (socklen_t)(e))
+#endif
 #define _LSLP_GETSOCKOPT(a, b, c, d, e) \
            getsockopt((int)(a), (int)(b), (int)(c), (void *)(d), (socklen_t)(e))
 #define _LSLP_SET_TTL(s, t)  setsockopt((s), IPPROTO_IP, IP_MULTICAST_TTL, (const char *)&(t), sizeof((t))) 
@@ -225,7 +253,7 @@ void  hug_num_to_ascii(uint64 val, int8 *buf, int32 radix, BOOL is_neg);
 #define _LSLP_INIT_NETWORK()
 #define _LSLP_DEINIT_NETWORK()
 
-#define LSLP_MTU 1500
+#define LSLP_MTU 4096
 
 /* ascii and char tests and conversions */
 

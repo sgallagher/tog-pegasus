@@ -34,11 +34,17 @@ LIBRARIES = \
     peghandlerservice \
     pegindicationservice \
     pegwql \
+	pegclient \
     pegprm \
     ConfigSettingProvider \
     UserAuthProvider \
     ProviderRegistrationProvider\
     NamespaceProvider
+
+ifdef PEGASUS_ENABLE_SLP
+LIBRARIES += \
+    InteropProvider
+endif
 
 ifndef PEGASUS_USE_23PROVIDER_MANAGER
 #else
@@ -72,3 +78,4 @@ include $(ROOT)/mak/library.mak
 
 run:
 	Server $(REPOSITORY_ROOT)
+

@@ -33,6 +33,25 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+static void
+_extractAttributes(const String &attrList,
+                   Array<Attribute> &attrArray)
+{
+  Uint32 posAttrKey=0, posEqual=0;
+
+  posAttrKey = attrList.find(PEG_SLP_ATTR_BEGIN);
+  while (posAttrKey != PEG_NOT_FOUND && (posAttrKey+1) < attrList.size())
+    {
+      posEqual = attrList.find(posEqual+1, PEG_SLP_ATTR_END);
+      String attrKey(attrList.subString((posAttrKey+1), (posEqual-posAttrKey-1)));
+
+      attrArray.append(Attribute(attrKey));
+      
+      // ATTN: skip over anything in value that is a '(', '=', ')', or ','?
+      posAttrKey = attrList.find(posAttrKey+1, PEG_SLP_ATTR_BEGIN);
+    }
+}
+
 CIMServerDiscoveryRep::CIMServerDiscoveryRep()
 {
 }
@@ -49,10 +68,12 @@ CIMServerDiscoveryRep::lookup(const Array<Attribute> & criteria)
   int8 *scopes = strdup("DEFAULT");
   int8 *iface = NULL;
   int8 *addr = NULL;
-  int8 *type = strdup("service:wbem.pegasus");
+  int8 *type = strdup("service:wbem");
   int8 *predicate = NULL;
   int16 port = 427;
   BOOL dir_agent = FALSE;
+  
+  Array<CIMServerDescription> connections;
   
   if (NULL != (client = create_slp_client(addr, 
            iface, 
@@ -100,7 +121,6 @@ CIMServerDiscoveryRep::lookup(const Array<Attribute> & criteria)
                           if (NULL != url_list->url)
                             {
                               CIMServerDescription connection(url_list->url);
-                              // printf("URL: %s\n", url_list->url);
 
                               Array<Attribute> attributes;
 	
@@ -110,17 +130,19 @@ CIMServerDiscoveryRep::lookup(const Array<Attribute> & criteria)
                                   lslpAtomList *attrs = url_list->attrs->next;
                                   while(!_LSLP_IS_HEAD(attrs))
                                     {
-                                      attributes.append(Attribute("template=" + String(attrs->str)));
-                                      // printf("ATTR: %s\n", attrs->str);
+                                      _extractAttributes(String(attrs->str), attributes);
                                       attrs = attrs->next;
                                     }
                                 }
+
+                              /* add to connections array */
+                              connection.setAttributes(attributes);
+                              connections.append(connection);
                             }
 
                           url_list = url_list->next;
                         }
                     }
-                  // printf("\n\n");
                 }
             }
           _LSLP_UNLINK(srvReplyEntry);
@@ -128,53 +150,8 @@ CIMServerDiscoveryRep::lookup(const Array<Attribute> & criteria)
         }
       destroy_slp_client(client);
     }
-/*
-      for (Uint32 i=0; i<urls.size(); i++)
-            {
-              CIMServerDescription connection(urls[i]);
 
-              Array<Attribute> attributes;
-
-              // SLPFindAttrs()
-              // @param1 - handle - slp handle
-              // @param2 - service url or type
-              // @param3 - scope list - NULL is all localhost can query
-              // @param4 - attribute list - NULL is all attributes
-              // @param5 - pointer to custom data to use in callback
-              result = ::SLPFindAttrs( hslp,
-                                       (const char *)urls[i].getCString(),
-                                       NULL,
-                                       NULL,
-                                       wbemAttrCallback,
-                                       (void *)&attributes);
-
-              // SLPParseSrvURL()
-              // @param1 - url - obtained from SLPFindSrvs()
-              // @param2 - parsed url - output param
-              SLPSrvURL *pSrvUrl = NULL;
-              if ( SLP_OK == ::SLPParseSrvURL(
-                                    (const char *)urls[i].getCString(),
-                                    &pSrvUrl))
-                {
-                  // add to the end to protect against existing attributes of the same name.
-                  attributes.append(Attribute(PEG_CUSTOM_ATTR_HOST"=" + String(pSrvUrl->s_pcHost)));
-                  CIMValue value(Uint32(pSrvUrl->s_iPort));
-                  attributes.append(Attribute(PEG_CUSTOM_ATTR_PORT"=" + String(value.toString())));
-
-                  // free up slp library memory
-                  ::SLPFree(pSrvUrl);
-                }
-              connection.setAttributes(attributes);
-              connections.append(connection);
-            }
-        }
-
-      // SLPClose()
-      // @param1 - handle - slp handle
-      SLPClose(hslp);
-    }
-*/
-  return NULL;
+  return connections;
 }
 
 PEGASUS_NAMESPACE_END

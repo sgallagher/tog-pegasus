@@ -31,11 +31,12 @@
 
 
 #include <cassert>
-#include <Pegasus/../slp/peg_slp_agent.h>
+#include <Pegasus/../slp/slp_agent/peg_slp_agent.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #else
 #include <unistd.h>
 #endif 
+#include <Pegasus/Common/FileSystem.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -96,72 +97,130 @@ int main(int argc, char **argv)
    char * slpScope = "DEFAULT";
     try
     {
-        char * url1 = "service:serviceid:98432A98-B879E8FF-80342A89-43280B89C";
-        if (verbose)
-           cout << "Test registration with url : " << url1 <<  "\n Attributes=\n" 
-                << LONG_ATTRIBUTE_STRING 
-                << " registration type= " << registrationType << endl;
-
-        slp_agent.test_registration(url1, 
-                                    LONG_ATTRIBUTE_STRING,
-                                    registrationType,
-                                    slpScope);
-        
-        // register 4 services. 
-        
-        // this first registration is the only one that complies to the DMTF template
-
-
-        if (verbose)
-           cout << "Register: " << url1 << endl;
-        if (!slp_agent.srv_register("service:url:98432A98-B879E8FF-80342A89-43280B89C", 
-                               LONG_ATTRIBUTE_STRING,
-                              registrationType,
-                              slpScope, 
-                              0xffff))
+      if (argc > 1)
         {
-            cout << "Registration error." << endl;
-            exit(1);
+          for (Uint32 files = 1 ; files < argc; files++)
+            {
+              Array<Sint8> slpRegInfo;
+              String fileName(argv[files]);
+              String attributeString;
+              String url;
+
+              if (verbose)
+                cout << "File: " << fileName << endl;
+
+              FileSystem::loadFileToMemory(slpRegInfo, fileName);
+
+              // First line is the url
+              Uint32 i = 0;
+              for (i = 0; i < slpRegInfo.size(); i++)
+                {
+                  Char16 ch_in(slpRegInfo[i]);
+                  Char16 ch_nl('\n');
+                  Char16 ch_cr('\r');
+                  if (ch_in != ch_nl && ch_in != ch_cr)
+                    {
+                      url.append(slpRegInfo[i]);
+                    }
+                  else
+                    {
+                      break;
+                    }
+                }
+
+              // Every thing after the first line is attributes
+              for (; i < slpRegInfo.size(); i++)
+                {
+                  attributeString.append(slpRegInfo[i]);
+                }
+
+              if (verbose)
+                {
+                  cout << "Register: " << url << endl;
+                  cout << "Attributes: " << attributeString << endl;
+                }
+          
+              if (!slp_agent.srv_register((const char *)url.getCString(), 
+                                          (const char *)attributeString.getCString(),
+                                          registrationType,
+                                          slpScope, 
+                                          0xffff))
+                {
+                  cout << "Registration error." << endl;
+                  exit(1);
+                }
+            }
         }
-        
-        char * url2 = "service:wbem.ibm://localhost";
-        if (verbose)
-           cout << "Register: " << url2 << endl;
-        if (!slp_agent.srv_register(url2, 
-                  "(nothing=1),(version=2),(authentication=basic)",
-                  registrationType,
-                  slpScope, 
-                  0xffff))
+      else
         {
-            cout << "Registration error." << endl;
-            exit(1);
-        }
 
-        char * url3 = "service:wbem.ibm://192.168.2.100";
-        if (verbose)
-           cout << "Register: " << url3 << endl;
-        
-        if (!slp_agent.srv_register(url3, 
-                  "(nothing=1),(version=2),(authentication=basic)",
-                  registrationType,
-                  slpScope, 
-                  0xffff))
-        {
-            cout << "Registration error." << endl;
-            exit(1);
-        }
+          char * url1 = "service:serviceid:98432A98-B879E8FF-80342A89-43280B89C";
+          if (verbose)
+             cout << "Test registration with url : " << url1 <<  "\n Attributes=\n" 
+                  << LONG_ATTRIBUTE_STRING 
+                  << " registration type= " << registrationType << endl;
 
-        char * url4 = "service:wbem.ibm://mday&192.168.2.100:5588";
-        if (verbose)
-           cout << "Register: " << url4 << endl;
-        if (!slp_agent.srv_register(url4, 
-                  "(nothing=1),(version=2),(authentication=basic)",
-                  "service:wbem.pegasus",
-                  slpScope, 
-                  0xffff))
-        {
-            cout << "Registration error." << endl;
-            exit(1);
+          slp_agent.test_registration(url1, 
+                                      LONG_ATTRIBUTE_STRING,
+                                      registrationType,
+                                      slpScope);
+        
+          // register 4 services. 
+        
+          // this first registration is the only one that complies to the DMTF template
+
+
+          if (verbose)
+             cout << "Register: " << url1 << endl;
+          if (!slp_agent.srv_register("service:url:98432A98-B879E8FF-80342A89-43280B89C", 
+                                 LONG_ATTRIBUTE_STRING,
+                                registrationType,
+                                slpScope, 
+                                0xffff))
+          {
+              cout << "Registration error." << endl;
+              exit(1);
+          }
+        
+          char * url2 = "service:wbem.ibm://localhost";
+          if (verbose)
+             cout << "Register: " << url2 << endl;
+          if (!slp_agent.srv_register(url2, 
+                    "(nothing=1),(version=2),(authentication=basic)",
+                    registrationType,
+                    slpScope, 
+                    0xffff))
+          {
+              cout << "Registration error." << endl;
+              exit(1);
+          }
+
+          char * url3 = "service:wbem.ibm://192.168.2.100";
+          if (verbose)
+             cout << "Register: " << url3 << endl;
+        
+          if (!slp_agent.srv_register(url3, 
+                    "(nothing=1),(version=2),(authentication=basic)",
+                    registrationType,
+                    slpScope, 
+                    0xffff))
+          {
+              cout << "Registration error." << endl;
+              exit(1);
+          }
+
+          char * url4 = "service:wbem.ibm://mday&192.168.2.100:5588";
+          if (verbose)
+             cout << "Register: " << url4 << endl;
+          if (!slp_agent.srv_register(url4, 
+                    "(nothing=1),(version=2),(authentication=basic)",
+                    "service:wbem.pegasus",
+                    slpScope, 
+                    0xffff))
+          {
+              cout << "Registration error." << endl;
+              exit(1);
+          }
         }
         // start the background thread - nothing is actually advertised until this 
         // function returns.

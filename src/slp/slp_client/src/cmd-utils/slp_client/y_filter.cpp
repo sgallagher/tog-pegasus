@@ -1236,19 +1236,19 @@ yyreturn:
  
 
 
-lslpLDAPFilter *lslpAllocFilter(int operator)
+lslpLDAPFilter *lslpAllocFilter(int my_operator)
 {
   lslpLDAPFilter *filter = (lslpLDAPFilter *)calloc(1, sizeof(lslpLDAPFilter));
   if(filter  != NULL) {
     filter->next = filter->prev = filter;
-    if(operator == head) {
+    if(my_operator == head) {
       filter->isHead = TRUE;
     } else {
       filter->children.next = filter->children.prev = &(filter->children);
       filter->children.isHead = 1;
       filter->attrs.next = filter->attrs.prev = &(filter->attrs);
       filter->attrs.isHead = 1;
-      filter->_operator = operator;
+      filter->_operator = my_operator;
     }
   }
   return(filter);

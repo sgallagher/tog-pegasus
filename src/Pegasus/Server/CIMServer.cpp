@@ -67,6 +67,10 @@
 #include <Pegasus/HandlerService/IndicationHandlerService.h>
 #include <Pegasus/IndicationService/IndicationService.h>
 
+#ifdef PEGASUS_ENABLE_SLP
+#include <Pegasus/Client/CIMClient.h>
+#endif
+
 #ifdef PEGASUS_USE_23PROVIDER_MANAGER
 #include <Pegasus/ProviderManager/ProviderManagerService.h>
 #include <Pegasus/ProviderManager/ProviderManager.h>
@@ -88,6 +92,10 @@
 #include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
 #include <Pegasus/ControlProviders/ProviderRegistrationProvider/ProviderRegistrationProvider.h>
 #include <Pegasus/ControlProviders/NamespaceProvider/NamespaceProvider.h>
+
+#ifdef PEGASUS_ENABLE_SLP
+#include <Pegasus/ControlProviders/InteropProvider/InteropProvider.h>
+#endif
 
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
@@ -156,6 +164,10 @@ void CIMServer::_init(void)
 
     String repositoryRootPath = String::EMPTY;
 
+#ifdef PEGASUS_ENABLE_SLP
+    _runSLP = true;         // Boolean cannot be set in definition.
+
+#endif
 
 #if defined(PEGASUS_OS_HPUX) && defined(PEGASUS_USE_RELEASE_DIRS)
     chdir( PEGASUS_CORE_DIR );
@@ -249,6 +261,16 @@ void CIMServer::_init(void)
                                        namespaceProvider,
                                        controlProviderReceiveMessageCallback,
                                        0, 0);
+#ifdef PEGASUS_ENABLE_SLP
+// Create the interop control provider
+     ProviderMessageFacade * interopProvider =
+         new ProviderMessageFacade(new InteropProvider(_repository));
+     ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
+                                       PEGASUS_MODULENAME_INTEROPPROVIDER,
+                                       interopProvider,
+                                       controlProviderReceiveMessageCallback,
+                                       0, 0);
+#endif
 
     _cimOperationRequestDispatcher
 	= new CIMOperationRequestDispatcher(_repository,
@@ -874,4 +896,127 @@ SSLContext* CIMServer::_getExportSSLContext()
     return _exportSSLContext.release();
 }
 
+#ifdef PEGASUS_ENABLE_SLP
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _callSLPProvider(void *parm);
+
+
+// This is a control function that starts a new thread which issues a
+// cim operation to start the slp provider.
+void CIMServer::startSLPProvider()
+{
+
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CIMServer::startSLPProvider");
+
+    
+    // This is a onetime function.  If already issued, or config is not to use simply
+    // return
+    if (!_runSLP)
+    {
+        return;
+    }
+
+    // Get Config parameter to determine if we should start SLP.
+    ConfigManager* configManager = ConfigManager::getInstance();
+    _runSLP = String::equal(
+         configManager->getCurrentValue("slp"), "true");
+
+    // If false, do not start slp provider
+    if (!_runSLP)
+    {
+        return;
+    }
+    //SLP startup is onetime function; reset the switch so this
+    // function does not get called a second time.
+    _runSLP = false;
+
+    // Create a separate thread, detach and call function to execute the startup.
+    Thread t( _callSLPProvider, 0, true );
+    t.run();
+
+    PEG_METHOD_EXIT();
+    return;
+}
+
+
+// startSLPProvider is a function to get the slp provider kicked off
+// during startup.  It is placed in the provider manager simply because 
+// the provider manager is the only component of the system is
+// driven by a timer after startup.  It should never be here and must be
+// moved to somewhere more logical or really replaced. We simply needed
+// something that was run shortly after system startup.
+// This function is assumed to operate in a separate thread and 
+// KS 15 February 2004.
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _callSLPProvider(void* parm )
+{
+    //
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::_callSLPProvider()");
+    // Create CIMClient object
+    //
+    CIMClient client;
+    //
+    // open connection to CIMOM 
+    //
+    String hostStr = System::getHostName();
+
+    try
+    {
+        //
+        client.connectLocal();
+
+        //
+        // set client timeout to 2 seconds
+        //
+        client.setTimeout(40000);
+        // construct CIMObjectPath
+        //
+        String referenceStr = "//";
+        referenceStr.append(hostStr);
+        referenceStr.append("/");  
+        referenceStr.append(PEGASUS_NAMESPACENAME_INTERNAL.getString());
+        referenceStr.append(":");
+        referenceStr.append(PEGASUS_CLASSNAME_WBEMSLPTEMPLATE.getString());
+        CIMObjectPath reference(referenceStr);
+
+        //
+        // issue the invokeMethod request on the register method
+        //
+        Array<CIMParamValue> inParams;
+        Array<CIMParamValue> outParams;
+
+        CIMValue retValue = client.invokeMethod(
+            PEGASUS_NAMESPACENAME_INTERNAL,
+            reference,
+            CIMName("register"),
+            inParams,
+            outParams
+            );
+    }
+
+    catch(CIMException& e)
+    {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            "SLP Registration Failed. CIMException. $0", e.getMessage());
+    }
+
+    catch(Exception& e)
+    {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            "SLP Registration Failed Startup: CIMServer exception. $0", e.getMessage());
+    }
+
+    client.disconnect();
+
+    //ATTN: KS. The cout is temp and should be removed.
+    PEGASUS_STD(cout) << "Started SLP Provider thread." << PEGASUS_STD(endl);
+    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+        "SLP Registration Initiated");
+
+    PEG_METHOD_EXIT();
+    return( (PEGASUS_THREAD_RETURN)32 );
+}
+#endif
+
 PEGASUS_NAMESPACE_END
+
+

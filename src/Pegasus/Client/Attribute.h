@@ -25,7 +25,7 @@
 //
 // Author: Tony Fiorentino (fiorentino_tony@emc.com)
 //
-// Modified By:
+// Modified By: Keith Petley (keithp@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,43 +39,38 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** Defines a single SLP attribute that will be provided to the CIMServerDiscovery Class
-    as part of the execution of an SLP discovery.
-    ATTN: KS Add more material here.
-*/
-class PEGASUS_CLIENT_LINKAGE Attribute : public String
+class PEGASUS_CLIENT_LINKAGE Attribute
 {
 public:
 
   /** Constructor for a Attribute object.
-      ATTN: TBD
   */
-  Attribute(const String & attrEntry = String::EMPTY, const Char16 & delimiter = '=');
+  Attribute(const String & attrEntry = String::EMPTY);
 
   /** Destructor for a Attribute object.
   */
   ~Attribute();
 
+  const String & getTag() const;
+
   /** Returns this attributes value.
-      @param   defaultValue Default attribute value to return if empty or mal-formed.
-      @return  String that contains an attribute value.
+       @return ref to  Array <String> that contains the attribute values.
   */
-  String getValue(const String & defaultValue);
+  const Array <String> & getValues() const;
 
   /** Sets this attributes value.
-      @param   defaultValue Default attribute value to return if empty or mal-formed.
-      @return  Boolean value that is false if empty or mal-formed.
+      @param   add "value" to end of attribute array
   */
-  Boolean setValue(const String & value);
-
-  /** Returns this attributes delimiter.
-      @return  Char16 that contains the delimiter for this attribute.
-  */
-  Char16 getDelimiter();
+  void addValue(const String & value);
 
 private:
-  Char16 _delimit;
+  String _tag;
+  Array <String> _vals;
 };
+
+PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
+    PEGASUS_STD(ostream)& os,
+    const Attribute& attr);
 
 #define PEGASUS_ARRAY_T Attribute
 #include <Pegasus/Common/ArrayInter.h>

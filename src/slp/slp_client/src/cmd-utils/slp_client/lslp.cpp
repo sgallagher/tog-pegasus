@@ -33,6 +33,8 @@
 # include "lslp-windows.cpp"
 #elif defined(__linux__)
 # include "lslp-linux.cpp"
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined( PEGASUS_OS_SOLARIS )
+# include "lslp-linux.cpp"
 #else
 # error "Unsupported platform"
 #endif

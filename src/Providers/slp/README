@@ -44,7 +44,7 @@ additional steps:
 2) Install (or copy) libuuid.a into a directory that is on 
    your library load path. 
 
-3) Rebuild Pegasus with PEGASUS_SLP_CLASSES defined in your environment
+3) Rebuild Pegasus with PEGASUS_ENABLE_SLP defined in your environment
 
 4) From in this directory, type make <Enter>
 

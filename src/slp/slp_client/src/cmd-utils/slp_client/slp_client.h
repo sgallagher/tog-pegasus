@@ -26,7 +26,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                       mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.h,v 1.2 2004/01/09 20:06:43 tony Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.h,v 1.3 2004/06/03 23:22:30 tony Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -711,24 +711,13 @@ void free_url_entry_members(struct url_entry *url);
 void free_url_node(struct url_entry *node);
 void free_url_list(struct url_entry *list);
 char *slp_get_host_name( char *buf, int buf_size  );
-#if defined( _WIN32 ) 
+#if defined( _WIN32 ) || defined( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM ) || defined( _NUCLEUS )
  int gethostbyname_r(const char *name, 
 		      struct hostent *resultbuf, 
 		      char *buf, 
 		      size_t bufsize, 
 		      struct hostent **result, 
-		      int *errnop) ;
-#endif
-
-
-#if defined( _NUCLEUS )
-
-  int gethostbyname_r(const char *name, 
-		      struct hostent *resultbuf, 
-		      char *buf, 
-		      size_t bufsize, 
-		      struct hostent **result, 
-		      int *errnop) ;
+		      int *errnop);
 #endif
  char *slp_get_addr_string_from_url(const char *url, char *addr, int addr_len) ;
  char *slp_get_host_string_from_url(const char *url, char *host, int host_len) ;
@@ -774,6 +763,8 @@ char *slp_get_host_name( char *buf, int buf_size  );
 		   SOCKADDR_IN *remote );
  void decode_srvrply( struct slp_client *client,
 		       SOCKADDR_IN *remote );
+ void decode_attrreq(struct slp_client *client,
+           SOCKADDR_IN *remote);
  void decode_daadvert(struct slp_client *client, 
 		       SOCKADDR_IN *remote);
  void decode_srvreq(struct slp_client *client, 

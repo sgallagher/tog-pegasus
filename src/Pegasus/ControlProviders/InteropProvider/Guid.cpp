@@ -25,74 +25,26 @@
 //
 // Author: Tony Fiorentino (fiorentino_tony@emc.com)
 //
-// Modified By: Keith Petley (keithp@veritas.com)
-//
-//%/////////////////////////////////////////////////////////////////////////////
 
-#include "CIMServerDescription.h"
+#include "Guid.h"
+
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+# include "GuidWindows.cpp"
+#else
+# include <unistd.h>
+# include <netdb.h>
+# include <arpa/inet.h>
+# include "GuidUnix.cpp"
+#endif
+
+PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMServerDescription::CIMServerDescription()
+String Guid::getGuid()
 {
+  return getGuid(String::EMPTY);
 }
-
-CIMServerDescription::CIMServerDescription(const String & url) :
-  _serviceLocationTcp(url), _port(PEG_NOT_FOUND)
-{
-}
-
-CIMServerDescription::~CIMServerDescription()
-{
-}
-
-String
-CIMServerDescription::getUrl()
-{
-  return _serviceLocationTcp;
-}
-
-String
-CIMServerDescription::getValue(const String & attributeName, const String & defaultValue)
-{
-Array <String> vals;
-	if(getValues(attributeName, vals) == false || vals.size() == 0) {
-		return defaultValue;
-	} else {
-		return vals[0];
-	}
-}
-
-Boolean
-CIMServerDescription::getValues(const String & attributeName, Array <String> & attributeValue)
-{
-  // find the attribute entry
-  for (Uint32 idx=0; idx<_attributes.size(); idx++)
-    {
-      if (String::equalNoCase(_attributes[idx].getTag(), attributeName))
-        {
-	  attributeValue = _attributes[idx].getValues();
-          return true;
-        }
-    }
-
-  return false;
-}
-
-Array<Attribute>
-CIMServerDescription::getAttributes()
-{
-  return _attributes;
-}
-
-void
-CIMServerDescription::setAttributes(const Array<Attribute> & attributes)
-{
-  _attributes = attributes;
-}
-
-#define PEGASUS_ARRAY_T CIMServerDescription
-#include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END
+// END_OF_FILE

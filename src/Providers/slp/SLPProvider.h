@@ -36,16 +36,17 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
-#include <Pegasus/../slp/peg_slp_agent.h>
+#include <Pegasus/Provider/CIMMethodProvider.h>
+#include <Pegasus/../slp/slp_agent/peg_slp_agent.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 Boolean initFlag = false;
 
-class SLPProvider: public CIMInstanceProvider
+class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
 {
 	public:
-            SLPProvider(void);
+        SLPProvider(void);
 	    ~SLPProvider(void);
 		          
 	    void initialize(CIMOMHandle & cimom);
@@ -91,26 +92,55 @@ class SLPProvider: public CIMInstanceProvider
 	       const CIMObjectPath & ref,
 	       ResponseHandler & handler);
 
-	    Boolean tryterminate(void);
+	    //Boolean tryterminate(void);
 
+        virtual void invokeMethod(
+            const OperationContext & context,
+            const CIMObjectPath & objectReference,
+            const CIMName & methodName,
+            const Array<CIMParamValue> & inParameters,
+            MethodResultResponseHandler & handler);
 	
 	protected:
-	  
-	    Array<CIMObjectPath> _instanceNames;
-	    Array<CIMInstance> _instances;
-	    Array<String> PropertyArray;
-	    slp_service_agent slp_agent;
-	    CIMOMHandle _ch;
-	    int i;
-        String slpTemplateInstance;
-        String interopNamespace;
+        CIMInstance SLPProvider::_buildInstanceSkeleton(const CIMName& className);
 
-        void populateData(void);
+        void deregisterSLP();
 
-        Array<CIMName> getNameSpaceInfo(const CIMNamespaceName& nameSpace, Array<String>& classInfo );
-			   
+        Boolean populateRegistrationData(const String &protocol,
+            const String& IPAddress,
+            const CIMInstance& instance_ObjMgr,
+            const CIMInstance& instance_ObjMgrComm);
 
-        void populateTemplateField(CIMInstance& instance, const String& fieldName, const String& value);
+        Boolean issueSLPRegistrations();
+
+        String getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& classInfo );
+
+        void populateTemplateField(String& slpTemplateInstance,
+            CIMInstance& instance, 
+            const String& instanceFieldName,
+            const String& regFieldName,
+            const String& value);
+
+        String getRegisteredProfileList();
+   private:
+
+       // Save instances of registration class 
+       // that have been registered.
+       Array<CIMObjectPath> _instanceNames;
+       Array<CIMInstance> _instances;
+       CIMNamespaceName _nameSpace;
+
+       slp_service_agent slp_agent;
+
+       // Save CIMOMHandle from initialization
+       CIMOMHandle _cimomHandle;
+
+       // Temporary String where we build 
+       // registration information.
+       //String _slpTemplateInstance;
+
+       CIMNamespaceName _interopNamespace;
+
    };
 
 PEGASUS_NAMESPACE_END

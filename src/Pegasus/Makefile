@@ -27,6 +27,12 @@ DIRS = \
     HandlerService \
     IndicationService
 
+ifdef PEGASUS_ENABLE_SLP
+DIRS += \
+    ControlProviders/InteropProvider \
+    ControlProviders/InteropProvider/tests
+endif
+
 ifdef PEGASUS_USE_23PROVIDER_MANAGER
 DIRS += \
 	ProviderManager \

@@ -157,12 +157,22 @@ public:
     */
     void shutdownSignal();
 
+    /** startSLPProvider is a temporary function to get this
+        provider started as part of system startup.
+        This MUST be replaced with something more permanent.
+    */
+    void startSLPProvider();
+
 private:
 
     SSLContext* _getSSLContext();
     SSLContext* _getExportSSLContext();
 
     Boolean _dieNow;
+
+#ifdef PEGASUS_ENABLE_SLP
+    Boolean _runSLP;
+#endif
 
     Monitor* _monitor;
     CIMRepository* _repository;

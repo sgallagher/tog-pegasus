@@ -16,10 +16,15 @@ LIBRARIES = \
     pegconfig \
     pegprovider
 
-SOURCES = $(MODULE_NAME).cpp
+SOURCES = $(MODULE_NAME).cpp Guid.cpp
 
 ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
 NEEDS_LIBRARIES = -L$(LIB_DIR) -lpegcommon -lpegconfig -lpegprovider
 endif
+
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+SYS_LIBS = ole32.lib ws2_32.lib advapi32.lib
+endif
+
 
 include $(ROOT)/mak/library.mak

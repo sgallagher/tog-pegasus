@@ -53,7 +53,7 @@ int main(int argc, char** argv)
         Array<CIMInstance> ia;
         try
         {
-          ia = client.enumerateInstances(NAMESPACE,CIMName("PEG_WBEMSLPTemplate"));
+          ia = client.enumerateInstances(NAMESPACE,CIMName("PG_WBEMSLPTemplate"));
         }
         catch (Exception& e)
         {
@@ -86,7 +86,7 @@ int main(int argc, char** argv)
             CIMProperty p1=i1.getProperty(i);
             CIMValue v1=p1.getValue();
             CIMName n1=p1.getName();
-            cout << n1 << " is "  << v1.toString() << "\n";
+			cout << n1.getString() << " is "  << v1.toString() << "\n";
           }
       }
       }

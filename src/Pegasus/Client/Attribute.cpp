@@ -25,63 +25,60 @@
 //
 // Author: Tony Fiorentino (fiorentino_tony@emc.com)
 //
-// Modified By:
+// Modified By: Keith Petley (keithp@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Attribute.h"
 
+PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
-Attribute::Attribute(const String & attrEntry, const Char16 & delimiter) :
-  String(attrEntry), _delimit(delimiter)
+Attribute::Attribute(const String & attrEntry)
 {
+	_tag = attrEntry;
 }
 
 Attribute::~Attribute()
 {
+	if(_vals.size()) {
+		_vals.clear();	
+	}
 }
 
-String
-Attribute::getValue(const String & defaultValue)
+const Array <String> &
+Attribute::getValues() const
 {
-  Uint32 idxDelimiter = find(_delimit);
-  Uint32 idxValue = idxDelimiter + 1;
-
-  if (idxDelimiter != PEG_NOT_FOUND && idxValue < size())
-    {
-      return subString(idxValue);
-    }
-  else
-    {
-      return defaultValue;
-    }
+    return _vals;
 }
 
-Boolean
-Attribute::setValue(const String & value)
+const String &
+Attribute::getTag() const
 {
-  String newAttrEntry;
-
-  Uint32 idx = find(_delimit);
-
-  if (idx != PEG_NOT_FOUND)
-    {
-      newAttrEntry = subString(0, idx) + value;
-      clear();
-      assign(newAttrEntry);
-      return true;
-    }
-
-  return false;
+	return _tag;
 }
 
-Char16
-Attribute::getDelimiter()
+void
+Attribute::addValue(const String & value)
 {
-  return _delimit;
+	_vals.append(value);
 }
 
+PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const Attribute& attr)
+{
+	os << attr.getTag();
+	Array <String> vals = attr.getValues();
+	for(int i = 0; i < vals.size(); i++) {
+		if(i == 0) {
+			os << " = ";
+		} else {
+			os << " | ";
+		}
+		os << vals[i];
+	}
+	return os;
+}
 #define PEGASUS_ARRAY_T Attribute
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T

@@ -1,6 +1,6 @@
 ROOT=$(PEGASUS_ROOT)
 
-DIR = slp/slp_client
+DIR = slp/slp_client/src/cmd-utils/slp_client
 
 include $(ROOT)/mak/config.mak
 
@@ -12,7 +12,7 @@ ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
 FLAGS += -x c 
 endif
 
-LIBRARY = slp_client
+LIBRARY = pegslp_client
 
 SOURCES = \
     slp_client.cpp \
@@ -22,7 +22,11 @@ SOURCES = \
     y_url.cpp \
     l_url.cpp \
     y_filter.cpp \
-    l_filter.cpp
+    l_filter.cpp \
+
+ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+SOURCES += configzOS_inline.cpp
+endif        
 
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
   SYS_LIBS = ws2_32.lib advapi32.lib

@@ -25,7 +25,7 @@
 //
 // Author: Tony Fiorentino (fiorentino_tony@emc.com)
 //
-// Modified By:
+// Modified By: Keith Petley (keithp@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,10 +40,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** Defines CIMServerDescritption objects that are returned
-    by a CIMServer as part of the SLP protocol
-    ATTN: To be expanded.
-*/
 class PEGASUS_CLIENT_LINKAGE CIMServerDescription
 {
 public:
@@ -72,6 +68,15 @@ public:
       @return  String that contains an attribute value.
   */
   String getValue(const String & attributeName, const String & defaultValue);
+
+  /** Returns an attribute value Array
+      @param   attributeName Attribute name of attribute.
+      @param   attributeValues - <Array>String into which results are copied
+      @return  Boolean - true if attributeName was found.
+	Note, an true return and an empty Value array indicates the tag had 
+	no attribute values (ie a keyword).
+  */
+  Boolean getValues(const String & attributeName, Array <String> & attributeValues);
 
   /** Returns an array of attribute.
       @return  Array that contains contains attributes for this connection description.

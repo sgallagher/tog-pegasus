@@ -32,6 +32,7 @@
 #ifndef PegasusSLPWrapper_h
 #define PegasusSLPWrapper_h
 
+#include "WBEMSLPTemplate.h"
 #include <slp/slp_client/src/cmd-utils/slp_client/slp_client.h>
 
 #endif /* PegasusSLPWrapper_h */

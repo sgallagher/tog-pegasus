@@ -13,5 +13,11 @@ DIRS = \
     sample \
     TestProviders \
     IndicationConsumer
+	
+	
+ifdef PEGASUS_ENABLE_SLP
+DIRS += \
+    slp
+endif
 
 include $(ROOT)/mak/recurse.mak

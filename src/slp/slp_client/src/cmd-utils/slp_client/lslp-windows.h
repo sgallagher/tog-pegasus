@@ -25,7 +25,7 @@
  *  Originated: December 31, 1999 
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com 
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-windows.h,v 1.2 2003/12/17 20:45:33 tony Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-windows.h,v 1.3 2004/06/03 23:22:30 tony Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -207,7 +207,7 @@ void WindowsStartNetwork(void);
 #define _LSLP_FD_CLR(a, b) FD_CLR(((SOCKET)(a)), ((fd_set *)(b)))
 
 #define _LSLP_IOCTLSOCKET ioctlsocket
-#define LSLP_MTU 1400
+#define LSLP_MTU 4096
 
 #define LSLP_FD_SET fd_set
 #define strcasecmp _stricmp

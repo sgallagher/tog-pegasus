@@ -5,7 +5,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.cpp,v 1.1 2003/12/17 18:05:31 tony Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.cpp,v 1.2 2004/06/03 23:22:30 tony Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -270,7 +270,7 @@ void free_url_list(struct url_entry *list)
   }
 }
 
-#if defined( _WIN32 ) 
+#if defined( _WIN32 ) || defined( BSD ) || defined( PEGASUS_OS_SOLARIS )
  int gethostbyname_r(const char *name, 
 		    struct hostent *resultbuf, 
 		    char *buf, 
@@ -284,12 +284,37 @@ void free_url_list(struct url_entry *list)
   bufsize = bufsize;
   
   if(NULL == (*result = gethostbyname(name))) {
+#if defined( _WIN32 ) 
     *errnop = WSAGetLastError();
+#else
+    *errnop = errno;
+#endif 
     return(-1);
   } 
   return(0);
 }
 
+#endif
+
+#if defined ( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM )
+ int gethostbyname_r(const char *name, 
+		    struct hostent *resultbuf, 
+		    char *buf, 
+		    size_t bufsize, 
+		    struct hostent **result, 
+		    int *errnop) 
+{
+	name = name;
+	resultbuf = resultbuf;
+	buf = buf;
+	bufsize = bufsize;
+	if (NULL == (*result = gethostbyname(name))) {
+
+		*errnop = *__h_errno();
+		return(-1);
+	} 
+	return(0);
+}
 #endif
 
 #if defined( NUCLEUS )  //jeb
@@ -333,7 +358,11 @@ char *slp_get_addr_string_from_url(const char *url, char *addr, int addr_len)
 #elif defined (NUCLEUS)                                              //jeb
     sprintf(name, "%s:%d", inet_ntoa(a.sin_addr), a.sin_port );  //jeb
 #else                                                                   //jeb
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+	sprintf(name, "%s:%d",  inet_ntoa(a.sin_addr), ntohs(a.sin_port) );
+#else                                                                   //jeb
     snprintf(name, 254, "%s:%d", inet_ntoa(a.sin_addr), ntohs(a.sin_port) );
+    #endif //end of PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #endif
     
     memset(addr, 0x00, addr_len);
@@ -527,8 +556,9 @@ int slp_get_local_interfaces(uint32 **list)
   if( -1 < (sock = socket(AF_INET, SOCK_DGRAM, 0) ) ) {
     struct ifconf conf;
     uint32 *this_addr;
+    int interface_counter;
     
-    conf.ifc_buf = (char *)malloc( 128 * sizeof(struct ifreq ) );
+    conf.ifc_buf = (char *)calloc( 128, sizeof(struct ifreq ) );
     conf.ifc_len = 128 * sizeof( struct ifreq ) ;
     if( -1 < ioctl(sock, SIOCGIFCONF, &conf ) ) {
       // count the interfaces 
@@ -543,12 +573,13 @@ int slp_get_local_interfaces(uint32 **list)
       }
 
       // now store the addresses
+      interface_counter = interfaces;
 
-      *list  = (uint32 *)malloc( sizeof(uint32) * interfaces + 1 );
+      *list  = (uint32 *)calloc( sizeof(uint32), interfaces + 2 );
       this_addr = *list;
       r = conf.ifc_req;
       addr = (SOCKADDR_IN *)&r->ifr_addr;
-      while(  addr->sin_addr.s_addr != 0 ) {
+      while(interface_counter-- &&  addr->sin_addr.s_addr != 0 ) {
 	*this_addr = addr->sin_addr.s_addr;
 	r++;
 	this_addr++;
@@ -600,9 +631,13 @@ int slp_join_multicast_all(SOCKETD sock)
 {
 
   uint32 *list = NULL , *lptr = NULL;
+  int interface_counter;
+  
   int num_interfaces = slp_get_local_interfaces(&list);
+  interface_counter = num_interfaces;
+  
   lptr = list;
-  while ( *lptr != INADDR_ANY ) {
+  while ( interface_counter-- && *lptr != INADDR_ANY ) {
     slp_join_multicast(sock, *lptr) ;
     lptr++;
   }
@@ -633,7 +668,10 @@ void prepare_pr_buf(struct slp_client *client, const int8 *address)
 {
   if(address == NULL || client == NULL )
     return;;
-  if(client->_pr_buf_len > 0) 
+  if(client->_pr_buf_len > LSLP_MTU)
+    abort();
+  
+  if(client->_pr_buf_len > 0 && client->_pr_buf_len < (LSLP_MTU - 2)) 
     client->_pr_buf[client->_pr_buf_len - 1] = ',';
   do {
     client->_pr_buf[client->_pr_buf_len] = *address;
@@ -779,7 +817,6 @@ BOOL prepare_query( struct slp_client *client,
   } /* room for the pr list  */
   return(FALSE);
 }
-
 
 lslpMsg *get_response( struct slp_client *client, lslpMsg *head)
 {
@@ -929,8 +966,6 @@ void unicast_srv_req( struct slp_client *client,
   srv_req(client, type, predicate, scopes, FALSE) ;
 
   while( retries && _LSLP_IS_EMPTY(&(client->replies))) {
-    printf("retry\n");
-    
     srv_req(client, type, predicate, scopes, FALSE);
     retries--;
   }
@@ -1009,10 +1044,16 @@ void decode_msg( struct slp_client *client,
 {
   int8 function, response;
   
-  if( client->_xid == _LSLP_GETXID( client->_rcv_buf ))
-    prepare_pr_buf( client, inet_ntoa(remote->sin_addr) );
-
   function = _LSLP_GETFUNCTION( client->_rcv_buf );
+  if( client->_xid == _LSLP_GETXID( client->_rcv_buf )) {
+    if(function == LSLP_SRVRPLY || 
+       function == LSLP_ATTRRPLY ||
+       function == LSLP_SRVTYPERPLY) {
+      
+    prepare_pr_buf( client, inet_ntoa(remote->sin_addr) );
+    }
+
+  }
 
   // <<< Fri Dec 21 15:47:06 2001 mdd >>>
   // increment the correct function counters 
@@ -1030,6 +1071,9 @@ void decode_msg( struct slp_client *client,
   case LSLP_SRVACK:
     return;
   case LSLP_ATTRREQ:
+    decode_attrreq( client, remote );
+    return;
+    
     response = LSLP_ATTRRPLY;
     break;
   case LSLP_SRVTYPERQST:
@@ -1151,7 +1195,12 @@ void decode_srvrply( struct slp_client *client,
   reply = alloc_slp_msg(FALSE);
   if(reply == NULL) abort();
   reply->hdr.ver = _LSLP_GETVERSION(bptr);
-  reply->type = reply->hdr.msgid = _LSLP_GETFUNCTION(bptr);
+  reply->hdr.msgid = _LSLP_GETFUNCTION(bptr);
+#if defined( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM ) || defined( PEGASUS_OS_SOLARIS )
+  reply->type = (msg_types) reply->hdr.msgid;
+#else
+  reply->type = reply->hdr.msgid;
+#endif
   reply->hdr.len = purported_len;
   reply->hdr.flags = _LSLP_GETFLAGS(bptr);
   reply->hdr.nextExt = _LSLP_GETNEXTEXT(bptr);
@@ -1419,6 +1468,8 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
 		  }
 		  /* initialize the scratch buffer before processing the srvrq */
 		  /* that way we can know if there are extensions if the first 5 bytes changed */
+		  memset(client->_scratch, 0x00, LSLP_MTU);
+		  
 		  _LSLP_SETSHORT(client->_scratch, 0x0000, 0);
 		  _LSLP_SET3BYTES(client->_scratch, 0x00000000, 2);
 		  rp_out = _lslpProcessSrvReq(client, rq, 0);
@@ -2105,7 +2156,7 @@ struct slp_client *create_slp_client(const int8 *target_addr,
   /* initialize the random number generator for randomizing the 
      timing of multicast responses */
   srand(time(NULL));
-  
+
   client->_buf_len = LSLP_MTU;
   client->_version = 1;
   client->_xid = 1;
@@ -2172,7 +2223,7 @@ struct slp_client *create_slp_client(const int8 *target_addr,
       client->_da_target_addr = inet_addr("127.0.0.1");
     }
   }
-  
+
   client->get_response = get_response;
   client->find_das = find_das;
   client->discovery_cycle = discovery_cycle;
@@ -2233,7 +2284,7 @@ int8 *encode_opaque(void *buffer, int16 length)
   if( 0xffff0000 & encoded_length )
     return NULL;
   
-  buf = malloc(encoded_length);
+  buf = (int8 *) malloc(encoded_length);
   if(buf == NULL)
     return NULL;
   bptr = buf;
@@ -2282,7 +2333,7 @@ void *decode_opaque(int8 *buffer)
   if( *srcptr == 0x5c ){
     if( (*(srcptr + 1) == 0x46) || (*(srcptr + 1) == 0x66 ) ) {
       if( (*(srcptr + 2) == 0x46) || (*(srcptr + 2) == 0x66 ) ) {
-	retptr = (bptr = malloc(alloc_length));
+	retptr = (bptr = (int8 *) malloc(alloc_length));
 	if(bptr == NULL)
 	  return NULL;
 	/* adjust the encoded length to reflect that we consumed the header */
@@ -2348,7 +2399,7 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
   lslpAttrList *attr_tags, *attr_return;
   lslpSrvRegList *regs;
   
-  int16 str_len, buf_len, err = LSLP_PARSE_ERROR;
+  int16 str_len, buf_len, err = 0, parse_err;
   int32 total_len, purported_len;
   
   /* read the length from the slp header */
@@ -2371,9 +2422,11 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 
 	/* decode the url */
 	str_len = _LSLP_GETSHORT(bptr, 0);
+	bptr += 2;
+	
 	if( (str_len + total_len + 2) < purported_len ) {
 	  if(NULL != (url = lslpAllocURL())) {
-	     if(NULL != (url->url = (int8 *)malloc(str_len + 1))) {
+	    if(NULL != (url->url = (int8 *)calloc(str_len + 1, sizeof(int8)))) {
 	       memcpy(url->url, bptr, str_len);
 	       *(bptr + str_len) = 0x00;
 	       url->atomized = _lslpDecodeURLs( (int8 **)&(url->url), 1);
@@ -2381,15 +2434,16 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 	       total_len += str_len + 2;
 	       buf_len = LSLP_MTU - total_len;
 	       str_len = _LSLP_GETSHORT(bptr, 0);
-	       scopes = lslpUnstuffScopeList(&bptr, &buf_len, &err);
+	       scopes = lslpUnstuffScopeList(&bptr, &buf_len, &parse_err);
 	       total_len += str_len + 2;
 	       /* see if we even support the scopes */
-	       if( NULL != url->atomized && TRUE == lslp_scope_intersection(client->_scopes, scopes)) {
+	       //	       if( NULL != url->atomized && TRUE == lslp_scope_intersection(client->_scopes, scopes)) {
+	       if(lslp_scope_intersection(client->_scopes, scopes)) {
 		 /* decode the attribute tags */
 		 int8 *bptrSave;
 		 SOCKETD sock;                      //jeb
 		 str_len = _LSLP_GETSHORT(bptr, 0 );
-		 attr_tags = lslpUnstuffAttr(&bptr, &buf_len, &err);
+		 attr_tags = lslpUnstuffAttr(&bptr, &buf_len, &parse_err);
 		 total_len += str_len + 2;
 		 /* see if we have url match */
 
@@ -2401,6 +2455,7 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 		     /* we have a hit on the url, see if the scopes intersect */
 		     if( TRUE == lslp_scope_intersection(regs->scopeList, scopes)){
 		       attr_return = regs->attrList;
+		       err = 0;
 		       break;
 		     }
 		   }
@@ -2945,7 +3000,7 @@ BOOL lslpEvaluateFilterTree(lslpLDAPFilter *filter, const lslpAttrList *attrs)
     lslpEvaluateFilterTree(filter->next, attrs);
   }
   if(filter->_operator == ldap_and || filter->_operator == ldap_or || filter->_operator == ldap_not) {
-    /* evaluate ldap logical _operators by evaluating filter->children as a list of filters */
+    /* evaluate ldap logical operators by evaluating filter->children as a list of filters */
     lslpLDAPFilter *child_list = (lslpLDAPFilter *)filter->children.next;
     /* initialize  the filter's logical value to TRUE */
     if(filter->_operator == ldap_or)
@@ -2976,7 +3031,12 @@ BOOL lslpEvaluateFilterTree(lslpLDAPFilter *filter, const lslpAttrList *attrs)
     /* find the first matching attribute and set the logical value */
     filter->logical_value = FALSE;
     if(! _LSLP_IS_HEAD(filter->attrs.next) ) {
+
+      /* need to continue to search until the attr list end to support multi-valued attributes */
+
       attrs = attrs->next;
+      while(! _LSLP_IS_HEAD(attrs)) {
+	/* advance to a matching attribute name if it exists */
       while( (! _LSLP_IS_HEAD(attrs )) && 
 	     ( FALSE  == lslp_pattern_match(filter->attrs.next->name, attrs->name, FALSE)) ) {
 	attrs = attrs->next ; 
@@ -2984,10 +3044,18 @@ BOOL lslpEvaluateFilterTree(lslpLDAPFilter *filter, const lslpAttrList *attrs)
       /* either we have traversed the list or found the first matching attribute */
       if( ! _LSLP_IS_HEAD(attrs) ) {
 	/* we found the first matching attribute, now do the comparison */
-	if (filter->_operator == expr_present || filter->_operator == expr_approx) 
+	  if (filter->_operator == expr_present || filter->_operator == expr_approx) 
 	  filter->logical_value = TRUE;
 	else
-	  filter->logical_value = lslpEvaluateAttributes(filter->attrs.next, attrs, filter->_operator );
+	    filter->logical_value = lslpEvaluateAttributes(filter->attrs.next, attrs, filter->_operator );
+	}
+	else { break; } /* did not find a matching attribute */
+	
+	/* if we found a match, exit the comparison loop */
+	if(filter->logical_value == TRUE)
+	  break;
+	/* no match, continue searching attributes. */
+	attrs = attrs->next;
       }
     }
   }
@@ -3144,7 +3212,18 @@ BOOL lslp_scope_intersection(lslpScopeList *a, lslpScopeList *b)
     while(!(_LSLP_IS_HEAD(b->next))) {
       b = b->next;
       assert((a->scope != NULL) && (b->scope != NULL));
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
       if(! strcasecmp(a->scope, b->scope)) {
+#else
+	  int alength_of_string = strlen(a->scope);
+	  int blength_of_string = strlen(a->scope);
+
+	  if (alength_of_string > blength_of_string)
+	  {
+		  blength_of_string = alength_of_string;
+	  }
+	  if(! strncasecmp(a->scope, b->scope, blength_of_string)) {
+#endif
 	return(TRUE);
       }
     }
@@ -3454,13 +3533,21 @@ lslpAuthBlock *lslpUnstuffAuthList(int8 **buf, int16 *len, int16 *err)
 	  (*buf) += 2;                                  /* advance to the spi */ 
 	  *len -= 10;
 	  if(*len >= (temp->spiLen)) {
-	    if(NULL != (temp->spi = (uint8 *)calloc(temp->spiLen + 1, sizeof(uint8)))) {
+#if defined( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM ) || defined( PEGASUS_OS_SOLARIS )
+		if(NULL != (temp->spi = (int8 *) calloc(temp->spiLen + 1, sizeof(uint8)))) {
+#else
+	    if(NULL != (temp->spi = (uint8 *) calloc(temp->spiLen + 1, sizeof(uint8)))) {
+#endif
 	      memcpy(temp->spi, *buf, temp->spiLen);  /* copy the spi */
 	      (*buf) += temp->spiLen;                   /* advance to the next block */
 	      (*len) -= temp->spiLen;
 	      if(*len >= (temp->len - (10 + temp->spiLen))) {
 		if (NULL != (temp->block = 
+#if defined( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM ) || defined( PEGASUS_OS_SOLARIS )
+				 (int8 *)calloc((temp->len - (10 + temp->spiLen)) + 1, 
+#else
 			     (uint8 *)calloc((temp->len - (10 + temp->spiLen)) + 1, 
+#endif
 					     sizeof(uint8)))) {
 		  memcpy(temp->block, *buf, (temp->len - (10 + temp->spiLen)) );
 		  _LSLP_INSERT(temp, list);                /* insert the auth block into the list */ 
@@ -3792,6 +3879,7 @@ struct lslp_srv_rply_out *_lslpProcessSrvReq(struct slp_client *client,
 	  /* we are looking for extension ID 0x0002 */
 	  extptr = msg->next_ext;
 	  while(extptr && extptr < msg->ext_limit) {
+	    int8 * extptr_save = extptr;
 	    if( 0x0002 == _LSLP_GETSHORT(extptr, 0)) {
 	      /* make sure it doesn't overflow */
 	      if (extptr + 9 > msg->ext_limit) {
@@ -3809,6 +3897,8 @@ struct lslp_srv_rply_out *_lslpProcessSrvReq(struct slp_client *client,
 	    }
 	    /* see if there are any more extensions */
 	    extptr += _LSLP_GET3BYTES(extptr, 2);
+	    if(extptr == extptr_save)
+	      break;
 	  } /* while traversing extensions */ 
 	} /* if there is an extension */
 	
@@ -4086,6 +4176,74 @@ void lslp_print_srv_rply(lslpMsg *srvrply)
   }
 }
 
+/* outputs information for machine consumption */
+void lslp_print_srv_rply_parse(lslpMsg *srvrply, int8 fs, int8 rs)
+{
+  BOOL dont_print_extra_rs = FALSE;
+  
+  lslpURL *url_list;
+  if(srvrply != NULL && srvrply->type == srvRply) {
+    /* output errCode, urlCount, urlLen */
+    printf("%d%c%d%c%d%c", 
+	   srvrply->msg.srvRply.errCode, 
+	   fs,
+	   srvrply->msg.srvRply.urlCount, 
+	   fs,
+	   srvrply->msg.srvRply.urlLen,
+	   fs);
+    if((NULL != srvrply->msg.srvRply.urlList) && 
+       (! _LSLP_IS_EMPTY( srvrply->msg.srvRply.urlList))) {
+      
+      url_list = srvrply->msg.srvRply.urlList->next;
+      while( ! _LSLP_IS_HEAD(url_list)) {
+	
+	if(NULL != url_list->url)
+	  printf("%s%c", url_list->url, fs);
+	else 
+	  printf("%c", fs);
+	
+	/* see if there are attributes to print */
+	if(NULL != url_list->attrs && ! _LSLP_IS_HEAD(url_list->attrs->next)) {
+	  lslpAtomList *attrs = url_list->attrs->next;
+	  while(! _LSLP_IS_HEAD(attrs) && attrs->str && strlen(attrs->str)){
+	    printf("%s", attrs->str);
+	    attrs = attrs->next;
+	    if(! _LSLP_IS_HEAD(attrs) && attrs->str && strlen(attrs->str)) {
+	      printf("%c", fs);
+	    }
+	  } /* while traversing attr list */
+	} else {  /* if no attr list, print the record separator  */
+	  printf("%c", rs);
+	  dont_print_extra_rs = TRUE;
+	  
+	}
+	
+	url_list = url_list->next;
+	/* if there is another url, print a record separator */
+	/* also print the first four fields so the consuming program's */ 
+	/* parser doesn't get upset */
+	if( ! _LSLP_IS_HEAD(url_list) && dont_print_extra_rs == FALSE) {
+	  
+	  printf("%c", rs);
+	  printf("%d%c%d%c%d%c", 
+		 srvrply->msg.srvRply.errCode, 
+		 fs,
+		 srvrply->msg.srvRply.urlCount, 
+		 fs,
+		 srvrply->msg.srvRply.urlLen,
+		 fs);
+	}
+	
+      } /* while traversing url list */
+
+    } /* if there are urls to print */
+    /* print the record separator */
+    printf("%c", rs);
+    
+  }
+}
+
+
 /* string must not be null and must start with "service:" */
 SLP_STORAGE_DECL BOOL test_service_type(int8 *type)
 {
@@ -4242,3 +4400,171 @@ SLP_STORAGE_DECL uint32 test_query(int8 *type,
 
 
 
+#ifdef INCLUDE_TEST_CODE     
+
+/* , (serial-number=78-HNRX5)" */
+/* , (fru=model 8657\\-a)" */
+/*                 "name=chassis_4_b205g134), (uuid=\\ff\0d\0a\25\56\0d\0a\25\56\0d\0a\25\56)" \ */
+/*                 "(ip-address=9.37.98.90)" */
+
+
+
+#define MM_URL "service:management-hardware.IBM:management-module://chassis_one:4456/%20;%20hello"
+#define MM_URL2 "service:management-hardware.IBM:management-module://chassis_two:4456/%20;%20hello"
+#define MM_URL3 "service:management-hardware.IBM:management-module://chassis_three:4456/%20;%20hello"
+#define MM_ATTR "management-module, (mangement-module_test =     )"
+#define MM_ATTR2 "(enclosure-serial-number=\\ff\\04\\05), management-module"
+#define MM_ATTR3 "(enclosure-serial-number=\\ff\\04\\05), management-module, (nothing=one)"
+#define MM_SRV_TYPE "service:management-hardware.IBM:management-module" 
+#define MM_SCOPES "DEFAULT"
+#define MM_LIFETIME 0xff
+#define MM_PRED "(management-module =*)"
+#define MM_PRED2 "management-module, (enclosure-serial-number=\\ff\\04\\05)"
+
+
+int32 opaque_buf[] = {  
+  0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 
+  0x09, 0x0a, 0xfe0b, 0xcdac, 0x0d, 0x0e, 0x10
+};
+int16 opaque_len = 15 * sizeof(int32);
+
+#define NUM_STRINGS_TO_MATCH 8
+int8 *patterns[] = { 
+  "hello, world", 
+  "hEllo, wOrld", 
+  "Custer is a h?ll of a d**n*ed fo*\\; -- Phil Sheridan",
+  "See Mug, See",
+  "management-hardware.[ih][ba][ml]",
+  "The telephone is [hlr]eap [bds]ig medicine -- Crazy Horse",
+  "Young kids today are [A-z]ool", 
+  "Young kids today are [A-z]ool" 
+};
+
+int8 *strings[] = {
+  "hello, world",
+  "hello, world",
+  "custer is a hill of a dinged fog; -- Phil Sheridan",
+  "see mug, see",
+  "management-Hardware.HAL",
+  "the telephone is leap dig medicine -- Crazy Horse",
+  "young kids today are cool", 
+  "young kids today are fool"
+};
+
+
+int main(int argc, char **argv)
+{
+  BOOL ccode;
+
+  lslpMsg *replies, rply;
+  int i ;
+  time_t now, last;
+  
+  
+  struct slp_client *client = create_slp_client(NULL, NULL, 427, "DSA", "DEFAULT, TEST SCOPE", TRUE, TRUE);
+  
+  if(client != NULL){
+    int8 *encoded, *test_buf;
+    void *decoded;
+    int16 encoded_len;
+    printf("Testing opaque encode/decode\n");
+    
+    encoded = encode_opaque(opaque_buf, opaque_len);
+    decoded = decode_opaque(encoded);
+    if( memcmp(decoded, opaque_buf, opaque_len) )
+      printf("opaque decoder produced mismatch\n");
+    
+    encoded_len = _LSLP_GETSHORT(encoded, 0 );
+    test_buf = (int8 *)calloc(encoded_len, sizeof(int8));
+    if(test_buf != NULL) {
+      memcpy(test_buf, encoded + 2, encoded_len - 2);
+      printf("%s\n", test_buf);
+      free(test_buf);
+    }
+    
+    free(encoded);
+    free(decoded);
+    
+    for (i = 0; i < NUM_STRINGS_TO_MATCH ; i++){
+      if(TRUE == lslp_pattern_match(strings[i], patterns[i], FALSE))
+	printf("%s MATCHES %s (no case)\n", strings[i], patterns[i]);
+      else 
+	printf("%s DOES NOT MATCH %s (no case)\n", strings[i], patterns[i]);
+    }
+  
+    for (i = 0; i < NUM_STRINGS_TO_MATCH ; i++){
+      if(TRUE == lslp_pattern_match(strings[i], patterns[i], TRUE))
+	printf("%s MATCHES %s \n", strings[i], patterns[i]);
+      else 
+	printf("%s DOES NOT MATCH %s \n", strings[i], patterns[i]);
+    }
+    client->srv_reg_local(client, 
+			  "service:service-agent:\\9.37.98.90", 
+			  "(service-type = )", "service-agent", 
+			  MM_SCOPES, MM_LIFETIME);
+    
+    ccode = client->srv_reg_all(client, MM_URL, MM_ATTR, MM_SRV_TYPE, MM_SCOPES, MM_LIFETIME);
+    printf("registered with %d agents.\n", ccode );
+    ccode = client->srv_reg_all(client, MM_URL2, MM_ATTR2, MM_SRV_TYPE, MM_SCOPES, MM_LIFETIME);
+    printf("registered with %d agents.\n", ccode );
+    ccode = client->srv_reg_all(client, MM_URL3, MM_ATTR3, MM_SRV_TYPE, MM_SCOPES, MM_LIFETIME);
+    printf("registered with %d agents.\n", ccode );
+    client->converge_srv_req(client, MM_SRV_TYPE, MM_PRED, MM_SCOPES);
+
+    client->converge_srv_req(client, "service-agent", "(service-type =*)", MM_SCOPES);
+    
+    replies = &rply;
+    
+    client->service_listener(client, 0, replies);
+    if(_LSLP_IS_HEAD(replies->next))
+      printf("Recieved 0 Service Replies\n");
+    else {
+      replies = replies->next;
+      while( ! _LSLP_IS_HEAD(replies)) {
+	if( replies->type == srvRply ) {
+	  printf("SRVRPLY: err_code %d url_count %d, url_len %d \n", 
+		 replies->msg.srvRply.errCode, replies->msg.srvRply.urlCount, 
+		 replies->msg.srvRply.urlLen);
+	  if( NULL != replies->msg.srvRply.urlList ) {
+	    if( ! _LSLP_IS_EMPTY(replies->msg.srvRply.urlList)) {
+	      lslpURL *url_list = replies->msg.srvRply.urlList->next;
+	      while( ! _LSLP_IS_HEAD(url_list)) {
+		printf("\t%s\n", url_list->url);
+		if((NULL != replies->msg.srvRply.attr_list) && 
+		   (! _LSLP_IS_EMPTY(replies->msg.srvRply.attr_list))) {
+		  lslpAtomList *temp = replies->msg.srvRply.attr_list->next;
+		  if(! _LSLP_IS_HEAD(temp)) {
+		    if( temp->str != NULL) {
+		      printf("ATTRS: %s\n", temp->str);
+		      _LSLP_UNLINK(temp);
+		      lslpFreeAtom(temp);
+		    }
+		  }
+		}
+		url_list = url_list->next;
+	      }
+	    } else { printf("no URLs\n"); } /* url list not empty */
+	  } else { printf("no URLs\n"); } /* url list  not NULL */
+	} /* srvrply */
+	replies = replies->next;
+      } /* traversing replies */
+    }
+  }
+  
+  now = (last = time(NULL));
+
+  while(1){
+    lslpMsg msg;
+    _LSLP_SLEEP(100);
+    client->service_listener(client, 0, &msg);
+    now = time(NULL);
+    if( now - last > ( MM_LIFETIME - 1) ) {
+      client->srv_reg_local(client, MM_URL2, MM_ATTR2, MM_SRV_TYPE, MM_SCOPES, MM_LIFETIME);
+      last = time(NULL);
+    }
+  }
+  return 1;
+}
+
+
+#endif //test code

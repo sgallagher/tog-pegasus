@@ -418,8 +418,7 @@ void ConfigSettingProvider::enumerateInstances(
                 instance.addProperty(CIMProperty(DYNAMIC_PROPERTY,
                     Boolean(propertyInfo[4]=="true"?true:false)));
 
-                //namedInstanceArray.append(
-                //    CIMNamedInstance(instanceName, instance));
+                instance.setPath(instanceName);
                 instanceArray.append(instance);
             }
         }

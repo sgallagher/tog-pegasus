@@ -278,11 +278,7 @@ void ProviderRegistrationProvider::enumerateInstances(
 	throw (e);
     }
 
-    // ATTN: remove when CIMNamedInstance removed.
-    for(Uint32 i = 0, n = enumInstances.size(); i < n; i++)
-    {
-	handler.deliver(enumInstances[i]);
-    }
+    handler.deliver(enumInstances);
 
     // complete processing the request
     handler.complete();

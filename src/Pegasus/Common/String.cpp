@@ -714,7 +714,21 @@ Boolean operator!=(const String& str1, const String& str2)
 PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
 {
     for (Uint32 i = 0, n = str.size(); i < n; i++)
-	os << str[i];
+    {
+        Uint16 code = str[i];
+
+        if (code > 0 && code <= PEGASUS_MAX_PRINTABLE_CHAR)
+        {
+            os << char(code);
+        }
+        else
+        {
+            // Print in hex format:
+            char buffer[8];
+            sprintf(buffer, "\\x%04X", code);
+            os << buffer;
+        }
+    }
 
     return os;
 }

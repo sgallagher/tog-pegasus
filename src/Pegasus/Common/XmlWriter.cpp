@@ -72,7 +72,7 @@ Array<Sint8>& operator<<(Array<Sint8>& out, char x)
     return out;
 }
 
-Array<Sint8>& operator<<(Array<Sint8>& out, Char16 x)
+Array<Sint8>& operator<<(Array<Sint8>& out, const Char16& x)
 {
     XmlWriter::append(out, x);
     return out;
@@ -107,12 +107,12 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const CIMDateTime& x)
     return os << x.toString();
 }
 
-inline void _appendChar(Array<Sint8>& out, Char16 c)
+inline void _appendChar(Array<Sint8>& out, const Char16& c)
 {
     out.append(Sint8(c));
 }
 
-inline void _appendSpecialChar(Array<Sint8>& out, Char16 c)
+inline void _appendSpecialChar(Array<Sint8>& out, const Char16& c)
 {
     // ATTN-B: Only UTF-8 handled for now.
 
@@ -178,7 +178,7 @@ static inline void _appendSpecial(PEGASUS_STD(ostream)& os, const char* str)
 	_appendSpecialChar(os, *str++);
 }
 
-void XmlWriter::append(Array<Sint8>& out, Char16 x)
+void XmlWriter::append(Array<Sint8>& out, const Char16& x)
 {
     _appendChar(out, x);
 }
@@ -254,7 +254,7 @@ void XmlWriter::append(Array<Sint8>& out, const Indentor& x)
 	out.append(' ');
 }
 
-void XmlWriter::appendSpecial(Array<Sint8>& out, Char16 x)
+void XmlWriter::appendSpecial(Array<Sint8>& out, const Char16& x)
 {
     _appendSpecialChar(out, x);
 }
@@ -547,7 +547,7 @@ inline void _appendValue(Array<Sint8>& out, Real64 x)
     XmlWriter::append(out, x);
 }
 
-inline void _appendValue(Array<Sint8>& out, Char16 x)
+inline void _appendValue(Array<Sint8>& out, const Char16& x)
 {
     XmlWriter::appendSpecial(out, x);
 }

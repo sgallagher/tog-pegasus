@@ -98,24 +98,4 @@ Boolean operator!=(char x, const Char16& y)
     return Uint16(x) != Uint16(y);
 }
 
-PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const Char16& x)
-{
-    Uint16 code = x;
-
-    if (code > 0 && code <= PEGASUS_MAX_PRINTABLE_CHAR)
-    {
-	os << char(code);
-    }
-    else
-    {
-	// Print in hex format:
-
-	char buffer[8];
-	sprintf(buffer, "\\x%04X", code);
-	os << buffer;
-    }
-
-    return os;
-}
-
 PEGASUS_NAMESPACE_END

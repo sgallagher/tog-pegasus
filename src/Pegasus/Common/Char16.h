@@ -80,10 +80,6 @@ PEGASUS_COMMON_LINKAGE Boolean operator!=(const Char16& x, const Char16& y);
 PEGASUS_COMMON_LINKAGE Boolean operator!=(const Char16& x, char y);
 PEGASUS_COMMON_LINKAGE Boolean operator!=(char x, const Char16& y);
 
-PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<( 
-    PEGASUS_STD(ostream)& os, 
-    const Char16& x);
-
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Char16_h */

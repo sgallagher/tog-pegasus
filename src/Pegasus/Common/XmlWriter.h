@@ -61,7 +61,7 @@ class PEGASUS_COMMON_LINKAGE XmlWriter
 {
 public:
 
-    static void append(Array<Sint8>& out, Char16 x);
+    static void append(Array<Sint8>& out, const Char16& x);
 
     static void append(Array<Sint8>& out, char x)
     {
@@ -86,7 +86,7 @@ public:
 
     static void append(Array<Sint8>& out, const Indentor& x);
 
-    static void appendSpecial(Array<Sint8>& out, Char16 x);
+    static void appendSpecial(Array<Sint8>& out, const Char16& x);
 
     static void appendSpecial(Array<Sint8>& out, char x);
 
@@ -483,7 +483,7 @@ PEGASUS_COMMON_LINKAGE Array<Sint8>& operator<<(
 
 PEGASUS_COMMON_LINKAGE Array<Sint8>& operator<<(Array<Sint8>& out, char x);
 
-PEGASUS_COMMON_LINKAGE Array<Sint8>& operator<<(Array<Sint8>& out, Char16 x);
+PEGASUS_COMMON_LINKAGE Array<Sint8>& operator<<(Array<Sint8>& out, const Char16& x);
 
 PEGASUS_COMMON_LINKAGE Array<Sint8>& operator<<(
     Array<Sint8>& out, 

@@ -483,7 +483,11 @@ Boolean PredicateTree::evaluate(void)
       Boolean truth = true;
       PredicateTree *peers = NULL;
       _peers.lock();
-      while( NULL != (peers = _peers.next(peers)))
+      // need to change this. 
+      // don't need peers, if we recurse on children then 
+      // peers are simply a set of children that have the same parent. 
+      // i.e., siblings and not peers
+      if ( NULL != (peers = _peers.next(peers)))
       {
 	 peers->evaluate();
 	 switch(_logical_op)

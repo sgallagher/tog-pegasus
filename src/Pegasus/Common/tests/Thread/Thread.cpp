@@ -30,7 +30,10 @@
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
 #include <sys/types.h>
-// #include <unistd.h>
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#else
+#include <unistd.h>
+#endif 
 #include <cassert>
 #include <iostream>
 #include <stdio.h>

@@ -38,7 +38,7 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Exception.h>
 
-#include <iostream>
+//#include <iostream>
 
 PEGASUS_NAMESPACE_BEGIN
    
@@ -115,7 +115,9 @@ inline Boolean operator==(const Predicate& x, const Predicate& y)
 
 inline Boolean operator==(const Predicate& p, const KeyBinding& k)
 {
-   return
+   ;
+      LogicalOperator _logical_op;
+      DQueue<PredicateTree>    return
       CIMName::equal(p.getName(), k.getName());
 }
 
@@ -233,7 +235,8 @@ class PEGASUS_COMMON_LINKAGE PredicateTree
       Boolean evaluate(void);
       void lock(void) throw(IPCException) { _mut.lock(pegasus_thread_self()); }
       void unlock(void) throw(IPCException) { _mut.unlock(); }
-      void _add_peer(PredicateTree *pr) throw(IPCException)
+// get rid of peers 
+      void _add_peer(PredicateReference *pr) throw(IPCException)
       {
 	 _peers.insert_last(pr);
       }

@@ -15,7 +15,7 @@ else
 endif
 
 ifdef DIFF
-  COMPARERESULTS = @$(DIFF) $(RESULTFILE) $(MASTERRESULTFILE)
+  COMPARERESULTS = @$(DIFF) $(MASTERRESULTFILE) $(RESULTFILE)
 else
   COMPARERESULTS = @$(ECHO) "Results not compared."
 endif

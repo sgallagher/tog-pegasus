@@ -245,6 +245,15 @@ ifndef PEGASUS_ENABLE_EXECQUERY
     DEFINES += -DPEGASUS_DISABLE_EXECQUERY
 endif
 
+# Allow System Log Handler to be enabled
+ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
+  DEFINES += -DPEGASUS_ENABLE_SYSTEM_LOG_HANDLER
+endif
+
+# Allow Email Handler to be enabled
+ifdef PEGASUS_ENABLE_EMAIL_HANDLER
+  DEFINES += -DPEGASUS_ENABLE_EMAIL_HANDLER
+endif
 
 # setup function to enable SLP functions in the Pegasus standard compile
 # Set the environment varaible PEGASUS_ENABLE_SLP to enable SLP code.

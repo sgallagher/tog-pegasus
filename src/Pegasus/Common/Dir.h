@@ -62,7 +62,7 @@ typedef struct
   #define PEGASUS_HAS_READDIR_R
  #endif /* ifndef PEGASUS_OS_VMS */
 
-typedef struct
+struct DirRep
 {
     DIR* dir;
  #ifdef PEGASUS_OS_OS400
@@ -87,7 +87,7 @@ public:
    #endif /* ifdef PEGASUS_OS_SOLARIS */
   #endif /* ifdef PEGASUS_OS_OS400 */
  #endif /* ifdef PEGASUS_HAS_READDIR_R */
-} DirRep;
+};
 #endif /* elif defined(PEGASUS_OS_TYPE_UNIX) || defined (PEGASUS_OS_VMS) */
 
 /** The Dir class provides a platform independent way of iterating the

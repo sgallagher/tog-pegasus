@@ -181,11 +181,10 @@ extern "C" {
    typedef unsigned char              CMPIUint8;
    typedef unsigned short             CMPIUint16;
    typedef unsigned long              CMPIUint32;
-#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
 
+#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
    typedef unsigned long long         CMPIUint64;
 #else
-
    typedef unsigned __int64           CMPIUint64;
 #endif
 
@@ -193,10 +192,8 @@ extern "C" {
    typedef short                      CMPISint16;
    typedef long                       CMPISint32;
 #ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-
    typedef long long                  CMPISint64;
 #else
-
    typedef __int64                    CMPISint64;
 #endif
 
@@ -245,17 +242,16 @@ extern "C" {
 
    typedef unsigned short CMPIType;
 
-#define CMPI_null         0
-
-#define CMPI_SIMPLE       (2)
+        #define CMPI_null         0
+        #define CMPI_SIMPLE       (2)
         #define CMPI_boolean      (2+0)
         #define CMPI_char16       (2+1)
 
-#define CMPI_REAL         ((2)<<2)
+        #define CMPI_REAL         ((2)<<2)
         #define CMPI_real32       ((2+0)<<2)
         #define CMPI_real64       ((2+1)<<2)
 
-#define CMPI_UINT         ((8)<<4)
+        #define CMPI_UINT         ((8)<<4)
         #define CMPI_uint8        ((8+0)<<4)
         #define CMPI_uint16       ((8+1)<<4)
         #define CMPI_uint32       ((8+2)<<4)
@@ -267,7 +263,7 @@ extern "C" {
         #define CMPI_sint64       ((8+7)<<4)
         #define CMPI_INTEGER      ((CMPI_UINT | CMPI_SINT))
 
-#define CMPI_ENC          ((16)<<8)
+        #define CMPI_ENC          ((16)<<8)
         #define CMPI_instance     ((16+0)<<8)
         #define CMPI_ref          ((16+1)<<8)
         #define CMPI_args         ((16+2)<<8)
@@ -279,16 +275,16 @@ extern "C" {
         #define CMPI_dateTime     ((16+8)<<8)
         #define CMPI_ptr          ((16+9)<<8)
 
-#define CMPI_ARRAY        ((1)<<13)
+        #define CMPI_ARRAY        ((1)<<13)
         #define CMPI_SIMPLEA      (CMPI_ARRAY | CMPI_SIMPLE)
         #define CMPI_booleanA     (CMPI_ARRAY | CMPI_boolean)
         #define CMPI_char16A      (CMPI_ARRAY | CMPI_char16)
 
-#define CMPI_REALA        (CMPI_ARRAY | CMPI_REAL)
+        #define CMPI_REALA        (CMPI_ARRAY | CMPI_REAL)
         #define CMPI_real32A      (CMPI_ARRAY | CMPI_real32)
         #define CMPI_real64A      (CMPI_ARRAY | CMPI_real64)
 
-#define CMPI_UINTA        (CMPI_ARRAY | CMPI_UINT)
+        #define CMPI_UINTA        (CMPI_ARRAY | CMPI_UINT)
         #define CMPI_uint8A       (CMPI_ARRAY | CMPI_uint8)
         #define CMPI_uint16A      (CMPI_ARRAY | CMPI_uint16)
         #define CMPI_uint32A      (CMPI_ARRAY | CMPI_uint32)
@@ -300,7 +296,7 @@ extern "C" {
         #define CMPI_sint64A      (CMPI_ARRAY | CMPI_sint64)
         #define CMPI_INTEGERA     (CMPI_ARRAY | CMPI_INTEGER)
 
-#define CMPI_ENCA         (CMPI_ARRAY | CMPI_ENC)
+        #define CMPI_ENCA         (CMPI_ARRAY | CMPI_ENC)
         #define CMPI_stringA      (CMPI_ARRAY | CMPI_string)
         #define CMPI_charsA       (CMPI_ARRAY | CMPI_chars)
         #define CMPI_dateTimeA    (CMPI_ARRAY | CMPI_dateTime)
@@ -308,24 +304,24 @@ extern "C" {
    // the following are CMPIObjectPath key-types synonyms
    // and are valid only when CMPI_keyValue of CMPIValueState is set
 
-#define CMPI_keyInteger   (CMPI_sint64)
- #define CMPI_keyString    (CMPI_string)
- #define CMPI_keyBoolean   (CMPI_boolean)
- #define CMPI_keyRef       (CMPI_ref)
+         #define CMPI_keyInteger   (CMPI_sint64)
+         #define CMPI_keyString    (CMPI_string)
+         #define CMPI_keyBoolean   (CMPI_boolean)
+         #define CMPI_keyRef       (CMPI_ref)
 
    // the following are predicate types only
 
-#define CMPI_charString      (CMPI_string)
+        #define CMPI_charString      (CMPI_string)
         #define CMPI_integerString   (CMPI_string | CMPI_sint64)
         #define CMPI_realString      (CMPI_string | CMPI_real64)
         #define CMPI_numericString   (CMPI_string | CMPI_sint64 | CMPI_real64)
- #define CMPI_booleanString   (CMPI_string | CMPI_boolean)
- #define CMPI_dateTimeString  (CMPI_string | CMPI_dateTime)
+        #define CMPI_booleanString   (CMPI_string | CMPI_boolean)
+        #define CMPI_dateTimeString  (CMPI_string | CMPI_dateTime)
         #define CMPI_classNameString (CMPI_string | CMPI_class)
         #define CMPI_nameString      (CMPI_string | ((16+10)<<8))
 
    typedef unsigned short CMPIValueState;
-#define CMPI_goodValue (0)
+        #define CMPI_goodValue (0)
         #define CMPI_nullValue (1<<8)
         #define CMPI_keyValue  (2<<8)
         #define CMPI_badValue  (0x80<<8)
@@ -339,12 +335,11 @@ extern "C" {
 
 
 #ifdef CMPI_VER_87
-
    typedef CMPIData CMPIAccessor(const char*, void* parm);
 #endif
 
 
-#ifndef CMPI_NO_SYNONYM_SUPPORT
+   #ifndef CMPI_NO_SYNONYM_SUPPORT
    #define CMPI_Byte    CMPI_sint8
    #define CMPI_Short   CMPI_sint16
    #define CMPI_Int     CMPI_sint32
@@ -352,25 +347,25 @@ extern "C" {
    #define CMPI_Float   CMPI_real32
    #define CMPI_Double  CMPI_real64
 
-#define CMPI_ByteA   CMPI_sint8A
+   #define CMPI_ByteA   CMPI_sint8A
    #define CMPI_ShortA  CMPI_sint16A
    #define CMPI_IntA    CMPI_sint32A
    #define CMPI_LongA   CMPI_sint64A
    #define CMPI_FloatA  CMPI_real32A
    #define CMPI_DoubleA CMPI_real64A
-#endif // CMPI_NO_SYNONYM_SUPPORT
+   #endif // CMPI_NO_SYNONYM_SUPPORT
 
    typedef unsigned int CMPICount;
 
 
    typedef unsigned int CMPIFlags;
 
-#define CMPI_FLAG_LocalOnly          1
+   #define CMPI_FLAG_LocalOnly          1
    #define CMPI_FLAG_DeepInheritance    2
    #define CMPI_FLAG_IncludeQualifiers  4
    #define CMPI_FLAG_IncludeClassOrigin 8
 
-#define CMPIInvocationFlags "CMPIInvocationFlags"
+   #define CMPIInvocationFlags "CMPIInvocationFlags"
 
    typedef enum _CMPIrc {
       CMPI_RC_OK                               =0,
@@ -404,11 +399,11 @@ extern "C" {
 
    /* Management Broker classification and feature support */
 
-#define CMPI_MB_Class_0     0x00000001
+   #define CMPI_MB_Class_0     0x00000001
    #define CMPI_MB_Class_1     0x00000003
    #define CMPI_MB_Class_2     0x00000007
 
-#define CMPI_MB_Supports_PropertyMI         0x00000100
+   #define CMPI_MB_Supports_PropertyMI         0x00000100
    #define CMPI_MB_Supports_IndicationMI       0x00000200
    #define CMPI_MB_Supports_IndicationPolling  0x00000400
    #define CMPI_MB_Supports_QueryNormalization 0x00000800
@@ -431,7 +426,6 @@ extern "C" {
    } CMPIPredOp;
 
 #ifdef __cplusplus
-
 };
 #endif
 

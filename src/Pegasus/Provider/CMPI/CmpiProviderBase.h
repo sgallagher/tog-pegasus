@@ -39,6 +39,7 @@ class CmpiBaseMI;
 class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiProviderBase {
 public:
    CmpiProviderBase();
+   ~CmpiProviderBase();
    CmpiBaseMI* getBaseMI();
    void setBaseMI(CmpiBaseMI* aBaseMI);
    void incUseCount();

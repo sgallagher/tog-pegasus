@@ -60,6 +60,7 @@ public:
 
    virtual CmpiStatus initialize(const CmpiContext& ctx);
    virtual CmpiStatus cleanup(CmpiContext& ctx);
+   virtual int isUnloadable() const;
 
 protected:
    CmpiBroker* broker;

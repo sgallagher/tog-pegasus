@@ -78,10 +78,15 @@ CMPIStatus CmpiBaseMI::driveBaseCleanup
    CmpiContext ctx(eCtx);
    CmpiStatus rc(CMPI_RC_OK);
    CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*>(mi->hdl);
-   if (cmi->getProviderBase() && cmi->getProviderBase()->decUseCount()==0) {
-     cmi->setProviderBase(0);
-     rc=cmi->cleanup(ctx);
-     delete cmi;
+   if (cmi->isUnloadable()) {
+     if (cmi->getProviderBase() && cmi->getProviderBase()->decUseCount()==0) {
+       cmi->getProviderBase()->setBaseMI(0);
+       cmi->setProviderBase(0);
+       rc=cmi->cleanup(ctx);
+       delete cmi;
+     }
+   } else {
+     rc = CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
    }
    return rc.status();
   } catch (CmpiStatus& stat) {
@@ -109,6 +114,10 @@ CmpiStatus CmpiBaseMI::initialize(const CmpiContext& ctx) {
 CmpiStatus CmpiBaseMI::cleanup(CmpiContext& ctx) { 
     cerr << "cleaning up provider" << endl;
    return CmpiStatus(CMPI_RC_OK); 
+}
+
+int CmpiBaseMI::isUnloadable() const {
+   return 0; 
 }
 
 //---------------------------------------------------
@@ -862,11 +871,8 @@ CmpiData::CmpiData(const CmpiString& d) {
 }
 
 CmpiData::CmpiData(const char* d) {
-   if (d)
-      data.value.chars=(char*)d;
-   else
-      data.value.chars="";
-   data.type=CMPI_chars;
+  data.value.chars=(char*)d;
+  data.type=CMPI_chars;
 }
 
 CmpiData::CmpiData(const CmpiDateTime& d) {
@@ -1810,6 +1816,9 @@ static CMPIBroker __providerBaseBroker = {0,0,0};
 CmpiProviderBase::CmpiProviderBase() {
   useCount=0;
   baseMI=0;
+}
+
+CmpiProviderBase::~CmpiProviderBase() {
 }
 
 void CmpiProviderBase::

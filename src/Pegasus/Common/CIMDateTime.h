@@ -198,7 +198,7 @@ public:
     @throws BadFormat
 
     */
-    static Uint64 getDifference(CIMDateTime startTime, CIMDateTime finishTime);
+    static Real64 getDifference(CIMDateTime startTime, CIMDateTime finishTime);
  
     /**
     Checks whether the datetime is an interval.

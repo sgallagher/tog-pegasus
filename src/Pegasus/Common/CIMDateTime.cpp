@@ -253,7 +253,7 @@ Boolean CIMDateTime::isInterval()
     return isInterval;
 }
 
-Uint64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
+Real64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
 {
     const char*         startDateTimeCString;
     const char*         finishDateTimeCString;

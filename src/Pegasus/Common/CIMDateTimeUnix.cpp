@@ -34,7 +34,7 @@
 
 #include <Pegasus/Common/CIMDateTime.h>
 
-#include <time.h>
+#include <sys/time.h>
 
 typedef struct Timestamp {
     char year[4];
@@ -60,7 +60,7 @@ PEGASUS_NAMESPACE_BEGIN
 CIMDateTime CIMDateTime::getCurrentDateTime()
 {
     CIMDateTime 	currentDateTime;
-    long         	year;
+    int         	year;
     Timestamp_t  	dateTime;
     char   		mTmpString[80];
     time_t 		mSysTime;

@@ -86,7 +86,7 @@ int main(int argc, char** argv)
     // Tests for getCurrentDateTime and getDifference.
     //
     CIMDateTime         startTime, finishTime;
-    Uint64              differenceInSeconds;
+    Real64              differenceInSeconds;
 
     //
     // Call getCurrentDateTime

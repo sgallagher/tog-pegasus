@@ -728,21 +728,6 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                     //
                     //  Send Create request message to each provider
                     //
-                    instanceRef = instance.getPath ();
-                    instanceRef.setNameSpace (request->nameSpace);
-
-                    CIMValue filterValue = instance.getProperty( 
-                    instance.findProperty( _PROPERTY_FILTER ) ).getValue();
-                    CIMValue handlerValue = instance.getProperty( 
-                    instance.findProperty( _PROPERTY_HANDLER ) ).getValue();
-
-                    Array< CIMKeyBinding > kb;
-                    kb.append( CIMKeyBinding( _PROPERTY_FILTER, filterValue ) );
-                    kb.append( CIMKeyBinding( _PROPERTY_HANDLER, handlerValue ) );
-
-                    instanceRef.setKeyBindings( kb );
-
-                    instance.setPath (instanceRef);
                     // l10n 
                     _sendCreateRequests (indicationProviders, 
                         sourceNameSpace, requiredProperties, condition, 
@@ -2956,7 +2941,64 @@ Boolean IndicationService::_canCreate (
         _checkRequiredProperty (instance, _PROPERTY_HANDLER, _MSG_KEY_PROPERTY);
 
         //
-        //  Subscription State, Repeat Notificastion Policy, and On Fatal Error
+        //  Validate the Filter and Handler reference properties
+        //  Ensure Filter and Handler instances can be retrieved from the 
+        //  repository
+        //
+        CIMProperty filterProperty = instance.getProperty
+            (instance.findProperty (_PROPERTY_FILTER));
+        CIMValue filterValue = filterProperty.getValue ();
+        CIMObjectPath filterPath;
+        filterValue.get (filterPath);
+        _repository->read_lock ();
+        try
+        {
+            CIMInstance filterInstance = _repository->getInstance 
+                (nameSpace, filterPath,
+                true, false, false, CIMPropertyList ());
+        }
+        catch (Exception &)
+        {
+            _repository->read_unlock ();
+            PEG_METHOD_EXIT ();
+            throw;
+        }
+        _repository->read_unlock ();
+
+        CIMProperty handlerProperty = instance.getProperty
+            (instance.findProperty (_PROPERTY_HANDLER));
+        CIMValue handlerValue = handlerProperty.getValue ();
+        CIMObjectPath handlerPath;
+        handlerValue.get (handlerPath);
+        _repository->read_lock ();
+        try
+        {
+            CIMInstance handlerInstance = _repository->getInstance 
+                (nameSpace, handlerPath,
+                true, false, false, CIMPropertyList ());
+        }
+        catch (Exception &)
+        {
+            _repository->read_unlock ();
+            PEG_METHOD_EXIT ();
+            throw;
+        }
+        _repository->read_unlock ();
+
+        //
+        //  Set the key bindings in the subscription instance
+        //
+        Array <CIMKeyBinding> kb;
+        kb.append (CIMKeyBinding (_PROPERTY_FILTER, filterValue));
+        kb.append (CIMKeyBinding (_PROPERTY_HANDLER, handlerValue));
+
+        CIMObjectPath instanceRef = instance.getPath ();
+        instanceRef.setKeyBindings (kb);
+        instanceRef.setNameSpace (nameSpace);
+        instance.setPath (instanceRef);
+
+        //
+        //  Subscription State, Repeat Notification Policy, and On Fatal Error
         //  Policy properties each has a default value, a corresponding 
         //  Other___ property, and a set of valid values
         //
@@ -5106,8 +5148,9 @@ CIMInstance IndicationService::_getHandler (
 
     try
     {
-        handlerInstance = _repository->getInstance 
-            (subscription.getPath ().getNameSpace (), handlerRef);
+        handlerInstance = _repository->getInstance
+            (subscription.getPath ().getNameSpace (), handlerRef,
+             false, false, false, CIMPropertyList ());
     }
     catch (Exception&)
     {
@@ -5147,7 +5190,8 @@ Boolean IndicationService::_isTransient (
 
     try
     {
-        instance = _repository->getInstance (nameSpace, handler);
+        instance = _repository->getInstance (nameSpace, handler, 
+            false, false, false, CIMPropertyList ());
     }
     catch (Exception&)
     {

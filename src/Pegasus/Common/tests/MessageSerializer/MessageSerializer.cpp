@@ -68,8 +68,8 @@ void testCIMGetInstanceRequestMessage()
     queueIds.push(10);
     queueIds.push(4);
 
-    CIMGetInstanceRequestMessage* inMessage;
-    inMessage = new CIMGetInstanceRequestMessage(
+    AutoPtr<CIMGetInstanceRequestMessage> inMessage;
+    inMessage.reset(new CIMGetInstanceRequestMessage(
         "TestMessageID",                    // messageId
         CIMNamespaceName("/test/cimv2"),    // nameSpace
         CIMObjectPath("MyClass.key=1"),     // instanceName
@@ -79,12 +79,14 @@ void testCIMGetInstanceRequestMessage()
         CIMPropertyList(),                  // propertyList
         queueIds,                           // queueIds
         String("TestAuthType"),             // authType
-        String("TestUserName"));            // userName
+        String("TestUserName")));           // userName
 
-    CIMMessage* outMessage = serializeDeserializeMessage(inMessage);
+    AutoPtr<CIMMessage> outMessage(
+        serializeDeserializeMessage(inMessage.get()));
 
     CIMGetInstanceRequestMessage* outMessageRef;
-    outMessageRef = dynamic_cast<CIMGetInstanceRequestMessage*>(outMessage);
+    outMessageRef =
+        dynamic_cast<CIMGetInstanceRequestMessage*>(outMessage.get());
     assert(outMessageRef != 0);
 
     assert(inMessage->getType() == outMessage->getType());
@@ -111,24 +113,24 @@ void testCIMGetInstanceRequestMessage()
             !outMessageRef->propertyList.isNull()));
     assert(inMessage->propertyList.getPropertyNameArray() ==
            outMessageRef->propertyList.getPropertyNameArray());
-
-    delete outMessage;
 }
 
 void testCIMGetInstanceResponseMessage()
 {
-    CIMGetInstanceResponseMessage* inMessage;
-    inMessage = new CIMGetInstanceResponseMessage(
+    AutoPtr<CIMGetInstanceResponseMessage> inMessage;
+    inMessage.reset(new CIMGetInstanceResponseMessage(
         "123",                              // messageId
         CIMException(CIM_ERR_NOT_SUPPORTED,
             "Unsupported operation"),       // cimException
         QueueIdStack(),                     // queueIds
-        CIMInstance());                     // cimInstance
+        CIMInstance()));                    // cimInstance
 
-    CIMMessage* outMessage = serializeDeserializeMessage(inMessage);
+    AutoPtr<CIMMessage> outMessage(
+        serializeDeserializeMessage(inMessage.get()));
 
     CIMGetInstanceResponseMessage* outMessageRef;
-    outMessageRef = dynamic_cast<CIMGetInstanceResponseMessage*>(outMessage);
+    outMessageRef =
+        dynamic_cast<CIMGetInstanceResponseMessage*>(outMessage.get());
     assert(outMessageRef != 0);
 
     assert(inMessage->getType() == outMessage->getType());
@@ -150,8 +152,6 @@ void testCIMGetInstanceResponseMessage()
     {
         assert(inMessage->cimInstance.identical(outMessageRef->cimInstance));
     }
-
-    delete outMessage;
 }
 
 int main(int argc, char** argv)

@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //         Mike Day (mdday@us.ibm.com)
 //         Jenny Yu (jenny_yu@hp.com)
 //
@@ -44,8 +44,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-
-String NAMESPACE = "root/cimv2";
+String globalNamespace = "root/cimv2";
 
 /** ErrorExit - Print out the error message as an
     and get out.
@@ -66,9 +65,15 @@ void ErrorExit(const String& message)
 time to execute.  Grow this to a class so we have start and stop and time
 display with success/failure for each function.
 */
-static void testStatus(const String& message)
+static void testStart(const String& message)
 {
-    cout << message << endl;
+    cout << "++++ " << message << " ++++" << endl;
+
+}
+
+static void testEnd(const double elapsedTime)
+{
+    cout << "In " << elapsedTime << " Seconds\n\n";
 }
 /*****************************************************************
 //    Testing Namespace operations
@@ -86,7 +91,7 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
     {
 		 // cout << " Enumerate Namespaces " << className << endl;
 		 Array<CIMReference> instanceNames = client.enumerateInstanceNames(
-		     NAMESPACE, className);
+		     globalNamespace, className);
     
 		 cout << instanceNames.size() << " Namespaces" << endl;
 		 // Convert from CIMReference to String form
@@ -121,7 +126,7 @@ static void TestEnumerateClassNames (CIMClient& client, Boolean activeTest,
 		 Boolean deepInheritance = true;
 		 String className = "";
 		 Array<String> classNames = client.enumerateClassNames(
-		     NAMESPACE, className, deepInheritance);
+		     globalNamespace, className, deepInheritance);
 
 		 if (verboseTest)
 		 {
@@ -143,7 +148,7 @@ static void TestGetClass(CIMClient& client, Boolean activeTest,
 		     Boolean verboseTest) 
 {
     CIMClass c = client.getClass(
-		 NAMESPACE, "CIM_ComputerSystem", false, false, true);
+		 globalNamespace, "CIM_ComputerSystem", false, false, true);
 
     c.print();
 }
@@ -157,12 +162,12 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
 
     //Test for class already existing
     Array<String> classNames = client.enumerateClassNames(
-		 NAMESPACE, "CIM_ManagedElement", false);
+		 globalNamespace, "CIM_ManagedElement", false);
 
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
 		 if (CIMName::equal(classNames[i], testClass))
-		     client.deleteClass(NAMESPACE, testClass);
+		     client.deleteClass(globalNamespace, testClass);
     }
     
     // CreateClass:
@@ -172,11 +177,11 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
     c1.addProperty(CIMProperty("count", Uint32(99)));
     c1.addProperty(CIMProperty("ratio", Real64(66.66)));
     c1.addProperty(CIMProperty("message", String("Hello World")));
-    client.createClass(NAMESPACE, c1);
+    client.createClass(globalNamespace, c1);
 
     // GetClass:
 
-    CIMClass c2 = client.getClass(NAMESPACE, testClass, false);
+    CIMClass c2 = client.getClass(globalNamespace, testClass, false);
     if (!c1.identical(c2))
 		 cout << "Class SubClass Returned not equal to created" << endl;
     //assert(c1.identical(c2));
@@ -184,11 +189,11 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
     // Modify the class:
 
     c2.removeProperty(c2.findProperty("message"));
-    client.modifyClass(NAMESPACE, c2);
+    client.modifyClass(globalNamespace, c2);
 
     // GetClass:
 
-    CIMClass c3 = client.getClass(NAMESPACE, testClass, false);
+    CIMClass c3 = client.getClass(globalNamespace, testClass, false);
 
     if (!c3.identical(c2))
 		 cout << "Test Failed. Rtned class c3 not equal to c2" << endl;;
@@ -196,7 +201,7 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
     // Determine if the new Class exists in Enumerate
 
     classNames = client.enumerateClassNames(
-		 NAMESPACE, "CIM_ManagedElement", false);
+		 globalNamespace, "CIM_ManagedElement", false);
 
     Boolean found = false;
 
@@ -210,21 +215,21 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
 
     // DeleteClass:
 
-    client.deleteClass(NAMESPACE, testClass);
+    client.deleteClass(globalNamespace, testClass);
 
     // Get all the classes and compare enum names with enum classes
 
-    classNames = client.enumerateClassNames(NAMESPACE, String(), false);
+    classNames = client.enumerateClassNames(globalNamespace, String(), false);
 
     Array<CIMClass> classDecls = client.enumerateClasses(
-		 NAMESPACE, String(), false, false, true, true);
+		 globalNamespace, String(), false, false, true, true);
 
     assert(classDecls.size() == classNames.size());
 
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
 		 CIMClass tmp = client.getClass(
-		     NAMESPACE, classNames[i], false, true, true);
+		     globalNamespace, classNames[i], false, true, true);
 
 		 assert(CIMName::equal(classDecls[i].getClassName(), classNames[i]));
 
@@ -236,7 +241,7 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
 static void TestQualifierOperations(CIMClient& client, Boolean activeTest, 
 		 		 		 Boolean verboseTest) {
     
-    Array<CIMQualifierDecl> qualifierDecls = client.enumerateQualifiers(NAMESPACE);
+    Array<CIMQualifierDecl> qualifierDecls = client.enumerateQualifiers(globalNamespace);
 
     if (verboseTest)
     {
@@ -253,23 +258,23 @@ static void TestQualifierOperations(CIMClient& client, Boolean activeTest,
 		 // Create two qualifier declarations:
     
 		 CIMQualifierDecl qd1("qd1", false, CIMScope::CLASS, CIMFlavor::TOSUBCLASS);
-		 client.setQualifier(NAMESPACE, qd1);
+		 client.setQualifier(globalNamespace, qd1);
     
 		 CIMQualifierDecl qd2("qd2", "Hello", CIMScope::PROPERTY | CIMScope::CLASS, 
 		     CIMFlavor::OVERRIDABLE);
-		 client.setQualifier(NAMESPACE, qd2);
+		 client.setQualifier(globalNamespace, qd2);
     
 		 // Get them and compare:
     
-		 CIMQualifierDecl tmp1 = client.getQualifier(NAMESPACE, "qd1");
+		 CIMQualifierDecl tmp1 = client.getQualifier(globalNamespace, "qd1");
 		 assert(tmp1.identical(qd1));
     
-		 CIMQualifierDecl tmp2 = client.getQualifier(NAMESPACE, "qd2");
+		 CIMQualifierDecl tmp2 = client.getQualifier(globalNamespace, "qd2");
 		 assert(tmp2.identical(qd2));
     
 		 // Enumerate the qualifiers:
     
-		 Array<CIMQualifierDecl> qualifierDecls = client.enumerateQualifiers(NAMESPACE);
+		 Array<CIMQualifierDecl> qualifierDecls = client.enumerateQualifiers(globalNamespace);
     
 		 for (Uint32 i = 0; i < qualifierDecls.size(); i++)
 		 {
@@ -284,8 +289,8 @@ static void TestQualifierOperations(CIMClient& client, Boolean activeTest,
     
 		 // Delete the qualifiers:
     
-		 client.deleteQualifier(NAMESPACE, "qd1");
-		 client.deleteQualifier(NAMESPACE, "qd2");
+		 client.deleteQualifier(globalNamespace, "qd1");
+		 client.deleteQualifier(globalNamespace, "qd2");
 
     }
 
@@ -298,10 +303,10 @@ static void TestInstanceGetOperations(CIMClient& client, Boolean activeTest,
     // Get all classes
 
     //Array<String> classNames = client.enumerateClassNames(
-    //    NAMESPACE, "CIM_ManagedElement", false);
+    //    globalNamespace, "CIM_ManagedElement", false);
     
     Array<String> classNames = client.enumerateClassNames(
-		 NAMESPACE, String(), true);
+		 globalNamespace, String(), true);
 
     cout <<  classNames.size() << " Classes found " << endl;
 
@@ -316,7 +321,7 @@ static void TestInstanceGetOperations(CIMClient& client, Boolean activeTest,
        }
        else
        {
-           instanceNames = client.enumerateInstanceNames(NAMESPACE,classNames[i]);
+           instanceNames = client.enumerateInstanceNames(globalNamespace,classNames[i]);
            if (instanceNames.size() > 0)
 		   cout << "Class " << classNames[i] << " " 
  		        << instanceNames.size() << " Instances" << endl;
@@ -338,51 +343,159 @@ static void TestInstanceGetOperations(CIMClient& client, Boolean activeTest,
 
 }
 static void TestInstanceModifyOperations(CIMClient& client, Boolean 
-		 		 		 		 activeTest, Boolean verboseTest)
+		 		 	 activeTest, Boolean verboseTest)
 {
-    // Delete the class if it already exists:
+    if (!activeTest)
+    {
+        cout << "InstanceModify bypassed because it modifys repository. Set active to execute" 
+             << endl; 
+        return;
+    }
+    // name of class to play with    
+    String className = "PEG_TESTLocalClass";
 
+    // Delete the class if it already exists:
     try
     {
-		 client.deleteClass(NAMESPACE, "myclass");
+		 client.deleteClass(globalNamespace, className);
     }
     catch (Exception&)
     {
 		 // Ignore delete class!
     }
 
-#if 0
     // Create a new class:
 
-    CIMClass cimClass("myclass");
+    CIMClass cimClass(className);
     cimClass
 		 .addProperty(CIMProperty("last", String())
 		     .addQualifier(CIMQualifier("key", true)))
 		 .addProperty(CIMProperty("first", String())
 		     .addQualifier(CIMQualifier("key", true)))
-		 .addProperty(CIMProperty("age", Uint8(0))
+		 .addProperty(CIMProperty("age", Uint32(0))
 		     .addQualifier(CIMQualifier("key", true)));
-    client.createClass(NAMESPACE, cimClass);
+    client.createClass(globalNamespace, cimClass);
 
     // Create an instance of that class:
+    cout << "Create one Instance of class " << className << endl;
 
-    CIMInstance cimInstance("myclass");
+    CIMInstance cimInstance(className);
     cimInstance.addProperty(CIMProperty("last", "Smith"));
     cimInstance.addProperty(CIMProperty("first", "John"));
-    cimInstance.addProperty(CIMProperty("age", Uint8(101)));
-    String instanceName = cimInstance.getInstanceName(cimClass);
-    client.createInstance(NAMESPACE, cimInstance);
+    cimInstance.addProperty(CIMProperty("age", Uint32(1010)));
+    CIMReference instanceName = cimInstance.getInstanceName(cimClass);
+    client.createInstance(globalNamespace, cimInstance);
 
     // Get the instance and compare with created one:
 
-    CIMReference ref;
-    CIMReference::instanceNameToReference(instanceName, ref);
-    CIMInstance tmp = client.getInstance(NAMESPACE, ref);
+    //CIMReference ref;
+    //CIMReference::instanceNameToReference(instanceName, ref);
+    CIMInstance tmp = client.getInstance(globalNamespace, instanceName);
+
+
 
     // cimInstance.print();
     // tmp.print();
     // assert(cimInstance.identical(tmp));
-#endif
+
+    client.deleteInstance(globalNamespace, instanceName);
+
+    // Repeat to create multiple instances
+    Uint32 repeatCount = 30;
+    Array<CIMReference> instanceNames;
+    cout << "Create " << repeatCount << " Instances" << endl;
+    for (Uint32 i = 0; i < repeatCount; i++)
+    {
+        CIMInstance cimInstance(className);
+        cimInstance.addProperty(CIMProperty("last", "Smith"));
+        cimInstance.addProperty(CIMProperty("first", "John"));
+        cimInstance.addProperty(CIMProperty("age", Uint32(i)));
+        instanceNames.append( cimInstance.getInstanceName(cimClass) );
+        client.createInstance(globalNamespace, cimInstance);
+    }
+    cout << "Delete the Instances " << endl;
+    for (Uint32 i = 0; i < repeatCount; i++)
+    {
+        client.deleteInstance(globalNamespace,instanceNames[i]);
+    }
+
+    cout << "Delete the Class " << endl;
+    client.deleteClass(globalNamespace,className);
+}
+
+static void TestAssociationOperations(CIMClient& client, Boolean 
+		 		 	 activeTest, Boolean verboseTest)
+{
+    return;
+}
+
+/* Creates an instance with a method, executes the method and then deletes
+the instance
+
+Warning: This test works only as long as there is a provider, in this case, it goes
+to the repository and gets dropped on the floor. 
+*/
+
+static void TestMethodOperations( CIMClient& client, Boolean 
+		 		 	 activeTest, Boolean verboseTest)
+
+{
+    // Since the test modifies the repository, don't do it unless active set.    
+    if (!activeTest)
+    {
+        return;   
+    }
+    //Indication
+    CIMClass cimClass = client.getClass(globalNamespace, "TestSoftwarePkg", false);
+    CIMInstance cimInstance("TestSoftwarePkg");
+    cimInstance.addProperty(CIMProperty("PkgName", "WBEM"));
+    cimInstance.addProperty(CIMProperty("PkgIndex", Uint32(101)));
+    cimInstance.addProperty(CIMProperty("trapOid", "1.3.6.1.4.1.11.2.3.1.7.0.4"));
+    cimInstance.addProperty(CIMProperty("computerName", "NU744781"));
+    CIMReference instanceName = cimInstance.getInstanceName(cimClass);
+    instanceName.setNameSpace(globalNamespace);
+    client.createInstance(globalNamespace, cimInstance);
+    try
+    {
+        
+	Array<CIMParamValue> inParams;
+	Array<CIMParamValue> outParams;
+	inParams.append(CIMParamValue(
+	    CIMParameter("param1", CIMType::STRING), 
+	    CIMValue("Hewlett-Packard")));
+	inParams.append(CIMParamValue(
+	    CIMParameter("param2", CIMType::STRING), 
+	    CIMValue("California")));
+        Uint32 testRepeat = 100;
+	for (Uint32 i = 0; i < testRepeat; i++)        // repeat the test x time
+        {
+            CIMValue retValue = client.invokeMethod(
+                globalNamespace, 
+                instanceName, 
+                "ChangeName", 
+                inParams, 
+                outParams);
+            if (verboseTest)
+            {
+                    cout << "Output : " << retValue.toString() << endl;
+                    for (Uint8 i = 0; i < outParams.size(); i++)
+                        cout << outParams[i].getParameter().getName() 
+                            << " : " 
+                            << outParams[i].getValue().toString()
+                            << endl;
+            }
+        }
+        cout << "Executed " << testRepeat << " methods" << endl;
+    }
+
+    catch(Exception& e)
+    {
+	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+	exit(1);
+    }
+
+
+    client.deleteInstance(globalNamespace, instanceName);
 }
 
 ///////////////////////////////////////////////////////////////
@@ -408,13 +521,13 @@ void GetOptions(
     const String& pegasusHome)
 {
     static struct OptionRow optionsTable[] =
+        //     optionname defaultvalue rqd  type domain domainsize clname hlpmsg
     {
 		 {"active", "false", false, Option::BOOLEAN, 0, 0, "a",
-		 		 		 "If set allows test that modify the repository" },
-		 
+		 		      "If set allows test that modify the repository" },
 		 
 		 {"repeat", "1", false, Option::WHOLE_NUMBER, 0, 0, "r",
-		 		 		 "specifies port number to listen on" },
+		 		       "specifies port number to listen on" },
 		 
 		 {"namespace", "root/cimv2", false, Option::STRING, 0, 0, "-n",
 		 		 		 "specifies namespace to use for test" },
@@ -450,19 +563,6 @@ void GetOptions(
     om.checkRequiredOptions();
 }
 
-/* PrintHelp - This is temporary until we expand the options manager to allow
-   options help to be defined with the OptionRow entries and presented from
-   those entries.
-*/
-void PrintHelp(const char* arg0)
-{
-    cout << '\n';
-    cout << "TestClient" << endl;
-    cout << '\n';
-    cout << "Usage: " << arg0 << endl;
-    cout << endl;
-}
-
 
 ///////////////////////////////////////////////////////////////
 //    MAIN
@@ -495,7 +595,6 @@ int main(int argc, char** argv)
     try
     {
 		 GetOptions(om, argc, argv, pegasusHome);
-		 // om.print();
     }
     catch (Exception& e)
     {
@@ -503,27 +602,26 @@ int main(int argc, char** argv)
 		 exit(1);
     }
 
-
-    String localNameSpace;
-    if(om.lookupValue("namespace", localNameSpace))
-      {
-       NAMESPACE = localNameSpace;
-       cout << "Namespace = " << localNameSpace << endl;
-
-      }
-    cout << "Namespace = " << localNameSpace << endl;
-    
-    cout << "Namespace = " << NAMESPACE << endl;
-
     // Check to see if user asked for help (-h otpion):
-    String helpOption;
-
-    if (om.valueEquals("verbose", "true"))
+    if (om.valueEquals("help", "true"))
     {
-		 PrintHelp(argv[0]);
-		 om.printHelp();
+                String header = "Usage ";
+                header.append(argv[0]);
+                header.append(" -parameters host [host]");
+
+                String trailer = "Assumes localhost:5988 if host not specified";
+                trailer.append("\nHost may be of the form name or name:port");
+                trailer.append("\nPort 5988 assumed if port number missing.");
+                om.printOptionsHelpTxt(header, trailer);
+
 		 exit(0);
     }
+
+    String localNameSpace;
+    om.lookupValue("namespace", localNameSpace);
+    globalNamespace = localNameSpace;
+    cout << "Namespace = " << localNameSpace << endl;
+
 
     Boolean verboseTest = (om.valueEquals("verbose", "true")) ? true :false;
 
@@ -546,13 +644,15 @@ int main(int argc, char** argv)
     if(useSLP == false && argc < 2)
       connectionList.append("localhost:5988");
 
+    // Expand host to add port if not defined
+
 #ifndef PEGASUS_OS_ZOS
     if( useSLP )
     {
       slp_client discovery = slp_client();
       discovery.discovery_cycle ( "service:cim.pegasus",
-		 		 		 		   NULL,
-		 		 		 		   "DEFAULT" ) ;
+		 		  NULL,
+		 		  "DEFAULT" ) ;
       
       struct rply_list *replies = discovery.get_response( );
       String host ;
@@ -600,39 +700,47 @@ int main(int argc, char** argv)
 	   client.connect(connection);
 	   delete [] connection;
 
-	   testStatus("Test NameSpace Operations");
+	   testStart("Test NameSpace Operations");
 
 	   TestNameSpaceOperations(client, activeTest, verboseTest);
-	   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
+           testEnd(elapsedTime.getElapsed());
 		   
-	   testStatus("Test Qualifier Operations");
+	   testStart("Test Qualifier Operations");
 	   elapsedTime.reset();
 	   TestQualifierOperations(client,activeTest,verboseTest);
-	   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
+           testEnd(elapsedTime.getElapsed());
 
-	   testStatus("Test EnumerateClassNames");
+	   testStart("Test EnumerateClassNames");
 	   elapsedTime.reset();
 	   TestEnumerateClassNames(client,activeTest,verboseTest);
-	   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
+           testEnd(elapsedTime.getElapsed());
 
 
-	   testStatus("Test Class Operations");
+	   testStart("Test Class Operations");
 	   elapsedTime.reset();
 	   TestClassOperations(client,activeTest,verboseTest);
-	   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
-	   elapsedTime.printElapsed();
+           testEnd(elapsedTime.getElapsed());
 
-	   testStatus("Test Instance Get Operations");
+
+	   testStart("Test Instance Get Operations");
 	   elapsedTime.reset();
 	   TestInstanceGetOperations(client,activeTest,verboseTest);
-	   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
+           testEnd(elapsedTime.getElapsed());
 
-	   testStatus("Test Instance Modification Operations");
+	   testStart("Test Instance Modification Operations");
 	   elapsedTime.reset();
 	   TestInstanceModifyOperations(client, activeTest, verboseTest);
-	   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
+           testEnd(elapsedTime.getElapsed());
 
-	   testStatus("Test Associations");
+	   testStart("Test Associations");
+           TestAssociationOperations(client, activeTest, verboseTest);
+           testEnd(elapsedTime.getElapsed());
+           /* Turn this one off until we get valid method to execute
+
+	   testStart("Test Method Execution");
+           TestMethodOperations(client, activeTest, verboseTest);
+           testEnd(elapsedTime.getElapsed());
+           */
 		   
       }
       catch(Exception& e)
@@ -642,7 +750,7 @@ int main(int argc, char** argv)
 		 }
     }
       
-    PEGASUS_STD(cout) << "+++++ passed all tests" << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << "+++++ "<< argv[0] << " Terminated Normally" << PEGASUS_STD(endl);
     return 0;
 }
 

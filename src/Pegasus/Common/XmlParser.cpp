@@ -247,8 +247,7 @@ static const char* _xmlKeys[] =
     "Common.XmlParser.SEMANTIC_ERROR"
 };
 
-// l10n TODO replace _formMessage with the commented one and uncomment
-// the new constructors
+// l10n replace _formMessage (comment out the old one)
 /*
 static String _formMessage(Uint32 code, Uint32 line, const String& message)
 {

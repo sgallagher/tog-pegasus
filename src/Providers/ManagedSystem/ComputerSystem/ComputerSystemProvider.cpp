@@ -254,17 +254,18 @@ PEGASUS_THREAD_CDECL PEGASUS_THREAD_RETURN test_cimom_handle(void *parm)
    while(unload_flag.value() == 0)
    {
       // if(unload_flag.value() == 0)   
-     TestNameSpaceOperations(myself->_ch);
-     pegasus_sleep(1000);
-     if(unload_flag.value() == 0)   
-	TestEnumerateClassNames(myself->_ch);
-     pegasus_sleep(1000);
+      TestNameSpaceOperations(myself->_ch);
+      pegasus_sleep(1000);
+      if(unload_flag.value() == 0)   
+	 TestEnumerateClassNames(myself->_ch);
+      pegasus_sleep(1000);
       if(unload_flag.value() == 0)   
 	 TestGetClass(myself->_ch);
-     pegasus_sleep(1000);
+      pegasus_sleep(1000);
       TestInstanceGetOperations(myself->_ch); 
    }
    threads_running--;
+   PEGASUS_STD(cout) << "exiting test loop" << PEGASUS_STD(endl);
    
    exit_thread((PEGASUS_THREAD_RETURN)1);
    return(PEGASUS_THREAD_RETURN)0;
@@ -435,18 +436,18 @@ void ComputerSystemProvider::initialize(CIMOMHandle& handle)
   // platform-specific routine to initialize protected members
   _cs.initialize();
 
-//   PEGASUS_STD(cout) << "Initializing Test Thread " << PEGASUS_STD(endl);
+  PEGASUS_STD(cout) << "Initializing Test Thread " << PEGASUS_STD(endl);
 
-//   static Thread th(test_cimom_handle, this, true);
-//   threads_running++;
-//   th.run();
+  static Thread th(test_cimom_handle, this, true);
+  threads_running++;
+  th.run();
 }
 
 
 void ComputerSystemProvider::terminate(void)
 {
    unload_flag = 1;
-   while(true == _ch.pending_operation() || threads_running.value())
+   while(threads_running.value())
       pegasus_yield();
    
    delete this;

@@ -96,18 +96,15 @@ public:
 
     /** Get the number of propertyNames in the list.
     */
-    Uint32 getNumProperties() const;
+    Uint32 size() const;
 
     /** Get the property at the given position.
     */
-    const String& getPropertyName(Uint32 pos) const;
+    const String& operator[](Uint32 pos) const;
 
     /** Get an array of the property names
     */
-    const Array<String>& getPropertyNameArray() const;
-
-    /** Makes a deep copy (clone) of the given object. */
-    CIMPropertyList clone() const;
+    Array<String> getPropertyNameArray() const;
 
 private:
 

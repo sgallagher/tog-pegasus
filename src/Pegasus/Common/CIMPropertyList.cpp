@@ -92,24 +92,19 @@ Boolean CIMPropertyList::isNull() const
     return _rep->isNull;
 }
 
-Uint32 CIMPropertyList::getNumProperties() const
+Uint32 CIMPropertyList::size() const
 {
     return _rep->propertyNames.size();
 }
 
-const String& CIMPropertyList::getPropertyName(Uint32 pos) const
+const String& CIMPropertyList::operator[](Uint32 pos) const
 {
     return _rep->propertyNames[pos];
 }
 
-const Array<String>& CIMPropertyList::getPropertyNameArray() const
+Array<String> CIMPropertyList::getPropertyNameArray() const
 {
     return _rep->propertyNames;
-}
-
-CIMPropertyList CIMPropertyList::clone() const
-{
-    return CIMPropertyList(*this);
 }
 
 PEGASUS_NAMESPACE_END

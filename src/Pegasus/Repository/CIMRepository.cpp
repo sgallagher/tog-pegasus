@@ -1179,10 +1179,9 @@ void CIMRepository::modifyInstance(
         // Loop through the propertyList replacing each property in the original
         //
 
-        for (Uint32 i=0; i<propertyList.getNumProperties(); i++)
+        for (Uint32 i=0; i<propertyList.size(); i++)
         {
-            Uint32 origPropPos =
-                cimInstance.findProperty(propertyList.getPropertyName(i));
+            Uint32 origPropPos = cimInstance.findProperty(propertyList[i]);
             if (origPropPos != PEG_NOT_FOUND)
             {
                 // Case: Property set in original
@@ -1191,7 +1190,7 @@ void CIMRepository::modifyInstance(
 
                 // Get the given property value
                 Uint32 givenPropPos =
-                    givenInstance.findProperty(propertyList.getPropertyName(i));
+                    givenInstance.findProperty(propertyList[i]);
                 if (givenPropPos != PEG_NOT_FOUND)
                 {
                     // Case: Property set in original and given
@@ -1226,7 +1225,7 @@ void CIMRepository::modifyInstance(
 
                 // Get the given property value
                 Uint32 givenPropPos =
-                    givenInstance.findProperty(propertyList.getPropertyName(i));
+                    givenInstance.findProperty(propertyList[i]);
                 if (givenPropPos != PEG_NOT_FOUND)
                 {
                     // Case: Property set in given and not in original
@@ -1260,8 +1259,7 @@ void CIMRepository::modifyInstance(
                     // ATTN: This is not the most efficient solution
                     CIMClass cimClass = getClass(
                         nameSpace, cimInstance.getClassName(), false);
-                    if (!cimClass.existsProperty(
-                        propertyList.getPropertyName(i)))
+                    if (cimClass.findProperty(propertyList[i]) == PEG_NOT_FOUND)
                     {
                         // ATTN: This exception may be returned by setProperty
                         PEG_METHOD_EXIT();

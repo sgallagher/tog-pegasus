@@ -234,9 +234,9 @@ void ConfigSettingProvider::modifyInstance(
         Boolean currentValueModified = false;
         Boolean plannedValueModified = false;
 
-        for (Uint32 i=0; i<propertyList.getNumProperties(); i++)
+        for (Uint32 i=0; i<propertyList.size(); i++)
         {
-            String propertyName = propertyList.getPropertyName(i);
+            String propertyName = propertyList[i];
             if (String::equalNoCase(propertyName, CURRENT_VALUE))
             {
                 currentValueModified = true;

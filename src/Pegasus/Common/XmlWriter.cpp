@@ -1967,9 +1967,9 @@ void XmlWriter::appendPropertyListIParameter(
     _appendIParamValueElementBegin(out, "PropertyList");
 
     out << "<VALUE.ARRAY>\n";
-    for (Uint32 i = 0; i < propertyList.getNumProperties(); i++)
+    for (Uint32 i = 0; i < propertyList.size(); i++)
     {
-        out << "<VALUE>" << propertyList.getPropertyName(i) << "</VALUE>\n"; 
+        out << "<VALUE>" << propertyList[i] << "</VALUE>\n"; 
     }
     out << "</VALUE.ARRAY>\n";
 

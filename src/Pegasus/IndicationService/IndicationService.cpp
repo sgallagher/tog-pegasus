@@ -988,7 +988,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
             CIMInstance modifiedInstance = 
                 request->modifiedInstance;
             CIMPropertyList propertyList = request->propertyList;
-            if (request->propertyList.getNumProperties () > 0)
+            if (request->propertyList.size () > 0)
             {
                 //
                 //  Get current state from instance
@@ -2437,7 +2437,7 @@ Boolean IndicationService::_canModify (
     //
     //  Request is invalid if more than one property is specified
     //
-    else if (request->propertyList.getNumProperties () > 1)
+    else if (request->propertyList.size () > 1)
     {
         PEG_METHOD_EXIT ();
         throw CIMException (CIM_ERR_NOT_SUPPORTED);
@@ -2447,8 +2447,8 @@ Boolean IndicationService::_canModify (
     //  For request to be valid, zero or one property must be specified
     //  If one property specified, it must be Subscription State property
     //
-    else if ((request->propertyList.getNumProperties () == 1) &&
-             (request->propertyList.getPropertyName (0) != _PROPERTY_STATE))
+    else if ((request->propertyList.size () == 1) &&
+             (request->propertyList[0] != _PROPERTY_STATE))
     {
         PEG_METHOD_EXIT ();
         throw CIMException (CIM_ERR_NOT_SUPPORTED);
@@ -2817,12 +2817,12 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
                             //  with supported property list
                             //
                             for (Uint8 k = 0; 
-                                 k < propertyList.getNumProperties () && match; 
+                                 k < propertyList.size () && match; 
                                  k++)
                             {
                                 if (!Contains 
                                     (supportedProperties.getPropertyNameArray(),
-                                    propertyList.getPropertyName (k)))
+                                    propertyList[k]))
                                 {
                                     match = false;
                                 }
@@ -3128,10 +3128,10 @@ Boolean IndicationService::_inPropertyList (
             //  Compare required property list
             //  with property list
             //
-            for (Uint8 i = 0; i < requiredProperties.getNumProperties (); i++)
+            for (Uint8 i = 0; i < requiredProperties.size (); i++)
             {
                 if (!Contains (supportedProperties.getPropertyNameArray (), 
-                    requiredProperties.getPropertyName (i)))
+                    requiredProperties[i]))
                 {
                     return false;
                 }

@@ -12,6 +12,8 @@ OPENSSL_CNF = openssl.cnf
 
 tests:
 
+poststarttests:
+
 clean:
 	@$(RM) $(RESULTFILE)
 	@$(RM) $(PEGASUS_HOME)/testdn1.cert

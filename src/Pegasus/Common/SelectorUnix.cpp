@@ -114,7 +114,7 @@ Boolean Selector::select(Uint32 milliseconds)
 	const Uint32 microseconds = (milliseconds % 1000) * 1000;
 	struct timeval tv = { seconds, microseconds };
 
-	count = select_wrapper(
+	count = _select_wrapper(
 	    FD_SETSIZE,
 	    &_rep->active_rd_fd_set,
 	    &_rep->active_wr_fd_set,

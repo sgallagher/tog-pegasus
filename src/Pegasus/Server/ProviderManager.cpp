@@ -104,7 +104,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::monitorThread(void *
         for(Uint32 i = 0, n = _this->_providers.size(); i < n; i++)
         {
             // get provider timeout
+
+#if defined(PEGASUS_OS_HPUX)
+            Uint32 provider_timeout = 0xffffffff;
+#else
             Uint32 provider_timeout = 30;
+#endif
 
             if((provider_timeout != 0xffffffff) && (provider_timeout <= timeout))
             {

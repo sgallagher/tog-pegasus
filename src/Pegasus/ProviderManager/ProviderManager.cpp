@@ -72,7 +72,6 @@ Provider ProviderManager::getProvider(
         }
     }
 
-
     loadProvider(fileName, providerName);
 
     return(getProvider(fileName, providerName));

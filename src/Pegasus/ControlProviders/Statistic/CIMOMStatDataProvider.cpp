@@ -32,6 +32,8 @@
 
 #include "CIMOMStatDataProvider.h"
 
+
+PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMOMStatDataProvider::CIMOMStatDataProvider()

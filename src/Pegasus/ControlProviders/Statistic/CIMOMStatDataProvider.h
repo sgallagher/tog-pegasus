@@ -32,17 +32,18 @@
 #define Pegasus_CIMOMStatDataProvider_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/ControlProviders/Statistic/Linkage.h>
+
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Common/StatisticalData.h>
-#include <Pegasus/ControlProviders/Statistic/Linkage.h>
 #include <math.h>
 #include <iostream>
 
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMOMStatDataProvider :
+class PEGASUS_STATISTICPROVIDER_LINKAGE CIMOMStatDataProvider :
 	public CIMInstanceProvider
 {
 public:

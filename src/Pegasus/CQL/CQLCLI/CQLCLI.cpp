@@ -133,7 +133,7 @@ int main(int argc, char ** argv)
 	_instances.appendArray(_rep->enumerateInstances( _ns, _testclass1 ));
 
 	// setup input stream
-	if(argc > 1){
+	if(argc == 2){
 		ifstream queryInputSource(argv[1]);
 		if(!queryInputSource){
 			cout << "Cannot open input file.\n" << endl;
@@ -169,32 +169,7 @@ int main(int argc, char ** argv)
 			cout << "CAUGHT ... BADNESS HAPPENED!!!" << endl;
 		}
 	}else{
-		// manually setup parser state
-		String lang("CQL");
-	        String query("SELECTSTATEMENT");
-        	globalParserState = new CQLParserState;
-        	globalParserState->error = false;
-        	globalParserState->text = text;
-        	globalParserState->textSize = strlen(text) + 1;
-        	globalParserState->offset = 0;
-        	globalParserState->statement = new CQLSelectStatement(lang,query,_ctx);
-
-		printf("Starting CQL lexer/parser...\n");
-		int i = 0;
-		while(1){
-         	       globalParserState->statement->clear();
-                	CQL_parse();
-                                                                                                                  
-                	String s = globalParserState->statement->toString();
-               		printf("%s\n",(const char*)(s.getCString()));
-                	//if(argc == 2){
-                        	printf("Evaluating...\n");
-                        	Boolean result = globalParserState->statement->evaluate(_instances[i]);
-                        	if(result) printf("Result = true\n");
-				else printf("Result = false\n");
-                	//}
-                	i++;  // current query expression*/
-        	}
+		cout << "Invalid number of arguments.\n" << endl;
 	}
 
     	return 0;                                                                                                              

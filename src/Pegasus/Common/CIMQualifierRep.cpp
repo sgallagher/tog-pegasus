@@ -138,7 +138,7 @@ void CIMQualifierRep::toMof(Array<Sint8>& out) const   //ATTNKS:
     // output the flavors
     // ATTNKS: This is a poor test to see if flavor output exists
     String flavorString;
-    flavorString = FlavorToString(_flavor);
+    flavorString = FlavorToMof(_flavor);
     if (flavorString.size())
     {
 	if (hasValueField == false)

@@ -159,7 +159,7 @@ void CIMQualifierDeclRep::toMof(Array<Sint8>& out) const
     }
     //FlavorToXml(out, _flavor);
     String flavorString;
-    flavorString = FlavorToString(_flavor);
+    flavorString = FlavorToMof(_flavor);
     if (flavorString.size())
     {
     out << " Flavor( " << flavorString << ")";

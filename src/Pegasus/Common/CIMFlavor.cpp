@@ -44,8 +44,36 @@ static const char* _toString(Boolean x)
 {
     return x ? "true" : "false";
 }
+/** FlavorToMof	Convert the Qualifier flavors to a string of MOF 
+    flavor keywords.
 
-String FlavorToString(Uint32 flavor)
+  <pre>
+  Keyword            Function				  Default
+    EnableOverride  Qualifier is overridable. 		    yes
+    DisableOverride Qualifier cannot be overriden.          no
+    ToSubclass      Qualifier is inherited by any subclass. yes
+    Restricted      Qualifier applies only to the class	    no
+                    in which it is declared
+    Translatable    Indicates the value of the qualifier
+                    can be specified inmultiple languages   no
+    NOTE: There is an open issue with the keyword toinstance.
+
+    flavor 	      = ENABLEOVERRIDE | DISABLEOVERRIDE | RESTRICTED |
+			TOSUBCLASS | TRANSLATABLE
+    DISABLEOVERRIDE   = "disableOverride"
+
+    ENABLEOVERRIDE    = "enableoverride"
+
+    RESTRICTED        = "restricted"
+
+    TOSUBCLASS        = "tosubclass"
+
+    TRANSLATABLE      = "translatable"
+      </pre>
+      The keyword toinstance is not in the CIMspecification and so is not
+      included in out output..
+*/
+String FlavorToMof(Uint32 flavor)
 {
     Boolean overridable = (flavor & CIMFlavor::OVERRIDABLE) != 0;
     Boolean toSubClass = (flavor & CIMFlavor::TOSUBCLASS) != 0;
@@ -55,19 +83,21 @@ String FlavorToString(Uint32 flavor)
     String tmp;
 
     if (!overridable)
-	tmp += "OVERRIDABLE ";
+	tmp += "DisableOverride, ";
 
     if (!toSubClass)
-	tmp += "TOSUBCLASS ";
+	tmp += "Restricted, ";
 
+    /* this is not a legal MOF flavor
     if (toInstance)
-	tmp += "TOINSTANCE ";
+	tmp += "TOINSTANCE, ";
+    */
 
     if (translatable)
-	tmp += "TRANSLATABLE ";
+	tmp += "Translatable, ";
 
     if (tmp.size())
-	tmp.remove(tmp.size() - 1);
+	tmp.remove(tmp.size() - 2);
 
     return tmp;
 }
@@ -92,43 +122,5 @@ void FlavorToXml(Array<Sint8>& out, Uint32 flavor)
 	out << " TRANSLATABLE=\"" << _toString(translatable) << "\"";
 }
 
-/** toMof - Generates the MOF output for the flavors.
-    The BNF for this is:
-    <pre>
-    flavor 	    = ENABLEOVERRIDE | DISABLEOVERRIDE | RESTRICTED |
-			  TOSUBCLASS | TRANSLATABLE
-			  
-    DISABLEOVERRIDE = "disableOverride"
-			  
-    ENABLEOVERRIDE  = "enableoverride"
-
-    RESTRICTED 	    = "restricted"
-    
-    TOSUBCLASS 	    = "tosubclass"
-    
-    TRANSLATABLE    = "translatable"
-    </pre>
-    ATTNKS: This can be done by the function above FlavortoString.
-    ATTNKS: What happened to the restricted Flavor???
-*/
-void FlavorToMof(Array<Sint8>& out, Uint32 flavor)
-{
-    Boolean overridable = (flavor & CIMFlavor::OVERRIDABLE) != 0;
-    Boolean toSubClass = (flavor & CIMFlavor::TOSUBCLASS) != 0;
-    Boolean toInstance = (flavor & CIMFlavor::TOINSTANCE) != 0;
-    Boolean translatable = (flavor & CIMFlavor::TRANSLATABLE) != 0;
-
-    if (!overridable)
-	out << "EnableOverride " ;
-
-    if (!toSubClass)
-	out << "ToSublass " ;
-
-    if (toInstance)
-	out << "ToInstance ";
-
-    if (translatable)
-	out << "Translatable ";
-}
 
 PEGASUS_NAMESPACE_END

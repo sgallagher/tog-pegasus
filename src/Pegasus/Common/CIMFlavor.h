@@ -57,16 +57,30 @@ struct PEGASUS_COMMON_LINKAGE CIMFlavor
     static const Uint32 DEFAULTS;
 };
 
-PEGASUS_COMMON_LINKAGE String FlavorToString(Uint32 scope);
+/** FlavorToMof - Converts the flavor attributes of a qualifier to CIM MOF
+    keywords separated by spaces and returns them as a String.
+    @param flavor Variable contianing the flavor mask
+    @return Strin containing the flavor attribute keywords.
+*/
+PEGASUS_COMMON_LINKAGE String FlavorToMof(Uint32 flavor);
 
+/** FlavorToXML - converts the flavor attributes of a qualifier to cimxml
+    format and puts them into the variable out.
+    @param out XML output stream into which the xml is places.
+    @param flavor variable containing the flavor definition
+    <pre>
+    // Get flavorkeywords and test for any returned keywords
+    Uint32 flavor = CIMFlavor::DEFAULTS,
+    String flavorString;
+    flavorString = FlavorToMof(_flavor);
+    if (flavorString.size())
+	...           // code to execute if keywords exist
+    
+    </pre>
+*/
 PEGASUS_COMMON_LINKAGE void FlavorToXml(
     Array<Sint8>& out, 
     Uint32 flavor);
-
-PEGASUS_COMMON_LINKAGE void FlavorToMof(
-    Array<Sint8>& out, 
-    Uint32 flavor);
-
 
 PEGASUS_NAMESPACE_END
 

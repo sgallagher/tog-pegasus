@@ -375,11 +375,23 @@ void XmlWriter::append(Array<Sint8>& out, Sint64 x)
     append(out, buffer);
 }
 
+void XmlWriter::append(Array<Sint8>& out, Real32 x)
+{
+    char buffer[128];
+    // %.7e gives '[-]m.ddddddde+/-xx', which seems compatible with the format
+    // given in the CIM/XML spec, and the precision required by the CIM 2.2 spec
+    // (4 byte IEEE floating point)
+    sprintf(buffer, "%.7e", x);
+    append(out, buffer);
+}
+
 void XmlWriter::append(Array<Sint8>& out, Real64 x)
 {
     char buffer[128];
-    // %e gives '[-]m.dddddde+/-xx', which seems compatible with CIM/XML spec
-    sprintf(buffer, "%e", x);
+    // %.16e gives '[-]m.dddddddddddddddde+/-xx', which seems compatible with the format
+    // given in the CIM/XML spec, and the precision required by the CIM 2.2 spec
+    // (8 byte IEEE floating point)
+    sprintf(buffer, "%.16e", x);
     append(out, buffer);
 }
 
@@ -814,7 +826,7 @@ inline void _xmlWritter_appendValue(Array<Sint8>& out, Sint64 x)
 
 inline void _xmlWritter_appendValue(Array<Sint8>& out, Real32 x)
 {
-    XmlWriter::append(out, Real64(x));
+    XmlWriter::append(out, x);
 }
 
 inline void _xmlWritter_appendValue(Array<Sint8>& out, Real64 x)

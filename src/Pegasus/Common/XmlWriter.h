@@ -85,6 +85,8 @@ public:
 
     static void append(Array<Sint8>& out, Sint64 x);
 
+    static void append(Array<Sint8>& out, Real32 x);
+
     static void append(Array<Sint8>& out, Real64 x);
 
     static void append(Array<Sint8>& out, const char* str);

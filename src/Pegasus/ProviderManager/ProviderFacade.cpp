@@ -29,12 +29,26 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ProviderFacade.h"
+
 #include <Pegasus/Provider/OperationFlag.h>
 #include <Pegasus/Provider/SimpleResponseHandler.h>
 
 #include <Pegasus/Common/Destroyer.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+template<class T>
+inline T * getInterface(CIMBaseProvider * provider)
+{
+    T * p = dynamic_cast<T *>(provider);
+
+    if(p == 0)
+    {
+	throw CIMException(CIM_ERR_NOT_SUPPORTED, "Invalid provider interface.");
+    }
+
+    return(p);
+}
 
 ProviderFacade::ProviderFacade(CIMBaseProvider * provider) : _provider(provider)
 {
@@ -46,24 +60,12 @@ ProviderFacade::~ProviderFacade(void)
 
 void ProviderFacade::initialize(CIMOMHandle & cimom)
 {
-    // initialize the logical provider
-    CIMBaseProvider * provider = dynamic_cast<CIMBaseProvider *>(_provider);
-
-    if(provider != 0)
-    {
-	provider->initialize(cimom);
-    }
+    _provider->initialize(cimom);
 }
 
 void ProviderFacade::terminate(void)
 {
-    // test for the appropriate interface
-    CIMBaseProvider * provider = dynamic_cast<CIMBaseProvider *>(_provider);
-
-    if(provider != 0)
-    {
-	provider->terminate();
-    }
+    _provider->terminate();
 }
 
 void ProviderFacade::getInstance(
@@ -73,13 +75,7 @@ void ProviderFacade::getInstance(
     const Array<String> & propertyList,
     ResponseHandler<CIMInstance> & handler)
 {
-    // test for the appropriate interface
-    CIMInstanceProvider * provider = dynamic_cast<CIMInstanceProvider *>(_provider);
-
-    if(provider == 0)
-    {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, "CIMInstanceProvider::*");
-    }
+    CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
     // forward request
     provider->getInstance(context, instanceReference, flags, propertyList, handler);
@@ -96,16 +92,16 @@ void ProviderFacade::getInstance(
     // attempt CIMInstanceProvider::getInstance()
     try
     {
-	// test for the appropriate interface
-	CIMInstanceProvider * provider = dynamic_cast<CIMInstanceProvider *>(_provider);
+    // test for the appropriate interface
+    CIMInstanceProvider * provider = dynamic_cast<CIMInstanceProvider *>(_provider);
 
-	if(provider != 0)
-	{
-	    // forward request
-	    provider->getInstance(context, instanceReference, flags, propertyList, handler);
+    if(provider != 0)
+    {
+	// forward request
+	provider->getInstance(context, instanceReference, flags, propertyList, handler);
 
-	    return;
-	}
+	return;
+    }
     }
     catch(...)
     {
@@ -114,16 +110,16 @@ void ProviderFacade::getInstance(
     // attempt CIMInstanceProvider::enumerateInstances()
     try
     {
-	// test for the appropriate interface
-	CIMInstanceProvider * provider = dynamic_cast<CIMInstanceProvider *>(_provider);
+    // test for the appropriate interface
+    CIMInstanceProvider * provider = dynamic_cast<CIMInstanceProvider *>(_provider);
 
-	if(provider != 0)
-	{
-	    // forward request
-	    provider->enumerateInstances(context, instanceReference, flags, propertyList, handler);
+    if(provider != 0)
+    {
+	// forward request
+	provider->enumerateInstances(context, instanceReference, flags, propertyList, handler);
 
-	    return;
-	}
+	return;
+    }
     }
     catch(...)
     {
@@ -146,13 +142,7 @@ void ProviderFacade::enumerateInstances(
     const Array<String> & propertyList,
     ResponseHandler<CIMInstance> & handler)
 {
-    // test for the appropriate interface
-    CIMInstanceProvider * provider = dynamic_cast<CIMInstanceProvider *>(_provider);
-
-    if(provider == 0)
-    {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, "CIMInstanceProvider::*");
-    }
+    CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
     // forward request
     provider->enumerateInstances(context, classReference, flags, propertyList, handler);
@@ -165,13 +155,7 @@ void ProviderFacade::enumerateInstanceNames(
     const CIMReference & classReference,
     ResponseHandler<CIMReference> & handler)
 {
-    // test for the appropriate interface
-    CIMInstanceProvider * provider = dynamic_cast<CIMInstanceProvider *>(_provider);
-
-    if(provider == 0)
-    {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, "CIMInstanceProvider::*");
-    }
+    CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
     // forward request
     provider->enumerateInstanceNames(context, classReference, handler);
@@ -187,13 +171,7 @@ void ProviderFacade::modifyInstance(
     const Array<String> & propertyList,
     ResponseHandler<CIMInstance> & handler)
 {
-    // test for the appropriate interface
-    CIMInstanceProvider * provider = dynamic_cast<CIMInstanceProvider *>(_provider);
-
-    if(provider == 0)
-    {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, "CIMInstanceProvider::*");
-    }
+    CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
     // forward request
     provider->modifyInstance(context, instanceReference, instanceObject, flags, propertyList, handler);
@@ -205,13 +183,7 @@ void ProviderFacade::createInstance(
     const CIMInstance & instanceObject,
     ResponseHandler<CIMReference> & handler)
 {
-    // test for the appropriate interface
-    CIMInstanceProvider * provider = dynamic_cast<CIMInstanceProvider *>(_provider);
-
-    if(provider == 0)
-    {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, "CIMInstanceProvider::*");
-    }
+    CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
     // forward request
     provider->createInstance(context, instanceReference, instanceObject, handler);
@@ -222,13 +194,7 @@ void ProviderFacade::deleteInstance(
     const CIMReference & instanceReference,
     ResponseHandler<CIMInstance> & handler)
 {
-    // test for the appropriate interface
-    CIMInstanceProvider * provider = dynamic_cast<CIMInstanceProvider *>(_provider);
-
-    if(provider == 0)
-    {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, "CIMInstanceProvider::*");
-    }
+    CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
     // forward request
     provider->deleteInstance(context, instanceReference, handler);
@@ -299,13 +265,7 @@ void ProviderFacade::associators(
     const Array<String> & propertyList,
     ResponseHandler<CIMObject> & handler)
 {
-    // test for the appropriate interface
-    CIMAssociationProvider * provider = dynamic_cast<CIMAssociationProvider *>(_provider);
-
-    if(provider == 0)
-    {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, "CIMAssociationProvider::*");
-    }
+    CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
 
     // forward request
     provider->associators(context, objectName, associationClass, resultClass, role,
@@ -321,13 +281,7 @@ void ProviderFacade::associatorNames(
     const String & resultRole,
     ResponseHandler<CIMReference> & handler)
 {
-    // test for the appropriate interface
-    CIMAssociationProvider * provider = dynamic_cast<CIMAssociationProvider *>(_provider);
-
-    if(provider == 0)
-    {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, "CIMAssociationProvider::*");
-    }
+    CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
 
     // forward request
     provider->associatorNames(context, objectName, associationClass,
@@ -343,14 +297,7 @@ void ProviderFacade::references(
     const Array<String> & propertyList,
     ResponseHandler<CIMObject> & handler)
 {
-    // test for the appropriate interface
-    CIMAssociationProvider * provider =
-	dynamic_cast<CIMAssociationProvider *>(_provider);
-
-    if(provider == 0)
-    {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, "CIMAssociationProvider::*");
-    }
+    CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
 
     // forward request
     provider->references(context, objectName, resultClass,
@@ -364,14 +311,7 @@ void ProviderFacade::referenceNames(
     const String & role,
     ResponseHandler<CIMReference> & handler)
 {
-    // test for the appropriate interface
-    CIMAssociationProvider * provider =
-	dynamic_cast<CIMAssociationProvider *>(_provider);
-
-    if(provider == 0)
-    {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, "CIMAssociationProvider::*");
-    }
+    CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
 
     // forward request
     provider->referenceNames(context, objectName, resultClass,
@@ -469,14 +409,7 @@ void ProviderFacade::invokeMethod(
     Array<CIMParamValue> & outParameters,
     ResponseHandler<CIMValue> & handler)
 {
-    // test for the appropriate interface
-    CIMMethodProvider * provider =
-	dynamic_cast<CIMMethodProvider *>(_provider);
-
-    if(provider == 0)
-    {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, "CIMMethodProvider::*");
-    }
+    CIMMethodProvider * provider = getInterface<CIMMethodProvider>(_provider);
 
     // forward request
     provider->invokeMethod(context, objectReference, methodName,
@@ -554,13 +487,7 @@ void ProviderFacade::enableIndication(
     const CIMInstance & subscription,
     ResponseHandler<CIMInstance> & handler)
 {
-    // Get appropriate interface
-    CIMIndicationProvider * provider = dynamic_cast<CIMIndicationProvider *>(_provider);
-
-    if(provider == 0)
-    {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, "CIMIndicationProvider::*");
-    }
+    CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
 
     // forward request
     provider->enableIndication(context, nameSpace, classNames,
@@ -578,13 +505,7 @@ void ProviderFacade::disableIndication(
     const CIMInstance & subscription,
     ResponseHandler<CIMInstance> & handler)
 {
-    // Get appropriate interface
-    CIMIndicationProvider * provider = dynamic_cast<CIMIndicationProvider *>(_provider);
-
-    if(provider == 0)
-    {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, "CIMIndicationProvider::*");
-    }
+    CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
 
     // forward request
     provider->disableIndication(context, nameSpace, classNames,
@@ -606,13 +527,7 @@ void ProviderFacade::modifyIndication(
     const CIMInstance & subscription,
     ResponseHandler<CIMInstance> & handler)
 {
-    // Get appropriate interface
-    CIMIndicationProvider * provider = dynamic_cast<CIMIndicationProvider *>(_provider);
-
-    if(provider == 0)
-    {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, "CIMIndicationProvider::*");
-    }
+    CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
 
     // forward request
     provider->modifyIndication(context, nameSpace,
@@ -621,5 +536,75 @@ void ProviderFacade::modifyIndication(
 	repeatNotificationGap, repeatNotificationCount, condition,
 	queryLanguage, subscription, handler);
 }
+
+/*
+void ProviderFacade::enableIndications(ResponseHandler<CIMIndication> & handler)
+{
+    CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
+
+    // forward request
+    provider->enableIndications(handler);
+}
+
+void ProviderFacade::disbleIndications(void)
+{
+    CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
+
+    // forward request
+    provider->disableIndications();
+}
+
+void ProviderFacade::createSubscription(
+    const OperationContext & context,
+    const CIMObjectPath & subscriptionName,
+    const Array<CIMObjectPath> & classNames,
+    const CIMPropertyList & propertyList,
+    const Uint16 repeatNotificationPolicy)
+{
+    CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
+
+    // forward request
+    provider->createSubscription(
+	context,
+	subscriptionName,
+	classNames,
+	propertyList,
+	repeatNotificationPolicy);
+}
+
+void modifySubscription(
+    const OperationContext & context,
+    const CIMObjectPath & subscriptionName,
+    const Array<CIMObjectPath> & classNames,
+    const CIMPropertyList & propertyList,
+    const Uint16 repeatNotificationPolicy)
+{
+    CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
+
+    // forward request
+    provider->modifySubscription(
+	context,
+	subscriptionName,
+	classNames,
+	propertyList,
+	repeatNotificationPolicy);
+}
+
+void deleteSubscription(
+    const OperationContext & context,
+    const CIMObjectPath & subscriptionName,
+    const Array<CIMObjectPath> & classNames)
+{
+    CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
+
+    // forward request
+    provider->deleteSubscription(
+	context,
+	subscriptionName,
+	classNames,
+	propertyList,
+	repeatNotificationPolicy);
+}
+*/
 
 PEGASUS_NAMESPACE_END

@@ -23,7 +23,8 @@ SOURCES = \
 	ProviderManager.cpp \
     ProviderModule.cpp \
     ProviderFacade.cpp \
-	Provider.cpp
+	Provider.cpp \
+	IndicationResponseHandler.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

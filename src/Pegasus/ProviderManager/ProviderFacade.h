@@ -49,7 +49,7 @@ PEGASUS_NAMESPACE_BEGIN
 // method supported by a "real" provider, it can be placed inside a reliable
 // facade with a known interface.
 class PEGASUS_SERVER_LINKAGE ProviderFacade :
-public CIMInstanceProvider,
+    public CIMInstanceProvider,
     public CIMClassProvider,
     public CIMAssociationProvider,
     public CIMPropertyProvider,
@@ -273,6 +273,30 @@ public:
 	const String & queryLanguage,
 	const CIMInstance & subscription,
 	ResponseHandler<CIMInstance> & handler);
+
+    /*
+    virtual void enableIndications(ResponseHandler<CIMIndication> & handler);
+    virtual void disbleIndications(void);
+
+    virtual void createSubscription(
+	const OperationContext & context,
+	const CIMObjectPath & subscriptionName,
+	const Array<CIMObjectPath> & classNames,
+	const CIMPropertyList & propertyList,
+	const Uint16 repeatNotificationPolicy);
+
+    virtual void modifySubscription(
+	const OperationContext & context,
+	const CIMObjectPath & subscriptionName,
+	const Array<CIMObjectPath> & classNames,
+	const CIMPropertyList & propertyList,
+	const Uint16 repeatNotificationPolicy);
+
+    virtual void deleteSubscription(
+	const OperationContext & context,
+	const CIMObjectPath & subscriptionName,
+	const Array<CIMObjectPath> & classNames);
+    */
 
     // CIMIndicationConsumer interface
     virtual void handleIndication(

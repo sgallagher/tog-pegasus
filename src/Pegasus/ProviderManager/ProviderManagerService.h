@@ -112,7 +112,7 @@ protected:
     SafeQueue<Message *> _incomingQueue;
     SafeQueue<Message *> _outgoingQueue;
 
-    ProviderRegistrationManager* _providerRegistrationManager;
+    ProviderRegistrationManager * _providerRegistrationManager;
 };
 
 PEGASUS_NAMESPACE_END

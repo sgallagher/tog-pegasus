@@ -1,3 +1,22 @@
+#
+# CompareXmlBin MAkefile
+#
+# Commands available are:
+#
+# make tests			runs the whole test - build, test clean
+#
+# make repo_build		build the default (Interanl) repository
+# make repo_build_whole		builds the repository with all namespaces
+# make repo_build_Internal  	build the repository with Interanal namespace 
+# make repo_build_Interop	build the repository with InterOp namespace
+# make repo_build_ManagedSystem	build the repository with ManagedSystem namespace
+#	
+# make run_test			runs the test
+# make repo_clean		cleans the repsoitory
+# make clean			cleans all
+#
+#
+#
 ROOT = ../../../../..
 DIR = Pegasus/Repository/tests/CompareXmlBin
 
@@ -50,13 +69,13 @@ FORCE:
 # LINUX_ZSERIES_GNU.mak
 # DARWIN_PPC_GNU.mak       
 # NSK_NONSTOP_NMCPLUS.mak
-# HPUX_ACC.mak             
+# HPUX_ACC.mak             	ENABLED Feb 18, 2005 by JRW for Denise
 # SOLARIS_SPARC_CC.mak
-# HPUX_IA64_ACC.mak        
+# HPUX_IA64_ACC.mak  		ENABLED Feb 18, 2005 by JRW for Denise      
 # SOLARIS_SPARC_GNU.mak
-# HPUX_PARISC_ACC.mak      
+# HPUX_PARISC_ACC.mak  		ENABLED Feb 18, 2005 by JRW for Denise    
 # TRU64_ALPHA_DECCXX.mak
-# LINUX_IA64_GNU.mak       
+# LINUX_IA64_GNU.mak       	ENABLED Feb 18, 2005 by JRW for Denise
 # WIN32_IX86_MSVC.mak		ENABLED Feb 15, 2005 by JRW
 # LINUX_IX86_GNU.mak		ENABLED Feb 15, 2005 by JRW
 # ZOS_ZSERIES_IBM.mak
@@ -70,9 +89,17 @@ ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
 PEGASUS_ENABLE_COMPAREREPOSITORIES=true 
 endif
 
+# the following enables all HPUX platforms 
+ifeq ($(OS),HPUX)
+PEGASUS_ENABLE_COMPAREREPOSITORIES=true
+endif
+
+ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU) 
+PEGASUS_ENABLE_COMPAREREPOSITORIES=true 
+endif
 
 ifdef PEGASUS_ENABLE_COMPAREREPOSITORIES
-tests:  repo_build run_test repo_clean
+tests:  repo_build run_test clean
 	@ $(ECHO) +++++ CompareXmlBin repository test: FINISHED with test
 
 else
@@ -120,20 +147,34 @@ run_test:
 #	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML
 #
 # To save time the Internal namespace is built rather than the whole repository
-# To build the whole repository or other name namespaces, then refer to 
-# the following table for what string to put in the MAKE line. 
-# Remember to change both lines.
-# 
-#  WHAT                   
-# Whole repo       	$(ROOT)/Schemas/Pegasus
-# Internal NameSpace    $(ROOT)/Schemas/Pegasus/Internal
-# InterOp NS            $(ROOT)/Schemas/Pegasus/InterOp
-# ManagedSsytem NS      $(ROOT)/Schemas/Pegasus/ManagedSystem
+# To build the whole repository or other name namespaces, then use the 
+# appropiate repo_build rule dependency
+# EG:
 #
+# repo_build: repo_build_all
+# repo_build: repo_build_Internal
+# repo_build: repo_build_InterOp
+# repo_build: repo_build_ManagedSystems
 
-repo_build:
+
+repo_build: repo_build_Internal
+
+repo_build_all:
+	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML
+	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_BIN) REPOSITORY_MODE=BIN
+
+
+repo_build_Internal:
 	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/Internal repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML
 	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/Internal repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_BIN) REPOSITORY_MODE=BIN
+
+repo_build_InterOp:
+	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/InterOp repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML
+	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/InterOp repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_BIN) REPOSITORY_MODE=BIN
+
+repo_build_ManagedSystems:
+	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/ManagedSystems repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML
+	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/ManagedSystems repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_BIN) REPOSITORY_MODE=BIN
 
 #
 # build the XML with the server

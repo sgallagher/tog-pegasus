@@ -28,10 +28,12 @@
 
 
 // Ensure Unix 98
+// and use built-in platform dependent atomic operation on Linux
 #ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
    #ifndef _GNU_SOURCE
       #define _GNU_SOURCE
    #endif
+   #include <asm/atomic.h>
 #else
    #ifdef _XOPEN_SOURCE
       #undef _XOPEN_SOURCE
@@ -103,7 +105,8 @@ typedef struct {
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) 
 #define PEGASUS_ATOMIC_INT_NATIVE = 1
 
-typedef sig_atomic_t PEGASUS_ATOMIC_TYPE ;
+//typedef sig_atomic_t PEGASUS_ATOMIC_TYPE ;
+#define PEGASUS_ATOMIC_TYPE atomic_t
 
 #endif // linux platform atomic type
 

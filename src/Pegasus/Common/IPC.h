@@ -366,10 +366,10 @@ class AtomicInt
 
       Uint32  value(void);
 
-      inline void operator++(void); // prefix
+      void operator++(void); // prefix
       inline void operator++(int) { this->operator++(); }  // postfix
 
-      inline void operator--(void); // prefix
+      void operator--(void); // prefix
       inline void operator--(int) { this->operator--(); } // postfix
 
       Uint32 operator+(const AtomicInt& val);

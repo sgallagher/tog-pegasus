@@ -708,47 +708,81 @@ int Semaphore::count()
 //-----------------------------------------------------------------
 /// Native Unix implementation of AtomicInt class
 //-----------------------------------------------------------------
+//
+// sig_atomic_t is identical to a simple integer on Linux with glibc,
+// the atomicity refers to access atomicity, i.e. an integer is accessed
+// loaded or stored atomically, but incrementing and decrementing is not
+// done atomically.
+//
+//#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
 #if defined(PEGASUS_ATOMIC_INT_NATIVE)
 
-AtomicInt::AtomicInt(): _rep(0) { }
+AtomicInt::AtomicInt() { _rep.counter = 0;}
 
-AtomicInt::AtomicInt( Uint32 initial) : _rep(initial) {}
+AtomicInt::AtomicInt( Uint32 initial) {_rep.counter = initial;}
 
 AtomicInt::~AtomicInt() {}
 
 AtomicInt::AtomicInt(const AtomicInt& original) 
 {
-   _rep = original._rep;
+   _rep.counter = atomic_read(&original._rep);
 }
 
 AtomicInt& AtomicInt::operator=( const AtomicInt& original)
 {
    // don't worry about self-assignment in this implementation
    if(this != &original)
-      _rep = original._rep;
+      atomic_set(&_rep,atomic_read(&original._rep));
    return *this;
 }
 
 
 Uint32 AtomicInt::value(void)
 {
-   return((Uint32)_rep);
+   return((Uint32)atomic_read(&_rep));
 }
 
-void AtomicInt::operator++(void) { _rep++; }
-void AtomicInt::operator--(void) { _rep--; }
+void AtomicInt::operator++(void) { atomic_inc(&_rep); }
+void AtomicInt::operator--(void) { atomic_dec(&_rep); }
 
-Uint32 AtomicInt::operator+(const AtomicInt& val) { return((Uint32)(_rep + val._rep));}
-Uint32 AtomicInt::operator+(Uint32 val) { return( (Uint32)(_rep + val)); }
+Uint32 AtomicInt::operator+(const AtomicInt& val)
+{
+     return((Uint32)(atomic_read(&_rep) + atomic_read(&val._rep) ));
+}
+Uint32 AtomicInt::operator+(Uint32 val)
+{ 
+    return( (Uint32)(atomic_read(&_rep) + val));
+}
+Uint32 AtomicInt::operator-(const AtomicInt& val)
+{
+     return((Uint32)(atomic_read(&_rep) - atomic_read(&val._rep) ));
+}
+Uint32 AtomicInt::operator-(Uint32 val)
+{ 
+    return( (Uint32)(atomic_read(&_rep) - val));
+}
 
-Uint32 AtomicInt::operator-(const AtomicInt& val) { return((Uint32)(_rep - val._rep));}
-Uint32 AtomicInt::operator-(Uint32 val) { return((Uint32)(_rep - val)); }
-
-AtomicInt& AtomicInt::operator+=(const AtomicInt& val) { _rep += val._rep; return *this; }
-AtomicInt& AtomicInt::operator+=(Uint32 val) { _rep += val; return *this; }
-AtomicInt& AtomicInt::operator-=(const AtomicInt& val) { _rep -= val._rep; return *this; }
-AtomicInt& AtomicInt::operator-=(Uint32 val) { _rep -= val; return *this; }
-
+AtomicInt& AtomicInt::operator+=(const AtomicInt& val)
+{
+    atomic_add(atomic_read(&val._rep),&_rep);
+    return *this;
+}
+AtomicInt& AtomicInt::operator+=(Uint32 val)
+{
+    atomic_add(val,&_rep);
+    return *this;
+}
+AtomicInt& AtomicInt::operator-=(const AtomicInt& val)
+{
+    atomic_sub(atomic_read(&val._rep),&_rep);
+    return *this;
+}
+AtomicInt& AtomicInt::operator-=(Uint32 val)
+{
+    atomic_sub(val,&_rep);
+    return *this;
+}
+// still missing are atomic test like "subtract and test if zero"
 #endif // Native Atomic Type 
 
 PEGASUS_NAMESPACE_END

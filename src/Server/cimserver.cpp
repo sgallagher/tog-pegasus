@@ -1137,8 +1137,11 @@ MessageLoader::_useProcessLocale = false;
         serviceURL.append(slp_address);
 #endif
 
+#if defined(PEGASUS_OS_OS400)
+	monitor_2 monitor;
+#else
 	Monitor monitor(true);
-	//monitor_2 monitor;
+#endif
 	
 	CIMServer server(&monitor);
 

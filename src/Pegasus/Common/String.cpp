@@ -632,7 +632,7 @@ String& String::assignUTF8(const char* str)
 
 CString String::getCStringUTF8() const
 {
-    Uint32 n = 3*size();
+    Uint32 n = 3*size() + 1;
     char* str = new char[n];
 
     const Char16* msg16 = getChar16Data();

@@ -360,7 +360,16 @@ void CIMReference::set(const String& objectName)
     char* dot = strchr(p, '.');
 
     if (!dot)
-	throw IllformedObjectName(objectName);
+    {
+	if (!CIMName::legal(p))
+	    throw IllformedObjectName(objectName);
+
+	// ATTN: remove this later: a reference should only be able to hold
+	// an instance name.
+
+	_className.assign(p);
+	return;
+    }
 
     _className.assign(p, dot - p);
 
@@ -509,6 +518,10 @@ String CIMReference::toString() const
 
     const String& className = getClassName();
     objectName.append(className);
+
+    if (isClassName())
+	return objectName;
+
     objectName.append('.');
 
     // Append each key-value pair:

@@ -224,6 +224,20 @@ void Unique(Array<PEGASUS_ARRAY_T>& x)
     x.swap(result);
 }
 
+template<class T>
+Boolean Contains(Array<T>& a, const T& x) 
+{
+    Uint32 n = a.size();
+
+    for (Uint32 i = 0; i < n; i++)
+    {
+	if (a[i] == x)
+	    return true;
+    }
+
+    return false;
+}
+
 template<class PEGASUS_ARRAY_T>
 void Print(Array<PEGASUS_ARRAY_T>& x)
 {

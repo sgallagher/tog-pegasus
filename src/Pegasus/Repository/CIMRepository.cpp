@@ -258,10 +258,14 @@ void CIMRepository::deleteClass(
     const String& nameSpace,
     const String& className)
 {
+    // -- Get the class and check to see if it is an association class:
+
+    CIMClass cimClass = getClass(nameSpace, className, false);
+    Boolean isAssociation = cimClass.isAssociation();
+
     // -- Disallow deletion if class has instances:
 
     String path = _getIndexFilePath(nameSpace, className);
-
     String realPath;
 
     if (FileSystem::existsNoCase(path, realPath))
@@ -270,6 +274,16 @@ void CIMRepository::deleteClass(
     // -- Delete the class (disallowed if there are subclasses):
 
     _nameSpaceManager.deleteClass(nameSpace, className);
+
+    // -- Remove association:
+
+    if (isAssociation)
+    {
+	String assocFileName = _MakeAssocClassPath(nameSpace, _repositoryRoot);
+
+	if (FileSystem::exists(assocFileName))
+	    AssocClassTable::deleteAssociation(assocFileName, className);
+    }
 }
 
 void CIMRepository::deleteInstance(
@@ -317,12 +331,11 @@ void CIMRepository::deleteInstance(
 	    "unexpected failure in CIMRepository::deleteInstance()");
     }
 
-    // -- Remove if from the association table (if it is really association).
+    // -- Remove it from the association table (if it is really association).
     // -- We ignore the return value intentionally. If it is an association,
     // -- true is returned. Otherwise, true is returned.
 
     String assocFileName = _MakeAssocInstPath(nameSpace, _repositoryRoot);
-
 
     if (FileSystem::exists(assocFileName))
 	AssocInstTable::deleteAssociation(assocFileName, instanceName);
@@ -836,21 +849,34 @@ Array<CIMReference> CIMRepository::associatorNames(
     const String& role,
     const String& resultRole)
 {
-    String assocFileName = _MakeAssocInstPath(nameSpace, _repositoryRoot);
     Array<String> associatorNames;
 
-    // The return value of this function is ignored since it is okay for
-    // the given object not to have any associators (in this case we just
-    // return a zero-sized array of associators.
+    if (objectName.isClassName())
+    {
+	String assocFileName = _MakeAssocClassPath(nameSpace, _repositoryRoot);
 
-    AssocInstTable::getAssociatorNames(
-	assocFileName,
-	objectName.toString(),
-        assocClass,
-        resultClass,
-        role,
-        resultRole,
-	associatorNames);
+	AssocClassTable::getAssociatorNames(
+	    assocFileName,
+	    objectName.toString(),
+	    assocClass,
+	    resultClass,
+	    role,
+	    resultRole,
+	    associatorNames);
+    }
+    else
+    {
+	String assocFileName = _MakeAssocInstPath(nameSpace, _repositoryRoot);
+
+	AssocInstTable::getAssociatorNames(
+	    assocFileName,
+	    objectName.toString(),
+	    assocClass,
+	    resultClass,
+	    role,
+	    resultRole,
+	    associatorNames);
+    }
 
     Array<CIMReference> result;
 
@@ -894,22 +920,37 @@ Array<CIMObjectWithPath> CIMRepository::references(
 	if (tmpNameSpace.size() == 0)
 	    tmpNameSpace = nameSpace;
 
-	// ATTN: getInstance() should be able to handle instance names
-	// with host names and namespaces.
+	// ATTN: getInstance() should this be able to handle instance names
+	// with host names and namespaces?
 
 	CIMReference tmpRef = names[i];
 	tmpRef.setHost(String());
 	tmpRef.setNameSpace(String());
 
-	CIMInstance instance = getInstance(
-	    tmpNameSpace,
-	    tmpRef,
-	    false,
-	    includeQualifiers,
-	    includeClassOrigin,
-	    propertyList);
+	if (objectName.isClassName())
+	{
+	    CIMClass cimClass = getClass(
+		tmpNameSpace,
+		tmpRef.getClassName(),
+		false,
+		includeQualifiers,
+		includeClassOrigin,
+		propertyList);
 
-	result.append(CIMObjectWithPath(names[i], instance));
+	    result.append(CIMObjectWithPath(names[i], cimClass));
+	}
+	else
+	{
+	    CIMInstance instance = getInstance(
+		tmpNameSpace,
+		tmpRef,
+		false,
+		includeQualifiers,
+		includeClassOrigin,
+		propertyList);
+
+	    result.append(CIMObjectWithPath(names[i], instance));
+	}
     }
 
     return result;
@@ -921,18 +962,35 @@ Array<CIMReference> CIMRepository::referenceNames(
     const String& resultClass,
     const String& role)
 {
-    String assocFileName = _MakeAssocInstPath(nameSpace, _repositoryRoot);
     Array<String> tmpReferenceNames;
 
-    if (!AssocInstTable::getReferenceNames(
-	assocFileName,
-	objectName,
-        resultClass,
-        role,
-	tmpReferenceNames))
+    if (objectName.isClassName())
     {
-	throw PEGASUS_CIM_EXCEPTION(FAILED, "references not found for: "
-	    + objectName.toString());
+	String assocFileName = _MakeAssocClassPath(nameSpace, _repositoryRoot);
+
+	if (!AssocClassTable::getReferenceNames(
+	    assocFileName,
+	    objectName.getClassName(),
+	    resultClass,
+	    role,
+	    tmpReferenceNames))
+	{
+	    // Ignore error! It's okay not to have references.
+	}
+    }
+    else
+    {
+	String assocFileName = _MakeAssocInstPath(nameSpace, _repositoryRoot);
+
+	if (!AssocInstTable::getReferenceNames(
+	    assocFileName,
+	    objectName,
+	    resultClass,
+	    role,
+	    tmpReferenceNames))
+	{
+	    // Ignore error! It's okay not to have references.
+	}
     }
 
     Array<CIMReference> result;

@@ -239,6 +239,24 @@ static void TestAssociatorNames(CIMClient& client)
     cout << endl;
 }
 
+static void TestAssociatorClassNames(CIMClient& client)
+{
+    CIMReference className = "Person";
+
+    Array<CIMReference> result = client.associatorNames(
+	NAMESPACE, 
+	className, 
+	"Lineage", 
+	"Person", 
+	"parent", 
+	"child");
+
+    for (Uint32 i = 0; i < result.size(); i++)
+	cout << "[" << result[i] << "]" << endl;
+
+    cout << endl;
+}
+
 static void TestReferenceNames(CIMClient& client)
 {
     CIMReference instanceName = "Person.name=\"Mike\"";
@@ -275,6 +293,21 @@ static void TestReferences(CIMClient& client)
     cout << endl;
 }
 
+static void TestReferenceClassNames(CIMClient& client)
+{
+    CIMReference className = "Person";
+
+    Array<CIMReference> result = client.referenceNames(
+	NAMESPACE, 
+	className, 
+	String(),
+	"parent");
+
+    for (Uint32 i = 0; i < result.size(); i++)
+	cout << "[" << result[i] << "]" << endl;
+
+    cout << endl;
+}
 
 int main(int argc, char** argv)
 {
@@ -292,10 +325,13 @@ int main(int argc, char** argv)
 	TestReferenceNames(client);
 	TestReferences(client);
 
+	TestAssociatorClassNames(client);
+	TestReferenceClassNames(client);
+
 	// TestGetClass(client);
-	TestQualifierOperations(client);
-	TestClassOperations(client);
-	TestInstanceOperations(client);
+	// TestQualifierOperations(client);
+	// TestClassOperations(client);
+	// TestInstanceOperations(client);
     }
     catch(Exception& e)
     {

@@ -36,11 +36,11 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define ASSOC_CLASS_NAME_INDEX 1
-#define FROM_CLASS_NAME_INDEX 2
-#define FROM_PROPERTY_NAME_INDEX 3
-#define TO_CLASS_NAME_INDEX 4
-#define TO_PROPERTY_NAME_INDEX 5
+#define ASSOC_CLASS_NAME_INDEX 0
+#define FROM_CLASS_NAME_INDEX 1
+#define FROM_PROPERTY_NAME_INDEX 2
+#define TO_CLASS_NAME_INDEX 3
+#define TO_PROPERTY_NAME_INDEX 4
 #define NUM_FIELDS 5
 
 static inline Boolean _MatchNoCase(const String& x, const String& pattern)
@@ -279,9 +279,10 @@ Boolean AssocClassTable::getAssociatorNames(
     Array<String> fields;
     Boolean found = false;
 
+
     while (_GetRecord(is, fields))
     {
-	if (className == fields[FROM_CLASS_NAME_INDEX] &&
+	if (_MatchNoCase(className, fields[FROM_CLASS_NAME_INDEX]) &&
 	    _MatchNoCase(fields[ASSOC_CLASS_NAME_INDEX], assocClass) &&
 	    _MatchNoCase(fields[TO_CLASS_NAME_INDEX], resultClass) &&
 	    _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role) &&
@@ -316,7 +317,7 @@ Boolean AssocClassTable::getReferenceNames(
 
     while (_GetRecord(is, fields))
     {
-	if (className == fields[FROM_CLASS_NAME_INDEX] &&
+	if (_MatchNoCase(className, fields[FROM_CLASS_NAME_INDEX]) &&
 	    _MatchNoCase(fields[ASSOC_CLASS_NAME_INDEX], resultClass) &&
 	    _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role))
 	{

@@ -11,6 +11,14 @@ class Lineage
     [key] Person ref child;
 };
 
+[association]
+class LabeledLineage
+{
+    string label;
+    [key] Person ref parent;
+    [key] Person ref child;
+};
+
 instance of Person { name = "Mike"; };
 
 instance of Person { name = "Saara"; };
@@ -42,4 +50,3 @@ instance of Lineage
     parent = "Person.name=\"Saara"\"";
     child = "Person.name=\"Gabi"\"";
 };
-

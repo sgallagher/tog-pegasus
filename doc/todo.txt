@@ -1,4 +1,13 @@
 
+    -   Note that it is possible to remove an class and still have association
+	classes which refer to it.
+
+    -   Class inheritance not taken into consideration when resolving the
+	AssocClass
+
+    -   It seems that associatios() will fail when AssocClass is a super
+	class of the class which is in the association instance table.
+
     -   Should there be a single associations table for the entire repository
 	or should there be one per namespace as there is now?
 

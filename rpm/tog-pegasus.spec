@@ -102,8 +102,15 @@ export LD_LIBRARY_PATH=$PEGASUS_HOME/lib
 export PATH=$PEGASUS_HOME/bin:$PATH
 make repository
 
-cd $PEGASUS_ROOT/mak
-make -f SDKMakefile stageSDK
+%define PEGASUS_STAGING_DIR  $PEGASUS_HOME/stageSDK
+%define PEGASUS_SAMPLES_DIR  /opt/tog-pegasus/samples 
+%define PEGASUS_INCLUDE_DIR  /opt/tog-pegasus/include
+%define PEGASUS_HTML_DIR     /opt/tog-pegasus/html
+make --directory=mak -f SDKMakefile stageSDK \
+          PEGASUS_STAGING_DIR=%PEGASUS_STAGING_DIR \
+          PEGASUS_SAMPLES_DIR=%PEGASUS_SAMPLES_DIR \
+          PEGASUS_INCLUDE_DIR=%PEGASUS_INCLUDE_DIR \
+          PEGASUS_HTML_DIR=%PEGASUS_HTML_DIR
 
 %install
 %define PEGASUS_PROD_DIR       /opt/tog-pegasus
@@ -384,168 +391,177 @@ install -D -m 0444  $PEGASUS_ROOT/doc/%PEGASUS_LICENSE_FILE $RPM_BUILD_ROOT%PEGA
 # SDK
 #
 
-%define PEGASUS_INCLUDE_DEST_PATH /opt/tog-pegasus/include
-%define PEGASUS_HTML_DEST_PATH    /opt/tog-pegasus/share/html
-%define PEGASUS_SAMPLES_DEST_PATH /opt/tog-pegasus/share/samples
-%define INCLUDE_DEST_PATH    $RPM_BUILD_ROOT%PEGASUS_INCLUDE_DEST_PATH
-%define HTML_DEST_PATH       $RPM_BUILD_ROOT%PEGASUS_HTML_DEST_PATH
-%define SAMPLES_DEST_PATH     $RPM_BUILD_ROOT%PEGASUS_SAMPLES_DEST_PATH
-%define SDK_STAGE_LOC        $PEGASUS_HOME/stageSDK
-mkdir -p %INCLUDE_DEST_PATH/{Client,Common,Consumer,Handler,Provider}
-mkdir -p %INCLUDE_DEST_PATH/Provider/CMPI
+%define INCLUDE_DEST_PATH    $RPM_BUILD_ROOT%PEGASUS_INCLUDE_DIR
+%define HTML_DEST_PATH       $RPM_BUILD_ROOT%PEGASUS_HTML_DIR
+%define SAMPLES_DEST_PATH     $RPM_BUILD_ROOT%PEGASUS_SAMPLES_DIR
+mkdir -p %INCLUDE_DEST_PATH/Pegasus/{Client,Common,Consumer,Handler,Provider}
+mkdir -p %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI
 mkdir -p %HTML_DEST_PATH
 mkdir -p %SAMPLES_DEST_PATH/{Clients,mak,Providers}
 mkdir -p %SAMPLES_DEST_PATH/Providers/Load
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Client/CIMClientException.h %INCLUDE_DEST_PATH/Pegasus/Client/CIMClientException.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Client/CIMClient.h %INCLUDE_DEST_PATH/Pegasus/Client/CIMClient.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Client/Linkage.h %INCLUDE_DEST_PATH/Pegasus/Client/Linkage.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/AcceptLanguages.h %INCLUDE_DEST_PATH/Pegasus/Common/AcceptLanguages.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/AcceptLanguageElement.h %INCLUDE_DEST_PATH/Pegasus/Common/AcceptLanguageElement.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/Array.h %INCLUDE_DEST_PATH/Pegasus/Common/Array.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/ArrayInter.h %INCLUDE_DEST_PATH/Pegasus/Common/ArrayInter.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/Char16.h %INCLUDE_DEST_PATH/Pegasus/Common/Char16.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/CIMClass.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMClass.h 
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/CIMDateTime.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMDateTime.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/CIMFlavor.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMFlavor.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/CIMIndication.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMIndication.h 
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/CIMInstance.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMInstance.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/CIMMethod.h %INCLUDE_DEST_PATH/Pegasus/Common//CIMMethod.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/CIMName.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMName.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/CIMObject.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMObject.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/CIMObjectPath.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMObjectPath.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/CIMParameter.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMParameter.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/CIMParamValue.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMParamValue.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/CIMProperty.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMProperty.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/CIMPropertyList.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMPropertyList.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/CIMQualifierDecl.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMQualifierDecl.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/CIMQualifier.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMQualifier.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/CIMScope.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMScope.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/CIMStatusCode.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMStatusCode.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/CIMType.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMType.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/CIMValue.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMValue.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/Config.h %INCLUDE_DEST_PATH/Pegasus/Common/Config.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/ContentLanguageElement.h %INCLUDE_DEST_PATH/Pegasus/Common/ContentLanguageElement.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/ContentLanguages.h %INCLUDE_DEST_PATH/Pegasus/Common/ContentLanguages.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/Exception.h %INCLUDE_DEST_PATH/Pegasus/Common/Exception.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/Formatter.h %INCLUDE_DEST_PATH/Pegasus/Common/Formatter.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/LanguageElementContainer.h %INCLUDE_DEST_PATH/Pegasus/Common/LanguageElementContainer.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/LanguageElement.h %INCLUDE_DEST_PATH/Pegasus/Common/LanguageElement.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/Linkage.h %INCLUDE_DEST_PATH/Pegasus/Common/Linkage.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/MessageLoader.h %INCLUDE_DEST_PATH/Pegasus/Common/MessageLoader.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/OperationContext.h %INCLUDE_DEST_PATH/Pegasus/Common/OperationContext.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/Platform_%PEGASUS_HARDWARE_PLATFORM.h %INCLUDE_DEST_PATH/Pegasus/Common/Platform_%PEGASUS_HARDWARE_PLATFORM.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/ResponseHandler.h %INCLUDE_DEST_PATH/Pegasus/Common/ResponseHandler.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/SSLContext.h %INCLUDE_DEST_PATH/Pegasus/Common/SSLContext.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/String.h %INCLUDE_DEST_PATH/Pegasus/Common/String.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Consumer/CIMIndicationConsumer.h %INCLUDE_DEST_PATH/Pegasus/Consumer/CIMIndicationConsumer.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Consumer/Linkage.h %INCLUDE_DEST_PATH/Pegasus/Consumer/Linkage.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CIMAssociationProvider.h %INCLUDE_DEST_PATH/Pegasus/Provider/CIMAssociationProvider.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CIMIndicationConsumerProvider.h %INCLUDE_DEST_PATH/Pegasus/Provider/CIMIndicationConsumerProvider.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CIMIndicationProvider.h %INCLUDE_DEST_PATH/Pegasus/Provider/CIMIndicationProvider.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CIMInstanceProvider.h %INCLUDE_DEST_PATH/Pegasus/Provider/CIMInstanceProvider.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CIMMethodProvider.h %INCLUDE_DEST_PATH/Pegasus/Provider/CIMMethodProvider.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CIMOMHandle.h %INCLUDE_DEST_PATH/Pegasus/Provider/CIMOMHandle.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CIMProvider.h %INCLUDE_DEST_PATH/Pegasus/Provider/CIMProvider.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/Linkage.h %INCLUDE_DEST_PATH/Pegasus/Provider/Linkage.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/ProviderException.h %INCLUDE_DEST_PATH/Pegasus/Provider/ProviderException.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiArgs.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiArgs.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiArray.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiArray.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiAssociationMI.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiAssociationMI.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiBaseMI.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiBaseMI.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiBooleanData.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiBooleanData.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiBroker.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiBroker.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiCharData.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiCharData.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiContext.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiContext.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiData.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiData.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiDateTime.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiDateTime.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/cmpidt.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/cmpidt.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiEnumeration.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiEnumeration.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/cmpift.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/cmpift.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiIndicationMI.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiIndicationMI.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiInstance.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiInstance.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiInstanceMI.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiInstanceMI.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/cmpimacs.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/cmpimacs.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiMethodMI.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiMethodMI.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiObject.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiObject.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiObjectPath.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiObjectPath.h
-install -D -m 0444 $PEGASUS_ROOT/src/Pegasus/Provider/CMPI/cmpipl.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/cmpipl.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiPropertyMI.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiPropertyMI.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiProviderBase.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiProviderBase.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiResult.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiResult.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiSelectExp.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiSelectExp.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiStatus.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiStatus.h
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiString.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiString.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Client/CIMClientException.h %INCLUDE_DEST_PATH/Pegasus/Client/CIMClientException.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Client/CIMClient.h %INCLUDE_DEST_PATH/Pegasus/Client/CIMClient.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Client/Linkage.h %INCLUDE_DEST_PATH/Pegasus/Client/Linkage.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/AcceptLanguages.h %INCLUDE_DEST_PATH/Pegasus/Common/AcceptLanguages.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/AcceptLanguageElement.h %INCLUDE_DEST_PATH/Pegasus/Common/AcceptLanguageElement.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/Array.h %INCLUDE_DEST_PATH/Pegasus/Common/Array.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/ArrayInter.h %INCLUDE_DEST_PATH/Pegasus/Common/ArrayInter.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/Char16.h %INCLUDE_DEST_PATH/Pegasus/Common/Char16.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMClass.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMClass.h 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMDateTime.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMDateTime.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMFlavor.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMFlavor.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMIndication.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMIndication.h 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMInstance.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMInstance.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMMethod.h %INCLUDE_DEST_PATH/Pegasus/Common//CIMMethod.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMName.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMName.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMObject.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMObject.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMObjectPath.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMObjectPath.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMParameter.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMParameter.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMParamValue.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMParamValue.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMProperty.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMProperty.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMPropertyList.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMPropertyList.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMQualifierDecl.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMQualifierDecl.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMQualifier.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMQualifier.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMScope.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMScope.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMStatusCode.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMStatusCode.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMType.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMType.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMValue.h %INCLUDE_DEST_PATH/Pegasus/Common/CIMValue.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/Config.h %INCLUDE_DEST_PATH/Pegasus/Common/Config.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/ContentLanguageElement.h %INCLUDE_DEST_PATH/Pegasus/Common/ContentLanguageElement.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/ContentLanguages.h %INCLUDE_DEST_PATH/Pegasus/Common/ContentLanguages.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/Exception.h %INCLUDE_DEST_PATH/Pegasus/Common/Exception.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/Formatter.h %INCLUDE_DEST_PATH/Pegasus/Common/Formatter.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/LanguageElementContainer.h %INCLUDE_DEST_PATH/Pegasus/Common/LanguageElementContainer.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/LanguageElement.h %INCLUDE_DEST_PATH/Pegasus/Common/LanguageElement.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/Linkage.h %INCLUDE_DEST_PATH/Pegasus/Common/Linkage.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/MessageLoader.h %INCLUDE_DEST_PATH/Pegasus/Common/MessageLoader.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/OperationContext.h %INCLUDE_DEST_PATH/Pegasus/Common/OperationContext.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/Platform_%PEGASUS_HARDWARE_PLATFORM.h %INCLUDE_DEST_PATH/Pegasus/Common/Platform_%PEGASUS_HARDWARE_PLATFORM.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/ResponseHandler.h %INCLUDE_DEST_PATH/Pegasus/Common/ResponseHandler.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/SSLContext.h %INCLUDE_DEST_PATH/Pegasus/Common/SSLContext.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Common/String.h %INCLUDE_DEST_PATH/Pegasus/Common/String.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Consumer/CIMIndicationConsumer.h %INCLUDE_DEST_PATH/Pegasus/Consumer/CIMIndicationConsumer.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Consumer/Linkage.h %INCLUDE_DEST_PATH/Pegasus/Consumer/Linkage.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CIMAssociationProvider.h %INCLUDE_DEST_PATH/Pegasus/Provider/CIMAssociationProvider.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CIMIndicationConsumerProvider.h %INCLUDE_DEST_PATH/Pegasus/Provider/CIMIndicationConsumerProvider.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CIMIndicationProvider.h %INCLUDE_DEST_PATH/Pegasus/Provider/CIMIndicationProvider.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CIMInstanceProvider.h %INCLUDE_DEST_PATH/Pegasus/Provider/CIMInstanceProvider.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CIMMethodProvider.h %INCLUDE_DEST_PATH/Pegasus/Provider/CIMMethodProvider.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CIMOMHandle.h %INCLUDE_DEST_PATH/Pegasus/Provider/CIMOMHandle.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CIMProvider.h %INCLUDE_DEST_PATH/Pegasus/Provider/CIMProvider.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/Linkage.h %INCLUDE_DEST_PATH/Pegasus/Provider/Linkage.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/ProviderException.h %INCLUDE_DEST_PATH/Pegasus/Provider/ProviderException.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiArgs.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiArgs.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiArray.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiArray.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiAssociationMI.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiAssociationMI.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiBaseMI.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiBaseMI.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiBooleanData.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiBooleanData.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiBroker.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiBroker.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiCharData.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiCharData.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiContext.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiContext.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiData.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiData.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiDateTime.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiDateTime.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/cmpidt.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/cmpidt.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiEnumeration.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiEnumeration.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/cmpift.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/cmpift.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiIndicationMI.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiIndicationMI.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiInstance.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiInstance.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiInstanceMI.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiInstanceMI.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/cmpimacs.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/cmpimacs.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiMethodMI.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiMethodMI.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiObject.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiObject.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiObjectPath.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiObjectPath.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiPropertyMI.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiPropertyMI.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiProviderBase.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiProviderBase.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiResult.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiResult.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiSelectExp.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiSelectExp.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiStatus.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiStatus.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiString.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiString.h
 
-cp -rf %SDK_STAGE_LOC/html $RPM_BUILD_ROOT%PEGASUS_PRODSHARE_DIR/
 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Makefile %SAMPLES_DEST_PATH/Makefile 
-install -D -m 0444 %SDK_STAGE_LOC/samples/mak/common.mak %SAMPLES_DEST_PATH/mak/common.mak 
+cd %PEGASUS_STAGING_DIR%PEGASUS_PROD_DIR/
+cp -rf html $RPM_BUILD_ROOT%PEGASUS_PROD_DIR
+
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Makefile %SAMPLES_DEST_PATH/Makefile 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/mak/common.mak %SAMPLES_DEST_PATH/mak/common.mak 
 
 echo "PEGASUS_DEST_LIB_DIR =   "%PEGASUS_DEST_LIB_DIR > sampleconfig.txt
 echo "PEGASUS_VARDATA_DIR =    "%PEGASUS_VARDATA_DIR >> sampleconfig.txt
 echo "PEGASUS_PROVIDER_LIB_DIR="%PEGASUS_PROVIDER_LIB_DIR >> sampleconfig.txt
 echo "PEGASUS_MOF_DIR =        "%PEGASUS_MOF_DIR>> sampleconfig.txt
-echo "PEGASUS_INCLUDE_DIR =    "%PEGASUS_INCLUDE_DEST_PATH >> sampleconfig.txt
-echo "PEGASUS_SAMPLES_DIR =    "%PEGASUS_SAMPLES_DEST_PATH >> sampleconfig.txt
+echo "PEGASUS_INCLUDE_DIR =    "%PEGASUS_INCLUDE_DIR >> sampleconfig.txt
+echo "PEGASUS_SAMPLES_DIR =    "%PEGASUS_SAMPLES_DIR >> sampleconfig.txt
 echo "PEGASUS_BIN_DIR =        "%PEGASUS_BIN_DIR >> sampleconfig.txt
-cat sampleconfig.txt %SDK_STAGE_LOC/samples/mak/config.mak > sampleconfig.mak
+cat sampleconfig.txt %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/mak/config.mak > sampleconfig.mak
 install -D -m 0444 sampleconfig.mak %SAMPLES_DEST_PATH/mak/config.mak 
-install -D -m 0444  %SDK_STAGE_LOC/samples/mak/%PEGASUS_HARDWARE_PLATFORM.mak %SAMPLES_DEST_PATH/mak/%PEGASUS_HARDWARE_PLATFORM.mak 
-install -D -m 0444 %SDK_STAGE_LOC/samples/mak/library.mak %SAMPLES_DEST_PATH/mak/library.mak 
-install -D -m 0444 %SDK_STAGE_LOC/samples/mak/program.mak %SAMPLES_DEST_PATH/mak/program.mak
-install -D -m 0444 %SDK_STAGE_LOC/samples/mak/recurse.mak %SAMPLES_DEST_PATH/mak/recurse.mak
-install -D -m 0444 %SDK_STAGE_LOC/samples/Clients/Makefile %SAMPLES_DEST_PATH/Clients/Makefile
-install -D -m 0444 %SDK_STAGE_LOC/samples/Clients/DefaultC++/Makefile %SAMPLES_DEST_PATH/Clients/DefaultC++/Makefile
-install -D -m 0444 %SDK_STAGE_LOC/samples/Clients/DefaultC++/EnumInstances/EnumInstances.cpp %SAMPLES_DEST_PATH/Clients/DefaultC++/EnumInstances/EnumInstances.cpp 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Clients/DefaultC++/EnumInstances/Makefile %SAMPLES_DEST_PATH/Clients/DefaultC++/EnumInstances/Makefile 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Clients/DefaultC++/InvokeMethod/InvokeMethod.cpp %SAMPLES_DEST_PATH/Clients/DefaultC++/InvokeMethod/InvokeMethod.cpp 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Clients/DefaultC++/InvokeMethod/Makefile %SAMPLES_DEST_PATH/Clients/DefaultC++/InvokeMethod/Makefile 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/Makefile %SAMPLES_DEST_PATH/Providers/Makefile
-install -D -m 0444 $PEGASUS_ROOT/src/SDK/samples/Providers/CMPI/Makefile %SAMPLES_DEST_PATH/Providers/CMPI/Makefile
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/CWS_Directory.c %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/CWS_Directory.c 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/CWS_DirectoryContainsFile.c %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/CWS_DirectoryContainsFile.c 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/CWS_FileUtils.c %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/CWS_FileUtils.c 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/CWS_FileUtils.h %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/CWS_FileUtils.h 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/CWS_PlainFile.c %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/CWS_PlainFile.c 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/cwssimdata.c %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/cwssimdata.c 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/cwstest.c %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/cwstest.c 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/cwsutil.c %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/cwsutil.c 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/cwsutil.h %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/cwsutil.h 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/Makefile %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/Makefile 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/DefaultC++/Makefile %SAMPLES_DEST_PATH/Providers/DefaultC++/Makefile
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/DefaultC++/InstanceProvider/EnumerateInstancesrspgood.xml %SAMPLES_DEST_PATH/Providers/DefaultC++/InstanceProvider/EnumerateInstancesrspgood.xml 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/DefaultC++/InstanceProvider/EnumerateInstances.xml %SAMPLES_DEST_PATH/Providers/DefaultC++/InstanceProvider/EnumerateInstances.xml 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/DefaultC++/InstanceProvider/InstanceProvider.cpp %SAMPLES_DEST_PATH/Providers/DefaultC++/InstanceProvider/InstanceProvider.cpp 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/DefaultC++/InstanceProvider/InstanceProvider.h %SAMPLES_DEST_PATH/Providers/DefaultC++/InstanceProvider/InstanceProvider.h 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/DefaultC++/InstanceProvider/InstanceProviderMain.cpp %SAMPLES_DEST_PATH/Providers/DefaultC++/InstanceProvider/InstanceProviderMain.cpp 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/DefaultC++/InstanceProvider/Makefile %SAMPLES_DEST_PATH/Providers/DefaultC++/InstanceProvider/Makefile 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/DefaultC++/MethodProvider/InvokeMethodrspgood.xml %SAMPLES_DEST_PATH/Providers/DefaultC++/MethodProvider/InvokeMethodrspgood.xml 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/DefaultC++/MethodProvider/InvokeMethod.xml %SAMPLES_DEST_PATH/Providers/DefaultC++/MethodProvider/InvokeMethod.xml 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/DefaultC++/MethodProvider/Makefile %SAMPLES_DEST_PATH/Providers/DefaultC++/MethodProvider/Makefile 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/DefaultC++/MethodProvider/MethodProvider.cpp %SAMPLES_DEST_PATH/Providers/DefaultC++/MethodProvider/MethodProvider.cpp 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/DefaultC++/MethodProvider/MethodProvider.h %SAMPLES_DEST_PATH/Providers/DefaultC++/MethodProvider/MethodProvider.h 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/DefaultC++/MethodProvider/MethodProviderMain.cpp %SAMPLES_DEST_PATH/Providers/DefaultC++/MethodProvider/MethodProviderMain.cpp 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/tests/AssocDirNames12001rspgood.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/AssocDirNames12001rspgood.xml 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/tests/AssocDirNames12001.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/AssocDirNames12001.xml 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/tests/DeleteDirInstance10003rspgood.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/DeleteDirInstance10003rspgood.xml 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/tests/DeleteDirInstance10003.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/DeleteDirInstance10003.xml 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/tests/EnumerateDir10001rspgood.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/EnumerateDir10001rspgood.xml 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/tests/EnumerateDir10001.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/EnumerateDir10001.xml 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/tests/EnumerateDirNames10000rspgood.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/EnumerateDirNames10000rspgood.xml 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/tests/EnumerateDirNames10000.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/EnumerateDirNames10000.xml 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/tests/GetDirInstance10002rspgood.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/GetDirInstance10002rspgood.xml 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/tests/GetDirInstance10002.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/GetDirInstance10002.xml 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/tests/Makefile %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/Makefile 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001rspgood.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001rspgood.xml 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001.xml 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/tests/ReferenceDirNames12002rspgood.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/ReferenceDirNames12002rspgood.xml 
-install -D -m 0444 %SDK_STAGE_LOC/samples/Providers/CMPI/FilesAndDirectories/tests/ReferenceDirNames12002.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/ReferenceDirNames12002.xml 
-install -D -m 0444 $PEGASUS_ROOT/src/SDK/samples/Providers/Load/Makefile %SAMPLES_DEST_PATH/Providers/Load/Makefile
-install -D -m 0444 $PEGASUS_ROOT/src/Providers/sample/Load/CWS_FilesAndDir.mof %SAMPLES_DEST_PATH/Providers/Load/CWS_FilesAndDir.mof
-install -D -m 0444 $PEGASUS_ROOT/src/Providers/sample/Load/CWS_FilesAndDirR.mof %SAMPLES_DEST_PATH/Providers/Load/CWS_FilesAndDirR.mof
-install -D -m 0444 $PEGASUS_ROOT/src/Providers/sample/Load/InstanceProviderR.mof %SAMPLES_DEST_PATH/Providers/Load/InstanceProviderR.mof
-install -D -m 0444 $PEGASUS_ROOT/src/Providers/sample/Load/MethodProviderR.mof %SAMPLES_DEST_PATH/Providers/Load/MethodProviderR.mof
-install -D -m 0444 $PEGASUS_ROOT/src/Providers/sample/Load/SampleProviderSchema.mof %SAMPLES_DEST_PATH/Providers/Load/SampleProviderSchema.mof
+install -D -m 0444  %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/mak/%PEGASUS_HARDWARE_PLATFORM.mak %SAMPLES_DEST_PATH/mak/%PEGASUS_HARDWARE_PLATFORM.mak 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/mak/library.mak %SAMPLES_DEST_PATH/mak/library.mak 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/mak/program.mak %SAMPLES_DEST_PATH/mak/program.mak
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/mak/recurse.mak %SAMPLES_DEST_PATH/mak/recurse.mak
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Clients/Makefile %SAMPLES_DEST_PATH/Clients/Makefile
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Clients/DefaultC++/Makefile %SAMPLES_DEST_PATH/Clients/DefaultC++/Makefile
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Clients/DefaultC++/EnumInstances/EnumInstances.cpp %SAMPLES_DEST_PATH/Clients/DefaultC++/EnumInstances/EnumInstances.cpp 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Clients/DefaultC++/EnumInstances/Makefile %SAMPLES_DEST_PATH/Clients/DefaultC++/EnumInstances/Makefile 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Clients/DefaultC++/InvokeMethod/InvokeMethod.cpp %SAMPLES_DEST_PATH/Clients/DefaultC++/InvokeMethod/InvokeMethod.cpp 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Clients/DefaultC++/InvokeMethod/Makefile %SAMPLES_DEST_PATH/Clients/DefaultC++/InvokeMethod/Makefile 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Clients/DefaultC++/SendTestIndications/Makefile %SAMPLES_DEST_PATH/Clients/DefaultC++/SendTestIndications/Makefile 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Clients/DefaultC++/SendTestIndications/SendTestIndications.cpp %SAMPLES_DEST_PATH/Clients/DefaultC++/SendTestIndications/SendTestIndications.cpp
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/Makefile %SAMPLES_DEST_PATH/Providers/Makefile
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/Makefile %SAMPLES_DEST_PATH/Providers/CMPI/Makefile
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/CWS_Directory.c %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/CWS_Directory.c 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/CWS_DirectoryContainsFile.c %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/CWS_DirectoryContainsFile.c 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/CWS_FileUtils.c %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/CWS_FileUtils.c 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/CWS_FileUtils.h %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/CWS_FileUtils.h 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/CWS_PlainFile.c %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/CWS_PlainFile.c 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/cwssimdata.c %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/cwssimdata.c 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/cwstest.c %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/cwstest.c 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/cwsutil.c %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/cwsutil.c 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/cwsutil.h %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/cwsutil.h 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/Makefile %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/Makefile 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/DefaultC++/Makefile %SAMPLES_DEST_PATH/Providers/DefaultC++/Makefile
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/DefaultC++/IndicationProvider/IndicationProvider.h %SAMPLES_DEST_PATH/Providers/DefaultC++/IndicationProvider/IndicationProvider.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/DefaultC++/IndicationProvider/IndicationProvider.cpp %SAMPLES_DEST_PATH/Providers/DefaultC++/IndicationProvider/IndicationProvider.cpp 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/DefaultC++/IndicationProvider/IndicationProviderMain.cpp %SAMPLES_DEST_PATH/Providers/DefaultC++/IndicationProvider/IndicationProviderMain.cpp 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/DefaultC++/IndicationProvider/Makefile %SAMPLES_DEST_PATH/Providers/DefaultC++/IndicationProvider/Makefile
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/DefaultC++/InstanceProvider/EnumerateInstancesrspgood.xml %SAMPLES_DEST_PATH/Providers/DefaultC++/InstanceProvider/EnumerateInstancesrspgood.xml 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/DefaultC++/InstanceProvider/EnumerateInstances.xml %SAMPLES_DEST_PATH/Providers/DefaultC++/InstanceProvider/EnumerateInstances.xml 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/DefaultC++/InstanceProvider/InstanceProvider.cpp %SAMPLES_DEST_PATH/Providers/DefaultC++/InstanceProvider/InstanceProvider.cpp 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/DefaultC++/InstanceProvider/InstanceProvider.h %SAMPLES_DEST_PATH/Providers/DefaultC++/InstanceProvider/InstanceProvider.h 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/DefaultC++/InstanceProvider/InstanceProviderMain.cpp %SAMPLES_DEST_PATH/Providers/DefaultC++/InstanceProvider/InstanceProviderMain.cpp 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/DefaultC++/InstanceProvider/Makefile %SAMPLES_DEST_PATH/Providers/DefaultC++/InstanceProvider/Makefile 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/DefaultC++/MethodProvider/InvokeMethodrspgood.xml %SAMPLES_DEST_PATH/Providers/DefaultC++/MethodProvider/InvokeMethodrspgood.xml 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/DefaultC++/MethodProvider/InvokeMethod.xml %SAMPLES_DEST_PATH/Providers/DefaultC++/MethodProvider/InvokeMethod.xml 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/DefaultC++/MethodProvider/Makefile %SAMPLES_DEST_PATH/Providers/DefaultC++/MethodProvider/Makefile 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/DefaultC++/MethodProvider/MethodProvider.cpp %SAMPLES_DEST_PATH/Providers/DefaultC++/MethodProvider/MethodProvider.cpp 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/DefaultC++/MethodProvider/MethodProvider.h %SAMPLES_DEST_PATH/Providers/DefaultC++/MethodProvider/MethodProvider.h 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/DefaultC++/MethodProvider/MethodProviderMain.cpp %SAMPLES_DEST_PATH/Providers/DefaultC++/MethodProvider/MethodProviderMain.cpp 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/DefaultC++/SimpleDisplayConsumer/SimpleDisplayConsumerMain.cpp %SAMPLES_DEST_PATH/Providers/DefaultC++/SimpleDisplayConsumer/SimpleDisplayConsumerMain.cpp 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/DefaultC++/SimpleDisplayConsumer/SimpleDisplayConsumer.cpp %SAMPLES_DEST_PATH/Providers/DefaultC++/SimpleDisplayConsumer/SimpleDisplayConsumer.cpp 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/DefaultC++/SimpleDisplayConsumer/SimpleDisplayConsumer.h %SAMPLES_DEST_PATH/Providers/DefaultC++/SimpleDisplayConsumer/SimpleDisplayConsumer.h
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/DefaultC++/SimpleDisplayConsumer/Makefile %SAMPLES_DEST_PATH/Providers/DefaultC++/SimpleDisplayConsumer/Makefile
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/AssocDirNames12001rspgood.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/AssocDirNames12001rspgood.xml 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/AssocDirNames12001.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/AssocDirNames12001.xml 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/DeleteDirInstance10003rspgood.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/DeleteDirInstance10003rspgood.xml 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/DeleteDirInstance10003.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/DeleteDirInstance10003.xml 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/EnumerateDir10001rspgood.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/EnumerateDir10001rspgood.xml 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/EnumerateDir10001.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/EnumerateDir10001.xml 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/EnumerateDirNames10000rspgood.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/EnumerateDirNames10000rspgood.xml 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/EnumerateDirNames10000.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/EnumerateDirNames10000.xml 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/GetDirInstance10002rspgood.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/GetDirInstance10002rspgood.xml 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/GetDirInstance10002.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/GetDirInstance10002.xml 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/Makefile %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/Makefile 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001rspgood.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001rspgood.xml 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001.xml 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/ReferenceDirNames12002rspgood.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/ReferenceDirNames12002rspgood.xml 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/ReferenceDirNames12002.xml %SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/ReferenceDirNames12002.xml 
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/Load/Makefile %SAMPLES_DEST_PATH/Providers/Load/Makefile
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/Load/CWS_FilesAndDir.mof %SAMPLES_DEST_PATH/Providers/Load/CWS_FilesAndDir.mof
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/Load/CWS_FilesAndDirR.mof %SAMPLES_DEST_PATH/Providers/Load/CWS_FilesAndDirR.mof
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/Load/IndicationProviderR.mof %SAMPLES_DEST_PATH/Providers/Load/IndicationProviderR.mof
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/Load/InstanceProviderR.mof %SAMPLES_DEST_PATH/Providers/Load/InstanceProviderR.mof
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/Load/MethodProviderR.mof %SAMPLES_DEST_PATH/Providers/Load/MethodProviderR.mof
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/Load/SampleProviderSchema.mof %SAMPLES_DEST_PATH/Providers/Load/SampleProviderSchema.mof
+install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/Load/SimpleDisplayConsumerR.mof %SAMPLES_DEST_PATH/Providers/Load/SimpleDisplayConsumerR.mof
 
 rm -Rf $PEGASUS_HOME
 
@@ -885,142 +901,153 @@ fi
 
 %files sdk
 %defattr(0444,root,root)
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Client/CIMClientException.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Client/CIMClient.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Client/Linkage.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/AcceptLanguages.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/AcceptLanguageElement.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/Array.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/ArrayInter.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/Char16.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/CIMClass.h 
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/CIMDateTime.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/CIMFlavor.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/CIMIndication.h 
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/CIMInstance.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common//CIMMethod.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/CIMName.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/CIMObject.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/CIMObjectPath.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/CIMParameter.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/CIMParamValue.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/CIMProperty.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/CIMPropertyList.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/CIMQualifierDecl.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/CIMQualifier.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/CIMScope.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/CIMStatusCode.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/CIMType.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/CIMValue.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/Config.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/ContentLanguageElement.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/ContentLanguages.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/Exception.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/Formatter.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/LanguageElementContainer.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/LanguageElement.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/Linkage.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/MessageLoader.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/OperationContext.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/Platform_%PEGASUS_HARDWARE_PLATFORM.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/ResponseHandler.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/SSLContext.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/String.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Consumer/CIMIndicationConsumer.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Consumer/Linkage.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CIMAssociationProvider.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CIMIndicationConsumerProvider.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CIMIndicationProvider.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CIMInstanceProvider.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CIMMethodProvider.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CIMOMHandle.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CIMProvider.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/Linkage.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/ProviderException.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiArgs.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiArray.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiAssociationMI.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiBaseMI.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiBooleanData.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiBroker.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiCharData.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiContext.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiData.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiDateTime.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/cmpidt.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiEnumeration.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/cmpift.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiIndicationMI.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiInstance.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiInstanceMI.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/cmpimacs.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiMethodMI.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiObject.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiObjectPath.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/cmpipl.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiPropertyMI.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiProviderBase.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiResult.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiSelectExp.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiStatus.h
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiString.h
-%PEGASUS_HTML_DEST_PATH
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Makefile 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/common.mak 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/config.mak 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/library.mak 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/%PEGASUS_HARDWARE_PLATFORM.mak
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/program.mak 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/recurse.mak 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Clients/Makefile 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Clients/DefaultC++/Makefile
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Clients/DefaultC++/EnumInstances/EnumInstances.cpp 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Clients/DefaultC++/EnumInstances/Makefile 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Clients/DefaultC++/InvokeMethod/InvokeMethod.cpp 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Clients/DefaultC++/InvokeMethod/Makefile 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/Makefile
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/Makefile
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/CWS_Directory.c 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/CWS_DirectoryContainsFile.c 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/CWS_FileUtils.c 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/CWS_FileUtils.h 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/CWS_PlainFile.c 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/cwssimdata.c 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/cwstest.c 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/cwsutil.c 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/cwsutil.h 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/Makefile 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/DefaultC++/Makefile
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/DefaultC++/InstanceProvider/EnumerateInstancesrspgood.xml 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/DefaultC++/InstanceProvider/EnumerateInstances.xml 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/DefaultC++/InstanceProvider/InstanceProvider.cpp 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/DefaultC++/InstanceProvider/InstanceProvider.h 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/DefaultC++/InstanceProvider/InstanceProviderMain.cpp 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/DefaultC++/InstanceProvider/Makefile 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/DefaultC++/MethodProvider/InvokeMethodrspgood.xml 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/DefaultC++/MethodProvider/InvokeMethod.xml 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/DefaultC++/MethodProvider/Makefile 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/DefaultC++/MethodProvider/MethodProvider.cpp 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/DefaultC++/MethodProvider/MethodProvider.h 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/DefaultC++/MethodProvider/MethodProviderMain.cpp 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/AssocDirNames12001rspgood.xml 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/AssocDirNames12001.xml 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/DeleteDirInstance10003rspgood.xml 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/DeleteDirInstance10003.xml 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/EnumerateDir10001rspgood.xml 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/EnumerateDir10001.xml 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/EnumerateDirNames10000rspgood.xml 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/EnumerateDirNames10000.xml 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/GetDirInstance10002rspgood.xml 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/GetDirInstance10002.xml 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/Makefile 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001rspgood.xml 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001.xml 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/ReferenceDirNames12002rspgood.xml 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/CMPI/FilesAndDirectories/tests/ReferenceDirNames12002.xml 
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/Load/Makefile
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/Load/CWS_FilesAndDir.mof
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/Load/CWS_FilesAndDirR.mof
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/Load/InstanceProviderR.mof
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/Load/MethodProviderR.mof
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Providers/Load/SampleProviderSchema.mof
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Client/CIMClientException.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Client/CIMClient.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Client/Linkage.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/AcceptLanguages.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/AcceptLanguageElement.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/Array.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/ArrayInter.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/Char16.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMClass.h 
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMDateTime.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMFlavor.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMIndication.h 
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMInstance.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common//CIMMethod.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMName.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMObject.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMObjectPath.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMParameter.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMParamValue.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMProperty.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMPropertyList.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMQualifierDecl.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMQualifier.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMScope.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMStatusCode.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMType.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/CIMValue.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/Config.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/ContentLanguageElement.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/ContentLanguages.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/Exception.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/Formatter.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/LanguageElementContainer.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/LanguageElement.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/Linkage.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/MessageLoader.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/OperationContext.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/Platform_%PEGASUS_HARDWARE_PLATFORM.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/ResponseHandler.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/SSLContext.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common/String.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Consumer/CIMIndicationConsumer.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Consumer/Linkage.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CIMAssociationProvider.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CIMIndicationConsumerProvider.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CIMIndicationProvider.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CIMInstanceProvider.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CIMMethodProvider.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CIMOMHandle.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CIMProvider.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/Linkage.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/ProviderException.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiArgs.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiArray.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiAssociationMI.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiBaseMI.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiBooleanData.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiBroker.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiCharData.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiContext.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiData.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiDateTime.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/cmpidt.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiEnumeration.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/cmpift.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiIndicationMI.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiInstance.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiInstanceMI.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/cmpimacs.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiMethodMI.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiObject.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiObjectPath.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiPropertyMI.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiProviderBase.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiResult.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiSelectExp.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiStatus.h
+%attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider/CMPI/CmpiString.h
+%PEGASUS_HTML_DIR
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Makefile 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/mak/common.mak 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/mak/config.mak 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/mak/library.mak 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/mak/%PEGASUS_HARDWARE_PLATFORM.mak
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/mak/program.mak 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/mak/recurse.mak 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Clients/Makefile 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Clients/DefaultC++/Makefile
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Clients/DefaultC++/EnumInstances/EnumInstances.cpp 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Clients/DefaultC++/EnumInstances/Makefile 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Clients/DefaultC++/InvokeMethod/InvokeMethod.cpp 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Clients/DefaultC++/InvokeMethod/Makefile 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Clients/DefaultC++/SendTestIndications/Makefile 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Clients/DefaultC++/SendTestIndications/SendTestIndications.cpp
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/Makefile
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/Makefile
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/CWS_Directory.c 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/CWS_DirectoryContainsFile.c 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/CWS_FileUtils.c 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/CWS_FileUtils.h 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/CWS_PlainFile.c 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/cwssimdata.c 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/cwstest.c 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/cwsutil.c 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/cwsutil.h 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/Makefile 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/Makefile
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/IndicationProvider/IndicationProvider.cpp
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/IndicationProvider/IndicationProvider.h
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/IndicationProvider/IndicationProviderMain.cpp
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/IndicationProvider/Makefile
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/InstanceProvider/EnumerateInstancesrspgood.xml 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/InstanceProvider/EnumerateInstances.xml 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/InstanceProvider/InstanceProvider.cpp 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/InstanceProvider/InstanceProvider.h 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/InstanceProvider/InstanceProviderMain.cpp 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/InstanceProvider/Makefile 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/MethodProvider/InvokeMethodrspgood.xml 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/MethodProvider/InvokeMethod.xml 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/MethodProvider/Makefile 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/MethodProvider/MethodProvider.cpp 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/MethodProvider/MethodProvider.h 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/MethodProvider/MethodProviderMain.cpp 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/SimpleDisplayConsumer/SimpleDisplayConsumer.cpp 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/SimpleDisplayConsumer/SimpleDisplayConsumer.h
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/SimpleDisplayConsumer/SimpleDisplayConsumerMain.cpp
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/SimpleDisplayConsumer/Makefile
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/AssocDirNames12001rspgood.xml 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/AssocDirNames12001.xml 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/DeleteDirInstance10003rspgood.xml 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/DeleteDirInstance10003.xml 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/EnumerateDir10001rspgood.xml 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/EnumerateDir10001.xml 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/EnumerateDirNames10000rspgood.xml 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/EnumerateDirNames10000.xml 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/GetDirInstance10002rspgood.xml 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/GetDirInstance10002.xml 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/Makefile 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001rspgood.xml 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001.xml 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/ReferenceDirNames12002rspgood.xml 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/CMPI/FilesAndDirectories/tests/ReferenceDirNames12002.xml 
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/Load/Makefile
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/Load/CWS_FilesAndDir.mof
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/Load/CWS_FilesAndDirR.mof
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/Load/IndicationProviderR.mof
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/Load/InstanceProviderR.mof
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/Load/MethodProviderR.mof
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/Load/SampleProviderSchema.mof
+%attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/Load/SimpleDisplayConsumerR.mof

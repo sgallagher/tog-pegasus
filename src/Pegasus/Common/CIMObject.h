@@ -106,14 +106,6 @@ public:
 	Dec(_rep);
     }
 
-	/** Accessor.
-	*/
-	const CIMReference & getPath(void) const
-	{
-	_checkRep();
-	return _rep->getPath();
-	}
-	
     /**	Accessor.
     */
     const String& getClassName() const
@@ -367,7 +359,7 @@ private:
 	    ThrowUnitializedHandle();
     }
 
-	CIMObjectRep* _rep;
+    CIMObjectRep* _rep;
 
     friend class CIMConstObject;
     friend class CIMClass;
@@ -450,12 +442,6 @@ public:
 	Dec(_rep);
     }
 
-	const CIMReference & getPath(void) const
-	{
-	_checkRep();
-	return _rep->getPath();
-	}
-	
     const String& getClassName() const
     {
 	_checkRep();

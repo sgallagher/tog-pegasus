@@ -47,21 +47,14 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE CIMObjectRep : public Sharable
 {
 public:
-	
-	CIMObjectRep(const CIMReference& reference);
 
     CIMObjectRep(const String& className);
 
     virtual ~CIMObjectRep();
 
-    const CIMReference& getPath(void) const
+    const String& getClassName() const
     {
-	return _reference;
-    }
-
-	const String& getClassName() const
-    {
-	return _reference.getClassName();
+	return _className;
     }
 
     void addQualifier(const CIMQualifier& qualifier)
@@ -146,7 +139,7 @@ protected:
 	return *this;
     }
 
-    CIMReference _reference;
+    String _className;
     CIMQualifierList _qualifiers;
     Array<CIMProperty> _properties;
     Boolean _resolved;

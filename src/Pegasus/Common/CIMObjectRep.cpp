@@ -32,13 +32,8 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMObjectRep::CIMObjectRep(const CIMReference& reference)
-    : _reference(reference), _resolved(false)
-{
-}
-
 CIMObjectRep::CIMObjectRep(const String& className)
-    : _reference(className), _resolved(false)
+    : _className(className), _resolved(false)
 {
 }
 
@@ -108,7 +103,7 @@ CIMObjectRep::CIMObjectRep()
 
 CIMObjectRep::CIMObjectRep(const CIMObjectRep& x) :
     Sharable(),
-    _reference(x._reference),
+    _className(x._className),
     _resolved(x._resolved)
 {
     x._qualifiers.cloneTo(_qualifiers);
@@ -121,7 +116,7 @@ CIMObjectRep::CIMObjectRep(const CIMObjectRep& x) :
 
 Boolean CIMObjectRep::identical(const CIMObjectRep* x) const
 {
-    if (_reference.identical(x->_reference))
+    if (_className != x->_className)
 	return false;
 
     if (!_qualifiers.identical(x->_qualifiers))

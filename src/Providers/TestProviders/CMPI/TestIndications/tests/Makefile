@@ -1,5 +1,5 @@
 ROOT = ../../../../../../
-DIR = Providers/TestProviders/CMPI/TestCMPIIndications/tests
+DIR = Providers/TestProviders/CMPI/TestIndications/tests
 
 include $(ROOT)/mak/config.mak
 

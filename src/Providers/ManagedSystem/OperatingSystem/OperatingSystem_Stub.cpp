@@ -170,6 +170,11 @@ Boolean OperatingSystem::getDistributed(Boolean& distributed)
     return false;
 }
 
+Boolean OperatingSystem::getMaxProcsPerUser(Uint32& maxProcsPerUser)
+{
+    return false;
+}
+
 Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
 {
     return false;

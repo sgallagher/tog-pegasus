@@ -80,6 +80,7 @@ class OperatingSystem
       Boolean getFreeSpaceInPagingFiles(Uint64& freeSpaceInPagingFiles);
       Boolean getMaxProcessMemorySize(Uint64& maxProcessMemorySize);
       Boolean getDistributed(Boolean& distributed);
+      Boolean getMaxProcsPerUser(Uint32& maxProcsPerUser);
       Boolean getSystemUpTime(Uint64& systemUpTime);
       Boolean getOperatingSystemCapability(String& operatingSystemCapability);
       Uint32 Reboot();

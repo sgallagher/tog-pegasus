@@ -128,12 +128,13 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
 
     DEBUG("losp-> getInstance got the right keys");
 
+    handler.processing();
+    
     //-- fill 'er up...
     instance = _build_instance(ref);
 
     DEBUG("losp-> getInstance built an instance");
 
-    handler.processing();
     handler.deliver(instance);
     handler.complete();
 
@@ -233,6 +234,10 @@ OperatingSystemProvider::deleteInstance(
 
 void OperatingSystemProvider::initialize(CIMOMHandle& handle)
 {
+   _cimomhandle = handle;  // save off for future use
+
+   // call platform-specific routines to get certain values
+   
 }
 
 
@@ -387,6 +392,11 @@ OperatingSystemProvider::_build_instance(const CIMReference& objectReference)
     if (os.getDistributed(booleanValue))
     {
         instance.addProperty(CIMProperty("Distributed", booleanValue));
+    }
+
+    if (os.getMaxProcsPerUser(uint32Value))
+    {
+        instance.addProperty(CIMProperty("MaxProcessesPerUser", uint32Value));
     }
 
     if (String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))

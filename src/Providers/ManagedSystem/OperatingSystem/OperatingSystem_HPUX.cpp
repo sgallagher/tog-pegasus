@@ -267,7 +267,6 @@ Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
     struct timezone    tz;
     struct tm          *tmval;
     struct pst_static  pst;
-    ErrorStatus_t      rc;
     Timestamp_t        bootTime;
     char mTmpString[80];
 
@@ -278,34 +277,33 @@ Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
     {
 	return false;
     }
-    else
-    {
-        // Get the boot time and convert to local time. 
+    // Get the boot time and convert to local time. 
 
 // ATTN-SLC-P2-17-Apr-02: use CIMOM cim date time function for consistency
 
-        tmval = localtime((time_t *)&pst.boot_time);
-        gettimeofday(&tv,&tz);
+    tmval = localtime((time_t *)&pst.boot_time);
+    gettimeofday(&tv,&tz);
 
-        year = 1900;
-        memset((void *)&bootTime, 0, sizeof(Timestamp_t));
+    year = 1900;
+    memset((void *)&bootTime, 0, sizeof(Timestamp_t));
 
-        // Format the date. 
-        sprintf((char *) &bootTime,"%04d%02d%02d%02d%02d%02d.%06d%04d",
-                year + tmval->tm_year,
-                tmval->tm_mon + 1,   // HP-UX stores month 0-11
-                tmval->tm_mday,
-                tmval->tm_hour,
-                tmval->tm_min,
-                tmval->tm_sec,
-                0,
-                tz.tz_minuteswest);
-	if (tz.tz_minuteswest > 0) {
-	    bootTime.plusOrMinus = '-';
-	}
-	else {
-	   bootTime.plusOrMinus = '+';
-	}
+    // Format the date. 
+    sprintf((char *) &bootTime,"%04d%02d%02d%02d%02d%02d.%06d%04d",
+            year + tmval->tm_year,
+            tmval->tm_mon + 1,   // HP-UX stores month 0-11
+            tmval->tm_mday,
+            tmval->tm_hour,
+            tmval->tm_min,
+            tmval->tm_sec,
+            0,
+            tz.tz_minuteswest);
+    if (tz.tz_minuteswest > 0) 
+    {
+        bootTime.plusOrMinus = '-';
+    }
+    else 
+    {
+        bootTime.plusOrMinus = '+';
     }
     lastBootUpTime.clear();
     strcpy(mTmpString, (char *)&bootTime);
@@ -460,10 +458,8 @@ Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
     {
         return false;
     }
-    else
-    {
-        numberOfProcesses = psd.psd_activeprocs;
-    }
+        
+    numberOfProcesses = psd.psd_activeprocs;
 
     return true;
 }
@@ -483,29 +479,27 @@ Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32& mMaxProcesses)
     {
        return false; 
     }
-    else
-    {
-        mMaxProcesses = pst.max_proc;
-    }
+        
+    mMaxProcesses = pst.max_proc;
 
     return true;
 }
 
 /** 
-   getTotalSwapSpaceSize method for HP-UX implementation of HP-UX
+   _totalVM method for HP-UX implementation of HP-UX
 
-   Gets information from swapinfo -q command (techically not swap
-   space, it's paging).
-
+   Gets information from swapinfo -q command (already in KB).
+   Invoked for TotalVirtualMemory as well as TotalSwapSpaceSize.
+   Would be more efficient to get this only once.
   */
-Boolean OperatingSystem::getTotalSwapSpaceSize(Uint64& mTotalSwapSpaceSize)
+Uint64 OperatingSystem::_totalVM()
 {
     char               mline[80];
     FILE             * mswapInfo;
     Uint32             swapSize;
 
     // Initialize the return parameter in case swapinfo is not available. 
-    mTotalSwapSpaceSize = -1;
+    swapSize = 0;
 
     // Use a pipe to invoke swapinfo. 
     if ((mswapInfo = popen("swapinfo -q 2>/dev/null", "r")) != NULL)
@@ -514,32 +508,101 @@ Boolean OperatingSystem::getTotalSwapSpaceSize(Uint64& mTotalSwapSpaceSize)
         while (fgets(mline, 80, mswapInfo))
         {
            sscanf(mline, "%d", &swapSize);
-           mTotalSwapSpaceSize = swapSize;
-//    mTotalSwapSpaceSize = atol (mline);  changed to sscanf for portability
         }  // end while 
 
         (void)pclose (mswapInfo);
-        return true;
     }
+    return swapSize;
+}
+/** 
+   getTotalSwapSpaceSize method for HP-UX implementation of HP-UX
+
+   Gets information from swapinfo -q command (techically not swap
+   space, it's paging).  No formal paging files, report as swap.
+
+  */
+Boolean OperatingSystem::getTotalSwapSpaceSize(Uint64& mTotalSwapSpaceSize)
+{
+    mTotalSwapSpaceSize = _totalVM();
+    if (mTotalSwapSpaceSize != 0)
+       return true; 
     else
+       return false;
+}
+
+/** 
+   getTotalVirutalMemorySize method for HP-UX implementation of HP-UX
+
+   Gets information from swapinfo -q command (techically not swap
+   space, it's paging).  Same as the information returned for 
+   TotalSwapSpace.
+
+  */
+Boolean OperatingSystem::getTotalVirtualMemorySize(Uint64& total)
+{
+
+// Returns the same information as TotalSwapSpace (since the same)
+
+    total = _totalVM();
+    if (total != 0)
+       return true; 
+    else
+       return false;
+} 
+
+/** 
+   getFreeVirutalMemorySize method for HP-UX implementation of HP-UX
+
+   Gets information from swapinfo -at command (the Free column)
+
+  */
+Boolean OperatingSystem::getFreeVirtualMemory(Uint64& freeVirtualMemory)
+{
+    char               mline[80];
+    FILE             * mswapInfo;
+    Uint32             swapAvailable;
+    Uint32             swapUsed;
+    Uint32             swapFree;
+
+    // Initialize the return parameter in case swapinfo is not available. 
+    freeVirtualMemory = 0;
+
+    // Use a pipe to invoke swapinfo. 
+    if ((mswapInfo = popen("swapinfo -at 2>/dev/null", "r")) != NULL)
+    {
+        // Now extract the total swap space size from the swapinfo output. 
+        while (fgets(mline, 80, mswapInfo))
+        {
+           sscanf(mline, "total %u %u %u", &swapAvailable,
+                  &swapUsed, &swapFree);
+        }  // end while 
+
+        (void)pclose (mswapInfo);
+    }
+    freeVirtualMemory = swapFree;
+    if (freeVirtualMemory != 0)
+        return true;
+    else
+        return false;
+}
+
+/** 
+   getFreePhysicalMemory method for HP-UX implementation of HP-UX
+
+   Gets information from the pstat system call (psd_free field)
+
+  */
+Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
+{
+    struct pst_dynamic psd;
+
+    if (pstat_getdynamic(&psd, sizeof(psd), (size_t)1, 0) == -1)
     {
         return false;
     }
-}
+    total = psd.psd_free;
 
-Boolean OperatingSystem::getTotalVirtualMemorySize(Uint64& total)
-{
-   return false;
-}
-
-Boolean OperatingSystem::getFreeVirtualMemory(Uint64& freeVirtualMemory)
-{
-   return false;
-}
-
-Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
-{
-   return false;
+    return true;
 }
 
 /**
@@ -560,45 +623,145 @@ Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
     }
     else
     {
-        // use of this constant was in SAM and then DMI
-        psize = pst.page_size * 0.000977;
+        // this constant is 1/1024 - used for efficiency vs. dividing
+        psize = pst.page_size * 0.000977;  
         total = ((float)pst.physical_memory * 0.000977 * psize);
         memory = total;
         return true;
     }
 }
 
+/**
+   getSizeStoredInPagingFiles method for HP-UX implementation of OS Provider
+
+   HP-UX doesn't have Paging Files, thus return 0 (as specified in the MOF)
+   */
 Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64& total)
 {
-
-// 
-//   return getTotalSwapSpaceSize(total);
-
-    return false;
+    total = 0;
+    return true;
 }
 
+/**
+   getFreeSpaceInPagingFiles method for HP-UX implementation of OS Provider
+
+   HP-UX doesn't have Paging Files, thus return 0 (as specified in the MOF)
+   */
 Boolean OperatingSystem::getFreeSpaceInPagingFiles(Uint64& freeSpaceInPagingFiles)
 {
-   return false;
+    freeSpaceInPagingFiles = 0;
+    return true;
 }
 
+/**
+   getMaxProcessMemorySize method for HP-UX implementation of OS Provider
+
+   Calculate values by summing kernel tunable values for max data size, max
+   stack size, and max text size.  Different names if 32-bit vs. 64-bit.
+   NOT the pstat() pst_maxmem value; that is the amount of physical 
+   memory available to all user processes when the system first boots.
+
+   Could use the gettune(2) system call on some systems, but it isn't 
+   available for 11.0, so used kmtune for all releases.             
+   */
 Boolean OperatingSystem::getMaxProcessMemorySize(Uint64& maxProcessMemorySize)
 {
+    char               mline[80];
+    FILE             * mtuneInfo;
+    Uint32             maxdsiz;
+    Uint32             maxssiz;
+    Uint32             maxtsiz;
+    Uint32             maxdsiz_64bit;
+    Uint32             maxssiz_64bit;
+    Uint32             maxtsiz_64bit;
+    long               ret;
 
-// ATTN-SLC-P1-17-Apr-02: implement for HP-UX - pst_maxmem?
+    // Initialize the return parameter in case kmtune is not available. 
+    maxProcessMemorySize = 0;
+    
+    ret = sysconf (_SC_KERNEL_BITS);
+    if (ret == 0) 
        return false;
+    else
+    {
+       // Need to check if 32-bit or 64-bit to use the suitable name
+       if (ret == 32) 
+       {   // we're 32 bit
+           // Use a pipe to invoke kmtune (since don't have gettune on all OSs) 
+           if ((mtuneInfo = popen("kmtune -q maxdsiz -q maxssiz "
+                                  "-q maxtsiz 2>/dev/null", "r")) != NULL)
+           {
+               // Now extract the three values and sum them
+               while (fgets(mline, 80, mtuneInfo))
+               {
+                  sscanf(mline, "maxdsiz %x", &maxdsiz);
+                  sscanf(mline, "maxssiz %x", &maxssiz);
+                  sscanf(mline, "maxtsiz %x", &maxtsiz);
+               }  // end while 
+
+               (void)pclose (mtuneInfo);
+               maxProcessMemorySize = (maxdsiz + maxssiz + maxtsiz);
+               return true;
+           } // end if popen worked
+           return false;
+       } // end if (ret == 32)
+    
+       else   // so ret was 64 (only returns -1, 32, or 64)
+       {   
+           // Use a pipe to invoke kmtune (since don't have gettune on all OSs) 
+           if ((mtuneInfo = popen("kmtune -q maxdsiz_64bit " 
+                                  "-q maxssiz_64bit -q maxtsiz_64bit "
+                                  "2> /dev/null","r")) != NULL)
+           {
+               // Now extract the three values and sum them
+               while (fgets(mline, 80, mtuneInfo))
+               {
+                  sscanf(mline, "maxdsiz %x", &maxdsiz_64bit);
+                  sscanf(mline, "maxssiz %x", &maxssiz_64bit);
+                  sscanf(mline, "maxtsiz %x", &maxtsiz_64bit);
+               }  // end while 
+
+               (void)pclose (mtuneInfo);
+               maxProcessMemorySize = (maxdsiz_64bit + maxssiz_64bit
+                                      + maxtsiz_64bit);
+               return true;
+           } // end if popen worked
+           return false;
+       } // end else
+    }  // end else
 }
 
 /**
    getDistributed method for HP-UX implementation of OS Provider
 
-   always sets the distributed boolean to FALSE
+   Always sets the distributed boolean to FALSE
   */
 Boolean OperatingSystem::getDistributed(Boolean& distributed)
 {
    distributed = false;
 
    return true;
+}
+
+/**
+   getMaxProcsPerUser method for HP-UX implementation of OS Provider
+
+   Gets the information from sysconf (the _SC_CHILD_MAX option)
+  */
+Boolean OperatingSystem::getMaxProcsPerUser (Uint32& maxProcsPerUser)
+{
+    long ret;
+
+    ret = sysconf (_SC_CHILD_MAX);
+    if (ret != -1)
+    {
+        maxProcsPerUser = ret;
+    }
+    else
+    {
+       return false;
+    }
+    return true;
 }
 
 /**

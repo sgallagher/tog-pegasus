@@ -715,6 +715,16 @@ Boolean OperatingSystem::getDistributed(Boolean& distributed)
 }
 
 /**
+   getMaxProcsPerUser method for Linux implementation of OS Provider
+
+   Retrieves the _SC_CHILD_MAX value from sysconf.
+  */
+Boolean OperatingSystem::getMaxProcsPerUser (Uint32& maxProcsPerUser)
+{
+    return sysconf(_SC_CHILD_MAX);
+}
+     
+/**
    getSystemUpTime method for Linux implementation of OS Provider
 
    Gets information from /proc/uptime (already in seconds).

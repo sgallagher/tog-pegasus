@@ -232,6 +232,44 @@ public:
 
 };
 
+class GetPropertyResponseHandler : public OperationResponseHandler<CIMValue>
+{
+public:
+    GetPropertyResponseHandler(
+	CIMGetPropertyRequestMessage * request,
+	CIMGetPropertyResponseMessage * response)
+    : OperationResponseHandler<CIMValue>(request, response)
+    {
+    }
+
+    virtual void complete(const OperationContext & context)
+    {
+	if(getObjects().size() == 0)
+	{
+	    // error? provider claims success,
+	    // but did not deliver an instance.
+	    setStatus(CIM_ERR_NOT_FOUND);
+
+	    return;
+	}
+
+	static_cast<CIMGetPropertyResponseMessage *>(
+	    getResponse())->value = getObjects()[0];
+    }
+};
+
+class SetPropertyResponseHandler : public OperationResponseHandler<CIMValue>
+{
+public:
+    SetPropertyResponseHandler(
+	CIMSetPropertyRequestMessage * request,
+	CIMSetPropertyResponseMessage * response)
+    : OperationResponseHandler<CIMValue>(request, response)
+    {
+    }
+
+};
+
 class AssociatorNamesResponseHandler : public OperationResponseHandler<CIMReference>
 {
 public:

@@ -78,7 +78,12 @@ void ProviderFacade::getInstance(
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
     // forward request
-    provider->getInstance(context, instanceReference, flags, propertyList, handler);
+    provider->getInstance(
+	context,
+	instanceReference,
+	flags,
+	propertyList,
+	handler);
 
     // ATTN: how persistent should the facade be? that is, should the provider attempt
     // to resolve client requests when a provider does not explicity support an
@@ -145,7 +150,12 @@ void ProviderFacade::enumerateInstances(
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
     // forward request
-    provider->enumerateInstances(context, classReference, flags, propertyList, handler);
+    provider->enumerateInstances(
+	context,
+	classReference,
+	flags,
+	propertyList,
+	handler);
 
     // try enumerateInstanceNames and getInstance if not supported
 }
@@ -158,7 +168,10 @@ void ProviderFacade::enumerateInstanceNames(
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
     // forward request
-    provider->enumerateInstanceNames(context, classReference, handler);
+    provider->enumerateInstanceNames(
+	context,
+	classReference,
+	handler);
 
     // try enumerateInstances if not supported
 }
@@ -174,7 +187,13 @@ void ProviderFacade::modifyInstance(
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
     // forward request
-    provider->modifyInstance(context, instanceReference, instanceObject, flags, propertyList, handler);
+    provider->modifyInstance(
+	context,
+	instanceReference,
+	instanceObject,
+	flags,
+	propertyList,
+	handler);
 }
 
 void ProviderFacade::createInstance(
@@ -186,7 +205,11 @@ void ProviderFacade::createInstance(
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
     // forward request
-    provider->createInstance(context, instanceReference, instanceObject, handler);
+    provider->createInstance(
+	context,
+	instanceReference,
+	instanceObject,
+	handler);
 }
 
 void ProviderFacade::deleteInstance(
@@ -197,7 +220,10 @@ void ProviderFacade::deleteInstance(
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
     // forward request
-    provider->deleteInstance(context, instanceReference, handler);
+    provider->deleteInstance(
+	context,
+	instanceReference,
+	handler);
 }
 
 void ProviderFacade::getClass(
@@ -268,8 +294,16 @@ void ProviderFacade::associators(
     CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
 
     // forward request
-    provider->associators(context, objectName, associationClass, resultClass, role,
-	resultRole, flags, propertyList, handler);
+    provider->associators(
+	context,
+	objectName,
+	associationClass,
+	resultClass,
+	role,
+	resultRole,
+	flags,
+	propertyList,
+	handler);
 }
 
 void ProviderFacade::associatorNames(
@@ -284,8 +318,14 @@ void ProviderFacade::associatorNames(
     CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
 
     // forward request
-    provider->associatorNames(context, objectName, associationClass,
-	resultClass, role, resultRole, handler);
+    provider->associatorNames(
+	context,
+	objectName,
+	associationClass,
+	resultClass,
+	role,
+	resultRole,
+	handler);
 }
 
 void ProviderFacade::references(
@@ -300,8 +340,14 @@ void ProviderFacade::references(
     CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
 
     // forward request
-    provider->references(context, objectName, resultClass,
-	role, flags, propertyList, handler);
+    provider->references(
+	context,
+	objectName,
+	resultClass,
+	role,
+	flags,
+	propertyList,
+	handler);
 }
 
 void ProviderFacade::referenceNames(
@@ -314,8 +360,12 @@ void ProviderFacade::referenceNames(
     CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
 
     // forward request
-    provider->referenceNames(context, objectName, resultClass,
-	role, handler);
+    provider->referenceNames(
+	context,
+	objectName,
+	resultClass,
+	role,
+	handler);
 }
 
 void ProviderFacade::getProperty(
@@ -324,35 +374,46 @@ void ProviderFacade::getProperty(
     const String & propertyName,
     ResponseHandler<CIMValue> & handler)
 {
-    Uint32 flags = OperationFlag::NONE;    // LocalOnly = false
-    Array<String> propertyList;
-    propertyList.append(propertyName);
-    SimpleResponseHandler<CIMInstance> instanceHandler;
+    // NOTE: CIMPropertyProvider interface not supported yet
+    /*
+    CIMPropertyProvider * provider = getInterface<CIMPropertyProvider>(_provider);
 
+    // forward request
+    provider->getProperty(
+	context,
+	objectName,
+	propertyName,
+	handler);
+    */
+
+    // NOTE: Use the CIMInstanceProvider interface until CIMPropertyProvider is supported
     handler.processing();
 
-    getInstance(context, instanceReference, flags, propertyList, instanceHandler);
+    Uint32 flags = OperationFlag::NONE;
+
+    Array<String> propertyList;
+
+    propertyList.append(propertyName);
+
+    SimpleResponseHandler<CIMInstance> instanceHandler;
+
+    getInstance(
+	context,
+	instanceReference,
+	flags,
+	propertyList,
+	instanceHandler);
 
     if(instanceHandler._objects.size())
     {
 	CIMInstance instance = instanceHandler._objects[0];
+	
 	Uint32 pos = instance.findProperty(propertyName);
-	if(pos == PEG_NOT_FOUND)
-	{
-	    // ATTN: The provider should throw an exception if we gave them
-	    // a bad property name.  Can we assume the value is null?
-	    handler.deliver(CIMValue());
-	}
-	else
+	
+	if(pos != PEG_NOT_FOUND)
 	{
 	    handler.deliver(instance.getProperty(pos).getValue());
 	}
-    }
-    else
-    {
-	// ATTN: Shouldn't the provider really throw this?
-	// This condition may indicate a faulty provider.
-	throw CIMException(CIM_ERR_NOT_FOUND);
     }
 
     handler.complete();
@@ -365,30 +426,33 @@ void ProviderFacade::setProperty(
     const CIMValue & newValue,
     ResponseHandler<CIMValue> & handler)
 {
-    //
-    // Create the instance to pass to modifyInstance()
-    //
+    // NOTE: CIMPropertyProvider interface not supported yet
+    /*
+    CIMPropertyProvider * provider = getInterface<CIMPropertyProvider>(_provider);
+
+    // forward request
+    provider->setProperty(
+	context,
+	objectName,
+	propertyName,
+	newValue,
+	handler);
+    */
+
+    // NOTE: Use the CIMInstanceProvider interface until CIMPropertyProvider is supported
+    handler.processing();
+
     CIMInstance instance(instanceReference.getClassName());
-    // ATTN: Is this the correct construction for this property?
+
     instance.addProperty(CIMProperty(propertyName, newValue));
 
-    //
-    // Create the flags and propertyList to pass to modifyInstance()
-    //
-    Uint32 flags = OperationFlag::NONE;  // IncludeQualifiers false
+    Uint32 flags = OperationFlag::NONE;
+
     Array<String> propertyList;
+
     propertyList.append(propertyName);
 
-    //
-    // Create the ResponseHandler to pass to modifyInstance().
-    // What is this for?  I don't know.
-    //
     SimpleResponseHandler<CIMInstance> instanceHandler;
-
-    //
-    // Modify the instance to set the value of the given property
-    //
-    handler.processing();
 
     modifyInstance(
 	context,

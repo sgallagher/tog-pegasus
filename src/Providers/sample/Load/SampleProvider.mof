@@ -1,0 +1,13 @@
+[abstract]
+class Sample_ProviderClass
+{
+	[key,
+	read]
+	Uint8 Identifier;
+};
+
+class Sample_InstanceProviderClass : Sample_ProviderClass
+{
+	[read, write]
+	string Message;
+};

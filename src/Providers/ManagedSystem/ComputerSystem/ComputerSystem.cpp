@@ -30,7 +30,7 @@
 #include "ComputerSystem.h"
 
 #if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
-# include "ComputerSystem_Stub.cpp"
+# include "ComputerSystem_HPUX.cpp"
 #else
 # include "ComputerSystem_Stub.cpp"
 #endif

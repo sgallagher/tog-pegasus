@@ -6,7 +6,7 @@
     <LOCALINSTANCEPATH> 
      <LOCALNAMESPACEPATH> 
       <NAMESPACE NAME="root"/> 
-      <NAMESPACE NAME="cimv2"/> 
+      <NAMESPACE NAME="SampleProvider"/> 
      </LOCALNAMESPACEPATH> 
      <INSTANCENAME CLASSNAME="Sample_MethodProviderClass"> 
       <KEYBINDING NAME="Identifer"><KEYVALUE>1</KEYVALUE></KEYBINDING> 

@@ -64,7 +64,8 @@ void MethodProvider::invokeMethod(
 
 	handler.processing();
 
-	if(objectReference == CIMReference("Sample_MethodProviderClass"))
+        if(String::equalNoCase(objectReference.getClassName(), 
+                               "Sample_MethodProviderClass"))
 	{
 		if(String::equalNoCase(methodName, "SayHello"))
 		{

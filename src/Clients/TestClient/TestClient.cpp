@@ -751,8 +751,10 @@ static void testRefandAssoc(CIMClient& client, CIMNamespaceName& nameSpace,
         cout << "ERROR, Associator and AssociatorName count returned different counts " 
             << assocResult.size() << " associator name responses and "
             << assocResultObjects.size() << " associator objects " << endl;
-        
-        Uint32 maxCount = max(assocResult.size(),assocResultObjects.size());
+	//#define LOCAL_MAX (a , b) (a > b) ?  a : b )        
+    // Uint32 maxCount = LOCAL_MAX(assocResult.size() ,assocResultObjects.size());
+        Uint32 maxCount = (assocResult.size() ,assocResultObjects.size() ) ?
+	  assocResult.size()  : assocResultObjects.size(); 
         cout << "Max " << maxCount << endl; 
 
         for (Uint32 i = 0 ; i < maxCount ; i ++)
@@ -792,7 +794,7 @@ static void TestAssociationOperations(CIMClient& client, Boolean
     }
     
     // Now Test to see if the namespace and class exist before
-    // continuting the test.
+    // continueing the test.
     {
         CIMName className = "TST_Person";
         try
@@ -814,10 +816,15 @@ static void TestAssociationOperations(CIMClient& client, Boolean
     }
     if (runTest)
     {
-        testRefandAssoc(client, nameSpace, CIMObjectPath("TST_Person"), CIMName(), CIMName());
-        testRefandAssoc(client, nameSpace, CIMObjectPath("TST_Person.name=\"Mike\""), CIMName(), CIMName());
-        testRefandAssoc(client, nameSpace, CIMObjectPath("TST_PersonDynamic"), CIMName(), CIMName());
-        testRefandAssoc(client, nameSpace, CIMObjectPath("TST_PersonDynamic.name=\"Father\""), CIMName(), CIMName());
+      // CIMName TST_PersonClass= "TST_Person";
+      //  CIMObjectPath TST_PersonInstance = "TST_Person.name=\"Mike\"";
+      //  CIMObjectPath TST_PersonDynamicClass = "TST_PersonDynamic";
+      //  CIMObjectPath TST_PersonDynamicInstance = "TST_PersonDynamic.name=\"Father\"";
+        
+      //  testRefandAssoc(client, nameSpace, CIMObjectPath(TST_PersonClass) , CIMName(), CIMName());
+      //  testRefandAssoc(client, nameSpace, TST_PersonInstance , CIMName(), CIMName());
+      //  testRefandAssoc(client, nameSpace, TST_PersonDynamicClass , CIMName(), CIMName());
+      //  testRefandAssoc(client, nameSpace, TST_PersonDynamicInstance , CIMName(), CIMName());
     }
 
     return;

@@ -66,7 +66,7 @@ ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
       else
        ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
          ifdef  PEGASUS_USE_RELEASE_DIRS
-	   $(LINK_WRAPPER) $(CXX) -Wl,-brtl -blibpath:$(PEGASUS_DEST_LIB_DIR):/usr/lib:/lib -Wl,-bhalt:$(AIX_LD_HALT) $(FLAGS) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
+	   $(LINK_WRAPPER) $(CXX) -Wl,-brtl -blibpath:/usr/linux/lib:/usr/lib:/lib -Wl,-bhalt:$(AIX_LD_HALT) $(FLAGS) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
          else
 	   $(LINK_WRAPPER) $(CXX) -Wl,-brtl -Wl,-bhalt:$(AIX_LD_HALT) $(FLAGS) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
          endif

@@ -1,7 +1,7 @@
 ifeq ($(COMPILER),xlc)
   LINK_COMMAND = xlC_r
   ifdef PEGASUS_USE_RELEASE_DIRS
-    LINK_ARGUMENTS = -qmkshrobj=$(AIX_LIB_PRIORITY) -blibpath:$(PEGASUS_DEST_LIB_DIR):/usr/lib:/lib -Wl,-bhalt:$(AIX_LD_HALT)
+    LINK_ARGUMENTS = -qmkshrobj=$(AIX_LIB_PRIORITY) -blibpath:/usr/linux/lib:/usr/lib:/lib -Wl,-bhalt:$(AIX_LD_HALT)
   else
     LINK_ARGUMENTS = -qmkshrobj=$(AIX_LIB_PRIORITY) -Wl,-bhalt:$(AIX_LD_HALT)
   endif

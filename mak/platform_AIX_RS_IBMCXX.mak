@@ -108,6 +108,6 @@ ifdef PEGASUS_HAS_MESSAGES
 endif
 
 ifdef PEGASUS_USE_RELEASE_DIRS
-  PEGASUS_DEST_LIB_DIR =/usr/linux/lib
+  PEGASUS_DEST_LIB_DIR =/usr/lib
 endif
 

@@ -69,7 +69,7 @@
 #include <Pegasus/ControlProviders/ConfigSettingProvider/ConfigSettingProvider.h>
 #include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
 #include <Pegasus/ControlProviders/ProviderRegistrationProvider/ProviderRegistrationProvider.h>
-
+#include <Pegasus/ControlProviders/NamespaceProvider/NamespaceProvider.h>
 
 PEGASUS_USING_STD;
 
@@ -82,7 +82,7 @@ static Message * controlProviderReceiveMessageCallback(
     Message * message,
     void * instance)
 {
-    ProviderMessageFacade * mpf = 
+    ProviderMessageFacade * mpf =
         reinterpret_cast<ProviderMessageFacade *>(instance);
     return mpf->handleRequestMessage(message);
 }
@@ -167,6 +167,15 @@ CIMServer::CIMServer(
      ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                        PEGASUS_MODULENAME_SHUTDOWNPROVIDER,
                                        shutdownProvider,
+                                       controlProviderReceiveMessageCallback,
+                                       0, 0);
+
+     // Create the namespace control provider
+     ProviderMessageFacade * namespaceProvider =
+         new ProviderMessageFacade(new NamespaceProvider(_repository));
+     ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
+                                       PEGASUS_MODULENAME_NAMESPACEPROVIDER,
+                                       namespaceProvider,
                                        controlProviderReceiveMessageCallback,
                                        0, 0);
 

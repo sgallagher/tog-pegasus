@@ -25,7 +25,8 @@ LIBRARIES = \
     pegprm \
     ConfigSettingProvider \
     UserAuthProvider \
-    ProviderRegistrationProvider
+    ProviderRegistrationProvider\
+    NamespaceProvider
 
 PRE_DEPEND_INCLUDES = -I./depends
 

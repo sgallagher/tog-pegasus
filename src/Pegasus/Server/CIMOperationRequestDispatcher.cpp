@@ -60,7 +60,7 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
    PEG_METHOD_EXIT();
 }
 
-CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher(void)	
+CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher(void)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher");
@@ -99,11 +99,16 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_lookupInternalProvider");
+    // Clear the strings since used as test later. Poor code but true now
+    service =  String::EMPTY;
+    provider = String::EMPTY;
 
     if (String::equalNoCase(className, PEGASUS_CLASSNAME_CONFIGSETTING))
     {
         service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_CONFIGPROVIDER;
+	PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+	    "Intern provider  Service = " + service + " provider " + provider + " found.");
         PEG_METHOD_EXIT();
         return true;
     }
@@ -112,6 +117,8 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
     {
         service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_USERAUTHPROVIDER;
+	PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+	    "Intern provider  Service = " + service + " provider " + provider + " found.");
         PEG_METHOD_EXIT();
         return true;
     }
@@ -119,15 +126,30 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
     {
         service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_SHUTDOWNPROVIDER;
+	PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+	    "Intern provider  Service = " + service + " provider " + provider + " found.");
         PEG_METHOD_EXIT();
         return true;
     }
+    if (String::equalNoCase(className, PEGASUS_CLASSNAME___NAMESPACE) ||
+	String::equalNoCase(className, PEGASUS_CLASSNAME_NAMESPACE))
+    {
+        service = PEGASUS_QUEUENAME_CONTROLSERVICE;
+        provider = PEGASUS_MODULENAME_NAMESPACEPROVIDER;
+	PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+	    "Intern provider  Service = " + service + " provider " + provider + " found.");
+        PEG_METHOD_EXIT();
+        return true;
+    }
+
     if (String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE) ||
         String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDER) ||
         String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES))
     {
         service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_PROVREGPROVIDER;
+	PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+	    "Intern provider  Service = " + service + " provider " + provider + " found.");
         PEG_METHOD_EXIT();
         return true;
     }
@@ -139,6 +161,9 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
     {
         service = PEGASUS_QUEUENAME_INDICATIONSERVICE;
         provider = String::EMPTY;
+	PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+	    "Intern provider  Service = "
+	     + service + " provider " + provider + " found.");
         PEG_METHOD_EXIT();
         return true;
     }
@@ -154,7 +179,7 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
     CIMInstance pmInstance;
     String providerName;
 
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
                      "CIMOperationRequestDispatcher::_lookupInstanceProvider");
 
     if (_providerRegistrationManager->lookupInstanceProvider(
@@ -167,14 +192,14 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
 	{
 	    pInstance.getProperty(pos).getValue().get(providerName);
 
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                              "providerName = " + providerName + " found.");
             PEG_METHOD_EXIT();
 	    return (providerName);
 	}
 	else
 	{
-            Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                           "Provider name not found.");
             PEG_METHOD_EXIT();
    	    return(String::EMPTY);
@@ -182,7 +207,7 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
     }
     else
     {
-        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                       "Provider not found.");
         PEG_METHOD_EXIT();
    	return(String::EMPTY);
@@ -194,7 +219,7 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
    const String& className,
    const String& methodName)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_lookupMethodProvider");
 
     CIMInstance pInstance;
@@ -232,7 +257,7 @@ String CIMOperationRequestDispatcher::_lookupIndicationProvider(
    const String& nameSpace,
    const String& className)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_lookupIndicationProvider");
 
     PEG_METHOD_EXIT();
@@ -257,7 +282,7 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
     Array<String> providerNames;
     String providerName;
 
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_lookupAssociationProvider");
 
         // assume assocClassName is empty
@@ -278,7 +303,7 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
             {
                 pInstances[i].getProperty(pos).getValue().get(providerName);
 
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                              "providerName = " + providerName + " found.");
                 providerNames.append(providerName);
             }
@@ -290,14 +315,14 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
     return providerNames;
 }
 
-void CIMOperationRequestDispatcher::_forwardToServiceCallBack(AsyncOpNode *op, 
+void CIMOperationRequestDispatcher::_forwardToServiceCallBack(AsyncOpNode *op,
 							      MessageQueue *q,
 							      void *parm)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardToServiceCallBack");
 
-   CIMOperationRequestDispatcher *service = 
+   CIMOperationRequestDispatcher *service =
       static_cast<CIMOperationRequestDispatcher *>(q);
 
    AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
@@ -348,16 +373,16 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
 	    request,
 	    this->getQueueId());
 
-    SendAsync(op, 
+    SendAsync(op,
 	      serviceIds[0],
 	      CIMOperationRequestDispatcher::_forwardToServiceCallBack,
 	      this,
 	      (void *)request->queueIds.top());
-    
+
 
 //    AsyncReply * asyncReply = SendWait(asyncRequest);
 //    PEGASUS_ASSERT(asyncReply != 0);
-    
+
 
 //    delete asyncReply;
 //    delete asyncRequest;
@@ -365,21 +390,22 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
       PEG_METHOD_EXIT();
 }
 
-void CIMOperationRequestDispatcher::_forwardToModuleCallBack(AsyncOpNode *op, 
-							     MessageQueue *q, 
+void CIMOperationRequestDispatcher::_forwardToModuleCallBack(AsyncOpNode *op,
+							     MessageQueue *q,
 							     void *parm)
 {
-   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardToModuleCallBack");
 
-   CIMOperationRequestDispatcher *service = 
+   CIMOperationRequestDispatcher *service =
       static_cast<CIMOperationRequestDispatcher *>(q);
-   
    AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
    AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
    CIMRequestMessage *request = reinterpret_cast<CIMRequestMessage *>
       ((static_cast<AsyncModuleOperationStart *>(asyncRequest))->get_action());
-   CIMResponseMessage *response = reinterpret_cast<CIMResponseMessage *>
+// ATTN P1 KS 30 Apr 2002 - When there was no internal provider defined, died here.
+// Ihave not had time to create a test to cover this.
+  CIMResponseMessage *response = reinterpret_cast<CIMResponseMessage *>
       ((static_cast<AsyncModuleOperationResult *>(asyncReply))->get_result());
    PEGASUS_ASSERT(response != 0);
 #ifdef PEGASUS_ARCHITECTURE_IA64
@@ -400,7 +426,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToControlProvider(
     CIMRequestMessage* request,
     CIMResponseMessage*& response)
 {
-   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardRequestToControlProvider");
 
     Array<Uint32> serviceIds;
@@ -420,7 +446,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToControlProvider(
 	    request);
 
 
-    SendAsync(op, 
+    SendAsync(op,
 	      serviceIds[0],
 	      CIMOperationRequestDispatcher::_forwardToModuleCallBack,
 	      this,
@@ -450,16 +476,16 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
 
    response->setKey(request->getKey());
    response->dest = request->queueIds.top();
-   
+
    if( true == Base::_enqueueResponse(request, response))
    {
       PEG_METHOD_EXIT();
       return;
    }
-	
+
    MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
    PEGASUS_ASSERT(queue != 0 );
-	
+
    queue->enqueue(response);
 
    PEG_METHOD_EXIT();
@@ -476,10 +502,10 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
       PEG_METHOD_EXIT();
       return;
    }
-   	
+
    switch(request->getType())
    {
-	
+
       case CIM_GET_CLASS_REQUEST_MESSAGE:
 	 handleGetClassRequest((CIMGetClassRequestMessage*)request);
 	 break;
@@ -1038,7 +1064,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 	    request->nameSpace,
 	    request->newInstance,
 	    request->queueIds);
-	
+
       //_indicationService.enqueue(message);
       //return;
 
@@ -1541,7 +1567,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest");
-
    // get the class name
    String className = request->className;
    CIMResponseMessage * response;
@@ -1553,7 +1578,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
    if (_lookupInternalProvider(request->nameSpace, className, serviceName,
            controlProviderName))
    {
-      CIMEnumerateInstanceNamesRequestMessage* requestCopy =
+
+       CIMEnumerateInstanceNamesRequestMessage* requestCopy =
          new CIMEnumerateInstanceNamesRequestMessage(*request);
 
       if (controlProviderName == String::EMPTY)
@@ -1569,7 +1595,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
       PEG_METHOD_EXIT();
       return;
    }
-
    // check the class name for an "external provider"
    String providerName = _lookupInstanceProvider(request->nameSpace, className);
 
@@ -1593,7 +1618,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
       Array<CIMReference> instanceNames;
 
       _repository->read_lock();
-	
+
       try
       {
          instanceNames = _repository->enumerateInstanceNames(
@@ -1657,7 +1682,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
    String resultClassName = request->resultClass;
 
    CIMResponseMessage * response;
-	
+
    // check the class name for an "external provider"
    Array<String> providerNames = _lookupAssociationProvider(request->nameSpace, className);
 
@@ -1750,7 +1775,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
    String className = request->objectName.getClassName();
    String resultClassName = request->resultClass;
    CIMResponseMessage * response;
-	
+
    // check the class name for an "external provider"
    Array<String> providerNames = _lookupAssociationProvider(request->nameSpace, className);
 
@@ -1839,7 +1864,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
    String className = request->objectName.getClassName();
    CIMResponseMessage * response;
-	
+
    // check the class name for an "external provider"
    Array<String> providerNames = _lookupAssociationProvider(request->nameSpace, className);
 
@@ -1929,7 +1954,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
    String className = request->objectName.getClassName();
    CIMResponseMessage * response;
-	
+
    // check the class name for an "external provider"
    Array<String> providerNames = _lookupAssociationProvider(request->nameSpace, className);
 
@@ -2015,7 +2040,7 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 
    String className = request->instanceName.getClassName();
    CIMResponseMessage * response;
-	
+
    // check the class name for an "external provider"
    String providerName = _lookupInstanceProvider(request->nameSpace, className);
 
@@ -2035,11 +2060,11 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
       CIMException cimException;
 
       STAT_PROVIDERSTART
-	
+
       CIMValue value;
 
       _repository->read_lock();
-	
+
       try
       {
          value = _repository->getProperty(
@@ -2064,7 +2089,7 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
       _repository->read_unlock();
 
       STAT_PROVIDEREND
-	
+
       CIMGetPropertyResponseMessage* response =
          new CIMGetPropertyResponseMessage(
 	    request->messageId,
@@ -2137,7 +2162,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
    String className = request->instanceName.getClassName();
    CIMResponseMessage * response;
-	
+
    // check the class name for an "external provider"
    String providerName = _lookupInstanceProvider(request->nameSpace, className);
 
@@ -2224,7 +2249,7 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
    CIMQualifierDecl cimQualifierDecl;
 
    _repository->read_lock();
-	
+
    try
    {
       cimQualifierDecl = _repository->getQualifier(
@@ -2274,7 +2299,7 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
    CIMException cimException;
 
    _repository->write_lock();
-	
+
    try
    {
       _repository->setQualifier(
@@ -2528,7 +2553,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
       PEG_METHOD_EXIT();
       return;
    }
-	
+
    CIMException cimException =
        PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Provider not available");
    CIMValue retValue(1);

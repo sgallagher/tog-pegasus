@@ -1074,12 +1074,11 @@ CIMValue XmlReader::stringToValue(
 #ifdef PEGASUS_SNIA_INTEROP_TEST
             if (strlen(valueString) != 0)
 #endif
-             tmp.set(valueString);
+                tmp.set(valueString);
 	    }
 	    catch (InvalidDateTimeFormatException&)
 	    {
-        cout << "KSTESTSNIA Invalid date time" << strlen(valueString) << "xx" << valueString << endl;
-		throw XmlSemanticError(lineNumber, "Invalid datetime value");
+            throw XmlSemanticError(lineNumber, "Invalid datetime value");
 	    }
 
 	    return CIMValue(tmp);

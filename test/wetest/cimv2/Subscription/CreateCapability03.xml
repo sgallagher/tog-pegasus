@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-  <MESSAGE ID="160002" PROTOCOLVERSION="1.0">
+  <MESSAGE ID="160003" PROTOCOLVERSION="1.0">
     <SIMPLEREQ>
       <IMETHODCALL NAME="CreateInstance">
         <LOCALNAMESPACEPATH>
@@ -19,13 +19,13 @@
               <VALUE> CIM_Provider </VALUE>
             </PROPERTY>
             <PROPERTY NAME="ProviderName" TYPE="string"> 
-              <VALUE> MyAlertProvider </VALUE>
+              <VALUE> MyProcessProvider2 </VALUE>
             </PROPERTY>
             <PROPERTY NAME="InstanceID" TYPE="string"> 
-              <VALUE> capability02 </VALUE>
+              <VALUE> capability03 </VALUE>
             </PROPERTY>
             <PROPERTY NAME="ClassName" TYPE="string"> 
-              <VALUE> CIM_AlertIndication </VALUE>
+              <VALUE> CIM_ProcessIndication </VALUE>
             </PROPERTY>
             <PROPERTY NAME="ProviderType" TYPE="uint16"> 
               <VALUE> 4 </VALUE>
@@ -33,23 +33,6 @@
             <PROPERTY.ARRAY NAME="SupportedProperties" TYPE="string"> 
               <VALUE.ARRAY>
                 <VALUE> IndicationTime </VALUE>
-                <VALUE> IndicationIdentifier </VALUE>
-                <VALUE> CorrelatedIndications </VALUE>
-                <VALUE> Description </VALUE>
-                <VALUE> AlertingManagedElement </VALUE>
-                <VALUE> AlertType </VALUE>
-                <VALUE> OtherAlertType </VALUE>
-                <VALUE> PerceivedSeverity </VALUE>
-                <VALUE> OtherSeverity </VALUE>
-                <VALUE> ProbableCause </VALUE>
-                <VALUE> ProbableCauseDescription </VALUE>
-                <VALUE> Trending </VALUE>
-                <VALUE> RecommendedActions </VALUE>
-                <VALUE> EventID </VALUE>
-                <VALUE> EventTime </VALUE>
-                <VALUE> SystemCreationClassName </VALUE>
-                <VALUE> SystemName </VALUE>
-                <VALUE> ProviderName </VALUE>
               </VALUE.ARRAY>
             </PROPERTY.ARRAY>
           </INSTANCE>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-<MESSAGE ID="090007" PROTOCOLVERSION="1.0">
+<MESSAGE ID="090009" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="GetInstance">
 <IRETURNVALUE>
@@ -180,15 +180,15 @@ server001.acme.com
 </PROPERTY.REFERENCE>
 <PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="CIM_IndicationHandler" CLASSORIGIN="CIM_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="CIM_IndicationHandlerSNMP">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationHandlerCIMXML
+CIM_IndicationHandlerSNMP
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
 <KEYVALUE VALUETYPE="string">
-Handler02
+Handler03
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="SystemCreationClassName">
@@ -206,7 +206,7 @@ server001.acme.com
 </PROPERTY.REFERENCE>
 <PROPERTY NAME="SubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
 <VALUE>
-5
+3
 </VALUE>
 </PROPERTY>
 <PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">

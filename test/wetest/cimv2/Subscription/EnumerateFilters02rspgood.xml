@@ -51,15 +51,6 @@ The Description property provides a textual description of the object.
 <VALUE>
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The path to a local namespace where the Indications originate. If NULL, the namespace of the Filter registration is assumed.
-</VALUE>
-</QUALIFIER>
-<VALUE>
-</VALUE>
-</PROPERTY>
 <PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 CIM_UnitaryComputerSystem
@@ -88,6 +79,11 @@ SELECT * FROM CIM_ProcessIndication
 <PROPERTY NAME="QueryLanguage" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 WQL1
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
+<VALUE>
+root/cimv2
 </VALUE>
 </PROPERTY>
 </INSTANCE>
@@ -134,15 +130,6 @@ The Caption property is a short textual description (one-line string) of the obj
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 The Description property provides a textual description of the object.
-</VALUE>
-</QUALIFIER>
-<VALUE>
-</VALUE>
-</PROPERTY>
-<PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The path to a local namespace where the Indications originate. If NULL, the namespace of the Filter registration is assumed.
 </VALUE>
 </QUALIFIER>
 <VALUE>
@@ -178,6 +165,11 @@ SELECT IndicationTime, IndicationIdentifier, CorrelatedIndications FROM CIM_Proc
 WQL1
 </VALUE>
 </PROPERTY>
+<PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
+<VALUE>
+root/cimv2
+</VALUE>
+</PROPERTY>
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
@@ -222,15 +214,6 @@ The Caption property is a short textual description (one-line string) of the obj
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 The Description property provides a textual description of the object.
-</VALUE>
-</QUALIFIER>
-<VALUE>
-</VALUE>
-</PROPERTY>
-<PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The path to a local namespace where the Indications originate. If NULL, the namespace of the Filter registration is assumed.
 </VALUE>
 </QUALIFIER>
 <VALUE>
@@ -266,6 +249,11 @@ SELECT IndicationTime FROM CIM_ProcessIndication
 WQL1
 </VALUE>
 </PROPERTY>
+<PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
+<VALUE>
+root/cimv2
+</VALUE>
+</PROPERTY>
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
@@ -310,15 +298,6 @@ The Caption property is a short textual description (one-line string) of the obj
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 The Description property provides a textual description of the object.
-</VALUE>
-</QUALIFIER>
-<VALUE>
-</VALUE>
-</PROPERTY>
-<PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The path to a local namespace where the Indications originate. If NULL, the namespace of the Filter registration is assumed.
 </VALUE>
 </QUALIFIER>
 <VALUE>
@@ -354,6 +333,11 @@ SELECT IndicationTime, IndicationIdentifier FROM CIM_ProcessIndication WHERE Ind
 WQL1
 </VALUE>
 </PROPERTY>
+<PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
+<VALUE>
+root/cimv2
+</VALUE>
+</PROPERTY>
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
@@ -398,15 +382,6 @@ The Caption property is a short textual description (one-line string) of the obj
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 The Description property provides a textual description of the object.
-</VALUE>
-</QUALIFIER>
-<VALUE>
-</VALUE>
-</PROPERTY>
-<PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The path to a local namespace where the Indications originate. If NULL, the namespace of the Filter registration is assumed.
 </VALUE>
 </QUALIFIER>
 <VALUE>
@@ -442,6 +417,11 @@ SELECT * FROM CIM_ProcessIndication WHERE IndicationTime IS NOT NULL
 WQL1
 </VALUE>
 </PROPERTY>
+<PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
+<VALUE>
+root/cimv2
+</VALUE>
+</PROPERTY>
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
@@ -491,15 +471,6 @@ The Description property provides a textual description of the object.
 <VALUE>
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The path to a local namespace where the Indications originate. If NULL, the namespace of the Filter registration is assumed.
-</VALUE>
-</QUALIFIER>
-<VALUE>
-</VALUE>
-</PROPERTY>
 <PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 CIM_UnitaryComputerSystem
@@ -528,6 +499,11 @@ SELECT * FROM CIM_AlertIndication WHERE AlertType = 5
 <PROPERTY NAME="QueryLanguage" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 WQL1
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
+<VALUE>
+root/cimv2
 </VALUE>
 </PROPERTY>
 </INSTANCE>

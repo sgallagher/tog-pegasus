@@ -28,15 +28,6 @@ The Description property provides a textual description of the object.
 <VALUE>
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" PROPAGATED="true" TYPE="string">
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
-<VALUE>
-The path to a local namespace where the Indications originate. If NULL, the namespace of the Filter registration is assumed.
-</VALUE>
-</QUALIFIER>
-<VALUE>
-</VALUE>
-</PROPERTY>
 <PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 CIM_UnitaryComputerSystem
@@ -65,6 +56,11 @@ SELECT IndicationTime, IndicationIdentifier FROM CIM_ProcessIndication WHERE Ind
 <PROPERTY NAME="QueryLanguage" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
 WQL1
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
+<VALUE>
+root/cimv2
 </VALUE>
 </PROPERTY>
 </INSTANCE>

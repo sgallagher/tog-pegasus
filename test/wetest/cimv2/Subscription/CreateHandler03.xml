@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+  <MESSAGE ID="020003" PROTOCOLVERSION="1.0">
+    <SIMPLEREQ>
+      <IMETHODCALL NAME="CreateInstance">
+        <LOCALNAMESPACEPATH>
+          <NAMESPACE NAME="root"/>
+          <NAMESPACE NAME="cimv2"/>
+        </LOCALNAMESPACEPATH>
+        <IPARAMVALUE NAME="NewInstance">
+          <INSTANCE CLASSNAME="CIM_IndicationHandlerSNMP">
+            <PROPERTY NAME="SystemCreationClassName" TYPE="string">
+              <VALUE> CIM_UnitaryComputerSystem </VALUE>
+            </PROPERTY>
+            <PROPERTY NAME="SystemName" TYPE="string">
+              <VALUE> server001.acme.com </VALUE>
+            </PROPERTY>
+            <PROPERTY NAME="CreationClassName" TYPE="string"> 
+              <VALUE> CIM_IndicationHandlerSNMP </VALUE>
+            </PROPERTY>
+            <PROPERTY NAME="Name" TYPE="string"> 
+              <VALUE> Handler03 </VALUE>
+            </PROPERTY>
+            <PROPERTY NAME="Destination" TYPE="string"> 
+              <VALUE> localhost </VALUE>
+            </PROPERTY>
+            <PROPERTY NAME="snmpType" TYPE="string"> 
+              <VALUE> SNMPv2 </VALUE>
+            </PROPERTY>
+          </INSTANCE>
+        </IPARAMVALUE>
+      </IMETHODCALL>
+    </SIMPLEREQ>
+  </MESSAGE>
+</CIM>

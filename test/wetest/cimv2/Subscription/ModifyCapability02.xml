@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-  <MESSAGE ID="100001" PROTOCOLVERSION="1.0">
+  <MESSAGE ID="170002" PROTOCOLVERSION="1.0">
     <SIMPLEREQ>
       <IMETHODCALL NAME="ModifyInstance">
         <LOCALNAMESPACEPATH>
@@ -9,15 +9,20 @@
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="ModifiedInstance">
           <VALUE.NAMEDINSTANCE>
-            <INSTANCENAME CLASSNAME="CIM_IndicationFilter">
-              <KEYBINDING NAME="CreationClassName">
+            <INSTANCENAME CLASSNAME="CIM_ProviderCapabilities">
+              <KEYBINDING NAME="ProviderCreationClassName">
                 <KEYVALUE VALUETYPE="string">
-                CIM_IndicationFilter
+                CIM_Provider
                 </KEYVALUE>
               </KEYBINDING>
-              <KEYBINDING NAME="Name">
+              <KEYBINDING NAME="ProviderName">
                 <KEYVALUE VALUETYPE="string">
-                Filter01
+                MyProcessProvider2
+                </KEYVALUE>
+              </KEYBINDING>
+              <KEYBINDING NAME="InstanceID">
+                <KEYVALUE VALUETYPE="string">
+                capability03
                 </KEYVALUE>
               </KEYBINDING>
               <KEYBINDING NAME="SystemCreationClassName">
@@ -31,19 +36,18 @@
                 </KEYVALUE>
               </KEYBINDING>
             </INSTANCENAME>
-            <INSTANCE CLASSNAME="CIM_IndicationFilter">
-              <PROPERTY NAME="QueryLanguage" TYPE="string">
-                <VALUE> WQL2 </VALUE>
-              </PROPERTY>
+            <INSTANCE CLASSNAME="CIM_ProviderCapabilities">
+              <PROPERTY.ARRAY NAME="SupportedProperties" TYPE="string"> 
+                <VALUE.ARRAY>
+                  <VALUE> IndicationTime </VALUE>
+                </VALUE.ARRAY>
+              </PROPERTY.ARRAY>
             </INSTANCE>
           </VALUE.NAMEDINSTANCE>
         </IPARAMVALUE>
-        <IPARAMVALUE NAME="IncludeQualifiers">
-          <VALUE> FALSE </VALUE>
-        </IPARAMVALUE>
         <IPARAMVALUE NAME="PropertyList">
           <VALUE.ARRAY>
-            <VALUE> QueryLanguage </VALUE>
+            <VALUE> SupportedProperties </VALUE>
           </VALUE.ARRAY>
         </IPARAMVALUE>
       </IMETHODCALL>

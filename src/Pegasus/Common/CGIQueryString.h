@@ -44,7 +44,7 @@ struct CGIQueryStringEntry
 };
 
 #define PEGASUS_ARRAY_T CGIQueryStringEntry
-# include "ArrayInter.h"
+# include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
 /** The CGIQueryString class is used to parse and extract the fields from

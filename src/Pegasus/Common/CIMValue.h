@@ -424,7 +424,7 @@ PEGASUS_COMMON_LINKAGE Boolean operator==(const CIMValue& x, const CIMValue& y);
 PEGASUS_COMMON_LINKAGE Boolean operator!=(const CIMValue& x, const CIMValue& y);
 
 #define PEGASUS_ARRAY_T CIMValue
-# include "ArrayInter.h"
+# include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END

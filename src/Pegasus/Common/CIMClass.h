@@ -359,7 +359,7 @@ private:
 };
 
 #define PEGASUS_ARRAY_T CIMClass
-# include "ArrayInter.h"
+#include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
 /** CIMConstClass - ATTN: define this.

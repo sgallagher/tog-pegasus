@@ -226,7 +226,7 @@ class  PEGASUS_COMMON_LINKAGE Predicate: public KeyBinding
 
 
 #define PEGASUS_ARRAY_T Predicate
-#include "ArrayInter.h"
+#include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
 typedef Array<Predicate> PredicateArray;

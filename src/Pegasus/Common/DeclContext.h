@@ -74,11 +74,11 @@ inline int operator==(const CPair& x, const CPair& y)
 }
 
 #define PEGASUS_ARRAY_T QPair
-# include "ArrayInter.h"
+# include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
 #define PEGASUS_ARRAY_T CPair
-# include "ArrayInter.h"
+# include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
 class PEGASUS_COMMON_LINKAGE SimpleDeclContext : public DeclContext

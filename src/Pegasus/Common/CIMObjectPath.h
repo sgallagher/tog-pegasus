@@ -111,7 +111,7 @@ PEGASUS_COMMON_LINKAGE Boolean operator==(
     const KeyBinding& y);
 
 #define PEGASUS_ARRAY_T KeyBinding
-# include "ArrayInter.h"
+# include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
 typedef Array<KeyBinding> KeyBindingArray;

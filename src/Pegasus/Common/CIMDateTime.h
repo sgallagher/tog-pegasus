@@ -251,7 +251,7 @@ PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
 #endif
 
 #define PEGASUS_ARRAY_T CIMDateTime
-# include "ArrayInter.h"
+# include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END

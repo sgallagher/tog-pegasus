@@ -285,7 +285,7 @@ private:
 };
 
 #define PEGASUS_ARRAY_T CIMQualifier
-# include "ArrayInter.h"
+# include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END

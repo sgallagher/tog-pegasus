@@ -362,7 +362,7 @@ PEGASUS_COMMON_LINKAGE Boolean operator==(
     const CIMInstance& y);
 
 #define PEGASUS_ARRAY_T CIMInstance
-# include "ArrayInter.h"
+# include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END

@@ -53,7 +53,7 @@ struct OptionRow;
 
 typedef Option* OptionPtr;
 #define PEGASUS_ARRAY_T OptionPtr
-# include "ArrayInter.h"
+# include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
 // REVIEW: I seem to remember seeing another class that does something like

@@ -133,7 +133,7 @@ inline int operator==(const XmlEntry&, const XmlEntry&)
 }
 
 #define PEGASUS_ARRAY_T XmlEntry
-# include "ArrayInter.h"
+# include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
 class PEGASUS_COMMON_LINKAGE XmlParser

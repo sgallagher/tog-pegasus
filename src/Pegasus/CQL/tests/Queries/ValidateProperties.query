@@ -172,3 +172,8 @@ SELECT * FROM CQL_EmbeddedSubClass WHERE EmbObjBase.CQL_EmbeddedTestElement::CS.
 # EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState 
 # EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description 
 SELECT * FROM CQL_EmbeddedSubClass WHERE EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState = 2 AND EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString = 'abc' AND EmbObjBase.CQL_EmbeddedTestElement::SomeString = 'abc' AND EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::NotThere = 3 AND EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8 = 3 AND EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description = 'abc'
+
+# Special tests for ISA
+SELECT * FROM CQL_TestPropertyTypes WHERE CQL_TestPropertyTypes ISA CQL_NonExistent
+SELECT * FROM CQL_TestPropertyTypes WHERE CQL_TestPropertyTypes ISA CQL_TestElement 
+SELECT * FROM CQL_TestPropertyTypes WHERE CQL_TestPropertyTypes ISA CQL_TestElement AND CQL_TestPropertyTypes.BogusProperty ISA CQL_TestElement 

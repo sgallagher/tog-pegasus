@@ -36,6 +36,9 @@
 PEGASUS_NAMESPACE_BEGIN
 
 #include <windows.h>
+#ifndef _WINSOCKAPI_
+#include <winsock2.h>
+#endif
 #include <fcntl.h>
 #include <sys/types.h>
 #include <time.h>

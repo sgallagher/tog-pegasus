@@ -72,7 +72,16 @@
 // by clients of class <YYY>"
 #pragma warning ( disable : 4251 )
 
+// Supress this warning : non dll-interface class <XXX> used as base
+// for dll-interface class <YYY>
+#pragma warning( disable : 4275 )
+
+// Supresss this warning : C++ exception specification ignored except
+// to indicate a function is not __declspec(nothrow)
+#pragma warning( disable : 4290 )
+
 // Suppress this warning : "'this' : used in base member initializer list"
 #pragma warning ( disable : 4355 )
+
 
 #endif /* Pegasus_Platform_WIN32_IX86_MSVC_h */

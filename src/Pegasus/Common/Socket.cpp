@@ -30,7 +30,10 @@
 #include "Socket.h"
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-# include <windows.h>
+#include <windows.h>
+# ifndef _WINSOCKAPI_
+#   include <winsock2.h>
+# endif
 #else
 # include <cctype>
 #ifndef PEGASUS_OS_OS400

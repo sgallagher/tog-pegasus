@@ -35,7 +35,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-template<class L> class PEGASUS_COMMON_LINKAGE DQueue : public internal_dq
+template<class L> class DQueue : public internal_dq
 {
    public:
        static void *operator new(size_t size);
@@ -86,7 +86,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : public internal_dq
 
  
 
-template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: public internal_dq
+template<class L> class AsyncDQueue: public internal_dq
 {
 
    public:

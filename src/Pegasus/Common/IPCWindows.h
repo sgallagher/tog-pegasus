@@ -42,6 +42,9 @@
 #endif
 
 #include <windows.h>
+#ifndef _WINSOCKAPI_
+#include <winsock2.h>
+#endif
 #include <winbase.h>
 #include <stdlib.h>
 #include <sys/types.h>

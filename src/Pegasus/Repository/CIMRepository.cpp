@@ -153,6 +153,10 @@ CIMRepository::CIMRepository(const String& repositoryRoot)
     : _repositoryRoot(repositoryRoot), _nameSpaceManager(repositoryRoot)
 {
     _context = new RepositoryDeclContext(this);
+    _isDefaultInstanceProvider = (ConfigManager::getInstance()->getCurrentValue(
+        "repositoryIsDefaultInstanceProvider") == "true");
+    _providerName = ConfigManager::getInstance()->getCurrentValue(
+        "repositoryProviderName");
 }
 
 CIMRepository::~CIMRepository()

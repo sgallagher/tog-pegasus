@@ -38,6 +38,7 @@
 #include <Pegasus/Common/CIMNamedInstance.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
+#include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Repository/NameSpaceManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -249,6 +250,22 @@ public:
     */
     void setDeclContext(RepositoryDeclContext *context);
 
+    /** Indicates whether instance operations that do not have a provider
+        registered should be served by this repository.
+    */
+    Boolean isDefaultInstanceProvider()
+    {
+        return _isDefaultInstanceProvider;
+    }
+
+    /** Indicates the name by which this repository explicitly registers as
+        an instance provider.
+    */
+    const String& getProviderName()
+    {
+        return _providerName;
+    }
+
 private:
 
     void _createAssocInstEntries(
@@ -401,6 +418,11 @@ private:
 
     String _repositoryRoot;
     NameSpaceManager _nameSpaceManager;
+
+    // These must be initialized in the constructor using values from the
+    // ConfigManager.
+    Boolean _isDefaultInstanceProvider;
+    String _providerName;
 
 protected:
     RepositoryDeclContext* _context;

@@ -419,14 +419,16 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 	String className = request->instanceName.getClassName();
 	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(providerName.size() != 0)
-	{
-		// attempt to load provider
-	   ProviderHandle * provider = _providerManager.getProvider(providerName, className);
-
-
-		cimInstance = provider->getInstance(
-		OperationContext(),
+        if ( (providerName.size() == 0) &&
+                 !_repository->isDefaultInstanceProvider() )
+        {
+            // ATTN: Is this the right exception?
+            throw CIMException(CIM_ERR_NOT_SUPPORTED);
+        }
+        else if ( (providerName.size() == 0) ||
+                  (providerName == _repository->getProviderName()) )
+        {
+	    cimInstance = _repository->getInstance(
 		request->nameSpace,
 		request->instanceName,
 		request->localOnly,
@@ -436,7 +438,11 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 	}
 	else
 	{
-	    cimInstance = _repository->getInstance(
+	    // attempt to load provider
+	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+
+	    cimInstance = provider->getInstance(
+		OperationContext(),
 		request->nameSpace,
 		request->instanceName,
 		request->localOnly,
@@ -511,19 +517,26 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 	String className = request->instanceName.getClassName();
 	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(providerName.size() != 0)
+        if ( (providerName.size() == 0) &&
+                 !_repository->isDefaultInstanceProvider() )
+        {
+            // ATTN: Is this the right exception?
+            throw CIMException(CIM_ERR_NOT_SUPPORTED);
+        }
+        else if ( (providerName.size() == 0) ||
+                  (providerName == _repository->getProviderName()) )
 	{
-		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
-	
-	    provider->deleteInstance(
-		OperationContext(),
+	    _repository->deleteInstance(
 		request->nameSpace,
 		request->instanceName);
 	}
 	else
 	{
-	    _repository->deleteInstance(
+	    // attempt to load provider
+	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+	
+	    provider->deleteInstance(
+		OperationContext(),
 		request->nameSpace,
 		request->instanceName);
 	}
@@ -598,19 +611,26 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
         CIMClass cimClass = className;
 	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(providerName.size() != 0)
+        if ( (providerName.size() == 0) &&
+                 !_repository->isDefaultInstanceProvider() )
+        {
+            // ATTN: Is this the right exception?
+            throw CIMException(CIM_ERR_NOT_SUPPORTED);
+        }
+        else if ( (providerName.size() == 0) ||
+                  (providerName == _repository->getProviderName()) )
+	{
+	     instanceName = _repository->createInstance(
+		request->nameSpace,
+		request->newInstance);
+	}
+	else
 	{
 	    // attempt to load provider
 	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
 
 	    instanceName = provider->createInstance(
 		OperationContext(),
-		request->nameSpace,
-		request->newInstance);
-	}
-	else
-	{
-	     instanceName = _repository->createInstance(
 		request->nameSpace,
 		request->newInstance);
 	}
@@ -684,21 +704,28 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 	String className = request->modifiedInstance.getInstance().getClassName();
 	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(providerName.size() != 0)
-	{
-		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
-
-	    provider->modifyInstance(
-		OperationContext(),
+        if ( (providerName.size() == 0) &&
+                 !_repository->isDefaultInstanceProvider() )
+        {
+            // ATTN: Is this the right exception?
+            throw CIMException(CIM_ERR_NOT_SUPPORTED);
+        }
+        else if ( (providerName.size() == 0) ||
+                  (providerName == _repository->getProviderName()) )
+        {
+            _repository->modifyInstance(
                 request->nameSpace,
                 request->modifiedInstance,
                 request->includeQualifiers,
                 request->propertyList);
         }
         else
-        {
-            _repository->modifyInstance(
+	{
+	    // attempt to load provider
+	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+
+	    provider->modifyInstance(
+		OperationContext(),
                 request->nameSpace,
                 request->modifiedInstance,
                 request->includeQualifiers,
@@ -814,13 +841,16 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 	String className = request->className;
 	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(providerName.size() != 0)
+        if ( (providerName.size() == 0) &&
+                 !_repository->isDefaultInstanceProvider() )
+        {
+            // ATTN: Is this the right exception?
+            throw CIMException(CIM_ERR_NOT_SUPPORTED);
+        }
+        else if ( (providerName.size() == 0) ||
+                  (providerName == _repository->getProviderName()) )
 	{
-		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
-
-	    cimNamedInstances = provider->enumerateInstances(
-		OperationContext(),
+	    cimNamedInstances = _repository->enumerateInstances(
 		request->nameSpace,
 		request->className,
 		request->deepInheritance,
@@ -831,7 +861,11 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 	}
 	else
 	{
-	    cimNamedInstances = _repository->enumerateInstances(
+	    // attempt to load provider
+	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+
+	    cimNamedInstances = provider->enumerateInstances(
+		OperationContext(),
 		request->nameSpace,
 		request->className,
 		request->deepInheritance,
@@ -876,19 +910,26 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 	String className = request->className;
 	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(providerName.size() != 0)
+        if ( (providerName.size() == 0) &&
+                 !_repository->isDefaultInstanceProvider() )
+        {
+            // ATTN: Is this the right exception?
+            throw CIMException(CIM_ERR_NOT_SUPPORTED);
+        }
+        else if ( (providerName.size() == 0) ||
+                  (providerName == _repository->getProviderName()) )
 	{
-		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
-
-	    instanceNames = provider->enumerateInstanceNames(
-		OperationContext(),
+	    instanceNames = _repository->enumerateInstanceNames(
 		request->nameSpace,
 		request->className);
 	}
 	else
 	{
-	    instanceNames = _repository->enumerateInstanceNames(
+	    // attempt to load provider
+	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+
+	    instanceNames = provider->enumerateInstanceNames(
+		OperationContext(),
 		request->nameSpace,
 		request->className);
 	}
@@ -928,10 +969,30 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 	String className = request->objectName.getClassName();
 	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(providerName.size() != 0)
+        if ( (providerName.size() == 0) &&
+                 !_repository->isDefaultInstanceProvider() )
+        {
+            // ATTN: Is this the right exception?
+            throw CIMException(CIM_ERR_NOT_SUPPORTED);
+        }
+        else if ( (providerName.size() == 0) ||
+                  (providerName == _repository->getProviderName()) )
 	{
-		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+	    cimObjects = _repository->associators(
+ 	        request->nameSpace,
+	        request->objectName,
+	        request->assocClass,
+	        request->resultClass,
+	        request->role,
+	        request->resultRole,
+	        request->includeQualifiers,
+	        request->includeClassOrigin,
+	        request->propertyList.getPropertyNameArray());
+ 	}
+	else
+	{
+	    // attempt to load provider
+	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
 
 	    cimObjects = provider->associators(
 		OperationContext(),
@@ -945,18 +1006,6 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 	        request->includeClassOrigin,
 	        request->propertyList.getPropertyNameArray());
 	}
-	else {
-	    cimObjects = _repository->associators(
- 	        request->nameSpace,
-	        request->objectName,
-	        request->assocClass,
-	        request->resultClass,
-	        request->role,
-	        request->resultRole,
-	        request->includeQualifiers,
-	        request->includeClassOrigin,
-	        request->propertyList.getPropertyNameArray());
- 	}
     }
     catch (CIMException& exception)
     {
@@ -993,13 +1042,16 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 	String className = request->objectName.getClassName();
 	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(providerName.size() != 0)
+        if ( (providerName.size() == 0) &&
+                 !_repository->isDefaultInstanceProvider() )
+        {
+            // ATTN: Is this the right exception?
+            throw CIMException(CIM_ERR_NOT_SUPPORTED);
+        }
+        else if ( (providerName.size() == 0) ||
+                  (providerName == _repository->getProviderName()) )
 	{
-		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
-
-	    objectNames = provider->associatorNames(
-		OperationContext(),
+	    objectNames = _repository->associatorNames(
 	        request->nameSpace,
 	        request->objectName,
 	        request->assocClass,
@@ -1007,8 +1059,13 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 	        request->role,
 	        request->resultRole);
         }
-	else {
-	    objectNames = _repository->associatorNames(
+	else
+	{
+	    // attempt to load provider
+	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+
+	    objectNames = provider->associatorNames(
+		OperationContext(),
 	        request->nameSpace,
 	        request->objectName,
 	        request->assocClass,
@@ -1052,13 +1109,16 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 	String className = request->objectName.getClassName();
 	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(providerName.size() != 0)
+        if ( (providerName.size() == 0) &&
+                 !_repository->isDefaultInstanceProvider() )
+        {
+            // ATTN: Is this the right exception?
+            throw CIMException(CIM_ERR_NOT_SUPPORTED);
+        }
+        else if ( (providerName.size() == 0) ||
+                  (providerName == _repository->getProviderName()) )
 	{
-		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
-
-	    cimObjects = provider->references(
-		OperationContext(),
+	    cimObjects = _repository->references(
 	        request->nameSpace,
 	        request->objectName,
 	        request->resultClass,
@@ -1067,8 +1127,13 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 	        request->includeClassOrigin,
 	        request->propertyList.getPropertyNameArray());
         }
-	else {
-	    cimObjects = _repository->references(
+	else
+	{
+	    // attempt to load provider
+	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+
+	    cimObjects = provider->references(
+		OperationContext(),
 	        request->nameSpace,
 	        request->objectName,
 	        request->resultClass,
@@ -1113,20 +1178,28 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 	String className = request->objectName.getClassName();
 	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
-	if(providerName.size() != 0)
+        if ( (providerName.size() == 0) &&
+                 !_repository->isDefaultInstanceProvider() )
+        {
+            // ATTN: Is this the right exception?
+            throw CIMException(CIM_ERR_NOT_SUPPORTED);
+        }
+        else if ( (providerName.size() == 0) ||
+                  (providerName == _repository->getProviderName()) )
+	{
+	    objectNames = _repository->referenceNames(
+	        request->nameSpace,
+	        request->objectName,
+	        request->resultClass,
+	        request->role);
+        }
+	else
 	{
 		// attempt to load provider
 		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
 
 	    objectNames = provider->referenceNames(
 		OperationContext(),
-	        request->nameSpace,
-	        request->objectName,
-	        request->resultClass,
-	        request->role);
-        }
-	else {
-	    objectNames = _repository->referenceNames(
 	        request->nameSpace,
 	        request->objectName,
 	        request->resultClass,

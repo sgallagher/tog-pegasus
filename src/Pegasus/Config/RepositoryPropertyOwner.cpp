@@ -1,44 +1,42 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
+// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//
+// Modified By:
+//
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////
-//
+// 
 // This file has implementation for the repository property owner class.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "RepositoryPropertyOwner.h"
-#include "ConfigManager.h"
-#include "ConfigExceptions.h"
+
 
 PEGASUS_USING_STD;
 
@@ -50,42 +48,30 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-#if defined(PEGASUS_OS_LINUX)
-# ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"repositoryIsDefaultInstanceProvider", "false", IS_STATIC, IS_HIDDEN},
-# else
-    {"repositoryIsDefaultInstanceProvider", "true", IS_STATIC, IS_VISIBLE},
-# endif
-#else
-    {"repositoryIsDefaultInstanceProvider", "true", IS_STATIC, IS_VISIBLE},
-#endif
-#ifndef PEGASUS_OS_ZOS
-    {"enableBinaryRepository", "false", IS_STATIC, IS_VISIBLE}
-#else
-    {"enableBinaryRepository", "true", IS_STATIC, IS_HIDDEN}
-#endif
+    {"repositoryIsDefaultInstanceProvider", "true", 0, 0, 0},
+    {"repositoryProviderName", "repository", 0, 0, 0}
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 
 
-/** Constructors */
+/** Constructors  */
 RepositoryPropertyOwner::RepositoryPropertyOwner()
 {
     _repositoryIsDefaultInstanceProvider = new ConfigProperty;
-    _enableBinaryRepository = new ConfigProperty;
+    _repositoryProviderName = new ConfigProperty;
 }
 
-/** Destructor */
+/** Destructor  */
 RepositoryPropertyOwner::~RepositoryPropertyOwner()
 {
     delete _repositoryIsDefaultInstanceProvider;
-    delete _enableBinaryRepository;
+    delete _repositoryProviderName;
 }
 
 
 /**
-    Initialize the config properties.
+Initialize the config properties.
 */
 void RepositoryPropertyOwner::initialize()
 {
@@ -94,48 +80,68 @@ void RepositoryPropertyOwner::initialize()
         //
         // Initialize the properties with default values
         //
-        if (String::equal(properties[i].propertyName,
-                "repositoryIsDefaultInstanceProvider"))
+        if (String::equalNoCase(
+            properties[i].propertyName, "repositoryIsDefaultInstanceProvider"))
         {
-            _repositoryIsDefaultInstanceProvider->propertyName =
-                properties[i].propertyName;
-            _repositoryIsDefaultInstanceProvider->defaultValue =
-                properties[i].defaultValue;
-            _repositoryIsDefaultInstanceProvider->currentValue =
-                properties[i].defaultValue;
-            _repositoryIsDefaultInstanceProvider->plannedValue =
-                properties[i].defaultValue;
-            _repositoryIsDefaultInstanceProvider->dynamic =
-                properties[i].dynamic;
-            _repositoryIsDefaultInstanceProvider->externallyVisible =
-                properties[i].externallyVisible;
+            _repositoryIsDefaultInstanceProvider->propertyName = properties[i].propertyName;
+            _repositoryIsDefaultInstanceProvider->defaultValue = properties[i].defaultValue;
+            _repositoryIsDefaultInstanceProvider->currentValue = properties[i].defaultValue;
+            _repositoryIsDefaultInstanceProvider->plannedValue = properties[i].defaultValue;
+            _repositoryIsDefaultInstanceProvider->dynamic = properties[i].dynamic;
+            _repositoryIsDefaultInstanceProvider->domain = properties[i].domain;
+            _repositoryIsDefaultInstanceProvider->domainSize = properties[i].domainSize;
         }
-        else if (String::equal(
-            properties[i].propertyName, "enableBinaryRepository"))
+        else if (String::equalNoCase(properties[i].propertyName, "repositoryProviderName"))
         {
-            _enableBinaryRepository->propertyName = properties[i].propertyName;
-            _enableBinaryRepository->defaultValue = properties[i].defaultValue;
-            _enableBinaryRepository->currentValue = properties[i].defaultValue;
-            _enableBinaryRepository->plannedValue = properties[i].defaultValue;
-            _enableBinaryRepository->dynamic = properties[i].dynamic;
-            _enableBinaryRepository->externallyVisible =
-                properties[i].externallyVisible;
+            _repositoryProviderName->propertyName = properties[i].propertyName;
+            _repositoryProviderName->defaultValue = properties[i].defaultValue;
+            _repositoryProviderName->currentValue = properties[i].defaultValue;
+            _repositoryProviderName->plannedValue = properties[i].defaultValue;
+            _repositoryProviderName->dynamic = properties[i].dynamic;
+            _repositoryProviderName->domain = properties[i].domain;
+            _repositoryProviderName->domainSize = properties[i].domainSize;
         }
     }
 }
 
-struct ConfigProperty* RepositoryPropertyOwner::_lookupConfigProperty(
-    const String& name) const
+/** 
+Get information about the specified property.
+*/
+void RepositoryPropertyOwner::getPropertyInfo(
+    const String& name, 
+    Array<String>& propertyInfo)
 {
-    if (String::equal(
-            _repositoryIsDefaultInstanceProvider->propertyName, name))
+    propertyInfo.clear();
+
+    if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
     {
-        return _repositoryIsDefaultInstanceProvider;
+        propertyInfo.append(_repositoryIsDefaultInstanceProvider->propertyName);
+        propertyInfo.append(_repositoryIsDefaultInstanceProvider->defaultValue);
+        propertyInfo.append(_repositoryIsDefaultInstanceProvider->currentValue);
+        propertyInfo.append(_repositoryIsDefaultInstanceProvider->plannedValue);
+        if (_repositoryIsDefaultInstanceProvider->dynamic)
+        {
+            propertyInfo.append(STRING_TRUE);
+        }
+        else
+        {
+            propertyInfo.append(STRING_FALSE);
+        }
     }
-    else if (String::equal(
-            _enableBinaryRepository->propertyName, name))
+    else if (String::equalNoCase(_repositoryProviderName->propertyName, name))
     {
-        return _enableBinaryRepository;
+        propertyInfo.append(_repositoryProviderName->propertyName);
+        propertyInfo.append(_repositoryProviderName->defaultValue);
+        propertyInfo.append(_repositoryProviderName->currentValue);
+        propertyInfo.append(_repositoryProviderName->plannedValue);
+        if (_repositoryProviderName->dynamic)
+        {
+            propertyInfo.append(STRING_TRUE);
+        }
+        else
+        {
+            propertyInfo.append(STRING_FALSE);
+        }
     }
     else
     {
@@ -143,124 +149,179 @@ struct ConfigProperty* RepositoryPropertyOwner::_lookupConfigProperty(
     }
 }
 
-/**
-    Get information about the specified property.
+/** 
+Get default value of the specified property.
 */
-void RepositoryPropertyOwner::getPropertyInfo(
-    const String& name,
-    Array<String>& propertyInfo) const
+const String RepositoryPropertyOwner::getDefaultValue(const String& name)
 {
-    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
-    buildPropertyInfo(name, configProperty, propertyInfo);
+    if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
+    {
+        return (_repositoryIsDefaultInstanceProvider->defaultValue);
+    }
+    else if (String::equalNoCase(_repositoryProviderName->propertyName, name))
+    {
+        return (_repositoryProviderName->defaultValue);
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
 }
 
-/**
-    Get default value of the specified property.
+/** 
+Get current value of the specified property.
 */
-String RepositoryPropertyOwner::getDefaultValue(const String& name) const
+const String RepositoryPropertyOwner::getCurrentValue(const String& name)
 {
-    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
-
-    return configProperty->defaultValue;
+    if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
+    {
+        return (_repositoryIsDefaultInstanceProvider->currentValue);
+    }
+    else if (String::equalNoCase(_repositoryProviderName->propertyName, name))
+    {
+        return (_repositoryProviderName->currentValue);
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
 }
 
-/**
-    Get current value of the specified property.
+/** 
+Get planned value of the specified property.
 */
-String RepositoryPropertyOwner::getCurrentValue(const String& name) const
+const String RepositoryPropertyOwner::getPlannedValue(const String& name)
 {
-    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
-
-    return configProperty->currentValue;
+    if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
+    {
+        return (_repositoryIsDefaultInstanceProvider->plannedValue);
+    }
+    else if (String::equalNoCase(_repositoryProviderName->propertyName, name))
+    {
+        return (_repositoryProviderName->plannedValue);
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
 }
 
-/**
-    Get planned value of the specified property.
-*/
-String RepositoryPropertyOwner::getPlannedValue(const String& name) const
-{
-    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
-    return configProperty->plannedValue;
-}
-
-
-/**
-    Init current value of the specified property to the specified value.
+/** 
+Init current value of the specified property to the specified value.
 */
 void RepositoryPropertyOwner::initCurrentValue(
-    const String& name,
+    const String& name, 
     const String& value)
 {
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
-    configProperty->currentValue = value;
+
+    if (String::equal(value, EMPTY_VALUE))
+    {
+            throw InvalidPropertyValue(name,value);
+    }
+
+    if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
+    {
+        _repositoryIsDefaultInstanceProvider->currentValue = value;
+    }
+    else if (String::equalNoCase(_repositoryProviderName->propertyName, name))
+    {
+        _repositoryProviderName->currentValue = value;
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
 }
 
 
-/**
-    Init planned value of the specified property to the specified value.
+/** 
+Init planned value of the specified property to the specified value.
 */
 void RepositoryPropertyOwner::initPlannedValue(
-    const String& name,
+    const String& name, 
     const String& value)
 {
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
-    configProperty->plannedValue = value;
+    if (String::equal(value, EMPTY_VALUE))
+    {
+            throw InvalidPropertyValue(name,value);
+    }
+
+    if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
+    {
+        _repositoryIsDefaultInstanceProvider->plannedValue= value;
+    }
+    else if (String::equalNoCase(_repositoryProviderName->propertyName, name))
+    {
+        _repositoryProviderName->plannedValue= value;
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
 }
 
-/**
-    Update current value of the specified property to the specified value.
+/** 
+Update current value of the specified property to the specified value.
 */
 void RepositoryPropertyOwner::updateCurrentValue(
-    const String& name,
-    const String& value,
-    const String& userName,
-    Uint32 timeoutSeconds)
+    const String& name, 
+    const String& value) 
 {
-    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
-
     //
     // make sure the property is dynamic before updating the value.
     //
-    if (configProperty->dynamic != IS_DYNAMIC)
+    if (!isDynamic(name))
     {
-        throw NonDynamicConfigProperty(name);
+        throw NonDynamicConfigProperty(name); 
     }
 
-    configProperty->currentValue = value;
+    //
+    // Validate the specified value and call initPlannedValue
+    //
+    if (isValid(name, value))
+    {
+        initCurrentValue(name, value);
+    }
 }
 
 
-/**
-    Update planned value of the specified property to the specified value.
+/** 
+Update planned value of the specified property to the specified value.
 */
 void RepositoryPropertyOwner::updatePlannedValue(
-    const String& name,
+    const String& name, 
     const String& value)
 {
     //
-    // Update does the same thing as initialization
+    // Validate the specified value and call initPlannedValue
     //
-    initPlannedValue(name, value);
+    if (isValid(name, value))
+    {
+        initPlannedValue(name, value);
+    }
 }
 
-/**
-    Checks to see if the given value is valid or not.
+/** 
+Checks to see if the given value is valid or not.
 */
-Boolean RepositoryPropertyOwner::isValid(
-    const String& name,
-    const String& value) const
+Boolean RepositoryPropertyOwner::isValid(const String& name, const String& value)
 {
     Boolean retVal = false;
 
     //
     // Validate the specified value
     //
-    if (String::equal(
-            _repositoryIsDefaultInstanceProvider->propertyName, name) ||
-        String::equal(_enableBinaryRepository->propertyName, name))
+    if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
     {
-        retVal = ConfigManager::isValidBooleanValue(value);
+        if(String::equal(value, "true") || String::equal(value, "false"))
+        {
+            retVal = true;
+        }
+    }
+    else if (String::equalNoCase(_repositoryProviderName->propertyName, name))
+    {
+        retVal = true;
     }
     else
     {
@@ -269,14 +330,24 @@ Boolean RepositoryPropertyOwner::isValid(
     return retVal;
 }
 
-/**
-    Checks to see if the specified property is dynamic or not.
+/** 
+Checks to see if the specified property is dynamic or not.
 */
-Boolean RepositoryPropertyOwner::isDynamic(const String& name) const
+Boolean RepositoryPropertyOwner::isDynamic(const String& name)
 {
-    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
-
-    return (configProperty->dynamic == IS_DYNAMIC);
+    if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
+    {
+        return (_repositoryIsDefaultInstanceProvider->dynamic);
+    }
+    else if (String::equalNoCase(_repositoryProviderName->propertyName, name))
+    {
+        return (_repositoryProviderName->dynamic);
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
 }
+
 
 PEGASUS_NAMESPACE_END

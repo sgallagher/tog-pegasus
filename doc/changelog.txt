@@ -197,7 +197,7 @@ repository implementation.
     leading whitespace in front of commands with tabs as required
     in make files.
    
-35. (K Schopmeyer 2 Nov 2001)Temporarily moved repository back to CIM25 
+35. (K Schopmeyer) 2 Nov 2001 - Temporarily moved repository back to CIM25 
     because getting an error in 26
 
 35. (Roger Kumpf - HP) 30 Oct 2001 - Association classes have keys
@@ -265,18 +265,18 @@ repository implementation.
     init and update methods. Submitted the pegasus/mak/Buildmakefile with 
     cleanbuild, rebuild and trace configuration options.
 
-37. (Yi Zhou - HP) 05 Nov 2001 Fixed createInstance to return a CIMReference 
+37. (Yi Zhou - HP) 05 Nov 2001 - Fixed createInstance to return a CIMReference 
     (instanceName).
 
-38. (Roger Kumpf - HP) 08 Nov 2001 Implemented encoding/decoding of
+38. (Roger Kumpf - HP) 08 Nov 2001 - Implemented encoding/decoding of
     GetProperty/SetProperty/EnumerateInstances request/response messages.
     Added encoding and decoding of PropertyList parameters on all
     relevant intrinsic methods.
 
-39. (Markus Mueller - IBM) 09 Nov 2001 Added Associator calls to CIMBase
+39. (Markus Mueller - IBM) 09 Nov 2001 - Added Associator calls to CIMBase
     ProviderFacade.cpp; fixed Provider unloading in CIMProviderManager.cpp
 
-40. (Rudy Schuet - Compaq) 12 Nov 2001 Common module: added the following
+40. (Rudy Schuet - Compaq) 12 Nov 2001 - Common module: added the following
     files for nsk platform support: TraceFileHandlerNsk.cpp, ThreadNsk.cpp,
     TCPChannelNsk.cpp, SystemNsk.cpp, ServiceNsk.cpp, SelectorNsk.cpp,
     IPCNsk.cpp, DirNsk.cpp. Most of these files (with the exception of
@@ -284,7 +284,7 @@ repository implementation.
     (TraceFileHandler.cpp, Thread.cpp, etc) have been updated to include
     nsk platform links. 
 
-41. (Roger Kumpf - HP) 14 Nov 2001 Changed the behavior of the CIMValue
+41. (Roger Kumpf - HP) 14 Nov 2001 - Changed the behavior of the CIMValue
     toString() method for CIMValues of String type.  The old behavior
     returned an XML encoding of the String with special characters
     replaced by their UTF-8 equivalents.  For example, a CIMValue of a"b
@@ -300,36 +300,36 @@ repository implementation.
     be successful, CreateInstance must have stored the instance name
     in that same form, without special character encoding.
 
-42. (Roger Kumpf - HP) 15 Nov 2001 Added a toXml(void) method to
+42. (Roger Kumpf - HP) 15 Nov 2001 - Added a toXml(void) method to
     the CIMValue class.  Eliminated improper use of CIMValue.toString(),
     often replacing with CIMValue.get(String&) or CIMValue.toXml().
     Also added some error handling in the indication handlers.
 
-43. (Sushma Fernandes - HP) 16 Nov 2001 Added a function 
+43. (Sushma Fernandes - HP) 16 Nov 2001 - Added a function 
     localObjectPathtoXml(Array<Sint8>& out) to the CIMReference class 
     to handle local instance path and local classpath. Modified the 
     CIMOperationRequestDecoder to handle <LOCALCLASSPATHELEMENT ...>. 
     Changed the CIMOperationRequestEncoder to call the localObjectPathtoXml.
 
-44. (Roger Kumpf - HP) 19 Nov 2001 Added a CIMNamedInstance class
+44. (Roger Kumpf - HP) 19 Nov 2001 - Added a CIMNamedInstance class
     to hold the argument to ModifyInstance and the return values
     from EnumerateInstances.  The client and provider APIs need to
     be updated to use this class.
 
-45. (Sushma Fernandes - HP) 19 Nov 2001  Added the cimuser command line 
+45. (Sushma Fernandes - HP) 19 Nov 2001 - Added the cimuser command line 
     source files. This CLI allows addition, modification, removal and listing 
     of CIM users. The CLI is not linked to the main makefile as the Provider 
     functionality is yet to be implemented. Added the function 
     String getPassword(char* prompt) to the System.h and cpp files.
 
-46. (Nag Boranna - HP) 20 Nov 2001 Implemented Authentication code on
+46. (Nag Boranna - HP) 20 Nov 2001 - Implemented Authentication code on
     the server to challenge the unauthorized requests, authenticate
     the challenge responses, and verify the subsequent authorized requests.
     Implemented authentication mechanism on the Client api to send
     responses to the challenges from the server. Current implementation
     supports only 'local' authentication mechanism.
 
-47. (Roger Kumpf - HP) 20 Nov 2001 Commited the following set of changes:
+47. (Roger Kumpf - HP) 20 Nov 2001 - Commited the following set of changes:
 
       - Changed the return value of EnumerateInstances from Array<CIMInstance>
           to Array<CIMNamedInstance>
@@ -368,7 +368,7 @@ repository implementation.
     Note that the repository also does not yet handle the PropertyList in
     ModifyInstance correctly.
 
-48. (Roger Kumpf - HP) 21 Nov 2001 I have updated the Provider2 instance
+48. (Roger Kumpf - HP) 21 Nov 2001 - I have updated the Provider2 instance
     provider API to match the changes made to the EnumerateInstances and
     ModifyInstance operations.  These changes were made to comply with
     the DMTF specification.
@@ -401,12 +401,32 @@ repository implementation.
     However, whenever the PropertyList is not null, the providers throw
     a NOT_SUPPORTED exception.
 
-49. (Rudy Schuet - Compaq) 25 NOV 2001  To support the NSK platform,
+49. (Rudy Schuet - Compaq) 25 NOV 2001 - To support the NSK platform,
     files Platform_NSK_NONSTOP_NMCPLUS.h and ConfigNsk.h were added to
     the Common module. File Config.h was modified to include the NSK
     platform and a new option PEGASUS_HAVE_NO_STD that allows compilation
     without the standard (std) namespace.
-  
+
+50. (Roger Kumpf - HP) 26 Nov 2001 - Added two new configuration
+    properties to support alternate behavior of the Pegasus repository:
+    repositoryIsDefaultInstanceProvider and repositoryProviderName.
+
+    Using the first one, the repository can be enabled/disabled as the
+    default provider for instance (and association) operations.  The default
+    setting is "true", so the default behavior has not been changed.  To
+    disable the repository as the default instance provider, issue the
+    following command before starting cimserver:
+
+        cimconfig -s repositoryIsDefaultInstanceProvider=false -p
+
+    The repositoryProviderName configuration property specifies what
+    provider name is used to explicitly register the repository as a
+    provider.  This is necessary when the repository needs to serve
+    instances of a class and repositoryIsDefaultInstanceProvider is set
+    to "false".  The default value is "repository".  To register the
+    repository as an instance provider for a class, add a
+    'Provider("repository")' qualifier to the class definition.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

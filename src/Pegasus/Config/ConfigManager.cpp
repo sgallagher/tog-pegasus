@@ -48,6 +48,7 @@
 #include "TracePropertyOwner.h"
 #include "LogPropertyOwner.h"
 #include "SecurityPropertyOwner.h"
+#include "RepositoryPropertyOwner.h"
 
 
 PEGASUS_USING_STD;
@@ -79,6 +80,7 @@ TracePropertyOwner*      ConfigManager::traceOwner   = new TracePropertyOwner;
 LogPropertyOwner*        ConfigManager::logOwner     = new LogPropertyOwner;
 DefaultPropertyOwner*    ConfigManager::defaultOwner = new DefaultPropertyOwner;
 SecurityPropertyOwner*   ConfigManager::securityOwner= new SecurityPropertyOwner;
+RepositoryPropertyOwner* ConfigManager::repositoryOwner= new RepositoryPropertyOwner;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -104,7 +106,9 @@ struct PropertyList ConfigManager::properties[] =
     {"remove",              (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"slp",                 (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"requireAuthentication", (ConfigPropertyOwner* )ConfigManager::securityOwner},
-    {"httpAuthType",        (ConfigPropertyOwner* )ConfigManager::securityOwner}
+    {"httpAuthType",        (ConfigPropertyOwner* )ConfigManager::securityOwner},
+    {"repositoryIsDefaultInstanceProvider", (ConfigPropertyOwner* )ConfigManager::repositoryOwner},
+    {"repositoryProviderName", (ConfigPropertyOwner* )ConfigManager::repositoryOwner}
 };
 
 const Uint32 NUM_PROPERTIES = 

@@ -38,7 +38,6 @@
 PEGASUS_NAMESPACE_BEGIN
 
 CQLChainedIdentifierRep::CQLChainedIdentifierRep(){
-//	printf("CQLChainedIdentifier()\n");
 }
 
 CQLChainedIdentifierRep::CQLChainedIdentifierRep(String inString)
@@ -46,20 +45,17 @@ CQLChainedIdentifierRep::CQLChainedIdentifierRep(String inString)
 	parse(inString);
 }
 
-CQLChainedIdentifierRep::CQLChainedIdentifierRep(CQLIdentifier &id)
+CQLChainedIdentifierRep::CQLChainedIdentifierRep(const CQLIdentifier &id)
 {
         _subIdentifiers.append(id);
-//	printf("CQLChainedIdentifier(CQLIdentifier &id)\n");
 }
 
 CQLChainedIdentifierRep::CQLChainedIdentifierRep(const CQLChainedIdentifierRep* rep){
 	_subIdentifiers = rep->_subIdentifiers;
-//	printf("CQLChainedIdentifier COPY CONSTR\n");	
 }
 
 CQLChainedIdentifierRep::~CQLChainedIdentifierRep(){
 	
-//	printf("~CQLChainedIdentifierRep()\n");
 }
 
 const Array<CQLIdentifier>& CQLChainedIdentifierRep::getSubIdentifiers()const
@@ -67,7 +63,7 @@ const Array<CQLIdentifier>& CQLChainedIdentifierRep::getSubIdentifiers()const
 	return _subIdentifiers;
 }
 
-CQLIdentifier CQLChainedIdentifierRep::getLastIdentifier(){
+CQLIdentifier CQLChainedIdentifierRep::getLastIdentifier()const{
 	if(_subIdentifiers.size() > 0)
 		return _subIdentifiers[_subIdentifiers.size()-1];
 	return CQLIdentifier();
@@ -83,11 +79,11 @@ String CQLChainedIdentifierRep::toString()const{
 	return s;
 }
 
-void CQLChainedIdentifierRep::append(CQLIdentifier & id){
+void CQLChainedIdentifierRep::append(const CQLIdentifier & id){
 	_subIdentifiers.append(id);
 }
 
-Boolean CQLChainedIdentifierRep::isSubChain(CQLChainedIdentifier & chain){
+Boolean CQLChainedIdentifierRep::isSubChain(const CQLChainedIdentifier & chain)const{
 	Array<CQLIdentifier> ids = chain.getSubIdentifiers();
 	for(Uint32 i = 0; i < ids.size(); i++){
 		if(ids[i] != _subIdentifiers[i].getName())
@@ -103,16 +99,15 @@ CQLIdentifier& CQLChainedIdentifierRep::operator[](Uint32 index){
 CQLChainedIdentifierRep& CQLChainedIdentifierRep::operator=(const CQLChainedIdentifierRep& rhs){
 	if(&rhs != this){
 		_subIdentifiers = rhs._subIdentifiers;
-//		printf("CQLChainedIdentifierRep::operator=\n");
 	}
 	return *this;
 }
 
-Uint32 CQLChainedIdentifierRep::size(){
+Uint32 CQLChainedIdentifierRep::size()const{
 	return _subIdentifiers.size();
 }
 
-Boolean CQLChainedIdentifierRep::prepend(CQLIdentifier & id){
+Boolean CQLChainedIdentifierRep::prepend(const CQLIdentifier & id){
 	/*
 	   Compare id against the first element in _subIdentifiers, 
 	   if not an exact match, then prepend.  This is used to fully

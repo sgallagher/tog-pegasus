@@ -50,7 +50,7 @@ CQLChainedIdentifier::CQLChainedIdentifier(String inString)
 	_rep = new CQLChainedIdentifierRep(inString);
 }
 
-CQLChainedIdentifier::CQLChainedIdentifier(CQLIdentifier &id)
+CQLChainedIdentifier::CQLChainedIdentifier(const CQLIdentifier &id)
 {
         _rep = new CQLChainedIdentifierRep(id);
 }
@@ -61,15 +61,13 @@ CQLChainedIdentifier::CQLChainedIdentifier(const CQLChainedIdentifier& cid){
 CQLChainedIdentifier::~CQLChainedIdentifier(){
 	if(_rep)
 		delete _rep;
-	
-	//printf("~CQLChainedIdentifier()\n");
 }
 const Array<CQLIdentifier>& CQLChainedIdentifier::getSubIdentifiers()const
 {
 	return _rep->getSubIdentifiers();
 }
 
-CQLIdentifier CQLChainedIdentifier::getLastIdentifier(){
+CQLIdentifier CQLChainedIdentifier::getLastIdentifier()const{
 	return _rep->getLastIdentifier();
 }
 
@@ -77,11 +75,11 @@ String CQLChainedIdentifier::toString()const{
 	return _rep->toString();
 }
 
-void CQLChainedIdentifier::append(CQLIdentifier & id){
+void CQLChainedIdentifier::append(const CQLIdentifier & id){
 	_rep->append(id);
 }
 
-Boolean CQLChainedIdentifier::isSubChain(CQLChainedIdentifier & chain){
+Boolean CQLChainedIdentifier::isSubChain(const CQLChainedIdentifier & chain)const{
 	return _rep->isSubChain(chain);
 }
 
@@ -91,19 +89,17 @@ CQLIdentifier& CQLChainedIdentifier::operator[](Uint32 index){
 
 CQLChainedIdentifier& CQLChainedIdentifier::operator=(const CQLChainedIdentifier& rhs){
 	if(&rhs != this){
-		//printf("rhs != this\n");
 		if(_rep) delete _rep;
         	_rep = new CQLChainedIdentifierRep(rhs._rep);
 	}
-	//printf("CQLChainedIdentifier::operator=\n");
 	return *this;
 }
 
-Uint32 CQLChainedIdentifier::size(){
+Uint32 CQLChainedIdentifier::size()const{
 	return _rep->size();
 }
 
-Boolean CQLChainedIdentifier::prepend(CQLIdentifier & id){
+Boolean CQLChainedIdentifier::prepend(const CQLIdentifier & id){
 	return _rep->prepend(id);
 }
 

@@ -77,7 +77,7 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier
       */
     CQLChainedIdentifier(String inString);
 
-    CQLChainedIdentifier(CQLIdentifier & id);
+    CQLChainedIdentifier(const CQLIdentifier & id);
  
     CQLChainedIdentifier(const CQLChainedIdentifier& cid);
 
@@ -97,19 +97,19 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier
 
     String toString()const;
 
-    void append(CQLIdentifier & id);
+    void append(const CQLIdentifier & id);
 
-    Uint32 size();
+    Uint32 size()const;
 
-    Boolean prepend(CQLIdentifier & id);
+    Boolean prepend(const CQLIdentifier & id);
 
     CQLIdentifier& operator[](Uint32 index);
 
     CQLChainedIdentifier& operator=(const CQLChainedIdentifier& rhs);
 
-    Boolean isSubChain(CQLChainedIdentifier & chain);
+    Boolean isSubChain(const CQLChainedIdentifier & chain)const;
 
-    CQLIdentifier getLastIdentifier();
+    CQLIdentifier getLastIdentifier()const;
 	
     void applyContext(QueryContext& inContext);
 

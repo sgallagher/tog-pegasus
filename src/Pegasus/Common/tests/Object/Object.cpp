@@ -66,6 +66,14 @@ void test01()
 
     assert(oclass1.getClassName() == "MyClass");
     assert(oclass1.getPath() == CIMObjectPath("//localhost/root/cimv2:MyClass"));
+    assert (oclass1.isClass ());
+    assert (!oclass1.isInstance ());
+    assert (oclass2.isClass ());
+    assert (!oclass2.isInstance ());
+    assert (oclass3.isClass ());
+    assert (!oclass3.isInstance ());
+    assert (oclass4.isClass ());
+    assert (!oclass4.isInstance ());
 
     //
     // Construct from CIMInstance
@@ -73,6 +81,11 @@ void test01()
     CIMInstance cimInstance1("MyClass");
     CIMObject oinstance1 = cimInstance1;
     CIMObject instance2(cimInstance1);
+
+    assert (oinstance1.isInstance ());
+    assert (!oinstance1.isClass ());
+    assert (instance2.isInstance ());
+    assert (!instance2.isClass ());
 
     // Test qualifiers
     oinstance1.addQualifier(CIMQualifier("Key", true));

@@ -84,26 +84,6 @@ CIMObject& CIMObject::operator=(const CIMObject& x)
     return *this;
 }
 
-CIMObject& CIMObject::operator=(const CIMClass& x)
-{
-    if (x._rep != _rep)
-    {
-        Dec(_rep);
-	Inc(_rep = x._rep);
-    }
-    return *this;
-}
-
-CIMObject& CIMObject::operator=(const CIMInstance& x)
-{
-    if (x._rep != _rep)
-    {
-        Dec(_rep);
-	Inc(_rep = x._rep);
-    }
-    return *this;
-}
-
 CIMObject::~CIMObject()
 {
     Dec(_rep);
@@ -206,6 +186,32 @@ Boolean CIMObject::isUninitialized() const
     return (_rep == 0)? true : false;
 }
 
+Boolean CIMObject::isClass () const
+{
+    try
+    {
+        const CIMClass c (*this);
+        return true;
+    }
+    catch (DynamicCastFailed)
+    {
+        return false;
+    }
+}
+
+Boolean CIMObject::isInstance () const
+{
+    try
+    {
+        const CIMInstance i (*this);
+        return true;
+    }
+    catch (DynamicCastFailed)
+    {
+        return false;
+    }
+}
+
 Boolean CIMObject::identical(const CIMConstObject& x) const
 {
     x._checkRep();
@@ -272,56 +278,6 @@ CIMConstObject& CIMConstObject::operator=(const CIMConstObject& x)
     {
         Dec(_rep);
         Inc(_rep = x._rep);
-    }
-    return *this;
-}
-
-CIMConstObject& CIMConstObject::operator=(const CIMObject& x)
-{
-    if (x._rep != _rep)
-    {
-        Dec(_rep);
-        Inc(_rep = x._rep);
-    }
-    return *this;
-}
-
-CIMConstObject& CIMConstObject::operator=(const CIMClass& x)
-{
-    if (x._rep != _rep)
-    {
-        Dec(_rep);
-	Inc(_rep = x._rep);
-    }
-    return *this;
-}
-
-CIMConstObject& CIMConstObject::operator=(const CIMInstance& x)
-{
-    if (x._rep != _rep)
-    {
-        Dec(_rep);
-	Inc(_rep = x._rep);
-    }
-    return *this;
-}
-
-CIMConstObject& CIMConstObject::operator=(const CIMConstClass& x)
-{
-    if (x._rep != _rep)
-    {
-        Dec(_rep);
-	Inc(_rep = x._rep);
-    }
-    return *this;
-}
-
-CIMConstObject& CIMConstObject::operator=(const CIMConstInstance& x)
-{
-    if (x._rep != _rep)
-    {
-        Dec(_rep);
-	Inc(_rep = x._rep);
     }
     return *this;
 }

@@ -84,14 +84,6 @@ public:
     */
     CIMObject& operator=(const CIMObject& x);
 
-    /** Assignment operator.
-    */
-    CIMObject& operator=(const CIMClass& x);
-
-    /** Assignment operator.
-    */
-    CIMObject& operator=(const CIMInstance& x);
-
     /** Destructor.
     */
     ~CIMObject();
@@ -243,6 +235,22 @@ public:
      */
     Boolean isUninitialized() const;
 
+    /**
+        Determines if the object represents a CIMClass.
+
+        @return  True if the object represents a CIMClass,
+                 False otherwise
+     */
+    Boolean isClass () const;
+
+    /**
+        Determines if the object represents a CIMInstance.
+
+        @return  True if the object represents a CIMInstance,
+                 False otherwise
+     */
+    Boolean isInstance () const;
+
 private:
 
     CIMObjectRep* _rep;
@@ -297,16 +305,6 @@ public:
     CIMConstObject(const CIMConstInstance& x);
 
     CIMConstObject& operator=(const CIMConstObject& x);
-
-    CIMConstObject& operator=(const CIMObject& x);
-
-    CIMConstObject& operator=(const CIMClass& x);
-
-    CIMConstObject& operator=(const CIMConstClass& x);
-
-    CIMConstObject& operator=(const CIMInstance& x);
-
-    CIMConstObject& operator=(const CIMConstInstance& x);
 
     ~CIMConstObject();
 

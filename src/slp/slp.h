@@ -110,11 +110,11 @@ public:
   void insert(L *);
   void empty_list( void ) ;
   L *remove( void ) ;
-  L *remove(Sint8 *key) ;
-  L *reference(Sint8 *key);
-  L *next( L * ); // poor man's iterators 
-  L *prev( L * );
-  Boolean exists(Sint8 *key);
+  L *remove(const Sint8 *key) ;
+  L *reference(const Sint8 *key);
+  L *next( const L * ); // poor man's iterators 
+  L *prev( const L * );
+  Boolean exists(const Sint8 *key);
   int count(void);
 } ;
 
@@ -156,7 +156,7 @@ struct PEGASUS_EXPORT reg_list
 {
   ~reg_list();
   reg_list() : url(NULL), attributes(NULL), service_type(NULL), scopes(NULL) {} 
-  reg_list(Sint8 *url, Sint8 *attributes, Sint8 *service_type, Sint8 *scopes, time_t lifetime);
+  reg_list(const Sint8 *url, const Sint8 *attributes, const Sint8 *service_type, const Sint8 *scopes, time_t lifetime);
   Boolean operator ==(const Sint8 *key )const;
   inline Boolean operator ==(const reg_list & b) const { return (operator ==(b.url) ) ; }
   Sint8 *url;
@@ -231,22 +231,22 @@ public:
 		const Sint8 *scopes, 
 		Boolean retry);
 
-  Boolean srv_reg( Sint8 *url,
-		   Sint8 *attributes,
-		   Sint8 *service_type,
-		   Sint8 *scopes,
+  Boolean srv_reg( const Sint8 *url,
+		   const Sint8 *attributes,
+		   const Sint8 *service_type,
+		   const Sint8 *scopes,
 		   Sint16 lifetime);
   
-  int srv_reg_all( Sint8 *url,
-		   Sint8 *attributes,
-		   Sint8 *service_type,
-		   Sint8 *scopes,
+  int srv_reg_all( const Sint8 *url,
+		   const Sint8 *attributes,
+		   const Sint8 *service_type,
+		   const Sint8 *scopes,
 		   Sint16 lifetime) ;
 
-  void srv_reg_local ( Sint8 *url,
-		       Sint8 *attributes, 
-		       Sint8 *service_type, 
-		       Sint8 *scopes, 
+  void srv_reg_local ( const Sint8 *url,
+		       const Sint8 *attributes, 
+		       const Sint8 *service_type, 
+		       const Sint8 *scopes, 
 		       Sint16 lifetime) ;
 
   Sint32 service_listener( void  ) ;

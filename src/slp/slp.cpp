@@ -408,7 +408,7 @@ template<class L> void slp2_list<L>::insert(L *element)
 }
 
 
-template<class L> inline L *slp2_list<L>::next(L * init) 
+template<class L> inline L *slp2_list<L>::next(const L * init) 
 {
   if( init == NULL )
     _cur = _next;
@@ -419,7 +419,7 @@ template<class L> inline L *slp2_list<L>::next(L * init)
   return(_cur->_rep);
 }
 
-template<class L> inline L *slp2_list<L>::prev( L * init  )
+template<class L> inline L *slp2_list<L>::prev( const L * init  )
 {
   if( init == NULL ) 
     _cur = _next;
@@ -463,7 +463,7 @@ template<class L> L *slp2_list<L>::remove( void )
 }
 
 
-template<class L> L *slp2_list<L>::remove(Sint8 *key)
+template<class L> L *slp2_list<L>::remove(const Sint8 *key)
 {
   L *ret = NULL;
   if( _count > 0 ) {
@@ -484,7 +484,7 @@ template<class L> L *slp2_list<L>::remove(Sint8 *key)
 }
 
 
-template<class L> L *slp2_list<L>::reference(Sint8 *key)
+template<class L> L *slp2_list<L>::reference(const Sint8 *key)
 {
   if( _count > 0 ) {
     slp2_list *temp = _next;
@@ -497,7 +497,7 @@ template<class L> L *slp2_list<L>::reference(Sint8 *key)
   return(NULL);
 }
 
-template<class L> Boolean slp2_list<L>::exists(Sint8 *key)
+template<class L> Boolean slp2_list<L>::exists(const Sint8 *key)
 {
   if( _count > 0) {
     slp2_list *temp = _next;
@@ -545,10 +545,10 @@ Boolean rply_list::operator ==(const Sint8 *key ) const
 }
 
 
-reg_list::reg_list(Sint8 *r_url, 
-		   Sint8 *r_attributes, 
-		   Sint8 *r_service_type, 
-		   Sint8 *r_scopes, 
+reg_list::reg_list(const Sint8 *r_url, 
+		   const Sint8 *r_attributes, 
+		   const Sint8 *r_service_type, 
+		   const Sint8 *r_scopes, 
 		   time_t r_lifetime)
 {
   if( r_url != NULL ) {
@@ -1373,10 +1373,10 @@ void slp_client::decode_srvreq(struct sockaddr_in *remote )
 }
 
 
-Boolean slp_client::srv_reg(Sint8 *url,
-			 Sint8 *attributes,
-			 Sint8 *service_type,
-			 Sint8 *scopes,
+Boolean slp_client::srv_reg(const Sint8 *url,
+			 const Sint8 *attributes,
+			 const Sint8 *service_type,
+			 const Sint8 *scopes,
 			 Sint16 lifetime) 
 {
   Sint32 len;
@@ -1603,10 +1603,10 @@ Sint32 slp_client::service_listener(SOCKET extra_sock )
   return(err);
 }
 
-int slp_client::srv_reg_all( Sint8 *url,
-			     Sint8 *attributes,
-			     Sint8 *service_type,
-			     Sint8 *scopes,
+int slp_client::srv_reg_all( const Sint8 *url,
+			     const Sint8 *attributes,
+			     const Sint8 *service_type,
+			     const Sint8 *scopes,
 			     Sint16 lifetime)
 {
 
@@ -1656,10 +1656,10 @@ int slp_client::srv_reg_all( Sint8 *url,
 }
 
 
-void  slp_client::srv_reg_local ( Sint8 *url,
-				  Sint8 *attributes, 
-				  Sint8 *service_type, 
-				  Sint8 *scopes, 
+void  slp_client::srv_reg_local ( const Sint8 *url,
+				  const Sint8 *attributes, 
+				  const Sint8 *service_type, 
+				  const Sint8 *scopes, 
 				  Sint16 lifetime) 
 {
   reg_list *reg = NULL;

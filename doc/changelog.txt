@@ -84,6 +84,8 @@ TAG: Version_1_09.
     ManagedSystem/OperatingSystem provider so that it would not
     conflict with library name of generic/OperatingSystem provider. 
 
+14. (Denise Eckstein - HP) 14 Apr 2002 - Added compile flags  _REENTRANT and RWSTD_MULTI_THREAD flags for platform_HPUX_PARISC_ACC.
+
 
 ========================================================================
 

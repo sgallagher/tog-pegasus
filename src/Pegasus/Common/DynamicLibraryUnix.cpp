@@ -29,7 +29,7 @@
 
 #include "DynamicLibrary.h"
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 #include <dlfcn.h>
 #elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 #include <dll.h>

@@ -1,6 +1,6 @@
 CHANGE LOG FOR PEGASUS
 
-Version 1.10 - Started 5 April
+Version 1.10 - Started 8 June 2002
 
 Code Freeze in Preperation for V2 Release
 From here forward, We are fixing bugs.

@@ -107,7 +107,7 @@ class InteropTest
 public:
     //InteropTest();
 
-    InteropTest(CIMClient & client);
+    InteropTest();
 
     ~InteropTest();
 
@@ -159,14 +159,22 @@ CIMInstance objectManagerInstance;
 };
 
 
-InteropTest::InteropTest(CIMClient & client)
-    : _client(client)
+InteropTest::InteropTest()
 {
+    try
+    {
+        _client.connectLocal();
+    }
+    catch(Exception& e)
+    {
+        cerr <<" Error: " << e.getMessage() << " Conection terminate abnormal" << endl;
+        exit(1);
+    }
 }
 
 InteropTest::~InteropTest()
 {
-
+    _client.disconnect();
 }
 
 /* Get all namespaces and return as an array
@@ -1470,7 +1478,6 @@ int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
 
-    CIMClient client;
     pgmName = argv[0];
     cout << pgmName << endl;
     if (argc > 1)
@@ -1486,18 +1493,10 @@ int main(int argc, char** argv)
             exit (0);
         }
     }
+    
     try
     {
-        client.connectLocal();
-    }
-    catch(Exception& e)
-    {
-        cerr <<" Error: " << e.getMessage() << " Conection terminate abnormal" << endl;
-        exit(1);
-    }
-    try
-    {
-        InteropTest it(client);
+        InteropTest it;
 
      /* There are three possible commands.
         on - Turns on the status monitor
@@ -1546,8 +1545,6 @@ int main(int argc, char** argv)
         it.testNameSpaceInObjectManagerAssocClass();
 
         it.testCommMechinManagerAssocClass();
-
-        client.disconnect();
     }
 
     // Catch block for all of the CIM_ObjectManager Tests.

@@ -231,6 +231,9 @@ String CQLFunctionRep::functionTypeToString() const
       case STRINGTOREAL:
           returnStr.append("STRINGTOREAL");
           break;
+      case STRINGTONUMERIC:
+          returnStr.append("STRINGTONUMERIC");
+          break;
       case UPPERCASE:
           returnStr.append("UPPERCASE");
           break;
@@ -374,6 +377,8 @@ String CQLFunctionRep::parmTypeToString(const CQLValue::CQLValueType parmType) c
 CQLValue CQLFunctionRep::dateTimeToMicrosecond(const CIMInstance& CI, const QueryContext& queryCtx) const
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLFunctionRep::dateTimeToMicrosecond()");
+  
+  if(_parms.size() != 1)
   {
     char buf[10];
     sprintf(buf, "%d", _parms.size());
@@ -399,10 +404,7 @@ CQLValue CQLFunctionRep::dateTimeToMicrosecond(const CIMInstance& CI, const Quer
   }
 
   PEG_METHOD_EXIT();
-  // TODO:  When Wilis code is in, replace the current dummy return with the following.
-  // return(cqlVal.getDateTime().toMicroseconds())
-  
-   return CQLValue(Uint64(0));
+  return CQLValue(cqlVal.getDateTime().toMicroSeconds());  
 }
 
 CQLValue CQLFunctionRep::stringToUint(const CIMInstance& CI, const QueryContext& queryCtx) const
@@ -556,20 +558,16 @@ CQLValue CQLFunctionRep::numericToString(const CIMInstance& CI, const QueryConte
 
   CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().resolveValue(CI,queryCtx);
   
-//  printf("Parm - %s  Value - %s\n", (const char *)_parms[0].toString().getCString(), (const char *)cqlVal.toString().getCString());
   CQLValue::CQLValueType valType = cqlVal.getValueType();  
   if (valType == CQLValue::Sint64_type)
   {
-    sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", cqlVal.getSint());
+    sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", cqlVal.getSint());
   }
   else if (valType == CQLValue::Uint64_type)
   {
     sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", cqlVal.getUint());
   }
   else if (valType == CQLValue::Real_type)
-    // %.16e gives '[-]m.dddddddddddddddde+/-xx', which seems compatible with the format
-    // given in the CIM/XML spec, and the precision required by the CIM 2.2 spec
-    // (8 byte IEEE floating point)
     sprintf(buffer, "%.16E", cqlVal.getReal());
   else
   {
@@ -580,9 +578,15 @@ CQLValue CQLFunctionRep::numericToString(const CIMInstance& CI, const QueryConte
                              String("Integer or Real"));
     throw CQLRuntimeException(mload);
   }
+  String num(buffer);
+  if (valType == CQLValue::Real_type)
+  {
+    // Remove the '+' character from the exponent
+    num.remove(num.find('+'), 1);
+  }
   
   PEG_METHOD_EXIT();
-   return CQLValue(String(buffer));
+  return CQLValue(num);
 }
 
 CQLValue CQLFunctionRep::referenceToString(const CIMInstance& CI, const QueryContext& queryCtx) const
@@ -601,19 +605,27 @@ CQLValue CQLFunctionRep::referenceToString(const CIMInstance& CI, const QueryCon
   }
 
   CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().resolveValue(CI,queryCtx);
-  if (cqlVal.getValueType() != CQLValue::CIMReference_type)
+  if (cqlVal.getValueType() == CQLValue::CIMReference_type)
+  {
+    PEG_METHOD_EXIT();
+    return CQLValue(cqlVal.getReference().toString());
+  }
+  
+  if (cqlVal.getValueType() == CQLValue::CIMObject_type)
+  {
+    PEG_METHOD_EXIT();
+    return CQLValue(cqlVal.getObject().getPath().toString());
+  }
+  
+  // If it makes it to this block of code, then no valid type was found, and hence no return was made.  Throw invalid parameter type exception.
   {
     MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_TYPE"),
                              String("Function parameter $0 has type $1.  It must be type $2."),
                              String("1"),
                              parmTypeToString(cqlVal.getValueType()),
-                             parmTypeToString(CQLValue::CIMReference_type));
+                             String("Reference, or Object"));
     throw CQLRuntimeException(mload);
   }
-  
-  // references are currently an Object Path    
-  PEG_METHOD_EXIT();
-   return CQLValue(cqlVal.getReference().toString());
 }
 
 CQLValue CQLFunctionRep::className(const CIMInstance& CI, const QueryContext& queryCtx) const
@@ -636,7 +648,7 @@ CQLValue CQLFunctionRep::className(const CIMInstance& CI, const QueryContext& qu
   if (parmSize == 0)
   {
     PEG_METHOD_EXIT();
-    printf("ClassName --> %s\n", (const char *)CI.getClassName().getString().getCString());
+    //printf("ClassName --> %s\n", (const char *)CI.getClassName().getString().getCString());
     return CQLValue(CI.getClassName().getString());
   }
 
@@ -648,7 +660,7 @@ CQLValue CQLFunctionRep::className(const CIMInstance& CI, const QueryContext& qu
   {
     CIMObjectPath objPath(cqlVal.getString());
     PEG_METHOD_EXIT();
-    printf("ClassName --> %s\n", (const char *)objPath.getClassName().getString().getCString());
+    //printf("ClassName --> %s\n", (const char *)objPath.getClassName().getString().getCString());
     return CQLValue(objPath.getClassName().getString());
   }
 
@@ -656,7 +668,7 @@ CQLValue CQLFunctionRep::className(const CIMInstance& CI, const QueryContext& qu
   if (cqlVal.getValueType() == CQLValue::CIMReference_type)
   {
     PEG_METHOD_EXIT();
-    printf("ClassName --> %s\n", (const char *)cqlVal.getReference().getClassName().getString().getCString());
+    //printf("ClassName --> %s\n", (const char *)cqlVal.getReference().getClassName().getString().getCString());
     return CQLValue(cqlVal.getReference().getClassName().getString());
   }
 
@@ -664,7 +676,7 @@ CQLValue CQLFunctionRep::className(const CIMInstance& CI, const QueryContext& qu
   if (cqlVal.getValueType() == CQLValue::CIMObject_type)
   {
     PEG_METHOD_EXIT();
-    printf("ClassName --> %s\n", (const char *)cqlVal.getObject().getClassName().getString().getCString());
+    //printf("ClassName --> %s\n", (const char *)cqlVal.getObject().getClassName().getString().getCString());
     return CQLValue(cqlVal.getObject().getClassName().getString());
   }
 
@@ -703,7 +715,7 @@ CQLValue CQLFunctionRep::nameSpaceName(const CIMInstance& CI, const QueryContext
     if (ns.isNull() || String::equal(ns.getString(), String::EMPTY))
       ns = queryCtx.getNamespace();
     PEG_METHOD_EXIT();
-    printf("Namespace --> %s\n", (const char *)ns.getString().getCString());
+    //printf("Namespace --> %s\n", (const char *)ns.getString().getCString());
     return CQLValue(ns.getString());    
   }
 
@@ -715,7 +727,7 @@ CQLValue CQLFunctionRep::nameSpaceName(const CIMInstance& CI, const QueryContext
   {
     CIMObjectPath objPath(cqlVal.getString());
     PEG_METHOD_EXIT();
-    printf("Namespace --> %s\n", (const char *)objPath.getNameSpace().getString().getCString());
+    //printf("Namespace --> %s\n", (const char *)objPath.getNameSpace().getString().getCString());
     return CQLValue(objPath.getNameSpace().getString());
   }
 
@@ -723,7 +735,7 @@ CQLValue CQLFunctionRep::nameSpaceName(const CIMInstance& CI, const QueryContext
   if (cqlVal.getValueType() == CQLValue::CIMReference_type)
   {
     PEG_METHOD_EXIT();
-    printf("Namespace --> %s\n", (const char *)cqlVal.getReference().getNameSpace().getString().getCString());
+    //printf("Namespace --> %s\n", (const char *)cqlVal.getReference().getNameSpace().getString().getCString());
     return CQLValue(cqlVal.getReference().getNameSpace().getString());
   }
 
@@ -735,7 +747,7 @@ CQLValue CQLFunctionRep::nameSpaceName(const CIMInstance& CI, const QueryContext
     if (ns.isNull() || String::equal(ns.getString(), String::EMPTY))
       ns = queryCtx.getNamespace();
     PEG_METHOD_EXIT();
-    printf("Namespace --> %s\n", (const char *)ns.getString().getCString());
+    //printf("Namespace --> %s\n", (const char *)ns.getString().getCString());
     return CQLValue(ns.getString());
   }
   
@@ -754,8 +766,11 @@ CQLValue CQLFunctionRep::nameSpaceType(const CIMInstance& CI, const QueryContext
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLFunctionRep::nameSpaceType()");
   // This is currently (as of CQL Phase 1, PEP 193) not supported in Pegasus since Pegasus does not yet support WEBM URI references.  Nothing in the current object path can be used to represent the name space type (i.e. the protocol).
-  throw(Exception(String("CQLFunctionRep::nameSpaceType -- Function not supported")));
-  
+  MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
+                           String("Function $0 is not supported."),
+                           functionTypeToString());
+  throw CQLRuntimeException(mload);
+
   int parmSize = _parms.size();
   if(parmSize != 0 && parmSize != 1)
   {
@@ -799,7 +814,7 @@ CQLValue CQLFunctionRep::hostPort(const CIMInstance& CI, const QueryContext& que
   {
     CIMObjectPath objPath(cqlVal.getString());
     PEG_METHOD_EXIT();
-    printf("HostPort -> %s\n", (const char *)objPath.getHost().getCString());
+    //printf("HostPort -> %s\n", (const char *)objPath.getHost().getCString());
     return CQLValue(objPath.getHost());
   }
 
@@ -807,7 +822,7 @@ CQLValue CQLFunctionRep::hostPort(const CIMInstance& CI, const QueryContext& que
   if (cqlVal.getValueType() == CQLValue::CIMReference_type)
   {
     PEG_METHOD_EXIT();
-    printf("HostPort -> %s\n", (const char *)cqlVal.getReference().getHost().getCString());
+    //printf("HostPort -> %s\n", (const char *)cqlVal.getReference().getHost().getCString());
     return CQLValue(cqlVal.getReference().getHost());
   }
 
@@ -815,7 +830,7 @@ CQLValue CQLFunctionRep::hostPort(const CIMInstance& CI, const QueryContext& que
   if (cqlVal.getValueType() == CQLValue::CIMObject_type)
   {
     PEG_METHOD_EXIT();
-    printf("HostPort -> %s\n", (const char *)cqlVal.getObject().getPath().getHost().getCString());
+    //printf("HostPort -> %s\n", (const char *)cqlVal.getObject().getPath().getHost().getCString());
     return CQLValue(cqlVal.getObject().getPath().getHost());
   }
 
@@ -1150,10 +1165,7 @@ CQLValue CQLFunctionRep::currentDateTime() const
   }
 
    PEG_METHOD_EXIT();
-  // TODO:  When Willis code is in, replace the current dummy return with the following.
-  // return(CQLValue(CIMDateTime::getCurrentDateTime()))
-  
-   return CQLValue(Uint64(0));
+   return(CQLValue(CIMDateTime::getCurrentDateTime()));
 }
 
 CQLValue CQLFunctionRep::dateTime(const CIMInstance& CI, const QueryContext& queryCtx) const
@@ -1182,11 +1194,9 @@ CQLValue CQLFunctionRep::dateTime(const CIMInstance& CI, const QueryContext& que
     throw CQLRuntimeException(mload);
   }
 
-    PEG_METHOD_EXIT();
-  // TODO:  When Willis code is in, replace the current dummy return with the following.
-  // return(CQLValue(CIMDateTime(cqlVal.getString()))
-  
-   return CQLValue(Uint64(0));
+  CIMDateTime dt(cqlVal.getString());
+  PEG_METHOD_EXIT();
+  return(CQLValue(dt));
 }
 
 CQLValue CQLFunctionRep::microsecondToTimestamp(const CIMInstance& CI, const QueryContext& queryCtx) const
@@ -1237,10 +1247,8 @@ CQLValue CQLFunctionRep::microsecondToTimestamp(const CIMInstance& CI, const Que
   else
     uIntVal = cqlVal.getUint();
 
-    PEG_METHOD_EXIT();
-  // TODO:  When Willis code is in, replace the current dummy return with the following.
-  // return(CQLValue(CIMDateTime(uIntVal, false))  
-   return CQLValue(Uint64(0));
+  PEG_METHOD_EXIT();
+  return CQLValue(CIMDateTime(uIntVal, false));
 }
 
 CQLValue CQLFunctionRep::microsecondToInterval(const CIMInstance& CI, const QueryContext& queryCtx) const
@@ -1291,10 +1299,8 @@ CQLValue CQLFunctionRep::microsecondToInterval(const CIMInstance& CI, const Quer
   else
     uIntVal = cqlVal.getUint();
 
-    PEG_METHOD_EXIT();
-  // TODO:  When Willis code is in, replace the current dummy return with the following.
-  // return(CQLValue(CIMDateTime(uIntVal, true))  
-   return CQLValue(Uint64(0));
+  PEG_METHOD_EXIT();
+  return CQLValue(CIMDateTime(uIntVal, true));  
 }
 
 PEGASUS_NAMESPACE_END

@@ -104,7 +104,7 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
   if (!isdigit(*p))
   {
      MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_NUM_FORMAT"),
-                              String("String $0 must begin with a decimal character following an optional sign"),
+                              String("String '$0' is badly formed.  It must be of the form; [+][0-9]*"),
                               stringNum);
     throw CQLRuntimeException(mload);    
   }
@@ -146,8 +146,8 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
     if (*p && (*p != 'b') && (*p != 'B'))
     {
       MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_BIN_CHAR"),
-                               String("String $0 has a non-binary digit character"),
-                               stringNum);
+                               String("Character '$0' in string '$1' is not a binary digit."),
+                               String(p, 1), stringNum);
       throw CQLRuntimeException(mload);    
     }
 
@@ -168,7 +168,7 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
     if (!*p)
     {
       MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_HEX_FORMAT"),
-                               String("String $0 needs a hexadecimal digit character following '0x'"),
+                               String("String '$0' needs a hexadecimal digit character following '0x'"),
                                stringNum);
       throw CQLRuntimeException(mload);    
     }
@@ -204,8 +204,8 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
     if (*p)
     {
       MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_HEX_CHAR"),
-                               String("String $0 has a non-hexidecimal digit character"),
-                               stringNum);
+                             String("Character '$0' in string '$1' is not a hexidecimal digit."),
+                             String(p, 1), stringNum);
       throw CQLRuntimeException(mload);    
     }
 
@@ -243,13 +243,13 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
     x = x + newDigit;
   }
 
-// If we found a non-decimal digit, report an error
+  // If we found a non-decimal digit, report an error
   if (*p)
   {
-      MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_DECIMAL_CHAR"),
-                               String("String $0 has a non-decimal digit character $1"),
-                               stringNum, String(p));
-      throw CQLRuntimeException(mload);    
+    MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_DECIMAL_CHAR"),
+                             String("Character '$0' in string '$1' is not a decimal digit."),
+                             String(p, 1), stringNum);
+    throw CQLRuntimeException(mload);    
   }
 
   // return the value for the decimal string
@@ -292,7 +292,7 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
   if (!isdigit(*p))
   {
      MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_NUM_FORMAT"),
-                              String("String $0 must begin with a decimal character following an optional sign"),
+                              String("String '$0' is badly formed.  It must be of the form; [+-][0-9]*"),
                               stringNum);
     throw CQLRuntimeException(mload);    
   }
@@ -339,8 +339,8 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
     if (*p && (*p != 'b') && (*p != 'B'))
     {
       MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_BIN_CHAR"),
-                               String("String $0 has a non-binary digit character"),
-                               stringNum);
+                               String("Character '$0' in string '$1' is not a binary digit."),
+                               String(p, 1), stringNum);
       throw CQLRuntimeException(mload);    
     }
 
@@ -371,11 +371,11 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
     // Skip over the "0x"
     p+=2;
 
-    // At least one hexadecimal digit is required
+    // At least one hexidecimal digit is required
     if (!*p)
     {
       MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_HEX_FORMAT"),
-                               String("String $0 needs a hexadecimal digit character following '0x'"),
+                               String("String '$0' needs a hexidecimal digit character following '0x'"),
                                stringNum);
       throw CQLRuntimeException(mload);    
     }
@@ -407,12 +407,12 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
       x = x - newDigit;
     }
 
-    // If we found a non-hexadecimal digit, report an error
+    // If we found a non-hexidecimal digit, report an error
     if (*p)
     {
       MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_HEX_CHAR"),
-                               String("String $0 has a non-hexidecimal digit character"),
-                               stringNum);
+                             String("Character '$0' in string '$1' is not a hexidecimal digit."),
+                             String(p, 1), stringNum);
       throw CQLRuntimeException(mload);    
     }
 
@@ -468,8 +468,8 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
   if (*p)
   {
     MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_DECIMAL_CHAR"),
-                             String("String $0 has a non-decimal digit character $1"),
-                             stringNum, String(p));
+                             String("Character '$0' in string '$1' is not a decimal digit."),
+                             String(p, 1), stringNum);
     throw CQLRuntimeException(mload);    
   }
 
@@ -565,7 +565,7 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
     if (!isdigit(*p++))
     {
       MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_CHAR_POST_DOT"),
-                               String("String $0 must have a digit character following the decimal point."),
+                               String("String '$0' must have a digit character following the decimal point."),
                                stringNum);
       throw CQLRuntimeException(mload);    
     }
@@ -574,7 +574,6 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
       p++;
 
     // If there is an exponent now:
-
     if (*p)
     {
       // Test exponent:
@@ -582,11 +581,10 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
       if (*p != 'e' && *p != 'E')
       {
         MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_REAL_CHAR"),
-                                 String("String $0 contains an invalid character for a real number."),
-                                 stringNum);
+                                 String("Character '$0' in string '$1` is invalid for a real number."),
+                                 String(p-1, 1), stringNum);
         throw CQLRuntimeException(mload);    
       }
-
       p++;
 
       // Skip optional sign:
@@ -595,12 +593,11 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
         p++;
 
       // One or more digits required:
-
       if (!isdigit(*p++))
       {
         MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_REAL_EXP"),
-                                 String("String $0 must have a digit following the exponent symbol."),
-                                 stringNum);
+                                 String("String '$0' has an badly formed exponent.  It must be of the form [eE][+-][0-9]*..  Character '$1' is invalid."),
+                                 stringNum, String(p, 1));
         throw CQLRuntimeException(mload);    
       }
 
@@ -612,9 +609,8 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
   {
   //  printf("This is char # %d\n", p - pStart);
     MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_DECIMAL_CHAR"),
-                             String("String $0 has a non-decimal digit character $1"),
-                             stringNum,
-                             String(p));
+                             String("Character '$0' in string '$1' is not a decimal digit."),
+                             String(p-1, 1), stringNum);
     throw CQLRuntimeException(mload);    
   }
   //
@@ -632,8 +628,7 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
     throw CQLRuntimeException(mload);    
   }
   PEG_METHOD_EXIT();
-  printf("String %s = %.16e\n", (const char *)stringNum.getCString(), x);
-//  printf("Num %e = \n", x);
+//  printf("String %s = %.16e\n", (const char *)stringNum.getCString(), x);
   return x;
 }
 

@@ -51,6 +51,7 @@
 
 #define PEGASUS_SINT64_MIN (PEGASUS_SINT64_LITERAL(0x8000000000000000))
 #define PEGASUS_UINT64_MAX PEGASUS_UINT64_LITERAL(0xFFFFFFFFFFFFFFFF)
+#define PEGASUS_SINT64_MAX (PEGASUS_SINT64_LITERAL(0x7FFFFFFFFFFFFFFF))
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -78,19 +79,25 @@ void hackInstances(Array<CIMInstance>& instances)
       inst.getProperty(inst.findProperty("InstanceID")).getValue().get(instID);
       if (instID == 1)
       {
+        // The stupid mof compiler loses the negative on floats.
         // PropertyReal32 = -32.0
         inst.removeProperty(inst.findProperty("PropertyReal32"));
         Real32 real32Val = -32.0;        
         inst.addProperty(CIMProperty("PropertyReal32", CIMValue(real32Val)));
+
+        // PropertySint64Lower = -9223372036854775808
+        inst.removeProperty(inst.findProperty("PropertySint64Lower"));
+        Sint64 sint64Val = PEGASUS_SINT64_MIN;        
+        inst.addProperty(CIMProperty("PropertySint64Lower", CIMValue(sint64Val)));
+
+        // PropertySint64Upper = 9223372036854775807
+        inst.removeProperty(inst.findProperty("PropertySint64Upper"));
+        sint64Val = PEGASUS_SINT64_MAX;        
+        inst.addProperty(CIMProperty("PropertySint64Upper", CIMValue(sint64Val)));
       }
       // Then do Instance #2
       else if (instID == 2)
       {
-       // PropertySint64 = -9223372036854775808
-        inst.removeProperty(inst.findProperty("PropertySint64"));
-      //  Sint64 sint64Val = -9223372036854775808;
-        Sint64 sint64Val = PEGASUS_SINT64_MIN;      
-        inst.addProperty(CIMProperty("PropertySint64", CIMValue(sint64Val)));
       }
     }
   }
@@ -659,7 +666,7 @@ void buildEmbeddedObjects(CIMNamespaceName& ns,
   //         property SomeString has a string
   //   
   //   property EmbObjSub has
-  //      instance of CQL_EmbeddedTypePropertyTypes
+  //      instance of CQL_EmbeddedTestPropertyTypes
   //         property InstanceID has value 1001
   //         property TEArray has array of instance of CQL_TestElement
   //             the array elements have InstanceID properties
@@ -878,7 +885,8 @@ int main(int argc, char ** argv)
 
   for(Uint32 i = 0; i < _instances.size(); i++){
     CIMObjectPath op = _instances[i].getPath();
-    op.setHost("somesystem.somecountry.somecompany.com");
+    op.setHost("a.b.com");
+    op.setNameSpace(_ns);
     _instances[i].setPath(op);
   }	
   // setup input stream

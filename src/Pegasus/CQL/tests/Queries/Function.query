@@ -1,12 +1,12 @@
 #############
 # Datetime to microsecond   *** Waiting for Willis' code ***
 #############
-# ** TODO:  put valid value in instance to match
-#select * from CQL_TestPropertyTypes where PropertyUint64 = DATETIMETOMIRCROSECOND(PropertyDateTime)
+select * from CQL_TestPropertyTypes where 63259376185000000 = DATETIMETOMICROSECOND(PropertyDateTime)
+select * from CQL_TestPropertyTypes where 1066666660424123456 = DATETIMETOMICROSECOND(PropertyInterval)
 
-# ** TODO:  put valid string literal to match
-#select * from CQL_TestPropertyTypes where 464235 = DATETIMETOMIRCROSECOND(PropertyDateTime)
-#select * from CQL_TestPropertyTypes where 464235 = DATETIMETOMIRCROSECOND(PropertyInterval)
+# Errors
+select * from CQL_TestPropertyTypes where 464235 = DATETIMETOMICROSECOND()
+select * from CQL_TestPropertyTypes where 464235 = DATETIMETOMICROSECOND(2344)
 
 
 ############
@@ -32,17 +32,13 @@ select * from CQL_TestPropertyTypes where STRINGTOSINT(PropertyStringSint) = -74
 select * from CQL_TestPropertyTypes where STRINGTOREAL(PropertyStringReal) = 98.67
 
 # Test True String to Number conversions
-select * from CQL_TestPropertyTypes where PropertySint64 = STRINGTOSINT('-9223372036854775808')
 select * from CQL_TestPropertyTypes where PropertyReal32 = STRINGTOREAL('-32')
 select * from CQL_TestPropertyTypes where PropertyReal32 = STRINGTOREAL('-32.0')
-select * from CQL_TestPropertyTypes where PropertyReal32 = STRINGTOREAL('-.32')
-select * from CQL_TestPropertyTypes where PropertyReal32 = STRINGTOREAL('.32')
-select * from CQL_TestPropertyTypes where PropertyReal32 = STRINGTOREAL('32.32+E2')
-select * from CQL_TestPropertyTypes where PropertyReal32 = STRINGTOREAL('32.32-e2')
-select * from CQL_TestPropertyTypes where PropertyReal32 = STRINGTOREAL('32.32e2')
+select * from CQL_TestPropertyTypes where PropertyReal32 = STRINGTOREAL('-.32e2')
+select * from CQL_TestPropertyTypes where PropertyReal32 = STRINGTOREAL('-0.32E+02')
 select * from CQL_TestPropertyTypes where PropertyReal32 = STRINGTOREAL('-0x20')
 select * from CQL_TestPropertyTypes where PropertyReal32 = STRINGTOREAL('-00100000b')
-select * from CQL_TestPropertyTypes where PropertyReal32 = STRINGTOREAL('-100000b')
+select * from CQL_TestPropertyTypes where PropertyReal32 = STRINGTOREAL('-100000B')
 select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTONUMERIC('+64')
 select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTONUMERIC('+64.0')
 select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTONUMERIC('+0x40')
@@ -51,6 +47,15 @@ select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTONUMERIC('64')
 select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTONUMERIC('64.0')
 select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTONUMERIC('0x40')
 select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTONUMERIC('1000000b')
+select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTONUMERIC('64.64')
+select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTONUMERIC('646.4e-01')
+select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTONUMERIC('6.464E+01')
+select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTONUMERIC('.6464e2')
+select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTONUMERIC('0.6464e2')
+select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTOREAL('+64.64')
+
+# This comparison wil fail due to precision loss in the Real32
+select * from CQL_TestPropertyTypes where PropertyReal32 = STRINGTOREAL('32.2')
 
 # Test valid boundaries all should be true for string to number conversion
 select * from CQL_TestPropertyTypes where PropertyUint8 = STRINGTOUINT('+255')
@@ -71,23 +76,6 @@ select * from CQL_TestPropertyTypes where PropertySint64Lower = STRINGTOSINT('-1
 select * from CQL_TestPropertyTypes where PropertySint64Upper = STRINGTOSINT('9223372036854775807')
 select * from CQL_TestPropertyTypes where PropertySint64Upper = STRINGTOSINT('0x7fffFFFFffffFFFF')
 select * from CQL_TestPropertyTypes where PropertySint64Upper = STRINGTOSINT('0111111111111111111111111111111111111111111111111111111111111111B')
-select * from CQL_TestPropertyTypes where PropertyReal32NegNormUpper = STRINGTOREAL('-3.4028234663852886E+38')
-select * from CQL_TestPropertyTypes where PropertyReal32NegNormLower = STRINGTOREAL('-1.1754943508222875E-38')
-select * from CQL_TestPropertyTypes where PropertyReal32NegDeNormUpper = STRINGTOREAL('-1.1754942106924411E-38')
-select * from CQL_TestPropertyTypes where PropertyReal32NegDeNormLower = STRINGTOREAL('-1.4012984643248170E-45')
-select * from CQL_TestPropertyTypes where PropertyReal32PosDeNormLower = STRINGTOREAL('1.4012984643248170E-45')
-select * from CQL_TestPropertyTypes where PropertyReal32PosDeNormUpper = STRINGTOREAL('1.1754942106924411E-38')
-select * from CQL_TestPropertyTypes where PropertyReal32PosNormLower = STRINGTOREAL('1.1754943508222875E-38')
-select * from CQL_TestPropertyTypes where PropertyReal32PosNormUpper = STRINGTOREAL('3.4028234663852886E+38')
-select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTOREAL('+64.6464')
-select * from CQL_TestPropertyTypes where PropertyReal64NegNormUpper = STRINGTOREAL('-1.7976931348623157E+308')
-select * from CQL_TestPropertyTypes where PropertyReal64PosNormUpper = STRINGTOREAL('1.7976931348623157E+308')
-
-# These boundaries should be false for string to number
-select * from CQL_TestPropertyTypes where PropertyReal32NegOverflow = STRINGTOREAL('-3.4028235677973365E+38')
-select * from CQL_TestPropertyTypes where PropertyReal32NegUnderflow = STRINGTOREAL('-7.0064923216240861E-46')
-select * from CQL_TestPropertyTypes where PropertyReal32PosUnderflow = STRINGTOREAL('7.0064923216240861E-46')
-select * from CQL_TestPropertyTypes where PropertyReal32PosOverflow = STRINGTOREAL('3.4028235677973365E+38')
 
 # Test Various overflows/underflows for string to number(queries should throw errors)
 select * from CQL_TestPropertyTypes where PropertyUint64 = STRINGTOUINT('18446744073709551616')
@@ -99,10 +87,6 @@ select * from CQL_TestPropertyTypes where PropertySint64Lower = STRINGTOSINT('-1
 select * from CQL_TestPropertyTypes where CQL_TestPropertyTypes.PropertySint64Upper = STRINGTOSINT('9223372036854775808')
 select * from CQL_TestPropertyTypes where PropertySint64Upper = STRINGTOSINT('0x8000000000000000')
 select * from CQL_TestPropertyTypes where PropertySint64Upper = STRINGTOSINT('1000000000000000000000000000000000000000000000000000000000000000B')
-select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTOREAL('-1.7976931348623158E+308')
-select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTOREAL('-2.4703282292062327E-324')
-select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTOREAL('2.4703282292062327E-324')
-select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTOREAL('1.7976931348623158E+308')
 
 # Errors in StringToUint
 select * from CQL_TestPropertyTypes where PropertyUint64 = STRINGTOUINT('32', '33')
@@ -152,89 +136,144 @@ select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTOREAL('32.33E-
 #############
 select * from CQL_TestPropertyTypes where PropertyStringUint = NUMERICTOSTRING(347)
 select * from CQL_TestPropertyTypes where PropertyStringSint = NUMERICTOSTRING(-743)
-select * from CQL_TestPropertyTypes where PropertyStringReal = NUMERICTOSTRING(98.67)
-select * from CQL_TestPropertyTypes where PropertyStringReal = NUMERICTOSTRING(9.867e1)
+select * from CQL_TestPropertyTypes where PropertyStringReal = NUMERICTOSTRING(91.25)
+select * from CQL_TestPropertyTypes where PropertyStringReal = NUMERICTOSTRING(9.125e1)
 select * from CQL_TestPropertyTypes where '255' = NUMERICTOSTRING(PropertyUint8)
 select * from CQL_TestPropertyTypes where '-8' = NUMERICTOSTRING(PropertySint8)
-select * from CQL_TestPropertyTypes where '3.4028234663852886E38' = NUMERICTOSTRING(PropertyReal32PosNormUpper)
-select * from CQL_TestPropertyTypes where '9.867E1' = NUMERICTOSTRING(98.67)
-select * from CQL_TestPropertyTypes where '9.867E1' = NUMERICTOSTRING(PropertyStringReal)
+select * from CQL_TestPropertyTypes where '9.1250000000000000E01' = NUMERICTOSTRING(91.25)
+select * from CQL_TestPropertyTypes where '6.4000000000000000E01' = NUMERICTOSTRING(PropertyReal64)
 
 # Errors
 select * from CQL_TestPropertyTypes where PropertyStringSint = NUMERICTOSTRING(-743, -10)
 select * from CQL_TestPropertyTypes where PropertyStringSint = NUMERICTOSTRING()
 select * from CQL_TestPropertyTypes where PropertyStringSint = NUMERICTOSTRING(PropertyStringUint)
-select * from CQL_TestPropertyTypes where PropertyStringSint = NUMERICTOSTRING('-743')
 
 
 #############
 # ReferenceToString
 #############
+select * FROM CQL_TestPropertyTypes where referencetostring(CQL_TestPropertyTypes) = '//a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2'
 
+# Errors
+select * FROM CQL_TestPropertyTypes where referencetostring() = '//a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2'
+select * FROM CQL_TestPropertyTypes where referencetostring(TestPropertyTypes) = '//a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2'
 
 #############
 # ClassName
 #############
-select * FROM CQL_TestElement where ClassName(ObjectPath('CQL_TestElement')) = 'CQL_TestElement'
-select * FROM CQL_TestElement where ClassName(CQL_TestElement) = ClassName()
-select * FROM CQL_TestElement where ClassName('CQL_TestElement') = 'CQL_TestElements'
+select * FROM CQL_TestPropertyTypes where classname() = 'CQL_TestPropertyTypes'
+select * FROM CQL_TestPropertyTypes where classname(CQL_TestPropertyTypes) = 'CQL_TestPropertyTypes'
+select * FROM CQL_TestPropertyTypes where classname('//a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2') = 'CQL_TestPropertyTypes'
+
+# Errors
+select * FROM CQL_TestPropertyTypes where classname('//a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2') = 'CQL_TestPropertyTypes'
+select * FROM CQL_TestPropertyTypes where classname(TestPropertyTypes) = 'CQL_TestPropertyTypes'
+
+#select * FROM CQL_TestElement where ClassName(ObjectPath('CQL_TestElement')) = 'CQL_TestElement'
+#select * FROM CQL_TestElement where ClassName(CQL_TestElement) = ClassName()
+#select * FROM CQL_TestElement where ClassName('CQL_TestElement') = 'CQL_TestElements'
+
 
 #############
 # nameSpaceName
 #############
-select * FROM CIM_ComputerSystem where NamespaceName(ObjectPath(CIM_ComputerSystem)) = 'root/SampleProvider'
-select * FROM CIM_ComputerSystem where NamespaceName(CIM_ComputerSystem) = NamespaceName()
+select * FROM CQL_TestPropertyTypes where NamespaceName() = 'root/SampleProvider'
+select * FROM CQL_TestPropertyTypes where NamespaceName(CQL_TestPropertyTypes) = 'root/SampleProvider'
+select * FROM CQL_TestPropertyTypes where NamespaceName('//a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2') = 'root/SampleProvider'
+
+# Errors
+select * FROM CQL_TestPropertyTypes where NamespaceName('//a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2') = 'root/SampleProvider'
+select * FROM CQL_TestPropertyTypes where NamespaceName(TestPropertyTypes) = 'root/SampleProvider'
+
+#select * FROM CIM_ComputerSystem where NamespaceName(ObjectPath(CIM_ComputerSystem)) = 'root/SampleProvider'
+#select * FROM CIM_ComputerSystem where NamespaceName(CIM_ComputerSystem) = NamespaceName()
 
 #############
 # nameSpaceType
 #############
 # NOT SUPPORTED
-select * FROM CQL_TestElement where NamespaceType(CQL_TestElement) = 'Function Not supported'
+select * FROM CQL_TestPropertyTypes where NamespaceType() = 'Function Not supported'
 
 #############
 # hostPort
 #############
-select * FROM CQL_TestElement where HostPort(ObjectPath(CQL_TestElement)) = HostPort(CQL_TestElement)
+select * FROM CQL_TestPropertyTypes where HostPort(CQL_TestPropertyTypes) = 'a.b.com'
+select * FROM CQL_TestPropertyTypes where HostPort('//a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2') = 'a.b.com'
+
+# Errors
+select * FROM CQL_TestPropertyTypes where HostPort() = 'a.b.com'
+select * FROM CQL_TestPropertyTypes where HostPort('//a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2') = 'a.b.com'
+select * FROM CQL_TestPropertyTypes where HostPort(TestPropertyTypes) = 'a.b.com'
+
+#select * FROM CQL_TestElement where HostPort(ObjectPath(CQL_TestElement)) = HostPort(CQL_TestElement)
 
 #############
 # modelPath
 #############
-select * FROM CQL_TestElement where ModelPath(CQL_TestElement) = 'CQL_TestPropertyTypes.InstanceId=2'
-select * FROM CQL_TestElement where ModelPath(CQL_TestElement) = Modelpath()
+select * FROM CQL_TestPropertyTypes where ModelPath() = 'CQL_TestPropertyTypes.InstanceId=2'
+select * FROM CQL_TestPropertyTypes where ModelPath(CQL_TestPropertyTypes) = 'CQL_TestPropertyTypes.InstanceId=2'
+select * FROM CQL_TestPropertyTypes where ModelPath('//a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2') = 'CQL_TestPropertyTypes.InstanceId=2'
+
+# Errors
+select * FROM CQL_TestPropertyTypes where ModelPath('//a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2') = 'CQL_TestPropertyTypes.InstanceId=2'
+select * FROM CQL_TestPropertyTypes where ModelPath(TestPropertyTypes) = 'CQL_TestPropertyTypes.InstanceId=2'
+
+#select * FROM CQL_TestElement where ModelPath(CQL_TestElement) = 'CQL_TestPropertyTypes.InstanceId=2'
+#select * FROM CQL_TestElement where ModelPath(CQL_TestElement) = Modelpath()
 
 #############
 # classPath
 #############
-select * FROM CQL_TestElement where ClassPath(CQL_TestElement) = ClassPath(CQL_TestElement)
-select * FROM CQL_TestElement where ClassPath(CQL_TestElement) = ClassPath()
+#select * FROM CQL_TestElement where ClassPath(CQL_TestElement) = ClassPath(CQL_TestElement)
+#select * FROM CQL_TestElement where ClassPath(CQL_TestElement) = ClassPath()
 
 #############
 # objectPath
 #############
-select * FROM CQL_TestElement where ObjectPath(CQL_TestElement) = ObjectPath(CQL_TestElement)
-select * FROM CQL_TestElement where ObjectPath() = ObjectPath(CQL_TestElement)
+#select * FROM CQL_TestElement where ObjectPath(CQL_TestElement) = ObjectPath(CQL_TestElement)
+#select * FROM CQL_TestElement where ObjectPath() = ObjectPath(CQL_TestElement)
 
 #############
 # instanceToReference
 #############
-select * FROM CQL_TestElement where InstanceToReference() = InstanceToReference(CQL_TestElement)
-select * FROM CQL_TestElement where InstanceToReference() = InstanceToReference()
+#select * FROM CQL_TestElement where InstanceToReference() = InstanceToReference(CQL_TestElement)
+#select * FROM CQL_TestElement where InstanceToReference() = InstanceToReference()
 
 #############
 # currentDateTime
 #############
 
+select * FROM CQL_TestPropertyTypes where CURRENTDATETIME() > PropertyDateTime
+
+# Invalid to pass a parm
+select * FROM CQL_TestPropertyTypes where CURRENTDATETIME('0') > PropertyDateTime
 
 #############
 # dateTime
 #############
+select * FROM CQL_TestPropertyTypes where DATETIME('20040811105625.000000-360') = PropertyDateTime
+
+# Errors
+select * FROM CQL_TestPropertyTypes where DATETIME('2004081110562') = PropertyDateTime
+select * FROM CQL_TestPropertyTypes where DATETIME('') = PropertyDateTime
+select * FROM CQL_TestPropertyTypes where DATETIME() = PropertyDateTime
+select * FROM CQL_TestPropertyTypes where DATETIME(54) = PropertyDateTime
 
 
 #############
 # microsecondToTimestamp
 #############
+select * FROM CQL_TestPropertyTypes where MICROSECONDTOTIMESTAMP(63259376185000000) = PropertyDateTime
 
+# Errors
+select * FROM CQL_TestPropertyTypes where MICROSECONDTOTIMESTAMP('63259370000') = PropertyDateTime
+select * FROM CQL_TestPropertyTypes where MICROSECONDTOTIMESTAMP() = PropertyDateTime
 
 #############
 # microsecondToInterval
 #############
+select * FROM CQL_TestPropertyTypes where MICROSECONDTOINTERVAL(1066666660424123456) = PropertyInterval
+
+# Errors
+select * FROM CQL_TestPropertyTypes where MICROSECONDTOINTERVAL('1023456') = PropertyInterval
+select * FROM CQL_TestPropertyTypes where MICROSECONDTOINTERVAL() = PropertyInterval

@@ -1,0 +1,1 @@
+select * FROM CIM_RunningOS where referencetostring(Dependent) = '//a.b.com/root/SampleProvider:CIM_ComputerSystem.CreationClassName="CIM_RunningOS",Name="sysName"'

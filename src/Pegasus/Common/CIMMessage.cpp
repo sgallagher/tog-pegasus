@@ -26,8 +26,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <iostream>
 #include "CIMMessage.h"
 
 PEGASUS_USING_STD;

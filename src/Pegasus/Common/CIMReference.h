@@ -460,6 +460,7 @@ public:
         CIMReference r1;
         r1.sethost("fred-8888");
         </PRE>
+        Note that Pegasus does no checking on valid host names.
     */
     void setHost(const String& host)
     {
@@ -478,10 +479,7 @@ public:
 	@param String representing the Namespace. The functions tests for
 	a legal name.
 	@exception Throws IllegalName if form of the namespace is illegal.
-	A CIM name must match the following regular expression:
-	<PRE>
-	   [A-Z-a-z_][A-Za-z_0-9]*
-        </PRE>
+	Pegasus does a limited check on name
     */
     void setNameSpace(const String& nameSpace);
 
@@ -492,9 +490,13 @@ public:
     }
 
     /** Sets the classname component of the CIMReference object to the input
-    parameter.
+        parameter.
         @param className String containing the className.
 	@exception Throws IllegalName if form of className is illegal.
+	A CIM name must match the following regular expression:
+	<PRE>
+	   [A-Z-a-z_][A-Za-z_0-9]*
+        </PRE>
     */
     void setClassName(const String& className);
 

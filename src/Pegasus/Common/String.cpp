@@ -43,12 +43,13 @@ PEGASUS_NAMESPACE_BEGIN
 
 const String String::EMPTY;
 
-//ATTN: KS 4 Feb 2002 - The following never referenced on in header
+#if 0    // Apparently dead code
 static inline void _SkipWhitespace(const Char16*& p)
 {
     while (*p && isspace(*p))
         p++;
 }
+#endif
 
 inline Uint32 StrLen(const char* str)
 {
@@ -401,8 +402,12 @@ Uint32 String::find(const String& s) const
     return PEG_NOT_FOUND;
 }
 
-// ATTN:KS 5 apr 2000 Need to add the Char16* version.
 Uint32 String::find(const char* s) const
+{
+    return find(String(s));
+}
+
+Uint32 String::find(const Char16* s) const
 {
     return find(String(s));
 }

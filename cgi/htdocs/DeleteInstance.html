@@ -1,4 +1,15 @@
 <html>
+<head>
+<script>
+	function rTrim(tempStr){
+                     while( tempStr.lastIndexOf(' ') == tempStr.length-1 && tempStr.length > 0 )
+                     { 
+                         tempStr = tempStr.substring(0,tempStr.length-1) 
+                     }
+                     document.DeleteInstance.InstanceName.value = tempStr;
+	}
+</script>
+</head>
   <body bgcolor="#CCCCCC">
     <table width="100%">
       <tr>
@@ -21,7 +32,7 @@
       <p><b>NameSpace</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <INPUT TYPE="text" NAME="NameSpace" SIZE=30
       VALUE="root/cimv2">
       String that defines the target namespace. See <a
-      href="getnamespaces.html">NameSpace
+      href="enumeratenamespaces.html">NameSpace
       Operations</a> for more information
 
       <p><b><a href="#InstanceName">InstanceName</a></b> <INPUT TYPE="text"
@@ -30,7 +41,7 @@
       href="EnumerateInstanceNames.html">Enumerate
       Instance Names</a> for instance names for a class
 
-      <p><INPUT TYPE="submit" VALUE="Submit Request">
+      <p><INPUT TYPE="submit" VALUE="Submit Request" onClick="rTrim(document.DeleteInstance.InstanceName.value);">
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       &nbsp;&nbsp;&nbsp;&nbsp; <INPUT TYPE="reset" VALUE="Reset Form">
 

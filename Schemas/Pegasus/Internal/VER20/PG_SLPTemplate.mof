@@ -15,11 +15,11 @@ class PG_WBEMSLPTemplate {
    [key, Description ("Unique key for the instances of this class") ]
    string InstanceID;
    
-   [Description ("Template type parameter. Should be the default below
+   [Description ("Template type parameter. Should be the default below"
    "and should not be modified in the instances.") ]
    string template_type="wbem";
 
-   [Description ("This version of the template. This should not be modified
+   [Description ("This version of the template. This should not be modified"
    "by the instances and should reflect the template version used")]
    string template_version="1.0";
    

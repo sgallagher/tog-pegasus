@@ -123,8 +123,10 @@ CIMObjectPath SubscriptionRepository::createInstance (
     }                                   
     // l10n -end
 
-    if (instance.getClassName ().equal 
-        (PEGASUS_CLASSNAME_INDSUBSCRIPTION))
+    if ((instance.getClassName ().equal
+        (PEGASUS_CLASSNAME_INDSUBSCRIPTION)) ||
+        (instance.getClassName ().equal
+        (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION)))
     {
         //
         //  Set Time of Last State Change to current date time

@@ -1,6 +1,9 @@
 /* PegasusDoc.dxx - Top Level file for Developer Documentation.
 This file defines the document strucuture and provides the introduction
 	$Log: PegasusDoc.dxx,v $
+	Revision 1.10  2001/02/20 14:06:05  karl
+	name changes
+	
 	Revision 1.9  2001/02/19 21:48:40  karl
 	CIMxx Class and file name chages
 	
@@ -36,8 +39,9 @@ This file defines the document strucuture and provides the introduction
 <STRONG><B>Welcome to PEGASUS</B></STRONG>
 
 <P><B>DRAFT FOR REVIEW</B>
-<P>Version 1.5, 01/02/02</P>
-<P>Version 1.6  01/04/02 - Clean up the API defintions. and Add repository section.
+<P>Version 0.5, 01/02/02</P>
+<P>Version 0.6  01/04/02 - Clean up the API defintions. and Add repository section.
+<P>Version 0.7  02/20/02 - Change Class names, Add definitions, Add Architecture documentation.
 
 Pegasus is an open source implementation of the manageability environment defined by the DMTF WBEM standards.
 

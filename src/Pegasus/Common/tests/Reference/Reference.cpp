@@ -9,18 +9,25 @@ using namespace std;
 void test01()
 {
     {
-    String op;
-    op = "//atp:77/root/cimv25:TennisPlayer.first=\"Patrick\",last=\"Rafter\"";
-    CIMReference r = op;
-    assert(op == r.toObjectPath());
+    String on1;
+    on1 = "//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\",first=\"Patrick\"";
+
+    String on2;
+    on2 = "//atp:77/root/cimv25:TennisPlayer.first=\"Patrick\",last=\"Rafter\"";
+
+    CIMReference r = on1;
+    assert(r.toString() != on1);
+    assert(r.toString() == on2);
+
+    // cout << "HASH KEY: " << r.makeHashKey() << endl;
     }
 
     {
     CIMReference r1 = "MyClass.z=true,y=1234,x=\"Hello World\"";
     CIMReference r2 = "myclass.X=\"Hello World\",Z=true,Y=1234";
     CIMReference r3 = "myclass.X=\"Hello\",Z=true,Y=1234";
-    // cout << r1.toObjectPath() << endl;
-    // cout << r2.toObjectPath() << endl;
+    // cout << r1.toString() << endl;
+    // cout << r2.toString() << endl;
     assert(r1 == r2);
     assert(r1 != r3);
     }

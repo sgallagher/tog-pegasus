@@ -584,13 +584,13 @@ public:
     BadlyFormedCGIQueryString() : Exception(MSG) { }
 };
 
-class PEGASUS_COMMON_LINKAGE IllformedObjectPath : public Exception
+class PEGASUS_COMMON_LINKAGE IllformedObjectName : public Exception
 {
 public:
 
     static const char MSG[];
 
-    IllformedObjectPath(const String& instanceName)
+    IllformedObjectName(const String& instanceName)
 	: Exception(MSG + instanceName) { }
 };
 

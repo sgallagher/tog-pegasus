@@ -28,6 +28,7 @@
 #ifndef Pegasus_Reference_h
 #define Pegasus_Reference_h
 
+#include <iostream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/String.h>
@@ -35,6 +36,8 @@
 #include <Pegasus/Common/Exception.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+class CIMReference;
 
 /** The KeyBinding class associates a key name, value, and type. 
     It is used by the reference class to represent key bindings.
@@ -44,7 +47,7 @@ class PEGASUS_COMMON_LINKAGE KeyBinding
 {
 public:
 
-    enum CIMType { BOOLEAN, STRING, NUMERIC };
+    enum Type { BOOLEAN, STRING, NUMERIC };
 
     /** Default constructor */
     KeyBinding();
@@ -53,7 +56,7 @@ public:
     KeyBinding(const KeyBinding& x);
 
     /** Construct a KeyBinding with a name, value, and type */
-    KeyBinding(const String& name, const String& value, CIMType type);
+    KeyBinding(const String& name, const String& value, Type type);
 
     /** Destructor */
     ~KeyBinding();
@@ -86,13 +89,13 @@ public:
     }
 
     /** Accessor */
-    CIMType getType() const 
+    Type getType() const 
     { 
 	return _type; 
     }
 
     /** Modifier */
-    void setType(CIMType type) 
+    void setType(Type type) 
     { 
 	_type = type; 
     }
@@ -100,15 +103,16 @@ public:
     /** Converts the given type to one of the following: 
 	"boolean", "string", or "numeric" 
     */
-    static const char* typeToString(CIMType type);
+    static const char* typeToString(Type type);
 
 private:
 
     String _name;
     String _value;
-    CIMType _type;
+    Type _type;
 
     friend Boolean operator==(const KeyBinding& x, const KeyBinding& y);
+    friend CIMReference;
 };
 
 inline Boolean operator==(const KeyBinding& x, const KeyBinding& y)
@@ -317,7 +321,7 @@ class XmlWriter;
     more easily. This means that when the string is converted back to 
     string (by calling toString()) that the keys may have been rearranged.
 
-    There are two forms an object path can take:
+    There are two forms an object name can take:
 
     <pre>
     &lt;namespace-path&gt;:&lt;model-path&gt;
@@ -335,7 +339,7 @@ class XmlWriter;
     If it begins with "//" then we assume the namespace-path is present and
     process it that way.
 
-    It should also be noted that an object path may refer to an instance or
+    It should also be noted that an object name may refer to an instance or
     a class. Here is an example of each:
 
     <pre>
@@ -356,8 +360,8 @@ public:
     /** Copy constructor. */
     CIMReference(const CIMReference& x);
 
-    /** Initializes this object from a CIM object path. */
-    CIMReference(const String& objectPath);
+    /** Initializes this object from a CIM object name. */
+    CIMReference(const String& objectName);
 
     /** Constructs a CIMReference from constituent elements.
 	@param host - name of host (e.g., "nemesis-8888").
@@ -393,13 +397,13 @@ public:
 	const String& className, 
 	const KeyBindingArray& keyBindings = KeyBindingArray());
 
-    /** Set the reference from an object path. */
-    void set(const String& objectPath);
+    /** Set the reference from an object name . */
+    void set(const String& objectName);
 
     /** Same as set() above except that it is an assignment operator */
-    CIMReference& operator=(const String& objectPath)
+    CIMReference& operator=(const String& objectName)
     {
-	set(objectPath);
+	set(objectName);
 	return *this;
     }
 
@@ -447,8 +451,8 @@ public:
     /** Modifier. */
     void setKeyBindings(const Array<KeyBinding>& keyBindings);
 
-    /** Returns the object path represented by this reference. */
-    String toObjectPath() const;
+    /** Returns the object name represented by this reference. */
+    String toString() const;
 
     /** Returns true if this reference is identical to the one given
 	by the x argument.
@@ -463,6 +467,22 @@ public:
     /** Prints the XML encoding of this objet.
     */
     void print(std::ostream& os = std::cout) const;
+
+    /** Generates a unique string that may be safely used as a hash key.
+	Note that the following object names are identical although they
+	have subtle differences in case:
+
+	<pre>
+	MyClass.z=true,y=1234,x=\"Hello World\";
+	myclass.X=\"Hello World\",Z=true,Y=1234;
+	</pre>
+
+	For example, the case of the class name is different; although, in
+	CIM these class names are identical. So this function generates
+	a string in which the class name and key names are all shifted to
+	lower case. And the properties are sorted in ascending order.
+    */
+    String makeHashKey() const;
 
 private:
 
@@ -490,6 +510,11 @@ inline Boolean operator==(const CIMReference& x, const CIMReference& y)
 inline Boolean operator!=(const CIMReference& x, const CIMReference& y)
 {
     return !operator==(x, y);
+}
+
+inline std::ostream& operator<<(std::ostream& os, const CIMReference& x)
+{
+    return os << x.toString() << std::endl;
 }
 
 PEGASUS_NAMESPACE_END

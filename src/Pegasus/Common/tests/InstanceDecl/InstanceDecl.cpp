@@ -92,12 +92,12 @@ void test02()
     cimInstance.addProperty(CIMProperty("last", "Smith"));
     cimInstance.addProperty(CIMProperty("age", Uint8(101)));
 
-    // ATTN-1: ugly! Should we get rid of Const types?
-    String instanceName = cimInstance.getInstanceName(CIMConstClass(cimClass));
+    CIMReference instanceName 
+	= cimInstance.getInstanceName(CIMConstClass(cimClass));
 
     const char EXPECT[] = "myclass.age=101,first=\"John\",last=\"Smith\"";
 
-    assert(String::equal(instanceName, EXPECT));
+    assert(String::equal(instanceName.makeHashKey(), EXPECT));
 }
 
 int main()

@@ -104,7 +104,7 @@ class PEGASUS_COMPILER_LINKAGE modelPath {
   modelPath(const String &classname, const String &keyString);
   modelPath(const String &classname, const KeyBindingArray&bindings);
   ~modelPath();
-  static KeyBinding::CIMType KeyBindingTypeOf(const String &s);
+  static KeyBinding::Type KeyBindingTypeOf(const String &s);
   const String &Stringrep() { return modelPathComponentsToRep(); }
   const String &className() { return _className; }
   const String &keyString() { return KeyBindingsToKeyString(); }

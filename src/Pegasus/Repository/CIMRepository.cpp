@@ -559,12 +559,9 @@ CIMInstance CIMRepository::getInstance(
 
     // ATTN-A: Need to put instance name in standard form:
 
-    String tmp;
-    CIMReference::referenceToInstanceName(instanceName, tmp);
+    String hashKey = instanceName.makeHashKey();
 
-OUT(tmp);
-
-    if (!InstanceIndexFile::lookup(indexPath, tmp, index))
+    if (!InstanceIndexFile::lookup(indexPath, hashKey, index))
 	throw CIMException(CIMException::FAILED);
 
     // Form the path to the instance file:
@@ -651,7 +648,9 @@ void CIMRepository::createInstance(
     // Get the instance name from the new instance:
     // ATTN-1: Why is this necessary?
 
-    String instanceName = newInstance.getInstanceName(cimClass);
+    CIMReference instanceName = newInstance.getInstanceName(cimClass);
+
+    String hashKey = instanceName.makeHashKey();
 
     // Get the instance-name and create an entry
 
@@ -662,7 +661,7 @@ void CIMRepository::createInstance(
 
     Uint32 index;
 
-    if (!InstanceIndexFile::insert(indexPath, instanceName, index))
+    if (!InstanceIndexFile::insert(indexPath, hashKey, index))
 	throw CIMException(CIMException::FAILED);
 
     // Save the instance to file:

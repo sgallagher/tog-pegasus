@@ -127,7 +127,7 @@ modelPath::modelPath(const String &rep, const KeyBindingArray &kba) {
 modelPath::~modelPath() {
 }
 
-KeyBinding::CIMType
+KeyBinding::Type
 modelPath::KeyBindingTypeOf(const String &s)
 {
   Char16 c = s[0];
@@ -153,7 +153,7 @@ void
 modelPath::modelPathRepToComponents(const String &rep) {
   KeyBinding kb;
   String keyname;
-  KeyBinding::CIMType kbtype = KeyBinding::STRING;
+  KeyBinding::Type kbtype = KeyBinding::STRING;
   String keyvalue;
   Uint32 n = rep.getLength();
   enum _states{BEGIN, INCLASS, KEYBEGIN, INKEYNAME, KEYVALBEGIN,
@@ -264,7 +264,7 @@ modelPath::KeyBindingsToKeyString()
   for (Uint32 i = 0; i < numkeys; i++) {
     const KeyBinding &kb = _KeyBindings[i];
     const String &keyname = kb.getName();
-    KeyBinding::CIMType keytype = kb.getType();
+    KeyBinding::Type keytype = kb.getType();
     const String &keyvalue = kb.getValue();
     if (i)
       stringrep += ",";

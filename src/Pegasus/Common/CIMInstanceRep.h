@@ -109,7 +109,7 @@ public:
 	return new CIMInstanceRep(*this);
     }
 
-    String getInstanceName(const CIMConstClass& cimClass) const;
+    CIMReference getInstanceName(const CIMConstClass& cimClass) const;
 
 private:
 

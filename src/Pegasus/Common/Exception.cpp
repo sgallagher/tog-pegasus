@@ -147,7 +147,7 @@ const char IncompatibleTypes::MSG[] = "incompatible types";
 
 const char BadlyFormedCGIQueryString::MSG[] = "badly formed CGI query string";
 
-const char IllformedObjectPath::MSG[] = "illformed object path: ";
+const char IllformedObjectName::MSG[] = "illformed object name: ";
 
 const char DynamicLoadFailed::MSG[] = "load of dynamic library failed: ";
 

@@ -2,6 +2,10 @@
 				TO-DO List
 				==========
 
+    - 	Propagate error messages back in CIM/HTTP requests (right now the
+	static error messages are propagated; it would be nice to have
+	the original error string to give more information).
+
     -	Be sure that namespaces are limited to be CIM names (as given in
 	Names.h).
 

@@ -1027,11 +1027,7 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 	Array<String> tmpInstanceNames;
 
 	for (Uint32 i = 0; i < instanceNames.getSize(); i++)
-	{
-	    String tmp;
-	    CIMReference::referenceToInstanceName(instanceNames[i], tmp);
-	    tmpInstanceNames.append(tmp);
-	}
+	    tmpInstanceNames.append(instanceNames[i].toString());
 
 	// Print the name array
 	PrintInstanceNames(
@@ -1068,7 +1064,7 @@ static void GetInstance(const CGIQueryString& qs)
     CIMReference referenceName;
     try
     {
-    CIMReference::instanceNameToReference(tmp,referenceName);
+	referenceName = tmp;
     }
     catch(Exception& e)
     {
@@ -1163,8 +1159,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
     // Convert instanceName to referenceName
     try
     {
-	CIMReference::instanceNameToReference(
-	    inputInstanceName,referenceName);
+	referenceName = inputInstanceName;
     }
     catch(Exception& e)
     {
@@ -1325,7 +1320,7 @@ static void DeleteNameSpace(const CGIQueryString& qs)
     CIMReference referenceName;
     try
     {
-	CIMReference::instanceNameToReference(instanceName,referenceName);
+	referenceName = instanceName;
     }
     catch(Exception& e)
     {
@@ -1390,12 +1385,9 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
 
 	// Convert from CIMReference to String form
 	Array<String> tmpInstanceNames;
+
         for (Uint32 i = 0; i < instanceNames.getSize(); i++)
-	{
-	    String tmp;
-	    CIMReference::referenceToInstanceName(instanceNames[i], tmp);
-	    tmpInstanceNames.append(tmp);
-	}
+	    tmpInstanceNames.append(instanceNames[i].toString());
 
 	// Print the name array
 	PrintHTMLHead("EnumerateNameSpaces", "Enumerate NameSpaces Result");

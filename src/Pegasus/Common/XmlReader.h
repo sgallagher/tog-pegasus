@@ -221,21 +221,21 @@ public:
 	String& className,
 	Boolean required = false);
 
-    static KeyBinding::CIMType getValueTypeAttribute(
+    static KeyBinding::Type getValueTypeAttribute(
 	Uint32 lineNumber, 
 	const XmlEntry& entry,
 	const char* elementName);
 
     static Boolean getKeyValueElement(
 	XmlParser& parser,
-	KeyBinding::CIMType& type,
+	KeyBinding::Type& type,
 	String& value);
 
     static Boolean getKeyBindingElement(
 	XmlParser& parser,
 	String& name,
 	String& value,
-	KeyBinding::CIMType& type);
+	KeyBinding::Type& type);
 
     static Boolean getInstanceNameElement(
 	XmlParser& parser,

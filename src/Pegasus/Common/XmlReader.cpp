@@ -1680,7 +1680,7 @@ Boolean XmlReader::getClassNameElement(
 //
 //------------------------------------------------------------------------------
 
-KeyBinding::CIMType XmlReader::getValueTypeAttribute(
+KeyBinding::Type XmlReader::getValueTypeAttribute(
     Uint32 lineNumber, 
     const XmlEntry& entry,
     const char* elementName)
@@ -1722,7 +1722,7 @@ KeyBinding::CIMType XmlReader::getValueTypeAttribute(
 
 Boolean XmlReader::getKeyValueElement(
     XmlParser& parser,
-    KeyBinding::CIMType& type,
+    KeyBinding::Type& type,
     String& value)
 {
     XmlEntry entry;
@@ -1768,7 +1768,7 @@ Boolean XmlReader::getKeyBindingElement(
     XmlParser& parser,
     String& name,
     String& value,
-    KeyBinding::CIMType& type)
+    KeyBinding::Type& type)
 {
     XmlEntry entry;
 
@@ -1817,7 +1817,7 @@ Boolean XmlReader::getInstanceNameElement(
     if (!empty)
     {
 	String name;
-	KeyBinding::CIMType type;
+	KeyBinding::Type type;
 	String value;
 
 	while (getKeyBindingElement(parser, name, value, type))

@@ -48,11 +48,7 @@ int main(int argc, char** argv)
 	    client.enumerateInstanceNames(NAMESPACE, "Process");
 
 	for (Uint32 i = 0; i < instanceNames.getSize(); i++)
-	{
-	    String tmp;
-	    CIMReference::referenceToInstanceName(instanceNames[i], tmp);
-	    cout << tmp << endl;
-	}
+	    cout << instanceNames[i] << endl;
     }
     catch(Exception& e)
     {

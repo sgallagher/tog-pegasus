@@ -79,8 +79,7 @@ public:
    {
        cout << "__NamespaceProvider::getInstance() called" << endl;
 
-       String tmp;
-       CIMReference::referenceToInstanceName(instanceName, tmp);
+       String tmp = instanceName.toString();
        cout << "instanceName=" << tmp << endl;
 
        CIMInstance instance("__Namespace");
@@ -195,8 +194,7 @@ public:
 	   for (Uint32 i = 0; i < instanceName.getSize(); i++)
 	   {
 		// Convert instance names to References
-	       CIMReference::instanceNameToReference(instanceName[i], ref);
-	       instanceRefs.append(ref);
+	       instanceRefs.append(instanceName[i]);
 	   }
        }
        catch(Exception& e)

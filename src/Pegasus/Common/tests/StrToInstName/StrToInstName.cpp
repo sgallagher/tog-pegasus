@@ -34,16 +34,8 @@ using namespace std;
 void test(const String& instanceName)
 {
 
-    CIMReference reference;
-    CIMReference::instanceNameToReference(instanceName, reference);
-
-    String tmpInstanceName;
-    CIMReference::referenceToInstanceName(reference, tmpInstanceName);
-
-    // cout << "instanceName[" << instanceName << "]" << endl;
-    // cout << "tmpInstanceName[" << tmpInstanceName << "]" << endl;
-
-    assert(String::equal(instanceName, tmpInstanceName));
+    CIMReference reference = instanceName;
+    assert(instanceName == reference.toString());
 }
 
 int main()

@@ -325,6 +325,10 @@ public:
     */
     Uint32 reverseFind(Char16 c) const;
 
+    /** Converts all characters in this string to lower case.
+    */
+    void toLower();
+
     /** Compare the first n characters of the two strings. 
     	@param s1 - First null-terminated string for the comparison
 	@param s2 - Second null-terminated string for the comparison

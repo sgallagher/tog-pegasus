@@ -345,7 +345,7 @@ public:
 	is all lowercase; the keys-value pairs appear in sorted order by
 	key name).
     */
-    String getInstanceName(const CIMConstClass& cimClass) const
+    CIMReference getInstanceName(const CIMConstClass& cimClass) const
     {
 	_checkRep();
 	return _rep->getInstanceName(cimClass);
@@ -492,7 +492,7 @@ public:
 	return CIMInstance(_rep->clone());
     }
 
-    String getInstanceName(const CIMConstClass& cimClass) const
+    CIMReference getInstanceName(const CIMConstClass& cimClass) const
     {
 	_checkRep();
 	return _rep->getInstanceName(cimClass);

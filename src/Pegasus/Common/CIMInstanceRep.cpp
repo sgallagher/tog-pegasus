@@ -274,32 +274,34 @@ void CIMInstanceRep::print(std::ostream &os) const
     os << tmp.getData() << std::endl;
 }
 
-String CIMInstanceRep::getInstanceName(const CIMConstClass& cimClass) const
+CIMReference CIMInstanceRep::getInstanceName(
+    const CIMConstClass& cimClass) const
 {
-    // ATTN-A: should we disallow keys on arrays and reals?
+    //--------------------------------------------------------------------------
+    // Get class name:
+    //--------------------------------------------------------------------------
 
-    // First append the class name:
+    String className = getClassName();
 
-    String instanceName = ToLower(getClassName());
-    instanceName.append('.');
-
-    // Form the key-value pairs:
+    //--------------------------------------------------------------------------
+    // Get key names:
+    //--------------------------------------------------------------------------
 
     Array<String> keyNames;
     cimClass.getKeyNames(keyNames);
 
     if (keyNames.getSize() == 0)
-	return String();
+	return CIMReference();
 
-    // Sort the key names:
+    //--------------------------------------------------------------------------
+    // Get type and value for each key (building up key bindings):
+    //--------------------------------------------------------------------------
 
-    BubbleSort(keyNames);
-
-    // Append key value pairs to the instance-name:
+    KeyBindingArray keyBindings;
 
     for (Uint32 i = 0, n = keyNames.getSize(); i < n; i++)
     {
-	const String keyName = ToLower(keyNames[i]);
+	const String& keyName = keyNames[i];
 
 	Uint32 pos = findProperty(keyName);
 	PEGASUS_ASSERT(pos != Uint32(-1));
@@ -315,30 +317,43 @@ String CIMInstanceRep::getInstanceName(const CIMConstClass& cimClass) const
 		PEGASUS_ASSERT(false);
 
 	    CIMType type = value.getType();
+	    String valueStr = value.toString();
 
-	    // ATTN-A: throw an actual exception:
-	    if (type == CIMType::REAL32 || type == CIMType::REAL64)
-		PEGASUS_ASSERT(false);
+	    KeyBinding::Type kbType;
 
-	    instanceName.append(keyName);
-	    instanceName.append('=');
+	    switch (type)
+	    {
+		case CIMType::BOOLEAN: 
+		    kbType = KeyBinding::BOOLEAN;
+		    break;
 
-	    String str = value.toString();
+		case CIMType::UINT8:
+		case CIMType::SINT8:
+		case CIMType::UINT16:
+		case CIMType::SINT16:
+		case CIMType::UINT32:
+		case CIMType::SINT32:
+		case CIMType::UINT64:
+		case CIMType::SINT64:
+		case CIMType::CHAR16:
+		    kbType = KeyBinding::NUMERIC;
+		    break;
 
-	    if (type == CIMType::STRING)
-		instanceName.append('"');
+		case CIMType::STRING:
+		case CIMType::DATETIME:
+		    kbType = KeyBinding::STRING;
+		    break;
+		
+		case CIMType::REAL32:
+		case CIMType::REAL64:
+		    PEGASUS_ASSERT(false);
+	    }
 
-	    instanceName.append(str);
-	    
-	    if (type == CIMType::STRING)
-		instanceName.append('"');
-
-	    if (i + 1 != n)
-		instanceName.append(',');
+	    keyBindings.append(KeyBinding(keyName, valueStr, kbType));
 	}
     }
 
-    return instanceName;
+    return CIMReference(String(), String(), className, keyBindings);
 }
 
 PEGASUS_NAMESPACE_END

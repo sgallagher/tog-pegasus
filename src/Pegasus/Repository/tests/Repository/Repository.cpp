@@ -69,6 +69,10 @@ void test01()
 
 void test02()
 {
+    //--------------------------------------------------------------------------
+    // Create repository:
+    //--------------------------------------------------------------------------
+
     CIMRepository r(".");
 
     const String NAMESPACE = "aa/bb";
@@ -82,6 +86,10 @@ void test02()
 	// Ignore this!
     }
 
+    //--------------------------------------------------------------------------
+    // Create Class (ThisClass):
+    //--------------------------------------------------------------------------
+
     CIMClass cimClass("ThisClass");
 
     cimClass
@@ -94,47 +102,28 @@ void test02()
 
     r.createClass(NAMESPACE, cimClass);
 
+    //--------------------------------------------------------------------------
+    // Create Instance (of ThisClass):
+    //--------------------------------------------------------------------------
 
     CIMInstance cimInstance("ThisClass");
     cimInstance.addProperty(CIMProperty("Last", "Smith"));
     cimInstance.addProperty(CIMProperty("First", "John"));
     cimInstance.addProperty(CIMProperty("Age", Uint8(101)));
-    String instanceName = cimInstance.getInstanceName(cimClass);
-
     r.createInstance(NAMESPACE, cimInstance);
 
-    CIMReference ref;
-    CIMReference::instanceNameToReference(instanceName, ref);
+    CIMReference instanceName1 = cimInstance.getInstanceName(cimClass);
 
-String tmp2 = "ThisClass.first=\"John\",last=\"Smith\",age=101";
+    CIMReference instanceName2 =
+	"ThisClass.first=\"John\",last=\"Smith\",age=101";
 
-    CIMReference ref2;
-    CIMReference::instanceNameToReference(tmp2, ref2);
-
-    CIMInstance tmp = r.getInstance(NAMESPACE, ref2);
+    CIMInstance tmp = r.getInstance(NAMESPACE, instanceName2);
 
     assert(cimInstance.identical(tmp));
 }
 
-void f()
-{
-    String instanceName = "ThisClass.first=\"John\",last=\"Smith\",age=101";
-    OUT(instanceName);
-
-    CIMReference ref;
-    CIMReference::instanceNameToReference(instanceName, ref);
-
-    String tmp;
-    CIMReference::referenceToInstanceName(ref, tmp);
-
-    OUT(tmp);
-}
-
 int main()
 {
-    f();
-    exit(0);
-
     CIMRepository r(".");
 
     try 

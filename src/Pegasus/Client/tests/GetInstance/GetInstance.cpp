@@ -42,10 +42,7 @@ int main(int argc, char** argv)
 	CIMClient client(&selector);
 	client.connect("localhost:8888");
 
-	String instanceName = "Process.pid=123456";
-
-	CIMReference reference;
-	CIMReference::instanceNameToReference(instanceName, reference);
+	CIMReference reference = "Process.pid=123456";
 	CIMInstance cimInstance = client.getInstance(NAMESPACE, reference);
 	cimInstance.print();
     }

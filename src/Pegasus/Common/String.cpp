@@ -353,6 +353,15 @@ Uint32 String::reverseFind(Char16 c) const
     return Uint32(-1);
 }
 
+void String::toLower()
+{
+    for (Char16* p = &_rep[0]; *p; p++)
+    {
+	if (*p <= 127)
+	    *p = tolower(*p);
+    }
+}
+
 int String::compare(const Char16* s1, const Char16* s2)
 {
     while (*s1 && *s2)

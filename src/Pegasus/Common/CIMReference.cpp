@@ -106,7 +106,7 @@ KeyBinding::KeyBinding(const KeyBinding& x)
 
 }
 
-KeyBinding::KeyBinding(const String& name, const String& value, CIMType type)
+KeyBinding::KeyBinding(const String& name, const String& value, Type type)
     : _name(name), _value(value), _type(type) 
 { 
 
@@ -143,9 +143,9 @@ CIMReference::CIMReference(const CIMReference& x)
     _BubbleSort(_keyBindings);
 }
 
-CIMReference::CIMReference(const String& objectPath)
+CIMReference::CIMReference(const String& objectName)
 {
-    set(objectPath);
+    set(objectName);
 }
 
 CIMReference::CIMReference(
@@ -201,7 +201,7 @@ void CIMReference::set(
     _BubbleSort(_keyBindings);
 }
 
-void CIMReference::set(const String& objectPath)
+void CIMReference::set(const String& objectName)
 {
     _host.clear();
     _nameSpace.clear();
@@ -209,15 +209,15 @@ void CIMReference::set(const String& objectPath)
     _keyBindings.clear();
 
     //--------------------------------------------------------------------------
-    // We will extract components from an object path. Here is an sample
-    // object path: 
+    // We will extract components from an object name. Here is an sample
+    // object name: 
     //
     //     //atp:9999/root/cimv25:TennisPlayer.first="Patrick",last="Rafter"
     //--------------------------------------------------------------------------
 
     // Convert to a C String first:
 
-    char* p = objectPath.allocateCString();
+    char* p = objectName.allocateCString();
     ArrayDestroyer<char> destroyer(p);
 
     // See if there is a host name (true if it begins with "//"):
@@ -236,7 +236,7 @@ void CIMReference::set(const String& objectPath)
 	char* q = p;
 
 	if (!isalpha(*q))
-	    throw IllformedObjectPath(objectPath);
+	    throw IllformedObjectName(objectName);
 
 	q++;
 
@@ -246,14 +246,14 @@ void CIMReference::set(const String& objectPath)
 	// We now expect a colon (before the port):
 
 	if (*q != ':')
-	    throw IllformedObjectPath(objectPath);
+	    throw IllformedObjectName(objectName);
 
 	q++;
 
 	// Check for a port number:
 
 	if (!isdigit(*q))
-	    throw IllformedObjectPath(objectPath);
+	    throw IllformedObjectName(objectName);
 	    
 	while (isdigit(*q))
 	    q++;
@@ -261,7 +261,7 @@ void CIMReference::set(const String& objectPath)
 	// Check for slash terminating the entire sequence:
 
 	if (*q != '/')
-	    throw IllformedObjectPath(objectPath);
+	    throw IllformedObjectName(objectName);
 
 	// Finally, assign the host name:
 
@@ -276,7 +276,7 @@ void CIMReference::set(const String& objectPath)
 	q = strchr(p, ':');
 
 	if (!q)
-	    throw IllformedObjectPath(objectPath);
+	    throw IllformedObjectName(objectName);
 
 	q = p;
 
@@ -285,7 +285,7 @@ void CIMReference::set(const String& objectPath)
 	    // Pass next next token:
 
 	    if (!*q || (!isalpha(*q) && *q != '_'))
-		throw IllformedObjectPath(objectPath);
+		throw IllformedObjectName(objectName);
 
 	    q++;
 
@@ -293,7 +293,7 @@ void CIMReference::set(const String& objectPath)
 		q++;
 
 	    if (!*q)
-		throw IllformedObjectPath(objectPath);
+		throw IllformedObjectName(objectName);
 
 	    if (*q == ':')
 		break;
@@ -304,7 +304,7 @@ void CIMReference::set(const String& objectPath)
 		continue;
 	    }
 
-	    throw IllformedObjectPath(objectPath);
+	    throw IllformedObjectName(objectName);
 	}
 
 	_nameSpace.assign(p, q - p);
@@ -316,7 +316,7 @@ void CIMReference::set(const String& objectPath)
     char* dot = strchr(p, '.');
 
     if (!dot)
-	throw IllformedObjectPath(objectPath);
+	throw IllformedObjectName(objectName);
 
     _className.assign(p, dot - p);
 
@@ -333,7 +333,7 @@ void CIMReference::set(const String& objectPath)
 	char* equal = strchr(p, '=');
 
 	if (!equal)
-	    throw IllformedObjectPath(objectPath);
+	    throw IllformedObjectName(objectName);
 
 	*equal = '\0';
 
@@ -342,13 +342,13 @@ void CIMReference::set(const String& objectPath)
 	String keyString(p);
 
 	if (!CIMName::legal(keyString))
-	    throw IllformedObjectPath(objectPath);
+	    throw IllformedObjectName(objectName);
 
 	// Get the value part:
 
 	String valueString;
 	char* q = equal + 1;
-	KeyBinding::CIMType type;
+	KeyBinding::Type type;
 
 	if (*q == '"')
 	{
@@ -367,10 +367,10 @@ void CIMReference::set(const String& objectPath)
 	    }
 
 	    if (*q++ != '"')
-		throw IllformedObjectPath(objectPath);
+		throw IllformedObjectName(objectName);
 
 	    if (*q)
-		throw IllformedObjectPath(objectPath);
+		throw IllformedObjectName(objectName);
 	}
 	else if (toupper(*q) == 'T' || toupper(*q) == 'F')
 	{
@@ -385,7 +385,7 @@ void CIMReference::set(const String& objectPath)
 	    }
 
 	    if (strcmp(q, "TRUE") != 0 && strcmp(q, "FALSE") != 0)
-		throw IllformedObjectPath(objectPath);
+		throw IllformedObjectName(objectName);
 
 	    valueString.assign(q);
 	}
@@ -396,7 +396,7 @@ void CIMReference::set(const String& objectPath)
 	    Sint64 x;
 
 	    if (!XmlReader::stringToSignedInteger(q, x))
-		throw IllformedObjectPath(objectPath);
+		throw IllformedObjectName(objectName);
 
 	    valueString.assign(q);
 	}
@@ -424,27 +424,27 @@ void CIMReference::setKeyBindings(const Array<KeyBinding>& keyBindings)
     _keyBindings = keyBindings; 
 }
 
-String CIMReference::toObjectPath() const
+String CIMReference::toString() const
 {
-    String objectPath;
+    String objectName;
 
     // Get the host:
 
     if (_host.getLength() && _nameSpace.getLength())
     {
-	objectPath = "//";
-	objectPath += _host;
-	objectPath += "/";
+	objectName = "//";
+	objectName += _host;
+	objectName += "/";
 
-	objectPath += _nameSpace;
-	objectPath += ":";
+	objectName += _nameSpace;
+	objectName += ":";
     }
 
     // Get the class name:
 
     const String& className = getClassName();
-    objectPath.append(className);
-    objectPath.append('.');
+    objectName.append(className);
+    objectName.append('.');
 
     // Append each key-value pair:
 
@@ -452,28 +452,28 @@ String CIMReference::toObjectPath() const
 
     for (Uint32 i = 0, n = keyBindings.getSize(); i < n; i++)
     {
-	objectPath.append(keyBindings[i].getName());
-	objectPath.append('=');
+	objectName.append(keyBindings[i].getName());
+	objectName.append('=');
 
 	// ATTN: handle escaping of special characters:
 
 	const String& value = keyBindings[i].getValue();
 
-	KeyBinding::CIMType type = keyBindings[i].getType();
+	KeyBinding::Type type = keyBindings[i].getType();
 	
 	if (type == KeyBinding::STRING)
-	    objectPath.append('"');
+	    objectName.append('"');
 
-	objectPath.append(value);
+	objectName.append(value);
 
 	if (type == KeyBinding::STRING)
-	    objectPath.append('"');
+	    objectName.append('"');
 
 	if (i + 1 != n)
-	    objectPath.append(',');
+	    objectName.append(',');
     }
 
-    return objectPath;
+    return objectName;
 }
 
 Boolean CIMReference::identical(const CIMReference& x) const
@@ -588,7 +588,6 @@ void CIMReference::toXml(Array<Sint8>& out) const
     }
 
     out << "</VALUE.REFERENCE>\n";
-    out.append('\0');
 }
 
 void CIMReference::print(std::ostream& os) const
@@ -598,7 +597,7 @@ void CIMReference::print(std::ostream& os) const
     XmlWriter::indentedPrint(os, tmp.getData());
 }
 
-const char* KeyBinding::typeToString(CIMType type)
+const char* KeyBinding::typeToString(Type type)
 {
     switch (type)
     {
@@ -613,6 +612,18 @@ const char* KeyBinding::typeToString(CIMType type)
     }
 
     return "unknown";
+}
+
+String CIMReference::makeHashKey() const
+{
+    CIMReference tmp = *this;
+
+    tmp._className.toLower();
+
+    for (Uint32 i = 0, n = tmp._keyBindings.getSize(); i < n; i++)
+	tmp._keyBindings[i]._name.toLower();
+
+    return tmp.toString();
 }
 
 PEGASUS_NAMESPACE_END

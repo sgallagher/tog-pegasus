@@ -65,10 +65,7 @@ public:
 	const Array<String>& propertyList = StringArray())
     {
 	cout << "MyProvider::getInstance() called" << endl;
-
-	String tmp;
-	CIMReference::referenceToInstanceName(instanceName, tmp);
-	cout << "instanceName=" << tmp << endl;
+	cout << "instanceName=" << instanceName << endl;
 
 	CIMInstance instance("Process");
 	instance.addProperty(CIMProperty("pid", Uint32(2001)));
@@ -84,11 +81,8 @@ public:
     {
 	Array<CIMReference> instanceNames;
 
-	CIMReference ref1;
-	CIMReference::instanceNameToReference("Process.pid=777",ref1);
-
-	CIMReference ref2;
-	CIMReference::instanceNameToReference("Process.pid=888",ref2);
+	CIMReference ref1 = "Process.pid=777";
+	CIMReference ref2 = "Process.pid=888";
 
 	instanceNames.append(ref1);
 	instanceNames.append(ref2);
@@ -101,10 +95,8 @@ public:
 	    const String& propertyName)
     {
 
-	String tmp;
-	CIMReference::referenceToInstanceName(instanceName, tmp);
 	cout << "MyProvider::getProperty() called" <<
-	    " instanceName= " << tmp <<
+	    " instanceName= " << instanceName <<
 	    " CIM Saved Value = " << savedCIMValue->toString() <<
 	    " propertyName = " << propertyName << endl;
 
@@ -127,10 +119,8 @@ public:
 	{
 	    cout << "MyProvider::setProperty() called" << endl;
 
-	    String tmp;
-	    CIMReference::referenceToInstanceName(instanceName, tmp);
 	    cout << "MyProvider::setProperty() called" <<
-		" instanceName= " << tmp << 
+		" instanceName= " << instanceName << 
 		" Saved CIM Value " << savedCIMValue->toString() <<
 		" propertyName = " << propertyName << endl;
 

@@ -94,6 +94,14 @@ public:
 	_timeoutMilliseconds = timeoutMilliseconds;
     }
 
+// l10n start
+	AcceptLanguages getRequestAcceptLanguages() const;
+	ContentLanguages getRequestContentLanguages() const;
+	ContentLanguages getResponseContentLanguages() const;
+	void setRequestAcceptLanguages(AcceptLanguages& langs);
+	void setRequestContentLanguages(ContentLanguages& langs);
+// l10n end	
+
     void connect(
         const String& host,
         const Uint32 portNumber,
@@ -300,6 +308,11 @@ private:
     String _connectHost;
     Uint32 _connectPortNumber;
     SSLContext* _connectSSLContext;
+
+// l10n
+	AcceptLanguages requestAcceptLanguages;
+	ContentLanguages requestContentLanguages;
+	ContentLanguages responseContentLanguages;    
 };
 
 static Boolean verifyServerCertificate(SSLCertificateInfo &certInfo)
@@ -323,6 +336,10 @@ CIMClientRep::CIMClientRep(Uint32 timeoutMilliseconds)
     //
     _monitor = new Monitor();
     _httpConnector = new HTTPConnector(_monitor);
+    
+// l10n
+	requestAcceptLanguages = AcceptLanguages::EMPTY;
+	requestContentLanguages = ContentLanguages::EMPTY;   	    
 }
 
 CIMClientRep::~CIMClientRep()
@@ -624,6 +641,33 @@ void CIMClientRep::disconnect()
     }
 }
 
+// l10n start
+AcceptLanguages CIMClientRep::getRequestAcceptLanguages() const
+{
+	return requestAcceptLanguages;	
+}
+
+ContentLanguages CIMClientRep::getRequestContentLanguages() const
+{
+	return requestContentLanguages;
+}
+
+ContentLanguages CIMClientRep::getResponseContentLanguages() const
+{
+	return responseContentLanguages;
+}
+
+void CIMClientRep::setRequestAcceptLanguages(AcceptLanguages& langs)
+{
+	requestAcceptLanguages = langs;	
+}
+
+void CIMClientRep::setRequestContentLanguages(ContentLanguages& langs)
+{
+	requestContentLanguages = langs;
+}
+
+// l10n end	
 
 CIMClass CIMClientRep::getClass(
     const CIMNamespaceName& nameSpace,
@@ -1238,6 +1282,15 @@ Message* CIMClientRep::_doRequest(
     //
     request->setHttpMethod (HTTP_METHOD_M_POST);
 
+// l10n
+	// Set the Accept-Languages and Content-Languages into 
+	// the request message
+	request->acceptLanguages = requestAcceptLanguages;
+	request->contentLanguages = requestContentLanguages;
+	
+	// Sending a new request, so clear out the response Content-Languages
+	responseContentLanguages = ContentLanguages::EMPTY;
+
     _requestEncoder->enqueue(request);
 
     Uint64 startMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
@@ -1279,6 +1332,7 @@ Message* CIMClientRep::_doRequest(
             else if (response->getType() == expectedResponseMessageType)
             {
                 CIMResponseMessage* cimResponse = (CIMResponseMessage*)response;
+          
                 if (cimResponse->messageId != messageId)
                 {
                     CIMClientResponseException responseException(
@@ -1288,6 +1342,11 @@ Message* CIMClientRep::_doRequest(
                     delete response;
 	            throw responseException;
                 }
+
+// l10n
+       			// Get the Content-Languages from the response
+       			responseContentLanguages = cimResponse->contentLanguages;                
+                
                 if (cimResponse->cimException.getCode() != CIM_ERR_SUCCESS)
                 {
                     CIMException cimException(
@@ -1345,6 +1404,8 @@ String CIMClientRep::_getLocalHostName()
 CIMClient::CIMClient()
 {
     _rep = new CIMClientRep();
+
+// l10n TODO - default AcceptLanguages to the process locale    
 }
 
 CIMClient::~CIMClient()
@@ -1434,6 +1495,32 @@ void CIMClient::disconnect()
     _rep->disconnect();
 }
 
+// l10n start
+void CIMClient::setRequestAcceptLanguages(AcceptLanguages& langs)
+{
+	_rep->setRequestAcceptLanguages(langs);		
+}
+
+AcceptLanguages CIMClient::getRequestAcceptLanguages() const
+{
+	return _rep->getRequestAcceptLanguages();
+}
+	
+void CIMClient::setRequestContentLanguages(ContentLanguages& langs)
+{
+	_rep->setRequestContentLanguages(langs);		
+}
+  
+ContentLanguages CIMClient::getRequestContentLanguages() const
+{
+	return _rep->getRequestContentLanguages();	
+}	
+    	
+ContentLanguages CIMClient::getResponseContentLanguages() const
+{
+		return _rep->getResponseContentLanguages();
+}
+// l10n end	
 
 CIMClass CIMClient::getClass(
     const CIMNamespaceName& nameSpace,

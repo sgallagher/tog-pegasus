@@ -90,6 +90,20 @@ endif
 ##  set PEGASUS_COMPRESS_REPOSITORY=1
 ##  set PEGASUS_COMPRESS_REPOSITORY=build_non_compressed
 ## 
+## TESTERS NOTE:
+##
+## If PEGASUS_COMPRESS_REPOSITORY is defined then the CompareXmlCompressed
+## test is run. If it is not defined then the CompareXmlCompresed is not run.
+##
+## However if you have the zlibs installed and want to noramlly test
+## everything with a regular repository but want to run the 
+## CompareXmlCompressed test then define PEGASUS_COMPRESS_REPOSITORY_TEST. 
+## This will cause the test to run, it will recompile the CIMRepository for 
+## compression, run the test and then recompile CIMRepository for
+## non-compression.
+##
+##
+
 
 ifdef PEGASUS_COMPRESS_REPOSITORY
   LOCAL_DEFINES += -DPEGASUS_COMPRESS_REPOSITORY

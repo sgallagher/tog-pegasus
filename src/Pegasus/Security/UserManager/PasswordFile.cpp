@@ -31,6 +31,7 @@
 //
 // Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1519
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#1791
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -95,10 +96,6 @@ PasswordFile::PasswordFile (const String& fileName)
             "Creating blank password file.");
         PasswordTable pt;
         save(pt);
-    }
-    catch (const Exception&)
-    {
-	throw;
     }
     PEG_METHOD_EXIT();
 }

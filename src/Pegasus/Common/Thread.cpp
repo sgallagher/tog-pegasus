@@ -218,6 +218,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
    }
    catch(IPCException &)
    {
+      cout << " ipc exception returning thread to avail list" << endl;
+      
       myself->exit_self(0);
    }
    if(sleep_sem == 0 || deadlock_timer == 0)
@@ -226,6 +228,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
    while(pool->_dying < 1)
    {
       sleep_sem->wait();
+      pegasus_yield();
+      
       // when we awaken we reside on the running queue, not the pool queue
       if(pool->_dying > 0)
 	 break;
@@ -244,6 +248,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       }
       catch(IPCException &)
       {
+	 cout << " ipc exception returning thread to avail list" << endl;
+	 
 	 myself->exit_self(0);
       }
       
@@ -260,6 +266,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       }
       catch(IPCException &)
       {
+	 cout << " ipc exception returning thread to avail list" << endl;
+	 
 	 myself->exit_self(0);
       }
    }
@@ -296,12 +304,23 @@ void ThreadPool::allocate_and_awaken(void *parm,
       {
 	 if(_current_threads < _max_threads)
 	 {
+	    cout << "timeout in waiting for free thread, allocating new thread  " << endl;
 	    th = _init_thread();
 	    continue;
 	 } 
-      } 
+	 cout << " timeout but no free  thread, looping" << endl;
+	 
+      }
+      catch(IPCException & )
+      {
+	 cout << " IPC Exception " << endl;
+	 abort();
+      }
+      
+      
       th = _pool.remove_first();
    }
+   
       
    if(_dying < 1)
    {
@@ -324,7 +343,6 @@ void ThreadPool::allocate_and_awaken(void *parm,
 	 th->dereference_tsd();
 	 throw NullPointer();
       }
-      
       sleep_sem->signal();
       th->dereference_tsd();
    }

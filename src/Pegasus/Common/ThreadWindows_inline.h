@@ -50,6 +50,8 @@ inline void Thread::test_cancel(void)
       {
 	 exit_self(0);
 	 _endthread();
+	 _handle.thid = 0 ;
+	 
       }
    }
 }

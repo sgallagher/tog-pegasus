@@ -295,7 +295,9 @@ class PEGASUS_COMMON_LINKAGE FindModuleInService : public AsyncRequest
 			  Boolean blocking, 
 			  Uint32 response_queue,
 			  String module);
-      virtual ~FindModuleInService(void);
+      virtual ~FindModuleInService(void)
+      {
+      }
       
       String _module;
       
@@ -312,7 +314,9 @@ class PEGASUS_COMMON_LINKAGE FindModuleInServiceResponse : public AsyncReply
 				  Uint32 blocking, 
 				  Uint32 module_service_queue);
 
-      virtual ~FindModuleInServiceResponse(void);
+      virtual ~FindModuleInServiceResponse(void)
+      {
+      }
       
       Uint32 _module_service_queue;
 };

@@ -1060,7 +1060,6 @@ void ProviderAgentContainer::_processResponses()
         }
     }
 
-    PEG_METHOD_EXIT();
 }
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL

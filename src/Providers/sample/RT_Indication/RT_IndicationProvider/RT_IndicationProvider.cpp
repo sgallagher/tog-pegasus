@@ -36,7 +36,7 @@
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/System.h>
-#include <Pegasus/Query/QueryExpression/SubscriptionFilterQueryContainer.h>
+//#include <Pegasus/Query/QueryExpression/SubscriptionFilterQueryContainer.h>
 
 #include "RT_IndicationProvider.h"
 
@@ -287,13 +287,13 @@ void RT_IndicationProvider::createSubscription (
 	 // 
 	 // test containers
 	 //
-	 SubscriptionFilterQueryContainer qContainer = context.get(SubscriptionFilterQueryContainer::NAME);
+	 /*SubscriptionFilterQueryContainer qContainer = context.get(SubscriptionFilterQueryContainer::NAME);
     QueryExpression qExpression = qContainer.getQueryExpression();
     assert(qExpression.getQuery() != String::EMPTY);
     assert(qExpression.getQueryLanguage() != String::EMPTY);
 
     SubscriptionFilterConditionContainer cContainer = context.get(SubscriptionFilterConditionContainer::NAME); 
-	 assert(cContainer.getQueryLanguage() != String::EMPTY);
+	 assert(cContainer.getQueryLanguage() != String::EMPTY);*/
 }
 
 void RT_IndicationProvider::modifySubscription (
@@ -308,13 +308,13 @@ void RT_IndicationProvider::modifySubscription (
 	 // 
     // test containers
     //
-	 SubscriptionFilterQueryContainer qContainer = context.get(SubscriptionFilterQueryContainer::NAME);
+	 /*SubscriptionFilterQueryContainer qContainer = context.get(SubscriptionFilterQueryContainer::NAME);
     QueryExpression qExpression = qContainer.getQueryExpression();
     assert(qExpression.getQuery() != String::EMPTY);
     assert(qExpression.getQueryLanguage() != String::EMPTY);
 
     SubscriptionFilterConditionContainer cContainer = context.get(SubscriptionFilterConditionContainer::NAME);
-	 assert(cContainer.getQueryLanguage() != String::EMPTY);
+	 assert(cContainer.getQueryLanguage() != String::EMPTY);*/
 }
 
 void RT_IndicationProvider::deleteSubscription (

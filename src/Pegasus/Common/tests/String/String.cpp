@@ -67,7 +67,7 @@ int main(int argc, char** argv)
 #ifndef PEGASUS_HAS_ICU
 	const char EXPECTED[] = "Hello\\x0000\\x1234\\x5678\\x9CDE\\xFFFF";
 #else
-	CString cstr = s4.getCStringUTF8();
+	CString cstr = s4.getCString();
 	const char * EXPECTED = (const char *)cstr;
 #endif
 	char* tmp = os.str();
@@ -299,8 +299,8 @@ int main(int argc, char** argv)
 	String utf8string(utf8chr,STRING_FLAG_UTF8);
 	String utf16merge(utf8string.getChar16Data());
 
-	CString temp = utf8string.getCStringUTF8();
-	CString temp2 = utf16string.getCStringUTF8();
+	CString temp = utf8string.getCString();
+	CString temp2 = utf16string.getCString();
 
 	const char*  tmp = (const char *)temp;
 	const char*  tmp2 = (const char *)temp2;
@@ -311,8 +311,8 @@ int main(int argc, char** argv)
 	assert(utf8string  == utf16chr); 
         
 	assert(memcmp(utf8string.getChar16Data(),utf16string.getChar16Data(),sizeof(utf16chr)) == 0);
-	assert(strcmp(utf8string.getCStringUTF8(),utf8chr) == 0);
-        assert(strcmp(utf16string.getCStringUTF8(),utf8chr) == 0);
+	assert(strcmp(utf8string.getCString(),utf8chr) == 0);
+        assert(strcmp(utf16string.getCString(),utf8chr) == 0);
 	assert(strcmp(tmp,utf8chr) == 0);
 	assert(strcmp(tmp2,utf8chr) == 0);
 

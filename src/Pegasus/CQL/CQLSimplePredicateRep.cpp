@@ -107,12 +107,38 @@ Boolean CQLSimplePredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
     // the class name.  We don't want to resolve the right side because
     // CQLValue would assume that a single element chained identifier
     // refers to an instance of the FROM class.
-    PEGASUS_ASSERT(_rightSide.isSimpleValue());
+    if (!_rightSide.isSimpleValue())
+    {
+      throw Exception("TEMP MSG: CQLSimplePredicate::evaluate - rhs of isa is not simple");
+    }
 
-    CQLValue isaVal = _rightSide.getTerms()[0].getFactors()[0].getValue();
-    return leftVal.isa(isaVal, QueryCtx);
+    CQLValue isaRightVal = _rightSide.getTerms()[0].getFactors()[0].getValue();
+    CQLChainedIdentifier isaRightId = isaRightVal.getChainedIdentifier();
+    return leftVal.isa(isaRightId, QueryCtx);
   }
 
+  if (_operator == LIKE)
+  {
+    // Special processing for LIKE.  The right side expression must be
+    // a simple CQLValue (ie. not nested, and not a function), and
+    // must be a literal.  Note that this code will test whether
+    // the right side is a literal, but not whether it is a string
+    // literal.
+    if (!_rightSide.isSimpleValue())
+    {
+      throw Exception("TEMP MSG: CQLSimplePredicate::evaluate - rhs of like is not simple");
+    }
+
+    CQLValue likeRightVal = _rightSide.getTerms()[0].getFactors()[0].getValue();
+    if (!likeRightVal.isResolved())
+    {
+      throw Exception("TEMP MSG: CQLSimplePredicate::evaluate - rhs of like is not a literal");    
+    }
+
+    return leftVal.like(likeRightVal);
+  }
+
+  // No special processing needed.
   // Resolve the value of the right side
   CQLValue rightVal = _rightSide.resolveValue(CI, QueryCtx);
 
@@ -151,9 +177,6 @@ Boolean CQLSimplePredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
     break;
 
   case LIKE:
-    return leftVal.like(rightVal);
-    break;
-
   case ISA:
     // Never get here due to special processing above.
     PEGASUS_ASSERT(false);

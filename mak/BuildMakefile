@@ -2,9 +2,9 @@
 ##
 ## Makefile for Pegasus CIMOM
 ##
-## NOTE: Makefile needs to be executed from the parent directory of 
-## pegasus directory because the path settings are relative and this
-## Makefile may remove and recheckout the pegasus source tree.
+## NOTE: This Makefile should be executed from the parent directory of the
+## pegasus directory because it may remove and recheckout the pegasus source
+## tree.
 ##
 ## Options:
 ##      cleanbuild - Removes the existing pegasus directory contents, performs
@@ -13,10 +13,11 @@
 ## 
 ###############################################################################
 
+error: 
+	@ echo "Specify desired makefile option (i.e., cleanbuild, rebuild)"
+
 include $(PEGASUS_ROOT)/mak/config.mak
 include $(PEGASUS_ROOT)/mak/commands.mak
-
-TESTS = prestarttests poststarttests
 
 ifeq ($(DYNAMIC_SOCKSIFY),TRUE)
   CVS = socksify cvs
@@ -24,10 +25,7 @@ else
   CVS = cvs
 endif
 
-error: 
-	@ echo "Specify desired makefile option (i.e., cleanbuild, rebuild)"
-
-cleanbuild: removeall recheckout buildmu all $(TESTS) 
+cleanbuild: recheckout all tests
 
 recheckout: removeall checkout
 
@@ -37,9 +35,9 @@ removeall:
 checkout:
 	$(CVS) checkout -P pegasus
 
-rebuild: clean buildmu all tests
+rebuild: clean all tests
 
-rebuild-notest: clean buildmu all
+rebuild-notest: clean all
 
 build: all tests
 

@@ -53,7 +53,7 @@ DIRS += \
 endif
 
 
-ifdef ENABLE_REMOTE_CMPI
+ifdef PEGASUS_ENABLE_REMOTE_CMPI
 DIRS += \
 	ProviderManager2/CMPIR \
 	ProviderManager2/CMPIR/tcpcomm \

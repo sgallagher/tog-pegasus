@@ -117,6 +117,32 @@ const char* HostInfo::getAddress()
     else 
 	return("localhost:5988");
 }
+
+void getHostAndPort (String & host, Uint32 & portNumber)
+{
+    const char* tmp = getenv ("QUERY_STRING");
+    char* queryString = strcpy (new char [strlen (tmp) + 1], tmp);
+    CGIQueryString qs (queryString);
+
+    String tmpStr= qs.findValue ("hostaddress");
+    if (tmpStr.size () > 0)
+    {
+        Uint32 index = tmpStr.find (':');
+        host = tmpStr.subString (0, index);
+        portNumber = 0;
+        if (index != PEG_NOT_FOUND)
+        {
+            String portStr = tmpStr.subString (index + 1, tmpStr.size ());
+            sscanf (portStr.getCString (), "%u", &portNumber);
+        }
+    }
+    else 
+    {
+        host = "localhost";
+        portNumber = 5988;
+    }
+}
+
 CIMName PrintSuperClassName(CIMName superClassName)
 {
     if (superClassName.isNull ())
@@ -734,8 +760,10 @@ static void GetClass(const CGIQueryString& qs)
     {
 	CIMClient client;
 
-	HostInfo hostinfo;
-	client.connect(hostinfo.getAddress(), String::EMPTY, String::EMPTY);
+        String host;
+        Uint32 portNumber;
+        getHostAndPort (host, portNumber);
+        client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
 	cimClass = client.getClass(nameSpace, className,
 	    localOnly, includeQualifiers, includeClassOrigin);
@@ -787,8 +815,10 @@ static void GetPropertyDeclaration(const CGIQueryString& qs)
     try
     {
 	CIMClient client;
-	HostInfo hostinfo;
-	client.connect(hostinfo.getAddress(), String::EMPTY, String::EMPTY);
+        String host;
+        Uint32 portNumber;
+        getHostAndPort (host, portNumber);
+        client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
 	// get the class
 	CIMClass cimClass = client.getClass(
@@ -887,8 +917,10 @@ static void EnumerateClassNames(const CGIQueryString& qs)
 
 	// Make the Connection
 	CIMClient client;
-	HostInfo hostinfo;
-	client.connect(hostinfo.getAddress(), String::EMPTY, String::EMPTY);
+        String host;
+        Uint32 portNumber;
+        getHostAndPort (host, portNumber);
+        client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
 	Array<CIMName> classNames = client.enumerateClassNames(
 	    nameSpace, className, deepInheritance);
@@ -927,8 +959,10 @@ static void DeleteClass(const CGIQueryString& qs)
     try
     {
 	CIMClient client;
-	HostInfo hostinfo;
-	client.connect(hostinfo.getAddress(), String::EMPTY, String::EMPTY);
+        String host;
+        Uint32 portNumber;
+        getHostAndPort (host, portNumber);
+        client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
 	client.deleteClass(nameSpace, className);
 
@@ -1069,8 +1103,10 @@ static void EnumerateQualifiers(const CGIQueryString& qs)
     try
     {
 	CIMClient client;
-	HostInfo hostinfo;
-	client.connect(hostinfo.getAddress(), String::EMPTY, String::EMPTY);
+        String host;
+        Uint32 portNumber;
+        getHostAndPort (host, portNumber);
+        client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
 	Array<CIMQualifierDecl> qualifierDecls =
 	    client.enumerateQualifiers(nameSpace);
@@ -1106,8 +1142,10 @@ static void GetQualifier(const CGIQueryString& qs)
     try
     {
 	CIMClient client;
-	HostInfo hostinfo;
-	client.connect(hostinfo.getAddress(), String::EMPTY, String::EMPTY);
+        String host;
+        Uint32 portNumber;
+        getHostAndPort (host, portNumber);
+        client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
 	CIMQualifierDecl qd = client.getQualifier(nameSpace, qualifierName);
 
@@ -1232,8 +1270,10 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 	Stopwatch elapsedTime;
 
 	CIMClient client;
-	HostInfo hostinfo;
-	client.connect(hostinfo.getAddress(), String::EMPTY, String::EMPTY);
+        String host;
+        Uint32 portNumber;
+        getHostAndPort (host, portNumber);
+        client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
 	// Call enumerate Instances CIM Method
 	Array<CIMObjectPath> instanceNames = client.enumerateInstanceNames(
@@ -1300,8 +1340,10 @@ static void GetInstance(const CGIQueryString& qs)
     try
     {
 	CIMClient client;
-	HostInfo hostinfo;
-	client.connect(hostinfo.getAddress(), String::EMPTY, String::EMPTY);
+        String host;
+        Uint32 portNumber;
+        getHostAndPort (host, portNumber);
+        client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
 	CIMInstance cimInstance = client.getInstance(nameSpace,
 	    referenceName, localOnly, includeClassOrigin, includeClassOrigin);
@@ -1365,8 +1407,10 @@ static void EnumerateInstances(const CGIQueryString& qs)
     try
     {
 	CIMClient client;
-	HostInfo hostinfo;
-	client.connect(hostinfo.getAddress(), String::EMPTY, String::EMPTY);
+        String host;
+        Uint32 portNumber;
+        getHostAndPort (host, portNumber);
+        client.connect (host, portNumber, String::EMPTY, String::EMPTY);
         /*
         virtual Array<CIMInstance> enumerateInstances(
             const CIMNamespaceName& nameSpace,
@@ -1455,8 +1499,10 @@ static void EnumerateInstances(const CGIQueryString& qs)
     try
 	{
 	    CIMClient client;
-	    HostInfo hostinfo;
-	    client.connect(hostinfo.getAddress(), String::EMPTY, String::EMPTY);
+            String host;
+            Uint32 portNumber;
+            getHostAndPort (host, portNumber);
+            client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
 	    CIMValue value = client.getProperty(nameSpace,
 		referenceName, propertyName);
@@ -1562,8 +1608,10 @@ static void CreateNameSpace(const CGIQueryString& qs)
 	Stopwatch elapsedTime;
 
 	CIMClient client;
-	HostInfo hostinfo;
-	client.connect(hostinfo.getAddress(), String::EMPTY, String::EMPTY);
+        String host;
+        Uint32 portNumber;
+        getHostAndPort (host, portNumber);
+        client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
 	// Call create Instances CIM Method for class __Namespace
 	cout << "Creating " << nameSpaceName;
@@ -1621,8 +1669,10 @@ static void DeleteNameSpace(const CGIQueryString& qs)
 	Stopwatch elapsedTime;
 
 	CIMClient client;
-	HostInfo hostinfo;
-	client.connect(hostinfo.getAddress(), String::EMPTY, String::EMPTY);
+        String host;
+        Uint32 portNumber;
+        getHostAndPort (host, portNumber);
+        client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
 	// Call delete Instances CIM Method for class __Namespace
 	client.deleteInstance(nameSpace, referenceName);
@@ -1662,8 +1712,10 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
 	Stopwatch elapsedTime;
 
 	CIMClient client;
-	HostInfo hostinfo;
-	client.connect(hostinfo.getAddress(), String::EMPTY, String::EMPTY);
+        String host;
+        Uint32 portNumber;
+        getHostAndPort (host, portNumber);
+        client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
 	// Call enumerate Instances CIM Method
 	Array<CIMObjectPath> instanceNames = client.enumerateInstanceNames(
@@ -1882,8 +1934,10 @@ static void ClassInheritance(const CGIQueryString& qs)
 
 
 	CIMClient client;
-	HostInfo hostinfo;
-	client.connect(hostinfo.getAddress(), String::EMPTY, String::EMPTY);
+        String host;
+        Uint32 portNumber;
+        getHostAndPort (host, portNumber);
+        client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 	client.setTimeout(timeOut);
 
 
@@ -1970,8 +2024,10 @@ static void ClassTree(const CGIQueryString& qs)
 	CIMName className;
 
 	CIMClient client;
-	HostInfo hostinfo;
-	client.connect(hostinfo.getAddress(), String::EMPTY, String::EMPTY);
+        String host;
+        Uint32 portNumber;
+        getHostAndPort (host, portNumber);
+        client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
 	Array<CIMName> classNames = client.enumerateClassNames(
 					nameSpace,
@@ -2047,8 +2103,10 @@ static void AllInstances(const  CGIQueryString& qs)
 	CIMName className;
 
 	CIMClient client;
-	HostInfo hostinfo;
-	client.connect(hostinfo.getAddress(), String::EMPTY, String::EMPTY);
+        String host;
+        Uint32 portNumber;
+        getHostAndPort (host, portNumber);
+        client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
 	Array<CIMName> classNames = client.enumerateClassNames(
 					nameSpace,
@@ -2110,8 +2168,10 @@ static void ReferenceNames(const CGIQueryString& qs)
 	Stopwatch elapsedTime;
 
 	CIMClient client;
-	HostInfo hostinfo;
-	client.connect(hostinfo.getAddress(), String::EMPTY, String::EMPTY);
+        String host;
+        Uint32 portNumber;
+        getHostAndPort (host, portNumber);
+        client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
 	Array<CIMObjectPath> objectReferences; 
 	objectReferences = client.referenceNames(
@@ -2173,8 +2233,10 @@ static void AssociatorNames(const CGIQueryString& qs)
 	Stopwatch elapsedTime;
 
 	CIMClient client;
-	HostInfo hostinfo;
-	client.connect(hostinfo.getAddress(), String::EMPTY, String::EMPTY);
+        String host;
+        Uint32 portNumber;
+        getHostAndPort (host, portNumber);
+        client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
 	Array<CIMObjectPath> objectReferences; 
 	objectReferences = client.associatorNames(

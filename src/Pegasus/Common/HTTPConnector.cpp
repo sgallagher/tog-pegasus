@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -63,36 +64,6 @@ PEGASUS_NAMESPACE_BEGIN
 // Local routines:
 //
 ////////////////////////////////////////////////////////////////////////////////
-
-static Boolean _ParseLocator(
-   const String& locator, 
-   char*& hostname,
-   int& port)
-{
-   // Extract the hostname:port expression (e.g., www.book.com:8080):
-
-   hostname = strdup(locator.getCString());
-   char* p = strchr(hostname, ':');
-
-   if (!p)
-   {
-      delete hostname;
-      return false;
-   }
-
-   *p++ = '\0';
-
-   char* end = 0;
-   port = strtol(p, &end, 10);
-
-   if (!end || *end != '\0')
-   {
-      delete hostname;
-      return false;
-   }
-
-   return true;
-}
 
 static Boolean _MakeAddress(
    const char* hostname, 
@@ -209,14 +180,15 @@ void HTTPConnector::handleEnqueue()
 }
 
 HTTPConnection* HTTPConnector::connect(
-   const String& locator, 
+   const String& host, 
+   const Uint32 portNumber,
    SSLContext * sslContext,
    MessageQueue* outputMessageQueue)
 {
    Sint32 socket;
 
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
-   if (locator == String::EMPTY)
+   if (host == String::EMPTY)
    {
       // Set up the domain socket for a local connection
 
@@ -241,27 +213,17 @@ HTTPConnection* HTTPConnector::connect(
    {
 #endif
 
-   // Parse the locator (get hostname and port):
-
-   char* hostname;
-   int port;
-
-   if (!_ParseLocator(locator, hostname, port))
-   {
-      throw InvalidLocatorException(locator);
-   }
-
    // Make the internet address:
 
    sockaddr_in address;
 
-   if (!_MakeAddress(hostname, port, address))
+   if (!_MakeAddress((const char*)host.getCString(), portNumber, address))
    {
-      delete hostname;
-      throw InvalidLocatorException(locator);
+      char portStr [32];
+      sprintf (portStr, "%u", portNumber);
+      throw InvalidLocatorException(host + ":" + portStr);
    }
 
-   delete hostname;
 
    // Create the socket:
 
@@ -276,7 +238,9 @@ HTTPConnection* HTTPConnector::connect(
                  reinterpret_cast<sockaddr*>(&address),
                  sizeof(address)) < 0)
    {
-      throw CannotConnectException(locator);
+      char portStr [32];
+      sprintf (portStr, "%u", portNumber);
+      throw CannotConnectException(host + ":" + portStr);
    }
 
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
@@ -287,7 +251,9 @@ HTTPConnection* HTTPConnector::connect(
 
    MP_Socket * mp_socket = new MP_Socket(socket, sslContext);
    if (mp_socket->connect() < 0) {
-      throw CannotConnectException(locator);
+      char portStr [32];
+      sprintf (portStr, "%u", portNumber);
+      throw CannotConnectException(host + ":" + portStr);
    }
     
    HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket,

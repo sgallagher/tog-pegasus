@@ -24,6 +24,8 @@
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 // Modified By: Warren Otsuka, Hewlett-Packard Company (warren_otsuka@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -99,7 +101,8 @@ void WbemExecClient::handleEnqueue()
 }
 
 void WbemExecClient::_connect(
-    const String& address,
+    const String& host,
+    const Uint32 portNumber,
     SSLContext* sslContext
 ) throw(CannotCreateSocketException, CannotConnectException,
         InvalidLocatorException)
@@ -109,7 +112,8 @@ void WbemExecClient::_connect(
     //
     //try
     //{
-	_httpConnection = _httpConnector->connect(address,
+	_httpConnection = _httpConnector->connect(host,
+                                                  portNumber,
                                                   sslContext,
                                                   this);
     //}
@@ -125,7 +129,8 @@ void WbemExecClient::_connect(
 }
 
 void WbemExecClient::connect(
-    const String& address,
+    const String& host,
+    const Uint32 portNumber,
     SSLContext* sslContext,
     const String& userName,
     const String& password
@@ -139,10 +144,13 @@ void WbemExecClient::connect(
 	throw AlreadyConnectedException();
 
     //
-    // If the address is empty, reject it
+    //  If the host is empty, set hostName to "localhost"
     //
-    if (address == String::EMPTY)
-	throw InvalidLocatorException(address);
+    String hostName = host;
+    if (host == String::EMPTY)
+    {
+        hostName = "localhost";
+    }
 
     //
     // Set authentication information
@@ -161,7 +169,7 @@ void WbemExecClient::connect(
 	_password = password;
     }
 
-    _connect(address, sslContext);
+    _connect(hostName, portNumber, sslContext);
     _isRemote  = true;
 }
 
@@ -176,7 +184,8 @@ void WbemExecClient::connectLocal()
     if (_connected)
 	throw AlreadyConnectedException();
 
-    String      address = String::EMPTY;
+    String host = String::EMPTY;
+    Uint32 portNumber = 0;
 
     //
     // Set authentication type
@@ -185,7 +194,7 @@ void WbemExecClient::connectLocal()
     _authenticator.setAuthType(ClientAuthenticator::LOCAL);
 
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
-    _connect(address, NULL);
+    _connect(host, portNumber, NULL);
 #else
 
     try
@@ -193,36 +202,30 @@ void WbemExecClient::connectLocal()
         //
         // Look up the WBEM HTTP port number for the local system
         //
-        Uint32 portNum = System::lookupPort(WBEM_HTTP_SERVICE_NAME, WBEM_DEFAULT_HTTP_PORT);
-        char port[32];
-        sprintf(port, "%u", portNum);
+        portNumber = System::lookupPort(WBEM_HTTP_SERVICE_NAME, 
+            WBEM_DEFAULT_HTTP_PORT);
 
         //
-        // Build address string using local host name and port number
+        //  Assign host
         //
-        address.assign(_getLocalHostName());
-        address.append(":");
-        address.append(port);
+        host.assign(_getLocalHostName());
 
         SSLContext  *sslContext = NULL;
 
-        _connect(address, sslContext);
+        _connect(host, portNumber, sslContext);
     }
     catch(CannotConnectException &e)
     {
         //
         // Look up the WBEM HTTPS port number for the local system
         //
-        Uint32 portNum = System::lookupPort(WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_HTTPS_PORT);
-        char port[32];
-        sprintf(port, "%u", portNum);
+        portNumber = System::lookupPort(WBEM_HTTPS_SERVICE_NAME, 
+            WBEM_DEFAULT_HTTPS_PORT);
 
         //
-        // Build address string using local host name and port number
+        //  Assign host
         //
-        address.assign(_getLocalHostName());
-        address.append(":");
-        address.append(port);
+        host.assign(_getLocalHostName());
 
         //
         // Create SSLContext
@@ -243,7 +246,7 @@ void WbemExecClient::connectLocal()
         SSLContext * sslContext =
             new SSLContext(certpath, verifyServerCertificate, randFile, true);
 
-        _connect(address, sslContext);
+        _connect(host, portNumber, sslContext);
     }
 #endif
     _isRemote = false;

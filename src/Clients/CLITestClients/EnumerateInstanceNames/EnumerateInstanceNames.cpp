@@ -23,7 +23,8 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -200,7 +201,15 @@ int main(int argc, char** argv)
 
     try
     {
-       	client.connect(location, String::EMPTY, String::EMPTY);
+        Uint32 index = location.find (':');
+        String host = location.subString (0, index);
+        Uint32 portNumber = 0;
+        if (index != PEG_NOT_FOUND)
+        {
+            String portStr = location.subString (index + 1, location.size ());
+            sscanf (portStr.getCString (), "%u", &portNumber);
+        }
+        client.connect (host, portNumber, String::EMPTY, String::EMPTY);
     } 
     
     catch(Exception &e) 

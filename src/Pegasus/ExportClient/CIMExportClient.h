@@ -24,8 +24,9 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -87,13 +88,16 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueueService
       }
 
       ///
-      void connect(const String& address);
+      void connect(
+          const String& host, 
+          const Uint32 portNumber);
 
       //
       // Connection used by local clients
       //
       void connectLocal(
-	 const String& address,
+         const String& host,
+         const Uint32 portNumber,
 	 const String& userName = String::EMPTY);
 
       ///

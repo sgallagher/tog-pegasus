@@ -94,13 +94,15 @@ public:
     }
 
     void connect(
-        const String& address,
+        const String& host,
+        const Uint32 portNumber,
         const String& userName,
         const String& password
     );
 
     void connect(
-        const String& address,
+        const String& host,
+        const Uint32 portNumber,
         const SSLContext& sslContext,
         const String& userName,
         const String& password
@@ -294,7 +296,8 @@ private:
     CIMOperationResponseDecoder* _responseDecoder;
     CIMOperationRequestEncoder* _requestEncoder;
     ClientAuthenticator _authenticator;
-    String _connectAddress;
+    String _connectHost;
+    Uint32 _connectPortNumber;
     SSLContext* _connectSSLContext;
 };
 
@@ -346,7 +349,8 @@ void CIMClientRep::_connect()
     //
     try
     {
-	_httpConnection = _httpConnector->connect(_connectAddress,
+        _httpConnection = _httpConnector->connect(_connectHost,
+                                                  _connectPortNumber,
                                                   _connectSSLContext,
                                                   _responseDecoder);
     }
@@ -384,7 +388,8 @@ void CIMClientRep::_reconnect()
 }
 
 void CIMClientRep::connect(
-    const String& address,
+    const String& host,
+    const Uint32 portNumber,
     const String& userName,
     const String& password
 )
@@ -396,10 +401,13 @@ void CIMClientRep::connect(
 	throw AlreadyConnectedException();
 
     //
-    // If the address is empty, reject it
+    // If the host is empty, set hostName to "localhost"
     //
-    if (address == String::EMPTY)
-	throw InvalidLocatorException(address);
+    String hostName = host;
+    if (host == String::EMPTY)
+    {
+        hostName = "localhost";
+    }
 
     //
     // Set authentication information
@@ -418,14 +426,16 @@ void CIMClientRep::connect(
     }
 
     _connectSSLContext = 0;
-    _connectAddress = address;
+    _connectHost = hostName;
+    _connectPortNumber = portNumber;
 
     _connect();
 }
 
 
 void CIMClientRep::connect(
-    const String& address,
+    const String& host,
+    const Uint32 portNumber,
     const SSLContext& sslContext,
     const String& userName,
     const String& password
@@ -438,10 +448,13 @@ void CIMClientRep::connect(
 	throw AlreadyConnectedException();
 
     //
-    // If the address is empty, reject it
+    // If the host is empty, set hostName to "localhost"
     //
-    if (address == String::EMPTY)
-	throw InvalidLocatorException(address);
+    String hostName = host;
+    if (host == String::EMPTY)
+    {
+        hostName = "localhost";
+    }
 
     //
     // Set authentication information
@@ -460,7 +473,9 @@ void CIMClientRep::connect(
     }
 
     _connectSSLContext = new SSLContext(sslContext);
-    _connectAddress = address;
+    _connectHost = hostName;
+    _connectPortNumber = portNumber;
+
 
     try
     {
@@ -498,16 +513,13 @@ void CIMClientRep::connectLocal()
         //
         // Look up the WBEM HTTP port number for the local system
         //
-        Uint32 portNum = System::lookupPort(WBEM_HTTP_SERVICE_NAME, WBEM_DEFAULT_HTTP_PORT);
-        char port[32];
-        sprintf(port, "%u", portNum);
+        _connectPortNumber = System::lookupPort (WBEM_HTTP_SERVICE_NAME, 
+            WBEM_DEFAULT_HTTP_PORT);
 
         //
-        // Build address string using local host name and port number
+        //  Assign host
         //
-        _connectAddress.assign(_getLocalHostName());
-        _connectAddress.append(":");
-        _connectAddress.append(port);
+        _connectHost.assign(_getLocalHostName());
 
         _connectSSLContext = 0;
 
@@ -518,16 +530,13 @@ void CIMClientRep::connectLocal()
         //
         // Look up the WBEM HTTPS port number for the local system
         //
-        Uint32 portNum = System::lookupPort(WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_HTTPS_PORT);
-        char port[32];
-        sprintf(port, "%u", portNum);
+        _connectPortNumber = System::lookupPort (WBEM_HTTPS_SERVICE_NAME, 
+            WBEM_DEFAULT_HTTPS_PORT);
 
         //
-        // Build address string using local host name and port number
+        //  Assign host
         //
-        _connectAddress.assign(_getLocalHostName());
-        _connectAddress.append(":");
-        _connectAddress.append(port);
+        _connectHost.assign(_getLocalHostName());
 
         //
         // Create SSLContext
@@ -1345,22 +1354,24 @@ void CIMClient::setTimeout(Uint32 timeoutMilliseconds)
 }
 
 void CIMClient::connect(
-    const String& address,
+    const String& host,
+    const Uint32 portNumber,
     const String& userName,
     const String& password
 )
 {
-    _rep->connect(address, userName, password);
+    _rep->connect(host, portNumber, userName, password);
 }
 
 void CIMClient::connect(
-    const String& address,
+    const String& host,
+    const Uint32 portNumber,
     const SSLContext& sslContext,
     const String& userName,
     const String& password
 )
 {
-    _rep->connect(address, sslContext, userName, password);
+    _rep->connect(host, portNumber, sslContext, userName, password);
 }
 
 #ifndef PEGASUS_REMOVE_DEPRECATED
@@ -1368,7 +1379,17 @@ void CIMClient::connect(
     const String& address
 )
 {
-    _rep->connect(address, String::EMPTY, String::EMPTY);
+    Uint32 index = address.find (':');
+    String host = address.subString (0, index);
+    Uint32 portNumber = 0;
+    if (index != PEG_NOT_FOUND)
+    {
+        String portStr = address.subString (index + 1, address.size ());
+        sscanf (portStr.getCString (), "%u", &portNumber);
+    }
+    else
+        throw InvalidLocatorException (address);
+    _rep->connect (host, portNumber, String::EMPTY, String::EMPTY);
 }
 
 void CIMClient::connect(
@@ -1376,7 +1397,17 @@ void CIMClient::connect(
     const SSLContext& sslContext
 )
 {
-    _rep->connect(address, sslContext, String::EMPTY, String::EMPTY);
+    Uint32 index = address.find (':');
+    String host = address.subString (0, index);
+    Uint32 portNumber = 0;
+    if (index != PEG_NOT_FOUND)
+    {
+        String portStr = address.subString (index + 1, address.size ());
+        sscanf (portStr.getCString (), "%u", &portNumber);
+    }
+    else
+        throw InvalidLocatorException (address);
+    _rep->connect (host, portNumber, sslContext, String::EMPTY, String::EMPTY);
 }
 #endif
 

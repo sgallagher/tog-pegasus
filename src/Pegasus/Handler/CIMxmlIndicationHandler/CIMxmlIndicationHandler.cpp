@@ -99,7 +99,15 @@ public:
 	    Monitor* monitor = new Monitor;
 	    HTTPConnector* httpConnector = new HTTPConnector(monitor);
 	    CIMExportClient exportclient(monitor, httpConnector);
-	    exportclient.connect(dest.subString(0, dest.find("/")));
+            Uint32 colon = dest.find (":");
+            Uint32 slash = dest.find ("/");
+            Uint32 portNumber = 0;
+            if ((colon != PEG_NOT_FOUND) && (slash != PEG_NOT_FOUND))
+            {
+                String portStr = dest.subString (colon + 1, slash);
+                sscanf (portStr.getCString (), "%u", &portNumber);
+            }
+            exportclient.connect (dest.subString (0, colon), portNumber);
 	    exportclient.exportIndication(
                 dest.subString(dest.find("/")), indicationInstance);
 	}

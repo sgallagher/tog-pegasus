@@ -532,6 +532,20 @@ int main(int argc, char** argv)
 		     CIMClient client;
 		     client.setTimeout(60 * 1000);
 		     cout << "Client created" << endl;
+
+                     //
+                     //  Get host and port number from connection list entry
+                     //
+                     Uint32 index = connectionList[i].find (':');
+                     String host = connectionList[i].subString (0, index);
+                     Uint32 portNumber = 0;
+                     if (index != PEG_NOT_FOUND)
+                     {
+                         String portStr = connectionList[i].subString
+                             (index + 1, connectionList[i].size ());
+                         sscanf (portStr.getCString (), "%u", &portNumber);
+                     }
+
                      if (useSSL)
 		     {
 
@@ -559,7 +573,8 @@ int main(int argc, char** argv)
 			else 
 			{
                             cout << "connecting to " << connectionList[i] << " using SSL" << endl;
-		            client.connect(connectionList[i], sslcontext, userName, password);
+                            client.connect (host, portNumber, sslcontext, 
+                                            userName, password);
                         }
 		      }
 	              else
@@ -571,9 +586,9 @@ int main(int argc, char** argv)
 			}
 			else 
 			{
-
 			  cout << "Connecting to " << connectionList[i] << endl;
-						   client.connect(connectionList[i], userName, password);
+                            client.connect (host, portNumber,
+                                            userName, password);
 			}
 		      }
 		      cout << "Client Connected" << endl;

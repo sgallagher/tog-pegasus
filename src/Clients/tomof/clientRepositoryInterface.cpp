@@ -68,8 +68,16 @@ clientRepositoryInterface::init(_repositoryType type,
     // create a CIMClient object and put it in _client
     try
     {
-		_client = new CIMClient();
-		_client->connect(location, String::EMPTY, String::EMPTY);
+        Uint32 index = location.find (':');
+        String host = location.subString (0, index);
+        Uint32 portNumber = 0;
+        if (index != PEG_NOT_FOUND)
+        {
+            String portStr = location.subString (index + 1, location.size ());
+            sscanf (portStr.getCString (), "%u", &portNumber);
+        }
+        _client = new CIMClient();
+        _client->connect (host, portNumber, String::EMPTY, String::EMPTY);
     } 
     
     catch(Exception &e) 

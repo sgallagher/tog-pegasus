@@ -85,7 +85,9 @@ public:
 
     /** connect - Creates an HTTP connection with the server
         defined by the URL in address.
-        @param address - String defining the URL of the server
+        @param host - String defining the server to which the client should 
+        connect
+        @param portNumber - Uint32 defining the port number for the server
         to which the client should connect
         @param userName - String containing the name of the user
         the client is connecting as.
@@ -103,18 +105,21 @@ public:
             If any other failure occurs.
         <PRE>
             CIMClient client;
-            client.connect("localhost:5988", "guest", "guest");
+            client.connect("localhost", 5988, "guest", "guest");
         </PRE>
     */
     void connect(
-        const String& address,
+        const String& host,
+        const Uint32 portNumber,
         const String& userName,
         const String& password
     );
 
     /** connect - Creates an HTTP connection with the server
         defined by the URL in address.
-        @param address - String defining the URL of the server
+        @param host - String defining the server to which the client should 
+        connect
+        @param portNumber - Uint32 defining the port number for the server
         to which the client should connect
         @param sslContext - The SSL context to use for this connection
         @param userName - String containing the name of the user
@@ -136,7 +141,8 @@ public:
         </PRE>
     */
     void connect(
-        const String& address,
+        const String& host,
+        const Uint32 portNumber,
         const SSLContext& sslContext,
         const String& userName,
         const String& password
@@ -147,6 +153,10 @@ public:
         defined by the URL in address.
         @param address - String defining the URL of the server
         to which the client should connect
+        @param userName - String containing the name of the user
+        the client is connecting as.
+        @param password - String containing the password of the user
+        the client is connecting as.
         @exception AlreadyConnectedException
             If a connection has already been established.
         @exception InvalidLocatorException
@@ -164,6 +174,8 @@ public:
     */
     void connect(
         const String& address
+        const String& userName = String::EMPTY,
+        const String& password = String::EMPTY
     );
 
     /** connect - Creates an HTTP connection with the server
@@ -171,6 +183,10 @@ public:
         @param address - String defining the URL of the server
         to which the client should connect
         @param sslContext - The SSL context to use for this connection
+        @param userName - String containing the name of the user
+        the client is connecting as.
+        @param password - String containing the password of the user
+        the client is connecting as.
         @exception AlreadyConnectedException
             If a connection has already been established.
         @exception InvalidLocatorException
@@ -188,6 +204,8 @@ public:
     void connect(
         const String& address,
         const SSLContext& sslContext
+        const String& userName = String::EMPTY,
+        const String& password = String::EMPTY
     );
 #endif
 

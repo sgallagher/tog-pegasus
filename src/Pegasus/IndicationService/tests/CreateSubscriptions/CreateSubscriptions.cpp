@@ -76,7 +76,7 @@ void TestCreateSubscriptionInstances(CIMClient& client)
 int main(int argc, char** argv)
 {
     CIMClient client;
-    client.connect("localhost:5988", String::EMPTY, String::EMPTY);
+    client.connect("localhost", 5988, String::EMPTY, String::EMPTY);
 
     try
     {

@@ -638,7 +638,8 @@ void OSTestClient::testGetInstance (CIMClient &client,
 int main(int argc, char** argv)
 {
 
-    String     host = "localhost:5988";
+    String     host = "localhost";
+    Uint32     portNumber = 5988;
     String     userName; // = String::EMPTY;
     String     password; // = String::EMPTY;
     Boolean    enumInst = true;
@@ -673,8 +674,9 @@ int main(int argc, char** argv)
         if (verboseTest)
            cout << "Client created" << endl;
 
-        cout << "OSTestClient connecting to " << host << endl;
-	client.connect(host, userName, password);
+        cout << "OSTestClient connecting to " << host << ":" << portNumber 
+             << endl;
+        client.connect(host, portNumber, userName, password);
         cout << "OSTestClient Connected" << endl;
 
         OSTestClient testClient(client);

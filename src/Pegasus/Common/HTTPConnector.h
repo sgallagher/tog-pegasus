@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -75,8 +76,8 @@ class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueueService
       /** Establishes a new connection and creates an HTTPConnection object
 	  to represent it.
 
-	  @param locator indicates which server to connect to (of the form
-	  host:port).
+	  @param host indicates host to connect to
+	  @param portNumber indicates port number to use
 	  @param outputMessageQueue output message queue for the HTTPConnection
 	  that will be created.
 	  @exception InvalidLocatorException
@@ -84,17 +85,18 @@ class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueueService
 	  @exception CannotConnectException
       */
       inline HTTPConnection* connect(
-	 const String& locator, 
+         const String& host, 
+         const Uint32 portNumber,
 	 MessageQueue* outputMessageQueue)
       {
-          return connect(locator, NULL, outputMessageQueue);
+          return connect(host, portNumber, NULL, outputMessageQueue);
       }
 
       /** Establishes a new connection and creates an HTTPConnection object
 	  to represent it.
 
-	  @param locator indicates which server to connect to (of the form
-	  host:port).
+	  @param host indicates host to connect to
+	  @param portNumber indicates port number to use
 	  @param sslContext Specifies the SSL context to use for this connection
 	  @param outputMessageQueue output message queue for the HTTPConnection
 	  that will be created.
@@ -103,7 +105,8 @@ class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueueService
 	  @exception CannotConnectException
       */
       HTTPConnection* connect(
-	 const String& locator, 
+         const String& host, 
+         const Uint32 portNumber,
 	 SSLContext * sslContext,
 	 MessageQueue* outputMessageQueue);
 

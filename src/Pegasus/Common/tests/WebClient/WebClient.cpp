@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -76,7 +77,8 @@ void WebClientQueue::handleEnqueue()
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-void ParseURL(const String& url, String& host, String& document)
+void ParseURL(const String& url, String& host, Uint32& portNumber, 
+    String& document)
 {
     if (url.find("http://") != 0)
     {
@@ -90,8 +92,18 @@ void ParseURL(const String& url, String& host, String& document)
     Uint32 slash = rem.find('/');
     host = rem.subString(0, slash);
 
-    if (host.find(':') == PEG_NOT_FOUND)
-	host.append(":80");
+    Uint32 index = host.find (':');
+    if (index == PEG_NOT_FOUND)
+    {
+        portNumber = 80;
+    }
+    else
+    {
+        host = host.subString (0, index);
+        portNumber = 0;
+        String portStr = rem.subString (index + 1, slash);
+        sscanf (portStr.getCString (), "%u", &portNumber);
+    }
 
     if (slash == PEG_NOT_FOUND)
 	document = "/";
@@ -104,6 +116,7 @@ void ParseURL(const String& url, String& host, String& document)
 void GetDocument(
     HTTPConnection* connection, 
     const String& host,
+    const Uint32 portNumber,
     const String& document)
 {
     // Build HTTP (request) message:
@@ -116,11 +129,12 @@ void GetDocument(
 	"Accept-Language: en-us\r\n"
 	"Accept-Encoding: gzip, deflate\r\n"
 	"User-Agent: Mozilla/4.0 (compatible; MyClient; Windows NT 5.0)\r\n"
-	"Host: %s\r\n"
+	"Host: %s:%u\r\n"
 	"Connection: Keep-Alive\r\n"
 	"\r\n",
 	(const char*)document.getCString(),
-	(const char*)host.getCString());
+        (const char*)host.getCString(),
+        portNumber);
 
     Array<Sint8> message;
     message.append(buffer, strlen(buffer));
@@ -154,8 +168,9 @@ int main(int argc, char** argv)
 
     String url = argv[1];
     String host;
+    Uint32 portNumber;
     String document;
-    ParseURL(url, host, document);
+    ParseURL(url, host, portNumber, document);
 
     // Connect to server and get the document:
 
@@ -166,9 +181,9 @@ int main(int argc, char** argv)
 	HTTPConnector* httpConnector = new HTTPConnector(monitor);
 
 	HTTPConnection* connection 
-	    = httpConnector->connect(host, webClientQueue);
+	    = httpConnector->connect(host, portNumber, webClientQueue);
 
-	GetDocument(connection, host, document);
+	GetDocument(connection, host, portNumber, document);
 
 	for (;;)
 	{

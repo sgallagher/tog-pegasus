@@ -24,7 +24,8 @@
 // Author:  Karl Schopmeyer (k.schopmeyer@opengroup.org) 
 //          Mary Hinton (m.hinton@verizon.net)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,11 +43,11 @@ int main(int argc, char** argv)
 {
 
     // Get options (from command line and from configuration file); this
-    // removes corresponding options and their arguments fromt he command
+    // removes corresponding options and their arguments from the command
     // line.
 
     // Get options (from command line and from configuration file); this
-    // removes corresponding options and their arguments fromt he command
+    // removes corresponding options and their arguments from the command
     // line.
 
     OptionManager om;
@@ -103,7 +104,16 @@ int main(int argc, char** argv)
                  << " password = " << opts.password
                  << endl;
         }
-        client.connect(opts.location, opts.user, opts.password);
+        Uint32 index = opts.location.find (':');
+        String host = opts.location.subString (0, index);
+        Uint32 portNumber = 0;
+        if (index != PEG_NOT_FOUND)
+        {
+            String portStr = opts.location.subString (index + 1,
+                opts.location.size ());
+            sscanf (portStr.getCString (), "%u", &portNumber);
+        }
+        client.connect(host, portNumber, opts.user, opts.password);
     }    
     catch(Exception &e) 
     {

@@ -42,7 +42,7 @@ int main(int argc, char** argv)
     try
     {
       CIMClient client;
-      client.connect("localhost:5988", String::EMPTY, String::EMPTY);
+      client.connect("localhost", 5988, String::EMPTY, String::EMPTY);
       
       //Indication
       CIMClass cimClass = client.getClass(NAMESPACE, 

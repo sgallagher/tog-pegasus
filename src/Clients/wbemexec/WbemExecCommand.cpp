@@ -221,7 +221,8 @@ WbemExecCommand::WbemExecCommand ()
 				         ostream& outPrintWriter ) 
     throw (Exception)
 {
-    String                 address               = String ();
+    String                 host                  = String ();
+    Uint32                 portNumber            = 0;
     Boolean                connectToLocal        = false;
 
     //
@@ -235,9 +236,8 @@ WbemExecCommand::WbemExecCommand ()
     if ((_hostNameSet) || (_portNumberSet))
     {
 #endif
-      address.append (_hostName);
-      address.append (":");
-      address.append (_portNumberStr);
+      host = _hostName;
+      portNumber = _portNumber;
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
     }
 #endif
@@ -267,7 +267,7 @@ WbemExecCommand::WbemExecCommand ()
             SSLContext * sslcontext =
                 new SSLContext(certpath, verifyCertificate, randFile, true);
 
-	    client.connect( address, sslcontext,  _userName, _password );
+	    client.connect(host, portNumber, sslcontext,  _userName, _password );
 	}
       }
     else
@@ -278,7 +278,7 @@ WbemExecCommand::WbemExecCommand ()
 	  }
 	else
 	  {
-	    client.connect( address, _userName, _password );
+	    client.connect(host, portNumber, _userName, _password );
 	  }
       }
 }

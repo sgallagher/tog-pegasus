@@ -24,8 +24,9 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -84,7 +85,9 @@ void CIMExportClient::handleEnqueue()
 
 }
 
-void CIMExportClient::connect(const String& address)
+void CIMExportClient::connect(
+    const String& host,
+    const Uint32 portNumber)
 {
    // If already connected, bail out!
     
@@ -102,7 +105,8 @@ void CIMExportClient::connect(const String& address)
     
    try
    {
-      httpConnection = _httpConnector->connect(address, _responseDecoder);
+      httpConnection = _httpConnector->connect(host, portNumber, 
+        _responseDecoder);
    }
    catch (Exception& e)
    {
@@ -120,7 +124,10 @@ void CIMExportClient::connect(const String& address)
    _connected = true;
 }
 
-void CIMExportClient::connectLocal(const String& address, const String& userName)
+void CIMExportClient::connectLocal(
+    const String& host, 
+    const Uint32 portNumber,
+    const String& userName)
 {
    if (userName.size())
    {
@@ -128,7 +135,7 @@ void CIMExportClient::connectLocal(const String& address, const String& userName
    }
    _authenticator->setAuthType(ClientAuthenticator::LOCAL);
 
-   connect(address);
+   connect(host, portNumber);
 }
 
 void CIMExportClient::exportIndication(

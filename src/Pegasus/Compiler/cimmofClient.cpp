@@ -62,15 +62,10 @@ cimmofClient::init(String &location, compilerCommonDefs::operationType ot)
   _client = new CIMClient();
 
   String hostname = "localhost";  //defaults
-  String portno = "5988";
+  Uint32 portno = 5988;
   // ATTN:
   //   get host name and port from command line data via parser object
-  String connectString;
-  if (location != "")
-    connectString = hostname + ":" + portno;
-  else
-    connectString = location;
-  _client->connect(connectString, String::EMPTY, String::EMPTY);
+  _client->connect(hostname, portno, String::EMPTY, String::EMPTY);
 
 }
 

@@ -24,6 +24,8 @@
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 // Modified By: Warren Otsuka, Hewlett-Packard Company (warren_otsuka@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -84,7 +86,9 @@ public:
 
     /** connect - Creates an HTTP connection with the server
         defined by the URL in address.
-        @param address - String defining the URL of the server
+        @param host - String defining the server to which the client should 
+        connect
+        @param portNumber - Uint32 defining the port number for the server
         to which the client should connect
         @param userName - String containing the name of the user
         the client is connecting as.
@@ -104,18 +108,21 @@ public:
         </PRE>
     */
     inline void connect(
-        const String& address,
+        const String& host,
+        const Uint32 portNumber,
         const String& userName,
         const String& password
     ) throw(AlreadyConnectedException, InvalidLocatorException,
             CannotCreateSocketException, CannotConnectException)
     {
-        connect(address, NULL, userName, password);
+        connect(host, portNumber, NULL, userName, password);
     }
 
     /** connect - Creates an HTTP connection with the server
         defined by the URL in address.
-        @param address - String defining the URL of the server
+        @param host - String defining the server to which the client should 
+        connect
+        @param portNumber - Uint32 defining the port number for the server
         to which the client should connect
         @param sslContext - The SSL context to use for this connection
         @param userName - String containing the name of the user
@@ -136,7 +143,8 @@ public:
         </PRE>
     */
     void connect(
-        const String& address,
+        const String& host,
+        const Uint32 portNumber,
         SSLContext* sslContext,
         const String& userName,
         const String& password
@@ -174,7 +182,8 @@ public:
 private:
 
     void _connect(
-        const String& address,
+        const String& host,
+        const Uint32 portNumber,
         SSLContext* sslContext)
       throw(CannotCreateSocketException, CannotConnectException,
             InvalidLocatorException);

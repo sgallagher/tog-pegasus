@@ -15,8 +15,7 @@ LIBRARY = JMPIProviderManager
 LIBRARIES = \
     pegcommon \
 	pegprovider \
-	pegprovidermanager \
-	pegprm
+	pegprovidermanager
 
 SOURCES = \
 	JMPIProviderManagerMain.cpp \

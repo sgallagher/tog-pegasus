@@ -13,8 +13,7 @@ LIBRARY = InternalProviderManager
 LIBRARIES = \
     pegcommon \
 	pegprovider \
-	pegprovidermanager \
-	pegprm
+	pegprovidermanager
 
 SOURCES = \
 	InternalProviderManagerMain.cpp \

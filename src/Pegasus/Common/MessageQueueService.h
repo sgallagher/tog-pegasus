@@ -78,6 +78,8 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
 			void *handle, 
 			void *parameter);
       
+      Uint32 get_pending_callback_count(void);
+      
       Boolean  SendForget(Message *msg);
       Boolean ForwardOp(AsyncOpNode *, Uint32 destination);
       

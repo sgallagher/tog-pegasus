@@ -246,6 +246,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void *
    return(0);
 }
 
+Uint32 MessageQueueService::get_pending_callback_count(void)
+{
+   return _callback.count();
+}
+
+
+
 void MessageQueueService::_sendwait_callback(AsyncOpNode *op, 
 					     MessageQueue *q, 
 					     void *parm)
@@ -783,6 +790,7 @@ Boolean MessageQueueService::SendAsync(Message *msg,
    if(callback == NULL)
       return SendForget(msg);
    AsyncOpNode *op = get_op();
+   msg->dest = destination;
    if( NULL == (op->_op_dest = MessageQueue::lookup(msg->dest)))
    {
       op->release();
@@ -807,7 +815,6 @@ Boolean MessageQueueService::SendAsync(Message *msg,
 				       destination, 
 				       msg, 
 				       destination);
-      msg = static_cast<Message *>(wrapper);
    }
    else 
    {
@@ -815,7 +822,6 @@ Boolean MessageQueueService::SendAsync(Message *msg,
       (static_cast<AsyncMessage *>(msg))->op = op;
    }
    
-   op->_callback_notify = _incoming.get_node_cond();
    _callback.insert_last(op);
    return _meta_dispatcher->route_async(op);
 }

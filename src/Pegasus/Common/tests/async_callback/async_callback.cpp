@@ -101,7 +101,7 @@ Boolean test_async_queue::messageOK(const Message * msg)
 	    return true;
       }
    }
-   return false;
+   return true;
 }
 
 
@@ -171,15 +171,8 @@ void test_async_queue::async_handleSafeEnqueue(Message *msg,
 					       void *handle, 
 					       void *parameter)
 {
-
-   async_complete *rp = static_cast<async_complete *>(msg);
-   PEGASUS_ASSERT(msg->getType() == async_messages::ASYNC_OP_RESULT);
-   msg = rp->get_result_data();
-   
    test_async_queue::msg_count++;
    delete msg;
-   delete rp;
-   
 }
 
 void test_async_queue::_handle_stop(CimServiceStop *stop)
@@ -256,7 +249,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
       pegasus_yield();  
 
    } while( test_async_queue::msg_count.value() < 10000 );
-   
+    
    test_async_queue::msg_count = 0 ;
    rq_count = 0;
    cout << "testing fast safe async send " << endl;
@@ -264,13 +257,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
    {
       Message *cim_rq = new Message(CIM_GET_INSTANCE_REQUEST_MESSAGE);
       
-      AsyncOperationStart *async_rq = new AsyncOperationStart(client->get_next_xid(),
-							      0,
-							      services[0],
-							      client->getQueueId(),
-							      false,
-							      cim_rq);
-      client->SendAsync(async_rq, 
+//       AsyncOperationStart *async_rq = new AsyncOperationStart(client->get_next_xid(),
+// 							      0,
+// 							      services[0],
+// 							      client->getQueueId(),
+// 							      false,
+// 							      cim_rq);
+      client->SendAsync(cim_rq, 
 			services[0], 
 			test_async_queue::async_handleSafeEnqueue,
 			client, 
@@ -279,6 +272,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
       pegasus_yield();
 
    } while( test_async_queue::msg_count.value() < 10000 );
+
+   cout << "client waiting for lingering callbacks..." << endl;
+   
+   while(client->get_pending_callback_count() > 0 )
+   {
+      sleep(1);
+   }
 
    cout << "sending stop to server " << endl;
    
@@ -300,15 +300,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
       pegasus_yield();
    }
 
+
+
    cout << "shutting down client" << endl;
    
    client->deregister_service();
    client->_shutdown_incoming_queue();
 
-
-   cout << "client waiting for lingering callbacks..." << endl;
-   
-   pegasus_sleep(1000);
    delete client;
    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
    return(0);
@@ -329,8 +327,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func(void *parm)
    
    server->deregister_service();
    server->_shutdown_incoming_queue();
-   cout << "server waiting for lingering callbacks..." << endl;
-   pegasus_sleep(1000);
+
+   
    delete server;
    
    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );

@@ -38,7 +38,9 @@ DIRS = \
     Reference \
     DynLib \
     DynLoad \
-    Logger
+    Logger \
+    WebClient \
+    WebServer
 
 ifeq ($(OS),linux)
 SOURCES += IPC

@@ -26,16 +26,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// TODO:
-//
-//     Handle different document types (other than just HTML).
-//     Generate no such document error.
-//     Generate no such method error (not implemented).
-//
-////////////////////////////////////////////////////////////////////////////////
-
 #include <cassert>
 #include <iostream>
 #include <Pegasus/Common/HTTPAcceptor.h>
@@ -125,22 +115,39 @@ Message* WebServerQueue::handleHTTPMessage(HTTPMessage* requestMessage)
 
 	// Load the document into memory:
 
-	const char HEADER[] =
-	    "HTTP/1.1 200 OK\r\n"
-	    "Server: Pegasus 1.0\r\n"
-	    "Content-Length: %d\r\n"
-	    "Content-Type: %s \r\n\r\n";
-
 	Array<Sint8> content;
 
 	try
 	{
 	    FileSystem::loadFileToMemory(content, fullDocumentName);
 	}
-	catch (CannotOpenFile& e)
+	catch (CannotOpenFile&)
 	{
-	    cout << "Error: " << e.getMessage() << endl;
-	    return 0;
+	    const char HEADER[] =
+		"HTTP/1.1 404 Object Not Found\r\n"
+		"Server: WebServer/1.0.0\r\n"
+		"Content-Length: %d\r\n"
+		"Content-Type: text/html\r\n"
+		"\r\n";
+
+	    const char CONTENT[] =
+		"<html>\n"
+		"  <head>\n"
+		"    <title>Not Found</title>\n"
+		"  </head>\n"
+		"  <body>\n"
+		"  <h1>404: Not Found</h1>\n"
+		"  </body>\n"
+		"</html>\n";
+
+	    char header[256];
+	    sprintf(header, HEADER, strlen(CONTENT));
+
+	    Array<Sint8> buffer;
+	    buffer.append(header, strlen(header));
+	    buffer.append(CONTENT, strlen(CONTENT));
+
+	    return new HTTPMessage(buffer);
 	}
 
 	// Resolve the document type:
@@ -160,6 +167,12 @@ Message* WebServerQueue::handleHTTPMessage(HTTPMessage* requestMessage)
 	    else if (ext == ".html")
 		strcpy(docuentType, "text/html");
 	}
+
+	const char HEADER[] =
+	    "HTTP/1.1 200 OK\r\n"
+	    "Server: Pegasus 1.0\r\n"
+	    "Content-Length: %d\r\n"
+	    "Content-Type: %s \r\n\r\n";
 
 	char header[sizeof(HEADER) + 32];
 	sprintf(header, HEADER, content.size(), docuentType);

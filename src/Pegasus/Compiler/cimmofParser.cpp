@@ -1115,11 +1115,12 @@ cimmofParser::QualifierValue(const CIMName &qualifierName,
   CIMValue v = q.getValue();
   Uint32 asize = v.getArraySize();
 
-  if (isNull & v.getType() == CIMTYPE_BOOLEAN)
+  if (isNull && (v.getType() == CIMTYPE_BOOLEAN))
   {
-      Boolean b;
-      v.get(b);
-      return new CIMValue((Boolean) !b);
+    // From CIM Specification version 2.2 section 4.5.4:
+    //   If only the qualifier name is listed for a boolean qualifier,
+    //   it is implicitly set to TRUE.
+    return new CIMValue(Boolean(true));
   }
   return valueFactory::createValue(v.getType(),
 				     v.isArray() ? (int)asize : -1, 

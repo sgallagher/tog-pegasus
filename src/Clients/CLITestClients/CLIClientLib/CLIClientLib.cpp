@@ -77,6 +77,7 @@ Uint32 _selectStringItem(const Array<String>& selectList, const String& what)
         cout << "Select " << what << " (1.." << selectList.size() << ")? " << flush;
         cin >> rtn;
     }
+
     return (rtn - 1);
 }
 
@@ -106,6 +107,7 @@ Boolean _selectInstance(CIMClient& client, Options& opts, const CIMName& classNa
     Uint32 rtn = _selectStringItem(list, "an Instance");
 
     instancePath = instanceNames[rtn];
+
     return(true);
 }
 
@@ -136,6 +138,7 @@ Boolean _conditionalSelectInstance(CIMClient& client, Options& opts,
 
         return(_selectInstance(client, opts, CIMName(opts.objectName), instancePath));
     }
+
     return(true);
 }
 
@@ -460,7 +463,12 @@ int enumerateAllInstanceNames(CIMClient& client, Options& opts)
     }*/
 
     Array<CIMName> classNames;
-    if (opts.time) opts.elapsedTime.reset();
+
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
     classNames = client.enumerateClassNames(opts.nameSpace,
                                         opts.className,
@@ -489,10 +497,15 @@ int enumerateAllInstanceNames(CIMClient& client, Options& opts)
                         cout << instanceNames[i].toString() << endl;
         }
     }
-    if (opts.time)
-        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
 
-    return 0;
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
+
+    return(0);
 }
 
 int enumerateInstanceNames(CIMClient& client, Options& opts)
@@ -504,13 +517,23 @@ int enumerateInstanceNames(CIMClient& client, Options& opts)
             << ", Class= " << opts.className
             << endl;
     }
-    if (opts.time) opts.elapsedTime.reset();
+
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
     Array<CIMObjectPath> instanceNames =
         client.enumerateInstanceNames(opts.nameSpace,
                                       opts.className);
 
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
     if (opts.summary)
     {
@@ -523,7 +546,8 @@ int enumerateInstanceNames(CIMClient& client, Options& opts)
         for (Uint32 i = 0; i < instanceNames.size(); i++)
                     cout << instanceNames[i].toString() << endl;
     }
-    return 0;
+
+    return(0);
 }
 
 int enumerateInstances(CIMClient& client, Options& opts)
@@ -542,7 +566,13 @@ int enumerateInstances(CIMClient& client, Options& opts)
     }
 
     Array<CIMInstance> instances;
-    if (opts.time) opts.elapsedTime.reset();
+
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
+
     instances = client.enumerateInstances( opts.nameSpace,
                                            opts.className,
                                            opts.deepInheritance,
@@ -551,7 +581,12 @@ int enumerateInstances(CIMClient& client, Options& opts)
                                            opts.includeClassOrigin,
                                            opts.propertyList );
 
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
     if (opts.summary)
     {
@@ -568,7 +603,8 @@ int enumerateInstances(CIMClient& client, Options& opts)
             outputFormatInstance(opts.outputType, instance);
         }
     }
-    return 0;
+
+    return(0);
 }
 
 int executeQuery(CIMClient& client, Options& opts)
@@ -583,12 +619,23 @@ int executeQuery(CIMClient& client, Options& opts)
     }
 
     Array<CIMObject> objects;
-    if (opts.time) opts.elapsedTime.reset();
+
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
+
     objects = client.execQuery( opts.nameSpace,
                                 opts.queryLanguage,
                                 opts.query );
 
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
     if (opts.summary)
     {
@@ -602,7 +649,8 @@ int executeQuery(CIMClient& client, Options& opts)
             outputFormatObject(opts.outputType, objects[i]);
 
     }
-    return 0;
+
+    return(0);
 }
 
 int deleteInstance(CIMClient& client, Options& opts)
@@ -625,13 +673,22 @@ int deleteInstance(CIMClient& client, Options& opts)
     }
 
     if (opts.time)
+    {
         opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
     client.deleteInstance(opts.nameSpace,
                           thisObject);
 
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
-    return 0;
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
+
+    return(0);
 }
 /*
 NAMESPACE = 1
@@ -676,7 +733,13 @@ int getInstance(CIMClient& client, Options& opts)
         if(!_selectInstance(client, opts, CIMName(opts.objectName),thisObject))
             return(0);
     }
-    if (opts.time) opts.elapsedTime.reset();
+
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
+
     CIMInstance cimInstance = client.getInstance(opts.nameSpace,
                                                  thisObject,
                                                  opts.localOnly,
@@ -684,7 +747,13 @@ int getInstance(CIMClient& client, Options& opts)
                                                  opts.includeClassOrigin,
                                                  opts.propertyList);
 
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
+
     // Check Output Format to print results
     if (opts.summary)
     {
@@ -695,7 +764,7 @@ int getInstance(CIMClient& client, Options& opts)
     else
         outputFormatInstance(opts.outputType, cimInstance);
 
-    return 0;
+    return(0);
 }
 
 /****
@@ -755,13 +824,24 @@ int createInstance(CIMClient& client, Options& opts)
     // At this point we also treat them all as strings since we have not
     // defined a means to handle typing.
 
-    if (opts.time) opts.elapsedTime.reset();
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
+
     CIMObjectPath rtndPath = client.createInstance(opts.nameSpace,
                                                  newInstance);
 
     // Need to put values into the parameters.
 
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
+
     // Check Output Format to print results
     if (opts.summary)
     {
@@ -769,8 +849,11 @@ int createInstance(CIMClient& client, Options& opts)
             cout << opts.saveElapsedTime << endl;
     }
     else
+    {
         cout << rtndPath.toString() << endl;;
-    return 0;
+    }
+
+    return(0);
 }
 
 int enumerateClassNames(CIMClient& client, Options& opts)
@@ -786,12 +869,23 @@ int enumerateClassNames(CIMClient& client, Options& opts)
     }
     Array<CIMName> classNames;
 
-    if (opts.time) opts.elapsedTime.reset();
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
+
     classNames = client.enumerateClassNames(opts.nameSpace,
                                         opts.className,
                                         opts.deepInheritance);
 
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
+
     if (opts.summary)
     {
       String s = "class names";
@@ -804,7 +898,8 @@ int enumerateClassNames(CIMClient& client, Options& opts)
         for (Uint32 i = 0; i < classNames.size(); i++)
                 cout << classNames[i] << endl;
     }
-    return 0;
+
+    return(0);
 }
 
 int enumerateClasses(CIMClient& client, Options& opts)
@@ -829,7 +924,12 @@ int enumerateClasses(CIMClient& client, Options& opts)
     }
     */
     Array<CIMClass> classes;
-    if (opts.time) opts.elapsedTime.reset();
+
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
     classes = client.enumerateClasses(opts.nameSpace,
                                         opts.className,
@@ -838,7 +938,13 @@ int enumerateClasses(CIMClient& client, Options& opts)
                                         opts.includeQualifiers,
                                         opts.includeClassOrigin);
 
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
+
     if (opts.summary)
     {
       String s = "classes";
@@ -853,7 +959,8 @@ int enumerateClasses(CIMClient& client, Options& opts)
             outputFormatClass(opts.outputType, myClass);
         }
     }
-    return 0;
+
+    return(0);
 }
 
 int deleteClass(CIMClient& client, Options& opts)
@@ -865,12 +972,23 @@ int deleteClass(CIMClient& client, Options& opts)
             << ", Class = " << opts.className
             << endl;
     }
-    if (opts.time) opts.elapsedTime.reset();
+
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
     client.deleteClass(opts.nameSpace, opts.className);
 
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
-    return 0;
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
+
+    return(0);
 }
 
 int getClass(CIMClient& client, Options& opts)
@@ -887,7 +1005,12 @@ int getClass(CIMClient& client, Options& opts)
             << ", PropertyList= " << buildPropertyListString(opts.propertyList)
             << endl;
     }
-    if (opts.time) opts.elapsedTime.reset();
+
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
     CIMClass cimClass = client.getClass(opts.nameSpace,
                                         opts.className,
@@ -897,10 +1020,15 @@ int getClass(CIMClient& client, Options& opts)
                                         opts.propertyList);
 
     if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
         opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
     outputFormatClass(opts.outputType, cimClass);
-    return 0;
+
+    return(0);
 }
 
 int getProperty(CIMClient& client, Options& opts)
@@ -915,16 +1043,26 @@ int getProperty(CIMClient& client, Options& opts)
     }
 
     CIMValue cimValue;
-    if (opts.time) opts.elapsedTime.reset();
+
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
     cimValue = client.getProperty( opts.nameSpace,
                                    opts.instanceName,
                                    opts.propertyName);
 
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
     // ATTN: TODO: display returned property
-    return 0;
+    return(0);
 }
 
 int setProperty(CIMClient& client, Options& opts)
@@ -938,16 +1076,26 @@ int setProperty(CIMClient& client, Options& opts)
             << ", newValue= " << opts.newValue.toString()
             << endl;
     }
-    if (opts.time) opts.elapsedTime.reset();
+
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
     client.setProperty( opts.nameSpace,
                                    opts.instanceName,
                                    opts.propertyName,
                                    opts.newValue);
 
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
 
-    return 0;
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
+
+    return(0);
 }
 
 int getQualifier(CIMClient& client, Options& opts)
@@ -962,17 +1110,28 @@ int getQualifier(CIMClient& client, Options& opts)
     }
 
     CIMQualifierDecl cimQualifierDecl;
-    if (opts.time) opts.elapsedTime.reset();
+
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
     cimQualifierDecl = client.getQualifier( opts.nameSpace,
                                    opts.qualifierName);
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
+
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
     // display new qualifier
 
     outputFormatQualifierDecl(opts.outputType, cimQualifierDecl);
 
-    return 0;
+    return(0);
 }
 
 int setQualifier(CIMClient& client, Options& opts)
@@ -984,12 +1143,26 @@ int setQualifier(CIMClient& client, Options& opts)
             // KS add the qualifier decl here.
             << endl;
     }
-    if (opts.time) opts.elapsedTime.reset();
+
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
+
     client.setQualifier( opts.nameSpace,
                          opts.qualifierDeclaration);
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
-    return 0;
+
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
+
+    return(0);
 }
+
 int deleteQualifier(CIMClient& client, Options& opts)
 {
     if (opts.verboseTest)
@@ -999,12 +1172,24 @@ int deleteQualifier(CIMClient& client, Options& opts)
             << " Qualifier= " << opts.qualifierName
             << endl;
     }
-    if (opts.time) opts.elapsedTime.reset();
+
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
+
     client.deleteQualifier( opts.nameSpace,
                             opts.qualifierName);
 
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
-    return 0;
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
+
+    return(0);
 }
 int enumerateQualifiers(CIMClient& client, Options& opts)
 {
@@ -1016,9 +1201,21 @@ int enumerateQualifiers(CIMClient& client, Options& opts)
     }
 
     Array<CIMQualifierDecl> qualifierDecls;
-    if (opts.time) opts.elapsedTime.reset();
+
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
+
     qualifierDecls = client.enumerateQualifiers( opts.nameSpace);
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
+
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
     if (opts.summary)
         cout << qualifierDecls.size() << " returned." << endl;
@@ -1032,7 +1229,7 @@ int enumerateQualifiers(CIMClient& client, Options& opts)
         }
     }
 
-    return 0;
+    return(0);
 }
 
 /*Array<CIMObjectPath> referenceNames(
@@ -1057,7 +1254,11 @@ int referenceNames(CIMClient& client, Options& opts)
     if (!_conditionalSelectInstance(client, opts, thisObjectPath))
         return(0);
 
-    if (opts.time) opts.elapsedTime.reset();
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
     Array<CIMObjectPath> referenceNames =
         client.referenceNames( opts.nameSpace,
@@ -1065,7 +1266,12 @@ int referenceNames(CIMClient& client, Options& opts)
                                opts.resultClass,
                                opts.role);
 
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
     /*
     const CIMNamespaceName& nameSpace,
@@ -1085,7 +1291,8 @@ int referenceNames(CIMClient& client, Options& opts)
         for (Uint32 i = 0; i < referenceNames.size(); i++)
                     cout << referenceNames[i].toString() << endl;
     }
-    return 0;
+
+    return(0);
 }
 
 
@@ -1120,7 +1327,11 @@ int references(CIMClient& client, Options& opts)
     if (!_conditionalSelectInstance(client, opts, thisObjectPath))
         return(0);
 
-    if (opts.time) opts.elapsedTime.reset();
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
     Array<CIMObject> objects =
         client.references(  opts.nameSpace,
@@ -1131,7 +1342,12 @@ int references(CIMClient& client, Options& opts)
                             opts.includeClassOrigin,
                             opts.propertyList);
 
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
     if (opts.summary)
     {
@@ -1144,7 +1360,8 @@ int references(CIMClient& client, Options& opts)
         for (Uint32 i = 0; i < objects.size(); i++)
             outputFormatObject(opts.outputType, objects[i]);
     }
-    return 0;
+
+    return(0);
 }
 
 /*
@@ -1178,7 +1395,11 @@ int associatorNames(CIMClient& client, Options& opts)
     if(!_conditionalSelectInstance(client, opts, thisObjectPath))
         return(0);
 
-    if (opts.time) opts.elapsedTime.reset();
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
     Array<CIMObjectPath> associatorNames =
     client.associatorNames( opts.nameSpace,
@@ -1188,7 +1409,13 @@ int associatorNames(CIMClient& client, Options& opts)
                             opts.role,
                             opts.resultRole);
 
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
+
     /*
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
@@ -1207,7 +1434,8 @@ int associatorNames(CIMClient& client, Options& opts)
         for (Uint32 i = 0; i < associatorNames.size(); i++)
                     cout << associatorNames[i].toString() << endl;
     }
-    return 0;
+
+    return(0);
 }
 
 
@@ -1246,7 +1474,11 @@ int associators(CIMClient& client, Options& opts)
     if(!_conditionalSelectInstance(client, opts, thisObjectPath))
         return(0);
 
-    if (opts.time) opts.elapsedTime.reset();
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
     Array<CIMObject> objects =
     client.associators( opts.nameSpace,
@@ -1259,7 +1491,12 @@ int associators(CIMClient& client, Options& opts)
                         opts.includeClassOrigin,
                         opts.propertyList);
 
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
     if (opts.summary)
     {
@@ -1272,7 +1509,8 @@ int associators(CIMClient& client, Options& opts)
         for (Uint32 i = 0; i < objects.size(); i++)
             outputFormatObject(opts.outputType, objects[i]);
     }
-    return 0;
+
+    return(0);
 }
 
 /*
@@ -1304,13 +1542,22 @@ int associators(CIMClient& client, Options& opts)
         CIMValue retValue;
         Array<CIMParamValue> outParams;
 
-        if (opts.time) opts.elapsedTime.reset();
+        if (opts.time)
+        {
+            opts.elapsedTime.reset();
+            opts.elapsedTime.start();
+        }
 
         // Call invoke method with the parameters
         retValue = client.invokeMethod(opts.nameSpace, opts.objectName,
             opts.methodName, opts.inParams, outParams);
 
-        if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
+        if (opts.time)
+        {
+            opts.elapsedTime.stop();
+
+            opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+        }
 
         // Display the return value CIMValue
         cout << "Return Value= ";
@@ -1324,7 +1571,8 @@ int associators(CIMClient& client, Options& opts)
             outputFormatParamValue(opts.outputType, outParams[i]);
 
      }
-     return 0;
+
+     return(0);
  }
 
  /* Enumerate the Namespaces.  This function is based on using the __Namespace class
@@ -1352,7 +1600,12 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
     namespaceNames.append(opts.nameSpace);
     Uint32 start = 0;
     Uint32 end = namespaceNames.size();
-    if (opts.time) opts.elapsedTime.reset();
+
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
     do
     {
@@ -1408,7 +1661,13 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
                 returnNamespaces.append(namespaceNames[i]);
         }
     }
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
+
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
     if (opts.summary)
     {
@@ -1421,7 +1680,8 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
             cout << returnNamespaces[cnt] << endl;;
         }
     }
-    return 0;
+
+    return(0);
 }
 
 /////////////////////////////////////////////////////////////////////

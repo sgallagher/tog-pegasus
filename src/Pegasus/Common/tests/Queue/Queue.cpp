@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -33,91 +33,106 @@
 //              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
- 
-  
+
+
 #include <cstdlib>
 #include <cassert>
 #include <Pegasus/Common/Queue.h>
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Array.h>
-PEGASUS_USING_PEGASUS; 
+PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static char * verbose;   
- 
+static char * verbose;
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
     try
     {
-    	// Simple test with Uint32 Stack of push, pop, top, and tests.
-    	Queue<Uint32> q1;
-    	assert (q1.isEmpty());
-    
-    	q1.enqueue(1);
-    	assert(q1.size() == 1);
-    	assert(!q1.isEmpty());
-    	assert(q1.back() == 1);
-    	assert(q1.front() == 1);
-    	
-    	q1.enqueue(2);
-    	assert(q1.size() == 2);
-    	assert (!q1.isEmpty());
+        // Simple test with Uint32 Stack of push, pop, top, and tests.
+        Queue<Uint32> q1;
+        assert (q1.isEmpty());
+
+        q1.enqueue(1);
+        assert(q1.size() == 1);
+        assert(!q1.isEmpty());
+        assert(q1.back() == 1);
+        assert(q1.front() == 1);
+
+        q1.enqueue(2);
+        assert(q1.size() == 2);
+        assert (!q1.isEmpty());
         assert(q1.back() == 2);
         assert(q1.front() == 1);
 
-    	q1.dequeue();
-    	assert(q1.size() == 1);
-    	assert(!q1.isEmpty());
-    	assert(q1.back() == 2);
-    	assert(q1.front() == 2);
-    
-    
-    	q1.dequeue();
-    	assert(q1.size() == 0);
-    	assert (q1.isEmpty());
-    
-    
-    
-    	// Performance tests - Filling and emptying
-            
-    	Stopwatch sw;
-        
-    	Queue<Uint32> q2;
-    	Uint32 queueSize = 10000;
-          
-    	for (Uint32 i = 0; i < queueSize; i++)
-    	    q2.enqueue(i); 
-         
-    	assert(q2.size() == queueSize);
-    	for (Uint32 i = 0; i < queueSize; i++)
-    	    q2.dequeue();
-    	if(verbose)
-    	{
-    	    cout << "Queue fill and empty of " << queueSize << " integers in " << 
-    		    sw.getElapsed() << " Seconds" << endl;
-    	}
-    	
-    	// Performance test - Passing item through a queue.
+        q1.dequeue();
+        assert(q1.size() == 1);
+        assert(!q1.isEmpty());
+        assert(q1.back() == 2);
+        assert(q1.front() == 2);
+
+
+        q1.dequeue();
+        assert(q1.size() == 0);
+        assert (q1.isEmpty());
+
+
+
+        // Performance tests - Filling and emptying
+
+        Stopwatch sw;
+
+        Queue<Uint32> q2;
+        Uint32 queueSize = 10000;
+
+        sw.start();
+
+        for (Uint32 i = 0; i < queueSize; i++)
+            q2.enqueue(i);
+
+        assert(q2.size() == queueSize);
+
+        for (Uint32 i = 0; i < queueSize; i++)
+            q2.dequeue();
+
+        sw.stop();
+
+        if(verbose)
+        {
+            cout << "Queue fill and empty of " << queueSize << " integers in " <<
+                sw.getElapsed() << " Seconds" << endl;
+        }
+
+        // Performance test - Passing item through a queue.
+        {
+            Stopwatch sw;
+
+            Queue<Uint32> q3;
+            Uint32 queueSize = 3000;
+
+            sw.start();
+
+            for (Uint32 i = 0; i < queueSize; i++)
+                q2.enqueue(i);
+
+            Uint32 iterations = 10000;
+
+            for (Uint32 i = 0; i < iterations; i++)
+                q3.enqueue(i);
+
+            q3.dequeue();
+
+            sw.stop();
+
+            if (verbose)
             {
-                Queue<Uint32> q3;
-                queueSize = 3000;
-                for (Uint32 i = 0; i < queueSize; i++)
-                    q2.enqueue(i);
-    
-                Stopwatch sw;
-                Uint32 iterations = 10000;
-                for (Uint32 i = 0; i < iterations; i++)
-                    q3.enqueue(i);
-                q3.dequeue();
-    
-                if (verbose)
-                {
-                    cout << "Queue transit. Queue size =  " << queueSize 
-                    << " integers. Transit of " << iterations << " in "
-                    << sw.getElapsed() << " Seconds" << endl;
-                }
+                cout << "Queue transit. Queue size =  " << queueSize
+                << " integers. Transit of " << iterations << " in "
+                << sw.getElapsed() << " Seconds" << endl;
             }
+        }
+
         // Testing items in a queue
         Queue<Uint32> q4;
         for (Uint32 i = 0; i < 30; i++)
@@ -141,10 +156,10 @@ int main(int argc, char** argv)
         }
         assert(found);*/
 
-    	assert(q4.size() == 30);
+        assert(q4.size() == 30);
         q4.remove(12);
 
-    	assert(q4.size() == 29);
+        assert(q4.size() == 29);
         found = false;
 
         for (Uint32 i = 0; i < q4.size(); i++)
@@ -176,8 +191,8 @@ int main(int argc, char** argv)
     }
     catch (Exception& e)
     {
-	cout << "Exception: " << e.getMessage() << endl;
-	exit(1);
+    cout << "Exception: " << e.getMessage() << endl;
+    exit(1);
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;

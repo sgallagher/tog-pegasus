@@ -44,7 +44,6 @@
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/XmlWriter.h>
 
@@ -1493,7 +1492,7 @@ int main(int argc, char** argv)
             exit (0);
         }
     }
-    
+
     try
     {
         InteropTest it;

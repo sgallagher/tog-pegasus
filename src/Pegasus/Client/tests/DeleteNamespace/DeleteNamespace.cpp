@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,7 +31,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
-//		Sean Keenan (sean.keenan@hp.com)
+//      Sean Keenan (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -96,9 +96,9 @@ static Boolean verifyServerCertificate(SSLCertificateInfo &certInfo)
 //   Test Namespaces Hierarchy - Relative Path Name
 ******************************************************************/
 
-static void TestNamespaceHierarchy1 ( CIMClient& client, 
-			            Boolean activeTest, 
-			            Boolean verboseTest) 
+static void TestNamespaceHierarchy1 ( CIMClient& client,
+                        Boolean activeTest,
+                        Boolean verboseTest)
 {
     Array<CIMNamespaceName> namespaces;
     String instanceName;
@@ -127,17 +127,17 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
       instanceName.append( ".Name=\"");
       instanceName.append(testNamespaceName.getString());
       instanceName.append("\"");
-      
+
       try
-	{
-	  CIMObjectPath myReference(instanceName);
-	  if(verboseTest)
-	    cout << "Deleting " << testNamespaceName << endl;
-	  client.deleteInstance(__NAMESPACE_NAMESPACE, myReference);
-	}
+    {
+      CIMObjectPath myReference(instanceName);
+      if(verboseTest)
+        cout << "Deleting " << testNamespaceName << endl;
+      client.deleteInstance(__NAMESPACE_NAMESPACE, myReference);
+    }
       catch(...)
       {
-	  //Ignore errors we are just trying to cleanup
+      //Ignore errors we are just trying to cleanup
       }
     }
 
@@ -147,31 +147,31 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
     }
     for (Uint32 i = 0; i < namespaces.size(); i++)
       {
-	// Build the instance name for __namespace
-	CIMNamespaceName testNamespaceName = namespaces[i];
-	String instanceName = CLASSNAME.getString();
-	instanceName.append( ".Name=\"");
-	instanceName.append(testNamespaceName.getString());
-	instanceName.append("\"");
-	if(verboseTest)
-	{
-	    cout << "Creating " << testNamespaceName << endl;   
-	}
-	try
-	{
-	    // Build the new instance
-	    CIMInstance newInstance(CLASSNAME);
-	    newInstance.addProperty(CIMProperty(CIMName ("name"), 
+    // Build the instance name for __namespace
+    CIMNamespaceName testNamespaceName = namespaces[i];
+    String instanceName = CLASSNAME.getString();
+    instanceName.append( ".Name=\"");
+    instanceName.append(testNamespaceName.getString());
+    instanceName.append("\"");
+    if(verboseTest)
+    {
+        cout << "Creating " << testNamespaceName << endl;
+    }
+    try
+    {
+        // Build the new instance
+        CIMInstance newInstance(CLASSNAME);
+        newInstance.addProperty(CIMProperty(CIMName ("name"),
                 testNamespaceName.getString()));
-	    client.createInstance(__NAMESPACE_NAMESPACE, newInstance);
-	}
-	catch(Exception& e)
-	{
-	     PEGASUS_STD(cerr) << "Exception NameSpace Creation: "
-			<< e.getMessage() << " Creating " << instanceName
-		        << PEGASUS_STD(endl);
-	     exit(1);
-	}
+        client.createInstance(__NAMESPACE_NAMESPACE, newInstance);
+    }
+    catch(Exception& e)
+    {
+         PEGASUS_STD(cerr) << "Exception NameSpace Creation: "
+            << e.getMessage() << " Creating " << instanceName
+                << PEGASUS_STD(endl);
+         exit(1);
+    }
       }
 
     for (Sint32 i = namespaces.size()-1; i > -1; i--)
@@ -183,26 +183,26 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
       instanceName.append( ".Name=\"");
       instanceName.append(testNamespaceName.getString());
       instanceName.append("\"");
-      
+
       try
-	{
-	  CIMObjectPath myReference(instanceName);
-	  if(verboseTest)
-	    cout << "getInstance " << testNamespaceName << endl;
-	  CIMInstance namespaceInstance = client.getInstance(__NAMESPACE_NAMESPACE, myReference);
-	}
+    {
+      CIMObjectPath myReference(instanceName);
+      if(verboseTest)
+        cout << "getInstance " << testNamespaceName << endl;
+      CIMInstance namespaceInstance = client.getInstance(__NAMESPACE_NAMESPACE, myReference);
+    }
       catch(Exception& e)
-	{
-	  PEGASUS_STD(cerr) << "Exception NameSpace Deletion1: "
-			    << e.getMessage() << " Deleting " << instanceName
-			    << PEGASUS_STD(endl);
-	  exit(1);
-	}
+    {
+      PEGASUS_STD(cerr) << "Exception NameSpace Deletion1: "
+                << e.getMessage() << " Deleting " << instanceName
+                << PEGASUS_STD(endl);
+      exit(1);
+    }
     }
 
   if(verboseTest)
     cout << "++ Delete test namespaces " << endl;
-  
+
   for (Sint32 i = namespaces.size()-1; i > -1; i--)
     {
       // Build the instance name for __namespace
@@ -212,21 +212,21 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
       instanceName.append( ".Name=\"");
       instanceName.append(testNamespaceName.getString());
       instanceName.append("\"");
-      
+
       try
-	{
-	  CIMObjectPath myReference(instanceName);
-	  if(verboseTest)
-	    cout << "Deleting " << testNamespaceName << endl;
-	  client.deleteInstance(__NAMESPACE_NAMESPACE, myReference);
-	}
+    {
+      CIMObjectPath myReference(instanceName);
+      if(verboseTest)
+        cout << "Deleting " << testNamespaceName << endl;
+      client.deleteInstance(__NAMESPACE_NAMESPACE, myReference);
+    }
       catch(Exception& e)
-	{
-	  PEGASUS_STD(cerr) << "Exception NameSpace Deletion 2: "
-			    << e.getMessage() << " Deleting " << instanceName
-			    << PEGASUS_STD(endl);
-	  exit(1);
-	}
+    {
+      PEGASUS_STD(cerr) << "Exception NameSpace Deletion 2: "
+                << e.getMessage() << " Deleting " << instanceName
+                << PEGASUS_STD(endl);
+      exit(1);
+    }
     }
 }
 
@@ -234,9 +234,9 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
 //   Test Namespaces Hierarchy - Full Path Name
 ******************************************************************/
 
-static void TestNamespaceHierarchy2 ( CIMClient& client, 
-			              Boolean activeTest, 
-			              Boolean verboseTest) 
+static void TestNamespaceHierarchy2 ( CIMClient& client,
+                          Boolean activeTest,
+                          Boolean verboseTest)
 {
     Array<CIMNamespaceName> namespaces;
     String instanceName;
@@ -262,17 +262,17 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
       instanceName.clear();
       instanceName.append(CLASSNAME.getString());
       instanceName.append( ".Name=\"\"");
-      
+
       try
-	{
-	  CIMObjectPath myReference(instanceName);
-	  if(verboseTest)
-	    cout << "Deleting " << namespaces[i] << endl;
-	  client.deleteInstance(namespaces[i], myReference);
-	}
+    {
+      CIMObjectPath myReference(instanceName);
+      if(verboseTest)
+        cout << "Deleting " << namespaces[i] << endl;
+      client.deleteInstance(namespaces[i], myReference);
+    }
       catch(...)
       {
-	  //Ignore errors we are just trying to cleanup
+      //Ignore errors we are just trying to cleanup
       }
     }
 
@@ -282,30 +282,30 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
     }
     for (Uint32 i = 0; i < namespaces.size(); i++)
       {
-	try
-	{
-	    // Build the new instance
-	    CIMInstance newInstance(CLASSNAME);
-	    newInstance.addProperty(CIMProperty(CIMName ("name"),
+    try
+    {
+        // Build the new instance
+        CIMInstance newInstance(CLASSNAME);
+        newInstance.addProperty(CIMProperty(CIMName ("name"),
                 String::EMPTY));
             if(verboseTest)
             {
               cout << "Creating " << namespaces[i] << endl;
             }
-	    client.createInstance(namespaces[i], newInstance);
-	}
-	catch(Exception& e)
-	{
-	     PEGASUS_STD(cerr) << "Exception NameSpace Creation: "
-			<< e.getMessage() << " Creating " << namespaces[i]
-		        << PEGASUS_STD(endl);
-	     exit(1);
-	}
+        client.createInstance(namespaces[i], newInstance);
+    }
+    catch(Exception& e)
+    {
+         PEGASUS_STD(cerr) << "Exception NameSpace Creation: "
+            << e.getMessage() << " Creating " << namespaces[i]
+                << PEGASUS_STD(endl);
+         exit(1);
+    }
       }
 
   if(verboseTest)
     cout << "++ Delete test namespaces" << endl;
-  
+
   for (Sint32 i = namespaces.size()-1; i > -1; i--)
     {
       // Build the instance name for __namespace
@@ -313,21 +313,21 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
       instanceName.clear();
       instanceName.append(CLASSNAME.getString());
       instanceName.append( ".Name=\"\"");
-      
+
       try
-	{
-	  CIMObjectPath myReference(instanceName);
-	  if(verboseTest)
-	    cout << "Deleting " << testNamespaceName << endl;
-	  client.deleteInstance(namespaces[i], myReference);
-	}
+    {
+      CIMObjectPath myReference(instanceName);
+      if(verboseTest)
+        cout << "Deleting " << testNamespaceName << endl;
+      client.deleteInstance(namespaces[i], myReference);
+    }
       catch(Exception& e)
-	{
-	  PEGASUS_STD(cerr) << "Exception NameSpace Deletion 3: "
-			    << e.getMessage() << " Deleting " << instanceName
-			    << PEGASUS_STD(endl);
-	  exit(1);
-	}
+    {
+      PEGASUS_STD(cerr) << "Exception NameSpace Deletion 3: "
+                << e.getMessage() << " Deleting " << instanceName
+                << PEGASUS_STD(endl);
+      exit(1);
+    }
     }
  }
 
@@ -345,7 +345,7 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
     Uint32 domainSize;
     const char* commandLineOptionName;
     const char* optionHelpMessage;
-    
+
 */
 void GetOptions(
     OptionManager& om,
@@ -356,35 +356,35 @@ void GetOptions(
     static struct OptionRow optionsTable[] =
         //     optionname defaultvalue rqd  type domain domainsize clname hlpmsg
     {
-		 {"active", "false", false, Option::BOOLEAN, 0, 0, "a",
-		 		      "If set allows test that modify the repository" },
-		 
-		 {"repeat", "1", false, Option::WHOLE_NUMBER, 0, 0, "r",
-		 		       "Specifies a Repeat Count Entire test repeated this many times" },
-		 
-		 {"namespace", "root/cimv2", false, Option::STRING, 0, 0, "-n",
-		 		 		 "specifies namespace to use for test" },
+         {"active", "false", false, Option::BOOLEAN, 0, 0, "a",
+                      "If set allows test that modify the repository" },
 
-		 {"version", "false", false, Option::BOOLEAN, 0, 0, "v",
-		 		 		 "Displays TestClient Version "},
+         {"repeat", "1", false, Option::WHOLE_NUMBER, 0, 0, "r",
+                       "Specifies a Repeat Count Entire test repeated this many times" },
 
-		 {"verbose", "false", false, Option::BOOLEAN, 0, 0, "verbose",
-		 		 		 "If set, outputs extra information "},
+         {"namespace", "root/cimv2", false, Option::STRING, 0, 0, "-n",
+                         "specifies namespace to use for test" },
 
-		 {"help", "false", false, Option::BOOLEAN, 0, 0, "h",
-		 		     "Prints help message with command line options "},
-		 {"debug", "false", false, Option::BOOLEAN, 0, 0, "d", 
-		              "Not Used "},
-		 {"ssl", "false", false, Option::BOOLEAN, 0, 0, "ssl", 
-		 		 		 "use SSL"}, 
+         {"version", "false", false, Option::BOOLEAN, 0, 0, "v",
+                         "Displays TestClient Version "},
 
-		 {"local", "false", false, Option::BOOLEAN, 0, 0, "local",
-		 		 		 "Use local connection mechanism"},
-		 {"user", "", false, Option::STRING, 0, 0, "user",
-		 		 		 "Specifies user name" },
+         {"verbose", "false", false, Option::BOOLEAN, 0, 0, "verbose",
+                         "If set, outputs extra information "},
 
-		 {"password", "", false, Option::STRING, 0, 0, "password",
-		 		 		 "Specifies password" }
+         {"help", "false", false, Option::BOOLEAN, 0, 0, "h",
+                     "Prints help message with command line options "},
+         {"debug", "false", false, Option::BOOLEAN, 0, 0, "d",
+                      "Not Used "},
+         {"ssl", "false", false, Option::BOOLEAN, 0, 0, "ssl",
+                         "use SSL"},
+
+         {"local", "false", false, Option::BOOLEAN, 0, 0, "local",
+                         "Use local connection mechanism"},
+         {"user", "", false, Option::STRING, 0, 0, "user",
+                         "Specifies user name" },
+
+         {"password", "", false, Option::STRING, 0, 0, "password",
+                         "Specifies password" }
 
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
@@ -400,7 +400,7 @@ void GetOptions(
     cout << "Config file from " << configFile << endl;
 
     if (FileSystem::exists(configFile))
-		 om.mergeFile(configFile);
+         om.mergeFile(configFile);
 
     om.mergeCommandLine(argc, argv);
 
@@ -417,7 +417,7 @@ int main(int argc, char** argv)
 
   // char connection[50] = "localhost:5988";
   char *address_string = NULL;
-  
+
     Uint32 repetitions = 1;
 
     // Get environment variables:
@@ -439,12 +439,12 @@ int main(int argc, char** argv)
 
     try
     {
-		 GetOptions(om, argc, argv, pegasusHome);
+         GetOptions(om, argc, argv, pegasusHome);
     }
     catch (Exception& e)
     {
-		 cerr << argv[0] << ": " << e.getMessage() << endl;
-		 exit(1);
+         cerr << argv[0] << ": " << e.getMessage() << endl;
+         exit(1);
     }
 
     // Check to see if user asked for help (-h otpion):
@@ -459,7 +459,7 @@ int main(int argc, char** argv)
                 trailer.append("\nPort 5988 assumed if port number missing.");
                 om.printOptionsHelpTxt(header, trailer);
 
-		 exit(0);
+         exit(0);
     }
 
     String localNameSpace;
@@ -482,30 +482,30 @@ int main(int argc, char** argv)
        cout << "password = " << password << endl;
     }
 
-	// Set up number of test repetitions.  Will repeat entire test this number of times
-	// Default is zero
-	String repeats;
-	Uint32 repeatTestCount = 0;
-	/* ATTN: KS P0 Test and fix function added to Option Manager
-	*/
-	if (!om.lookupIntegerValue("repeat", repeatTestCount))
-	    repeatTestCount = 1;
-	/*
-	if (om.lookupValue("repeat", repeats))
+    // Set up number of test repetitions.  Will repeat entire test this number of times
+    // Default is zero
+    String repeats;
+    Uint32 repeatTestCount = 0;
+    /* ATTN: KS P0 Test and fix function added to Option Manager
+    */
+    if (!om.lookupIntegerValue("repeat", repeatTestCount))
+        repeatTestCount = 1;
+    /*
+    if (om.lookupValue("repeat", repeats))
         {
-		repeatTestCount = atol(repeats.getCString());
+        repeatTestCount = atol(repeats.getCString());
         }
-	else
-		repeatTestCount = 1;
-	*/
-	if(verboseTest)
-		cout << "Test repeat count " << repeatTestCount << endl;
+    else
+        repeatTestCount = 1;
+    */
+    if(verboseTest)
+        cout << "Test repeat count " << repeatTestCount << endl;
 
-	// Setup the active test flag.  Determines if we change repository.
+    // Setup the active test flag.  Determines if we change repository.
     Boolean activeTest = false;
     if (om.valueEquals("active", "true"))
-		 activeTest = true;
-     
+         activeTest = true;
+
     // here we determine the list of systems to test.
     // All arguments remaining in argv go into list.
 
@@ -514,8 +514,8 @@ int main(int argc, char** argv)
 
     Array<String> connectionList;
     if (argc > 1 && !localConnection)
-		 for (Sint32 i = 1; i < argc; i++)
-		     connectionList.append(argv[i]);
+         for (Sint32 i = 1; i < argc; i++)
+             connectionList.append(argv[i]);
 
     // substitute the default if no params
     if(argc < 2)
@@ -525,25 +525,27 @@ int main(int argc, char** argv)
 
     Boolean useSSL =  om.isTrue("ssl");
 
-	// Show the connectionlist
+    // Show the connectionlist
     cout << "Connection List size " << connectionList.size() << endl;
     for (Uint32 i = 0; i < connectionList.size(); i++)
-	cout << "Connection " << i << " address " << connectionList[i] << endl; 
-    
+    cout << "Connection " << i << " address " << connectionList[i] << endl;
+
     for(Uint32 numTests = 1; numTests <= repeatTestCount; numTests++)
-	{
-		cout << "Test Repetition # " << numTests << endl;
-		for (Uint32 i = 0; i < connectionList.size(); i++)
-		{
-			cout << "Start Try Block" << endl;
-		  try
-		  {
-		     cout << "Set Stopwatch" << endl;
-		     Stopwatch elapsedTime;
-		     cout << "Create client" << endl;
-		     CIMClient client;
-		     client.setTimeout(60 * 1000);
-		     cout << "Client created" << endl;
+    {
+        cout << "Test Repetition # " << numTests << endl;
+        for (Uint32 i = 0; i < connectionList.size(); i++)
+        {
+            cout << "Start Try Block" << endl;
+          try
+          {
+             cout << "Set Stopwatch" << endl;
+
+             Stopwatch elapsedTime;
+
+             cout << "Create client" << endl;
+             CIMClient client;
+             client.setTimeout(60 * 1000);
+             cout << "Client created" << endl;
 
                      //
                      //  Get host and port number from connection list entry
@@ -559,7 +561,7 @@ int main(int argc, char** argv)
                      }
 
                      if (useSSL)
-		     {
+             {
 
                         //
                         // Get environment variables:
@@ -569,60 +571,66 @@ int main(int argc, char** argv)
                         String certpath = FileSystem::getAbsolutePath(
                             pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
-			String randFile;
+            String randFile;
 #ifdef PEGASUS_SSL_RANDOMFILE
-			randFile = FileSystem::getAbsolutePath(
+            randFile = FileSystem::getAbsolutePath(
                             pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
 
                         SSLContext sslcontext(certpath,verifyServerCertificate, randFile);
 
-			if (om.isTrue("local"))
-			{
-			     cout << "Using local SSL connection mechanism " << endl;
-     			     client.connectLocal();
-			}
-			else 
-			{
+            if (om.isTrue("local"))
+            {
+                 cout << "Using local SSL connection mechanism " << endl;
+                     client.connectLocal();
+            }
+            else
+            {
                             cout << "connecting to " << connectionList[i] << " using SSL" << endl;
-                            client.connect (host, portNumber, sslcontext, 
+                            client.connect (host, portNumber, sslcontext,
                                             userName, password);
                         }
-		      }
-	              else
-		      {
-			if (om.isTrue("local"))
-			{
-			     cout << "Using local connection mechanism " << endl;
-     			     client.connectLocal();
-			}
-			else 
-			{
-			  cout << "Connecting to " << connectionList[i] << endl;
+              }
+                  else
+              {
+            if (om.isTrue("local"))
+            {
+                 cout << "Using local connection mechanism " << endl;
+                     client.connectLocal();
+            }
+            else
+            {
+              cout << "Connecting to " << connectionList[i] << endl;
                             client.connect (host, portNumber,
                                             userName, password);
-			}
-		      }
-		      cout << "Client Connected" << endl;
+            }
+              }
+              cout << "Client Connected" << endl;
 
-		      testStart("Test NameSpace Operations - Relative Name");
-                      elapsedTime.reset();		
-    		      TestNamespaceHierarchy1(client, activeTest, verboseTest);
-	              testEnd(elapsedTime.getElapsed());
-		      testStart("Test NameSpace Operations - Absolute Name");
-                      elapsedTime.reset();		
-		      TestNamespaceHierarchy2(client, activeTest, verboseTest);
-		      testEnd(elapsedTime.getElapsed());
-		      client.disconnect();
-		  }
-		  catch(Exception& e)
-		  {
-			   PEGASUS_STD(cerr) << "Error: " << e.getMessage() <<
-			     PEGASUS_STD(endl);
-			   exit(1);
-		  }
-		}
-	}
+              testStart("Test NameSpace Operations - Relative Name");
+              elapsedTime.reset();
+              elapsedTime.start();
+              TestNamespaceHierarchy1(client, activeTest, verboseTest);
+              elapsedTime.stop();
+              testEnd(elapsedTime.getElapsed());
+
+              testStart("Test NameSpace Operations - Absolute Name");
+              elapsedTime.reset();
+              elapsedTime.start();
+              TestNamespaceHierarchy2(client, activeTest, verboseTest);
+              elapsedTime.stop();
+              testEnd(elapsedTime.getElapsed());
+
+              client.disconnect();
+          }
+          catch(Exception& e)
+          {
+               PEGASUS_STD(cerr) << "Error: " << e.getMessage() <<
+                 PEGASUS_STD(endl);
+               exit(1);
+          }
+        }
+    }
     PEGASUS_STD(cout) << "+++++ "<< argv[0] << " Terminated Normally" << PEGASUS_STD(endl);
     return 0;
 }

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -41,7 +41,6 @@
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Common/OptionManager.h>
-#include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/FileSystem.h>
 
 PEGASUS_USING_PEGASUS;
@@ -69,11 +68,11 @@ static void _indent(PEGASUS_STD(ostream)& os, Uint32 level, Uint32 indentSize)
     }
 
     for (Uint32 i = 0; i < n; i++)
-	os << ' ';
+    os << ' ';
 }
 void mofFormat(
-    PEGASUS_STD(ostream)& os, 
-    const char* text, 
+    PEGASUS_STD(ostream)& os,
+    const char* text,
     Uint32 indentSize)
 {
     char* var = new char[strlen(text)+1];
@@ -86,70 +85,70 @@ void mofFormat(
     char prevchar = 0;
     while ((c = *tmp++))
     {
-	count++;
-	// This is too simplistic and must move to a token based mini parser
-	// but will do for now. One problem is tokens longer than 12 characters that
-	// overrun the max line length.
-	switch (c)
-	{
-	    case '\n':
-		os << Sint8(c);
-		prevchar = c;
-		count = 0 + (indent * indentSize);
-		_indent(os, indent, indentSize);   
-		break;
+    count++;
+    // This is too simplistic and must move to a token based mini parser
+    // but will do for now. One problem is tokens longer than 12 characters that
+    // overrun the max line length.
+    switch (c)
+    {
+        case '\n':
+        os << Sint8(c);
+        prevchar = c;
+        count = 0 + (indent * indentSize);
+        _indent(os, indent, indentSize);
+        break;
 
-	    case '\"':	 // quote 
-		os << Sint8(c);
-		prevchar = c;
-		quoteState = !quoteState;
-		break;
+        case '\"':   // quote
+        os << Sint8(c);
+        prevchar = c;
+        quoteState = !quoteState;
+        break;
 
-	    case ' ':
-		os << Sint8(c);
-		prevchar = c;
-		if (count > 66)
-		{
-		    if (quoteState)
-		    {	
-			os << "\"\n";
-			_indent(os, indent + 1, indentSize);   
-			os <<"\"";
-		    }
-		    else
-		    {
-			os <<"\n";
-			_indent(os, indent + 1,  indentSize);   
-		    }
-		    count = 0 + ((indent + 1) * indentSize);
-		}
-		break;
-	    case '[':
-		if (prevchar == '\n')
-		{
-		    indent++;
-		    _indent(os, indent,  indentSize);
-		    qualifierState = true;
-		}
-		os << Sint8(c);
-		prevchar = c;
-		break;
+        case ' ':
+        os << Sint8(c);
+        prevchar = c;
+        if (count > 66)
+        {
+            if (quoteState)
+            {
+            os << "\"\n";
+            _indent(os, indent + 1, indentSize);
+            os <<"\"";
+            }
+            else
+            {
+            os <<"\n";
+            _indent(os, indent + 1,  indentSize);
+            }
+            count = 0 + ((indent + 1) * indentSize);
+        }
+        break;
+        case '[':
+        if (prevchar == '\n')
+        {
+            indent++;
+            _indent(os, indent,  indentSize);
+            qualifierState = true;
+        }
+        os << Sint8(c);
+        prevchar = c;
+        break;
 
-	    case ']':
-		if (qualifierState)
-		{
-		    if (indent > 0)
-			indent--;
-		    qualifierState = false;
-		}
-		os << Sint8(c);
-		prevchar = c;
-		break;
+        case ']':
+        if (qualifierState)
+        {
+            if (indent > 0)
+            indent--;
+            qualifierState = false;
+        }
+        os << Sint8(c);
+        prevchar = c;
+        break;
 
-	    default:
-		os << Sint8(c);
-		prevchar = c;
-	}
+        default:
+        os << Sint8(c);
+        prevchar = c;
+    }
 
     }
     delete [] var;
@@ -168,12 +167,12 @@ void GetOptions(
     static struct OptionRow optionsTable[] =
         //optionname defaultvalue rqd  type domain domainsize clname hlpmsg
     {
-	{"location", "localhost:5988", false, Option::STRING, 0, 0, "l",
+    {"location", "localhost:5988", false, Option::STRING, 0, 0, "l",
                                         "specifies system and port" },
-        
-	{"namespace", "root/cimv2", false, Option::STRING, 0, 0, "n",
+
+    {"namespace", "root/cimv2", false, Option::STRING, 0, 0, "n",
                                         "specifies namespace to use for operation" },
-        
+
         // error here just went to temp nothing
         //{"outputformats", "mof", false, Option::STRING, outputFormats,
         //                                 NUM_OUTPUTFORMATS, "-o",
@@ -186,7 +185,7 @@ void GetOptions(
         {"help", "false", false, Option::BOOLEAN, 0, 0, "h",
                             "Prints help message with command line options "},
 
-        {"debug", "false", false, Option::BOOLEAN, 0, 0, "d", 
+        {"debug", "false", false, Option::BOOLEAN, 0, 0, "d",
                      "Not Used "},
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
@@ -221,7 +220,7 @@ void printHelp(char* name, OptionManager om)
    options help to be defined with the OptionRow entries and presented from
    those entries.
 */
-void printHelpMsg(const char* pgmName, const char* usage, const char* extraHelp, 
+void printHelpMsg(const char* pgmName, const char* usage, const char* extraHelp,
                 OptionManager om)
 {
     cout << endl << pgmName << endl;
@@ -248,14 +247,14 @@ int main(int argc, char** argv)
 
     try
     {
-		 String testHome = ".";
+         String testHome = ".";
                  GetOptions(om, argc, argv, testHome);
-		 // om.print();
+         // om.print();
     }
     catch (Exception& e)
     {
-		 cerr << argv[0] << ": " << e.getMessage() << endl;
-		 exit(1);
+         cerr << argv[0] << ": " << e.getMessage() << endl;
+         exit(1);
     }
 
 
@@ -263,7 +262,7 @@ int main(int argc, char** argv)
     if (om.valueEquals("verbose", "true"))
     {
                 printHelpMsg(argv[0], usage, extra, om);
-		exit(0);
+        exit(0);
     }
 
     // Establish the namespace from the input parameters
@@ -278,7 +277,7 @@ int main(int argc, char** argv)
     /*
     Boolean activeTest = false;
     if (om.valueEquals("active", "true"))
-		 activeTest = true;
+         activeTest = true;
     */
     // Now develop the target instname from the arglist
     // For this one, at least one arguement is required
@@ -304,35 +303,35 @@ int main(int argc, char** argv)
     if(argc < 2)
     {
         String header = " ";
-	String trailer = " ";
-	cerr << "Instance Name required" << endl;
-	om.printOptionsHelpTxt(header, trailer);
+    String trailer = " ";
+    cerr << "Instance Name required" << endl;
+    om.printOptionsHelpTxt(header, trailer);
         exit(0);
-	
+
     }
-    
+
     if(argc > 2)
     {
         String header = " ";
-	String trailer = " ";
-	cerr << "Only one Instance Name allowed" << endl;
-	om.printOptionsHelpTxt(header, trailer);
+    String trailer = " ";
+    cerr << "Only one Instance Name allowed" << endl;
+    om.printOptionsHelpTxt(header, trailer);
         exit(0);
-	
+
     }
 
-    // Note that this name is does not exist in the system 
+    // Note that this name is does not exist in the system
     CIMObjectPath reference = CIMObjectPath ("Process.pid=123456");
     // Question: can this do an exception
     String myReference = argv[1];
     try
     {
-	reference = myReference;
+    reference = myReference;
     }
     catch(Exception& e)
     {
-	PEGASUS_STD(cerr) << "Exception Error: " << e.getMessage() << PEGASUS_STD(endl);
-	exit(1);
+    PEGASUS_STD(cerr) << "Exception Error: " << e.getMessage() << PEGASUS_STD(endl);
+    exit(1);
     }
     CIMClient client;
 
@@ -348,22 +347,22 @@ int main(int argc, char** argv)
             sscanf (portStr.getCString (), "%u", &portNumber);
         }
         client.connect (host, portNumber, String::EMPTY, String::EMPTY);
-    } 
+    }
     catch(Exception& e)
     {
-	PEGASUS_STD(cerr) << "Exception Error: " << e.getMessage() << PEGASUS_STD(endl);
-	exit(1);
+    PEGASUS_STD(cerr) << "Exception Error: " << e.getMessage() << PEGASUS_STD(endl);
+    exit(1);
     }
 
     // Try the delete
     try
     {
-	client.deleteInstance(nameSpace, myReference);
+    client.deleteInstance(nameSpace, myReference);
     }
     catch(Exception& e)
     {
-	PEGASUS_STD(cerr) << "Exception Error: " << e.getMessage() << PEGASUS_STD(endl);
-	exit(1);
+    PEGASUS_STD(cerr) << "Exception Error: " << e.getMessage() << PEGASUS_STD(endl);
+    exit(1);
     }
 
     return 0;

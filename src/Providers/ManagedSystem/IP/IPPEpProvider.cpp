@@ -1,0 +1,642 @@
+//%/////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Author: Christopher Neufeld <neufeld@linuxcare.com>
+//         David Kennedy       <dkennedy@linuxcare.com>
+//
+// Modified By:
+//         David Kennedy       <dkennedy@linuxcare.com>
+//         Christopher Neufeld <neufeld@linuxcare.com>
+//         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>
+//         Jim Metcalfe, Hewlett-Packard Company
+//         Carlos Bonilla, Hewlett-Packard Company
+//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
+//         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
+//
+//%////////////////////////////////////////////////////////////////////////////
+
+
+// ==========================================================================
+// Includes.
+// ==========================================================================
+
+#include "IPPEpProvider.h"
+
+// ==========================================================================
+// Class names:
+//
+// We use CIM_UnitaryComputerSystem as the value of the key
+// SystemCreationClassName, because this class has properties that
+// are important for clients of this provider.
+// ==========================================================================
+
+#define CLASS_CIM_UNITARY_COMPUTER_SYSTEM  "CIM_UnitaryComputerSystem"
+#define CLASS_CIM_IP_PROTOCOL_ENDPOINT     "CIM_IPProtocolEndpoint"
+
+// ==========================================================================
+// The number of keys for the classes.
+// ==========================================================================
+
+#define NUMKEYS_IP_PROTOCOL_ENDPOINT          4
+
+// ==========================================================================
+// Property names.  These values are returned by the provider as
+// the property names.
+// ==========================================================================
+
+// Properties in CIM_ManagedElement
+
+#define PROPERTY_CAPTION                     "Caption"
+#define PROPERTY_DESCRIPTION                 "Description"
+
+// Properties in CIM_ManagedSystemElement
+
+#define PROPERTY_INSTALL_DATE                "InstallDate"
+#define PROPERTY_NAME                        "Name"
+#define PROPERTY_STATUS                      "Status"
+
+// Properties in CIM_ServiceAccessPoint
+
+#define PROPERTY_CREATION_CLASS_NAME         "CreationClassName"
+#define PROPERTY_SYSTEM_CREATION_CLASS_NAME  "SystemCreationClassName"
+#define PROPERTY_SYSTEM_NAME                 "SystemName"
+
+// Properties in CIM_ProtocolEndpoint
+
+#define PROPERTY_NAME_FORMAT                 "NameFormat"
+#define PROPERTY_PROTOCOL_TYPE               "ProtocolType"
+#define PROPERTY_OTHER_TYPE_DESCRIPTION      "OtherTypeDescription"
+
+// Properties in CIM_IProtocolEndpoint
+
+#define PROPERTY_ADDRESS                     "Address"
+#define PROPERTY_SUBNET_MASK                 "SubnetMask"
+#define PROPERTY_ADDRESS_TYPE                "AddressType"
+#define PROPERTY_IP_VERSION_SUPPORT          "IPVersionSupport"
+
+PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
+
+
+IPPEpProvider::IPPEpProvider()
+{
+  cout << "IPPEpProvider::IPPEpProvider()" << endl;
+}
+
+IPPEpProvider::~IPPEpProvider()
+{
+  
+}
+
+
+/*
+================================================================================
+NAME              : createInstance
+DESCRIPTION       : Create a IPProtocolEndpoint instance.
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             : Currently not supported.
+PARAMETERS        :
+================================================================================
+*/
+void IPPEpProvider::createInstance(const OperationContext &context,
+                    const CIMObjectPath           &instanceName,
+                    const CIMInstance            &instanceObject,
+                    ResponseHandler<CIMObjectPath> &handler)
+
+{
+  throw NotSupported(String::EMPTY);
+}
+
+/*
+================================================================================
+NAME              : deleteInstance
+DESCRIPTION       : Delete a IPProtocolEndpoint instance.
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             : Currently not supported.
+PARAMETERS        :
+================================================================================
+*/
+void IPPEpProvider::deleteInstance(const OperationContext &context,
+                    const CIMObjectPath           &instanceReference,
+                    ResponseHandler<void> &handler)
+
+{
+  throw NotSupported(String::EMPTY);
+}
+
+/*
+================================================================================
+NAME              : enumerateInstances
+DESCRIPTION       : Enumerates all of the IPProtocolEndpoint instances.
+                  : An array of instance references is returned.
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             : LocalOnly, DeepInheritance and propertyList are not
+                  : respected by this provider. Localization is not supported
+PARAMETERS        :
+================================================================================
+*/
+void IPPEpProvider::enumerateInstances(
+	const OperationContext & context,
+	const CIMObjectPath & classReference,
+	const Uint32 flags,
+	const CIMPropertyList & propertyList,
+	ResponseHandler<CIMInstance> & handler)
+{
+    cout << "IPPEpProvider::enumerateInstances()" << endl;
+
+    String className = classReference.getClassName();
+    String nameSpace = classReference.getNameSpace();
+
+    // Validate the classname
+    _checkClass(className);
+
+    // Notify processing is starting
+    handler.processing();
+
+    int i;
+    InterfaceList _ifList;
+
+    for (i = 0; i < _ifList.size(); i++)
+    {
+	handler.deliver(
+		_constructInstance(CLASS_CIM_IP_PROTOCOL_ENDPOINT,
+		     nameSpace, _ifList.getInterface(i) ) );
+    }
+
+    // Notify processing is complete
+    handler.complete();
+
+    return;
+}  // enumerateInstances
+
+/*
+================================================================================
+NAME              : enumerateInstanceNames
+DESCRIPTION       : Enumerates all of the IPProtocolEndpoint instance names.
+                  : An array of instance references is returned.
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             : Localization is not supported by this provider.
+PARAMETERS        :
+================================================================================
+*/
+void IPPEpProvider::enumerateInstanceNames(const OperationContext &ctx,
+                            const CIMObjectPath &ref,
+                            ResponseHandler<CIMObjectPath> &handler)
+{
+    cout << "IPPEpProvider::enumerateInstanceNames()" << endl;
+
+    String className = ref.getClassName();
+    String nameSpace = ref.getNameSpace();
+
+    // Validate the classname
+    _checkClass(className);
+
+    // Notify processing is starting
+    handler.processing();
+
+    int i;
+    InterfaceList _ifList;
+
+    cout << "IPPEpProvider::enumerateInstanceNames() _ifList Initialized"
+   	 << endl;
+
+    for (i = 0; i < _ifList.size(); i++)
+    {
+        // Deliver the names
+        handler.deliver(
+		CIMObjectPath(String::EMPTY, // hostname
+			nameSpace, CLASS_CIM_IP_PROTOCOL_ENDPOINT,
+			_constructKeyBindings(_ifList.getInterface(i) ) ) );
+    }
+
+    // Notify processing is complete
+    handler.complete();
+
+    return;
+
+}  // enumerateInstanceNames
+
+/*
+================================================================================
+NAME              : getInstance
+DESCRIPTION       : Returns a single instance.
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             : LocalOnly, DeepInheritance and propertyList are not
+                  : respected by this provider. Localization is not supported
+PARAMETERS        :
+================================================================================
+*/
+void IPPEpProvider::getInstance(const OperationContext &ctx,
+                 const CIMObjectPath           &instanceName,
+                 const Uint32                  flags,
+                 const CIMPropertyList        &propertyList,
+                 ResponseHandler<CIMInstance> &handler)
+{	
+  cout << "IPPEpProvider::getInstance(" << instanceName << ")" << endl;
+
+  KeyBinding kb;
+  String className = instanceName.getClassName();
+  String nameSpace = instanceName.getNameSpace();
+  int i;
+  int keysFound; // this will be used as a bit array
+  String sn;     // system name
+  String ifName;
+
+  // Grab the system name
+  if (IPInterface::getSystemName(sn) == false)
+     sn = String::EMPTY;
+
+  // Validate the classname
+  _checkClass(className);
+
+  // Extract the key values
+  Array<KeyBinding> kbArray = instanceName.getKeyBindings();
+
+  // Leave immediately if wrong number of keys
+  if ( kbArray.size() != NUMKEYS_IP_PROTOCOL_ENDPOINT )
+    throw InvalidParameter("Wrong number of keys");
+
+  // Validate the keys.
+  // Each loop iteration will set a bit in keysFound when a valid
+  // key is found. If the expected bits aren't all set when
+  // the loop finishes, it's a problem
+  for (i=0, keysFound=0; i < NUMKEYS_IP_PROTOCOL_ENDPOINT; i++)
+  {
+    kb = kbArray[i];
+
+    String keyName = kb.getName();
+    String keyValue = kb.getValue();
+
+    // SystemCreationClassName can be empty or must match
+    if (String::equalNoCase(keyName, PROPERTY_SYSTEM_CREATION_CLASS_NAME))
+    {
+      if (String::equal(keyValue, String::EMPTY) ||
+          String::equalNoCase(keyValue, CLASS_CIM_UNITARY_COMPUTER_SYSTEM))
+        keysFound |= 1;
+      else
+        throw InvalidParameter(keyValue+": bad value for key "+keyName);
+    }
+	
+    // SystemName can be empty or must match
+    else if (String::equalNoCase(keyName, PROPERTY_SYSTEM_NAME))
+    {
+      if (String::equal(keyValue, String::EMPTY) ||
+	  String::equalNoCase(keyValue, sn) )
+        keysFound |= 2;
+      else
+        throw InvalidParameter(keyValue+": bad value for key "+keyName);
+    }
+
+    // CreationClassName can be empty or must match
+    else if (String::equalNoCase(keyName, PROPERTY_CREATION_CLASS_NAME))
+    {
+      if (String::equal(keyValue, String::EMPTY) ||
+	  String::equalNoCase(keyValue, CLASS_CIM_IP_PROTOCOL_ENDPOINT))
+        keysFound |= 4;
+      else
+        throw InvalidParameter(keyValue+": bad value for key "+keyName);
+    }
+
+    // Name must be a valid IP interface, but we will know that later
+    // For now, just verify that it's present
+    else if (String::equalNoCase(keyName, PROPERTY_NAME))
+    {
+      ifName = keyValue;
+      keysFound |= 8;
+    }
+
+    // Key name was not recognized by any of the above tests
+    else throw InvalidParameter(keyName+ ": Unrecognized key");
+		
+  } // for
+
+  // We could get here if we didn't get all the keys, which
+  // could happen if the right number of keys were supplied,
+  // and they all had valid names and values, but there were
+  // any duplicates (e.g., two Names, no SystemName)
+  if (keysFound != (1<<NUMKEYS_IP_PROTOCOL_ENDPOINT)-1)
+    throw InvalidParameter("Bad object name");
+	
+  /* Find the instance.  First convert the instance id which is the */
+  /* process handle to an integer.  This is necessary because the   */
+  /* handle is the process id on HP-UX which must be passed to      */
+  /* pstat_getproc() as an integer.                                 */
+
+  /* Get the Interface List. */
+  InterfaceList _ifList;
+  IPInterface _ipif;
+
+  if (_ifList.findInterface(ifName, _ipif))
+  {
+    /* Notify processing is starting. */
+    handler.processing();
+
+    /* Return the instance. */
+    handler.deliver(_constructInstance(className, nameSpace, _ipif));
+
+    /* Notify processing is complete. */
+    handler.complete();
+    return;
+  }
+
+  throw ObjectNotFound(ifName+": No such IP Interface");
+
+  return; // can never execute, but required to keep compiler happy
+}
+
+/*
+================================================================================
+NAME              : modifyInstance
+DESCRIPTION       : Modify a IPProtocolEndpoint instance.
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             : Currently not supported.
+PARAMETERS        :
+================================================================================
+*/
+void IPPEpProvider::modifyInstance(const OperationContext &context,
+                    const CIMObjectPath           &instanceName,
+                    const CIMInstance            &instanceObject,
+		    const Uint32                 flags,
+		    const CIMPropertyList        &propertyList,
+                    ResponseHandler<void> &handler)
+{
+  // Could be supported in the future for certain properties
+  throw NotSupported(String::EMPTY);
+}
+
+/*
+================================================================================
+NAME              : initialize
+DESCRIPTION       : Initializes the provider.
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+PARAMETERS        :
+================================================================================
+*/
+void IPPEpProvider::initialize(CIMOMHandle &ch)
+{
+  cout << "IPPEpProvider::initialize()" << endl;
+
+  _cimomHandle = ch;
+
+  // call platform-specific routine to initialize System Name
+  // This hides whether or not the platform-specific code wants
+  // to set up a static System Name or dynamically obtain it
+  // each time.
+  IPInterface::initSystemName();
+
+  return;
+
+}  /* initialize */
+
+/*
+================================================================================
+NAME              : terminate
+DESCRIPTION       : Terminates the provider.
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+PARAMETERS        :
+================================================================================
+*/
+void IPPEpProvider::terminate()
+{
+  cout << "IPPEpProvider::terminate()" << endl;
+  delete this;
+}
+
+/*
+================================================================================
+NAME              : _constructKeyBindings
+DESCRIPTION       : Constructs an array of keybindings for an IP Interface
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+PARAMETERS        : className, Process
+================================================================================
+*/
+Array<KeyBinding> IPPEpProvider::_constructKeyBindings(
+					const IPInterface& _ipif)
+{
+  cout << "IPPEpProvider::_constructKeyBindings()" << endl;
+
+  Array<KeyBinding> keyBindings;
+  String s;
+
+
+  // Construct the key bindings
+  keyBindings.append(KeyBinding(PROPERTY_SYSTEM_CREATION_CLASS_NAME,
+	    	                CLASS_CIM_UNITARY_COMPUTER_SYSTEM,
+                                KeyBinding::STRING));
+
+  keyBindings.append(KeyBinding(PROPERTY_CREATION_CLASS_NAME,
+		                CLASS_CIM_IP_PROTOCOL_ENDPOINT,
+                                KeyBinding::STRING));
+
+  if (_ipif.getSystemName(s))
+	keyBindings.append(KeyBinding(PROPERTY_SYSTEM_NAME,
+                                s, KeyBinding::STRING));
+  else
+	throw NotSupported(
+		String("Host-specific module doesn't support Key `") +
+		String(PROPERTY_SYSTEM_NAME) + String("'"));
+
+  if (_ipif.getName(s))
+	keyBindings.append(KeyBinding(PROPERTY_NAME,
+                                s, KeyBinding::STRING));
+  else
+	throw NotSupported(
+		String("Host-specific module doesn't support Key `") +
+		String(PROPERTY_NAME) + String("'"));
+
+  cout << "IPPEpProvider::_constructKeyBindings() -- done" << endl;
+
+  return keyBindings;
+}
+
+/*
+================================================================================
+NAME              : _constructInstance
+DESCRIPTION       : Constructs instance by adding its properties. The
+                  : IP Interface argument has already been filled in
+                  : with data from an existing IP Interface
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+PARAMETERS        : className, Process
+================================================================================
+*/
+CIMInstance IPPEpProvider::_constructInstance(const String &className,
+                                                const String &nameSpace,
+                                                const IPInterface &_ipif)
+{
+  cout << "IPPEpProvider::_constructInstance()" << endl;
+
+  String s;
+  Uint16 i16;
+  CIMDateTime d;
+
+  CIMInstance inst(className);
+
+  // Set path
+
+  inst.setPath(CIMObjectPath(String::EMPTY, // hostname
+                             nameSpace,
+                             CLASS_CIM_IP_PROTOCOL_ENDPOINT,
+                             _constructKeyBindings(_ipif)));
+
+// CIM_ManagedElement
+
+//   string Caption
+  if (_ipif.getCaption(s))
+    inst.addProperty(CIMProperty(PROPERTY_CAPTION,s));
+
+//   string Description
+  if (_ipif.getDescription(s))
+    inst.addProperty(CIMProperty(PROPERTY_DESCRIPTION,s));
+
+// CIM_ManagedSystemElement
+
+//   datetime InstallDate
+  if (_ipif.getInstallDate(d))
+    inst.addProperty(CIMProperty(PROPERTY_INSTALL_DATE,d));
+
+//   string Name    // Overridden in CIM_ServiceAccessPoint
+
+//   string Status
+  if (_ipif.getStatus(s))
+    inst.addProperty(CIMProperty(PROPERTY_STATUS,s));
+
+// CIM_LogicalElement
+//   ** No local properties added in this class **
+
+// ======================================================
+// The following properties are in CIM_ServiceAccessPoint
+// ======================================================
+
+  // The keys for this class are:
+  // [ key ] string SystemCreationClassName
+  // [ key ] string SystemName
+  // [ key ] string CreationClassName
+  // [ key ] string Name
+
+  // Rather than rebuilding the key properties, we will reuse
+  // the values that were inserted for us in the ObjectPath,
+  // trusting that this was done correctly
+
+  // Get the keys
+  Array<KeyBinding> key = inst.getPath().getKeyBindings();
+  // loop through keys, inserting them as properties
+  // luckily, all keys for this class are strings, so no
+  // need to check key type
+  for (int i=0; i<key.size(); i++)
+  {
+    // add a property created from the name and value
+    inst.addProperty(CIMProperty(key[i].getName(),key[i].getValue()));
+  }
+
+// CIM_ProtocolEndpoint
+
+//   string NameFormat
+  if (_ipif.getNameFormat(s))
+    inst.addProperty(CIMProperty(PROPERTY_NAME_FORMAT,s));
+
+//   uint16 ProtocolType
+  if (_ipif.getProtocolType(i16))
+    inst.addProperty(CIMProperty(PROPERTY_PROTOCOL_TYPE,i16));
+
+//   string OtherTypeDescription
+  if (_ipif.getOtherTypeDescription(s))
+  {
+    // if an empty string was returned, the value must be set to NULL
+    // with type string, not an array
+    if (String::equal(s,String::EMPTY))
+    {
+      inst.addProperty(CIMProperty(PROPERTY_OTHER_TYPE_DESCRIPTION,
+                                   CIMValue(CIMType::STRING, false)));
+    }
+    else
+    {
+      inst.addProperty(CIMProperty(PROPERTY_OTHER_TYPE_DESCRIPTION,s));
+    }
+  }
+
+  cout << "IPPEpProvider::_constructInstance() -- OtherTypeDescription set"
+	<< endl;
+
+// CIM_IPProtocolEndpoint
+
+//   string Address
+  if (_ipif.getAddress(s))
+    inst.addProperty(CIMProperty(PROPERTY_ADDRESS,s));
+
+//   string SubnetMask
+  if (_ipif.getSubnetMask(s))
+    inst.addProperty(CIMProperty(PROPERTY_SUBNET_MASK,s));
+
+//   uint16 AddressType
+  if (_ipif.getAddressType(i16))
+    inst.addProperty(CIMProperty(PROPERTY_ADDRESS_TYPE,i16));
+
+//   uint16 IPVersionSupport
+  if (_ipif.getIPVersionSupport(i16))
+    inst.addProperty(CIMProperty(PROPERTY_IP_VERSION_SUPPORT,i16));
+
+  cout << "IPPEpProvider::_constructInstance() -- done" << endl;
+
+  return inst;
+}
+
+/*
+================================================================================
+NAME              : _checkClass
+DESCRIPTION       : tests the argument for valid classname,
+                  : throws exception if not
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+void IPPEpProvider::_checkClass(String& className)
+{
+  if (!String::equalNoCase(className, CLASS_CIM_IP_PROTOCOL_ENDPOINT))
+    throw NotSupported(className+": Class not supported");
+}

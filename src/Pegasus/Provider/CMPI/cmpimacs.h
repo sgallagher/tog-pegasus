@@ -1331,7 +1331,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #ifdef CMPI_INLINE
      /** CIMOM name
      */
-   inline static   char* CBbrokerName(CMPIBroker* mb)
+   inline static const char* CBbrokerName(CMPIBroker* mb)
 	{ return ((mb)->bft->brokerName); }
 #else
   #define CBBrokerName(b)                          ((b)->bft->brokerName)
@@ -1511,7 +1511,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
    inline static   CMPIStatus CBSetInstance
                 (CMPIBroker* mb, CMPIContext* ctx,
 		 CMPIObjectPath* op, CMPIInstance* inst)
-	{ return ((mb)->bft->setInstance((mb),(ctx),(op),(inst))); }
+	{ return ((mb)->bft->setInstance((mb),(ctx),(op),(inst), NULL)); }
   #else
   #define CBSetInstance(b,c,p,i)      ((b)->bft->setInstance((b),(c),(p),(i)))
   #endif

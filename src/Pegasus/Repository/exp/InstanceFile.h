@@ -34,6 +34,15 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class PEGASUS_LINKAGE InstanceFile
+{
+public:
+
+
+private:
+
+    InstanceFile() { }
+};
 
 
 PEGASUS_NAMESPACE_END

@@ -126,7 +126,8 @@ public:
     */
     static Boolean deleteEntry(
 	const String& path, 
-	const CIMReference& instanceName);
+	const CIMReference& instanceName,
+	Uint32& freeCount);
 
     /** Modifies an entry by first removing the old entry and then inserting
         a new entry at the end of the file.
@@ -141,7 +142,8 @@ public:
 	const String& path, 
 	const CIMReference& instanceName,
 	Uint32 indexIn,
-        Uint32 sizeIn);
+        Uint32 sizeIn,
+	Uint32& freeCount);
 
     /** Gets the information stored in the index file for all the instances
         of the given class.  Appends the instance names, indices and sizes 
@@ -179,6 +181,11 @@ public:
 	implementation simply removes the .rollback file.
     */
     static Boolean commitTransaction(const String& path);
+
+    /** Compact the file by removing entries which are marked as free.
+    */
+    static Boolean compact(
+        const String& path);
 
 private:
 
@@ -222,11 +229,6 @@ private:
 	Uint32& indexOut,
 	Uint32& sizeOut,
 	Uint32& entryOffset);
-
-    /** Compact the file by removing entries which are marked as free.
-    */
-    static Boolean _compact(
-        const String& path);
 };
 
 PEGASUS_NAMESPACE_END

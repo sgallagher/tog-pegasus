@@ -246,8 +246,11 @@ Boolean InstanceIndexFile::createEntry(
 
 Boolean InstanceIndexFile::deleteEntry(
     const String& path, 
-    const CIMReference& instanceName)
+    const CIMReference& instanceName,
+    Uint32& freeCount)
 {
+    freeCount = 0;
+
     //
     // Open the file:
     //
@@ -272,7 +275,7 @@ Boolean InstanceIndexFile::deleteEntry(
     // Increment the free count:
     //
 
-    Uint32 freeCount = 0;
+    freeCount = 0;
 
     if (!_incrementFreeCount(fs, freeCount))
 	return false;
@@ -283,16 +286,6 @@ Boolean InstanceIndexFile::deleteEntry(
 
     fs.close();
 
-    //
-    // Compact if max free count reached:
-    //
-
-    if (freeCount == _MAX_FREE_COUNT)
-    {
-	if (!_compact(path))
-	    return false;
-    }
-
     return true;
 }
 
@@ -300,7 +293,8 @@ Boolean InstanceIndexFile::modifyEntry(
     const String& path, 
     const CIMReference& instanceName,
     Uint32 indexIn,
-    Uint32 sizeIn)
+    Uint32 sizeIn,
+    Uint32& freeCount)
 {
     //
     // Open the file:
@@ -329,7 +323,7 @@ Boolean InstanceIndexFile::modifyEntry(
     // Increment the free count:
     //
 
-    Uint32 freeCount = 0;
+    freeCount = 0;
 
     if (!_incrementFreeCount(fs, freeCount))
 	return false;
@@ -339,16 +333,6 @@ Boolean InstanceIndexFile::modifyEntry(
     //
 
     fs.close();
-
-    //
-    // Compact if max free count reached:
-    //
-
-    if (freeCount == _MAX_FREE_COUNT)
-    {
-	if (!_compact(path))
-	    return false;
-    }
 
     return true;
 }
@@ -597,7 +581,7 @@ Boolean InstanceIndexFile::_lookupEntry(
     return false;
 }
 
-Boolean InstanceIndexFile::_compact(
+Boolean InstanceIndexFile::compact(
     const String& path)
 {
     //

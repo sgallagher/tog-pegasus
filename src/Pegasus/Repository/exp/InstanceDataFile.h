@@ -30,6 +30,7 @@
 #ifndef Pegasus_InstanceDataFile_h
 #define Pegasus_InstanceDataFile_h
 
+#include <fstream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
@@ -122,6 +123,20 @@ public:
 	const String& path, 
         const Array<Sint8>& data);
 
+    /** Begin a transaction to modify this file. The effect of subsequent
+	modifications can be rolled back by calling rollbackTransaction().
+    */
+    static Boolean beginTransacation(const String& path);
+
+    /** Roll back any changes to the file since the last time 
+        beginTransacation() was called.
+    */
+    static Boolean rollbackTransaction(const String& path);
+
+    /** Commit changes made after beginTransacation() was called.
+    */
+    static Boolean commitTransaction(const String& path);
+
     /** Reorganizes the data file to reclaim free space. This is done by
 	copying over all non-free instances to a temporary file and then
 	deleting the original file and renaming the temporary file to the
@@ -132,6 +147,13 @@ public:
         const Array<Uint32>& freeFlags,
         const Array<Uint32>& indices,
         const Array<Uint32>& sizes);
+
+private:
+
+    static Boolean _openFile(
+	PEGASUS_STD(fstream)& fs,
+	const String& path,
+	int mode);
 };
 
 PEGASUS_NAMESPACE_END

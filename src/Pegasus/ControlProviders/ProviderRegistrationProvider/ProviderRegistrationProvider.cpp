@@ -1485,7 +1485,13 @@ Sint16 ProviderRegistrationProvider::_enableModule(
 	if (enabled)
 	{
 	    //
-	    // if the module is enabled, need to send enable message to 
+	    // Since module is enabled, need get updated module instance
+	    //
+            CIMInstance UpdatedModuleInstance = 
+	        _providerRegistrationManager->getInstance(moduleRef);
+
+	    //
+	    // The module is enabled, need to send enable message to 
 	    // subscription service if the provider is an indication provider
 	    //
 
@@ -1546,7 +1552,7 @@ Sint16 ProviderRegistrationProvider::_enableModule(
 		    //
 		    if (capInstances.size() != 0)
 		    {
-		        _sendEnableMessageToSubscription(mInstance,
+		        _sendEnableMessageToSubscription(UpdatedModuleInstance,
 		  					 pInstance,
 						     	 capInstances,
 							 al);

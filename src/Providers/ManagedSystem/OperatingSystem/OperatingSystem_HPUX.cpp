@@ -21,16 +21,15 @@
 //
 //=============================================================================
 //
-// Author: Jim Metcalfe <jim_metcalfe@@hp.com>
-//         Susan Campbell <susan_campbell@@hp.com>
+// Author: Jim Metcalfe, Hewlett-Packard Company (jim_metcalfe@hp.com)
 //
 // Modified By: 
+//         Susan Campbell, Hewlett-Packard Company (susan_campbell@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Exception.h>
 
 #include <iostream>
@@ -279,7 +278,7 @@ Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
     }
     // Get the boot time and convert to local time. 
 
-// ATTN-SLC-P2-17-Apr-02: use CIMOM cim date time function for consistency
+// ATTN-SLC-P2-17-Apr-02: use CIMOM DateTime function & consistency, BZ#45
 
     tmval = localtime((time_t *)&pst.boot_time);
     gettimeofday(&tv,&tz);
@@ -329,7 +328,7 @@ Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
 
     // Get the date and time from the system. 
 
-// ATTN-SLC-P2-17-Apr-02: use CIMOM cim date time function for consistency
+// ATTN-SLC-P2-17-Apr-02: use CIMOM DateTime function & consistency, BZ#45
     
     mSysTime = time(NULL);
     tmval = localtime(&mSysTime);
@@ -473,8 +472,6 @@ Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32& mMaxProcesses)
 {
     struct pst_static pst;
 
-// ATTN-SLC-P2-17-Apr-02: getting value of 820? correct?
-
     if (pstat_getstatic(&pst, sizeof(pst), (size_t)1, 0) == -1)
     {
        return false; 
@@ -608,8 +605,7 @@ Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
 /**
    getTotalVisibleMemorySize method for HP-UX implementation of OS Provider
 
-   Gets information from pstat, use of numeric constant is historical
-   (DMI folks got it from the SAM folks).
+   Gets information from pstat (pst.physcial_memory adjusted for page size) 
    */
 Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
 {
@@ -621,14 +617,12 @@ Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
     {
         return false;
     }
-    else
-    {
-        // this constant is 1/1024 - used for efficiency vs. dividing
-        psize = pst.page_size * 0.000977;  
-        total = ((float)pst.physical_memory * 0.000977 * psize);
-        memory = total;
-        return true;
-    }
+
+    // this constant is 1/1024 - used for efficiency vs. dividing
+    psize = pst.page_size * 0.000977;  
+    total = ((float)pst.physical_memory * 0.000977 * psize);
+    memory = total;
+    return true;
 }
 
 /**
@@ -680,54 +674,54 @@ Boolean OperatingSystem::getMaxProcessMemorySize(Uint64& maxProcessMemorySize)
     maxProcessMemorySize = 0;
     
     ret = sysconf (_SC_KERNEL_BITS);
-    if (ret == 0) 
+    if (ret == -1)
+    { 
        return false;
-    else
-    {
-       // Need to check if 32-bit or 64-bit to use the suitable name
-       if (ret == 32) 
-       {   // we're 32 bit
-           // Use a pipe to invoke kmtune (since don't have gettune on all OSs) 
-           if ((mtuneInfo = popen("kmtune -q maxdsiz -q maxssiz "
-                                  "-q maxtsiz 2>/dev/null", "r")) != NULL)
-           {
-               // Now extract the three values and sum them
-               while (fgets(mline, 80, mtuneInfo))
-               {
-                  sscanf(mline, "maxdsiz %x", &maxdsiz);
-                  sscanf(mline, "maxssiz %x", &maxssiz);
-                  sscanf(mline, "maxtsiz %x", &maxtsiz);
-               }  // end while 
-
-               (void)pclose (mtuneInfo);
-               maxProcessMemorySize = (maxdsiz + maxssiz + maxtsiz);
-               return true;
-           } // end if popen worked
-           return false;
-       } // end if (ret == 32)
+    }
     
-       else   // so ret was 64 (only returns -1, 32, or 64)
-       {   
-           // Use a pipe to invoke kmtune (since don't have gettune on all OSs) 
-           if ((mtuneInfo = popen("kmtune -q maxdsiz_64bit " 
-                                  "-q maxssiz_64bit -q maxtsiz_64bit "
-                                  "2> /dev/null","r")) != NULL)
+   // Need to check if 32-bit or 64-bit to use the suitable name
+   if (ret == 32) 
+   {   // we're 32 bit
+       // Use a pipe to invoke kmtune (since don't have gettune on all OSs) 
+       if ((mtuneInfo = popen("kmtune -q maxdsiz -q maxssiz "
+                              "-q maxtsiz 2>/dev/null", "r")) != NULL)
+       {
+           // Now extract the three values and sum them
+           while (fgets(mline, 80, mtuneInfo))
            {
-               // Now extract the three values and sum them
-               while (fgets(mline, 80, mtuneInfo))
-               {
-                  sscanf(mline, "maxdsiz %x", &maxdsiz_64bit);
-                  sscanf(mline, "maxssiz %x", &maxssiz_64bit);
-                  sscanf(mline, "maxtsiz %x", &maxtsiz_64bit);
-               }  // end while 
+              sscanf(mline, "maxdsiz %x", &maxdsiz);
+              sscanf(mline, "maxssiz %x", &maxssiz);
+              sscanf(mline, "maxtsiz %x", &maxtsiz);
+           }  // end while 
 
-               (void)pclose (mtuneInfo);
-               maxProcessMemorySize = (maxdsiz_64bit + maxssiz_64bit
-                                      + maxtsiz_64bit);
-               return true;
-           } // end if popen worked
-           return false;
-       } // end else
+           (void)pclose (mtuneInfo);
+           maxProcessMemorySize = (maxdsiz + maxssiz + maxtsiz);
+           return true;
+       } // end if popen worked
+       return false;
+   } // end if (ret == 32)
+
+   else   // so ret was 64 (only returns -1, 32, or 64)
+   {   
+       // Use a pipe to invoke kmtune (since don't have gettune on all OSs) 
+       if ((mtuneInfo = popen("kmtune -q maxdsiz_64bit " 
+                              "-q maxssiz_64bit -q maxtsiz_64bit "
+                              "2> /dev/null","r")) != NULL)
+       {
+           // Now extract the three values and sum them
+           while (fgets(mline, 80, mtuneInfo))
+           {
+              sscanf(mline, "maxdsiz %x", &maxdsiz_64bit);
+              sscanf(mline, "maxssiz %x", &maxssiz_64bit);
+              sscanf(mline, "maxtsiz %x", &maxtsiz_64bit);
+           }  // end while 
+
+           (void)pclose (mtuneInfo);
+           maxProcessMemorySize = (maxdsiz_64bit + maxssiz_64bit
+                                  + maxtsiz_64bit);
+           return true;
+       } // end if popen worked
+       return false;
     }  // end else
 }
 
@@ -783,7 +777,7 @@ Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
     }
     else
     {
-// ATTN-SLC-P2-17-Apr-02: use CIMOM date time for consistency
+// ATTN-SLC-P2-17-Apr-02: use CIMOM DateTime function & consistency, BZ#45
         timeval= time((time_t *)NULL);
         timeval= (time_t)((long)timeval - (long)pst.boot_time);
         mUpTime = (long)timeval;
@@ -817,7 +811,7 @@ Boolean OperatingSystem::getOperatingSystemCapability(String& scapability)
 }
 
 /**
-   Reboot method for HP-UX implementation of OS Provider
+   _reboot method for HP-UX implementation of OS Provider
 
    Finds executable in /sbin, /usr/bin, or /usr/local/sbin and invokes.
    Currently disabled (as we don't want folks rebooting systems yet)
@@ -825,7 +819,7 @@ Boolean OperatingSystem::getOperatingSystemCapability(String& scapability)
    Invokes as via system system call, so have full checking of user's 
    authorization (already authenticated by CIMOM)
    */
-Uint32 OperatingSystem::Reboot()
+Uint32 OperatingSystem::_reboot()
 {
    const char *reboot[] = { "reboot", NULL };
    const char *paths[] = { "/sbin", "/usr/sbin", "/usr/local/sbin", NULL };
@@ -859,7 +853,7 @@ Uint32 OperatingSystem::Reboot()
    return result;
 }
 
-Uint32 OperatingSystem::Shutdown()
+Uint32 OperatingSystem::_shutdown()
 {
    const char *poweroff[] = { "poweroff", NULL };
    const char *paths[] = { "/sbin", "/usr/sbin", "/usr/local/sbin", NULL };

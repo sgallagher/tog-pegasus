@@ -32,13 +32,13 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Logger.h>
 
 #include "OperatingSystemProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define DEBUG(X) // Logger::put(Logger::DEBUG_LOG, "OperatingSystemProvider", Logger::INFORMATION, "$0", X)
+#define DEBUG(X) // cout << "OS Provider" << X << endl;
+#define OPERATINGSYSTEMPROVIDERNAME "PG_OperatingSystemProvider" 
 
 extern "C" 
 PEGASUS_EXPORT CIMBaseProvider* PegasusCreateProvider(const String& providerName)

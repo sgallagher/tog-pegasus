@@ -1,5 +1,3 @@
-#ifndef _OPERATINGSYSTEMPROVIDER_H
-#define _OPERATINGSYSTEMPROVIDER_H
 //%////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2002 BMC Software, Hewlett-Packard Company, IBM,
@@ -28,20 +26,13 @@
 // Modified By: Al Stone <ahs3@fc.hp.com>
 //
 //%/////////////////////////////////////////////////////////////////////////
-
-#define STANDARDOPERATINGSYSTEMCLASS "CIM_OperatingSystem"
-#define EXTENDEDOPERATINGSYSTEMCLASS "PG_OperatingSystem"
-#define OPERATINGSYSTEMPROVIDERNAME "PG_OperatingSystemProvider"
+#ifndef _OPERATINGSYSTEMPROVIDER_H
+#define _OPERATINGSYSTEMPROVIDER_H
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Common/OperationContext.h>
-#include <Pegasus/Common/Array.h>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Common/CIMReference.h>
-#include <Pegasus/Common/CIMInstance.h>
-
 #include <iostream>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -102,10 +93,6 @@ class OperatingSystemProvider: public CIMInstanceProvider,
       void initialize(CIMOMHandle& handle);
       void terminate(void);
 
-      //-- CIMMethodProvider methods
-      Uint32 Reboot();
-      Uint32 Shutdown();
-
       void invokeMethod(const OperationContext& context,
 	                const CIMReference& objectReference,
 			const String& methodName,
@@ -113,7 +100,7 @@ class OperatingSystemProvider: public CIMInstanceProvider,
 			Array<CIMParamValue>& outParameters,
 			ResponseHandler<CIMValue>& handler);
 
-   protected:
+   private:
       // store off for future use
       CIMOMHandle _cimomhandle;
       
@@ -123,30 +110,6 @@ class OperatingSystemProvider: public CIMInstanceProvider,
       // Builds a reference (a set of Key,Value pairs) 
       CIMReference _fill_reference(const String &nameSpace, 
 			           const String &className);
-    
-      // Get the values needed 
-      String _hostName();
-      String _osName();
-      Uint16 _osType();
-      String _otherTypeDesc();
-      String _version();
-      CIMDateTime _lastBoot();
-      CIMDateTime _localDateTime();
-      Sint16 _timeZone();
-      Uint32 _licensedUsers();
-      Uint32 _users();
-      Uint32 _processes();
-      Uint32 _maxProcesses();
-      Uint64 _totalSwap();
-      Uint64 _totalVM();
-      Uint64 _freeVM();
-      Uint64 _freePhysical();
-      Uint64 _totalVisible();
-      Uint64 _totalPaging();
-      Uint64 _freePaging();
-      Uint64 _maxProcessMem();
-      Boolean _distributed();
-      Uint32 _maxUserProcs();
 };
 
 PEGASUS_NAMESPACE_END

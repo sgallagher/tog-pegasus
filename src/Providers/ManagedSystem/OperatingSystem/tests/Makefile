@@ -32,6 +32,7 @@ XMLSCRIPTS = \
    PG_OS_Fail1_CreateInstance \
    PG_OS_Fail2_DeleteInstance  \
    PG_OS_Fail3_InvokeMethod \
+   PG_OS_Fail4_ModifyInstance  \
    PG_OS_Fail5_GetInstance_ShortKeys \
    PG_OS_Fail6_GetInstance_ExtraKeys \
    PG_OS_Fail7_GetInstance_DupKeys \
@@ -43,6 +44,7 @@ XMLSCRIPTS = \
    PG_OS_Fail1_CreateInstance \
    PG_OS_Fail2_DeleteInstance  \
    PG_OS_Fail3_InvokeMethod \
+   PG_OS_Fail4_ModifyInstance  \
    PG_OS_Fail5_GetInstance_ShortKeys \
    PG_OS_Fail6_GetInstance_ExtraKeys \
    PG_OS_Fail7_GetInstance_DupKeys \
@@ -54,6 +56,7 @@ XMLSCRIPTS = \
    PG_OS_Fail1_CreateInstance \
    PG_OS_Fail2_DeleteInstance  \
    PG_OS_Fail3_InvokeMethod \
+   PG_OS_Fail4_ModifyInstance  \
    PG_OS_Fail5_GetInstance_ShortKeys \
    PG_OS_Fail6_GetInstance_ExtraKeys \
    PG_OS_Fail7_GetInstance_DupKeys \

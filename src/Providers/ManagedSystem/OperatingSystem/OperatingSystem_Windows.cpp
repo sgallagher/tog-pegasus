@@ -405,12 +405,12 @@ Boolean OperatingSystem::getOperatingSystemCapability(String& scapability)
     return false;
 }
 
-Uint32 OperatingSystem::Reboot()
+Uint32 OperatingSystem::_reboot()
 {
    return false;
 }
 
-Uint32 OperatingSystem::Shutdown()
+Uint32 OperatingSystem::_shutdown()
 {
    return false;
 }

@@ -24,7 +24,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //       : Denise Eckstein (denise_eckstein@hp.com)
 //
-// Modified By:  Susan Campbell <scampbell@hp.com>
+// Modified By:  Susan Campbell, Hewlett-Packard Company <scampbell@hp.com>
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include "OperatingSystem.h"

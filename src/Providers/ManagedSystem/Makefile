@@ -30,6 +30,7 @@ include $(ROOT)/mak/config.mak
 
 DIRS =  \
         OperatingSystem \
+        OperatingSystem/tests/OSTestClient \
         ComputerSystem \
         Process
 

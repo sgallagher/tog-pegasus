@@ -2,7 +2,7 @@
 <CIM CIMVERSION="2.0" DTDVERSION="2.0">
   <MESSAGE ID="25004" PROTOCOLVERSION="1.0">
     <SIMPLEREQ>
-      <IMETHODCALL NAME="EmerateInstanceNames">
+      <IMETHODCALL NAME="EnumerateInstanceNames">
         <LOCALNAMESPACEPATH>
           <NAMESPACE NAME="root"/>
           <NAMESPACE NAME="cimv2"/>

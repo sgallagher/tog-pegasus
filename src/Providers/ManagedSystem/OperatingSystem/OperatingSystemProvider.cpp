@@ -27,13 +27,13 @@
 // Modified By: David Kennedy       <dkennedy@linuxcare.com>
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
+//              Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/System.h>
-#include <Pegasus/Common/Logger.h>
+#include <Pegasus/Provider/ProviderException.h>
 #include "OperatingSystemProvider.h"
 #include "OperatingSystem.h"
 
@@ -42,6 +42,10 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 #define DEBUG(X) // cout << "OperatingSystemProvider" <<  X << endl;
+
+#define STANDARDOPERATINGSYSTEMCLASS "CIM_OperatingSystem"
+#define EXTENDEDOPERATINGSYSTEMCLASS "PG_OperatingSystem"
+#define CSCREATIONCLASSNAME "CIM_ComputerSystem"
 
 OperatingSystemProvider::OperatingSystemProvider(void)
 {
@@ -65,21 +69,12 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
     String csName;
     String name;
 
+
     //-- make sure we're working on the right class
     className = ref.getClassName();
     if (!String::equalNoCase(className, STANDARDOPERATINGSYSTEMCLASS) &&
         !String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))
-        throw CIMException(CIM_ERR_NOT_SUPPORTED);
-
-    if (!os.getCSName(csName))
-    {
-        throw CIMException(CIM_ERR_FAILED);
-    }
-
-    if (!os.getName(name))
-    {
-        throw CIMException(CIM_ERR_FAILED);
-    }
+        throw NotSupported("Don't support that class");
 
     //-- make sure we're the right instance
     int keyCount;
@@ -88,42 +83,61 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
     keyCount = 4;
     keys = ref.getKeyBindings();
 
-    if ((unsigned int)keys.size() < (unsigned int)keyCount)
-        throw CIMException(CIM_ERR_INVALID_PARAMETER);
+    if ((unsigned int)keys.size() != (unsigned int)keyCount)
+        throw InvalidParameter("Wrong number of  keys");
+
+    // doesn't seem as though this code will handle duplicate keys,
+    // but it appears as though the CIMOM strips those out for us.
+    // Despite test cases, don't get invoked with 2 keys of the same
+    // name.   
+
+    if (!os.getCSName(csName))
+    {
+        throw OperationFailure(0,   // could try and get errno
+                               "Can't determine name of computer system");
+    }
+
+    if (!os.getName(name))
+    {
+        throw OperationFailure(0,  // could try and get errno
+                              "Can't determine name of Operating System");
+    }
 
     for (unsigned int ii = 0; ii < keys.size(); ii++)
     {
          keyName = keys[ii].getName();
 
-         if (String::equal(keyName, "CSCreationClassName") &&
-       	    String::equal(keys[ii].getValue(), "CIM_ComputerSystem"))
+         if (String::equalNoCase(keyName, "CSCreationClassName") &&
+       	    String::equalNoCase(keys[ii].getValue(), 
+                                CSCREATIONCLASSNAME))
          {
               keyCount--;
          }
-         else if (String::equal(keyName, "CSName") &&
-  	         String::equal(keys[ii].getValue(), csName))
+         else if (String::equalNoCase(keyName, "CSName") &&
+  	         String::equalNoCase(keys[ii].getValue(), csName))
          {
               keyCount--;
          }
-         else if (String::equal(keyName, "CreationClassName") &&
- 	         String::equal(keys[ii].getValue(), STANDARDOPERATINGSYSTEMCLASS))
+         else if (String::equalNoCase(keyName, "CreationClassName") &&
+ 	         String::equalNoCase(keys[ii].getValue(), 
+                                     STANDARDOPERATINGSYSTEMCLASS))
          {
               keyCount--;
          }
-         else if (String::equal(keyName, "Name") &&
- 	         String::equal(keys[ii].getValue(), name))
+         else if (String::equalNoCase(keyName, "Name") &&
+ 	         String::equalNoCase(keys[ii].getValue(), name))
          {
               keyCount--;
          }
          else
          {
-              throw CIMException(CIM_ERR_INVALID_PARAMETER);
+              throw InvalidParameter("Unrecognized key");
          }
      }
 
      if (keyCount)
      {
-        throw CIMException(CIM_ERR_INVALID_PARAMETER);
+        throw InvalidParameter("Wrong keys");
      }
 
     DEBUG("losp-> getInstance got the right keys");
@@ -167,7 +181,7 @@ OperatingSystemProvider::enumerateInstances(
     }
     else
     {
-        throw CIMException(CIM_ERR_NOT_SUPPORTED);
+        throw NotSupported("Don't support that class");
     }
     return;
 }
@@ -187,13 +201,13 @@ OperatingSystemProvider::enumerateInstanceNames(
     className = ref.getClassName();
     if (!String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))
     {
-        throw CIMException(CIM_ERR_NOT_SUPPORTED);
+        throw NotSupported("Don't support that class");
     }
 
+    handler.processing();
     // in terms of the class we use, want to set to what was requested 
     newref = _fill_reference(ref.getNameSpace(), className);
 // newref = _fill_reference(ref.getNameSpace(), STANDARDOPERATINGSYSTEMCLASS);
-    handler.processing();
     handler.deliver(newref);
     handler.complete();
 
@@ -209,7 +223,7 @@ OperatingSystemProvider::modifyInstance(
 			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler<CIMInstance>& handler )
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw NotSupported("Don't support modifyInstance");
 }
 
 void
@@ -219,8 +233,7 @@ OperatingSystemProvider::createInstance(
 			  	const CIMInstance& instanceObject,
 			  	ResponseHandler<CIMReference>& handler )
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
-
+    throw NotSupported("Don't support createInstance");
 }
 
 void
@@ -229,7 +242,7 @@ OperatingSystemProvider::deleteInstance(
 			  	const CIMReference& ref,
 			  	ResponseHandler<CIMInstance>& handler )
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw NotSupported("Don't support deleteInstance");
 }
 
 void OperatingSystemProvider::initialize(CIMOMHandle& handle)
@@ -264,7 +277,7 @@ OperatingSystemProvider::_build_instance(const CIMReference& objectReference)
 
     //-- fill in all the blanks
     instance.addProperty(CIMProperty("CSCreationClassName",
- 	                 "CIM_ComputerSystem"));
+ 	                 CSCREATIONCLASSNAME));
 
     if (os.getCSName(stringValue))
     {
@@ -426,14 +439,14 @@ OperatingSystemProvider::_fill_reference(const String &nameSpace,
 
     if (!os.getCSName(csName))
     {
-// ATTN-SLC-P2-19-Apr-02: workaround for Windows key BZ#42 - remove BZ#46
-       csName = "Unknown";  // remove when not needed for Windows provider
+        throw OperationFailure(0,   // could try and get errno
+                               "Can't determine name of computer system");
     }
 
     if (!os.getName(name))
     {
-// ATTN-SLC-P2-19-Apr-02: workaround for Windows key BZ#42 - remove BZ#46
-       name = "Unknown";    // remove when not needed for Window provider
+        throw OperationFailure(0,   // could try and get errno
+                               "Can't determine name of operating system");
     }
 
     keys.append(KeyBinding("CSCreationClassName",
@@ -456,7 +469,7 @@ void OperatingSystemProvider::invokeMethod(
 				Array<CIMParamValue>& outParameters,
 				ResponseHandler<CIMValue>& handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw NotSupported("Don't support invokeMethod");
 }
 
 PEGASUS_NAMESPACE_END

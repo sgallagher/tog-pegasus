@@ -1,5 +1,3 @@
-#ifndef _OPERATINGSYSTEM_H
-#define _OPERATINGSYSTEM_H
 //%////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2002 BMC Software, Hewlett-Packard Company, IBM,
@@ -28,6 +26,8 @@
 // Modified By: Al Stone <ahs3@fc.hp.com>
 //
 //%/////////////////////////////////////////////////////////////////////////
+#ifndef _OPERATINGSYSTEM_H
+#define _OPERATINGSYSTEM_H
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
@@ -83,11 +83,11 @@ class OperatingSystem
       Boolean getMaxProcsPerUser(Uint32& maxProcsPerUser);
       Boolean getSystemUpTime(Uint64& systemUpTime);
       Boolean getOperatingSystemCapability(String& operatingSystemCapability);
-      Uint32 Reboot();
-      Uint32 Shutdown();
       
    protected:
       Uint64 _totalVM();
+      Uint32 _reboot();
+      Uint32 _shutdown();
 };
 
 PEGASUS_NAMESPACE_END

@@ -756,7 +756,7 @@ Boolean OperatingSystem::getOperatingSystemCapability(String& scapability)
     return false;
 }
 /**
-   Reboot method for Linux implementation of OS Provider
+   _reboot method for Linux implementation of OS Provider
 
    Finds executable in /sbin, /usr/bin, or /usr/local/sbin and invokes.
 
@@ -769,7 +769,7 @@ Boolean OperatingSystem::getOperatingSystemCapability(String& scapability)
    graceful shutdown of the CIMOM (at least)?
 
    */
-Uint32 OperatingSystem::Reboot()
+Uint32 OperatingSystem::_reboot()
 {
    const char *reboot[] = { "reboot", NULL };
    const char *paths[] = { "/sbin", "/usr/sbin", "/usr/local/sbin", NULL };
@@ -802,7 +802,7 @@ Uint32 OperatingSystem::Reboot()
    return result;
 }
 /**
-   Shutdown method for Linux implementation of OS Provider
+   _shutdown method for Linux implementation of OS Provider
 
    Finds executable in /sbin, /usr/bin, or /usr/local/sbin and invokes.
 
@@ -815,7 +815,7 @@ Uint32 OperatingSystem::Reboot()
    'Stopping' state while the OS cleans up before actually invoking
    the poweroff command.
    */
-Uint32 OperatingSystem::Shutdown()
+Uint32 OperatingSystem::_shutdown()
 {
    const char *poweroff[] = { "poweroff", NULL };
    const char *paths[] = { "/sbin", "/usr/sbin", "/usr/local/sbin", NULL };

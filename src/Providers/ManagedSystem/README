@@ -44,8 +44,8 @@ The testing strategy has various dimensions:
 		(included in the tests subdirectory of each provider)
 
 Most of the tests are exercisers, some of which are automated (via
-inclusion in the Makefile).  Others are not automated.  At this time,
-the majority of the validation is done manually (vs. via a generic
+inclusion in the Makefile).  Others are not automated.  Initially,
+the majority of the validation is done manually (moving to a generic
 client that performs appropriate native OS calls and compares the
 results against the CIM content returned).
 

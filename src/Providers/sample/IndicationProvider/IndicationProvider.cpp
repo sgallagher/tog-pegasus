@@ -33,11 +33,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-IndicationProvider::IndicationProvider(void)
+IndicationProvider::IndicationProvider(void) throw()
 {
 }
 
-IndicationProvider::~IndicationProvider(void)
+IndicationProvider::~IndicationProvider(void) throw()
 {
 }
 

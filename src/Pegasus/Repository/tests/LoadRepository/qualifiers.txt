@@ -1,0 +1,130 @@
+
+     Qualifier Abstract : boolean = false, Scope(class, association, indication),
+     Flavor(disableoverride, restricted);
+
+     Qualifier Aggregate : boolean = false, Scope(reference),
+     Flavor(disableoverride, tosubclass);
+
+     Qualifier Aggregation : boolean = false, Scope(association),
+     Flavor(disableoverride, tosubclass);
+
+     Qualifier Alias : string = null, Scope(property, reference, method),
+     Flavor(translatable);
+
+     Qualifier ArrayType : string = "Bag", Scope(property, parameter);
+
+     Qualifier Association : boolean = false, Scope(class, association),
+     Flavor(disableoverride);
+
+     Qualifier BitMap : string[], Scope(property, method, parameter);
+
+     Qualifier BitValues : string[], Scope(property, method, parameter),
+     Flavor(Translatable);
+
+     Qualifier Counter : boolean = false, Scope(property, method, parameter);
+
+     Qualifier Delete : boolean = false, Scope(association, reference);
+
+     Qualifier Description : string = null, Scope(any), Flavor(translatable);
+
+     Qualifier DisplayName : string = null, Scope(any), Flavor(translatable);
+
+     Qualifier Expensive : boolean = false,
+     Scope(property, reference, method, class, association);
+
+     Qualifier Gauge : boolean = false, Scope(property, method, parameter);
+
+     Qualifier Ifdeleted : boolean = false, Scope(association, reference);
+
+     Qualifier In : boolean = true, Scope(parameter), Flavor(disableoverride);
+
+     Qualifier Indication : boolean = false, Scope(class, indication),
+     Flavor(disableoverride);
+
+     Qualifier Invisible : boolean = false,
+     Scope(reference, association, class,property, method);
+
+     Qualifier Key : boolean = false, Scope(property, reference),
+     Flavor(disableoverride);
+
+     Qualifier Large : boolean = false, Scope(property, class);
+
+     Qualifier MappingStrings : string[],
+     Scope(class, property, association, indication, reference);
+
+     Qualifier Max : uint32 = null, Scope(reference);
+
+     Qualifier MaxLen : uint32 = null, Scope(property, method, parameter);
+
+     Qualifier MaxValue : sint64 = null, Scope(property, method, parameter);
+
+     Qualifier Min : uint32 = 0, Scope(reference);
+
+     Qualifier MinValue : sint64 = null, Scope(property, method, parameter);
+
+     Qualifier ModelCorrespondence : string[], Scope(property);
+
+     Qualifier NonLocal : string = null, Scope(reference);
+
+     Qualifier NonLocalType : string = null, Scope(reference);
+
+     Qualifier NullValue : string = null, Scope(property),
+     Flavor(tosubclass, disableoverride);
+
+     Qualifier Out : boolean = false, Scope(parameter), Flavor(disableoverride);
+
+     Qualifier Override : string = null, Scope(property, method, reference),
+     Flavor(disableoverride);
+
+     Qualifier Propagated : string = null, Scope(property, reference),
+     Flavor(disableoverride);
+
+     Qualifier Provider : string = null, Scope(any);
+
+     Qualifier Read : boolean = true, Scope(property);
+
+     Qualifier Required : boolean = false, Scope(property);
+
+     Qualifier Revision : string = null, Scope(schema, class, association, indication),
+     Flavor(translatable);
+
+     Qualifier Schema : string = null, Scope(property, method),
+     Flavor(disableoverride, translatable);
+
+     Qualifier Source : string = null, Scope(class, association, indication);
+
+     Qualifier SourceType : string = null, 
+     Scope(class, association, indication,reference);
+
+     Qualifier Static : boolean = false, Scope(property, method), Flavor(disableoverride);
+
+     Qualifier Syntax : string = null, Scope(property, reference, method, parameter);
+
+     Qualifier SyntaxType : string = null, Scope(property, reference, method, parameter);
+
+     Qualifier Terminal : boolean = false, Scope(class);
+
+     Qualifier TriggerType : string = null,
+     Scope(class, property, reference, method, association, indication);
+
+     Qualifier Units : string = null, Scope(property, method, parameter),
+     Flavor(translatable);
+
+     Qualifier UnknownValues : string[], Scope(property),
+     Flavor(disableoverride, tosubclass);
+
+     Qualifier UnsupportedValues : string[], Scope(property),
+     Flavor(disableoverride, tosubclass);
+
+     Qualifier ValueMap : string[], Scope(property, method, parameter);
+
+     Qualifier Values : string[], Scope(property, method, parameter),
+     Flavor(translatable);
+
+     Qualifier Version : string = null,
+     Scope(schema, class, association, indication), Flavor(translatable);
+     
+     Qualifier Weak : boolean = false, Scope(reference),
+     Flavor(disableoverride, tosubclass);
+
+     Qualifier Write : boolean = false, Scope(property);

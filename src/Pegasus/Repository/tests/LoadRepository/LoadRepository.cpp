@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: LoadRepository.cpp,v $
-// Revision 1.1  2001/01/14 19:53:58  mike
-// Initial revision
+// Revision 1.2  2001/01/25 02:11:18  mike
+// added file which contains standard meta qualifiers
+//
+// Revision 1.1.1.1  2001/01/14 19:53:58  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -62,7 +65,7 @@ Boolean ProcessValueObjectElement(Repository& repository, XmlParser& parser)
 
     XmlReader::getClassElement(parser, classDecl);
 
-    // cout << "Creating " << classDecl.getClassName() << "..." << endl;
+    cout << "Creating " << classDecl.getClassName() << "..." << endl;
 
     repository.createClass(NAMESPACE, classDecl);
 
@@ -171,6 +174,227 @@ Boolean ProcessCimElement(Repository& repository, XmlParser& parser)
 
 //------------------------------------------------------------------------------
 //
+// CreateQualifiers()
+//
+//------------------------------------------------------------------------------
+
+void CreateQualifiers(Repository& repository)
+{
+    // ATTN: not in meta schema!
+    {
+    QualifierDecl q("cimtype", String(), 
+	Scope::PROPERTY | Scope::PARAMETER);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier Description : string = null, Scope(any), Flavor(translatable);
+    {
+    QualifierDecl q("description", String(), Scope::ANY, Flavor::TRANSLATABLE);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // ATTN: the qualifier declaration in the meta schema does not match
+    // usage in XML schema! (uint32 vs. sing32)
+
+    // Qualifier MaxLen : uint32 = null, Scope(property, method, parameter);
+    {
+    QualifierDecl q(
+	"maxlen", Sint32(0), Scope::PROPERTY|Scope::METHOD|Scope::PARAMETER);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier Abstract : boolean = false, 
+    // Scope(class, association, indication),
+    {
+    QualifierDecl q(
+	"abstract", false, Scope::CLASS|Scope::ASSOCIATION|Scope::INDICATION);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier MappingStrings : string[],
+    // Scope(class, property, association, indication, reference);
+    {
+    QualifierDecl q("mappingstrings", Array<String>(),
+	Scope::CLASS|Scope::PROPERTY|Scope::ASSOCIATION|Scope::INDICATION|
+	Scope::REFERENCE);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier ValueMap : string[], Scope(property, method, parameter);
+    {
+    QualifierDecl q("valuemap", Array<String>(), 
+	Scope::PROPERTY|Scope::METHOD|Scope::PARAMETER);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier Key : boolean = false, Scope(property, reference),
+    // Flavor(disableoverride);
+    {
+    QualifierDecl q(
+	"key", false, Scope::PROPERTY|Scope::REFERENCE, Flavor::NONE);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    {
+    QualifierDecl q("id", Sint32(0), 
+	Scope::PARAMETER|Scope::PROPERTY, Flavor::NONE);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier In : boolean = true, Scope(parameter), Flavor(disableoverride);
+    {
+    QualifierDecl q("in", true, Scope::PARAMETER, Flavor::NONE);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier Out : boolean = false, Scope(parameter), 
+    // Flavor(disableoverride);
+    {
+    QualifierDecl q("out", false, Scope::PARAMETER, Flavor::NONE);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier Override : string = null, Scope(property, method, reference),
+    // Flavor(disableoverride);
+    {
+    QualifierDecl q("override", String(), 
+	Scope::PROPERTY|Scope::METHOD|Scope::REFERENCE,
+	Flavor::TOSUBCLASS);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier Values : string[], Scope(property, method, parameter),
+    // Flavor(translatable);
+    {
+    QualifierDecl q("values", Array<String>(), 
+	Scope::PROPERTY|Scope::METHOD|Scope::PARAMETER,
+	Flavor::TRANSLATABLE);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier ArrayType : string = "Bag", Scope(property, parameter);
+    {
+    QualifierDecl q("arraytype", "Bag", Scope::PROPERTY|Scope::PARAMETER);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier ModelCorrespondence : string[], Scope(property);
+    {
+    QualifierDecl q("modelcorrespondence", Array<String>(), Scope::PROPERTY);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier Units : string = null, Scope(property, method, parameter),
+    // Flavor(translatable);
+    {
+    QualifierDecl q("units", String(), 
+	Scope::PROPERTY|Scope::METHOD|Scope::PARAMETER,
+	Flavor::TRANSLATABLE);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier Counter : boolean = false, Scope(property, method, parameter);
+    {
+    QualifierDecl q("counter", false,
+	Scope::PROPERTY|Scope::METHOD|Scope::PARAMETER);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier Propagated : string = null, Scope(property, reference),
+    // Flavor(disableoverride);
+    {
+    QualifierDecl q("propagated", String(),
+	Scope::PROPERTY|Scope::REFERENCE, Flavor::TOSUBCLASS);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier Required : boolean = false, Scope(property);
+    {
+    QualifierDecl q("required", false, Scope::PROPERTY);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // ATTN: missing!
+    {
+    QualifierDecl q("octetstring", false, Scope::PROPERTY);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier Gauge : boolean = false, Scope(property, method, parameter);
+    {
+    QualifierDecl q(
+	"gauge", false, Scope::PROPERTY|Scope::METHOD|Scope::PARAMETER);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier Write : boolean = false, Scope(property);
+    {
+    QualifierDecl q("write", false, Scope::PROPERTY);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier MaxValue : sint64 = null, Scope(property, method, parameter);
+    // ATTN: mismatch!
+    {
+    QualifierDecl q("maxvalue", Sint32(0), 
+	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier MinValue : sint64 = null, Scope(property, method, parameter);
+    {
+    QualifierDecl q("minvalue", Sint32(0), 
+	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier Max : uint32 = null, Scope(reference);
+    // ATTN: type and scope wrong!
+    {
+    QualifierDecl q("max", Sint32(0), Scope::PROPERTY);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier Min : uint32 = null, Scope(reference);
+    // ATTN: type and scope wrong!
+    {
+    QualifierDecl q("min", Sint32(0), Scope::PROPERTY);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier Aggregate : boolean = false, Scope(reference),
+    // Flavor(disableoverride, tosubclass);
+    {
+    QualifierDecl q("aggregate", false, Scope::PROPERTY);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier Association : boolean = false, Scope(class, association),
+    // Flavor(disableoverride);
+    {
+    QualifierDecl q("association", false, Scope::CLASS | Scope::ASSOCIATION, 
+	Flavor::TOSUBCLASS);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier Aggregation : boolean = false, Scope(association),
+    // Flavor(disableoverride, tosubclass);
+    {
+    QualifierDecl q("aggregation", false, Scope::ASSOCIATION | Scope::CLASS,
+	Flavor::TOSUBCLASS);
+    repository.setQualifier(NAMESPACE, q);
+    }
+
+    // Qualifier Weak : boolean = false, Scope(reference),
+    // Flavor(disableoverride, tosubclass);
+    {
+    QualifierDecl q("weak", false, Scope::PROPERTY, Flavor::TOSUBCLASS);
+    repository.setQualifier(NAMESPACE, q);
+    }
+}
+
+//------------------------------------------------------------------------------
+//
 // _processFile()
 //
 //------------------------------------------------------------------------------
@@ -187,6 +411,10 @@ static void _processFile(const char* repositoryRoot, const char* xmlFileName)
 
     Repository repository(repositoryRoot);
     repository.createNameSpace(NAMESPACE);
+
+    // Create the qualifiers:
+
+    CreateQualifiers(repository);
 
     if (!ProcessCimElement(repository, parser))
     {

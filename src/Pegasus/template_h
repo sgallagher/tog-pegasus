@@ -1,4 +1,4 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,12 +17,13 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
-//BEGIN_HISTORY
+//==============================================================================
 //
-// Author: AUTHOR
+// Author:
 //
-//END_HISTORY
+// Modified By:
+//
+//%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CLASSNAME_h
 #define Pegasus_CLASSNAME_h
@@ -31,13 +32,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/**
 
-*/
-class CLASSNAME
-{
-
-};
 
 PEGASUS_NAMESPACE_END
 

@@ -28,6 +28,8 @@ SOURCES = \
     CIMName.cpp \
     CIMObject.cpp \
     CIMObjectRep.cpp \
+    Cimom.cpp \
+    CimomMessage.cpp \
     CIMParameter.cpp \
     CIMParameterRep.cpp \
     CIMParamValue.cpp \
@@ -65,6 +67,7 @@ SOURCES = \
     Memory.cpp \
     Message.cpp \
     MessageQueue.cpp \
+    MessageQueueService.cpp \
     Monitor.cpp \
     OperationContext.cpp \
     OptionManager.cpp \

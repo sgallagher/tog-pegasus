@@ -27,6 +27,7 @@
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 // 	        Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+// 	        Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -76,8 +77,8 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDispatcher
 
    private:
 
-      void _handleExportIndicationRequest(
-	 CIMExportIndicationRequestMessage* request);
+      CIMExportIndicationResponseMessage* _handleExportIndicationRequest(
+         CIMExportIndicationRequestMessage* request);
 
       Boolean _dynamicReg;
       Boolean _staticConsumers;

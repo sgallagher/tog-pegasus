@@ -27,6 +27,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,25 +37,14 @@
 
 #include <Pegasus/Common/Config.h>
 #include <sys/types.h>
-//#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-//#else
-//#include <unistd.h>
-//#endif 
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/DQueue.h>
-#include <Pegasus/Common/Thread.h>
-#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/AsyncOpNode.h>
-#include <Pegasus/Common/CimomMessage.h>
-#include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Handler/CIMHandler.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
@@ -91,7 +81,8 @@ class PEGASUS_HANDLER_SERVICE_LINKAGE IndicationHandlerService
 
    protected:
 
-      void _handleIndication(const Message* message);
+      CIMHandleIndicationResponseMessage* _handleIndication(
+          CIMHandleIndicationRequestMessage* request);
 
       HandlerTable _handlerTable;
 

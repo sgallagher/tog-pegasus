@@ -84,6 +84,8 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
    PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
       "CIMExportRequestDispatcher::_handle_async_request");
 
+    PEGASUS_ASSERT(req != 0 && req->op != 0 );
+
     if ( req->getType() == async_messages::CIMSERVICE_STOP )
     {
         req->op->processing();
@@ -91,18 +93,31 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
     }
     else if ( req->getType() == async_messages::ASYNC_LEGACY_OP_START )
     {
-       try 
-       {
         req->op->processing();
-        Message *legacy = (static_cast<AsyncLegacyOperationStart *>(req)->get_action());
-	handleEnqueue(legacy);
-       }
-       catch(Exception & )
-       {
-	  _make_response(req, async_results::CIM_NAK);
-       }
-        PEG_METHOD_EXIT();
-        return;
+        Message *legacy =
+            (static_cast<AsyncLegacyOperationStart *>(req)->get_action());
+        if (legacy->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE)
+        {
+            Message* legacy_response = _handleExportIndicationRequest(
+                (CIMExportIndicationRequestMessage*) legacy);
+            AsyncLegacyOperationResult *async_result =
+                new AsyncLegacyOperationResult(
+                    req->getKey(),
+                    req->getRouting(),
+                    req->op,
+                    legacy_response);
+
+            _complete_op_node(req->op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+            delete legacy;
+        }
+        else
+        {
+            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "CIMExportRequestDispatcher::_handle_async_request got "
+                    "unexpected legacy message type '%u'", legacy->getType());
+	    _make_response(req, async_results::CIM_NAK);
+            delete legacy;
+        }
     }
     else
     {
@@ -111,10 +126,15 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
     PEG_METHOD_EXIT();
 }
 
+// This callback method is currently unused.  ExportIndication messages
+// are passed to the ProviderManager using SendWait rather than SendAsync
+// so the responses can be routed correctly.
 void CIMExportRequestDispatcher::_forwardRequestCallback(AsyncOpNode *op, 
 							 MessageQueue *q, 
 							 void *parm)
 {
+   PEGASUS_ASSERT(0);
+#if 0
    CIMExportRequestDispatcher *service = 
       static_cast<CIMExportRequestDispatcher *>(q);
 
@@ -127,19 +147,22 @@ void CIMExportRequestDispatcher::_forwardRequestCallback(AsyncOpNode *op,
 
     if(msgType == async_messages::ASYNC_LEGACY_OP_RESULT)
     {
-        response = reinterpret_cast<CIMResponseMessage *>
-            ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result())
-;
+        response = reinterpret_cast<CIMResponseMessage *>(
+            (static_cast<AsyncLegacyOperationResult *>(asyncReply))->
+                get_result());
     }
     else if(msgType == async_messages::ASYNC_MODULE_OP_RESULT)
     {
-        response = reinterpret_cast<CIMResponseMessage *>
-            ((static_cast<AsyncModuleOperationResult *>(asyncReply))->get_result())
-;
+        response = reinterpret_cast<CIMResponseMessage *>(
+            (static_cast<AsyncModuleOperationResult *>(asyncReply))->
+                get_result());
     }
     else
     {
         // Error
+        Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "CIMExportRequestDispatcher::_forwardRequestCallback got "
+                "unexpected message type '%u'", msgType);
     }
 
    PEGASUS_ASSERT(response != 0);
@@ -163,6 +186,7 @@ void CIMExportRequestDispatcher::_forwardRequestCallback(AsyncOpNode *op,
     delete asyncReply;
     op->release();
     service->return_op(op);
+#endif
 }
 
 void CIMExportRequestDispatcher::handleEnqueue(Message* message)
@@ -179,13 +203,21 @@ void CIMExportRequestDispatcher::handleEnqueue(Message* message)
     switch (message->getType())
     {
 	case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
-	    _handleExportIndicationRequest(
-		(CIMExportIndicationRequestMessage*) message);
+        {
+            CIMExportIndicationResponseMessage* response =
+                _handleExportIndicationRequest(
+                    (CIMExportIndicationRequestMessage*) message);
+            SendForget(response);
 	    break;
+        }
 
         default:
+            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "CIMExportRequestDispatcher::handleEnqueue got unexpected "
+                    "message type '%u'", message->getType());
             break;
     }
+
     delete message;
 
     PEG_METHOD_EXIT();
@@ -205,7 +237,8 @@ void CIMExportRequestDispatcher::handleEnqueue()
 }
 
 
-void CIMExportRequestDispatcher::_handleExportIndicationRequest(
+CIMExportIndicationResponseMessage*
+CIMExportRequestDispatcher::_handleExportIndicationRequest(
     CIMExportIndicationRequestMessage* request)
 {
     PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
@@ -219,9 +252,6 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
     find_services(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, 0, 0, &serviceIds);
     PEGASUS_ASSERT(serviceIds.size() != 0);
 
-    CIMExportIndicationRequestMessage* request_copy =
-	new CIMExportIndicationRequestMessage(*request);
- 
     AsyncOpNode * op = this->get_op();
 
     AsyncLegacyOperationStart * asyncRequest =
@@ -229,28 +259,31 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
 	    get_next_xid(),
 	    op,
 	    serviceIds[0],
-	    request_copy,
+	    new CIMExportIndicationRequestMessage(*request),
 	    this->getQueueId());
 
     asyncRequest->dest = serviceIds[0];
 
-    SendAsync(op,
-	      serviceIds[0],
-	      CIMExportRequestDispatcher::_forwardRequestCallback,
-	      this,
-	      (void *)request->queueIds.top());
+    //SendAsync(op,
+    //          serviceIds[0],
+    //          CIMExportRequestDispatcher::_forwardRequestCallback,
+    //          this,
+    //          (void *)request->queueIds.top());
+    AsyncReply *asyncReply = SendWait(asyncRequest);
 
+    CIMExportIndicationResponseMessage* response =
+        reinterpret_cast<CIMExportIndicationResponseMessage *>(
+            (static_cast<AsyncLegacyOperationResult *>(
+                asyncReply))->get_result());
+    response->dest = request->queueIds.top();
+    response->synch_response(request);
 
-    //
-    //  Set response destination
-    //
-    PEG_TRACE_STRING(TRC_EXP_REQUEST_DISP, Tracer::LEVEL4, 
-		     "CIMExportRequestDispatcher setting export indication response dest " +
-		     ((MessageQueue::lookup(request->queueIds.top())) ? 
-		      String( ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) ) : 
-		      String("BAD queue name")));
-    
+    delete asyncReply;    // Recipient deletes request
+    op->release();
+    this->return_op(op);
+
     PEG_METHOD_EXIT();
+    return response;
 }
 
 PEGASUS_NAMESPACE_END

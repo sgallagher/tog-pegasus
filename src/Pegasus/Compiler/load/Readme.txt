@@ -1,3 +1,8 @@
+Note: effective 21 Feb 2002 this makefile is deprecated.  Please
+use the one in schemas.
+
+This directory and makefile will be removed.
+
 This directory provides a way to load schemas into the repository.
 It includes only a make file that provides the standard schema load into
 the repository

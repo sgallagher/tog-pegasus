@@ -147,7 +147,12 @@ protected:
 	CIMEnableModuleRequestMessage * notify_req);
     MessageQueueService * _getIndicationService();
     void _sendTerminationMessageToSubscription(
-	const CIMObjectPath & ref, const String & moduleName);
+	const CIMObjectPath & ref, const String & moduleName,
+	const Boolean disableProviderOnly);
+
+    Sint16 _disableModule(const CIMObjectPath & moduleRef, 
+			  const String & moduleName,
+			  Boolean disableProviderOnly);
 };
 
 PEGASUS_NAMESPACE_END

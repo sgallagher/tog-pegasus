@@ -579,6 +579,99 @@ void ProviderRegistrationProvider::deleteInstance(
     // begin processing the request
     handler.processing();
 
+    String moduleName;
+    Boolean moduleFound = false;
+    Array<CIMKeyBinding> keys = instanceReference.getKeyBindings();
+
+    //
+    // disable provider before delete provider 
+    // registration if the class is PG_Provider
+    //
+    if (className.equal (PEGASUS_CLASSNAME_PROVIDER))
+    {
+    	// get module name from reference
+
+    	for(Uint32 i=0; i<keys.size() ; i++)
+    	{
+	    if(keys[i].getName().equal (_PROPERTY_PROVIDERMODULENAME))
+	    {
+	        moduleName = keys[i].getValue();
+	        moduleFound = true;
+	    }
+	}
+
+    	// if _PROPERTY_PROVIDERMODULENAME key not found
+    	if( !moduleFound)
+    	{
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+		"key ProviderModuleName was not found");
+    	}
+
+	// 
+	// disable the provider 
+	//
+	try
+	{
+             //
+             // if the provider disable failed
+             //
+             if (_disableModule(instanceReference, moduleName, true) == -1)
+             {
+                 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                     "disable the provider failed.");
+             }
+	}
+    	catch(CIMException&)
+    	{
+	    throw;
+    	}
+    }
+
+    //
+    // disable provider module before remove provider registration
+    // if the class is PG_ProviderModule 
+    //
+
+    if (className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
+    {
+    	// get module name from reference
+
+    	for(Uint32 i=0; i<keys.size() ; i++)
+    	{
+	    if(keys[i].getName().equal (_PROPERTY_PROVIDERMODULE_NAME))
+	    {
+	        moduleName = keys[i].getValue();
+	        moduleFound = true;
+	    }
+	}
+
+    	// if _PROPERTY_PROVIDERMODULE_NAME key not found
+    	if( !moduleFound)
+    	{
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+		"key Name was not found");
+    	}
+
+	// 
+	// disable the provider module
+	//
+	try
+	{
+            //
+            // if the provider module disable failed
+            //
+            if (_disableModule(instanceReference, moduleName, false) == -1)
+            {
+                 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                     "disable the provider module failed.");
+            }
+	}
+    	catch(CIMException& e)
+    	{
+	    throw (e);
+    	}
+    }
+
     try
     {
     	_providerRegistrationManager->deleteInstance(instanceReference);
@@ -646,108 +739,22 @@ void ProviderRegistrationProvider::invokeMethod(
 		"key Name was not found");
     }
 
-    //
-    // get module status
-    //
-    Array<Uint16> _OperationalStatus =
-	_providerRegistrationManager->getProviderModuleStatus( moduleName);
-
-    // get module instance
-    CIMInstance mInstance = _providerRegistrationManager->getInstance(objectReference);
-
     handler.processing();
 
     Sint16 ret_value;
 
     if(methodName.equal(_STOP_PROVIDER))
     {
-	for (Uint32 i = 0; i<_OperationalStatus.size(); i++)
+	// disable module
+	try
 	{
-	    // retValue equals 1 if module is already disabled
-	    if (_OperationalStatus[i] == _MODULE_STOPPED ||
-		_OperationalStatus[i] == _MODULE_STOPPING)
-	    {
-		ret_value = 1;
-		CIMValue retValue(ret_value);
-		handler.deliver(retValue);
-    		handler.complete();
-		return;
-	    }
+    	     ret_value =  _disableModule(objectReference, moduleName, false);
 	}
+    	catch(CIMException& e)
+    	{
+	     throw (e);
+        }
 
-	CIMInstance instance;
-	Array<CIMInstance> instances;
-	String _moduleName;
-
-	// get all provider instances which have same module name as moduleName
-	CIMObjectPath providerRef(objectReference.getHost(),
-				 objectReference.getNameSpace(),
-				 PEGASUS_CLASSNAME_PROVIDER,
-				 objectReference.getKeyBindings());
- 	Array<CIMObjectPath> instanceNames;
-	instanceNames = _providerRegistrationManager->enumerateInstanceNames(providerRef);
-	for(Uint32 i = 0, n=instanceNames.size(); i < n; i++)
-	{
-	    //
-            // get provider module name from reference
-            //
-
-            Array<CIMKeyBinding> keys = instanceNames[i].getKeyBindings();
-
-            for(Uint32 j=0; j < keys.size(); j++)
-            {
-                if(keys[j].getName().equal (_PROPERTY_PROVIDERMODULENAME))
-                {
-                    _moduleName = keys[j].getValue();
-                }
-            }
-
-	    if (String::equalNoCase(_moduleName, moduleName))
-	    {
-		providerRef.setKeyBindings(keys);
-		instance = _providerRegistrationManager->getInstance(providerRef);
-		instances.append(instance);
-	    }
-
-	}
-
-        //
-        // get provider manager service
-        //
-        MessageQueueService * _service = _getProviderManagerService();
-
-	if (_service != NULL)
-	{
-	    // create CIMDisableModuleRequestMessage
-	    CIMDisableModuleRequestMessage * disable_req =
-	        new CIMDisableModuleRequestMessage(
-		    XmlWriter::getNextMessageId (),
-		    mInstance,
-		    instances,
-		    QueueIdStack(_service->getQueueId()));
-
-  	    Array<Uint16> _opStatus =
-	        _sendDisableMessageToProviderManager(disable_req);
-
-	    for (Uint32 i = 0; i<_opStatus.size(); i++)
-	    {
-	        if (_opStatus[i] == _MODULE_STOPPED)
-	        {
-		    // module was disabled successfully
-		    ret_value = 0;
-		    CIMValue retValue(ret_value);
-		    handler.deliver(retValue);
-    		    handler.complete();
-
-	 	    // send termination message to subscription service
-		    _sendTerminationMessageToSubscription(objectReference, moduleName);
-		    return;
-	        }
-	    }
-  	}
-
-        // disable failed
-	ret_value = -1;
 	CIMValue retValue(ret_value);
 	handler.deliver(retValue);
     	handler.complete();
@@ -755,6 +762,12 @@ void ProviderRegistrationProvider::invokeMethod(
     }
     else if(methodName.equal(_START_PROVIDER))
     {
+    	//
+    	// get module status
+    	//
+    	Array<Uint16> _OperationalStatus =
+	    _providerRegistrationManager->getProviderModuleStatus( moduleName);
+
 	for (Uint32 i = 0; i<_OperationalStatus.size(); i++)
 	{
 	    // retValue equals 1 if module is already enabled
@@ -778,6 +791,10 @@ void ProviderRegistrationProvider::invokeMethod(
                 return;
 	    }
 	}
+
+        // get module instance
+        CIMInstance mInstance = 
+	    _providerRegistrationManager->getInstance(objectReference);
 
         //
         // get provider manager service
@@ -926,21 +943,24 @@ Array<Uint16> ProviderRegistrationProvider::_sendEnableMessageToProviderManager(
 
 // send termination message to subscription service
 void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
-    const CIMObjectPath & ref, const String & moduleName)
+    const CIMObjectPath & ref, const String & moduleName,
+    const Boolean disableProviderOnly)
 {
     CIMInstance instance;
     String _moduleName;
     Array<CIMInstance> instances;
 
-    CIMObjectPath reference("", PEGASUS_NAMESPACENAME_INTEROP,
-	PEGASUS_CLASSNAME_PROVIDER, ref.getKeyBindings());
-
-    Array<CIMObjectPath> instanceNames =
-	_providerRegistrationManager->enumerateInstanceNames(reference);
-
-    // find all the instances which have same module name as moduleName
-    for (Uint32 i = 0, n=instanceNames.size(); i < n; i++)
+    if (!disableProviderOnly)
     {
+        CIMObjectPath reference("", PEGASUS_NAMESPACENAME_INTEROP,
+	    PEGASUS_CLASSNAME_PROVIDER, ref.getKeyBindings());
+
+        Array<CIMObjectPath> instanceNames =
+	    _providerRegistrationManager->enumerateInstanceNames(reference);
+
+        // find all the instances which have same module name as moduleName
+        for (Uint32 i = 0, n=instanceNames.size(); i < n; i++)
+        {
 	    //
             // get provider module name from reference
             //
@@ -955,12 +975,18 @@ void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
                 }
             }
 
-	if (String::equalNoCase(moduleName, _moduleName))
-	{
-	    reference.setKeyBindings(keys);
-	    instance = _providerRegistrationManager->getInstance(reference);
+	    if (String::equalNoCase(moduleName, _moduleName))
+	    {
+	        reference.setKeyBindings(keys);
+	        instance = _providerRegistrationManager->getInstance(reference);
+	        instances.append(instance);
+	    }
+        }
+    }
+    else
+    {
+	    instance = _providerRegistrationManager->getInstance(ref);
 	    instances.append(instance);
-	}
     }
 
     //
@@ -1007,6 +1033,150 @@ MessageQueueService * ProviderRegistrationProvider::_getIndicationService()
     MessageQueueService * _service =
 	dynamic_cast<MessageQueueService *>(queue);
     return(_service);
+}
+
+// disable provider module, return 0 if module is disabled successfully,
+// return 1 if module is already disabled, otherwise, return -1
+Sint16 ProviderRegistrationProvider::_disableModule(
+    const CIMObjectPath & objectReference, 
+    const String & moduleName,
+    Boolean disableProviderOnly)
+{
+    	//
+    	// get module status
+    	//
+    	Array<Uint16> _OperationalStatus =
+	    _providerRegistrationManager->getProviderModuleStatus( moduleName);
+
+	for (Uint32 i = 0; i<_OperationalStatus.size(); i++)
+	{
+	    // retValue equals 1 if module is already disabled
+	    if (_OperationalStatus[i] == _MODULE_STOPPED ||
+		_OperationalStatus[i] == _MODULE_STOPPING)
+	    {
+		return (1);
+	    }
+	}
+
+	CIMInstance instance;
+	Array<CIMInstance> instances;
+        CIMInstance mInstance;
+	String _moduleName;
+	Uint16 providers;
+	CIMObjectPath providerRef;
+
+	// disable a provider module or delete a provider module
+	if (!disableProviderOnly)
+	{
+	    providerRef = CIMObjectPath(objectReference.getHost(),
+				 objectReference.getNameSpace(),
+				 PEGASUS_CLASSNAME_PROVIDER,
+				 objectReference.getKeyBindings());
+
+            // get module instance
+            mInstance = 
+	        _providerRegistrationManager->getInstance(objectReference);
+
+	}
+	else // disable a provider
+	{
+            // get module instance
+	    Array <CIMKeyBinding> moduleKeyBindings;
+	    moduleKeyBindings.append (CIMKeyBinding
+		(_PROPERTY_PROVIDERMODULE_NAME, moduleName, 
+		 CIMKeyBinding::STRING)); 
+
+	    CIMObjectPath moduleRef(objectReference.getHost(),
+				    objectReference.getNameSpace(),
+				    PEGASUS_CLASSNAME_PROVIDERMODULE,
+				    moduleKeyBindings);
+				    
+            mInstance = 
+	        _providerRegistrationManager->getInstance(moduleRef);
+	}
+
+        if (!disableProviderOnly)
+        {
+	    // get all provider instances which have same module name as 
+	    // moduleName
+ 	    Array<CIMObjectPath> instanceNames = 
+	        _providerRegistrationManager->enumerateInstanceNames(providerRef);
+
+	    for(Uint32 i = 0, n=instanceNames.size(); i < n; i++)
+	    {
+	        //
+                // get provider module name from reference
+                //
+
+                Array<CIMKeyBinding> keys = instanceNames[i].getKeyBindings();
+
+                for(Uint32 j=0; j < keys.size(); j++)
+                {
+                    if(keys[j].getName().equal (_PROPERTY_PROVIDERMODULENAME))
+                    {
+                        _moduleName = keys[j].getValue();
+                    }
+                }
+
+	        if (String::equalNoCase(_moduleName, moduleName))
+	        {
+		    providerRef.setKeyBindings(keys);
+		    instance = _providerRegistrationManager->getInstance
+			(providerRef);
+		    instances.append(instance);
+	        }
+
+	    }
+        }
+        else
+        {
+	    instances.append(_providerRegistrationManager->getInstance
+	         (objectReference));
+        }
+
+        //
+        // get provider manager service
+        //
+        MessageQueueService * _service = _getProviderManagerService();
+
+	if (_service != NULL)
+	{
+	    // create CIMDisableModuleRequestMessage
+	    CIMDisableModuleRequestMessage * disable_req =
+	        new CIMDisableModuleRequestMessage(
+		    XmlWriter::getNextMessageId (),
+		    mInstance,
+		    instances,
+		    disableProviderOnly,
+		    QueueIdStack(_service->getQueueId()));
+
+  	    Array<Uint16> _opStatus =
+	        _sendDisableMessageToProviderManager(disable_req);
+
+	    if (!disableProviderOnly) // disable provider module
+	    {
+	        for (Uint32 i = 0; i<_opStatus.size(); i++)
+	        {
+		    // module was disabled successfully
+	            if (_opStatus[i] == _MODULE_STOPPED)
+	            {
+	 	        // send termination message to subscription service
+		        _sendTerminationMessageToSubscription(objectReference,
+				moduleName, false);
+		        return (0);
+	            }
+	        }
+	    }
+	    else // disable provider
+	    {
+	        _sendTerminationMessageToSubscription(objectReference,
+			moduleName, true);
+	        return (0);
+	    }
+  	}
+
+        // disable failed
+	return (-1);
 }
 
 PEGASUS_NAMESPACE_END

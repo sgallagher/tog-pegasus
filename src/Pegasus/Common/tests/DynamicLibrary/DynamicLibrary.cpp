@@ -49,7 +49,9 @@ void Test1(void)
 {
     DynamicLibrary library(VALID_FILE_NAME);
 
-    if(library.load() == false)
+    library.load();
+
+    if(!library.isLoaded())
     {
         cout << "failed to load " << library.getFileName() << endl;
 
@@ -69,7 +71,9 @@ void Test1(void)
 
     cout << "callme() returned << " << hex << callme() << endl;
 
-    if(library.unload() == false)
+    library.unload();
+
+    if(library.isLoaded())
     {
         cout << "failed to unload " << library.getFileName() << endl;
 
@@ -87,9 +91,22 @@ void Test2(void)
     {
         DynamicLibrary library2(library);
 
-        DynamicLibrary library3;
+        if(!library.isLoaded())
+        {
+            cout << "failed to preserve module state in copy " << library.getFileName() << endl;
+        }
+    }
 
-        library3 = library2;
+
+    {
+        DynamicLibrary library2;
+
+        library2 = library;
+
+        if(!library.isLoaded())
+        {
+            cout << "failed to preserve module state in assignment " << library.getFileName() << endl;
+        }
     }
 
     library.unload();
@@ -100,16 +117,11 @@ void Test3(void)
 {
     DynamicLibrary library(INVALID_FILE_NAME);
 
-    if(library.load() == true)
+    library.load();
+
+    if(library.isLoaded())
     {
         cout << "failed by loading " << library.getFileName() << endl;
-
-        throw 0;
-    }
-
-    if(library.unload() == false)
-    {
-        cout << "failed by unloading " << library.getFileName() << endl;
 
         throw 0;
     }
@@ -124,4 +136,6 @@ int main(int argc, char** argv)
     Test3();
 
     cout << argv[0] << " +++++ passed all tests" << endl;
+
+    return(0);
 }

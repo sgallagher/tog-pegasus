@@ -14,6 +14,11 @@ Version 1.1 - July 2001 Development branch (Work in Progress)
    Provided examples for HandlerTable, XmlIndicationDelivery and 
    SendMailIndicationDelivery to support this implementation.
 
+2. (Markus Mueller - IBM) Implementation of a Linux specific threading
+   library and a thread-safe message queue (first stage). Classes defined
+   are Mutex, Condition, Semaphore, AtomicInt, ReadWriteSem, cleanup_handler
+   and SimpleThread.
+
 ---------------------------------------------------------------------------
 Version 0.99.x (Fixes to version 0.99) in Process
 NOTE: Please do not input anything to this branch except for critical

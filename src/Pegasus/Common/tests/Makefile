@@ -24,6 +24,7 @@ DIRS = \
     Qualifier \
     QualifierDecl \
     QualifierList \
+    Queue \
     Stack \
     Stopwatch \
     String \

@@ -67,22 +67,36 @@ void GetOptions(
     char** argv,
     const String& pegasusHome)
 {
-    static struct OptionRow options[] =
+    static struct OptionRow optionsTable[] =
     {
-	{"port", "8888", false, Option::WHOLE_NUMBER, 0, 0, "port"},
-	{"trace", "false", false, Option::BOOLEAN, 0, 0, "t"},
-	{"severity", "ALL", false, Option::STRING, 0, 0, "s"},
-	{"logs", "ALL", false, Option::STRING, 0, 0, "L"},
-	{"daemon", "false", false, Option::STRING, 0, 0, "d"},
-	{"version", "false", false, Option::BOOLEAN, 0, 0, "v"},
-	{"help", "false", false, Option::BOOLEAN, 0, 0, "h"},
-	{"debug", "false", false, Option::BOOLEAN, 0, 0, "d"}
+	{"port", "8888", false, Option::WHOLE_NUMBER, 0, 0, "port",
+			"specifies port number to listen on" },
+	{"trace", "false", false, Option::BOOLEAN, 0, 0, "t", 
+			"turns on trace of Client IO to console "},
+	{"logtrace", "false", false, Option::BOOLEAN, 0, 0, "l",
+			"Turns on trace of Client IO to trace log "},
+	{"options", "false", false, Option::BOOLEAN, 0, 0, "options",
+			" Displays the settings of the Options "},
+	{"severity", "ALL", false, Option::STRING, 0, 0, "s",
+		    "Sets the severity level that will be logged "},
+	{"logs", "ALL", false, Option::STRING, 0, 0, "X", 
+			"Not Used "},
+	{"daemon", "false", false, Option::STRING, 0, 0, "d", 
+			"Not Used "},
+	{"version", "false", false, Option::BOOLEAN, 0, 0, "v",
+			"Displays Pegasus Version "},
+	{"help", "false", false, Option::BOOLEAN, 0, 0, "h",
+		    "Prints help message with command line options "},
+	{"debug", "false", false, Option::BOOLEAN, 0, 0, "d", 
+			"Not Used "}
     };
-    const Uint32 NUM_OPTIONS = sizeof(options) / sizeof(options[0]);
+    const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
 
-    om.registerOptions(options, NUM_OPTIONS);
+    om.registerOptions(optionsTable, NUM_OPTIONS);
 
     String configFile = pegasusHome + "/cimserver.conf";
+
+    cout << "Config file from " << configFile << endl;
 
     if (FileSystem::exists(configFile))
 	om.mergeFile(configFile);
@@ -101,13 +115,7 @@ void PrintHelp(const char* arg0)
     cout << '\n';
     cout << PEGASUS_NAME << PEGASUS_VERSION << endl;
     cout << '\n';
-    cout << "Usage: " << arg0 << " [-port <port_num> -t -h -v]\n";
-    cout << '\n';
-    cout << "    -h - prints this help message\n";
-    cout << "    -port - specifies port number to listen on\n";
-    cout << "    -v - prints out the version number\n";
-    cout << "    -t - turns on trace mode\n";
-    cout << "    -d - turns on debug mode\n";
+    cout << "Usage: " << arg0 << endl;
     cout << endl;
 }
 
@@ -168,6 +176,7 @@ int main(int argc, char** argv)
     if (om.lookupValue("help", helpOption) && helpOption == "true")
     {
 	PrintHelp(argv[0]);
+	om.printHelp();
 	exit(0);
     }
 
@@ -175,11 +184,17 @@ int main(int argc, char** argv)
     Boolean pegasusIOTrace = false;
     if (om.valueEquals("trace", "true"))
     {
-         Handler::sethandlerTrace(true);
+         Handler::setMessageTrace(true);
 	 pegasusIOTrace = true;
-	 cout << "Trace Set" << endl;
     }
 
+    Boolean pegasusIOLog = false;
+    if (om.valueEquals("logtrace", "true"))
+    {
+	Handler::setMessageLogTrace(true);
+	 pegasusIOLog = true;
+    }
+    
     // Grab the port otpion:
 
     String portOption;
@@ -188,13 +203,18 @@ int main(int argc, char** argv)
     char* address = portOption.allocateCString();
 
     // Put out startup up message.
-    // Put to cout if not daemon
-    // ATTN: modify when we add daemon
     cout << PEGASUS_NAME << PEGASUS_VERSION <<
 	 " on port " << address << endl;
     cout << "Built " << __DATE__ << " " << __TIME__ << endl;
     cout <<"Started..."
-	 << (pegasusIOTrace ? " Tracing": " ") << endl;
+	 << (pegasusIOTrace ? " Tracing to Display ": " ") 
+         << (pegasusIOLog ? " Tracing to Log ": " ")
+	<< endl;
+
+    // Option to Display the options table.  Primarily
+    // a diagnostic tool.
+    if (om.valueEquals("options", "true"))
+	om.print();
 
     // Set up the Logger
     Logger::setHomeDirectory("./logs");

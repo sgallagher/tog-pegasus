@@ -129,15 +129,12 @@ void Logger::put(
     const Formatter::Arg& arg8,
     const Formatter::Arg& arg9)
 {
-    // Test for severity and log type masks to determine
+    // Test for severity against severity mask to determine
     // if we write this log.
-    if (((_severityMask & severity) != 0) 
-	&& 
-	((logFileType & _writeControlMask) != 0) )
+    if ((_severityMask & severity) != 0) 
     {
 	if (!_rep)
 	   _rep = new LoggerRep(_homeDirectory);
-
        // ATTN: We are not using the severity at this point.
        // Should be part of LOG entry. Also not putting in datetime
        // group.

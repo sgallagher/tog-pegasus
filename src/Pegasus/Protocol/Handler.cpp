@@ -33,6 +33,7 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/Logger.h>
 #include "Handler.h"
 
 PEGASUS_USING_STD;
@@ -42,7 +43,8 @@ PEGASUS_NAMESPACE_BEGIN
 #define D(X) // X
 //#define D(X) X
 
-Boolean Handler::_handlerTrace = false;
+Boolean Handler::_messageTrace = false;
+Boolean Handler::_messageLogTrace = false;
 
 Handler::Handler()
 {
@@ -166,27 +168,33 @@ void Handler::print() const
     XmlWriter::indentedPrint(cout, content);
     ((Array<Sint8>&)_message).remove(_message.size() - 1);
 }
-/* KS Temp get around while committing
+
 void Handler::log() const
 {
+    ostrstream os;
+    const char* message = _message.getData();
+    
     // log header
+    for (Uint32 i = 0; i < _lines.size(); i++)
+    {
+	os << &message[_lines[i]] << "\r\n";
+    }
+    os << "\r\n";
 
     // Log message
     const char* content = _message.getData() + _contentOffset;
     const char* end = content + _contentLength;
 
     ((Array<Sint8>&)_message).append('\0');
+    XmlWriter::indentedPrint(os, content);
+    ((Array<Sint8>&)_message).remove(_message.size() - 1);
+    os.put('\0');
+    char* tmp = os.str();
 
-
-    XmlWriter::indentedPrint(cout, content);
-
-
-    Logger:put(Logger::TRACE_LOG, "Pegasus/CIMServer",Logger::Information
-	       "SENT"\n %1", message.getData(););
-    message.remove(message.size() - 1);
+    Logger::put(Logger::TRACE_LOG, "Handler",Logger::INFORMATION,
+	       "RCVD================\n $0", tmp);
 
 }
-*/
 
 static char* _FindTerminator(const char* data, Uint32 size)
 {
@@ -358,13 +366,14 @@ int Handler::handleMessage()
 {
     // D( cout << "Handler::handleMessage()" << endl; )
 
-    if (_handlerTrace)
+    if (_messageTrace)
     {
 	cout << "========== RECEIVED ==========" << endl;
 	print();
     }
-
     // printMessage(cout, _message);
+    if (_messageLogTrace)
+	log();
 
     return 0;
 }

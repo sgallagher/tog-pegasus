@@ -48,7 +48,10 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define DDD(X) //X
+
 static CIMRepository* _repository;
+
 
 const char INSTANCENAME[] = "__Namespace.name=";
 
@@ -58,12 +61,12 @@ public:
 
     __NamespaceProvider()
     {
-	// cout << "__NamespaceProvider::__NamespaceProvider()" << endl;
+	DDD(cout << "__NamespaceProvider::__NamespaceProvider()" << endl;)
     }
 
     virtual ~__NamespaceProvider()
     {
-       // cout << "__NamespaceProvider::~__NamespaceProvider()" << endl;
+       DDD(cout << "__NamespaceProvider::~__NamespaceProvider()" << endl;)
     }
 
     // Returns instance based on instanceName.  Since there is only
@@ -157,7 +160,7 @@ public:
 	const String& nameSpace,
 	const CIMReference& instanceName)
     {
-	// cout << "__NamespaceProvider::deleteInstance" << endl;
+	DDD(cout << "__NamespaceProvider::deleteInstance" << endl;)
         throw CIMException(CIMException::NOT_SUPPORTED);
 	// _repository->deleteNameSpace();
 
@@ -221,7 +224,7 @@ public:
    {
        // derefence repository pointer and save for later.
         _repository = &repository;
-       cout << "__NamespaceProvider::initialize() called" << endl;
+       DDD(cout << "__NamespaceProvider::initialize() called" << endl;)
    }
 };
 
@@ -235,8 +238,9 @@ public:
 extern "C" PEGASUS_EXPORT CIMProvider*
 	PegasusCreateProvider___NamespaceProvider() 
 {
-   PEGASUS_STD(cout) << "Called PegasusCreateProvider___NamespaceProvider" <<
-   PEGASUS_STD(endl);
+   DDD(PEGASUS_STD(cout) <<  \
+        "Called PegasusCreateProvider___NamespaceProvider" << \
+	PEGASUS_STD(endl);)
     return new __NamespaceProvider;
 }
 

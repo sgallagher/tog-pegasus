@@ -76,7 +76,7 @@ static void TestNameSpaceOperations(CIMClient& client)
     Array<String> tmpInstanceNames;
 
     for (Uint32 i = 0; i < instanceNames.size(); i++)
-	cout << instanceNames[i].toString();
+	cout << instanceNames[i].toString() << endl;
 
     }
 
@@ -85,7 +85,8 @@ static void TestNameSpaceOperations(CIMClient& client)
 	//tmpInstanceNames.append(instanceNames[i].toString());
     catch(Exception& e)
     {
-	ErrorExit(e.getMessage());
+	cout << "Error NameSpace Enumeration:" << endl;
+	cout << e.getMessage() << endl;
     }
 
 
@@ -267,14 +268,14 @@ int main(int argc, char** argv)
 	client.connect(connection);
 	testStatus("Test NameSpace Operations");
 	TestNameSpaceOperations(client);
-	/*
+	
 	testStatus("Test Qualifier Operations");
 	TestQualifierOperations(client);
 	testStatus("Test Class Operations");
 	TestClassOperations(client);
 	testStatus("Test Instance Operations");
 	TestInstanceOperations(client);
-	*/
+	
     }
     catch(Exception& e)
     {

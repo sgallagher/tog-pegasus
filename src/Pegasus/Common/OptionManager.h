@@ -323,6 +323,11 @@ public:
     /** Print all the options. */
     void print() const;
 
+    /** Print the help line for all options including cmdline name, name
+        and the help string
+    */
+    void printHelp() const;
+
 
 private:
 
@@ -380,6 +385,9 @@ public:
 
 	@param commandLineOptionName name of the corresponding command line
 	    option (which may be different from the option name).
+	    
+	@param optionHelpMessage Text message that defines option. To be used
+	    in Usage messages.
     */
     Option(
         const String& optionName,
@@ -387,7 +395,8 @@ public:
         Boolean required,
         Type type,
         const Array<String>& domain = EmptyStringArray(),
-        const String& commandLineOptionName = String());
+        const String& commandLineOptionName = String(),
+        const String& optionHelpMessage = String());
 
     Option(const Option& x);
 
@@ -433,7 +442,7 @@ public:
         _value = value;
 	_resolved = true;
     }
-
+    
     /** Accessor */
     Boolean getRequired() const
     {
@@ -470,6 +479,12 @@ public:
         return _commandLineOptionName;
     }
 
+    /** Accessor */
+    const String& getOptionHelpMessage() const
+    {
+	return _optionHelpMessage;
+    }
+
     /** Modifier */
     void setCommandLineOptionName(const String& commandLineOptionName)
     {
@@ -498,6 +513,7 @@ private:
     Type _type;
     Array<String> _domain;
     String _commandLineOptionName;
+    String _optionHelpMessage;
     Boolean _resolved;
 };
 
@@ -558,6 +574,7 @@ struct OptionRow
     char** domain;
     Uint32 domainSize;
     const char* commandLineOptionName;
+    const char* optionHelpMessage;
 };
 /* NOTE: The "required" object must be an int rather than a Boolean because 
     bool on some platforms is not defined so that we cannot use a Boolean here 

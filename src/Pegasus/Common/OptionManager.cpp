@@ -142,6 +142,13 @@ void OptionManager::registerOptions(OptionRow* optionRow, Uint32 numOptions)
 	if (optionRow[i].commandLineOptionName)
 	    commandLineOptionName = optionRow[i].commandLineOptionName;
 
+	// get optionHelp Message String
+
+	String optionHelpMessage;
+
+	if (optionRow[i].optionHelpMessage)
+	    optionHelpMessage = optionRow[i].optionHelpMessage;
+
 	// Add the option:
 
 	Option* option = new Option(
@@ -150,7 +157,8 @@ void OptionManager::registerOptions(OptionRow* optionRow, Uint32 numOptions)
 	    required,
 	    type,
 	    domain,
-	    commandLineOptionName);
+	    commandLineOptionName,
+	    optionHelpMessage);
 
 	registerOption(option);
     }
@@ -432,9 +440,24 @@ void OptionManager::print() const
     {
 	Option* option = _options[i];
 	cout << option->getOptionName() << "=\"";
-	cout << option->getValue() << "\"\n";
+	cout << option->getValue() << "\" ";
+	cout << option->getOptionHelpMessage() << "\n";
     }
     cout << endl;
+}
+
+void OptionManager::printHelp() const
+{
+    for (Uint32 i = 0; i < _options.size(); i++)
+    {
+	Option* option = _options[i];
+	cout << " -";
+	cout << option->getCommandLineOptionName() << "  ";
+	cout << option->getOptionName() << " ";
+	cout << option->getOptionHelpMessage() << "\n";
+    }
+    cout << endl;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -449,7 +472,8 @@ Option::Option(
     Boolean required,
     Type type,
     const Array<String>& domain,
-    const String& commandLineOptionName)
+    const String& commandLineOptionName,
+    const String& optionHelpMessage)
     :
     _optionName(optionName),
     _defaultValue(defaultValue),
@@ -458,6 +482,7 @@ Option::Option(
     _type(type),
     _domain(domain),
     _commandLineOptionName(commandLineOptionName),
+    _optionHelpMessage(optionHelpMessage),
     _resolved(false)
 {
     if (!isValid(_value))
@@ -472,7 +497,9 @@ Option::Option(const Option& x)
     _required(x._required),
     _type(x._type),
     _domain(x._domain),
-    _commandLineOptionName(x._commandLineOptionName)
+    _commandLineOptionName(x._commandLineOptionName),
+    _optionHelpMessage(x._optionHelpMessage)
+
 {
 }
 
@@ -492,6 +519,7 @@ Option& Option::operator=(const Option& x)
 	_type = x._type;
 	_domain = x._domain;
 	_commandLineOptionName = x._commandLineOptionName;
+	_optionHelpMessage = x._optionHelpMessage;
     }
     return *this;
 }

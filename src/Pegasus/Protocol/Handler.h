@@ -41,6 +41,7 @@
 #define Pegasus_Handler_h
 
 #include <iostream>
+#include <strstream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
@@ -78,14 +79,21 @@ public:
 
     void print() const;
 
+    void log() const;
+
     virtual int handleMessage();
 
     static void printMessage(PEGASUS_STD(ostream)& os, const Array<Sint8>& message);
 
-    static void sethandlerTrace(const Boolean flag)
+    static void setMessageTrace(const Boolean flag)
     {
-	_handlerTrace = flag;
+	_messageTrace = flag;
     }
+    static void setMessageLogTrace(const Boolean flag)
+    {
+	_messageLogTrace = flag;
+    }
+
     ;
 
 private:
@@ -100,7 +108,8 @@ protected:
     Array<Uint32> _lines;
     Uint32 _contentOffset;
     Uint32 _contentLength;
-    static Boolean _handlerTrace;
+    static Boolean _messageTrace;
+    static Boolean _messageLogTrace;
 };
 
 PEGASUS_NAMESPACE_END

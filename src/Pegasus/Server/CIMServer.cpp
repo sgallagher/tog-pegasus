@@ -33,6 +33,7 @@
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/TCPChannel.h>
+#include <Pegasus/Common/Logger.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Protocol/Handler.h>
 #include <Pegasus/Server/CIMServer.h>
@@ -205,20 +206,26 @@ private:
 */
 void ServerHandler::outputN (Array<Sint8>& message)
 {
-    if (_handlerTrace)
+    
+    if (_messageTrace)
     {
 	cout << "\n========== SENT ==========" << endl;
 	
 	message.append('\0');
 	cout << message.getData() << endl;
-
-	//Logger:put(Logger::TRACE_LOG, 
-//  "Pegasus/CIMServer",Logger::Information "SENT"\n %1", message.getData(););
-       // message.remove(message.size() - 1);
+	message.remove(message.size() - 1);
 
     }
-    _channel->writeN(message.getData(), message.size());
+    if (_messageLogTrace)
+    {
+	message.append('\0');
+	Logger::put(Logger::TRACE_LOG, "Handler",Logger::INFORMATION,
+	       "SENT================\n $0", message.getData());
+	message.remove(message.size() - 1);
+        
+    }
 
+    _channel->writeN(message.getData(), message.size());
 }
 //------------------------------------------------------------------------------
 //

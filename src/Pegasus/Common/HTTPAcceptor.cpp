@@ -370,8 +370,10 @@ void HTTPAcceptor::_acceptConnection()
 
    sockaddr_in address;
 
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) 
    size_t n = sizeof(address);
+#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+   socklen_t n = sizeof(address);
 #else
    int n = sizeof(address);
 #endif

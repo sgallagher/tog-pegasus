@@ -56,6 +56,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func(void *parm)
 
 #ifdef PEGASUS_ARCHITECTURE_IA64
    Uint32 sleep_interval = (Uint64)parm;
+#elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
+   unsigned long sleep_interval = (unsigned long)parm;
 #else   
    Uint32 sleep_interval = (Uint32)parm;
 #endif

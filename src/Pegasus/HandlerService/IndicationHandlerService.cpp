@@ -116,6 +116,10 @@ void IndicationHandlerService::_handleIndicationCallBack(AsyncOpNode *op,
    // ensure that the destination queue is in response->dest
 #ifdef PEGASUS_ARCHITECTURE_IA64   
    response->dest = (Uint64)parm;
+#elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
+   // We cast to unsigned long
+   // because sizeof(void *) == sizeof(unsigned long)
+   response->dest = (unsigned long)parm;
 #else
    response->dest = (Uint32)parm;
 #endif

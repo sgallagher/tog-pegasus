@@ -525,6 +525,8 @@ void CIMOperationRequestDispatcher::_forwardRequestCallback(
     // ensure that the destination queue is in response->dest
 #ifdef PEGASUS_ARCHITECTURE_IA64
     response->dest = (Uint64)parm;
+#elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
+    response->dest = (unsigned long)parm;   //Cast to size 32/64 bit safe
 #else
     response->dest = (Uint32)parm;
 #endif

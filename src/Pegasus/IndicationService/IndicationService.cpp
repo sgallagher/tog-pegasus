@@ -27,12 +27,13 @@
 //
 // Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
 //                   (carolann_graves@hp.com)
-// 		 		  Ben Heilbronn, Hewlett-Packard Company (ben_heilbronn@hp.com)
-// 		 		  Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//               Ben Heilbronn, Hewlett-Packard Company (ben_heilbronn@hp.com)
+//               Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //               Dave Rosckes (rosckes@us.ibm.com)
-// 		 		  Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//       Seema Gupta (gseema@in.ibm.com for PEP135)
-//		Dan Gorey, IBM (djgorey@us.ibm.com)
+//               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//               Seema Gupta (gseema@in.ibm.com for PEP135)
+//               Dan Gorey, IBM (djgorey@us.ibm.com)
+//               Amit K Arora, IBM (amita@in.ibm.com) for Bug#1730
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -353,38 +354,29 @@ void IndicationService::handleEnqueue(Message* message)
          break;
 
       default:
-		  //
-		  //  A message type not supported by the Indication Service
-		  //  Should not reach here
-		  //
-		  // << Mon Apr 29 16:29:10 2002 mdd >>
-		  PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL3,
-		 		 		   "IndicationService::handleEnqueue(msg *) rcv'd unsupported msg "
-		 		 		   + String(MessageTypeToString(message->getType())));
-		  break;
-=======
-	 //
-	 //  A message type not supported by the Indication Service
-	 //  Should not reach here
-	 //
-	 // << Mon Apr 29 16:29:10 2002 mdd >>
-	 PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL3, 
-			  "IndicationService::handleEnqueue(msg *) rcv'd unsupported msg " 
-			  + String(MessageTypeToString(message->getType())));
-	 // Note: not setting Content-Language in the response
+         //
+         //  A message type not supported by the Indication Service
+         //  Should not reach here
+         //
+         // << Mon Apr 29 16:29:10 2002 mdd >>
+
+         PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL3,
+           "IndicationService::handleEnqueue(msg *) rcv'd unsupported msg "
+            + String(MessageTypeToString(message->getType())));
+
+        // Note: not setting Content-Language in the response
         CIMRequestMessage* cimRequest =
-            dynamic_cast<CIMRequestMessage*>(message);
+          dynamic_cast<CIMRequestMessage*>(message);
         CIMResponseMessage* response = cimRequest->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION_L(
             CIM_ERR_NOT_SUPPORTED,
             MessageLoaderParms( 
               "IndicationService.IndicationService.UNSUPPORTED_OPERATION",
               "The requested operation is not supported or not recognized "
-                "by the indication service.")),
+              "by the indication service.")),
 
         Base::_enqueueResponse(cimRequest, response);
-	 break;
->>>>>>> 1.134
+        break;
    }
 
 #ifdef PEGASUS_INDICATION_PERFINST

@@ -3,7 +3,7 @@
 <MESSAGE ID="50001" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateInstanceNames">
-<ERROR CODE="3" DESCRIPTION="NameSpaceManager.cpp(385): CIM_ERR_INVALID_NAMESPACE: The target namespace does not exist: &quot;root/test_namespace&quot;"/>
+<ERROR CODE="3" DESCRIPTION="CIM_ERR_INVALID_NAMESPACE: The target namespace does not exist: &quot;root/test_namespace&quot;"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

@@ -3,7 +3,7 @@
 <MESSAGE ID="51003" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateInstances">
-<ERROR CODE="5" DESCRIPTION="NameSpaceManager.cpp(145): CIM_ERR_INVALID_CLASS: The specified class does not exist: &quot;test_classname&quot;"/>
+<ERROR CODE="5" DESCRIPTION="CIM_ERR_INVALID_CLASS: The specified class does not exist: &quot;test_classname&quot;"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

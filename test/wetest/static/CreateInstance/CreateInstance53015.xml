@@ -43,7 +43,7 @@
 	   </PROPERTY>
 	   <PROPERTY NAME="PropertySint8" TYPE="sint8" 
 	    CLASSORIGIN="PG_TestPropertyTypes" >
-	    <VALUE>-180</VALUE>
+	    <VALUE>-122</VALUE>
 	   </PROPERTY>
 	   <PROPERTY NAME="PropertySint16" TYPE="sint16" 
 	    CLASSORIGIN="PG_TestPropertyTypes" >
@@ -59,7 +59,7 @@
 	   </PROPERTY>
 	   <PROPERTY NAME="PropertyBoolean" TYPE="boolean" 
 	    CLASSORIGIN="PG_TestPropertyTypes" >
-	    <VALUE>true</VALUE>
+	    <VALUE>junk</VALUE>
 	   </PROPERTY>
 	   <PROPERTY NAME="PropertyReal32" TYPE="real32" 
 	    CLASSORIGIN="PG_TestPropertyTypes" >

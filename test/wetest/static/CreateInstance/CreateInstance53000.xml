@@ -19,7 +19,7 @@
 	   </PROPERTY>
 	   <PROPERTY NAME="InstanceId" TYPE="uint64" 
 	    CLASSORIGIN="PG_TestElement" >
-	    <VALUE>10</VALUE>
+	    <VALUE>1</VALUE>
 	   </PROPERTY>
 	   <PROPERTY NAME="PropertyString" TYPE="string" 
 	    CLASSORIGIN="PG_TestPropertyTypes" >
@@ -43,7 +43,7 @@
 	   </PROPERTY>
 	   <PROPERTY NAME="PropertySint8" TYPE="sint8" 
 	    CLASSORIGIN="PG_TestPropertyTypes" >
-	    <VALUE>-180</VALUE>
+	    <VALUE>-110</VALUE>
 	   </PROPERTY>
 	   <PROPERTY NAME="PropertySint16" TYPE="sint16" 
 	    CLASSORIGIN="PG_TestPropertyTypes" >

@@ -16,7 +16,7 @@
             </KEYBINDING>
             <KEYBINDING NAME="InstanceId">
               <KEYVALUE VALUETYPE="numeric">
-                1
+                10
               </KEYVALUE>
             </KEYBINDING>
           </INSTANCENAME>

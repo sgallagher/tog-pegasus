@@ -3,7 +3,7 @@
 <MESSAGE ID="52003" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="GetInstance">
-<ERROR CODE="4" DESCRIPTION="(0): CIM_ERR_INVALID_PARAMETER: One or more parameter values passed to the method were invalid: &quot;&quot;"/>
+<ERROR CODE="6" DESCRIPTION="CIM_ERR_NOT_FOUND: The requested object could not be found: &quot;PG_TestPropertyTypes.CreationClassName=&quot;PG_TestPropertyTypes&quot;,Test=1&quot;"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

@@ -3,7 +3,7 @@
 <MESSAGE ID="55001" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="DeleteInstance">
-<ERROR CODE="6" DESCRIPTION="(0): CIM_ERR_NOT_FOUND: The requested object could not be found: &quot;&quot;"/>
+<ERROR CODE="6" DESCRIPTION="CIM_ERR_NOT_FOUND: The requested object could not be found: &quot;&quot;"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

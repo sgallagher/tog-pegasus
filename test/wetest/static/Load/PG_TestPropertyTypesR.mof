@@ -11,13 +11,13 @@ instance of PG_ProviderModule
 instance of PG_Provider 
 {
    ProviderModuleName = "PG_TestPropertyTypesModule";
-   Name = "PG_TestPropertyProvider";
+   Name = "PG_TestPropertyTypes";
 };
 
 instance of PG_ProviderCapabilities 
 {
    ProviderModuleName = "PG_TestPropertyTypesModule";
-   ProviderName = "PG_TestPropertyTypesProvider";
+   ProviderName = "PG_TestPropertyTypes";
    CapabilityID = "1";
    ClassName = "PG_TestElement";
    Namespaces[] = {"test/static"};
@@ -29,8 +29,8 @@ instance of PG_ProviderCapabilities
 instance of PG_ProviderCapabilities 
 {
    ProviderModuleName = "PG_TestPropertyTypesModule";
-   ProviderName = "PG_TestPropertyTypesProvider";
-   CapabilityID = "1";
+   ProviderName = "PG_TestPropertyTypes";
+   CapabilityID = "2";
    ClassName = "PG_TestPropertyTypes";
    Namespaces[] = {"test/static"};
    ProviderType[] = { 2 }; // Instance

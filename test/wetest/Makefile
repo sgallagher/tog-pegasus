@@ -5,9 +5,7 @@ include $(ROOT)/test/config.mak
 
 #Defines subdirectories to go to recursively
 
-DIRS = cimv2
-
-DIRSdefects = static
+DIRS = cimv2 static
 
 # This is a recurse make file
 

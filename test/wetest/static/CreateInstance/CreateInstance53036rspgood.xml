@@ -3,7 +3,7 @@
 <MESSAGE ID="53036" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="CreateInstance">
-<ERROR CODE="3" DESCRIPTION="CIM_ERR_INVALID_NAMESPACE: The target namespace does not exist: &quot;test/static&quot;"/>
+<ERROR CODE="4" DESCRIPTION="CIM_ERR_INVALID_PARAMETER: One or more parameter values passed to the method were invalid: &quot;&quot;"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

@@ -59,79 +59,63 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_DEFPM_LINKAGE LocalProviderManager
 {
 public:
-    LocalProviderManager(void);
-    virtual ~LocalProviderManager(void);
+    LocalProviderManager();
+    virtual ~LocalProviderManager();
 
-public:
     OpProviderHolder getProvider(
-        const String& fileName,
+        const String& moduleFileName,
         const String& providerName);
 
-    void unloadProvider(const String & fileName, const String & providerName) ;
+    void unloadProvider(const String& providerName);
 
-    void shutdownAllProviders(void) ;
+    void shutdownAllProviders();
 
     Boolean hasActiveProviders();
     void unloadIdleProviders();
 
-    Sint16 disableProvider(const String & fileName, const String & providerName);
-    /**
-         Gets list of indication providers to be enabled.  
-         Once IndicationService initialization has been completed, the 
-         enableIndications() method must be called on each indication provider 
-         that has current subscriptions.
+    Sint16 disableProvider(const String& providerName);
 
-         @return list of providers whose enableIndications() method must be 
-                 called
+    /**
+        Get the list of indication providers to be enabled.
+        Once IndicationService initialization has been completed, the
+        enableIndications() method must be called on each indication provider
+        that has current subscriptions.
+
+        @return list of providers whose enableIndications() method must be
+                called
      */
-    Array <Provider *> getIndicationProvidersToEnable ();
+    Array<Provider*> getIndicationProvidersToEnable();
 
 private:
-    enum CTRL
-    {
-        INSERT_PROVIDER,
-        INSERT_MODULE,
-        LOOKUP_PROVIDER,
-        LOOKUP_MODULE,
-        GET_PROVIDER,
-        UNLOAD_PROVIDER,
-        UNLOAD_ALL_PROVIDERS,
-        UNLOAD_IDLE_PROVIDERS
-    };
-
-    typedef HashTable<String, Provider *,
-        EqualFunc<String>,  HashFunc<String> > ProviderTable;
-
-    typedef HashTable<String, ProviderModule *,
-        EqualFunc<String>, HashFunc<String> > ModuleTable;
-
-
-    typedef struct
-    {
-        const String *providerName;
-        const String *fileName;
-    } CTRL_STRINGS;
-
-    ProviderTable _providers;
-    ModuleTable _modules;
-    Uint32 _idle_timeout;
-
-    Sint32 _provider_ctrl(CTRL code, void *parm, void *ret);
 
     Provider* _initProvider(
         Provider* provider,
         const String& moduleFileName);
 
-    void _unloadProvider(Provider * provider);
+    void _unloadProvider(Provider* provider);
 
-    Provider * _lookupProvider(const String & providerName);
+    Provider* _lookupProvider(const String& providerName);
 
     ProviderModule* _lookupModule(const String& moduleFileName);
 
+    typedef HashTable<String, Provider*,
+        EqualFunc<String>,  HashFunc<String> > ProviderTable;
+
+    typedef HashTable<String, ProviderModule*,
+        EqualFunc<String>, HashFunc<String> > ModuleTable;
+
+    /**
+        The _providerTableMutex must be locked whenever accessing the
+        _providers table or the _modules table.  It is okay to lock a
+        Provider::_statusMutex while holding the _providerTableMutex,
+        but one should never lock the _providerTableMutex while holding
+        a Provider::_statusMutex.
+     */
     Mutex _providerTableMutex;
 
-protected:
-
+    ProviderTable _providers;
+    ModuleTable _modules;
+    Uint32 _idle_timeout;
 };
 
 PEGASUS_NAMESPACE_END

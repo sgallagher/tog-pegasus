@@ -2334,7 +2334,7 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
             String pName(_pInstances[i].getProperty(
                _pInstances[i].findProperty("Name")).getValue().toString());
 
-            Sint16 ret_value = providerManager.disableProvider(physicalName,pName);
+            Sint16 ret_value = providerManager.disableProvider(pName);
 
             if (ret_value == 0)
             {

@@ -238,9 +238,9 @@ ifdef PEGASUS_REMOVE_TRACE
 	DEFINES+= -DPEGASUS_REMOVE_TRACE
 endif
 
-
-# use monitor_2
-ifdef PEGASUS_MONITOR2
+# PEP 123 use monitor2 (the default) or not
+ifdef PEGASUS_USE_23HTTPMONITOR
+else
 DEFINES+= -DPEGASUS_MONITOR2
 endif
 

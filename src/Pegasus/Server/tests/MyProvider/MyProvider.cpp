@@ -19,6 +19,33 @@ public:
     {
 	// cout << "MyProvider::~MyProvider()" << endl;
     }
+
+    virtual InstanceDecl getInstance(
+	const String& nameSpace,
+	const Reference& instanceName,
+	Boolean localOnly = true,
+	Boolean includeQualifiers = false,
+	Boolean includeClassOrigin = false,
+	const Array<String>& propertyList = _getStringArray())
+    {
+	cout << "MyProvider::getInstance() called" << endl;
+
+	String tmp;
+	Reference::referenceToInstanceName(instanceName, tmp);
+	cout << "instanceName=" << tmp << endl;
+
+	InstanceDecl instance("Process");
+	instance.addProperty(Property("pid", Uint32(2001)));
+	instance.addProperty(Property("name", "awk"));
+	instance.addProperty(Property("age", Uint32(300)));
+
+	return instance;
+    }
+
+    void initialize(Repository& repository)
+    {
+	cout << "MyProvider::initialize() called" << endl;
+    }
 };
 
 // This is the dynamic entry point into this dynamic module. The name of

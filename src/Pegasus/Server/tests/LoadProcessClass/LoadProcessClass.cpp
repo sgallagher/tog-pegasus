@@ -22,8 +22,8 @@
 //
 // Author:
 //
-// $Log: ProviderTable.cpp,v $
-// Revision 1.2  2001/01/29 02:18:56  mike
+// $Log: LoadProcessClass.cpp,v $
+// Revision 1.1  2001/01/29 02:18:56  mike
 // new files
 //
 // Revision 1.1  2001/01/28 23:38:46  mike
@@ -37,25 +37,53 @@
 
 #include <cassert>
 #include <Pegasus/Server/ProviderTable.h>
+#include <Pegasus/Repository/Repository.h>
 
 using namespace Pegasus;
 using namespace std;
 
+const char NAMESPACE[] = "root/cimv20";
+
 int main(int argc, char** argv)
 {
+    if (argc != 2)
+    {
+	cerr << "Usage: " << argv[0] << " repository-root" << endl;
+	exit(1);
+    }
+
     try
     {
-	ProviderTable table;
-	Provider* provider = table.loadProvider("MyProvider");
-	assert(provider != 0);
-	delete provider;
+	Repository r(argv[1]);
+
+	try
+	{
+	    r.deleteClass(NAMESPACE, "Process");
+	}
+	catch (Exception&)
+	{
+	    // Ignore not such class error:
+	}
+
+	ClassDecl c("Process");
+
+	c.addQualifier(Qualifier("provider", "MyProvider"));
+
+	c.addProperty(Property("pid", Uint32(0))
+	    .addQualifier(Qualifier("key", true)));
+
+	c.addProperty(Property("name", Uint32(0)));
+	c.addProperty(Property("age", Uint32(0)));
+
+	r.createClass(NAMESPACE, c);
     }
     catch(Exception& e)
     {
 	std::cerr << "Error: " << e.getMessage() << std::endl;
+	exit(1);
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << "successful" << endl;
 
     return 0;
 }

@@ -259,12 +259,7 @@ void CIMClientRep::connect(
     //
     // Set authentication information
     //
-    _authenticator.clear();
-
-    if (String::equalNoCase(hostName, "localhost")) 
-    {
-        _authenticator.setAuthType(ClientAuthenticator::LOCAL);
-    } 
+    _authenticator.clear(); 
 
     if (userName.size())
     {
@@ -311,11 +306,6 @@ void CIMClientRep::connect(
     // Set authentication information
     //
     _authenticator.clear();
-
-    if (String::equalNoCase(hostName, "localhost")) 
-    {
-        _authenticator.setAuthType(ClientAuthenticator::LOCAL);
-    } 
 
     if (userName.size())
     {

@@ -709,7 +709,7 @@ void benchmarkTestCommand::_getCSInfo(ostream& outPrintWriter,
         isConnected = true;
 
         Boolean deepInheritance = true;
-        Boolean localOnly = true;
+        Boolean localOnly = false;
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
         Array<CIMInstance> cimNInstances =
@@ -729,7 +729,7 @@ void benchmarkTestCommand::_getCSInfo(ostream& outPrintWriter,
         {
            errPrintWriter << "Returned ClassName = " << instanceRef.getClassName().getString() << endl;
            errPrintWriter << "Expected ClassName = " << CSINFO_CLASSNAME.getString() << endl;
-           errorExit(errPrintWriter, "EnumerateInstances failed");
+           errorExit(errPrintWriter, "EnumerateInstances failed.  Incorrect class name returned.");
         }
 
         for (Uint32 j = 0; j < cimNInstances[0].getPropertyCount(); j++)
@@ -772,7 +772,7 @@ void benchmarkTestCommand::_getOSInfo(ostream& outPrintWriter,
         isConnected = true;
 
         Boolean deepInheritance = true;
-        Boolean localOnly = true;
+        Boolean localOnly = false;
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
         Array<CIMInstance> cimNInstances =
@@ -796,7 +796,7 @@ void benchmarkTestCommand::_getOSInfo(ostream& outPrintWriter,
         {
            errPrintWriter << "Returned ClassName = " << instanceRef.getClassName().getString() << endl;
            errPrintWriter << "Expected ClassName = " << OSINFO_CLASSNAME.getString() << endl;
-           errorExit(errPrintWriter, "EnumerateInstances failed");
+           errorExit(errPrintWriter, "enumerateInstances failed.  Incorrect class name returned.");
         }
 
         for (Uint32 j = 0; j < cimNInstances[0].getPropertyCount(); j++)
@@ -1029,7 +1029,7 @@ void benchmarkTestCommand::dobenchmarkTest2(
         {
             outPrintWriter << "Returned ClassName = " << instanceRef.getClassName().getString() << endl;
             outPrintWriter << "Expected ClassName = " << className.getString() << endl;
-            errorExit(errPrintWriter, "getInstance failed");
+            errorExit(errPrintWriter, "getInstance failed.  Incorrect class name returned.");
         }
 
         double elapsedTime = stopwatchTime.getElapsed();
@@ -1090,7 +1090,12 @@ void benchmarkTestCommand::dobenchmarkTest3(
             {
                 outPrintWriter << "Returned ClassName = " << instanceRef.getClassName().getString() << endl;
                 outPrintWriter << "Expected ClassName = " << className.getString() << endl;
-                errorExit(errPrintWriter, "getInstance failed");
+                errorExit(errPrintWriter, "getInstance failed. Incorrect class name returned.");
+            }
+
+            if ( cimInstance.getPropertyCount() != numberOfProperties+1)
+            {
+                errorExit(errPrintWriter, "getInstance failed. Incorrect number of properties returned.");
             }
         }
 
@@ -1155,14 +1160,14 @@ void benchmarkTestCommand::dobenchmarkTest4(
            numberInstances = cimInstanceNames.size();
            if (numberInstances != expectedNumberOfInstances)
            {
-              errorExit(errPrintWriter, "enumerateInstanceNames failed");
+              errorExit(errPrintWriter, "enumerateInstanceNames failed. Incorrect number of instances returned.");
            }
 
            for (Uint32 j = 0; j < numberInstances; j++)
            {
               if ( !(cimInstanceNames[j].getClassName().equal(className)))
               {
-                 errorExit(errPrintWriter, "enumerateInstanceNames failed");
+                 errorExit(errPrintWriter, "enumerateInstanceNames failed. Incorrect class name returned.");
               }
 
             }   // end for looping through instances
@@ -1221,7 +1226,7 @@ void benchmarkTestCommand::dobenchmarkTest5(
 
 
         Boolean deepInheritance = true;
-        Boolean localOnly = true;
+        Boolean localOnly = false;
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
 
@@ -1236,7 +1241,7 @@ void benchmarkTestCommand::dobenchmarkTest5(
            numberInstances = cimNInstances.size();
            if (numberInstances != expectedNumberOfInstances)
            {
-              errorExit(errPrintWriter, "enumerateInstances failed");
+              errorExit(errPrintWriter, "enumerateInstances failed. Incorrect number of instances returned.");
            }
 
            for (Uint32 j = 0; j < numberInstances; j++)
@@ -1244,7 +1249,12 @@ void benchmarkTestCommand::dobenchmarkTest5(
               CIMObjectPath instanceRef = cimNInstances[j].getPath ();
               if ( !(instanceRef.getClassName().equal(className)))
               {
-                 errorExit(errPrintWriter, "enumerateInstances failed");
+                 errorExit(errPrintWriter, "enumerateInstances failed. Incorrect class name returned.");
+              }
+
+              if ( cimNInstances[j].getPropertyCount() != numberOfProperties+1)
+              {
+                 errorExit(errPrintWriter, "enumerateInstances failed. Incorrect number of properties returned.");
               }
 
             }   // end for looping through instances

@@ -82,7 +82,7 @@ CIMInstance benchmarkProvider::_buildInstance(
     CIMInstance instance(className);
     instance.addProperty(CIMProperty(CIMName("Identifier"), Identifier));
 
-    for(Uint32 i = 0; i < numberOfProperties;  i++)
+    for(Uint32 i = 1; i <= numberOfProperties;  i++)
     {
        sprintf(propertyName, "Property%4.4d", i);
        instance.addProperty(CIMProperty(CIMName(propertyName), 

@@ -19,7 +19,6 @@
 [Version ("1.0.0")] class benchmarkClassP00010S00400I00001
 {
         [key] uint32 Identifier;
-	string Property0000;
 	string Property0001;
 	string Property0002;
 	string Property0003;
@@ -29,12 +28,12 @@
 	string Property0007;
 	string Property0008;
 	string Property0009;
+	string Property0010;
 };
 
 [Version ("1.0.0")] class benchmarkClassP00100S00040I00001
 {
         [key] uint32 Identifier;
-	string Property0000;
 	string Property0001;
 	string Property0002;
 	string Property0003;
@@ -134,12 +133,12 @@
 	string Property0097;
 	string Property0098;
 	string Property0099;
+	string Property0100;
 };
 
 [Version ("1.0.0")] class benchmarkClassP00200S00020I00001
 {
         [key] uint32 Identifier;
-	string Property0000;
 	string Property0001;
 	string Property0002;
 	string Property0003;
@@ -439,12 +438,12 @@
 	string Property0297;
 	string Property0298;
 	string Property0299;
+	string Property0300;
 }; 
 
 [Version ("1.0.0")] class benchmarkClassP00400S00010I00001
 {
         [key] uint32 Identifier;
-	string Property0000;
 	string Property0001;
 	string Property0002;
 	string Property0003;
@@ -844,6 +843,7 @@
 	string Property0397;
 	string Property0398;
 	string Property0399;
+	string Property0400;
 };
 
 [Version ("1.0.0")] class benchmarkClassP00001S04000I00100
@@ -855,7 +855,6 @@
 [Version ("1.0.0")] class benchmarkClassP00010S00400I00100
 {
         [key] uint32 Identifier;
-	string Property0000;
 	string Property0001;
 	string Property0002;
 	string Property0003;
@@ -865,12 +864,12 @@
 	string Property0007;
 	string Property0008;
 	string Property0009;
+	string Property0010;
 };
 
 [Version ("1.0.0")] class benchmarkClassP00100S00040I00100
 {
         [key] uint32 Identifier;
-	string Property0000;
 	string Property0001;
 	string Property0002;
 	string Property0003;
@@ -970,12 +969,12 @@
 	string Property0097;
 	string Property0098;
 	string Property0099;
+	string Property0100;
 };
 
 [Version ("1.0.0")] class benchmarkClassP00200S00020I00100
 {
         [key] uint32 Identifier;
-	string Property0000;
 	string Property0001;
 	string Property0002;
 	string Property0003;
@@ -1275,12 +1274,12 @@
 	string Property0297;
 	string Property0298;
 	string Property0299;
+	string Property0300;
 }; 
 
 [Version ("1.0.0")] class benchmarkClassP00400S00010I00100
 {
         [key] uint32 Identifier;
-	string Property0000;
 	string Property0001;
 	string Property0002;
 	string Property0003;
@@ -1680,4 +1679,5 @@
 	string Property0397;
 	string Property0398;
 	string Property0399;
+	string Property0400;
 };

@@ -18,6 +18,12 @@ Version 1.1.1 - 3 August 2001 -  Development Branch (Work in Progress)
 4. (Karl) 8 Aug 2001 - Change cimmofparser.cpp to put header and trailers
         on XML output.
         
+5. (Denise Eckstein - HP) 13 Aug 2001 - Fixed an HP-UX compile problem
+in various src/utils/mu commands (MoveCmd.cpp, PrependCmd.cpp, RmCmd.cpp,
+RmDirHierCmd.cpp, StripCmd.cpp, TouchCmd.cpp).  aCC scopes variable
+declarations in for loop initializers outside the loop, so multiple
+"for (int i=0; i<10; i++);" statements cause a compile error.
+
         
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch

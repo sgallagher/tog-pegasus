@@ -142,6 +142,9 @@ TAG: Version_1_09.
 
  22.(MM) 18 Apr 2002 - Associator provider handling
 
+ 23.(MM) 18 Apr 2002 - HiRes pegasus_gettimeofday() for Windows needed
+    for performance statistics.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

@@ -78,6 +78,7 @@ error:
 
 buildmu:
 	$(MAKE) --directory=pegasus/src/utils/mu -f Makefile
+	$(MKDIR) $(BIN_DIR)
 	$(COPYMU)
 	
 cleanbuild: removeall recheckout buildmu all $(TESTS) 

@@ -1,7 +1,11 @@
 
 
-    1. Is NULL distinct from a value of zero for integer properites?
+    1. 	Is NULL distinct from a value of zero for integer properites?
 
-    2. Is NULL distinct from an empty string value for string?
+    2. 	Is NULL distinct from an empty string value for string?
 
-    3. How are property lists encoded in CIM?
+    3. 	How are property lists encoded in CIM?
+
+    4.	Figure out whether it's okay to delete an instance when it is
+	still involed in one or more associations.
+

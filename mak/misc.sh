@@ -1,0 +1,1 @@
+stripcrs *.h *.cpp

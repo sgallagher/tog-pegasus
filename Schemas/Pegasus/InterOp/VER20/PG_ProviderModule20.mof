@@ -17,6 +17,54 @@ class PG_ProviderModule : CIM_LogicalElement {
    string InterfaceVersion;
       [Description ("")]
    string Location;
+      [Description ( 
+        "   Indicates the current status(es) of the element. "
+        "Various health and operational statuses are "
+        "defined. Many of the enumeration's values are self-"
+        "explanatory.  However, a few are not and are described "
+        "in more detail. \"Stressed\" indicates that the element "
+        "is functioning, but needs attention. Examples of "
+        "\"Stressed\" states are overload, overheated, etc. "
+        "\"Predictive Failure\" indicates that an element is "
+        "functioning nominally but predicting a failure in the "
+        "near future. \"In Service\" describes an element being "
+        "configured, maintained, cleaned, or otherwise administered. "
+        "\"No Contact\" indicates that the monitoring system "
+        "has knowledge of this element, but has never been able to "
+        "establish communications with it. \"Lost Communication\" "
+        "indicates that the ManagedSystemElement is known to exist "
+        "and has been contacted successfully in the past, but is "
+        "currently unreachable. \"Stopped\" indicates that the "
+        "element is known to exist, is not operational (e.g., it "
+        "is unable to provide service to users), but it has not "
+        "failed. It has purposely been made non-operational. \n"
+        "  OperationalStatus replaces the Status property on "
+        "ManagedSystemElement to provide a consistent approach to "
+        "enumerations, to address implementation needs for an "
+        "array property, and to provide a migration path from today's "
+        "environment to the future. This change was not made earlier "
+        "since it required the DEPRECATED qualifier. Due to the "
+        "widespread use of the existing Status property in "
+        "management applications, it is strongly recommended that "
+        "providers/instrumentation provide BOTH the Status and "
+        "OperationalStatus properties. As always, Status (since it "
+        "is single-valued) provides the primary status of the "
+        "element."),
+       ValueMap {"0", "1", "2", "3", "4", "5", "6", "7", "8", 
+             "9", "10", "11", "12", "13"}, 
+       Values {"Unknown", "Other", "OK", "Degraded", "Stressed",
+             "Predictive Failure", "Error", "Non-Recoverable Error", 
+             "Starting", "Stopping", "Stopped", "In Service", 
+             "No Contact", "Lost Communication"}, 
+       ModelCorrespondence {
+        "CIM_ManagedSystemElement.OtherStatusDescription"} ] 
+    uint16 OperationalStatus[];
+      [Description (
+        "A string describing the status - used when the "
+        "OperationalStatus property is set to 1 (\"Other\")."), 
+       ModelCorrespondence {
+        "CIM_ManagedSystemElement.OperationalStatus"} ]
+    string OtherStatusDescription;
 
       [Description ("")]
    uint32 start();

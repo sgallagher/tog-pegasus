@@ -68,36 +68,36 @@ REPOSITORY_DIR = $(HOME_DIR)
 REPOSITORY_ROOT = $(REPOSITORY_DIR)/repository
 
 # The two variables, CIM_SCHEMA_DIR and CIM_SCHEMA_VER,
-# are used to control the version of the CIM Schema 
+# are used to control the version of the CIM Schema
 # loaded into the Pegasus Internal, InterOp,
 # root/cimv2 and various test namespaces.
 #
-# Update the following two environment variables to 
+# Update the following two environment variables to
 # change the version.
 
 # The environment variable PEGASUS_CIM_SCHEMA can be used
-# to change the values of CIM_SCHEMA_DIR, CIM_SCHEMA_VER 
+# to change the values of CIM_SCHEMA_DIR, CIM_SCHEMA_VER
 # and ALLOW_EXPERIMENTAL.
 #
 # To use the PEGASUS_CIM_SCHEMA variable the Schema mof
 # files must be placed in the directory
 # $(PEGAUS_ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)
-# 
+#
 # The value of PEGASUS_CIM_SCHEMA must conform to the
 # following syntax:
 #
 #        CIM[Prelim]<CIM_SCHEMA_VER>
 #
-# The string "Prelim" should be included if the 
+# The string "Prelim" should be included if the
 # Schema contains "Experimental" class definitions.
 #
 # The value of <CIM_SCHEMA_VER> must be the value
-# of the version string included by the DMTF as 
-# part of the mof file names (e.g, CIM_Core27.mof). 
+# of the version string included by the DMTF as
+# part of the mof file names (e.g, CIM_Core27.mof).
 # Therefore, for example, the value of <CIM_SCHEMA_VER>
 # for CIM27 Schema directories MUST be 27.
 #
-# Examples of valid values of PEGASUS_CIM_SCHEMA 
+# Examples of valid values of PEGASUS_CIM_SCHEMA
 # include CIMPrelim27, CIM27, CIMPrelim28, and CIM28.
 #
 # Note the CIMPrelim271 would NOT be a valid value
@@ -115,7 +115,7 @@ REPOSITORY_ROOT = $(REPOSITORY_DIR)/repository
 
 ifdef PEGASUS_CIM_SCHEMA
     CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)
-    ifeq ($(findstring $(patsubst CIM%,%,$(patsubst CIMPrelim%,%,$(PEGASUS_CIM_SCHEMA))),1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 271 28),)  
+    ifeq ($(findstring $(patsubst CIM%,%,$(patsubst CIMPrelim%,%,$(PEGASUS_CIM_SCHEMA))),1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 271 28),)
        CIM_SCHEMA_VER=
     else
        CIM_SCHEMA_VER=$(patsubst CIM%,%,$(patsubst CIMPrelim%,%,$(PEGASUS_CIM_SCHEMA)))
@@ -135,7 +135,7 @@ LEX = flex
 
 ################################################################################
 ##
-## Default installation paths 
+## Default installation paths
 ##
 ################################################################################
 
@@ -193,7 +193,7 @@ endif
 
 ################################################################################
 ##
-## Default installation macros 
+## Default installation macros
 ##
 ################################################################################
 
@@ -201,7 +201,7 @@ endif
 ## copies the library and generates the symbolic link.
 
 ifndef INSTALL_LIBRARY
-    ## These macros are also defined in the Platform_<*>.mak files. 
+    ## These macros are also defined in the Platform_<*>.mak files.
     INSTALL_LIBRARY =  $(MKDIRHIER) $(DEST_LIB_DIR); $(COPY) $(FULL_LIB) $(DEST_LIB_DIR)
 endif
 
@@ -221,13 +221,13 @@ endif
 ##
 ##  Set up any platform independent compile conditionals by adding them to
 ##  precreated FLAGS parameter.
-##  Assumes that the basic flags have been setup in FLAGS. 
+##  Assumes that the basic flags have been setup in FLAGS.
 ##  Assumes that compile time flags are controlled with -D CLI option.
 ##
 ################################################################################
 
 # Setup the conditional compile for client displays.
-# 
+#
 ifdef PEGASUS_CLIENT_TRACE_ENABLE
     DEFINES += -DPEGASUS_CLIENT_TRACE_ENABLE
 endif
@@ -298,12 +298,18 @@ else
     endif
 endif
 
+# PEP 211
+# Controls object normalization support.
+ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+    DEFINES += -DPEGASUS_ENABLE_OBJECT_NORMALIZATION
+endif
+
 
 # setup function to enable SLP functions in the Pegasus standard compile
 # Set the environment varaible PEGASUS_ENABLE_SLP to enable SLP code.
 # NOTE. Effective with Bug # 2633 some platforms now enable SLP.
 # To see which platforms look for platform make files that set
-# the variable PEGASUS_ENABLE_SLP  
+# the variable PEGASUS_ENABLE_SLP
 ifdef PEGASUS_ENABLE_SLP
     DEFINES += -DPEGASUS_ENABLE_SLP
 endif
@@ -313,7 +319,7 @@ endif
 # debug compiles and non-debug compiles and controls both
 # the use of any debug options on compilers and linkers
 # and general debug support that we want to be turned on in
-# debug mode. 
+# debug mode.
 ifdef PEGASUS_DEBUG
     DEFINES += -DPEGASUS_DEBUG
 endif
@@ -336,7 +342,7 @@ ifdef PEGASUS_VENDOR_HP
     DEFINES+= -DPEGASUS_VENDOR_HP
 endif
 
- 
+
 ############################################################
 #
 # Set up other Make Variables that depend on platform config files

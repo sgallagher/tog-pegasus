@@ -310,7 +310,7 @@ public:
     /** This function is an abstraction for the openlog interface used in the Logger
         class.  Each platform intending to use system logs should support this interface
     */
-    static void openlog(const String);
+    static void openlog(const String &);
 
     /** This function is an abstraction for the syslog interface used in the Logger
         class.  Each platform intending to use system logs should support this interface

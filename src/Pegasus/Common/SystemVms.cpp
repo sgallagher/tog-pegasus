@@ -35,6 +35,8 @@
 //              Dave Rosckes (rosckes@us.ibm.com)
 //              Sean Keenan (sean.keenan@hp.com)
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -648,7 +650,7 @@ Boolean System::verifyFileOwnership(const char* path)
     return (st.st_uid == geteuid());
 }
 
-void System::openlog(const String ident)
+void System::openlog(const String &ident)
 {
     return;
 }

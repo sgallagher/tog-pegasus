@@ -37,6 +37,7 @@
 //   04NOV01   1         Rudy Schuet       Initial creation
 //   16NOV01   1         Nag Boranna       Added get login name function
 //   13MAR03   2.2       Dave Rosckes      Added syslog stubs.
+//   
 //
 // ***************************************************************************
 //                                                                             
@@ -168,7 +169,7 @@ Uint32 System::getPID()
     return 0;
 }
 
-void System::openlog(const String ident)
+void System::openlog(const String &ident)
 {
     return;
 }

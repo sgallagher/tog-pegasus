@@ -788,7 +788,7 @@ Boolean System::verifyFileOwnership(const char* path)
     return true;
 }
 
-void System::openlog(const String ident)
+void System::openlog(const String &ident)
 {
     return;
 }

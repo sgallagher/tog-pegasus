@@ -1175,7 +1175,7 @@ Boolean System::verifyFileOwnership(const char* path)
     return (st.st_uid == geteuid());
 }
 
-void System::openlog(const String ident)
+void System::openlog(const String &ident)
 {
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
     char * ident_name = strdup(ident.getCString());

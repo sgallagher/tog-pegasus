@@ -107,23 +107,31 @@ void HTTPAuthenticatorDelegator::handleEnqueue()
 {
     Message* message = dequeue();
 
+    // Flag indicating whether the message should be deleted after handling.
+    // This should be set to false by handleHTTPMessage when the message is
+    // passed as is to another queue.
+    Boolean deleteMessage = true;
+
     if (!message)
         return;
 
     if (message->getType() == HTTP_MESSAGE)
     {
-        handleHTTPMessage((HTTPMessage*)message);
+        handleHTTPMessage((HTTPMessage*)message, deleteMessage);
     }
 
-    // ATTN: This should only be deleted sometimes, because the same message
-    // gets passed along to the Decoder when authentication/delegation is
-    // successful.
-    //delete message;
+    if (deleteMessage)
+    {
+        delete message;
+    }
 }
 
-void HTTPAuthenticatorDelegator::handleHTTPMessage(HTTPMessage* httpMessage)
+void HTTPAuthenticatorDelegator::handleHTTPMessage(
+    HTTPMessage* httpMessage,
+    Boolean & deleteMessage)
 {  
     Boolean authenticated = false;
+    deleteMessage = true;
 
     //
     // get the configured authentication flag
@@ -264,6 +272,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(HTTPMessage* httpMessage)
                 if (queue)
                 {
                     queue->enqueue(httpMessage);
+                    deleteMessage = false;
                 }
             }
             else if (HTTPMessage::lookupHeader(
@@ -275,6 +284,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(HTTPMessage* httpMessage)
                 if (queue)
                 {
                     queue->enqueue(httpMessage);
+                    deleteMessage = false;
                 }
             }
             else

@@ -63,7 +63,7 @@ public:
 
     virtual const char* getQueueName() const;
 
-    void handleHTTPMessage(HTTPMessage* httpMessage);
+    void handleHTTPMessage(HTTPMessage* httpMessage, Boolean & deleteMessage);
 
 private:
 

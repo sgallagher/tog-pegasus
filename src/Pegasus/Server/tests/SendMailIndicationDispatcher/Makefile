@@ -12,4 +12,3 @@ SOURCES = SendMailIndicationDispatcher.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	SendMailIndicationDispatcher

@@ -28,7 +28,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
-#include <unistd.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Selector.h>
 #include <Pegasus/Handler/CIMHandler.h>
@@ -128,7 +127,8 @@ void sendmailIndicationHandler::handleIndication(
 // to load this handler.
 
 extern "C" PEGASUS_EXPORT CIMHandler* 
-    PegasusCreateHandler_sendmailIndicationHandler() {
+    PegasusCreateHandler_sendmailIndicationHandler() 
+{
     return new sendmailIndicationHandler;
 }
 

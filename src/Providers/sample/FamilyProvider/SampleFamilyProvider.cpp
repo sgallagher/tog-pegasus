@@ -132,44 +132,6 @@ enum targetClass{
 //**************************************************
 //          Support Functions
 //**************************************************
-/*
-// The following commented code is for a future version.
-// Structure for valid class tests.
-struct _validClassRow
-{
-    const CIMName className;
-    const targetClass target;
-};
-
-_validClassRow _validClassTable[] = 
-{
-   {personDynamicClassName, TST_PERSONDYNAMIC},
-   {lineageDynamicAssocClassName,TST_LINEAGEDYNAMIC },
-   {labeledLineageDynamicAssocClassName, TST_LABELEDLINEAGEDYNAMIC}
-};
-
-const Uint32 NUMVALIDCLASSES = sizeof(_validClassTable) / sizeof(_validClassTable[0]);
-
-*/
-/* Verify that this is one of the legal classnames and
-   return indicator which.
-   @param - Classname
-   @return - Uint32 indicating type
-   @Exceptions - throws CIMNotSupportedException if invalid class.
-*/
-/*
-targetClass _verifyValidClassInput(const struct & _validClassType, const Uint32& size,  const CIMName& className)
-{
-    for (Uint32 i = 0 ; i <  size < i++) 
-    {
-        if (_validClass[i].className == className)
-            return(_validClass[i].target)
-    }
-    throw CIMNotSupportedException
-            (className.getString() + " not supported by " + SampleFamilyProviderName);
-
-} */
-
 
 String _showBool(Boolean x)
 {
@@ -705,7 +667,6 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
         }
         Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Initialize %s. Count= %i instances",
             "TST_LabeledLineageDynamic", _instancesLabeledLineageDynamic.size() );
-        CDEBUG("LabeledLineageDynamic " << _instancesLabeledLineageDynamic.size() << " instances ");
     }
 
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
@@ -716,7 +677,7 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
 void SampleFamilyProvider::terminate(void)
 {
     
-    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Iterminate");
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Terminate");
     delete this;
 }
 
@@ -772,6 +733,12 @@ void SampleFamilyProvider::getInstance(
 	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "getInstance. Class= %s",
+		(const char *)instanceReference.toString().getCString(),
+        (const char *)_showBool(includeQualifiers).getCString(),
+        (const char*) _showBool(includeClassOrigin).getCString(),
+        (const char *)_showPropertyList(propertyList).getCString());
+
     // convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
     CIMObjectPath localReference =
@@ -834,13 +801,14 @@ void SampleFamilyProvider::enumerateInstances(
 	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
-    // ATTN: Should we validate namespace???
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "enumerateInstances. Class= %s",
+		(const char *)classReference.toString().getCString(),
+        (const char *)_showBool(includeQualifiers).getCString(),
+        (const char*) _showBool(includeClassOrigin).getCString(),
+        (const char *)_showPropertyList(propertyList).getCString());
+
     CIMNamespaceName nameSpace = classReference.getNameSpace();
     //CIMName myClassName = classReference.getClassName();
-
-    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "enumerateInstances. Class= %s. IncludeQualifiers= %s ClassOrig= %s, propertyList= %s",
-		  (const char*) classReference.toString().getCString(),(const char*)_showBool(includeQualifiers).getCString(),
-		  (const char*)_showBool(includeClassOrigin).getCString(),(const char*)_showPropertyList(propertyList).getCString());
 
     // begin processing the request
 	handler.processing();

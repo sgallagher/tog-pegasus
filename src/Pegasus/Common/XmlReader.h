@@ -160,6 +160,11 @@ public:
 	CIMType type, 
 	CIMValue& value);
 
+    static Boolean getStringValueElement(
+	XmlParser& parser, 
+	String& str, 
+	Boolean required);
+
     static CIMValue stringArrayToValue(
 	Uint32 lineNumber, 
 	const Array<const char*>& array, 
@@ -238,6 +243,10 @@ public:
 	XmlParser& parser,
 	String& className,
 	Array<KeyBinding>& keyBindings);
+
+    static Boolean getInstanceNameElement(
+	XmlParser& parser,
+	CIMReference& instanceName);
 
     static Boolean getInstancePathElement(
 	XmlParser& parser,
@@ -332,6 +341,10 @@ public:
     static Boolean getObjectWithPath(
 	XmlParser& parser, 
 	CIMObjectWithPath& objectWithPath);
+
+    static Boolean getObjectNameElement(
+	XmlParser& parser, 
+	CIMReference& objectName);
 
 private:
 

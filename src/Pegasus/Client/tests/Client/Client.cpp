@@ -130,7 +130,8 @@ static void TestQualifierOperations(CIMClient& client)
 
     // Enumerate the qualifiers:
 
-    Array<CIMQualifierDecl> qualifierDecls = client.enumerateQualifiers(NAMESPACE);
+    Array<CIMQualifierDecl> qualifierDecls 
+	= client.enumerateQualifiers(NAMESPACE);
 
     for (Uint32 i = 0; i < qualifierDecls.size(); i++)
     {
@@ -196,6 +197,28 @@ static void TestInstanceOperations(CIMClient& client)
 #endif
 }
 
+static void TestAssoc(CIMClient& client)
+{
+    CIMReference instanceName = "X.key=\"John Smith\"";
+
+    Array<CIMObjectWithPath> result = client.associators(
+	NAMESPACE, instanceName, "A", "Y", "left", "right", true, true);
+
+    PEGASUS_OUT(result.size());
+
+    for (Uint32 i = 0; i < result.size(); i++)
+    {
+	CIMObjectWithPath current = result[i];
+	CIMReference ref = current.getReference();
+	PEGASUS_OUT(ref.toString());
+    }
+
+    assert(result.size() == 1);
+    Boolean result = (result[0].getReference().toStringCanonical() ==
+	"//unknown-hostname/root/cimv2:Y.key=\"John Jones\"");
+    assert(result);
+}
+
 int main(int argc, char** argv)
 {
     try
@@ -209,6 +232,11 @@ int main(int argc, char** argv)
 	TestQualifierOperations(client);
 	TestClassOperations(client);
 	TestInstanceOperations(client);
+
+	// To run the following test, first compile "test.mof" into the
+	// repository!
+
+	// TestAssoc(client);
     }
     catch(Exception& e)
     {

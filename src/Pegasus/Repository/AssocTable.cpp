@@ -231,7 +231,7 @@ Boolean AssocTable::containsObject(
     ifstream is;
 
     if (!Open(is, path))
-	throw CannotOpenFile(path);
+	return false;
 
     // Look at each line:
 
@@ -255,7 +255,7 @@ Boolean AssocTable::deleteAssociation(
     ifstream is;
 
     if (!Open(is, path))
-	throw CannotOpenFile(path);
+	return false;
 
     // Open output file:
 
@@ -311,7 +311,7 @@ Boolean AssocTable::getAssociatorNames(
     ifstream is;
 
     if (!Open(is, path))
-	throw CannotOpenFile(path);
+	return false;
 
     // For each line:
 
@@ -346,7 +346,7 @@ Boolean AssocTable::getReferenceNames(
     ifstream is;
 
     if (!Open(is, path))
-	throw CannotOpenFile(path);
+	return false;
 
     // For each line:
 

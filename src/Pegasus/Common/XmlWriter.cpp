@@ -839,4 +839,23 @@ Array<Sint8>& operator<<(Array<Sint8>& out, Uint32 x)
     return out;
 }
 
+Array<Sint8>& XmlWriter::appendObjectNameParameter(
+    Array<Sint8>& out,
+    const char* name,
+    const CIMReference& objectName)
+{
+    if (objectName.isClassName())
+    {
+	XmlWriter::appendClassNameParameter(
+	    out, name, objectName.getClassName());
+    }
+    else
+    {
+	XmlWriter::appendInstanceNameParameter(
+	    out, name, objectName);
+    }
+
+    return out;
+}
+
 PEGASUS_NAMESPACE_END

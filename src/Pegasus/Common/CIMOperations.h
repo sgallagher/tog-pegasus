@@ -214,7 +214,6 @@ public:
 	    Boolean includeClassOrigin = false,
 	    const Array<String>& propertyList = EmptyStringArray()) = 0;
 
-
     /** The <TT>DeleteClass</TT> method deletes a single CIM Class from the
 	target Namespace.
 

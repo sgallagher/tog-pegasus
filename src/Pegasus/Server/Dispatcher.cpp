@@ -203,9 +203,17 @@ Array<CIMInstance> Dispatcher::enumerateInstances(
     CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
 
     if (provider)
-	return provider->enumerateInstances(nameSpace, className, deepInheritance, localOnly, includeQualifiers, includeClassOrigin, propertyList);
+    {
+	return provider->enumerateInstances(nameSpace, className, 
+	    deepInheritance, localOnly, includeQualifiers, 
+	    includeClassOrigin, propertyList);
+    }
     else
-	return _repository->enumerateInstances(nameSpace, className, deepInheritance, localOnly, includeQualifiers, includeClassOrigin, propertyList);
+    {
+	return _repository->enumerateInstances(
+	    nameSpace, className, deepInheritance, localOnly, 
+	    includeQualifiers, includeClassOrigin, propertyList);
+    }
 
     return Array<CIMInstance>();
 }
@@ -243,8 +251,9 @@ Array<CIMObjectWithPath> Dispatcher::associators(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
-    return Array<CIMObjectWithPath>();
+    return _repository->associators(
+	nameSpace, objectName, assocClass, resultClass, role, resultRole,
+	    includeQualifiers, includeClassOrigin, propertyList);
 }
 
 Array<CIMReference> Dispatcher::associatorNames(

@@ -174,6 +174,11 @@ public:
 	Array<Sint8>& out,
 	const String& propertyName);
 
+    static Array<Sint8>& appendObjectNameParameter(
+	Array<Sint8>& out,
+	const char* name,
+	const CIMReference& objectName);
+
     static void indentedPrint(
 	PEGASUS_STD(ostream)& os,
 	const char* text, 

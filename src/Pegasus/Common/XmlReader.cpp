@@ -1,4 +1,3 @@
-//%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
@@ -37,6 +36,7 @@
 #include "CIMQualifierDecl.h"
 #include "CIMClass.h"
 #include "CIMInstance.h"
+#include "CIMObject.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -773,25 +773,25 @@ CIMValue XmlReader::stringToValue(
 {
     // ATTN-B: accepting only UTF-8 for now! (affects string and char16):
 
-//SNIA
-    if (strlen(valueString)==0) {
-        switch (type) {
-            case CIMType::BOOLEAN: return CIMValue(false);
-           case CIMType::STRING: return CIMValue(valueString);
-           case CIMType::CHAR16: return CIMValue(Char16('\0'));
-           case CIMType::UINT8: return CIMValue(Uint8(0));
-           case CIMType::UINT16: return CIMValue(Uint16(0));
-           case CIMType::UINT32: return CIMValue(Uint32(0));
-           case CIMType::UINT64: return CIMValue(Uint64(0));
-            case CIMType::SINT8: return CIMValue(Sint8(0));
-            case CIMType::SINT16: return CIMValue(Sint16(0));
-            case CIMType::SINT32: return CIMValue(Sint32(0));
-            case CIMType::SINT64: return CIMValue(Sint64(0));
-           case CIMType::REAL32: return CIMValue(Real32(0));
-           case CIMType::REAL64: return CIMValue(Real64(0));
+    if (strlen(valueString)==0) 
+    {
+        switch (type) 
+	{
+	    case CIMType::BOOLEAN: return CIMValue(false);
+	    case CIMType::STRING: return CIMValue(valueString);
+	    case CIMType::CHAR16: return CIMValue(Char16('\0'));
+	    case CIMType::UINT8: return CIMValue(Uint8(0));
+	    case CIMType::UINT16: return CIMValue(Uint16(0));
+	    case CIMType::UINT32: return CIMValue(Uint32(0));
+	    case CIMType::UINT64: return CIMValue(Uint64(0));
+	    case CIMType::SINT8: return CIMValue(Sint8(0));
+	    case CIMType::SINT16: return CIMValue(Sint16(0));
+	    case CIMType::SINT32: return CIMValue(Sint32(0));
+	    case CIMType::SINT64: return CIMValue(Sint64(0));
+	    case CIMType::REAL32: return CIMValue(Real32(0));
+	    case CIMType::REAL64: return CIMValue(Real64(0));
         }
     }
-// end of SNIA
 
     switch (type)
     {
@@ -930,27 +930,58 @@ Boolean XmlReader::getValueElement(
 
     Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
 
-    // Get VALUE content:
-
     const char* valueString = "";
-    // cout << "DEBUG XMLReader:getValueElement " << __LINE__ ;
 
     if (!empty)
     {
 	if (testContentOrCData(parser, entry))
 	    valueString = entry.text;
-	//cout << "DEBUG XMLReader:getValueElement " << __LINE__
-	//    <<  " valueString " << valueString ;
 
 	expectEndTag(parser, "VALUE");
     }
 
     value = stringToValue(parser.getLine(), valueString,type);
-    //cout << "DEBUG XMLReader:getValueElement " << __LINE__
-    //	<< " value " << value;
+
     return true;
 }
 
+//------------------------------------------------------------------------------
+//
+// getStringValueElement()
+//
+//     <!ELEMENT VALUE (#PCDATA)>
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getStringValueElement(
+    XmlParser& parser, 
+    String& str,
+    Boolean required)
+{
+    XmlEntry entry;
+
+    if (!testStartTagOrEmptyTag(parser, entry, "VALUE"))
+    {
+	if (required)
+	    throw XmlValidationError(parser.getLine(),"Expected VALUE element");
+	return false;
+    }
+
+    Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
+
+    const char* valueString = "";
+
+    if (!empty)
+    {
+	if (testContentOrCData(parser, entry))
+	    valueString = entry.text;
+
+	expectEndTag(parser, "VALUE");
+    }
+
+    str = valueString;
+    return true;
+}
 
 //----------------------------------------------------------------------------
 //
@@ -1845,6 +1876,20 @@ Boolean XmlReader::getInstanceNameElement(
 	    expectEndTag(parser, "INSTANCENAME");
     }
 
+    return true;
+}
+
+Boolean XmlReader::getInstanceNameElement(
+    XmlParser& parser,
+    CIMReference& instanceName)
+{
+    String className;
+    Array<KeyBinding> keyBindings;
+
+    if (!XmlReader::getInstanceNameElement(parser, className, keyBindings))
+	return false;
+
+    instanceName.set(String(), String(), className, keyBindings);
     return true;
 }
 
@@ -2828,34 +2873,30 @@ Boolean XmlReader::getObjectWithPath(
     if (!testStartTag(parser, entry, "VALUE.OBJECTWITHPATH"))
 	return false;
 
-    if (testStartTag(parser, entry, "INSTANCEPATH"))
+    CIMReference reference;
+    Boolean isInstance = false;
+
+    if (XmlReader::getInstancePathElement(parser, reference))
+	isInstance = true;
+    else if (!XmlReader::getClassPathElement(parser, reference))
     {
-	CIMReference reference;
-
-	if (!XmlReader::getInstancePathElement(parser, reference))
-	{
-	    throw XmlValidationError(parser.getLine(),
-		"Expected INSTANCEPATH element");
-	}
-
-	CIMInstance instance;
-
-	if (!XmlReader::getInstanceElement(parser, instance))
-	{
-	    throw XmlValidationError(parser.getLine(),
-		"Expected INSTANCE element");
-	}
+	throw XmlValidationError(parser.getLine(),
+	    "Expected INSTANCE element");
     }
-    if (testStartTag(parser, entry, "CLASSPATH"))
-    {
-	CIMReference reference;
 
-	if (!XmlReader::getClassPathElement(parser, reference))
+    if (isInstance)
+    {
+	CIMInstance cimInstance;
+
+	if (!XmlReader::getInstanceElement(parser, cimInstance))
 	{
 	    throw XmlValidationError(parser.getLine(),
-		"Expected CLASSPATH element");
+		"Expected INSTANCEPATH or CLASSPATH element");
 	}
-
+	objectWithPath.set(reference, CIMObject(cimInstance));
+    }
+    else
+    {
 	CIMClass cimClass;
 
 	if (!XmlReader::getClassElement(parser, cimClass))
@@ -2863,16 +2904,42 @@ Boolean XmlReader::getObjectWithPath(
 	    throw XmlValidationError(parser.getLine(),
 		"Expected CLASS element");
 	}
-    }
-    else
-    {
-	throw XmlValidationError(parser.getLine(),
-	    "Expected INSTANCEPATH or CLASSPATH element");
+	objectWithPath.set(reference, CIMObject(cimClass));
     }
 
     expectEndTag(parser, "VALUE.OBJECTWITHPATH");
 
     return true;
+}
+
+//------------------------------------------------------------------------------
+//
+// <objectName>: (CLASSNAME|INSTANCENAME)
+//
+//------------------------------------------------------------------------------
+
+
+Boolean XmlReader::getObjectNameElement(
+    XmlParser& parser, 
+    CIMReference& objectName)
+{
+    String className;
+    CIMReference instanceName;
+
+    if (getClassNameElement(parser, className, false))
+    {
+	objectName.set(String(), String(), className);
+	return true;
+    }
+    else if (getInstanceNameElement(parser, objectName))
+	return true;
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected CLASSNAME or INSTANCENAME element");
+    }
+
+    return false;
 }
 
 PEGASUS_NAMESPACE_END

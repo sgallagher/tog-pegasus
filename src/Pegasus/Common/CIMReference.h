@@ -381,7 +381,6 @@ public:
     	not parsable.
     	<PRE>
     	    CIMReference r1 = "MyClass.z=true,y=1234,x=\"Hello World\"";
-
     	</PRE>
     */
     CIMReference(const String& objectName);
@@ -562,7 +561,7 @@ public:
     /** Encodes this object as XML.
 	@param out argument in which to place resutls
     */
-    void toXml(Array<Sint8>& out) const;
+    void toXml(Array<Sint8>& out, Boolean putValueWrapper = true) const;
 
     /** Prints the XML encoding of this object.
     */

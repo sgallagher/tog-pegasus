@@ -617,9 +617,10 @@ void CIMReference::instanceNameToXml(Array<Sint8>& out) const
     out << "</INSTANCENAME>\n";
 }
 
-void CIMReference::toXml(Array<Sint8>& out) const
+void CIMReference::toXml(Array<Sint8>& out, Boolean putValueWrapper) const
 {
-    out << "<VALUE.REFERENCE>\n";
+    if (putValueWrapper)
+	out << "<VALUE.REFERENCE>\n";
 
     // See if it is a class or instance reference (instance references have
     // key-bindings; class references do not).
@@ -663,7 +664,8 @@ void CIMReference::toXml(Array<Sint8>& out) const
 	    classNameToXml(out);
     }
 
-    out << "</VALUE.REFERENCE>\n";
+    if (putValueWrapper)
+	out << "</VALUE.REFERENCE>\n";
 }
 
 void CIMReference::print(PEGASUS_STD(ostream)& os) const

@@ -768,20 +768,21 @@ Array<CIMReference> CIMRepository::associatorNames(
     String assocFileName = _MakeAssocPath(nameSpace, _repositoryRoot);
     Array<String> associatorNames;
 
-    if (!AssocTable::getAssociatorNames(
+    // The return value of this function is ignored since it is okay for
+    // the given object not to have any associators (in this case we just
+    // return a zero-sized array of associators.
+
+    AssocTable::getAssociatorNames(
 	assocFileName,
 	objectName.toString(),
         assocClass,
         resultClass,
         role,
         resultRole,
-	associatorNames))
-    {
-	throw PEGASUS_CIM_EXCEPTION(FAILED, "associators not found for: "
-	    + objectName.toString());
-    }
+	associatorNames);
 
     Array<CIMReference> result;
+
     for (Uint32 i = 0, n = associatorNames.size(); i < n; i++)
 	result.append(associatorNames[i]);
 

@@ -44,7 +44,6 @@
 #include <Pegasus/Server/Dispatcher.h>
 #include <Pegasus/Common/String.h>
 
-
 //debugging
 
 #define DDD(X) // X
@@ -52,9 +51,8 @@
 #include <iostream>
 
 PEGASUS_USING_STD;
-											 
-PEGASUS_NAMESPACE_BEGIN
 
+PEGASUS_NAMESPACE_BEGIN
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -72,8 +70,6 @@ static const Uint32 _M_POST_LEN = sizeof(_M_POST) - 1;
 // the norm sends out a POST instead of an M_POST
 static const char _POST[] = "POST";
 static const Uint32 _POST_LEN = sizeof(_POST) - 1;
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -127,6 +123,11 @@ public:
 	const String& messageId,
 	const String& nameSpace);
     //STUB}
+
+    void handleAssociators(
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
     void handleCreateInstance(
 	XmlParser& parser, 
@@ -487,6 +488,8 @@ int ServerHandler::handleMethodCall()
     else if (CompareNoCase(iMethodCallName, "EnumerateClassNames") == 0)
 	handleEnumerateClassNames(parser, messageId, nameSpace);
     //STUB}
+    else if (CompareNoCase(iMethodCallName, "Associators") == 0)
+	handleAssociators(parser, messageId, nameSpace);
     else if (CompareNoCase(iMethodCallName, "CreateInstance") == 0)
 	handleCreateInstance(parser, messageId, nameSpace);
     else if (CompareNoCase(iMethodCallName, "EnumerateInstanceNames") == 0)
@@ -513,8 +516,18 @@ int ServerHandler::handleMethodCall()
 	handleGetProperty(parser, messageId, nameSpace);
     else if (CompareNoCase(iMethodCallName, "SetProperty") == 0)
 	handleSetProperty(parser, messageId, nameSpace);
+    else
+    {
+	String msg = CIMException::codeToString(CIMException::FAILED);
+	msg += ": unknown intrinsic method: ";
+	msg += iMethodCallName;
+	char* tmp = msg.allocateCString();
+	sendError(messageId, iMethodCallName, CIMException::FAILED, tmp);
+	delete [] tmp;
 
-    // ATTN-A: return error XML message here!
+	cerr << msg << endl;
+	return 0;
+    }
 
     //--------------------------------------------------------------------------
     // Handle end tags:
@@ -646,15 +659,7 @@ void ServerHandler::handleGetInstance(
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
 	if (CompareNoCase(name, "InstanceName") == 0)
-	{
-	    String className;
-	    Array<KeyBinding> keyBindings;
-	    XmlReader::getInstanceNameElement(parser, className, keyBindings);
-
-	    // ATTN: do we need the namespace here?
-
-	    instanceName.set(String(), String(), className, keyBindings);
-	}
+	    XmlReader::getInstanceNameElement(parser, instanceName);
 	else if (CompareNoCase(name, "LocalOnly") == 0)
 	    XmlReader::getBooleanValueElement(parser, localOnly, true);
 	else if (CompareNoCase(name, "IncludeQualifiers") == 0)
@@ -1549,9 +1554,114 @@ void ServerHandler::handleSetProperty(
     outputN(message);
 }
 
+//------------------------------------------------------------------------------
+//
+// ServerHandler::handleAssociators()
+//
+//------------------------------------------------------------------------------
 
+void ServerHandler::handleAssociators(
+    XmlParser& parser, 
+    const String& messageId,
+    const String& nameSpace)
+{
+    // -- Extract the parameters:
 
+    CIMReference objectName;
+    String assocClass;
+    String resultClass;
+    String role;
+    String resultRole;
+    Boolean includeQualifiers = false;
+    Boolean includeClassOrigin = false;
+    Array<String> propertyList;
 
+    // ATTN-B: handle the property list!
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "ObjectName") == 0)
+	{
+	    XmlReader::getObjectNameElement(parser, objectName);
+	}
+	else if (CompareNoCase(name, "AssocClass") == 0)
+	{
+	    XmlReader::getClassNameElement(parser, assocClass, true);
+	}
+	else if (CompareNoCase(name, "ResultClass") == 0)
+	{
+	    XmlReader::getClassNameElement(parser, resultClass, true);
+	}
+	else if (CompareNoCase(name, "Role") == 0)
+	{
+	    XmlReader::getStringValueElement(parser, role, true);
+	}
+	else if (CompareNoCase(name, "ResultRole") == 0)
+	{
+	    XmlReader::getStringValueElement(parser, resultRole, true);
+	}
+	else if (CompareNoCase(name, "IncludeQualifiers") == 0)
+	{
+	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
+	}
+	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
+	{
+	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
+	}
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    Array<CIMObjectWithPath> objectWithPathArray;
+    
+    try
+    {
+	objectWithPathArray = _dispatcher->associators(
+	    nameSpace,
+	    objectName,
+	    assocClass,
+	    resultClass,
+	    role,
+	    resultRole,
+	    includeQualifiers,
+	    includeClassOrigin,
+	    propertyList);
+    }
+    catch (CIMException& e)
+    {
+	sendError(messageId, "Associators", 
+	    e.getCode(), e.codeToString(e.getCode()));
+	return;
+    }
+    catch (Exception&)
+    {
+	sendError(messageId, "Associators", CIMException::FAILED, 
+	    CIMException::codeToString(CIMException::FAILED));
+	return;
+    }
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < objectWithPathArray.size(); i++)
+    {
+	CIMReference& r = objectWithPathArray[i].getReference();
+
+	// ATTN-A: get the host name here!
+
+	if (r.getHost().size() == 0)
+	    r.setHost("unknown-hostname");
+
+	if (r.getNameSpace().size() == 0)
+	    r.setNameSpace(nameSpace);
+
+	objectWithPathArray[i].toXml(body);
+    }
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"Associators", messageId, body);
+
+    outputN(message);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

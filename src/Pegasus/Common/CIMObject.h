@@ -118,16 +118,26 @@ public:
     */
     CIMClass getClass();
 
+    /** Const version of getClass() */
+
+    CIMConstClass getClass() const;
+
     /** Returns the instance contained by this object (if an instance).
 	@return CIMInstance
 	@exception throws TypeMismatch if object does not contain a CIMInstance.
     */
     CIMInstance getInstance();
 
+    /** Const version of getInstance() */
+
+    CIMConstInstance getInstance() const;
+
     operator int() const 
     { 
 	return _rep != 0; 
     }
+
+    void toXml(Array<Sint8>& out) const;
 
 private:
 
@@ -169,6 +179,8 @@ public:
     CIMReference& getReference() { return _reference; }
 
     CIMObject& getObject() { return _object; }
+
+    void toXml(Array<Sint8>& out) const;
 
 private:
 

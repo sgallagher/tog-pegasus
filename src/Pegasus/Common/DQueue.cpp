@@ -94,7 +94,7 @@ void * AsyncDQueue<class L>::operator new(size_t size)
    
    AsyncDQueue<L> *p = _headOfFreeList;
    if(p)
-      _headOfFreeList = p->_dq_next;
+       _headOfFreeList = p->_dq_next;
    else
    {
       AsyncDQueue<L> * newBlock = 

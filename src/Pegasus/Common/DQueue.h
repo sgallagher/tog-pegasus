@@ -328,7 +328,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : public internal_dq
       Uint32 count(void) { return _actual_count->value() ; }
 } ;
 
-
+ 
 
 
 

@@ -54,6 +54,7 @@ Boolean Thread::_signals_blocked = false;
 // l10n
 PEGASUS_THREAD_KEY_TYPE Thread::_platform_thread_key;
 Boolean Thread::_key_initialized = false;
+Boolean Thread::_key_error = false;
 
 
 // for non-native implementations
@@ -125,6 +126,13 @@ Sint8 Thread::initializeKey()
    PEG_METHOD_ENTER(TRC_THREAD, "Thread::initializeKey");
    if (!Thread::_key_initialized)
    {
+	if (Thread::_key_error)
+	{
+       		Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
+	        	  "Thread: ERROR - thread key error"); 
+		return -1;
+	}
+
 	if (pegasus_key_create(&Thread::_platform_thread_key) == 0)
 	{
         	Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
@@ -135,6 +143,7 @@ Sint8 Thread::initializeKey()
 	{
        		Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
 	        	  "Thread: ERROR - unable to create a thread key"); 
+	   	Thread::_key_error = true;
 		return -1;
 	}
    }

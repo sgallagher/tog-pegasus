@@ -398,7 +398,8 @@ class PEGASUS_COMMON_LINKAGE Thread
       PEGASUS_THREAD_RETURN _exit_code;
       static Boolean _signals_blocked;
       static PEGASUS_THREAD_KEY_TYPE _platform_thread_key;  //l10n
-      static Boolean _key_initialized; // l10n      
+      static Boolean _key_initialized; // l10n 
+      static Boolean _key_error; // l10n      
       friend class ThreadPool;
 } ;
 

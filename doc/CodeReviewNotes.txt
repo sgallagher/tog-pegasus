@@ -1,5 +1,4 @@
 
-
     1.	Indent four spaces (not three and not tabs).
 
     2.	Literals used (other than 0 or 1).
@@ -26,6 +25,9 @@
     6.	Regression tests should only print this:
 
 	    "+++++ passed all tests"
+	  
+SOME TESTS TAKE A LONG TIME TO RUN AND NEED TO PRINT IMTERMEDIATE OUTPUT SO THE 
+DEVELOPER DOES NOT THINK THE TEST IS HANGED. 
 
 	Extraneous output should be removed.
 
@@ -34,13 +36,13 @@
     8.	All method must use the form myMethodName(). Many places
 	have my_method_name() (with underscores).
 
-    9.	Avoid use of (void). Use () instead.
+    9.	Avoid use of (void). Use () instead. WHY? 
 
     10.	Either get rid of throw() declarations or use them
 	everywhere (perhaps they are not supported by some compilers).
 
     11.	Avoid indenting "private:", "public:" and "protected". Use this
-	style:
+	style: WHY? 
 
 	    class X
 	    {
@@ -49,17 +51,17 @@
 	    public:
 	    };
 
-    12.	Use "Type* x" rather than "Type *x".
+    12.	Use "Type* x" rather than "Type *x". WHY?
 
-    13. Use "if (" rather than "if(".
+    13. Use "if (" rather than "if(". WHY?
 
-    14.	Avoid use of spaces around the condition:
+    14.	Avoid use of spaces around the condition: WHY?
 
 	    if( cond )
 
     15.	Keep all lines within 80 columns.
 
-    16.	Build fails on many Linux system (threading support problems).
+    16.	Build fails on many Linux system (threading support problems). WHICH ONES ?
 
     17. SSL is the default on Linux (is this okay?).
 
@@ -67,7 +69,7 @@
 
     21.	Get rid of CIMIndication class.
 
-    22.	Revise licensing headers on all files.
+    22.	Revise licensing headers on all files. BE CAREFUL NOT TO CHANGE LICENSE AGREEMENT
 
     23. Add Log CVS directives.
 
@@ -84,18 +86,20 @@
     29. Get rid of directories containing .old extensions.
 
     30. Use constant global queue ids as described in MessagQueue.h
-	docs.
+	docs. USE META DISPATCHER TO FIND QUEUES. CONSTANT IDS LIMIT QUEUES 
+	TO ONE OF EACH PREDEFINED TYPE. 
 
     31. Is the Facade class necessary.
 
     32. Response handler need not have to action methods (for single
-	and multiple objects).
+	and multiple objects). WHY CREATE AN ARRAY OBJECT THAT WILL ONLY HOLD ONE CIM OBJECT? 
+	TOO MUCH OVERHEAD. HAVING A DUAL INTERFACE IS AN IMPORTANT OPTIMIZATION. 
 
     33. Clean up warnings on NT.
 
     34. Use Linkage.h files everywhere.
 
-    35. Need to add notifiers (using message queue observer scheme).
+    35. Need to add notifiers (using message queue observer scheme). USE META DISPATCHER INSTEAD
 
     36. Need to define services's interface to CIMOM.
 

@@ -104,7 +104,7 @@ CIMClass
 cimmofClient::getClass(const CIMNamespaceName &nameSpace,
 				    const CIMName &className) const
 {
-    return (_client->getClass(nameSpace, className));
+    return (_client->getClass(nameSpace, className, false, true, true));
 }
 
 void

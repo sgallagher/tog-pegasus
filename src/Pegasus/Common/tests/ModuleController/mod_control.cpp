@@ -179,25 +179,33 @@ test_module::~test_module(void)
 Message *test_module::receive_msg(Message *msg, void *parm)
 {
    test_module *myself = reinterpret_cast<test_module *>(parm);
-   if(msg && (msg->getType() == 0x04200000 || msg->getType() == 0x04100000))
+   if(msg && msg->getType() == 0x04100000 )
    {
       cout << "received msg from peer " << endl;
       
       myself->_msg_rx++;
-      return msg;
+      return new test_response(msg->getKey(),
+			   msg->getRouting(),
+			   static_cast<AsyncRequest *>(msg)->op, 
+			   async_results::OK,  
+			   msg->dest, 
+			   "i am a test response"); 
    }
-   delete msg;
    return NULL;
 }
 
+
 void test_module::async_callback(Uint32 id, Message *msg, void *parm)
 {
+
    test_module *myself = reinterpret_cast<test_module *>(parm);
    if(msg && (msg->getType() == 0x04200000 || msg->getType() == 0x04100000))
    {
+      cout << "module async callback " << endl;
+      
       (myself->_msg_rx)++;
+      delete msg;
    }
-   delete msg;
 }
 
 void test_module::shutdown_notify(Uint32 code, void *parm)
@@ -321,7 +329,7 @@ test_service::test_service(char *name)
 		message_mask::type_service | 
 		message_mask::ha_request | 
 		message_mask::ha_reply | 
-		message_mask::ha_async ) 
+ 		message_mask::ha_async ) 
 {
    
 }
@@ -439,7 +447,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
    
    cout << "Found Peer Module " << parms->_peer << " at " << svce << endl;
    
-
+   pegasus_sleep(1);
+   
    test_request *req = 
       new test_request(my_module->get_controller()->get_next_xid(),
 		       0, 
@@ -451,10 +460,30 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
 									svc_qid,
 									req);
    if(response && response->getType() == 0x04200000)
-      cout << " ModuleSendWait successfull " << endl;
+      cout << " ModuleSendWait to service successfull " << endl;
    
    delete req;
    delete response;
+   
+   pegasus_sleep(1);
+
+   req = 
+      new test_request(my_module->get_controller()->get_next_xid(),
+		       0, 
+		       peer_qid,
+		       my_module->get_controller()->getQueueId(),
+		       "hello");
+   
+ 
+   response = my_module->get_controller()->ModuleSendWait(*(my_module->get_mod_handle()),
+							  peer_qid,
+							  String(parms->_peer),
+							  req);
+   
+   delete req; 
+   delete response;
+   pegasus_sleep(1);
+   cout << " ModuleSendWait to module  successfull " << endl;
    
    req = 
       new test_request(my_module->get_controller()->get_next_xid(),
@@ -462,16 +491,38 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
 		       svc_qid,
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
-   
 
-   response = my_module->get_controller()->ModuleSendWait(*(my_module->get_mod_handle()),
-							  peer_qid,
-							  String(parms->_peer),
-							  req);
-   
+   Boolean success = my_module->get_controller()->ModuleSendAsync( (*my_module->get_mod_handle()),
+								   0, 
+								   svc_qid,
+								   req,
+								   my_module);
+   if(success == true )
+      cout << "SendAsync to service successful" << endl;
 
-   while(1)
-      pegasus_sleep(1);
+   delete req;
+   pegasus_sleep(1);
+   req = 
+      new test_request(my_module->get_controller()->get_next_xid(),
+		       0, 
+		       peer_qid,
+		       my_module->get_controller()->getQueueId(),
+		       "hello");
+
+   
+   success = my_module->get_controller()->ModuleSendAsync( (*my_module->get_mod_handle()),
+							   0,  
+							   peer_qid,
+							   String(parms->_peer),
+							   req,
+							   my_module);
+   
+   delete req;
+   
+   if(success == true )
+      cout << "SendAsync to module successful" << endl;
+
+   pegasus_sleep(1000);
    
    delete my_module;
    

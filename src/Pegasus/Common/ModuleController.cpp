@@ -601,12 +601,12 @@ AsyncReply *ModuleController::_send_wait(Uint32 destination_q,
    
    AsyncReply *ret = 0;
    
-   if (response != NULL)
+   if (response != NULL && response->getType() == async_messages::ASYNC_MODULE_OP_RESULT )
    {
       ret = static_cast<AsyncReply *>(response->get_result());
       //clear the request out of the envelope so it can be deleted by the module
-      request->get_action();
    }
+   request->get_action();
    delete request; 
    delete response;
    return ret;
@@ -635,37 +635,40 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
    Message *request = op->get_request();
    Message *response = op->get_response();
 
-   if( ! (request->getMask() & message_mask::ha_async) )
+   if( request && (! (request->getMask() & message_mask::ha_async)))
       throw TypeMismatch();
-   if( ! (response->getMask() & message_mask::ha_async) )
-      throw TypeMismatch();
-   (static_cast<AsyncMessage *>(request))->op = NULL;
-   (static_cast<AsyncMessage *>(response))->op = NULL;
 
+   if( response && (! (response->getMask() & message_mask::ha_async) ))
+      throw TypeMismatch();
+   
    op->release();
    myself->return_op(op);
-
+   
+   Uint32 routing;
+   
    // get rid of the module wrapper 
-   if( request->getType() == async_messages::ASYNC_MODULE_OP_START )
+   if( request && request->getType() == async_messages::ASYNC_MODULE_OP_START )
    {
+      (static_cast<AsyncMessage *>(request))->op = NULL;
       AsyncModuleOperationStart *rq = static_cast<AsyncModuleOperationStart *>(request);
       request = rq->get_action();
-      request->setRouting(rq->getRouting());
+      request->setRouting(routing = rq->getRouting());
       delete rq;
    }
    
    // get rid of the module wrapper 
-   if(response->getType() == async_messages::ASYNC_MODULE_OP_RESULT )
+   if(response && response->getType() == async_messages::ASYNC_MODULE_OP_RESULT )
    {
+      (static_cast<AsyncMessage *>(response))->op = NULL;
       AsyncModuleOperationResult *rp = static_cast<AsyncModuleOperationResult *>(response);
       response = rp->get_result();
-      response->setRouting(rp->getRouting());
+      response->setRouting(routing = rp->getRouting());
       delete rp;
    }
-
+   
    callback_handle *cb = reinterpret_cast<callback_handle *>(parm);
    
-   cb->_module->_send_async_callback(request->getRouting(), response, cb->_parm);
+   cb->_module->_send_async_callback(routing, response, cb->_parm); 
    delete cb;
    
    return;
@@ -736,7 +739,7 @@ Boolean ModuleController::ModuleSendAsync(const pegasus_module & handle,
 		    destination_q,
 		    _async_handleEnqueue,
 		    this,
-		    &cb);
+		    cb);
 }
 
 
@@ -849,6 +852,7 @@ void ModuleController::_handle_async_request(AsyncRequest *rq)
       {
 	 if(target->get_name() == static_cast<AsyncModuleOperationStart *>(rq)->_target_module)
 	 {
+	    
 	    module_result = target->_receive_message(static_cast<AsyncModuleOperationStart *>(rq)->_act);
 	    break;
 	 }
@@ -977,7 +981,6 @@ Boolean ModuleController::ClientSendAsync(const client_handle & handle,
 {
    if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_ASYNC)) 
       throw Permission(pegasus_thread_self());
-   printf("ClientSendAsync ( to service )\n");
    
    pegasus_module *temp = new pegasus_module(this, 
 					     String(PEGASUS_MODULENAME_TEMP),
@@ -985,8 +988,6 @@ Boolean ModuleController::ClientSendAsync(const client_handle & handle,
 					     0, 
 					     async_callback, 
 					     0);
-   printf("received temporary module handle %p \n", temp);
-   
    return ModuleSendAsync( *temp, 
 			   msg_handle, 
 			   destination_q, 

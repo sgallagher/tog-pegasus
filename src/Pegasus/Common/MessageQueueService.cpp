@@ -255,13 +255,6 @@ void MessageQueueService::_handle_async_callback(AsyncOpNode *op)
 	    msg = wrapper->get_action();
 	    delete wrapper;
 	 }
-	 else if (msg->getType() == async_messages::ASYNC_MODULE_OP_START)
-	 {
-	    AsyncModuleOperationStart *wrapper = 
-	       static_cast<AsyncModuleOperationStart *>(msg);
-	    msg = wrapper->get_action();
-	    delete wrapper;
-	 }
 	 else if (msg->getType() == async_messages::ASYNC_OP_START)
 	 {
 	    AsyncOperationStart *wrapper = 

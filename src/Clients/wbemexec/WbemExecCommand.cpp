@@ -118,6 +118,17 @@ const Uint32 WbemExecCommand::_MAX_PORTNUMBER      = 65535;
  */
 const Uint32 WbemExecCommand::_DEFAULT_PORT        = 5988;
 
+/**
+    The debug option argument value used to specify that the HTTP
+    encapsulation of the original XML request be included in the output.
+*/
+const char   WbemExecCommand::_DEBUG_OPTION1       = '1';
+
+/**
+    The debug option argument value used to specify that the HTTP
+    encapsulation of the XML response be included in the output.
+*/
+const char   WbemExecCommand::_DEBUG_OPTION2       = '2';
 
 /**
   
@@ -138,12 +149,17 @@ WbemExecCommand::WbemExecCommand ()
     _useHTTP11           = true;   
     _useMPost            = true;   
     _timeout             = CIMClient::DEFAULT_TIMEOUT_MILLISECONDS;
-    _debugOutput         = false;
+    _debugOutput1        = false;
+    _debugOutput2        = false;
     _userName            = String ();
     _password            = String ();
     _inputFilePath       = String ();
     _inputFilePathSet    = false;
 
+    //
+    //  Note: debug option is not shown in usage string.
+    //  The debug option is not included in end-user documentation.
+    //
     String usage = String (_USAGE);
     usage.append (COMMAND_NAME);
     usage.append (" [ -");
@@ -194,7 +210,7 @@ Channel* WbemExecCommand::_getHTTPChannel (ostream& outPrintWriter)
     //
     selector = new Selector ();
     factory = new WbemExecClientHandlerFactory (selector, outPrintWriter,
-        _debugOutput);
+        _debugOutput2);
     connector = new TCPChannelConnector (factory, selector);
 
     addressStr.append (_hostName);
@@ -330,7 +346,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
 
         while (GetLine (cin, line))
         {
-            content << line;
+            content << line << '\n';
         }
 
         if (content.size () <= 0)
@@ -359,7 +375,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         message = XMLProcess::encapsulate (parser, _hostName, 
                                            _useMPost, _useHTTP11,
                                            content);
-        if (_debugOutput)
+        if (_debugOutput1)
         {
             outPrintWriter << message.getData () << endl;
         }
@@ -436,6 +452,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
     GetOptString.append (_OPTION_PASSWORD);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_DEBUG);
+    GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
 
     //
     //  Initialize and parse getOpts
@@ -610,11 +627,38 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                 case _OPTION_DEBUG: 
                 {
                     //
-                    //  Doesn't matter if option is specified more than once,
-                    //  since there is no argument
-                    //  Just set debugOutput to true
                     //
-                    _debugOutput = true;
+                    String debugOptionStr;
+
+                    debugOptionStr = getOpts [i].Value ();
+
+                    if (debugOptionStr.size () != 1)
+                    {
+                        //
+                        //  Invalid debug option
+                        //
+                        InvalidOptionArgumentException e (debugOptionStr,
+                            _OPTION_DEBUG);
+                        throw e;
+                    }
+
+                    if (debugOptionStr [0] == _DEBUG_OPTION1)
+                    {
+                        _debugOutput1 = true;
+                    }
+                    else if (debugOptionStr [0] == _DEBUG_OPTION2)
+                    {
+                        _debugOutput2 = true;
+                    }
+                    else
+                    {
+                        //
+                        //  Invalid debug option
+                        //
+                        InvalidOptionArgumentException e (debugOptionStr,
+                            _OPTION_DEBUG);
+                        throw e;
+                    }
                     break;
                 }
     

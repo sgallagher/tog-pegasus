@@ -33,6 +33,11 @@ provider class name to 'PG_ConfigSetting' in the mof file and modified
 provider implementation files accordingly. Also modified the config CLI 
 to show user friendly error/status messages.
         
+7. (Carol Ann Krug Graves - HP) 16 Aug 2001 - Fixed a bug in wbemexec CLI 
+(reported incorrect line number on error in XML request if input redirected).  
+Enhanced the -d debug command line option to allow more flexibility in 
+generating debug output.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

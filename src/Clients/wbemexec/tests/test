@@ -154,6 +154,13 @@ wbemexec -w < ./cimrequest.xml
 echo "\n"
 echo "\n"
 
+echo "Missing argument for -d option"
+echo "wbemexec -d < ./cimrequest.xml"
+echo "\n"
+wbemexec -d < ./cimrequest.xml
+echo "\n"
+echo "\n"
+
 echo "Non-option argument -"
 echo "Works -- getoopt behavior differs from other implementations of getopt"
 echo "wbemexec - < ./cimrequest.xml"
@@ -411,6 +418,27 @@ echo "Works now because no authentication or authorization"
 echo "wbemexec -w nonpassword ./cimrequest.xml"
 echo "\n"
 wbemexec -w nonpassword ./cimrequest.xml
+echo "\n"
+echo "\n"
+
+echo "Invalid debug argument"
+echo "wbemexec -d 11 ./cimrequest.xml"
+echo "\n"
+wbemexec -d 11 ./cimrequest.xml
+echo "\n"
+echo "\n"
+
+echo "Invalid debug argument"
+echo "wbemexec -d 22 ./cimrequest.xml"
+echo "\n"
+wbemexec -d 22 ./cimrequest.xml
+echo "\n"
+echo "\n"
+
+echo "Invalid debug argument"
+echo "wbemexec -d 3 ./cimrequest.xml"
+echo "\n"
+wbemexec -d 3 ./cimrequest.xml
 echo "\n"
 echo "\n"
 

@@ -190,12 +190,18 @@ private:
     Uint32 _timeout;
 
     /**
-        Indicates that the debug output is requested.  If true, the output of
+        Indicates that debug output is requested.  If true, the output of
+        wbemexec includes the HTTP encapsulation of the original XML request.
+     */
+    Boolean _debugOutput1;
+
+    /**
+        Indicates that debug output is requested.  If true, the output of
         wbemexec includes the HTTP encapsulation of the XML response.
         Otherwise, only the XML response (if any) is included in the output of
         wbemexec.
      */
-    Boolean _debugOutput;
+    Boolean _debugOutput2;
 
     /**
         The username to be used for authorization of the operation.
@@ -278,6 +284,18 @@ private:
         The integer representing the default port number.
      */
     static const Uint32 _DEFAULT_PORT;
+
+    /**
+        The debug option argument value used to specify that the HTTP 
+        encapsulation of the original XML request be included in the output.
+     */
+    static const char   _DEBUG_OPTION1;
+
+    /**
+        The debug option argument value used to specify that the HTTP 
+        encapsulation of the XML response be included in the output.
+     */
+    static const char   _DEBUG_OPTION2;
 };
 
 PEGASUS_NAMESPACE_END

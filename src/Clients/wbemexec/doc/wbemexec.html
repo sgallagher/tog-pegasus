@@ -28,6 +28,7 @@ Synopsis
 [ -v <i>httpversion</i> ] [ -m <i>httpmethod</i> ]
 [ -t <i>timeout</i> ]
 [ -u <i>username</i> ] [ -w <i>password</i> ]
+[ -d <i>debugoption</i> ]
 [ <i>inputfilepath</i> ] </code>
 </p>
 
@@ -64,6 +65,7 @@ The <code><b>-u</b></code> and <code><b>-w</b></code>
 options allow the user to specify a username and password to use for 
 authentication of the user and authorization of the operation.
 By default, stdin is used as the input, if no input file is specified.
+The <code><b>-d</b></code> option may be used to specify that debug information be included in the output.
 </p>
 
 <h5>
@@ -109,6 +111,20 @@ Options
     <code>-w <i>password</i></code>
   <dd>
     Authorize the operation using the specified password.  
+  <dt>
+    <code>-d <i>debugoption</i></code>
+  <dd>
+    Include specified debug information in the output.
+    <table>
+    <tr>
+    <td> 1 </td>
+    <td> Include HTTP-encapsulated XML request in output. </td>
+    </tr>
+    <tr>
+    <td> 2 </td>
+    <td> Include HTTP header of response in output. </td>
+    </tr>
+    </table>
 </dl>
 </p>
 
@@ -158,6 +174,19 @@ password guest for authentication and authorization:
 <p> 
 <code>
 wbemexec -h hpserver -p 49152 -u guest -w guest cimrequest.xml
+</code>
+</p>
+
+<p>
+Submit an XML request contained in the file cimrequest.xml to the CIM Server 
+running on the local host on the default port (5988), including both 
+the HTTP-encapsulated XML request, and the HTTP header portion of the response 
+in the output:
+</p>
+
+<p>
+<code>
+wbemexec -d 1 -d 2 cimrequest.xml
 </code>
 </p>
 

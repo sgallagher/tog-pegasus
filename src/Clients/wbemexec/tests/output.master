@@ -426,6 +426,16 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 
+Missing argument for -d option
+wbemexec -d < ./cimrequest.xml
+
+
+wbemexec: Missing required value for flag d
+usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpmethod ] [ -t timeout ] [ -u username ] [ -w password ] [ inputfilepath ] 
+
+
+
+
 Non-option argument -
 Works -- getoopt behavior differs from other implementations of getopt
 wbemexec - < ./cimrequest.xml
@@ -853,6 +863,36 @@ wbemexec -w nonpassword ./cimrequest.xml
 
 
 
+Invalid debug argument
+wbemexec -d 11 ./cimrequest.xml
+
+
+wbemexec: argument "11" is not valid for option "-d"
+usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpmethod ] [ -t timeout ] [ -u username ] [ -w password ] [ inputfilepath ] 
+
+
+
+
+Invalid debug argument
+wbemexec -d 22 ./cimrequest.xml
+
+
+wbemexec: argument "22" is not valid for option "-d"
+usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpmethod ] [ -t timeout ] [ -u username ] [ -w password ] [ inputfilepath ] 
+
+
+
+
+Invalid debug argument
+wbemexec -d 3 ./cimrequest.xml
+
+
+wbemexec: argument "3" is not valid for option "-d"
+usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpmethod ] [ -t timeout ] [ -u username ] [ -w password ] [ inputfilepath ] 
+
+
+
+
 Invalid inputFilePath argument: file does not exist
 wbemexec ./nonfile
 
@@ -947,7 +987,7 @@ Invalid XML input: missing <MESSAGE> element (no element)
 wbemexec -u guest -w guest < ./cimreqerr02.xml
 
 
-Invalid XML request: Validation error: on line 1: Failed to find <MESSAGE> element
+Invalid XML request: Validation error: on line 3: Failed to find <MESSAGE> element
 
 
 
@@ -956,7 +996,7 @@ Invalid XML input: missing <MESSAGE> element (different element)
 wbemexec -u guest -w guest < ./cimreqerr02a.xml
 
 
-Invalid XML request: Validation error: on line 1: Failed to find <MESSAGE> element
+Invalid XML request: Validation error: on line 3: Failed to find <MESSAGE> element
 
 
 
@@ -965,7 +1005,7 @@ Invalid XML input: missing PROTOCOLVERSION attribute
 wbemexec -u guest -w guest < ./cimreqerr02b.xml
 
 
-Invalid XML request: Validation error: on line 1: Bad or missing MESSAGE.PROTOCOLVERSION attribute
+Invalid XML request: Validation error: on line 3: Bad or missing MESSAGE.PROTOCOLVERSION attribute
 
 
 
@@ -974,7 +1014,7 @@ Invalid XML input: missing <SIMPLEREQ> element (no element)
 wbemexec -u guest -w guest < ./cimreqerr03.xml
 
 
-Invalid XML request: Validation error: on line 1: Failed to find <SIMPLEREQ> or <MULTIREQ> element
+Invalid XML request: Validation error: on line 4: Failed to find <SIMPLEREQ> or <MULTIREQ> element
 
 
 
@@ -983,7 +1023,7 @@ Invalid XML input: missing <SIMPLEREQ> element (different element)
 wbemexec -u guest -w guest < ./cimreqerr03a.xml
 
 
-Invalid XML request: Validation error: on line 1: Failed to find <SIMPLEREQ> or <MULTIREQ> element
+Invalid XML request: Validation error: on line 4: Failed to find <SIMPLEREQ> or <MULTIREQ> element
 
 
 
@@ -993,7 +1033,7 @@ Invalid XML input: missing <IMETHODCALL> or <METHODCALL> element
 wbemexec -u guest -w guest < ./cimreqerr04.xml
 
 
-Invalid XML request: Validation error: on line 1: Failed to find <METHODCALL> or <IMETHODCALL> element
+Invalid XML request: Validation error: on line 5: Failed to find <METHODCALL> or <IMETHODCALL> element
 
 
 
@@ -1003,7 +1043,7 @@ Invalid XML input: missing <IMETHODCALL> or <METHODCALL> element
 wbemexec -u guest -w guest < ./cimreqerr04a.xml
 
 
-Invalid XML request: Validation error: on line 1: Failed to find <METHODCALL> or <IMETHODCALL> element
+Invalid XML request: Validation error: on line 5: Failed to find <METHODCALL> or <IMETHODCALL> element
 
 
 
@@ -1012,7 +1052,7 @@ Invalid XML input: missing NAME attribute
 wbemexec -u guest -w guest < ./cimreqerr04b.xml
 
 
-Invalid XML request: Validation error: on line 1: missing IMETHODCALL.NAME attribute
+Invalid XML request: Validation error: on line 5: missing IMETHODCALL.NAME attribute
 
 
 
@@ -1021,7 +1061,7 @@ Invalid XML input: missing <LOCALNAMESPACEPATH> element (no element)
 wbemexec -u guest -w guest < ./cimreqerr05.xml
 
 
-Invalid XML request: Validation error: on line 1: Failed to find <LOCALNAMESPACEPATH> element
+Invalid XML request: Validation error: on line 6: Failed to find <LOCALNAMESPACEPATH> element
 
 
 
@@ -1031,7 +1071,7 @@ Invalid XML input: missing <LOCALNAMESPACEPATH> element (different
 wbemexec -u guest -w guest < ./cimreqerr05a.xml
 
 
-Invalid XML request: Validation error: on line 1: Failed to find <LOCALNAMESPACEPATH> element
+Invalid XML request: Validation error: on line 6: Failed to find <LOCALNAMESPACEPATH> element
 
 
 
@@ -1040,7 +1080,7 @@ Invalid XML input: missing <NAMESPACE> element (no element)
 wbemexec -u guest -w guest < ./cimreqerr06.xml
 
 
-Invalid XML request: Validation error: on line 1: Expected either open or open/close NAMESPACE element
+Invalid XML request: Validation error: on line 7: Expected either open or open/close NAMESPACE element
 
 
 
@@ -1049,7 +1089,7 @@ Invalid XML input: missing <NAMESPACE> element (different element)
 wbemexec -u guest -w guest < ./cimreqerr06a.xml
 
 
-Invalid XML request: Validation error: on line 1: Expected either open or open/close NAMESPACE element
+Invalid XML request: Validation error: on line 7: Expected either open or open/close NAMESPACE element
 
 
 

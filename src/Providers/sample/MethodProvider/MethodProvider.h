@@ -22,73 +22,39 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_InstanceProvider_h
-#define Pegasus_InstanceProvider_h
+#ifndef Pegasus_MethodProvider_h
+#define Pegasus_MethodProvider_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider/CIMInstanceProvider.h>
+#include <Pegasus/Provider/CIMMethodProvider.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class InstanceProvider :
-	public CIMInstanceProvider
+class SampleMethodProvider : public CIMMethodProvider
 {
 public:
-	InstanceProvider(void);
-	virtual ~InstanceProvider(void);
+	SampleMethodProvider(void);
+	virtual ~SampleMethodProvider(void);
 
 	// CIMBaseProvider interface
 	virtual void initialize(CIMOMHandle & cimom);
 	virtual void terminate(void);
 
-	// CIMInstanceProvider interface
-	virtual void getInstance(
+	// CIMMethodProviderFacade
+	virtual void invokeMethod(
 		const OperationContext & context,
-		const CIMReference & ref,
-		const Uint32 flags,
-		const Array<String> & propertyList,
-		ResponseHandler<CIMInstance> & handler);
-
-	virtual void enumerateInstances(
-		const OperationContext & context,
-		const CIMReference & ref,
-		const Uint32 flags,
-		const Array<String> & propertyList,
-		ResponseHandler<CIMInstance> & handler);
-
-	virtual void enumerateInstanceNames(
-		const OperationContext & context,
-		const CIMReference & ref,
-		ResponseHandler<CIMReference> & handler);
-
-	virtual void modifyInstance(
-		const OperationContext & context,
-		const CIMReference & ref,
-		const CIMInstance & obj,
-		const Uint32 flags,
-		const Array<String> & propertyList,
-		ResponseHandler<CIMInstance> & handler);
-
-	virtual void createInstance(
-		const OperationContext & context,
-		const CIMReference & ref,
-		const CIMInstance & obj,
-		ResponseHandler<CIMReference> & handler);
-
-	virtual void deleteInstance(
-		const OperationContext & context,
-		const CIMReference & ref,
-		ResponseHandler<CIMInstance> & handler);
+		const CIMReference & objectReference,
+		const String & methodName,
+		const Array<CIMParamValue> & inParameters,
+		Array<CIMParamValue> & outParameters,
+		ResponseHandler<CIMValue> & handler);
 
 protected:
-	Array<Pair<CIMReference, CIMInstance> > _instances;
 
 };
 
 PEGASUS_NAMESPACE_END
-
-#endif

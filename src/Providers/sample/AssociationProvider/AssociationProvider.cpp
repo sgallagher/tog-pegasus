@@ -26,121 +26,83 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "InstanceProvider.h"
+#include "EverythingProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-InstanceProvider::InstanceProvider(void)
+EverythingProvider::EverythingProvider(void)
 {
 }
 
-InstanceProvider::~InstanceProvider(void)
+EverythingProvider::~EverythingProvider(void)
 {
 }
 
-void InstanceProvider::initialize(CIMOMHandle & cimom)
-{
-	// create default instances
-	CIMInstance instance1("Sample_DummyInstance");
-	CIMReference reference1("Sample_DummyInstance.Identifier=1");
-
-	instance1.addProperty(CIMProperty("Identifier", Uint8(1)));   // key
-	instance1.addProperty(CIMProperty("Message", String("Hello World")));
-
-	_instances.append(Pair<CIMReference, CIMInstance>(reference1, instance1));
-
-	CIMInstance instance2("Sample_DummyInstance");
-	CIMReference reference2("Sample_DummyInstance.Identifier=2");
-
-	instance2.addProperty(CIMProperty("Identifier", Uint8(2)));   // key
-	instance2.addProperty(CIMProperty("Message", String("Hey Planet")));
-
-	_instances.append(Pair<CIMReference, CIMInstance>(reference2, instance2));
-
-	CIMInstance instance3("Sample_DummyInstance");
-	CIMReference reference3("Sample_DummyInstance.Identifier=3");
-
-	instance3.addProperty(CIMProperty("Identifier", Uint8(3)));   // key
-	instance3.addProperty(CIMProperty("Message", String("Yo Earth")));
-
-	_instances.append(Pair<CIMReference, CIMInstance>(reference1, instance3));
-}
-
-void InstanceProvider::terminate(void)
+void EverythingProvider::initialize(CIMOMHandle & cimom)
 {
 }
 
-void InstanceProvider::getInstance(
+void EverythingProvider::terminate(void)
+{
+}
+
+void EverythingProvider::getInstance(
 	const OperationContext & context,
 	const CIMReference & instanceReference,
 	const Uint32 flags,
 	const Array<String> & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
-	// begin processing the request
 	handler.processing();
 
-	// only compare class name and keys
 	CIMReference localReference(instanceReference);
 
 	localReference.setHost(String::EMPTY);
 	localReference.setNameSpace(String::EMPTY);
 
-	// instance index corresponds to reference index
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+	if(localReference == CIMReference("Sample_KitchenSink.Id=1"))
 	{
-		if(localReference == _instances[i].first)
-		{
-			// deliver requested instance
-			handler.deliver(_instances[i].second);
+		CIMInstance instance("sample_kitchensink");
 
-			break;
-		}
+		instance.addProperty(CIMProperty("Id", CIMValue(1)));
+
+		handler.deliver(instance);
 	}
 
-	// complete processing the request
 	handler.complete();
 }
 
-void InstanceProvider::enumerateInstances(
+void EverythingProvider::enumerateInstances(
 	const OperationContext & context,
 	const CIMReference & ref,
 	const Uint32 flags,
 	const Array<String> & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
-	// begin processing the request
 	handler.processing();
 
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-	{
-		// deliver named instance
-		handler.deliver(_instances[i].second);
-	}
+	CIMInstance instance("sample_kitchensink");
 
-	// complete processing the request
+	instance.addProperty(CIMProperty("Id", CIMValue(1)));
+
+	handler.deliver(instance);
+	
 	handler.complete();
 }
 
-void InstanceProvider::enumerateInstanceNames(
+void EverythingProvider::enumerateInstanceNames(
 	const OperationContext & context,
 	const CIMReference & classReference,
 	ResponseHandler<CIMReference> & handler)
 {
-	// begin processing the request
 	handler.processing();
 
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-	{
-		// deliver reference
-		handler.deliver(_instances[i].first);
-	}
-
-	// complete processing the request
+	handler.deliver(CIMReference("Sample_KitchenSink.Id=1"));
+	
 	handler.complete();
 }
 
-void InstanceProvider::modifyInstance(
+void EverythingProvider::modifyInstance(
 	const OperationContext & context,
 	const CIMReference & instanceReference,
 	const CIMInstance & instanceObject,
@@ -148,24 +110,24 @@ void InstanceProvider::modifyInstance(
 	const Array<String> & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
-	throw NotImplemented("InstanceProvider::modifyInstance");
+	throw NotImplemented("EverythingProvider::modifyInstance");
 }
 
-void InstanceProvider::createInstance(
+void EverythingProvider::createInstance(
 	const OperationContext & context,
 	const CIMReference & instanceReference,
 	const CIMInstance & instanceObject,
 	ResponseHandler<CIMReference> & handler)
 {
-	throw NotImplemented("InstanceProvider::createInstance");
+	throw NotImplemented("EverythingProvider::createInstance");
 }
 
-void InstanceProvider::deleteInstance(
+void EverythingProvider::deleteInstance(
 	const OperationContext & context,
 	const CIMReference & instanceReference,
 	ResponseHandler<CIMInstance> & handler)
 {
-	throw NotImplemented("InstanceProvider::deleteInstance");
+	throw NotImplemented("EverythingProvider::deleteInstance");
 }
 
 PEGASUS_NAMESPACE_END

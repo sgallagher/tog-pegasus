@@ -14,7 +14,12 @@ qualifiers and to
 remove qualifiers.
 4. Ported to AIX. NOTE: This port was done using an earlier version of the AIX
 compiler.  It probably imposed more limitations than would be required with
-the current compiler.
+the current compiler.  This version of the port produces an excessively large
+common module due to template bloat.  That problem will be fixed in a future
+change to the port. Also there are a log of duplicate symbol warnings generate
+by the AIC compiler but these cause no problems.  The port has been tested
+with the complete unit test and client/server test successfully.
 
 --------------------------------------------------------------------------
+
 

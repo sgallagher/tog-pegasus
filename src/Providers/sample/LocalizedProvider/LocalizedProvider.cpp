@@ -803,7 +803,7 @@ void LocalizedProvider::invokeMethod(
 		}
 
 
-		// Test CIMOMHandle localization here, for no other reason other than this is good
+		// Test CIMOMHandle localization here, for no other reason than this is a good
 		// spot for it
 		_testCIMOMHandle(); 
 
@@ -1224,7 +1224,6 @@ void LocalizedProvider::_setHandlerLanguages(ResponseHandler & handler,
 
 void LocalizedProvider::_testCIMOMHandle()
 {
-  /* COMMENT OUT FOR NOW
   // This function tests the localization support in the CIMOMHandle.
 
   // Save away the AcceptLanguages currently in our thread
@@ -1306,12 +1305,10 @@ void LocalizedProvider::_testCIMOMHandle()
 
     _validateCIMOMHandleResponse(String("fr")); // uses _cimom
   } // mutex unlocks here
-  */
 }
 
 void LocalizedProvider::_validateCIMOMHandleResponse(String expectedLang)
 {
-  /* COMMENT OUT FOR NOW
   // Get the ContentLanguages of the response
   OperationContext responseCtx = _cimom.getResponseContext();
   ContentLanguages responseCL;
@@ -1324,7 +1321,9 @@ void LocalizedProvider::_validateCIMOMHandleResponse(String expectedLang)
   catch (Exception &)
   {
     // No ContentLanguageListContainer found.
-    // If ICU is enabled, then we must get a ContentLanguages in the response
+    // If ICU is enabled, 
+    // and PEGASUS_USE_DEFAULT_MESSAGES is not set,
+    // then we must get a ContentLanguages in the response
 #if defined PEGASUS_HAS_MESSAGES 
     if (env == NULL)
       // $PEGASUS_USE_DEFAULT_MESSAGES is not set
@@ -1340,7 +1339,7 @@ void LocalizedProvider::_validateCIMOMHandleResponse(String expectedLang)
   {
     // ICU is being used and...
     // $PEGASUS_USE_DEFAULT_MESSAGES is not set...
-    // so we expect back a language
+    // then we expect back a language
     expectedCL = ContentLanguages(expectedLang);
   }
 #endif
@@ -1355,7 +1354,6 @@ void LocalizedProvider::_validateCIMOMHandleResponse(String expectedLang)
     msg.append(responseCL.toString());
     throw CIMOperationFailedException(msg);
   }
-  */
 }
 
 void LocalizedProvider::_generateIndication()

@@ -387,10 +387,7 @@ inline String FileSystem::getAbsolutePath(
 inline Boolean Open(PEGASUS_STD(ifstream)& is, const String& path)
 {
 #if defined(PEGASUS_OS_OS400)
-    CString tempPath = path.getCString();
-    const char * tmp = tempPath;
-    AtoE((char *)tmp);
-    is.open(tmp, PEGASUS_STD(_CCSID_T(1208)));
+    is.open(path.getCString(), PEGASUS_STD(_CCSID_T(1208)));
 #else
     is.open(path.getCString());
 #endif
@@ -400,10 +397,7 @@ inline Boolean Open(PEGASUS_STD(ifstream)& is, const String& path)
 inline Boolean Open(PEGASUS_STD(ofstream)& os, const String& path)
 {
 #if defined(PEGASUS_OS_OS400)
-    CString tempPath = path.getCString();
-    const char * tmp = tempPath;
-    AtoE((char *)tmp);
-    os.open(tmp, PEGASUS_STD(_CCSID_T(1208)));
+    os.open(path.getCString(), PEGASUS_STD(_CCSID_T(1208)));
 #else
     os.open(path.getCString());
 #endif
@@ -413,10 +407,7 @@ inline Boolean Open(PEGASUS_STD(ofstream)& os, const String& path)
 inline Boolean OpenAppend(PEGASUS_STD(ofstream)& os, const String& path)
 {
 #if defined(PEGASUS_OS_OS400)
-    CString tempPath = path.getCString();
-    const char * tmp = tempPath;
-    AtoE((char *)tmp);
-    os.open(tmp, PEGASUS_STD(ios::app), PEGASUS_STD(_CCSID_T(1208)));
+    os.open(path.getCString(), PEGASUS_STD(ios::app), PEGASUS_STD(_CCSID_T(1208)));
 #else
     os.open(path.getCString(), PEGASUS_STD(ios::app));
 #endif

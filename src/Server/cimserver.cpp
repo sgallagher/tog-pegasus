@@ -987,6 +987,13 @@ int CIMServerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOpti
 #endif
     }
 
+    // Bug 2148 - Here is the order of operations for determining the server HTTP and HTTPS ports.
+    // 1) If the user explicitly specified a port, use it.
+    // 2) If the user did not specify a port, get the port from the services file.
+    // 3) If no value is specified in the services file, use the IANA WBEM default port.
+    // Note that 2 and 3 are done within the System::lookupPort method
+    // An empty string from the ConfigManager implies that the user did not specify a port.
+
     Uint32 portNumberHttps=0;
     Uint32 portNumberHttp=0;
     Uint32 portNumberExportHttps=0;
@@ -994,38 +1001,55 @@ int CIMServerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOpti
     if (enableHttpsConnection)
     {
         String httpsPort = configManager->getCurrentValue("httpsPort");
-        CString portString = httpsPort.getCString();
-        char* end = 0;
-        Uint32 port = strtol(portString, &end, 10);
-        if(!(end != 0 && *end == '\0'))
+        if (httpsPort == String::EMPTY)
         {
-            PEGASUS_STD(cerr) << "Bad HTTPS Port Value" << PEGASUS_STD(endl);
-            exit(1);
+            //
+            // Look up the WBEM-HTTPS port number
+            //
+            portNumberHttps = System::lookupPort(WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_HTTPS_PORT);
+
+        } else
+        {        
+            //
+            // user-specified
+            //
+            CString portString = httpsPort.getCString();
+            char* end = 0;
+            portNumberHttps = strtol(portString, &end, 10);
+            if(!(end != 0 && *end == '\0'))
+            {
+                PEGASUS_STD(cerr) << "Bad HTTPS Port Value" << PEGASUS_STD(endl);
+                exit(1);
+            }
         }
-
-
-        //
-        // Look up the WBEM-HTTPS port number
-        //
-        portNumberHttps = System::lookupPort(WBEM_HTTPS_SERVICE_NAME, port);
     }
 
     if (enableHttpConnection)
     {
         String httpPort = configManager->getCurrentValue("httpPort");
-        CString portString = httpPort.getCString();
-        char* end = 0;
-        Uint32 port = strtol(portString, &end, 10);
-        if(!(end != 0 && *end == '\0'))
+        if (httpPort == String::EMPTY)
         {
-            PEGASUS_STD(cerr) << "Bad HTTP Port Value" << PEGASUS_STD(endl);
-            exit(1);
+            //
+            // Look up the WBEM-HTTP port number
+            //
+            portNumberHttp = System::lookupPort(WBEM_HTTP_SERVICE_NAME, WBEM_DEFAULT_HTTP_PORT);
+
+        } else
+        {
+            //
+            // user-specified
+            //
+            CString portString = httpPort.getCString();
+            char* end = 0;
+            portNumberHttp = strtol(portString, &end, 10);
+            if(!(end != 0 && *end == '\0'))
+            {
+                PEGASUS_STD(cerr) << "Bad HTTP Port Value" << PEGASUS_STD(endl);
+                exit(1);
+            }
         }
-        //
-        // Look up the WBEM-HTTP port number
-        //
-        portNumberHttp = System::lookupPort(WBEM_HTTP_SERVICE_NAME, port);
     }
+
 
     if (enableSSLExportClientVerification)
     {

@@ -110,14 +110,17 @@ class PEGASUS_COMMON_LINKAGE Socket
  *
  *****************************************************************/ 
 
+class abstract_socket;
+class socket_factory;
 
 
 class PEGASUS_COMMON_LINKAGE pegasus_socket 
 {
 
    public:
-
       pegasus_socket(void);
+      pegasus_socket(socket_factory *);
+      pegasus_socket(abstract_socket *);
       pegasus_socket(const pegasus_socket& s);
       ~pegasus_socket(void);
       
@@ -126,9 +129,7 @@ class PEGASUS_COMMON_LINKAGE pegasus_socket
 
       int socket(int type, int style, int protocol);
       int socket(int type, int style, int protocol, void *ssl_context = 0);
-      
-      
-      
+                
       Sint32 read(void* ptr, Uint32 size);
       Sint32 write(const void* ptr, Uint32 size);
       int close(void);
@@ -159,13 +160,8 @@ class PEGASUS_COMMON_LINKAGE pegasus_socket
       const char* get_err_string(void);
       
    private:
-      class abstract_socket;
-      abstract_socket * _rep;
 
-      static const char *_err_strings[];
-      int _type;
-      int _style;
-      int _protocol;
+      abstract_socket * _rep;
 
 };
 

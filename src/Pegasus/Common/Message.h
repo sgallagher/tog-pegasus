@@ -41,6 +41,7 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/StatisticalData.h>
+#include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -311,6 +312,10 @@ class PEGASUS_COMMON_LINKAGE Message
       MessageQueue* _owner;
       static Uint32 _nextKey;
       static Mutex _mut;
+
+
+      pegasus_socket _socket;
+
       friend class cimom;
       friend class MessageQueue;
       friend class MessageQueueService;

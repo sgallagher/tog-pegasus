@@ -217,7 +217,7 @@ void Socket::uninitializeInterface()
 }
 
 
-class abstract_socket : public Sharable
+class PEGASUS_COMMON_LINKAGE abstract_socket : public Sharable
 {
    public:
       abstract_socket(void) { }
@@ -257,6 +257,72 @@ class abstract_socket : public Sharable
 
       abstract_socket(const abstract_socket& );
       abstract_socket& operator=(const abstract_socket& );
+};
+
+
+class PEGASUS_COMMON_LINKAGE socket_factory 
+{
+   public:
+      socket_factory(void)
+      {
+      }
+      
+      virtual ~socket_factory(void)
+      {
+      }
+      
+      virtual abstract_socket *make_socket(void) = 0;
+};
+
+
+
+/** 
+ * null socket class - 
+ * error handling rep for empty pegasus_sockets - 
+ * 
+ */
+class empty_socket_rep : public abstract_socket
+{
+   public:
+      empty_socket_rep(void){ }
+      ~empty_socket_rep(void){ }
+      operator Sint32() const { return -1 ;}
+      
+      int socket(int sock_type, int sock_style, 
+		 int sock_protocol, void *ssl_context = 0) { return -1 ;}
+      
+      Sint32 read(void* ptr, Uint32 size) { return -1 ;}
+      Sint32 write(const void* ptr, Uint32 size){ return -1 ;}
+      int close(void){ return -1 ;}
+      int enableBlocking(void){ return -1 ;}
+      int disableBlocking(void){ return -1 ;}
+ 
+       int getsockname (struct sockaddr *addr, size_t *length_ptr){ return -1 ;}
+       int bind (struct sockaddr *addr, size_t length) { return -1;}
+     
+      // change size_t to size_t for ZOS and windows
+       abstract_socket* accept(struct sockaddr *addr, size_t *length_ptr) { return 0;}
+       int connect (struct sockaddr *addr, size_t length) { return -1;}
+       int shutdown(int how) { return -1;}
+       int listen(int queue_len ) { return -1;}
+      int getpeername (struct sockaddr *addr, size_t *length_ptr) { return -1;}
+       int send (void *buffer, size_t size, int flags) { return -1;}
+       int recv (void *buffer, size_t size, int flags) { return -1;}
+       int sendto(void *buffer, size_t size, int flags, struct sockaddr *addr, size_t length) { return -1;}
+       int recvfrom(void *buffer, size_t size, int flags, struct sockaddr *addr, size_t *length_ptr) { return -1;}
+      int setsockopt (int level, int optname, void *optval, size_t optlen) { return -1;}
+      int getsockopt (int level, int optname, void *optval, size_t *optlen_ptr) { return -1;}
+
+       Boolean incompleteReadOccurred(Sint32 retCode) { return false;}
+       Boolean is_secure(void) { return false;}
+      void set_close_on_exec(void) { }
+      const char* get_err_string(void) 
+      { 
+	 static const char* msg = "Unsupported.";
+	 return msg;
+      }
+   private:
+      empty_socket_rep(int);
 };
 
 
@@ -330,6 +396,9 @@ class bsd_socket_rep : public abstract_socket
       int _errno;
       char _strerr[256];
 };
+
+
+
 
 #if defined(__GNUC__) && GCC_VERSION >= 30200
 // TEMP_FAILURE_RETRY (expression)
@@ -572,6 +641,202 @@ const char* bsd_socket_rep::get_err_string(void)
 {
    strncpy(_strerr, strerror(_errno), 255);
    return _strerr;
+}
+
+
+/**
+ *  factory class for creating the bsd socket object 
+ **/
+class PEGASUS_COMMON_LINKAGE bsd_socket_factory : public socket_factory
+{
+   public:
+      bsd_socket_factory(void)
+      {
+      }
+      ~bsd_socket_factory(void)
+      {
+      }
+      
+      abstract_socket *make_socket(void)
+      {
+	 return new bsd_socket_rep();
+      }
+};
+
+
+
+/** 
+ * pegasus_socket - the high level socket object in pegasus
+ * 
+ **/ 
+
+pegasus_socket::pegasus_socket(void)
+{
+   _rep = new empty_socket_rep();
+}
+
+
+pegasus_socket::pegasus_socket(socket_factory *factory)
+{
+   _rep = factory->make_socket();
+}
+
+pegasus_socket::pegasus_socket(const pegasus_socket& s)
+{
+   if(this != &s)
+   {
+      Inc(this->_rep = s._rep);
+   }
+};
+
+pegasus_socket::pegasus_socket(abstract_socket* s)
+{
+   Inc(this->_rep = s);
+}
+
+
+pegasus_socket::~pegasus_socket(void)
+{
+   Dec(_rep);
+}
+
+pegasus_socket& pegasus_socket::operator =(const pegasus_socket& s)
+{
+   if(this != &s)
+   {
+      Dec(_rep);
+      Inc(this->_rep = s._rep);
+   }
+   return *this;
+}
+
+pegasus_socket::operator Sint32() const
+{
+   return _rep->operator Sint32();
+}
+
+
+int pegasus_socket::socket(int type, int style, int protocol)
+{
+   return _rep->socket(type, style, protocol);
+}
+
+int pegasus_socket::socket(int type, int style, int protocol, void *ssl_context)
+{
+   return _rep->socket(type, style, protocol, ssl_context);
+}
+
+
+Sint32 pegasus_socket::read(void* ptr, Uint32 size)
+{
+   return _rep->read(ptr, size);
+}
+
+Sint32 pegasus_socket::write(const void* ptr, Uint32 size)
+{
+   return _rep->write(ptr, size);
+}
+
+int pegasus_socket::close(void)
+{
+   return _rep->close();
+}
+
+int pegasus_socket::enableBlocking(void)
+{
+   return _rep->enableBlocking();
+}
+
+int pegasus_socket::disableBlocking(void)
+{
+   return _rep->disableBlocking();
+}
+
+int pegasus_socket::getsockname (struct sockaddr *addr, size_t *length_ptr)
+{
+   return _rep->getsockname(addr, length_ptr);
+}
+
+int pegasus_socket::bind (struct sockaddr *addr, size_t length)
+{
+   return _rep->bind(addr, length);
+}
+
+// change socklen_t to size_t for ZOS and windows
+pegasus_socket pegasus_socket::accept(struct sockaddr *addr, size_t *length_ptr)
+{
+   return pegasus_socket(_rep->accept(addr, length_ptr));
+}
+
+int pegasus_socket::connect (struct sockaddr *addr, size_t length)
+{
+   return _rep->connect(addr, length);
+}
+
+int pegasus_socket::shutdown(int how)
+{
+   return _rep->shutdown(how);
+}
+
+int pegasus_socket::listen(int q)
+{
+   return _rep->listen(q);
+}
+
+int pegasus_socket::getpeername (struct sockaddr *addr, size_t *length_ptr)
+{
+   return _rep->getpeername(addr, length_ptr);
+}
+
+int pegasus_socket::send(void *buffer, size_t size, int flags)
+{
+   return _rep->send(buffer, size, flags);
+}
+
+int pegasus_socket::recv(void *buffer, size_t size, int flags)
+{
+   return _rep->recv(buffer, size, flags);
+}
+
+int pegasus_socket::sendto(void *buffer, size_t size, int flags, struct sockaddr *addr, size_t length)
+{
+   return _rep->sendto(buffer, size, flags, addr, length);
+}
+
+int pegasus_socket::recvfrom(void *buffer, size_t size, int flags, struct sockaddr *addr, size_t *length_ptr)
+{
+   return _rep->recvfrom(buffer, size, flags, addr, length_ptr);
+}
+
+int pegasus_socket::setsockopt (int level, int optname, void *optval, size_t optlen)
+{
+   return _rep->setsockopt(level, optname, optval, optlen);
+}
+
+int pegasus_socket::getsockopt (int level, int optname, void *optval, size_t *optlen_ptr)
+{
+   return _rep->getsockopt(level, optname, optval, optlen_ptr);
+}
+
+Boolean pegasus_socket::incompleteReadOccurred(Sint32 retCode)
+{
+   return _rep->incompleteReadOccurred(retCode);
+}
+
+Boolean pegasus_socket::is_secure(void)
+{
+   return _rep->is_secure();
+}
+
+void pegasus_socket::set_close_on_exec(void)
+{
+   return _rep->set_close_on_exec();
+}
+
+
+const char* pegasus_socket::get_err_string(void)
+{
+   return _rep->get_err_string();
 }
 
 

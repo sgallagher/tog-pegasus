@@ -37,6 +37,8 @@ PEGASUS_SUBALLOC_LINKAGE peg_suballocator *peg_suballocator::get_instance(void)
 {
    if(peg_suballocator::_suballoc_instance == 0)
    {
+      cout << " init suballocator" << endl;
+      
       peg_suballocator::_suballoc_instance = new((void *)malloc(sizeof(peg_suballocator))) peg_suballocator(true);
    }
    return peg_suballocator::_suballoc_instance;
@@ -1152,6 +1154,7 @@ peg_suballocator::SUBALLOC_NODE *peg_suballocator::_CheckNode(void *m,
       if( abort_on_error)
 	 abort(); 
    }
+/******
    if( type == ARRAY )
    {
       if( false == IS_ARRAY(temp))
@@ -1177,6 +1180,8 @@ peg_suballocator::SUBALLOC_NODE *peg_suballocator::_CheckNode(void *m,
       if( abort_on_error)
 	 abort();
    }
+
+*****/
    if(false == _CheckGuard(temp))
    {
       Tracer::trace(file, line, TRC_MEMORY, Tracer::LEVEL2,

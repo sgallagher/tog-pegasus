@@ -117,15 +117,21 @@ void PrintHelp(const char* arg0)
     cout << '\n';
     cout << "Provider Registration  Version " << PROGRAM_VERSION << endl;
     cout << '\n';
-    cout << "Usage: " << arg0 << " [-port <port_num> -t -h -v]\n";
-    cout << '\n';
-    cout << "    -h - prints this help message\n";
-    cout << "    -u - unregister the class defined from the provider\n";
-    cout << "    -m - method registration\n";
-    cout << "    -p - property registration provider\n";
-    cout << "    -v - prints out the version number\n";
-    cout << "    -t - turns on trace mode\n";
-    cout << " 	Parameters required are objectpath, ProviderName\n";
+    cout << "Usage: " << arg0 << " [options] [namespace] [class]"; 
+    cout << " [providerID]\n" << '\n';
+    cout << " Registers ProviderIDs for classes in repository\n\n";
+    cout << "    -h prints this help message\n";
+    cout << "    -u unregister the class defined from the provider\n";
+    cout << "    -m method registration (Not Enabled)\n";
+    cout << "    -p property registration provider (Not Enabled)\n";
+    cout << "    -v print out the program version number\n";
+    cout << " 	Parameters required are\n";
+    cout << "         Namespace ClassName  ProviderID\n";
+    cout << "\n providerreg root/cimv20 process MyProvider\n";
+    cout << "            registers class process to provider MyProvider \n";
+    cout << "\n providerreg -u root/cimv20 process\n";
+    cout << "            unregisters class process\n";
+    cout << "   NOTE: unregistration does not require providerID param\n";
     cout << endl;
 }
 

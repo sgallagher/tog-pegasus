@@ -770,7 +770,6 @@ SSLContext* CIMServer::_getSSLContext()
     if (_sslcontext.get() == 0)
     {
        
-#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
         // Note that if invalid values were set for either sslKeyFilePath, sslCertificateFilePath, or sslTrustStore,
         // the invalid paths would have been detected in SecurityPropertyOwner and terminated the server startup.
         // This happens regardless of whether or not HTTPS is enabled (not a great design, but that seems to be
@@ -860,7 +859,6 @@ SSLContext* CIMServer::_getSSLContext()
         {
             trustStore = String::EMPTY;
         }
-#endif
 
         //
         // Get the sslCertificateFilePath property from the Config Manager.
@@ -886,20 +884,32 @@ SSLContext* CIMServer::_getSSLContext()
         randFile = ConfigManager::getHomedPath(PEGASUS_SSLSERVER_RANDOMFILE);
 #endif
 
-#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
-        Boolean trustStoreAutoUpdate =  (String::equal(autoUpdate, "true") ? true : false);   
+		Boolean trustStoreAutoUpdate = false;
+#ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE
+        trustStoreAutoUpdate =  (String::equal(autoUpdate, "true") ? true : false);   
+#endif
 
         if (String::equal(verifyClient, "required"))
         {
             Tracer::trace(TRC_SSL, Tracer::LEVEL2,
                 "SSL Client verification REQUIRED.");
+
+#ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE
+            _sslcontext.reset(new SSLContext(trustStore, certPath, keyPath, 0, trustStoreUserName, randFile));
+#else
             _sslcontext.reset(new SSLContext(trustStore, certPath, keyPath, 0, false, trustStoreUserName, randFile));
+#endif
         } 
         else if (String::equal(verifyClient, "optional"))
         {
             Tracer::trace(TRC_SSL, Tracer::LEVEL2,
                 "SSL Client verification OPTIONAL.");
+
+#ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE
             _sslcontext.reset(new SSLContext(trustStore, certPath, keyPath, (SSLCertificateVerifyFunction*)verifyClientOptionalCallback, trustStoreAutoUpdate, trustStoreUserName, randFile));
+#else
+            _sslcontext.reset(new SSLContext(trustStore, certPath, keyPath, (SSLCertificateVerifyFunction*)verifyClientOptionalCallback, trustStoreUserName, randFile));
+#endif
         }
         else if (String::equal(verifyClient, "disabled") ||
                  verifyClient == String::EMPTY 
@@ -907,7 +917,12 @@ SSLContext* CIMServer::_getSSLContext()
         {
             Tracer::trace(TRC_SSL, Tracer::LEVEL2,
                 "SSL Client verification DISABLED.");
+
+#ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE
+            _sslcontext.reset(new SSLContext(String::EMPTY, certPath, keyPath, 0, String::EMPTY, randFile));
+#else
             _sslcontext.reset(new SSLContext(String::EMPTY, certPath, keyPath, 0, false, String::EMPTY, randFile));
+#endif
         }
         else 
         {
@@ -915,11 +930,6 @@ SSLContext* CIMServer::_getSSLContext()
                          "Invalid sslClientVerificationMode setting");
             throw SSLException(parms);
         }
-
-#else
-        _sslcontext.reset(new SSLContext(String::EMPTY, certPath, keyPath, 0, randFile));
-#endif
-
     }
 
     return _sslcontext.release();

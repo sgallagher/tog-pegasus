@@ -252,9 +252,9 @@ Message* WbemExecClient::_doRequest(HTTPMessage * request) throw(TimedOut)
 
     _httpConnection->enqueue(request);
 
-    Uint32 startMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
-    Uint32 nowMilliseconds = startMilliseconds;
-    Uint32 stopMilliseconds = nowMilliseconds + _timeOutMilliseconds;
+    Uint64 startMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
+    Uint64 nowMilliseconds = startMilliseconds;
+    Uint64 stopMilliseconds = nowMilliseconds + _timeOutMilliseconds;
 
     while (nowMilliseconds < stopMilliseconds)
     {
@@ -262,7 +262,7 @@ Message* WbemExecClient::_doRequest(HTTPMessage * request) throw(TimedOut)
 	// Wait until the timeout expires or an event occurs:
 	//
 
-	_monitor->run(stopMilliseconds - nowMilliseconds);
+	_monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
 
 	//
 	// Check to see if incoming queue has a message

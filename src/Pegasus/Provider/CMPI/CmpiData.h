@@ -73,7 +73,7 @@ protected:
 
    /** CmpiData actually is a CMPIData struct.
    */
-   CMPIData data;
+   CMPIData _data;
 
    /** Constructor - Empty constructor.
    */

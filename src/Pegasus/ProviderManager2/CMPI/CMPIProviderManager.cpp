@@ -219,9 +219,16 @@ Message * CMPIProviderManager::processMessage(Message * request)
         response = handleStopAllProvidersRequest(request);
 
         break;
+    case CIM_GET_PROPERTY_REQUEST_MESSAGE:
+	/* Returns CIM_EXCEPTION error */
+	response = handleGetPropertyRequest(request);
+	break;
+    case CIM_SET_PROPERTY_REQUEST_MESSAGE:
+	/* Returns CIM_EXCEPTION error */
+	response = handleSetPropertyRequest(request);
+	break;
     default:
         response = handleUnsupportedRequest(request);
-
         break;
     }
  
@@ -2073,15 +2080,71 @@ Message * CMPIProviderManager::handleStopAllProvidersRequest(const Message * mes
 
     return(response);
 }
+Message * CMPIProviderManager::handleGetPropertyRequest(const Message * message)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleGetPropertyRequest");
+    CIMRequestMessage * request =
+              dynamic_cast<CIMRequestMessage *>(const_cast<Message *>(message));
+    PEGASUS_ASSERT(request != 0 );
+
+    CIMGetPropertyResponseMessage* response =
+         new CIMGetPropertyResponseMessage(
+            request->messageId,
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
+            request->queueIds.copyAndPop(),
+            CIMValue());
+    
+    response->setKey(request->getKey());
+    response->setHttpMethod(request->getHttpMethod());
+    OperationResponseHandler handler(request, response);
+
+    PEG_METHOD_EXIT();
+
+    return(response);
+}
+Message * CMPIProviderManager::handleSetPropertyRequest(const Message * message)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleSetPropertyRequest");
+    CIMRequestMessage * request =
+              dynamic_cast<CIMRequestMessage *>(const_cast<Message *>(message));
+    PEGASUS_ASSERT(request != 0 );
+
+    CIMSetPropertyResponseMessage* response =
+         new CIMSetPropertyResponseMessage(
+            request->messageId,
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
+            request->queueIds.copyAndPop());
+    
+    response->setKey(request->getKey());
+    response->setHttpMethod(request->getHttpMethod());
+
+    OperationResponseHandler handler(request, response);
+
+    PEG_METHOD_EXIT();
+
+    return(response);
+}
 
 Message * CMPIProviderManager::handleUnsupportedRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleUnsupportedRequest");
+    CIMRequestMessage * request =
+              dynamic_cast<CIMRequestMessage *>(const_cast<Message *>(message));
+    PEGASUS_ASSERT(request != 0 );
+
+    CIMResponseMessage  *response=
+	new CIMResponseMessage(0,
+	request->messageId,
+        PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
+        request->queueIds.copyAndPop());
+
+    response->setKey(request->getKey());
+    response->setHttpMethod(request->getHttpMethod());
+    OperationResponseHandler handler(request, response);
 
     PEG_METHOD_EXIT();
 
-    // a null response implies unsupported or unknown operation
-    return(0);
+    return(response);
 }
 
 ProviderName CMPIProviderManager::_resolveProviderName(const ProviderName & providerName)

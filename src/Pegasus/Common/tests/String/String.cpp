@@ -295,11 +295,12 @@ int main(int argc, char** argv)
 	s = "aaaapple";
 	assert(s.find("apple")==3);
 
-	{
-	    String nameSpace = "a#b#c";
-	    nameSpace.translate('#', '/');
-	    assert(nameSpace == "a/b/c");
-	}
+        // 20020715-RK This method was removed from the String class
+	//{
+	//    String nameSpace = "a#b#c";
+	//    nameSpace.translate('#', '/');
+	//    assert(nameSpace == "a/b/c");
+	//}
     }
     // The match code has been removed from the String class
     // Test the string match functions

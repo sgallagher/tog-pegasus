@@ -36,9 +36,10 @@
 #include <cstring>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Char16.h>
-#include <Pegasus/Common/Array.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+class StringRep;
 
 /**
     The Pegasus String C++ Class implements the CIM string type.
@@ -95,9 +96,6 @@ public:
     */
     String& operator=(const String& str);
 
-    /// Assign this string with Char16 str.
-    String& operator=(const Char16* str);
-
     /** Assign this string with String str
     @param str String to assign
     @return Returns the String
@@ -125,16 +123,15 @@ public:
     void clear();
 
 
-    /** reserve - Reserves memory for capacity characters. Notice that this does
-    not
-	change the size of the string (size() returns what it did before).
-	If the capacity of the string is already greater or equal to the
-	capacity argument, this method has no effect. After calling reserve(),
-	getCapicty() returns a value which is greater or equal to the
-	capacity argument.
+    /** reserve - Reserves memory for capacity characters. Notice that this
+        does not change the size of the string (size() returns what it did
+        before).  If the capacity of the string is already greater or equal
+        to the capacity argument, this method has no effect.  The capacity
+        of a String object has no bearing on its external behavior.  The
+        capacity of a String is set only for performance reasons.
 	@param capacity defines the capacity in characters to reserve.
     */
-    void reserve(Uint32 capacity);
+    void reserveCapacity(Uint32 capacity);
 
     /** Returns the length of the String object.
 	@return Length of the string in characters.
@@ -322,21 +319,6 @@ public:
     */
     Uint32 find(const String& s) const;
 
-    /** Find substring
-	@ param 16 bit character pointer
-	@seealso find
-	@return Position of the substring in the String or PEG_NOT_FOUND if not
-	found.
-    */
-    Uint32 find(const Char16* s) const;
-
-    /** find substring
-	@param s char* to substring
-	@return Position of the substring in the String or PEG_NOT_FOUND if not
-	found.
-    */
-    Uint32 find(const char* s) const;
-
     /** reverseFind - Same as find() but start looking in reverse (last
     character first).
     	@param c Char16 character to find in String.
@@ -359,14 +341,6 @@ public:
     static void toLower(char* str);
 #endif
 
-    /** Translate any occurences of fromChar to toChar.
-    */
-    void translate(Char16 fromChar, Char16 toChar);
-
-    /** Method for printing a string.
-    */
-    void print() const;
-
     /** Compare the first n characters of the two strings..
     	@param s1 First null-terminated string for the comparison.
 	@param s2 Second null-terminated string for the comparison.
@@ -374,7 +348,7 @@ public:
 	@return Return -1 if s1 is lexographically less than s2. If they are
 	equavalent return 0. Otherwise return 1.
     */
-    static int compare(const Char16* s1, const Char16* s2, Uint32 n);
+    static int compare(const String& s1, const String& s2, Uint32 n);
 
     /** Compare two null-terminated strings.
     	@param s1 First null-terminated string for the comparison.
@@ -385,7 +359,7 @@ public:
 	NOTE: Use the comparison operators <,<= > >= to compare
 	String objects.
     */
-    static int compare(const Char16* s1, const Char16* s2);
+    static int compare(const String& s1, const String& s2);
 
     /** Just like one above except ignores case differences.
     */
@@ -410,18 +384,6 @@ public:
 	</pre>
     */
     static Boolean equal(const String& str1, const String& str2);
-
-    /// Return true if the two strings are equal.
-    static Boolean equal(const String& str1, const Char16* str2);
-
-    /// Return true if the two strings are equal.
-    static Boolean equal(const Char16* str1, const String& str2);
-
-    /// Return true if the two strings are equal.
-    static Boolean equal(const String& str1, const char* str2);
-
-    /// Return true if the two strings are equal.
-    static Boolean equal(const char* str1, const String& str2);
 
     /** equalNoCase - Compares two strings and returuns true if they
 	are equal indpedent of case of the characters.
@@ -468,7 +430,7 @@ public:
 
 private:
 
-    Array<Char16> _rep;
+    StringRep* _rep;
 };
 
 /** String operator ==. Test for equality between two strings of any of the
@@ -597,10 +559,6 @@ private:
     char* _rep;
 };
 #endif
-
-#define PEGASUS_ARRAY_T String
-#include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END
 

@@ -371,7 +371,7 @@ CIMAuthCommand::CIMAuthCommand ()
         Build the usage string for the config command.  
     */
     String usage;
-    usage.reserve(200);
+    usage.reserveCapacity(200);
     usage.append(USAGE);
     usage.append(COMMAND_NAME);
 

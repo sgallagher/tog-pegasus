@@ -28,7 +28,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_NameSpaceManager_h
-#define Pegasus_NameSpace_Managerh
+#define Pegasus_NameSpaceManager_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Repository/InheritanceTree.h>

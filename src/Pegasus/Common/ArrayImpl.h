@@ -38,6 +38,7 @@ PEGASUS_NAMESPACE_END
 
 #include <Pegasus/Common/Memory.h>
 #include <Pegasus/Common/ArrayRep.h>
+#include <Pegasus/Common/Exception.h>
 
 #ifdef PEGASUS_HAS_EBCDIC
 #include <unistd.h>
@@ -197,7 +198,7 @@ template<class PEGASUS_ARRAY_T>
 PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](Uint32 pos)
 {
     if (pos >= size())
-        ThrowOutOfBounds();
+        throw OutOfBounds();
 
     return static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data()[pos];
 }
@@ -208,7 +209,7 @@ template<class PEGASUS_ARRAY_T>
 const PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](Uint32 pos) const
 {
     if (pos >= size())
-        ThrowOutOfBounds();
+        throw OutOfBounds();
 
     return static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data()[pos];
 }
@@ -274,7 +275,7 @@ template<class PEGASUS_ARRAY_T>
 void Array<PEGASUS_ARRAY_T>::insert(Uint32 pos, const PEGASUS_ARRAY_T* x, Uint32 size)
 {
     if (pos > this->size())
-        ThrowOutOfBounds();
+        throw OutOfBounds();
 
     reserve(this->size() + size);
 
@@ -302,7 +303,7 @@ template<class PEGASUS_ARRAY_T>
 void Array<PEGASUS_ARRAY_T>::remove(Uint32 pos, Uint32 size)
 {
     if (pos + size - 1 > this->size())
-        ThrowOutOfBounds();
+        throw OutOfBounds();
 
     Destroy(_data() + pos, size);
 

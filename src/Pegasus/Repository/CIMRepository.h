@@ -493,6 +493,9 @@ protected:
     Boolean _resolveInstance;
 };
 
+String PEGASUS_REPOSITORY_LINKAGE namespaceNameToDirName(const String& namespaceName);
+String PEGASUS_REPOSITORY_LINKAGE dirNameToNamespaceName(const String& dirName);
+
 PEGASUS_NAMESPACE_END
 
 #endif /* PegasusRepository_Repository_h */

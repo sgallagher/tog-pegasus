@@ -143,9 +143,7 @@ static String _MakeAssocInstPath(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_MakeAssocInstPath");
 
-    String tmp = nameSpace;
-    tmp.translate('/', '#');
-
+    String tmp = namespaceNameToDirName(nameSpace);
     String returnString(repositoryRoot);
     returnString.append('/');
     returnString.append(tmp);
@@ -161,9 +159,7 @@ static String _MakeAssocClassPath(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_MakeAssocClassPath");
 
-    String tmp = nameSpace;
-    tmp.translate('/', '#');
-
+    String tmp = namespaceNameToDirName(nameSpace);
     String returnString(repositoryRoot);
     returnString.append('/');
     returnString.append(tmp);
@@ -2298,6 +2294,36 @@ void CIMRepository::setDeclContext(RepositoryDeclContext *context)
     _context = context;
 
     PEG_METHOD_EXIT();
+}
+
+String namespaceNameToDirName(const String& namespaceName)
+{
+    String dirName = namespaceName;
+
+    for (int i=0; i<dirName.size(); i++)
+    {
+        if (dirName[i] == '/')
+        {
+            dirName[i] = '#';
+        }
+    }
+
+    return dirName;
+}
+
+String dirNameToNamespaceName(const String& dirName)
+{
+    String namespaceName = dirName;
+
+    for (int i=0; i<namespaceName.size(); i++)
+    {
+        if (namespaceName[i] == '#')
+        {
+            namespaceName[i] = '/';
+        }
+    }
+
+    return namespaceName;
 }
 
 PEGASUS_NAMESPACE_END

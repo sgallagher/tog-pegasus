@@ -32,10 +32,9 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Char16.h>
+#include <Pegasus/Common/String.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-PEGASUS_COMMON_LINKAGE void ThrowOutOfBounds();
 
 #include <Pegasus/Common/ArrayInter.h>
 #ifdef PEGASUS_INTERNALONLY
@@ -87,6 +86,10 @@ PEGASUS_COMMON_LINKAGE void ThrowOutOfBounds();
 #undef PEGASUS_ARRAY_T
 
 #define PEGASUS_ARRAY_T Char16
+#include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
+
+#define PEGASUS_ARRAY_T String
 #include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 

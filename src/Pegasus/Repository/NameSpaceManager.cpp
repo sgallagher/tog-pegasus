@@ -32,6 +32,7 @@
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Dir.h>
 #include <Pegasus/Common/Tracer.h>
+#include "CIMRepository.h"
 #include "NameSpaceManager.h"
 
 PEGASUS_USING_STD;
@@ -309,8 +310,7 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
 
 	if (_IsNameSpaceDir(nameSpacePath))
 	{
-	    String nameSpaceName = dirName;
-	    nameSpaceName.translate('#', '/');
+	    String nameSpaceName = dirNameToNamespaceName(dirName);
 
 	    NameSpace* nameSpace = 0;
 	
@@ -356,8 +356,7 @@ void NameSpaceManager::createNameSpace(const String& nameSpaceName)
 
     // Attempt to create all the namespace diretories:
 
-    String nameSpaceDirName = nameSpaceName;
-    nameSpaceDirName.translate('/', '#');
+    String nameSpaceDirName = namespaceNameToDirName(nameSpaceName);
     String nameSpacePath = _repositoryRoot + "/" + nameSpaceDirName;
 
     _CreateNameSpaceDirectories(nameSpacePath);
@@ -398,8 +397,7 @@ void NameSpaceManager::deleteNameSpace(const String& nameSpaceName)
 
     // Form namespace path:
 
-    String nameSpaceDirName = nameSpaceName;
-    nameSpaceDirName.translate('/', '#');
+    String nameSpaceDirName = namespaceNameToDirName(nameSpaceName);
     String nameSpacePath = _repositoryRoot + "/" + nameSpaceDirName;
 
     // Delete the entire namespace directory hierarchy:

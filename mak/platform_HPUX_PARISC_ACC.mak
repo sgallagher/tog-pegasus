@@ -7,7 +7,7 @@ ARCHITECTURE = parisc
 COMPILER = acc
 
 ifeq ($(HPUX_IA64_VERSION), yes)
-#  SYS_INCLUDES = -I$(ROOT)/opt/aCC/std_include
+  SYS_INCLUDES = 
 else
   SYS_INCLUDES = -I$(ROOT)/src/stdcxx/stream
 endif
@@ -52,11 +52,12 @@ IAFLAGS =
 ifeq ($(HPUX_IA64_VERSION), yes)
   DEFINES += -DPEGASUS_ARCHITECTURE_IA64
   IAFLAGS = +DD64 -mt
+  FLAGS = +Z $(IAFLAGS) 
 else
   IAFLAGS =  +DAportable 
+  FLAGS = +Z $(IAFLAGS) -D_POSIX_C_SOURCE=199506L -D_HPUX_SOURCE
 endif
 
-FLAGS = +Z $(IAFLAGS) -D_POSIX_C_SOURCE=199506L -D_HPUX_SOURCE
 ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
   FLAGS += -Wl,+s -Wl,+b/opt/wbem/lib
 endif

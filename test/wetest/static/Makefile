@@ -5,7 +5,9 @@ include $(ROOT)/test/config.mak
 
 DIRS = \
 	Load\
-	Headers\
+	Headers
+
+XDIRS = \
 	CreateInstance\
 	GetInstance\
 	EnumerateInstanceNames\

@@ -360,12 +360,16 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
 
    PEGASUS_ASSERT(request != 0);
 
+   Boolean haveLock = false;
+
    AsyncOpNode *op = request->op;
    op->lock();
+   haveLock = true;
 
   if ( op->_flags & ASYNC_OPFLAGS_CALLBACK && ! (op->_flags & ASYNC_OPFLAGS_PSEUDO_CALLBACK) )
   {
      op->unlock();
+     haveLock = false;
      if ( (reply != 0) && (false == op->_response.exists(reinterpret_cast<void *>(reply))) )
 	 op->_response.insert_last(reply);
      _complete_op_node(op, state, flag, (reply ? reply->result : 0 ));
@@ -377,6 +381,7 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
       
       // destructor empties request list 
       op->unlock();
+      haveLock = false;
       
       delete op;
       PEG_METHOD_EXIT();
@@ -400,7 +405,11 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
 	 op->_response.insert_last(reply);
    }
    
-   op->unlock();
+   if (haveLock)
+   {
+      op->unlock();
+      haveLock = false;
+   }
    op->_client_sem.signal();
    PEG_METHOD_EXIT();
 }

@@ -30,6 +30,8 @@ TAG: Version_1_09.
 3. (KS) 7 April 2002- Minor really bad hack to systemwindows.cpp getcurrenttime
    after roger fixed timevalue.
 
+4. (DME) 7 April 2002 Added support for HPUX running on IA64 hardware. 
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

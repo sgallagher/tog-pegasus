@@ -114,7 +114,11 @@ void IndicationHandlerService::_handleIndicationCallBack(AsyncOpNode *op,
       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
    PEGASUS_ASSERT(response != 0);
    // ensure that the destination queue is in response->dest
+#ifdef PEGASUS_ARCHITECTURE_IA64   
+   response->dest = (Uint64)parm;
+#else
    response->dest = (Uint32)parm;
+#endif
    service->SendForget(response);
    delete asyncRequest;
    delete asyncReply;

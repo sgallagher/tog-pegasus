@@ -21,6 +21,8 @@
 ##
 ###############################################################################
 
+include pegasus/mak/config.mak
+
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
   CIMSERVER_START_SERVICE =
   CIMSERVER_STOP_SERVICE =
@@ -38,7 +40,7 @@ ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
   SLEEP = sleep 5
   REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
   MUEXE = mu
-  COPYMU = cp -f pegasus/src/utils/mu/$(MUEXE) /usr/local/bin/$(MUEXE)
+  COPYMU = cp -f pegasus/src/utils/mu/$(MUEXE) $(BIN_DIR)/$(MUEXE)
   MKDIR = pegasus/src/utils/mu/mu mkdirhier
   TESTS = prestarttests poststarttests
 endif
@@ -49,7 +51,7 @@ ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
   SLEEP = sleep 5
   REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
   MUEXE = mu
-  COPYMU = cp -f pegasus/src/utils/mu/$(MUEXE) /usr/local/bin/$(MUEXE)
+  COPYMU = cp -f pegasus/src/utils/mu/$(MUEXE) $(BIN_DIR)/$(MUEXE)
   MKDIR = pegasus/src/utils/mu/mu mkdirhier
   TESTS = prestarttests poststarttests
 endif
@@ -60,7 +62,7 @@ ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU)
   SLEEP = sleep 5
   REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
   MUEXE = mu
-  COPYMU = cp -f pegasus/src/utils/mu/$(MUEXE) /usr/local/bin/$(MUEXE)
+  COPYMU = cp -f pegasus/src/utils/mu/$(MUEXE) $(BIN_DIR)/$(MUEXE)
   MKDIR = pegasus/src/utils/mu/mu mkdirhier
   TESTS = prestarttests poststarttests
 endif

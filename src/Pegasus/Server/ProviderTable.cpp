@@ -71,7 +71,7 @@ CIMProvider* ProviderTable::loadProvider(const String& providerId)
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 	throw DynamicLoadFailed(libraryName.getPointer());
 #else
-        unixLibName = System::DynamicLoadError();
+        unixLibName = System::dynamicLoadError();
         ArrayDestroyer<char> errorMsg = unixLibName.allocateCString();
 	throw DynamicLoadFailed(errorMsg.getPointer());
 #endif

@@ -164,7 +164,7 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
 #endif
 }
 
-String System::DynamicLoadError() {
+String System::dynamicLoadError() {
 #ifdef PEGASUS_OS_HPUX
     return String();
 #else

@@ -141,7 +141,7 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
     return DynamicLibraryHandle(LoadLibrary(fileName));
 }
 
-String System::DynamicLoadError(void) {
+String System::dynamicLoadError(void) {
 return String();
 }
 

@@ -97,7 +97,7 @@ public:
 
     static DynamicLibraryHandle loadDynamicLibrary(const char* fileName);
 
-    static String DynamicLoadError(void);
+    static String dynamicLoadError(void);
 
     static DynamicSymbolHandle loadDynamicSymbol(
 	DynamicLibraryHandle libraryHandle,

@@ -163,6 +163,9 @@ String LocalAuthFile::create()
     // 2. Set file permission to read only by the owner.
     //
 #if defined(PEGASUS_OS_OS400)
+    CString tempName = filePathCString;
+    const char * tmp = tempName;
+    AtoE((char *)tmp);
     Sint32 ret = chmod(tmp, S_IRUSR);
 #else
     Sint32 ret = chmod(filePathCString, S_IRUSR);

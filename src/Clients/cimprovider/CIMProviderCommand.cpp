@@ -50,6 +50,7 @@
 
 #ifdef PEGASUS_OS_OS400
 #include "qycmutiltyUtility.H"
+#include "qycmutilu2.H"
 #include "vfyptrs.cinc"
 #include <stdio.h>
 #include "OS400ConvertChar.h"

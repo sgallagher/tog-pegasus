@@ -26,8 +26,9 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Karl Schopmeyer(k.schopmeyer@opengroup.org)
-//                  June 2001 - Extend help and print to include help description
-//                  Feb 2002 - ad IsTrue////               Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//                 June 2001 - Extend help and print to include help description
+//                 Feb 2002 - ad IsTrue
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +37,8 @@
 #include <fstream>
 #include <cstdio>
 #include "OptionManager.h"
-#include "FileSystem.h"
+#include "FileSystem.h"
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN

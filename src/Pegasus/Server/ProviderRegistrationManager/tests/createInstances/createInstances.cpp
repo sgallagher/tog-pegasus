@@ -154,7 +154,7 @@ int main(int argc, char** argv)
 {
 
 
-    CIMRepository r("/PegasusRun/repository") ;
+    CIMRepository r("../repository") ;
 
     ProviderRegistrationManager prmanager(&r);
 

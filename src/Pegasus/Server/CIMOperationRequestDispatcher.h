@@ -193,12 +193,14 @@ public:
     String _messageId;
     Uint32 _msgRequestType;
     Uint32 _dest;
+    CIMNamespaceName _nameSpace;
+    CIMName _className;
+
     Array<CIMName> classes;
     Array<String> serviceNames;
     Array<String> controlProviderNames;
     Array<String> propertyList;
-    CIMNamespaceName _nameSpace;
-    CIMName _className;
+
     Uint64 _aggregationSN;
 private:
     /** Hidden (unimplemented) copy constructor */

@@ -381,7 +381,7 @@ Array<CIMName> CIMOperationRequestDispatcher::_getSubClassNames(
 Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
                     const CIMNamespaceName& nameSpace,
                     const CIMName& className,
-                    Uint32& providerCount)
+                    Uint32& providerCount)  throw(CIMException)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
            "CIMOperationRequestDispatcher::_lookupAllInstanceProviders");

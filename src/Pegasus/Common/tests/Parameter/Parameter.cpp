@@ -132,7 +132,7 @@ void test01()
         //
         p1.removeQualifier (1);
     }
-    catch (OutOfBounds & oob)
+    catch (IndexOutOfBoundsException & oob)
     {
         if (verbose)
         {

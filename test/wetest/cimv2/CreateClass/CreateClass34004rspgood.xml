@@ -1,4 +1,4 @@
 HTTP/1.1 400 Bad Request
 CIMError: request-not-valid
-PGErrorDetail: Semantic error: on line 13: Bad boolean value
+PGErrorDetail: Semantic error: on line 13: Invalid boolean value
 

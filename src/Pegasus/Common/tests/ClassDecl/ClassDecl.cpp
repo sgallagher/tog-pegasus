@@ -213,7 +213,7 @@ void test01()
     {
         CIMMethod cm = c2.getMethod(0);
     }
-    catch(OutOfBounds& e)
+    catch(IndexOutOfBoundsException& e)
     {
 		if(verbose)
 			cout << "Exception: " << e.getMessage() << endl;
@@ -236,7 +236,7 @@ void test01()
     {
         CIMConstMethod cm = c8.getMethod(0);
     }
-    catch(OutOfBounds& e)
+    catch(IndexOutOfBoundsException& e)
     {
 		if(verbose)
 			cout << "Exception: " << e.getMessage() << endl;
@@ -246,7 +246,7 @@ void test01()
     {
         CIMConstProperty ccp = c8.getProperty(c8.findProperty("count"));
     }
-    catch(OutOfBounds& e)
+    catch(IndexOutOfBoundsException& e)
     {
 		if(verbose)
 			cout << "Exception: " << e.getMessage() << endl;
@@ -261,7 +261,7 @@ void test01()
     {
         CIMConstMethod cm = cc7.getMethod(0);
     }
-    catch(OutOfBounds& e)
+    catch(IndexOutOfBoundsException& e)
     {
 	if(verbose)
 	    cout << "Exception: " << e.getMessage() << endl;
@@ -283,7 +283,7 @@ void test01()
     {
         CIMConstQualifier ccq = c4.getQualifier(c4.findQualifier("q1"));
     }
-    catch (OutOfBounds& e)
+    catch (IndexOutOfBoundsException& e)
     {
 		if(verbose)
 			cout << "Exception: " << e.getMessage() << endl;
@@ -316,7 +316,7 @@ void test01()
     {
         CIMConstQualifier qconst1 = c5.getQualifier(posQualifier);
     }
-    catch(OutOfBounds& e)
+    catch(IndexOutOfBoundsException& e)
     {
 		if(verbose)
 			cout << "Exception: " << e.getMessage() << endl;

@@ -235,8 +235,9 @@ const Char16* String::getData() const
     return _rep->c16a.getData();
 }
 
-char* String::allocateCString(Uint32 extraBytes, Boolean noThrow) const
+char* String::allocateCString(Uint32 extraBytes, Boolean& truncatedCharacters) const
 {
+    truncatedCharacters = false;
     Uint32 n = size() + 1;
     char* str = new char[n + extraBytes];
     char* p = str;
@@ -247,17 +248,23 @@ char* String::allocateCString(Uint32 extraBytes, Boolean noThrow) const
 	Uint16 c = *q++;
 	*p++ = char(c);
 
-	if ((c & 0xff00) && !noThrow)
-	    throw TruncatedCharacter();
+	if (c & 0xff00)
+	    truncatedCharacters = true;
     }
 
     return str;
 }
 
+char* String::allocateCString(Uint32 extraBytes) const
+{
+    Boolean truncatedCharacters = false;
+    return allocateCString(extraBytes, truncatedCharacters);
+}
+
 Char16& String::operator[](Uint32 i)
 {
     if (i > size())
-	throw OutOfBounds();
+	throw IndexOutOfBoundsException();
 
     return _rep->c16a[i];
 }
@@ -265,7 +272,7 @@ Char16& String::operator[](Uint32 i)
 const Char16 String::operator[](Uint32 i) const
 {
     if (i > size())
-	throw OutOfBounds();
+	throw IndexOutOfBoundsException();
 
     return _rep->c16a[i];
 }
@@ -312,7 +319,7 @@ void String::remove(Uint32 pos, Uint32 size)
 	size = this->size() - pos;
 
     if (pos + size > this->size())
-	throw OutOfBounds();
+	throw IndexOutOfBoundsException();
 
     if (size)
 	_rep->c16a.remove(pos, size);

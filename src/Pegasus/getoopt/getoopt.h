@@ -128,9 +128,9 @@ class PEGASUS_GETOOPT_LINKAGE Optarg {
   const String &Value() const;  // return the value as a String
   const String &optarg() const; // ditto, in getopt() terminology
   void Value(String &v) const ; // Fill in a String with the Value
-  void Value(int &v) const throw (IncompatibleTypes);  // Fill in an int with
+  void Value(int &v) const throw (IncompatibleTypesException);  // Fill in an int with
                                                        // the value
-  void Value(unsigned int &v) const throw (IncompatibleTypes);  // ditto an 
+  void Value(unsigned int &v) const throw (IncompatibleTypesException);  // ditto an 
                                                                 // unsigned int
   void Value(long &v) const ;   // ditto a long
   void Value(unsigned long &v) const;  // ditto an unsigned long

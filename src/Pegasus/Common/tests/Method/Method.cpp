@@ -92,7 +92,7 @@ int main(int argc, char** argv)
         {
             m1.removeParameter (1);
         }
-        catch (OutOfBounds & oob)
+        catch (IndexOutOfBoundsException & oob)
         {
             if (verbose)
             {
@@ -134,7 +134,7 @@ int main(int argc, char** argv)
         {
             CIMConstParameter p = cm1.getParameter(cm1.findParameter("ipaddress"));
         }
-        catch(OutOfBounds& e)
+        catch(IndexOutOfBoundsException& e)
         {
         }
         // throws OutOfBounds
@@ -142,7 +142,7 @@ int main(int argc, char** argv)
         {
             CIMConstQualifier q = cm1.getQualifier(cm1.findQualifier("abstract"));
         }
-        catch(OutOfBounds& e)
+        catch(IndexOutOfBoundsException& e)
         {
         }
 
@@ -202,7 +202,7 @@ int main(int argc, char** argv)
             //CIMParameter p = m1.getParameter(m1.findParameter("ipaddress"));
             CIMConstParameter p = ccm1.getParameter(0);
         }
-        catch(OutOfBounds& e)
+        catch(IndexOutOfBoundsException& e)
         {
         }
         // throws OutOfBounds
@@ -210,7 +210,7 @@ int main(int argc, char** argv)
         {
             CIMConstQualifier q = ccm1.getQualifier(0);
         }
-        catch(OutOfBounds& e)
+        catch(IndexOutOfBoundsException& e)
         {
         }
         cout << "ALL CLEAR" << endl;

@@ -81,7 +81,7 @@ clientRepositoryInterface::init(_repositoryType type,
   }
   else 
   {
-	  throw OutOfBounds();
+	  throw IndexOutOfBoundsException();
   }
 }
 
@@ -93,7 +93,7 @@ Array<CIMQualifierDecl> clientRepositoryInterface::enumerateQualifiers(
     return _repository->enumerateQualifiers(nameSpace);
   if (_client)
       return _client->enumerateQualifiers(nameSpace);
-	throw OutOfBounds();
+	throw IndexOutOfBoundsException();
 }
 
 CIMClass clientRepositoryInterface::getClass(
@@ -109,7 +109,7 @@ CIMClass clientRepositoryInterface::getClass(
     if (_client)
         return _client->getClass(nameSpace, className,
                         localOnly, includeQualifiers, includeClassOrigin);
-	throw OutOfBounds();
+	throw IndexOutOfBoundsException();
 };
 
 
@@ -139,7 +139,7 @@ Array<CIMClass> clientRepositoryInterface::enumerateClasses(
                                     localOnly,
                                     includeQualifiers,
                                     includeClassOrigin);
-	 throw OutOfBounds();
+	 throw IndexOutOfBoundsException();
 };
 Array<CIMName> clientRepositoryInterface::enumerateClassNames(
     const String& nameSpace,
@@ -161,7 +161,7 @@ Array<CIMName> clientRepositoryInterface::enumerateClassNames(
 
     if (_client)
        return _client->enumerateClassNames(nameSpace, className, deepInheritance);
-	throw OutOfBounds();
+	throw IndexOutOfBoundsException();
 };
 
 Array<CIMObjectPath> clientRepositoryInterface::enumerateInstanceNames(
@@ -173,7 +173,7 @@ Array<CIMObjectPath> clientRepositoryInterface::enumerateInstanceNames(
 
     if (_client)
        return _client->enumerateInstanceNames(nameSpace, className);
-	throw OutOfBounds();
+	throw IndexOutOfBoundsException();
 };
 
 Array<CIMInstance> clientRepositoryInterface::enumerateInstances(
@@ -193,7 +193,7 @@ Array<CIMInstance> clientRepositoryInterface::enumerateInstances(
     if (_client)
        return _client->enumerateInstances(nameSpace, className,
 		   deepInheritance, localOnly,includeQualifiers,includeClassOrigin);
-	throw OutOfBounds();
+	throw IndexOutOfBoundsException();
 };
 
 

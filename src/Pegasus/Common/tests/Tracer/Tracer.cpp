@@ -547,7 +547,7 @@ Uint32 test21()
             CIM_ERR_NOT_SUPPORTED, 
             "CIM Exception Message for Level4 in test21.");
     }
-    catch (CIMException e)
+    catch (CIMException& e)
     {
         Tracer::traceCIMException(TRC_CONFIG,Tracer::LEVEL4, e);
     }

@@ -117,7 +117,7 @@ void test01()
         CIMConstQualifier cq1 = oinstance1.getQualifier(posQualifier);
         assert(!cq1.isUninitialized());
     }
-    catch(OutOfBounds& e)
+    catch(IndexOutOfBoundsException& e)
     {
         if(verbose)
             cout << "Exception: " << e.getMessage() << endl;
@@ -234,7 +234,7 @@ void test02()
     {
         ccloneObj.getQualifier(posQualifier);
     }
-    catch(OutOfBounds& e)
+    catch(IndexOutOfBoundsException& e)
     {
         if(verbose)
             cout << "Exception: " << e.getMessage() << endl;
@@ -252,7 +252,7 @@ void test02()
     {
         ccloneObj.getProperty(posProperty);
     }
-    catch(OutOfBounds& e)
+    catch(IndexOutOfBoundsException& e)
     {
         if(verbose)
             cout << "Exception: " << e.getMessage() << endl;

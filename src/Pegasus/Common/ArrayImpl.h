@@ -193,7 +193,7 @@ template<class PEGASUS_ARRAY_T>
 PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](Uint32 pos)
 {
     if (pos >= size())
-        throw OutOfBounds();
+        throw IndexOutOfBoundsException();
 
     return static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data()[pos];
 }
@@ -204,7 +204,7 @@ template<class PEGASUS_ARRAY_T>
 const PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](Uint32 pos) const
 {
     if (pos >= size())
-        throw OutOfBounds();
+        throw IndexOutOfBoundsException();
 
     return static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data()[pos];
 }
@@ -270,7 +270,7 @@ template<class PEGASUS_ARRAY_T>
 void Array<PEGASUS_ARRAY_T>::insert(Uint32 pos, const PEGASUS_ARRAY_T* x, Uint32 size)
 {
     if (pos > this->size())
-        throw OutOfBounds();
+        throw IndexOutOfBoundsException();
 
     reserveCapacity(this->size() + size);
 
@@ -298,7 +298,7 @@ template<class PEGASUS_ARRAY_T>
 void Array<PEGASUS_ARRAY_T>::remove(Uint32 pos, Uint32 size)
 {
     if (pos + size - 1 > this->size())
-        throw OutOfBounds();
+        throw IndexOutOfBoundsException();
 
     Destroy(_data() + pos, size);
 

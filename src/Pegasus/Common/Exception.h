@@ -42,9 +42,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// REVIEW: these classes need a major restructuring. This has become the
-// REVIEW: dumping ground for exception classes.
-
 // ATTN this documentation is incomplete
 
 /** Class Exception
@@ -73,17 +70,17 @@ protected:
 
 
 // ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE OutOfBounds : public Exception
+class PEGASUS_COMMON_LINKAGE IndexOutOfBoundsException : public Exception
 {
 public:
-    OutOfBounds();
+    IndexOutOfBoundsException();
 };
 
 // ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE AlreadyExists : public Exception
+class PEGASUS_COMMON_LINKAGE AlreadyExistsException : public Exception
 {
 public:
-    AlreadyExists(const String& message);
+    AlreadyExistsException(const String& message);
 };
 
 // ATTN: P3  KS documentation Required
@@ -101,77 +98,63 @@ public:
 };
 
 // ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE UninitializedHandle : public Exception
+class PEGASUS_COMMON_LINKAGE UninitializedHandleException : public Exception
 {
 public:
-    UninitializedHandle();
+    UninitializedHandleException();
 };
 
-class PEGASUS_COMMON_LINKAGE UninitializedObject : public Exception
+class PEGASUS_COMMON_LINKAGE UninitializedObjectException : public Exception
 {
 public:
-    UninitializedObject();
-};
-
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE AddedReferenceToClass : public Exception
-{
-public:
-    AddedReferenceToClass(const String& className);
+    UninitializedObjectException();
 };
 
 // ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE TruncatedCharacter : public Exception
+class PEGASUS_COMMON_LINKAGE ExpectedReferenceValueException : public Exception
 {
 public:
-    TruncatedCharacter();
+    ExpectedReferenceValueException();
 };
 
 // ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE ExpectedReferenceValue : public Exception
+class PEGASUS_COMMON_LINKAGE MissingReferenceClassNameException : public Exception
 {
 public:
-    ExpectedReferenceValue();
+    MissingReferenceClassNameException();
 };
 
 // ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE MissingReferenceClassName : public Exception
+class PEGASUS_COMMON_LINKAGE TypeMismatchException : public Exception
 {
 public:
-    MissingReferenceClassName();
+    TypeMismatchException();
 };
 
 // ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE TypeMismatch : public Exception
+class PEGASUS_COMMON_LINKAGE CIMValueInvalidTypeException : public Exception
 {
 public:
-    TypeMismatch();
+    CIMValueInvalidTypeException();
 };
 
 // ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE CIMValueInvalidType : public Exception
+class PEGASUS_COMMON_LINKAGE DynamicCastFailedException : public Exception
 {
 public:
-    CIMValueInvalidType();
+    DynamicCastFailedException();
 };
 
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE DynamicCastFailed : public Exception
+class PEGASUS_COMMON_LINKAGE InvalidDateTimeFormatException : public Exception
 {
 public:
-    DynamicCastFailed();
+    InvalidDateTimeFormatException();
 };
 
-class PEGASUS_COMMON_LINKAGE BadDateTimeFormat : public Exception
+class PEGASUS_COMMON_LINKAGE IncompatibleTypesException : public Exception
 {
 public:
-    BadDateTimeFormat();
-};
-
-class PEGASUS_COMMON_LINKAGE IncompatibleTypes : public Exception
-{
-public:
-    IncompatibleTypes();
+    IncompatibleTypesException();
 };
 
 class PEGASUS_COMMON_LINKAGE MalformedObjectNameException : public Exception

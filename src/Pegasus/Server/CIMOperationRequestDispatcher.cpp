@@ -3568,7 +3568,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
       //
       // Convert the value to Array<const char*> to send to conversion method
       //
-      // ATTN-RK-P3-20020221: Deal with TypeMismatch exception
+      // ATTN-RK-P3-20020221: Deal with TypeMismatchException
       // (Shouldn't really ever get that exception)
       value.get(stringArray);
 
@@ -3606,7 +3606,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
    {
       String stringValue;
 
-      // ATTN-RK-P3-20020221: Deal with TypeMismatch exception
+      // ATTN-RK-P3-20020221: Deal with TypeMismatchException
       // (Shouldn't really ever get that exception)
       value.get(stringValue);
 

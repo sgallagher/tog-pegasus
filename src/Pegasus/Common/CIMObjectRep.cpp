@@ -48,12 +48,12 @@ CIMObjectRep::~CIMObjectRep()
 void CIMObjectRep::addProperty(const CIMProperty& x)
 {
     if (x.isUninitialized())
-	throw UninitializedObject();
+	throw UninitializedObjectException();
 
     // Reject duplicate property names:
 
     if (findProperty(x.getName()) != PEG_NOT_FOUND)
-        throw AlreadyExists("property \"" + x.getName() + "\"");
+        throw AlreadyExistsException("property \"" + x.getName() + "\"");
 
     // Append property:
 
@@ -74,7 +74,7 @@ Uint32 CIMObjectRep::findProperty(const CIMName& name) const
 CIMProperty CIMObjectRep::getProperty(Uint32 pos)
 {
     if (pos >= _properties.size())
-	throw OutOfBounds();
+	throw IndexOutOfBoundsException();
 
     return _properties[pos];
 }
@@ -82,7 +82,7 @@ CIMProperty CIMObjectRep::getProperty(Uint32 pos)
 void CIMObjectRep::removeProperty(Uint32 pos)
     {
 	if (pos >= _properties.size())
-	    throw OutOfBounds();
+	    throw IndexOutOfBoundsException();
 
 	_properties.remove(pos);
     }

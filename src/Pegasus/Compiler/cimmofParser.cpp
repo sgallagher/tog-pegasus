@@ -260,7 +260,7 @@ int
 cimmofParser::enterInlineInclude(const String &filename) {
   int ret = 1;
   FILE *f = 0;
-  char *fqname = (char *)filename.allocateCString(0, true);
+  char *fqname = (char *)filename.allocateCString();
 
   f = fopen(fqname, "r");
   if (!f) {
@@ -545,7 +545,7 @@ cimmofParser::addClass(CIMClass *classdecl)
   }
   try {
    _repository.addClass(getNamespacePath(), *classdecl);
-  } catch(AlreadyExists) {
+  } catch(AlreadyExistsException) {
     //ATTN: P1 2001 BB  We should be able to modify the class through the compiler
     cimmofMessages::getMessage(message, cimmofMessages::CLASS_EXISTS_WARNING,
 			       arglist);
@@ -858,13 +858,13 @@ cimmofParser::applyProperty(CIMClass &c, CIMProperty &p)
   String message;
   try {
     c.addProperty(p);
-  } catch(UninitializedObject) {
+  } catch(UninitializedObjectException) {
     cimmofMessages::getMessage(message,
 			       cimmofMessages::UNINITIALIZED_PROPERTY_ERROR,
 			       arglist);
     elog(message);
     maybeThrowParseError(message);
-  } catch(AlreadyExists) {
+  } catch(AlreadyExistsException) {
     cimmofMessages::getMessage(message,
 			       cimmofMessages::PROPERTY_ALREADY_EXISTS_WARNING,
 			       arglist);
@@ -987,13 +987,13 @@ cimmofParser::applyMethod(CIMClass &c, CIMMethod &m) {
   arglist.append(c.getClassName());
   try {
     c.addMethod(m);
-  } catch(UninitializedObject) {
+  } catch(UninitializedObjectException) {
     cimmofMessages::getMessage(message, 
 			       cimmofMessages::UNINITIALIZED_PARAMETER_ERROR,
 			       arglist);
     elog(message);
     maybeThrowParseError(message);
-  } catch(AlreadyExists) {
+  } catch(AlreadyExistsException) {
     cimmofMessages::getMessage(message,
 			       cimmofMessages::METHOD_ALREADY_EXISTS_WARNING,
 			       arglist);

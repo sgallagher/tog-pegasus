@@ -52,12 +52,12 @@ const String& Exception::getMessage() const
 }
 
 
-OutOfBounds::OutOfBounds()
-    : Exception("out of bounds")
+IndexOutOfBoundsException::IndexOutOfBoundsException()
+    : Exception("index out of bounds")
 {
 }
 
-AlreadyExists::AlreadyExists(const String& message)
+AlreadyExistsException::AlreadyExistsException(const String& message)
     : Exception("already exists: " + message)
 {
 }
@@ -72,59 +72,48 @@ InvalidNamespaceNameException::InvalidNamespaceNameException(const String& name)
 {
 }
 
-UninitializedHandle::UninitializedHandle()
+UninitializedHandleException::UninitializedHandleException()
     : Exception("uninitialized handle")
 {
 }
 
-UninitializedObject::UninitializedObject()
+UninitializedObjectException::UninitializedObjectException()
     : Exception("uninitialized object")
 {
 }
 
-AddedReferenceToClass::AddedReferenceToClass(const String& className)
-    : Exception("attempted to add reference to a non-association class: " +
-                    className)
-{
-}
-
-TruncatedCharacter::TruncatedCharacter()
-    : Exception("truncated character during conversion from Char16 to char")
-{
-}
-
-ExpectedReferenceValue::ExpectedReferenceValue()
+ExpectedReferenceValueException::ExpectedReferenceValueException()
     : Exception("Expected CIMValue object to be of type reference "
                     "in this context")
 {
 }
 
-MissingReferenceClassName::MissingReferenceClassName()
+MissingReferenceClassNameException::MissingReferenceClassNameException()
     : Exception("missing reference class name")
 {
 }
 
-TypeMismatch::TypeMismatch()
+TypeMismatchException::TypeMismatchException()
     : Exception("type mismatch")
 {
 }
 
-CIMValueInvalidType::CIMValueInvalidType()
+CIMValueInvalidTypeException::CIMValueInvalidTypeException()
     : Exception("invalid CIMValue type")
 {
 }
 
-DynamicCastFailed::DynamicCastFailed()
+DynamicCastFailedException::DynamicCastFailedException()
     : Exception("dynamic cast failed")
 {
 }
 
-BadDateTimeFormat::BadDateTimeFormat()
-    : Exception("bad datetime format")
+InvalidDateTimeFormatException::InvalidDateTimeFormatException()
+    : Exception("invalid datetime format")
 {
 }
 
-IncompatibleTypes::IncompatibleTypes()
+IncompatibleTypesException::IncompatibleTypesException()
     : Exception("incompatible types")
 {
 }

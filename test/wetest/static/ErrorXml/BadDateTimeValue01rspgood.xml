@@ -1,4 +1,4 @@
 HTTP/1.1 400 Bad Request
 CIMError: request-not-valid
-PGErrorDetail: Semantic error: on line 74: Bad datetime value
+PGErrorDetail: Semantic error: on line 74: Invalid datetime value
 

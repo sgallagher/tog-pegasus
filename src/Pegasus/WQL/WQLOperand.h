@@ -250,51 +250,51 @@ public:
     Sint32 getIntegerValue() const
     {
 	if (_type != INTEGER_VALUE)
-	    throw TypeMismatch();
+	    throw TypeMismatchException();
 
 	return _integerValue;
     }
 
     /** Gets this object as an DOUBLE_VALUE.
-	@exception TypeMismatch is not the expected type.
+	@exception TypeMismatchException is not the expected type.
     */
     Real32 getDoubleValue() const
     {
 	if (_type != DOUBLE_VALUE)
-	    throw TypeMismatch();
+	    throw TypeMismatchException();
 
 	return _doubleValue;
     }
 
     /** Gets this object as an BOOLEAN_VALUE.
-	@exception TypeMismatch is not the expected type.
+	@exception TypeMismatchException is not the expected type.
     */
     Boolean getBooleanValue() const
     {
 	if (_type != BOOLEAN_VALUE)
-	    throw TypeMismatch();
+	    throw TypeMismatchException();
 
 	return _booleanValue;
     }
 
     /** Gets this object as a STRING_VALUE.
-	@exception TypeMismatch is not the expected type.
+	@exception TypeMismatchException is not the expected type.
     */
     const String& getStringValue() const
     {
 	if (_type != STRING_VALUE)
-	    throw TypeMismatch();
+	    throw TypeMismatchException();
 
 	return *((String*)_stringValue);
     }
 
     /** Gets this object as a PROPERTY_NAME.
-	@exception TypeMismatch is not the expected type.
+	@exception TypeMismatchException is not the expected type.
     */
     const String& getPropertyName() const
     {
 	if (_type != PROPERTY_NAME)
-	    throw TypeMismatch();
+	    throw TypeMismatchException();
 
 	return *((String*)_propertyName);
     }

@@ -178,7 +178,7 @@ IdentityContainer::IdentityContainer(const OperationContext::Container & contain
 
     if(p == 0)
     {
-        throw DynamicCastFailed();
+        throw DynamicCastFailedException();
     }
 
     *this = *p;
@@ -208,7 +208,7 @@ LocaleContainer::LocaleContainer(const OperationContext::Container & container)
 
     if(p == 0)
     {
-        throw DynamicCastFailed();
+        throw DynamicCastFailedException();
     }
 
     *this = *p;
@@ -238,7 +238,7 @@ ProviderIdContainer::ProviderIdContainer(const OperationContext::Container & con
 
     if(p == 0)
     {
-        throw DynamicCastFailed();
+        throw DynamicCastFailedException();
     }
 
     *this = *p;

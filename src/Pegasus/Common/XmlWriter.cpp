@@ -738,7 +738,7 @@ void XmlWriter::appendValueElement(
             }
 
             default:
-                throw CIMValueInvalidType();
+                throw CIMValueInvalidTypeException();
         }
     }
     else if (value.getType() == CIMTYPE_REFERENCE)
@@ -867,7 +867,7 @@ void XmlWriter::appendValueElement(
             }
 
             default:
-                throw CIMValueInvalidType();
+                throw CIMValueInvalidTypeException();
         }
 
         out << "</VALUE>\n";
@@ -1070,24 +1070,17 @@ void XmlWriter::appendObjectElement(
     Array<Sint8>& out,
     const CIMConstObject& object)
 {
-    // ATTN-RK-P3-20020515: This could use some work
-    try
+    if (object.isClass())
     {
         CIMConstClass c(object);
         appendClassElement(out, c);
     }
-    catch (DynamicCastFailed)
+    else if (object.isInstance())
     {
-        try
-        {
-            CIMConstInstance i(object);
-            appendInstanceElement(out, i);
-        }
-        catch (DynamicCastFailed)
-        {
-            PEGASUS_ASSERT(0);
-        }
+        CIMConstInstance i(object);
+        appendInstanceElement(out, i);
     }
+    // else PEGASUS_ASSERT(0);
 }
 
 //------------------------------------------------------------------------------

@@ -156,21 +156,18 @@ public:
 
     /** allocateCString - allocates an 8 bit representation of this String 
 	object. The user is responsible for freeing the result. If any 
-	characters are truncated, a TruncatedCharacter exception is thrown.
-	This exception may be suppressed by passing true as the noThrow 
-	argument. Extra characters may be allocated at the end of the
+	characters are truncated, the truncatedCharacters argument is set
+        to true.  Extra characters may be allocated at the end of the
 	new string by passing a non-zero value to the extraBytes argument.
 	
 	@param extraBytes Defines the number of extra characters to be
 	allocated at the end of the new string. Default is zero.
 	
-	@param	noThrow If true, no exception will be thrown if characters
-	are truncated
+	@param truncatedCharacters Output parameter specifying whether any
+        characters were truncated in the conversion.
 	
 	@return pointer to the new representation of the string
 	
-	@exception Throws TruncatedCharacter exception if any characters are
-	truncated
 	<pre>
 	    String test = "abc";
 	    char* p = test.allocateCString();
@@ -178,7 +175,12 @@ public:
 	    delete [] p;
 	</pre>
     */
-    char* allocateCString(Uint32 extraBytes = 0, Boolean noThrow = false) const;
+    char* allocateCString(
+        Uint32 extraBytes,
+        Boolean& truncatedCharacters) const;
+
+    /** allocateCString companion that does not require an output parameter */
+    char* allocateCString(Uint32 extraBytes = 0) const;
 
     /** Returns the Ith character of the String object.
 	@exception - Throws exception "OutofBounds" if the index
@@ -253,7 +255,7 @@ public:
 	    assert(String::equal(s, ""));
 	    assert(s.size() == 0);
 	</pre>
-	@exception throws "OutOfBounds" exception if size is greater than
+	@exception IndexOutOfBoundsException if size is greater than
 	length of String plus starting position for remove.
     */
     void remove(Uint32 pos, Uint32 size = PEG_NOT_FOUND);

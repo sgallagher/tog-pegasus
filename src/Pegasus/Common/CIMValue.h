@@ -383,7 +383,7 @@ public:
             used for output purposes.  To get an actual String value, use
             get(String &).
         @return - String output for CIMValue.
-        @exception - Throws exception CIMValueInvalidType if the CIMValue
+        @exception - Throws CIMValueInvalidTypeException if the CIMValue
             has an invalid type. Normally this is a Pegasus internal error.
         <PRE>
         Example:

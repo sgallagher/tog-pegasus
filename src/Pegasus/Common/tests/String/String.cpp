@@ -257,7 +257,7 @@ int main(int argc, char** argv)
 	{
 	    c = t1[200];
 	}
-	catch (OutOfBounds&)
+	catch (IndexOutOfBoundsException&)
 	{
 	assert(true);
 	}

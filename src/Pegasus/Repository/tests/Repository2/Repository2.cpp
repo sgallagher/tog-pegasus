@@ -82,7 +82,7 @@ void TestCreateClass()
     {
 	r.createNameSpace(NS);
     }
-    catch (AlreadyExists&)
+    catch (AlreadyExistsException&)
     {
 	// Ignore this!
     }
@@ -258,7 +258,7 @@ void TestQualifiers()
     {
 	r.createNameSpace(NS);
     }
-    catch (AlreadyExists&)
+    catch (AlreadyExistsException&)
     {
 	// Ignore this!
     }

@@ -54,10 +54,10 @@ CIMClass::CIMClass(const CIMClass& x)
     Inc(_rep = x._rep);
 }
 
-CIMClass::CIMClass(const CIMObject& x) throw(DynamicCastFailed)
+CIMClass::CIMClass(const CIMObject& x) throw(DynamicCastFailedException)
 {
     if (!(_rep = dynamic_cast<CIMClassRep*>(x._rep)))
-	throw DynamicCastFailed();
+	throw DynamicCastFailedException();
     Inc(_rep);
 }
 
@@ -273,7 +273,7 @@ Boolean CIMClass::hasKeys() const
 void CIMClass::_checkRep() const
 {
     if (!_rep)
-        throw UninitializedObject ();
+        throw UninitializedObjectException();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -297,17 +297,17 @@ CIMConstClass::CIMConstClass(const CIMClass& x)
     Inc(_rep = x._rep);
 }
 
-CIMConstClass::CIMConstClass(const CIMObject& x) throw(DynamicCastFailed)
+CIMConstClass::CIMConstClass(const CIMObject& x) throw(DynamicCastFailedException)
 {
     if (!(_rep = dynamic_cast<CIMClassRep*>(x._rep)))
-	throw DynamicCastFailed();
+	throw DynamicCastFailedException();
     Inc(_rep);
 }
 
-CIMConstClass::CIMConstClass(const CIMConstObject& x) throw(DynamicCastFailed)
+CIMConstClass::CIMConstClass(const CIMConstObject& x) throw(DynamicCastFailedException)
 {
     if (!(_rep = dynamic_cast<CIMClassRep*>(x._rep)))
-	throw DynamicCastFailed();
+	throw DynamicCastFailedException();
     Inc(_rep);
 }
 
@@ -459,7 +459,7 @@ Boolean CIMConstClass::hasKeys() const
 void CIMConstClass::_checkRep() const
 {
     if (!_rep)
-        throw UninitializedObject ();
+        throw UninitializedObjectException();
 }
 
 PEGASUS_NAMESPACE_END

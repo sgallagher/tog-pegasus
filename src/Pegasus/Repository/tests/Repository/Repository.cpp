@@ -48,7 +48,7 @@ void test01()
     {
 	r.createNameSpace(NAMESPACE);
     }
-    catch (AlreadyExists&)
+    catch (AlreadyExistsException&)
     {
 	// Ignore this!
     }

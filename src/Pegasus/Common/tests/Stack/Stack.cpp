@@ -100,7 +100,7 @@ int main()
         {
             Uint32 tmp = s4[0];
         }
-        catch(OutOfBounds& e)
+        catch(IndexOutOfBoundsException& e)
         {
         }
 

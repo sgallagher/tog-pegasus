@@ -1,4 +1,4 @@
 HTTP/1.1 400 Bad Request
 CIMError: request-not-valid
-PGErrorDetail: Semantic error: on line 30: Bad unsigned integer value
+PGErrorDetail: Semantic error: on line 30: Invalid unsigned integer value
 

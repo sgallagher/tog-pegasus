@@ -730,7 +730,7 @@ wbemexec: Invalid XML request: Validation error: on line 3: Failed to find <MESS
 Invalid XML input: missing PROTOCOLVERSION attribute
 wbemexec -u guest -w guest < ./cimreqerr02b.xml
  
-wbemexec: Invalid XML request: Validation error: on line 3: Bad or missing MESSAGE.PROTOCOLVERSION attribute
+wbemexec: Invalid XML request: Validation error: on line 3: Invalid or missing MESSAGE.PROTOCOLVERSION attribute
  
  
 Invalid XML input: missing <SIMPLEREQ> element (no element)

@@ -57,7 +57,7 @@ int main(int argc, char** argv)
 	{
 	    dt.set("too short");
 	}
-	catch (BadDateTimeFormat&)
+	catch (InvalidDateTimeFormatException&)
 	{
 	    bad = true;
 	}
@@ -73,7 +73,7 @@ int main(int argc, char** argv)
 	    dt.set("too short");
 	    dt.set("19990132120000.000000+360");
 	}
-	catch (BadDateTimeFormat&)
+	catch (InvalidDateTimeFormatException&)
 	{
 	    bad = true;
 	}
@@ -111,7 +111,7 @@ int main(int argc, char** argv)
         differenceInMicroseconds = CIMDateTime::getDifference (startTime,
             finishTime);
     }
-    catch(BadDateTimeFormat &e)
+    catch(InvalidDateTimeFormatException &e)
     {
     }
 
@@ -145,7 +145,7 @@ int main(int argc, char** argv)
         differenceInMicroseconds = CIMDateTime::getDifference
             (startTime, finishTime);
     }
-    catch (BadDateTimeFormat & e)
+    catch (InvalidDateTimeFormatException & e)
     {
     }
 
@@ -176,7 +176,7 @@ int main(int argc, char** argv)
         differenceInMicroseconds = CIMDateTime::getDifference
             (startTime, finishTime);
     }
-    catch (BadDateTimeFormat & e)
+    catch (InvalidDateTimeFormatException & e)
     {
     }
 
@@ -206,7 +206,7 @@ int main(int argc, char** argv)
         differenceInMicroseconds = CIMDateTime::getDifference (startTime,
             finishTime);
     }
-    catch(BadDateTimeFormat &e)
+    catch(InvalidDateTimeFormatException &e)
     {
     }
 
@@ -237,7 +237,7 @@ int main(int argc, char** argv)
         differenceInMicroseconds = CIMDateTime::getDifference (startTime,
             finishTime);
     }
-    catch(BadDateTimeFormat &e)
+    catch(InvalidDateTimeFormatException &e)
     {
     }
 
@@ -268,7 +268,7 @@ int main(int argc, char** argv)
         differenceInMicroseconds = CIMDateTime::getDifference (startTime,
             finishTime);
     }
-    catch(BadDateTimeFormat &e)
+    catch(InvalidDateTimeFormatException &e)
     {
     }
 
@@ -333,7 +333,7 @@ int main(int argc, char** argv)
     {
         CIMDateTime::getDifference(startInterval, finishTime);
     }
-    catch (BadDateTimeFormat& bfe)
+    catch (InvalidDateTimeFormatException& bfe)
     {
     }
     cout << argv[0] << " +++++ passed all tests" << endl;

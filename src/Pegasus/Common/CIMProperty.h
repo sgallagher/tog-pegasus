@@ -168,7 +168,7 @@ public:
 		increases the qualifier count
 		@param x CIMQualifier object to be added
 		@return Returns this properpty as a convience in adding multiple entities
-		@exceptionThrows AlreadyExists.
+		@exception AlreadyExistsException.
     */
     CIMProperty& addQualifier(const CIMQualifier& x);
 
@@ -187,7 +187,7 @@ public:
 	@param pos Position parameter for the Qualifier object to be
 	retrieved
 	@return returns a CIMQualifier object.
-	@exception Throws OutOfBounds if pos is outside range
+	@exception Throws IndexOutOfBoundsException if pos is outside range
 	of Qualifiers in this property object.
     */
     CIMQualifier getQualifier(Uint32 pos);
@@ -197,7 +197,7 @@ public:
         @param pos Uint32 position for the qualifier. Can be obtained
         from functions such as findQualifier.
         @return Returns the qualifier object.
-        @exception throws OutOfBounds if pos is outside the range
+        @exception throws IndexOutOfBoundsException if pos is outside the range
         of qualifiers that exist for the property.
     */
     CIMConstQualifier getQualifier(Uint32 pos) const;
@@ -206,8 +206,8 @@ public:
 	position input as a parameter.
 	@param Position of the qualifier requested.
 	@return CIMQualifier object or exception
-	@exception OutOfBounds exception if the index is outside the range of
-	parameters available from the CIMMethod.
+	@exception IndexOutOfBoundsException if the index is outside the
+        range of parameters available from the CIMMethod.
     */
     void removeQualifier(Uint32 pos);
     

@@ -715,7 +715,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         getOpts [i].Value (_portNumber);
                     }
-                    catch (IncompatibleTypes& it)
+                    catch (IncompatibleTypesException& it)
                     {
                         InvalidOptionArgumentException e (_portNumberStr,
                             _OPTION_PORTNUMBER);
@@ -776,7 +776,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         getOpts [i].Value (_timeout);
                     }
-                    catch (IncompatibleTypes& it)
+                    catch (IncompatibleTypesException& it)
                     {
                         InvalidOptionArgumentException e (timeoutStr,
                             _OPTION_TIMEOUT);

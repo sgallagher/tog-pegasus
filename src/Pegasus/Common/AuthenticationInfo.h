@@ -259,7 +259,7 @@ private:
     void _checkRep() const
     {
         if (!_rep)
-            throw UninitializedHandle ();
+            throw UninitializedHandleException();
     }
 
     AuthenticationInfoRep* _rep;

@@ -362,7 +362,7 @@ void MofWriter::appendValueElement(
             }
 
             default:
-                throw CIMValueInvalidType();
+                throw CIMValueInvalidTypeException();
         }
     }
     else
@@ -490,7 +490,7 @@ void MofWriter::appendValueElement(
             }
 
             default:
-                throw CIMValueInvalidType();
+                throw CIMValueInvalidTypeException();
         }
     }
 }

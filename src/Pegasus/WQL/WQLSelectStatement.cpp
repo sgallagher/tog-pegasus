@@ -276,7 +276,7 @@ Boolean WQLSelectStatement::evaluateWhereClause(
 		// PEGASUS_OUT(rhs.toString());
 
 		if (rhs.getType() != lhs.getType())
-		    throw TypeMismatch();
+		    throw TypeMismatchException();
 
 		//
 		// Now that the types are known to be alike, apply the

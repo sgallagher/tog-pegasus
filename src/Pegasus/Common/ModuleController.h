@@ -304,7 +304,7 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 						void (*shutdown_notify)(Uint32, void *), 
 						pegasus_module **instance = NULL) 
 
-	 throw(AlreadyExists, IncompatibleTypes);
+	 throw(AlreadyExistsException, IncompatibleTypesException);
 
       Boolean deregister_module(const String & module_name)
 	 throw(Permission);
@@ -368,12 +368,12 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 
       static ModuleController & get_client_handle(const pegasus_identity & id, 
 						  client_handle **handle)
-	 throw(IncompatibleTypes);
+	 throw(IncompatibleTypesException);
 
       static ModuleController & get_client_handle(const char *controller,
 						  const pegasus_identity & id, 
 						  client_handle **handle)
-	 throw(IncompatibleTypes);
+	 throw(IncompatibleTypesException);
       						  
 
       void return_client_handle(client_handle *handle);

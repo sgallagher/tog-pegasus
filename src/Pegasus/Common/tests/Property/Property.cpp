@@ -219,7 +219,7 @@ void test02()
         {
             p1.getQualifier(0);
         }
-        catch(OutOfBounds& e)
+        catch(IndexOutOfBoundsException& e)
         {
 			if(verbose)
 				cout << "Exception: " << e.getMessage() << endl;	

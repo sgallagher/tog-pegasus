@@ -401,7 +401,7 @@ ModuleController & ModuleController::register_module(const String & controller_n
 						     void (*async_callback)(Uint32, Message *, void *),
 						     void (*shutdown_notify)(Uint32, void *),
 						     pegasus_module **instance) 
-   throw(AlreadyExists, IncompatibleTypes)
+   throw(AlreadyExistsException, IncompatibleTypesException)
 {
 
    pegasus_module *module ;
@@ -409,20 +409,20 @@ ModuleController & ModuleController::register_module(const String & controller_n
    
 
    Array<Uint32> services;
-   char *temp = controller_name.allocateCString(0, true);
+   char *temp = controller_name.allocateCString();
    
    MessageQueue *message_queue = MessageQueue::lookup(temp);
    delete [] temp;
    
    if ((message_queue == NULL) || ( false == message_queue->isAsync() ))
    {
-      throw IncompatibleTypes();
+      throw IncompatibleTypesException();
    }
 
    MessageQueueService *service = static_cast<MessageQueueService *>(message_queue);
    if( (service == NULL) ||  ! ( service->get_capabilities() & module_capabilities::module_controller ))
    {
-      throw IncompatibleTypes();
+      throw IncompatibleTypesException();
    }
 
    controller = static_cast<ModuleController *>(service);
@@ -435,7 +435,7 @@ ModuleController & ModuleController::register_module(const String & controller_n
       if(module->get_name() == module_name )
       {
 	 controller->_modules.unlock();
-	 throw AlreadyExists("module \"" + module_name + "\"");
+	 throw AlreadyExistsException("module \"" + module_name + "\"");
       }
       module = controller->_modules.next(module);
    }
@@ -460,7 +460,7 @@ ModuleController & ModuleController::register_module(const String & controller_n
    delete request; 
    delete response;
    if ( result == async_results::MODULE_ALREADY_REGISTERED)
-      throw AlreadyExists("module \"" + module_name + "\"");
+      throw AlreadyExistsException("module \"" + module_name + "\"");
    
    // the module does not exist, go ahead and create it. 
    module = new pegasus_module(controller, 
@@ -684,10 +684,10 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
    Message *response = op->get_response();
 
    if( request && (! (request->getMask() & message_mask::ha_async)))
-      throw TypeMismatch();
+      throw TypeMismatchException();
 
    if( response && (! (response->getMask() & message_mask::ha_async) ))
-      throw TypeMismatch();
+      throw TypeMismatchException();
    
    op->release();
    myself->return_op(op);
@@ -944,7 +944,7 @@ void ModuleController::_handle_async_callback(AsyncOpNode *op)
 
 ModuleController & ModuleController::get_client_handle(const pegasus_identity & id,
 						       client_handle **handle)
-   throw(IncompatibleTypes)
+   throw(IncompatibleTypesException)
 {
    return get_client_handle(PEGASUS_QUEUENAME_CONTROLSERVICE,
 			    id, 
@@ -957,7 +957,7 @@ ModuleController & ModuleController::get_client_handle(const pegasus_identity & 
 ModuleController & ModuleController::get_client_handle(const char *controller,
 						       const pegasus_identity & id, 
 						       client_handle **handle) 
-   throw(IncompatibleTypes)
+   throw(IncompatibleTypesException)
 {
    
    if(handle == NULL)
@@ -968,13 +968,13 @@ ModuleController & ModuleController::get_client_handle(const char *controller,
    
    if ((message_queue == NULL) || ( false == message_queue->isAsync() ))
    {
-      throw IncompatibleTypes();
+      throw IncompatibleTypesException();
    }
 
    MessageQueueService *service = static_cast<MessageQueueService *>(message_queue);
    if( (service == NULL) ||  ! ( service->get_capabilities() & module_capabilities::module_controller ))
    {
-      throw IncompatibleTypes();
+      throw IncompatibleTypesException();
    }
 
    ModuleController *_controller = static_cast<ModuleController *>(service);

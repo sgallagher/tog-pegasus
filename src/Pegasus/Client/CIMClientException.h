@@ -33,7 +33,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Client/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -58,8 +57,8 @@ class PEGASUS_CLIENT_LINKAGE CIMClientHTTPError : public Exception
 public:
     CIMClientHTTPError(
         Uint32 httpStatusCode,
-        const String& cimError = String::EMPTY,
-        const String& pegasusError = String::EMPTY);
+        const String& cimError,
+        const String& pegasusError);
     CIMClientHTTPError(const CIMClientHTTPError& httpError);
 
     Uint32 getCode() const;

@@ -68,7 +68,7 @@ public:
     */
     CIMInstance(const CIMInstance& x);
 
-    PEGASUS_EXPLICIT CIMInstance(const CIMObject& x) throw(DynamicCastFailed);
+    PEGASUS_EXPLICIT CIMInstance(const CIMObject& x) throw(DynamicCastFailedException);
 
     /**	Constructor - Creates an Instance object with the classname
 	from the input parameters
@@ -100,7 +100,7 @@ public:
 	Thows an exception of the CIMQualifier already exists in the instance
 	@param CIMQualifier object to add to instance
 	@return the resulting CIMInstance
-	@exception Throws AlreadyExists.
+	@exception AlreadyExistsException.
     */
     CIMInstance& addQualifier(const CIMQualifier& qualifier);
 
@@ -118,7 +118,7 @@ public:
 	so that incrementing loops can be used to get all qualifier
 	objects in a CIMInstnace.
 	@return: Returns qualifier object defined by index.
-	@exception Throws the OutOfBounds exception if the index
+	@exception Throws the IndexOutOfBoundsException exception if the index
 	is out of bounds
     */
     CIMQualifier getQualifier(Uint32 pos);
@@ -129,7 +129,7 @@ public:
 	so that incrementing loops can be used to get all qualifier
 	objects in a CIMInstnace.
 	@return: Returns qualifier object defined by index.
-	@exception Throws the OutOfBounds exception if the index
+	@exception Throws the IndexOutOfBoundsException exception if the index
 	is out of bounds
     */
     CIMConstQualifier getQualifier(Uint32 pos) const;
@@ -138,7 +138,7 @@ public:
 	defined for this CIMInstance.
 	@return	Count of the number of CIMQalifier objects in the
 	CIMInstance.
-	@exception Throws the OutOfBounds exception if the index
+	@exception Throws the IndexOutOfBoundsException exception if the index
 	is out of bounds
     */
     Uint32 getQualifierCount() const;
@@ -148,8 +148,7 @@ public:
 	@param Property Object to be added.  See the CIM Property
 	class for definition of the property object
 	@return the resulting CIMInstance.
-	@exception Throws the exception AlreadyExists if the property
-	already exists.
+	@exception AlreadyExistsException if the property already exists.
     */
     CIMInstance& addProperty(const CIMProperty& x);
 
@@ -170,10 +169,10 @@ public:
 	so that incrementing loops can be used to get all qualifier
 	objects in a CIMInstnace.
 	@return CIMProperty object corresponding to the index.
-	@exception Throws the OutOfBounds exception if the index
+	@exception Throws the IndexOutOfBoundsException exception if the index
 	is out of bounds
     */
-    CIMProperty getProperty(Uint32 pos) throw(OutOfBounds);
+    CIMProperty getProperty(Uint32 pos) throw(IndexOutOfBoundsException);
 
     /**	getProperty - Gets the CIMproperty object in the CIMInstance defined
 	by the input index parameter.
@@ -182,10 +181,10 @@ public:
 	so that incrementing loops can be used to get all qualifier
 	objects in a CIMInstnace.
 	@return CIMProperty object corresponding to the index.
-	@exception Throws the OutOfBounds exception if the index
+	@exception Throws the IndexOutOfBoundsException exception if the index
 	is out of bounds
     */
-    CIMConstProperty getProperty(Uint32 pos) const throw(OutOfBounds);
+    CIMConstProperty getProperty(Uint32 pos) const throw(IndexOutOfBoundsException);
 
     /** removeProperty - Removes the property represented
 	by the position input parameter from the instance.
@@ -193,14 +192,14 @@ public:
 	instance.  Normally this is obtained by getProperty();
 	@exception Throws OutofBounds if index is not a property object
     */
-    void removeProperty(Uint32 pos) throw(OutOfBounds);
+    void removeProperty(Uint32 pos) throw(IndexOutOfBoundsException);
 
     /**	getPropertyCount - Gets the numbercount of CIMProperty
 	objects defined for this CIMInstance.
 	@return	Count of the number of CIMProperty objects in the
 	CIMInstance. Zero indicates that no CIMProperty objects
 	are contained in the CIMInstance
-	@exception Throws the OutOfBounds exception if the index
+	@exception Throws the IndexOutOfBoundsException exception if the index
 	is out of bounds
 
     */
@@ -280,10 +279,10 @@ public:
     CIMConstInstance(const CIMInstance& x);
 
     PEGASUS_EXPLICIT CIMConstInstance(const CIMObject& x)
-        throw(DynamicCastFailed);
+        throw(DynamicCastFailedException);
 
     PEGASUS_EXPLICIT CIMConstInstance(const CIMConstObject& x)
-        throw(DynamicCastFailed);
+        throw(DynamicCastFailedException);
 
     CIMConstInstance(const CIMName& className);
 

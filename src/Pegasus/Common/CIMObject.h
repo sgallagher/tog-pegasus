@@ -111,7 +111,7 @@ public:
 	Thows an exception of the CIMQualifier already exists in the instance
 	@param CIMQualifier object to add to instance
 	@return the resulting object.
-	@exception Throws AlreadyExists.
+	@exception AlreadyExistsException.
     */
     CIMObject& addQualifier(const CIMQualifier& qualifier);
 
@@ -129,7 +129,7 @@ public:
 	so that incrementing loops can be used to get all qualifier
 	objects in a CIMInstnace.
 	@return: Returns qualifier object defined by index.
-	@exception Throws the OutOfBounds exception if the index
+	@exception Throws the IndexOutOfBoundsException exception if the index
 	is out of bounds
     */
     CIMQualifier getQualifier(Uint32 pos);
@@ -140,7 +140,7 @@ public:
 	so that incrementing loops can be used to get all qualifier
 	objects in a CIMInstnace.
 	@return: Returns qualifier object defined by index.
-	@exception Throws the OutOfBounds exception if the index
+	@exception Throws the IndexOutOfBoundsException exception if the index
 	is out of bounds
     */
     CIMConstQualifier getQualifier(Uint32 pos) const;
@@ -151,7 +151,7 @@ public:
 	defined for this CIMObject.
 	@return	Count of the number of CIMQualifier objects in the
 	CIMObject.
-	@exception Throws the OutOfBounds exception if the index
+	@exception Throws the IndexOutOfBoundsException exception if the index
 	is out of bounds
     */
     Uint32 getQualifierCount() const;
@@ -161,8 +161,7 @@ public:
 	@param Property Object to be added.  See the CIM Property
 	class for definition of the property object
 	@return the resulting object.
-	@exception Throws the exception AlreadyExists if the property
-	already exists.
+	@exception AlreadyExistsException if the property already exists.
     */
     CIMObject& addProperty(const CIMProperty& x);
 
@@ -183,7 +182,7 @@ public:
 	so that incrementing loops can be used to get all qualifier
 	objects in a CIMObject.
 	@return CIMProperty object corresponding to the index.
-	@exception Throws the OutOfBounds exception if the index
+	@exception Throws the IndexOutOfBoundsException exception if the index
 	is out of bounds
     */
     CIMProperty getProperty(Uint32 pos);
@@ -195,7 +194,7 @@ public:
 	so that incrementing loops can be used to get all qualifier
 	objects in a CIMInstnace.
 	@return CIMProperty object corresponding to the index.
-	@exception Throws the OutOfBounds exception if the index
+	@exception Throws the IndexOutOfBoundsException exception if the index
 	is out of bounds
     */
     CIMConstProperty getProperty(Uint32 pos) const;
@@ -213,7 +212,7 @@ public:
 	@return	Count of the number of CIMProperty objects in the
 	CIMObject. Zero indicates that no CIMProperty objects
 	are contained in the CIMObject
-	@exception Throws the OutOfBounds exception if the index
+	@exception Throws the IndexOutOfBoundsException exception if the index
 	is out of bounds
 
     */
@@ -329,6 +328,10 @@ public:
     Boolean identical(const CIMConstObject& x) const;
 
     Boolean isUninitialized() const;
+
+    Boolean isClass() const;
+
+    Boolean isInstance() const;
 
 private:
 

@@ -109,7 +109,7 @@ void test()
 	assert(arr3.size() == 0);
 
     }
-    catch (AlreadyExists&)
+    catch (AlreadyExistsException&)
     {
 	cout << "ignored already exists exception" << endl;
     }

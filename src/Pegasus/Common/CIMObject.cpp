@@ -193,7 +193,7 @@ Boolean CIMObject::isClass () const
         const CIMClass c (*this);
         return true;
     }
-    catch (DynamicCastFailed)
+    catch (DynamicCastFailedException)
     {
         return false;
     }
@@ -206,7 +206,7 @@ Boolean CIMObject::isInstance () const
         const CIMInstance i (*this);
         return true;
     }
-    catch (DynamicCastFailed)
+    catch (DynamicCastFailedException)
     {
         return false;
     }
@@ -228,7 +228,7 @@ CIMObject CIMObject::clone() const
 void CIMObject::_checkRep() const
 {
     if (!_rep)
-        throw UninitializedObject ();
+        throw UninitializedObjectException();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -340,6 +340,32 @@ Boolean CIMConstObject::isUninitialized() const
     return (_rep == 0)? true : false;
 }
 
+Boolean CIMConstObject::isClass() const
+{
+    try
+    {
+        const CIMConstClass c(*this);
+        return true;
+    }
+    catch (DynamicCastFailedException)
+    {
+        return false;
+    }
+}
+
+Boolean CIMConstObject::isInstance() const
+{
+    try
+    {
+        const CIMConstInstance i(*this);
+        return true;
+    }
+    catch (DynamicCastFailedException)
+    {
+        return false;
+    }
+}
+
 Boolean CIMConstObject::identical(const CIMConstObject& x) const
 {
     x._checkRep();
@@ -355,7 +381,7 @@ CIMObject CIMConstObject::clone() const
 void CIMConstObject::_checkRep() const
 {
     if (!_rep)
-        throw UninitializedObject ();
+        throw UninitializedObjectException();
 }
 
 PEGASUS_NAMESPACE_END

@@ -583,7 +583,7 @@ Boolean XmlReader::getCimBooleanAttribute(
 	return false;
 
     char buffer[62];
-    sprintf(buffer, "Bad %s.%s attribute value", attributeName, tagName);
+    sprintf(buffer, "Invalid %s.%s attribute value", attributeName, tagName);
     throw XmlSemanticError(lineNumber, buffer);
     return false;
 }
@@ -938,7 +938,7 @@ CIMValue XmlReader::stringToValue(
 		return CIMValue(false);
 	    else
 		throw XmlSemanticError(
-		    lineNumber, "Bad boolean value");
+		    lineNumber, "Invalid boolean value");
 	}
 
 	case CIMTYPE_STRING:
@@ -949,7 +949,7 @@ CIMValue XmlReader::stringToValue(
 	case CIMTYPE_CHAR16:
 	{
 	    if (strlen(valueString) != 1)
-		throw XmlSemanticError(lineNumber, "Bad char16 value");
+		throw XmlSemanticError(lineNumber, "Invalid char16 value");
 
 	    return CIMValue(Char16(valueString[0]));
 	}
@@ -964,7 +964,7 @@ CIMValue XmlReader::stringToValue(
 	    if (!stringToUnsignedInteger(valueString, x))
 	    {
 		throw XmlSemanticError(
-		    lineNumber, "Bad unsigned integer value");
+		    lineNumber, "Invalid unsigned integer value");
 	    }
 
 	    switch (type)
@@ -1011,7 +1011,7 @@ CIMValue XmlReader::stringToValue(
 	    if (!stringToSignedInteger(valueString, x))
 	    {
 		throw XmlSemanticError(
-		    lineNumber, "Bad signed integer value");
+		    lineNumber, "Invalid signed integer value");
 	    }
 
 	    switch (type)
@@ -1056,9 +1056,9 @@ CIMValue XmlReader::stringToValue(
 	    {
 		tmp.set(valueString);
 	    }
-	    catch (BadDateTimeFormat&)
+	    catch (InvalidDateTimeFormatException&)
 	    {
-		throw XmlSemanticError(lineNumber, "Bad datetime value");
+		throw XmlSemanticError(lineNumber, "Invalid datetime value");
 	    }
 
 	    return CIMValue(tmp);
@@ -1069,7 +1069,7 @@ CIMValue XmlReader::stringToValue(
 	    Real64 x;
 
 	    if (!stringToReal(valueString, x))
-		throw XmlSemanticError(lineNumber, "Bad real number value");
+		throw XmlSemanticError(lineNumber, "Invalid real number value");
 
 	    return CIMValue(Real32(x));
 	}
@@ -1079,7 +1079,7 @@ CIMValue XmlReader::stringToValue(
 	    Real64 x;
 
 	    if (!stringToReal(valueString, x))
-		throw XmlSemanticError(lineNumber, "Bad real number value");
+		throw XmlSemanticError(lineNumber, "Invalid real number value");
 
 	    return CIMValue(x);
 	}
@@ -1567,7 +1567,7 @@ void getQualifierElements(XmlParser& parser, CONTAINER& container)
 	{
 	    container.addQualifier(qualifier);
 	}
-	catch (AlreadyExists&)
+	catch (AlreadyExistsException&)
 	{
 	    throw XmlSemanticError(parser.getLine(), "duplicate qualifier");
 	}
@@ -2474,7 +2474,7 @@ void GetPropertyElements(XmlParser& parser, CONTAINER& container)
 	{
 	    container.addProperty(property);
 	}
-	catch (AlreadyExists&)
+	catch (AlreadyExistsException&)
 	{
 	    throw XmlSemanticError(parser.getLine(), "duplicate property");
 	}
@@ -2694,7 +2694,7 @@ void GetParameterElements(XmlParser& parser, CONTAINER& container)
 	{
 	    container.addParameter(parameter);
 	}
-	catch (AlreadyExists&)
+	catch (AlreadyExistsException&)
 	{
 	    throw XmlSemanticError(parser.getLine(), "duplicate parameter");
 	}
@@ -3048,13 +3048,13 @@ Boolean XmlReader::getMessageStartTag(
 
     if (!entry.getAttributeValue("ID", id))
 	throw XmlValidationError(parser.getLine(), 
-	    "Bad or missing MESSAGE.ID attribute");
+	    "Invalid or missing MESSAGE.ID attribute");
 
     // Get MESSAGE.PROTOCOLVERSION:
 
     if (!entry.getAttributeValue("PROTOCOLVERSION", protocolVersion))
 	throw XmlValidationError(parser.getLine(),
-	    "Bad or missing MESSAGE.PROTOCOLVERSION attribute");
+	    "Invalid or missing MESSAGE.PROTOCOLVERSION attribute");
 
     return true;
 }
@@ -3164,7 +3164,7 @@ Boolean XmlReader::getBooleanValueElement(
 	result = false;
     else
 	throw XmlSemanticError(parser.getLine(), 
-	    "Bad value for VALUE element: must be \"TRUE\" or \"FALSE\"");
+	    "Invalid value for VALUE element: must be \"TRUE\" or \"FALSE\"");
 
     expectEndTag(parser, "VALUE");
 

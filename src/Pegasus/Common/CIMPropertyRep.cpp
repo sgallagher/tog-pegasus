@@ -53,7 +53,7 @@ CIMPropertyRep::CIMPropertyRep(
     _propagated(propagated)
 {
     if (arraySize && (!value.isArray() || value.getArraySize() != arraySize))
-		throw IncompatibleTypes();
+		throw IncompatibleTypesException();
 
     if (_value.getType() == CIMTYPE_NONE)
 		throw NullType();
@@ -62,12 +62,12 @@ CIMPropertyRep::CIMPropertyRep(
     if (!referenceClassName.isNull())
     {
         if (_value.getType() != CIMTYPE_REFERENCE)
-            throw ExpectedReferenceValue();
+            throw ExpectedReferenceValueException();
     }
     else
     {
         if (_value.getType() == CIMTYPE_REFERENCE)
-            throw MissingReferenceClassName();
+            throw MissingReferenceClassNameException();
     }
 }
 
@@ -98,7 +98,7 @@ void CIMPropertyRep::resolve(
     // Check the type:
 
     if (!inheritedProperty.getValue().typeCompatible(_value))
-	throw TypeMismatch();
+	throw TypeMismatchException();
 
     // Validate the qualifiers of the property (according to
     // superClass's property with the same name). This method
@@ -331,10 +331,10 @@ void CIMPropertyRep::setValue(const CIMValue& value)
     // CIMType of value is immutable:
 
     if (!value.typeCompatible(_value))
-	throw IncompatibleTypes();
+	throw IncompatibleTypesException();
 
     if (_arraySize && _arraySize != value.getArraySize())
-	throw IncompatibleTypes();
+	throw IncompatibleTypesException();
 
     _value = value;
 }

@@ -1,4 +1,4 @@
 HTTP/1.1 400 Bad Request
 CIMError: request-not-valid
-PGErrorDetail: Semantic error: on line 66: Bad real number value
+PGErrorDetail: Semantic error: on line 66: Invalid real number value
 

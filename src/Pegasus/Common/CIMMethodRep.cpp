@@ -70,10 +70,10 @@ void CIMMethodRep::setClassOrigin(const CIMName& classOrigin)
 void CIMMethodRep::addParameter(const CIMParameter& x)
 {
     if (x.isUninitialized())
-	throw UninitializedObject();
+	throw UninitializedObjectException();
 
     if (findParameter(x.getName()) != PEG_NOT_FOUND)
-	throw AlreadyExists("parameter \"" + x.getName() + "\"");
+	throw AlreadyExistsException("parameter \"" + x.getName() + "\"");
 
     _parameters.append(x);
 }
@@ -92,15 +92,15 @@ Uint32 CIMMethodRep::findParameter(const CIMName& name) const
 CIMParameter CIMMethodRep::getParameter(Uint32 pos)
 {
     if (pos >= _parameters.size())
-	throw OutOfBounds();
+	throw IndexOutOfBoundsException();
 
     return _parameters[pos];
 }
 
-void CIMMethodRep::removeParameter (Uint32 pos)
+void CIMMethodRep::removeParameter(Uint32 pos)
 {
-    if (pos >= _parameters.size ())
-	throw OutOfBounds ();
+    if (pos >= _parameters.size())
+	throw IndexOutOfBoundsException();
 
     _parameters.remove (pos);
 }

@@ -152,9 +152,7 @@ public:
 	    dt.set("19991224120000.000000+360");
 	    </PRE>
 
-	@return On format error, CIMDateTime set throws the exception 
-	BadDateTimeFormat
-	@exception Throws exception BadDateTimeFormat on format error.
+	@exception InvalidDateTimeFormatException on format error.
     */
     void set(const String & str);
 
@@ -180,8 +178,8 @@ public:
 
     @return difference   Difference between the two datetimes in microseconds
     
-    @throws BadDateTimeFormat If one argument is a datetime and one is an
-                              interval
+    @exception InvalidDateTimeFormatException If one argument is a datetime
+    and one is an interval
     */
     static Sint64 getDifference(CIMDateTime startTime, CIMDateTime finishTime);
  

@@ -61,10 +61,10 @@ CIMInstance::CIMInstance(const CIMInstance& x)
     Inc(_rep = x._rep);
 }
 
-CIMInstance::CIMInstance(const CIMObject& x) throw(DynamicCastFailed)
+CIMInstance::CIMInstance(const CIMObject& x) throw(DynamicCastFailedException)
 {
     if (!(_rep = dynamic_cast<CIMInstanceRep*>(x._rep)))
-	throw DynamicCastFailed();
+	throw DynamicCastFailedException();
     Inc(_rep);
 }
 
@@ -155,19 +155,19 @@ Uint32 CIMInstance::findProperty(const CIMName& name) const
     return _rep->findProperty(name);
 }
 
-CIMProperty CIMInstance::getProperty(Uint32 pos) throw(OutOfBounds)
+CIMProperty CIMInstance::getProperty(Uint32 pos) throw(IndexOutOfBoundsException)
 {
     _checkRep();
     return _rep->getProperty(pos);
 }
 
-CIMConstProperty CIMInstance::getProperty(Uint32 pos) const throw(OutOfBounds)
+CIMConstProperty CIMInstance::getProperty(Uint32 pos) const throw(IndexOutOfBoundsException)
 {
     _checkRep();
     return _rep->getProperty(pos);
 }
 
-void CIMInstance::removeProperty(Uint32 pos)  throw(OutOfBounds)
+void CIMInstance::removeProperty(Uint32 pos)  throw(IndexOutOfBoundsException)
 {
     _checkRep();
     _rep->removeProperty(pos);
@@ -211,7 +211,7 @@ String CIMInstance::toString() const
 void CIMInstance::_checkRep() const
 {
     if (!_rep)
-        throw UninitializedObject ();
+        throw UninitializedObjectException();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -235,18 +235,18 @@ CIMConstInstance::CIMConstInstance(const CIMInstance& x)
     Inc(_rep = x._rep);
 }
 
-CIMConstInstance::CIMConstInstance(const CIMObject& x) throw(DynamicCastFailed)
+CIMConstInstance::CIMConstInstance(const CIMObject& x) throw(DynamicCastFailedException)
 {
     if (!(_rep = dynamic_cast<CIMInstanceRep*>(x._rep)))
-	throw DynamicCastFailed();
+	throw DynamicCastFailedException();
     Inc(_rep);
 }
 
 CIMConstInstance::CIMConstInstance(const CIMConstObject& x)
-    throw(DynamicCastFailed)
+    throw(DynamicCastFailedException)
 {
     if (!(_rep = dynamic_cast<CIMInstanceRep*>(x._rep)))
-	throw DynamicCastFailed();
+	throw DynamicCastFailedException();
     Inc(_rep);
 }
 
@@ -360,7 +360,7 @@ String CIMConstInstance::toString() const
 void CIMConstInstance::_checkRep() const
 {
     if (!_rep)
-        throw UninitializedObject ();
+        throw UninitializedObjectException();
 }
 
 PEGASUS_NAMESPACE_END

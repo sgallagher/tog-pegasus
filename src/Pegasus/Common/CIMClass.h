@@ -75,7 +75,7 @@ public:
     CIMClass(const CIMClass& x);
 
     PEGASUS_EXPLICIT CIMClass(const CIMObject& x)
-        throw(DynamicCastFailed);
+        throw(DynamicCastFailedException);
 
     // ATTN define what makes up a legal CIM class name
     /**	Constructor - Creates a Class from inputs of a classname and
@@ -146,7 +146,7 @@ public:
 	@param qualifier CIMQualifier object representing the qualifier to be
 	added
 	@return Returns handle of the class object
-	@exception Throws AlreadyExists.
+	@exception AlreadyExistsException.
     */
     CIMClass& addQualifier(const CIMQualifier& qualifier);
 
@@ -238,8 +238,8 @@ public:
 	methods in the class
 	@param method object representing the method to be added
 	@return Returns the CIMClass object to which the method was added.
-	@exception Throws AlreadyExists if the method already exists and throws
-	UninitializedObject if the object is not initialized
+	@exception AlreadyExistsException if the method already exists
+	@exception UninitializedObjectException if the object is not initialized
     */
     CIMClass& addMethod(const CIMMethod& x);
 
@@ -337,10 +337,10 @@ public:
     CIMConstClass(const CIMClass& x);
 
     PEGASUS_EXPLICIT CIMConstClass(const CIMObject& x)
-        throw(DynamicCastFailed);
+        throw(DynamicCastFailedException);
 
     PEGASUS_EXPLICIT CIMConstClass(const CIMConstObject& x)
-        throw(DynamicCastFailed);
+        throw(DynamicCastFailedException);
 
     CIMConstClass(
 	const CIMName& className,

@@ -134,22 +134,22 @@ for subsequent return to the client.</li>
 in the provider interfaces. These are described in their own
 sections, and include:</p>
 <p><ul>
-<li><b>{@link NotSupported NotSupported}</b> - the operation is not
+<li><b>{@link CIMNotSupportedException CIMNotSupportedException}</b> - the operation is not
 supported.</li>
-<li><b>{@link InvalidParameter InvalidParameter}</b> - a parameter's
+<li><b>{@link CIMInvalidParameterException CIMInvalidParameterException}</b> - a parameter's
 value was invalid. This could be an unknown property or key name, an
 invalid flag, or other.</li>
-<li><b>{@link ObjectNotFound ObjectNotFound}</b> - the object specified
+<li><b>{@link CIMObjectNotFoundException CIMObjectNotFoundException}</b> - the object specified
 in the {@link CIMObjectPath CIMObjectPath} parameter could not be
 found or does not exist.</li>
-<li><b>{@link ObjectAlreadyExists ObjectAlreadyExists}</b> - the object specified in a
+<li><b>{@link CIMObjectAlreadyExistsException CIMObjectAlreadyExistsException}</b> - the object specified in a
 <tt>{@link createInstance createInstance}</tt> operation already
 exists.</li>
-<li><b>{@link AccessDenied AccessDenied}</b> - the requested
+<li><b>{@link CIMAccessDeniedException CIMAccessDeniedException}</b> - the requested
 operation is not permitted. This can be because the user specified in
 the {@link OperationContext} parameter is not authorized to perform
 the requested operation, or another reason.</li>
-<li><b>{@link OperationFailure OperationFailure}</b> - a failure occurred during
+<li><b>{@link CIMOperationFailedException CIMOperationFailedException}</b> - a failure occurred during
 processing of the operation.</li>
 </ul></p>
 

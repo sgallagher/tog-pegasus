@@ -87,7 +87,7 @@ public:
         {
             prop.getValue().get(dest);
         }
-        catch (TypeMismatch& e)
+        catch (TypeMismatchException& e)
         {
             // ATTN: Deal with a malformed handler instance
         }

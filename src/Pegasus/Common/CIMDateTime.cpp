@@ -103,7 +103,7 @@ CIMDateTime::CIMDateTime(const String & str)
     if (!_set(str))
     {
         delete _rep;
-        throw BadDateTimeFormat();
+        throw InvalidDateTimeFormatException();
     }
 }
 
@@ -224,7 +224,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
 void CIMDateTime::set(const String & str)
 {
     if (!_set(str))
-	throw BadDateTimeFormat();
+	throw InvalidDateTimeFormatException();
 }
 
 Boolean operator==(const CIMDateTime& x, const CIMDateTime& y)
@@ -419,7 +419,7 @@ Sint64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
     else if ( startTime.isInterval() || finishTime.isInterval() )
     {
         // ATTN-RK-20020815: Wrong exception to throw.
-        throw BadDateTimeFormat();
+        throw InvalidDateTimeFormatException();
     }
 
     //

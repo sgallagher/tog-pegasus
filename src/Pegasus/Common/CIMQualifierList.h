@@ -101,7 +101,7 @@ public:
 
     /** removeQualifier - Removes the Qualifier defined by
 	the pos parameter
-	@exception Throws "OutOfBounds" if pos not within
+	@exception IndexOutOfBoundsException if pos not within
 	range of current qualifiers.
     */
     void removeQualifier(Uint32 pos);

@@ -100,19 +100,12 @@ void CIMClassRep::setSuperClassName(const CIMName& superClassName)
 void CIMClassRep::addProperty(const CIMProperty& x)
 {
     if (x.isUninitialized())
-	throw UninitializedObject();
+	throw UninitializedObjectException();
 
     // Reject addition of duplicate property name:
 
     if (findProperty(x.getName()) != PEG_NOT_FOUND)
-	throw AlreadyExists("property \"" + x.getName() + "\"");
-
-    // Reject addition of references to non-associations:
-
-    // ATTN-RK-20020815: This is the wrong place for this check, because
-    // the ASSOCIATION qualifier could be removed later
-    if (!isAssociation() && x.getValue().getType() == CIMTYPE_REFERENCE)
-	throw AddedReferenceToClass(_reference.getClassName());
+	throw AlreadyExistsException("property \"" + x.getName() + "\"");
 
     // Set the class origin:
     // ATTN: put this check in other places:
@@ -128,12 +121,12 @@ void CIMClassRep::addProperty(const CIMProperty& x)
 void CIMClassRep::addMethod(const CIMMethod& x)
 {
     if (x.isUninitialized())
-	throw UninitializedObject();
+	throw UninitializedObjectException();
 
     // Reject duplicate method names:
 
     if (findMethod(x.getName()) != PEG_NOT_FOUND)
-	throw AlreadyExists("method \"" + x.getName() + "\"");
+	throw AlreadyExistsException("method \"" + x.getName() + "\"");
 
     // Add the method:
 
@@ -154,7 +147,7 @@ Uint32 CIMClassRep::findMethod(const CIMName& name) const
 CIMMethod CIMClassRep::getMethod(Uint32 pos)
 {
     if (pos >= _methods.size())
-	throw OutOfBounds();
+	throw IndexOutOfBoundsException();
 
     return _methods[pos];
 }
@@ -167,7 +160,7 @@ Uint32 CIMClassRep::getMethodCount() const
 void CIMClassRep::removeMethod(Uint32 pos)
 {
     if (pos >= _methods.size())
-	throw OutOfBounds();
+	throw IndexOutOfBoundsException();
 
     _methods.remove(pos);
 }
@@ -220,9 +213,19 @@ void CIMClassRep::resolve(
 		// set the class-origin:
 		//----------------------------------------------------------------------
 	
+                Boolean isAssociationClass = isAssociation();
+
 		for (Uint32 i = 0, n = _properties.size(); i < n; i++)
 		{
 			CIMProperty& property = _properties[i];
+
+                        if (!isAssociationClass &&
+                            property.getValue().getType() == CIMTYPE_REFERENCE)
+                        {
+                            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+                                "Non-assocation class contains reference property");
+                        }
+
 			Uint32 pos = superClass.findProperty(property.getName());
 	
 			if (pos == PEG_NOT_FOUND)

@@ -53,13 +53,13 @@ CIMParameterRep::CIMParameterRep(
 	throw NullType();
 
     if (_arraySize && !_isArray)
-	throw IncompatibleTypes();
+	throw IncompatibleTypesException();
 
     if (!referenceClassName.isNull())
     {
 	if (_type != CIMTYPE_REFERENCE)
 	{
-	    throw ExpectedReferenceValue();
+	    throw ExpectedReferenceValueException();
 	}
     }
     else
@@ -67,7 +67,7 @@ CIMParameterRep::CIMParameterRep(
         // ATTN: revisit this later!
 #if 0
 	if (_type == CIMTYPE_REFERENCE)
-	    throw MissingReferenceClassName();
+	    throw MissingReferenceClassNameException();
 #endif
     }
 }
@@ -82,10 +82,10 @@ void CIMParameterRep::setName(const CIMName& name)
     _name = name; 
 }
 
-void CIMParameterRep::removeQualifier (Uint32 pos)
+void CIMParameterRep::removeQualifier(Uint32 pos)
 {
-    if (pos >= _qualifiers.getCount ())
-        throw OutOfBounds ();
+    if (pos >= _qualifiers.getCount())
+        throw IndexOutOfBoundsException();
 
     _qualifiers.removeQualifier (pos);
 }
@@ -235,7 +235,7 @@ void CIMParameterRep::setType(CIMType type)
 
     if (_referenceClassName.isNull() && _type == CIMTYPE_REFERENCE)
     {
-	throw MissingReferenceClassName();
+	throw MissingReferenceClassNameException();
     }
 }
 

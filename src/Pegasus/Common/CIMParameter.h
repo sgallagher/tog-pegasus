@@ -83,7 +83,7 @@ public:
 
     void setType(const CIMType type);
 
-    // Throws AlreadyExists.
+    // Throws AlreadyExistsException.
     CIMParameter& addQualifier(const CIMQualifier& x);
 
     Uint32 findQualifier(const CIMName& name) const;
@@ -95,8 +95,8 @@ public:
 
         @param pos index of the qualifier to be removed
 
-        @exception OutOfBounds if the index is outside the range of
-        qualifiers available for the CIMParameter
+        @exception IndexOutOfBoundsException if the index is outside
+        the range of qualifiers available for the CIMParameter
     */
     void removeQualifier (Uint32 pos);
 

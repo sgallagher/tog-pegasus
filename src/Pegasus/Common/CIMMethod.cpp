@@ -230,7 +230,7 @@ CIMMethod CIMMethod::clone() const
 void CIMMethod::_checkRep() const
 {
     if (!_rep)
-        throw UninitializedObject ();
+        throw UninitializedObjectException();
 }
 
 
@@ -369,7 +369,7 @@ CIMMethod CIMConstMethod::clone() const
 void CIMConstMethod::_checkRep() const
 {
     if (!_rep)
-        throw UninitializedObject ();
+        throw UninitializedObjectException();
 }
 
 PEGASUS_NAMESPACE_END

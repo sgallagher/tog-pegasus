@@ -238,7 +238,7 @@ ModuleController *test_module::get_controller(void)
 							   shutdown_notify,
 							   &_module_handle));
       }
-      catch(AlreadyExists &)
+      catch(AlreadyExistsException &)
       {
 	 ;
       }
@@ -262,7 +262,7 @@ pegasus_module *test_module::get_mod_handle(void)
 							   shutdown_notify,
 							   &_module_handle));
       }
-      catch(AlreadyExists &)
+      catch(AlreadyExistsException &)
       {
 	 ;
       }
@@ -283,7 +283,7 @@ ModuleController::client_handle *test_module::get_client_handle(void)
 	 {
 	    _controller = &(ModuleController::get_client_handle(temp, _id, &_client_handle));
 	 }
-	 catch(IncompatibleTypes &)
+	 catch(IncompatibleTypesException &)
 	 {
 	    ;
 	 }

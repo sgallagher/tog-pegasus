@@ -125,9 +125,8 @@ public:
 
     /** addQualifier - Adds a Qualifier to the method object.
 	@param CIMQualifier to be added
-	@return Throws AlreadyExists excetpion if the qualifier already exists
-	in the method
-	@exception AlreadyExists exception
+	@return This CIMMethod object
+	@exception AlreadyExistsException
     */
     CIMMethod& addQualifier(const CIMQualifier& x);
 
@@ -142,8 +141,8 @@ public:
 	input as a parameter.
 	@param Index of the qualifier requested.
 	@return CIMQualifier object or exception
-	@exception OutOfBounds exception if the index is outside the range of
-	parameters available from the CIMMethod.
+	@exception IndexOutOfBoundsException exception if the index is
+        outside the range of parameters available from the CIMMethod.
     */
     CIMQualifier getQualifier(Uint32 pos);
 
@@ -153,8 +152,8 @@ public:
 	position input as a parameter.
 	@param Position of the qualifier requested.
 	@return CIMQualifier object or exception
-	@exception OutOfBounds exception if the index is outside the range of
-	parameters available from the CIMMethod.
+	@exception IndexOutOfBoundsException exception if the index is
+        outside the range of parameters available from the CIMMethod.
     */
     void removeQualifier(Uint32 pos);
 
@@ -180,8 +179,8 @@ public:
 	input as a parameter.
 	@param index for the parameter to be returned.
 	@return CIMParameter requested.
-	@Exception OutOfBounds exception is thrown if the index is outside the
-	range of available parameters
+	@exception IndexOutOfBoundsException exception is thrown if the
+        index is outside the range of available parameters
     */
     CIMParameter getParameter(Uint32 pos);
 
@@ -193,8 +192,8 @@ public:
 
 	@param pos index of the parameter to be removed
 
-	@exception OutOfBounds if the index is outside the range of
-	                       parameters available from the CIMMethod
+	@exception IndexOutOfBoundsException if the index is outside the
+        range of parameters available from the CIMMethod
     */
     void removeParameter (Uint32 pos);
 

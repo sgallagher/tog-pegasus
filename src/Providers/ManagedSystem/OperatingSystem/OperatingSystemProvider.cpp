@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -154,6 +154,7 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
 
     //-- fill 'er up...
     instance = _build_instance(ref);
+    instance.setPath(ref);
 
     OSP_DEBUG("losp-> getInstance built an instance");
 
@@ -484,7 +485,7 @@ OperatingSystemProvider::_fill_reference(const CIMNamespaceName &nameSpace,
  	                   CSCREATIONCLASSNAME.getString(),
 			   CIMKeyBinding::STRING));
     keys.append(CIMKeyBinding("CSName", csName, CIMKeyBinding::STRING));
-    keys.append(CIMKeyBinding("CreationClassName", 
+    keys.append(CIMKeyBinding("CreationClassName",
                               STANDARDOPERATINGSYSTEMCLASS.getString(),
                               CIMKeyBinding::STRING));
     keys.append(CIMKeyBinding("Name", name, CIMKeyBinding::STRING));

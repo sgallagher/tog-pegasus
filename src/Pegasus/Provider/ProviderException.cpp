@@ -30,10 +30,17 @@
 #include <Pegasus/Common/Config.h>
 #include "ProviderException.h"
 
+// l10n - added MessagesParms
+
 PEGASUS_NAMESPACE_BEGIN
 
 CIMOperationFailedException::CIMOperationFailedException(const String & message)
     : CIMException(CIM_ERR_FAILED, message)
+{
+}
+
+CIMOperationFailedException::CIMOperationFailedException(const MessageLoaderParms & parms)
+    : CIMException(CIM_ERR_FAILED, parms)
 {
 }
 
@@ -44,9 +51,20 @@ CIMOperationFailedException::CIMOperationFailedException(
 {
 }
 
+CIMOperationFailedException::CIMOperationFailedException(
+    const CIMStatusCode code,
+    const MessageLoaderParms & parms)
+    : CIMException(code, parms)
+{
+}
 
 CIMAccessDeniedException::CIMAccessDeniedException(const String & message)
     : CIMOperationFailedException(CIM_ERR_ACCESS_DENIED, message)
+{
+}
+
+CIMAccessDeniedException::CIMAccessDeniedException(const MessageLoaderParms & parms)
+    : CIMOperationFailedException(CIM_ERR_ACCESS_DENIED, parms)
 {
 }
 
@@ -56,9 +74,20 @@ CIMInvalidParameterException::CIMInvalidParameterException(
 {
 }
 
+CIMInvalidParameterException::CIMInvalidParameterException(
+    const MessageLoaderParms & parms)
+    : CIMOperationFailedException(CIM_ERR_INVALID_PARAMETER,  parms)
+{
+}
+
 #if 0
 CIMInvalidClassException::CIMInvalidClassException(const String & message)
     : CIMOperationFailedException(CIM_ERR_INVALID_CLASS,  message)
+{
+}
+
+CIMInvalidClassException::CIMInvalidClassException(const MessageLoaderParms & parms)
+    : CIMOperationFailedException(CIM_ERR_INVALID_CLASS,  parms)
 {
 }
 #endif
@@ -68,8 +97,18 @@ CIMObjectNotFoundException::CIMObjectNotFoundException(const String & message)
 {
 }
 
+CIMObjectNotFoundException::CIMObjectNotFoundException(const MessageLoaderParms & parms)
+    : CIMOperationFailedException(CIM_ERR_NOT_FOUND, parms)
+{
+}
+
 CIMNotSupportedException::CIMNotSupportedException(const String & message)
     : CIMOperationFailedException(CIM_ERR_NOT_SUPPORTED, message)
+{
+}
+
+CIMNotSupportedException::CIMNotSupportedException(const MessageLoaderParms & parms)
+    : CIMOperationFailedException(CIM_ERR_NOT_SUPPORTED, parms)
 {
 }
 
@@ -79,8 +118,19 @@ CIMObjectAlreadyExistsException::CIMObjectAlreadyExistsException(
 {
 }
 
+CIMObjectAlreadyExistsException::CIMObjectAlreadyExistsException(
+    const MessageLoaderParms & parms)
+    : CIMOperationFailedException(CIM_ERR_ALREADY_EXISTS, parms)
+{
+}
+
 CIMPropertyNotFoundException::CIMPropertyNotFoundException(const String & message)
     : CIMOperationFailedException(CIM_ERR_NO_SUCH_PROPERTY, message)
+{
+}
+
+CIMPropertyNotFoundException::CIMPropertyNotFoundException(const MessageLoaderParms & parms)
+    : CIMOperationFailedException(CIM_ERR_NO_SUCH_PROPERTY, parms)
 {
 }
 
@@ -90,10 +140,20 @@ CIMInvalidQueryException::CIMInvalidQueryException(const String & message)
     : CIMOperationFailedException(CIM_ERR_INVALID_QUERY, message)
 {
 }
+
+CIMInvalidQueryException::CIMInvalidQueryException(const MessageLoaderParms & parms)
+    : CIMOperationFailedException(CIM_ERR_INVALID_QUERY, parms)
+{
+}
 #endif
 
 CIMMethodNotFoundException::CIMMethodNotFoundException(const String & message)
     : CIMOperationFailedException(CIM_ERR_METHOD_NOT_FOUND, message)
+{
+}
+
+CIMMethodNotFoundException::CIMMethodNotFoundException(const MessageLoaderParms & parms)
+    : CIMOperationFailedException(CIM_ERR_METHOD_NOT_FOUND, parms)
 {
 }
 

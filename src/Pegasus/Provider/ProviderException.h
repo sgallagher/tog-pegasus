@@ -56,6 +56,9 @@ localization of text is not currently supported, it is
 recommended that text strings be structured in message
 catalogs to facilitate future localization.</p>
 */
+
+// l10n - added constructors with MessageLoaderParms
+
 class PEGASUS_PROVIDER_LINKAGE CIMOperationFailedException
     : public CIMException
 {
@@ -67,9 +70,17 @@ public:
     status code to be returned to the client.</p>
     */
     CIMOperationFailedException(const String & message);
+    
+    /*
+    <p>This exception will cause a <tt>CIM_ERR_FAILED</tt>
+    status code to be returned to the client.</p>
+    */
+    CIMOperationFailedException(const MessageLoaderParms & parms);    
 
 protected:
     CIMOperationFailedException(const CIMStatusCode code, const String & message);
+    
+    CIMOperationFailedException(const CIMStatusCode code, const MessageLoaderParms & parms);    
 };
 
 /**
@@ -82,6 +93,8 @@ class PEGASUS_PROVIDER_LINKAGE CIMAccessDeniedException
 public:
     ///
     CIMAccessDeniedException(const String & message);
+    
+    CIMAccessDeniedException(const MessageLoaderParms & parms);    
 };
 
 /**
@@ -94,6 +107,8 @@ class PEGASUS_PROVIDER_LINKAGE CIMInvalidParameterException
 public:
     ///
     CIMInvalidParameterException(const String & message);
+    
+    CIMInvalidParameterException(const MessageLoaderParms & parms);    
 };
 
 #if 0
@@ -106,6 +121,8 @@ class PEGASUS_PROVIDER_LINKAGE CIMInvalidClassException
 {
 public:
     CIMInvalidClassException(const String & message);
+    
+    CIMInvalidClassException(const MessageLoaderParms & parms);    
 };
 #endif
 
@@ -119,6 +136,8 @@ class PEGASUS_PROVIDER_LINKAGE CIMObjectNotFoundException
 public:
     ///
     CIMObjectNotFoundException(const String & message);
+    
+    CIMObjectNotFoundException(const MessageLoaderParms & parms);    
 };
 
 /**
@@ -131,6 +150,8 @@ class PEGASUS_PROVIDER_LINKAGE CIMNotSupportedException
 public:
     ///
     CIMNotSupportedException(const String & message);
+    
+    CIMNotSupportedException(const MessageLoaderParms & parms);    
 };
 
 /**
@@ -143,6 +164,8 @@ class PEGASUS_PROVIDER_LINKAGE CIMObjectAlreadyExistsException
 public:
     ///
     CIMObjectAlreadyExistsException(const String & message);
+    
+    CIMObjectAlreadyExistsException(const MessageLoaderParms & parms);    
 };
 
 /**
@@ -155,6 +178,8 @@ class PEGASUS_PROVIDER_LINKAGE CIMPropertyNotFoundException
 public:
     ///
     CIMPropertyNotFoundException(const String & message);
+    
+    CIMPropertyNotFoundException(const MessageLoaderParms & parms);    
 };
 
 #if 0
@@ -168,6 +193,8 @@ class PEGASUS_PROVIDER_LINKAGE CIMInvalidQueryException
 {
 public:
     CIMInvalidQueryException(const String & message);
+    
+    CIMInvalidQueryException(const MessageLoaderParms & parms);    
 };
 #endif
 
@@ -181,6 +208,8 @@ class PEGASUS_PROVIDER_LINKAGE CIMMethodNotFoundException
 public:
     ///
     CIMMethodNotFoundException(const String & message);
+    
+    CIMMethodNotFoundException(const MessageLoaderParms & parms);    
 };
 
 PEGASUS_NAMESPACE_END

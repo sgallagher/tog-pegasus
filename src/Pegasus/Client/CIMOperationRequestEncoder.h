@@ -1,31 +1,31 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Nitin Upasani, Hewlett-Packard (Nitin_Upasani@hp.com)
+//
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +38,6 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Client/ClientAuthenticator.h>
 #include <Pegasus/Client/Linkage.h>
-#include <Pegasus/Client/ClientPerfDataStore.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -50,16 +49,10 @@ class PEGASUS_CLIENT_LINKAGE CIMOperationRequestEncoder : public MessageQueue
 public:
 
     /** Constuctor.
-        @param outputQueue queue to receive encoded HTTP messages.
-        @param hostName Name of the target host for the encoded requests.
-            I.e., the value of the HTTP Host header.
+	@param outputQueue queue to receive encoded HTTP messages.
     */
     CIMOperationRequestEncoder(
-        MessageQueue* outputQueue,
-        const String& hostName,
-        ClientAuthenticator* authenticator,
-        bool binaryRequest = false,
-        bool binaryResponse = false);
+        MessageQueue* outputQueue, ClientAuthenticator* authenticator);
 
     /** Destructor. */
     ~CIMOperationRequestEncoder();
@@ -67,96 +60,85 @@ public:
     /** This method is called when a message is enqueued on this queue. */
     virtual void handleEnqueue();
 
-    /**
-        Gives the Encoder access to the ClientPerfDataStore that
-        is in CIMClientRep. A pointer to the CIMClientRep::ClientPerfDataStore
-        is passed in.
-     */
-    void setDataStorePointer(ClientPerfDataStore* perfDataStore_ptr);
-
 private:
 
     void _encodeCreateClassRequest(
-        CIMCreateClassRequestMessage* message);
+	CIMCreateClassRequestMessage* message);
 
     void _encodeGetClassRequest(
-        CIMGetClassRequestMessage* message);
+	CIMGetClassRequestMessage* message);
 
     void _encodeModifyClassRequest(
-        CIMModifyClassRequestMessage* message);
+	CIMModifyClassRequestMessage* message);
 
     void _encodeEnumerateClassNamesRequest(
-        CIMEnumerateClassNamesRequestMessage* message);
+	CIMEnumerateClassNamesRequestMessage* message);
 
     void _encodeEnumerateClassesRequest(
-        CIMEnumerateClassesRequestMessage* message);
+	CIMEnumerateClassesRequestMessage* message);
 
     void _encodeDeleteClassRequest(
-        CIMDeleteClassRequestMessage* message);
+	CIMDeleteClassRequestMessage* message);
 
     void _encodeCreateInstanceRequest(
-        CIMCreateInstanceRequestMessage* message);
+	CIMCreateInstanceRequestMessage* message);
 
     void _encodeGetInstanceRequest(
-        CIMGetInstanceRequestMessage* message);
+	CIMGetInstanceRequestMessage* message);
 
     void _encodeModifyInstanceRequest(
-        CIMModifyInstanceRequestMessage* message);
+	CIMModifyInstanceRequestMessage* message);
 
     void _encodeEnumerateInstanceNamesRequest(
-        CIMEnumerateInstanceNamesRequestMessage* message);
+	CIMEnumerateInstanceNamesRequestMessage* message);
 
     void _encodeEnumerateInstancesRequest(
-        CIMEnumerateInstancesRequestMessage* message);
+	CIMEnumerateInstancesRequestMessage* message);
 
     void _encodeDeleteInstanceRequest(
-        CIMDeleteInstanceRequestMessage* message);
+	CIMDeleteInstanceRequestMessage* message);
 
     void _encodeGetPropertyRequest(
-        CIMGetPropertyRequestMessage* message);
+	CIMGetPropertyRequestMessage* message);
 
     void _encodeSetPropertyRequest(
-        CIMSetPropertyRequestMessage* message);
+	CIMSetPropertyRequestMessage* message);
 
     void _encodeSetQualifierRequest(
-        CIMSetQualifierRequestMessage* message);
+	CIMSetQualifierRequestMessage* message);
 
     void _encodeGetQualifierRequest(
-        CIMGetQualifierRequestMessage* message);
+	CIMGetQualifierRequestMessage* message);
 
     void _encodeEnumerateQualifiersRequest(
-        CIMEnumerateQualifiersRequestMessage* message);
+	CIMEnumerateQualifiersRequestMessage* message);
 
     void _encodeDeleteQualifierRequest(
-        CIMDeleteQualifierRequestMessage* message);
+	CIMDeleteQualifierRequestMessage* message);
 
     void _encodeReferenceNamesRequest(
-        CIMReferenceNamesRequestMessage* message);
+	CIMReferenceNamesRequestMessage* message);
 
     void _encodeReferencesRequest(
-        CIMReferencesRequestMessage* message);
+	CIMReferencesRequestMessage* message);
 
     void _encodeAssociatorNamesRequest(
-        CIMAssociatorNamesRequestMessage* message);
+	CIMAssociatorNamesRequestMessage* message);
 
     void _encodeAssociatorsRequest(
-        CIMAssociatorsRequestMessage* message);
+	CIMAssociatorsRequestMessage* message);
 
     void _encodeExecQueryRequest(
-        CIMExecQueryRequestMessage* message);
+	CIMExecQueryRequestMessage* message);
 
     void _encodeInvokeMethodRequest(
-        CIMInvokeMethodRequestMessage* message);
+	CIMInvokeMethodRequestMessage* message);
 
-    void _sendRequest(Buffer& buffer);
+    void _enqueueHTTPMessage(Array<Sint8>& buffer); 
 
     MessageQueue* _outputQueue;
     CString _hostName;
     ClientAuthenticator* _authenticator;
-
-    ClientPerfDataStore* dataStore_prt;
-    bool _binaryRequest;
-    bool _binaryResponse;
 };
 
 PEGASUS_NAMESPACE_END

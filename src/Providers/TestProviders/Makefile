@@ -8,6 +8,7 @@ include $(ROOT)/mak/config.mak
 #Directories to recurse
 DIRS = \
        PG_TestPropertyTypes \
-       DefaultInstanceProvider
+       DefaultInstanceProvider \
+       ClientProvider
 
 include $(ROOT)/mak/recurse.mak

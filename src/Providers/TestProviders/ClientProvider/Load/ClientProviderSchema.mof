@@ -1,0 +1,13 @@
+[abstract]
+class Test_ProviderClass
+{
+	[key,
+	read]
+	Uint8 Identifier;
+};
+
+class Test_ClientProviderClass : Test_ProviderClass
+{
+        string DoConnect( [IN] string connectType);
+};
+

@@ -1,0 +1,29 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+   Name = "TestClientProviderModule";
+   Location = "TestClientProvider";
+   Vendor = "Pegasus Community";
+   Version = "2.0.0";
+   InterfaceType = "C++Default";
+   InterfaceVersion = "2.1.0";
+};
+
+instance of PG_Provider
+{
+   ProviderModuleName = "TestClientProviderModule";
+   Name = "TestClientProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "TestClientProviderModule";
+   ProviderName = "TestClientProvider";
+   CapabilityID = "1";
+   ClassName = "Test_ClientProviderClass";
+   Namespaces = {"root/TestProvider"};
+   ProviderType = { 5 }; //  Method 
+   SupportedProperties = NULL;
+   SupportedMethods =  { "DoConnect" };
+};

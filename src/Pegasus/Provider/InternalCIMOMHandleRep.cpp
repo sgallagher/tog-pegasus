@@ -386,15 +386,28 @@ Message* InternalCIMOMHandleRep::do_request(
     CIMMessage* cimmsg = dynamic_cast<CIMMessage*>(request);
     if (cimmsg != NULL)
     {
-        try
+       try
         {
-            IdentityContainer identity_cntr = (IdentityContainer)context.get(IdentityContainer::NAME);
+		#ifdef PEGASUS_OS_OS400
+			// On OS/400, do not allow the provider set the user name for the request.
+			// Get the user name from the current thread.
+		char os400UserName[11];
+		if (ycmGetCurrentUser(os400UserName) == 0)
+		{
+        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
+            "An internal error occurred during the processing of the CIMOM handle"));
+		}
+		EtoA(os400UserName);
+		cimmsg->operationContext.insert(IdentityContainer(String(os400UserName)));
+		#else
+			IdentityContainer identity_cntr = (IdentityContainer)context.get(IdentityContainer::NAME);
             cimmsg->operationContext.insert(IdentityContainer(identity_cntr.getUserName()));
+		#endif 			
         }
         catch (Exception e)
         {
-            // If the container is not found then try to use an empty string just to avoid exception
-            cimmsg->operationContext.insert(IdentityContainer(String::EMPTY));
+			cimmsg->operationContext.insert(IdentityContainer(String::EMPTY));
         }
 		// chuck 2.4
         // If the caller specified an Accept-Language or Content-Language
@@ -599,20 +612,6 @@ CIMClass InternalCIMOMHandleRep::getClass(
 
     request->dest = get_output_qid();
 
-#ifdef PEGASUS_OS_OS400
-    // On OS/400, do not allow the provider set the user name for the request.
-    // Get the user name from the current thread.
-    char os400UserName[11];
-    if (ycmGetCurrentUser(os400UserName) == 0)
-    {
-        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
-            "An internal error occurred during the processing of the CIMOM handle"));
-    }
-    EtoA(os400UserName);
-    request->userName = String(os400UserName);
-#endif
-
     CIMGetClassResponseMessage* response;
     try
     {
@@ -688,20 +687,6 @@ Array<CIMClass> InternalCIMOMHandleRep::enumerateClasses(
 
     request->dest = get_output_qid();
 
-#ifdef PEGASUS_OS_OS400
-    // On OS/400, do not allow the provider set the user name for the request.
-    // Get the user name from the current thread.
-    char os400UserName[11];
-    if (ycmGetCurrentUser(os400UserName) == 0)
-    {
-        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
-            "An internal error occurred during the processing of the CIMOM handle"));
-    }
-    EtoA(os400UserName);
-    request->userName = String(os400UserName);
-#endif
-
     CIMEnumerateClassesResponseMessage* response;
 
     try
@@ -767,20 +752,6 @@ Array<CIMName> InternalCIMOMHandleRep::enumerateClassNames(
 
     request->dest = get_output_qid();
 
-#ifdef PEGASUS_OS_OS400
-    // On OS/400, do not allow the provider set the user name for the request.
-    // Get the user name from the current thread.
-    char os400UserName[11];
-    if (ycmGetCurrentUser(os400UserName) == 0)
-    {
-        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
-            "An internal error occurred during the processing of the CIMOM handle"));
-    }
-    EtoA(os400UserName);
-    request->userName = String(os400UserName);
-#endif
-
     CIMEnumerateClassNamesResponseMessage* response;
     try
     {
@@ -844,20 +815,6 @@ void InternalCIMOMHandleRep::createClass(
 
     request->dest = get_output_qid();
 
-#ifdef PEGASUS_OS_OS400
-    // On OS/400, do not allow the provider set the user name for the request.
-    // Get the user name from the current thread.
-    char os400UserName[11];
-    if (ycmGetCurrentUser(os400UserName) == 0)
-    {
-        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
-            "An internal error occurred during the processing of the CIMOM handle"));
-    }
-    EtoA(os400UserName);
-    request->userName = String(os400UserName);
-#endif
-
     CIMCreateClassResponseMessage* response;
 
     try
@@ -920,20 +877,6 @@ void InternalCIMOMHandleRep::modifyClass(
 
     request->dest = get_output_qid();
 
-#ifdef PEGASUS_OS_OS400
-    // On OS/400, do not allow the provider set the user name for the request.
-    // Get the user name from the current thread.
-    char os400UserName[11];
-    if (ycmGetCurrentUser(os400UserName) == 0)
-    {
-        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
-            "An internal error occurred during the processing of the CIMOM handle"));
-    }
-    EtoA(os400UserName);
-    request->userName = String(os400UserName);
-#endif
-
     CIMModifyClassResponseMessage* response;
     try
     {
@@ -995,20 +938,6 @@ void InternalCIMOMHandleRep::deleteClass(
             className,
             QueueIdStack(get_qid(), get_output_qid()));
     request->dest = get_output_qid();
-
-#ifdef PEGASUS_OS_OS400
-    // On OS/400, do not allow the provider set the user name for the request.
-    // Get the user name from the current thread.
-    char os400UserName[11];
-    if (ycmGetCurrentUser(os400UserName) == 0)
-    {
-        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
-            "An internal error occurred during the processing of the CIMOM handle"));
-    }
-    EtoA(os400UserName);
-    request->userName = String(os400UserName);
-#endif
 
     CIMDeleteClassResponseMessage* response;
 
@@ -1083,20 +1012,6 @@ CIMInstance InternalCIMOMHandleRep::getInstance(
             QueueIdStack(get_qid(), get_output_qid()));
 
     request->dest = get_output_qid();
-
-#ifdef PEGASUS_OS_OS400
-    // On OS/400, do not allow the provider set the user name for the request.
-    // Get the user name from the current thread.
-    char os400UserName[11];
-    if (ycmGetCurrentUser(os400UserName) == 0)
-    {
-        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
-            "An internal error occurred during the processing of the CIMOM handle"));
-    }
-    EtoA(os400UserName);
-    request->userName = String(os400UserName);
-#endif
 
     CIMGetInstanceResponseMessage* response;
     try
@@ -1176,20 +1091,6 @@ Array<CIMInstance> InternalCIMOMHandleRep::enumerateInstances(
 
     request->dest = get_output_qid();
 
-#ifdef PEGASUS_OS_OS400
-    // On OS/400, do not allow the provider set the user name for the request.
-    // Get the user name from the current thread.
-    char os400UserName[11];
-    if (ycmGetCurrentUser(os400UserName) == 0)
-    {
-        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
-            "An internal error occurred during the processing of the CIMOM handle"));
-    }
-    EtoA(os400UserName);
-    request->userName = String(os400UserName);
-#endif
-
     CIMEnumerateInstancesResponseMessage* response;
     try
     {
@@ -1254,20 +1155,6 @@ Array<CIMObjectPath> InternalCIMOMHandleRep::enumerateInstanceNames(
 
     request->dest = get_output_qid();
 
-#ifdef PEGASUS_OS_OS400
-    // On OS/400, do not allow the provider set the user name for the request.
-    // Get the user name from the current thread.
-    char os400UserName[11];
-    if (ycmGetCurrentUser(os400UserName) == 0)
-    {
-        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
-            "An internal error occurred during the processing of the CIMOM handle"));
-    }
-    EtoA(os400UserName);
-    request->userName = String(os400UserName);
-#endif
-
     CIMEnumerateInstanceNamesResponseMessage* response;
     try
     {
@@ -1329,20 +1216,6 @@ CIMObjectPath InternalCIMOMHandleRep::createInstance(
             QueueIdStack(get_qid(), get_output_qid()));
 
     request->dest = get_output_qid();
-
-#ifdef PEGASUS_OS_OS400
-    // On OS/400, do not allow the provider set the user name for the request.
-    // Get the user name from the current thread.
-    char os400UserName[11];
-    if (ycmGetCurrentUser(os400UserName) == 0)
-    {
-        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
-            "An internal error occurred during the processing of the CIMOM handle"));
-    }
-    EtoA(os400UserName);
-    request->userName = String(os400UserName);
-#endif
 
     CIMCreateInstanceResponseMessage* response;
     try
@@ -1414,20 +1287,6 @@ void InternalCIMOMHandleRep::modifyInstance(
 
     request->dest = get_output_qid();
 
-#ifdef PEGASUS_OS_OS400
-    // On OS/400, do not allow the provider set the user name for the request.
-    // Get the user name from the current thread.
-    char os400UserName[11];
-    if (ycmGetCurrentUser(os400UserName) == 0)
-    {
-        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
-            "An internal error occurred during the processing of the CIMOM handle"));
-    }
-    EtoA(os400UserName);
-    request->userName = String(os400UserName);
-#endif
-
     CIMModifyInstanceResponseMessage* response;
 
     try
@@ -1490,20 +1349,6 @@ void InternalCIMOMHandleRep::deleteInstance(
             QueueIdStack(get_qid(), get_output_qid()));
 
     request->dest = get_output_qid();
-
-#ifdef PEGASUS_OS_OS400
-    // On OS/400, do not allow the provider set the user name for the request.
-    // Get the user name from the current thread.
-    char os400UserName[11];
-    if (ycmGetCurrentUser(os400UserName) == 0)
-    {
-        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
-            "An internal error occurred during the processing of the CIMOM handle"));
-    }
-    EtoA(os400UserName);
-    request->userName = String(os400UserName);
-#endif
 
     CIMDeleteInstanceResponseMessage* response;
 
@@ -1568,20 +1413,6 @@ Array<CIMObject> InternalCIMOMHandleRep::execQuery(
             QueueIdStack(get_qid(), get_output_qid()));
 
     request->dest = get_output_qid();
-
-#ifdef PEGASUS_OS_OS400
-    // On OS/400, do not allow the provider set the user name for the request.
-    // Get the user name from the current thread.
-    char os400UserName[11];
-    if (ycmGetCurrentUser(os400UserName) == 0)
-    {
-        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
-            "An internal error occurred during the processing of the CIMOM handle"));
-    }
-    EtoA(os400UserName);
-    request->userName = String(os400UserName);
-#endif
 
     CIMExecQueryResponseMessage* response;
 
@@ -1667,20 +1498,6 @@ Array<CIMObject> InternalCIMOMHandleRep::associators(
 
     request->dest = get_output_qid();
 
-#ifdef PEGASUS_OS_OS400
-    // On OS/400, do not allow the provider set the user name for the request.
-    // Get the user name from the current thread.
-    char os400UserName[11];
-    if (ycmGetCurrentUser(os400UserName) == 0)
-    {
-        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
-            "An internal error occurred during the processing of the CIMOM handle"));
-    }
-    EtoA(os400UserName);
-    request->userName = String(os400UserName);
-#endif
-
     CIMAssociatorsResponseMessage* response;
 
     try
@@ -1756,20 +1573,6 @@ Array<CIMObjectPath> InternalCIMOMHandleRep::associatorNames(
             QueueIdStack(get_qid(), get_output_qid()));
 
     request->dest = get_output_qid();
-
-#ifdef PEGASUS_OS_OS400
-    // On OS/400, do not allow the provider set the user name for the request.
-    // Get the user name from the current thread.
-    char os400UserName[11];
-    if (ycmGetCurrentUser(os400UserName) == 0)
-    {
-        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
-            "An internal error occurred during the processing of the CIMOM handle"));
-    }
-    EtoA(os400UserName);
-    request->userName = String(os400UserName);
-#endif
 
     CIMAssociatorNamesResponseMessage* response;
 
@@ -1849,20 +1652,6 @@ Array<CIMObject> InternalCIMOMHandleRep::references(
 
     request->dest = get_output_qid();
 
-#ifdef PEGASUS_OS_OS400
-    // On OS/400, do not allow the provider set the user name for the request.
-    // Get the user name from the current thread.
-    char os400UserName[11];
-    if (ycmGetCurrentUser(os400UserName) == 0)
-    {
-        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
-            "An internal error occurred during the processing of the CIMOM handle"));
-    }
-    EtoA(os400UserName);
-    request->userName = String(os400UserName);
-#endif
-
     CIMReferencesResponseMessage* response;
 
     try
@@ -1933,20 +1722,6 @@ Array<CIMObjectPath> InternalCIMOMHandleRep::referenceNames(
 
     request->dest = get_output_qid();
 
-#ifdef PEGASUS_OS_OS400
-    // On OS/400, do not allow the provider set the user name for the request.
-    // Get the user name from the current thread.
-    char os400UserName[11];
-    if (ycmGetCurrentUser(os400UserName) == 0)
-    {
-        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
-            "An internal error occurred during the processing of the CIMOM handle"));
-    }
-    EtoA(os400UserName);
-    request->userName = String(os400UserName);
-#endif
-
     CIMReferenceNamesResponseMessage* response;
 
     try
@@ -2012,20 +1787,6 @@ CIMValue InternalCIMOMHandleRep::getProperty(
         QueueIdStack(get_qid(), get_output_qid()));
 
     request->dest = get_output_qid();
-
-#ifdef PEGASUS_OS_OS400
-    // On OS/400, do not allow the provider set the user name for the request.
-    // Get the user name from the current thread.
-    char os400UserName[11];
-    if (ycmGetCurrentUser(os400UserName) == 0)
-    {
-        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
-            "An internal error occurred during the processing of the CIMOM handle"));
-    }
-    EtoA(os400UserName);
-    request->userName = String(os400UserName);
-#endif
 
     CIMGetPropertyResponseMessage* response;
 
@@ -2098,20 +1859,6 @@ void InternalCIMOMHandleRep::setProperty(
 
     request->dest = get_output_qid();
 
-#ifdef PEGASUS_OS_OS400
-    // On OS/400, do not allow the provider set the user name for the request.
-    // Get the user name from the current thread.
-    char os400UserName[11];
-    if (ycmGetCurrentUser(os400UserName) == 0)
-    {
-        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
-            "An internal error occurred during the processing of the CIMOM handle"));
-    }
-    EtoA(os400UserName);
-    request->userName = String(os400UserName);
-#endif
-
     CIMSetPropertyResponseMessage* response;
 
     try
@@ -2178,20 +1925,6 @@ CIMValue InternalCIMOMHandleRep::invokeMethod(
             methodName,
             inParameters,
             QueueIdStack(get_qid(), get_output_qid()));
-
-#ifdef PEGASUS_OS_OS400
-    // On OS/400, do not allow the provider set the user name for the request.
-    // Get the user name from the current thread.
-    char os400UserName[11];
-    if (ycmGetCurrentUser(os400UserName) == 0)
-    {
-        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR",
-            "An internal error occurred during the processing of the CIMOM handle"));
-    }
-    EtoA(os400UserName);
-    request->userName = String(os400UserName);
-#endif
 
     CIMInvokeMethodResponseMessage* response;
 

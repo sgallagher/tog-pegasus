@@ -71,10 +71,10 @@ Boolean CQLPredicate::evaluate(CIMInstance CI, QueryContext& QueryCtx)
    return _rep->evaluate(CI,QueryCtx);
 }
 
-Boolean CQLPredicate::isTerminal(){
+Boolean CQLPredicate::isTerminal()const{
 	return _rep->isTerminal();
 }
-Boolean CQLPredicate::getInverted(){
+Boolean CQLPredicate::getInverted()const{
 	return _rep->getInverted();
 }
 
@@ -95,15 +95,15 @@ void CQLPredicate::appendPredicate(CQLSimplePredicate inSimplePredicate, Boolean
 	_rep->appendPredicate(inSimplePredicate,inBooleanOperator);
 }
 
-Array<CQLPredicate> CQLPredicate::getPredicates(){
+Array<CQLPredicate> CQLPredicate::getPredicates()const{
 	return _rep->getPredicates();
 }
 
-CQLSimplePredicate CQLPredicate::getSimplePredicate(){
+CQLSimplePredicate CQLPredicate::getSimplePredicate()const{
 	return _rep->getSimplePredicate();
 }
 
-Array<BooleanOpType> CQLPredicate::getOperators(){
+Array<BooleanOpType> CQLPredicate::getOperators()const{
 	return _rep->getOperators();
 }
 
@@ -111,16 +111,16 @@ void CQLPredicate::applyContext(QueryContext& queryContext) {
   _rep->applyContext(queryContext);
 }
 
-Boolean CQLPredicate::isSimple(){
+Boolean CQLPredicate::isSimple()const{
 	return _rep->isSimple();
 }
 
-Boolean CQLPredicate::isSimpleValue(){
+Boolean CQLPredicate::isSimpleValue()const{
         return _rep->isSimpleValue();
 }
 
 
-String CQLPredicate::toString(){
+String CQLPredicate::toString()const{
 	return _rep->toString();
 }
 

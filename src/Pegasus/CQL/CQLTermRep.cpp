@@ -40,7 +40,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 CQLTermRep::CQLTermRep(){}
 
-CQLTermRep::CQLTermRep(CQLFactor theFactor)
+CQLTermRep::CQLTermRep(const CQLFactor& theFactor)
 {
    _Factors.append(theFactor);
 }
@@ -86,7 +86,7 @@ void CQLTermRep::appendOperation(FactorOpType inFactorOpType, CQLFactor inFactor
    _Factors.append(inFactor);
 }
 
-String CQLTermRep::toString()
+String CQLTermRep::toString()const
 {
    String returnStr;
 
@@ -103,24 +103,24 @@ String CQLTermRep::toString()
 
 }
 
-Boolean CQLTermRep::isSimple()
+Boolean CQLTermRep::isSimple()const
 {
    return (_Factors.size() == 1);
 }
 
-Boolean CQLTermRep::isSimpleValue()
+Boolean CQLTermRep::isSimpleValue()const
 {
    if(_Factors.size() == 1) 
       return _Factors[0].isSimpleValue();
    return false;
 }
 
-Array<CQLFactor> CQLTermRep::getFactors()
+Array<CQLFactor> CQLTermRep::getFactors()const
 {
    return _Factors;
 }
 
-Array<FactorOpType> CQLTermRep::getOperators()
+Array<FactorOpType> CQLTermRep::getOperators()const
 {
    return _FactorOperators;
 }

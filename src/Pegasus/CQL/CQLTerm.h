@@ -79,7 +79,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
    CQLTerm();
     /** constructor takes one CQLFactor object.
       */
-    CQLTerm(CQLFactor theFactor);
+    CQLTerm(const CQLFactor& theFactor);
     CQLTerm(const CQLTerm& inTerm);
 
     ~CQLTerm();
@@ -97,15 +97,15 @@ class PEGASUS_CQL_LINKAGE CQLTerm
       */
     void appendOperation(FactorOpType inFactorOpType, CQLFactor inFactor);
 
-   String toString();
+   String toString()const;
 
-   Boolean isSimple();
+   Boolean isSimple()const;
 
-   Boolean isSimpleValue();
+   Boolean isSimpleValue()const;
 
-   Array<CQLFactor> getFactors();
+   Array<CQLFactor> getFactors()const;
 
-   Array<FactorOpType> getOperators();
+   Array<FactorOpType> getOperators()const;
 
    void applyContext(QueryContext& inContext,
                      CQLChainedIdentifier& inCid); 

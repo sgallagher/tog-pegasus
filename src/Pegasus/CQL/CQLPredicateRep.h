@@ -132,9 +132,9 @@ class PEGASUS_CQL_LINKAGE CQLPredicateRep
       */
     Boolean evaluate(CIMInstance CI, QueryContext& QueryCtx);
 
-    Boolean isTerminal();
+    Boolean isTerminal()const;
 
-    Boolean getInverted();
+    Boolean getInverted()const;
 
     void setInverted();
 
@@ -145,18 +145,18 @@ class PEGASUS_CQL_LINKAGE CQLPredicateRep
 
     void appendPredicate(CQLSimplePredicate inSimplePredicate, BooleanOpType inBooleanOperator);
   
-    Array<CQLPredicate> getPredicates();
+    Array<CQLPredicate> getPredicates()const;
   
-    CQLSimplePredicate getSimplePredicate();
+    CQLSimplePredicate getSimplePredicate()const;
 
-    Array<BooleanOpType> getOperators();
+    Array<BooleanOpType> getOperators()const;
 
     void applyContext(QueryContext& queryContext);
 
-    Boolean isSimple();
+    Boolean isSimple()const;
 
-    Boolean isSimpleValue();
-    String toString();
+    Boolean isSimpleValue()const;
+    String toString()const;
     void appendPredicate(const CQLPredicate& inPredicate);
     friend class CQLFactory;
   private:

@@ -55,7 +55,7 @@ CQLTerm::CQLTerm(const CQLTerm& inTerm){
 	_rep = new CQLTermRep(inTerm._rep);
 }
 
-CQLTerm::CQLTerm(CQLFactor theFactor)
+CQLTerm::CQLTerm(const CQLFactor& theFactor)
 {
 	_rep = new CQLTermRep(theFactor);
 }
@@ -75,27 +75,27 @@ void CQLTerm::appendOperation(FactorOpType inFactorOpType, CQLFactor inFactor)
 	_rep->appendOperation(inFactorOpType,inFactor);
 }
 
-String CQLTerm::toString()
+String CQLTerm::toString()const
 {
    return _rep->toString();
 }
 
-Boolean CQLTerm::isSimple()
+Boolean CQLTerm::isSimple()const
 {
    return _rep->isSimple();
 }
 
-Boolean CQLTerm::isSimpleValue()
+Boolean CQLTerm::isSimpleValue()const
 {
    return _rep->isSimpleValue();
 }
 
-Array<CQLFactor> CQLTerm::getFactors()
+Array<CQLFactor> CQLTerm::getFactors()const
 {
    return _rep->getFactors();
 }
 
-Array<FactorOpType> CQLTerm::getOperators()
+Array<FactorOpType> CQLTerm::getOperators()const
 {
    return _rep->getOperators();
 }

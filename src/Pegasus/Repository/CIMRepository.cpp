@@ -2526,8 +2526,9 @@ String namespaceNameToDirName(const CIMNamespaceName& namespaceName)
 
     // Fix for bugzilla 383. Associations do not work for mixed case
     // namespaces on Unix type platforms
-    dirName.toLower();
-
+    //dirName.toLower();
+    // removed for now, compatibility issues, better solution in preparation
+    
     for (Uint32 i=0; i<dirName.size(); i++)
     {
         if (dirName[i] == '/')

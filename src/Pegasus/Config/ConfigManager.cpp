@@ -594,6 +594,11 @@ void ConfigManager::mergeCommandLine(int& argc, char**& argv)
     {
         const char* arg = argv[i];
 
+        if (*arg == '-')
+        {
+            throw UnrecognizedCommandLineOption();
+        }
+
         // Get the config option
         //const char* configOption = argv[i];
         if (!_initPropertyWithCommandLineOption(arg))

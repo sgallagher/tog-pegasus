@@ -32,7 +32,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-static const char PROPERTY_NAME_INDICATIONID [] = "IndicationID";
+static const char PROPERTY_NAME_INDICATIONID [] = "IndicationIdentifier";
 static const char PROPERTY_NAME_INDICATIONTIME [] = "IndicationTime";
 static const char PROPERTY_NAME_METHODNAME [] = "MethodName";
 static const char UNKNOWN [] = "Unknown";

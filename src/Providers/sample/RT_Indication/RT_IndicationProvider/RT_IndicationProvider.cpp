@@ -86,11 +86,15 @@ void _generateIndication (
         char buffer[32];
         sprintf(buffer, "%d", _nextUID++);
         indicationInstance.addProperty
-            (CIMProperty ("IndicationID",String(buffer)));
+            (CIMProperty ("IndicationIdentifier",String(buffer)));
 
 	CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
 	indicationInstance.addProperty
             (CIMProperty ("IndicationTime", currentDateTime));
+
+	Array<String> correlatedIndications; 
+	indicationInstance.addProperty
+            (CIMProperty ("CorrelatedIndications", correlatedIndications));
 
         indicationInstance.addProperty
             (CIMProperty ("MethodName", CIMValue(methodName.getString())));

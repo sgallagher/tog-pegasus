@@ -23,7 +23,8 @@
             </PROPERTY>
             <PROPERTY NAME="Query" TYPE="string"> 
               <VALUE>
-		SELECT IndicationID FROM RT_TestIndication
+		SELECT IndicationIdentifier, MethodName FROM RT_TestIndication
+		WHERE IndicationIdentifier != "x"
 		</VALUE>
             </PROPERTY>
             <PROPERTY NAME="QueryLanguage" TYPE="string"> 

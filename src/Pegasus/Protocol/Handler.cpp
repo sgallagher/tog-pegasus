@@ -166,6 +166,27 @@ void Handler::print() const
     XmlWriter::indentedPrint(cout, content);
     ((Array<Sint8>&)_message).remove(_message.size() - 1);
 }
+/* KS Temp get around while committing
+void Handler::log() const
+{
+    // log header
+
+    // Log message
+    const char* content = _message.getData() + _contentOffset;
+    const char* end = content + _contentLength;
+
+    ((Array<Sint8>&)_message).append('\0');
+
+
+    XmlWriter::indentedPrint(cout, content);
+
+
+    Logger:put(Logger::TRACE_LOG, "Pegasus/CIMServer",Logger::Information
+	       "SENT"\n %1", message.getData(););
+    message.remove(message.size() - 1);
+
+}
+*/
 
 static char* _FindTerminator(const char* data, Uint32 size)
 {

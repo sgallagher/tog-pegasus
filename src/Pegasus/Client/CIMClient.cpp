@@ -41,6 +41,8 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+//#define DDD(X) X
+#define DDD(X) // X
 ////////////////////////////////////////////////////////////////////////////////
 //
 // GetClassResult
@@ -1267,7 +1269,7 @@ void CIMClient::connect(const char* address)
 
     _channel = connector->connect(address);
 
-    if (!_channel)
+if (!_channel)
 	throw FailedToConnect();
 }
 

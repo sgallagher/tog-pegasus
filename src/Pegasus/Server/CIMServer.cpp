@@ -39,10 +39,14 @@
 #include <Pegasus/Server/Dispatcher.h>
 
 //debugging
+
+//#define DDD(X) X
+#define DDD(X) //X
+
 #include <iostream>
 
 PEGASUS_USING_STD;
-
+											 
 PEGASUS_NAMESPACE_BEGIN
 
 
@@ -207,7 +211,11 @@ void ServerHandler::outputN (Array<Sint8>& message)
 	
 	message.append('\0');
 	cout << message.getData() << endl;
-	message.remove(message.size() - 1);
+
+	//Logger:put(Logger::TRACE_LOG, 
+//  "Pegasus/CIMServer",Logger::Information "SENT"\n %1", message.getData(););
+       // message.remove(message.size() - 1);
+
     }
     _channel->writeN(message.getData(), message.size());
 
@@ -406,6 +414,8 @@ int ServerHandler::handleMethodCall()
     // <!ELEMENT IMETHODCALL (LOCALNAMESPACEPATH,IPARAMVALUE*)>
     // <!ATTLIST IMETHODCALL %CIMName;>
     //--------------------------------------------------------------------------
+    DDD(cout <<"RCV CIMServer handleMethodCall" << __LINE__  << endl;)
+    DDD(cout << _message.getData() << endl;)
 
     const char* iMethodCallName = 0;
 

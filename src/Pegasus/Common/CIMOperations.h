@@ -1491,7 +1491,7 @@ public:
 		const String& nameSpace) = 0;
 
 
-    /** Execute an intrinsic CIM method.
+    /** Execute an extrinsic CIM method.
     Any CIM Server is assumed to support extrinsic methods. Extrinsic methods
     are defined by the Schema supported by the Cim Server. If a CIM Server does
     not support extrinsic method invocations, it MUST (subject to the
@@ -1551,3 +1551,4 @@ public:
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Operations_h */
+

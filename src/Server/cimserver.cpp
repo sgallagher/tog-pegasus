@@ -58,18 +58,22 @@ void GetEnvironmentVariables(
     FileSystem::translateSlashes(pegasusHome);
 }
 
+/** GetOptions function - This function defines the Options Table
+    and sets up the options from that table using the option manager.
+*/
 void GetOptions(
     OptionManager& om,
-    int& argc, 
-    char** argv, 
+    int& argc,
+    char** argv,
     const String& pegasusHome)
 {
     static struct OptionRow options[] =
     {
 	{"port", "8888", false, Option::WHOLE_NUMBER, 0, 0, "port"},
 	{"trace", "false", false, Option::BOOLEAN, 0, 0, "t"},
-	{"Severity", "ALL", false, Option::STRING, 0, 0, "s"},
+	{"severity", "ALL", false, Option::STRING, 0, 0, "s"},
 	{"logs", "ALL", false, Option::STRING, 0, 0, "L"},
+	{"daemon", "false", false, Option::STRING, 0, 0, "d"},
 	{"version", "false", false, Option::BOOLEAN, 0, 0, "v"},
 	{"help", "false", false, Option::BOOLEAN, 0, 0, "h"},
 	{"debug", "false", false, Option::BOOLEAN, 0, 0, "d"}
@@ -88,6 +92,10 @@ void GetOptions(
     om.checkRequiredOptions();
 }
 
+/* PrintHelp - This is temporary until we expand the options manager to allow
+   options help to be defined with the OptionRow entries and presented from
+   those entries.
+*/
 void PrintHelp(const char* arg0)
 {
     cout << '\n';
@@ -103,6 +111,9 @@ void PrintHelp(const char* arg0)
     cout << endl;
 }
 
+//////////////////////////////////////////////////////////////////////////
+//  MAIN
+//////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv)
 {
     // Get environment variables:
@@ -110,7 +121,7 @@ int main(int argc, char** argv)
     String pegasusHome;
     GetEnvironmentVariables(argv[0], pegasusHome);
 
-    // Get options (from command line and from configuration file); this 
+    // Get options (from command line and from configuration file); this
     // removes corresponding options and their arguments fromt he command
     // line.
 
@@ -161,39 +172,43 @@ int main(int argc, char** argv)
     }
 
     // Check the trace options and set global variable
-    Boolean pegasusIOTrace = false; 
+    Boolean pegasusIOTrace = false;
     if (om.valueEquals("trace", "true"))
     {
          Handler::sethandlerTrace(true);
 	 pegasusIOTrace = true;
 	 cout << "Trace Set" << endl;
     }
+
     // Grab the port otpion:
 
     String portOption;
     om.lookupValue("port", portOption);
 
+    char* address = portOption.allocateCString();
+
+    // Put out startup up message.
+    // Put to cout if not daemon
+    // ATTN: modify when we add daemon
+    cout << PEGASUS_NAME << PEGASUS_VERSION <<
+	 " on port " << address << endl;
+    cout << "Built " << __DATE__ << " " << __TIME__ << endl;
+    cout <<"Started..."
+	 << (pegasusIOTrace ? " Tracing": " ") << endl;
+
+    // Set up the Logger
     Logger::setHomeDirectory("./logs");
 
+    // Put server start message to the logger
+    Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+	"Start $0 %1 port $2 $3 ", 88, PEGASUS_NAME, PEGASUS_VERSION,
+		address, (pegasusIOTrace ? " Tracing": " "));
+
+    // try loop to bind the address, and run the server
     try
     {
 	Selector selector;
 	CIMServer server(&selector, pegasusHome);
-
-	char* address = portOption.allocateCString();
-
-	// Put out startup up message.
-	// Put to cout if not daemon
-	// ATTN: modify when we add daemon
-	cout << PEGASUS_NAME << PEGASUS_VERSION <<
-	     " on port " << address << endl;
-	cout << "Built " << __DATE__ << " " << __TIME__ << endl;
-	cout <<"Started..." 
-	     << (pegasusIOTrace ? " Tracing": " ") << endl;
-
-	Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-	    "Start $0 %1 port $2 $3 ", 88, PEGASUS_NAME, PEGASUS_VERSION,
-		    address, (pegasusIOTrace ? " Tracing": " "));
 
 	server.bind(address);
 	delete [] address;

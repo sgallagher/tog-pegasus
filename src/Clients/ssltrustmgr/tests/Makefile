@@ -22,6 +22,8 @@ clean:
 	@$(RM) $(PEGASUS_HOME)/testdn2.key
 	@$(RM) $(PEGASUS_HOME)/testdn3.cert
 	@$(RM) $(PEGASUS_HOME)/testdn3.key
+	@$(RM) $(PEGASUS_HOME)/testdn4.cert
+	@$(RM) $(PEGASUS_HOME)/testdn4.key
 	@$(RM) $(PEGASUS_HOME)/testca1.cert
 	@$(RM) $(PEGASUS_HOME)/testca1.key
 	@$(RM) $(PEGASUS_HOME)/testca1.srl
@@ -77,6 +79,7 @@ ifdef PEGASUS_HAS_SSL
 	@$(OPENSSL_COMMAND) ca -config $(OPENSSL_CNF) -gencrl -keyfile $(PEGASUS_HOME)/testca1.key -cert $(PEGASUS_HOME)/testca1.cert -out $(PEGASUS_HOME)/testca1.crl
 	@$(OPENSSL_COMMAND) ca -config $(OPENSSL_CNF) -revoke $(PEGASUS_HOME)/testdn2.cert -keyfile $(PEGASUS_HOME)/testca1.key -cert $(PEGASUS_HOME)/testca1.cert
 	@$(OPENSSL_COMMAND) ca -config $(OPENSSL_CNF) -gencrl -keyfile $(PEGASUS_HOME)/testca1.key -cert $(PEGASUS_HOME)/testca1.cert -out $(PEGASUS_HOME)/testca1.crl
+	@$(RM) index.txt.old
 	@#
 	@# Create a second CRL issued by the test CA and revoke two certificates
 	@#
@@ -120,7 +123,7 @@ endif
 	@ssltrustmgr -a -c $(CURRENT_USER) -f $(PEGASUS_HOME)/testdn1.cert >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
-	@$(ECHO) "Try to connect, this should be succeed" >> $(RESULTFILE)
+	@$(ECHO) "Try to connect, this should succeed" >> $(RESULTFILE)
 	@TestCertClient $(PEGASUS_HOME)/testdn1.cert $(PEGASUS_HOME)/testdn1.key >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
@@ -160,10 +163,6 @@ endif
 	@ssltrustmgr -a -R -f $(PEGASUS_HOME)/testca1.crl >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
-	@$(ECHO) "Attempt to add the same CA CRL again, this should work since you can overwrite CRLs (a warning is sent to the systemlog)" >> $(RESULTFILE)
-	@ssltrustmgr -a -R -f $(PEGASUS_HOME)/testca1.crl >> $(RESULTFILE) $(REDIRECTERROR)
-	@$(ECHO) >> $(RESULTFILE)
-	
 	@$(ECHO) "Try to connect with the 1st certificate, this should fail with a connection failure" >> $(RESULTFILE)
 	@TestCertClient $(PEGASUS_HOME)/testdn2.cert $(PEGASUS_HOME)/testdn2.key >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
@@ -172,7 +171,11 @@ endif
 	@TestCertClient $(PEGASUS_HOME)/testdn3.cert $(PEGASUS_HOME)/testdn3.key >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
-	@$(ECHO) "Add the updated CA CRL to the truststore" >> $(RESULTFILE)
+	@$(ECHO) "Try to connect with the 3rd certificate issued by the CA, this should succeed" >> $(RESULTFILE)
+	@TestCertClient $(PEGASUS_HOME)/testdn4.cert $(PEGASUS_HOME)/testdn4.key >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+	
+	@$(ECHO) "Add the updated CA CRL to the truststore, this should succeed" >> $(RESULTFILE)
 	@ssltrustmgr -a -R -f $(PEGASUS_HOME)/testca2.crl >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
@@ -184,40 +187,46 @@ endif
 	@TestCertClient $(PEGASUS_HOME)/testdn3.cert $(PEGASUS_HOME)/testdn3.key >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
-	# Commenting out until the updated CRL adding fully works (Bug:3062)
-	#@$(ECHO) "Try to connect with the 3rd certificate, this should fail with a connection failure" >> $(RESULTFILE)
-	#@TestCertClient $(PEGASUS_HOME)/testdn4.cert $(PEGASUS_HOME)/testdn4.key >> $(RESULTFILE) $(REDIRECTERROR)
-	#@$(ECHO) >> $(RESULTFILE)
+	@$(ECHO) "Try to connect with the 3rd certificate, this should fail with a connection failure" >> $(RESULTFILE)
+	@TestCertClient $(PEGASUS_HOME)/testdn4.cert $(PEGASUS_HOME)/testdn4.key >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
 	
 	@$(ECHO) "Remove the CA CRL certificate" >> $(RESULTFILE)
 	@ssltrustmgr -r -R -i /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TheMan/emailAddress=TestCA >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
-	# Commenting out until the CRL refresh fully works
-	#@$(ECHO) "Try to connect with the 1st certificate, this should succeed" >> $(RESULTFILE)
-	#@TestCertClient $(PEGASUS_HOME)/testdn2.cert $(PEGASUS_HOME)/testdn2.key >> $(RESULTFILE) $(REDIRECTERROR)
-	#@$(ECHO) >> $(RESULTFILE)
+	@$(ECHO) "Try to connect with the 1st certificate, this should succeed" >> $(RESULTFILE)
+	@TestCertClient $(PEGASUS_HOME)/testdn2.cert $(PEGASUS_HOME)/testdn2.key >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
 	
-	#@$(ECHO) "Try to connect with the 2nd certificate, this should succeed" >> $(RESULTFILE)
-	#@TestCertClient $(PEGASUS_HOME)/testdn3.cert $(PEGASUS_HOME)/testdn3.key >> $(RESULTFILE) $(REDIRECTERROR)
-	#@$(ECHO) >> $(RESULTFILE)
+	@$(ECHO) "Try to connect with the 2nd certificate, this should succeed" >> $(RESULTFILE)
+	@TestCertClient $(PEGASUS_HOME)/testdn3.cert $(PEGASUS_HOME)/testdn3.key >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+	
+	@$(ECHO) "Try to connect with the 3rd certificate, this should succeed" >> $(RESULTFILE)
+	@TestCertClient $(PEGASUS_HOME)/testdn4.cert $(PEGASUS_HOME)/testdn4.key >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
 	 
 	@$(ECHO) "Remove the CA CRL that we just removed, this should get a DNE error" >> $(RESULTFILE)
 	@ssltrustmgr -r -R -i /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TheMan/emailAddress=TestCA >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)       
 	
-	# Commenting out until the CRL refresh fully works
-	#@$(ECHO) "Try to connect with the 1st certificate, this should fail with a 401" >> $(RESULTFILE)
-	#@TestCertClient $(PEGASUS_HOME)/testdn2.cert $(PEGASUS_HOME)/testdn2.key >> $(RESULTFILE) $(REDIRECTERROR)
-	#@$(ECHO) >> $(RESULTFILE)
-	
-	#@$(ECHO) "Try to connect with the 2nd certificate, this should fail with a 401" >> $(RESULTFILE)
-	#@TestCertClient $(PEGASUS_HOME)/testdn3.cert $(PEGASUS_HOME)/testdn3.key >> $(RESULTFILE) $(REDIRECTERROR)
-	#@$(ECHO) >> $(RESULTFILE)
-	
 	@$(ECHO) "Remove the CA certificate from the truststore to clean everything up, this should succeed" >> $(RESULTFILE)
 	@ssltrustmgr -r -i /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TheMan/emailAddress=TestCA -n 0 >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
+	
+	@$(ECHO) "Try to connect with the 1st certificate issued by the CA, this should get 401'ed" >> $(RESULTFILE)
+	@TestCertClient $(PEGASUS_HOME)/testdn2.cert $(PEGASUS_HOME)/testdn2.key >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+	
+	@$(ECHO) "Try to connect with the 2nd certificate issued by the CA, this should get 401'ed" >> $(RESULTFILE)
+	@TestCertClient $(PEGASUS_HOME)/testdn3.cert $(PEGASUS_HOME)/testdn3.key >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+	
+	@$(ECHO) "Try to connect with the 3rd certificate issued by the CA, this should get 401'ed" >> $(RESULTFILE)
+	@TestCertClient $(PEGASUS_HOME)/testdn4.cert $(PEGASUS_HOME)/testdn4.key >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+	
 	
 	@$(ECHO) ++++ssltrustmgr tests completed
 endif

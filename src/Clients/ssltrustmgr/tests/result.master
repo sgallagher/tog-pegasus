@@ -5,7 +5,7 @@ Exception: HTTP Error (401 Unauthorized).
 Add the self-signed certificate to the truststore
 Certificate added successfully.
 
-Try to connect, this should be succeed
+Try to connect, this should succeed
 TestCertClient::Connecting to 127.0.0.1:5989
 Result: CIM_ComputerSystem
 +++++ TestCertClient Terminated Normally
@@ -48,7 +48,21 @@ Result: CIM_ComputerSystem
 Add the CA CRL to the truststore
 CRL added successfully.
 
-Attempt to add the same CA CRL again, this should work since you can overwrite CRLs (a warning is sent to the systemlog)
+Try to connect with the 1st certificate, this should fail with a connection failure
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: Cannot connect to 127.0.0.1:5989. Connection failed.
+
+Try to connect with the 2nd certificate, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Try to connect with the 3rd certificate issued by the CA, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Add the updated CA CRL to the truststore, this should succeed
 CRL added successfully.
 
 Try to connect with the 1st certificate, this should fail with a connection failure
@@ -60,20 +74,27 @@ TestCertClient::Connecting to 127.0.0.1:5989
 Result: CIM_ComputerSystem
 +++++ TestCertClient Terminated Normally
 
-Add the updated CA CRL to the truststore
-CRL added successfully.
-
-Try to connect with the 1st certificate, this should fail with a connection failure
+Try to connect with the 3rd certificate, this should fail with a connection failure
 TestCertClient::Connecting to 127.0.0.1:5989
 Exception: Cannot connect to 127.0.0.1:5989. Connection failed.
-
-Try to connect with the 2nd certificate, this should succeed
-TestCertClient::Connecting to 127.0.0.1:5989
-Result: CIM_ComputerSystem
-+++++ TestCertClient Terminated Normally
 
 Remove the CA CRL certificate
 CRL removed successfully.
+
+Try to connect with the 1st certificate, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Try to connect with the 2nd certificate, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Try to connect with the 3rd certificate, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
 
 Remove the CA CRL that we just removed, this should get a DNE error
 Failed to remove CRL.
@@ -81,4 +102,16 @@ CIM_ERR_FAILED: A general error occurred that is not covered by a more specific 
 
 Remove the CA certificate from the truststore to clean everything up, this should succeed
 Certificate removed successfully.
+
+Try to connect with the 1st certificate issued by the CA, this should get 401'ed
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: HTTP Error (401 Unauthorized).
+
+Try to connect with the 2nd certificate issued by the CA, this should get 401'ed
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: HTTP Error (401 Unauthorized).
+
+Try to connect with the 3rd certificate issued by the CA, this should get 401'ed
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: HTTP Error (401 Unauthorized).
 

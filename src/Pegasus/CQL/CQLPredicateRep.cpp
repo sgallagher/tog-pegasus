@@ -45,31 +45,25 @@ Boolean CQLPredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
     PEGASUS_ASSERT(_predicates.size() % 2 == 0);
  
     result = _predicates[0].evaluate(CI, QueryCtx); 
-    for (Uint32 i = 1; i < _predicates.size() - 1; i++)
+    
+    for (Uint32 i = 0; i < _operators.size(); i++)
     {
       if (_operators[i] == AND)
       {
-	Uint32 j = i;
-	Boolean andResult = _predicates[j].evaluate(CI, QueryCtx);
-	while (_operators[j] == AND)
-	{
-	  if (andResult == true)
-	    andResult = andResult && _predicates[j+1].evaluate(CI, QueryCtx);
-	  
-	  j++;
-	}
-	
-	result = result || andResult;
+	if (result == false)
+	  continue;
 
-	i = j;
-      }
+	result = result && _predicates[i+1].evaluate(CI, QueryCtx);
+      }	
+      else
+      {
+	if (result == true)
+	  break;
 
-      result = result || _predicates[i+1].evaluate(CI, QueryCtx); 
-
-      if (result == true)
-	return (getInverted()) ? !result : result;
+	result = _predicates[i+1].evaluate(CI, QueryCtx);
+      } 
     }
-  } 
+  }
 
   return (getInverted()) ? !result : result;
 }

@@ -1031,7 +1031,7 @@ Uint64 CIMDateTime::_toMicroSeconds()
     }
     else if (mic_sp > 0) {
         String subMic = _rep->microSec.subString(0, mic_sp);
-        mic = atol(subMic.getCString()) * pow((double)10,(double)(6-mic_sp));
+        mic = Uint64(atol(subMic.getCString()) * pow((double)10,(double)(6-mic_sp)));
     }
     else{
         mic = 0;

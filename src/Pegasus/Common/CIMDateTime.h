@@ -40,7 +40,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-struct CIMDateTimeRep;
+class CIMDateTimeRep;
 
 /**
 

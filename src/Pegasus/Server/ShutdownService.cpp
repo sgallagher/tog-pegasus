@@ -129,7 +129,6 @@ void ShutdownService::shutdown(Boolean force, Uint32 timeout)
         //
         _cimserver->stopClientConnection();
 
-System::sleep(3);
         //
         // get shutdown timeout values
         //

@@ -547,6 +547,10 @@ private:
     friend class CIMInstance;
 };
 
+#define PEGASUS_ARRAY_T CIMInstance
+# include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_InstanceDecl_h */

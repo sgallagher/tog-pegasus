@@ -16,8 +16,6 @@ EXE =
 
 LIB_PREFIX = lib
 
-LIB_SUFFIX = .so
-
 COPY = cp
 
 TOUCH = touch

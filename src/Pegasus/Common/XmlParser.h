@@ -134,6 +134,15 @@ struct PEGASUS_COMMON_LINKAGE XmlEntry
 
 PEGASUS_MEMORY_FUNCTIONS(XmlEntry)
 
+inline int operator==(const XmlEntry&, const XmlEntry&)
+{
+    return 0;
+}
+
+#define PEGASUS_ARRAY_T XmlEntry
+# include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
+
 class PEGASUS_COMMON_LINKAGE XmlParser
 {
 public:

@@ -29,6 +29,7 @@
 #define Pegasus_DateTime_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Array.h>
 #include <iostream>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -168,6 +169,10 @@ PEGASUS_COMMON_LINKAGE Boolean operator==(
 PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
     PEGASUS_STD(ostream)& os, 
     const CIMDateTime& x);
+
+#define PEGASUS_ARRAY_T CIMDateTime
+# include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END
 

@@ -29,3 +29,5 @@ YACC = bison
 COPY = cp
 
 MOVE = mv
+
+LIB_SUFFIX = .so

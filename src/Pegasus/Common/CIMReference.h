@@ -112,7 +112,7 @@ private:
     Type _type;
 
     friend Boolean operator==(const KeyBinding& x, const KeyBinding& y);
-    friend CIMReference;
+    friend class CIMReference;
 };
 
 inline Boolean operator==(const KeyBinding& x, const KeyBinding& y)
@@ -122,6 +122,10 @@ inline Boolean operator==(const KeyBinding& x, const KeyBinding& y)
 	String::equal(x._value, y._value) &&
 	x._type == y._type;
 }
+
+#define PEGASUS_ARRAY_T KeyBinding
+# include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
 
 typedef Array<KeyBinding> KeyBindingArray;
 
@@ -369,7 +373,7 @@ public:
     CIMReference(const char* objectName);
 
     /** Workaround to MSVC++ bug. */
-	static KeyBindingArray getKeyBindingArray();
+    static KeyBindingArray getKeyBindingArray();
 
     /** Constructs a CIMReference from constituent elements.
 	@param host Name of host (e.g., "nemesis-8888").
@@ -505,7 +509,7 @@ private:
     String _className;
     Array<KeyBinding> _keyBindings;
 
-    friend XmlWriter;
+    friend class XmlWriter;
 };
 
 inline Boolean operator==(const CIMReference& x, const CIMReference& y)
@@ -518,10 +522,16 @@ inline Boolean operator!=(const CIMReference& x, const CIMReference& y)
     return !operator==(x, y);
 }
 
-inline PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const CIMReference& x)
+inline PEGASUS_STD(ostream)& operator<<(
+    PEGASUS_STD(ostream)& os, 
+    const CIMReference& x)
 {
     return os << x.toString();
 }
+
+#define PEGASUS_ARRAY_T CIMReference
+# include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END
 

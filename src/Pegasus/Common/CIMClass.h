@@ -510,10 +510,13 @@ private:
     friend class CIMConstClass;
 };
 
+#define PEGASUS_ARRAY_T CIMClass
+# include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
+
 /** CIMConstClass - ATTN: define this.
 
 */
-
 class PEGASUS_COMMON_LINKAGE CIMConstClass
 {
 public:
@@ -695,5 +698,3 @@ private:
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_CIMClass_h */
-
-

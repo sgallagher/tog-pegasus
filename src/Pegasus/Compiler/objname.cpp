@@ -37,6 +37,8 @@
 #include <iostream> // for debug
 
 PEGASUS_USING_STD;
+
+
 PEGASUS_NAMESPACE_BEGIN
 
 #define WHITESPACE(x) (x==' ' || x=='\t' || x=='\n' || x=='\r')
@@ -66,7 +68,8 @@ namespaceHandle::namespaceHandleComponentsToRep() {
 }
 
 void
-namespaceHandle::namespaceHandleRepToComponents(const String &rep) {
+namespaceHandle::namespaceHandleRepToComponents(const String &rep) 
+{
   _host.clear();
   _path.clear();
   Uint32 n = rep.size();
@@ -76,6 +79,7 @@ namespaceHandle::namespaceHandleRepToComponents(const String &rep) {
   for (Uint32 i = 0; i < n; i++)
     if (rep[i] == ':')
 	hashost = true;
+
   for (Uint32 i = 0; i < n; i++) {
     Char16 c = rep[i];
     switch (state) {
@@ -91,19 +95,21 @@ namespaceHandle::namespaceHandleRepToComponents(const String &rep) {
       }
       break;
     case INHOST:
-      if (c != ':') {
+    {
+      if (char(c) != ':')
 	_host.append(c);
-      } else {
+      else
 	state = INPATH;
-      }
       break;
+    }
     case INPATH:
-      if (c != ':') {
+    {
+      if (char(c) != ':') 
 	_path.append(c);
-      } else {
+      else 
 	state = DONE;
-      }
       break;
+    }
     default:
       break;
     } // end switch

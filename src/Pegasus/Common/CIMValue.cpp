@@ -36,6 +36,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define PEGASUS_ARRAY_T CIMValue
+# include "ArrayImpl.h"
+#undef PEGASUS_ARRAY_T
+
 template<class T>
 inline void _Inc(ArrayRep<T>* rep)
 {

@@ -25,8 +25,13 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <dlfcn.h>
-#include <unistd.h>
+#ifdef PEGASUS_OS_HPUX
+# include <dl.h>
+#else
+# include <dlfcn.h>
+#endif
+
+# include <unistd.h>
 #include <dirent.h>
 #include "System.h"
 #include <sys/stat.h>
@@ -127,14 +132,61 @@ Boolean System::renameFile(const char* oldPath, const char* newPath)
 
 DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
 {
+#ifdef PEGASUS_OS_HPUX
+    char* p = strcpy(new char[strlen(fileName) + 4], fileName);
+    char* dot = strrchr(p, '.');
+
+    if (!dot)
+	return 0;
+
+    *dot = '\0';
+    strcat(p, ".sl");
+
+PEGASUS_OUT(p);
+    void* handle = shl_load(p, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
+    delete [] p;
+PEGASUS_OUT(handle);
+
+    return DynamicLibraryHandle(handle);
+#else
     return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW | RTLD_GLOBAL));
+#endif
 }
 
 DynamicSymbolHandle System::loadDynamicSymbol(
     DynamicLibraryHandle libraryHandle,
     const char* symbolName)
 {
+#ifdef PEGASUS_OS_HPUX
+PEGASUS_OUT(libraryHandle);
+    char* p = (char*)symbolName;
+    void* proc = 0;
+
+    if (shl_findsym((shl_t*)libraryHandle, p, TYPE_UNDEFINED, &proc) == 0)
+	return DynamicSymbolHandle(proc);
+
+PEGASUS_OUT(proc);
+PEGASUS_OUT(errno);
+
+    p = strcpy(new char[strlen(symbolName) + 2], symbolName);
+    strcpy(p, "_");
+    strcat(p, symbolName);
+
+    if (shl_findsym((shl_t*)libraryHandle, p, TYPE_UNDEFINED, &proc) == 0)
+    {
+	delete [] p;
+	return DynamicSymbolHandle(proc);
+    }
+
+PEGASUS_OUT(proc);
+PEGASUS_OUT(errno);
+
+    delete [] p;
+    return 0;
+
+#else
     return DynamicSymbolHandle(dlsym(libraryHandle, (char*)symbolName));
+#endif
 }
 
 PEGASUS_NAMESPACE_END

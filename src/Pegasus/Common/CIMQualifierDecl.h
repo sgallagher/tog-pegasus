@@ -366,6 +366,10 @@ private:
     friend class CIMQualifierDecl;
 };
 
+#define PEGASUS_ARRAY_T CIMQualifierDecl
+# include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_QualifierDecl_h */

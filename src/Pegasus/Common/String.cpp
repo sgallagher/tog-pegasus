@@ -34,6 +34,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define PEGASUS_ARRAY_T String
+#include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+
 const String String::EMPTY;
 
 inline Uint32 StrLen(const char* str)

@@ -386,6 +386,10 @@ private:
 PEGASUS_MEMORY_FUNCTIONS(CIMQualifier)
 PEGASUS_MEMORY_FUNCTIONS(CIMQualifier*)
 
+#define PEGASUS_ARRAY_T CIMQualifier
+# include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Qualifier_h */

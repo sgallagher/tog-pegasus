@@ -77,7 +77,7 @@ Boolean FileSystem::existsNoCase(const String& path, String& realPath)
     ArrayDestroyer<char> destroyer(_clonePath(path));
     char* p = destroyer.getPointer();
 
-    char* dirPath;
+    const char* dirPath;
     char* fileName;
     char* slash = strrchr(p, '/');
 

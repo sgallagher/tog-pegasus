@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstdlib>
 #include <iostream>
 #include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/XmlWriter.h>

@@ -158,7 +158,7 @@ const char CannotOpenDirectory::MSG[] = "cannot open directory: ";
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-static char* _cimMessages[] =
+static const char* _cimMessages[] =
 {
     "SUCCESS: successful",
 

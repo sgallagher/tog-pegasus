@@ -233,7 +233,7 @@ Boolean Selector::addHandler(
 
     // Add the entry to the list:
 
-    Entry entry = { desc, handler };
+    SelectorEntry entry = { desc, handler };
     _entries.append(entry);
 
     // Success!

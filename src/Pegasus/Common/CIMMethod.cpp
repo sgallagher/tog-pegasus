@@ -29,6 +29,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define PEGASUS_ARRAY_T CIMMethod
+# include "ArrayImpl.h"
+#undef PEGASUS_ARRAY_T
+
 CIMMethod::CIMMethod(const CIMConstMethod& x)
 {
     Inc(_rep = x._rep);

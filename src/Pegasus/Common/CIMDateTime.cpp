@@ -30,8 +30,13 @@
 #include <cstdio>
 #include "CIMDateTime.h"
 #include "Exception.h"
+#include "Array.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
+#define PEGASUS_ARRAY_T CIMDateTime
+# include "ArrayImpl.h"
+#undef PEGASUS_ARRAY_T
 
 // ATTN-C: Need methods for determining inequalities.
 // ATTN-C: Need methods for extracting components (e.g., minutes, hours)?

@@ -114,7 +114,7 @@ protected:
     _BucketBase** _first;
     _BucketBase** _last;
     _BucketBase* _bucket;
-    friend _HashTableRep;
+    friend class _HashTableRep;
 };
 
 // ATTN: reorganization not supported yet.

@@ -657,6 +657,10 @@ PEGASUS_COMMON_LINKAGE const Array<String>& EmptyStringArray();
 
 PEGASUS_COMMON_LINKAGE Boolean Equal(const String& x, const String& y);
 
+#define PEGASUS_ARRAY_T String
+#include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_String_h */

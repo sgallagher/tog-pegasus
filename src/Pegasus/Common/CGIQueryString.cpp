@@ -31,6 +31,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define PEGASUS_ARRAY_T CGIQueryStringEntry
+# include "ArrayImpl.h"
+#undef PEGASUS_ARRAY_T
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CGIQueryString:
@@ -67,7 +71,7 @@ static void _ExpandCGIQueryValue(char* value)
 
 void CGIQueryString::_ParseCGIQueryString(
     char* queryString, 
-    Array<CGIQueryString::Entry>& entries)
+    Array<CGIQueryStringEntry>& entries)
 {
     // First split about the '&' characters:
 
@@ -91,7 +95,7 @@ void CGIQueryString::_ParseCGIQueryString(
 	// cout << "name=[" << name << "]" << endl;
 	// cout << "value=[" << value << "]" << endl;
 
-	CGIQueryString::Entry entry = { name, value };
+	CGIQueryStringEntry entry = { name, value };
 	entries.append(entry);
     }
 }

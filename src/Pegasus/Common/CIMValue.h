@@ -338,6 +338,10 @@ inline Boolean operator!=(const CIMValue& x, const CIMValue& y)
     return !operator==(x, y);
 }
 
+#define PEGASUS_ARRAY_T CIMValue
+# include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Value_h */

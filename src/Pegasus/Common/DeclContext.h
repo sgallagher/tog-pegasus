@@ -63,6 +63,27 @@ public:
 	const String& name) const = 0;
 };
 
+typedef Pair<String, CIMClass> CPair;
+typedef Pair<String, CIMQualifierDecl> QPair;
+
+inline int operator==(const QPair& x, const QPair& y)
+{
+    return 0;
+}
+
+inline int operator==(const CPair& x, const CPair& y)
+{
+    return 0;
+}
+
+#define PEGASUS_ARRAY_T QPair
+# include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
+
+#define PEGASUS_ARRAY_T CPair
+# include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
+
 class PEGASUS_COMMON_LINKAGE SimpleDeclContext : public DeclContext
 {
 public:
@@ -86,9 +107,6 @@ public:
 	const String& name) const;
 
 private:
-
-    typedef Pair<String, CIMClass> CPair;
-    typedef Pair<String, CIMQualifierDecl> QPair;
 
     Array<CPair> _classDeclarations;
     Array<QPair> _qualifierDeclarations;

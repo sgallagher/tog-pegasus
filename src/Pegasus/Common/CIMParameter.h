@@ -354,6 +354,10 @@ private:
     friend class CIMParameter;
 };
 
+#define PEGASUS_ARRAY_T CIMParameter
+# include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Parameter_h */

@@ -29,6 +29,7 @@
 #define Pegasus_Config_h
 
 #include <iostream>
+#include <cstdlib>
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 # include <Pegasus/Common/Platform_WIN32_IX86_MSVC.h>
@@ -36,6 +37,8 @@
 # include <Pegasus/Common/Platform_LINUX_IX86_GNU.h>
 #elif defined (PEGASUS_PLATFORM_AIX_RS_IBMCXX)
 # include <Pegasus/Common/Platform_AIX_RS_IBMCXX.h>
+#elif defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+# include <Pegasus/Common/Platform_HPUX_PARISC_ACC.h>
 #else
 # error "<Pegasus/Common/Config.h>: Unsupported Platform"
 #endif

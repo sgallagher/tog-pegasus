@@ -88,6 +88,21 @@ inline Boolean operator==(char x, const Char16& y)
     return x == y.getCode();
 }
 
+inline Boolean operator!=(const Char16& x, const Char16& y)
+{
+    return !operator==(x, y);
+}
+
+inline Boolean operator!=(const Char16& x, char y)
+{
+    return !operator==(x, y);
+}
+
+inline Boolean operator!=(char x, const Char16& y)
+{
+    return !operator==(x, y);
+}
+
 PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<( 
     PEGASUS_STD(ostream)& os, 
     const Char16& x);

@@ -38,6 +38,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define PEGASUS_ARRAY_T SelectorEntry
+#include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+
 Uint32 Selector::_findEntry(Sint32 desc) const
 {
     for (Uint32 i = 0, n = _entries.size(); i < n; i++)

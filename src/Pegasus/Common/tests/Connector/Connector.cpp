@@ -26,6 +26,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
+#include <cstdlib>
 #include <iostream>
 #include <Pegasus/Common/TCPChannel.h>
 

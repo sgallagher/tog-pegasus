@@ -98,8 +98,8 @@ int main()
     {
 	String t = "TestDirectory";
 	String t1 = "TestDirectory2";
-	char* f = "TestFile.txt";
-	char* f1 = "TestFile1.txt";
+	const char* f = "TestFile.txt";
+	const char* f1 = "TestFile1.txt";
 
 	FileSystem::makeDirectory(t);
 	assert(FileSystem::isDirectory(t));

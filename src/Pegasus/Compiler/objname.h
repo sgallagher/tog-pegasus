@@ -134,8 +134,8 @@ class PEGASUS_COMPILER_LINKAGE objectName {
       const String &keyString);
   objectName(const CIMInstance &instance);
   ~objectName();
-  void objectName::set(const String &rep);
-  void objectName::set(const String &namespaceType, 
+  void set(const String &rep);
+  void set(const String &namespaceType, 
 		       const String &namespaceHandle,
 		       const String &modelPath);
   const String &Stringrep() { return _Stringrep; }

@@ -10,7 +10,6 @@ LIBRARY = pegcommon
 
 SOURCES = \
     Array.cpp \
-    CGIQueryString.cpp \
     Channel.cpp \
     Char16.cpp \
     Config.cpp \
@@ -63,5 +62,6 @@ SOURCES = \
     XmlParser.cpp \
     XmlReader.cpp \
     XmlWriter.cpp \
+    CGIQueryString.cpp \
 
 include $(ROOT)/mak/library.mak

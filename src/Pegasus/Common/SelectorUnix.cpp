@@ -26,9 +26,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Selector.h"
-
-PEGASUS_NAMESPACE_BEGIN
-
 #include <cstdlib>
 #include <cstring>
 #include <cctype>
@@ -40,18 +37,20 @@ PEGASUS_NAMESPACE_BEGIN
 #include <arpa/inet.h>
 #include <unistd.h>
 
+PEGASUS_NAMESPACE_BEGIN
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Local routines:
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-static inline int select_wrapper(
+static inline int _select_wrapper(
     int nfds,
     fd_set* rd_fd_set,
     fd_set* wr_fd_set,
     fd_set* ex_fd_set,
-    timeval* tv)
+    struct timeval* tv)
 {
     return select(FD_SETSIZE, rd_fd_set, wr_fd_set, ex_fd_set, tv);
 }
@@ -202,7 +201,7 @@ Boolean Selector::addHandler(
 
     // Add the entry to the list:
 
-    Entry entry = { desc, handler };
+    SelectorEntry entry = { desc, handler };
     _entries.append(entry);
 
     // Success!

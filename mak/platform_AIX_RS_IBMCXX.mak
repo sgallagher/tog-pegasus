@@ -6,7 +6,10 @@ ARCHITECTURE = rs
 
 COMPILER = xlc
 
-SYS_INCLUDES = -I$(ROOT)/src/stdcxx
+SYS_INCLUDES = \
+    -I$(ROOT)/src/stdcxx/alloc \
+    -I$(ROOT)/src/stdcxx/stream \
+    -I$(ROOT)/src/stdcxx/cwrappers
 
 DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 
@@ -29,3 +32,5 @@ YACC = bison
 COPY = cp
 
 MOVE = mv
+
+LIB_SUFFIX = .so

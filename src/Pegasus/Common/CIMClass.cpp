@@ -29,6 +29,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define PEGASUS_ARRAY_T CIMClass
+# include "ArrayImpl.h"
+#undef PEGASUS_ARRAY_T
+
 Boolean CIMClass::identical(const CIMConstClass& x) const
 {
     x._checkRep();

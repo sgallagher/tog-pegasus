@@ -34,8 +34,17 @@
 #include "Destroyer.h"
 #include "XmlWriter.h"
 #include "XmlReader.h"
+#include "Array.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
+#define PEGASUS_ARRAY_T CIMReference
+# include "ArrayImpl.h"
+#undef PEGASUS_ARRAY_T
+
+#define PEGASUS_ARRAY_T KeyBinding
+# include "ArrayImpl.h"
+#undef PEGASUS_ARRAY_T
 
 // ATTN: add a resolve method to this class to verify that the
 // reference is correct (that the class name corresponds to a real

@@ -88,6 +88,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define PEGASUS_ARRAY_T XmlEntry
+# include "ArrayImpl.h"
+#undef PEGASUS_ARRAY_T
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Static helper functions
@@ -191,7 +196,7 @@ static void _normalize(char* text)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-static char* _xmlMessages[] =
+static const char* _xmlMessages[] =
 {
     "Bad opening element",
     "Bad closing element",

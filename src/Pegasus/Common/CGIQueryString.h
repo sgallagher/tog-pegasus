@@ -34,6 +34,18 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+struct CGIQueryStringEntry
+{
+    char *name;
+    char *value;
+
+    ~CGIQueryStringEntry() { }
+};
+
+#define PEGASUS_ARRAY_T CGIQueryStringEntry
+# include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
+
 /** The CGIQueryString class is used to parse and extract the fields from
     the CGI QUERY_STRING environment variable which is set by the Web Server
     and passed to the CGI program. The value of that environment variable
@@ -62,28 +74,23 @@ public:
 
 private:
 
-    struct Entry
-    {
-	char *name;
-	char *value;
-
-	~Entry() { }
-    };
-
-    Array<Entry> _entries;
+    Array<CGIQueryStringEntry> _entries;
 
     static void _ParseCGIQueryString(
 	char* queryString, 
-	Array<Entry>& entries);
+	Array<CGIQueryStringEntry>& entries);
 
 public:
 
 
-    friend int operator==(const Entry& x, const Entry& y)
-    {
-        return 0;
-    }
 };
+
+inline int operator==(
+    const CGIQueryStringEntry& x, 
+    const CGIQueryStringEntry& y)
+{
+    return 0;
+}
 
 PEGASUS_NAMESPACE_END
 

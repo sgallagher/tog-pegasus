@@ -17,6 +17,9 @@ Urgent
 Topical To-Do List
 ==================
 
+    -   Support unloading of dynamic libraries (presently only load() is
+	supported).
+
 -   Instances:
 
     -	Implement CIMRepository::getProperty()

@@ -29,6 +29,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define PEGASUS_ARRAY_T CIMProperty
+# include "ArrayImpl.h"
+#undef PEGASUS_ARRAY_T
+
 CIMProperty::CIMProperty(const CIMConstProperty& x)
 {
     Inc(_rep = x._rep);

@@ -40,6 +40,11 @@ struct OptionRow;
 
 PEGASUS_MEMORY_FUNCTIONS(Option*)
 
+typedef Option* OptionPtr;
+#define PEGASUS_ARRAY_T OptionPtr
+# include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
+
 /** The OptionManager class manages a collection of program options.
 
     <h4>Overview</h4>

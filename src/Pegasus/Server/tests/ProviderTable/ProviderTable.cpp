@@ -43,6 +43,7 @@ int main(int argc, char** argv)
     catch(Exception& e)
     {
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+	exit(1);
     }
 
     cout << "+++++ passed all tests" << endl;

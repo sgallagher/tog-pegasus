@@ -37,6 +37,17 @@ PEGASUS_NAMESPACE_BEGIN
 class SelectorHandler;
 struct SelectorRep;
 
+/** This class is used to represent entries in the Selector class. */
+struct SelectorEntry
+{
+    Sint32 desc;
+    SelectorHandler* handler;
+};
+
+#define PEGASUS_ARRAY_T SelectorEntry
+#include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
+
 /** The Selector class is used to demultiplex socket descriptor events. 
 
     The TCPChannel implementations use the Selector class to detect events 
@@ -61,7 +72,6 @@ struct SelectorRep;
     method sleeps until there is activity on one of the registered descriptors
     and then the associated handle method is called.
 */
-
 class PEGASUS_COMMON_LINKAGE Selector
 {
 public:
@@ -101,21 +111,15 @@ public:
     */
     Boolean removeHandler(SelectorHandler* handler);
 
-    struct Entry
-    {
-	Sint32 desc;
-	SelectorHandler* handler;
-    };
-
 private:
 
     Uint32 _findEntry(Sint32 desc) const;
 
-    Array<Entry> _entries;
+    Array<SelectorEntry> _entries;
     SelectorRep* _rep;
 };
 
-PEGASUS_MEMORY_FUNCTIONS(Selector::Entry)
+PEGASUS_MEMORY_FUNCTIONS(SelectorEntry)
 
 class PEGASUS_COMMON_LINKAGE SelectorHandler
 {
@@ -126,7 +130,7 @@ public:
     virtual Boolean handle(Sint32 desc, Uint32 reasons) = 0;
 };
 
-inline int operator==(const Selector::Entry& x, const Selector::Entry& y) 
+inline int operator==(const SelectorEntry& x, const SelectorEntry& y) 
 {
     return false; 
 }

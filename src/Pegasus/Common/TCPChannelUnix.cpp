@@ -221,7 +221,7 @@ Channel* TCPChannelConnector::connect(const char* addressString)
 
     // Conect the socket to the address:
 
-    if (::connect(desc, (sockaddr*)&address, sizeof(address)) < 0)
+    if (::connect(desc, (sockaddr*)(void*)&address, sizeof(address)) < 0)
 	return 0;
 
     // Create the channel:
@@ -343,10 +343,13 @@ Boolean TCPChannelAcceptor::handle(Sint32 desc, Uint32 reasons)
     unsigned int n;
 #elif defined (PEGASUS_OS_AIX)
     socklen_t n;
+#elif defined (PEGASUS_OS_HPUX)
+    int n;
 #endif
+
     n = sizeof(address);
 
-    Sint32 slaveDesc = accept(_desc, (struct sockaddr*)&address, &n);
+    Sint32 slaveDesc = accept(_desc, (struct sockaddr*)(void*)&address, &n);
 
     if (slaveDesc < 0)
 	return true;

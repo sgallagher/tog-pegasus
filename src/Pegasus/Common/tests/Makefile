@@ -5,7 +5,6 @@ include $(ROOT)/mak/config.mak
 DIRS = \
     Config \
     HashTable \
-    Reference \
     Resolve \
     Logger \
     Acceptor \
@@ -36,7 +35,10 @@ DIRS = \
     Value \
     XmlDump \
     XmlParser \
-    XmlPrint
+    XmlPrint \
+    Reference \
+    DynLib \
+    DynLoad
 
 XDIRS = \
     ValidateClass \

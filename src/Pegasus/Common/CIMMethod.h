@@ -533,6 +533,10 @@ private:
     friend class CIMMethodRep;
 };
 
+#define PEGASUS_ARRAY_T CIMMethod
+# include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Method_h */

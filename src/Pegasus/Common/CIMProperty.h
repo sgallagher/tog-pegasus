@@ -518,6 +518,10 @@ private:
     friend class CIMPropertyRep;
 };
 
+#define PEGASUS_ARRAY_T CIMProperty
+# include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Property_h */

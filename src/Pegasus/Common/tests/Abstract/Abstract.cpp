@@ -25,6 +25,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+
+#include <cstdlib>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/DeclContext.h>
 

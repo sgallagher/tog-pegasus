@@ -33,8 +33,8 @@
 #include <Pegasus/Common/Tracer.h>
 
 PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
 
-PEGASUS_NAMESPACE_BEGIN
 
 // Trace files for test purposes
 // Will be created in the current directory
@@ -536,4 +536,3 @@ int main()
 #endif
 }
 
-PEGASUS_NAMESPACE_END

@@ -1,0 +1,137 @@
+//%/////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
+//
+// Modified By:
+//
+//%/////////////////////////////////////////////////////////////////////////////
+// Family MOF file - Used as basis for Sample provider with Associations
+// This MOF file is used ot generate both static and dynamic instances so that
+// we can test the use of association in the repository and in a sample provider.
+// We chose person because it is easy to see the relationships.
+
+    [Version("1.0.0"), Description (" Top Level Class that defines "
+        "a person. We will use this in static assoociation "
+        "relationship ")]
+class TST_Person: CIM_ManagedElement
+{
+    [key]
+    string name;
+};
+
+// This is the first one we want to make dynamic
+
+    [Version("1.0.0"), Description ( "Defines a subclass that is "
+        "supported by a provider for the test. "
+        "See the SamplePerson Provider. ") ]
+class TST_PersonDynamic:TST_Person
+{
+};
+
+// Second level Subclass 
+    [Version("1.0.0"), Description ( "Defines a 2nd levelsubclass that is "
+        "supported by a provider for the test. "
+        "See the SamplePerson Provider. ") ]
+class TST_PersonDynamicSubClass:TST_PersonDynamic
+{
+};
+
+[Association, Version("1.0.0"), Description(" Lineage defines the "
+"relationship between parents and children.") ]
+class TST_Lineage
+{
+    [key] TST_Person ref parent;
+    [key] TST_Person ref child;
+};
+
+
+[Association, Version("1.0.0"), Description("Adds a Property.")]
+class TST_LabeledLineage
+{
+    string label;
+    [key] TST_Person ref parent;
+    [key] TST_Person ref child;
+};
+
+// Dynamic equivalent classes for the associations
+// Make these subclasses in the future.
+[Association, Description(" Lineage defines the "
+"relationship between parents and children.") ]
+class TST_LineageDynamic
+{
+    [key] TST_Person ref parent;
+    [key] TST_Person ref child;
+};
+
+[Association, Description(" Lineage defines the "
+"relationship between parents and children.") ]
+class TST_LineageDynamicSubClass
+{
+    [key] TST_PersonDynamic ref parent;
+    [key] TST_PersonDynamic ref child;
+};
+[association]
+class TST_LabeledLineageDynamic
+{
+    string label;
+    [key] TST_Person ref parent;
+    [key] TST_Person ref child;
+};
+
+// The following are instances of the Persion
+// and Lineage classes that should be put into
+// the repository for the static association
+// test
+
+instance of TST_Person { name = "Mike"; };
+
+instance of TST_Person { name = "Saara"; };
+
+instance of TST_Person { name = "Sofi"; };
+
+instance of TST_Person { name = "Gabi"; };
+
+instance of TST_Lineage
+{
+    parent = "Person.name=\"Mike\"";
+    child = "Person.name=\"Sofi\"";
+};
+
+instance of TST_Lineage
+{
+    parent = "Person.name=\"Mike\"";
+    child = "Person.name=\"Gabi\"";
+};
+
+instance of TST_Lineage
+{
+    parent = "Person.name=\"Saara\"";
+    child = "Person.name=\"Sofi\"";
+};
+
+instance of TST_Lineage
+{
+    parent = "Person.name=\"Saara\"";
+    child = "Person.name=\"Gabi\"";
+};

@@ -1,0 +1,67 @@
+// This MOF registers the Family provider, part of the SAMPLE Providers group.
+//
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+    Description = "The Sample Family provider that implements the PersonDynamic, LineageDynamic, LabeledLineageDynamic Classes";
+    Caption = "Family Pegasus Provider Module";
+    Name = "SampleFamilyProviderModule";
+    Vendor = "Pegasus";
+    Version = "2.0.0";
+    InterfaceType = "PG_DefaultC++";
+    InterfaceVersion = "2.0.0";
+    Location = "SampleFamilyProvider";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "SampleFamilyProviderModule";
+    Name = "SampleFamilyProvider";
+};
+// Note that ProviderModuleName is propagated from
+// PG_Provider.ProviderModuleName
+// 3 is Association.
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "SampleFamilyProviderModule";
+    ProviderName = "SampleFamilyProvider";
+    CapabilityID = "SampleFamilyProviderPersonDynamic";
+    ClassName = "TST_PersonDynamic";
+    Namespaces = { "root/SampleProvider" };
+    ProviderType = { 2, 3 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+
+// Include the instance provider for the TST_LineageDynamic
+// Class. Note that this is instance Provider only.
+// Note that there a problem here in that we should only register the
+// leaf class so should probably be the Labled one.
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "SampleFamilyProviderModule";
+    ProviderName = "SampleFamilyProvider";
+    CapabilityID = "SampleFamilyProviderLineageDynamic";
+    ClassName = "TST_LineageDynamic";
+    Namespaces = { "root/SampleProvider" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+
+// Include the instance provider for the TST_LineageDynamic
+// Class. Note that this is instance Provider only
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "SampleFamilyProviderModule";
+    ProviderName = "SampleFamilyProvider";
+    CapabilityID = "SampleFamilyProviderLabledLineageDyanic";
+    ClassName = "TST_LabeledLineageDynamic";
+    Namespaces = { "root/SampleProvider" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+

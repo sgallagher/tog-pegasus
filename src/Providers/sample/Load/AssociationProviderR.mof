@@ -1,0 +1,32 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+    Description = "The Sample Pegasus Association Provider Module that implements Sample_InstanceProviderClass";
+    Caption = "Sample Pegasus Association Provider Module";
+    Name = "SampleAssociationProviderModule";
+    Vendor = "Pegasus";
+    Version = "2.0.0";
+    InterfaceType = "PG_DefaultC++";
+    InterfaceVersion = "2.0.0";
+    Location = "SampleAssociationProvider";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "SampleAssociationProviderModule";
+    Name = "SampleAssociationProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "SampleInstanceProviderModule";
+    ProviderName = "SampleAssociationProvider";
+    CapabilityID = "SampleAssociationProvider";
+    ClassName = "Sample_InstanceProviderClass";
+    Namespaces = { "root/SampleProvider" };
+    ProviderType = { 3 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+

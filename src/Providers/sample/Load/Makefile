@@ -9,6 +9,7 @@ ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/configschema.mak
 
+# Loads the sample MOF into a separate namespace.
 # The following variable determine the version of the Schema to
 # be loaded into the Sample Provider namespace.
 # Update the following variable to change the version.
@@ -16,6 +17,9 @@ include $(ROOT)/mak/configschema.mak
 SAMPLEPROVIDERNS=root/SampleProvider
 SAMPLEPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/root\#SampleProvider
 
+# Load the sample MOF with the local compiler. Cleans the existing repository
+# before reloading.
+# NOTE: I believe that the remove is duplicated for some reason.
 repository:
 	@ echo +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
 	@$(RMREPOSITORY) $(SAMPLEPROVIDERNSDIRECTORY)
@@ -23,18 +27,22 @@ repository:
 	@$(RMREPOSITORY) $(SAMPLEPROVIDERNSDIRECTORY)
 	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
-	@ echo +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
+	@ echo +++++ Loading CIM_Events$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading SampleProvider class definitions into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl -R$(REPOSITORY_DIR) -n$(SAMPLEPROVIDERNS) SampleProviderSchema.mof
 	@ cimmofl -R$(REPOSITORY_DIR) -n$(SAMPLEPROVIDERNS) RT_Indication.mof
-	@ echo +++++ Registering SampleProvider schema Providers  ...
-	@ cimmofl -R$(REPOSITORY_DIR) -n$(INTEROPNS) SampleProviderSchemaR.mof
+	@ echo +++++ Installing the Family MOF file for the association provider
+	@ cimmofl -R$(REPOSITORY_DIR) -n$(SAMPLEPROVIDERNS) TST_Family.mof
+	@ echo +++++ Registering FamilyProvider schema Providers  ...
+	@ cimmofl -R$(REPOSITORY_DIR) -n$(INTEROPNS) FamilyProviderSchemaR.mof
 
+# Load the sample mofe through the Client interface compiler but do not
+# clean out the existing version.
 repositoryServer:
 	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmof -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
-	@ echo +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
+	@ echo +++++ Loading CIM_Events$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmof -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading SampleProvider class definitions into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmof -n$(SAMPLEPROVIDERNS) SampleProviderSchema.mof

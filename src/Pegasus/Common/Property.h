@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Property.h,v $
+// Revision 1.3  2001/01/24 17:17:05  karl
+// add Doc++ comments
+//
 // Revision 1.2  2001/01/15 04:31:44  mike
 // worked on resolve scheme
 //
@@ -48,25 +51,28 @@ PEGASUS_NAMESPACE_BEGIN
 
 class ConstProperty;
 class InstanceDeclRep;
-
+/** Property Class - ATTN:
+*/
 class PEGASUS_COMMON_LINKAGE Property
 {
 public:
-
+    /// Method Property
     Property() : _rep(0)
     {
 
     }
-
+    /// Method Property
     Property(const Property& x)
     {
 	Inc(_rep = x._rep);
     }
+    /** Method Property
 
+    @return
     // Throws IllegalName if name argument not legal CIM identifier.
-
+    */
     Property(
-	const String& name, 
+	const String& name,
 	const Value& value,
 	Uint32 arraySize = 0,
 	const String& referenceClassName = String::EMPTY,
@@ -81,7 +87,7 @@ public:
     {
 	Dec(_rep);
     }
-
+    /// Method
     Property& operator=(const Property& x)
     {
 	if (x._rep != _rep)
@@ -91,110 +97,112 @@ public:
 	}
 	return *this;
     }
-
-    const String& getName() const 
-    { 
+    /// Method
+    const String& getName() const
+    {
 	_checkRep();
-	return _rep->getName(); 
+	return _rep->getName();
     }
-
-    // Throws IllegalName if name argument not legal CIM identifier.
-
+    /** Method setName - Set the property name
+    @return
+    Throws IllegalName if name argument not legal CIM identifier.
+    */
     void setName(const String& name)
     {
 	_checkRep();
 	_rep->setName(name);
     }
-
-    const Value& getValue() const 
-    { 
+    /// Method getValue - ATTN:
+    const Value& getValue() const
+    {
 	_checkRep();
 	return _rep->getValue();
     }
-
-    void setValue(const Value& value) 
+    /// Method setValue - ATTN
+    void setValue(const Value& value)
     {
 	_checkRep();
 	_rep->setValue(value);
     }
-
+    /// Method getArraySize - ATTN:
     Uint32 getArraySize() const
     {
 	_checkRep();
 	return _rep->getArraySize();
     }
-
-    const String& getReferenceClassName() const 
+    /// Method getReferenceClassName - ATTN:
+    const String& getReferenceClassName() const
     {
 	_checkRep();
-	return _rep->getReferenceClassName(); 
+	return _rep->getReferenceClassName();
     }
-
-    const String& getClassOrigin() const 
-    { 
+    /// Method getClassOrigin - ATTN
+    const String& getClassOrigin() const
+    {
 	_checkRep();
 	return _rep->getClassOrigin();
     }
-
+    /// Method setClassOrigin
     void setClassOrigin(const String& classOrigin)
     {
 	_checkRep();
 	_rep->setClassOrigin(classOrigin);
     }
-
-    Boolean getPropagated() const 
-    { 
+    /// Method getPropagated - ATTN
+    Boolean getPropagated() const
+    {
 	_checkRep();
 	return _rep->getPropagated();
     }
-
-    void setPropagated(Boolean propagated) 
-    { 
+    /// Method setProgagated - ATTN
+    void setPropagated(Boolean propagated)
+    {
 	_checkRep();
 	_rep->setPropagated(propagated);
     }
-
-    // Throws AlreadyExists.
-
+    /** Method addQualifier - ATTN
+    @return
+    Throws AlreadyExists.
+    */
     Property& addQualifier(const Qualifier& x)
     {
 	_checkRep();
 	_rep->addQualifier(x);
 	return *this;
     }
-
+    /// Method findQualifier - ATTN
     Uint32 findQualifier(const String& name)
     {
 	_checkRep();
 	return _rep->findQualifier(name);
     }
-
+    /// Method findQualifier - ATTN
     Uint32 findQualifier(const String& name) const
     {
 	_checkRep();
 	return _rep->findQualifier(name);
     }
-
+    /// Method getQualifier - ATTN
     Qualifier getQualifier(Uint32 pos)
     {
 	_checkRep();
 	return _rep->getQualifier(pos);
     }
-
+    /// Method getQualifier - ATTN
     ConstQualifier getQualifier(Uint32 pos) const
     {
 	_checkRep();
 	return _rep->getQualifier(pos);
     }
-
+    /// Method getQualifier - ATTN
     Uint32 getQualifierCount() const
     {
 	_checkRep();
 	return _rep->getQualifierCount();
     }
-
+    /// Method resolve
     void resolve(
-	DeclContext* declContext, 
+	DeclContext* declContext,
 	const String& nameSpace,
 	Boolean isInstancePart,
 	const ConstProperty& property)
@@ -202,41 +210,41 @@ public:
 	_checkRep();
 	_rep->resolve(declContext, nameSpace, isInstancePart, property);
     }
-
+    /// Method resolve - ATTN
     void resolve(
-	DeclContext* declContext, 
+	DeclContext* declContext,
 	const String& nameSpace,
 	Boolean isInstancePart)
     {
 	_checkRep();
 	_rep->resolve(declContext, nameSpace, isInstancePart);
     }
-
+    /// ATTN
     operator int() const { return _rep != 0; }
-
+    /// mthod toXML
     void toXml(Array<Sint8>& out) const
     {
 	_checkRep();
 	_rep->toXml(out);
     }
-
+    /// mthod print -ATTN
     void print() const
     {
 	_checkRep();
 	_rep->print();
     }
-
+    /// Method identical - ATTN
     Boolean identical(const ConstProperty& x) const;
-
-    Property clone() const 
-    { 
-	return Property(_rep->clone()); 
+    /// Method clone - ATTN
+    Property clone() const
+    {
+	return Property(_rep->clone());
     }
 
 private:
 
-    Property(PropertyRep* rep) : _rep(rep) 
-    { 
+    Property(PropertyRep* rep) : _rep(rep)
+    {
     }
 
     // This constructor allows the ClassDeclRep friend class to cast
@@ -284,7 +292,7 @@ public:
     // Throws IllegalName if name argument not legal CIM identifier.
 
     ConstProperty(
-	const String& name, 
+	const String& name,
 	const Value& value,
 	Uint32 arraySize = 0,
 	const String& referenceClassName = String::EMPTY,
@@ -320,13 +328,13 @@ public:
 	return *this;
     }
 
-    const String& getName() const 
-    { 
+    const String& getName() const
+    {
 	_checkRep();
-	return _rep->getName(); 
+	return _rep->getName();
     }
 
-    const Value& getValue() const 
+    const Value& getValue() const
     {
 	_checkRep();
 	return _rep->getValue();
@@ -338,20 +346,20 @@ public:
 	return _rep->getArraySize();
     }
 
-    const String& getReferenceClassName() const 
+    const String& getReferenceClassName() const
     {
 	_checkRep();
-	return _rep->getReferenceClassName(); 
+	return _rep->getReferenceClassName();
     }
 
-    const String& getClassOrigin() const 
+    const String& getClassOrigin() const
     {
 	_checkRep();
 	return _rep->getClassOrigin();
     }
 
-    Boolean getPropagated() const 
-    { 
+    Boolean getPropagated() const
+    {
 	_checkRep();
 	return _rep->getPropagated();
     }
@@ -395,9 +403,9 @@ public:
 	return _rep->identical(x._rep);
     }
 
-    Property clone() const 
+    Property clone() const
     {
-	return Property(_rep->clone()); 
+	return Property(_rep->clone());
     }
 
 private:

@@ -23,30 +23,18 @@
 // Author:
 //
 // $Log: Name.h,v $
-// Revision 1.1  2001/01/14 19:52:59  mike
-// Initial revision
+// Revision 1.2  2001/01/24 17:17:05  karl
+// add Doc++ comments
+//
+// Revision 1.1.1.1  2001/01/14 19:52:59  mike
+// Pegasus import
 //
 //
 //END_HISTORY
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Name.h
-//
-//	This class defines static methods for handling CIM names.
-//	The names of classes, properties, qualifiers, and methods are all 
-//	CIM names. A CIM name must match the following regular
-//	expression:
-//
-//	    [A-Z-a-z_][A-Za-z_0-9]*
-//
-//	Notice that the definition of a name is the same as C, C++,
-//	and Java.
-//
-// 	This class may not be instantiated (since its only constructor is
-//	private).
-//
-////////////////////////////////////////////////////////////////////////////////
+/*
+ Name.h	- This header file defines the name class
+*/
 
 #ifndef Pegasus_Name_h
 #define Pegasus_Name_h
@@ -56,24 +44,47 @@
 #include <Pegasus/Common/Exception.h>
 
 PEGASUS_NAMESPACE_BEGIN
+/**
+	The name class defines static methods for handling CIM names.
+	The names of classes, properties, qualifiers, and methods are all
+	CIM names. A CIM name must match the following regular
+	expression:
+	<PRE>
 
+	    [A-Z-a-z_][A-Za-z_0-9]*
+	</PRE>
+
+	Notice that the definition of a name is the same as C, C++,
+	and Java.
+
+ 	This class may not be instantiated (since its only constructor is
+	private).
+@return ATTN:
+*/
 class PEGASUS_COMMON_LINKAGE Name
 {
 public:
-
-    // Returns true if the given name is legal (as defined above). Throws
-    // NullPointer exception if name argument is null.
-
+    /** Method legal - Determine if the name string input is legal as
+    defnined in the Name class definition
+    @param - String to test
+    @return Returns true if the given name is legal. Throws
+    NullPointer exception if name argument is null.
+    */
     static Boolean legal(const Char16* name);
-
-    static Boolean legal(const String& name) 
-    { 
-	return legal(name.getData()); 
+    /** Method legal - Determine if the name string input is legal as
+    defnined in the Name class definition
+    @param - String to test
+    @return Returns true if the given name is legal. Throws
+    NullPointer exception if name argument is null.
+    */
+    static Boolean legal(const String& name)
+    {
+	return legal(name.getData());
     }
-
-    // Return true if the two names are equal. CIM names are
-    // case insensitive and so it this method.
-
+    /** Method equal - Compares two names.
+    @return Return true if the two names are equal. CIM names are
+    case insensitive and so it this method.
+    */
     static Boolean equal(const String& name1, const String& name2);
 
 private:

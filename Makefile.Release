@@ -244,6 +244,11 @@ MANAGEDSYSTEM_MOF_FILES = \
    PG_UnixProcess20.mof \
    PG_UnixProcess20R.mof
 
+ifeq ($(OS),linux)
+   INSTALL_SCRIPT_FILES = \
+      settogpath
+endif
+
 verify_install_enabled: FORCE
 ifndef PEGASUS_ENABLE_MAKE_INSTALL
 	@$(ECHO) "Use of \"make install\" is not enabled for this operating environment."
@@ -279,6 +284,7 @@ createPegasusProviderLibraryDirectoryFiles: FORCE
 
 createPegasusAdminCmdsDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_ADMIN_CMDS), $(COPY) $(PEGASUS_HOME)/bin/$(i)$(EXE) $(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i)$(EXE); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r_xr__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i)$(EXE);)
+	$(foreach i, $(INSTALL_SCRIPT_FILES), $(COPY) $(PEGASUS_ROOT)/installs/scripts/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r_xr__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i);)
 
 createPegasusUserCmdsDirectoryFiles: FORCE
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)

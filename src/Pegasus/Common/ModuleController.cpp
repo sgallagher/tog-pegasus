@@ -959,7 +959,7 @@ ModuleController & ModuleController::get_client_handle(const pegasus_identity & 
 
 // called by a non-module client to get the interface and authorization to use the controller
 
-ModuleController & ModuleController::get_client_handle(char *controller,
+ModuleController & ModuleController::get_client_handle(const char *controller,
 						       const pegasus_identity & id, 
 						       client_handle **handle) 
    throw(IncompatibleTypes)

@@ -357,7 +357,7 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 						  client_handle **handle)
 	 throw(IncompatibleTypes);
 
-      static ModuleController & get_client_handle(char *controller,
+      static ModuleController & get_client_handle(const char *controller,
 						  const pegasus_identity & id, 
 						  client_handle **handle)
 	 throw(IncompatibleTypes);

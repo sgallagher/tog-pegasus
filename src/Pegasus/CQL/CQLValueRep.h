@@ -263,8 +263,7 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
    Boolean getBool()const;
    CIMDateTime getDateTime()const;
    CIMObjectPath getReference()const;
-   CIMInstance getInstance()const;
-   CIMClass getClass()const;
+   CIMObject getObject()const;
    String toString()const;
    void applyContext(QueryContext& _ctx,
                      CQLChainedIdentifier& inCid);
@@ -274,29 +273,17 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
    Boolean _areClassesInline(const CIMClass& c1,const CIMClass& c2,QueryContext& in);
    void _validate(const CQLValueRep& x);
    void _resolveSymbolicConstant(const QueryContext& inQueryCtx);
-   void _setValue(CIMValue cv, Uint64 Index = 0);
+   void _setValue(CIMValue cv, Sint64 Index = -1);
    void _process_value(CIMProperty& propObj,CQLIdentifier& _id,const QueryContext& inQueryContext);
-   Boolean _compareInstance(CIMInstance& _in1, CIMInstance& _in2);
+   Boolean _compareObjects(CIMObject& _in1, CIMObject& _in2);
 
-   union TheValue
-    {
-      Boolean _B;
-      Sint64 _S64;
-      Uint64 _U64;
-      Real64 _R64;
-      String* _S;
-      CIMDateTime* _DT;
-      CIMObjectPath* _OP;
-      CIMInstance* _IN;
-      CIMClass* _CL;
-    } _theValue;
+   CIMValue _theValue;
 
+   CQLChainedIdentifier _CQLChainId;
 
-    CQLChainedIdentifier _CQLChainId;
+   Boolean _isResolved;
 
-    Boolean _isResolved;
-
-    CQLValue::CQLValueType _valueType;
+   CQLValue::CQLValueType _valueType;
 
 
 

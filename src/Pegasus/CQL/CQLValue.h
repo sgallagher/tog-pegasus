@@ -87,7 +87,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
   enum NumericType  { Hex, Binary,  Decimal, Real};
   enum CQLValueType { Null_type, Sint64_type, Uint64_type, Real_type, String_type,
 		      CIMDateTime_type,  CIMReference_type, CQLIdentifier_type,
-		      CIMInstance_type, Boolean_type, CIMClass_type};
+		      CIMObject_type, Boolean_type};
 
     CQLValue();
     ~CQLValue();
@@ -302,8 +302,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
    Boolean getBool()const;
    CIMDateTime getDateTime()const;
    CIMObjectPath getReference()const;
-   CIMInstance getInstance()const;
-   CIMClass getClass()const;
+   CIMObject getObject()const;
    String toString()const;
    void applyContext(QueryContext& _ctx,
                      CQLChainedIdentifier& inCid);

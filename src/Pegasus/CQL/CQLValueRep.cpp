@@ -56,106 +56,17 @@ PEGASUS_USING_STD;
 CQLValueRep::CQLValueRep()
   :_valueType(CQLValue::Null_type)
 {
-  _theValue._S = NULL;
 }
+
 CQLValueRep::~CQLValueRep()
 {
-   switch(_valueType)
-   {
-      case CQLValue::String_type: 
-      { 
-         if(_theValue._S != NULL){
-            delete _theValue._S;
-	}
-         _theValue._S = NULL;  
-         break;
-      }
-      case CQLValue::CIMDateTime_type:  
-       { 
-         if(_theValue._DT != NULL)
-            delete _theValue._DT;
-         _theValue._DT = NULL;  
-         break;
-      }
-      case CQLValue::CIMReference_type:  
-      { 
-         if(_theValue._OP != NULL)
-            delete _theValue._OP;
-         _theValue._OP = NULL;  
-         break;
-      }
-      case CQLValue::CIMInstance_type:  
-      { 
-         if(_theValue._IN != NULL)
-            delete _theValue._IN;
-         _theValue._IN = NULL;  
-         break;
-      }
-      case CQLValue::CIMClass_type:  
-      { 
-         if(_theValue._CL != NULL)
-            delete _theValue._CL;
-         _theValue._CL = NULL;  
-         break;
-      }
-      default:
-         break;
-   }
+
 }
 
 
 CQLValueRep::CQLValueRep(const CQLValueRep& val)
 {
-   switch(val._valueType)
-   {
-      case CQLValue::Boolean_type:
-      {
-         _theValue._B = val._theValue._B;
-         break;
-      }
-      case CQLValue::Sint64_type: 
-      {
-         _theValue._S64 = val._theValue._S64;
-         break;
-      }
-      case CQLValue::Uint64_type: 
-      {
-         _theValue._U64 = val._theValue._U64;
-         break;
-      }
-      case CQLValue::Real_type: 
-      {
-         _theValue._R64 = val._theValue._R64;
-         break;
-      }
-      case CQLValue::String_type:  
-      {
-         _theValue._S = new String(*val._theValue._S);
-         break;
-      }
-      case CQLValue::CIMDateTime_type:  
-      {
-         _theValue._DT = new CIMDateTime(*val._theValue._DT);
-         break;
-      }
-      case CQLValue::CIMReference_type:  
-      {
-         _theValue._OP = new CIMObjectPath(*val._theValue._OP);
-         break;
-      }
-      case CQLValue::CIMInstance_type:  
-      {
-         _theValue._IN = new CIMInstance(val._theValue._IN->clone());
-         break;
-      }
-      case CQLValue::CIMClass_type:  
-      {
-         _theValue._CL = new CIMClass(val._theValue._CL->clone());
-         break;
-      }
-      default:
-         break;
-   }
+  _theValue = val._theValue;
 
    _CQLChainId = val._CQLChainId;
 
@@ -166,62 +77,13 @@ CQLValueRep::CQLValueRep(const CQLValueRep& val)
 
 CQLValueRep::CQLValueRep(const CQLValueRep* val)
 {
-   switch(val->_valueType)
-   {
-      case CQLValue::Boolean_type:
-      {
-         _theValue._B = val->_theValue._B;
-         break;
-      }
-      case CQLValue::Sint64_type: 
-      {
-         _theValue._S64 = val->_theValue._S64;
-         break;
-      }
-      case CQLValue::Uint64_type: 
-      {
-         _theValue._U64 = val->_theValue._U64;
-         break;
-      }
-      case CQLValue::Real_type: 
-      {
-         _theValue._R64 = val->_theValue._R64;
-         break;
-      }
-      case CQLValue::String_type:  
-      {
-         _theValue._S = new String(*val->_theValue._S);
-         break;
-      }
-      case CQLValue::CIMDateTime_type:  
-      {
-         _theValue._DT = new CIMDateTime(*val->_theValue._DT);
-         break;
-      }
-      case CQLValue::CIMReference_type:  
-      {
-         _theValue._OP = new CIMObjectPath(*val->_theValue._OP);
-         break;
-      }
-      case CQLValue::CIMInstance_type:  
-      {
-         _theValue._IN = new CIMInstance(val->_theValue._IN->clone());
-         break;
-      }
-      case CQLValue::CIMClass_type:  
-      {
-         _theValue._CL = new CIMClass(val->_theValue._CL->clone());
-         break;
-      }
-      default:
-         break;
-   }
+  _theValue =  val->_theValue;
 
-   _CQLChainId = val->_CQLChainId;
+  _CQLChainId = val->_CQLChainId;
 
-   _isResolved = val->_isResolved;
+  _isResolved = val->_isResolved;
 
-   _valueType = val->_valueType;
+  _valueType = val->_valueType;
 }
 
 CQLValueRep::CQLValueRep(const String& inString, CQLValue::NumericType inValueType, Boolean inSign)
@@ -234,12 +96,12 @@ CQLValueRep::CQLValueRep(const String& inString, CQLValue::NumericType inValueTy
       case CQLValue::Hex:
          if(inSign)
          {
-            _theValue._U64 = strtoul((const char*)cStr,&endP,16);
+            _theValue.set((Uint64)strtoul((const char*)cStr,&endP,16));
             _valueType = CQLValue::Uint64_type;
          }
          else
          {
-            _theValue._S64 = strtol((const char *)cStr,&endP,16);
+            _theValue.set((Sint64)strtol((const char *)cStr,&endP,16));
             _valueType = CQLValue::Sint64_type;
          }
          
@@ -247,36 +109,36 @@ CQLValueRep::CQLValueRep(const String& inString, CQLValue::NumericType inValueTy
       case CQLValue::Binary:
          if(inSign)
          {
-            _theValue._U64 = strtoul((const char *)cStr,&endP,2);
+            _theValue.set((Uint64)strtoul((const char *)cStr,&endP,2));
             _valueType = CQLValue::Uint64_type;
          }
          else
          {
-            _theValue._S64 = strtol((const char *)cStr,&endP,2);
+            _theValue.set((Sint64)strtol((const char *)cStr,&endP,2));
             _valueType = CQLValue::Sint64_type;
          }
          break;
       case CQLValue::Decimal:
          if(inSign)
          {
-            _theValue._U64 = strtoul((const char *)cStr,&endP,10);
+            _theValue.set((Uint64)strtoul((const char *)cStr,&endP,10));
             _valueType = CQLValue::Uint64_type;
          }
          else
          {
-            _theValue._S64 = strtol((const char *)cStr,&endP,10);
+            _theValue.set((Sint64)strtol((const char *)cStr,&endP,10));
             _valueType = CQLValue::Sint64_type;
          }
          break;
       case CQLValue::Real:
          if(inSign)
          {
-            _theValue._R64 = strtod((const char *)cStr,&endP);
+            _theValue.set((Real64)strtod((const char *)cStr,&endP));
             _valueType = CQLValue::Real_type;
          }
          else
          {
-            _theValue._R64 = strtod((const char *)cStr,&endP);
+            _theValue.set((Real64)strtod((const char *)cStr,&endP));
             _valueType = CQLValue::Real_type;
          }
          break;
@@ -301,63 +163,63 @@ CQLValueRep::CQLValueRep(const String& inString)
   : _isResolved(true), 
     _valueType(CQLValue::String_type)
 {
-   _theValue._S = new String(inString);
+   _theValue.set(inString);
 }
 
 CQLValueRep::CQLValueRep(const CIMInstance& inInstance)
   : _isResolved(true),
-    _valueType(CQLValue::CIMInstance_type)
+    _valueType(CQLValue::CIMObject_type)
 {
-   _theValue._IN = new CIMInstance(inInstance.clone());
+  // TODO:  _theValue.set((CIMObject)inInstance);
 }
 
 CQLValueRep::CQLValueRep(const CIMClass& inClass)
   : _isResolved(true),
-    _valueType(CQLValue::CIMClass_type)
+    _valueType(CQLValue::CIMObject_type)
 {
-   _theValue._CL = new CIMClass(inClass.clone());
+  // TODO:  _theValue.set((CIMObject)inClass);
 }
 
 CQLValueRep::CQLValueRep(const CIMObjectPath& inObjPath)
   : _isResolved(true),
     _valueType(CQLValue::CIMReference_type)
 {
-   _theValue._OP = new CIMObjectPath(inObjPath);
+   _theValue.set(inObjPath);
 }
 
 CQLValueRep::CQLValueRep(const CIMDateTime& inDateTime)
   : _isResolved(true),
     _valueType(CQLValue::CIMDateTime_type)
 {
-   _theValue._DT = new CIMDateTime(inDateTime);
+   _theValue.set(inDateTime);
 }
 
 CQLValueRep::CQLValueRep(Uint64 inUint)
   : _isResolved(true),
     _valueType(CQLValue::Uint64_type)
 {
-   _theValue._U64 = inUint;
+   _theValue.set(inUint);
 }
 
 CQLValueRep::CQLValueRep(Boolean inBool)
   : _isResolved(true),
     _valueType(CQLValue::Boolean_type)
 {
-   _theValue._B = inBool;
+   _theValue.set(inBool);
 }
 
 CQLValueRep::CQLValueRep(Sint64 inSint)
   : _isResolved(true),
     _valueType(CQLValue::Sint64_type)
 {
-   _theValue._S64 = inSint;
+   _theValue.set(inSint);
 }
 
 CQLValueRep::CQLValueRep(Real64 inReal)
   : _isResolved(true),
     _valueType(CQLValue::Real_type)
 {
-   _theValue._R64 = inReal;
+   _theValue.set(inReal);
 }
 
 void CQLValueRep::resolve(const CIMInstance& CI, const  QueryContext& inQueryCtx)
@@ -378,8 +240,8 @@ void CQLValueRep::resolve(const CIMInstance& CI, const  QueryContext& inQueryCtx
     {
       // A class was passed in with no property indicated.
       // Set the instance passed in, as a primitive.
-      _theValue._IN = (CIMInstance *) new CIMInstance(CI.clone());
-      _valueType = CQLValue::CIMInstance_type;
+      // TODO: _theValue.set((CIMObject)CI);
+      _valueType = CQLValue::CIMObject_type;
       _isResolved = true;
       return; // Done.
     }
@@ -450,15 +312,7 @@ void CQLValueRep::_process_value(CIMProperty& propObj,
       CIMObject cimObj;
       //propObj.getValue(cimObj);
 
-      if(cimObj.isInstance())
-	{
-	  _theValue._IN = new CIMInstance(cimObj.clone());
-	}
-      else if(cimObj.isClass())
-	{
-	  _theValue._CL = new CIMClass(cimObj.clone());
-	}
- 
+      // TODO: _theValue.set(cimObj);
     }
   else // Primitive
     {
@@ -486,201 +340,155 @@ void CQLValueRep::_process_value(CIMProperty& propObj,
     }
 }
 
-CQLValueRep& CQLValueRep::operator=(const CQLValueRep& rhs){
+CQLValueRep& CQLValueRep::operator=(const CQLValueRep& rhs)
+{
 
-	if(&rhs != this){
-		_valueType = rhs._valueType;
-		_theValue = rhs._theValue;
-		switch(_valueType){
-			case CQLValue::String_type:
-				_theValue._S = new String(rhs.getString());
-				break;
-			case CQLValue::CIMDateTime_type:
-         			_theValue._DT = new CIMDateTime(rhs.getDateTime());
-         			break;
-      			case CQLValue::CIMReference_type:
-         			_theValue._OP = new CIMObjectPath(rhs.getReference());
-         			break;
-      			case CQLValue::CIMInstance_type:
-         			_theValue._IN = new CIMInstance(rhs.getInstance().clone());
-         			break;
-      			case CQLValue::CIMClass_type:
-         			_theValue._CL = new CIMClass(rhs.getClass().clone());
-         			break;
-			case CQLValue::Boolean_type:
-      			case CQLValue::Sint64_type:
-      			case CQLValue::Uint64_type:
-			case CQLValue::Real_type:
-			case CQLValue::Null_type:
-			case CQLValue::CQLIdentifier_type:
-
-			default:
-				break;
-		}
-		_CQLChainId = rhs._CQLChainId;
-		_isResolved = rhs._isResolved;
-	}
-	return *this;
+  if(&rhs != this)
+    {
+      _valueType = rhs._valueType;
+      _theValue = rhs._theValue;
+      _CQLChainId = rhs._CQLChainId;
+      _isResolved = rhs._isResolved;
+    }
+  return *this;
 }
 Boolean CQLValueRep::operator==(const CQLValueRep& x)
 {
   _validate(x);
 
-   switch(_valueType)
-   {
-   case CQLValue::Null_type:
-     {
-       if(x._valueType == CQLValue::Null_type)
-         {
-               return true;
-         }
-     }
-     break;
-   case CQLValue::Boolean_type:
-     {
-       if(x._valueType == CQLValue::Boolean_type)
-         {
-	   if(_theValue._B == x._theValue._B)
-	     {
-               return true;
-	     }
-         }
-       break; 
-     }     
-   case CQLValue::Sint64_type:
-     {
-       if(x._valueType == CQLValue::Sint64_type)
-         {
-	   if(_theValue._S64 == x._theValue._S64)
-	     {
-               return true;
-	     }
-         }
-       else if(x._valueType == CQLValue::Uint64_type)
-         {
-	   if(x._theValue._U64 > (Uint64)PEGASUS_SINT64_MIN)
-	     {
-	       return false;
-	     }
-	   if(_theValue._S64 == (Sint64)x._theValue._U64)
-	     {
-               return true;
-	     }
-         }
-       else if(x._valueType == CQLValue::Real_type)
-         {
-	   if(_theValue._S64 == x._theValue._R64)
-	     {
-               return true;
-	     }
-         }
-       break;
-     }
-   case CQLValue::Uint64_type:
-     if(x._valueType == CQLValue::Sint64_type)
-       {
-	 if(_theValue._U64 > (Uint64)PEGASUS_SINT64_MIN)
-	   {
-	     return false;
-	   }
-	 if((Sint64)_theValue._U64 == x._theValue._S64)
-	   {
-	     return true;
-	   }
-       }
-     else if(x._valueType == CQLValue::Uint64_type)
-       {
-	 if(_theValue._U64 == x._theValue._U64)
-	   {
-	     return true;
-	   }
-       }
-     else if(x._valueType == CQLValue::Real_type)
-       {
-	 Real64 temp;
-	 memcpy(&temp, &_theValue._U64, sizeof(temp));
-	 if(temp == x._theValue._R64)
-	   {
-	     return true;
-	   }
-       }
-     break;
-   case CQLValue::Real_type:
-     if(x._valueType == CQLValue::Sint64_type)
-       {
-	 if(_theValue._R64 == x._theValue._S64)
-	   {
-	     return true;
-	   }
-       }
-     else if(x._valueType == CQLValue::Uint64_type)
-       {
-	 Real64 temp;
-	 memcpy(&temp, &x._theValue._U64, sizeof(temp));
-            if(_theValue._R64 == temp)
+  if((_theValue.getType() == x._theValue.getType()) &&
+     (_valueType != CQLValue::CIMObject_type) &&
+     (_valueType != CQLValue::CQLIdentifier_type) &&
+     (!_theValue.isArray()))
+    {
+
+      return _theValue == x._theValue;
+    }
+  else
+    {
+      Uint64 tmpU64;
+      Sint64 tmpS64;
+      Real64 tmpR64;
+      
+      switch(_valueType)
+	{
+	case CQLValue::Null_type:
+	  {
+	    if(x._valueType == CQLValue::Null_type)
 	      {
 		return true;
 	      }
-       }
-     else if(x._valueType == CQLValue::Real_type)
-       {
-	 if(_theValue._R64 == x._theValue._R64)
-            {
-	      return true;
-            }
-       }
-     break;
-   case CQLValue::String_type:
-     if(*_theValue._S == *x._theValue._S)
-       {
-            return true;
-       }
-     break;
-   case CQLValue::CIMDateTime_type:
-     if(*_theValue._DT == *x._theValue._DT)
-       {
-	 return true;
-        }
-     break;
-   case CQLValue::CIMReference_type:
-     if(_theValue._OP->identical(*x._theValue._OP))
-       {
-	 return true;
-       }
-     break;
-   case CQLValue::CIMInstance_type:  // TODO: need to define Instance comparison
-     return true; // _compareInstance(*_theValue._IN, *x._theValue._IN)
-     break;
-   case CQLValue::CIMClass_type: 
-     if(_theValue._CL->identical(*x._theValue._CL))
-         {
-	   return true;
-         }   
-     break;
-   case CQLValue::CQLIdentifier_type:
-     throw Exception(String("CQLValueRep::operator=="));
-     break;
-     
-      default:
-	throw Exception(String("CQLValueRep::operator=="));
-	break;
-   }
-   return false;
+	  }
+	  break;
+	  
+	case CQLValue::Sint64_type:
+	  {
+	    _theValue.get(tmpS64);
+	    if(x._valueType == CQLValue::Uint64_type)
+	      {
+		x._theValue.get(tmpU64);
+		
+		if(tmpU64 > (Uint64)PEGASUS_SINT64_MIN)
+		  {
+		    return false;
+		  }
+		else
+		  {
+		    return (Sint64)tmpU64 == tmpS64;
+		  }
+	      }
+	    else 
+	      {
+		x._theValue.get(tmpR64);
+		
+		return tmpR64 == tmpS64;
+	      }
+	    break;
+	  }
+	case CQLValue::Uint64_type:
+	  {
+	    _theValue.get(tmpU64);
+	    if(x._valueType == CQLValue::Sint64_type)
+	      {
+		x._theValue.get(tmpS64);
+		
+		if(tmpU64 > (Uint64)PEGASUS_SINT64_MIN)
+		  {
+		    return false;
+		  }
+		else
+		  {
+		    return (Sint64)tmpU64 == tmpS64;
+		  }
+	      }
+	    else 
+	      {
+		x._theValue.get(tmpR64);
+		if(tmpU64 > (Uint64)PEGASUS_SINT64_MIN)
+		  {
+		    return false;
+		  }
+		else
+		  {
+		    return tmpR64 == (Sint64)tmpU64;
+		  }
+	      }
+	    break;
+	  }
+	case CQLValue::Real_type:
+	  {
+	    _theValue.get(tmpR64);
+	    if(x._valueType == CQLValue::Uint64_type)
+	      {
+		x._theValue.get(tmpU64);
+		
+		if(tmpU64 > (Uint64)PEGASUS_SINT64_MIN)
+		  {
+		    return false;
+		  }
+		else
+		  {
+		    return (Sint64)tmpU64 == tmpR64;
+		  }
+	      }
+	    else 
+	      {
+		x._theValue.get(tmpS64);
+		
+		return tmpR64 == tmpS64;
+	      }
+	    break;
+	  }
+	case CQLValue::CIMObject_type: 
+	  { 
+	    CIMObject objBase;
+	    CIMObject objParm;
+	    // TODO: _theValue.get(objBase);
+	    // TODO: x._theValue.get(objParm);
+	    
+	    _compareObjects(objBase,objParm);
+	  }
+	  break;
+	case CQLValue::CQLIdentifier_type:
+	  throw Exception(String("CQLValueRep::operator=="));
+	  break;
+	  
+	default:
+	  throw Exception(String("CQLValueRep::operator=="));
+	  break;
+	}
+      return false;
+    }
 }
-
-//##ModelId=40FBFF9502BB
+  
 Boolean CQLValueRep::operator!=(const CQLValueRep& x)
 {
-  _validate(x);
- 
   return !(this->operator==(x));
 }
 
 
 Boolean CQLValueRep::operator<=(const CQLValueRep& x)
-{
-  _validate(x);  
-   
+{   
   if (this->operator<(x) || this->operator==(x))
     {
       return true;
@@ -700,137 +508,138 @@ Boolean CQLValueRep::operator>=(const CQLValueRep& x)
 
 Boolean CQLValueRep::operator<(const CQLValueRep& x)
 {
-  _validate(x);
-
-  switch(_valueType)
-    {
-    case CQLValue::Null_type:
-      {
-	if(x._valueType == CQLValue::Null_type)
-	  {
-	    return true;
-	  }
-      }
-      break;
-    case CQLValue::Boolean_type:
-      {
-	if(x._valueType == CQLValue::Boolean_type)
-	  {
-	    if(_theValue._B < x._theValue._B)
-	      {
-		return true;
-	      }
-	  }
-	break; 
-      }
-    case CQLValue::Sint64_type:
-      if(x._valueType == CQLValue::Sint64_type)
+ 
+      Uint64 tmpU64;
+      Sint64 tmpS64;
+      Real64 tmpR64;
+      
+      switch(_valueType)
 	{
-	  if(_theValue._S64 < x._theValue._S64)
-	    {
-	      return true;
-	    }
-	}
-      else if(x._valueType == CQLValue::Uint64_type)
-	{
-	  if(x._theValue._U64 > (Uint64)PEGASUS_SINT64_MIN)
+	case CQLValue::Null_type:
+	  {
+	    return false;
+	  }
+	  break;
+	 
+   case CQLValue::Sint64_type:
+     {
+       _theValue.get(tmpS64);
+       if(x._valueType == CQLValue::Sint64_type)
+         {
+	   Sint64 right;
+	   x._theValue.get(right);
+	   
+	   return tmpS64 < right;
+	 }
+       else if(x._valueType == CQLValue::Uint64_type)
+         {
+	   x._theValue.get(tmpU64);
+	   
+	   if(tmpU64 > (Uint64)PEGASUS_SINT64_MIN)
 	     {
 	       return true;
 	     }
-	  if(_theValue._S64 < (Sint64)x._theValue._U64)
-	    {
-	      return true;
-	    }
-	}
-      else if(x._valueType == CQLValue::Real_type)
-	{
-	  if(_theValue._S64 < x._theValue._R64)
-	    {
-	      return true;
-	    }
-	}
-      break;
-    case CQLValue::Uint64_type:
-      if(x._valueType == CQLValue::Sint64_type)
-	{
-	  if(_theValue._U64 > (Uint64)PEGASUS_SINT64_MIN)
-	    {
-	      return false;
-	    }
-	  if((Sint64)_theValue._U64 < x._theValue._S64)
-	    {
-	      return true;
-	    }
-	}
-      else if(x._valueType == CQLValue::Uint64_type)
-	{
-	  if(_theValue._U64 < x._theValue._U64)
-	    {
-	      return true;
-	    }
-	}
-      else if(x._valueType == CQLValue::Real_type)
-	{
-	  Real64 temp;
-	  memcpy(&temp, &_theValue._U64, sizeof(temp));
-	  if(temp < x._theValue._R64)
-	    {
-	      return true;
-	    }
-	}
-      break;
-    case CQLValue::Real_type:
-      if(x._valueType == CQLValue::Sint64_type)
-	{
-	  if(_theValue._R64 < x._theValue._S64)
-	    {
-	      return true;
-	    }
-	}
-      else if(x._valueType == CQLValue::Uint64_type)
-	{
-	  Real64 temp;
-	  memcpy(&temp, &x._theValue._U64, sizeof(temp));
-	  if(_theValue._R64 < temp)
-	    {
-	      return true;
-	    }
-	}
-      else if(x._valueType == CQLValue::Real_type)
-	{
-	  if(_theValue._R64 < x._theValue._R64)
-	    {
-	      return true;
-	    }
-	}
-      break;
-    case CQLValue::String_type:
-      if(*_theValue._S < *x._theValue._S)
-	{
-	  return true;
-	}
-      break;
-    case CQLValue::CIMDateTime_type:
-      throw(Exception(String("CQLValueRep::operator<")));
-      break;
-    case CQLValue::CIMReference_type:
-      throw(Exception(String("CQLValueRep::operator<")));
-      break;
-    case CQLValue::CIMInstance_type:
-      throw(Exception(String("CQLValueRep::operator<")));
-      break;
-    case CQLValue::CIMClass_type:
-      throw(Exception(String("CQLValueRep::operator<")));
-      break;
-    case CQLValue::CQLIdentifier_type:
-      throw(Exception(String("CQLValueRep::operator<")));
-      break;
-      
-    default:
-      throw(Exception(String("CQLValueRep::operator<")));
-      break;
-    }
-  return false;
+	   else
+	     {
+	       return tmpS64 < (Sint64)tmpU64;
+	     }
+         }
+       else 
+	 {
+	   x._theValue.get(tmpR64);
+	   
+	   return tmpS64 < tmpR64;
+         }
+       break;
+     }
+   case CQLValue::Uint64_type:
+     {
+       _theValue.get(tmpU64);
+       if(x._valueType == CQLValue::Uint64_type)
+         {
+	   Uint64 right;
+	   x._theValue.get(right);
+	   
+	   return tmpU64 < right;
+	 }
+       else if(x._valueType == CQLValue::Sint64_type)
+         {
+	   x._theValue.get(tmpS64);
+	   
+	   if(tmpU64 > (Uint64)PEGASUS_SINT64_MIN)
+	     {
+	       return false;
+	     }
+	   else
+	     {
+	       return (Sint64)tmpU64 < tmpS64;
+	     }
+         }
+       else 
+	 {
+	   x._theValue.get(tmpR64);
+	   if(tmpU64 > (Uint64)PEGASUS_SINT64_MIN)
+	     {
+	       return false;
+	     }
+	   else
+	     {
+	       return (Sint64)tmpU64 < tmpR64;
+	     }
+         }
+       break;
+     }
+   case CQLValue::Real_type:
+     {
+       _theValue.get(tmpR64);
+       if(x._valueType == CQLValue::Real_type)
+         {
+	   Real64 right;
+	   x._theValue.get(right);
+	   
+	   return tmpR64 < right;
+	 }
+       else if(x._valueType == CQLValue::Uint64_type)
+         {
+	   x._theValue.get(tmpU64);
+	   
+	   if(tmpU64 > (Uint64)PEGASUS_SINT64_MIN)
+	     {
+	       return true;
+	     }
+	   else
+	     {
+	       return tmpR64 < (Sint64)tmpU64;
+	     }
+         }
+       else 
+	 {
+	   x._theValue.get(tmpS64);
+	   
+	   return tmpR64 < tmpS64;
+         }
+     break;
+     }
+	case CQLValue::String_type:
+	  {
+	    String tmpS1;
+	    String tmpS2;
+	    _theValue.get(tmpS1);
+	    x._theValue.get(tmpS2);
+	    return tmpS1 < tmpS2;
+	  }
+	case CQLValue::CIMObject_type:  
+     throw Exception(String("CQLValueRep::operator=="));
+     break;
+   case CQLValue::CQLIdentifier_type:
+     throw Exception(String("CQLValueRep::operator=="));
+     break;
+     
+      default:
+	throw Exception(String("CQLValueRep::operator=="));
+	break;
+   }
+   return false;
 }
 
 
@@ -851,7 +660,7 @@ CQLValueRep CQLValueRep::operator+(const CQLValueRep x)
    _validate(x); 
 
    switch(_valueType)
-     {
+     {/*
      case CQLValue::Null_type:
        throw(Exception(String("CQLValueRep::operator+")));
        break;
@@ -904,8 +713,15 @@ CQLValueRep CQLValueRep::operator+(const CQLValueRep x)
 	   return CQLValueRep(_theValue._R64 + x._theValue._R64);
          }
        break;
+      */
      case CQLValue::String_type:
-       return CQLValueRep(*_theValue._S + *x._theValue._S);
+       {
+	 String tmpS1;
+	 String tmpS2;
+	 _theValue.get(tmpS1);
+	 x._theValue.get(tmpS2);
+	 return CQLValueRep(tmpS1 + tmpS2);
+       }
        break;
      case CQLValue::CIMDateTime_type:
        throw(Exception(String("CQLValueRep::operator+")));
@@ -913,10 +729,7 @@ CQLValueRep CQLValueRep::operator+(const CQLValueRep x)
      case CQLValue::CIMReference_type:
        throw(Exception(String("CQLValueRep::operator+")));
        break;
-     case CQLValue::CIMInstance_type:
-       throw(Exception(String("CQLValueRep::operator+")));
-       break;
-     case CQLValue::CIMClass_type:
+     case CQLValue::CIMObject_type:
        throw(Exception(String("CQLValueRep::operator+")));
        break;
      case CQLValue::CQLIdentifier_type:
@@ -1233,22 +1046,17 @@ Boolean CQLValueRep::isNull()
 Boolean CQLValueRep::isa(const CQLChainedIdentifier& inID,QueryContext& QueryCtx)
 {
    if(!_isResolved || 
-      (_valueType != CQLValue::CIMClass_type &&
-       _valueType != CQLValue::CIMInstance_type))
+      (_valueType != CQLValue::CIMObject_type))
      {
        throw(Exception(String("CQLValueRep::isa")));
      }
    
    CIMName className;
+   CIMObject obj;
 
-   if(_valueType == CQLValue::CIMInstance_type)
-     {
-       className = _theValue._IN->getClassName();
-     }
-   if(_valueType == CQLValue::CIMClass_type)
-     {
-       className = _theValue._CL->getClassName();
-     }
+   // TODO: _theValue.get(obj);
+
+   className = obj.getClassName();
 
    Array<CIMName> cimNames = QueryCtx.enumerateClassNames(inID[0].getName());
 
@@ -1272,11 +1080,15 @@ Boolean CQLValueRep::like(const CQLValueRep& inVal)
       throw(Exception(String("CQLValueRep::like")));
    }
    
-   String leftside(*_theValue._S);
-   String rightside(*inVal._theValue._S);
+   String leftside;
+   _theValue.get(leftside);
+
+   String rightside;
+   inVal._theValue.get(rightside);
    
    CQLRegularExpression re;
    return re.match(leftside,rightside);
+
 }
 
 /*
@@ -1309,7 +1121,9 @@ Uint64 CQLValueRep::getUint()const
    {
       throw(Exception(String("CQLValueRep::getUint")));
    }
-   return _theValue._U64;
+   Uint64 tmp;
+   _theValue.get(tmp);
+   return tmp;
 }
 
 Boolean CQLValueRep::getBool()const
@@ -1318,7 +1132,9 @@ Boolean CQLValueRep::getBool()const
    {
       throw(Exception(String("CQLValueRep::getBool")));
    }
-   return _theValue._B;
+   Boolean tmp;
+   _theValue.get(tmp);
+   return tmp;
 }
 
 Sint64 CQLValueRep::getSint()const
@@ -1327,7 +1143,9 @@ Sint64 CQLValueRep::getSint()const
    {
       throw(Exception(String("CQLValueRep::getSint")));
    }
-   return _theValue._S64;
+   Sint64 tmp;
+   _theValue.get(tmp);
+   return tmp;
 }
 
 Real64 CQLValueRep::getReal()const
@@ -1336,7 +1154,9 @@ Real64 CQLValueRep::getReal()const
    {
       throw(Exception(String("CQLValueRep::getReal")));
    }
-   return _theValue._R64;
+   Real64 tmp;
+   _theValue.get(tmp);
+   return tmp;
 }
 
 String CQLValueRep::getString()const
@@ -1345,7 +1165,9 @@ String CQLValueRep::getString()const
    {
       throw(Exception(String("CQLValueRep::getString")));
    }
-   return *_theValue._S;
+   String tmp;
+   _theValue.get(tmp);
+   return tmp;
 }
 
 CIMDateTime CQLValueRep::getDateTime()const
@@ -1354,8 +1176,9 @@ CIMDateTime CQLValueRep::getDateTime()const
    {
       throw(Exception(String("CQLValueRep::getDateTime")));
    }
-   
-   return *_theValue._DT;
+   CIMDateTime tmp;
+   _theValue.get(tmp);
+   return tmp;
 }
 
 CIMObjectPath CQLValueRep::getReference()const
@@ -1364,80 +1187,32 @@ CIMObjectPath CQLValueRep::getReference()const
    {
       throw(Exception(String("CQLValueRep::getReference")));
    }
-   return *_theValue._OP;
+   CIMObjectPath tmp;
+   _theValue.get(tmp);
+   return tmp;
 }
 
-CIMInstance CQLValueRep::getInstance()const
+CIMObject CQLValueRep::getObject()const
 {
-   if(_valueType != CQLValue::CIMInstance_type)
+   if(_valueType != CQLValue::CIMObject_type)
    {
       throw(Exception(String("CQLValueRep::getInstance")));
    }
-   return _theValue._IN->clone();
-}
-
-CIMClass CQLValueRep::getClass()const
-{
-   if(_valueType != CQLValue::CIMClass_type)
-   {
-      throw(Exception(String("CQLValueRep::getClass")));
-   }
-
-   return _theValue._CL->clone();
+   CIMObject tmp;
+   // TODO: _theValue.get(tmp);
+   return tmp.clone();
 }
 
 String CQLValueRep::toString()const
 {
-   switch(_valueType)
-   {
-      case CQLValue::Boolean_type:
-      {
-         return (_theValue._B ? String("TRUE") : String("FALSE"));
-         break;
-      }
-      case CQLValue::Sint64_type: 
-      {
-         char buffer[32];  // Should need 21 chars max
-         sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", _theValue._S64);
-         return String(buffer);
-         break;
-      }
-      case CQLValue::Uint64_type: 
-      {
-         char buffer[32];  // Should need 21 chars max
-         sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", _theValue._U64);
-         return String(buffer);
-         break;
-      }
-      case CQLValue::Real_type: 
-      { 
-         char buffer[128];
-         sprintf(buffer, "%.6e", _theValue._R64);
-         return String(buffer);
-         break;
-      }
-      case CQLValue::String_type:  
-         return *_theValue._S;
-         break;
-      case CQLValue::CIMDateTime_type:  
-         return _theValue._DT->toString();
-         break;
-      case CQLValue::CIMReference_type:  
-         return _theValue._OP->toString();
-         break;
-      case CQLValue::CIMInstance_type:  
-         return _theValue._IN->getPath().toString();
-         break;
-      case CQLValue::CIMClass_type:  
-         return _theValue._CL->getPath().toString();
-         break;
-      case CQLValue::CQLIdentifier_type:
-	     return _CQLChainId.toString();
-	     break;
-      default:
-         break;
-   }
-   return String();
+  if(_valueType == CQLValue::CQLIdentifier_type)
+    {
+      return _CQLChainId.toString();
+    }
+  else
+    {
+      return _theValue.toString();
+    }
 }
 
 
@@ -1480,8 +1255,8 @@ void CQLValueRep::_validate(const CQLValueRep& x)
             throw TypeMismatchException(String("CQLValueRep::_validate"));
          }
          break;
-      case CQLValue::CIMInstance_type:
-         if(x._valueType != CQLValue::CIMInstance_type)
+      case CQLValue::CIMObject_type:
+         if(x._valueType != CQLValue::CIMObject_type)
          {
             throw TypeMismatchException(String("CQLValueRep::_validate"));
          }
@@ -1500,270 +1275,276 @@ void CQLValueRep::_validate(const CQLValueRep& x)
    return;
 }
 
-void CQLValueRep::_setValue(CIMValue cv,Uint64 index)
+void CQLValueRep::_setValue(CIMValue cv,Sint64 index)
 {
-   CIMValue tmp;
-   if(cv.isArray())
-   {
+  CIMValue tmp;
+  if(cv.isArray() && index != -1)
+    {
       switch(cv.getType())
-      {
-         case CIMTYPE_BOOLEAN:
-         {
+	{
+	case CIMTYPE_BOOLEAN:
+	  {
             Array<Boolean> _bool;
             cv.get(_bool);
-            _theValue._B = _bool[index];
+            _theValue.set(_bool[index]);
             _valueType = CQLValue::Boolean_type;
             break;
-         }
-         case CIMTYPE_UINT8:
-         {
+	  }
+	case CIMTYPE_UINT8:
+	  {
             Array<Uint8> _uint;
             cv.get(_uint);
-            _theValue._U64 = _uint[index];
+            _theValue.set((Uint64)_uint[index]);
             _valueType = CQLValue::Uint64_type;
             break;
-         }
-         case CIMTYPE_UINT16:
-         {
+	  }
+	case CIMTYPE_UINT16:
+	  {
             Array<Uint16> _uint;
             cv.get(_uint);
-            _theValue._U64 = _uint[index];
+            _theValue.set((Uint64)_uint[index]);
             _valueType = CQLValue::Uint64_type;
             break;
-         }
-         case CIMTYPE_UINT32:
-         {
+	  }
+	case CIMTYPE_UINT32:
+	  {
             Array<Uint32> _uint;
             cv.get(_uint);
-            _theValue._U64 = _uint[index];
+            _theValue.set((Uint64)_uint[index]);
             _valueType = CQLValue::Uint64_type;
             break;
-         }
-         case CIMTYPE_UINT64:
-         {
+	  }
+	case CIMTYPE_UINT64:
+	  {
             Array<Uint64> _uint;
             cv.get(_uint);
-            _theValue._U64 = _uint[index];
+            _theValue.set((Uint64)_uint[index]);
             _valueType = CQLValue::Uint64_type;
             break;
-         }
-         case CIMTYPE_SINT8:
-         {
-            Array<Sint8> _sint;
-            cv.get(_sint);
-            _theValue._S64 = _sint[index];
-            _valueType = CQLValue::Sint64_type;
-            break;
-         }
-         case CIMTYPE_SINT16:
-         {
-            Array<Sint16> _sint;
-            cv.get(_sint);
-            _theValue._S64 = _sint[index];
-            _valueType = CQLValue::Sint64_type;
-            break;
-         }
-         case CIMTYPE_SINT32:
-         {
+	  }
+	case CIMTYPE_SINT8:
+	  {
+	    Array<Sint8> _sint;
+	    cv.get(_sint);
+	    _theValue.set((Sint64)_sint[index]);
+	    _valueType = CQLValue::Sint64_type;
+	    break;
+	  }
+	case CIMTYPE_SINT16:
+	  {
+	    Array<Sint16> _sint;
+	    cv.get(_sint);
+	    _theValue.set((Sint64)_sint[index]);
+	    _valueType = CQLValue::Sint64_type;
+	    break;
+	  }
+	case CIMTYPE_SINT32:
+	  {
             Array<Sint32> _sint;
             cv.get(_sint);
-            _theValue._S64 = _sint[index];
+            _theValue.set((Sint64)_sint[index]);
             _valueType = CQLValue::Sint64_type;
             break;
-         }
-         case CIMTYPE_SINT64:
-         {
+	  }
+	case CIMTYPE_SINT64:
+	  {
             Array<Sint64> _sint;
             cv.get(_sint);
-            _theValue._S64 = _sint[index];
+            _theValue.set((Sint64)_sint[index]);
             _valueType = CQLValue::Sint64_type;
             break;
-         }
-           
-         case CIMTYPE_REAL32:
-         {
+	  }
+	  
+	case CIMTYPE_REAL32:
+	  {
             Array<Real32> _real;
             cv.get(_real);
-            _theValue._R64 = _real[index];
+            _theValue.set((Real64)_real[index]);
             _valueType = CQLValue::Real_type;
             break;
-         }
-         case CIMTYPE_REAL64:
-         {
+	  }
+	case CIMTYPE_REAL64:
+	  {
             Array<Real64> _real;
             cv.get(_real);
-            _theValue._R64 = _real[index];
+            _theValue.set((Real64)_real[index]);
             _valueType = CQLValue::Real_type;
             break;
-         }   
-         case CIMTYPE_CHAR16:
-         {
+	  }   
+	case CIMTYPE_CHAR16:
+	  {
             Array<Char16> _str;
             cv.get(_str);
-            _theValue._S = new String(&_str[index]);
+            _theValue.set(String(&_str[index]));
             _valueType = CQLValue::String_type;
             break;
-         }
-         case CIMTYPE_STRING:
-         {
+	  }
+	case CIMTYPE_STRING:
+	  {
             Array<String> _str;
             cv.get(_str);
-            _theValue._S = new String(_str[index]);
+            _theValue.set(_str[index]);
             _valueType = CQLValue::String_type;
             break;
-         }  
-         case CIMTYPE_DATETIME:
-         {
+	  }  
+	case CIMTYPE_DATETIME:
+	  {
             Array<CIMDateTime> _date;
             cv.get(_date);
-            _theValue._DT = new CIMDateTime(_date[index]);
+            _theValue.set(_date[index]);
             _valueType = CQLValue::CIMDateTime_type;
             break;
-         }
-         case CIMTYPE_REFERENCE:
-         {
+	  }
+	case CIMTYPE_REFERENCE:
+	  {
             Array<CIMObjectPath> _path;
             cv.get(_path);
-            _theValue._OP = new CIMObjectPath(_path[index]);
+            _theValue.set(_path[index]);
             _valueType = CQLValue::CIMReference_type;
             break;
-         }   
-         default:
-            throw(Exception(String("CQLValueRep::_setValue")));
-      } // switch statement
-
-   }
-   else
-   {
+	  }   
+	case CIMTYPE_EMBEDDED:
+	  {
+            Array<CIMObject> _obj;
+            // TODO: cv.get(_obj);
+            // TODO: _theValue.set(_obj[index]);
+            _valueType = CQLValue::CIMObject_type;
+            break;
+	  }   
+	default:
+	  throw(Exception(String("CQLValueRep::_setValue")));
+	} // switch statement 
+    }
+  else
+    {
       switch(cv.getType())
-      {
-         case CIMTYPE_BOOLEAN:
-         {
-            Boolean _bool;
-            cv.get(_bool);
-            _theValue._B = _bool;
+	{
+	case CIMTYPE_BOOLEAN:
+	  {
+	    _theValue = cv;
             _valueType = CQLValue::Boolean_type;
             break;
-         }
-         case CIMTYPE_UINT8:
-         {
-            Uint8 _uint;
-            cv.get(_uint);
-            _theValue._U64 = _uint;
-            _valueType = CQLValue::Uint64_type;
-            break;
-         }
-         case CIMTYPE_UINT16:
-         {
-            Uint16 _uint;
-            cv.get(_uint);
-            _theValue._U64 = _uint;
-            _valueType = CQLValue::Uint64_type;
-            break;
-         }
-         case CIMTYPE_UINT32:
-         {
-            Uint32 _uint;
-            cv.get(_uint);
-            _theValue._U64 = _uint;
-            _valueType = CQLValue::Uint64_type;
-            break;
-         }
-         case CIMTYPE_UINT64:
-         {
-            Uint64 _uint;
-            cv.get(_uint);
-            _theValue._U64 = _uint;
-            _valueType = CQLValue::Uint64_type;
-            break;
-         }
-         case CIMTYPE_SINT8:
-         {
-            Sint8 _sint;
-            cv.get(_sint);
-            _theValue._S64 = _sint;
-            _valueType = CQLValue::Sint64_type;
-            break;
-         }
-         case CIMTYPE_SINT16:
-         {
-            Sint16 _sint;
-            cv.get(_sint);
-            _theValue._S64 = _sint;
-            _valueType = CQLValue::Sint64_type;
-            break;
-         }
-         case CIMTYPE_SINT32:
-
-         {
-            Sint32 _sint;
-            cv.get(_sint);
-            _theValue._S64 = _sint;
-            _valueType = CQLValue::Sint64_type;
-            break;
-         }
-         case CIMTYPE_SINT64:
-         {
-            Sint64 _sint;
-            cv.get(_sint);
-            _theValue._S64 = _sint;
-            _valueType = CQLValue::Sint64_type;
-            break;
-         }
-         case CIMTYPE_REAL32:
-         {
-            Real32 _real;
-            cv.get(_real);
-            _theValue._R64 = _real;
-            _valueType = CQLValue::Real_type;
-            break;
-         }
-         case CIMTYPE_REAL64:
-         {
-            Real64 _real;
-            cv.get(_real);
-            _theValue._R64 = _real;
-            _valueType = CQLValue::Real_type;
-            break;
-         }  
-         case CIMTYPE_CHAR16:
-         {
-            Char16 _str;
-            cv.get(_str);
-            _theValue._S = new String(&_str);
-            _valueType = CQLValue::String_type;
-            break;
-         }
-         case CIMTYPE_STRING:
-         {
-            String _str;
-            cv.get(_str);
-            _theValue._S = new String(_str);
-            _valueType = CQLValue::String_type;
-            break;
-         }
-         case CIMTYPE_DATETIME:
-         {
-            CIMDateTime _date;
-            cv.get(_date);
-            _theValue._DT = new CIMDateTime(_date);
-            _valueType = CQLValue::CIMDateTime_type;
-            break;
-         }
-         case CIMTYPE_REFERENCE:
-         {
-            CIMObjectPath _path;
-            cv.get(_path);
-            _theValue._OP = new CIMObjectPath(_path);
+	  }
+	case CIMTYPE_UINT8:
+	  {
+	    Uint8 _tmp;
+	    cv.get(_tmp);
+	    _theValue = CIMValue((Uint64)_tmp);
+	    _valueType = CQLValue::Uint64_type;
+	    break;
+	  }
+	case CIMTYPE_UINT16:
+	  {
+	    Uint16 _tmp;
+	    cv.get(_tmp);
+	    _theValue = CIMValue((Uint64)_tmp);
+	    _valueType = CQLValue::Uint64_type;
+	    break;
+	  }
+	case CIMTYPE_UINT32:
+	  {
+	    Uint32 _tmp;
+	    cv.get(_tmp);
+	    _theValue = CIMValue((Uint64)_tmp);
+	    _valueType = CQLValue::Uint64_type;
+	    break;
+	  }
+	case CIMTYPE_UINT64:
+	  {
+	    Uint64 _tmp;
+	    cv.get(_tmp);
+	    _theValue = CIMValue((Uint64)_tmp);
+	    _valueType = CQLValue::Uint64_type;
+	    break;
+	  }
+	case CIMTYPE_SINT8:
+	  {
+	    Sint8 _tmp;
+	    cv.get(_tmp);
+	    _theValue = CIMValue((Sint64)_tmp);
+	    _valueType = CQLValue::Sint64_type;
+	    break;
+	  }
+	case CIMTYPE_SINT16:
+	  {
+	    Sint16 _tmp;
+	    cv.get(_tmp);
+	    _theValue = CIMValue((Sint64)_tmp);
+	    _valueType = CQLValue::Sint64_type;
+	    break;
+	  }
+	case CIMTYPE_SINT32:
+	  {
+	    Sint32 _tmp;
+	    cv.get(_tmp);
+	    _theValue = CIMValue((Sint64)_tmp);
+	    _valueType = CQLValue::Sint64_type;
+	    break;
+	  }
+	case CIMTYPE_SINT64:
+	  {
+	    Sint64 _tmp;
+	    cv.get(_tmp);
+	    _theValue = CIMValue((Sint64)_tmp);
+	    _valueType = CQLValue::Sint64_type;
+	    break;
+	  }
+	case CIMTYPE_REAL32:
+	  {
+	    Real64 _tmp;
+	    cv.get(_tmp);
+	    _theValue = CIMValue((Real64)_tmp);
+	    _valueType = CQLValue::Real_type;
+	    break;
+	  }
+	case CIMTYPE_REAL64:
+	  {
+	    Real64 _tmp;
+	    cv.get(_tmp);
+	    _theValue = CIMValue((Real64)_tmp);
+	    _valueType = CQLValue::Real_type;
+	    break;
+	  }   
+	case CIMTYPE_CHAR16:
+	  {
+	    Char16 _tmp;
+	    cv.get(_tmp);
+	    _theValue = CIMValue(String(&_tmp));
+	    _valueType = CQLValue::String_type;
+	    break;
+	  }  
+	case CIMTYPE_STRING:
+	  {
+	    _theValue = cv;
+	    _valueType = CQLValue::String_type;
+	    break;
+	  }   
+	case CIMTYPE_DATETIME:
+	  {
+	    _theValue = cv;
+	    _valueType = CQLValue::CIMDateTime_type;
+	    break;
+	  } 
+	case CIMTYPE_REFERENCE:
+	  {
+	    _theValue = cv;
             _valueType = CQLValue::CIMReference_type;
             break;
-         }
-         default:
-            throw(Exception(String("CQLValueRep::setValue")));
-      } // switch statement
-   }
-   _isResolved = true;
-   return;
+	  }   
+	case CIMTYPE_EMBEDDED:
+	  {
+	    _theValue = cv;
+            _valueType = CQLValue::CIMObject_type;
+            break;
+	  }   
+	default:
+	  throw(Exception(String("CQLValueRep::_setValue")));
+	}
+
+    }
+
+  _isResolved = true;
+  return;
 }
 
 void CQLValueRep::applyContext(QueryContext& _ctx,
@@ -1929,7 +1710,7 @@ void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx)
      }
 }
 
-Boolean CQLValueRep::_compareInstance(CIMInstance& _in1, CIMInstance& _in2)
+Boolean CQLValueRep::_compareObjects(CIMObject& _in1, CIMObject& _in2)
 {
   return true;
 }

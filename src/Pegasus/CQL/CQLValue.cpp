@@ -284,14 +284,9 @@ CIMObjectPath CQLValue::getReference()const
    return _rep->getReference();
 }
 
-CIMInstance CQLValue::getInstance()const
+CIMObject CQLValue::getObject()const
 {
-   return _rep->getInstance();
-}
-
-CIMClass CQLValue::getClass()const
-{
-   return _rep->getClass();
+   return _rep->getObject();
 }
 
 String CQLValue::toString()const

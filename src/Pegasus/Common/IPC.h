@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%//-*-c++-*-//////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
@@ -46,7 +46,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-/////////// -------- IPC Exception Classes -------- ///////////////////////////////
+//%//////// -------- IPC Exception Classes -------- ///////////////////////////////
 
 class PEGASUS_EXPORT IPCException
 {
@@ -101,12 +101,12 @@ class PEGASUS_EXPORT WaitFailed: public IPCException
 } ;
 
 
-//////////////////// ----- IPC related functions ------- //////////////////////
+//%///////////////// ----- IPC related functions ------- //////////////////////
 
 PEGASUS_THREAD_TYPE pegasus_thread_self(void);
 
 
-///////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 class PEGASUS_EXPORT Mutex
 {
 
@@ -143,7 +143,54 @@ class PEGASUS_EXPORT Mutex
 } ;
 
 
-#ifndef PEGASUS_ATOMIC_INT_NATIVE
+//%////////////////////////////////////////////////////////////////////////////
+
+class PEGASUS_EXPORT Semaphore
+{
+  
+ public:
+    
+    // create the semaphore and set its initial value to the <initial>
+    Semaphore(Uint32 initial = 1 ) ;
+    ~Semaphore( );
+
+    // block until this semaphore is in a signalled state 
+    void wait(void) ;
+
+    // wait succeeds immediately if semaphore has a non-zero count, 
+    // return immediately and throw and exception if the 
+    // count is zero. 
+    void try_wait(void) throw(WaitFailed);
+
+    // wait for milliseconds and throw an exception
+    // if wait times out without gaining the semaphore
+    void time_wait( Uint32 milliseconds ) throw(TimeOut);
+
+
+    // increment the count of the semaphore 
+    void signal(void);
+
+    // return the count of the semaphore
+    int count(void); 
+
+ private:
+
+    PEGASUS_SEM_HANDLE  _semaphore;
+
+    // may not need to use the _count member on
+    // platorms that allow you to ask the semaphore for 
+    // its count 
+    int _count; 
+};
+
+
+#if defined(PEGASUS_ATOMIC_INT_NATIVE)
+
+#else
+//-----------------------------------------------------------------
+/// Generic definition of Atomic integer
+//-----------------------------------------------------------------
+
 #undef PEGASUS_ATOMIC_TYPE
 typedef struct {
     Uint32 _value;
@@ -183,7 +230,6 @@ class AtomicInt
 
     AtomicInt& operator+=(const AtomicInt& val);
     AtomicInt& operator+=(Uint32 val);
-
     AtomicInt& operator-=(const AtomicInt& val);
     AtomicInt& operator-=(Uint32 val);
 
@@ -194,7 +240,20 @@ class AtomicInt
     PEGASUS_ATOMIC_TYPE _rep; //    sig_atomic_t on POSIX systems with glibc
 };
     
-///////////////////////////////////////////////////////////////////////////////
+
+//-----------------------------------------------------------------
+/// Generic definition of read/write semaphore
+//-----------------------------------------------------------------
+
+#if defined(PEGASUS_READWRITE_NATIVE)
+
+#else 
+typedef struct {
+    Mutex _wlock;
+    Semaphore _rlock;
+    PEGASUS_THREAD_T _owner;
+} PEGASUS_RWLOCK_HANDLE;
+#endif
 
 const Uint32 PEG_SEM_READ = 1 ;
 const Uint32 PEG_SEM_WRITE = 2 ;
@@ -266,7 +325,23 @@ class PEGASUS_EXPORT ReadWriteSem
     PEGASUS_RWLOCK_HANDLE _rwlock;
 } ;
 
-///////////////////////////////////////////////////////////////////////////////
+//-----------------------------------------------------------------
+/// Generic definition of conditional semaphore
+//-----------------------------------------------------------------
+
+
+#if defined(PEGASUS_CONDITIONAL_NATIVE)
+
+#else  
+typedef PEGASUS_MUTEX_TYPE PEGASUS_COND_TYPE;
+
+typedef struct {
+    PEGASUS_COND_TYPE _cond;
+    PEGASUS_THREAD_TYPE _owner;
+    PEGASUS_MUTEX_TYPE _internal_mut;
+} PEGASUS_COND_HANDLE;
+
+#endif 
 
 class PEGASUS_EXPORT Condition
 {
@@ -302,54 +377,6 @@ class PEGASUS_EXPORT Condition
     PEGASUS_COND_TYPE _condition;
     Mutex _cond_mutex;
 };
-
-///////////////////////////////////////////////////////////////////////////////
-
-class PEGASUS_EXPORT Semaphore
-{
-  
- public:
-    
-    // create the semaphore and set its initial value to the <initial>
-    Semaphore(Uint32 initial = 1 ) ;
-    ~Semaphore( );
-
-    // block until this semaphore is in a signalled state 
-    void wait(void) ;
-
-    // wait succeeds immediately if semaphore has a non-zero count, 
-    // return immediately and throw and exception if the 
-    // count is zero. 
-    void try_wait(void) throw(WaitFailed);
-
-    // wait for milliseconds and throw an exception
-    // if wait times out without gaining the semaphore
-    void time_wait( Uint32 milliseconds ) throw(TimeOut);
-
-
-    // increment the count of the semaphore 
-    void signal(void);
-
-    // return the count of the semaphore
-    int count(void); 
-
- private:
-
-    PEGASUS_SEM_HANDLE  _semaphore;
-
-    // may not need to use the _count member on
-    // platorms that allow you to ask the semaphore for 
-    // its count 
-    int _count; 
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-
-
-///////////////////////////////////////////////////////////////////////////////
-
-
 
 PEGASUS_NAMESPACE_END
 

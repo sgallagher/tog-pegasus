@@ -34,6 +34,26 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+// ATTN  mdday@us.ibm.com Wed Aug  1 10:31:51 2001
+/// el-cheapo version of ltoa
+// ltoa is implemented differently from platform to platform
+// Linux does not have it at all.
+// windows implements it as char * _ltoa(long, char *, int); 
+//
+// Because of the static buffer this you should copy the 
+// return value before another thread clobbers it. 
+// If using for temporary values, as in :
+// strlen(ltoa(linenumber)) 
+// it should be safe enough for trace functions. . 
+#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+static inline char *ltoa(int n) 
+{
+   static char buf [21];
+   sprintf(buf, "%d", n);
+   return(buf);
+}
+#endif 
+
 // Set the trace levels
 // These levels will be compared against a trace level mask to determine
 // if a specific trace level is enabled 

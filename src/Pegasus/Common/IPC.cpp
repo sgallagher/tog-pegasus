@@ -38,52 +38,53 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#ifndef PEGASUS_ATOMIC_INT_NATIVE
+#if defined(PEGASUS_ATOMIC_INT_NATIVE)
 
-AtomicInt::AtomicInt() : _rep._value(0) {_rep._mutex = Mutex(); }
+#else
+AtomicInt::AtomicInt() {_rep._value = 0; _rep._mutex = Mutex(); }
 
-AtomicInt::AtomicInt(Uint32 initial) : _rep._value(initial) { _rep._mutex = Mutex() ; }
+AtomicInt::AtomicInt(Uint32 initial) {_rep._value = initial;  _rep._mutex = Mutex() ; }
 
 AtomicInt::~AtomicInt() { _rep._mutex.unlock(); }
 
 AtomicInt::AtomicInt(const AtomicInt& original)
 {
-  _rep._mutex = Mutex();
-  _rep._value = original.value();
+    _rep._mutex = Mutex();
+    _rep._value = original._rep._value;
 } 
 
 AtomicInt& AtomicInt::operator=(const AtomicInt& original )
 {
-  // to avoid deadlocks, always be certain to only hold one mutex at a time. 
-  // therefore, get the original value (which will lock and unlock the original's mutex)
-  // and _then_ lock this mutex. This pattern is repeated throughout the class
+    // to avoid deadlocks, always be certain to only hold one mutex at a time. 
+    // therefore, get the original value (which will lock and unlock the original's mutex)
+    // and _then_ lock this mutex. This pattern is repeated throughout the class
   
-  Uint32 temp = original.value();
-  _rep._mutex.lock();
-  _rep._value = temp;
-  _rep._mutex.unlock();
-  return *this;
+    Uint32 temp = original._rep._value;
+    _rep._mutex.lock(pegasus_thread_self());
+    _rep._value = temp;
+    _rep._mutex.unlock();
+    return *this;
 }
 
 AtomicInt& AtomicInt::operator=(Uint32 val)
 {
-  _rep._mutex.lock();
-  _rep._value = val;
-  _rep._mutex.unlock();
-  return *this;
+    _rep._mutex.lock(pegasus_thread_self());
+    _rep._value = val;
+    _rep._mutex.unlock();
+    return *this;
 }
 
 Uint32 AtomicInt::value()
 {
-  _rep._mutex.lock();
-  Uint32 retval = _rep._value;
-  _rep._mutex.unlock();
-  return retval;
+    _rep._mutex.lock(pegasus_thread_self());
+    Uint32 retval = _rep._value;
+    _rep._mutex.unlock();
+    return retval;
 }
 
 void AtomicInt::operator++(void)
 {
-    _rep._mutex.lock();
+    _rep._mutex.lock(pegasus_thread_self());
     _rep._value++;
     _rep._mutex.unlock();
 }
@@ -91,24 +92,24 @@ void AtomicInt::operator++(void)
 
 void AtomicInt::operator--(void)
 {
-    _rep._mutex.lock();
+    _rep._mutex.lock(pegasus_thread_self());
     _rep._value--;
     _rep._mutex.unlock();
 }
 
 Uint32 AtomicInt::operator+(const AtomicInt& val)
 {
-  // never acquire a mutex while holding a mutex 
-  Uint32 retval = val.value(); 
-  _rep._mutex.lock();
-  retval += _rep._value ;
-  _rep._mutex.unlock();
-  return retval;
+    // never acquire a mutex while holding a mutex 
+    Uint32 retval = val._rep._value; 
+    _rep._mutex.lock(pegasus_thread_self());
+    retval += _rep._value ;
+    _rep._mutex.unlock();
+    return retval;
 }
 
 Uint32 AtomicInt::operator+(Uint32 val)
 {
-    _rep._mutex.lock();
+    _rep._mutex.lock(pegasus_thread_self());
     Uint32 retval = _rep._value + val;
     _rep._mutex.unlock();
     return retval;
@@ -116,17 +117,17 @@ Uint32 AtomicInt::operator+(Uint32 val)
 
 Uint32 AtomicInt::operator-(const AtomicInt& val)
 {
-  // never acquire a mutex while holding a mutex
-  Uint32 retval =  val.value();
-  _mutex.lock();
-  retval += _rep._value;
-  _mutex.unlock();
-  return retval;
+    // never acquire a mutex while holding a mutex
+    Uint32 retval =  val._rep._value;
+    _rep._mutex.lock(pegasus_thread_self());
+    retval += _rep._value;
+    _rep._mutex.unlock();
+    return retval;
 }
 
 Uint32 AtomicInt::operator-(Uint32 val)
 {
-    _rep._mutex.lock();
+    _rep._mutex.lock(pegasus_thread_self());
     Uint32 retval = _rep._value - val;
     _rep._mutex.unlock();
     return retval;
@@ -135,44 +136,119 @@ Uint32 AtomicInt::operator-(Uint32 val)
 
 AtomicInt& AtomicInt::operator+=(const AtomicInt& val)
 {
-  // never acquire a mutex while holding a mutex
-  Uint32 temp = val.value();
-  _rep._mutex.lock();
-  _rep._value += temp;
-  _rep._mutex.unlock();
-  return *this;
+    // never acquire a mutex while holding a mutex
+    Uint32 temp = val._rep._value;
+    _rep._mutex.lock(pegasus_thread_self());
+    _rep._value += temp;
+    _rep._mutex.unlock();
+    return *this;
+}
+AtomicInt& AtomicInt::operator+=(Uint32 val)
+{
+    // never acquire a mutex while holding a mutex
+    _rep._mutex.lock(pegasus_thread_self());
+    _rep._value += val;
+    _rep._mutex.unlock();
+    return *this;
 }
 
-AtomicInt& operator+=(Uint32 val)
+AtomicInt& AtomicInt::operator-=(const AtomicInt& val)
 {
-  _rep._mutex.lock();
-  _rep._value += val;
-  _rep._mutex.unlock();
-  return *this;
+    // never acquire a mutex while holding a mutex
+    Uint32 temp = val._rep._value;
+    _rep._mutex.lock(pegasus_thread_self());
+    _rep._value -= temp;
+    _rep._mutex.unlock();
+    return *this;
 }
 
-AtomicInt& operator-=(const AtomicInt& val)
+AtomicInt& AtomicInt::operator-=(Uint32 val)
 {
-  Uint32 temp = val.value();
-  _rep._mutex.lock();
-  _rep._value -= temp;
-  _rep._mutex.unlock();
-  return *this;
+    // never acquire a mutex while holding a mutex
+    _rep._mutex.lock(pegasus_thread_self());
+    _rep._value -= val;
+    _rep._mutex.unlock();
+    return *this;
 }
 
-AtomicInt& operator-=(Uint32 val)
-{
-  _rep._mutex.lock();
-  _rep._value -= val;
-  _rep._mutex.unlock();
-  return *this;
-}
+#endif // PEGASUS_ATOMIC_INT_NATIVE
 
 //Mutex * AtomicInt::getMutex()
 //{
 //    return &_mutex;
 //}
 
-#endif // PEGASUS_ATOMIC_INT_NATIVE
+
+
+#if defined( PEGASUS_CONDITIONAL_NATIVE)
+
+#else
+
+// waiter: 
+// get the mutex
+// conditioned wait (releases the mutex)
+
+// signaler:
+// get the mutex (check for deadlock)
+// signal the resource 
+// release the mutex 
+
+
+//   Consider two shared variables X and Y, protected by the mutex MUT,
+// and a condition variable COND that is to be signaled whenever X becomes
+// greater than Y.
+//
+//      int x,y;
+//      pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
+//      pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+//
+//    Waiting until X is greater than Y is performed as follows:
+//
+//      pthread_mutex_lock(&mut);
+//      while (x <= y) {
+//              pthread_cond_wait(&cond, &mut);
+//      }
+//      /* operate on x and y */
+//      pthread_mutex_unlock(&mut);
+//
+//    Modifications on X and Y that may cause X to become greater than Y
+// should signal the condition if needed:
+//
+//      pthread_mutex_lock(&mut);
+//      /* modify x and y */
+//      if (x > y) pthread_cond_broadcast(&cond);
+//      pthread_mutex_unlock(&mut);
+//
+//    If it can be proved that at most one waiting thread needs to be waken
+// up (for instance, if there are only two threads communicating through X
+// and Y), `pthread_cond_signal' can be used as a slightly more efficient
+// alternative to `pthread_cond_broadcast'. In doubt, use
+// `pthread_cond_broadcast'.
+//
+//    To wait for X to becomes greater than Y with a timeout of 5 seconds,
+// do:
+//
+//      struct timeval now;
+//      struct timespec timeout;
+//      int retcode;
+//     
+//      pthread_mutex_lock(&mut);
+//      gettimeofday(&now);
+//      timeout.tv_sec = now.tv_sec + 5;
+//      timeout.tv_nsec = now.tv_usec * 1000;
+//      retcode = 0;
+//      while (x <= y && retcode != ETIMEDOUT) {
+//              retcode = pthread_cond_timedwait(&cond, &mut, &timeout);
+//      }
+//      if (retcode == ETIMEDOUT) {
+//              /* timeout occurred */
+//      } else {
+//              /* operate on x and y */
+//      }
+//      pthread_mutex_unlock(&mut);
+//
+
+
+#endif // PEGASUS_CONDITIONAL_NATIVE
 
 PEGASUS_NAMESPACE_END

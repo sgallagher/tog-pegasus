@@ -27,14 +27,12 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+
 PEGASUS_NAMESPACE_BEGIN
-
-////////////////////////////////////////////////////////////////////////////
-
 
 PEGASUS_THREAD_TYPE pegasus_thread_self(void) 
 { 
-  return(pthread_self());
+    return(pthread_self());
 }
 
 Mutex::Mutex()
@@ -55,15 +53,15 @@ Mutex::Mutex(int mutex_type)
 
 Mutex::~Mutex()
 {
-  while( EBUSY == pthread_mutex_destroy(&_mutex.mut))
+    while( EBUSY == pthread_mutex_destroy(&_mutex.mut))
     {
 #ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-    sched_yield();
+	sched_yield();
 #else
-    pthread_yield();
+	pthread_yield();
 #endif
     }
-  pthread_mutexattr_destroy(&_mutex.mutatt);
+    pthread_mutexattr_destroy(&_mutex.mutatt);
 }
 
 // block until gaining the lock - throw a deadlock 
@@ -77,9 +75,9 @@ void Mutex::lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed)
 	return;
     }
     else if (errorcode == EDEADLK) 
-      throw( Deadlock( _mutex.owner ) );
+	throw( Deadlock( _mutex.owner ) );
     else 
-      throw( WaitFailed( _mutex.owner) );
+	throw( WaitFailed( _mutex.owner) );
 }
   
 // try to gain the lock - lock succeeds immediately if the 
@@ -87,18 +85,18 @@ void Mutex::lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed)
 // immediately if the mutex is currently locked. 
 void Mutex::try_lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, AlreadyLocked, WaitFailed)
 {
-  int errorcode ;
-  if(0 == (errorcode = pthread_mutex_trylock(&_mutex.mut))) 
-  {
-    _mutex.owner = caller;
-    return;
-  }
-  else if (errorcode == EBUSY) 
-    throw(AlreadyLocked(_mutex.owner));
-  else if (errorcode == EDEADLK) 
-    throw(Deadlock(_mutex.owner));
-  else
-    throw(WaitFailed(_mutex.owner));
+    int errorcode ;
+    if(0 == (errorcode = pthread_mutex_trylock(&_mutex.mut))) 
+    {
+	_mutex.owner = caller;
+	return;
+    }
+    else if (errorcode == EBUSY) 
+	throw(AlreadyLocked(_mutex.owner));
+    else if (errorcode == EDEADLK) 
+	throw(Deadlock(_mutex.owner));
+    else
+	throw(WaitFailed(_mutex.owner));
 }
 
 // wait for milliseconds and throw an exception then return if the wait
@@ -107,87 +105,85 @@ void Mutex::try_lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, AlreadyLocked, 
 void Mutex::timed_lock( Uint32 milliseconds , PEGASUS_THREAD_TYPE caller) throw(Deadlock, TimeOut, WaitFailed)
 {
 
-  struct timeval now;
-  struct timespec timeout;
-  int errorcode;
+    struct timeval now;
+    struct timespec timeout;
+    int errorcode;
   
-  gettimeofday(&now,NULL);
-  timeout.tv_sec = now.tv_sec;
-  timeout.tv_nsec += now.tv_usec * 1000 + milliseconds; 
-  if(0 == (errorcode = pthread_mutex_timedlock(&_mutex.mut, &timeout)))
-  {
-    _mutex.owner = caller;
-    return;
-  }
-  else if (errorcode == ETIMEDOUT)
-    throw(TimeOut(_mutex.owner));
-  else if (errorcode == EDEADLK)
-    throw(Deadlock(_mutex.owner));
-  else
-    throw(WaitFailed(_mutex.owner));
+    gettimeofday(&now,NULL);
+    timeout.tv_sec = now.tv_sec;
+    timeout.tv_nsec += now.tv_usec * 1000 + milliseconds; 
+    if(0 == (errorcode = pthread_mutex_timedlock(&_mutex.mut, &timeout)))
+    {
+	_mutex.owner = caller;
+	return;
+    }
+    else if (errorcode == ETIMEDOUT)
+	throw(TimeOut(_mutex.owner));
+    else if (errorcode == EDEADLK)
+	throw(Deadlock(_mutex.owner));
+    else
+	throw(WaitFailed(_mutex.owner));
 }
 
 // unlock the mutex
 void Mutex::unlock() throw(Permission)
 {
-  if(0 != pthread_mutex_unlock(&_mutex.mut))
-    throw(Permission(_mutex.owner));
+    if(0 != pthread_mutex_unlock(&_mutex.mut))
+	throw(Permission(_mutex.owner));
 }
 
 
-
-////////////////////////////////////////////////////////////////////////////
 
 // ReadWriteSemaphore are best implemented through Unix 98 rwlocks
 
 
 ReadWriteSem::ReadWriteSem(void) :  _readers(0), _writers(0) 
 {
-  pthread_rwlock_init(&_rwlock.rwlock, NULL);
-  _rwlock.owner = 0;
+    pthread_rwlock_init(&_rwlock.rwlock, NULL);
+    _rwlock.owner = 0;
 }
     
 ReadWriteSem::~ReadWriteSem()
 {
 
-  while( EBUSY == pthread_rwlock_destroy(&_rwlock.rwlock))
-  {
+    while( EBUSY == pthread_rwlock_destroy(&_rwlock.rwlock))
+    {
 #ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-    sched_yield();
+	sched_yield();
 #else
-    pthread_yield();
+	pthread_yield();
 #endif
-  }
+    }
 }
 
 
 void ReadWriteSem::wait(Uint32 mode, PEGASUS_THREAD_TYPE caller) throw(Deadlock, Permission, WaitFailed) 
 {
-  int errorcode;
-  if (mode == PEG_SEM_READ) 
-  {
-    if(0 == (errorcode = pthread_rwlock_rdlock(&_rwlock.rwlock)))
+    int errorcode;
+    if (mode == PEG_SEM_READ) 
     {
-      _readers++;
-      return;
+	if(0 == (errorcode = pthread_rwlock_rdlock(&_rwlock.rwlock)))
+	{
+	    _readers++;
+	    return;
+	}
     }
-  }
-  else if (mode == PEG_SEM_WRITE)
-  {
-    if( 0 == (errorcode = pthread_rwlock_wrlock(&_rwlock.rwlock)))
+    else if (mode == PEG_SEM_WRITE)
     {
-      _rwlock.owner = caller;
-      _writers++;
-      return;
+	if( 0 == (errorcode = pthread_rwlock_wrlock(&_rwlock.rwlock)))
+	{
+	    _rwlock.owner = caller;
+	    _writers++;
+	    return;
+	}
     }
-  }
-  else 
-    throw(Permission(pthread_self()));
+    else 
+	throw(Permission(pthread_self()));
     
-  if (errorcode == EDEADLK)
-    throw(Deadlock(_rwlock.owner));
-  else
-    throw(WaitFailed(pthread_self()));
+    if (errorcode == EDEADLK)
+	throw(Deadlock(_rwlock.owner));
+    else
+	throw(WaitFailed(pthread_self()));
 }
 
 void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller) throw(AlreadyLocked, Deadlock, Permission, WaitFailed)
@@ -195,30 +191,30 @@ void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller) throw(Alrea
     int errorcode = 0;
     if (mode == PEG_SEM_READ) 
     {
-      if( 0 == (errorcode = pthread_rwlock_tryrdlock(&_rwlock.rwlock)))
-      {
-	_readers++;
-	return;
-      }
+	if( 0 == (errorcode = pthread_rwlock_tryrdlock(&_rwlock.rwlock)))
+	{
+	    _readers++;
+	    return;
+	}
     }
     else if (mode == PEG_SEM_WRITE) 
     {
-      if(0 == (errorcode = pthread_rwlock_trywrlock(&_rwlock.rwlock)))
-      {
-	_writers++;
-	_rwlock.owner = caller;
-	return;
-      }
+	if(0 == (errorcode = pthread_rwlock_trywrlock(&_rwlock.rwlock)))
+	{
+	    _writers++;
+	    _rwlock.owner = caller;
+	    return;
+	}
     }
     else 
-      throw(Permission(pthread_self()));
+	throw(Permission(pthread_self()));
 
     if (errorcode == EBUSY)
-      throw(AlreadyLocked(_rwlock.owner));
+	throw(AlreadyLocked(_rwlock.owner));
     else if (errorcode == EDEADLK)
-      throw(Deadlock(_rwlock.owner));
+	throw(Deadlock(_rwlock.owner));
     else
-      throw(WaitFailed(pthread_self()));
+	throw(WaitFailed(pthread_self()));
 }
 
 void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milliseconds) throw(TimeOut, Deadlock, Permission, WaitFailed)
@@ -233,117 +229,115 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 
     if (mode == PEG_SEM_READ)
     {
-        if(0 == (errorcode = pthread_rwlock_timedrdlock(&_rwlock.rwlock,
+	if(0 == (errorcode = pthread_rwlock_timedrdlock(&_rwlock.rwlock,
 							&timeout)))
 	{
-	  _readers++;
-	  return;
+	    _readers++;
+	    return;
 	}
     }
     else if (mode == PEG_SEM_WRITE)
     {
-        if(0 == (errorcode = pthread_rwlock_timedwrlock(&_rwlock.rwlock,
+	if(0 == (errorcode = pthread_rwlock_timedwrlock(&_rwlock.rwlock,
 							&timeout)))
 	{
-	  _writers++;
-	  _rwlock.owner = caller;
-	  return;
+	    _writers++;
+	    _rwlock.owner = caller;
+	    return;
 	}
     }
     else
-      throw(Permission(pthread_self()));
+	throw(Permission(pthread_self()));
 
     if (errorcode == ETIMEDOUT)
-      throw(TimeOut(_rwlock.owner));
+	throw(TimeOut(_rwlock.owner));
     else if (errorcode == EDEADLK)
-      throw(Deadlock(_rwlock.owner));
+	throw(Deadlock(_rwlock.owner));
     else
-      throw(WaitFailed(pthread_self()));
+	throw(WaitFailed(pthread_self()));
 }
 
 void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller) throw(Permission)
 {
-  if(0 != pthread_rwlock_unlock(&_rwlock.rwlock))
-    throw(Permission(pthread_self()));
-  if(mode == PEG_SEM_READ)
-    _readers--;
-  else if (mode == PEG_SEM_WRITE)
-    _writers--;
+    if(0 != pthread_rwlock_unlock(&_rwlock.rwlock))
+	throw(Permission(pthread_self()));
+    if(mode == PEG_SEM_READ)
+	_readers--;
+    else if (mode == PEG_SEM_WRITE)
+	_writers--;
   
 }
 
 int ReadWriteSem::read_count()
+
 {
-#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-  // ATTN - HP-UX pthread_rwlock struct does not contain __rw_readers member
-  PEGASUS_ASSERT(_readers.value() == (unsigned) _rwlock.rwlock.__rw_readers);
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+    PEGASUS_ASSERT(_readers.value() == (unsigned) _rwlock.rwlock.__rw_readers);
 #endif
-  return( _readers.value() );
+    return( _readers.value() );
 }
 
 int ReadWriteSem::write_count()
 {
-#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-  // ATTN - HP-UX pthread_rwlock struct does not contain __rw_writer member
-  if(_rwlock.rwlock.__rw_writer != NULL) 
-  {
-    PEGASUS_ASSERT(_writers.value() == 1); 
-  }
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)    
+    if(_rwlock.rwlock.__rw_writer != NULL) 
+    {
+	PEGASUS_ASSERT(_writers.value() == 1); 
+    }
 #endif
-  return(_writers.value());
+    return(_writers.value());
 }
 
-////////////////////////////////////////////////////////////////////////////
 
-/* Conditions are implemented as process-wide condition variables */
+/// Conditions are implemented as process-wide condition variables
 Condition::Condition() 
 {
 #ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-  // ATTN - HP-UX pthread library does not define PTHREAD_MUTEX_TIMED_NP
-  _cond_mutex = Mutex();
+    // ATTN - HP-UX pthread library does not define PTHREAD_MUTEX_TIMED_NP
+    _cond_mutex = Mutex();
 #else
-  _cond_mutex = Mutex(PTHREAD_MUTEX_TIMED_NP);
+    _cond_mutex = Mutex(PTHREAD_MUTEX_TIMED_NP);
 #endif
 #ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-  // ATTN - HP-UX can not deal with the non-static structure assignment
-  // Also, the (PEGASUS_COND_TYPE) cast seems to break the HP-UX compile
-  PEGASUS_COND_TYPE tmpCond = PTHREAD_COND_INITIALIZER;
-  memcpy(&_condition, &tmpCond, sizeof(PEGASUS_COND_TYPE));
+    // ATTN - HP-UX can not deal with the non-static structure assignment
+    // Also, the (PEGASUS_COND_TYPE) cast seems to break the HP-UX compile
+    PEGASUS_COND_TYPE tmpCond = PTHREAD_COND_INITIALIZER;
+    memcpy(&_condition, &tmpCond, sizeof(PEGASUS_COND_TYPE));
 #else
-  _condition = (PEGASUS_COND_TYPE) PTHREAD_COND_INITIALIZER;
+    _condition = (PEGASUS_COND_TYPE) PTHREAD_COND_INITIALIZER;
 #endif
-  _owner = 0;
+    _owner = 0;
 }
 
 Condition::~Condition()
 {
-  while(EBUSY == pthread_cond_destroy(&_condition))
-  {
+    while(EBUSY == pthread_cond_destroy(&_condition))
+    {
 #ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-    sched_yield();
+	sched_yield();
 #else
-    pthread_yield();
+	pthread_yield();
 #endif
-  }
-  _cond_mutex.~Mutex();
+    }
+    _cond_mutex.~Mutex();
 }
 
 // block until this semaphore is in a signalled state 
 void Condition::wait(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed)
 {
-  try { _cond_mutex.lock(caller); }
-  catch(...) { throw; }
+    try { _cond_mutex.lock(caller); }
+    catch(...) { throw; }
 
-  pthread_cond_wait(&_condition, _cond_mutex.getMutex());
-  _cond_mutex.unlock();
+    pthread_cond_wait(&_condition, _cond_mutex.getMutex());
+    _cond_mutex.unlock();
 }
 
 void Condition::signal(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed)
 {
-  try { _cond_mutex.lock(caller); }
-  catch(...) { throw; }
-  pthread_cond_broadcast(&_condition);
-  _cond_mutex.unlock();
+    try { _cond_mutex.lock(caller); }
+    catch(...) { throw; }
+    pthread_cond_broadcast(&_condition);
+    _cond_mutex.unlock();
 }
 
 // wait for milliseconds and throw an exception
@@ -358,67 +352,66 @@ void Condition::time_wait( Uint32 milliseconds, PEGASUS_THREAD_TYPE caller ) thr
     catch(...) { throw; }
     do 
     { 
-      gettimeofday(&now,NULL);
-      timeout.tv_sec = now.tv_sec;
-      timeout.tv_nsec += now.tv_usec * 1000 + milliseconds; 
-      retcode = pthread_cond_timedwait(&_condition, _cond_mutex.getMutex(), &timeout);
+	gettimeofday(&now,NULL);
+	timeout.tv_sec = now.tv_sec;
+	timeout.tv_nsec += now.tv_usec * 1000 + milliseconds; 
+	retcode = pthread_cond_timedwait(&_condition, _cond_mutex.getMutex(), &timeout);
     } while( retcode == EINTR ) ;
     
     _cond_mutex.unlock();
     if( retcode)
-      throw(TimeOut(caller)) ;
+	throw(TimeOut(caller)) ;
 }
 
 // block until this semaphore is in a signalled state 
 void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller) 
 {
-  pthread_cond_wait(&_condition, _cond_mutex.getMutex());
+    pthread_cond_wait(&_condition, _cond_mutex.getMutex());
 }
 
 // block until this semaphore is in a signalled state 
 void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller) throw(TimeOut)
 {
-  struct timeval now;
-  struct timespec timeout;
-  int retcode;
+    struct timeval now;
+    struct timespec timeout;
+    int retcode;
   
-  do
-  {
-    gettimeofday(&now,NULL);
-    timeout.tv_sec = now.tv_sec;
-    timeout.tv_nsec += now.tv_usec * 1000 + milliseconds; 
-    retcode = pthread_cond_timedwait(&_condition, _cond_mutex.getMutex(), &timeout) ;
-  } while ( retcode == EINTR ) ;
-  if(retcode)
-    throw(TimeOut(caller));
+    do
+    {
+	gettimeofday(&now,NULL);
+	timeout.tv_sec = now.tv_sec;
+	timeout.tv_nsec += now.tv_usec * 1000 + milliseconds; 
+	retcode = pthread_cond_timedwait(&_condition, _cond_mutex.getMutex(), &timeout) ;
+    } while ( retcode == EINTR ) ;
+    if(retcode)
+	throw(TimeOut(caller));
 }
 
 void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller) 
 {
-  // force the caller to own the conditional mutex 
-  pthread_cond_broadcast(&_condition);
+    // force the caller to own the conditional mutex 
+    pthread_cond_broadcast(&_condition);
 }
 
-////////////////////////////////////////////////////////////////////////////
-
+//-----------------------------------------------------------------//
 
 Semaphore::Semaphore(Uint32 initial) 
 {
-  if(initial > SEM_VALUE_MAX)
-    initial = SEM_VALUE_MAX - 1;
-  sem_init(&_semaphore.sem,0,initial);
-  _semaphore.owner = pthread_self();
+    if(initial > SEM_VALUE_MAX)
+	initial = SEM_VALUE_MAX - 1;
+    sem_init(&_semaphore.sem,0,initial);
+    _semaphore.owner = pthread_self();
 
 }
 
 Semaphore::~Semaphore()
 {
-  while( EBUSY == sem_destroy(&_semaphore.sem))
+    while( EBUSY == sem_destroy(&_semaphore.sem))
     {
 #ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-    sched_yield();
+	sched_yield();
 #else
-    pthread_yield();
+	pthread_yield();
 #endif
     }
 }
@@ -426,7 +419,7 @@ Semaphore::~Semaphore()
 // block until this semaphore is in a signalled state
 void Semaphore::wait(void) 
 {
-  sem_wait(&_semaphore.sem);
+    sem_wait(&_semaphore.sem);
 }
 
 // wait succeeds immediately if semaphore has a non-zero count, 
@@ -434,27 +427,27 @@ void Semaphore::wait(void)
 // count is zero. 
 void Semaphore::try_wait(void) throw(WaitFailed)
 {
-  if (sem_trywait(&_semaphore.sem)) 
-    throw(WaitFailed(_semaphore.owner));
+    if (sem_trywait(&_semaphore.sem)) 
+	throw(WaitFailed(_semaphore.owner));
 }
 
 // wait for milliseconds and throw an exception
 // if wait times out without gaining the semaphore
 void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
 {
-  struct timeval now;
-  struct timespec timeout;
-  int retcode;
+    struct timeval now;
+    struct timespec timeout;
+    int retcode;
   
-  do
-  {
-    gettimeofday(&now,NULL);
-    timeout.tv_sec = now.tv_sec;
-    timeout.tv_nsec += now.tv_usec * 1000 + milliseconds; 
-    retcode = sem_timedwait(&_semaphore.sem, &timeout);
-  } while (retcode != EINTR) ;
-  if(retcode)
-    throw(TimeOut(_semaphore.owner));
+    do
+    {
+	gettimeofday(&now,NULL);
+	timeout.tv_sec = now.tv_sec;
+	timeout.tv_nsec += now.tv_usec * 1000 + milliseconds; 
+	retcode = sem_timedwait(&_semaphore.sem, &timeout);
+    } while (retcode != EINTR) ;
+    if(retcode)
+	throw(TimeOut(_semaphore.owner));
 }
 
 // increment the count of the semaphore 
@@ -475,7 +468,7 @@ int Semaphore::count()
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
 #define PEGASUS_ATOMIC_INT_NATIVE = 1 // use native implementation
 
-AtomicInt::AtomicInt(): _rep(0) {}
+AtomicInt::AtomicInt(): _rep(0) { }
 
 AtomicInt::AtomicInt( Uint32 initial) : _rep(initial) {}
 
@@ -483,41 +476,37 @@ AtomicInt::~AtomicInt() {}
 
 AtomicInt::AtomicInt(const AtomicInt& original) 
 {
-  _rep = original._rep;
+    _rep = original._rep;
 }
 
 AtomicInt& AtomicInt::operator=( const AtomicInt& original)
 {
-  // don't worry about self-assignment in this implementation
-  if(this != &original)
-    _rep = original._rep;
-  return *this;
+    // don't worry about self-assignment in this implementation
+    if(this != &original)
+	_rep = original._rep;
+    return *this;
 }
 
 
 Uint32 AtomicInt::value(void)
 {
-  return((Uint32)_rep);
+    return((Uint32)_rep);
 }
 
 void AtomicInt::operator++(void) { _rep++; }
-
 void AtomicInt::operator--(void) { _rep--; }
 
 Uint32 AtomicInt::operator+(const AtomicInt& val) { return((Uint32)(_rep + val._rep));}
 Uint32 AtomicInt::operator+(Uint32 val) { return( (Uint32)(_rep + val)); }
 
-Uint32 AtomicInt::operator-(const AtomicInt& val) { return((Uint32)(_rep + val._rep));}
-Uint32 AtomicInt::operator-(Uint32 val) { return((Uint32)(_rep + val)); }
+Uint32 AtomicInt::operator-(const AtomicInt& val) { return((Uint32)(_rep - val._rep));}
+Uint32 AtomicInt::operator-(Uint32 val) { return((Uint32)(_rep - val)); }
 
 AtomicInt& AtomicInt::operator+=(const AtomicInt& val) { _rep += val._rep; return *this; }
 AtomicInt& AtomicInt::operator+=(Uint32 val) { _rep += val; return *this; }
-
 AtomicInt& AtomicInt::operator-=(const AtomicInt& val) { _rep -= val._rep; return *this; }
 AtomicInt& AtomicInt::operator-=(Uint32 val) { _rep -= val; return *this; }
 
-
-#endif // linux x86 platform
-
+#endif // Native Atomic Type 
 
 PEGASUS_NAMESPACE_END

@@ -207,7 +207,7 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
     return DynamicLibraryHandle(OS400_LoadDynamicLibrary(fileName));
 #else
     PEG_METHOD_EXIT();
-    return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW | RTLD_GLOBAL));
+    return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW ));
 #endif
 
 }

@@ -1700,6 +1700,9 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
 	    outParameters,
 	    handler);
 
+        // ATTN-RK-P1-20020502: This needs to go through the response handler
+        response->outParameters = outParameters;
+
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)

@@ -52,10 +52,11 @@
 //    {"logdir",              "/opt/freeware/cimom/pegasus/logs"},
 //    {"sslCertificateFilePath", "/opt/freeware/cimom/pegasus/etc/cert.pem"},
 //    {"sslKeyFilePath",      "/opt/freeware/cimom/pegasus/etc/file.pem"},
-    {"sslTrustFilePath",      "/opt/freeware/cimom/pegasus/etc/client.pem"},
+//    {"sslTrustFilePath",      "/opt/freeware/cimom/pegasus/etc/client.pem"},
 //    {"passwordFilePath",    "/opt/freeware/cimom/pegasus/etc/cimserver.passwd"},
+    {"messageDir",          "/opt/freeware/cimom/pegasus/msg"},
     {"repositoryDir",       "/opt/freeware/cimom/pegasus/etc/repository"},
-    {"providerDir",         "/usr/lib"},
+    {"providerDir",         "/usr/lib:/usr/pegasus/provider/lib"},
 #endif
 
 #if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_USE_RELEASE_DIRS)

@@ -236,7 +236,6 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
                 httpMessage->printAll(cout);
             }
 #endif
-        
         CIMClientMalformedHTTPException* malformedHTTPException = new
             CIMClientMalformedHTTPException("Missing CIMOperation HTTP header");
         ClientExceptionMessage * response =

@@ -181,6 +181,8 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    String requestUri;
    String httpVersion;
 
+   // ATTN-RK-P3-20020404: The requestUri may need to be pruned of the host
+   // name.  All we care about at this point is the path.
    HTTPMessage::parseRequestLine(
       startLine, methodName, requestUri, httpVersion);
 

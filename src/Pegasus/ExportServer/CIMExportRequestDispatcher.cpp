@@ -176,6 +176,11 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
 	cimException,
 	request->queueIds.copyAndPop());
 
+    //
+    //  Set response destination
+    //
+    response->dest = request->queueIds.top();
+
     _enqueueResponse(request, response);
 }
 

@@ -29,6 +29,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/Destroyer.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <ctype.h>
@@ -115,33 +116,31 @@ void snmpDeliverTrap_emanate::deliverTrap(
     initialize();
 
     // TRAP OID: getting trapOid
-    char* _trapOid = trapOid.allocateCString();
-    _trapOid[strlen(_trapOid)-1] = '\0';
-    OID *sendtrapOid = MakeOIDFromDot(_trapOid);
+    ArrayDestroyer<char> _trapOid(trapOid.allocateCString());
+    _trapOid.getPointer()[strlen(_trapOid.getPointer())-1] = '\0';
+    OID *sendtrapOid = MakeOIDFromDot(_trapOid.getPointer());
 
     // Destination : converting destination into Transport
-    char* trap_dest = destination.allocateCString();
+    ArrayDestroyer<char> trap_dest(destination.allocateCString());
     TransportInfo   global_ti;
     global_ti.type = SR_IP_TRANSPORT;
-    global_ti.t_ipAddr = inet_addr(trap_dest);
+    global_ti.t_ipAddr = inet_addr(trap_dest.getPointer());
     global_ti.t_ipPort = htons((unsigned short)GetSNMPTrapPort());
-    delete [] trap_dest;
 
     // Community Name
-    char* _community = community.allocateCString();
-    OctetString* community_name = MakeOctetStringFromText(_community);
-    delete [] _community;
+    ArrayDestroyer<char> _community(community.allocateCString());
+    OctetString* community_name = MakeOctetStringFromText(
+                                      _community.getPointer());
 
     // getting IP address of the host
-    char* hostname = System::getHostName().allocateCString();
+    ArrayDestroyer<char> hostname(System::getHostName().allocateCString());
     char **p;
     struct hostent *hp;
     struct in_addr in;
-    hp=gethostbyname(hostname);
+    hp=gethostbyname(hostname.getPointer());
     p = hp->h_addr_list;
     (void)memcpy(&in.s_addr, *p, sizeof(in.s_addr));
     char* IP_string = inet_ntoa(in);
-    delete [] hostname;
     
     // formatting agent(host) address into OctetString format
     OctetString* agent_addr;
@@ -204,10 +203,9 @@ void snmpDeliverTrap_emanate::deliverTrap(
 	for (Uint8 i = 1; i < oids.size()-1; i++)
             ent = ent + "." + oids[i];
 
-	char* gtrap = ent.allocateCString();
-        genTrap = atoi(gtrap) - 1;
+	ArrayDestroyer<char> gtrap(ent.allocateCString());
+        genTrap = atoi(gtrap.getPointer()) - 1;
         enterpriseOid = sendtrapOid;
-        delete [] gtrap;
     }
     else
     {
@@ -216,9 +214,8 @@ void snmpDeliverTrap_emanate::deliverTrap(
 	ent = oids[0];
 	for (Uint8 i = 1; i < oids.size()-1; i++)
             ent = ent + "." + oids[i];
-	char* strap = oids[oids.size()-1].allocateCString();
-        specTrap = atoi(strap);
-        delete [] strap;
+	ArrayDestroyer<char> strap(oids[oids.size()-1].allocateCString());
+        specTrap = atoi(strap.getPointer());
 
         if (oids[oids.size()-2] == "0")
         {
@@ -226,9 +223,8 @@ void snmpDeliverTrap_emanate::deliverTrap(
 	    for (Uint8 i = 1; i < oids.size()-2; i++)
 		ent = ent + "." + oids[i];
 
-	    char* _ent = ent.allocateCString();
-            enterpriseOid = MakeOIDFromDot(_ent);
-            delete [] _ent;
+	    ArrayDestroyer<char> _ent(ent.allocateCString());
+            enterpriseOid = MakeOIDFromDot(_ent.getPointer());
         }
         else
         {
@@ -236,21 +232,17 @@ void snmpDeliverTrap_emanate::deliverTrap(
             for (Uint8 i = 1; i < oids.size()-1; i++)
                 ent = ent + "." + oids[i];
 
-            char* _ent = ent.allocateCString();
-            enterpriseOid = MakeOIDFromDot(_ent);
-            delete [] _ent;
+            ArrayDestroyer<char> _ent(ent.allocateCString());
+            enterpriseOid = MakeOIDFromDot(_ent.getPointer());
         }
     }
 
-    char* _vbOid;
-    char* _vbValue;
-    
     for(Uint32 i = 0; i < vbOids.size(); i++)
     {
-	_vbOid = vbOids[i].allocateCString();
-	_vbValue = vbValues[i].allocateCString();
+        ArrayDestroyer<char> _vbOid(vbOids[i].allocateCString());
+        ArrayDestroyer<char> _vbValue(vbValues[i].allocateCString());
 
-	if ((object = MakeOIDFromDot(_vbOid)) == NULL)
+	if ((object = MakeOIDFromDot(_vbOid.getPointer())) == NULL)
         {
             cout << "Invalid OID received: " << vbOids[i] << endl;
             return;
@@ -258,7 +250,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
 
         if (vbTypes[i] == String("OctetString"))
         {
-            newValue = CloneOctetString(MakeOctetStringFromText(_vbValue));
+            newValue = CloneOctetString(MakeOctetStringFromText(_vbValue.getPointer()));
             if (newValue == NULL)
             {
                 cout << "Invalid Value provided : " << vbValues[i] << endl;
@@ -275,7 +267,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
         }
         else
         {
-            int vbvalue = atoi(_vbValue);
+            int vbvalue = atoi(_vbValue.getPointer());
             void* value = &vbvalue;
 
             if (newValue == NULL)
@@ -306,9 +298,6 @@ void snmpDeliverTrap_emanate::deliverTrap(
 	FreeOID(object);
     }
 
-    delete [] _vbValue;
-    delete [] _vbOid;
-    
     vb3->next_var = NULL;
 
     // Now sending the trap
@@ -351,15 +340,12 @@ void snmpDeliverTrap_emanate::deliverTrap(
     else
     {
         cout << "Trap type not supported : " << trapType << endl;
-	delete [] _trapOid;
         exit(2);
     }
 
     FreeVarBindList(vb);
     FreeVarBindList(vb2);
     FreeVarBindList(vb3);
-
-    delete [] _trapOid;
 }
 
 PEGASUS_NAMESPACE_END

@@ -292,19 +292,12 @@ CIMExportIndicationResponseMessage* CIMExportResponseDecoder::_decodeExportIndic
 		cimException,
 		QueueIdStack()));
    }
-   else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+   else
    {
-      XmlReader::testEndTag(parser, "IRETURNVALUE");
-
       return(new CIMExportIndicationResponseMessage(
 		messageId,
 		cimException,
 		QueueIdStack()));
-   }
-   else
-   {
-      throw XmlValidationError(parser.getLine(),
-			       "expected ERROR or IRETURNVALUE element");
    }
 }
 

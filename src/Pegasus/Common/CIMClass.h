@@ -77,7 +77,6 @@ public:
     PEGASUS_EXPLICIT CIMClass(const CIMObject& x)
         throw(DynamicCastFailedException);
 
-    // ATTN define what makes up a legal CIM class name
     /**	Constructor - Creates a Class from inputs of a classname and
 	SuperClassName
 	@param className CIMName representing name of the class being created

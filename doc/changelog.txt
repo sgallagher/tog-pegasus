@@ -478,6 +478,11 @@ repository implementation.
     in response to startup, shutdown of the cimom, termination of a provider, 
     or change in provider registration.  
 
+58. (Jenny Yu - HP) 05 Dec 2001 - Implemented Pegasus Shutdown Service
+    and the command line interface for shutting down cimom gracefully.
+    For more information, refer to the CIMOM Shutdown working paper 
+    in pegasus/doc/WorkPapers/CIMOMShutdown.pdf.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

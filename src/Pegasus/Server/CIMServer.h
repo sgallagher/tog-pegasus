@@ -34,6 +34,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/CIMServerState.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -79,16 +80,33 @@ public:
     */
     void runForever();
 
-    /** Call to gracefully shutdown the sever. Next time runForever() is
-	called, the server shuts down.
+    /** Call to gracefully shutdown the server.  The server connection socket
+        will be closed to disable new connections from clients.
     */
-    void killServer() { _dieNow = true; }
+    void stopClientConnection(); 
+
+    /** Call to gracefully shutdown the server.  It is called when the server
+        has been stopped and is ready to be shutdown.  Next time runForever() 
+        is called, the server shuts down.
+    */
+    void shutdownServer();
+
+    /** Return true if the server has shutdown, false otherwise.
+    */
+    Boolean terminated() { return _dieNow; };
+
+    /** Call to resume the sever. 
+    */
+    void resumeServer();
+
+    Uint32 getRequestCount();
 
     CIMOperationRequestDispatcher* getDispatcher();
 
 private:
 
     Boolean _dieNow;
+
     String _rootPath;
     String _repositoryRootPath;
 
@@ -101,7 +119,8 @@ private:
     CIMExportResponseEncoder* _cimExportResponseEncoder;
     CIMExportRequestDecoder* _cimExportRequestDecoder;
 
-    HTTPAcceptor* _acceptor;
+    HTTPAcceptor*   _acceptor;
+    CIMServerState* _serverState;
 };
 
 PEGASUS_NAMESPACE_END

@@ -49,6 +49,7 @@
 #include "LogPropertyOwner.h"
 #include "SecurityPropertyOwner.h"
 #include "RepositoryPropertyOwner.h"
+#include "ShutdownPropertyOwner.h"
 
 
 PEGASUS_USING_STD;
@@ -81,6 +82,7 @@ LogPropertyOwner*        ConfigManager::logOwner     = new LogPropertyOwner;
 DefaultPropertyOwner*    ConfigManager::defaultOwner = new DefaultPropertyOwner;
 SecurityPropertyOwner*   ConfigManager::securityOwner= new SecurityPropertyOwner;
 RepositoryPropertyOwner* ConfigManager::repositoryOwner= new RepositoryPropertyOwner;
+ShutdownPropertyOwner*   ConfigManager::shutdownOwner= new ShutdownPropertyOwner;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -109,7 +111,9 @@ struct PropertyList ConfigManager::properties[] =
     {"requireAuthorization",  (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"httpAuthType",        (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"repositoryIsDefaultInstanceProvider", (ConfigPropertyOwner* )ConfigManager::repositoryOwner},
-    {"repositoryProviderName", (ConfigPropertyOwner* )ConfigManager::repositoryOwner}
+    {"repositoryProviderName", (ConfigPropertyOwner* )ConfigManager::repositoryOwner},
+    {"timeout",             (ConfigPropertyOwner* )ConfigManager::shutdownOwner},
+    {"shutdownTimeout",     (ConfigPropertyOwner* )ConfigManager::shutdownOwner}
 };
 
 const Uint32 NUM_PROPERTIES = 

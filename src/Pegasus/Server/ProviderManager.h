@@ -25,6 +25,7 @@
 // Modified By:
 //              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //              Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
+//              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -59,6 +60,10 @@ public:
 	Uint32 stopProvider(const String & providerName);
 	Boolean isProviderBlocked(const String & providerName);
 	void createProviderBlockTable(Array<CIMNamedInstance> & instances);
+
+        void shutdownProvider(const String & providerName, const String & className);
+
+        void shutdownAllProviders(const String & providerName, const String & className);
 
 protected:
 	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL monitorThread(void * arg);

@@ -25,6 +25,7 @@
 //
 // Modified By:
 //         Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
+//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -103,6 +104,19 @@ HTTPConnection::HTTPConnection(
 {
     Socket::disableBlocking(_socket);
     _authInfo = new AuthenticationInfo();
+
+    //
+    // if ownerMessageQueue is HTTPAcceptor, get CIMServerState instance
+    //
+    HTTPAcceptor* acceptor = dynamic_cast<HTTPAcceptor*>(_ownerMessageQueue);
+    if (acceptor)
+    {
+        _serverState = CIMServerState::getInstance();
+    }
+    else
+    {
+        _serverState = NULL;
+    }
 }
 
 HTTPConnection::~HTTPConnection()
@@ -113,8 +127,6 @@ HTTPConnection::~HTTPConnection()
 
 void HTTPConnection::handleEnqueue()
 {
-    // cout << "HTTPConnection::handleEnqueue()" << endl;
-
     Message* message = dequeue();
 
     if (!message)
@@ -169,6 +181,16 @@ void HTTPConnection::handleEnqueue()
 
 		bytesRemaining -= bytesWritten;
 	    }
+            //
+            // decrement request count
+            //
+            HTTPAcceptor* acceptor = 
+                 dynamic_cast<HTTPAcceptor*>(_ownerMessageQueue);
+
+            if (acceptor)
+            {
+                _serverState->decrementRequestCount();
+            }
 
 	    Socket::disableBlocking(_socket);
 	}
@@ -312,12 +334,31 @@ void HTTPConnection::_handleReadEvent()
 	HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
         message->authInfo = _authInfo;
 
+        //
+        // increment request count
+        //
+        HTTPAcceptor* acceptor = dynamic_cast<HTTPAcceptor*>(_ownerMessageQueue);
+
+        if (acceptor)
+        {
+            _serverState->incrementRequestCount();
+        }
+
 	_outputMessageQueue->enqueue(message);
 	_clearIncoming();
 
 	if (bytesRead == 0)
 	{
 	    _closeConnection();
+
+            //
+            // decrement request count
+            //
+            if (acceptor)
+            {
+                _serverState->decrementRequestCount();
+            }
+
 	    return;
 	}
     }

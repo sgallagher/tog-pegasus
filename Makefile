@@ -40,3 +40,6 @@ user:
 
 registration:
 	@ $(MAKE) -SC src/Providers/generic/PG_RegistrationProvider/load registration
+
+shutdownService:
+	@ $(MAKE) -SC src/Providers/generic/ShutdownProvider/load shutdownService

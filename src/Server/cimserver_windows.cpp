@@ -274,7 +274,7 @@ VOID WINAPI cimserver_service_start(DWORD argc, LPTSTR *argv)
   if(!SetServiceStatus(pegasus_status_handle, &pegasus_status)) 
     {
       if(server_windows != NULL)
-	server_windows->killServer();
+	server_windows->shutdownServer();
     }
 
   return;
@@ -287,7 +287,7 @@ VOID WINAPI cimserver_service_ctrl_handler(DWORD opcode)
   case SERVICE_CONTROL_STOP:
   case SERVICE_CONTROL_SHUTDOWN:
     if(server_windows != NULL)
-      server_windows->killServer();
+      server_windows->shutdownServer();
     pegasus_status.dwCurrentState = SERVICE_STOPPED;
     pegasus_status.dwCheckPoint = 0;
     pegasus_status.dwWaitHint = 0;

@@ -1,0 +1,34 @@
+// ===================================================================
+// Title      : PG_ShutdownService MOF
+// Filename   : PG_ShutdownService.mof
+// Version    : 1.0
+// Date       : 11/09/2001
+// Author     : Jenny Yu    
+//
+// Description: This MOF file defines the PG_ShutdownService class.  The
+//              PG_ShutdownService class defines the shutdown method serviced 
+//              by the ShutdownProvider to shut down CIMOM gracefully.  
+//              It is subclassed from CIM_Service.  
+//
+// ===================================================================
+
+// ===================================================================
+// PG_ObjectManager    
+// ===================================================================
+[Description (
+   "PG_ShutdownService is a representation of the Pegasus Shutdown Service"),
+   provider("ShutdownProvider") ]
+
+class PG_ShutdownService : CIM_Service
+{
+     [Description 
+         ("Method to shutdown the CIM server.  If force is set "
+          "to TRUE, the CIM server will be shutdown regardless if there "
+          "are outstanding CIM operation requests.  The timeout value "
+          "is the amount of time in seconds that the CIM Server will "
+          "wait for all the outstanding CIM operation requests to complete "
+          "before shutting down the CIM server.  If the specified timeout "
+          "expires and force is FALSE, CIM server will not be shutdown.") ]
+           
+     Uint32 shutdown( [IN] string force, [IN] string timeout);
+};

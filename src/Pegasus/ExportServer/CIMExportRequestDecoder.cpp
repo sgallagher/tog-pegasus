@@ -25,6 +25,7 @@
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,7 +50,7 @@ CIMExportRequestDecoder::CIMExportRequestDecoder(
     _outputQueue(outputQueue),
     _returnQueueId(returnQueueId)
 {
-
+    _serverState = CIMServerState::getInstance();
 }
 
 CIMExportRequestDecoder::~CIMExportRequestDecoder()
@@ -310,7 +311,31 @@ void CIMExportRequestDecoder::handleMethodRequest(
 	// Delegate to appropriate method to handle:
 
 	if (CompareNoCase(cimMethodName, "ExportIndication") == 0)
-	    request = decodeExportIndicationRequest(queueId, parser, messageId, _url);
+        {
+            //
+            // If CIMOM is shutting down, return error response
+            //
+            // ATTN:  need to define a new CIM Error.
+            //
+            if (_serverState->getState() == CIMServerState::TERMINATING)
+            {
+                String description = "CIMServer is shutting down.  Request cannot be processed: ";
+                description += cimMethodName;
+
+                sendError(
+                    queueId,
+                    messageId,
+                    cimMethodName,
+                    CIM_ERR_FAILED,
+                    description);
+
+                return;
+            }
+            else
+            {
+	        request = decodeExportIndicationRequest(queueId, parser, messageId, _url);
+            }
+        }
 	else
 	{
 	    String description = "Unknown intrinsic method: ";

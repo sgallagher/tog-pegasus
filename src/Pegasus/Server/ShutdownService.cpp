@@ -1,93 +1,60 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//=============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-//  ShutdownService
+//  ShutdownService 
 /////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
 #include <Pegasus/Server/ShutdownExceptions.h>
-#include <Pegasus/Server/CIMServerState.h>
 #include <Pegasus/Server/ShutdownService.h>
-#include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/Message.h>
-#include <Pegasus/Common/CimomMessage.h>
-#include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Common/MessageQueueService.h>
-#include <Pegasus/Common/Tracer.h>
-
-#if defined(PEGASUS_OS_TYPE_UNIX)
-# include <sys/types.h>
-#endif
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    The constant representing the shutdown timeout property name
+    The constants representing the shutdown timeout property names
 */
+static String TIMEOUT_PROPERTY = "timeout";
 static String SHUTDOWN_TIMEOUT_PROPERTY = "shutdownTimeout";
 
-/**
-    Initialize ShutdownService instance
+/** 
+Initialize ShutdownService instance 
 */
 ShutdownService* ShutdownService::_instance = 0;
 
-/**
-    Initialize all other class variables
-*/
-CIMServer* ShutdownService::_cimserver = 0;
-Uint32 ShutdownService::_shutdownTimeout = 0;
-ModuleController* ShutdownService::_controller = 0;
-
 /** Constructor. */
-ShutdownService::ShutdownService(CIMServer* cimserver)
+ShutdownService::ShutdownService()
+    : 
+    _forceShutdown(false)
 {
-    _cimserver = cimserver;
-
-    //
-    // get module controller
-    //
-    _controller = ModuleController::getModuleController();
-}
-
-/**
-    Terminates the shutdown service
-*/
-void ShutdownService::destroy()
-{
-    delete _instance;
-    _instance = 0;
 }
 
 /** Destructor. */
@@ -95,306 +62,220 @@ ShutdownService::~ShutdownService()
 {
 }
 
-/**
-   return a pointer to the ShutdownService instance.
+/** 
+    return a pointer to the ShutdownService instance.
 */
-ShutdownService* ShutdownService::getInstance(CIMServer* cimserver)
+ShutdownService* ShutdownService::getInstance() 
 {
-    if (!_instance)
+    if (!_instance) 
     {
-        _instance = new ShutdownService(cimserver);
+        _instance = new ShutdownService();
     }
     return _instance;
 }
 
-/**
-    The shutdown method to be called by the ShutdownProvider to
-    process a shutdown request from the cimcli client.
+/** 
+    The shutdown method to be called by the ShutdownProvider to 
+    process a shutdown request from the CLI client.
 */
-void ShutdownService::shutdown(
-    Boolean force,
-    Uint32 timeout,
-    Boolean requestPending)
+void ShutdownService::shutdown(CIMServer* cimserver, Boolean force,
+                               String timeout)
 {
-    PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownService::shutdown");
+    //
+    // Initialize variables
+    //
+    _forceShutdown = force;
+    _cimserver = cimserver;
 
-    _shutdownTimeout = timeout;
+    Boolean timeoutExpired = false;
+    Boolean noMoreRequests = false;
 
-    try
+    //
+    // get an instance of the ProviderManager
+    //
+    _providerManager = _cimserver->getDispatcher()->getProviderManager();
+
+    //
+    // get CIMServerState object
+    //
+    _serverState = CIMServerState::getInstance();
+
+    //
+    // set CIMServer state to TERMINATING
+    //
+    _serverState->setState(CIMServerState::TERMINATING);
+
+    // 
+    // Tell the CIMServer to stop accepting new client connection requests.
+    //
+    _cimserver->stopClientConnection();
+
+    //
+    // get shutdown timeout values
+    //
+    _getTimeoutValues(timeout);
+
+    // 
+    // Determine if there are any outstanding CIM operation requests
+    // (take into account that one of the request is the shutdown request).
+    //
+    // Loop and wait one second until either there is no more requests
+    // or until timeout expires.
+    //
+    Uint32 maxWaitTime = _operationTimeout; // maximum wait time in milliseconds
+    Uint32 waitTime = 1000;                 // one second wait interval
+
+    Uint32 requestCount = _serverState->getRequestCount(); 
+
+    while ( requestCount > 1 && maxWaitTime > 0)
     {
-        //
-        // set CIMServer state to TERMINATING
-        //
-        _cimserver->setState(CIMServerState::TERMINATING);
-
-        PEG_TRACE_CSTRING(
-            TRC_SHUTDOWN,
-            Tracer::LEVEL4,
-            "ShutdownService::shutdown - CIM server state set to "
-                "CIMServerState::TERMINATING");
-
-        //
-        // Tell the CIMServer to stop accepting new client connection requests.
-        //
-        _cimserver->stopClientConnection();
-
-        PEG_TRACE_CSTRING(
-            TRC_SHUTDOWN,
-            Tracer::LEVEL4,
-            "ShutdownService::shutdown - No longer accepting new client "
-                "connection requests.");
-
-        //
-        // Determine if there are any outstanding CIM operation requests
-        // (take into account that one of the request is the shutdown request).
-        //
-        waitUntilNoMoreRequests(requestPending);
-
-        //
-        // Send a shutdown signal to the CIMServer. CIMServer itself will take
-        // care of shutting down the CimomServices and deleting them. In other
-        // words, _DO_ _NOT_ call 'shutdownCimomServices' from a provider.
-        //
-        _cimserver->shutdown();
-
-        PEG_TRACE_CSTRING(TRC_SHUTDOWN, Tracer::LEVEL4,
-            "ShutdownService::shutdown - CIMServer instructed to shut down.");
-    }
-    catch (Exception& e)
-    {
-        PEG_TRACE((TRC_SHUTDOWN, Tracer::LEVEL2,
-            "Error occurred during CIMServer shutdown: %s",
-            (const char*)e.getMessage().getCString()));
-    }
-    catch (...)
-    {
-        PEG_TRACE_CSTRING(TRC_SHUTDOWN, Tracer::LEVEL2,
-            "Unexpected error occurred during CIMServer shutdown. ");
+         System::sleep(waitTime);
+         requestCount = _serverState->getRequestCount(); 
+         maxWaitTime = maxWaitTime - waitTime;
     }
 
-    PEG_METHOD_EXIT();
+    if (requestCount == 1)
+    {
+        noMoreRequests = true;
+    }
+    
+    //
+    // If no more requests or force shutdown option is specified, proceed 
+    // to shutdown the CIMServer
+    //
+    if ( noMoreRequests || _forceShutdown )
+    {
+        _shutdownCIMServer();
+    }
+    else
+    {
+        _resumeCIMServer();
+    }
+
+    //
+    // All done
+    //
+
+    return;
 }
 
 /**********************************************************/
 /*  private methods                                       */
 /**********************************************************/
 
-void ShutdownService::shutdownCimomServices()
+void ShutdownService::_getTimeoutValues(String timeoutParmValue)
 {
-    PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownService::shutdownCimomServices");
+    //
+    // get an instance of the ConfigManager
+    //
+    ConfigManager*  configManager;
+    configManager = ConfigManager::getInstance();
 
     //
-    // Shutdown the Indication Service
+    // if timeout was not specified, get timeout value from ConfigManager
     //
-    _sendShutdownRequestToService(PEGASUS_QUEUENAME_INDICATIONSERVICE);
-
-    // Shutdown the Indication Handler Service
-    _sendShutdownRequestToService(PEGASUS_QUEUENAME_INDHANDLERMANAGER);
-
-    // PEGASUS_QUEUENAME_EXPORTRESPENCODER
-    _sendShutdownRequestToService(PEGASUS_QUEUENAME_EXPORTRESPENCODER);
-
-    //
-    // shutdown  CIM Export Request Dispatcher Service
-    //
-    _sendShutdownRequestToService(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER);
-
-    //
-    // shutdown  CIM Operation Request Dispatcher Service
-    //
-    _sendShutdownRequestToService(PEGASUS_QUEUENAME_OPREQDISPATCHER);
-
-    // shutdown CIM Provider Manager
-    _sendShutdownRequestToService(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
-
-    // shutdown ModuleController also called ControlService.
-    _sendShutdownRequestToService(PEGASUS_QUEUENAME_CONTROLSERVICE);
-
-    PEG_METHOD_EXIT();
-}
-
-void ShutdownService::_sendShutdownRequestToService(const char* serviceName)
-{
-    MessageQueue *queue = MessageQueue::lookup(serviceName);
-    Uint32 _queueId;
-    if (queue)
+    char* timeoutCString;
+    if (timeoutParmValue != String::EMPTY)
     {
-        _queueId =  queue->getQueueId();
+        timeoutCString = timeoutParmValue.allocateCString();
     }
     else
     {
-        // service not found, just return
-        return;
+        String configTimeout= configManager->getCurrentValue(TIMEOUT_PROPERTY);
+        timeoutCString = configTimeout.allocateCString();
     }
-    // send a Stop (this is a legacy message that in some of the MQS does
-    // termination of its internal stuff. Then follow it with a Stop (to
-    // open up its incoming queue), and then with a AsyncIoClose
-    // which closes the incoming queue.
+    _operationTimeout = strtol(timeoutCString, (char **)0, 10); 
 
-    // All of these messages MUST be sequential. Do not use SendForget or
-    // SendAsync as those are asynchronous and their receipt is guaranteed
-    // to be undeterministic and possibly out of sequence (which is something
-    // we do not want).
+    //
+    // get shutdown timeout value from ConfigManager
+    //
+    char* shutdownTimeoutCString;
+    String shutdownTimeout= configManager->getCurrentValue(SHUTDOWN_TIMEOUT_PROPERTY);
+    shutdownTimeoutCString = shutdownTimeout.allocateCString();
+    _shutdownTimeout = strtol(timeoutCString, (char **)0, 10); 
 
-    CimServiceStop stop_message(
-        NULL,
-        _queueId);
-
-    AutoPtr<AsyncReply> StopAsyncReply(
-        _controller->ClientSendWait(_queueId, &stop_message));
-
-    CimServiceStart start_message(
-        NULL,
-        _queueId);
-
-    AutoPtr <AsyncReply> StartAsyncReply(
-        _controller->ClientSendWait(_queueId, &start_message));
-
-    AsyncIoClose close_request(
-        NULL,
-        _queueId);
-
-    AutoPtr <AsyncReply> CloseAsyncReply(
-        _controller->ClientSendWait(_queueId, &close_request));
+    return;
 }
 
-void ShutdownService::shutdownProviders()
+void ShutdownService::_shutdownCIMServer()
 {
-    _shutdownProviders(true);
-    _shutdownProviders(false);
+    // 
+    // Shutdown the Indication Subscription Service
+    //
+    _shutdownSubscriptionService();
+
+    // ATTN: Shutdown the Indication Handlers? 
+
+    // ATTN: Shutdown the Indication Processing Service?
+
+    // 
+    // Shutdown the providers 
+    //
+    _shutdownProviders();
+ 
+    // 
+    // Tell CIMServer to shutdown completely.
+    //
+    _cimserver->shutdownServer();
+
+    return;
 }
 
-void ShutdownService::_shutdownProviders(Boolean controlProviders)
+void ShutdownService::_resumeCIMServer()
 {
-    PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownService::_shutdownProviders");
-
+    // 
+    // resume CIMServer 
     //
-    // get provider manager service or control service
-    //
-    MessageQueue* queue =
-        controlProviders ?
-            MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE) :
-            MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
-
-    if (queue == 0)
+    try
     {
-        PEG_METHOD_EXIT();
-        return;
+        _cimserver->resumeServer();
+    }
+    catch (Exception& e)
+    {
+        throw UnableToResumeServerException();
     }
 
-    MessageQueueService* _service = dynamic_cast<MessageQueueService*>(queue);
-    PEGASUS_ASSERT(_service != 0);
-    Uint32 _queueId = _service->getQueueId();
+    //
+    // reset CIMServer state to RUNNING
+    //
+    _serverState->setState(CIMServerState::RUNNING);
 
     //
-    // create stop all providers request
+    // now inform the client that CIM server has resumed.
     //
-    CIMStopAllProvidersRequestMessage* stopRequest =
-        new CIMStopAllProvidersRequestMessage(
-            XmlWriter::getNextMessageId(),
-            QueueIdStack(_queueId),
-            _shutdownTimeout);
-
-    //
-    // create async request message
-    //
-    AsyncRequest *asyncRequest;
-
-    if (controlProviders)
-    {
-        asyncRequest = new AsyncModuleOperationStart(
-           0,
-           _queueId,
-           String(),
-           stopRequest);
-    }
-    else
-    {
-        asyncRequest = new AsyncLegacyOperationStart(
-            0,
-            _queueId,
-            stopRequest);
-    }
-
-
-    // Use SendWait, which is serialized and waits. Do not use asynchronous
-    // callback as the response might be received _after_ the provider or
-    // this service has been deleted.
-
-    AsyncReply* asyncReply =
-        _controller->ClientSendWait(_queueId, asyncRequest);
-
-
-    MessageType msgType = asyncReply->getType();
-    PEGASUS_ASSERT((msgType == ASYNC_ASYNC_LEGACY_OP_RESULT) ||
-        (msgType == ASYNC_ASYNC_MODULE_OP_RESULT));
-
-    CIMStopAllProvidersResponseMessage *response;
-
-    if (msgType == ASYNC_ASYNC_LEGACY_OP_RESULT)
-    {
-        response = reinterpret_cast<CIMStopAllProvidersResponseMessage *>(
-            (static_cast<AsyncLegacyOperationResult *>(
-                asyncReply))->get_result());
-    }
-    else
-    {
-        response = reinterpret_cast<CIMStopAllProvidersResponseMessage*>(
-            (static_cast<AsyncModuleOperationResult *>(
-                asyncReply))->get_result());
-    }
-
-    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-    {
-        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            MessageLoaderParms(
-                "Server.ShutdownService.CIM_PROVIDER_SHUTDOWN",
-                "A provider shutdown exception has occurred: $0",
-                response->cimException.getMessage()));
-    }
-
-    delete asyncRequest;
-    delete asyncReply;
-    delete response;
-
-    PEG_METHOD_EXIT();
+    throw ServerResumedException();
 }
 
-void ShutdownService::waitUntilNoMoreRequests(Boolean requestPending)
+void ShutdownService::_shutdownSubscriptionService()
 {
-    Uint32 waitTime = _shutdownTimeout;    // maximum wait time in seconds
-    const Uint32 waitInterval = 1;         // one second wait interval
-    Uint32 requestCount;
+    String subscriptionProviderClassName = "IndicationSubscription";
+    String subscriptionProviderName = "IndicationSubscription";
 
     //
-    // Loop and wait one second until either there is no more requests
-    // or until timeout expires.
+    // find the Subscription Service provider and shut it down
     //
-    while (waitTime > 0)
-    {
-        requestCount = _cimserver->getOutstandingRequestCount();
-        if (requestCount <= (requestPending ? 1 : 0))
-        {
-            break;
-        }
+    _providerManager->shutdownProvider(subscriptionProviderName,
+                                       subscriptionProviderClassName);
 
-        PEG_TRACE((
-            TRC_SHUTDOWN,
-            Tracer::LEVEL4,
-            "ShutdownService waiting for outstanding CIM operations to "
-                "complete.  Request count: %d",
-            requestCount));
-        Threads::sleep(waitInterval * 1000);
-        waitTime -= waitInterval;
-    }
+    return;
+}
 
-    PEG_TRACE((
-        TRC_SHUTDOWN,
-        Tracer::LEVEL4,
-        "ShutdownService::shutdown - All outstanding CIM operations "
-            "complete = %s",
-        ((_cimserver->getOutstandingRequestCount()) <=
-         (requestPending ? 1 : 0)) ? "true" : "false"));
+void ShutdownService::_shutdownProviders()
+{
+    String shutdownProviderClassName = "PG_ShutdownService";
+    String shutdownProviderName = "ShutdownProvider";
+
+    //
+    // Terminate all the providers (except the ShutdownProvider!)
+    //
+    // ATTN:  Need to make use of the provider shutdown timeout
+    //        when asyn provider API is supported.
+    //
+    _providerManager->shutdownAllProviders(shutdownProviderName,
+                                           shutdownProviderClassName);
+
+    return;
 }
 
 PEGASUS_NAMESPACE_END
+

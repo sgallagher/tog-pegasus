@@ -74,6 +74,7 @@ prestarttests:
 	$(MAKE) --directory=pegasus -f Makefile repository
 	$(MAKE) --directory=pegasus -f Makefile config
 	$(MAKE) --directory=pegasus -f Makefile user
+	$(MAKE) --directory=pegasus -f Makefile shutdownService
 	$(MAKE) --directory=pegasus -f Makefile tests
 	$(MAKE) --directory=pegasus/src/Server -f Makefile install
 	$(MAKE) --directory=pegasus/test -f Makefile clean

@@ -9,6 +9,7 @@ DIRS = \
 	ConfigSettingProvider \
 	UserManagerProvider \
 	PG_RegistrationProvider \
-	OperatingSystemProvider
+	OperatingSystemProvider \
+	ShutdownProvider
 
 include $(ROOT)/mak/recurse.mak

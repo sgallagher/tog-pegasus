@@ -28,6 +28,7 @@ SOURCES = \
 	LogPropertyOwner.cpp \
 	TracePropertyOwner.cpp \
         SecurityPropertyOwner.cpp \
-        RepositoryPropertyOwner.cpp
+        RepositoryPropertyOwner.cpp \
+        ShutdownPropertyOwner.cpp
 
 include $(ROOT)/mak/library.mak

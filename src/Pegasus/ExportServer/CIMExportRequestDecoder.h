@@ -25,6 +25,7 @@
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,6 +36,7 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/HTTPMessage.h>
+#include <Pegasus/Common/CIMServerState.h>
 #include <Pegasus/ExportServer/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -91,6 +93,9 @@ private:
 
     // Queue where responses should be enqueued.
     Uint32 _returnQueueId;
+
+    // CIMServer state object
+    CIMServerState*  _serverState;
 };
 
 PEGASUS_NAMESPACE_END

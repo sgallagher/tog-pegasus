@@ -27,6 +27,7 @@
 //              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -54,7 +55,7 @@ CIMOperationRequestDecoder::CIMOperationRequestDecoder(
     _outputQueue(outputQueue),
     _returnQueueId(returnQueueId)
 {
-
+    _serverState = CIMServerState::getInstance();
 }
 
 CIMOperationRequestDecoder::~CIMOperationRequestDecoder()
@@ -341,6 +342,26 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
 	    // Delegate to appropriate method to handle:
 
+            //
+            // if CIMOM is shutting down, return error response
+            //
+            // ATTN:  Need to define a new CIM Error.
+            //
+            if (_serverState->getState() == CIMServerState::TERMINATING)
+            {
+                String description = "CIMServer is shutting down.  Request cannot be processed: ";
+                description += cimMethodName;
+
+                sendError(
+                    queueId,
+                    messageId,
+                    cimMethodName,
+                    CIM_ERR_FAILED,
+                    description);
+
+                return;
+            }
+
 	    if (CompareNoCase(cimMethodName, "GetClass") == 0)
 		request = decodeGetClassRequest(
 		    queueId, parser, messageId, nameSpace);
@@ -617,8 +638,12 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
 	if (CompareNoCase(name, "ClassName") == 0)
-            /*ATTN: Should be getStrngValueElement(parser, quaLIFIERnAME,TRUE)
-              nOTE THAT THIS COULD TRIP UP THE CLIENT
+            /* ATTN-KS: Should be getStringValueElement(
+                              parser, qualifierName, true)
+               Note that this could trip up the client
+            */
+            /* ATTN-RK: Section 2.4.1 of the Specification for CIM Operations
+                        over HTTP indicates that the CLASSNAME tag is correct.
             */
 	    XmlReader::getClassNameElement(parser, className, true);
 	else if (CompareNoCase(name, "LocalOnly") == 0)

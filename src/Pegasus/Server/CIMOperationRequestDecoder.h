@@ -25,6 +25,7 @@
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,6 +36,7 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/HTTPMessage.h>
+#include <Pegasus/Common/CIMServerState.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -70,8 +72,8 @@ public:
     void handleHTTPMessage(HTTPMessage* httpMessage);
 
     void handleMethodCall(
-        Uint32 queueId,
-        Sint8* content,
+	Uint32 queueId,
+	Sint8* content,
         String userName);
 
     CIMCreateClassRequestMessage* decodeCreateClassRequest(
@@ -226,6 +228,8 @@ private:
 
     // Queue where responses should be enqueued.
     Uint32 _returnQueueId;
+
+    CIMServerState* _serverState;
 };
 
 PEGASUS_NAMESPACE_END

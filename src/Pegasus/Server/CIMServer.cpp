@@ -28,6 +28,7 @@
 //         Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //         Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -83,6 +84,12 @@ CIMServer::CIMServer(
 
     CIMRepository* repository = new CIMRepository(_repositoryRootPath);
 
+    // -- Create a CIMServerState object:
+
+    //_serverState = new CIMServerState();
+    _serverState = CIMServerState::getInstance();
+    _serverState->setState(CIMServerState::RUNNING);
+
     // -- Create queue inter-connections:
 
     _cimOperationRequestDispatcher
@@ -137,6 +144,24 @@ void CIMServer::runForever()
 {
     if(!_dieNow)
 	_monitor->run(100);
+}
+
+void CIMServer::stopClientConnection()
+{
+    //cout << "CIMServer:  In stopServer().  " << endl;
+    _acceptor->closeConnectionSocket();
+}
+
+void CIMServer::shutdownServer()
+{
+    _dieNow = true;
+}
+
+void CIMServer::resumeServer()
+{
+    cout << "CIMServer:  In resumeServer().  " << endl;
+    _acceptor->reopenConnectionSocket();
+    cout << "CIMServer:  Socket reopened.  " << endl;
 }
 
 CIMOperationRequestDispatcher* CIMServer::getDispatcher()

@@ -28,6 +28,8 @@
 //
 // Modified By: Nag Boranna (nagaraja_boranna@hp.com)
 //
+// Modified By: Jenny Yu (jenny_yu@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -40,6 +42,10 @@
 // cimserver -d
 //
 // The -d option has no effect on windows operation. 
+//
+// To shutdown pegasus, use the -s option:
+// 
+// cimserver -s [-f] [-T timeout_value]
 //
 // To run pegasus as an NT service, there are FOUR  different possibilities:
 //
@@ -79,6 +85,9 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Config/ConfigManager.h>
+#include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/HTTPConnector.h>
+#include <Pegasus/Server/ShutdownService.h>
 #ifndef PEGASUS_OS_ZOS
 #include <slp/slp.h>
 #endif
@@ -114,7 +123,17 @@ static const char OPTION_HELP        = 'h';
 
 static const char OPTION_HOME        = 'D';
 
+static const char OPTION_SHUTDOWN    = 's';
 
+static const char OPTION_FORCE       = 'f';
+
+static const char OPTION_TIMEOUT     = 'T';
+
+static const String NAMESPACE = "root/cimv2";
+static const String CLASSNAME_SHUTDOWNSERVICE = "PG_ShutdownService";
+static const String PROPERTY_TIMEOUT = "timeout";
+
+ConfigManager*    configManager;
 
 void GetEnvironmentVariables(
     const char* arg0,
@@ -211,6 +230,8 @@ void PrintHelp(const char* arg0)
     usage.append ("    -t          - turns on trace of client IO to console\n");
     usage.append ("    -l          - turns on trace of client IO to trace file\n");
     usage.append ("    -d          - runs pegasus as a daemon\n");
+    usage.append ("    -s [-f] [-T timeout] \n");
+    usage.append ("                - shuts down pegasus\n");
     usage.append ("    -cleanlogs  - clears the log files at startup\n");
     usage.append ("    -install    - installs pegasus as a Windows NT Service\n");
     usage.append ("    -remove     - removes pegasus as a Windows NT Service\n");
@@ -227,6 +248,87 @@ void PrintHelp(const char* arg0)
     cout << usage << endl;
 }
 
+void shutdownCIMOM(Boolean forceOption, String timeoutStr)
+{
+    //
+    // Create CIMClient object
+    //
+    Monitor* monitor = new Monitor;
+    HTTPConnector* httpConnector = new HTTPConnector(monitor);
+    CIMClient client(monitor, httpConnector);
+
+    //
+    // Get the port number
+    //
+    String portNumberStr = configManager->getCurrentValue("port");
+
+    String hostStr = System::getHostName();
+    hostStr.append(":");
+    hostStr.append(portNumberStr);
+
+    //
+    // open connection to CIMOM 
+    //
+    try
+    {
+        client.connect(hostStr.allocateCString());
+    }
+    catch(Exception& e)
+    {
+        PEGASUS_STD(cerr) << "Failed to connect to server: " << e.getMessage() << PEGASUS_STD(endl);
+        exit(1);
+    }
+
+    try
+    {
+        //
+        // construct CIMReference 
+        //
+        String referenceStr = "//";
+        referenceStr.append(hostStr);
+        referenceStr.append("/root/cimv2:PG_ShutdownService");
+        CIMReference reference(referenceStr);
+
+        //
+        // issue the invokeMethod request on the shutdown method
+        //
+        Array<CIMParamValue> inParams;
+        Array<CIMParamValue> outParams;
+
+        if (forceOption)
+        {
+            inParams.append(CIMParamValue(
+                CIMParameter("force", CIMType::STRING),
+                CIMValue("TRUE")));
+        }
+        else
+        {
+            inParams.append(CIMParamValue(
+                CIMParameter("force", CIMType::STRING),
+                CIMValue("FALSE")));
+        }
+
+        inParams.append(CIMParamValue(
+            CIMParameter("timeout", CIMType::STRING),
+            CIMValue(timeoutStr)));
+
+        CIMValue retValue = client.invokeMethod(
+            NAMESPACE,
+            reference,
+            "shutdown",
+            inParams,
+            outParams);
+    }
+    catch(Exception& e)
+    {
+        PEGASUS_STD(cerr) << "Failed to shutdown server: " << e.getMessage() << PEGASUS_STD(endl);
+        exit(1);
+    }
+
+    return;
+}
+
+
 /////////////////////////////////////////////////////////////////////////
 //  MAIN
 //////////////////////////////////////////////////////////////////////////
@@ -239,58 +341,163 @@ int main(int argc, char** argv)
     String logsDirectory = String::EMPTY;
     Boolean useSLP = false;
     Boolean daemonOption = false;
+    Boolean shutdownOption = false;
+    Boolean forceOption = false;
+    Boolean timeoutOption = false;
+    String  timeoutStr  = String::EMPTY;
+    long timeoutValue  = 0;
 
     // on Windows NT if there are no command-line options, run as a service
 
     if (argc == 1 )
-      cim_server_service(argc, argv) ;
-  
-    // Get help, version and home options
-
-    for (int i = 0; i < argc; )
     {
-        const char* arg = argv[i];
+      cim_server_service(argc, argv);
+    }
+    else
+    {
+        // Get help, version and home options
 
-        // Check for -option
-        if (*arg == '-')
+        for (int i = 1; i < argc; )
         {
-            // Get the option
-            const char* option = arg + 1;
+            const char* arg = argv[i];
 
-            //
-            // Check to see if user asked for the version (-v option):
-            //
-            if (*option == OPTION_VERSION)
+            // Check for -option
+            if (*arg == '-')
             {
-                cout << PEGASUS_VERSION << endl;
-                exit(0);
-            }
-            //
-            // Check to see if user asked for help (-h option):
-            //
-            else if (*option == OPTION_HELP)
-            {
-                PrintHelp(argv[0]);
-                exit(0);
-            }
-            else if (*option == OPTION_HOME)
-            {
-                if (i + 1 < argc) 
+                // Get the option
+                const char* option = arg + 1;
+
+                //
+                // Check to see if user asked for the version (-v option):
+                //
+                if (*option == OPTION_VERSION)
                 {
-                    pegasusHome.assign(argv[i + 1]);
-        	    SetEnvironmentVariables(argv[i + 1]);
-                }
-                else
-                {
-                    cout << "Missing argument for option -" << option << endl;
+                    cout << PEGASUS_VERSION << endl;
                     exit(0);
                 }
+                //
+                // Check to see if user asked for help (-h option):
+                //
+                else if (*option == OPTION_HELP)
+                {
+                    PrintHelp(argv[0]);
+                    exit(0);
+                }
+                else if (*option == OPTION_HOME)
+                {
+                    if (i + 1 < argc) 
+                    {
+                        pegasusHome.assign(argv[i + 1]);
+        	        SetEnvironmentVariables(argv[i + 1]);
+                    }
+                    else
+                    {
+                        cout << "Missing argument for option -" << option << endl;
+                        exit(0);
+                    }
 
-                memmove(&argv[i], &argv[i + 2], (argc-i-1) * sizeof(char*));
-                argc -= 2;
+                    memmove(&argv[i], &argv[i + 2], (argc-i-1) * sizeof(char*));
+                    argc -= 2;
+                }
+                //
+                // Check to see if user asked for shutdown (-s option):
+                //
+                else if (*option == OPTION_SHUTDOWN)
+                {
+                    //
+                    // Check to see if shutdown has already been specified:
+                    //
+                    if (shutdownOption)
+                    {
+                        cout << "Duplicate shutdown option specified." << endl;
+                        exit(0);
+                    }
+                    shutdownOption = true;
+ 
+                    // remove the option from the command line
+                    memmove(&argv[i], &argv[i + 1], (argc-i) * sizeof(char*));
+                    argc--;   
+                }
+                else if (*option == OPTION_FORCE)
+                {
+                    //
+                    // Check to see if shutdown has been specified:
+                    //
+                    if (!shutdownOption)
+                    {
+                        cout << "Invalid option -" << option << endl;
+                        exit(0);
+                    }
+
+                    //
+                    // Check to see if force has already been specified:
+                    //
+                    if (forceOption)
+                    {
+                        cout << "Duplicate force option specified." << endl;
+                        exit(0);
+                    }
+
+                    forceOption = true;
+ 
+                    // remove the option from the command line
+                    memmove(&argv[i], &argv[i + 1], (argc-i) * sizeof(char*));
+                    argc--;   
+                }
+                else if (*option == OPTION_TIMEOUT)
+                {
+                    //
+                    // Check to see if shutdown has been specified:
+                    //
+                    if (!shutdownOption)
+                    {
+                        cout << "Invalid option -" << option << endl;
+                        exit(0);
+                    }
+
+                    if (timeoutOption)
+                    {
+                        cout << "Duplicate timeout option specified." << endl;
+                        exit(0);
+                    }
+
+                    timeoutOption = true;
+
+                    if (i + 1 < argc)
+                    {
+                        // get timeout value
+                        timeoutStr.assign(argv[i + 1]);
+
+                        // validate timeout value string
+                        char* tmp = timeoutStr.allocateCString();
+                        char* end = 0;
+                        timeoutValue  = strtol(tmp, &end, 10);
+                      
+                        if (!end || *end != '\0')
+                        {
+                            cout << "invalid timeout value specified: ";
+                            cout << timeoutStr << endl;
+                            delete [] tmp;
+                            exit(0);
+                        }
+                    }
+                    else
+                    {
+                        cout << "Missing argument for option -";
+                        cout << option << endl;
+                        exit(0);
+                    }
+
+                    // remove the option from the command line
+                    memmove(&argv[i], &argv[i + 2], (argc-i-1) * sizeof(char*));
+                    argc -= 2;
+                }
+                else
+                    i++;
             }
+            else
+                i++;
         }
-        i++;
     }
 
     if (pegasusHome.size() == 0)
@@ -299,7 +506,7 @@ int main(int argc, char** argv)
     //
     // Get an instance of the Config Manager.
     //
-    ConfigManager* configManager = ConfigManager::getInstance();
+    configManager = ConfigManager::getInstance();
 
     //
     // Get options (from command line and from configuration file); this
@@ -352,6 +559,32 @@ int main(int argc, char** argv)
         if (String::equal(configManager->getCurrentValue("daemon"), "true"))
         {
             daemonOption = true;
+        }
+
+        //
+        // Check to see if we need to shutdown CIMOM 
+        //
+        if (shutdownOption)
+        {
+            //
+            // if timeout was specified, validate the timeout value 
+            //
+            if (timeoutOption)
+            {
+                Boolean valid = configManager->validatePropertyValue(
+                                             PROPERTY_TIMEOUT,
+                                             timeoutStr);
+                if (!valid)
+                {
+                    cout << "Invalid timeout value specified: " << timeoutValue;
+                    cout << endl;
+                    exit(1);
+                }
+            }
+
+            shutdownCIMOM(forceOption, timeoutStr);
+            cout << "Pegasus CIM Server terminated." << endl;
+            exit(0);
         }
 
         //
@@ -468,7 +701,12 @@ int main(int argc, char** argv)
 	delete [] address;
 
 	time_t last = 0;
-	while( 1 )
+
+        //
+        // Loop to call CIMServer's runForever() method until CIMServer
+        // has been shutdown
+        //
+	while( !server.terminated() )
 	{
 #ifndef PEGASUS_OS_ZOS
 	  if(useSLP  ) 

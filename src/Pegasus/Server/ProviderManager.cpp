@@ -25,6 +25,7 @@
 // Modified By:
 //              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //              Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
+//              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -205,6 +206,37 @@ Uint32 ProviderManager::stopProvider(const String & providerName)
 	return (0);
 }
     
+void ProviderManager::shutdownProvider(const String & providerName, const String
+ & className)
+{
+    // check list for requested provider
+    for(Uint32 i = 0, n = _providers.size(); i < n; i++)
+    {
+        if(String::equalNoCase(providerName, _providers[i].getProviderName()) &&
+           String::equalNoCase(className, _providers[i].getClassName()))
+        {
+            _providers[i].getProvider()->terminate();
+        }
+    }
+
+    return;
+}
+
+void ProviderManager::shutdownAllProviders(const String & providerName, const String & className)
+{
+    //
+    // For each provider in the list, call its terminate() method, skipping
+    // the specified provider.
+    //
+    for(Uint32 i = 0, n = _providers.size(); i < n; i++)
+    {
+        if ( !(String::equalNoCase(providerName, _providers[i].getProviderName()) &&
+               String::equalNoCase(className, _providers[i].getClassName())))
+        {
+            _providers[i].getProvider()->terminate();
+        }
+    }
+}
     
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::monitorThread(void * arg)
 {

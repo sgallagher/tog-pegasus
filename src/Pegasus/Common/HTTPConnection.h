@@ -25,6 +25,7 @@
 //
 // Modified By:
 //         Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
+//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +41,8 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/AuthenticationInfo.h>
+#include <Pegasus/Common/HTTPAcceptor.h>
+#include <Pegasus/Common/CIMServerState.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -96,6 +99,7 @@ private:
     void _handleReadEvent();
 
     Monitor* _monitor;
+    CIMServerState*  _serverState;
     Sint32 _socket;
     MessageQueue* _ownerMessageQueue;
     MessageQueue* _outputMessageQueue;

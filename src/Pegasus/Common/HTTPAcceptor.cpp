@@ -24,6 +24,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
+//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -86,8 +87,6 @@ HTTPAcceptor::~HTTPAcceptor()
 
 void HTTPAcceptor::handleEnqueue()
 {
-    // cout << "HTTPAcceptor::handleEnqueue()" << endl;
-
     Message* message = dequeue();
 
     if (!message)
@@ -154,12 +153,26 @@ void HTTPAcceptor::bind(Uint32 portNumber)
 
     _rep = new HTTPAcceptorRep;
 
+    _portNumber = portNumber;
+
+    // bind address
+    _bind();
+
+    return;
+}
+
+/**
+ _bind - creates a new server socket and bind socket to the port address.
+*/
+void HTTPAcceptor::_bind()
+{
+
     // Create address:
 
     memset(&_rep->address, 0, sizeof(_rep->address));
     _rep->address.sin_addr.s_addr = INADDR_ANY;
     _rep->address.sin_family = AF_INET;
-    _rep->address.sin_port = htons(portNumber);
+    _rep->address.sin_port = htons(_portNumber);
 
     // Create socket:
     
@@ -170,6 +183,21 @@ void HTTPAcceptor::bind(Uint32 portNumber)
 	delete _rep;
 	_rep = 0;
 	throw BindFailed("Failed to create socket");
+    }
+
+    //
+    // Set the socket option SO_REUSEADDR to reuse the socket address so
+    // that we can rebind to a new socket using the same address when we
+    // need to resume the cimom as a result of a timeout during a Shutdown
+    // operation.
+    //
+    int opt=1;
+    if (setsockopt(_rep->socket, SOL_SOCKET, SO_REUSEADDR,
+                 (char *)&opt, sizeof(opt)) < 0)
+    {
+        delete _rep;
+        _rep = 0;
+        throw BindFailed("Failed to set socket option");
     }
 
     // Bind socket to port:
@@ -207,6 +235,33 @@ void HTTPAcceptor::bind(Uint32 portNumber)
 	delete _rep;
 	_rep = 0;
 	throw BindFailed("Failed to solicit socket messaeges");
+    }
+}
+
+/**
+ closeConnectionSocket - close the server listening socket to disallow
+ new client connections.
+*/
+void HTTPAcceptor::closeConnectionSocket()
+{
+    if (_rep)
+    {
+        // unregister the socket
+        _monitor->unsolicitSocketMessages(_rep->socket);
+
+        // close the socket
+        Socket::close(_rep->socket);
+    }
+}
+
+/**
+ reopenConnectionSocket - creates a new server socket.
+*/
+void HTTPAcceptor::reopenConnectionSocket()
+{
+    if (_rep)
+    {
+        _bind();
     }
 }
 

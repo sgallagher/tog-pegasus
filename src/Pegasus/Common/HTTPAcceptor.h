@@ -23,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By:  Jenny Yu (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -77,16 +77,26 @@ public:
     */
     void unbind();
 
+    /** Close the connection socket.
+    */
+    void closeConnectionSocket();
+
+    /** Reopen the connection socket.
+    */
+    void reopenConnectionSocket();
+
     /** Destroys all the connections created by this acceptor. */
     void destroyConnections();
 
 private:
 
     void _acceptConnection();
+    void _bind();
 
     Monitor* _monitor;
     MessageQueue* _outputMessageQueue;
     HTTPAcceptorRep* _rep;
+    Uint32  _portNumber;
 };
 
 PEGASUS_NAMESPACE_END

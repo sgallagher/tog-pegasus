@@ -24,6 +24,7 @@
 //
 // Modified By:
 //         Mike Day (mdday@us.ibm.com)
+//         Jenny Yu (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -306,11 +307,18 @@ static void TestInstanceGetOperations(CIMClient& client, Boolean activeTest,
 
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
-       instanceNames = client.enumerateInstanceNames(NAMESPACE,classNames[i]);
-       if (instanceNames.size() > 0)
+       if (classNames[i] == "PG_ShutdownService")
+       {
+           // Skip the PG_ObjectManager class.  It currently has no 
+           // instance provider and no instances.  
+       }
+       else
+       {
+           instanceNames = client.enumerateInstanceNames(NAMESPACE,classNames[i]);
+           if (instanceNames.size() > 0)
 		   cout << "Class " << classNames[i] << " " 
  		        << instanceNames.size() << " Instances" << endl;
-
+       }
     }
     /*
     virtual Array<CIMReference> enumerateInstanceNames(

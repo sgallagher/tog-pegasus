@@ -78,7 +78,10 @@ int main(int argc, char** argv)
 	assert(!q3.isFlavorToSubclass());
 	assert(!q3.isFlavorOverridable());
 
-	Uint32 f = q3.getFlavor();
+
+	q2.setFlavor(0);
+	assert(!q2.isFlavor(CIMFlavor::TOSUBCLASS));
+	assert(!q2.isFlavor(CIMFlavor::OVERRIDABLE));
 
 
 	CIMQualifier qual1("qual1", "This is a test");

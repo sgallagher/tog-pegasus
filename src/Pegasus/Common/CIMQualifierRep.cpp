@@ -52,9 +52,6 @@ CIMQualifierRep::CIMQualifierRep(
     _flavor(flavor),
     _propagated(propagated)
 {
-
-    //cout << "KSTEST create qualifier " << name << " flavor " << flavor 
-    //    << " Propogated " << propagated << endl;
     if (!CIMName::legal(name))
 	throw IllegalName();
 

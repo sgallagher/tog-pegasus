@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By:	Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -81,8 +81,10 @@ public:
     defined on input.
     @param String representing CIMName for the new qualifier
     @param value
-    @param flavor - ATTN:
-    @param propoagated - ATTN:
+    @param flavor - Flavor defined for this qualifier definition. Default for this
+	parameter is CIMFlavor::DEFAULTS (which allows override and tosubclass).
+    @param propoagated - Boolean defining whether this is a propagated qualifier.
+	This is an optional parameter with default = false
     @return -Returns the instantiated qualifier object or throws an exception 
     if the name argument is illegal
     
@@ -171,15 +173,34 @@ public:
 	_rep->setValue(value); 
     }
 
+	/* setFlavor - Sets the value defined on input into the Flavor variable
+		for the Qualifier Object.
+		@param flavor - Uint32 defines the flavor bits to be set.
+	*/
+    void setFlavor(Uint32 flavor) 
+    {
+		_checkRep();
+		_rep->setFlavor(flavor);
+    }
+
     /**	getFlavor - Gets the Flavor field from a Qualifier
-    @return - Uint32 with the Flavor flags
+    @return - Uint32 with the Flavor flags that can be tested
+	against the CIMFlavor constants.
     */
     Uint32 getFlavor() const 
     {
 	_checkRep();
 	return _rep->getFlavor();
     }
-	/**
+	/**	isFlavor - Boolean function that determines if particular flavor
+	flags are set in the flavor variable of a qualifier.
+	@param flavor - The flavor bits to test.
+	Return True if the defined flavor is set.
+	<pre>
+	if (q.isFlavor(CIMType::TOSUBCLASS)
+		do something based on TOSUBCLASS being true
+	</pre>
+		
 	*/
 	Boolean isFlavor(Uint32 flavor) const
 	{

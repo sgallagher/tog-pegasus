@@ -95,10 +95,10 @@ Uint32 CIMQualifierList::findReverse(const String& name) const
 void CIMQualifierList::resolve(
     DeclContext* declContext,
     const String& nameSpace,
-    Uint32 scope, 					// Association or class scope
+    Uint32 scope, 					// Scope of the entity being resolved.
     Boolean isInstancePart,
     CIMQualifierList& inheritedQualifiers,
-    Boolean propagateQualifiers)
+    Boolean propagateQualifiers)	// Apparently not used ks 24 mar 2002
 {
     // For each qualifier in the qualifiers array, the following
     // is checked:
@@ -157,33 +157,46 @@ void CIMQualifierList::resolve(
 		// abstract qualifier as non-overridable but then they override it.
 		// For now it is just disabled. This problem exists in both XML and
 		// CIM schema.
-			 //cout << "KSTEST QUal resolve Propagate 1 " << q.getName() << endl;
-#if 0
+
+		// Move the flavor from declaration
+		// Always sets a flavor since the flavor since cannot be set on creation.
+		q.setFlavor(qd.getFlavor());	
+//#if 0
 		Uint32 pos = inheritedQualifiers.find(q.getName());
-	
+
+		//cout << "KSTEST Qualifier resolve inherit test " << q.getName() 
+		//<< " Inherited Position = " << pos << endl;
+
+		// If qualifier found and not overridable, throw exception.
 		if (pos != PEG_NOT_FOUND)
 		{
 			CIMConstQualifier iq = inheritedQualifiers.getQualifier(pos);
-			if (!iq.isFlavor(CIMFlavor::OVERRIDABLE))
+			if (!qd.isFlavor(CIMFlavor::OVERRIDABLE))
 				throw BadQualifierOverride(q.getName());
 		}
-#endif
-    }
+//#endif
+    } 					// end of this objects qualifier loop
 
     //--------------------------------------------------------------------------
     // Propagate qualifiers to subclass or to instance that do not have
     // already have those qualifiers:
     //--------------------------------------------------------------------------
+	//cout << "KSTEST. Loop of inherited qualifiers. Number = " 
+	//	<< inheritedQualifiers.getCount() << endl;
+
     for (Uint32 i = 0, n = inheritedQualifiers.getCount(); i < n; i++)
     {
 		CIMQualifier iq = inheritedQualifiers.getQualifier(i);
-			//cout << "KSTEST inherited  propagate loop 2 " <<  iq.getName() 
+			//cout << "KSTEST inherited qualifier propagate loop " <<  iq.getName() 
 			//<< " flavor " << iq.getFlavor << " count " << i << endl;
 		
 			// ATTN-DE-P1-This next test is incorrect. It is a temporary, hard-coded
 			// HACK to avoid propagating the "Abstract" Qualifier to subclasses
 		//if (CIMName::equal(iq.getName(), "Abstract"))
 			//   continue;
+		//cout << "KSTEST resolve pre Propagate " << iq.getName() << " true= " << true 
+		//<< " flavor= " << iq.getFlavor()
+		//<< " TOSUBCLASS " << (iq.getFlavor() && CIMFlavor::TOSUBCLASS) << endl;
 		
 		if (isInstancePart)
 		{
@@ -197,16 +210,13 @@ void CIMQualifierList::resolve(
 		}
 		
 		// If the qualifiers list does not already contain this qualifier,
-		// then propagate it (and set the propagated flag to true).
-		
-		if (find(iq.getName()) != PEG_NOT_FOUND)
+		// then propagate it (and set the propagated flag to true).	 Else we
+		// keep current value. Note we have already eliminated any possibity that
+		// a nonoverridable qualifier can be in the list.
+		// Note that there is no exists() function ATTN:KS 25 Mar 2002
+		if(find(iq.getName()) != PEG_NOT_FOUND)
 			continue;
 			
-			/*
-			cout << "KSTEST resolve Propagate " << iq.getName() << " true= " << true 
-			<< " flavor= " << iq.getFlavor()
-			<< " TOSUBCLASS " << (iq.getFlavor() && CIMFlavor::TOSUBCLASS) << endl;
-			*/
 		CIMQualifier q = iq.clone();
 		q.setPropagated(true);
 		_qualifiers.prepend(q);

@@ -34,6 +34,7 @@
 #include "XmlWriter.h"
 
 PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_STD;
 
 CIMClassRep::CIMClassRep(
     const CIMReference& reference,
@@ -184,209 +185,224 @@ void CIMClassRep::resolve(
 	throw NullPointer();
 
     if (_superClassName.size())
-    {
-	//----------------------------------------------------------------------
-	// First check to see if the super-class really exists:
-	//----------------------------------------------------------------------
-	CIMConstClass superClass
-	    = context->lookupClass(nameSpace, _superClassName);
-
-	if (!superClass)
-	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_SUPERCLASS,_superClassName);
-
+	{
+		//cout << "KSTEST Class Resolve with Super class " << getClassName() 
+		//<< " superClass " << _superClassName << endl;
+		//----------------------------------------------------------------------
+		// First check to see if the super-class really exists and the subclassing legal:
+		//----------------------------------------------------------------------
+		CIMConstClass superClass
+			= context->lookupClass(nameSpace, _superClassName);
+	
+		if (!superClass)
+			throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_SUPERCLASS,_superClassName);
+	
 #if 0
-	if (!superClass._rep->_resolved)
-	    throw ClassNotResolved(_superClassName);
+		if (!superClass._rep->_resolved)
+			throw ClassNotResolved(_superClassName);
 #endif
-
-	//----------------------------------------------------------------------
-	// Iterate all the properties of *this* class. Resolve each one and
-	// set the class-origin:
-	//----------------------------------------------------------------------
-
-	for (Uint32 i = 0, n = _properties.size(); i < n; i++)
-	{
-	    CIMProperty& property = _properties[i];
-	    Uint32 pos = superClass.findProperty(property.getName());
-
-	    if (pos == PEG_NOT_FOUND)
-	    {
-			property.resolve(context, nameSpace, false, true);
-	    }
-	    else
-	    {
-			CIMConstProperty superClassProperty =
-			superClass.getProperty(pos);
-			property.resolve(
-				context, nameSpace, false, superClassProperty, true);
-	    }
-	}
-
-	//----------------------------------------------------------------------
-	// Now prepend all properties inherited from the super-class (that
-	// are not overriden by this sub-class).
-	//----------------------------------------------------------------------
-
-	// Iterate super-class properties:
-
-	for (Uint32 i = 0, m = 0, n = superClass.getPropertyCount(); i < n; i++)
-	{
-	    CIMConstProperty superClassProperty = superClass.getProperty(i);
-
-	    // Find the property in *this* class; if not found, then clone and
-	    // insert it (setting the propagated flag). Otherwise, change
-	    // the class-origin and propagated flag accordingly.
-
-	    Uint32 pos = PEG_NOT_FOUND;
-		/*	 ATTN: KS move to simpler
-	    for (Uint32 j = m, n = _properties.size(); j < n; j++)
-	    {
-			if (CIMName::equal(_properties[j].getName(),
-							   superClassProperty.getName()))
-			{
-				pos = j;
-				break;
-			}
-	    }
+		// If subclass is abstract but superclass not, throw CIM Exception
+	
+		/* ATTN:KS-24 Mar 2002 P1 - Test this and confirm that rule is correct
+		if isAbstract() && !superclass.isAbstract()
+			throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_SUPERCLASS,_superClassName);
 		*/
-		pos = findProperty(superClassProperty.getName());
-
-	    // If property exists in super class but not in this one, then
-	    // clone and insert it. Otherwise, the properties class
-	    // origin was set above.
-
-	    CIMProperty superproperty = superClassProperty.clone(true);
-
-	    if (pos == PEG_NOT_FOUND)
-	    {
-			superproperty.setPropagated(true);
-			_properties.insert(m++, superproperty);
-	    } 
-		else 
+		//----------------------------------------------------------------------
+		// Iterate all the properties of *this* class. Resolve each one and
+		// set the class-origin:
+		//----------------------------------------------------------------------
+	
+		for (Uint32 i = 0, n = _properties.size(); i < n; i++)
 		{
-	        // If property exists in the superclass and in the subclass,
-	        // then, enumerate the qualifiers of the superclass's property.
-	        // If a qualifier is defined on the superclass's property
-	        // but not on the subclass's, then add it to the subclass's
-	        // property's qualifier list.
-	        CIMProperty subproperty = _properties[pos];
-	        for (Uint32 i = 0, n = superproperty.getQualifierCount();
-				i < n; i++) 
+			CIMProperty& property = _properties[i];
+			Uint32 pos = superClass.findProperty(property.getName());
+	
+			if (pos == PEG_NOT_FOUND)
 			{
-				Uint32 pos = PEG_NOT_FOUND;
-				CIMQualifier superClassQualifier = 
-										superproperty.getQualifier(i);
-				const String name = superClassQualifier.getName();
-				for (Uint32 j = 0, m = subproperty.getQualifierCount();
-					 j < m;
-					 j++) 
-				{
-					CIMConstQualifier q = subproperty.getQualifier(j);
-					if (CIMName::equal(name,
-						   q.getName())) 
-					{
-						pos = j;
-						break;
-					}
-				}  // end comparison of subclass property's qualifiers
-				if (pos == PEG_NOT_FOUND)
-				{
-					subproperty.addQualifier(superClassQualifier);
-				}
-				/*
-				if ((pos = subproperty.findQualifier(name)) == PEG_NOT_FOUND)
-				{
-					subproperty.addQualifier(superClassQualifier);
-				}
-				*/
-			} // end iteration over superclass property's qualifiers
-	    }
-	}
-
-	//----------------------------------------------------------------------
-	// Iterate all the methods of *this* class. Resolve each one and
-	// set the class-origin:
-	//----------------------------------------------------------------------
-
-	for (Uint32 i = 0, n = _methods.size(); i < n; i++)
-	{
-	    CIMMethod& method = _methods[i];
-	    Uint32 pos = superClass.findMethod(method.getName());
-
-	    if (pos == PEG_NOT_FOUND)
-	    {
-			method.resolve(context, nameSpace);
-	    }
-	    else
-	    {
-			CIMConstMethod superClassMethod = superClass.getMethod(pos);
-			method.resolve(context, nameSpace, superClassMethod);
-	    }
-	}
-
-	//----------------------------------------------------------------------
-	// Now prepend all methods inherited from the super-class (that
-	// are not overriden by this sub-class).
-	//----------------------------------------------------------------------
-
-	for (Uint32 i = 0, m = 0, n = superClass.getMethodCount(); i < n; i++)
-	{
-	    CIMConstMethod superClassMethod = superClass.getMethod(i);
-
-	    // Find the method in *this* class; if not found, then clone and
-	    // insert it (setting the propagated flag). Otherwise, change
-	    // the class-origin and propagated flag accordingly.
-
-	    Uint32 pos = PEG_NOT_FOUND;
-		/**********************
-	    for (Uint32 j = m, n = _methods.size(); j < n; j++)
-	    {
-			if (CIMName::equal(_methods[j].getName(),
-								superClassMethod.getName()))
-			{
-				pos = j;
-				break;
+				property.resolve(context, nameSpace, false, true);
 			}
-	    }
-
-	    // If method exists in super class but not in this one, then
-	    // clone and insert it. Otherwise, the method's class origin
-	    // has already been set above.
-
-	    if (pos == PEG_NOT_FOUND)
-	    {
-			CIMMethod method = superClassMethod.clone();
-			method.setPropagated(true);
-			_methods.insert(m++, method);
-	    }
-		*/
-		if((pos = findMethod(superClassMethod.getName())) == PEG_NOT_FOUND)
-		{
-			CIMMethod method = superClassMethod.clone();
-			method.setPropagated(true);
-			_methods.insert(m++, method);
+			else
+			{
+				CIMConstProperty superClassProperty =
+				superClass.getProperty(pos);
+				property.resolve(
+					context, nameSpace, false, superClassProperty, true);
+			}
 		}
-
-	}
-
-	//----------------------------------------------------------------------
-	// Validate the qualifiers of this class:
-	//----------------------------------------------------------------------
-
-	_qualifiers.resolve(
-	    context,
-	    nameSpace,
-	    isAssociation() ? CIMScope::ASSOCIATION : CIMScope::CLASS,
-	    false,
-	    superClass._rep->_qualifiers,
-	    true);
+	
+		//----------------------------------------------------------------------
+		// Now prepend all properties inherited from the super-class (that
+		// are not overriden by this sub-class).
+		//----------------------------------------------------------------------
+	
+		// Iterate super-class properties:
+	
+		for (Uint32 i = 0, m = 0, n = superClass.getPropertyCount(); i < n; i++)
+		{
+			CIMConstProperty superClassProperty = superClass.getProperty(i);
+	
+			// Find the property in *this* class; if not found, then clone and
+			// insert it (setting the propagated flag). Otherwise, change
+			// the class-origin and propagated flag accordingly.
+	
+			Uint32 pos = PEG_NOT_FOUND;
+			/*	 ATTN: KS move to simpler version of the find
+			for (Uint32 j = m, n = _properties.size(); j < n; j++)
+			{
+				if (CIMName::equal(_properties[j].getName(),
+								   superClassProperty.getName()))
+				{
+					pos = j;
+					break;
+				}
+			}
+			*/
+			pos = findProperty(superClassProperty.getName());
+	
+			// If property exists in super class but not in this one, then
+			// clone and insert it. Otherwise, the properties class
+			// origin was set above.
+	
+			CIMProperty superproperty = superClassProperty.clone(true);
+	
+			if (pos == PEG_NOT_FOUND)
+			{
+				superproperty.setPropagated(true);
+				_properties.insert(m++, superproperty);
+			} 
+			else 
+			{
+				// Property Qualifiers must propagate if allowed
+				// If property exists in the superclass and in the subclass,
+				// then, enumerate the qualifiers of the superclass's property.
+				// If a qualifier is defined on the superclass's property
+				// but not on the subclass's, then add it to the subclass's
+				// property's qualifier list.
+				CIMProperty subproperty = _properties[pos];
+				for (Uint32 i = 0, n = superproperty.getQualifierCount();
+					i < n; i++) 
+				{
+					Uint32 pos = PEG_NOT_FOUND;
+					CIMQualifier superClassQualifier = 
+											superproperty.getQualifier(i);
+					const String name = superClassQualifier.getName();
+					/* ATTN KS This is replacement find function.
+					if((Uint32 j = subproperty.findQualifier(q.getName()) == PEG_NOT_FOUND)
+					{
+						subproperty.addQualifier(superClassQualifier);
+						
+					}
+					*/
+					for (Uint32 j = 0, m = subproperty.getQualifierCount();
+						 j < m;
+						 j++) 
+					{
+						CIMConstQualifier q = subproperty.getQualifier(j);
+						if (CIMName::equal(name,
+							   q.getName())) 
+						{
+							pos = j;
+							break;
+						}
+					}  // end comparison of subclass property's qualifiers
+					if (pos == PEG_NOT_FOUND)
+					{
+						subproperty.addQualifier(superClassQualifier);
+					}
+					/*
+					if ((pos = subproperty.findQualifier(name)) == PEG_NOT_FOUND)
+					{
+						subproperty.addQualifier(superClassQualifier);
+					}
+					*/
+				} // end iteration over superclass property's qualifiers
+			}
+		}
+	
+		//----------------------------------------------------------------------
+		// Iterate all the methods of *this* class. Resolve each one and
+		// set the class-origin:
+		//----------------------------------------------------------------------
+	
+		for (Uint32 i = 0, n = _methods.size(); i < n; i++)
+		{
+			CIMMethod& method = _methods[i];
+			Uint32 pos = superClass.findMethod(method.getName());
+	
+			if (pos == PEG_NOT_FOUND)
+			{
+				method.resolve(context, nameSpace);
+			}
+			else
+			{
+				CIMConstMethod superClassMethod = superClass.getMethod(pos);
+				method.resolve(context, nameSpace, superClassMethod);
+			}
+		}
+	
+		//----------------------------------------------------------------------
+		// Now prepend all methods inherited from the super-class (that
+		// are not overriden by this sub-class).
+		//----------------------------------------------------------------------
+	
+		for (Uint32 i = 0, m = 0, n = superClass.getMethodCount(); i < n; i++)
+		{
+			CIMConstMethod superClassMethod = superClass.getMethod(i);
+	
+			// Find the method in *this* class; if not found, then clone and
+			// insert it (setting the propagated flag). Otherwise, change
+			// the class-origin and propagated flag accordingly.
+	
+			Uint32 pos = PEG_NOT_FOUND;
+			/**********************	 KS move to simpler version
+			for (Uint32 j = m, n = _methods.size(); j < n; j++)
+			{
+				if (CIMName::equal(_methods[j].getName(),
+									superClassMethod.getName()))
+				{
+					pos = j;
+					break;
+				}
+			}
+	
+			// If method exists in super class but not in this one, then
+			// clone and insert it. Otherwise, the method's class origin
+			// has already been set above.
+	
+			if (pos == PEG_NOT_FOUND)
+			{
+				CIMMethod method = superClassMethod.clone();
+				method.setPropagated(true);
+				_methods.insert(m++, method);
+			}
+			*/
+			if((pos = findMethod(superClassMethod.getName())) == PEG_NOT_FOUND)
+			{
+				CIMMethod method = superClassMethod.clone();
+				method.setPropagated(true);
+				_methods.insert(m++, method);
+			}
+		}
+	
+		//----------------------------------------------------------------------
+		// Validate the qualifiers of this class:
+		//----------------------------------------------------------------------
+		//cout << "KSTEST Class Qualifiers resolve for class" << getClassName() << endl;
+		_qualifiers.resolve(
+			context,
+			nameSpace,
+			isAssociation() ? CIMScope::ASSOCIATION : CIMScope::CLASS,
+			false,
+			superClass._rep->_qualifiers,
+			true);
     }
-    else
+    else 	// No SuperClass exsts
     {
 		//----------------------------------------------------------------------
 		// Resolve each property:
 		//----------------------------------------------------------------------
-	
+		//cout << "KSTEST Class Resolve, No Super class " << getClassName() << endl;
+
 		for (Uint32 i = 0, n = _properties.size(); i < n; i++)
 			_properties[i].resolve(context, nameSpace, false, true);
 	
@@ -506,7 +522,6 @@ void CIMClassRep::print(PEGASUS_STD(ostream) &os) const
     toXml(tmp);
     tmp.append('\0');
     XmlWriter::indentedPrint(os, tmp.getData(), 4);
-    // cout << tmp.getData() << endl;
 }
 
 void CIMClassRep::printMof(PEGASUS_STD(ostream) &os) const

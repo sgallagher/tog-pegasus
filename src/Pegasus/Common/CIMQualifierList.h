@@ -78,14 +78,25 @@ public:
     ///
     Uint32 findReverse(const String& name) const;
     
-    /** resolve - Resolves the qualifier
-        @param declContext
-        @param nameSpace
-        @param scope
-        @param isInstancePart
-        @param inheritedQualifiers
-        @return
-    
+    /** resolve - Resolves the qualifierList based on the information provided. The resolved
+		qualifiers are the result of validating and testing the qualifiers against the
+		inherited qualifiers and qualifier declarations.  The qualifier list contains
+		the set of resolved qualifiers when the function is complete.
+		Resolution includes:
+		1. Determinign if the qualifier is declared (obtaniable form declContext).
+		2. Same type as declaration
+		3. Valid for the scope provided (Qualifier scope contains the provided scope).
+		4. Whether qualifier can be overridden.
+		5. Whether it should be propagated to subclass
+		If a qualifier can be overridden it is put into the qualifiers array.
+        @param declContext	- Declaration context for this resolution
+        @param nameSpace Namespace in which to find the declaration.
+        @param scope - Scope of the entity doing the resolution
+        @param isInstancePart - TBD
+        @param inheritedQualifiers - CimQualifierList defining List of inherited qualifiers
+		@param propagateQualifiers Boolean indicator whether to propagate qualifiers.
+        @return 
+    	@exception - There are a number of different 
     */ 
     void resolve(
 	DeclContext* declContext,

@@ -85,6 +85,11 @@ public:
 	return _flavor; 
     }
 
+    void setFlavor(Uint32 flavor) 
+    {
+	_flavor = flavor; 
+    }
+
     Boolean getPropagated() const 
     { 
 	return _propagated; 

@@ -4,18 +4,18 @@
 // Compaq Computer Corporation
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -98,28 +98,6 @@
 # define PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 
-/** Test to determine if we use the exception declarations as part
-    of the function declaration.
-    If PEGASUS_TEST_EXCEPTION is set, we create a macro that
-    uses the exception declaration.  If not, we throw it away.
-    We expect the PEGASUS_TEST_EXCEPTION to be defined within
-    the config files for particular platforms at the same time
-    and compiler options are set to test for the exception declaration
-    The exception declaration is a component of the functon declaration
-    that adds a list of exceptions thrown by the function.
-    <pre>
-    For example:
-    void fun1(String& a, Unit32 b) PG_THROW(BadJunkException);
-    </PRE>
-    States that this function throws only this exception.
-*/    
-    
-#ifdef PEGASUS_TEST_EXCEPTION_DECLARATION
-#define PG_THROW(X) throw X
-#else
-#define PG_THROW(X) /* Empty */
-
-#endif
 
 PEGASUS_NAMESPACE_BEGIN
 

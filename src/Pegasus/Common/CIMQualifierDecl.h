@@ -151,7 +151,11 @@ public:
 	_checkRep();
 	return _rep->getScope();
     }
-    /** CIMMethod
+    /** getFlavor - Gets the Flavor definition from the qualifer declaration
+		constant
+		@return - a Uint32 integer containing the flavor flags.  This can be
+		tested against the flavor constants defined in CIMFlavor.
+		@SeeAlso 
 
     */
 
@@ -160,6 +164,22 @@ public:
 	_checkRep();
 	return _rep->getFlavor();
     }
+
+	/**	isFlavor - Boolean function that determines if particular flavor
+	flags are set in the flavor variable of a qualifier.
+	@param flavor - The flavor bits to test.
+	Return True if the defined flavor is set.
+	<pre>
+	if (q.isFlavor(CIMType::TOSUBCLASS)
+		do something based on TOSUBCLASS being true
+	</pre>
+		
+	*/
+	Boolean isFlavor(Uint32 flavor) const
+	{
+		return ((getFlavor() & flavor) !=0);
+	}
+
     /** CIMMethod
 
     */
@@ -331,6 +351,11 @@ public:
 	_checkRep();
 	return _rep->getFlavor();
     }
+
+	Boolean isFlavor(Uint32 flavor) const
+	{
+		return ((getFlavor() & flavor) !=0);
+	}
 
     Uint32 getArraySize() const 
     {

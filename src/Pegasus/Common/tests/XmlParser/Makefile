@@ -9,5 +9,5 @@ SOURCES = XmlParser.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	@ XmlParser $(ROOT)/doc/CIM_Schema24.xml
+	@ XmlParser x.xml
 	@ echo +++++ passed all tests

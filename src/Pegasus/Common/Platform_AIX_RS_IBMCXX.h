@@ -53,6 +53,6 @@
 
 // #define PEGASUS_HAVE_BOOLEAN
 
-#define PEGASUS_EXPLICIT_INSTANTIATION
+// #define PEGASUS_EXPLICIT_INSTANTIATION
 
 #endif /* Pegasus_Platform_AIX_RS_IBMCXX_h */

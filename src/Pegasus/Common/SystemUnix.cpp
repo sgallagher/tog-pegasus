@@ -158,15 +158,11 @@ DynamicSymbolHandle System::loadDynamicSymbol(
     const char* symbolName)
 {
 #ifdef PEGASUS_OS_HPUX
-PEGASUS_OUT(libraryHandle);
     char* p = (char*)symbolName;
     void* proc = 0;
 
-    if (shl_findsym((shl_t*)libraryHandle, p, TYPE_UNDEFINED, &proc) == 0)
+    if (shl_findsym((shl_t*)&libraryHandle, p, TYPE_UNDEFINED, &proc) == 0)
 	return DynamicSymbolHandle(proc);
-
-PEGASUS_OUT(proc);
-PEGASUS_OUT(errno);
 
     p = strcpy(new char[strlen(symbolName) + 2], symbolName);
     strcpy(p, "_");
@@ -178,14 +174,12 @@ PEGASUS_OUT(errno);
 	return DynamicSymbolHandle(proc);
     }
 
-PEGASUS_OUT(proc);
-PEGASUS_OUT(errno);
-
-    delete [] p;
     return 0;
 
 #else
+
     return DynamicSymbolHandle(dlsym(libraryHandle, (char*)symbolName));
+
 #endif
 }
 

@@ -24,24 +24,24 @@ TESTS = prestarttests poststarttests
 error:
 	@ $(ECHO) "Specify desired makefile option (i.e., build, rebuild)"
 
-buildmu:
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/mu -f Makefile
-	$(MKDIRHIER) $(BIN_DIR)
-
 rebuild: clean buildmu all
 
 build: all
 
+clean:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile clean
+
+buildmu:
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/mu -f Makefile
+	$(MKDIRHIER) $(BIN_DIR)
+
 all: buildmu
-	$(MAKE)  -f Makefile depend
-	$(MAKE)  -f Makefile all
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile depend
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile all
 
 doc:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/doc/ProviderSpec -f Makefile
 	$(MAKE) --directory=$(PEGASUS_ROOT)/doc/DevManual -f Makefile
-
-clean:
-	$(MAKE) -f Makefile clean
 
 repositoryServer:
 	$(CIMSERVER_STOP_SERVICE)
@@ -49,15 +49,15 @@ repositoryServer:
 	$(RMDIRHIER) $(REPOSITORY_ROOT)
 	$(CIMSERVER_START_SERVICE)
 	$(SLEEP) 5
-	$(MAKE) -f Makefile repositoryServer
-	$(MAKE) -f Makefile testrepositoryServer
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryServer
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepositoryServer
 
 prestarttests:
 	$(CIMSERVER_STOP_SERVICE)
 	$(SLEEP) 5
-	$(MAKE) -f Makefile repository
-	$(MAKE) -f Makefile testrepository
-	$(MAKE) -f Makefile tests
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile tests
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
 
 poststarttests:
@@ -66,7 +66,7 @@ poststarttests:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile clean
 	$(CIMSERVER_START_SERVICE)
 	$(SLEEP) 5
-	$(MAKE) -f Makefile poststarttests
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOP_TS1
 
 tests: $(TESTS)
@@ -145,24 +145,24 @@ list:
 	cimconfig -g traceLevel
 	cimconfig -g traceFilePath
 
-# DO NOT DELETE
+# More options...
 
 standardtests:
-	$(MAKE) -f TestMakefile -i DisableSecurity
-	$(MAKE) -f TestMakefile TestCimmof
-	$(MAKE) -f TestMakefile TestNoSecurity
-	$(MAKE) -f TestMakefile EnableAuthentication
-	$(MAKE) -f TestMakefile TestLocalSecurity
-	$(MAKE) -f TestMakefile TestRemoteSecurity
-	$(MAKE) -f TestMakefile EnableAuthorization
-	$(MAKE) -f TestMakefile TestAuthorization
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i DisableSecurity
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestCimmof
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestNoSecurity
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile EnableAuthentication
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestLocalSecurity
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestRemoteSecurity
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile EnableAuthorization
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestAuthorization
 
 TestNoSecurity:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile tests
-	$(MAKE) -f TestMakefile RunTestClientLocal
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile RunTestClientLocal
 
 TestLocalSecurity:
-	$(MAKE) -f TestMakefile RunTestClientLocal
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile RunTestClientLocal
 	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile poststarttests HOSTNAME= PORT= USER= PASSWORD= SECURITY_ENABLED=true
 
 TestRemoteSecurity:
@@ -171,44 +171,44 @@ TestRemoteSecurity:
 
 TestAuthorization:
 	DeleteNamespace -a -user guest -password guest
-	$(MAKE) -f TestMakefile RunTestClientLocal
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile RunTestClientLocal
 	TestClient -user guest -password guest $(system):5988
 	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest/static -f Makefile poststarttests HOSTNAME=-h$(system) USER=-uguest PASSWORD=-wguest SECURITY_ENABLED=true
 
 TestSubscriptions:
-	$(MAKE) -f TestMakefile DisableSecurity
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile DisableSecurity
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
-	$(MAKE) -f TestMakefile startcimWithoutSSL
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile startcimWithoutSSL
 	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest/cimv2/Subscription -f Makefile poststarttests
-	$(MAKE) -f TestMakefile stopcim
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstop
 
 TestCimmof:
-	$(MAKE) -f Testcimmof poststarttests
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Testcimmof poststarttests
 
 RunTestClientLocal:
 	TestClient -local
 
 DisableSecurity:
-	$(MAKE) -f TestMakefile -i stopcim
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	cimconfig -s enableAuthentication=false -p
 	cimconfig -s enableNamespaceAuthorization=false -p
 
 EnableAuthentication:
-	$(MAKE) -f TestMakefile -i stopcim
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	cimconfig -s enableAuthentication=true -p
-	$(MAKE) -f TestMakefile startcimWithoutSSL
-	$(MAKE) -f TestMakefile ConfigureUsers
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile startcimWithoutSSL
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile ConfigureUsers
 
 EnableAuthorization:
-	$(MAKE) -f TestMakefile -i stopcim
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	cimconfig -s enableNamespaceAuthorization=true -p
-	$(MAKE) -f TestMakefile startcimWithoutSSL
-	$(MAKE) -f TestMakefile -i ConfigureAuthorizations
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile startcimWithoutSSL
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i ConfigureAuthorizations
 
 EnableSSL:
-	$(MAKE) -f TestMakefile -i stopcim
-	$(MAKE) -f TestMakefile startcimWithSSL
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile startcimWithSSL
 
 ConfigureUsers:
 ifndef PEGASUS_PAM_AUTHENTICATION
@@ -245,14 +245,5 @@ startcimWithSSL:
 	$(CIMSERVER_START_SERVICE) enableHttpConnection=false enableHttpsConnection=true
 	$(SLEEP) 5
 
-stopcim:
-	$(CIMSERVER_STOP_SERVICE)
-	$(SLEEP) 5
-
-rebuild:
-	$(MAKE) -f TestMakefile -i stopcim
-	rm -f rebuild.txt
-	$(MAKE) -f TestMakefile pegasus >> rebuild.txt  2>&1
-
 pegasus:
-	$(MAKE) -f Makefile rebuild
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile rebuild

@@ -13,14 +13,6 @@
 ## 
 ###############################################################################
 
-###############################################################################
-##
-## Platform specific settings for several platforms.
-##
-## NOTE: Please add platform specific environment variables as appropriate. 
-##
-###############################################################################
-
 include $(PEGASUS_ROOT)/mak/config.mak
 include $(PEGASUS_ROOT)/mak/commands.mak
 
@@ -35,10 +27,6 @@ endif
 error: 
 	@ echo "Specify desired makefile option (i.e., cleanbuild, rebuild)"
 
-buildmu:
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/mu -f Makefile
-	$(MKDIRHIER) $(BIN_DIR)
-
 cleanbuild: removeall recheckout buildmu all $(TESTS) 
 
 recheckout: removeall checkout
@@ -47,7 +35,7 @@ removeall:
 	$(REMOVE_PEGASUS_DIRECTORY)
 
 checkout:
-	$(CVS) checkout pegasus
+	$(CVS) checkout -P pegasus
 
 rebuild: clean buildmu all tests
 
@@ -57,99 +45,26 @@ build: all tests
 
 build-notest: all
 
-all: buildmu
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile depend
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile all
+clean:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile clean
+
+buildmu:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile buildmu
+
+all:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile all
 
 doc:
-	$(MAKE) --directory=$(PEGASUS_ROOT)/doc/ProviderSpec -f Makefile
-	$(MAKE) --directory=$(PEGASUS_ROOT)/doc/DevManual -f Makefile
-
-clean:
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile clean
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile doc
 
 repositoryServer: 
-	$(CIMSERVER_STOP_SERVICE)
-	$(SLEEP) 5
-	$(RMDIRHIER) $(REPOSITORY_ROOT)
-	$(CIMSERVER_START_SERVICE)
-	$(SLEEP) 5
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryServer
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepositoryServer
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile repositoryServer
 
 prestarttests: 
-	$(CIMSERVER_STOP_SERVICE)
-	$(SLEEP) 5
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile tests
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile prestarttests
 
 poststarttests:
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/CQL/tests/Queries -f Makefile clean
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Query/QueryExpression/tests/Queries -f Makefile clean
-	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile clean
-	$(CIMSERVER_START_SERVICE)
-	$(SLEEP) 5
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOP_TS1
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile poststarttests
 
-###############################################################################
-
-tests: $(TESTS)
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-	$(CIMSERVER_STOP_SERVICE)
-	$(MAKE) --directory=$(PEGASUS_ROOT)src/Server -f Makefile uninstall
-endif
-	@ echo Finished Tests
-
-###############################################################################
-##
-## Trace Configuration
-##
-## Options:
-##      XMLTraceOn: Enables XML request and response tracing.
-##      ProviderLoadTraceOn: Enables Provider load tracing.
-##      XML+ProviderLoadTraceOn: Enables both XML request/response and Provider
-##                                 load tracing.
-##      AllTraceOn: Enables all tracing.
-##      AllTraceOff: Disables all tracing.
-##      list: Lists trace settings.
-##
-###############################################################################
-
-XMLTraceOn:
-	cimconfig -s traceComponents=XmlIO -c
-	cimconfig -s traceLevel=3 -c
-	cimconfig -g traceComponents
-	cimconfig -g traceLevel
-
-ProviderLoadTraceOn:
-	cimconfig -s traceComponents=ProvManager,OsAbstraction
-	cimconfig -s traceLevel=3 -c
-	cimconfig -g traceComponents
-	cimconfig -g traceLevel
-
-XML+ProviderLoadTraceOn:
-	cimconfig -s traceComponents=XmlIO,ProvManager,OsAbstraction
-	cimconfig -s traceLevel=3 -c
-	cimconfig -g traceComponents
-	cimconfig -g traceLevel
-
-AllTraceOn:
-	cimconfig -s traceComponents=ALL
-	cimconfig -s traceLevel=3 -c
-	cimconfig -g traceComponents
-	cimconfig -g traceLevel
-
-AllTraceOff:
-	cimconfig -s traceComponents=
-	cimconfig -g traceComponents
-	cimconfig -g traceLevel
-
-list:
-	cimconfig -g traceComponents
-	cimconfig -g traceLevel
-	cimconfig -g traceFilePath
-
-# DO NOT DELETE
+tests:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile tests

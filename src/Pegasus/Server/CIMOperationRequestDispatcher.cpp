@@ -477,7 +477,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 	//
 	// check the class name for subscription, filter and handler
 	//
-	if(String::equalNoCase(className, "CIM_IndicationProvider") ||
+	if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
 	    String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
 	    String::equalNoCase(className, "CIM_IndicationFilter"))
 	{
@@ -607,7 +607,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 	//
 	// check the class name for subscription, filter and handler
 	//
-	if(String::equalNoCase(className, "CIM_IndicationProvider") ||
+	if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
 	    String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
 	    String::equalNoCase(className, "CIM_IndicationFilter"))
 	{
@@ -860,7 +860,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 	//
 	// check the class name for subscription, filter and handler
 	//
-	if(String::equalNoCase(className, "CIM_IndicationProvider") ||
+	if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
 	    String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
 	    String::equalNoCase(className, "CIM_IndicationFilter"))
 	{
@@ -1038,7 +1038,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 	//
 	// check the class name for subscription, filter and handler
 	//
-	if(String::equalNoCase(className, "CIM_IndicationProvider") ||
+	if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
 	    String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
 	    String::equalNoCase(className, "CIM_IndicationFilter"))
 	{
@@ -1128,7 +1128,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
         //
         // check the class name for subscription, filter and handler
         //
-        if(String::equalNoCase(className, "CIM_IndicationProvider") ||
+        if(String::equalNoCase(className, "CIM_IndicationSubscription") ||
             String::equalNoCase(className, "CIM_IndicationHandlerCIMXML") ||
             String::equalNoCase(className, "CIM_IndicationFilter"))
         {

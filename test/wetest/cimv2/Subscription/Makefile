@@ -1,0 +1,36 @@
+ROOT = ../../../..
+include $(ROOT)/mak/config.mak
+include $(ROOT)/test/config.mak
+
+XMLSCRIPTS = \
+    CreateCapability01 CreateCapability02 \
+    CreateFilter01 CreateFilter02 CreateFilter03 CreateFilter04 \
+    CreateFilter05 CreateFilter06 \
+    CreateHandler01 CreateHandler02 \
+    CreateSubscription01 CreateSubscription02 CreateSubscription03 \
+    CreateSubscription04 CreateSubscription05 CreateSubscription06 \
+    CreateSubscription07 CreateSubscription08 \
+    EnumerateFilters01 EnumerateFilters02 \
+    EnumerateHandlers01 EnumerateHandlers02 \
+    EnumerateSubscriptions01 \
+    GetFilter01 GetFilter02 GetFilter03 GetFilter04 GetFilter05 GetFilter06 \
+    GetHandler01 GetHandler02 \
+    GetSubscription01 GetSubscription02 GetSubscription03 \
+    GetSubscription04 GetSubscription05 GetSubscription06 \
+    GetSubscription07 GetSubscription08 \
+    ModifyHandler01 \
+    ModifySubscription01 ModifySubscription02 \
+    DeleteSubscription01 DeleteSubscription02 DeleteSubscription03 \
+    DeleteSubscription04 DeleteSubscription05 DeleteSubscription06 \
+    DeleteSubscription07 DeleteSubscription08 \
+    DeleteFilter01 DeleteFilter02 DeleteFilter03 DeleteFilter04 \
+    DeleteFilter05 DeleteFilter06 \
+    DeleteHandler01 DeleteHandler02
+#   EnumerateSubscriptions02 \
+#   ModifyFilter01 \
+
+clean:
+	$(RM) $(XMLRESPONSES)
+
+
+tests: $(XMLRESPONSES)

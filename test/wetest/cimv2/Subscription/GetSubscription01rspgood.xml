@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+<MESSAGE ID="090001" PROTOCOLVERSION="1.0">
+<SIMPLERSP>
+<IMETHODRESPONSE NAME="GetInstance">
+<IRETURNVALUE>
+<INSTANCE CLASSNAME="CIM_IndicationSubscription">
+<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
+<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+Defines the desired behavior for a subscription when a fatal error occurs in one of the Indication processing subcomponents (e.g., Indication processor, Indication or instance provider, or Indication handler) and the Indication cannot be successfully sent. Specifically, a failure implies that some aspect of Indication generation,processing or dispatch is no longer functioning and Indications may be lost. If the value of OnFatalErrorPolicy is 2 (&quot;Ignore&quot;) or not set (NULL), the subscription MUST continue to be processed in a &apos;best effort&apos; mode. This mode of operation can lead to unpredictable, and potentially misleading results, because Indications may be lost. If the value is 3 (&quot;Disable&quot;), the subscription MUST be disabled. With this policy, no new Indications will be generated or dispatched until the subscription is explicitly enabled. This is accomplished via the property, SubscriptionState.If the value is 4 (&quot;Remove&quot;), the subscription MUST be deleted. Selecting this policy has the same effect as issuing a DeleteInstance operation on this subscription instance.
+</VALUE>
+</QUALIFIER>
+<QUALIFIER NAME="ValueMap" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE.ARRAY>
+<VALUE>
+1
+</VALUE>
+<VALUE>
+2
+</VALUE>
+</VALUE.ARRAY>
+</QUALIFIER>
+<QUALIFIER NAME="Values" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE.ARRAY>
+<VALUE>
+Other
+</VALUE>
+<VALUE>
+Ignore
+</VALUE>
+<VALUE>
+Disable
+</VALUE>
+</VALUE.ARRAY>
+</QUALIFIER>
+<VALUE>
+0
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+A string defining &quot;Other&quot; values for OnFatalErrorPolicy. This value MUST be set to a non NULL value when OnFatalErrorPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherOnFatalErrorPolicy MUST be NULL.
+</VALUE>
+</QUALIFIER>
+<VALUE>
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+The FailureTriggerTimeInterval is used by the client to specify a recommended minimum delay before the OnFatalErrorPolicy is implemented.
+</VALUE>
+</QUALIFIER>
+<QUALIFIER NAME="Units" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+Seconds
+</VALUE>
+</QUALIFIER>
+<VALUE>
+0
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+A string defining &quot;Other&quot; values for SubscriptionState. This value MUST be set to a non NULL value when SubscriptionState is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherSubscriptionState MUST be NULL.
+</VALUE>
+</QUALIFIER>
+<VALUE>
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="TimeOfLastStateChange" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="datetime">
+<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+Date and time of the last state change. This value is based on the notion of local date and time of the Managed System Element running the Indication processing subcomponents.
+</VALUE>
+</QUALIFIER>
+<VALUE>
+00000000000000.000000:000
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+TRUE
+</VALUE>
+</QUALIFIER>
+<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+SubscriptionDuration defines the desired length of the subscription. Indications generated after the duration of the subscription has exceeded SubscriptionDuration MUST NOT be sent. The duration of a subscription MAY be changed by modifying this property. An expired subscription MAY be deleted and MUST NOT be modified. If the value of SubscriptionDuration is not set, the subscription MUST be treated as having no expiration date.
+</VALUE>
+</QUALIFIER>
+<QUALIFIER NAME="Units" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+Seconds
+</VALUE>
+</QUALIFIER>
+<VALUE>
+0
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="SubscriptionStartTime" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="datetime">
+<QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+FALSE
+</VALUE>
+</QUALIFIER>
+<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+SubscriptionStartTime is the time the subscription was started. The value of this property is based on the notion of date and time of the Managed System Element running the Indication processing subcomponents.
+</VALUE>
+</QUALIFIER>
+<VALUE>
+00000000000000.000000:000
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+FALSE
+</VALUE>
+</QUALIFIER>
+<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+SubscriptionTimeRemaining is a computed value that provides a snapshot of the time remaining in the Subscription.
+</VALUE>
+</QUALIFIER>
+<QUALIFIER NAME="Units" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+Seconds
+</VALUE>
+</QUALIFIER>
+<VALUE>
+0
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
+<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+The RepeatNotificationPolicy property defines the desired behavior for handling Indications that report the occurrence of the same underlying event (e.g., the disk is still generating I/O errors and has not yet been repaired). The defined semantics for the RepeatNotificationCount, RepeatNotificationInterval, and RepeatNotificationGap properties depend on the value of RepeatNotificationPolicy, but values for these properties MUST be set if the property is defined for the selected policy. If the value of RepeatNotificationPolicy is 0 (&quot;Unknown&quot;) or not set, no special processing for repeat Indications is defined by the subscription. The semantics associated with the handling of repeat Indications MAY be defined by the Indication processing subcomponents. If the value of RepeatNotificationPolicy is 2 (&quot;None&quot;), special processing of repeat Indications MUST NOT be performed. If the value is 3 (&quot;Suppress&quot;) the first RepeatNotificationCount Indications, describing the same event, MUST be sent and all subsequent Indications for this event suppressed for the remainder of the time interval RepeatNotificationInterval. A new interval starts when the next Indication for this event is received. If the value of RepeatNotificationPolicy is 4 (&quot;Delay&quot;) and an Indication is received, this Indication MUST be suppressed if, including this Indication, RepeatNoticationCount or fewer Indications for this event have been received during the prior time interval defined by RepeatNotificationInterval. If this Indication is the RepeatNotificationCount + 1 Indication, this Indication MUST be sent and all subsequent Indications for this event ignored until the RepeatNotificationGap has elapsed. A RepeatNotificationInterval MAY NOT overlap a RepeatNotificationGap time interval.
+</VALUE>
+</QUALIFIER>
+<QUALIFIER NAME="ValueMap" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE.ARRAY>
+<VALUE>
+0
+</VALUE>
+<VALUE>
+1
+</VALUE>
+<VALUE>
+2
+</VALUE>
+</VALUE.ARRAY>
+</QUALIFIER>
+<QUALIFIER NAME="Values" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE.ARRAY>
+<VALUE>
+Unknown
+</VALUE>
+<VALUE>
+Other
+</VALUE>
+<VALUE>
+None
+</VALUE>
+<VALUE>
+Suppress
+</VALUE>
+</VALUE.ARRAY>
+</QUALIFIER>
+<VALUE>
+0
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+A string defining &quot;Other&quot; values for RepeatNotificationPolicy. This value MUST be set to a non NULL value when RepeatNotificationPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherRepeatNotificationPolicy MUST be NULL.
+</VALUE>
+</QUALIFIER>
+<VALUE>
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+Defines the time interval for the repeat notification policy calculation.
+</VALUE>
+</QUALIFIER>
+<QUALIFIER NAME="Units" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+Seconds
+</VALUE>
+</QUALIFIER>
+<VALUE>
+0
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+Defines the gap interval for the repeat notification policy calculation.
+</VALUE>
+</QUALIFIER>
+<QUALIFIER NAME="Units" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+Seconds
+</VALUE>
+</QUALIFIER>
+<VALUE>
+0
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
+<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<VALUE>
+Defines the count property for the repeat notification policy calculation.
+</VALUE>
+</QUALIFIER>
+<VALUE>
+0
+</VALUE>
+</PROPERTY>
+<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
+<VALUE.REFERENCE>
+<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<KEYBINDING NAME="CreationClassName">
+<KEYVALUE VALUETYPE="string">
+CIM_IndicationFilter
+</KEYVALUE>
+</KEYBINDING>
+<KEYBINDING NAME="Name">
+<KEYVALUE VALUETYPE="string">
+Filter01
+</KEYVALUE>
+</KEYBINDING>
+<KEYBINDING NAME="SystemCreationClassName">
+<KEYVALUE VALUETYPE="string">
+CIM_UnitaryComputerSystem
+</KEYVALUE>
+</KEYBINDING>
+<KEYBINDING NAME="SystemName">
+<KEYVALUE VALUETYPE="string">
+server001.acme.com
+</KEYVALUE>
+</KEYBINDING>
+</INSTANCENAME>
+</VALUE.REFERENCE>
+</PROPERTY.REFERENCE>
+<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="CIM_IndicationHandler" CLASSORIGIN="CIM_IndicationSubscription">
+<VALUE.REFERENCE>
+<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+<KEYBINDING NAME="CreationClassName">
+<KEYVALUE VALUETYPE="string">
+CIM_IndicationHandlerCIMXML
+</KEYVALUE>
+</KEYBINDING>
+<KEYBINDING NAME="Name">
+<KEYVALUE VALUETYPE="string">
+Handler01
+</KEYVALUE>
+</KEYBINDING>
+<KEYBINDING NAME="SystemCreationClassName">
+<KEYVALUE VALUETYPE="string">
+CIM_UnitaryComputerSystem
+</KEYVALUE>
+</KEYBINDING>
+<KEYBINDING NAME="SystemName">
+<KEYVALUE VALUETYPE="string">
+server001.acme.com
+</KEYVALUE>
+</KEYBINDING>
+</INSTANCENAME>
+</VALUE.REFERENCE>
+</PROPERTY.REFERENCE>
+<PROPERTY NAME="SubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
+<VALUE>
+3
+</VALUE>
+</PROPERTY>
+</INSTANCE>
+</IRETURNVALUE>
+</IMETHODRESPONSE>
+</SIMPLERSP>
+</MESSAGE>
+</CIM>

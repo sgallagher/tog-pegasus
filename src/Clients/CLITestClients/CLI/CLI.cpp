@@ -105,7 +105,7 @@ int main(int argc, char** argv)
     opts.includeClassOrigin = false;
     opts.resultClassName = String::EMPTY;
     opts.role = String::EMPTY;
-    opts.resultRole = String::EMPTY
+    opts.resultRole = String::EMPTY;
     opts.propertyListText = String::EMPTY;
     opts.propertyList.clear(); 
     opts.propertyName = String::EMPTY;

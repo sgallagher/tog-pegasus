@@ -75,9 +75,8 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-// Need a static method to act as a callback for the configuration control
-// provider.  This doesn't belong here, but I don't have a better place to
-// put it right now.
+// Need a static method to act as a callback for the control provider.
+// This doesn't belong here, but I don't have a better place to put it.
 static Message * controlProviderReceiveMessageCallback(
     Message * message,
     void * instance)
@@ -85,16 +84,6 @@ static Message * controlProviderReceiveMessageCallback(
     ProviderMessageFacade * mpf =
         reinterpret_cast<ProviderMessageFacade *>(instance);
     return mpf->handleRequestMessage(message);
-}
-
-static Boolean verifyClientCertificate(SSLCertificateInfo &certInfo)
-{
-#ifdef CLIENT_CERTIFY
-    //ATTN-NB-03-05132002: Add code to handle client certificate verification.
-    return true;
-#else
-    return true;
-#endif
 }
 
 CIMServer::CIMServer(
@@ -292,8 +281,7 @@ CIMServer::CIMServer(
         randFile = ConfigManager::getHomedPath(PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
 
-        // ATTN-RK-20020905: Memory leak
-        _sslcontext = new SSLContext(certPath, verifyClientCertificate, randFile);
+        _sslcontext = new SSLContext(certPath, 0, randFile);
     }
     else
         _sslcontext = 0;

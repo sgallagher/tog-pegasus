@@ -183,6 +183,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
             
       friend class cimom;
       friend class MessageQueueService;
+      friend class ProviderManagerService;
       
 };
 

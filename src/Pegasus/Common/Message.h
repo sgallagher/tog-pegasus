@@ -126,7 +126,7 @@ class PEGASUS_COMMON_LINKAGE Message
 
       }
 
-      Message(Message & msg)
+      Message(const Message & msg)
       {
 	 if( this != &msg)
 	 {
@@ -139,6 +139,20 @@ class PEGASUS_COMMON_LINKAGE Message
 	 }
       }
 
+      Message & operator = ( const Message & msg)
+      {
+	 if (this != &msg)
+	 {
+	    _type = msg._type;
+	    _key = msg._key;
+	    _routing_code = msg._routing_code;
+	    _mask = msg._mask;
+	    _next = _prev = _async = 0;
+	    dest = msg.dest;
+	 }
+	 return *this;
+      }
+      
 
       virtual ~Message();
 
@@ -258,11 +272,12 @@ class PEGASUS_COMMON_LINKAGE Message
 //
       Message* _next;
       Message* _prev;
-   protected:
-      Message *_async;
-   public:
-      Uint32 dest;
 
+   protected:
+
+   public:
+      Message *_async;
+      Uint32 dest;
    private:
       MessageQueue* _owner;
       static Uint32 _nextKey;
@@ -291,7 +306,7 @@ enum MessageType
     CIM_CREATE_INSTANCE_REQUEST_MESSAGE,
     CIM_MODIFY_CLASS_REQUEST_MESSAGE,
     CIM_MODIFY_INSTANCE_REQUEST_MESSAGE,
-    CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE,
+    CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE, //10
     CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE,
     CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE,
     CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE,
@@ -301,7 +316,7 @@ enum MessageType
     CIM_REFERENCES_REQUEST_MESSAGE,
     CIM_REFERENCE_NAMES_REQUEST_MESSAGE,
     CIM_GET_PROPERTY_REQUEST_MESSAGE,
-    CIM_SET_PROPERTY_REQUEST_MESSAGE,
+    CIM_SET_PROPERTY_REQUEST_MESSAGE, //20
     CIM_GET_QUALIFIER_REQUEST_MESSAGE,
     CIM_SET_QUALIFIER_REQUEST_MESSAGE,
     CIM_DELETE_QUALIFIER_REQUEST_MESSAGE,
@@ -311,7 +326,7 @@ enum MessageType
     CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE,
     CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE,
     CIM_PROCESS_INDICATION_REQUEST_MESSAGE,
-    CIM_HANDLE_INDICATION_REQUEST_MESSAGE,
+    CIM_HANDLE_INDICATION_REQUEST_MESSAGE, // 30
     CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE,
     CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE,
 
@@ -326,9 +341,9 @@ enum MessageType
     CIM_DISABLE_MODULE_REQUEST_MESSAGE,
     CIM_ENABLE_MODULE_REQUEST_MESSAGE,
 
-    CIM_GET_CLASS_RESPONSE_MESSAGE,
+    CIM_GET_CLASS_RESPONSE_MESSAGE, // 40
     CIM_GET_INSTANCE_RESPONSE_MESSAGE,
-    CIM_EXPORT_INDICATION_RESPONSE_MESSAGE,
+    CIM_EXPORT_INDICATION_RESPONSE_MESSAGE, // 42
     CIM_DELETE_CLASS_RESPONSE_MESSAGE,
     CIM_DELETE_INSTANCE_RESPONSE_MESSAGE,
     CIM_CREATE_CLASS_RESPONSE_MESSAGE,

@@ -20,6 +20,12 @@ LIBRARY = pegclient
 LIBRARIES = \
     pegcommon
 
+ifdef PEGASUS_ENABLE_SLP
+ifneq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+LIBRARIES += slp_client
+endif
+endif
+
 PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \

@@ -23,7 +23,8 @@
 //
 // Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company 
+//              (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -327,8 +328,17 @@ int main()
 #endif
 
         // -- Create a repository:
-
-        String repositoryPath = "./repository";
+        const char* tmpDir = getenv ("PEGASUS_TMP");
+        String repositoryPath;
+        if (tmpDir == NULL)
+        {
+            repositoryPath = ".";
+        }
+        else
+        {
+            repositoryPath = tmpDir;
+        }
+        repositoryPath += "/repository";
 
         FileSystem::isDirectory(repositoryPath);
 

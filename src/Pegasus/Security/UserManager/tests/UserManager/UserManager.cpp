@@ -24,7 +24,8 @@
 // Author: Sushma Fernandes, Hewlett-Packard Company 
 //         (sushma_fernandes@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//              (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -54,7 +55,17 @@ int main()
 #ifndef PEGASUS_NO_PASSWORDFILE
     // -- Create a test repository:
 
-    String repositoryPath = "./repository";
+    const char* tmpDir = getenv ("PEGASUS_TMP");
+    String repositoryPath;
+    if (tmpDir == NULL)
+    {
+        repositoryPath = ".";
+    }
+    else
+    {
+        repositoryPath = tmpDir;
+    }
+    repositoryPath += "/repository";
 
     FileSystem::isDirectory(repositoryPath);
 

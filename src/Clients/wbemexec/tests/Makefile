@@ -5,7 +5,7 @@ DIR = Clients/wbemexec/tests
 include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/test.mak
 
-RESULTFILE =  $(ROOT)/src/$(DIR)/result
+RESULTFILE =  $(TMP_DIR)/result
 MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
 
 clean:
@@ -81,6 +81,7 @@ poststarttests:
 	@$(MAKE) -i -s poststarttests_ignoreerror
 	$(COMPARERESULTS)
 	@$(ECHO) +++ Test passed +++
+	@$(RM) $(RESULTFILE)
 
 poststarttests_ignoreerror:
 	@$(ECHO) "Error cases:" >> $(RESULTFILE)

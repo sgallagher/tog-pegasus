@@ -16,8 +16,8 @@ include $(ROOT)/mak/program.mak
 
 tests:
 	$(PROGRAM)
-	$(RM) *.log
-	$(RM) *.trace
+	$(RM) $(TMP_DIR)/*.log
+	$(RM) $(TMP_DIR)/*.trace
 
 poststarttests:
 

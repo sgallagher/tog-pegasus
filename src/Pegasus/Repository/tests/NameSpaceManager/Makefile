@@ -11,4 +11,6 @@ SOURCES = NameSpaceManager.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
+	$(RMDIRHIER) $(TMP_DIR)/repository
 	$(PROGRAM)
+	$(RMDIRHIER) $(TMP_DIR)/repository

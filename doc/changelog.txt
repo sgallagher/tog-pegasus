@@ -13,6 +13,25 @@ TAG: Version_1_10
 2. (Ramnath Ravindran - HP) 10 June 2002 - Commented out" #define
     PEGASUS_HAVE_TEMPLATE_SPECIALIZATION" in Platform_TRU64_ALPHA_DECCXX.h.
 
+3. (Carol Ann Krug Graves - HP) 17 July 2002 -
+Modified test source and Makefiles to make it possible to run the test suite 
+specifying a location in which all temporary files (e.g. output files, 
+repository files, etc.) are created.  This ability can be useful if you would
+like, for example, on a test system, to nfs-mount the pegasus directory 
+without write access, and run the test suite.
+
+The new functionality uses the PEGASUS_TMP environment variable.  The TMP_DIR
+variable is set from the PEGASUS_TMP environment variable, and used in the
+Makefiles.  If PEGASUS_TMP is not set, TMP_DIR defaults to ".", and the
+behavior is the same as previously (creates files in the current directory).
+Test programs use the value of the PEGASUS_TMP environment variable (or "." if 
+not set) to construct the path of a file or directory to be created.
+
+When new tests are added that need to create files, directories, repository,
+etc., please use the TMP_DIR variable in the Makefile, and the value of the
+PEGASUS_TMP environment variable in the test program source file.  For examples,
+see the current test programs (e.g. pegasus/src/Pegasus/Repository/tests/*).
+
 
 -----------------------------------------------------------------
 Version 1.09 - Started 5 April 2002

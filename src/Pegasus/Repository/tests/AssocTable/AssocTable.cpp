@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Jenny Yu (jenny_yu@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,11 +37,23 @@ PEGASUS_USING_STD;
 
 int main(int argc, char** argv)
 {
+    String assocTablePath;
+    const char* tmpDir = getenv ("PEGASUS_TMP");
+    if (tmpDir == NULL)
+    {
+        assocTablePath = ".";
+    }
+    else
+    {
+        assocTablePath = tmpDir;
+    }
+    assocTablePath += "/associations.tbl";
+
     //
     // create class association
     //
     AssocClassTable::append(
-        "./associations.tbl",
+        assocTablePath,
 	"Lineage",
 	"Person",
 	"parent",
@@ -50,14 +64,14 @@ int main(int argc, char** argv)
     // delete class association 
     //
     AssocClassTable::deleteAssociation(
-        "./associations.tbl",
+        assocTablePath,
         "Lineage");
 
     //
     // create instance association 
     //
     AssocInstTable::append(
-        "./associations.tbl",
+        assocTablePath,
         "A.left=\"x.key=\\\"one\\\"\",right=\"y.key=\\\"two\\\"\"",
         "A",
         "X.key=\"one\"",
@@ -71,7 +85,7 @@ int main(int argc, char** argv)
     // delete instance association 
     //
     AssocInstTable::deleteAssociation(
-        "./associations.tbl",
+        assocTablePath,
         "A.left=\"x.key=\\\"one\\\"\",right=\"y.key=\\\"two\\\"\"");
 
     cout << "+++++ passed all tests" << endl;

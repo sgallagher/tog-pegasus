@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:  Jenny Yu (jenny_yu@hp.com)
+//               Carol Ann Krug Graves, Hewlett-Packard Company
+//                 (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,9 +36,11 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+String repositoryRoot;
+
 void test01()
 {
-    CIMRepository r("./repository");
+    CIMRepository r (repositoryRoot);
 
     const String NAMESPACE = "aa/bb";
 
@@ -77,7 +81,7 @@ void test02()
     // Create repository:
     //--------------------------------------------------------------------------
 
-    CIMRepository r("./repository");
+    CIMRepository r (repositoryRoot);
 
     const String NAMESPACE = "aa/bb";
     const String SUPERCLASS = "SuperClass";
@@ -206,6 +210,17 @@ void test03()
 
 int main()
 {
+    const char* tmpDir = getenv ("PEGASUS_TMP");
+    if (tmpDir == NULL)
+    {
+        repositoryRoot = ".";
+    }
+    else
+    {
+        repositoryRoot = tmpDir;
+    }
+    repositoryRoot += "/repository";
+
     try 
     {
 	test01();

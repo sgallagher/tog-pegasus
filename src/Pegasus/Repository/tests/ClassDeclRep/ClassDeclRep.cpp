@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//              (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +39,20 @@ PEGASUS_USING_STD;
 
 void Test01()
 {
-    CIMRepository r("./repository");
+    String repositoryRoot;
+    const char* tmpDir = getenv ("PEGASUS_TMP");
+    if (tmpDir == NULL)
+    {
+        repositoryRoot = ".";
+    }
+    else
+    {
+        repositoryRoot = tmpDir;
+    }
+
+    repositoryRoot += "/repository";
+
+    CIMRepository r (repositoryRoot);
 
     // Create a namespace:
 
@@ -95,7 +109,9 @@ void Test01()
     // Be sure the class files are really gone:
 
     Array<String> tmp;
-    assert(FileSystem::getDirectoryContents("./repository/#zzz/classes", tmp));
+    String classesDir (repositoryRoot);
+    classesDir += "/#zzz/classes";
+    assert(FileSystem::getDirectoryContents (classesDir, tmp));
     assert(tmp.size() == 0);
 }
 

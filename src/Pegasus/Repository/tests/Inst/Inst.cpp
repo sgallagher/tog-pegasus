@@ -23,6 +23,9 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
+// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
+//               (carolann_graves@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -34,9 +37,13 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+static const char* tmpDir;
+
 void _Test01()
 {
-    const char PATH[] = "X.idx";
+    String indexPath (tmpDir);
+    indexPath += "/X.idx";
+    const char* PATH = indexPath.allocateCString ();
     Uint32 index;
     Uint32 size;
     Uint32 freeCount = 0;
@@ -160,11 +167,15 @@ void _Test01()
             assert(freeFlags[i] == 0);
         }
     }
+
+    delete [] PATH;
 }
 
 void _Test02()
 {
-    const char PATH[] = "X.instances";
+    String instancesPath (tmpDir);
+    instancesPath += "/X.instances";
+    const char* PATH = instancesPath.allocateCString ();
 
     //
     // Append some instances:
@@ -269,10 +280,18 @@ void _Test02()
     assert(memcmp(data.getData(), "AAAAAAAACCCCCCCC", 16) == 0);
     assert(data.size() == 2 * 8);
     data.clear();
+
+    delete [] PATH;
 }
 
 int main(int argc, char** argv)
 {
+    tmpDir = getenv ("PEGASUS_TMP");
+    if (tmpDir == NULL)
+    {
+        tmpDir = ".";
+    }
+
     try
     {
 	_Test01();

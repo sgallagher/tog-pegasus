@@ -11,9 +11,9 @@ SOURCES = Repository2.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	$(RMREPOSITORY) repository
+	$(RMREPOSITORY) $(TMP_DIR)/repository
 	$(PROGRAM)
-	$(RMREPOSITORY) repository
+	$(RMREPOSITORY) $(TMP_DIR)/repository
 
 poststarttests:
 

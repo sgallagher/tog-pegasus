@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//              (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,12 +36,15 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
+String repositoryRoot;
+
 static const char* _nameSpaceNames[] =
 {
     "aa",
     "aa/bb",
     "aa/bb/cc",
     "lmnop/qrstuv",
+    "root",
     "xx",
     "xx/yy"
 };
@@ -50,14 +54,23 @@ static const Uint32 NUM_NAMSPACE_NAMES =
 
 void test01()
 {
-    FileSystem::removeDirectoryHier("./repository/lmnop#qrstuv");
+    NameSpaceManager nsm (repositoryRoot);
+    //nsm.print (cout);
 
-    NameSpaceManager nsm("./repository");
-    // nsm.print(cout);
+    for (Uint32 j = 0; j < NUM_NAMSPACE_NAMES; j++)
+    {
+        if (_nameSpaceNames[j] != "root")
+        {
+            String dir (repositoryRoot);
+            dir += "/";
+            dir += _nameSpaceNames [j];
 
-    // Create a namespace called "lmnop/qrstuv":
+            FileSystem::removeDirectoryHier (dir);
 
-    nsm.createNameSpace("lmnop/qrstuv");
+            // Create a namespace
+            nsm.createNameSpace (_nameSpaceNames[j]);
+        }
+    }
 
     Array<String> nameSpaceNames;
     nsm.getNameSpaceNames(nameSpaceNames);
@@ -75,11 +88,27 @@ void test01()
     nsm.getNameSpaceNames(nameSpaceNames);
     assert(nameSpaceNames.size() == NUM_NAMSPACE_NAMES - 1);
 
+    String outPath;
+    nsm.createClass ("aa/bb", "MyClass", "", outPath);
     String classFilePath = nsm.getClassFilePath("aa/bb", "MyClass");
+    String cfp (repositoryRoot);
+    cfp += "/aa#bb/classes/MyClass.#";
+    assert (classFilePath == cfp);
 }
 
 int main()
 {
+    const char* tmpDir = getenv ("PEGASUS_TMP");
+    if (tmpDir == NULL)
+    {
+        repositoryRoot = ".";
+    }
+    else
+    {
+        repositoryRoot = tmpDir;
+    }
+    repositoryRoot += "/repository";
+
     try 
     {
 	test01();
@@ -87,6 +116,7 @@ int main()
     catch (Exception& e)
     {
 	cout << e.getMessage() << endl;
+        exit (1);
     }
 
     cout << "+++++ passed all tests" << endl;

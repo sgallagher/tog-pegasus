@@ -23,7 +23,8 @@
 //
 // Author:
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//              (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -137,9 +138,21 @@ void TestAssociations(CIMRepository& r)
 
 int main()
 {
+    String repositoryRoot;
+    const char* tmpDir = getenv ("PEGASUS_TMP");
+    if (tmpDir == NULL)
+    {
+        repositoryRoot = ".";
+    }
+    else
+    {
+        repositoryRoot = tmpDir;
+    }
+    repositoryRoot += "/repository";
+
     try
     {
-	CIMRepository r("./repository");
+	CIMRepository r (repositoryRoot);
 
 	// TestAssociations(r);
     }

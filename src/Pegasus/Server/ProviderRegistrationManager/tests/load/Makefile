@@ -8,7 +8,7 @@
 ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
 
-REPOSITORYDIR = /tmp
+REPOSITORYDIR = $(TMP_DIR)
 NAMESPACENAME = root/PG_InterOp
 NAMESPACEDIR = $(REPOSITORYDIR)/repository/root\#PG_InterOp
 

@@ -36,9 +36,11 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+String repositoryRoot;
+
 void TestNameSpaces()
 {
-    CIMRepository r("./repository");
+    CIMRepository r (repositoryRoot);
 
     r.createNameSpace("namespace0");
     r.createNameSpace("namespace1");
@@ -73,7 +75,7 @@ void TestCreateClass()
 {
     // -- Create repository and "xyz" namespace:
 
-    CIMRepository r("./repository");
+    CIMRepository r (repositoryRoot);
     const String NS = "xyz";
 
     try
@@ -243,7 +245,8 @@ void TestQualifiers()
 {
     // -- Create repository and "xyz" namespace:
 
-    CIMRepository r("./repository");
+    CIMRepository r (repositoryRoot);
+
     const String NS = "xyz";
 
     try
@@ -276,6 +279,17 @@ void TestQualifiers()
 
 int main()
 {
+    const char* tmpDir = getenv ("PEGASUS_TMP");
+    if (tmpDir == NULL)
+    {
+        repositoryRoot = ".";
+    }
+    else
+    {
+        repositoryRoot = tmpDir;
+    }
+    repositoryRoot += "/repository";
+
     try 
     {
 	TestNameSpaces();

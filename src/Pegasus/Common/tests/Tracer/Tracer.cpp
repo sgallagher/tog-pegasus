@@ -24,11 +24,14 @@
 // Author: Sushma Fernandes (sushma_fernandes@hp.com)
 //
 // Modified By: Jenny Yu (jenny_yu@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <fstream>
 #include <cstring>
+#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 
@@ -43,12 +46,12 @@ PEGASUS_USING_PEGASUS;
 #endif
 
 // Trace files for test purposes
-// Will be created in the current directory
-
-const char* FILE1 = "testtracer1.trace";
-const char* FILE2 = "testtracer2.trace";
-const char* FILE3 = "testtracer1.trace";
-const char* FILE4 = "testtracer4.trace";
+// Will be created in the $(PEGASUS_TMP) directory, or if not set,
+// in the current directory
+const char* FILE1;
+const char* FILE2;
+const char* FILE3;
+const char* FILE4;
 
 // 
 // Reads the last trace message from a given trace file and compares the 
@@ -586,6 +589,29 @@ int main(int argc, char** argv)
     cout << argv[0] << " +++++ passed all tests" << endl;
     return 0;
 #else
+
+    const char* tmpDir = getenv ("PEGASUS_TMP");
+    if (tmpDir == NULL)
+    {
+        tmpDir = ".";
+    }
+    String f1 (tmpDir);
+    f1 += "/testtracer1.trace";
+    ArrayDestroyer <char> f1d (f1.allocateCString ());
+    FILE1 = f1d.getPointer ();
+    String f2 (tmpDir);
+    f2 += "/testtracer2.trace";
+    ArrayDestroyer <char> f2d (f2.allocateCString ());
+    FILE2 = f2d.getPointer ();
+    String f3 (tmpDir);
+    f3 += "/testtracer3.trace";
+    ArrayDestroyer <char> f3d (f3.allocateCString ());
+    FILE3 = f3d.getPointer ();
+    String f4 (tmpDir);
+    f4 += "/testtracer4.trace";
+    ArrayDestroyer <char> f4d (f4.allocateCString ());
+    FILE4 = f4d.getPointer ();
+
     System::removeFile(FILE1);
     System::removeFile(FILE2);
     System::removeFile(FILE3);

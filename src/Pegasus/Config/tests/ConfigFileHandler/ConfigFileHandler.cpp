@@ -23,7 +23,8 @@
 //
 // Author: Nag Boranna(nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company 
+//              (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,8 +46,23 @@ int main()
 	Array<String> values;
         String value;
 
-	ConfigFileHandler _config("cimserver_current.conf",  
-            "cimserver_planned.conf", true);
+        String currentFile;
+        String plannedFile;
+        const char* tmpDir = getenv ("PEGASUS_TMP");
+        if (tmpDir == NULL)
+        {
+            currentFile = ".";
+            plannedFile = ".";
+        }
+        else
+        {
+            currentFile = tmpDir;
+            plannedFile = tmpDir;
+        }
+        currentFile += "/cimserver_current.conf";
+        plannedFile += "/cimserver_planned.conf";
+
+	ConfigFileHandler _config (currentFile, plannedFile, true);
 
 	_config.loadAllConfigProperties();
 	

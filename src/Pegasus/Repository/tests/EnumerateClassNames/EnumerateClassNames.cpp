@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//              (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,6 +56,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 const String NAMESPACE = "/zzz";
+String repositoryRoot;
 
 void print(const Array<String>& array)
 {
@@ -66,7 +68,7 @@ void print(const Array<String>& array)
 
 void TestCase1()
 {
-    CIMRepository r("./repository");
+    CIMRepository r (repositoryRoot);
 
     // Enumerate the class names:
 
@@ -90,7 +92,7 @@ void TestCase1()
 
 void TestCase2()
 {
-    CIMRepository r("./repository");
+    CIMRepository r (repositoryRoot);
 
     // Enumerate the class names:
 
@@ -122,7 +124,7 @@ void TestCase2()
 
 void TestCase3()
 {
-    CIMRepository r("./repository");
+    CIMRepository r (repositoryRoot);
 
     // Enumerate the class names:
 
@@ -144,7 +146,7 @@ void TestCase3()
 
 void TestCase4()
 {
-    CIMRepository r("./repository");
+    CIMRepository r (repositoryRoot);
 
     // Enumerate the class names:
 
@@ -179,7 +181,19 @@ static void CreateClass(
 
 int main()
 {
-    CIMRepository r("./repository");
+    const char* tmpDir;
+    tmpDir = getenv ("PEGASUS_TMP");
+    if (tmpDir == NULL)
+    {
+        repositoryRoot = ".";
+    }
+    else
+    {
+        repositoryRoot = tmpDir;
+    }
+    repositoryRoot += "/repository";
+
+    CIMRepository r (repositoryRoot);
 
     try 
     {

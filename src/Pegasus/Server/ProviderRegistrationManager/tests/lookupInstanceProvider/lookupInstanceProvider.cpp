@@ -23,6 +23,9 @@
 //
 // Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//              (carolann_graves@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -175,7 +178,18 @@ Boolean TestLookupInstanceProvider(ProviderRegistrationManager prmanager)
 
 int main(int argc, char** argv)
 {
-    CIMRepository r("/tmp/repository") ;
+    const char* tmpDir = getenv ("PEGASUS_TMP");
+    String repositoryRoot;
+    if (tmpDir == NULL)
+    {
+        repositoryRoot = ".";
+    }
+    else
+    {
+        repositoryRoot = tmpDir;
+    }
+    repositoryRoot += "/repository";
+    CIMRepository r (repositoryRoot) ;
     ProviderRegistrationManager prmanager(&r);
 
     try

@@ -301,6 +301,12 @@ void GetOptions(
     char** argv,
     const String& pegasusHome)
 {
+    const char* tmpDir = getenv ("PEGASUS_TMP");
+    if (tmpDir == NULL)
+    {
+        tmpDir = ".";
+    }
+
     static struct OptionRow optionsTable[] =
     {
         //optionname defaultvalue rqd  type domain domainsize clname hlpmsg
@@ -329,7 +335,7 @@ void GetOptions(
          {"summary", "false", false, Option::BOOLEAN, 0, 0, "s", 
                       "Print only a summary count at end"},
 
-         {"location", ".", false, Option::STRING, 0, 0, "l", 
+         {"location", tmpDir, false, Option::STRING, 0, 0, "l", 
         "Repository directory (/run if repository directory is /run/repository"},
 
          {"client", "false", false, Option::BOOLEAN, 0, 0, "c", 

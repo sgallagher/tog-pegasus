@@ -16,9 +16,9 @@ SOURCES = AuthenticationManager.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	$(MKDIRHIER) ./repository
+	$(MKDIRHIER) $(TMP_DIR)/repository
 	$(PROGRAM)
-	$(RMDIRHIER) ./repository
+	$(RMDIRHIER) $(TMP_DIR)/repository
 
 poststarttests:
 

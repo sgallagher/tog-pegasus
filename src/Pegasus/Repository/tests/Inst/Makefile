@@ -11,11 +11,11 @@ SOURCES = Inst.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	$(RM) X.idx
-	$(RM) X.instances
+	$(RM) $(TMP_DIR)/X.idx
+	$(RM) $(TMP_DIR)/X.instances
 	Inst
-	$(RM) X.idx
-	$(RM) X.instances
+	$(RM) $(TMP_DIR)/X.idx
+	$(RM) $(TMP_DIR)/X.instances
 
 poststarttests:
 

@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//              (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,9 +35,22 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+static const char* tmpDir;
+
 void test()
 {
-    CIMRepository r("./repository");
+    String repositoryRoot;
+    if (tmpDir == NULL)
+    {
+        repositoryRoot = ".";
+    }
+    else
+    {
+        repositoryRoot = tmpDir;
+    }
+    repositoryRoot += "/repository";
+
+    CIMRepository r (repositoryRoot);
 
     // Create a namespace:
 
@@ -92,6 +106,8 @@ void test()
 
 int main()
 {
+    tmpDir = getenv ("PEGASUS_TMP");
+
     try 
     {
 	test();

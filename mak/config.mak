@@ -23,6 +23,12 @@ pegasus_root_undefined:
 	@ exit 1
 endif
 
+ifdef PEGASUS_TMP
+  TMP_DIR = $(subst \,/,$(PEGASUS_TMP))
+else
+  TMP_DIR = .
+endif
+
 VALID_PLATFORMS = \
     WIN32_IX86_MSVC \
     LINUX_IX86_GNU \

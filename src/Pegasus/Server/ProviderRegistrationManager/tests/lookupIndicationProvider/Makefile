@@ -16,5 +16,6 @@ include $(ROOT)/mak/program.mak
 tests:
 	@$(MAKE) -f../load/Makefile localrep
 	@$(PROGRAM)
+	$(RMREPOSITORY) $(TMP_DIR)/repository
 
 poststarttests:

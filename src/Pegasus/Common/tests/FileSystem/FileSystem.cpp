@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//              (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,6 +34,7 @@
 #include <cstdio>
 
 
+#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/FileSystem.h>
 
 PEGASUS_USING_PEGASUS;
@@ -43,6 +45,11 @@ static char * verbose;
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
+    const char* tmpDir = getenv ("PEGASUS_TMP");
+    if (tmpDir == NULL)
+    {
+        tmpDir = ".";
+    }
     String path;
     assert(FileSystem::getCurrentDirectory(path));
     // Need to add test to confirm that the directory
@@ -101,10 +108,18 @@ int main(int argc, char** argv)
     // Test the Create and delete functions
     // Creates directories and files and deletes them.
     {
-	String t = "TestDirectory";
-	String t1 = "TestDirectory2";
-	const char* f = "TestFile.txt";
-	const char* f1 = "TestFile1.txt";
+        String t (tmpDir);
+        t += "/TestDirectory";
+        String t1 (tmpDir);
+        t1 += "/TestDirectory2";
+        String tf (tmpDir);
+        tf += "/TestFile.txt";
+        ArrayDestroyer <char> tfd (tf.allocateCString ());
+        const char* f = tfd.getPointer ();
+        String tf1 (tmpDir);
+        tf1 += "/TestFile1.txt";
+        ArrayDestroyer <char> tf1d (tf1.allocateCString ());
+        const char* f1 = tf1d.getPointer ();
 
 	FileSystem::makeDirectory(t);
 	assert(FileSystem::isDirectory(t));
@@ -133,10 +148,9 @@ int main(int argc, char** argv)
 	of2 << "test" << endl;
 	of2.close();
 	assert(FileSystem::exists(f1));
-        
+
 	// Create a second level directory
 	FileSystem::makeDirectory(t1);
-
 
 	// Create files in this dir
 	if (!FileSystem::changeDirectory(t1))
@@ -161,8 +175,14 @@ int main(int argc, char** argv)
     }
     // Test renameFile:
     {
-	const char FILE1[] = "file1.txt";
-	const char FILE2[] = "file2.txt";
+        String rf1 (tmpDir);
+        rf1 += "/file1.txt";
+        ArrayDestroyer <char> rf1d (rf1.allocateCString ());
+        const char* FILE1 = rf1d.getPointer ();
+        String rf2 (tmpDir);
+        rf2 += "/file2.txt";
+        ArrayDestroyer <char> rf2d (rf2.allocateCString ());
+        const char* FILE2 = rf2d.getPointer ();
 
   	ofstream of1(FILE1);
 	of1 << "test" << endl;

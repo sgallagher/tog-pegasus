@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,6 +37,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 static char * verbose;
+static const char* tmpDir;
 
 /** Test of the namespace functions for the repository.
 This test creates a set of namespaces in a local repository
@@ -47,7 +50,18 @@ the makefile.
 */
 void test()
 {
-    CIMRepository r("./repository");
+    String repositoryRoot;
+    if (tmpDir == NULL)
+    {
+        repositoryRoot = ".";
+    }
+    else
+    {
+        repositoryRoot = tmpDir;
+    }
+    repositoryRoot += "/repository";
+
+    CIMRepository r (repositoryRoot);
 
     try
     {
@@ -81,7 +95,7 @@ void test()
 	BubbleSort(arr1);
 	assert(arr1 == arr2);
 
-        NameSpaceManager nsm("./repository");
+        NameSpaceManager nsm (repositoryRoot);
    
         if (verbose)
             nsm.print(cout);
@@ -104,6 +118,7 @@ void test()
 int main()
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
+    tmpDir = getenv ("PEGASUS_TMP");
 
     try 
     {

@@ -4,8 +4,9 @@ ROOT = ../../..
 
 include $(ROOT)/mak/config.mak
 
+# removed _NamespaceProvider
+
 DIRS = \
-	__NamespaceProvider \
 	ConfigSettingProvider \
 	UserManagerProvider \
 	PG_RegistrationProvider \

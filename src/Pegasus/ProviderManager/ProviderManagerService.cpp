@@ -708,7 +708,7 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
         // make target object path
         CIMObjectPath objectPath(
             System::getHostName(),
-            request->nameSpace.getString(),
+            request->nameSpace,
             request->instanceName.getClassName(),
             request->instanceName.getKeyBindings());
 

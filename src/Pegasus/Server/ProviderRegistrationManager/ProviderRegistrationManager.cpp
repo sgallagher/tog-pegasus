@@ -25,6 +25,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Dave Rosckes (rosckes@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -774,6 +775,11 @@ CIMObjectPath ProviderRegistrationManager::createInstance(
     try
     {
 	cimRef = _createInstance(ref, instance, OP_CREATE);
+	
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	            "ProviderRegistrationManager::createInstance - Create instance object path: $0",
+	            cimRef.toString());	
+	
 	return (cimRef);
     }
     catch (CIMException & exception)
@@ -796,6 +802,10 @@ void ProviderRegistrationManager::deleteInstance(
     try
     {
 	_deleteInstance(instanceReference, OP_DELETE);
+
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	            "ProviderRegistrationManager::deleteInstance - delete instance object path: $0",
+	            instanceReference.toString());	
     }
 
     catch (CIMException & exception)

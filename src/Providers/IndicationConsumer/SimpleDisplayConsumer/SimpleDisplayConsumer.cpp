@@ -318,6 +318,26 @@ void SimpleDisplayConsumer::consumeIndication(
                         break;
                     }
 
+                 case CIMTYPE_REFERENCE:
+                     {
+                         //
+                         //  ATTN: reference properties are not allowed in
+                         //        indications; print to log or console
+                         //
+                         CIMObjectPath propertyValueReference;
+                         propertyValue.get(propertyValueReference);
+                         if (printOnConsole)
+                         {
+                             cout << propertyValueReference.toString() << endl;
+                         }
+                         else
+                         {
+                             fprintf(_indicationLogHandle, "%s\n", (const char *)
+                                     propertyValueReference.toString().getCString());
+                         }
+                         break;
+                     }
+
             }
         }
     }

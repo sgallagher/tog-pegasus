@@ -215,9 +215,6 @@ static Uint32 _nextUID = 0;
 // Vars for the indication consumer provider
 static Uint8 consumerStatus = 1;
 
-// Indicates whether PEGASUS_USE_DEFAULT_MESSAGES env var is set
-const char * env = NULL;
-
 // Constructor - initializes parameters for the MessageLoader that won't
 // be changing.
 LocalizedProvider::LocalizedProvider() :
@@ -280,8 +277,6 @@ void LocalizedProvider::initialize(CIMOMHandle & cimom)
    _instances.append(instance3);	
    _instanceNames.append(reference3);
    _instanceLangs.append(ContentLanguages::EMPTY);	
-
-   env = getenv("PEGASUS_USE_DEFAULT_MESSAGES");
 
    mutex.unlock();
 }
@@ -361,56 +356,53 @@ void LocalizedProvider::enumerateInstances(
 	handler.processing();
 
         // The only purpose for this next section of code is to
-        // test multi-threading in ICU when loading messages.
+        // test multi-threading in the MessageLoader when loading messages.
+	// Note: for r2.4, MessageLoader uses ICU to load messages, so this
+	// test basically tests ICU multi-threading.
         // The g11ntest client pounds on the enumerateInstances
         // request in different languages.  Running multiple
         // g11ntest clients will cause this code to execute
         // in simultaneous threads.
 #ifdef PEGASUS_HAS_MESSAGES
+	// Message loading (ICU) is enabled.
+	String testLang;
+        AcceptLanguages testAL;
+	MessageLoaderParms testParms(RB_STRING_MSGID, RB_STRING_DFT);
+	testParms.msg_src_path = RESOURCEBUNDLE;
+	testParms.useThreadLocale = false;
+	String testMsg;
+	String msgLang;
 
-        // TODO: remove this check once the wbemexec test cases are compatible 
-        // with ICU messages
-        if (env == NULL)
-        {
-           String testLang;
-           AcceptLanguages testAL;
-           MessageLoaderParms testParms(RB_STRING_MSGID, RB_STRING_DFT);
-           testParms.msg_src_path = RESOURCEBUNDLE;
-           testParms.useThreadLocale = false;
-           String testMsg;
-           String msgLang;
+	for(Uint32 q = 0; q < 10; q++)
+	{
+	  switch (q % 3)
+	  {
+	    case 0:
+	      testLang = "de";
+	      msgLang = "DE";
+	      break;
 
-           for(Uint32 q = 0; q < 10; q++)
-           {
-              switch (q % 3)
-              {
-                  case 0:
-                     testLang = "de";
-                     msgLang = "DE";
-                     break;
+	    case 1:
+	      testLang = "fr";
+	      msgLang = "FR";
+	      break;
 
-                  case 1:
-                     testLang = "fr";
-                     msgLang = "FR";
-                     break;
+	    case 2:
+	      testLang = "es";
+	      msgLang = "ES";
+	      break;
+	  }
 
-                  case 2:
-                     testLang = "es";
-                     msgLang = "ES";
-                     break;
-               }
+	  testAL.clear();
+	  testAL.add(AcceptLanguageElement(testLang, float(1.0)));
+	  testParms.acceptlanguages = testAL;
+	  testMsg = MessageLoader::getMessage(testParms);	
 
-               testAL.clear();
-               testAL.add(AcceptLanguageElement(testLang, float(1.0)));
-               testParms.acceptlanguages = testAL;	
-               testMsg = MessageLoader::getMessage(testParms);	
-
-               if (PEG_NOT_FOUND == testMsg.find(msgLang))
-               {
-                   throw CIMOperationFailedException("Error in ICU multithread test");
-               }
-           }  // end for
-        }  // end if env
+	  if (PEG_NOT_FOUND == testMsg.find(msgLang))
+	  {
+	    throw CIMOperationFailedException("Error in ICU multithread test");
+	  }
+	}  // end for
 #endif 
 
         Array<CIMInstance> foundInstances;
@@ -851,6 +843,25 @@ void LocalizedProvider::invokeMethod(
 	  // indication consumer provider
 	  handler.deliver(CIMValue(consumerStatus));
 	}
+	else if (methodName.equal ("setDefaultMessageLoading"))
+	{
+	  // This method is used to change the _useDefaultMsg variable in 
+	  // the MessageLoader, so that messages can be loaded from the
+	  // resource bundles even though $PEGASUS_USE_DEFAULT_MESSAGES is
+	  // set. When ICU is used, $PEGASUS_USE_DEFAULT_MESSAGES is set 
+	  // during make poststarttests so that default messages are returned
+	  // by the server and the wbemexec tests can pass (these expect the default
+	  // messages).  However, when g11ntest is run, we want messages to be
+	  // loaded from the bundles if ICU is enabled.
+	  Boolean newSetting;
+	  CIMValue newVal = inParameters[0].getValue();
+	  newVal.get( newSetting );
+	  
+          Boolean oldSetting = MessageLoader::_useDefaultMsg;
+	  MessageLoader::_useDefaultMsg = newSetting;
+
+	  handler.deliver(CIMValue((Boolean)oldSetting));
+	}
         else
         {
             throw CIMMethodNotFoundException(methodName.getString());
@@ -1132,7 +1143,8 @@ ContentLanguages LocalizedProvider::_addResourceBundleProp(
 {
 	// Get the string out of the resource bundle in one
 	// of the languages requested by the caller of this function.
-	msgParms.acceptlanguages = acceptLangs;	
+	msgParms.acceptlanguages = acceptLangs;
+
 	String localizedMsgProp = MessageLoader::getMessage(msgParms);				
 
 	// Replace the string into the instance
@@ -1156,7 +1168,7 @@ ContentLanguages LocalizedProvider::_addResourceBundleProp(
 	msgParms.acceptlanguages = AcceptLanguages::EMPTY;	
 	msgParms.useThreadLocale = true;  // Don't really need to do this
 					// because the default is true
-									
+
 	// Load the string from the resource bundle						
 	String localizedMsgProp = MessageLoader::getMessage(msgParms);				
 
@@ -1196,7 +1208,7 @@ ContentLanguages LocalizedProvider::_addContentLanguagesProp(CIMInstance & insta
 						// because the default is true	
 
 	// Load the string from the resource bundle		
-	String localizedMsgProp = MessageLoader::getMessage(contentLangParms);	
+	String localizedMsgProp = MessageLoader::getMessage(contentLangParms);
 
 	// Remove the old string property 
 	Uint32 index = instance.findProperty(CONTENTLANG_PROP);
@@ -1321,13 +1333,9 @@ void LocalizedProvider::_validateCIMOMHandleResponse(String expectedLang)
   catch (Exception &)
   {
     // No ContentLanguageListContainer found.
-    // If ICU is enabled, 
-    // and PEGASUS_USE_DEFAULT_MESSAGES is not set,
-    // then we must get a ContentLanguages in the response
+    // If ICU is enabled, then we must get a ContentLanguages in the response.
 #if defined PEGASUS_HAS_MESSAGES 
-    if (env == NULL)
-      // $PEGASUS_USE_DEFAULT_MESSAGES is not set
-      throw CIMOperationFailedException("Did not get ContentLanguageListContainer from CIMOMHandle");
+    throw CIMOperationFailedException("Did not get ContentLanguageListContainer from CIMOMHandle");
 #endif
   }		     
 
@@ -1335,13 +1343,8 @@ void LocalizedProvider::_validateCIMOMHandleResponse(String expectedLang)
   ContentLanguages expectedCL("en");  // default to en because this provider sets 
                                       // C-L to en by default on getInstance
 #if defined PEGASUS_HAS_MESSAGES
-  if (env == NULL)
-  {
-    // ICU is being used and...
-    // $PEGASUS_USE_DEFAULT_MESSAGES is not set...
-    // then we expect back a language
-    expectedCL = ContentLanguages(expectedLang);
-  }
+  // If ICU is being used, then we expect back a language other than the default en.
+  expectedCL = ContentLanguages(expectedLang);
 #endif
 
   // Now, the compare

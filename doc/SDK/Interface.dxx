@@ -1,8 +1,0 @@
-  //@{
-    //@Include: ClientInterface.dxx
-    //@Include: ProviderInterface.dxx
-    //@Include: IndicationConsumerInterface.dxx
-    //@Include: CommonInterface.dxx
-    //@Include: CMPI_C_Interface.dxx
-    //@Include: CMPIInterface.dxx
-  //@}

@@ -32,7 +32,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/MessageQueue.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -22,7 +22,7 @@ DYNAMIC_LIBRARIES = \
 
 PRE_DEPEND_INCLUDES = -I./depends
 
-SOURCES = Dispatcher.cpp CIMServer.cpp ProviderTable.cpp
+SOURCES = ClientConnection.cpp Dispatcher.cpp CIMServer.cpp ProviderTable.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

@@ -376,6 +376,9 @@ void drive_get_misc_functions()
       String _date("20040811105625.000000-360");
       CIMDateTime date(_date);
       CQLValue a6(date);
+      String _date1("20040811105626.000000-360");
+      CIMDateTime date1(_date1);
+      CQLValue a61(date1);
 
       String opStr("MyClass.z=true,y=1234,x=\"Hello World\"");
       CIMObjectPath op(opStr);
@@ -393,6 +396,8 @@ void drive_get_misc_functions()
       assert(a4.getString() == String("Hellow"));
       assert(a5.getBool() == Boolean(true));
       assert(a6.getDateTime() == CIMDateTime(_date));
+      assert(a6 != a61);
+      assert(a6 < a61);
       assert(a7.getReference() == 
             CIMObjectPath(opStr));
 

@@ -692,7 +692,7 @@ Boolean CQLValueRep::operator<(const CQLValueRep& x)
 	CIMDateTime tmpS2;
 	_theValue.get(tmpS1);
 	x._theValue.get(tmpS2);
-   //	return tmpS1 < tmpS2; datetime
+   	return tmpS1 < tmpS2;
       }
       break;
 

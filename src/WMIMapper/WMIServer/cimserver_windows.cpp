@@ -196,7 +196,7 @@ static void __cdecl cimserver_windows_thread(void *parm)
 
   // Put server start message to the logger
   Logger::put(Logger::STANDARD_LOG, PEGASUS_SERVICE_NAME, Logger::INFORMATION,
-              "Started $0 version $1.", PEGASUS_NAME, PEGASUS_VERSION);
+      "Started $0 version $1.", PEGASUS_PRODUCT_NAME, PEGASUS_PRODUCT_VERSION);
 
    // try loop to bind the address, and run the server
   try

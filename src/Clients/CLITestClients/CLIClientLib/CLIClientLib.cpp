@@ -1644,7 +1644,7 @@ void showCommands(const char* pgmName)
 void showVersion(const char* pgmName, OptionManager& om)
 {
     cout << endl << pgmName << " V"<< version << " " 
-        " using Pegasus version " << PEGASUS_VERSION << endl;
+        " using Pegasus version " << PEGASUS_PRODUCT_VERSION << endl;
 }
 
 void showOptions(const char* pgmName, OptionManager& om)

@@ -421,7 +421,7 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
     switch (c)
       {
       case VERSIONFLAG:  
-          cerr << "Version " << PEGASUS_VERSION << endl;
+          cerr << "Version " << PEGASUS_PRODUCT_VERSION << endl;
           return(-1);
           break;
       case HELPFLAG:  

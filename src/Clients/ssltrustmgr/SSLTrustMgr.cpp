@@ -2519,7 +2519,7 @@ Uint32 SSLTrustMgr::execute (
     }
     else if(_operationType == _OPERATION_TYPE_VERSION)
     {
-        errPrintWriter << "Version " << PEGASUS_VERSION << endl;
+        errPrintWriter << "Version " << PEGASUS_PRODUCT_VERSION << endl;
         return (RC_SUCCESS);
     }
 

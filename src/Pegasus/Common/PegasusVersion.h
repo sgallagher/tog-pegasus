@@ -29,6 +29,7 @@
 //
 // Modified By: Jenny Yu (jenny_yu@hp.com)
 //              Warren Otsuka (warren.otsuka@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,16 +40,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-const char PEGASUS_NAME[] = "CIM Server ";
-const char PEGASUS_VERSION[] = "2.4";
-const char PEGASUS_STATUS[] = "" ;
-
-#if defined(PLATFORM_VERSION_SUPPORTED)
-#  if defined(PEGASUS_PLATFORM_HPUX_ACC)
-#    include <Pegasus/Common/Version_HPUX_ACC.h>
-#  elif defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-#    include <Pegasus/Common/Version_Linux_IA64.h>
-#  endif
+#ifdef PEGASUS_OVERRIDE_PRODUCT_ID
+# include <Pegasus/Common/ProductVersion.h>
+#else
+# define PEGASUS_PRODUCT_NAME    "CIM Server"
+# define PEGASUS_PRODUCT_VERSION "2.4"
+# define PEGASUS_PRODUCT_STATUS  ""
 #endif
 
 PEGASUS_NAMESPACE_END

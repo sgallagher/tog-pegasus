@@ -276,6 +276,16 @@ ifdef PEGASUS_DISABLE_CQL
     DEFINES += -DPEGASUS_DISABLE_CQL
 endif
 
+#
+# PEP 186
+# Allow override of product name/version/status.  A file
+# pegasus/src/Pegasus/Common/ProductVersion.h must exist when this
+# flag is defined.
+#
+ifdef PEGASUS_OVERRIDE_PRODUCT_ID
+    DEFINES += -DPEGASUS_OVERRIDE_PRODUCT_ID
+endif
+
 
 # setup function to enable SLP functions in the Pegasus standard compile
 # Set the environment varaible PEGASUS_ENABLE_SLP to enable SLP code.  

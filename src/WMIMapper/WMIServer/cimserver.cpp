@@ -243,11 +243,7 @@ void PrintHelp(const char* arg0)
     usage.append ("                    - sets CIM Server configuration property\n");
 
     cout << endl;
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-    cout << PLATFORM_PRODUCT_NAME << " " << PLATFORM_PRODUCT_VERSION << endl;
-#else
-    cout << PEGASUS_NAME << PEGASUS_VERSION << endl;
-#endif
+    cout << PEGASUS_PRODUCT_NAME << " " << PEGASUS_PRODUCT_VERSION << endl;
     cout << endl;
     cout << usage << endl;
 }
@@ -475,11 +471,7 @@ int main(int argc, char** argv)
                 if (*option == OPTION_VERSION &&
                     strlen(option) == 1)
                 {
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-                    cout << PLATFORM_PRODUCT_VERSION << endl;
-#else
-                    cout << PEGASUS_VERSION << endl;
-#endif
+                    cout << PEGASUS_PRODUCT_VERSION << endl;
                     exit(0);
                 }
                 //
@@ -845,7 +837,7 @@ int main(int argc, char** argv)
     // Put out startup up message.
 #if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) && \
 !defined(PEGASUS_OS_OS400)
-    cout << PEGASUS_NAME << PEGASUS_VERSION << endl;
+    cout << PEGASUS_PRODUCT_NAME << " " << PEGASUS_PRODUCT_VERSION << endl;
     cout << "Built " << __DATE__ << " " << __TIME__ << endl;
     cout <<"Starting..."
 	 << (useSLP ? " SLP reg. " : " No SLP ")
@@ -1002,17 +994,10 @@ int main(int argc, char** argv)
 #endif
 
         // Put server started message to the logger
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-                    "Started $0 version $1.",
-                    PLATFORM_PRODUCT_NAME, PLATFORM_PRODUCT_VERSION);
-#else
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-                    "Started $0 version $1.",
-                    PEGASUS_NAME, PEGASUS_VERSION);
-#endif
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
+            Logger::INFORMATION, "Started $0 version $1.",
+            PEGASUS_PRODUCT_NAME, PEGASUS_PRODUCT_VERSION);
 
-	
         //
         // Loop to call CIMServer's runForever() method until CIMServer
         // has been shutdown
@@ -1025,14 +1010,11 @@ int main(int argc, char** argv)
         //
         // normal termination
 	//
+
         // Put server shutdown message to the logger
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-            "$0 stopped.", PLATFORM_PRODUCT_NAME);
-#else
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-            "$0 stopped.", PEGASUS_NAME);
-#endif
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
+            Logger::INFORMATION,
+            "$0 stopped.", PEGASUS_PRODUCT_NAME);
 
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
         //

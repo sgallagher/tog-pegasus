@@ -451,7 +451,7 @@ int main(int argc, char** argv)
     // Check for Version flag and print version message
     if(om.isTrue("version"))
     {
-        cout << "Pegasus Version " << PEGASUS_VERSION 
+        cout << "Pegasus Version " << PEGASUS_PRODUCT_VERSION 
                 << " " << argv[0] << " version 1.0 " << endl;
         return 0;
     }

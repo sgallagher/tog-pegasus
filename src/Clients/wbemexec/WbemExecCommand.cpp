@@ -1093,7 +1093,7 @@ Uint32 WbemExecCommand::execute (ostream& outPrintWriter,
     }
     else if ( _operationType == OPERATION_TYPE_VERSION )
     {
-        cerr << "Version " << PEGASUS_VERSION << endl;
+        cerr << "Version " << PEGASUS_PRODUCT_VERSION << endl;
         return (RC_SUCCESS);
     }
     try

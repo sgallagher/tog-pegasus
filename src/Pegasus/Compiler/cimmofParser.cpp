@@ -339,7 +339,7 @@ cimmofParser::parse()
       {
 	  cout << "<?xml version=\"1.0\"?>" << endl;
 	  cout << "<!-- Open Group Pegasus CIM Compiler V "
-	       << PEGASUS_VERSION << " Built " << __DATE__
+	       << PEGASUS_PRODUCT_VERSION << " Built " << __DATE__
 	       << " -->" << endl; 
 	  cout << "<CIM CIMVERSION=\"2.0\" DTDVERSION=\"2.0\">" << endl;
 	  cout << "<DECLARATION>" << endl;

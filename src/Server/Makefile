@@ -7,7 +7,6 @@ LIBRARIES = \
     pegserver \
     peguser \
     pegprm \
-    InteropProvider \
     NamespaceProvider \
     pegindicationservice \
     peghandlerservice \
@@ -31,6 +30,7 @@ LIBRARIES = \
 
 ifndef PEGASUS_DISABLE_PERFINST
 LIBRARIES += \
+    InteropProvider \
     CIMOMStatDataProvider
 endif
 

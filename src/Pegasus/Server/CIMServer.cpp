@@ -125,6 +125,16 @@ public:
 	const String& nameSpace);
     //STUB}
 
+    void handleReferenceNames(
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
+
+    void handleReferences(
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
+
     void handleAssociatorNames(
 	XmlParser& parser, 
 	const String& messageId,
@@ -494,6 +504,10 @@ int ServerHandler::handleMethodCall()
     else if (CompareNoCase(iMethodCallName, "EnumerateClassNames") == 0)
 	handleEnumerateClassNames(parser, messageId, nameSpace);
     //STUB}
+    else if (CompareNoCase(iMethodCallName, "References") == 0)
+	handleReferences(parser, messageId, nameSpace);
+    else if (CompareNoCase(iMethodCallName, "ReferenceNames") == 0)
+	handleReferenceNames(parser, messageId, nameSpace);
     else if (CompareNoCase(iMethodCallName, "AssociatorNames") == 0)
 	handleAssociatorNames(parser, messageId, nameSpace);
     else if (CompareNoCase(iMethodCallName, "Associators") == 0)
@@ -775,6 +789,91 @@ void ServerHandler::handleEnumerateClassNames(
     outputN(message);
 }
 //STUB}
+
+//------------------------------------------------------------------------------
+//
+// ServerHandler::handleReferences()
+//
+//------------------------------------------------------------------------------
+
+void ServerHandler::handleReferences(
+    XmlParser& parser, 
+    const String& messageId,
+    const String& nameSpace)
+{
+    // -- Extract the parameters:
+
+    CIMReference objectName;
+    String resultClass;
+    String role;
+    Boolean includeQualifiers = false;
+    Boolean includeClassOrigin = false;
+    Array<String> propertyList;
+
+    // ATTN-B: handle the property list!
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "ObjectName") == 0)
+	{
+	    XmlReader::getObjectNameElement(parser, objectName);
+	}
+	else if (CompareNoCase(name, "ResultClass") == 0)
+	{
+	    XmlReader::getClassNameElement(parser, resultClass, true);
+	}
+	else if (CompareNoCase(name, "Role") == 0)
+	{
+	    XmlReader::getStringValueElement(parser, role, true);
+	}
+	else if (CompareNoCase(name, "IncludeQualifiers") == 0)
+	{
+	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
+	}
+	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
+	{
+	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
+	}
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    Array<CIMObjectWithPath> objectWithPathArray;
+    
+    try
+    {
+	objectWithPathArray = _dispatcher->references(
+	    nameSpace,
+	    objectName,
+	    resultClass,
+	    role,
+	    includeQualifiers,
+	    includeClassOrigin,
+	    propertyList);
+    }
+    catch (CIMException& e)
+    {
+	sendError(messageId, "References", 
+	    e.getCode(), e.codeToString(e.getCode()));
+	return;
+    }
+    catch (Exception&)
+    {
+	sendError(messageId, "References", CIMException::FAILED, 
+	    CIMException::codeToString(CIMException::FAILED));
+	return;
+    }
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < objectWithPathArray.size(); i++)
+	objectWithPathArray[i].toXml(body);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"References", messageId, body);
+
+    outputN(message);
+}
 
 //------------------------------------------------------------------------------
 //
@@ -1621,7 +1720,7 @@ void ServerHandler::handleAssociators(
     }
 
     Array<CIMObjectWithPath> objectWithPathArray;
-    
+
     try
     {
 	objectWithPathArray = _dispatcher->associators(
@@ -1651,19 +1750,7 @@ void ServerHandler::handleAssociators(
     Array<Sint8> body;
 
     for (Uint32 i = 0; i < objectWithPathArray.size(); i++)
-    {
-	CIMReference& r = objectWithPathArray[i].getReference();
-
-	// ATTN-A: get the host name here!
-
-	if (r.getHost().size() == 0)
-	    r.setHost(System::getHostName());
-
-	if (r.getNameSpace().size() == 0)
-	    r.setNameSpace(nameSpace);
-
 	objectWithPathArray[i].toXml(body);
-    }
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"Associators", messageId, body);
@@ -1689,8 +1776,6 @@ void ServerHandler::handleAssociatorNames(
     String resultClass;
     String role;
     String resultRole;
-
-    // ATTN-B: handle the property list!
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
@@ -1732,13 +1817,13 @@ void ServerHandler::handleAssociatorNames(
     }
     catch (CIMException& e)
     {
-	sendError(messageId, "Associators", 
+	sendError(messageId, "AssociatorNames", 
 	    e.getCode(), e.codeToString(e.getCode()));
 	return;
     }
     catch (Exception&)
     {
-	sendError(messageId, "Associators", CIMException::FAILED, 
+	sendError(messageId, "AssociatorNames", CIMException::FAILED, 
 	    CIMException::codeToString(CIMException::FAILED));
 	return;
     }
@@ -1747,16 +1832,6 @@ void ServerHandler::handleAssociatorNames(
 
     for (Uint32 i = 0; i < objectPaths.size(); i++)
     {
-	CIMReference& r = objectPaths[i];
-
-	// Fill out incomplete object names (need host and namespace):
-
-	if (r.getHost().size() == 0)
-	    r.setHost(System::getHostName());
-
-	if (r.getNameSpace().size() == 0)
-	    r.setNameSpace(nameSpace);
-
 	body << "<OBJECTPATH>\n";
 	objectPaths[i].toXml(body, false);
 	body << "</OBJECTPATH>\n";
@@ -1764,6 +1839,81 @@ void ServerHandler::handleAssociatorNames(
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"AssociatorNames", messageId, body);
+
+    outputN(message);
+}
+
+//------------------------------------------------------------------------------
+//
+// ServerHandler::handleReferenceNames()
+//
+//------------------------------------------------------------------------------
+
+void ServerHandler::handleReferenceNames(
+    XmlParser& parser, 
+    const String& messageId,
+    const String& nameSpace)
+{
+    // -- Extract the parameters:
+
+    CIMReference objectName;
+    String assocClass;
+    String resultClass;
+    String role;
+    String resultRole;
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (CompareNoCase(name, "ObjectName") == 0)
+	{
+	    XmlReader::getObjectNameElement(parser, objectName);
+	}
+	else if (CompareNoCase(name, "ResultClass") == 0)
+	{
+	    XmlReader::getClassNameElement(parser, resultClass, true);
+	}
+	else if (CompareNoCase(name, "Role") == 0)
+	{
+	    XmlReader::getStringValueElement(parser, role, true);
+	}
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    Array<CIMReference> objectPaths;
+    
+    try
+    {
+	objectPaths = _dispatcher->referenceNames(
+	    nameSpace,
+	    objectName,
+	    resultClass,
+	    role);
+    }
+    catch (CIMException& e)
+    {
+	sendError(messageId, "ReferenceNames", 
+	    e.getCode(), e.codeToString(e.getCode()));
+	return;
+    }
+    catch (Exception&)
+    {
+	sendError(messageId, "ReferenceNames", CIMException::FAILED, 
+	    CIMException::codeToString(CIMException::FAILED));
+	return;
+    }
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < objectPaths.size(); i++)
+    {
+	body << "<OBJECTPATH>\n";
+	objectPaths[i].toXml(body, false);
+	body << "</OBJECTPATH>\n";
+    }
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"ReferenceNames", messageId, body);
 
     outputN(message);
 }

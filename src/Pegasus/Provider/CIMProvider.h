@@ -133,7 +133,7 @@ public:
 	const String& role = String::EMPTY,
 	const String& resultRole = String::EMPTY);
 
-    virtual Array<CIMInstance> references(
+    virtual Array<CIMObjectWithPath> references(
 	const String& nameSpace,
 	const CIMReference& objectName,
 	const String& resultClass = String::EMPTY,

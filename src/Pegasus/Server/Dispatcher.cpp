@@ -268,7 +268,7 @@ Array<CIMReference> Dispatcher::associatorNames(
 	nameSpace, objectName, assocClass, resultClass, role, resultRole);
 }
 
-Array<CIMInstance> Dispatcher::references(
+Array<CIMObjectWithPath> Dispatcher::references(
     const String& nameSpace,
     const CIMReference& objectName,
     const String& resultClass,
@@ -277,8 +277,8 @@ Array<CIMInstance> Dispatcher::references(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
-    return Array<CIMInstance>();
+    return _repository->references(nameSpace, objectName, resultClass, role, 
+	includeQualifiers, includeClassOrigin, propertyList);
 }
 
 Array<CIMReference> Dispatcher::referenceNames(
@@ -287,8 +287,8 @@ Array<CIMReference> Dispatcher::referenceNames(
     const String& resultClass,
     const String& role)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
-    return Array<CIMReference>();
+    return _repository->referenceNames(
+	nameSpace, objectName, resultClass, role);
 }
 
 CIMValue Dispatcher::getProperty(

@@ -84,6 +84,30 @@ struct EnumerateClassNamesResult
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// ReferencesResult
+//
+////////////////////////////////////////////////////////////////////////////////
+
+struct ReferencesResult
+{
+    CIMException::Code code;
+    Array<CIMObjectWithPath> objectWithPathArray;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// ReferenceNamesResult
+//
+////////////////////////////////////////////////////////////////////////////////
+
+struct ReferenceNamesResult
+{
+    CIMException::Code code;
+    Array<CIMReference> objectPaths;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // AssociatorNamesResult
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -275,6 +299,14 @@ public:
 	const String& messageId);
     //STUB}
 
+    int handleReferencesResponse(
+	XmlParser& parser, 
+	const String& messageId);
+
+    int handleReferenceNamesResponse(
+	XmlParser& parser, 
+	const String& messageId);
+
     int handleAssociatorNamesResponse(
 	XmlParser& parser, 
 	const String& messageId);
@@ -326,6 +358,8 @@ public:
 	//STUB{
 	EnumerateClassNamesResult* _enumerateClassNamesResult;
 	//STUB}
+	ReferencesResult* _referencesResult;
+	ReferenceNamesResult* _referenceNamesResult;
 	AssociatorNamesResult* _associatorNamesResult;
 	AssociatorsResult* _associatorsResult;
 	CreateInstanceResult* _createInstanceResult;
@@ -470,6 +504,10 @@ int ClientHandler::handleMethodResponse()
     else if (strcmp(iMethodResponseName, "EnumerateClassNames") == 0)
 	handleEnumerateClassNamesResponse(parser, messageId);
     //STUB}
+    else if (strcmp(iMethodResponseName, "References") == 0)
+	handleReferencesResponse(parser, messageId);
+    else if (strcmp(iMethodResponseName, "ReferenceNames") == 0)
+	handleReferenceNamesResponse(parser, messageId);
     else if (strcmp(iMethodResponseName, "AssociatorNames") == 0)
 	handleAssociatorNamesResponse(parser, messageId);
     else if (strcmp(iMethodResponseName, "Associators") == 0)
@@ -657,6 +695,103 @@ int ClientHandler::handleEnumerateClassNamesResponse(
     return 0;
 }
 //STUB}
+
+//------------------------------------------------------------------------------
+//
+// ClientHandler::handleReferencesResponse()
+//
+// <!ELEMENT VALUE.OBJECTWITHPATH 
+//     ((CLASSPATH,CLASS)|(INSTANCEPATH,INSTANCE))>
+//
+//------------------------------------------------------------------------------
+
+int ClientHandler::handleReferencesResponse(
+    XmlParser& parser,
+    const String& messageId)
+{
+    XmlEntry entry;
+    CIMException::Code code = CIMException::SUCCESS;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_referencesResult = new ReferencesResult;
+	_referencesResult->code = code;
+	_blocked = false;
+	return 0;
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	Array<CIMObjectWithPath> objectWithPathArray;
+	CIMObjectWithPath tmp;
+
+	while (XmlReader::getObjectWithPath(parser, tmp))
+	    objectWithPathArray.append(tmp);
+
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_referencesResult = new ReferencesResult;
+	_referencesResult->code = code;
+	_referencesResult->objectWithPathArray = objectWithPathArray;
+	_blocked = false;
+	return 0;
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
+
+    return 0;
+}
+
+//------------------------------------------------------------------------------
+//
+// ClientHandler::handleReferenceNamesResponse()
+//
+//     Expect (ERROR|IRETURNVALUE).
+//
+//------------------------------------------------------------------------------
+
+int ClientHandler::handleReferenceNamesResponse(
+    XmlParser& parser,
+    const String& messageId)
+{
+    XmlEntry entry;
+    CIMException::Code code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_referenceNamesResult = new ReferenceNamesResult;
+	_referenceNamesResult->code = code;
+	_blocked = false;
+	return 0;
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	CIMReference objectPath;
+	Array<CIMReference> objectPaths;
+
+	while (XmlReader::getObjectPathElement(parser, objectPath))
+	    objectPaths.append(objectPath);
+
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_referenceNamesResult = new ReferenceNamesResult;
+	_referenceNamesResult->code = CIMException::SUCCESS;
+	_referenceNamesResult->objectPaths = objectPaths;
+	_blocked = false;
+	return 0;
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
+
+    return 0;
+}
 
 //------------------------------------------------------------------------------
 //
@@ -1952,7 +2087,7 @@ Array<CIMReference> CIMClient::associatorNames(
     return objectPaths;
 }
 
-Array<CIMInstance> CIMClient::references(
+Array<CIMObjectWithPath> CIMClient::references(
     const String& nameSpace,
     const CIMReference& objectName,
     const String& resultClass,
@@ -1961,8 +2096,51 @@ Array<CIMInstance> CIMClient::references(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
-    return Array<CIMInstance>();
+    String messageId = XmlWriter::getNextMessageId();
+    Array<Sint8> params;
+
+    // Append "ObjectName" parameter:
+
+    XmlWriter::appendObjectNameParameter(params, "ObjectName", objectName);
+
+    // Append "ResultClass" parameter:
+
+    XmlWriter::appendClassNameParameter(params, "ResultClass", resultClass);
+
+    // Append "Role" parameter:
+
+    XmlWriter::appendStringParameter(params, "Role", role);
+
+    // Append "IncludeQualifiers" paramter:
+
+    if (includeQualifiers != false)
+	XmlWriter::appendBooleanParameter(params, "IncludeQualifiers", true);
+
+    if (includeClassOrigin != false)
+	XmlWriter::appendBooleanParameter(params, "IncludeClassOrigin", true);
+
+    // ATTN: process property list!
+
+    // Format the message:
+
+    Array<Sint8> message = XmlWriter::formatSimpleReqMessage(_getHostName(),
+	nameSpace, "References", params);
+
+    _channel->writeN(message.getData(), message.size());
+
+    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
+	throw TimedOut();
+
+    ReferencesResult* result = _getHandler()->_referencesResult;
+    Array<CIMObjectWithPath> objectWithPathArray = result->objectWithPathArray;
+    CIMException::Code code = result->code;
+    delete result;
+    _getHandler()->_referencesResult = 0;
+
+    if (code != CIMException::SUCCESS)
+	throw CIMException(code);
+
+    return objectWithPathArray;
 }
 
 Array<CIMReference> CIMClient::referenceNames(
@@ -1971,8 +2149,37 @@ Array<CIMReference> CIMClient::referenceNames(
     const String& resultClass,
     const String& role)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
-    return Array<CIMReference>();
+    String messageId = XmlWriter::getNextMessageId();
+    Array<Sint8> params;
+
+    XmlWriter::appendObjectNameParameter(params, "ObjectName", objectName);
+
+    XmlWriter::appendClassNameParameter(params, "ResultClass", resultClass);
+
+    XmlWriter::appendStringParameter(params, "Role", role);
+
+    // Format and send the message:
+
+    Array<Sint8> message = XmlWriter::formatSimpleReqMessage(_getHostName(),
+	nameSpace, "ReferenceNames", params);
+
+    _channel->writeN(message.getData(), message.size());
+
+    // Wait for response and then process result:
+
+    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
+	throw TimedOut();
+
+    ReferenceNamesResult* result = _getHandler()->_referenceNamesResult;
+    Array<CIMReference> objectPaths = result->objectPaths;
+    CIMException::Code code = result->code;
+    delete result;
+    _getHandler()->_referenceNamesResult = 0;
+
+    if (code != CIMException::SUCCESS)
+	throw CIMException(code);
+
+    return objectPaths;
 }
 
 /**-----------------------------------------------------------------------------

@@ -70,7 +70,7 @@ void TestAssociations(CIMRepository& r)
     {
 	CIMReference instanceName = "X.key=\"John Smith\"";
 
-	Array<CIMInstance> result = r.references(
+	Array<CIMObjectWithPath> result = r.references(
 	    nameSpace,
 	    instanceName,
 	    "A",
@@ -78,8 +78,11 @@ void TestAssociations(CIMRepository& r)
 
 	assert(result.size() == 1);
 
-	CIMClass tmpClass = r.getClass(nameSpace, result[0].getClassName());
-	CIMReference tmpInstanceName = result[0].getInstanceName(tmpClass);
+	CIMClass tmpClass = r.getClass(
+	    nameSpace, result[0].getObject().getInstance().getClassName());
+
+	CIMReference tmpInstanceName = 
+	    result[0].getObject().getInstance().getInstanceName(tmpClass);
 
 	CIMReference tmp = "A."
 	    "left=\"x.key=\\\"John Smith\\\"\","

@@ -27,7 +27,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <stdlib.h>
-#include <dlfcn.h>
+// #include <dlfcn.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/System.h>
 #include "ProviderTable.h"

@@ -1186,7 +1186,7 @@ public:
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
      </UL>
     */
-    virtual Array<CIMInstance> references(
+    virtual Array<CIMObjectWithPath> references(
  	const String& nameSpace,
  	const CIMReference& objectName,
  	const String& resultClass = String::EMPTY,

@@ -1,9 +1,10 @@
 
-*===============================================================================
-*
-* Scheduled
-*
-*===============================================================================
+    -   Revisit use of namespace v.s. objectName in all CIM operations.
+
+    -   What do we do when getInstance() is called and the nameSpace is
+	provided both as an argument and as part of the instance name?
+
+    -   ReferenceNames should return classes not just instances?
 
     -   Remove final const from const methods in non-const CIM element classes.
 
@@ -18,12 +19,6 @@
     -	Provide CIMOM Context.
 
     -	Complete conventions document.
-
-*===============================================================================
-*
-* Unscheduled
-*
-*===============================================================================
 
     -   The CIMServer.exe program should probably create the logs directory
 	under PEGASUS_HOME.

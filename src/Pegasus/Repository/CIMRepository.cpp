@@ -37,6 +37,7 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/DeclContext.h>
 #include <Pegasus/Common/DeclContext.h>
+#include <Pegasus/Common/System.h>
 #include "CIMRepository.h"
 #include "RepositoryDeclContext.h"
 #include "InstanceIndexFile.h"
@@ -726,33 +727,39 @@ Array<CIMObjectWithPath> CIMRepository::associators(
 	if (tmpNameSpace.size() == 0)
 	    tmpNameSpace = nameSpace;
 
-	CIMReference reference = names[i];
-
-	if (reference.isClassName())
+	if (names[i].isClassName())
 	{
+	    CIMReference tmpRef = names[i];
+	    tmpRef.setHost(String());
+	    tmpRef.setNameSpace(String());
+
 	    CIMClass cimClass = getClass(
 		tmpNameSpace,
-		reference.getClassName(),
+		tmpRef.getClassName(),
 		false,
 		includeQualifiers,
 		includeClassOrigin,
 		propertyList);
 
 	    CIMObject cimObject(cimClass);
-	    result.append(CIMObjectWithPath(reference, cimObject));
+	    result.append(CIMObjectWithPath(names[i], cimObject));
 	}
 	else
 	{
+	    CIMReference tmpRef = names[i];
+	    tmpRef.setHost(String());
+	    tmpRef.setNameSpace(String());
+
 	    CIMInstance cimInstance = getInstance(
 		tmpNameSpace,
-		reference,
+		tmpRef,
 		false,
 		includeQualifiers,
 		includeClassOrigin,
 		propertyList);
 
 	    CIMObject cimObject(cimInstance);
-	    result.append(CIMObjectWithPath(reference, cimObject));
+	    result.append(CIMObjectWithPath(names[i], cimObject));
 	}
     }
 
@@ -786,12 +793,22 @@ Array<CIMReference> CIMRepository::associatorNames(
     Array<CIMReference> result;
 
     for (Uint32 i = 0, n = associatorNames.size(); i < n; i++)
-	result.append(associatorNames[i]);
+    {
+	CIMReference r = associatorNames[i];
+
+        if (r.getHost().size() == 0)
+            r.setHost(System::getHostName());
+
+        if (r.getNameSpace().size() == 0)
+            r.setNameSpace(nameSpace);
+
+	result.append(r);
+    }
 
     return result;
 }
 
-Array<CIMInstance> CIMRepository::references(
+Array<CIMObjectWithPath> CIMRepository::references(
     const String& nameSpace,
     const CIMReference& objectName,
     const String& resultClass,
@@ -806,7 +823,7 @@ Array<CIMInstance> CIMRepository::references(
 	resultClass,
 	role);
 
-    Array<CIMInstance> result;
+    Array<CIMObjectWithPath> result;
 
     for (Uint32 i = 0, n = names.size(); i < n; i++)
     {
@@ -815,15 +832,22 @@ Array<CIMInstance> CIMRepository::references(
 	if (tmpNameSpace.size() == 0)
 	    tmpNameSpace = nameSpace;
 
+	// ATTN: getInstance() should be able to handle instance names
+	// with host names and namespaces.
+
+	CIMReference tmpRef = names[i];
+	tmpRef.setHost(String());
+	tmpRef.setNameSpace(String());
+
 	CIMInstance instance = getInstance(
 	    tmpNameSpace,
-	    names[i],
+	    tmpRef,
 	    false,
 	    includeQualifiers,
 	    includeClassOrigin,
 	    propertyList);
 
-	result.append(instance);
+	result.append(CIMObjectWithPath(names[i], instance));
     }
 
     return result;
@@ -852,7 +876,17 @@ Array<CIMReference> CIMRepository::referenceNames(
     Array<CIMReference> result;
 
     for (Uint32 i = 0, n = tmpReferenceNames.size(); i < n; i++)
-	result.append(tmpReferenceNames[i]);
+    {
+	CIMReference r = tmpReferenceNames[i];
+
+        if (r.getHost().size() == 0)
+            r.setHost(System::getHostName());
+
+        if (r.getNameSpace().size() == 0)
+            r.setNameSpace(nameSpace);
+
+	result.append(r);
+    }
 
     return result;
 }

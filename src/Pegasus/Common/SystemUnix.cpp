@@ -322,7 +322,11 @@ Uint32 System::lookupPort(
     //
     if ( (serv = getservbyname(serviceName, TCP)) != NULL )
     {
+#ifndef PEGASUS_PLATFORM_LINUX_IX86_GNU
         localPort = serv->s_port;
+#else
+        localPort = htons((uint16_t)serv->s_port);
+#endif
     }
     else
     {

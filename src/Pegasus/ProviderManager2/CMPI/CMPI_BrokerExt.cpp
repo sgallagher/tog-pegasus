@@ -56,10 +56,12 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-struct thrd_data {
-   CMPI_THREAD_RETURN(CMPI_THREAD_CDECL*pgm)(void*);
-   void *parm;
-};
+extern "C" {
+	struct thrd_data {
+	   CMPI_THREAD_RETURN(CMPI_THREAD_CDECL*pgm)(void*);
+	   void *parm;
+	};
+}
 
 static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL start_driver(void *parm)
 {
@@ -87,8 +89,7 @@ extern "C" {
       data->pgm=(CMPI_THREAD_RETURN (CMPI_THREAD_CDECL *)(void*))start;
       data->parm=parm;
 
-      Thread *t=new Thread(
-         (PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void*))start_driver,data,detached==1);
+      Thread *t=new Thread(start_driver,data,detached==1);
       t->run();
       return (CMPI_THREAD_TYPE)t;
    }

@@ -376,6 +376,9 @@ CIMOperationRequestDispatcher::_enqueueResponse(OperationAggregate *&poA,
 
 	try
 	{
+    // get the completion status of the incoming response on this thread.
+    isComplete = response->isComplete();
+
 		poA->appendResponse(response);
 		Uint32 type = poA->getRequestType();
 
@@ -425,10 +428,24 @@ CIMOperationRequestDispatcher::_enqueueResponse(OperationAggregate *&poA,
 		// now take the aggregated response. This is now the one we will work with
 		response = poA->removeResponse(Uint32(0));
 
+    // reset the completion flag of the last response added to the list.
+    // This only makes a difference when there was at least two on the list
+    // to begin with before aggregation methods (above) were called.
+    // Typically, there will be more than two on the list when a non-async
+    // destination queue keeps appending the responses until the completion
+    // of all threads/responses has occurred.
+
+    response->setComplete(isComplete);
+
 		Uint32 dest = poA->_dest;
 		response->dest = dest;
 		poA->resequenceResponse(*response);
-		isComplete = response->isComplete();
+
+    // now get the completion status of the response after it has been
+    // resequenced. This will reset the completion status of the entire
+    // message, not just this one thread coming through here.
+
+    isComplete = response->isComplete();
 
 		// can the destination service queue handle async responses ?
 		// (i.e multiple responses from one request). Certain known ones
@@ -446,7 +463,10 @@ CIMOperationRequestDispatcher::_enqueueResponse(OperationAggregate *&poA,
 		if (isDestinationQueueAsync == false)
 		{
 			if (isComplete == false)
+      {
+        poA->appendResponse(response);
 				return isComplete;
+			}
 
 			// need to reset the first response to complete if the
 			// last one that came in was complete

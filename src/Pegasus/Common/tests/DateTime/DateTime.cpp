@@ -196,10 +196,10 @@ int main(int argc, char** argv)
                 co = co +2;
             }
          }
-         catch(Exception e){
+         catch(Exception & e){
             assert(false);
         }
-        catch(exception e){
+        catch(exception &  e){
             assert(false);
         }
 
@@ -916,7 +916,7 @@ int main(int argc, char** argv)
   Uint64 tot_num0 = top_num0 + topA_num0;
   top_cdt0 += topA_cdt0;
   Uint64 topA0 = top_cdt0.toMicroSeconds();
-  if (tot_num0 =! topA0) {
+  if ((tot_num0 =! topA0)) {
       assert(false);
   }
 
@@ -928,7 +928,7 @@ int main(int argc, char** argv)
   Uint64 tot_num2 = top_num2 + topA_num2;
   top_cdt2 += topA_cdt2;
   Uint64 topA2 = top_cdt2.toMicroSeconds();
-  if (tot_num2 =! topA2) {
+  if ((tot_num2 =! topA2)) {
       assert(false);
   }
 

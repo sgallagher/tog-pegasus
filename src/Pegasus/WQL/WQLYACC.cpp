@@ -796,7 +796,7 @@ case 2:
 case 3:
 #line 143 "WQL.y"
 {
-	globalParserState->statement->appendSelectPropertyName("*");
+	globalParserState->statement->setAllProperties(true);
     ;
     break;}
 case 4:
@@ -808,13 +808,13 @@ case 4:
 case 5:
 #line 153 "WQL.y"
 {
-	globalParserState->statement->appendSelectPropertyName(yyvsp[0].strValue);
+	globalParserState->statement->appendSelectPropertyName(CIMName(yyvsp[0].strValue));
     ;
     break;}
 case 6:
 #line 157 "WQL.y"
 {
-	globalParserState->statement->appendSelectPropertyName(yyvsp[0].strValue);
+	globalParserState->statement->appendSelectPropertyName(CIMName(yyvsp[0].strValue));
     ;
     break;}
 case 7:
@@ -833,7 +833,7 @@ case 9:
 #line 173 "WQL.y"
 {
 	WQL_TRACE(("YACC: fromClause: TOK_FROM className(%s)\n", yyvsp[0].strValue));
-	globalParserState->statement->setClassName(yyvsp[0].strValue);
+	globalParserState->statement->setClassName(CIMName(yyvsp[0].strValue));
     ;
     break;}
 case 10:
@@ -989,7 +989,7 @@ case 32:
 {
 	globalParserState->statement->appendOperand(
 	    WQLOperand(yyvsp[0].strValue, WQL_PROPERTY_NAME_TAG));
-	globalParserState->statement->appendWherePropertyName(yyvsp[0].strValue);
+	globalParserState->statement->appendWherePropertyName(CIMName(yyvsp[0].strValue));
     ;
     break;}
 case 33:

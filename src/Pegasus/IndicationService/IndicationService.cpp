@@ -526,9 +526,9 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
             }
     
             //
-            //  If the instance is of the CIM_IndicationSubscription class
-            //  and subscription state is enabled, determine if any providers
-            //  can serve the subscription
+            //  If the instance is of the PEGASUS_CLASSNAME_INDSUBSCRIPTION 
+            //  class and subscription state is enabled, determine if any 
+            //  providers can serve the subscription
             //
             Uint16 subscriptionState;
             String condition;
@@ -665,8 +665,8 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
             }
         
             //
-            //  If the instance is of the CIM_IndicationSubscription class
-            //  and subscription state is enabled, send Create request to 
+            //  If the instance is of the PEGASUS_CLASSNAME_INDSUBSCRIPTION 
+            //  class and subscription state is enabled, send Create request to 
             //  indication providers
             //
             if (instance.getClassName ().equal 
@@ -1447,8 +1447,6 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
             request->queueIds.copyAndPop());
 
     String filterQuery;
-    Array <CIMName> propertyNames;
-    CIMPropertyList propertyList;
     Boolean match;
 
     Array <CIMInstance> matchedSubscriptions;
@@ -1461,24 +1459,25 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
     PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4, 
 		     "Received Indication " + 
 		     indication.getClassName().getString());
-
     try
     {
         WQLSimplePropertySource propertySource = _getPropertySourceFromInstance(
             indication);
 
-        for (Uint8 i = 0; i < indication.getPropertyCount(); i++)
-            propertyNames.append(indication.getProperty(i).getName());
-
         //
         //  Check if property list contains all properties of class
         //  If so, set to null
         //
-        propertyList = _checkPropertyList (propertyNames, request->nameSpace, 
-            indication.getClassName ());
+        Array <CIMName> propertyNames;
+        CIMPropertyList propertyList;
+        for (Uint8 i = 0; i < indication.getPropertyCount(); i++)
+            propertyNames.append(indication.getProperty(i).getName());
+        propertyList = _checkPropertyList (propertyNames, 
+            request->nameSpace, indication.getClassName ());
 
         Array <CIMNamespaceName> nameSpaces;
         nameSpaces.append (request->nameSpace);
+
         matchedSubscriptions = _getMatchingSubscriptions(
             indication.getClassName (), nameSpaces, propertyList);
 
@@ -1520,99 +1519,70 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 
             if (match)
             {
+                //
+                // Format indication
+                // Remove properties not listed in SELECT clause from 
+                // indication as they are not required to be passed to consumer
+                // If SELECT includes all properties ("*"), pass all properties
+                // to the consumer
+                //
+                if (!selectStatement.getAllProperties ())
+                {
+                    CIMPropertyList selectPropertyList;
+                    Array <CIMName> selectPropertyNames;
 
-		 //
-		 // ATTN-YZ-P1-20030113: Need change String to be CIMName for
-		 // selectPropertyList and selectProperty when the CIMName defect
-		 // is fixed for the WQL
-		 //
-                 Array <String> selectPropertyList;
-                 String selectProperty;
-		 Boolean selectAll = false;
+                    //
+                    // Get properties listed in SELECT clause
+                    //
+                    selectPropertyList = 
+                        selectStatement.getSelectPropertyList ();
+                    selectPropertyNames = 
+                        selectPropertyList.getPropertyNameArray ();
 
-                 //
-                 //  Get all the properties from SELECT clause
-                 //
-                 Uint32 selectCount = 
-                     selectStatement.getSelectPropertyNameCount ();
-
-		 // if selectProperty is *, send all the property to consumer
-		 if (selectCount == 1)
-                 {
-		     selectProperty = selectStatement.getSelectPropertyName (0);
-                     if (String::equal(selectProperty, _QUERY_ALLPROPERTIES))
-                     {
-                         // send every thing to consumer
-                         selectAll = true;
-                     }
-                 }
-
-		 //
-                 // Formatting indication. Removes properties which are not
-		 // listed in SELECT clause from indication as they are not 
-		 // required to pass to consumer
-		 //
-
-		 if (selectAll == false)
-		 {
-		      //
-		     // get all properties which are listed in SELECT clause
-		     //
-		     for (Uint32 i = 0; i < selectCount; i++)
-		     {
-		         selectProperty =
-                             selectStatement.getSelectPropertyName (i);
-                         if (!Contains (selectPropertyList, selectProperty))
-                         {
-                             selectPropertyList.append (selectProperty);
-                     	 }
-		     }
-
-		    //
-		    // Remove properties which are not listed in SELECT clause
+                    //
+		    // Remove properties not listed in SELECT clause
 		    // from indication
 		    //
-		    String propertyName;
 		    for (Uint32 j = 0; j < propertyNames.size(); j++)
 		    {
-		  	propertyName =  propertyNames[j].getString ();
-
-                        if (!Contains(selectPropertyList, propertyName))
+                        if (!ContainsCIMName (selectPropertyNames, 
+                                              propertyNames[j]))
 			{
 			    formattedIndication.removeProperty(
 				formattedIndication.findProperty
 						      (propertyNames[j])); 
 			}
 	  	    }
-		 }
+		}
 		
-                 handlerNamedInstance = _getHandler
-                     (matchedSubscriptions[i]);
+                handlerNamedInstance = _getHandler
+                    (matchedSubscriptions[i]);
 
-                 CIMRequestMessage * handler_request =
-                     new CIMHandleIndicationRequestMessage (
-                         XmlWriter::getNextMessageId (),
-                         request->nameSpace,
-                         handlerNamedInstance,
-                         formattedIndication,
-                         QueueIdStack(_handlerService, getQueueId()));
+                CIMRequestMessage * handler_request =
+                    new CIMHandleIndicationRequestMessage (
+                        XmlWriter::getNextMessageId (),
+                        request->nameSpace,
+                        handlerNamedInstance,
+                        formattedIndication,
+                        QueueIdStack(_handlerService, getQueueId()));
                 
-                 AsyncOpNode* op = this->get_op();
+                AsyncOpNode* op = this->get_op();
 
-                 AsyncLegacyOperationStart *async_req = 
+                AsyncLegacyOperationStart *async_req = 
                     new AsyncLegacyOperationStart(
-                     get_next_xid(),
-                     op,
-                     _handlerService,
-                     handler_request,
-                     _queueId);
+                    get_next_xid(),
+                    op,
+                    _handlerService,
+                    handler_request,
+                    _queueId);
 
-		 PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4, 
-			  "Sending (SendForget) Indication to " + 
-			  ((MessageQueue::lookup(_handlerService)) ? 
-			   String( ((MessageQueue::lookup(_handlerService))->getQueueName())) : 
-			   String("BAD queue name")) + 
-			  "via CIMHandleIndicationRequestMessage");
+                PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4, 
+                    "Sending (SendForget) Indication to " + 
+                    ((MessageQueue::lookup(_handlerService)) ? 
+                    String(((MessageQueue::lookup
+                    (_handlerService))->getQueueName())) : 
+                    String("BAD queue name")) + 
+                    "via CIMHandleIndicationRequestMessage");
 		 		 
                 AsyncReply *async_reply = SendWait(async_req);
 
@@ -1621,8 +1591,10 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                 //  subscription's OnFatalErrorPolicy
                 //
 
-                 response = reinterpret_cast<CIMProcessIndicationResponseMessage *>
-                     ((static_cast<AsyncLegacyOperationResult *>(async_reply))->get_result());
+                response = 
+                    reinterpret_cast<CIMProcessIndicationResponseMessage *>
+                    ((static_cast<AsyncLegacyOperationResult *>
+                    (async_reply))->get_result());
 
                 //
                 //  Recipient deletes request
@@ -1768,7 +1740,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                 (newSubscriptions [i], indicationProviders [i].provider);
             if (_subscriptionTable.contains (tableKey))
             {
-//cout << "table contains key" << endl;
+//cout << "case A: table contains key" << endl;
                 //
                 //  Send Modify requests
                 //
@@ -1779,7 +1751,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             }
             else
             {
-//cout << "table does not contain key" << endl;
+//cout << "case B: table does not contain key" << endl;
                 //
                 //  Send Create requests
                 //
@@ -1846,6 +1818,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                 if ((tableValue.classList.size () == 1) &&
                     (tableValue.classList [0].equal (className)))
                 {
+//cout << "case C: classlist contains only this class" << endl;
                     _sendDeleteRequests (indicationProviders,
                         formerSubscriptions [i].getPath ().getNameSpace (), 
                         formerSubscriptions [i], creator);
@@ -1856,6 +1829,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                 //
                 else
                 {
+//cout << "case D: classlist contains more" << endl;
                     CIMNamespaceName sourceNameSpace;
                     _getCreateParams 
                         (formerSubscriptions [i].getPath ().getNameSpace (),
@@ -3571,8 +3545,7 @@ CIMPropertyList IndicationService::_getPropertyList
      const CIMNamespaceName & nameSpaceName,
      const CIMName & indicationClassName) const
 {
-    Array <CIMName> propertyList;
-    CIMName propertyName;
+    CIMPropertyList propertyList;
 
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
                       "IndicationService::_getPropertyList");
@@ -3580,49 +3553,49 @@ CIMPropertyList IndicationService::_getPropertyList
     //
     //  Get all the properties referenced in the projection list (SELECT clause)
     //
-    Uint32 selectCount = selectStatement.getSelectPropertyNameCount ();
-    if (selectCount > 0)
+    propertyList = selectStatement.getSelectPropertyList ();
+    if (propertyList.isNull ())
     {
-        if (selectStatement.getSelectPropertyName (0) == _QUERY_ALLPROPERTIES)
-        {
-            //
-            //  Return null CIMPropertyList for all properties
-            //
-            PEG_METHOD_EXIT ();
-            return CIMPropertyList ();
-        }
-
-        for (Uint32 i = 0; i < selectCount; i++)
-        {
-            propertyName = selectStatement.getSelectPropertyName (i);
-            if (!ContainsCIMName (propertyList, propertyName))
-            {
-                propertyList.append (propertyName);
-            }
-        }
+        //
+        //  Return null property list for all properties 
+        //
+        return propertyList;
     }
-
-    //
-    //  Get all the properties referenced in the condition (WHERE clause)
-    //
-    if (selectStatement.hasWhereClause ())
+    else
     {
-        Uint32 whereCount = selectStatement.getWherePropertyNameCount ();
-        if (whereCount > 0)
+        Array <CIMName> propertyArray;
+
+        //
+        //  Get selected property names
+        //
+        propertyArray = propertyList.getPropertyNameArray ();
+
+        //
+        //  Get all the properties referenced in the condition (WHERE clause)
+        //
+        if (selectStatement.hasWhereClause ())
         {
-            for (Uint32 j = 0; j < whereCount; j++)
+            CIMPropertyList 
+            wherePropertyList = selectStatement.getWherePropertyList ();
+    
+            //
+            //  WHERE property list may not be NULL (may be empty)
+            //
+            for (Uint32 j = 0; j < wherePropertyList.size(); j++)
             {
-                propertyName = selectStatement.getWherePropertyName (j);
-                if (!ContainsCIMName (propertyList, propertyName))
+                //
+                //  Add property name to the list if not already there
+                //
+                if (!ContainsCIMName (propertyArray, wherePropertyList[j]))
                 {
-                    propertyList.append (propertyName);
+                    propertyArray.append (wherePropertyList[j]);
                 }
             }
         }
-    }
 
-    return _checkPropertyList (propertyList, nameSpaceName, 
-        indicationClassName);
+        return _checkPropertyList (propertyArray, nameSpaceName, 
+            indicationClassName);
+    }
 }
 
 CIMPropertyList IndicationService::_checkPropertyList 
@@ -5092,7 +5065,6 @@ WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
     PEG_METHOD_EXIT ();
     return source;
 }
-
 
 //
 //  Class names

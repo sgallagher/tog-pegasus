@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -75,10 +76,10 @@ public:
 	@return true is such a property exists and false otherwise.
     */
     virtual Boolean getValue(
-	const String& propertyName, 
+	const CIMName& propertyName, 
 	WQLOperand& value) const
     {
-	return _map.lookup(propertyName, value);
+	return _map.lookup(propertyName.getString(), value);
     }
 
     /** Add the given propert-name/value pair to the internal map.
@@ -88,10 +89,10 @@ public:
 	@return true if no such property already existed and false otherwise.
     */
     Boolean addValue(
-	const String& propertyName, 
+	const CIMName& propertyName, 
 	const WQLOperand& value)
     {
-	return _map.insert(propertyName, value);
+	return _map.insert(propertyName.getString(), value);
     }
 
 private:

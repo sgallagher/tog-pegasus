@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -130,6 +131,8 @@ WQLSelectStatement::WQLSelectStatement()
 
     _operations.reserveCapacity(16);
     _operands.reserveCapacity(16);
+
+    _allProperties = false;
 }
 
 WQLSelectStatement::~WQLSelectStatement()
@@ -140,12 +143,55 @@ WQLSelectStatement::~WQLSelectStatement()
 void WQLSelectStatement::clear()
 {
     _className.clear();
+    _allProperties = false;
     _selectPropertyNames.clear();
     _operations.clear();
     _operands.clear();
 }
 
-Boolean WQLSelectStatement::appendWherePropertyName(const String& x)
+Boolean WQLSelectStatement::getAllProperties() const
+{
+    return _allProperties;
+}
+
+void WQLSelectStatement::setAllProperties(const Boolean allProperties)
+{
+    _allProperties = allProperties;
+}
+
+const CIMPropertyList WQLSelectStatement::getSelectPropertyList () const
+{
+    //
+    //  Check for "*"
+    //
+    if (_allProperties)
+    {
+        //
+        //  Return null CIMPropertyList for all properties
+        //
+        return CIMPropertyList ();
+    }
+    else 
+    {
+        //
+        //  Return CIMPropertyList for properties referenced in the projection 
+        //  list (SELECT clause)
+        //
+        return CIMPropertyList (_selectPropertyNames);
+    }
+}
+
+const CIMPropertyList WQLSelectStatement::getWherePropertyList () const
+{
+    //
+    //  Return CIMPropertyList for properties referenced in the condition 
+    //  (WHERE clause)
+    //  The list may be empty, but may not be NULL
+    //
+    return CIMPropertyList (_wherePropertyNames);
+}
+
+Boolean WQLSelectStatement::appendWherePropertyName(const CIMName& x)
 {
     //
     // Reject duplicate property names by returning false.
@@ -175,10 +221,10 @@ static inline void _ResolveProperty(
 
     if (op.getType() == WQLOperand::PROPERTY_NAME)
     {
-	const String& propertyName = op.getPropertyName();
+	const CIMName& propertyName = op.getPropertyName();
 
 	if (!source->getValue(propertyName, op))
-	    throw NoSuchProperty(propertyName);
+	    throw NoSuchProperty(propertyName.getString());
     }
 }
 
@@ -339,19 +385,25 @@ void WQLSelectStatement::print() const
     // Print the class name:
     //
 
-    cout << "    _className: \"" << _className << '"' << endl;
+    cout << "    _className: \"" << _className.getString() << '"' << endl;
 
     // 
-    // Print the property:
+    // Print the select properties:
     //
 
-    for (Uint32 i = 0; i < _selectPropertyNames.size(); i++)
+    if (_allProperties)
+    {
+        cout << endl;
+        cout << "    _allProperties: TRUE" << endl;
+    }
+
+    else for (Uint32 i = 0; i < _selectPropertyNames.size(); i++)
     {
 	if (i == 0)
 	    cout << endl;
 
 	cout << "    _selectPropertyNames[" << i << "]: ";
-	cout << '"' << _selectPropertyNames[i] << '"' << endl;
+	cout << '"' << _selectPropertyNames[i].getString() << '"' << endl;
     }
 
     //
@@ -360,11 +412,11 @@ void WQLSelectStatement::print() const
 
     for (Uint32 i = 0; i < _operations.size(); i++)
     {
-	if (i == 0)
-	    cout << endl;
+        if (i == 0)
+            cout << endl;
 
-	cout << "    _operations[" << i << "]: ";
-	cout << '"' << WQLOperationToString(_operations[i]) << '"' << endl;
+        cout << "    _operations[" << i << "]: ";
+        cout << '"' << WQLOperationToString(_operations[i]) << '"' << endl;
     }
 
     //
@@ -373,7 +425,7 @@ void WQLSelectStatement::print() const
 
     for (Uint32 i = 0; i < _operands.size(); i++)
     {
-	if (i == 0)
+        if (i == 0)
 	    cout << endl;
 
 	cout << "    _operands[" << i << "]: ";

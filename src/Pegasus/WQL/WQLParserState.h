@@ -62,7 +62,7 @@ struct WQLParserState
 
     //
     // The output object being initialized during parsing. This object is
-    // set to point to the statment argument passed to the WQLParser::parse()
+    // set to point to the statement argument passed to the WQLParser::parse()
     // method.
     //
 

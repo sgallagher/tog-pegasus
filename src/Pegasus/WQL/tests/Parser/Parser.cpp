@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,6 +36,8 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+
+Boolean verbose;
 
 void test01()
 {
@@ -57,9 +60,16 @@ void test01()
 	"FROM MyClass\n"
 	"WHERE x > 5 AND y < 25 AND z > 1.2";
 
+    //
+    //  Will test WQLParser::parse(const Array<Sint8>&, WQLSelectStatement&)
+    //  and WQLParser::parse(const char*, WQLSelectStatement&) forms
+    //
     Array<Sint8> text;
     text.append(TEXT, sizeof(TEXT));
-    // cout << text.getData() << endl;
+    if (verbose)
+    {
+        cout << text.getData() << endl;
+    }
 
     // 
     // Parse the text:
@@ -70,9 +80,172 @@ void test01()
     try
     {
 	WQLParser::parse(text, statement);
-	// statement.print();
-	// Boolean result = statement.evaluateWhereClause(&source);
-	// cout << "result=" << result << endl;
+        if (verbose)
+        {
+	    statement.print();
+        }
+
+        //
+        //  Test WQLSelectStatement functions
+        //
+        assert (statement.getClassName().equal ("MyClass"));
+        assert (!statement.getAllProperties());
+        assert (statement.getSelectPropertyNameCount() == 3);
+        CIMName propName = statement.getSelectPropertyName (0);
+        assert ((propName.equal ("x")) || (propName.equal ("y")) || 
+                (propName.equal ("z")));
+        CIMPropertyList propList = statement.getSelectPropertyList();
+        assert (!propList.isNull());
+        assert (propList.size() == 3);
+        assert ((propList[0].equal ("x")) || (propList[0].equal ("y")) || 
+                (propList[0].equal ("z")));
+        assert (statement.hasWhereClause());
+        assert (statement.getWherePropertyNameCount() == 3);
+        CIMName wherePropName = statement.getWherePropertyName (0);
+        assert ((wherePropName.equal ("x")) || (wherePropName.equal ("y")) || 
+                (wherePropName.equal ("z")));
+        CIMPropertyList wherePropList = statement.getWherePropertyList();
+        assert (!wherePropList.isNull());
+        assert (wherePropList.size() == 3);
+        assert ((wherePropList[0].equal ("x")) || 
+                (wherePropList[0].equal ("y")) || 
+                (wherePropList[0].equal ("z")));
+        assert (statement.evaluateWhereClause(&source));
+    }
+    catch (Exception& e)
+    {
+	cerr << "Exception: " << e.getMessage() << endl;
+	exit(1);
+    }
+}
+
+void test02()
+{
+    //
+    // Create a property source (a place for the evaluate to get the
+    // values of properties from):
+    //
+
+    WQLSimplePropertySource source;
+    assert(source.addValue("a", WQLOperand(5, WQL_INTEGER_VALUE_TAG)));
+    assert(source.addValue("b", WQLOperand(25, WQL_INTEGER_VALUE_TAG)));
+    assert(source.addValue("c", WQLOperand(0.9, WQL_DOUBLE_VALUE_TAG)));
+    assert(source.addValue("d", WQLOperand("Test", WQL_STRING_VALUE_TAG)));
+
+    //
+    // Define query:
+    //
+    
+    const char TEXT[] = 
+	"SELECT a,c,d\n"
+	"FROM YourClass\n"
+	"WHERE a > 5 AND b < 25 AND c > 1.2 AND d = \"Pass\"";
+
+    //
+    //  Will test WQLParser::parse(const String&, WQLSelectStatement&)
+    //  and WQLParser::parse(const char*, WQLSelectStatement&) forms
+    //
+    String text (TEXT);
+    if (verbose)
+    {
+        cout << text << endl;
+    }
+
+    // 
+    // Parse the text:
+    //
+
+    WQLSelectStatement statement;
+
+    try
+    {
+	WQLParser::parse(text, statement);
+        if (verbose)
+        {
+	    statement.print();
+        }
+
+        //
+        //  Test WQLSelectStatement functions
+        //
+        assert (statement.getClassName().equal ("YourClass"));
+        assert (!statement.getAllProperties());
+        assert (statement.getSelectPropertyNameCount() == 3);
+        CIMName propName = statement.getSelectPropertyName (2);
+        assert ((propName.equal ("a")) || (propName.equal ("c")) || 
+                (propName.equal ("d")));
+        CIMPropertyList propList = statement.getSelectPropertyList();
+        assert (!propList.isNull());
+        assert (propList.size() == 3);
+        assert ((propList[2].equal ("a")) || (propList[2].equal ("c")) || 
+                (propList[2].equal ("d")));
+        assert (statement.hasWhereClause());
+        assert (statement.getWherePropertyNameCount() == 4);
+        CIMName wherePropName = statement.getWherePropertyName (3);
+        assert ((wherePropName.equal ("a")) || (wherePropName.equal ("b")) || 
+                (wherePropName.equal ("c")) || (wherePropName.equal ("d")));
+        CIMPropertyList wherePropList = statement.getWherePropertyList();
+        assert (!wherePropList.isNull());
+        assert (wherePropList.size() == 4);
+        assert ((wherePropList[3].equal ("a")) || 
+                (wherePropList[3].equal ("b")) || 
+                (wherePropList[3].equal ("c")) || 
+                (wherePropList[3].equal ("d")));
+        assert (!statement.evaluateWhereClause(&source));
+    }
+    catch (Exception& e)
+    {
+	cerr << "Exception: " << e.getMessage() << endl;
+	exit(1);
+    }
+}
+
+void test03()
+{
+    //
+    // Define query:
+    //
+    
+    const char TEXT[] = 
+	"SELECT *\n"
+	"FROM AnotherClass\n";
+
+    //
+    //  Will test WQLParser::parse(const String&, WQLSelectStatement&)
+    //  and WQLParser::parse(const char*, WQLSelectStatement&) forms
+    //
+    String text (TEXT);
+    if (verbose)
+    {
+        cout << text << endl;
+    }
+
+    // 
+    // Parse the text:
+    //
+
+    WQLSelectStatement statement;
+
+    try
+    {
+	WQLParser::parse(text, statement);
+        if (verbose)
+        {
+	    statement.print();
+        }
+
+        //
+        //  Test WQLSelectStatement functions
+        //
+        assert (statement.getClassName().equal ("AnotherClass"));
+        assert (statement.getAllProperties());
+        CIMPropertyList propList = statement.getSelectPropertyList();
+        assert (propList.isNull());
+        assert (!statement.hasWhereClause());
+        assert (statement.getWherePropertyNameCount() == 0);
+        CIMPropertyList wherePropList = statement.getWherePropertyList();
+        assert (!wherePropList.isNull());
+        assert (wherePropList.size() == 0);
     }
     catch (Exception& e)
     {
@@ -83,7 +256,10 @@ void test01()
 
 int main(int argc, char** argv)
 {
+    verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
     test01();
+    test02();
+    test03();
 
     cout << "+++++ passed all tests" << endl;
     return 0;

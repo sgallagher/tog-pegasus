@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,6 +39,8 @@ PEGASUS_USING_STD;
 
 int main(int argc, char** argv)
 {
+    Boolean verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
+
     //
     // Check arguments:
     //
@@ -82,7 +85,10 @@ int main(int argc, char** argv)
 	exit(1);
     }
 
-    // statement.print();
+    if (verbose)
+    {
+        statement.print();
+    }
 
     //
     // Create a property source:

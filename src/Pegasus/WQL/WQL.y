@@ -141,7 +141,7 @@ selectStatement
 selectList
     : '*'
     {
-	globalParserState->statement->appendSelectPropertyName("*");
+	globalParserState->statement->setAllProperties(true);
     }
     | propertyList
     {
@@ -151,11 +151,11 @@ selectList
 propertyList 
     : propertyName
     {
-	globalParserState->statement->appendSelectPropertyName($1);
+	globalParserState->statement->appendSelectPropertyName(CIMName($1));
     }
     | propertyList ',' propertyName
     {
-	globalParserState->statement->appendSelectPropertyName($3);
+	globalParserState->statement->appendSelectPropertyName(CIMName($3));
     }
 
 selectExpression
@@ -172,7 +172,7 @@ fromClause
     : TOK_FROM className
     {
 	WQL_TRACE(("YACC: fromClause: TOK_FROM className(%s)\n", $2));
-	globalParserState->statement->setClassName($2);
+	globalParserState->statement->setClassName(CIMName($2));
     }
 
 whereClause 
@@ -301,7 +301,7 @@ comparisonTerm
     {
 	globalParserState->statement->appendOperand(
 	    WQLOperand($1, WQL_PROPERTY_NAME_TAG));
-	globalParserState->statement->appendWherePropertyName($1);
+	globalParserState->statement->appendWherePropertyName(CIMName($1));
     }
     | TOK_INTEGER
     {

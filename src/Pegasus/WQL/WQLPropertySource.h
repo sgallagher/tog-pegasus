@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +32,7 @@
 #define Pegasus_WQLPropertySource_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/WQL/Linkage.h>
 #include <Pegasus/WQL/WQLOperand.h>
 
@@ -61,7 +62,7 @@ public:
 	@return true if such a property was found and false otherwise.
     */
     virtual Boolean getValue(
-	const String& propertyName, 
+	const CIMName& propertyName, 
 	WQLOperand& value) const = 0;
 };
 

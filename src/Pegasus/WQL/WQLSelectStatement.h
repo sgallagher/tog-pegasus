@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +33,8 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/ArrayInternal.h>
-#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/WQL/WQLOperation.h>
 #include <Pegasus/WQL/WQLOperand.h>
 #include <Pegasus/WQL/WQLPropertySource.h>
@@ -77,7 +79,7 @@ public:
 
     /** Accessor.
     */
-    const String& getClassName() const
+    const CIMName& getClassName() const
     {
 	return _className;
     }
@@ -85,13 +87,25 @@ public:
     /** Modifier. This method should not be called by the user (only by the
 	parser).
     */
-    void setClassName(const String& className)
+    void setClassName(const CIMName& className)
     {
 	_className = className;
     }
 
+    /** 
+        Returns true if the query selects all properties ("*")
+    */
+    Boolean getAllProperties() const;
+
+    /** 
+        Used by the parser to indicate the query selects all properties ("*")
+        This method should not be called by the user (only by the parser).
+    */
+    void setAllProperties(const Boolean allProperties);
+
     /** Returns the number of property names which were indicated in the
 	selection list.
+        This function should only be used if getAllProperties() returns false.
     */
     Uint32 getSelectPropertyNameCount() const
     {
@@ -99,16 +113,23 @@ public:
     }
 
     /** Gets the i-th selected property name in the list.
+        This function should only be used if getAllProperties() returns false.
     */
-    const String& getSelectPropertyName(Uint32 i) const
+    const CIMName& getSelectPropertyName(Uint32 i) const
     {
 	return _selectPropertyNames[i];
     }
 
-    /** Appends a property name to the property name list. This user should
+    /** 
+        Returns a CIMPropertyList containing the selected properties.
+        The list is NULL if the query selects all properties (SELECT * FROM...).
+    */
+    const CIMPropertyList getSelectPropertyList() const;
+
+    /** Appends a property name to the property name list. The user should
 	not call this method; it should only be called by the parser.
     */
-    void appendSelectPropertyName(const String& x)
+    void appendSelectPropertyName(const CIMName& x)
     {
 	_selectPropertyNames.append(x);
     }
@@ -122,18 +143,24 @@ public:
 
     /** Gets the i-th unique property appearing in the where clause.
     */
-    const String& getWherePropertyName(Uint32 i) const
+    const CIMName& getWherePropertyName(Uint32 i) const
     {
 	return _wherePropertyNames[i];
     }
 
-    /** Appends a property name to the where property name list. This user 
+    /** 
+        Returns a CIMPropertyList containing the unique properties used in the 
+        WHERE clause
+    */
+    const CIMPropertyList getWherePropertyList() const;
+
+    /** Appends a property name to the where property name list. The user 
 	should not call this method; it should only be called by the parser.
 
 	@param x name of the property.
 	@return false if a property with that name already exists.
     */
-    Boolean appendWherePropertyName(const String& x);
+    Boolean appendWherePropertyName(const CIMName& x);
 
     /** Appends an operation to the operation array. This method should only
 	be called by the parser itself.
@@ -176,7 +203,12 @@ private:
     //     WHERE ...
     //
 
-    String _className;
+    CIMName _className;
+
+    //
+    // Indicates that all properties are selected (i.e. SELECT * FROM ...)
+    //
+    Boolean _allProperties;
 
     //
     // The list of property names being selected. For example, see "firstName",
@@ -186,8 +218,15 @@ private:
     //     FROM TargetClass
     //     WHERE ...
     //
+    // NOTE: if the query selects all properties, this list is empty, and 
+    // _allProperties is true
+    //
+    // NOTE: duplicate property names are not removed from the select list 
+    // (e.g. SELECT firstName, firstName FROM...) results in a list of 
+    // two properties
+    //
 
-    Array<String> _selectPropertyNames;
+    Array<CIMName> _selectPropertyNames;
 
     //
     // The unique list of property names appearing in the WHERE clause.
@@ -195,7 +234,7 @@ private:
     // only appear once in this list.
     //
 
-    Array<String> _wherePropertyNames;
+    Array<CIMName> _wherePropertyNames;
 
     //
     // The list of operations encountered while parsing the WHERE clause.
@@ -217,7 +256,7 @@ private:
     Array<WQLOperation> _operations;
 
     // 
-    // The list of operands encountered while parsing the WHERE clause. They
+    // The list of operands encountered while parsing the WHERE clause. The
     // query just above would generate the following stream of operands:
     //
     //     count, 10, peak, 20, state, "OKAY"

@@ -1,0 +1,7 @@
+[Version ("2.6.0"), Description ("PG_DynamicIndication is a test indication provider.") ]
+class PG_DynamicIndication : CIM_ManagedElement
+{
+	[static]
+	Uint32 sendIndication(Uint32 severity, String name, String description);
+};
+

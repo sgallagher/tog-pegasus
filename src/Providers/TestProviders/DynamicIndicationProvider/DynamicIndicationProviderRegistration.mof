@@ -1,0 +1,43 @@
+// The DynamicIndicationProvider can be used to generate indications on demand.
+// In order for this to work, a separate PG_ProviderCapabilities instance must be
+// created for each indication class that the provider supports.
+
+instance of PG_ProviderModule
+{
+   Name = "DynamicIndicationProvider";
+   Location = "DynamicIndicationProvider";
+   Vendor = "IBM";
+   Version = "5.1.0";
+   InterfaceType = "C++Default";
+   InterfaceVersion = "2.5.0";
+};
+
+instance of PG_Provider
+{
+   Name = "DynamicIndicationProvider";
+   ProviderModuleName = "DynamicIndicationProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "DynamicIndicationProvider";
+   ProviderName = "DynamicIndicationProvider";
+   CapabilityID = "1";
+   ClassName = "PG_DynamicIndication";
+   Namespaces = { "root/cimv2" };
+   ProviderType = { 2,5 };
+   SupportedProperties = NULL;
+   SupportedMethods = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "DynamicIndicationProvider";
+   ProviderName = "DynamicIndicationProvider";
+   CapabilityID = "2";
+   ClassName = "CIM_AlertIndication";
+   Namespaces = { "root/cimv2" };
+   ProviderType = { 4 };  // Indication
+   SupportedProperties = NULL;
+   SupportedMethods = NULL;
+};

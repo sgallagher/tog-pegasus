@@ -808,14 +808,14 @@ static void TestEnumerateInstances( CIMClient& client,
 {
 
   const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/SampleProvider");
+  const CIMName CLASSNAME = CIMName ("Sample_InstanceProviderClass");
   const String INSTANCE0 = "instance 0Sample_InstanceProviderClass";
   const String INSTANCE1 = "instance 1Sample_InstanceProviderClass";
   const String INSTANCE2 = "instance 2Sample_InstanceProviderClass";
-  const CIMName CLASSNAME = CIMName ("Sample_InstanceProviderClass");
 
   try
     {
-      const CIMName classname = CLASSNAME;
+      const CIMName className = CLASSNAME;
       Boolean deepInheritance = true;
       Boolean localOnly = true;
       Boolean includeQualifiers = false;
@@ -826,12 +826,14 @@ static void TestEnumerateInstances( CIMClient& client,
       for (Uint32 i = 0; i < testRepeat; i++)        // repeat the test x time
         {
 	  Array<CIMInstance> cimNInstances =
-	    client.enumerateInstances(NAMESPACE,  classname, deepInheritance,
+	    client.enumerateInstances(NAMESPACE,  className, deepInheritance,
 				      localOnly,  includeQualifiers,
 				      includeClassOrigin );
 
-	  assert(cimNInstances.size() == 3);
-          numberInstances =  cimNInstances.size();
+      cout << "Found " << cimNInstances.size() << " Instances of " << className << endl;
+	  ASSERTTEMP(cimNInstances.size() == 3);
+      numberInstances =  cimNInstances.size();
+
 	  for (Uint32 i = 0; i < cimNInstances.size(); i++)
 	    {
 	      String instanceRef = cimNInstances[i].getPath ().toString();
@@ -840,10 +842,12 @@ static void TestEnumerateInstances( CIMClient& client,
 	      // Test for INSTANCE0..2 when getInstanceName returns
 	      // the full reference string
 
-	      if( !(String::equal(  instanceRef, CLASSNAME.getString() ) ) )
+	      if( !(String::equal(  instanceRef, className.getString() ) ) )
 		{
-		  PEGASUS_STD(cerr) << "Error: EnumInstances failed" <<
-		    PEGASUS_STD(endl);
+		  PEGASUS_STD(cerr) << "Error: EnumInstances failed. ClassName Error"
+              << " Expected classname = " << className << " Received " << instanceRef
+              << PEGASUS_STD(endl);
+          
 		  return;
 		}
 	    }

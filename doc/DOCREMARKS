@@ -1,0 +1,58 @@
+
+February 4, 2001 - Mike Brasher - Remarks about documentation
+
+
+    1.	There are lots of places where I have blocks like this in headers.
+
+	////////////////////////////////////////////////////////////////////////
+	//
+	// Array.h
+	//
+	//	Blah blah blah!
+	//
+	////////////////////////////////////////////////////////////////////////
+
+	I am starting to remove these.
+
+    2.	Noticed that wer are using templates in a coupld of places. Does DOC++ 
+        handle these alright? Array.h
+
+    3.	Is there anyway to cause DOC++ to ignore some classes (like Rep
+	classes)?
+
+    4.  Reformatted some comments in Array.h to get this style:
+
+	
+	    /** This method does something
+		useful.
+	    */
+	    void f();
+
+	    /** This last method has a newline after it
+	        so that lexdisic individuals can see it.
+	    */
+	    void g();
+
+    5.	Wondering whether CGIQueryString should be moved out of
+	<Pegasus/Common> since it is not really part of the core and
+	is only used by CGIClient. Perhaps it should reside in CGIClient.
+
+    6.	Should brief comments be terminated or not with periods?
+
+	    /// This method does something.
+	    void h();
+
+    7.	Does DOC++ handle ordinary C-style functions (that are not
+	methods of classes?
+
+    
+    8.	I need to provide some explanation of how the data objects work.
+	When the default constructor is used, the object represents a
+	null handle, which if referenced, throws a null pointer exception.
+	
+
+    9.	Documented Array.h, CGIQueryString.h and Char16.h. Assumed that
+	we would not overlap on these.
+
+    10.	Need to talk about ClassDecl.h. Some clarification is needed about
+	the way the handles work.

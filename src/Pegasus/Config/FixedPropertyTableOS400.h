@@ -34,7 +34,11 @@
     {"enableRemotePrivilegedAccess",             "true"},
     {"enableNamespaceAuthorization",             "true"},
     {"enableHttpConnection",                     "true"},
-    {"daemon",                                   "false"},
+    // Do not fix the daemon property.  Otherwise, daemon=true cannot
+    // be passed on the CIMOM command line.
+    // Note: fixing the daemon property to true could
+    // lead to an infintite loop of QYCMCIMOM jobs being submitted.
+//  {"daemon",                                   "false"},
     {"enableIndicationService",                  "false"},
     // The following properties are not supported by OS400        
     {"providerDir",                              "lib"},		

@@ -74,7 +74,7 @@ SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext)
         //throw( SSLException("Could not get SSL Connection Area"));
         MessageLoaderParms parms("Common.TLS.COULD_NOT_GET_SSL_CONNECTION_AREA",
             					 "Could not get SSL Connection Area");
-        throw( SSLException(parms));
+        throw SSLException(parms);
     }
 
     //
@@ -87,7 +87,7 @@ SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext)
         //throw( SSLException("Could not link socket to SSL Connection"));
         MessageLoaderParms parms("Common.TLS.COULD_NOT_LINK_SOCKET",
             					 "Could not link socket to SSL Connection");
-        throw( SSLException(parms));
+        throw SSLException(parms);
     }
 
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: Created SSL socket");
@@ -387,25 +387,37 @@ Sint32 MP_Socket::write(const void * ptr, Uint32 size)
 void MP_Socket::close()
 {
     if (_isSecure)
-        return _sslsock->close();
+
+        _sslsock->close();
+
     else
-        return Socket::close(_socket);
+
+        Socket::close(_socket);
+
 }
 
 void MP_Socket::enableBlocking()
 {
     if (_isSecure)
-        return _sslsock->enableBlocking();
+
+        _sslsock->enableBlocking();
+
     else
-        return Socket::enableBlocking(_socket);
+
+        Socket::enableBlocking(_socket);
+
 }
 
 void MP_Socket::disableBlocking()
 {
     if (_isSecure)
-        return _sslsock->disableBlocking();
+
+        _sslsock->disableBlocking();
+
     else
-        return Socket::disableBlocking(_socket);
+
+       Socket::disableBlocking(_socket);
+
 }
 
 Sint32 MP_Socket::accept()

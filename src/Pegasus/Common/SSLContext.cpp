@@ -531,7 +531,7 @@ void SSLContextRep::_randomInit(const String& randomFile)
             //throw( SSLException("Random seed file required"));
             MessageLoaderParms parms("Common.SSLContext.RANDOM_SEED_FILE_REQUIRED",
             						 "Random seed file required");
-            throw( SSLException(parms));						 
+            throw SSLException(parms);						 
         }
 
         //
@@ -552,7 +552,7 @@ void SSLContextRep::_randomInit(const String& randomFile)
                 MessageLoaderParms parms("Common.SSLContext.NOT_ENOUGH_SEED_DATA_IN_FILE",
             						     "Not enough seed data in random seed file.",
             						     randomFile);
-            	throw( SSLException(parms));
+            	throw SSLException(parms);
             }
         }
         else
@@ -565,7 +565,7 @@ void SSLContextRep::_randomInit(const String& randomFile)
             MessageLoaderParms parms("Common.SSLContext.SEED_FILE_DOES_NOT_EXIST",
             						 "Seed file '$0' does not exist.",
             						 randomFile);
-            throw( SSLException(parms));
+            throw SSLException(parms);
         }
 
         if ( RAND_status() == 0 )
@@ -574,8 +574,13 @@ void SSLContextRep::_randomInit(const String& randomFile)
             // Try to do more seeding
             //
             long seedNumber;
+        #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+            srand((unsigned int)time(NULL)); // Initialize
+            seedNumber = rand();
+        #else
             srandom((unsigned int)time(NULL)); // Initialize
             seedNumber = random();
+        #endif
             RAND_seed((unsigned char *) &seedNumber, sizeof(seedNumber));
 
             int  seedRet = RAND_status();
@@ -591,7 +596,7 @@ void SSLContextRep::_randomInit(const String& randomFile)
                 MessageLoaderParms parms("Common.SSLContext.NOT_ENOUGH_SEED_DATA_IN_FILE",
             						     "Not enough seed data in random seed file.",
             						     randomFile);
-            	throw( SSLException(parms));
+            	throw SSLException(parms);
             }
         }
     }
@@ -607,7 +612,7 @@ void SSLContextRep::_randomInit(const String& randomFile)
         //throw( SSLException("Not enough seed data."));
         MessageLoaderParms parms("Common.SSLContext.NOT_ENOUGH_SEED_DATA",
             					 "Not enough seed data.");
-        throw( SSLException(parms));
+        throw SSLException(parms);
     }
 
     PEG_METHOD_EXIT();
@@ -630,7 +635,7 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
         //throw( SSLException("Could not get SSL CTX"));
         MessageLoaderParms parms("Common.SSLContext.COULD_NOT_GET",
             					 "Could not get SSL CTX");
-        throw( SSLException(parms));
+        throw SSLException(parms);
     }
 
 #ifdef PEGASUS_SSL_WEAKENCRYPTION
@@ -639,7 +644,7 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
         //throw( SSLException("Could not set the cipher list"));
         MessageLoaderParms parms("Common.SSLContext.COULD_NOT_SET_CIPHER_LIST",
             					 "Could not set the cipher list");
-        throw( SSLException(parms));
+        throw SSLException(parms);
     }
 #endif
 
@@ -680,7 +685,7 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
             //throw( SSLException("Could not load certificates in to trust store."));
             MessageLoaderParms parms("Common.SSLContext.COULD_NOT_LOAD_CERTIFICATES",
             					     "Could not load certificates in to trust store.");
-            throw( SSLException(parms));
+            throw SSLException(parms);
         }
     }
 
@@ -706,7 +711,7 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
             //throw( SSLException("Could not get server certificate."));
             MessageLoaderParms parms("Common.SSLContext.COULD_NOT_GET_SERVER_CERTIFICATE",
             					     "Could not get server certificate.");
-            throw( SSLException(parms));
+            throw SSLException(parms);
         }
 
         //
@@ -729,7 +734,7 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
                 //throw( SSLException("Could not get private key."));
                 MessageLoaderParms parms("Common.SSLContext.COULD_NOT_GET_PRIVATE_KEY",
             					         "Could not get private key.");
-            	throw( SSLException(parms));
+            	throw SSLException(parms);
             }
             keyLoaded = true;
         }
@@ -754,7 +759,7 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
             //throw( SSLException("Could not get private key."));
             MessageLoaderParms parms("Common.SSLContext.COULD_NOT_GET_PRIVATE_KEY",
             					         "Could not get private key.");
-            throw( SSLException(parms));
+            throw SSLException(parms);
         }
         keyLoaded = true;
     }

@@ -31,6 +31,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+void ThrowOutOfBounds()
+{
+    throw OutOfBounds();
+}
+
 #define PEGASUS_ARRAY_T Boolean
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
@@ -80,16 +85,11 @@ PEGASUS_NAMESPACE_BEGIN
 #undef PEGASUS_ARRAY_T
 
 #define PEGASUS_ARRAY_T ConstCharPtr
-# include "ArrayImpl.h"
+#include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 
 #define PEGASUS_ARRAY_T CharPtr
-# include "ArrayImpl.h"
+#include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
-
-void ThrowOutOfBounds()
-{
-    throw OutOfBounds();
-}
 
 PEGASUS_NAMESPACE_END

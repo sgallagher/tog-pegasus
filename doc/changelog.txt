@@ -299,8 +299,15 @@ TAG: Version_1_09.
 51. (Nag Boranna - HP) 23 May 2002 -  Added config properties 
     'enableHttpConnection' and 'enableHttpsConnection'. Renamed 
     'requireAuthentication' to 'enableAuthentication' and 'requireAuthorization' 
-    to 'enableNamespaceAut horization'. Removed few ATTN's in Authentication code.
+    to 'enableNamespaceAuthorization'. Removed few ATTN's in Authentication code.
 
+52. (Roger Kumpf - HP) 28 May 2002 - Reworked the Array template so that
+    the implementation is hidden from clients and providers.  This was
+    accomplished by using explicit instantiation of the array template for
+    each array type that is supported in the client and provider APIs.
+    The array template implementation is still available for use within
+    the Pegasus core, allowing implicit instantiation of additional array
+    types used internally.
 
 ========================================================================
 

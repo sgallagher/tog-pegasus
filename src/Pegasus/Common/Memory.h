@@ -30,15 +30,15 @@
 //
 // Memory.h
 //
-//	This file contains assorted memory-oriented routines:
+//      This file contains assorted memory-oriented routines:
 //
-//	    Zeros(): fills memory with zeros.
-//	    Destroy(): destructs multiple objects in contiguous memory.
-//	    CopyToRaw(): copies multiple objects to raw memory.
-//	    InitializeRaw(): default constructs mulitple object over raw memory.
+//          Zeros(): fills memory with zeros.
+//          Destroy(): destructs multiple objects in contiguous memory.
+//          CopyToRaw(): copies multiple objects to raw memory.
+//          InitializeRaw(): default constructs mulitple object over raw memory.
 //
-//	Each of these is a template but specializations are provide for
-//	efficiency (which in some cases removes uncessary loops).
+//      Each of these is a template but specializations are provide for
+//      efficiency (which in some cases removes uncessary loops).
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -49,7 +49,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/Char16.h>
-
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -63,22 +62,22 @@ template<class T>
 inline void Destroy(T* items, Uint32 size)
 {
     while (size--)
-	items++->~T();
+        items++->~T();
 }
 
-template<class T, class U>
-inline void CopyToRaw(T* to, const U* from, Uint32 size)
+template<class T>
+inline void CopyToRaw(T* to, const T* from, Uint32 size)
 {
     while (size--)
     {
-	// The following fails on TRU64:
-	//     new(to++) T(*from++);
-	// Probably a compiler error so I changed it to this:
-	// Mike Brasher
+        // The following fails on TRU64:
+        //     new(to++) T(*from++);
+        // Probably a compiler error so I changed it to this:
+        // Mike Brasher
 
-	new(to) T(*from);
-	to++;
-	from++;
+        new(to) T(*from);
+        to++;
+        from++;
     }
 }
 
@@ -147,14 +146,13 @@ inline void InitializeRaw(T* items, Uint32 size)
 {
     while (size--)
     {
-	new(items) T();
-	items++;
+        new(items) T();
+        items++;
     }
 }
 
 #define PEGASUS_MEMORY_FUNCTIONS(T) \
     inline void Destroy(T*, Uint32) { } \
-    inline void Destroy(T*) { } \
     inline void InitializeRaw(T* items, Uint32 size) { Zeros(items, size); }
 
 PEGASUS_MEMORY_FUNCTIONS(char*)

@@ -30,192 +30,15 @@
 #define Pegasus_Array_h
 
 #include <Pegasus/Common/Config.h>
-#include <new>
-#include <cstring>
-#ifdef PEGASUS_HAS_EBCDIC
-#include <unistd.h>
-#endif
 #include <Pegasus/Common/Char16.h>
-#include <Pegasus/Common/Memory.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-/*  ArrayRep<T>
-    The ArrayRep object represents the array size, capacity,
-    and elements in one contiguous chunk of memory. The elements
-    follow immediately after the end of the ArrayRep structure in memory.
-    The union is used to force 64 bit alignment of these elements. This is
-    a private class and should not be accessed directly by the user.
-*/
-template<class T>
-struct ArrayRep
-{
-    Uint32 size;
-
-    /* This union forces the first element (which follows this structure
-	in memory) to be aligned on a 64 bit boundary. It is a requirement
-	that even an array of characters be aligned for any purpose (as malloc()
-	does). That way, arrays of characters can be used for alignement
-	sensitive data.
-    */
-    union
-    {
-        Uint32 capacity;
-	Uint64 alignment;
-    };
-
-    // Obtains a pointer to the first element in the array.
-    T* data() { return (T*)(void*)(this + 1); }
-
-    // Same as method above but returns a constant pointer.
-    const T* data() const { return (const T*)(void*)(this + 1); }
-
-    /* Creates a clone of the current */
-    ArrayRep<T>* clone() const;
-
-    /* Create and initialize a ArrayRep instance. Note that the
-	memory for the elements is unitialized and must be initialized by
-	the caller.
-    */
-
-    static ArrayRep<T>* PEGASUS_STATIC_CDECL create(Uint32 size);
-
-    /* Disposes of the object.
-    */
-    static void PEGASUS_STATIC_CDECL destroy(ArrayRep<T>* rep);
-};
-
-template<class T>
-ArrayRep<T>* ArrayRep<T>::clone() const
-{
-    ArrayRep<T>* rep = ArrayRep<T>::create(capacity);
-    rep->size = size;
-#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-    CopyToRaw<T>(rep->data(), data(), size);
-#else
-    CopyToRaw(rep->data(), data(), size);
-#endif
-    return rep;
-}
-
-template<class T>
-ArrayRep<T>* PEGASUS_STATIC_CDECL ArrayRep<T>::create(Uint32 size)
-{
-    // Calcultate capacity (size rounded to the next power of two).
-
-    Uint32 capacity = 8;
-
-    while (capacity < size)
-	capacity <<= 1;
-
-    // Create object:
-
-    ArrayRep<T>* rep =
-	(ArrayRep<T>*)operator new(sizeof(ArrayRep<T>) + sizeof(T) * capacity);
-
-    rep->size = size;
-    rep->capacity = capacity;
-
-    return rep;
-}
-
-template<class T>
-void PEGASUS_STATIC_CDECL ArrayRep<T>::destroy(ArrayRep<T>* rep)
-{
-    if (rep)
-    {
-// ATTN-RK-P1-20020509: PLATFORM PORT: This change fixes memory leaks for me.
-// Should you make these changes on your platform?  (See also ArrayImpl.h)
-#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-	Destroy<T>(rep->data(), rep->size);
-#else
-	Destroy(rep->data(), rep->size);
-#endif
-
-        operator delete(rep);
-        return;
-    }
-}
 
 PEGASUS_COMMON_LINKAGE void ThrowOutOfBounds();
 
 #include <Pegasus/Common/ArrayInter.h>
-#include <Pegasus/Common/ArrayImpl.h>
-
-template<class PEGASUS_ARRAY_T>
-Boolean Equal(const Array<PEGASUS_ARRAY_T>& x, const Array<PEGASUS_ARRAY_T>& y)
-{
-    if (x.size() != y.size())
-	return false;
-
-    for (Uint32 i = 0, n = x.size(); i < n; i++)
-    {
-	if (!(x[i] == y[i]))
-	    return false;
-    }
-
-    return true;
-}
-
-template<class T>
-Boolean Contains(const Array<T>& a, const T& x)
-{
-    Uint32 n = a.size();
-
-    for (Uint32 i = 0; i < n; i++)
-    {
-	if (a[i] == x)
-	    return true;
-    }
-
-    return false;
-}
-
 #ifdef PEGASUS_INTERNALONLY
-template<class PEGASUS_ARRAY_T>
-void BubbleSort(Array<PEGASUS_ARRAY_T>& x) 
-{
-    Uint32 n = x.size();
-
-    if (n < 2)
-	return;
-
-    for (Uint32 i = 0; i < n - 1; i++)
-    {
-	for (Uint32 j = 0; j < n - 1; j++)
-	{
-	    if (x[j] > x[j+1])
-	    {
-		PEGASUS_ARRAY_T t = x[j];
-		x[j] = x[j+1];
-		x[j+1] = t;
-	    }
-	}
-    }
-}
-#endif
-
-#if 0 // Determine need for these functions
-template<class PEGASUS_ARRAY_T>
-void Unique(Array<PEGASUS_ARRAY_T>& x) 
-{
-    Array<PEGASUS_ARRAY_T> result;
-
-    for (Uint32 i = 0, n = x.size(); i < n; i++)
-    {
-	if (i == 0 || x[i] != x[i-1])
-	    result.append(x[i]);
-    }
-
-    x.swap(result);
-}
-
-template<class PEGASUS_ARRAY_T>
-void Print(Array<PEGASUS_ARRAY_T>& x)
-{
-    for (Uint32 i = 0, n = x.size(); i < n; i++)
-	PEGASUS_STD(cout) << x[i] << PEGASUS_STD(endl);
-}
+#include <Pegasus/Common/ArrayImpl.h>
 #endif
 
 #define PEGASUS_ARRAY_T Boolean
@@ -268,13 +91,97 @@ void Print(Array<PEGASUS_ARRAY_T>& x)
 
 typedef const char* ConstCharPtr;
 #define PEGASUS_ARRAY_T ConstCharPtr
-# include "ArrayInter.h"
+# include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
 typedef char* CharPtr;
 #define PEGASUS_ARRAY_T CharPtr
-# include "ArrayInter.h"
+# include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
+
+template<class PEGASUS_ARRAY_T>
+Boolean Equal(const Array<PEGASUS_ARRAY_T>& x, const Array<PEGASUS_ARRAY_T>& y)
+{
+    if (x.size() != y.size())
+        return false;
+
+    for (Uint32 i = 0, n = x.size(); i < n; i++)
+    {
+        if (!(x[i] == y[i]))
+            return false;
+    }
+
+    return true;
+}
+
+template<class PEGASUS_ARRAY_T>
+Boolean operator==(
+    const Array<PEGASUS_ARRAY_T>& x,
+    const Array<PEGASUS_ARRAY_T>& y)
+{
+    return Equal(x, y);
+}
+
+template<class PEGASUS_ARRAY_T>
+Boolean Contains(const Array<PEGASUS_ARRAY_T>& a, const PEGASUS_ARRAY_T& x)
+{
+    Uint32 n = a.size();
+
+    for (Uint32 i = 0; i < n; i++)
+    {
+        if (a[i] == x)
+            return true;
+    }
+
+    return false;
+}
+
+#ifdef PEGASUS_INTERNALONLY
+template<class PEGASUS_ARRAY_T>
+void BubbleSort(Array<PEGASUS_ARRAY_T>& x) 
+{
+    Uint32 n = x.size();
+
+    if (n < 2)
+        return;
+
+    for (Uint32 i = 0; i < n - 1; i++)
+    {
+        for (Uint32 j = 0; j < n - 1; j++)
+        {
+            if (x[j] > x[j+1])
+            {
+                PEGASUS_ARRAY_T t = x[j];
+                x[j] = x[j+1];
+                x[j+1] = t;
+            }
+        }
+    }
+}
+#endif
+
+#if 0 // Determine need for these functions
+template<class PEGASUS_ARRAY_T>
+void Unique(Array<PEGASUS_ARRAY_T>& x) 
+{
+    Array<PEGASUS_ARRAY_T> result;
+
+    for (Uint32 i = 0, n = x.size(); i < n; i++)
+    {
+        if (i == 0 || x[i] != x[i-1])
+            result.append(x[i]);
+    }
+
+    x.swap(result);
+}
+
+template<class PEGASUS_ARRAY_T>
+void Print(Array<PEGASUS_ARRAY_T>& x)
+{
+    for (Uint32 i = 0, n = x.size(); i < n; i++)
+        PEGASUS_STD(cout) << x[i] << PEGASUS_STD(endl);
+}
+#endif
 
 PEGASUS_NAMESPACE_END
 

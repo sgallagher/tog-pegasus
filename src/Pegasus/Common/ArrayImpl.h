@@ -26,7 +26,23 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#if defined(PEGASUS_EXPLICIT_INSTANTIATION) || !defined(PEGASUS_ARRAY_T)
+//#if defined(PEGASUS_EXPLICIT_INSTANTIATION) || !defined(PEGASUS_ARRAY_T)
+// Only include if not included as general template or if explicit instantiation
+#if !defined(Pegasus_ArrayImpl_h) || defined(PEGASUS_ARRAY_T)
+#if !defined(PEGASUS_ARRAY_T)
+#define Pegasus_ArrayImpl_h
+#endif
+
+PEGASUS_NAMESPACE_END
+
+#include <Pegasus/Common/Memory.h>
+#include <Pegasus/Common/ArrayRep.h>
+
+#ifdef PEGASUS_HAS_EBCDIC
+#include <unistd.h>
+#endif
+
+PEGASUS_NAMESPACE_BEGIN
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
@@ -35,7 +51,7 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Array<PEGASUS_ARRAY_T>::Array()
 {
-    _rep = Rep::create(0);
+    _rep = ArrayRep<PEGASUS_ARRAY_T>::create(0);
 }
 
 #ifndef PEGASUS_ARRAY_T
@@ -45,7 +61,7 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Array<PEGASUS_ARRAY_T>::Array(const Array<PEGASUS_ARRAY_T>& x)
 {
-    _rep = x._rep->clone();
+    _rep = static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(x._rep)->clone();
 }
 
 #ifndef PEGASUS_ARRAY_T
@@ -55,12 +71,8 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Array<PEGASUS_ARRAY_T>::Array(Uint32 size)
 {
-    _rep = Rep::create(size);
-#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-    InitializeRaw<PEGASUS_ARRAY_T>(_rep->data(), size);
-#else
-    InitializeRaw(_rep->data(), size);
-#endif
+    _rep = ArrayRep<PEGASUS_ARRAY_T>::create(size);
+    InitializeRaw(static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data(), size);
 }
 
 #ifndef PEGASUS_ARRAY_T
@@ -70,12 +82,12 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Array<PEGASUS_ARRAY_T>::Array(Uint32 size, const PEGASUS_ARRAY_T& x)
 {
-    _rep = Rep::create(size);
+    _rep = ArrayRep<PEGASUS_ARRAY_T>::create(size);
 
-    PEGASUS_ARRAY_T* data = _rep->data();
+    PEGASUS_ARRAY_T* data = static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data();
 
     while (size--)
-	new(data++) PEGASUS_ARRAY_T(x);
+        new(data++) PEGASUS_ARRAY_T(x);
 }
 
 #ifndef PEGASUS_ARRAY_T
@@ -85,12 +97,8 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Array<PEGASUS_ARRAY_T>::Array(const PEGASUS_ARRAY_T* items, Uint32 size)
 {
-    _rep = Rep::create(size);
-#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-    CopyToRaw<PEGASUS_ARRAY_T>(_rep->data(), items, size);
-#else
-    CopyToRaw(_rep->data(), items, size);
-#endif
+    _rep = ArrayRep<PEGASUS_ARRAY_T>::create(size);
+    CopyToRaw(static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data(), items, size);
 }
 
 #ifndef PEGASUS_ARRAY_T
@@ -100,7 +108,7 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Array<PEGASUS_ARRAY_T>::~Array()
 {
-    Rep::destroy(_rep);
+    ArrayRep<PEGASUS_ARRAY_T>::destroy(static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep));
 }
 
 #ifndef PEGASUS_ARRAY_T
@@ -111,10 +119,11 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 Array<PEGASUS_ARRAY_T>& Array<PEGASUS_ARRAY_T>::operator=(
     const Array<PEGASUS_ARRAY_T>& x)
 {
-    if (x._rep != _rep)
+    if (static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(x._rep) !=
+        static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep))
     {
-	Rep::destroy(_rep);
-	_rep = x._rep->clone();
+        ArrayRep<PEGASUS_ARRAY_T>::destroy(static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep));
+        _rep = static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(x._rep)->clone();
     }
     return *this;
 }
@@ -126,8 +135,8 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::clear()
 {
-    Rep::destroy(_rep);
-    _rep = Rep::create(0);
+    ArrayRep<PEGASUS_ARRAY_T>::destroy(static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep));
+    _rep = ArrayRep<PEGASUS_ARRAY_T>::create(0);
 }
 
 #ifndef PEGASUS_ARRAY_T
@@ -137,17 +146,13 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::reserve(Uint32 capacity)
 {
-    if (capacity > _rep->capacity)
+    if (capacity > static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->capacity)
     {
         Uint32 size = this->size();
-        Rep* rep = Rep::create(capacity);
+        ArrayRep<PEGASUS_ARRAY_T>* rep = ArrayRep<PEGASUS_ARRAY_T>::create(capacity);
         rep->size = size;
-#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-        CopyToRaw<PEGASUS_ARRAY_T>(rep->data(), _rep->data(), size);
-#else
-        CopyToRaw(rep->data(), _rep->data(), size);
-#endif
-        Rep::destroy(_rep);
+        CopyToRaw(rep->data(), static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data(), size);
+        ArrayRep<PEGASUS_ARRAY_T>::destroy(static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep));
         _rep = rep;
     }
 }
@@ -159,16 +164,16 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::grow(Uint32 size, const PEGASUS_ARRAY_T& x)
 {
-    Uint32 oldSize = _rep->size;
+    Uint32 oldSize = static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->size;
     reserve(oldSize + size);
 
-    PEGASUS_ARRAY_T* p = _rep->data() + oldSize;
+    PEGASUS_ARRAY_T* p = static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data() + oldSize;
     Uint32 n = size;
 
     while (n--)
-	new(p++) PEGASUS_ARRAY_T(x);
+        new(p++) PEGASUS_ARRAY_T(x);
 
-    _rep->size += size;
+    static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->size += size;
 }
 
 #ifndef PEGASUS_ARRAY_T
@@ -178,8 +183,8 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::swap(Array<PEGASUS_ARRAY_T>& x)
 {
-    Rep* tmp = _rep;
-    _rep = x._rep;
+    ArrayRep<PEGASUS_ARRAY_T>* tmp = static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep);
+    _rep = static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(x._rep);
     x._rep = tmp;
 }
 
@@ -190,7 +195,7 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Uint32 Array<PEGASUS_ARRAY_T>::size() const
 {
-    return _rep->size;
+    return static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->size;
 }
 
 #ifndef PEGASUS_ARRAY_T
@@ -200,7 +205,7 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 Uint32 Array<PEGASUS_ARRAY_T>::getCapacity() const
 {
-    return _rep->capacity;
+    return static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->capacity;
 }
 
 #ifndef PEGASUS_ARRAY_T
@@ -210,7 +215,33 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 const PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::getData() const
 {
-    return _rep->data();
+    return static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data();
+}
+
+#ifndef PEGASUS_ARRAY_T
+template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
+#endif
+PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](Uint32 pos)
+{
+    if (pos >= size())
+        ThrowOutOfBounds();
+
+    return static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data()[pos];
+}
+
+#ifndef PEGASUS_ARRAY_T
+template<class PEGASUS_ARRAY_T>
+#else
+PEGASUS_TEMPLATE_SPECIALIZATION
+#endif
+const PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](Uint32 pos) const
+{
+    if (pos >= size())
+        ThrowOutOfBounds();
+
+    return static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data()[pos];
 }
 
 #ifndef PEGASUS_ARRAY_T
@@ -222,7 +253,7 @@ void Array<PEGASUS_ARRAY_T>::append(const PEGASUS_ARRAY_T& x)
 {
     reserve(size() + 1);
     new (_data() + size()) PEGASUS_ARRAY_T(x);
-    _rep->size++;
+    static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->size++;
 }
 
 #ifndef PEGASUS_ARRAY_T
@@ -233,12 +264,8 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 void Array<PEGASUS_ARRAY_T>::append(const PEGASUS_ARRAY_T* x, Uint32 size)
 {
     reserve(this->size() + size);
-#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-    CopyToRaw<PEGASUS_ARRAY_T>(_data() + this->size(), x, size);
-#else
     CopyToRaw(_data() + this->size(), x, size);
-#endif
-    _rep->size += size;
+    static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->size += size;
 }
 
 #ifndef PEGASUS_ARRAY_T
@@ -270,12 +297,8 @@ void Array<PEGASUS_ARRAY_T>::prepend(const PEGASUS_ARRAY_T* x, Uint32 size)
 {
     reserve(this->size() + size);
     memmove(_data() + size, _data(), sizeof(PEGASUS_ARRAY_T) * this->size());
-#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-    CopyToRaw<PEGASUS_ARRAY_T>(_data(), x, size);
-#else
     CopyToRaw(_data(), x, size);
-#endif
-    _rep->size += size;
+    static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->size += size;
 }
 
 #ifndef PEGASUS_ARRAY_T
@@ -296,22 +319,18 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 void Array<PEGASUS_ARRAY_T>::insert(Uint32 pos, const PEGASUS_ARRAY_T* x, Uint32 size)
 {
     if (pos > this->size())
-	ThrowOutOfBounds();
+        ThrowOutOfBounds();
 
     reserve(this->size() + size);
 
     Uint32 n = this->size() - pos;
 
     if (n)
-	memmove(
-	    _data() + pos + size, _data() + pos, sizeof(PEGASUS_ARRAY_T) * n);
+        memmove(
+            _data() + pos + size, _data() + pos, sizeof(PEGASUS_ARRAY_T) * n);
 
-#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-    CopyToRaw<PEGASUS_ARRAY_T>(_data() + pos, x, size);
-#else
     CopyToRaw(_data() + pos, x, size);
-#endif
-    _rep->size += size;
+    static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->size += size;
 }
 
 #ifndef PEGASUS_ARRAY_T
@@ -332,21 +351,17 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 void Array<PEGASUS_ARRAY_T>::remove(Uint32 pos, Uint32 size)
 {
     if (pos + size - 1 > this->size())
-	ThrowOutOfBounds();
+        ThrowOutOfBounds();
 
-#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-    Destroy<PEGASUS_ARRAY_T>(_data() + pos, size);
-#else
     Destroy(_data() + pos, size);
-#endif
 
     Uint32 rem = this->size() - (pos + size);
 
     if (rem)
-	memmove(
-	    _data() + pos, _data() + pos + size, sizeof(PEGASUS_ARRAY_T) * rem);
+        memmove(
+            _data() + pos, _data() + pos + size, sizeof(PEGASUS_ARRAY_T) * rem);
 
-    _rep->size -= size;
+    static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->size -= size;
 }
 
 #ifdef PEGASUS_HAS_EBCDIC
@@ -359,7 +374,7 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 void Array<PEGASUS_ARRAY_T>::etoa()
 {
 #if PEGASUS_ARRAY_T == Sint8
-    __etoa_l((char *)_data(),_rep->size);
+    __etoa_l((char *)_data(),static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->size);
 #endif
 }
 
@@ -371,7 +386,7 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 void Array<PEGASUS_ARRAY_T>::atoe()
 {
 #if PEGASUS_ARRAY_T == Sint8
-    __atoe_l((char *)_data(),_rep->size);
+    __atoe_l((char *)_data(),static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->size);
 #endif
 }
 
@@ -384,7 +399,7 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::begin()
 {
-    return _rep->data();
+    return static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data();
 }
 
 #ifndef PEGASUS_ARRAY_T
@@ -394,7 +409,7 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::end()
 {
-    return _rep->data() + size();
+    return static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data() + size();
 }
 
 #ifndef PEGASUS_ARRAY_T
@@ -422,63 +437,10 @@ template<class PEGASUS_ARRAY_T>
 #else
 PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
-void Array<PEGASUS_ARRAY_T>::set(ArrayRep<PEGASUS_ARRAY_T>* rep)
-{
-    if (_rep != rep)
-    {
-        Rep::destroy(_rep);
-	_rep = rep->clone();
-    }
-}
-
-#ifndef PEGASUS_ARRAY_T
-template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
-#endif
 PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::_data() const
 {
-    return _rep->data();
+    return static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data();
 }
 
-
-#ifndef PEGASUS_ARRAY_T
-template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
-#endif
-Boolean operator==(
-    const Array<PEGASUS_ARRAY_T>& x,
-    const Array<PEGASUS_ARRAY_T>& y)
-{
-    return Equal(x, y);
-}
-
-#ifndef PEGASUS_ARRAY_T
-template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
-#endif
-PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](Uint32 pos)
-{
-    if (pos >= size())
-        ThrowOutOfBounds();
-
-    return _rep->data()[pos];
-}
-
-#ifndef PEGASUS_ARRAY_T
-template<class PEGASUS_ARRAY_T>
-#else
-PEGASUS_TEMPLATE_SPECIALIZATION
-#endif
-const PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](
-    Uint32 pos) const
-{
-    if (pos >= size())
-        ThrowOutOfBounds();
-
-    return _rep->data()[pos];
-}
-
-#endif /*defined(PEGASUS_EXPLICIT_INSTANTIATION) || !defined(PEGASUS_ARRAY_T)*/
+#endif //!defined(Pegasus_ArrayImpl_h) || !defined(PEGASUS_ARRAY_T)
+//#endif /*defined(PEGASUS_EXPLICIT_INSTANTIATION) || !defined(PEGASUS_ARRAY_T)*/

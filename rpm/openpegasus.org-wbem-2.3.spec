@@ -142,7 +142,7 @@ mkdir -p $RPM_BUILD_ROOT/usr/lib/pegasus/providers
 mkdir -p $RPM_BUILD_ROOT/usr/share/man/{man1,man1m}
 mkdir -p $RPM_BUILD_ROOT/etc/pegasus/mof
 
-install -D -d -m 1555 $RPM_BUILD_ROOT/var/pegasus/socket
+install -D -d -m 1555 $RPM_BUILD_ROOT/var/run
 
 
 export PEGASUS_ROOT=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
@@ -446,7 +446,7 @@ ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleInstanceProvider.so.1    $RPM_BUI
 ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleMethodProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/providers/libSampleMethodProvider.so
 ln -s $RPM_BUILD_ROOT/usr/lib/pegasus/libSampleMethodProvider.so.1    $RPM_BUILD_ROOT/usr/lib/pegasus/providers/libSampleMethodProvider.so.1
 
-/bin/chmod +w /var/pegasus/socket/cimxml.socket
+/bin/chmod +w /var/run/cimxml.socket
 
 # Create symbolic links for client libs
 #
@@ -457,8 +457,8 @@ do
 done
 # link directories
 
-mkdir -p /var/pegasus/repository
-ln -s /var/pegasus/repository  /etc/pegasus/repository
+mkdir -p /var/lib/pegasus/repository
+ln -s /var/lib/pegasus/repository  /etc/pegasus/repository
 #
 #  Set up the openssl certificate
 #
@@ -471,14 +471,14 @@ CN="Common Name"
 EMAIL="test@email.address"
 HOSTNAME=`uname -n`
 sed -e "s/$CN/$HOSTNAME/"  \
-    -e "s/$EMAIL/root@$HOSTNAME/" /var/pegasus/ssl.orig \
-    > /var/pegasus/ssl.cnf
-chmod 644 /var/pegasus/ssl.cnf
-chown bin /var/pegasus/ssl.cnf
-chgrp bin /var/pegasus/ssl.cnf
+    -e "s/$EMAIL/root@$HOSTNAME/" /etc/pegasus/ssl.orig \
+    > /etc/pegasus/ssl.cnf
+chmod 644 /etc/pegasus/ssl.cnf
+chown bin /etc/pegasus/ssl.cnf
+chgrp bin /etc/pegasus/ssl.cnf
 
 openssl req -x509 -days 365 -newkey rsa:2048 \
-   -nodes -config /var/pegasus/ssl.cnf   \
+   -nodes -config /etc/pegasus/ssl.cnf   \
    -keyout /etc/pegasus/key.pem -out /etc/pegasus/cert.pem 2>>$INSTALL_LOG
 
 cat /etc/pegasus/key.pem > /etc/pegasus/file_2048.pem
@@ -505,15 +505,15 @@ else
     chmod 400 /etc/pegasus/client.pem
 fi
 
-if [ -d "/var/pegasus/repository/root#PG_Internal" ]
+if [ -d "/var/lib/pegasus/repository/root#PG_Internal" ]
 then
   #
-  # Save the current /var/pegasus/repository to
-  # /var/pegasus/prev_repository.
+  # Save the current /var/lib/pegasus/repository to
+  # /var/lib/pegasus/prev_repository.
   #
 
-  REPOSITORY_LOC="/var/pegasus/repository"
-  PREV_REPOSITORY_LOC="/var/pegasus/prev_repository"
+  REPOSITORY_LOC="/var/lib/pegasus/repository"
+  PREV_REPOSITORY_LOC="/var/lib/pegasus/prev_repository"
 
   if [[ -d $REPOSITORY_LOC ]]
   then
@@ -571,7 +571,7 @@ if [ $1 = 0 ]; then
 	mv -f /etc/ld.so.conf.new /etc/ld.so.conf
 	/sbin/ldconfig
 	rm -rf /etc/pegasus
-	rm -rf /var/pegasus
+	rm -rf /var/lib/pegasus
 	export LC_ALL=C
 	for file in `find /usr/lib/pegasus`;
 	do
@@ -587,7 +587,7 @@ fi
 
 %files
 %dir %attr(-,root,root) /var/cache/pegasus/localauth
-%dir %attr(-,root,root) /var/pegasus/socket
+%dir %attr(-,root,root) /var/run
 %dir %attr(-,root,root) /var/log/pegasus
 %dir %attr(-,root,root) /usr/lib/pegasus/providers
 %attr(-,root,root) /usr/share/man/man1/cimmof.1.gz

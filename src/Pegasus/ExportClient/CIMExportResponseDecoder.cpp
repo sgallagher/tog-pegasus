@@ -26,6 +26,7 @@
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,6 +39,7 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/Exception.h>
 #include "CIMExportResponseDecoder.h"
 
 PEGASUS_USING_STD;
@@ -45,11 +47,11 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMExportResponseDecoder::CIMExportResponseDecoder(
-   MessageQueueService* outputQueue,
-   MessageQueueService* encoderQueue,
+   MessageQueue* outputQueue,
+   MessageQueue* encoderQueue,
    ClientAuthenticator* authenticator)
    :
-   Base(PEGASUS_QUEUENAME_EXPORTRESPDECODER),
+   MessageQueue(PEGASUS_QUEUENAME_EXPORTRESPDECODER),
    _outputQueue(outputQueue),
    _encoderQueue(encoderQueue),
    _authenticator(authenticator)
@@ -62,14 +64,16 @@ CIMExportResponseDecoder::~CIMExportResponseDecoder()
 
 }
 
-void  CIMExportResponseDecoder::setEncoderQueue(MessageQueueService* encoderQueue)
+void  CIMExportResponseDecoder::setEncoderQueue(MessageQueue* encoderQueue)
 {
    _encoderQueue = encoderQueue;
 }
 
 
-void CIMExportResponseDecoder::handleEnqueue(Message *message)
+void CIMExportResponseDecoder::handleEnqueue()
 {
+   Message* message = dequeue();
+
    if (!message)
       return;
    
@@ -83,18 +87,11 @@ void CIMExportResponseDecoder::handleEnqueue(Message *message)
       }
       
       default:
-	 // ATTN: send this to the orphan queue!
+	 PEGASUS_ASSERT(0);
 	 break;
    }
 
    delete message;
-}
-
-void CIMExportResponseDecoder::handleEnqueue()
-{
-   Message* message = dequeue();
-   if(message)
-      handleEnqueue(message);
 }
 
 void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
@@ -108,33 +105,126 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
    Sint8* content;
    Uint32 contentLength;
 
+   if (httpMessage->message.size() == 0)
+   {
+        CIMClientMalformedHTTPException* malformedHTTPException =
+            new CIMClientMalformedHTTPException("Empty HTTP response message.")
+;
+        ClientExceptionMessage * response =
+            new ClientExceptionMessage(malformedHTTPException);
+
+        _outputQueue->enqueue(response);
+        return;
+   }
+
    httpMessage->parse(startLine, headers, contentLength);
 
-   if (_authenticator->checkResponseHeaderForChallenge(headers))
-   {
-      //
-      // Get the original request, put that in the encoder's queue for
-      // re-sending with authentication challenge response.
-      //
+    //
+    // Get the status line info
+    //
 
-      Message* reqMessage = _authenticator->getRequestMessage();
-      _encoderQueue->enqueue(reqMessage);
+    String httpVersion;
+    Uint32 statusCode;
+    String reasonPhrase;
 
-      return;
-   }
-   else
+    Boolean parsableMessage = HTTPMessage::parseStatusLine(
+        startLine, httpVersion, statusCode, reasonPhrase);
+    if (!parsableMessage)
+    {
+        CIMClientMalformedHTTPException* malformedHTTPException = new
+            CIMClientMalformedHTTPException("Malformed HTTP response message.")
+;
+        ClientExceptionMessage * response =
+            new ClientExceptionMessage(malformedHTTPException);
+
+        _outputQueue->enqueue(response);
+        return;
+    }
+
+   try
    {
-      //
-      // Received a valid/error response from the server.
-      // We do not need the original request message anymore, hence delete
-      // the request message by getting the handle from the ClientAuthenticator.
-      //
-      Message* reqMessage = _authenticator->getRequestMessage();
-      if (reqMessage)
-      {
-	 delete reqMessage;
-      }
-   }
+       if (_authenticator->checkResponseHeaderForChallenge(headers))
+       {
+          //
+          // Get the original request, put that in the encoder's queue for
+          // re-sending with authentication challenge response.
+          //
+
+          Message* reqMessage = _authenticator->getRequestMessage();
+          _encoderQueue->enqueue(reqMessage);
+
+          return;
+       }
+       else
+       {
+          //
+          // Received a valid/error response from the server.
+          // We do not need the original request message anymore, hence delete
+          // the request message by getting the handle from the ClientAuthenticator.
+          //
+          Message* reqMessage = _authenticator->getRequestMessage();
+          _authenticator->clearRequest();
+          if (reqMessage)
+          {
+	     delete reqMessage;
+          }
+       }
+    }
+    catch(InvalidAuthHeader& e)
+    {
+        CIMClientMalformedHTTPException* malformedHTTPException =
+            new CIMClientMalformedHTTPException(e.getMessage());
+        ClientExceptionMessage * response =
+            new ClientExceptionMessage(malformedHTTPException);
+
+        _outputQueue->enqueue(response);
+        return;
+    }
+    catch(UnauthorizedAccess& e)
+    {
+         // ATTN-SF-P3-20030115: Need to create a specific exception
+         // to indicate Authentication failure. See JAGae53944.
+
+         const String ERROR_MESSAGE = "Authentication failed.";
+         CannotConnectException* cannotConnectException =
+            new CannotConnectException(ERROR_MESSAGE);
+         ClientExceptionMessage * response =
+            new ClientExceptionMessage(cannotConnectException);
+
+     _outputQueue->enqueue(response);
+        return;
+    }
+
+    //
+    // Check for a success (200 OK) response
+    //
+
+    if (statusCode != HTTP_STATUSCODE_OK)
+    {
+        String cimError;
+        String pegasusError;
+
+        HTTPMessage::lookupHeader(headers, "CIMError", cimError);
+        HTTPMessage::lookupHeader(headers, PEGASUS_HTTPHEADERTAG_ERRORDETAIL, pegasusError);
+        try
+        {
+            pegasusError = XmlReader::decodeURICharacters(pegasusError);
+        }
+	catch (ParseError& e)
+        {
+            // Ignore this exception.  We're more interested in having the
+            // message in encoded form than knowing that the format is invalid.
+        }
+
+        CIMClientHTTPErrorException* httpError =
+            new CIMClientHTTPErrorException(statusCode, cimError, pegasusError)
+;
+        ClientExceptionMessage * response =
+            new ClientExceptionMessage(httpError);
+
+        _outputQueue->enqueue(response);
+        return;
+    }
 
    //
    // Search for "CIMOperation" header:
@@ -145,7 +235,13 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
    if (!HTTPMessage::lookupHeader(
 	  headers, "CIMExport", cimOperation, true))
    {
-      // ATTN: error discarded at this time!
+      CIMClientMalformedHTTPException* malformedHTTPException = new
+            CIMClientMalformedHTTPException("Missing CIMOperation HTTP header")
+;
+        ClientExceptionMessage * response =
+            new ClientExceptionMessage(malformedHTTPException);
+
+        _outputQueue->enqueue(response);
       return;
    }
 
@@ -163,12 +259,19 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
       httpMessage->message.size() - contentLength - 1;
 
    //
-   // If it is a method response, then dispatch it to be handled:
+   // If it is a method response, then dispatch it to the handler:
    //
 
    if (!String::equalNoCase(cimOperation, "MethodResponse"))
    {
-      // ATTN: error discarded at this time!
+      CIMClientMalformedHTTPException* malformedHTTPException =
+            new CIMClientMalformedHTTPException(
+                String("Received CIMOperation HTTP header value \"") +
+                cimOperation + "\", expected \"MethodResponse\"");
+      ClientExceptionMessage * response =
+          new ClientExceptionMessage(malformedHTTPException);
+
+      _outputQueue->enqueue(response);
       return;
    }
 
@@ -219,8 +322,14 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
 
       if (!String::equalNoCase(protocolVersion, "1.0"))
       {
-	 // ATTN: protocol version being ignored at present!
+         CIMClientResponseException* responseException =
+                new CIMClientResponseException(
+                    String("Received unsupported protocol version \"") +
+                    protocolVersion + "\", expected \"1.0\"");
+         ClientExceptionMessage * response =
+                new ClientExceptionMessage(responseException);
 
+         _outputQueue->enqueue(response);
 	 return;
       }
 
@@ -236,47 +345,63 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
 
       const char* iMethodResponseName = 0;
 
-      if (!XmlReader::getEMethodResponseStartTag(parser, iMethodResponseName))
+      if (XmlReader::getEMethodResponseStartTag(parser, iMethodResponseName))
       {
-	 // ATTN: error ignored for now!
+	  if (System::strcasecmp(iMethodResponseName, "ExportIndication") == 0)
+              response = _decodeExportIndicationResponse(parser, messageId);
+          else
+	  {
+                // Unrecognized IMethodResponse name attribute
+                throw XmlValidationError(parser.getLine(),
+                    String("Unrecognized IMethodResponse name \"") +
+                        iMethodResponseName + "\"");
+           }
 
-	 return;
-      }
+            //
+            // Handle end tag:
+            //
 
-      //
-      // Dispatch the method:
-      //
+            XmlReader::expectEndTag(parser, "EXPMETHODRESPONSE");
+        }
+        else
+        {
+            throw XmlValidationError(parser.getLine(),
+                "expected METHODRESPONSE or IMETHODRESPONSE element");
+        }
 
-      if (System::strcasecmp(iMethodResponseName, "ExportIndication") == 0)
-	 response = _decodeExportIndicationResponse(parser, messageId);
-      else
-      {
-	 // ATTN: this was being ignored; what should we do. Shouldn't
-	 // we form an error response?
+        //
+        // Handle end tags:
+        //
+	XmlReader::expectEndTag(parser, "SIMPLEEXPRSP");
+        XmlReader::expectEndTag(parser, "MESSAGE");
+        XmlReader::expectEndTag(parser, "CIM");
+    }
+    catch (XmlException& x)
+    {
+        if (response)
+        {
+            delete response;
+        }
 
-	 cout << "INFORM: " << __FILE__ << "(" << __LINE__ << "): ";
-	 cout << "Unexpected case" << endl;
-	 return;
-      }
-	
-      //
-      // Handle end tags:
-      //
+        response = new ClientExceptionMessage(
+            new CIMClientXmlException(x.getMessage()));
+    }
+    catch (Exception& x)
+    {
+        // Shouldn't ever get exceptions other than XmlExceptions.
+        PEGASUS_ASSERT(0);
 
-      XmlReader::expectEndTag(parser, "EXPMETHODRESPONSE");
-      XmlReader::expectEndTag(parser, "SIMPLEEXPRSP");
-      XmlReader::expectEndTag(parser, "MESSAGE");
-      XmlReader::expectEndTag(parser, "CIM");
-   }
-   catch (Exception& x)
-   {
-      // ATTN: ignore the exception for now!
+        if (response)
+        {
+            delete response;
+        }
 
-      cout << x.getMessage() << endl;
-      return;
-   }
 
-   _outputQueue->enqueue(response);
+        response = new ClientExceptionMessage(
+            new Exception(x.getMessage()));
+    }
+
+    _outputQueue->enqueue(response);
 }
 
 CIMExportIndicationResponseMessage* CIMExportResponseDecoder::_decodeExportIndicationResponse(

@@ -27,6 +27,7 @@
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -54,35 +55,66 @@ CIMExportClient::CIMExportClient(
    HTTPConnector* httpConnector,
    Uint32 timeoutMilliseconds)
    : 
-   Base(PEGASUS_QUEUENAME_EXPORTCLIENT),
-   _monitor(monitor), 
+   MessageQueue(PEGASUS_QUEUENAME_EXPORTCLIENT),
+   _monitor(monitor),
    _httpConnector(httpConnector),
+   _httpConnection(0),
    _timeoutMilliseconds(timeoutMilliseconds),
    _connected(false),
    _responseDecoder(0),
    _requestEncoder(0)
 {
-   //
-   // Create client authenticator
-   //
-   _authenticator = new ClientAuthenticator();
 }
 
 CIMExportClient::~CIMExportClient()
 {
-   delete _authenticator;    
 }
 
-void CIMExportClient::handleEnqueue(Message *message)
+void CIMExportClient::_connect()
 {
-   if( ! message )
-      return;
-   
+   // Create response decoder:
+    
+   _responseDecoder = new CIMExportResponseDecoder(
+      this, _requestEncoder, &_authenticator);
+    
+   // Attempt to establish a connection:
+    
+   try
+   {
+      _httpConnection = _httpConnector->connect(_connectHost, 
+					       _connectPortNumber, 
+        				       _responseDecoder);
+   }
+   catch (CannotCreateSocketException& e)
+   {
+        delete _responseDecoder;
+        throw e;
+   }
+   catch (CannotConnectException& e)
+   {
+        delete _responseDecoder;
+        throw e;
+   }
+   catch (InvalidLocatorException& e)
+   {
+        delete _responseDecoder;
+        throw e;
+   }
+    
+   // Create request encoder:
+    
+   _requestEncoder = new CIMExportRequestEncoder(
+      _httpConnection, &_authenticator);
+
+   _responseDecoder->setEncoderQueue(_requestEncoder);    
+
+   _connected = true;
 }
 
-void CIMExportClient::handleEnqueue()
+void CIMExportClient::_reconnect()
 {
-
+    disconnect();
+    _connect();
 }
 
 void CIMExportClient::connect(
@@ -94,144 +126,195 @@ void CIMExportClient::connect(
    if (_connected)
       throw AlreadyConnectedException();
     
-   // Create response decoder:
-    
-   _responseDecoder = new CIMExportResponseDecoder(
-      this, _requestEncoder, _authenticator);
-    
-   // Attempt to establish a connection:
-    
-   HTTPConnection* httpConnection;
-    
-   try
-   {
-      httpConnection = _httpConnector->connect(host, portNumber, 
-        _responseDecoder);
-   }
-   catch (Exception& e)
-   {
-      delete _responseDecoder;
-      throw e;
-   }
-    
-   // Create request encoder:
-    
-   _requestEncoder = new CIMExportRequestEncoder(
-      httpConnection, _authenticator);
+    //
+    // If the host is empty, set hostName to "localhost"
+    //
+    String hostName = host;
+    if (host == String::EMPTY)
+    {
+        hostName = "localhost";
+    }
 
-   _responseDecoder->setEncoderQueue(_requestEncoder);    
+    //
+    // Set authentication information
+    //
+    _authenticator.clearRequest(true);
+    _authenticator.setAuthType(ClientAuthenticator::NONE);
 
-   _connected = true;
+    _connectHost = hostName;
+    _connectPortNumber = portNumber;
+
+    _connect();
 }
 
-void CIMExportClient::connectLocal(
-    const String& host, 
-    const Uint32 portNumber,
-    const String& userName)
+void CIMExportClient::disconnect()
 {
-   if (userName.size())
-   {
-      _authenticator->setUserName(userName);
-   }
-   _authenticator->setAuthType(ClientAuthenticator::LOCAL);
+    if (_connected)
+    {
+        //
+        // destroy response decoder
+        //
+        if (_responseDecoder)
+        {
+            delete _responseDecoder;
+            _responseDecoder = 0;
+        }
 
-   connect(host, portNumber);
+        //
+        // Close the connection
+        //
+        if (_httpConnector)
+        {
+            _httpConnector->disconnect(_httpConnection);
+        }
+
+        //
+        // destroy request encoder
+        //
+        if (_requestEncoder)
+        {
+            delete _requestEncoder;
+            _requestEncoder = 0;
+        }
+
+        _authenticator.clearRequest(true);
+
+        _connected = false;
+    }
 }
 
 void CIMExportClient::exportIndication(
    const String& url,
    const CIMInstance& instanceName)
 {
-   String messageId = XmlWriter::getNextMessageId();
-    
    // encode request
-   Message* request = new CIMExportIndicationRequestMessage(
-      messageId,
+   CIMRequestMessage* request = new CIMExportIndicationRequestMessage(
+      String::EMPTY,
       url,
       instanceName,
       QueueIdStack());
 
-   _authenticator->clearRequest();
-
-   _requestEncoder->enqueue(request);
-
-   Message* message = _waitForResponse(
-      CIM_EXPORT_INDICATION_RESPONSE_MESSAGE, messageId);
+   Message* message = _doRequest(request,
+      CIM_EXPORT_INDICATION_RESPONSE_MESSAGE);
 
    CIMExportIndicationResponseMessage* response = 
       (CIMExportIndicationResponseMessage*)message;
     
    Destroyer<CIMExportIndicationResponseMessage> destroyer(response);
-    
-   _checkError(response);
-    
-   //return(response->cimClass);
 }
 
-Message* CIMExportClient::_waitForResponse(
-   const Uint32 messageType,
-   const String& messageId,
-   const Uint32 timeoutMilliseconds)
+Message* CIMExportClient::_doRequest(
+    CIMRequestMessage * request,
+    const Uint32 expectedResponseMessageType
+)
 {
-   if (!_connected)
-      throw NotConnectedException();
+    if (!_connected)
+    {
+       delete request;
+       throw NotConnectedException();
+    }
     
-   long rem = long(timeoutMilliseconds);
+    String messageId = XmlWriter::getNextMessageId();
+    const_cast<String &>(request->messageId) = messageId;
 
-   for (;;)
-   {
-      //
-      // Wait until the timeout expires or an event occurs:
-      //
+    _authenticator.clearRequest();
 
-      TimeValue start = TimeValue::getCurrentTime();
-      _monitor->run(rem);
-      TimeValue stop = TimeValue::getCurrentTime();
+    // ATTN-RK-P2-20020416: We should probably clear out the queue first.
+    PEGASUS_ASSERT(getCount() == 0);  // Shouldn't be any messages in our queue
 
-      //
-      // Check to see if incoming queue has a message of the appropriate
-      // type with the given message id:
-      //
+    //
+    //  Set HTTP method in request to M-POST
+    //
+    request->setHttpMethod (HTTP_METHOD_M_POST);
 
-      Message* message = findByType(messageType);
+    _requestEncoder->enqueue(request);
 
-      if (message)
-      {
-	 CIMResponseMessage* responseMessage = (CIMResponseMessage*)message;
+    Uint64 startMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
+    Uint64 nowMilliseconds = startMilliseconds;
+    Uint64 stopMilliseconds = nowMilliseconds + _timeoutMilliseconds;
 
-	 if (responseMessage->messageId == messageId)
-	 {
-	    remove(responseMessage);
-	    return responseMessage;
-	 }
-      }
+    while (nowMilliseconds < stopMilliseconds)
+    {
+	//
+	// Wait until the timeout expires or an event occurs:
+	//
 
-      // 
-      // Terminate loop if timed out:
-      //
+       _monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
+       
+	//
+	// Check to see if incoming queue has a message
+	//
 
-      long diff = stop.toMilliseconds() - start.toMilliseconds();
+	Message* response = dequeue();
 
-      if (diff >= rem)
-	 break;
+	if (response)
+	{
+            // Shouldn't be any more messages in our queue
+            PEGASUS_ASSERT(getCount() == 0);
 
-      rem -= diff;
-   }
+            //
+            //  ATTN-CAKG-20021001: If HTTP response is 501 Not Implemented
+            //  or 510 Not Extended, retry with POST method
+            //
 
-   //
-   // Throw timed out exception:
-   //
+            if (response->getType() == CLIENT_EXCEPTION_MESSAGE)
+            {
+                Exception* clientException =
+                    ((ClientExceptionMessage*)response)->clientException;
+                delete response;
+                Destroyer<Exception> d(clientException);
+                throw *clientException;
+            }
+            else if (response->getType() == expectedResponseMessageType)
+            {
+                CIMResponseMessage* cimResponse = (CIMResponseMessage*)response;
+                if (cimResponse->messageId != messageId)
+                {
+                    CIMClientResponseException responseException(
+                        String("Mismatched response message ID:  Got \"") +
+                        cimResponse->messageId + "\", expected \"" +
+                        messageId + "\".");
+                    delete response;
+	            throw responseException;
+                }
+                if (cimResponse->cimException.getCode() != CIM_ERR_SUCCESS)
+                {
+                    CIMException cimException(
+                        cimResponse->cimException.getCode(),
+                        cimResponse->cimException.getMessage());
+                    delete response;
+	            throw cimException;
+                }
+                return response;
+            }
+            else
+            {
+                CIMClientResponseException responseException(
+                    "Mismatched response message type.");
+                delete response;
+	        throw responseException;
+            }
+	}
 
-   throw ConnectionTimeoutException();
-}
+        nowMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
+	pegasus_yield();
+    }
 
-void CIMExportClient::_checkError(const CIMResponseMessage* responseMessage)
-{
-   if (responseMessage &&
-       (responseMessage->cimException.getCode() != CIM_ERR_SUCCESS) )
-   {
-      throw responseMessage->cimException;
-   }
+    //
+    // Reconnect to reset the connection (disregard late response)
+    //
+    try
+    {
+        _reconnect();
+    }
+    catch (...)
+    {
+    }
+
+    //
+    // Throw timed out exception:
+    //
+    throw ConnectionTimeoutException();
 }
 
 PEGASUS_NAMESPACE_END

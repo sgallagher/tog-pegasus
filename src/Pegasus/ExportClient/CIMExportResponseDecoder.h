@@ -26,6 +26,7 @@
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,40 +35,58 @@
 
 #include <fstream>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueueService.h>
+#include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/HTTPMessage.h>
+#include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Client/ClientAuthenticator.h>
+#include <Pegasus/Client/CIMClientException.h>
 #include <Pegasus/ExportClient/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class XmlParser;
 
+/**
+    This message is sent from the response decoder to the CIMClient, indicating
+    an error in issuing a CIM request.
+*/
+class ClientExceptionMessage : public Message
+{
+public:
+    ClientExceptionMessage(Exception* clientException_)
+        :
+        Message(CLIENT_EXCEPTION_MESSAGE),
+        clientException(clientException_)
+    {
+    }
+
+    Exception* clientException;
+};
+
 /** This class receives HTTP messages and decodes them into CIM Operation 
     Responses messages which it places on its output queue.
 */
-class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder :  public MessageQueueService
+class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder :  public MessageQueue
 {
   
    public:
      
-      typedef MessageQueueService Base;
-
       /** Constuctor.
 	  @param outputQueue queue to receive decoded HTTP messages.
+	  @param encoderQueue queue to receive CIM Operation Response messages.
+	  @param authenticator client authenticator. 
       */
       CIMExportResponseDecoder(
-	 MessageQueueService* outputQueue,
-	 MessageQueueService* encoderQueue,
+	 MessageQueue* outputQueue,
+	 MessageQueue* encoderQueue,
 	 ClientAuthenticator* authenticator);
 
       /** Destructor. */
       ~CIMExportResponseDecoder();
 
-      void setEncoderQueue(MessageQueueService* encoderQueue);
+      void setEncoderQueue(MessageQueue* encoderQueue);
 
       /** This method is called when a message is enqueued on this queue. */
-      virtual void handleEnqueue(Message *);
       virtual void handleEnqueue();
 
    private:
@@ -81,8 +100,8 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder :  public MessageQu
       CIMExportIndicationResponseMessage* _decodeExportIndicationResponse(
 	 XmlParser& parser, const String& messageId);
 
-      MessageQueueService*        _outputQueue;
-      MessageQueueService*        _encoderQueue;
+      MessageQueue*        _outputQueue;
+      MessageQueue*        _encoderQueue;
       ClientAuthenticator* _authenticator;
 };
 

@@ -28,6 +28,7 @@
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +48,7 @@ PEGASUS_NAMESPACE_BEGIN
 CIMExportRequestEncoder::CIMExportRequestEncoder(
    MessageQueue* outputQueue, ClientAuthenticator* authenticator)
    : 
-   Base(PEGASUS_QUEUENAME_EXPORTREQENCODER),
+   MessageQueue(PEGASUS_QUEUENAME_EXPORTREQENCODER),
    _outputQueue(outputQueue),
    _hostName(System::getHostName().getCString()),
    _authenticator(authenticator)
@@ -58,8 +59,10 @@ CIMExportRequestEncoder::~CIMExportRequestEncoder()
 {
 }
 
-void CIMExportRequestEncoder::handleEnqueue(Message *message)
+void CIMExportRequestEncoder::handleEnqueue()
 {
+   Message* message = dequeue();
+
    if (!message)
       return;
 
@@ -76,17 +79,9 @@ void CIMExportRequestEncoder::handleEnqueue(Message *message)
    //
    // ClientAuthenticator needs this message for resending the request on
    // authentication challenge from the server. The message is deleted in
-   // the decoder after receiving the valid response from thr server.
+   // the decoder after receiving the valid response from the server.
    //
    //delete message;
-}
-
-
-void CIMExportRequestEncoder::handleEnqueue()
-{
-   Message* message = dequeue();
-   if( message != 0 )
-      handleEnqueue(message);
 }
 
 void CIMExportRequestEncoder::_encodeExportIndicationRequest(

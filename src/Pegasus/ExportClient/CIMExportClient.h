@@ -27,6 +27,7 @@
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,10 +37,11 @@
 #include <fstream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Common/MessageQueueService.h>
+#include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Client/ClientAuthenticator.h>
@@ -54,73 +56,99 @@ class CIMExportRequestEncoder;
 /** This class provides the interface that a client uses to communicate
     with a CIMOM.
 */
-class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueueService
+class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
 {
    public:
-      typedef MessageQueueService Base;
-  
-
       enum { DEFAULT_TIMEOUT_MILLISECONDS = 20000 };
 
-      ///
+      /** Constructor for a CIM Export Client object.
+      */
       CIMExportClient(
 	 Monitor* monitor,
 	 HTTPConnector* httpConnector,
 	 Uint32 timeoutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
 
-      ///
+      // Destructor for a CIM Export Client object.
       ~CIMExportClient();
 
-      ///
-      virtual void handleEnqueue(Message *);
-      virtual void handleEnqueue();
-
-      ///
+      /** Gets the timeout in milliseconds for the CIMExportClient.
+          Default is 20 seconds (20000 milliseconds).
+      */
       Uint32 getTimeout() const
       {
 	 return _timeoutMilliseconds;
       }
 
-      ///
+      /** Sets the timeout in milliseconds for the CIMExportClient.
+        @param timeoutMilliseconds Defines the number of milliseconds the
+        CIMExportClient will wait for a response to an outstanding request.  
+	If a request times out, the connection gets reset (disconnected and
+        reconnected).  Default is 20 seconds (20000 milliseconds).
+      */
       void setTimeout(Uint32 timeoutMilliseconds)
       {
 	 _timeoutMilliseconds = timeoutMilliseconds;
       }
 
-      ///
+      /** Creates an HTTP connection with the server
+        defined by the host and portNumber.
+        @param host String defining the server to which the client should
+        connect.
+        @param portNumber Uint32 defining the port number for the server
+        to which the client should connect.
+        @exception AlreadyConnectedException
+            If a connection has already been established.
+        @exception InvalidLocatorException
+            If the specified address is improperly formed.
+        @exception CannotCreateSocketException
+            If a socket cannot be created.
+        @exception CannotConnectException
+            If the socket connection fails.
+      */
       void connect(
           const String& host, 
           const Uint32 portNumber);
 
-      //
-      // Connection used by local clients
-      //
-      void connectLocal(
-         const String& host,
-         const Uint32 portNumber,
-	 const String& userName = String::EMPTY);
+      /** Closes the connection with the server if the connection
+        was open, simply returns if the connection was not open. Clients are
+        expected to use this method to close the open connection before
+        opening a new connection.
+      */
+      void disconnect();
 
-      ///
+      /** Send indication message to the destination where the url input
+	parameter defines the destination.
+
+	@param url String defining the destination of the indication to be sent.
+   	@param instance CIMInstance is the indication instance which needs to 
+        be sent to the destination.
+      */
       virtual void exportIndication(
-	 const String& nameSpace,
-	 const CIMInstance& instanceName);
+	 const String& url,
+	 const CIMInstance& instance);
 
    private:
 
-      Message* _waitForResponse(
-	 const Uint32 messageType,
-	 const String& messageId,
-	 const Uint32 timeoutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
+      void _connect();
 
-      void _checkError(const CIMResponseMessage* responseMessage);
+      void _reconnect();
+
+      Message* _doRequest(
+        CIMRequestMessage * request,
+        const Uint32 expectedResponseMessageType);
+
+      String _getLocalHostName();
 
       Monitor* _monitor;
       HTTPConnector* _httpConnector;
+      HTTPConnection* _httpConnection;
       Uint32 _timeoutMilliseconds;
       Boolean _connected;
       CIMExportResponseDecoder* _responseDecoder;
       CIMExportRequestEncoder* _requestEncoder;
-      ClientAuthenticator* _authenticator;
+      ClientAuthenticator _authenticator;
+      String _connectHost;
+      Uint32 _connectPortNumber;
 };
 
 PEGASUS_NAMESPACE_END

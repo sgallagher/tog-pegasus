@@ -26,6 +26,14 @@
 
     ------------------------------------------------------------------------
 
+    (A)	Modify clear() methods on Array and String so that they don't
+	release the old resource (more efficient for GetLine()). Add
+	a resize() method.
+
+    (A)	Handle escaping of strings inside object names. Example:
+
+    		X.key1="Hello \"You\""
+
     (A) Change make system to rename dll's before link so that they
 	can be used by the server.
 

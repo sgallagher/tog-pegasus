@@ -48,7 +48,16 @@ class PEGASUS_COMMON_LINKAGE HTTPDelegator : public MessageQueue
 {
 public:
 
-    /** Constructor. */
+    /** Constructor. The constructor defines the output queues
+        used by this the HTTP Delegator.   The Delegator outputs
+        to:
+        <UL>
+        <LI>OperationsMessageQueue
+        <LI>ExportMessageQueue
+        <LI>HTTPOptionQueue
+        <LI>HTTPAuthenticatorQueue
+        </UL>
+     */
     HTTPDelegator(
 	MessageQueue* operationMessageQueue,
 	MessageQueue* exportMessageQueue);

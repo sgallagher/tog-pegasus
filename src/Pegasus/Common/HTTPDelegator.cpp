@@ -119,12 +119,15 @@ void HTTPDelegator::handleHTTPMessage(HTTPMessage* httpMessage)
 	}
 	else
 	{
-	    // ATTN: error discarded at this time!
+	    // ATTN: error discarded at this time if post is not
+            // ATTN CIMOperation or CIMExport
+            // ATTN Should return an error but not sure of code yet
 	    return;
 	}
 
     }
-    // ATTN: Add the else here for Post, etc.  Also go to OPTIONS here.
+    // ATTN: KS Add the else here for Post, etc.  Also go to OPTIONS here.
+    // ATTN: Or return a 501 - not implemented
 }
 
 const char* HTTPDelegator::getQueueName() const

@@ -28,6 +28,8 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Sushma Fernandes , Hewlett-Packard Company
+//                (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -152,6 +154,10 @@ SSLException::SSLException(const String& message)
 {
 }
 
+DateTimeOutOfRangeException::DateTimeOutOfRangeException(const String& message)
+    : Exception("DateTime is out of range : " + message)
+{
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

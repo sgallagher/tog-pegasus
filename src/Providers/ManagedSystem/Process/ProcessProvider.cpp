@@ -33,6 +33,8 @@
 //         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Susham Fernandes , Hewlett-Packard Company
+//                (sushma_fernandes@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -411,6 +413,40 @@ void ProcessProvider::getInstance(const OperationContext &ctx,
   /* Get the process information. */
   if (_p.findProcess(handle))
   {
+    // Check if the properties in the propertyList are supported. If
+    // not return CIM_ERR_NO_SUCH_PROPERTY.
+    for ( Uint32 index = 0; index < propertyList.size(); index++ )
+    {
+        // Check if the property is supported.
+        String propName = propertyList[index].getString();
+        if ( propName != PROPERTY_CAPTION ||
+             propName != PROPERTY_DESCRIPTION ||
+             propName != PROPERTY_CREATION_CLASS_NAME ||
+             propName != PROPERTY_CS_CREATION_CLASS_NAME ||
+             propName != PROPERTY_CS_NAME ||
+             propName != PROPERTY_HANDLE ||
+             propName != PROPERTY_OS_CREATION_CLASS_NAME ||
+             propName != PROPERTY_OS_NAME ||
+             propName != PROPERTY_NAME ||
+             propName != PROPERTY_PRIORITY ||
+             propName != PROPERTY_EXECUTION_STATE ||
+             propName != PROPERTY_OTHER_EXECUTION_DESCRIPTION ||
+             propName != PROPERTY_CREATION_DATE ||
+             propName != PROPERTY_KERNEL_MODE_TIME ||
+             propName != PROPERTY_USER_MODE_TIME ||
+             propName != PROPERTY_WORKING_SET_SIZE ||
+             propName != PROPERTY_PARENT_PROCESS_ID ||
+             propName != PROPERTY_REAL_USER_ID ||
+             propName != PROPERTY_PROCESS_GROUP_ID ||
+             propName != PROPERTY_PROCESS_SESSION_ID ||
+             propName != PROPERTY_PROCESS_TTY ||
+             propName != PROPERTY_PARAMETERS ||
+             propName != PROPERTY_PROCESS_NICE_VALUE )
+        {
+            throw CIMPropertyNotFoundException(propName);
+        }
+    }
+
     /* Notify processing is starting. */
     handler.processing();
 

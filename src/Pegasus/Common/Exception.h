@@ -29,6 +29,8 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Sushma Fernandes , Hewlett-Packard Company
+//                (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -186,6 +188,11 @@ public:
     SSLException(const String& message);
 };
 
+class PEGASUS_COMMON_LINKAGE DateTimeOutOfRangeException : public Exception
+{
+public:
+    DateTimeOutOfRangeException(const String& message); 
+}; 
 
 /** The CIMException defines the CIM exceptions that are formally defined in
     the CIM Operations over HTTP specification.

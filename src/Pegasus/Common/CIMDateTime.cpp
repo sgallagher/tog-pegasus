@@ -41,6 +41,8 @@
 #include "CIMDateTime.h" 
 #include "InternalException.h" 
 
+#include <errno.h>
+
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
     # include <Pegasus/Common/CIMDateTimeWindows.cpp>
 #elif defined(PEGASUS_OS_TYPE_UNIX)
@@ -428,8 +430,37 @@ Sint64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
 
     // Convert local time to seconds since the epoch
     timeStartInSeconds  = mktime(&tmvalStart);
+  
+    // Check if the date is within the supported range of mktime.
+    // If not return an error. Unix mktime sets errno to ERANGE. 
+    // Check for both return code from mktime as well as errno. 
+    // In case of Windows errno is not set, only check for return code 
+    // from mktime for Windows platform.
+#ifdef PEGASUS_OS_TYPE_UNIX
+    if ( timeStartInSeconds == (time_t)-1 && errno == ERANGE)
+#else
+    if ( timeStartInSeconds == (time_t)-1 )
+#endif
+    {
+        throw DateTimeOutOfRangeException(startTime.toString());
+    }
+    
     timeFinishInSeconds = mktime(&tmvalFinish);
-
+  
+    // Check if the date is within the supported range of mktime.
+    // If not return an error. Unix mktime sets errno to ERANGE. 
+    // Check for both return code from mktime as well as errno. 
+    // In case of Windows errno is not set, only check for return code 
+    // from mktime for Windows platform.
+#ifdef PEGASUS_OS_TYPE_UNIX
+    if ( timeFinishInSeconds == (time_t)-1 && errno == ERANGE)
+#else
+    if ( timeFinishInSeconds == (time_t)-1 )
+#endif
+    {
+        throw DateTimeOutOfRangeException(finishTime.toString());
+    }
+    
     // Convert start time to UTC
     // Get the sign and UTC offset.
     sign = startDateTimeCString[21];

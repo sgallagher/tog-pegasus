@@ -32,6 +32,8 @@
 //         Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Sushma Fernandes , Hewlett-Packard Company
+//                (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -325,7 +327,17 @@ Boolean OSTestClient::goodLocalDateTime(const CIMDateTime &ltime,
       cout<<"Checking LocalDateTime " << ltime.toString() << endl;
 
    CIMDateTime currentDT = CIMDateTime::getCurrentDateTime();
-   Sint64 raw_delta = CIMDateTime::getDifference(ltime, currentDT);
+
+   Sint64 raw_delta;
+   try
+   {
+       raw_delta = CIMDateTime::getDifference(ltime, currentDT);
+   }
+   catch(DateTimeOutOfRangeException &e)
+   {
+       cout << "Error : " << e.getMessage() << endl;
+       exit;
+   }
    Uint64 delta = labs(raw_delta);
    
    if (verbose) {

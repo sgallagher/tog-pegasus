@@ -40,6 +40,7 @@ PEGASUS_USING_STD;
 
 int main(int argc, char** argv)
 {
+    Boolean bad = false;
     try
     {
         // ATTN-P2-KS 20 Mar 2002 - Needs expansion of tests.
@@ -53,7 +54,7 @@ int main(int argc, char** argv)
         assert (dt.equal (CIMDateTime ("00000000000000.000000:000")));
     
         {
-            Boolean bad = false;
+            bad = false;
 
             try
             {
@@ -245,8 +246,14 @@ int main(int argc, char** argv)
         //
         // Call getDifference
         //
-        differenceInMicroseconds = CIMDateTime::getDifference (startTime,
-            finishTime);
+        try 
+        {
+            differenceInMicroseconds = CIMDateTime::getDifference (startTime,
+                finishTime);
+        }
+        catch(DateTimeOutOfRangeException& e)
+        {
+        }
     
         if (verbose)
         {
@@ -273,17 +280,24 @@ int main(int argc, char** argv)
         //
         // Call getDifference
         //
-        differenceInMicroseconds = CIMDateTime::getDifference
-            (startTime,finishTime);
+        bad = false;
+        try
+        {
+            differenceInMicroseconds = CIMDateTime::getDifference
+                (startTime,finishTime);
+        }
+        catch (DateTimeOutOfRangeException& e)
+        {
+            bad = true;
+        }
+        assert(bad);
+
     
         if (verbose)
         {
             cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
             cout << "Start date time is  : " << startTime << endl;
             cout << "Finish date time is : " << finishTime << endl;
-            char buffer [32];
-            sprintf (buffer, "%lli", differenceInMicroseconds);
-            cout << "differenceInMicroseconds : " << buffer << endl;
         }
     
         //assert (differenceInMicroseconds == 
@@ -306,9 +320,6 @@ int main(int argc, char** argv)
             cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
             cout << "Start date time is  : " << startTime << endl;
             cout << "Finish date time is : " << finishTime << endl;
-            char buffer [32];
-            sprintf (buffer, "%lli", differenceInMicroseconds);
-            cout << "differenceInMicroseconds : " << buffer << endl;
         }
     
         assert (differenceInMicroseconds == 
@@ -326,21 +337,24 @@ int main(int argc, char** argv)
         //
         // Call getDifference
         //
-        differenceInMicroseconds = CIMDateTime::getDifference (startTime,
-            finishTime);
+        bad = false;
+        try
+        {
+            differenceInMicroseconds = CIMDateTime::getDifference
+                (startTime,finishTime);
+        }
+        catch (DateTimeOutOfRangeException& e)
+        {
+            bad = true;
+        }
+        assert(bad);
     
         if (verbose)
         {
             cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
             cout << "Start date time is  : " << startTime << endl;
             cout << "Finish date time is : " << finishTime << endl;
-            char buffer [32];
-            sprintf (buffer, "%lli", differenceInMicroseconds);
-            cout << "differenceInMicroseconds : " << buffer << endl;
         }
-    
-        //assert (differenceInMicroseconds == 
-            //PEGASUS_SINT64_LITERAL(86400000000));
     
         //
         //  ATTN-CAKG-P2-20020819: the following test currently returns an 
@@ -355,21 +369,24 @@ int main(int argc, char** argv)
         //
         // Call getDifference
         //
-        differenceInMicroseconds = CIMDateTime::getDifference (startTime,
-            finishTime);
+        bad = false;
+        try
+        {
+            differenceInMicroseconds = CIMDateTime::getDifference
+                (startTime,finishTime);
+        }
+        catch (DateTimeOutOfRangeException& e)
+        {
+            bad = true;
+        }
+        assert(bad);
     
         if (verbose)
         {
             cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
             cout << "Start date time is  : " << startTime << endl;
             cout << "Finish date time is : " << finishTime << endl;
-            char buffer [32];
-            sprintf (buffer, "%lli", differenceInMicroseconds);
-            cout << "differenceInMicroseconds : " << buffer << endl;
         }
-    
-        //assert (differenceInMicroseconds == 
-            //PEGASUS_SINT64_LITERAL(315538070399999999));
     
         // Check for interval
         CIMDateTime 	 startInterval;

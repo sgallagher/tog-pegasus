@@ -3971,8 +3971,22 @@ Boolean IndicationService::_getTimeRemaining (
             //  Get current date time, and calculate Subscription Time Remaining
             //
             CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
-            Sint64 difference = CIMDateTime::getDifference
-                (startTime, currentDateTime);
+            
+            Sint64 difference;
+            try 
+            {
+                difference = CIMDateTime::getDifference
+                    (startTime, currentDateTime);
+            }
+            // Check if the date time is out of range. 
+            catch (DateTimeOutOfRangeException& e)
+            {
+                // ATTN: P4 SF 10/15/2002 May need to handle this error more
+                // appropriately.
+                PEG_METHOD_EXIT();
+                throw e;
+            }
+
             PEGASUS_ASSERT (difference >= 0);
             if (((Sint64) duration - difference) >= 0)
             {

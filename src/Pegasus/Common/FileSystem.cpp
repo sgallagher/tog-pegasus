@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
+// Revision 1.17  2001/04/15 17:59:11  mike
+// todo
+//
 // Revision 1.16  2001/04/13 19:57:17  mike
 // Fixed several memory leaks.
 // Fixed build crash problem (caused by screwed up NT flags).
@@ -369,6 +372,15 @@ Boolean FileSystem::renameFile(
     ArrayDestroyer<char> p(oldFileName.allocateCString());
     ArrayDestroyer<char> q(newFileName.allocateCString());
     return System::renameFile(p.getPointer(), q.getPointer());
+}
+
+void FileSystem::translateSlashes(String& path)
+{
+    for (Uint32 i = 0, n = path.getLength(); i < n; i++)
+    {
+	if (path[i] == '\\')
+	    path[i] = '/';
+    }
 }
 
 PEGASUS_NAMESPACE_END

@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: OptionManager.cpp,v $
+// Revision 1.8  2001/04/15 17:59:11  mike
+// todo
+//
 // Revision 1.7  2001/04/14 19:57:30  mike
 // Finalized OptionManager class.
 //
@@ -59,6 +62,9 @@ using namespace std;
 ////////////////////////////////////////////////////////////////////////////////
 //
 // OptionManager
+//
+// TODO: add descriptions for each otpion so that they may be printed out
+// to the command line user to tell him which command line options are legal.
 //
 ////////////////////////////////////////////////////////////////////////////////
 

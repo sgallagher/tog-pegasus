@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: FileSystem.h,v $
+// Revision 1.5  2001/04/15 17:59:11  mike
+// todo
+//
 // Revision 1.4  2001/04/07 12:01:18  karl
 // remove namespace support
 //
@@ -167,6 +170,10 @@ public:
     static Boolean renameFile(
 	const String& oldFileName,
 	const String& newFileName);
+
+    // Translate backward slashes to forward slashes:
+
+    static void translateSlashes(String& path);
 };
 
 PEGASUS_NAMESPACE_END

@@ -4316,12 +4316,12 @@ CIMName IndicationService::_getIndicationClassName (
         // exceptionStr.append (indicationClassName.getString());
         exceptionStr.append ("$0");
         // exceptionStr.append (_MSG_IN_FROM);
-        exceptionStr.append (" in $1 clause of ");
+        exceptionStr.append (" in FROM clause of ");
         // exceptionStr.append (PEGASUS_CLASSNAME_INDFILTER.getString());
-        exceptionStr.append ("$2");
+        exceptionStr.append ("$1");
         exceptionStr.append (" ");
         // exceptionStr.append (_PROPERTY_QUERY.getString());
-        exceptionStr.append ("$3");
+        exceptionStr.append ("$2");
         exceptionStr.append (_MSG_PROPERTY);
 
         PEG_METHOD_EXIT ();
@@ -4336,7 +4336,6 @@ CIMName IndicationService::_getIndicationClassName (
 				          _MSG_INVALID_CLASSNAME_IN_FROM_PROPERTY_KEY,
 				          exceptionStr, 
 				          indicationClassName.getString(), 
-				          "FROM",
 				          PEGASUS_CLASSNAME_INDFILTER.getString(), 
 				          _PROPERTY_QUERY.getString()));
     }

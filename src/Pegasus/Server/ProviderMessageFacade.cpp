@@ -29,6 +29,7 @@
 //               Carol Ann Krug Graves, Hewlett-Packard Company
 //                   (carolann_graves@hp.com)
 //               Dan Gorey, IBM (djgorey@us.ibm.com)
+//               Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +41,7 @@
 #include <Pegasus/Common/Thread.h>
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 #ifdef PEGASUS_USE_23PROVIDER_MANAGER
 #include <Pegasus/ProviderManager/SimpleResponseHandler.h>
@@ -242,18 +244,18 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) th
     }
 
     // create response message
-    CIMGetInstanceResponseMessage * response =
+    AutoPtr<CIMGetInstanceResponseMessage> response(
 	new CIMGetInstanceResponseMessage(
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop(),
 	    cimInstance,
-            contentLangs);  // l10n
+            contentLangs));  // l10n
 
     // preserve message key
     response->setKey(request->getKey());
 
-    return response;
+    return response.release();
 }
 
 Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * message) throw()
@@ -319,18 +321,18 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
     }
 
     // create response message
-    CIMEnumerateInstancesResponseMessage * response =
+    AutoPtr<CIMEnumerateInstancesResponseMessage> response(
 	new CIMEnumerateInstancesResponseMessage(
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop(),
 	    cimInstances,
-            contentLangs);  // l10n
+        contentLangs));  // l10n
 
     // preserve message key
     response->setKey(request->getKey());
 
-    return response;
+    return response.release();
 }
 
 Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * message) throw()
@@ -391,18 +393,18 @@ Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * 
     }
 
     // create response message
-    CIMEnumerateInstanceNamesResponseMessage * response =
+    AutoPtr<CIMEnumerateInstanceNamesResponseMessage> response(
 	new CIMEnumerateInstanceNamesResponseMessage(
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop(),
 	    cimReferences,
-            contentLangs);  //l10n
+        contentLangs));  //l10n
 
     // preserve message key
     response->setKey(request->getKey());
 
-    return response;
+    return response.release();
 }
 
 Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message) throw()
@@ -480,18 +482,18 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
     }
 
     // create response message
-    CIMCreateInstanceResponseMessage * response =
+    AutoPtr<CIMCreateInstanceResponseMessage> response(
 	new CIMCreateInstanceResponseMessage(
 	    request->messageId,
 	    cimException,
 	    request->queueIds.copyAndPop(),
 	    instanceName,
-            contentLangs);  // l10n
+        contentLangs));  // l10n
 
     // preserve message key
     response->setKey(request->getKey());
 
-    return response;
+    return response.release();
 }
 
 Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message) throw()
@@ -557,16 +559,16 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
     }
 
     // create response message
-    CIMModifyInstanceResponseMessage * response =
+    AutoPtr<CIMModifyInstanceResponseMessage> response(
 	new CIMModifyInstanceResponseMessage(
 	    request->messageId,
 	    cimException,
-	    request->queueIds.copyAndPop());
+	    request->queueIds.copyAndPop()));
 
     // preserve message key
     response->setKey(request->getKey());
 
-    return response;
+    return response.release();
 }
 
 Message * ProviderMessageFacade::_handleDeleteInstanceRequest(Message * message) throw()
@@ -622,16 +624,16 @@ Message * ProviderMessageFacade::_handleDeleteInstanceRequest(Message * message)
     }
 
     // create response message
-    CIMDeleteInstanceResponseMessage * response =
+    AutoPtr<CIMDeleteInstanceResponseMessage> response(
 	new CIMDeleteInstanceResponseMessage(
 	    request->messageId,
 	    cimException,
-	    request->queueIds.copyAndPop());
+	    request->queueIds.copyAndPop()));
 
     // preserve message key
     response->setKey(request->getKey());
 
-    return response;
+    return response.release();
 }
 
 Message * ProviderMessageFacade::_handleExecuteQueryRequest(Message * message) throw()
@@ -645,12 +647,12 @@ Message * ProviderMessageFacade::_handleExecuteQueryRequest(Message * message) t
 
     // l10n
 
-    CIMExecQueryResponseMessage * response =
+    AutoPtr<CIMExecQueryResponseMessage> response(
 	new CIMExecQueryResponseMessage(
 	    request->messageId,
 	    PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED", "not implemented")),
 	    request->queueIds.copyAndPop(),
-	    cimObjects);
+	    cimObjects));
 
     // CIMExecQueryResponseMessage * response =
     // new CIMExecQueryResponseMessage(
@@ -662,7 +664,7 @@ Message * ProviderMessageFacade::_handleExecuteQueryRequest(Message * message) t
     // preserve message key
     response->setKey(request->getKey());
 
-    return response;
+    return response.release();
 }
 
 Message * ProviderMessageFacade::_handleAssociatorsRequest(Message * message) throw()
@@ -676,12 +678,12 @@ Message * ProviderMessageFacade::_handleAssociatorsRequest(Message * message) th
 
     // l10n
 
-    CIMAssociatorsResponseMessage * response =
+    AutoPtr<CIMAssociatorsResponseMessage> response(
 	new CIMAssociatorsResponseMessage(
 	    request->messageId,
 	    PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED", "not implemented")),
 	    request->queueIds.copyAndPop(),
-	    cimObjects);
+	    cimObjects));
 
     // CIMAssociatorsResponseMessage * response =
     // new CIMAssociatorsResponseMessage(
@@ -693,7 +695,7 @@ Message * ProviderMessageFacade::_handleAssociatorsRequest(Message * message) th
     // preserve message key
     response->setKey(request->getKey());
 
-    return response;
+    return response.release();
 }
 
 Message * ProviderMessageFacade::_handleAssociatorNamesRequest(Message * message) throw()
@@ -707,12 +709,12 @@ Message * ProviderMessageFacade::_handleAssociatorNamesRequest(Message * message
 
     // l10n
 
-    CIMAssociatorNamesResponseMessage * response =
+    AutoPtr<CIMAssociatorNamesResponseMessage> response(
 	new CIMAssociatorNamesResponseMessage(
 	    request->messageId,
 	    PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED", "not implemented")),
 	    request->queueIds.copyAndPop(),
-	    cimReferences);
+	    cimReferences));
 
     // CIMAssociatorNamesResponseMessage * response =
     // new CIMAssociatorNamesResponseMessage(
@@ -724,7 +726,7 @@ Message * ProviderMessageFacade::_handleAssociatorNamesRequest(Message * message
     // preserve message key
     response->setKey(request->getKey());
 
-    return response;
+    return response.release();
 }
 
 Message * ProviderMessageFacade::_handleReferencesRequest(Message * message) throw()
@@ -738,12 +740,12 @@ Message * ProviderMessageFacade::_handleReferencesRequest(Message * message) thr
 
     // l10n
 
-    CIMReferencesResponseMessage * response =
+    AutoPtr<CIMReferencesResponseMessage> response(
 	new CIMReferencesResponseMessage(
 	    request->messageId,
 	    PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED", "not implemented")),
 	    request->queueIds.copyAndPop(),
-	    cimObjects);
+	    cimObjects));
 
     // CIMReferencesResponseMessage * response =
     // new CIMReferencesResponseMessage(
@@ -755,7 +757,7 @@ Message * ProviderMessageFacade::_handleReferencesRequest(Message * message) thr
     // preserve message key
     response->setKey(request->getKey());
 
-    return response;
+    return response.release();
 }
 
 Message * ProviderMessageFacade::_handleReferenceNamesRequest(Message * message) throw()
@@ -769,12 +771,12 @@ Message * ProviderMessageFacade::_handleReferenceNamesRequest(Message * message)
 
     // l10n
 
-    CIMReferenceNamesResponseMessage * response =
+    AutoPtr<CIMReferenceNamesResponseMessage> response(
 	new CIMReferenceNamesResponseMessage(
 	    request->messageId,
 	    PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED", "not implemented")),
 	    request->queueIds.copyAndPop(),
-	    cimReferences);
+	    cimReferences));
 
     // CIMReferenceNamesResponseMessage * response =
     // new CIMReferenceNamesResponseMessage(
@@ -786,7 +788,7 @@ Message * ProviderMessageFacade::_handleReferenceNamesRequest(Message * message)
     // preserve message key
     response->setKey(request->getKey());
 
-    return response;
+    return response.release();
 }
 
 Message * ProviderMessageFacade::_handleGetPropertyRequest(Message * message) throw()
@@ -801,12 +803,12 @@ Message * ProviderMessageFacade::_handleGetPropertyRequest(Message * message) th
     // l10n
 
     // create response message
-    CIMGetPropertyResponseMessage * response =
+    AutoPtr<CIMGetPropertyResponseMessage> response(
 	new CIMGetPropertyResponseMessage(
 	request->messageId,
 	PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED", "not implemented")),
 	request->queueIds.copyAndPop(),
-	cimValue);
+	cimValue));
 
     // CIMGetPropertyResponseMessage * response =
     // new CIMGetPropertyResponseMessage(
@@ -818,7 +820,7 @@ Message * ProviderMessageFacade::_handleGetPropertyRequest(Message * message) th
     // preserve message key
     response->setKey(request->getKey());
 
-    return response;
+    return response.release();
 }
 
 Message * ProviderMessageFacade::_handleSetPropertyRequest(Message * message) throw()
@@ -831,11 +833,11 @@ Message * ProviderMessageFacade::_handleSetPropertyRequest(Message * message) th
     // l10n
 
     // create response message
-    CIMSetPropertyResponseMessage * response =
+    AutoPtr<CIMSetPropertyResponseMessage> response(
 	new CIMSetPropertyResponseMessage(
 	    request->messageId,
 	    PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED", "not implemented")),
-	    request->queueIds.copyAndPop());
+	    request->queueIds.copyAndPop()));
 
     // CIMSetPropertyResponseMessage * response =
     // new CIMSetPropertyResponseMessage(
@@ -846,7 +848,7 @@ Message * ProviderMessageFacade::_handleSetPropertyRequest(Message * message) th
     // preserve message key
     response->setKey(request->getKey());
 
-    return response;
+    return response.release();
 }
 
 Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) throw()
@@ -926,7 +928,7 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) t
     }
 
     // create response message
-    CIMInvokeMethodResponseMessage * response =
+    AutoPtr<CIMInvokeMethodResponseMessage> response(
 	new CIMInvokeMethodResponseMessage(
 	    request->messageId,
 	    cimException,
@@ -934,12 +936,12 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) t
 	    returnValue,
 	    outParameters,
 	    request->methodName,
-            contentLangs);  // l10n
+        contentLangs));  // l10n
 
     // preserve message key
     response->setKey(request->getKey());
 
-    return response;
+    return response.release();
 }
 
 PEGASUS_NAMESPACE_END

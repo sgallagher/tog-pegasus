@@ -34,6 +34,7 @@
 //              Sushma Fernandes , Hewlett-Packard Company
 //                (sushma_fernandes@hp.com)
 //              Dave Rosckes (rosckes@us.ibm.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,12 +44,12 @@
 #include <cstdio>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlReader.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/StatisticalData.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include "CIMOperationResponseEncoder.h"
 
 // l10n
@@ -87,7 +88,7 @@ void CIMOperationResponseEncoder::sendResponse(
    if (queue)
 
    {
-      HTTPMessage* httpMessage = new HTTPMessage(message);
+      AutoPtr<HTTPMessage> httpMessage(new HTTPMessage(message));
       Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2, 
 			  httpMessage->message.getData(), httpMessage->message.size());
 
@@ -96,7 +97,7 @@ void CIMOperationResponseEncoder::sendResponse(
 		  queue,
                   String(httpMessage->message.getData(),httpMessage->message.size()));
 
-      queue->enqueue(httpMessage);
+      queue->enqueue(httpMessage.release());
 
 #ifdef PEGASUS_CCOVER
       cov_write();

@@ -26,6 +26,7 @@
 // Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 // Modified By:
+//     Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -39,6 +40,7 @@
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/ModuleController.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Server/CIMServer.h>
 #include <Pegasus/Server/Linkage.h>
 
@@ -89,24 +91,18 @@ public:
     class callback_data
     {
         public:
-            Message *reply;
+            AutoPtr<Message> reply; //PEP101
             Semaphore client_sem;
             ShutdownService & cimom_handle;
 
             callback_data(ShutdownService *handle)
-               : reply(0), client_sem(0), cimom_handle(*handle)
+               : client_sem(0), cimom_handle(*handle)
             {
             }
-            ~callback_data()
-            {
-               delete reply;
-            }
-
+            
             Message *get_reply(void)
             {
-               Message *ret = reply;
-               reply = NULL;
-               return ret;
+               return reply.release();
             }
 
         private:

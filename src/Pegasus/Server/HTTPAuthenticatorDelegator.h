@@ -26,6 +26,7 @@
 // Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 // Modified By:
+//     Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,6 +38,7 @@
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/HTTPMessage.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Security/Authentication/AuthenticationManager.h>
 #include <Pegasus/Server/Linkage.h>
 
@@ -102,7 +104,7 @@ class PEGASUS_SERVER_LINKAGE HTTPAuthenticatorDelegator : public MessageQueueSer
 
       Uint32 _exportMessageQueueId;
 
-      AuthenticationManager* _authenticationManager;
+      AutoPtr<AuthenticationManager> _authenticationManager; //PEP101
 };
 
 PEGASUS_NAMESPACE_END

@@ -29,6 +29,7 @@
 //         Mike Day (mdday@us.ibm.com)
 //	   Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //	   Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//     Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -176,7 +177,7 @@ private:
     HTTPAuthenticatorDelegator* _httpAuthenticatorDelegator;
 
     Array<HTTPAcceptor*> _acceptors;
-    CIMServerState* _serverState;
+    AutoPtr<CIMServerState> _serverState; //PEP101
 
     ModuleController* _controlService;
     IndicationHandlerService* _handlerService;
@@ -184,8 +185,8 @@ private:
     ProviderManagerService* _providerManager;
     ProviderRegistrationManager* _providerRegistrationManager;
     BinaryMessageHandler *_binaryMessageHandler;
-    SSLContext* _sslcontext;
-    SSLContext* _exportSSLContext;
+    AutoPtr<SSLContext> _sslcontext; //PEP101
+    AutoPtr<SSLContext> _exportSSLContext; //PEP101
     monitor_2* monitor2;
     server_type _type;
     

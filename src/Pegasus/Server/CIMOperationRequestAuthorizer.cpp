@@ -30,6 +30,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +38,6 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Security/UserManager/UserManager.h>
 #include <Pegasus/Common/HTTPMessage.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Tracer.h>
 #include "CIMOperationRequestAuthorizer.h"
@@ -89,9 +89,9 @@ void CIMOperationRequestAuthorizer::sendResponse(
 
    if (queue)
    {
-      HTTPMessage* httpMessage = new HTTPMessage(message);
+      AutoPtr<HTTPMessage> httpMessage(new HTTPMessage(message));
 
-      queue->enqueue(httpMessage);
+      queue->enqueue(httpMessage.release());
    }
    PEG_METHOD_EXIT();
 }
@@ -172,9 +172,8 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
    {
 	if (req->thread_changed())
         {
-	   AcceptLanguages *langs = 
-   			new AcceptLanguages(req->acceptLanguages);	
-	   Thread::setLanguages(langs);   		
+	   AutoPtr<AcceptLanguages> langs(new AcceptLanguages(req->acceptLanguages));	
+	   Thread::setLanguages(langs.release());   		
         }
    }
    else

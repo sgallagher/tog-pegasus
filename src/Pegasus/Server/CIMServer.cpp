@@ -36,6 +36,7 @@
 //         Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
 //         Dan Gorey, IBM (djgorey@us.ibm.com)
 //         Heather Sterling, IBM (hsterl@us.ibm.com)
+//         Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -188,7 +189,7 @@ void CIMServer::_init(void)
 
     // -- Create a CIMServerState object:
 
-    _serverState = new CIMServerState();
+    _serverState.reset(new CIMServerState());
 
     _providerRegistrationManager = new ProviderRegistrationManager(_repository);
 
@@ -307,9 +308,6 @@ void CIMServer::_init(void)
         _cimOperationRequestDecoder->getQueueId(),
         _cimExportRequestDecoder->getQueueId());
 
-    _sslcontext = 0;
-    _exportSSLContext = 0;
-
     // IMPORTANT-NU-20020513: Indication service must start after ExportService
     // otherwise HandlerService started by indicationService will never
     // get ExportQueue to export indications for existing subscriptions
@@ -346,14 +344,6 @@ CIMServer::~CIMServer()
     if (_providerRegistrationManager)
     {
         delete _providerRegistrationManager;
-    }
-
-    if (_sslcontext)
-	delete _sslcontext;
-
-    if (_exportSSLContext)
-    {
-        delete _exportSSLContext;
     }
 
     if(_type != OLD)
@@ -672,7 +662,7 @@ SSLContext* CIMServer::_getSSLContext()
     static String PROPERTY_NAME__SSL_AUTO_TRUST_STORE_UPDATE = "enableSSLTrustStoreAutoUpdate";
     static String PROPERTY_NAME__SSL_TRUST_STORE_USERNAME = "sslTrustStoreUserName";
 
-    if (_sslcontext == 0)
+    if (_sslcontext.get() == 0)
     {
        
 #ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
@@ -798,13 +788,13 @@ SSLContext* CIMServer::_getSSLContext()
         {
             Tracer::trace(TRC_SSL, Tracer::LEVEL2,
                 "SSL Client verification REQUIRED.");
-            _sslcontext = new SSLContext(trustStore, certPath, keyPath, 0, false, trustStoreUserName, randFile);
+            _sslcontext.reset(new SSLContext(trustStore, certPath, keyPath, 0, false, trustStoreUserName, randFile));
         } 
         else if (String::equal(verifyClient, "optional"))
         {
             Tracer::trace(TRC_SSL, Tracer::LEVEL2,
                 "SSL Client verification OPTIONAL.");
-            _sslcontext = new SSLContext(trustStore, certPath, keyPath, (SSLCertificateVerifyFunction*)verifyClientOptionalCallback, trustStoreAutoUpdate, trustStoreUserName, randFile);
+            _sslcontext.reset(new SSLContext(trustStore, certPath, keyPath, (SSLCertificateVerifyFunction*)verifyClientOptionalCallback, trustStoreAutoUpdate, trustStoreUserName, randFile));
         }
         else if (String::equal(verifyClient, "disabled") ||
                  verifyClient == String::EMPTY 
@@ -812,7 +802,7 @@ SSLContext* CIMServer::_getSSLContext()
         {
             Tracer::trace(TRC_SSL, Tracer::LEVEL2,
                 "SSL Client verification DISABLED.");
-            _sslcontext = new SSLContext(String::EMPTY, certPath, keyPath, 0, false, String::EMPTY, randFile);
+            _sslcontext.reset(new SSLContext(String::EMPTY, certPath, keyPath, 0, false, String::EMPTY, randFile));
         }
         else 
         {
@@ -822,12 +812,12 @@ SSLContext* CIMServer::_getSSLContext()
         }
 
 #else
-        _sslcontext = new SSLContext(String::EMPTY, certPath, keyPath, 0, randFile);
+        _sslcontext.reset(new SSLContext(String::EMPTY, certPath, keyPath, 0, randFile));
 #endif
 
     }
 
-    return _sslcontext;
+    return _sslcontext.release();
 }
 
 SSLContext* CIMServer::_getExportSSLContext()
@@ -838,7 +828,7 @@ SSLContext* CIMServer::_getExportSSLContext()
     static const String PROPERTY_NAME__SSLCERT_FILEPATH = "sslCertificateFilePath";
     static const String PROPERTY_NAME__SSLKEY_FILEPATH  = "sslKeyFilePath";
 
-    if (_exportSSLContext == 0)
+    if (_exportSSLContext.get() == 0)
     {
         //
         // Get the exportSSLTrustStore property from the Config Manager.
@@ -877,11 +867,11 @@ SSLContext* CIMServer::_getExportSSLContext()
         // Note: Trust store is used by default on Export connections,
         // verification callback function is not used.
         //
-        _exportSSLContext = new SSLContext(trustPath, certPath, keyPath, 0, randFile);
+        _exportSSLContext.reset(new SSLContext(trustPath, certPath, keyPath, 0, randFile));
     }
 
     PEG_METHOD_EXIT();
-    return _exportSSLContext;
+    return _exportSSLContext.release();
 }
 
 PEGASUS_NAMESPACE_END

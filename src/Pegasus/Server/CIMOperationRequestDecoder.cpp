@@ -37,6 +37,7 @@
 //                  (carolann_graves@hp.com)
 //              Dave Rosckes (rosckes@us.ibm.com)
 //				Seema Gupta (gseema@in.ibm.com for PEP135)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +47,6 @@
 #include <cstdio>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlReader.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/XmlConstants.h>
 #include <Pegasus/Common/System.h>
@@ -87,8 +87,8 @@ void CIMOperationRequestDecoder::sendResponse(
 
    if (queue)
    {
-      HTTPMessage* httpMessage = new HTTPMessage(message);
-      queue->enqueue(httpMessage);
+      AutoPtr<HTTPMessage> httpMessage(new HTTPMessage(message));
+      queue->enqueue(httpMessage.release());
    }
 }
 
@@ -1286,18 +1286,18 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
  
-   CIMCreateClassRequestMessage* request = new CIMCreateClassRequestMessage(
+   AutoPtr<CIMCreateClassRequestMessage> request(new CIMCreateClassRequestMessage(
       messageId,
       nameSpace,
       newClass,
       QueueIdStack(queueId, _returnQueueId),
       authType,
-      userName);
+      userName));
 
    STAT_SERVERSTART
 
    PEG_METHOD_EXIT();
-   return(request);
+   return(request.release());
 }
 
 CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
@@ -1389,7 +1389,7 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMGetClassRequestMessage* request = new CIMGetClassRequestMessage(
+   AutoPtr<CIMGetClassRequestMessage> request(new CIMGetClassRequestMessage(
       messageId,
       nameSpace,
       className,
@@ -1399,12 +1399,12 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
       propertyList,
       QueueIdStack(queueId, _returnQueueId),
       authType,
-      userName);
+      userName));
 
    STAT_SERVERSTART
 
    PEG_METHOD_EXIT();
-   return(request);
+   return(request.release());
 }
 
 CIMModifyClassRequestMessage* CIMOperationRequestDecoder::decodeModifyClassRequest(
@@ -1447,18 +1447,18 @@ CIMModifyClassRequestMessage* CIMOperationRequestDecoder::decodeModifyClassReque
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMModifyClassRequestMessage* request = 
+   AutoPtr<CIMModifyClassRequestMessage> request(
       new CIMModifyClassRequestMessage(
 	 messageId,
 	 nameSpace,
 	 modifiedClass,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateClassNamesRequest(
@@ -1507,7 +1507,7 @@ CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
       }
    }
 
-   CIMEnumerateClassNamesRequestMessage* request = 
+   AutoPtr<CIMEnumerateClassNamesRequestMessage> request(
       new CIMEnumerateClassNamesRequestMessage(
 	 messageId,
 	 nameSpace,
@@ -1515,11 +1515,11 @@ CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
 	 deepInheritance,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateClassesRequest(
@@ -1592,7 +1592,7 @@ CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateCl
       }
    }
 
-   CIMEnumerateClassesRequestMessage* request = 
+   AutoPtr<CIMEnumerateClassesRequestMessage> request(
       new CIMEnumerateClassesRequestMessage(
 	 messageId,
 	 nameSpace,
@@ -1603,11 +1603,11 @@ CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateCl
 	 includeClassOrigin,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMDeleteClassRequestMessage* CIMOperationRequestDecoder::decodeDeleteClassRequest(
@@ -1650,17 +1650,17 @@ CIMDeleteClassRequestMessage* CIMOperationRequestDecoder::decodeDeleteClassReque
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMDeleteClassRequestMessage* request = new CIMDeleteClassRequestMessage(
+   AutoPtr<CIMDeleteClassRequestMessage> request(new CIMDeleteClassRequestMessage(
       messageId,
       nameSpace,
       className,
       QueueIdStack(queueId, _returnQueueId),
       authType,
-      userName);
+      userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMCreateInstanceRequestMessage* CIMOperationRequestDecoder::decodeCreateInstanceRequest(
@@ -1703,18 +1703,18 @@ CIMCreateInstanceRequestMessage* CIMOperationRequestDecoder::decodeCreateInstanc
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMCreateInstanceRequestMessage* request = 
+   AutoPtr<CIMCreateInstanceRequestMessage> request(
       new CIMCreateInstanceRequestMessage(
 	 messageId,
 	 nameSpace,
 	 newInstance,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceRequest(
@@ -1800,7 +1800,7 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMGetInstanceRequestMessage* request = new CIMGetInstanceRequestMessage(
+   AutoPtr<CIMGetInstanceRequestMessage> request(new CIMGetInstanceRequestMessage(
       messageId,
       nameSpace,
       instanceName,
@@ -1810,11 +1810,11 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
       propertyList,
       QueueIdStack(queueId, _returnQueueId),
       authType,
-      userName);
+      userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanceRequest(
@@ -1884,7 +1884,7 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMModifyInstanceRequestMessage* request = 
+   AutoPtr<CIMModifyInstanceRequestMessage> request(
       new CIMModifyInstanceRequestMessage(
 	 messageId,
 	 nameSpace,
@@ -1893,11 +1893,11 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
 	 propertyList,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateInstancesRequest(
@@ -1991,7 +1991,7 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMEnumerateInstancesRequestMessage* request = 
+   AutoPtr<CIMEnumerateInstancesRequestMessage> request(
       new CIMEnumerateInstancesRequestMessage(
 	 messageId,
 	 nameSpace,
@@ -2003,11 +2003,11 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
 	 propertyList,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMEnumerateInstanceNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateInstanceNamesRequest(
@@ -2050,18 +2050,18 @@ CIMEnumerateInstanceNamesRequestMessage* CIMOperationRequestDecoder::decodeEnume
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMEnumerateInstanceNamesRequestMessage* request = 
+   AutoPtr<CIMEnumerateInstanceNamesRequestMessage> request(
       new CIMEnumerateInstanceNamesRequestMessage(
 	 messageId,
 	 nameSpace,
 	 className,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMDeleteInstanceRequestMessage* CIMOperationRequestDecoder::decodeDeleteInstanceRequest(
@@ -2104,17 +2104,17 @@ CIMDeleteInstanceRequestMessage* CIMOperationRequestDecoder::decodeDeleteInstanc
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMDeleteInstanceRequestMessage* request = new CIMDeleteInstanceRequestMessage(
+   AutoPtr<CIMDeleteInstanceRequestMessage> request(new CIMDeleteInstanceRequestMessage(
       messageId,
       nameSpace,
       instanceName,
       QueueIdStack(queueId, _returnQueueId),
       authType,
-      userName);
+      userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMSetQualifierRequestMessage* CIMOperationRequestDecoder::decodeSetQualifierRequest(
@@ -2157,18 +2157,18 @@ CIMSetQualifierRequestMessage* CIMOperationRequestDecoder::decodeSetQualifierReq
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMSetQualifierRequestMessage* request = 
+   AutoPtr<CIMSetQualifierRequestMessage> request(
       new CIMSetQualifierRequestMessage(
 	 messageId,
 	 nameSpace,
 	 qualifierDeclaration,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMGetQualifierRequestMessage* CIMOperationRequestDecoder::decodeGetQualifierRequest(
@@ -2213,18 +2213,18 @@ CIMGetQualifierRequestMessage* CIMOperationRequestDecoder::decodeGetQualifierReq
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMGetQualifierRequestMessage* request = 
+   AutoPtr<CIMGetQualifierRequestMessage> request(
       new CIMGetQualifierRequestMessage(
 	 messageId,
 	 nameSpace,
 	 qualifierName,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMEnumerateQualifiersRequestMessage* CIMOperationRequestDecoder::decodeEnumerateQualifiersRequest(
@@ -2243,17 +2243,17 @@ CIMEnumerateQualifiersRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
    }
 
-   CIMEnumerateQualifiersRequestMessage* request = 
+   AutoPtr<CIMEnumerateQualifiersRequestMessage> request(
       new CIMEnumerateQualifiersRequestMessage(
 	 messageId,
 	 nameSpace,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMDeleteQualifierRequestMessage* CIMOperationRequestDecoder::decodeDeleteQualifierRequest(
@@ -2298,18 +2298,18 @@ CIMDeleteQualifierRequestMessage* CIMOperationRequestDecoder::decodeDeleteQualif
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMDeleteQualifierRequestMessage* request = 
+   AutoPtr<CIMDeleteQualifierRequestMessage> request(
       new CIMDeleteQualifierRequestMessage(
 	 messageId,
 	 nameSpace,
 	 qualifierName,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceNamesRequest(
@@ -2374,7 +2374,7 @@ CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceName
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMReferenceNamesRequestMessage* request = 
+   AutoPtr<CIMReferenceNamesRequestMessage> request(
       new CIMReferenceNamesRequestMessage(
 	 messageId,
 	 nameSpace,
@@ -2383,11 +2383,11 @@ CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceName
 	 role,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest(
@@ -2487,7 +2487,7 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMReferencesRequestMessage* request = 
+   AutoPtr<CIMReferencesRequestMessage> request(
       new CIMReferencesRequestMessage(
 	 messageId,
 	 nameSpace,
@@ -2499,11 +2499,11 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
 	 propertyList,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNamesRequest(
@@ -2590,7 +2590,7 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMAssociatorNamesRequestMessage* request = 
+   AutoPtr<CIMAssociatorNamesRequestMessage> request(
       new CIMAssociatorNamesRequestMessage(
 	 messageId,
 	 nameSpace,
@@ -2601,11 +2601,11 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
 	 resultRole,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsRequest(
@@ -2727,7 +2727,7 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMAssociatorsRequestMessage* request = 
+   AutoPtr<CIMAssociatorsRequestMessage> request(
       new CIMAssociatorsRequestMessage(
 	 messageId,
 	 nameSpace,
@@ -2741,11 +2741,11 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
 	 propertyList,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMGetPropertyRequestMessage* CIMOperationRequestDecoder::decodeGetPropertyRequest(
@@ -2796,18 +2796,18 @@ CIMGetPropertyRequestMessage* CIMOperationRequestDecoder::decodeGetPropertyReque
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMGetPropertyRequestMessage* request = new CIMGetPropertyRequestMessage(
+   AutoPtr<CIMGetPropertyRequestMessage> request(new CIMGetPropertyRequestMessage(
       messageId,
       nameSpace,
       instanceName,
       propertyName,
       QueueIdStack(queueId, _returnQueueId),
       authType,
-      userName);
+      userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyRequest(
@@ -2869,7 +2869,7 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMSetPropertyRequestMessage* request = new CIMSetPropertyRequestMessage(
+   AutoPtr<CIMSetPropertyRequestMessage> request(new CIMSetPropertyRequestMessage(
       messageId,
       nameSpace,
       instanceName,
@@ -2877,11 +2877,11 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
       propertyValue,
       QueueIdStack(queueId, _returnQueueId),
       authType,
-      userName);
+      userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMExecQueryRequestMessage* CIMOperationRequestDecoder::decodeExecQueryRequest(
@@ -2932,7 +2932,7 @@ CIMExecQueryRequestMessage* CIMOperationRequestDecoder::decodeExecQueryRequest(
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMExecQueryRequestMessage* request = 
+   AutoPtr<CIMExecQueryRequestMessage> request(
       new CIMExecQueryRequestMessage(
 	 messageId,
 	 nameSpace,
@@ -2940,11 +2940,11 @@ CIMExecQueryRequestMessage* CIMOperationRequestDecoder::decodeExecQueryRequest(
 	 query,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMInvokeMethodRequestMessage* CIMOperationRequestDecoder::decodeInvokeMethodRequest(
@@ -2966,7 +2966,7 @@ CIMInvokeMethodRequestMessage* CIMOperationRequestDecoder::decodeInvokeMethodReq
       inParameters.append(paramValue);
    }
 
-   CIMInvokeMethodRequestMessage* request =     
+   AutoPtr<CIMInvokeMethodRequestMessage> request(
       new CIMInvokeMethodRequestMessage(
 	 messageId, 
 	 reference.getNameSpace(), 
@@ -2975,11 +2975,11 @@ CIMInvokeMethodRequestMessage* CIMOperationRequestDecoder::decodeInvokeMethodReq
 	 inParameters,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 void CIMOperationRequestDecoder::setServerTerminating(Boolean flag)

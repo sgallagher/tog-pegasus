@@ -27,6 +27,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +37,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Server/Linkage.h>
 
 
@@ -90,7 +92,7 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestAuthorizer : public MessageQueue
 
       Array<String> _authorizedUserGroups;
 
-      MessageQueueService* _outputQueue;
+      AutoPtr<MessageQueueService> _outputQueue; //PEP101
 
       // Flag to indicate whether or not the CIMServer is shutting down.
       Boolean _serverTerminating;

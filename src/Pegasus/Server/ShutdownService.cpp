@@ -26,6 +26,7 @@
 // Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +36,6 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Server/ShutdownExceptions.h>
 #include <Pegasus/Server/CIMServerState.h>
 #include <Pegasus/Server/ShutdownService.h>
@@ -209,7 +209,7 @@ void ShutdownService::async_callback(Uint32 user_data,
     void *parm)
 {
    callback_data *cb_data = reinterpret_cast<callback_data *>(parm);
-   cb_data->reply = reply;
+   cb_data->reply.reset(reply);
    cb_data->client_sem.signal();
 }
 

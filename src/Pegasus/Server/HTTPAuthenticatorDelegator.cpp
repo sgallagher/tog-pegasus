@@ -28,6 +28,7 @@
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //              Sushma Fernandes (sushma_fernandes@hp.com)
 //              Heather Sterling, IBM (hsterl@us.ibm.com)
+//     Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -61,7 +62,7 @@ HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator");
 
-    _authenticationManager = new AuthenticationManager();
+    _authenticationManager.reset(new AuthenticationManager());
 
     PEG_METHOD_EXIT();
 }
@@ -70,8 +71,6 @@ HTTPAuthenticatorDelegator::~HTTPAuthenticatorDelegator()
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::~HTTPAuthenticatorDelegator");
-
-    delete _authenticationManager;
 
     PEG_METHOD_EXIT();
 }

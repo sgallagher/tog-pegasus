@@ -26,10 +26,12 @@
 // Author: Adrain Schuur (schuur@de.ibm.com)
 //
 // Modified By:
+//     Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "WQLOperationRequestDispatcher.h"
+#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -140,8 +142,8 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
    CIMExecQueryRequestMessage* request)
 {
    Boolean exception=false;
-   WQLSelectStatement *selectStatement=new WQLSelectStatement();
-   WQLQueryExpressionRep *qx;
+   AutoPtr<WQLSelectStatement> selectStatement(new WQLSelectStatement());
+   AutoPtr<WQLQueryExpressionRep> qx;
    CIMException cimException;
    CIMName className;
 
@@ -156,9 +158,9 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
    }
    else {
       try {
-         WQLParser::parse(request->query, *selectStatement);
+         WQLParser::parse(request->query, *selectStatement.get());
 	 className=selectStatement->getClassName();
-	 qx=new WQLQueryExpressionRep("WQL",selectStatement);
+	 qx.reset(new WQLQueryExpressionRep("WQL",selectStatement.get()));
       }
       catch (ParseError& e) {
          cimException =
@@ -183,15 +185,15 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
    if (exception) {
    Array<CIMObject> cimObjects;
 
-   CIMExecQueryResponseMessage* response =
+   AutoPtr<CIMExecQueryResponseMessage> response(
       new CIMExecQueryResponseMessage(
 	 request->messageId,
 	 cimException,
 	 request->queueIds.copyAndPop(),
-	 cimObjects);
+	 cimObjects));
 
         STAT_COPYDISPATCHER_REP
-        _enqueueResponse(request, response);
+        _enqueueResponse(request, response.release());
         PEG_METHOD_EXIT();
         return;
     }
@@ -214,13 +216,13 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
     catch(CIMException& exception) {
         // Return exception response if exception from getSubClasses
         cimException = exception;
-        CIMExecQueryResponseMessage* response =
+        AutoPtr<CIMExecQueryResponseMessage> response(
         new CIMExecQueryResponseMessage(request->messageId,
             cimException,
             request->queueIds.copyAndPop(),
-            Array<CIMObject>());
+            Array<CIMObject>()));
 
-        _enqueueResponse(request, response);
+        _enqueueResponse(request, response.release());
         PEG_METHOD_EXIT();
         return;
     }
@@ -246,17 +248,17 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 
         // l10n
 
-        CIMExecQueryResponseMessage* response =
+        AutoPtr<CIMExecQueryResponseMessage> response(
             new CIMExecQueryResponseMessage(request->messageId,
                 PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
                     MessageLoaderParms("Server.CIMOperationRequestDispatcher."
                         "QUERY_REQ_TOO_BROAD", "Query request too Broad")),
                 request->queueIds.copyAndPop(),
-                Array<CIMObject>());
+                Array<CIMObject>()));
 
    STAT_COPYDISPATCHER
 
-   _enqueueResponse(request, response);
+   _enqueueResponse(request, response.release());
         PEG_METHOD_EXIT();
         return;
     }
@@ -268,15 +270,15 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
         PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
             "CIM_ERROR_NOT_SUPPORTED for " + request->className.getString());
 
-        CIMExecQueryResponseMessage* response =
+        AutoPtr<CIMExecQueryResponseMessage> response(
             new CIMExecQueryResponseMessage(request->messageId,
                 PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
                 request->queueIds.copyAndPop(),
-                Array<CIMObject>());
+                Array<CIMObject>()));
 
    STAT_COPYDISPATCHER
 
-   _enqueueResponse(request, response);
+   _enqueueResponse(request, response.release());
    PEG_METHOD_EXIT();
         return;
     }
@@ -290,7 +292,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
         request->messageId,
         request->queueIds.top(),
         className,
-	qx,
+	qx.release(),
 	"WQL");
 
     // Set the number of expected responses in the OperationAggregate
@@ -346,13 +348,13 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 
 	    else {
 	       // if (getenv("CMPI_DEBUG")) asm("int $3");
-               CIMExecQueryRequestMessage* requestCopy =
-                   new CIMExecQueryRequestMessage(*request);
+               AutoPtr<CIMExecQueryRequestMessage> requestCopy(
+                   new CIMExecQueryRequestMessage(*request));
 
                requestCopy->className = providerInfos[i]._className;
 
                _forwardRequestForAggregation(providerInfos[i]._serviceName,
-                   providerInfos[i]._controlProviderName, requestCopy, poA);
+                   providerInfos[i]._controlProviderName, requestCopy.release(), poA);
 	    }
 
             STAT_PROVIDEREND
@@ -405,15 +407,15 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 
                 STAT_PROVIDEREND
 
-                CIMEnumerateInstancesResponseMessage* response =
+                AutoPtr<CIMEnumerateInstancesResponseMessage> response(
                     new CIMEnumerateInstancesResponseMessage(
                         request->messageId,
                         cimException,
                         request->queueIds.copyAndPop(),
-                        cimInstances);
+                        cimInstances));
 
                 STAT_COPYDISPATCHER_REP
-                Boolean isDoneAggregation = poA->appendResponse(response);
+                Boolean isDoneAggregation = poA->appendResponse(response.release());
                 if (isDoneAggregation)
                 {
                     handleOperationResponseAggregation(poA);

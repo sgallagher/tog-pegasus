@@ -309,20 +309,18 @@ void ProviderManagerService::handleCimRequest(
         //
         CIMInstance providerModule;
 
-        CIMIndicationRequestMessage* indRequest =
-            dynamic_cast<CIMIndicationRequestMessage*>(request);
-        if (indRequest != 0)
+        if (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE)
         {
-   			ProviderIdContainer pidc = indRequest->operationContext.get(ProviderIdContainer::NAME); 
-			providerModule = pidc.getModule(); 
-        }
-        else if (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE)
-        {
-            // Get a ProviderIdContainer for ExportIndicationRequestMessage
-            ProviderIdContainer pidc = _getProviderIdContainer(request);
-            request->operationContext.insert(pidc);
-
-            providerModule = pidc.getModule();
+            // Get a ProviderIdContainer for ExportIndicationRequestMessage.
+            // Note: This can be removed when the CIMExportRequestDispatcher
+            // is updated to add the ProviderIdContainer to the message.
+            CIMInstance provider;
+            const CIMExportIndicationRequestMessage* expRequest =
+                dynamic_cast<const CIMExportIndicationRequestMessage*>(request);
+            _providerRegistrationManager->lookupIndicationConsumer(
+                expRequest->destinationPath, provider, providerModule);
+            request->operationContext.insert(
+                ProviderIdContainer(providerModule, provider));
         }
         else
         {
@@ -561,206 +559,6 @@ ProviderManagerService::_unloadIdleProvidersHandler(void* arg) throw()
     }
 
     return(PEGASUS_THREAD_RETURN(0));
-}
-
-ProviderIdContainer ProviderManagerService::_getProviderIdContainer(
-    const CIMRequestMessage* message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "ProviderManagerService::_getProviderIdContainer");
-
-    CIMInstance providerModule;
-    CIMInstance provider;
-    Boolean remoteNamespace=false;
-    String remoteInfo=String::EMPTY;
-
-    switch (message->getType())
-    {
-    case CIM_GET_CLASS_REQUEST_MESSAGE:
-    case CIM_DELETE_CLASS_REQUEST_MESSAGE:
-    case CIM_CREATE_CLASS_REQUEST_MESSAGE:
-    case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
-    case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
-    case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
-    case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
-    case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
-    case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
-    case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
-        // The ProviderManagerService does not support class operations
-        PEGASUS_ASSERT(0);
-        break;
-
-    case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-    case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-    case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-    case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-    case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-    case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-    case CIM_GET_PROPERTY_REQUEST_MESSAGE:
-    case CIM_SET_PROPERTY_REQUEST_MESSAGE:
-    {
-        // Look up instance provider
-        const CIMOperationRequestMessage* request =
-            dynamic_cast<const CIMOperationRequestMessage*>(message);
-        _providerRegistrationManager->lookupInstanceProvider(
-            request->nameSpace, request->className, provider, providerModule);
-	remoteNamespace=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo);
-        break;
-    }
-
-    case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-    {
-        // Look up instance query provider
-        const CIMOperationRequestMessage* request =
-            dynamic_cast<const CIMOperationRequestMessage*>(message);
-        Boolean hasNoQuery;
-        _providerRegistrationManager->lookupInstanceProvider(
-            request->nameSpace, request->className, provider, providerModule,
-            0, &hasNoQuery);
-        // We shouldn't have gotten this far if this isn't a query provider
-        PEGASUS_ASSERT(!hasNoQuery);
-	remoteNamespace=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo);
-        break;
-    }
-
-    case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-    {
-        // Look up association provider
-        const CIMAssociatorsRequestMessage* request =
-            dynamic_cast<const CIMAssociatorsRequestMessage*>(message);
-        Array<CIMInstance> providerModules;
-        Array<CIMInstance> providers;
-        _providerRegistrationManager->lookupAssociationProvider(
-            request->nameSpace, request->assocClass,
-            providers, providerModules);
-        providerModule = providerModules[0];
-        provider = providers[0];
-	remoteNamespace=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo);
-        break;
-    }
-
-    case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-    {
-        // Look up association provider
-        const CIMAssociatorNamesRequestMessage* request =
-            dynamic_cast<const CIMAssociatorNamesRequestMessage*>(message);
-        Array<CIMInstance> providerModules;
-        Array<CIMInstance> providers;
-        _providerRegistrationManager->lookupAssociationProvider(
-            request->nameSpace, request->assocClass,
-            providers, providerModules);
-        providerModule = providerModules[0];
-        provider = providers[0];
-	remoteNamespace=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo);
-        break;
-    }
-
-    case CIM_REFERENCES_REQUEST_MESSAGE:
-    {
-        // Look up association provider
-        const CIMReferencesRequestMessage* request =
-            dynamic_cast<const CIMReferencesRequestMessage*>(message);
-        Array<CIMInstance> providerModules;
-        Array<CIMInstance> providers;
-        _providerRegistrationManager->lookupAssociationProvider(
-            request->nameSpace, request->resultClass,
-            providers, providerModules);
-        providerModule = providerModules[0];
-        provider = providers[0];
-	remoteNamespace=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo);
-        break;
-    }
-
-    case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-    {
-        // Look up association provider
-        const CIMReferenceNamesRequestMessage* request =
-            dynamic_cast<const CIMReferenceNamesRequestMessage*>(message);
-        Array<CIMInstance> providerModules;
-        Array<CIMInstance> providers;
-        _providerRegistrationManager->lookupAssociationProvider(
-            request->nameSpace, request->resultClass,
-            providers, providerModules);
-        providerModule = providerModules[0];
-        provider = providers[0];
-	remoteNamespace=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo);
-        break;
-    }
-
-    case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-    {
-        // Look up method provider
-        const CIMInvokeMethodRequestMessage* request =
-            dynamic_cast<const CIMInvokeMethodRequestMessage*>(message);
-        _providerRegistrationManager->lookupMethodProvider(
-            request->nameSpace, request->className, request->methodName,
-            provider, providerModule);
-	remoteNamespace=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo);
-        break;
-    }
-
-    case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
-    {
-        const CIMExportIndicationRequestMessage* request =
-            dynamic_cast<const CIMExportIndicationRequestMessage*>(message);
-        _providerRegistrationManager->lookupIndicationConsumer(
-            request->destinationPath, provider, providerModule);
-        break;
-    }
-
-    case CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE:
-    case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
-    case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
-    case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
-    case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
-    {
-        // Provider information is already in the message
-        const CIMIndicationRequestMessage* request =
-            dynamic_cast<const CIMIndicationRequestMessage*>(message);
-		ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);											
-        providerModule = pidc.getModule();
-        provider = pidc.getProvider(); 
-        break;
-    }
-
-    case CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-    case CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-    case CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
-    case CIM_PROCESS_INDICATION_REQUEST_MESSAGE:
-    case CIM_HANDLE_INDICATION_REQUEST_MESSAGE:
-    case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE:
-    case CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE:
-        // These messages are not handled by the ProviderManagerService
-        PEGASUS_ASSERT(0);
-        break;
-
-    case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
-    case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
-    case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
-        // These messages are handled specially by the ProviderManagerService
-        PEGASUS_ASSERT(0);
-        break;
-
-    case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
-    {
-        // Provider information is already in the message
-        const CIMInitializeProviderRequestMessage* request =
-            dynamic_cast<const CIMInitializeProviderRequestMessage*>(message);
-
-        const ProviderIdContainer container =
-            request->operationContext.get(ProviderIdContainer::NAME);
-        providerModule = container.getModule(); 
-        provider = container.getProvider(); 
-        break;
-    }
-
-    }
-
-    PEGASUS_ASSERT(!providerModule.isUninitialized());
-    PEGASUS_ASSERT(!provider.isUninitialized());
-
-    PEG_METHOD_EXIT();
-    return ProviderIdContainer(providerModule, provider, remoteNamespace, remoteInfo);
 }
 
 // Updates the providerModule instance and the ProviderRegistrationManager

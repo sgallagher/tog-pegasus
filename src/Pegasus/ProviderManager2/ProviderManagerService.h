@@ -101,9 +101,6 @@ private:
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
         _unloadIdleProvidersHandler(void* arg) throw();
 
-    ProviderIdContainer _getProviderIdContainer(
-        const CIMRequestMessage* message);
-
     void _updateProviderModuleStatus(
         CIMInstance& providerModule,
         Uint16 fromStatus,

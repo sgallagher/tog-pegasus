@@ -30,8 +30,8 @@
 #define Pegasus_IndicationProvider_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider2/CIMBaseProvider.h>
-#include <Pegasus/Provider2/CIMIndicationProvider.h>
+#include <Pegasus/Provider/CIMBaseProvider.h>
+#include <Pegasus/Provider/CIMIndicationProvider.h>
 #include <Pegasus/Common/Thread.h>
 
 PEGASUS_NAMESPACE_BEGIN

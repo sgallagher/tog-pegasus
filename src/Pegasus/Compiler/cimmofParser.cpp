@@ -23,6 +23,9 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // $Log: cimmofParser.cpp,v $
+// Revision 1.6  2001/03/05 17:00:47  bob
+// Catch up with the change from CimException to CIMException
+//
 // Revision 1.5  2001/03/04 22:18:00  bob
 // Cleanup, support for reference, message moving, start of instance support
 //
@@ -449,8 +452,8 @@ cimmofParser::addClass(CIMClass *classdecl)
     cimmofMessages::getMessage(message, cimmofMessages::CLASS_EXISTS_WARNING,
 			       arglist);
     wlog(message);
-  } catch (CimException &e) {
-    if (e.getCode() == CimException::ALREADY_EXISTS) {
+  } catch (CIMException &e) {
+    if (e.getCode() == CIMException::ALREADY_EXISTS) {
       cimmofMessages::getMessage(message, cimmofMessages::CLASS_EXISTS_WARNING,
 				 arglist);
       wlog(message);
@@ -487,7 +490,7 @@ cimmofParser::newClassDecl(const String &name, const String &superclassname)
   CIMClass *c = 0;
   try {
     c = new CIMClass(name, superclassname);
-  } catch(CimException &e) {
+  } catch(CIMException &e) {
     cimmofMessages::arglist arglist;
     arglist.push_back(name);
     arglist.push_back(e.getMessage());
@@ -817,7 +820,7 @@ int
 cimmofParser::applyParameter(CIMMethod &m, CIMParameter &p) {
   try {
     m.addParameter(p);
-  } catch(CimException &e) {
+  } catch(CIMException &e) {
     cimmofMessages::arglist arglist;
     String message;
     arglist.push_back(p.getName());

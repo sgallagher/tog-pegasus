@@ -27,6 +27,7 @@
 //
 // Modified By: 
 //         Susan Campbell, Hewlett-Packard Company (susan_campbell@hp.com)
+//          Bapu Patil (bapu_patil@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -234,12 +235,12 @@ Boolean OperatingSystem::getVersion(String& osVersion)
 /**
     getOSType method for HP-UX implementation of OS Provider
 
-    Always returns 8 = HPUX
+    Always returns 8 = HP-UX
   */
 
 Boolean OperatingSystem::getOSType(Uint16& osType)
 {
-   osType = HPUX;  // from enum in .h file
+   osType = HP_UX;  // from enum in .h file
    return true;
 }
 

@@ -27,6 +27,7 @@
 // 	   Al Stone <ahs3@fc.hp.com>
 //
 // Modified By: Al Stone <ahs3@fc.hp.com>
+//              Bapu Patil (bapu_patil@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////
 #ifndef _OPERATINGSYSTEM_H
@@ -45,7 +46,7 @@ class OperatingSystem
 
       enum OSTYPE {
            Unknown, Other, MACOS, ATTUNIX, DGUX, DECNT, Digital_Unix, 
-           OpenVMS, HPUX, AIX, MVS, OS400, OS2, JavaVM, MSDOS, WIN3x, 
+           OpenVMS, HP_UX, AIX, MVS, OS400, OS2, JavaVM, MSDOS, WIN3x, 
            WIN95, WIN98, WINNT, WINCE, NCR3000, NetWare, OSF,
            DCOS, Reliant_UNIX, SCO_UnixWare, SCO_OpenServer, Sequent, 
            IRIX, Solaris, SunOS, U6000, ASERIES, TandemNSK, TandemNT, 

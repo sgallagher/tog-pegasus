@@ -206,6 +206,8 @@ private:
         @param   propertyName          name of property to be validated
         @param   expectedType          expected CIMType of property value
         @param   message               message to be used in exception
+	@param   isArray               indicates whether the validated
+				       property is array
 
         @throw   CIM_ERR_INVALID_PARAMETER  if required property is missing or 
                                             null
@@ -214,7 +216,8 @@ private:
         CIMInstance & instance,
         const CIMName & propertyName,
         const CIMType expectedType,
-        const String & message);
+        const String & message,
+	const Boolean isArray = false);
 
     /**
         Validates the specified Uint16 (non-array) property and its 

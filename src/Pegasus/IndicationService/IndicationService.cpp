@@ -3377,7 +3377,7 @@ Boolean IndicationService::_canCreate (
                 //
                 _checkRequiredProperty (instance,
             PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO,
-                    CIMTYPE_STRING, _MSG_PROPERTY);
+                    CIMTYPE_STRING, _MSG_PROPERTY, true);
 
         // get MailTo from handler instance
                 Array<String> mailTo;
@@ -3453,7 +3453,8 @@ void IndicationService::_checkRequiredProperty (
     CIMInstance & instance,
     const CIMName & propertyName,
     const CIMType expectedType,
-    const String & message)
+    const String & message,
+    const Boolean isArray)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "IndicationService::_checkRequiredProperty");
@@ -3488,7 +3489,8 @@ void IndicationService::_checkRequiredProperty (
             //
             //  Check that the property value is of the correct type
             //
-            if ((theValue.getType () != expectedType) || (theValue.isArray ()))
+            if ((theValue.getType () != expectedType) || 
+		(theValue.isArray () != isArray))
             {
                 if (theValue.isArray ())
                 {

@@ -62,7 +62,7 @@ int main(int argc, char** argv)
 
     try
     {
-        SSLContext ctx(String ::EMPTY, certpath, keypath, 0, String::EMPTY);
+        SSLContext ctx(String::EMPTY, certpath, keypath, 0, String::EMPTY);
     
         PEGASUS_STD(cout)<< "TestCertClient::Connecting to 127.0.0.1:5989" << PEGASUS_STD(endl);
     
@@ -85,7 +85,9 @@ int main(int argc, char** argv)
         exit(1);
     }
 
-    PEGASUS_STD(cout) << "+++++ "<< argv[0] << " Terminated Normally" << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << "+++++ "<< "TestCertClient" << " Terminated Normally" << PEGASUS_STD(endl);
     exit(0);
+
+    return 0;
 }
 

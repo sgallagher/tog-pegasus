@@ -147,7 +147,9 @@ nextcsv(const String &csv, int sep, const Uint32 start,
   Uint32 idx = start;
   parsestate state = NOTINQUOTE;
   // Change KS 4 March 2002. Change from < to <=. Was dropping last char in string.
-  while (idx <= maxend) {
+  // ATTN-RK-P3-071702: Added hack to check for null character because Strings
+  // were sometimes getting created that included an extra null character.
+  while (idx <= maxend && csv[idx]) {
     char idxchar = csv[idx];
     switch (state) {
     case NOTINQUOTE:

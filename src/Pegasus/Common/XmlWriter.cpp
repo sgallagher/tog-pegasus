@@ -237,10 +237,10 @@ void XmlWriter::append(Array<Sint8>& out, const char* str)
 
 void XmlWriter::append(Array<Sint8>& out, const String& str)
 {
-    const Char16* tmp = str.getData();
-
-    while (*tmp)
-	_appendChar(out, *tmp++);
+    for (Uint32 i = 0; i < str.size(); i++)
+    {
+        _appendChar(out, str[i]);
+    }
 }
 
 void XmlWriter::append(Array<Sint8>& out, const Indentor& x)
@@ -267,10 +267,10 @@ void XmlWriter::appendSpecial(Array<Sint8>& out, const char* str)
 
 void XmlWriter::appendSpecial(Array<Sint8>& out, const String& str)
 {
-    const Char16* tmp = str.getData();
-
-    while (*tmp)
-	_appendSpecialChar(out, *tmp++);
+    for (Uint32 i = 0; i < str.size(); i++)
+    {
+        _appendSpecialChar(out, str[i]);
+    }
 }
 
 //------------------------------------------------------------------------------

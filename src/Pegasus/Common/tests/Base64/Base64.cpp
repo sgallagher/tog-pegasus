@@ -49,7 +49,6 @@ PEGASUS_USING_STD;
 int main(int argc, char** argv)
 {
     Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
-    cout << "Simple Decode test" << endl;
     Uint32 maxLength = 1000;
 
     // Test a simple decode to determine if decode correct

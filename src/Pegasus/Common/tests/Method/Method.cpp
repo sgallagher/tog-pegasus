@@ -219,7 +219,6 @@ int main(int argc, char** argv)
         catch(IndexOutOfBoundsException& e)
         {
         }
-        cout << "ALL CLEAR" << endl;
     }
     catch(Exception& e)
     {

@@ -52,6 +52,7 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
+Boolean verbose = true;
 
 AtomicInt _canceled( 0 );
 AtomicInt _completed;
@@ -100,8 +101,9 @@ void TestThreadPool2()
    int done = 0;
 	while( done < 10000 )
 	{
-		printf( "ThreadPool crash test, iteration:  %d\n", ++done );
-		TestThreadPool();
+                if (verbose)
+                   printf( "ThreadPool crash test, iteration:  %d\n", ++done );
+                TestThreadPool();
 		
 	}
 }
@@ -153,9 +155,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func(void *parm)
 
 int main(int argc, char **argv) 
 { 
-   
+// verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
+
    TestThreadPool2();
-   PEGASUS_STD(cout) << "test finished, executing normal ThreadPool test" << PEGASUS_STD(endl);
+   if (verbose)
+      PEGASUS_STD(cout) << "test finished, executing normal ThreadPool test" << PEGASUS_STD(endl);
    
 #if defined(PEGASUS_DEBUG)
    Tracer::setTraceComponents("All");
@@ -174,7 +178,8 @@ int main(int argc, char **argv)
    {  
       try 
       {
-	 PEGASUS_STD(cout) << "test iteration: " << i << PEGASUS_STD(endl);
+         if (verbose)
+            PEGASUS_STD(cout) << "test iteration: " << i << PEGASUS_STD(endl);
 	 
  	 tp.allocate_and_awaken((void *)1, work_func );
 	 tp.allocate_and_awaken((void *)2, work_func );	 
@@ -236,9 +241,11 @@ int main(int argc, char **argv)
 	 PEGASUS_STD(cout) << "caught a deadlock, threadpool is totally allocated..." << PEGASUS_STD(endl);
       }
    }  
-   PEGASUS_STD(cout) << "sleeping..." << PEGASUS_STD(endl);
+   if (verbose)
+      PEGASUS_STD(cout) << "sleeping..." << PEGASUS_STD(endl);
    pegasus_sleep( 7000 ) ; 
-   PEGASUS_STD(cout) << "killing deadlocked threads..." << PEGASUS_STD(endl);
+   if (verbose)
+      PEGASUS_STD(cout) << "killing deadlocked threads..." << PEGASUS_STD(endl);
    tp.kill_dead_threads( );
    tp.kill_dead_threads( );
    
@@ -265,7 +272,8 @@ int main(int argc, char **argv)
       
    } while( success == false ); 
    
-   PEGASUS_STD(cout) << "waiting on  blocking thread" << PEGASUS_STD(endl);
+   if (verbose)
+      PEGASUS_STD(cout) << "waiting on  blocking thread" << PEGASUS_STD(endl);
    
    blocking.wait();
    tp.kill_dead_threads( ) ;

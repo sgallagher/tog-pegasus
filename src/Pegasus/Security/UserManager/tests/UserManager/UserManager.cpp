@@ -52,7 +52,7 @@ static const String BAD_USER        = "nosuchuser";
 // main
 //
 
-int main()
+int main(int argc, char** argv)
 {
 #ifdef PEGASUS_OS_HPUX
 
@@ -204,10 +204,10 @@ int main()
     }
     assert( exceptionFlag == false );
 #endif
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
     return 0;
 #else
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
     return 0;
 #endif 
 }

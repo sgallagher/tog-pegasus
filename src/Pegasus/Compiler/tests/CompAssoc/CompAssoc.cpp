@@ -140,7 +140,7 @@ void TestAssociations(CIMRepository& r)
     }
 }
 
-int main()
+int main(int argc, char** argv)
 {
     String repositoryRoot;
     const char* tmpDir = getenv ("PEGASUS_TMP");
@@ -166,7 +166,7 @@ int main()
 	exit(1);
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

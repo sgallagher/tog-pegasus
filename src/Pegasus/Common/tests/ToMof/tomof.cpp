@@ -128,7 +128,8 @@ int main(int argc, char** argv)
 
     // Test CimClass none Association
     {
-	cout << "Class test\n";
+        if (verbose)
+           cout << "Class test\n";
 	CIMClass class1(CIMName ("MyClass"), CIMName ("YourClass"));
 
 	class1

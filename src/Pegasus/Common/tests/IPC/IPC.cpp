@@ -267,7 +267,7 @@ void test02()
     delete atom;
 }
 
-int main()
+int main(int argc, char** argv)
 {
     verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
 
@@ -285,7 +285,7 @@ int main()
     if (verbose)
         cout << "+++++ passed test 2" << endl; 
 
-    cout << "+++++ passed all tests" << endl; 
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

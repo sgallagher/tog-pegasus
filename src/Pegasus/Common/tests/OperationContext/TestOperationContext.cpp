@@ -44,7 +44,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-int main(void)
+int main(int argc, char** argv)
 {
     OperationContext context;
 
@@ -754,7 +754,7 @@ int main(void)
     {
     }
 
-    cout << "+++++ passed all tests." << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     exit(0);
 

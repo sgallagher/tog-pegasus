@@ -41,8 +41,9 @@ PEGASUS_USING_STD;
 // ATTN-B: Complete this test by reopening the log and making sure it
 // contains what we expect.
 
-int main()
+int main(int argc, char** argv)
 {
+
 #ifndef PEGASUS_OS_HPUX
     Logger::setHomeDirectory("./logs");
 #endif
@@ -56,7 +57,7 @@ int main()
 	"Hello World", 
 	7.5);
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

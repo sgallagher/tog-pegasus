@@ -59,7 +59,7 @@ static Uint32 _GetNextQueueId() throw(IPCException)
 
 Uint32 MessageQueue::_CIMOM_Q_ID = 1;
 
-MessageQueue::MessageQueue(const char * name, Boolean async = false)
+MessageQueue::MessageQueue(const char * name, Boolean async)
 	: _mut( ), _count(0), _front(0), _back(0),
 	  _async(async),
 	  _workThread(MessageQueue::workThread, this, false),

@@ -10,7 +10,9 @@ ifdef PEGASUS_HAS_SSL
    SYS_INCLUDES += -I$(OPENSSL_HOME)/include
 endif
 
-include ../libraries.mak
+LIBRARIES = \
+    pegclient \
+    pegcommon
 
 PROGRAM = TestClient
 SOURCES = TestClient.cpp

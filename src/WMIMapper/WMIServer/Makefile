@@ -50,10 +50,10 @@ else
 endif
 
 copy2:
-	$(COPY) $(ROOT)/src/Server/service.cpp ./service.cpp
-	$(COPY) $(ROOT)/src/Server/service.h ./service.h
+	$(COPY) $(ROOT)/src/Service/Service.cpp ./Service.cpp
+	$(COPY) $(ROOT)/src/Service/Service.h ./Service.h
 
 clean2:
-	$(RM) ./service.cpp
-	$(RM) ./service.h
+	$(RM) ./Service.cpp
+	$(RM) ./Service.h
 

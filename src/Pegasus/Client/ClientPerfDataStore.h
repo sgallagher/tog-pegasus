@@ -52,7 +52,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 
-struct ClientOpPerformanceDataHandler;
+class ClientOpPerformanceDataHandler;
 struct ClientOpPerformanceData;
 
 /* The ClientPerfDataStore class is internal to pegasus. It has no API's that client apps can

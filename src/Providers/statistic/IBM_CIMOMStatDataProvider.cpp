@@ -53,6 +53,7 @@ void IBM_CIMOMStatDataProvider::initialize(CIMOMHandle & cimom)
 
 void IBM_CIMOMStatDataProvider::terminate(void)
 {
+   delete this;
 }
 
 void IBM_CIMOMStatDataProvider::getInstance(

@@ -203,7 +203,7 @@ Uint32 CIMProperty::getQualifierCount() const
     return _rep->getQualifierCount();
 }
 
-Boolean CIMProperty::isNull() const
+Boolean CIMProperty::isUninitialized() const
 {
     return (_rep == 0)? true : false;
 }
@@ -229,7 +229,7 @@ CIMProperty CIMProperty::clone(Boolean propagateQualifiers) const
 void CIMProperty::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedHandle();
+        ThrowUninitializedObject();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -356,7 +356,7 @@ Uint32 CIMConstProperty::getQualifierCount() const
     return _rep->getQualifierCount();
 }
 
-Boolean CIMConstProperty::isNull() const
+Boolean CIMConstProperty::isUninitialized() const
 {
     return (_rep == 0)? true : false;
 }
@@ -382,7 +382,7 @@ CIMProperty CIMConstProperty::clone(Boolean propagateQualifiers) const
 void CIMConstProperty::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedHandle();
+        ThrowUninitializedObject();
 }
 
 PEGASUS_NAMESPACE_END

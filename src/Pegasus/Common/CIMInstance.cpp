@@ -179,7 +179,7 @@ Uint32 CIMInstance::getPropertyCount() const
     return _rep->getPropertyCount();
 }
 
-Boolean CIMInstance::isNull() const
+Boolean CIMInstance::isUninitialized() const
 {
     return (_rep == 0)? true : false;
 }
@@ -211,7 +211,7 @@ String CIMInstance::toString() const
 void CIMInstance::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedHandle();
+        ThrowUninitializedObject();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -328,7 +328,7 @@ Uint32 CIMConstInstance::getPropertyCount() const
     return _rep->getPropertyCount();
 }
 
-Boolean CIMConstInstance::isNull() const
+Boolean CIMConstInstance::isUninitialized() const
 {
     return (_rep == 0)? true : false;
 }
@@ -360,7 +360,7 @@ String CIMConstInstance::toString() const
 void CIMConstInstance::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedHandle();
+        ThrowUninitializedObject();
 }
 
 

@@ -69,8 +69,8 @@ void CIMMethodRep::setClassOrigin(const CIMName& classOrigin)
 
 void CIMMethodRep::addParameter(const CIMParameter& x)
 {
-    if (x.isNull())
-	throw UninitializedHandle();
+    if (x.isUninitialized())
+	throw UninitializedObject();
 
     if (findParameter(x.getName()) != PEG_NOT_FOUND)
 	throw AlreadyExists();
@@ -112,7 +112,7 @@ void CIMMethodRep::resolve(
 
     // Check for type mismatch between return types.
 
-    PEGASUS_ASSERT(!inheritedMethod.isNull());
+    PEGASUS_ASSERT(!inheritedMethod.isUninitialized());
 
     // Validate the qualifiers of the method (according to
     // superClass's method with the same name). This method

@@ -82,7 +82,7 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handler,
     {
 	prop = indication.getProperty(i);
 
-	if (!prop.isNull())
+	if (!prop.isUninitialized())
         {
             String propName = prop.getName();
             Uint32 propPos = indicationClass.findProperty(propName);

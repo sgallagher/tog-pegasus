@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +47,7 @@ void SimpleDeclContext::addQualifierDecl(
     const CIMNamespaceName& nameSpace,
     const CIMQualifierDecl& x)
 {
-    if (!lookupQualifierDecl(nameSpace, x.getName()).isNull())
+    if (!lookupQualifierDecl(nameSpace, x.getName()).isUninitialized())
 	throw AlreadyExists();
 
     _qualifierDeclarations.append(QPair(nameSpace, x));
@@ -56,7 +57,7 @@ void SimpleDeclContext::addClass(
     const CIMNamespaceName& nameSpace,
     const CIMClass& x)
 {
-    if (!lookupClass(nameSpace, x.getClassName()).isNull())
+    if (!lookupClass(nameSpace, x.getClassName()).isUninitialized())
 	throw AlreadyExists();
 
     _classDeclarations.append(CPair(nameSpace, x));

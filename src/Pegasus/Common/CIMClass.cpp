@@ -247,7 +247,7 @@ Uint32 CIMClass::getMethodCount() const
     return _rep->getMethodCount();
 }
 
-Boolean CIMClass::isNull() const
+Boolean CIMClass::isUninitialized() const
 {
     return (_rep == 0)? true : false;
 }
@@ -279,7 +279,7 @@ Boolean CIMClass::hasKeys() const
 void CIMClass::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedHandle();
+        ThrowUninitializedObject();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -439,7 +439,7 @@ Uint32 CIMConstClass::getMethodCount() const
     return _rep->getMethodCount();
 }
 
-Boolean CIMConstClass::isNull() const
+Boolean CIMConstClass::isUninitialized() const
 {
     return (_rep == 0)? true : false;
 }
@@ -471,7 +471,7 @@ Boolean CIMConstClass::hasKeys() const
 void CIMConstClass::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedHandle();
+        ThrowUninitializedObject();
 }
 
 PEGASUS_NAMESPACE_END

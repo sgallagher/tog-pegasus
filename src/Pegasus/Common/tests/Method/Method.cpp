@@ -136,7 +136,7 @@ int main(int argc, char** argv)
         XmlWriter::appendMethodElement(out, cm1);
         MofWriter::appendMethodElement(out, cm1);
 
-        Boolean nullMethod = cm1.isNull(); 
+        Boolean nullMethod = cm1.isUninitialized(); 
 	assert(!nullMethod);
 
         CIMMethod m3 = m2.clone();
@@ -174,7 +174,7 @@ int main(int argc, char** argv)
         assert(ccm1.findQualifier("stuff") == PEG_NOT_FOUND);
         assert(ccm1.findParameter("ipaddress") == PEG_NOT_FOUND);
         
-        nullMethod = ccm1.isNull();
+        nullMethod = ccm1.isUninitialized();
         assert(!nullMethod);
 
         // throws OutOfBounds

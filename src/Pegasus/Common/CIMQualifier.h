@@ -176,11 +176,13 @@ public:
     */
     void setPropagated(Boolean propagated);
 
-#ifdef PEGASUS_INTERNALONLY
-    /**	CIMMethod
-    */
-    Boolean isNull() const;
-#endif
+    /**
+        Determines if the object has not been initialized.
+
+        @return  True if the object has not been initialized,
+                 False otherwise
+     */
+    Boolean isUninitialized() const;
 
     /**	identical - compares two CIMQualifier objects.
         @return - True if the objects are identical.
@@ -256,9 +258,7 @@ public:
 
     const Uint32 getPropagated() const;
 
-#ifdef PEGASUS_INTERNALONLY
-    Boolean isNull() const;
-#endif
+    Boolean isUninitialized() const;
 
     Boolean identical(const CIMConstQualifier& x) const;
 

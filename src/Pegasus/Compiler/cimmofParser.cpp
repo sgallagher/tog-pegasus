@@ -25,6 +25,8 @@
 //
 // Modified By:  Karl Schopmeyer (k.schopmeyer@opengroup.org) 
 //                  1. add comment line to xml output.  aug 2001
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -856,7 +858,7 @@ cimmofParser::applyProperty(CIMClass &c, CIMProperty &p)
   String message;
   try {
     c.addProperty(p);
-  } catch(UninitializedHandle) {
+  } catch(UninitializedObject) {
     cimmofMessages::getMessage(message,
 			       cimmofMessages::UNINITIALIZED_PROPERTY_ERROR,
 			       arglist);
@@ -985,7 +987,7 @@ cimmofParser::applyMethod(CIMClass &c, CIMMethod &m) {
   arglist.append(c.getClassName());
   try {
     c.addMethod(m);
-  } catch(UninitializedHandle) {
+  } catch(UninitializedObject) {
     cimmofMessages::getMessage(message, 
 			       cimmofMessages::UNINITIALIZED_PARAMETER_ERROR,
 			       arglist);

@@ -41,7 +41,7 @@ static char * verbose;	  // controls IO from test
 void test01()
 {
     CIMParameter p;
-    assert(p.isNull());
+    assert(p.isUninitialized());
 
     CIMParameter p1("message", CIMTYPE_STRING);
     p1.addQualifier(CIMQualifier("in", true));
@@ -113,9 +113,9 @@ void test01()
     // get qualifiers
     //
     CIMQualifier q1 = p1.getQualifier(0);
-    assert(!q1.isNull());
+    assert(!q1.isUninitialized());
     CIMConstQualifier q1const = p1.getQualifier(0);
-    assert(!q1const.isNull());
+    assert(!q1const.isUninitialized());
 
     //
     // isArray
@@ -154,7 +154,7 @@ void test01()
     assert(cp1.getQualifierCount() == 1);
     assert(cp1.findQualifier("in") != PEG_NOT_FOUND);
     CIMConstQualifier cq1 = cp1.getQualifier(0);
-    assert(!cq1.isNull());
+    assert(!cq1.isUninitialized());
 }
 
 int main(int argc, char** argv)

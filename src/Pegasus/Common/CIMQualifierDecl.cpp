@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -142,7 +144,7 @@ Uint32 CIMQualifierDecl::getArraySize() const
     return _rep->getArraySize();
 }
 
-Boolean CIMQualifierDecl::isNull() const
+Boolean CIMQualifierDecl::isUninitialized() const
 {
     return (_rep == 0)? true : false;
 }
@@ -162,7 +164,7 @@ CIMQualifierDecl CIMQualifierDecl::clone() const
 void CIMQualifierDecl::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedHandle();
+        ThrowUninitializedObject();
 }
 
 
@@ -273,7 +275,7 @@ Uint32 CIMConstQualifierDecl::getArraySize() const
     return _rep->getArraySize();
 }
 
-Boolean CIMConstQualifierDecl::isNull() const
+Boolean CIMConstQualifierDecl::isUninitialized() const
 {
     return (_rep == 0)? true : false;
 }
@@ -293,7 +295,7 @@ CIMQualifierDecl CIMConstQualifierDecl::clone() const
 void CIMConstQualifierDecl::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedHandle();
+        ThrowUninitializedObject();
 }
 
 PEGASUS_NAMESPACE_END

@@ -28,6 +28,8 @@
 // Modified By: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 // Modified By: Jenny Yu (jenny_yu@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -197,6 +199,15 @@ public:
     static const char MSG[];
 
     UninitializedHandle() : Exception(MSG) { }
+};
+
+class PEGASUS_COMMON_LINKAGE UninitializedObject : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    UninitializedObject() : Exception(MSG) { }
 };
 
 // ATTN: P3  KS documentation Required
@@ -802,6 +813,8 @@ public:
 };
 
 PEGASUS_COMMON_LINKAGE void ThrowUninitializedHandle();
+
+PEGASUS_COMMON_LINKAGE void ThrowUninitializedObject();
 
 PEGASUS_NAMESPACE_END
 

@@ -25,6 +25,8 @@
 //
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +41,7 @@ static char * verbose;
 void test01()
 {
     CIMParamValue pv;
-    assert(pv.isNull());
+    assert(pv.isUninitialized());
 
     String p1("message");
     CIMValue v1(String("argument_Test"));

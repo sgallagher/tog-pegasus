@@ -81,7 +81,7 @@ void CIMInstanceRep::resolve(
     CIMConstClass cimClass =
 	context->lookupClass(nameSpace, _reference.getClassName());
 
-    if (cimClass.isNull())
+    if (cimClass.isUninitialized())
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS, _reference.getClassName());
 
     cimClassOut = cimClass;

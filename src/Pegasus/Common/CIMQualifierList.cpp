@@ -54,8 +54,8 @@ CIMQualifierList::~CIMQualifierList()
 
 CIMQualifierList& CIMQualifierList::add(const CIMQualifier& qualifier)
 {
-    if (qualifier.isNull())
-	throw UninitializedHandle();
+    if (qualifier.isUninitialized())
+	throw UninitializedObject();
 
     if (find(qualifier.getName()) != PEG_NOT_FOUND)
 	throw AlreadyExists();
@@ -150,7 +150,7 @@ void CIMQualifierList::resolve(
 		CIMQualifierDecl qd = declContext->lookupQualifierDecl(
 			nameSpace, q.getName());
 	
-		if (qd.isNull())
+		if (qd.isUninitialized())
 			throw UndeclaredQualifier(q.getName());
 	
 		//----------------------------------------------------------------------

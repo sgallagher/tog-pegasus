@@ -93,7 +93,7 @@ void CIMPropertyRep::resolve(
     const CIMConstProperty& inheritedProperty,
     Boolean propagateQualifiers)
 {
-    PEGASUS_ASSERT(!inheritedProperty.isNull());
+    PEGASUS_ASSERT(!inheritedProperty.isUninitialized());
 
     // Check the type:
 

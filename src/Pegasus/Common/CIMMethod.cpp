@@ -204,7 +204,7 @@ Uint32 CIMMethod::getParameterCount() const
     return _rep->getParameterCount();
 }
 
-Boolean CIMMethod::isNull() const
+Boolean CIMMethod::isUninitialized() const
 {
     return (_rep == 0)? true : false;
 }
@@ -224,7 +224,7 @@ CIMMethod CIMMethod::clone() const
 void CIMMethod::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedHandle();
+        ThrowUninitializedObject();
 }
 
 
@@ -343,7 +343,7 @@ Uint32 CIMConstMethod::getParameterCount() const
     return _rep->getParameterCount();
 }
 
-Boolean CIMConstMethod::isNull() const
+Boolean CIMConstMethod::isUninitialized() const
 {
     return (_rep == 0)? true : false;
 }
@@ -363,7 +363,7 @@ CIMMethod CIMConstMethod::clone() const
 void CIMConstMethod::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedHandle();
+        ThrowUninitializedObject();
 }
 
 PEGASUS_NAMESPACE_END

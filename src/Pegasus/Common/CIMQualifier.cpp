@@ -155,7 +155,7 @@ void CIMQualifier::setPropagated(Boolean propagated)
     _rep->setPropagated(propagated);
 }
 
-Boolean CIMQualifier::isNull() const
+Boolean CIMQualifier::isUninitialized() const
 {
     return (_rep == 0)? true : false;
 }
@@ -175,7 +175,7 @@ CIMQualifier CIMQualifier::clone() const
 void CIMQualifier::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedHandle();
+        ThrowUninitializedObject();
 }
 
 
@@ -292,7 +292,7 @@ const Uint32 CIMConstQualifier::getPropagated() const
     return _rep->getPropagated();
 }
 
-Boolean CIMConstQualifier::isNull() const
+Boolean CIMConstQualifier::isUninitialized() const
 {
     return (_rep == 0)? true : false;
 }
@@ -312,7 +312,7 @@ CIMQualifier CIMConstQualifier::clone() const
 void CIMConstQualifier::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedHandle();
+        ThrowUninitializedObject();
 }
 
 PEGASUS_NAMESPACE_END

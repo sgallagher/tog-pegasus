@@ -47,8 +47,8 @@ CIMObjectRep::~CIMObjectRep()
 
 void CIMObjectRep::addProperty(const CIMProperty& x)
 {
-    if (x.isNull())
-	throw UninitializedHandle();
+    if (x.isUninitialized())
+	throw UninitializedObject();
 
     // Reject duplicate property names:
 

@@ -24,6 +24,8 @@
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -111,7 +113,7 @@ void CIMParamValue::setIsTyped(Boolean isTyped)
     _rep->setIsTyped(isTyped);
 }
 
-Boolean CIMParamValue::isNull() const
+Boolean CIMParamValue::isUninitialized() const
 {
     return (_rep == 0)? true : false;
 }
@@ -131,7 +133,7 @@ CIMParamValue CIMParamValue::clone() const
 void CIMParamValue::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedHandle();
+        ThrowUninitializedObject();
 }
 
 PEGASUS_NAMESPACE_END

@@ -24,6 +24,8 @@
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -76,9 +78,15 @@ public:
 
     CIMParamValue clone() const;
 
-#ifdef PEGASUS_INTERNALONLY
-    Boolean isNull() const;
+    /**
+        Determines if the object has not been initialized.
 
+        @return  True if the object has not been initialized,
+                 False otherwise
+     */
+    Boolean isUninitialized() const;
+
+#ifdef PEGASUS_INTERNALONLY
     Boolean identical(const CIMParamValue& x) const;
 #endif
 

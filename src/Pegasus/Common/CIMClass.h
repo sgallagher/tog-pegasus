@@ -117,7 +117,7 @@ public:
 
     // ATTN: COMMENT. Why not just get name so we have common method for all.
     /** getClassName Gets the name of the class
-	@return Returns string with the class name.
+	@return Returns CIMName with the class name.
     */
     const CIMName& getClassName() const;
         
@@ -249,7 +249,7 @@ public:
 	@param method object representing the method to be added
 	@return Returns the CIMClass object to which the method was added.
 	@exception Throws AlreadyExists if the method already exists and throws
-	UninitializedHandle if the handle is not initialized
+	UninitializedObject if the object is not initialized
     */
     CIMClass& addMethod(const CIMMethod& x);
 
@@ -305,10 +305,13 @@ public:
     */
     Boolean identical(const CIMConstClass& x) const;
 
-#ifdef PEGASUS_INTERNALONLY
-    // isNull - ATTN:
-    Boolean isNull() const;
-#endif
+    /**
+        Determines if the object has not been initialized.
+
+        @return  True if the object has not been initialized,
+                 False otherwise
+     */
+    Boolean isUninitialized() const;
 
 private:
 
@@ -397,9 +400,7 @@ public:
 
     Boolean identical(const CIMConstClass& x) const;
 
-#ifdef PEGASUS_INTERNALONLY
-    Boolean isNull() const;
-#endif
+    Boolean isUninitialized() const;
 
 private:
 

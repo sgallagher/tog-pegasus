@@ -198,7 +198,7 @@ void test01()
   
     cinstance1.getInstanceName(class1);
  
-    assert( !cinstance1.isNull() );
+    assert( !cinstance1.isUninitialized() );
 
     delete context;
 }

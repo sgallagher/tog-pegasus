@@ -232,10 +232,15 @@ public:
     */
     Boolean identical(const CIMConstInstance& x) const;
 
-#ifdef PEGASUS_INTERNALONLY
-    /**	isNull() */
-    Boolean isNull() const;
+    /**
+        Determines if the object has not been initialized.
 
+        @return  True if the object has not been initialized,
+                 False otherwise
+     */
+    Boolean isUninitialized() const;
+
+#ifdef PEGASUS_INTERNALONLY
     String toString() const;
 #endif
 
@@ -307,9 +312,9 @@ public:
 
     Boolean identical(const CIMConstInstance& x) const;
 
-#ifdef PEGASUS_INTERNALONLY
-    Boolean isNull() const;
+    Boolean isUninitialized() const;
 
+#ifdef PEGASUS_INTERNALONLY
     String toString() const;
 #endif
 

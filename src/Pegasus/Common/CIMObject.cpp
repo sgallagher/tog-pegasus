@@ -201,7 +201,7 @@ Uint32 CIMObject::getPropertyCount() const
     return _rep->getPropertyCount();
 }
 
-Boolean CIMObject::isNull() const
+Boolean CIMObject::isUninitialized() const
 {
     return (_rep == 0)? true : false;
 }
@@ -222,7 +222,7 @@ CIMObject CIMObject::clone() const
 void CIMObject::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedHandle();
+        ThrowUninitializedObject();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -379,7 +379,7 @@ Uint32 CIMConstObject::getPropertyCount() const
     return _rep->getPropertyCount();
 }
 
-Boolean CIMConstObject::isNull() const
+Boolean CIMConstObject::isUninitialized() const
 {
     return (_rep == 0)? true : false;
 }
@@ -399,7 +399,7 @@ CIMObject CIMConstObject::clone() const
 void CIMConstObject::_checkRep() const
 {
     if (!_rep)
-        ThrowUninitializedHandle();
+        ThrowUninitializedObject();
 }
 
 PEGASUS_NAMESPACE_END

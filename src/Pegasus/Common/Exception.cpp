@@ -78,6 +78,8 @@ const char NullPointer::MSG[] = "null pointer";
 
 const char UninitializedHandle::MSG[] = "uninitialized handle";
 
+const char UninitializedObject::MSG[] = "uninitialized object";
+
 const char IllegalName::MSG[] = "illegal CIM name";
 
 const char IllegalNamespaceName::MSG[] = "illegal CIM namespace name";
@@ -293,6 +295,11 @@ String CIMException::getTraceDescription() const
 void ThrowUninitializedHandle()
 {
     throw UninitializedHandle();
+}
+
+void ThrowUninitializedObject()
+{
+    throw UninitializedObject();
 }
 
 PEGASUS_NAMESPACE_END

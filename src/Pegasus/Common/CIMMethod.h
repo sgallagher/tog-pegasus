@@ -194,10 +194,13 @@ public:
     */
     Uint32 getParameterCount() const;
 
-#ifdef PEGASUS_INTERNALONLY
-    /** Returns true if CIMMethod refers to a null pointer */
-    Boolean isNull() const;
-#endif
+    /**
+        Determines if the object has not been initialized.
+
+        @return  True if the object has not been initialized,
+                 False otherwise
+     */
+    Boolean isUninitialized() const;
 
     /** identical - Returns true if this method is identical to the
 	one given by the argument x.
@@ -264,9 +267,7 @@ public:
 
     Uint32 getParameterCount() const;
 
-#ifdef PEGASUS_INTERNALONLY
-    Boolean isNull() const;
-#endif
+    Boolean isUninitialized() const;
 
     Boolean identical(const CIMConstMethod& x) const;
 

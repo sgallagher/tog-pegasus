@@ -39,6 +39,13 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMOMHandle::CIMOMHandle(void) : _outputQueue(0), _inputQueue(0)
 {
+	_outputQueue = MessageQueue::lookup("CIMOpRequestDispatcher");
+	
+	PEGASUS_ASSERT(_outputQueue != 0);
+
+	_inputQueue = new MessageQueue;
+
+	PEGASUS_ASSERT(_inputQueue != 0);
 }
 
 CIMOMHandle::~CIMOMHandle(void)
@@ -53,11 +60,7 @@ CIMOMHandle& CIMOMHandle::operator=(const CIMOMHandle& handle)
 	}
 
 	_outputQueue = handle._outputQueue;
-
-	// create an input queue, if necessary
-	if((_outputQueue != 0) && (_inputQueue == 0)) {
-		_inputQueue = new MessageQueue;
-	}
+	_inputQueue = handle._inputQueue;
 
 	return(*this);
 }

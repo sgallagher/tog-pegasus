@@ -79,17 +79,15 @@ ifeq ($(OS),tru64)
 endif
 
 ifeq ($(OS),hpux)
-    CXX = aCC
-    FLAGS += +Z -D_POSIX_C_SOURCE=199506L -D_HPUX_SOURCE 
+    ifdef ACC_COMPILER_COMMAND
+       CXX = $(ACC_COMPILER_COMMAND)
+    else
+       CXX = aCC
+    endif
+    FLAGS += +Z
     ifeq ($(PEGASUS_PLATFORM),HPUX_IA64_ACC)
-      FLAGS += -DPEGASUS_PLATFORM_HPUX_IA64_ACC -AP
-      ifeq ($(HPUX_IA64_NATIVE_COMPILER),yes)
-        FLAGS += -DHPUX_IA64_NATIVE_COMPILER
-        INCLUDES = -I../../stdcxx/stream
-      else
-        CXX = tahoeCC
-        INCLUDES = -I../../stdcxx/stream
-      endif
+      FLAGS += -DPEGASUS_PLATFORM_HPUX_IA64_ACC +DD64 -AP
+      INCLUDES = -I../../stdcxx/stream
     else
       FLAGS += -DPEGASUS_PLATFORM_HPUX_PARISC_ACC +DAportable
       INCLUDES = -I../../stdcxx/stream

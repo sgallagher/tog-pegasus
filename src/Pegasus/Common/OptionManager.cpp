@@ -443,7 +443,7 @@ void OptionManager::print() const
     cout << endl;
 }
 
-void OptionManager::printHelp() const
+void OptionManager::printOptionsHelp() const
 {
     for (Uint32 i = 0; i < _options.size(); i++)
     {
@@ -455,6 +455,13 @@ void OptionManager::printHelp() const
     }
     cout << endl;
 
+}
+
+void OptionManager::printOptionsHelpTxt(const String& header, const String& trailer) const
+{
+    cout << "\n" << header << "\n";
+    printOptionsHelp();
+    cout << trailer << "\n";
 }
 
 ////////////////////////////////////////////////////////////////////////////////

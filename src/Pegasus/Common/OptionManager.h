@@ -326,7 +326,12 @@ public:
     /** Print the help line for all options including cmdline name, name
         and the help string
     */
-    void printHelp() const;
+    void printOptionsHelp() const;
+
+    /** Print Complete Help Text message including header before the options help
+        and trailer after the options help
+    */
+    void printOptionsHelpTxt(const String& header, const String& trailer) const;
 
 
 private:

@@ -2246,7 +2246,7 @@ Array<CIMInstance> CIMRepository::enumerateInstances(
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
         Array<CIMInstance> localNamedInstances =
-            enumerateInstancesForClass(nameSpace, className,
+                enumerateInstancesForClass(nameSpace, classNames[i],
                 deepInheritance, localOnly,
                 includeQualifiers, includeClassOrigin, false, propertyList);
         /* Code from before we changed to call once per class.

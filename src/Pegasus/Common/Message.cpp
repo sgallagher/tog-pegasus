@@ -159,6 +159,7 @@ const char* MessageTypeToString(Uint32 messageType)
     return "Unknown message type";
 }
 
+#ifdef PEGASUS_HAS_PERFINST
 inline void Message::startServer()
 {
     pegasus_gettimeofday(&_timeServerStart);
@@ -199,5 +200,6 @@ inline void Message::endProvider()
 {
     pegasus_gettimeofday(&_timeProviderEnd);
 }
+#endif
 
 PEGASUS_NAMESPACE_END

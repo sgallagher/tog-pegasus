@@ -157,6 +157,7 @@ class PEGASUS_COMMON_LINKAGE Message
 
       void setMask(Uint32 mask) { _mask = mask; }
 
+#ifdef PEGASUS_HAS_PERFINST
 //
 // Needed for performance measurement
 //
@@ -199,6 +200,7 @@ class PEGASUS_COMMON_LINKAGE Message
 
       Uint32 getTotalTime() { return _totalTime; }
 //
+#endif
 
       Message* getNext() { return _next; }
 

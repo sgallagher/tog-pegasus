@@ -33,7 +33,7 @@
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/XmlConstants.h>
-#include <Pegasus/Common/HttpConstants.h>
+#include "HttpConstants.h"
 #include "XMLProcess.h"
 
 PEGASUS_NAMESPACE_BEGIN

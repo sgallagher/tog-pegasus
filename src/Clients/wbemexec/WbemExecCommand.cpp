@@ -25,10 +25,10 @@
 //         (carolann_graves@hp.com)
 //
 // Modified By:
+//         Warren Otsuka (warren_otsuka@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-// define asprintf used to implement ultostr on Linux
 #include <Pegasus/Common/Config.h>
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
 #define _GNU_SOURCE
@@ -41,15 +41,17 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/TCPChannel.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/HttpConstants.h>
+#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/HTTPConnector.h>
+#include <Pegasus/Common/HTTPConnection.h>
+#include <Pegasus/Common/TimeValue.h>
 #include <Pegasus/getoopt/getoopt.h>
 #include <Clients/cliutils/CommandException.h>
 #include "XMLProcess.h"
-#include "WbemExecClientHandler.h"
-#include "WbemExecClientHandlerFactory.h"
 #include "WbemExecCommand.h"
+#include "WbemExecQueue.h"
+#include "HttpConstants.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -182,59 +184,47 @@ WbemExecCommand::WbemExecCommand ()
     setUsage (usage);
 }
 
-/**
-  
-    Creates a channel for an HTTP connection.
-  
-    @param   outPrintWriter     the ostream to which error output should be
-                                written
-  
-    @return  the Channel created
-  
-    @exception  WbemExecException  if an error is encountered in creating
-                                   the connection
-  
- */
-Channel* WbemExecCommand::_getHTTPChannel (ostream& outPrintWriter) 
-    throw (WbemExecException)
+void WbemExecCommand::_waitForResponse(
+    const Uint32 timeOutMilliseconds,
+    Monitor* monitor
+    )
 {
-    Selector*              selector;
-    ChannelHandlerFactory* factory;
-    TCPChannelConnector*   connector;
-    Channel*               channel               = NULL;
-    String                 addressStr            = String ();
-    char*                  address               = NULL;
 
+    long rem = long(timeOutMilliseconds);
 
-    //
-    //  Create HTTP channel
-    //
-    selector = new Selector ();
-    factory = new WbemExecClientHandlerFactory (selector, outPrintWriter,
-        _debugOutput2);
-    connector = new TCPChannelConnector (factory, selector);
-
-    addressStr.append (_hostName);
-    addressStr.append (":");
-    addressStr.append (_portNumberStr);
-
-    address = addressStr.allocateCString ();
-
-    // ATTN-A: need connection timeout here:
-
-    channel = connector->connect (address);
-
-    delete [] address;
-
-    if (!channel) 
+    for (;;)
     {
-        WbemExecException e (WbemExecException::CONNECT_FAIL);
-        throw e;
+	//
+	// Wait until the timeout expires or an event occurs:
+	//
+
+	TimeValue start = TimeValue::getCurrentTime();
+	
+	if( monitor->run(rem) )
+	  {
+	    return;
+	  }
+	TimeValue stop = TimeValue::getCurrentTime();
+
+	// 
+	// Terminate loop if timed out:
+	//
+
+	long diff = stop.toMilliseconds() - start.toMilliseconds();
+
+	if (diff >= rem)
+	    break;
+
+	rem -= diff;
     }
 
+    //
+    // Throw timed out exception:
+    //
 
-    return (channel);
+    throw TimedOut();
 }
+
 
 /**
   
@@ -257,8 +247,13 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
                                     ostream& errPrintWriter) 
     throw (WbemExecException)
 {
-    Channel*                     channel                        = NULL;
-    WbemExecClientHandler*       handler                        = NULL;
+    Monitor*                     monitor                        = NULL;
+    WbemExecQueue*               wbemexecQueue                  = NULL;
+    HTTPConnector*               httpConnector                  = NULL;
+    HTTPConnection*              httpConnection                 = NULL;
+    HTTPMessage*                 httpMessage                    = NULL;
+    String                       addressStr                     = String ();
+    char*                        address                        = NULL;
     Uint32                       size;
     Array <Sint8>                content;
     Array <Sint8>                contentCopy;
@@ -394,22 +389,44 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         throw e;
     }
 
-    //
-    //  Get channel and write message to channel
-    //
-    channel = _getHTTPChannel (outPrintWriter);
-    channel->writeN (message.getData (), message.size ());
+    //  Create a queue for communications with cimserver
 
-    //
-    //  Get handler and wait for response
-    //
-    handler = (WbemExecClientHandler*) channel->getChannelHandler ();
+    monitor = new Monitor;
+    httpConnector = new HTTPConnector( monitor );
+    ClientAuthenticator* clientAuthenticator = new ClientAuthenticator();
+    wbemexecQueue = new WbemExecQueue( httpConnector,
+				     outPrintWriter,
+				     _debugOutput2,
+				     clientAuthenticator );
 
-    if (!handler->waitForResponse (_timeout))
+    // Attempt to establish a connection:
+
+    addressStr.append (_hostName);
+    addressStr.append (":");
+    addressStr.append (_portNumberStr);
+    address = addressStr.allocateCString ();
+    
+    try
     {
-        WbemExecException e (WbemExecException::TIMED_OUT);
-        throw e;
+	httpConnection = httpConnector->connect( address, wbemexecQueue );
     }
+    catch (Exception& e)
+    {
+      delete wbemexecQueue;
+      WbemExecException ef (WbemExecException::CONNECT_FAIL);
+      throw ef;
+    }
+
+    // Send the request to cimserver
+
+    httpConnection->enqueue( new HTTPMessage( message ) );
+    
+    //
+    // Wait until the timeout expires or an event occurs:
+    //
+      
+    long rem = long( _timeout );
+    _waitForResponse(  rem, monitor );
 }
 
 /**

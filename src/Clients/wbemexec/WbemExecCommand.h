@@ -36,15 +36,6 @@
 #include <Clients/cliutils/CommandException.h>
 #include "WbemExecException.h"
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
-char * ultostr(unsigned long int ulint, int width)
-{
-    char * retval = NULL;
-    asprintf(&retval,"%*ld", width, ulint); // allocates buffer automatically
-    return retval;
-}
-#endif
-
 PEGASUS_NAMESPACE_BEGIN
 
 /**
@@ -107,22 +98,6 @@ private:
 
     /**
         
-        Creates a channel for an HTTP connection.
-      
-        @param   outPrintWriter     the ostream to which error output should be
-                                    written
-      
-        @return  the Channel created
-      
-        @exception  WbemExecException  if an error is encountered in creating
-                                       the connection 
-      
-     */
-    Channel* _getHTTPChannel (ostream& outPrintWriter) 
-        throw (WbemExecException);
-
-    /**
-        
         Executes the command using HTTP.  A CIM request encoded in XML is read
         from the input, and encapsualted in an HTTP request message.  A channel
         is obtained for an HTTP connection, and the message is written to the
@@ -140,6 +115,22 @@ private:
      */
     void _executeHttp (ostream& outPrintWriter, ostream& errPrintWriter) 
         throw (WbemExecException);
+
+    /**
+        
+        Waits for a response on the server queue.
+      
+        @param   timeOutMilliseconds number of milliseconds to wait
+        @param   monitor             monitors WbemExecQueue for response
+
+      
+        @exception  WbemExecException  if an error is encountered in executing
+                                       the command 
+      
+     */
+    void _waitForResponse( const Uint32 timeOutMilliseconds,
+			   Monitor* monitor
+			   );
 
     /**
         The host on which the command is to be executed.  A CIM Server must be

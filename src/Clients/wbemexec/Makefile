@@ -6,7 +6,6 @@ include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
     pegcommon \
-    pegprotocol \
     peggetoopt \
     pegclient \
     pegcliutils
@@ -16,8 +15,7 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 PROGRAM = wbemexec
 
 SOURCES = WbemExecException.cpp \
-          WbemExecClientHandler.cpp \
-          WbemExecClientHandlerFactory.cpp \
+          WbemExecQueue.cpp \
           XMLProcess.cpp \
           WbemExecCommand.cpp
 

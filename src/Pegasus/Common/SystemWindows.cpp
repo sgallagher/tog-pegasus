@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -123,7 +123,7 @@ Boolean System::isDirectory(const char* path)
     struct stat st;
 
     if (stat(path, &st) != 0)
-    return false;
+        return false;
 
     return (st.st_mode & _S_IFDIR) != 0;
 }
@@ -143,7 +143,7 @@ Boolean System::getFileSize(const char* path, Uint32& size)
     struct stat st;
 
     if (stat(path, &st) != 0)
-    return false;
+        return false;
 
     size = st.st_size;
     return true;
@@ -151,12 +151,12 @@ Boolean System::getFileSize(const char* path, Uint32& size)
 
 Boolean System::removeDirectory(const char* path)
 {
-    return rmdir(path) == 0;    
+    return rmdir(path) == 0;
 }
 
 Boolean System::removeFile(const char* path)
 {
-    return unlink(path) == 0;   
+    return unlink(path) == 0;
 }
 
 Boolean System::renameFile(const char* oldPath, const char* newPath)
@@ -212,7 +212,7 @@ String System::getFullyQualifiedHostName ()
         }
         strcpy(FQHostName, hostEnt->h_name);
     }
-   
+
     return FQHostName;
 }
 
@@ -232,7 +232,7 @@ Uint32 System::lookupPort(
     //
     // Get the port number.
     //
-    if (  (serv = getservbyname(serviceName, TCP)) != NULL )
+    if ( (serv = getservbyname(serviceName, TCP)) != NULL )
     {
         localPort = ntohs(serv->s_port);
     }
@@ -246,113 +246,113 @@ Uint32 System::lookupPort(
 
 String System::getPassword(const char* prompt)
 {
-  char password[PW_BUFF_LEN] = {0};
-  int num_chars = 0;
-  int ch;
+    char password[PW_BUFF_LEN] = {0};
+    int num_chars = 0;
+    int ch;
 
-  fputs(prompt, stderr);
+    fputs(prompt, stderr);
 
-  while ((ch = _getch()) != '\r' &&
-         num_chars < PW_BUFF_LEN)
-    {
-      // EOF
-      if (ch == EOF)
+    while ((ch = _getch()) != '\r' &&
+            num_chars < PW_BUFF_LEN)
         {
-           fputs("[EOF]\n", stderr);
-           return String::EMPTY;
+        // EOF
+        if (ch == EOF)
+        {
+            fputs("[EOF]\n", stderr);
+            return String::EMPTY;
         }
-      // Backspace or Delete
-      else if ((ch == '\b' || ch == 127) &&
-               num_chars > 0) 
+        // Backspace or Delete
+        else if ((ch == '\b' || ch == 127) &&
+                num_chars > 0)
         {
-          password[--num_chars] = '\0';
-          fputs("\b \b", stderr);
+            password[--num_chars] = '\0';
+            fputs("\b \b", stderr);
         }
-      // CTRL+C
-      else if (ch == 3)
+        // CTRL+C
+        else if (ch == 3)
         {
-          // _getch() does not catch CTRL+C
-          fputs("^C\n", stderr);
-          exit(-1);
+            // _getch() does not catch CTRL+C
+            fputs("^C\n", stderr);
+            exit(-1);
         }
-      // CTRL+Z
-      else if (ch == 26)
+        // CTRL+Z
+        else if (ch == 26)
         {
-          fputs("^Z\n", stderr);
-          return String::EMPTY;
+            fputs("^Z\n", stderr);
+            return String::EMPTY;
         }
-      // Esc
-      else if (ch == 27)
+        // Esc
+        else if (ch == 27)
         {
-          fputc('\n', stderr);
-          fputs(prompt, stderr);
-          num_chars = 0;
+            fputc('\n', stderr);
+            fputs(prompt, stderr);
+            num_chars = 0;
         }
-      // Function keys (0 or E0) are a guards for a Function key codes
-      else if (ch == 0 || ch == 0xE0)
+        // Function keys (0 or E0) are a guards for a Function key codes
+        else if (ch == 0 || ch == 0xE0)
         {
-          ch = (ch << 4) | _getch();
-          // Handle DELETE, left arrow, keypad DEL, and keypad left arrow
-          if ((ch == 0xE53 || ch == 0xE4B || ch == 0x053 || ch == 0x04b) &&
-              num_chars > 0)
+            ch = (ch << 4) | _getch();
+            // Handle DELETE, left arrow, keypad DEL, and keypad left arrow
+            if ((ch == 0xE53 || ch == 0xE4B || ch == 0x053 || ch == 0x04b) &&
+                    num_chars > 0)
             {
-              password[--num_chars] = '\0';
-              fputs("\b \b", stderr);
+                password[--num_chars] = '\0';
+                fputs("\b \b", stderr);
             }
-          else
+            else
             {
-              fputc('\a', stderr);
+                fputc('\a', stderr);
             }
         }
-      else if ((num_chars < sizeof(password) - 1) &&
-               !iscntrl(((unsigned char)(ch))))
+        else if ((num_chars < sizeof(password) - 1) &&
+                    !iscntrl(((unsigned char)(ch))))
         {
-          password[num_chars++] = ch;
-          fputc('*', stderr);
+            password[num_chars++] = ch;
+            fputc('*', stderr);
         }
-      else
+        else
         {
-          fputc('\a', stderr);
+            fputc('\a', stderr);
         }
     }
 
-  fputc('\n', stderr);
-  password[num_chars] = '\0';
+    fputc('\n', stderr);
+    password[num_chars] = '\0';
 
-  return String(password);
+    return String(password);
 }
 
 String System::getEffectiveUserName()
 {
-  int retcode = 0;
+    int retcode = 0;
 
-  // UNLEN (256) is the limit, not including null
-  char pUserName[256+1] = {0};
-  DWORD nSize = sizeof(pUserName);
+    // UNLEN (256) is the limit, not including null
+    char pUserName[256+1] = {0};
+    DWORD nSize = sizeof(pUserName);
 
-  retcode = GetUserName(pUserName, &nSize);
-  if (retcode == 0)
+    retcode = GetUserName(pUserName, &nSize);
+    if (retcode == 0)
     {
-      // zero is failure
-      return String();
+        // zero is failure
+        return String();
     }
-  
-  return String(pUserName);
+
+    return String(pUserName);
 }
 
 String System::encryptPassword(const char* password, const char* salt)
 {
-  BYTE pbBuffer[PW_BUFF_LEN] = {0};
-  DWORD dwByteCount;
-  char pcSalt[3] = {0};
+    BYTE pbBuffer[PW_BUFF_LEN] = {0};
+    DWORD dwByteCount;
+    char pcSalt[3] = {0};
 
-  strncpy(pcSalt, salt, 2);
-  dwByteCount = strlen(password);
-  memcpy(pbBuffer, password, dwByteCount);
-  for (DWORD i=0; (i<dwByteCount) || (i>=PW_BUFF_LEN); i++)
-    (i%2 == 0) ? pbBuffer[i] ^= pcSalt[1] : pbBuffer[i] ^= pcSalt[0];
-  
-  return String(pcSalt) + String((char *)pbBuffer);
+    strncpy(pcSalt, salt, 2);
+    dwByteCount = strlen(password);
+    memcpy(pbBuffer, password, dwByteCount);
+    for (DWORD i=0; (i<dwByteCount) || (i>=PW_BUFF_LEN); i++)
+            (i%2 == 0) ? pbBuffer[i] ^= pcSalt[1] : pbBuffer[i] ^= pcSalt[0];
+
+    return String(pcSalt) + String((char *)pbBuffer);
 }
 
 Boolean System::isSystemUser(const char* userName)
@@ -365,13 +365,13 @@ Boolean System::isSystemUser(const char* userName)
     wchar_t wDomainName[UNLEN+1];
     char* pbs;
     bool usingDomain = false;
-    
+
     LPBYTE pComputerName=NULL;
     DWORD dwLevel = 1;
     LPUSER_INFO_1 pUserInfo = NULL;
     NET_API_STATUS nStatus = NULL;
 
-    //separate the domain and user name if both are present.    
+    //separate the domain and user name if both are present.
     if (NULL != (pbs = strchr(userName, '\\')))
     {
         *pbs = '\0';
@@ -386,7 +386,7 @@ Boolean System::isSystemUser(const char* userName)
         strcpy(mDomainName, pbs+1);
         strcpy(mUserName, userName);
         usingDomain = true;
-        
+
     } else
     {
         strcpy(mDomainName, ".");
@@ -404,22 +404,22 @@ Boolean System::isSystemUser(const char* userName)
     {
         return false;
     }
- 
+
     if (usingDomain)
     {
         //get domain controller
         DWORD rc = NetGetDCName(NULL, wDomainName, &pComputerName);
-        if (rc == NERR_Success) 
+        if (rc == NERR_Success)
         {
             wcscpy(wDomainName, (LPWSTR) pComputerName); //this is automatically prefixed with "\\"
-        } 
+        }
         /*
         else
         {
             // failover
             // ATTN: This is commented out until there is resolution on Bugzilla 2236. -hns 2/2005
             // This needs to be more thoroughly tested when we uncomment it out.
-            
+
             PDOMAIN_CONTROLLER_INFO DomainControllerInfo = NULL;
 
             //this function does not take wide strings
@@ -454,8 +454,8 @@ Boolean System::isSystemUser(const char* userName)
     {
         isSystemUser = true;
     }
-    
-    if (pComputerName != NULL) 
+
+    if (pComputerName != NULL)
     {
         NetApiBufferFree(pComputerName);
     }
@@ -489,7 +489,7 @@ Boolean System::isPrivilegedUser(const String& userName)
     //get the username in the correct format
     strcpy(userStr, (const char*)userName.getCString());
 
-    //separate the domain and user name if both are present.    
+    //separate the domain and user name if both are present.
     if (NULL != (pbs = strchr(userStr, '\\')))
     {
         *pbs = '\0';
@@ -504,7 +504,7 @@ Boolean System::isPrivilegedUser(const String& userName)
         strcpy(mDomainName, pbs+1);
         strcpy(mUserName, userStr);
         usingDomain = true;
-        
+
     } else
     {
         strcpy(mDomainName, ".");
@@ -527,17 +527,17 @@ Boolean System::isPrivilegedUser(const String& userName)
     {
         //get domain controller
         DWORD rc = NetGetDCName(NULL, wDomainName, &pComputerName);
-        if (rc == NERR_Success) 
+        if (rc == NERR_Success)
         {
             wcscpy(wDomainName, (LPWSTR) pComputerName); //this is automatically prefixed with "\\"
-        } 
+        }
         /*
         else
         {
             // failover
             // ATTN: This is commented out until there is resolution on Bugzilla 2236. -hns 2/2005
             // This needs to be more thoroughly tested when we uncomment it out.
-            
+
             PDOMAIN_CONTROLLER_INFO DomainControllerInfo = NULL;
 
             //this function does not take wide strings
@@ -568,14 +568,14 @@ Boolean System::isPrivilegedUser(const String& userName)
                              dwLevel,
                              (LPBYTE *)&pUserInfo);
 
-    if ((nStatus == NERR_Success) && 
+    if ((nStatus == NERR_Success) &&
         (pUserInfo != NULL) &&
         (pUserInfo->usri1_priv == USER_PRIV_ADMIN))
     {
         isPrivileged = true;
     }
 
-    if (pComputerName != NULL) 
+    if (pComputerName != NULL)
     {
         NetApiBufferFree(pComputerName);
     }
@@ -598,26 +598,26 @@ String System::getPrivilegedUserName()
 
 Boolean System::isGroupMember(const char* userName, const char* groupName)
 {
-   Boolean retVal = false;
+    Boolean retVal = false;
 
-   LPLOCALGROUP_USERS_INFO_0 pBuf = NULL;
-   DWORD dwLevel = 0;
-   DWORD dwFlags = LG_INCLUDE_INDIRECT ;
-   DWORD dwPrefMaxLen = MAX_PREFERRED_LENGTH;
-   DWORD dwEntriesRead = 0;
-   DWORD dwTotalEntries = 0;
-   NET_API_STATUS nStatus;
+    LPLOCALGROUP_USERS_INFO_0 pBuf = NULL;
+    DWORD dwLevel = 0;
+    DWORD dwFlags = LG_INCLUDE_INDIRECT ;
+    DWORD dwPrefMaxLen = MAX_PREFERRED_LENGTH;
+    DWORD dwEntriesRead = 0;
+    DWORD dwTotalEntries = 0;
+    NET_API_STATUS nStatus;
 
 
-   //
-   // Call the NetUserGetLocalGroups function 
-   // specifying information level 0.
-   //
-   // The LG_INCLUDE_INDIRECT flag specifies that the 
-   // function should also return the names of the local 
-   // groups in which the user is indirectly a member.
-   //
-   nStatus = NetUserGetLocalGroups(NULL,
+    //
+    // Call the NetUserGetLocalGroups function
+    // specifying information level 0.
+    //
+    // The LG_INCLUDE_INDIRECT flag specifies that the
+    // function should also return the names of the local
+    // groups in which the user is indirectly a member.
+    //
+    nStatus = NetUserGetLocalGroups(NULL,
                                    (LPCWSTR)userName,
                                    dwLevel,
                                    dwFlags,
@@ -626,108 +626,108 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
                                    &dwEntriesRead,
                                    &dwTotalEntries);
 
-   //
-   // If the call succeeds,
-   //
-   if (nStatus == NERR_Success)
-   {
-      LPLOCALGROUP_USERS_INFO_0 pTmpBuf;
-      DWORD i;
-      DWORD dwTotalCount = 0;
+    //
+    // If the call succeeds,
+    //
+    if (nStatus == NERR_Success)
+    {
+        LPLOCALGROUP_USERS_INFO_0 pTmpBuf;
+        DWORD i;
+        DWORD dwTotalCount = 0;
 
-      if ((pTmpBuf = pBuf) != NULL)
-      {
-         //
-         // Loop through the local groups that the user belongs
-         // and find the matching group name.
-         //
-         for (i = 0; i < dwEntriesRead; i++)
-         {
+        if ((pTmpBuf = pBuf) != NULL)
+        {
             //
-            // Compare the user's group name to groupName.
+            // Loop through the local groups that the user belongs
+            // and find the matching group name.
             //
-            if ( strcmp ((char *)pTmpBuf->lgrui0_name, groupName) == 0 )
+            for (i = 0; i < dwEntriesRead; i++)
             {
-                 // User is a member of the group.
-                 retVal = true;
-                 break;
+                //
+                // Compare the user's group name to groupName.
+                //
+                if ( strcmp ((char *)pTmpBuf->lgrui0_name, groupName) == 0 )
+                {
+                    // User is a member of the group.
+                    retVal = true;
+                    break;
+                }
+
+                pTmpBuf++;
+                dwTotalCount++;
             }
+        }
+    }
 
-            pTmpBuf++;
-            dwTotalCount++;
-         }
-      }
-   }
+    //
+    // Free the allocated memory.
+    //
+    if (pBuf != NULL)
+        NetApiBufferFree(pBuf);
 
-   //
-   // Free the allocated memory.
-   //
-   if (pBuf != NULL)
-      NetApiBufferFree(pBuf);
+    //
+    // If the given user and group are not found in the local group
+    // then try on the global groups.
+    //
+    if (!retVal)
+    {
+        LPGROUP_USERS_INFO_0 pBuf = NULL;
+        dwLevel = 0;
+        dwPrefMaxLen = MAX_PREFERRED_LENGTH;
+        dwEntriesRead = 0;
+        dwTotalEntries = 0;
 
-   //
-   // If the given user and group are not found in the local group
-   // then try on the global groups.
-   //
-   if (!retVal)
-   {
-       LPGROUP_USERS_INFO_0 pBuf = NULL;
-       dwLevel = 0;
-       dwPrefMaxLen = MAX_PREFERRED_LENGTH;
-       dwEntriesRead = 0;
-       dwTotalEntries = 0;
-
-       //
-       // Call the NetUserGetGroups function, specifying level 0.
-       //
-       nStatus = NetUserGetGroups(NULL,
+        //
+        // Call the NetUserGetGroups function, specifying level 0.
+        //
+        nStatus = NetUserGetGroups(NULL,
                                   (LPCWSTR)userName,
                                   dwLevel,
                                   (LPBYTE*)&pBuf,
                                   dwPrefMaxLen,
                                   &dwEntriesRead,
                                   &dwTotalEntries);
-       //
-       // If the call succeeds,
-       //
-       if (nStatus == NERR_Success)
-       {
-          LPGROUP_USERS_INFO_0 pTmpBuf;
-          DWORD i;
-          DWORD dwTotalCount = 0;
-    
-          if ((pTmpBuf = pBuf) != NULL)
-          {
-             //
-             // Loop through the global groups to which the user belongs
-             // and find the matching group name.
-             //
-             for (i = 0; i < dwEntriesRead; i++)
-             {
+        //
+        // If the call succeeds,
+        //
+        if (nStatus == NERR_Success)
+        {
+            LPGROUP_USERS_INFO_0 pTmpBuf;
+            DWORD i;
+            DWORD dwTotalCount = 0;
+
+            if ((pTmpBuf = pBuf) != NULL)
+            {
                 //
-                // Compare the user's group name to groupName.
+                // Loop through the global groups to which the user belongs
+                // and find the matching group name.
                 //
-                if ( strcmp ((char *)pTmpBuf->grui0_name, groupName) == 0 )
+                for (i = 0; i < dwEntriesRead; i++)
                 {
-                     // User is a member of the group.
-                     retVal = true;
-                     break;
+                    //
+                    // Compare the user's group name to groupName.
+                    //
+                    if ( strcmp ((char *)pTmpBuf->grui0_name, groupName) == 0 )
+                    {
+                        // User is a member of the group.
+                        retVal = true;
+                        break;
+                    }
+
+                    pTmpBuf++;
+                    dwTotalCount++;
                 }
+            }
+        }
 
-                pTmpBuf++;
-                dwTotalCount++;
-             }
-          }
-       }
+        //
+        // Free the allocated buffer.
+        //
+        if (pBuf != NULL)
+            NetApiBufferFree(pBuf);
+    }
 
-       //
-       // Free the allocated buffer.
-       //
-       if (pBuf != NULL)
-          NetApiBufferFree(pBuf);
-   }
-
-   return retVal;
+    return retVal;
 }
 
 Boolean System::changeUserContext(const char* userName)
@@ -743,35 +743,40 @@ Uint32 System::getPID()
 }
 
 Boolean System::truncateFile(
-    const char* path, 
+    const char* path,
     size_t newSize)
 {
+
+    Boolean rv = false;
     int fd = open(path, O_RDWR);
+    if (fd != -1)
+    {
+        if (chsize(fd, newSize) == 0)
+        {
+            rv = true;
+        }
 
-    if (fd == -1)
-        return false;
+        close(fd);
+    }
 
-    if (chsize(fd, newSize) != 0)
-    return false;
-
-    close(fd);
-    return true;
+    return rv;
 }
 
 // Is absolute path?
 Boolean System::is_absolute_path(const char *path)
 {
-  char full[_MAX_PATH];
-  char path_slash[_MAX_PATH];
-  char *p;
+    char full[_MAX_PATH];
+    char path_slash[_MAX_PATH];
+    char *p;
 
-  strncpy(path_slash, path, _MAX_PATH);
-  path_slash[_MAX_PATH-1] = '\0';
+    strncpy(path_slash, path, _MAX_PATH);
+    path_slash[_MAX_PATH-1] = '\0';
 
-  for(p = path_slash; p < path_slash + strlen(path_slash); p++)
-    if (*p == '/') *p = '\\';
-  
-  return (strcasecmp(_fullpath( full, path_slash, _MAX_PATH ), path_slash) == 0) ? true : false;
+    for(p = path_slash; p < path_slash + strlen(path_slash); p++)
+      if (*p == '/')
+          *p = '\\';
+
+    return (strcasecmp(_fullpath( full, path_slash, _MAX_PATH ), path_slash) == 0) ? true : false;
 }
 
 // Changes file permissions on the given file.

@@ -96,9 +96,8 @@ public:
 	    Monitor* monitor = new Monitor;
 	    HTTPConnector* httpConnector = new HTTPConnector(monitor);
 	    CIMExportClient exportclient(monitor, httpConnector);
-	    exportclient.connect(dest.allocateCString());
-	    exportclient.exportIndication(dest.allocateCString(), 
-		indicationInstance);
+	    exportclient.connect(dest);
+	    exportclient.exportIndication(dest, indicationInstance);
 	}
 	catch(Exception& e)
         {

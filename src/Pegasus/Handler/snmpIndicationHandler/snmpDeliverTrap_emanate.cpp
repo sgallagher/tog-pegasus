@@ -60,10 +60,10 @@ void snmpDeliverTrap_emanate::deliverTrap(const String& trapOid,
             cout << "The fifo is not opened for reading. Subagent is not running" << endl;
         else
         {
-            strcpy(myTrapHeader.destination, destination.allocateCString());
+            strcpy(myTrapHeader.destination, _CString(destination));
             strcpy(myTrapHeader.snmpType, "SNMPV2");
-            strcpy(myTrapHeader.enterprise, enterprise.allocateCString());
-            strcpy(myTrapHeader.trapOid, trapOid.allocateCString());
+            strcpy(myTrapHeader.enterprise, _CString(enterprise));
+            strcpy(myTrapHeader.trapOid, _CString(trapOid));
             myTrapHeader.variable_packets =  vbOids.size();
 
             if (write(fifo_fd, &myTrapHeader, sizeof(myTrapHeader)) <=0)
@@ -73,9 +73,9 @@ void snmpDeliverTrap_emanate::deliverTrap(const String& trapOid,
                 for(int packets = 0; packets<vbOids.size(); packets++)
                 {
                     trapData myTrapData;
-                    strcpy(myTrapData.vbOid, vbOids[packets].allocateCString());
-                    strcpy(myTrapData.vbType, vbTypes[packets].allocateCString());
-                    strcpy(myTrapData.vbValue, vbValues[packets].allocateCString());
+                    strcpy(myTrapData.vbOid, _CString(vbOids[packets]));
+                    strcpy(myTrapData.vbType, _CString(vbTypes[packets]));
+                    strcpy(myTrapData.vbValue, _CString(vbValues[packets]));
                     write(fifo_fd, &myTrapData, sizeof(myTrapData));
                 }
             }

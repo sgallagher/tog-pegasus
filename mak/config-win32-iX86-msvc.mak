@@ -1,5 +1,11 @@
 OS_TYPE = windows
 
+OS = win32
+
+ARCHITECTURE = iX86
+
+COMPILER = msvc
+
 SYS_INCLUDES =
 
 DEPEND_INCLUDES =
@@ -37,8 +43,6 @@ AR = LINK -nologo -dll
 LIB_PREFIX =
 
 LIB_SUFFIX = .lib
-
-SHARED_LIB_SUFFIX = .dll
 
 COPY = mu copy
 

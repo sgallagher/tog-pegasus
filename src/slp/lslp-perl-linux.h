@@ -46,6 +46,9 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <string.h>
+#if defined(PEGASUS_OS_SOLARIS)
+#include <netdb.h>
+#endif
 
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_TRU64)
 extern "C" char *strtok_r(char *, const char *, char **);
@@ -53,6 +56,10 @@ extern "C" char *strtok_r(char *, const char *, char **);
 # include <net/if.h>
 #elif defined (PEGASUS_OS_TRU64) || defined(PEGASUS_OS_AIX)
 # include <arpa/inet.h>
+# include <net/if.h>
+#elif defined (PEGASUS_OS_SOLARIS)
+extern "C" char *strtok_r(char *, const char *, char **);
+# define INADDR_NONE INADDR_BROADCAST
 # include <net/if.h>
 #elif defined (PEGASUS_OS_OS400)
 # include <unistd.cleinc>

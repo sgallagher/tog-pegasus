@@ -205,7 +205,7 @@ void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
 #ifdef PEGASUS_OS_HPUX
     // Note: shl_unload will unload the library even if it has been loaded
     // multiple times.  No reference count is kept.
-    int ignored = shl_unload(shl_t(libraryHandle));
+    int ignored = shl_unload(reinterpret_cast<shl_t>(libraryHandle));
 #endif
 }
 
@@ -232,16 +232,16 @@ DynamicSymbolHandle System::loadDynamicSymbol(
     char* p = (char*)symbolName;
     void* proc = 0;
 
-    if (shl_findsym((shl_t*)&libraryHandle, p, TYPE_UNDEFINED, &proc) == 0)
-        return DynamicSymbolHandle(proc);
-
-    p = strcpy(new char[strlen(symbolName) + 2], symbolName);
-    strcpy(p, "_");
-    strcat(p, symbolName);
-
-    if (shl_findsym((shl_t*)libraryHandle, p, TYPE_UNDEFINED, &proc) == 0)
+    if (shl_findsym((shl_t*)&libraryHandle, symbolName, TYPE_UNDEFINED,
+                    &proc) == 0)
     {
-        delete [] p;
+        return DynamicSymbolHandle(proc);
+    }
+
+    ArrayDestroyer<char> _p((String("_") + symbolName).allocateCString());
+    if (shl_findsym((shl_t*)libraryHandle, _p.getPointer(), TYPE_UNDEFINED,
+                    &proc) == 0)
+    {
         return DynamicSymbolHandle(proc);
     }
 

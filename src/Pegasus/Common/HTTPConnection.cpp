@@ -118,10 +118,9 @@ void HTTPMessage::parse(
 
 	    content = line + ((*sep == '\r') ? 2 : 1);
 
-	    // Determine length of content (subtract one more to account for
-	    // null-terminator.
+	    // Determine length of content:
 
-	    contentLength = message.size() - (content - data) - 1;
+	    contentLength = message.size() - (content - data);
 	    break;
 	}
 
@@ -187,13 +186,48 @@ void HTTPMessage::print(ostream& os) const
     Uint32 contentLength;
     parse(firstLine, headers, content, contentLength);
 
+    // Print the first line:
+
     cout << firstLine << endl;
 
+    // Print the headers:
+
+    Boolean image = false;
+
     for (Uint32 i = 0; i < headers.size(); i++)
+    {
 	cout << headers[i].first << ": " << headers[i].second << endl;
 
+	if (String::equalNoCase(headers[i].first, "content-type"))
+	{
+	    if (headers[i].second.find("image/") == 0)
+		image = true;
+	}
+    }
+
+    cout << endl;
+
+    // Print the content:
+
     for (Uint32 i = 0; i < contentLength; i++)
-	cout << content[i];
+    {
+	Sint8 c = content[i];
+
+	if (image)
+	{
+	    if ((i % 60) == 0)
+		cout << endl;
+
+	    Sint8 c = content[i];
+
+	    if (c >= ' ' && c < '~')
+		cout << c;
+	    else
+		cout << '.';
+	}
+	else
+	    cout << c;
+    }
 
     cout << endl;
 }
@@ -406,7 +440,6 @@ void HTTPConnection::_handleReadEvent()
 	_contentLength != -1 && 
 	(_incomingBuffer.size() >= _contentLength + _contentOffset))
     {
-	_incomingBuffer.append('\0');
 	HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
 	_outputMessageQueue->enqueue(message);
 	_clearIncoming();

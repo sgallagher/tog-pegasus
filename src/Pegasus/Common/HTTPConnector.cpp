@@ -136,13 +136,15 @@ struct HTTPConnectorRep
 ////////////////////////////////////////////////////////////////////////////////
 
 HTTPConnector::HTTPConnector(Monitor* monitor)
-    : _monitor(monitor), _rep(0)
+    : _monitor(monitor)
 {
+    _rep = new HTTPConnectorRep;
     Socket::initializeInterface();
 }
 
 HTTPConnector::~HTTPConnector()
 {
+    delete _rep;
     Socket::uninitializeInterface();
 }
 
@@ -194,7 +196,7 @@ void HTTPConnector::handleEnqueue()
     delete message;
 }
 
-void HTTPConnector::connect(
+HTTPConnection* HTTPConnector::connect(
     const String& locator, 
     MessageQueue* outputMessageQueue)
 {
@@ -253,6 +255,8 @@ void HTTPConnector::connect(
     // Save the socket for cleanup later:
 
     _rep->connections.append(connection);
+
+    return connection;
 }
 
 void HTTPConnector::destroyConnections()

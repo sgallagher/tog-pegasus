@@ -38,6 +38,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 struct HTTPConnectorRep;
+class HTTPConnection;
 
 /** This class is used by clients to establish a connection with a
     server. For each established connection, a HTTPConnection object
@@ -75,7 +76,9 @@ public:
 	@exception CannotConnect
 	@exception UnexpectedFailure
     */
-    void connect(const String& locator, MessageQueue* outputMessageQueue);
+    HTTPConnection* connect(
+	const String& locator, 
+	MessageQueue* outputMessageQueue);
 
     /** Destroys all the connections created by this connector. */
     void destroyConnections();

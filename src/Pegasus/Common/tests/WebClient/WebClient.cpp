@@ -27,82 +27,30 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
-#include <cstdlib>
 #include <iostream>
-#include <Pegasus/Common/TCPChannel.h>
+#include <Pegasus/Common/HTTPConnector.h>
+#include <Pegasus/Common/HTTPConnection.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static String globalDocument;
-static String globalHost;
-
-class MyChannelHandler : public ChannelHandler
+class WebClientQueue : public MessageQueue
 {
 public:
 
-    MyChannelHandler()
+    virtual void handleEnqueue()
     {
+	Message* message = dequeue();
+	assert(message != 0);
+
+	if (message->getType() == HTTP_MESSAGE)
+	{
+	    HTTPMessage* httpMessage = (HTTPMessage*)message;
+	    httpMessage->print(cout);
+
+	    // PEGASUS_OUT(httpMessage->message.getData());
+	}
     }
-
-    virtual ~MyChannelHandler()
-    {
-    }
-
-    virtual Boolean handleOpen(Channel* channel)
-    {
-	char buffer[4096];
-	char* tmp = globalDocument.allocateCString();
-	char* tmpHost = globalHost.allocateCString();
-
-	sprintf(buffer, 
-	    "GET %s HTTP/1.1\r\n"
-	    "Accept: */*\r\n"
-	    "Accept-Language: en-us\r\n"
-	    "Accept-Encoding: gzip, deflate\r\n"
-	    "User-Agent: Mozilla/4.0 (compatible; MyClient; Windows NT 5.0)\r\n"
-	    "Host: %s\r\n"
-	    "Connection: Keep-Alive\r\n"
-	    "\r\n",
-	    tmp,
-	    tmpHost);
-
-	delete [] tmp;
-	delete [] tmpHost;
-
-	assert(channel->write(buffer, strlen(buffer)) == strlen(buffer));
-	return true;
-    }
-
-    virtual Boolean handleInput(Channel* channel)
-    {
-	char buffer[1024];
-
-	Sint32 size = channel->read(buffer, sizeof(buffer));
-
-	if (size <= 0)
-	    return false;
-
-	for (Uint32 i = 0; i < size; i++)
-	    cout << buffer[i];
-	cout << flush;
-
-	return true;
-    }
-
-    virtual Boolean handleOutput(Channel* channel)
-    {
-	return true;
-    }
-
-    virtual void handleClose(Channel* channel)
-    {
-	exit(0);
-    }
-
-private:
-
-    Array<char> _received;
 };
 
 void ParseURL(const String& url, String& host, String& document)
@@ -130,6 +78,46 @@ void ParseURL(const String& url, String& host, String& document)
     }
 }
 
+void GetDocument(
+    HTTPConnection* connection, 
+    const String& host,
+    const String& document)
+{
+    // Build HTTP (request) message:
+
+    char buffer[4096];
+    char* tmpDocument = document.allocateCString();
+    char* tmpHost = host.allocateCString();
+
+    sprintf(buffer, 
+	"GET %s HTTP/1.1\r\n"
+	"Accept: */*\r\n"
+	"Accept-Language: en-us\r\n"
+	"Accept-Encoding: gzip, deflate\r\n"
+	"User-Agent: Mozilla/4.0 (compatible; MyClient; Windows NT 5.0)\r\n"
+	"Host: %s\r\n"
+	"Connection: Keep-Alive\r\n"
+	"\r\n",
+	tmpDocument,
+	tmpHost);
+
+    delete [] tmpDocument;
+    delete [] tmpHost;
+
+    Array<Sint8> message;
+    message.append(buffer, strlen(buffer));
+    HTTPMessage* httpMessage = new HTTPMessage(message);
+
+    // Enqueue message on the connection's queue (so that it will be sent
+    // to the sever it is conneted to:
+
+cout << "================================" << endl;
+    httpMessage->print(cout);
+cout << "================================" << endl;
+
+    connection->enqueue(httpMessage);
+}
+
 int main(int argc, char** argv)
 {
     // Check the arguments:
@@ -142,27 +130,35 @@ int main(int argc, char** argv)
 
     // Parse the URL:
 
-    ParseURL(argv[1], globalHost, globalDocument);
+    String url = argv[1];
+    String host;
+    String document;
+    ParseURL(url, host, document);
 
-    ChannelHandlerFactory* factory 
-	= new DefaultChannelHandlerFactory<MyChannelHandler>;
-
-    Selector* selector = new Selector;
-
-    TCPChannelConnector connector(factory, selector);
-
-    char* tmpHost = globalHost.allocateCString();
-    Channel* channel = connector.connect(tmpHost);
-    delete [] tmpHost;
-
-    if (channel == 0)
+    try
     {
-	cerr << "Failed to connect to " << globalHost << endl;
+	Monitor* monitor = new Monitor;
+	WebClientQueue* webClientQueue = new WebClientQueue;
+	HTTPConnector* httpConnector = new HTTPConnector(monitor);
+
+	cout << "Connecting to " << host << "..." << endl;
+	HTTPConnection* connection 
+	    = httpConnector->connect(host, webClientQueue);
+
+	GetDocument(connection, host, document);
+
+	for (;;)
+	{
+	    cout << "Loop..." << endl;
+	    monitor->run(5000);
+	}
+    }
+    catch (Exception& e)
+    {
+	cerr << e.getMessage() << endl;
 	exit(1);
     }
 
-    for (;;)
-	selector->select(5000);
-
+    exit(0);
     PEGASUS_UNREACHABLE( return 0; )
 }

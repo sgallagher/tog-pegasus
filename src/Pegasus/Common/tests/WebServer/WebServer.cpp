@@ -152,20 +152,21 @@ Message* WebServerQueue::handleHTTPMessage(HTTPMessage* requestMessage)
 
 	// Resolve the document type:
 
-	char docuentType[32];
-	strcpy(docuentType, "text/plain");
+	char documentType[32];
+	strcpy(documentType, "text/plain");
 
 	Uint32 dot = fullDocumentName.reverseFind('.');
 
 	if (dot != PEGASUS_NOT_FOUND)
 	{
-	    String ext = fullDocumentName.subString(dot + 1);
+	    String ext = fullDocumentName.subString(dot);
+
 	    if (ext == ".jpg")
-		strcpy(docuentType, "image/jpeg");
+		strcpy(documentType, "image/jpeg");
 	    else if (ext == ".gif")
-		strcpy(docuentType, "image/jpeg");
+		strcpy(documentType, "image/gif");
 	    else if (ext == ".html")
-		strcpy(docuentType, "text/html");
+		strcpy(documentType, "text/html");
 	}
 
 	const char HEADER[] =
@@ -175,7 +176,7 @@ Message* WebServerQueue::handleHTTPMessage(HTTPMessage* requestMessage)
 	    "Content-Type: %s \r\n\r\n";
 
 	char header[sizeof(HEADER) + 32];
-	sprintf(header, HEADER, content.size(), docuentType);
+	sprintf(header, HEADER, content.size(), documentType);
 
 	Array<Sint8> buffer;
 	buffer.append(header, strlen(header));

@@ -523,23 +523,54 @@ void CQLSelectStatementRep::validateClass(const CIMObjectPath& inClassName) thro
   Array<CQLIdentifier> fromList = _ctx->getFromList();
   PEGASUS_ASSERT(fromList.size() == 1);  // no joins yet
 
+  // Check if the classname passed in is the FROM class or a subclass
+  // of the FROM class.
   if (!inClassName.getClassName().equal(fromList[0].getName()))
   {
-    throw Exception("TEMP MSG:  not in the FROM list ");
-  }
-
-  try
-  {
-    _ctx->getClass(inClassName.getClassName());
-  }
-  catch (CIMException& ce)
-  {
-    if (ce.getCode() == CIM_ERR_INVALID_CLASS || 
-        ce.getCode() == CIM_ERR_NOT_FOUND)
+    // Not the FROM class, check if it is a subclass of the FROM
+    QueryContext::ClassRelation rel;
+    try
     {
-      // ATTN may just want to throw the CIMException rather than
-      // CQL exception
-      throw Exception("TEMP MSG - class does not exist");
+      rel = _ctx->getClassRelation(fromList[0].getName(),
+                                   inClassName.getClassName());
+    }
+    catch (CIMException& ce)
+    {
+      if (ce.getCode() == CIM_ERR_INVALID_CLASS || 
+          ce.getCode() == CIM_ERR_NOT_FOUND)
+      {
+        // Either the FROM or the class passed in does not exist
+        // ATTN may just want to throw the CIMException rather than
+        // CQL exception
+        throw Exception("TEMP MSG - class does not exist: " + ce.getMessage());
+      }
+
+      throw;
+    }    
+  
+    if (rel != QueryContext::SUBCLASS)
+    {
+      throw Exception("TEMP MSG: class is not the FROM class and not a subclass of FROM class");
+    }
+  }
+  else
+  {
+    // Class passed in is the FROM class.  Check if it exists.
+    try
+    {
+      _ctx->getClass(inClassName.getClassName());
+    }
+    catch (CIMException& ce)
+    {
+      if (ce.getCode() == CIM_ERR_INVALID_CLASS || 
+          ce.getCode() == CIM_ERR_NOT_FOUND)
+      {
+        // ATTN may just want to throw the CIMException rather than
+        // CQL exception
+        throw Exception("TEMP MSG - class does not exist " + ce.getMessage());
+      }
+      
+      throw;
     }
   }
 }
@@ -872,8 +903,11 @@ Boolean CQLSelectStatementRep::addRequiredProperty(Array<CIMName>& reqProps,
     // The 2nd chain element is an unscoped property
     if (ids[1].isWildcard())
     {
-      // Indicate its a wildcard.
-      return true;
+      CIMName fromClass = _ctx->getFromList()[0].getName();
+
+      // Wildcards only indicate all properties on the FROM class
+      if (fromClass == className)
+        return true;
     }
 
     // Implementation note:

@@ -29,6 +29,7 @@
 #include "ProviderModule.h"
 
 #include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/FileSystem.h>
 
 #include <Pegasus/Provider2/CIMBaseProviderHandle.h>
 #include <Pegasus/Provider/CIMProviderHandle.h>
@@ -116,12 +117,19 @@ void ProviderModule::load(void)
 		// get the base file name from the file name parameter in the event that a path
 		// is given. the original provider entry point function was composed of a prefix
 		// and the providerId or base file name.
-		ArrayDestroyer<char> fileName = _fileName.allocateCString();
-		ArrayDestroyer<char> baseName = new char[_fileName.size()];
+		String fileName;
+		
+		// convert slashes
+		FileSystem::translateSlashes(fileName);
+			
+		// find last slash
+		Uint32 pos = fileName.reverseFind(Char16('/'));
+			
+		// the base file name is the regison between the last slash and a period
+		String baseName = fileName.subString(pos == PEG_NOT_FOUND ? 0 : pos, fileName.find(Char16('.')));
 
-		_splitpath(fileName.getPointer(), 0, 0, baseName.getPointer(), 0);
-
-		String temp = String("PegasusCreateProvider_") + String(baseName.getPointer());
+		// build entry point name
+		String temp = String("PegasusCreateProvider_") + baseName;
 
 		ArrayDestroyer<char> functionName = temp.allocateCString();
 

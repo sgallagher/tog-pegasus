@@ -42,6 +42,8 @@
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/OperationContext.h>
+#include <Pegasus/Common/ContentLanguages.h>  //l10n
+
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -93,6 +95,14 @@ public:
     attempting to call <tt>deliver</tt>.
     */
     virtual void processing(void) = 0;
+
+// l10n
+    /**
+    Inform the CIM Server of the language(s) of the results.
+    <p>The provider may call, but is not required to call, 
+    <tt>setLanguages</tt> before attempting to call <tt>deliver</tt>.
+    */
+    virtual void setLanguages(const ContentLanguages & languages) = 0;
 
     /**
     Inform the CIM Server that delivery of results is complete.

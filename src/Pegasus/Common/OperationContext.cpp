@@ -588,7 +588,181 @@ Uint32 TimeoutContainer::getTimeOut(void) const
 }
 
 
+// l10n start
+
+//
+// AcceptLanguageListContainer
+//
+
+class AcceptLanguageListContainerRep
+{
+public:
+    AcceptLanguages languages;
+};
+
+const String AcceptLanguageListContainer::NAME =
+    "AcceptLanguageListContainer";
+
+AcceptLanguageListContainer::AcceptLanguageListContainer
+    (const OperationContext::Container & container)
+{
+    const AcceptLanguageListContainer * p = 
+    	dynamic_cast<const AcceptLanguageListContainer *>(&container);
+
+    if(p == 0)
+    {
+        throw DynamicCastFailedException();
+    }
+
+    _rep = new AcceptLanguageListContainerRep();
+    _rep->languages = p->_rep->languages;
+}
+
+AcceptLanguageListContainer::AcceptLanguageListContainer
+    (const AcceptLanguageListContainer & container)
+{
+    _rep = new AcceptLanguageListContainerRep();
+    _rep->languages = container._rep->languages;
+}
+
+AcceptLanguageListContainer::AcceptLanguageListContainer
+    (const AcceptLanguages & languages)
+{
+    _rep = new AcceptLanguageListContainerRep();
+    _rep->languages = languages;
+}
+
+AcceptLanguageListContainer::~AcceptLanguageListContainer(void)
+{
+    delete _rep;
+}
+
+AcceptLanguageListContainer & AcceptLanguageListContainer::operator=(
+    const AcceptLanguageListContainer & container)
+{
+    if (this == &container)
+    {
+        return (*this);
+    }
+
+    _rep->languages = container._rep->languages;
+
+    return (*this);
+}
+
+String AcceptLanguageListContainer::getName(void) const
+{
+    return(NAME);
+}
+
+OperationContext::Container * AcceptLanguageListContainer::clone(void) const
+{
+    return(new AcceptLanguageListContainer(_rep->languages));
+}
+
+void AcceptLanguageListContainer::destroy(void)
+{
+    delete this;
+}
+
+AcceptLanguages AcceptLanguageListContainer::getLanguages(void) const
+{
+    return(_rep->languages);
+}
+
+//
+// SubscriptionLanguageListContainer
+//
+
+const String SubscriptionLanguageListContainer::NAME =
+    "SubscriptionLanguageListContainer";
+
+String SubscriptionLanguageListContainer::getName(void) const
+{
+    return(NAME);
+}
+
+//
+// ContentLanguageListContainer
+//
+
+class ContentLanguageListContainerRep
+{
+public:
+    ContentLanguages languages;
+};
+
+const String ContentLanguageListContainer::NAME =
+    "ContentLanguageListContainer";
+
+ContentLanguageListContainer::ContentLanguageListContainer
+    (const OperationContext::Container & container)
+{
+    const ContentLanguageListContainer * p = 
+    	dynamic_cast<const ContentLanguageListContainer *>(&container);
+
+    if(p == 0)
+    {
+        throw DynamicCastFailedException();
+    }
+
+    _rep = new ContentLanguageListContainerRep();
+    _rep->languages = p->_rep->languages;
+}
+
+ContentLanguageListContainer::ContentLanguageListContainer
+    (const ContentLanguageListContainer & container)
+{
+    _rep = new ContentLanguageListContainerRep();
+    _rep->languages = container._rep->languages;
+}
+
+ContentLanguageListContainer::ContentLanguageListContainer
+    (const ContentLanguages & languages)
+{
+    _rep = new ContentLanguageListContainerRep();
+    _rep->languages = languages;
+}
+
+ContentLanguageListContainer::~ContentLanguageListContainer(void)
+{
+    delete _rep;
+}
+
+ContentLanguageListContainer & ContentLanguageListContainer::operator=(
+    const ContentLanguageListContainer & container)
+{
+    if (this == &container)
+    {
+        return (*this);
+    }
+
+    _rep->languages = container._rep->languages;
+
+    return (*this);
+}
+
+String ContentLanguageListContainer::getName(void) const
+{
+    return(NAME);
+}
+
+OperationContext::Container * ContentLanguageListContainer::clone(void) const
+{
+    return(new ContentLanguageListContainer(_rep->languages));
+}
+
+void ContentLanguageListContainer::destroy(void)
+{
+    delete this;
+}
+
+ContentLanguages ContentLanguageListContainer::getLanguages(void) const
+{
+    return(_rep->languages);
+}
 
 
+// l10n end
 
 PEGASUS_NAMESPACE_END

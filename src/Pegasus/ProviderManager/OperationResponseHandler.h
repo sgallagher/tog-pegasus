@@ -37,6 +37,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/ContentLanguages.h>  // l10n
 
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
@@ -78,6 +79,16 @@ public:
     {
         _response->cimException = PEGASUS_CIM_EXCEPTION(CIMStatusCode(code), message);
     }
+    
+    virtual void setStatus(const Uint32 code, 
+    						const ContentLanguages & langs,
+    						const String & message = String::EMPTY)
+    {
+        _response->cimException = PEGASUS_CIM_EXCEPTION_LANG(
+        						langs,
+        						CIMStatusCode(code),
+        						 message);
+    }    
 
 protected:
     CIMRequestMessage * _request;
@@ -116,6 +127,9 @@ public:
 
         static_cast<CIMGetInstanceResponseMessage *>(
             getResponse())->cimInstance = getObjects()[0];
+
+		// l10n
+		getResponse()->contentLanguages = getLanguages();
     }
 };
 
@@ -136,6 +150,9 @@ public:
 
         static_cast<CIMEnumerateInstancesResponseMessage *>(
             getResponse())->cimNamedInstances = getObjects();
+
+		// l10n
+		getResponse()->contentLanguages = getLanguages();
     }
 
 };
@@ -157,6 +174,9 @@ public:
 
         static_cast<CIMEnumerateInstanceNamesResponseMessage *>(
             getResponse())->instanceNames = getObjects();
+
+	// l10n
+	getResponse()->contentLanguages = getLanguages();
     }
 
 };
@@ -184,6 +204,9 @@ public:
 
         static_cast<CIMCreateInstanceResponseMessage *>(
             getResponse())->instanceName = getObjects()[0];
+
+		// l10n
+		getResponse()->contentLanguages = getLanguages();
     }
 
 };
@@ -238,6 +261,9 @@ public:
 
         static_cast<CIMGetPropertyResponseMessage *>(
             getResponse())->value = getObjects()[0];
+
+		// l10n
+		getResponse()->contentLanguages = getLanguages();
     }
 };
 
@@ -269,6 +295,9 @@ public:
 
         static_cast<CIMAssociatorsResponseMessage *>(
             getResponse())->cimObjects = getObjects();
+
+		// l10n
+		getResponse()->contentLanguages = getLanguages();
     }
 
 };
@@ -291,6 +320,9 @@ public:
 
         static_cast<CIMAssociatorNamesResponseMessage *>(
             getResponse())->objectNames.appendArray(getObjects());
+
+		// l10n
+		getResponse()->contentLanguages = getLanguages();
     }
 
 };
@@ -312,6 +344,9 @@ public:
 
         static_cast<CIMReferencesResponseMessage *>(
             getResponse())->cimObjects = getObjects();
+
+		// l10n
+		getResponse()->contentLanguages = getLanguages();
     }
 
 };
@@ -333,6 +368,9 @@ public:
 
         static_cast<CIMReferenceNamesResponseMessage *>(
             getResponse())->objectNames.appendArray(getObjects());
+
+		// l10n
+		getResponse()->contentLanguages = getLanguages();
     }
 
 };
@@ -364,6 +402,9 @@ public:
 
         static_cast<CIMInvokeMethodResponseMessage *>(
             getResponse())->retValue = getReturnValue();
+
+		// l10n
+		getResponse()->contentLanguages = getLanguages();
     }
 
 };
@@ -428,14 +469,34 @@ public:
         Array<CIMObjectPath> subscriptionInstanceNames =
             container.getInstanceNames();
 
+// l10n
+		ContentLanguages contentLangs;
+		try
+		{
+			// Get the Content-Language for this indication.  The provider
+			// does not have to add specify a language for the indication. 
+			ContentLanguageListContainer langContainer = context.get
+				(ContentLanguageListContainer::NAME);
+						
+			contentLangs = langContainer.getLanguages();		
+		} catch (Exception & e)
+		{
+			// The provider did not explicitly set a Content-Language for
+			// the indication.  Fall back to the lang set in this object.
+			contentLangs = getLanguages();		
+		}
+// l10n -end		
+
         // create message
+// l10n        
         CIMProcessIndicationRequestMessage * request =
             new CIMProcessIndicationRequestMessage(
 	     _request_copy.messageId,
             cimInstance.getPath().getNameSpace(),
             cimInstance,
             subscriptionInstanceNames,
-            QueueIdStack(_target->getQueueId(), _source->getQueueId()));
+            QueueIdStack(_target->getQueueId(), _source->getQueueId()),
+            contentLangs);
 
         // send message
         // <<< Wed Apr 10 21:04:00 2002 mdd >>>

@@ -36,6 +36,8 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/AcceptLanguages.h>  // l10n
+#include <Pegasus/Common/ContentLanguages.h> // l10n
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -325,6 +327,93 @@ class PEGASUS_COMMON_LINKAGE TimeoutContainer : virtual public OperationContext:
       Uint32 _value;
    private:
       TimeoutContainer(void);
+};
+
+
+// l10n
+/////////////////////////////////////////////////////////////////////////////
+// Containers used for globalization
+/////////////////////////////////////////////////////////////////////////////
+
+class AcceptLanguageListContainerRep;
+
+class PEGASUS_COMMON_LINKAGE AcceptLanguageListContainer
+    : virtual public OperationContext::Container
+{
+public:
+    static const String NAME;
+
+    AcceptLanguageListContainer
+        (const OperationContext::Container & container);
+    AcceptLanguageListContainer
+        (const AcceptLanguageListContainer & container);
+    AcceptLanguageListContainer(const AcceptLanguages & languages);
+    virtual ~AcceptLanguageListContainer(void);
+
+    AcceptLanguageListContainer & operator=
+        (const AcceptLanguageListContainer & container);
+
+    virtual String getName(void) const;
+    virtual OperationContext::Container * clone(void) const;
+    virtual void destroy(void);
+
+    AcceptLanguages getLanguages(void) const;
+
+protected:
+   AcceptLanguageListContainerRep* _rep;
+
+};
+
+
+class PEGASUS_COMMON_LINKAGE SubscriptionLanguageListContainer
+    : virtual public AcceptLanguageListContainer
+{
+public:
+    static const String NAME;
+    
+    SubscriptionLanguageListContainer
+        (const OperationContext::Container & container)
+        : AcceptLanguageListContainer(container)
+        {};
+    SubscriptionLanguageListContainer
+        (const SubscriptionLanguageListContainer & container)
+        : AcceptLanguageListContainer(container)
+        {};
+    SubscriptionLanguageListContainer(const AcceptLanguages & languages)
+        : AcceptLanguageListContainer(languages)
+        {};
+    virtual ~SubscriptionLanguageListContainer(void) {};        
+
+    virtual String getName(void) const;
+};    
+
+class ContentLanguageListContainerRep;
+
+class PEGASUS_COMMON_LINKAGE ContentLanguageListContainer
+    : virtual public OperationContext::Container
+{
+public:
+    static const String NAME;
+
+    ContentLanguageListContainer
+        (const OperationContext::Container & container);
+    ContentLanguageListContainer
+        (const ContentLanguageListContainer & container);
+    ContentLanguageListContainer(const ContentLanguages & languages);
+    virtual ~ContentLanguageListContainer(void);
+
+    ContentLanguageListContainer & operator=
+        (const ContentLanguageListContainer & container);
+
+    virtual String getName(void) const;
+    virtual OperationContext::Container * clone(void) const;
+    virtual void destroy(void);
+
+    ContentLanguages getLanguages(void) const;
+
+protected:
+   ContentLanguageListContainerRep* _rep;
+
 };
 
 

@@ -105,6 +105,20 @@ static void _BubbleSort(Array<CIMKeyBinding>& x)
 {
     Uint32 n = x.size();
 
+    //
+    //  If the key is a reference, the keys in the reference must also be 
+    //  sorted
+    //
+    for (Uint32 k = 0; k < n ; k++)
+        if (x[k].getType () == CIMKeyBinding::REFERENCE)
+        {
+            CIMObjectPath tmp (x[k].getValue ());
+            Array <CIMKeyBinding> keyBindings = tmp.getKeyBindings ();
+            _BubbleSort (keyBindings);
+            tmp.setKeyBindings (keyBindings);
+            x[k].setValue (tmp.toString ());
+        }
+
     if (n < 2)
         return;
 

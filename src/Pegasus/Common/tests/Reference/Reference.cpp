@@ -386,6 +386,82 @@ void test03()
     assert(!kb11.equal(String("100")));
 }
 
+//
+//  Test identical() function with keys that are references
+//
+void test04()
+{
+    //
+    // Create classes 
+    //
+    CIMClass classA (CIMName ("A"), CIMName ());
+    CIMProperty propertyX ("x", String ());
+    propertyX.addQualifier (CIMQualifier (CIMName ("Key"), true));
+    CIMProperty propertyY ("y", String ());
+    propertyY.addQualifier (CIMQualifier (CIMName ("Key"), true));
+    CIMProperty propertyZ ("z", String ());
+    propertyZ.addQualifier (CIMQualifier (CIMName ("Key"), true));
+    classA.addProperty (propertyX);
+    classA.addProperty (propertyY);
+    classA.addProperty (propertyZ);
+    CIMClass classB ("B");
+    CIMProperty propertyQ ("q", String ());
+    propertyQ.addQualifier (CIMQualifier (CIMName ("Key"), true));
+    CIMProperty propertyR ("r", String ());
+    propertyR.addQualifier (CIMQualifier (CIMName ("Key"), true));
+    CIMProperty propertyS ("s", String ());
+    propertyS.addQualifier (CIMQualifier (CIMName ("Key"), true));
+    classB.addProperty (propertyQ);
+    classB.addProperty (propertyR);
+    classB.addProperty (propertyS);
+    CIMClass classC ("C");
+    CIMProperty propertyA ("a", CIMValue ());
+    propertyA.addQualifier (CIMQualifier (CIMName ("Key"), true));
+    CIMProperty propertyB ("b", CIMValue ());
+    propertyB.addQualifier (CIMQualifier (CIMName ("Key"), true));
+    classC.addProperty (propertyA);
+    classC.addProperty (propertyB);
+
+    //
+    //  Create instances
+    //
+    CIMInstance instanceA (CIMName ("A"));
+    instanceA.addProperty (CIMProperty (CIMName ("x"), String ("rose")));
+    instanceA.addProperty (CIMProperty (CIMName ("y"), String ("lavender")));
+    instanceA.addProperty (CIMProperty (CIMName ("z"), String ("rosemary")));
+    CIMObjectPath aPath = instanceA.buildPath (classA);
+    CIMObjectPath aPath2 ("A.y=\"lavender\",x=\"rose\",z=\"rosemary\"");
+    assert (aPath.identical (aPath2));
+
+    CIMInstance instanceB (CIMName ("B"));
+    instanceB.addProperty (CIMProperty (CIMName ("q"), String ("pelargonium")));
+    instanceB.addProperty (CIMProperty (CIMName ("r"), String ("thyme")));
+    instanceB.addProperty (CIMProperty (CIMName ("s"), String ("sage")));
+    CIMObjectPath bPath = instanceB.buildPath (classB);
+    CIMObjectPath bPath2 ("B.s=\"sage\",q=\"pelargonium\",r=\"thyme\"");
+    assert (bPath.identical (bPath2));
+
+    CIMInstance instanceC (CIMName ("C"));
+    instanceC.addProperty (CIMProperty (CIMName ("a"), aPath, 0, 
+        CIMName ("A")));
+    instanceC.addProperty (CIMProperty (CIMName ("b"), bPath, 0, 
+        CIMName ("B")));
+    CIMObjectPath cPath = instanceC.buildPath (classC);
+
+    Array <CIMKeyBinding> keyBindings;
+    CIMKeyBinding aBinding ("a", "A.y=\"lavender\",x=\"rose\",z=\"rosemary\"", 
+        CIMKeyBinding::REFERENCE);
+    CIMKeyBinding bBinding ("b", "B.s=\"sage\",q=\"pelargonium\",r=\"thyme\"",
+        CIMKeyBinding::REFERENCE);
+    keyBindings.append (aBinding);
+    keyBindings.append (bBinding);
+
+    CIMObjectPath cPath2 ("", CIMNamespaceName (),
+        cPath.getClassName (), keyBindings);
+
+    assert (cPath.identical (cPath2));
+}
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
@@ -395,6 +471,7 @@ int main(int argc, char** argv)
 	test01();
 	test02();
 	test03();
+	test04();
 
         cout << argv[0] << " +++++ passed all tests" << endl;
     }

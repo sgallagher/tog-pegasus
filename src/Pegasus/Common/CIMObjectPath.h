@@ -497,7 +497,7 @@ public:
         for as are the case insensitivity characteristics defined by
         the specification
         @param CIMObjectPath for comparison
-        @return True if the objects are have identical components
+        @return True if the objects have identical components
         <PRE>
         </PRE>
     */

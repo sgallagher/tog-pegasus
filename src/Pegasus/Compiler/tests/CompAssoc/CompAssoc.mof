@@ -30,7 +30,7 @@ instance of Y
 
 instance of A
 {
-    left = "X.key=\"John Smith"\"";
-    right = "Y.key=\"John Jones"\"";
+    left = "X.key=\"John Smith\"";
+    right = "Y.key=\"John Jones\"";
 };
 

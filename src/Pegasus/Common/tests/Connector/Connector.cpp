@@ -814,5 +814,5 @@ int main()
     for (;;)
 	selector->select(5000);
 
-    PEGASUS_UNREACHABLE( exit(1); )
+    PEGASUS_UNREACHABLE( return 0; )
 }

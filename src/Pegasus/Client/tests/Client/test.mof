@@ -29,24 +29,24 @@ instance of Person { name = "Gabi"; };
 
 instance of Lineage
 {
-    parent = "Person.name=\"Mike"\"";
-    child = "Person.name=\"Sofi"\"";
+    parent = "Person.name=\"Mike\"";
+    child = "Person.name=\"Sofi\"";
 };
 
 instance of Lineage
 {
-    parent = "Person.name=\"Mike"\"";
-    child = "Person.name=\"Gabi"\"";
+    parent = "Person.name=\"Mike\"";
+    child = "Person.name=\"Gabi\"";
 };
 
 instance of Lineage
 {
-    parent = "Person.name=\"Saara"\"";
-    child = "Person.name=\"Sofi"\"";
+    parent = "Person.name=\"Saara\"";
+    child = "Person.name=\"Sofi\"";
 };
 
 instance of Lineage
 {
-    parent = "Person.name=\"Saara"\"";
-    child = "Person.name=\"Gabi"\"";
+    parent = "Person.name=\"Saara\"";
+    child = "Person.name=\"Gabi\"";
 };

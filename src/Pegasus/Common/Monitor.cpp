@@ -566,14 +566,9 @@ monitor_2::monitor_2(void)
 
 monitor_2::~monitor_2(void)
 {
-
-  PEGASUS_STD(cout) << "monitor destructor" << PEGASUS_STD(endl);
-  
   try {
     monitor_2_entry* temp = _listeners.remove_first();
     while(temp){
-      PEGASUS_STD(cout) << " removing listener" << PEGASUS_STD(endl);
-      
       delete temp;
       temp = _listeners.remove_first();
     }

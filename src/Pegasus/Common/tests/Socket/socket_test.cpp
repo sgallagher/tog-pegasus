@@ -76,8 +76,6 @@ void test_dispatch(monitor_2_entry* entry)
   Sint32 bytes = entry->get_sock().read((void *)&buf, 255);
   bytes = entry->get_sock().write(&OK, 4);
   cmd_rx++;
-  cout << " accept " << entry->get_accept() << endl;
-  cout << " dispatch " << entry->get_dispatch() << endl;
   entry->set_accept((void*)cmd_rx.value());
   entry->set_dispatch((void*)cmd_rx.value());
 

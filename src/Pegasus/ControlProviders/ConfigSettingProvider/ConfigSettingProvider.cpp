@@ -143,7 +143,7 @@ void ConfigSettingProvider::getInstance(
         {
             _configManager->getPropertyInfo(keyValue, propertyInfo);
         }
-        catch (UnrecognizedConfigProperty& ucp)
+        catch (const UnrecognizedConfigProperty&)
         {
             PEG_METHOD_EXIT();
             //l10n
@@ -407,19 +407,19 @@ void ConfigSettingProvider::modifyInstance(
                                                false);
             }
         }
-        catch (NonDynamicConfigProperty& ndcp)
+        catch (const NonDynamicConfigProperty& ndcp)
         {
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(
                 CIM_ERR_NOT_SUPPORTED, ndcp.getMessage());
         }
-        catch (InvalidPropertyValue& ipv)
+        catch (const InvalidPropertyValue& ipv)
         {
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(
                 CIM_ERR_FAILED, ipv.getMessage());
         }
-        catch (UnrecognizedConfigProperty& ucp)
+        catch (const UnrecognizedConfigProperty&)
         {
             PEG_METHOD_EXIT();
             //l10n

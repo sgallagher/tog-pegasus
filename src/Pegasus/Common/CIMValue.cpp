@@ -60,6 +60,8 @@ inline void _Dec(ArrayRep<T>* rep)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+// Too complicated.  Commented out in favor of sprintf("%lld"/"%llu").
+#if 0
 //------------------------------------------------------------------------------
 //
 // _SignedIntToStr()
@@ -78,17 +80,14 @@ static void _SignedIntToStr(Sint64 x, char* result)
 	return;
     }
 
-    char buffer[256];
+    char buffer[32];
     Uint32 len = 0;
     Boolean negative = false;
 
-    for (Uint32 i = 0; 1; i++)
+    while (x)
     {
-	Sint64 q = x / 10;
 	Sint32 r = x % 10;
-
-	if (q == 0 && r == 0)
-	    break;
+	x = x / 10;
 
 	if (r < 0)
 	{
@@ -97,8 +96,6 @@ static void _SignedIntToStr(Sint64 x, char* result)
 	}
 
 	buffer[len++] = r + '0';
-
-	x = q ;
     }
 
     buffer[len] = '\0';
@@ -138,20 +135,15 @@ static void _UnsignedIntToStr(Uint64 x, char* result)
 	return;
     }
 
-    char buffer[256];
+    char buffer[32];
     Uint32 len = 0;
 
-    for (Uint32 i = 0; 1; i++)
+    while (x)
     {
-	Uint64 q = x / 10;
 	Uint32 r = x % 10;
-
-	if (q == 0 && r == 0)
-	    break;
+	x = x / 10;
 
 	buffer[len++] = r + '0';
-
-	x = q ;
     }
 
     buffer[len] = '\0';
@@ -167,6 +159,7 @@ static void _UnsignedIntToStr(Uint64 x, char* result)
 
     *q++ = '\0';
 }
+#endif
 
 //------------------------------------------------------------------------------
 //
@@ -182,19 +175,17 @@ inline void _toString(Array<Sint8>& out, Boolean x)
 inline void _toXml(Array<Sint8>& out, Boolean x) { _toString(out, x); }
 inline void _toMof(Array<Sint8>& out, Boolean x) { _toString(out, x); }
 
-template<class T>
-inline void _integerToString(Array<Sint8>& out, const T& x)
+inline void _integerToString(Array<Sint8>& out, Sint32 x)
 {
     char buffer[32];
     sprintf(buffer, "%d", x);
     out << (char*)buffer;
 }
 
-template<class T>
-inline void _unsignedIntegerToString(Array<Sint8>& out, const T& x)
+inline void _unsignedIntegerToString(Array<Sint8>& out, Uint32 x)
 {
     char buffer[32];
-    sprintf(buffer, "%u", Uint32(x));
+    sprintf(buffer, "%u", x);
     out << (char*)buffer;
 }
 
@@ -224,8 +215,13 @@ inline void _toMof(Array<Sint8>& out, Sint32 x) { _toString(out, x); }
 
 inline void _toString(Array<Sint8>& out, Uint64 x)
 {
-    char buffer[128];
-    _UnsignedIntToStr(x, buffer);
+    char buffer[32];  // Should need 21 chars max
+    // I know I shouldn't put platform flags here, but the other was is too hard
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+    sprintf(buffer, "%I64u", x);
+#else
+    sprintf(buffer, "%llu", x);
+#endif
     out << buffer;
 }
 
@@ -234,35 +230,33 @@ inline void _toMof(Array<Sint8>& out, Uint64 x) { _toString(out, x); }
 
 inline void _toString(Array<Sint8>& out, Sint64 x)
 {
-    char buffer[128];
-    _SignedIntToStr(x, buffer);
+    char buffer[32];  // Should need 21 chars max
+    // I know I shouldn't put platform flags here, but the other was is too hard
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+    sprintf(buffer, "%I64d", x);
+#else
+    sprintf(buffer, "%lld", x);
+#endif
     out << buffer;
 }
 
 inline void _toXml(Array<Sint8>& out, Sint64 x) { _toString(out, x); }
 inline void _toMof(Array<Sint8>& out, Sint64 x) { _toString(out, x); }
 
-void _toString(Array<Sint8>& out, Real32 x)
-{
-    char buffer[128];
-    // ATTN: Does this format match the CIM/XML format?
-    sprintf(buffer, "%f", x);
-    out << buffer;
-}
-
-inline void _toXml(Array<Sint8>& out, Real32 x) { _toString(out, x); }
-inline void _toMof(Array<Sint8>& out, Real32 x) { _toString(out, x); }
-
 void _toString(Array<Sint8>& out, Real64 x)
 {
     char buffer[128];
-    // ATTN: Does this format match the CIM/XML format?
-    sprintf(buffer, "%f", x);
+    // %g gives '[-]m.dddddd[e+/-xx]', which seems compatible with CIM/XML spec
+    sprintf(buffer, "%g", x);
     out << buffer;
 }
 
 inline void _toXml(Array<Sint8>& out, Real64 x) { _toString(out, x); }
 inline void _toMof(Array<Sint8>& out, Real64 x) { _toString(out, x); }
+
+inline void _toString(Array<Sint8>& out, Real32 x) { _toString(out, Real64(x)); }
+inline void _toXml(Array<Sint8>& out, Real32 x) { _toString(out, x); }
+inline void _toMof(Array<Sint8>& out, Real32 x) { _toString(out, x); }
 
 inline void _toString(Array<Sint8>& out, Char16 x)
 {

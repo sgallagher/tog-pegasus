@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -216,26 +216,26 @@ inline void _toMof(Array<Sint8>& out, Uint32 x) { _integerToXml(out, x); }
 inline void _toXml(Array<Sint8>& out, Sint32 x) { _integerToXml(out, x); }
 inline void _toMof(Array<Sint8>& out, Sint32 x) { _integerToXml(out, x); }
 
-inline void _toXml(Array<Sint8>& out, Uint64 x) 
-{ 
+inline void _toXml(Array<Sint8>& out, Uint64 x)
+{
     char buffer[128];
     _UnsignedIntToStr(x, buffer);
     out << buffer;
 }
-inline void _toMof(Array<Sint8>& out, Uint64 x) 
-{ 
+inline void _toMof(Array<Sint8>& out, Uint64 x)
+{
     char buffer[128];
     _UnsignedIntToStr(x, buffer);
     out << buffer;
 }
 
-inline void _toXml(Array<Sint8>& out, Sint64 x) 
+inline void _toXml(Array<Sint8>& out, Sint64 x)
 {
     char buffer[128];
     _SignedIntToStr(x, buffer);
     out << buffer;
 }
-inline void _toMof(Array<Sint8>& out, Sint64 x) 
+inline void _toMof(Array<Sint8>& out, Sint64 x)
 {
     char buffer[128];
     _SignedIntToStr(x, buffer);
@@ -283,6 +283,21 @@ inline void _toXml(Array<Sint8>& out, const String& x)
 {
     XmlWriter::appendSpecial(out, x);
 }
+
+/** _toMof Internal function to convert the string back
+    to MOF format and output it.
+    The conversions are:
+    \b // \x0008: backspace BS
+    \t // \x0009: horizontal tab HT
+    \n // \x000A: linefeed LF
+    \f // \x000C: form feed FF
+    \r // \x000D: carriage return CR
+    \" // \x0022: double quote "
+    \’ // \x0027: single quote '
+    \\ // \x005C: backslash \
+    \x<hex> // where <hex> is one to four hex digits
+    \X<hex> // where <hex> is one to four hex digits
+*/
 inline void _toMof(Array<Sint8>& out, const String& x)
 {
     out << "\"";
@@ -292,14 +307,38 @@ inline void _toMof(Array<Sint8>& out, const String& x)
     {
 	switch (c)
 	{
-	    case '"':
-		out.append("'", 1);
+	case '\\':
+		out.append("\\\\",2);
 		break;
 
-	    case ' ':
-		out.append(Sint8(c));
+	    case '\b':
+		out.append("\\b",2);
 		break;
- 
+
+	    case '\t':
+		out.append("\\t",2);
+		break;
+
+	    case '\n':
+		out.append("\\n",2);
+		break;
+
+	    case '\f':
+		out.append("\\f",2);
+		break;
+
+	    case '\r':
+		out.append("\\r",2);
+		break;
+
+	   /* case '\'':
+		out.append("\\'", 2);
+		break;*/
+
+	    case '"':
+		out.append("\\\"", 2);
+		break;
+
 	    default:
 		out.append(Sint8(c));
 	}
@@ -329,7 +368,7 @@ void _toXml(Array<Sint8>& out, const T* p, Uint32 size)
 	out << "</VALUE>\n";
     }
 }
-/** _toMof Array - 
+/** _toMof Array -
     arrayInitializer  = "{" constantValue*( "," constantValue)"}"
 
 */
@@ -337,18 +376,23 @@ template<class T>
 void _toMof(Array<Sint8>& out, const T* p, Uint32 size)
 {
     Boolean isFirstEntry = true;
-    out << "{";
-    while (size--)
+    // if there are any entries in the array output them
+    if (size)
     {
-	// Put comma on all but first entry.
-	if (!isFirstEntry)
+	out << "{";
+	while (size--)
 	{
-	    out << ", ";
+	    // Put comma on all but first entry.
+	    if (!isFirstEntry)
+	    {
+		out << ", ";
+	    }
+	    isFirstEntry = false;
+	    _toMof(out, *p++);
 	}
-	isFirstEntry = false;
-	_toMof(out, *p++);
+	out << "}";
+
     }
-    out << "}";
 }
 
 template<class T>
@@ -372,10 +416,10 @@ CIMValue::CIMValue()
     _init();
 }
 
-CIMValue::CIMValue(const CIMValue& x) 
-{ 
-    _init(); 
-    assign(x); 
+CIMValue::CIMValue(const CIMValue& x)
+{
+    _init();
+    assign(x);
 }
 
 CIMValue::~CIMValue()
@@ -520,7 +564,7 @@ void CIMValue::assign(const CIMValue& x)
 		break;
 
 	    case CIMType::REFERENCE:
-		_u._referenceValue 
+		_u._referenceValue
 		    = new CIMReference(*(x._u._referenceValue));
 		break;
 	}
@@ -907,7 +951,7 @@ void CIMValue::toMof(Array<Sint8>& out) const	 //ATTNKS:
 		break;
 
 	    case CIMType::DATETIME:
-		_toMof(out, _u._dateTimeArray->data(), 
+		_toMof(out, _u._dateTimeArray->data(),
 			    _u._dateTimeArray->size); break;
 	}
     }
@@ -1078,9 +1122,9 @@ void CIMValue::set(const String& x)
     _type = CIMType::STRING;
 }
 
-void CIMValue::set(const char* x) 
-{ 
-    set(String(x)); 
+void CIMValue::set(const char* x)
+{
+    set(String(x));
 }
 
 void CIMValue::set(const CIMDateTime& x)
@@ -1212,7 +1256,7 @@ void CIMValue::set(const Array<String>& x)
     _type = CIMType::STRING;
     _isArray = true;
     _isNull = false;
-} 
+}
 
 void CIMValue::set(const Array<CIMDateTime>& x)
 {

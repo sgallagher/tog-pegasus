@@ -281,6 +281,11 @@ will be deleted.
 	block detecting a build on Tru64 was used.  Added cstdarg and ctime in
 	pegasus/src/stdcxx/cwrappers/ directory.
 
+27.  (Mary Hinton) 16 March 2002 - fixed the CIMServer so that it could once
+	again be installed as a Windows service. The repositoryRootPath could 
+	not be found, because the pegasusHome variable was not being set properly 
+	in the Windows service work thread.
+
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001
 

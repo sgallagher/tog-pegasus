@@ -914,7 +914,7 @@ Array<CIMReference> CIMRepository::associatorNames(
 
         AssocInstTable::getAssociatorNames(
             assocFileName,
-            objectName.toString(),
+            objectName,
             assocClass,
             resultClass,
             role,

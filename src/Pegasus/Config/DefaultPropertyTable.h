@@ -26,6 +26,7 @@
 // Author: Warren Otsuka, Hewlett-Packard Company (warren.otsuka@hp.com)
 //
 // Modified By:  Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
+//               Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,7 +51,10 @@
     {"enableIndicationService", "true", 0, 0, 0, 1},
     // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", 0, 0, 0},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
-    {"enableClientCertification", "false", 0, 0, 0, 1},
+#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
+    {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
+    {"enableSSLTrustStoreAutoUpdate", "false", 0, 0, 0, 1},
+#endif
     {"enableProviderProcesses", "false", 0, 0, 0, 1}
 #endif
 

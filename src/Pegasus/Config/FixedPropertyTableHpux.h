@@ -25,8 +25,8 @@
 //
 // Author: Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
 //
-// Modified By: Sushma Fernandes,  Hewlett-Packard Company
-//                 sushma_fernandes@hp.com
+// Modified By: Sushma Fernandes,  Hewlett-Packard Company sushma_fernandes@hp.com
+//            
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +44,10 @@
     {"enableAssociationTraversal", "false"},
     // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", 0, 0, 0},
     {"enableIndicationService", "true"},
-    {"enableClientCertification", "false"},
+#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
+    {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
+    {"enableSSLTrustStoreAutoUpdate", "false", 0, 0, 0, 1},
+#endif
     {"httpAuthType",        "Basic"},
     {"repositoryIsDefaultInstanceProvider", "false"},
 #endif
@@ -56,7 +59,7 @@
     {"passwordFilePath",    "/etc/opt/wbem/cimserver.passwd"},
     {"sslCertificateFilePath", "/etc/opt/hp/sslshare/cert.pem"},
     {"sslKeyFilePath",      "/etc/opt/hp/sslshare/file.pem"},
-    {"sslTrustFilePath",      "/etc/opt/hp/sslshare/client.pem"},
+    {"sslTrustStore",      "/etc/opt/hp/sslshare/client.pem"},
     {"repositoryDir",       "/var/opt/wbem/repository"},
     {"providerDir",         "/opt/wbem/providers/lib"},
 #endif

@@ -25,7 +25,7 @@
 //
 // Author: David Rosckes (rosckes@us.ibm.com)
 //
-// Modified By:
+// Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,12 +46,15 @@
     {"passwordFilePath",                         "cimserver.passwd"},
     {"sslCertificateFilePath",                   "server.pem"},
     {"sslKeyFilePath",                           "file.pem"},
-    {"sslTrustFilePath",                         "client.pem"},
+    {"sslTrustStore",                            "client.pem"},
+#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
+    {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
+    {"enableSSLTrustStoreAutoUpdate", "false", 0, 0, 0, 1},
+#endif
     {"enableSubscriptionsForNonprivilegedUsers", "true"},
     {"httpsPort",                                "5989"},
     {"enableHttpsConnection",                    "false"},
     {"slp",                                      "false"},
-    {"enableClientCertification",                "false"},
 #endif
 
 #if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS)

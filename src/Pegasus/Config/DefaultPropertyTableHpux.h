@@ -25,8 +25,8 @@
 //
 // Author: Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
 //
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company 
-//                  (carolann_graves@hp.com)
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company (carolann_graves@hp.com)
+//              
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +45,10 @@
     {"enableIndicationService", "true", 0, 0, 0, 1},
     // Removed for now because unresolved PEP {"maximumEnumerationBreadth", "50", 0, 0, 0},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
-    {"enableClientCertification", "false", 0, 0, 0, 1},
+#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
+    {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
+    {"enableSSLTrustStoreAutoUpdate", "false", 0, 0, 0, 1},
+#endif
     {"enableProviderProcesses", "false", 0, 0, 0, 1}
 #else
     {"httpPort", "5988", 0, 0, 0, 1},
@@ -59,7 +62,10 @@
     {"enableIndicationService", "true", 0, 0, 0, 1},
     {"maximumEnumerationBreadth", "50", 0, 0, 0, 1},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
-    {"enableClientCertification", "false", 0, 0, 0, 1},
+#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
+    {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
+    {"enableSSLTrustStoreAutoUpdate", "false", 0, 0, 0, 1},
+#endif
     {"enableProviderProcesses", "false", 0, 0, 0, 1}
 #endif
 

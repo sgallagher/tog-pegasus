@@ -33,6 +33,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //
@@ -132,7 +133,6 @@ static struct OwnerEntry _properties[] =
     {"daemon",              (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"slp",                 (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"tempLocalAuthDir",    (ConfigPropertyOwner* )ConfigManager::defaultOwner},
-    {"enableClientCertification", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"enableAssociationTraversal", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"enableIndicationService", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
@@ -142,7 +142,12 @@ static struct OwnerEntry _properties[] =
     {"passwordFilePath",    (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"sslCertificateFilePath", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"sslKeyFilePath",      (ConfigPropertyOwner* )ConfigManager::securityOwner},
-    {"sslTrustFilePath",      (ConfigPropertyOwner* )ConfigManager::securityOwner},
+    {"sslTrustStore",      (ConfigPropertyOwner* )ConfigManager::securityOwner},
+#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
+    {"sslClientVerificationMode", (ConfigPropertyOwner* )ConfigManager::securityOwner},
+    {"enableSSLTrustStoreAutoUpdate", (ConfigPropertyOwner* )ConfigManager::securityOwner},
+    {"sslTrustStoreUserName", (ConfigPropertyOwner* )ConfigManager::securityOwner},
+#endif
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     {"kerberosServiceName", (ConfigPropertyOwner* )ConfigManager::securityOwner},
 #endif

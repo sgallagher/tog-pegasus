@@ -29,6 +29,7 @@
 //                                (sushma_fernandes@hp.com)
 //              Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -221,7 +222,13 @@ private:
 
     struct ConfigProperty*      _keyFilePath;
 
-    struct ConfigProperty*      _trustFilePath;
+    struct ConfigProperty*      _trustStore;
+
+#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
+    struct ConfigProperty*      _sslClientVerificationMode;
+    struct ConfigProperty*      _enableSSLTrustStoreAutoUpdate;
+    struct ConfigProperty*      _sslTrustStoreUserName;
+#endif
 
     struct ConfigProperty*      _enableSubscriptionsForNonprivilegedUsers;
 

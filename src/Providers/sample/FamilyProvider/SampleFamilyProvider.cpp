@@ -257,7 +257,7 @@ void _setCompleteObjectPath(CIMInstance & instance)
     instance.setPath(p);
 }
 
-/** clone the input instance and filter is in accordance with
+/** clone the input instance and filter it in accordance with
     the input variables.
     @return cloned and filtered instance.
 */
@@ -266,13 +266,12 @@ CIMInstance _filter(const CIMInstance& instance,
                     const Boolean includeClassOrigin,
                     const CIMPropertyList& pl)
 {
-    // Null means send all properties.  Return original instance.
-    if (pl.isNull())
-        return instance.clone();
-
-    // make copy of instance.
+    // Copy of instance.
     CIMInstance rtnInstance = instance.clone();
+
+    // Filter per input parameters
     rtnInstance.filter(includeQualifiers, includeClassOrigin, pl);
+
     _setCompleteObjectPath(rtnInstance);
     return(rtnInstance);
 }
@@ -803,12 +802,14 @@ void SampleFamilyProvider::enumerateInstances(
 	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
-    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "enumerateInstances. Class= %s",
-		(const char *)classReference.toString().getCString(),
-        (const char *)_showBool(includeQualifiers).getCString(),
-        (const char*) _showBool(includeClassOrigin).getCString(),
-        (const char *)_showPropertyList(propertyList).getCString());
 
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "enumerateInstances. Class= %s, includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
+		(const char *) classReference.toString().getCString(),
+        (const char *) _showBool(includeQualifiers).getCString(),
+        (const char *) _showBool(includeClassOrigin).getCString(),
+        (const char *) _showPropertyList(propertyList).getCString());
+
+    cout << "Trace called" << endl;
     CIMNamespaceName nameSpace = classReference.getNameSpace();
     //CIMName myClassName = classReference.getClassName();
 
@@ -1158,15 +1159,15 @@ void SampleFamilyProvider::associators(
 	ObjectResponseHandler & handler)
 {
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
-        "associators. object= %s, assocClass= %s, resultClass= %s, role= %s, resultRole=%s IncludeQualifiers= %s ClassOrig= %s, propertyList= %s",
-		  (const char*) objectName.toString().getCString(),
-		  (const char*)associationClass.getString().getCString(),
-		  (const char*)resultClass.getString().getCString(),
-		  (const char*)role .getCString(),
-		  (const char *)resultRole.getCString(),
-		  (const char *)_showBool(includeQualifiers).getCString(),
-		  (const char*) _showBool(includeClassOrigin).getCString(),
-		  (const char *)_showPropertyList(propertyList).getCString());
+        "associators. object= %s, assocClass= %s, resultClass= %s, role= %s, resultRole= %s, IncludeQualifiers= %s, ClassOrig= %s, propertyList= %s",
+		  (const char *) objectName.toString().getCString(),
+		  (const char *) associationClass.getString().getCString(),
+		  (const char *) resultClass.getString().getCString(),
+		  (const char *) role.getCString(),
+		  (const char *) resultRole.getCString(),
+		  (const char *) _showBool(includeQualifiers).getCString(),
+		  (const char *) _showBool(includeClassOrigin).getCString(),
+		  (const char *) _showPropertyList(propertyList).getCString());
 
     // begin processing the request
     // Get the namespace and host names to create the CIMObjectPath

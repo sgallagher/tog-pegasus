@@ -94,7 +94,7 @@ void Test1(void)
 
 void Test2(void)
 {
-    ProviderManagerModule module(FILE_NAME);
+    ProviderManagerModule module(fileName);
 
     module.load();
 

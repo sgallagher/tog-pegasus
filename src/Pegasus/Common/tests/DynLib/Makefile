@@ -13,7 +13,7 @@ endif
 
 SOURCES = DynLib.cpp
 
-LIBRARY = DynLib
+LIBRARY = TestDynLib
 
 include $(ROOT)/mak/dynamic-library.mak
 

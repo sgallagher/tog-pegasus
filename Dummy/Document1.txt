@@ -8,3 +8,5 @@ This is a big test
 Testing commit messages
 
 Testing new improved commit messages.
+More testing
+

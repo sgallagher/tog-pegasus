@@ -34,9 +34,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 template<class L> class PEGASUS_COMMON_LINKAGE DQueue : public internal_dq
 {
-//    public:
-//       static void *operator new(size_t size);
-//       static void operator delete(void *dead, size_t size);
+   public:
+       static void *operator new(size_t size);
+       static void operator delete(void *dead, size_t size);
             
    private: 
       Mutex *_mutex;
@@ -83,9 +83,9 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : public internal_dq
 template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: public internal_dq
 {
 
-//    public:
-//       static void * operator new(size_t size);
-//       static void operator delete(void *, size_t);
+   public:
+      static void * operator new(size_t size);
+      static void operator delete(void *, size_t);
       
    private: // asyncdqueue
 
@@ -147,98 +147,98 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: public internal_dq
 };
       
 template<class L> DQueue<L> * DQueue<L>::_headOfFreeList;
-template<class L> const int DQueue<L>::BLOCK_SIZE = 20;
+template<class L> const int DQueue<L>::BLOCK_SIZE = 200;
 template<class L> Mutex DQueue<L>::_alloc_mut;
 
-// template<class L> void *DQueue<L>::operator new(size_t size)
-// {
-//    if (size != sizeof(DQueue<L>))
-//       return ::operator new(size);
+template<class L> void *DQueue<L>::operator new(size_t size)
+{
+   if (size != sizeof(DQueue<L>))
+      return ::operator new(size);
    
-//    _alloc_mut.lock(pegasus_thread_self());
+   _alloc_mut.lock(pegasus_thread_self());
    
-//    DQueue<L> *p = _headOfFreeList;
-//    if(p)
-//       _headOfFreeList = p->_dq_next;
-//    else
-//    {
-//       DQueue<L> * newBlock = 
-// 	 static_cast<DQueue<L> *>(::operator new(BLOCK_SIZE * sizeof(DQueue<L>)));
-//       int i;
-//       for( i = 1; i < BLOCK_SIZE - 1; ++i)
-// 	 newBlock[i]._dq_next = &newBlock[i + 1];
-//       newBlock[BLOCK_SIZE - 1]._dq_next = 0;
+   DQueue<L> *p = _headOfFreeList;
+   if(p)
+      _headOfFreeList = p->_dq_next;
+   else
+   {
+      DQueue<L> * newBlock = 
+	 static_cast<DQueue<L> *>(::operator new(BLOCK_SIZE * sizeof(DQueue<L>)));
+      int i;
+      for( i = 1; i < BLOCK_SIZE - 1; ++i)
+	 newBlock[i]._dq_next = &newBlock[i + 1];
+      newBlock[BLOCK_SIZE - 1]._dq_next = 0;
       
-//       p = newBlock;
-//       _headOfFreeList = &newBlock[1];
-//    }
-//    _alloc_mut.unlock();
+      p = newBlock;
+      _headOfFreeList = &newBlock[1];
+   }
+   _alloc_mut.unlock();
    
-//    return p;
-// }
+   return p;
+}
 
-// template<class L> void DQueue<L>::operator delete(void *dead, size_t size)
-// {
-//    if(dead == 0)
-//       return;
-//    if(size != sizeof(DQueue<L>))
-//    {
-//       ::operator delete(dead);
-//       return;
-//    }
-//    DQueue<L> *p = static_cast<DQueue<L> *>(dead);
-//    _alloc_mut.lock(pegasus_thread_self());
-//    p->_dq_next = _headOfFreeList;
-//    _headOfFreeList = p;
-//    _alloc_mut.unlock();
-// }
+template<class L> void DQueue<L>::operator delete(void *dead, size_t size)
+{
+   if(dead == 0)
+      return;
+   if(size != sizeof(DQueue<L>))
+   {
+      ::operator delete(dead);
+      return;
+   }
+   DQueue<L> *p = static_cast<DQueue<L> *>(dead);
+   _alloc_mut.lock(pegasus_thread_self());
+   p->_dq_next = _headOfFreeList;
+   _headOfFreeList = p;
+   _alloc_mut.unlock();
+}
 
 template<class L> AsyncDQueue<L> * AsyncDQueue<L>::_headOfFreeList;
 template<class L> const int AsyncDQueue<L>::BLOCK_SIZE = 20;
 template<class L> Mutex AsyncDQueue<L>::_alloc_mut;
 
-// template<class L> void * AsyncDQueue<L>::operator new(size_t size)
-// {
-//    if (size != sizeof(AsyncDQueue<L>))
-//       return ::operator new(size);
+template<class L> void * AsyncDQueue<L>::operator new(size_t size)
+{
+   if (size != sizeof(AsyncDQueue<L>))
+      return ::operator new(size);
    
-//    _alloc_mut.lock(pegasus_thread_self());
+   _alloc_mut.lock(pegasus_thread_self());
    
-//    AsyncDQueue<L> *p = _headOfFreeList;
-//    if(p)
-//        _headOfFreeList = p->_dq_next;
-//    else
-//    {
-//       AsyncDQueue<L> * newBlock = 
-// 	 static_cast<AsyncDQueue<L> *>(::operator new(BLOCK_SIZE * sizeof(AsyncDQueue<L>)));
-//       int i;
-//       for( i = 1; i < BLOCK_SIZE - 1; ++i)
-// 	 newBlock[i]._dq_next = &newBlock[i + 1];
-//       newBlock[BLOCK_SIZE - 1]._dq_next = 0;
+   AsyncDQueue<L> *p = _headOfFreeList;
+   if(p)
+       _headOfFreeList = p->_dq_next;
+   else
+   {
+      AsyncDQueue<L> * newBlock = 
+	 static_cast<AsyncDQueue<L> *>(::operator new(BLOCK_SIZE * sizeof(AsyncDQueue<L>)));
+      int i;
+      for( i = 1; i < BLOCK_SIZE - 1; ++i)
+	 newBlock[i]._dq_next = &newBlock[i + 1];
+      newBlock[BLOCK_SIZE - 1]._dq_next = 0;
       
-//       p = newBlock;
-//       _headOfFreeList = &newBlock[1];
-//    }
-//    _alloc_mut.unlock();
+      p = newBlock;
+      _headOfFreeList = &newBlock[1];
+   }
+   _alloc_mut.unlock();
    
-//    return p;
-// }
+   return p;
+}
 
-// template<class L> void AsyncDQueue<L>::operator delete(void *deadObject, size_t size)
-// {
-//    if(deadObject == 0)
-//       return;
-//    if(size != sizeof(AsyncDQueue<L>))
-//    {
-//       ::operator delete(deadObject);
-//       return;
-//    }
-//    AsyncDQueue<L> *p = static_cast<AsyncDQueue<L> *>(deadObject);
-//    _alloc_mut.lock(pegasus_thread_self());
-//    p->_dq_next = _headOfFreeList;
-//    _headOfFreeList = p;
-//    _alloc_mut.unlock();
-// }
+template<class L> void AsyncDQueue<L>::operator delete(void *deadObject, size_t size)
+{
+   if(deadObject == 0)
+      return;
+   if(size != sizeof(AsyncDQueue<L>))
+   {
+      ::operator delete(deadObject);
+      return;
+   }
+   AsyncDQueue<L> *p = static_cast<AsyncDQueue<L> *>(deadObject);
+   _alloc_mut.lock(pegasus_thread_self());
+   p->_dq_next = _headOfFreeList;
+   _headOfFreeList = p;
+   _alloc_mut.unlock();
+}
 
 template<class L> DQueue<L>::DQueue(void) 
    : Base(false)
@@ -530,10 +530,6 @@ template<class L> Boolean DQueue<L>::exists(const L *key) throw(IPCException)
 //////
 
 
-
-
-       
-
 template<class L> void AsyncDQueue<L>::_insert_prep(void) throw(IPCException)
 {
    if(_disallow->value() > 0)
@@ -700,6 +696,9 @@ template<class L> void AsyncDQueue<L>::shutdown_queue(void)
 
 template<class L> Boolean AsyncDQueue<L>::is_full(void)
 {
+   return false;
+   
+
    if( _capacity->value() == 0 )
       return false;
    
@@ -822,10 +821,14 @@ template<class L> void AsyncDQueue<L>::empty_list(void) throw(IPCException)
 
 template<class L> L *AsyncDQueue<L>::remove_first(void) throw(IPCException)
 {
+
    lock(pegasus_thread_self());
    L *ret = static_cast<L *>(Base::remove_first());
    if(ret != 0)
+   {
+      _slot->unlocked_signal(pegasus_thread_self());
       (*_actual_count)--;
+   }
    unlock();
    return ret;
 }
@@ -841,9 +844,13 @@ template<class L> L *AsyncDQueue<L>::remove_first_wait(void) throw(IPCException)
 template<class L> L *AsyncDQueue<L>::remove_last(void) throw(IPCException)
 {
    lock(pegasus_thread_self());
+
    L *ret = static_cast<L *>(Base::remove_last());
    if(ret != 0)
+   {
       (*_actual_count)--;
+      _slot->unlocked_signal(pegasus_thread_self());
+   }
    unlock();
    return ret;
 }
@@ -861,6 +868,7 @@ template<class L> L *AsyncDQueue<L>::remove(const void *key) throw(IPCException)
    if(key == 0)
       return 0;
    lock(pegasus_thread_self());
+
    L *ret = _remove_no_lock(key);
    if(ret != 0)
    {
@@ -876,6 +884,7 @@ template<class L>L *AsyncDQueue<L>::remove(const L *key) throw(IPCException)
    if(key == 0)
       return 0;
    lock(pegasus_thread_self());
+
    L *ret = _remove_no_lock(key);
    if(ret != 0)
    {
@@ -888,6 +897,12 @@ template<class L>L *AsyncDQueue<L>::remove(const L *key) throw(IPCException)
 
 template<class L> L *AsyncDQueue<L>::remove_no_lock(const void *key) throw(IPCException)
 {
+   if(_disallow->value() > 0)
+   {
+      unlock();
+      throw ListClosed();
+   }	    
+
    if(key == 0)
       return 0;
    
@@ -908,6 +923,12 @@ template<class L> L *AsyncDQueue<L>::remove_no_lock(const void *key) throw(IPCEx
 
 template<class L> L *AsyncDQueue<L>::remove_no_lock(const L *key) throw(IPCException)
 {
+   if(_disallow->value() > 0)
+   {
+      unlock();
+      throw ListClosed();
+   }	    
+
    if(key == 0)
       return 0;
    
@@ -927,6 +948,7 @@ template<class L> L *AsyncDQueue<L>::remove_no_lock(const L *key) throw(IPCExcep
 
 template<class L> L *AsyncDQueue<L>::remove_wait(const void *key) throw(IPCException)
 {
+
    if(key == 0)
       return 0;
    
@@ -975,6 +997,12 @@ template<class L> L *AsyncDQueue<L>::prev(const L *ref) throw(IPCException)
 
 template<class L> L *AsyncDQueue<L>::reference(const void *key) throw(IPCException)
 {
+   if(_disallow->value() > 0)
+   {
+      unlock();
+      throw ListClosed();
+   }	    
+
    if( key == 0 )
       return 0;
    
@@ -996,6 +1024,12 @@ template<class L> L *AsyncDQueue<L>::reference(const void *key) throw(IPCExcepti
 
 template<class L> L *AsyncDQueue<L>::reference(const L *key) throw(IPCException)
 {
+   if(_disallow->value() > 0)
+   {
+      unlock();
+      throw ListClosed();
+   }	    
+
    if(key == 0)
       return 0;
    

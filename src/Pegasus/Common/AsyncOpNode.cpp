@@ -31,7 +31,7 @@
 PEGASUS_NAMESPACE_BEGIN
    
 AsyncOpNode * AsyncOpNode::_headOfFreeList;
-const int AsyncOpNode::BLOCK_SIZE = 20;
+const int AsyncOpNode::BLOCK_SIZE = 200;
 Mutex AsyncOpNode::_alloc_mut;
 
 void * AsyncOpNode::operator new(size_t size)

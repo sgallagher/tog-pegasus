@@ -1,5 +1,5 @@
 //%////-*-c++-*-////////////////////////////////////////////////////////////////
-//
+//   
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,16 +23,15 @@
 // Author: Mike Day (mdday@us.ibm.com)
 //
 // Modified By:
-//
-//%/////////////////////////////////////////////////////////////////////////////
-
+////%/////////////////////////////////////////////////////////////////////////////
+ 
 
 #include "async_callback.h"
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
-
-
+  
+ 
 
 async_start::async_start(AsyncOpNode *op,
 			 Uint32 start_q, 
@@ -45,11 +44,11 @@ async_start::async_start(AsyncOpNode *op,
 	  false,
 	  op_data)
 {
-   
+      
 }
-
-async_complete::async_complete(const async_start & start, 
-			       Uint32 result,
+      
+async_complete::async_complete(const async_start & start,   
+			       Uint32 result,  
 			       Message *result_data)
    : Base(start.getKey(), 
 	  start.getRouting(),

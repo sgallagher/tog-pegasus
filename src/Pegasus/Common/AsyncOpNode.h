@@ -79,7 +79,7 @@ class Thread;
 class PEGASUS_COMMON_LINKAGE AsyncOpNode
 {
 
-   public:
+    public:
       static void * operator new(size_t );
       static void operator delete( void *, size_t);
    private:

@@ -46,7 +46,7 @@ MessageQueueService::MessageQueueService(const char *name,
      
      _mask(mask),
      _die(0),
-     _incoming(true, 1000),
+     _incoming(true, 0),
      _callback(true),
      _incoming_queue_shutdown(0),
      _callback_ready(0),
@@ -129,28 +129,16 @@ void MessageQueueService::_shutdown_incoming_queue(void)
 				    0);
 
    msg->op = get_op();
+   msg->op->_flags |= ASYNC_OPFLAGS_FIRE_AND_FORGET;
+   msg->op->_flags &= ~(ASYNC_OPFLAGS_CALLBACK | ASYNC_OPFLAGS_SAFE_CALLBACK 
+		   | ASYNC_OPFLAGS_SIMPLE_STATUS);
    msg->op->_state &= ~ASYNC_OPSTATE_COMPLETE;
-   msg->op->_flags &= ~ASYNC_OPFLAGS_CALLBACK; 
-   
+
    msg->op->_op_dest = this;
    msg->op->_request.insert_first(msg);
    
    _incoming.insert_last_wait(msg->op);
-   msg->op->_client_sem.wait();
-   
-   msg->op->lock();
-   AsyncReply * reply = static_cast<AsyncReply *>(msg->op->_response.remove_first());
-   reply->op = 0;
-   msg->op->unlock();
-   delete reply; 
 
-      
-   msg->op->_request.remove(msg);
-   msg->op->_state |= ASYNC_OPSTATE_RELEASED;
-   return_op(msg->op);
-
-   msg->op = 0;
-   delete msg;
    _req_thread.join();
    
 }
@@ -210,21 +198,51 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void *
    
    while ( service->_die.value() == 0 ) 
    {
-      try 
+      if(service->_incoming.count() > 0 )
       {
-	 operation = service->_incoming.remove_first_wait();
+	 try 
+	 {
+	    operation = service->_incoming.remove_first();
+	 }
+	 catch(ListClosed & )
+	 {
+	    break;
+	 }
+	 if( operation )
+	 {
+	    operation->_thread_ptr = myself;
+	    operation->_service_ptr = service;
+	    service->_handle_incoming_operation(operation);
+	 }
       }
-      catch(ListClosed & )
+       if( service->_callback.count() > 0 )
       {
-	 break;
+	 service->_callback.lock(); 
+	 operation = service->_callback.next(0);
+	 while( operation != NULL )
+	 {
+	    if( ASYNC_OPSTATE_COMPLETE & operation->read_state())
+	    {
+	       operation = service->_callback.remove_no_lock(operation);
+	       service->_callback.unlock();
+	       PEGASUS_ASSERT(operation != NULL);
+	       operation->_thread_ptr = myself;
+	       operation->_service_ptr = service;
+	       service->_handle_async_callback(operation);
+	       service->_callback.lock();
+	       operation = service->_callback.next(operation);
+	       continue;
+	    }
+	    pegasus_yield();
+	    operation = service->_callback.next(operation);
+	 }
+	 service->_callback.unlock();
       }
-      if( operation )
-      {
-	 operation->_thread_ptr = myself;
-	 operation->_service_ptr = service;
-	 service->_handle_incoming_operation(operation);
-      }
-   }
+      if( (service->_incoming.count() == 0) && (service->_callback.count() == 0 ) )
+	 pegasus_sleep(1);
+      else 
+	 pegasus_yield();
+  }
    
    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
    return(0);
@@ -827,7 +845,8 @@ Boolean MessageQueueService::SendForget(Message *msg)
    }
    op->_op_dest = MessageQueue::lookup(msg->dest);
    op->_flags |= ASYNC_OPFLAGS_FIRE_AND_FORGET;
-   op->_flags &= ~(ASYNC_OPFLAGS_CALLBACK | ASYNC_OPFLAGS_SIMPLE_STATUS);
+   op->_flags &= ~(ASYNC_OPFLAGS_CALLBACK | ASYNC_OPFLAGS_SAFE_CALLBACK 
+		   | ASYNC_OPFLAGS_SIMPLE_STATUS);
    op->_state &= ~ASYNC_OPSTATE_COMPLETE;
    if ( op->_op_dest == 0 )
    {

@@ -136,24 +136,17 @@ void cimom::_shutdown_routed_queue(void)
 				    0, 
 				    0);
    msg->op = get_cached_op();
-   msg->op->_request.insert_first(msg);
-   msg->op->_op_dest = _global_this;
-   
-   _routed_ops.insert_last_wait(msg->op);
-   msg->op->_client_sem.wait();
-   
-   msg->op->lock();
-   AsyncReply * reply = static_cast<AsyncReply *>(msg->op->_response.remove_first());
-   reply->op = 0;
-   msg->op->unlock();
-   delete reply; 
-      
-   msg->op->_request.remove(msg);
-   msg->op->_state |= ASYNC_OPSTATE_RELEASED;
-   cache_op(msg->op);
 
-   msg->op = 0;
-   delete msg;
+   msg->op->_flags |= ASYNC_OPFLAGS_FIRE_AND_FORGET;
+   msg->op->_flags &= ~(ASYNC_OPFLAGS_CALLBACK | ASYNC_OPFLAGS_SAFE_CALLBACK 
+		   | ASYNC_OPFLAGS_SIMPLE_STATUS);
+   msg->op->_state &= ~ASYNC_OPSTATE_COMPLETE;
+   msg->op->_op_dest = _global_this;
+   msg->op->_request.insert_first(msg);
+
+   _routed_ops.insert_last_wait(msg->op);
+   _routing_thread.join();
+   
 }
 
 

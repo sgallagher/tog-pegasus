@@ -159,11 +159,12 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 	    if(_cur->_rep == key)
 	    {
 	       temp  = _cur;
-	       _cur = _cur->_next;
+	       _cur = _cur->_prev;
 	    }
 	    
 	    while ( temp->_isHead == false ) {
 	       if( temp->_rep == key ) {
+		  _cur = temp->_prev;
 		  temp->unlink();
 		  ret = temp->_rep;
 		  temp->_rep = NULL;

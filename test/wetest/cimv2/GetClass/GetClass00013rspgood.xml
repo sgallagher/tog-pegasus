@@ -5,33 +5,33 @@
 <IMETHODRESPONSE NAME="GetClass">
 <IRETURNVALUE>
 <CLASS NAME="CIM_InstalledProductImage">
-<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
+<QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
 </QUALIFIER>
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
 The InstalledProductImage association identifies the InstalledProduct instance representing the collection of installed features and elements for a particular product&apos;s installed instance.
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="Product" REFERENCECLASS="CIM_Product" CLASSORIGIN="CIM_InstalledProductImage">
-<QUALIFIER NAME="Min" TYPE="uint32" OVERRIDABLE="false" TOSUBCLASS="false">
+<QUALIFIER NAME="Min" TYPE="uint32">
 <VALUE>
 1
 </VALUE>
 </QUALIFIER>
-<QUALIFIER NAME="Max" TYPE="uint32" OVERRIDABLE="false" TOSUBCLASS="false">
+<QUALIFIER NAME="Max" TYPE="uint32">
 <VALUE>
 1
 </VALUE>
 </QUALIFIER>
-<QUALIFIER NAME="Aggregate" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
+<QUALIFIER NAME="Aggregate" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
 </QUALIFIER>
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
 The product that has been installed and created the software features and software elements on the system.
 </VALUE>
@@ -41,12 +41,12 @@ The product that has been installed and created the software features and softwa
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
 <PROPERTY.REFERENCE NAME="Collection" REFERENCECLASS="CIM_InstalledProduct" CLASSORIGIN="CIM_InstalledProductImage">
-<QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
+<QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false" TOINSTANCE="true">
 <VALUE>
 TRUE
 </VALUE>
 </QUALIFIER>
-<QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
+<QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
 The collection representing the set of software features and elements that are the result of one product installation.
 </VALUE>

@@ -53,7 +53,6 @@ CIMOM. PLEASE DO NOT SUPPRESS THIS WARNING; PLEASE FIX THE PROBLEM."
 # endif
 # define FD_SETSIZE 1024
 # include <windows.h>
-# define errno WSAGetLastError()
 #else
 # include <sys/types.h>
 # include <sys/socket.h>
@@ -182,7 +181,11 @@ void Monitor::initializeTickler(){
 	//handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_CREATE",
 				 "Received error number $0 while creating the internal socket.",
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
 				 errno);
+#else
+				 WSAGetLastError());
+#endif
 	throw Exception(parms);
     }
 
@@ -211,8 +214,12 @@ void Monitor::initializeTickler(){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_BIND",
 				 "Received error number $0 while binding the internal socket.",
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
 				 errno);
-	throw Exception(parms);
+#else
+				 WSAGetLastError());
+#endif
+        throw Exception(parms);
     }
 
     // tell the kernel we are a server
@@ -220,7 +227,11 @@ void Monitor::initializeTickler(){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_LISTEN",
 			 "Received error number $0 while listening to the internal socket.",
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
 				 errno);
+#else
+				 WSAGetLastError());
+#endif
 	throw Exception(parms);
     }
     
@@ -232,7 +243,11 @@ void Monitor::initializeTickler(){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_SOCKNAME",
 			 "Received error number $0 while getting the internal socket name.",
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
 				 errno);
+#else
+				 WSAGetLastError());
+#endif
 	throw Exception(parms);
     }
 
@@ -243,7 +258,11 @@ void Monitor::initializeTickler(){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_CLIENT_CREATE",
 			 "Received error number $0 while creating the internal client socket.",
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
 				 errno);
+#else
+				 WSAGetLastError());
+#endif
 	throw Exception(parms);
     }
 
@@ -270,7 +289,11 @@ void Monitor::initializeTickler(){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_CLIENT_BIND",
 			 "Received error number $0 while binding the internal client socket.",
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
 				 errno);
+#else
+				 WSAGetLastError());
+#endif
 	throw Exception(parms);
     }
 
@@ -281,7 +304,11 @@ void Monitor::initializeTickler(){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_CLIENT_CONNECT",
 			 "Received error number $0 while connecting the internal client socket.",
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
 				 errno);
+#else
+				 WSAGetLastError());
+#endif
 	throw Exception(parms);
     }
 
@@ -294,6 +321,8 @@ void Monitor::initializeTickler(){
     if((_tickle_peer_socket = ::accept(_tickle_server_socket,
 				       (struct sockaddr*)&_tickle_peer_addr,
 				       &peer_size)) < 0){
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
+        // Only retry on non-windows platforms.
         if(_tickle_peer_socket == -1 && errno == EAGAIN)
         {
           int retries = 0;                                                                        
@@ -306,12 +335,17 @@ void Monitor::initializeTickler(){
             retries++;
           } while(_tickle_peer_socket == -1 && errno == EAGAIN && retries < 20);
         }
+#endif
     }
     if(_tickle_peer_socket == -1){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_ACCEPT",
 			 "Received error number $0 while accepting the internal socket connection.",
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
 				 errno);
+#else
+				 WSAGetLastError());
+#endif
 	throw Exception(parms);
     }
     // add the tickler to the list of entries to be monitored and set to IDLE because Monitor only

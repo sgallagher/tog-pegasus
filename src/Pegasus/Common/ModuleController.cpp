@@ -744,8 +744,6 @@ Boolean ModuleController::ModuleSendAsync(const pegasus_module & handle,
    callback_handle *cb = new callback_handle(const_cast<pegasus_module *>(&handle), 
 					     callback_parm);
    
-   //printf("obtained callback handle %p\n", cb);
-   
    message->setRouting(msg_handle);
    message->resp = getQueueId();
    message->block = false;

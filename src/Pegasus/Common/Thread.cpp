@@ -538,10 +538,10 @@ Uint32 ThreadPool::kill_dead_threads(void)
 			throw NullPointer();
 		     }
 		     
-		     _dead.insert_first(th);
 		     bodies++;
-		     sleep_sem->signal();
 		     th->dereference_tsd();
+		     _dead.insert_first(th);
+		     sleep_sem->signal();
 		     th = 0;
 		  }
 		  else 

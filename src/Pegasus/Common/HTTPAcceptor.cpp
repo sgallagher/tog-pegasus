@@ -177,7 +177,6 @@ void HTTPAcceptor::handleEnqueue(Message *message)
 	    }
 	 }
 	 _rep->_connection_mut.unlock();
-
       }
 
       default:
@@ -470,7 +469,7 @@ void HTTPAcceptor::_acceptConnection()
 
    // Save the socket for cleanup later:
    connection->_entry_index = index;
-      _rep->_connection_mut.lock(pegasus_thread_self());
+   _rep->_connection_mut.lock(pegasus_thread_self());
    _rep->connections.append(connection);
    _rep->_connection_mut.unlock();
    PEGASUS_STD(cout) << "Creating new HTTP Connection; Current Connection Table Size: " <<

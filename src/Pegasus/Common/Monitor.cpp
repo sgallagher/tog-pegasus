@@ -178,7 +178,8 @@ Boolean Monitor::run(Uint32 milliseconds)
     struct timeval tv = {0,1};
     fd_set fdread;
     FD_ZERO(&fdread);
-
+    _entry_mut.lock(pegasus_thread_self());
+    
     for( int indx = 0; indx < (int)_entries.size(); indx++)
     {
        if(_entries[indx]._status.value() == _MonitorEntry::IDLE)
@@ -187,6 +188,7 @@ Boolean Monitor::run(Uint32 milliseconds)
        }
     }
 
+    
     int events = select(FD_SETSIZE, &fdread, NULL, NULL, &tv);
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -210,6 +212,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 		catch(...)
 		{
 		}
+		_entry_mut.unlock();
 		return true;
 	     }
 	     try 
@@ -223,6 +226,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 		      MessageQueue & o = static_cast<HTTPConnection *>(q)->get_owner();
 		      Message* message= new CloseConnectionMessage(_entries[indx].socket);
 		      message->dest = o.getQueueId();
+		      _entry_mut.unlock();
 		      o.enqueue(message);
 		      return true;
 		   }
@@ -235,6 +239,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 		   events |= SocketMessage::READ;
 		   Message *msg = new SocketMessage(_entries[indx].socket, events);
 		   _entries[indx]._status = _MonitorEntry::BUSY;
+		   _entry_mut.unlock();
 		   q->enqueue(msg);
 		   _entries[indx]._status = _MonitorEntry::IDLE;
 		   return true;
@@ -247,6 +252,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 	  }
        }
     }
+    _entry_mut.unlock();
     return(handled_events);
 }
 
@@ -261,24 +267,29 @@ int  Monitor::solicitSocketMessages(
    PEG_METHOD_ENTER(TRC_HTTP, "Monitor::solictSocketMessage");
 
    int index = -1;
+   _entry_mut.lock(pegasus_thread_self());
+   
    for(index = 0; index < (int)_entries.size(); index++)
    {
       try 
       {
 	 if(_entries[index]._status.value() == _MonitorEntry::EMPTY)
 	 {
-	    
 	    _entries[index].socket = socket;
 	    _entries[index].queueId  = queueId;
 	    _entries[index]._type = type;
 	    _entries[index]._status = _MonitorEntry::IDLE;
+	    _entry_mut.unlock();
+	    
 	    return index;
 	 }
       }
       catch(...)
       {
       }
+
    }
+      _entry_mut.unlock();
    PEG_METHOD_EXIT();
    return index;
 }
@@ -286,14 +297,18 @@ int  Monitor::solicitSocketMessages(
 void Monitor::unsolicitSocketMessages(Sint32 socket)
 {
     PEG_METHOD_ENTER(TRC_HTTP, "Monitor::unsolicitSocketMessages");
+    _entry_mut.lock(pegasus_thread_self());
     
     for(int index = 0; index < (int)_entries.size(); index++)
     {
        if(_entries[index].socket == socket)
        {
 	  _entries[index]._status = _MonitorEntry::EMPTY;
+	  break;
        }
     }
+    	  
+    _entry_mut.unlock();
     
 PEG_METHOD_EXIT();
 if( _async  == true )

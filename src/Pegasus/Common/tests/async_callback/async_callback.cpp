@@ -145,7 +145,7 @@ void test_async_queue::async_handleEnqueue(AsyncOpNode *op,
 
    // I am static, get a pointer to my object 
    test_async_queue *myself = static_cast<test_async_queue *>(q);
-
+   
    async_start *rq = static_cast<async_start *>(op->get_request());
    async_complete *rp = static_cast<async_complete *>(op->get_response());
    

@@ -432,6 +432,15 @@ AsyncModuleOperationResult::AsyncModuleOperationResult(Uint32 key,
    _res->put_async(this);
 }
 
+Message * AsyncModuleOperationResult::get_result(void)
+{
+   Message *ret = _res;
+   _res = 0;
+   ret->put_async(0);
+   return ret;
+}
+
+
 AsyncLegacyOperationStart::AsyncLegacyOperationStart(Uint32 routing, 
 						     AsyncOpNode *operation, 
 						     Uint32 destination, 

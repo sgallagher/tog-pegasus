@@ -490,6 +490,12 @@ void cimom::_handle_cimom_op(AsyncOpNode *op, Thread *thread, MessageQueue *queu
 	 find_service_q(static_cast<FindServiceQueue *>(msg));
       else if (type == async_messages::ENUMERATE_SERVICE)
 	 enumerate_service(static_cast<EnumerateService *>(msg));
+      else if (type == async_messages::FIND_MODULE_IN_SERVICE)
+	 _find_module_in_service(static_cast<FindModuleInService *>(msg));
+      else if (type == async_messages::REGISTERED_MODULE)
+	 _registered_module_in_service(static_cast<RegisteredModule *>(msg));
+      else if (type == async_messages::DEREGISTERED_MODULE)
+	 _deregistered_module_in_service(static_cast<DeRegisteredModule *>(msg));
    }
    if ( accepted == false )
    {
@@ -912,7 +918,7 @@ void cimom::_registered_module_in_service(RegisteredModule *msg)
 	 Uint32 i = 0;
 	 for( ; i < ret->_modules.size() ; i++  )
 	 {
-	    if( ret->_modules[i] == msg->_module )
+	    if( ret->_modules[i] == msg->_module ) 
 	    {
 	       result = async_results::MODULE_ALREADY_REGISTERED;;
 	       break;
@@ -967,15 +973,18 @@ void cimom::_find_module_in_service(FindModuleInService *msg)
    message_module *ret = _modules.next( 0 );
    while( ret != 0 )
    {
-      // see if the module is in this service 
-      Uint32 i = 0;
-      for( ; i < ret->_modules.size() ; i++  )
+      if ( ret->get_capabilities() & module_capabilities::module_controller)
       {
-	 if( ret->_modules[i] == msg->_module )
+	 // see if the module is in this service 
+	 Uint32 i = 0;
+	 for( ; i < ret->_modules.size() ; i++  )
 	 {
-	    result = async_results::OK;
-	    q_id = ret->_q_id;
+	    if( ret->_modules[i] == msg->_module )
+	    {
+	       result = async_results::OK;
+	       q_id = ret->_q_id;
 	    break;
+	    }
 	 }
       }
       ret = _modules.next(ret);

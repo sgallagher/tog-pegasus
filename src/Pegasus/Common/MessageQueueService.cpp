@@ -691,7 +691,7 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest *request)
    request->op->_flags |= ASYNC_OPFLAGS_PSEUDO_CALLBACK;
    SendAsync(request->op, 
 	     request->dest,
-	     _sendwait_callback,
+ 	     _sendwait_callback,
 	     this,
 	     (void *)0);
    

@@ -194,8 +194,6 @@ private:
     typedef ArrayRep<PEGASUS_ARRAY_T> Rep;
 
     Rep* _rep;
-
-    friend class CIMValue;
 };
 
 #ifndef PEGASUS_ARRAY_T

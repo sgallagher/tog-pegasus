@@ -35,7 +35,6 @@
 #ifdef PEGASUS_HAS_EBCDIC
 #include <unistd.h>
 #endif
-#include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/Char16.h>
 #include <Pegasus/Common/Memory.h>
 
@@ -137,8 +136,6 @@ void PEGASUS_STATIC_CDECL ArrayRep<T>::destroy(ArrayRep<T>* rep)
         return;
     }
 }
-
-class CIMValue;
 
 PEGASUS_COMMON_LINKAGE void ThrowOutOfBounds();
 

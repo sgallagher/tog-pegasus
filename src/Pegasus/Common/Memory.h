@@ -66,12 +66,6 @@ inline void Destroy(T* items, Uint32 size)
 	items++->~T();
 }
 
-template<class T>
-inline void Destroy(T* ptr)
-{
-    ptr->~T();
-}
-
 template<class T, class U>
 inline void CopyToRaw(T* to, const U* from, Uint32 size)
 {

@@ -258,10 +258,7 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::prepend(const PEGASUS_ARRAY_T& x)
 {
-    reserve(size() + 1);
-    memmove(_data() + 1, _data(), sizeof(PEGASUS_ARRAY_T) * size());
-    new(_data()) PEGASUS_ARRAY_T(x);
-    _rep->size++;
+    prepend(&x, 1);
 }
 
 #ifndef PEGASUS_ARRAY_T
@@ -288,18 +285,7 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::insert(Uint32 pos, const PEGASUS_ARRAY_T& x)
 {
-    if (pos > size())
-	ThrowOutOfBounds();
-
-    reserve(size() + 1);
-
-    Uint32 n = size() - pos;
-
-    if (n)
-	memmove(_data() + pos + 1, _data() + pos, sizeof(PEGASUS_ARRAY_T) * n);
-
-    new(_data() + pos) PEGASUS_ARRAY_T(x);
-    _rep->size++;
+    insert(pos, &x, 1);
 }
 
 #ifndef PEGASUS_ARRAY_T
@@ -309,7 +295,7 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::insert(Uint32 pos, const PEGASUS_ARRAY_T* x, Uint32 size)
 {
-    if (pos + size > this->size())
+    if (pos > this->size())
 	ThrowOutOfBounds();
 
     reserve(this->size() + size);
@@ -335,21 +321,7 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::remove(Uint32 pos)
 {
-    if (pos >= this->size())
-	ThrowOutOfBounds();
-
-#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-    Destroy<PEGASUS_ARRAY_T>(_data() + pos);
-#else
-    Destroy(_data() + pos);
-#endif
-
-    Uint32 rem = this->size() - pos - 1;
-
-    if (rem)
-	memmove(_data() + pos, _data() + pos + 1, sizeof(PEGASUS_ARRAY_T) * rem);
-
-    _rep->size--;
+    remove(pos, 1);
 }
 
 #ifndef PEGASUS_ARRAY_T
@@ -359,7 +331,7 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 #endif
 void Array<PEGASUS_ARRAY_T>::remove(Uint32 pos, Uint32 size)
 {
-    if (pos + size > this->size())
+    if (pos + size - 1 > this->size())
 	ThrowOutOfBounds();
 
 #if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)

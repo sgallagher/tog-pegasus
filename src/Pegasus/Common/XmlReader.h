@@ -52,6 +52,7 @@ class CIMObject;
 class CIMNamedInstance;
 class CIMObjectWithPath;
 class CIMParamValue;
+class CIMValue;
 
 class PEGASUS_COMMON_LINKAGE XmlReader
 {

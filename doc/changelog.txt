@@ -1,9 +1,19 @@
 CHANGE LOG FOR PEGASUS
 
-------------------------------------------------------------------------------
---
 
-Version 0.98.0 - Work in progress
+---------------------------------------------------------------------------
+Version 1.1 - July 2001 Development branch (Work in PRogress)
+
+
+---------------------------------------------------------------------------
+Version 0.99.x (Fixes to version 0.99) in Process
+NOTE: Please do not input anything to this branch except for critical
+fixes.  This is, in effect, 1.0 and we do not want to use it for
+development.
+
+----------------------------------------------------------------------------
+
+Version 0.98.0 - Work in progress (This number skipped)
 Version -.99.0 - Tagged as version 0.99,17 July 8:00 am - KS
 
 1. (Mike Brasher) Added support for class association operations

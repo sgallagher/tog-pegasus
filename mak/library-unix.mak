@@ -1,6 +1,6 @@
 
 ifeq ($(COMPILER),xlc)
-  LINK_COMMAND = /usr/ibmcxx/bin/makeC++SharedLib
+  LINK_COMMAND = makeC++SharedLib
   LINK_ARGUMENTS = -p 0
   LINK_OUT = -o
 endif

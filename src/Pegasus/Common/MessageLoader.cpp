@@ -57,9 +57,6 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			return formatDefaultMessage(parms);
 		#endif	
 		
-		// if someone has set the global behaviour to use default messages
-		if(_useDefaultMsg) return formatDefaultMessage(parms);	 
-		
 		#ifdef PEGASUS_HAS_ICU
 			//cout << "PEGASUS_HAS_ICU" << endl;
 			msg = loadICUMessage(parms);
@@ -99,6 +96,11 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		
 		// get the correct path to the resource bundles
 		resbundl_path_ICU = getQualifiedMsgPath(parms.msg_src_path).getCString();
+
+		// if someone has set the global behaviour to use default messages
+		// Note: this must be after the call to getQualifiedMsgPath
+		if(_useDefaultMsg) return formatDefaultMessage(parms);	 
+
 		//cout << "USING PACKAGE PATH: " << endl;
 		//cout << resbundl_path_ICU << endl;
 		#ifdef PEGASUS_OS_OS400
@@ -429,15 +431,22 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 				pegasus_MSG_HOME = env;
 				pegasus_MSG_HOME.append("/msg/");
     		}
-				
+		
+		// TODO: remove the next call once test cases are compatible with ICU messages
+		checkDefaultMsgLoading();
+		
 		#endif 
 	}
 	
 	void MessageLoader::checkDefaultMsgLoading(){
-			// TODO: remove this function once test cases are compatible with ICU messages
-			const char* env = getenv("PEGASUS_USE_DEFAULT_MESSAGES");
-    		if (env != NULL)
-				_useDefaultMsg = true;	
+	  // Note: this function is a special hook for the automated tests (poststarttests)
+	  // Since the automated tests expect the old hardcoded default messages, an env var
+	  // will be used to tell this code to ignore ICU and return the default message.
+	  // This will allow poststarttests to run with ICU installed.
+	  // TODO: remove this function once test cases are compatible with ICU messages
+	  const char* env = getenv("PEGASUS_USE_DEFAULT_MESSAGES");
+	  if (env != NULL)
+	    _useDefaultMsg = true;	
 	}
 
 PEGASUS_NAMESPACE_END

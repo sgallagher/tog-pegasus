@@ -2069,18 +2069,10 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
     PEGASUS_ASSERT(request != 0 && async != 0);
 
     // create response message
-    //l10n
-    //CIMSetPropertyResponseMessage * response =
-        //new CIMSetPropertyResponseMessage(
-        //request->messageId,
-        //PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
-        //request->queueIds.copyAndPop());
-	CIMSetPropertyResponseMessage * response =
+    CIMSetPropertyResponseMessage * response =
         new CIMSetPropertyResponseMessage(
         request->messageId,
-        PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-        					"ProviderManager.ProviderManagerService.NOT_IMPLEMENTED",
-        					"not implemented")),
+        CIMException(),
         request->queueIds.copyAndPop());
 
 

@@ -39,7 +39,7 @@ repository:
 	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
 ifeq ($(EXTENDED_MANAGEDSYSTEM_NS_SUPPORTED),true)
 	@ echo +++++ Loading platform specific class definitions in $(MANAGEDSYSTEMNS) namespace  ...
-	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(MANAGEDSYSTEMNS) $(PG_MOF_PATH)/$(FILE_PREFIX)_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
+	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(MANAGEDSYSTEMNS) $(PG_MOF_PATH)/$(FILE_PREFIX)_ManagedSystemSchema$(PG_SCHEMA_VER).mof
 	@ echo +++++ Registering Providers for platform specific classes in $(MANAGEDSYSTEMNS) namespace ...
 	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/$(FILE_PREFIX)_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
 endif
@@ -53,7 +53,7 @@ repositoryServer:
 	@ cimmof -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
 ifeq ($(EXTENDED_MANAGEDSYSTEM_NS_SUPPORTED),true)
 	@ echo +++++ Loading platform specific class definitions in $(MANAGEDSYSTEMNS) namespace  ...
-	@ cimmof -I$(PG_MOF_PATH) -n$(MANAGEDSYSTEMNS) $(PG_MOF_PATH)/$(FILE_PREFIX)_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
+	@ cimmof -I$(PG_MOF_PATH) -n$(MANAGEDSYSTEMNS) $(PG_MOF_PATH)/$(FILE_PREFIX)_ManagedSystemSchema$(PG_SCHEMA_VER).mof
 	@ echo +++++ Registering Providers for platform specific classes in $(MANAGEDSYSTEMNS) namespace ...
 	@ cimmof -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/$(FILE_PREFIX)_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
 endif

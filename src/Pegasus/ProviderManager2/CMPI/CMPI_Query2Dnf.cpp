@@ -38,10 +38,13 @@
 #include "CMPI_Query2Dnf.h"
 
 PEGASUS_USING_STD;
-PEGASUS_NAMESPACE_BEGIN CMPI_QueryOperand::~CMPI_QueryOperand ()
+PEGASUS_NAMESPACE_BEGIN
+
+CMPI_QueryOperand::~CMPI_QueryOperand ()
 {
   _type = NULL_TYPE;
 }
+
 CMPI_QueryOperand::CMPI_QueryOperand (const String & x, Type type)
 {
   _type = type;
@@ -49,7 +52,8 @@ CMPI_QueryOperand::CMPI_QueryOperand (const String & x, Type type)
 }
 
 
-Boolean CMPI_QueryOperand::operator== (const CMPI_QueryOperand & x) const 
+Boolean
+CMPI_QueryOperand::operator== (const CMPI_QueryOperand & x) const 
 {
 
   if (x._type == _type)
@@ -74,7 +78,8 @@ CMPI_term_el::toStrings (CMPIType & typ, CMPIPredOp & opr, String & o1,
   return 0;
 }
 
-Boolean CMPI_term_el::operator== (const CMPI_term_el & x)
+Boolean
+CMPI_term_el::operator== (const CMPI_term_el & x)
 {
   if (x.op == op)
     {
@@ -86,7 +91,8 @@ Boolean CMPI_term_el::operator== (const CMPI_term_el & x)
   return false;
 }
 
-CMPIType CMPI_term_el::mapType (CMPI_QueryOperand::Type type) const 
+CMPIType
+CMPI_term_el::mapType (CMPI_QueryOperand::Type type) const 
 {
 
   switch (type)
@@ -109,6 +115,8 @@ CMPIType CMPI_term_el::mapType (CMPI_QueryOperand::Type type) const
       return CMPI_boolean;
     case CMPI_QueryOperand::OBJECT_TYPE:
       return CMPI_nameString;
+    case CMPI_QueryOperand::REAL_TYPE:
+      return CMPI_REAL;
     default:
       break;
     }

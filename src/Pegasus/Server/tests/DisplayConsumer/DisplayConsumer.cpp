@@ -62,8 +62,8 @@ public:
 
     void handleIndication(
 	const OperationContext & context,
-	const CIMIndication & indication,
-	ResponseHandler<CIMIndication> & handler)
+	const CIMInstance & indication,
+	ResponseHandler<CIMInstance> & handler)
     {
     }
 

@@ -164,6 +164,7 @@ class PEGASUS_COMMON_LINKAGE pegasus_acceptor
   
   static pegasus_acceptor* find_acceptor(Boolean local, Uint32 port);
   static void accept_dispatch(monitor_2_entry*);
+  static void close_all_acceptors(void);
   
  private:
   pegasus_acceptor(void);

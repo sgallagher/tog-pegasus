@@ -975,21 +975,22 @@ void HTTPConnection2::_handleReadEvent(monitor_2_entry* entry)
 	_contentLength != -1 && 
 	(Sint32(_incomingBuffer.size()) >= _contentLength + _contentOffset))
     {
-	HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
-        message->authInfo = _authInfo;
 
-        //
-        // increment request count 
-        //
-        _requestCount++;
-        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-          "_requestCount = %d", _requestCount.value());
-	message->dest = _outputMessageQueue->getQueueId();
-
-	_clearIncoming();
 
 	if (bytesRead > 0)
         {
+	   HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
+	   message->authInfo = _authInfo;
+	   
+	   //
+	   // increment request count 
+	   //
+	   _requestCount++;
+	   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+			 "_requestCount = %d", _requestCount.value());
+	   message->dest = _outputMessageQueue->getQueueId();
+	   
+	   _clearIncoming();
 	   _outputMessageQueue->enqueue(message);
         }
         else if (bytesRead == 0)
@@ -1054,6 +1055,8 @@ void HTTPConnection2::connection_dispatch(monitor_2_entry* entry)
   HTTPConnection2* myself = (HTTPConnection2*) entry->get_dispatch();
   myself->_socket = entry->get_sock();
   myself->_handleReadEvent(entry);
+  delete entry;
+  
 }
 
 

@@ -513,6 +513,8 @@ monitor_2_entry::monitor_2_entry(const monitor_2_entry& e)
 
 monitor_2_entry::~monitor_2_entry(void)
 {
+   PEGASUS_STD(cout) << "~monitor_2_entry: ref = " << _rep->getRef() << PEGASUS_STD(endl);
+   
   Dec(_rep);
 }
 
@@ -598,15 +600,6 @@ void monitor_2_entry::set_sock(pegasus_socket& s)
 
 AsyncDQueue<HTTPConnection2> monitor_2::_connections(true, 0);
 
-// monitor_2* monitor_2::get_monitor2(void)
-// {
-//    if(_m2_instance == 0 )
-//       _m2_instance = new monitor_2();
-//    PEGASUS_STD(cout) << "_m2_instance: " << _m2_instance << PEGASUS_STD(endl);
-   
-//       return _m2_instance;
-// }
-
 monitor_2::monitor_2(void)
   : _session_dispatch(0), _accept_dispatch(0), _listeners(true, 0), 
     _ready(true, 0), _die(0), _requestCount(0)
@@ -678,6 +671,11 @@ monitor_2::monitor_2(void)
 
 monitor_2::~monitor_2(void)
 {
+
+   PEGASUS_STD(cout) << "~monitor_2: stopping"  << PEGASUS_STD(endl);
+   stop();
+   PEGASUS_STD(cout) << "~monitor_2: removing listeners"  << PEGASUS_STD(endl);
+
   try {
     monitor_2_entry* temp = _listeners.remove_first();
     while(temp){
@@ -685,7 +683,26 @@ monitor_2::~monitor_2(void)
       temp = _listeners.remove_first();
     }
   }
+
   catch(...){  }
+  PEGASUS_STD(cout) << "connections: " << _connections.count() << PEGASUS_STD(endl);
+  
+
+  try 
+  {
+     HTTPConnection2* temp = _connections.remove_first();
+     while(temp)
+     {
+	delete temp;
+	temp = _connections.remove_first();
+     }
+  }
+  catch(...)
+  {
+  }
+  
+  PEGASUS_STD(cout) << "connections: " << _connections.count() << PEGASUS_STD(endl);
+
 }
 
 
@@ -706,6 +723,9 @@ void monitor_2::run(void)
 	  monitor_2_entry* closed = temp;
 	  temp = _listeners.next(closed);
 	  _listeners.remove_no_lock(closed);
+	  PEGASUS_STD(cout) << "removing " << closed << PEGASUS_STD(endl);
+	  PEGASUS_STD(cout) << "Listeners: " << _listeners.count() << PEGASUS_STD(endl);
+	  
 	  HTTPConnection2 *cn = monitor_2::remove_connection((Sint32)(closed->get_sock()));
 	  delete cn;
 	  delete closed;
@@ -802,9 +822,27 @@ void* monitor_2::set_idle_parm(void* parm)
 }
 
 
-// important -  the dispatch routine has pointers to all the 
-// entries that are readable. These entries can be changed but 
-// the pointer must not be tampered with. 
+
+//-----------------------------------------------------------------
+// Note on deleting the monitor_2_entry nodes: 
+//  Each case: in the switch statement needs to handle the deletion 
+//  of the monitor_2_entry * node differently. A SESSION dispatch 
+//  routine MUST DELETE the entry during its dispatch handling. 
+//  All other dispatch routines MUST NOT delete the entry during the 
+//  dispatch handling, but must allow monitor_2::_dispatch to delete
+//   the entry. 
+//
+//  The reason is pretty obscure and it is debatable whether or not
+//  to even bother, but during cimserver shutdown the single monitor_2_entry* 
+//  will leak unless the _session_dispatch routine takes care of deleting it. 
+//
+//  The reason is that a shutdown messages completely stops everything and 
+//  the _session_dispatch routine never returns. So monitor_2::_dispatch is 
+//  never able to do its own cleanup. 
+//
+// << Mon Oct 13 09:33:33 2003 mdd >>
+//-----------------------------------------------------------------
+
 void monitor_2::_dispatch(void)
 {
    monitor_2_entry* entry;
@@ -825,6 +863,8 @@ void monitor_2::_dispatch(void)
       entry->get_sock().disableBlocking();
       entry->get_sock().read(&buffer, 2);
       entry->get_sock().enableBlocking();
+      delete entry;
+      
       break;
     case LISTEN:
       {
@@ -833,26 +873,34 @@ void monitor_2::_dispatch(void)
 	entry->get_sock().disableBlocking();
 	pegasus_socket connected = entry->get_sock().accept(&peer, &peer_size);
 	entry->get_sock().enableBlocking();
+   PEGASUS_STD(cout) << __FILE__ << " " << __LINE__ << "adding monitor entry" << PEGASUS_STD(endl);
 	monitor_2_entry *temp = add_entry(connected, SESSION, entry->get_accept(), entry->get_dispatch());
 	if(temp && _accept_dispatch != 0)
 	   _accept_dispatch(temp);
+	delete entry;
+	
       }
       break;
     case SESSION:
-      if(_session_dispatch != 0 )
-	_session_dispatch(entry);
+       if(_session_dispatch != 0 )
+       {
+	  // NOTE: _session_dispatch will delete entry - do not do it here
+	  _session_dispatch(entry);
+       }
+       
       else {
 	static char buffer[4096];
 	int bytes = entry->get_sock().read(&buffer, 4096);
+	delete entry;
       }
     
       break;
     case UNTYPED:
     default:
+           delete entry;
       break;
     }
     _requestCount--;
-    delete entry;
     
     if(_ready.count() == 0 )
        break;
@@ -899,6 +947,9 @@ monitor_2_entry*  monitor_2::add_entry(pegasus_socket& ps,
 {
   monitor_2_entry* m2e = new monitor_2_entry(ps, type, accept_parm, dispatch_parm);
   
+  PEGASUS_STD(cout) << "Adding " << m2e << PEGASUS_STD(endl);
+  
+
   try{
     _listeners.insert_first(m2e);
   }
@@ -907,6 +958,8 @@ monitor_2_entry*  monitor_2::add_entry(pegasus_socket& ps,
     return 0;
   }
   tickle();
+  PEGASUS_STD(cout) << "Listeners: " << _listeners.count() <<  PEGASUS_STD(endl);
+  
   return m2e;
 }
 

@@ -736,12 +736,17 @@ pegasus_socket::pegasus_socket(socket_factory *factory)
 
 pegasus_socket::pegasus_socket(const pegasus_socket& s)
 {
-   Inc(this->_rep = s._rep);
+   if(this != &s)
+   {
+      Inc(this->_rep = s._rep);
+   }
+   
 };
 
 pegasus_socket::pegasus_socket(abstract_socket* s)
 {
-   _rep = s;
+
+      _rep = s;
 }
 
 

@@ -585,6 +585,26 @@ void HTTPAcceptor::_acceptConnection()
 
 AsyncDQueue<pegasus_acceptor> pegasus_acceptor::acceptors(true, 0);
 
+void pegasus_acceptor::close_all_acceptors(void)
+{
+   try 
+   {
+      
+      pegasus_acceptor* temp = acceptors.remove_first();
+      while(temp)
+      {
+	 delete temp;
+	 temp = acceptors.remove_first();
+      }
+   }
+   catch(...)
+   {
+   }
+   
+}
+
+
+
 pegasus_acceptor::pegasus_acceptor(monitor_2* monitor, 
 				   MessageQueue* outputMessageQueue, 
 				   Boolean localConnection, 
@@ -684,6 +704,8 @@ void pegasus_acceptor::bind()
   // third step: add this listening socket to the monitor
 
    _monitor->tickle();
+   PEGASUS_STD(cout) << __FILE__ << " " << __LINE__ << "adding monitor entry" << PEGASUS_STD(endl);
+   
    _monitor->add_entry(_listener, LISTEN, this, this);
 }
 
@@ -777,6 +799,7 @@ void pegasus_acceptor::accept_dispatch(monitor_2_entry *entry)
   entry->set_dispatch ((void*)connection);
 
   monitor_2::insert_connection(connection);
+  
 }
 
 

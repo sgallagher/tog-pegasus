@@ -331,6 +331,12 @@ CIMServer::~CIMServer()
     if (_sslcontext)
 	delete _sslcontext;
 
+    if(_type != OLD)
+    {
+       pegasus_acceptor::close_all_acceptors();
+    }
+    
+
     PEG_METHOD_EXIT();
 }
 

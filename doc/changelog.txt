@@ -164,6 +164,7 @@ repository implementation.
     commas (,) in the string values of key properties.
     
 32. (Karl Schopmeyer 30 October 2001- Move the repository load to CIM schema 2.6
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

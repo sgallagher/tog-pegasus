@@ -119,7 +119,7 @@ void CIMQualifierList::resolve(
     for (Uint32 i = 0, n = _qualifiers.size(); i < n; i++)
     {
 	CIMQualifier q = _qualifiers[i];
-        //cout << "KSTEST  Qual resolve for loop Name = " << q.getName() << endl;
+        //cout << "KSTEST  Qualifier resolve for Name = " << q.getName() << endl;
 	//----------------------------------------------------------------------
 	// 1. Check to see if it's declared.
 	//----------------------------------------------------------------------
@@ -143,7 +143,7 @@ void CIMQualifierList::resolve(
 #if 0
         // ATTN:  These lines throw a bogus exception if the qualifier has
         // a valid scope (such as Scope::ASSOCIATION) which is not Scope::CLASS
-        // grb 1/16/01
+        // ks Mar 2002
 	if (!(qd.getScope() & scope))
 	    throw BadQualifierScope(qd.getName(), ScopeToString(scope));
 #endif
@@ -175,7 +175,6 @@ void CIMQualifierList::resolve(
     // Propagate qualifiers to subclass or to instance that do not have
     // already have those qualifiers:
     //--------------------------------------------------------------------------
-    //cout << "KSTEST Qual resolve Propagate loop begin" << " fal " << false << endl;
     for (Uint32 i = 0, n = inheritedQualifiers.getCount(); i < n; i++)
     {
 	CIMQualifier iq = inheritedQualifiers.getQualifier(i);
@@ -184,34 +183,32 @@ void CIMQualifierList::resolve(
 
         // ATTN-DE-P1-This next test is incorrect. It is a temporary, hard-coded
         // HACK to avoid propagating the "Abstract" Qualifier to subclasses
-	if (CIMName::equal(iq.getName(), "Abstract"))
-           continue;
+	//if (CIMName::equal(iq.getName(), "Abstract"))
+        //   continue;
 
 	if (isInstancePart)
 	{
-	    if ((iq.getFlavor() && CIMFlavor::TOINSTANCE))
+	    if (!(iq.getFlavor() && CIMFlavor::TOINSTANCE))
 		continue;
 	}
 	else
 	{
-	    //cout << "TKSTEST before tosubclass Flavor " 
-            //     << (iq.getFlavor() && CIMFlavor::TOSUBCLASS) << endl;
-            if ((iq.getFlavor() && CIMFlavor::TOSUBCLASS)){
-                //cout << "KSTEST after test " << endl;
+            if (!(iq.getFlavor() && CIMFlavor::TOSUBCLASS)){
 		continue;
             }
 	}
-        //cout << "KSTEST resolve Propagate 3 " << iq.getName()
-        //<< " TOSUBCLASS " << !(iq.getFlavor() && CIMFlavor::TOSUBCLASS) << endl;
 
 	// If the qualifiers list does not already contain this qualifier,
 	// then propagate it (and set the propagated flag to true).
 
 	if (find(iq.getName()) != PEG_NOT_FOUND)
 	    continue;
-
-        //cout << "KSTEST resolve Propagate 4 " << iq.getName() << endl;
-
+        
+        /*
+        cout << "KSTEST resolve Propagate " << iq.getName() << " true= " << true 
+        << " flavor= " << iq.getFlavor()
+        << " TOSUBCLASS " << (iq.getFlavor() && CIMFlavor::TOSUBCLASS) << endl;
+        */
 	CIMQualifier q = iq.clone();
 	q.setPropagated(true);
 	_qualifiers.prepend(q);

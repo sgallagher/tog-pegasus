@@ -121,7 +121,7 @@ void CIMQualifierRep::print(PEGASUS_STD(ostream) &os) const
     arrayInitializer   = "{" constantValue*( "," constantValue)"}"
     </pre>
 */
-void CIMQualifierRep::toMof(Array<Sint8>& out) const   //ATTNKS:
+void CIMQualifierRep::toMof(Array<Sint8>& out) const
 {
     // Output Qualifier name
     out << _name;
@@ -144,7 +144,7 @@ void CIMQualifierRep::toMof(Array<Sint8>& out) const   //ATTNKS:
     }
 
     // output the flavors
-    // ATTNKS: This is a poor test to see if flavor output exists
+    // ATTN: KS P3 This is a poor test to see if flavor output exists
     String flavorString;
     flavorString = FlavorToMof(_flavor);
     if (flavorString.size())

@@ -99,7 +99,7 @@ void test01()
     assert(class1.findMethod("isActive") == PEG_NOT_FOUND);
     assert(class1.getMethodCount() == 1);
 
-    //ATTN: TODO add tests for different case names
+    //ATTN: P3 TODO add tests for different case names
 
     //Qualifier manipulation tests  (find, exists, remove)
 
@@ -143,7 +143,7 @@ void test01()
     assert(class1.isAssociation());
 
 
-    // ATTH:Add tests for try block for outofbounds
+    // ATTH: P3 Add tests for try block for outofbounds
 
 
 

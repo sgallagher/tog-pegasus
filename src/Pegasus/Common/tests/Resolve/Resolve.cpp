@@ -169,7 +169,10 @@ void test02()
 
 }
 
-
+//ATTN: KS P1 Mar 7 2002.  Add tests propagation qual, method, propertys as follows:
+//  Confirm that qualifiers are propogated correctly based on flavors
+//  Confirm that properties and methods are propagated correctly based on flavors
+//  
 
 int main()
 {

@@ -43,4 +43,64 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+DynamicLibrary::DynamicLibrary(void) : _handle(0)
+{
+}
+
+DynamicLibrary::DynamicLibrary(const DynamicLibrary & library) : _handle(0)
+{
+    _fileName = library._fileName;
+
+    // load the module again, if necessary. this effectively increments the
+    // operating system's reference count for the module.
+    if(library._handle != 0)
+    {
+        load();
+    }
+}
+
+DynamicLibrary::DynamicLibrary(const String & fileName) : _fileName(fileName), _handle(0)
+{
+}
+
+DynamicLibrary::~DynamicLibrary(void)
+{
+    // unload the module, if necessary. this ensures 1) the module is released in the
+    // event the caller did not explicity unload it, and 2) the operating system's
+    // reference count is accurate.
+    if(_handle != 0)
+    {
+        unload();
+    }
+}
+
+DynamicLibrary & DynamicLibrary::operator=(const DynamicLibrary & library)
+{
+    if(this == &library)
+    {
+        return(*this);
+    }
+
+    _fileName = library._fileName;
+
+    // load the module again, if necessary. this effectively increments the
+    // operating system's reference count for the module.
+    if(library._handle != 0)
+    {
+        load();
+    }
+
+    return(*this);
+}
+
+String DynamicLibrary::getFileName(void) const
+{
+    return(_fileName);
+}
+
+DynamicLibrary::LIBRARY_HANDLE DynamicLibrary::getHandle(void) const
+{
+    return(_handle);
+}
+
 PEGASUS_NAMESPACE_END

@@ -44,7 +44,7 @@ PEGASUS_NAMESPACE_BEGIN
 // behavior from users of the DynamicLibrary object. the goal release the library
 // only after an equal number of loads and unloads have occured.
 
-Array<Pair<DynamicLibrary::LIBRARY_HANDLE, AtomicInt> > _references;
+static Array<Pair<DynamicLibrary::LIBRARY_HANDLE, AtomicInt> > _references;
 
 Uint32 _increment_handle(DynamicLibrary::LIBRARY_HANDLE handle)
 {
@@ -91,69 +91,11 @@ Uint32 _decrement_handle(DynamicLibrary::LIBRARY_HANDLE handle)
     return(0);
 }
 
-DynamicLibrary::DynamicLibrary(void) : _handle(0)
-{
-}
-
-DynamicLibrary::DynamicLibrary(const DynamicLibrary & library) : _handle(0)
-{
-    if(library._handle != 0)
-    {
-        // increment the handle reference count if not 0
-        _increment_handle(library._handle);
-
-        _handle = library._handle;
-    }
-}
-
-DynamicLibrary::DynamicLibrary(const String & path) : _fileName(path), _handle(0)
-{
-}
-
-DynamicLibrary::~DynamicLibrary(void)
-{
-}
-
-DynamicLibrary & DynamicLibrary::operator=(const DynamicLibrary & library)
-{
-    if(this == &library)
-    {
-        return(*this);
-    }
-
-    if(library._handle != 0)
-    {
-        // increment the handle reference count if not 0
-        _increment_handle(library._handle);
-
-        _handle = library._handle;
-    }
-
-    return(*this);
-}
-
-String DynamicLibrary::getFileName(void) const
-{
-    return(_fileName);
-}
-
-bool DynamicLibrary::load(void)
+Boolean DynamicLibrary::load(void)
 {
     if(_handle == 0)
     {
         CString cstr = _fileName.getCString();
-
-        // NOTE: if the module is already loaded, hopefully this call simply
-        // returns a copy of the already loaded module. that way, it can be
-        // used to maintain the reference count in this object. if this is
-        // not the case, then the reference counting key should be changed
-        // from the library handle to the module file (after is has been
-        // resolved by the system is some unambiguos way).
-
-        // NOTE: the implementation in System.cpp defines a variable for a compile
-        // time option. this should be done with a comment or a compile time flag.
-        // currently, a comment is used to determine which flags are passed to the
-        // load call.
 
         //_handle = shl_load(cstr, BIND_IMMEDIATE | DYNAMIC_PATH | BIND_VERBOSE, 0L);
         _handle = shl_load(cstr, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
@@ -170,7 +112,7 @@ bool DynamicLibrary::load(void)
     return(false);
 }
 
-bool DynamicLibrary::unload(void)
+Boolean DynamicLibrary::unload(void)
 {
     if(_handle != 0)
     {
@@ -184,11 +126,6 @@ bool DynamicLibrary::unload(void)
     }
 
     return(true);
-}
-
-DynamicLibrary::LIBRARY_HANDLE DynamicLibrary::getHandle(void) const
-{
-    return(_handle);
 }
 
 DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(const String & symbolName)

@@ -31,36 +31,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-DynamicLibrary::DynamicLibrary(void) : _handle(0)
-{
-}
-
-DynamicLibrary::DynamicLibrary(const DynamicLibrary & library) : _handle(0)
-{
-    ::DuplicateHandle(::GetCurrentProcess(), library._handle, ::GetCurrentProcess(), (void **)&_handle, 0, TRUE, DUPLICATE_SAME_ACCESS);
-}
-
-DynamicLibrary::DynamicLibrary(const String & fileName) : _fileName(fileName), _handle(0)
-{
-}
-
-DynamicLibrary::~DynamicLibrary(void)
-{
-}
-
-DynamicLibrary & DynamicLibrary::operator=(const DynamicLibrary & library)
-{
-    if(this == &library)
-    {
-        return(*this);
-    }
-
-    ::DuplicateHandle(::GetCurrentProcess(), library._handle, ::GetCurrentProcess(), (void **)&_handle, 0, TRUE, DUPLICATE_SAME_ACCESS);
-
-    return(*this);
-}
-
-bool DynamicLibrary::load(void)
+Boolean DynamicLibrary::load(void)
 {
     if(_handle == 0)
     {
@@ -77,7 +48,7 @@ bool DynamicLibrary::load(void)
     return(false);
 }
 
-bool DynamicLibrary::unload(void)
+Boolean DynamicLibrary::unload(void)
 {
     if(_handle != 0)
     {
@@ -87,16 +58,6 @@ bool DynamicLibrary::unload(void)
     }
 
     return(true);
-}
-
-String DynamicLibrary::getFileName(void) const
-{
-    return(_fileName);
-}
-
-DynamicLibrary::LIBRARY_HANDLE DynamicLibrary::getHandle(void) const
-{
-    return(_handle);
 }
 
 DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(const String & symbolName)

@@ -39,63 +39,16 @@
 #include "OS400SystemState.h"  // OS400LoadDynamicLibrary, etc
 #endif
 
-#include <iostream>
-PEGASUS_USING_STD;
-
 PEGASUS_NAMESPACE_BEGIN
 
-DynamicLibrary::DynamicLibrary(void) : _handle(0)
-{
-}
-
-DynamicLibrary::DynamicLibrary(const DynamicLibrary & library) : _handle(0)
-{
-    if(library._handle != 0)
-    {
-        load();
-    }
-}
-
-DynamicLibrary::DynamicLibrary(const String & path) : _fileName(path), _handle(0)
-{
-}
-
-DynamicLibrary::~DynamicLibrary(void)
-{
-}
-
-DynamicLibrary & DynamicLibrary::operator=(const DynamicLibrary & library)
-{
-    if(this == &library)
-    {
-        return(*this);
-    }
-
-    if(library._handle != 0)
-    {
-        // increment the library handle's reference count by loading the library again
-        CString cstr = library._fileName.getCString();
-
-#if !defined(PEGASUS_OS_OS400)
-        _handle = ::dlopen(cstr, RTLD_NOW);
-#else
-        _handle = OS400_LoadDynamicLibrary((const char *)cstr);
-#endif
-    }
-
-    return(*this);
-}
-
-bool DynamicLibrary::load(void)
+Boolean DynamicLibrary::load(void)
 {
     if(_handle == 0)
     {
         CString cstr = _fileName.getCString();
 
-        cout << "trying to load " << cstr << endl;
-
         #if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX)
-        _handle = ::dlopen(cstr, RTLD_NOW);
+        _handle = dlopen(cstr, RTLD_NOW);
         #elif defined(PEGASUS_OS_TRU64)
         _handle = dlopen(cstr, RTLD_NOW);
         #elif defined(PEGASUS_OS_ZOS)
@@ -110,11 +63,10 @@ bool DynamicLibrary::load(void)
         return(true);
     }
 
-    cout << "failure message: " << ::dlerror() << endl;
     return(false);
 }
 
-bool DynamicLibrary::unload(void)
+Boolean DynamicLibrary::unload(void)
 {
     if(_handle != 0)
     {
@@ -128,16 +80,6 @@ bool DynamicLibrary::unload(void)
     }
 
     return(true);
-}
-
-String DynamicLibrary::getFileName(void) const
-{
-    return(_fileName);
-}
-
-DynamicLibrary::LIBRARY_HANDLE DynamicLibrary::getHandle(void) const
-{
-    return(_handle);
 }
 
 DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(const String & symbolName)
@@ -161,20 +103,21 @@ DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(const String & symbolNa
 }
 
 /*
-String System::dynamicLoadError() {
+String System::dynamicLoadError(void)
+{
     // ATTN: Is this safe in a multi-threaded process?  Should this string
     // be returned from loadDynamicLibrary?
-#ifdef PEGASUS_OS_HPUX
+    #ifdef PEGASUS_OS_HPUX
     // ATTN: If shl_load() returns NULL, this value should be strerror(errno)
     return String();
-#elif defined(PEGASUS_OS_ZOS)
+    #elif defined(PEGASUS_OS_ZOS)
     return String();
-#elif defined(PEGASUS_OS_OS400)
+    #elif defined(PEGASUS_OS_OS400)
     return String(OS400_DynamicLoadError());
-#else
+    #else
     String dlerr = dlerror();
     return dlerr;
-#endif
+    #endif
 }
 */
 

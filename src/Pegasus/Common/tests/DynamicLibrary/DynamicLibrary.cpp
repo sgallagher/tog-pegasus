@@ -36,13 +36,17 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_USING_STD;
 
+void callme(void)
+{
+}
+
 int main(int argc, char** argv)
 {
     const char * verbose = getenv("PEGASUS_TEST_VERBOSE");
 
-    #if defined(PEGASUS_OS_WINDOWS)
+    #if defined(PEGASUS_OS_TYPE_WINDOWS)
     String fileName = "DynLib.dll";
-    #else
+    #elif defined(PEGASUS_OS_TYPE_UNIX)
     String fileName = "libDynLib.so";
     #endif
 
@@ -53,6 +57,18 @@ int main(int argc, char** argv)
         cout << "failed to load " << library.getFileName() << endl;
 
         return(-1);
+    }
+
+    {
+        // library is currently loaded (with a single call to load())
+
+        // copy constructor
+        DynamicLibrary library2(library);
+
+        // assignment operator
+        DynamicLibrary library3 = library2;
+
+        // library is currently loaded (should be able to unload() after these copies go out of scope)
     }
 
     Uint32 (* callme)(void) = (Uint32 (*)(void))library.getSymbol("callme");

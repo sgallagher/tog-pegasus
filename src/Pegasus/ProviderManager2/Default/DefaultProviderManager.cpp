@@ -2633,7 +2633,7 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
                 // provider has been disabled
                 if (_indicationProviders[i])
                 {
-                    _removeEntry(_generateKey(pName,physicalName));
+                    delete _removeEntry(_generateKey(pName,physicalName));
                 }
             }
             else

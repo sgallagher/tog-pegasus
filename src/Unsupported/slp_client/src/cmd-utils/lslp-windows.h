@@ -25,7 +25,7 @@
  *  Originated: December 31, 1999 
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com 
- *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/Attic/lslp-windows.h,v 1.3 2003/10/23 17:35:40 mday Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/Attic/lslp-windows.h,v 1.4 2003/11/17 21:36:00 tony Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -65,10 +65,8 @@ extern "C" {
 #define _MT
 #endif
 
-
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <process.h>    /* _beginthread, _endthread */
@@ -88,8 +86,17 @@ typedef int int32;
 typedef unsigned int uint32;
 typedef __int64 int64;
 typedef unsigned __int64 uint64;
-  typdef SOCKET SOCKETD;
+typedef SOCKET SOCKETD;
   
+typedef struct socket_address {
+  struct sockaddr_in *address;
+  int address_len;
+} socket_addr ;
+
+typedef struct socket_address_list {
+  int count;
+  socket_addr *list;
+} socket_addr_list; 
 
 void WindowsStartNetwork(void);
 int32 gettimeofday(struct timeval *tv, struct timezone *tz);
@@ -129,6 +136,7 @@ int32 gettimeofday(struct timeval *tv, struct timezone *tz);
 
 /* void SLEEP(int32 milliseconds) */
 #define _LSLP_SLEEP Sleep
+#define _LSLP_SET_TTL(s, t)  setsockopt((s), IPPROTO_IP, IP_MULTICAST_TTL, (const char *)&(t), sizeof((t))) 
 
 /* void *(*start)(void *), ustacksize, void *arg           */
 #define _LSLP_BEGINTHREAD(start, stacksize, arg) _beginthread((start), (stacksize), (arg)) 
@@ -198,6 +206,9 @@ int32 gettimeofday(struct timeval *tv, struct timezone *tz);
 
 #define _LSLP_IOCTLSOCKET ioctlsocket
 #define LSLP_MTU 1400
+
+#define LSLP_FD_SET fd_set
+#define strcasecmp _stricmp
 
 
 /* ascii and char tests and conversions */

@@ -183,8 +183,8 @@ static void __cdecl cimserver_windows_thread(void *parm)
 
   // Put server start message to the logger
   Logger::put(Logger::STANDARD_LOG, PEGASUS_SERVICE_NAME, Logger::INFORMATION,
-  "Start $0 %1 port $2 $3 ", 88, PEGASUS_NAME, PEGASUS_VERSION,
-  (const char*)address, (pegasusIOTrace ? " Tracing": " "));
+  "Start $0 %1 $2 ", 88, PEGASUS_NAME, PEGASUS_VERSION,
+  (pegasusIOTrace ? " Tracing": " "));
   // ATTN: Should this really be: ...?
   //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
   //            "Started $0 version $1.", PEGASUS_NAME, PEGASUS_VERSION);

@@ -125,8 +125,15 @@ void CancelHandler (_CNL_Hndlr_Parms_T *cancelParms)
 }
 
 
-// iSeries-specific function to setup the server.
-int cimserver_os400_setup(void)
+////////////////////////////////////////////////////
+// iSeries-specific function to initialize the server.
+// Does the following:
+//    -- Sets the server type to QIBM_CIMOM
+//       so that iNavigator can start/stop it.
+//    -- Swaps the job user to QSYS. 
+//    -- Changes the authority of QYCMJOBD
+////////////////////////////////////////////////////
+int cimserver_initialize(void)
 {
     // This is where we swap ourselves to QSYS, and so on.
     // Don't check IOSYSCFG and ALLOBJ auth. of user here.
@@ -142,6 +149,10 @@ int cimserver_os400_setup(void)
 
    //////////////////////////////////////////
    // ??? TODO: DO WE NEED TO GET THE JOB NUMBER AND TRACE IT OUT ??????
+   ////////////////////////////////////////// 
+
+   //////////////////////////////////////////
+   // TODO: NEED TO SWAP TO QSYS
    ////////////////////////////////////////// 
 
    //////////////////////////////////////////
@@ -242,6 +253,9 @@ int cimserver_kill(void)
     return(0);
 }
 
+////////////////////////////////////////////////////
+//  Checks if the QYCMCIMOM server job is running.
+////////////////////////////////////////////////////
 Boolean isCIMServerRunning(void)
 {
   std::string number = YCMJOB_ALL_NUMBERS; // parameter passed to job::find method

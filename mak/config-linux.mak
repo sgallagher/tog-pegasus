@@ -22,7 +22,7 @@ endif
 
 SH = sh
 
-YACC = yacc
+YACC = bison
 
 COPY = cp
 

@@ -242,11 +242,11 @@ void ShutdownService::_shutdownCIMServer()
     // Tell CIMServer to shutdown completely.
     //
     _cimserver->shutdown();
-#ifndef PEGASUS_USE_23HTTPMONITOR    
-    // stop the monitor
-    _cimserver->get_monitor2()->stop();
     
-#endif    
+    #ifndef PEGASUS_USE_23HTTPMONITOR_SERVER    
+    // stop the monitor
+    _cimserver->get_monitor2()->stop();    
+    #endif    
 
 //    MessageQueueService::force_shutdown();
 

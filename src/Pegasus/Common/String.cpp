@@ -628,13 +628,13 @@ String& String::assignUTF8(const char* str)
 
 CString String::getCStringUTF8() const
 {
-    Uint32 n = size() + 1;
+    Uint32 n = 3*size();
     char* str = new char[n];
 
     const Char16* msg16 = getChar16Data();
 
     const Uint16 *strsrc = (Uint16 *)msg16;
-    Uint16 *endsrc = (Uint16 *)&msg16[2*n];
+    Uint16 *endsrc = (Uint16 *)&msg16[size()+1];
 
     Uint8 *strtgt = (Uint8 *)str;
     Uint8 *endtgt = (Uint8 *)&str[n];
@@ -644,7 +644,11 @@ CString String::getCStringUTF8() const
 		 &strtgt,
 		 endtgt);
 
-    return CString(str);
+	char* str1 = new char[strlen(str)+1];
+	strcpy(str1,str);
+	delete str;
+
+    return CString(str1);
 }
 
 Boolean String::isUTF8(const char *legal)

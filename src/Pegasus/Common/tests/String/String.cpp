@@ -286,23 +286,31 @@ int main(int argc, char** argv)
 	char utf8bad[]    = {  
                               0xFF,0xFF,0xFF
                             }; // utf8 string with mutliple byte characters 
-        Char16 utf16chr[] = {
+        Char16 utf16chr[] =	{
 					  0x0399,0x03BF,0x03CD,0x03BD,0x03B9,
                               0x03BA,0x03BF,0x03BD,0x03C4,0x00
-                            }; // utf16 representation of the utf8 string
+                            };  // utf16 representation of the utf8 string
 
 	String utf16string(utf16chr);
 	String utf8string(utf8chr,STRING_FLAG_UTF8);
 	String utf16merge(utf8string.getChar16Data());
 
+	CString temp = utf8string.getCStringUTF8();
+	CString temp2 = utf16string.getCStringUTF8();
+
+	const char*  tmp = (const char *)temp;
+	const char*  tmp2 = (const char *)temp2;
+	
 	assert(utf16string == utf8string);
 	assert(utf16string == utf16merge);
         assert(utf16string == utf16chr); 
 	assert(utf8string  == utf16chr); 
-        assert(strcmp(utf8string.getCStringUTF8(),utf16string.getCStringUTF8()));
-	assert(memcmp(utf8string.getChar16Data(),utf16string.getChar16Data(),2*utf16string.size()) == 0);
-	assert(strcmp(utf8string.getCStringUTF8(),utf8chr));
-	assert(strcmp(utf16string.getCStringUTF8(),utf8chr));
+        
+	assert(memcmp(utf8string.getChar16Data(),utf16string.getChar16Data(),sizeof(utf16chr)) == 0);
+	assert(strcmp(utf8string.getCStringUTF8(),utf8chr) == 0);
+        assert(strcmp(utf16string.getCStringUTF8(),utf8chr) == 0);
+	assert(strcmp(tmp,utf8chr) == 0);
+	assert(strcmp(tmp2,utf8chr) == 0);
 
         Uint32 count = 0;
 	Uint32 size = sizeof(utf8chr);

@@ -39,8 +39,8 @@ template<class T>
 class PEGASUS_COMMON_LINKAGE SimpleResponseHandler : public ResponseHandler<T>
 {
 public:
-    template<class T>
-    class SimpleResponseHandlerRep : public ResponseHandlerRep<T>
+    template<class _T>
+    class PEGASUS_COMMON_LINKAGE SimpleResponseHandlerRep : public ResponseHandlerRep<_T>
     {
     public:
         SimpleResponseHandlerRep(void)
@@ -59,12 +59,12 @@ public:
         {
         }
 
-        virtual void deliver(const T & object)
+        virtual void deliver(const _T & object)
         {
             _objects.append(object);
         }
 
-        virtual void deliver(const Array<T> & objects)
+        virtual void deliver(const Array<_T> & objects)
         {
             for(Uint32 i = 0, n = objects.size(); i < n; i++)
             {
@@ -72,13 +72,13 @@ public:
             }
         }
 
-        const Array<T> & getObjects(void) const
+        const Array<_T> & getObjects(void) const
         {
             return(_objects);
         }
 
-    public:
-        Array<T> _objects;
+    private:
+        Array<_T> _objects;
 
     };
 
@@ -110,7 +110,7 @@ public:
 
 };
 
-template<>
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline SimpleResponseHandler<void>::SimpleResponseHandler(void)
     : ResponseHandler<void>()
 {
@@ -119,4 +119,3 @@ inline SimpleResponseHandler<void>::SimpleResponseHandler(void)
 PEGASUS_NAMESPACE_END
 
 #endif
-

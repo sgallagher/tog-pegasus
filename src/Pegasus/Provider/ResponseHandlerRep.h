@@ -33,6 +33,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Sharable.h>
 
+#include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMIndication.h>
@@ -51,6 +52,14 @@ public:
     virtual void processing(void) = 0;
 
     virtual void complete() = 0;
+
+    virtual void deliver(const CIMObject & object)
+    {
+    }
+
+    virtual void deliver(const Array<CIMObject> & objects)
+    {
+    }
 
     virtual void deliver(const CIMClass & object)
     {

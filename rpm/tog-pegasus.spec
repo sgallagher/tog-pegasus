@@ -552,8 +552,6 @@ echo `date` >%INSTALL_LOG 2>&1
 
 /usr/lib/lsb/install_initd /etc/init.d/tog-pegasus
 
-/bin/chmod -f +w %PEGASUS_LOCAL_DOMAIN_SOCKET_DIR/cimxml.socket
-
 # Create symbolic links for client libs
 #
 cd %PEGASUS_DEST_LIB_DIR

@@ -399,7 +399,7 @@ int main(int argc, char ** argv)
 	}else{
 		cout << "Invalid number of arguments.\n" << endl;
 	}
-
+	delete _rep;
     	return 0;                                                                                                              
 }
 

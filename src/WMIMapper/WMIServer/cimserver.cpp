@@ -904,7 +904,7 @@ int main(int argc, char** argv)
     // try loop to bind the address, and run the server
     try
     {
-	Monitor monitor(true);
+	Monitor monitor;
 	CIMServer server(&monitor);
 
         if (enableHttpConnection)

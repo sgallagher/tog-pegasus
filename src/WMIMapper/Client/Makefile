@@ -38,6 +38,9 @@ SYS_LIBS = ws2_32.lib advapi32.lib
 include $(ROOT)/mak/library.mak
 
 copy2:
+	$(COPY) "$(ROOT)/src/Pegasus/Client/ClientPerfDataStore.cpp" "./ClientPerfDataStore.cpp"
+	$(COPY) "$(ROOT)/src/Pegasus/Client/ClientPerfDataStore.h" "./ClientPerfDataStore.h"
+	$(COPY) "$(ROOT)/src/Pegasus/Client/ClientOpPerformanceDataHandler.h" "./ClientOpPerformanceDataHandler.h"
 	$(COPY) "$(ROOT)/src/Pegasus/Client/CIMClientRep.cpp" "./CIMClientRep.cpp"
 	$(COPY) "$(ROOT)/src/Pegasus/Client/CIMClientRep.h" "./CIMClientRep.h"
 	$(COPY) "$(ROOT)/src/Pegasus/Client/CIMOperationRequestEncoder.cpp" "./CIMOperationRequestEncoder.cpp"
@@ -51,6 +54,9 @@ copy2:
 	$(COPY) "$(ROOT)/src/Pegasus/Client/Linkage.h" "./Linkage.h"
 
 clean2:
+	$(RM) ./ClientPerfDataStore.cpp
+	$(RM) ./ClientPerfDataStore.h
+	$(RM) ./ClientOpPerformanceDataHandler.h
 	$(RM) ./CIMClientRep.cpp
 	$(RM) ./CIMClientRep.h
 	$(RM) ./CIMOperationRequestEncoder.cpp

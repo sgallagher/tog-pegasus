@@ -38,6 +38,7 @@
 //                (carolann_graves@hp.com)
 //				Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//				Mateus Baur, Hewlett-Packard Company (mateus.baur@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -71,7 +72,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       void sendResponse(
 	 Uint32 queueId, 
-	 Array<Sint8>& message);
+	 Array<char>& message);
 
       void sendIMethodError(
 	 Uint32 queueId, 
@@ -103,7 +104,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
       void handleMethodCall(
 	 Uint32 queueId,
          HttpMethod httpMethod,
-	 Sint8* content,
+	 char* content,
          Uint32 contentLength,
 	 const String& cimProtocolVersionInHeader,
 	 const String& cimMethodInHeader,

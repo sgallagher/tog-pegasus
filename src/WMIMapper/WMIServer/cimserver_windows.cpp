@@ -36,6 +36,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //              Dan Gorey, IBM (djgorey@us.ibm.com)
+//              Mateus Baur, Hewlett-Packard Company (mateus.baur@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +44,8 @@
 #include <process.h>    /* _beginthread, _endthread */
 #include <tchar.h>
 #include <direct.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/Thread.h>  // l10n
 
 #include "service.cpp"
 
@@ -59,9 +62,11 @@ PEGASUS_USING_STD;
 //-------------------------------------------------------------------------
 // GLOBALS
 //-------------------------------------------------------------------------
-CIMServer *server_windows;
+static Mutex _cimserverLock;
+static CIMServer *server_windows = 0;
+static bool _shutdown = false;
 static Service pegasus_service(PEGASUS_SERVICE_NAME);
-static HANDLE pegasus_service_event;
+static HANDLE pegasus_service_event = NULL;
 static LPCSTR g_cimservice_key  = TEXT("SYSTEM\\CurrentControlSet\\Services\\%s");
 static LPCSTR g_cimservice_home = TEXT("home");
 
@@ -102,6 +107,7 @@ static void __cdecl cimserver_windows_thread(void *parm)
   ConfigManager::setPegasusHome(pegasusHome);
 
   ConfigManager* configManager = ConfigManager::getInstance();
+  
   int dummy = 0;
 
   try
@@ -113,12 +119,12 @@ static void __cdecl cimserver_windows_thread(void *parm)
       exit(1);
     }
 
-  Boolean enableHttpConnection = String::equal(
-    configManager->getCurrentValue("enableHttpConnection"), "true");
-  Boolean enableHttpsConnection = String::equal(
-    configManager->getCurrentValue("enableHttpsConnection"), "true");
-  Boolean enableSSLExportClientVerification = String::equal(
-    configManager->getCurrentValue("enableSSLExportClientVerification"), "true");
+	Boolean enableHttpConnection = String::equal(
+		configManager->getCurrentValue("enableHttpConnection"), "true");
+	Boolean enableHttpsConnection = String::equal(
+		configManager->getCurrentValue("enableHttpsConnection"), "true");
+	Boolean enableSSLExportClientVerification = String::equal(
+		configManager->getCurrentValue("enableSSLExportClientVerification"), "true");
 
   if (!enableHttpConnection && !enableHttpsConnection)
   {
@@ -203,7 +209,7 @@ static void __cdecl cimserver_windows_thread(void *parm)
    // try loop to bind the address, and run the server
   try
   {
-    Monitor monitor(true);
+    Monitor monitor;
     
     CIMServer server(&monitor);
     server_windows = &server;

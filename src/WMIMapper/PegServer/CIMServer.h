@@ -36,6 +36,7 @@
 //     Dan Gorey (djgorey@us.ibm.com)
 //     Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //     Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//     Mateus Baur, Hewlett-Packard Company (mateus.baur@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -73,14 +74,15 @@ class IndicationService;
 class ProviderManagerService;
 class ProviderRegistrationManager;
 class BinaryMessageHandler;
+class SSLContextManager;
+
 
 class PEGASUS_SERVER_LINKAGE CIMServer
 {
 public:
 
     enum Protocol { PROPRIETARY, STANDARD };
-    enum server_type {OLD, NEW };
-
+    
     /** Constructor - Creates a CIMServer object.
         The CIM Server objects establishes a repository object,
         a dispatcher object, and creates a channnel factory and
@@ -89,8 +91,7 @@ public:
         @exception - ATTN
     */
     CIMServer(Monitor* monitor);
-    CIMServer(monitor_2* monitor);
-
+    
     ~CIMServer();
 
     /** Adds a connection acceptor for the specified listen socket.
@@ -117,15 +118,7 @@ public:
     */
     void bind();
 
-    /** routine to call when monitor_2 is idle 
-     */
-    static void _monitor_idle_routine(void* parm);
-    
-
-    /** allow other modules to stop my monitor_2 
-     */
-    monitor_2* get_monitor2(void);
-    
+    void tickle_monitor();
 
     /** runForever Main runloop for the server.
     */
@@ -159,19 +152,13 @@ public:
 
     /** Signal to shutdown
     */
-    void shutdownSignal();
+    static void shutdownSignal();
 
 private:
-    void _init(void);
-
-    SSLContext* _getSSLContext();
-    SSLContext* _getExportSSLContext();
 
     Boolean _dieNow;
 
     Monitor* _monitor;
-    monitor_2* _monitor2;
-
     CIMRepository* _repository;
     CIMOperationRequestDispatcher* _cimOperationRequestDispatcher;
     CIMOperationResponseEncoder* _cimOperationResponseEncoder;
@@ -192,11 +179,10 @@ private:
     ProviderManagerService* _providerManager;
     ProviderRegistrationManager* _providerRegistrationManager;
     BinaryMessageHandler *_binaryMessageHandler;
+    SSLContextManager* _sslContextMgr;
     
-    AutoPtr<SSLContext> _sslcontext; //PEP101
-    AutoPtr<SSLContext> _exportSSLContext; //PEP101
-    server_type _type;
-
+    void _init(void);
+    SSLContext* _getSSLContext(Uint32 contextType);
 };
 
 PEGASUS_NAMESPACE_END

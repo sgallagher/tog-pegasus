@@ -1,4 +1,4 @@
-//%2005////////////////////////////////////////////////////////////////////////
+//%2004////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -6,8 +6,6 @@
 // IBM Corp.; EMC Corporation, The Open Group.
 // Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
-// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
-// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -60,7 +58,8 @@ static const String KERBEROS_CHALLENGE_HEADER = "WWW-Authenticate: Negotiate ";
 
 HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
     Uint32 operationMessageQueueId,
-    Uint32 exportMessageQueueId)
+    Uint32 exportMessageQueueId,
+	CIMRepository* repository)
    : Base(PEGASUS_QUEUENAME_HTTPAUTHDELEGATOR,
           MessageQueue::getNextQueueId()),
     _operationMessageQueueId(operationMessageQueueId),
@@ -90,7 +89,7 @@ void HTTPAuthenticatorDelegator::enqueue(Message* message) throw(IPCException)
 
 void HTTPAuthenticatorDelegator::_sendResponse(
     Uint32 queueId,
-    Array<Sint8>& message)
+    Array<char>& message)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::_sendResponse");
@@ -140,7 +139,7 @@ void HTTPAuthenticatorDelegator::_sendChallenge(
     // build unauthorized (401) response message
     //
 
-    Array<Sint8> message;
+    Array<char> message;
     XmlWriter::appendUnauthorizedResponseHeader(message, authResponse);
 
     _sendResponse(queueId, message);
@@ -161,7 +160,7 @@ void HTTPAuthenticatorDelegator::_sendHttpError(
     // build error response message
     //
 
-    Array<Sint8> message;
+    Array<char> message;
     message = XmlWriter::formatHttpErrorRspMessage(
         status,
         cimError,

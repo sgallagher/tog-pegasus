@@ -43,6 +43,7 @@
 //              Jair F. T. Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //				Seema Gupta (gseema@in.ibm.com) for PEP135
+//				Mateus Baur, Hewlett-Packard Company (mateus.baur@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -59,6 +60,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/OperationContext.h>
+#include <Pegasus/Common/CommonUTF.h>
 #include "CIMOperationRequestDecoder.h"
 #include "WMIMapperUserInfoContainer.h"
 
@@ -87,7 +89,7 @@ CIMOperationRequestDecoder::~CIMOperationRequestDecoder()
 
 void CIMOperationRequestDecoder::sendResponse(
    Uint32 queueId, 
-   Array<Sint8>& message)
+   Array<char>& message)
 {
    MessageQueue* queue = MessageQueue::lookup(queueId);
 
@@ -105,7 +107,7 @@ void CIMOperationRequestDecoder::sendIMethodError(
    const String& iMethodName,
    const CIMException& cimException)
 {
-    Array<Sint8> message;
+    Array<char> message;
     message = XmlWriter::formatSimpleIMethodErrorRspMessage(
         iMethodName,
         messageId,
@@ -122,7 +124,7 @@ void CIMOperationRequestDecoder::sendMethodError(
    const String& methodName,
    const CIMException& cimException)
 {
-    Array<Sint8> message;
+    Array<char> message;
     message = XmlWriter::formatSimpleMethodErrorRspMessage(
         methodName,
         messageId,
@@ -138,7 +140,7 @@ void CIMOperationRequestDecoder::sendHttpError(
    const String& cimError,
    const String& pegasusError) 
 {
-    Array<Sint8> message;
+    Array<char> message;
     message = XmlWriter::formatHttpErrorRspMessage(
         status,
         cimError,
@@ -198,6 +200,13 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDecoder::handleHTTPMessage()");
 
+   // l10n
+   // Set the Accept-Language into the thread for this service.
+   // This will allow all code in this thread to get
+   // the languages for the messages returned to the client.
+   Thread::setLanguages(new AcceptLanguages(httpMessage->acceptLanguages));
+
+   
    // Save queueId:
 
    Uint32 queueId = httpMessage->queueId;
@@ -219,7 +228,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
    String startLine;
    Array<HTTPHeader> headers;
-   Sint8* content;
+   char* content;
    Uint32 contentLength;
 
    httpMessage->parse(startLine, headers, contentLength);
@@ -256,6 +265,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
    // Process M-POST and POST messages:
 
+   String cimContentType;
    String cimOperation;
    String cimBatch;
    Boolean cimBatchFlag;
@@ -281,9 +291,15 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       //     status "400 Bad Request". The CIM Server MUST include a
       //     CIMError header in the response with a value of
       //     unsupported-operation.
-      sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "unsupported-operation",
-                    String("CIMOperation value \"") + cimOperation +
-                        "\" is not supported.");
+      //l10n
+      //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "unsupported-operation",
+                   // String("CIMOperation value \"") + cimOperation +
+                        //"\" is not supported.");
+     	MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMOPERATION_VALUE_NOT_SUPPORTED",
+   								 "CIMOperation value \"$0\" is not supported.",
+   								 cimOperation);
+   		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "unsupported-operation",
+   						MessageLoader::getMessage(parms));
       PEG_METHOD_EXIT();
       return;
    }
@@ -321,8 +337,13 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       if (cimMethod == String::EMPTY)
       {
          // This is not a valid value, and we use EMPTY to mean "absent"
-         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                       "Empty CIMMethod value.");
+         //l10n
+         //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                       //"Empty CIMMethod value.");
+        MessageLoaderParms parms("Server.CIMOperationRequestDecoder.EMPTY_CIMMETHOD_VALUE",
+   								 "Empty CIMMethod value.");
+   		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
          PEG_METHOD_EXIT();
          return;
       }
@@ -331,11 +352,16 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       {
          cimMethod = XmlReader::decodeURICharacters(cimMethod);
       }
-      catch (ParseError& e)
+      catch (const ParseError&)
       {
          // The CIMMethod header value could not be decoded
-         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                       "CIMMethod value syntax error.");
+         //l10n
+         //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                       //"CIMMethod value syntax error.");
+         MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMMETHOD_VALUE_SYNTAX_ERROR",
+   								 "CIMMethod value syntax error.");
+   		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms)); 
          PEG_METHOD_EXIT();
          return;
       }
@@ -346,8 +372,13 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       if (cimObject == String::EMPTY)
       {
          // This is not a valid value, and we use EMPTY to mean "absent"
-         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                       "Empty CIMObject value.");
+         //l10n
+         //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                       //"Empty CIMObject value.");
+         MessageLoaderParms parms("Server.CIMOperationRequestDecoder.EMPTY_CIMOBJECT_VALUE",
+   								 "Empty CIMObject value.");
+   		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
          PEG_METHOD_EXIT();
          return;
       }
@@ -356,52 +387,19 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       {
          cimObject = XmlReader::decodeURICharacters(cimObject);
       }
-      catch (ParseError& e)
+      catch (const ParseError&)
       {
          // The CIMObject header value could not be decoded
-         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                       "CIMObject value syntax error.");
+         //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                       //"CIMObject value syntax error.");
+         MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMOBJECT_VALUE_SYNTAX_ERROR",
+   								 "CIMObject value syntax error.");
+   		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
          PEG_METHOD_EXIT();
          return;
       }
    }
-
-// l10n start
-   AcceptLanguages acceptLanguages = AcceptLanguages::EMPTY;
-   ContentLanguages contentLanguages = ContentLanguages::EMPTY;
-   try 
-   { 
-		// Get and validate the Accept-Language header, if set 	   	  
-		String acceptLanguageHeader;		
-		if (HTTPMessage::lookupHeader(
-		      headers, 
-	    	  "Accept-Language", 
-		      acceptLanguageHeader,
-	    	  false) == true)
-	    {
-			acceptLanguages = AcceptLanguages(acceptLanguageHeader);
-	    }
-
-		// Get and validate the Content-Language header, if set 	
-		String contentLanguageHeader;
-		if (HTTPMessage::lookupHeader(
-		      headers, 
-	    	  "Content-Language", 
-		      contentLanguageHeader,
-	    	  false) == true)
-	    {						
-			contentLanguages = ContentLanguages(contentLanguageHeader);      
-	    }
-   }			
-   catch (Exception &e)
-   {
-		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, 
-					"request-not-valid",
-                    e.getMessage());		         	
-       	PEG_METHOD_EXIT();
-       	return;
-   }        
-// l10n end   
 
    // Zero-terminate the message:
 
@@ -411,8 +409,53 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    // the content length.  Subtract 1 to take into account the null
    // character we just added to the end of the message.
 
-   content = (Sint8*) httpMessage->message.getData() +
+   content = (char *) httpMessage->message.getData() +
    httpMessage->message.size() - contentLength - 1;
+
+   // Validate the "Content-Type" header:
+
+   Boolean contentTypeHeaderFound = HTTPMessage::lookupHeader(headers,
+							    "Content-Type",
+							    cimContentType,
+							    true);
+
+   if(!(String::equalNoCase(cimContentType, "application/xml; charset=\"utf-8\"")  ||
+  	     String::equalNoCase(cimContentType, "text/xml; charset=\"utf-8\"") ||
+	     contentTypeHeaderFound))
+   {
+   		//l10n
+       //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                       //"CIMContentType value syntax error.");
+       	MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMCONTENTTYPE_SYNTAX_ERROR",
+   								 "CIMContentType value syntax error.");
+   		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
+       PEG_METHOD_EXIT();
+       return; 
+   }
+   // Validating content falls within UTF8
+   // (required to be complaint with section C12 of Unicode 4.0 spec, chapter 3.)
+   else
+   {
+       Uint32 count = 0;
+       while(count<contentLength)
+       {
+	   if (!(isUTF8((char *)&content[count])))
+	   {
+	   		//l10n
+	       //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",
+			     //"Invalid UTF-8 character detected.");
+			MessageLoaderParms parms("Server.CIMOperationRequestDecoder.INVALID_UTF8_CHARACTER",
+   								 "Invalid UTF-8 character detected.");
+   			sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",
+   						MessageLoader::getMessage(parms));
+			
+	       PEG_METHOD_EXIT();
+	       return; 
+	   }
+	   UTF8_NEXT(content,count);
+       }
+   }
 
    // If it is a method call, then dispatch it to be handled:
 
@@ -420,7 +463,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    handleMethodCall(queueId, httpMethod, content, contentLength, 
                     cimProtocolVersion, cimMethod,
                     cimObject, authType, userName, password, 
-					acceptLanguages, contentLanguages);
+					httpMessage->acceptLanguages, httpMessage->contentLanguages); 
     
    PEG_METHOD_EXIT();
 }
@@ -429,7 +472,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 void CIMOperationRequestDecoder::handleMethodCall(
    Uint32 queueId,
    HttpMethod httpMethod,
-   Sint8* content,
+   char* content,
    Uint32 contentLength,    // used for statistics only
    const String& cimProtocolVersionInHeader,
    const String& cimMethodInHeader,
@@ -443,22 +486,19 @@ void CIMOperationRequestDecoder::handleMethodCall(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDecoder::handleMethodCall()");
 
-/*
-// l10n
-	// Set the Accept-Language into the thread for this service.
-	// This will allow all code in this thread to get
-	// the languages for the messages returned to the client.
-	Thread::setLanguages(new AcceptLanguages(httpAcceptLanguages));		
-*/
-
    //
    // If CIMOM is shutting down, return "Service Unavailable" response
    //
    if (_serverTerminating)
    {
-       sendHttpError(queueId, HTTP_STATUS_SERVICEUNAVAILABLE,
-                     String::EMPTY,
-                     "CIM Server is shutting down.");
+    //l10n
+       //sendHttpError(queueId, HTTP_STATUS_SERVICEUNAVAILABLE,
+                     //String::EMPTY,
+                     //"CIM Server is shutting down.");
+       MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMSERVER_SHUTTING_DOWN",
+   								 "CIM Server is shutting down.");
+   		sendHttpError(queueId, HTTP_STATUS_SERVICEUNAVAILABLE, String::EMPTY,
+   						MessageLoader::getMessage(parms));
        PEG_METHOD_EXIT();
        return;
    }
@@ -471,7 +511,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
    XmlEntry entry;
    String messageId;
    const char* cimMethodName = "";
-   Message* request;
+   AutoPtr<Message> request;
 
    try
    {
@@ -494,22 +534,55 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
       if (strcmp(cimVersion, "2.0") != 0)
       {
-         sendHttpError(queueId,
-                       HTTP_STATUS_NOTIMPLEMENTED,
-                       "unsupported-cim-version",
-                       String("CIM version \"") + cimVersion +
-                           "\" is not supported.");
+      	//l10n
+         //sendHttpError(queueId,
+                      // HTTP_STATUS_NOTIMPLEMENTED,
+                      // "unsupported-cim-version",
+                       //String("CIM version \"") + cimVersion +
+                          // "\" is not supported.");
+         MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIM_VERSION_NOT_SUPPORTED",
+   								 "CIM version \"$0\" is not supported.",
+   								 cimVersion);
+   		sendHttpError(queueId, HTTP_STATUS_NOTIMPLEMENTED, "unsupported-cim-version",
+   						MessageLoader::getMessage(parms));
          PEG_METHOD_EXIT();
          return;
       }
 
-      if (strcmp(dtdVersion, "2.0") != 0)
+      // We accept DTD version 2.x (see Bugzilla 1556)
+
+      Boolean dtdVersionAccepted = false;
+
+      if ((dtdVersion[0] == '2') &&
+          (dtdVersion[1] == '.') &&
+          (dtdVersion[2] != 0))
       {
-         sendHttpError(queueId,
-                       HTTP_STATUS_NOTIMPLEMENTED,
-                       "unsupported-dtd-version",
-                       String("DTD version \"") + dtdVersion +
-                           "\" is not supported.");
+         // Verify that all characters after the '.' are digits
+         Uint32 index = 2;
+         while (isdigit(dtdVersion[index]))
+         {
+            index++;
+         }
+
+         if (dtdVersion[index] == 0)
+         {
+            dtdVersionAccepted = true;
+         }
+      }
+
+      if (!dtdVersionAccepted)
+      {
+      	//l10n
+         //sendHttpError(queueId,
+                       //HTTP_STATUS_NOTIMPLEMENTED,
+                       //"unsupported-dtd-version",
+                       //String("DTD version \"") + dtdVersion +
+                           //"\" is not supported.");
+         MessageLoaderParms parms("Server.CIMOperationRequestDecoder.DTD_VERSION_NOT_SUPPORTED",
+   								 "DTD version \"$0\" is not supported.",
+   								 dtdVersion);
+   		sendHttpError(queueId, HTTP_STATUS_NOTIMPLEMENTED, "unsupported-dtd-version",
+   						MessageLoader::getMessage(parms));
          PEG_METHOD_EXIT();
          return;
       }
@@ -527,8 +600,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	// throw XmlValidationError(
 	//  parser.getLine(), "expected MESSAGE element");
 
-	MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
-				   "expected $0 element", "MESSAGE");
+	MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_MESSAGE_ELEMENT",
+				   "expected MESSAGE element");
 
 	throw XmlValidationError(parser.getLine(), mlParms);
 				 
@@ -539,25 +612,59 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
       if (!String::equalNoCase(protocolVersion, cimProtocolVersionInHeader))
       {
-         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                       String("CIMProtocolVersion value \"") +
-                           cimProtocolVersionInHeader + "\" does not " +
-                           "match CIM request protocol version \"" +
-                           protocolVersion + "\".");
+        //l10n
+         //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                       //String("CIMProtocolVersion value \"") +
+                           //cimProtocolVersionInHeader + "\" does not " +
+                          // "match CIM request protocol version \"" +
+                           //protocolVersion + "\".");
+         MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMPROTOCOL_VERSION_MISMATCH",
+   								 "CIMProtocolVersion value \"$0\" does not match CIM request protocol version \"$1\".",
+   								 cimProtocolVersionInHeader,
+   								 protocolVersion);
+   		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
          PEG_METHOD_EXIT();
          return;
       }
 
-      // We only support protocol version 1.0
+      // We accept protocol version 1.x (see Bugzilla 1556)
 
-      if (!String::equalNoCase(protocolVersion, "1.0"))
+      Boolean protocolVersionAccepted = false;
+
+      if ((protocolVersion.size() >= 3) &&
+          (protocolVersion[0] == '1') &&
+          (protocolVersion[1] == '.'))
+      {
+         // Verify that all characters after the '.' are digits
+         Uint32 index = 2;
+         while ((index < protocolVersion.size()) &&
+                (protocolVersion[index] >= '0') &&
+                (protocolVersion[index] <= '9'))
+         {
+            index++;
+         }
+
+         if (index == protocolVersion.size())
+         {
+            protocolVersionAccepted = true;
+         }
+      }
+
+      if (!protocolVersionAccepted)
       {
          // See Specification for CIM Operations over HTTP section 4.3
-         sendHttpError(queueId,
-                       HTTP_STATUS_NOTIMPLEMENTED,
-                       "unsupported-protocol-version",
-                       String("CIMProtocolVersion \"") + protocolVersion +
-                           "\" is not supported.");
+         //l10n
+         //sendHttpError(queueId,
+                       //HTTP_STATUS_NOTIMPLEMENTED,
+                       //"unsupported-protocol-version",
+                       //String("CIMProtocolVersion \"") + protocolVersion +
+                           //"\" is not supported.");
+         MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMPROTOCOL_VERSION_NOT_SUPPORTED",
+   								 "CIMProtocolVersion \"$0\" is not supported.",
+   								 protocolVersion);
+   		sendHttpError(queueId, HTTP_STATUS_NOTIMPLEMENTED, "unsupported-protocol-version",
+   						MessageLoader::getMessage(parms));
          PEG_METHOD_EXIT();
          return;
       }
@@ -566,8 +673,13 @@ void CIMOperationRequestDecoder::handleMethodCall(
       {
          // We wouldn't have gotten here if CIMBatch header was specified,
          // so this must be indicative of a header mismatch
-         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                       "Multi-request is missing CIMBatch HTTP header");
+         //l10n
+         //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                       //"Multi-request is missing CIMBatch HTTP header");
+         MessageLoaderParms parms("Server.CIMOperationRequestDecoder.MULTI_REQUEST_MISSING_CIMBATCH_HTTP_HEADER",
+   								 "Multi-request is missing CIMBatch HTTP header");
+   		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
          PEG_METHOD_EXIT();
          return;
          // Future: When MULTIREQ is supported, must ensure CIMMethod and
@@ -618,15 +730,26 @@ void CIMOperationRequestDecoder::handleMethodCall(
             // ATTN-RK-P3-20020304: How to decode cimMethodInHeader?
             if (cimMethodInHeader == String::EMPTY)
             {
-               sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                             "Missing CIMMethod HTTP header.");
+            	//l10n
+               //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                             //"Missing CIMMethod HTTP header.");
+               MessageLoaderParms parms("Server.CIMOperationRequestDecoder.MISSING_CIMMETHOD_HTTP_HEADER",
+   								 "Missing CIMMethod HTTP header.");
+   				sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
             }
             else
             {
-               sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                             String("CIMMethod value \"") + cimMethodInHeader +
-                                 "\" does not match CIM request method \"" +
-                                 cimMethodName + "\".");
+               //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                             //String("CIMMethod value \"") + cimMethodInHeader +
+                                 //"\" does not match CIM request method \"" +
+                                 //cimMethodName + "\".");
+               MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMMETHOD_VALUE_DOES_NOT_MATCH_REQUEST_METHOD",
+   								 "CIMMethod value \"$0\" does not match CIM request method \"$1\".",
+   								 cimMethodInHeader,
+   								 cimMethodName);
+   				sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
             }
             PEG_METHOD_EXIT();
             return;
@@ -644,8 +767,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	   // throw XmlValidationError(parser.getLine(), 
 	   // "expected LOCALNAMESPACEPATH element");
 
-	   MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
-				      "expected $0 element", "LOCALNAMESPACEPATH");
+	   MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_LOCALNAMESPACEPATH_ELEMENT",
+				      "expected LOCALNAMESPACEPATH element");
 
 	   throw XmlValidationError(parser.getLine(),mlParms);
 				    
@@ -689,15 +812,27 @@ void CIMOperationRequestDecoder::handleMethodCall(
          {
             if (cimObjectInHeader == String::EMPTY)
             {
-               sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                             "Missing CIMObject HTTP header.");
+            	//l10n
+               //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                             //"Missing CIMObject HTTP header.");
+               MessageLoaderParms parms("Server.CIMOperationRequestDecoder.MISSING_CIMOBJECT_HTTP_HEADER",
+   								 "Missing CIMObject HTTP header.");
+   				sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
             }
             else
             {
-               sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                             String("CIMObject value \"") + cimObjectInHeader +
-                                 "\" does not match CIM request object \"" +
-                                 nameSpace + "\".");
+            	//l10n
+               //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                             //String("CIMObject value \"") + cimObjectInHeader +
+                                 //"\" does not match CIM request object \"" +
+                                 //nameSpace + "\".");
+               MessageLoaderParms parms("Server.CIMOperationRequestDecoder.Server.CIMOperationRequestDecoder.CIMOBJECT_VALUE_DOES_NOT_MATCH_REQUEST_OBJECT:",
+   								 "CIMObject value \"$0\" does not match CIM request object \"$1\".",
+   								 cimObjectInHeader,
+   								 nameSpace);
+   				sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
             }
             PEG_METHOD_EXIT();
             return;
@@ -711,74 +846,74 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	    // Delegate to appropriate method to handle:
 
             if (System::strcasecmp(cimMethodName, "GetClass") == 0)
-               request = decodeGetClassRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeGetClassRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "GetInstance") == 0)
-               request = decodeGetInstanceRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeGetInstanceRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "EnumerateClassNames") == 0)
-               request = decodeEnumerateClassNamesRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeEnumerateClassNamesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "References") == 0)
-               request = decodeReferencesRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeReferencesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "ReferenceNames") == 0)
-               request = decodeReferenceNamesRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeReferenceNamesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "AssociatorNames") == 0)
-               request = decodeAssociatorNamesRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeAssociatorNamesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "Associators") == 0)
-               request = decodeAssociatorsRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeAssociatorsRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "CreateInstance") == 0)
-               request = decodeCreateInstanceRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeCreateInstanceRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "EnumerateInstanceNames")==0)
-               request = decodeEnumerateInstanceNamesRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeEnumerateInstanceNamesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "DeleteQualifier") == 0)
-               request = decodeDeleteQualifierRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeDeleteQualifierRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "GetQualifier") == 0)
-               request = decodeGetQualifierRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeGetQualifierRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "SetQualifier") == 0)
-               request = decodeSetQualifierRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeSetQualifierRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "EnumerateQualifiers") == 0)
-               request = decodeEnumerateQualifiersRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeEnumerateQualifiersRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "EnumerateClasses") == 0)
-               request = decodeEnumerateClassesRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeEnumerateClassesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "EnumerateInstances") == 0)
-               request = decodeEnumerateInstancesRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeEnumerateInstancesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "CreateClass") == 0)
-               request = decodeCreateClassRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeCreateClassRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "ModifyClass") == 0)
-               request = decodeModifyClassRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeModifyClassRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "ModifyInstance") == 0)
-               request = decodeModifyInstanceRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeModifyInstanceRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "DeleteClass") == 0)
-               request = decodeDeleteClassRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeDeleteClassRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "DeleteInstance") == 0)
-               request = decodeDeleteInstanceRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeDeleteInstanceRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "GetProperty") == 0)
-               request = decodeGetPropertyRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeGetPropertyRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "SetProperty") == 0)
-               request = decodeSetPropertyRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeSetPropertyRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else if (System::strcasecmp(cimMethodName, "ExecQuery") == 0)
-               request = decodeExecQueryRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
+               request.reset(decodeExecQueryRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName));
             else
             {
 	      // l10n
@@ -786,7 +921,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	      // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
 	      // String("Unrecognized intrinsic method: ") + cimMethodName);
 
-	      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, MessageLoaderParms("Server.CIMOperationRequestDecoder.UNRECOGNIZED_INSTRINSIC_METHOD",
+	      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, MessageLoaderParms("Server.CIMOperationRequestDecoder.UNRECOGNIZED_INTRINSIC_METHOD",
 									     "Unrecognized intrinsic method: $0", cimMethodName));
 
             }
@@ -803,8 +938,29 @@ void CIMOperationRequestDecoder::handleMethodCall(
             PEG_METHOD_EXIT();
             return;
          }
+		 catch (XmlException&)
+         {
+            // XmlExceptions are handled below
+            throw;
+         }
+         catch (Exception& e)
+         {
+            // Caught an unexpected exception from decoding.  Since we must
+            // have had a problem reconstructing a CIM object, we'll treat it
+            // as an invalid parameter
+            sendIMethodError(
+               queueId, 
+               httpMethod,
+               messageId,
+               cimMethodName,
+               PEGASUS_CIM_EXCEPTION(
+                  CIM_ERR_INVALID_PARAMETER, e.getMessage()));
 
-	 // Expect </IMETHODCALL>
+            PEG_METHOD_EXIT();
+            return;
+         }
+
+	 // Expect </IMETHODCALL> 
 
 	 XmlReader::expectEndTag(parser, "IMETHODCALL");
       }
@@ -812,7 +968,6 @@ void CIMOperationRequestDecoder::handleMethodCall(
       else if (XmlReader::getMethodCallStartTag(parser, cimMethodName))
       {
 	 CIMObjectPath reference;
-	 XmlEntry        entry;
 
          // The Specification for CIM Operations over HTTP reads:
          //     3.3.6. CIMMethod
@@ -845,72 +1000,52 @@ void CIMOperationRequestDecoder::handleMethodCall(
          //     "400 Bad Request" (and MUST include a CIMError header in the
          //     response with a value of header-mismatch), subject to the
          //     considerations specified in Errors.
-         if (!String::equalNoCase(cimMethodName, cimMethodInHeader))
+         
+		 // Extrinic methods can have UTF-8!
+         String cimMethodNameUTF16(cimMethodName);
+         if (cimMethodNameUTF16 != cimMethodInHeader)
          {
             // ATTN-RK-P3-20020304: How to decode cimMethodInHeader?
             if (cimMethodInHeader == String::EMPTY)
             {
-               sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                             "Missing CIMMethod HTTP header.");
+            	//l10n
+               //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                             //"Missing CIMMethod HTTP header.");
+               MessageLoaderParms parms("Server.CIMOperationRequestDecoder.MISSING_CIMMETHOD_HTTP_HEADER",
+   								 "Missing CIMMethod HTTP header.");
+   				sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
             }
             else
             {
-               sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                             String("CIMMethod value \"") + cimMethodInHeader +
-                                 "\" does not match CIM request method \"" +
-                                 cimMethodName + "\".");
+            	//l10n
+               //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                             //String("CIMMethod value \"") + cimMethodInHeader +
+                                 //"\" does not match CIM request method \"" +
+                                 //cimMethodName + "\".");
+               MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMMETHOD_VALUE_DOES_NOT_MATCH_REQUEST_METHOD",
+   								 "CIMMethod value \"$0\" does not match CIM request method \"$1\".",
+   								 ( const char *)cimMethodInHeader.getCString(),
+   								 cimMethodName);
+   				sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
             }
             PEG_METHOD_EXIT();
             return;
          }
 
 	 //
-	 // Check for <LOCALINSTANCEPATHELEMENT ...>
+	 // Check for <LOCALINSTANCEPATHELEMENT> or <LOCALCLASSPATHELEMENT>
 	 //
-	 if ( XmlReader::testStartTag (parser, entry,
-				       XML_ELEMENT_LOCALINSTANCEPATH))
+         if (!(XmlReader::getLocalInstancePathElement(parser, reference) ||
+               XmlReader::getLocalClassPathElement(parser, reference)))
 	 {
-	    parser.putBack(entry);
-	    if (!XmlReader::getLocalInstancePathElement(parser, reference))
-	    {
-
-	      // l10n
-
-	      // throw XmlValidationError(parser.getLine(),
-	      // "expected LOCALINSTANCEPATH element");
-	      
-	      MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
-					 "expected $0 element", "LOCALINSTANCEPATH");
-
-	      throw XmlValidationError(parser.getLine(),mlParms);
-
-				       
-	    }
-	 }
-	 //
-	 // Check for <LOCALCLASSPATHELEMENT ...>
-	 //
-	 else if ( XmlReader::testStartTag( parser, entry,
-					    XML_ELEMENT_LOCALCLASSPATH))
-	 {
-	    parser.putBack(entry);
-	    if (!XmlReader::getLocalClassPathElement(parser, reference))
-	    {
-	      // l10n
-
-	      // throw XmlValidationError(parser.getLine(),
-	      // "expected LOCALCLASSPATH element");
-
-	      MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
-					 "expected $0 element", "LOCALCLASSPATH");
-
-	      throw XmlValidationError(parser.getLine(),mlParms);
-
-	    }
-	 }
-	 else
-	 {
-	   throw XmlValidationError(parser.getLine(), MISSING_ELEMENT_LOCALPATH);
+           // l10n TODO Done
+           MessageLoaderParms parms("Common.XmlConstants.MISSING_ELEMENT_LOCALPATH",
+           													 MISSING_ELEMENT_LOCALPATH);
+           throw XmlValidationError(parser.getLine(), parms);
+	   //throw XmlValidationError(parser.getLine(), MISSING_ELEMENT_LOCALPATH);
+	   
 	   // this throw is not updated with MLP because MISSING_ELEMENT_LOCALPATH
 	   // is a hardcoded variable, not a message
 	 }
@@ -950,8 +1085,13 @@ void CIMOperationRequestDecoder::handleMethodCall(
          //     considerations specified in Errors.
          if (cimObjectInHeader == String::EMPTY)
          {
-            sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                          "Missing CIMObject HTTP header.");
+            //l10n
+            //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                          //"Missing CIMObject HTTP header.");
+            MessageLoaderParms parms("Server.CIMOperationRequestDecoder.MISSING_CIMOBJECT_HTTP_HEADER",
+   								 "Missing CIMObject HTTP header.");
+   			sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
             PEG_METHOD_EXIT();
             return;
          }
@@ -963,19 +1103,32 @@ void CIMOperationRequestDecoder::handleMethodCall(
          }
          catch (Exception&)
          {
-            sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                          String("Could not parse CIMObject value \"") +
-                              cimObjectInHeader + "\".");
+            //l10n
+            //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                          //String("Could not parse CIMObject value \"") +
+                              //cimObjectInHeader + "\".");
+            MessageLoaderParms parms("Server.CIMOperationRequestDecoder.Server.CIMOperationRequestDecoder.COULD_NOT_PARSE_CIMOBJECT_VALUE",
+   								 "Could not parse CIMObject value \"$0\".",
+   								 cimObjectInHeader);
+   			sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
             PEG_METHOD_EXIT();
             return;
          }
 
          if (!reference.identical(headerObjectReference))
          {
-            sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                          String("CIMObject value \"") + cimObjectInHeader +
-                              "\" does not match CIM request object \"" +
-                              reference.toString() + "\".");
+            //l10n
+            //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                          //String("CIMObject value \"") + cimObjectInHeader +
+                              //"\" does not match CIM request object \"" +
+                              //reference.toString() + "\".");
+            MessageLoaderParms parms("Server.CIMOperationRequestDecoder.Server.CIMOperationRequestDecoder.CIMOBJECT_VALUE_DOES_NOT_MATCH_REQUEST_OBJECT:",
+   								 "CIMObject value \"$0\" does not match CIM request object \"$1\".",
+   								 cimObjectInHeader,
+   								 reference.toString());
+   				sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+   						MessageLoader::getMessage(parms));
             PEG_METHOD_EXIT();
             return;
          }
@@ -987,14 +1140,14 @@ void CIMOperationRequestDecoder::handleMethodCall(
          {
 	    // Delegate to appropriate method to handle:
 
-            request = decodeInvokeMethodRequest(
+            request.reset(decodeInvokeMethodRequest(
                queueId, 
                parser, 
                messageId, 
                reference, 
-               cimMethodName,
+               cimMethodNameUTF16,   // contains UTF-16 converted from UTF-8
                authType,
-               userName);
+               userName));
          }
          catch (CIMException& e)
          {
@@ -1002,8 +1155,29 @@ void CIMOperationRequestDecoder::handleMethodCall(
                queueId, 
                httpMethod,
                messageId,
-               cimMethodName,
+               cimMethodNameUTF16,   // contains UTF-16 converted from UTF-8
                e);
+
+            PEG_METHOD_EXIT();
+            return;
+         }
+         catch (XmlException&)
+         {
+            // XmlExceptions are handled below
+            throw;
+         }
+         catch (Exception& e)
+         {
+            // Caught an unexpected exception from decoding.  Since we must
+            // have had a problem reconstructing a CIM object, we'll treat it
+            // as an invalid parameter
+            sendMethodError(
+               queueId, 
+               httpMethod,
+               messageId,
+               cimMethodNameUTF16,   // contains UTF-16 converted from UTF-8
+               PEGASUS_CIM_EXCEPTION(
+                  CIM_ERR_INVALID_PARAMETER, e.getMessage()));
 
             PEG_METHOD_EXIT();
             return;
@@ -1020,8 +1194,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	// throw XmlValidationError(parser.getLine(), 
 	// "expected IMETHODCALL or METHODCALL element");
 
-	MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
-				   "expected $0 element", "IMETHODCALL or METHODCALL");
+	MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_IMETHODCALL_ELEMENT",
+				   "expected IMETHODCALL or METHODCALL element");
 
 	throw XmlValidationError(parser.getLine(),mlParms);
 			       
@@ -1094,13 +1268,13 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
    request->setHttpMethod (httpMethod);
    
-   ((CIMRequestMessage *)request)->operationContext.insert(WMIMapperUserInfoContainer(password));
+   ((CIMRequestMessage *) (request.get()))->operationContext.insert(WMIMapperUserInfoContainer(password));
 
 //l10n start
 // l10n TODO - might want to move A-L and C-L to Message
 // to make this more maintainable
 	// Add the language headers to the request
-	CIMMessage * cimmsg = dynamic_cast<CIMMessage *>(request);
+	CIMMessage * cimmsg = dynamic_cast<CIMMessage *>(request.get());
 	if (cimmsg != NULL)
 	{
 		cimmsg->operationContext.set(AcceptLanguageListContainer(httpAcceptLanguages));
@@ -1113,7 +1287,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	}
 // l10n end	
 
-   _outputQueue->enqueue(request);
+   _outputQueue->enqueue(request.release());
    
    PEG_METHOD_EXIT();
 }
@@ -1134,14 +1308,16 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
    CIMClass newClass;
    Boolean duplicateParameter = false;
    Boolean gotClass = false;
+   Boolean emptyTag;
 
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "NewClass") == 0)
       {
-	 XmlReader::getClassElement(parser, newClass);
-	 duplicateParameter = gotClass;
-	 gotClass = true;
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+	     XmlReader::getClassElement(parser, newClass);
+	     duplicateParameter = gotClass;
+	     gotClass = true;
       }
       else
       {
@@ -1149,7 +1325,10 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -1164,18 +1343,18 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
  
-   CIMCreateClassRequestMessage* request = new CIMCreateClassRequestMessage(
+   AutoPtr<CIMCreateClassRequestMessage> request(new CIMCreateClassRequestMessage(
       messageId,
       nameSpace,
       newClass,
       QueueIdStack(queueId, _returnQueueId),
       authType,
-      userName);
+      userName));
 
    STAT_SERVERSTART
 
    PEG_METHOD_EXIT();
-   return(request);
+   return(request.release());
 }
 
 CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
@@ -1202,47 +1381,55 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
    Boolean gotIncludeQualifiers = false;
    Boolean gotIncludeClassOrigin = false;
    Boolean gotPropertyList = false;
+   Boolean emptyTag;
 
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "ClassName") == 0)
       {
-	 XmlReader::getClassNameElement(parser, className, true);
-	 duplicateParameter = gotClassName;
-	 gotClassName = true;
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+	     XmlReader::getClassNameElement(parser, className, true);
+	     duplicateParameter = gotClassName;
+	     gotClassName = true;
       }
       else if (System::strcasecmp(name, "LocalOnly") == 0)
       {
-	 XmlReader::getBooleanValueElement(parser, localOnly, true);
-	 duplicateParameter = gotLocalOnly;
-	 gotLocalOnly = true;
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+	     XmlReader::getBooleanValueElement(parser, localOnly, true);
+	     duplicateParameter = gotLocalOnly;
+	     gotLocalOnly = true;
       }
       else if (System::strcasecmp(name, "IncludeQualifiers") == 0)
       {
-	 XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
-	 duplicateParameter = gotIncludeQualifiers;
-	 gotIncludeQualifiers = true;
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+	     XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
+	     duplicateParameter = gotIncludeQualifiers;
+	     gotIncludeQualifiers = true;
       }
       else if (System::strcasecmp(name, "IncludeClassOrigin") == 0)
       {
-	 XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
-	 duplicateParameter = gotIncludeClassOrigin;
-	 gotIncludeClassOrigin = true;
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
+	     XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
+	     duplicateParameter = gotIncludeClassOrigin;
+	     gotIncludeClassOrigin = true;
       }
       else if (System::strcasecmp(name, "PropertyList") == 0)
       {
-	 CIMValue pl;
-	 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
-	 {
-	    Array<String> propertyListArray;
-	    pl.get(propertyListArray);
-            Array<CIMName> cimNameArray;
-            for (Uint32 i = 0; i < propertyListArray.size(); i++)
+         if (!emptyTag)
+         {
+            CIMValue pl;
+            if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
             {
-                cimNameArray.append(propertyListArray[i]);
+               Array<String> propertyListArray;
+               pl.get(propertyListArray);
+               Array<CIMName> cimNameArray;
+               for (Uint32 i = 0; i < propertyListArray.size(); i++)
+               {
+                   cimNameArray.append(propertyListArray[i]);
+               }
+               propertyList.set(cimNameArray);
             }
-	    propertyList.set(cimNameArray);
-	 }
+         }
 	 duplicateParameter = gotPropertyList;
 	 gotPropertyList = true;
       }
@@ -1252,7 +1439,10 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -1267,7 +1457,7 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMGetClassRequestMessage* request = new CIMGetClassRequestMessage(
+   AutoPtr<CIMGetClassRequestMessage> request(new CIMGetClassRequestMessage(
       messageId,
       nameSpace,
       className,
@@ -1277,12 +1467,12 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
       propertyList,
       QueueIdStack(queueId, _returnQueueId),
       authType,
-      userName);
+      userName));
 
    STAT_SERVERSTART
 
    PEG_METHOD_EXIT();
-   return(request);
+   return(request.release());
 }
 
 CIMModifyClassRequestMessage* CIMOperationRequestDecoder::decodeModifyClassRequest(
@@ -1298,11 +1488,13 @@ CIMModifyClassRequestMessage* CIMOperationRequestDecoder::decodeModifyClassReque
    CIMClass modifiedClass;
    Boolean duplicateParameter = false;
    Boolean gotClass = false;
-
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   Boolean emptyTag;
+   
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "ModifiedClass") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getClassElement(parser, modifiedClass);
 	 duplicateParameter = gotClass;
 	 gotClass = true;
@@ -1312,7 +1504,10 @@ CIMModifyClassRequestMessage* CIMOperationRequestDecoder::decodeModifyClassReque
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -1325,18 +1520,18 @@ CIMModifyClassRequestMessage* CIMOperationRequestDecoder::decodeModifyClassReque
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMModifyClassRequestMessage* request = 
+   AutoPtr<CIMModifyClassRequestMessage> request(
       new CIMModifyClassRequestMessage(
 	 messageId,
 	 nameSpace,
 	 modifiedClass,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateClassNamesRequest(
@@ -1354,20 +1549,25 @@ CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
    Boolean duplicateParameter = false;
    Boolean gotClassName = false;
    Boolean gotDeepInheritance = false;
-
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   Boolean emptyTag;
+   
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "ClassName") == 0)
       {
          //
          //  ClassName may be NULL
          //
-	 XmlReader::getClassNameElement(parser, className, false);
+         if (!emptyTag)
+         {
+             XmlReader::getClassNameElement(parser, className, false);
+         }
 	 duplicateParameter = gotClassName;
 	 gotClassName = true;
       }
       else if (System::strcasecmp(name, "DeepInheritance") == 0)
       {
+     XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getBooleanValueElement(parser, deepInheritance, true);
 	 duplicateParameter = gotDeepInheritance;
 	 gotDeepInheritance = true;
@@ -1377,7 +1577,10 @@ CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -1385,7 +1588,7 @@ CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
       }
    }
 
-   CIMEnumerateClassNamesRequestMessage* request = 
+   AutoPtr<CIMEnumerateClassNamesRequestMessage> request(
       new CIMEnumerateClassNamesRequestMessage(
 	 messageId,
 	 nameSpace,
@@ -1393,11 +1596,11 @@ CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
 	 deepInheritance,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateClassesRequest(
@@ -1421,38 +1624,46 @@ CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateCl
    Boolean gotLocalOnly = false;
    Boolean gotIncludeQualifiers = false;
    Boolean gotIncludeClassOrigin = false;
-
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   Boolean emptyTag;
+   
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "ClassName") == 0)
       {
          //
          //  ClassName may be NULL
          //
-	 XmlReader::getClassNameElement(parser, className, false);
+         if (!emptyTag)
+         {
+	     XmlReader::getClassNameElement(parser, className, false);
+         }
 	 duplicateParameter = gotClassName;
 	 gotClassName = true;
       }
       else if (System::strcasecmp(name, "DeepInheritance") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getBooleanValueElement(parser, deepInheritance, true);
 	 duplicateParameter = gotDeepInheritance;
 	 gotDeepInheritance = true;
       }
       else if (System::strcasecmp(name, "LocalOnly") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getBooleanValueElement(parser, localOnly, true);
 	 duplicateParameter = gotLocalOnly;
 	 gotLocalOnly = true;
       }
       else if (System::strcasecmp(name, "IncludeQualifiers") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
 	 duplicateParameter = gotIncludeQualifiers;
 	 gotIncludeQualifiers = true;
       }
       else if (System::strcasecmp(name, "IncludeClassOrigin") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
 	 duplicateParameter = gotIncludeClassOrigin;
 	 gotIncludeClassOrigin = true;
@@ -1462,7 +1673,10 @@ CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateCl
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -1470,7 +1684,7 @@ CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateCl
       }
    }
 
-   CIMEnumerateClassesRequestMessage* request = 
+   AutoPtr<CIMEnumerateClassesRequestMessage> request(
       new CIMEnumerateClassesRequestMessage(
 	 messageId,
 	 nameSpace,
@@ -1481,11 +1695,11 @@ CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateCl
 	 includeClassOrigin,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMDeleteClassRequestMessage* CIMOperationRequestDecoder::decodeDeleteClassRequest(
@@ -1501,11 +1715,13 @@ CIMDeleteClassRequestMessage* CIMOperationRequestDecoder::decodeDeleteClassReque
    CIMName className;
    Boolean duplicateParameter = false;
    Boolean gotClassName = false;
-
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   Boolean emptyTag;
+   
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "ClassName") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getClassNameElement(parser, className);
 	 duplicateParameter = gotClassName;
 	 gotClassName = true;
@@ -1515,7 +1731,10 @@ CIMDeleteClassRequestMessage* CIMOperationRequestDecoder::decodeDeleteClassReque
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -1528,17 +1747,17 @@ CIMDeleteClassRequestMessage* CIMOperationRequestDecoder::decodeDeleteClassReque
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMDeleteClassRequestMessage* request = new CIMDeleteClassRequestMessage(
+   AutoPtr<CIMDeleteClassRequestMessage> request(new CIMDeleteClassRequestMessage(
       messageId,
       nameSpace,
       className,
       QueueIdStack(queueId, _returnQueueId),
       authType,
-      userName);
+      userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMCreateInstanceRequestMessage* CIMOperationRequestDecoder::decodeCreateInstanceRequest(
@@ -1554,11 +1773,13 @@ CIMCreateInstanceRequestMessage* CIMOperationRequestDecoder::decodeCreateInstanc
    CIMInstance newInstance;
    Boolean duplicateParameter = false;
    Boolean gotInstance = false;
-
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   Boolean emptyTag;
+   
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "NewInstance") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getInstanceElement(parser, newInstance);
 	 duplicateParameter = gotInstance;
 	 gotInstance = true;
@@ -1568,7 +1789,10 @@ CIMCreateInstanceRequestMessage* CIMOperationRequestDecoder::decodeCreateInstanc
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -1581,18 +1805,18 @@ CIMCreateInstanceRequestMessage* CIMOperationRequestDecoder::decodeCreateInstanc
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMCreateInstanceRequestMessage* request = 
+   AutoPtr<CIMCreateInstanceRequestMessage> request(
       new CIMCreateInstanceRequestMessage(
 	 messageId,
 	 nameSpace,
 	 newInstance,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceRequest(
@@ -1616,47 +1840,55 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
    Boolean gotIncludeQualifiers = false;
    Boolean gotIncludeClassOrigin = false;
    Boolean gotPropertyList = false;
-
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   Boolean emptyTag;
+   
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "InstanceName") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getInstanceNameElement(parser, instanceName);
 	 duplicateParameter = gotInstanceName;
 	 gotInstanceName = true;
       }
       else if (System::strcasecmp(name, "LocalOnly") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getBooleanValueElement(parser, localOnly, true);
 	 duplicateParameter = gotLocalOnly;
 	 gotLocalOnly = true;
       }
       else if (System::strcasecmp(name, "IncludeQualifiers") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
 	 duplicateParameter = gotIncludeQualifiers;
 	 gotIncludeQualifiers = true;
       }
       else if (System::strcasecmp(name, "IncludeClassOrigin") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
 	 duplicateParameter = gotIncludeClassOrigin;
 	 gotIncludeClassOrigin = true;
       }
       else if (System::strcasecmp(name, "PropertyList") == 0)
       {
-	 CIMValue pl;
-	 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
-	 {
-	    Array<String> propertyListArray;
-	    pl.get(propertyListArray);
-            Array<CIMName> cimNameArray;
-            for (Uint32 i = 0; i < propertyListArray.size(); i++)
+         if (!emptyTag)
+         {
+            CIMValue pl;
+            if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
             {
-                cimNameArray.append(propertyListArray[i]);
+               Array<String> propertyListArray;
+               pl.get(propertyListArray);
+               Array<CIMName> cimNameArray;
+               for (Uint32 i = 0; i < propertyListArray.size(); i++)
+               {
+                   cimNameArray.append(propertyListArray[i]);
+               }
+               propertyList.set(cimNameArray);
             }
-	    propertyList.set(cimNameArray);
-	 }
+         }
 	 duplicateParameter = gotPropertyList;
 	 gotPropertyList = true;
       }
@@ -1665,7 +1897,10 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -1678,7 +1913,7 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMGetInstanceRequestMessage* request = new CIMGetInstanceRequestMessage(
+   AutoPtr<CIMGetInstanceRequestMessage> request(new CIMGetInstanceRequestMessage(
       messageId,
       nameSpace,
       instanceName,
@@ -1688,11 +1923,11 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
       propertyList,
       QueueIdStack(queueId, _returnQueueId),
       authType,
-      userName);
+      userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanceRequest(
@@ -1712,35 +1947,41 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
    Boolean gotInstance = false;
    Boolean gotIncludeQualifiers = false;
    Boolean gotPropertyList = false;
-
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   Boolean emptyTag;
+   
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "ModifiedInstance") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getNamedInstanceElement(parser, modifiedInstance);
 	 duplicateParameter = gotInstance;
 	 gotInstance = true;
       }
       else if (System::strcasecmp(name, "IncludeQualifiers") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
 	 duplicateParameter = gotIncludeQualifiers;
 	 gotIncludeQualifiers = true;
       }
       else if (System::strcasecmp(name, "PropertyList") == 0)
       {
-	 CIMValue pl;
-	 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
-	 {
-	    Array<String> propertyListArray;
-	    pl.get(propertyListArray);
-            Array<CIMName> cimNameArray;
-            for (Uint32 i = 0; i < propertyListArray.size(); i++)
+         if (!emptyTag)
+         {
+            CIMValue pl;
+            if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
             {
-                cimNameArray.append(propertyListArray[i]);
+               Array<String> propertyListArray;
+               pl.get(propertyListArray);
+               Array<CIMName> cimNameArray;
+               for (Uint32 i = 0; i < propertyListArray.size(); i++)
+               {
+                   cimNameArray.append(propertyListArray[i]);
+               }
+               propertyList.set(cimNameArray);
             }
-	    propertyList.set(cimNameArray);
-	 }
+         }
 	 duplicateParameter = gotPropertyList;
 	 gotPropertyList = true;
       }
@@ -1749,7 +1990,10 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -1762,7 +2006,7 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMModifyInstanceRequestMessage* request = 
+   AutoPtr<CIMModifyInstanceRequestMessage> request(
       new CIMModifyInstanceRequestMessage(
 	 messageId,
 	 nameSpace,
@@ -1771,11 +2015,11 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
 	 propertyList,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateInstancesRequest(
@@ -1801,53 +2045,62 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
    Boolean gotIncludeQualifiers = false;
    Boolean gotIncludeClassOrigin = false;
    Boolean gotPropertyList = false;
-
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   Boolean emptyTag;
+   
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "ClassName") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getClassNameElement(parser, className, true);
 	 duplicateParameter = gotClassName;
 	 gotClassName = true;
       }
       else if (System::strcasecmp(name, "DeepInheritance") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getBooleanValueElement(parser, deepInheritance, true);
 	 duplicateParameter = gotDeepInheritance;
 	 gotDeepInheritance = true;
       }
       else if (System::strcasecmp(name, "LocalOnly") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getBooleanValueElement(parser, localOnly, true);
 	 duplicateParameter = gotLocalOnly;
 	 gotLocalOnly = true;
       }
       else if (System::strcasecmp(name, "IncludeQualifiers") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
 	 duplicateParameter = gotIncludeQualifiers;
 	 gotIncludeQualifiers = true;
       }
       else if (System::strcasecmp(name, "IncludeClassOrigin") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
 	 duplicateParameter = gotIncludeClassOrigin;
 	 gotIncludeClassOrigin = true;
       }
       else if (System::strcasecmp(name, "PropertyList") == 0)
       {
-	 CIMValue pl;
-	 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
-	 {
-	    Array<String> propertyListArray;
-	    pl.get(propertyListArray);
-            Array<CIMName> cimNameArray;
-            for (Uint32 i = 0; i < propertyListArray.size(); i++)
+         if (!emptyTag)
+         {
+            CIMValue pl;
+            if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
             {
-                cimNameArray.append(propertyListArray[i]);
+               Array<String> propertyListArray;
+               pl.get(propertyListArray);
+               Array<CIMName> cimNameArray;
+               for (Uint32 i = 0; i < propertyListArray.size(); i++)
+               {
+                   cimNameArray.append(propertyListArray[i]);
+               }
+               propertyList.set(cimNameArray);
             }
-	    propertyList.set(cimNameArray);
-	 }
+         }
 	 duplicateParameter = gotPropertyList;
 	 gotPropertyList = true;
       }
@@ -1856,7 +2109,10 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -1869,7 +2125,7 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMEnumerateInstancesRequestMessage* request = 
+   AutoPtr<CIMEnumerateInstancesRequestMessage> request(
       new CIMEnumerateInstancesRequestMessage(
 	 messageId,
 	 nameSpace,
@@ -1881,11 +2137,11 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
 	 propertyList,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMEnumerateInstanceNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateInstanceNamesRequest(
@@ -1901,11 +2157,13 @@ CIMEnumerateInstanceNamesRequestMessage* CIMOperationRequestDecoder::decodeEnume
    CIMName className;
    Boolean duplicateParameter = false;
    Boolean gotClassName = false;
-
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   Boolean emptyTag;
+   
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "ClassName") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getClassNameElement(parser, className, true);
 	 duplicateParameter = gotClassName;
 	 gotClassName = true;
@@ -1915,7 +2173,10 @@ CIMEnumerateInstanceNamesRequestMessage* CIMOperationRequestDecoder::decodeEnume
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -1928,18 +2189,18 @@ CIMEnumerateInstanceNamesRequestMessage* CIMOperationRequestDecoder::decodeEnume
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMEnumerateInstanceNamesRequestMessage* request = 
+   AutoPtr<CIMEnumerateInstanceNamesRequestMessage> request(
       new CIMEnumerateInstanceNamesRequestMessage(
 	 messageId,
 	 nameSpace,
 	 className,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMDeleteInstanceRequestMessage* CIMOperationRequestDecoder::decodeDeleteInstanceRequest(
@@ -1955,11 +2216,13 @@ CIMDeleteInstanceRequestMessage* CIMOperationRequestDecoder::decodeDeleteInstanc
    CIMObjectPath instanceName;
    Boolean duplicateParameter = false;
    Boolean gotInstanceName = false;
-
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   Boolean emptyTag;
+   
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "InstanceName") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getInstanceNameElement(parser, instanceName);
 	 duplicateParameter = gotInstanceName;
 	 gotInstanceName = true;
@@ -1969,7 +2232,10 @@ CIMDeleteInstanceRequestMessage* CIMOperationRequestDecoder::decodeDeleteInstanc
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -1982,17 +2248,17 @@ CIMDeleteInstanceRequestMessage* CIMOperationRequestDecoder::decodeDeleteInstanc
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMDeleteInstanceRequestMessage* request = new CIMDeleteInstanceRequestMessage(
+   AutoPtr<CIMDeleteInstanceRequestMessage> request(new CIMDeleteInstanceRequestMessage(
       messageId,
       nameSpace,
       instanceName,
       QueueIdStack(queueId, _returnQueueId),
       authType,
-      userName);
+      userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMSetQualifierRequestMessage* CIMOperationRequestDecoder::decodeSetQualifierRequest(
@@ -2008,11 +2274,13 @@ CIMSetQualifierRequestMessage* CIMOperationRequestDecoder::decodeSetQualifierReq
    CIMQualifierDecl qualifierDeclaration;
    Boolean duplicateParameter = false;
    Boolean gotQualifierDeclaration = false;
-
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   Boolean emptyTag;
+   
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "QualifierDeclaration") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getQualifierDeclElement(parser, qualifierDeclaration);
 	 duplicateParameter = gotQualifierDeclaration;
 	 gotQualifierDeclaration = true;
@@ -2022,7 +2290,10 @@ CIMSetQualifierRequestMessage* CIMOperationRequestDecoder::decodeSetQualifierReq
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -2035,18 +2306,18 @@ CIMSetQualifierRequestMessage* CIMOperationRequestDecoder::decodeSetQualifierReq
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMSetQualifierRequestMessage* request = 
+   AutoPtr<CIMSetQualifierRequestMessage> request(
       new CIMSetQualifierRequestMessage(
 	 messageId,
 	 nameSpace,
 	 qualifierDeclaration,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMGetQualifierRequestMessage* CIMOperationRequestDecoder::decodeGetQualifierRequest(
@@ -2063,11 +2334,13 @@ CIMGetQualifierRequestMessage* CIMOperationRequestDecoder::decodeGetQualifierReq
    CIMName qualifierName;
    Boolean duplicateParameter = false;
    Boolean gotQualifierName = false;
-
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   Boolean emptyTag;
+   
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "QualifierName") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getStringValueElement(parser, qualifierNameString, true);
 	 qualifierName = qualifierNameString;
 	 duplicateParameter = gotQualifierName;
@@ -2078,7 +2351,10 @@ CIMGetQualifierRequestMessage* CIMOperationRequestDecoder::decodeGetQualifierReq
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -2091,18 +2367,18 @@ CIMGetQualifierRequestMessage* CIMOperationRequestDecoder::decodeGetQualifierReq
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMGetQualifierRequestMessage* request = 
+   AutoPtr<CIMGetQualifierRequestMessage> request(
       new CIMGetQualifierRequestMessage(
 	 messageId,
 	 nameSpace,
 	 qualifierName,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMEnumerateQualifiersRequestMessage* CIMOperationRequestDecoder::decodeEnumerateQualifiersRequest(
@@ -2114,24 +2390,25 @@ CIMEnumerateQualifiersRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
    const String& userName)
 {
    STAT_GETSTARTTIME
-
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   Boolean emptyTag;
+   
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       // No IPARAMVALUEs are defined for this operation
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
    }
 
-   CIMEnumerateQualifiersRequestMessage* request = 
+   AutoPtr<CIMEnumerateQualifiersRequestMessage> request(
       new CIMEnumerateQualifiersRequestMessage(
 	 messageId,
 	 nameSpace,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMDeleteQualifierRequestMessage* CIMOperationRequestDecoder::decodeDeleteQualifierRequest(
@@ -2148,11 +2425,13 @@ CIMDeleteQualifierRequestMessage* CIMOperationRequestDecoder::decodeDeleteQualif
    CIMName qualifierName;
    Boolean duplicateParameter = false;
    Boolean gotQualifierName = false;
-
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   Boolean emptyTag;
+   
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "QualifierName") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getStringValueElement(parser, qualifierNameString, true);
 	 qualifierName = qualifierNameString;
 	 duplicateParameter = gotQualifierName;
@@ -2163,7 +2442,10 @@ CIMDeleteQualifierRequestMessage* CIMOperationRequestDecoder::decodeDeleteQualif
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -2176,18 +2458,18 @@ CIMDeleteQualifierRequestMessage* CIMOperationRequestDecoder::decodeDeleteQualif
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMDeleteQualifierRequestMessage* request = 
+   AutoPtr<CIMDeleteQualifierRequestMessage> request(
       new CIMDeleteQualifierRequestMessage(
 	 messageId,
 	 nameSpace,
 	 qualifierName,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceNamesRequest(
@@ -2207,11 +2489,13 @@ CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceName
    Boolean gotObjectName = false;
    Boolean gotResultClass = false;
    Boolean gotRole = false;
-
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   Boolean emptyTag;
+   
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "ObjectName") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getObjectNameElement(parser, objectName);
 	 duplicateParameter = gotObjectName;
 	 gotObjectName = true;
@@ -2221,7 +2505,10 @@ CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceName
          //
          //  ResultClass may be NULL
          //
-	 XmlReader::getClassNameElement(parser, resultClass, false);
+         if (!emptyTag)
+         {
+            XmlReader::getClassNameElement(parser, resultClass, false);
+         }
 	 duplicateParameter = gotResultClass;
 	 gotResultClass = true;
       }
@@ -2230,7 +2517,10 @@ CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceName
          //
          //  Role may be NULL
          //
-	 XmlReader::getStringValueElement(parser, role, false);
+         if (!emptyTag)
+         {
+            XmlReader::getStringValueElement(parser, role, false);
+         }
 	 duplicateParameter = gotRole;
 	 gotRole = true;
       }
@@ -2239,7 +2529,10 @@ CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceName
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -2252,7 +2545,7 @@ CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceName
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMReferenceNamesRequestMessage* request = 
+   AutoPtr<CIMReferenceNamesRequestMessage> request(
       new CIMReferenceNamesRequestMessage(
 	 messageId,
 	 nameSpace,
@@ -2261,11 +2554,11 @@ CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceName
 	 role,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest(
@@ -2291,11 +2584,13 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
    Boolean gotIncludeQualifiers = false;
    Boolean gotIncludeClassOrigin = false;
    Boolean gotPropertyList = false;
-
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   Boolean emptyTag;
+   
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "ObjectName") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getObjectNameElement(parser, objectName);
 	 duplicateParameter = gotObjectName;
 	 gotObjectName = true;
@@ -2305,7 +2600,10 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
          //
          //  ResultClass may be NULL
          //
-	 XmlReader::getClassNameElement(parser, resultClass, false);
+         if (!emptyTag)
+         {
+            XmlReader::getClassNameElement(parser, resultClass, false);
+         }
 	 duplicateParameter = gotResultClass;
 	 gotResultClass = true;
       }
@@ -2314,36 +2612,44 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
          //
          //  Role may be NULL
          //
-	 XmlReader::getStringValueElement(parser, role, false);
+         if (!emptyTag)
+         {
+            XmlReader::getStringValueElement(parser, role, false);
+         }
 	 duplicateParameter = gotRole;
 	 gotRole = true;
       }
       else if (System::strcasecmp(name, "IncludeQualifiers") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
 	 duplicateParameter = gotIncludeQualifiers;
 	 gotIncludeQualifiers = true;
       }
       else if (System::strcasecmp(name, "IncludeClassOrigin") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
 	 duplicateParameter = gotIncludeClassOrigin;
 	 gotIncludeClassOrigin = true;
       }
       else if (System::strcasecmp(name, "PropertyList") == 0)
       {
-	 CIMValue pl;
-	 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
-	 {
-	    Array<String> propertyListArray;
-	    pl.get(propertyListArray);
-            Array<CIMName> cimNameArray;
-            for (Uint32 i = 0; i < propertyListArray.size(); i++)
+         if (!emptyTag)
+         {
+            CIMValue pl;
+            if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
             {
-                cimNameArray.append(propertyListArray[i]);
+               Array<String> propertyListArray;
+               pl.get(propertyListArray);
+               Array<CIMName> cimNameArray;
+               for (Uint32 i = 0; i < propertyListArray.size(); i++)
+               {
+                   cimNameArray.append(propertyListArray[i]);
+               }
+               propertyList.set(cimNameArray);
             }
-	    propertyList.set(cimNameArray);
-	 }
+         }
 	 duplicateParameter = gotPropertyList;
 	 gotPropertyList = true;
       }
@@ -2352,7 +2658,10 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -2365,7 +2674,7 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMReferencesRequestMessage* request = 
+   AutoPtr<CIMReferencesRequestMessage> request(
       new CIMReferencesRequestMessage(
 	 messageId,
 	 nameSpace,
@@ -2377,11 +2686,11 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
 	 propertyList,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNamesRequest(
@@ -2405,11 +2714,13 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
    Boolean gotResultClass = false;
    Boolean gotRole = false;
    Boolean gotResultRole = false;
-
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   Boolean emptyTag;
+   
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "ObjectName") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getObjectNameElement(parser, objectName);
 	 duplicateParameter = gotObjectName;
 	 gotObjectName = true;
@@ -2419,7 +2730,10 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
          //
          //  AssocClass may be NULL
          //
-	 XmlReader::getClassNameElement(parser, assocClass, false);
+         if (!emptyTag)
+         {
+            XmlReader::getClassNameElement(parser, assocClass, false);
+         }
 	 duplicateParameter = gotAssocClass;
 	 gotAssocClass = true;
       }
@@ -2428,7 +2742,10 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
          //
          //  ResultClass may be NULL
          //
-	 XmlReader::getClassNameElement(parser, resultClass, false);
+         if (!emptyTag)
+         {
+            XmlReader::getClassNameElement(parser, resultClass, false);
+         }
 	 duplicateParameter = gotResultClass;
 	 gotResultClass = true;
       }
@@ -2437,7 +2754,10 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
          //
          //  Role may be NULL
          //
-	 XmlReader::getStringValueElement(parser, role, false);
+         if (!emptyTag)
+         {
+            XmlReader::getStringValueElement(parser, role, false);
+         }
 	 duplicateParameter = gotRole;
 	 gotRole = true;
       }
@@ -2446,7 +2766,10 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
          //
          //  ResultRole may be NULL
          //
-	 XmlReader::getStringValueElement(parser, resultRole, false);
+         if (!emptyTag)
+         {
+            XmlReader::getStringValueElement(parser, resultRole, false);
+         }
 	 duplicateParameter = gotResultRole;
 	 gotResultRole = true;
       }
@@ -2455,7 +2778,10 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -2468,7 +2794,7 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMAssociatorNamesRequestMessage* request = 
+   AutoPtr<CIMAssociatorNamesRequestMessage> request(
       new CIMAssociatorNamesRequestMessage(
 	 messageId,
 	 nameSpace,
@@ -2479,11 +2805,11 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
 	 resultRole,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsRequest(
@@ -2513,11 +2839,13 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
    Boolean gotIncludeQualifiers = false;
    Boolean gotIncludeClassOrigin = false;
    Boolean gotPropertyList = false;
-
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   Boolean emptyTag;
+   
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "ObjectName") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getObjectNameElement(parser, objectName);
 	 duplicateParameter = gotObjectName;
 	 gotObjectName = true;
@@ -2527,7 +2855,10 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
          //
          //  AssocClass may be NULL
          //
-	 XmlReader::getClassNameElement(parser, assocClass, false);
+         if (!emptyTag)
+         {
+            XmlReader::getClassNameElement(parser, assocClass, false);
+         }
 	 duplicateParameter = gotAssocClass;
 	 gotAssocClass = true;
       }
@@ -2536,7 +2867,10 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
          //
          //  ResultClass may be NULL
          //
-	 XmlReader::getClassNameElement(parser, resultClass, false);
+         if (!emptyTag)
+         {
+            XmlReader::getClassNameElement(parser, resultClass, false);
+         }
 	 duplicateParameter = gotResultClass;
 	 gotResultClass = true;
       }
@@ -2545,7 +2879,10 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
          //
          //  Role may be NULL
          //
-	 XmlReader::getStringValueElement(parser, role, false);
+         if (!emptyTag)
+         {
+            XmlReader::getStringValueElement(parser, role, false);
+         }
 	 duplicateParameter = gotRole;
 	 gotRole = true;
       }
@@ -2554,36 +2891,44 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
          //
          //  ResultRole may be NULL
          //
-	 XmlReader::getStringValueElement(parser, resultRole, false);
+         if (!emptyTag)
+         {
+            XmlReader::getStringValueElement(parser, resultRole, false);
+         }
 	 duplicateParameter = gotResultRole;
 	 gotResultRole = true;
       }
       else if (System::strcasecmp(name, "IncludeQualifiers") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
 	 duplicateParameter = gotIncludeQualifiers;
 	 gotIncludeQualifiers = true;
       }
       else if (System::strcasecmp(name, "IncludeClassOrigin") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
 	 duplicateParameter = gotIncludeClassOrigin;
 	 gotIncludeClassOrigin = true;
       }
       else if (System::strcasecmp(name, "PropertyList") == 0)
       {
-	 CIMValue pl;
-	 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
-	 {
-	    Array<String> propertyListArray;
-	    pl.get(propertyListArray);
-            Array<CIMName> cimNameArray;
-            for (Uint32 i = 0; i < propertyListArray.size(); i++)
+         if (!emptyTag)
+         {
+            CIMValue pl;
+            if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
             {
-                cimNameArray.append(propertyListArray[i]);
+               Array<String> propertyListArray;
+               pl.get(propertyListArray);
+               Array<CIMName> cimNameArray;
+               for (Uint32 i = 0; i < propertyListArray.size(); i++)
+               {
+                   cimNameArray.append(propertyListArray[i]);
+               }
+               propertyList.set(cimNameArray);
             }
-	    propertyList.set(cimNameArray);
-	 }
+         }
 	 duplicateParameter = gotPropertyList;
 	 gotPropertyList = true;
       }
@@ -2592,7 +2937,10 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -2605,7 +2953,7 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMAssociatorsRequestMessage* request = 
+   AutoPtr<CIMAssociatorsRequestMessage> request(
       new CIMAssociatorsRequestMessage(
 	 messageId,
 	 nameSpace,
@@ -2619,11 +2967,11 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
 	 propertyList,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMGetPropertyRequestMessage* CIMOperationRequestDecoder::decodeGetPropertyRequest(
@@ -2641,17 +2989,20 @@ CIMGetPropertyRequestMessage* CIMOperationRequestDecoder::decodeGetPropertyReque
    Boolean duplicateParameter = false;
    Boolean gotInstanceName = false;
    Boolean gotPropertyName = false;
-
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   Boolean emptyTag;
+   
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "InstanceName") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getInstanceNameElement(parser, instanceName);
 	 duplicateParameter = gotInstanceName;
 	 gotInstanceName = true;
       }
       else if (System::strcasecmp(name, "PropertyName") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getStringValueElement(parser, propertyName, true);
 	 duplicateParameter = gotPropertyName;
 	 gotPropertyName = true;
@@ -2661,7 +3012,10 @@ CIMGetPropertyRequestMessage* CIMOperationRequestDecoder::decodeGetPropertyReque
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -2674,18 +3028,18 @@ CIMGetPropertyRequestMessage* CIMOperationRequestDecoder::decodeGetPropertyReque
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMGetPropertyRequestMessage* request = new CIMGetPropertyRequestMessage(
+   AutoPtr<CIMGetPropertyRequestMessage> request(new CIMGetPropertyRequestMessage(
       messageId,
       nameSpace,
       instanceName,
       propertyName,
       QueueIdStack(queueId, _returnQueueId),
       authType,
-      userName);
+      userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyRequest(
@@ -2705,27 +3059,30 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
    Boolean gotInstanceName = false;
    Boolean gotPropertyName = false;
    Boolean gotNewValue = false;
-
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   Boolean emptyTag;
+   
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "InstanceName") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getInstanceNameElement(parser, instanceName);
 	 duplicateParameter = gotInstanceName;
 	 gotInstanceName = true;
       }
       else if (System::strcasecmp(name, "PropertyName") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getStringValueElement(parser, propertyName, true);
 	 duplicateParameter = gotPropertyName;
 	 gotPropertyName = true;
       }
       else if (System::strcasecmp(name, "NewValue") == 0)
       {
-	 if (!XmlReader::getPropertyValue(parser, propertyValue))
-	 {
+         if (emptyTag || !XmlReader::getPropertyValue(parser, propertyValue))
+         {
 	    propertyValue.setNullValue(CIMTYPE_STRING, false);
-	 }
+         }
 	 duplicateParameter = gotNewValue;
 	 gotNewValue = true;
       }
@@ -2734,7 +3091,10 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -2747,7 +3107,7 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMSetPropertyRequestMessage* request = new CIMSetPropertyRequestMessage(
+   AutoPtr<CIMSetPropertyRequestMessage> request(new CIMSetPropertyRequestMessage(
       messageId,
       nameSpace,
       instanceName,
@@ -2755,11 +3115,11 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
       propertyValue,
       QueueIdStack(queueId, _returnQueueId),
       authType,
-      userName);
+      userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMExecQueryRequestMessage* CIMOperationRequestDecoder::decodeExecQueryRequest(
@@ -2777,17 +3137,20 @@ CIMExecQueryRequestMessage* CIMOperationRequestDecoder::decodeExecQueryRequest(
    Boolean duplicateParameter = false;
    Boolean gotQueryLanguage = false;
    Boolean gotQuery = false;
-
-   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   Boolean emptyTag;
+   
+   for (const char* name; XmlReader::getIParamValueTag(parser, name, emptyTag);)
    {
       if (System::strcasecmp(name, "QueryLanguage") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getStringValueElement(parser, queryLanguage, true);
 	 duplicateParameter = gotQueryLanguage;
 	 gotQueryLanguage = true;
       }
       else if (System::strcasecmp(name, "Query") == 0)
       {
+         XmlReader::rejectNullIParamValue(parser, emptyTag, name);
 	 XmlReader::getStringValueElement(parser, query, true);
 	 duplicateParameter = gotQuery;
 	 gotQuery = true;
@@ -2797,7 +3160,10 @@ CIMExecQueryRequestMessage* CIMOperationRequestDecoder::decodeExecQueryRequest(
 	 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
       }
 
-      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      if (!emptyTag)
+      {
+         XmlReader::expectEndTag(parser, "IPARAMVALUE");
+      }
 
       if (duplicateParameter)
       {
@@ -2810,7 +3176,7 @@ CIMExecQueryRequestMessage* CIMOperationRequestDecoder::decodeExecQueryRequest(
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, String::EMPTY);
    }
 
-   CIMExecQueryRequestMessage* request = 
+   AutoPtr<CIMExecQueryRequestMessage> request(
       new CIMExecQueryRequestMessage(
 	 messageId,
 	 nameSpace,
@@ -2818,11 +3184,11 @@ CIMExecQueryRequestMessage* CIMOperationRequestDecoder::decodeExecQueryRequest(
 	 query,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 CIMInvokeMethodRequestMessage* CIMOperationRequestDecoder::decodeInvokeMethodRequest(
@@ -2844,7 +3210,7 @@ CIMInvokeMethodRequestMessage* CIMOperationRequestDecoder::decodeInvokeMethodReq
       inParameters.append(paramValue);
    }
 
-   CIMInvokeMethodRequestMessage* request =     
+   AutoPtr<CIMInvokeMethodRequestMessage> request(
       new CIMInvokeMethodRequestMessage(
 	 messageId, 
 	 reference.getNameSpace(), 
@@ -2853,11 +3219,11 @@ CIMInvokeMethodRequestMessage* CIMOperationRequestDecoder::decodeInvokeMethodReq
 	 inParameters,
 	 QueueIdStack(queueId, _returnQueueId),
 	 authType,
-	 userName);
+	 userName));
 
    STAT_SERVERSTART
 
-   return(request);
+   return(request.release());
 }
 
 void CIMOperationRequestDecoder::setServerTerminating(Boolean flag)

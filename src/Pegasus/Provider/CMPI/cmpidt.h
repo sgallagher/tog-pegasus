@@ -27,7 +27,7 @@
 //
 // Author:      Adrian Schuur, schuur@de.ibm.com
 //
-// Modified By: Marek Szermutzky (mszermutzky@de.ibm.com) for Bugzilla 2320
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -316,22 +316,22 @@ extern "C" {
         #define CMPI_refA         (CMPI_ARRAY | CMPI_ref)
         #define CMPI_charsptrA    (CMPI_ARRAY | CMPI_charsptr)
 
-	// the following are CMPIObjectPath key-types synonyms
-	// and are valid only when CMPI_keyValue of CMPIValueState is set
+        // the following are CMPIObjectPath key-types synonyms
+        // and are valid only when CMPI_keyValue of CMPIValueState is set
 
         #define CMPI_keyInteger   (CMPI_sint64)
-	#define CMPI_keyString    (CMPI_string)
-	#define CMPI_keyBoolean   (CMPI_boolean)
-	#define CMPI_keyRef       (CMPI_ref)
+        #define CMPI_keyString    (CMPI_string)
+        #define CMPI_keyBoolean   (CMPI_boolean)
+        #define CMPI_keyRef       (CMPI_ref)
 
-	// the following are predicate types only
+        // the following are predicate types only
 
         #define CMPI_charString      (CMPI_string)
         #define CMPI_integerString   (CMPI_string | CMPI_sint64)
         #define CMPI_realString      (CMPI_string | CMPI_real64)
         #define CMPI_numericString   (CMPI_string | CMPI_sint64 | CMPI_real64)
-	#define CMPI_booleanString   (CMPI_string | CMPI_boolean)
-	#define CMPI_dateTimeString  (CMPI_string | CMPI_dateTime)
+        #define CMPI_booleanString   (CMPI_string | CMPI_boolean)
+        #define CMPI_dateTimeString  (CMPI_string | CMPI_dateTime)
         #define CMPI_classNameString (CMPI_string | CMPI_class)
         #define CMPI_nameString      (CMPI_string | ((16+10)<<8))
 
@@ -380,7 +380,6 @@ extern "C" {
    #define CMPI_FLAG_IncludeQualifiers  4
    #define CMPI_FLAG_IncludeClassOrigin 8
 
-   #define CMPIPrincipal       "CMPIPrincipal"
    #define CMPIInvocationFlags "CMPIInvocationFlags"
 
    typedef enum _CMPIrc {
@@ -446,6 +445,3 @@ extern "C" {
 #endif
 
 #endif // _CMPIDT_H_
-
-
-

@@ -47,6 +47,6 @@
 #define PEGASUS_TRACE \
     std::cout << __FILE__ << '(' << __LINE__ << ')' << std::endl
 
-#define OUT(X) std::cout << #X << "=[" << X << "]" << std::endl
+#define PEGOUT(X) std::cout << #X << "=[" << X << "]" << std::endl
 
 #endif  /* Pegasus_Config_h */

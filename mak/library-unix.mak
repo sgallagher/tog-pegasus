@@ -25,7 +25,7 @@ $(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(LIBRARIES) $(ERROR
 	@ $(ECHO)
 else
 $(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(LIBRARIES) $(ERROR)
-	ar crv $(OS_TYPE).lib $(OBJECTS) $(LIBRARIES)
+	ar crv $(PEGASUS_PLATFORM).lib $(OBJECTS) $(LIBRARIES)
 	$(LINK_COMMAND) $(LINK_ARGUMENTS) $(LINK_OUT)$(FULL_LIB) $(PEGASUS_PLATFORM).lib
 	rm -f $(PEGASUS_PLATFORM).lib
 	@ $(ECHO)

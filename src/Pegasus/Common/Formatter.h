@@ -123,7 +123,7 @@ public:
 	    Sint32 _integer;
 	    Uint32 _uinteger;
 	    Real64 _real;
-	    Boolean _boolean;
+	    int _boolean;
 	    Sint64 _lInteger;
 	    Uint64 _lUInteger;
 	};

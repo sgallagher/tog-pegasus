@@ -45,5 +45,10 @@ with the complete unit test and client/server test successfully.
 
 23 May 2001
 
-1. Ported to HPUX
+1.  Ported to HPUX
 
+--------------------------------------------------------------------------
+
+29 May 2001
+
+1.  Implemented CIMRepository::setProperty() and CIMRepository::getProperty().

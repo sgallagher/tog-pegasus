@@ -702,7 +702,7 @@ void CQLSelectStatementRep::filterInstance(CIMInstance& inst,
       MessageLoaderParms parms("CQL.CQLSelectStatementRep.PROJ_MISSING_PROP",
                                "The property $0 is missing on the instance of class $1.",
                                requiredProps[i].getString(), inst.getClassName().getString());
-      throw CQLRuntimeException(parms);
+      throw QueryRuntimePropertyException(parms);
     }
   }
 
@@ -738,7 +738,7 @@ void CQLSelectStatementRep::validate() throw(Exception)
     PEG_METHOD_EXIT();
     MessageLoaderParms parms("CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
                              "Trying to process a query with a NULL Query Context.");
-    throw CQLValidationException(parms);
+    throw QueryValidationException(parms);
   }
 
   if (!_contextApplied)
@@ -818,7 +818,7 @@ void CQLSelectStatementRep::validateProperty(QueryChainedIdentifier& chainId)
         MessageLoaderParms parms("CQL.CQLSelectStatementRep.VAL_CLASS_NOT_EXIST",
                                "The class $0 does not exist.",
                                 curContext.getString());
-        throw CQLValidationException(parms);
+        throw QueryValidationException(parms);
       }
       else
       {
@@ -849,7 +849,7 @@ void CQLSelectStatementRep::validateProperty(QueryChainedIdentifier& chainId)
         MessageLoaderParms parms("CQL.CQLSelectStatementRep.VAL_PROP_NOT_ON_CLASS",
                                "The property $0 does not exist on class $1.",
                                 ids[pos].getName().getString(), classDef.getClassName().getString());
-        throw CQLValidationException(parms);
+        throw QueryMissingPropertyException(parms);
       }
 
       // Checking class relationship rules in section 5.4.1.
@@ -869,7 +869,7 @@ void CQLSelectStatementRep::validateProperty(QueryChainedIdentifier& chainId)
           MessageLoaderParms parms("CQL.CQLSelectStatementRep.VAL_SCOPE_VIOLATION",
                                "The class $0 is not a superclass, subclass, or the same class as $1.",
                                 curContext.getString(), ids[0].getName().getString());
-          throw CQLValidationException(parms);
+          throw QueryValidationException(parms);
         }
       }
 
@@ -887,7 +887,7 @@ void CQLSelectStatementRep::validateProperty(QueryChainedIdentifier& chainId)
           MessageLoaderParms parms("CQL.CQLSelectStatementRep.PROP_NOT_EMB",
                              "The property $0 must be an embedded object.",
                              embObj.getName().getString());
-          throw CQLValidationException(parms);
+          throw QueryValidationException(parms);
         }
       }
     }
@@ -994,7 +994,7 @@ CIMPropertyList CQLSelectStatementRep::getPropertyListInternal(const CIMObjectPa
         MessageLoaderParms parms("CQL.CQLSelectStatementRep.CLASS_NOT_FROM_LIST_CLASS",
                     "Class $0 does not match the FROM class or any of its subclasses.",
                     className.getString());
-        throw QueryException(parms);
+        throw CQLRuntimeException(parms);
       }
     }
   }
@@ -1310,7 +1310,7 @@ void CQLSelectStatementRep::appendClassPath(const CQLIdentifier& inIdentifier)
     PEG_METHOD_EXIT();
     MessageLoaderParms parms("CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
                              "Trying to process a query with a NULL Query Context.");
-    throw CQLValidationException(parms);
+    throw QueryValidationException(parms);
   }
   _ctx->insertClassPath(inIdentifier);
 
@@ -1341,7 +1341,7 @@ void CQLSelectStatementRep::insertClassPathAlias(const CQLIdentifier& inIdentifi
     PEG_METHOD_EXIT();
     MessageLoaderParms parms("CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
                              "Trying to process a query with a NULL Query Context.");
-    throw CQLValidationException(parms);
+    throw QueryValidationException(parms);
   }
   _ctx->insertClassPath(inIdentifier,inAlias);
 
@@ -1365,7 +1365,8 @@ void CQLSelectStatementRep::applyContext()
     PEG_METHOD_EXIT();
     MessageLoaderParms parms("CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
                              "Trying to process a query with a NULL Query Context.");
-    throw CQLRuntimeException(parms);
+    // throw syntax error to be consistent
+    throw CQLSyntaxErrorException(parms);
   }
 
   for (Uint32 i = 0; i < _selectIdentifiers.size(); i++)

@@ -84,9 +84,9 @@ CQLValue CQLTermRep::resolveValue(const CIMInstance& CI, const QueryContext& Que
             break;
        
          default:
-	   MessageLoaderParms mload(String("CQL.CQLTermRep.OPERATION_NOT_SUPPORTED"),
-				    String("Operation is not supported."));
-	   throw CQLSyntaxErrorException(mload);
+           MessageLoaderParms mload(String("CQL.CQLTermRep.OPERATION_NOT_SUPPORTED"),
+                                    String("Operation is not supported."));
+           throw CQLRuntimeException(mload);
       }
    }
 

@@ -52,7 +52,7 @@
 #ifndef Pegasus_Memory_h
 #define Pegasus_Memory_h
 
-#include <string>
+#include <cstring>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/Char16.h>

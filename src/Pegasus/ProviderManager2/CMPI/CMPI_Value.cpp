@@ -153,7 +153,7 @@ CIMValue value2CIMValue(CMPIValue* data, CMPIType type, CMPIrc *rc) {
 CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data) {
 
    data->type=t;
-   data->state=0;
+   data->state=CMPI_goodValue;
 
    if (t & CMPI_ARRAY) {
       int aSize=v.getArraySize();

@@ -76,7 +76,7 @@ static CMPIInstance* instClone(CMPIInstance* eInst, CMPIStatus* rc) {
 static CMPIData instGetPropertyAt(CMPIInstance* eInst, CMPICount pos, CMPIString** name,
                             CMPIStatus* rc) {
    CIMInstance* inst=(CIMInstance*)eInst->hdl;
-   CMPIData data={0,0,{0}};
+   CMPIData data={0,CMPI_nullValue,{0}};
 
    if (pos>inst->getPropertyCount()) {
      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
@@ -106,7 +106,7 @@ static CMPIData instGetProperty(CMPIInstance* eInst, const char *name, CMPIStatu
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return instGetPropertyAt(eInst,pos,NULL,rc);
    }
-   CMPIData data={0,0,{0}};
+   CMPIData data={0,CMPI_nullValue,{0}};
    if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
    return data;
 }

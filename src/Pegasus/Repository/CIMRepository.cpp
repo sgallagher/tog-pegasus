@@ -277,8 +277,8 @@ Boolean CIMRepository::_getInstanceIndex(
     className = instanceName.getClassName();
 
     Array<CIMName> classNames;
+    classNames.append(className);
     _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
-    classNames.prepend(className);
 
     //
     // Get all superclasses of this one:
@@ -1622,8 +1622,8 @@ Array<CIMInstance> CIMRepository::enumerateInstances(
     //
 
     Array<CIMName> classNames;
+    classNames.append(className);
     _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
-    classNames.prepend(className);
 
     //
     // Get all instances for this class and all its descendent classes
@@ -1667,6 +1667,7 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
     //
 
     Array<CIMName> classNames;
+    classNames.append(className);
     // If includeInheritance is true, get all subclasses.
     // ATTN: P3 KS Look at whether the subclassNames requires an empty array.
     if(includeInheritance)
@@ -1681,7 +1682,6 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
 	    throw e;
 	}
     }
-    classNames.prepend(className);
 
     //
     // Get all instances for this class and all its descendent classes
@@ -1719,6 +1719,8 @@ Array<CIMObjectPath> CIMRepository::enumerateInstanceNames(
     //
     Array<CIMName> classNames;
 
+    classNames.append(className);
+
     try
     {
 	_nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
@@ -1728,7 +1730,6 @@ Array<CIMObjectPath> CIMRepository::enumerateInstanceNames(
 	PEG_METHOD_EXIT();
 	throw e;
     }
-    classNames.prepend(className);
 
     //
     // Get instance names from each qualifying instance file for the class:
@@ -1783,6 +1784,8 @@ Array<CIMObjectPath> CIMRepository::enumerateInstanceNamesForClass(
     //
     Array<CIMName> classNames;
 
+    classNames.append(className);
+
     // If includeInheritance is true, get all subclasses.
     if(includeInheritance)
     {
@@ -1796,7 +1799,6 @@ Array<CIMObjectPath> CIMRepository::enumerateInstanceNamesForClass(
 	    throw e;
 	}
     }
-    classNames.prepend(className);
 
     //
     // Get instance names from each qualifying instance file for the class:

@@ -30,6 +30,7 @@
 // Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
 //               (carolann_graves@hp.com)
 //              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
+//              Amit K Arora, IBM (amitarora@in.ibm.com) for Bug#2311
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -481,27 +482,27 @@ CIMAuthCommand::CIMAuthCommand ()
     usage.append(USAGE);
     usage.append(COMMAND_NAME);
 
-    usage.append(" [ -").append(OPTION_ADD);
+    usage.append(" -").append(OPTION_ADD);
     usage.append(" -").append(OPTION_USER_NAME).append(" username");
     usage.append(" -").append(OPTION_NAMESPACE).append(" namespace");
-    usage.append(" [-").append(OPTION_READ).append("]");
-    usage.append(" [-").append(OPTION_WRITE).append("] ]\n");
+    usage.append(" [ -").append(OPTION_READ).append(" ]");
+    usage.append(" [ -").append(OPTION_WRITE).append(" ] \n");
 
-    usage.append("               [ -").append(OPTION_MODIFY);
+    usage.append("               -").append(OPTION_MODIFY);
     usage.append(" -").append(OPTION_USER_NAME).append(" username");
     usage.append(" -").append(OPTION_NAMESPACE).append(" namespace");
-    usage.append(" [-").append(OPTION_READ).append("]");
-    usage.append(" [-").append(OPTION_WRITE).append("] ]\n");
+    usage.append(" [ -").append(OPTION_READ).append(" ]");
+    usage.append(" [ -").append(OPTION_WRITE).append(" ] \n");
 
-    usage.append("               [ -").append(OPTION_REMOVE);
+    usage.append("               -").append(OPTION_REMOVE);
     usage.append(" -").append(OPTION_USER_NAME).append(" username");
-    usage.append(" [ -").append(OPTION_NAMESPACE).append(" namespace ] ]\n");
+    usage.append(" [ -").append(OPTION_NAMESPACE).append(" namespace ]\n");
 
-    usage.append("               [ -").append(OPTION_LIST).append(" ] ");
-    usage.append(" [ -").append(OPTION_HELP).append(" ] [ --")
-         .append(LONG_HELP).append(" ]");
+    usage.append("               -").append(OPTION_LIST).append(" \n");
 
-    usage.append(" [ --").append(LONG_VERSION).append(" ] \n");
+    usage.append("               -").append(OPTION_HELP).append(" \n");
+    usage.append("               --").append(LONG_HELP).append(" \n");
+    usage.append("               --").append(LONG_VERSION).append(" \n");
 
     usage.append("Options : \n");
     usage.append("    -a         - Add authorizations for a user on a namespace\n");

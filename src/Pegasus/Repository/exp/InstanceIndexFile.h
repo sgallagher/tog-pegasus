@@ -156,9 +156,10 @@ public:
     */
     static Boolean enumerateEntries(
 	const String& path,
-	Array<CIMReference>& instanceNames,
+	Array<Uint32>& freeFlags,
 	Array<Uint32>& indices,
-        Array<Uint32>& sizes);
+        Array<Uint32>& sizes,
+	Array<CIMReference>& instanceNames);
 
 
     /** Begin a transaction to modify this file. The effect of subsequent
@@ -219,7 +220,7 @@ private:
 	PEGASUS_STD(fstream)& fs,
 	const CIMReference& instanceName,
 	Uint32& indexOut,
-	Uint32& sizeOut);
+	Uint32& sizeOut,
 	Uint32& entryOffset);
 
     /** Compact the file by removing entries which are marked as free.

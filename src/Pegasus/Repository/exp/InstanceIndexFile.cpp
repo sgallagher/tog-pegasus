@@ -346,10 +346,22 @@ Boolean InstanceIndexFile::modifyEntry(
 
 Boolean InstanceIndexFile::enumerateEntries(
     const String& path,
-    Array<CIMReference>& instanceNames,
+    Array<Uint32>& freeFlags,
     Array<Uint32>& indices,
-    Array<Uint32>& sizes)
+    Array<Uint32>& sizes,
+    Array<CIMReference>& instanceNames)
 {
+    //
+    // Reserve space for at least COUNT entries:
+    //
+
+    const Uint32 COUNT = 1024;
+
+    freeFlags.reserve(COUNT);
+    indices.reserve(COUNT);
+    sizes.reserve(COUNT);
+    instanceNames.reserve(COUNT);
+
     //
     // Open input file:
     //
@@ -374,12 +386,10 @@ Boolean InstanceIndexFile::enumerateEntries(
     while (_GetNextRecord(
 	fs, line, freeFlag, hashCode, index, size, instanceName, error))
     {
-	if (!freeFlag)
-	{
-	    instanceNames.append(instanceName);
-	    indices.append(index); 
-	    sizes.append(size);
-	}
+	freeFlags.append(freeFlag); 
+	indices.append(index); 
+	sizes.append(size);
+	instanceNames.append(instanceName);
     }
 
     if (error)
@@ -527,7 +537,7 @@ Boolean InstanceIndexFile::_markEntryFree(
     if (!fs)
 	return false;
 
-    fs.write("0", 1);
+    fs.write("1", 1);
 
     return !!fs;
 }
@@ -536,7 +546,7 @@ Boolean InstanceIndexFile::_lookupEntry(
     PEGASUS_STD(fstream)& fs,
     const CIMReference& instanceName,
     Uint32& indexOut,
-    Uint32& sizeOut)
+    Uint32& sizeOut,
     Uint32& entryOffset)
 {
     indexOut = 0;
@@ -699,15 +709,5 @@ Boolean InstanceIndexFile::commitTransaction(const String& path)
 
     return FileSystem::removeFile(rollbackPath);
 }
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// TODO:
-//
-//	- Implement compact.
-//	- Implement rollback scheme.
-//	- Code review.
-//
-////////////////////////////////////////////////////////////////////////////////
 
 PEGASUS_NAMESPACE_END

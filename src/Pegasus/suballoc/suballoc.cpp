@@ -56,6 +56,12 @@ PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void * dead, int type, Sint8 *classna
    internal_allocator.vs_free(dead, type, classname, file, line); 
 }
 
+
+PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *dead)
+{
+   internal_allocator.vs_free(dead, NORMAL, "INTERNAL", __FILE__, __LINE__);
+}
+
 PEGASUS_NAMESPACE_END
 
 PEGASUS_USING_PEGASUS;

@@ -1,0 +1,4 @@
+HTTP/1.1 400 Bad Request
+CIMError: request-not-valid
+PGErrorDetail: Validation error: on line 31: Expected close of PROPERTY.ARRAY element, got VALUE instead
+

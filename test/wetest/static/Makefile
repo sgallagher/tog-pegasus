@@ -10,6 +10,7 @@ DIRS = \
 	GetInstance\
 	EnumerateInstanceNames\
 	EnumerateInstances\
+	ErrorXml\
 	ModifyInstance\
 	DeleteInstance\
         Property

@@ -154,9 +154,11 @@ CIMDateTime OperatingSystem::GetLastBootUpTime(void) const
 
 //   char* tmp = ss.str();
    CIMDateTime lastBootUpTime(ss.str().c_str());
-   
-   
+#else   
+   CIMDateTime lastBootUpTime;
+#endif   
 //   delete [] tmp;
+
    return lastBootUpTime;
 }
 
@@ -166,6 +168,7 @@ CIMDateTime OperatingSystem::GetLocalDateTime(void) const
    struct tm tmBuffer;
    struct tm *loctime = localtime_r(&currtime, &tmBuffer);
 
+#if !defined(PEGASUS_OS_LSB)
    std::stringstream ss;
 
    ss << std::setfill('0');

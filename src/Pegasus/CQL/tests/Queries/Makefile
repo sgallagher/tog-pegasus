@@ -76,6 +76,12 @@ NormalizeToDOC.query.res: NormalizeToDOC.query
 	@ $(RM) $(TMP_DIR)/NormalizeToDOC.query.res
 	@ $(ECHO) +++ NormalizeToDOC.query passed successfully +++
 
+general.query.res: general.query
+	@ cqlcli general.query -test 1 -className CQL_TestPropertyTypes > $(TMP_DIR)/general.query.res | cd .
+	@ $(DIFF) general.query.resgood $(TMP_DIR)/general.query.res
+	@ $(RM) $(TMP_DIR)/general.query.res
+	@ $(ECHO) +++ general.query passed successfully +++
+
 clean:
 	$(RM) Like.query.res
 	$(RM) isa.query.res
@@ -87,6 +93,7 @@ clean:
 	$(RM) EmbeddedSelect.query.res
 	$(RM) Misc.query.res
 	$(RM) NormalizeToDOC.query.res
+	$(RM) general.query.res
 
 depend:
 
@@ -100,7 +107,8 @@ tests: \
 	ApplyProjection.query.res \
 	EmbeddedSelect.query.res \
 	Misc.query.res \
-   NormalizeToDOC.query.res
+   NormalizeToDOC.query.res \
+	general.query.res
 
 poststarttests:
 

@@ -1,3 +1,4 @@
+# General Query statements
 select * from CQL_TestPropertyTypes where PropertyString = 'Bert Rules'
 select * from CQL_TestPropertyTypes where PropertyString != 'Bert Rules'
 select * from CQL_TestPropertyTypes where PropertyUint8 = PropertyUint16

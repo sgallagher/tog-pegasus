@@ -97,7 +97,7 @@ endif
 # existing code and not for new development.
 
 ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-  DEFINES += =DPEGASUS_USE_DEPRECATED_INTERFACES
+  DEFINES += -DPEGASUS_USE_DEPRECATED_INTERFACES
 endif
 
 # l10n

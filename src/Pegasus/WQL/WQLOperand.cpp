@@ -122,7 +122,8 @@ String WQLOperand::toString() const
 	{
 	    result = "INTEGER_VALUE: ";
 	    char buffer[32];
-	    sprintf(buffer, "%d", _integerValue);
+	    sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", 
+                    _integerValue);
 	    result.append(buffer);
 	    break;
 	}

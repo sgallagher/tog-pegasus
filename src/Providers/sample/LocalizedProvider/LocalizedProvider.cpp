@@ -927,8 +927,8 @@ void LocalizedProvider::consumeIndication(const OperationContext& context,
 					const CIMInstance& indication)
 {
   // Verify that the utf-16 string and character values got here
-  Uint8 pos = indication.findProperty("UnicodeStr");
-  if (pos == PEG_NOT_FOUND)
+  Uint32 pos = indication.findProperty("UnicodeStr");
+  if (pos == (Uint32)PEG_NOT_FOUND)
   {
     consumerStatus = 2;
     return;

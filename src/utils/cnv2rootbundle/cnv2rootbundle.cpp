@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
   char *tmp; 
   char line[1024];
   
-  int i;
+  unsigned int i;
   int found_first_line = 0;
   int in_quotes;
 

@@ -1926,8 +1926,8 @@ static void TestLocalizedIndications( CIMClient& client,
 	if (verboseTest)
 	  cout << "Checking the indication for valid utf-16 chars" << endl;
 
-	Uint8 pos = indication.findProperty("UnicodeStr");
-	MYASSERT(pos != PEG_NOT_FOUND);
+	Uint32 pos = indication.findProperty("UnicodeStr");
+	MYASSERT(pos != (Uint32)PEG_NOT_FOUND);
 
 	CIMValue val = indication.getProperty(pos).getValue();
 	String utf16;
@@ -1935,7 +1935,7 @@ static void TestLocalizedIndications( CIMClient& client,
 	MYASSERT(utf16 == String(utf16Chars));
 
 	pos = indication.findProperty("UnicodeChar");
-	MYASSERT(pos != PEG_NOT_FOUND);
+	MYASSERT(pos != (Uint32)PEG_NOT_FOUND);
 
 	val = indication.getProperty(pos).getValue();
 	Char16 char16;

@@ -92,7 +92,7 @@ void mofFormat(
     Boolean quoteState = false;
     Boolean qualifierState = false;
     char c;
-    char prevchar;
+    char prevchar='\0';
     while ((c = *tmp++) != '\0')
     {
 	count++;
@@ -513,7 +513,7 @@ int main(int argc, char** argv)
 			// Get the total CIMOM Time property "CIMOMElapsedTime"
 			CIMDateTime totalCimomTime;
 			Sint64 averageCimomTime = 0;
-			Uint64 totalCT;
+			Uint64 totalCT=0;
 
 //debug code 
 //printf("this is right before CimomElapsedTime part\n");
@@ -563,7 +563,7 @@ int main(int argc, char** argv)
 			// Get the total Provider Time property "ProviderElapsedTime"
 			CIMDateTime totalProviderTime; 
 			Uint64 averageProviderTime = 0;
-			Uint64 totalPT;
+			Uint64 totalPT=0;
 
 //			printf("this is after figuring averageCimomTime and before provider Elapsed time\n");
 

@@ -685,7 +685,7 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
    op->release();
    myself->return_op(op);
    
-   Uint32 routing;
+   Uint32 routing=0;
    
    // get rid of the module wrapper 
    if( request && request->getType() == async_messages::ASYNC_MODULE_OP_START )

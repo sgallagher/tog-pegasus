@@ -221,7 +221,7 @@ int main(int argc, char** argv)
         */
         if (argc > 2)
         {
-            for (Uint32 i = 2 ; i < argc ; i++ )
+            for (int i = 2 ; i < argc ; i++ )
                 opts.extraParams.append(argv[i]);
         }
     }

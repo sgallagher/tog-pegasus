@@ -654,8 +654,8 @@ int  Monitor::solicitSocketMessages(
    // current connections requested
    _solicitSocketCount++;  // bump the count
    int size = (int)_entries.size();
-   if(_solicitSocketCount >= (size-1)){
-        for(int i = 0; i < (_solicitSocketCount - (size-1)); i++){
+   if((int)_solicitSocketCount >= (size-1)){
+        for(int i = 0; i < ((int)_solicitSocketCount - (size-1)); i++){
                 _MonitorEntry entry(0, 0, 0);
                 _entries.append(entry);
         }
@@ -696,7 +696,7 @@ void Monitor::unsolicitSocketMessages(Sint32 socket)
         Start at index = 1 because _entries[0] is the tickle entry which never needs
         to be EMPTY;
     */
-    int index;
+    unsigned int index;
     for(index = 1; index < _entries.size(); index++)
     {
        if(_entries[index].socket == socket)

@@ -339,7 +339,7 @@ void ProcessorProvider::getInstance(const OperationContext &ctx,
   Array<CIMKeyBinding> kbArray = instanceName.getKeyBindings();
 
   // Leave immediately if wrong number of keys
-  if ( kbArray.size() != NUMKEYS_PROCESSOR )
+  if ( (unsigned) kbArray.size() != (unsigned) NUMKEYS_PROCESSOR )
     throw CIMInvalidParameterException("Wrong number of keys");
 
   // Validate the keys.

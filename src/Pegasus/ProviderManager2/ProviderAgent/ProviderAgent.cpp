@@ -86,9 +86,8 @@ ProviderAgent::ProviderAgent(
     const String& agentId,
     AnonymousPipe* pipeFromServer,
     AnonymousPipe* pipeToServer)
-    : _providerManagerRouter(_indicationCallback),
-      _threadPool(0, "ProviderAgent", 0, 0,
-          create_time, destroy_time, deadlock_time)
+  : _threadPool(0, "ProviderAgent", 0, 0, create_time, destroy_time, deadlock_time),
+    _providerManagerRouter(_indicationCallback)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "ProviderAgent::ProviderAgent");
 
@@ -112,15 +111,15 @@ ProviderAgent::~ProviderAgent()
 
 // Private, unimplemented constructor
 ProviderAgent::ProviderAgent()
-    : _providerManagerRouter(0),
-      _threadPool(0, "null", 0, 0, create_time, destroy_time, deadlock_time)
+  : _threadPool(0, "null", 0, 0, create_time, destroy_time, deadlock_time),
+    _providerManagerRouter(0)
 {
 }
 
 // Private, unimplemented constructor
 ProviderAgent::ProviderAgent(const ProviderAgent&)
-    : _providerManagerRouter(0),
-      _threadPool(0, "null", 0, 0, create_time, destroy_time, deadlock_time)
+  : _threadPool(0, "null", 0, 0, create_time, destroy_time, deadlock_time),
+    _providerManagerRouter(0)
 {
 }
 

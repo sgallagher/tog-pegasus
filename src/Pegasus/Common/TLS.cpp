@@ -62,9 +62,9 @@ SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext, Boolean exportConne
    _SSLConnection(0),
    _socket(socket),
    _SSLContext(sslcontext),
+   _SSLCallbackInfo(0),
    _certificateVerified(false),
-   _exportConnection(exportConnection),
-   _SSLCallbackInfo(0)
+   _exportConnection(exportConnection)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::SSLSocket()");
 
@@ -427,7 +427,7 @@ Boolean SSLSocket::isCertificateVerified()
 
 
 MP_Socket::MP_Socket(Uint32 socket) 
- : _isSecure(false), _socket(socket) {}
+ : _socket(socket), _isSecure(false) {}
 
 MP_Socket::MP_Socket(Uint32 socket, SSLContext * sslcontext, Boolean exportConnection)
    throw(SSLException)

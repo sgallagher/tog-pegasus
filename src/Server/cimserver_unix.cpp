@@ -212,7 +212,7 @@ int get_proc(int pid)
   // isn't really running.
   //
   Uint32 mypid = System::getPID();
-  if ((mypid == pid) || (parentPid == pid))
+  if ((mypid == (unsigned)pid) || ((unsigned)parentPid == (unsigned)pid))
   {
       return -1;
   }

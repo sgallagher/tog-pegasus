@@ -45,8 +45,8 @@ PEGASUS_NAMESPACE_BEGIN
 Provider::Provider(const String & name,
 		   ProviderModule *module,
 		   CIMProvider *pr)
-   : Base(pr), _module(module), _cimom_handle(0), _name(name),
-     _no_unload(0), _status(UNINITIALIZED)
+   : Base(pr), _status(UNINITIALIZED), _module(module), _cimom_handle(0), _name(name),
+     _no_unload(0)
 {
    _current_operations = 1;
 }

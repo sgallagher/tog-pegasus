@@ -287,6 +287,7 @@ ClientCIMOMHandleRep::~ClientCIMOMHandleRep()
 
 // Private, unimplemented copy constructor
 ClientCIMOMHandleRep::ClientCIMOMHandleRep(const ClientCIMOMHandleRep& rep)
+  : CIMOMHandleRep()
 {
     PEGASUS_ASSERT(0);
 }

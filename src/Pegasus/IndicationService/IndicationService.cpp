@@ -5132,7 +5132,7 @@ void IndicationService::_sendCreateRequests
         (_PROPERTY_REPEATNOTIFICATIONPOLICY)).getValue ();
     propValue.get (repeatNotificationPolicy);
 
-    CIMRequestMessage * aggRequest;
+    CIMRequestMessage * aggRequest=0;
 
     if (origRequest == 0)
     {
@@ -5311,7 +5311,7 @@ void IndicationService::_sendModifyRequests
         (_PROPERTY_REPEATNOTIFICATIONPOLICY)).getValue ();
     propValue.get (repeatNotificationPolicy);
 
-    CIMRequestMessage * aggRequest;
+    CIMRequestMessage * aggRequest = 0;
 
     //
     //  Create an aggregate object for the modify subscription requests
@@ -5436,7 +5436,7 @@ void IndicationService::_sendDeleteRequests
         return;
     }
 
-    CIMRequestMessage * aggRequest;
+    CIMRequestMessage * aggRequest = 0;
 
     if (origRequest == 0)
     {
@@ -5579,7 +5579,7 @@ void IndicationService::_aggregationCallBack (
     PEGASUS_ASSERT (operationAggregate != 0);
     PEGASUS_ASSERT (operationAggregate->valid ());
 
-    CIMResponseMessage * response;
+    CIMResponseMessage * response = 0;
     Uint32 msgType = asyncReply->getType ();
     PEGASUS_ASSERT ((msgType == async_messages::ASYNC_LEGACY_OP_RESULT) ||
                     (msgType == async_messages::ASYNC_MODULE_OP_RESULT));
@@ -6623,7 +6623,7 @@ void IndicationService::_sendEnable (
         return;
     }
 
-    CIMRequestMessage * aggRequest;
+    CIMRequestMessage * aggRequest = 0;
 
     if (origRequest == 0)
     {
@@ -6773,7 +6773,7 @@ void IndicationService::_sendDisable (
         return;
     }
 
-    CIMRequestMessage * aggRequest;
+    CIMRequestMessage * aggRequest = 0;
 
     if (origRequest == 0)
     {

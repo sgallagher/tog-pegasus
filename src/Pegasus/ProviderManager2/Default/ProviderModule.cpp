@@ -49,9 +49,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 ProviderModule::ProviderModule(const String & fileName, const String & interfaceName)
     : _fileName(fileName),
-    _interfaceName(interfaceName),
-    _ref_count(0),
-    _library(0)
+      _ref_count(0),
+      _library(0),
+      _interfaceName(interfaceName)
 {
     _interfaceFileName=String::EMPTY;
     if(_interfaceName.size()>0)

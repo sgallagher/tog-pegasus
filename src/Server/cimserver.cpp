@@ -925,9 +925,9 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
 #endif
     }
 
-    Uint32 portNumberHttps;
-    Uint32 portNumberHttp;
-    Uint32 portNumberExportHttps;
+    Uint32 portNumberHttps=0;
+    Uint32 portNumberHttp=0;
+    Uint32 portNumberExportHttps=0;
 
     if (enableHttpsConnection)
     {

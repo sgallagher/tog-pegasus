@@ -290,77 +290,84 @@ CMPIString* mbEncGetType(CMPIBroker *mb, void* o, CMPIStatus *rc) {
 }
 
 #if defined (CMPI_VER_85)
-static Formatter::Arg formatValue(va_list *argptr, CMPIStatus *rc) {
 
-   CMPIValue *val=va_arg(*argptr,CMPIValue*);
+static Formatter::Arg formatValue(va_list *argptr, CMPIStatus *rc, int *err) {
+
    CMPIType type=va_arg(*argptr,int);
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
 
-   if ((type & (CMPI_UINT|CMPI_SINT))==CMPI_UINT) {
-     CMPIUint64 u64=0;
-      switch (type) {
-      case CMPI_uint8:  u64=(CMPIUint64)val->uint8;  break;
-      case CMPI_uint16: u64=(CMPIUint64)val->uint16; break;
-      case CMPI_uint32: u64=(CMPIUint64)val->uint32; break;
-      case CMPI_uint64: u64=(CMPIUint64)val->uint64; break;
-      }
-      return Formatter::Arg(u64);
-   }
-   else if ((type & (CMPI_UINT|CMPI_SINT))==CMPI_SINT) {
-    CMPISint64 s64=0;
-     switch (type) {
-      case CMPI_sint8:  s64=(CMPISint64)val->sint8;  break;
-      case CMPI_sint16: s64=(CMPISint64)val->sint16; break;
-      case CMPI_sint32: s64=(CMPISint64)val->sint32; break;
-      case CMPI_sint64: s64=(CMPISint64)val->sint64; break;
-      }
-      return Formatter::Arg(s64);
-   }
-   else if (type==CMPI_chars) return Formatter::Arg((const char*)val);
-   else if (type==CMPI_string)
-      return Formatter::Arg((const char*)CMGetCharsPtr(val->string,NULL));
-   else if (type==CMPI_real32)  return Formatter::Arg((CMPIReal64)val->real32);
-   else if (type==CMPI_real64)  return Formatter::Arg(val->real64);
-   else if (type==CMPI_boolean) return Formatter::Arg((Boolean)val->boolean);
+   if (*err) return Formatter::Arg("*failed*");
 
-   if (rc) CMSetStatus(rc,CMPI_RC_ERR_INVALID_PARAMETER);
-   return Formatter::Arg((Boolean)0);
+   switch(type) {
+     case CMPI_sint8:
+     case CMPI_sint16:
+     case CMPI_sint32:
+        return Formatter::Arg((int)va_arg(*argptr,int));
+     case CMPI_uint8:
+     case CMPI_uint16:
+     case CMPI_uint32:
+        return Formatter::Arg((unsigned int)va_arg(*argptr,unsigned int));
+     case CMPI_boolean:
+        return Formatter::Arg((Boolean)va_arg(*argptr,int));
+     case CMPI_real32:
+     case CMPI_real64:
+        return Formatter::Arg((double)va_arg(*argptr,double));
+     case CMPI_sint64:
+        return Formatter::Arg((long long int)va_arg(*argptr,long long int));
+     case CMPI_uint64:
+        return Formatter::Arg((unsigned long long int)va_arg(*argptr,unsigned long long int));
+     case CMPI_chars:
+        return Formatter::Arg((char*)va_arg(*argptr,char*));
+     case CMPI_string: {
+        CMPIString *s=va_arg(*argptr,CMPIString*);
+        return Formatter::Arg((char*)CMGetCharsPtr(s,NULL));
+     }
+     default:
+        *err=1;
+        if (rc) rc->rc=CMPI_RC_ERR_INVALID_PARAMETER;
+        return Formatter::Arg("*bad value type*");
+   }
 }
 
 CMPIString* mbEncGetMessage(CMPIBroker *mb, char *msgId, char *defMsg,
             CMPIStatus* rc, unsigned int count, ...) {
-   MessageLoaderParms parms(msgId,defMsg);  
+   MessageLoaderParms parms(msgId,defMsg);
    cerr<<"::: mbEncGetMessage() count: "<<count<<endl;
+   int err=0;
+   if (rc) rc->rc=CMPI_RC_OK;
+
    if (count>0) {
       va_list argptr;
-      va_start(argptr,count); 
+      va_start(argptr,count);
       for (;;) {
-         if (count>0) parms.arg0=formatValue(&argptr,rc);
+         if (count>0) parms.arg0=formatValue(&argptr,rc,&err);
          else break;
-         if (count>1) parms.arg1=formatValue(&argptr,rc);
+         if (count>1) parms.arg1=formatValue(&argptr,rc,&err);
          else break;
-         if (count>2) parms.arg2=formatValue(&argptr,rc);
+         if (count>2) parms.arg2=formatValue(&argptr,rc,&err);
          else break;
-         if (count>3) parms.arg3=formatValue(&argptr,rc);
+         if (count>3) parms.arg3=formatValue(&argptr,rc,&err);
          else break;
-         if (count>4) parms.arg4=formatValue(&argptr,rc);
+         if (count>4) parms.arg4=formatValue(&argptr,rc,&err);
          else break;
-         if (count>5) parms.arg5=formatValue(&argptr,rc);
+         if (count>5) parms.arg5=formatValue(&argptr,rc,&err);
          else break;
-         if (count>6) parms.arg6=formatValue(&argptr,rc);
+         if (count>6) parms.arg6=formatValue(&argptr,rc,&err);
          else break;
-         if (count>7) parms.arg7=formatValue(&argptr,rc);
+         if (count>7) parms.arg7=formatValue(&argptr,rc,&err);
          else break;
-         if (count>8) parms.arg8=formatValue(&argptr,rc);
+         if (count>8) parms.arg8=formatValue(&argptr,rc,&err);
          else break;
-         if (count>9) parms.arg9=formatValue(&argptr,rc);
+         if (count>9) parms.arg9=formatValue(&argptr,rc,&err);
          break;
-      }	 
-   } 
+      }
+      va_end(argptr);
+   }
    String nMsg=MessageLoader::getMessage(parms);
-   return string2CMPIString(nMsg); 
+   return string2CMPIString(nMsg);
 }
-#endif     
+
+#endif
 
 static CMPIBrokerEncFT brokerEnc_FT={
      CMPICurrentVersion,

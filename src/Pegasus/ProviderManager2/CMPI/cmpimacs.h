@@ -418,14 +418,14 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
                  (CMPIBroker* mb, char *msgId, char *defMsg, CMPIStatus* rc, unsigned int, ...);
 #endif
 
-  #define CMFmtSint(v)    ((int)v),CMPI_sint32
-  #define CMFmtUint(v)    ((unsigned int)v),CMPI_uint32
-  #define CMFmtSint64(v)  ((long int)v),CMPI_sint64
-  #define CMFmtUint64(v)  ((long unsigned int)v),CMPI_uint64
-  #define CMFmtReal(v)    ((double)v),CMPI_real64
-  #define CMFmtBoolean(v) ((int)v),CMPI_boolean
-  #define CMFmtChars(v)   ((char*)v),CMPI_chars
-  #define CMFmtString(v)  (CMPI_String*)v),CMPI_String
+  #define CMFmtSint(v)    CMPI_sint32,((long int)v)
+  #define CMFmtUint(v)    CMPI_uint32,((unsigned long int)v)
+  #define CMFmtSint64(v)  CMPI_sint64,((long long int)v)
+  #define CMFmtUint64(v)  CMPI_uint64,((unsigned long long int)v)
+  #define CMFmtReal(v)    CMPI_real64,((double)v)
+  #define CMFmtBoolean(v) CMPI_boolean,((int)v)
+  #define CMFmtChars(v)   CMPI_chars,((char*)v)
+  #define CMFmtString(v)  CMPI_String,((CMPI_String*)v)
 
   #define CMFmtArgs0() 0
   #define CMFmtArgs1(v1) \
@@ -444,11 +444,10 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
      7,v1,v2,v3,v4,v5,v6,v7
   #define CMFmtArgs8(v1,v2,v3,v4,v5,v6,v7,v8) \
      8,v1,v2,v3,v4,v5,v6,v7,v8
-  #define CMFmtArgs9(v1,v2,v3,v4,v5,v6,v7,v8,v9,v10) \
+  #define CMFmtArgs9(v1,v2,v3,v4,v5,v6,v7,v8,v9) \
      9,v1,v2,v3,v4,v5,v6,v7,v8,v9
   #define CMFmtArgs10(v1,v2,v3,v4,v5,v6,v7,v8,v9,v10) \
      10,v1,v2,v3,v4,v5,v6,v7,v8,v9,v10
-
 
   #define CMGetMessage(b,id,def,rc,parms)      ((b)->eft->getMessage((b),(id),(def),(rc),parms))
 #endif //CMPI_VER_85

@@ -90,7 +90,7 @@ String opnd2string(const WQLOperand &o) {
        return Formatter::format("$0",o.getBooleanValue());
     default: ;
    }
-   return "NULL_VALUE";  
+   return "NULL_VALUE";
 }
 
 
@@ -104,7 +104,7 @@ CMPIPredOp mapOperation(WQLOperation op) {
       CMPI_PredOp_GreaterThanOrEquals,
       (CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0};
    return ops[(int)op];
-}  
+}
 
 CMPIType mapType(WQLOperand::Type typ) {
    switch (typ) {
@@ -127,31 +127,37 @@ CMPIType mapType(WQLOperand::Type typ) {
 int term_el::toStrings(CMPIType &typ, CMPIPredOp &opr, String &o1, String &o2) const {
    opr=mapOperation(op);
    o1=opnd2string(opn1);
-   o2=opnd2string(opn2); 
+   o2=opnd2string(opn2);
    if (opn1.getType()==WQLOperand::PROPERTY_NAME) typ=mapType(opn2.getType());
    else typ=mapType(opn1.getType());
    return 0;
 }
 
 //
-// Evaluation heap element methods 
+// Evaluation heap element methods
 //
-stack_el eval_el::getFirst() { return (stack_el){opn1, is_terminal1}; }
+stack_el eval_el::getFirst() 
+{ 
+   return stack_el(opn1, is_terminal1);
+}
 
-stack_el eval_el::getSecond() { return (stack_el){opn2, is_terminal2}; }
+stack_el eval_el::getSecond()
+{
+   return stack_el(opn2, is_terminal2);
+}
 
 void eval_el::setFirst(const stack_el s)
 {
      opn1 = s.opn;
      is_terminal1 = s.is_terminal;
 }
-    
+
 void eval_el::setSecond(const stack_el s)
 {
     opn2 = s.opn;
     is_terminal2 = s.is_terminal;
 }
-    
+
 void eval_el::assign_unary_to_first(const eval_el & assignee)
 {
     opn1 = assignee.opn1;
@@ -166,7 +172,7 @@ void eval_el::assign_unary_to_second(const eval_el & assignee)
 
 // Ordering operators, so that op1 > op2 for all non-terminals
 // and terminals appear in the second operand first
-void eval_el::order(void) 
+void eval_el::order(void)
 {
     int k;
     if ((!is_terminal1) && (!is_terminal2))
@@ -365,7 +371,7 @@ void CMPI_Wql2Dnf::compile(const WQLSelectStatement * wqs)
     if (disj.size() == 0)
         if (terminal_heap.size() > 0)
            // point to the remaining terminal element
-            disj.append((stack_el) {0,true});
+            disj.append(stack_el(0,true));
 
     for (Uint32 i=0, n =disj.size(); i< n; i++)
     {
@@ -425,23 +431,23 @@ Boolean CMPI_Wql2Dnf::evaluate(WQLPropertySource * source) const
 
 void CMPI_Wql2Dnf::print(void)
 {
-for (Uint32 i=0, n=eval_heap.size();i < n;i++) { 
-    WQLOperation wop = eval_heap[i].op; 
+for (Uint32 i=0, n=eval_heap.size();i < n;i++) {
+    WQLOperation wop = eval_heap[i].op;
     if (wop == WQL_IS_TRUE) continue;
-    std::cout << "Eval element " << i << ": "; 
-    if (eval_heap[i].is_terminal1) std::cout << "T("; 
-    else std::cout << "E("; 
-    std::cout << eval_heap[i].opn1 << ") "; 
-    std::cout << WQLOperationToString(eval_heap[i].op); 
-    if (eval_heap[i].is_terminal2) std::cout << " T("; 
-    else std::cout << " E("; 
-    std::cout << eval_heap[i].opn2 << ")" << std::endl; 
-} 
-for (Uint32 i=0, n=terminal_heap.size();i < n;i++) { 
-    std::cout << "Terminal expression " << i << ": "; 
-    std::cout << terminal_heap[i].opn1.toString() << " "; 
-    std::cout << WQLOperationToString(terminal_heap[i].op) << " " 
-         << terminal_heap[i].opn2.toString() << std::endl; 
+    std::cout << "Eval element " << i << ": ";
+    if (eval_heap[i].is_terminal1) std::cout << "T(";
+    else std::cout << "E(";
+    std::cout << eval_heap[i].opn1 << ") ";
+    std::cout << WQLOperationToString(eval_heap[i].op);
+    if (eval_heap[i].is_terminal2) std::cout << " T(";
+    else std::cout << " E(";
+    std::cout << eval_heap[i].opn2 << ")" << std::endl;
+}
+for (Uint32 i=0, n=terminal_heap.size();i < n;i++) {
+    std::cout << "Terminal expression " << i << ": ";
+    std::cout << terminal_heap[i].opn1.toString() << " ";
+    std::cout << WQLOperationToString(terminal_heap[i].op) << " "
+         << terminal_heap[i].opn2.toString() << std::endl;
 }
 }
 
@@ -453,11 +459,11 @@ void CMPI_Wql2Dnf::printTableau(void)
        TableauRow tr = _tableau[i];
        for(Uint32 j=0,m = tr.size(); j < m; j++)
        {
-           std::cout << tr[j].opn1.toString() << " "; 
-           std::cout << WQLOperationToString(tr[j].op) << " " 
-                << tr[j].opn2.toString() << std::endl; 
+           std::cout << tr[j].opn1.toString() << " ";
+           std::cout << WQLOperationToString(tr[j].op) << " "
+                << tr[j].opn2.toString() << std::endl;
        }
-       
+
    }
 
 }
@@ -470,7 +476,7 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
     WQLOperand dummy;
     dummy.clear();
     Stack<stack_el> stack;
-    
+
     // Counter for Operands
 
     Uint32 j = 0;
@@ -494,10 +500,10 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
                 stack_el op2 = stack.top();
 
                 // generate Eval expression
-                eval_heap.append((eval_el) {0, op , op1.opn, op1.is_terminal,
-                                 op2.opn , op2.is_terminal});
+                eval_heap.append(eval_el(0, op , op1.opn, op1.is_terminal,
+                                 op2.opn , op2.is_terminal));
 
-                stack.top() = (stack_el) {eval_heap.size()-1, false};
+                stack.top() = stack_el(eval_heap.size()-1, false);
 
                 break;
             }
@@ -511,10 +517,10 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
                 stack_el op1 = stack.top();
 
                 // generate Eval expression
-                eval_heap.append((eval_el) {0, op , op1.opn, op1.is_terminal,
-                                 -1, true});
+                eval_heap.append(eval_el(0, op , op1.opn, op1.is_terminal,
+                                 -1, true));
 
-                stack.top() = (stack_el){eval_heap.size()-1, false};
+                stack.top() = stack_el(eval_heap.size()-1, false);
 
                 break;
             }
@@ -532,9 +538,9 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
 
                 WQLOperand rhs = wqs->_operands[j++];
 
-                terminal_heap.push((term_el) {false, op, lhs, rhs});
+                terminal_heap.push(term_el(false, op, lhs, rhs));
 
-                stack.push((stack_el) {terminal_heap.size()-1, true});
+                stack.push(stack_el(terminal_heap.size()-1, true));
 
                 break;
             }
@@ -551,9 +557,9 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
                 PEGASUS_ASSERT(wqs->_operands.size() >= 1);
                 WQLOperand op = wqs->_operands[j++];
 
-                terminal_heap.push((term_el) {false, WQL_EQ, op, dummy});
+                terminal_heap.push(term_el(false, WQL_EQ, op, dummy));
 
-                stack.push((stack_el) {terminal_heap.size()-1, true});
+                stack.push(stack_el(terminal_heap.size()-1, true));
 
                 break;
             }
@@ -563,9 +569,9 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
                 PEGASUS_ASSERT(wqs->_operands.size() >= 1);
                 WQLOperand op = wqs->_operands[j++];
 
-                terminal_heap.push((term_el) {false, WQL_NE, op, dummy});
+                terminal_heap.push(term_el(false, WQL_NE, op, dummy));
 
-                stack.push((stack_el) {terminal_heap.size()-1, true});
+                stack.push(stack_el(terminal_heap.size()-1, true));
 
                 break;
             }
@@ -699,7 +705,7 @@ void CMPI_Wql2Dnf::_factoring(void)
                  // insert two new expression before entry i
                  eval_el evl;
 
-                 evl = (eval_el){false, WQL_OR, i+1, false, i, false};
+                 evl = eval_el(false, WQL_OR, i+1, false, i, false);
                  if ((Uint32 )i < eval_heap.size()-1)
                      eval_heap.insert(i+1, evl);
                  else
@@ -754,7 +760,7 @@ void CMPI_Wql2Dnf::_factoring(void)
 
 void CMPI_Wql2Dnf::_gatherDisj(Array<stack_el>& stk)
 {
-    _gather(stk, (stack_el){0,true}, true);
+    _gather(stk, stack_el(0,true), true);
 }
 
 void CMPI_Wql2Dnf::_gatherConj(Array<stack_el>& stk, stack_el sel)
@@ -780,7 +786,7 @@ void CMPI_Wql2Dnf::_gather(Array<stack_el>& stk, stack_el sel, Boolean or_flag)
     //if (i == 0) return;
 
     if (or_flag)
-        stk.append((stack_el) {i-1,false});
+        stk.append(stack_el(i-1,false));
     else
     {
        if (sel.is_terminal) return;
@@ -799,7 +805,7 @@ void CMPI_Wql2Dnf::_gather(Array<stack_el>& stk, stack_el sel, Boolean or_flag)
         {
             if ( ((eval_heap[k].op != WQL_OR) && (or_flag)) ||
                  ((eval_heap[k].op != WQL_AND) && (!or_flag))  )
-                i++; 
+                i++;
             else
             {
                 // replace the element with disjunction

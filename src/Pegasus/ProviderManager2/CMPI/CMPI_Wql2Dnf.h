@@ -45,6 +45,9 @@ PEGASUS_NAMESPACE_BEGIN
 class term_el
 {
 public:
+    term_el() {}
+    term_el(Boolean m, WQLOperation o, WQLOperand op1, WQLOperand op2) :
+       mark(m), op(o), opn1(op1), opn2(op2) {}
     Boolean mark;
     WQLOperation op;
     WQLOperand opn1;
@@ -57,6 +60,8 @@ public:
 class stack_el
 {
 public:
+   stack_el() {}
+   stack_el(int o, Boolean i) : opn(o), is_terminal(i) {}
    int   opn;     // either to terminals or eval_heap
    Boolean is_terminal;
 };
@@ -65,6 +70,9 @@ public:
 class eval_el
 {
 public:
+    eval_el() {}
+    eval_el(Boolean m, WQLOperation o, int op1, Boolean i1, int op2, Boolean i2) :
+       mark(m), op(o), opn1(op1), is_terminal1(i1), opn2(op2), is_terminal2(i2) {}
     Boolean mark;
     WQLOperation op;
     int opn1;
@@ -77,9 +85,9 @@ public:
     stack_el getSecond();
 
     void setFirst(const stack_el s);
-    
+
     void setSecond(const stack_el s);
-    
+
     void assign_unary_to_first(const eval_el & assignee);
 
     void assign_unary_to_second(const eval_el & assignee);

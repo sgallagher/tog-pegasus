@@ -44,21 +44,18 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_EXPORT void *create_rh(int type);
-PEGASUS_EXPORT void delete_rh(void *handler, int type);
+PEGASUS_EXPORT void *create_rh(int type)
+   throw(TypeMismatch) ;
 
+PEGASUS_EXPORT void delete_rh(void *handler, int type)
+   throw(TypeMismatch);
 
 template<class PEGASUS_EXPORT object_type>
 class PEGASUS_EXPORT AsyncResponseHandler : public ResponseHandler<object_type>
 {
    public:
   
-      AsyncResponseHandler<object_type>(void)
-	 : _parent(0), _provider(0), _thread(0), _type(0)
-      {
-	 _objects = (Array<object_type> *)new Array<object_type>();
-	 gettimeofday(&_key, NULL);
-      }
+      
       AsyncResponseHandler<object_type>(int type) 
 	 : _parent(0), _provider(0), _thread(0),
 	   _type(type)
@@ -105,7 +102,12 @@ class PEGASUS_EXPORT AsyncResponseHandler : public ResponseHandler<object_type>
       
 
    private:
-
+      AsyncResponseHandler<object_type>(void)
+	 : _parent(0), _provider(0), _thread(0), _type(0)
+      {
+	 _objects = (Array<object_type> *)new Array<object_type>();
+	 gettimeofday(&_key, NULL);
+      }
      
       AsyncOpNode *_parent;
       CIMBaseProviderHandle *_provider;

@@ -137,8 +137,8 @@ class PEGASUS_EXPORT AsyncOpNodeLocal : public AsyncOpNode
       }
       void put_dispatch_async_struct(void *) throw (IPCException);
       void *take_dispatch_async_struct(void) throw (IPCException);
-
-
+      void *get_dispatch_async_struct(void) throw (IPCException);
+      
       
    private:
       Mutex _mut;
@@ -473,6 +473,12 @@ inline void *AsyncOpNodeLocal::take_dispatch_async_struct(void )
    void *tmp = _dispatch_async_struct;
    _dispatch_async_struct = 0;
    return(tmp);
+}
+
+inline void *AsyncOpNodeLocal::get_dispatch_async_struct(void) throw (IPCException)
+{
+   check_owner();
+   return(_dispatch_async_struct);
 }
 
 

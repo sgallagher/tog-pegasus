@@ -85,37 +85,37 @@ public:
 //	(dispatcher->*bottom)(work_node);    
 
       }CIMOperation_async;
-
-      static void async_dispatcher(void *);
       
-    CIMOperationRequestDispatcher(CIMRepository* repository);
-
-    virtual ~CIMOperationRequestDispatcher();
+      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL async_dispatcher(void *parm);
       
-    virtual void handleEnqueue();
-
-    virtual const char* getQueueName() const;
-
-    void handleGetClassRequest(
-	CIMGetClassRequestMessage* request);
-
-    void handleGetInstanceRequest(
-	CIMGetInstanceRequestMessage* request);
-
-    void handleDeleteClassRequest(
-	CIMDeleteClassRequestMessage* request);
-
-    void handleDeleteInstanceRequest(
-	CIMDeleteInstanceRequestMessage* request);
-
-    void handleCreateClassRequest(
-	CIMCreateClassRequestMessage* request);
-
-    void handleCreateInstanceRequest(
-	CIMCreateInstanceRequestMessage* request);
-
-    void handleModifyClassRequest(
-
+      CIMOperationRequestDispatcher(CIMRepository* repository);
+      
+      virtual ~CIMOperationRequestDispatcher();
+      
+      virtual void handleEnqueue();
+      
+      virtual const char* getQueueName() const;
+      
+      void handleGetClassRequest(
+	 CIMGetClassRequestMessage* request);
+      
+      void handleGetInstanceRequest(
+	 CIMGetInstanceRequestMessage* request);
+      
+      void handleDeleteClassRequest(
+	 CIMDeleteClassRequestMessage* request);
+      
+      void handleDeleteInstanceRequest(
+	 CIMDeleteInstanceRequestMessage* request);
+      
+      void handleCreateClassRequest(
+	 CIMCreateClassRequestMessage* request);
+      
+      void handleCreateInstanceRequest(
+	 CIMCreateInstanceRequestMessage* request);
+      
+      void handleModifyClassRequest(
+	 
 	CIMModifyClassRequestMessage* request);
 
     void handleModifyInstanceRequest(
@@ -198,7 +198,7 @@ protected:
       AsyncDQueue<AsyncOpNode> _started_ops;
       AsyncDQueue<AsyncOpNode> _completed_ops;
       
-      Boolean _dying ;
+      AtomicInt _dying ;
       friend void async_operation_dispatch(CIMOperationRequestDispatcher *d, 
 					   void (CIMOperationRequestDispatcher::*top)(AsyncOpNode *),
 					   void (CIMOperationRequestDispatcher::*bottom)(AsyncOpNode *),

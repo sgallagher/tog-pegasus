@@ -74,25 +74,25 @@ PEGASUS_EXPORT void * create_rh(int type)
       case RESPONSE_HANDLER_TYPE_UNDEFINED:
 	 break;
       case RESPONSE_HANDLER_TYPE_CIM_CLASS:
-	 ret = (void *) new AsyncResponseHandler<CIMClass>;
+	 ret = (void *) new AsyncResponseHandler<CIMClass>(type);
 	 break;	 
       case RESPONSE_HANDLER_TYPE_CIM_INSTANCE:
-	 ret = reinterpret_cast<void *>( new AsyncResponseHandler<CIMInstance> );
+	 ret = (void *)new AsyncResponseHandler<CIMInstance>(type);
 	 break;
       case RESPONSE_HANDLER_TYPE_CIM_OBJECT:
-	 ret = reinterpret_cast<void *> (new AsyncResponseHandler<CIMObject> );
+	 ret = (void *) new AsyncResponseHandler<CIMObject>(type);
 	 break;
       case RESPONSE_HANDLER_TYPE_CIM_OBJECT_WITH_PATH:
-	 ret = reinterpret_cast<void *> (new AsyncResponseHandler<CIMObjectWithPath> );
+	 ret = (void *) new AsyncResponseHandler<CIMObjectWithPath>(type);
 	 break;
       case RESPONSE_HANDLER_TYPE_CIM_VALUE:
-	 ret = reinterpret_cast<void *> (new AsyncResponseHandler<CIMValue> );
+	 ret = (void *) new AsyncResponseHandler<CIMValue>(type);
 	 break;
       case RESPONSE_HANDLER_TYPE_CIM_INDICATION:
-	 ret = reinterpret_cast<void *> (new AsyncResponseHandler<CIMIndication> );
+	 ret = (void *) new AsyncResponseHandler<CIMIndication>(type);
 	 break;
       case RESPONSE_HANDLER_TYPE_CIM_REFERENCE:
-	 ret = reinterpret_cast<void *> (new AsyncResponseHandler<CIMReference> );
+	 ret = (void *) new AsyncResponseHandler<CIMReference>(type);
       default:
 	 throw TypeMismatch();
    }

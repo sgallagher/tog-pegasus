@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: WindowsChannel.cpp,v $
+// Revision 1.2  2001/04/08 08:37:35  mike
+// More channel changes
+//
 // Revision 1.1  2001/04/08 08:28:20  mike
 // Added more windows channel implementation code.
 //
@@ -365,6 +368,11 @@ Channel* WindowsChannelConnector::connect(const char* addressString)
 	desc, 
 	Selector::READ | Selector::WRITE | Selector::EXCEPTION,
 	channel);
+
+    handler->handleOpen(channel);
+
+    // ATTN-A: should this channel be kept track of by the channel
+    // implementation itself? And if so, then how will it be cleaned up?
 
     return channel;
 }

@@ -117,8 +117,12 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
          if (pr->_status != Provider::INITIALIZED)
 	 {
             PEG_METHOD_EXIT();
-	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                        "provider initialization failed.");
+	    //l10n done
+	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+            //                          "provider initialization failed.");
+	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+					MessageLoaderParms("ProviderManager.ProviderManager.INITIALIZE_FAILED",
+					"provider initialization failed."));
          }
 
          // return the provider

@@ -172,7 +172,18 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 				if(status == U_USING_FALLBACK_WARNING || status == U_USING_DEFAULT_WARNING){
 					//we want to use the ICU fallback behaviour in the following cases ONLY
 					//cout << "ACCEPTLANGUAGES LOOP: ICU warns using FALLBACK or DEFAULT" << endl;
-					if(acceptlanguages.size() == 1 || parms.useICUfallback){
+					if((acceptlanguages.size() == 1) && (!parms.useICUfallback) && (status == U_USING_DEFAULT_WARNING)){
+						// in this case we want to return messages from the root bundle
+						status = U_ZERO_ERROR;
+						//cout << "ML::acceptlang.size =1 && !parms.useICUfallback && U_USING_DEFAULT_WARNING" << endl;
+                                        	resbundl = ures_open((const char*)resbundl_path_ICU, "", &status);
+                                        	if(U_SUCCESS(status)) {
+                                                	msg = extractICUMessage(resbundl,parms);
+							ures_close(resbundl);
+							break;
+                                        	}
+					}
+					else if(acceptlanguages.size() == 1 || parms.useICUfallback){
 						//cout << "ACCEPTLANGUAGES LOOP: acceptlanguages.size == 1 or useICUfallback true, using ICU fallback behaviour..." << endl;
 						msg = extractICUMessage(resbundl,parms);
 

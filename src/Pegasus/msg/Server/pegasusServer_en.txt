@@ -1135,6 +1135,13 @@ en:table {
         ProviderManager.ProviderAdapter.MISSING:string {"PGS03604: Adapter {0} cannot be loaded. PegasusCreateProviderAdapter is not found."}
 
 
+	/**
+	* @note  PGS03605
+	*
+	*/
+	ProviderManager.ProviderManager.INITIALIZE_FAILED:string {"PGS03605: Provider failed to initialize."}
+
+
         // ==========================================================
         // Messages for ProviderFacade
         //  Please use message prefix "PGS03800" 

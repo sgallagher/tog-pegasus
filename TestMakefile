@@ -217,7 +217,7 @@ EnableAuthentication:
 
 EnableAuthorization:
 	$(MAKE) -f TestMakefile -i stopcim
-	cimconfig -s enableAuthorization=true -p
+	cimconfig -s enableNamespaceAuthorization=true -p
 	$(MAKE) -f TestMakefile startcimWithoutSSL
 	$(MAKE) -f TestMakefile -i ConfigureAuthorizations
 
@@ -233,6 +233,10 @@ endif
 ConfigureAuthorizations:
 	cimauth -a -u guest -n test/cimv2 -R -W
 	cimauth -a -u guest -n root/cimv2 -R -W
+	cimauth -a -u guest -n root/PG_Internal -R -W
+	cimauth -a -u guest -n root/PG_InterOp -R -W
+	cimauth -a -u guest -n root/benchmark -R -W
+	cimauth -a -u guest -n root/sampleprovider -R -W
 	cimauth -a -u guest -n test/static -R -W
 	cimauth -a -u guest -n root/SampleProvider -R -W
 	cimauth -a -u guest -n root -R -W

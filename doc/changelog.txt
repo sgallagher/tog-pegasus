@@ -467,6 +467,10 @@ repository implementation.
     which does provider registration, block, unblock, and stop a provider.
     It also alert Subscription Service of any provider registration changes.
 
+56. (Rudy Schuet - Compaq) 04 Dec 2001 - Replaced _min macro in String.h
+    and String.cpp with PEG_min. The _min macro caused problems on the
+    NSK platform because of a duplicate definition in a standard file.
+  
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

@@ -74,7 +74,7 @@ DefaultPropertyOwner::DefaultPropertyOwner()
 /** Destructor  */
 DefaultPropertyOwner::~DefaultPropertyOwner()
 {
-    delete _configProperties;
+    delete [] _configProperties;
 }
 
 /**

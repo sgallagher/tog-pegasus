@@ -206,6 +206,7 @@ int main(int argc, char** argv)
   
     // Get environment variables
 
+    if (pegasusHome.size() == 0)
     for (int i=0; i < argc; i++) {
         if (!strcmp(argv[i],"-D")) {
             i++;
@@ -281,7 +282,7 @@ int main(int argc, char** argv)
         // Check to see if we should (can) install as a NT service
         //
 
-        if (String::equal(configManager->getCurrentValue("install"), "true"))
+        if (configManager->isInstallFlagSet())
         {
             if( 0 != cimserver_install_nt_service( pegasusHome ))
             {
@@ -294,7 +295,7 @@ int main(int argc, char** argv)
         // Check to see if we should (can) remove Pegasus as an NT service
         //
 
-        if (String::equal(configManager->getCurrentValue("remove"), "true"))
+        if (configManager->isRemoveFlagSet())
         {
             if( 0 != cimserver_remove_nt_service() )
             {
@@ -307,7 +308,7 @@ int main(int argc, char** argv)
         // Check to see if we should Pegasus as a daemon
         //
 
-        if (String::equal(configManager->getCurrentValue("daemon"), "true"))
+        if (configManager->isDaemonFlagSet())
         {
             daemonOption = true;
         }
@@ -350,7 +351,7 @@ int main(int argc, char** argv)
         // ATTN: Need tool to completely disable logging.
         Logger::setHomeDirectory(logsDirectory);
 
-        if (String::equal(configManager->getCurrentValue("cleanlogs"), "true"))
+        if (configManager->isCleanLogsFlagSet())
         {
             Logger::clean(logsDirectory);;
         }
@@ -358,7 +359,7 @@ int main(int argc, char** argv)
         // Leave this in until people get familiar with the logs.
         cout << "Logs Directory = " << logsDirectory << endl;
 
-        if (String::equal(configManager->getCurrentValue("slp"), "true"))
+        if (configManager->isSlpFlagSet())
         {
             useSLP =  true;
         }

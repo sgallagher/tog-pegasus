@@ -119,6 +119,7 @@ static const char OPTION_TRACE       = 't';
 
 static const char OPTION_LOG_TRACE   = 'l';
 
+static const char OPTION_DAEMON      = 'd';
 
 /** Initialize. */
 ConfigManager* ConfigManager::_instance = 0;
@@ -135,6 +136,11 @@ ConfigManager::ConfigManager ()
     _logTrace = false;
     _version = false;
     _help = false;
+    _install = false;
+    _remove = false;
+    _daemon = false;
+    _cleanlogs = false;
+    _slp = false;
 }
 
 /** Destructor. */
@@ -486,6 +492,26 @@ void ConfigManager::mergeCommandLine(int& argc, char**& argv)
             {
                 _logTrace = true;
             }
+            else if (!strcmp(option,"install"))
+            {
+                _install = true;
+            }
+            else if (!strcmp(option,"remove"))
+            {
+                _remove = true;
+            }
+            else if (*option == OPTION_DAEMON)
+            {
+                _daemon = true;
+            }
+            else if (!strcmp(option,"cleanlogs"))
+            {
+                _cleanlogs = true;
+            }
+            else if (!strcmp(option,"slp"))
+            {
+                _slp = true;
+            }
             else
             {
                 throw UnrecognizedConfigProperty(option);
@@ -651,6 +677,45 @@ Check if the log trace flag is set or not.
 Boolean ConfigManager::isLogTraceFlagSet()
 {
     return _logTrace;
+}
+
+/**
+Check if the command line option flags are set or not.
+
+@return  true if the flag is set.
+*/
+Boolean ConfigManager::isInstallFlagSet()
+{
+    return _install;
+}
+
+
+Boolean ConfigManager::isRemoveFlagSet()
+{
+    return _remove;
+}
+
+
+Boolean ConfigManager::isDaemonFlagSet()
+{
+    return _daemon;
+}
+
+
+Boolean ConfigManager::isPortFlagSet()
+{
+    return _port;
+}
+
+Boolean ConfigManager::isCleanLogsFlagSet()
+{
+    return _cleanlogs;
+}
+
+
+Boolean ConfigManager::isSlpFlagSet()
+{
+    return _slp;
 }
 
 

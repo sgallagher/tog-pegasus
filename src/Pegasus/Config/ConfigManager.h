@@ -111,24 +111,29 @@ private:
     ConfigFileHandler*    _configFileHandler;
 
     /**
-    Flag indicating the help option
+    Flags indicating the cimserver command line options 
     */
     Boolean        _help;
 
-    /**
-    Flag indicating the version option
-    */
     Boolean        _version;
 
-    /**
-    Flag indicating the trace option
-    */
     Boolean        _trace;
 
-    /**
-    Flag indicating the log trace option
-    */
     Boolean        _logTrace;
+
+    Boolean        _install;
+
+    Boolean        _remove;
+
+    Boolean        _daemon;
+
+    Boolean        _port;
+
+    Boolean        _logdir;
+
+    Boolean        _cleanlogs;
+
+    Boolean        _slp;
 
 
 public:
@@ -291,16 +296,26 @@ public:
     */
     Boolean isVersionFlagSet();
 
-    /**
-    Check if the trace flag is set or not.
+    /** 
+    Check if the command line option flags are set or not.
+
+    @return  true if the flag is set.
     */
     Boolean isTraceFlagSet();
 
-    /**
-    Check if the log trace flag is set or not.
-    */
     Boolean isLogTraceFlagSet();
 
+    Boolean isInstallFlagSet();
+
+    Boolean isRemoveFlagSet();
+
+    Boolean isDaemonFlagSet();
+
+    Boolean isPortFlagSet();
+
+    Boolean isCleanLogsFlagSet();
+
+    Boolean isSlpFlagSet();
 
 };
 

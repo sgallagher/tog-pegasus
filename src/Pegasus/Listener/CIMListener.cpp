@@ -280,7 +280,7 @@ void CIMListenerService::stopClientConnection()
 
     // tell Monitor to stop listening for client connections
     #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
-    _monitor->stopListeningForConnections();
+    _monitor->stopListeningForConnections(true);
     #else
     _monitor->stop();
     #endif

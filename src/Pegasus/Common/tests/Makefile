@@ -46,7 +46,7 @@ DIRS = \
     DynLoad \
 	DynamicLibrary \
     Logger \
-	EmbeddedObject \
+    EmbeddedObject \
     WebClient \
     ParamValue \
     L10N \

@@ -57,7 +57,6 @@ int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
 
-
     // Create a repository context in which to test the creation and
     // decode functions.
     const CIMNamespaceName NAMESPACE = CIMNamespaceName ("/root/test");
@@ -243,15 +242,89 @@ int main(int argc, char** argv)
             XmlWriter::printInstanceElement(instance1);
         }
 
+        assert(instance1.identical(instance));
+
+        // Test 3 - Embedded object with quote mark in a string value.
+
+        if (verbose)
+        {
+            cout << "Test with quote embedded in string." << endl;
+        }
+
+        // replace property in message property with one with quote.
+        String test="Single double Quote Mark \" . Single left carot <, Single right carot >, Single single-quote \'";
+        if (verbose)
+        {
+            cout << "Test String " << test << endl;
+        }
+
+        Uint32 pos;
+        pos = instance.findProperty(CIMName("message"));
+        assert(pos != PEG_NOT_FOUND);
+        instance.removeProperty(pos);
+
+        instance.addProperty(CIMProperty(CIMName ("message"), test));
+
+        testEmbeddedObject =
+            CIMEmbeddedObject::encodeToEmbeddedObject(instance);
+ 
+        if(verbose)
+        {
+            cout << "String of Embedded Instance: " << testEmbeddedObject << endl;
+        }
+
+        cout << "Decode the encoded object" << endl;
+        instance1 = CIMEmbeddedObject::decodeEmbeddedObject(testEmbeddedObject);
+
+        if(verbose)
+        {
+            cout << "return from decode with instance recreated:" << endl;
+            XmlWriter::printInstanceElement(instance1);
+        }
 
         assert(instance1.identical(instance));
+
+
+        //Test 4 - String form
+        //cout << "Test 4" << endl;
+
+        String test4 = "<INSTANCE CLASSNAME=\"Test_Karl\"><PROPERTY NAME=\"k\" TYPE=\"string\"><QUALIFIER OVERRIDABLE=\"false\" NAME=\"key\" TYPE=\"boolean\"><VALUE>true</VALUE></QUALIFIER><VALUE>Filterwsindicationtest1089760576</VALUE></PROPERTY><PROPERTY PROPAGATED=\"true\" NAME=\"s\" TYPE=\"string\"></PROPERTY></INSTANCE></VALUE>";
+        if(verbose)
+        {
+            cout << "Test 4 String= " << test4 << endl;
+        }
+
+        instance1 = CIMEmbeddedObject::decodeEmbeddedObject(test4);
+
+        //Test 4a - replacement of \" with "
+        //cout << "Test 4a" << endl;
+
+        String test4a = "<INSTANCE CLASSNAME=\\\"Test_Karl\\\"><PROPERTY NAME=\\\"k\\\" TYPE=\\\"string\\\"><QUALIFIER OVERRIDABLE=\\\"false\\\" NAME=\\\"key\\\" TYPE=\\\"boolean\\\"><VALUE>true</VALUE></QUALIFIER><VALUE>Filterwsindicationtest1089760576</VALUE></PROPERTY><PROPERTY PROPAGATED=\\\"true\\\" NAME=\\\"s\\\" TYPE=\\\"string\\\"></PROPERTY></INSTANCE></VALUE>";
+
+        if(verbose)
+        {
+            cout << "Test 4a String= " << test4a << endl;
+        }
+
+        instance1 = CIMEmbeddedObject::decodeEmbeddedObject(test4a);
+
+        //Test 4b - Replacement of &quote; with "
+ 
+        String test4b = "<INSTANCE CLASSNAME=\\&quot;Test_Karl\\&quot;><PROPERTY NAME=\\&quot;k\\&quot; TYPE=\\&quot;string\\&quot;><QUALIFIER OVERRIDABLE=\\&quot;false\\&quot; NAME=\\&quot;key\\&quot; TYPE=\\&quot;boolean\\&quot;><VALUE>true</VALUE></QUALIFIER><VALUE>Filterwsindicationtest1089760576</VALUE></PROPERTY><PROPERTY PROPAGATED=\\&quot;true\\&quot; NAME=\\&quot;s\\&quot; TYPE=\\&quot;string\\&quot;></PROPERTY></INSTANCE></VALUE>";
+
+        if(verbose)
+        {
+        cout << "Test 4b String= " << test4b << endl;
+        }
+
+        instance1 = CIMEmbeddedObject::decodeEmbeddedObject(test4b);
 
     }
 
     // Catch all exceptions.
     catch (Exception& e)
     {
-    	cout << "Exception: " << e.getMessage() << endl;
+        cout << "Exception: " << e.getMessage() << endl;
     	exit(1);
     }
     cout << argv[0] << " +++++ passed all tests" << endl;

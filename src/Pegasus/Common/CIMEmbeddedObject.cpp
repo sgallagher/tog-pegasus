@@ -42,14 +42,47 @@
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+Boolean _transformString(const String& input, String& output, const String& from, const String& to)
+{
+    String work = input;
+    Uint32 index;
 
+    // No replacements necessary. Return false
+    if(work.find(from) == PEG_NOT_FOUND)
+        return false;
+
+    // Replace any instances of from with to
+    while ((index = work.find(from)) != PEG_NOT_FOUND)
+    {
+        output.append(work.subString(0, index));
+        output.append(to);
+        work.remove(0, (index + from.size()));
+    }
+    output.append(work);
+    return(true);
+}
 CIMInstance CIMEmbeddedObject::decodeEmbeddedObject(const String& xmlStr)
 {
     CIMInstance inst;
-    CString content(xmlStr.getCString());
+
+    // Map any escaped quote characters since we have a differnece
+    // between the platforms on the concept of escaping the quote 
+    // character.
+    String tmp;
+    if (_transformString(xmlStr, tmp, "\\&quot;", "\""));
+
+    else if(_transformString(xmlStr, tmp, "\\\"", "\""));
+
+    else
+        tmp = xmlStr;
+
+    CString content(tmp.getCString());
+    // decode the required characters
+    //cout << "Content Before parser " << content << endl;
     XmlParser parser((char*)(const char*)content);
 
-    // Decode the Instance.  Note that a false
+    //parser._substituteReferences((char*)(const char*)content);
+    // Decode the Instance.  False
     // return indicates that there was no instance
     // decoded.
     if (!XmlReader::getInstanceElement(parser, inst))
@@ -61,12 +94,12 @@ CIMInstance CIMEmbeddedObject::decodeEmbeddedObject(const String& xmlStr)
 String CIMEmbeddedObject::encodeToEmbeddedObject (const CIMInstance& instance)
 
 {
-	static const String _lt("&lt;");
+   /* static const String _lt("&lt;");
 	static const String _gt("&gt;");
 	static const String _amp("&amp;");
 	static const String _quot("&quot;");
 	static const String _apos("&apos;");
-	static const String _num("&#");
+	static const String _num("&#"); */
 
     Array<Sint8> tmp;
     XmlWriter::appendInstanceElement(tmp,instance);
@@ -74,4 +107,52 @@ String CIMEmbeddedObject::encodeToEmbeddedObject (const CIMInstance& instance)
     String rtnStr(tmp.getData());
     return(rtnStr);
 }
+/****
+struct EntityReference
+{
+    const char* match;
+    Uint32 length;
+    char replacement;
+};
+
+// ATTN: Add support for more entity references
+static EntityReference _references[] =
+{
+    { "&amp;", 5, '&' },
+    { "&lt;", 4, '<' },
+    { "&gt;", 4, '>' },
+    { "&quot;", 6, '"' },
+    { "&apos;", 6, '\'' }
+};
+
+static Uint32 _REFERENCES_SIZE = (sizeof(_references) / sizeof(_references[0]));
+
+String CIMEmbeddedObject::unquote(const String& input)
+{
+    String return;
+
+    // Check for entity reference
+    // ATTN: Inefficient if many entity references are supported
+    Uint32 i;
+    for (i = 0; i < _REFERENCES_SIZE; i++)
+    {
+        Uint32 length = _references[i].length;
+        const char* match = _references[i].match;
+
+        if (strncmp(p, _references[i].match, length) == 0)
+        {
+            referenceChar = _references[i].replacement;
+            referenceLength = length;
+            break;
+        }
+    }
+
+    if (i == _REFERENCES_SIZE)
+    {
+        // Didn't recognize the entity reference
+        // ATTN: Is there a good way to say "unsupported"?
+        throw XmlException(code, _line);
+    }
+}
+*/
 PEGASUS_NAMESPACE_END

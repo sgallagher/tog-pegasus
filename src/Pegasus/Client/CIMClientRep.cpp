@@ -1235,8 +1235,9 @@ Message* CIMClientRep::_doRequest(
                 }
 
 // l10n
-                // Get the Content-Languages from the response
-                responseContentLanguages = cimResponse->contentLanguages;
+                // Get the Content-Languages from the response's operationContext
+                  responseContentLanguages = ((ContentLanguageListContainer)cimResponse->operationContext.get
+												(ContentLanguageListContainer::NAME)).getLanguages();
 
                 if (cimResponse->cimException.getCode() != CIM_ERR_SUCCESS)
                 {

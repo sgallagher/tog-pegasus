@@ -50,6 +50,8 @@
 
 PEGASUS_USING_PEGASUS;
 
+PEGASUS_USING_STD;
+
 //
 // These routines are in the lexer.  They are there because
 // there is no need for class cimmofParser to know the details

@@ -40,6 +40,11 @@ DIRS += \
 	ProviderManager2/Default/tests
 endif
 
+ifdef ENABLE_JMPI_PROVIDER_MANAGER
+DIRS += \
+	ProviderManager2/JMPI
+endif
+
 ifdef PEGASUS_USE_PAM_STANDALONE_PROC
 DIRS += \
 	Security/Cimservera

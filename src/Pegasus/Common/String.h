@@ -428,32 +428,6 @@ public:
     */
     static const String EMPTY;
 
-    /** Return true if the str parameter matches the pattern. C-Shell style
-	glob matching is used.
-        @param str String to be matched against the pattern
-        @param pattern Pattern to use in the match
-        @return Boolean true if str matches pattern
-        The pattern definition is as follows:
-        <pre>
-        *             Matches any number of any characters
-        ?             Match exactly one character
-        [chars]       Match any character in chars
-        [chara-charb] Match any character in the range between chara and charb
-        </pre>
-        The literal characters *, ?, [, ] can be included in a string by
-        escaping them with backslash "\".  Ranges of characters can be concatenated.
-        <pre>
-        Boolean result = String::match("This is a test", "*is*");
-        Boolean works =  String::match("abcdef123", "*[0-9]");
-        </pre>
-    */
-    static Boolean match(const String& str, const String& pattern);
-
-    /** Return true if the str parameter matches the pattern. C-Shell style
-	glob matching is used. Ignore case in all comparisons.
-    */
-    static Boolean matchNoCase(const String& str, const String& pattern);
-
 private:
 
     static Uint32 _pegasusMin(Uint32 x, Uint32 y) { return x < y ? x : y; }

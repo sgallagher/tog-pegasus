@@ -132,18 +132,28 @@ TAG: Version_1_09.
     The CIM clients that are linked into the Pegasus build have been
     updated to catch CIMClientException instead of CIMException.
     
- 20.(KS) 18 Apr 2002 -Incorporated tomof client into the build.  Includes
+20. (KS) 18 Apr 2002 -Incorporated tomof client into the build.  Includes
     usage and help.
     This program outputs mof or xml from repository either as a client
     or direct to the repository.
  
- 21.(KS) 18 Apr 2002 - Changed all FIXME, etc. in compiler to ATTN with
+21. (KS) 18 Apr 2002 - Changed all FIXME, etc. in compiler to ATTN with
     priorities.
 
- 22.(MM) 18 Apr 2002 - Associator provider handling
+22. (MM) 18 Apr 2002 - Associator provider handling
 
- 23.(MM) 18 Apr 2002 - HiRes pegasus_gettimeofday() for Windows needed
+23. (MM) 18 Apr 2002 - HiRes pegasus_gettimeofday() for Windows needed
     for performance statistics.
+
+24. (Roger Kumpf - HP) 18 Apr 2002 - Removed the "match" code in the
+    String class which had a dependency on the TCL license.  Where this
+    code was being used to match HTTP headers, I replaced the call to
+    String::matchNoCase() with specific logic to check for the namespace
+    in an HTTP extension header.  For example, if the allowNamespacePrefix
+    argument is true and the search tag is "Tag", HTTPMessage::lookupHeader
+    will match "Tag" and "45-Tag", but not "abcTag".  This behavior more
+    closely models the intent of the String match in this case and is
+    therefore more correct.
 
 ========================================================================
 

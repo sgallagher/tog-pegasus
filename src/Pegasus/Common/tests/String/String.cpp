@@ -292,6 +292,7 @@ int main()
 	    assert(nameSpace == "a/b/c");
 	}
     }
+#if 0 // The match code has been removed from the String class
     // Test the string match functions
     {
         String abc = "abc";
@@ -322,6 +323,7 @@ int main()
         assert(!String::match("Hello", "Goodbye"));
 
     }
+#endif
 
 
     cout << "+++++ passed all tests" << endl;

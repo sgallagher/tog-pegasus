@@ -98,6 +98,11 @@ public:
 
     /* filter - Filters the list against a defined pattern using the
         glob type filter.
+       NOTICE: This method no longer performs glob-style matching.  The
+       list is now filtered using exact matching, except that it also
+       recognizes the "*" pattern which matches everything.  While the new
+       functionality is quite limited, this change is consistent with
+       the way this method was being used at the time of the change.
         @param pattern -String defining the pattern used to filter the
         list. 
         @return Result is the list with all names that do not pass the
@@ -106,6 +111,8 @@ public:
     */
     void filter(String& pattern)
     {
+      if (!String::equalNoCase(pattern, "*"))
+      {
 	// Filter the list in accordance with the pattern
 	//cout << "Filter Start " << _classNameList.size() << endl;
 	Array<String> tmp;
@@ -114,13 +121,14 @@ public:
 	   /* cout << "Loop in filter " << i << " " 
 		<<  _classNameList[i] << " pattern " 
 		<<  pattern
-		<< " Return is " << String::matchNoCase(_classNameList[i], pattern)
+		<< " Return is " << String::equalNoCase(_classNameList[i], pattern)
 	        << " size " <<  _classNameList.size()
 		<< endl; */
-	    if (String::matchNoCase(_classNameList[i], pattern) != 0)
+	    if (String::equalNoCase(_classNameList[i], pattern))
 		tmp.append(_classNameList[i]);
 	}
 	_classNameList.swap(tmp);
+      }
 	//cout << "Filter finished " << _classNameList.size() << endl;
 
     }

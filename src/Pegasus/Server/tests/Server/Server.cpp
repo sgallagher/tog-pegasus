@@ -23,8 +23,8 @@
 // Author:
 //
 // $Log: Server.cpp,v $
-// Revision 1.4  2001/02/20 14:05:24  karl
-// Comments for Document
+// Revision 1.5  2001/03/11 23:35:33  mike
+// Ports to Linux
 //
 // Revision 1.3  2001/02/16 02:06:09  mike
 // Renamed many classes and headers.
@@ -76,7 +76,7 @@ int main(int argc, char** argv)
 
 	const Uint32 PORT = 8888;
 	server.bind(CIMServer::PROPRIETARY, PORT);
-        std::cout << PEGASUSSERVERNAME << " Version " << PEGASUSVERSION; 
+        std::cout << PEGASUSSERVERNAME << " Version " << PEGASUSVERSION << endl;
 	std::cout << LICENSE << endl;
 	std::cout << "Listening on port " << PORT << std::endl;
 	server.runForever();

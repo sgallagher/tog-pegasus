@@ -23,8 +23,8 @@
 // Author:
 //
 // $Log: CIMRepository.cpp,v $
-// Revision 1.7  2001/03/11 21:52:28  karl
-// Stub delete namespace
+// Revision 1.8  2001/03/11 23:35:33  mike
+// Ports to Linux
 //
 // Revision 1.6  2001/03/05 19:54:50  mike
 // Fixed earlier boo boo (renamed CimException to CIMException).
@@ -611,7 +611,7 @@ CIMInstance CIMRepository::getInstance(
     if (!InstanceIndexFile::lookup(indexPath, tmp, index))
 	throw CIMException(CIMException::FAILED);
 
-    // Form the path to the instance fiel:
+    // Form the path to the instance file:
 
     String path;
 

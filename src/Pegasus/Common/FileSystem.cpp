@@ -23,9 +23,8 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
-// Revision 1.4  2001/02/26 04:33:28  mike
-// Fixed many places where cim names were be compared with operator==(String,String).
-// Changed all of these to use CIMName::equal()
+// Revision 1.5  2001/03/11 23:35:32  mike
+// Ports to Linux
 //
 // Revision 1.3  2001/02/13 02:06:40  mike
 // Added renameFile() method.
@@ -86,7 +85,7 @@ static char* _clonePath(const String& path)
 
 Boolean FileSystem::exists(const String& path)
 {
-    Destroyer<char> p(_clonePath(path));
+    ArrayDestroyer<char> p(_clonePath(path));
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     return _access(p.getPointer(), ACCESS_EXISTS) == 0;
@@ -98,7 +97,7 @@ Boolean FileSystem::exists(const String& path)
 Boolean FileSystem::existsIgnoreCase(const String& path, String& realPath)
 {
     realPath.clear();
-    Destroyer<char> destroyer(_clonePath(path));
+    ArrayDestroyer<char> destroyer(_clonePath(path));
     char* p = destroyer.getPointer();
 
     char* dirPath;
@@ -144,7 +143,7 @@ Boolean FileSystem::existsIgnoreCase(const String& path, String& realPath)
 
 Boolean FileSystem::canRead(const String& path)
 {
-    Destroyer<char> p(_clonePath(path));
+    ArrayDestroyer<char> p(_clonePath(path));
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     return _access(p.getPointer(), ACCESS_READ) == 0;
@@ -155,7 +154,7 @@ Boolean FileSystem::canRead(const String& path)
 
 Boolean FileSystem::canWrite(const String& path)
 {
-    Destroyer<char> p(_clonePath(path));
+    ArrayDestroyer<char> p(_clonePath(path));
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     return _access(p.getPointer(), ACCESS_WRITE) == 0;
@@ -168,14 +167,14 @@ Boolean FileSystem::canWrite(const String& path)
 // ATTN: not implemented for NT. But not used by Pegasus.
 Boolean FileSystem::canExecute(const String& path)
 {
-    Destroyer<char> p(_clonePath(path));
+    ArrayDestroyer<char> p(_clonePath(path));
     return access(p.getPointer(), X_OK) == 0;
 }
 #endif
 
 Boolean FileSystem::isDirectory(const String& path)
 {
-    Destroyer<char> p(_clonePath(path));
+    ArrayDestroyer<char> p(_clonePath(path));
 
     struct stat st;
 
@@ -200,13 +199,13 @@ Boolean FileSystem::isDirectory(const String& path)
 
 Boolean FileSystem::changeDirectory(const String& path)
 {
-    Destroyer<char> p(_clonePath(path));
+    ArrayDestroyer<char> p(_clonePath(path));
     return chdir(p.getPointer()) == 0;
 }
 
 Boolean FileSystem::makeDirectory(const String& path)
 {
-    Destroyer<char> p(_clonePath(path));
+    ArrayDestroyer<char> p(_clonePath(path));
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     return _mkdir(p.getPointer()) == 0;
 #else
@@ -218,7 +217,7 @@ Boolean FileSystem::getFileSize(const String& path, Uint32& size)
 {
     struct stat st;
 
-    Destroyer<char> p(_clonePath(path));
+    ArrayDestroyer<char> p(_clonePath(path));
 
     if (stat(p.getPointer(), &st) != 0)
 	return false;
@@ -229,13 +228,13 @@ Boolean FileSystem::getFileSize(const String& path, Uint32& size)
 
 Boolean FileSystem::removeDirectory(const String& path)
 {
-    Destroyer<char> p(_clonePath(path));
+    ArrayDestroyer<char> p(_clonePath(path));
     return rmdir(p.getPointer()) == 0;	
 }
 
 Boolean FileSystem::removeFile(const String& path)
 {
-    Destroyer<char> p(_clonePath(path));
+    ArrayDestroyer<char> p(_clonePath(path));
     return unlink(p.getPointer()) == 0;	
 }
 
@@ -340,13 +339,16 @@ Boolean FileSystem::renameFile(
     const String& oldFileName,
     const String& newFileName)
 {
-    Destroyer<char> p(oldFileName.allocateCString());
-    Destroyer<char> q(newFileName.allocateCString());
+    ArrayDestroyer<char> p(oldFileName.allocateCString());
+    ArrayDestroyer<char> q(newFileName.allocateCString());
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     return rename(p.getPointer(), q.getPointer()) == 0;
 #else
-    return link(p.getPointer(), q.getPointer()) == 0;
+    if (link(p.getPointer(), q.getPointer()) != 0)
+	return false;
+
+    return unlink(p.getPointer()) == 0;
 #endif
 }
 

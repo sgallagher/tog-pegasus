@@ -23,8 +23,8 @@
 // Author:
 //
 // $Log: Repository.cpp,v $
-// Revision 1.7  2001/02/20 07:25:57  mike
-// Added basic create-instance in repository and in client.
+// Revision 1.8  2001/03/11 23:35:33  mike
+// Ports to Linux
 //
 // Revision 1.6  2001/02/19 01:47:17  mike
 // Renamed names of the form CIMConst to ConstCIM.
@@ -116,6 +116,7 @@ void test02()
 
     r.createClass(NAMESPACE, cimClass);
 
+
     CIMInstance cimInstance("ThisClass");
     cimInstance.addProperty(CIMProperty("Last", "Smith"));
     cimInstance.addProperty(CIMProperty("First", "John"));
@@ -126,6 +127,7 @@ void test02()
 
     CIMReference ref;
     CIMReference::instanceNameToReference(instanceName, ref);
+
     CIMInstance tmp = r.getInstance(NAMESPACE, ref);
 
     assert(cimInstance.identical(tmp));

@@ -32,7 +32,9 @@ EXE =
 
 LIB_PREFIX = lib
 
-LIB_SUFFIX = .so
+LIB_SUFFIX = .a
+
+SHARED_LIB_SUFFIX = .so
 
 COPY = cp
 

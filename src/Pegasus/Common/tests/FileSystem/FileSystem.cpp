@@ -23,9 +23,8 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
-// Revision 1.5  2001/02/26 04:33:30  mike
-// Fixed many places where cim names were be compared with operator==(String,String).
-// Changed all of these to use CIMName::equal()
+// Revision 1.6  2001/03/11 23:35:33  mike
+// Ports to Linux
 //
 // Revision 1.4  2001/02/13 02:06:40  mike
 // Added renameFile() method.
@@ -95,7 +94,9 @@ int main()
 	assert(FileSystem::exists(FILE1));
 	assert(!FileSystem::exists(FILE2));
 	assert(FileSystem::renameFile(FILE1, FILE2));
+
 	assert(!FileSystem::exists(FILE1));
+
 	assert(FileSystem::exists(FILE2));
 	assert(FileSystem::renameFile(FILE2, FILE1));
 	assert(FileSystem::exists(FILE1));

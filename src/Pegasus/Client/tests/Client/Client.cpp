@@ -23,8 +23,8 @@
 // Author:
 //
 // $Log: Client.cpp,v $
-// Revision 1.9  2001/03/05 19:54:49  mike
-// Fixed earlier boo boo (renamed CimException to CIMException).
+// Revision 1.10  2001/03/11 23:35:32  mike
+// Ports to Linux
 //
 // Revision 1.8  2001/02/26 04:33:28  mike
 // Fixed many places where cim names were be compared with operator==(String,String).
@@ -186,8 +186,7 @@ static void TestInstanceOperations(CIMClient& client)
     }
     catch (Exception& e)
     {
-	cout << "Warning: deleteClass() failed" << endl;
-	cout << "Error: " << e.getMessage() << endl;
+	// Ignore delete class!
     }
 
 #if 0

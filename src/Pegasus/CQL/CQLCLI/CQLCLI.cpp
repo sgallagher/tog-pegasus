@@ -143,11 +143,21 @@ int main(int argc, char ** argv)
 			queryInputSource.getline(text, 255);
 			char* _ptr = text;
 			_text = strcat(_ptr,"\n");	
-			cout << "text = " << _text;
-			if(!(strlen(_text) < 2)){
-				CQLParser::parse(text,_ss);
-				_statements.append(_ss);
+			// check for comments and ignore
+			// a comment starts with a # as the first non whitespace character on the line
+			char _comment = '#';
+			int i = 0;
+			while(text[i] == ' ' || text[i] == '\t') i++; // ignore whitespace
+			if(text[i] != _comment){
+				cout << "TEXT = " << _text;
+				if(!(strlen(_text) < 2)){
+					CQLParser::parse(text,_ss);
+					_statements.append(_ss);
+				}
+			}else{
+				cout << "COMMENT = " << _text;
 			}
+	
 			
 		}
 		queryInputSource.close();

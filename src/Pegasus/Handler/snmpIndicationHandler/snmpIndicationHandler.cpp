@@ -59,101 +59,106 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handlerInstance,
     CIMInstance& indicationInstance,
     String nameSpace)
 {
-    String enterprise, trapOid, destination, trapType;
-    
+    String enterprise, trapOid, destination;
     Array<String> propOIDs;
     Array<String> propTYPEs;
     Array<String> propVALUEs;
 
-    String propName;
-    
-    Uint32 propPos;
-    Uint32 qualifierPos;
-    Uint32 typePos;
-    CIMValue propValue;
-    CIMProperty trapProp;
-    CIMQualifier trapQualifier;
+    CIMProperty prop;
 
     CIMClass indicationClass = _repository->getClass(
 	nameSpace, 
 	indicationInstance.getClassName(), 
 	false);
 
-    //filling the array with enterprise first
-    propPos = indicationClass.findProperty("enterprise");
+    Uint32 propPos = indicationClass.findProperty("enterprise");
     if (propPos != PEG_NOT_FOUND)
     {
-        trapProp = indicationClass.getProperty(propPos);
-        qualifierPos = trapProp.findQualifier("OID");
-        trapQualifier = trapProp.getQualifier(qualifierPos);
-        enterprise = trapQualifier.getValue().toString();
+        CIMProperty trapProp = indicationClass.getProperty(propPos);
 
-        int i;
-        for (i=0; i<indicationInstance.getPropertyCount();i++)
+        Uint32 qualifierPos = trapProp.findQualifier("MappingStrings");
+        if (qualifierPos != PEG_NOT_FOUND)
         {
-	    propValue = indicationInstance.getProperty(i).getValue();
-	    
-	    if (!propValue.isNull())
-            {
-                propName = indicationInstance.getProperty(i).getName();
-                propPos = indicationClass.findProperty(propName);
-                trapProp = indicationClass.getProperty(propPos);
+            CIMQualifier trapQualifier = trapProp.getQualifier(qualifierPos);
+            enterprise = trapQualifier.getValue().toString();
 
-                if (trapProp.existsQualifier("OID"))
+            for (int i=0; i<indicationInstance.getPropertyCount();i++)
+            {
+	        char* property_oid = NULL;
+	        char* property_value = NULL;
+	        char* property_datatype = NULL;
+        
+	        prop = indicationInstance.getProperty(i);
+
+	        if (prop != NULL)
                 {
-                    if (propName == "trapOid")
-		    {
-			trapOid = propValue.toString();
+                    String propName = prop.getName();
+                    Uint32 propPos = indicationClass.findProperty(propName);
+                    CIMProperty trapProp = indicationClass.getProperty(propPos);
+
+                    if (trapProp.existsQualifier("MappingStrings"))
+                    {
+                        if (propName == "trapOid")
+		        {
+		            trapOid = prop.getValue().toString();
+		        }
+		        else
+		        {
+		            Uint32 qualifierPos = trapProp.findQualifier("MappingStrings");
+			    CIMQualifier trapQualifier = trapProp.getQualifier(qualifierPos);
+			
+			    String mapstr1 = trapQualifier.getValue().toString();
+			    String mapstr2 = "";
+
+			    if ((mapstr1.find("OID") != PEG_NOT_FOUND) &&
+			        (mapstr1.find("SNMP") != PEG_NOT_FOUND))
+			    {
+			        if (mapstr1.subString(0, 4) == "OID.")
+			        {
+				    mapstr1 = mapstr1.subString(mapstr1.find("SNMP.")+5);
+                                    if (mapstr1.find("|") != PEG_NOT_FOUND)
+                                    {
+				        mapstr2 = mapstr1.subString(0, mapstr1.find("|"));
+			    
+				        propOIDs.append(mapstr2);
+				        propVALUEs.append(prop.getValue().toString());
+				        propTYPEs.append(mapstr1.subString(mapstr1.find("|")+1));
+                                    }
+			        }
+			    }
+		        }
 		    }
-		    else
-		    {
-			qualifierPos = trapProp.findQualifier("OID");
-			trapQualifier = trapProp.getQualifier(qualifierPos);
-			propOIDs.append(trapQualifier.getValue().toString());
-			propVALUEs.append(propValue.toString());
-			if (trapProp.existsQualifier("SNMPTYPE"))
-			{
-			    typePos = trapProp.findQualifier("SNMPTYPE");
-			    trapQualifier = trapProp.getQualifier(typePos);
-			    propTYPEs.append(trapQualifier.getValue().toString());
-			}
-			else
-			    propTYPEs.append(TypeToString(trapProp.getType()));
-		    }
-		}
+                }
             }
         }
-        
-        destination = handlerInstance.getProperty(
-	    handlerInstance.findProperty("destination")).getValue().toString();
 
-	trapType = handlerInstance.getProperty(
-	    handlerInstance.findProperty("trapType")).getValue().toString();
-
-	// Collected complete data in arrays and ready to send the trap.
+        // Collected complete data in arrays and ready to send the trap.
         // trap destination and SNMP type are defined in handlerInstance
         // and passing this instance as it is to deliverTrap() call
+
 #ifdef HPUX_EMANATE
-	snmpDeliverTrap_emanate emanateTrap;
+        snmpDeliverTrap_emanate emanateTrap;
 #else
-	snmpDeliverTrap_stub emanateTrap;
+        snmpDeliverTrap_stub emanateTrap;
 #endif
-        
-	cout << "Trap to deliver " << endl;
-        
-	emanateTrap.deliverTrap(trapOid, 
-            enterprise,
-            destination,
-            trapType, 
-            propOIDs,  
-            propTYPEs, 
-            propVALUEs);
-        
-	cout << "Trap Delivered " << endl;
+
+        if ((handlerInstance.findProperty("Destination") != PEG_NOT_FOUND) &&
+            (handlerInstance.findProperty("trapType") != PEG_NOT_FOUND))
+        {
+            emanateTrap.deliverTrap(trapOid, 
+                enterprise,
+                handlerInstance.getProperty(handlerInstance.findProperty("Destination"))
+                    .getValue().toString(),
+                handlerInstance.getProperty(handlerInstance.findProperty("trapType"))
+                    .getValue().toString(), 
+                propOIDs,  
+                propTYPEs, 
+                propVALUEs);
+        }
     }
     else
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
-	    "Indication is without enterprise OID");
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+            "Indication is without enterprise OID");
 }
 
 // This is the dynamic entry point into this dynamic module. The name of

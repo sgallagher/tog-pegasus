@@ -32,7 +32,7 @@
 
 #include "snmpDeliverTrap.h"
 
-#define  _SNMP_FIFO      "/tmp/wbemsubagent_fifo"
+#define  _SNMP_FIFO      "/var/opt/wbem/wbemagent_fifo"
 
 PEGASUS_NAMESPACE_BEGIN
 

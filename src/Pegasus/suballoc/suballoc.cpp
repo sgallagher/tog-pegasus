@@ -51,7 +51,7 @@ void * operator new(size_t size)
 {
 
    if( internal_allocator.get_mode() == false)
-      return(std::operator new(size));
+      return(::operator new(size));
    
    if( size == 0 )
       size = 1;

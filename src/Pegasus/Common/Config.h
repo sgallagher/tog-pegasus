@@ -99,7 +99,9 @@
 #endif 
 
 
+#ifdef __cplusplus
 #include <cstdlib>
+#endif
 
 // used for Windows only
 #ifndef PEGASUS_EXPORT
@@ -177,6 +179,7 @@
 #endif
 
 
+#ifdef __cplusplus
 PEGASUS_NAMESPACE_BEGIN
 
 typedef bool Boolean;  // If platform w/o bool, add flag and include Boolean.h
@@ -194,6 +197,7 @@ typedef PEGASUS_SINT64 Sint64;
 #define PEG_NOT_FOUND Uint32(-1)
 
 PEGASUS_NAMESPACE_END
+#endif
 
 #ifdef PEGASUS_SUPPRESS_UNREACHABLE_STATEMENTS
 # define PEGASUS_UNREACHABLE(CODE)

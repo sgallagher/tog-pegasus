@@ -5,7 +5,7 @@
 // WBEM SLP Template
 // ==================================================================
 
-class CIM_WBEMSLPTemplate {
+class PG_WBEMSLPTemplate {
 
    string template_type="wbem";
 

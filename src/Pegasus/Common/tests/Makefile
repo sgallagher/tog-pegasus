@@ -35,7 +35,9 @@ DIRS = \
     XmlDump \
     XmlParser \
     XmlPrint \
-    Reference
+    Reference \
+    DynLib \
+    DynLoad
 
 XDIRS = \
     ValidateClass \

@@ -1,31 +1,28 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,265 +33,182 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/HTTPMessage.h>
-#include <Pegasus/Common/AcceptLanguageList.h>
-#include <Pegasus/Common/ContentLanguageList.h>
-#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class XmlParser;
 
 /** This class decodes CIM operation requests and passes them down-stream.
- */
+*/
 class CIMOperationRequestDecoder : public MessageQueue
 {
 public:
-    typedef MessageQueue Base;
 
     CIMOperationRequestDecoder(
-        MessageQueue* outputQueue,
-        Uint32 returnQueueId);
+	MessageQueue* outputQueue,
+	Uint32 returnQueueId);
 
-   ~CIMOperationRequestDecoder();
+    ~CIMOperationRequestDecoder();
 
-   void sendResponse(
-        Uint32 queueId,
-        Buffer& message,
-        Boolean closeConnect = false);
+    void sendResponse(
+	Uint32 queueId, 
+	Array<Sint8>& message);
 
-    void sendIMethodError(
-        Uint32 queueId,
-        HttpMethod httpMethod,
-        const String& messageId,
-        const String& methodName,
-        const CIMException& cimException,
-        Boolean closeConnect = false);
-
-    void sendMethodError(
-        Uint32 queueId,
-        HttpMethod httpMethod,
-        const String& messageId,
-        const String& methodName,
-        const CIMException& cimException,
-        Boolean closeConnect = false);
-
-    void sendUserAccountExpired(
-        Uint32 queueId,
-        HttpMethod httpMethod,
-        const String& messageId,
-        const String& methodName,
-        Boolean closeConnect,
-        Boolean isIMethod);
-
-
-    void sendHttpError(
-        Uint32 queueId,
-        const String& status,
-        const String& cimError = String::EMPTY,
-        const String& messageBody = String::EMPTY,
-        Boolean closeConnect = false);
-
-    virtual void handleEnqueue(Message *);
+    void sendError(
+	Uint32 queueId, 
+	const String& messageId,
+	const String& methodName,
+	CIMStatusCode code,
+	const String& description);
 
     virtual void handleEnqueue();
 
+    virtual const char* getQueueName() const;
+
     void handleHTTPMessage(HTTPMessage* httpMessage);
 
-    void handleMethodCall(
+    void CIMOperationRequestDecoder::handleMethodCall(
+	Uint32 queueId,
+	Sint8* content);
+
+    void decodeCreateClassRequest(
         Uint32 queueId,
-        HttpMethod httpMethod,
-        char* content,
-        Uint32 contentLength,
-        const char* cimProtocolVersionInHeader,
-        const String& cimMethodInHeader,
-        const String& cimObjectInHeader,
-        const String& authType,
-        const String& userName,
-        const String& userRole,
-        const String& userPass,
-        Boolean isExpiredPassword,
-        Boolean updateExpiredPassword,
-        const String& ipAddress,
-        const AcceptLanguageList& httpAcceptLanguages,
-        const ContentLanguageList& httpContentLanguages,
-        Boolean closeConnect,
-        Boolean binaryRequest,
-        Boolean binaryResponse);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
-    CIMCreateClassRequestMessage* decodeCreateClassRequest(
+    void decodeGetClassRequest(
         Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
-    CIMGetClassRequestMessage* decodeGetClassRequest(
+    void decodeModifyClassRequest(
         Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
-    CIMModifyClassRequestMessage* decodeModifyClassRequest(
+    void decodeEnumerateClassNamesRequest(
         Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
-    CIMEnumerateClassNamesRequestMessage* decodeEnumerateClassNamesRequest(
+    void decodeEnumerateClassesRequest(
         Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
-    CIMEnumerateClassesRequestMessage* decodeEnumerateClassesRequest(
+    void decodeDeleteClassRequest(
         Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
-    CIMDeleteClassRequestMessage* decodeDeleteClassRequest(
+    void decodeCreateInstanceRequest(
         Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
-    CIMCreateInstanceRequestMessage* decodeCreateInstanceRequest(
+    void decodeGetInstanceRequest(
         Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
-    CIMGetInstanceRequestMessage* decodeGetInstanceRequest(
+    void decodeModifyInstanceRequest(
         Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
-    CIMModifyInstanceRequestMessage* decodeModifyInstanceRequest(
+    void decodeEnumerateInstanceNamesRequest(
         Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
-    CIMEnumerateInstanceNamesRequestMessage*
-        decodeEnumerateInstanceNamesRequest(
-            Uint32 queueId,
-            XmlParser& parser,
-            const String& messageId,
-            const CIMNamespaceName& nameSpace);
-
-    CIMEnumerateInstancesRequestMessage* decodeEnumerateInstancesRequest(
+    void decodeEnumerateInstancesRequest(
         Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
-    CIMDeleteInstanceRequestMessage* decodeDeleteInstanceRequest(
+    void decodeDeleteInstanceRequest(
         Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
-    CIMSetQualifierRequestMessage* decodeSetQualifierRequest(
+    void decodeSetQualifierRequest(
         Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
-    CIMGetQualifierRequestMessage* decodeGetQualifierRequest(
+    void decodeGetQualifierRequest(
         Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
-    CIMEnumerateQualifiersRequestMessage* decodeEnumerateQualifiersRequest(
+    void decodeEnumerateQualifiersRequest(
         Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
-    CIMDeleteQualifierRequestMessage* decodeDeleteQualifierRequest(
+    void decodeDeleteQualifierRequest(
         Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
-    CIMReferenceNamesRequestMessage* decodeReferenceNamesRequest(
+    void decodeReferenceNamesRequest(
         Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
-    CIMReferencesRequestMessage* decodeReferencesRequest(
+    void decodeReferencesRequest(
         Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
-    CIMAssociatorNamesRequestMessage* decodeAssociatorNamesRequest(
+    void decodeAssociatorNamesRequest(
         Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
-    CIMAssociatorsRequestMessage* decodeAssociatorsRequest(
+    void decodeAssociatorsRequest(
         Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
-    CIMGetPropertyRequestMessage* decodeGetPropertyRequest(
+    void decodeGetPropertyRequest(
         Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
-    CIMSetPropertyRequestMessage* decodeSetPropertyRequest(
+    void decodeSetPropertyRequest(
         Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
-
-    CIMExecQueryRequestMessage* decodeExecQueryRequest(
-        Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMNamespaceName& nameSpace);
-
-    CIMInvokeMethodRequestMessage* decodeInvokeMethodRequest(
-        Uint32 queueId,
-        XmlParser& parser,
-        const String& messageId,
-        const CIMObjectPath& reference,
-        const String& cimMethodName);
-
-    /** Sets the flag to indicate whether or not the CIMServer is
-        shutting down.
-    */
-    void setServerTerminating(Boolean flag);
+	XmlParser& parser, 
+	const String& messageId,
+	const String& nameSpace);
 
 private:
 
-#ifdef PEGASUS_PAM_SESSION_SECURITY
-    void _updateExpiredPassword(
-        Uint32 queueId,
-        HttpMethod httpMethod,
-        const String& messageId,
-        Boolean closeConnect,
-        const ContentLanguageList& httpContentLanguages,
-        CIMMessage* request,
-        const String& userName,
-        const String& oldPass,
-        const String& ipAddress);
-#endif
-
-    // Do not make _outputQueue an AutoPtr.
     MessageQueue* _outputQueue;
 
     // Queue where responses should be enqueued.
     Uint32 _returnQueueId;
-
-    // Flag to indicate whether or not the CIMServer is shutting down.
-    Boolean _serverTerminating;
 };
 
 PEGASUS_NAMESPACE_END

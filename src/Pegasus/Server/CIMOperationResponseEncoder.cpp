@@ -1,50 +1,39 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Constants.h>
-#include <Pegasus/Common/CIMBuffer.h>
 #include <cctype>
 #include <cstdio>
-#include <Pegasus/Common/HTTPConnection.h>
-#include <Pegasus/Common/BinaryCodec.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlReader.h>
+#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/Logger.h>
-#include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/StatisticalData.h>
-#include <Pegasus/Common/AutoPtr.h>
-#include <Pegasus/Common/MessageLoader.h>
 #include "CIMOperationResponseEncoder.h"
 
 PEGASUS_USING_STD;
@@ -52,702 +41,574 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CIMOperationResponseEncoder::CIMOperationResponseEncoder()
-    : Base(PEGASUS_QUEUENAME_OPRESPENCODER)
 {
+
 }
 
 CIMOperationResponseEncoder::~CIMOperationResponseEncoder()
 {
-}
 
-//==============================================================================
-//
-// CIMOperationResponseEncoder::sendResponse()
-//
-//     This function is called once for every chunk comprising the inner part
-//     of the HTTP payload. This is true whether chunking is enabled or not.
-//     The "bodygiven" parameter contains all or part of the inner response
-//     body. For example, in the case of the enumerate-instances XML response,
-//     each "bodygiven" contains a complete named-instance as shown below.
-//
-//         <VALUE.NAMEDINSTANCE>
-//         ...
-//         <VALUE.NAMEDINSTANCE>
-//
-//     In the case of the get-class XML response, bodygiven contains the
-//     entire class. Sometimes bodygiven is null, probably indicating that
-//     one of the responding threads returned an empty response (for example,
-//     a provider may return zero instances).
-//
-//     This function wraps the inner payload with the following elements:
-//
-//         1. HTTP status line.
-//         2. HTTP headers.
-//         3. Payload header.
-//         4. Payload footer.
-//
-//     In the case of an enumerate-instances XML response, the payload header
-//     contains all the XML leading up to the first XML chunk. For example:
-//
-//         <?xml version="1.0" encoding="utf-8" ?>
-//         <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-//         <MESSAGE ID="1000" PROTOCOLVERSION="1.0">
-//         <SIMPLERSP>
-//         <IMETHODRESPONSE NAME="EnumerateInstances">
-//         <IRETURNVALUE>
-//
-//     The payload footer then would just contain the closing tags for these:
-//
-//         </IRETURNVALUE>
-//         </IMETHODRESPONSE>
-//         </MESSAGE>
-//         </SIMPLERSP>
-//         </CIM>
-//
-//==============================================================================
+}
 
 void CIMOperationResponseEncoder::sendResponse(
-    CIMResponseMessage* response,
-    const String& name,
-    Boolean isImplicit,
-    Buffer* bodygiven)
+    Uint32 queueId, 
+    Array<Sint8>& message)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationResponseEncoder::sendResponse");
-    PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
-        "name = %s",
-        (const char*)name.getCString()));
-
-    if (! response)
-    {
-        PEG_METHOD_EXIT();
-        return;
-    }
-
-    Uint32 queueId = response->queueIds.top();
-
-    Boolean closeConnect = response->getCloseConnect();
-    PEG_TRACE((
-        TRC_HTTP,
-        Tracer::LEVEL4,
-        "CIMOperationResponseEncoder::sendResponse()- "
-            "response->getCloseConnect() returned %d",
-        closeConnect));
-
     MessageQueue* queue = MessageQueue::lookup(queueId);
 
-    if (!queue)
+    if (queue)
     {
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "ERROR: non-existent queueId = %u, response not sent.", queueId));
-        PEG_METHOD_EXIT();
-        return;
-    }
-
-    HttpMethod httpMethod = response->getHttpMethod();
-    String& messageId = response->messageId;
-    CIMException& cimException = response->cimException;
-    Buffer message;
-
-    // Note: the language is ALWAYS passed empty to the xml formatters because
-    // it is HTTPConnection that needs to make the decision of whether to add
-    // the languages to the HTTP message.
-    ContentLanguageList contentLanguage;
-
-    CIMName cimName(name);
-    Uint32 messageIndex = response->getIndex();
-    Boolean isFirst = messageIndex == 0 ? true : false;
-    Boolean isLast = response->isComplete();
-    Buffer bodylocal;
-    Buffer& body = bodygiven ? *bodygiven : bodylocal;
-
-    // STAT_SERVEREND sets the getTotalServerTime() value in the message class
-    STAT_SERVEREND
-
-#ifndef PEGASUS_DISABLE_PERFINST
-    Uint64 serverTime = response->getTotalServerTime();
-#else
-    Uint64 serverTime = 0;
-#endif
-
-    Buffer (*formatResponse)(
-        const CIMName& iMethodName,
-        const String& messageId,
-        HttpMethod httpMethod,
-        const ContentLanguageList& httpContentLanguages,
-        const Buffer& body,
-        Uint64 serverResponseTime,
-        Boolean isFirst,
-        Boolean isLast);
-
-    Buffer (*formatError)(
-        const CIMName& methodName,
-        const String& messageId,
-        HttpMethod httpMethod,
-        const CIMException& cimException);
-
-    if (isImplicit == false)
-    {
-        formatResponse = XmlWriter::formatSimpleMethodRspMessage;
-        formatError = XmlWriter::formatSimpleMethodErrorRspMessage;
-    }
-    else
-    {
-        formatError = XmlWriter::formatSimpleIMethodErrorRspMessage;
-
-        if (response->binaryResponse)
-        {
-            formatResponse = BinaryCodec::formatSimpleIMethodRspMessage;
-        }
-        else
-        {
-            formatResponse = XmlWriter::formatSimpleIMethodRspMessage;
-        }
-    }
-
-    if (cimException.getCode() != CIM_ERR_SUCCESS)
-    {
-        HTTPConnection* httpQueue = dynamic_cast<HTTPConnection*>(queue);
-        Boolean isChunkRequest = false;
-        Boolean isFirstError = true;
-
-        // Note:  The WMI Mapper may use a non-HTTPConnection queue here.
-        if (httpQueue)
-        {
-            isChunkRequest = httpQueue->isChunkRequested();
-            isFirstError =
-                (httpQueue->cimException.getCode() == CIM_ERR_SUCCESS);
-        }
-
-        // only process the FIRST error
-        if (isFirstError)
-        {
-            // NOTE: even if this error occurs in the middle, HTTPConnection
-            // will flush the entire queued message and reformat.
-            if (isChunkRequest == false)
-            {
-                message =
-                    formatError(name, messageId, httpMethod, cimException);
-            }
-
-            // uri encode the error (for the http header) only when it is
-            // non-chunking or the first error with chunking
-            if (isChunkRequest == false ||
-                (isChunkRequest == true && isFirst == true))
-            {
-                String msg =
-                    TraceableCIMException(cimException).getDescription();
-                String uriEncodedMsg = XmlWriter::encodeURICharacters(msg);
-                CIMException cimExceptionUri(
-                    cimException.getCode(), uriEncodedMsg);
-                cimExceptionUri.setContentLanguages(
-                    cimException.getContentLanguages());
-                cimException = cimExceptionUri;
-            }
-        } // if first error in response stream
-
-        // never put the error in chunked response (because it will end up in
-        // the trailer), so just use the non-error response formatter to send
-        // more data
-
-        if (isChunkRequest == true)
-        {
-            message = formatResponse(
-                cimName,
-                messageId,
-                httpMethod,
-                contentLanguage,
-                body,
-                serverTime,
-                isFirst,
-                isLast);
-        }
-    }
-    else
-    {
-        message = formatResponse(
-            cimName,
-            messageId,
-            httpMethod,
-            contentLanguage,
-            body,
-            serverTime,
-            isFirst,
-            isLast);
-
-        STAT_BYTESSENT
-    }
-
-    AutoPtr<HTTPMessage> httpMessage(
-        new HTTPMessage(message, 0, &cimException));
-    httpMessage->setComplete(isLast);
-    httpMessage->setIndex(messageIndex);
-    httpMessage->binaryResponse = response->binaryResponse;
-
-    if (cimException.getCode() != CIM_ERR_SUCCESS)
-    {
-        httpMessage->contentLanguages = cimException.getContentLanguages();
-    }
-    else
-    {
-        const OperationContext::Container& container =
-            response->operationContext.get(ContentLanguageListContainer::NAME);
-        const ContentLanguageListContainer& listContainer =
-            *dynamic_cast<const ContentLanguageListContainer*>(&container);
-        contentLanguage = listContainer.getLanguages();
-        httpMessage->contentLanguages = contentLanguage;
-    }
-
-    httpMessage->setCloseConnect(closeConnect);
-
-    queue->enqueue(httpMessage.release());
-
-    PEG_METHOD_EXIT();
-}
-
-void CIMOperationResponseEncoder::enqueue(Message* message)
-{
-    try
-    {
-        handleEnqueue(message);
-    }
-    catch(PEGASUS_STD(bad_alloc)&)
-    {
-        MessageLoaderParms parms(
-            "Server.CIMOperationResponseEncoder.OUT_OF_MEMORY",
-            "A System error has occurred. Please retry the CIM Operation "
-                "at a later time.");
-
-        Logger::put_l(
-            Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE, parms);
-
-        CIMResponseMessage* response =
-            dynamic_cast<CIMResponseMessage*>(message);
-        Uint32 queueId = response->queueIds.top();
-        MessageQueue* queue = MessageQueue::lookup(queueId);
-        HTTPConnection* httpQueue = dynamic_cast<HTTPConnection*>(queue);
-        PEGASUS_ASSERT(httpQueue);
-
-        // Handle internal error on this connection.
-        httpQueue->handleInternalServerError(
-            response->getIndex(), response->isComplete());
-
-        delete message;
+	HTTPMessage* httpMessage = new HTTPMessage(message);
+	queue->enqueue(httpMessage);
     }
 }
 
-void CIMOperationResponseEncoder::handleEnqueue(Message* message)
+void CIMOperationResponseEncoder::sendError(
+    Uint32 queueId, 
+    const String& messageId,
+    const String& cimMethodName,
+    CIMStatusCode code,
+    const String& description) 
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationResponseEncoder::handleEnqueue()");
+    ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
+    ArrayDestroyer<char> tmp2(description.allocateCString());
 
-    if (!message)
-    {
-        PEG_METHOD_EXIT();
-        return;
-    }
+    Array<Sint8> message = XmlWriter::formatMethodResponseHeader(
+	XmlWriter::formatMessageElement(
+	    messageId,
+	    XmlWriter::formatSimpleRspElement(
+		XmlWriter::formatIMethodResponseElement(
+		    tmp1.getPointer(),
+		    XmlWriter::formatErrorElement(code, tmp2.getPointer())))));
+    
+    sendResponse(queueId, message);
+}
 
-    CIMResponseMessage* response = dynamic_cast<CIMResponseMessage*>(message);
-    PEGASUS_ASSERT(response);
+void CIMOperationResponseEncoder::sendError(
+    CIMResponseMessage* response,
+    const String& cimMethodName)
+{
+    Uint32 queueId = response->queueIds.top();
+    response->queueIds.pop();
 
-    response->updateThreadLanguages();
-
-    PEG_TRACE((
-        TRC_HTTP,
-        Tracer::LEVEL4,
-        "CIMOperationResponseEncoder::handleEnque()- "
-            "message->getCloseConnect() returned %d",
-        message->getCloseConnect()));
-
-    // Handle binary messages up front:
-    {
-        CIMResponseMessage* msg = dynamic_cast<CIMResponseMessage*>(message);
-
-        if (msg && msg->binaryResponse)
-        {
-            if (msg->cimException.getCode() == CIM_ERR_SUCCESS)
-            {
-                Buffer body;
-                CIMName name;
-
-                if (BinaryCodec::encodeResponseBody(body, msg, name))
-                {
-                    sendResponse(msg, name.getString(), true, &body);
-                    delete msg;
-                    PEG_METHOD_EXIT();
-                    return;
-                }
-            }
-        }
-    }
-
-    switch (message->getType())
-    {
-        case CIM_GET_CLASS_RESPONSE_MESSAGE:
-            encodeGetClassResponse(
-                (CIMGetClassResponseMessage*)message);
-            break;
-
-        case CIM_GET_INSTANCE_RESPONSE_MESSAGE:
-            encodeGetInstanceResponse(
-                (CIMGetInstanceResponseMessage*)message);
-            break;
-
-        case CIM_DELETE_CLASS_RESPONSE_MESSAGE:
-            encodeDeleteClassResponse(
-                (CIMDeleteClassResponseMessage*)message);
-            break;
-
-        case CIM_DELETE_INSTANCE_RESPONSE_MESSAGE:
-            encodeDeleteInstanceResponse(
-                (CIMDeleteInstanceResponseMessage*)message);
-            break;
-
-        case CIM_CREATE_CLASS_RESPONSE_MESSAGE:
-            encodeCreateClassResponse(
-                (CIMCreateClassResponseMessage*)message);
-            break;
-
-        case CIM_CREATE_INSTANCE_RESPONSE_MESSAGE:
-            encodeCreateInstanceResponse(
-                (CIMCreateInstanceResponseMessage*)message);
-            break;
-
-        case CIM_MODIFY_CLASS_RESPONSE_MESSAGE:
-            encodeModifyClassResponse(
-                (CIMModifyClassResponseMessage*)message);
-            break;
-
-        case CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE:
-            encodeModifyInstanceResponse(
-                (CIMModifyInstanceResponseMessage*)message);
-            break;
-
-        case CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE:
-            encodeEnumerateClassesResponse(
-                (CIMEnumerateClassesResponseMessage*)message);
-            break;
-
-        case CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE:
-            encodeEnumerateClassNamesResponse(
-                (CIMEnumerateClassNamesResponseMessage*)message);
-            break;
-
-        case CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE:
-            encodeEnumerateInstancesResponse(
-                (CIMEnumerateInstancesResponseMessage*)message);
-            break;
-
-        case CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE:
-            encodeEnumerateInstanceNamesResponse(
-                (CIMEnumerateInstanceNamesResponseMessage*)message);
-            break;
-
-        case CIM_EXEC_QUERY_RESPONSE_MESSAGE:
-            encodeExecQueryResponse(
-                (CIMExecQueryResponseMessage*)message);
-            break;
-
-        case CIM_ASSOCIATORS_RESPONSE_MESSAGE:
-            encodeAssociatorsResponse(
-                (CIMAssociatorsResponseMessage*)message);
-            break;
-
-        case CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE:
-            encodeAssociatorNamesResponse(
-                (CIMAssociatorNamesResponseMessage*)message);
-            break;
-
-        case CIM_REFERENCES_RESPONSE_MESSAGE:
-            encodeReferencesResponse(
-                (CIMReferencesResponseMessage*)message);
-            break;
-
-        case CIM_REFERENCE_NAMES_RESPONSE_MESSAGE:
-            encodeReferenceNamesResponse(
-                (CIMReferenceNamesResponseMessage*)message);
-            break;
-
-        case CIM_GET_PROPERTY_RESPONSE_MESSAGE:
-            encodeGetPropertyResponse(
-                (CIMGetPropertyResponseMessage*)message);
-            break;
-
-        case CIM_SET_PROPERTY_RESPONSE_MESSAGE:
-            encodeSetPropertyResponse(
-                (CIMSetPropertyResponseMessage*)message);
-            break;
-
-        case CIM_GET_QUALIFIER_RESPONSE_MESSAGE:
-            encodeGetQualifierResponse(
-                (CIMGetQualifierResponseMessage*)message);
-            break;
-
-        case CIM_SET_QUALIFIER_RESPONSE_MESSAGE:
-            encodeSetQualifierResponse(
-                (CIMSetQualifierResponseMessage*)message);
-            break;
-
-        case CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE:
-            encodeDeleteQualifierResponse(
-                (CIMDeleteQualifierResponseMessage*)message);
-            break;
-
-        case CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE:
-            encodeEnumerateQualifiersResponse(
-                (CIMEnumerateQualifiersResponseMessage*)message);
-            break;
-
-        case CIM_INVOKE_METHOD_RESPONSE_MESSAGE:
-            encodeInvokeMethodResponse(
-                (CIMInvokeMethodResponseMessage*)message);
-            break;
-
-        default:
-            // Unexpected message type
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
-            break;
-    }
-
-    delete message;
-
-    PEG_METHOD_EXIT();
-    return;
+    sendError(
+	queueId,
+	response->messageId, 
+	cimMethodName, 
+	response->errorCode, 
+	response->errorDescription);
 }
 
 void CIMOperationResponseEncoder::handleEnqueue()
 {
     Message* message = dequeue();
-    if (message)
-        handleEnqueue(message);
+
+    if (!message)
+	return;
+
+    switch (message->getType())
+    {
+	case CIM_GET_CLASS_RESPONSE_MESSAGE:
+	    encodeGetClassResponse(
+		(CIMGetClassResponseMessage*)message);
+	    break;
+
+	case CIM_GET_INSTANCE_RESPONSE_MESSAGE:
+	    encodeGetInstanceResponse(
+		(CIMGetInstanceResponseMessage*)message);
+	    break;
+
+	case CIM_DELETE_CLASS_RESPONSE_MESSAGE:
+	    encodeDeleteClassResponse(
+		(CIMDeleteClassResponseMessage*)message);
+	    break;
+
+	case CIM_DELETE_INSTANCE_RESPONSE_MESSAGE:
+	    encodeDeleteInstanceResponse(
+		(CIMDeleteInstanceResponseMessage*)message);
+	    break;
+
+	case CIM_CREATE_CLASS_RESPONSE_MESSAGE:
+	    encodeCreateClassResponse(
+		(CIMCreateClassResponseMessage*)message);
+	    break;
+
+	case CIM_CREATE_INSTANCE_RESPONSE_MESSAGE:
+	    encodeCreateInstanceResponse(
+		(CIMCreateInstanceResponseMessage*)message);
+	    break;
+
+	case CIM_MODIFY_CLASS_RESPONSE_MESSAGE:
+	    encodeModifyClassResponse(
+		(CIMModifyClassResponseMessage*)message);
+	    break;
+
+	case CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE:
+	    encodeModifyInstanceResponse(
+		(CIMModifyInstanceResponseMessage*)message);
+	    break;
+
+	case CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE:
+	    encodeEnumerateClassesResponse(
+		(CIMEnumerateClassesResponseMessage*)message);
+	    break;
+
+	case CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE:
+	    encodeEnumerateClassNamesResponse(
+		(CIMEnumerateClassNamesResponseMessage*)message);
+	    break;
+
+	case CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE:
+	    encodeEnumerateInstancesResponse(
+		(CIMEnumerateInstancesResponseMessage*)message);
+	    break;
+
+	case CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE:
+	    encodeEnumerateInstanceNamesResponse(
+		(CIMEnumerateInstanceNamesResponseMessage*)message);
+	    break;
+
+	// ATTN: implement this!
+	case CIM_EXEC_QUERY_RESPONSE_MESSAGE:
+	    break;
+
+	case CIM_ASSOCIATORS_RESPONSE_MESSAGE:
+	    encodeAssociatorsResponse(
+		(CIMAssociatorsResponseMessage*)message);
+	    break;
+
+	case CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE:
+	    encodeAssociatorNamesResponse(
+		(CIMAssociatorNamesResponseMessage*)message);
+	    break;
+
+	case CIM_REFERENCES_RESPONSE_MESSAGE:
+	    encodeReferencesResponse(
+		(CIMReferencesResponseMessage*)message);
+	    break;
+
+	case CIM_REFERENCE_NAMES_RESPONSE_MESSAGE:
+	    encodeReferenceNamesResponse(
+		(CIMReferenceNamesResponseMessage*)message);
+	    break;
+
+	// ATTN: implement this!
+	case CIM_GET_PROPERTY_RESPONSE_MESSAGE:
+	    break;
+
+	// ATTN: implement this!
+	case CIM_SET_PROPERTY_RESPONSE_MESSAGE:
+	    break;
+
+	case CIM_GET_QUALIFIER_RESPONSE_MESSAGE:
+	    encodeGetQualifierResponse(
+		(CIMGetQualifierResponseMessage*)message);
+	    break;
+
+	case CIM_SET_QUALIFIER_RESPONSE_MESSAGE:
+	    encodeSetQualifierResponse(
+		(CIMSetQualifierResponseMessage*)message);
+	    break;
+
+	case CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE:
+	    encodeDeleteQualifierResponse(
+		(CIMDeleteQualifierResponseMessage*)message);
+	    break;
+
+	case CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE:
+	    encodeEnumerateQualifiersResponse(
+		(CIMEnumerateQualifiersResponseMessage*)message);
+	    break;
+
+	// ATTN: implement this:
+	case CIM_INVOKE_METHOD_RESPONSE_MESSAGE:
+	    break;
+    }
+
+    delete message;
+}
+
+const char* CIMOperationResponseEncoder::getQueueName() const
+{
+    return "CIMOperationResponseEncoder";
 }
 
 void CIMOperationResponseEncoder::encodeCreateClassResponse(
     CIMCreateClassResponseMessage* response)
 {
-    sendResponse(response, "CreateClass", true);
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "CreateClass");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"CreateClass", response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
 }
 
 void CIMOperationResponseEncoder::encodeGetClassResponse(
     CIMGetClassResponseMessage* response)
 {
-    Buffer body;
-    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-        XmlWriter::appendClassElement(body, response->cimClass);
-    sendResponse(response, "GetClass", true, &body);
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "GetClass");
+	return;
+    }
+
+    Array<Sint8> body;
+    response->cimClass.toXml(body);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"GetClass", response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
 }
 
 void CIMOperationResponseEncoder::encodeModifyClassResponse(
     CIMModifyClassResponseMessage* response)
 {
-    sendResponse(response, "ModifyClass", true);
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "ModifyClass");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"ModifyClass", response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
 }
 
 void CIMOperationResponseEncoder::encodeEnumerateClassNamesResponse(
     CIMEnumerateClassNamesResponseMessage* response)
 {
-    Buffer body;
-    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-        for (Uint32 i = 0, n = response->classNames.size(); i < n; i++)
-            XmlWriter::appendClassNameElement(body, response->classNames[i]);
-    sendResponse(response, "EnumerateClassNames", true, &body);
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "EnumerateClassNames");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < response->classNames.size(); i++)
+	XmlWriter::appendClassNameElement(body, response->classNames[i]);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"EnumerateClassNames", response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
 }
 
 void CIMOperationResponseEncoder::encodeEnumerateClassesResponse(
     CIMEnumerateClassesResponseMessage* response)
 {
-    Buffer body;
-    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-        for (Uint32 i = 0, n= response->cimClasses.size(); i < n; i++)
-            XmlWriter::appendClassElement(body, response->cimClasses[i]);
-    sendResponse(response, "EnumerateClasses", true, &body);
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "EnumerateClasses");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < response->cimClasses.size(); i++)
+	response->cimClasses[i].toXml(body);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"EnumerateClasses", response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
 }
 
 void CIMOperationResponseEncoder::encodeDeleteClassResponse(
     CIMDeleteClassResponseMessage* response)
 {
-    sendResponse(response, "DeleteClass", true);
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "DeleteClass");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"DeleteClass", response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
 }
 
 void CIMOperationResponseEncoder::encodeCreateInstanceResponse(
     CIMCreateInstanceResponseMessage* response)
 {
-    Buffer body;
-    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-        XmlWriter::appendInstanceNameElement(body, response->instanceName);
-    sendResponse(response, "CreateInstance", true, &body);
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "CreateInstance");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"CreateInstance", response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
 }
 
 void CIMOperationResponseEncoder::encodeGetInstanceResponse(
     CIMGetInstanceResponseMessage* response)
 {
-    Buffer body;
-    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    if (response->errorCode != CIM_ERR_SUCCESS)
     {
-        response->getResponseData().encodeXmlResponse(body);
+	sendError(response, "GetInstance");
+	return;
     }
-    sendResponse(response, "GetInstance", true, &body);
+
+    Array<Sint8> body;
+    response->cimInstance.toXml(body);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"GetInstance", response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
 }
 
 void CIMOperationResponseEncoder::encodeModifyInstanceResponse(
     CIMModifyInstanceResponseMessage* response)
 {
-    sendResponse(response, "ModifyInstance", true);
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "ModifyInstance");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"ModifyInstance", response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
 }
 
 void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
     CIMEnumerateInstancesResponseMessage* response)
 {
-    Buffer body;
-
-    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    if (response->errorCode != CIM_ERR_SUCCESS)
     {
-        response->getResponseData().encodeXmlResponse(body);
+	sendError(response, "EnumerateInstances");
+	return;
     }
 
-    sendResponse(response, "EnumerateInstances", true, &body);
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < response->cimInstances.size(); i++)
+	response->cimInstances[i].toXml(body);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"EnumerateInstances", response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
 }
 
 void CIMOperationResponseEncoder::encodeEnumerateInstanceNamesResponse(
     CIMEnumerateInstanceNamesResponseMessage* response)
 {
-    Buffer body;
-
-    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    if (response->errorCode != CIM_ERR_SUCCESS)
     {
-        response->getResponseData().encodeXmlResponse(body);
+	sendError(response, "EnumerateInstanceNames");
+	return;
     }
-    sendResponse(response, "EnumerateInstanceNames", true, &body);
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < response->instanceNames.size(); i++)
+	XmlWriter::appendInstanceNameElement(body, response->instanceNames[i]);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"EnumerateInstanceNames", response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
 }
 
 void CIMOperationResponseEncoder::encodeDeleteInstanceResponse(
     CIMDeleteInstanceResponseMessage* response)
 {
-    sendResponse(response, "DeleteInstance", true);
-}
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "DeleteInstance");
+	return;
+    }
 
-void CIMOperationResponseEncoder::encodeGetPropertyResponse(
-    CIMGetPropertyResponseMessage* response)
-{
-    Buffer body;
-    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-        XmlWriter::appendValueElement(body, response->value);
-    sendResponse(response, "GetProperty", true, &body);
-}
+    Array<Sint8> body;
 
-void CIMOperationResponseEncoder::encodeSetPropertyResponse(
-    CIMSetPropertyResponseMessage* response)
-{
-    sendResponse(response, "SetProperty", true);
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"DeleteInstance", response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
 }
 
 void CIMOperationResponseEncoder::encodeSetQualifierResponse(
     CIMSetQualifierResponseMessage* response)
 {
-    sendResponse(response, "SetQualifier", true);
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "SetQualifier");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"SetQualifier", response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
 }
 
 void CIMOperationResponseEncoder::encodeGetQualifierResponse(
     CIMGetQualifierResponseMessage* response)
 {
-    Buffer body;
-    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-        XmlWriter::appendQualifierDeclElement(body, response->cimQualifierDecl);
-    sendResponse(response, "GetQualifier", true, &body);
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "GetQualifier");
+	return;
+    }
+
+    Array<Sint8> body;
+    response->cimQualifierDecl.toXml(body);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"GetQualifier", response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
 }
 
 void CIMOperationResponseEncoder::encodeEnumerateQualifiersResponse(
     CIMEnumerateQualifiersResponseMessage* response)
 {
-    Buffer body;
-    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-        for (Uint32 i = 0, n = response->qualifierDeclarations.size();
-             i < n; i++)
-            XmlWriter::appendQualifierDeclElement(
-                body, response->qualifierDeclarations[i]);
-    sendResponse(response, "EnumerateQualifiers", true, &body);
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "EnumerateQualifiers");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < response->qualifierDeclarations.size(); i++)
+	response->qualifierDeclarations[i].toXml(body);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"EnumerateQualifiers", response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
 }
 
 void CIMOperationResponseEncoder::encodeDeleteQualifierResponse(
     CIMDeleteQualifierResponseMessage* response)
 {
-    sendResponse(response, "DeleteQualifier", true);
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "DeleteQualifier");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"DeleteQualifier", response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
 }
 
 void CIMOperationResponseEncoder::encodeReferenceNamesResponse(
     CIMReferenceNamesResponseMessage* response)
 {
-    Buffer body;
-    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    if (response->errorCode != CIM_ERR_SUCCESS)
     {
-        response->getResponseData().encodeXmlResponse(body);
+	sendError(response, "ReferenceNames");
+	return;
     }
-    sendResponse(response, "ReferenceNames", true, &body);
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < response->objectNames.size(); i++)
+    {
+	body << "<OBJECTPATH>\n";
+	response->objectNames[i].toXml(body, false);
+	body << "</OBJECTPATH>\n";
+    }
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"ReferenceNames", response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
 }
 
 void CIMOperationResponseEncoder::encodeReferencesResponse(
     CIMReferencesResponseMessage* response)
 {
-    Buffer body;
-    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    if (response->errorCode != CIM_ERR_SUCCESS)
     {
-        response->getResponseData().encodeXmlResponse(body);
+	sendError(response, "References");
+	return;
     }
-    sendResponse(response, "References", true, &body);
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < response->cimObjects.size(); i++)
+	response->cimObjects[i].toXml(body);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"References", response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
 }
 
 void CIMOperationResponseEncoder::encodeAssociatorNamesResponse(
     CIMAssociatorNamesResponseMessage* response)
 {
-    Buffer body;
-    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    if (response->errorCode != CIM_ERR_SUCCESS)
     {
-        response->getResponseData().encodeXmlResponse(body);
+	sendError(response, "AssociatorNames");
+	return;
     }
-    sendResponse(response, "AssociatorNames", true, &body);
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < response->objectNames.size(); i++)
+    {
+	body << "<OBJECTPATH>\n";
+	response->objectNames[i].toXml(body, false);
+	body << "</OBJECTPATH>\n";
+    }
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"AssociatorNames", response->messageId, body);
+
+    sendResponse(response->queueIds.top(), message);
 }
 
 void CIMOperationResponseEncoder::encodeAssociatorsResponse(
     CIMAssociatorsResponseMessage* response)
 {
-    Buffer body;
-    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    if (response->errorCode != CIM_ERR_SUCCESS)
     {
-        response->getResponseData().encodeXmlResponse(body);
+	sendError(response, "Associators");
+	return;
     }
-    sendResponse(response, "Associators", true, &body);
-}
 
-void CIMOperationResponseEncoder::encodeExecQueryResponse(
-    CIMExecQueryResponseMessage* response)
-{
-    Buffer body;
-    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-    {
-        response->getResponseData().encodeXmlResponse(body);
-    }
-    sendResponse(response, "ExecQuery", true, &body);
-}
+    Array<Sint8> body;
 
-void CIMOperationResponseEncoder::encodeInvokeMethodResponse(
-    CIMInvokeMethodResponseMessage* response)
-{
-    Buffer body;
+    for (Uint32 i = 0; i < response->cimObjects.size(); i++)
+	response->cimObjects[i].toXml(body);
 
-    // ATTN-RK-P3-20020219: Who's job is it to make sure the return value is
-    // not an array?
-    // Only add the return value if it is not null
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"Associators", response->messageId, body);
 
-    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-    {
-        if (!response->retValue.isNull())
-            XmlWriter::appendReturnValueElement(body, response->retValue);
-
-        for (Uint32 i=0, n = response->outParameters.size(); i < n; i++)
-            XmlWriter::appendParamValueElement(
-                body, response->outParameters[i]);
-    }
-    sendResponse(response, response->methodName.getString(), false, &body);
+    sendResponse(response->queueIds.top(), message);
 }
 
 PEGASUS_NAMESPACE_END

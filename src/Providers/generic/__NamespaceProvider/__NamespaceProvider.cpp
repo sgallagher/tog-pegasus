@@ -23,6 +23,9 @@
 // Author: Karl Schopmeyer k.schopmeyer@opengroup.org
 //
 // $Log: __NamespaceProvider.cpp,v $
+// Revision 1.5  2001/03/13 01:21:00  karl
+// Add delete namespace
+//
 // Revision 1.4  2001/03/05 19:54:50  mike
 // Fixed earlier boo boo (renamed CimException to CIMException).
 //
@@ -126,55 +129,79 @@ public:
        return instance;
    }
 
-virtual void createInstance(
-     const String& nameSpace,
-     CIMInstance& myInstance)
+    /** createInstance -- Creates a new namespace
+    */
+    virtual void createInstance(
+	const String& nameSpace,
+	CIMInstance& myInstance)
+	{
+	    cout << "Create namespace called" << endl;
+
+	    // find property "name"
+	    Uint32 i = myInstance.findProperty("name");
+	    if (i == -1)
+		{
+		    throw CIMException(CIMException::INVALID_PARAMETER);
+		    return;
+		}
+	    // ATTN: Only allow creation of namespaces if the current namespace
+	    // is root.  Is this important.  Have not thought this out but 
+	    // seems logical. Wrong.  This must be corrected in the future.
+	    //if (nameSpace != "root")
+	    //        throw CIMException(CIMException::INVALID_NAMESPACE);
+	    //        return;
+    
+	    // get property "name"
+	    CIMProperty myProperty = myInstance.getProperty(i);
+	    // get value from property "name"
+	    // This is new namespace name.
+    
+	    CIMValue myValue = myProperty.getValue();
+    
+	    CIMType myType = myValue.getType();
+	    String myName;
+	    myValue.get(myName);
+	    //PEGASUS_ASSERT (myType == CimSTRING);
+
+	    // check if namespace already exists
+	    Array<String> ns;
+    
+	    // ATTN: Does this throw an exception?
+	    ns = _repository->enumerateNameSpaces();
+	    for (Uint32 i = 0, n = ns.getSize(); i < n; i++)
+		{
+		cout <<"Loop " << ns[i] << " " << n << " " << myName << endl;  
+		    if (String::equal(ns[i], myName))
+			 throw CIMException(CIMException::ALREADY_EXISTS);
+		}
+     
+	    // create new namespace
+	    try
+	    {
+		_repository->createNameSpace(myName);
+	    }
+	    catch(Exception& e)
+	    {
+		// ATTN: Not sure how to handle this error
+		cout << "__Namespace Provider Exception ";
+		cout << e.getMessage() <<  endl; 
+	    }
+            
+	    return;
+	}
+
+    /** deleteInstance - Deletes the Namespace represented
+	by the instance
+	@param - InstanceReferenc
+    */
+    virtual void deleteInstance( 
+	const String& nameSpace, 
+	const CIMReference& instanceName)
     {
-	cout << "Create namespace called" << endl;
-	// find property "name"
-	Uint32 i = myInstance.findProperty("name");
-	if (i == -1)
-	    {
-	        throw CIMException(CIMException::INVALID_PARAMETER);
-		return;
-	    }
-	// ATTN: Only allow creation of namespaces if the current namespace
-	// is root.  Is this important.  Have not thought this out but 
-	// seems logical
+	// cout << "__NamespaceProvider::deleteInstance" << endl;
+        throw CIMException(CIMException::NOT_SUPPORTED); 
+	// _repository->deleteNameSpace();
 
-	if (nameSpace != "root")
-	        throw CIMException(CIMException::INVALID_NAMESPACE);
-		return;
-
-	// get property "name"
-	CIMProperty myProperty = myInstance.getProperty(i);
-	// get value from property "name"
-	// This is new namespace name.
-
-	CIMValue myValue = myProperty.getValue();
-
-	CIMType myType = myValue.getType();
-
-	String myName;
-	myValue.get(myName);
- 	//PEGASUS_ASSERT (myType == CimSTRING);
-
-	// check if namespace already exists
-        Array<String> ns;
-
-	// ATTN: Does this throw an exception?
-	ns = _repository->enumerateNameSpaces();
-	for (Uint32 i = 0, n = ns.getSize(); i < n; i++)
-	    {
-       	cout <<"Loop " << ns[i] << " " << n << " " << myName << endl;  
-		if (String::equal(ns[i], myName))
-		     throw CIMException(CIMException::ALREADY_EXISTS);
-	    }
- 
-	// create new namespace
-	_repository->createNameSpace(myName);
-
-	return;
     }
 
    /** enumerateInstanceNames - Enumerates all of the

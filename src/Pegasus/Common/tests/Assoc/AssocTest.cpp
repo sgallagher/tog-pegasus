@@ -33,9 +33,9 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-CIMClass CreateGraphic()
+CIMClass CreateG()
 {
-    CIMClass graphic("Graphic");
+    CIMClass graphic("G");
 
     CIMProperty color("color", String());
     color.addQualifier(CIMQualifier("key", true));
@@ -49,11 +49,11 @@ CIMClass CreateAssocClass()
     CIMClass assocClass("Assoc");
     assocClass.addQualifier(CIMQualifier("Association", true));
 
-    CIMProperty ref1("ref1", CIMReference(), 0, "Graphic");
+    CIMProperty ref1("ref1", CIMReference(), 0, "G");
     ref1.addQualifier(CIMQualifier("key", true));
     assocClass.addProperty(ref1);
 
-    CIMProperty ref2("ref2", CIMReference(), 0, "Graphic");
+    CIMProperty ref2("ref2", CIMReference(), 0, "G");
     ref2.addQualifier(CIMQualifier("key", true));
     assocClass.addProperty(ref2);
 
@@ -62,17 +62,17 @@ CIMClass CreateAssocClass()
 
 CIMInstance CreateAssocInstance()
 {
-    CIMInstance assocInstance("Graphic");
+    CIMInstance assocInstance("G");
 
     // ATTN-1: It should not be necessary to specify the reference
     // class name when specifying an instance property!
 
     CIMProperty ref1(
-	"ref1", CIMReference("Graphic.color=\"red\""), 0, "Graphic");
+	"ref1", CIMReference("G.color=\"red\""), 0, "G");
     assocInstance.addProperty(ref1);
 
     CIMProperty ref2(
-	"ref2", CIMReference("Graphic.color=\"green\""), 0, "Graphic");
+	"ref2", CIMReference("G.color=\"green\""), 0, "G");
     assocInstance.addProperty(ref2);
 
     return assocInstance;
@@ -80,7 +80,7 @@ CIMInstance CreateAssocInstance()
 
 void test01()
 {
-    CIMClass graphic = CreateGraphic();
+    CIMClass graphic = CreateG();
     CIMClass assocClass = CreateAssocClass();
     CIMInstance assocInstance = CreateAssocInstance();
     CIMReference instanceName = assocInstance.getInstanceName(assocClass);

@@ -26,6 +26,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//            : Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -658,6 +659,21 @@ CIMResponseMessage* CIMInitializeProviderAgentRequestMessage::buildResponse()
         CIMException(),
         queueIds.copyAndPop());
     AutoPtr<CIMInitializeProviderAgentResponseMessage> responsePtr(response);
+
+    response->syncAttributes(this);
+
+    responsePtr.release();
+    return response;
+}
+
+CIMResponseMessage* CIMNotifyConfigChangeRequestMessage::buildResponse()
+{
+    CIMNotifyConfigChangeResponseMessage* response;
+    response = new CIMNotifyConfigChangeResponseMessage(
+        messageId,
+        CIMException(),
+        queueIds.copyAndPop());
+    AutoPtr<CIMNotifyConfigChangeResponseMessage> responsePtr(response);
 
     response->syncAttributes(this);
 

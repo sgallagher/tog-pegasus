@@ -290,6 +290,11 @@ void CIMMessageSerializer::_serializeCIMRequestMessage(
                 out, (CIMInitializeProviderAgentRequestMessage*)cimMessage);
             break;
 
+        case CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE:
+            _serializeCIMNotifyConfigChangeRequestMessage(
+                out, (CIMNotifyConfigChangeRequestMessage*)cimMessage);
+            break;
+
         default:
             PEGASUS_ASSERT(0);
         }
@@ -478,6 +483,10 @@ void CIMMessageSerializer::_serializeCIMResponseMessage(
         case CIM_INITIALIZE_PROVIDER_AGENT_RESPONSE_MESSAGE:
             _serializeCIMInitializeProviderAgentResponseMessage(
                 out, (CIMInitializeProviderAgentResponseMessage*)cimMessage);
+            break;
+        case CIM_NOTIFY_CONFIG_CHANGE_RESPONSE_MESSAGE:
+            _serializeCIMNotifyConfigChangeResponseMessage(
+                out, (CIMNotifyConfigChangeResponseMessage*)cimMessage);
             break;
 
         default:
@@ -1280,6 +1289,17 @@ void CIMMessageSerializer::_serializeCIMInitializeProviderAgentRequestMessage(
     XmlWriter::appendValueElement(out, message->bindVerbose);
 }
 
+//
+// _serializeCIMNotifyConfigChangeRequestMessage
+//
+void CIMMessageSerializer::_serializeCIMNotifyConfigChangeRequestMessage(
+    Array<Sint8>& out,
+    CIMNotifyConfigChangeRequestMessage* message)
+{
+    XmlWriter::appendValueElement(out, message->propertyName);
+    XmlWriter::appendValueElement(out, message->newPropertyValue);
+    XmlWriter::appendValueElement(out, message->currentValueModified);
+}
 
 //
 //
@@ -1633,6 +1653,16 @@ void CIMMessageSerializer::_serializeCIMInitializeProviderResponseMessage(
 void CIMMessageSerializer::_serializeCIMInitializeProviderAgentResponseMessage(
     Array<Sint8>& out,
     CIMInitializeProviderAgentResponseMessage* message)
+{
+    // No additional attributes to serialize!
+}
+
+//
+// _serializeCIMNotifyConfigChangeResponseMessage
+//
+void CIMMessageSerializer::_serializeCIMNotifyConfigChangeResponseMessage(
+    Array<Sint8>& out,
+    CIMNotifyConfigChangeResponseMessage* message)
 {
     // No additional attributes to serialize!
 }

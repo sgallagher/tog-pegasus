@@ -289,6 +289,9 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
             message =
                 _deserializeCIMInitializeProviderAgentRequestMessage(parser);
             break;
+        case CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE:
+            message = _deserializeCIMNotifyConfigChangeRequestMessage(parser);
+            break;
 
         default:
             PEGASUS_ASSERT(0);
@@ -452,6 +455,9 @@ CIMResponseMessage* CIMMessageDeserializer::_deserializeCIMResponseMessage(
         case CIM_INITIALIZE_PROVIDER_AGENT_RESPONSE_MESSAGE:
             message =
                 _deserializeCIMInitializeProviderAgentResponseMessage(parser);
+            break;
+        case CIM_NOTIFY_CONFIG_CHANGE_RESPONSE_MESSAGE:
+            message = _deserializeCIMNotifyConfigChangeResponseMessage(parser);
             break;
 
         default:
@@ -1862,6 +1868,37 @@ CIMMessageDeserializer::_deserializeCIMInitializeProviderAgentRequestMessage(
     return(message);
 }
 
+//
+// _deserializeCIMNotifyConfigChangeRequestMessage
+//
+CIMNotifyConfigChangeRequestMessage*
+CIMMessageDeserializer::_deserializeCIMNotifyConfigChangeRequestMessage(
+    XmlParser& parser)
+{
+    CIMValue genericValue;
+    String propertyName;
+    String newPropertyValue;
+    Boolean currentValueModified;
+
+    XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+    genericValue.get(propertyName);
+
+    XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+    genericValue.get(newPropertyValue);
+
+    XmlReader::getValueElement(parser, CIMTYPE_BOOLEAN, genericValue);
+    genericValue.get(currentValueModified);
+
+    CIMNotifyConfigChangeRequestMessage* message =
+        new CIMNotifyConfigChangeRequestMessage(
+            String::EMPTY,         // messageId
+            propertyName,
+            newPropertyValue,
+            currentValueModified,
+            QueueIdStack());        // queueIds
+
+    return(message);
+}
 
 //
 //
@@ -2455,6 +2492,22 @@ CIMMessageDeserializer::_deserializeCIMInitializeProviderAgentResponseMessage(
 {
     CIMInitializeProviderAgentResponseMessage* message =
         new CIMInitializeProviderAgentResponseMessage(
+            String::EMPTY,         // messageId
+            CIMException(),        // cimException
+            QueueIdStack());       // queueIds
+
+    return(message);
+}
+
+//
+// _deserializeCIMNotifyConfigChangeResponseMessage
+//
+CIMNotifyConfigChangeResponseMessage*
+CIMMessageDeserializer::_deserializeCIMNotifyConfigChangeResponseMessage(
+    XmlParser& parser)
+{
+    CIMNotifyConfigChangeResponseMessage* message =
+        new CIMNotifyConfigChangeResponseMessage(
             String::EMPTY,         // messageId
             CIMException(),        // cimException
             QueueIdStack());       // queueIds

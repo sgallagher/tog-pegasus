@@ -213,7 +213,8 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
             dynamic_cast<CIMDisableModuleRequestMessage*>(request);
         providerModule = dmReq->providerModule;
     }
-    else if (request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE)
+    else if ((request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
+	     (request->getType() == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE))
     {
         // This operation is not provider-specific
     }
@@ -221,12 +222,9 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
     {
         // Error: Unrecognized message type.
         PEGASUS_ASSERT(0);
-        CIMResponseMessage* resp = new CIMResponseMessage(
-            0, request->messageId, CIMException(),
-            request->queueIds.copyAndPop());
-        resp->synch_response(request);
-        OperationResponseHandler handler(request, resp);
-        handler.setStatus(CIM_ERR_FAILED, "Unknown message type.");
+        CIMResponseMessage* resp = request->buildResponse();
+        resp->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            "Unknown message type.");
         response = resp;
     }
 
@@ -248,10 +246,13 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
             }
         }
 
-        response = new CIMStopAllProvidersResponseMessage(
-            request->messageId,
-            CIMException(),
-            request->queueIds.copyAndPop());
+        response = request->buildResponse(); 
+    }
+    else if(request->getType() == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE)
+    {
+        // Do not need to forward this request to in-process provider 
+        // managers
+        response = request->buildResponse(); 
     }
     else
     {

@@ -205,6 +205,9 @@ private:
     static CIMStopAllProvidersRequestMessage*
         _deserializeCIMStopAllProvidersRequestMessage(XmlParser& parser);
 
+    static CIMNotifyConfigChangeRequestMessage*
+        _deserializeCIMNotifyConfigChangeRequestMessage(XmlParser& parser);
+
     //
     //
     // CIM Response Messages
@@ -301,6 +304,10 @@ private:
 
     static CIMStopAllProvidersResponseMessage*
         _deserializeCIMStopAllProvidersResponseMessage(XmlParser& parser);
+
+    static CIMNotifyConfigChangeResponseMessage*
+        _deserializeCIMNotifyConfigChangeResponseMessage(XmlParser& parser);
+
 
 };
 

@@ -1609,6 +1609,33 @@ public:
     Boolean bindVerbose;
 };
 
+class PEGASUS_COMMON_LINKAGE CIMNotifyConfigChangeRequestMessage
+    : public CIMRequestMessage
+{
+public:
+    CIMNotifyConfigChangeRequestMessage(
+        const String & messageId_,
+        const String & propertyName_,
+        const String & newPropertyValue_,
+        Boolean currentValueModified_, // false - planned value modified
+        const QueueIdStack& queueIds_)
+    : CIMRequestMessage(
+        CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_),
+        propertyName(propertyName_),
+        newPropertyValue(newPropertyValue_),
+        currentValueModified(currentValueModified_)
+    {
+    }
+
+    virtual CIMResponseMessage* buildResponse();
+    
+    String propertyName;
+    String newPropertyValue;
+    Boolean currentValueModified;
+};
+
 
 //
 // CIMResponseMessages
@@ -2296,6 +2323,20 @@ public:
         const CIMException& cimException_,
         const QueueIdStack& queueIds_)
     : CIMResponseMessage(CIM_INITIALIZE_PROVIDER_AGENT_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+    {
+    }
+};
+
+class PEGASUS_COMMON_LINKAGE CIMNotifyConfigChangeResponseMessage
+    : public CIMResponseMessage
+{
+public:
+    CIMNotifyConfigChangeResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(CIM_NOTIFY_CONFIG_CHANGE_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_)
     {
     }

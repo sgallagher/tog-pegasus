@@ -1377,9 +1377,7 @@ public:
     Array<CIMName> classNames;
     CIMPropertyList propertyList;
     Uint16 repeatNotificationPolicy;
-    String condition;
     String query;
-    String queryLanguage;
     String authType;
     String userName;
 };

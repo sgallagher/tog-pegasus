@@ -1480,9 +1480,7 @@ CIMMessageDeserializer::_deserializeCIMCreateSubscriptionRequestMessage(
     Array<CIMName> classNames;
     CIMPropertyList propertyList;
     Uint16 repeatNotificationPolicy;
-    String condition;
     String query;
-    String queryLanguage;
 
     _deserializeUserInfo(parser, authType, userName);
 
@@ -1539,9 +1537,7 @@ CIMMessageDeserializer::_deserializeCIMModifySubscriptionRequestMessage(
     Array<CIMName> classNames;
     CIMPropertyList propertyList;
     Uint16 repeatNotificationPolicy;
-    String condition;
     String query;
-    String queryLanguage;
 
     _deserializeUserInfo(parser, authType, userName);
 

@@ -535,7 +535,7 @@ void CIMMessageSerializer::_serializeOperationContext(
     Array<Sint8>& out,
     const OperationContext& operationContext)
 {
-    // Use a PGOPCT element to encapsulate the OperationContext encoding
+    // Use a PGOP element to encapsulate the OperationContext encoding
     XmlWriter::append(out, "<PGOC>\n");
 
     // Note: OperationContext class does not allow iteration through Containers
@@ -1106,11 +1106,8 @@ void CIMMessageSerializer::_serializeCIMCreateSubscriptionRequestMessage(
     // Encode message->repeatNotificationPolicy as an integer
     XmlWriter::appendValueElement(out, message->repeatNotificationPolicy);
 
-	SubscriptionFilterConditionContainer sub_cntr =  message->operationContext.get(SubscriptionFilterConditionContainer::NAME);
-	XmlWriter::appendValueElement(out, sub_cntr. getFilterCondition()); 
     XmlWriter::appendValueElement(out, message->query);
-    XmlWriter::appendValueElement(out, sub_cntr.getQueryLanguage()); 
-   }
+}
 
 //
 // _serializeCIMModifySubscriptionRequestMessage
@@ -1138,9 +1135,7 @@ void CIMMessageSerializer::_serializeCIMModifySubscriptionRequestMessage(
     // Encode message->repeatNotificationPolicy as an integer
     XmlWriter::appendValueElement(out, message->repeatNotificationPolicy);
 
-    XmlWriter::appendValueElement(out, message->condition);
     XmlWriter::appendValueElement(out, message->query);
-    XmlWriter::appendValueElement(out, message->queryLanguage);
 }
 
 //

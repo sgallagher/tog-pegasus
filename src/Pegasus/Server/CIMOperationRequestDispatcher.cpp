@@ -1275,12 +1275,8 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
 
                 pmInstance.getProperty(pos).getValue().get(interfaceVersion);
 
-                cout << "module interface version = " << interfaceVersion << endl;
-
                 if(String::compare(interfaceVersion, "2.5.0") < 0)
                 {
-                    cout << "normalization disabled due to interface version" << endl;
-
                     moduleNormalizationEnabled = false;
                 }
             }
@@ -1294,15 +1290,11 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
 
                     pmInstance.getProperty(pos).getValue().get(moduleName);
 
-                    cout << "module name = " << moduleName << endl;
-
                     // check if module name is on the excludeModulesFromNormalization list
                     for(Uint32 i = 0, n = _excludeModulesFromNormalization.size(); i < n; i++)
                     {
                         if(String::equalNoCase(moduleName, _excludeModulesFromNormalization[i]))
                         {
-                            cout << "normalization disabled due to exclusion list" << endl;
-
                             moduleNormalizationEnabled = false;
 
                             break;
@@ -2734,8 +2726,6 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
            providerIdContainer = 0;
        }
 
-       cout << "DeleteInstance(): " << "serviceName = " << serviceName << ", " << "providerName = " << controlProviderName << endl;
-
        _forwardRequestToProviderManager(
            className,
            serviceName,
@@ -2912,8 +2902,6 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
    String serviceName;
    String controlProviderName;
    ProviderIdContainer * providerIdContainer = 0;
-
-   cout << "CreateInstance(): " << "looking up provider" << endl;
 
    Boolean hasProvider =
        _lookupNewInstanceProvider(
@@ -3138,8 +3126,6 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
            delete providerIdContainer;
            providerIdContainer = 0;
        }
-
-       cout << "ModifyInstance(): " << "serviceName = " << serviceName << ", " << "providerName = " << controlProviderName << endl;
 
        _forwardRequestToProviderManager(
            className,

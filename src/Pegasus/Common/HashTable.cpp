@@ -48,29 +48,29 @@ Uint32 Hash(const String& str)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// HashTableBase::BucketBase
+// _HashTableBase::_BucketBase
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-BucketBase::~BucketBase()
+_BucketBase::~_BucketBase()
 {
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// HashTableIteratorBase
+// _HashTableIteratorBase
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-HashTableIteratorBase HashTableIteratorBase::operator++(int)
+_HashTableIteratorBase _HashTableIteratorBase::operator++(int)
 {
-    HashTableIteratorBase tmp = *this;
+    _HashTableIteratorBase tmp = *this;
     operator++();
     return tmp;
 }
 
-HashTableIteratorBase& HashTableIteratorBase::operator++()
+_HashTableIteratorBase& _HashTableIteratorBase::operator++()
 {
     // At the end?
 
@@ -100,9 +100,9 @@ HashTableIteratorBase& HashTableIteratorBase::operator++()
     return *this;
 }
 
-HashTableIteratorBase::HashTableIteratorBase(
-    BucketBase** first, 
-    BucketBase** last) : _first(first), _last(last)
+_HashTableIteratorBase::_HashTableIteratorBase(
+    _BucketBase** first, 
+    _BucketBase** last) : _first(first), _last(last)
 {
     while (_first != last)
     {
@@ -118,51 +118,102 @@ HashTableIteratorBase::HashTableIteratorBase(
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// HashTableBase
+// _HashTableBase
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-HashTableBase::HashTableBase(Uint32 numChains) : _size(0), _numChains(numChains)
+_HashTableBase::_HashTableBase(Uint32 numChains) : _size(0), _numChains(numChains)
 {
     if (numChains < 8)
 	numChains = 8;
 
-    _chains = new BucketBase*[_numChains];
-    memset(_chains, 0, sizeof(BucketBase*) * _numChains);
+    _chains = new _BucketBase*[_numChains];
+    memset(_chains, 0, sizeof(_BucketBase*) * _numChains);
 }
 
-HashTableBase::~HashTableBase()
+_HashTableBase::_HashTableBase(const _HashTableBase& x)
+{
+    _size = 0;
+    _numChains = 0;
+    _chains = 0;
+    operator=(x);
+}
+
+_HashTableBase::~_HashTableBase()
 {
     clear();
+    delete [] _chains;
 }
 
-void HashTableBase::clear()
+_HashTableBase& _HashTableBase::operator=(const _HashTableBase& x)
+{
+    if (this == &x)
+	return *this;
+
+    // Destroy the old representation:
+
+    clear();
+
+    if (_chains)
+	delete [] _chains;
+
+    // Create chain array:
+
+    _chains = new _BucketBase*[_numChains = x._numChains];
+    memset(_chains, 0, sizeof(_BucketBase*) * _numChains);
+    _size = x._size;
+
+    // Copy over the buckets:
+
+    for (Uint32 i = 0; i < _numChains; i++)
+    {
+	if (x._chains[i])
+	{
+	    _chains[i] = x._chains[i]->clone();
+
+	    _BucketBase* curr = _chains[i];
+	    _BucketBase* next = x._chains[i]->next;
+
+	    for (; next; next = next->next)
+	    {
+		curr->next = next->clone();
+		curr = curr->next;
+	    }
+	}
+    }
+
+    return *this;
+}
+
+void _HashTableBase::clear()
 {
     for (Uint32 i = 0; i < _numChains; i++)
     {
-	for (BucketBase* bucket = _chains[i]; bucket; )
+	for (_BucketBase* bucket = _chains[i]; bucket; )
 	{
-	    BucketBase* next = bucket->next;
+	    _BucketBase* next = bucket->next;
 	    delete bucket;
 	    bucket = next;
 	}
     }
 
     _size = 0;
-    memset(_chains, 0, sizeof(BucketBase*) * _numChains);
+
+    if (_numChains)
+	memset(_chains, 0, sizeof(_BucketBase*) * _numChains);
 }
 
-Boolean HashTableBase::insert(
+Boolean _HashTableBase::insert(
     Uint32 hashCode, 
-    BucketBase* bucket, 
+    _BucketBase* bucket, 
     const void* key)
 {
     // Check for duplicate entry with same key:
 
     Uint32 i = hashCode % _numChains;
-    BucketBase* last = 0;
+    _BucketBase* last = 0;
 
-    for (BucketBase* bucket = _chains[i]; bucket; bucket = bucket->next)
+    for (_BucketBase* bucket = _chains[i]; bucket; bucket = bucket->next)
     {
 	if (bucket->equal(key))
 	{
@@ -186,13 +237,13 @@ Boolean HashTableBase::insert(
     return true;
 }
 
-const BucketBase* HashTableBase::lookup(
+const _BucketBase* _HashTableBase::lookup(
     Uint32 hashCode, 
     const void* key)
 {
     Uint32 i = hashCode % _numChains;
 
-    for (BucketBase* bucket = _chains[i]; bucket; bucket = bucket->next)
+    for (_BucketBase* bucket = _chains[i]; bucket; bucket = bucket->next)
     {
 	if (bucket->equal(key))
 	    return bucket;
@@ -202,13 +253,13 @@ const BucketBase* HashTableBase::lookup(
     return 0;
 }
 
-Boolean HashTableBase::remove(Uint32 hashCode, const void* key)
+Boolean _HashTableBase::remove(Uint32 hashCode, const void* key)
 {
     for (Uint32 i = 0; i < _numChains; i++)
     {
-	BucketBase* prev = 0;
+	_BucketBase* prev = 0;
 
-	for (BucketBase* bucket = _chains[i]; bucket; bucket = bucket->next)
+	for (_BucketBase* bucket = _chains[i]; bucket; bucket = bucket->next)
 	{
 	    if (bucket->equal(key))
 	    {

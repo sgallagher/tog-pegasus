@@ -25,6 +25,17 @@ void test01()
 	sum += i.value();
     }
 
+    HT ht2;
+    ht2 = ht;
+    sum = 0;
+
+    for (HT::Iterator i = ht.start(); i; i++)
+    {
+	// cout << "key[" << i.key() << "]" << endl;
+	// cout << "value[" << i.value() << "]" << endl;
+	sum += i.value();
+    }
+
     assert(sum == 600);
 
     Uint32 value = 0;
@@ -37,11 +48,44 @@ void test01()
 
     ht.clear();
     assert(ht.getSize() == 0);
+
+}
+
+void test02()
+{
+    typedef HashTable<Uint32, Uint32> HT;
+    HT ht;
+
+    Uint32 sum = 0;
+    const Uint32 N = 10000;
+
+    for (Uint32 i = 0; i < N; i++)
+    {
+	sum += 2 * i;
+	ht.insert(i, i);
+    }
+
+    HT ht2 = ht;
+
+    assert(ht2.getSize() == N);
+
+    Uint32 expectedSum = 0;
+    Uint32 n = 0;
+
+    for (HT::Iterator i = ht2.start(); i; i++)
+    {
+	n++;
+	expectedSum += i.value() + i.key();
+    }
+
+    assert(expectedSum == sum);
+    assert(n == N);
 }
 
 int main()
 {
     test01();
+    test02();
 
     cout << "+++++ passed all tests" << endl;
 

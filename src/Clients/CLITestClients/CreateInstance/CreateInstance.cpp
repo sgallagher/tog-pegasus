@@ -34,6 +34,7 @@
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -311,7 +312,7 @@ int main(int argc, char** argv)
     }
 
     // Note that this name is does not exist in the system 
-    CIMReference reference = "Process.pid=123456";
+    CIMObjectPath reference = "Process.pid=123456";
     String myReference = argv[1];
     /********************  Plug in an artifical instance for the momenent
     try
@@ -353,24 +354,24 @@ int main(int argc, char** argv)
     }
 	try
 	{
-	    CIMReference cimReference = client.createInstance(nameSpace, myInstance);
+	    CIMObjectPath cimReference = client.createInstance(nameSpace, myInstance);
 	/*******
 	This one is a real problem because we need to do the parms.
 	Maybe we create instance and add properties later for now.
-	    virtual CIMReference createInstance(
+	    virtual CIMObjectPath createInstance(
 		const String& nameSpace,
 		const CIMInstance& newInstance
 	    ) throw(CIMClientException);
 
 	****/
-	    // ATTN Temp generates an errorcimReference.print(cout);
+	    XmlWriter::printValueReferenceElement(cimReference, cout);
         /* Output the returned instances
             if(isXMLOutput)
-                cimInstance.print(cout);
+                XmlWriter::appendInstanceElement(cimInstance, cout);
             else
             {
                 Array<Sint8> x;
-                cimInstance.toMof(x);
+                MofWriter::appendInstanceElement(x, cimInstance);
 
                 x.append('\0');
 

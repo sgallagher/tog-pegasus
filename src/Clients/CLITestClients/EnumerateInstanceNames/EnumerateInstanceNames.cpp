@@ -215,7 +215,7 @@ int main(int argc, char** argv)
 
 	try
 	{
-	    Array<CIMReference> instanceNames = 
+	    Array<CIMObjectPath> instanceNames = 
 		client.enumerateInstanceNames(nameSpace, className);
 
         //simply output the list one per line for the moment.

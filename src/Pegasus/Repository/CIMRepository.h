@@ -53,6 +53,7 @@ PEGASUS_NAMESPACE_BEGIN
 class RepositoryDeclContext;
 
 /** This class provides a simple implementation of a CIM repository.
+    Concurrent access is controlled by an internal lock.
 */
 class PEGASUS_REPOSITORY_LINKAGE CIMRepository : public CIMRepositoryBase
 {
@@ -64,21 +65,11 @@ public:
     /// Descructor
     virtual ~CIMRepository();
 
-    // Repositories MUST Have a read/write lock 
-
-    virtual void read_lock(void) throw(IPCException);
-    virtual void read_unlock(void);
-    
-    virtual void write_lock(void) throw(IPCException);
-    virtual void write_unlock(void);
-    
-    /// virtual class CIMClass. From the operations class
+    /// getClass
     virtual CIMClass getClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-		// BUG 546 - Default for localOnly is true.
         Boolean localOnly = true,
-		// Bug xxx - Default for inlcludeQualifers is true
         Boolean includeQualifiers = true,
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
@@ -207,7 +198,7 @@ public:
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
-    /// associateNames
+    /// associatorNames
     virtual Array<CIMObjectPath> associatorNames(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
@@ -256,7 +247,7 @@ public:
         const CIMNamespaceName& nameSpace,
         const CIMQualifierDecl& qualifierDecl);
 
-    /// virtual deleteQualifier
+    /// deleteQualifier
     virtual void deleteQualifier(
         const CIMNamespaceName& nameSpace,
         const CIMName& qualifierName);
@@ -320,6 +311,7 @@ public:
         Boolean deepInheritance,
         Array<CIMName>& subClassNames) const
     {
+        ReadLock lock(const_cast<ReadWriteSem&>(_lock));
         _nameSpaceManager.getSubClassNames(nameSpaceName,
                                            className,
                                            deepInheritance,
@@ -334,10 +326,72 @@ public:
         const CIMName& className,
         Array<CIMName>& subClassNames) const
     {
+        ReadLock lock(const_cast<ReadWriteSem&>(_lock));
         _nameSpaceManager.getSuperClassNames(nameSpaceName,
                                              className,
                                              subClassNames);
     }
+
+protected:
+
+    // Internal getClass implementation that does not do access control
+    CIMClass _getClass(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        Boolean localOnly,
+        Boolean includeQualifiers,
+        Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList);
+
+    /// Internal getInstance implementation that does not do access control
+    CIMInstance _getInstance(
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& instanceName,
+        Boolean localOnly,
+        Boolean includeQualifiers,
+        Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList);
+
+    /// Internal createClass implementation that does not do access control
+    void _createClass(
+        const CIMNamespaceName& nameSpace,
+        const CIMClass& newClass);
+
+    /// Internal createInstance implementation that does not do access control
+    CIMObjectPath _createInstance(
+        const CIMNamespaceName& nameSpace,
+        const CIMInstance& newInstance);
+
+    /// Internal modifyClass implementation that does not do access control
+    void _modifyClass(
+        const CIMNamespaceName& nameSpace,
+        const CIMClass& modifiedClass);
+
+    /// Internal associatorNames implementation that does not do access control
+    Array<CIMObjectPath> _associatorNames(
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName,
+        const CIMName& assocClass,
+        const CIMName& resultClass,
+        const String& role,
+        const String& resultRole);
+
+    /// Internal referenceNames implementation that does not do access control
+    Array<CIMObjectPath> _referenceNames(
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName,
+        const CIMName& resultClass,
+        const String& role);
+
+    /// Internal getQualifier implementation that does not do access control
+    CIMQualifierDecl _getQualifier(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& qualifierName);
+
+    /// Internal setQualifier implementation that does not do access control
+    void _setQualifier(
+        const CIMNamespaceName& nameSpace,
+        const CIMQualifierDecl& qualifierDecl);
 
 private:
 
@@ -499,11 +553,15 @@ private:
 
 protected:
 
-    // Used by getInstance(); indicates whether instance should be resolved
-    // after it is retrieved from the file.
-
     ReadWriteSem _lock;
+
+    friend class compilerDeclContext;
+    friend class RepositoryDeclContext;
     RepositoryDeclContext* _context;
+
+    /** Used by getInstance(); indicates whether instance should be resolved
+        after it is retrieved from the file.
+     */
     Boolean _resolveInstance;
 };
 

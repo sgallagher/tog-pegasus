@@ -549,13 +549,6 @@ private:
         Array <CIMInstance> & formerSubscriptions);
 
     /**
-        Retrieves list of all namespaces from the repository.
-
-        @return   List of all namespace names
-     */
-    Array <CIMNamespaceName> _getNameSpaceNames (void) const;
-
-    /**
         Retrieves list of subscriptions in the specified namespace.
 
         @param   nameSpace             the namespace

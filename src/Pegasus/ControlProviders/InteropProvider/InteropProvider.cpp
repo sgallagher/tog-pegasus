@@ -207,7 +207,6 @@ Array<CIMNamespaceName> InteropProvider::_enumerateNameSpaces()
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_enumerateNameSpaces()");
     Array<CIMNamespaceName> namespaceNames;
-    _repository->read_lock();
     
     try
     {
@@ -215,18 +214,15 @@ Array<CIMNamespaceName> InteropProvider::_enumerateNameSpaces()
     }
     catch(CIMException& e)
     {
-        _repository->read_unlock();
         PEG_METHOD_EXIT();
         throw e;
     }
     catch(Exception& e)
     {
-        _repository->read_unlock();
         PEG_METHOD_EXIT();
         throw e;
     }
 
-    _repository->read_unlock();
     PEG_METHOD_EXIT();
     return(namespaceNames);
 }
@@ -247,24 +243,20 @@ CIMClass InteropProvider::_getClass(const CIMNamespaceName& nameSpace,
     CDEBUG("Get Class from repository " <<  className.getString());
     if (myClass.isUninitialized())
     {
-        _repository->read_lock();
         try
         {
             myClass = _repository->getClass(_operationNamespace, className );
         }
         catch(CIMException& e)
         {
-            _repository->read_unlock();
             PEG_METHOD_EXIT();
             throw e;
         }
         catch(Exception& e)
         {
-            _repository->read_unlock();
             PEG_METHOD_EXIT();
             throw e;
         }
-        _repository->read_unlock();
     }
     PEG_METHOD_EXIT();
     return myClass;

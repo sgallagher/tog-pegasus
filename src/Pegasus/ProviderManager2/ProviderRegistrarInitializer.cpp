@@ -56,8 +56,6 @@ void ProviderRegistrarInitializer::initialize(CIMRepository * repository)
 
     Array<RegistrationRecord> records;
 
-    repository->read_lock();
-
     //
     // get all relevant registration instances from the repository and cache them locally.
     //

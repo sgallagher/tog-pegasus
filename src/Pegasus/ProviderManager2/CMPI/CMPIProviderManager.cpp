@@ -1334,9 +1334,7 @@ String CMPIProviderManager::getFilter(CIMInstance &subscription)
    filterValue.get(filterReference);
    CIMNamespaceName ns("root/PG_InterOp");
 
-   _repository->read_lock ();
    CIMInstance filter=_repository->getInstance(ns,filterReference);
-   _repository->read_unlock ();
 
    CIMValue queryValue = filter.getProperty (filter.findProperty
         ("Query")).getValue ();
@@ -1345,12 +1343,10 @@ String CMPIProviderManager::getFilter(CIMInstance &subscription)
    return query;
    }
    catch (CIMException &e) {
-      _repository->read_unlock ();
       cout<<"??? CMPIProviderManager::getFilter"<<e.getCode()<<" "<<e.getMessage()<<" ???"<<endl;
       abort();
   }
    catch (...) {
-      _repository->read_unlock ();
       cout<<"??? What Happend ???"<<endl;
       abort();
    }

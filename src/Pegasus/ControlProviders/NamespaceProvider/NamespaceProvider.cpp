@@ -315,8 +315,6 @@ void NamespaceProvider::createInstance(
 	// begin processing the request
        handler.processing();
 
-       _repository->write_lock();
-
        try
        {
            Array<CIMNamespaceName> namespaceNames;
@@ -335,18 +333,14 @@ void NamespaceProvider::createInstance(
        }
        catch(CIMException& e)
        {
-	  _repository->write_unlock();
 	  PEG_METHOD_EXIT();
 	  throw e;
        }
        catch(Exception& e)
        {
-	  _repository->write_unlock();
 	  PEG_METHOD_EXIT();
 	  throw e;
        }
-
-       _repository->write_unlock();
 
        // return key (i.e., CIMObjectPath) for newly created namespace
 
@@ -413,8 +407,6 @@ void NamespaceProvider::deleteInstance(
        // begin processing the request
        handler.processing();
 
-       _repository->write_lock();
-
        try
        {
            Array<CIMNamespaceName> namespaceNames;
@@ -442,18 +434,14 @@ void NamespaceProvider::deleteInstance(
        }
        catch(CIMException& e)
        {
-	  _repository->write_unlock();
 	  PEG_METHOD_EXIT();
 	  throw e;
        }
        catch(Exception& e)
        {
-	  _repository->write_unlock();
           PEG_METHOD_EXIT();
 	  throw e;
        }
-
-       _repository->write_unlock();
 
        // complete processing the request
        handler.complete();
@@ -512,8 +500,6 @@ void NamespaceProvider::getInstance(
        // begin processing the request
        handler.processing();
 
-       _repository->read_lock();
-
        try
        {
            Array<CIMNamespaceName> namespaceNames;
@@ -530,7 +516,7 @@ void NamespaceProvider::getInstance(
                                      //+ getNamespaceName.getString());
               throw CIMObjectNotFoundException(MessageLoaderParms(
               				"ControlProviders.NamespaceProvider.NamespaceProvider.NAMESPACE_DOES_NOT_EXIST",
-              				"Namespace deos not exist: $0",
+              				"Namespace does not exist: $0",
                             getNamespaceName.getString()));
            }
 
@@ -541,18 +527,14 @@ void NamespaceProvider::getInstance(
        }
        catch(CIMException& e)
        {
-	  _repository->read_unlock();
 	  PEG_METHOD_EXIT();
 	  throw e;
        }
        catch(Exception& e)
        {
-	  _repository->read_unlock();
           PEG_METHOD_EXIT();
 	  throw e;
        }
-
-       _repository->read_unlock();
 
        //Set name of class
        CIMInstance instance(NAMESPACE_CLASSNAME);
@@ -619,8 +601,6 @@ void NamespaceProvider::enumerateInstances(
 
        Array<CIMInstance> instanceArray;
 
-       _repository->read_lock();
-
        try
        {
 	   Array<CIMNamespaceName> namespaceNames = 
@@ -648,18 +628,14 @@ void NamespaceProvider::enumerateInstances(
        }
        catch(CIMException& e)
        {
-	  _repository->read_unlock();
           PEG_METHOD_EXIT();
 	  throw e;
        }
        catch(Exception& e)
        {
-	  _repository->read_unlock();
           PEG_METHOD_EXIT();
 	  throw e;
        }
-
-       _repository->read_unlock();
 
        handler.deliver(instanceArray);
 
@@ -711,8 +687,6 @@ void NamespaceProvider::enumerateInstanceNames(
 
        Array<CIMObjectPath> instanceRefs;
 
-       _repository->read_lock();
-
        try
        {
 	   Array<CIMNamespaceName> namespaceNames = 
@@ -742,18 +716,14 @@ void NamespaceProvider::enumerateInstanceNames(
        }
        catch(CIMException& e)
        {
-	  _repository->read_unlock();
           PEG_METHOD_EXIT();
 	  throw e;
        }
        catch(Exception& e)
        {
-	  _repository->read_unlock();
           PEG_METHOD_EXIT();
 	  throw e;
        }
-
-       _repository->read_unlock();
 
 	handler.deliver(instanceRefs);
 

@@ -56,7 +56,7 @@ CIMQualifierDecl RepositoryDeclContext::lookupQualifierDecl(
 
     try
     {
-	return _repository->getQualifier(nameSpace, qualifierName);
+	return _repository->_getQualifier(nameSpace, qualifierName);
     }
     catch (Exception&)
     {
@@ -73,7 +73,8 @@ CIMClass RepositoryDeclContext::lookupClass(
 
     try
     {
-        return _repository->getClass(nameSpace, className, false, true, true);
+        return _repository->_getClass(
+            nameSpace, className, false, true, true, CIMPropertyList());
     }
     catch (Exception&)
     {

@@ -59,7 +59,7 @@ compilerDeclContext::lookupQualifierDecl(const CIMNamespaceName &nameSpace,
       return *pTheQualifier;
   }
   if (_repository && (_ot != compilerCommonDefs::IGNORE_REPOSITORY)) {
-      return _repository->getQualifier(nameSpace, qualifierName);
+      return _repository->_getQualifier(nameSpace, qualifierName);
   }
   return CIMQualifierDecl();
 }
@@ -75,7 +75,8 @@ compilerDeclContext::lookupClass(const CIMNamespaceName &nameSpace,
       return *pTheClass;
   }
   if (_repository && _ot != compilerCommonDefs::IGNORE_REPOSITORY) {
-      return _repository->getClass(nameSpace, className,false, true, true);
+      return _repository->_getClass(
+          nameSpace, className, false, true, true, CIMPropertyList());
   }
   return CIMClass();
 }
@@ -87,7 +88,7 @@ compilerDeclContext::addQualifierDecl(const CIMNamespaceName &nameSpace,
   if (_ot != compilerCommonDefs::USE_REPOSITORY)
     _qualifiers.append(x);
   else
-    _repository->setQualifier(nameSpace, x);
+    _repository->_setQualifier(nameSpace, x);
 }
 
 void
@@ -96,7 +97,7 @@ compilerDeclContext::addClass(const CIMNamespaceName &nameSpace, CIMClass &x)
   if (_ot != compilerCommonDefs::USE_REPOSITORY)
     _classes.append(x);
   else
-    _repository->createClass(nameSpace, x);
+    _repository->_createClass(nameSpace, x);
 }
 
 void
@@ -104,7 +105,7 @@ compilerDeclContext::addInstance(const CIMNamespaceName &nameSpace,
                                  CIMInstance &x)
 {
   if (_ot == compilerCommonDefs::USE_REPOSITORY)
-    _repository->createInstance(nameSpace, x);
+    _repository->_createInstance(nameSpace, x);
 }
 
 void
@@ -116,7 +117,7 @@ compilerDeclContext::modifyClass(const CIMNamespaceName &nameSpace, CIMClass &x)
   }
   else
   {
-    _repository->modifyClass(nameSpace, x);
+    _repository->_modifyClass(nameSpace, x);
   }
 }
 

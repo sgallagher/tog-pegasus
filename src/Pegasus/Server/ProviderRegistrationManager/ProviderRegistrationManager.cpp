@@ -915,8 +915,6 @@ CIMInstance ProviderRegistrationManager::getInstance(
         instanceReference.getClassName(),
         instanceReference.getKeyBindings());
 
-    _repository->read_lock();
-
     try
     {
         instance = _repository->getInstance(
@@ -929,12 +927,9 @@ CIMInstance ProviderRegistrationManager::getInstance(
     }
     catch (...)
     {
-        _repository->read_unlock();
         PEG_METHOD_EXIT();
         throw;
     }
-
-    _repository->read_unlock();
 
     PEG_METHOD_EXIT();
     return (instance);
@@ -952,8 +947,6 @@ Array<CIMInstance> ProviderRegistrationManager::enumerateInstances(
 
     Array<CIMInstance> enumInstances;
 
-    _repository->read_lock();
-
     try
     {
         enumInstances = _repository->enumerateInstances(
@@ -967,12 +960,9 @@ Array<CIMInstance> ProviderRegistrationManager::enumerateInstances(
     }
     catch (...)
     {
-        _repository->read_unlock();
         PEG_METHOD_EXIT();
         throw;
     }
-
-    _repository->read_unlock();
 
     PEG_METHOD_EXIT();
     return (enumInstances);
@@ -988,8 +978,6 @@ Array<CIMObjectPath> ProviderRegistrationManager::enumerateInstanceNames(
 
     Array<CIMObjectPath> enumInstanceNames;
 
-    _repository->read_lock();
-
     try
     {
         // get all instance names from repository
@@ -999,12 +987,9 @@ Array<CIMObjectPath> ProviderRegistrationManager::enumerateInstanceNames(
     }
     catch (...)
     {
-        _repository->read_unlock();
         PEG_METHOD_EXIT();
         throw;
     }
-
-    _repository->read_unlock();
 
     PEG_METHOD_EXIT();
     return (enumInstanceNames);
@@ -1083,8 +1068,6 @@ void ProviderRegistrationManager::modifyInstance(
     CIMInstance givenInstance = cimInstance;
     CIMInstance origInstance;
 
-    _repository->read_lock();
-
     try
     {
         //
@@ -1100,12 +1083,9 @@ void ProviderRegistrationManager::modifyInstance(
     }
     catch (...)
     {
-        _repository->read_unlock();
         PEG_METHOD_EXIT();
         throw;
     }
-
-    _repository->read_unlock();
 
     //
     // creates the instance which replaces the original
@@ -1301,8 +1281,6 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
 
     WriteLock lock(_registrationTableLock);
 
-    _repository->write_lock();
-
     //
     // find the instance from repository
     //
@@ -1353,11 +1331,9 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
     }
     catch (...)
     {
-        _repository->write_unlock();
         return (false);
     }
 
-    _repository->write_unlock();
     return (true);
 }
 
@@ -1377,8 +1353,6 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
                      "ProviderRegistrationManager::_initialRegistrationTable()");
-
-    _repository->write_lock();    // Need write lock before calling _setStatus
 
     try
     {
@@ -1782,28 +1756,20 @@ void ProviderRegistrationManager::_initialRegistrationTable()
     {
         if (exception.getCode() != CIM_ERR_INVALID_NAMESPACE)
         {
-            _repository->write_unlock();
-
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
         }
     }
     catch (Exception& exception)
     {
-        _repository->write_unlock();
-
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
     }
     catch (...)
     {
-        _repository->write_unlock();
-
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "");
     }
-
-    _repository->write_unlock();
 
     PEG_METHOD_EXIT();
 }
@@ -1823,8 +1789,6 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                      "ProviderRegistrationManager::_createInstance");
 
     CIMName className = ref.getClassName();
-
-    _repository->write_lock();
 
     try
     {
@@ -1850,8 +1814,6 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
             instances.append(instance);
             String _moduleKey = _generateKey(_providerModule, MODULE_KEY);
             _addInstancesToTable(_moduleKey, instances);
-
-            _repository->write_unlock();
 
             PEG_METHOD_EXIT();
             return (cimRef);
@@ -1897,9 +1859,6 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                 //
                 instances.append(instance);
                 _addInstancesToTable(_providerKey, instances);
-
-                _repository->write_unlock();
-
 
                 PEG_METHOD_EXIT();
                 return (cimRef);
@@ -1986,8 +1945,6 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 
                 cimRef = _repository->createInstance(
                     PEGASUS_NAMESPACENAME_INTEROP, instance);
-
-                _repository->write_unlock();
 
                 PEG_METHOD_EXIT();
                 return (cimRef);
@@ -2314,7 +2271,6 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 
                 cimRef = _repository->createInstance(
                     PEGASUS_NAMESPACENAME_INTEROP, instance);
-                _repository->write_unlock();
 
                 PEG_METHOD_EXIT();
                 return (cimRef);
@@ -2335,7 +2291,6 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
     }
     catch (...)
     {
-        _repository->write_unlock();
         PEG_METHOD_EXIT();
         throw;
     }
@@ -2361,483 +2316,476 @@ void ProviderRegistrationManager::_deleteInstance(
         instanceReference.getClassName(),
         instanceReference.getKeyBindings());
 
-    _repository->write_lock();
+    CIMInstance instance = _repository->getInstance(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        newInstancereference,
+        false,
+        false,
+        false,
+        CIMPropertyList());
 
-    try
+    //
+    // unregister PG_ProviderCapability class or
+    // PG_ConsumerCapability class
+    //
+    if(className.equal (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) ||
+       className.equal (PEGASUS_CLASSNAME_CONSUMERCAPABILITIES))
     {
-        CIMInstance instance = _repository->getInstance(
+        String deletedCapabilityID;
+        String deletedModule;
+        String deletedProvider;
+        Array<CIMInstance> instances;
+        Array<Uint16> providerType;
+
+        //
+        // delete the instance from repository
+        //
+        _repository->deleteInstance(
             PEGASUS_NAMESPACENAME_INTEROP,
-            newInstancereference,
-            false,
-            false,
-            false,
-            CIMPropertyList());
+            newInstancereference);
 
         //
-        // unregister PG_ProviderCapability class or
-        // PG_ConsumerCapability class
+        // get the key ProviderModuleName
         //
-        if(className.equal (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) ||
-           className.equal (PEGASUS_CLASSNAME_CONSUMERCAPABILITIES))
+        instance.getProperty(instance.findProperty(
+            _PROPERTY_PROVIDERMODULENAME)).getValue().get(deletedModule);
+
+        //
+        // get the key ProviderName
+        //
+        instance.getProperty(instance.findProperty(
+            _PROPERTY_PROVIDERNAME)).getValue().get(deletedProvider);
+
+        //
+        // get the key capabilityID
+        //
+        instance.getProperty(instance.findProperty(
+            _PROPERTY_CAPABILITIESID)).getValue().get(deletedCapabilityID);
+        //
+        // remove all entries which have same ProviderModuleName,
+        // ProviderName, and capabilityID from the
+        // table; if the entry only has one instance, remove the entry;
+        // otherwise, remove the instance.
+        //
+        Table::Iterator k=_registrationTable->table.start();
+
+        for (Table::Iterator i=_registrationTable->table.start(); i; i=k)
         {
-            String deletedCapabilityID;
-            String deletedModule;
-            String deletedProvider;
-            Array<CIMInstance> instances;
-            Array<Uint16> providerType;
+            k++;
+            instances = i.value()->getInstances();
 
-            //
-            // delete the instance from repository
-            //
-            _repository->deleteInstance(
-                PEGASUS_NAMESPACENAME_INTEROP,
-                newInstancereference);
-
-            //
-            // get the key ProviderModuleName
-            //
-            instance.getProperty(instance.findProperty(
-                _PROPERTY_PROVIDERMODULENAME)).getValue().get(deletedModule);
-
-            //
-            // get the key ProviderName
-            //
-            instance.getProperty(instance.findProperty(
-                _PROPERTY_PROVIDERNAME)).getValue().get(deletedProvider);
-
-            //
-            // get the key capabilityID
-            //
-            instance.getProperty(instance.findProperty(
-                _PROPERTY_CAPABILITIESID)).getValue().get(deletedCapabilityID);
-            //
-            // remove all entries which have same ProviderModuleName,
-            // ProviderName, and capabilityID from the
-            // table; if the entry only has one instance, remove the entry;
-               // otherwise, remove the instance.
-            //
-            Table::Iterator k=_registrationTable->table.start();
-
-            for (Table::Iterator i=_registrationTable->table.start(); i; i=k)
+            for (Uint32 j = 0; j < instances.size(); j++)
             {
-                k++;
+                String capabilityID;
+                String module;
+                String provider;
+
+                Uint32 pos = instances[j].findProperty(_PROPERTY_PROVIDERMODULENAME);
+                Uint32 pos2 = instances[j].findProperty(_PROPERTY_PROVIDERNAME);
+                Uint32 pos3 = instances[j].findProperty(_PROPERTY_CAPABILITIESID);
+
+                if (pos != PEG_NOT_FOUND && pos2 != PEG_NOT_FOUND &&
+                    pos3 != PEG_NOT_FOUND)
+                {
+                    // get provider module name
+                    instances[j].getProperty(pos).getValue().get(module);
+
+                    // get provider name
+                    instances[j].getProperty(pos2).getValue().get(provider);
+
+                    // get capabilityID
+                    instances[j].getProperty(pos3).getValue().get(capabilityID);
+
+                    if (String::equalNoCase(deletedModule, module) &&
+                        String::equalNoCase(deletedProvider, provider) &&
+                        String::equalNoCase(deletedCapabilityID, capabilityID))
+                    {
+                        //
+                        //  Remove old entry
+                        //
+                        delete i.value();
+                        String theKey = i.key();
+                        _registrationTable->table.remove(i.key());
+                        if (instances.size() > 1)
+                        {
+                            //
+                            //  Insert updated entry
+                            //
+                            instances.remove(j);
+                            _addInstancesToTable (theKey, instances);
+                            j = j - 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        //
+        // get provider types
+        // if the provider is indication provider, send notification
+        // to subscription service
+        //
+        instance.getProperty(instance.findProperty(
+            _PROPERTY_PROVIDERTYPE)).getValue().get(providerType);
+
+        for (Uint32 i=0; i < providerType.size(); i++)
+        {
+            if (providerType[i] == _INDICATION_PROVIDER &&
+                flag == OP_DELETE)
+            {
+                _sendDeleteNotifyMessage(instance);
+            }
+        }
+    }
+
+    //
+    // Unregister PG_Provider class
+    // Note: Deleteting an instance of PG_Provider will cause the
+    // associated instances of PG_ProviderCapability or instances of
+    // PG_ConsumerCapabilities to be deleted
+    //
+    if(className.equal (PEGASUS_CLASSNAME_PROVIDER))
+    {
+        CIMInstance capInstance;
+        CIMObjectPath capReference;
+        String _providerName;
+        String _moduleName;
+        Array<Uint16> providerType;
+
+        String deletedModuleName;
+        String deletedProviderName;
+
+        //
+        // get the provider module name
+        //
+        instance.getProperty(instance.findProperty(
+            _PROPERTY_PROVIDERMODULENAME)).getValue().get(deletedModuleName);
+
+        //
+        // get the provider name
+        //
+        instance.getProperty(instance.findProperty(
+            _PROPERTY_PROVIDER_NAME)).getValue().get(deletedProviderName);
+
+        //
+        // create the key by using deletedModuleName and deletedProviderName
+        //
+        String _deletedProviderKey =
+            _generateKey(deletedModuleName,deletedProviderName);
+
+        //
+        // delete instance of PG_Provider from repository
+        //
+        _repository->deleteInstance(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            newInstancereference);
+
+        //
+        // delete associated instances of PG_ProviderCapability or
+        // instances of PG_ConsumerCapabilities
+        //
+        Array<CIMObjectPath> enumCapInstanceNames;
+
+        enumCapInstanceNames = _repository->enumerateInstanceNames(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_CAPABILITIESREGISTRATION);
+
+        for (Uint32 i = 0, n = enumCapInstanceNames.size(); i < n; i++)
+        {
+            Array<CIMKeyBinding> keys =
+                enumCapInstanceNames[i].getKeyBindings();
+
+            //
+            // get provider module name and provider name from reference
+            //
+            for(Uint32 j=0; j < keys.size(); j++)
+            {
+                if(keys[j].getName().equal (_PROPERTY_PROVIDERMODULENAME))
+                {
+                    _moduleName = keys[j].getValue();
+                }
+                else if (keys[j].getName().equal (_PROPERTY_PROVIDERNAME))
+                {
+                    _providerName = keys[j].getValue();
+                }
+            }
+
+            if (String::equalNoCase(deletedModuleName, _moduleName) &&
+                String::equalNoCase(deletedProviderName, _providerName))
+            {
+                //
+                // get provider types
+                // if the provider is indication provider, send notification
+                // to subscription service
+                //
+                capInstance =  _repository->getInstance(
+                    PEGASUS_NAMESPACENAME_INTEROP,
+                    enumCapInstanceNames[i],
+                    false,
+                    false,
+                    false,
+                    CIMPropertyList());
+
+                capInstance.getProperty(capInstance.findProperty(
+                    _PROPERTY_PROVIDERTYPE)).getValue().get(providerType);
+
+                for (Uint32 k=0; k < providerType.size(); k++)
+                {
+                    if (providerType[k] == _INDICATION_PROVIDER &&
+                        flag == OP_DELETE)
+                    {
+                        _sendDeleteNotifyMessage(capInstance);
+                    }
+                }
+
+                //
+                // Delete the instance of provider capability or the
+                // instance of consumer capability from repository
+                //
+                _repository->deleteInstance(
+                    PEGASUS_NAMESPACENAME_INTEROP,
+                    enumCapInstanceNames[i]);
+            }
+
+        }
+
+        //
+        // remove all entries which have same provider name and module name
+        // from the table; if the entry only has one instance, remove the entry;
+        // otherwise, remove the instance.
+        //
+        Table::Iterator k=_registrationTable->table.start();
+
+        for (Table::Iterator i=_registrationTable->table.start(); i; i=k)
+        {
+            k++;
+            Array<CIMInstance> instances;
+
+            //
+            // remove all entries which their key's value is same as _deletedProviderKey
+            // from the table
+            //
+            if (String::equalNoCase(_deletedProviderKey, i.key()))
+            {
+                delete i.value();
+                _registrationTable->table.remove(i.key());
+            }
+            else
+            {
                 instances = i.value()->getInstances();
 
                 for (Uint32 j = 0; j < instances.size(); j++)
                 {
-                    String capabilityID;
-                    String module;
-                    String provider;
+                    String _providerName;
+                    String _moduleName;
 
                     Uint32 pos = instances[j].findProperty(_PROPERTY_PROVIDERMODULENAME);
                     Uint32 pos2 = instances[j].findProperty(_PROPERTY_PROVIDERNAME);
-                    Uint32 pos3 = instances[j].findProperty(_PROPERTY_CAPABILITIESID);
 
-                    if (pos != PEG_NOT_FOUND && pos2 != PEG_NOT_FOUND &&
-                        pos3 != PEG_NOT_FOUND)
+                    if (pos != PEG_NOT_FOUND && pos2 != PEG_NOT_FOUND)
                     {
-                      // get provider module name
-                      instances[j].getProperty(pos).getValue().get(module);
+                        instances[j].getProperty(pos).getValue().get(_moduleName);
+                        instances[j].getProperty(pos2).getValue().get(_providerName);
 
-                      // get provider name
-                      instances[j].getProperty(pos2).getValue().get(provider);
-
-                      // get capabilityID
-                      instances[j].getProperty(pos3).getValue().get(capabilityID);
-
-                      if (String::equalNoCase(deletedModule, module) &&
-                          String::equalNoCase(deletedProvider, provider) &&
-                          String::equalNoCase(deletedCapabilityID, capabilityID))
-                      {
-                          //
-                          //  Remove old entry
-                          //
-                          delete i.value();
-                          String theKey = i.key();
-                          _registrationTable->table.remove(i.key());
-                          if (instances.size() > 1)
-                          {
-                              //
-                              //  Insert updated entry
-                              //
-                              instances.remove(j);
-                              _addInstancesToTable (theKey, instances);
-                              j = j - 1;
-                          }
-                      }
+                        if (String::equalNoCase(deletedModuleName, _moduleName) &&
+                            String::equalNoCase(deletedProviderName, _providerName))
+                        {
+                            //
+                            //  Remove old entry
+                            //
+                            delete i.value();
+                            String theKey = i.key();
+                            _registrationTable->table.remove(i.key());
+                            if (instances.size() > 1)
+                            {
+                                //
+                                //  Insert updated entry
+                                //
+                                instances.remove(j);
+                                _addInstancesToTable (theKey, instances);
+                                j = j - 1;
+                            }
+                        }
                     }
-                }
-
-            }
-
-            //
-            // get provider types
-            // if the provider is indication provider, send notification
-            // to subscription service
-            //
-            instance.getProperty(instance.findProperty(
-                _PROPERTY_PROVIDERTYPE)).getValue().get(providerType);
-
-            for (Uint32 i=0; i < providerType.size(); i++)
-            {
-                if (providerType[i] == _INDICATION_PROVIDER &&
-                    flag == OP_DELETE)
-                {
-                    _sendDeleteNotifyMessage(instance);
                 }
             }
         }
+    }
+
+    //
+    // unregister PG_ProviderModule class
+    // Note: Deleteting an instance of PG_ProviderModule will cause the
+    // associated instances of PG_Provider, instances of PG_ProviderCapability
+    // to be deleted
+    //
+    if(className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
+    {
+        String deletedProviderModuleName;
 
         //
-        // Unregister PG_Provider class
-        // Note: Deleteting an instance of PG_Provider will cause the
-        // associated instances of PG_ProviderCapability or instances of
-        // PG_ConsumerCapabilities to be deleted
+        // get the key provider module name
         //
-        if(className.equal (PEGASUS_CLASSNAME_PROVIDER))
+        instance.getProperty(instance.findProperty(
+            _PROPERTY_PROVIDERMODULE_NAME)).getValue().get(deletedProviderModuleName);
+        //
+        // create the key by using deletedProviderModuleName and MODULE_KEY
+        //
+        String _deletedModuleKey = _generateKey(deletedProviderModuleName, MODULE_KEY);
+
+
+        //
+        // delete instance of PG_ProviderModule from repository
+        //
+        _repository->deleteInstance(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            newInstancereference);
+
+        //
+        // delete associated instances of PG_Provider
+        //
+        Array<CIMObjectPath> enumProviderInstanceNames;
+
+        enumProviderInstanceNames = _repository->enumerateInstanceNames(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PROVIDER);
+
+        for (Uint32 i = 0, n = enumProviderInstanceNames.size(); i < n; i++)
+        {
+            String _providerModuleName;
+
+            Array<CIMKeyBinding> keys =
+                enumProviderInstanceNames[i].getKeyBindings();
+
+            //
+            // get provider module name from reference
+            //
+            for(Uint32 j=0; j < keys.size(); j++)
+            {
+                if(keys[j].getName().equal (_PROPERTY_PROVIDERMODULENAME))
+                {
+                    _providerModuleName = keys[j].getValue();
+                }
+            }
+
+            if (String::equalNoCase(deletedProviderModuleName, _providerModuleName))
+            {
+                //
+                // if provider module name of instance of PG_Provider is
+                // same as deleted provider module name, delete the instance of
+                // PG_Provider from repository
+                //
+                _repository->deleteInstance(
+                    PEGASUS_NAMESPACENAME_INTEROP,
+                    enumProviderInstanceNames[i]);
+
+            }
+
+        }
+
+        //
+        // delete associated instances of PG_ProviderCapability or
+        // instances of PG_ConsumerCapabilities
+        //
+        Array<CIMObjectPath> enumCapInstanceNames;
+
+        enumCapInstanceNames = _repository->enumerateInstanceNames(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_CAPABILITIESREGISTRATION);
+
+        for (Uint32 i = 0, n = enumCapInstanceNames.size(); i < n; i++)
         {
             CIMInstance capInstance;
-            CIMObjectPath capReference;
-            String _providerName;
-            String _moduleName;
+            String _providerModuleName;
             Array<Uint16> providerType;
 
-            String deletedModuleName;
-            String deletedProviderName;
+            Array<CIMKeyBinding> keys =
+                enumCapInstanceNames[i].getKeyBindings();
 
             //
-            // get the provider module name
+            // get provider module name from reference
             //
-            instance.getProperty(instance.findProperty(
-                _PROPERTY_PROVIDERMODULENAME)).getValue().get(deletedModuleName);
-
-            //
-            // get the provider name
-            //
-            instance.getProperty(instance.findProperty(
-                _PROPERTY_PROVIDER_NAME)).getValue().get(deletedProviderName);
-
-            //
-            // create the key by using deletedModuleName and deletedProviderName
-            //
-            String _deletedProviderKey = _generateKey(deletedModuleName,deletedProviderName);
-
-            //
-            // delete instance of PG_Provider from repository
-            //
-            _repository->deleteInstance(
-                PEGASUS_NAMESPACENAME_INTEROP,
-                newInstancereference);
-
-            //
-            // delete associated instances of PG_ProviderCapability or
-            // instances of PG_ConsumerCapabilities
-            //
-            Array<CIMObjectPath> enumCapInstanceNames;
-
-            enumCapInstanceNames = _repository->enumerateInstanceNames(
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_CLASSNAME_CAPABILITIESREGISTRATION);
-
-            for (Uint32 i = 0, n = enumCapInstanceNames.size(); i < n; i++)
+            for(Uint32 j=0; j < keys.size(); j++)
             {
-                Array<CIMKeyBinding> keys =
-                    enumCapInstanceNames[i].getKeyBindings();
-
-                //
-                // get provider module name and provider name from reference
-                //
-                for(Uint32 j=0; j < keys.size(); j++)
+                if(keys[j].getName().equal (_PROPERTY_PROVIDERMODULENAME))
                 {
-                    if(keys[j].getName().equal (_PROPERTY_PROVIDERMODULENAME))
-                    {
-                        _moduleName = keys[j].getValue();
-                    }
-                    else if (keys[j].getName().equal (_PROPERTY_PROVIDERNAME))
-                    {
-                        _providerName = keys[j].getValue();
-                    }
-                }
-
-                if (String::equalNoCase(deletedModuleName, _moduleName) &&
-                    String::equalNoCase(deletedProviderName, _providerName))
-                {
-                    //
-                    // get provider types
-                    // if the provider is indication provider, send notification
-                    // to subscription service
-                    //
-                    capInstance =  _repository->getInstance(
-                        PEGASUS_NAMESPACENAME_INTEROP,
-                        enumCapInstanceNames[i],
-                        false,
-                        false,
-                        false,
-                        CIMPropertyList());
-
-                    capInstance.getProperty(capInstance.findProperty(
-                        _PROPERTY_PROVIDERTYPE)).getValue().get(providerType);
-
-                    for (Uint32 k=0; k < providerType.size(); k++)
-                    {
-                        if (providerType[k] == _INDICATION_PROVIDER &&
-                            flag == OP_DELETE)
-                        {
-                            _sendDeleteNotifyMessage(capInstance);
-                        }
-                    }
-
-                    //
-                    // Delete the instance of provider capability or the
-                    // instance of consumer capability from repository
-                    //
-                    _repository->deleteInstance(
-                        PEGASUS_NAMESPACENAME_INTEROP,
-                        enumCapInstanceNames[i]);
-                }
-
-            }
-
-            //
-            // remove all entries which have same provider name and module name
-            // from the table; if the entry only has one instance, remove the entry;
-            // otherwise, remove the instance.
-            //
-            Table::Iterator k=_registrationTable->table.start();
-
-            for (Table::Iterator i=_registrationTable->table.start(); i; i=k)
-            {
-                k++;
-                Array<CIMInstance> instances;
-
-                //
-                // remove all entries which their key's value is same as _deletedProviderKey
-                // from the table
-                //
-                if (String::equalNoCase(_deletedProviderKey, i.key()))
-                {
-                    delete i.value();
-                    _registrationTable->table.remove(i.key());
-                }
-                else
-                {
-                    instances = i.value()->getInstances();
-
-                    for (Uint32 j = 0; j < instances.size(); j++)
-                    {
-                        String _providerName;
-                        String _moduleName;
-
-                        Uint32 pos = instances[j].findProperty(_PROPERTY_PROVIDERMODULENAME);
-                        Uint32 pos2 = instances[j].findProperty(_PROPERTY_PROVIDERNAME);
-
-                        if (pos != PEG_NOT_FOUND && pos2 != PEG_NOT_FOUND)
-                        {
-                          instances[j].getProperty(pos).getValue().get(_moduleName);
-                          instances[j].getProperty(pos2).getValue().get(_providerName);
-
-                          if (String::equalNoCase(deletedModuleName, _moduleName) &&
-                              String::equalNoCase(deletedProviderName, _providerName))
-                          {
-                              //
-                              //  Remove old entry
-                              //
-                              delete i.value();
-                              String theKey = i.key();
-                              _registrationTable->table.remove(i.key());
-                              if (instances.size() > 1)
-                              {
-                                  //
-                                  //  Insert updated entry
-                                  //
-                                  instances.remove(j);
-                                  _addInstancesToTable (theKey, instances);
-                                  j = j - 1;
-                              }
-                          }
-                        }
-                    }
+                    _providerModuleName = keys[j].getValue();
                 }
             }
 
+            if (String::equalNoCase(deletedProviderModuleName, _providerModuleName))
+            {
+                //
+                // get provider types
+                // if the provider is indication provider, send notification
+                // to subscription service
+                //
+                capInstance =  _repository->getInstance(
+                    PEGASUS_NAMESPACENAME_INTEROP,
+                    enumCapInstanceNames[i],
+                    false,
+                    false,
+                    false,
+                    CIMPropertyList());
+                capInstance.getProperty(capInstance.findProperty(
+                    _PROPERTY_PROVIDERTYPE)).getValue().get(providerType);
+
+                for (Uint32 k=0; k < providerType.size(); k++)
+                {
+                    if (providerType[k] == _INDICATION_PROVIDER &&
+                        flag == OP_DELETE)
+                    {
+                        _sendDeleteNotifyMessage(capInstance);
+                    }
+                }
+
+                // Delete instance of provider capability or instance
+                // of consumer capability from repository
+                //
+                _repository->deleteInstance(
+                    PEGASUS_NAMESPACENAME_INTEROP,
+                    enumCapInstanceNames[i]);
+            }
         }
 
         //
-        // unregister PG_ProviderModule class
-        // Note: Deleteting an instance of PG_ProviderModule will cause the
-        // associated instances of PG_Provider, instances of PG_ProviderCapability
-        // to be deleted
+        // remove all entries which have same provider module name from the
+        // table; if the entry only has one instance, remove the entry;
+        // otherwise, remove the instance.
         //
-        if(className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
+        Table::Iterator k=_registrationTable->table.start();
+        for (Table::Iterator i=_registrationTable->table.start(); i; i=k)
         {
-            String deletedProviderModuleName;
+            k++;
+            Array<CIMInstance> instances;
 
             //
-            // get the key provider module name
+            // remove all entries which key's value is same as _deletedModuleKey
+            // from the table
             //
-            instance.getProperty(instance.findProperty(
-                _PROPERTY_PROVIDERMODULE_NAME)).getValue().get(deletedProviderModuleName);
-            //
-            // create the key by using deletedProviderModuleName and MODULE_KEY
-            //
-            String _deletedModuleKey = _generateKey(deletedProviderModuleName, MODULE_KEY);
-
-
-            //
-            // delete instance of PG_ProviderModule from repository
-            //
-            _repository->deleteInstance(
-                PEGASUS_NAMESPACENAME_INTEROP,
-                newInstancereference);
-
-            //
-            // delete associated instances of PG_Provider
-            //
-            Array<CIMObjectPath> enumProviderInstanceNames;
-
-            enumProviderInstanceNames = _repository->enumerateInstanceNames(
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_CLASSNAME_PROVIDER);
-
-            for (Uint32 i = 0, n = enumProviderInstanceNames.size(); i < n; i++)
+            if (String::equalNoCase(_deletedModuleKey, i.key()))
             {
-                String _providerModuleName;
-
-                Array<CIMKeyBinding> keys =
-                    enumProviderInstanceNames[i].getKeyBindings();
-
-                //
-                // get provider module name from reference
-                //
-                for(Uint32 j=0; j < keys.size(); j++)
-                {
-                    if(keys[j].getName().equal (_PROPERTY_PROVIDERMODULENAME))
-                    {
-                        _providerModuleName = keys[j].getValue();
-                    }
-                }
-
-                if (String::equalNoCase(deletedProviderModuleName, _providerModuleName))
-                {
-                    //
-                    // if provider module name of instance of PG_Provider is
-                    // same as deleted provider module name, delete the instance of
-                    // PG_Provider from repository
-                    //
-                    _repository->deleteInstance(
-                        PEGASUS_NAMESPACENAME_INTEROP,
-                        enumProviderInstanceNames[i]);
-
-                }
-
+                delete i.value();
+                _registrationTable->table.remove(i.key());
             }
-
-            //
-            // delete associated instances of PG_ProviderCapability or
-            // instances of PG_ConsumerCapabilities
-            //
-            Array<CIMObjectPath> enumCapInstanceNames;
-
-            enumCapInstanceNames = _repository->enumerateInstanceNames(
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_CLASSNAME_CAPABILITIESREGISTRATION);
-
-            for (Uint32 i = 0, n = enumCapInstanceNames.size(); i < n; i++)
+            else
             {
-                CIMInstance capInstance;
-                String _providerModuleName;
-                Array<Uint16> providerType;
-
-                Array<CIMKeyBinding> keys =
-                    enumCapInstanceNames[i].getKeyBindings();
-
                 //
-                // get provider module name from reference
+                // if the entry only has one instance and provider module
+                // name of the instance is same as deleted provider module
+                // name, remove the entry;
+                // if the entry has more than one instance and provider
+                // module name of the instance is same as deleted provider
+                // module name, remove the instance;
                 //
-                for(Uint32 j=0; j < keys.size(); j++)
+                instances = i.value()->getInstances();
+
+                for (Uint32 j = 0; j < instances.size(); j++)
                 {
-                    if(keys[j].getName().equal (_PROPERTY_PROVIDERMODULENAME))
+                    String _providerModuleName;
+
+                    Uint32 pos = instances[j].findProperty(_PROPERTY_PROVIDERMODULENAME);
+                    if ( pos != PEG_NOT_FOUND )
                     {
-                        _providerModuleName = keys[j].getValue();
-                    }
-                }
-
-                if (String::equalNoCase(deletedProviderModuleName, _providerModuleName))
-                {
-                    //
-                    // get provider types
-                    // if the provider is indication provider, send notification
-                    // to subscription service
-                    //
-                    capInstance =  _repository->getInstance(
-                        PEGASUS_NAMESPACENAME_INTEROP,
-                        enumCapInstanceNames[i],
-                        false,
-                        false,
-                        false,
-                        CIMPropertyList());
-                    capInstance.getProperty(capInstance.findProperty(
-                        _PROPERTY_PROVIDERTYPE)).getValue().get(providerType);
-
-                    for (Uint32 k=0; k < providerType.size(); k++)
-                    {
-                        if (providerType[k] == _INDICATION_PROVIDER &&
-                            flag == OP_DELETE)
-                        {
-                            _sendDeleteNotifyMessage(capInstance);
-                        }
-                    }
-
-                    // Delete instance of provider capability or instance
-                    // of consumer capability from repository
-                    //
-                    _repository->deleteInstance(
-                        PEGASUS_NAMESPACENAME_INTEROP,
-                        enumCapInstanceNames[i]);
-
-                }
-
-            }
-
-            //
-            // remove all entries which have same provider module name from the
-            // table; if the entry only has one instance, remove the entry;
-            // otherwise, remove the instance.
-            //
-            Table::Iterator k=_registrationTable->table.start();
-            for (Table::Iterator i=_registrationTable->table.start(); i; i=k)
-            {
-                k++;
-                Array<CIMInstance> instances;
-
-                //
-                // remove all entries which key's value is same as _deletedModuleKey
-                // from the table
-                //
-                if (String::equalNoCase(_deletedModuleKey, i.key()))
-                {
-                    delete i.value();
-                    _registrationTable->table.remove(i.key());
-                }
-                else
-                {
-                    //
-                    // if the entry only has one instance and provider module name of
-                    // the instance is same as deleted provider module name, remove the
-                    // entry;
-                    // if the entry has more than one instance and provider module name
-                    // of the instance is same as deleted provider module name, remove
-                    // the instance;
-                    //
-                    instances = i.value()->getInstances();
-
-                    for (Uint32 j = 0; j < instances.size(); j++)
-                    {
-                      String _providerModuleName;
-
-                      Uint32 pos = instances[j].findProperty(_PROPERTY_PROVIDERMODULENAME);
-                      if ( pos != PEG_NOT_FOUND )
-                      {
                         instances[j].getProperty(pos).getValue().get(_providerModuleName);
                         if (String::equalNoCase(deletedProviderModuleName, _providerModuleName))
                         {
@@ -2857,20 +2805,11 @@ void ProviderRegistrationManager::_deleteInstance(
                                 j = j - 1;
                             }
                         }
-                      }
                     }
                 }
             }
         }
     }
-    catch (...)
-    {
-        _repository->write_unlock();
-        throw;
-    }
-
-    _repository->write_unlock();
-
 }
 
 void ProviderRegistrationManager::_addInstancesToTable(

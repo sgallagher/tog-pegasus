@@ -386,7 +386,6 @@ Array<CIMName> CIMOperationRequestDispatcher::_getSubClassNames(
     //
     if(!className.equal (PEGASUS_CLASSNAME___NAMESPACE))
     {
-        _repository->read_lock();
     	try
     	{
     	    // Get the complete list of subclass names
@@ -401,11 +400,9 @@ Array<CIMName> CIMOperationRequestDispatcher::_getSubClassNames(
     	catch(...)
         {
             // getSubClassNames throws an exception if the class does not exist
-            _repository->read_unlock();
             PEG_METHOD_EXIT();
             throw;
         }
-        _repository->read_unlock();
     }
     // Prepend the array with the classname that formed the array.
     subClassNames.prepend(className);
@@ -922,7 +919,6 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
     Array<CIMObjectPath> tmp;
     CIMException cimException;
 
-    _repository->read_lock();
     try
     {
         // Note:  We use assocClass because this is the association function.
@@ -946,7 +942,6 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
     {
         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
     }
-    _repository->read_unlock();
 
     // If exception from repository, write log message and throw the exception
     if (cimException.getCode() != CIM_ERR_SUCCESS)
@@ -2254,8 +2249,6 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
    CIMException cimException;
    CIMClass cimClass;
 
-   _repository->read_lock();
-
    try
    {
       cimClass = _repository->getClass(
@@ -2284,8 +2277,6 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
    {
       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
-
-   _repository->read_unlock();
 
    STAT_PROVIDEREND
 
@@ -2362,8 +2353,6 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
       STAT_PROVIDERSTART
 
-      _repository->read_lock();
-
       try
       {
          cimInstance = _repository->getInstance(
@@ -2387,8 +2376,6 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
       {
          cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
-
-      _repository->read_unlock();
 
       STAT_PROVIDEREND
 
@@ -2433,8 +2420,6 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 
    CIMException cimException;
 
-   _repository->write_lock();
-
    try
    {
       _repository->deleteClass(
@@ -2461,8 +2446,6 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
    {
       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
-
-   _repository->write_unlock();
 
    STAT_PROVIDEREND
 
@@ -2535,8 +2518,6 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 
       STAT_PROVIDERSTART
 
-      _repository->write_lock();
-
       try
       {
          _repository->deleteInstance(
@@ -2561,8 +2542,6 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
       {
          cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
-
-      _repository->write_unlock();
 
       STAT_PROVIDEREND
 
@@ -2606,8 +2585,6 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 
    STAT_PROVIDERSTART
 
-   _repository->write_lock();
-
    try
    {
       _repository->createClass(
@@ -2619,7 +2596,6 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 		  request->nameSpace.getString(),
 		  request->newClass.getClassName().getString());
    }
-
    catch(CIMException& exception)
    {
       cimException = exception;
@@ -2633,8 +2609,6 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
    {
       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
-
-   _repository->write_unlock();
 
    STAT_PROVIDERSTART
 
@@ -2707,8 +2681,6 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
       STAT_PROVIDERSTART
 
-      _repository->write_lock();
-
       try
       {
          instanceName = _repository->createInstance(
@@ -2733,8 +2705,6 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
       {
          cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
-
-      _repository->write_unlock();
 
       STAT_PROVIDEREND
 
@@ -2781,15 +2751,12 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
 
    STAT_PROVIDERSTART
 
-   _repository->write_lock();
-
    try
    {
         _repository->modifyClass(
         request->nameSpace,
         request->modifiedClass);
    }
-
    catch(CIMException& exception)
    {
       cimException = exception;
@@ -2803,8 +2770,6 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
    {
       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
-
-   _repository->write_unlock();
 
    STAT_PROVIDEREND
 
@@ -2879,8 +2844,6 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
       STAT_PROVIDERSTART
 
-      _repository->write_lock();
-
       try
       {
          _repository->modifyInstance(
@@ -2906,8 +2869,6 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
       {
          cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
-
-      _repository->write_unlock();
 
       STAT_PROVIDEREND
 
@@ -2953,8 +2914,6 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
 
    Array<CIMClass> cimClasses;
 
-   _repository->read_lock();
-
    try
    {
       cimClasses = _repository->enumerateClasses(
@@ -2984,8 +2943,6 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
    {
       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
-
-   _repository->read_unlock();
 
    STAT_PROVIDEREND
 
@@ -3019,8 +2976,6 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 
    Array<CIMName> classNames;
 
-   _repository->read_lock();
-
    try
    {
       classNames = _repository->enumerateClassNames(
@@ -3033,7 +2988,6 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 		  request->nameSpace.getString(),
 		  request->className.getString());
    }
-
    catch(CIMException& exception)
    {
       cimException = exception;
@@ -3047,8 +3001,6 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
    {
       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
-
-   _repository->read_unlock();
 
    STAT_PROVIDEREND
 
@@ -3365,7 +3317,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
                 STAT_PROVIDERSTART
 
-                _repository->read_lock();
                 try
                 {
                     // Enumerate instances only for this class
@@ -3394,7 +3345,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                     cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                         String::EMPTY);
                 }
-                _repository->read_unlock();
 
                 STAT_PROVIDEREND
 
@@ -3633,7 +3583,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
                 STAT_PROVIDERSTART
 
-                _repository->read_lock();
                 try
                 {
                     // Enumerate instances only for this class
@@ -3657,7 +3606,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
                     cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                         String::EMPTY);
                 }
-                _repository->read_unlock();
 
                 STAT_PROVIDEREND
 
@@ -3759,8 +3707,6 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
         STAT_PROVIDERSTART
 
-        _repository->read_lock();
-
         try
         {
             cimObjects = _repository->associators(
@@ -3788,8 +3734,6 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
             cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                                  String::EMPTY);
         }
-
-        _repository->read_unlock();
 
         STAT_PROVIDEREND
 
@@ -3855,8 +3799,6 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         {
             STAT_PROVIDERSTART
 
-            _repository->read_lock();
-
             try
             {
                 cimObjects = _repository->associators(
@@ -3884,8 +3826,6 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                 cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                                      String::EMPTY);
             }
-
-            _repository->read_unlock();
 
             STAT_PROVIDEREND
 
@@ -4034,8 +3974,6 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
         STAT_PROVIDERSTART
 
-        _repository->read_lock();
-
         try
         {
             cimObjectPaths = _repository->associatorNames(
@@ -4060,8 +3998,6 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
             cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                                  String::EMPTY);
         }
-
-        _repository->read_unlock();
 
         STAT_PROVIDEREND
 
@@ -4127,8 +4063,6 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         {
             STAT_PROVIDERSTART
 
-            _repository->read_lock();
-
             try
             {
                 cimObjectPaths = _repository->associatorNames(
@@ -4153,8 +4087,6 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                 cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                                      String::EMPTY);
             }
-
-            _repository->read_unlock();
 
             STAT_PROVIDEREND
 
@@ -4303,8 +4235,6 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
         STAT_PROVIDERSTART
 
-        _repository->read_lock();
-
         try
         {
             cimObjects = _repository->references(
@@ -4330,8 +4260,6 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
             cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                                  String::EMPTY);
         }
-
-        _repository->read_unlock();
 
         STAT_PROVIDEREND
 
@@ -4397,8 +4325,6 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         {
             STAT_PROVIDERSTART
 
-            _repository->read_lock();
-
             try
             {
                 cimObjects = _repository->references(
@@ -4424,8 +4350,6 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
                 cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                                      String::EMPTY);
             }
-
-            _repository->read_unlock();
 
             STAT_PROVIDEREND
 
@@ -4574,8 +4498,6 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
         STAT_PROVIDERSTART
 
-        _repository->read_lock();
-
         try
         {
             cimObjectPaths = _repository->referenceNames(
@@ -4598,8 +4520,6 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
             cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                                  String::EMPTY);
         }
-
-        _repository->read_unlock();
 
         STAT_PROVIDEREND
 
@@ -4665,8 +4585,6 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
         {
             STAT_PROVIDERSTART
 
-            _repository->read_lock();
-
             try
             {
                 cimObjectPaths = _repository->referenceNames(
@@ -4689,8 +4607,6 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
                 cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                                      String::EMPTY);
             }
-
-            _repository->read_unlock();
 
             STAT_PROVIDEREND
 
@@ -4800,8 +4716,6 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 
       CIMValue value;
 
-      _repository->read_lock();
-
       try
       {
          value = _repository->getProperty(
@@ -4822,8 +4736,6 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
       {
          cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
-
-      _repository->read_unlock();
 
       STAT_PROVIDEREND
 
@@ -4927,8 +4839,6 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
       STAT_PROVIDERSTART
 
-      _repository->write_lock();
-
       try
       {
          _repository->setProperty(
@@ -4957,8 +4867,6 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
       {
          cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
       }
-
-      _repository->write_unlock();
 
       STAT_PROVIDEREND
 
@@ -5003,8 +4911,6 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
    CIMException cimException;
    CIMQualifierDecl cimQualifierDecl;
 
-   _repository->read_lock();
-
    try
    {
       cimQualifierDecl = _repository->getQualifier(
@@ -5029,8 +4935,6 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
    {
       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
-
-   _repository->read_unlock();
 
    STAT_PROVIDEREND
 
@@ -5062,8 +4966,6 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
 
    CIMException cimException;
 
-   _repository->write_lock();
-
    try
    {
       _repository->setQualifier(
@@ -5088,8 +4990,6 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
    {
       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
-
-   _repository->write_unlock();
 
    STAT_PROVIDEREND
 
@@ -5120,8 +5020,6 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
 
    CIMException cimException;
 
-   _repository->write_lock();
-
    try
    {
       _repository->deleteQualifier(
@@ -5148,8 +5046,6 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
    {
       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
-
-   _repository->write_unlock();
 
    STAT_PROVIDEREND
 
@@ -5182,8 +5078,6 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 
    Array<CIMQualifierDecl> qualifierDeclarations;
 
-   _repository->read_lock();
-
    try
    {
       qualifierDeclarations = _repository->enumerateQualifiers(
@@ -5207,8 +5101,6 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
    {
       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
-
-   _repository->read_unlock();
 
    STAT_PROVIDEREND
 
@@ -5545,7 +5437,6 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                 // Get the class definition for this method
                 //
                 CIMClass cimClass;
-                _repository->read_lock();
                 try
                 {
                     cimClass = _repository->getClass(
@@ -5563,23 +5454,19 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                 }
                 catch (CIMException& exception)
                 {
-                    _repository->read_unlock();
                     PEG_METHOD_EXIT();
                     throw exception;
                 }
                 catch (Exception& exception)
                 {
-                    _repository->read_unlock();
                     PEG_METHOD_EXIT();
                     throw exception;
                 }
                 catch (...)
                 {
-                    _repository->read_unlock();
                     PEG_METHOD_EXIT();
                     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
                 }
-                _repository->read_unlock();
 
                 //
                 // Get the method definition from the class
@@ -5667,7 +5554,6 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
    // Get the class definition for this property
    //
    CIMClass cimClass;
-   _repository->read_lock();
    try
    {
       cimClass = _repository->getClass(
@@ -5685,7 +5571,6 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
    }
    catch (CIMException& exception)
    {
-      _repository->read_unlock();
       PEG_METHOD_EXIT();
 
       // map CIM_ERR_NOT_FOUND to CIM_ERR_INVALID_CLASS
@@ -5701,17 +5586,14 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
    }
    catch (Exception& exception)
    {
-      _repository->read_unlock();
       PEG_METHOD_EXIT();
       throw exception;
    }
    catch (...)
    {
-      _repository->read_unlock();
       PEG_METHOD_EXIT();
       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
-   _repository->read_unlock();
 
    //
    // Get the property definition from the class
@@ -5765,8 +5647,6 @@ void CIMOperationRequestDispatcher::_checkExistenceOfClass(
 
    CIMClass cimClass;
 
-   _repository->read_lock();
-
    try
    {
       cimClass = _repository->getClass(
@@ -5804,8 +5684,6 @@ void CIMOperationRequestDispatcher::_checkExistenceOfClass(
    {
       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
-
-   _repository->read_unlock();
 }
 
 CIMClass CIMOperationRequestDispatcher::_getClass(
@@ -5822,8 +5700,6 @@ CIMClass CIMOperationRequestDispatcher::_getClass(
    }
 
    CIMClass cimClass;
-
-   _repository->read_lock();
 
    // get the complete class, specifically not local only
    try
@@ -5863,8 +5739,6 @@ CIMClass CIMOperationRequestDispatcher::_getClass(
    {
       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
    }
-
-   _repository->read_unlock();
 
    return(cimClass);
 }

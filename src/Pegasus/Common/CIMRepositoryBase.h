@@ -56,14 +56,6 @@ public:
 
     virtual ~CIMRepositoryBase() { }
 
-    virtual void read_lock(void) throw(IPCException) = 0;
-
-    virtual void read_unlock(void) = 0;
-    
-    virtual void write_lock(void) throw(IPCException) = 0;
-
-    virtual void write_unlock(void) = 0;
-    
     virtual CIMClass getClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,

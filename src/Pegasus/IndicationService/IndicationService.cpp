@@ -816,8 +816,6 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
     CIMInstance instance;
     String contentLangs = String::EMPTY;  // l10n 
 
-    _repository->read_lock ();
-
     try
     {
         _checkNonprivilegedAuthorization(request->userName);
@@ -911,8 +909,6 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
                                              exception.getMessage());
     }
 
-    _repository->read_unlock ();
-
 // l10n
     // Note: setting Content-Language in the response to the contentLanguage
     // in the repository.
@@ -958,8 +954,6 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
     CIMInstance cimInstance;
     String aggregatedLangs = String::EMPTY;    // l10n
 
-
-    _repository->read_lock ();
 
     try
     {
@@ -1077,8 +1071,6 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
                                              exception.getMessage());
     }
 
-    _repository->read_unlock ();
-
 // l10n
     // Note: setting Content-Language in the response to the aggregated
     // contentLanguage from the instances in the repository.
@@ -1124,8 +1116,6 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
 
     CIMException cimException;
 
-    _repository->read_lock ();
-
     try
     {
         _checkNonprivilegedAuthorization(request->userName);
@@ -1142,8 +1132,6 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                              exception.getMessage());
     }
-
-    _repository->read_unlock ();
 
 // l10n
     // Note: not setting Content-Language in the response
@@ -1198,8 +1186,6 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
         //
         //  Get instance from repository
         //
-        _repository->read_lock ();
-
         CIMInstance instance;
 
         try
@@ -1209,12 +1195,9 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
         } 
         catch (Exception&)
         {
-            _repository->read_unlock ();
             PEG_METHOD_EXIT ();
             throw;
         }
-
-        _repository->read_unlock ();
 
         CIMInstance modifiedInstance = request->modifiedInstance;
         if (_canModify (request, instanceReference, instance, modifiedInstance))
@@ -1429,8 +1412,6 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                 //
                 //  Modify the instance in the repository
                 //
-                _repository->write_lock ();
-
                 try
                 {
                     modifiedInstance.setPath (instanceReference);
@@ -1453,8 +1434,6 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                                        exception.getMessage());
                 }
 
-               _repository->write_unlock ();
-    
                 if (cimException.getCode() != CIM_ERR_SUCCESS)
                 {
                     CIMModifyInstanceResponseMessage* response =
@@ -1622,8 +1601,6 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
             if (request->instanceName.getClassName ().equal
                 (PEGASUS_CLASSNAME_INDSUBSCRIPTION))
             {
-                _repository->read_lock ();
-
                 try
                 {
                 subscriptionInstance = _repository->getInstance 
@@ -1631,19 +1608,14 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
                 }
                 catch (Exception&)
                 {
-                    _repository->read_unlock ();
                     PEG_METHOD_EXIT ();
                     throw;
                 }
-
-                _repository->read_unlock ();
             }
 
             //
             //  Delete instance from repository
             //
-            _repository->write_lock ();
-
             try
             {
                 _repository->deleteInstance (request->nameSpace, 
@@ -1663,8 +1635,6 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
                 cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                    exception.getMessage());
             }
-
-            _repository->write_unlock ();
 
             if (cimException.getCode() != CIM_ERR_SUCCESS)
             {
@@ -2861,8 +2831,6 @@ void IndicationService::_disableSubscription (
     //
     //  Modify the instance in the repository
     //
-    _repository->write_lock ();
-   
     try
     {
         _repository->modifyInstance 
@@ -2876,8 +2844,6 @@ void IndicationService::_disableSubscription (
             exception.getMessage ());
     }
 
-    _repository->write_unlock ();
-
     PEG_METHOD_EXIT ();
 }
 
@@ -2890,8 +2856,6 @@ void IndicationService::_deleteSubscription (
     //
     //  Delete referencing subscription instance from repository
     //
-    _repository->write_lock ();
-
     try
     {
         _repository->deleteInstance 
@@ -2904,8 +2868,6 @@ void IndicationService::_deleteSubscription (
            "Exception caught in attempting to delete a subscription: " +
             exception.getMessage ());
     }
-
-    _repository->write_unlock ();
 
     PEG_METHOD_EXIT ();
 }
@@ -2950,7 +2912,6 @@ Boolean IndicationService::_canCreate (
         CIMValue filterValue = filterProperty.getValue ();
         CIMObjectPath filterPath;
         filterValue.get (filterPath);
-        _repository->read_lock ();
         try
         {
             CIMInstance filterInstance = _repository->getInstance 
@@ -2959,18 +2920,15 @@ Boolean IndicationService::_canCreate (
         }
         catch (Exception &)
         {
-            _repository->read_unlock ();
             PEG_METHOD_EXIT ();
             throw;
         }
-        _repository->read_unlock ();
 
         CIMProperty handlerProperty = instance.getProperty
             (instance.findProperty (_PROPERTY_HANDLER));
         CIMValue handlerValue = handlerProperty.getValue ();
         CIMObjectPath handlerPath;
         handlerValue.get (handlerPath);
-        _repository->read_lock ();
         try
         {
             CIMInstance handlerInstance = _repository->getInstance 
@@ -2979,11 +2937,9 @@ Boolean IndicationService::_canCreate (
         }
         catch (Exception &)
         {
-            _repository->read_unlock ();
             PEG_METHOD_EXIT ();
             throw;
         }
-        _repository->read_unlock ();
 
         //
         //  Set the key bindings in the subscription instance
@@ -3465,7 +3421,6 @@ CIMObjectPath IndicationService::_createInstance (
     Boolean enabled)
 {
     CIMObjectPath instanceRef;
-    CIMException cimException;
 
     //
     //  Add creator property to Instance
@@ -3579,8 +3534,6 @@ CIMObjectPath IndicationService::_createInstance (
     //
     //  Create instance in repository
     //
-    _repository->write_lock ();
-
     try 
     {
         instanceRef = _repository->createInstance (
@@ -3595,21 +3548,15 @@ CIMObjectPath IndicationService::_createInstance (
             request->nameSpace.getString (),
             instance.getClassName ().getString ());
     }
-    catch (CIMException & exception)
+    catch (CIMException&)
     {
-        _repository->write_unlock ();
-        cimException = exception;
-        throw cimException;
+        throw;
     }
     catch (Exception & exception)
     {
-        _repository->write_unlock ();
-        cimException = PEGASUS_CIM_EXCEPTION 
-            (CIM_ERR_FAILED, exception.getMessage ());
-        throw cimException;
+        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, exception.getMessage ());
     }
 
-    _repository->write_unlock ();
     return instanceRef;
 }
 
@@ -3727,20 +3674,15 @@ Boolean IndicationService::_canDelete (
     //
     CIMInstance instance;
 
-    _repository->read_lock ();
-
     try
     {
         instance = _repository->getInstance (nameSpace, instanceReference);
     }
     catch (Exception&)
     {
-        _repository->read_unlock ();
         PEG_METHOD_EXIT ();
         throw;
     }
-
-    _repository->read_unlock ();
 
     //
     //  Get creator from instance
@@ -3781,7 +3723,6 @@ Boolean IndicationService::_canDelete (
     //  Get the class and superclass of the instance to be deleted
     //
     CIMClass refClass;
-    _repository->read_lock ();
 
     try
     {
@@ -3791,12 +3732,9 @@ Boolean IndicationService::_canDelete (
     }
     catch (Exception&)
     {
-        _repository->read_unlock ();
         PEG_METHOD_EXIT ();
         throw;
     }
-
-    _repository->read_unlock ();
 
     superClass = refClass.getSuperClassName();
 
@@ -3898,7 +3836,7 @@ Boolean IndicationService::_getActiveSubscriptionsFromRepository (
     //
     //  Get list of namespaces in repository
     //
-    nameSpaceNames = _getNameSpaceNames ();
+    nameSpaceNames = _repository->enumerateNameSpaces ();
 
     //
     //  Get existing subscriptions from each namespace in the repository
@@ -4324,32 +4262,6 @@ void IndicationService::_getModifiedSubscriptions (
     PEG_METHOD_EXIT ();
 }
 
-Array <CIMNamespaceName> IndicationService::_getNameSpaceNames (void) const
-{
-    Array <CIMNamespaceName> nameSpaceNames;
-
-    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
-                      "IndicationService::_getNameSpaceNames");
-
-    _repository->read_lock ();
-
-    try
-    {
-        nameSpaceNames = _repository->enumerateNameSpaces ();
-    }
-    catch (Exception&)
-    {
-        _repository->read_unlock ();
-        PEG_METHOD_EXIT ();
-        throw;
-    }
-
-    _repository->read_unlock ();
-
-    PEG_METHOD_EXIT ();
-    return nameSpaceNames;
-}
-
 Array <CIMInstance> IndicationService::_getSubscriptions (
     const CIMNamespaceName & nameSpaceName) const
 {
@@ -4361,8 +4273,6 @@ Array <CIMInstance> IndicationService::_getSubscriptions (
     //
     //  Get existing subscriptions in current namespace
     //
-    _repository->read_lock ();
-
     try
     {
         subscriptions = _repository->enumerateInstances
@@ -4377,13 +4287,10 @@ Array <CIMInstance> IndicationService::_getSubscriptions (
         //
         if (e.getCode () != CIM_ERR_INVALID_CLASS)
         {
-            _repository->read_unlock ();
             PEG_METHOD_EXIT ();
             throw e;
         }
     }
-
-    _repository->read_unlock ();
 
     PEG_METHOD_EXIT ();
     return subscriptions;
@@ -4622,8 +4529,6 @@ void IndicationService::_getFilterProperties (
 
     filterValue.get (filterReference);
 
-    _repository->read_lock ();
-
     try
     {
         filterInstance = _repository->getInstance (nameSpaceName, 
@@ -4635,13 +4540,9 @@ void IndicationService::_getFilterProperties (
             "Exception caught in getting filter instance (" +
             filterReference.toString() + "): " +
             exception.getMessage ());
-
-        _repository->read_unlock ();
         PEG_METHOD_EXIT ();
         throw;
     }
-
-    _repository->read_unlock ();
 
     query = filterInstance.getProperty (filterInstance.findProperty 
         (_PROPERTY_QUERY)).getValue ().toString ();
@@ -4674,8 +4575,6 @@ void IndicationService::_getFilterProperties (
 
     filterValue.get (filterReference);
 
-    _repository->read_lock ();
-
     try
     {
         filterInstance = _repository->getInstance (nameSpaceName, 
@@ -4687,13 +4586,9 @@ void IndicationService::_getFilterProperties (
             "Exception caught in getting filter instance (" +
             filterReference.toString() + "): " +
             exception.getMessage ());
-
-        _repository->read_unlock ();
         PEG_METHOD_EXIT ();
         throw;
     }
-
-    _repository->read_unlock ();
 
     query = filterInstance.getProperty (filterInstance.findProperty 
         (_PROPERTY_QUERY)).getValue ().toString ();
@@ -4721,8 +4616,6 @@ void IndicationService::_getFilterProperties (
 
     filterValue.get (filterReference);
 
-    _repository->read_lock ();
-
     try
     {
         filterInstance = _repository->getInstance (nameSpaceName, 
@@ -4734,13 +4627,9 @@ void IndicationService::_getFilterProperties (
             "Exception caught in getting filter instance (" +
             filterReference.toString() + "): " +
             exception.getMessage ());
-
-        _repository->read_unlock ();
         PEG_METHOD_EXIT ();
         throw;
     }
-
-    _repository->read_unlock ();
 
     query = filterInstance.getProperty (filterInstance.findProperty 
         (_PROPERTY_QUERY)).getValue ().toString ();
@@ -4803,7 +4692,6 @@ CIMName IndicationService::_getIndicationClassName (
     //
     Boolean validClass = false;
     CIMClass theClass;
-    _repository->read_lock ();
 
     try
     {
@@ -4817,12 +4705,9 @@ CIMName IndicationService::_getIndicationClassName (
     }
     catch (Exception&)
     {
-        _repository->read_unlock ();
         PEG_METHOD_EXIT ();
         throw;
     }
-
-    _repository->read_unlock ();
 
     if (theClass.findQualifier (_QUALIFIER_INDICATION) != PEG_NOT_FOUND)
     {
@@ -4885,8 +4770,6 @@ Array <CIMName> IndicationService::_getIndicationSubclasses (
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
                       "IndicationService::_getIndicationSubclasses");
 
-    _repository->read_lock ();
-
     try
     {
         indicationSubclasses = _repository->enumerateClassNames
@@ -4894,12 +4777,9 @@ Array <CIMName> IndicationService::_getIndicationSubclasses (
     }
     catch (Exception&)
     {
-        _repository->read_unlock ();
         PEG_METHOD_EXIT ();
         throw;
     }
-
-    _repository->read_unlock ();
 
     indicationSubclasses.append (indicationClassName);
 
@@ -5070,7 +4950,6 @@ CIMPropertyList IndicationService::_checkPropertyList
     //  If so, must be set to NULL
     //
     CIMClass indicationClass;
-    _repository->read_lock ();
 
     try
     {
@@ -5084,12 +4963,9 @@ CIMPropertyList IndicationService::_checkPropertyList
     }
     catch (Exception&)
     {
-        _repository->read_unlock ();
         PEG_METHOD_EXIT ();
         throw;
     }
-
-    _repository->read_unlock ();
 
     Boolean allProperties = true;
     for (Uint32 i = 0; 
@@ -5160,8 +5036,6 @@ CIMInstance IndicationService::_getHandler (
     //
     //  Get Handler instance from the repository
     //
-    _repository->read_lock ();
-
     try
     {
         handlerInstance = _repository->getInstance
@@ -5170,12 +5044,9 @@ CIMInstance IndicationService::_getHandler (
     }
     catch (Exception&)
     {
-        _repository->read_unlock ();
         PEG_METHOD_EXIT ();
         throw;
     }
-
-    _repository->read_unlock ();
 
     //
     //  Set namespace in path in CIMInstance
@@ -5202,7 +5073,6 @@ Boolean IndicationService::_isTransient (
     //  Get the handler instance from the respository
     //
     CIMInstance instance;
-    _repository->read_lock ();
 
     try
     {
@@ -5211,12 +5081,9 @@ Boolean IndicationService::_isTransient (
     }
     catch (Exception&)
     {
-        _repository->read_unlock ();
         PEG_METHOD_EXIT ();
         throw;
     }
-
-    _repository->read_unlock ();
 
     //
     //  Get Persistence Type
@@ -5279,8 +5146,6 @@ void IndicationService::_deleteReferencingSubscriptions (
             //
             //  Delete referencing subscription instance from repository
             //
-            _repository->write_lock ();
-
             try
             {
                 //
@@ -5302,7 +5167,6 @@ void IndicationService::_deleteReferencingSubscriptions (
                     subscriptions[i].getPath().toString() + "): " + 
                     exception.getMessage ());
             }
-            _repository->write_unlock ();
 
             Array <ProviderClassList> indicationProviders;
             Array <CIMName> indicationSubclasses;
@@ -5404,8 +5268,6 @@ void IndicationService::_deleteExpiredSubscription (
     //
     //  Get instance from repository
     //
-    _repository->read_lock ();
-
     try
     {
         subscriptionInstance = _repository->getInstance 
@@ -5413,18 +5275,13 @@ void IndicationService::_deleteExpiredSubscription (
     }
     catch (Exception&)
     {
-        _repository->read_unlock ();
         PEG_METHOD_EXIT ();
         throw;
     }
 
-    _repository->read_unlock ();
-
     //
     //  Delete the subscription instance
     //
-    _repository->write_lock ();
-
     try
     {
         _repository->deleteInstance (nameSpace, subscription);
@@ -5436,8 +5293,6 @@ void IndicationService::_deleteExpiredSubscription (
             subscriptionInstance.getPath().toString() + "): " +
             exception.getMessage ());
     }
-
-    _repository->write_unlock ();
 
     //
     //  If subscription was active, send delete requests to providers

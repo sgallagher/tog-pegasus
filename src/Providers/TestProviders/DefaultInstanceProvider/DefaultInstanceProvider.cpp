@@ -145,7 +145,6 @@ void DefaultInstanceProvider::_copyClass(
     client.disconnect();
 
     // now we can copy the base class
-    _repository->write_lock();
     try
     {
         _repository->createClass( nameSpace, cimClass );
@@ -153,10 +152,8 @@ void DefaultInstanceProvider::_copyClass(
     catch( Exception& ex )
     {
         const String msg = "Create Class failed. " + ex.getMessage();
-        _repository->write_unlock();
         throw CIMOperationFailedException( msg );
     }
-    _repository->write_unlock();
 }
 
 /***************************************************************************
@@ -187,7 +184,6 @@ void DefaultInstanceProvider::_copySuperClasses(
             // check to see if class already exists
             //
             CIMClass cimClass;
-            _repository->write_lock();
             try
             {
                 cimClass = _repository->getClass(nameSpace, 
@@ -205,11 +201,9 @@ void DefaultInstanceProvider::_copySuperClasses(
                 catch( Exception& ex )
                 {
                     const String msg  = "Create superClass failed. " + ex.getMessage();
-                    _repository->write_unlock();
                     throw CIMOperationFailedException( msg );
                 }
             }
-            _repository->write_unlock();
         }
         return;
     }
@@ -253,18 +247,7 @@ Boolean DefaultInstanceProvider::_nameSpaceExists(
     //
     Array <CIMNamespaceName> nameSpaceNames;
 
-    _repository->read_lock ();
-
-    try
-    {
-        nameSpaceNames = _repository->enumerateNameSpaces();
-    }
-    catch (Exception&)
-    {
-        _repository->read_unlock ();
-        throw;
-    }
-    _repository->read_unlock ();
+    nameSpaceNames = _repository->enumerateNameSpaces();
 
     //
     //  check for the existence of the specified namespace 
@@ -377,16 +360,13 @@ void DefaultInstanceProvider::getInstance(
         // check to see if class already exists
         // if not, copy the class
         //
-        _repository->read_lock();
         try
         {
             CIMClass cimClass = _repository->getClass(nameSpace, className);
-            _repository->read_unlock ();
         }
         catch (Exception&)
         {
             // class does not exist
-            _repository->read_unlock ();
 
             //
             // copy the class
@@ -402,8 +382,6 @@ void DefaultInstanceProvider::getInstance(
 		instanceReference.getClassName(),
 		instanceReference.getKeyBindings());
 	
-        _repository->read_lock();
-
         try
         {
            cimInstance = _repository->getInstance(
@@ -416,11 +394,9 @@ void DefaultInstanceProvider::getInstance(
         }
         catch( Exception& ex )
         {
-            _repository->read_unlock();
             const String msg = "Get Instance failed. " + ex.getMessage();
             throw CIMOperationFailedException( msg );
         }
-        _repository->read_unlock();
 
         // begin processing the request
         handler.processing();
@@ -458,16 +434,13 @@ void DefaultInstanceProvider::enumerateInstances(
         // check to see if class already exists
         // if not, copy the class
         //
-        _repository->read_lock();
         try
         {
             CIMClass cimClass = _repository->getClass(nameSpace, className);
-            _repository->read_unlock ();
         }
         catch (Exception&)
         {
             // class does not exist
-            _repository->read_unlock ();
 
             //
             // copy the class
@@ -476,8 +449,6 @@ void DefaultInstanceProvider::enumerateInstances(
         }
 
         Array<CIMInstance> cimNamedInstances;
-
-        _repository->read_lock();
 
         Boolean localOnly = true;
         Boolean deepInheritance = true;
@@ -496,11 +467,9 @@ void DefaultInstanceProvider::enumerateInstances(
         }
         catch( Exception& ex )
         {
-            _repository->read_unlock();
             const String msg = "Enumerate Instances failed. " + ex.getMessage();
             throw CIMOperationFailedException( msg );
         }
-        _repository->read_unlock();
 
 	// begin processing the request
 	handler.processing();
@@ -536,16 +505,13 @@ void DefaultInstanceProvider::enumerateInstanceNames(
         // check to see if class already exists
         // if not, copy the class
         //
-        _repository->read_lock();
         try
         {
             CIMClass cimClass = _repository->getClass(nameSpace, className);
-            _repository->read_unlock ();
         }
         catch (Exception&)
         {
             // class does not exist
-            _repository->read_unlock ();
 
             //
             // copy the class
@@ -555,8 +521,6 @@ void DefaultInstanceProvider::enumerateInstanceNames(
 
         Array<CIMObjectPath> instanceNames;
 
-        _repository->read_lock();
-
         try
         {
             instanceNames = _repository->enumerateInstanceNamesForClass(
@@ -564,11 +528,9 @@ void DefaultInstanceProvider::enumerateInstanceNames(
         }
         catch (Exception & ex)
         {
-            _repository->read_unlock();
             const String msg = "Enumerate InstanceNames failed. " + ex.getMessage();
             throw CIMOperationFailedException( msg );
         }
-        _repository->read_unlock();
     
 	// begin processing the request
 	handler.processing();
@@ -611,16 +573,13 @@ void DefaultInstanceProvider::modifyInstance(
         // check to see if class already exists
         // if not, copy the class
         //
-        _repository->read_lock();
         try
         {
             CIMClass cimClass = _repository->getClass(nameSpace, className);
-            _repository->read_unlock ();
         }
         catch (Exception&)
         {
             // class does not exist
-            _repository->read_unlock ();
 
             //
             // copy the class
@@ -636,8 +595,6 @@ void DefaultInstanceProvider::modifyInstance(
 		instanceReference.getClassName(),
 		instanceReference.getKeyBindings());
 	
-        _repository->write_lock();
-
         try
         {
            _repository->modifyInstance(
@@ -648,11 +605,9 @@ void DefaultInstanceProvider::modifyInstance(
         }
         catch( Exception& ex )
         {
-            _repository->write_unlock();
             const String msg = "Modify Instance failed. " + ex.getMessage();
             throw CIMOperationFailedException( msg );
         }
-        _repository->write_unlock();
 
 	// begin processing the request
 	handler.processing();
@@ -685,16 +640,13 @@ void DefaultInstanceProvider::createInstance(
         // check to see if class already exists
         // if not, copy the class
         //
-        _repository->read_lock();
         try
         {
             CIMClass cimClass = _repository->getClass(nameSpace, className);
-            _repository->read_unlock();
         }
         catch (Exception&)
         {
             // class does not exist
-            _repository->read_unlock();
 
             //
             // copy the class
@@ -707,19 +659,15 @@ void DefaultInstanceProvider::createInstance(
 	// begin processing the request
 	handler.processing();
 
-        _repository->write_lock();
-
         try
         {
             cimRef = _repository->createInstance(nameSpace, instanceObject);
         }
         catch (Exception & ex)
         {
-            _repository->write_unlock();
             const String msg = "create Instance failed. " + ex.getMessage();
             throw CIMOperationFailedException( msg );
         }
-        _repository->write_unlock();
 
 	// deliver the new instance
 	handler.deliver(cimRef);
@@ -751,7 +699,6 @@ void DefaultInstanceProvider::deleteInstance(
         // check to see if class already exists
         // if not, copy the class
         //
-        _repository->read_lock();
         try
         {
             CIMClass cimClass = _repository->getClass(nameSpace, className);
@@ -762,7 +709,6 @@ void DefaultInstanceProvider::deleteInstance(
             //
             _copyClass(nameSpace.getString(), className.getString()); 
         }
-        _repository->read_unlock ();
 
 	// convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
@@ -775,19 +721,15 @@ void DefaultInstanceProvider::deleteInstance(
 	// begin processing the request
 	handler.processing();
 
-        _repository->write_lock();
-
         try
         {
            _repository->deleteInstance(nameSpace, localReference);
         }
         catch (Exception & ex)
         {
-            _repository->write_unlock();
             const String msg = "delete Instance failed. " + ex.getMessage();
             throw CIMOperationFailedException( msg );
         }
-        _repository->write_unlock();
 
 	// complete processing the request
 	handler.complete();

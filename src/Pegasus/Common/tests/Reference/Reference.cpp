@@ -48,8 +48,11 @@ void test01()
     CIMReference r2 = r;
     CIMReference r3 = "//atp:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"";
 
-    r.print();
-    cout << r.toStringCanonical() << endl;
+    if (verbose)
+    {
+        r.print();
+        cout << r.toStringCanonical() << endl;
+    }
 
     Array<Sint8> mofOut;
     r.toMof(mofOut);
@@ -183,6 +186,8 @@ void test02()
 
 int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+
     try
     {
 	test01();

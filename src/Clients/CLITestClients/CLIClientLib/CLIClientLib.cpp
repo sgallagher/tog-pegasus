@@ -54,13 +54,17 @@ static const char * usage = "This command executes single WBEM Operations.";
 // Note that the following is one long string.
 static const char * usageDetails = "Using CLI examples:n \
 CLI enumerateinstancenames pg_computersystem  -- enumerateinstances of class\n \
-CLI enumerateclassnames -- Enumerate classnames from root\n \
-CLI enumerateclasses    -- Enumerate classes with MOF output starting at root\n \
-CLI enumerateclasses CIM_Computersystem -- Enumerate classes in MOF starting with \
+    or \n \
+CLI ei pg_computersystem    -- Same as above \n\n \
+CLI enumerateclassnames -- Enumerate classnames from root/cimv2.\n \
+CLI ec /n root -- Enumerate classnames from namespace root. \n \
+CLI ec -o xml   -- Enumerate classes with XML output starting at root\n \
+CLI enumerateclasses CIM_Computersystem -o xml\n    -- Enumerate classes in MOF starting with \
 CIM_Computersystem\n \
-CLI getclass CIM_door -a -u guest =p guest - Get class with authentication set and \
+CLI getclass CIM_door -a -u guest =p guest\n    -- Get class with authentication set and \
 user = guest, password = guest.\n \
-CLI enumerateclasses -XML -- enumerate classes and output XML rather than MOF. \n";
+CLI ec -o XML -- enumerate classes and output XML rather than MOF. \n \
+CLI getqualifiers -- Get the qualifiers in mof output format\n";
 
 int OutputFormatInstance(OutputType format, CIMInstance& instance)
 {

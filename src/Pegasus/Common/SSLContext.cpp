@@ -642,6 +642,7 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
         }
     }
 
+    Boolean keyLoaded = false;
     //
     // Check if there is a certificate file (file containing server 
     // certificate) specified. If specified, validate and load the 
@@ -661,13 +662,17 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
             PEG_METHOD_EXIT();
             throw( SSLException("Could not get server certificate."));
         }
+
         //
         // If there is no key file (file containing server
-        // private key) specified, then try loading the key from
-        // the certificate file.
+        // private key) specified or the specified file does not exist,
+        // then try loading the key from the certificate file.
         //
-        if (strncmp(_keyPath, "", 1) == 0)
+        if ( strncmp(_keyPath, "", 1) == 0  ||
+           !FileSystem::exists(String(_keyPath)) )
         {
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
+                "---> SSL: loading key from" + String(_certPath));
             //
             // load the private key and check for validity
             //
@@ -676,16 +681,19 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
                 PEG_METHOD_EXIT();
                 throw( SSLException("Could not get private key."));
             }
+            keyLoaded = true;
         }
     }
 
     //
-    // Check if there is a key file (file containing server 
-    // private key) specified. If specified, validate and 
-    // load the key.
+    // Check if there is a key file (file containing server
+    // private key) specified and the key was not already loaded.
+    // If specified, validate and load the key.
     //
-    if (strncmp(_keyPath, "", 1) != 0)
+    if (strncmp(_keyPath, "", 1) != 0 && !keyLoaded)
     {
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
+            "---> SSL: loading key from" + String(_keyPath));
         //
         // load given private key and check for validity
         //
@@ -694,6 +702,7 @@ SSL_CTX * SSLContextRep::_makeSSLContext()
             PEG_METHOD_EXIT();
             throw( SSLException("Could not get private key."));
         }
+        keyLoaded = true;
     }
 
     PEG_METHOD_EXIT();

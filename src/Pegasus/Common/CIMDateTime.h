@@ -167,7 +167,7 @@ public:
         @exception InvalidDateTimeFormatException if CIMDateTime object was not 
         formed correctly.
      */
-    CIMDateTime(Uint64 microSec, Boolean interval);
+    CIMDateTime(const Uint64 microSec, Boolean interval);
 
     /** CIMDateTime destructor. */
     ~CIMDateTime();

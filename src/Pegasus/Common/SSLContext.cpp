@@ -64,6 +64,7 @@ extern "C"
     typedef unsigned long (* CRYPTO_SET_ID_CALLBACK)(void);
 };
 
+typedef struct x509_store_ctx_st X509_STORE_CTX;
 
 typedef struct Timestamp 
 {

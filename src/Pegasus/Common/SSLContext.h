@@ -37,14 +37,10 @@
 #include <Pegasus/Common/Linkage.h>
 
 #ifdef PEGASUS_HAS_SSL
+#define OPENSSL_NO_KRB5 1
 #include <openssl/ssl.h>
 #else
 #define X509_STORE void
-#endif
-
-//ATTN: Move this to cpp file
-#ifdef PEGASUS_HAS_SSL
-typedef struct x509_store_ctx_st X509_STORE_CTX;
 #endif
 
 PEGASUS_NAMESPACE_BEGIN

@@ -74,7 +74,7 @@ void setHome(String & home);
 //-------------------------------------------------------------------------
 int cimserver_fork(void) { return(0); }
 int cimserver_kill(void) { return(0); }
-void notify_parent(int id) { return(id);    }
+void notify_parent(int id) { return;    }
 
 //-------------------------------------------------------------------------
 // START MONITOR Asynchronously

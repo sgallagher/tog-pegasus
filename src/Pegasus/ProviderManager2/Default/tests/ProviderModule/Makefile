@@ -6,6 +6,7 @@ LIBRARIES = \
     DefaultProviderManager \
     pegprovider \
     pegprovidermanager \
+    pegprm \
     pegconfig \
     pegclient \
     pegcommon

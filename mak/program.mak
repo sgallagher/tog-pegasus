@@ -10,9 +10,15 @@ endif
 
 FULL_PROGRAM=$(BIN_DIR)/$(PROGRAM)$(EXE)
 
+ifdef $(PEGASUS_SUPPORTS_DYNLIB)
+$(FULL_PROGRAM): $(OBJ_DIR)/target $(BIN_DIR)/target $(OBJECTS) $(LIBRARIES) $(ERROR)
+	$(LINK_WRAPPER) $(CXX) $(FLAGS) -L $(LIB_DIR) $(EXE_OUT)$(FULL_PROGRAM) $(OBJECTS) -lpegcommon -lpegrepository -lpegprotocol -lpegserver -lpegclient -lpeggcompiler -lpegprovider -lpeggetoopt $(SYS_LIBS)
+	@ $(ECHO)
+else
 $(FULL_PROGRAM): $(OBJ_DIR)/target $(BIN_DIR)/target $(OBJECTS) $(LIBRARIES) $(ERROR)
 	$(LINK_WRAPPER) $(CXX) $(FLAGS) $(EXE_OUT)$(FULL_PROGRAM) $(OBJECTS) $(LIBRARIES) $(SYS_LIBS)
 	@ $(ECHO)
+endif
 
 include $(ROOT)/mak/objects.mak
 

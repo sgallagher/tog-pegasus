@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Server.cpp,v $
+// Revision 1.4  2001/02/20 14:05:24  karl
+// Comments for Document
+//
 // Revision 1.3  2001/02/16 02:06:09  mike
 // Renamed many classes and headers.
 //
@@ -41,6 +44,10 @@
 
 using namespace Pegasus;
 using namespace std;
+
+const char PEGASUSVERSION[]  = "0.7";
+const char PEGASUSSERVERNAME[] = "Pegasus CIM Server";
+const char LICENSE[] = "License Statement";
 
 int main(int argc, char** argv)
 {
@@ -69,7 +76,8 @@ int main(int argc, char** argv)
 
 	const Uint32 PORT = 8888;
 	server.bind(CIMServer::PROPRIETARY, PORT);
-
+        std::cout << PEGASUSSERVERNAME << " Version " << PEGASUSVERSION; 
+	std::cout << LICENSE << endl;
 	std::cout << "Listening on port " << PORT << std::endl;
 	server.runForever();
     }

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: String.h,v $
+// Revision 1.8  2001/02/20 14:05:24  karl
+// Comments for Document
+//
 // Revision 1.7  2001/02/11 17:19:30  mike
 // added reverseFind() method
 //
@@ -97,7 +100,7 @@ public:
     /// Assign this string with x.
     String& operator=(const Char16* x) { assign(x); return *this; }
 
-    /// Assing this string with x.
+    /// Assign this string with x.
     String& assign(const String& x) { _rep = x._rep; return *this; }
 
     /// Assign this string with x.
@@ -194,9 +197,13 @@ public:
     */
     void remove(Uint32 pos, Uint32 size = Uint32(-1));
 
-    /** Return a new string which is initialzed with length characters from
-        this string starting at pos. If length is -1, then all characters
-	after pos are added to the new string.
+    /** Return a new string which is initialzed with <TT>length</TT> 
+	characters from this string starting at <TT>pos</TT>. 
+	@param <TT>pos</TT> is the positon in string to start getting the 
+	substring. 
+	@param <TT>length</TT> is the number of characters to get. If length
+	is -1, then all characters after pos are added to the new string.
+	@return String with the defined substring.
     */
     String subString(Uint32 pos, Uint32 length = Uint32(-1)) const;
 

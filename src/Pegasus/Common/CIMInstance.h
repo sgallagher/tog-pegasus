@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMInstance.h,v $
+// Revision 1.5  2001/02/20 14:05:24  karl
+// Comments for Document
+//
 // Revision 1.4  2001/02/20 07:25:57  mike
 // Added basic create-instance in repository and in client.
 //
@@ -93,10 +96,10 @@ public:
     {
 
     }
-    /** Constructor - Create a CIM Instance object from another Instance.
-    @param Instance object from which the new instance is created.
-    @return New instance
-    @example
+    /** Constructor - Create a CIMInstance object from another Instance.
+	@param Instance object from which the new instance is created.
+	@return New instance
+	@example
 	ATTN:
     */
     CIMInstance(const CIMInstance& x)
@@ -114,13 +117,11 @@ public:
 	return *this;
     }
     /**	Constructor - Creates an Instance object with the classname
-    from the inpur parameters
-    @param - String className to be used with new instance object
-    
-    @return The new instance object
-    
-    Throws IllegalName if className argument not legal CIM identifier.
-    ATTN: Clarify the defintion
+	from the input parameters
+	@param - String className to be used with new instance object
+	@return The new instance object
+	Throws IllegalName if className argument not legal CIM identifier.
+	ATTN: Clarify the defintion
     */
     CIMInstance(const String& className)
     {
@@ -131,19 +132,19 @@ public:
     {
 	Dec(_rep);
     }
-    /**	CIMMethod
-    
+    /**	getClassName - 	Returns the class name of the instance
+	@return String with the class name.
     */
     const String& getClassName() const 
     { 
 	_checkRep();
 	return _rep->getClassName(); 
     }
-    /**	CIMMethod addQualifier - Adds teh CIMQualifier object to the instance.
-    Thows an exception of the CIMQualifier already exists in the instance
-    @param CIMQualifier object to add to instance
-    @return ATTN:
-    @exception Throws AlreadyExists.
+    /**	addQualifier - Adds the CIMQualifier object to the instance.
+	Thows an exception of the CIMQualifier already exists in the instance
+	@param CIMQualifier object to add to instance
+	@return ATTN:
+	@exception Throws AlreadyExists.
     */
     CIMInstance& addQualifier(const CIMQualifier& qualifier)
     {
@@ -151,54 +152,76 @@ public:
 	_rep->addQualifier(qualifier);
 	return *this;
     }
-    /**	CIMMethod
-    
-    */
 
+    /**	findQualifier - Searches the instance for the qualifier object
+        defined by the inputparameter.
+	@param String defining the qualifier to be found
+	@return - Index of the qualifier to be used in subsequent 
+	operations or -1 if the qualifier is not found. 
+    */ 
     Uint32 findQualifier(const String& name)
     {
 	_checkRep();
 	return _rep->findQualifier(name);
     }
-    /**	CIMMethod
-    
-    */
 
+    /**	findQualifier - Searches the instance for the qualifier object
+        defined by the input parameter.
+	@param String defining the qualifier to be found
+	@return - Index of the qualifier to be used in subsequent 
+	operations or -1 if the qualifier is not found. 
+    */ 
     Uint32 findQualifier(const String& name) const
     {
 	_checkRep();
 	return _rep->findQualifier(name);
     }
-    /**	CIMMethod
-    
-    */
 
+    /**	getQualifier - Retrieves the qualifier object defined by the
+	index input parameter.  @ index for the qualifier object.
+	The index to qualifier objects is zero-origin and continuous
+	so that incrementing loops can be used to get all qualifier
+	objects in a CIMInstnace.  
+	@return: Returns qualifier object defined by index.  
+    ATTN: What is effect of out of range index???
+    */
     CIMQualifier getQualifier(Uint32 pos)
     {
 	_checkRep();
 	return _rep->getQualifier(pos);
     }
-    /**	CIMMethod
-    
-    */
 
+     /** getQualifier - Retrieves the qualifier object defined by the
+	index input parameter.  @ index for the qualifier object.
+	The index to qualifier objects is zero-origin and continuous
+	so that incrementing loops can be used to get all qualifier
+	objects in a CIMInstnace.  
+	@return: Returns qualifier object defined by index.  
+    ATTN: What is effect of out of range index???
+    ATTN: Is the above statement correct???
+    */
     CIMConstQualifier getQualifier(Uint32 pos) const
     {
 	_checkRep();
 	return _rep->getQualifier(pos);
     }
-    /**	CIMMethod
-    
-    */
 
+    /**	getQualifierCount - Gets the numbercount of CIMQualifierobjects 
+	defined for this CIMInstance.
+	@return	Count of the number of CIMQalifier objects in the
+	CIMInstance.
+    */ 
     Uint32 getQualifierCount() const
     {
 	_checkRep();
 	return _rep->getQualifierCount();
     }
 
-    /**	CIMMethod
-    
+    /**	addProperty - Adds a property object defined by the input
+	parameter to the CIMInstance
+	@param Property Object to be added.  See the CIM Property
+	class for definition of the property object
+	@return ATTN:
     */
     CIMInstance& addProperty(const CIMProperty& x)
     {
@@ -207,8 +230,12 @@ public:
 	return *this;
     }
 
-    /**	CIMMethod
-    
+    /**	findProperty - Searches the CIMProperty objects installed in the 
+	CIMInstance for property objects with the name defined by the
+	input.
+	@param String with the name of the property object to be found
+	@return Index in the CIM Instance to the property object if found or 
+	-1 if no property object found with the name defined by the input. 
     */
     Uint32 findProperty(const String& name)
     {
@@ -216,17 +243,27 @@ public:
 	return _rep->findProperty(name);
     }
 
-    /**	CIMMethod
-    
-    */
+    /**	findProperty - Searches the property objects installed in the 
+	CIMInstance for property objects with the name defined by the
+	input
+	@param String with the name of the property object to be found
+	@return Index in the CIM Instance to the property object if found or 
+	-1 if no property object found with the name defined by the input. 
+    */  
     Uint32 findProperty(const String& name) const
     {
 	_checkRep();
 	return _rep->findProperty(name);
     }
 
-    /**	CIMMethod
-    
+    /**	getProperty - Gets the CIMproperty object in the CIMInstance defined 
+	by the input index parameter.
+	@param Index to the property object in the CIMInstance.
+    	The index to qualifier objects is zero-origin and continuous
+	so that incrementing loops can be used to get all qualifier
+	objects in a CIMInstnace. 
+	@return CIMProperty object corresponding to the index. 
+	ATTN: What is the effect of out of range?
     */
     CIMProperty getProperty(Uint32 pos)
     {
@@ -234,8 +271,14 @@ public:
 	return _rep->getProperty(pos);
     }
 
-    /**	CIMMethod
-    
+    /**	getProperty - Gets the CIMproperty object in the CIMInstance defined 
+	by the input index parameter.
+	@param Index to the property object in the CIMInstance.
+    	The index to qualifier objects is zero-origin and continuous
+	so that incrementing loops can be used to get all qualifier
+	objects in a CIMInstnace. 
+	@return CIMProperty object corresponding to the index. 
+	ATTN: What is the effect of out of range?
     */
     ConstCIMProperty getProperty(Uint32 pos) const
     {
@@ -243,8 +286,11 @@ public:
 	return _rep->getProperty(pos);
     }
 
-    /**	CIMMethod
-    
+    /**	getPropertyCount - Gets the numbercount of CIMProperty 
+	objects defined for this CIMInstance.
+	@return	Count of the number of CIMProperty objects in the
+	CIMInstance. Zero indicates that no CIMProperty objects
+	are contained in the CIMInstance
     */
     Uint32 getPropertyCount() const
     {
@@ -252,12 +298,12 @@ public:
 	return _rep->getPropertyCount();
     }
 
-    /**	CIMMethod
+    /**	operator int() - ATTN:
     
     */
     operator int() const { return _rep != 0; }
 
-    /**	CIMMethod
+    /**	resolve - ATTN:
     
     */
     void resolve(DeclContext* declContext, const String& nameSpace)
@@ -266,8 +312,10 @@ public:
 	_rep->resolve(declContext, nameSpace);
     }
 
-    /**	CIMMethod
-
+    /**	toXml - Creates an XML transformation of the CIMInstance
+	compatiblewith the DMTF CIM Operations over HTTP defintions.
+	@return
+	ATTN: This is incorrect and needs to be corrected.
     */
     void toXml(Array<Sint8>& out) const
     {
@@ -284,7 +332,10 @@ public:
 	_rep->print();
     }
 
-    /**	CIMMethod
+    /**	identical - Compares the CIMInstance with another CIMInstance
+	defined by the input parameter for equality of all components.
+	@param CIMInstance to be compared
+	@return Boolean true if they are identical
     
     */
     Boolean identical(const ConstCIMInstance& x) const;
@@ -297,12 +348,13 @@ public:
 	return CIMInstance(_rep->clone());
     }
 
-    /** Get the instance name of this instance. The class argument is used
-	to determine which fields are keys. The instance name has this from:
+    /** getInstnaceName - Get the instance name of this instance. The class 
+	argument is used to determine which fields are keys. The instance
+	name has this from:
 
-	<pre> 
+	<PRE> 
 	    ClassName.key1=value1,...,keyN=valueN
-	</pre>
+	</PRE>
 
 	The instance name is in standard form (the class name and key name
 	is all lowercase; the keys-value pairs appear in sorted order by

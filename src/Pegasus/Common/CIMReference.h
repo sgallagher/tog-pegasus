@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMReference.h,v $
+// Revision 1.2  2001/02/20 14:05:24  karl
+// Comments for Document
+//
 // Revision 1.1  2001/02/18 18:39:06  mike
 // new
 //
@@ -86,44 +89,44 @@ public:
 
     enum CIMType { BOOLEAN, STRING, NUMERIC };
 
-    // CIMMethod KeyBinding - TBD 1
+    /// KeyBinding - ATTN:
     KeyBinding();
-    // CIMMethod KeyBinding - TBD 2
+    /// KeyBinding - ATTN:
     KeyBinding(const KeyBinding& x);
-    /// CIMMethod  KeyBinding - TBD 3
+    ///  KeyBinding - TBD 3
     KeyBinding(const String& name, const String& value, CIMType type);
-    /// CIMMethod Keybinding Destructor
+    /// Keybinding Destructor
     ~KeyBinding();
-    /// KeyBinding -- TBD 4
+    /// KeyBinding -- ATTN:
     KeyBinding& operator=(const KeyBinding& x);
-    /** CIMMethod getName - ATTN:
-    @return ATTN:
+
+    /** getName - ATTN:
+	@return String with the name ???ATTN:
     */
     const String& getName() const 
     { 
 	return _name; 
     }
 
-    /** method setName
+    /** setName
 	ATTN:
-    */
-
+    */  
     void setName(const String& name) 
     { 
 	_name = name; 
     }
 
-    /// method getValue - ATTN:
+    ///  getValue - ATTN:
     const String& getValue() const 
     { 
 	return _value; 
     }
-    /// method setValue - ATTN:
+    /// setValue - ATTN:
     void setValue(const String& value) 
     { 
 	_value = value; 
     }
-    /// method getType - ATTN:
+    /// getType - ATTN:
     CIMType getType() const 
     { 
 	return _type; 
@@ -133,7 +136,7 @@ public:
     { 
 	_type = type; 
     }
-    /// CIMMethod typeToString - ATTN
+    /// typeToString - ATTN
     static const char* typeToString(CIMType type);
 
 private:
@@ -153,30 +156,31 @@ inline Boolean operator==(const KeyBinding& x, const KeyBinding& y)
 typedef Array<KeyBinding> KeyBindingArray;
 
 /** Class CIMReference Path to the specified CIM class or CIM instance or CIM 
-qualifier.  The CIM object path is a reference to CIM elements.  It is only 
-valid in context of an active connection to a CIM Object Manager on a host.  
-In order to uniquely identify a given object on a host, it includes the 
-namespace, object name, and keys (if the object is an instance).  The 
-namespace is taken to be relative to the namespace that the CIMClient is 
-currently connected to.  A key is a property or set of properties used to 
-uniquely identify an instance of a class.  Key properties are marked with the 
-KEY qualifier.
-  
-For example, the object path
-
-<TT>\\Server\Root\cimv2\CIM_ComputerSystem.CIMName=mycomputer: 
-CreationClassName=CIM_ComputerSystem</TT>
-
-has two parts:
- 
-<TT>\\server\Root\cimv2</TT> - The default CIM namespace on host Server  
-<TT>CIM_ComputerSystem.CIMName=mycomputer</TT>, 
-
-<TT>CreationClassName=Solaris_ComputerSystem</TT> - A specific Solaris 
-Computer System object in the default namespace on host myserver.  This 
-computer system is uniquely identified by two key property values in 
-the format (key property = value): CIMName=mycomputer 
-CreationClassName=CIM_ComputerSystem */ 
+    qualifier.  The CIM object path is a reference to CIM elements.  It is only 
+    valid in context of an active connection to a CIM Object Manager on a host.  
+    In order to uniquely identify a given object on a host, it includes the 
+    namespace, object name, and keys (if the object is an instance).  The 
+    namespace is taken to be relative to the namespace that the CIMClient is 
+    currently connected to.  A key is a property or set of properties used to 
+    uniquely identify an instance of a class.  Key properties are marked with the 
+    KEY qualifier.
+      
+    For example, the object path
+    
+    <TT>\\Server\Root\cimv2\CIM_ComputerSystem.CIMName=mycomputer: 
+    CreationClassName=CIM_ComputerSystem</TT>
+    
+    has two parts:
+     
+    <TT>\\server\Root\cimv2</TT> - The default CIM namespace on host Server  
+    <TT>CIM_ComputerSystem.CIMName=mycomputer</TT>, 
+    
+    <TT>CreationClassName=Solaris_ComputerSystem</TT> - A specific Solaris 
+    Computer System object in the default namespace on host myserver.  This 
+    computer system is uniquely identified by two key property values in 
+    the format (key property = value): CIMName=mycomputer 
+    CreationClassName=CIM_ComputerSystem 
+*/ 
 
 class PEGASUS_COMMON_LINKAGE CIMReference 
 {
@@ -188,12 +192,23 @@ public:
     }
 
     /** Constructs a default CIM Object Path with empty namespace, 
-    objectName and keys
+	objectName and keys
+	@return The new CIM Object Path constructed 
     */
     CIMReference();
-    /// CIMMethod	- ATTN
+    /** Constructs a CIM Object Path from the CIMReference parameter
+	@param ATTN:
+	@return The new CIM Object Path constructed
+    */
     CIMReference(const CIMReference& x);
-    /// CIMMethod  -ATTN
+    /** Constructs a CIM Object Path from the individual components input.
+	@param String representing the host
+	@param String representing the Namespace
+	@param String representing the Classname
+	@param Array of Keybindings for the key properties
+	@Return The new CIM Object
+	@exception ATTN:
+    */
     CIMReference(
 	const String& host,
 	const String& nameSpace,
@@ -212,34 +227,48 @@ public:
 	const String& nameSpace,
 	const String& className, 
 	const Array<KeyBinding>& keyBindings = KeyBindingArray());
+
     /** CIMMethod getHost - Gets the host for this CIMObjectPath.
-    @return -  String& with host name
+	@return -  String& with host name
     */
     const String& getHost() const 
     {
 	return _host; 
     }
-    /** CIMMethod setHost - Sets the host for this CIMObjectPath object.
+    /** setHost - Sets the host for this CIMObjectPath object.
     */
     void setHost(const String& host)
     {
 	_host = host;
     }
-    /// CIMMethod getNameSpace - ATTN
+
+    /// getNameSpace - ATTN
     const String& getNameSpace() const 
     {
 	return _nameSpace; 
     }
-    /// CIMMethod setNameSpace - ATTN
+
+    /** setNameSpace - ATTN:
+	@param String representing the Namespace
+	@return None
+	@exception Throws IllegalName if Namespace not legal form
+    */
     void setNameSpace(const String& nameSpace);
+    
     /// CIMMethod getClassName - ATTN
     const String& getClassName() const 
     { 
 	return _className; 
     }
-	/// CIMMethod setClassName - ATTN
+
+    /** setClassName - ATTN:
+	@param String representation of the Classname.
+	@return None
+	@exception Throws IllegalName if not legal
+    */
     void setClassName(const String& className);
-    /// CIMMethod getKeyBindings -- ATTN
+
+    /// getKeyBindings -- ATTN
     const Array<KeyBinding>& getKeyBindings() const 
     { 
 	return _keyBindings; 
@@ -248,21 +277,24 @@ public:
     void setKeyBindings(const Array<KeyBinding>& keyBindings);
 	/// CIMMethod identical - ATTN
     Boolean identical(const CIMReference& x) const;
-    /** CIMMethod toXML - Returns an XML representation of this CIM object 
-    path. 
-    @param CIMReference to the CIM Object Path
-    @return XML representation of the CIM Object path
+    /** toXML - Returns an XML representation of this CIM object 
+	path. 
+	@param CIMReference to the CIM Object Path
+	@return XML representation of the CIM Object path
     */
     void toXml(Array<Sint8>& out) const;
-    /// CIMMethod Print -- ATTN
+
+    /** print() Creates and prints to stdout the XML representation for
+	the CIM object path
+    */
     void print() const;
-    /// CIMMethod nameSpaceToXML - ATTN
+    ///  nameSpaceToXML - ATTN:
     void nameSpaceToXml(Array<Sint8>& out) const;
-	/// CIMMethod
+	/// localNameSpaceToXml - ATTN:
     void localNameSpaceToXml(Array<Sint8>& out) const;
-	/// CIMMethod
+	/// instanceeNameToXml - ATTN:
     void instanceNameToXml(Array<Sint8>& out) const;
-	/// CIMMethod
+	/// classNameToXml - ATTN:
     void classNameToXml(Array<Sint8>& out) const;
 
     /**  CIMMethod instanceNameToReference
@@ -277,10 +309,10 @@ public:
 	CIMReference& reference);
 
     /**	 CIMMethod referenceToInstanceName
-    Converts a reference to an instance name of the form:
-    <PRE>
-    "ClassName.key1=value1,...keyN=valueN"
-    </PRE>
+	Converts a reference to an instance name of the form:
+	<PRE>
+	    "ClassName.key1=value1,...keyN=valueN"
+	</PRE>
     */
     static void referenceToInstanceName(
 	const CIMReference& reference,

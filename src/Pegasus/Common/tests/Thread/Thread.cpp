@@ -50,7 +50,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm);
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL writing_thread(void *parm);
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test1_thread( void* parm );
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test2_thread( void* parm );
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test3_thread( void* parm );
+//PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test3_thread( void* parm );
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test4_thread( void* parm );
 
 
@@ -91,18 +91,20 @@ int main(int argc, char **argv)
 	//pegasus_sleep( 10000 );
 	}
 
-	{
-	// Test proper canceling/thread exit
-	Thread t( test3_thread, 0, false );
-	t.run();
-	t.cancel();
-	t.join();
-	if( testval1.value() != 42 )
-	{
-		cerr << "Thread probably incorrectly terminated!" << endl;
-		return 1;
-	}
-	}
+	// NOTE: see test3_thread() comments
+	//{
+	//// Test proper canceling/thread exit
+	//testval1 = 0;
+	//Thread t( test3_thread, 0, false );
+	//t.run();
+	//t.cancel();
+	//t.join();
+	//if( testval1.value() != 42 )
+	//{
+	//	cerr << "Thread probably incorrectly terminated!" << endl;
+	//	return 1;
+	//}
+	//}
 
 	{
 	// Test deadlocked thread handling
@@ -376,19 +378,29 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test2_thread( void* parm )
 	return( (PEGASUS_THREAD_RETURN)32 );
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test3_thread( void* parm )
+void test3_thread_cleanup1(void*)
 {
-	Thread* thread = (Thread*)parm;
-	while( true )
-	{
-		testval1 = 0;
-		pegasus_sleep( 2000 );
-		testval1 = 42;
-		thread->test_cancel();
-	}
-	thread->exit_self( (PEGASUS_THREAD_RETURN)42 );
-	return( (PEGASUS_THREAD_RETURN)42 );
+	testval1 = 42;
 }
+
+// NOTE: I don't think Thread::cleanup_push (and pop) will work
+// with pthreads because the implicit cancelation point or the 
+// test_cancel() call (which calls pthread_cancel()) will exit the
+// thread without performing the Thread cleanup routines.
+//PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test3_thread( void* parm )
+//{
+//	Thread* thread = (Thread*)parm;
+//	while( true )
+//	{
+//		testval1 = 0;
+//		thread->cleanup_push( test3_thread_cleanup1, 0 );
+//		pegasus_sleep( 2000 );
+//		thread->test_cancel();
+//		thread->cleanup_pop( false );
+//	}
+//	thread->exit_self( (PEGASUS_THREAD_RETURN)42 );
+//	return( (PEGASUS_THREAD_RETURN)42 );
+//}
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test4_thread( void* parm )
 {

@@ -30,9 +30,10 @@
 #define Pegasus_OperationContext_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Provider/ProviderException.h>
 
 #include <stdio.h>
+
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -54,7 +55,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define OPERATION_PARTIAL_INSTANCE          0x00000010
 #define OPERATION_REMOTE_ONLY               0x00000020
 
-void PEGASUS_EXPORT default_serialize(Sint8 *, Uint32 ) throw(BufferTooSmall, NotImplemented);
+void PEGASUS_EXPORT default_serialize(Sint8 *, Uint32 ) throw(BufferTooSmall, NotSupported);
 void PEGASUS_EXPORT default_delete(void * data) ;
 void PEGASUS_EXPORT stringize_uid(void *uid, Sint8 **dest, size_t *size) throw (NullPointer, BufferTooSmall);
 void PEGASUS_EXPORT binaryize_uid(Sint8 *uid, void *dest, size_t size) throw(NullPointer, BufferTooSmall);
@@ -64,26 +65,26 @@ class PEGASUS_EXPORT OperationContext
 
    public:
 
-      OperationContext(Uint32 key = CONTEXT_EMPTY, Uint32 flag = OPERATION_LOCAL_ONLY)
+      OperationContext(Uint32 key = CONTEXT_EMPTY, Uint32 flag = OPERATION_LOCAL_ONLY) 
 	 : _flag(flag), _key(key), _size(0), _data(NULL)
-      {
+      { 
 
 	 _serialize = default_serialize;
 	 _deserialize = (void (*)(void *,unsigned int))default_serialize;
 	 _delete_func = default_delete;
-	 memset(_uid, 0x00, 16);
+	 memset(_uid, 0x00, 16); 
       }
-
+      
       OperationContext(Uint32 key, void * uid, size_t size, Uint32 flag = OPERATION_LOCAL_ONLY)
 	 : _flag(flag), _key(key), _size(size)
-      {
+      { 
 	 if (uid == NULL )
 	    throw NullPointer();
 	 _serialize = default_serialize;
 	 _deserialize = (void (*)(void *,unsigned int))default_serialize;
 	 _delete_func = default_delete;
 
-	 memcpy(_uid, uid, 16);
+	 memcpy(_uid, uid, 16); 
 	 _data = ::operator new(_size);
       }
 
@@ -93,12 +94,12 @@ class PEGASUS_EXPORT OperationContext
 	    if(_delete_func != NULL)
 	       _delete_func(_data);
       }
-
+      
       Uint32 get_flag(void) { return _flag; }
-
+      
 
       void set_flag(Uint32 flag) { _flag = flag; }
-
+      
       Uint32 get_key(void) { return _key; }
 
       void put_data(void (*del)(void *), size_t size, void *data ) throw(NullPointer)
@@ -114,27 +115,27 @@ class PEGASUS_EXPORT OperationContext
       }
       size_t get_size(void) { return _size; }
 
-      void get_data(void **data, size_t *size)
-      {
+      void get_data(void **data, size_t *size) 
+      {  
 	 if(data == NULL || size == NULL)
 	    throw NullPointer();
-	
+	 
 	 *data = _data;
 	 *size = _size;
 	 return;
-	
+	 
       }
 
       void copy_data(void **buf, size_t *size) throw(BufferTooSmall, NullPointer)
       {
-	 if((buf == NULL) || (size == NULL))
-	    throw NullPointer() ;
+	 if((buf == NULL) || (size == NULL)) 
+	    throw NullPointer() ; 
 	 *buf = ::operator new(_size);
 	 *size = _size;
 	 memcpy(*buf, _data, _size);
 	 return;
       }
-
+      
 
       void get_uid(Uint8 **uid)
       {
@@ -146,7 +147,7 @@ class PEGASUS_EXPORT OperationContext
 	    *uid = NULL;
 	 return;
       }
-
+      
 
       void copy_uid(Uint8 **uid)
       {
@@ -161,12 +162,12 @@ class PEGASUS_EXPORT OperationContext
 	    *uid = NULL;
 	 return;
       }
-
-      inline Boolean operator==(const void *key) const
-      {
+      
+      inline Boolean operator==(const void *key) const 
+      { 
 	 if(key == NULL)
 	    return false;
-	
+	 
 	 if(_flag & CONTEXT_UID_PRESENT)
 	 {
 	    if ( 0 == memcmp(key, _uid, 16) )
@@ -175,7 +176,7 @@ class PEGASUS_EXPORT OperationContext
 	 else if (*(Uint32 *)key == _key)
 	    return true;
 	 return(false);
-      }
+      } 
 
       inline Boolean operator==(const OperationContext& b) const
       {
@@ -189,7 +190,7 @@ class PEGASUS_EXPORT OperationContext
       Uint32 _key;
       size_t _size;
       Uint8 _uid[16];
-
+      
       void *_data;
 
       void (*_serialize)(Sint8 *dest, Uint32 dest_size) ;

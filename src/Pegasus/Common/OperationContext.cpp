@@ -22,7 +22,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By: Mike Day (mdday@us.ibm.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -30,27 +30,27 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-void default_serialize(Sint8 *dst, Uint32 dst_sz) throw(BufferTooSmall, NotImplemented)
+void default_serialize(Sint8 *dst, Uint32 dst_sz) throw(BufferTooSmall, NotSupported)
 {
-   throw NotImplemented("no serialization routine present") ;
+   throw NotSupported("no serialization routine present") ;
 }
 
-void default_delete(void * data)
-{
+void default_delete(void * data) 
+{ 
    if( data != NULL)
-      ::operator delete(data);
+      ::operator delete(data); 
 }
 
 void stringize_uid(void *uid, Sint8 **dest, size_t *size) throw (NullPointer, BufferTooSmall)
 {
    Sint8 *ptr;
-
+   
    if(uid == NULL || dest == NULL || *dest == NULL || size == NULL)
       throw NullPointer();
-
+   
    if( *size < 37 )
       throw BufferTooSmall(37);
-
+ 
    ptr = (Sint8 *)uid;
    sprintf(*dest,
 	   "%.2d%.2d%.2d%.2d-%.2d%.2d-%.2d%.2d-%.2d%.2d-%.2d%.2d%.2d%.2d%.2d%.2d",
@@ -69,13 +69,13 @@ void binaryize_uid(Sint8 *uid, void *dest, size_t size) throw(NullPointer, Buffe
    if(uid == NULL || dest == NULL)
       throw NullPointer();
    if(size < 16)
-      throw(BufferTooSmall(16));
+      throw(BufferTooSmall(16));   
    Sint8 *src = uid;
    Sint8 *dst = (Sint8 *)dest;
-
+   
    int i = 0;
    Sint8 temp;
-
+   
    while( i < 16 )
    {
       temp = *(src + 2);
@@ -88,5 +88,6 @@ void binaryize_uid(Sint8 *uid, void *dest, size_t size) throw(NullPointer, Buffe
 	 src++;
    }
 }
+
 
 PEGASUS_NAMESPACE_END

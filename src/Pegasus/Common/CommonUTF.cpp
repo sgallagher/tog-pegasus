@@ -28,8 +28,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "CommonUTF.h"
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
+#include "CommonUTF.h"
+#include <cctype>
+#include <cstdio>
 #include <cstring>
 
 PEGASUS_NAMESPACE_BEGIN

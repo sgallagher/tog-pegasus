@@ -1027,11 +1027,11 @@ public:
 	CIMRequestMessage(
             CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE, 
 	    messageId_, queueIds_),
-	operation(operation_),
 	providerName (providerName_),
 	className (className_),
 	newPropertyNames (newPropertyNames_),
-	oldPropertyNames (oldPropertyNames_)
+	oldPropertyNames (oldPropertyNames_),
+	operation(operation_)
     {
     
     }

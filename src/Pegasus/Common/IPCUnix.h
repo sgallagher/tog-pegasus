@@ -39,7 +39,9 @@
 #include <errno.h>
 #include <sys/time.h>
 #include <time.h>
+#if !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
 #include <sys/timex.h>
+#endif
 //#include <unistd.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -50,17 +52,27 @@ int timeval_subtract (struct timeval *result,
 
 
 #ifdef PEGASUS_NEED_CRITICAL_TYPE
+#if !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
 typedef pthread_spinlock_t PEGASUS_CRIT_TYPE;
+#else
+typedef pthread_mutex_t PEGASUS_CRIT_TYPE;
+#endif
 #endif
 
 typedef sem_t PEGASUS_SEMAPHORE_TYPE;
 typedef pthread_t PEGASUS_THREAD_TYPE;
 typedef pthread_mutex_t PEGASUS_MUTEX_TYPE;
 
-#ifndef PEGASUS_OS_ZOS_ZSERIES_IBM
+#if !defined(PEGASUS_OS_ZOS_ZSERIES_IBM) && !defined(PEGASUS_OS_DARWIN)
 typedef struct {
     sem_t sem;
     pthread_t owner;
+} PEGASUS_SEM_HANDLE ;
+#elif defined(PEGASUS_OS_DARWIN)
+typedef struct {
+    sem_t * sem;
+    pthread_t owner;
+    Uint32 waiters;
 } PEGASUS_SEM_HANDLE ;
 #else
 typedef struct {
@@ -79,6 +91,8 @@ typedef struct {
 
 #ifdef PEGASUS_OS_SOLARIS
 typedef _cleanup_t PEGASUS_CLEANUP_HANDLE;
+#elif defined(PEGASUS_OS_DARWIN)
+typedef void * PEGASUS_CLEANUP_HANDLE;
 #else
 typedef struct _pthread_cleanup_buffer  PEGASUS_CLEANUP_HANDLE;
 #endif
@@ -181,7 +195,11 @@ typedef struct {
 inline void pegasus_yield(void)
 {
 #ifdef PEGASUS_NEED_CRITICAL_TYPE
+      #if !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
       pthread_yield();
+      #else
+      pthread_yield_np();
+      #endif  
 #else
       sched_yield();
 #endif
@@ -207,6 +225,7 @@ inline void pegasus_sleep(int msec)
 }
 
 #ifdef PEGASUS_NEED_CRITICAL_TYPE
+#if !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
 
 inline void init_crit(PEGASUS_CRIT_TYPE *crit)
 {
@@ -232,7 +251,34 @@ inline void destroy_crit(PEGASUS_CRIT_TYPE *crit)
 {
    pthread_spin_destroy(crit);
 }
+#else
 
+inline void init_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_mutex_init(crit, 0);
+}
+
+inline void enter_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_mutex_lock(crit);
+}
+
+inline void try_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_mutex_trylock(crit);
+}
+
+inline void exit_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_mutex_unlock(crit);
+}
+
+inline void destroy_crit(PEGASUS_CRIT_TYPE *crit)
+{
+   pthread_mutex_destroy(crit);
+}
+
+#endif
 #endif /* PEGASUS_NEED_CRITICAL_TYPE */
 
 //-----------------------------------------------------------------
@@ -240,6 +286,7 @@ inline void destroy_crit(PEGASUS_CRIT_TYPE *crit)
 //  posix glibc implementation does not return microseconds.
 //  mdday Wed Aug  1 16:05:26 2001
 //-----------------------------------------------------------------
+#if !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
 inline static int pegasus_gettimeofday(struct timeval *tv)
 {
    struct ntptimeval ntp;
@@ -251,6 +298,16 @@ inline static int pegasus_gettimeofday(struct timeval *tv)
    tv->tv_usec = ntp.time.tv_usec;
    return(err);
 }
+#else
+inline static int pegasus_gettimeofday(struct timeval *tv)
+{
+   int err;
+   if(tv == NULL)
+      return(EINVAL);
+   err = gettimeofday(tv,NULL);
+   return err;
+}
+#endif	
    
 inline void exit_thread(PEGASUS_THREAD_RETURN rc)
 {

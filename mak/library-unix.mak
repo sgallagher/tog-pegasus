@@ -33,8 +33,13 @@ ifeq ($(COMPILER),acc)
 endif
 
 ifeq ($(COMPILER),gnu)
+  ifneq ($(PEGASUS_PLATFORM),DARWIN_PPC_GNU)
   LINK_COMMAND = g++ -shared
   LINK_ARGUMENTS = -Wl,-hlib$(LIBRARY)$(LIB_SUFFIX)
+  else
+  LINK_COMMAND = g++ -dynamiclib
+  LINK_ARGUMENTS = --helplib$(LIBRARY)$(LIB_SUFFIX) -ldl
+  endif
   LINK_OUT = -o
 endif
 

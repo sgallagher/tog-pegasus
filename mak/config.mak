@@ -53,7 +53,8 @@ VALID_PLATFORMS = \
     SOLARIS_SPARC_GNU \
     SOLARIS_SPARC_CC \
     ZOS_ZSERIES_IBM \
-    NSK_NONSTOP_NMCPLUS  
+    NSK_NONSTOP_NMCPLUS \
+    DARWIN_PPC_GNU 
 
 ifndef PEGASUS_PLATFORM
   ERROR = pegasus_platform_undefined
@@ -206,6 +207,11 @@ ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
 endif
 
 ifeq ($(PEGASUS_PLATFORM),NSK_NONSTOP_NMCPLUS)
+   include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+   FOUND = true
+endif
+
+ifeq ($(PEGASUS_PLATFORM),DARWIN_PPC_GNU)
    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
    FOUND = true
 endif

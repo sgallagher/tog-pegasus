@@ -162,6 +162,8 @@ void HTTPAcceptor::handleEnqueue(Message *message)
 	 else
 	 {
 	    // ATTN! this can't happen!
+            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+              "HTTPAcceptor::handleEnqueue: Invalid SOCKET_MESSAGE received.");
 	 }
 
 	 break;
@@ -188,10 +190,13 @@ void HTTPAcceptor::handleEnqueue(Message *message)
 	    }
 	 }
 	 _rep->_connection_mut.unlock();
+	 break;
       }
 
       default:
       // ATTN: need unexpected message error!
+      Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+           "HTTPAcceptor::handleEnqueue: Invalid MESSAGE received.");
       break;
    };
 
@@ -204,7 +209,11 @@ void HTTPAcceptor::handleEnqueue()
    Message* message = dequeue();
 
    if (!message)
+   {
+      Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+           "HTTPAcceptor::handleEnqueue(): No message on queue.");
       return;
+   }
    
    handleEnqueue(message);
 
@@ -219,6 +228,8 @@ void HTTPAcceptor::bind()
       MessageLoaderParms parms("Common.HTTPAcceptor.ALREADY_BOUND",
 			       "HTTPAcceptor already bound");
 
+      Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+           "HTTPAcceptor::bind: HTTPAcceptor already bound.");
       throw BindFailedException(parms);
    }
 
@@ -286,6 +297,8 @@ void HTTPAcceptor::_bind()
       //throw BindFailedException("Failed to create socket");
       MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_CREATE_SOCKET",
 			       "Failed to create socket");
+      Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+           "HTTPAcceptor::_bind _rep->socket < 0");
       throw BindFailedException(parms);
    }
 
@@ -296,16 +309,16 @@ void HTTPAcceptor::_bind()
    int sock_flags;
  if( (sock_flags = fcntl(_rep->socket, F_GETFD, 0)) < 0)
    {
-       PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
-                        "HTTPAcceptor: fcntl(F_GETFD) failed");
+       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                  "HTTPAcceptor::_bind: fcntl(F_GETFD) failed");
    }
    else
    {
       sock_flags |= FD_CLOEXEC;
       if (fcntl(_rep->socket, F_SETFD, sock_flags) < 0)
       {
-       PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
-                        "HTTPAcceptor: fcntl(F_SETFD) failed");
+       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                  "HTTPAcceptor::_bind: fcntl(F_SETFD) failed");
       }
    }
 #endif 
@@ -328,6 +341,8 @@ void HTTPAcceptor::_bind()
       //throw BindFailedException("Failed to set socket option");
       MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_SET_SOCKET_OPTION",
 			       "Failed to set socket option");
+      PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                   "HTTPAcceptor::_bind: Failed to set socket option.");
       throw BindFailedException(parms);
    }
 
@@ -342,6 +357,8 @@ void HTTPAcceptor::_bind()
       //throw BindFailedException("Failed to bind socket");
       MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_BIND_SOCKET",
 			       "Failed to bind socket");
+      PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                        "HTTPAcceptor::_bind: Failed to bind socket.");
       throw BindFailedException(parms);
    }
 
@@ -358,6 +375,8 @@ void HTTPAcceptor::_bind()
       //throw BindFailedException("Failed to bind socket");
       MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_BIND_SOCKET",
 			       "Failed to bind socket");
+      PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                  "HTTPAcceptor::_bind: Failed to bind socket(1).");
       throw BindFailedException(parms);
    }
 
@@ -376,6 +395,8 @@ void HTTPAcceptor::_bind()
       //throw BindFailedException("Failed to solicit socket messaeges");
       MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_SOLICIT_SOCKET_MESSAGES",
 			       "Failed to solicit socket messaeges");
+      PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                  "HTTPAcceptor::_bind: Failed to solicit socket messages(2).");
       throw BindFailedException(parms);
    }
 }
@@ -396,6 +417,11 @@ void HTTPAcceptor::closeConnectionSocket()
       // close the socket
       Socket::close(_rep->socket);
    }
+   else
+   {
+      PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                        "HTTPAcceptor::closeConnectionSocket failure _rep is null." );
+   }
 }
 
 /**
@@ -406,6 +432,11 @@ void HTTPAcceptor::reopenConnectionSocket()
    if (_rep)
    {
       _bind();
+   }
+   else
+   {
+      PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                        "HTTPAcceptor::reopenConnectionSocket failure _rep is null." );
    }
 }
 
@@ -444,6 +475,11 @@ void HTTPAcceptor::unbind()
 
       delete _rep;
       _rep = 0;
+   }
+   else
+   {
+      PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+              "HTTPAcceptor::unbind failure _rep is null." );
    }
 }
 
@@ -519,7 +555,7 @@ void HTTPAcceptor::_acceptConnection()
 		   "HTTPAcceptor - accept() failure.  errno: $0"
 		   ,errno);
 
-       PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                         "HTTPAcceptor: accept() failed");
       return;
    }
@@ -529,7 +565,7 @@ void HTTPAcceptor::_acceptConnection()
    int sock_flags;
  if( (sock_flags = fcntl(socket, F_GETFD, 0)) < 0)
    {
-       PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                         "HTTPAcceptor: fcntl(F_GETFD) failed");
    }
    else
@@ -537,7 +573,7 @@ void HTTPAcceptor::_acceptConnection()
       sock_flags |= FD_CLOEXEC;
       if (fcntl(socket, F_SETFD, sock_flags) < 0)
       {
-       PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                         "HTTPAcceptor: fcntl(F_SETFD) failed");
       }
    }
@@ -553,7 +589,7 @@ void HTTPAcceptor::_acceptConnection()
    MP_Socket * mp_socket = new MP_Socket(socket, _sslcontext);
    if (mp_socket->accept() < 0) 
    {
-       PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                         "HTTPAcceptor: SSL_accept() failed");
       return;
    }
@@ -571,8 +607,8 @@ void HTTPAcceptor::_acceptConnection()
    {
       // ATTN-DE-P2-2003100503::TODO::Need to enhance code to return
       // an error message to Client application.
-      Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-          "HTTPAcceptor::_acceptConnection. Attempt to allocate entry in _entries table failed.");
+      Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+          "HTTPAcceptor::_acceptConnection: Attempt to allocate entry in _entries table failed.");
       delete connection;
       Socket::close(socket);
       return;

@@ -1255,7 +1255,7 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
                     //
                     pos = configInstances[i].findProperty("PlannedValue");
                     prop = (CIMProperty)configInstances[i].getProperty(pos);
-                    propValues[i] = prop.getValue().toString();
+                    propValues.append(prop.getValue().toString());
                 }
             }
         }

@@ -42,7 +42,9 @@
 
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 
-// #include <asm/atomic.h>
+#if defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#include <asm/atomic.h>
+#endif 
 
 #endif
 
@@ -122,9 +124,13 @@ typedef struct {
 
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 #define PEGASUS_ATOMIC_INT_NATIVE = 1
-// #define PEGASUS_OLD_ATOMIC_INT = 1
-// typedef atomic_t PEGASUS_ATOMIC_TYPE ;
-typedef pthread_spinlock_t PEGASUS_ATOMIC_TYPE ;
+#if defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+  #define PEGASUS_OLD_ATOMIC_INT = 1
+  typedef atomic_t PEGASUS_ATOMIC_TYPE ;
+
+#else
+  typedef pthread_spinlock_t PEGASUS_ATOMIC_TYPE ;
+#endif
 
 #endif // linux platform atomic type
 

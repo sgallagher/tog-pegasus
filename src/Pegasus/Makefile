@@ -90,6 +90,7 @@ DIRS += \
     Repository/tests \
     Server/tests \
     Server/ProviderRegistrationManager/tests \
+    ExportClient/tests \
     ExportServer/tests \
     Client/tests \
     Compiler/tests \

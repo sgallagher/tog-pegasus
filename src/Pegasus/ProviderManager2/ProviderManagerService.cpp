@@ -296,8 +296,39 @@ void ProviderManagerService::handleCimRequest(
     PEGASUS_ASSERT(async != 0);
 
     Message * response = 0;
+    Boolean consumerLookupFailed = false;
 
-    if ((dynamic_cast<CIMOperationRequestMessage*>(request) != 0) ||
+    if (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE)
+    {
+        //
+        // Get a ProviderIdContainer for ExportIndicationRequestMessage.
+        // Note: This can be removed when the CIMExportRequestDispatcher
+        // is updated to add the ProviderIdContainer to the message.
+        //
+        CIMInstance providerModule;
+        CIMInstance provider;
+        const CIMExportIndicationRequestMessage* expRequest =
+            dynamic_cast<const CIMExportIndicationRequestMessage*>(request);
+        if (_providerRegistrationManager->lookupIndicationConsumer(
+                expRequest->destinationPath, provider, providerModule))
+        {
+            request->operationContext.insert(
+                ProviderIdContainer(providerModule, provider));
+        }
+        else
+        {
+            consumerLookupFailed = true;
+        }
+    }
+
+    if (consumerLookupFailed)
+    {
+        CIMResponseMessage* cimResponse = request->buildResponse();
+        cimResponse->cimException = PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_NOT_SUPPORTED, String::EMPTY);
+        response = cimResponse;
+    }
+    else if ((dynamic_cast<CIMOperationRequestMessage*>(request) != 0) ||
         (dynamic_cast<CIMIndicationRequestMessage*>(request) != 0) ||
         (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE) ||
         (request->getType() == CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE))
@@ -311,30 +342,14 @@ void ProviderManagerService::handleCimRequest(
         //
         CIMInstance providerModule;
 
-        if (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE)
-        {
-            // Get a ProviderIdContainer for ExportIndicationRequestMessage.
-            // Note: This can be removed when the CIMExportRequestDispatcher
-            // is updated to add the ProviderIdContainer to the message.
-            CIMInstance provider;
-            const CIMExportIndicationRequestMessage* expRequest =
-                dynamic_cast<const CIMExportIndicationRequestMessage*>(request);
-            _providerRegistrationManager->lookupIndicationConsumer(
-                expRequest->destinationPath, provider, providerModule);
-            request->operationContext.insert(
-                ProviderIdContainer(providerModule, provider));
-        }
-        else
-        {
-            // The provider ID container is added to the OperationContext
-            // by the CIMOperationRequestDispatcher for all CIM operation
-            // requests to providers, so it does not need to be added again.
-            // CIMInitializeProviderRequestMessage also has a provider ID
-            // container.
-            ProviderIdContainer pidc =
-                request->operationContext.get(ProviderIdContainer::NAME);
-            providerModule = pidc.getModule();
-        }
+        // The provider ID container is added to the OperationContext
+        // by the CIMOperationRequestDispatcher for all CIM operation
+        // requests to providers, so it does not need to be added again.
+        // CIMInitializeProviderRequestMessage also has a provider ID
+        // container.
+        ProviderIdContainer pidc =
+            request->operationContext.get(ProviderIdContainer::NAME);
+        providerModule = pidc.getModule();
 
         //
         // Check if the target provider is disabled

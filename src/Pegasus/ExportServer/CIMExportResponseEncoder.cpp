@@ -37,10 +37,10 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlReader.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/ContentLanguages.h>  // l10n
 #include "CIMExportResponseEncoder.h"
 
@@ -68,7 +68,16 @@ void CIMExportResponseEncoder::sendResponse(
    if (queue)
    {
       HTTPMessage* httpMessage = new HTTPMessage(message);
+
+      Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2,
+         httpMessage->message.getData(), httpMessage->message.size());
+
       queue->enqueue(httpMessage);
+   }
+   else
+   {
+      Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+         "Invalid queueId = %i, response not sent.", queueId);
    }
 }
 

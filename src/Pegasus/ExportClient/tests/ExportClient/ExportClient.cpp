@@ -42,6 +42,8 @@ const String NAMESPACE = "root/cimv2";
 
 static void TestExportIndication(CIMExportClient& client)
 {
+    CIMException testException;
+
     CIMInstance indication(CIMName("My_IndicationClass"));
     indication.addProperty(CIMProperty(CIMName("DeviceName"), String("Disk")));
     indication.addProperty(CIMProperty(CIMName("DeviceId"), Uint32(1)));
@@ -52,8 +54,10 @@ static void TestExportIndication(CIMExportClient& client)
     }
     catch (CIMException& e)
     {
-        PEGASUS_ASSERT(e.getCode() == CIM_ERR_NOT_SUPPORTED);
+        testException = e;
     }
+
+    PEGASUS_ASSERT(testException.getCode() == CIM_ERR_NOT_SUPPORTED);
 }
 
 int main(int argc, char** argv)

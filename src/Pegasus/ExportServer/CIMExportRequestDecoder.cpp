@@ -41,7 +41,6 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlReader.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Logger.h>
@@ -199,6 +198,9 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    String requestUri;
    String httpVersion;
    HttpMethod httpMethod = HTTP_METHOD__POST;
+
+   Tracer::trace(TRC_XML_IO, Tracer::LEVEL2, "%s",
+                 httpMessage->message.getData());
 
    // ATTN-RK-P3-20020404: The requestUri may need to be pruned of the host
    // name.  All we care about at this point is the path.

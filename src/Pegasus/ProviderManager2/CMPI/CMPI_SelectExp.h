@@ -48,7 +48,7 @@ struct CMPI_SelectExp : CMPISelectExp {
    CMPI_Object *next,*prev;
    const char **props;
    Array<CIMObjectPath> classNames;
-   const OperationContext& ctx;
+   const OperationContext ctx;
    SubscriptionFilterConditionContainer* fcc;
    String cond,lang;
    CMPI_Wql2Dnf *dnf;

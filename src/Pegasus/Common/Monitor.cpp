@@ -171,12 +171,10 @@ Boolean Monitor::run(Uint32 milliseconds)
     Boolean handled_events = false;
     int i = 0;
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    // Using the specified timeout value causes Windows platforms to spin in a
-    // tight loop consuming 100% of the CPU cycles.
-    struct timeval tv = {0, 1};
-#else
+#if defined(PEGASUS_OS_OS400) || defined(PEGASUS_OS_HPUX)
     struct timeval tv = {milliseconds/1000, milliseconds%1000*1000};
+#else
+    struct timeval tv = {0, 1};
 #endif
     fd_set fdread;
     FD_ZERO(&fdread);

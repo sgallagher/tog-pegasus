@@ -293,6 +293,7 @@ ProviderClassList IndicationOperationAggregate::findProvider (
     //  No request found with message ID matching message ID from response
     //
     PEGASUS_ASSERT (false);
+    return provider;
 }
 
 const Uint32 IndicationOperationAggregate::_theMagicNumber = 98765;

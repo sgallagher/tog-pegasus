@@ -149,3 +149,9 @@ Development Conventions
 35. Don't use ultostr(), use sprintf().
 
 36. main() must return something (for NT).
+
+37. Don't use this construct:
+
+	void f() throw TooBad;
+
+    Not supported on many platforms.

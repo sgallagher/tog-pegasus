@@ -40,8 +40,12 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 #include <Pegasus/Common/Exception.h>
 
-int main()
+static char * verbose;
+
+int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+
     String s1 = "Hello World";
     String s2 = s1;
     String s3(s2);
@@ -292,21 +296,41 @@ int main()
 	    assert(nameSpace == "a/b/c");
 	}
     }
-#if 0 // The match code has been removed from the String class
+    // The match code has been removed from the String class
     // Test the string match functions
     {
         String abc = "abc";
+        String ABC = "ABC";
         assert(String::match(abc, "abc"));
+        assert(String::match(ABC, "ABC"));
+        assert(!String::match(abc, "ABC"));
+        assert(!String::match(ABC, "abc"));
+
+        assert(String::matchNoCase(abc, "abc"));
+        assert(String::matchNoCase(ABC, "abc"));
+        assert(String::matchNoCase(abc, "ABC"));
+        assert(String::matchNoCase(ABC, "ABc"));
+
         assert(String::match(abc, "???"));
+        assert(String::match(ABC, "???"));
         assert(String::match(abc, "*"));
+        assert(String::match(ABC, "*"));
+
         assert(String::match(abc, "?bc"));
         assert(String::match(abc, "?b?"));
         assert(String::match(abc, "??c"));
+        assert(String::matchNoCase(ABC, "?bc"));
+        assert(String::matchNoCase(ABC, "?b?"));
+        assert(String::matchNoCase(ABC, "??c"));
+
+
         assert(String::match(abc, "*bc"));
         assert(String::match(abc, "a*c"));
         assert(String::match(abc, "ab*"));
         assert(String::match(abc, "a*"));
-        assert(String::match(abc, "[axx]bc"));
+        assert(String::match(abc, "[axy]bc"));
+        assert(!String::match(abc, "[xyz]bc"));
+
         assert(!String::match(abc, "def"));
         assert(!String::match(abc, "[de]bc"));
         assert(String::match(abc, "a[a-c]c"));
@@ -316,25 +340,28 @@ int main()
         assert(String::match("abcdef123", "*[0-9]"));
 
         assert(String::match("This is a test", "*is*"));
+        assert(String::matchNoCase("This is a test", "*IS*"));
+
         assert(String::match("Hello", "Hello"));
         assert(String::matchNoCase("HELLO", "hello"));
         assert(String::match("This is a test", "This is *"));
         assert(String::match("This is a test", "* is a test"));
         assert(!String::match("Hello", "Goodbye"));
+
+        String tPattern = "When in the * of human*e??nts it be?ome[sS] [0-9] nec*";
+
         assert(String::match(
             "When in the course of human events it becomes 0 necessary",
-            "When in the * of human*e??nts it be?ome[sS] [0-9] nec*"));
+            tPattern));
         assert(String::match(
             "When in the xyz of human events it becomes 9 necessary",
-            "When in the * of human*e??nts it be?ome[sS] [0-9] nec*"));
+            tPattern));
         assert(String::match(
             "When in the  of human events it becomes 3 necessary",
-            "When in the * of human*e??nts it be?ome[sS] [0-9] nec*"));
+            tPattern));
     }
-#endif
 
-
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

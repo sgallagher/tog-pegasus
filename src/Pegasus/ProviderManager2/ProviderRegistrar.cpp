@@ -203,7 +203,7 @@ ProviderName ProviderRegistrar::findConsumerProvider(const String & destinationP
 
    if (_prm->lookupIndicationConsumer(destinationPath,provider,providerModule))
       return ProviderName(
-               provider.getProperty(providerModule.findProperty
+               provider.getProperty(provider.findProperty
                    ("Name")).getValue ().toString (),
                providerModule.getProperty(providerModule.findProperty
                     ("Location")).getValue().toString(),

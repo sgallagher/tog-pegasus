@@ -172,6 +172,28 @@ void ConfigSettingProvider::modifyInstance(
     {
         PEG_METHOD_ENTER(TRC_CONFIG, "ConfigSettingProvider::modifyInstance()");
 
+        //
+        // get userName 
+        //
+        String userName;
+        try
+        {
+            IdentityContainer container = context.get(CONTEXT_IDENTITY);
+            userName = container.getUserName();
+        }
+        catch (...)
+        {
+            userName = String::EMPTY;
+        }
+
+        //
+        // verify user authorizations
+        //
+        if ( userName != String::EMPTY || userName != "" )
+        {
+            _verifyAuthorization(userName);
+        }
+
         // NOTE: Qualifiers are not processed by this provider, so the
         // IncludeQualifiers flag is ignored.
 
@@ -473,6 +495,24 @@ void ConfigSettingProvider::enumerateInstanceNames(
 
 	// complete processing the request
 	handler.complete();
+
+        PEG_METHOD_EXIT();
+    }
+
+//
+// Verify user authorization
+//
+void ConfigSettingProvider::_verifyAuthorization(const String& userName)
+    {
+        PEG_METHOD_ENTER(TRC_CONFIG,
+            "ConfigSettingProvider::_verifyAuthorization()");
+
+        if ( System::isPrivilegedUser(userName) == false )
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, 
+                "Must be a privileged user to do this CIM operation.");
+        }
 
         PEG_METHOD_EXIT();
     }

@@ -199,6 +199,16 @@ public:
 
 private:
 
+    /**
+        Verify User Authorization.
+
+        @param  user                    userName to be verified
+
+        @throw  CIM_ERR_ACCESS_DENIED   if the specified user is not a
+                                        priviliged user.
+    */
+    void _verifyAuthorization(const String& user);
+
     //
     // Config Manager Instance variable
     //

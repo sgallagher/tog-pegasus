@@ -94,9 +94,9 @@ static String _cimmofMessages[] = {
                                           // INSTANCE_PROPERTY_EXISTS_WARNING
   "Warning: property %2 already exists for this instance of class %1",
 	                                  // INSTANCE_EXISTS_WARNING
-  "Warning: the instance already exists in the repository.\nIn this"
+  "Warning: the instance already exists.\nIn this"
   " implementation, that means it cannot be changed.",
-  "Error adding an instance to the repository: %1", // ADD_INSTANCE_ERROR
+  "Error adding an instance: %1", // ADD_INSTANCE_ERROR
   ""
 };
 

@@ -95,6 +95,24 @@ static const char METHOD_NAME_MODIFY_PASSWORD []  = "modifyPassword";
 static const char CLASS_NAME_PG_AUTHORIZATION []  = "PG_Authorization";
 
 //
+// Verify user authorization
+//
+void UserAuthProvider::_verifyAuthorization(const String& user)
+{
+    PEG_METHOD_ENTER(TRC_CONFIG,
+        "UserAuthProvider::_verifyAuthorization()");
+
+    if ( System::isPrivilegedUser(user) == false )
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED,
+            "Must be a privileged user to execute this CIM operation.");
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+//
 // Creates a new instance.
 //
 void UserAuthProvider::createInstance(
@@ -111,6 +129,28 @@ void UserAuthProvider::createInstance(
     String      passwordStr;
     String      namespaceStr;
     String      authorizationStr;
+
+    //
+    // get userName
+    //
+    String user;
+    try
+    {
+        const IdentityContainer container = context.get(CONTEXT_IDENTITY);
+        user= container.getUserName();
+    }
+    catch (...)
+    {
+        user= String::EMPTY;
+    }
+
+    //
+    // verify user authorizations
+    //
+    if ( user != String::EMPTY || user != "" )
+    {
+        _verifyAuthorization(user);
+    }
 
     CIMInstance          modifiedInst = myInstance;
 
@@ -292,6 +332,28 @@ void UserAuthProvider::deleteInstance(
 
     PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::deleteInstance");
 
+    //
+    // get userName
+    //
+    String user;
+    try
+    {
+        IdentityContainer container = context.get(CONTEXT_IDENTITY);
+        user= container.getUserName();
+    }
+    catch (...)
+    {
+        user= String::EMPTY;
+    }
+
+    //
+    // verify user authorizations
+    //
+    if ( user != String::EMPTY || user != "" )
+    {
+        _verifyAuthorization(user);
+    }
+
     // begin processing the request
     handler.processing();
 
@@ -445,6 +507,28 @@ void UserAuthProvider::modifyInstance(
     PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::modifyInstance"); 
 
     //
+    // get userName
+    //
+    String user;
+    try
+    {
+        IdentityContainer container = context.get(CONTEXT_IDENTITY);
+        user= container.getUserName();
+    }
+    catch (...)
+    {
+        user= String::EMPTY;
+    }
+
+    //
+    // verify user authorizations
+    //
+    if ( user != String::EMPTY || user != "" )
+    {
+        _verifyAuthorization(user);
+    }
+
+    //
     // check if the class name requested is PG_Authorization
     //
     if (!String::equal(
@@ -540,6 +624,28 @@ void UserAuthProvider::enumerateInstances(
     Array<CIMNamedInstance> namedInstances;
 
     //
+    // get userName
+    //
+    String user;
+    try
+    {
+        IdentityContainer container = context.get(CONTEXT_IDENTITY);
+        user= container.getUserName();
+    }
+    catch (...)
+    {
+        user= String::EMPTY;
+    }
+
+    //
+    // verify user authorizations
+    //
+    if ( user != String::EMPTY || user != "" )
+    {
+        _verifyAuthorization(user);
+    }
+
+    //
     // check if the class name requested is PG_Authorization
     //
     if (!String::equal(CLASS_NAME_PG_AUTHORIZATION, ref.getClassName()))
@@ -593,6 +699,28 @@ void UserAuthProvider::enumerateInstanceNames(
     Array<KeyBinding>   keyBindings;
     KeyBinding          kb;
     String            hostName;
+
+    //
+    // get userName
+    //
+    String user;
+    try
+    {
+        IdentityContainer container = context.get(CONTEXT_IDENTITY);
+        user= container.getUserName();
+    }
+    catch (...)
+    {
+        user= String::EMPTY;
+    }
+
+    //
+    // verify user authorizations
+    //
+    if ( user != String::EMPTY || user != "" )
+    {
+        _verifyAuthorization(user);
+    }
 
     const String& className = classReference.getClassName();
     const String& nameSpace = classReference.getNameSpace();
@@ -693,6 +821,27 @@ void UserAuthProvider::invokeMethod(
     ResponseHandler<CIMValue> & handler)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::invokeMethod");
+
+    //
+    // get userName
+    //
+    String user;
+    try
+    {
+        IdentityContainer container = context.get(CONTEXT_IDENTITY);
+        user= container.getUserName();
+    }
+    catch (...)
+    {
+        user= String::EMPTY;
+    }
+    //
+    // verify user authorizations
+    //
+    if ( user != String::EMPTY || user != "" )
+    {
+        _verifyAuthorization(user);
+    }
 
 #ifndef PEGASUS_NO_PASSWORDFILE
     String            userName;

@@ -140,12 +140,14 @@ void MessageQueue::enqueue(Message* message) throw(IPCException)
        throw NullPointer();
     }
 
-    if (getenv("PEGASUS_TRACE"))
-    {
-       cout << "===== " << getQueueName() << ": ";
-       message->print(cout);
-    }
-    
+    PEG_TRACE_STRING( TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3, 
+                      String("Queue name: ") + getQueueName() ) ;
+    Tracer::trace   ( TRC_MESSAGEQUEUESERVICE, 
+                      Tracer::LEVEL3,
+                      "Message: [%s, %d]", 
+                      MessageTypeToString(message->getType()), 
+                      message->getKey() );
+
     _mut.lock(pegasus_thread_self());
     if (_back)
     {

@@ -55,6 +55,7 @@
 #include "TLS.h"
 #include "HTTPAcceptor.h"
 #include "HTTPConnection.h"
+#include "Tracer.h"
 
 PEGASUS_USING_STD;
 
@@ -384,19 +385,18 @@ void HTTPAcceptor::_acceptConnection()
 
    if (socket < 0)
    {
-      if (getenv("PEGASUS_TRACE"))
-	 cerr <<"HTTPAcceptor: accept() failed" << endl;
-
+       PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+                        "HTTPAcceptor: accept() failed");
       return;
    }
 
    // Create a new conection and add it to the connection list:
 
    MP_Socket * mp_socket = new MP_Socket(socket, _sslcontext);
-   if (mp_socket->accept() < 0) {
-      if (getenv("PEGASUS_TRACE"))
-	 cerr <<"HTTPAcceptor: SSL_accept() failed" << endl;
-
+   if (mp_socket->accept() < 0) 
+   {
+       PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+                        "HTTPAcceptor: SSL_accept() failed");
       return;
    }
 

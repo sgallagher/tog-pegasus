@@ -50,6 +50,7 @@
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/OperationContext.h>
 
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
@@ -222,6 +223,15 @@ public:
     }
 
 private:
+    /**
+        Verify User Authorization.
+
+        @param  user	                userName to be verified
+
+        @throw  CIM_ERR_ACCESS_DENIED   if the specified user is not a
+                                        priviliged user.
+    */
+    void _verifyAuthorization(const String& user);
 
     //
     // User Manager Instance variable

@@ -108,7 +108,7 @@ static const Uint32 OPERATION_TYPE_LIST           = 4;
 /**
     The constant representing the default namespace
 */
-const String PROPERTY_NAME_NAMESPACE                         = "root/PG_InterOp";
+const String PROPERTY_NAME_NAMESPACE                         = "root/PG_Internal";
  
 /**
     The constant representing the User class 

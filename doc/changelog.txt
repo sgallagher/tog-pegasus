@@ -316,7 +316,11 @@ TAG: Version_1_09.
     causes it to go through all the motions except to request instances
     only for the current level.
 
-
+54. (Sushma Fernandes - HP) 28 May 2002 - Replaced getenv("PEGASUS_TRACE")
+    with Tracer calls. Fixed UserAuthProvider and ConfigSettingProvider to
+    check for user credentials. UserAuthProvider checks whether the user
+    is a priviliged user for all operations. ConfigSettingProvider checks
+    whether the user is a priviliged user only for write operations.
 
 ========================================================================
 

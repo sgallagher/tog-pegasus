@@ -292,8 +292,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
    {
       sendHttpError(queueId, HTTP_STATUS_SERVICEUNAVAILABLE,
                     String::EMPTY,
-                    "CIM Listener is shutting down.  "
-                        "Request cannot be processed.");
+                    "CIM Listener is shutting down.");
       return;
    }
 

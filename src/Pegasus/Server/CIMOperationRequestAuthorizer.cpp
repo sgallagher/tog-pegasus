@@ -130,8 +130,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
        message = XmlWriter::formatHttpErrorRspMessage(
            HTTP_STATUS_SERVICEUNAVAILABLE,
            String::EMPTY,
-           "CIM Server is shutting down.  "
-               "Request cannot be processed.");
+           "CIM Server is shutting down.");
 
        sendResponse(queueId, message);
        PEG_METHOD_EXIT();

@@ -1,3 +1,4 @@
 HTTP/1.1 400 Bad Request
 CIMError: header-mismatch
+PGErrorDetail: CIMObject value "root/cimv2/BadValue:CIM_MessageLog.CreationClassName="CIM_MessageLog"" does not match CIM request object "root/cimv2:CIM_MessageLog.CreationClassName="CIM_MessageLog"".
 

@@ -1,3 +1,4 @@
 HTTP/1.1 501 Not Implemented
 CIMError: unsupported-cim-version
+PGErrorDetail: CIM version "3.0" is not supported.
 

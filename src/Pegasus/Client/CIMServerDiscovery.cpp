@@ -71,7 +71,7 @@ void SLPClientOptions::print() const{
 	printf("scopes %s\n",scopes!=NULL?scopes:"NULL");
 	printf("service_type %s\n",service_type!=NULL?service_type:"NULL");
 	printf("predicate %s\n",predicate!=NULL?predicate:"NULL");
-	printf("use_directory_agent %d\n",use_directory_agent==0?"false":"true");
+	printf("use_directory_agent %s\n",use_directory_agent==0?"false":"true");
 }
 
 

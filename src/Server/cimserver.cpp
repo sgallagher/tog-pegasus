@@ -680,23 +680,6 @@ MessageLoader::_useProcessLocale = true;
                         (strlen(option) == 1))
                 {
                     //
-                    // check to see if user is root
-                    //
-#if !defined(PEGASUS_OS_OS400) && !defined(PEGASUS_OS_ZOS)
-                    if (!System::isPrivilegedUser(System::getEffectiveUserName()))
-                    {
-                        //l10n
-                        //cout << "You must have superuser privilege to run ";
-                        //cout << "cimserver." << endl;
-                        MessageLoaderParms parms("src.Server.cimserver.SUPERVISOR_PRIVILEGE_TO_RUN_SERVER",
-                        						 "You must have superuser privilege to run cimserver.");
-                       
-                        cout << MessageLoader::getMessage(parms) << endl;
-                        exit(0);
-                    }
-#endif
-
-                    //
                     // Check to see if shutdown has already been specified:
                     //
                     if (shutdownOption)

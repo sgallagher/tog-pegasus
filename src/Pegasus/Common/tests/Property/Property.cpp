@@ -227,7 +227,9 @@ void test02()
 				cout << "Exception: " << e.getMessage() << endl;	
         }
 }
-
+//
+// Test propertyList class
+//
 void test03()
 {
     CIMPropertyList list1;
@@ -239,9 +241,29 @@ void test03()
     names.append(CIMName ("property3"));
     list1.set(names);
     list2 = list1;
+	Array<CIMName> names1a = list1.getPropertyNameArray();
+	assert(names == names1a);
+	assert(list2[0] == CIMName("property1"));
+	assert(list2[1] == CIMName("property2"));
+	assert(list2[2] == CIMName("property3"));
 
     list1.clear();
+	list2.clear();
+
+	// Test use of empty list.  Note that the requirement for
+	// property lists assumes that we must be able to distinguish
+	// a NULL property list from an empty property list.  The usages
+	// are very different.  NULL means ignore.  Empty means use list
+	// but no properties in list.
+	Array<CIMName> names2;
+	list1.set(names2);
+	assert(!list1.isNull());
+	assert(list1.size() == 0);
+	Array<CIMName> names3 = list1.getPropertyNameArray();
+	assert(names3.size() == 0);
+
 }
+
 //Test reference type properties
 void test04()
 {

@@ -1154,8 +1154,15 @@ void MessageQueueService::enumerate_service(Uint32 queue, message_module *result
 
 Uint32 MessageQueueService::get_next_xid(void)
 {
+   static Mutex _monitor;
+   Uint32 value;
+   _monitor.lock(pegasus_thread_self());
+   
    _xid++;
-   return _xid.value();
+   value =  _xid.value();
+   _monitor.unlock();
+   return value;
+   
 }
 
 PEGASUS_NAMESPACE_END

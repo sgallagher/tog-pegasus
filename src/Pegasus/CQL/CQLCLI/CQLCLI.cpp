@@ -60,6 +60,9 @@ PEGASUS_NAMESPACE_BEGIN
 CQLParserState* globalParserState = 0;
 PEGASUS_NAMESPACE_END
 
+
+Boolean cqlcli_verbose = false;
+
 void hackInstances(Array<CIMInstance>& instances)
 {
   for (Uint32 i=0; i < instances.size(); i++)
@@ -411,6 +414,11 @@ Boolean _evaluate(Array<CQLSelectStatement>& _statements,
         {
           cout << "-----Instance: " << _instances[j].getPath().toString() << endl;
           Boolean result = _statements[i].evaluate(_instances[j]);
+
+	  if(cqlcli_verbose)
+	    {
+	      cout << "Inst # " << j << ": " <<  _statements[i].toString() << " = ";
+	    }
           if(result) printf("TRUE\n");
           else printf("FALSE\n");
         }
@@ -778,9 +786,12 @@ int main(int argc, char ** argv)
       className = argv[i+1];
     if((strcmp(argv[i],"-nameSpace") == 0) && (i+1 < argc))
       nameSpace = argv[i+1];
+    if((strcmp(argv[i],"-verbose") == 0) && (i+1 < argc))
+      cqlcli_verbose = true;
   }
 
   Array<CQLSelectStatement> _statements;
+
   
   // setup test environment
   const char* env = getenv("PEGASUS_HOME");

@@ -1091,7 +1091,7 @@ Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
 	tmp,
 	host,
 	methodName,
-	path.toString(false),
+	localObjectPath.toString(false),
         authenticationHeader,
 	out.size());
     tmp << out;

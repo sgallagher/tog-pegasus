@@ -26,6 +26,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:   Amit Arora (amita@in.ibm.com) for Bug#1170
+//                Sushma Fernandes (sushma@hp.com) for Bug#2057
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -185,6 +186,11 @@ public:
   /** This destruct deletes all handlers which were installed. */
   ~Monitor();
 
+  /** Sets the state of the monitor entry to the specified state.
+      This is used to synchronize the monitor and the worker
+      thread. Bug# 2057 */
+  void setState( Uint32 index, _MonitorEntry::entry_status status );
+
   void initializeTickler();
   void tickle();
   /** Monitor system-level for the given number of milliseconds. Post a
@@ -250,6 +256,7 @@ private:
   Sint32 _tickle_client_socket; 
   Sint32 _tickle_server_socket;      
   Sint32 _tickle_peer_socket;
+  Mutex _tickle_mutex;
 };
 
 enum monitor_2_entry_type { UNTYPED, INTERNAL, LISTEN, CONNECT, SESSION, CLIENTSESSION };

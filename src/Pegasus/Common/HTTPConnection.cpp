@@ -34,6 +34,7 @@
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //         Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //         Amit K Arora, IBM (amita@in.ibm.com) for Bug#1097
+//         Sushma Fernandes, IBM (sushma@hp.com) for Bug#2057
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -742,10 +743,12 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 	catch (Exception &e)
 	{
 		httpStatus = e.getMessage();
+		_connectionClosePending = true;
 	}
 	catch (...)
 	{
 		httpStatus = HTTP_STATUS_INTERNALSERVERERROR;
+		_connectionClosePending = true;
 		String message("Unknown internal error");
 		Tracer::trace(__FILE__, __LINE__, TRC_HTTP, Tracer::LEVEL2, message);
 	}
@@ -755,8 +758,8 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
 	if (isLast == true)
 	{
-		_incomingBuffer.clear();
-		_transferEncodingTEValues.clear();
+                _incomingBuffer.clear();
+                _transferEncodingTEValues.clear();
 
      //
      // handle automatic truststore update, if enabled
@@ -798,9 +801,31 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 			Tracer::trace(TRC_HTTP, Tracer::LEVEL4, msg, totalBytesWritten,
 										messageLength, _requestCount.value(), _connectionRequestCount);
 		}
-		
+
+                //
+                // Since we are done writing, update the status of entry to IDLE
+                // and notify the Monitor. 
+                //
+                if (_isClient() == false && !_connectionClosePending)
+                {
+                    Tracer::trace (TRC_HTTP, Tracer::LEVEL2,
+                        "Now setting state to %d", _MonitorEntry::IDLE);
+                    _monitor->setState (_entry_index, _MonitorEntry::IDLE);
+                    _monitor->tickle();
+                }
 	}
 	
+        //
+        // Check if there was an error writing, if so close the connection.
+        //
+        if (_isClient() == false && _connectionClosePending)
+        {
+            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                 "Error in writing, closing connection");
+            _responsePending = true;
+            _closeConnection();
+        }  
+
 	return httpStatus.size() == 0 ? false : true;
 
 }
@@ -1075,6 +1100,14 @@ void HTTPConnection::_closeConnection()
          "HTTPConnection::_closeConnection - Connection being closed without receiving any requests.");
    }
 
+   if (_isClient()==false && _connectionClosePending)
+   {
+       Tracer::trace (TRC_HTTP, Tracer::LEVEL2,
+            "Now setting state to %d", _MonitorEntry::DYING);
+       _monitor->setState (_entry_index, _MonitorEntry::DYING);
+       _monitor->tickle();
+   }
+       
    PEG_METHOD_EXIT();
 
 //     Message* message= new CloseConnectionMessage(_socket->getSocket));
@@ -1605,6 +1638,16 @@ void HTTPConnection::_handleReadEvent()
 //	SendForget(message);
 	
 #ifndef LOCK_CONNECTION_ENABLED
+        //
+        // Set the entry status to BUSY.
+        //
+        if (_isClient() == false && !_connectionClosePending)
+        {
+            Tracer::trace (TRC_HTTP, Tracer::LEVEL2,
+                "Now setting state to %d", _MonitorEntry::BUSY);
+            _monitor->setState (_entry_index, _MonitorEntry::BUSY);
+            _monitor->tickle();
+        }
 	_outputMessageQueue->enqueue(message);
 #endif
 	_clearIncoming();
@@ -1614,6 +1657,16 @@ void HTTPConnection::_handleReadEvent()
 
 	if (bytesRead > 0)
         {
+            //
+            // Set the entry status to BUSY.
+            //
+            if (_isClient() == false && !_connectionClosePending)
+            {
+                Tracer::trace (TRC_HTTP, Tracer::LEVEL2,
+                    "Now setting state to %d", _MonitorEntry::BUSY);
+                _monitor->setState (_entry_index, _MonitorEntry::BUSY);
+                _monitor->tickle();
+            }
 	   _outputMessageQueue->enqueue(message);
         }
         else 
@@ -1643,7 +1696,6 @@ Uint32 HTTPConnection::getRequestCount()
     return(_requestCount.value());
 }
 
-
 Boolean HTTPConnection::run(Uint32 milliseconds)
 {
    Boolean handled_events = false;
@@ -1651,8 +1703,6 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
    
    fd_set fdread; // , fdwrite;
    struct timeval tv = { 0, 1 };
-   do 
-   {
       FD_ZERO(&fdread);
       FD_SET(getSocket(), &fdread);
       events = select(FD_SETSIZE, &fdread, NULL, NULL, &tv);
@@ -1683,9 +1733,9 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
 	       return true;
 	    }
 	    handled_events = true;
-	 }
-      }
-   } while(events != 0 && !_connectionClosePending);
+          }
+       }
+
    return handled_events;
 }
 

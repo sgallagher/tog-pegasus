@@ -28,6 +28,7 @@
 // Modified By: Mike Day (monitor_2) mdday@us.ibm.com 
 //              Amit K Arora (Bug#1153) amita@in.ibm.com
 //              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
+//              Sushma Fernandes (sushma@hp.com) for Bug#2057
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -385,14 +386,21 @@ void Monitor::initializeTickler(){
 
 void Monitor::tickle(void)
 {
-  static char _buffer[] =
+    static char _buffer[] =
     {
       '0','0'
     };
              
-  Socket::disableBlocking(_tickle_client_socket);    
-  Socket::write(_tickle_client_socket,&_buffer, 2);
-  Socket::enableBlocking(_tickle_client_socket); 
+    AutoMutex autoMutex(_tickle_mutex);
+    Socket::disableBlocking(_tickle_client_socket);    
+    Socket::write(_tickle_client_socket,&_buffer, 2);
+    Socket::enableBlocking(_tickle_client_socket); 
+}
+
+void Monitor::setState( Uint32 index, _MonitorEntry::entry_status status )
+{
+    // Set the state to requested state
+    _entries[index]._status = status;
 }
 
 Boolean Monitor::run(Uint32 milliseconds)
@@ -535,7 +543,11 @@ Boolean Monitor::run(Uint32 milliseconds)
                    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                      "_entries[indx].type for indx = %d is Monitor::CONNECTION", indx);
 		   static_cast<HTTPConnection *>(q)->_entry_index = indx;
-		   _entries[indx]._status = _MonitorEntry::BUSY;
+
+                   // Do not update the entry just yet. The entry gets updated once
+                   // the request has been read. 
+		   //_entries[indx]._status = _MonitorEntry::BUSY;
+
                    // If allocate_and_awaken failure, retry on next iteration
 /* Removed for PEP 183.
                    if (!MessageQueueService::get_thread_pool()->allocate_and_awaken(
@@ -565,20 +577,25 @@ Boolean Monitor::run(Uint32 milliseconds)
    		   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                    "Monitor::_dispatch: exited run() for index %d", dst->_entry_index);
 
-   		   PEGASUS_ASSERT(dst->_monitor->_entries[dst->_entry_index]._status.value() == _MonitorEntry::BUSY);                                                         
+                   // It is possible the entry status may not be set to busy.
+                   // The following will fail in that case. 
+   		   // PEGASUS_ASSERT(dst->_monitor->_entries[dst->_entry_index]._status.value() == _MonitorEntry::BUSY);                                                         
 		   // Once the HTTPConnection thread has set the status value to either
 		   // Monitor::DYING or Monitor::IDLE, it has returned control of the connection
 		   // to the Monitor.  It is no longer permissible to access the connection
 		   // or the entry in the _entries table.
-		   if (dst->_connectionClosePending)
-		   {  
-		     dst->_monitor->_entries[dst->_entry_index]._status = _MonitorEntry::DYING;
-		   }
-		   else
-		   {
-		     dst->_monitor->_entries[dst->_entry_index]._status = _MonitorEntry::IDLE;
-		   }	
-// end Added for PEP 183
+
+                   // The following is not relevant as the worker thread or the
+                   // reader thread will update the status of the entry.
+		   //if (dst->_connectionClosePending)
+		   //{  
+		   //  dst->_monitor->_entries[dst->_entry_index]._status = _MonitorEntry::DYING;
+		   //}
+		   //else
+		   //{
+		   //  dst->_monitor->_entries[dst->_entry_index]._status = _MonitorEntry::IDLE;
+		   //}	
+// end Added for PEP 183 
 		}
 	        else if( _entries[indx]._type == Monitor::INTERNAL){
 			// set ourself to BUSY, 

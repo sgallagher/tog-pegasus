@@ -304,13 +304,31 @@ public:
 
     void get(Array<CIMDateTime>& x) const; 
 
-    /// CIMMethod toXML  - ATTN
+    /** CIMMethod toXML
+    
+    */
     void toXml(Array<Sint8>& out) const;
 
-    /// CIMMethod print - ATTN
+    /** CIMMethod print - Format and print the Value to std output
+    	stream
+	@return None
+	<PRE>
+	Example:
+	    CIMValue value(Boolean(true));
+	    value.print();	  // Prints "true"
+	</PRE> 
+    */
     void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
 
-    /// CIMMethod toString	- ATTN
+    /** toString - Converts the CIMvalue to a string
+	@return - String output for CIMValue.
+	<PRE>
+	Example:
+	    String test;
+	    CIMValue value(Boolean(true));
+	    test = value.toString();	  // puts "true" into test
+	</PRE>
+	*/
     String toString() const;
 
 private:

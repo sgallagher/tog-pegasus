@@ -54,7 +54,7 @@ class PEGASUS_COMMON_LINKAGE CIMName
 {
 public:
 
-    /** CIMMethod legal - Determine if the name string input is legal as
+    /** legal - Determine if the name string input is legal as
 	defnined in the CIMName class definition
 	ATTN: Define what is legal
 	@param - String to test
@@ -63,7 +63,7 @@ public:
     */
     static Boolean legal(const Char16* name);
 
-    /** CIMMethod legal - Determine if the name string input is legal as
+    /** legal - Determine if the name string input is legal as
 	defnined in the CIMName class definition
 	@param - String to test
 	@return Returns true if the given name is legal. Throws
@@ -74,7 +74,7 @@ public:
 	return legal(name.getData());
     }
 
-    /** CIMMethod equal - Compares two names.
+    /** equal - Compares two names.
 	@return Return true if the two names are equal. CIM names are
 	case insensitive and so it this method.
     */

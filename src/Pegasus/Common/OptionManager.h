@@ -251,8 +251,18 @@ public:
     */
     Boolean lookupValue(const String& name, String& value) const;
 
+    /** optionValueEquals - Test the string value of an option.
+	@param name provides the name of the option (ex. "port")
+	@param value String value for comparison.
+	@return true if the option exists and the value of the option 
+	equals the input parameter value.
+    */
+    Boolean valueEquals(const String& name, const String& value) const;
+
+
     /** Print all the options. */
     void print() const;
+
 
 private:
 

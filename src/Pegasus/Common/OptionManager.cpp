@@ -390,6 +390,19 @@ Boolean OptionManager::lookupValue(const String& name, String& value) const
     return true;
 }
 
+Boolean OptionManager::valueEquals(const String& name, const String& value) 
+    const
+{
+    String optionString;
+
+    if (lookupValue(name, optionString) && optionString == value)
+	return true;
+    else
+	return false;
+
+}
+
+
 Option* OptionManager::_lookupOptionByCommandLineOptionName(const String& name)
 {
     for (Uint32 i = 0; i < _options.size(); i++)

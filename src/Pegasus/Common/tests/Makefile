@@ -20,6 +20,7 @@ DIRS = \
     FileSystem \
     InstanceDecl \
     Method \
+    OptionManager \
     Parameter \
     Property \
     Qualifier \

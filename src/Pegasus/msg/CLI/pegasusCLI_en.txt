@@ -67,44 +67,24 @@ en:table {
 	*    Do not translate the cimconfig command or options.  Just translate the text that explains the options.
 	*/
 	Clients.CIMConfig.CIMConfigCommand.MENU.STANDARD:string {
-	"Usage: cimconfig -g name [-c | -p | -d]\n"
-	"       cimconfig -s name=value [-c | -p]\n"
-	"       cimconfig -u name [-c | -p]\n"
-	"       cimconfig -l [-c | -p]\n"
-	"  Options:\n"
-	"     -g name            - Gets the current value of the specified configuration property.\n" 
-	"                          Returns an error when the CIM server is not running.\n"
-	"     -g name -c         - Gets the current value of the specified configuration property.\n"
-	"                          Returns an error when the CIM server is not running.\n"
-	"     -g name -p         - Gets the planned value of the specified configuration property.\n"
-	"     -g name -d         - Gets the default value of the specified configuration property.\n"
-	"                          Returns an error when the CIM server is not running.\n"
-	"     -s name=value      - Indicates that a configuration property is to be added or updated by setting\n"
-	"                          its current value to the specified value. \n"
-	"                          Returns an error when the CIM server is not running or the specified \n"
-	"                          property cannot be updated dynamically.\n"
-	"     -s name=value -c   - Indicates that a configuration property is to be added or updated by setting\n" 
-	"                          its current value to the specified value.\n"
-	"                          Returns an error when the CIM server is not running or the specified \n"
-	"                          property cannot be updated dynamically.\n"
-	"     -s name=value -p   - Indicates that a configuration property is to be added or updated by setting\n"
-	"                          its planned value to the specified value.\n"
-	"     -u name            - Indicates that the current value of the specified configuration property\n"
- 	"                          is to be reset to the default value.\n"
-	"                          Returns an error when the CIM server is not running or the specified \n"
-	"                          property cannot be updated dynamically.\n"
-	"     -u name -c         - Indicates that the current value of the specified configuration property\n"
- 	"                          is to be reset to the default value.\n"
-	"                          Returns an error when the CIM server is not running or the specified \n"
-	"                          property cannot be updated dynamically.\n"
-	"     -u name -p         - Indicates that the planned value of the specified configuration property\n"
- 	"                          is to be reset to the default value.\n"
-	"     -l                 - Displays the name of all the configuration properties.\n"  
-	"                          Returns an error when the CIM server is not running.\n"
-	"     -l -c              - Displays the name and value pair of all the current configuration properties.\n"  
-	"                          Returns an error when the CIM server is not running.\n"
-	"     -l -p              - Displays the name and value pair of all the planned configuration properties.\n"  
-	"\n"
+    "Usage: cimconfig -g name [ -c ] [ -p ] [ -d ]\n"
+    "                 -s name=value [ -c ] [ -p ]\n"
+    "                 -u name [ -c ] [ -p ]\n"
+    "                 -l [-c | -p]\n"
+    "                 -h\n"
+    "                 --help\n"
+    "                 --version\n"
+    "  Options:\n"
+    "     -g          - Get the value of specified configuration property.\n" 
+    "     -c          - Use current configuration.\n"
+    "     -p          - Configuration user on next CIM Server start.\n"
+    "     -d          - Use default configuration.\n"
+    "     -s          - Add or Update configuration property value.\n"
+    "     -u          - Reset configuration property to its default value.\n"
+    "     -l          - Display all the configuration properties.\n"
+    "     -h, --help  - Display this help message.\n"
+    "     --version   - Display CIM Server version number.\n"
+    "\n"
 	}
 
         /**
@@ -112,45 +92,22 @@ en:table {
 	*    Do not translate the cimconfig command or options.  Just translate the text that explains the options.
  	*/
 	Clients.CIMConfig.CIMConfigCommand.MENU.PEGASUS_OS_OS400:string {
-	"Usage: cimconfig -g name [-c | -p | -d] [ -q ] \n"
-	"       cimconfig -s name=value [-c | -p] [ -q ] \n"
-	"       cimconfig -u name [-c | -p] [ -q ] \n"
-	"       cimconfig -l [-c | -p]\n"
-	"  Options:\n"
-	"     -g name            - Gets the current value of the specified configuration property.\n" 
-	"                          Returns an error when the CIM server is not running.\n"
-	"     -g name -c         - Gets the current value of the specified configuration property.\n"
-	"                          Returns an error when the CIM server is not running.\n"
-	"     -g name -p         - Gets the planned value of the specified configuration property.\n"
-	"     -g name -d         - Gets the default value of the specified configuration property.\n"
-	"                          Returns an error when the CIM server is not running.\n"
-	"     -s name=value      - Indicates that a configuration property is to be added or updated by setting\n"
-	"                          its current value to the specified value. \n"
-	"                          Returns an error when the CIM server is not running or the specified \n"
-	"                          property cannot be updated dynamically.\n"
-	"     -s name=value -c   - Indicates that a configuration property is to be added or updated by setting\n" 
-	"                          its current value to the specified value.\n"
-	"                          Returns an error when the CIM server is not running or the specified \n"
-	"                          property cannot be updated dynamically.\n"
-	"     -s name=value -p   - Indicates that a configuration property is to be added or updated by setting\n"
-	"                          its planned value to the specified value.\n"
-	"     -u name            - Indicates that the current value of the specified configuration property\n"
- 	"                          is to be reset to the default value.\n"
-	"                          Returns an error when the CIM server is not running or the specified \n"
-	"                          property cannot be updated dynamically.\n"
-	"     -u name -c         - Indicates that the current value of the specified configuration property\n"
- 	"                          is to be reset to the default value.\n"
-	"                          Returns an error when the CIM server is not running or the specified \n"
-	"                          property cannot be updated dynamically.\n"
-	"     -u name -p         - Indicates that the planned value of the specified configuration property\n"
- 	"                          is to be reset to the default value.\n"
-	"     -l                 - Displays the name of all the configuration properties.\n"  
-	"                          Returns an error when the CIM server is not running.\n"
-	"     -l -c              - Displays the name and value pair of all the current configuration properties.\n"  
-	"                          Returns an error when the CIM server is not running.\n"
-	"     -l -p              - Displays the name and value pair of all the planned configuration properties.\n"
-	"     -q                 - Quiet option specifies no output is sent to standard output or standard error.\n"
-	"\n"
+    "Usage: cimconfig -g name [-c | -p | -d] [ -q ] \n"
+    "                 -s name=value [-c | -p] [ -q ] \n"
+    "                 -u name [-c | -p] [ -q ] \n"
+    "                 -l [-c | -p]\n"
+    "                 -h\n"
+    "                 --help\n"
+    "                 --version\n"
+    "  Options:\n"
+    "     -g          - Get the value of specified configuration property.\n" 
+    "     -s          - Add or Update configuration property value.\n"
+    "     -u          - Reset configuration property to its default value.\n"
+    "     -l          - Display all the configuration properties.\n"  
+    "     -q          - Specify quiet mode, avoiding output to stdout or stderr.\n"
+    "     -h, --help  - Display this help message\n"
+    "     --version   - Display CIM Server version number\n" 
+    "\n"
 	}
 
         Clients.CIMConfig.CIMConfigCommand.CIMOM_NOT_RUNNING:string {"PGC00200: The CIM server may not be running."}
@@ -314,6 +271,10 @@ en:table {
 
         Clients.CIMConfig.CIMConfigCommand.NO_PROPERTIES_FOUND_IN_FILE:string {"PGC00239: No configuration properties are found in the configuration file."}
 
+        Clients.CIMConfig.CIMConfigCommand.ERR_OPTION_NOT_SUPPORTED:string {"PGC00240: Invalid option. Use '--help' to obtain command syntax."}
+
+        Clients.CIMConfig.CIMConfigCommand.ERR_USAGE:string {"PGC00241: Incorrect usage. Use '--help' to obtain command syntax."}
+
 
 	// ==========================================================
         // Messages for CIMAuthCommand
@@ -350,6 +311,10 @@ en:table {
         Clients.cimauth.CIMAuthCommand.AUTH_ALREADY_EXISTS:string {"PGC00413: The specified user authorizations already exist."}
 
         Clients.cimauth.CIMAuthCommand.AUTH_NOT_FOUND:string {"PGC00414: The specified user authorizations are not found."}
+        
+        Clients.cimauth.CIMAuthCommand.ERR_OPTION_NOT_SUPPORTED:string {"PGC00415: Invalid option. Use '--help' to obtain command syntax."}
+        
+        Clients.cimauth.CIMAuthCommand.ERR_USAGE:string {"PGC00416: Incorrect usage. Use '--help' to obtain command syntax."}        
 
 
 	// ==========================================================
@@ -363,24 +328,24 @@ en:table {
 	*    Do not translate the cimprovider command or options.  Just translate the text that explains the options.
 	*/
 	Clients.cimprovider.CIMProviderCommand.MENU.STANDARD:string {
-	"Usage: cimprovider -d -m module\n"
-	"       cimprovider -e -m module\n"
-	"       cimprovider -r -m module [ -p provider ]\n"
-	"       cimprovider -l [ -s | -m module ]\n"
-	"  Options:\n"
-	"     -d           Disables the specified CIM provider module.\n" 
-	"                  If the module is already disabled, an error message is returned.\n"
-	"     -e           Enables the specified CIM provider module.\n" 
-	"                  If the module is already enabled or is currently being disabled,\n"
-	"                  an error message is returned.\n"
-	"     -r           Removes the specified provider module and all of its contained providers.\n"
-	"                  If a provider is specified, removes the specified provider in the specified\n"
-	"                  provider module without affecting any other providers in that module.\n"
-	"     -l           Displays all the registered provider modules.\n"
-	"     -m module    Specifies the provider module for the operation.\n"
-	"     -p provider  Specifies the provider for the operation.\n"
-	"     -s           Displays the status of provider modules.\n"
-	"\n"
+    "Usage: cimprovider -d -m module\n"
+    "                   -e -m module\n"
+    "                   -r -m module [ -p provider ]\n"
+    "                   -l [ -s | -m module ]\n"
+    "                   -h\n"
+    "                   --help\n"
+    "                   --version\n"
+    "  Options:\n"
+    "      -d         - Disable the specified CIM provider module.\n" 
+    "      -e         - Enable the specified CIM provider module.\n" 
+    "      -r         - Remove specified provider module and its contained providers.\n"
+    "      -l         - Display all the registered provider modules.\n"
+    "      -m         - Specify the provider module for the operation.\n"
+    "      -p         - Specify the provider for the operation.\n"
+    "      -s         - Display the status of registered provider modules.\n"
+    "      -h, --help - Display this help message.\n"
+    "      --version  - Display CIM Server version number.\n"
+    "\n"
 	}
 
         /**
@@ -388,25 +353,23 @@ en:table {
 	*   Do not translate the cimprovider command or options.  Just translate the text that explains the options.
  	*/
 	Clients.cimprovider.CIMProviderCommand.MENU.PEGASUS_OS_OS400:string {
-	"Usage: cimprovider -d -m module [ -q ] \n"
-	"       cimprovider -e -m module [ -q ] \n"
-	"       cimprovider -r -m module [ -p provider ] [ -q ] \n"
-	"       cimprovider -l [ -s | -m module ] \n"
-	"  Options:\n"
-	"     -d           Disables the specified CIM provider module.\n" 
-	"                  If the module is already disabled, an error message is returned.\n"
-	"     -e           Enables the specified CIM provider module.\n" 
-	"                  If the module is already enabled or is currently being disabled,\n"
-	"                  an error message is returned.\n"
-	"     -r           Removes the specified provider module and all of its contained providers.\n"
-	"                  If a provider is specified, removes the specified provider in the specified\n"
-	"                  provider module without affecting any other providers in that module.\n"
-	"     -l           Displays all the registered provider modules.\n"
-	"     -m module    Specifies the provider module for the operation.\n" 
-	"     -q           Quiet option specifies no output is sent to standard output or standard error.\n"
-	"     -p provider  Specifies the provider for the operation.\n"
-	"     -s           Displays the status of provider modules.\n"
-	"\n"
+    "Usage: cimprovider -d -m module [ -q ] \n"
+    "                   -e -m module [ -q ] \n"
+    "                   -r -m module [ -p provider ] [ -q ] \n"
+    "                   -l [ -s | -m module ] \n"
+    "                   -h\n"
+    "                   --help\n"
+    "                   --version\n"
+    "  Options:\n"
+    "     -d         - Disable the specified CIM provider module.\n" 
+    "     -e         - Enable the specified CIM provider module.\n" 
+    "     -r         - Remove the specified provider module and ts contained providers.\n"
+    "     -l         - Display all the registered provider modules.\n"
+    "     -m         - Specify the provider module for the operation.\n" 
+    "     -q         - Specify quiet mode, avoiding output to stdout or stderr.\n"
+    "     -p         - Specify the provider for the operation.\n"
+    "     -s           Display the status of registered provider modules.\n"
+    "\n"
 	}
 
 
@@ -453,11 +416,7 @@ en:table {
         Clients.cimprovider.CIMProviderCommand.NO_MODULE_REGISTERED:string {"PGC00618: No provider modules are registered."}
 
 
-	/**
- 	* @note PGC00619:
-	*    "-p" should not be translated because it is the name of an option
- 	*/
-        Clients.cimprovider.CIMProviderCommand.ERR_OPTION_NOT_SUPPORTED:string {"PGC00619: -p option is not supported."}
+        Clients.cimprovider.CIMProviderCommand.ERR_OPTION_NOT_SUPPORTED:string {"PGC00619: Invalid option. Use '--help' to obtain command syntax."}
 
         Clients.cimprovider.CIMProviderCommand.ERR_MODULE_NOT_REGISTERED:string {"PGC00620: Specified provider module is not registered."}
 
@@ -472,6 +431,8 @@ en:table {
         Clients.cimprovider.CIMProviderCommand.UNEXPECTED_OPTION:string {"PGC00625: Unexpected option."}
 
 	Clients.cimprovider.CIMProviderCommand.PENDING_REQUESTS_STOP_PROVIDER_FAILURE:string {"PGC00626: Failed to disable the provider module.  Provider is busy."} // 485
+
+        Clients.cimprovider.CIMProviderCommand.ERR_USAGE:string {"PGC00628: Incorrect usage. Use '--help' to obtain command syntax."}        
 
 
 	// ==========================================================
@@ -528,6 +489,9 @@ en:table {
 
         Clients.cimuser.CIMUserCommand.UNEXPECTED_OPTION:string {"PGC00823: Unexpected option."}
 
+        Clients.cimuser.CIMUserCommand.ERR_OPTION_NOT_SUPPORTED:string {"PGC00627: Invalid option. Use '--help' to obtain command syntax."}
+
+        Clients.cimuser.CIMUserCommand.ERR_USAGE:string {"PGC00628: Incorrect usage. Use '--help' to obtain command syntax."}        
 
 	// ==========================================================
         // Messages for SSLTrustMgr

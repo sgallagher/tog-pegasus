@@ -115,7 +115,7 @@ else
   MSG_ROOT_SOURCE = _en
 endif
 
-    EXTRA_INCLUDES += -I${ICUROOT}/source/common
+    SYS_INCLUDES += -I${ICU_ROOT}/source/common -I${ICU_ROOT}/source/i18n
     DEFINES += -DPEGASUS_HAS_ICU
     SYS_LIBS += -licuuc
     SYS_LIBS += -licui18n

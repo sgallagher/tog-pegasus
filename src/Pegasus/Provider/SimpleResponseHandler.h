@@ -35,12 +35,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-template<class T>
-class PEGASUS_COMMON_LINKAGE SimpleResponseHandler : public ResponseHandler<T>
-{
-public:
     template<class _T>
-    class PEGASUS_COMMON_LINKAGE SimpleResponseHandlerRep : public ResponseHandlerRep<_T>
+    class PEGASUS_PROVIDER_LINKAGE SimpleResponseHandlerRep : public ResponseHandlerRep<_T>
     {
     public:
         SimpleResponseHandlerRep(void)
@@ -82,6 +78,9 @@ public:
 
     };
 
+template<class T>
+class PEGASUS_PROVIDER_LINKAGE SimpleResponseHandler : public ResponseHandler<T>
+{
 public:
     SimpleResponseHandler(void) : ResponseHandler<T>(new SimpleResponseHandlerRep<T>())
     {
@@ -106,7 +105,7 @@ public:
 };
 
 PEGASUS_TEMPLATE_SPECIALIZATION
-inline SimpleResponseHandler<void>::SimpleResponseHandler(void)
+SimpleResponseHandler<void>::SimpleResponseHandler(void)
     : ResponseHandler<void>()
 {
 }

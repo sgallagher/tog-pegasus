@@ -43,11 +43,15 @@
 PEGASUS_NAMESPACE_BEGIN
 
 template<class T>
-class PEGASUS_COMMON_LINKAGE ResponseHandlerRep : public Sharable
+class PEGASUS_PROVIDER_LINKAGE ResponseHandlerRep : public Sharable
 {
 public:
-    ResponseHandlerRep(void);
-    virtual ~ResponseHandlerRep(void);
+    ResponseHandlerRep(void)
+    {
+    }
+    virtual ~ResponseHandlerRep(void)
+    {
+    }
 
     virtual void processing(void) = 0;
 
@@ -102,16 +106,6 @@ public:
     }
 
 };
-
-template<class T>
-inline ResponseHandlerRep<T>::ResponseHandlerRep(void)
-{
-}
-
-template<class T>
-inline ResponseHandlerRep<T>::~ResponseHandlerRep(void)
-{
-}
 
 PEGASUS_NAMESPACE_END
 

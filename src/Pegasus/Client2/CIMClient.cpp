@@ -328,7 +328,10 @@ CIMClientRep::CIMClientRep(Uint32 timeoutMilliseconds)
 CIMClientRep::~CIMClientRep()
 {
    disconnect();
-   delete _httpConnector;
+// KSTEST - Bypass the httpconnector delete as a test.
+#ifndef  PEGASUS_SNIA_INTEROP_TEST
+     delete _httpConnector;
+#endif
 //   delete _monitor;
 }
 

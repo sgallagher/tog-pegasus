@@ -444,7 +444,8 @@ void cimom::_handle_cimom_msg(Message *msg)
 {
    Uint32 mask = msg->getMask();
    Uint32 type = msg->getType();
-   
+
+   // nothing is locked
    if(mask & message_mask::type_cimom)
    {
       if(type == cimom_messages::HEARTBEAT)
@@ -488,24 +489,113 @@ void cimom::_handle_cimom_msg(Message *msg)
       }
       else if (type == cimom_messages::UPDATE_CIM_SERVICE)
       {
-//	 update_module(static_cast<CimomUpdateService *>(msg));
+	 update_module(static_cast<CimomUpdateService *>(msg));
       }
       else if (type == cimom_messages::IOCTL)
       {
-//             direct call interface into module 
+	 ioctl(static_cast<CimomIoctl *>(msg));
       }
       delete msg;
    }
    return;
 }
 
+
+
+// fill an array with queue IDs of as many registered services
+// as match the request message parameters
 void cimom::find_service_q(CimomFindServices *msg)
 {
+
+   Array<Uint32> found;
+      
+   _modules.lock();
+   message_module *ret = _modules.next( 0 );
+   while( ret != 0 )
+   {
+      if( msg->name.size() > 0 )
+      {
+	 if( msg->name != ret->_name )
+	 {
+	    ret = _modules.next(ret);
+	    continue;
+	 }
+      }
+
+      if(msg->capabilities != 0 )
+      {
+	 if (! msg->capabilities & ret->_capabilities)
+	 {
+	    ret = _modules.next(ret);
+	    continue;
+	 }
+      }
+      if(msg->mask != 0 )
+      {
+	 if ( ! msg->mask & ret->_mask )
+	 {
+	    ret = _modules.next(ret);
+	    continue;
+	 }
+      }
+      
+      // if we get to here, we "found" this service 
+
+      found.append(ret->_q_id);
+      ret = _modules.next(ret);
+   }
+   _modules.unlock();
+
+   FindServiceQResponse *reply  = 
+      new FindServiceQResponse(msg->getKey(), 
+			       cimom_results::OK,
+			       found, 
+			       msg->getRouting() );
+   
+   _enqueueResponse(msg, reply);
+
    return;
 }
 
+
+// given a service Queue ID, return all registation data for 
+// that service 
 void cimom::enumerate_service(CimomEnumerateService *msg)
 {
+   _modules.lock();
+   message_module *ret = _modules.next( 0 );
+
+   EnumerateServiceResponse *reply = 0;
+      
+   while( ret != 0 )
+   {
+      if( ret->_q_id == msg->qid )
+      {
+	 reply = new EnumerateServiceResponse(msg->getKey(), 
+					      cimom_results::OK, 
+					      ret->_name, 
+					      ret->_capabilities, 
+					      ret->_mask, 
+					      ret->_q_id, 
+					      msg->getRouting() );
+	 break;
+      }
+      
+      ret = _modules.next(ret);
+   }
+   _modules.unlock();
+      
+   if(reply == 0 )
+   {
+      reply = new EnumerateServiceResponse(msg->getKey(),
+					   cimom_results::MODULE_NOT_FOUND,
+					   String(),
+					   0, 0, 0, msg->getRouting() );
+      
+   }
+   
+   _enqueueResponse(msg, reply);
+
    return;
 }
 
@@ -532,7 +622,7 @@ void cimom::register_module(CimomRegisterService *msg)
       }
    }
 
-   Reply *reply = new Reply(msg->getType(), msg->getKey(), result,
+   Reply *reply = new Reply(service_messages::REPLY, msg->getKey(), result,
 			    message_mask::type_service | message_mask::ha_reply,
 			    msg->getRouting() );
    _enqueueResponse(msg, reply);
@@ -561,12 +651,57 @@ void cimom::deregister_module(CimomDeregisterService *msg)
    else
       delete temp;
 
-   Reply *reply = new Reply ( msg->getType(), msg->getKey(), result,
+   Reply *reply = new Reply ( service_messages::REPLY, msg->getKey(), result,
 			      message_mask::type_service | message_mask::ha_reply,
 			      msg->getRouting() );
    _enqueueResponse(msg, reply);
    return;
 }
+
+
+void cimom::update_module(CimomUpdateService *msg)
+{
+   Uint32 result = cimom_results::MODULE_NOT_FOUND;
+   
+   _modules.lock();
+   message_module *temp = _modules.next(0);
+   while( temp != 0 )
+   {
+      if(temp->_q_id == msg->q_id )
+      {
+	 temp->_capabilities = msg->capabilities;
+	 temp->_mask = msg->mask;
+	 gettimeofday(&(temp->_heartbeat), NULL);
+	 result = cimom_results::OK;
+	 break;
+      }
+      temp = _modules.next(temp);
+   }
+
+   Reply *reply = new Reply ( service_messages::REPLY, msg->getKey(), result,
+			      message_mask::type_service | message_mask::ha_reply,
+			      msg->getRouting() );
+
+   _enqueueResponse(msg, reply);
+}
+
+
+void cimom::ioctl(CimomIoctl *msg)
+{
+   Uint32 result = _ioctl(msg->code, msg->uint, msg->pparam);
+   Reply *reply = new Reply ( service_messages::REPLY, msg->getKey(), result,
+			      message_mask::type_service | message_mask::ha_reply,
+			      msg->getRouting() );
+   
+   _enqueueResponse(msg, reply);
+}
+
+
+Uint32 cimom::_ioctl(Uint32 code, Uint32 int_param, void *pointer_param)
+{
+   return cimom_results::OK;
+}
+
 
 Uint32 cimom::get_module_q(const String & name)
 {

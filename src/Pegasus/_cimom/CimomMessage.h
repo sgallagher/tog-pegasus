@@ -36,7 +36,6 @@
 #include <Pegasus/Common/AsyncOpNode.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
 //
 // This identifier is the queue id for CIMOM queue. It is initialized in
 // CimomMessage.cpp by calling MessageQueue::getNextQueueId(). Note that
@@ -80,6 +79,7 @@ class cimom_messages
 {
    public:
       static const Uint32 HEARTBEAT;
+      static const Uint32 REPLY;
       static const Uint32 REGISTER_CIM_SERVICE;
       static const Uint32 DEREGISTER_CIM_SERVICE;
       static const Uint32 UPDATE_CIM_SERVICE;
@@ -97,6 +97,7 @@ class service_messages
 {
    public:
       static const Uint32 HEARTBEAT;
+      static const Uint32 REPLY;
       static const Uint32 START;
       static const Uint32 STOP;
       static const Uint32 PAUSE;
@@ -600,17 +601,17 @@ class PEGASUS_CIMOM_LINKAGE FindServiceQResponse : public Reply
    public:
       FindServiceQResponse(Uint32 key, 
 			   Uint32 result_code,
-			   Uint32 service_queue, 
+			   Array<Uint32> service_queues, 
 			   Uint32 routing = 0)
 	 : Reply(service_messages::FIND_SERVICE_Q_RESPONSE,
 		 key, 
 		 result_code, 
 		 message_mask::type_service | message_mask::ha_reply,
 		 routing) ,
-	   qid(service_queue) {   }
+	   qids(service_queues) {   }
       
       virtual ~FindServiceQResponse(void);
-      Uint32 qid;
+      Array<Uint32> qids;
 } ;
 
 

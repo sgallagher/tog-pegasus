@@ -119,8 +119,9 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
       
       void register_module(CimomRegisterService *msg);
       void deregister_module(CimomDeregisterService *msg) ;
-      
-
+      void update_module(CimomUpdateService *msg);
+      void ioctl( CimomIoctl *msg);
+            
    protected:
       Uint32 get_module_q(const String & name);
       void _enqueueResponse(Request *, Message *);
@@ -140,6 +141,7 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _completed_proc(void *);
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _internal_proc(void *);
       void _handle_cimom_msg(Message *msg);
+      Uint32 _ioctl(Uint32, Uint32, void *);
       Thread _pending_thread;
       Thread _completed_thread;
       Thread _internal;

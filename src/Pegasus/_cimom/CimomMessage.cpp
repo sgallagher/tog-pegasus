@@ -62,6 +62,7 @@ const Uint32 cimom_results::ASYNC_CHILD_STARTED =       0x00000013;
 
 // messages handled by the cimom
 const Uint32 cimom_messages::HEARTBEAT =                0x00000000;
+const Uint32 cimom_messages::REPLY =                    0x00000000;
 const Uint32 cimom_messages::REGISTER_CIM_SERVICE =     0x00000001;
 const Uint32 cimom_messages::DEREGISTER_CIM_SERVICE =   0x00000002;
 const Uint32 cimom_messages::UPDATE_CIM_SERVICE =       0x00000003;
@@ -75,7 +76,8 @@ const Uint32 cimom_messages::ENUMERATE_SERVICE =        0x00000008;
 
 // messages handled by services (modules)
  
-const Uint32 service_messages::HEARTBEAT =                  0x00000000; 
+const Uint32 service_messages::HEARTBEAT =                  0x00000000;
+const Uint32 service_messages::REPLY =                      0x00000000;
 const Uint32 service_messages::START =                      0x00000001;
 const Uint32 service_messages::STOP =                       0x00000002 ;
 const Uint32 service_messages::PAUSE =                      0x00000003;

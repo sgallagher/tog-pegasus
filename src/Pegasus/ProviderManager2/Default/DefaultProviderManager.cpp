@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -1033,8 +1033,13 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
 
         objectPath.setKeyBindings(request->objectName.getKeyBindings());
 
+        CIMObjectPath assocPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->assocClass.getString());
+
         ProviderName name(
-            objectPath.toString(),
+            assocPath.toString(),
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
@@ -1142,8 +1147,13 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
 
         objectPath.setKeyBindings(request->objectName.getKeyBindings());
 
+        CIMObjectPath assocPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->assocClass.getString());
+
         ProviderName name(
-            objectPath.toString(),
+            assocPath.toString(),
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
@@ -1247,8 +1257,13 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
 
         objectPath.setKeyBindings(request->objectName.getKeyBindings());
 
+        CIMObjectPath resultPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->resultClass.getString());
+
         ProviderName name(
-            objectPath.toString(),
+            resultPath.toString(),
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
@@ -1357,8 +1372,13 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
 
         objectPath.setKeyBindings(request->objectName.getKeyBindings());
 
+        CIMObjectPath resultPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->resultClass.getString());
+
         ProviderName name(
-            objectPath.toString(),
+            resultPath.toString(),
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
@@ -2544,7 +2564,7 @@ Message *DefaultProviderManager::handleExportIndicationRequest(const Message *me
 Message * DefaultProviderManager::handleDisableModuleRequest(const Message * message) throw()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleDisableModuleRequest");
-if (getenv("DEB_HALT"))asm("int $3");
+
     CIMDisableModuleRequestMessage * request =
         dynamic_cast<CIMDisableModuleRequestMessage *>(const_cast<Message *>(message));
 
@@ -2959,9 +2979,7 @@ String DefaultProviderManager::_generateKey (
 ProviderName DefaultProviderManager::_resolveProviderName(const ProviderName & providerName)
 {
     ProviderName temp = findProvider(providerName);
-
     String physicalName = _resolvePhysicalName(temp.getPhysicalName());
-
     temp.setPhysicalName(physicalName);
 
     return(temp);

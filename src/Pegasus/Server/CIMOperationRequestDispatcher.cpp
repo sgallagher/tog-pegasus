@@ -1130,12 +1130,6 @@ Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
     // Loop for all classNames found
     for(Uint32 i = 0, n = classNames.size(); i < n; i++)
     {
-        //String serviceName;
-        //String controlProviderName;
-        //ProviderIdContainer * container = 0;
-
-        //ProviderInfo providerInfo(classNames[i]);
-
         // Lookup any instance providers and add to send list
         ProviderInfo providerInfo =
             _lookupNewInstanceProvider(
@@ -1260,6 +1254,7 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
         {
             providerInfo.hasProviderNormalization = true;
 
+            /*
             // get the provder module version
             if((pos = pmInstance.findProperty("InterfaceVersion")) != PEG_NOT_FOUND)
             {
@@ -1272,25 +1267,23 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
                     providerInfo.hasProviderNormalization = false;
                 }
             }
+            */
 
-            if(moduleNormalizationEnabled)
+            // get the provder module name
+            if((pos = pmInstance.findProperty("Name")) != PEG_NOT_FOUND)
             {
-                // get the provder module name
-                if((pos = pmInstance.findProperty("Name")) != PEG_NOT_FOUND)
+                String moduleName;
+
+                pmInstance.getProperty(pos).getValue().get(moduleName);
+
+                // check if module name is on the excludeModulesFromNormalization list
+                for(Uint32 i = 0, n = _excludeModulesFromNormalization.size(); i < n; i++)
                 {
-                    String moduleName;
-
-                    pmInstance.getProperty(pos).getValue().get(moduleName);
-
-                    // check if module name is on the excludeModulesFromNormalization list
-                    for(Uint32 i = 0, n = _excludeModulesFromNormalization.size(); i < n; i++)
+                    if(String::equalNoCase(moduleName, _excludeModulesFromNormalization[i]))
                     {
-                        if(String::equalNoCase(moduleName, _excludeModulesFromNormalization[i]))
-                        {
-                            providerInfo.hasProviderNormalization = false;
+                        providerInfo.hasProviderNormalization = false;
 
-                            break;
-                        }
+                        break;
                     }
                 }
             }

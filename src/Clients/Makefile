@@ -19,6 +19,7 @@ DIRS = \
     ipinfo \
     g11ntest \
     benchmarkTest \
+    cimperf \
     MCCATestClient
 
 ifeq ($(OS),HPUX)

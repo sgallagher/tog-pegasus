@@ -1,8 +1,29 @@
-This directory contains MOF files.
+README - The Scehmas Directories
+
+This directory contains  a set of subdirectories with the CIM MOF files
+and the Makefile that installs a CIMSchema into the Pegasus Repository
 
 The CIMOMxx directories are the official DMTF MOF files for the
-versions of CIM defined by the xx (ex. 25 for version 2.5).
+versions of CIM defined by the xx (ex. CIM25 for CIM Schema version 2.5).
+
+Preliminary versions of the CIM schemas should have the directory naming:
+
+CIMPRELIMxx
 
 The other directories are CIM MOF files for the Pegasus project
 including Pegasus extensions and tests.
+
+New CIM Schemas should be added to this directory each as a complete
+subdirectory.
+
+Please use the directory naming
+
+CIMxx
+orCIMPRELIMxx
+
+where xx is the version
+
+21 Feb 2002 - KS Added the Makefile for repository install to the
+Schemas directory.  the version of the CIMSchema to install is
+defined in that makefile.
 

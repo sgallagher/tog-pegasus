@@ -36,6 +36,9 @@
 #include <windows.h>
 #include <process.h>
 #include <stdio.h>
+#include <malloc.h>
+#include <stdlib.h>
+
 #elif defined (PEGASUS_PLATFORM_LINUX_IX86_GNU) 
 #include <pthread.h>
 #include <semaphore.h>
@@ -89,7 +92,7 @@
 #include <malloc.h>
 #include <errno.h>
 #include <signal.h>
-
+#include <new.h>
 namespace 
 {
    static const int GUARD_SIZE = 0x10;
@@ -293,10 +296,12 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
       static const Uint8 delete_pattern;
       
       static Boolean _CheckGuard(SUBALLOC_NODE *);
-      static Uint32  CheckMemory(void *);
+      
       
       static Uint32 _CheckNode(void *m);
       SUBALLOC_NODE *_CheckNode(void *m, int type, Sint8 *file, Uint32 line);
+   public:
+      static Uint32  CheckMemory(void *);
 #endif
    public:
 

@@ -111,6 +111,15 @@ FAKE_MESSAGE *get_next_msg(void *key)
    if(requests.value() < NUMBER_MSGS)
    {
       msg = PEGASUS_NEW(FAKE_MESSAGE, dq_handle) FAKE_MESSAGE(key, 0);
+      char *p = (char *)msg;
+      p += sizeof(FAKE_MESSAGE);
+      *p = 0x00;
+      p += 5;
+      *p = 0x00;
+      if( false == peg_suballocator::CheckMemory(msg))
+	 abort();
+      
+      
       requests++;
    }
    msg_mutex.unlock(); 
@@ -123,7 +132,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_sending_thread(void *parm)
    read_write * my_qs = (read_write *)my_handle->get_parm();
    PEGASUS_THREAD_TYPE myself = pegasus_thread_self();
 
-   Thread *receiver = PEGASUS_NEW(Thread, dq_handle) Thread(client_receiving_thread, my_qs, false);
+   Thread *receiver = new Thread(client_receiving_thread, my_qs, false);
    receiver->run();
    FAKE_MESSAGE *msg = 0;
    while( 1 )
@@ -264,13 +273,13 @@ int main(int argc, char **argv)
    
    for( i = 0; i < NUMBER_CLIENTS; i++)
    {
-      client_sender[i] = PEGASUS_NEW(Thread, dq_handle) Thread(client_sending_thread, &rw, false );
+      client_sender[i] = new Thread(client_sending_thread, &rw, false );
       client_sender[i]->run();
    }
 
    for( i = 0; i < NUMBER_SERVERS; i++)
    {
-      server[i] = PEGASUS_NEW(Thread, dq_handle) Thread(server_thread, &rw, false);
+      server[i] = new Thread(server_thread, &rw, false);
       server[i]->run();
    }
 
@@ -281,6 +290,9 @@ int main(int argc, char **argv)
 
    rw.incoming->shutdown_queue();
    rw.outgoing->shutdown_queue();
+
+   PEGASUS_STOP_LEAK_CHECK();
+   PEGASUS_CHECK_FOR_LEAKS(dq_handle);
 
    for( i = 0; i < NUMBER_CLIENTS; i++)
    {
@@ -300,8 +312,7 @@ int main(int argc, char **argv)
    delete rw.incoming;
    delete rw.outgoing;
 
-   PEGASUS_STOP_LEAK_CHECK();
-   PEGASUS_CHECK_FOR_LEAKS(dq_handle);
+
    
    return 0;
 }

@@ -39,7 +39,7 @@ PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t size)
 }
 
 PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t size, 
-					      Sint8 *classname, 
+					      const Sint8 *classname, 
 					      Sint8 *file,
 					      int line)
 {
@@ -56,7 +56,7 @@ PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void * dead)
    internal_allocator.vs_free(dead); 
 }
 
-void * operator new(size_t size)
+void * operator new(size_t size) throw(PEGASUS_STD(bad_alloc))
 {
    
    if( size == 0 )
@@ -77,12 +77,12 @@ void * operator new(size_t size)
       if( global) 
 	 (*global)();
       else
-	 throw std::bad_alloc();
+	 throw PEGASUS_STD(bad_alloc());
    }
 }
 
 
-void operator delete(void *dead)
+void operator delete(void *dead) throw()
 {
    if( dead == 0 )
       return;
@@ -90,7 +90,7 @@ void operator delete(void *dead)
    return;
 }
 
-void * operator new [] (size_t size)
+void * operator new [] (size_t size) throw(PEGASUS_STD(bad_alloc))
 {
 
    if( size == 0 )
@@ -109,11 +109,11 @@ void * operator new [] (size_t size)
       if( global) 
 	 (*global)();
       else
-	 throw std::bad_alloc();
+	 throw PEGASUS_STD(bad_alloc());
    }
 }
 
-void operator delete [] (void *dead)
+void operator delete [] (void *dead) throw()
 {
    if( dead == 0 )
       return;
@@ -667,7 +667,7 @@ void peg_suballocator::PutHugeNode(SUBALLOC_NODE *node)
  *   		 or NULL. 
  *
  ***************************************************************/
-void *peg_suballocator::vs_malloc(size_t size, void *handle, int type, Sint8 *classname, Sint8 *f, Sint32 l)
+void *peg_suballocator::vs_malloc(size_t size, void *handle, int type, const Sint8 *classname, const Sint8 *f, Sint32 l)
 {
    // we don't need to grab any semaphores, 
    // called routines will do that for us

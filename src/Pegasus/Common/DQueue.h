@@ -642,8 +642,8 @@ template<class L> AsyncDQueue<L>::AsyncDQueue(Boolean head, Uint32 capacity )
    if(head == true)
    {
       _cond.reset(new Mutex());
-      _slot.reset(new Condition(*_cond));
-      _node.reset(new Condition(*_cond));
+      _slot.reset(new Condition(*_cond.get()));
+      _node.reset(new Condition(*_cond.get()));
       _actual_count.reset(new AtomicInt(0));
       _disallow.reset(new AtomicInt(0));
       _capacity.reset(new AtomicInt(capacity));

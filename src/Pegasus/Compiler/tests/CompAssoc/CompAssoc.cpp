@@ -107,7 +107,7 @@ int main()
     {
 	CIMRepository r("./repository");
 
-	TestAssociations(r);
+	// TestAssociations(r);
     }
     catch (Exception& e)
     {

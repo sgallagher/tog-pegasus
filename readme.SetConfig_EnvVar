@@ -1,0 +1,66 @@
+/-----------------------------------------------\
+|  Set Configurations of Environment variables  |
+\-----------------------------------------------/
+
+Author: Konrad Rzeszutek <konradr@us.ibm.com>
+Jul 28th 2004
+
+
+Description:
+------------
+
+The SetConfig_EnvVar script is used to solve one of the problems that Pegasus
+require of users - to set environment variables for compiling components 
+of Pegasus. This script will allow the user to set those options interactivly
+or by providing arguments to the script.
+
+
+Usage:
+------
+
+To set the compilation options, run the script file and provide the answers.
+You can always re-run the application to set new options, so don't worry if 
+you set the wrong option the first time.
+
+If you already know what you want and are not interested in interactivly
+answering questions on components, pass in arguments to the script.
+For a full list of arguments, run the script with --help parameter, as such:
+
+ $./SetConfig_EnvVar --help
+
+
+Developer:
+----------
+
+If you are Pegasus developer, this section will interest you. The details of 
+the working of this script is described in "PEP #182: Configuration script 
+enhancement." 
+
+If you are adding a new component to Pegasus and require to set a new
+#ifdef statement, you should consider adding it in ./SetConfig_EnvVar.help file.The file lists the options that would be presented to the user. Syntax of this 
+file is quite easy:
+
+{<define-component> { [<depends on;depends on; ...>],<define_type>, 
+	<--config component>, <short description>, <long description> }
+
+For example the PEGASUS_HAS_SSL is defined as:
+
+PEGASUS_HAS_SSL {
+# Depends on other components. This is optional.
+	OPENSSL_HOME
+# Boolean means you need to define "Yes", "No" (any case).
+# Path means that the user has to provide a path.
+	Boolean,
+# The parameter that can be run with ./ConfigureSetConfig_EnvVar, such as
+	--enable-ssl,
+# Short description, used for ./ConfigureSetConfig_EnvVar --help to provide a short 
+	Build in SSL support,
+# Long description, used when querying interactively the user.
+	Enabling SSL compile SSL support in Pegasus. If your SSL include 
+	files are located in a non-standard location, make sure to define 
+	OPENSSL_HOME with the right directory.}
+
+
+Make sure that "{" is ended with "}"
+
+Good luck!

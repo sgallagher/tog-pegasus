@@ -1,0 +1,7 @@
+# All defines are commented out. Run SetConfig_EnvVar to select
+# the proper options.
+
+# The syntax of this file is 
+# <define>=<value>
+# such as:
+#PEGASUS_HAS_SSL=Yes

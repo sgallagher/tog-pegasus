@@ -1,0 +1,82 @@
+PEGASUS_ROOT {
+	path,
+	--source,
+	Directory where source code is located,
+	Location where Pegasus source code is located.}
+
+PEGASUS_HOME {
+	path,
+	--binary,
+	Directory where built binaries are deposited,
+	Location where Pegasus built binaries are located. Can be the same as PEGASUS_ROOT.}
+
+PEGASUS_HAS_SSL { 
+# Dependency:
+	OPENSSL_HOME,
+# Type: Boolean or Path
+	Boolean, 
+	--enable-ssl, 
+# short description
+	Build in SSL support,
+# long description 
+	Enabling SSL will compile SSL support in Pegasus. If your SSL include files are located in a non-standard location, make sure to define OPENSSL_HOME with the right directory.}
+
+OPENSSL_HOME { 
+	path,
+	--openssl-home,
+	Path to OpenSSL header files,
+	Needed only if OpenSSL is installed non-standard and the header files are located in nonstandard location.}
+
+PEGASUS_PAM_AUTHENTICATION {
+ 	Boolean,
+	--enable-pam, 
+	Build in PAM support, 
+	Enabling PAM will comile PAM support in Pegasus and provide authentication .}
+
+ENABLE_REMOTE_CMPI {
+	Boolean,
+	--enable-remote-cmpi,
+	Enable Remote CMPI extension,
+Remote CMPI enables providers to be run on remote systems without the need for an extra CIMOM. It uses a special proxying provider to relay requests to a remote location using so-called communication layers. The remote side has to start a CMPIRDaemon process, which accepts remote requests and passes them on to CMPI style providers.  Remote providers are fully binary compatible and need not to be recompiled.  Currently there are two types of remote provider available: out-of-process providers and TCP/IP providers using a separate daemon program.}
+
+ENABLE_JMPI_PROVIDER_MANAGER {
+	Boolean,
+	--enable-jmpi,
+	Enable Java provider support,
+	Enable support for Java providers.}
+
+PEGASUS_ENABLE_SLP {
+	Boolean,
+	--enable-slp,
+	Enable SLP support,
+	Enables Service Locator Protocol. SLP is used to broadcast CIMOMs.}
+
+PEGASUS_USE_PAM_STANDALONE_PROC {
+	Boolean,
+	--enable-standalone-pam,
+	Enable a PAM workaround,
+	PAM authentication has a leak in it. This workaround provides a process which communicates with the CIMserver the authentication information without causing a memory leak in CIMserver.}
+
+PEGASUS_DEBUG {
+	Boolean,
+	--enable-debug,
+	Compile in debug statements,
+	Provide more debug information.}
+
+PEGASUS_USE_RELEASE_CONFIG_OPTIONS {
+	Boolean,
+	--use-release-config-options,
+	Compile code with release config options,
+	Compile the code with release config options built-in.}
+
+PEGASUS_USE_RELEASE_DIRS {
+	Boolean,
+	--use-release-dirs,
+	Compile code with release dirs,
+	Compile code with release dirs built in.}
+
+PEGASUS_LOCAL_DOMAIN_SOCKET {
+	Boolean,
+	--enable-domain-socket,
+	Enable domain socket connection,
+	Enable domain socket connection.}

@@ -234,6 +234,12 @@ public:
         const String& messageId,
 	const Array<Sint8>& body);
 
+    static Array<Sint8> formatSimpleMethodErrorRspMessage(
+	const String& methodName,
+	const String& messageId,
+	CIMStatusCode code,
+	const String& description);
+
     static Array<Sint8> formatSimpleIMethodReqMessage(
 	const char* host,
 	const String& nameSpace,
@@ -247,12 +253,11 @@ public:
         const String& messageId,
 	const Array<Sint8>& body);
 
-    static Array<Sint8> formatSimpleIndicationReqMessage(
-	const char* host,
-    	const char* iMethodName,
+    static Array<Sint8> formatSimpleIMethodErrorRspMessage(
+	const String& iMethodName,
 	const String& messageId,
-        const String& authenticationHeader,
-    	const Array<Sint8>& body);
+	CIMStatusCode code,
+	const String& description);
 
     static void appendEMethodRequestHeader(
     	Array<Sint8>& out,
@@ -294,6 +299,12 @@ public:
 	const char* eMethodName,
         const String& messageId,
 	const Array<Sint8>& body);
+
+    static Array<Sint8> formatSimpleEMethodErrorRspMessage(
+	const String& eMethodName,
+	const String& messageId,
+	CIMStatusCode code,
+	const String& description);
 
     static void indentedPrint(
 	PEGASUS_STD(ostream)& os,

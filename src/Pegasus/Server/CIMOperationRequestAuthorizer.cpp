@@ -89,7 +89,7 @@ void CIMOperationRequestAuthorizer::sendResponse(
 void CIMOperationRequestAuthorizer::sendIMethodError(
    Uint32 queueId,
    const String& messageId,
-   const String& cimMethodName,
+   const String& iMethodName,
    CIMStatusCode code,
    const String& description)
 {
@@ -98,22 +98,14 @@ void CIMOperationRequestAuthorizer::sendIMethodError(
 
     PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
 
-    ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
-    ArrayDestroyer<char> tmp2(description.allocateCString());
     Array<Sint8> message;
-    Array<Sint8> tmp;
+    message = XmlWriter::formatSimpleIMethodErrorRspMessage(
+        iMethodName,
+        messageId,
+        code,
+        description);
 
-    XmlWriter::appendMessageElementBegin(message, messageId);
-    XmlWriter::appendSimpleRspElementBegin(message);
-    XmlWriter::appendIMethodResponseElementBegin(message, tmp1.getPointer());
-    XmlWriter::appendErrorElement(message, code, tmp2.getPointer());
-    XmlWriter::appendIMethodResponseElementEnd(message);
-    XmlWriter::appendSimpleRspElementEnd(message);
-    XmlWriter::appendMessageElementEnd(message);
-
-    XmlWriter::appendMethodResponseHeader(tmp, message.size());
-    tmp << message;
-    sendResponse(queueId, tmp);
+    sendResponse(queueId, message);
 
     PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
 }

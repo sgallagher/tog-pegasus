@@ -77,26 +77,18 @@ void CIMExportRequestDecoder::sendResponse(
 void CIMExportRequestDecoder::sendEMethodError(
    Uint32 queueId, 
    const String& messageId,
-   const String& cimMethodName,
+   const String& eMethodName,
    CIMStatusCode code,
    const String& description) 
 {
-    ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
-    ArrayDestroyer<char> tmp2(description.allocateCString());
     Array<Sint8> message;
-    Array<Sint8> tmp;
+    message = XmlWriter::formatSimpleEMethodErrorRspMessage(
+        eMethodName,
+        messageId,
+        code,
+        description);
 
-    XmlWriter::appendMessageElementBegin(message, messageId);
-    XmlWriter::appendSimpleExportRspElementBegin(message);
-    XmlWriter::appendEMethodResponseElementBegin(message, tmp1.getPointer());
-    XmlWriter::appendErrorElement(message, code, tmp2.getPointer());
-    XmlWriter::appendEMethodResponseElementEnd(message);
-    XmlWriter::appendSimpleExportRspElementEnd(message);
-    XmlWriter::appendMessageElementEnd(message);
-    
-    XmlWriter::appendEMethodResponseHeader(tmp, message.size());
-    tmp << message;
-    sendResponse(queueId, tmp);
+    sendResponse(queueId, message);
 }
 
 

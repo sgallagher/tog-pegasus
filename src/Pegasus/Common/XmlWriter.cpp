@@ -31,6 +31,7 @@
 
 #include <cstdlib>
 #include <cstdio>
+#include "Destroyer.h"
 #include "CIMClass.h"
 #include "CIMInstance.h"
 #include "CIMQualifierDecl.h"
@@ -893,6 +894,37 @@ Array<Sint8> XmlWriter::formatSimpleMethodRspMessage(
 
 //------------------------------------------------------------------------------
 //
+// XmlWriter::formatSimpleMethodErrorRspMessage()
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8> XmlWriter::formatSimpleMethodErrorRspMessage(
+    const String& methodName,
+    const String& messageId,
+    CIMStatusCode code,
+    const String& description)
+{
+    ArrayDestroyer<char> tmp1(methodName.allocateCString());
+    ArrayDestroyer<char> tmp2(description.allocateCString());
+    Array<Sint8> out;
+    Array<Sint8> tmp;
+
+    appendMessageElementBegin(out, messageId);
+    appendSimpleRspElementBegin(out);
+    appendMethodResponseElementBegin(out, tmp1.getPointer());
+    appendErrorElement(out, code, tmp2.getPointer());
+    appendMethodResponseElementEnd(out);
+    appendSimpleRspElementEnd(out);
+    appendMessageElementEnd(out);
+
+    appendMethodResponseHeader(tmp, out.size());
+    tmp << out;
+
+    return tmp;
+}
+
+//------------------------------------------------------------------------------
+//
 // XmlWriter::formatSimpleIMethodReqMessage()
 //
 //------------------------------------------------------------------------------
@@ -949,6 +981,37 @@ Array<Sint8> XmlWriter::formatSimpleIMethodRspMessage(
     appendIReturnValueElementBegin(out);
     out << body;
     appendIReturnValueElementEnd(out);
+    appendIMethodResponseElementEnd(out);
+    appendSimpleRspElementEnd(out);
+    appendMessageElementEnd(out);
+
+    appendMethodResponseHeader(tmp, out.size());
+    tmp << out;
+
+    return tmp;
+}
+
+//------------------------------------------------------------------------------
+//
+// XmlWriter::formatSimpleIMethodErrorRspMessage()
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8> XmlWriter::formatSimpleIMethodErrorRspMessage(
+    const String& iMethodName,
+    const String& messageId,
+    CIMStatusCode code,
+    const String& description)
+{
+    ArrayDestroyer<char> tmp1(iMethodName.allocateCString());
+    ArrayDestroyer<char> tmp2(description.allocateCString());
+    Array<Sint8> out;
+    Array<Sint8> tmp;
+
+    appendMessageElementBegin(out, messageId);
+    appendSimpleRspElementBegin(out);
+    appendIMethodResponseElementBegin(out, tmp1.getPointer());
+    appendErrorElement(out, code, tmp2.getPointer());
     appendIMethodResponseElementEnd(out);
     appendSimpleRspElementEnd(out);
     appendMessageElementEnd(out);
@@ -1161,6 +1224,37 @@ Array<Sint8> XmlWriter::formatSimpleEMethodRspMessage(
     appendSimpleExportRspElementBegin(out);
     appendEMethodResponseElementBegin(out, eMethodName);
     out << body;
+    appendEMethodResponseElementEnd(out);
+    appendSimpleExportRspElementEnd(out);
+    appendMessageElementEnd(out);
+
+    appendEMethodResponseHeader(tmp, out.size());
+    tmp << out;
+
+    return tmp;
+}
+
+//------------------------------------------------------------------------------
+//
+// XmlWriter::formatSimpleEMethodErrorRspMessage()
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8> XmlWriter::formatSimpleEMethodErrorRspMessage(
+    const String& eMethodName,
+    const String& messageId,
+    CIMStatusCode code,
+    const String& description)
+{
+    ArrayDestroyer<char> tmp1(eMethodName.allocateCString());
+    ArrayDestroyer<char> tmp2(description.allocateCString());
+    Array<Sint8> out;
+    Array<Sint8> tmp;
+
+    appendMessageElementBegin(out, messageId);
+    appendSimpleExportRspElementBegin(out);
+    appendEMethodResponseElementBegin(out, tmp1.getPointer());
+    appendErrorElement(out, code, tmp2.getPointer());
     appendEMethodResponseElementEnd(out);
     appendSimpleExportRspElementEnd(out);
     appendMessageElementEnd(out);

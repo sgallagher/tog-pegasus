@@ -93,29 +93,21 @@ void CIMOperationResponseEncoder::sendResponse(
 void CIMOperationResponseEncoder::sendIMethodError(
    Uint32 queueId, 
    const String& messageId,
-   const String& cimMethodName,
+   const String& iMethodName,
    CIMStatusCode code,
    const String& description) 
 {
     PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
 		   "sendIMethodError()");
 
-    ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
-    ArrayDestroyer<char> tmp2(description.allocateCString());
     Array<Sint8> message;
-    Array<Sint8> tmp;
+    message = XmlWriter::formatSimpleIMethodErrorRspMessage(
+        iMethodName,
+        messageId,
+        code,
+        description);
 
-    XmlWriter::appendMessageElementBegin(message, messageId);
-    XmlWriter::appendSimpleRspElementBegin(message);
-    XmlWriter::appendIMethodResponseElementBegin(message, tmp1.getPointer());
-    XmlWriter::appendErrorElement(message, code, tmp2.getPointer());
-    XmlWriter::appendIMethodResponseElementEnd(message);
-    XmlWriter::appendSimpleRspElementEnd(message);
-    XmlWriter::appendMessageElementEnd(message);
-
-    XmlWriter::appendMethodResponseHeader(tmp, message.size());
-    tmp << message;
-    sendResponse(queueId, tmp);
+    sendResponse(queueId, message);
 
     PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
 		  "sendIMethodError()");
@@ -145,29 +137,21 @@ void CIMOperationResponseEncoder::sendIMethodError(
 void CIMOperationResponseEncoder::sendMethodError(
    Uint32 queueId, 
    const String& messageId,
-   const String& cimMethodName,
+   const String& methodName,
    CIMStatusCode code,
    const String& description) 
 {
     PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
 		   "sendMethodError()");
 
-    ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
-    ArrayDestroyer<char> tmp2(description.allocateCString());
     Array<Sint8> message;
-    Array<Sint8> tmp;
+    message = XmlWriter::formatSimpleMethodErrorRspMessage(
+        methodName,
+        messageId,
+        code,
+        description);
 
-    XmlWriter::appendMessageElementBegin(message, messageId);
-    XmlWriter::appendSimpleRspElementBegin(message);
-    XmlWriter::appendIMethodResponseElementBegin(message, tmp1.getPointer());
-    XmlWriter::appendErrorElement(message, code, tmp2.getPointer());
-    XmlWriter::appendIMethodResponseElementEnd(message);
-    XmlWriter::appendSimpleRspElementEnd(message);
-    XmlWriter::appendMessageElementEnd(message);
-
-    XmlWriter::appendMethodResponseHeader(tmp, message.size());
-    tmp << message;
-    sendResponse(queueId, tmp);
+    sendResponse(queueId, message);
 
     PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
 		  "sendMethodError()");

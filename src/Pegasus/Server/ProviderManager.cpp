@@ -105,7 +105,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::monitorThread(void *
 
         // start with highest entry to prevent out-of-bounds
         // exception in case a removed entry - Markus
-        for(Uint32 i = _this->_providers.size()-1; i != 0; i--)
+        for(Uint32 i = _this->_providers.size()-1; i >= 0; i--)
         {
             // get provider timeout
 

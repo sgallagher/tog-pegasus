@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.8  2001/02/05 14:14:58  karl
+// instance test
+//
 // Revision 1.7  2001/02/02 21:59:45  karl
 // fix enuminstances and some DOC++
 //
@@ -71,6 +74,10 @@ static void PrintHead(const String& title)
     cout << "</head>\n";
 }
 
+/** PrintHeader - Print the HTML banner. THis is a table with
+    the text definition for the page and the TOG logo.
+    @param - Text for the title
+*/
 static void PrintHeader(const String& title)
 {
     String img = "/pegasus/icons/OpenGroupLogo.gif";
@@ -85,6 +92,12 @@ static void PrintHeader(const String& title)
     cout << "</table>\n";
 }
 
+/** PrintHTMLHead - Prints the HTML opening, document title
+    and the page banner informatio
+    @param string title - The text for the title field
+    @param string header - The text for the banner line. This string 
+    identifies the function of the page.
+*/
 static void PrintHTMLHead(const String& title, const String& header)
 {
      cout << "<html>\n";
@@ -92,12 +105,17 @@ static void PrintHTMLHead(const String& title, const String& header)
      cout << "<body bgcolor=\"#CCCCCC\">\n";
      PrintHeader(header);
      PrintRule();
-
 }
 
+/** ErrorExit - Print out the error message as an
+    HTML page and get out.
+    @param - Text for error message
+    @return - None, Terminates the program
+    @execption - This function terminates the program
+*/ 
 void ErrorExit(const String& message)
 {
-    PrintHTMLHead("Message", "Error");
+    PrintHTMLHead("Message", "Error in CGIClient");
     // kscout << "<html>\n";
     // ksPrintHead("Message");
     // ksPrintHeader("Error");
@@ -140,9 +158,9 @@ static String EncodeQueryStringValue(const String& x)
 
     return result;
 }
-/* PrintA - Prints a single href
-@param href - the references
-@content - The content of the reference
+/** PrintA - Prints a single href
+    @param href - the reference for building the href
+    @parm content - The content of the reference
 */
 static void PrintA(const String& href, const String& content)
 {
@@ -229,6 +247,9 @@ or instances.	 This prints an HTML table of the properties
 fields including name, type, value, ClassOrigin, and propagated.
 The name is wrapped in an href so a click will get detailed
 property information.
+
+This is a template function so that it can be used with both instance
+and class definitions.
 @param nameSpace. Used to query for namespace value.  WHY???
 @parm object - Either the class or instance object address
 @param includeClassOrigin to be used to define tests on getting this field
@@ -301,8 +322,9 @@ void PrintQualifiers(OBJECT& object)
     PrintTableTrailer();
 }
 /** Prepare an HTML table with a header and an entry
-for each method defined in the class with the Name
-and type of the Method in each entry
+    for each method defined in the class with the Name
+    and type of the Method in each entry
+    @param Classdecl - Class for which methods to be output
 */
 void PrintClassMethods(ClassDecl& classDecl)
 {
@@ -326,19 +348,20 @@ void PrintClassMethods(ClassDecl& classDecl)
 
     cout << "</table>\n";
 }
+
 /** PrintClass - Print an HTML page with the characteristics of
-the Class defined in the call including:
-<UL>
-    <LI>ClassName
-    <LI>Qualifiers
-    <LI>Properties
-    <LI>Methods
-<UL>
-@param String with nameSpace
-@param pointer to class
-@param localOnly
-@param includeQualifiers
-@param includClassOrigin
+    the Class defined in the call including:
+    <UL>
+	<LI>ClassName
+	<LI>Qualifiers
+	<LI>Properties
+	<LI>Methods
+    <UL>
+    @param String with nameSpace
+    @param pointer to class
+    @param localOnly
+    @param includeQualifiers
+    @param includClassOrigin
 */
 void PrintClass(
     const String& nameSpace,
@@ -353,19 +376,20 @@ void PrintClass(
 	PrintQualifiers(classDecl);
     PrintObjectProperties(nameSpace, classDecl,includeClassOrigin);
     PrintClassMethods(classDecl);
-
-    cout << "</body>\n";
-    cout << "</html>\n";
+// ATTN: Remove this after test
+//    cout << "</body>\n";
+//    cout << "</html>\n";
 }
+
 /** PrintInstance - Print an HTML page with the characteristics
-of the instance including:
-<UL>
-    <LI>ClassName
-    <LI>Qualifiers
-    <LI>Properties
-</UL>
-Note that methods are at the class level, not the instance
-level so they do not appear in the Instance page.
+    of the instance including:
+    <UL>
+	<LI>ClassName
+	<LI>Qualifiers
+	<LI>Properties
+    </UL>
+    Note that methods are at the class level, not the instance
+    level so they do not appear in the Instance page.
 */
 void PrintInstance(
 const String& nameSpace,
@@ -394,7 +418,7 @@ void PrintPropertyDeclaration(Property& property)
 }
 
 /** Function GetClass Peforms the getClass
-request and prints the result as an HTML page  
+    request and prints the result as an HTML page  
 */
 static void GetClass(const CGIQueryString& qs)
 {
@@ -435,18 +459,22 @@ static void GetClass(const CGIQueryString& qs)
 	    localOnly, includeQualifiers, includeClassOrigin);
 
 	PrintClass(nameSpace, classDecl,localOnly, includeQualifiers, 
-	    includeClassOrigin); } catch(Exception& e)
+	    includeClassOrigin);
+	cout << "</body>\n";
+        cout << "</html>\n";
+    }
+     catch(Exception& e)
     {
 	ErrorExit(e.getMessage());
     }
 }
 
 /** Function GetPropertyDeclaration
-This function is NOT a a WBEM Function. It is used by
-the Get Class function to get properties for the getClass
-presentation. This function uses the getClass with the
-PropertyName parameter to find each property
-get the property and Print each property.
+    This function is NOT a a WBEM Function. It is used by
+    the Get Class function to get properties for the getClass
+    presentation. This function uses the getClass with the
+    PropertyName parameter to find each property
+    get the property and Print each property.
 */
 static void GetPropertyDeclaration(const CGIQueryString& qs)
 {
@@ -539,8 +567,9 @@ static void PrintClassNames(
     }
 
     cout << "</table>\n";
-    cout << "</body>\n";
-    cout << "</html>\n";
+//ATTN:
+//    cout << "</body>\n";
+//    cout << "</html>\n";
 }
 
 static void EnumerateClassNames(const CGIQueryString& qs)
@@ -565,8 +594,7 @@ static void EnumerateClassNames(const CGIQueryString& qs)
     if (qs.findValue("DeepInheritance"))
 	deepInheritance = true;
 
-    // Invoke the method:
-
+    // Invoke the method: 
     try
     {
 	Client client;
@@ -576,6 +604,9 @@ static void EnumerateClassNames(const CGIQueryString& qs)
 	    nameSpace, className, deepInheritance);
 
 	PrintClassNames(nameSpace, classNames);
+
+        cout << "</body>\n";
+        cout << "</html>\n";
     }
     catch(Exception& e)
     {
@@ -608,7 +639,10 @@ static void DeleteClass(const CGIQueryString& qs)
 	String message = "Class \"";
 	message += className;
 	message.append("\" was deleted");
-	ErrorExit(message);
+	PrintHTMLHead("DeleteClass", "Delete Class");
+        cout << "    <h1>" << message << "</h1>\n";
+        cout << "  </body>\n";
+        cout << "</html>\n";
     }
     catch(Exception& e)
     {
@@ -818,12 +852,12 @@ static void PrintInstanceNames(
   
 }
 
-/** EnumerateInstanceNames
- Called for evaluation of the EvaluateInstance Names operation.
- Gets the parameters from the CGIQuery String and calls
- the enumerateInstanceNames Client function.
- The resulting string array of names is printed by
- the function printInstanceNames
+/** EnumerateInstanceNames Function
+    Called for evaluation of the EvaluateInstance Names operation.
+    Gets the parameters from the CGIQuery String and calls
+    the enumerateInstanceNames Client function.
+    The resulting string array of names is printed by
+    the function printInstanceNames
 */
 static void EnumerateInstanceNames(const CGIQueryString& qs)
 {
@@ -845,6 +879,7 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 	Client client;
 	client.connect("localhost", 8888);
 	/*
+	*/
 	Array<Reference> instanceNames = client.enumerateInstanceNames(
 	    nameSpace, className);
 	
@@ -857,10 +892,9 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 	    tmpInstanceNames.append(tmp);
 	}
 
-	Print the name array
+	// Print the name array
 	PrintInstanceNames(nameSpace, tmpInstanceNames);
-	*/
-    }
+        }
     catch(Exception& e)
     {
 	ErrorExit(e.getMessage());

@@ -1,0 +1,28 @@
+// ===================================================================
+// Title:       Master MOF
+// Filename:    CIM_Schema25.mof
+// Version:     2.5
+// Release:     0
+// Date:        12/19/2000
+// Description: This is overall Schema 
+// ===================================================================
+// Author     : DMTF Technical Committee
+// ===================================================================
+// includes
+// ===================================================================
+#pragma include ("CIM_Core25.mof")
+#pragma include ("CIM_Events25.mof")
+#pragma include ("CIM_User25.mof")
+#pragma include ("CIM_Policy25.mof")
+#pragma include ("CIM_Application25.mof")
+#pragma include ("CIM_System25.mof")
+#pragma include ("CIM_Device25.mof")
+#pragma include ("CIM_Physical25.mof")
+#pragma include ("CIM_Network25.mof")
+#pragma include ("CIM_Metrics25.mof")
+#pragma include ("CIM_Support25.mof")
+
+
+
+
+

@@ -246,28 +246,8 @@ Boolean ComputerSystem::getCreationClassName(CIMProperty& p)
 
 Boolean ComputerSystem::getName(CIMProperty& p)
 {
-     char    hostName[MAXHOSTNAMELEN];
-     struct  hostent *he;
-
-     if (gethostname(hostName, MAXHOSTNAMELEN) != 0)
-     {
-         return false;
-     }
-
-     // Now get the official hostname.  If this call fails then return
-     // the value from gethostname().
-
-     he=gethostbyname(hostName);
-     if (he)
-     {
-        strcpy(hostName, he->h_name);
-     }
-
-     _hostName.assign(hostName);
-     p = CIMProperty(PROPERTY_NAME,_hostName);
-
-     return true;
-
+  p = CIMProperty(PROPERTY_NAME,String(getHostName()));
+  return true;
 }
 
 Boolean ComputerSystem::getStatus(CIMProperty& p)
@@ -451,14 +431,39 @@ Boolean ComputerSystem::getIdentificationNumber(CIMProperty& p)
 
 
 
-
+/**
+ * initialize primarily functions to initialize static global variables
+ * that will not be changed frequently. These variables are currently
+ * _hostName, _primaryOwner* and _secondaryOwner*
+ *
+ */
 void ComputerSystem::initialize(void)
 {
-	
+  char    hostName[MAXHOSTNAMELEN];
+  struct  hostent *he;
+
+  if (gethostname(hostName, MAXHOSTNAMELEN) != 0)
+  {
+      _hostName.assign("Not initialized");
+  }
+
+  // Now get the official hostname.  If this call fails then return
+  // the value from gethostname().
+
+  he=gethostbyname(hostName);
+  if (he)
+  {
+     strcpy(hostName, he->h_name);
+  }
+
+  _hostName.assign(hostName);
+
   /*
-     // Can't figure out how to include -lpegconfig in the makefile script
-     // if someone can fix this within the local Makfile it would be appreciated
-     // then we can remove the hard coded _providerCacheDir with these two lines
+     // Now initializing "configurable" attributes such as primaryOwnerName
+     // Providers are not allowed to include -lpegconfig in the makefile script
+     // if someone can fix this so I can use the global env variable 
+     // $PEGASUS_HOME it would be appreciated then we can replace the hard-
+     // coded _providerCacheDir with something like these two lines
   
   _providerCacheDir = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("home"));
   _providerCacheDir.append("/providercachedir");

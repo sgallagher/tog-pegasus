@@ -50,7 +50,7 @@ PEGASUS_USING_STD;
 
 namespace 
 {
-   static Pegasus::peg_suballocator::SUBALLOC_HANDLE *dq_handle = new peg_suballocator::SUBALLOC_HANDLE();
+   static peg_suballocator::SUBALLOC_HANDLE *dq_handle = new peg_suballocator::SUBALLOC_HANDLE();
 }
 
 CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(

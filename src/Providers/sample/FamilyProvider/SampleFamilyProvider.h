@@ -135,14 +135,15 @@ public:
     
 
 protected:
-	Array<CIMObjectPath> _instanceNames;
+	CIMClass _referencedClass;
+    Array<CIMObjectPath> _instanceNames;
 	Array<CIMInstance> _instances;
 
-    Array<CIMObjectPath> _instanceNamesLineage;
-    Array<CIMInstance> _instancesLineage;
+    Array<CIMObjectPath> _instanceNamesLineageDynamic;
+    Array<CIMInstance> _instancesLineageDynamic;
     
-    Array<CIMObjectPath> _instanceNamesLabeledLineage;
-    Array<CIMInstance> _instancesLabeledLineage;
+    Array<CIMObjectPath> _instanceNamesLabeledLineageDynamic;
+    Array<CIMInstance> _instancesLabeledLineageDynamic;
     CIMClass _assocClass;
 };
 

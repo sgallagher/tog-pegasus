@@ -30,6 +30,8 @@
 #include "SampleFamilyProvider.h"
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/MofWriter.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -52,59 +54,99 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
         // Create the classes so we have something to build from. This should not have to 
         // be here but we cannot get to repository yet.
         // create default instances
+        */
         String refClassName = "TST_PersonDynamic";
+        CIMClass c1( CIMName (refClassName), CIMName("TST_Person"));
+        CIMProperty prop1;
+        prop1 = CIMProperty (CIMName ("Name"), String());
+        prop1.addQualifier (CIMQualifier (CIMName ("Key"), true));
+        c1.addProperty(prop1);
+        _referencedClass = c1;
+
+		XmlWriter::printClassElement(_referencedClass);
+		MofWriter::printClassElement(_referencedClass);
+
         // Create the association class
-        CIMClass class1(CIMName ("TST_Lineage"), CIMName ("YourClass"));
+        CIMClass a1("TST_Lineage");
 
-        CIMProperty p1(CIMName ("parent"), 0, 0, CIMName (refClassName ));
-        p1.addQualifier(CIMQualifier(CIMName ("Key"), true));
-        CIMProperty p2(CIMName ("child"), 0, 0, CIMName (refClassName));
+        // ATTN: Karl - THis generates a value reference with nothing in it for the classname. WHY?
+        CIMValue cv = CIMObjectPath();
+        CIMProperty p1(CIMName ("parent"), CIMObjectPath(), 0, CIMName(refClassName));
         p1.addQualifier(CIMQualifier(CIMName ("Key"), true));
 
-        _assocClass
+        CIMProperty p2(CIMName ("child"), CIMObjectPath(),0, CIMName(refClassName));
+        p2.addQualifier(CIMQualifier(CIMName ("Key"), true));
+
+        a1
         .addQualifier(CIMQualifier(CIMName ("association"), true))
         .addProperty(CIMProperty(p1))
         .addProperty(CIMProperty(p2));
-        PEGASUS_STD(cout) << "KSTEST Initialize SampleFamilyProvider Class Created "  << PEGASUS_STD(endl);
-        */
-    }
+        _assocClass = a1;
+        CDEBUG ("Initialize - Association Class built");
+		XmlWriter::printClassElement(_assocClass);
+		MofWriter::printClassElement(_assocClass);
 
+    }
+    // Build instances of the referenced class
     {
     	CIMInstance instance("TST_PersonDynamic");
-    	CIMObjectPath reference("TST_PersonDynamic.Name=\"Father\"");
+    	//CIMObjectPath reference("TST_PersonDynamic.Name=\"Father\"");
     
     	instance.addProperty(CIMProperty("Name", String("Father")));   // key
     
     	_instances.append(instance);
-    	_instanceNames.append(reference);
+    	//_instanceNames.append(reference);
     }
+    Uint32 Father = _instances.size() -1;
     {
     	CIMInstance instance("TST_PersonDynamic");
-    	CIMObjectPath reference("TST_PersonDynamic.Name=\"Son1\"");
+    	//CIMObjectPath reference("TST_PersonDynamic.Name=\"Father\"");
+    
+    	instance.addProperty(CIMProperty("Name", String("Mother")));   // key
+    
+    	_instances.append(instance);
+    	//_instanceNames.append(reference);
+    }
+    Uint32 Mother = _instances.size() -1;
+    {
+    	CIMInstance instance("TST_PersonDynamic");
+    	//CIMObjectPath reference("TST_PersonDynamic.Name=\"Son1\"");
     
     	instance.addProperty(CIMProperty("Name", String("Son1")));   // key
     
     	_instances.append(instance);
-    	_instanceNames.append(reference);
+    	//_instanceNames.append(reference);
     }
+    Uint32 Son1 = _instances.size() -1;
     {
     	CIMInstance instance("TST_PersonDynamic");
-    	CIMObjectPath reference("TST_PersonDynamic.Name=\"Son2\"");
+    	//CIMObjectPath reference("TST_PersonDynamic.Name=\"Son2\"");
     
     	instance.addProperty(CIMProperty("Name", String("Son2")));   // key
     
     	_instances.append(instance);
-    	_instanceNames.append(reference);
+    	//_instanceNames.append(reference);
     }
+    Uint32 Son2 = _instances.size() - 1;
     {
     	CIMInstance instance("TST_PersonDynamic");
-    	CIMObjectPath reference("TST_PersonDynamic.Name=\"Daughter1\"");
+    	//CIMObjectPath reference("TST_PersonDynamic.Name=\"Daughter1\"");
     
     	instance.addProperty(CIMProperty("Name", String("Daughter1")));   // key
     
     	_instances.append(instance);
-    	_instanceNames.append(reference);
+    	//_instanceNames.append(reference);
     }
+    Uint32 Daughter1 = _instances.size() - 1;
+
+    CDEBUG ("initialize - referenced Class Instances Built");
+
+    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    {
+        // Create Instance Names
+        _instanceNames.append(_instances[i].buildPath(_referencedClass));
+    }
+    CDEBUG ("initialize - referenced Class Instance Names Built using buildpath");
     //
     // Now make the instances for the associations
     //
@@ -117,12 +159,75 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
             CIMName ("TennisPlayer"));
     
     */
-    CDEBUG ("Initialise - 1");
+    CDEBUG ("Initialise - Building Assoc Class instances");
+    {
+        CIMName thisClassReference = "TST_PersonDynamic";
+        CIMName assocClassName = "TST_LineageDynamic";
+        {
+            CIMInstance instance(assocClassName);
+            CIMObjectPath parent =  _instanceNames[Father];
+            CIMObjectPath child = _instanceNames[Son1];
+            instance.addProperty(CIMProperty("parent", parent,0,thisClassReference));
+            instance.addProperty(CIMProperty("child", child, 0, thisClassReference));
+            _instancesLineageDynamic.append(instance);
+        }
+        {
+            CIMInstance instance(assocClassName);
+            CIMObjectPath parent =  _instanceNames[Father];
+            CIMObjectPath child = _instanceNames[Son2];
+        
+            instance.addProperty(CIMProperty("parent", parent,0,thisClassReference));
+            instance.addProperty(CIMProperty("child", child, 0, thisClassReference));
+            _instancesLineageDynamic.append(instance);
+        }
+        {
+            CIMInstance instance(assocClassName);
+            CIMObjectPath parent =  _instanceNames[Father];
+            CIMObjectPath child = _instanceNames[Daughter1];
+        
+            instance.addProperty(CIMProperty("parent", parent,0,thisClassReference));
+            instance.addProperty(CIMProperty("child", child, 0, thisClassReference));
+            _instancesLineageDynamic.append(instance);
+        }
+        {
+            CIMInstance instance(assocClassName);
+            CIMObjectPath parent =  _instanceNames[Mother];
+            CIMObjectPath child = _instanceNames[Daughter1];
+        
+            instance.addProperty(CIMProperty("parent", parent,0,thisClassReference));
+            instance.addProperty(CIMProperty("child", child, 0, thisClassReference));
+            _instancesLineageDynamic.append(instance);
+        }
+        {
+            CIMInstance instance(assocClassName);
+            CIMObjectPath parent =  _instanceNames[Mother];
+            CIMObjectPath child = _instanceNames[Son1];
+        
+            instance.addProperty(CIMProperty("parent", parent,0,thisClassReference));
+            instance.addProperty(CIMProperty("child", child, 0, thisClassReference));
+            _instancesLineageDynamic.append(instance);
+        }
+        {
+            CIMInstance instance(assocClassName);
+            CIMObjectPath parent =  _instanceNames[Mother];
+            CIMObjectPath child = _instanceNames[Son2];
+        
+            instance.addProperty(CIMProperty("parent", parent,0,thisClassReference));
+            instance.addProperty(CIMProperty("child", child, 0, thisClassReference));
+            _instancesLineageDynamic.append(instance);
+        }
+        for(Uint32 i = 0, n = _instancesLineageDynamic.size(); i < n; i++)
+        {
+            // Create Instance Names
+            _instanceNamesLineageDynamic.append(_instancesLineageDynamic[i].buildPath(assocClassName));
+        }
+
+    }
+    CDEBUG("LineageDynamic " << _instancesLineageDynamic.size() << " instances ");
     // From the enumerateinstancenames  Why the R
     // TST_Lineage.child=R"Person.name=\"Sofi\"",parent=R"Person.name=\"Mike\""
     
-    {
-    String myParent = "//localhost/root/SampleProvider:TST_PersonDynamic.Name=\"Father\"";
+    /*String myParent = "//localhost/root/SampleProvider:TST_PersonDynamic.Name=\"Father\"";
     String myChild = "//localhost/root/SampleProvider:TST_PersonDynamic.Name=\"Daughter1\"";
     CIMName className = "TST_LineageDynamic";
     CIMInstance instance(className);
@@ -131,16 +236,15 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
     CIMName thisClassReference = "TST_PersonDynamic";  
     instance.addProperty(CIMProperty("parent", parent,0,thisClassReference));
     instance.addProperty(CIMProperty("child", child, 0, thisClassReference));
-    
-    CDEBUG ("initialize - 2");
-    
+    CDEBUG ("initialize - Assoc Class Instance Built");
+    */
     //CIMObjectPath reference = "//localhost/root/SampleProvider:TST_LineageDynamic.parent=\"TST_PersonDynamic.name=\"Father\"\",Child=\"TST_PersonDynamic.name=\"Daughter1\"\"";
     
     //Array <CIMKeyBinding> keyBindings;
     /*
     CIMKeyBinding aBinding ("a", "A.y=\"lavender\",x=\"rose\",z=\"rosemary\"", 
         CIMKeyBinding::REFERENCE);
-    CIMKeyBinding bBinding ("b", "B.s=\"sage\",q=\"pelargonium\",r=\"thyme\"",
+    CIMKeyBinding bBinding ("b", "B.s=\"sage\",q=\"pelargonium\",r=\"tyme\"",
         CIMKeyBinding::REFERENCE);
     keyBindings.append (aBinding);
     keyBindings.append (bBinding);
@@ -155,7 +259,7 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
     */
     //CIMObjectPath reference instance.buildPath( className );  
  // CIMObjectPath reference("//localhost/root/SampleProvider:TST_LineageDynamic.parent=TST_PersonDynamic.name=\"Father\",Child=TST_PersonDynamic.name=\"Daughter1\"");
-    String referenceString = "TST_Lineage";
+    /*String referenceString = "TST_Lineage";
     referenceString.append(".parent=\"");
     referenceString.append(myParent);
     referenceString.append("\"");
@@ -170,7 +274,7 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
         
     _instancesLineage.append(instance);
     //_instanceNamesLineage.append(reference);
-    }
+    }*/
     CDEBUG ("initialize - 4 ");
     PEG_METHOD_EXIT();
 }
@@ -209,7 +313,8 @@ void SampleFamilyProvider::getInstance(
 	// instance index corresponds to reference index
 	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
 	{
-		if(localReference == _instanceNames[i])
+		if(localReference == _instances[i].buildPath(_referencedClass))
+		// if(localReference == _instanceNames[i])
 		{
 			// deliver requested instance
 			handler.deliver(_instances[i]);
@@ -250,19 +355,20 @@ void SampleFamilyProvider::enumerateInstances(
      }
     if (myClass == CIMName("tst_lineagedynamic"))
     {
-    	for(Uint32 i = 0, n = _instancesLineage.size(); i < n; i++)
+    	PEGASUS_STD(cout) << "KSTEST tst_Lineagedynamic instances " << _instancesLineageDynamic.size() << PEGASUS_STD(endl);
+        for(Uint32 i = 0, n = _instancesLineageDynamic.size(); i < n; i++)
     	{
     		// deliver reference
-    		handler.deliver(_instancesLineage[i]);
+    		handler.deliver(_instancesLineageDynamic[i]);
     	}
 
     }
     if (myClass ==  CIMName("tst_labeledlineagedynamic"))
     {
-    	for(Uint32 i = 0, n = _instancesLabeledLineage.size(); i < n; i++)
+    	for(Uint32 i = 0, n = _instancesLabeledLineageDynamic.size(); i < n; i++)
     	{
     		// deliver reference
-    		handler.deliver(_instancesLabeledLineage[i]);
+    		handler.deliver(_instancesLabeledLineageDynamic[i]);
     	}
 
     }
@@ -291,29 +397,25 @@ void SampleFamilyProvider::enumerateInstanceNames(
     {
     	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     	{
-    		// deliver reference
-    		handler.deliver(_instanceNames[i]);
+            handler.deliver(_instances[i].buildPath(_referencedClass));
     	}
      }
     if (myClass == CIMName("tst_lineagedynamic"))
     {
-    	for(Uint32 i = 0, n = _instancesLineage.size(); i < n; i++)
+    	for(Uint32 i = 0, n = _instancesLineageDynamic.size(); i < n; i++)
     	{
-    		// deliver reference
-    		handler.deliver(_instanceNamesLineage[i]);
+    		handler.deliver(_instanceNamesLineageDynamic[i]);
     	}
 
     }
     if (myClass ==  CIMName("tst_labeledlineagedynamic"))
     {
-    	for(Uint32 i = 0, n = _instancesLabeledLineage.size(); i < n; i++)
+    	for(Uint32 i = 0, n = _instancesLabeledLineageDynamic.size(); i < n; i++)
     	{
-    		// deliver reference
-    		handler.deliver(_instanceNamesLabeledLineage[i]);
+    		handler.deliver(_instanceNamesLabeledLineageDynamic[i]);
     	}
 
     }
-
     // complete processing the request
     handler.complete();
     PEG_METHOD_EXIT();
@@ -343,7 +445,8 @@ void SampleFamilyProvider::modifyInstance(
 	// instance index corresponds to reference index
 	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
 	{
-		if(localReference == _instanceNames[i])
+		//if(localReference == _instanceNames[i])
+        if(localReference == _instances[i].buildPath(_referencedClass))
 		{
 			// overwrite existing instance
 			_instances[i] = instanceObject;
@@ -416,7 +519,55 @@ void SampleFamilyProvider::deleteInstance(
 	
 	// begin processing the request
 	handler.processing();
+    CIMName myClass = instanceReference.getClassName();
+    if (myClass == CIMName("tst_persondynamic"))
+    {
+    	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    	{
+			// save the instance locally
+			CIMInstance cimInstance(_instances[i]);
 
+			// remove instance from the array
+			_instances.remove(i);
+			_instanceNames.remove(i);
+
+			// exit loop
+			break;
+    	}
+     }
+    if (myClass == CIMName("tst_lineagedynamic"))
+    {
+    	for(Uint32 i = 0, n = _instancesLineageDynamic.size(); i < n; i++)
+    	{
+			// save the instance locally
+			CIMInstance cimInstance(_instancesLineageDynamic[i]);
+
+			// remove instance from the array
+			_instancesLineageDynamic.remove(i);
+			_instanceNamesLineageDynamic.remove(i);
+
+			// exit loop
+			break;
+    	}
+
+    }
+    if (myClass ==  CIMName("tst_labeledlineagedynamic"))
+    {
+    	for(Uint32 i = 0, n = _instancesLabeledLineageDynamic.size(); i < n; i++)
+    	{
+            // save the instance locally
+            CIMInstance cimInstance(_instancesLineageDynamic[i]);
+
+            // remove instance from the array
+            _instancesLabeledLineageDynamic.remove(i);
+            _instanceNamesLabeledLineageDynamic.remove(i);
+
+            // exit loop
+            break;
+    	}
+
+    }
+    /*
 	// instance index corresponds to reference index
 	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
 	{
@@ -433,7 +584,7 @@ void SampleFamilyProvider::deleteInstance(
 			break;
 		}
 	}
-	
+	**** Delete this whole thing*/
 	// complete processing the request
 	handler.complete();
     PEG_METHOD_EXIT();
@@ -453,7 +604,47 @@ void SampleFamilyProvider::associators(
 {
     PEG_METHOD_ENTER(TRC_PROVIDER,
        "SampleFamilyProvider::associators");
-	throw CIMNotSupportedException("SampleFamilyProvider::associators");
+	PEGASUS_STD(cout) << "KSTEST Associators SampleFamilyProvider" << PEGASUS_STD(endl);
+    // begin processing the request
+    // Get the namespace and host names to create the CIMObjectPath
+
+    String nameSpace = "SampleProvider";
+    String host = System::getHostName();
+
+    handler.processing();
+    // Here make the decision between Lineage and LabeledLineage
+
+	// For all of the association objects.
+    // This is wrong.  Simply want to deliver something right now.
+    for(Uint32 i = 0, n = _instanceNamesLineageDynamic.size(); i < n; i++)
+	{
+        // Filter out by resultClass and role.
+        // The ResultClass input parameter, if not NULL, MUST be a valid CIM Class name.
+        // It acts as a filter on the returned set of Object Names by mandating that each
+        // returned Object Name MUST identify an Instance of this Class (or one of its subclasses),
+        // or this Class (or one of its subclasses). 
+
+        // The Role input parameter, if not NULL, MUST be a valid Property name. It acts as a
+        // filter on the returned set of Object Names by mandating that each returned Object Name
+        // MUST identify an Object that refers to the target Instance via a Property whose name
+        // matches the value of this parameter. 
+        
+        // Note that here we test to determine if the returned object name equals resultClass
+        // or any of its subclasses
+        
+        CIMInstance instance = _instancesLineageDynamic[i];
+        PEGASUS_STD(cout) << "KSTEST Result Class = " << resultClass.getString() 
+            << " Role = " << role
+            << PEGASUS_STD(endl);
+        if (resultClass.isNull() || instance.getClassName().equal(resultClass))
+        {
+            // Incomplete.  Need to add the other filters.
+            handler.deliver(instance);
+        }
+	}
+    
+	// complete processing the request
+	handler.complete();
     PEG_METHOD_EXIT();
 }
 
@@ -494,7 +685,7 @@ void SampleFamilyProvider::references(
     // Here make the decision between Lineage and LabeledLineage
 
 	// For all of the association objects.
-    for(Uint32 i = 0, n = _instanceNamesLineage.size(); i < n; i++)
+    for(Uint32 i = 0, n = _instanceNamesLineageDynamic.size(); i < n; i++)
 	{
         // Filter out by resultClass and role.
         // The ResultClass input parameter, if not NULL, MUST be a valid CIM Class name.
@@ -510,7 +701,7 @@ void SampleFamilyProvider::references(
         // Note that here we test to determine if the returned object name equals resultClass
         // or any of its subclasses
         
-        CIMInstance instance = _instancesLineage[i];
+        CIMInstance instance = _instancesLineageDynamic[i];
         PEGASUS_STD(cout) << "KSTEST Result Class = " << resultClass.getString() 
             << " Role = " << role
             << PEGASUS_STD(endl);
@@ -548,7 +739,7 @@ void SampleFamilyProvider::referenceNames(
 
 
 	// For all of the association objects.
-    for(Uint32 i = 0, n = _instanceNamesLineage.size(); i < n; i++)
+    for(Uint32 i = 0, n = _instanceNamesLineageDynamic.size(); i < n; i++)
 	{
         // Filter out by resultClass and role.
         // The ResultClass input parameter, if not NULL, MUST be a valid CIM Class name.
@@ -564,7 +755,7 @@ void SampleFamilyProvider::referenceNames(
         // Note that here we test to determine if the returned object name equals resultClass
         // or any of its subclasses
         
-        CIMObjectPath r = _instanceNamesLineage[i];
+        CIMObjectPath r = _instanceNamesLineageDynamic[i];
         PEGASUS_STD(cout) << "KSTEST Result Class = " << resultClass.getString() 
             << " Role = " << role
             << PEGASUS_STD(endl);

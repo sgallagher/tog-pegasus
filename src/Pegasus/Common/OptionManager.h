@@ -619,7 +619,7 @@ public:
 	//: Exception("Missing command line option argument: " + optionName) { }
 	OMMissingCommandLineOptionArgument(const String& optionName)
 	: Exception(MessageLoaderParms("Common.OptionManager.MISSING_CMD_LINE_OPTION",
-											 "Missing command line option argument: ",
+											 "Missing command line option argument: $0",
 											 optionName)) { }
 };
 

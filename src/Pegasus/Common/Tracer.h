@@ -323,7 +323,14 @@ public:
         @return   1        if the file path is valid
                   0        if the file path is invalid
      */
-    static Boolean isValid(const char* filePath);
+    static Boolean isValidFileName(const char* filePath);
+
+    /** Validates the trace components
+        @param    traceComponents   comma separated list of trace components
+        @return   1        if the components are valid
+                  0        if one or more components are invalid
+     */
+    static Boolean isValidComponents(const String traceComponents);
 
     /** Validates the trace components
         @param    traceComponents   comma separated list of trace components
@@ -331,8 +338,9 @@ public:
         @return   1        if the components are valid
                   0        if one or more components are invalid
      */
-    static Boolean isValid(
-       const String traceComponents, String& invalidComponents=_EMPTY_STRING);
+    static Boolean isValidComponents(
+        const String traceComponents,
+        String& invalidComponents);
 
 private:
 
@@ -342,7 +350,6 @@ private:
     static const Uint32 _STRLEN_MAX_PID_TID;
     static const Boolean _SUCCESS;
     static const Boolean _FAILURE;
-    static String  _EMPTY_STRING;
     Boolean*            _traceComponentMask;
     Uint32              _traceLevelMask;
     TraceFileHandler*   _traceHandler;

@@ -50,7 +50,6 @@ const Uint32 Tracer::LEVEL4 = (1 << 3);
 // Set the return codes
 const Boolean Tracer::_SUCCESS = 1;
 const Boolean Tracer::_FAILURE = 0;
-String  Tracer::_EMPTY_STRING = String::EMPTY;
 
 // Set the Enter and Exit messages
 const char Tracer::_FUNC_ENTER_MSG[] = "Entering method";
@@ -446,7 +445,7 @@ void Tracer::_trace(
 ////////////////////////////////////////////////////////////////////////////////
 //Validate the trace file
 ////////////////////////////////////////////////////////////////////////////////
-Boolean Tracer::isValid(const char* filePath)
+Boolean Tracer::isValidFileName(const char* filePath)
 {
     return (_getInstance()->_traceHandler->isValidFilePath(filePath));
 }
@@ -454,8 +453,14 @@ Boolean Tracer::isValid(const char* filePath)
 ////////////////////////////////////////////////////////////////////////////////
 //Validate the trace components
 ////////////////////////////////////////////////////////////////////////////////
-Boolean Tracer::isValid(
-		     const String traceComponents, String& invalidComponents)
+Boolean Tracer::isValidComponents(const String traceComponents)
+{
+    String invalidComponents;
+    return isValidComponents(traceComponents, invalidComponents);
+}
+
+Boolean Tracer::isValidComponents(
+    const String traceComponents, String& invalidComponents)
 {
     // Validate the trace components and modify the traceComponents argument
     // to reflect the invalid components

@@ -190,7 +190,7 @@ void TracePropertyOwner::initialize()
         FileSystem::translateSlashes(pegasusHome);
 
         ArrayDestroyer<char> fileName(pegasusHome.allocateCString());
-	if (Tracer::isValid(fileName.getPointer()))
+	if (Tracer::isValidFileName(fileName.getPointer()))
 	{ 
             Uint32 retCode = Tracer::setTraceFile(fileName.getPointer());
 	    // Check whether the filepath was set
@@ -379,7 +379,7 @@ void TracePropertyOwner::initCurrentValue(
 	{
 	    newValue = "";
         }
-	if ( Tracer::isValid ( newValue ) )
+	if ( Tracer::isValidComponents ( newValue ) )
 	{
             _traceComponents->currentValue = newValue;
         }
@@ -407,7 +407,7 @@ void TracePropertyOwner::initCurrentValue(
 	_traceFilePath->currentValue = _traceFilePath->defaultValue;
 
         ArrayDestroyer<char> fileName(value.allocateCString());
-	if ( Tracer::isValid( fileName.getPointer() ) )
+	if ( Tracer::isValidFileName( fileName.getPointer() ) )
         {
             _traceFilePath->currentValue = value;
         }
@@ -443,7 +443,7 @@ void TracePropertyOwner::initPlannedValue(
 	{
 	    newValue = "";
         }
-	if ( Tracer::isValid ( newValue ) )
+	if ( Tracer::isValidComponents ( newValue ) )
 	{
             _traceComponents->plannedValue= newValue;
         }
@@ -467,7 +467,7 @@ void TracePropertyOwner::initPlannedValue(
 	_traceFilePath->plannedValue = _traceFilePath->defaultValue;
 
         ArrayDestroyer<char> fileName(value.allocateCString());
-	if (Tracer::isValid(fileName.getPointer()))
+	if (Tracer::isValidFileName(fileName.getPointer()))
         {
             _traceFilePath->plannedValue = value;
         }
@@ -507,7 +507,7 @@ void TracePropertyOwner::updateCurrentValue(
 	//
 	// Check if the components are valid, if not throw exception
 	//
-	if ( Tracer::isValid ( newValue, invalidComponents ) )
+	if ( Tracer::isValidComponents ( newValue, invalidComponents ) )
         {
             _traceComponents->currentValue = newValue;
             Tracer::setTraceComponents(_traceComponents->currentValue);
@@ -538,7 +538,7 @@ void TracePropertyOwner::updateCurrentValue(
 	// Check if the filepath are valid, if not throw exception
 	//
         ArrayDestroyer<char> fileName(value.allocateCString());
-        if (Tracer::isValid(fileName.getPointer()))
+        if (Tracer::isValidFileName(fileName.getPointer()))
         {
             _traceFilePath->currentValue = value;
 	    Tracer::setTraceFile(fileName.getPointer());
@@ -574,7 +574,7 @@ void TracePropertyOwner::updatePlannedValue(
 	//
 	// Check if the components are valid, if not throw exception
 	//
-        if (Tracer::isValid(newValue,invalidComponents))
+        if (Tracer::isValidComponents(newValue,invalidComponents))
         {
             _traceComponents->plannedValue = newValue;
         }
@@ -603,7 +603,7 @@ void TracePropertyOwner::updatePlannedValue(
 	// Check if the file path is valid, if not throw exception
 	//
         ArrayDestroyer<char> fileName(value.allocateCString());
-        if (Tracer::isValid(fileName.getPointer()))
+        if (Tracer::isValidFileName(fileName.getPointer()))
         {
             _traceFilePath->plannedValue = value;
         }
@@ -635,7 +635,7 @@ Boolean TracePropertyOwner::isValid(const String& name, const String& value)
 	//
 	// Check if the trace components are valid
 	//
-	if (!Tracer::isValid(newValue,invalidComponents))
+	if (!Tracer::isValidComponents(newValue,invalidComponents))
 	{
 	    throw InvalidPropertyValue(name, invalidComponents);
         }
@@ -662,7 +662,7 @@ Boolean TracePropertyOwner::isValid(const String& name, const String& value)
         // Check if the file path is valid
 	//
         ArrayDestroyer<char> fileName(value.allocateCString());
-	if (!Tracer::isValid(fileName.getPointer()))
+	if (!Tracer::isValidFileName(fileName.getPointer()))
 	{
 	    throw InvalidPropertyValue(name, value);
 	}

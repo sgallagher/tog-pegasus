@@ -1,3 +1,5 @@
+include $(ROOT)/mak/common.mak
+
 ifeq ($(OS_TYPE),windows)
 include $(ROOT)/mak/program-windows.mak
 endif

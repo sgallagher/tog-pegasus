@@ -1,9 +1,7 @@
 ROOT = ../../../../../..
 DIR = Pegasus/Common/tests/Service/BeeperService
 include $(ROOT)/mak/config.mak
-LIBRARIES = $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX)
-
-DYNAMIC_LIBRARIES = -lpegcommon
+LIBRARIES = pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

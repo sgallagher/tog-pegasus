@@ -2,9 +2,7 @@ ROOT = ../../../../..
 
 DIR = Pegasus/WQL/tests/ParserCLI
 
-LIBRARIES = \
-    $(LIB_DIR)/$(LIB_PREFIX)pegwql$(LIB_SUFFIX) \
-    $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX)
+LIBRARIES = pegwql pegcommon
 
 include $(ROOT)/mak/config.mak
 

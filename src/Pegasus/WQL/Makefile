@@ -10,8 +10,7 @@ EXTRA_INCLUDES = -Int_includes
 
 LIBRARY = pegwql
 
-LIBRARIES = \
-    $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX)
+LIBRARIES = pegcommon
 
 SOURCES = \
     WQLSelectStatement.cpp \

@@ -9,18 +9,11 @@ LOCAL_DEFINES = -DPEGASUS_EXPORT_SERVER_INTERNAL
 LIBRARY = pegexportserver
 
 LIBRARIES = \
-    $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX) \
-    $(LIB_DIR)/$(LIB_PREFIX)pegconfig$(LIB_SUFFIX) \
-    $(LIB_DIR)/$(LIB_PREFIX)pegprovider2$(LIB_SUFFIX) \
-    $(LIB_DIR)/$(LIB_PREFIX)pegrepository$(LIB_SUFFIX) 
+    pegcommon \
+    pegconfig \
+    pegprovider2 \
+    pegrepository 
 
-
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-DYNAMIC_LIBRARIES = \
-    $(LIB_DIR)/$(LIB_PREFIX)pegcommon.x
-else
- DYNAMIC_LIBRARIES = -lpegcommon -lpegprovider2 -lpegrepository
-endif
 
 PRE_DEPEND_INCLUDES = -I./depends
 

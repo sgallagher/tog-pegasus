@@ -3,9 +3,7 @@ DIR = Pegasus/Server/tests/ClientServer
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-LIBRARIES += $(LIB_DIR)/$(LIB_PREFIX)pegclient$(LIB_SUFFIX)
-
-DYNAMIC_LIBRARIES += -lpegclient
+LIBRARIES += pegclient
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

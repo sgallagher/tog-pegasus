@@ -1,6 +1,6 @@
 FULL_LIB=$(LIB_DIR)/lib$(LIBRARY).a 
               
-$(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(LIBRARIES) $(ERROR)
+$(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) $(ERROR)
 	nld -r -o $(FULL_LIB) $(OBJECTS)
 	@ $(ECHO)
 

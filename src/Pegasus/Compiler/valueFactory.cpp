@@ -41,8 +41,8 @@
 #include <cstdlib>
 #include <Pegasus/Common/String.h>
 
-#define min(a,b) ( a < b ? a : b )
-#define max(a,b) ( a > b ? a : b )
+#define local_min(a,b) ( a < b ? a : b )
+#define local_max(a,b) ( a > b ? a : b )
 
 unsigned long
 valueFactory::Stoi(const String &val) {
@@ -127,7 +127,7 @@ nextcsv(const String &csv, int sep, const Uint32 start,
 {
   enum parsestate {INDQUOTE, INSQUOTE, NOTINQUOTE};
   value = "";
-  Uint32 maxend = min(csv.size(), end);
+  Uint32 maxend = local_min(csv.size(), end);
   Uint32 idx = start;
   parsestate state = NOTINQUOTE;
   while (idx < maxend) {

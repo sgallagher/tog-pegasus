@@ -1,5 +1,7 @@
 INCLUDES = -I$(ROOT)/src $(EXTRA_INCLUDES)
 
+include $(ROOT)/mak/common.mak
+
 ################################################################################
 ##
 ## Build list of object names.

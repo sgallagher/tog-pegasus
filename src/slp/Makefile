@@ -13,8 +13,7 @@ LIBRARY = slp
 PRE_DEPEND_INCLUDES = -I./depends
 
 ifneq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
-LIBRARIES = \
-    $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX) 
+    LIBRARIES = pegcommon
 endif
 
 SOURCES = slp.cpp

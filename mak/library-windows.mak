@@ -6,8 +6,8 @@ FULL_EXP = $(BIN_DIR)/$(LIBRARY).exp
 ## ws2_32.lib is needed to get the WINSOCK routines!
 ##
 
-$(FULL_LIB): $(BIN_DIR)/target $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(LIBRARIES) $(ERROR)
-	link -nologo -dll $(LINK_FLAGS) -out:$(FULL_DLL) $(OBJECTS) $(LIBRARIES) $(SYS_LIBS)
+$(FULL_LIB): $(BIN_DIR)/target $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) $(ERROR)
+	link -nologo -dll $(LINK_FLAGS) -out:$(FULL_DLL) $(OBJECTS) $(FULL_LIBRARIES) $(SYS_LIBS)
 	mu copy $(BIN_DIR)/$(LIBRARY).lib $(FULL_LIB)
 	mu rm $(BIN_DIR)/$(LIBRARY).lib
 	@ $(ECHO)

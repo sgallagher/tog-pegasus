@@ -14,7 +14,7 @@ ifeq ($(COMPILER),acc)
     LINK_COMMAND += -g
   endif
   ifdef PEGASUS_CCOVER
-    LIBRARIES += $(CCOVER_LIB)/libcov-PIC.a
+    FULL_LIBRARIES += $(CCOVER_LIB)/libcov-PIC.a
   endif
   LINK_ARGUMENTS =
   LINK_OUT = -o
@@ -41,7 +41,7 @@ endif
 FULL_LIB=$(LIB_DIR)/lib$(LIBRARY)$(LIB_SUFFIX)
 
 ## Rule for all UNIX library builds
-$(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(LIBRARIES) \
+$(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) \
     $(ERROR)
 ifneq ($(COMPILER),xlc)
   ## Actions for all UNIX compilers except xlc
@@ -61,10 +61,10 @@ ifneq ($(COMPILER),xlc)
     endif
 
   else
-	$(LINK_COMMAND) $(LINK_ARGUMENTS) $(LINK_OUT) $(FULL_LIB) $(OBJECTS) $(LIBRARIES)
+	$(LINK_COMMAND) $(LINK_ARGUMENTS) $(LINK_OUT) $(FULL_LIB) $(OBJECTS) $(FULL_LIBRARIES)
   endif
 else
-	ar crv $(PEGASUS_PLATFORM).lib $(OBJECTS) $(LIBRARIES)
+	ar crv $(PEGASUS_PLATFORM).lib $(OBJECTS) $(FULL_LIBRARIES)
 	$(LINK_COMMAND) $(LINK_ARGUMENTS) $(LINK_OUT)$(FULL_LIB) $(PEGASUS_PLATFORM).lib
 	rm -f $(PEGASUS_PLATFORM).lib
 endif

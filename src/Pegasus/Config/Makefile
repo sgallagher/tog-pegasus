@@ -9,14 +9,7 @@ LOCAL_DEFINES = -DPEGASUS_CONFIG_INTERNAL
 LIBRARY = pegconfig
 
 LIBRARIES = \
-    $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX)
-
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-DYNAMIC_LIBRARIES += \
-    $(LIB_DIR)/$(LIB_PREFIX)pegcommon.x
-else
- DYNAMIC_LIBRARIES += -lpegcommon
-endif
+    pegcommon
 
 SOURCES = \
 	ConfigExceptions.cpp \

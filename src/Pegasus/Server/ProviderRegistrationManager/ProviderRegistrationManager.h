@@ -159,8 +159,11 @@ static const char MET_PROVIDER [] = "Method";
 static const char MODULE_KEY [] = "Module";
 
 static const char MODULE_NOT_FOUND [] = " Can not find the provider module.";
+static const char MODULE_NOT_FOUND_KEY [] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.MODULE_NOT_FOUND";
 static const char PROVIDER_NOT_FOUND [] = " Can not find the provider.";
+static const char PROVIDER_NOT_FOUND_KEY [] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.PROVIDER_NOT_FOUND";
 static const char CAPABILITY_NOT_REGISTERED [] = " Provider capability has not been registered yet.";
+static const char CAPABILITY_NOT_REGISTERED_KEY [] = "Server.ProviderRegistrationManager.ProviderRegistrationManager.CAPABILITY_NOT_REGISTERED";
 
 /**
    Registered instance provider type

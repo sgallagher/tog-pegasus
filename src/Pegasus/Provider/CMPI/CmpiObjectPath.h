@@ -89,7 +89,7 @@ public:
    CMPIObjectPath *getEnc() const;
 
    /** classPathIsA - Tests whether this CIM ObjectPath is a reference
-       to a CIM class is of type <className>.
+       to a CIM class is of type &lt;className&gt;.
    @param className CIM classname to be tested for.
    @return True or False
    */

@@ -88,7 +88,7 @@ public:
    */
    CmpiInstance(const CmpiObjectPath& op);
 
-   /** instanceIsA - Tests whether this CIM Instance is of type <className>.
+   /** instanceIsA - Tests whether this CIM Instance is of type &lt;className&gt;.
    @param className CIM classname to be tested for.
    @return True or False
    */

@@ -65,12 +65,12 @@ public:
 
    CmpiDateTime(const CmpiDateTime& original);
 
-   /** Constructor - Initialize time and date according to <utcTime>.
+   /** Constructor - Initialize time and date according to &lt;utcTime&gt;.
    @param utcTime Date/Time definition in UTC format
    */
    CmpiDateTime(const char* utcTime);
 
-   /** Constructor - Initialize time and date according to <binTime>.
+   /** Constructor - Initialize time and date according to &lt;binTime&gt;.
    @param binTime Date/Time definition in binary format in microsecods
         starting since 00:00:00 GMT, Jan 1,1970.
    @param interval defines Date/Time definition to be an interval value

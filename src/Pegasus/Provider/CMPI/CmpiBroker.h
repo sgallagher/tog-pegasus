@@ -99,7 +99,7 @@ public:
    void deliverIndication
       (const CmpiContext& ctx, const char* ns,const CmpiInstance& ind);
 
-   /** Enumerate Instance Names of the class (and subclasses) defined by <op>.
+   /** Enumerate Instance Names of the class (and subclasses) defined by &lt;op&gt;.
    @param ctx Context object
    @param op ObjectPath containing namespace and classname components.
    @return Enumeration of ObjectPathes.
@@ -107,8 +107,8 @@ public:
    CmpiEnumeration enumInstanceNames
       (const CmpiContext& ctx, const CmpiObjectPath& op);
 
-   /** Get Instance using <op> as reference. Instance structure can be
-      controled using the CMPIInvocationFlags entry in <ctx>.
+   /** Get Instance using &lt;op&gt; as reference. Instance structure can be
+      controled using the CMPIInvocationFlags entry in &lt;ctx&gt;.
    @param ctx Context object
    @param op ObjectPath containing namespace, classname and key components.
    @param properties If not NULL, the members of the array define one or more Property
@@ -120,7 +120,7 @@ public:
       (const CmpiContext& ctx, const CmpiObjectPath& op,
        const char** properties);
 
-   /** Create Instance from <inst> using <op> as reference.
+   /** Create Instance from &lt;inst&gt; using &lt;op&gt; as reference.
    @param ctx Context object
    @param op ObjectPath containing namespace, classname and key components.
    @param inst Complete instance.
@@ -130,7 +130,7 @@ public:
       (const CmpiContext& ctx, const CmpiObjectPath& op,
        const CmpiInstance& inst);
 
-   /** Replace an existing Instance from <inst> using <op> as reference.
+   /** Replace an existing Instance from &lt;inst&gt; using &lt;op&gt; as reference.
    @param ctx Context object
    @param op ObjectPath containing namespace, classname and key components.
    @param inst Complete instance.
@@ -139,7 +139,7 @@ public:
       (const CmpiContext& ctx, const CmpiObjectPath& op,
        const CmpiInstance& inst, const char** properties);
 
-   /** Delete an existing Instance using <op> as reference.
+   /** Delete an existing Instance using &lt;op&gt; as reference.
    @param ctx Context object
    @param op ObjectPath containing namespace, classname and key components.
    */
@@ -147,7 +147,7 @@ public:
       (const CmpiContext& ctx, const CmpiObjectPath& op);
 
    /** Query the enumeration of instances of the class (and subclasses) defined
-      by <op> using <query> expression.
+      by &lt;op&gt; using &lt;query&gt; expression.
    @param ctx Context object
    @param op ObjectPath containing namespace and classname components.
    @param query Query expression
@@ -158,9 +158,9 @@ public:
       (const CmpiContext& ctx, const CmpiObjectPath& op,
        const char* query, const char* lang);
 
-   /** Enumerate Instances of the class (and subclasses) defined by <op>.
+   /** Enumerate Instances of the class (and subclasses) defined by &lt;op&gt;.
       Instance structure and inheritance scope can be controled using the
-   CMPIInvocationFlags entry in <ctx>.
+   CMPIInvocationFlags entry in &lt;ctx&gt;.
    @param ctx Context object
    @param op ObjectPath containing namespace and classname components.
    @param properties If not NULL, the members of the array define one or more Property
@@ -172,7 +172,7 @@ public:
       (const CmpiContext& ctx, const CmpiObjectPath& op,
        const char** properties);
 
-   /** Enumerate instances associated with the Instance defined by the <op>.
+   /** Enumerate instances associated with the Instance defined by the &lt;op&gt;.
    @param ctx Context object
    @param op Source ObjectPath containing namespace, classname and key components.
    @param assocClass If not NULL, MUST be a valid Association Class name.
@@ -206,7 +206,7 @@ public:
        const char* role, const char* resultRole,
        const char** properties);
 
-   /** Enumerate ObjectPaths associated with the Instance defined by <op>.
+   /** Enumerate ObjectPaths associated with the Instance defined by &lt;op&gt;.
    @param ctx Context object
    @param op Source ObjectPath containing namespace, classname and key components.
    @param assocClass If not NULL, MUST be a valid Association Class name.
@@ -237,7 +237,7 @@ public:
        const char* role, const char* resultRole);
 
    /** Enumerates the association instances that refer to the instance defined by
-       <op>.
+       &lt;op&gt;.
    @param ctx Context object
    @param op Source ObjectPath containing namespace, classname and key components.
    @param resultClass If not NULL, MUST be a valid Class name.
@@ -261,7 +261,7 @@ public:
        const char** properties);
 
    /** Enumerates the association ObjectPaths that refer to the instance defined by
-        <op>.
+        &lt;op&gt;.
    @param ctx Context object
    @param op Source ObjectPath containing namespace, classname and key components.
    @param resultClass If not NULL, MUST be a valid Class name.
@@ -281,7 +281,7 @@ public:
        const char* resultClass, const char* role);
 
    /** Invoke a named, extrinsic method of an Instance
-      defined by the <op> parameter.
+      defined by the &lt;op&gt; parameter.
    @param ctx Context object
    @param op ObjectPath containing namespace, classname and key components.
    @param method Method name
@@ -293,7 +293,7 @@ public:
       (const CmpiContext& ctx, const CmpiObjectPath& op,
        const char* method, const CmpiArgs& in, CmpiArgs& out);
 
-   /** Set the named property value of an Instance defined by the <op> parameter.
+   /** Set the named property value of an Instance defined by the &lt;op&gt; parameter.
    @param ctx Context object
    @param op ObjectPath containing namespace, classname and key components.
    @param name Property name
@@ -303,7 +303,7 @@ public:
       (const CmpiContext& ctx, const CmpiObjectPath& op,
        const char* name, const CmpiData& data);
 
-   /** Get the named property value of an Instance defined by the <op> parameter.
+   /** Get the named property value of an Instance defined by the &lt;op&gt; parameter.
    @param ctx Context object
    @param op ObjectPath containing namespace, classname and key components.
    @param name Property name

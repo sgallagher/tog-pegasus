@@ -1845,6 +1845,7 @@ void XmlWriter::appendUnauthorizedResponseHeader(
 //     Returns OK message in the following format:
 //
 //        HTTP/1.1 200 OK
+//        Content-Length: 0
 //        WWW-Authenticate: Negotiate "token"
 //        <HTML><HEAD>
 //        <TITLE>200 OK</TITLE>
@@ -1860,6 +1861,11 @@ void XmlWriter::appendOKResponseHeader(
     const String& content)
 {
     out << "HTTP/1.1 " HTTP_STATUS_OK "\r\n";
+    // Content-Length header needs to be added because 200 OK record
+    // is usually intended to have content.  But, for Kerberos this
+    // may not always be the case so we need to indicate that there
+    // is no content
+    out << "Content-Length: 0" << "\r\n";
     out << content << "\r\n";
     out << "\r\n";
 

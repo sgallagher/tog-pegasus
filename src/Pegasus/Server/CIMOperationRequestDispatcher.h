@@ -55,7 +55,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueueService
 {
-   public:
+public:
 
       typedef MessageQueueService Base;
 
@@ -63,7 +63,7 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
 	 CIMRepository* repository, CIMServer* server);
 
       virtual ~CIMOperationRequestDispatcher();
-      
+
       virtual void handleEnqueue(Message *);
 
       virtual void handleEnqueue();
@@ -151,22 +151,13 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
       void handleProcessIndicationRequest(
 	 CIMProcessIndicationRequestMessage* request);
 
-      //void loadRegisteredProviders(void);
-
-   protected:
+protected:
 
       String _lookupProviderForClass(
 	 const String& nameSpace, const String& className);
 
       void _enqueueResponse(
 	 CIMRequestMessage* request, CIMResponseMessage* response);
-
-      /*
-	Message * _waitForResponse(
-	const Uint32 messageType,
-	const Uint32 messageKey,
-	const Uint32 timeout = 0xffffffff);
-      */
 
       CIMValue _convertValueType(const CIMValue& value, CIMType type);
 

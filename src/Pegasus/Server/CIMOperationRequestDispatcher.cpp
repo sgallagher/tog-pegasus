@@ -38,7 +38,6 @@
 
 #include <Pegasus/Common/XmlReader.h> // stringToValue(), stringArrayToValue()
 
-
 PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
@@ -47,9 +46,9 @@ PEGASUS_USING_STD;
 
 DDD(static const char* _DISPATCHER = "CIMOperationRequestDispatcher::";)
 
-   CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
-      CIMRepository* repository,
-      CIMServer* server)
+CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
+    CIMRepository* repository,
+    CIMServer* server)
       :
       Base("CIMOpRequestDispatcher", MessageQueue::getNextQueueId()),
       _repository(repository),
@@ -57,7 +56,7 @@ DDD(static const char* _DISPATCHER = "CIMOperationRequestDispatcher::";)
       _configurationManager(_cimom)
 {
    DDD(cout << _DISPATCHER << endl;)
-      }
+}
 
 CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher(void)	
 {
@@ -66,14 +65,22 @@ CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher(void)
 
 void CIMOperationRequestDispatcher::_handle_async_request(AsyncRequest *req)
 {
-   cout << "_handle_async_request" << endl;
+	cout << "_handle_async_request" << endl;
 
-   if ( req->getType() == async_messages::ASYNC_LEGACY_OP_START )
-   {
-      req->op->processing();
-   }
+   	// pass legacy operations to handleEnqueue
+	if(req->getType() == async_messages::ASYNC_LEGACY_OP_START)
+	{
+	   req->op->processing();
 
-   Base::_handle_async_request(req);
+	   Message * message = (static_cast<AsyncLegacyOperationStart *>(req)->get_action());
+
+	   handleEnqueue(message);
+
+	   return;
+	}
+
+	// pass all other operations to the default handler
+	Base::_handle_async_request(req);
 }
 
 // ATTN: this needs to return an array of names if it is possible
@@ -268,77 +275,7 @@ String CIMOperationRequestDispatcher::_lookupProviderForClass(
    }
 	
    return(String::EMPTY);
-   /*
-   // ATTN: still use qualifier to find provider if a provider did not use
-   // PG_RegistrationProvider to register. Will remove in the future
-
-   CIMClass cimClass;
-
-   try
-   {
-   _repository->read_lock();
-
-   cimClass = _repository->getClass(nameSpace, className);
-
-   _repository->read_unlock();
-   }
-   catch(CIMException& e)
-   {
-   _repository->read_unlock();
-
-   return(String::EMPTY);
-   }
-
-   //----------------------------------------------------------------------
-   // Get the provider qualifier:
-   //----------------------------------------------------------------------
-
-   Uint32 pos = cimClass.findQualifier("provider");
-
-   if(pos == PEG_NOT_FOUND)
-   {
-   return(String::EMPTY);
-   }
-
-   String providerId;
-	
-   cimClass.getQualifier(pos).getValue().get(providerId);
-
-   return(providerId);
-   */
 }
-
-/*
-  Message * CIMOperationRequestDispatcher::_waitForResponse(
-  const Uint32 messageType,
-  const Uint32 messageKey,
-  const Uint32 timeout)
-  {
-  // immediately attempt to locate a message of the requested type
-  Message * message = ((MessageQueue *)this)->find(messageType, messageKey);
-
-  // if the message is null and the timeout is greater than 0, go into
-  // a sleep/retry mode until the timeout expires or a message of the
-  // requested type arrives. a timeout value of 0xffffffff represents
-  // infinity.
-  for(Uint32 i = 0; ((i < timeout) || (timeout == 0xffffffff)) && (message == 0); i++)
-  {
-  System::sleep(1);
-
-  message = ((MessageQueue *)this)->find(messageType, messageKey);
-  }
-
-  if(message == 0)
-  {
-  throw CIMException(CIM_ERR_FAILED, __FILE__, __LINE__, "queue underflow");
-  }
-
-  ((MessageQueue *)this)->remove(message);
-
-  return(message);
-  }
-*/
-
 
 void CIMOperationRequestDispatcher::_enqueueResponse(
    CIMRequestMessage* request,
@@ -351,13 +288,11 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
    if( true == Base::_enqueueResponse(request, response))
       return;
 	
-
    MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
    PEGASUS_ASSERT(queue != 0 );
 	
    queue->enqueue(response);
 }
-
 
 void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
 {
@@ -500,10 +435,7 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
    }
 
    delete request;
-
 }
-
-
 
 // allocate a CIM Operation_async,  opnode, context, and response handler
 // initialize with pointers to async top and async bottom
@@ -529,9 +461,9 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
    String errorDescription;
    CIMClass cimClass;
-   
+
    _repository->read_lock();
- 
+
    try
    {
       cimClass = _repository->getClass(
@@ -619,16 +551,38 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
    if(providerName.size() != 0)
    {
-      // lookup provider manager
-      MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+	   Array<Uint32> serviceQueueIds;
 
-      PEGASUS_ASSERT(queue != 0);
+	   find_services(String("Server::ProviderManagerService"), 0, 0, &serviceQueueIds);
 
-      // forward to provider manager. make a copy becuase the original request is
-      // deleted by this service.
-      queue->enqueue(new CIMGetInstanceRequestMessage(*request));
+	   PEGASUS_ASSERT(serviceQueueIds.size() != 0);
+	
+	   AsyncOpNode * op = this->get_op();
 
-      return;
+	   AsyncLegacyOperationStart * asyncRequest =
+		   new AsyncLegacyOperationStart(
+			   get_next_xid(),
+			   op,
+			   serviceQueueIds[0],
+			   new CIMGetInstanceRequestMessage(*request),
+			   this->getQueueId());
+
+	   AsyncReply * asyncReply = SendWait(asyncRequest);
+
+	   PEGASUS_ASSERT(asyncReply != 0);
+	
+	   CIMResponseMessage * response =
+		   reinterpret_cast<CIMGetInstanceResponseMessage *>
+		   ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+
+	   PEGASUS_ASSERT(response != 0);
+	
+	   _enqueueResponse(request, response);
+
+	   delete asyncReply;
+	   delete asyncRequest;
+
+	   return;
    }
 
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
@@ -763,16 +717,38 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 
    if(providerName.size() != 0)
    {
-      // lookup provider manager
-      MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+	   Array<Uint32> serviceQueueIds;
 
-      PEGASUS_ASSERT(queue != 0);
+	   find_services(String("Server::ProviderManagerService"), 0, 0, &serviceQueueIds);
 
-      // forward to provider manager. make a copy becuase the original request is
-      // deleted by this service.
-      queue->enqueue(new CIMDeleteInstanceRequestMessage(*request));
+	   PEGASUS_ASSERT(serviceQueueIds.size() != 0);
 	
-      return;
+	   AsyncOpNode * op = this->get_op();
+
+	   AsyncLegacyOperationStart * asyncRequest =
+		   new AsyncLegacyOperationStart(
+			   get_next_xid(),
+			   op,
+			   serviceQueueIds[0],
+			   new CIMDeleteInstanceRequestMessage(*request),
+			   this->getQueueId());
+
+	   AsyncReply * asyncReply = SendWait(asyncRequest);
+
+	   PEGASUS_ASSERT(asyncReply != 0);
+	
+	   CIMResponseMessage * response =
+		   reinterpret_cast<CIMDeleteInstanceResponseMessage *>
+		   ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+
+	   PEGASUS_ASSERT(response != 0);
+	
+	   _enqueueResponse(request, response);
+
+	   delete asyncReply;
+	   delete asyncRequest;
+
+	   return;
    }
 
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
@@ -902,7 +878,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 	 ((static_cast<AsyncLegacyOperationResult *>(reply))->get_result());
 
       _enqueueResponse(request, response);
-         
+
       delete reply;
 //      delete response;
 // << Tue Feb 26 18:41:38 2002 mdd >>
@@ -919,7 +895,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 	    request->nameSpace,
 	    request->newInstance,
 	    request->queueIds);
-	    
+	
       //_indicationService.enqueue(message);
       //return;
 
@@ -938,7 +914,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 	    _queueId);
       //getQueueId());
 
-      Boolean ret = SendForget(req); 
+      Boolean ret = SendForget(req);
 
       CIMCreateInstanceResponseMessage* response =
 	 new CIMCreateInstanceResponseMessage(
@@ -952,21 +928,43 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
       return;
    }
    // End test block
- 
+
    String providerName = _lookupProviderForClass(request->nameSpace, className);
 
    if(providerName.size() != 0)
    {
-      // lookup provider manager
-      MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+	   Array<Uint32> serviceQueueIds;
 
-      PEGASUS_ASSERT(queue != 0);
+	   find_services(String("Server::ProviderManagerService"), 0, 0, &serviceQueueIds);
 
-      // forward to provider manager. make a copy becuase the original request is
-      // deleted by this service.
-      queue->enqueue(new CIMCreateInstanceRequestMessage(*request));
+	   PEGASUS_ASSERT(serviceQueueIds.size() != 0);
 	
-      return;
+	   AsyncOpNode * op = this->get_op();
+
+	   AsyncLegacyOperationStart * asyncRequest =
+		   new AsyncLegacyOperationStart(
+			   get_next_xid(),
+			   op,
+			   serviceQueueIds[0],
+			   new CIMCreateInstanceRequestMessage(*request),
+			   this->getQueueId());
+
+	   AsyncReply * asyncReply = SendWait(asyncRequest);
+
+	   PEGASUS_ASSERT(asyncReply != 0);
+	
+	   CIMResponseMessage * response =
+		   reinterpret_cast<CIMCreateInstanceResponseMessage *>
+		   ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+
+	   PEGASUS_ASSERT(response != 0);
+	
+	   _enqueueResponse(request, response);
+
+	   delete asyncReply;
+	   delete asyncRequest;
+
+	   return;
    }
 
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
@@ -1101,16 +1099,38 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
    if(providerName.size() != 0)
    {
-      // lookup provider manager
-      MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+	   Array<Uint32> serviceQueueIds;
 
-      PEGASUS_ASSERT(queue != 0);
+	   find_services(String("Server::ProviderManagerService"), 0, 0, &serviceQueueIds);
 
-      // forward to provider manager. make a copy becuase the original request is
-      // deleted by this service.
-      queue->enqueue(new CIMModifyInstanceRequestMessage(*request));
+	   PEGASUS_ASSERT(serviceQueueIds.size() != 0);
+	
+	   AsyncOpNode * op = this->get_op();
 
-      return;
+	   AsyncLegacyOperationStart * asyncRequest =
+		   new AsyncLegacyOperationStart(
+			   get_next_xid(),
+			   op,
+			   serviceQueueIds[0],
+			   new CIMModifyInstanceRequestMessage(*request),
+			   this->getQueueId());
+
+	   AsyncReply * asyncReply = SendWait(asyncRequest);
+
+	   PEGASUS_ASSERT(asyncReply != 0);
+	
+	   CIMResponseMessage * response =
+		   reinterpret_cast<CIMModifyInstanceResponseMessage *>
+		   ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+
+	   PEGASUS_ASSERT(response != 0);
+	
+	   _enqueueResponse(request, response);
+
+	   delete asyncReply;
+	   delete asyncRequest;
+
+	   return;
    }
 
    // translate and forward request to repository
@@ -1295,16 +1315,38 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
    if(providerName.size() != 0)
    {
-      // lookup provider manager
-      MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+	   Array<Uint32> serviceQueueIds;
 
-      PEGASUS_ASSERT(queue != 0);
+	   find_services(String("Server::ProviderManagerService"), 0, 0, &serviceQueueIds);
 
-      // forward to provider manager. make a copy becuase the original request is
-      // deleted by this service.
-      queue->enqueue(new CIMEnumerateInstancesRequestMessage(*request));
+	   PEGASUS_ASSERT(serviceQueueIds.size() != 0);
+	
+	   AsyncOpNode * op = this->get_op();
 
-      return;
+	   AsyncLegacyOperationStart * asyncRequest =
+		   new AsyncLegacyOperationStart(
+			   get_next_xid(),
+			   op,
+			   serviceQueueIds[0],
+			   new CIMEnumerateInstancesRequestMessage(*request),
+			   this->getQueueId());
+
+	   AsyncReply * asyncReply = SendWait(asyncRequest);
+
+	   PEGASUS_ASSERT(asyncReply != 0);
+	
+	   CIMResponseMessage * response =
+		   reinterpret_cast<CIMEnumerateInstancesResponseMessage *>
+		   ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+
+	   PEGASUS_ASSERT(response != 0);
+	
+	   _enqueueResponse(request, response);
+
+	   delete asyncReply;
+	   delete asyncRequest;
+
+	   return;
    }
 
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
@@ -1401,16 +1443,38 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
    if(providerName.size() != 0)
    {
-      // lookup provider manager
-      MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+	   Array<Uint32> serviceQueueIds;
 
-      PEGASUS_ASSERT(queue != 0);
+	   find_services(String("Server::ProviderManagerService"), 0, 0, &serviceQueueIds);
 
-      // forward to provider manager. make a copy becuase the original request is
-      // deleted by this service.
-      queue->enqueue(new CIMEnumerateInstanceNamesRequestMessage(*request));
+	   PEGASUS_ASSERT(serviceQueueIds.size() != 0);
+	
+	   AsyncOpNode * op = this->get_op();
 
-      return;
+	   AsyncLegacyOperationStart * asyncRequest =
+		   new AsyncLegacyOperationStart(
+			   get_next_xid(),
+			   op,
+			   serviceQueueIds[0],
+			   new CIMEnumerateInstanceNamesRequestMessage(*request),
+			   this->getQueueId());
+
+	   AsyncReply * asyncReply = SendWait(asyncRequest);
+
+	   PEGASUS_ASSERT(asyncReply != 0);
+	
+	   CIMResponseMessage * response =
+		   reinterpret_cast<CIMEnumerateInstanceNamesResponseMessage *>
+		   ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+
+	   PEGASUS_ASSERT(response != 0);
+	
+	   _enqueueResponse(request, response);
+
+	   delete asyncReply;
+	   delete asyncRequest;
+
+	   return;
    }
 	
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
@@ -1463,16 +1527,38 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
    if(providerName.size() != 0)
    {
-      // lookup provider manager
-      MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+	   Array<Uint32> serviceQueueIds;
 
-      PEGASUS_ASSERT(queue != 0);
+	   find_services(String("Server::ProviderManagerService"), 0, 0, &serviceQueueIds);
 
-      // forward to provider manager. make a copy becuase the original request is
-      // deleted by this service.
-      queue->enqueue(new CIMAssociatorsRequestMessage(*request));
+	   PEGASUS_ASSERT(serviceQueueIds.size() != 0);
+	
+	   AsyncOpNode * op = this->get_op();
 
-      return;
+	   AsyncLegacyOperationStart * asyncRequest =
+		   new AsyncLegacyOperationStart(
+			   get_next_xid(),
+			   op,
+			   serviceQueueIds[0],
+			   new CIMAssociatorsRequestMessage(*request),
+			   this->getQueueId());
+
+	   AsyncReply * asyncReply = SendWait(asyncRequest);
+
+	   PEGASUS_ASSERT(asyncReply != 0);
+	
+	   CIMResponseMessage * response =
+		   reinterpret_cast<CIMAssociatorNamesResponseMessage *>
+		   ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+
+	   PEGASUS_ASSERT(response != 0);
+	
+	   _enqueueResponse(request, response);
+
+	   delete asyncReply;
+	   delete asyncRequest;
+
+	   return;
    }
 
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
@@ -1532,16 +1618,38 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
    if(providerName.size() != 0)
    {
-      // lookup provider manager
-      MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+	   Array<Uint32> serviceQueueIds;
 
-      PEGASUS_ASSERT(queue != 0);
+	   find_services(String("Server::ProviderManagerService"), 0, 0, &serviceQueueIds);
 
-      // forward to provider manager. make a copy becuase the original request is
-      // deleted by this service.
-      queue->enqueue(new CIMAssociatorNamesRequestMessage(*request));
+	   PEGASUS_ASSERT(serviceQueueIds.size() != 0);
+	
+	   AsyncOpNode * op = this->get_op();
 
-      return;
+	   AsyncLegacyOperationStart * asyncRequest =
+		   new AsyncLegacyOperationStart(
+			   get_next_xid(),
+			   op,
+			   serviceQueueIds[0],
+			   new CIMAssociatorNamesRequestMessage(*request),
+			   this->getQueueId());
+
+	   AsyncReply * asyncReply = SendWait(asyncRequest);
+
+	   PEGASUS_ASSERT(asyncReply != 0);
+	
+	   CIMResponseMessage * response =
+		   reinterpret_cast<CIMAssociatorNamesResponseMessage *>
+		   ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+
+	   PEGASUS_ASSERT(response != 0);
+	
+	   _enqueueResponse(request, response);
+
+	   delete asyncReply;
+	   delete asyncRequest;
+
+	   return;
    }
 
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
@@ -1598,16 +1706,38 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
    if(providerName.size() != 0)
    {
-      // lookup provider manager
-      MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+	   Array<Uint32> serviceQueueIds;
 
-      PEGASUS_ASSERT(queue != 0);
+	   find_services(String("Server::ProviderManagerService"), 0, 0, &serviceQueueIds);
 
-      // forward to provider manager. make a copy becuase the original request is
-      // deleted by this service.
-      queue->enqueue(new CIMReferencesRequestMessage(*request));
+	   PEGASUS_ASSERT(serviceQueueIds.size() != 0);
+	
+	   AsyncOpNode * op = this->get_op();
 
-      return;
+	   AsyncLegacyOperationStart * asyncRequest =
+		   new AsyncLegacyOperationStart(
+			   get_next_xid(),
+			   op,
+			   serviceQueueIds[0],
+			   new CIMReferencesRequestMessage(*request),
+			   this->getQueueId());
+
+	   AsyncReply * asyncReply = SendWait(asyncRequest);
+
+	   PEGASUS_ASSERT(asyncReply != 0);
+	
+	   CIMResponseMessage * response =
+		   reinterpret_cast<CIMReferencesResponseMessage *>
+		   ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+
+	   PEGASUS_ASSERT(response != 0);
+	
+	   _enqueueResponse(request, response);
+
+	   delete asyncReply;
+	   delete asyncRequest;
+
+	   return;
    }
 
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
@@ -1665,16 +1795,38 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
    if(providerName.size() != 0)
    {
-      // lookup provider manager
-      MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+	   Array<Uint32> serviceQueueIds;
 
-      PEGASUS_ASSERT(queue != 0);
+	   find_services(String("Server::ProviderManagerService"), 0, 0, &serviceQueueIds);
 
-      // forward to provider manager. make a copy becuase the original request is
-      // deleted by this service.
-      queue->enqueue(new CIMReferenceNamesRequestMessage(*request));
+	   PEGASUS_ASSERT(serviceQueueIds.size() != 0);
+	
+	   AsyncOpNode * op = this->get_op();
 
-      return;
+	   AsyncLegacyOperationStart * asyncRequest =
+		   new AsyncLegacyOperationStart(
+			   get_next_xid(),
+			   op,
+			   serviceQueueIds[0],
+			   new CIMReferenceNamesRequestMessage(*request),
+			   this->getQueueId());
+
+	   AsyncReply * asyncReply = SendWait(asyncRequest);
+
+	   PEGASUS_ASSERT(asyncReply != 0);
+	
+	   CIMResponseMessage * response =
+		   reinterpret_cast<CIMReferenceNamesResponseMessage *>
+		   ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+
+	   PEGASUS_ASSERT(response != 0);
+	
+	   _enqueueResponse(request, response);
+
+	   delete asyncReply;
+	   delete asyncRequest;
+
+	   return;
    }
 
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
@@ -1729,16 +1881,38 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 
    if(providerName.size() != 0)
    {
-      // lookup provider manager
-      MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+	   Array<Uint32> serviceQueueIds;
 
-      PEGASUS_ASSERT(queue != 0);
+	   find_services(String("Server::ProviderManagerService"), 0, 0, &serviceQueueIds);
 
-      // forward to provider manager. make a copy becuase the original request is
-      // deleted by this service.
-      queue->enqueue(new CIMGetPropertyRequestMessage(*request));
+	   PEGASUS_ASSERT(serviceQueueIds.size() != 0);
+	
+	   AsyncOpNode * op = this->get_op();
 
-      return;
+	   AsyncLegacyOperationStart * asyncRequest =
+		   new AsyncLegacyOperationStart(
+			   get_next_xid(),
+			   op,
+			   serviceQueueIds[0],
+			   new CIMGetPropertyRequestMessage(*request),
+			   this->getQueueId());
+
+	   AsyncReply * asyncReply = SendWait(asyncRequest);
+
+	   PEGASUS_ASSERT(asyncReply != 0);
+	
+	   CIMResponseMessage * response =
+		   reinterpret_cast<CIMGetPropertyResponseMessage *>
+		   ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+
+	   PEGASUS_ASSERT(response != 0);
+	
+	   _enqueueResponse(request, response);
+
+	   delete asyncReply;
+	   delete asyncRequest;
+
+	   return;
    }
 	
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
@@ -1794,16 +1968,38 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
    if(providerName.size() != 0)
    {
-      // lookup provider manager
-      MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+	   Array<Uint32> serviceQueueIds;
 
-      PEGASUS_ASSERT(queue != 0);
+	   find_services(String("Server::ProviderManagerService"), 0, 0, &serviceQueueIds);
 
-      // forward to provider manager. make a copy becuase the original request is
-      // deleted by this service.
-      queue->enqueue(new CIMSetPropertyRequestMessage(*request));
+	   PEGASUS_ASSERT(serviceQueueIds.size() != 0);
+	
+	   AsyncOpNode * op = this->get_op();
 
-      return;
+	   AsyncLegacyOperationStart * asyncRequest =
+		   new AsyncLegacyOperationStart(
+			   get_next_xid(),
+			   op,
+			   serviceQueueIds[0],
+			   new CIMSetPropertyRequestMessage(*request),
+			   this->getQueueId());
+
+	   AsyncReply * asyncReply = SendWait(asyncRequest);
+
+	   PEGASUS_ASSERT(asyncReply != 0);
+	
+	   CIMResponseMessage * response =
+		   reinterpret_cast<CIMSetPropertyResponseMessage *>
+		   ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+
+	   PEGASUS_ASSERT(response != 0);
+	
+	   _enqueueResponse(request, response);
+
+	   delete asyncReply;
+	   delete asyncRequest;
+
+	   return;
    }
 	
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
@@ -2027,16 +2223,38 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
    if(providerName.size() != 0)
    {
-      // lookup provider manager
-      MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+	   Array<Uint32> serviceQueueIds;
 
-      PEGASUS_ASSERT(queue != 0);
+	   find_services(String("Server::ProviderManagerService"), 0, 0, &serviceQueueIds);
 
-      // forward to provider manager. make a copy becuase the original request is
-      // deleted by this service.
-      queue->enqueue(new CIMInvokeMethodRequestMessage(*request));
+	   PEGASUS_ASSERT(serviceQueueIds.size() != 0);
+	
+	   AsyncOpNode * op = this->get_op();
 
-      return;
+	   AsyncLegacyOperationStart * asyncRequest =
+		   new AsyncLegacyOperationStart(
+			   get_next_xid(),
+			   op,
+			   serviceQueueIds[0],
+			   new CIMInvokeMethodRequestMessage(*request),
+			   this->getQueueId());
+
+	   AsyncReply * asyncReply = SendWait(asyncRequest);
+
+	   PEGASUS_ASSERT(asyncReply != 0);
+	
+	   CIMResponseMessage * response =
+		   reinterpret_cast<CIMInvokeMethodResponseMessage *>
+		   ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+
+	   PEGASUS_ASSERT(response != 0);
+	
+	   _enqueueResponse(request, response);
+
+	   delete asyncReply;
+	   delete asyncRequest;
+
+	   return;
    }
 	
    CIMStatusCode errorCode = CIM_ERR_FAILED;
@@ -2068,19 +2286,38 @@ void CIMOperationRequestDispatcher::handleEnableIndicationSubscriptionRequest(
 
    if(providerName.size() != 0)
    {
-      //
-      // forward request to the provider manager
-      //
-      // lookup provider manager
-      MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+	   Array<Uint32> serviceQueueIds;
 
-      PEGASUS_ASSERT(queue != 0);
+	   find_services(String("Server::ProviderManagerService"), 0, 0, &serviceQueueIds);
 
-      // forward to provider manager. make a copy becuase the original request is
-      // deleted by this service.
-      queue->enqueue(new CIMEnableIndicationSubscriptionRequestMessage(*request));
+	   PEGASUS_ASSERT(serviceQueueIds.size() != 0);
 	
-      return;
+	   AsyncOpNode * op = this->get_op();
+
+	   AsyncLegacyOperationStart * asyncRequest =
+		   new AsyncLegacyOperationStart(
+			   get_next_xid(),
+			   op,
+			   serviceQueueIds[0],
+			   new CIMEnableIndicationSubscriptionRequestMessage(*request),
+			   this->getQueueId());
+
+	   AsyncReply * asyncReply = SendWait(asyncRequest);
+
+	   PEGASUS_ASSERT(asyncReply != 0);
+	
+	   CIMResponseMessage * response =
+		   reinterpret_cast<CIMEnableIndicationSubscriptionResponseMessage *>
+		   ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+
+	   PEGASUS_ASSERT(response != 0);
+	
+	   _enqueueResponse(request, response);
+
+	   delete asyncReply;
+	   delete asyncRequest;
+
+	   return;
    }
 
    CIMEnableIndicationSubscriptionResponseMessage* response =
@@ -2110,19 +2347,38 @@ void CIMOperationRequestDispatcher::handleModifyIndicationSubscriptionRequest(
 
    if(providerName.size() != 0)
    {
-      //
-      // forward request to the provider manager
-      //
-      // lookup provider manager
-      MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+	   Array<Uint32> serviceQueueIds;
 
-      PEGASUS_ASSERT(queue != 0);
+	   find_services(String("Server::ProviderManagerService"), 0, 0, &serviceQueueIds);
 
-      // forward to provider manager. make a copy becuase the original request is
-      // deleted by this service.
-      queue->enqueue(new CIMModifyIndicationSubscriptionRequestMessage(*request));
+	   PEGASUS_ASSERT(serviceQueueIds.size() != 0);
 	
-      return;
+	   AsyncOpNode * op = this->get_op();
+
+	   AsyncLegacyOperationStart * asyncRequest =
+		   new AsyncLegacyOperationStart(
+			   get_next_xid(),
+			   op,
+			   serviceQueueIds[0],
+			   new CIMModifyIndicationSubscriptionRequestMessage(*request),
+			   this->getQueueId());
+
+	   AsyncReply * asyncReply = SendWait(asyncRequest);
+
+	   PEGASUS_ASSERT(asyncReply != 0);
+	
+	   CIMResponseMessage * response =
+		   reinterpret_cast<CIMModifyIndicationSubscriptionResponseMessage *>
+		   ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+
+	   PEGASUS_ASSERT(response != 0);
+	
+	   _enqueueResponse(request, response);
+
+	   delete asyncReply;
+	   delete asyncRequest;
+
+	   return;
    }
 
    CIMModifyIndicationSubscriptionResponseMessage* response =
@@ -2152,16 +2408,38 @@ void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
 
    if(providerName.size() != 0)
    {
-      // lookup provider manager
-      MessageQueue * queue = MessageQueue::lookup("Server::ProviderManagerService");
+	   Array<Uint32> serviceQueueIds;
 
-      PEGASUS_ASSERT(queue != 0);
+	   find_services(String("Server::ProviderManagerService"), 0, 0, &serviceQueueIds);
 
-      // forward to provider manager. make a copy becuase the original request is
-      // deleted by this service.
-      queue->enqueue(new CIMDisableIndicationSubscriptionRequestMessage(*request));
+	   PEGASUS_ASSERT(serviceQueueIds.size() != 0);
 	
-      return;
+	   AsyncOpNode * op = this->get_op();
+
+	   AsyncLegacyOperationStart * asyncRequest =
+		   new AsyncLegacyOperationStart(
+			   get_next_xid(),
+			   op,
+			   serviceQueueIds[0],
+			   new CIMDisableIndicationSubscriptionRequestMessage(*request),
+			   this->getQueueId());
+
+	   AsyncReply * asyncReply = SendWait(asyncRequest);
+
+	   PEGASUS_ASSERT(asyncReply != 0);
+	
+	   CIMResponseMessage * response =
+		   reinterpret_cast<CIMDisableIndicationSubscriptionResponseMessage *>
+		   ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+
+	   PEGASUS_ASSERT(response != 0);
+	
+	   _enqueueResponse(request, response);
+
+	   delete asyncReply;
+	   delete asyncRequest;
+
+	   return;
    }
 
    CIMDisableIndicationSubscriptionResponseMessage* response =
@@ -2193,48 +2471,6 @@ void CIMOperationRequestDispatcher::handleProcessIndicationRequest(
 
    return;
 }
-
-//
-// ATTN : Do we need following code now?
-//
-
-/*
-  void CIMOperationRequestDispatcher::loadRegisteredProviders(void)
-  {
-  CIMStatusCode errorCode = CIM_ERR_SUCCESS;
-  String errorDescription;
-  Array<CIMNamedInstance> cimNamedInstances;
-
-  // ATTN: May need change
-  const String& nameSpace = "root/cimv2";
-  const String& className = "PG_Provider";
-
-  _repository->read_lock();
-
-  try
-  {
-  // ATTN: Exceptions are silently ignored for now
-  cimNamedInstances = _repository->enumerateInstances(
-  nameSpace,
-  className);
-
-  }
-
-  catch (CIMException& exception)
-  {
-  errorCode = exception.getCode();
-  errorDescription = exception.getMessage();
-  }
-  catch (Exception& exception)
-  {
-  errorCode = CIM_ERR_FAILED;
-  errorDescription = exception.getMessage();
-  }
-  _repository->read_unlock();
-
-  _providerManager.createProviderBlockTable(cimNamedInstances);
-  }
-*/
 
 /**
    Convert the specified CIMValue to the specified type, and return it in

@@ -466,7 +466,11 @@ CIMRepository::CIMRepository(const String& repositoryRoot)
        ((AutoStreamer*)streamer)->addReader(new XmlStreamer(),0);
     }
 
-    else streamer=new XmlStreamer();
+    else { // streamer=new XmlStreamer();
+       streamer=new AutoStreamer(new XmlStreamer(),0xff);
+       ((AutoStreamer*)streamer)->addReader(new BinaryStreamer(),BINREP_MARKER);
+       ((AutoStreamer*)streamer)->addReader(new XmlStreamer(),0);
+    }
 
     _context = new RepositoryDeclContext(this);
     _isDefaultInstanceProvider = (ConfigManager::getInstance()->getCurrentValue(

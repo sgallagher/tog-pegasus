@@ -109,8 +109,11 @@ void TestCreateClass()
     r.setQualifier(NS, CIMQualifierDecl(CIMName ("description"),String(),(CIMScope::PROPERTY + CIMScope::CLASS)));
     r.setQualifier(NS, CIMQualifierDecl(CIMName ("junk"),String(),(CIMScope::PROPERTY + CIMScope::CLASS)));
 
-    // -- Construct new class:
-	CIMQualifier d(CIMName("description"), String("Test info in SuperClass"));
+    // -- Construct new class:"*REMOVED*"
+//	CIMQualifier d(CIMName("description"), String("Test info in SuperClass"));
+    // Updated test to ensure it works with enabled PEGASUS_REMOVE_DESCRIPTIONS
+    // as well as not enabled.
+	CIMQualifier d(CIMName("description"), String("*REMOVED*"));
     CIMClass c1(CIMName ("SuperClass"));
 	c1.addQualifier(d);
     c1.addProperty(

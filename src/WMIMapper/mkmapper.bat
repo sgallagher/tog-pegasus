@@ -69,6 +69,11 @@ if not defined PEGASUS_ROOT goto ERR_NO_PEGASUS_ROOT
 if not defined PEGASUS_HOME goto ERR_NO_PEGASUS_HOME
 
 REM ***********************************************************
+REM Add %PEGASUS_HOME%\bin to the PATH (needed for tests, etc.)
+REM ***********************************************************
+set PATH=%PEGASUS_HOME%\bin;%PATH%
+
+REM ***********************************************************
 REM Process command line args
 REM
 REM Valid args are (NOT case-sensitive):
@@ -133,6 +138,7 @@ goto NEXT_ARG
 :ARG_SSL
 set PEGASUS_HAS_SSL=Yes
 if not defined OPENSSL_HOME goto ERR_NO_OPENSSL_HOME
+set PATH=%OPENSSL_HOME%\bin;%PATH%
 goto NEXT_ARG
 
 :ARG_NOSSL
@@ -198,7 +204,13 @@ echo.
 echo "======================================="
 echo "Building the Pegasus core lib's & app's"
 echo "======================================="
+REM NOTE: Remove "rebuild" from the make command, below,
+REM for a simpler build of Pegasus (build new/updated 
+REM files/dependencies only, no repository & no tests)
 make rebuild
+
+REM NOTE: Comment-out the following line to ignore Pegasus
+REM build/test errors, and go on to build the Mapper:
 if %errorlevel% NEQ 0 goto ERR_BUILD_FAILED
 
 REM ***********************************************************

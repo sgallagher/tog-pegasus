@@ -25,9 +25,9 @@
 //
 // Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company 
 //               (carolann_graves@hp.com)
-//
-// Modified By:  Ben Heilbronn, Hewlett-Packard Company
+// 		 Ben Heilbronn, Hewlett-Packard Company
 //               (ben_heilbronn@hp.com)
+// 		 Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1461,6 +1461,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
     PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4, 
 		     "Received Indication " + 
 		     indication.getClassName().getString());
+
     try
     {
         WQLSimplePropertySource propertySource = _getPropertySourceFromInstance(
@@ -1484,6 +1485,12 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
         for (Uint8 i = 0; i < matchedSubscriptions.size(); i++)
         {
             match = true;
+
+	    //
+	    // copy the indication, format it based on the subscription,
+	    // and send the formatted indication to the consumer
+	    // 
+	    CIMInstance formattedIndication = indication.clone();
 
             //
             //  Check for expired subscription
@@ -1514,53 +1521,71 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
             if (match)
             {
 
-                 // Formatting indication. Removes properties listed in WHERE 
-                 // clause from indication as they are not required to pass to 
-                 // consumer
-
-                 Array <CIMName> selectPropertyList;
-                 CIMName selectProperty;
+		 //
+		 // ATTN-YZ-P1-20030113: Need change String to be CIMName for
+		 // selectPropertyList and selectProperty when the CIMName defect
+		 // is fixed for the WQL
+		 //
+                 Array <String> selectPropertyList;
+                 String selectProperty;
+		 Boolean selectAll = false;
 
                  //
                  //  Get all the properties from SELECT clause
                  //
                  Uint32 selectCount = 
                      selectStatement.getSelectPropertyNameCount ();
-                 if (selectCount > 0)
+
+		 // if selectProperty is *, send all the property to consumer
+		 if (selectCount == 1)
                  {
-                     for (Uint32 i = 0; i < selectCount; i++)
+		     selectProperty = selectStatement.getSelectPropertyName (0);
+                     if (String::equal(selectProperty, _QUERY_ALLPROPERTIES))
                      {
-                         selectProperty = 
+                         // send every thing to consumer
+                         selectAll = true;
+                     }
+                 }
+
+		 //
+                 // Formatting indication. Removes properties which are not
+		 // listed in SELECT clause from indication as they are not 
+		 // required to pass to consumer
+		 //
+
+		 if (selectAll == false)
+		 {
+		      //
+		     // get all properties which are listed in SELECT clause
+		     //
+		     for (Uint32 i = 0; i < selectCount; i++)
+		     {
+		         selectProperty =
                              selectStatement.getSelectPropertyName (i);
                          if (!Contains (selectPropertyList, selectProperty))
                          {
                              selectPropertyList.append (selectProperty);
-                         }
-                     }
-                 }
+                     	 }
+		     }
 
-                 if (selectStatement.hasWhereClause ())
-                 {
-                     Uint32 whereCount = 
-                         selectStatement.getWherePropertyNameCount ();
-                     if (whereCount > 0)
-                     {
-                         for (Uint32 j = 0; j < whereCount; j++)
-                         {
-                             CIMName whereProperty = 
-                                 selectStatement.getWherePropertyName(j);
-                             // check if where property is not in select 
-                             if (!Contains(selectPropertyList, whereProperty))
-                             {
-                                 Uint32 propPos = indication.findProperty
-                                     (whereProperty);
-                                 if (propPos != PEG_NOT_FOUND)
-                                     indication.removeProperty(propPos);
-                             }
-                         }
-                     }
-                 }
+		    //
+		    // Remove properties which are not listed in SELECT clause
+		    // from indication
+		    //
+		    String propertyName;
+		    for (Uint32 j = 0; j < propertyNames.size(); j++)
+		    {
+		  	propertyName =  propertyNames[j].getString ();
 
+                        if (!Contains(selectPropertyList, propertyName))
+			{
+			    formattedIndication.removeProperty(
+				formattedIndication.findProperty
+						      (propertyNames[j])); 
+			}
+	  	    }
+		 }
+		
                  handlerNamedInstance = _getHandler
                      (matchedSubscriptions[i]);
 
@@ -1569,7 +1594,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                          XmlWriter::getNextMessageId (),
                          request->nameSpace,
                          handlerNamedInstance,
-                         indication,
+                         formattedIndication,
                          QueueIdStack(_handlerService, getQueueId()));
                 
                  AsyncOpNode* op = this->get_op();

@@ -273,7 +273,7 @@ CIMIndicationConsumer* ConsumerTable::loadConsumer(const String& consumerId)
 	libraryName.append("/lib");
 	libraryName.append(consumerName);
 #ifdef PEGASUS_OS_HPUX
-	libraryName.append(".sl");
+	libraryName.append(".0");
 #else
 	libraryName.append(".so");
 #endif

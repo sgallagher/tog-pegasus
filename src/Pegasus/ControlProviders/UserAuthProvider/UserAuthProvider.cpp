@@ -920,18 +920,17 @@ void UserAuthProvider::invokeMethod(
         //
         // Get the user name
         //
-            if ( kbArray[0].getName() == PROPERTY_NAME_USERNAME )
+        if ( kbArray[0].getName() == PROPERTY_NAME_USERNAME )
         {
             userName = kbArray[0].getValue();
         }
         else
         {
             PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION( CIM_ERR_INVALID_PARAMETER,
-                    "Unexpected key property");
-	    MessageLoaderParms parms("ControlProviders.UserAuthProvider.UNEXPECTED_KEY_PROPERTY",
-							 "Unexpected key property");
-	    throw PEGASUS_CIM_EXCEPTION_L( CIM_ERR_INVALID_PARAMETER,parms);
+            MessageLoaderParms parms(
+                "ControlProviders.UserAuthProvider.UNEXPECTED_KEY_PROPERTY",
+                "Unexpected key property");
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER, parms);
         }
 
         //
@@ -957,7 +956,6 @@ void UserAuthProvider::invokeMethod(
             userName,
             password,
             newPassword);
-
     }
     catch (CIMException& e)
     {

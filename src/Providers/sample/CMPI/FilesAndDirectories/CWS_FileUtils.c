@@ -118,7 +118,10 @@ CMPIInstance   *makeInstance(CMPIBroker *broker, const char * classname,
       CMSetProperty(in,"CreationClassName",classname,CMPI_chars);
       CMSetProperty(in,"Name",cwsf->cws_name,CMPI_chars); 
       CMSetProperty(in,"FileSize",(CMPIValue*)&cwsf->cws_size,CMPI_uint64);
-      /* val.uint64 = cwsf->cws_ctime;
+#ifndef SIMULATED
+/* We don't want this code in the simulated env - time is dynamic (diff timezones)
+   and the testing system might using a diff timezone and report failure */
+      val.uint64 = cwsf->cws_ctime;
       val.dateTime = CMNewDateTimeFromBinary(broker,val.uint64*1000000,0,NULL);
       CMSetProperty(in,"CreationDate",&val,CMPI_dateTime);
       val.uint64 = cwsf->cws_mtime;
@@ -126,7 +129,8 @@ CMPIInstance   *makeInstance(CMPIBroker *broker, const char * classname,
       CMSetProperty(in,"LastModified",&val,CMPI_dateTime);
       val.uint64 = cwsf->cws_atime;
       val.dateTime = CMNewDateTimeFromBinary(broker,val.uint64*1000000,0,NULL);
-      CMSetProperty(in,"LastAccessed",&val,CMPI_dateTime); */
+      CMSetProperty(in,"LastAccessed",&val,CMPI_dateTime); 
+#endif
       val.uint64=0L;
       val.boolean=(cwsf->cws_mode & 0400) != 0;
       CMSetProperty(in,"Readable",&val,CMPI_boolean);
@@ -147,12 +151,14 @@ int makeFileBuf(CMPIInstance *instance, CWS_FILE *cwsf)
     strcpy(cwsf->cws_name,CMGetCharPtr(dt.value.string));
     dt=CMGetProperty(instance,"FileSize",NULL);
     cwsf->cws_size=dt.value.uint64;
-    /* dt=CMGetProperty(instance,"CreationDate",NULL); */
-    /* cwsf->cws_ctime=CMGetBinaryFormat(dt.value.dateTime,NULL); */
-    /* dt=CMGetProperty(instance,"LastModified",NULL); */
-    /* cwsf->cws_mtime=CMGetBinaryFormat(dt.value.dateTime,NULL); */
-    /* dt=CMGetProperty(instance,"LastAccessed",NULL); */
-    /* cwsf->cws_atime=CMGetBinaryFormat(dt.value.dateTime,NULL); */
+#ifndef SIMULATED
+     dt=CMGetProperty(instance,"CreationDate",NULL); 
+    cwsf->cws_ctime=CMGetBinaryFormat(dt.value.dateTime,NULL); 
+    dt=CMGetProperty(instance,"LastModified",NULL); 
+    cwsf->cws_mtime=CMGetBinaryFormat(dt.value.dateTime,NULL);
+    dt=CMGetProperty(instance,"LastAccessed",NULL);
+    cwsf->cws_atime=CMGetBinaryFormat(dt.value.dateTime,NULL);
+#endif
     dt=CMGetProperty(instance,"Readable",NULL);
     cwsf->cws_mode=dt.value.boolean ? 0400 : 0;
     dt=CMGetProperty(instance,"Writeable",NULL);

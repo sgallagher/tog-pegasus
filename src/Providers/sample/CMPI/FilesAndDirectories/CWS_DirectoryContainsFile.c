@@ -168,6 +168,9 @@ CMPIStatus CWS_DirectoryContainsFileAssociatorNames( CMPIAssociationMI * mi,
   CWS_FILE        filebuf;
 
   if (!silentMode()) fprintf(stderr,"--- CWS_DirectoryContainsFileAssociatorNames()\n");
+#ifdef SIMULATED
+    CMSetHostname(cop,CSName());
+#endif
 
   /*
    * Check if the object path belongs to a supported class
@@ -259,6 +262,9 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
   CWS_FILE        filebuf;
 
   if (!silentMode()) fprintf(stderr,"--- CWS_DirectoryContainsFileReferenceNames()\n");
+#ifdef SIMULATED
+    CMSetHostname(cop,CSName());
+#endif
     
   /*
    * Check if the object path belongs to a supported class

@@ -183,13 +183,12 @@ Mutex::Mutex(int mutex_type)
    pthread_mutex_init(&_mutex.mut,&_mutex.mutatt);
    _mutex.owner = 0;
 }
-#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
-      // to share the mutex between different condition variables
+
+// to be able share the mutex between different condition variables
 Mutex::Mutex(const Pegasus::Mutex& mutex)
 {
    _mutex = mutex._mutex;
 }
-#endif
 
 Mutex::~Mutex()
 {

@@ -230,7 +230,7 @@ public:
       
   /** stop listening for client connections 
    */
-  void stopListeningForConnections();
+  void stopListeningForConnections(Boolean wait);
 
 private:
       

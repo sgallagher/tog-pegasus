@@ -590,24 +590,27 @@ Boolean Monitor::run(Uint32 milliseconds)
     return(handled_events);
 }
 
-void Monitor::stopListeningForConnections()
+void Monitor::stopListeningForConnections(Boolean wait)
 {
     PEG_METHOD_ENTER(TRC_HTTP, "Monitor::stopListeningForConnections()");
     // set boolean then tickle the server to recognize _stopConnections 
     _stopConnections = 1;
     tickle();
 
-    // Wait for the monitor to notice _stopConnections.  Otherwise the
-    // caller of this function may unbind the ports while the monitor
-    // is still accepting connections on them.
-    try
+    if (wait)
     {
-      _stopConnectionsSem.time_wait(10000);
-    }
-    catch (TimeOut &)
-    {
-      // The monitor is probably busy processng a very long request, and is
-      // not accepting connections.  Let the caller unbind the ports.
+      // Wait for the monitor to notice _stopConnections.  Otherwise the
+      // caller of this function may unbind the ports while the monitor
+      // is still accepting connections on them.
+      try
+	{
+	  _stopConnectionsSem.time_wait(10000);
+	}
+      catch (TimeOut &)
+	{
+	  // The monitor is probably busy processng a very long request, and is
+	  // not accepting connections.  Let the caller unbind the ports.
+	}
     }
     
     PEG_METHOD_EXIT();

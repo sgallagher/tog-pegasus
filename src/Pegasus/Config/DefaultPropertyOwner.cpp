@@ -57,7 +57,7 @@ static struct ConfigPropertyRow properties[] =
     {"enableHttpConnection", "true", 0, 0, 0},
     {"enableHttpsConnection", "false", 0, 0, 0},
     {"home", "./", 0, 0, 0},
-    {"daemon", "false", 0, 0, 0},
+    {"daemon", "true", 0, 0, 0},
     {"install", "false", 0, 0, 0},
     {"remove", "false", 0, 0, 0},
     {"slp", "false", 0, 0, 0},

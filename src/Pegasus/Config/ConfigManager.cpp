@@ -27,6 +27,7 @@
 //                  (sushma_fernandes@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
+//              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -182,16 +183,6 @@ Initialize the default PEGASUS_HOME location, the default is set to the current 
 const String ConfigManager::PEGASUS_HOME_DEFAULT  = ".";
 
 String ConfigManager::_pegasusHome = PEGASUS_HOME_DEFAULT;
-
-/**
-Initialize the constants representing the command line options.
-*/
-const char ConfigManager::OPTION_TRACE       = 't';
-
-const char ConfigManager::OPTION_LOG_TRACE   = 'l';
-
-const char ConfigManager::OPTION_DAEMON      = 'd';
-
 
 /** 
 Initialize ConfigManager instance 
@@ -604,19 +595,8 @@ void ConfigManager::mergeCommandLine(int& argc, char**& argv)
             // Get the option
             const char* option = arg + 1;
 
-            if (*option == OPTION_TRACE)
-            {
-                _initPropertyWithCommandLineOption("trace=true");
-            }
-            else if (*option == OPTION_LOG_TRACE)
-            {
-                _initPropertyWithCommandLineOption("logtrace=true");
-            }
-            else if (*option == OPTION_DAEMON)
-            {
-                _initPropertyWithCommandLineOption("daemon=true");
-            }
-            else if (!strcmp(option,"install"))
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+            if (!strcmp(option,"install"))
             {
                 _initPropertyWithCommandLineOption("install=true");
             }
@@ -624,19 +604,8 @@ void ConfigManager::mergeCommandLine(int& argc, char**& argv)
             {
                 _initPropertyWithCommandLineOption("remove=true");
             }
-            else if (!strcmp(option,"cleanlogs"))
-            {
-                _initPropertyWithCommandLineOption("cleanlogs=true");
-            }
-            else if (!strcmp(option,"slp"))
-            {
-                _initPropertyWithCommandLineOption("slp=true");
-            }
-            else if (!strcmp(option,"SSL"))
-            {
-                _initPropertyWithCommandLineOption("SSL=true");
-            }
             else
+#endif
             {
                 throw UnrecognizedConfigProperty(arg);
             }

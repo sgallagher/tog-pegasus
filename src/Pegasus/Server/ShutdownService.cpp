@@ -43,7 +43,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/IPC.h>
-#include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_USING_STD;
 
@@ -111,11 +111,15 @@ ShutdownService* ShutdownService::getInstance(CIMServer* cimserver)
 */
 void ShutdownService::shutdown(Boolean force, Uint32 timeout)
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "ShutdownService::shutdown");
+
     //
     // Initialize variables
     //
     Boolean timeoutExpired = false;
     Boolean noMoreRequests = false;
+
+    _shutdownTimeout = timeout;
 
     try
     {
@@ -128,11 +132,6 @@ void ShutdownService::shutdown(Boolean force, Uint32 timeout)
         // Tell the CIMServer to stop accepting new client connection requests.
         //
         _cimserver->stopClientConnection();
-
-        //
-        // get shutdown timeout values
-        //
-        _initTimeoutValues(timeout);
 
         //
         // Determine if there are any outstanding CIM operation requests
@@ -156,27 +155,25 @@ void ShutdownService::shutdown(Boolean force, Uint32 timeout)
     }
     catch(CIMException & e)
     {
-        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-            "Error occured during CIMServer shutdown: $0.", 
-            e.getMessage());
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Error occurred during CIMServer shutdown: " + e.getMessage());
     }
     catch(Exception & e)
     {
-        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-            "Error occured during CIMServer shutdown: $0.", 
-            e.getMessage());
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Error occurred during CIMServer shutdown: " + e.getMessage());
     }
 
     catch(...)
     {
-        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Unexpected error occured during CIMServer shutdown. ");
     }
-
 
     //
     // All done
     //
+    PEG_METHOD_EXIT();
     return;
 }
 
@@ -196,34 +193,10 @@ void ShutdownService::async_callback(Uint32 user_data,
 /*  private methods                                       */
 /**********************************************************/
 
-void ShutdownService::_initTimeoutValues(Uint32 timeout)
-{
-    //
-    // get an instance of the ConfigManager
-    //
-    ConfigManager*  configManager;
-    configManager = ConfigManager::getInstance();
-
-    //
-    // if timeout was not specified, get timeout value from ConfigManager
-    //
-    if (timeout > 0)
-    {
-        _shutdownTimeout = timeout;
-    }
-    else
-    {
-        String configTimeout = 
-            configManager->getCurrentValue(SHUTDOWN_TIMEOUT_PROPERTY);
-        ArrayDestroyer<char> timeoutCString(configTimeout.allocateCString());
-        _shutdownTimeout = strtol(timeoutCString.getPointer(), (char **)0,10);
-    }
-
-    return;
-}
-
 void ShutdownService::_shutdownCIMServer()
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "ShutdownService::_shutdownCIMServer");
+
     //
     // Shutdown the providers
     //
@@ -239,11 +212,14 @@ void ShutdownService::_shutdownCIMServer()
     //
     _cimserver->shutdown();
 
+    PEG_METHOD_EXIT();
     return;
 }
 
 void ShutdownService::_shutdownCimomServices()
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "ShutdownService::_shutdownCimomServices");
+
     //
     // Shutdown the Indication Service
     //
@@ -282,6 +258,7 @@ void ShutdownService::_shutdownCimomServices()
     //
     _sendShutdownRequestToService(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER);
 
+    PEG_METHOD_EXIT();
     return;
 }
 
@@ -319,60 +296,15 @@ void ShutdownService::_sendShutdownRequestToService(const char * serviceName)
                                                         _queueId,
                                                         stopRequest);
 
-    // JYU
     //delete stopRequest;
-
-// ATTN-YZ-P2-05032002: Temporarily removed, until asyn_callback fixed
-/*
-    //
-    // create callback data structure
-    //
-    callback_data *cb_data = new callback_data(this);
-
-    //
-    // Now send Stop request to service
-    //
-    if (false  == _controller->ClientSendAsync(*_client_handle,
-                                               0,
-                                               _queueId,
-                                               stopRequest,
-                                               ShutdownService::async_callback,
-                                               (void *)cb_data) )
-    {
-        delete cb_data;
-        throw CIMException(CIM_ERR_NOT_FOUND);
-    }
-
-    cb_data->client_sem.wait();
-    AsyncReply * asyncReply = static_cast<AsyncReply *>(cb_data->get_reply()) ;
- 
-    //
-    // check result
-    //
-    if (asyncReply != NULL)
-    {
-        if (asyncReply->result == async_results::CIM_STOPPED)
-        {
-            Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-                "Service $0 $1", serviceName, "stopped.");
-        }
-        else
-        {
-            Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-                "Failed to stop service $0.", serviceName);
-        }
-    }
-
-    delete stopRequest;
-    delete asyncReply;
-    delete cb_data;
-*/
 
     return;
 }
 
 void ShutdownService::_shutdownProviders()
 {
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "ShutdownService::_shutdownProviders");
+
     //
     // get provider manager service
     //
@@ -380,7 +312,10 @@ void ShutdownService::_shutdownProviders()
         MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
 
     if (queue == 0)
+    {
+        PEG_METHOD_EXIT();
         return;
+    }
 
     MessageQueueService * _service = dynamic_cast<MessageQueueService *>(queue);
     Uint32 _queueId = _service->getQueueId();
@@ -420,6 +355,7 @@ void ShutdownService::_shutdownProviders()
         delete asyncRequest;
         delete asyncReply;
         delete response;
+        PEG_METHOD_EXIT();
         throw (e);
     }
 
@@ -428,53 +364,7 @@ void ShutdownService::_shutdownProviders()
     delete asyncReply;
     delete response;
 
-// ATTN-JY-P2-05162002: Comment out, until asyn_callback is fixed
-/*
-    //
-    // create callback data structure
-    //
-    callback_data *cb_data = new callback_data(this);
-
-    if (false  == _controller->ClientSendAsync(*_client_handle,
-                                               0,
-                                               _queueId,
-                                               asyncRequest,
-                                               ShutdownService::async_callback,
-                                               (void *)cb_data) )
-    {
-        delete stopRequest;
-        delete asyncRequest;
-        delete cb_data;
-        throw CIMException(CIM_ERR_NOT_FOUND);
-    }
-
-    cb_data->client_sem.wait();
-    AsyncReply * asyncReply = static_cast<AsyncReply *>(cb_data->get_reply()) ;
-
-    //
-    // check result
-    //
-    if (asyncReply != NULL)
-    {
-        if (asyncReply->result == async_results::OK)
-        {
-            Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-                "Providers terminated successfully.");
-        }
-        else
-        {
-            Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-                "Error occured while terminating providers.");
-        }
-
-    }
-
-    //delete stopRequest;
-    delete asyncRequest;
-    delete asyncReply;
-    delete cb_data;
-*/
-
+    PEG_METHOD_EXIT();
     return;
 }
 

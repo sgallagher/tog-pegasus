@@ -23,7 +23,7 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By:
+// Modified By: Jenny Yu (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +34,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-const char PEGASUS_NAME[] = "Pegasus CIM Server - ";
+const char PEGASUS_NAME[] = "CIM Server";
 const char PEGASUS_VERSION[] = "1.09";
 const char PEGAUS_STATUS[] = "Experimental" ;
 

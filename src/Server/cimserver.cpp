@@ -40,15 +40,20 @@
 //
 // Notes on deamon operation (Unix) and service operation (Win 32):
 //
-// To run pegasus as a daemon on Unix platforms, use the -d option:
+// To run pegasus as a daemon on Unix platforms: 
 //
-// cimserver -d
+// cimserver
 //
-// The -d option has no effect on windows operation. 
+// To NOT run pegasus as a daemon on Unix platforms, set the daemon config
+// property to false:
+//
+// cimserver daemon=false
+//
+// The daemon config property has no effect on windows operation. 
 //
 // To shutdown pegasus, use the -s option:
 // 
-// cimserver -s [-t timeout_value]
+// cimserver -s 
 //
 // To run pegasus as an NT service, there are FOUR  different possibilities:
 //
@@ -131,10 +136,6 @@ static const char OPTION_HOME        = 'D';
 
 static const char OPTION_SHUTDOWN    = 's';
 
-static const char OPTION_FORCE       = 'f';
-
-static const char OPTION_TIMEOUT     = 't';
-
 #if defined(PEGASUS_OS_HPUX)
 static const char OPTION_BINDVERBOSE = 'X';
 #endif
@@ -198,22 +199,18 @@ void PrintHelp(const char* arg0)
     usage.append (COMMAND_NAME);
     usage.append (" [ [ options ] | [ configProperty=value, ... ] ]\n");
     usage.append ("  options\n");
-    usage.append ("    -v          - displays pegasus version number\n");
+    usage.append ("    -v          - displays CIM Server version number\n");
     usage.append ("    -h          - prints this help message\n");
+    usage.append ("    -s          - shuts down CIM Server\n");
+#ifndef PEGASUS_OS_HPUX
     usage.append ("    -D [home]   - sets pegasus home directory\n");
-    usage.append ("    -d          - runs pegasus as a daemon\n");
-    usage.append ("    -s [-t timeout] \n");
-    usage.append ("                - shuts down pegasus\n");
-#if !defined(PEGASUS_OS_HPUX)
-    usage.append ("    -cleanlogs  - clears the log files at startup\n");
+#endif
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
     usage.append ("    -install    - installs pegasus as a Windows NT Service\n");
     usage.append ("    -remove     - removes pegasus as a Windows NT Service\n");
-    usage.append ("    -slp        - registers pegasus as a service with SLP\n\n");
-    usage.append ("    -SSL        - uses SSL\n\n");
 #endif
     usage.append ("  configProperty=value\n");
-    usage.append ("    port=nnnn            - sets port number to listen on\n");
-    usage.append ("    logdir=/pegasus/logs - directory for log files\n");
+    usage.append ("                - sets CIM Server configuration property\n");
 
     cout << endl;
     cout << PEGASUS_NAME << PEGASUS_VERSION << endl;
@@ -245,21 +242,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
         // so that the command client does not timeout before the cimserver 
         // terminates
         //
-        Uint32 clientTimeout;
-        if (timeoutValue == 0)
-        {
-            String configTimeout = 
-                configManager->getCurrentValue("shutdownTimeout");
-           ArrayDestroyer<char> timeoutCString(configTimeout.allocateCString());
-            clientTimeout = 
-                ((strtol(timeoutCString.getPointer(), (char **)0,10))+2)*1000;
-        }
-        else
-        {
-            clientTimeout = (timeoutValue + 2)*1000;
-        }
-
-        client.setTimeOut(clientTimeout);
+        client.setTimeOut( (timeoutValue+2)*1000 );
     }
     catch(CIMClientException& e)
     {
@@ -344,9 +327,7 @@ int main(int argc, char** argv)
     Boolean useSSL = false;
     Boolean daemonOption = false;
     Boolean shutdownOption = false;
-    Boolean timeoutOption = false;
-    String  timeoutStr  = String::EMPTY;
-    long timeoutValue  = 0;
+    Uint32 timeoutValue  = 0;
 
     //
     // Get environment variables:
@@ -368,7 +349,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        // Get help, version and home options
+        // Get help, version, and shutdown options
 
         for (int i = 1; i < argc; )
         {
@@ -398,7 +379,7 @@ int main(int argc, char** argv)
                 }
                 else if (*option == OPTION_HOME)
                 {
-                    if (i + 1 < argc) 
+                    if (i + 1 < argc)
                     {
                         pegasusHome.assign(argv[i + 1]);
                     }
@@ -430,7 +411,6 @@ int main(int argc, char** argv)
                 //
                 else if (*option == OPTION_SHUTDOWN)
                 {
-
                     //
                     // check to see if user is root
                     //
@@ -455,54 +435,6 @@ int main(int argc, char** argv)
                     // remove the option from the command line
                     memmove(&argv[i], &argv[i + 1], (argc-i) * sizeof(char*));
                     argc--;   
-                }
-                else if (*option == OPTION_TIMEOUT)
-                {
-                    //
-                    // Check to see if shutdown has been specified:
-                    //
-                    if (!shutdownOption)
-                    {
-                        cout << "Invalid option -" << option << endl;
-                        exit(0);
-                    }
-
-                    if (timeoutOption)
-                    {
-                        cout << "Duplicate timeout option specified." << endl;
-                        exit(0);
-                    }
-
-                    timeoutOption = true;
-
-                    if (i + 1 < argc)
-                    {
-                        // get timeout value
-                        timeoutStr.assign(argv[i + 1]);
-
-                        // validate timeout value string
-                        char* tmp = timeoutStr.allocateCString();
-                        char* end = 0;
-                        timeoutValue  = strtol(tmp, &end, 10);
-                      
-                        if (!end || *end != '\0')
-                        {
-                            cout << "invalid timeout value specified: ";
-                            cout << timeoutStr << endl;
-                            delete [] tmp;
-                            exit(0);
-                        }
-                    }
-                    else
-                    {
-                        cout << "Missing argument for option -";
-                        cout << option << endl;
-                        exit(0);
-                    }
-
-                    // remove the option from the command line
-                    memmove(&argv[i], &argv[i + 2], (argc-i-1) * sizeof(char*));
-                    argc -= 2;
                 }
                 else
                     i++;
@@ -536,7 +468,6 @@ int main(int argc, char** argv)
         cerr << argv[0] << ": " << e.getMessage() << endl;
         exit(1);
     }
-
 
     try
     {
@@ -606,25 +537,14 @@ int main(int argc, char** argv)
         //
         if (shutdownOption)
         {
-            //
-            // if timeout was specified, validate the timeout value 
-            //
-            if (timeoutOption)
-            {
-                Boolean valid = configManager->validatePropertyValue(
-                                             PROPERTY_TIMEOUT,
-                                             timeoutStr);
-                if (!valid)
-                {
-                    cout << "Invalid timeout value specified: " << timeoutValue;
-                    cout << endl;
-                    exit(1);
-                }
-            }
-
+            String configTimeout = 
+                configManager->getCurrentValue("shutdownTimeout");
+            ArrayDestroyer<char> timeoutCString(configTimeout.allocateCString());
+            timeoutValue = strtol(timeoutCString.getPointer(), (char **)0, 10);
+            
             shutdownCIMOM(timeoutValue);
 
-            cout << "Pegasus CIM Server stopped." << endl;
+            cout << "CIM Server stopped." << endl;
             exit(0);
         }
 
@@ -809,9 +729,6 @@ int main(int argc, char** argv)
     }
     catch(Exception& e)
     {
-	Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-	    "$0. Abnormal Termination.", e.getMessage());
-	
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
         return 1;
     }

@@ -339,12 +339,17 @@ TAG: Version_1_09.
     getReference () method should be replaced with a call to the CIMObject 
     getPath () method.
 
-55. (Jenny Yu - HP) 31 May 2002 - Implemented a cimserver_kill() method 
+56. (Jenny Yu - HP) 31 May 2002 - Implemented a cimserver_kill() method 
     to kill the CIMServer process if the CIM Server is still running after
     the shutdown timeout has expired during shutdown.  The CIMServer process
     Id is saved in a file after CIMServer starts up.  This file is removed
     after CIMServer terminates normally.  Only added code for the HPUX
     platform.  
+
+57. (Jenny Yu - HP) 03 Jun 2002 - Removed all cimserver command line options
+    except for: -v (version), -h (help), -D (home), -s (shutdown), and
+    -install and -remove (for Windows only).  All other options can be set
+    using the <configProperty=value> command line syntax.
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

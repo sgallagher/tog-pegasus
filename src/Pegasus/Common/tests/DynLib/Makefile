@@ -11,7 +11,7 @@ SOURCES = DynLib.cpp
 
 LIBRARY = DynLib
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 
 tests:
 

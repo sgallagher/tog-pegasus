@@ -27,6 +27,7 @@
 #// Modified By: David Kennedy       <dkennedy@linuxcare.com>
 #//              Christopher Neufeld <neufeld@linuxcare.com>
 #//		 Mike Glantz <michael_glantz@hp.com>
+#//		 Sean Keenan Hewlett-Packard Company <sean.keenan@hp.com>
 #//
 #//%////////////////////////////////////////////////////////////////////////////
 
@@ -49,7 +50,7 @@ LIBRARIES = \
 	pegcommon \
 	pegprovider
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 include $(ROOT)/mak/install.mak
 
 tests:

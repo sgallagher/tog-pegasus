@@ -49,5 +49,5 @@ SOURCES = \
         CMPI_SelectExpAccessor_WQL.cpp \
         CMPI_SelectExpAccessor_CQL.cpp
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 include $(ROOT)/mak/install.mak

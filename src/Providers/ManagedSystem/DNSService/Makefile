@@ -27,6 +27,7 @@
 #// Modified By: David Kennedy       <dkennedy@linuxcare.com>
 #//              Christopher Neufeld <neufeld@linuxcare.com>
 #//              Paulo Fernando Borges da Silva <pfborges@wowmail.com>
+#//              Sean Keenan Hewlett-Packard Company <sean.keenan@hp.com>
 #//
 #//%////////////////////////////////////////////////////////////////////////////
 
@@ -63,7 +64,7 @@ DYNAMIC_LIBRARIES = \
 	-lpegcommon \
 	-lpegprovider
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 include $(ROOT)/mak/install.mak
 
 tests:

@@ -19,7 +19,7 @@ SOURCES = \
 	TestProviderManagerMain.cpp \
 	TestProviderManager.cpp
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 
 install:
 

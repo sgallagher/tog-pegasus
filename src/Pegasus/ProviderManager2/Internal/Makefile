@@ -19,4 +19,4 @@ SOURCES = \
 	InternalProviderManagerMain.cpp \
 	InternalProviderManager.cpp
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak

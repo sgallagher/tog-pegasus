@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: MyProvider.cpp,v $
+// Revision 1.6  2001/02/16 18:17:11  mike
+// new
+//
 // Revision 1.5  2001/02/16 13:05:18  karl
 // Clean up and remove an extra include
 //
@@ -38,7 +41,7 @@ become a real provider.
 */
 #include <iostream>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider/Provider.h>
+#include <Pegasus/Provider/CIMProvider.h>
 
 
 using namespace std;

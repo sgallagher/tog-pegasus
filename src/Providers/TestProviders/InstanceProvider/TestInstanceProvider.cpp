@@ -52,7 +52,7 @@ void TestInstanceProvider::initialize(CIMOMHandle & cimom)
 	//_cimom = cimom;
 
 	// create default instances
-    PEGASUS_STD(cout) << "creating default instances" << PEGASUS_STD(endl);
+    //PEGASUS_STD(cout) << "creating default instances" << PEGASUS_STD(endl);
 
     {
         CIMInstance instance("TST_Instance1");
@@ -85,7 +85,7 @@ void TestInstanceProvider::initialize(CIMOMHandle & cimom)
     }
 
     // create instances without object paths
-    PEGASUS_STD(cout) << "creating instances without paths" << PEGASUS_STD(endl);
+    //PEGASUS_STD(cout) << "creating instances without paths" << PEGASUS_STD(endl);
 
     {
         CIMInstance instance("TST_Instance1");
@@ -98,14 +98,14 @@ void TestInstanceProvider::initialize(CIMOMHandle & cimom)
     }
 
     // create instances with incorrect class name
-    PEGASUS_STD(cout) << "creating instances without incorrect instance name" << PEGASUS_STD(endl);
+    //PEGASUS_STD(cout) << "creating instances without incorrect instance name" << PEGASUS_STD(endl);
 
     {
         CIMInstance instance("TST_InstanceBAD");
 
         instance.addProperty(CIMProperty("name", String("005")));
 
-        instance.setPath(CIMObjectPath("TST_Instance1.Name=\"005\""));
+        instance.setPath(CIMObjectPath("TST_InstanceBAD.Name=\"005\""));
 
         _instances.append(instance);
     }
@@ -113,6 +113,7 @@ void TestInstanceProvider::initialize(CIMOMHandle & cimom)
 
 void TestInstanceProvider::terminate(void)
 {
+    delete this;
 }
 
 void TestInstanceProvider::getInstance(
@@ -129,7 +130,7 @@ void TestInstanceProvider::getInstance(
     {
         if(instanceReference == _instances[i].getPath())
         {
-            PEGASUS_STD(cout) << "delivering " << _instances[i].getPath().toString() << PEGASUS_STD(endl);
+            //PEGASUS_STD(cout) << "delivering " << _instances[i].getPath().toString() << PEGASUS_STD(endl);
 
             handler.deliver(_instances[0]);
 
@@ -152,7 +153,7 @@ void TestInstanceProvider::enumerateInstances(
 
     for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
-        PEGASUS_STD(cout) << "delivering " << _instances[i].getPath().toString() << PEGASUS_STD(endl);
+        //PEGASUS_STD(cout) << "delivering " << _instances[i].getPath().toString() << PEGASUS_STD(endl);
 
         handler.deliver(_instances[i]);
     }
@@ -169,7 +170,7 @@ void TestInstanceProvider::enumerateInstanceNames(
 
     for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
-        PEGASUS_STD(cout) << "delivering " << _instances[i].getPath().toString() << PEGASUS_STD(endl);
+        //PEGASUS_STD(cout) << "delivering " << _instances[i].getPath().toString() << PEGASUS_STD(endl);
 
         handler.deliver(_instances[i].getPath());
     }

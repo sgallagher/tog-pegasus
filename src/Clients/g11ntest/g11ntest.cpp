@@ -197,6 +197,11 @@ static void TestUTFRepository( CIMClient& client,
 
   try
     {
+      // The repository does not support these headers and will throw errors
+      // if they are used.
+      client.setRequestAcceptLanguages(AcceptLanguages::EMPTY);
+      client.setRequestContentLanguages(ContentLanguages::EMPTY);
+      
         String utf16String(utf16Chars);
 	String utf16FileName(utfRepChars);
 

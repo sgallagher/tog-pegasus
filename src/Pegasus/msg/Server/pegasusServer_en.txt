@@ -567,6 +567,13 @@ en:table {
         */
         Repository.CIMRepository.INTERNAL_ERROR:string {"PGS01212: Internal error in method {0}."}
 
+        /**
+        * @version 2.4
+        * @note  PGS01213:  
+        *         Do not translate the word 'Content-Language' since it is a standard HTTP header
+        */
+        Repository.CIMRepository.UNSUPPORTED_CONTENTLANG:string {"PGS01213: The Content-Language parameter is not supported for this request."}
+
 
         // ==========================================================
         // Messages for Security  UserExceptions

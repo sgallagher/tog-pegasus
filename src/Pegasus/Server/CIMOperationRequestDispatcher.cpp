@@ -2698,7 +2698,8 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
    {
       _repository->createClass(
 	 request->nameSpace,
-	 request->newClass);
+	 request->newClass,
+	 request->contentLanguages);
 
       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 		  "CIMOperationRequestDispatcher::handleCreateClassRequest - Name Space: $0  Class Name: $1",
@@ -2794,7 +2795,8 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
       {
          instanceName = _repository->createInstance(
 	    request->nameSpace,
-	    request->newInstance);
+	    request->newInstance,
+	    request->contentLanguages);
 
 	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 		     "CIMOperationRequestDispatcher::handleCreateInstanceRequest - Name Space: $0  Instance name: $1",
@@ -2864,7 +2866,8 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
    {
         _repository->modifyClass(
         request->nameSpace,
-        request->modifiedClass);
+        request->modifiedClass,
+	request->contentLanguages);
    }
    catch(CIMException& exception)
    {
@@ -2958,7 +2961,8 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
          _repository->modifyInstance(
     	    request->nameSpace,
     	    request->modifiedInstance,
-    	    request->includeQualifiers,request->propertyList);
+    	    request->includeQualifiers,request->propertyList,
+	    request->contentLanguages);
 
 	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 		     "CIMOperationRequestDispatcher::handleModifiedInstanceRequest - Name Space: $0  Instance name: $1",
@@ -4954,7 +4958,8 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 	    request->nameSpace,
 	    request->instanceName,
 	    request->propertyName,
-	    request->newValue);
+	    request->newValue,
+	    request->contentLanguages);
 
 	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 		     "CIMOperationRequestDispatcher::handleSetPropertyRequest - Name Space: $0  Instance Name: $1  Property Name: $2  New Value: $3",
@@ -5079,7 +5084,8 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
    {
       _repository->setQualifier(
 	 request->nameSpace,
-	 request->qualifierDeclaration);
+	 request->qualifierDeclaration,
+ 	 request->contentLanguages);
 
  Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 		  "CIMOperationRequestDispatcher::handleSetQualifierRequest - Name Space: $0  Qualifier Name: $1",

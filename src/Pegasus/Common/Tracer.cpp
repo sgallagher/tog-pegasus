@@ -30,6 +30,7 @@
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2498
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -415,7 +416,7 @@ void Tracer::_trace(
     // Construct the message header
     // The message header is in the following format
     // timestamp: <component name> [file name:line number]
-    if (strcmp(message,"") != 0)
+    if (*message != '\0')
     {
        // << Wed Jul 16 10:58:40 2003 mdd >> _STRLEN_MAX_PID_TID is not used in this format string
        msgHeader = new char [strlen(message)

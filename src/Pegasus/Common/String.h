@@ -31,7 +31,6 @@
 #ifndef Pegasus_String_h
 #define Pegasus_String_h
 
-#include <cstring>
 #include <iostream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Char16.h>

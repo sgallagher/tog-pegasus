@@ -29,6 +29,7 @@
 
 
 #include <cctype>
+#include <cstring>
 #include "String.h"
 #include "Array.h"
 #include "InternalException.h"

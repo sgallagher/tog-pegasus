@@ -1,0 +1,4 @@
+
+This example doesn't work since synchronous writeN routine is being called.
+This causes the server to block in writeN() which never yields to the
+reader side (the client).

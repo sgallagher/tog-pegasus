@@ -97,3 +97,27 @@ class PG_IndicationHandlerSNMPMapper: CIM_IndicationHandler
 class PG_ListenerDestinationSystemLog: CIM_ListenerDestination
 {
 };
+
+// ====================================================================
+// PG_ListenerDestinationEmail
+// ====================================================================
+   [Description (
+     "PG_ListenerDestinationEmail describes the addresses and subject for "
+     "Indications to be delivered via email.")] 
+
+class PG_ListenerDestinationEmail: CIM_ListenerDestination
+{
+      [Required, Description (
+          "An array containing the addresses of the To: field in the mail "
+          "message to which indications are delivered via e-mail.")]
+   string MailTo [];
+
+      [Description (
+          "An array containing the addresses of the Cc: field in the mail "
+          "message to which indications are delivered via e-mail.")]
+   string MailCc [];
+
+      [Required, Description (
+           "A string containing the Subject: field of the mail message.")]
+   string MailSubject;
+};

@@ -362,7 +362,8 @@ IndicationHandlerService::_handleIndication(
             }
         }
     }
-    else if (className.equal (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
+    else if ((className.equal (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG)) ||
+	     (className.equal (PEGASUS_CLASSNAME_LSTNRDST_EMAIL)))
     {
         _loadHandler(request, cimException);
     }
@@ -428,6 +429,8 @@ CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
        handlerId = String("snmpIndicationHandler");
    else if (className.equal (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
        handlerId = String("SystemLogListenerDestination");
+   else if (className.equal (PEGASUS_CLASSNAME_LSTNRDST_EMAIL))
+       handlerId = String("EmailListenerDestination");
    else
        return 0;
 

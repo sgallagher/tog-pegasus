@@ -158,6 +158,8 @@ static const CIMName PEGASUS_CLASSNAME_INDHANDLER_SNMP      =
     CIMName ("PG_IndicationHandlerSNMPMapper");
 static const CIMName PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG      =
     CIMName ("PG_ListenerDestinationSystemLog");
+static const CIMName PEGASUS_CLASSNAME_LSTNRDST_EMAIL      =
+    CIMName ("PG_ListenerDestinationEmail");
 static const CIMName PEGASUS_CLASSNAME_INDFILTER            = 
     CIMName ("CIM_IndicationFilter");
 static const CIMName PEGASUS_CLASSNAME_SHUTDOWN             = 
@@ -244,7 +246,6 @@ static const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST =
 */
     static const CIMName _PROPERTY_TEXTFORMATPARAMETERS =
         CIMName ("TextFormatParameters");
-
 
 //
 // CIM Namespace Names

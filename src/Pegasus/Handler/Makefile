@@ -3,7 +3,6 @@ ROOT=../../..
 include $(ROOT)/mak/config.mak
 
 DIRS = \
-    CIMxmlIndicationHandler \
-    sendmailIndicationHandler
+    CIMxmlIndicationHandler
 
 include $(ROOT)/mak/recurse.mak

@@ -770,6 +770,17 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 					 PEGASUS_QUEUENAME_INDICATIONSERVICE);
 #endif
 
+#ifdef PEGASUS_ENABLE_EMAIL_HANDLER
+	    _routing_table.insert_record(PEGASUS_CLASSNAME_LSTNRDST_EMAIL,
+					 _wild,
+					 DynamicRoutingTable::INTERNAL,
+					 0,
+					 static_cast<MessageQueueService *>
+					 (MessageQueue::lookup(PEGASUS_QUEUENAME_INDICATIONSERVICE)),
+					 String::EMPTY,
+					 PEGASUS_QUEUENAME_INDICATIONSERVICE);
+#endif
+
 	    _routing_table.insert_record(PEGASUS_CLASSNAME_INDFILTER,
 				      _wild,
 					 DynamicRoutingTable::INTERNAL,

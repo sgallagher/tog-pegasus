@@ -153,6 +153,10 @@ void CIMInstanceRep::resolve(
                 (className.equal 
                     (CIMName (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))) ||
 #endif
+#ifdef  PEGASUS_ENABLE_EMAIL_HANDLER
+                (className.equal 
+                    (CIMName (PEGASUS_CLASSNAME_LSTNRDST_EMAIL))) ||
+#endif
                 (className.equal (CIMName (PEGASUS_CLASSNAME_INDFILTER)))) &&
                 ((property.getName ().equal 
                     (CIMName (PEGASUS_PROPERTYNAME_INDSUB_CREATOR))) ||

@@ -3203,8 +3203,24 @@ Boolean IndicationService::_canCreate (
 #endif
 	}
 
+	else if (instance.getClassName ().equal
+		 (PEGASUS_CLASSNAME_LSTNRDST_EMAIL))
+        {
+#if !defined(PEGASUS_ENABLE_EMAIL_HANDLER) && !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_OS_LINUX)
+
+            //
+	    //  The Email Handler is not enabled currently,
+            //  this class is not currently served by the Indication Service
+            //
+            PEG_METHOD_EXIT ();
+
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
+            MessageLoaderParms(_MSG_CLASS_NOT_SERVED_KEY, _MSG_CLASS_NOT_SERVED));
+#endif
+	}
+
         //
-        //  Currently only four subclasses of the Listener Destination 
+        //  Currently only five subclasses of the Listener Destination 
         //  class are supported -- further subclassing is not currently
         //  supported
         //
@@ -3214,6 +3230,8 @@ Boolean IndicationService::_canCreate (
                   (PEGASUS_CLASSNAME_LSTNRDST_CIMXML)) ||
 		 (instance.getClassName ().equal
 		  (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG)) ||
+		 (instance.getClassName ().equal
+		  (PEGASUS_CLASSNAME_LSTNRDST_EMAIL)) ||
                  (instance.getClassName ().equal
                   (PEGASUS_CLASSNAME_INDHANDLER_SNMP)))
         {
@@ -3273,6 +3291,65 @@ Boolean IndicationService::_canCreate (
                 _checkProperty (instance, _PROPERTY_SNMPSECURITYNAME,
                     CIMTYPE_STRING);
                 _checkProperty (instance, _PROPERTY_SNMPENGINEID,
+                    CIMTYPE_STRING);
+            }
+
+            if (instance.getClassName ().equal
+                (PEGASUS_CLASSNAME_LSTNRDST_EMAIL))
+            {
+                //
+                //  MailTo property is required for Email
+                //  Handler subclass
+                //
+                _checkRequiredProperty (instance, 
+		    PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO,
+                    CIMTYPE_STRING, _MSG_PROPERTY);
+
+		// get MailTo from handler instance
+                Array<String> mailTo = NULL;
+	        instance.getProperty(instance.findProperty(
+                  PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO)).getValue().get(mailTo);
+
+		// Build mail address string
+		String mailAddrStr = String::EMPTY;
+	        Uint32 mailAddrSize = mailTo.size();
+
+		for (Uint32 i=0; i < mailAddrSize; i++)
+		{
+		    mailAddrStr.append(mailTo[i]);
+
+		    if (i < (mailAddrSize - 1))
+		    {
+		        mailAddrStr.append(",");
+		    }
+		}
+
+
+		//
+		// Email address can not be an empty string
+		//
+		if (mailAddrStr == String::EMPTY)
+		{
+		    PEG_METHOD_EXIT();
+		    throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+			MessageLoaderParms("IndicationService.IndicationService._MSG_DO_NOT_HAVE_EMAIL_ADDRESS",
+			"Do not have an e-mail address."));
+		}
+
+                //
+                //  MailSubject property is required for Email
+                //  Handler subclass
+                //
+                _checkRequiredProperty (instance, 
+		    PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT,
+                    CIMTYPE_STRING, _MSG_PROPERTY);
+
+                //
+                //  For MailCc property, verify that if the property
+                //  exists in the instance it is of the correct type
+                //
+                _checkProperty (instance, 
+		    PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC,
                     CIMTYPE_STRING);
             }
         }

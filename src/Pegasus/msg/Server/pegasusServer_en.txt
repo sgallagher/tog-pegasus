@@ -3313,6 +3313,11 @@ CIM server listening on HTTPS port {0}."}
         */
         IndicationService.IndicationService._MSG_PROPERTY_VALUE_IS_NULL:string {"PGS10226: The value of property {0} is NULL."}
 
+        /**
+        * @note  PGS10227:
+        */
+        IndicationService.IndicationService._MSG_DO_NOT_HAVE_EMAIL_ADDRESS:string {"PGS10227: Do not have an e-mail address.."}
+
         // ==========================================================
         // Messages for IndicationHandlerService
         //  Please use message prefix "PGS10400"
@@ -5092,6 +5097,58 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {0} is the name of the provider
         */
         ProviderManager.CMPI.CMPIProviderManager.ENABLE_INDICATIONS_FAILED_UNKNOWN:string {"PGS16501: Failed to enable indications for provider {0}."}
+
+        // ==========================================================
+        // Messages for EmailListenerDestination
+        //  Please use message prefix "PGS16600 - PGS16699""
+        // ==========================================================
+
+        Handler.EmailListenerDestination.EmailListenerDestination.FAILED_TO_DELIVER_INDICATION_VIA_EMAIL:string {"PGS16600:  Failed to deliver indication via e-mail."}
+
+        Handler.EmailListenerDestination.EmailListenerDestination.UNSUPPORTED_OPERATION:string {"PGS16601: sendmail is not supported."}
+
+        /**
+        * @note  PGS16602:
+        *    Substitution {0} is a string containing the path
+        *    Substitution {1} is a string containing the error message
+        */
+        Handler.EmailListenerDestination.EmailListenerDestination._MSG_EXECUTE_ACCESS_FAILED:string {"PGS16602: Cannot execute {0}: {1}."}
+
+        /**
+        * @note  PGS16603:
+        *    Substitution {0} is a string containing the path
+        *    Substitution {1} is a string containing the error message
+        */
+        Handler.EmailListenerDestination.EmailListenerDestination._MSG_FAILED_TO_OPEN_THE_FILE:string {"PGS16603: fopen of {0} failed: {1}."}
+
+        Handler.EmailListenerDestination.EmailListenerDestination.DO_NOT_HAVE_EMAIL_ADDRESS:string {"PGS16604: Do not have an e-mail address."}
+
+        /**
+        * @note  PGS16605:
+        *    Substitution {0} is a string containing mailTo address
+        *    Substitution {1} is a string containing the error message 
+        */
+        Handler.EmailListenerDestination.EmailListenerDestination._MSG_WRITE_TO_THE_FILE_FAILED:string {"PGS16605: Failed to write the {0} to the file: {1}."}
+
+        /**
+        * @note  PGS16606:
+        *    Substitution {0} is a string containing the file name 
+        *    Substitution {1} is a string containing the error message
+        */
+        Handler.EmailListenerDestination.EmailListenerDestination._MSG_FILE_DOES_NOT_EXIST:string {"PGS16606: File {0} does not exist: {1}."}
+
+        /**
+        * @note  PGS16607:
+        *    Substitution {0} is a string containing the file name 
+        *    Substitution {1} is a string containing the error message
+        */
+        Handler.EmailListenerDestination.EmailListenerDestination._MSG_CAN_NOT_GET_FILE_STATUS:string {"PGS16607: Can not get file {0} status: {1}."}
+
+        Handler.EmailListenerDestination.EmailListenerDestination._MSG_POPEN_OF_SENDMAIL_FAILED:string {"PGS16608: popen of sendmail failed."}
+
+        Handler.EmailListenerDestination.EmailListenerDestination._MSG_NO_ASSOCIATED_STREAM:string {"PGS16609: No associated stream with this popen command."}
+
+        Handler.EmailListenerDestination.EmailListenerDestination._MSG_SHELL_CAN_NOT_BE_EXECUTED:string {"PGS16610: /usr/bin/sh could not be executed."}
 
 // ==============================================================================
 // END OF RESOURCE BUNDLE

@@ -319,6 +319,24 @@ static const CIMName _PROPERTY_SNMPSECURITYNAME = CIMName ("SNMPSecurityName");
 static const CIMName _PROPERTY_SNMPENGINEID = CIMName ("SNMPEngineID");
 
 /**
+    The name of the MailTo property for Email Handler subclass
+*/
+static const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO = 
+    CIMName ("MailTo");
+
+/**
+    The name of the MailSubject property for Email Handler subclass
+*/
+static const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT = 
+    CIMName ("MailSubject");
+
+/**
+    The name of the MailCc  property for Email Handler subclass
+ */
+static const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC = 
+    CIMName ("MailCc");
+
+/**
     The name of the Alert Type property for Alert Indication class
  */
 static const CIMName _PROPERTY_ALERTTYPE = CIMName ("AlertType");

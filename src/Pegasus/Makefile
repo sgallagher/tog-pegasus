@@ -43,6 +43,10 @@ ifeq ($(OS),HPUX)
     DIRS += \
         Handler/SystemLogListenerDestination
   endif
+  ifdef PEGASUS_ENABLE_EMAIL_HANDLER
+    DIRS += \
+        Handler/EmailListenerDestination
+  endif
 endif
 
 DIRS += \
@@ -117,7 +121,6 @@ endif
 DIRS += \
 	Server \
     Handler/CIMxmlIndicationHandler \
-    Handler/sendmailIndicationHandler \
     Handler/snmpIndicationHandler \
     Common/tests \
     Config/tests \

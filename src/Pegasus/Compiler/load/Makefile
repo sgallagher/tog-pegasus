@@ -8,8 +8,13 @@
 ROOT = ../../../..
 include $(ROOT)/mak/config.mak
 
-MOF_PATH = $(ROOT)/Schemas/CIM25
+# The following two variables determine which CIM Schema is compiled
+# from the Schemas Directory
 
+SCHEMA_VER=26
+SCHEMA_DIR=CIM26prelim
+
+MOF_PATH = $(ROOT)/Schemas/$(SCHEMA_DIR)
 
 all:
 
@@ -18,18 +23,21 @@ all:
 repository:
 	@ echo +++++ Populating CIM repository - this will take a minute
 	@ $(RMDIRHIER) $(REPOSITORY_ROOT)
-	@ echo +++++ Loading CIM_Core.mof into root namespace...
-	@ cimmof -I$(MOF_PATH) -nroot $(MOF_PATH)/CIM_Core25.mof
-	@ echo +++++ Loading CIM_Schema25.mof into root/cimv2 namespace...
-	@ cimmof -I$(MOF_PATH) -nroot/cimv2 $(MOF_PATH)/CIM_Schema25.mof
+	@ echo +++++ Loading CIM_Core$(SCHEMA_VER).mof into root namespace...
+	@ cimmof -I$(MOF_PATH) -nroot $(MOF_PATH)/CIM_Core$(SCHEMA_VER).mof
+	@ echo +++++ Loading CIM_Schema$(SCHEMA_VER).mof into root/cimv2 namespace...
+	@ cimmof -I$(MOF_PATH) -nroot/cimv2 $(MOF_PATH)/CIM_Schema$(SCHEMA_VER).mof
 
 short:
 	@ echo +++++ Populating CIM repository - this will take a minute
 	$(RMDIRHIER) $(REPOSITORY_ROOT)
 	echo +++++ Loading CIM_Core.mof into root namespace...
-	cimmof -I$(MOF_PATH) -nroot/cimv2 $(MOF_PATH)/CIM_Core25.mof
+	cimmof -I$(MOF_PATH) -nroot/cimv2 $(MOF_PATH)/CIM_Core$(SCHEMA_VER).mof
 
 clean:
+	@ echo +++++ Deleting CIM Repository at $(REPOSITORY_ROOT)
+	@ $(RMDIRHIER) $(REPOSITORY_ROOT)
+
 
 depend:
 

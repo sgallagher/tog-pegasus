@@ -109,9 +109,9 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-//#define CDEBUG(X)
+#define CDEBUG(X)
 #define LDEBUG()
-#define CDEBUG(X) PEGASUS_STD(cout) << "InteropProvider " << X << PEGASUS_STD(endl)
+//#define CDEBUG(X) PEGASUS_STD(cout) << "InteropProvider " << X << PEGASUS_STD(endl)
 //#define LDEBUG(X) Logger::put (Logger::DEBUG_LOG, "InteropProvider", Logger::INFORMATION, "$0", X)
 // The following is attempt to use the tracer for CDEBUG.  Not working. 1 sept 2004
 //#include <cstring>

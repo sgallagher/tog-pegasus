@@ -881,4 +881,20 @@ Uint32 SubscriptionTable::classInList
     PEG_METHOD_EXIT ();
 }
 
+void SubscriptionTable::clear ()
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, "SubscriptionTable::clear");
+
+    {
+        WriteLock lock (_activeSubscriptionsTableLock);
+        _activeSubscriptionsTable.clear ();
+    }
+    {
+        WriteLock lock (_subscriptionClassesTableLock);
+        _subscriptionClassesTable.clear ();
+    }
+
+    PEG_METHOD_EXIT ();
+}
+
 PEGASUS_NAMESPACE_END

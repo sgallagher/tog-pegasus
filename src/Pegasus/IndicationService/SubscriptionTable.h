@@ -315,6 +315,12 @@ public:
         (const CIMName & className,
          const ProviderClassList & providerClasses) const;
 
+    /**
+        Removes all entries from the Active Subscriptions and Subscription 
+        Classes tables.
+     */
+    void clear ();
+
 
 private:
 

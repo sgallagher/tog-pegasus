@@ -151,6 +151,8 @@ IndicationService::IndicationService (
 
 IndicationService::~IndicationService (void)
 {
+    delete _subscriptionTable;
+    delete _subscriptionRepository;
 }
 
 void IndicationService::_handle_async_request(AsyncRequest *req)
@@ -633,6 +635,17 @@ void IndicationService::_terminate (void)
         _sendAlerts (activeSubscriptions, indicationInstance);
     }
 #endif
+
+    //
+    //  Remove entries from the SubscriptionTable's Active Subscriptions and 
+    //  Subscription Classes tables
+    //
+    //  NOTE: The table entries are removed when the SubscriptionTable 
+    //  destructor is called by the IndicationService destructor.  However, 
+    //  currently the IndicationService destructor is never called, so the
+    //  IndicationService must call the SubscriptionTable clear() function to 
+    //  remove the table entries.
+    _subscriptionTable->clear ();
 
     PEG_METHOD_EXIT ();
 }

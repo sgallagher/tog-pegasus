@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,7 +27,7 @@
 //
 //==============================================================================
 //
-// Author:  Karl Schopmeyer (k.schopmeyer@opengroup.org) 
+// Author:  Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //          Mary Hinton (m.hinton@verizon.net)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
@@ -111,7 +111,7 @@ Boolean _getObjectNameInput(int argc, char** argv, Options& opts, Boolean rqd)
     return(true);
 }
 
-/** _getQualifierNameInput - Gets a single parameter for 
+/** _getQualifierNameInput - Gets a single parameter for
  * qualifier
  * @return true if parameter found
 */
@@ -143,11 +143,11 @@ int main(int argc, char** argv)
         exit(0);
     }
 
-    
+
     // The following is a temporary hack to get around the fact that I cannot input the
     // double quote character from the commandline, either with or without the escape
     // character.  I simply replace all @ characters with the " charcter
-    
+
     for (int i = 0; i < argc; i++)
     {
         char *p;
@@ -178,43 +178,43 @@ int main(int argc, char** argv)
         GetOptions(om, argc, argv, testHome);
 
         // Initialize all of the function input parameters.
-		opts.location =   "localhost:5988";
-		opts.nameSpace = "root/cimv2";
-		opts.cimCmd = "unknown";
-		opts.className = CIMName();
-		opts.objectName = "unknown";
+        opts.location =   "localhost:5988";
+        opts.nameSpace = "root/cimv2";
+        opts.cimCmd = "unknown";
+        opts.className = CIMName();
+        opts.objectName = "unknown";
 
-		opts.isXmlOutput = false;
-		opts.outputFormatType = OUTPUT_MOF;
-		opts.user = String::EMPTY;
-		opts.password = String::EMPTY;
-		opts.verboseTest = false;
+        opts.isXmlOutput = false;
+        opts.outputFormatType = OUTPUT_MOF;
+        opts.user = String::EMPTY;
+        opts.password = String::EMPTY;
+        opts.verboseTest = false;
 
-		opts.localOnly = true;
-		opts.deepInheritance = false;
-		opts.includeQualifiers = true;
-		opts.includeClassOrigin = false;
-		opts.assocClassName = String::EMPTY;
-		opts.assocClass = CIMName();
-		opts.resultClassName = String::EMPTY;
-		opts.resultClass = CIMName();
-		opts.role = String::EMPTY;
-		opts.resultRole = String::EMPTY;
-		opts.propertyListText = String::EMPTY;
-		opts.propertyList.clear(); 
-		opts.propertyName = String::EMPTY;
-		opts.methodName = CIMName("unknown");
-		opts.delay = 0;
-		opts.trace = 0;
-		opts.count= 97832;
-		opts.repeat = 0;
-		opts.time = false;
-		opts.termCondition = 0;
-		opts.debug = false;
-		opts.queryLanguage = "WQL";
+        opts.localOnly = true;
+        opts.deepInheritance = false;
+        opts.includeQualifiers = true;
+        opts.includeClassOrigin = false;
+        opts.assocClassName = String::EMPTY;
+        opts.assocClass = CIMName();
+        opts.resultClassName = String::EMPTY;
+        opts.resultClass = CIMName();
+        opts.role = String::EMPTY;
+        opts.resultRole = String::EMPTY;
+        opts.propertyListText = String::EMPTY;
+        opts.propertyList.clear();
+        opts.propertyName = String::EMPTY;
+        opts.methodName = CIMName("unknown");
+        opts.delay = 0;
+        opts.trace = 0;
+        opts.count= 97832;
+        opts.repeat = 0;
+        opts.time = false;
+        opts.termCondition = 0;
+        opts.debug = false;
+        opts.queryLanguage = "WQL";
 
         // move any other input parameters left to the extraParams List
-		CheckCommonOptionValues(om, argv, opts);
+        CheckCommonOptionValues(om, argv, opts);
 
         /* note that this is in error since it assumes a fixed
            number of parameters will be used for all of the commands
@@ -228,24 +228,24 @@ int main(int argc, char** argv)
         }
     }
 
-	catch(CIMException& e)
-	{
-		cerr << argv[0] << " Caught CIMException during init: "
-			 << "\n" << e.getMessage()
-			 << endl;
-		exit(1);
-	}
+    catch(CIMException& e)
+    {
+        cerr << argv[0] << " Caught CIMException during init: "
+             << "\n" << e.getMessage()
+             << endl;
+        exit(1);
+    }
 
     catch (Exception& e)
     {
         cerr << argv[0] << ": " << e.getMessage() << endl;
         exit(1);
     }
-	catch(...)
-	{
-		cerr << argv[0] << " Caught General Exception During Init:" << endl;
-		exit(1);
-	}
+    catch(...)
+    {
+        cerr << argv[0] << " Caught General Exception During Init:" << endl;
+        exit(1);
+    }
 
     // if there is still an arg1, assume it is the command name.
     if (argc > 1)
@@ -255,7 +255,7 @@ int main(int argc, char** argv)
     else
     {
         cout << " Command name must be first parameter or --c parameter."
-            << " \n  ex. cli enumerateclasses\n" 
+            << " \n  ex. cli enumerateclasses\n"
             << "Enter " << argv[0] << " -h for help."
             << endl;
         exit(1);
@@ -271,9 +271,9 @@ int main(int argc, char** argv)
             }
             String traceFile (tmpDir);
             traceFile.append("/cliTrace.trc");
-            Tracer::setTraceFile (traceFile.getCString()); 
-            Tracer::setTraceComponents("ALL");  
-            Tracer::setTraceLevel(opts.trace); 
+            Tracer::setTraceFile (traceFile.getCString());
+            Tracer::setTraceComponents("ALL");
+            Tracer::setTraceLevel(opts.trace);
     }
 
     // Find the command and save index in cmdIndex
@@ -283,14 +283,18 @@ int main(int argc, char** argv)
         cout << "TEST Command = " << opts.cimCmd << endl;
 
     // Find the command or the short cut name
-    for( ; cmdIndex < NUM_COMMANDS; cmdIndex++ ) 
+    for( ; cmdIndex < NUM_COMMANDS; cmdIndex++ )
     {
-        if ((opts.cimCmd == CommandTable[cmdIndex].CommandName) || 
+        if ((opts.cimCmd == CommandTable[cmdIndex].CommandName) ||
             (opts.cimCmd == CommandTable[cmdIndex].ShortCut))
             // Break if found
             break;
     }
+
     Stopwatch totalElapsedExecutionTime;
+
+    totalElapsedExecutionTime.start();
+
     // Now try to open the connection to the cim server
     CIMClient client;
     try
@@ -300,14 +304,14 @@ int main(int argc, char** argv)
             if (opts.verboseTest)
             {
                 cout << "Connecting to " << opts.location
-                     << " for User = " << opts.user 
+                     << " for User = " << opts.user
                      << " password = " << opts.password
                      << endl;
             }
             // Take off port number if it is on host name
             Uint32 index = opts.location.find (':');
             String host = opts.location.subString (0, index);
-            
+
             Uint32 portNumber = WBEM_DEFAULT_HTTP_PORT;
             if (index != PEG_NOT_FOUND)
             {
@@ -317,8 +321,8 @@ int main(int argc, char** argv)
             }
             client.connect(host, portNumber, opts.user, opts.password);
         }
-    }    
-    catch(Exception &e) 
+    }
+    catch(Exception &e)
     {
         cerr << "Pegasus Exception: " << e.getMessage() <<
               ". Trying to connect to " << opts.location << endl;
@@ -355,13 +359,13 @@ int main(int argc, char** argv)
                         exit(1);
                     enumerateInstanceNames(client, opts);
                     break;
-                    
+
                 case ID_EnumerateAllInstanceNames :
                     if (!_getClassNameInput(argc, argv, opts, false))
                         exit(1);
                     enumerateAllInstanceNames(client, opts);
                     break;
-    
+
                 case ID_EnumerateInstances :
                     if (!_getClassNameInput(argc, argv, opts, true))
                         exit(1);
@@ -372,25 +376,25 @@ int main(int argc, char** argv)
                         exit(1);
                     getInstance(client, opts);
                     break;
-                    
+
                 case ID_EnumerateClassNames :
                     if (!_getClassNameInput(argc, argv, opts, false))
                         exit(1);
                     enumerateClassNames(client, opts);
                     break;
-    
+
                 case ID_EnumerateClasses :
                     if (!_getClassNameInput(argc, argv, opts, false))
                         exit(1);
                     enumerateClasses(client, opts);
                     break;
-    
+
                 case ID_GetClass :
                     if (!_getClassNameInput(argc, argv, opts, true))
                         exit(1);
                     getClass(client, opts);
                     break;
-                    
+
                 case ID_CreateInstance :
                     if (!_getClassNameInput(argc, argv, opts, true))
                         exit(1);
@@ -402,7 +406,7 @@ int main(int argc, char** argv)
                         exit(1);
                     deleteInstance(client, opts);
                     break;
-                    
+
                 case ID_CreateClass :
                     cerr << "CreateClass not implemented" << endl;
                     break;
@@ -412,7 +416,7 @@ int main(int argc, char** argv)
                         exit(1);
                     deleteClass(client, opts);
                     break;
-                    
+
                 case ID_GetProperty :
                     // ATTN: This one is wrong
                     if (argc != 4)
@@ -455,14 +459,14 @@ int main(int argc, char** argv)
                         exit(1);
                     deleteQualifier(client, opts);
                     break;
-                    
+
                 /* Reference params are
-                    [IN] <objectName> ObjectName, 
-                    [IN,OPTIONAL,NULL] <className> ResultClass = NULL, 
-                    [IN,OPTIONAL,NULL] string Role = NULL, 
-                    [IN,OPTIONAL] boolean IncludeQualifiers = false, 
-                    [IN,OPTIONAL] boolean IncludeClassOrigin = false, 
-                    [IN,OPTIONAL,NULL] string PropertyList [] = NULL 
+                    [IN] <objectName> ObjectName,
+                    [IN,OPTIONAL,NULL] <className> ResultClass = NULL,
+                    [IN,OPTIONAL,NULL] string Role = NULL,
+                    [IN,OPTIONAL] boolean IncludeQualifiers = false,
+                    [IN,OPTIONAL] boolean IncludeClassOrigin = false,
+                    [IN,OPTIONAL,NULL] string PropertyList [] = NULL
                 */
                 case ID_References  :
                     if (!_getObjectNameInput(argc, argv, opts, true))
@@ -479,7 +483,7 @@ int main(int argc, char** argv)
                 case ID_Associators :
                     if (!_getObjectNameInput(argc, argv, opts, true))
                         exit(1);
-                    associators(client, opts); 
+                    associators(client, opts);
                     break;
 
                 case ID_AssociatorNames :
@@ -510,7 +514,7 @@ int main(int argc, char** argv)
                             const CIMObjectPath& instanceName,
                             const CIMName& methodName,
                             const Array<CIMParamValue>& inParameters,
-            
+
                     Array<CIMParamValue>& outParameters
                     */
                 case ID_InvokeMethod :
@@ -521,7 +525,7 @@ int main(int argc, char** argv)
                              << "       or as additional parameters to this call. For"
                              << "       additional parameters, enter each parameter as"
                              << "       name=value without spaces."
-                             << endl; 
+                             << endl;
                         exit(1);
                     }
                     opts.objectName = argv[2];
@@ -535,7 +539,7 @@ int main(int argc, char** argv)
                     if (argc > 4)
                     {
                         // get input params from command line
-						for (Sint32 i = 4 ; i < argc; i++)
+                        for (Sint32 i = 4 ; i < argc; i++)
                         {
                             CIMParamValue pv;
                             String s = argv[i];
@@ -551,15 +555,15 @@ int main(int argc, char** argv)
                     break;
 
                 case ID_ExecQuery:
-        		    opts.query = argv[2];
+                    opts.query = argv[2];
                     if (argc==4)
                         opts.queryLanguage = argv[3];
                     executeQuery(client, opts);
-		    break; 
+            break;
                 //case ID_Unknown :
                 default:
                     cout << "Invalid Command. Command name must be first parm or --c parameter."
-                        << " \n  ex. cli enumerateclasses\n" 
+                        << " \n  ex. cli enumerateclasses\n"
                         << "Enter " << argv[0] << " -h for help."
                         << endl;
                     exit(1);
@@ -587,23 +591,23 @@ int main(int argc, char** argv)
                 cout << "Time " << opts.saveElapsedTime << " Seconds" << endl;
             else
             {
-                cout << "Total Time " << totalTime << " for " 
+                cout << "Total Time " << totalTime << " for "
                     << repeatCount << " operations. Avg.= " << totalTime/repeatCount
-                    << " min= " << minTime << " max= " << maxTime << endl; 
+                    << " min= " << minTime << " max= " << maxTime << endl;
             }
         }
     }
     catch(CIMException& e)
     {
-        cerr << argv[0] << " CIMException: "<<" Cmd= " << opts.cimCmd 
-            << " Object= " << opts.inputObjectName 
+        cerr << argv[0] << " CIMException: "<<" Cmd= " << opts.cimCmd
+            << " Object= " << opts.inputObjectName
              << "\n" << e.getMessage()
              << endl;
         opts.termCondition = 1;
     }
     catch(Exception& e)
     {
-        PEGASUS_STD(cerr) << argv[0] << " Pegasus Exception: " << e.getMessage() 
+        PEGASUS_STD(cerr) << argv[0] << " Pegasus Exception: " << e.getMessage()
                 <<  ". Cmd = " << opts.cimCmd << " Object = " << opts.inputObjectName << PEGASUS_STD(endl);
             opts.termCondition = 1;
     }
@@ -612,6 +616,9 @@ int main(int argc, char** argv)
         cerr << argv[0] << " Caught General Exception:" << endl;
         opts.termCondition = 1;
     }
+
+    totalElapsedExecutionTime.stop();
+
     if (opts.time)
     {
         // if abnormal term, dump all times
@@ -620,10 +627,12 @@ int main(int argc, char** argv)
             cout << "Prev Time " << opts.saveElapsedTime << " Seconds" << endl;
             opts.saveElapsedTime = opts.elapsedTime.getElapsed();
             cout << "Last Time " << opts.saveElapsedTime << " Seconds" << endl;
-            cout << "Total Time " << totalTime << " for " 
+            cout << "Total Time " << totalTime << " for "
                 << repeatCount << " operations. Avg.= " << totalTime/repeatCount
-                << " min= " << minTime << " max= " << maxTime << endl; 
+                << " min= " << minTime << " max= " << maxTime << endl;
         }
+
+
         cout << "Total Elapsed Time= " << totalElapsedExecutionTime.getElapsed() << " Terminated at " << System::getCurrentASCIITime() << endl;
     }
     if (opts.delay != 0)

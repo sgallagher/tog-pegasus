@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,8 +27,8 @@
 //
 //==============================================================================
 //
-// Author: Denise Eckstein, Hewlett-Packard Company 
-//         Significant portions of the code in this application were copied 
+// Author: Denise Eckstein, Hewlett-Packard Company
+//         Significant portions of the code in this application were copied
 //         from the wbemexec application.
 //
 // Modified By:
@@ -115,13 +115,13 @@ const Uint32 benchmarkTestCommand::_MAX_PORTNUMBER      = 65535;
 static const char PASSWORD_PROMPT []  =
                      "Please enter your password: ";
 
-static const char PASSWORD_BLANK []  = 
+static const char PASSWORD_BLANK []  =
                      "Password cannot be blank. Please re-enter your password.";
 
-//    The debug option argument value used to enable client-side tracing. 
+//    The debug option argument value used to enable client-side tracing.
 const char   benchmarkTestCommand::_DEBUG_OPTION1       = '1';
 
-//    The debug option argument value used to disable printing verbose report. 
+//    The debug option argument value used to disable printing verbose report.
 const char   benchmarkTestCommand::_DEBUG_OPTION2       = '2';
 
 
@@ -137,9 +137,9 @@ static Boolean verifyCertificate(SSLCertificateInfo &certInfo)
 }
 
 /**
-  
+
     Constructs a benchmarkTestCommand and initializes instance variables.
-  
+
  */
 benchmarkTestCommand::benchmarkTestCommand ()
 {
@@ -199,7 +199,7 @@ benchmarkTestCommand::benchmarkTestCommand ()
     setUsage (usage);
 }
 
-String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter ) 
+String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
 {
   //
   // Password is not set, prompt for non-blank password
@@ -231,18 +231,18 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
 }
 
 /**
-  
+
     Connects to cimserver.
-  
+
     @param   outPrintWriter     the ostream to which error output should be
                                 written
-  
+
     @exception       Exception  if an error is encountered in creating
                                the connection
-  
+
  */
  void benchmarkTestCommand::_connectToServer( CIMClient& client,
-				         ostream& outPrintWriter ) 
+                         ostream& outPrintWriter )
     throw (Exception)
 {
     String                 host                  = String ();
@@ -293,13 +293,13 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
         // Get environment variables:
         //
         const char* pegasusHome = getenv("PEGASUS_HOME");
-	
-	String certpath = FileSystem::getAbsolutePath(
-           pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
-	
-	String randFile = String::EMPTY;
 
-	randFile = FileSystem::getAbsolutePath(
+    String certpath = FileSystem::getAbsolutePath(
+           pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
+
+    String randFile = String::EMPTY;
+
+    randFile = FileSystem::getAbsolutePath(
             pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
         SSLContext  sslcontext (certpath, verifyCertificate, randFile);
 
@@ -312,10 +312,10 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
         {
             _password = _promptForPassword( outPrintWriter );
         }
-	client.connect(host, portNumber, sslcontext,  _userName, _password );
+    client.connect(host, portNumber, sslcontext,  _userName, _password );
     }
     else
-    { 
+    {
         if (!_passwordSet)
         {
             _password = _promptForPassword( outPrintWriter );
@@ -325,18 +325,18 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
 }
 
 /**
-  
+
     Parses the command line, validates the options, and sets instance
     variables based on the option arguments.
-  
+
     @param   argc  the number of command line arguments
     @param   argv  the string vector of command line arguments
-  
+
     @exception  CommandFormatException  if an error is encountered in parsing
                                         the command line
-  
+
  */
-void benchmarkTestCommand::setCommand (Uint32 argc, char* argv []) 
+void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
     throw (CommandFormatException)
 {
     Uint32         i              = 0;
@@ -382,7 +382,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
         CommandFormatException e (getOpts.getErrorStrings () [0]);
         throw e;
     }
-    
+
     //
     //  Get options and arguments from the command line
     //
@@ -393,47 +393,47 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
             UnexpectedArgumentException e (
                          getOpts [i].Value ());
             throw e;
-        } 
+        }
         else if (getOpts [i].getType () == Optarg::REGULAR)
         {
             UnexpectedArgumentException e (
                          getOpts [i].Value ());
             throw e;
-        } 
+        }
         else /* getOpts [i].getType () == FLAG */
         {
             c = getOpts [i].getopt () [0];
-    
-            switch (c) 
+
+            switch (c)
             {
-                case _OPTION_HOSTNAME: 
+                case _OPTION_HOSTNAME:
                 {
                     if (getOpts.isSet (_OPTION_HOSTNAME) > 1)
                     {
                         //
                         // More than one hostname option was found
                         //
-                        DuplicateOptionException e (_OPTION_HOSTNAME); 
+                        DuplicateOptionException e (_OPTION_HOSTNAME);
                         throw e;
                     }
                     _hostName = getOpts [i].Value ();
                     _hostNameSet = true;
                     break;
                 }
-    
-                case _OPTION_PORTNUMBER: 
+
+                case _OPTION_PORTNUMBER:
                 {
                     if (getOpts.isSet (_OPTION_PORTNUMBER) > 1)
                     {
                         //
                         // More than one portNumber option was found
                         //
-                        DuplicateOptionException e (_OPTION_PORTNUMBER); 
+                        DuplicateOptionException e (_OPTION_PORTNUMBER);
                         throw e;
                     }
-    
+
                     _portNumberStr = getOpts [i].Value ();
-    
+
                     try
                     {
                         getOpts [i].Value (_portNumber);
@@ -444,40 +444,40 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                             _OPTION_PORTNUMBER);
                         throw e;
                     }
-		    _portNumberSet = true;
+            _portNumberSet = true;
                     break;
                 }
-    
-                case _OPTION_SSL: 
+
+                case _OPTION_SSL:
                 {
                     //
                     // Use port 5989 as the default port for SSL
                     //
-		    _useSSL = true;
+            _useSSL = true;
                     if (!_portNumberSet)
                        _portNumber = 5989;
                     break;
                 }
-      
-                case _OPTION_VERSION: 
+
+                case _OPTION_VERSION:
                 {
-		    _displayVersion = true;
+            _displayVersion = true;
                     break;
                 }
-      
-                case _OPTION_TIMEOUT: 
+
+                case _OPTION_TIMEOUT:
                 {
                     if (getOpts.isSet (_OPTION_TIMEOUT) > 1)
                     {
                         //
                         // More than one timeout option was found
                         //
-                        DuplicateOptionException e (_OPTION_TIMEOUT); 
+                        DuplicateOptionException e (_OPTION_TIMEOUT);
                         throw e;
                     }
-    
+
                     timeoutStr = getOpts [i].Value ();
-    
+
                     try
                     {
                         getOpts [i].Value (_timeout);
@@ -490,30 +490,30 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     }
                     break;
                 }
-    
-                case _OPTION_USERNAME: 
+
+                case _OPTION_USERNAME:
                 {
                     if (getOpts.isSet (_OPTION_USERNAME) > 1)
                     {
                         //
                         // More than one username option was found
                         //
-                        DuplicateOptionException e (_OPTION_USERNAME); 
+                        DuplicateOptionException e (_OPTION_USERNAME);
                         throw e;
                     }
                     _userName = getOpts [i].Value ();
                     _userNameSet = true;
                     break;
                 }
-    
-                case _OPTION_PASSWORD: 
+
+                case _OPTION_PASSWORD:
                 {
                     if (getOpts.isSet (_OPTION_PASSWORD) > 1)
                     {
                         //
                         // More than one password option was found
                         //
-                        DuplicateOptionException e (_OPTION_PASSWORD); 
+                        DuplicateOptionException e (_OPTION_PASSWORD);
                         throw e;
                     }
                     _password = getOpts [i].Value ();
@@ -521,19 +521,19 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     break;
                 }
 
-                case _OPTION_ITERATIONS: 
+                case _OPTION_ITERATIONS:
                 {
                     if (getOpts.isSet (_OPTION_ITERATIONS) > 1)
                     {
                         //
                         // More than one iteration option was found
                         //
-                        DuplicateOptionException e (_OPTION_ITERATIONS); 
+                        DuplicateOptionException e (_OPTION_ITERATIONS);
                         throw e;
                     }
-    
+
                     _iterationsStr = getOpts [i].Value ();
-    
+
                     try
                     {
                         getOpts [i].Value (_iterations);
@@ -544,21 +544,21 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                             _OPTION_ITERATIONS);
                         throw e;
                     }
-		    _iterationsSet = true;
+            _iterationsSet = true;
                     break;
                 }
 
-                case _OPTION_TESTID: 
+                case _OPTION_TESTID:
                 {
                     if (getOpts.isSet (_OPTION_TESTID) > 1)
                     {
                         //
                         // More than one TESTID option was found
                         //
-                        DuplicateOptionException e (_OPTION_TESTID); 
+                        DuplicateOptionException e (_OPTION_TESTID);
                         throw e;
                     }
-    
+
                     _testIDStr = getOpts [i].Value ();
 
                     try
@@ -571,11 +571,11 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                             _OPTION_TESTID);
                         throw e;
                     }
-		    _testIDSet = true;
+            _testIDSet = true;
                     break;
                 }
-    
-                case _OPTION_DEBUG: 
+
+                case _OPTION_DEBUG:
                 {
                     //
                     //
@@ -612,9 +612,9 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     }
                     break;
                 }
-    
-    
-    
+
+
+
                 default:
                     //
                     //  This path should not be hit
@@ -631,8 +631,8 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
         //  Default to WBEM_DEFAULT_PORT
         //  Already done in constructor
         //
-    } 
-    else 
+    }
+    else
     {
         if (_portNumber > _MAX_PORTNUMBER)
         {
@@ -652,10 +652,10 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
         //  Default to DEFAULT_TIMEOUT_MILLISECONDS
         //  Already done in constructor
         //
-    } 
-    else 
+    }
+    else
     {
-        if (_timeout <= 0) 
+        if (_timeout <= 0)
         {
             //
             //  Timeout out of valid range
@@ -741,7 +741,7 @@ void benchmarkTestCommand::_getCSInfo(ostream& outPrintWriter,
            CIMName propertyName = cimNInstances[0].getProperty(j).getName();
            if (propertyName.equal(CIMName("OtherIdentifyingInfo")))
            {
-               outPrintWriter << "Model = " 
+               outPrintWriter << "Model = "
                  << cimNInstances[0].getProperty(j).getValue().toString() << endl;
            }
         }
@@ -752,7 +752,7 @@ void benchmarkTestCommand::_getCSInfo(ostream& outPrintWriter,
     {
        if (isConnected)
           client.disconnect();
-       return; 
+       return;
     }
 
     client.disconnect();
@@ -808,7 +808,7 @@ void benchmarkTestCommand::_getOSInfo(ostream& outPrintWriter,
            CIMName propertyName = cimNInstances[0].getProperty(j).getName();
            if (propertyName.equal(CIMName("CSName")))
            {
-               outPrintWriter << "Computer System Name = " 
+               outPrintWriter << "Computer System Name = "
                  << cimNInstances[0].getProperty(j).getValue().toString() << endl;
            }
 
@@ -825,7 +825,7 @@ void benchmarkTestCommand::_getOSInfo(ostream& outPrintWriter,
     {
        if (isConnected)
           client.disconnect();
-       return; 
+       return;
     }
 
     client.disconnect();
@@ -841,7 +841,7 @@ void benchmarkTestCommand::_getSystemConfiguration(
 }
 
 void benchmarkTestCommand::_getTestConfiguration(
-				      ostream& outPrintWriter,
+                      ostream& outPrintWriter,
                                       ostream& errPrintWriter)
 {
     Boolean isConnected = false;
@@ -862,10 +862,10 @@ void benchmarkTestCommand::_getTestConfiguration(
         Uint32 numberOfProperties;
         Uint32 sizeOfPropertyValue;
         Uint32 numberOfInstances;
-       
+
         for (Uint32 i = 0, n = classNames.size(); i < n; i++)
-	{
-            if (CIM_ERR_SUCCESS == test.getConfiguration(classNames[i], 
+    {
+            if (CIM_ERR_SUCCESS == test.getConfiguration(classNames[i],
                  numberOfProperties, sizeOfPropertyValue, numberOfInstances))
             {
                _testClassNames.append (classNames[i]);
@@ -898,7 +898,7 @@ CIMObjectPath benchmarkTestCommand::_buildObjectPath(
 {
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("Identifier", Identifier.toString(), 
+    keys.append(CIMKeyBinding("Identifier", Identifier.toString(),
                               CIMKeyBinding::NUMERIC));
 
     return CIMObjectPath(String(), CIMNamespaceName(NAMESPACE), className, keys);
@@ -954,7 +954,7 @@ Boolean benchmarkTestCommand::_invokeProviderModuleMethod(
         throw;
     }
 
-    if ((retValue == 0) || (retValue == 1)) 
+    if ((retValue == 0) || (retValue == 1))
         return true;
     else return false;
 }
@@ -970,7 +970,8 @@ void benchmarkTestCommand::dobenchmarkTest1(
     try
     {
         Stopwatch stopwatchTime;
-        stopwatchTime.reset();
+
+        stopwatchTime.start();
 
         for (Uint32 i = 0; i < _iterations; i++)
         {
@@ -978,11 +979,14 @@ void benchmarkTestCommand::dobenchmarkTest1(
            client.disconnect();
         }
 
+        stopwatchTime.stop();
+
         double elapsedTime = stopwatchTime.getElapsed();
+
         outPrintWriter << testID;
         outPrintWriter <<  ": Benchmark Test #1: Connect/Disconnect Test" << endl;
-        outPrintWriter << _iterations << " requests processed in " 
-                       << elapsedTime << " Seconds " 
+        outPrintWriter << _iterations << " requests processed in "
+                       << stopwatchTime.getElapsed() << " Seconds "
                        << "(Average Elapse Time = " << elapsedTime/_iterations
                        << ")" << endl << endl;
     }  // end try
@@ -1005,13 +1009,17 @@ void benchmarkTestCommand::dobenchmarkTest2(
     try
     {
         Stopwatch stopwatchTime;
-        stopwatchTime.reset();
+
+        stopwatchTime.start();
 
         _connectToServer(client, outPrintWriter);
+
+        stopwatchTime.stop();
 
         double connectTime = stopwatchTime.getElapsed();
 
         stopwatchTime.reset();
+        stopwatchTime.start();
 
         if (_invokeProviderModuleMethod(MODULENAME, CIMName("stop"),
                                         outPrintWriter, errPrintWriter))
@@ -1020,11 +1028,14 @@ void benchmarkTestCommand::dobenchmarkTest2(
                                         outPrintWriter, errPrintWriter);
         }
 
+        stopwatchTime.stop();
+
         double _unloadModuleTime = stopwatchTime.getElapsed();
 
         stopwatchTime.reset();
+        stopwatchTime.start();
 
-        CIMObjectPath reference = 
+        CIMObjectPath reference =
            benchmarkTestCommand::_buildObjectPath(className, CIMValue(99));
         CIMInstance cimInstance = client.getInstance(NAMESPACE, reference);
 
@@ -1036,14 +1047,16 @@ void benchmarkTestCommand::dobenchmarkTest2(
             errorExit(errPrintWriter, "getInstance failed.  Incorrect class name returned.");
         }
 
+        stopwatchTime.stop();
+
         double elapsedTime = stopwatchTime.getElapsed();
 
-        outPrintWriter << testID << ": Benchmark Test #2: Load Provider Test on class " 
+        outPrintWriter << testID << ": Benchmark Test #2: Load Provider Test on class "
                        << className.getString() << endl;
         outPrintWriter << "Connect time = " << connectTime << endl;
         outPrintWriter << "Unload Module time = " << _unloadModuleTime << endl;
-        outPrintWriter << "First getInstance request processed in " 
-                       << elapsedTime << " Seconds " 
+        outPrintWriter << "First getInstance request processed in "
+                       << elapsedTime << " Seconds "
                        << endl << endl;
 
         client.disconnect();
@@ -1068,9 +1081,13 @@ void benchmarkTestCommand::dobenchmarkTest3(
     try
     {
         Stopwatch stopwatchTime;
+
         stopwatchTime.reset();
+        stopwatchTime.start();
 
         _connectToServer( client, outPrintWriter);
+
+        stopwatchTime.stop();
 
         double connectTime = stopwatchTime.getElapsed();
 
@@ -1082,8 +1099,9 @@ void benchmarkTestCommand::dobenchmarkTest3(
                  sizeOfPropertyValue, expectedNumberOfInstances);
 
         stopwatchTime.reset();
+        stopwatchTime.start();
 
-        CIMObjectPath reference = 
+        CIMObjectPath reference =
             benchmarkTestCommand::_buildObjectPath(className, CIMValue(99));
 
         for (Uint32 i = 0; i < _iterations; i++)
@@ -1103,6 +1121,8 @@ void benchmarkTestCommand::dobenchmarkTest3(
             }
         }
 
+        stopwatchTime.stop();
+
         double elapsedTime = stopwatchTime.getElapsed();
 
         outPrintWriter << testID << ": Benchmark Test #3: getInstance Test on "
@@ -1111,8 +1131,8 @@ void benchmarkTestCommand::dobenchmarkTest3(
         outPrintWriter << "Number of Non-Key Properties Returned  = " << numberOfProperties << endl
                        << "Size of Each Non-Key Property Returned  = " << sizeOfPropertyValue << endl
                        << "Number of Instances Returned = " << 1 << endl;
-        outPrintWriter << _iterations << " requests processed in " 
-                       << elapsedTime << " Seconds " 
+        outPrintWriter << _iterations << " requests processed in "
+                       << elapsedTime << " Seconds "
                        << "(Average Elapse Time = " << elapsedTime/_iterations
                        << ")" << endl << endl;
 
@@ -1139,9 +1159,13 @@ void benchmarkTestCommand::dobenchmarkTest4(
     try
     {
         Stopwatch stopwatchTime;
+
         stopwatchTime.reset();
+        stopwatchTime.start();
 
         _connectToServer( client, outPrintWriter);
+
+        stopwatchTime.stop();
 
         double connectTime = stopwatchTime.getElapsed();
 
@@ -1155,6 +1179,7 @@ void benchmarkTestCommand::dobenchmarkTest4(
         Uint32 numberInstances;
 
         stopwatchTime.reset();
+        stopwatchTime.start();
 
         for (Uint32 i = 0; i < _iterations; i++)
         {
@@ -1177,14 +1202,17 @@ void benchmarkTestCommand::dobenchmarkTest4(
             }   // end for looping through instances
         }
 
+        stopwatchTime.stop();
+
         double elapsedTime = stopwatchTime.getElapsed();
+
         outPrintWriter << testID << ": Benchmark Test #4: enumerateInstanceNames Test on class "
                        << className.getString() << endl;
         outPrintWriter << "Connect time = " << connectTime << endl;
         outPrintWriter << "Number of Non-Key Properties Returned  = " << 0 << endl
                        << "Number of Instances Returned = " << expectedNumberOfInstances << endl;
-        outPrintWriter << _iterations << " requests processed in " 
-                       << elapsedTime << " Seconds " 
+        outPrintWriter << _iterations << " requests processed in "
+                       << elapsedTime << " Seconds "
                        << "(Average Elapse Time = " << elapsedTime/_iterations
                        << ")" << endl << endl;
 
@@ -1211,9 +1239,13 @@ void benchmarkTestCommand::dobenchmarkTest5(
     try
     {
         Stopwatch stopwatchTime;
-        stopwatchTime.reset();
 
-        _connectToServer( client, outPrintWriter);
+        stopwatchTime.reset();
+        stopwatchTime.start();
+
+        _connectToServer(client, outPrintWriter);
+
+        stopwatchTime.stop();
 
         double connectTime = stopwatchTime.getElapsed();
 
@@ -1227,7 +1259,7 @@ void benchmarkTestCommand::dobenchmarkTest5(
         Uint32 numberInstances;
 
         stopwatchTime.reset();
-
+        stopwatchTime.start();
 
         Boolean deepInheritance = true;
         Boolean localOnly = false;
@@ -1264,15 +1296,18 @@ void benchmarkTestCommand::dobenchmarkTest5(
             }   // end for looping through instances
         }
 
+        stopwatchTime.stop();
+
         double elapsedTime = stopwatchTime.getElapsed();
-        outPrintWriter << testID << ": Benchmark Test #5: enumerateInstances Test on class " 
+
+        outPrintWriter << testID << ": Benchmark Test #5: enumerateInstances Test on class "
                        << className.getString() << endl;
         outPrintWriter << "Connect time = " << connectTime << endl;
         outPrintWriter << "Number of Non-Key Properties Returned  = " << numberOfProperties << endl
                        << "Size of Each Non-Key Property Returned  = " << sizeOfPropertyValue << endl
                        << "Number of Instances Returned = " << expectedNumberOfInstances << endl;
-        outPrintWriter << _iterations << " requests processed in " 
-                       << elapsedTime << " Seconds " 
+        outPrintWriter << _iterations << " requests processed in "
+                       << elapsedTime << " Seconds "
                        << "(Average Elapse Time = " << elapsedTime/_iterations
                        << ")" << endl << endl;
 
@@ -1283,25 +1318,24 @@ void benchmarkTestCommand::dobenchmarkTest5(
     {
       errorExit(errPrintWriter, e.getMessage());
     }
-
 }
 
 
 /**
-  
+
     Executes the command and writes the results to the PrintWriters.
-  
+
     @param   outPrintWriter     the ostream to which output should be
                                 written
     @param   errPrintWriter     the ostream to which error output should be
                                 written
-  
+
     @return  0                  if the command is successful
              1                  if an error occurs in executing the command
-  
+
  */
-Uint32 benchmarkTestCommand::execute (ostream& outPrintWriter, 
-                                      ostream& errPrintWriter) 
+Uint32 benchmarkTestCommand::execute (ostream& outPrintWriter,
+                                      ostream& errPrintWriter)
 {
 
      benchmarkDefinition test;
@@ -1310,53 +1344,53 @@ Uint32 benchmarkTestCommand::execute (ostream& outPrintWriter,
     {
         if (_debugOption1)
         {
-          Tracer::setTraceFile("benchmarkTest.trc"); 
-          Tracer::setTraceComponents("ALL");  
-          Tracer::setTraceLevel(Tracer::LEVEL4); 
+          Tracer::setTraceFile("benchmarkTest.trc");
+          Tracer::setTraceComponents("ALL");
+          Tracer::setTraceLevel(Tracer::LEVEL4);
         }
 
-	Uint32 testID = 0;
+    Uint32 testID = 0;
 
-	if (_generateReport)
-	{
+    if (_generateReport)
+    {
            benchmarkTestCommand::_getSystemConfiguration(outPrintWriter, errPrintWriter);
         }
 
         benchmarkTestCommand::_getTestConfiguration(outPrintWriter, errPrintWriter);
 
-	testID++;
-	if (!_testIDSet || (testID == _testID))
-	{
+    testID++;
+    if (!_testIDSet || (testID == _testID))
+    {
            benchmarkTestCommand::dobenchmarkTest1(testID, outPrintWriter, errPrintWriter);
         }
 
-	testID++;
-	if (!_testIDSet || (testID == _testID))
-	{
+    testID++;
+    if (!_testIDSet || (testID == _testID))
+    {
            benchmarkTestCommand::dobenchmarkTest2(testID, _testClassNames[0],
                                                   outPrintWriter, errPrintWriter);
         }
 
         for (Uint32 i = 0, n = _testClassNames.size(); i < n; i++)
 
-	{
-	    testID++;	
-	    if (!_testIDSet || (testID == _testID))
-	    {
+    {
+        testID++;
+        if (!_testIDSet || (testID == _testID))
+        {
                 benchmarkTestCommand::dobenchmarkTest3(testID, _testClassNames[i],
                                                   outPrintWriter, errPrintWriter);
             }
 
-	    testID++;
-	    if (!_testIDSet || (testID == _testID))
-	    {
+        testID++;
+        if (!_testIDSet || (testID == _testID))
+        {
                 benchmarkTestCommand::dobenchmarkTest4(testID, _testClassNames[i],
                                                   outPrintWriter, errPrintWriter);
             }
 
-	    testID++;
-	    if (!_testIDSet || (testID == _testID))
-	    {
+        testID++;
+        if (!_testIDSet || (testID == _testID))
+        {
                 benchmarkTestCommand::dobenchmarkTest5(testID, _testClassNames[i],
                                                   outPrintWriter, errPrintWriter);
             }
@@ -1365,22 +1399,22 @@ Uint32 benchmarkTestCommand::execute (ostream& outPrintWriter,
     }
     catch (benchmarkTestException& e)
     {
-      errPrintWriter << benchmarkTestCommand::COMMAND_NAME << ": " << 
-	e.getMessage () << endl;
+      errPrintWriter << benchmarkTestCommand::COMMAND_NAME << ": " <<
+    e.getMessage () << endl;
         return (RC_ERROR);
     }
 
     catch (Exception& e)
     {
-      errPrintWriter << benchmarkTestCommand::COMMAND_NAME << ": " << 
-	e.getMessage () << endl;
+      errPrintWriter << benchmarkTestCommand::COMMAND_NAME << ": " <<
+    e.getMessage () << endl;
         return (RC_ERROR);
     }
 
     catch (exception& e)
     {
-      errPrintWriter << benchmarkTestCommand::COMMAND_NAME << ": " << 
-	e.what () << endl;
+      errPrintWriter << benchmarkTestCommand::COMMAND_NAME << ": " <<
+    e.what () << endl;
         return (RC_ERROR);
      }
 
@@ -1388,15 +1422,15 @@ Uint32 benchmarkTestCommand::execute (ostream& outPrintWriter,
 }
 
 /**
-    
+
     Parses the command line, and executes the command.
-  
+
     @param   argc  the number of command line arguments
     @param   argv  the string vector of command line arguments
-  
+
     @return  0                  if the command is successful
              1                  if an error occurs in executing the command
-  
+
  */
 PEGASUS_NAMESPACE_END
 
@@ -1404,18 +1438,18 @@ PEGASUS_NAMESPACE_END
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-int main (int argc, char* argv []) 
+int main (int argc, char* argv [])
 {
     benchmarkTestCommand    command = benchmarkTestCommand ();
     int                rc;
 
-    try 
+    try
     {
         command.setCommand (argc, argv);
-    } 
-    catch (CommandFormatException& cfe) 
+    }
+    catch (CommandFormatException& cfe)
     {
-        cerr << benchmarkTestCommand::COMMAND_NAME << ": " << cfe.getMessage () 
+        cerr << benchmarkTestCommand::COMMAND_NAME << ": " << cfe.getMessage ()
              << endl;
         cerr << command.getUsage () << endl;
         exit (Command::RC_ERROR);

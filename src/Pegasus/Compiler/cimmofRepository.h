@@ -38,16 +38,16 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Compiler/cimmofParser.h>
+#include <Pegasus/Compiler/compilerDeclContext.h>
+
+class compilerDeclContext;
 
 PEGASUS_USING_PEGASUS;
 
-class PEGASUS_COMPILER_LINKAGE cimmofRepository : public CIMRepository {
+class PEGASUS_COMPILER_LINKAGE cimmofRepository  {
  public:
-  enum operationType {IGNORE_REPOSITORY, 
-		      DO_NOT_ADD_TO_REPOSITORY,
-		      USE_REPOSITORY};
-  cimmofRepository(const String &path);
-  ~cimmofRepository();
+  cimmofRepository(const String &path, compilerCommonDefs::operationType ot);
+  virtual ~cimmofRepository();
 
   // Add some methods for use at the compiler level
   virtual int addClass(CIMClass *classdecl);
@@ -55,7 +55,12 @@ class PEGASUS_COMPILER_LINKAGE cimmofRepository : public CIMRepository {
   virtual int addQualifier(CIMQualifierDecl *qualifier);
 
   virtual CIMQualifierDecl getQualifierDecl(const String &name);
-
+  virtual CIMClass getClass(const String &classname);
+  virtual void createNameSpace(const String &nameSpaceName);
+ private:
+  CIMRepository *_cimrepository;
+  compilerDeclContext *_context;
+  compilerCommonDefs::operationType _ot;
 };
 
 #endif

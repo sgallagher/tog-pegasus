@@ -118,7 +118,8 @@ class                                 { return(TOK_CLASS); }
 $[_$0-9a-zA-Z]+                     { return(TOK_ALIAS_IDENTIFIER); }
 [_a-zA-Z][_$0-9a-zA-Z]*             { cimmof_lval.strval = new String(yytext);
                                       return(TOK_SIMPLE_IDENTIFIER); }
-.                                   { /* error */ }
+.                                   { cimmof_lval.strval = new String(yytext);
+                                      return(TOK_UNEXPECTED_CHAR); }
 
 %%
 

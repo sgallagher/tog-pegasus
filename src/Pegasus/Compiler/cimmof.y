@@ -184,6 +184,7 @@ cimmof_error(char *msg) {
 %token TOK_DT_CHAR16
 %token TOK_DT_REAL32
 %token TOK_DT_REAL64
+%token TOK_UNEXPECTED_CHAR
 %token TOK_END_OF_FILE
 
 %type <strval> pragmaName pragmaVal qualifierName keyValuePairName
@@ -198,6 +199,7 @@ cimmof_error(char *msg) {
 %type <strval> superClass TOK_ALIAS_IDENTIFIER  alias aliasIdentifier
 %type <strval> namespaceHandle namespaceHandleRef
 %type <strval> referenceInitializer aliasInitializer objectHandle
+%type <strval> TOK_UNEXPECTED_CHAR
 
 %type <modelpath> modelPath 
 %type <keybinding> keyValuePair

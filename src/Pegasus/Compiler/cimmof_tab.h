@@ -79,7 +79,8 @@ typedef union {
 #define	TOK_DT_CHAR16	317
 #define	TOK_DT_REAL32	318
 #define	TOK_DT_REAL64	319
-#define	TOK_END_OF_FILE	320
+#define	TOK_UNEXPECTED_CHAR	320
+#define	TOK_END_OF_FILE	321
 
 
 extern YYSTYPE cimmof_lval;

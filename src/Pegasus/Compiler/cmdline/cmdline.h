@@ -45,6 +45,7 @@ enum opttypes {FILESPEC,
 	       FILELIST,
 	       NAMESPACE,
 	       TRACEFLAG,
+	       XMLFLAG,
 	       OPTEND};
 
 struct optspec {

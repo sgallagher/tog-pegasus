@@ -39,6 +39,7 @@
 #include <cstring>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMScope.h>
+#include <Pegasus/Compiler/compilerCommonDefs.h>
 #include <iostream>
 #include "valueFactory.h"
 #include "cimmofMessages.h"
@@ -61,7 +62,8 @@ const char LexerError::MSG[] = "";
 cimmofParser *cimmofParser::_instance = 0;
 
 cimmofParser::cimmofParser(): 
-  parser(),  _cmdline(0), _repository(0) {
+  parser(),  _cmdline(0), _repository(0), 
+  _ot(compilerCommonDefs::USE_REPOSITORY) {
 }
 
 cimmofParser::~cimmofParser() {
@@ -110,7 +112,7 @@ cimmofParser::setRepository(void) {
     String rep = _cmdline->get_repository_name();
     if (rep != "") {
       try {
-      _repository = new cimmofRepository(rep);
+      _repository = new cimmofRepository(rep, _ot);
       } catch(Exception &e) {
 	arglist.append(rep);
 	arglist.append(e.getMessage());
@@ -125,15 +127,6 @@ cimmofParser::setRepository(void) {
         _repository->createNameSpace(s);
       } 
 
-      // mdday@us.ibm.com Thu Jun 14 14:49:16 2001
-      // doesn't compile on windows - due to catching exception twice for the 
-      // same try block. 
-      // MEB - you should look at this to be certain I commented out the right piece!! 
-      // catch(CIMException& e) {
-    // 	  if (e.getCode() != CIM_ERR_ALREADY_EXISTS)
-    // 	      throw e;
-    // 	// OK, that's what we expect
-    //       } 
 
       catch(CIMException &e) {
 	if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
@@ -158,6 +151,26 @@ cimmofParser::setRepository(void) {
 const cimmofRepository *
 cimmofParser::getRepository() const {
   return _repository;
+}
+
+//------------------------------------------------------------------
+//  Set and get the operationType (defined in compilerCommonDefs)
+//  which tells the parser and cimmofRepository objects how, if
+//  at all, to use the CIM repository.
+//------------------------------------------------------------------
+void
+cimmofParser::setOperationType(compilerCommonDefs::operationType ot)
+{
+  _ot = ot;
+  if (_ot == compilerCommonDefs::USE_REPOSITORY && !_repository) {
+    // FIXME:  throw an exception
+  }
+}
+
+compilerCommonDefs::operationType
+cimmofParser::getOperationType() const
+{
+  return _ot;
 }
 
 //------------------------------------------------------------------
@@ -241,6 +254,8 @@ cimmofParser::enterInlineInclude(const String &filename) {
     } else {  // incorrect call:  cmdline should have been set
       return ret;
     }
+  } else {
+    _includefile = fqname;
   }
   if (f) {
      ret = enterInlineInclude((const FILE *)f);
@@ -429,14 +444,21 @@ cimmofParser::addClass(CIMClass *classdecl)
   String message;
   cimmofMessages::arglist arglist;
   arglist.append(classdecl->getClassName());
-  if ( _cmdline && _cmdline->trace() ) {
-    String header;
-    cimmofMessages::getMessage(header, cimmofMessages::ADD_CLASS);
-    trace(header,""); 
-    if (classdecl)
-      classdecl->print(_cmdline->traceos()); 
+  if (_cmdline) {
+    if (_cmdline->xml_output() ) {
+      if (classdecl)
+	classdecl->print(PEGASUS_STD(cout));
+      return ret;
+    } else if (_cmdline->trace() ) {
+      String header;
+      cimmofMessages::getMessage(header, cimmofMessages::ADD_CLASS);
+      trace(header,""); 
+      if (classdecl)
+	classdecl->print(_cmdline->traceos());
+    } 
   }
-  if (_cmdline && _cmdline->syntax_only()) {
+  if (_cmdline &&
+      _cmdline->operationType() != compilerCommonDefs::USE_REPOSITORY) {
     return ret; 
   }
   try {
@@ -508,14 +530,20 @@ cimmofParser::addInstance(CIMInstance *instance)
   String message;
   int ret = 0;
   Boolean err_out = false;
-  if (_cmdline && _cmdline->trace()) {
-    String header;
-    cimmofMessages::getMessage(header, cimmofMessages::ADD_INSTANCE);
-    trace(header, "");
-    if (instance)
-      instance->print(_cmdline->traceos());
+  if (_cmdline) {
+    if (_cmdline->xml_output()) {
+      instance->print(PEGASUS_STD(cout));
+      return ret;
+    } else if (_cmdline->trace()) {
+      String header;
+      cimmofMessages::getMessage(header, cimmofMessages::ADD_INSTANCE);
+      trace(header, "");
+      if (instance)
+	instance->print(_cmdline->traceos());
+    }
   }
-  if (_cmdline && _cmdline->syntax_only()) {
+  if (_cmdline &&
+      _cmdline->operationType() != compilerCommonDefs::USE_REPOSITORY) {
     return ret; 
   }
   try {
@@ -583,28 +611,47 @@ cimmofParser::newQualifierDecl(const String &name, const CIMValue *value,
 //---------------------------------------------------------------------
 int 
 cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
-  // FIXME
 {
   int ret  = 0;
-  if (_cmdline && _cmdline->trace()) {
-    String header;
-    cimmofMessages::getMessage(header, cimmofMessages::ADD_QUALIFIER);
-    trace(header, "");
-    if (qualifier) 
-      qualifier->print(_cmdline->traceos()); 
+  cimmofMessages::arglist arglist;
+  if (qualifier)
+    arglist.append(qualifier->getName());
+  String message;
+  if (_cmdline) {
+    if (_cmdline->xml_output()) {
+      if (qualifier)
+	qualifier->print(PEGASUS_STD(cout));
+    } else if (_cmdline->trace()) {
+      String header;
+      cimmofMessages::getMessage(header, cimmofMessages::ADD_QUALIFIER);
+      trace(header, "");
+      if (qualifier) 
+	qualifier->print(_cmdline->traceos()); 
+    }
   }
-  if (_cmdline && _cmdline->syntax_only()) {
+ 
+  if (_cmdline &&
+      _cmdline->operationType() != compilerCommonDefs::USE_REPOSITORY) {
     return ret; 
   }
   try {
     ret = _repository->addQualifier(qualifier);
+  } catch(CIMException e) {
+    if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
+      // OK, just skip it for now.
+      // In a later implementation we will overwrite if the compiler
+      // switches say to do so.
+    } else {
+      arglist.append(e.getMessage());
+      cimmofMessages::getMessage(message, cimmofMessages::ADD_QUALIFIER_ERROR,
+				 arglist);
+      elog(message);
+      maybeThrowParseError(message);
+    }
   } catch(Exception e) {
     // FIXME:  at the time of writing, the Common code does not throw
     // an CIM_ERR_ALREADY_EXISTS CIMException.  It might at any time.
-    cimmofMessages::arglist arglist;
-    arglist.append(qualifier->getName());
     arglist.append(e.getMessage());
-    String message;
     cimmofMessages::getMessage(message, cimmofMessages::ADD_QUALIFIER_ERROR,
 			       arglist);
     elog(message);
@@ -960,9 +1007,7 @@ cimmofParser::PropertyFromInstance(CIMInstance &instance,
   try {
     Array<String> propertyList;
     propertyList.append(propertyName);
-    CIMClass c = _repository->getClass(getNamespacePath(), className,
-					      true, false, false,
-					      propertyList); 
+    CIMClass c = _repository->getClass(className); 
     Uint32 pos = c.findProperty(propertyName);
     if (pos != (Uint32)-1) {
       return new CIMProperty(c.getProperty(pos));
@@ -1073,7 +1118,8 @@ cimmofParser::wlog(const String &msg) const
 {
   if (_cmdline)
     if (!_cmdline->suppress_all_messages())
-      _cmdline->warningos() << msg << endl;
+      if (!_cmdline->suppress_warnings())
+	_cmdline->warningos() << msg << endl;
 }
 
 //-------------------------------------------------------------------

@@ -54,6 +54,7 @@
 #include "cimmofRepository.h"
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Compiler/compilerCommonDefs.h>
 #include "memobjs.h"
 #include "objname.h"
 
@@ -85,6 +86,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   cimmofRepository *_repository; // the repository object to use
   String _defaultNamespacePath;  // The path we'll use if none is given
   String _currentNamespacePath;  // a namespace set from a #pragma
+  compilerCommonDefs::operationType _ot;
  public:
   // Provide a way for the singleton to be constructed, or a
   // pointer to be returned:
@@ -100,6 +102,9 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   // for all, or nearly all, operations, a repository object is needed
   Boolean setRepository(void);
   const cimmofRepository *getRepository() const;
+  // Whether you need a repository or not depends on the operationsType
+  void setOperationType(compilerCommonDefs::operationType);
+  compilerCommonDefs::operationType getOperationType() const;
   // Set a default root namespace path to pass to  the repository
   void setDefaultNamespacePath(const String &path); // default value
   void setCurrentNamespacePath(const String &path); // current override

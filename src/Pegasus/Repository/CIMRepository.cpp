@@ -1223,4 +1223,9 @@ String CIMRepository::_getInstanceFilePath(
     return tmp;
 }
 
+void CIMRepository::setDeclContext(RepositoryDeclContext *context)
+{
+  _context = context;
+}
+
 PEGASUS_NAMESPACE_END

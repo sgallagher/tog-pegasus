@@ -97,10 +97,10 @@ main(int argc, char ** argv) {
   else {
     try {
     int ret =  p->parse();
-    } catch(Exception &e) {
-	    cerr << "Parsing error: "  << e.getMessage() << endl;
     } catch(ParserLexException &e) {
       cerr << "Lexer error: " << e.getMessage() << endl;
+    } catch(Exception &e) {
+      cerr << "Compiler general exception: " << e.getMessage() << endl;
     }
   }
   

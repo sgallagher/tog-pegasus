@@ -243,6 +243,13 @@ public:
     */
     void deleteNameSpace(const String& nameSpace);
 
+    /** CIMMethod setDeclContext - allows the Declaration Context set
+        by default in the CIMRepository constructor to be overridden.
+        This is useful, for example, when a compiler wants to check syntax
+        without actually adding to the repository.
+    */
+    void setDeclContext(RepositoryDeclContext *context);
+
 private:
 
     Boolean _getInstanceIndex(

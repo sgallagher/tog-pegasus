@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%///////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,18 +17,18 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef PegasusCompiler_Compiler_Decl_Context_h
 #define PegasusCompiler_Compiler_Decl_Context_h
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 //
 // compilerDeclContext
 //
@@ -42,17 +42,21 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
+#include <Pegasus/Compiler/compilerCommonDefs.h>
 #include <Pegasus/Repository/RepositoryDeclContext.h>
 #include <Pegasus/Compiler/cimmofRepository.h>
 
-class compilerDeclContext : public RepositoryDeclContext {
+PEGASUS_USING_PEGASUS;
+
+class PEGASUS_COMPILER_LINKAGE compilerDeclContext :
+public RepositoryDeclContext {
  public:
-  compilerDeclContext(cimmofRepository *repository,
-			      cimmofRepository::operationType ot);
+  compilerDeclContext(CIMRepository *repository,
+			      compilerCommonDefs::operationType ot);
 
   virtual ~compilerDeclContext();
 
-  virtual 
+  virtual
     CIMQualifierDecl lookupQualifierDecl (const String &nameSpace,
 					  const String &qualifierName) const;
   virtual
@@ -64,9 +68,12 @@ class compilerDeclContext : public RepositoryDeclContext {
 
   void               addClass           (const String &nameSpace,
 					 CIMClass &x);
+
+  void               addInstance        (const String &nameSpace,
+					 CIMInstance &x);
  private:
-  cimmofRepository *_cimmofRepository;
-  cimmofRepository::operationType _ot;
+  CIMRepository *_cimRepository;
+  compilerCommonDefs::operationType _ot;
   Array<CIMClass>         _classes;
   Array<CIMQualifierDecl> _qualifiers;
   Array<CIMInstance>      _instances;

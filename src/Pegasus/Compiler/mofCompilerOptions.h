@@ -28,7 +28,8 @@
 
 
 //
-// Header for a class to generate CIMValue objects from String values
+// Header for a class to hold options available to users of the
+// cimmof embeddable compiler.
 //
 //
 //
@@ -53,6 +54,7 @@
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
+#include <Pegasus/Compiler/compilerCommonDefs.h>
 #include <iostream>
 
 PEGASUS_USING_STD;
@@ -67,6 +69,8 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   Boolean         _syntax_only;
   Boolean         _suppress_warnings;
   Boolean         _suppress_all_messages;
+  Boolean         _emit_xml;
+  compilerCommonDefs::operationType _ot;
   Boolean         _trace;
   PEGASUS_STD(ostream)      *_traceos;
   PEGASUS_STD(ostream)      *_erroros;
@@ -77,6 +81,8 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
     _syntax_only(false),
     _suppress_warnings(false),
     _suppress_all_messages(false),
+    _emit_xml(false),
+    _ot(compilerCommonDefs::USE_REPOSITORY),
     _trace(false),
     _traceos(0),
     _erroros(0),
@@ -105,6 +111,12 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   void set_trace() { _trace = true; }
   void reset_trace() { _trace = false; }
   Boolean trace() const { return _trace; }
+  void set_operationType(compilerCommonDefs::operationType ot) { _ot = ot; }
+  void reset_operationType() { _ot = compilerCommonDefs::USE_REPOSITORY; }
+  compilerCommonDefs::operationType operationType() const { return _ot; }
+  void set_xmloutput() { _emit_xml = true; }
+  void reset_xmloutput() { _emit_xml = false; }
+  Boolean xml_output() const { return _emit_xml; }
   void set_traceos(PEGASUS_STD(ostream) &os) { _traceos = &os; }
   void reset_traceos() { _traceos = 0; }
   ostream &traceos() const 

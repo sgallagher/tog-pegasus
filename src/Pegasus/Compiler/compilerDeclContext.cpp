@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
@@ -17,21 +17,25 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:  Bob Blair (bblair@bmc.com)
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 
 #include "compilerDeclContext.h"
 
-compilerDeclContext::compilerDeclContext(cimmofRepository *repository,
-					 cimmofRepository::operationType ot) :
-  RepositoryDeclContext(repository), _cimmofRepository(repository), _ot(ot)
+compilerDeclContext::compilerDeclContext(CIMRepository *repository,
+					compilerCommonDefs::operationType ot) :
+  RepositoryDeclContext(repository), _cimRepository(repository), _ot(ot)
 {
+  if (!repository && ot != compilerCommonDefs::IGNORE_REPOSITORY)
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+				"attempt to initialize repository with "
+				"invalid data");
 }
 
 compilerDeclContext::~compilerDeclContext() {}
@@ -41,16 +45,16 @@ compilerDeclContext::lookupQualifierDecl(const String &nameSpace,
 					 const String &qualifierName) const
 {
   const CIMQualifierDecl *pTheQualifier = 0;
-  if (_ot != cimmofRepository::USE_REPOSITORY) {
+  if (_ot != compilerCommonDefs::USE_REPOSITORY) {
     if ( (pTheQualifier = 
 	  _findQualifierInMemory(qualifierName)) )
       return *pTheQualifier;
   }
-  if (_repository && (_ot != cimmofRepository::IGNORE_REPOSITORY)) {
+  if (_repository && (_ot != compilerCommonDefs::IGNORE_REPOSITORY)) {
     try {
       return _repository->getQualifier(nameSpace, qualifierName);
-    } catch (Exception &) {
-      // FIXME:  catch the CIM_ERR_NOT_FOUND condition.  Don't catch others.
+    } catch (Exception &e) {
+      // FIXME:  catch the NOT_FOUND condition.  Don't catch others.
       // ignore.  It either isn't there or something's broken.
     }
   }
@@ -62,14 +66,14 @@ compilerDeclContext::lookupClass(const String &nameSpace,
 				 const String &className) const
 {
   const CIMClass *pTheClass;
-  if (_ot != cimmofRepository::USE_REPOSITORY) {
+  if (_ot != compilerCommonDefs::USE_REPOSITORY) {
     if ( (pTheClass =_findClassInMemory(className)) )
       return *pTheClass;
   }
-  if (_repository && _ot != cimmofRepository::IGNORE_REPOSITORY) {
+  if (_repository && _ot != compilerCommonDefs::IGNORE_REPOSITORY) {
     try {
       return _repository->getClass(nameSpace, className);
-    } catch(Exception &) {
+    } catch(Exception &e) {
       // ignore failure to find.  FIXME:  pass others on.
     }
   }
@@ -80,7 +84,7 @@ void
 compilerDeclContext::addQualifierDecl(const String &nameSpace,
 				      const CIMQualifierDecl &x)
 {
-  if (_ot != cimmofRepository::USE_REPOSITORY)
+  if (_ot != compilerCommonDefs::USE_REPOSITORY)
     _qualifiers.append(x);
   else
     _repository->setQualifier(nameSpace, x);
@@ -89,10 +93,17 @@ compilerDeclContext::addQualifierDecl(const String &nameSpace,
 void
 compilerDeclContext::addClass(const String &nameSpace, CIMClass &x)
 {
-  if (_ot != cimmofRepository::USE_REPOSITORY)
+  if (_ot != compilerCommonDefs::USE_REPOSITORY)
     _classes.append(x);
   else
     _repository->createClass(nameSpace, x);
+}
+
+void
+compilerDeclContext::addInstance(const String &nameSpace, CIMInstance &x)
+{
+  if (_ot == compilerCommonDefs::USE_REPOSITORY)
+    _repository->createInstance(nameSpace, x);
 }
 
 const CIMClass *

@@ -55,7 +55,7 @@ PEGASUS_USING_PEGASUS;
 
 
 // COMPILER VERSION ++++++++++++++++++++++++++++++++++++++++++++++++++++
-#define COMPILER_VERSION "1.0" /* as of March 3, 2001 */
+#define COMPILER_VERSION "1.0.10" /* as of June 19, 2001 */
 // COMPILER_VERSION ++++++++++++++++++++++++++++++++++++++++++++++++++++
  
 
@@ -75,7 +75,10 @@ help(ostream &os) {
   os << " -npath -- override the default CIMRepository namespace." << endl;
   os << " --namespace=path -- override default CIMRepository namespace." 
        << endl;
-  os << " -ttracefile -- trace to file (default to stdout)." << endl;
+  os << " --xml -- output XML only, to stdout.  Do not update repository."
+     << endl;
+  os << " --trace or --trace=ttracefile -- trace to file (default to stdout)."
+     << endl;
   return os;
 }
 
@@ -100,21 +103,22 @@ process_filelist(const String &filename, mofCompilerOptions &cmdlinedata)
 /* flag value, type, islong?, needsValue? */
 static struct optspec optspecs[] = 
 {
-    {"", FILESPEC, false, true},
-    {"h", HELPFLAG, false, false},
-    {"help", HELPFLAG, true, false},
-    {"f", FILELIST, false, true},
-    {"filelist", FILELIST, true, true},
-    {"n", NAMESPACE, false, true},
-    {"namespace", NAMESPACE, true, true}, 
-    {"I", INCLUDEPATH, false, true},
-    {"Include", INCLUDEPATH, true, true},
-    {"R", REPOSITORYNAME, false, true},
-    {"CIMRepository", REPOSITORYNAME, true, true},
-    {"E", SYNTAXFLAG, false, false}, 
-    {"w", SUPPRESSFLAG, false, false},
-    {"t", TRACEFLAG, false, false},
-    {"", OPTEND, false, false}
+    {"", FILESPEC, false, getoopt::NOARG},
+    {"h", HELPFLAG, false, getoopt::NOARG},
+    {"help", HELPFLAG, true, getoopt::NOARG},
+    {"f", FILELIST, false, getoopt::MUSTHAVE},
+    {"filelist", FILELIST, true, getoopt::MUSTHAVE},
+    {"n", NAMESPACE, false, getoopt::MUSTHAVE},
+    {"namespace", NAMESPACE, true, getoopt::MUSTHAVE}, 
+    {"I", INCLUDEPATH, false, getoopt::MUSTHAVE},
+    {"Include", INCLUDEPATH, true, getoopt::MUSTHAVE},
+    {"R", REPOSITORYNAME, false, getoopt::MUSTHAVE},
+    {"CIMRepository", REPOSITORYNAME, true, getoopt::MUSTHAVE},
+    {"E", SYNTAXFLAG, false, getoopt::NOARG}, 
+    {"w", SUPPRESSFLAG, false, getoopt::NOARG},
+    {"trace", TRACEFLAG, true, getoopt::OPTIONAL},
+    {"xml", XMLFLAG, true, getoopt::NOARG},
+    {"", OPTEND, false, getoopt::NOARG}
 };
 
 static void
@@ -126,11 +130,10 @@ setCmdLineOpts(getoopt &cmdline) {
     if (o.flag == "")
       continue;
     if (o.islong)
-      cmdline.addLongFlagspec(o.flag, o.needsvalue ? 
-			      getoopt::MUSTHAVE : getoopt::NOARG);
+      cmdline.addLongFlagspec(o.flag, (getoopt::argtype)o.needsvalue);
     else
-      cmdline.addFlagspec(o.flag[0], o.needsvalue ?
-			  getoopt::MUSTHAVE : getoopt::NOARG);
+      cmdline.addFlagspec(o.flag[0], o.needsvalue == getoopt::MUSTHAVE ?
+			  true : false);
   }
 }
 
@@ -162,6 +165,8 @@ applyDefaults(mofCompilerOptions &cmdlinedata) {
   cmdlinedata.set_namespacePath(ROOTCIMV2);
   cmdlinedata.set_erroros(PEGASUS_STD(cerr));
   cmdlinedata.set_warningos(PEGASUS_STD(cerr));
+  cmdlinedata.reset_operationType();
+  cmdlinedata.reset_xmloutput();
 }
 
 extern "C++" int processCmdline(int, char **, mofCompilerOptions &, ostream&);
@@ -191,6 +196,8 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
       case REPOSITORYNAME:  cmdlinedata.set_repository_name(arg.optarg());
 	break;
       case SYNTAXFLAG: cmdlinedata.set_syntax_only();
+		       cmdlinedata.set_operationType(
+				compilerCommonDefs::DO_NOT_ADD_TO_REPOSITORY);
 	break;
       case SUPPRESSFLAG: cmdlinedata.set_suppress_warnings();
 	break;
@@ -209,6 +216,8 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 	      cmdlinedata.set_traceos(*tracefile);
 	  }
 	}
+	break;
+      case XMLFLAG: cmdlinedata.set_xmloutput();
 	break;
       case FILELIST: {
 	int stat = process_filelist(arg.optarg(), cmdlinedata);

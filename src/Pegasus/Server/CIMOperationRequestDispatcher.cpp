@@ -368,26 +368,9 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 
     try
     {
-	// get provider for class
-	String className = request->className;
-	String providerName = _lookupProviderForClass(request->nameSpace, className);
-
-	if(providerName.size() != 0)
-	{
-		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
-
-		provider->deleteClass(
-		OperationContext(),
-		request->nameSpace,
-		request->className);
-	}
-	else
-	{
-	   _repository->deleteClass(
-		request->nameSpace,
-		request->className);
-	}
+	_repository->deleteClass(
+	    request->nameSpace,
+	    request->className);
     }
     catch (CIMException& exception)
     {

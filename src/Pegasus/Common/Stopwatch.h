@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,6 +30,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
+//      Chip Vincent (cvincent@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,43 +38,57 @@
 #define Pegasus_Stopwatch_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/TimeValue.h>
-#include <Pegasus/Common/System.h>
+
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 /** Stopwatch - A class for measuring elapsed time
-    Stopwatch is a class for measuring time intervals within the environment. 
+    Stopwatch is a class for measuring time intervals within the environment.
     It is intended to be a developers tool primarily.
 */
 class PEGASUS_COMMON_LINKAGE Stopwatch
 {
-private:
-    TimeValue _start;
-
 public:
 
-    /**	stopwatch constructor. The constructor creates the object and
-    starts the timer
+    /** constructor. The constructor creates the object. Start
+    must be called to start the timer.
     @example Stopwatch time;
     */
-    Stopwatch();
+    Stopwatch(void);
 
-    /**	Reset Stopwatch	resets an existing Stopwatch object to the 
-    current time value
+    /** start - Starts accumulating time and continues until stop is called.
+    The object can be started and stopped multiple times to measure the
+    sum of several intervals, but each start must have a corresponding start.
     */
-    void reset();
+    void start(void);
 
-    /**	getElapsed - Get the elapsed time for the defined stopwatch.
+    /** stop - Stops the accumlation of time for an interval. The object
+    should only stopped if it has been started.
+    */
+    void stop(void);
+
+    /** reset - Effectively clears the time values stored by a Stopwatch.
+    */
+    void reset(void);
+
+    /** getElapsed - Get the elapsed time for the defined stopwatch. This
+    method should only be called if it is currently stopped.
     @return Returns the elapsed time value as a double
     */
-    double getElapsed() const;
+    double getElapsed(void) const;
 
-    /**	printElapsed method gets the current value of the timer and
-    sends it to standardout as a string with the word seconds attached
+    /** printElapsed method gets the current value of the timer and
+    sends it to standard out as a string with the word seconds attached
     */
-    void printElapsed();
+    void printElapsed(void);
+
+private:
+    Uint32 _start;
+    Uint32 _stop;
+
+    double _total;
+
 };
 
 PEGASUS_NAMESPACE_END

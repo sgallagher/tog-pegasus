@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,34 +30,48 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
+//      Chip Vincent (cvincent@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
-#include <iostream>
 #include "Stopwatch.h"
-#include "TimeValue.h"
+
+#include <Pegasus/Common/TimeValue.h>
+#include <Pegasus/Common/System.h>
+
+#include <iostream>
 
 PEGASUS_NAMESPACE_BEGIN
 
-#include <Pegasus/Common/System.h>
-
-Stopwatch::Stopwatch() 
+Stopwatch::Stopwatch(void) : _start(0), _stop(0), _total(0)
 {
-    reset();
 }
 
-void Stopwatch::reset() 
+void Stopwatch::start(void)
 {
-    _start = TimeValue::getCurrentTime();
+    _start = TimeValue::getCurrentTime().toMilliseconds();
 }
 
-double Stopwatch::getElapsed() const
+void Stopwatch::stop(void)
 {
-    Uint32 stop = TimeValue::getCurrentTime().toMilliseconds();
-    Uint32 start = _start.toMilliseconds();
-    return double(stop - start) / 1000.0;
+    _stop = TimeValue::getCurrentTime().toMilliseconds();
+
+    // update total
+    _total += double(_stop - _start);
 }
 
-void Stopwatch::printElapsed()
+void Stopwatch::reset(void)
+{
+    _start = 0;
+    _stop = 0;
+    _total = 0;
+}
+
+double Stopwatch::getElapsed(void) const
+{
+    return(_total / 1000.0);
+}
+
+void Stopwatch::printElapsed(void)
 {
     PEGASUS_STD(cout) << getElapsed() << " seconds" << PEGASUS_STD(endl);
 }

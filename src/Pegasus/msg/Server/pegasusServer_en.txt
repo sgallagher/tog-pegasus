@@ -3063,12 +3063,6 @@ CIM server listening on HTTPS port {0}."}
         */
         src.Server.cimserver.SERVER_NOT_STARTED:string {"PGS10033: cimserver not started : {0}"}
 
-        /**
-        * @note  PGS10034:
-        * @version 2.4 
-        */
-        Server.CIMServer.EXPORT_TRUST_EMPTY:string {"PGS10034: The \"exportSSLTrustStore\" configuration property must be set when \"enableSSLExportClientVerification\" is true. cimserver not started."}
-
 
         // ==========================================================
         // Messages for IndicationService
@@ -3756,4 +3750,9 @@ CIM server listening on HTTPS port {0}."}
                                                                                                                                                
         Server.CIMServer.BIND_FAILED:string {"PGS13200: No CIM server connections are enabled."}
 
+	/**
+        * @note  PGS13201:
+        * @version 2.4
+        */
+        Server.CIMServer.EXPORT_TRUST_EMPTY:string {"PGS13201: The \"exportSSLTrustStore\" configuration property must be set when \"enableSSLExportClientVerification\" is true. cimserver not started."}
 }

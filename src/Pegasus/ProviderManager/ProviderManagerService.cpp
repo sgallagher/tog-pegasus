@@ -948,7 +948,7 @@ void ProviderManagerService::handleCreateInstanceRequest(AsyncOpNode *op, const 
    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleCreateInstanceRequest");
     CIMCreateInstanceRequestMessage * request =
         dynamic_cast<CIMCreateInstanceRequestMessage *>(const_cast<Message *>(message));
-
+ 
     AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
 
     PEGASUS_ASSERT(request != 0 && async != 0 );

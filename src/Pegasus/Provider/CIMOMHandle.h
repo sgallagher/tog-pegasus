@@ -51,6 +51,26 @@ class ProviderManager;
 class Provider;
 
 class cimom_handle_op_semaphore;
+
+class PEGASUS_PROVIDER_LINKAGE TimeoutContainer : public OperationContext::Container
+{
+   public:
+      static const String NAME;
+      
+      TimeoutContainer(const OperationContext::Container & container);
+      TimeoutContainer(Uint32 timeout);
+      virtual String getName(void) const;
+      virtual OperationContext::Container * clone(void) const;
+      virtual void destroy(void);
+      
+      Uint32 getTimeOut(void) const;
+   protected:
+      Uint32 _value;
+   private:
+      TimeoutContainer(void);
+};
+
+
 class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 {
 
@@ -64,8 +84,8 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
       virtual ~CIMOMHandle(void);
 
       CIMOMHandle & operator=(const CIMOMHandle & handle);
-
-      virtual CIMClass getClass(
+      
+      CIMClass getClass(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMName& className,
@@ -74,17 +94,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	 Boolean includeClassOrigin,
 	 const CIMPropertyList& propertyList);
 
-      virtual void getClassAsync(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMName& className,
-	 Boolean localOnly,
-	 Boolean includeQualifiers,
-	 Boolean includeClassOrigin,
-	 const CIMPropertyList& propertyList,
-	 ClassResponseHandler & handler);
-
-      virtual Array<CIMClass> enumerateClasses(
+      Array<CIMClass> enumerateClasses(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMName& className,
@@ -93,63 +103,28 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	 Boolean includeQualifiers,
 	 Boolean includeClassOrigin);
 
-      virtual void enumerateClassesAsync(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMName& className,
-	 Boolean deepInheritance,
-	 Boolean localOnly,
-	 Boolean includeQualifiers,
-	 Boolean includeClassOrigin,
-	 ClassResponseHandler & handler);
-
-      virtual Array<CIMName> enumerateClassNames(
+      Array<CIMName> enumerateClassNames(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMName& className,
 	 Boolean deepInheritance);
 
-      virtual void enumerateClassNamesAsync(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMName& className,
-	 Boolean deepInheritance,
-	 ObjectPathResponseHandler & handler);
-
-      virtual void createClass(
+      void createClass(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMClass& newClass);
 
-      virtual void createClassAsync(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMClass& newClass,
-	 ResponseHandler & handler);
-
-      virtual void modifyClass(
+      void modifyClass(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMClass& modifiedClass);
 
-      virtual void modifyClassAsync(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMClass& modifiedClass,
-	 ResponseHandler& handler);
-
-      virtual void deleteClass(
+      void deleteClass(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMName& className);
 
-      virtual void deleteClassAsync(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMName& className,
-	 ResponseHandler & handler);
-
-      virtual CIMInstance getInstance(
+      CIMInstance getInstance(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMObjectPath& instanceName,
@@ -158,17 +133,7 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	 Boolean includeClassOrigin,
 	 const CIMPropertyList& propertyList);
 
-      virtual void getInstanceAsync(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMObjectPath& instanceName,
-	 Boolean localOnly,
-	 Boolean includeQualifiers,
-	 Boolean includeClassOrigin,
-	 const CIMPropertyList& propertyList,
-	 InstanceResponseHandler & handler);
-
-      virtual Array<CIMInstance> enumerateInstances(
+      Array<CIMInstance> enumerateInstances(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMName& className,
@@ -178,231 +143,110 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	 Boolean includeClassOrigin,
 	 const CIMPropertyList& propertyList);
 
-      virtual void enumerateInstancesAsync(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMName& className,
-	 Boolean deepInheritance,
-	 Boolean localOnly,
-	 Boolean includeQualifiers,
-	 Boolean includeClassOrigin,
-	 const CIMPropertyList& propertyList,
-	 InstanceResponseHandler & handler);
-
-      virtual Array<CIMObjectPath> enumerateInstanceNames(
+      Array<CIMObjectPath> enumerateInstanceNames(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMName& className);
 
-      virtual void enumerateInstanceNamesAsync(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMName& className,
-	 ObjectPathResponseHandler & handler);
-
-      virtual CIMObjectPath createInstance(
+      CIMObjectPath createInstance(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMInstance& newInstance);
 
-      virtual void createInstanceAsync(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMInstance& newInstance,
-	 ResponseHandler& handler);
-
-      virtual void modifyInstance(
+      void modifyInstance(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMInstance& modifiedInstance,
 	 Boolean includeQualifiers,
 	 const CIMPropertyList& propertyList);
 
-      virtual void modifyInstanceAsync(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMInstance& modifiedInstance,
-	 Boolean includeQualifiers,
-	 const CIMPropertyList& propertyList,
-	 ResponseHandler& handler);
-
-      virtual void deleteInstance(
+      void deleteInstance(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMObjectPath& instanceName);
 
-      virtual void deleteInstanceAsync(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMObjectPath& instanceName,
-	 ResponseHandler& handler);
-
-      virtual Array<CIMObject> execQuery(
+      Array<CIMObject> execQuery(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const String& queryLanguage,
 	 const String& query);
 
-      virtual void execQueryAsync(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const String& queryLanguage,
-	 const String& query,
-	 ObjectResponseHandler & handler);
-
-      virtual Array<CIMObject> associators(
+      Array<CIMObject> associators(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMObjectPath& objectName,
-	 const String& assocClass,
-	 const String& resultClass,
+	 const CIMName& assocClass,
+	 const CIMName& resultClass,
 	 const String& role,
 	 const String& resultRole,
 	 Boolean includeQualifiers,
 	 Boolean includeClassOrigin,
 	 const CIMPropertyList& propertyList);
 
-      virtual void associatorsAsync(
+      Array<CIMObjectPath> associatorNames(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMObjectPath& objectName,
-	 const String& assocClass,
-	 const String& resultClass,
-	 const String& role,
-	 const String& resultRole,
-	 Boolean includeQualifiers,
-	 Boolean includeClassOrigin,
-	 const CIMPropertyList& propertyList,
-	 ObjectResponseHandler & handler);
-
-      virtual Array<CIMObjectPath> associatorNames(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMObjectPath& objectName,
-	 const String& assocClass,
-	 const String& resultClass,
+	 const CIMName& assocClass,
+	 const CIMName& resultClass,
 	 const String& role,
 	 const String& resultRole);
 
-      virtual void associatorNamesAsync(
+      Array<CIMObject> references(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMObjectPath& objectName,
-	 const String& assocClass,
-	 const String& resultClass,
-	 const String& role,
-	 const String& resultRole,
-	 ObjectPathResponseHandler & handler);
-
-      virtual Array<CIMObject> references(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMObjectPath& objectName,
-	 const String& resultClass,
+	 const CIMName& resultClass,
 	 const String& role,
 	 Boolean includeQualifiers,
 	 Boolean includeClassOrigin,
 	 const CIMPropertyList& propertyList);
 
-      virtual void referencesAsync(
+      Array<CIMObjectPath> referenceNames(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMObjectPath& objectName,
-	 const String& resultClass,
-	 const String& role,
-	 Boolean includeQualifiers,
-	 Boolean includeClassOrigin,
-	 const CIMPropertyList& propertyList,
-	 ObjectResponseHandler & handler);
-
-      virtual Array<CIMObjectPath> referenceNames(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMObjectPath& objectName,
-	 const String& resultClass,
+	 const CIMName& resultClass,
 	 const String& role);
 
-      virtual void referenceNamesAsync(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMObjectPath& objectName,
-	 const String& resultClass,
-	 const String& role,
-	 ObjectPathResponseHandler& handler);
-
       // property operations
-      virtual CIMValue getProperty(
+      CIMValue getProperty(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMObjectPath& instanceName,
-	 const String& propertyName);
+	 const CIMName& propertyName);
 
-      virtual void getPropertyAsync(
+      void setProperty(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMObjectPath& instanceName,
-	 const String& propertyName,
-	 ValueResponseHandler & handler);
-
-      virtual void setProperty(
-	 const OperationContext & context,
-	 const CIMNamespaceName& nameSpace,
-	 const CIMObjectPath& instanceName,
-	 const String& propertyName,
+	 const CIMName& propertyName,
 	 const CIMValue& newValue);
 
-      virtual void setPropertyAsync(
+      CIMValue invokeMethod(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMObjectPath& instanceName,
-	 const String& propertyName,
-	 const CIMValue& newValue,
-	 ValueResponseHandler& handler);
+	 const CIMName& methodName,
+	 const Array<CIMParamValue>& inParameters,
+	 Array<CIMParamValue>& outParameters);
 
-      virtual void get_idle_timer(struct timeval *);
-      virtual void update_idle_timer(void);
-      virtual Uint32 get_operation_timeout(void);
-      virtual void set_operation_timeout(Uint32);
-      virtual Boolean pending_operation(void);
-      virtual Boolean unload_ok(void);
 
-      virtual Uint32 get_output_qid(void);
-      virtual void set_output_qid(Uint32);
-      virtual Uint32 get_return_qid(void);
-      virtual void set_return_qid(Uint32);
 
 //   force provider manager to keep in memory
       virtual void protect(void);
 // allow provider manager to unload when idle 
       virtual void unprotect(void);
-
-//     virtual CIMValue invokeMethod(
-//     const OperationContext & context,
-//     const CIMNamespaceName& nameSpace,
-//     const CIMObjectPath& instanceName,
-//     const String& methodName,
-//     const Array<CIMParamValue>& inParameters,
-//     Array<CIMParamValue>& outParameters);
-
-//     virtual void invokeMethodAsync(
-//     const OperationContext & context,
-//     const CIMNamespaceName& nameSpace,
-//     const CIMObjectPath& instanceName,
-//     const String& methodName,
-//     const Array<CIMParamValue>& inParameters,
-//     Array<CIMParamValue>& outParameters,
-//     ResponseHandler<CIMValue> & handler);
-    
-
-//      static void async_callback(Uint32 user_data, Message *reply, void *parm);
-
-
+      
       class _cimom_handle_rep;
       _cimom_handle_rep *_rep;
    private:
       friend class Provider;
       friend class cimom_handle_op_semaphore;
-      
+      virtual void get_idle_timer(struct timeval *);
+      virtual void update_idle_timer(void);
+      virtual Boolean pending_operation(void);
+      virtual Boolean unload_ok(void);
 };
 
 

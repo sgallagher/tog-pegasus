@@ -121,6 +121,7 @@ private:
     Tag _tag;
 };
 
+#if 0
 PEGASUS_COMMON_LINKAGE Boolean operator==(CIMType x, CIMType y);
 PEGASUS_COMMON_LINKAGE Boolean operator!=(CIMType x, CIMType y);
 
@@ -128,6 +129,7 @@ PEGASUS_COMMON_LINKAGE Boolean operator==(CIMType x, CIMType::Tag y);
 PEGASUS_COMMON_LINKAGE Boolean operator==(CIMType::Tag x, CIMType y);
 PEGASUS_COMMON_LINKAGE Boolean operator!=(CIMType x, CIMType::Tag y);
 PEGASUS_COMMON_LINKAGE Boolean operator!=(CIMType::Tag x, CIMType y);
+#endif
 
 PEGASUS_NAMESPACE_END
 

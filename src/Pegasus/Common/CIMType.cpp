@@ -73,6 +73,7 @@ const char* CIMType::toString() const
 }
 
 
+#if 0
 Boolean operator==(CIMType x, CIMType y)
 {
     return CIMType::Tag(x) == CIMType::Tag(y);
@@ -102,5 +103,6 @@ Boolean operator!=(CIMType::Tag x, CIMType y)
 {
     return !operator==(x, y);
 }
+#endif
 
 PEGASUS_NAMESPACE_END

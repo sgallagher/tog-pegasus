@@ -54,24 +54,24 @@ LanguageElement::LanguageElement(){
 	variant = String();
 }
 
-LanguageElement::LanguageElement(String language, 
-								 String country,
-								 String variant,
-								 Real32 quality){
-	this->language = language;
-	this->country = country;
-	this->variant = variant;
-	this->quality = quality;
+LanguageElement::LanguageElement(String aLanguage, 
+								 String aCountry,
+								 String aVariant,
+								 Real32 aQuality){
+	this->language = aLanguage;
+	this->country = aCountry;
+	this->variant = aVariant;
+	this->quality = aQuality;
 } 
 
-LanguageElement::LanguageElement(String language_tag, Real32 quality){
+LanguageElement::LanguageElement(String language_tag, Real32 aQuality){
 	if(language_tag == "*"){ 
 		language = language_tag;
 		this->quality = 0;	
 	}
 	else{
 		 splitLanguageTag(language_tag);
-		this->quality = quality;
+		this->quality = aQuality;
 	}
 }  
 

@@ -23,7 +23,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "1";
    ClassName = "Sample_MethodProviderClass";
    Namespaces = {"root/SampleProvider"};
-   ProviderType = { 2, 5 }; //  Instance and Method
+   ProviderType = { 5 }; //  Instance and Method
    SupportedProperties = NULL;
    SupportedMethods = { "SayHello" };
 };

@@ -61,6 +61,9 @@ protected:
 
 protected:
     virtual Pair<String, String> _lookupProviderForClass(const CIMObjectPath & objectPath);
+    virtual Pair<String, String> _lookupMethodProviderForClass(
+	const CIMObjectPath & objectPath,
+	const String & methodName);
 
     virtual void _lookupProviderForAssocClass(
         const CIMObjectPath & objectPath, const String& assocClassName,

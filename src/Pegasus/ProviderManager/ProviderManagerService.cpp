@@ -247,6 +247,40 @@ void ProviderManagerService::_lookupProviderForAssocClass(
     return;
 }
 
+Pair<String, String> ProviderManagerService::_lookupMethodProviderForClass(
+  const CIMObjectPath & objectPath,
+  const String & methodName)
+{
+    CIMInstance pInstance;
+    CIMInstance pmInstance;
+
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::_lookupMethodProviderForClass");
+
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "nameSpace = " + objectPath.getNameSpace() + "; className = " + objectPath.getClassName() + "; methodName = " + methodName);
+
+    // get the provider and provider module instance from the registration manager
+    if(_providerRegistrationManager->lookupMethodProvider(
+        objectPath.getNameSpace(), objectPath.getClassName(), methodName,
+        pInstance, pmInstance) == false)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Provider registration not found.");
+
+        PEG_METHOD_EXIT();
+
+        throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
+    }
+
+    Pair<String, String> pair;
+
+    pair = _getProviderRegPair(pInstance, pmInstance);
+
+    PEG_METHOD_EXIT();
+
+    return(pair);
+}
+
 Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMObjectPath & objectPath)
 {
     CIMInstance pInstance;
@@ -1628,7 +1662,7 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
             request->instanceName.getKeyBindings());
 
         // get the provider file name and logical name
-        Pair<String, String> pair = _lookupProviderForClass(objectPath);
+        Pair<String, String> pair = _lookupMethodProviderForClass(objectPath, request->methodName);
 
         // get cached or load new provider module
         Provider provider = providerManager.getProvider(pair.first, pair.second);

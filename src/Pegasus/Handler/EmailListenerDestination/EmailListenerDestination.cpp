@@ -295,7 +295,7 @@ void EmailListenerDestination::_buildMailHeader(
     fromStr.append("From: ");
     fromStr.append(System::getEffectiveUserName());
     fromStr.append("@");
-    fromStr.append(System::getHostName());
+    fromStr.append(System::getFullyQualifiedHostName ());
 
     // Write the fromStr to file
     _writeStrToFile(fromStr);

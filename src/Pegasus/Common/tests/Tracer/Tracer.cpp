@@ -48,10 +48,10 @@ PEGASUS_USING_PEGASUS;
 // Trace files for test purposes
 // Will be created in the $(PEGASUS_TMP) directory, or if not set,
 // in the current directory
-const char* FILE1;
-const char* FILE2;
-const char* FILE3;
-const char* FILE4;
+CString FILE1;
+CString FILE2;
+CString FILE3;
+CString FILE4;
 
 // 
 // Reads the last trace message from a given trace file and compares the 

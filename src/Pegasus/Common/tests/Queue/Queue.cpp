@@ -28,6 +28,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
  
@@ -60,10 +61,9 @@ int main(int argc, char** argv)
     	q1.enqueue(2);
     	assert(q1.size() == 2);
     	assert (!q1.isEmpty());
-    
-    	assert(q1.back() = 2);
-    	assert(q1.front() = 1);
-    
+        assert(q1.back() == 2);
+        assert(q1.front() == 1);
+
     	q1.dequeue();
     	assert(q1.size() == 1);
     	assert(!q1.isEmpty());

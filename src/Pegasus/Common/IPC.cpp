@@ -432,9 +432,9 @@ AtomicInt& AtomicInt::operator=(Uint32 val)
 
 Uint32 AtomicInt::value(void) const
 {
-    _rep._mutex.lock(pegasus_thread_self());
+    const_cast<Mutex>(_rep._mutex).lock(pegasus_thread_self());
     Uint32 retval = _rep._value;
-    _rep._mutex.unlock();
+    const_cast<Mutex>(_rep._mutex).unlock();
     return retval;
 }
 

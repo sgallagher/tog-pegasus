@@ -5,8 +5,10 @@ DIR = Providers/TestProviders/AlertIndicationProvider
 LIBRARY = AlertIndicationProvider
 
 LIBRARIES = \
-	pegcommon \
-	pegprovider
+    pegprovider \
+    pegclient \
+    pegconfig \
+    pegcommon
 	
 SOURCES = \
 	AlertIndicationProviderMain.cpp \

@@ -5,8 +5,10 @@ DIR = Providers/sample/IndicationProvider
 LIBRARY = SampleIndicationProvider
 
 LIBRARIES = \
-	pegcommon \
-	pegprovider
+    pegprovider \
+    pegclient \
+    pegconfig \
+    pegcommon
 	
 SOURCES = \
 	IndicationProviderMain.cpp \

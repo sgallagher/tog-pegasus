@@ -16,6 +16,10 @@ else
    DIFF = diff
 endif
 
+ifeq ($(OS), VMS)
+   DIFF = mu compare
+endif
+
 XMLREQUESTS = $(foreach i, $(XMLSCRIPTS), $i.xml)
 XMLRESPONSES = $(XMLREQUESTS:.xml=.rsp)
 
@@ -55,8 +59,13 @@ ifeq ($(PEGASUS_PLATFORM), LINUX_IA64_GNU)
 XMLSCRIPTS = 
 XMLCOVSCRIPTS = 
 else
+ifeq ($(OS), VMS)
 XMLSCRIPTS = 
 XMLCOVSCRIPTS = 
+else
+XMLSCRIPTS = 
+XMLCOVSCRIPTS = 
+endif
 endif
 endif
 endif

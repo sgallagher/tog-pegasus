@@ -2,9 +2,9 @@ ROOT=$(PEGASUS_ROOT)
 DIR = Pegasus/ControlProviders/Statistic/test
 include $(ROOT)/mak/config.mak
 
-LIBRARIES= \
-   	pegcommon \
-	pegclient
+LIBRARIES = \
+	pegclient \
+   	pegcommon
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 

@@ -11,7 +11,11 @@ LOCAL_DEFINES = -DPEGASUS_CLIUTILS_INTERNAL
 LIBRARY = pegcliutils
 
 LIBRARIES = \
-    pegcommon \
+    pegclient \
+    pegrepository \
+    pegconfig \
+    suballoc \
+    pegcommon
 
 PRE_DEPEND_INCLUDES = -I./depends
 

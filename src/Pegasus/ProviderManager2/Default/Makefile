@@ -11,12 +11,16 @@ LOCAL_DEFINES = -DPEGASUS_DEFPM_INTERNAL -DPEGASUS_INTERNALONLY
 LIBRARY = DefaultProviderManager
 
 LIBRARIES = \
-	pegcommon \
-	pegprovider \
-	pegprovidermanager \
-	pegconfig \
-	pegwql \
-	pegqueryexpression
+    pegprovider \
+    pegprovidermanager \
+    pegprm \
+    pegclient \
+    pegqueryexpression \
+    pegcql \
+    pegwql \
+    pegquerycommon \
+    pegconfig \
+    pegcommon
 
 SOURCES = \
 	DefaultProviderManagerMain.cpp \
@@ -24,7 +28,7 @@ SOURCES = \
 	LocalProviderManager.cpp \
 	Provider.cpp \
 	ProviderFacade.cpp \
-	ProviderModule.cpp
+	ProviderModule.cpp 
 
 include $(ROOT)/mak/library.mak
 include $(ROOT)/mak/install.mak

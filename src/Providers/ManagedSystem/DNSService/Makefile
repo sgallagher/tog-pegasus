@@ -51,13 +51,22 @@ SOURCES = \
 	DNSServiceProviderMain.cpp \
         DNSService.cpp
 
-
+ifeq ($(OS),VMS)
 LIBRARIES = \
-	pegcommon \
-	pegprovider
-
-ifeq ($(OS),HPUX)
-  LIBRARIES += NTPProviderSecurity
+    NTPProviderSecurity \
+    pegprovider \
+    pegclient \
+    pegconfig \
+    pegcommon
+else
+LIBRARIES = \
+    pegprovider \
+    pegclient \
+    pegconfig \
+    pegcommon
+ ifeq ($(OS),HPUX)
+LIBRARIES += NTPProviderSecurity
+ endif
 endif
 
 DYNAMIC_LIBRARIES = \

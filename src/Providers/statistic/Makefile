@@ -7,8 +7,10 @@ include $(ROOT)/mak/config.mak
 LIBRARY = IBM_CIMOMStatDataProvider
 
 LIBRARIES = \
-	pegcommon \
-	pegprovider
+    pegprovider \
+    pegclient \
+    pegconfig \
+    pegcommon
 
 SOURCES = \
 	IBM_CIMOMStatDataProvider.cpp \

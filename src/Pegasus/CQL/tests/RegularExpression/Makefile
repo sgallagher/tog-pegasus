@@ -6,8 +6,14 @@ include $(ROOT)/mak/config.mak
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 LIBRARIES = \
-   pegcommon \
-   pegcql
+    pegprm \
+    pegprovider \
+    pegrepository \
+    pegconfig \
+    pegclient \
+    pegcql \
+    pegquerycommon \
+    pegcommon
 
 PROGRAM = RegularExpression
 SOURCES = RegularExpression.cpp

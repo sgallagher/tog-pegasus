@@ -6,10 +6,11 @@ DIR = Clients/ipinfo
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
-    pegcommon \
-    peggetoopt \
+    pegcliutils \
     pegclient \
-    pegcliutils 
+    peggetoopt \
+    pegconfig \
+    pegcommon
 
 PROGRAM = ipinfo
 SOURCES = IPInfoException.cpp \

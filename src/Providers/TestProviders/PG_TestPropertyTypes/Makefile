@@ -7,8 +7,10 @@ include $(ROOT)/mak/config.mak
 LIBRARY = PG_TestPropertyTypes
 
 LIBRARIES = \
-	pegcommon \
-	pegprovider
+    pegprovider \
+    pegclient \
+    pegconfig \
+    pegcommon
 
 SOURCES = \
    PG_TestPropertyTypes.cpp

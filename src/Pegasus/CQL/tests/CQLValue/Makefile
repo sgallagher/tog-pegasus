@@ -4,18 +4,20 @@ DIR = Pegasus/CQL/tests/CQLValue
 #DIRS = msg 
 
 include $(ROOT)/mak/config.mak
-#include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 PROGRAM = TestCQLValue
 
 LIBRARIES = \
-   pegcommon \
-   pegquerycommon \
-   pegcql \
-   pegrepository
-
+    pegprm \
+    pegprovider \
+    pegrepository \
+    pegconfig \
+    pegclient \
+    pegcql \
+    pegquerycommon \
+    pegcommon
 
 SOURCES = CQLValue.cpp
 

@@ -4,7 +4,14 @@ PEGASUS_ZOS_PROGRAM_OBJECT = yes
 
 DIR = Clients/ntpinfo
 include $(ROOT)/mak/config.mak
-include $(ROOT)/src/Clients/libraries.mak
+
+LIBRARIES = \
+    pegcliutils \
+    peggetoopt \
+    pegclient \
+    pegrepository \
+    pegconfig \
+    pegcommon
 
 PROGRAM = ntpinfo
 SOURCES = NTPInfo.cpp

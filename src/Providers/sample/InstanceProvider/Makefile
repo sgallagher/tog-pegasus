@@ -7,8 +7,10 @@ include $(ROOT)/mak/config.mak
 LIBRARY = SampleInstanceProvider
 
 LIBRARIES = \
-	pegcommon \
-	pegprovider
+    pegprovider \
+    pegclient \
+    pegconfig \
+    pegcommon
 	
 SOURCES = \
 	InstanceProviderMain.cpp \

@@ -5,7 +5,12 @@ PEGASUS_ZOS_PROGRAM_OBJECT = yes
 DIR = Providers/ManagedSystem/OperatingSystem/tests/OSTestClient
 
 include $(ROOT)/mak/config.mak
-include $(ROOT)/src/Clients/libraries.mak
+
+LIBRARIES = \
+    pegclient \
+    pegrepository \
+    pegconfig \
+    pegcommon
 
 PROGRAM = OSTestClient
 SOURCES = OSTestClient.cpp

@@ -55,5 +55,15 @@ ifeq ($(OS),HPUX)
 	  NISServerService/testclient
 endif
 
+ifeq ($(PEGASUS_OS_TYPE),VMS)
+  DIRS += NTPProviderSecurity \
+          NTPService \
+          NTPService/tests \
+          NTPService/testclient \
+          DNSService \
+          DNSService/tests \
+          DNSService/tests/testclient
+endif
+
 include $(ROOT)/mak/recurse.mak
 

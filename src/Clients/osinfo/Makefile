@@ -6,10 +6,12 @@ DIR = Clients/osinfo
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
-    pegcommon \
+    pegcliutils \
     peggetoopt \
     pegclient \
-    pegcliutils 
+    pegrepository \
+    pegconfig \
+    pegcommon
 
 PROGRAM = osinfo
 SOURCES = OSInfoException.cpp OSInfo.cpp

@@ -3,8 +3,8 @@ include $(PEGASUS_ROOT)/mak/config.mak
 DIR = Pegasus/ProviderManager2/tests/SafeQueue
 
 LIBRARIES = \
-	pegcommon \
-	pegprovidermanager
+	pegprovidermanager \
+	pegcommon
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 

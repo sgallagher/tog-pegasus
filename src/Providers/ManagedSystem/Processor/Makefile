@@ -28,7 +28,7 @@
 #//         David Kennedy       <dkennedy@linuxcare.com>
 #//         Christopher Neufeld <neufeld@linuxcare.com>
 #//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
-#//         Sean Keenan Hewlett-Packard Company <sean.keenan@hp.com>
+#//         Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
 #//
 #//%////////////////////////////////////////////////////////////////////////////
 
@@ -48,8 +48,10 @@ SOURCES = \
         ProcessorMain.cpp
 
 LIBRARIES = \
-	pegcommon \
-	pegprovider
+    pegprovider \
+    pegclient \
+    pegconfig \
+    pegcommon
 
 include $(ROOT)/mak/dynamic-library.mak
 include $(ROOT)/mak/install.mak

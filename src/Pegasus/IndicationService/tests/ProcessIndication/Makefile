@@ -11,6 +11,10 @@ PROGRAM = TestProcessIndication
 
 SOURCES = ProcessIndication.cpp
 
+ifeq ($(OS),VMS)
+LOCAL_DEFINES = -DINDICATION_DIR="""$(DISPLAYCONSUMER_DIR)""" -DPEGASUS_INTERNALONLY
+endif
+
 include $(ROOT)/mak/program.mak
 
 tests:

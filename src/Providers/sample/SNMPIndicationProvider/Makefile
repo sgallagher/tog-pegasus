@@ -5,8 +5,10 @@ DIR = Providers/sample/SNMPIndicationProvider
 LIBRARY = nsatrap
 
 LIBRARIES = \
-	pegcommon \
-	pegprovider
+    pegprovider \
+    pegclient \
+    pegconfig \
+    pegcommon
 	
 SOURCES = \
 	SNMPIndicationProviderMain.cpp \

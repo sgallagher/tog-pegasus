@@ -8,11 +8,14 @@ include $(ROOT)/mak/config.mak
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 LIBRARIES = \
-   pegcommon \
-   pegquerycommon \
-   pegprovider \
-   pegrepository \
-   pegcql
+    pegprm \
+    pegprovider \
+    pegrepository \
+    pegconfig \
+    pegclient \
+    pegcql \
+    pegquerycommon \
+    pegcommon
 
 PROGRAM = TestQueryContext
 SOURCES = TestQueryContext.cpp

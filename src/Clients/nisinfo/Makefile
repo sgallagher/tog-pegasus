@@ -6,7 +6,14 @@ LOCAL_DEFINES = -DUSE_CONNECTLOCAL
 
 DIR = Clients/nisinfo
 include $(ROOT)/mak/config.mak
-include $(ROOT)/src/Clients/libraries.mak
+
+LIBRARIES = \
+    pegcliutils \
+    peggetoopt \
+    pegclient \
+    pegrepository \
+    pegconfig \
+    pegcommon
 
 PROGRAM = nisinfo
 SOURCES = NISInfo.cpp 

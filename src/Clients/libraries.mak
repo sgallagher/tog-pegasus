@@ -1,5 +1,10 @@
 
 LIBRARIES = \
-    pegcommon \
-    pegclient
+    peglistener \
+    pegCLIClientLib \
+    pegExportServer \
+    pegclient \
+    pegrepository \
+    pegconfig \
+    pegcommon
 

@@ -7,8 +7,8 @@ include $(ROOT)/mak/config.mak
 LIBRARY = AssociationTestProvider
 
 LIBRARIES = \
-	pegcommon \
-	pegprovider
+	pegprovider \
+	pegcommon
 	
 SOURCES = \
 	AssociationTestProviderMain.cpp \

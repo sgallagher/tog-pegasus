@@ -3,13 +3,32 @@ DIR = Server
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
-    pegcommon \
-    pegconfig \
-    pegrepository \
+    pegclient \
     pegserver \
-    pegprovider \
+    certificateprovider \
+    peguser \
+    pegprm \
+    CimomStatDataProvider \
+    InteropProvider \
+    NamespaceProvider \
+    pegindicationservice \
+    peghandlerservice \
+    ConfigSettingProvider \
+    DefaultProviderManager \
+    ProviderRegistrationProvider \
+    pegauthentication \
+    UserAuthProvider \
+    pegqueryexpression \
+    pegcql \
+    pegquerycommon \
     pegwql \
-    pegclient 
+    CIMQueryCapabilitiesProvider \
+    pegprovidermanager \
+    pegprovider \
+    pegexportserver \
+    pegrepository \
+    pegconfig \
+    pegcommon 
 
 ifneq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
   ifneq ($(OS),HPUX)

@@ -19,10 +19,10 @@ endif
 LIBRARY = pegprovidermanager
 
 LIBRARIES = \
-	pegcommon \
-	pegprm \
-	pegconfig \
-	pegwql
+    pegprm \
+    pegwql \
+    pegconfig \
+    pegcommon
 
 SOURCES = \
 	ProviderManagerService.cpp \

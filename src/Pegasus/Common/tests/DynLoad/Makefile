@@ -12,9 +12,13 @@ include $(ROOT)/mak/program.mak
 
 tests:
 ifeq ($(OS_TYPE),windows)
-	$(PROGRAM) $(HOME_DIR)/bin/DynLib.dll
+	$(PROGRAM) $(HOME_DIR)/bin/TestDynLib.dll
 else
-	$(PROGRAM) $(HOME_DIR)/lib/libDynLib$(LIB_SUFFIX)
+ ifeq ($(PEGASUS_OS_TYPE),VMS)
+	$(PROGRAM) libTestDynLib
+ else
+	$(PROGRAM) $(HOME_DIR)/lib/libTestDynLib$(LIB_SUFFIX)
+ endif
 endif
 
 poststarttests:

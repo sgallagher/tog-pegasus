@@ -3,9 +3,9 @@ ROOT = ..
 include $(ROOT)/mak/config.mak
 
 ifdef PEGASUS_ENABLE_SLP
-DIRS = utils Pegasus slp Clients Providers Server
+DIRS = platforms utils Pegasus slp Clients Providers Server
 else
-DIRS = utils Pegasus Clients Providers Server
+DIRS = platforms utils Pegasus Clients Providers Server
 endif
 
 
@@ -23,3 +23,5 @@ repository:
 config:
 	@ $(MAKE) "-SC" Providers/generic/ConfigSettingProvider/load config 
 
+vms:
+	@ $(MAKE) "-SC" Pegasus/ProviderManager2/Default -f makefile_vms

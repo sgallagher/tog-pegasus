@@ -7,6 +7,10 @@ include $(ROOT)/mak/config.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
+ifeq ($(OS_TYPE),vms)
+ VMS_VECTOR = callme
+endif
+
 SOURCES = DynLib.cpp
 
 LIBRARY = DynLib

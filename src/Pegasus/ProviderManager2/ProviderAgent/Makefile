@@ -5,9 +5,11 @@ DIR = Pegasus/ProviderManager2/ProviderAgent
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
-        pegcommon \
-        pegprovidermanager \
-        pegconfig
+    pegprovidermanager \
+    pegprovider \
+    pegconfig \
+    pegclient \
+    pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

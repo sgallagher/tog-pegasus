@@ -49,8 +49,10 @@ SOURCES = \
         ProcessMain.cpp
 
 LIBRARIES = \
-	pegcommon \
-	pegprovider
+    pegprovider \
+    pegclient \
+    pegconfig \
+    pegcommon
 
 include $(ROOT)/mak/dynamic-library.mak
 include $(ROOT)/mak/install.mak

@@ -5,8 +5,10 @@ DIR = Providers/TestProviders/ProcessIndicationProvider
 LIBRARY = ProcessIndicationProvider
 
 LIBRARIES = \
-	pegcommon \
-	pegprovider
+    pegprovider \
+    pegclient \
+    pegconfig \
+    pegcommon
 	
 SOURCES = \
 	ProcessIndicationProviderMain.cpp \

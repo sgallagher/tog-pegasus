@@ -44,8 +44,10 @@ SOURCES = \
         OperatingSystem.cpp
 
 LIBRARIES = \
-	pegcommon \
-	pegprovider
+    pegprovider \
+    pegclient \
+    pegconfig \
+    pegcommon
 
 DYNAMIC_LIBRARIES = \
 	-lpegcommon \

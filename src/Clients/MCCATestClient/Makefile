@@ -14,8 +14,10 @@ ifdef PEGASUS_HAS_SSL
 endif
 
 LIBRARIES = \
-    pegcommon \
-    pegmanagedclient
+    pegmanagedclient \
+    pegclient \
+    pegconfig \
+    pegcommon
 
 PROGRAM = MCCATestClient
 SOURCES = MCCATestClient.cpp

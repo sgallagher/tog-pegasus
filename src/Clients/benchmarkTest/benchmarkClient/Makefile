@@ -6,11 +6,12 @@ DIR = Clients/benchmarkTest/benchmarkClient
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
-    pegcommon \
-    peggetoopt \
-    pegclient \
+    benchmarkDefinition \
     pegcliutils \
-    benchmarkDefinition
+    pegclient \
+    peggetoopt \
+    pegconfig \
+    pegcommon
 
 PROGRAM = benchmarkTest
 SOURCES = benchmarkTest.cpp benchmarkTestException.cpp

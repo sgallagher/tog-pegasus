@@ -8,12 +8,20 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_PPM_INTERNAL -DPEGASUS_INTERNALONLY
 
+ifeq ($(OS_TYPE),vms)
+ VMS_VECTOR = PegasusCreateProviderManager
+endif
+
 LIBRARY = InternalProviderManager
 
 LIBRARIES = \
-    pegcommon \
-	pegprovider \
-	pegprovidermanager
+    pegprovider \
+    pegprovidermanager \
+    pegprm \
+    pegclient \
+    pegconfig \
+    pegwql \
+    pegcommon
 
 SOURCES = \
 	InternalProviderManagerMain.cpp \

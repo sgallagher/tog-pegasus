@@ -5,10 +5,12 @@ include $(ROOT)/mak/config.mak
 LOCAL_DEFINES = -DPEGASUS_CMDLINE_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARIES = \
-	pegcommon \
-        pegrepository \
-	pegcompiler \
-	peggetoopt
+    pegcompiler \
+    pegclient \
+    peggetoopt \
+    pegrepository \
+    pegconfig \
+    pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

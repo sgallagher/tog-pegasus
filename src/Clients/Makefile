@@ -29,6 +29,13 @@ ifeq ($(OS),HPUX)
     nisinfo
 endif
 
+ifeq ($(OS),VMS)
+  DIRS += \
+    ntpinfo \
+    dnsinfo \
+    nisinfo
+endif
+
 DIRS_SSLTRUSTMGR = \
     ssltrustmgr 
 

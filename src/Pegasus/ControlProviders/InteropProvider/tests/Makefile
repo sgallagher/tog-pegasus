@@ -1,18 +1,17 @@
 ROOT=$(PEGASUS_ROOT)
 DIR = Pegasus/ControlProviders/InteropProvider/tests
 include $(ROOT)/mak/config.mak
-# include ../../libraries.mak
 
-LIBRARIES= \
+LIBRARIES = \
+    InteropProvider \
     pegcompiler \
     pegrepository \
     pegclient \
-    pegcommon \
-    InteropProvider
+    pegcommon
     
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = testinterop
+PROGRAM = TestInterop
 SOURCES = interop.cpp
 
 include $(ROOT)/mak/program.mak

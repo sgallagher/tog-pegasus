@@ -11,9 +11,13 @@ include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/configschema.mak
 
 LIBRARIES = \
-    pegcommon \
+    pegrepository \
     pegqueryexpression \
-    pegrepository
+    pegwql \
+    pegcql \
+    pegquerycommon \
+    pegconfig \
+    pegcommon \
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 #SYS_LIBS += -lfl

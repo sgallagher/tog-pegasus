@@ -51,11 +51,20 @@ SOURCES = \
 	TestCSProvider.cpp
 
 LIBRARIES = \
-	pegcommon \
-	pegclient \
-	pegprovider
+    pegclient \
+    pegconfig \
+    pegcommon
 
 include $(ROOT)/mak/program.mak
+
+ifeq ($(OS),VMS)
+LFLAGS +=/sysexe
+TMPVMSOBJECTS = $(SOURCES:.cpp=$(OBJ),pegasus_vmshome:[obj.Providers.ManagedSystem.ComputerSystem]ComputerSystem.obj,)
+
+SOURCES = \
+	TestCSProvider.cpp
+
+endif
 
 general:
 

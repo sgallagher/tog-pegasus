@@ -17,9 +17,9 @@ SOURCES = \
 	AssociationTestClient.cpp
 
 LIBRARIES = \
-	pegcommon \
+	pegprovider \
 	pegclient \
-	pegprovider
+	pegcommon
 
 include $(ROOT)/mak/program.mak
 

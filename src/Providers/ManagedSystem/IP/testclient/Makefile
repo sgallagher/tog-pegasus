@@ -7,7 +7,8 @@ LOCAL_DEFINES = -DUSE_CONNECTLOCAL
 DIR = Providers/ManagedSystem/IP/testclient
 
 include $(ROOT)/mak/config.mak
-include $(ROOT)/src/Clients/libraries.mak
+
+include ../../libraries.mak
 
 PROGRAM = IPTestClient
 SOURCES = IPTestClient.cpp

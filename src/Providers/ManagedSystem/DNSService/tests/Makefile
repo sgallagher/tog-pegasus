@@ -16,6 +16,10 @@ else
    DIFF = diff
 endif
 
+ifeq ($(OS), VMS)
+   DIFF = mu compare
+endif
+
 XMLREQUESTS = $(foreach i, $(XMLSCRIPTS), $i.xml)
 XMLRESPONSES = $(XMLREQUESTS:.xml=.rsp)
 
@@ -64,7 +68,6 @@ endif
 clean:
 	$(RM) $(XMLRESPONSES)
 	
-
 tests: 
 
 poststarttests: $(XMLRESPONSES) $(XMLCOVRESPONSES)

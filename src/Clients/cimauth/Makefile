@@ -7,11 +7,11 @@ DIR = Clients/cimauth
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
-    pegcommon \
-    pegconfig \
-    peggetoopt \
+    pegcliutils \
     pegclient \
-    pegcliutils
+    peggetoopt \
+    pegconfig \
+    pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

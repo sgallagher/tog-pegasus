@@ -7,8 +7,10 @@ include $(ROOT)/mak/config.mak
 LIBRARY = SampleLocalizedProvider
 
 LIBRARIES = \
-	pegcommon \
-	pegprovider
+    pegprovider \
+    pegclient \
+    pegconfig \
+    pegcommon
 	
 SOURCES = \
 	LocalizedProviderMain.cpp \

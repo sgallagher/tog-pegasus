@@ -7,9 +7,10 @@ include $(ROOT)/mak/config.mak
 LIBRARY = TestClientProvider
 
 LIBRARIES = \
-	 pegcommon \
-	 pegclient \
-	 pegprovider
+    pegprovider \
+    pegclient \
+    pegconfig \
+    pegcommon
 	
 SOURCES = \
    ClientProviderMain.cpp \

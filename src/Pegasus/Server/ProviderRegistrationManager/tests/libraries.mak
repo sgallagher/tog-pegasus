@@ -1,11 +1,11 @@
 LIBRARIES = \
-    pegcommon \
-    pegconfig \
-    pegrepository \
-    pegserver \
-    pegprovider \
-    pegexportclient \
-    pegexportserver \
-    pegwql \
+    pegclient \
     pegprm \
-    pegclient
+    pegwql \
+    pegexportserver \
+    pegexportclient \
+    pegprovider \
+    pegserver \
+    pegrepository \
+    pegconfig \
+    pegcommon

@@ -3,9 +3,11 @@ include $(PEGASUS_ROOT)/mak/config.mak
 DIR = Pegasus/ProviderManager2/Default/tests/ResponseHandler
 
 LIBRARIES = \
-	pegcommon \
-	pegprovider \
-	pegprovidermanager
+    pegprovider \
+    pegprovidermanager \
+    pegprm \
+    pegconfig \
+    pegcommon
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 

@@ -9,8 +9,8 @@ include $(ROOT)/mak/config.mak
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 LIBRARIES = \
-    pegcommon \
-    pegclient
+    pegclient \
+    pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

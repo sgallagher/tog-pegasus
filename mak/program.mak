@@ -17,6 +17,9 @@ endif
 ifeq ($(OS_TYPE),nsk)
 include $(ROOT)/mak/program-nsk.mak
 endif
+ifeq ($(OS_TYPE),vms)
+ include $(ROOT)/mak/program-vms.mak
+endif
 
 #l10n
 messages: $(ERROR)

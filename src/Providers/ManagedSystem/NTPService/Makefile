@@ -36,20 +36,31 @@ include $(ROOT)/mak/config.mak
 
 LIBRARY = NTPProvider
 
-EXTRA_INCLUDES = -I$(ROOT)/src/Providers/ManagedSystem/NTPProviderSecurity 
+EXTRA_INCLUDES = -I$(ROOT)/src/Providers/ManagedSystem/NTPProviderSecurity
 
 SOURCES = \
 	NTPServiceProvider.cpp \
 	NTPServiceProviderMain.cpp \
         NTPService.cpp
 
-LIBRARIES = \
-	pegcommon \
-	pegprovider 
+ifeq ($(OS),VMS)
+ LIBRARIES = \
+    ntpprovidersecurity \
+    pegprovider \
+    pegconfig \
+    pegcommon
 
-ifeq ($(OS),HPUX)
+else
+ LIBRARIES = \
+    pegprovider \
+    pegconfig \
+    pegcommon
+
+ ifeq ($(OS),HPUX)
   LIBRARIES += NTPProviderSecurity
+ endif
 endif
+
 
 DYNAMIC_LIBRARIES = \
 	-lpegcommon \

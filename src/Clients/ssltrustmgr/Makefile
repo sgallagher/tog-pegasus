@@ -14,10 +14,12 @@ endif
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 LIBRARIES = \
-    pegcommon \
+    pegcliutils \
     peggetoopt \
     pegclient \
-    pegcliutils 
+    pegrepository \
+    pegconfig \
+    pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

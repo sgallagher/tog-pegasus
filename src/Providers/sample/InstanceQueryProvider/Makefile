@@ -7,9 +7,14 @@ include $(ROOT)/mak/config.mak
 LIBRARY = SampleInstanceQueryProvider
 
 LIBRARIES = \
-	pegcommon \
-	pegqueryexpression \
-	pegprovider
+    pegprovider \
+    pegqueryexpression \
+    pegcql \
+    pegquerycommon \
+    pegwql \
+    pegclient \
+    pegconfig \
+    pegcommon
 	
 SOURCES = \
 	InstanceQueryProviderMain.cpp \

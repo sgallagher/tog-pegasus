@@ -8,12 +8,19 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
+ifeq ($(OS_TYPE),vms)
+ VMS_VECTOR = PegasusCreateProviderManager
+endif
+
 LIBRARY = TestProviderManager
 
 LIBRARIES = \
-    pegcommon \
-	pegprovider \
-	pegprovidermanager
+    pegprovider \
+    pegprovidermanager \
+    pegclient \
+    pegconfig \
+    pegwql \
+    pegcommon
 
 SOURCES = \
 	TestProviderManagerMain.cpp \
@@ -22,4 +29,3 @@ SOURCES = \
 include $(ROOT)/mak/dynamic-library.mak
 
 install:
-

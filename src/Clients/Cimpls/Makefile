@@ -4,7 +4,13 @@ DIR = Clients/Cimpls
 include $(ROOT)/mak/config.mak
 
 
-LIBRARIES = pegclient pegcommon
+LIBRARIES = \
+    pegcliutils \
+    pegclient \
+    peggetoopt \
+    pegconfig \
+    pegcommon
+
 PROGRAM = cimpls
 SOURCES = Cimpls.cpp
 

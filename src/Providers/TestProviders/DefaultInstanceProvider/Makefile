@@ -7,10 +7,11 @@ include $(ROOT)/mak/config.mak
 LIBRARY = PG_DefaultInstanceProvider
 
 LIBRARIES = \
-	pegcommon \
-	pegprovider \
-	pegclient \
-	pegrepository
+    pegprovider \
+    pegrepository \
+    pegclient \
+    pegconfig \
+    pegcommon
 
 SOURCES = \
    DefaultInstanceProvider.cpp \

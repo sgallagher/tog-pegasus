@@ -28,6 +28,7 @@
 #//         David Kennedy       <dkennedy@linuxcare.com>
 #//         Christopher Neufeld <neufeld@linuxcare.com>
 #//         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
+#//         Sean Keenan <sean.keenan@hp.com>
 #//
 #//%////////////////////////////////////////////////////////////////////////////
 
@@ -51,11 +52,21 @@ SOURCES = \
 	TestProcessorProvider.cpp
 
 LIBRARIES = \
-	pegcommon \
-	pegclient \
-	pegconfig
+    pegprovider \
+    pegclient \
+    pegconfig \
+    pegcommon
 
 include $(ROOT)/mak/program.mak
+
+ifeq ($(OS),VMS)
+LFLAGS +=/sysexe
+TMPVMSOBJECTS = $(SOURCES:.cpp=$(OBJ),pegasus_vmshome:[obj.Providers.ManagedSystem.Processor]ProcessorPlatform.obj,)
+
+SOURCES = \
+        TestProcessorProvider.cpp
+
+endif
 
 general:
 

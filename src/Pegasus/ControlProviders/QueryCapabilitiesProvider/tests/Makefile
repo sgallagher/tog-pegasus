@@ -1,12 +1,12 @@
 ROOT=$(PEGASUS_ROOT)
 
-DIR = Pegasus/ControlProviders/QueryCapabilities/tests
+DIR = Pegasus/ControlProviders/QueryCapabilitiesProvider/tests
 
 include $(ROOT)/mak/config.mak
 
-LIBRARIES= \
-   	pegcommon \
-	pegclient
+LIBRARIES = \
+	pegclient \
+   	pegcommon
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY 
 

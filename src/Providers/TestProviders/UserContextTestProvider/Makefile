@@ -1,14 +1,14 @@
 ROOT = ../../../..
 
-DIR = /Providers/TestProviders/UserContextTestProvider
+DIR = Providers/TestProviders/UserContextTestProvider
 
 include $(ROOT)/mak/config.mak
 
 LIBRARY = UserContextTestProvider
 
 LIBRARIES = \
-	pegcommon \
-	pegprovider
+	pegprovider \
+	pegcommon 
 
 SOURCES = \
    UserContextTestProvider.cpp

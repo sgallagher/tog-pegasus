@@ -4,7 +4,13 @@ DIR = Clients/Cimop
 include $(ROOT)/mak/config.mak
 
 
-LIBRARIES = pegclient pegcommon
+LIBRARIES = \
+    pegcliutils \
+    pegclient \
+    peggetoopt \
+    pegconfig \
+    pegcommon
+
 PROGRAM = cimop
 SOURCES = Cimop.cpp
 

@@ -7,7 +7,7 @@ LOCAL_DEFINES = -DUSE_CONNECTLOCAL
 DIR = Providers/ManagedSystem/NTPService/testclient
 
 include $(ROOT)/mak/config.mak
-include $(ROOT)/src/Clients/libraries.mak
+include ../../libraries.mak
 
 PROGRAM = NTPTestClient
 SOURCES = NTPTestClient.cpp

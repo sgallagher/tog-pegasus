@@ -10,13 +10,19 @@ LOCAL_DEFINES = -DPEGASUS_CMPIPM_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARY = CMPIProviderManager
 
+ifeq ($(OS_TYPE),vms)
+ VMS_VECTOR = PegasusCreateProviderManager
+endif
+
 LIBRARIES = \
-    pegcommon \
-	pegprovider \
-	pegprovidermanager \
-        pegconfig \
-        pegwql \
-        pegquerycommon
+    pegprovider \
+    pegprovidermanager \
+    pegprm \
+    pegclient \
+    pegquerycommon \
+    pegconfig \
+    pegwql \
+    pegcommon
 
 SOURCES = \
 	CMPIProviderManagerMain.cpp \
@@ -48,6 +54,14 @@ SOURCES = \
         CMPI_Predicate.cpp \
         CMPI_SelectExpAccessor_WQL.cpp \
         CMPI_SelectExpAccessor_CQL.cpp
+
+ifeq ($(OS),VMS)
+#
+# Large number of objects causes command line to be too long.
+# Added them to the linker options file.
+#
+OBJECTS_IN_OPTIONFILE = YES
+endif
 
 include $(ROOT)/mak/dynamic-library.mak
 include $(ROOT)/mak/install.mak

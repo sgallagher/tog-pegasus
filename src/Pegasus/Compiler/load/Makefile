@@ -34,7 +34,11 @@ repository:
 	@ $(ECHO) WARNING - This Makefile is deprecated and will be removed in the near future
 	@ $(ECHO) Please use the equivalent makefile in Schemas
 	@ $(ECHO) +++++ Removing existing repository named $(REPOSITORY_ROOT)
+ifeq ($(OS),VMS)
+	$(RMREPOSITORY) $(REPOSITORY_VMSROOT)
+else
 	@ $(RMREPOSITORY) $(REPOSITORY_ROOT)
+endif
 	@ $(ECHO) +++++ Populating CIM repository - this will take a while
 	@ $(ECHO) +++++ Loading CIM_Core$(SCHEMA_VER).mof into root namespace...
 	cimmof "-I$(MOF_PATH)" -nroot $(MOF_PATH)/CIM_Core$(SCHEMA_VER).mof
@@ -46,13 +50,21 @@ repository:
 # deleted since there is no use for it any more.
 short:
 	@ $(ECHO) +++++ Populating CIM repository - this will take a minute
+ifeq ($(OS),VMS)
+	$(RMREPOSITORY) $(REPOSITORY_VMSROOT)
+else
 	@ $(RMREPOSITORY) $(REPOSITORY_ROOT)
+endif
 	$(ECHO) +++++ Loading CIM_Core.mof into root namespace...
 	cimmof "-I$(MOF_PATH)" "-n$(NAMESPACE)" $(MOF_PATH)/CIM_Core$(SCHEMA_VER).mof
 
 clean:
 	@ $(ECHO) +++++ Removing existing CIM Repository named $(REPOSITORY_ROOT)
+ifeq ($(OS),VMS)
+	@ $(RMREPOSITORY) $(REPOSITORY_VMSROOT)
+else
 	@ $(RMREPOSITORY) $(REPOSITORY_ROOT)
+endif
 
 install:
 	@ $(ECHO) Deprecated. Will use the one defined in Schema directory.

@@ -1,6 +1,6 @@
 ROOT=../../../../..
 
 LIBRARIES= \
-    pegcommon \
-	pegclient \
-    pegexportclient
+    pegexportclient \
+    pegclient \
+    pegcommon

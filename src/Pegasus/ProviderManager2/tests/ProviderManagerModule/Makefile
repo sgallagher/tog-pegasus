@@ -3,9 +3,10 @@ include $(PEGASUS_ROOT)/mak/config.mak
 DIR = Pegasus/ProviderManager2/tests/ProviderManagerModule
 
 LIBRARIES = \
-	pegcommon \
+	pegprovidermanager \
 	pegprovider \
-	pegprovidermanager
+	pegconfig \
+	pegcommon
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 

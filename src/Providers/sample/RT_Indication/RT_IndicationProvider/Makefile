@@ -5,9 +5,14 @@ DIR = Providers/sample/RT_Indication/RT_IndicationProvider
 LIBRARY = RT_IndicationProvider
 
 LIBRARIES = \
-	pegcommon \
-	pegprovider \
-	pegqueryexpression
+    pegqueryexpression \
+    pegprovider \
+    pegcql \
+    pegwql \
+    pegquerycommon \
+    pegclient \
+    pegconfig \
+    pegcommon
 	
 SOURCES = \
 	RT_IndicationProviderMain.cpp \

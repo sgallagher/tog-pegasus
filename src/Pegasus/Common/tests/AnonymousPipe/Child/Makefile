@@ -1,7 +1,9 @@
 ROOT = ../../../../../..
 DIR = Pegasus/Common/tests/AnonymousPipe/Child
 include $(ROOT)/mak/config.mak
-LIBRARIES = pegcommon
+
+LIBRARIES = \
+    pegcommon
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 

@@ -4,9 +4,16 @@ PEGASUS_ZOS_PROGRAM_OBJECT = yes
 
 DIR = Clients/dnsinfo
 include $(ROOT)/mak/config.mak
-include $(ROOT)/src/Clients/libraries.mak
 
 EXTRA_INCLUDES = 
+
+LIBRARIES = \
+    pegcliutils \
+    peggetoopt \
+    pegclient \
+    pegrepository \
+    pegconfig \
+    pegcommon
 
 PROGRAM = dnsinfo
 SOURCES = DNSInfo.cpp

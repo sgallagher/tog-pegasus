@@ -23,8 +23,8 @@
 // Author: Mike Brasher
 //
 // $Log: Formatter.h,v $
-// Revision 1.2  2001/04/07 12:01:18  karl
-// remove namespace support
+// Revision 1.3  2001/04/11 07:03:02  mike
+// Port to Unix
 //
 // Revision 1.1  2001/03/22 23:24:23  mike
 // Added new formatter class for formatting log entries and other things.
@@ -102,8 +102,6 @@ public:
 	{
 	}
 
-	Type _type;
-
 	String toString() const;
 
     private:
@@ -115,6 +113,8 @@ public:
 	    Sint32 _integer;
 	    Real64 _real;
 	};
+
+	Type _type;
     };
     /**	 Format function for the formatter
     */

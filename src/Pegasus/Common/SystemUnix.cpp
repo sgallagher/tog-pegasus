@@ -23,8 +23,8 @@
 // Author: Michael E. Brasher
 //
 // $Log: SystemUnix.cpp,v $
-// Revision 1.1  2001/04/11 00:23:44  mike
-// new files
+// Revision 1.2  2001/04/11 07:03:02  mike
+// Port to Unix
 //
 //
 //END_HISTORY
@@ -33,19 +33,25 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#include <time.h>
+#include <sys/time.h>
+#include <unistd.h>
+
+inline void sleep_wrapper(Uint32 seconds)
+{
+    sleep(seconds);
+}
 
 void System::getCurrentTime(Uint32& seconds, Uint32& milliseconds)
 {
     timeval tv;
     gettimeofday(&tv, 0);
     seconds = int(tv.tv_sec);
-    milliseconds = int(tv.tvusec);
+    milliseconds = int(tv.tv_usec);
 }
 
 void System::sleep(Uint32 seconds)
 {
-    sleep(seconds);
+    sleep_wrapper(seconds);
 }
 
 PEGASUS_NAMESPACE_END

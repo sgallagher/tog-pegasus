@@ -48,17 +48,17 @@ SOURCES = \
     Logger.cpp \
     Memory.cpp \
     Pair.cpp \
-    Selector.cpp \
     Sharable.cpp \
     Stack.cpp \
     Stopwatch.cpp \
     String.cpp \
     System.cpp \
-    TCPChannel.cpp \
     TimeValue.cpp \
     Union.cpp \
     XmlParser.cpp \
     XmlReader.cpp \
-    XmlWriter.cpp
+    XmlWriter.cpp \
+    TCPChannel.cpp \
+    Selector.cpp \
 
 include $(ROOT)/mak/library.mak

@@ -22,8 +22,8 @@
 //
 // Author: Michael E. Brasher
 //
-// $Log: TCPChannelWindows.cpp,v $
-// Revision 1.2  2001/04/11 07:03:02  mike
+// $Log: TCPChannelUnix.cpp,v $
+// Revision 1.1  2001/04/11 07:03:02  mike
 // Port to Unix
 //
 // Revision 1.1  2001/04/11 04:30:33  mike
@@ -45,8 +45,17 @@
 //END_HISTORY
 
 #include <iostream>
+#include <cctype>
+#include <unistd.h>
+#include <cstdlib>
+
+#include <errno.h>
+#include <fcntl.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
 #include "TCPChannel.h"
-#include <winsock.h>
 
 using namespace std;
 
@@ -54,35 +63,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 // ATTN-A: manage lifetime of all these objects. Do a walkthrough!
 // ATTN-B: add methods for getting the remote hostname and port!
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// Routines for starting and stoping WinSock:
-//
-////////////////////////////////////////////////////////////////////////////////
-
-static Uint32 _wsaCount = 0;
-
-static void _WSAInc()
-{
-    if (_wsaCount == 0)
-    {
-	WSADATA tmp;
-
-	if (WSAStartup(0x202, &tmp) == SOCKET_ERROR)
-	    WSACleanup();
-    }
-
-    _wsaCount++;
-}
-
-static void _WSADec()
-{
-    _wsaCount--;
-
-    if (_wsaCount == 0)
-	WSACleanup();
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -99,7 +79,7 @@ TCPChannel::TCPChannel(Uint32 desc, ChannelHandler* handler)
 TCPChannel::~TCPChannel()
 {
     if (_desc != -1)
-	::closesocket(_desc);
+	::close(_desc);
 
     if (_handler)
 	delete _handler;
@@ -110,7 +90,7 @@ Sint32 TCPChannel::read(void* ptr, Uint32 size)
     if (_desc == -1)
 	return -1;
 
-    return ::recv(_desc, (char*)ptr, size, 0);
+    return ::read(_desc, (char*)ptr, size);
 }
 
 Sint32 TCPChannel::write(const void* ptr, Uint32 size)
@@ -118,26 +98,28 @@ Sint32 TCPChannel::write(const void* ptr, Uint32 size)
     if (_desc == -1)
 	return -1;
 
-    return ::send(_desc, (const char*)ptr, size, 0);
+    return ::write(_desc, (const char*)ptr, size);
 }
 
 void TCPChannel::enableBlocking()
 {
-    unsigned long flag = 0;
-    ioctlsocket(_desc, FIONBIO, &flag);
+    int flags = fcntl(_desc, F_GETFL, 0);
+    flags |= ~O_NONBLOCK;
+    fcntl(_desc, F_SETFL, flags);
     _blocking = true;
 }
 
 void TCPChannel::disableBlocking()
 {
-    unsigned long flag = 1;
-    ioctlsocket(_desc, FIONBIO, &flag);
-    _blocking = false;
+    int flags = fcntl(_desc, F_GETFL, 0);
+    flags &= O_NONBLOCK;
+    fcntl(_desc, F_SETFL, flags);
+    _blocking = true;
 }
 
 Boolean TCPChannel::wouldBlock() const
 {
-    return GetLastError() == WSAEWOULDBLOCK;
+    return errno == EWOULDBLOCK;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -218,12 +200,12 @@ TCPChannelConnector::TCPChannelConnector(
     Selector* selector)
     : ChannelConnector(factory), _selector(selector)
 {
-    _WSAInc();
+
 }
 
 TCPChannelConnector::~TCPChannelConnector()
 {
-    _WSADec();
+
 }
 
 
@@ -301,12 +283,12 @@ TCPChannelAcceptor::TCPChannelAcceptor(
     Selector* selector)
     : ChannelAcceptor(factory), _selector(selector), _desc(-1)
 {
-    _WSAInc();
+
 }
 
 TCPChannelAcceptor::~TCPChannelAcceptor()
 {
-    _WSADec();
+
 }
 
 Boolean TCPChannelAcceptor::bind(const char* addressStr)
@@ -374,7 +356,7 @@ Boolean TCPChannelAcceptor::handle(Sint32 desc, Uint32 reasons)
     // Accept the connection (populate the address):
 
     sockaddr_in address;
-    int n = sizeof(address);
+    unsigned int n = sizeof(address);
     Sint32 slaveDesc = accept(_desc, (struct sockaddr*)&address, &n);
 
     if (slaveDesc < 0)

@@ -23,8 +23,8 @@
 // Author:
 //
 // $Log: String.cpp,v $
-// Revision 1.5  2001/04/10 22:42:55  karl
-// Correct error in String find
+// Revision 1.6  2001/04/11 07:03:02  mike
+// Port to Unix
 //
 // Revision 1.4  2001/04/09 20:18:47  karl
 // add find substring function
@@ -272,13 +272,13 @@ int main()
 	String t6 = "defg";
 	assert(t1.find('c') == 2);
 	assert(t1.find(t2)==2);
-	assert(t1.find(t3)==-1);
+	assert(t1.find(t3)==(Uint32)-1);
 	assert(t1.find(t4)==0);
-	assert(t1.find(t5)==-1);
-	assert(t1.find(t6)==-1);
+	assert(t1.find(t5)==(Uint32)-1);
+	assert(t1.find(t6)==(Uint32)-1);
 	assert(t1.find("cde")==2);
 	assert(t1.find("def")==3);
-	assert(t1.find("xyz")==-1);
+	assert(t1.find("xyz")==(Uint32)-1);
 	assert(t1.find("a") ==0);
 
 	// test for the case where string
@@ -286,12 +286,12 @@ int main()
 	// completely occurs
         String s = "this is an apple";
 	assert(s.find("apple")==11);
-	assert(s.find("appld")==-1);
+	assert(s.find("appld")==(Uint32)-1);
 	assert(s.find("this")==0);
 	assert(s.find("t")==0);
 	assert(s.find("e")==15);
 	s = "a";
-	assert(s.find("b")==-1);
+	assert(s.find("b")==(Uint32)-1);
 	assert(s.find("a")==0);
 	assert(s.find(s)==0);
 	s = "aaaapple";

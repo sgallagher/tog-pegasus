@@ -23,9 +23,8 @@
 // Author:
 //
 // $Log: String.cpp,v $
-// Revision 1.8  2001/04/10 23:01:52  mike
-// Added new TimeValue class and regression tests for it.
-// Modified Stopwatch class to use TimeValue class.
+// Revision 1.9  2001/04/11 07:03:02  mike
+// Port to Unix
 //
 // Revision 1.7  2001/04/10 22:42:55  karl
 // Correct error in String find
@@ -357,7 +356,7 @@ Uint32 String::find(const String& s) const
 		return loc;
 	}
     }
-    return -1;
+    return Uint32(-1);
 }
 
 // ATTN:KS 5 apr 2000 Need to add the Char16* version.

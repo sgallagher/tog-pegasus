@@ -23,8 +23,8 @@
 // Author:
 //
 // $Log: Formatter.cpp,v $
-// Revision 1.2  2001/03/22 23:26:30  mike
-// Added missing formatting logic
+// Revision 1.3  2001/04/11 07:03:02  mike
+// Port to Unix
 //
 // Revision 1.1  2001/03/22 23:24:23  mike
 // Added new formatter class for formatting log entries and other things.
@@ -33,6 +33,7 @@
 //END_HISTORY
 
 #include <iostream>
+#include <cstdio>
 #include "Formatter.h"
 
 using namespace std;
@@ -53,7 +54,7 @@ String Formatter::Arg::toString() const
 	case REAL:
 	{
 	    char buffer[32];
-	    sprintf(buffer, "%lf", _real);
+	    sprintf(buffer, "%f", _real);
 	    return buffer;
 	}
 

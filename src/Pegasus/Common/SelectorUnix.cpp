@@ -22,24 +22,9 @@
 //
 // Author: Michael E. Brasher
 //
-// $Log: SelectorWindows.cpp,v $
-// Revision 1.2  2001/04/11 07:03:02  mike
+// $Log: SelectorUnix.cpp,v $
+// Revision 1.1  2001/04/11 07:03:02  mike
 // Port to Unix
-//
-// Revision 1.3  2001/04/11 04:20:39  mike
-// new
-//
-// Revision 1.4  2001/04/08 22:06:31  mike
-// New acceptor
-//
-// Revision 1.3  2001/04/08 08:28:20  mike
-// Added more windows channel implementation code.
-//
-// Revision 1.2  2001/04/08 05:06:06  mike
-// New Files for Channel Implementation
-//
-// Revision 1.1  2001/04/08 04:46:11  mike
-// Added new selector class for windows
 //
 //
 //END_HISTORY
@@ -48,9 +33,16 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define FD_SETSIZE 1024
-
-#include <winsock.h>
+#include <cstdlib>
+#include <cstring>
+#include <cctype>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 
 using namespace std;
 
@@ -63,38 +55,10 @@ static inline int select_wrapper(
     fd_set* rd_fd_set,
     fd_set* wr_fd_set,
     fd_set* ex_fd_set,
-    const struct timeval* tv)
+    timeval* tv)
 {
-    return select(FD_SETSIZE, rd_fd_set, wr_fd_set, ex_fd_set, tv);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// Routines for starting and stoping WinSock:
-//
-////////////////////////////////////////////////////////////////////////////////
-
-static Uint32 _wsaCount = 0;
-
-static void _WSAInc()
-{
-    if (_wsaCount == 0)
-    {
-	WSADATA tmp;
-
-	if (WSAStartup(0x202, &tmp) == SOCKET_ERROR)
-	    WSACleanup();
-    }
-
-    _wsaCount++;
-}
-
-static void _WSADec()
-{
-    _wsaCount--;
-
-    if (_wsaCount == 0)
-	WSACleanup();
+    return select(
+	FD_SETSIZE, rd_fd_set, wr_fd_set, ex_fd_set, tv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -141,13 +105,6 @@ Selector::~Selector()
 
 Boolean Selector::select(Uint32 milliseconds)
 {
-    // Windows select() has a strange little bug. It returns immediately if 
-    // there are no descriptors in the set even if the timeout is non-zero. 
-    // To work around this, we call Sleep() for now:
-
-    if (_entries.getSize() == 0)
-	Sleep(milliseconds);
-
     // Check for events on the selected file descriptors. Only do this if
     // there were no undispatched events from last time.
 
@@ -172,7 +129,7 @@ Boolean Selector::select(Uint32 milliseconds)
 
 	if (count == 0)
 	    return false;
-	else if (count == SOCKET_ERROR)
+	else if (count == -1)
 	{
 	    count = 0;
 	    return false;

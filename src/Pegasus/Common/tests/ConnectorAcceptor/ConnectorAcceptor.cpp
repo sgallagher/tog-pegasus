@@ -31,6 +31,8 @@
 using namespace Pegasus;
 using namespace std;
 
+Boolean global_finished = false;
+
 #define D(X) // X
 
 const char LONG_MESSAGE[] = 
@@ -760,7 +762,7 @@ public:
 	    return false;
 
 	D(
-	for (Uint32 i = 0; i < size; i++)
+	for (Sint32 i = 0; i < size; i++)
 	    ; // cout << buffer[i];
 
 	)
@@ -773,7 +775,8 @@ public:
 		_received.getData(), LONG_MESSAGE, sizeof(LONG_MESSAGE)) == 0);
 
 	    cout << "+++++ passed all tests" << endl;
-	    exit(0);
+	    global_finished = true;
+	    return false;
 	}
 
 	return true;
@@ -781,13 +784,13 @@ public:
 
     virtual Boolean handleOutput(Channel* channel)
     {
-	cout << "ClientHandler::handleOutput()" << endl;
+	D( cout << "ClientHandler::handleOutput()" << endl; )
 	return true;
     }
 
     virtual void handleClose(Channel* channel)
     {
-	cout << "ClientHandler::handleClose()" << endl;
+	D( cout << "ClientHandler::handleClose()" << endl; )
     }
 
 private:
@@ -857,7 +860,7 @@ int main()
 	= new DefaultChannelHandlerFactory<ServerHandler>;
 
     TCPChannelAcceptor acceptor(serverFactory, selector);
-    assert(acceptor.bind("7777"));
+    assert(acceptor.bind("7070"));
 
     // -- Create client side objects:
 
@@ -866,13 +869,18 @@ int main()
 
     TCPChannelConnector connector(clientFactory, selector);
 
-    Channel* channel = connector.connect("localhost:7777");
+    Channel* channel = connector.connect("localhost:7070");
     assert(channel);
 
     // -- Run the main loop:
 
     for (;;)
+    {
 	selector->select(5000);
+
+	if (global_finished)
+	    exit(0);
+    }
 
     return 0;
 }

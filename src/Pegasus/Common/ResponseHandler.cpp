@@ -37,10 +37,24 @@ ResponseHandler::ResponseHandler()
     _rep = new ResponseHandlerRep();
 }
 
+ResponseHandler::ResponseHandler(const ResponseHandler& handler)
+{
+    _rep = new ResponseHandlerRep(*handler._rep);
+}
+
+ResponseHandler& ResponseHandler::operator=(const ResponseHandler& handler)
+{
+    if (handler._rep != _rep)
+    {
+        delete _rep;
+        _rep = new ResponseHandlerRep(*handler._rep);
+    }
+    return *this;
+}
+
 ResponseHandler::~ResponseHandler()
 {
-    if (_rep != NULL)
-        delete _rep;
+    delete _rep;
 }
 
 OperationContext ResponseHandler::getContext(void) const

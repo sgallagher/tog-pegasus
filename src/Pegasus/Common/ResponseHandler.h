@@ -129,6 +129,10 @@ protected:
     
     ResponseHandler();
 
+    ResponseHandler(const ResponseHandler& handler);
+
+    ResponseHandler& operator=(const ResponseHandler& handler);
+
     //
     // Gets the context for the results delivered to the CIM Server.
     //

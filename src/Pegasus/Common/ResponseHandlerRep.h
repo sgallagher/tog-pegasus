@@ -42,6 +42,8 @@ public:
 
     ResponseHandlerRep();
 
+    ResponseHandlerRep(const ResponseHandlerRep& x);
+
     virtual ~ResponseHandlerRep();
 
     /**
@@ -57,8 +59,6 @@ public:
     void setContext (const OperationContext & context);
 
 protected:
-
-    ResponseHandlerRep(const ResponseHandlerRep& x);
 
     OperationContext _context;
 

@@ -100,11 +100,11 @@ CIMProvider* Dispatcher::_lookupProviderForClass(
 
 	try 
 	{
-	    // provider->initialize(CIMOMHandle(this));
+	    provider->initialize(CIMOMHandle(this));
 	}
 	catch(NotImplemented) 
 	{
-	    provider->initialize(_repository);
+	    // provider->initialize(_repository);
 	}
     }
 

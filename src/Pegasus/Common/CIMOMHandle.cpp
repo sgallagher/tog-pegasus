@@ -20,336 +20,642 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/Destroyer.h>
 #include "CIMOMHandle.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMOMHandle::CIMOMHandle(void) : _pCimom(0)
+CIMOMHandle::CIMOMHandle(MessageQueue* outputQueue) : _outputQueue(outputQueue)
 {
+    _inputQueue = new MessageQueue;
 }
 
-CIMOMHandle::CIMOMHandle(CIMOperations * pCimom) : _pCimom(0)
+CIMOMHandle::~CIMOMHandle()
 {
-   if(pCimom == 0) {
-      throw(UnitializedHandle());
-   }
-
-   _pCimom = pCimom;
-}
-
-CIMOMHandle::~CIMOMHandle(void)
-{
+    delete _inputQueue;
 }
 
 CIMClass CIMOMHandle::getClass(
-   const String & nameSpace,
-   const String & className,
-   Boolean localOnly,
-   Boolean includeQualifiers,
-   Boolean includeClassOrigin,
-   const Array<String> & propertyList) const
+    const String& nameSpace,
+    const String& className,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const Array<String>& propertyList)
 {
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
+    Message* request = new CIMGetClassRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+        className,
+	localOnly,
+	includeQualifiers,
+	includeClassOrigin,
+	propertyList,
+        _inputQueue->getQueueId());
 
-   return(_pCimom->getClass(nameSpace, className, localOnly, includeQualifiers, includeClassOrigin, propertyList));
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMGetClassResponseMessage* response = (CIMGetClassResponseMessage*)message;
+
+    _checkError(response);
+
+    return response->cimClass;
 }
 
 CIMInstance CIMOMHandle::getInstance(
-   const String & nameSpace,
-   const CIMReference & instanceName,
-   Boolean localOnly,
-   Boolean includeQualifiers,
-   Boolean includeClassOrigin,
-   const Array<String> & propertyList) const
+    const String& nameSpace,
+    const CIMReference& instanceName,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const Array<String>& propertyList)
 {
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
+    Message* request = new CIMGetInstanceRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+        instanceName,
+	localOnly,
+	includeQualifiers,
+	includeClassOrigin,
+	propertyList,
+        _inputQueue->getQueueId());
 
-   return(_pCimom->getInstance(nameSpace, instanceName, localOnly, includeQualifiers, includeClassOrigin, propertyList));
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMGetInstanceResponseMessage* response 
+	= (CIMGetInstanceResponseMessage*)message;
+
+    _checkError(response);
+
+    return response->cimInstance;
 }
+
 
 void CIMOMHandle::deleteClass(
-   const String & nameSpace,
-   const String & className) const
+    const String& nameSpace,
+    const String& className)
 {
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
+    Message* request = new CIMDeleteClassRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+        className,
+        _inputQueue->getQueueId());
 
-   _pCimom->deleteClass(nameSpace, className);
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMDeleteClassResponseMessage* response 
+	= (CIMDeleteClassResponseMessage*)message;
+
+    _checkError(response);
 }
+
 
 void CIMOMHandle::deleteInstance(
-   const String & nameSpace,
-   const CIMReference & instanceName) const
+    const String& nameSpace,
+    const CIMReference& instanceName)
 {
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
+    Message* request = new CIMDeleteInstanceRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+        instanceName,
+        _inputQueue->getQueueId());
 
-   _pCimom->deleteInstance(nameSpace, instanceName);
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMDeleteInstanceResponseMessage* response 
+	= (CIMDeleteInstanceResponseMessage*)message;
+
+    _checkError(response);
 }
 
-void CIMOMHandle::createClass(
-   const String & nameSpace,
-   const CIMClass & newClass) const
-{
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
 
-   _pCimom->createClass(nameSpace, newClass);
+void CIMOMHandle::createClass(
+    const String& nameSpace,
+    const CIMClass& newClass)
+{
+    Message* request = new CIMCreateClassRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+        newClass,
+        _inputQueue->getQueueId());
+
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMCreateClassResponseMessage* response 
+	= (CIMCreateClassResponseMessage*)message;
+
+    _checkError(response);
 }
 
 void CIMOMHandle::createInstance(
-   const String & nameSpace,
-   const CIMInstance & newInstance) const
+    const String& nameSpace,
+    const CIMInstance& newInstance)
 {
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
+    Message* request = new CIMCreateInstanceRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+        newInstance,
+        _inputQueue->getQueueId());
 
-   _pCimom->createInstance(nameSpace, newInstance);
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMCreateInstanceResponseMessage* response 
+	= (CIMCreateInstanceResponseMessage*)message;
+
+    _checkError(response);
 }
+
 
 void CIMOMHandle::modifyClass(
-   const String & nameSpace,
-   const CIMClass & modifiedClass) const
+    const String& nameSpace,
+    const CIMClass& modifiedClass)
 {
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
+    Message* request = new CIMModifyClassRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+        modifiedClass,
+        _inputQueue->getQueueId());
 
-   _pCimom->modifyClass(nameSpace, modifiedClass);
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMModifyClassResponseMessage* response 
+	= (CIMModifyClassResponseMessage*)message;
+
+    _checkError(response);
 }
+
 
 void CIMOMHandle::modifyInstance(
-   const String & nameSpace,
-   const CIMInstance & modifiedInstance) const
+    const String& nameSpace,
+    const CIMInstance& modifiedInstance)
 {
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
+    Message* request = new CIMModifyInstanceRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+        modifiedInstance,
+        _inputQueue->getQueueId());
 
-   _pCimom->modifyInstance(nameSpace, modifiedInstance);
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMModifyInstanceResponseMessage* response 
+	= (CIMModifyInstanceResponseMessage*)message;
+
+    _checkError(response);
 }
 
-Array<CIMClass> CIMOMHandle::enumerateClasses(
-   const String & nameSpace,
-   const String & className,
-   Boolean deepInheritance,
-   Boolean localOnly,
-   Boolean includeQualifiers,
-   Boolean includeClassOrigin) const
-{
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
 
-   return(_pCimom->enumerateClasses(nameSpace, className, deepInheritance, localOnly, includeQualifiers, includeClassOrigin));
+Array<CIMClass> CIMOMHandle::enumerateClasses(
+    const String& nameSpace,
+    const String& className,
+    Boolean deepInheritance,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin)
+{
+    Message* request = new CIMEnumerateClassesRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+	className,
+	deepInheritance,
+	localOnly,
+	includeQualifiers,
+	includeClassOrigin,
+        _inputQueue->getQueueId());
+
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMEnumerateClassesResponseMessage* response 
+	= (CIMEnumerateClassesResponseMessage*)message;
+
+    _checkError(response);
+
+    return response->cimClasses;
 }
 
 Array<String> CIMOMHandle::enumerateClassNames(
-   const String & nameSpace,
-   const String & className,
-   Boolean deepInheritance) const
+    const String& nameSpace,
+    const String& className,
+    Boolean deepInheritance)
 {
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
+    Message* request = new CIMEnumerateClassNamesRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+	className,
+	deepInheritance,
+        _inputQueue->getQueueId());
 
-   return(_pCimom->enumerateClassNames(nameSpace, className, deepInheritance));
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMEnumerateClassNamesResponseMessage* response 
+	= (CIMEnumerateClassNamesResponseMessage*)message;
+
+    _checkError(response);
+
+    return response->classNames;
 }
+
 
 Array<CIMInstance> CIMOMHandle::enumerateInstances(
-   const String & nameSpace,
-   const String & className,
-   Boolean deepInheritance,
-   Boolean localOnly,
-   Boolean includeQualifiers,
-   Boolean includeClassOrigin,
-   const Array<String> & propertyList) const
+    const String& nameSpace,
+    const String& className,
+    Boolean deepInheritance,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const Array<String>& propertyList)
 {
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
+    Message* request = new CIMEnumerateInstancesRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+	className,
+	deepInheritance,
+	localOnly,
+	includeQualifiers,
+	includeClassOrigin,
+	propertyList,
+        _inputQueue->getQueueId());
 
-   return(_pCimom->enumerateInstances(nameSpace, className, deepInheritance, localOnly, includeQualifiers, includeClassOrigin, propertyList));
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMEnumerateInstancesResponseMessage* response 
+	= (CIMEnumerateInstancesResponseMessage*)message;
+
+    _checkError(response);
+
+    return response->cimInstances;
 }
 
-Array<CIMReference> CIMOMHandle::enumerateInstanceNames(
-   const String & nameSpace,
-   const String & className) const
-{
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
 
-   return(_pCimom->enumerateInstanceNames(nameSpace, className));
+Array<CIMReference> CIMOMHandle::enumerateInstanceNames(
+    const String& nameSpace,
+    const String& className)
+{
+    Message* request = new CIMEnumerateInstanceNamesRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+	className,
+        _inputQueue->getQueueId());
+
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMEnumerateInstanceNamesResponseMessage* response 
+	= (CIMEnumerateInstanceNamesResponseMessage*)message;
+
+    _checkError(response);
+
+    return response->instanceNames;
 }
 
 Array<CIMInstance> CIMOMHandle::execQuery(
-   const String & queryLanguage,
-   const String & query) const
+    const String& queryLanguage,
+    const String& query)
 {
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
+    Message* request = new CIMExecQueryRequestMessage(
+	XmlWriter::getNextMessageId(),
+        queryLanguage,
+	query,
+        _inputQueue->getQueueId());
 
-   return(_pCimom->execQuery(queryLanguage, query));
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMExecQueryResponseMessage* response 
+	= (CIMExecQueryResponseMessage*)message;
+
+    _checkError(response);
+
+    return response->cimInstances;
 }
 
 Array<CIMObjectWithPath> CIMOMHandle::associators(
-   const String & nameSpace,
-   const CIMReference& objectName,
-   const String & assocClass,
-   const String & resultClass,
-   const String & role,
-   const String & resultRole,
-   Boolean includeQualifiers,
-   Boolean includeClassOrigin,
-   const Array<String> & propertyList) const
+    const String& nameSpace,
+    const CIMReference& objectName,
+    const String& assocClass,
+    const String& resultClass,
+    const String& role,
+    const String& resultRole,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const Array<String>& propertyList)
 {
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
+    Message* request = new CIMAssociatorsRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+	objectName,
+	assocClass,
+	resultClass,
+	role,
+	resultRole,
+	includeQualifiers,
+	includeClassOrigin,
+	propertyList,
+        _inputQueue->getQueueId());
 
-   return(_pCimom->associators(nameSpace, objectName, assocClass, resultClass, role, resultRole, includeQualifiers, includeClassOrigin, propertyList));
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMAssociatorsResponseMessage* response 
+	= (CIMAssociatorsResponseMessage*)message;
+
+    _checkError(response);
+
+    return response->cimObjects;
 }
 
 Array<CIMReference> CIMOMHandle::associatorNames(
-   const String & nameSpace,
-   const CIMReference & objectName,
-   const String & assocClass,
-   const String & resultClass,
-   const String & role,
-   const String & resultRole) const
+    const String& nameSpace,
+    const CIMReference& objectName,
+    const String& assocClass,
+    const String& resultClass,
+    const String& role,
+    const String& resultRole)
 {
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
+    Message* request = new CIMAssociatorNamesRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+	objectName,
+	assocClass,
+	resultClass,
+	role,
+	resultRole,
+        _inputQueue->getQueueId());
 
-   return(_pCimom->associatorNames(nameSpace, objectName, assocClass, resultClass, role, resultRole));
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMAssociatorNamesResponseMessage* response 
+	= (CIMAssociatorNamesResponseMessage*)message;
+
+    _checkError(response);
+
+    return response->objectNames;
 }
 
 Array<CIMObjectWithPath> CIMOMHandle::references(
-   const String & nameSpace,
-   const CIMReference & objectName,
-   const String & resultClass,
-   const String & role,
-   Boolean includeQualifiers,
-   Boolean includeClassOrigin,
-   const Array<String> & propertyList) const
+    const String& nameSpace,
+    const CIMReference& objectName,
+    const String& resultClass,
+    const String& role,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const Array<String>& propertyList)
 {
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
+    Message* request = new CIMReferencesRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+	objectName,
+	resultClass,
+	role,
+	includeQualifiers,
+	includeClassOrigin,
+	propertyList,
+        _inputQueue->getQueueId());
 
-   return(_pCimom->references(nameSpace, objectName, resultClass, role, includeQualifiers, includeClassOrigin, propertyList));
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMReferencesResponseMessage* response 
+	= (CIMReferencesResponseMessage*)message;
+
+    _checkError(response);
+
+    return response->cimObjects;
 }
 
 Array<CIMReference> CIMOMHandle::referenceNames(
-   const String & nameSpace,
-   const CIMReference & objectName,
-   const String & resultClass,
-   const String & role) const
+    const String& nameSpace,
+    const CIMReference& objectName,
+    const String& resultClass,
+    const String& role)
 {
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
+    Message* request = new CIMReferenceNamesRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+	objectName,
+	resultClass,
+	role,
+        _inputQueue->getQueueId());
 
-   return(_pCimom->referenceNames(nameSpace, objectName, resultClass, role));
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMReferenceNamesResponseMessage* response 
+	= (CIMReferenceNamesResponseMessage*)message;
+
+    _checkError(response);
+
+    return response->objectNames;
 }
 
 CIMValue CIMOMHandle::getProperty(
-   const String & nameSpace,
-   const CIMReference & instanceName,
-   const String & propertyName) const
+    const String& nameSpace,
+    const CIMReference& instanceName,
+    const String& propertyName)
 {
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
+    Message* request = new CIMGetPropertyRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+	instanceName,
+	propertyName,
+        _inputQueue->getQueueId());
 
-   return(_pCimom->getProperty(nameSpace, instanceName, propertyName));
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMGetPropertyResponseMessage* response 
+	= (CIMGetPropertyResponseMessage*)message;
+
+    _checkError(response);
+
+    return response->value;
 }
 
 void CIMOMHandle::setProperty(
-   const String & nameSpace,
-   const CIMReference & instanceName,
-   const String & propertyName,
-   const CIMValue & newValue) const
+    const String& nameSpace,
+    const CIMReference& instanceName,
+    const String& propertyName,
+    const CIMValue& newValue)
 {
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
+    Message* request = new CIMSetPropertyRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+	instanceName,
+	propertyName,
+	newValue,
+        _inputQueue->getQueueId());
 
-   _pCimom->setProperty(nameSpace, instanceName, propertyName, newValue);
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMSetPropertyResponseMessage* response 
+	= (CIMSetPropertyResponseMessage*)message;
+
+    _checkError(response);
 }
 
 CIMQualifierDecl CIMOMHandle::getQualifier(
-   const String & nameSpace,
-   const String & qualifierName) const
+    const String& nameSpace,
+    const String& qualifierName)
 {
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
+    Message* request = new CIMGetQualifierRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+	qualifierName,
+        _inputQueue->getQueueId());
 
-   return(_pCimom->getQualifier(nameSpace, qualifierName));
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMGetQualifierResponseMessage* response 
+	= (CIMGetQualifierResponseMessage*)message;
+
+    _checkError(response);
+
+    return response->cimQualifierDecl;
 }
 
 void CIMOMHandle::setQualifier(
-   const String & nameSpace,
-   const CIMQualifierDecl & qualifierDecl) const
+    const String& nameSpace,
+    const CIMQualifierDecl& qualifierDeclaration)
 {
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
+    Message* request = new CIMSetQualifierRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+	qualifierDeclaration,
+        _inputQueue->getQueueId());
 
-   _pCimom->setQualifier(nameSpace, qualifierDecl);
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMSetQualifierResponseMessage* response 
+	= (CIMSetQualifierResponseMessage*)message;
+
+    _checkError(response);
 }
 
 void CIMOMHandle::deleteQualifier(
-   const String & nameSpace,
-   const String & qualifierName) const
+    const String& nameSpace,
+    const String& qualifierName)
 {
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
+    Message* request = new CIMDeleteQualifierRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+	qualifierName,
+        _inputQueue->getQueueId());
 
-   _pCimom->deleteQualifier(nameSpace, qualifierName);
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMDeleteQualifierResponseMessage* response 
+	= (CIMDeleteQualifierResponseMessage*)message;
+
+    _checkError(response);
 }
 
-Array<CIMQualifierDecl> CIMOMHandle::enumerateQualifiers(
-   const String & nameSpace) const
-{
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
 
-   return(_pCimom->enumerateQualifiers(nameSpace));
+Array<CIMQualifierDecl> CIMOMHandle::enumerateQualifiers(
+    const String& nameSpace)
+{
+    Message* request = new CIMEnumerateQualifiersRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+        _inputQueue->getQueueId());
+
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMEnumerateQualifiersResponseMessage* response 
+	= (CIMEnumerateQualifiersResponseMessage*)message;
+
+    _checkError(response);
+
+    return response->qualifierDeclarations;
 }
 
 CIMValue CIMOMHandle::invokeMethod(
-   const String & nameSpace,
-   const CIMReference & instanceName,
-   const String & methodName,
-   const Array<CIMValue> & inParameters,
-   Array<CIMValue> & outParameters) const
+    const String& nameSpace,
+    const CIMReference& instanceName,
+    const String& methodName,
+    const Array<CIMValue>& inParameters,
+    Array<CIMValue>& outParameters)
 {
-   if(_pCimom == 0) {
-      throw(UnitializedHandle());
-   }
+    Message* request = new CIMInvokeMethodRequestMessage(
+	XmlWriter::getNextMessageId(),
+        nameSpace,
+	instanceName,
+	methodName,
+	inParameters,
+        _inputQueue->getQueueId());
 
-   return(_pCimom->invokeMethod(nameSpace, instanceName, methodName, inParameters, outParameters));
+    _outputQueue->enqueue(request);
+
+    Message* message = _inputQueue->dequeue();
+
+    CIMInvokeMethodResponseMessage* response 
+	= (CIMInvokeMethodResponseMessage*)message;
+
+    _checkError(response);
+
+    outParameters = response->outParameters;
+    return response->value;
+}
+
+void CIMOMHandle::_checkError(CIMResponseMessage* response)
+{
+    if (!response)
+    {
+	throw CIMException(
+	    CIM_ERR_FAILED, __FILE__, __LINE__, "queue underflow");
+	}
+
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	throw CIMException(response->errorCode, __FILE__, __LINE__, 
+	    response->errorDescription);
+    }
 }
 
 PEGASUS_NAMESPACE_END

@@ -54,8 +54,6 @@ public:
 
     int handleMethodCall();
 
-    /** This method is called when a response is enqueued on this queue.
-    */
     virtual void handleEnqueue();
 
     void sendError(

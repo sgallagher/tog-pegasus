@@ -63,11 +63,8 @@ CIMParameterRep::CIMParameterRep(
     }
     else
     {
-        // ATTN: revisit this later!  (Make consistent with CIMPropertyRep)
-#if 0
 	if (_type == CIMTYPE_REFERENCE)
 	    throw TypeMismatchException();
-#endif
     }
 }
 

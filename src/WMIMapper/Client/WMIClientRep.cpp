@@ -25,11 +25,17 @@
 //
 // Author: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
-// Modified By: 
+// Modified By: Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "WMIClientRep.h"
+
+///////////////////////////////////////////////////////////////////////////////
+// Need to include these before the WMI Provider headers
+#include <atlbase.h>
+#include <comdef.h>
+#include <wbemcli.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 // WMI Provider interface headers
@@ -123,10 +129,9 @@ CIMClass WMIClientRep::getClass(
 		provider.terminate();
 
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -174,10 +179,9 @@ CIMInstance WMIClientRep::getInstance(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -216,10 +220,9 @@ void WMIClientRep::deleteClass(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -256,10 +259,9 @@ void WMIClientRep::deleteInstance(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -296,10 +298,9 @@ void WMIClientRep::createClass(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -337,10 +338,9 @@ CIMObjectPath WMIClientRep::createInstance(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -379,10 +379,9 @@ void WMIClientRep::modifyClass(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -423,10 +422,9 @@ void WMIClientRep::modifyInstance(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -472,10 +470,9 @@ Array<CIMClass> WMIClientRep::enumerateClasses(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -517,10 +514,9 @@ Array<CIMName> WMIClientRep::enumerateClassNames(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -571,10 +567,9 @@ Array<CIMInstance> WMIClientRep::enumerateInstances(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -614,10 +609,9 @@ Array<CIMObjectPath> WMIClientRep::enumerateInstanceNames(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -659,10 +653,9 @@ Array<CIMObject> WMIClientRep::execQuery(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -717,10 +710,9 @@ Array<CIMObject> WMIClientRep::associators(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -768,10 +760,9 @@ Array<CIMObjectPath> WMIClientRep::associatorNames(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -822,10 +813,9 @@ Array<CIMObject> WMIClientRep::references(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -869,10 +859,9 @@ Array<CIMObjectPath> WMIClientRep::referenceNames(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -914,10 +903,9 @@ CIMValue WMIClientRep::getProperty(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -961,10 +949,9 @@ void WMIClientRep::setProperty(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -1002,10 +989,9 @@ CIMQualifierDecl WMIClientRep::getQualifier(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -1044,10 +1030,9 @@ void WMIClientRep::setQualifier(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -1084,10 +1069,9 @@ void WMIClientRep::deleteQualifier(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -1123,10 +1107,9 @@ Array<CIMQualifierDecl> WMIClientRep::enumerateQualifiers(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{
@@ -1172,10 +1155,9 @@ CIMValue WMIClientRep::invokeMethod(
 		//terminate the provider
 		provider.terminate();
 	}
-	catch(CIMException& exception)
+	catch(CIMException&)
 	{
-		cimException = exception;
-		throw cimException;
+		throw;
 	}
 	catch(Exception& exception)
 	{

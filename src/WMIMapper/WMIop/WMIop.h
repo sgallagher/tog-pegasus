@@ -25,12 +25,14 @@
 //
 // Author: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
+// Modified By: Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WMIop_h_
 #define _WMIop_h_
 
-#include <WMIMapper/Client/WMIClient.h>
+#include <Pegasus/Client/CIMClient.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;

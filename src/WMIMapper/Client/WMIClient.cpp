@@ -25,11 +25,13 @@
 //
 // Author: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
-// Modified By: 
+// Modified By: Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "WMIClient.h"
+#include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Client/CIMClientRep.h>
+#include "WMIClientRep.h"
 
 #include <iostream>
 #include <fstream>
@@ -43,26 +45,56 @@ PEGASUS_NAMESPACE_BEGIN
 // WMIClient
 //
 ///////////////////////////////////////////////////////////////////////////////
-CIMClient::CIMClient():
-	_connected(false),
-	_timeoutMilliseconds(CIMClientInterface::DEFAULT_TIMEOUT_MILLISECONDS)
+CIMClient::CIMClient()
 {
+    // The WMI Mapper has its own implementation of CIMClient, in order to
+    // handle localConnect()'s on Windows (for localConnect's on Windows,
+    // we simply call functions in the WMI Provider .dll directly, rather than
+    // through using a domain socket/local authentication as is done on Unix).
+    //
+    // For this, we handle 2 separate cccClientRep classes: CIMClientRep (the 
+    // standard Pegasus client rep) is used for remote connections, and our
+    // custom WMI rep (WMIClientRep) is used for local connections. So, the 
+    // basic idea is to instantiate the appropriate _rep, depending on the
+    // type of connection being used (local or remote).
+    //
+    // A problem arises in the storing of the timeout value: The user must be 
+    // able to set this value independently of the current connection state
+    // (e.g., construct CIMClient, set timeout, then connect). In the standard
+    // Pegasus implementation of CIMClient, the timeout value is store in the
+    // CIMClientRep object, not here in the CIMClient object. The problem is,
+    // we need to persist this value while potentially deleting and constructing
+    // new _rep objects -- and we cannot add the timeout as a member of our
+    // version of CIMClient, or this will create memory corruption problems for
+    // client apps (since they #include <Pegasus/Client/CIMClient.h>, but link
+    // to the WMI Mapper implementation of this class -- at least to utilize
+    // the Mapper's localConnect feature (found this out the hard way)!
+    //
+    // So, in order to handle this, we must construct a WMIClientRep object here,
+    // if only as a container for the timeout setting, then in the connect()
+    // methods, we must save the timeout, delete the current _rep, create a new
+    // _rep using the current timeout, then finally connect()!
+    //
+    // Not pretty, but the best solution so far (also, there is very little 
+    // overhead in constructing a WMIClientRep object here -- even if its only
+    // purpose is to be a container for the timeout value!
+
+    _rep = new WMIClientRep();
 }
 
 CIMClient::~CIMClient()
 {
-	if (_connected)
-		delete _rep;
+    delete _rep;
 }
 
 Uint32 CIMClient::getTimeout() const
 {
-	return _timeoutMilliseconds;
+    return _rep->getTimeout();
 }
 
 void CIMClient::setTimeout(Uint32 timeoutMilliseconds)
 {
-    _timeoutMilliseconds = timeoutMilliseconds;
+    _rep->setTimeout(timeoutMilliseconds);
 }
 
 void CIMClient::connect(
@@ -72,11 +104,12 @@ void CIMClient::connect(
     const String& password
 )
 {
-	if (!_connected)
-	{
-		_rep = new CIMClientRep(_timeoutMilliseconds);
-		_connected = true;
-	}
+    // See the comment in the constructor for why we need to get the 
+    // current timeout, delete and create a new _rep object here:
+    Uint32 timeout = _rep->getTimeout();
+    delete _rep;
+    _rep = new CIMClientRep(timeout);
+    
 	_rep->connect(host, portNumber, userName, password);
 }
 
@@ -88,11 +121,12 @@ void CIMClient::connect(
     const String& password
 )
 {
-	if (!_connected)
-	{
-		_rep = new CIMClientRep(_timeoutMilliseconds);
-		_connected = true;
-	}
+    // See the comment in the constructor for why we need to get the 
+    // current timeout, delete and create a new _rep object here:
+    Uint32 timeout = _rep->getTimeout();
+    delete _rep;
+    _rep = new CIMClientRep(timeout);
+
     _rep->connect(host, portNumber, sslContext, userName, password);
 }
 
@@ -114,11 +148,12 @@ void CIMClient::connect(
     else
         throw InvalidLocatorException (address);
 
-	if (!_connected)
-	{
-		_rep = new CIMClientRep(_timeoutMilliseconds);
-		_connected = true;
-	}
+    // See the comment in the constructor for why we need to get the 
+    // current timeout, delete and create a new _rep object here:
+    Uint32 timeout = _rep->getTimeout();
+    delete _rep;
+    _rep = new CIMClientRep(timeout);
+
     _rep->connect (host, portNumber, userName, password);
 }
 
@@ -140,29 +175,31 @@ void CIMClient::connect(
     else
         throw InvalidLocatorException (address);
 
-	if (!_connected)
-	{
-		_rep = new CIMClientRep(_timeoutMilliseconds);
-		_connected = true;
-	}
+    // See the comment in the constructor for why we need to get the 
+    // current timeout, delete and create a new _rep object here:
+    Uint32 timeout = _rep->getTimeout();
+    delete _rep;
+    _rep = new CIMClientRep(timeout);
+
     _rep->connect (host, portNumber, sslContext, userName, password);
 }
 #endif
 
 void CIMClient::connectLocal()
 {
-	if (!_connected)
-	{
-		_rep = new WMIClientRep();
-		_connected = true;
-	}
+    // See the comment in the constructor for why we need to get the 
+    // current timeout, delete and create a new _rep object here:
+    Uint32 timeout = _rep->getTimeout();
+    delete _rep;
+    // For connectLocal, we use WMIClientRep, rather than CIMClientRep:
+    _rep = new WMIClientRep(timeout);
+
     _rep->connectLocal();
 }
 
 void CIMClient::disconnect()
 {
     _rep->disconnect();
-	_connected = false;
 }
 
 // l10n start
@@ -188,9 +225,14 @@ ContentLanguages CIMClient::getRequestContentLanguages() const
     	
 ContentLanguages CIMClient::getResponseContentLanguages() const
 {
-		return _rep->getResponseContentLanguages();
+	return _rep->getResponseContentLanguages();
 }
-// l10n end	
+
+void CIMClient::setRequestDefaultLanguages()
+{
+    _rep->setRequestDefaultLanguages();
+}
+// l10n end
 
 CIMClass CIMClient::getClass(
     const CIMNamespaceName& nameSpace,

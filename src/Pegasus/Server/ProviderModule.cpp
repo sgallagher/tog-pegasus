@@ -32,9 +32,6 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/FileSystem.h>
 
-#include <Pegasus/Provider2/CIMBaseProviderHandle.h>
-#include <Pegasus/Provider/CIMProviderHandle.h>
-
 PEGASUS_NAMESPACE_BEGIN
 
 
@@ -57,7 +54,7 @@ const String & ProviderModule::getClassName(void) const
     return(_className);
 }
 
-ProviderHandle * ProviderModule::getProvider(void) const
+CIMBaseProvider * ProviderModule::getProvider(void) const
 {
     return(_provider);
 }
@@ -87,18 +84,18 @@ void ProviderModule::load(void)
 
     // dynamically load the provider library
     ArrayDestroyer<char> tempFileName = fileName.allocateCString();
-    
+
     _library = System::loadDynamicLibrary(tempFileName.getPointer());
 
     if(_library == 0)
     {
         String errorString = "Cannot load library, error: " +
              System::dynamicLoadError();
-        throw ProviderFailure(fileName, _className, errorString);
+        //throw ProviderFailure(fileName, _className, errorString);
     }
-        
+
     // CIMBaseProvider support
-    
+
     {
         // find libray entry point
         CIMBaseProvider * (*createProvider)(const String &) = 0;
@@ -115,7 +112,7 @@ void ProviderModule::load(void)
             {
                 unload();
 
-                throw ProviderFailure(fileName, _className, "entry point returned null.");
+                //throw ProviderFailure(fileName, _className, "entry point returned null.");
             }
 
             // test for the appropriate interface
@@ -123,59 +120,18 @@ void ProviderModule::load(void)
             {
                 unload();
 
-                throw ProviderFailure(fileName, _className, "provider is not a CIMBaseProvider.");
+                //throw ProviderFailure(fileName, _className, "provider is not a CIMBaseProvider.");
             }
 
             // save provider handle
-            _provider = new CIMBaseProviderHandle(provider);
-
-            return;
-        }
-    }
-    
-    // CIMProvider support(legacy)
-
-    {
-        // find libray entry point
-        CIMProvider * (*createProvider)(void) = 0;    
-
-        // build entry point name
-        String temp = String("PegasusCreateProvider_") + _providerName;
-
-        ArrayDestroyer<char> functionName = temp.allocateCString();
-
-        createProvider = (CIMProvider * (*)(void))System::loadDynamicSymbol(
-            _library, functionName.getPointer());
-
-        if(createProvider != 0)
-        {
-            // invoke the provider entry point
-            CIMProvider * provider = createProvider();
-
-            if(provider == 0)
-            {
-                unload();
-
-                throw ProviderFailure(fileName, _className, "entry point returned null.");
-            }
-
-            // test for the appropriate interface
-            if(dynamic_cast<CIMProvider *>(provider) == 0)
-            {
-                unload();
-
-                throw ProviderFailure(fileName, _className, "provider is not a CIMProvider.");
-            }
-
-            // save provider handle
-            _provider = new CIMProviderHandle(provider);
+            _provider = provider;
 
             return;
         }
     }
 
     unload();
-    throw ProviderFailure(fileName, _className, "provider entry point not found.");
+    //throw ProviderFailure(fileName, _className, "provider entry point not found.");
 }
 
 void ProviderModule::unload(void)
@@ -186,7 +142,7 @@ void ProviderModule::unload(void)
 
         _provider = 0;
     }
-    
+
     if(_library != 0)
     {
         System::unloadDynamicLibrary(_library);

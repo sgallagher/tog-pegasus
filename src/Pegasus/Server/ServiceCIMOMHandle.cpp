@@ -45,7 +45,7 @@ ServiceCIMOMHandle::ServiceCIMOMHandle(
     CIMRepository * repository,
     CIMServer * server)
 :
-    CIMOMHandle(outputQueue, repository),
+    //CIMOMHandle(outputQueue),
     _server(server)
 {
 }

@@ -35,8 +35,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Sharable.h>
 
-#include <Pegasus/Provider/ProviderHandle.h>
-#include <Pegasus/Provider/ProviderException.h>
+#include <Pegasus/Provider/CIMBaseProvider.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -52,13 +51,13 @@ public:
 	void load(void);
 	void unload(void);
 
-	virtual ProviderHandle * getProvider(void) const;
+	virtual CIMBaseProvider * getProvider(void) const;
 
 protected:
 	String _providerName;
 	String _className;
 	DynamicLibraryHandle _library;
-	ProviderHandle * _provider;
+	CIMBaseProvider * _provider;
 
 private:
 	String _getProviderFileName(void);

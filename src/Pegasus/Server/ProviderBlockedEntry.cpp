@@ -31,14 +31,11 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/FileSystem.h>
 
-#include <Pegasus/Provider2/CIMBaseProviderHandle.h>
-#include <Pegasus/Provider/CIMProviderHandle.h>
-
 PEGASUS_NAMESPACE_BEGIN
 
 
 ProviderBlockedEntry::ProviderBlockedEntry(const String & providerName, Boolean BlockFlag)
-    : _providerName(providerName), _providerBlockFlag(BlockFlag) 
+    : _providerName(providerName), _providerBlockFlag(BlockFlag)
 {
 }
 

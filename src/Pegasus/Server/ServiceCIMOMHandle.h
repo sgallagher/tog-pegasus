@@ -30,8 +30,11 @@
 #define Pegasus_ServiceCIMOMHandle_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMOMHandle.h>
+#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Server/CIMServer.h>
+
+#include <Pegasus/Provider/CIMOMHandle.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -38,7 +38,7 @@ ProviderManager::ProviderManager(
     CIMRepository * repository,
     CIMServer * server)
 :
-    _cimom(outputQueue, repository),
+    _cimom(),
     _serviceCimom(outputQueue, repository, server)
 {
     Thread * thread = new Thread(monitorThread, this, false);
@@ -46,21 +46,21 @@ ProviderManager::ProviderManager(
     thread->run();
 }
 
-ProviderManager::~ProviderManager(void)    
+ProviderManager::~ProviderManager(void)
 {
     // terminate all providers
     for(Uint32 i = 0, n = _providers.size(); i < n; i++)
     {
-        ProviderHandle * provider = _providers[i].getProvider();
-        
+        CIMBaseProvider * provider = _providers[i].getProvider();
+
         if(provider != 0)
         {
-            _providers[i].getProvider()->terminate();
+            provider->terminate();
         }
     }
 }
 
-ProviderHandle * ProviderManager::getProvider(const String & providerName, const String & className)
+CIMBaseProvider * ProviderManager::getProvider(const String & providerName, const String & className)
 {
     // check list for requested provider and return if found
     for(Uint32 i = 0, n = _providers.size(); i < n; i++)
@@ -71,36 +71,35 @@ ProviderHandle * ProviderManager::getProvider(const String & providerName, const
             return(_providers[i].getProvider());
         }
     }
-    
+
     PEGASUS_STD(cout) << "loading provider for " << className << " in " << providerName << PEGASUS_STD(endl);
-    
+
     // create provider module
     ProviderModule module(providerName, className);
 
     module.load();
-    
+
     // get provider handle
-    ProviderHandle * provider = module.getProvider();
+    CIMBaseProvider * provider = module.getProvider();
 
     if(provider == 0)
     {
-        throw ProviderFailure(providerName, className, "invalid provider handle.");
+        //throw ProviderFailure(providerName, className, "invalid provider handle.");
     }
-    
+
     // initialize provider
     // ATTN: Distinguish between services and other providers and send the
     // appropriate CIMOMHandle
     // ATTN: Is it okay to pass the same CIMOMHandle to multiple providers?
     // Is that object reentrant?  (it has a waitForResponse method)
     provider->initialize(_serviceCimom);
-    
+
     // add provider to list
     _providers.append(module);
 
     // recurse to get the provider as it resides in the array (rather than the local instance)
     return(getProvider(providerName, className));
 }
-
 
 void ProviderManager::_addProviderToTable
 		(const String & providerName, Boolean blockFlag)
@@ -178,7 +177,7 @@ void ProviderManager::createProviderBlockTable(Array<CIMNamedInstance> & namedin
 	
 	for(Uint32 i = 0, n = namedinstances.size(); i < n; i++)
 	{
-	    instance = namedinstances[i].getInstance(); 
+	    instance = namedinstances[i].getInstance();
 	    providerName = instance.getProperty(
              instance.findProperty("Name")).getValue().toString();
 	    instance.getProperty(instance.findProperty("blocked")).
@@ -196,7 +195,7 @@ Uint32 ProviderManager::_stopProvider(Uint32 providerIndex)
     _providers.remove(providerIndex);
     return(0);
 }
-    
+
 Uint32 ProviderManager::stopProvider(const String & providerName)
 {
     // check list for requested provider. If found, terminate the
@@ -208,11 +207,11 @@ Uint32 ProviderManager::stopProvider(const String & providerName)
 	    return _stopProvider(i);
         }
     }
-    
+
     // if provider is not loaded, just return
     return (0);
 }
-    
+
 void ProviderManager::shutdownAllProviders(const String & providerName, const String & className)
 {
     //
@@ -236,18 +235,18 @@ void ProviderManager::shutdownAllProviders(const String & providerName, const St
         numProviders--;
     }
 }
-    
+
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::monitorThread(void * arg)
 {
     Thread * thread = reinterpret_cast<Thread *>(arg);
-    
+
     ProviderManager * _this = reinterpret_cast<ProviderManager *>(thread->get_parm());
 
     // check provider list every 30 seconds for providers to unload
     for(Uint32 timeout = 0; true; timeout += 30)
     {
         thread->sleep(30000);
-        
+
         // check each provider for timeouts less than the current timeout
         //for(Uint32 i = 0, n = _this->_providers.size(); i < n; i++)
 
@@ -277,9 +276,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::monitorThread(void *
             }
         }
     }
-    
+
     PEGASUS_STD(cout) << "provider monitor stopped" << PEGASUS_STD(endl);
-    
+
     return(0);
 }
 

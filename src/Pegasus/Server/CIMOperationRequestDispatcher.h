@@ -43,7 +43,6 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/AsyncOpNode.h>
-#include <Pegasus/Provider2/AsyncResponseHandler.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Server/ProviderManager.h>
 
@@ -55,39 +54,39 @@ class CIMRepository;
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
 {
 public:
-      
+
       typedef MessageQueue Base;
-      
+
       CIMOperationRequestDispatcher(
-	  CIMRepository* repository, 
+	  CIMRepository* repository,
 	  CIMServer* server);
-      
+
       virtual ~CIMOperationRequestDispatcher();
-      
+
       virtual void handleEnqueue();
-      
+
       virtual const char* getQueueName() const;
-      
+
       void handleGetClassRequest(
 	 CIMGetClassRequestMessage* request);
-      
+
       void handleGetInstanceRequest(
 	 CIMGetInstanceRequestMessage* request);
-      
+
       void handleDeleteClassRequest(
 	 CIMDeleteClassRequestMessage* request);
-      
+
       void handleDeleteInstanceRequest(
 	 CIMDeleteInstanceRequestMessage* request);
-      
+
       void handleCreateClassRequest(
 	 CIMCreateClassRequestMessage* request);
-      
+
       void handleCreateInstanceRequest(
 	 CIMCreateInstanceRequestMessage* request);
-      
+
       void handleModifyClassRequest(
-	 
+	
 	CIMModifyClassRequestMessage* request);
 
     void handleModifyInstanceRequest(

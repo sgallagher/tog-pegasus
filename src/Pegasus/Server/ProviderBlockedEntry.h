@@ -23,7 +23,7 @@
 // Author: Yi Zhou (yi_zhou@hp.com)
 //
 // Modified By:
-//  
+//
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,9 +34,6 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Sharable.h>
-
-#include <Pegasus/Provider/ProviderHandle.h>
-#include <Pegasus/Provider/ProviderException.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

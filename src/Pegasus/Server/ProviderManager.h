@@ -40,9 +40,6 @@
 #include <Pegasus/Server/ServiceCIMOMHandle.h>
 #include <Pegasus/Server/ProviderBlockedEntry.h>
 
-#include <Pegasus/Provider/ProviderHandle.h>
-#include <Pegasus/Provider/ProviderException.h>
-
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_SERVER_LINKAGE ProviderManager
@@ -51,7 +48,7 @@ public:
 	ProviderManager(MessageQueue * outputQueue, CIMRepository * repository, CIMServer * server);
 	virtual ~ProviderManager(void);
 
-	ProviderHandle * getProvider(const String & providerName, const String & className);
+	CIMBaseProvider * getProvider(const String & providerName, const String & className);
 
 	void addProviderToTable(const String & providerName, Boolean BlockFlag);
 	void removeProviderFromTable(const String & providerName);
@@ -61,7 +58,7 @@ public:
 	Boolean isProviderBlocked(const String & providerName);
 	void createProviderBlockTable(Array<CIMNamedInstance> & instances);
 
-        void shutdownAllProviders(const String & providerName, const String & className);
+    void shutdownAllProviders(const String & providerName, const String & className);
 
 protected:
 	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL monitorThread(void * arg);

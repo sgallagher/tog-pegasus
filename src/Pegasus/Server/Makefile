@@ -14,7 +14,6 @@ LIBRARIES = \
     pegcommon \
     pegrepository \
     pegprovider \
-    pegprovider2 \
     pegexportserver \
     IndicationSubscription \
     pegconfig \
@@ -30,6 +29,8 @@ SOURCES = \
     HTTPAuthenticatorDelegator.cpp \
     ProviderManager.cpp \
     ProviderModule.cpp \
+	CIMBaseProviderFacade.cpp \
+	ProviderHandle.cpp \
     ServiceCIMOMHandle.cpp \
     ProviderBlockedEntry.cpp \
     ShutdownService.cpp \

@@ -28,7 +28,7 @@
 //               Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //               Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//               Mike Day (mdday@us.ibm.com) 
+//               Mike Day (mdday@us.ibm.com)
 //               Carol Ann Krug Graves, Hewlett-Packard Company
 //                   (carolann_graves@hp.com)
 //
@@ -36,10 +36,12 @@
 
 #include "CIMOperationRequestDispatcher.h"
 #include <Pegasus/Repository/CIMRepository.h>
-#include <Pegasus/Common/CIMOMHandle.h>
-#include <Pegasus/Provider2/CIMIndicationProvider.h>
-#include <Pegasus/Provider2/SimpleResponseHandler.h>
-#include <Pegasus/Provider2/CIMBaseProviderFacade.h>
+#include <Pegasus/Provider/CIMOMHandle.h>
+#include <Pegasus/Provider/CIMIndicationProvider.h>
+#include <Pegasus/Provider/SimpleResponseHandler.h>
+#include <Pegasus/Provider/OperationFlag.h>
+
+#include <Pegasus/Server/CIMBaseProviderFacade.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -49,32 +51,32 @@ PEGASUS_USING_STD;
 #define DDD(X) // X
 
 DDD(static const char* _DISPATCHER = "CIMOperationRequestDispatcher::";)
-   
-   
+
+
 CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
-    CIMRepository* repository, 
+    CIMRepository* repository,
     CIMServer* server)
-   : 
-   Base("CIMOpRequestDispatcher", true), 
-   _repository(repository), 
+   :
+   Base("CIMOpRequestDispatcher", true),
+   _repository(repository),
    _providerManager(this, repository, server)
 {
-   
+
     DDD(cout << _DISPATCHER << endl;)
 }
 
 CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher()
 {
    _dying = 1;
-   
+
 }
 
 
 
 // ATTN
-// this needs to return an array of names. i.e., there could be 
+// this needs to return an array of names. i.e., there could be
 // more than one provider per class
-// 
+//
 
 String CIMOperationRequestDispatcher::_lookupProviderForClass(
     const String& nameSpace,
@@ -100,8 +102,8 @@ String CIMOperationRequestDispatcher::_lookupProviderForClass(
 
    // get all the registered providers
    _repository->read_lock();
-   
-   try 
+
+   try
    {
       enumInstances = _repository->enumerateInstances(nameSpace, "CIM_ProviderCapabilities");
    }
@@ -109,9 +111,9 @@ String CIMOperationRequestDispatcher::_lookupProviderForClass(
    {
       // ATTN: Fail silently for now
    }
-   
+
    _repository->read_unlock();
-   
+
    for (Uint32 i = 0, n = enumInstances.size(); i < n ; i++)
    {
       instance = enumInstances[i].getInstance();
@@ -120,32 +122,32 @@ String CIMOperationRequestDispatcher::_lookupProviderForClass(
       if (String::equal(classname, className))
       {
 	 providername = instance.getProperty(instance.findProperty("ProviderName")).getValue().toString();
-	 
+	
 	 if (_providerManager.isProviderBlocked(providername)) // blocked
 	 {
 	    // if the provider is blocked
-	    
-	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider is blocked"); 
+	
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider is blocked");
 	    return (String::EMPTY);
 	 }
 	 else
 	 {
 	    return(providername);
 	 }
-      } 
+      }
    }		
-   
-// ATTN: still use qualifier to find provider if a provider did not use 
-// PG_RegistrationProvider to register. Will remove in the future 
+
+// ATTN: still use qualifier to find provider if a provider did not use
+// PG_RegistrationProvider to register. Will remove in the future
    _repository->read_lock();
-   try 
+   try
    {
       cimClass = _repository->getClass(nameSpace, className);
    }
    catch (CIMException& e)
    {
       _repository->read_unlock();
-      
+
       if (e.getCode() == CIM_ERR_NOT_FOUND)
       {
 	 throw CIMException(CIM_ERR_INVALID_CLASS);
@@ -156,10 +158,10 @@ String CIMOperationRequestDispatcher::_lookupProviderForClass(
       }
    }
    _repository->read_unlock();
-   
+
    DDD(cout << _DISPATCHER << "Lookup Provider for " << className << endl;)
-    
-    
+
+
 
     //----------------------------------------------------------------------
     // Get the provider qualifier:
@@ -181,7 +183,7 @@ String CIMOperationRequestDispatcher::_lookupProviderForClass(
     {
 	// if the provider is blocked
 
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider is blocked"); 
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider is blocked");
     }
     else
     {
@@ -374,7 +376,7 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
 
     _repository->read_lock();
 
-    try 
+    try
     {
        cimClass = _repository->getClass(
 	  request->nameSpace,
@@ -394,7 +396,7 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
        errorCode = CIM_ERR_FAILED;
        errorDescription = exception.getMessage();
     }
-    
+
     _repository->read_unlock();
 
 
@@ -430,14 +432,14 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
             throw CIMException(CIM_ERR_NOT_SUPPORTED);
         }
 
-	// NOTE - getProviderName reads a const string and does not 
-	// need to use the rw lock 
+	// NOTE - getProviderName reads a const string and does not
+	// need to use the rw lock
         else if ( (providerName.size() == 0) ||
                   (providerName == _repository->getProviderName()) )
         {
 	   _repository->read_lock();
 
-	   try 
+	   try
 	   {
 	      cimInstance = _repository->getInstance(
 		 request->nameSpace,
@@ -445,7 +447,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 		 request->localOnly,
 		 request->includeQualifiers,
 		 request->includeClassOrigin,
-		 request->propertyList.getPropertyNameArray()); 
+		 request->propertyList.getPropertyNameArray());
 	   }
 	   catch (...)
 	   {
@@ -458,16 +460,24 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 	else
 	{
 	    // attempt to load provider
-	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+	    CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
+		CIMBaseProviderFacade facade(provider);
 
-	    cimInstance = provider->getInstance(
+		Uint32 flags = OperationFlag::convert(
+			request->localOnly,
+			request->includeQualifiers,
+			request->includeClassOrigin);
+		
+		SimpleResponseHandler<CIMInstance> handler;
+
+	    facade.getInstance(
 		OperationContext(),
-		request->nameSpace,
 		request->instanceName,
-		request->localOnly,
-		request->includeQualifiers,
-		request->includeClassOrigin,
-		request->propertyList.getPropertyNameArray()); 
+		flags,
+		request->propertyList.getPropertyNameArray(),
+		handler);
+
+		cimInstance = handler._objects[0];
 	}
     }
     catch (CIMException& exception)
@@ -505,7 +515,7 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 	  request->nameSpace,
 	  request->className);
     }
-    
+
     catch (CIMException& exception)
     {
        errorCode = exception.getCode();
@@ -518,7 +528,7 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
     }
 
     _repository->write_unlock();
-    
+
     CIMDeleteClassResponseMessage* response =
 	new CIMDeleteClassResponseMessage(
 	    request->messageId,
@@ -551,30 +561,33 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
                   (providerName == _repository->getProviderName()) )
 	{
 	   _repository->write_lock();
-	   try 
+	   try
 	   {
 	      _repository->deleteInstance(
 		 request->nameSpace,
 		 request->instanceName);
 	   }
-	   catch( ... ) 
+	   catch( ... )
 	   {
 	      _repository->write_unlock();
 	      throw;
 	   }
-	   
+	
 	   _repository->write_unlock();
-	   
+	
 	}
 	else
 	{
 	    // attempt to load provider
-	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+	    CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
+		CIMBaseProviderFacade facade(provider);
 	
-	    provider->deleteInstance(
+	    SimpleResponseHandler<CIMInstance> handler;
+		
+		facade.deleteInstance(
 		OperationContext(),
-		request->nameSpace,
-		request->instanceName);
+		request->instanceName,
+		handler);
 	}
     }
     catch (CIMException& exception)
@@ -612,7 +625,7 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 	  request->nameSpace,
 	  request->newClass);
     }
-    
+
     catch (CIMException& exception)
     {
 	errorCode = exception.getCode();
@@ -664,30 +677,36 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
 	   _repository->write_lock();
 
-	   try 
+	   try
 	   {
 	      instanceName = _repository->createInstance(
 		 request->nameSpace,
 		 request->newInstance);
 	   }
-	   catch( ... ) 
+	   catch( ... )
 	   {
 	      _repository->write_unlock();
 	      throw;
 	   }
-	   
+	
 	   _repository->write_unlock();
 
 	}
 	else
 	{
 	    // attempt to load provider
-	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+	    CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
+		CIMBaseProviderFacade facade(provider);
 
-	    instanceName = provider->createInstance(
+	    SimpleResponseHandler<CIMReference> handler;
+		
+		facade.createInstance(
 		OperationContext(),
-		request->nameSpace,
-		request->newInstance);
+		CIMReference(),
+		request->newInstance,
+		handler);
+
+		//instanceName = handler._objects[0];
 	}
     }
     catch (CIMException& exception)
@@ -719,14 +738,14 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
     String errorDescription;
 
     _repository->write_lock();
-    
+
     try
     {
        _repository->modifyClass(
 	  request->nameSpace,
 	  request->modifiedClass);
     }
-    
+
     catch (CIMException& exception)
     {
 	errorCode = exception.getCode();
@@ -773,10 +792,10 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
         else if ( (providerName.size() == 0) ||
                   (providerName == _repository->getProviderName()) )
         {
-	      
+	
 	   _repository->write_lock();
-	   
-	   try 
+	
+	   try
 	   {
 	      _repository->modifyInstance(
 		 request->nameSpace,
@@ -785,7 +804,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 		 request->propertyList);
 	   }
 
-	   catch( ... ) 
+	   catch( ... )
 	   {
 	      _repository->write_unlock();
 	      throw;
@@ -797,15 +816,19 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
         else
 	{
 	    // attempt to load provider
-	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+		CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
+		CIMBaseProviderFacade facade(provider);
 
-	    provider->modifyInstance(
+	    SimpleResponseHandler<CIMInstance> handler;
+		
+		facade.modifyInstance(
 		OperationContext(),
-                request->nameSpace,
-                request->modifiedInstance,
-                request->includeQualifiers,
-                request->propertyList);
-        }
+        request->nameSpace,
+        request->modifiedInstance.getInstance(),
+        OperationFlag::convert(false, request->includeQualifiers),
+        Array<String>(), //request->propertyList,
+		handler);
+		}
     }
     catch (CIMException& exception)
     {
@@ -847,7 +870,7 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
 	  request->includeQualifiers,
 	  request->includeClassOrigin);
     }
-    
+
     catch (CIMException& exception)
     {
 	errorCode = exception.getCode();
@@ -889,7 +912,7 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 	  request->className,
 	  request->deepInheritance);
     }
-    
+
     catch (CIMException& exception)
     {
 	errorCode = exception.getCode();
@@ -938,7 +961,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 	{
 	   _repository->read_lock();
 
-	   try 
+	   try
 	   {
 	      cimNamedInstances = _repository->enumerateInstances(
 		 request->nameSpace,
@@ -954,24 +977,26 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 	      _repository->read_unlock();
 	      throw;
 	   }
-	   
+	
 	   _repository->read_unlock();
 	}
 	
 	else
 	{
 	    // attempt to load provider
-	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+	    CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
+		CIMBaseProviderFacade facade(provider);
 
-	    cimNamedInstances = provider->enumerateInstances(
+		SimpleResponseHandler<CIMInstance> handler;
+
+	    facade.enumerateInstances(
 		OperationContext(),
-		request->nameSpace,
 		request->className,
-		request->deepInheritance,
-		request->localOnly,
-		request->includeQualifiers,
-		request->includeClassOrigin,
-		request->propertyList.getPropertyNameArray());
+		OperationFlag::convert(request->localOnly, request->includeQualifiers, request->includeClassOrigin, request->deepInheritance),
+		request->propertyList.getPropertyNameArray(),
+		handler);
+
+		//cimNamedInstances = CIMNamedInstance(CIMReference(), handler._objects[0]);
 	}
     }
     catch (CIMException& exception)
@@ -1019,30 +1044,35 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
                   (providerName == _repository->getProviderName()) )
 	{
 	   _repository->read_lock();
-	   try 
+	   try
 	   {
 	      instanceNames = _repository->enumerateInstanceNames(
 		 request->nameSpace,
 		 request->className);
 	   }
-	   catch( ... ) 
+	   catch( ... )
 	   {
 	      _repository->read_unlock();
 	      throw;
 	   }
-	   
+	
 	   _repository->read_unlock();
 	}
 
 	else
 	{
 	    // attempt to load provider
-	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+	    CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
+		CIMBaseProviderFacade facade(provider);
 
-	    instanceNames = provider->enumerateInstanceNames(
+		SimpleResponseHandler<CIMReference> handler;
+
+	    facade.enumerateInstanceNames(
 		OperationContext(),
-		request->nameSpace,
-		request->className);
+		request->className,
+		handler);
+
+		instanceNames = handler._objects;
 	}
     }
     catch (CIMException& exception)
@@ -1090,8 +1120,8 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                   (providerName == _repository->getProviderName()) )
 	{
 	   _repository->read_lock();
-	   
-	   try 
+	
+	   try
 	   {
 	      cimObjects = _repository->associators(
 		 request->nameSpace,
@@ -1115,19 +1145,23 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 	else
 	{
 	    // attempt to load provider
-	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+	    CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
+		CIMBaseProviderFacade facade(provider);
 
-	    cimObjects = provider->associators(
+		SimpleResponseHandler<CIMObject> handler;
+
+	    facade.associators(
 		OperationContext(),
- 	        request->nameSpace,
-	        request->objectName,
-	        request->assocClass,
-	        request->resultClass,
-	        request->role,
-	        request->resultRole,
-	        request->includeQualifiers,
-	        request->includeClassOrigin,
-	        request->propertyList.getPropertyNameArray());
+	    request->objectName,
+	    request->assocClass,
+	    request->resultClass,
+	    request->role,
+	    request->resultRole,
+	    OperationFlag::convert(false, request->includeQualifiers, request->includeClassOrigin),
+	    request->propertyList.getPropertyNameArray(),
+		handler);
+
+		//cimObjects = handler._objects;
 	}
     }
     catch (CIMException& exception)
@@ -1175,9 +1209,9 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                   (providerName == _repository->getProviderName()) )
 	{
 	   _repository->read_lock();
-	   
-	   try 
-	   {	   
+	
+	   try
+	   {	
 	      objectNames = _repository->associatorNames(
 		 request->nameSpace,
 		 request->objectName,
@@ -1197,16 +1231,19 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 	else
 	{
 	    // attempt to load provider
-	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+	    CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
+		CIMBaseProviderFacade facade(provider);
 
-	    objectNames = provider->associatorNames(
+		SimpleResponseHandler<CIMReference> handler;
+
+	    facade.associatorNames(
 		OperationContext(),
-	        request->nameSpace,
-	        request->objectName,
-	        request->assocClass,
-	        request->resultClass,
-	        request->role,
-	        request->resultRole);
+	    request->objectName,
+	    request->assocClass,
+	    request->resultClass,
+	    request->role,
+	    request->resultRole,
+		handler);
         }
     }
     catch (CIMException& exception)
@@ -1255,7 +1292,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 	{
 	   _repository->read_lock();
 
-	   try 
+	   try
 	   {
 	      cimObjects = _repository->references(
 		 request->nameSpace,
@@ -1277,18 +1314,22 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 	else
 	{
 	    // attempt to load provider
-	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+	    CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
+		CIMBaseProviderFacade facade(provider);
 
-	    cimObjects = provider->references(
+		SimpleResponseHandler<CIMObject> handler;
+
+	    facade.references(
 		OperationContext(),
-	        request->nameSpace,
 	        request->objectName,
 	        request->resultClass,
 	        request->role,
-	        request->includeQualifiers,
-	        request->includeClassOrigin,
-	        request->propertyList.getPropertyNameArray());
-        }
+	        OperationFlag::convert(false, request->includeQualifiers, request->includeClassOrigin),
+	        request->propertyList.getPropertyNameArray(),
+		handler);
+
+		//cimObjects = handler._objects;
+	}
     }
     catch (CIMException& exception)
     {
@@ -1336,7 +1377,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 	{
 	   _repository->read_lock();
 
-	   try  
+	   try
 	   {
 	      objectNames = _repository->referenceNames(
 		 request->nameSpace,
@@ -1355,14 +1396,18 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 	else
 	{
 	   // attempt to load provider
-	   ProviderHandle * provider = _providerManager.getProvider(providerName, className);
-	   
-	   objectNames = provider->referenceNames(
+	    CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
+		CIMBaseProviderFacade facade(provider);
+
+		SimpleResponseHandler<CIMReference> handler;
+	
+	   facade.referenceNames(
 	      OperationContext(),
-	        request->nameSpace,
 	        request->objectName,
 	        request->resultClass,
-	        request->role);
+	        request->role,
+		  handler);
+	   //objectNames =
         }
     }
     catch (CIMException& exception)
@@ -1410,8 +1455,8 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
                   (providerName == _repository->getProviderName()) )
         {
 	   _repository->read_lock();
-	   try  
-	   { 
+	   try
+	   {
 	      value = _repository->getProperty(
 		 request->nameSpace,
 		 request->instanceName,
@@ -1426,13 +1471,18 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
         else
 	{
 	    // attempt to load provider
-	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+		CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
+		CIMBaseProviderFacade facade(provider);
 
-	    value = provider->getProperty(
+	    SimpleResponseHandler<CIMValue> handler;
+		
+		facade.getProperty(
 		OperationContext(),
-                request->nameSpace,
-                request->instanceName,
-                request->propertyName);
+		request->instanceName,
+		request->propertyName,
+		handler);
+
+		value = handler._objects[0];						
         }
     }
     catch (CIMException& exception)
@@ -1480,8 +1530,8 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
         {
 	   _repository->write_lock();
 
-	   try  
-	   { 
+	   try
+	   {
 	      _repository->setProperty(
 		 request->nameSpace,
 		 request->instanceName,
@@ -1499,14 +1549,17 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
         else
 	{
 	    // attempt to load provider
-	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+		CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
+		CIMBaseProviderFacade facade(provider);
 
-	    provider->setProperty(
+		SimpleResponseHandler<CIMValue> handler;
+
+	    facade.setProperty(
 		OperationContext(),
-                request->nameSpace,
-                request->instanceName,
-                request->propertyName,
-                request->newValue);
+		request->instanceName,
+		request->propertyName,
+		request->newValue,
+		handler);
         }
     }
     catch (CIMException& exception)
@@ -1538,8 +1591,8 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
     CIMQualifierDecl cimQualifierDecl;
 
     _repository->read_lock();
-    try  
-    { 
+    try
+    {
        cimQualifierDecl = _repository->getQualifier(
 	  request->nameSpace,
 	  request->qualifierName);
@@ -1657,7 +1710,7 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
        qualifierDeclarations = _repository->enumerateQualifiers(
 	  request->nameSpace);
     }
-    
+
     catch (CIMException& exception)
     {
 	errorCode = exception.getCode();
@@ -1701,15 +1754,20 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 	if(providerName.size() != 0)
 	{
 	    // attempt to load provider
-	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+	    CIMBaseProvider * provider = _providerManager.getProvider(providerName, className);
+		CIMBaseProviderFacade facade(provider);
 
-    	    retValue = provider->invokeMethod(
+		SimpleResponseHandler<CIMValue> handler;
+
+    	facade.invokeMethod(
 		OperationContext(),
-		request->nameSpace,
 		request->instanceName,
 		request->methodName,
 		request->inParameters,
-		outParameters);
+		outParameters,
+		handler);
+
+		retValue = 0;
 	}
 	else
 	{
@@ -1762,18 +1820,20 @@ void CIMOperationRequestDispatcher::handleEnableIndicationSubscriptionRequest(
             //  Currently, the first class name in the list is passed to
             //  getProvider.  It shouldn't matter which class name is passed in.
             //
-            ProviderHandle * provider = _providerManager.getProvider
+            CIMBaseProvider * provider = _providerManager.getProvider
                 (request->providerName, request->classNames [0]);
 
-            SimpleResponseHandler <CIMIndication> responseHandler;
+			CIMBaseProviderFacade facade(provider);
 
-            provider->enableIndicationSubscription (
+            SimpleResponseHandler<CIMIndication> responseHandler;
+
+            /*
+			facade.enableIndicationSubscription (
                 //
                 //  ATTN: pass thresholding parameter values in
                 //  operation context
                 //
                 OperationContext (),
-                request->nameSpace,
                 request->classNames,
                 request->propertyList,
                 request->repeatNotificationPolicy,
@@ -1781,6 +1841,7 @@ void CIMOperationRequestDispatcher::handleEnableIndicationSubscriptionRequest(
                 request->queryLanguage,
                 request->subscription,
                 responseHandler);
+			*/
         }
         else
         {
@@ -1829,18 +1890,20 @@ void CIMOperationRequestDispatcher::handleModifyIndicationSubscriptionRequest(
             //  Currently, the first class name in the list is passed to
             //  getProvider.  It shouldn't matter which class name is passed in.
             //
-            ProviderHandle * provider = _providerManager.getProvider
+            CIMBaseProvider * provider = _providerManager.getProvider
                 (request->providerName, request->classNames [0]);
 
-            SimpleResponseHandler <CIMIndication> responseHandler;
+			CIMBaseProviderFacade facade(provider);
 
-            provider->modifyIndicationSubscription (
+            SimpleResponseHandler<CIMIndication> responseHandler;
+
+            /*
+			facade.modifyIndicationSubscription (
                 //
                 //  ATTN: pass thresholding parameter values in
                 //  operation context
                 //
                 OperationContext (),
-                request->nameSpace,
                 request->classNames,
                 request->propertyList,
                 request->repeatNotificationPolicy,
@@ -1848,6 +1911,7 @@ void CIMOperationRequestDispatcher::handleModifyIndicationSubscriptionRequest(
                 request->queryLanguage,
                 request->subscription,
                 responseHandler);
+			*/
         }
         else
         {
@@ -1896,17 +1960,20 @@ void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
             //  Currently, the first class name in the list is passed to
             //  getProvider.  It shouldn't matter which class name is passed in.
             //
-            ProviderHandle * provider = _providerManager.getProvider
+            CIMBaseProvider * provider = _providerManager.getProvider
                 (request->providerName, request->classNames [0]);
 
-            SimpleResponseHandler <CIMIndication> responseHandler;
+			CIMBaseProviderFacade facade(provider);
 
-            provider->disableIndicationSubscription (
+            SimpleResponseHandler<CIMIndication> responseHandler;
+
+            /*
+			facade.disableIndicationSubscription (
                 OperationContext (),
-                request->nameSpace,
                 request->classNames,
                 request->subscription,
                 responseHandler);
+			*/
         }
         else
         {
@@ -1948,7 +2015,7 @@ void CIMOperationRequestDispatcher::loadRegisteredProviders(void)
     String errorDescription;
     Array<CIMNamedInstance> cimNamedInstances;
 
-    // ATTN: May need change 
+    // ATTN: May need change
     const String& nameSpace = "root/cimv2";
     const String& className = "PG_Provider";
 
@@ -1962,7 +2029,7 @@ void CIMOperationRequestDispatcher::loadRegisteredProviders(void)
 		className);
 
     }
-    
+
     catch (CIMException& exception)
     {
 	errorCode = exception.getCode();

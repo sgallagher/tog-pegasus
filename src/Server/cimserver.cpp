@@ -759,6 +759,28 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
     //
     configManager = ConfigManager::getInstance();
 
+#ifdef PEGASUS_OS_OS400
+    // In a special startup case for IBM OS400, when the server is
+    // automatically started when the machine starts up the config
+    // file cannot be read because of access restrictions for the
+    // user starting the server.  In this case, we need to skip
+    // reading the config options and therefore any use of the config
+    // manager also.  To make this determinations we will check to see
+    // if the daemon flag is set to true.  If so, then there will be a
+    // series of checks to bracket all the calls to the configManager
+    // which would otherwise fail.  All this will only be done for
+    // IBM OS400.
+
+    Boolean os400StartupOption = false;
+    // loop through args to check for daemon=true
+    for (int i=1; i < argc; i++)
+      if (strcmp(argv[i], "daemon=true") == 0)
+      {
+        os400StartupOption = true;
+        daemonOption = true;
+      }
+#endif    
+
     //
     // Get options (from command line and from configuration file); this
     // removes corresponding options and their arguments from the command
@@ -766,6 +788,9 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
     //
     try
     {
+#ifdef PEGASUS_OS_OS400
+    if (os400StartupOption == false)
+#endif   
         GetOptions(configManager, argc, argv);
     }
     catch (Exception& e)
@@ -797,10 +822,30 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
 #endif
 	MessageLoader::setPegasusMsgHome(messagesDir);		
 
+#ifdef PEGASUS_OS_OS400
+    // Still need to declare and set the connection variables.
+    // Will initialize to false since they are fixed at false for OS400.
+
+    // NOTE:  OS400 is a LOCAL_DOMAIN_SOCKET, so a few lines down
+    // the test will not be compiled in.  If OS400 ever turns off that
+    // define, then we will need to change this code path to insure that
+    // one of the variables is true.    
+    Boolean enableHttpConnection = false;
+    Boolean enableHttpsConnection = false;
+
+    if (os400StartupOption == false)
+    {
+      enableHttpConnection = String::equal(
+          configManager->getCurrentValue("enableHttpConnection"), "true");
+      enableHttpsConnection = String::equal(
+          configManager->getCurrentValue("enableHttpsConnection"), "true");
+    }
+#else
     Boolean enableHttpConnection = String::equal(
         configManager->getCurrentValue("enableHttpConnection"), "true");
     Boolean enableHttpsConnection = String::equal(
         configManager->getCurrentValue("enableHttpsConnection"), "true");
+#endif
 
     // Make sure at least one connection is enabled
 #ifndef PEGASUS_LOCAL_DOMAIN_SOCKET
@@ -833,6 +878,10 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
             daemonOption = true;
         }
 	
+#ifdef PEGASUS_OS_OS400
+    if (os400StartupOption == false)
+    {
+#endif            
         // Get the log file directory definition.
         // We put String into Cstring because
         // Directory functions only handle Cstring.
@@ -841,6 +890,9 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
         logsDirectory = configManager->getCurrentValue("logdir");
         logsDirectory = 
 	    ConfigManager::getHomedPath(configManager->getCurrentValue("logdir"));
+#ifdef PEGASUS_OS_OS400
+    }  // end if (os400StartupOption == false)
+#endif
 
         // Set up the Logger. This does not open the logs
         // Might be more logical to clean before set.

@@ -1,8 +1,8 @@
 include $(ROOT)/mak/config-unix.mak
 
-OS = linux
+OS = solaris
 
-ARCHITECTURE = iX86
+ARCHITECTURE = sparc
 
 COMPILER = gnu
 
@@ -11,9 +11,9 @@ SYS_INCLUDES =
 DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 
 ifdef PEGASUS_DEBUG
-FLAGS = -g -W -Wall -Wno-unused
+FLAGS = -g -W -Wall -Wno-unused -fpic
 else
-FLAGS = -O2 -W -Wall -Wno-unused
+FLAGS = -O2 -W -Wall -Wno-unused -fpic
 endif
 
 SYS_LIBS = -ldl

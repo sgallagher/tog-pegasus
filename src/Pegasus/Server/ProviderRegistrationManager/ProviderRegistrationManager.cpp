@@ -3866,21 +3866,26 @@ void ProviderRegistrationManager::_sendMessageToSubscription(
         Uint32 _queueId = _service->getQueueId();
 
         // create request envelope
-        AsyncLegacyOperationStart * asyncRequest =
-            new AsyncLegacyOperationStart (
-                 _service->get_next_xid(),
-                 NULL,
-                  _queueId,
-                 notify_req,
-                 _queueId);
+        AsyncLegacyOperationStart asyncRequest
+            (_service->get_next_xid(),
+            NULL,
+            _queueId,
+            notify_req,
+            _queueId);
 
-        if( false  == _controller->ClientSendForget(
-                           *_client_handle,
-                           _queueId,
-                           asyncRequest))
+        AutoPtr <AsyncReply> asyncReply
+            (_controller->ClientSendWait (* _client_handle, _queueId,
+            &asyncRequest));
+
+	AutoPtr <CIMNotifyProviderRegistrationResponseMessage> response
+            (reinterpret_cast <CIMNotifyProviderRegistrationResponseMessage *>
+            ((dynamic_cast <AsyncLegacyOperationResult *> 
+            (asyncReply.get ()))->get_result ()));
+
+        if (response->cimException.getCode () != CIM_ERR_SUCCESS)
         {
-            delete asyncRequest;
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, String::EMPTY);
+            CIMException e = response->cimException;
+            throw (e);
         }
     }
 }

@@ -35,6 +35,8 @@
 # include "OperatingSystem_Windows.cpp"
 #elif defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 # include "OperatingSystem_Linux.cpp"
+#elif defined (PEGASUS_OS_AIX)
+# include "OperatingSystem_AIX.cpp"
 #else
 # include "OperatingSystem_Stub.cpp"
 #endif

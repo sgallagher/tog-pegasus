@@ -56,6 +56,7 @@ static CMPIStatus stringRelease(CMPIString *eStr) {
    if (str) {
       free(str);
       (reinterpret_cast<CMPI_Object*>(eStr))->unlinkAndDelete();
+	  str = NULL;
    }
    CMReturn(CMPI_RC_OK);
 }

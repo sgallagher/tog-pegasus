@@ -140,7 +140,16 @@ extern "C" {
 
    static CMPIInstance* mbEncNewInstance(CMPIBroker* mb, CMPIObjectPath* eCop,
                                        CMPIStatus *rc) {
+      if (!eCop) {
+		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+	    return NULL;
+	  }
       CIMObjectPath* cop=(CIMObjectPath*)eCop->hdl;
+	  if (!cop) {
+		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+	    return NULL;
+	  }
+		 
    //   cout<<"--- mbEncNewInstance() "<<cop->getClassName()<<"-"<<cop->getNameSpace()<<endl;
       CIMClass *cls=mbGetClass(mb,*cop);
       CIMInstance *ci=NULL;
@@ -193,8 +202,14 @@ extern "C" {
    //   cout<<"--- mbEncNewObjectPath() "<<ns<<"-"<<cls<<endl;
       Array<CIMKeyBinding> keyBindings;
       String host;
-      CIMName className=Name(cls);
-      CIMNamespaceName nameSpace=NameSpaceName(ns);
+      CIMName className;
+	  if (cls)	className=Name(cls);
+		else
+				className=Name("");
+      CIMNamespaceName nameSpace;
+	  if (ns)	nameSpace =NameSpaceName(ns);
+		else
+				nameSpace=NameSpaceName("");	
       CIMObjectPath *cop=new CIMObjectPath(host,nameSpace,className,keyBindings);
       CMPIObjectPath *nePath=reinterpret_cast<CMPIObjectPath*>(new CMPI_Object(cop));
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
@@ -208,6 +223,8 @@ extern "C" {
 
    static CMPIString* mbEncNewString(CMPIBroker* mb, const char *cStr, CMPIStatus *rc) {
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
+	  if (cStr == NULL)
+      	return reinterpret_cast<CMPIString*>(new CMPI_Object(""));
       return reinterpret_cast<CMPIString*>(new CMPI_Object(cStr));
    }
 
@@ -308,6 +325,12 @@ extern "C" {
    }
 
    static CMPIBoolean mbEncClassPathIsA(CMPIBroker *mb, CMPIObjectPath *eCp, const char *type, CMPIStatus *rc) {
+	
+	  if ((eCp==NULL) || (type==NULL)) {
+		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+	    return false;
+	  }
+	
       CIMObjectPath* cop=(CIMObjectPath*)eCp->hdl;
       const CIMName tcn(type);
 
@@ -399,6 +422,7 @@ extern "C" {
 
    static CMPIString* mbEncGetMessage(CMPIBroker *mb, const char *msgId, const char *defMsg,
                CMPIStatus* rc, unsigned int count, ...) {
+
       MessageLoaderParms parms(msgId,defMsg);
 #ifdef PEGASUS_DEBUG
       cerr<<"::: mbEncGetMessage() count: "<<count<<endl;
@@ -483,7 +507,16 @@ extern "C" {
 
    static CMPIArray * mbEncGetKeyList(CMPIBroker *mb, CMPIContext *ctx,
                   CMPIObjectPath *cop, CMPIStatus *rc) {
+	  if ((cop==NULL) || (ctx==NULL)) {
+		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+	    return NULL;
+	  }
       CIMObjectPath *op=(CIMObjectPath*)cop->hdl;
+
+	  if (!op) {
+		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+	    return NULL;
+	  }
       CIMClass *cls=mbGetClass(mb,*op);
       Array<String> keys;
       for (int i=0,m=cls->getPropertyCount(); i<m; i++) {

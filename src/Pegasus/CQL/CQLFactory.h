@@ -26,6 +26,14 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+struct CQLObjectPtr;
+
+#ifndef PEGASUS_ARRAY_T
+#define PEGASUS_ARRAY_T CQLObjectPtr
+#include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
+#endif
+
 enum FactoryType { Identifier, ChainedIdentifier, Value, Function, Factor, Term, Expression, SimplePredicate, Predicate };
 
 class PEGASUS_CQL_LINKAGE CQLFactory
@@ -69,7 +77,27 @@ class PEGASUS_CQL_LINKAGE CQLFactory
   CQLChainedIdentifier _chainedIdentifier;
   CQLIdentifier _identifier;
   CQLValue _value;
-  Array<CQLPredicate*> _predicates;
+
+  Array<CQLObjectPtr> _makeObjectPredicates;
+  Array<CQLObjectPtr> _makeObjectSimplePredicates;
+  Array<CQLObjectPtr> _makeObjectExpressions;
+  Array<CQLObjectPtr> _makeObjectTerms;
+  Array<CQLObjectPtr> _makeObjectFactors;
+  Array<CQLObjectPtr> _makeObjectFunctions;
+  Array<CQLObjectPtr> _makeObjectValues;
+  Array<CQLObjectPtr> _makeObjectChainedIdentifiers;
+  Array<CQLObjectPtr> _makeObjectIdentifiers;
+
+  Array<CQLObjectPtr> _getObjectPredicates;
+  Array<CQLObjectPtr> _getObjectSimplePredicates;
+  Array<CQLObjectPtr> _getObjectExpressions;
+  Array<CQLObjectPtr> _getObjectTerms;
+  Array<CQLObjectPtr> _getObjectFactors;
+  Array<CQLObjectPtr> _getObjectFunctions;
+  Array<CQLObjectPtr> _getObjectValues;
+  Array<CQLObjectPtr> _getObjectChainedIdentifiers;
+  Array<CQLObjectPtr> _getObjectIdentifiers;
+
 };                                                                          
 PEGASUS_NAMESPACE_END
 #endif

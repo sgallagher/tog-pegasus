@@ -8,3 +8,4 @@ select class.class1.class2.class3.prop from class where prop = 5
 select * from class where class.prop = 5
 select A::prop#OK from class
 select class.class1.class2.A::prop#OK from class where prop != 'blah'
+select prop[4] from class

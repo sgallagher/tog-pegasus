@@ -24,7 +24,6 @@ void printf_(char * msg){
 extern char * yytext;
 int chain_state;
 CQLFactory _factory = CQLFactory();
-CQLFactory _factory1 = CQLFactory();
 
 PEGASUS_NAMESPACE_BEGIN
                                                                                 
@@ -339,21 +338,9 @@ array_index : expr
                   sprintf(msg,"BISON::array_index->expr\n");
 		  printf_(msg);
 
-                  /* 
-		     At this point expr should be a CQLPredicate, if not, the try/catch
-		     will handle any casting errors.  Pull the value out and make sure
-		     its type is a String.
-                   */
-		  try{
-		  	CQLValue tmp = _factory.getValue((CQLPredicate*)$1);
-		  	if(tmp.getValueType() == String_type){
-				$$ = new String(tmp.toString());
-		  	}else{
-				/* error */
-		  	}
-		  }catch(...){
-			/* error: expr is not a CQLPredicate */
-		  }
+		  CQLValue tmp = _factory.getValue((CQLPredicate*)$1);
+		  $$ = new String(tmp.toString());
+		  printf("BISON::array_index->expr %s\n",(const char*)$$->getCString());
               }
 ;
 
@@ -362,10 +349,11 @@ array_index_list : array_index
                    {
                        sprintf(msg,"BISON::array_index_list->array_index\n");
 		       printf_(msg);
-
+ 		       $$ = $1;
                    }
 ;
 
+/* void* */
 chain : literal
         {
             sprintf(msg,"BISON::chain->literal\n");
@@ -389,6 +377,8 @@ chain : literal
 
            chain_state = CQLIDENTIFIER;
 	   $$ = _factory.makeObject($1,Predicate);
+           CQLPredicate* _pred = (CQLPredicate*)$$;
+	   printf("%s\n",(const char*)_pred->toString().getCString());
         }
       | identifier HASH literal_string
         {
@@ -501,7 +491,6 @@ chain : literal
 	    printf_(msg);
 	
             if(chain_state == CQLIDENTIFIER){
-		printf("HERE\n");
 		CQLIdentifier *_id = ((CQLIdentifier*)(_factory.getObject($1,Predicate,Identifier)));
 		String tmp = _id->getName().getString();
 		tmp.append("[").append(*$3).append("]");
@@ -510,13 +499,18 @@ chain : literal
 		_factory.setObject(((CQLPredicate*)$1),&_cid,ChainedIdentifier);
                 $$ = $1;		
 	    }else if(chain_state == CQLCHAINEDIDENTIFIER || chain_state == CQLVALUE){
-		 printf("HERE1\n");
+		CQLPredicate* _pred = (CQLPredicate*)$1;
 		CQLChainedIdentifier *_cid = ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
 		CQLIdentifier tmpid = _cid->getLastIdentifier();
 		String tmp = tmpid.getName().getString();
                 tmp.append("[").append(*$3).append("]");
 		CQLIdentifier _id1(tmp);
-		_cid->append(_id1);
+		CQLChainedIdentifier _tmpcid(_id1);
+		if(_cid->size() == 1){
+			_cid = &_tmpcid;
+		}else{
+			_cid->append(_id1);
+		}
 		_factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
                 $$ = $1;
 	    }else{
@@ -601,9 +595,9 @@ arith : term
             sprintf(msg,"BISON::arith->term\n");
 	    printf_(msg);
 
-	    CQLPredicate* _pred = new CQLPredicate(*$1);
-	    _factory._predicates.append(_pred);
-            $$ = _pred;
+	    //CQLPredicate* _pred = new CQLPredicate(*$1);
+//	    _factory._predicates.append(_pred);
+            $$ = $1;
         }
      /* | arith PLUS term
         {
@@ -722,7 +716,7 @@ comp : arith
 	   printf_(msg);
 	   if($1->isSimple() && $3->isSimple()){
 		CQLExpression* _exp1 = (CQLExpression*)(_factory.getObject($1,Predicate,Expression));
-		CQLExpression* _exp2 = (CQLExpression*)(_factory1.getObject($3,Predicate,Expression));
+		CQLExpression* _exp2 = (CQLExpression*)(_factory.getObject($3,Predicate,Expression));
 	   	CQLSimplePredicate _sp(*_exp1, *_exp2, $2);
            	$$ = new CQLPredicate(_sp);
 	   }else{

@@ -126,6 +126,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL deq(void * parm)
     {
         message = mq->dequeue();
         while (!message) {
+#if defined PEGASUS_OS_SOLARIS && defined SUNOS_5_6
+	    pegasus_sleep(1);
+#endif
             message = mq->dequeue();
         }
 

@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Stack.h,v $
-// Revision 1.1  2001/01/14 19:53:13  mike
-// Initial revision
+// Revision 1.2  2001/03/29 16:40:31  karl
+// add doc
+//
+// Revision 1.1.1.1  2001/01/14 19:53:13  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -49,29 +52,29 @@ template<class T>
 class Stack
 {
 public:
-
+    ///
     Stack() { }
-
+    ///
     Stack(const Stack& x) : _rep(x._rep) { }
-
+    ///
     ~Stack() { }
-
+    ///
     Stack& operator=(const Stack& x) { _rep = x._rep; return *this; }
-
+    ///
     Boolean isEmpty() const { return _rep.getSize() == 0; }
-
+    ///
     void push(const T& x) { _rep.append(x); }
-
+    ///
     T& top();
-
+    ///
     const T& top() const { return ((Stack<T>*)this)->top(); }
-
+    ///
     void pop();
-
+    ///
     Uint32 getSize() const { return _rep.getSize(); }
-
+    ///
     T& operator[](Uint32 i) { return _rep[i]; }
-
+    ///
     const T& operator[](Uint32 i) const { return _rep[i]; }
 
 private:

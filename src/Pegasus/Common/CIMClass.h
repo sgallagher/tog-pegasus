@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMClass.h,v $
+// Revision 1.6  2001/03/29 16:40:31  karl
+// add doc
+//
 // Revision 1.5  2001/03/04 21:57:34  bob
 // Changed print methods to take a stream instead of hardcoded cout
 //
@@ -84,9 +87,14 @@ class PEGASUS_COMMON_LINKAGE CIMClass
 {
 public:
 
-    /** Constructor - Creates and instantiates a new object reprenting a CIM
-	class. If you use this constructor, use setName to define a name for
-	the class
+    /** Constructor - Creates an uninitiated a new CIM object 
+	reprenting a CIM class. The class object created by this
+	constructor can only be used in an operation such as the
+	copy constructor.  It cannot be used to create a class by
+	appending names, properties, etc. since it is unitiated.
+	
+	Useone of the other constructors to create an initiated new CIM class 
+	object.
     */
     CIMClass() : _rep(0)
     {
@@ -99,7 +107,7 @@ public:
 	Inc(_rep = x._rep);
     }
 
-    /// Operator = ATTN:
+    /// Operator = Assigns the CIM Class constructor.
     CIMClass& operator=(const CIMClass& x)
     {
 	if (x._rep != _rep)

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: String.h,v $
+// Revision 1.10  2001/03/29 16:40:31  karl
+// add doc
+//
 // Revision 1.9  2001/02/26 04:33:28  mike
 // Fixed many places where cim names were be compared with operator==(String,String).
 // Changed all of these to use CIMName::equal()
@@ -249,9 +252,9 @@ public:
     /// Convert the plain old C-string to lower case:
     static void toLower(char* str);
 
-    /**
+    /**	EMPTY - Represent an empty string.
 	This member is used to represent empty strings. Using this member
-	avoid an expensive construction of an empty string (e.g., String()).
+	avoids an expensive construction of an empty string (e.g., String()).
     */
     static const String EMPTY;
 

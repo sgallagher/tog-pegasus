@@ -10,8 +10,11 @@ include $(ROOT)/mak/program.mak
 
 tests:
 	$(RM) X.idx
+	$(RM) X.instances
 	Inst
-	$(RM) X.idx
+
+#	$(RM) X.idx
+#	$(RM) X.instances
 
 poststarttests:
 

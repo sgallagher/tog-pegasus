@@ -28,16 +28,17 @@
 #include <iostream>
 #include <cassert>
 #include <Pegasus/Repository/InstanceIndexFile.h>
+#include <Pegasus/Repository/InstanceDataFile.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const char PATH[] = "X.idx";
-
 void _Test01()
 {
+    const char PATH[] = "X.idx";
     Uint32 index;
     Uint32 size;
+    Uint32 freeCount = 0;
 
     size = 1427;
     index = 0;
@@ -70,27 +71,29 @@ void _Test01()
     assert(result);
 
     result = InstanceIndexFile::deleteEntry(PATH, 
-          CIMReference("X.key2=\"Hello World 3\",key1=1003"));
+          CIMReference("X.key2=\"Hello World 3\",key1=1003"), freeCount);
     assert(result);
 
     size = 1428;
     index = 2860;
-    result = InstanceIndexFile::createEntry(PATH, 
-	CIMReference("X.key1=1003,key2=\"Hello World 3\""), index, size);
+    result = InstanceIndexFile::createEntry(
+	PATH, CIMReference("X.key1=1003,key2=\"Hello World 3\""), 
+	index, size);
     assert(result);
 
     result = InstanceIndexFile::deleteEntry(PATH, 
-          CIMReference("X.key2=\"Hello World 3\",key1=1003"));
+          CIMReference("X.key2=\"Hello World 3\",key1=1003"), freeCount);
     assert(result);
 
     result = InstanceIndexFile::deleteEntry(PATH, 
-	CIMReference("X.key1=1001,key2=\"Hello World 1\""));
+	CIMReference("X.key1=1001,key2=\"Hello World 1\""), freeCount);
     assert(result);
 
     size = 9999;
     index = 8888;
     result = InstanceIndexFile::modifyEntry(PATH, 
-	CIMReference("X.key1=1005,key2=\"Hello World 5\""), index, size);
+	CIMReference("X.key1=1005,key2=\"Hello World 5\""), 
+	index, size, freeCount);
     assert(result);
 
     //
@@ -122,11 +125,89 @@ void _Test01()
     }
 }
 
+void _Test02()
+{
+    const char PATH[] = "X.instances";
+
+    //
+    // Append some instances:
+    //
+
+    Array<Sint8> data;
+
+    data.append("AAAAAAAA", 8);
+    InstanceDataFile::appendInstance(PATH, data);
+    data.clear();
+
+    data.append("BBBBBBBB", 8);
+    InstanceDataFile::appendInstance(PATH, data);
+    data.clear();
+
+    data.append("CCCCCCCC", 8);
+    InstanceDataFile::appendInstance(PATH, data);
+    data.clear();
+
+    //
+    // Load some instances:
+    //
+
+    InstanceDataFile::loadInstance(PATH, 8, 8, data);
+    assert(memcmp(data.getData(), "BBBBBBBB", 8) == 0);
+    data.clear();
+
+    InstanceDataFile::loadInstance(PATH, 0, 8, data);
+    assert(memcmp(data.getData(), "AAAAAAAA", 8) == 0);
+    data.clear();
+
+    InstanceDataFile::loadInstance(PATH, 16, 8, data);
+    assert(memcmp(data.getData(), "CCCCCCCC", 8) == 0);
+    data.clear();
+
+    //
+    // Load all instances:
+    //
+
+    InstanceDataFile::loadAllInstances(PATH, data);
+    assert(memcmp(data.getData(), "AAAAAAAABBBBBBBBCCCCCCCC", 24) == 0);
+    assert(data.size() == 3 * 8);
+    data.clear();
+
+    //
+    // Now attempt rollback:
+    //
+
+    assert(InstanceDataFile::beginTransaction(PATH));
+
+    data.append("ZZZZZZZZ", 8);
+    InstanceDataFile::appendInstance(PATH, data);
+    data.clear();
+
+    assert(InstanceDataFile::rollbackTransaction(PATH));
+
+    //
+    // Now attempt commit:
+    //
+
+    assert(InstanceDataFile::beginTransaction(PATH));
+
+    data.append("DDDDDDDD", 8);
+    InstanceDataFile::appendInstance(PATH, data);
+    data.clear();
+
+    InstanceDataFile::loadAllInstances(PATH, data);
+    assert(memcmp(data.getData(), "AAAAAAAABBBBBBBBCCCCCCCCDDDDDDDD", 32) == 0);
+    assert(data.size() == 4 * 8);
+    data.clear();
+
+    assert(InstanceDataFile::commitTransaction(PATH));
+}
+
 int main(int argc, char** argv)
 {
     try
     {
-	_Test01();
+	// _Test01();
+	_Test02();
     }
 
     catch (Exception& e)

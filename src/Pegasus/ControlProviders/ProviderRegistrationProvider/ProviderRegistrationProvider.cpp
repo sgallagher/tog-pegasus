@@ -991,104 +991,32 @@ void ProviderRegistrationProvider::invokeMethod(
 
     Sint16 ret_value;
 
-    if(methodName.equal(_STOP_PROVIDER))
+    try
     {
-	// disable module
-	try
-	{
-// l10n
+        if(methodName.equal(_STOP_PROVIDER))
+    	{
+	    // disable module
     	     ret_value =  _disableModule(objectReference, moduleName, false, al);
 	}
-    	catch(CIMException& e)
+    	else if(methodName.equal(_START_PROVIDER))
     	{
-	     throw (e);
-        }
-
-	CIMValue retValue(ret_value);
-	handler.deliver(retValue);
-    	handler.complete();
-	return;
-    }
-    else if(methodName.equal(_START_PROVIDER))
-    {
-    	//
-    	// get module status
-    	//
-    	Array<Uint16> _OperationalStatus =
-	    _providerRegistrationManager->getProviderModuleStatus( moduleName);
-
-	for (Uint32 i = 0; i<_OperationalStatus.size(); i++)
-	{
-	    // retValue equals 1 if module is already enabled
-	    if (_OperationalStatus[i] == _MODULE_OK)
-	    {
-		ret_value = 1;
-		CIMValue retValue(ret_value);
-		handler.deliver(retValue);
-    		handler.complete();
-		return;
-	    }
-
-	    // retValue equals 2 if module is stopping
-	    // at this stage, module can not be started
-	    if (_OperationalStatus[i] == _MODULE_STOPPING)
-	    {
-		ret_value = 2;
-		CIMValue retValue(ret_value);
-                handler.deliver(retValue);
-                handler.complete();
-                return;
-	    }
+	    // enable module
+    	     ret_value =  _enableModule(objectReference, moduleName, al);
 	}
-
-        // get module instance
-        CIMInstance mInstance = 
-	    _providerRegistrationManager->getInstance(objectReference);
-
-        //
-        // get provider manager service
-        //
-        MessageQueueService * _service = _getProviderManagerService();
-
-	if (_service != NULL)
-	{
-	    // create CIMEnableModuleRequestMessage
-	    CIMEnableModuleRequestMessage * enable_req =
-	        new CIMEnableModuleRequestMessage(
-		    XmlWriter::getNextMessageId (),
-		    mInstance,
-		    QueueIdStack(_service->getQueueId()));
-// l10n
-            enable_req->acceptLanguages = al;
-
-  	    Array<Uint16> _opStatus;
-            _opStatus = _sendEnableMessageToProviderManager(enable_req);
-
-	    for (Uint32 i = 0; i<_opStatus.size(); i++)
-	    {
-	        if (_opStatus[i] == _MODULE_OK)
-	        {
-		    // module was enabled successfully
-		    ret_value = 0;
-		    CIMValue retValue(ret_value);
-		    handler.deliver(retValue);
-    		    handler.complete();
-		    return;
-	        }
-	    }
-	}
-
-        // enable failed
-	ret_value = -1;
-	CIMValue retValue(ret_value);
-	handler.deliver(retValue);
-    	handler.complete();
-	return;
+        else
+    	{
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_METHOD_NOT_AVAILABLE, String::EMPTY);
+    	}
     }
-    else
+    catch(CIMException& e)
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_METHOD_NOT_AVAILABLE, String::EMPTY);
+	throw (e);
     }
+
+    CIMValue retValue(ret_value);
+    handler.deliver(retValue);
+    handler.complete();
+    return;
 }
 
 // get provider manager service
@@ -1486,6 +1414,198 @@ Sint16 ProviderRegistrationProvider::_disableModule(
 	return (-1);
 }
 
+// enable provider module 
+// return 0 if module is enabled successfully,
+// return 1 if module is already enabled,
+// return 2 if module can not be enabled since module is stopping,
+// otherwise, return -1 
+Sint16 ProviderRegistrationProvider::_enableModule(
+    const CIMObjectPath & moduleRef, 
+    const String & moduleName,
+    const AcceptLanguages & al)
+{
+    	//
+    	// get module status
+    	//
+    	Array<Uint16> _OperationalStatus =
+	    _providerRegistrationManager->getProviderModuleStatus( moduleName);
+
+	for (Uint32 i = 0; i<_OperationalStatus.size(); i++)
+	{
+	    // retValue equals 1 if module is already enabled
+	    if (_OperationalStatus[i] == _MODULE_OK)
+	    {
+		return (1);
+	    }
+
+	    // retValue equals 2 if module is stopping
+	    // at this stage, module can not be started
+	    if (_OperationalStatus[i] == _MODULE_STOPPING)
+	    {
+                return (2);
+	    }
+	}
+
+        // get module instance
+        CIMInstance mInstance = 
+	    _providerRegistrationManager->getInstance(moduleRef);
+
+	//
+        // get provider manager service
+        //
+        MessageQueueService * _service = _getProviderManagerService();
+	Boolean enabled = false;
+
+	if (_service != NULL)
+	{
+	    // create CIMEnableModuleRequestMessage
+	    CIMEnableModuleRequestMessage * enable_req =
+	        new CIMEnableModuleRequestMessage(
+		    XmlWriter::getNextMessageId (),
+		    mInstance,
+		    QueueIdStack(_service->getQueueId()));
+// l10n
+            enable_req->acceptLanguages = al;
+
+  	    Array<Uint16> _opStatus;
+            _opStatus = _sendEnableMessageToProviderManager(enable_req);
+
+	    for (Uint32 i = 0; i<_opStatus.size(); i++)
+	    {
+		// module is enabled successfully
+	        if (_opStatus[i] == _MODULE_OK)
+	        {
+		    enabled = true;
+	        }
+	    }
+	}
+
+	if (enabled)
+	{
+	    //
+	    // if the module is enabled, need to send enable message to 
+	    // subscription service if the provider is an indication provider
+	    //
+
+	    CIMObjectPath providerRef = CIMObjectPath(String::EMPTY,
+				    moduleRef.getNameSpace(),
+				    PEGASUS_CLASSNAME_PROVIDER,
+				    Array<CIMKeyBinding>());
+
+	    //
+	    // get all provider instances which have same module name as
+	    // moduleName
+            //
+	    Array<CIMObjectPath> instanceNames =
+	        _providerRegistrationManager->enumerateInstanceNames(providerRef);
+	    CIMInstance pInstance;
+	    String _moduleName;
+	    String _providerName;
+	    Array<CIMInstance> capInstances;
+
+	    for(Uint32 i = 0, n=instanceNames.size(); i < n; i++)
+	    {
+
+                Array<CIMKeyBinding> keys = instanceNames[i].getKeyBindings();
+
+                for(Uint32 j=0; j < keys.size(); j++)
+                {
+	            //
+                    // get provider module name from reference
+                    //
+                    if(keys[j].getName().equal (_PROPERTY_PROVIDERMODULENAME))
+                    {
+                        _moduleName = keys[j].getValue();
+                    }
+
+	            //
+                    // get provider name from reference
+                    //
+                    if(keys[j].getName().equal (_PROPERTY_PROVIDER_NAME))
+                    {
+                        _providerName = keys[j].getValue();
+                    }
+                }
+
+	        if (String::equalNoCase(_moduleName, moduleName))
+	        {
+	 	    providerRef.setKeyBindings(keys);
+	            pInstance = _providerRegistrationManager->getInstance
+			(providerRef);
+		    // 
+		    // get all the indication capability instances which belongs 
+		    // to this provider
+		    //
+		    capInstances = _getIndicationCapInstances(
+				   moduleName, pInstance, providerRef);
+
+		    //
+		    // if there are indication capability instances
+		    //
+		    if (capInstances.size() != 0)
+		    {
+		        _sendEnableMessageToSubscription(mInstance,
+		  					 pInstance,
+						     	 capInstances,
+							 al);
+		    }
+	        }    
+	    }
+	    return (0);
+	}
+
+
+        // enable failed
+	return (-1);
+}
+
+// send enable message to indication service
+void ProviderRegistrationProvider::_sendEnableMessageToSubscription(
+    const CIMInstance & mInstance,
+    const CIMInstance & pInstance,
+    const Array<CIMInstance> & capInstances,
+    const AcceptLanguages & al)
+{
+    //
+    // get indication server queueId
+    //
+    MessageQueueService * _service = _getIndicationService();
+
+    if (_service != NULL)
+    {
+    	Uint32 _queueId = _service->getQueueId();
+	    
+    	CIMNotifyProviderEnableRequestMessage * enable_req = 
+		new CIMNotifyProviderEnableRequestMessage (
+		    XmlWriter::getNextMessageId (),
+		    mInstance,
+		    pInstance,
+		    capInstances,
+		    QueueIdStack(_service->getQueueId()));
+
+	enable_req->acceptLanguages = al;
+
+	// create request envelope
+        AsyncLegacyOperationStart * asyncRequest =
+            new AsyncLegacyOperationStart (
+                _service->get_next_xid(),
+                NULL,
+                _queueId,
+                enable_req,
+                _queueId);
+	    
+	if( false  == _controller->ClientSendForget(
+                      *_client_handle,
+                      _queueId,
+                      asyncRequest))
+        {
+            delete asyncRequest;
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, String::EMPTY);
+        }
+
+    }
+}
+
 // If the provider is indication provider, return true,
 // otherwise, return false
 Boolean ProviderRegistrationProvider::_isIndicationProvider(
@@ -1562,6 +1682,87 @@ Boolean ProviderRegistrationProvider::_isIndicationProvider(
     }
 
     return (false);
+}
+
+//
+// get all the capability instances whose provider type is indication 
+// 
+Array<CIMInstance> ProviderRegistrationProvider::_getIndicationCapInstances(
+    const String & moduleName,
+    const CIMInstance & instance,
+    const CIMObjectPath & providerRef)
+{
+    // get provider name
+    String providerName;
+    Uint32 pos = instance.findProperty(CIMName (_PROPERTY_PROVIDER_NAME));
+    if (pos != PEG_NOT_FOUND)
+    {
+	instance.getProperty(pos).getValue().get(providerName);	
+    }
+
+    CIMObjectPath capabilityRef;
+
+    capabilityRef = CIMObjectPath(providerRef.getHost(),
+				  providerRef.getNameSpace(),
+		       		  PEGASUS_CLASSNAME_CAPABILITIESREGISTRATION,
+		       		  providerRef.getKeyBindings());
+
+    // get all Capabilities instances
+    Array<CIMObjectPath> instanceNames =
+	_providerRegistrationManager->enumerateInstanceNames(capabilityRef);
+			
+    String _moduleName, _providerName;
+    CIMInstance capInstance;
+    Array<Uint16> providerTypes;
+    Array<CIMInstance> indCapInstances = 0;
+    for(Uint32 i = 0, n=instanceNames.size(); i < n; i++)
+    {
+	Array<CIMKeyBinding> keys = instanceNames[i].getKeyBindings();
+
+	for(Uint32 j=0; j < keys.size(); j++)
+        {
+             if(keys[j].getName().equal (_PROPERTY_PROVIDERMODULENAME))
+             {
+                  _moduleName = keys[j].getValue();
+             }
+
+             if(keys[j].getName().equal (_PROPERTY_PROVIDERNAME))
+             {
+                  _providerName = keys[j].getValue();
+             }
+
+	     //
+	     // if capability instance has same module name as moduleName
+	     // and same provider name as providerName, get provider type
+	     //
+	     if(String::equal(_moduleName, moduleName) &&
+		String::equal(_providerName, providerName))
+	     {
+		  capInstance = _providerRegistrationManager->getInstance
+				(instanceNames[i]);
+
+		  Uint32 pos = capInstance.findProperty(CIMName (_PROPERTY_PROVIDERTYPE));
+    		  if (pos != PEG_NOT_FOUND)
+		  {
+		       capInstance.getProperty(pos).getValue().get(providerTypes); 
+
+    			for (Uint32 k=0; k < providerTypes.size(); k++)
+    			{
+			    // 
+		 	    // if provider type of the instance is indication,
+			    // append the instance 
+			    //
+        		    if (providerTypes[k] == _INDICATION_PROVIDER)
+        		    {
+            			indCapInstances.append(capInstance);
+        		    }
+    			}
+		  }
+  	     }
+        }
+    }
+
+    return (indCapInstances);
 }
 
 PEGASUS_NAMESPACE_END

@@ -2072,7 +2072,7 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
     CIMSetPropertyResponseMessage * response =
         new CIMSetPropertyResponseMessage(
         request->messageId,
-        CIMException(),
+	CIMException(),
         request->queueIds.copyAndPop());
 
 
@@ -3069,55 +3069,84 @@ void ProviderManagerService::handleEnableModuleRequest(AsyncOpNode *op, const Me
 
     PEGASUS_ASSERT(request != 0 && async != 0 );
 
-    //
-    // get module status
-    //
-    CIMInstance mInstance = request->providerModule;
+    CIMException cimException;
     Array<Uint16> operationalStatus;
-    Uint32 pos = mInstance.findProperty(CIMName ("OperationalStatus"));
 
-    if (pos != PEG_NOT_FOUND)
+    try
     {
         //
-        //  ATTN-CAKG-P2-20020821: Check for null status?
+        // get module status
         //
-        mInstance.getProperty(pos).getValue().get(operationalStatus);
-    }
+        CIMInstance mInstance = request->providerModule;
+        Uint32 pos = mInstance.findProperty(CIMName ("OperationalStatus"));
 
-    // update module status from Stopped to OK
-    for(Uint32 i=0, n = operationalStatus.size(); i < n; i++)
-    {
-        if (operationalStatus[i] == _MODULE_STOPPED)
+        if (pos != PEG_NOT_FOUND)
         {
-            operationalStatus.remove(i);
+            //
+            //  ATTN-CAKG-P2-20020821: Check for null status?
+            //
+            mInstance.getProperty(pos).getValue().get(operationalStatus);
         }
-    }
-    operationalStatus.append(_MODULE_OK);
 
-    //
-    // get module name
-    //
-    String moduleName;
-    Uint32 pos2 = mInstance.findProperty(CIMName ("Name"));
-    if (pos2 != PEG_NOT_FOUND)
-    {
-	mInstance.getProperty(pos2).getValue().get(moduleName);
-    }
+        // update module status from Stopped to OK
+        for(Uint32 i=0, n = operationalStatus.size(); i < n; i++)
+        {
+            if (operationalStatus[i] == _MODULE_STOPPED)
+            {
+                operationalStatus.remove(i);
+            }
+        }
+        operationalStatus.append(_MODULE_OK);
 
-    if(_providerRegistrationManager->setProviderModuleStatus
-        (moduleName, operationalStatus) == false)
-    {
-    	//l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+        //
+        // get module name
+        //
+        String moduleName;
+        Uint32 pos2 = mInstance.findProperty(CIMName ("Name"));
+        if (pos2 != PEG_NOT_FOUND)
+        {
+	    mInstance.getProperty(pos2).getValue().get(moduleName);
+        }
+
+        if(_providerRegistrationManager->setProviderModuleStatus
+            (moduleName, operationalStatus) == false)
+        {
+    	    //l10n
+            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
             				"ProviderManager.ProviderManagerService.SET_MODULE_STATUS_FAILED",
             				"set module status failed."));
+        }
+    }
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+                         "Exception: " + e.getMessage());
+        cimException = e;
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+                         "Exception: " + e.getMessage());
+        cimException = CIMException(CIM_ERR_FAILED, e.getMessage());
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+                         "Exception: Unknown");
+        //l10n
+        //response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
+        cimException = PEGASUS_CIM_EXCEPTION_L(
+            CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "ProviderManager.ProviderManagerService.UNKNOWN_ERROR",
+                "Unknown Error"));
     }
 
     CIMEnableModuleResponseMessage * response =
         new CIMEnableModuleResponseMessage(
         request->messageId,
-        CIMException(),
+        cimException,
         request->queueIds.copyAndPop(),
         operationalStatus);
 

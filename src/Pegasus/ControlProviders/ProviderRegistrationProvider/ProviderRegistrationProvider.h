@@ -30,9 +30,9 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/ControlProviders/ProviderRegistrationProvider/Linkage.h>
 
-#include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
+#include <Pegasus/Common/ModuleController.h>
 
 #include <Pegasus/Common/AcceptLanguages.h> // l10n
 
@@ -165,6 +165,26 @@ protected:
     Boolean _isIndicationProvider(const String & moduleName,
                                   const CIMInstance & instance,
                                   const CIMObjectPath & providerRef);
+
+    Sint16 _enableModule(const CIMObjectPath & moduleRef, 
+			 const String & moduleName,
+                         const AcceptLanguages & al); 
+
+    void _sendEnableMessageToSubscription(
+	const CIMInstance & mInstance,
+	const CIMInstance & pInstance,
+	const Array<CIMInstance> & capInstances,
+	const AcceptLanguages & al);
+
+     //
+    // get all the indication capability instances which belongs
+    // to the provider
+    //
+    Array<CIMInstance>  _getIndicationCapInstances(
+	const String & moduleName,
+	const CIMInstance & instance,
+	const CIMObjectPath & providerRef);
+
 };
 
 PEGASUS_NAMESPACE_END

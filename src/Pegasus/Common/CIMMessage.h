@@ -1404,6 +1404,30 @@ public:
     String userName;
 };
 
+class CIMNotifyProviderEnableRequestMessage : public CIMRequestMessage
+{
+public:
+    CIMNotifyProviderEnableRequestMessage(
+	const String & messageId_,
+	const CIMInstance & providerModule_,
+	const CIMInstance & provider_,
+	const Array <CIMInstance> & capInstances_,
+	QueueIdStack queueIds_)
+    : CIMRequestMessage(
+	CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE,
+	messageId_,
+        queueIds_),
+	providerModule(providerModule_),
+	provider(provider_),
+	capInstances(capInstances_)
+	{
+	}
+    
+    CIMInstance providerModule;
+    CIMInstance provider;
+    Array <CIMInstance> capInstances;
+};
+
 class CIMStopAllProvidersRequestMessage : public CIMRequestMessage
 {
    public:

@@ -36,10 +36,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+/** This is an internal structure used for holding parser state information
+    during parsing (while inside the WQLParser::parse() method). Instances
+    of this class are created and destroyed by WQLParser::parse().
+*/
 struct WQLParserState
 {
-    WQLParserState() { }
-
     //
     // Text containing SELECT statement (must be null-terminated).
     //
@@ -53,7 +55,9 @@ struct WQLParserState
     Uint32 offset;
 
     //
-    // The output object being initialized during parsing.
+    // The output object being initialized during parsing. This object is
+    // set to point to the statment argument passed to the WQLParser::parse()
+    // method.
     //
 
     WQLSelectStatement* statement;

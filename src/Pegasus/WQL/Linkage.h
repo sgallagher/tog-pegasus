@@ -38,6 +38,5 @@
 #    endif
 #  else
 #    define PEGASUS_WQL_LINKAGE
-#    define PEGASUS_WQL_LINKAGE
 #  endif
 #endif

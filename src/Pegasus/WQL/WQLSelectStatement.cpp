@@ -86,32 +86,32 @@ static Boolean _Evaluate(
 	case WQLOperand::INTEGER_VALUE:
 	{
 	    return _Compare(
-		lhs.valueOf(WQLOperand::INTEGER_VALUE_TAG), 
-		rhs.valueOf(WQLOperand::INTEGER_VALUE_TAG), 
+		lhs.getIntegerValue(),
+		rhs.getIntegerValue(),
 		op);
 	}
 
 	case WQLOperand::DOUBLE_VALUE:
 	{
 	    return _Compare(
-		lhs.valueOf(WQLOperand::DOUBLE_VALUE_TAG), 
-		rhs.valueOf(WQLOperand::DOUBLE_VALUE_TAG), 
+		lhs.getDoubleValue(),
+		rhs.getDoubleValue(),
 		op);
 	}
 
 	case WQLOperand::BOOLEAN_VALUE:
 	{
 	    return _Compare(
-		lhs.valueOf(WQLOperand::BOOLEAN_VALUE_TAG), 
-		rhs.valueOf(WQLOperand::BOOLEAN_VALUE_TAG), 
+		lhs.getBooleanValue(),
+		rhs.getBooleanValue(),
 		op);
 	}
 
 	case WQLOperand::STRING_VALUE:
 	{
 	    return _Compare(
-		lhs.valueOf(WQLOperand::STRING_VALUE_TAG), 
-		rhs.valueOf(WQLOperand::STRING_VALUE_TAG), 
+		lhs.getStringValue(),
+		rhs.getStringValue(),
 		op);
 	}
 
@@ -145,9 +145,29 @@ void WQLSelectStatement::clear()
     _operands.clear();
 }
 
+static inline void _ResolveProperty(
+    WQLOperand& op,
+    const WQLPropertySource* source)
+{
+    //
+    // Resolve the operand: if it's a property name, look up its value:
+    //
+
+    if (op.getType() == WQLOperand::PROPERTY_NAME)
+    {
+	const String& propertyName = op.getPropertyName();
+
+	if (!source->getValue(propertyName, op))
+	    throw NoSuchProperty(propertyName);
+    }
+}
+
 Boolean WQLSelectStatement::evaluateWhereClause(
     const WQLPropertySource* source) const
 {
+    if (!hasWhereClause())
+	return true;
+
     WQLSelectStatement* that = (WQLSelectStatement*)this;
     Stack<Boolean> stack;
     stack.reserve(16);
@@ -218,15 +238,7 @@ Boolean WQLSelectStatement::evaluateWhereClause(
 		//
 
 		WQLOperand& lhs = that->_operands[j++];
-
-		if (lhs.getType() == WQLOperand::PROPERTY_NAME)
-		{
-		    const String& propertyName = 
-			lhs.valueOf(WQLOperand::PROPERTY_NAME_TAG);
-
-		    if (!source->getValue(propertyName, lhs))
-			throw NoSuchProperty(propertyName);
-		}
+		_ResolveProperty(lhs, source);
 
 		//
 		// Resolve the right-hand-side to a value (if not already
@@ -234,15 +246,7 @@ Boolean WQLSelectStatement::evaluateWhereClause(
 		//
 
 		WQLOperand& rhs = that->_operands[j++];
-
-		if (rhs.getType() == WQLOperand::PROPERTY_NAME)
-		{
-		    const String& propertyName = 
-			rhs.valueOf(WQLOperand::PROPERTY_NAME_TAG);
-
-		    if (!source->getValue(propertyName, rhs))
-			throw NoSuchProperty(propertyName);
-		}
+		_ResolveProperty(rhs, source);
 
 		//
 		// Check for a type mismatch:
@@ -280,17 +284,19 @@ Boolean WQLSelectStatement::evaluateWhereClause(
 
 	    case WQL_IS_NULL:
 	    {
-		PEGASUS_ASSERT(stack.size() >= 1);
-		WQLOperand& x = that->_operands[j++];
-		stack.push(x.getType() == WQLOperand::NULL_VALUE);
+		PEGASUS_ASSERT(_operands.size() >= 1);
+		WQLOperand& op = that->_operands[j++];
+		_ResolveProperty(op, source);
+		stack.push(op.getType() == WQLOperand::NULL_VALUE);
 		break;
 	    }
 
 	    case WQL_IS_NOT_NULL:
 	    {
-		PEGASUS_ASSERT(stack.size() >= 1);
-		WQLOperand& x = that->_operands[j++];
-		stack.push(x.getType() != WQLOperand::NULL_VALUE);
+		PEGASUS_ASSERT(_operands.size() >= 1);
+		WQLOperand& op = that->_operands[j++];
+		_ResolveProperty(op, source);
+		stack.push(op.getType() != WQLOperand::NULL_VALUE);
 		break;
 	    }
 	}

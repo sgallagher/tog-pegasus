@@ -43,9 +43,9 @@ void test01()
     //
 
     WQLSimplePropertySource source;
-    assert(source.addValue("x", WQLOperand(10, WQLOperand::INTEGER_VALUE_TAG)));
-    assert(source.addValue("y", WQLOperand(20, WQLOperand::INTEGER_VALUE_TAG)));
-    assert(source.addValue("z", WQLOperand(1.5, WQLOperand::DOUBLE_VALUE_TAG)));
+    assert(source.addValue("x", WQLOperand(10, WQL_INTEGER_VALUE_TAG)));
+    assert(source.addValue("y", WQLOperand(20, WQL_INTEGER_VALUE_TAG)));
+    assert(source.addValue("z", WQLOperand(1.5, WQL_DOUBLE_VALUE_TAG)));
 
     //
     // Define query:

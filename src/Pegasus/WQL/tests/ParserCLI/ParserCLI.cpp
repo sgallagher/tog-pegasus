@@ -81,7 +81,33 @@ int main(int argc, char** argv)
 	exit(1);
     }
 
-    statement.print();
+    // statement.print();
+
+    //
+    // Create a property source:
+    //
+
+    WQLSimplePropertySource source;
+    assert(source.addValue("v", WQLOperand()));
+    assert(source.addValue("w", WQLOperand(true, WQL_BOOLEAN_VALUE_TAG)));
+    assert(source.addValue("x", WQLOperand(10, WQL_INTEGER_VALUE_TAG)));
+    assert(source.addValue("y", WQLOperand(10.10, WQL_DOUBLE_VALUE_TAG)));
+    assert(source.addValue("z", WQLOperand("Ten", WQL_STRING_VALUE_TAG)));
+
+    //
+    // Evaluate the where clause:
+    //
+
+    try
+    {
+	assert(statement.evaluateWhereClause(&source) == true);
+    }
+    catch (Exception& e)
+    {
+	cerr << e.getMessage() << endl;
+    }
+
+    cout << "+++++ passed all tests" << endl;
 
     return 0;
 }

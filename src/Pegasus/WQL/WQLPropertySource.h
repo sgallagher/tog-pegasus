@@ -46,12 +46,20 @@ class PEGASUS_WQL_LINKAGE WQLPropertySource
 {
 public:
 
+    /** Virtual destructor.
+    */
     virtual ~WQLPropertySource();
 
-    // 
-    // Returns the value of the property with the given name:
-    //
+    /** Returns the value whose property has the given name. The output
+	parameter value is populated with the value of that parameter.
+	Note that only integer, double, and string types are supported
+	(see the WQLOperand class). The implementer of this method must
+	perform appropriate conversions to the appropriate type.
 
+	@param propertyName name of property to be gotten.
+	@param value holds the value of the property upon return.
+	@return true if such a property was found and false otherwise.
+    */
     virtual Boolean getValue(
 	const String& propertyName, 
 	WQLOperand& value) const = 0;

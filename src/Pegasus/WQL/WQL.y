@@ -300,27 +300,27 @@ comparisonTerm
     : propertyName
     {
 	globalParserState->statement->appendOperand(
-	    WQLOperand($1, WQLOperand::PROPERTY_NAME_TAG));
+	    WQLOperand($1, WQL_PROPERTY_NAME_TAG));
     }
     | TOK_INTEGER
     {
 	globalParserState->statement->appendOperand(
-	    WQLOperand($1, WQLOperand::INTEGER_VALUE_TAG));
+	    WQLOperand($1, WQL_INTEGER_VALUE_TAG));
     }
     | TOK_DOUBLE
     {
 	globalParserState->statement->appendOperand(
-	    WQLOperand($1, WQLOperand::DOUBLE_VALUE_TAG));
+	    WQLOperand($1, WQL_DOUBLE_VALUE_TAG));
     }
     | TOK_STRING
     {
 	globalParserState->statement->appendOperand(
-	    WQLOperand($1, WQLOperand::STRING_VALUE_TAG));
+	    WQLOperand($1, WQL_STRING_VALUE_TAG));
     }
     | truthValue
     {
 	globalParserState->statement->appendOperand(
-	    WQLOperand($1 != 0, WQLOperand::BOOLEAN_VALUE_TAG));
+	    WQLOperand($1 != 0, WQL_BOOLEAN_VALUE_TAG));
     }
 
 %%

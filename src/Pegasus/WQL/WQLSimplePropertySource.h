@@ -36,18 +36,44 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_WQL_LINKAGE WQLSimplePropertySource : public WQLPropertySource
+/** This class provides a simple property source implementation mainly for
+    testing purposes only.
+
+    It maintains a hash table which maps property names to values (represented
+    using WQLOperand objects).
+
+    This class implements getValue() by simply looking up the property name
+    in the map and fetching the corresponding value.
+
+    The addValue() method is used to add property-name/value pairs to the 
+    internal map.
+
+    Since this class is intended for testing purposes, all of the methods
+    are inline to avoid making the library any larger.
+*/
+class WQLSimplePropertySource : public WQLPropertySource
 {
 public:
 
+    /** Default constructor.
+    */
     WQLSimplePropertySource()
     {
     }
 
+    /** Virtual destructor.
+    */
     virtual ~WQLSimplePropertySource()
     {
     }
 
+    /** Get the value for the property with the given name. Simply looks up
+	the property name in the internal map to fetch the value.
+
+	@param propertyName name of property to be retrieved.
+	@param value value of property.
+	@return true is such a property exists and false otherwise.
+    */
     virtual Boolean getValue(
 	const String& propertyName, 
 	WQLOperand& value) const
@@ -55,6 +81,12 @@ public:
 	return _map.lookup(propertyName, value);
     }
 
+    /** Add the given propert-name/value pair to the internal map.
+	
+	@param propertyName name of property.
+	@param value value of property.
+	@return true if no such property already existed and false otherwise.
+    */
     Boolean addValue(
 	const String& propertyName, 
 	const WQLOperand& value)

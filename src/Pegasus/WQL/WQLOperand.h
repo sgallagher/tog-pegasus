@@ -37,10 +37,90 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+/** Tag used to force invocation of the integer value form of the WQLOperand
+    Constructor.
+*/
+enum WQLIntegerValueTag 
+{ 
+    WQL_INTEGER_VALUE_TAG 
+};
+
+/** Tag used to force invocation of the double value form of the WQLOperand
+    Constructor.
+*/
+enum WQLDoubleValueTag 
+{ 
+    WQL_DOUBLE_VALUE_TAG 
+};
+
+/** Tag used to force invocation of the boolean value form of the WQLOperand
+    Constructor.
+*/
+enum WQLBooleanValueTag 
+{ 
+    WQL_BOOLEAN_VALUE_TAG 
+};
+
+/** Tag used to force invocation of the string value form of the WQLOperand
+    Constructor.
+*/
+enum WQLStringValueTag 
+{ 
+    WQL_STRING_VALUE_TAG 
+};
+
+/** Tag used to force invocation of the property name form of the WQLOperand
+    Constructor.
+*/
+enum WQLPropertyNameTag 
+{ 
+    WQL_PROPERTY_NAME_TAG 
+};
+
+/** Used to represent SQL where clause operands.
+
+    Instances of WQLOperand are used to represent the operands of the
+    SQL where clause. Instances of this class are created while parsing
+    a SQL where clause and added to the WQLSelectStatement by calling the
+    WQLSelectStatement::appendOperand() method. Consider the following
+    example:
+
+    <pre>
+	SELECT ratio, size, name, str
+	FROM MyClass
+	WHERE ratio &gt; 1.4 AND size = 3 AND name = "Hello" AND str IS NULL
+    </pre>
+
+    In this example, the following are operands:
+
+    <pre>
+	ratio
+	1.4
+	size
+	3
+	name
+	"Hello"
+	str
+    </pre>
+
+    Operands are of one of the following types:
+
+    <ul>
+	<li>NULL_VALUE - contains a null value of any type</li>
+	<li>INTEGER_VALUE - an integer literal (e.g., 10, -22)</li>
+	<li>DOUBLE_VALUE - a double literal (e.g., 1.4, 1.375e-5)</li>
+	<li>BOOLEAN_VALUE - a boolean literal (e.g., TRUE or FALSE)</li>
+	<li>STRING_VALUE - a string literal (e.g., "Hello World")</li>
+	<li>PROPERTY_NAME- the name of a property (e.g., count, size)</li>
+    </ul>
+*/
 class PEGASUS_WQL_LINKAGE WQLOperand
 {
 public:
 
+    /** Defines allowed types of WQL operands (NULL_VALUE, INTEGER_VALUE,
+	DOUBLE_VALUE, BOOLEAN_VALUE, STRING_VALUE, PROPERTY_NAME).
+    */
     enum Type
     {
 	NULL_VALUE,
@@ -51,93 +131,122 @@ public:
 	PROPERTY_NAME
     };
 
-    enum IntegerValueTag { INTEGER_VALUE_TAG };
-    enum DoubleValueTag { DOUBLE_VALUE_TAG };
-    enum BooleanValueTag { BOOLEAN_VALUE_TAG };
-    enum StringValueTag { STRING_VALUE_TAG };
-    enum PropertyNameTag { PROPERTY_NAME_TAG };
-
-
+    /** Desfault constructor. Initializes to null value.
+    */
     WQLOperand();
 
+    /** Copy constructor.
+    */
     WQLOperand(const WQLOperand& x);
 
-    WQLOperand(Sint32 x, IntegerValueTag)
+    /** Initializes object as INTEGER_VALUE.
+    */
+    WQLOperand(Sint32 x, WQLIntegerValueTag)
     {
 	_integerValue = x;
 	_type = INTEGER_VALUE;
     }
 
-    WQLOperand(Real64 x, DoubleValueTag)
+    /** Initializes object as DOUBLE_VALUE.
+    */
+    WQLOperand(Real64 x, WQLDoubleValueTag)
     {
 	_doubleValue = x;
 	_type = DOUBLE_VALUE;
     }
 
-    WQLOperand(Boolean x, BooleanValueTag)
+    /** Initializes object as BOOLEAN_VALUE.
+    */
+    WQLOperand(Boolean x, WQLBooleanValueTag)
     {
 	_booleanValue = x;
 	_type = BOOLEAN_VALUE;
     }
 
-    WQLOperand(const String& x, StringValueTag)
+    /** Initializes object as STRING_VALUE.
+    */
+    WQLOperand(const String& x, WQLStringValueTag)
     {
 	new(_stringValue) String(x);
 	_type = STRING_VALUE;
     }
 
-    WQLOperand(const String& x, PropertyNameTag)
+    /** Initializes object as PROPERTY_NAME.
+    */
+    WQLOperand(const String& x, WQLPropertyNameTag)
     {
 	new(_propertyName) String(x);
 	_type = PROPERTY_NAME;
     }
 
+    /** Destructor. 
+    */
     ~WQLOperand();
 
+    /** Assignment operator.
+    */
     WQLOperand& operator=(const WQLOperand& x);
 
+    /** Clears this object and sets its type to NULL_VALUE.
+    */
     void clear();
 
+    /** Assigns object from the given operand.
+    */
     void assign(const WQLOperand& x);
 
+    /** Accessor for getting the type of the operand.
+    */
     Type getType() const { return _type; }
 
-    void set(Sint32 x, IntegerValueTag)
+    /** Sets this object to an INTEGER_VALUE.
+    */
+    void setIntegerValue(Sint32 x)
     {
 	clear();
 	_integerValue = x;
 	_type = INTEGER_VALUE;
     }
 
-    void set(Real64 x, DoubleValueTag)
+    /** Sets this object to an DOUBLE_VALUE.
+    */
+    void setDoubleValue(Real64 x)
     {
 	clear();
 	_doubleValue = x;
 	_type = DOUBLE_VALUE;
     }
 
-    void set(Boolean x, BooleanValueTag)
+    /** Sets this object to a BOOLEAN_VALUE.
+    */
+    void setBooleanValue(Boolean x)
     {
 	clear();
 	_booleanValue = x;
 	_type = BOOLEAN_VALUE;
     }
 
-    void set(const String& x, StringValueTag)
+    /** Sets this object to a STRING_VALUE.
+    */
+    void setStringValue(const String& x)
     {
 	clear();
 	new(_stringValue) String(x);
 	_type = STRING_VALUE;
     }
 
-    void set(const String& x, PropertyNameTag)
+    /** Sets this object to a PROPERTY_NAME.
+    */
+    void setPropertyName(const String& x)
     {
 	clear();
 	new(_propertyName) String(x);
 	_type = PROPERTY_NAME;
     }
 
-    Sint32 valueOf(IntegerValueTag) const
+    /** Gets this object as an INTEGER_VALUE.
+    */
+    Sint32 getIntegerValue() const
     {
 	if (_type != INTEGER_VALUE)
 	    throw TypeMismatch();
@@ -145,7 +254,10 @@ public:
 	return _integerValue;
     }
 
-    Real32 valueOf(DoubleValueTag) const
+    /** Gets this object as an DOUBLE_VALUE.
+	@exception TypeMismatch is not the expected type.
+    */
+    Real32 getDoubleValue() const
     {
 	if (_type != DOUBLE_VALUE)
 	    throw TypeMismatch();
@@ -153,7 +265,10 @@ public:
 	return _doubleValue;
     }
 
-    Boolean valueOf(BooleanValueTag) const
+    /** Gets this object as an BOOLEAN_VALUE.
+	@exception TypeMismatch is not the expected type.
+    */
+    Boolean getBooleanValue() const
     {
 	if (_type != BOOLEAN_VALUE)
 	    throw TypeMismatch();
@@ -161,7 +276,10 @@ public:
 	return _booleanValue;
     }
 
-    const String& valueOf(StringValueTag) const
+    /** Gets this object as a STRING_VALUE.
+	@exception TypeMismatch is not the expected type.
+    */
+    const String& getStringValue() const
     {
 	if (_type != STRING_VALUE)
 	    throw TypeMismatch();
@@ -169,7 +287,10 @@ public:
 	return *((String*)_stringValue);
     }
 
-    const String& valueOf(PropertyNameTag) const
+    /** Gets this object as a PROPERTY_NAME.
+	@exception TypeMismatch is not the expected type.
+    */
+    const String& getPropertyName() const
     {
 	if (_type != PROPERTY_NAME)
 	    throw TypeMismatch();
@@ -177,6 +298,8 @@ public:
 	return *((String*)_propertyName);
     }
 
+    /** Converts this object to a string for output purposes.
+    */
     String toString() const;
 
 private:

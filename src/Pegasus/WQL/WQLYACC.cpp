@@ -1,6 +1,6 @@
 
-/*  A Bison parser, made from wql.y with Bison version GNU Bison version 1.24
-  */
+/*  A Bison parser, made from wql.y
+    by GNU Bison version 1.28  */
 
 #define YYBISON 1  /* Identify Bison output.  */
 
@@ -11,27 +11,27 @@
 #define yychar WQL_char
 #define yydebug WQL_debug
 #define yynerrs WQL_nerrs
-#define	TOK_INTEGER	258
-#define	TOK_DOUBLE	259
-#define	TOK_STRING	260
-#define	TOK_TRUE	261
-#define	TOK_FALSE	262
-#define	TOK_NULL	263
-#define	TOK_EQ	264
-#define	TOK_NE	265
-#define	TOK_LT	266
-#define	TOK_LE	267
-#define	TOK_GT	268
-#define	TOK_GE	269
-#define	TOK_NOT	270
-#define	TOK_OR	271
-#define	TOK_AND	272
-#define	TOK_IS	273
-#define	TOK_IDENTIFIER	274
-#define	TOK_SELECT	275
-#define	TOK_WHERE	276
-#define	TOK_FROM	277
-#define	TOK_UNEXPECTED_CHAR	278
+#define	TOK_INTEGER	257
+#define	TOK_DOUBLE	258
+#define	TOK_STRING	259
+#define	TOK_TRUE	260
+#define	TOK_FALSE	261
+#define	TOK_NULL	262
+#define	TOK_EQ	263
+#define	TOK_NE	264
+#define	TOK_LT	265
+#define	TOK_LE	266
+#define	TOK_GT	267
+#define	TOK_GE	268
+#define	TOK_NOT	269
+#define	TOK_OR	270
+#define	TOK_AND	271
+#define	TOK_IS	272
+#define	TOK_IDENTIFIER	273
+#define	TOK_SELECT	274
+#define	TOK_WHERE	275
+#define	TOK_FROM	276
+#define	TOK_UNEXPECTED_CHAR	277
 
 #line 9 "wql.y"
 
@@ -82,23 +82,6 @@ typedef union
    char* strValue;
    void* nodeValue;
 } YYSTYPE;
-
-#ifndef YYLTYPE
-typedef
-  struct yyltype
-    {
-      int timestamp;
-      int first_line;
-      int first_column;
-      int last_line;
-      int last_column;
-      char *text;
-   }
-  yyltype;
-
-#define YYLTYPE yyltype
-#endif
-
 #include <stdio.h>
 
 #ifndef __cplusplus
@@ -113,7 +96,7 @@ typedef
 #define	YYFLAG		-32768
 #define	YYNTBASE	28
 
-#define YYTRANSLATE(x) ((unsigned)(x) <= 278 ? yytranslate[x] : 43)
+#define YYTRANSLATE(x) ((unsigned)(x) <= 277 ? yytranslate[x] : 43)
 
 static const char yytranslate[] = {     0,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -141,9 +124,9 @@ static const char yytranslate[] = {     0,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-     2,     2,     2,     2,     2,     1,     2,     3,     4,     5,
-     6,     7,     8,     9,    10,    11,    12,    13,    14,    15,
-    16,    17,    18,    19,    20,    21,    22,    23
+     2,     2,     2,     2,     2,     1,     3,     4,     5,     6,
+     7,     8,     9,    10,    11,    12,    13,    14,    15,    16,
+    17,    18,    19,    20,    21,    22,    23
 };
 
 #if YYDEBUG != 0
@@ -177,6 +160,10 @@ static const short yyrline[] = { 0,
    238,   243,   248,   253,   258,   265,   270,   277,   281,   287,
    293,   300,   305,   310,   315,   320
 };
+#endif
+
+
+#if YYDEBUG != 0 || defined (YYERROR_VERBOSE)
 
 static const char * const yytname[] = {   "$","error","$undefined.","TOK_INTEGER",
 "TOK_DOUBLE","TOK_STRING","TOK_TRUE","TOK_FALSE","TOK_NULL","TOK_EQ","TOK_NE",
@@ -184,7 +171,7 @@ static const char * const yytname[] = {   "$","error","$undefined.","TOK_INTEGER
 "TOK_SELECT","TOK_WHERE","TOK_FROM","TOK_UNEXPECTED_CHAR","'*'","','","'('",
 "')'","start","selectStatement","selectList","propertyList","selectExpression",
 "fromClause","whereClause","searchCondition","predicate","comparisonPredicate",
-"nullPredicate","truthValue","propertyName","className","comparisonTerm",""
+"nullPredicate","truthValue","propertyName","className","comparisonTerm", NULL
 };
 #endif
 
@@ -1001,35 +988,35 @@ case 32:
 #line 301 "wql.y"
 {
 	globalParserState->statement->appendOperand(
-	    WQLOperand(yyvsp[0].strValue, WQLOperand::PROPERTY_NAME_TAG));
+	    WQLOperand(yyvsp[0].strValue, WQL_PROPERTY_NAME_TAG));
     ;
     break;}
 case 33:
 #line 306 "wql.y"
 {
 	globalParserState->statement->appendOperand(
-	    WQLOperand(yyvsp[0].intValue, WQLOperand::INTEGER_VALUE_TAG));
+	    WQLOperand(yyvsp[0].intValue, WQL_INTEGER_VALUE_TAG));
     ;
     break;}
 case 34:
 #line 311 "wql.y"
 {
 	globalParserState->statement->appendOperand(
-	    WQLOperand(yyvsp[0].doubleValue, WQLOperand::DOUBLE_VALUE_TAG));
+	    WQLOperand(yyvsp[0].doubleValue, WQL_DOUBLE_VALUE_TAG));
     ;
     break;}
 case 35:
 #line 316 "wql.y"
 {
 	globalParserState->statement->appendOperand(
-	    WQLOperand(yyvsp[0].strValue, WQLOperand::STRING_VALUE_TAG));
+	    WQLOperand(yyvsp[0].strValue, WQL_STRING_VALUE_TAG));
     ;
     break;}
 case 36:
 #line 321 "wql.y"
 {
 	globalParserState->statement->appendOperand(
-	    WQLOperand(yyvsp[0].intValue != 0, WQLOperand::BOOLEAN_VALUE_TAG));
+	    WQLOperand(yyvsp[0].intValue != 0, WQL_BOOLEAN_VALUE_TAG));
     ;
     break;}
 }

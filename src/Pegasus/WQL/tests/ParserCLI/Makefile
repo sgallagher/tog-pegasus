@@ -13,31 +13,22 @@ SOURCES = ParserCLI.cpp
 
 include $(ROOT)/mak/program.mak
 
-tests:
+tests: test1 test2 test3 test4 test5 test6
 
 test1:
-	ParserCLI "select * from MyClass"
+	@ ParserCLI "SELECT w,x,y,z FROM ClassName"
 
 test2:
-	ParserCLI \
-	    "SELECT min,max,count,flag" \
-	    "FROM MyClass" \
-	    "WHERE min > 10 AND max < 90 OR count > 10 AND flag = TRUE"
+	@ ParserCLI "SELECT w,x,y,z FROM ClassName WHERE w = TRUE OR w = FALSE"
 
 test3:
-	ParserCLI \
-	    "SELECT *" \
-	    "FROM MyClass" \
-	    "WHERE min > 10 AND max < 90 OR count IS NULL"
+	@ ParserCLI "SELECT w,x,y,z FROM ClassName WHERE w = TRUE AND x >= 10 AND y <= 13.10 AND z = \"Ten\"" 
 
 test4:
-	ParserCLI \
-	    "SELECT *" \
-	    "FROM MyClass" \
-	    "WHERE x >= 10 OR y > 90 AND z = 500"
+	@ ParserCLI "SELECT * FROM ClassName WHERE (w = TRUE AND x >= 10 AND y <= 13.10 AND z = \"Ten\") AND NOT w = TRUE IS NOT TRUE"
 
 test5:
-	ParserCLI \
-	    "SELECT *" \
-	    "FROM MyClass" \
-	    "WHERE (x >= 10 OR y > 90) AND z = 500"
+	@ ParserCLI "SELECT * FROM ClassName WHERE NOT NOT NOT x < 5"
+
+test6:
+	@ ParserCLI "SELECT * FROM ClassName WHERE v IS NULL"

@@ -39,23 +39,22 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This class represents a compiled WBEMSQl1 select statement. 
+/** This class represents a compiled WQL1 select statement. 
 
     An instance of WQLSelectStatement is passed to WQLParser::parse() which
-    parses and WBEMSQL1 SELECT statement and initializes the WQLSelectStatement
-    instance. The WBEMSWL1 SELECT statement has the following form:
+    parses the WQL1 SELECT statement and initializes the WQLSelectStatement
+    instance. A WQL1 SELECT statement has the following form:
 
     <pre>
-	SELECT <property>...
-	FROM <class name>
-	WHERE <where clause>
+	SELECT &lt;property&gt;...
+	FROM &lt;class name&gt;
+	WHERE &lt;where clause&gt;
     </pre>
 
-    The properties may be obtained with the getProperties() method.
-    The class name may be obtained with getClassName(). The where clause
-    may be evaluated by calling evaluateWhereClause() with the appropriate
-    arguments. If hasWhereClause() returns false, then there is no where
-    clause.
+    The properties are obtained with the getProperties() method. The class 
+    name is obtained with getClassName(). The where clause is evaluated by 
+    calling evaluateWhereClause() with the appropriate arguments. If 
+    hasWhereClause() returns false, then there is no where clause.
 
     The components of the where clause are stored in two arrays: one for
     operands and one for operators (these are placed in proper order by the

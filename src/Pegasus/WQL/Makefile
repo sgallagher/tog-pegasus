@@ -1,6 +1,6 @@
 ROOT = ../../..
 
-DIR = Pegasus/Common
+DIR = Pegasus/WQL
 
 include $(ROOT)/mak/config.mak
 

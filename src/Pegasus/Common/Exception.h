@@ -577,7 +577,14 @@ public:
     CorruptFile(const String& path) : Exception(MSG + path) { }
 };
 
+class PEGASUS_COMMON_LINKAGE BindFailed : public Exception
+{
+public:
 
+    static const char MSG[];
+
+    BindFailed(const String& message) : Exception(MSG + message) { }
+};
 
 
 PEGASUS_COMMON_LINKAGE void ThrowUnitializedHandle();

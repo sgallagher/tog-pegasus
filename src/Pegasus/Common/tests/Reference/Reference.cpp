@@ -101,26 +101,14 @@ void test01()
 
 	CIMReference r1;
 	r1.setHost(hostName);
-
-
-	// ATTN: Mike.  Think there is an error here in the CIMreerence
-	// code.  It applies the classname legal test to the namespace.
-	// However, the namespace may have / in the namespace legally.
-	//DDD(cout << "test4a1" << endl;)
-	//r1.setNameSpace(nameSpace);
-	//DDD(cout << "test4a2" << endl;)
-
+	r1.setNameSpace(nameSpace);
 	r1.setClassName(className);
 	String newHostName = r1.getHost();
 	//cout << "HostName = " << newHostName << endl;
 
-
 	CIMReference r2 (hostName, nameSpace, className);
-	// Dropped for the moment because of the hostname problem.
-	//assert(r1 == r2);
-
+	assert(r1 == r2);
      }
-
 
 }
 

@@ -96,11 +96,9 @@ PEGASUS_NAMESPACE_END
 PEGASUS_USING_STD;
 
 PEGASUS_USING_PEGASUS;
-void * operator new(size_t size) 
+void * operator new(size_t size) throw (PEGASUS_STD(bad_alloc))
 {
 
-   PEGASUS_STD(cout) << "debug new "<< PEGASUS_STD(endl);
-   
    if( size == 0 )
       size = 1;
    void *p;
@@ -146,7 +144,7 @@ void operator delete(void *dead)
    return;
 }
 
-void * operator new[] (size_t size) 
+void * operator new[] (size_t size) throw (PEGASUS_STD(bad_alloc))
 {
 
    

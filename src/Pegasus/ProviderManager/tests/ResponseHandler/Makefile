@@ -16,3 +16,6 @@ SOURCES = TestResponseHandler.cpp
 include $(PEGASUS_ROOT)/mak/program.mak
 
 tests:
+	$(PROGRAM)
+
+poststarttests:

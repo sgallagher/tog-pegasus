@@ -71,10 +71,11 @@ ln -s $RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION $RPM_BUILD_DIR/$RPM_
 export PEGASUS_ROOT=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 export PEGASUS_HOME=$RPM_BUILD_ROOT/usr/pegasus
 %ifarch ia64
-export PEGASUS_PLATFORM=LINUX_IA64_GNU
+%define PEGASUS_PLATFORM LINUX_IA64_GNU
 %else
-export PEGASUS_PLATFORM=LINUX_IX86_GNU
+%define PEGASUS_PLATFORM LINUX_IX86_GNU
 %endif
+export PEGASUS_PLATFORM=%PEGASUS_PLATFORM
 
 export OPENSSL_HOME=/usr
 export PEGASUS_HAS_SSL=yes
@@ -105,7 +106,6 @@ cd $PEGASUS_ROOT/mak
 make -f SDKMakefile stageSDK
 
 %install
-%define PEGASUS_PLATFORM       $PEGASUS_PLATFORM
 %define PEGASUS_PROD_DIR       /opt/tog-pegasus
 %define PEGASUS_DEST_LIB_DIR   %PEGASUS_PROD_DIR/lib
 %define PEGASUS_PROVIDER_DIR   %PEGASUS_PROD_DIR/providers
@@ -433,11 +433,7 @@ install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/LanguageElement.h %INCL
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/Linkage.h %INCLUDE_DEST_PATH/Pegasus/Common/Linkage.h
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/MessageLoader.h %INCLUDE_DEST_PATH/Pegasus/Common/MessageLoader.h
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/OperationContext.h %INCLUDE_DEST_PATH/Pegasus/Common/OperationContext.h
-%ifarch ia64
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/Platform_LINUX_IA64_GNU.h %INCLUDE_DEST_PATH/Pegasus/Common/Platform_LINUX_IA64_GNU.h
-%else
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/Platform_LINUX_IX86_GNU.h %INCLUDE_DEST_PATH/Pegasus/Common/Platform_LINUX_IX86_GNU.h
-%endif
+install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/Platform_%PEGASUS_PLATFORM.h %INCLUDE_DEST_PATH/Pegasus/Common/Platform_%PEGASUS_PLATFORM.h
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/ResponseHandler.h %INCLUDE_DEST_PATH/Pegasus/Common/ResponseHandler.h
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/SSLContext.h %INCLUDE_DEST_PATH/Pegasus/Common/SSLContext.h
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/String.h %INCLUDE_DEST_PATH/Pegasus/Common/String.h
@@ -488,9 +484,9 @@ install -D -m 0444 %SDK_STAGE_LOC/samples/mak/common.mak %SAMPLES_DEST_PATH/mak/
 echo "PEGASUS_DEST_LIB_DIR =   "%PEGASUS_DEST_LIB_DIR > sampleconfig.txt
 echo "PEGASUS_VARDATA_DIR =    "%PEGASUS_VARDATA_DIR >> sampleconfig.txt
 echo "PEGASUS_PROVIDER_LIB_DIR="%PEGASUS_PROVIDER_LIB_DIR >> sampleconfig.txt
-echo "CIM_MOF_PATH =           "%PEGASUS_MOF_DIR>> sampleconfig.txt
+echo "PEGASUS_MOF_DIR =        "%PEGASUS_MOF_DIR>> sampleconfig.txt
 echo "PEGASUS_INCLUDE_DIR =    "%PEGASUS_INCLUDE_DEST_PATH >> sampleconfig.txt
-echo "SAMPLES_DIR =            "%PEGASUS_SAMPLES_DEST_PATH >> sampleconfig.txt
+echo "PEGASUS_SAMPLES_DIR =    "%PEGASUS_SAMPLES_DEST_PATH >> sampleconfig.txt
 echo "PEGASUS_BIN_DIR =        "%PEGASUS_BIN_DIR >> sampleconfig.txt
 echo "PEGASUS_PLATFORM =       "%PEGASUS_PLATFORM >> sampleconfig.txt
 cat sampleconfig.txt %SDK_STAGE_LOC/samples/mak/config.mak > sampleconfig.mak
@@ -927,11 +923,7 @@ fi
 %attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/Linkage.h
 %attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/MessageLoader.h
 %attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/OperationContext.h
-%ifarch ia64
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/Platform_LINUX_IA64_GNU.h
-%else
-%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/Platform_LINUX_IX86_GNU.h
-%endif
+%attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/Platform_%PEGASUS_PLATFORM.h
 %attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/ResponseHandler.h
 %attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/SSLContext.h
 %attr(-,root,root) %PEGASUS_INCLUDE_DEST_PATH/Pegasus/Common/String.h
@@ -978,11 +970,7 @@ fi
 %attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/common.mak 
 %attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/config.mak 
 %attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/library.mak 
-%ifarch ia64
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/LINUX_IA64_GNU.mak
-%else
-%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/LINUX_IX86_GNU.mak
-%endif
+%attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/%PEGASUS_PLATFORM.mak
 %attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/program.mak 
 %attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/mak/recurse.mak 
 %attr(-,root,root) %PEGASUS_SAMPLES_DEST_PATH/Clients/Makefile 

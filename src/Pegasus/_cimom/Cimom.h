@@ -76,7 +76,9 @@ class PEGASUS_CIMOM_LINKAGE message_module
       String _name;
       Uint32 _capabilities;
       Uint32 _mask;
+      struct timeval _heartbeat;
       
+
       Uint32 _q_id;
       friend class cimom;
 };
@@ -85,12 +87,15 @@ class PEGASUS_CIMOM_LINKAGE message_module
 class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
 {
    public : cimom(void)
-      : MessageQueue("cimom", false, CIMOM_Q_ID), _modules(true), 
-	_internal_ops(true ), 	_pending_ops(true, 100), 
+      : MessageQueue("cimom", false, CIMOM_Q_ID), 
+	_modules(true), 
+	_pending_ops(true, 100), 
 	_completed_ops(true, 100),
+	_internal_ops(true , 100), 
 	_pending_thread( _pending_proc, this, false),
 	_completed_thread( _completed_proc, this, false),
-	_die(0)  
+	_internal(_internal_proc, this, false),
+	_die(0)
       { 
 	 pegasus_gettimeofday(&_last_module_change);
 	 _default_op_timeout.tv_sec = 30;
@@ -109,7 +114,6 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
       
 
       virtual void handleEnqueue();
-      void handle_internal(AsyncOpNode *internal_op);
       void register_module(CimomRegisterService *msg);
       void deregister_module(CimomDeregisterService *msg) ;
       
@@ -122,17 +126,20 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
       struct timeval _default_op_timeout;
       struct timeval _last_module_change;
       DQueue<message_module> _modules;
-      DQueue<Message> _internal_ops; 
+
       DQueue<AsyncOpNode> _recycle;
       
-      AsyncDQueue<AsyncOpNode> _new_ops;
       AsyncDQueue<AsyncOpNode> _pending_ops;
       AsyncDQueue<AsyncOpNode> _completed_ops;
+      AsyncDQueue<Message> _internal_ops; 
       
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _pending_proc(void *);
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _completed_proc(void *);
+      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _internal_proc(void *);
+      void _handle_cimom_msg(Message *msg);
       Thread _pending_thread;
       Thread _completed_thread;
+      Thread _internal;
       AtomicInt _die;
       CIMOperationRequestDispatcher *_cim_dispatcher;
       CIMOperationResponseEncoder *_cim_encoder;

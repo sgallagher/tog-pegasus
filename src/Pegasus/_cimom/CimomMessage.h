@@ -200,14 +200,17 @@ class PEGASUS_CIMOM_LINKAGE CimomHeartBeat : public Reply
 {
    public:
       CimomHeartBeat(Uint32 key,
+		     Uint32 sender,
 		     Uint32 routing = 0)
 	 : Reply(cimom_messages::HEARTBEAT, key, 0,
 		 message_mask::type_cimom | message_mask::ha_reply | message_mask::ha_synchronous,
-		 routing )
+		 routing ), 
+	   sendingQ(sender)
       {
       }
 
       virtual ~CimomHeartBeat(void) { };
+      Uint32 sendingQ;
 
 } ;
 

@@ -76,9 +76,7 @@ void cimom::_enqueueResponse(
     if(queue != 0)
     {
        // Enqueue the response
-       
-
-       
+              
        if(false == queue->accept_async(response))
        {
 	  delete response;
@@ -125,9 +123,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_pending_proc(void *parm)
 	    // this operation has timed out 
 	    temp = current_op;
 	    current_op = cim_manager->_pending_ops.next(current_op);
-	    
 	    temp = cim_manager->_pending_ops.remove_no_lock(temp);
-	    
 	    temp->_state |= ASYNC_OPSTATE_TIMEOUT;
 	    // insert it on our temporary holding list
 	    if(temp != 0)
@@ -189,6 +185,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_completed_proc(void *parm)
 	 }
 	 else 
 	 {
+	    // it must be a timed out operation. 
 	    temp = current_op;
 	    current_op = cim_manager->_completed_ops.next(current_op);
 	    temp = cim_manager->_completed_ops.remove_no_lock(temp);
@@ -303,7 +300,7 @@ void cimom::handleEnqueue(void)
        // message to use the opnode to update the cimom on the 
        // status of the message's asynchronous operation
     }
-    else if ( mask & message_mask::type_legacy )
+    else if ( mask == message_mask::type_legacy )
     {
        // create an asynchronous "envelope" for this message
        // first try to get a recycled async op node. If that fails, 
@@ -407,10 +404,92 @@ void cimom::handleEnqueue(void)
 
 // handles internal control messages and responses to 
 // async operation requests
-void cimom::handle_internal(AsyncOpNode *internal_op)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_internal_proc(void * parm)
 {
+   Thread *myself = reinterpret_cast<Thread *>(parm);
+   cimom *cim_manager = reinterpret_cast<cimom *>(myself->get_parm());
+   Message *msg;
+   
+   while( 0 == cim_manager->_die.value() )
+   {
+      cim_manager->_internal_ops.wait_for_node();
+      // list is locked now
+      // get a pointer to the first msg 
+      msg = cim_manager->_internal_ops.next(0);
+      // remove the first msg
+      msg = cim_manager->_internal_ops.remove_no_lock(msg);
+      // unlock the list 
+      cim_manager->_internal_ops.unlock();
+      
+      if (msg != 0)
+      {
+	 Uint32 mask = msg->getMask();
+	 if( mask & message_mask::type_cimom ||
+	     mask & message_mask::type_service ||
+	     mask & message_mask::type_broadcast )
+	 {
+	    cim_manager->_handle_cimom_msg(msg);
+	 }
+	 else
+	    delete msg;
+      }
+   }
+
+   myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
+   return(0);
+}
+
+
+void cimom::_handle_cimom_msg(Message *msg)
+{
+   Uint32 mask = msg->getMask();
+   Uint32 type = msg->getType();
+   
+   if(mask & message_mask::type_cimom)
+   {
+      if(type == cimom_messages::HEARTBEAT)
+      {
+	 // update the heartbeat time for the module 
+      }
+      else if (type == cimom_messages::REGISTER_CIM_SERVICE)
+      {
+	 register_module(static_cast<CimomRegisterService *>(msg));
+      }
+
+      else if (type == cimom_messages::DEREGISTER_CIM_SERVICE)
+      {
+	 deregister_module(static_cast<CimomDeregisterService *>(msg));
+      }
+      else if (type == cimom_messages::UPDATE_CIM_SERVICE)
+      {
+//	 update_module(static_cast<CimomUpdateService *>(msg));
+      }
+      else if (type == cimom_messages::IOCTL)
+      {
+//             direct call interface into module 
+      }
+      else if (type == cimom_messages::ASYNC_OP_REPLY)
+      {
+	 // a provider, repository, or other service is telling
+	 // us that it has completed or update an async operation
+	 // we need to find the async op node an handle it accordingly 
+	 // look first at the pending Q
+	 // look next at the pending Q
+
+	 // Note: right now most completed operations will be handled by the 
+	 // completed Q thread routine. We don't need to do anything
+	 // right here for completed operations. 
+
+	 // This code block will be put to use when we support phased 
+	 // operations, transactional operations, or remote operations. 
+	 // <<< Sun Dec 30 20:51:18 2001 mdd >>>
+	 
+      }
+      delete msg;
+   }
    return;
 }
+
 
 
 void cimom::register_module(CimomRegisterService *msg)

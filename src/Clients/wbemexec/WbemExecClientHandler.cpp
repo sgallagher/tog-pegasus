@@ -36,6 +36,8 @@
 #include <Pegasus/Protocol/Handler.h>
 #include "WbemExecClientHandler.h"
 
+PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
 /**

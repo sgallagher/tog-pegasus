@@ -130,7 +130,11 @@ WbemExecCommand::WbemExecCommand ()
     _hostName            = String ();
     _hostNameSet         = false;
     _portNumber          = _DEFAULT_PORT;
-    _portNumberStr       = String (ultostr ((unsigned long) _DEFAULT_PORT, 10));
+
+    char buffer[32];
+    sprintf(buffer, "%u", (unsigned long) _DEFAULT_PORT);
+    _portNumberStr       = buffer;
+
     _useHTTP11           = true;   
     _useMPost            = true;   
     _timeout             = CIMClient::DEFAULT_TIMEOUT_MILLISECONDS;
@@ -242,7 +246,6 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     Array <Sint8>                content;
     Array <Sint8>                contentCopy;
     Array <Sint8>                message;
-    char*                        response;
 
     //
     //  Check for invalid combination of options
@@ -826,5 +829,6 @@ int main (int argc, char* argv [])
 
     rc = command.execute (cout, cerr);
     exit (rc);
+    return 0;
 }
 

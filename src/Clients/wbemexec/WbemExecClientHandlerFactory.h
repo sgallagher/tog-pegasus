@@ -50,7 +50,7 @@ class WbemExecClientHandlerFactory : public ChannelHandlerFactory
 public:
 
     WbemExecClientHandlerFactory (Selector* selector, 
-                                  ostream& os, 
+                                  PEGASUS_STD(ostream)& os, 
                                   Boolean debugOutput);
 
     virtual ~WbemExecClientHandlerFactory ();
@@ -60,7 +60,7 @@ public:
 private:
 
     Selector* _selector;
-    ostream& _os;
+    PEGASUS_STD(ostream)& _os;
     Boolean _debugOutput;
 };
 

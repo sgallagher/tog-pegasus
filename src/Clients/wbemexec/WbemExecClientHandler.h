@@ -52,7 +52,7 @@ class WbemExecClientHandler : public Handler
 public:
 
     WbemExecClientHandler (Selector* selector, 
-                           ostream& os, 
+                           PEGASUS_STD(ostream)& os, 
                            Boolean debugOutput);
 
     virtual int handleMessage ();
@@ -64,7 +64,7 @@ public:
 private:
     Boolean _blocked;
     Selector* _selector;
-    ostream& _os;
+    PEGASUS_STD(ostream)& _os;
     Boolean _debugOutput;
 };
 

@@ -32,6 +32,7 @@
 #define Pegasus_CommandException_h
 
 #include <Pegasus/Common/Exception.h>
+#include <Clients/cliutils/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -43,7 +44,7 @@ PEGASUS_NAMESPACE_BEGIN
     @author  Hewlett-Packard Company
   
  */
-class CommandException : public Exception 
+class PEGASUS_CLIUTILS_LINKAGE CommandException : public Exception 
 {
 public:
     /**
@@ -64,7 +65,7 @@ public:
     @author  Hewlett-Packard Company
 
  */
-class CommandFormatException : public CommandException
+class PEGASUS_CLIUTILS_LINKAGE CommandFormatException : public CommandException
 {
 public:
     /**
@@ -85,7 +86,8 @@ public:
     @author  Hewlett-Packard Company
 
  */
-class DuplicateOptionException : public CommandFormatException
+class PEGASUS_CLIUTILS_LINKAGE DuplicateOptionException 
+    : public CommandFormatException
 {
 public:
     /**
@@ -124,7 +126,8 @@ private:
     @author  Hewlett-Packard Company
 
  */
-class InvalidOptionArgumentException : public CommandFormatException
+class PEGASUS_CLIUTILS_LINKAGE InvalidOptionArgumentException 
+    : public CommandFormatException
 {
 public:
     /**
@@ -174,7 +177,7 @@ private:
     @author  Hewlett-Packard Company
 
  */
-class InvalidOptionException : public CommandFormatException
+class PEGASUS_CLIUTILS_LINKAGE InvalidOptionException : public CommandFormatException
 {
 public:
     /**
@@ -213,7 +216,8 @@ private:
     @author  Hewlett-Packard Company
 
  */
-class MissingOptionArgumentException : public CommandFormatException
+class PEGASUS_CLIUTILS_LINKAGE MissingOptionArgumentException 
+    : public CommandFormatException
 {
 public:
     /**
@@ -253,7 +257,8 @@ private:
     @author  Hewlett-Packard Company
 
  */
-class MissingOptionException : public CommandFormatException
+class PEGASUS_CLIUTILS_LINKAGE MissingOptionException 
+    : public CommandFormatException
 {
 public:
 
@@ -294,7 +299,8 @@ private:
     @author  Hewlett-Packard Company
 
  */
-class UnexpectedArgumentException : public CommandFormatException
+class PEGASUS_CLIUTILS_LINKAGE UnexpectedArgumentException 
+    : public CommandFormatException
 {
 public:
     /**
@@ -334,7 +340,8 @@ private:
     @author  Hewlett-Packard Company
 
  */
-class UnexpectedOptionException : public CommandFormatException
+class PEGASUS_CLIUTILS_LINKAGE UnexpectedOptionException 
+    : public CommandFormatException
 {
 public:
     /**

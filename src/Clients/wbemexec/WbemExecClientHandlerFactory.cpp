@@ -31,6 +31,8 @@
 #include "WbemExecClientHandler.h"
 #include "WbemExecClientHandlerFactory.h"
 
+PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
 /**

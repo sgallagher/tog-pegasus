@@ -45,7 +45,7 @@ PEGASUS_NAMESPACE_BEGIN
     @author  Hewlett-Packard Company
   
  */
-class PEGASUS_XYZ_LINKAGE Command 
+class PEGASUS_CLIUTILS_LINKAGE Command 
 {
 public:
     /**

@@ -146,3 +146,6 @@ Development Conventions
 
 34. Explain use of Linkage.h files
 
+35. Don't use ultostr(), use sprintf().
+
+36. main() must return something (for NT).

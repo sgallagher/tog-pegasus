@@ -22,17 +22,11 @@
 //
 // Author:
 //
-// $Log: template_cpp,v $
-// Revision 1.2  2001/02/11 05:45:33  mike
-// Added case insensitive logic for files in Repository
-//
-// Revision 1.1.1.1  2001/01/14 19:50:23  mike
-// Pegasus import
-//
+// DOLLARLogDOLLAR
 //
 //END_HISTORY
 
-#include "ClassName.h"
+#include "CLASSNAME.h"
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -20,20 +20,14 @@
 //END_LICENSE
 //BEGIN_HISTORY
 //
-// Author: Mike Brasher
+// Author: AUTHOR
 //
-// $Log: template_h,v $
-// Revision 1.2  2001/02/11 05:45:33  mike
-// Added case insensitive logic for files in Repository
-//
-// Revision 1.1.1.1  2001/01/14 19:50:23  mike
-// Pegasus import
-//
+// DOLLARLogDOLLAR
 //
 //END_HISTORY
 
-#ifndef Pegasus_ClassName_h
-#define Pegasus_ClassName_h
+#ifndef Pegasus_CLASSNAME_h
+#define Pegasus_CLASSNAME_h
 
 #include <Pegasus/Common/Config.h>
 
@@ -42,11 +36,11 @@ PEGASUS_NAMESPACE_BEGIN
 /**
 
 */
-class ClassName
+class CLASSNAME
 {
 
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_ClassName_h */
+#endif /* Pegasus_CLASSNAME_h */

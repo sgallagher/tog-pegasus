@@ -364,7 +364,7 @@ void CIMOperationResponseEncoder::encodeCreateClassResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("CreateClass"), response->messageId, 
@@ -394,7 +394,7 @@ void CIMOperationResponseEncoder::encodeGetClassResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
    XmlWriter::appendClassElement(body, response->cimClass);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
@@ -425,7 +425,7 @@ void CIMOperationResponseEncoder::encodeModifyClassResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("ModifyClass"), response->messageId, 
@@ -455,7 +455,7 @@ void CIMOperationResponseEncoder::encodeEnumerateClassNamesResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
 
    for (Uint32 i = 0; i < response->classNames.size(); i++)
       XmlWriter::appendClassNameElement(body, response->classNames[i]);
@@ -488,7 +488,7 @@ void CIMOperationResponseEncoder::encodeEnumerateClassesResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
    Array<Sint8> message;
 
    try
@@ -550,7 +550,7 @@ void CIMOperationResponseEncoder::encodeDeleteClassResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("DeleteClass"), response->messageId, 
@@ -579,7 +579,7 @@ void CIMOperationResponseEncoder::encodeCreateInstanceResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
 
    XmlWriter::appendInstanceNameElement(body, response->instanceName);
 
@@ -610,7 +610,7 @@ void CIMOperationResponseEncoder::encodeGetInstanceResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
    XmlWriter::appendInstanceElement(body, response->cimInstance);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
@@ -640,7 +640,7 @@ void CIMOperationResponseEncoder::encodeModifyInstanceResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("ModifyInstance"), response->messageId, 
@@ -669,7 +669,7 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
    Array<Sint8> message;
 
    try
@@ -733,7 +733,7 @@ void CIMOperationResponseEncoder::encodeEnumerateInstanceNamesResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
 
    for (Uint32 i = 0; i < response->instanceNames.size(); i++)
       XmlWriter::appendInstanceNameElement(body, response->instanceNames[i]);
@@ -765,7 +765,7 @@ void CIMOperationResponseEncoder::encodeDeleteInstanceResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("DeleteInstance"), response->messageId, 
@@ -794,7 +794,7 @@ void CIMOperationResponseEncoder::encodeGetPropertyResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
    XmlWriter::appendValueElement(body, response->value);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
@@ -824,7 +824,7 @@ void CIMOperationResponseEncoder::encodeSetPropertyResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("SetProperty"), response->messageId, 
@@ -853,7 +853,7 @@ void CIMOperationResponseEncoder::encodeSetQualifierResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("SetQualifier"), response->messageId, 
@@ -882,7 +882,7 @@ void CIMOperationResponseEncoder::encodeGetQualifierResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
    XmlWriter::appendQualifierDeclElement(body, response->cimQualifierDecl);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
@@ -912,7 +912,7 @@ void CIMOperationResponseEncoder::encodeEnumerateQualifiersResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
 
    for (Uint32 i = 0; i < response->qualifierDeclarations.size(); i++)
       XmlWriter::appendQualifierDeclElement(body, response->qualifierDeclarations[i]);
@@ -944,7 +944,7 @@ void CIMOperationResponseEncoder::encodeDeleteQualifierResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("DeleteQualifier"), response->messageId, 
@@ -973,7 +973,7 @@ void CIMOperationResponseEncoder::encodeReferenceNamesResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
 
    for (Uint32 i = 0; i < response->objectNames.size(); i++)
    {
@@ -1009,7 +1009,7 @@ void CIMOperationResponseEncoder::encodeReferencesResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
 
    for (Uint32 i = 0; i < response->cimObjects.size(); i++)
       XmlWriter::appendValueObjectWithPathElement(body, response->cimObjects[i]);
@@ -1041,7 +1041,7 @@ void CIMOperationResponseEncoder::encodeAssociatorNamesResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
 
    for (Uint32 i = 0; i < response->objectNames.size(); i++)
    {
@@ -1077,7 +1077,7 @@ void CIMOperationResponseEncoder::encodeAssociatorsResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
 
    for (Uint32 i = 0; i < response->cimObjects.size(); i++)
       XmlWriter::appendValueObjectWithPathElement(body, response->cimObjects[i]);
@@ -1109,7 +1109,7 @@ void CIMOperationResponseEncoder::encodeExecQueryResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
 
    for (Uint32 i = 0; i < response->cimObjects.size(); i++)
       XmlWriter::appendValueObjectWithPathElement(body, response->cimObjects[i]);
@@ -1141,7 +1141,7 @@ void CIMOperationResponseEncoder::encodeInvokeMethodResponse(
       return;
    }
 
-   Array<Sint8> body; body.reserveCapacity(4096);
+   Array<Sint8> body;
 
    // ATTN-RK-P3-20020219: Who's job is it to make sure the return value is
    // not an array?

@@ -92,8 +92,8 @@ public:
 	 contentLanguages(contentLanguages_),
 	 acceptLanguages(acceptLanguages_)
     {
-		operationContext.insert(AcceptLanguageListContainer(AcceptLanguages::EMPTY)); 
-		operationContext.insert(ContentLanguageListContainer(ContentLanguages::EMPTY)); 
+		operationContext.insert(AcceptLanguageListContainer(acceptLanguages_)); 
+		operationContext.insert(ContentLanguageListContainer(contentLanguages_)); 
     }
 
     virtual void print(PEGASUS_STD(ostream)& os, Boolean printHeader) const

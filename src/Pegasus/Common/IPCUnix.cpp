@@ -564,7 +564,8 @@ Condition::~Condition()
 // Native implementation of semaphore object
 //-----------------------------------------------------------------
 
-#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) && !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+ 
 Semaphore::Semaphore(Uint32 initial) 
 {
    if(initial > SEM_VALUE_MAX)
@@ -659,6 +660,100 @@ Semaphore::~Semaphore()
  int Semaphore::count() 
 {
    sem_getvalue(&_semaphore.sem,&_count);
+   return _count;
+}
+
+#elif defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+
+Semaphore::Semaphore(Uint32 initial)
+{
+   if(initial > SEM_VALUE_MAX)
+      initial = SEM_VALUE_MAX - 1;
+   _semaphore.sem = sem_open("peg4",O_CREAT,0,initial);
+   sem_unlink("peg4");
+   _semaphore.owner = pegasus_thread_self();
+   _semaphore.waiters = 0;
+
+}
+
+Semaphore::Semaphore(const Semaphore & sem)
+{
+   _semaphore.sem = sem._semaphore.sem;
+   _semaphore.owner = 0;
+    _semaphore.waiters = 0; 
+}
+
+
+Semaphore::~Semaphore()
+{
+	if ( _semaphore.waiters == 0 )
+		sem_close(_semaphore.sem);
+}
+
+// block until this semaphore is in a signalled state, or
+// throw an exception if the wait fails
+ void Semaphore::wait(void) throw(WaitFailed)
+{
+   _semaphore.waiters++;
+   if (sem_wait(_semaphore.sem))
+      throw(WaitFailed(_semaphore.owner));
+   _semaphore.waiters--;
+}
+
+// wait succeeds immediately if semaphore has a non-zero count,
+// return immediately and throw and exception if the
+// count is zero.
+ void Semaphore::try_wait(void) throw(WaitFailed)
+{
+   if (sem_trywait(_semaphore.sem))
+      throw(WaitFailed(_semaphore.owner));
+}
+
+// wait for milliseconds and throw an exception
+// if wait times out without gaining the semaphore
+ void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
+{
+   int retcode, i = 0;
+
+   struct timeval now, finish, remaining;
+   Uint32 usec;
+
+   gettimeofday(&finish, NULL);
+   finish.tv_sec += (milliseconds / 1000 );
+   milliseconds %= 1000;
+   usec = finish.tv_usec + ( milliseconds * 1000 );
+   finish.tv_sec += (usec / 1000000);
+   finish.tv_usec = usec % 1000000;
+
+   while( 1 )
+   {
+      do
+      {
+         retcode = sem_trywait(_semaphore.sem);
+      } while (retcode == -1 && errno == EINTR);
+
+      if ( retcode == 0 )
+         return ;
+
+      if( retcode == -1 && errno != EAGAIN )
+         throw IPCException(pegasus_thread_self());
+      gettimeofday(&now, NULL);
+      if (  timeval_subtract( &remaining, &finish, &now ) )
+         throw TimeOut(pegasus_thread_self());
+      pegasus_yield();
+   }
+}
+
+// increment the count of the semaphore
+ void Semaphore::signal()
+{
+   sem_post(_semaphore.sem);
+}
+
+// return the count of the semaphore
+ int Semaphore::count()
+{
+   sem_getvalue(_semaphore.sem,&_count);
    return _count;
 }
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: ConfigWindows.h,v $
+// Revision 1.6  2001/03/04 21:59:39  bob
+// Added PEGASUS_CMDLINE_LINKAGE macro
+//
 // Revision 1.5  2001/02/18 02:49:00  mike
 // Removed ugly workarounds for MSVC++ 5.0 (using SP3 now)
 //
@@ -114,6 +117,12 @@ PEGASUS_NAMESPACE_BEGIN
 # define PEGASUS_COMPILER_LINKAGE PEGASUS_EXPORT
 #else
 # define PEGASUS_COMPILER_LINKAGE PEGASUS_IMPORT
+#endif
+
+#ifdef PEGASUS_CMDLINE_INTERNAL
+# define PEGASUS_CMDLINE_LINKAGE PEGASUS_EXPORT
+#else
+# define PEGASUS_CMDLINE_LINKAGE PEGASUS_IMPORT
 #endif
 
 #ifdef PEGASUS_GETOOPT_INTERNAL

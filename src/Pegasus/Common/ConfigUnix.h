@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: ConfigUnix.h,v $
+// Revision 1.4  2001/03/04 21:59:39  bob
+// Added PEGASUS_CMDLINE_LINKAGE macro
+//
 // Revision 1.3  2001/02/17 00:44:13  bob
 // Added linkage macros for new libraries:  getoopt and Compiler
 //
@@ -68,6 +71,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define PEGASUS_COMPILER_LINKAGE /* empty */
 #define PEGASUS_GETOOPT_LINKAGE /* empty */
 #define PEGASUS_PROVIDER_LINKAGE /* empty */
+#define PEGASUS_CMDLINE_LINKAGE /* empty */
 
 // Not a big-endian machine:
 

@@ -928,6 +928,11 @@ String IndicationFormatter::_getIndPropertyValue(
                             PEG_METHOD_EXIT();
 			    return(_localizeBooleanStr(booleanValue, locale));
 		        }
+                        else
+                        {
+                            PEG_METHOD_EXIT();
+                            return (propertyValue.toString());
+                        }
 		    }
 		    else
 		    {

@@ -59,14 +59,6 @@ public:
     // a response to an outstanding request, right?  Not inactivity on the
     // connection?  If a request times out, does the connection remain
     // active?
-    
-    <PRE>
-        CIMClient client(60 * 1000);
-
-        char * connection = connectionList[i].allocateCString();
-        cout << "connecting to " << connection << endl;
-        client.connect(connection);
-    </PRE>
     @exception ATTN-TBD
     */
     WbemExecClient(Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);

@@ -73,11 +73,10 @@ public:
     reconnected).
     
     <PRE>
-        CIMClient client(60 * 1000);
+        CIMClient client;
 
-        char * connection = connectionList[i].allocateCString();
-        cout << "connecting to " << connection << endl;
-        client.connect(connection);
+        cout << "connecting to " << connectionList[i] << endl;
+        client.connect(connectionList[i]);
     </PRE>
     @exception ATTN-TBD
     */

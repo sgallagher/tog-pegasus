@@ -2303,8 +2303,7 @@ int main(int argc, char** argv)
     }
     catch (Exception& e)
     {
-	char* msg = e.getMessage().allocateCString();
-	ErrorExit(msg);
+	ErrorExit(e.getMessage());
     }
 
     return 0;

@@ -111,7 +111,7 @@ public:
 	// KS: I put the second test in just in case some trys to create
 	// a completly erronous directory.  At least we will get a message
 	if (!System::isDirectory(lgDir))
-	    cout << "Logging Disabled";
+	    cerr << "Logging Disabled";
 	delete [] lgDir;
 
 

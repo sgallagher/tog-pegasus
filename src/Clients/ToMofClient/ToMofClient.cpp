@@ -250,8 +250,7 @@ int main(int argc, char** argv)
 
     Array<String> connectionList;
     connectionList.append("localhost:5988");
-    char * connection = connectionList[0].allocateCString();
-    cout << "connecting to " << connection << endl;
+    cout << "connecting to " << connectionList[0] << endl;
 
 
     CIMClient client;

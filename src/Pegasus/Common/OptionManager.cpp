@@ -117,7 +117,7 @@ void OptionManager::registerOptions(OptionRow* optionRow, Uint32 numOptions)
 
 	// Get the required flag:
 
-	Boolean required = optionRow[i].required;
+	Boolean required = optionRow[i].required != 0;
 
 	// Get the type:
 

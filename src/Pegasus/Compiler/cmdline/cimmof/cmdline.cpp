@@ -53,7 +53,9 @@ PEGASUS_USING_PEGASUS;
 #include <Pegasus/Common/String.h>
 //#include <strstream>
 //#include <sstream>
-
+#ifdef PEGASUS_OS_OS400
+#include <qycmutiltyUtility.H> 
+#endif 
 
 
 // COMPILER VERSION ++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -245,6 +247,11 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
   cmdline.parse(argc, argv);
   switch (getType(argv[0])) {
   case 1: cmdlinedata.set_is_local();
+    #ifdef PEGASUS_OS_OS400  
+    	if(ycmServerIsActive(YCMSERVER_ACTIVE, YCMCIMMOFL)) 
+		// server is running, lets exit
+		return -1; 
+    #endif 
     break;
   default: cmdlinedata.reset_is_local();
   }

@@ -1,20 +1,15 @@
-ROOT = ../../../..
-include ../../libraries.mak
+include $(PEGASUS_ROOT)/mak/config.mak
 
 DIR = Providers/sample/IndicationProvider
 
-include $(ROOT)/mak/config.mak
-
-LIBRARY = HelloWorldProvider
+LIBRARY = SampleIndicationProvider
 
 LIBRARIES = \
-	 pegcommon \
-	 pegprovider
+	pegcommon \
+	pegprovider
 	
 SOURCES = \
-   IndicationProviderMain.cpp \
-   IndicationProvider.cpp
+	IndicationProviderMain.cpp \
+	IndicationProvider.cpp
 
-include $(ROOT)/mak/library.mak
-
-tests:
+include $(PEGASUS_ROOT)/mak/library.mak

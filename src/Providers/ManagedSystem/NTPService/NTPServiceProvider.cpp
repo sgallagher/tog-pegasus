@@ -100,6 +100,7 @@ NTPServiceProvider::getInstance(const OperationContext & context,
     int keyCount;
     CIMName keyName;
     String keyValue;
+    String svcName;
     String systemName;
     
     keyCount = MAX_KEYS;
@@ -112,6 +113,11 @@ NTPServiceProvider::getInstance(const OperationContext & context,
     if(!ntp->getSystemName(systemName))
         throw CIMObjectNotFoundException("NTPServiceProvider "
             "can't create PG_NTPService instance");
+    
+    // Retrieve service name property value
+    if(!ntp->getNTPName(svcName))
+        throw CIMObjectNotFoundException("NTPServiceProvider "
+            "can't create PG_NTPService instance - no service name");
 
     for (unsigned int ii = 0; ii < keys.size(); ii++) {
          keyName = keys[ii].getName();
@@ -122,7 +128,7 @@ NTPServiceProvider::getInstance(const OperationContext & context,
              keyValue.size() == 0))
             keyCount--;
         else if (keyName.equal (PROPERTY_NAME) &&
-                 String::equalNoCase(keyValue, NTP_NAME)) 
+                 String::equalNoCase(keyValue, svcName)) 
             keyCount--;
         else if (keyName.equal (PROPERTY_SYSTEM_CREATION_CLASS_NAME) &&
                  ((keyValue.size() == 0) || (String::equalNoCase(keyValue, 
@@ -321,8 +327,13 @@ NTPServiceProvider::_build_instance(const CIMName & className,
 
     instance.addProperty(CIMProperty(PROPERTY_CREATION_CLASS_NAME,
                                       CREATION_CLASS_NAME.getString()));
+
+    if(!ntp->getNTPName(strValue)) {
+        throw CIMOperationFailedException("NTPServiceProvider "
+              "can't determine Name property");
+    }
     
-    instance.addProperty(CIMProperty(PROPERTY_NAME, NTP_NAME));
+    instance.addProperty(CIMProperty(PROPERTY_NAME, strValue));
 
     if(!ntp->getCaption(strValue)) {
         throw CIMOperationFailedException("NTPServiceProvider "
@@ -358,6 +369,7 @@ NTPServiceProvider::_fill_reference(const CIMNamespaceName &nameSpace,
 {
     Array<CIMKeyBinding> keys;
     String hostName;
+    String strValue;
     String param;
 
     keys.append(CIMKeyBinding(PROPERTY_SYSTEM_CREATION_CLASS_NAME,
@@ -373,8 +385,11 @@ NTPServiceProvider::_fill_reference(const CIMNamespaceName &nameSpace,
                            CREATION_CLASS_NAME.getString(),
                            CIMKeyBinding::STRING));
 
+    if(!ntp->getNTPName(strValue))
+        strValue.assign("unknown");
+
     keys.append(CIMKeyBinding(PROPERTY_NAME,
-                           NTP_NAME,
+                           strValue,
                            CIMKeyBinding::STRING));
        
     return CIMObjectPath(hostName, nameSpace, className, keys);

@@ -37,9 +37,13 @@
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Provider/ProviderException.h>    
+#include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/OperationContext.h>
+#include <Pegasus/Common/System.h>
 
 // Security includes
+#include <sys/getaccess.h>
 #include <grp.h>
 #include <pwd.h>
 #include <unistd.h>

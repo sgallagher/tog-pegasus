@@ -47,6 +47,9 @@
 //used by gethostname function
 #include <unistd.h>
 #include <sys/param.h>
+#include <sys/getaccess.h>
+#include <pwd.h>
+#include <stdlib.h>
 
 #include "NTPServiceProvider.h"
 
@@ -56,6 +59,7 @@ PEGASUS_USING_STD;
 
 // File configurations
 static const String NTP_FILE_CONFIG("/etc/ntp.conf");
+static const String NTP_NAME("xntpd");
 
 
 //==============================================================================
@@ -189,7 +193,7 @@ NTPService::getHostAddress(String serverName, String & serverAddress)
         serverAddress.assign(inet_ntoa(ia));
         ok = true;
     }
-       return ok;
+    return ok;
 }    
 
 //------------------------------------------------------------------------------
@@ -249,8 +253,8 @@ NTPService::AccessOk(const OperationContext & context)
 {
     sec = new SecurityProvider(context);  // Pointer defined into System.h file
     Boolean ok = sec->checkAccess(sec->getUserContext(),
-                                  NTP_FILE_CONFIG,
-                                  SEC_OPT_READ);
+                                 NTP_FILE_CONFIG,
+                                 SEC_OPT_READ);
     return ok;
 }
 
@@ -269,24 +273,41 @@ NTPService::getKeyValue(String strLine, String & strValue) {
     int ps;
     Boolean ok = false;
     String strTmp;
-    
+
     strValue.clear();
     // Verify is value exists after space character
+
     ps = strLine.find(" ");
-    if(ps < 0)
-        ps = strLine.find("\t"); // If not a space, then verify a tab character
+    if (ps < 0)                // If not a space, then verify a tab character
+        ps = strLine.find("\t");
+
     if(ps > 0) {
+
+        // Eat additional tabs and spaces until we get the next value
+        for (; ps < strLine.size(); ps++)
+        {
+            if (!String::equal(strLine.subString(ps+1,1)," ") &&
+                !String::equal(strLine.subString(ps+1,1),"\t") )
+               break;
+        }
+
         // Retrieve partial value
         strTmp.assign(strLine.subString(ps + 1));
         ps = strTmp.find(" ");
         if(ps < 0)
             ps = strTmp.find("\t");
-        if(ps > 0) {
+        if(ps < 0)
+        {
+            strValue.assign(strTmp);
+            ok = true;
+        }
+        else if(ps > 0) {
             // Retrieve real value
             strValue.assign(strTmp.subString(0, ps));
             ok = true;
         }
     }
+
     return ok;
 }
 
@@ -335,19 +356,9 @@ NTPService::getNTPInfo()
             if(!getKeyValue(strBuffer, strHost))
                 continue;
             
-            ok = false;    
-            // If strHost value is name server then assign ntpName and 
-            // retrieve IP address from this server
-            if(!isHostAddress(strHost)) {
-                // Set ntpName variable with first name server
-                if(ntpName.size() == 0) {
-                    ntpName.assign(strHost);  
-                    okRet = (ntpName.size() > 0);
-                }
-                getHostAddress(strHost, strHost);
-            }
             
             // Verify if name server exists in array
+            ok = false;    
             for(i=0; i < ntpServerAddress.size(); i++) 
             {
                 if(String::equalNoCase(ntpServerAddress[i], strHost)) 
@@ -368,6 +379,23 @@ NTPService::getNTPInfo()
     }
     fclose(fp);        
     return okRet;
+}
+
+//------------------------------------------------------------------------------
+// FUNCTION: getNTPName
+//
+// REMARKS: returns the Name property
+//
+// PARAMETERS: [OUT] strValue -> string that will receive the NTP_Name property 
+//                                 value
+//
+// RETURN: TRUE (hard-coded property value)
+//------------------------------------------------------------------------------
+Boolean
+NTPService::getNTPName(String & strValue) 
+{
+    strValue.assign(NTP_NAME);
+    return true;
 }
 
 //------------------------------------------------------------------------------

@@ -52,8 +52,7 @@ static const String NTP_ROLE_CLIENT("server");
 #define CLASS_NAME CIMName ("PG_NTPService")
 #define SYSTEM_CREATION_CLASS_NAME CIMName ("CIM_UnitaryComputerSystem")
 #define CREATION_CLASS_NAME CIMName ("PG_NTPService")
-static const String NTP_NAME("xntpd");
-static const String NTP_CAPTION("Network Time Protocol(NTP) daemon");
+static const String NTP_CAPTION("NTP daemon");
 static const String NTP_DESCRIPTION("Describes the Network Time Protocol (NTP) daemon");
 
 // Insert MOF property definitions
@@ -89,6 +88,10 @@ class NTPService
   
         // This function retrieves the local host name
         Boolean getLocalHostName(String & hostName);
+
+        // This function returns TRUE if the Service Name is valid
+        // returns the Name property on the 'strValue' argument
+        Boolean getNTPName(String & strValue);
 
         // This function returns TRUE if the Caption is valid
         // returns the Caption property on the 'strValue' argument

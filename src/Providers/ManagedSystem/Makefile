@@ -39,9 +39,8 @@ DIRS =  \
         Processor \
         Processor/tests \
         DNSAdminDomain \
-        DNSAdminDomain/tests/DNSTestClient \
-        NTPAdminDomain \
-        NTPAdminDomain/tests/NTPTestClient \
+        NTPService \
+        NTPProviderSecurity \
 	IP \
 	IP/tests
 

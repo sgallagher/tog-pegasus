@@ -89,7 +89,9 @@ public:
     // Append a new entry to the response list
     void appendResponse(CIMResponseMessage* response)
     {
+        _appendResponseMutex.lock(pegasus_thread_self());
 	_responseList.append(response);
+        _appendResponseMutex.unlock();
     }
 
     Uint32 numberResponses() { return _responseList.size(); }
@@ -119,6 +121,7 @@ private:
     OperationAggregate(const OperationAggregate& x){ }
 
     Array<CIMResponseMessage*> _responseList;
+    Mutex _appendResponseMutex;
     CIMRequestMessage* _request;
     Uint32 _totalIssued;
     Uint32 _magicNumber;

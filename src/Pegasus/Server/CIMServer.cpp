@@ -30,6 +30,7 @@
 //         Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //         Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
+//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,6 +46,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Repository/CIMRepository.h>
+#include "ProviderMessageFacade.h"
 #include <Pegasus/ExportServer/CIMExportRequestDispatcher.h>
 #include <Pegasus/ExportServer/CIMExportResponseEncoder.h>
 #include <Pegasus/ExportServer/CIMExportRequestDecoder.h>
@@ -59,13 +61,35 @@
 #include "CIMOperationRequestDecoder.h"
 #include "CIMOperationRequestAuthorizer.h"
 #include "HTTPAuthenticatorDelegator.h"
+#include <Pegasus/Common/ModuleController.h>
+#include <Providers/generic/ConfigSettingProvider/ConfigSettingProvider.h>
 
-
-#define DDD(X) // X
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+// Need a static method to act as a callback for the configuration control
+// provider.  This doesn't belong here, but I don't have a better place to
+// put it right now.
+class ConfigProviderCallback
+{
+    public:
+        static void setProvider(ProviderMessageFacade* cfp)
+        {
+            _cfp = cfp;
+        }
+
+        static Message * receive_message(Message * message)
+        {
+            return _cfp->handleRequestMessage(message);
+        }
+
+    private:
+        static ProviderMessageFacade* _cfp;
+};
+ProviderMessageFacade* ConfigProviderCallback::_cfp = 0;
+
 
 CIMServer::CIMServer(
     Monitor* monitor,
@@ -106,6 +130,17 @@ CIMServer::CIMServer(
     // -- Create queue inter-connections:
     _providerManager = new ProviderManagerService(_providerRegistrationManager);
     _handlerService = new IndicationHandlerService(_repository);
+
+    // Create the control service and control providers
+    ProviderMessageFacade * configProvider =
+        new ProviderMessageFacade(new ConfigSettingProvider());
+    ConfigProviderCallback::setProvider(configProvider);
+    ModuleController* controlService = new ModuleController("ModuleController");
+    ModuleController::register_module("ModuleController",
+                                      "ModuleController::ConfigProvider",
+                                      configProvider,
+                                      ConfigProviderCallback::receive_message,
+                                      0, 0);
 
     _cimOperationRequestDispatcher
 	= new CIMOperationRequestDispatcher(_repository,

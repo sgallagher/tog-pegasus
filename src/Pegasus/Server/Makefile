@@ -25,7 +25,8 @@ LIBRARIES = \
     peghandlerservice \
     pegindicationservice \
     pegwql \
-    pegprm
+    pegprm \
+    ConfigSettingProvider
 
 PRE_DEPEND_INCLUDES = -I./depends
 
@@ -39,8 +40,10 @@ SOURCES = \
     CIMServer.cpp \
     CIMServerState.cpp \
     ServiceCIMOMHandle.cpp \
+    ProviderMessageFacade.cpp \
     ConfigurationManager/ConfigurationManagerQueue.cpp \
-    ConfigurationManager/PG_RegistrationProvider.cpp 
+    ConfigurationManager/PG_RegistrationProvider.cpp
+#    ../../Providers/generic/ConfigSettingProvider/ConfigSettingProvider.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

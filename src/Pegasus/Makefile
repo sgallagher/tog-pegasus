@@ -15,6 +15,7 @@ DIRS = \
     Provider \
     Server/ProviderRegistrationManager \
     ProviderManager \
+    ControlProviders/ConfigSettingProvider \
     ExportServer \
     Listener \
     Security/UserManager \

@@ -314,6 +314,14 @@ will be deleted.
 34. (KS) 25 March 2002 - Extended qualifier resolution to correctly handle Flavors nad
     enabled the scope and flavors testing.  Had been pretty much blocked before.
     
+35. (Roger Kumpf - HP) 26 Mar 2002 - Created a class to map CIM operation
+    request messages to provider API calls.  Cleaned up the dispatcher and
+    added the ability to pass requests to control providers through the
+    ModuleController.  Integrated the ConfigSettingProvider with the
+    ModuleController and set up the structure for getting the control
+    providers working.  Moved the ConfigSettingProvider from the
+    Providers tree to the Pegasus tree, since it really is statically
+    linked into the server.
 
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001

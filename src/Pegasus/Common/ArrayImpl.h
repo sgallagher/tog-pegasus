@@ -37,7 +37,7 @@ PEGASUS_NAMESPACE_END
 
 #include <Pegasus/Common/Memory.h>
 #include <Pegasus/Common/ArrayRep.h>
-#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/InternalException.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -63,6 +63,12 @@ template<class PEGASUS_ARRAY_T>
 Array<PEGASUS_ARRAY_T>::Array(Uint32 size)
 {
     _rep = ArrayRep<PEGASUS_ARRAY_T>::create(size);
+
+    if (_rep == 0)
+    {
+        throw NullPointer();
+    }
+
     InitializeRaw(static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data(), size);
 }
 
@@ -72,6 +78,11 @@ template<class PEGASUS_ARRAY_T>
 Array<PEGASUS_ARRAY_T>::Array(Uint32 size, const PEGASUS_ARRAY_T& x)
 {
     _rep = ArrayRep<PEGASUS_ARRAY_T>::create(size);
+
+    if (_rep == 0)
+    {
+        throw NullPointer();
+    }
 
     PEGASUS_ARRAY_T* data = static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data();
 
@@ -85,6 +96,12 @@ template<class PEGASUS_ARRAY_T>
 Array<PEGASUS_ARRAY_T>::Array(const PEGASUS_ARRAY_T* items, Uint32 size)
 {
     _rep = ArrayRep<PEGASUS_ARRAY_T>::create(size);
+
+    if (_rep == 0)
+    {
+        throw NullPointer();
+    }
+
     CopyToRaw(static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data(), items, size);
 }
 
@@ -128,11 +145,20 @@ void Array<PEGASUS_ARRAY_T>::reserveCapacity(Uint32 capacity)
     if (capacity > static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->capacity)
     {
         Uint32 size = this->size();
-        ArrayRep<PEGASUS_ARRAY_T>* rep = ArrayRep<PEGASUS_ARRAY_T>::create(capacity);
-        rep->size = size;
-        CopyToRaw(rep->data(), static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data(), size);
-        ArrayRep<PEGASUS_ARRAY_T>::destroy(static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep));
-        _rep = rep;
+        ArrayRep<PEGASUS_ARRAY_T>* rep =
+            ArrayRep<PEGASUS_ARRAY_T>::create(capacity);
+
+        if (rep != 0)
+        {
+            rep->size = size;
+            CopyToRaw(
+                rep->data(),
+                static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data(),
+                size);
+            ArrayRep<PEGASUS_ARRAY_T>::destroy(
+                static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep));
+            _rep = rep;
+        }
     }
 }
 

@@ -170,6 +170,56 @@ void test05()
     assert(arr[3] == "four");
 }
 
+void test06()
+{
+    Boolean exceptionCaught;
+
+    // Test constructor memory overflow
+    exceptionCaught = false;
+    try
+    {
+        Array<Uint32> arr(0xffff0000);
+    }
+    catch (NullPointer&)
+    {
+        exceptionCaught = true;
+    }
+    PEGASUS_ASSERT(exceptionCaught);
+
+    // Test constructor memory overflow
+    exceptionCaught = false;
+    try
+    {
+        Array<Uint32> arr(0xffff0000, 100);
+    }
+    catch (NullPointer&)
+    {
+        exceptionCaught = true;
+    }
+    PEGASUS_ASSERT(exceptionCaught);
+
+    // Test constructor memory overflow
+    exceptionCaught = false;
+    try
+    {
+        Uint32 myInt = 50;
+        Array<Uint32> arr(&myInt, 0xffff0000);
+    }
+    catch (NullPointer&)
+    {
+        exceptionCaught = true;
+    }
+    PEGASUS_ASSERT(exceptionCaught);
+
+    // Test reserveCapacity memory overflow
+    {
+        Array<Uint32> arr(128);
+        PEGASUS_ASSERT(arr.getCapacity() == 128);
+        arr.reserveCapacity(0xffff0000);
+        PEGASUS_ASSERT(arr.getCapacity() == 128);
+    }
+}
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
@@ -183,12 +233,14 @@ int main(int argc, char** argv)
 	test03((int*)0);
 	test04();
 	test05();
+	test06();
 	assert(Int::_count == 0);
 	assert(Str::_constructions == Str::_destructions);
     }
     catch(Exception& e)
     {
-	cerr << "Exception: " << e.getMessage() << endl;
+        cerr << argv[0] << " Exception: " << e.getMessage() << endl;
+        exit(1);
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;

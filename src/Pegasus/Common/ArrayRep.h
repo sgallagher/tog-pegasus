@@ -100,13 +100,27 @@ ArrayRep<T>* PEGASUS_STATIC_CDECL ArrayRep<T>::create(Uint32 size)
 
     Uint32 initialCapacity = 8;
 
-    while (initialCapacity < size)
+    while ((initialCapacity != 0) && (initialCapacity < size))
+    {
         initialCapacity <<= 1;
+    }
+
+    // Test for Uint32 overflow in the capacity
+    if (initialCapacity == 0)
+    {
+        initialCapacity = size;
+    }
+
+    // Test for Uint32 overflow in the memory allocation size
+    if (initialCapacity > (Uint32(0xffffffff)-sizeof(ArrayRep<T>))/sizeof(T))
+    {
+        return 0;
+    }
 
     // Create object:
 
-    ArrayRep<T>* rep =
-        (ArrayRep<T>*)operator new(sizeof(ArrayRep<T>) + sizeof(T) * initialCapacity);
+    ArrayRep<T>* rep = (ArrayRep<T>*)operator new(
+        sizeof(ArrayRep<T>) + sizeof(T) * initialCapacity);
 
     rep->size = size;
     rep->capacity = initialCapacity;

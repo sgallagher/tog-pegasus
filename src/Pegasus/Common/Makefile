@@ -88,6 +88,7 @@ SOURCES = \
     OperationContext.cpp \
     OperationContextInternal.cpp \
     OptionManager.cpp \
+    pegasus_socket.cpp \
     Pair.cpp \
     Queue.cpp \
     Resolver.cpp \

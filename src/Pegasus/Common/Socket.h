@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%///////////////////////-*-c++-*-/////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -31,33 +31,63 @@
 #define Pegasus_Socket_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/IPC.h>
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+#include <windows.h>
+# ifndef _WINSOCKAPI_
+#   include <winsock2.h>
+# endif
+#else
+# include <cctype>
+#ifndef PEGASUS_OS_OS400
+#   include <unistd.h>
+#else
+#   include <Pegasus/Common/OS400ConvertChar.h>
+#   include <unistd.cleinc>
+#endif
+#ifdef PEGASUS_OS_ZOS
+#   include <string.h>  // added by rk for memcpy
+#endif
+# include <cstdlib>
+# include <errno.h>
+# include <fcntl.h>
+# include <netdb.h>
+# include <netinet/in.h>
+# include <arpa/inet.h>
+# include <sys/socket.h>
+#endif
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_COMMON_LINKAGE Socket
 {
-public:
+   public:
 
 
-    static Sint32 read(Sint32 socket, void* ptr, Uint32 size);
+      static Sint32 read(Sint32 socket, void* ptr, Uint32 size);
 
-    static Sint32 write(Sint32 socket, const void* ptr, Uint32 size);
+      static Sint32 write(Sint32 socket, const void* ptr, Uint32 size);
 
-    static void close(Sint32 socket);
+      static void close(Sint32 socket);
+      static int close2(Sint32 socket);
+      
+      static void enableBlocking(Sint32 socket);
+      static int  enableBlocking2(Sint32 socket);
 
-    static void enableBlocking(Sint32 socket);
+      static void disableBlocking(Sint32 socket);
+      static int disableBlocking2(Sint32 socket);
 
-    static void disableBlocking(Sint32 socket);
+      static void initializeInterface(void);
+      static void uninitializeInterface(void);
+      
 
-    static void initializeInterface();
+   private:
 
-    static void uninitializeInterface();
-
-private:
-
-    Socket() { }
+      Socket() { }
 };
+
+
 
 PEGASUS_NAMESPACE_END
 

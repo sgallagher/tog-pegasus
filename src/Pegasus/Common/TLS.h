@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%/////////-*-c++-*-///////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -32,17 +32,22 @@
 #define Pegasus_TLS_h
 
 #ifdef PEGASUS_HAS_SSL
+#define OPENSSL_NO_KRB5 1 
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 #include <openssl/rand.h>
 #else
 #define SSL_CTX void
+typedef void SSL_Context;
+
 #endif // end of PEGASUS_HAS_SSL
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/SSLContext.h>
+#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Linkage.h>
 
 // REVIEW: Figure out how this works (note to myself)?
@@ -141,6 +146,9 @@ public:
 private:
     Boolean   _isSecure;
 };
+
+
+
 
 PEGASUS_NAMESPACE_END
 

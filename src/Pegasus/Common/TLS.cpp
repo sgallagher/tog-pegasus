@@ -104,6 +104,7 @@ SSLSocket::~SSLSocket()
     PEG_METHOD_EXIT();
 }
 
+
 Boolean SSLSocket::incompleteReadOccurred(Sint32 retCode)
 {
     retCode = SSL_get_error(_SSLConnection, retCode);
@@ -475,6 +476,7 @@ void MP_Socket::disableBlocking()
 Sint32 MP_Socket::accept() { return 0; }
 
 Sint32 MP_Socket::connect() { return 0; }
+
 
 PEGASUS_NAMESPACE_END
 

@@ -29,6 +29,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_HAS_SSL
+#define OPENSSL_NO_KRB5 1 
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 #include <openssl/rand.h>

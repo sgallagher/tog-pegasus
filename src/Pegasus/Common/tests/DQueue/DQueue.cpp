@@ -25,11 +25,11 @@
 //         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
-#if defined(PEGASUS_REMOVE_TRACE)  
+#if defined(PEGASUS_REMOVE_TRACE)   
 #undef PEGASUS_REMOVE_TRACE 
-#endif
+#endif 
 #include <Pegasus/suballoc/suballoc.h>
-#include <Pegasus/Common/DQueue.h>
+#include <Pegasus/Common/DQueue.h> 
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Tracer.h> 
 #include <sys/types.h>

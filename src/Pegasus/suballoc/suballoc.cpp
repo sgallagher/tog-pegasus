@@ -1043,7 +1043,7 @@ Sint8 * peg_suballocator::vs_strdup(const Sint8 *string)
 #if defined(PEGASUS_DEBUG_MEMORY)
 Boolean peg_suballocator::_UnfreedNodes(void * handle)
 {
-   Sint8 i, y;  
+   Sint8 i, y;   
    Sint32 waitCode;
    SUBALLOC_NODE *temp;
    Boolean ccode = false;

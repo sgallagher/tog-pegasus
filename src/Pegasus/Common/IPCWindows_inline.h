@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,12 +27,13 @@
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
-// Modified By: 
+// Modified By: David Dillard, VERITAS Software Corp.
+//              (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-//%// ---- inline implmentations of Windows IPC routines ---- 
+//%// ---- inline implmentations of Windows IPC routines ----
 
 #ifndef IPCWindows_inline_h
 #define IPCWindows_inline_h
@@ -41,59 +42,59 @@
 /// Native Windows inline implementation of Mutex class
 //-----------------------------------------------------------------
 
-// block until gaining the lock - throw a deadlock 
-// exception if process already holds the lock 
+// block until gaining the lock - throw a deadlock
+// exception if process already holds the lock
 inline void Mutex::lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed)
 {
-   if(_mutex.owner == caller)
-      throw( Deadlock( _mutex.owner ) );
+    if(_mutex.owner == caller)
+        throw( Deadlock( _mutex.owner ) );
 
-   DWORD errorcode = WaitForSingleObject(_mutex.mut, INFINITE);
-   if(errorcode == WAIT_FAILED)
-      throw( WaitFailed( _mutex.owner) );
-   _mutex.owner = caller;
+    DWORD errorcode = WaitForSingleObject(_mutex.mut, INFINITE);
+    if(errorcode == WAIT_FAILED)
+        throw( WaitFailed( _mutex.owner) );
+    _mutex.owner = caller;
 }
-  
-// try to gain the lock - lock succeeds immediately if the 
+
+// try to gain the lock - lock succeeds immediately if the
 // mutex is not already locked. throws an exception and returns
-// immediately if the mutex is currently locked. 
+// immediately if the mutex is currently locked.
 inline void Mutex::try_lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, AlreadyLocked, WaitFailed)
 {
-   if(_mutex.owner == caller)
-      throw( Deadlock( _mutex.owner ) );
+    if(_mutex.owner == caller)
+        throw( Deadlock( _mutex.owner ) );
 
-   DWORD errorcode = WaitForSingleObject(_mutex.mut, 0);
-   if (errorcode == WAIT_TIMEOUT) 
-      throw(AlreadyLocked(_mutex.owner));
-   if(errorcode == WAIT_FAILED)
-      throw(WaitFailed(_mutex.owner));
-   _mutex.owner = caller;
+    DWORD errorcode = WaitForSingleObject(_mutex.mut, 0);
+    if (errorcode == WAIT_TIMEOUT)
+        throw(AlreadyLocked(_mutex.owner));
+    if(errorcode == WAIT_FAILED)
+        throw(WaitFailed(_mutex.owner));
+    _mutex.owner = caller;
 }
 
 // wait for milliseconds and throw an exception then return if the wait
 // expires without gaining the lock. Otherwise return without throwing an
 // exception.
 
-inline void Mutex::timed_lock( Uint32 milliseconds , PEGASUS_THREAD_TYPE caller) 
-   throw(Deadlock, TimeOut, WaitFailed)
+inline void Mutex::timed_lock( Uint32 milliseconds , PEGASUS_THREAD_TYPE caller)
+    throw(Deadlock, TimeOut, WaitFailed)
 {
-   if(_mutex.owner == caller)
-      throw( Deadlock( _mutex.owner ) );
+    if(_mutex.owner == caller)
+        throw( Deadlock( _mutex.owner ) );
 
-   DWORD errorcode = WaitForSingleObject(_mutex.mut, milliseconds);
-   if (errorcode == WAIT_TIMEOUT) 
-      throw(TimeOut(_mutex.owner));
-   if(errorcode == WAIT_FAILED)
-      throw(WaitFailed(_mutex.owner));
-   _mutex.owner = caller;
+    DWORD errorcode = WaitForSingleObject(_mutex.mut, milliseconds);
+    if (errorcode == WAIT_TIMEOUT)
+        throw(TimeOut(_mutex.owner));
+    if(errorcode == WAIT_FAILED)
+        throw(WaitFailed(_mutex.owner));
+    _mutex.owner = caller;
 }
 
 // unlock the mutex
 inline void Mutex::unlock() throw(Permission)
 {
-   PEGASUS_THREAD_TYPE m_owner = _mutex.owner;
-   _mutex.owner = 0;
-   ReleaseMutex(_mutex.mut);
+    PEGASUS_THREAD_TYPE m_owner = _mutex.owner;
+    _mutex.owner = 0;
+    ReleaseMutex(_mutex.mut);
 }
 
 
@@ -103,24 +104,24 @@ inline void Mutex::unlock() throw(Permission)
 
 // block until this semaphore is in a signalled state
 // note that windows does not support interrupt
-inline void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInterrupted) 
+inline void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInterrupted)
 {
-   DWORD errorcode = WaitForSingleObject(_semaphore.sem, INFINITE);
-   if(errorcode != WAIT_FAILED)
-      _count--;
-   else
-      throw(WaitFailed((PEGASUS_THREAD_TYPE)GetCurrentThreadId()));
+    DWORD errorcode = WaitForSingleObject(_semaphore.sem, INFINITE);
+    if(errorcode != WAIT_FAILED)
+        _count--;
+    else
+        throw(WaitFailed((PEGASUS_THREAD_TYPE)GetCurrentThreadId()));
 }
 
-// wait succeeds immediately if semaphore has a non-zero count, 
-// return immediately and throw and exception if the 
-// count is zero. 
+// wait succeeds immediately if semaphore has a non-zero count,
+// return immediately and throw and exception if the
+// count is zero.
 inline void Semaphore::try_wait(void) throw(WaitFailed)
 {
-   DWORD errorcode = WaitForSingleObject(_semaphore.sem, 0);
-   if(errorcode == WAIT_TIMEOUT || errorcode == WAIT_FAILED)
-      throw(WaitFailed((PEGASUS_THREAD_TYPE)GetCurrentThreadId()));
-   _count--;
+    DWORD errorcode = WaitForSingleObject(_semaphore.sem, 0);
+    if(errorcode == WAIT_TIMEOUT || errorcode == WAIT_FAILED)
+        throw(WaitFailed((PEGASUS_THREAD_TYPE)GetCurrentThreadId()));
+    _count--;
 }
 
 
@@ -128,23 +129,23 @@ inline void Semaphore::try_wait(void) throw(WaitFailed)
 // if wait times out without gaining the semaphore
 inline void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
 {
-   DWORD errorcode = WaitForSingleObject(_semaphore.sem, milliseconds);
-   if (errorcode == WAIT_TIMEOUT || errorcode == WAIT_FAILED)
-      throw(TimeOut((PEGASUS_THREAD_TYPE)GetCurrentThreadId()));
-   _count--;
+    DWORD errorcode = WaitForSingleObject(_semaphore.sem, milliseconds);
+    if (errorcode == WAIT_TIMEOUT || errorcode == WAIT_FAILED)
+        throw(TimeOut((PEGASUS_THREAD_TYPE)GetCurrentThreadId()));
+    _count--;
 }
 
-// increment the count of the semaphore 
+// increment the count of the semaphore
 inline void Semaphore::signal()
 {
-   _count++;
-   ReleaseSemaphore(_semaphore.sem, 1, NULL);
+    _count++;
+    ReleaseSemaphore(_semaphore.sem, 1, NULL);
 }
 
 // return the count of the semaphore
-inline int Semaphore::count() 
+inline int Semaphore::count()
 {
-   return(_count);
+    return(_count);
 }
 
 
@@ -153,21 +154,21 @@ inline int Semaphore::count()
 //-----------------------------------------------------------------
 #if defined(PEGASUS_ATOMIC_INT_NATIVE)
 
-inline AtomicInt& AtomicInt::operator=( const AtomicInt& original)
+inline AtomicInt& AtomicInt::operator=(const AtomicInt& original)
 {
-   InterlockedExchange(&_rep, original._rep);
-   return *this;
+    InterlockedExchange(&_rep, original._rep);
+    return *this;
 }
 
 inline AtomicInt& AtomicInt::operator=(Uint32 val)
 {
-   InterlockedExchange(&_rep, val);
-   return *this;
+    InterlockedExchange(&_rep, val);
+    return *this;
 }
 
 inline Uint32 AtomicInt::value(void) const
 {
-   return ((Uint32)_rep);
+    return ((Uint32)_rep);
 }
 
 inline void AtomicInt::operator++(void) { InterlockedIncrement(&_rep); }
@@ -175,81 +176,73 @@ inline void AtomicInt::operator--(void) { InterlockedDecrement(&_rep); }
 inline void AtomicInt::operator++(int) { InterlockedIncrement(&_rep); }
 inline void AtomicInt::operator--(int) { InterlockedDecrement(&_rep); }
 
-inline Uint32 AtomicInt::operator+(const AtomicInt& val) 
+inline Uint32 AtomicInt::operator+(const AtomicInt& val)
 {
-   //InterlockedExchangeAdd(&_rep, val._rep);
-   return (_rep + val._rep);
+    //InterlockedExchangeAdd(&_rep, val._rep);
+    return (_rep + val._rep);
 }
 
-inline Uint32 AtomicInt::operator+(Uint32 val) 
-{  
-   //InterlockedExchangeAdd(&_rep, val);
-   return (_rep + val);
+inline Uint32 AtomicInt::operator+(Uint32 val)
+{
+    //InterlockedExchangeAdd(&_rep, val);
+    return (_rep + val);
 }
 
-inline Uint32 AtomicInt::operator-(const AtomicInt& val) 
-{ 
-   //LONG temp_operand, temp_result;
-   //temp_operand = InterlockedExchangeAdd((long *)&(val._rep), 0);
-   //temp_result = InterlockedExchangeAdd(&_rep, 0);
-   //return(temp_result - temp_operand);
-   return (_rep - val._rep);
+inline Uint32 AtomicInt::operator-(const AtomicInt& val)
+{
+    //LONG temp_operand, temp_result;
+    //temp_operand = InterlockedExchangeAdd((long *)&(val._rep), 0);
+    //temp_result = InterlockedExchangeAdd(&_rep, 0);
+    //return(temp_result - temp_operand);
+    return (_rep - val._rep);
 }
 
-inline Uint32 AtomicInt::operator-(Uint32 val) 
-{  
-   //LONG temp_operand, temp_result;
-   //temp_operand = InterlockedExchangeAdd( (long *)&val, 0);
-   //temp_result = InterlockedExchangeAdd(&_rep, 0);
-   //return(temp_result - temp_operand);
-   return (_rep - val);
+inline Uint32 AtomicInt::operator-(Uint32 val)
+{
+    //LONG temp_operand, temp_result;
+    //temp_operand = InterlockedExchangeAdd( (long *)&val, 0);
+    //temp_result = InterlockedExchangeAdd(&_rep, 0);
+    //return(temp_result - temp_operand);
+    return (_rep - val);
 }
 
-inline AtomicInt& AtomicInt::operator+=(const AtomicInt& val) 
-{  
-   InterlockedExchangeAdd(&_rep, val._rep);
-   return *this;
+inline AtomicInt& AtomicInt::operator+=(const AtomicInt& val)
+{
+    InterlockedExchangeAdd(&_rep, val._rep);
+    return *this;
 }
 
-inline AtomicInt& AtomicInt::operator+=(Uint32 val) 
-{   
-   InterlockedExchangeAdd(&_rep, val);
-   return *this;
+inline AtomicInt& AtomicInt::operator+=(Uint32 val)
+{
+    InterlockedExchangeAdd(&_rep, val);
+    return *this;
 }
 
-inline AtomicInt& AtomicInt::operator-=(const AtomicInt& val) 
-{  
-   LONG temp ;
-   InterlockedExchange(&temp, val._rep);
-   enter_crit(&_crit);
-   _rep -= temp;
-   exit_crit(&_crit);
-      
-   return *this;
+inline AtomicInt& AtomicInt::operator-=(const AtomicInt& val)
+{
+    LONG temp ;
+    InterlockedExchange(&temp, val._rep);
+    enter_crit(&_crit);
+    _rep -= temp;
+    exit_crit(&_crit);
+
+    return *this;
 }
 
-inline AtomicInt& AtomicInt::operator-=(Uint32 val) 
-{  
-   LONG temp ;
-   InterlockedExchange(&temp, val);
-   enter_crit(&_crit);
-   _rep -= temp;
-   exit_crit(&_crit);
-   
-   return *this;
+inline AtomicInt& AtomicInt::operator-=(Uint32 val)
+{
+    LONG temp ;
+    InterlockedExchange(&temp, val);
+    enter_crit(&_crit);
+    _rep -= temp;
+    exit_crit(&_crit);
+
+    return *this;
 }
 
 inline Boolean AtomicInt::DecAndTestIfZero()
 {
-  Boolean ret = false;
-  
-  enter_crit(&_crit);
-  InterlockedDecrement(&_rep);
-  if( _rep == 0)
-    ret = true;
-  exit_crit(&_crit);
-  return ret;
-  
+    return(InterlockedDecrement(&_rep) == 0);
 }
 
 
@@ -260,116 +253,102 @@ inline Boolean AtomicInt::DecAndTestIfZero()
 /// Native Windows implementation of the conditional semaphore
 //_________________________________________________________________
 
-#ifdef  PEGASUS_CONDITIONAL_NATIVE
+#ifdef PEGASUS_CONDITIONAL_NATIVE
 
 inline void Condition::signal(PEGASUS_THREAD_TYPE caller)
    throw(IPCException)
 {
-   _cond_mutex->lock(caller);
-   try 
-   {
-      unlocked_signal(caller);
-   }
-   catch(...)
-   {
-      unlock_object();
-      throw;
-   }
-   _cond_mutex->unlock();
+    _cond_mutex->lock(caller);
+    try
+    {
+        unlocked_signal(caller);
+    }
+    catch(...)
+    {
+        unlock_object();
+        throw;
+    }
+    _cond_mutex->unlock();
 }
 
 inline void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
-   throw(IPCException)
+    throw(IPCException)
 {
-   if(_cond_mutex->_mutex.owner != caller)
-      throw Permission((PEGASUS_THREAD_TYPE)caller);
+    if(_cond_mutex->_mutex.owner != caller)
+        throw Permission((PEGASUS_THREAD_TYPE)caller);
 
-    // Change from PulseEvent to SetEvent, this is part of 
+    // Change from PulseEvent to SetEvent, this is part of
     //    fix to avoid deadlock in CIMClient Constructor.
     //PulseEvent(_condition);
     SetEvent(_condition);
-
 }
 
 inline void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
-   throw(IPCException)
+    throw(IPCException)
 {
-   if(_disallow.value() > 0 ) 
-      throw ListClosed();
-   _cond_mutex->lock(caller);
+    if(_disallow.value() > 0 )
+        throw ListClosed();
+    _cond_mutex->lock(caller);
 }
 
 inline void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
-   throw(IPCException)
+    throw(IPCException)
 {
-   if(_disallow.value() > 0 ) 
-      throw ListClosed();
-   _cond_mutex->try_lock(caller);
+    if(_disallow.value() > 0 )
+        throw ListClosed();
+    _cond_mutex->try_lock(caller);
 }
 
 inline void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
-   throw(IPCException)
+    throw(IPCException)
 {
-   if(_disallow.value() > 0) 
-      throw ListClosed();
-   _cond_mutex->timed_lock(milliseconds, caller);
-   if( _disallow.value() > 0 )
-   {
-      _cond_mutex->unlock();
-      throw ListClosed();
-   }
+    if(_disallow.value() > 0)
+        throw ListClosed();
+    _cond_mutex->timed_lock(milliseconds, caller);
+    if( _disallow.value() > 0 )
+    {
+        _cond_mutex->unlock();
+        throw ListClosed();
+    }
 }
 
 inline void Condition::unlock_object(void)
 {
-   _cond_mutex->unlock();
+    _cond_mutex->unlock();
 }
 
 inline void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller)
 {
-   unlocked_timed_wait(-1, caller);
+    unlocked_timed_wait(-1, caller);
 }
 
-// WINBASEAPI
-// DWORD
-// WINAPI
-// SignalObjectAndWait(
-//     HANDLE hObjectToSignal,
-//     HANDLE hObjectToWaitOn,
-//     DWORD dwMilliseconds,
-//     BOOL bAlertable
-//     );
 inline void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller)
 {
-   if(_disallow.value() > 0)
-   {
-      _cond_mutex->unlock();
-      throw ListClosed();
-   }
-   
-   if(_cond_mutex->_mutex.owner != caller)
-      throw Permission((PEGASUS_THREAD_TYPE)caller);
-   if(milliseconds == -1)
-      milliseconds = INFINITE;
+    if(_disallow.value() > 0)
+    {
+        _cond_mutex->unlock();
+        throw ListClosed();
+    }
 
-    // Change from PulseEvent to SetEvent, this is part of 
-    //    fix to avoid deadlock in CIMClient Constructor.
+    if(_cond_mutex->_mutex.owner != caller)
+        throw Permission((PEGASUS_THREAD_TYPE)caller);
+    if(milliseconds == -1)
+        milliseconds = INFINITE;
+
+    // Change from PulseEvent to SetEvent, this is part of
+    //    fix to avoid deadlock in CIMClient Constructor
     // Change added next line since SignalObjectAndWait
     //       releases the mutex
     _cond_mutex->_mutex.owner = 0;
 
-   
-   DWORD retcode = SignalObjectAndWait(_cond_mutex->_mutex.mut,
-				       _condition,
-				       milliseconds, 
-				       false);
-   if(retcode == WAIT_TIMEOUT)
-      throw TimeOut(pegasus_thread_self());
-   _cond_mutex->lock(caller);
+    DWORD retcode = SignalObjectAndWait(_cond_mutex->_mutex.mut, _condition,
+                                            milliseconds, false);
+    if(retcode == WAIT_TIMEOUT)
+        throw TimeOut(pegasus_thread_self());
+    _cond_mutex->lock(caller);
 }
 
 
-#endif // inline native conditional 
+#endif // inline native conditional
 
 #endif // IPCWindows_inline_h
-

@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -41,6 +41,54 @@ PEGASUS_USING_STD;
 
 void main(void)
 {
+    // instantiate the primary response handler types
+    {
+        SimpleResponseHandler<void> handler;
+
+        handler.processing();
+        handler.complete();
+    }
+
+    {
+        SimpleResponseHandler<CIMObject> handler;
+
+        handler.processing();
+        handler.deliver(CIMObject());
+        handler.complete();
+    }
+
+    {
+        SimpleResponseHandler<CIMClass> handler;
+
+        handler.processing();
+        handler.deliver(CIMClass());
+        handler.complete();
+    }
+
+    {
+        SimpleResponseHandler<CIMInstance> handler;
+
+        handler.processing();
+        handler.deliver(CIMInstance());
+        handler.complete();
+    }
+
+    {
+        SimpleResponseHandler<CIMObjectPath> handler;
+
+        handler.processing();
+        handler.deliver(CIMObjectPath());
+        handler.complete();
+    }
+
+    {
+        SimpleResponseHandler<CIMValue> handler;
+
+        handler.processing();
+        handler.deliver(CIMValue());
+        handler.complete();
+    }
+
     try
     {
         SimpleResponseHandler<CIMInstance> simpleHandler;

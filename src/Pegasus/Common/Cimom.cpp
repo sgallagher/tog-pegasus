@@ -367,6 +367,7 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
      if ( (reply != 0) && (false == op->_response.exists(reinterpret_cast<void *>(reply))) )
 	 op->_response.insert_last(reply);
      _complete_op_node(op, state, flag, (reply ? reply->result : 0 ));
+     return;
   }
    
 

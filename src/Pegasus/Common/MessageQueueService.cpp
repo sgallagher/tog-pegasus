@@ -487,11 +487,12 @@ Boolean MessageQueueService::_enqueueResponse(
       AsyncRequest *async = static_cast<AsyncRequest *>(request->_async);
       AsyncOpNode *op = async->op;
       request->_async = 0;
-      // this request is probably going to be deleted !!
+      // the legacy request is going to be deleted by its handler
       // remove it from the op node 
-      op->_request.remove(request);
-    
+
+      static_cast<AsyncLegacyOperationStart *>(async)->get_action();
       
+            
       AsyncLegacyOperationResult *async_result = 
 	 new AsyncLegacyOperationResult( 
 	    async->getKey(),

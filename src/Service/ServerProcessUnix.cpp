@@ -338,7 +338,7 @@ struct procsinfo *processdata(int *cnt)
 //  
 /////////////////////////////////////////////////////////////////////////////
        
-int aixcimsrvrunning(pid_t pid)
+int aixcimsrvrunning(pid_t pid, const char* processName)
 {
         int i,count;
         struct procsinfo *proctable;
@@ -347,7 +347,7 @@ int aixcimsrvrunning(pid_t pid)
         if (proctable==NULL)
                 return -1;
         for (i=0;i<count;i++)
-                if (!strcmp(proctable[i].pi_comm,getProcessName()) && \
+                if (!strcmp(proctable[i].pi_comm, processName) && \
                     proctable[i].pi_pid==pid)
                 {
                         free(proctable);
@@ -418,7 +418,7 @@ Boolean ServerProcess::isCIMServerRunning(void)
     return isProcRunning(pid);
 #endif
 #if defined(PEGASUS_OS_AIX)
-    if (aixcimsrvrunning(pid)!=-1)
+    if (aixcimsrvrunning(pid, getProcessName())!=-1)
         return true;
 #endif
   return false;
@@ -474,7 +474,7 @@ int ServerProcess::cimserver_kill(int id)
   }
 #endif
 #if defined(PEGASUS_OS_AIX)
-  if (!aixcimsrvrunning(pid))
+  if (!aixcimsrvrunning(pid, getProcessName()))
         kill(pid,SIGKILL);
 #endif
   // remove the file

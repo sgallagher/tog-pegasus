@@ -877,18 +877,102 @@ pegasusServer_en:table {
 	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.SUPERUSER_PRIVILEGE_REQUIRED_REGISTER_PROVIDERS:string {"CIMPREGP_SUPERUSER_PRIVILEGE_REQUIRED_REGISTER_PROVIDERS: Superuser authority is required to register CIM providers."}
 
 	/**
-	* @comment CIMPREGP_MISSING_REQUIRED_PROPERTY:
- 	* @comment   Substitution {0} is the name of the CIM property (a string)
- 	* @comment   Substitution {1} is the name of the CIM class (a string)
+	* @TRNOTE Do not translate the word "Name" or "PG_ProviderModule" as they are a property and class respectively
 	*/
-	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_REQUIRED_PROPERTY:string {"CIMPREGP_MISSING_REQUIRED_PROPERTY: Missing the required {0} property in {1} class."}
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_NAME_IN_PG_PROVIDERMODULE:string {"CIMPREGP_MISSING_NAME_IN_PG_PROVIDERMODULE: Missing the required Name property in PG_ProviderModule class."} // 485
 
 	/**
-	* @comment CIMPREGP_UNSUPPORTED_VALUE:
- 	* @comment   Substitution {0} is the name of the CIM property (a string)
- 	* @comment   Substitution {1} is the value (a string)
+	* @TRNOTE Do not translate the word "Vendor" or "PG_ProviderModule" as they are a property and class respectively
 	*/
-	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.UNSUPPORTED_VALUE:string {"CIMPREGP_UNSUPPORTED_VALUE: Unsupported {0} value: {1}"}
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_VENDOR_IN_PG_PROVIDERMODULE:string {"CIMPREGP_MISSING_VENDOR_IN_PG_PROVIDERMODULE: Missing the required Vendor property in PG_ProviderModule class."} // 485
+
+	/**
+	* @TRNOTE Do not translate the word "Version" or "PG_ProviderModule" as they are a property and class respectively
+	*/
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_VERSION_IN_PG_PROVIDERMODULE:string {"CIMPREGP_MISSING_VERSION_IN_PG_PROVIDERMODULE: Missing the required Version property in PG_ProviderModule class."} // 485
+
+	/**
+	* @TRNOTE Do not translate the word "InterfaceType" or "PG_ProviderModule" as they are a property and class respectively
+	*/
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_INTERFACETYPE_IN_PG_PROVIDERMODULE:string {"CIMPREGP_MISSING_INTERFACETYPE_IN_PG_PROVIDERMODULE: Missing the required InterfaceType property in PG_ProviderModule class."}  // 485
+
+	/**
+	* @TRNOTE Do not translate the word "InterfaceVersion" or "PG_ProviderModule" as they are a property and class respectively
+	*/
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_INTERFACEVERSION_IN_PG_PROVIDERMODULE:string {"CIMPREGP_MISSING_INTERFACEVERSION_IN_PG_PROVIDERMODULE: Missing the required InterfaceVersion in PG_ProviderModule class."} // 485
+
+	/**
+	* @TRNOTE Do not translate the word "Location" or "PG_ProviderModule" as they are a property and class respectively
+	*/
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_LOCATION_IN_PG_PROVIDERMODULE:string {"CIMPREGP_MISSING_LOCATION_IN_PG_PROVIDERMODULE: Missing the required Location property in PG_ProviderModule class."} // 485
+
+	/**
+	* @TRNOTE Do not translate the word "ProviderModuleName" or "PG_ProviderModuleCapabilities" as they are a property and class respectively
+	*/
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDERMODULENAME_IN_PG_PROVIDERCAPABILITIES:string {"CIMPREGP_MISSING_PROVIDERMODULENAME_IN_PG_PROVIDERCAPABILITIES: Missing the required ProviderModuleName property in PG_ProviderCapabilities class."}  // 485
+
+	/**
+	* @TRNOTE Do not translate the word "ProviderName" or "PG_ProviderCapabilities" as they are a property and class respectively
+	*/
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDERNAME_IN_PG_PROVIDERCAPABILITIES:string {"CIMPREGP_MISSING_PROVIDERNAME_IN_PG_PROVIDERCAPABILITIES: Missing the required ProviderName property in PG_ProviderCapabilities class."} // 485
+
+	/**
+	* @TRNOTE Do not translate the word "CapabilityID" or "PG_ProviderCapabilities" as they are a property and class respectively
+	*/
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_CAPABILITYID_IN_PG_PROVIDERCAPABILITIES:string {"CIMPREGP_MISSING_CAPABILITYID_IN_PG_PROVIDERCAPABILITIES: Missing the required CapabilityID property in PG_ProviderCapabilities class."} // 485
+
+	/**
+	* @TRNOTE Do not translate the word "ClassName" or "PG_ProviderCapabilities" as they are a property and class respectively
+	*/
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_CLASSNAME_IN_PG_PROVIDERCAPABILITIES:string {"CIMPREGP_MISSING_CLASSNAME_IN_PG_PROVIDERCAPABILITIES: Missing the required ClassName property in PG_ProviderCapabilities class."} // 485
+
+	/**
+	* @TRNOTE Do not translate the word "Namespaces" or "PG_ProviderCapabilities" as they are a property and class respectively
+	*/
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_NAMESPACES_IN_PG_PROVIDERCAPABILITIES:string {"CIMPREGP_MISSING_NAMESPACES_IN_PG_PROVIDERCAPABILITIES: Missing the required NameSpaces property in PG_ProviderCapabilities class."} // 485
+
+	/**
+	* @TRNOTE Do not translate the word "ProviderType" or "PG_ProviderCapabilities" as they are a property and class respectively
+	*/
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDERTYPE_IN_PG_PROVIDERCAPABILITIES:string {"CIMPREGP_MISSING_PROVIDERTYPE_IN_PG_PROVIDERCAPABILITIES: Missing the required ProviderType property in PG_ProviderCapabilities class."} // 485
+
+	/**
+	* @TRNOTE Do not translate the word "Name" or "PG_Provider" as they are a property and class respectively
+	*/
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_NAME_IN_PG_PROVIDER:string {"CIMPREGP_MISSING_NAME_IN_PG_PROVIDER: Missing the required Name property in PG_Provider class."} // 485
+
+	/**
+	* @TRNOTE Do not translate the word "ProviderModuleName" or "PG_Provider" as they are a property and class respectively
+	*/
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDERMODULENAME_IN_PG_PROVIDER:string {"CIMPREGP_MISSING_PROVIDERMODULENAME_IN_PG_PROVIDER: Missing the required ProviderModuleName property in PG_Provider class."} // 485
+
+	/**
+	* @comment CIMPREGP_UNSUPPORTED_INTERFACETYPE_VALUE:
+ 	* @comment   Substitution {0} is the value (a string)
+	* @TRNOTE do not translate InterfaceType
+	*/
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.UNSUPPORTED_INTERFACETYPE_VALUE:string {"CIMPREGP_UNSUPPORTED_INTERFACETYPE_VALUE: Unsupported InterfaceType value: {0}"} // 485
+
+	/**
+	* @comment CIMPREGP_UNSUPPORTED_INTERFACEVERSION_VALUE:
+ 	* @comment   Substitution {0} is the value (a string)
+	* @TRNOTE do not translate InterfaceVersion
+	*/
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.UNSUPPORTED_INTERFACEVERSION_VALUE:string {"CIMPREGP_UNSUPPORTED_INTERFACEVERSION_VALUE: Unsupported InterfaceVersion value: {0}"} // 485
 
 	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.SUPERUSER_PRIVILEGE_REQUIRED_UNREGISTER_PROVIDERS:string {"CIMPREGP_SUPERUSER_PRIVILEGE_REQUIRED_UNREGISTER_PROVIDERS: Superuser authority is required to unregister CIM providers."}
 
@@ -897,10 +981,16 @@ pegasusServer_en:table {
 	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_MODULE_FAILED_PROVIDER_BUSY:string {"Failed to disable the provider module.  Provider is busy."}  //485
 
 	/**
-	* @comment CIMPREGP_KEY_NOT_FOUND:
- 	* @comment   Substitution {0} is the name of the CIM property (a string)
+	* @TRNOTE do not translate 'ProviderModuleName' as it is a property name
 	*/
-	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.KEY_NOT_FOUND:string {"CIMPREGP_KEY_NOT_FOUND: Key property {0} is not found."}
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.PROVIDERMODULENAME_KEY_NOT_FOUND:string {"CIMPREGP_PROVIDERMODULENAME_KEY_NOT_FOUND: Key property ProviderModuleName is not found."} // 485
+
+	/**
+	* @TRNOTE do not translate 'Name' as it is a property name
+	*/
+
+	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.NAME_KEY_NOT_FOUND:string {"CIMPREGP_NAME_KEY_NOT_FOUND: Key property Name is not found."} // 485
 
 	ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_FAILED:string {"CIMPREGP_DISABLE_PROVIDER_FAILED: Failed to disable the CIM provider."}
 
@@ -2363,12 +2453,18 @@ pegasusServer_en:table {
 	src.Server.cimserver_windows.STARTED_VERSION:string {"CIMSVR_STARTED_VERSION:  Started {0} version {1}."}
 
 	/**
-	* @comment CIMSVR_LISTENING_ON_PORT:
- 	* @comment   Substitution {0} is a string containing 'HTTP' or 'HTTPS' depending on the connection type
- 	* @comment   Substitution {1} is an integer that is the port number
+	* @comment CIMSVR_LISTENING_ON_HTTP_PORT:
+ 	* @comment   Substitution {0} is an integer that is the port number
 	*/
-	src.Server.cimserver_windows.LISTENING_ON_PORT:string {"CIMSVR_LISTENING_ON_PORT:
-CIM server listening on {0} port {1}."}
+	src.Server.cimserver_windows.LISTENING_ON_HTTP_PORT:string {"CIMSVR_LISTENING_ON_HTTP_PORT:
+CIM server listening on HTTP port {0}."} // 485
+
+	/**
+	* @comment CIMSVR_LISTENING_ON_HTTPS_PORT:
+ 	* @comment   Substitution {0} is an integer that is the port number
+	*/
+	src.Server.cimserver_windows.LISTENING_ON_HTTPS_PORT:string {"CIMSVR_LISTENING_ON_HTTPS_PORT:
+CIM server listening on HTTPS port {0}."}
 
 	src.Server.cimserver.UNABLE_CONNECT_SERVER_MAY_NOT_BE_RUNNING:string {"CIMSVR_UNABLE_CONNECT_SERVER_MAY_NOT_BE_RUNNING:  Unable to connect to the CIM server.  CIM server may not be running."}
 

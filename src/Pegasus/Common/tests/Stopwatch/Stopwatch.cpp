@@ -41,10 +41,10 @@ int main(int argc, char** argv)
 
     Stopwatch sw;
     System::sleep(5);
+    double elapsed = sw.getElapsed();
     if (verbose)
         sw.printElapsed();
 
-    double elapsed = sw.getElapsed();
     assert(elapsed >= 4.5 && elapsed <= 5.5);
 
     cout << argv[0] << " +++++ passed all tests" << endl;

@@ -457,37 +457,6 @@ int String::compare(const String& s1, const String& s2)
     return 0;
 }
 
-int String::compareNoCase(const char* s1, const char* s2, Uint32 n)
-{
-    while (n--)
-    {
-	int r = tolower(*s1++) - tolower(*s2++);
-
-	if (r)
-	    return r;
-    }
-
-    return 0;
-}
-
-int String::compareNoCase(const char* s1, const char* s2)
-{
-    while (*s1 && *s2)
-    {
-	int r = tolower(*s1++) - tolower(*s2++);
-
-	if (r)
-	    return r;
-    }
-
-    if (*s2)
-	return -1;
-    else if (*s1)
-	return 1;
-
-    return 0;
-}
-
 int String::compareNoCase(const String& s1, const String& s2)
 {
     const Char16* _s1 = s1.getData();

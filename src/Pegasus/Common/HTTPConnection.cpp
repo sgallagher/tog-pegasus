@@ -330,7 +330,7 @@ void HTTPConnection::_getContentLengthAndContentOffset()
 	{
 	    *colon  = '\0';
 
-	    if (String::compareNoCase(line, "content-length") == 0)
+	    if (EqualNoCase(line, "content-length"))
 		_contentLength = atoi(colon + 1);
 
 	    *colon = ':';

@@ -335,13 +335,9 @@ public:
     */
     static int compare(const String& s1, const String& s2);
 
+#ifdef PEGASUS_INTERNALONLY
     /** Just like one above except ignores case differences.
     */
-    static int compareNoCase(const char* s1, const char* s2, Uint32 n);
-
-    static int compareNoCase(const char* s1, const char* s2);
-
-#ifdef PEGASUS_INTERNALONLY
     static int compareNoCase(const String& s1, const String& s2);
 #endif
 
@@ -500,30 +496,12 @@ public:
 	_rep = str.allocateCString();
     }
 
-    _CString(const _CString& str)
-    {
-	_rep = strcpy(new char[strlen(str._rep) + 1], str._rep);
-    }
-
     ~_CString()
     {
 	delete [] _rep;
     }
 
-    _CString& operator=(const _CString& str)
-    {
-	if (this != &str)
-	    _rep = strcpy(new char[strlen(str._rep) + 1], str._rep);
-
-	return *this;
-    }
-
     operator const char*() const
-    {
-	return _rep;
-    }
-
-    const char* data() const
     {
 	return _rep;
     }

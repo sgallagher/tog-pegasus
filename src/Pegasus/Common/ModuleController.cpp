@@ -147,6 +147,10 @@ ModuleController::ModuleController(const char *name ,
 
 }
 
+ModuleController::~ModuleController()
+{
+
+}
 
 // called by a module to register itself, returns a handle to the controller 
 ModuleController & ModuleController::register_module(const String & module_name, 

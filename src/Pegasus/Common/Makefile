@@ -70,6 +70,7 @@ SOURCES = \
     Message.cpp \
     MessageQueue.cpp \
     MessageQueueService.cpp \
+    ModuleController.cpp \
     Monitor.cpp \
     OperationContext.cpp \
     OptionManager.cpp \

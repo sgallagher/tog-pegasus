@@ -132,12 +132,9 @@ void CQLChainedIdentifierRep::applyContext(QueryContext& inContext)
 
   CQLIdentifier firstId = _subIdentifiers[0];
   
-  if ((firstId.getName().getString() != String::EMPTY) &&
-      !firstId.isScoped())
+  if ((firstId.getName().getString() != String::EMPTY) || firstId.isWildcard()) 
   {
     Array<CQLIdentifier> fromList = inContext.getFromList();
-
-    CQLIdentifier matchedId = inContext.findClass(firstId.getName().getString());
 
     if (firstId.isWildcard())
     {
@@ -146,45 +143,71 @@ void CQLChainedIdentifierRep::applyContext(QueryContext& inContext)
     }  
     else
     {
-      if (matchedId.getName().getString() == String::EMPTY)
+      if (firstId.isScoped())
       {
-	// Could not find the firstId in the FROM list.
-	// Assume the firstId is a property, so prepend the FROM class.
-	// Examples:  
-	// SELECT p FROM F AS A  
-	// SELECT p.p1 FROM F AS A (illegal, but caught elsewhere)  
-        // SELECT p.* FROM F AS A 
-        // SELECT * FROM F AS A WHERE p ISA B
 	_subIdentifiers.prepend(fromList[0]);
       }
       else
-      {	
-	// The firstId was found in the FROM list, but it could have been 
-	// an alias
-	if (!matchedId.getName().equal(firstId.getName()))
+      {
+	String classContext = firstId.getName().getString();
+	CQLIdentifier matchedId = inContext.findClass(classContext);
+
+	if (firstId.isScoped() || (matchedId.getName().getString() == String::EMPTY))
 	{
-	  // It was an alias.
-	  // Replace the alias with the FROM class
+	  // Could not find the firstId in the FROM list.
+	  // Assume the firstId is a property, so prepend the FROM class.
 	  // Examples:  
-	  // SELECT A.p FROM F AS A 
-	  // SELECT A FROM F AS A  (illegal, but caught elsewhere) 
-	  // SELECT A.* FROM F AS A
-	  // SELECT * FROM F AS A WHERE A ISA B 
-	  // SELECT * FROM F AS A WHERE A.p ISA B
-	  _subIdentifiers[0] = matchedId;
-        }
-	else 
-	{
-	  // It was not an alias, and it is the only sub-identifier.
-	  // Do nothing.
-	  // Examples:
-	  // SELECT F.p FROM F AS A
-	  // SELECT F FROM F AS A (illegal, but caught elsewhere) 
-	  // SELECT F.* FROM F AS A
-	  // SELECT * FROM F AS A WHERE F ISA B
-	  // SELECT * FROM F AS A WHERE F.p ISA B
-	  ;
+	  // SELECT p FROM F AS A  
+	  // SELECT p.p1 FROM F AS A (illegal, but caught elsewhere)  
+	  // SELECT p.* FROM F AS A 
+	  // SELECT * FROM F AS A WHERE p ISA B
+	  if (_subIdentifiers.size() == 1 ||
+	      !_subIdentifiers[_subIdentifiers.size()-1].isSymbolicConstant())
+	  {
+	    _subIdentifiers.prepend(fromList[0]);
+	  }
 	}
+	else
+	{	
+	  // The firstId was found in the FROM list, but it could have been 
+	  // an alias
+	  if (!matchedId.getName().equal(firstId.getName()))
+	  {
+	    // It was an alias.
+	    // Replace the alias with the FROM class
+	    // Examples:  
+	    // SELECT A.p FROM F AS A 
+	    // SELECT A FROM F AS A  (illegal, but caught elsewhere) 
+	    // SELECT A.* FROM F AS A
+	    // SELECT * FROM F AS A WHERE A ISA B 
+	    // SELECT * FROM F AS A WHERE A.p ISA B
+	    _subIdentifiers[0] = matchedId;
+	  }
+	  else 
+	  {
+	    // It was not an alias. Do nothing.
+	    // Examples:
+	    // SELECT F.p FROM F AS A
+	    // SELECT F FROM F AS A (illegal, but caught elsewhere) 
+	    // SELECT F.* FROM F AS A
+	    // SELECT * FROM F AS A WHERE F ISA B
+	    // SELECT * FROM F AS A WHERE F.p ISA B
+	    ;
+	  }
+	}
+      }
+    }
+  }
+  
+  // Go through an replaces the aliases on scoping classes
+  for (Uint32 i = 0; i < _subIdentifiers.size(); i++)
+  {
+    if (_subIdentifiers[i].isScoped())
+    {
+      CQLIdentifier match = inContext.findClass(_subIdentifiers[i].getScope());
+      if (match.getName().getString() != String::EMPTY)
+      {
+	_subIdentifiers[i].applyScope(match.getName().getString());
       }
     }
   }

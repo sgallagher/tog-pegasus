@@ -143,21 +143,13 @@ void HTTPConnection::handleEnqueue(Message *message)
    }
 
    
-// #ifdef ENABLETIMEOUTWORKAROUNDHACK
-// << Wed Mar  6 12:30:38 2002 mdd >>
-   static Mutex handleEnqueue_mut;
    Boolean LockAcquired = false;
-// #endif
 
-
-// #ifdef ENABLETIMEOUTWORKAROUNDHACK
-// << Wed Mar  6 12:30:48 2002 mdd >>
-  if (pegasus_thread_self() != handleEnqueue_mut.get_owner())
+  if (pegasus_thread_self() != _connection_mut.get_owner())
   {
-     handleEnqueue_mut.lock(pegasus_thread_self());
+     _connection_mut.lock(pegasus_thread_self());  // Use lock_connection() ?
      LockAcquired = true;
   }
-// #endif
 
    switch (message->getType())
    {
@@ -186,9 +178,6 @@ void HTTPConnection::handleEnqueue(Message *message)
 
 	 // Send response message to the client (use synchronous I/O for now:
 
-#ifdef LOCK_CONNECTION_ENABLED
-//          lock_connection();
-#endif
 	 _socket->enableBlocking();
 
 	 const Array<Sint8>& buffer = httpMessage->message;
@@ -226,9 +215,6 @@ void HTTPConnection::handleEnqueue(Message *message)
 	 _requestCount--;
 	 _socket->disableBlocking();
 
-#ifdef LOCK_CONNECTION_ENABLED
-//          unlock_connection();
-#endif
          Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
             "Total bytes written = %d; Buffer Size = %d; _requestCount = %d",
              totalBytesWritten,  buffer.size(), _requestCount.value());
@@ -243,13 +229,10 @@ void HTTPConnection::handleEnqueue(Message *message)
 
    delete message;
 
-// #ifdef ENABLETIMEOUTWORKAROUNDHACK
-// << Wed Mar  6 12:31:03 2002 mdd >>
    if (LockAcquired)
    {
-      handleEnqueue_mut.unlock();
+      _connection_mut.unlock();  // Use unlock_connection() ?
    }
-// #endif
    PEG_METHOD_EXIT();
 }
 

@@ -1274,6 +1274,11 @@ static void PrintObjectNames(
             // convert the '_' (underscore) character in the instanceName
             // string to a '.' (dot).
             //
+
+            //ALAGS : No need to convert '-' to '.' as a '-' is already a valid 
+            // character in a URL string. A underscore '_' must not be converted
+            // as it would affect all CIM_xxx classes.
+
             const String instanceName = instanceNames[i].toString();
             String nameString;
 
@@ -1282,9 +1287,10 @@ static void PrintObjectNames(
             {
                 switch (instanceName[j])
                 {
+                    /*ALAGS: Commented to fix Bug #148
                     case '-': 
                         nameString.append(".");
-                        break;
+                        break;*/
 
                     case '"':
                         nameString.append("%22");

@@ -2781,7 +2781,7 @@ ProviderName DefaultProviderManager::_resolveProviderName(const ProviderName & p
     physicalName = root + String("/lib") + physicalName + String(".so");
     #elif defined(PEGASUS_OS_HPUX)
     String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    physicalName = root + String("/lib") + moduleLocation + String(".sl");
+    physicalName = root + String("/lib") + physicalName + String(".sl");
     #elif defined(PEGASUS_OS_OS400)
     // do nothing
     #else

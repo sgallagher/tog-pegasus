@@ -6,6 +6,8 @@ ARCHITECTURE = parisc
 
 COMPILER = acc
 
+PLATFORM_VERSION_SUPPORTED = yes
+
 ifeq ($(HPUX_IA64_VERSION), yes)
   SYS_INCLUDES = 
 else

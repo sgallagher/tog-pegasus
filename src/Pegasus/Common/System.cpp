@@ -34,6 +34,8 @@
 #include <fstream>
 #include "System.h"
 
+#include <Pegasus/Common/PegasusVersion.h>
+
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "SystemWindows.cpp"
 #elif defined(PEGASUS_OS_TYPE_UNIX)

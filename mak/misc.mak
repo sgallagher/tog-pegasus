@@ -24,4 +24,10 @@ general:
 	@$(foreach i, $(SOURCES),  echo pegasus/src/$(DIR)/$(i); grep -n -eATTN -eREVIEW -e" FIX" -eFIXME $(i);)
 endif
 
+ifeq ($(OPTION),4)
+general:
+        @$(foreach i, $(SOURCES),  echo pegasus/src/$(DIR)/$(i); grep $(EXP) $(i
+); cd .;)
+endif
+
 endif

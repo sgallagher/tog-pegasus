@@ -77,6 +77,9 @@ TAG: Version_1_09.
     encoder.  In that case, it assumes that any message on its queue is
     the response to that request.
 
+12. (Denise Eckstein - HP) 12 Apr 2002 - Extended versioning strategy
+    to allow platform-specific version strings.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

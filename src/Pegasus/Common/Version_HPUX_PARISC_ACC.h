@@ -20,29 +20,27 @@
 //
 //==============================================================================
 //
-// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
+// Author: Denise Eckstein (denise_eckstein@hp.com
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Version_h
-#define Pegasus_Version_h
 
-#include <Pegasus/Common/Config.h>
+#define PLATFORM_PRODUCT_NAME  "HP WBEM Services"
+#define PLATFORM_PRODUCT_VERSION  "A.00.01"
+#define PLATFORM_PRODUCT_STATUS  "Pre-Release" 
 
-PEGASUS_NAMESPACE_BEGIN
-
-const char PEGASUS_NAME[] = "Pegasus CIM Server - ";
-const char PEGASUS_VERSION[] = "1.09";
-const char PEGAUS_STATUS[] = "Experimental" ;
-
-#if defined(PLATFORM_VERSION_SUPPORTED)
-# if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
-#   include <Pegasus/Common/Version_HPUX_PARISC_ACC.h>
-# endif
+#ifndef PLATFORM_COMPONENT_NAME
+#define PLATFORM_COMPONENT_NAME  "HP WBEM Services Component"
 #endif
 
-PEGASUS_NAMESPACE_END
+#ifndef PLATFORM_COMPONENT_VERSION
+#define PLATFORM_COMPONENT_VERSION PLATFORM_PRODUCT_VERSION 
+#endif
 
-#endif /* Pegasus_Version_h */
+#ifndef PLATFORM_COMPONENT_STATUS
+#define PLATFORM_COMPONENT_STATUS PLATFORM_PRODUCT_STATUS
+#endif
+
+const char PLATFORM_EMBEDDED_IDENTIFICATION_STRING[] = "@(#)"PLATFORM_PRODUCT_NAME" "PLATFORM_PRODUCT_VERSION" "PLATFORM_PRODUCT_STATUS"\n@(#)"PLATFORM_PRODUCT_NAME"-"PLATFORM_COMPONENT_NAME" "PLATFORM_COMPONENT_VERSION" "PLATFORM_COMPONENT_STATUS;

@@ -1,33 +1,36 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Bob Blair (bblair@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
+//              Gerarda Marquez (gmarquez@us.ibm.com)
+//              -- PEP 43 changes
 //
 //%/////////////////////////////////////////////////////////////////////////////
+
+
 //
 // implementation of  cimmofRepository
 //
@@ -38,161 +41,86 @@
 // DeclContext so we can do local checking of context for new objects
 //
 
-#include <Pegasus/Common/InternalException.h>
 #include "cimmofRepository.h"
 
 PEGASUS_USING_PEGASUS;
 
-cimmofRepository::cimmofRepository(const String& path,
-    Uint32 mode,
-    compilerCommonDefs::operationType ot)
-    : _cimrepository(0), _context(0), _ot(ot)
+cimmofRepository::cimmofRepository(const String &path, 
+				   compilerCommonDefs::operationType ot) :
+  _cimrepository(0), _context(0), _ot(ot)
 {
-    // Decl context is allocated here but will be owned and deleted by
-    // the CIMRepository class
-    _context = new compilerDeclContext(_ot);
-
-    // don't catch the exceptions that might be thrown.  They should go up.
-    if (_ot != compilerCommonDefs::IGNORE_REPOSITORY) {
-        _cimrepository = new CIMRepository(path, mode, _context);
-    }
-
-    if (_cimrepository)
-    {
-        _context->setRepository(_cimrepository);
-    }
-    else if (ot != compilerCommonDefs::IGNORE_REPOSITORY)
-    {
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-            "attempt to initialize repository with invalid data");
-    }
+  // don't catch the exceptions that might be thrown.  They should go up.
+  if (_ot != compilerCommonDefs::IGNORE_REPOSITORY) {
+    _cimrepository = new CIMRepository(path + "/repository");
+  }
+  _context = new compilerDeclContext(_cimrepository, _ot);
+  if (_cimrepository)
+    _cimrepository->setDeclContext(_context);
 }
 
-cimmofRepository::~cimmofRepository()
-{
-    delete _cimrepository;
+cimmofRepository::~cimmofRepository() {
+  if (_cimrepository)
+    delete(_cimrepository);
+  if (_context)
+    delete(_context);
 }
 
-int cimmofRepository::addClass(const CIMNamespaceName &nameSpace,
-    CIMClass *classdecl)
+int 
+cimmofRepository::addClass(const CIMNamespaceName &nameSpace, 
+                           CIMClass *classdecl)
 {
-    try
-    {
-        _context->addClass( nameSpace,  *classdecl);
-    }
-    catch (CIMException& e)
-    {
-        // Convert the exception message to the one that would be received by
-        // a client.
-        throw CIMException(
-            e.getCode(), TraceableCIMException(e).getDescription());
-    }
-
-    return 0;
+  // Don't catch errors: pass them up to the requester
+  _context->addClass( nameSpace,  *classdecl);
+  return 0;
 }
 
 
-int cimmofRepository::addInstance(const CIMNamespaceName &nameSpace,
-    CIMInstance *instance)
-{
-    try
-    {
-        _context->addInstance(nameSpace, *instance);
-    }
-    catch (CIMException& e)
-    {
-        // Convert the exception message to the one that would be received by
-        // a client.
-        throw CIMException(
-            e.getCode(), TraceableCIMException(e).getDescription());
-    }
-
-    return 0;
+int 
+cimmofRepository::addInstance(const CIMNamespaceName &nameSpace, 
+                              CIMInstance *instance)
+{ 
+  // Don't catch errors: pass them up to the requester
+  _context->addInstance(nameSpace, *instance);
+  return 0;
 }
 
-int cimmofRepository::addQualifier(const CIMNamespaceName &nameSpace,
-    CIMQualifierDecl *qualifier)
-{
-    try
-    {
-        _context->addQualifierDecl(nameSpace, *qualifier);
-    }
-    catch (CIMException& e)
-    {
-        // Convert the exception message to the one that would be received by
-        // a client.
-        throw CIMException(
-            e.getCode(), TraceableCIMException(e).getDescription());
-    }
-
-    return 0;
+int 
+cimmofRepository::addQualifier(const CIMNamespaceName &nameSpace,
+			       CIMQualifierDecl *qualifier)
+{ 
+  // Don't catch errors: pass them up to the requester
+  _context->addQualifierDecl(nameSpace, *qualifier);
+  return 0;
 }
 
-CIMQualifierDecl cimmofRepository::getQualifierDecl(
-    const CIMNamespaceName &nameSpace,
-    const CIMName &name)
+CIMQualifierDecl
+cimmofRepository::getQualifierDecl(const CIMNamespaceName &nameSpace, 
+                                   const CIMName &name)
 {
-    try
-    {
-        return _context->lookupQualifierDecl(nameSpace, name);
-    }
-    catch (CIMException& e)
-    {
-        // Convert the exception message to the one that would be received by
-        // a client.
-        throw CIMException(
-            e.getCode(), TraceableCIMException(e).getDescription());
-    }
+  // Don't catch errors: pass them up to the requester
+  return _context->lookupQualifierDecl(nameSpace, name);
 }
 
-CIMClass cimmofRepository::getClass(const CIMNamespaceName &nameSpace,
-    const CIMName &classname)
+CIMClass
+cimmofRepository::getClass(const CIMNamespaceName &nameSpace, 
+                           const CIMName &classname)
 {
-    try
-    {
-        return _context->lookupClass(nameSpace, classname);
-    }
-    catch (CIMException& e)
-    {
-        // Convert the exception message to the one that would be received by
-        // a client.
-        throw CIMException(
-            e.getCode(), TraceableCIMException(e).getDescription());
-    }
+  // Don't catch errors: pass them up to the requester
+  return _context->lookupClass(nameSpace, classname);
 }
 
-int cimmofRepository::modifyClass(const CIMNamespaceName &nameSpace,
-    CIMClass *classdecl)
+int 
+cimmofRepository::modifyClass(const CIMNamespaceName &nameSpace, 
+                           CIMClass *classdecl)
 {
-    try
-    {
-        _context->modifyClass( nameSpace,  *classdecl);
-    }
-    catch (CIMException& e)
-    {
-        // Convert the exception message to the one that would be received by
-        // a client.
-        throw CIMException(
-            e.getCode(), TraceableCIMException(e).getDescription());
-    }
-
-    return 0;
+  // Don't catch errors: pass them up to the requester
+  _context->modifyClass( nameSpace,  *classdecl);
+  return 0;
 }
 
-void cimmofRepository::createNameSpace(const CIMNamespaceName &nameSpaceName)
+void 
+cimmofRepository::createNameSpace(const CIMNamespaceName &nameSpaceName)
 {
-    if (_cimrepository && _ot != compilerCommonDefs::IGNORE_REPOSITORY)
-    {
-        try
-        {
-            _cimrepository->createNameSpace(nameSpaceName);
-        }
-        catch (CIMException& e)
-        {
-            // Convert the exception message to the one that would be received
-            // by a client.
-            throw CIMException(
-                e.getCode(), TraceableCIMException(e).getDescription());
-        }
-    }
+  if (_cimrepository && _ot != compilerCommonDefs::IGNORE_REPOSITORY)
+    _cimrepository->createNameSpace(nameSpaceName);
 }

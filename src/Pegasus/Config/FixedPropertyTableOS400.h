@@ -43,7 +43,6 @@
     // The following properties are not supported by OS400        
     {"providerDir",                              "lib"},		
     {"logdir",                                   "./logs"},		
-    {"usePAMAuthentication",                     "false"},		
     {"passwordFilePath",                         "cimserver.passwd"},
     {"sslCertificateFilePath",                   "server.pem"},
     {"sslKeyFilePath",                           "file.pem"},

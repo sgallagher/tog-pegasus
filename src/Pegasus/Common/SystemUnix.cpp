@@ -53,6 +53,11 @@
 #include <dirent.h>
 #include <pwd.h>
 
+#include <errno.h>
+#if defined(PEGASUS_OS_SOLARIS) 
+#  include <string.h> 
+#endif 
+
 #if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) 
 #include <crypt.h> 
 #endif
@@ -655,10 +660,18 @@ String System::getEffectiveUserName()
     defined(PEGASUS_OS_LINUX)
 
     const unsigned int PWD_BUFF_SIZE = 1024;
-    struct passwd	local_pwd;
-    char		buf[PWD_BUFF_SIZE];
-    if(getpwuid_r(geteuid(), &local_pwd, buf, PWD_BUFF_SIZE, &pwd)) {
-	pwd = (struct passwd *)NULL;
+    struct passwd       local_pwd;
+    char                buf[PWD_BUFF_SIZE];
+
+    if(getpwuid_r(geteuid(), &local_pwd, buf, PWD_BUFF_SIZE, &pwd) != 0)
+    {
+        String errorMsg = String("getpwuid_r failure : ") +
+                            String(strerror(errno));
+        Tracer::PEG_TRACE_STRING (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+                                  errorMsg);
+        // L10N TODO - This message needs to be added.
+        //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
+        //                          errorMsg);
     }
 #else
     //
@@ -668,13 +681,16 @@ String System::getEffectiveUserName()
 #endif
     if ( pwd == NULL )
     {
-        //ATTN: Log a message
-        // "User might have been removed just after login"
+         // L10N TODO - This message needs to be added.
+         //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
+         //  "getpwuid_r failure, user may have been removed just after login");
+         Tracer::trace (TRC_OS_ABSTRACTION, Tracer::LEVEL4,
+             "getpwuid_r failure, user may have been removed just after login");
     }
     else
     {
 #if defined(PEGASUS_OS_OS400)
-	EtoA(pwd->pw_name);
+        EtoA(pwd->pw_name);
 #endif
         //
         //  get the user name
@@ -711,21 +727,35 @@ Boolean System::isSystemUser(const char* userName)
     char            pwdBuffer[PWD_BUFF_SIZE];
 
     if (getpwnam_r(userName, &pwd, pwdBuffer, PWD_BUFF_SIZE, &result) != 0)
+    {
+        String errorMsg = String("getpwnam_r failure : ") +
+                            String(strerror(errno));
+        Tracer::PEG_TRACE_STRING (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+                                  errorMsg);
+        // L10N TODO - This message needs to be added.
+        //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
+        //                          errorMsg);
+    }
+    if (result == NULL)
+    {
+        return false;
+    }
 #else
     //
     //  get the password entry for the user
     //
     if  ( getpwnam(userName) == NULL )
-#endif
     {
 #if defined(PEGASUS_OS_OS400)
-	EtoA((char *)userName);
+        EtoA((char *)userName);
 #endif
-	return false;
+        return false;
     }
+#endif
 #if defined(PEGASUS_OS_OS400)
     EtoA((char *)userName);
 #endif
+
     return true;
 }
 
@@ -737,22 +767,39 @@ Boolean System::isPrivilegedUser(const String userName)
 #if !defined(PEGASUS_OS_OS400)
     struct passwd   pwd;
     struct passwd   *result;
-    char            pwdBuffer[1024];
+    const unsigned int PWD_BUFF_SIZE = 1024;
+    char            pwdBuffer[PWD_BUFF_SIZE];
 
-    if (getpwnam_r(userName.getCString(), &pwd, pwdBuffer, 1024, &result) == 0)
+    if (getpwnam_r(
+          userName.getCString(), &pwd, pwdBuffer, PWD_BUFF_SIZE, &result) != 0)
     {
+        String errorMsg = String("getpwnam_r failure : ") +
+                            String(strerror(errno));
+        Tracer::PEG_TRACE_STRING (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+                                  errorMsg);
+        // L10N TODO - This message needs to be added.
+        //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
+        //                          errorMsg);
+    }
+
+    // Check if the requested entry was found. If not return false.
+    if ( result != NULL )
+    {
+        // Check if the uid is 0.
         if ( pwd.pw_uid == 0 )
         {
             return true;
         }
     }
     return false;
+
 #else
     CString user = userName.getCString();
     const char * tmp = (const char *)user;
     AtoE((char *)tmp);
     return ycmCheckUserCmdAuthorities(tmp);
 #endif
+
 }
 
 String System::getPrivilegedUserName()
@@ -766,22 +813,30 @@ String System::getPrivilegedUserName()
     defined(PEGASUS_OS_HPUX) || \
     defined(PEGASUS_OS_LINUX)
         const unsigned int PWD_BUFF_SIZE = 1024;
-	struct passwd	local_pwd;
-	char		buf[PWD_BUFF_SIZE];
-	if(getpwuid_r(0, &local_pwd, buf, PWD_BUFF_SIZE, &pwd)) {
-		pwd = (struct passwd *)NULL;
-	}
+        struct passwd   local_pwd;
+        char            buf[PWD_BUFF_SIZE];
+
+        if(getpwuid_r(0, &local_pwd, buf, PWD_BUFF_SIZE, &pwd) != 0)
+        {
+            String errorMsg = String("getpwuid_r failure : ") +
+                            String(strerror(errno));
+            Tracer::PEG_TRACE_STRING (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+                                  errorMsg);
+            // L10N TODO - This message needs to be added.
+            //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
+            //                      errorMsg);
+        }
 #else
         //
         //  get the privileged user's UID.
         //
-	//  (on OS/400, this is QSECOFR)
+        //  (on OS/400, this is QSECOFR)
         pwd = getpwuid(0);
 #endif
         if ( pwd != NULL )
         {
 #if defined(PEGASUS_OS_OS400)
-	    EtoA(pwd->pw_name);
+            EtoA(pwd->pw_name);
 #endif
             //
             //  get the user name
@@ -790,6 +845,8 @@ String System::getPrivilegedUserName()
         }
         else
         {
+            Tracer::trace (TRC_OS_ABSTRACTION, Tracer::LEVEL4,
+                       "Could not find entry.");
             PEGASUS_ASSERT(0);
         }
     }

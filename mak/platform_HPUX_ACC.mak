@@ -71,14 +71,6 @@ ifdef PEGASUS_PAM_AUTHENTICATION
 endif
 
 ##
-## The following flag sets the Authentication to be PAM based authentication.
-##
-
-ifdef PEGASUS_ALWAYS_USE_PAM
- DEFINES += -DPEGASUS_ALWAYS_USE_PAM
-endif
-
-##
 ## The following flag needs to be set to compile in the configuration
 ## properties set with fixed release settings.
 ##

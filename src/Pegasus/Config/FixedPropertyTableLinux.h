@@ -41,7 +41,6 @@
     {"enableClientCertification", "false"},
     {"httpAuthType",        "Basic"},
     {"repositoryIsDefaultInstanceProvider", "false"},
-    {"usePAMAuthentication", "true"},
 #endif
 #ifdef PEGASUS_USE_RELEASE_DIRS
     {"traceFilePath",       "/var/cache/pegasus/cimserver.trc"},

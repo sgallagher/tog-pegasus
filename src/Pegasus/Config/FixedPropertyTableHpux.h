@@ -47,9 +47,6 @@
     {"enableClientCertification", "false"},
     {"httpAuthType",        "Basic"},
     {"repositoryIsDefaultInstanceProvider", "false"},
-#ifdef PEGASUS_ALWAYS_USE_PAM
-    {"usePAMAuthentication", "true"},
-#endif
 #endif
 
 #ifdef PEGASUS_USE_RELEASE_DIRS

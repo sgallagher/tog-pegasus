@@ -70,11 +70,6 @@ public:
         const String& password);
 
 private:
-    /**
-        A mutex to serialize authentication calls.
-    */
-    static Mutex  _authSerializeMutex;
-
     String        _realm;
 
     Boolean _authenticateByPAM(
@@ -143,18 +138,10 @@ private:
 	const String& userName,
 	const String& password);
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-    Boolean	_usePAM;
-
-    Boolean _authenticateByPwnam(
-	const char* userName,
-	const String& password);
-
 #if defined(PEGASUS_USE_PAM_STANDALONE_PROC)
     PAMBasicAuthenticatorStandAlone* _pamBasicAuthenticatorStandAlone;
 #endif
 
-#endif
 };
 
 

@@ -30,6 +30,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//				Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1391,7 +1392,7 @@ Sint16 ProviderRegistrationProvider::_disableModule(
 		    indicationProviders,
 		    QueueIdStack(_service->getQueueId()));
 // l10n
-            disable_req->acceptLanguages = al;
+		disable_req->operationContext.set(AcceptLanguageListContainer(al));;
 
   	    Array<Uint16> _opStatus =
 	        _sendDisableMessageToProviderManager(disable_req);
@@ -1486,8 +1487,8 @@ Sint16 ProviderRegistrationProvider::_enableModule(
 		    mInstance,
 		    QueueIdStack(_service->getQueueId()));
 // l10n
-            enable_req->acceptLanguages = al;
-
+        enable_req->operationContext.set(AcceptLanguageListContainer(al));;    
+		
   	    Array<Uint16> _opStatus;
             _opStatus = _sendEnableMessageToProviderManager(enable_req);
 
@@ -1614,8 +1615,8 @@ void ProviderRegistrationProvider::_sendEnableMessageToSubscription(
 		    capInstances,
 		    QueueIdStack(_service->getQueueId()));
 
-	enable_req->acceptLanguages = al;
-
+	enable_req->operationContext.set(AcceptLanguageListContainer(al));
+	
 	// create request envelope
         AsyncLegacyOperationStart * asyncRequest =
             new AsyncLegacyOperationStart (

@@ -421,7 +421,6 @@ Message* InternalCIMOMHandleRep::do_request(
         {
             AcceptLanguageListContainer al_cntr = (AcceptLanguageListContainer)
                 context.get(AcceptLanguageListContainer::NAME);
-            cimmsg->acceptLanguages = al_cntr.getLanguages();
 			cimmsg->operationContext.set(AcceptLanguageListContainer(al_cntr.getLanguages())); 
         }
         catch (Exception &)
@@ -431,7 +430,6 @@ Message* InternalCIMOMHandleRep::do_request(
             AcceptLanguages* pal = Thread::getLanguages();
             if (pal != NULL)
             {
-                cimmsg->acceptLanguages = *pal;
 				cimmsg->operationContext.set(AcceptLanguageListContainer(*pal)); 
             }
         }
@@ -441,7 +439,6 @@ Message* InternalCIMOMHandleRep::do_request(
             ContentLanguageListContainer cl_cntr =
                 (ContentLanguageListContainer)context.get(
                     ContentLanguageListContainer::NAME);
-            cimmsg->contentLanguages = cl_cntr.getLanguages();
 			cimmsg->operationContext.set(ContentLanguageListContainer(cl_cntr.getLanguages())); 
         }
         catch (Exception &)
@@ -552,7 +549,8 @@ Message* InternalCIMOMHandleRep::do_request(
     // chuck 2.4
     // If the response has a Content-Language then save it into thread-specific
     // storage
-    if (response->contentLanguages.size() > 0)
+	ContentLanguageListContainer  cnt_lang_cntr = response->operationContext.get(ContentLanguageListContainer::NAME);
+	if((cnt_lang_cntr.getLanguages()).size()>0)
     {
          Thread* curThrd = Thread::getCurrent();
          if (curThrd != NULL)
@@ -561,7 +559,7 @@ Message* InternalCIMOMHandleRep::do_request(
              curThrd->put_tsd("cimomHandleContentLanguages",
                  deleteContentLanguage,
                  sizeof(ContentLanguages*),
-                 new ContentLanguages(response->contentLanguages));
+                 new ContentLanguages(cnt_lang_cntr.getLanguages()));
          }
     }
 

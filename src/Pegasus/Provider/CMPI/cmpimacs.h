@@ -43,7 +43,7 @@
 
 
 #ifdef DOC_ONLY
-  /** This macro builds a CMPIStatus object with <rc> as return code and returns
+  /** This macro builds a CMPIStatus object with &lt;rc&gt; as return code and returns
       to the Broker.
       @param rc the CMPI return code
       @return This macro contains a return statement and leaves the function.
@@ -56,7 +56,7 @@
 #endif
 
 #ifdef DOC_ONLY
-  /** This macro builds a CMPIStatus object with <rc> as return code and <str> as
+  /** This macro builds a CMPIStatus object with &lt;rc&gt; as return code and &lt;str&gt; as
       message and returns to the Broker.
       @param rc the CMPI return code
       @param str the message as String object
@@ -70,7 +70,7 @@
 #endif
 
 #ifdef DOC_ONLY
-  /** This macro builds a CMPIStatus object with <rc> as return code and <msg> as
+  /** This macro builds a CMPIStatus object with &lt;rc&gt; as return code and &lt;msg&gt; as
       message and returns to the Broker.
       @param mb Broker this pointer
       @param rc the CMPI return code
@@ -276,7 +276,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #endif
 
 #ifdef CMPI_INLINE
-     /** DateTime factory service. Initialized from <binTime>.
+     /** DateTime factory service. Initialized from &lt;binTime&gt;.
          @param mb Broker this pointer
 	 @param binTime Date/Time definition in binary format in microsecods
 	       starting since 00:00:00 GMT, Jan 1,1970.
@@ -294,7 +294,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #endif
 
 #ifdef CMPI_INLINE
-     /** DateTime factory service. Is initialized from <utcTime>.
+     /** DateTime factory service. Is initialized from &lt;utcTime&gt;.
          @param mb Broker this pointer
 	 @param utcTime Date/Time definition in UTC format
 	 @param rc Output: Service return status (suppressed when NULL).
@@ -327,8 +327,8 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #endif
 
 #ifdef CMPI_INLINE
-     /** Function to determine whether a CIM class is of <type> or any of
-         <type> subclasses.
+     /** Function to determine whether a CIM class is of &lt;type&gt; or any of
+         &lt;type&gt; subclasses.
          @param mb Broker this pointer
 	 @param op The class path (namespace and classname components).
 	 @param type The type to tested for.
@@ -351,7 +351,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
          @param mb Broker this pointer
 	 @param object A valid CMPI object.
 	 @param rc Output: Service return status (suppressed when NULL).
-         @return String from representation of <object>.
+         @return String from representation of &lt;object&gt;.
      */
   inline static   CMPIString* CDToString
                  (CMPIBroker* mb, void* object, CMPIStatus* rc)
@@ -361,7 +361,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #endif
 
 #ifdef CMPI_INLINE
-     /** Verifies whether <object> is of CMPI type <type>.
+     /** Verifies whether &lt;object&gt; is of CMPI type &lt;type&gt;.
          Intended for debugging purposes only.
          @param mb Broker this pointer
 	 @param object A valid CMPI object.
@@ -379,7 +379,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #endif
 
 #ifdef CMPI_INLINE
-     /** Retrieves the CMPI type of <object>.
+     /** Retrieves the CMPI type of &lt;object&gt;.
          Intended for debugging purposes only.
          @param mb Broker this pointer
 	 @param object A valid CMPI object.
@@ -697,7 +697,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #endif
 
 #ifdef CMPI_INLINE
-      /** Set/replace namespace and classname components from <src>.
+      /** Set/replace namespace and classname components from &lt;src&gt;.
 	 @param op ObjectPath this pointer.
 	 @param src Source input.
 	 @return Service return status.
@@ -711,7 +711,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #endif
 
 #ifdef CMPI_INLINE
-      /** Set/replace hostname, namespace and classname components from <src>.
+      /** Set/replace hostname, namespace and classname components from &lt;src&gt;.
 	 @param op ObjectPath this pointer.
 	 @param src Source input.
 	 @return Service return status.
@@ -727,7 +727,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 
 #if defined(CMPI_VER_86)
 #ifdef CMPI_INLINE
-      /** Set/replace hostname, namespace and classname components from <src>.
+      /** Set/replace hostname, namespace and classname components from &lt;src&gt;.
 	 @param op ObjectPath this pointer.
 	 @param src Source input.
 	 @return Service return status.
@@ -1400,7 +1400,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #endif
 
 #ifdef CMPI_INLINE
-      /** Enumerate Instance Names of the class (and subclasses) defined by <op>.
+      /** Enumerate Instance Names of the class (and subclasses) defined by &lt;op&gt;.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op ObjectPath containing namespace and classname components.
@@ -1417,9 +1417,9 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #endif
 
 #ifdef CMPI_INLINE
-     /** Enumerate Instances of the class (and subclasses) defined by <op>.
+     /** Enumerate Instances of the class (and subclasses) defined by &lt;op&gt;.
          Instance structure and inheritance scope can be controled using the
-	 CMPIInvocationFlags entry in <ctx>.
+	 CMPIInvocationFlags entry in &lt;ctx&gt;.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op ObjectPath containing namespace and classname components.
@@ -1439,8 +1439,8 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #endif
 
 #ifdef CMPI_INLINE
-      /** Get Instance using <op> as reference. Instance structure can be
-         controled using the CMPIInvocationFlags entry in <ctx>.
+      /** Get Instance using &lt;op&gt; as reference. Instance structure can be
+         controled using the CMPIInvocationFlags entry in &lt;ctx&gt;.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op ObjectPath containing namespace, classname and key components.
@@ -1460,7 +1460,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #endif
 
 #ifdef CMPI_INLINE
-      /** Create Instance from <inst> using <op> as reference.
+      /** Create Instance from &lt;inst&gt; using &lt;op&gt; as reference.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op ObjectPath containing namespace, classname and key components.
@@ -1479,7 +1479,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 
 #if defined(CMPI_VER_90)
   #ifdef CMPI_INLINE
-      /** Replace an existing Instance from <inst> using <op> as reference.
+      /** Replace an existing Instance from &lt;inst&gt; using &lt;op&gt; as reference.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op ObjectPath containing namespace, classname and key components.
@@ -1496,7 +1496,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
   #endif
 #else
   #ifdef CMPI_INLINE
-      /** Replace an existing Instance from <inst> using <op> as reference.
+      /** Replace an existing Instance from &lt;inst&gt; using &lt;op&gt; as reference.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op ObjectPath containing namespace, classname and key components.
@@ -1513,7 +1513,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #endif //version 90
 
 #ifdef CMPI_INLINE
-      /** Delete an existing Instance using <op> as reference.
+      /** Delete an existing Instance using &lt;op&gt; as reference.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op ObjectPath containing namespace, classname and key components.
@@ -1529,7 +1529,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 
 #ifdef CMPI_INLINE
       /** Query the enumeration of instances of the class (and subclasses) defined
-         by <op> using <query> expression.
+         by &lt;op&gt; using &lt;query&gt; expression.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op ObjectPath containing namespace and classname components.
@@ -1549,7 +1549,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 
 
 #ifdef CMPI_INLINE
-      /** Enumerate instances associated with the Instance defined by the <op>.
+      /** Enumerate instances associated with the Instance defined by the &lt;op&gt;.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op Source ObjectPath containing namespace, classname and key components.
@@ -1591,7 +1591,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #endif
 
 #ifdef CMPI_INLINE
-      /** Enumerate ObjectPaths associated with the Instance defined by <op>.
+      /** Enumerate ObjectPaths associated with the Instance defined by &lt;op&gt;.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op Source ObjectPath containing namespace, classname and key components.
@@ -1631,7 +1631,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 
 #ifdef CMPI_INLINE
        /** Enumerates the association instances that refer to the instance defined by
-           <op>.
+           &lt;op&gt;.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op Source ObjectPath containing namespace, classname and key components.
@@ -1664,7 +1664,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 
 #ifdef CMPI_INLINE
        /** Enumerates the association ObjectPaths that refer to the instance defined by
-           <op>.
+           &lt;op&gt;.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op Source ObjectPath containing namespace, classname and key components.
@@ -1694,7 +1694,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 
 #ifdef CMPI_INLINE
        /** Invoke a named, extrinsic method of an Instance
-         defined by the <op> parameter.
+         defined by the &lt;op&gt; parameter.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op ObjectPath containing namespace, classname and key components.
@@ -1715,7 +1715,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #endif
 
 #ifdef CMPI_INLINE
-       /** Set the named property value of an Instance defined by the <op> parameter.
+       /** Set the named property value of an Instance defined by the &lt;op&gt; parameter.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op ObjectPath containing namespace, classname and key components.
@@ -1736,7 +1736,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #endif
 
 #ifdef CMPI_INLINE
-       /** Get the named property value of an Instance defined by the <op> parameter.
+       /** Get the named property value of an Instance defined by the &lt;op&gt; parameter.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
 	 @param op ObjectPath containing namespace, classname and key components.
@@ -1766,19 +1766,19 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 
 #ifdef DOC_ONLY
        /** This macro generates the function table and initialization stub
-           for an instance provider. The initialization routine <pn>Create_InstanceMI
+           for an instance provider. The initialization routine &lt;pn&gt;Create_InstanceMI
 	   is called when this provider module is loaded by the broker.
 	   This macro is for CMPI providers written in plain C.
 	 @param pfx The prefix for all mandatory association provider functions.
 	        This is a character string without quotes.
-	        Mandatory functions are: <pfx>Cleanup, <pfx>EnumInstanceNames,
-                <pfx>EnumInstances, <pfx>GetInstance, <pfx>CreateInstance,
-                <pfx>SetInstance, <pfx>DeleteInstance and <pfx>ExecQuery.
+	        Mandatory functions are: &lt;pfx&gt;Cleanup, &lt;pfx&gt;EnumInstanceNames,
+                &lt;pfx&gt;EnumInstances, &lt;pfx&gt;GetInstance, &lt;pfx&gt;CreateInstance,
+                &lt;pfx&gt;SetInstance, &lt;pfx&gt;DeleteInstance and &lt;pfx&gt;ExecQuery.
 	 @param pn The provider name under which this provider is registered.
 	        This is a character string without quotes.
 	 @param broker The name of the broker variable used by this macro to store
 	               the CMPIBroker pointer
-	 @param hook A statement that is executed within <pn>Create_InstanceMI routine.
+	 @param hook A statement that is executed within &lt;pn&gt;Create_InstanceMI routine.
 	             This enables you to perform additional initialization functions and
 		     is normally a function call like furtherInit(broker) or CMNoHook.
 		     Use CMNoHook if no further intialization is required.
@@ -1816,19 +1816,19 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #ifdef DOC_ONLY
        /** This macro generates the function table and initialization stub
            for an association provider. The initialization routine
-	   <pn>Create_AssociationMI
+	   &lt;pn&gt;Create_AssociationMI
 	   is called when this provider module is loaded by the broker.
 	   This macro is for CMPI providers written in plain C.
 	 @param pfx The prefix for all mandatory instance provider functions.
 	        This is a character string without quotes.
-	        Mandatory functions are: <pfx>AssociationCleanup,
-                <pfx>Associators, <pfx>AssociatorNames, <pfx>References and
-                <pfx>ReferenceNames.
+	        Mandatory functions are: &lt;pfx&gt;AssociationCleanup,
+                &lt;pfx&gt;Associators, &lt;pfx&gt;AssociatorNames, &lt;pfx&gt;References and
+                &lt;pfx&gt;ReferenceNames.
 	 @param pn The provider name under which this provider is registered.
 	        This is a character string without quotes.
 	 @param broker The name of the broker variable used by this macro to store
 	               the CMPIBroker pointer
-	 @param hook A statement that is executed within <pn>Create_AssociationMI routine.
+	 @param hook A statement that is executed within &lt;pn&gt;Create_AssociationMI routine.
 	             This enables you to perform additional initialization functions and
 		     is normally a function call like furtherInit(broker) or CMNoHook.
 		     Use CMNoHook if no further intialization is required.
@@ -1862,17 +1862,17 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 
 #ifdef DOC_ONLY
        /** This macro generates the function table and initialization stub
-           for a method provider. The initialization routine <pn>Create_MethodMI
+           for a method provider. The initialization routine &lt;pn&gt;Create_MethodMI
 	   is called when this provider module is loaded by the broker.
 	   This macro is for CMPI providers written in plain C.
 	 @param pfx The prefix for all mandatory method provider functions.
 	        This is a character string without quotes.
-	        Mandatory functions are: <pfx>MthodCleanup and <pfx>InvokeMethod.
+	        Mandatory functions are: &lt;pfx&gt;MthodCleanup and &lt;pfx&gt;InvokeMethod.
 	 @param pn The provider name under which this provider is registered.
 	        This is a character string without quotes.
 	 @param broker The name of the broker variable used by this macro to store
 	               the CMPIBroker pointer
-	 @param hook A statement that is executed within <pn>Create_MethodMI routine.
+	 @param hook A statement that is executed within &lt;pn&gt;Create_MethodMI routine.
 	             This enables you to perform additional initialization functions and
 		     is normally a function call like furtherInit(broker) or CMNoHook.
 		     Use CMNoHook if no further intialization is required.
@@ -1903,19 +1903,19 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 
 #ifdef DOC_ONLY
        /** This macro generates the function table and initialization stub
-           for a property provider. The initialization routine <pn>Create_PropertyMI
+           for a property provider. The initialization routine &lt;pn&gt;Create_PropertyMI
 	   is called when this provider module is loaded by the broker.
 	   This macro is for CMPI providers written in plain C.
 	 @param pfx The prefix for all mandatory property provider functions.
 	        This is a character string without quotes.
-	        Mandatory functions are: <pfx>PropertyCleanup, <pfx>SetProperty and
-                <pfx>GetProperty.
+	        Mandatory functions are: &lt;pfx&gt;PropertyCleanup, &lt;pfx&gt;SetProperty and
+                &lt;pfx&gt;GetProperty.
 
 	 @param pn The provider name under which this provider is registered.
 	        This is a character string without quotes.
 	 @param broker The name of the broker variable used by this macro to store
 	               the CMPIBroker pointer
-	 @param hook A statement that is executed within <pn>Create_PropertyMI routine.
+	 @param hook A statement that is executed within &lt;pn&gt;Create_PropertyMI routine.
 	             This enables you to perform additional initialization functions and
 		     is normally a function call like furtherInit(broker) or CMNoHook.
 		     Use CMNoHook if no further intialization is required.
@@ -1947,18 +1947,18 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 
 #ifdef DOC_ONLY
        /** This macro generates the function table and initialization stub
-           for an indication provider. The initialization routine <pn>Create_IndicationMI
+           for an indication provider. The initialization routine &lt;pn&gt;Create_IndicationMI
 	   is called when this provider module is loaded by the broker.
 	   This macro is for CMPI providers written in plain C.
 	 @param pfx The prefix for all mandatory indication provider functions.
 	        This is a character string without quotes.
-	        Mandatory functions are: <pfx>IndicationCleanup, <pfx>AuthorizeFilter,
-                <pfx>MustPoll, <pfx>ActivateFilter and <pfx>DeActivateFilter.
+	        Mandatory functions are: &lt;pfx&gt;IndicationCleanup, &lt;pfx&gt;AuthorizeFilter,
+                &lt;pfx&gt;MustPoll, &lt;pfx&gt;ActivateFilter and &lt;pfx&gt;DeActivateFilter.
 	 @param pn The provider name under which this provider is registered.
 	        This is a character string without quotes.
 	 @param broker The name of the broker variable used by this macro to store
 	               the CMPIBroker pointer
-	 @param hook A statement that is executed within <pn>Create_IndicationMI routine.
+	 @param hook A statement that is executed within &lt;pn&gt;Create_IndicationMI routine.
 	             This enables you to perform additional initialization functions and
 		     is normally a function call like furtherInit(broker) or CMNoHook.
 		     Use CMNoHook if no further intialization is required.
@@ -2005,7 +2005,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 
 #ifdef DOC_ONLY
        /** This macro generates the function table and initialization stub
-           for an instance provider. The initialization routine <pn>Create_IndicationMI
+           for an instance provider. The initialization routine &lt;pn&gt;Create_IndicationMI
 	   is called when this provider module is loaded by the broker.
 	   This macro is for CMPI providers written in C++ using the Cmpi* classes.
 	 @param cn The C++ class name of this instance provider
@@ -2053,7 +2053,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #ifdef DOC_ONLY
        /** This macro generates the function table and initialization stub
            for an association provider. The initialization routine
-	   <pn>Create_AssociationMI
+	   &lt;pn&gt;Create_AssociationMI
 	   is called when this provider module is loaded by the broker.
 	   This macro is for CMPI providers written in C++ using the Cmpi* classes.
 	 @param cn The C++ class name of this instance provider
@@ -2098,7 +2098,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #ifdef DOC_ONLY
        /** This macro generates the function table and initialization stub
            for an method provider. The initialization routine
-	   <pn>Create_MethodMI is called when this provider module is loaded
+	   &lt;pn&gt;Create_MethodMI is called when this provider module is loaded
 	   by the broker.
 	   This macro is for CMPI providers written in C++ using the Cmpi* classes.
 	 @param cn The C++ class name of this method provider
@@ -2139,7 +2139,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 
 #ifdef DOC_ONLY
        /** This macro generates the function table and initialization stub
-           for a property provider. The initialization routine <pn>Create_PropertyMI
+           for a property provider. The initialization routine &lt;pn&gt;Create_PropertyMI
 	   is called when this provider module is loaded by the broker.
 	   This macro is for CMPI providers written in C++ using the Cmpi* classes.
 	 @param cn The C++ class name of this method provider
@@ -2182,7 +2182,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 
 #ifdef DOC_ONLY
        /** This macro generates the function table and initialization stub
-           for an indication provider. The initialization routine <pn>Create_IndicationMI
+           for an indication provider. The initialization routine &lt;pn&gt;Create_IndicationMI
 	   is called when this provider module is loaded by the broker.
 	   This macro is for CMPI providers written in C++ using the Cmpi* classes.
 	 @param cn The C++ class name of this method provider

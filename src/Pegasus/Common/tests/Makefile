@@ -55,6 +55,13 @@ DIRS = \
     L10N/msg \
     OperationContext
 
+ifdef PEGASUS_HAS_PERFINST
+DIRS += \
+	StatisticalData
+endif
+
+
+
 #    MessageQueueService \
 #    WebServer \
 #    async_callback \

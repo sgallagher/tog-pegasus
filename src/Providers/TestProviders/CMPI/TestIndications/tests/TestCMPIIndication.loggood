@@ -1,91 +1,254 @@
-cmpiTestIndicationProvider.c: --- TestCMPI_Indication CMPI ActivateFilter() called
-cmpiTestIndicationProvider.c: -- #1 Clone
-cmpiTestIndicationProvider.c: ---- CMPI_RC_ERR_NOT_SUPPORTED
-cmpiTestIndicationProvider.c: -- #1.1 CMNewSelectExp
-cmpiTestIndicationProvider.c: ---- CMPI_RC_ERR_FAILED
-cmpiTestIndicationProvider.c: -- #2 MakeObjectPath
-cmpiTestIndicationProvider.c: --- make_ObjectPath: CMNewObjectPath
-cmpiTestIndicationProvider.c: ----- CMPI_RC_OK
-cmpiTestIndicationProvider.c: ---- CMPIObjectPath (CMPI_RC_OK)
-cmpiTestIndicationProvider.c: -- #3 Instance
-cmpiTestIndicationProvider.c: ---- CMPI_RC_OK
-cmpiTestIndicationProvider.c: ---- CMPIInstance (CMPI_RC_OK)
-cmpiTestIndicationProvider.c: - CMGetPropertyCount: 6
-cmpiTestIndicationProvider.c: -- 0: PropertyA(CMPI_string: CMPI_goodValue: PropertyA) [CMPI_RC_OK]
-cmpiTestIndicationProvider.c: -- 1: PropertyB(CMPI_string: CMPI_goodValue: PropertyB) [CMPI_RC_OK]
-cmpiTestIndicationProvider.c: -- 2: s(CMPI_string: CMPI_goodValue: s) [CMPI_RC_OK]
-cmpiTestIndicationProvider.c: -- 3: n(CMPI_uint64: CMPI_nullValue: No value) [CMPI_RC_OK]
-cmpiTestIndicationProvider.c: -- 4: f(CMPI_real64: CMPI_nullValue: No value) [CMPI_RC_OK]
-cmpiTestIndicationProvider.c: -- 5: d(CMPI_dateTime: CMPI_nullValue: No value) [CMPI_RC_OK]
-cmpiTestIndicationProvider.c: -- #4 Evaluate using instance
-cmpiTestIndicationProvider.c: ---- CMPI_RC_OK
-cmpiTestIndicationProvider.c: --- True
-cmpiTestIndicationProvider.c: -- #4.1 Evalute using accessor
-cmpiTestIndicationProvider.c: -- #4.2 instance_accessor
-cmpiTestIndicationProvider.c: -- Property: PropertyA
-cmpiTestIndicationProvider.c: ----  (CMPI_RC_OK)
-cmpiTestIndicationProvider.c: -- #4.2 instance_accessor
-cmpiTestIndicationProvider.c: -- Property: PropertyB
-cmpiTestIndicationProvider.c: ----  (CMPI_RC_OK)
-cmpiTestIndicationProvider.c: -- #4.2 instance_accessor
-cmpiTestIndicationProvider.c: -- Property: s
-cmpiTestIndicationProvider.c: ----  (CMPI_RC_OK)
-cmpiTestIndicationProvider.c: ---- CMPI_RC_OK
-cmpiTestIndicationProvider.c: --- False
-cmpiTestIndicationProvider.c: -- #5 CMGetSelExpString
-cmpiTestIndicationProvider.c: ---- CMPI_RC_OK
-cmpiTestIndicationProvider.c: -- #5.1 Query is [SELECT * FROM TestCMPI_Indication WHERE (PropertyA='PropertyA' OR PropertyB='Nothing') AND s='s']
-cmpiTestIndicationProvider.c: -- #5.2 Query is [TestCMPI_Indication]
-cmpiTestIndicationProvider.c: -- #6 Continue evaluating using GetDOC
-cmpiTestIndicationProvider.c: ---- CMPI_RC_OK
-cmpiTestIndicationProvider.c: --- #6.1 CMGetSubCondCountAndType 
-cmpiTestIndicationProvider.c: ---- CMPI_RC_OK
-cmpiTestIndicationProvider.c: ---- Number of disjunctives: 2, Type: 0
-cmpiTestIndicationProvider.c: --- #6.2 CMGetSubCondAt @ 0 
-cmpiTestIndicationProvider.c: ---- CMPI_RC_OK
-cmpiTestIndicationProvider.c: --- #6.3 CMGetPredicateCount
-cmpiTestIndicationProvider.c: ---- CMPI_RC_OK
-cmpiTestIndicationProvider.c: ---- Number of predicates in the conjuctives: 2
-cmpiTestIndicationProvider.c: --- #6.4 CMGetPredicateAt, 0
-cmpiTestIndicationProvider.c: ---- CMPI_RC_OK
-cmpiTestIndicationProvider.c: --- #6.4 CMGetPredicateData
-cmpiTestIndicationProvider.c: ---- CMPI_RC_OK
-cmpiTestIndicationProvider.c: ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyA, RS: 'PropertyA'
-cmpiTestIndicationProvider.c: --- #6.5 CMEvaluatePredicate
-cmpiTestIndicationProvider.c: ---- CMPI_RC_ERR_NOT_SUPPORTED
-cmpiTestIndicationProvider.c: --- False
-cmpiTestIndicationProvider.c: --- #6.4 CMGetPredicateAt, 1
-cmpiTestIndicationProvider.c: ---- CMPI_RC_OK
-cmpiTestIndicationProvider.c: --- #6.4 CMGetPredicateData
-cmpiTestIndicationProvider.c: ---- CMPI_RC_OK
-cmpiTestIndicationProvider.c: ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.s, RS: 's'
-cmpiTestIndicationProvider.c: --- #6.5 CMEvaluatePredicate
-cmpiTestIndicationProvider.c: ---- CMPI_RC_ERR_NOT_SUPPORTED
-cmpiTestIndicationProvider.c: --- False
-cmpiTestIndicationProvider.c: --- #6.2 CMGetSubCondAt @ 1 
-cmpiTestIndicationProvider.c: ---- CMPI_RC_OK
-cmpiTestIndicationProvider.c: --- #6.3 CMGetPredicateCount
-cmpiTestIndicationProvider.c: ---- CMPI_RC_OK
-cmpiTestIndicationProvider.c: ---- Number of predicates in the conjuctives: 2
-cmpiTestIndicationProvider.c: --- #6.4 CMGetPredicateAt, 0
-cmpiTestIndicationProvider.c: ---- CMPI_RC_OK
-cmpiTestIndicationProvider.c: --- #6.4 CMGetPredicateData
-cmpiTestIndicationProvider.c: ---- CMPI_RC_OK
-cmpiTestIndicationProvider.c: ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyB, RS: 'Nothing'
-cmpiTestIndicationProvider.c: --- #6.5 CMEvaluatePredicate
-cmpiTestIndicationProvider.c: ---- CMPI_RC_ERR_NOT_SUPPORTED
-cmpiTestIndicationProvider.c: --- False
-cmpiTestIndicationProvider.c: --- #6.4 CMGetPredicateAt, 1
-cmpiTestIndicationProvider.c: ---- CMPI_RC_OK
-cmpiTestIndicationProvider.c: --- #6.4 CMGetPredicateData
-cmpiTestIndicationProvider.c: ---- CMPI_RC_OK
-cmpiTestIndicationProvider.c: ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.s, RS: 's'
-cmpiTestIndicationProvider.c: --- #6.5 CMEvaluatePredicate
-cmpiTestIndicationProvider.c: ---- CMPI_RC_ERR_NOT_SUPPORTED
-cmpiTestIndicationProvider.c: --- False
-cmpiTestIndicationProvider.c: -- #7 GetCOD
-cmpiTestIndicationProvider.c: ---- CMPI_RC_ERR_NOT_SUPPORTED
-cmpiTestIndicationProvider.c: --- TestCMPI_Indication CMPI ActivateFilter() exited
-cmpiTestIndicationProvider.c: --- TestCMPI_Indication CMPI DeActivateFilter() called
-cmpiTestIndicationProvider.c: -- Query is [SELECT * FROM TestCMPI_Indication WHERE (PropertyA='PropertyA' OR PropertyB='Nothing') AND s='s']
-cmpiTestIndicationProvider.c: --- TestCMPI_Indication CMPI DeActivateFilter() exited
+ --- TestCMPI_Indication CMPI ActivateFilter() called
+ -- #1 Clone
+ ---- CMPI_RC_ERR_NOT_SUPPORTED
+ -- #1.1 CMNewSelectExp
+ ---- CMPI_RC_ERR_FAILED
+ -- #2 MakeObjectPath
+ --- make_ObjectPath: CMNewObjectPath
+ ----- CMPI_RC_OK
+ ---- CMPIObjectPath (CMPI_RC_OK)
+ -- #3 Instance
+ ---- CMPI_RC_OK
+ ---- CMPIInstance (CMPI_RC_OK)
+ - CMGetPropertyCount: 6
+ -- 0: PropertyA(CMPI_string: CMPI_goodValue: PropertyA) [CMPI_RC_OK]
+ -- 1: PropertyB(CMPI_string: CMPI_goodValue: PropertyB) [CMPI_RC_OK]
+ -- 2: s(CMPI_string: CMPI_goodValue: s) [CMPI_RC_OK]
+ -- 3: n(CMPI_uint64: CMPI_nullValue: No value) [CMPI_RC_OK]
+ -- 4: f(CMPI_real64: CMPI_nullValue: No value) [CMPI_RC_OK]
+ -- 5: d(CMPI_dateTime: CMPI_nullValue: No value) [CMPI_RC_OK]
+ -- #4 Evaluate using instance
+ ---- CMPI_RC_OK
+ --- True
+ -- #4.1 Evalute using accessor
+ -- #4.2 instance_accessor
+ -- Property: PropertyA
+ ----  (CMPI_RC_OK)
+ -- #4.2 instance_accessor
+ -- Property: PropertyB
+ ----  (CMPI_RC_OK)
+ -- #4.2 instance_accessor
+ -- Property: s
+ ----  (CMPI_RC_OK)
+ ---- CMPI_RC_OK
+ --- False
+ -- #5 CMGetSelExpString
+ ---- CMPI_RC_OK
+ -- #5.1 Query is [SELECT * FROM TestCMPI_Indication WHERE (PropertyA='PropertyA' OR PropertyB='Nothing') AND s='s']
+ -- #5.2 Query is [TestCMPI_Indication]
+ -- #6 Continue evaluating using GetDOC
+ ---- CMPI_RC_OK
+ --- #6.1 CMGetSubCondCountAndType 
+ ---- CMPI_RC_OK
+ ---- Number of disjunctives: 2, Type: 0
+ --- #6.2 CMGetSubCondAt @ 0 
+ ---- CMPI_RC_OK
+ --- #6.3 CMGetPredicateCount
+ ---- CMPI_RC_OK
+ ---- Number of predicates in the conjuctives: 2
+ --- #6.4 CMGetPredicateAt, 0
+ ---- CMPI_RC_OK
+ --- #6.4 CMGetPredicateData
+ ---- CMPI_RC_OK
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyA, RS: 'PropertyA'
+ --- #6.5 CMEvaluatePredicate
+ ---- CMPI_RC_ERR_NOT_SUPPORTED
+ --- False
+ --- #6.4 CMGetPredicateAt, 1
+ ---- CMPI_RC_OK
+ --- #6.4 CMGetPredicateData
+ ---- CMPI_RC_OK
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.s, RS: 's'
+ --- #6.5 CMEvaluatePredicate
+ ---- CMPI_RC_ERR_NOT_SUPPORTED
+ --- False
+ --- #6.2 CMGetSubCondAt @ 1 
+ ---- CMPI_RC_OK
+ --- #6.3 CMGetPredicateCount
+ ---- CMPI_RC_OK
+ ---- Number of predicates in the conjuctives: 2
+ --- #6.4 CMGetPredicateAt, 0
+ ---- CMPI_RC_OK
+ --- #6.4 CMGetPredicateData
+ ---- CMPI_RC_OK
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyB, RS: 'Nothing'
+ --- #6.5 CMEvaluatePredicate
+ ---- CMPI_RC_ERR_NOT_SUPPORTED
+ --- False
+ --- #6.4 CMGetPredicateAt, 1
+ ---- CMPI_RC_OK
+ --- #6.4 CMGetPredicateData
+ ---- CMPI_RC_OK
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.s, RS: 's'
+ --- #6.5 CMEvaluatePredicate
+ ---- CMPI_RC_ERR_NOT_SUPPORTED
+ --- False
+ -- #7 GetCOD
+ ---- CMPI_RC_ERR_NOT_SUPPORTED
+ --- TestCMPI_Indication CMPI ActivateFilter() exited
+ --- TestCMPI_Indication CMPI DeActivateFilter() called
+ -- Query is [SELECT * FROM TestCMPI_Indication WHERE (PropertyA='PropertyA' OR PropertyB='Nothing') AND s='s']
+ --- TestCMPI_Indication CMPI DeActivateFilter() exited
+ --- TestCMPI_Indication CMPI ActivateFilter() called
+ -- #1 Clone
+ ---- CMPI_RC_ERR_NOT_SUPPORTED
+ -- #1.1 CMNewSelectExp
+ ---- CMPI_RC_ERR_FAILED
+ -- #2 MakeObjectPath
+ --- make_ObjectPath: CMNewObjectPath
+ ----- CMPI_RC_OK
+ ---- CMPIObjectPath (CMPI_RC_OK)
+ -- #3 Instance
+ ---- CMPI_RC_OK
+ ---- CMPIInstance (CMPI_RC_OK)
+ - CMGetPropertyCount: 6
+ -- 0: PropertyA(CMPI_string: CMPI_goodValue: PropertyA) [CMPI_RC_OK]
+ -- 1: PropertyB(CMPI_string: CMPI_goodValue: PropertyB) [CMPI_RC_OK]
+ -- 2: s(CMPI_string: CMPI_goodValue: s) [CMPI_RC_OK]
+ -- 3: n(CMPI_uint64: CMPI_nullValue: No value) [CMPI_RC_OK]
+ -- 4: f(CMPI_real64: CMPI_nullValue: No value) [CMPI_RC_OK]
+ -- 5: d(CMPI_dateTime: CMPI_nullValue: No value) [CMPI_RC_OK]
+ -- #4 Evaluate using instance
+ ---- CMPI_RC_OK
+ --- True
+ -- #4.1 Evalute using accessor
+ -- #4.2 instance_accessor
+ -- Property: PropertyA
+ ----  (CMPI_RC_OK)
+ -- #4.2 instance_accessor
+ -- Property: PropertyB
+ ----  (CMPI_RC_OK)
+ -- #4.2 instance_accessor
+ -- Property: s
+ ----  (CMPI_RC_OK)
+ ---- CMPI_RC_OK
+ --- True
+ -- #5 CMGetSelExpString
+ ---- CMPI_RC_OK
+ -- #5.1 Query is [SELECT PropertyA, PropertyB FROM TestCMPI_Indication WHERE PropertyA='PropertyA' OR PropertyB='Nothing' OR s='s']
+ -- #5.2 Query is [TestCMPI_Indication]
+ -- #6 Continue evaluating using GetDOC
+ ---- CMPI_RC_OK
+ --- #6.1 CMGetSubCondCountAndType 
+ ---- CMPI_RC_OK
+ ---- Number of disjunctives: 3, Type: 0
+ --- #6.2 CMGetSubCondAt @ 0 
+ ---- CMPI_RC_OK
+ --- #6.3 CMGetPredicateCount
+ ---- CMPI_RC_OK
+ ---- Number of predicates in the conjuctives: 1
+ --- #6.4 CMGetPredicateAt, 0
+ ---- CMPI_RC_OK
+ --- #6.4 CMGetPredicateData
+ ---- CMPI_RC_OK
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyA, RS: 'PropertyA'
+ --- #6.5 CMEvaluatePredicate
+ ---- CMPI_RC_ERR_NOT_SUPPORTED
+ --- False
+ --- #6.2 CMGetSubCondAt @ 1 
+ ---- CMPI_RC_OK
+ --- #6.3 CMGetPredicateCount
+ ---- CMPI_RC_OK
+ ---- Number of predicates in the conjuctives: 1
+ --- #6.4 CMGetPredicateAt, 0
+ ---- CMPI_RC_OK
+ --- #6.4 CMGetPredicateData
+ ---- CMPI_RC_OK
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyB, RS: 'Nothing'
+ --- #6.5 CMEvaluatePredicate
+ ---- CMPI_RC_ERR_NOT_SUPPORTED
+ --- False
+ --- #6.2 CMGetSubCondAt @ 2 
+ ---- CMPI_RC_OK
+ --- #6.3 CMGetPredicateCount
+ ---- CMPI_RC_OK
+ ---- Number of predicates in the conjuctives: 1
+ --- #6.4 CMGetPredicateAt, 0
+ ---- CMPI_RC_OK
+ --- #6.4 CMGetPredicateData
+ ---- CMPI_RC_OK
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.s, RS: 's'
+ --- #6.5 CMEvaluatePredicate
+ ---- CMPI_RC_ERR_NOT_SUPPORTED
+ --- False
+ -- #7 GetCOD
+ ---- CMPI_RC_ERR_NOT_SUPPORTED
+ --- TestCMPI_Indication CMPI ActivateFilter() exited
+ --- TestCMPI_Indication CMPI DeActivateFilter() called
+ -- Query is [SELECT PropertyA, PropertyB FROM TestCMPI_Indication WHERE PropertyA='PropertyA' OR PropertyB='Nothing' OR s='s']
+ --- TestCMPI_Indication CMPI DeActivateFilter() exited
+ --- TestCMPI_Indication CMPI ActivateFilter() called
+ -- #1 Clone
+ ---- CMPI_RC_ERR_NOT_SUPPORTED
+ -- #1.1 CMNewSelectExp
+ ---- CMPI_RC_ERR_FAILED
+ -- #2 MakeObjectPath
+ --- make_ObjectPath: CMNewObjectPath
+ ----- CMPI_RC_OK
+ ---- CMPIObjectPath (CMPI_RC_OK)
+ -- #3 Instance
+ ---- CMPI_RC_OK
+ ---- CMPIInstance (CMPI_RC_OK)
+ - CMGetPropertyCount: 6
+ -- 0: PropertyA(CMPI_string: CMPI_goodValue: PropertyA) [CMPI_RC_OK]
+ -- 1: PropertyB(CMPI_string: CMPI_goodValue: PropertyB) [CMPI_RC_OK]
+ -- 2: s(CMPI_string: CMPI_goodValue: s) [CMPI_RC_OK]
+ -- 3: n(CMPI_uint64: CMPI_nullValue: No value) [CMPI_RC_OK]
+ -- 4: f(CMPI_real64: CMPI_nullValue: No value) [CMPI_RC_OK]
+ -- 5: d(CMPI_dateTime: CMPI_nullValue: No value) [CMPI_RC_OK]
+ -- #4 Evaluate using instance
+ ---- CMPI_RC_OK
+ --- False
+ -- #4.1 Evalute using accessor
+ -- #4.2 instance_accessor
+ -- Property: PropertyA
+ ----  (CMPI_RC_OK)
+ -- #4.2 instance_accessor
+ -- Property: PropertyB
+ ----  (CMPI_RC_OK)
+ ---- CMPI_RC_OK
+ --- True
+ -- #5 CMGetSelExpString
+ ---- CMPI_RC_OK
+ -- #5.1 Query is [SELECT s FROM TestCMPI_Indication WHERE NOT (PropertyA='PropertyA' OR PropertyB='Nothing') AND PropertyA='AccessorPropertyA']
+ -- #5.2 Query is [TestCMPI_Indication]
+ -- #6 Continue evaluating using GetDOC
+ ---- CMPI_RC_OK
+ --- #6.1 CMGetSubCondCountAndType 
+ ---- CMPI_RC_OK
+ ---- Number of disjunctives: 1, Type: 0
+ --- #6.2 CMGetSubCondAt @ 0 
+ ---- CMPI_RC_OK
+ --- #6.3 CMGetPredicateCount
+ ---- CMPI_RC_OK
+ ---- Number of predicates in the conjuctives: 3
+ --- #6.4 CMGetPredicateAt, 0
+ ---- CMPI_RC_OK
+ --- #6.4 CMGetPredicateData
+ ---- CMPI_RC_OK
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_NotEquals , LS: TestCMPI_Indication.PropertyA, RS: 'PropertyA'
+ --- #6.5 CMEvaluatePredicate
+ ---- CMPI_RC_ERR_NOT_SUPPORTED
+ --- False
+ --- #6.4 CMGetPredicateAt, 1
+ ---- CMPI_RC_OK
+ --- #6.4 CMGetPredicateData
+ ---- CMPI_RC_OK
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_NotEquals , LS: TestCMPI_Indication.PropertyB, RS: 'Nothing'
+ --- #6.5 CMEvaluatePredicate
+ ---- CMPI_RC_ERR_NOT_SUPPORTED
+ --- False
+ --- #6.4 CMGetPredicateAt, 2
+ ---- CMPI_RC_OK
+ --- #6.4 CMGetPredicateData
+ ---- CMPI_RC_OK
+ ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyA, RS: 'AccessorPropertyA'
+ --- #6.5 CMEvaluatePredicate
+ ---- CMPI_RC_ERR_NOT_SUPPORTED
+ --- False
+ -- #7 GetCOD
+ ---- CMPI_RC_ERR_NOT_SUPPORTED
+ --- TestCMPI_Indication CMPI ActivateFilter() exited
+ --- TestCMPI_Indication CMPI DeActivateFilter() called
+ -- Query is [SELECT s FROM TestCMPI_Indication WHERE NOT (PropertyA='PropertyA' OR PropertyB='Nothing') AND PropertyA='AccessorPropertyA']
+ --- TestCMPI_Indication CMPI DeActivateFilter() exited

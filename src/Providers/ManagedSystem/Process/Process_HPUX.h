@@ -45,6 +45,7 @@
 #include <sys/dirent.h>   // readdir
 #include <time.h>         // localtime
 #include <sys/param.h>    // pstat
+#define  _PSTAT64         // build wide interface for 64-bit kernels
 #include <sys/pstat.h>    // pstat
 #include <devnm.h>        // devnm
 #include <sys/stat.h>     // stat

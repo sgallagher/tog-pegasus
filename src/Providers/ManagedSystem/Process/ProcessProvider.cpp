@@ -183,11 +183,11 @@ void ProcessProvider::enumerateInstances(
     // cout << "ProcessProvider::enumerateInstances()" << endl;
 
     int pIndex;
-    String className;
+    String className = classReference.getClassName();
+    String nameSpace = classReference.getNameSpace();
     Process _p;
 
     // Validate the classname
-    className = classReference.getClassName();
     _checkClass(className);
 
     // Notify processing is starting
@@ -203,7 +203,9 @@ void ProcessProvider::enumerateInstances(
       // in order to skip over unused entries in the process table
       // Do not depend on this counter incrementing sequentially!
       for (pIndex = 0; _p.loadProcessInfo(pIndex); pIndex++)
-        handler.deliver(_constructInstance(CLASS_UNIX_PROCESS, _p));
+        handler.deliver(_constructInstance(CLASS_UNIX_PROCESS,
+                                           nameSpace,
+                                           _p));
     }
 
     // Notify processing is complete
@@ -233,15 +235,11 @@ void ProcessProvider::enumerateInstanceNames(const OperationContext &ctx,
 
     int pIndex;
     Process _p;
-    String className;
+    String className = ref.getClassName();
+    String nameSpace = ref.getNameSpace();
 
     // Validate the classname
-    className = ref.getClassName();
     _checkClass(className);
-
-    String csName = _getCSName();
-    String osName = _getOSName();
-    String ns = ref.getNameSpace();
 
     // Notify processing is starting
     handler.processing();
@@ -250,47 +248,20 @@ void ProcessProvider::enumerateInstanceNames(const OperationContext &ctx,
     // CLASS_UNIX_PROCESS
     if (String::equalNoCase(className,CLASS_UNIX_PROCESS))
     {
-      // Get the process information and construct the key bindings for
+      // Get the process information and deliver an ObjectPath for
       // each process
       // Note that loadProcessInfo modifies pIndex to point to the
-      // next process structure
+      // next process structure before the loop increments it!
       for (pIndex = 0; _p.loadProcessInfo(pIndex); pIndex++)
       {
-        Array<KeyBinding> keyBindings;
-
-        // Construct the key bindings
-        keyBindings.append(KeyBinding(PROPERTY_CS_CREATION_CLASS_NAME,
-	    	                      CLASS_CIM_UNITARY_COMPUTER_SYSTEM,
-                                      KeyBinding::STRING));
-		
-        keyBindings.append(KeyBinding(PROPERTY_CS_NAME,
-                                      csName,
-                                      KeyBinding::STRING));
-
-        keyBindings.append(KeyBinding(PROPERTY_OS_CREATION_CLASS_NAME,
-		                      CLASS_CIM_OPERATING_SYSTEM,
-                                      KeyBinding::STRING));
-		
-        keyBindings.append(KeyBinding(PROPERTY_OS_NAME,
-                                      osName,
-                                      KeyBinding::STRING));
-
-        keyBindings.append(KeyBinding(PROPERTY_CREATION_CLASS_NAME,
-		                      CLASS_UNIX_PROCESS,
-                                      KeyBinding::STRING));
-
-        keyBindings.append(KeyBinding(PROPERTY_HANDLE,
-                                      _p.getHandle(),
-                                      KeyBinding::STRING));
-
         // Deliver the names
         handler.deliver(CIMObjectPath(String::EMPTY, // hostname
-                                     ns,
-                                     CLASS_UNIX_PROCESS,
-                                     keyBindings));
+                                      nameSpace,
+                                      CLASS_UNIX_PROCESS,
+                                      _constructKeyBindings(_p)));
 
-      } // for
-    } // if (className ...
+      }
+    }
 
     // Notify processing is complete
     handler.complete();
@@ -321,17 +292,17 @@ void ProcessProvider::getInstance(const OperationContext &ctx,
                  const CIMPropertyList        &propertyList,
                  ResponseHandler<CIMInstance> &handler)
 {	
-  // cout << "ProcessProvider::getInstance()" << endl;
+  // cout << "ProcessProvider::getInstance(" << instanceName << ")" << endl;
 
   KeyBinding kb;
-  String className;
+  String className = instanceName.getClassName();
+  String nameSpace = instanceName.getNameSpace();
   String handle;
   int i;
   int keysFound; // this will be used as a bit array
   Process _p;
 
   // Validate the classname
-  className = instanceName.getClassName();
   _checkClass(className);
 
   // Extract the key values
@@ -434,7 +405,9 @@ void ProcessProvider::getInstance(const OperationContext &ctx,
     handler.processing();
 
     /* Return the instance. */
-    handler.deliver(_constructInstance(CLASS_UNIX_PROCESS,_p));
+    handler.deliver(_constructInstance(className,
+                                       nameSpace,
+                                       _p));
 
     /* Notify processing is complete. */
     handler.complete();
@@ -506,6 +479,49 @@ PARAMETERS        :
 void ProcessProvider::terminate()
 {
   // cout << "ProcessProvider::terminate()" << endl;
+  delete this;
+}
+
+// ================================================================================
+// NAME              : _constructKeyBindings
+// DESCRIPTION       : Constructs an array of keybindings for process
+// ASSUMPTIONS       : None
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
+// PARAMETERS        : className, Process
+// ================================================================================
+
+Array<KeyBinding> ProcessProvider::_constructKeyBindings(const Process& _p)
+{
+  Array<KeyBinding> keyBindings;
+
+  // Construct the key bindings
+  keyBindings.append(KeyBinding(PROPERTY_CS_CREATION_CLASS_NAME,
+	    	                CLASS_CIM_UNITARY_COMPUTER_SYSTEM,
+                                KeyBinding::STRING));
+		
+  keyBindings.append(KeyBinding(PROPERTY_CS_NAME,
+                                _getCSName(),
+                                KeyBinding::STRING));
+
+  keyBindings.append(KeyBinding(PROPERTY_OS_CREATION_CLASS_NAME,
+		                CLASS_CIM_OPERATING_SYSTEM,
+                                KeyBinding::STRING));
+		
+  keyBindings.append(KeyBinding(PROPERTY_OS_NAME,
+                                _getOSName(),
+                                KeyBinding::STRING));
+
+  keyBindings.append(KeyBinding(PROPERTY_CREATION_CLASS_NAME,
+		                CLASS_UNIX_PROCESS,
+                                KeyBinding::STRING));
+
+  keyBindings.append(KeyBinding(PROPERTY_HANDLE,
+                                _p.getHandle(),
+                                KeyBinding::STRING));
+
+  return keyBindings;
 }
 
 // ================================================================================
@@ -521,6 +537,7 @@ void ProcessProvider::terminate()
 // ================================================================================
 
 CIMInstance ProcessProvider::_constructInstance(const String &className,
+                                                const String &nameSpace,
                                                 const Process &_p)
 {
   String s;
@@ -531,6 +548,13 @@ CIMInstance ProcessProvider::_constructInstance(const String &className,
   CIMDateTime d;
 
   CIMInstance inst(className);
+
+  // Set path
+
+  inst.setPath(CIMObjectPath(String::EMPTY, // hostname
+                             nameSpace,
+                             CLASS_UNIX_PROCESS,
+                             _constructKeyBindings(_p)));
 
 // CIM_ManagedElement
 
@@ -561,32 +585,32 @@ CIMInstance ProcessProvider::_constructInstance(const String &className,
 // The following properties are in CIM_Process
 // ===========================================
 
-// We are returning empty strings for the "uninteresting" keys!!!
+  // The keys for this class are:
+  // [ key ] string CSCreationClassName
+  // [ key ] string CSName
+  // [ key ] string OSCreationClassName
+  // [ key ] string OSName
+  // [ key ] string CreationClassName
+  // [ key ] string Handle
 
-//   [ key ] string CSCreationClassName
-  inst.addProperty(CIMProperty(PROPERTY_CS_CREATION_CLASS_NAME,
-                               CLASS_CIM_UNITARY_COMPUTER_SYSTEM));
+  // Rather than rebuilding the key properties, we will reuse
+  // the values that were inserted for us in the ObjectPath,
+  // trusting that this was done correctly
 
-//   [ key ] string CSName
-  inst.addProperty(CIMProperty(PROPERTY_CS_NAME, _getCSName()));
-
-//   [ key ] string OSCreationClassName
-  inst.addProperty(CIMProperty(PROPERTY_OS_CREATION_CLASS_NAME,
-                               CLASS_CIM_OPERATING_SYSTEM));
-
-//   [ key ] string OSName
-  inst.addProperty(CIMProperty(PROPERTY_OS_NAME, _getOSName()));
+  // Get the keys
+  Array<KeyBinding> key = inst.getPath().getKeyBindings();
+  // loop through keys, inserting them as properties
+  // luckily, all keys for this class are strings, so no
+  // need to check key type
+  for (int i=0; i<key.size(); i++)
+  {
+    // add a property created from the name and value
+    inst.addProperty(CIMProperty(key[i].getName(),key[i].getValue()));
+  }
 
 //   string Name
   if (_p.getName(s))
     inst.addProperty(CIMProperty(PROPERTY_NAME,s));
-
-//   [ key ] string CreationClassName
-  inst.addProperty(CIMProperty(PROPERTY_CREATION_CLASS_NAME,
-                               CLASS_UNIX_PROCESS));
-
-//   [ key ] string Handle
-  inst.addProperty(CIMProperty(PROPERTY_HANDLE,_p.getHandle()));
 
 //   uint32 Priority
   if (_p.getPriority(i32))

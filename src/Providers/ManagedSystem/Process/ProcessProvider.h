@@ -99,11 +99,15 @@ private:
   // private member to store handle passed by initialize()
   CIMOMHandle _cimomHandle;
 
+  Array<KeyBinding> _constructKeyBindings(const Process&);
+
   // Used to add properties to an instance
   // first argument is the class of instance to be built
   // second argument is a Process instance that contains
   // process status information that has been fetched
-  CIMInstance _constructInstance(const String &clnam, const Process &p);
+  CIMInstance _constructInstance(const String &clnam,
+                                 const String &nameSpace,
+                                 const Process &p);
 
   // checks the class passed by the cimom and throws
   // an exception if it's not supported by this provider

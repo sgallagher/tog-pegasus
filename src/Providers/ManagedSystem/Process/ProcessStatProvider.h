@@ -100,7 +100,9 @@ private:
 
   CIMOMHandle _cimomHandle;
 
-  CIMInstance _constructInstance(const String &, const Process &);
+  Array<KeyBinding> _constructKeyBindings(const Process&);
+
+  CIMInstance _constructInstance(const String&, const String&, const Process&);
 
   void _checkClass(String&);
 

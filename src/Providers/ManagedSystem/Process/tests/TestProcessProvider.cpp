@@ -56,6 +56,7 @@
 
 #include <Pegasus/Client/CIMClient.h>
 #include "TestProcessProvider.h"
+#include "../ProcessPlatform.h"
 
 // ==========================================================================
 // Miscellaneous defines
@@ -145,7 +146,8 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-CIMClient c;
+static CIMClient c;
+static Boolean processTestVerbose = false;
 
 void errorExit(CIMClientException& e)
 {
@@ -157,11 +159,13 @@ int testClass(const String& className)
 {
   Array<CIMObjectPath> refs;
 
+  cout << endl << "+++++ Testing Class " << className << " +++++" << endl;
+
   // =======================================================================
   // enumerateInstanceNames
   // =======================================================================
 
-  cout << "+++++ enumerateInstanceNames(" << className << ") ";
+  cout << "+++++ enumerateInstanceNames(" << className << "): ";
   try
   {
     refs = c.enumerateInstanceNames(NAMESPACE,className);
@@ -173,11 +177,12 @@ int testClass(const String& className)
   }
 
   cout << refs.size() << " instances" << endl;
-  // if zero instances, not an error, but can't proceed
-  if (refs.size() == 0)
+
+  // There must be at least 5 processes or something's wrong
+  if (refs.size() < 5)
   {
-    cout << "+++++ test completed early" << endl;
-    return 0;
+    cout << "+++++ Error: too few instances returned" << endl;
+    return 1;
   }
 
   // =======================================================================
@@ -190,7 +195,7 @@ int testClass(const String& className)
   int i = (refs.size()-1) >> 1;  // This is a shift right, not streamio!
   CIMObjectPath ref = refs[i];
   CIMInstance inst;
-  cout << "+++++ getInstance #" << i << endl;
+  cout << "+++++ getInstance " << i << endl;
   try
   {
     inst = c.getInstance(NAMESPACE,ref);
@@ -200,7 +205,437 @@ int testClass(const String& className)
     errorExit(e);
   }
 
-  // ATTN-MG-20020501: Can add some property value checks here
+  if (processTestVerbose)
+  {
+    // Display keys
+    Array<KeyBinding> keys = ref.getKeyBindings();
+    cout << "  Keys:" << endl;
+    for (i=0; i<keys.size(); i++)
+      cout << "    " << keys[i].getName() << " = " << keys[i].getValue() << endl;
+  }
+
+  // check returned property values
+
+  // first get the PID and load a process object
+  String handle;
+  inst.getProperty(inst.findProperty("handle")).getValue().get(handle);
+  Process p;
+  // error if can't get the process
+  if (!p.findProcess(handle))
+  {
+    cout << "+++++ Error: can't find process corresponding to instance" << endl;
+    return 1;
+  }
+
+  if (processTestVerbose) cout << "  Properties:" << endl;
+
+  String sa, sb;
+  Array<String> asa, asb;
+  Uint16 i16a, i16b;
+  Uint32 i32a, i32b;
+  Uint64 i64a, i64b;
+  CIMDateTime da, db;
+  
+  // For each property, get it from the just-loaded process
+  // object and compare with what was returned by getInstance()
+
+  // Caption and Description are common to all classes
+  if (p.getCaption(sa))
+  {
+    if (processTestVerbose) cout << "    Caption" << endl;
+    inst.getProperty(inst.findProperty("Caption")).getValue().get(sb);
+    if (sa != sb)
+    {
+      cout << "+++++ Error: property mismatch: Caption" << endl;
+      return 1;
+    }
+  }
+  
+  if (p.getDescription(sa))
+  {
+    if (processTestVerbose) cout << "    Description" << endl;
+    inst.getProperty(inst.findProperty("Description")).getValue().get(sb);
+    if (sa != sb)
+    {
+      cout << "+++++ Error: property mismatch: Description" << endl;
+      return 1;
+    }
+  }
+  
+  // The rest of the properties to check depend on the
+  // class we are testing
+
+  // ===================== UnixProcess instances =========================
+
+  if (String::equalNoCase(className,"CIM_Process") ||
+      String::equalNoCase(className,"PG_UnixProcess"))
+  {
+    if (p.getInstallDate(da))
+    {
+      if (processTestVerbose) cout << "    InstallDate" << endl;
+      inst.getProperty(inst.findProperty("InstallDate")).getValue().get(db);
+      if (da != db)
+      {
+        cout << "+++++ Error: property mismatch: InstallDate" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getStatus(sa))
+    {
+      if (processTestVerbose) cout << "    Status" << endl;
+      inst.getProperty(inst.findProperty("Status")).getValue().get(sb);
+      if (sa != sb)
+      {
+        cout << "+++++ Error: property mismatch: Status" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getName(sa))
+    {
+      if (processTestVerbose) cout << "    Name" << endl;
+      inst.getProperty(inst.findProperty("Name")).getValue().get(sb);
+      if (sa != sb)
+      {
+        cout << "+++++ Error: property mismatch: Name" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getPriority(i32a))
+    {
+      if (processTestVerbose) cout << "    Priority" << endl;
+      inst.getProperty(inst.findProperty("Priority")).getValue().get(i32b);
+      if (i32a != i32b)
+      {
+        cout << "+++++ Error: property mismatch: Priority" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getExecutionState(i16a))
+    {
+      if (processTestVerbose) cout << "    ExecutionState" << endl;
+      inst.getProperty(inst.findProperty("ExecutionState")).getValue().get(i16b);
+      if (i16a != i16b)
+      {
+        cout << "+++++ Error: property mismatch: ExecutionState" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getOtherExecutionDescription(sa))
+    {
+      if (processTestVerbose) cout << "    OtherExecutionDescription" << endl;
+      inst.getProperty(inst.findProperty("OtherExecutionDescription")).getValue().get(sb);
+      if (sa != sb)
+      {
+        cout << "+++++ Error: property mismatch: OtherExecutionDescription" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getCreationDate(da))
+    {
+      if (processTestVerbose) cout << "    CreationDate" << endl;
+      inst.getProperty(inst.findProperty("CreationDate")).getValue().get(db);
+      if (da != db)
+      {
+        cout << "+++++ Error: property mismatch: CreationDate" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getTerminationDate(da))
+    {
+      if (processTestVerbose) cout << "    TerminationDate" << endl;
+      inst.getProperty(inst.findProperty("TerminationDate")).getValue().get(db);
+      if (da != db)
+      {
+        cout << "+++++ Error: property mismatch: TerminationDate" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getKernelModeTime(i64a))
+    {
+      if (processTestVerbose) cout << "    KernelModeTime" << endl;
+      inst.getProperty(inst.findProperty("KernelModeTime")).getValue().get(i64b);
+      if (i64a != i64b)
+      {
+        cout << "+++++ Error: property mismatch: KernelModeTime" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getUserModeTime(i64a))
+    {
+      if (processTestVerbose) cout << "    UserModeTime" << endl;
+      inst.getProperty(inst.findProperty("UserModeTime")).getValue().get(i64b);
+      if (i64a != i64b)
+      {
+        cout << "+++++ Error: property mismatch: UserModeTime" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getWorkingSetSize(i64a))
+    {
+      if (processTestVerbose) cout << "    WorkingSetSize" << endl;
+      inst.getProperty(inst.findProperty("WorkingSetSize")).getValue().get(i64b);
+      if (i64a != i64b)
+      {
+        cout << "+++++ Error: property mismatch: WorkingSetSize" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getParentProcessID(sa))
+    {
+      if (processTestVerbose) cout << "    ParentProcessID" << endl;
+      inst.getProperty(inst.findProperty("ParentProcessID")).getValue().get(sb);
+      if (sa != sb)
+      {
+        cout << "+++++ Error: property mismatch: ParentProcessID" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getRealUserID(i64a))
+    {
+      if (processTestVerbose) cout << "    RealUserID" << endl;
+      inst.getProperty(inst.findProperty("RealUserID")).getValue().get(i64b);
+      if (i64a != i64b)
+      {
+        cout << "+++++ Error: property mismatch: RealUserID" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getProcessGroupID(i64a))
+    {
+      if (processTestVerbose) cout << "    ProcessGroupID" << endl;
+      inst.getProperty(inst.findProperty("ProcessGroupID")).getValue().get(i64b);
+      if (i64a != i64b)
+      {
+        cout << "+++++ Error: property mismatch: ProcessGroupID" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getProcessSessionID(i64a))
+    {
+      if (processTestVerbose) cout << "    ProcessSessionID" << endl;
+      inst.getProperty(inst.findProperty("ProcessSessionID")).getValue().get(i64b);
+      if (i64a != i64b)
+      {
+        cout << "+++++ Error: property mismatch: ProcessSessionID" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getProcessTTY(sa))
+    {
+      if (processTestVerbose) cout << "    ProcessTTY" << endl;
+      inst.getProperty(inst.findProperty("ProcessTTY")).getValue().get(sb);
+      if (sa != sb)
+      {
+        cout << "+++++ Error: property mismatch: ProcessTTY" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getModulePath(sa))
+    {
+      if (processTestVerbose) cout << "    ModulePath" << endl;
+      inst.getProperty(inst.findProperty("ModulePath")).getValue().get(sb);
+      if (sa != sb)
+      {
+        cout << "+++++ Error: property mismatch: ModulePath" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getParameters(asa))
+    {
+      if (processTestVerbose) cout << "    Parameters" << endl;
+      inst.getProperty(inst.findProperty("Parameters")).getValue().get(asb);
+      if (asa != asb)
+      {
+        cout << "+++++ Error: property mismatch: Parameters" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getProcessNiceValue(i32a))
+    {
+      if (processTestVerbose) cout << "    ProcessNiceValue" << endl;
+      inst.getProperty(inst.findProperty("ProcessNiceValue")).getValue().get(i32b);
+      if (i32a != i32b)
+      {
+        cout << "+++++ Error: property mismatch: ProcessNiceValue" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getProcessWaitingForEvent(sa))
+    {
+      if (processTestVerbose) cout << "    ProcessWaitingForEvent" << endl;
+      inst.getProperty(inst.findProperty("ProcessWaitingForEvent")).getValue().get(sb);
+      if (sa != sb)
+      {
+        cout << "+++++ Error: property mismatch: ProcessWaitingForEvent" << endl;
+        return 1;
+      }
+    }
+    cout << "+++++ property values ok" << endl;
+  }
+
+  // ========== UnixProcessStatisticalInformation instances ===============
+
+  else if (String::equalNoCase(className,"PG_UnixProcessStatisticalInformation"))
+  {
+    if (p.getCPUTime(i32a))
+    {
+      if (processTestVerbose) cout << "    CPUTime" << endl;
+      inst.getProperty(inst.findProperty("CPUTime")).getValue().get(i32b);
+      if (i32a != i32b)
+      {
+        cout << "+++++ Error: property mismatch: CPUTime" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getRealText(i64a))
+    {
+      if (processTestVerbose) cout << "    RealText" << endl;
+      inst.getProperty(inst.findProperty("RealText")).getValue().get(i64b);
+      if (i64a != i64b)
+      {
+        cout << "+++++ Error: property mismatch: RealText" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getRealData(i64a))
+    {
+      if (processTestVerbose) cout << "    RealData" << endl;
+      inst.getProperty(inst.findProperty("RealData")).getValue().get(i64b);
+      if (i64a != i64b)
+      {
+        cout << "+++++ Error: property mismatch: RealData" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getRealStack(i64a))
+    {
+      if (processTestVerbose) cout << "    RealStack" << endl;
+      inst.getProperty(inst.findProperty("RealStack")).getValue().get(i64b);
+      if (i64a != i64b)
+      {
+        cout << "+++++ Error: property mismatch: RealStack" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getVirtualText(i64a))
+    {
+      if (processTestVerbose) cout << "    VirtualText" << endl;
+      inst.getProperty(inst.findProperty("VirtualText")).getValue().get(i64b);
+      if (i64a != i64b)
+      {
+        cout << "+++++ Error: property mismatch: VirtualText" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getVirtualData(i64a))
+    {
+      if (processTestVerbose) cout << "    VirtualData" << endl;
+      inst.getProperty(inst.findProperty("VirtualData")).getValue().get(i64b);
+      if (i64a != i64b)
+      {
+        cout << "+++++ Error: property mismatch: VirtualData" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getVirtualStack(i64a))
+    {
+      if (processTestVerbose) cout << "    VirtualStack" << endl;
+      inst.getProperty(inst.findProperty("VirtualStack")).getValue().get(i64b);
+      if (i64a != i64b)
+      {
+        cout << "+++++ Error: property mismatch: VirtualStack" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getVirtualMemoryMappedFileSize(i64a))
+    {
+      if (processTestVerbose) cout << "    VirtualMemoryMappedFileSize" << endl;
+      inst.getProperty(inst.findProperty("VirtualMemoryMappedFileSize")).getValue().get(i64b);
+      if (i64a != i64b)
+      {
+        cout << "+++++ Error: property mismatch: VirtualMemoryMappedFileSize" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getVirtualSharedMemory(i64a))
+    {
+      if (processTestVerbose) cout << "    VirtualSharedMemory" << endl;
+      inst.getProperty(inst.findProperty("VirtualSharedMemory")).getValue().get(i64b);
+      if (i64a != i64b)
+      {
+        cout << "+++++ Error: property mismatch: VirtualSharedMemory" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getCpuTimeDeadChildren(i64a))
+    {
+      if (processTestVerbose) cout << "    CpuTimeDeadChildren" << endl;
+      inst.getProperty(inst.findProperty("CpuTimeDeadChildren")).getValue().get(i64b);
+      if (i64a != i64b)
+      {
+        cout << "+++++ Error: property mismatch: CpuTimeDeadChildren" << endl;
+        return 1;
+      }
+    }
+
+    if (p.getSystemTimeDeadChildren(i64a))
+    {
+      if (processTestVerbose) cout << "    SystemTimeDeadChildren" << endl;
+      inst.getProperty(inst.findProperty("SystemTimeDeadChildren")).getValue().get(i64b);
+      if (i64a != i64b)
+      {
+        cout << "+++++ Error: property mismatch: SystemTimeDeadChildren" << endl;
+        return 1;
+      }
+    }
+  
+    if (p.getRealSpace(i64a))
+    {
+      if (processTestVerbose) cout << "    RealSpace" << endl;
+      inst.getProperty(inst.findProperty("RealSpace")).getValue().get(i64b);
+      if (i64a != i64b)
+      {
+        cout << "+++++ Error: property mismatch: RealSpace" << endl;
+        return 1;
+      }
+    }
+  
+    cout << "+++++ property values ok" << endl;
+  }
+  
+  else
+  {
+    cout << "+++++ Error: class " << className << " not recognized" << endl;
+    return 1;
+  }
 
   // ------------------ do getInstance() with bad key ----------------------
   
@@ -296,11 +731,38 @@ int testClass(const String& className)
   }
 
   // There should be several instances
-  if (ia.size() == 0)
+  if (ia.size() < 5)
   {
     cout << "+++++ Error: enumerateInstances on " << className << " returned too few instances" << endl;
-    cout << "+++++ Test failed" << endl;
     return 1;
+  }
+  
+  // For UnixProcess, we should be able to find this test process
+  // and the cimserver
+  if (String::equalNoCase(className,"CIM_Process") ||
+      String::equalNoCase(className,"PG_UnixProcess"))
+  {
+    status = 0;
+    for (i=0; i<ia.size(); i++)
+    {
+      Array<String> cmd;
+      ia[i].getProperty(ia[i].findProperty("Parameters")).getValue().get(cmd);
+      if (cmd[0] == "cimserver")
+      {
+        status++;
+        if (processTestVerbose) cout << "    cimserver" << endl;
+      }
+      if (cmd[0] == "ProcessProviderTestClient")
+      {
+        status++;
+        if (processTestVerbose) cout << "    ProcessProviderTestClient" << endl;
+      }
+    }
+    if (status != 2)
+    {
+      cout << "Error: couldn't find cimserver or test client process!" << endl;
+      return 1;
+    }
   }
 
   // =======================================================================

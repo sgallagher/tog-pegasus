@@ -264,9 +264,11 @@ void LocalizedProvider::getInstance(
 	// to be returned in the response.
 	AcceptLanguages clientAcceptLangs = getRequestAcceptLanguages(context);
 
-        CIMObjectPath instanceName(String(), CIMNamespaceName(),
-                                   instanceReference.getClassName(),
-                                   instanceReference.getKeyBindings());
+        CIMObjectPath instanceName = CIMObjectPath(
+            String(),
+            CIMNamespaceName(),
+            instanceReference.getClassName(),
+            instanceReference.getKeyBindings());
 
 	// instance index corresponds to reference index
 	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
@@ -501,9 +503,11 @@ void LocalizedProvider::deleteInstance(
 {
 	// We're not going to support this for instances 0, 1, or 2
 
-        CIMObjectPath instanceName(String(), CIMNamespaceName(),
-                                   instanceReference.getClassName(),
-                                   instanceReference.getKeyBindings());
+        CIMObjectPath instanceName = CIMObjectPath(
+            String(),
+            CIMNamespaceName(),
+            instanceReference.getClassName(),
+            instanceReference.getKeyBindings());
 
 	// instance index corresponds to reference index
 	Uint32 i = 0;

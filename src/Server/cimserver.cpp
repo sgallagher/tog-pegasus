@@ -701,6 +701,13 @@ int main(int argc, char** argv)
          << (useSSL ? " Use SSL " : " No SSL ")
 	<< endl;
 
+    // do we need to run as a daemon ?
+    if (daemonOption)
+    {
+        if(-1 == cimserver_fork())
+          exit(-1);
+    }
+
     // Put server start message to the logger
     Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
 	"Start $0 $1 port $2 $3 $4 $5",
@@ -710,13 +717,6 @@ int main(int argc, char** argv)
 		(pegasusIOTrace ? " Tracing": " "),
 		(useSLP ? " SLP on " : " SLP off "),
                 (useSSL ? " Use SSL " : " No SSL "));
-
-    // do we need to run as a daemon ?
-    if (daemonOption)
-    {
-        if(-1 == cimserver_fork())
-          exit(-1);
-    }
 
     // try loop to bind the address, and run the server
     try

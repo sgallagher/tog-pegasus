@@ -63,8 +63,6 @@ int main()
 
     String testUser = String::EMPTY;
 
-    Boolean authorized;
-
     testUser.assign(System::getEffectiveUserName());
 
     // Create a test repository
@@ -116,7 +114,7 @@ int main()
         {
             temp = userManager->getAuthorization("root", nameSpace);
             assert(temp.size() == 0);
-        }catch(Exception& e) { }
+        }catch(const Exception&) { }
 
         userManager->setAuthorization("root", nameSpace, "w");
 

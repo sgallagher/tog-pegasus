@@ -508,7 +508,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     return;
                 }
             }
-            catch (CannotOpenFile &cof)
+            catch (const CannotOpenFile &)
             {
                 _sendHttpError(queueId,
                                HTTP_STATUS_INTERNALSERVERERROR);
@@ -649,7 +649,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 		     {
                        queue->enqueue(httpMessage);
 		     }
-		   catch(bad_alloc &e)
+		   catch(const bad_alloc &)
 		     {
 		       delete httpMessage;
                        _sendHttpError(queueId,

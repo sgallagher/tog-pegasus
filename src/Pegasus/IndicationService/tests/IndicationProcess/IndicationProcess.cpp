@@ -308,8 +308,9 @@ int main(int argc, char** argv)
 
     // Note that CQL expects single quote around string literals, 
     // while WQL expects double quote.
+    // Note that CQL use <> for the inequality operator.
     String query2wql="SELECT MethodName FROM RT_TestIndication WHERE IndicationIdentifier != \"x\"";
-    String query2cql="SELECT MethodName FROM RT_TestIndication WHERE IndicationIdentifier != 'x'";
+    String query2cql="SELECT MethodName FROM RT_TestIndication WHERE IndicationIdentifier <> 'x'";
     
     String wql("WQL");
     String cql("CIM:CQL");

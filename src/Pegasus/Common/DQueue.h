@@ -380,7 +380,7 @@ template<class L> L *DQueue<L>::remove_no_lock(const void *key) throw(IPCExcepti
       {
 	 if (ret->operator==(key))
 	 {
-	    ret = static_cast<L *>(Base::remove(key));
+	    ret = static_cast<L *>(Base::remove(ret));
 	    if( ret != 0 )
 	       (*_actual_count)--;
 		  return ret;
@@ -403,9 +403,9 @@ template<class L> L * DQueue<L>::remove_no_lock(const L *key) throw(IPCException
       L *ret = static_cast<L *>(Base::next(0));
       while( ret != 0 )
       {
-	 if (ret->operator==(key))
+	 if (ret->operator==(*key))
 	 {
-	    ret = static_cast<L *>(Base::remove(static_cast<const void *>(key)));
+	    ret = static_cast<L *>(Base::remove(static_cast<const void *>(ret)));
 	    if( ret != 0 )
 	       (*_actual_count)--;
 	    return ret;

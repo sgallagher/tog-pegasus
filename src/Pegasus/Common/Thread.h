@@ -290,6 +290,7 @@ class PEGASUS_COMMON_LINKAGE Thread
 
       inline void *remove_tsd(const Sint8 *key) throw(IPCException)
       {
+         // ATTN-P2-RK-20020520: Does the caller delete this?
 	 return(_tsd.remove((const void *)key));
       }
       
@@ -306,6 +307,7 @@ class PEGASUS_COMMON_LINKAGE Thread
       {
 	 PEGASUS_ASSERT(key != NULL);
 	 thread_data *tsd ;
+         // ATTN-P2-RK-20020520: Does the caller delete this?
 	 tsd = _tsd.remove((const void *)key);  // may throw an IPC exception 
 	 thread_data *ntsd = new thread_data(key);
 	 ntsd->put_data(delete_func, size, value);

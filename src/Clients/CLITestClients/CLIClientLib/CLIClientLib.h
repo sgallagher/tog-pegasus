@@ -98,14 +98,14 @@ struct  OUTPUT_STRUCT
     const char* OutputName;
 };
 
-OUTPUT_STRUCT OutputTable[] =
+static OUTPUT_STRUCT OutputTable[] =
 {
     // Output Type      OutputName              
     {   OUTPUT_XML,     "xml"   },
     {   OUTPUT_MOF,     "mof"   },
     {   OUTPUT_TEXT,    "txt"   }
 };
-const Uint32 NUM_OUTPUTS = sizeof(OutputTable) / sizeof(OutputTable[0]);
+static const Uint32 NUM_OUTPUTS = sizeof(OutputTable) / sizeof(OutputTable[0]);
     
 struct  CMD_STRUCT
 {
@@ -117,7 +117,7 @@ struct  CMD_STRUCT
 };
 
 // ******** CIM Client Commands
-CMD_STRUCT CommandTable[] =
+static CMD_STRUCT CommandTable[] =
 {
     // Command ID                CommandName        Min Num Args, ShortCut Name, Usage              
     {ID_EnumerateInstanceNames,  "enumerateinstancenames", 2 ,"ni",
@@ -159,7 +159,7 @@ CMD_STRUCT CommandTable[] =
    
 };
 
-const Uint32 NUM_COMMANDS = sizeof(CommandTable) / sizeof(CommandTable[0]);
+static const Uint32 NUM_COMMANDS = sizeof(CommandTable) / sizeof(CommandTable[0]);
 
 // ************* Options Functions
 // The input options used by the individual commands. Note that

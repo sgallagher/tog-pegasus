@@ -15,12 +15,12 @@
       echo "L                      = Reading" >> %PEGASUS_CONFIG_DIR/ssl.cnf
       echo "O                      = The Open Group" >> %PEGASUS_CONFIG_DIR/ssl.cnf
       echo "OU                     = The OpenPegasus Project" >> %PEGASUS_CONFIG_DIR/ssl.cnf
-      echo "CN                     = `uname -n`" >> %PEGASUS_CONFIG_DIR/ssl.cnf
+      echo "CN                     = `host \`hostname\`|cut -d\" \" -f1`" >> %PEGASUS_CONFIG_DIR/ssl.cnf
       chmod 400 %PEGASUS_CONFIG_DIR/ssl.cnf
       chown root %PEGASUS_CONFIG_DIR/ssl.cnf
    fi
 
-   %OPENSSL_BIN/openssl req -x509 -days 356 -newkey rsa:2048 \
+   %OPENSSL_BIN/openssl req -x509 -days 3650 -newkey rsa:2048 \
       -nodes -config %PEGASUS_CONFIG_DIR/ssl.cnf \
       -keyout %PEGASUS_PEM_DIR/key.pem -out %PEGASUS_PEM_DIR/cert.pem \
            2>>%PEGASUS_INSTALL_LOG

@@ -299,6 +299,15 @@ endif
 # debug mode.
 ifdef PEGASUS_DEBUG
     DEFINES += -DPEGASUS_DEBUG
+
+    # Indications debugging options
+    ifdef PEGASUS_INDICATION_PERFINST
+        DEFINES += -DPEGASUS_INDICATION_PERFINST
+    endif
+
+    ifdef PEGASUS_INDICATION_HASHTRACE
+        DEFINES += -DPEGASUS_INDICATION_HASHTRACE
+    endif
 endif
 
 # compile in the experimental APIs

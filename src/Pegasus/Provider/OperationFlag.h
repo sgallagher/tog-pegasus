@@ -49,11 +49,11 @@ public:
 
 	static Uint32 convert(
 		const Boolean localOnly,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const Boolean deepInheritance,
-		const Boolean partialInstance,
-		const Boolean remoteOnly);
+		const Boolean includeQualifiers = false,
+		const Boolean includeClassOrigin = false,
+		const Boolean deepInheritance = false,
+		const Boolean partialInstance = false,
+		const Boolean remoteOnly = false);
 
 };
 

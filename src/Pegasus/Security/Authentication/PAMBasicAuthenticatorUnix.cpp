@@ -42,7 +42,6 @@
 #endif
 
 #if defined (PEGASUS_USE_PAM_STANDALONE_PROC)
-#include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/IPC.h>
 #include <pwd.h>
@@ -63,39 +62,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 #define BUFFERLEN 1024
 
-#if defined (PEGASUS_USE_PAM_STANDALONE_PROC)
-
-#if defined (PEGASUS_HAS_SIGNALS)
-
-#if defined (PEGASUS_OS_LINUX)
-
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/signal.h>
-
-void childSignalHandler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
-{
-    pid_t cpid = 0;
-    int waitcode = 0;
-    PEG_METHOD_ENTER(TRC_SERVER, "childSignalHandler");
-
-    if (s_n == PEGASUS_SIGCHLD)  {
-    	Tracer::trace(TRC_SERVER, Tracer::LEVEL4, "Signal from a child %d", s_n);
-	while( (cpid = waitpid(waitcode, NULL, WNOHANG)) > 0) 
-		;
-	
-	if(cpid < 0)
-	{
-    		Tracer::trace(TRC_SERVER, Tracer::LEVEL4, "waitpid error: %d", errno);
-		/* Reset the error */
-		errno=0;
-	}
-    }
-    PEG_METHOD_EXIT();
-}
-#endif
-#endif
-#endif
 /**
     Constant representing the Basic authentication challenge header.
 */
@@ -513,28 +479,6 @@ void PAMBasicAuthenticatorStandAlone::_createPAMStandalone()
     }
     if (continue_PAMauthentication)
     {
-#if defined (PEGASUS_OS_LINUX)
-        /*
-        From signal manpage on Linux:
-        "  According  to  POSIX  (3.3.1.3)  it  is  unspecified  what happens when
-       SIGCHLD is set to SIG_IGN.  Here the BSD and  SYSV  behaviours  differ,
-       causing  BSD  software  that  sets the action for SIGCHLD to SIG_IGN to
-       fail on Linux."
-
-        On Linux, when you perform a "system" it calls wait().  If you have ignored
-        SIGCHLD, a POSIX-conformant system is allowed to collect zombies immediately
-        rather than holding them for you to wait for. And you end up with "system"
-        returning non-zero return code instead of zero return code for sucessfull
-        calls.
-
-        HP-UX being a SYSV system behaves differently.
-        */
-
-	getSigHandle()->registerHandler(PEGASUS_SIGCHLD, childSignalHandler);
-	getSigHandle()->activate(PEGASUS_SIGCHLD);
-#elif defined(PEGASUS_OS_HPUX)
-        SignalHandler::ignore(PEGASUS_SIGCHLD);  // Allows child death
-#endif
         if ((pid = fork()) < 0)
         {
             continue_PAMauthentication = false;

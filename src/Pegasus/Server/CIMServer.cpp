@@ -115,6 +115,36 @@ static Message * controlProviderReceiveMessageCallback(
     return mpf->handleRequestMessage(message);
 }
 
+//
+// Linux signal handler for SIGCHLD
+//
+#if defined(PEGASUS_OS_LINUX) && defined(PEGASUS_HAS_SIGNALS)
+#include <sys/types.h>
+#include <sys/wait.h>
+void childSignalHandler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
+{
+    PEG_METHOD_ENTER(TRC_SERVER, "childSignalHandler");
+
+    if (s_n == PEGASUS_SIGCHLD)
+    {
+        PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL4, "Caught SIGCHLD");
+        pid_t cpid = 0;
+
+        while ((cpid = waitpid(0, NULL, WNOHANG)) > 0);
+
+        if (cpid < 0)
+        {
+            Tracer::trace(TRC_SERVER, Tracer::LEVEL2,
+                "waitpid error: %d", errno);
+        }
+    }
+    PEG_METHOD_EXIT();
+}
+#endif
+
+//
+// Signal handler for shutdown signals, currently SIGHUP and SIGTERM
+//
 Boolean handleShutdownSignal = false;
 void shutdownSignalHandler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
 {
@@ -347,6 +377,26 @@ void CIMServer::_init(void)
     getSigHandle()->activate(PEGASUS_SIGHUP);
     getSigHandle()->registerHandler(PEGASUS_SIGTERM, shutdownSignalHandler);
     getSigHandle()->activate(PEGASUS_SIGTERM);
+
+    // Configure the signal handling behavior for SIGCHLD
+#if defined (PEGASUS_OS_LINUX)
+    // From signal manpage on Linux:
+    //
+    // "According to POSIX (3.3.1.3) it is unspecified what happens when
+    // SIGCHLD is set to SIG_IGN.  Here the BSD and SYSV behaviours differ,
+    // causing BSD software that sets the action for SIGCHLD to SIG_IGN to
+    // fail on Linux."
+    //
+    // On Linux, when you perform a "system" it calls wait().  If you have
+    // ignored SIGCHLD, a POSIX-conformant system is allowed to collect
+    // zombies immediately rather than holding them for you to wait for.
+    // And you end up with "system" returning non-zero return code instead
+    // of zero return code for successful calls.
+    getSigHandle()->registerHandler(PEGASUS_SIGCHLD, childSignalHandler);
+    getSigHandle()->activate(PEGASUS_SIGCHLD);
+#else
+    SignalHandler::ignore(PEGASUS_SIGCHLD);  // Allows child death
+#endif
 
     // Load and initialize providers registed with AutoStart = true
     _providerRegistrationManager->initializeProviders();

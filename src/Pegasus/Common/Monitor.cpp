@@ -581,7 +581,7 @@ void monitor_2::run(void)
 {
   monitor_2_entry* temp;
   while(_die.value() == 0) {
-    struct timeval tv = {0, 0};
+     struct timeval tv = {0, 0};
 
     // place all sockets in the select set 
     FD_ZERO(&rd_fd_set);
@@ -595,7 +595,9 @@ void monitor_2::run(void)
 	  _listeners.remove_no_lock(closed);
 	  delete closed;
 	}
-	FD_SET((Sint32) temp->get_sock()  , &rd_fd_set);
+	if(temp == 0)
+	   break;
+ 	FD_SET((Sint32) temp->get_sock()  , &rd_fd_set);
 	temp = _listeners.next(temp);
       }
       _listeners.unlock();

@@ -60,7 +60,7 @@ const char* OK    = "ACK\n\0";
 const char* CMD   = "COMMAND\n\0";
 const char* QUIT  = "QUIT\n\0";
 
-AtomicInt cmd_tx, cmd_rx, ready;
+AtomicInt cmd_tx, cmd_rx, ready, domain_ready;
 monitor_2 mon;
 void pipe_handler(int signum)
 {
@@ -119,12 +119,14 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL domain_socket(void *parm)
    listener.bind((struct sockaddr *)&addr, sizeof(addr));
    listener.listen(15);
 
-   // initialize select loop
+   
 
+   // initialize select loop
+   
    fd_set fd_listen;
    FD_ZERO(&fd_listen);
    FD_SET( (Sint32)listener, &fd_listen );
-
+   domain_ready++;
    int events = select(FD_SETSIZE, &fd_listen, NULL, NULL, NULL);
 
    struct sockaddr peer;
@@ -132,6 +134,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL domain_socket(void *parm)
 
    pegasus_socket connected = listener.accept(&peer, &peer_size);
 
+   
    while(1)
    {
       FD_ZERO(&fd_listen);
@@ -231,7 +234,7 @@ int main(int argc, char** argv)
    th_listener.join();
 
 # ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
-
+   
    Thread th_domain(domain_socket, NULL, false);
    th_domain.run();
 
@@ -245,7 +248,7 @@ int main(int argc, char** argv)
    un_addr.sun_family = AF_UNIX;
    strcpy(un_addr.sun_path, PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
 
-   domain_connector.bind((struct sockaddr *)&un_addr, sizeof(un_addr));
+//   domain_connector.bind((struct sockaddr *)&un_addr, sizeof(un_addr));
 
    struct sockaddr_un un_peer;
    peer_size = sizeof(un_peer);
@@ -253,6 +256,12 @@ int main(int argc, char** argv)
    strcpy(un_peer.sun_path, PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
    un_peer.sun_family = AF_UNIX;
 
+   while(domain_ready.value() == 0 )
+   {
+      pegasus_sleep(10);
+      
+   }
+   
    domain_connector.connect((struct sockaddr *)&un_peer, peer_size);
 
    cmd_tx = 0;

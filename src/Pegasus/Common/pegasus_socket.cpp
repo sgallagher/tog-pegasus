@@ -238,7 +238,7 @@ class bsd_socket_rep : public abstract_socket
 	    }
       };
 
-   protected:
+   public:
       static struct _library_init _lib_init;
       int _socket;
       void *_ssl_context;
@@ -374,7 +374,7 @@ abstract_socket* bsd_socket_rep::accept(struct sockaddr *addr, PEGASUS_SOCKLEN_S
    if(new_sock == -1)
    {
       _errno = errno;
-      return 0;
+//      return 0;
    }
 
    bsd_socket_rep *rep = new bsd_socket_rep(new_sock);
@@ -927,14 +927,7 @@ class unix_socket_rep : public bsd_socket_rep
    private:
 
       unix_socket_rep& operator=(const unix_socket_rep& );
-
-   protected:
-      int _socket;
-      int _errno;
-      char _strerr[256];
 };
-
-
 
 
 /**
@@ -965,7 +958,7 @@ unix_socket_rep::~unix_socket_rep(void)
 int unix_socket_rep::close(void)
 {
    int ccode = Base::close();
-   System::removeFile(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
+//   System::removeFile(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
    return ccode;
 }
 
@@ -1000,7 +993,6 @@ abstract_socket* unix_socket_rep::accept(struct sockaddr *addr, PEGASUS_SOCKLEN_
    if(new_sock == -1)
    {
       _errno = errno;
-      return 0;
    }
 
    unix_socket_rep *rep = new unix_socket_rep(new_sock);
@@ -1026,7 +1018,6 @@ abstract_socket* unix_socket_factory::make_socket(void)
 
 abstract_socket* unix_socket_factory::make_socket(SSLContext *ctx)
 {
-   PEGASUS_ASSERT(true);
    return new unix_socket_rep();
 }
 

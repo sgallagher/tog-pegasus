@@ -23,10 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ResponseHandler_h
@@ -107,7 +103,7 @@ public:
     virtual void complete(void) = 0;
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /**
+    /** <I><B>Experimental Interface</B></I><BR>
     Set the context for the results delivered to the CIM Server.
     <p>The <tt>setContext</tt> function is used by providers to
     set a context for the response, in the form of an OperationContext

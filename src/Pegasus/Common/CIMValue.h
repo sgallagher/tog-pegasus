@@ -23,13 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Karl schopmeyer (k.schopmeyer@opengroup.org)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Value_h

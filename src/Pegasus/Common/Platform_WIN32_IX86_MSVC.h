@@ -23,11 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Platform_WIN32_IX86_MSVC_h

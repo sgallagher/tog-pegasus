@@ -23,15 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Rudy Schuet (rudy.schuet@compaq.com) 11/25/01
-//              K. Schopmeyer
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              David Eger (dteger@us.ibm.com)
-//              Bapu Patil (bapu_patil@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Config_h

@@ -23,10 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Humberto Rivero (hurivero@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_LanguageElementContainer_h
@@ -65,7 +61,8 @@ class LanguageElementContainerRep;
 //
 //////////////////////////////////////////////////////////////
 
-/** This class is a container class for LanguageElement
+/** <I><B>Experimental Interface</B></I><BR>
+ * This class is a container class for LanguageElement
  */
 class PEGASUS_COMMON_LINKAGE LanguageElementContainer{
 

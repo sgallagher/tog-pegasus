@@ -23,11 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-// 		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMIndicationConsumer_h

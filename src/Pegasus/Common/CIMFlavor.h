@@ -23,14 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:  Karl Schopmeyer(k.schopmeyer@opengroup.org)
-//               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Adriann Schuur (schuur@de.ibm.com) PEP 164
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Flavor_h

@@ -23,10 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Humberto Rivero (hurivero@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ContenetLanguageElement_h
@@ -46,6 +42,8 @@ class ContentLanguageElementRep;
 //
 //////////////////////////////////////////////////////////////
 
+/** <I><B>Experimental Interface</B></I><BR>
+ */
 class PEGASUS_COMMON_LINKAGE ContentLanguageElement : public LanguageElement{
 	
 public:

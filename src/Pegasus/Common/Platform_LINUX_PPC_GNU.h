@@ -23,12 +23,6 @@
 //
 //==============================================================================
 //
-// Original copied from Pegasus_Platform_LINUX_IX86_GNU for Linux/PPC port
-//
-// Author: David Eger (dteger@us.ibm.com)
-//
-// Modified By: 
-//              Bapu Patil (bapu_patil@hp.com)
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Platform_LINUX_PPC_GNU_h

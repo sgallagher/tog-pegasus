@@ -23,10 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMPropertyList_h

@@ -23,11 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Rudy Schuet (rudy.schuet@compaq.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Platform_NSK_NONSTOP_NMCPLUS_h

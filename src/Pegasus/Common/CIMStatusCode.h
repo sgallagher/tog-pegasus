@@ -23,11 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMStatusCode_h
@@ -122,10 +117,14 @@ PEGASUS_COMMON_LINKAGE const char* cimStatusCodeToString(CIMStatusCode code);
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 // l10n
+/** <I><B>Experimental Interface</B></I><BR>
+ */
 PEGASUS_COMMON_LINKAGE String cimStatusCodeToString(CIMStatusCode code,
                                               const ContentLanguages &contentLanguages);
 								
 // l10n 
+/** <I><B>Experimental Interface</B></I><BR>
+ */
 PEGASUS_COMMON_LINKAGE ContentLanguages cimStatusCodeToString_Thread(String & message, 	                                             CIMStatusCode code);
 #endif  //    PEGASUS_USE_EXPERIMENTAL_INTERFACES			
 

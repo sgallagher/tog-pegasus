@@ -23,10 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com) 
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMIndicationConsumerProvider_h

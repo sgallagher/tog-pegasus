@@ -1,4 +1,5 @@
 include $(PEGASUS_ROOT)/mak/config.mak
+include $(PEGASUS_ROOT)/mak/commands.mak
 
 CP = cp
 
@@ -100,7 +101,6 @@ INCLUDEFILES += \
    Pegasus/Common/AcceptLanguageElement.h \
    Pegasus/Common/Formatter.h \
    Pegasus/Common/ContentLanguageElement.h \
-   Pegasus/Common/LanguageParser.h \
    Pegasus/Common/LanguageElement.h  
 
 
@@ -134,11 +134,8 @@ PROVIDERSRCPATH1FILES = \
 PROVIDERSRCPATH2FILES = \
    Load/CWS_FilesAndDir.mof \
    Load/CWS_FilesAndDirR.mof \
-   Load/RT_Indication.mof \
-   Load/IndicationProviderR.mof \
    Load/InstanceProviderR.mof \
    Load/MethodProviderR.mof \
-   Load/SimpleDisplayConsumerR.mof \
    Load/SampleProviderSchema.mof \
    CMPI/FilesAndDirectories/tests/AssocDirNames12001.xml \
    CMPI/FilesAndDirectories/tests/AssocDirNames12001rspgood.xml \
@@ -181,9 +178,9 @@ error:
 
 stageSDK:
 	@$(RMDIRHIER) $(SDK_STAGINGDIR)
-	$(MAKE) -f SDKMakefile stageINCLUDE
-	$(MAKE) -f SDKMakefile stageHTML
-	$(MAKE) -f SDKMakefile stageSAMPLES
+	$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile stageINCLUDE
+	$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile stageHTML
+	$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile stageSAMPLES
 
 stageINCLUDE:
 	@$(RMDIRHIER) $(INCLUDE_DESTPATH)
@@ -215,13 +212,23 @@ stageHTML:
 	@$(MKDIRHIER) $(HTML_DESTPATH)
 	$(MAKE) --directory=$(PEGASUS_ROOT)/doc/SDK -f Makefile HTML_DESTPATH=$(HTML_DESTPATH) buildDoc
 
+removeSampleProviderNamespace:
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f commands.mak cimstop_IgnoreError
+	@$(ECHO) +++++ Removing existing repository named root#SampleProvider 
+	@$(RMREPOSITORY) $(REPOSITORY_ROOT)/root\#SampleProvider
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f commands.mak cimstart
+
 buildSDK:
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile -i removeSampleProviderNamespace
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile -i deregisterproviders
 	@$(MAKE) --directory=$(SAMPLE_DESTPATH)/samples -f Makefile PEGASUS_LIB_DIR=$(PEGASUS_HOME)/lib \
              PEGASUS_PROVIDER_LIB_DIR=$(PEGASUS_HOME)/lib PEGASUS_INCLUDES="-I $(INCLUDE_DESTPATH)" \
              CIM_MOF_PATH=$(PEGASUS_ROOT)/Schemas/CIM27 clean
 	@$(MAKE) --directory=$(SAMPLE_DESTPATH)/samples -f Makefile PEGASUS_LIB_DIR=$(PEGASUS_HOME)/lib \
              PEGASUS_PROVIDER_LIB_DIR=$(PEGASUS_HOME)/lib PEGASUS_INCLUDES="-I $(INCLUDE_DESTPATH)" \
              CIM_MOF_PATH=$(PEGASUS_ROOT)/Schemas/CIM27 SAMPLES_DIR=$(SAMPLE_DESTPATH)/samples
+	@$(MAKE) --directory=$(SAMPLE_DESTPATH)/samples/Providers/Load -f Makefile createrepository
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile -i registerproviders
 
 deregisterproviders:
 	@$(MAKE) --directory=$(SAMPLE_DESTPATH)/samples/Providers/Load -f Makefile deregisterproviders

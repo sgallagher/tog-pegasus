@@ -23,14 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Mike Day (mdday@us.ibm.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_OperationContext_h
@@ -451,6 +443,8 @@ class PEGASUS_COMMON_LINKAGE TimeoutContainer : virtual public OperationContext:
 
 class AcceptLanguageListContainerRep;
 
+/** <I><B>Experimental Interface</B></I><BR>
+ */
 class PEGASUS_COMMON_LINKAGE AcceptLanguageListContainer
     : virtual public OperationContext::Container
 {
@@ -503,11 +497,13 @@ protected:
 private:
     AcceptLanguageListContainer();    // Unimplemented
 };
+
     /** REVIEWERS: Insert class description here. 
     */
 class SubscriptionLanguageListContainerRep;
 
-    /** REVIEWERS: Insert class description here. 
+    /** <I><B>Experimental Interface</B></I><BR>
+    * REVIEWERS: Insert class description here. 
     */
 class PEGASUS_COMMON_LINKAGE SubscriptionLanguageListContainer
     : virtual public OperationContext::Container
@@ -570,7 +566,8 @@ private:
     /** REVIEWERS: Insert class description here. 
     */
 class ContentLanguageListContainerRep;
-    /** REVIEWERS: Insert class description here. 
+    /** <I><B>Experimental Interface</B></I><BR>
+    * REVIEWERS: Insert class description here. 
     */
 class PEGASUS_COMMON_LINKAGE ContentLanguageListContainer
     : virtual public OperationContext::Container

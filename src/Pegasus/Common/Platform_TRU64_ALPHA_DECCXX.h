@@ -23,13 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//         Brian Bobryk (Brian.Bobryk@compaq.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Platform_TRU64_ALPHA_DECCXX_h

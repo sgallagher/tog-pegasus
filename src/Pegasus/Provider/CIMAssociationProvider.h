@@ -23,10 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:Karl Schopmeyer(k.schopmeyer@opengroup.org)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMAssociationProvider_h

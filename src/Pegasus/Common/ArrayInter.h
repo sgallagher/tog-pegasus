@@ -23,10 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 // Only include if not included as general template or if explicit instantiation

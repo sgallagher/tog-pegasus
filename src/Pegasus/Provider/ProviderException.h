@@ -23,10 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ProviderException_h
@@ -78,6 +74,8 @@ public:
     status code to be returned to the client.</p>
     */
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     CIMOperationFailedException(const MessageLoaderParms & parms);    
 #endif
 
@@ -85,6 +83,8 @@ protected:
     CIMOperationFailedException(const CIMStatusCode code, const String & message);
     
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     CIMOperationFailedException(const CIMStatusCode code, const MessageLoaderParms & parms);    
 #endif
 };
@@ -101,6 +101,8 @@ public:
     CIMAccessDeniedException(const String & message);
     
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     CIMAccessDeniedException(const MessageLoaderParms & parms);    
 #endif
 };
@@ -117,6 +119,8 @@ public:
     CIMInvalidParameterException(const String & message);
     
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     CIMInvalidParameterException(const MessageLoaderParms & parms);    
 #endif
 };
@@ -133,6 +137,8 @@ public:
     CIMInvalidClassException(const String & message);
     
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     CIMInvalidClassException(const MessageLoaderParms & parms);    
 #endif
 };
@@ -150,6 +156,8 @@ public:
     CIMObjectNotFoundException(const String & message);
     
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     CIMObjectNotFoundException(const MessageLoaderParms & parms); 
 #endif   
 };
@@ -166,6 +174,8 @@ public:
     CIMNotSupportedException(const String & message);
     
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     CIMNotSupportedException(const MessageLoaderParms & parms);   
 #endif 
 };
@@ -182,6 +192,8 @@ public:
     CIMObjectAlreadyExistsException(const String & message);
     
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     CIMObjectAlreadyExistsException(const MessageLoaderParms & parms);  
 #endif  
 };
@@ -198,6 +210,8 @@ public:
     CIMPropertyNotFoundException(const String & message);
     
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     CIMPropertyNotFoundException(const MessageLoaderParms & parms); 
 #endif   
 };
@@ -215,6 +229,8 @@ public:
     CIMInvalidQueryException(const String & message);
     
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     CIMInvalidQueryException(const MessageLoaderParms & parms);    
 #endif
 };
@@ -232,6 +248,8 @@ public:
     CIMMethodNotFoundException(const String & message);
     
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     CIMMethodNotFoundException(const MessageLoaderParms & parms);    
 #endif
 };

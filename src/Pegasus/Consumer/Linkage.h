@@ -23,11 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett Packard Company 
-//         (carolann_graves@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>

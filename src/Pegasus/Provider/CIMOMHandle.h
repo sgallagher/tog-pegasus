@@ -23,13 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Mike Brasher (mbrasher@bmc.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 

@@ -23,12 +23,6 @@
 //
 //==============================================================================
 //
-// Copied from Pegasus_Platform_LINUX_PPC_GNU 
-//
-// Author: Lynn Moss (lynnmoss@us.ibm.com)
-//
-// Modified By:
-//              Bapu Patil (bapu_patil@hp.com)
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Platform_LINUX_ZSERIES_GNU_h

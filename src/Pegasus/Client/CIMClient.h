@@ -23,16 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Client_h
@@ -205,39 +195,45 @@ public:
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 // l10n start
-    /** Sets the accept languages that will be used on the next request.
+    /** <I><B>Experimental Interface</B></I><BR>
+        Sets the accept languages that will be used on the next request.
         Accept languages are the preferred languages that are to be
         returned on the response to the next request.
         @param langs - REVIEWERS: Complete this
     */	
 	void setRequestAcceptLanguages(const AcceptLanguages& langs);
 
-    /** Gets the accept languages that will be used on the next request.
+    /** <I><B>Experimental Interface</B></I><BR>
+        Gets the accept languages that will be used on the next request.
         Accept languages are the preferred languages that are to be
         returned on the response to the next request.
     */
 	AcceptLanguages getRequestAcceptLanguages() const;
 	
-    /** Sets the content languages that will be used on the next request.
+    /** <I><B>Experimental Interface</B></I><BR>
+        Sets the content languages that will be used on the next request.
         These content languages are the languages of the CIM objects that will
         sent on the next request.
         @param langs REVIEWERS: Complete this
     */  	
 	void setRequestContentLanguages(const ContentLanguages& langs);
 
-    /** Gets the content languages that will be used on the next request.
+    /** <I><B>Experimental Interface</B></I><BR>
+     * Gets the content languages that will be used on the next request.
      * These content languages are the languages of the CIM objects that will
      * sent on the next request.
     */    
 	ContentLanguages getRequestContentLanguages() const;
 	
-    /** Gets the content languages of the last response.
+    /** <I><B>Experimental Interface</B></I><BR>
+     * Gets the content languages of the last response.
      * These content languages are the languages of the CIM objects, or 
      * CIM exceptions, that were returned on the last response..
     */    	
 	ContentLanguages getResponseContentLanguages() const;
 	
-	/** REVIEWERS: COmplete this
+        /** <I><B>Experimental Interface</B></I><BR>
+	 * REVIEWERS: Complete this
 	 * 
 	 */
 	void setRequestDefaultLanguages();

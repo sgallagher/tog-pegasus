@@ -23,10 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Humberto Rivero (hurivero@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_LanguageElement_h
@@ -63,7 +59,8 @@ class LanguageElementRep;
 //
 //////////////////////////////////////////////////////////////
     
-/** This is a base class for derived LanguageElements
+/** <I><B>Experimental Interface</B></I><BR>
+ *This is a base class for derived LanguageElements
  */ 
 class PEGASUS_COMMON_LINKAGE LanguageElement{
 	     

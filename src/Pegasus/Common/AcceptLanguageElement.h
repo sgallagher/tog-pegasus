@@ -23,10 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Humberto Rivero (hurivero@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_AcceptLanguageElement_h
@@ -47,7 +43,8 @@ class AcceptLanguageElementRep;
 //
 //////////////////////////////////////////////////////////////
     
-/** This class is used to hold language information for a given AcceptLanguage
+/** <I><B>Experimental Interface</B></I><BR>
+ *  This class is used to hold language information for a given AcceptLanguage
  *  header value.
  */ 
 class PEGASUS_COMMON_LINKAGE AcceptLanguageElement : public LanguageElement{

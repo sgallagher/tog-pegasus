@@ -23,12 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Mike Day (mdday@us.ibm.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Bapu Patil (bapu_patil@hp.com)
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Platform_LINUX_IA64_GNU_h

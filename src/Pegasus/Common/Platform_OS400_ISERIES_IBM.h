@@ -23,14 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Chuck Carmack (carmack@us.ibm.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
-// Modified By: Dave Rosckes (rosckes@us.ibm.com)
-//				Seema Gupta (gseema@in.ibm.com) for Bug#1717
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Platform_OS400_ISERIES_IBM_h

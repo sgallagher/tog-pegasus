@@ -23,12 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//		Keith Petley (keithp@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Platform_SOLARIS_SPARC_CC_h

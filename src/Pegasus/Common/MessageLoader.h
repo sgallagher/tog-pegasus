@@ -23,10 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Humberto Rivero (hurivero@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_MessageLoader_h
@@ -55,7 +51,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/**
+/** <I><B>Experimental Interface</B></I><BR>
  * MessageLoaderParms class is basically a stuct class containing public variables that control
  * the way MessageLoader behaves. MessageLoader uses the fields in this class to decide where and
  * how to load messages from the message resources.

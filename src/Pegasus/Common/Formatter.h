@@ -23,10 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Formatter_h
@@ -40,7 +36,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/**
+/** <I><B>Experimental Interface</B></I><BR>
     Formatter is a class to build formatted strings from
     strings that contain variable defintions.  The
     variable definitions in the strings are of the form

@@ -22,12 +22,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-
-//              Bapu Patil (bapu_patil@hp.com)
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Platform_HPUX_PARISC_ACC_h

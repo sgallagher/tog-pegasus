@@ -23,13 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Adrian Schuur (schuur@de.ibm.com) PEP 164
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Scope_h

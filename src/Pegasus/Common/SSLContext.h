@@ -23,12 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Markus Mueller (sedgewick_de@yahoo.de)
-//
-// Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Heather Sterling, IBM (hsterl@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_SSLContext_h

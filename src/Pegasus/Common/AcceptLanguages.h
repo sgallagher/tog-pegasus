@@ -23,10 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Humberto Rivero (hurivero@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_AcceptLanguages_h
@@ -48,7 +44,8 @@ class AcceptLanguagesRep;
 //
 //////////////////////////////////////////////////////////////
 
-/** This class is a container class for AcceptLanguageElement
+/** <I><B>Experimental Interface</B></I><BR> 
+ * This class is a container class for AcceptLanguageElement
  */
 class PEGASUS_COMMON_LINKAGE AcceptLanguages : public LanguageElementContainer{
 

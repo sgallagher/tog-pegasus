@@ -23,11 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Karl Schopmeyer(k.schopmeyer@opengroup.org)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_String_h
@@ -374,21 +369,23 @@ public:
     */
     void toLower();
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** @param strLocale const char * is the locale to use for the operation.
+    /** <I><B>Experimental Interface</B></I><BR>
+        @param strLocale const char * is the locale to use for the operation.
                If NULL will use the default locale for the process.
         Refer to Locale constants for formating.
     */
     void toLower(const char * strLocale);
 #endif
 
-    /** Converts all characters in this string to lowercase characters.
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+        Converts all characters in this string to uppercase characters.
         @param strLocale const char * is the locale to use for the operation.
                If NULL will use the default locale for the process.
         ICU    : Operation will use default locale or the locale provided
         NON ICU: Operattion will use c runtime function 
         Refer to Locale constants for formating.   
     */
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     void toUpper(const char * strLocale = NULL);
 #endif
 
@@ -425,7 +422,8 @@ public:
     */
     static int compareNoCase(const String& s1, const String& s2);
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** @param strLocale const char * is the locale to use for the operation.
+    /** <I><B>Experimental Interface</B></I><BR>
+        @param strLocale const char * is the locale to use for the operation.
                If NULL will use the default locale for the process.
         Refer to Locale constants for formating.
     */
@@ -458,7 +456,8 @@ public:
     */
     static Boolean equalNoCase(const String& str1, const String& str2);
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** @param strLocale const char * is the locale to use for the operation.
+    /** <I><B>Experimental Interface</B></I><BR>
+        @param strLocale const char * is the locale to use for the operation.
                If NULL will use the default locale for the process.
         Refer to Locale constants for formating.
     */

@@ -23,17 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//              Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Sushma Fernandes , Hewlett-Packard Company
-//                (sushma_fernandes@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Exception_h
@@ -69,6 +58,8 @@ public:
 
 // l10n
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     Exception(const MessageLoaderParms& msgParms);
 #endif
 
@@ -81,9 +72,13 @@ public:
 // l10n
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     // Note: Rlse 2.3 - not virtual to preserve binary compatibility.
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     const ContentLanguages& getContentLanguages() const;
     
     // Note: Rlse 2.3 - not virtual to preserve binary compatibility.
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     void setContentLanguages(const ContentLanguages& langs); 
 #endif   
 
@@ -109,6 +104,8 @@ public:
     ///
     AlreadyExistsException(const String& message);
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     AlreadyExistsException(MessageLoaderParms& msgParms);
 #endif
 };
@@ -120,6 +117,8 @@ public:
     ///
     InvalidNameException(const String& name);
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     InvalidNameException(MessageLoaderParms& msgParms); 
 #endif   
 };
@@ -131,6 +130,8 @@ public:
     ///
     InvalidNamespaceNameException(const String& name);
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     InvalidNamespaceNameException(MessageLoaderParms& msgParms);
 #endif    
 };
@@ -151,6 +152,8 @@ public:
     TypeMismatchException();
     TypeMismatchException(const String& message);
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     TypeMismatchException(MessageLoaderParms& msgParms);
 #endif    
 
@@ -179,6 +182,8 @@ public:
     ///
     MalformedObjectNameException(const String& objectName);
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     MalformedObjectNameException(MessageLoaderParms& msgParms); 
 #endif   
 };
@@ -190,6 +195,8 @@ public:
     ///
     BindFailedException(const String& message);
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     BindFailedException(MessageLoaderParms& msgParms);
 #endif    
 };
@@ -201,6 +208,8 @@ public:
     ///
     InvalidLocatorException(const String& locator);
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     InvalidLocatorException(MessageLoaderParms& msgParms); 
 #endif  
 };
@@ -220,6 +229,8 @@ public:
     ///
     CannotConnectException(const String& message);
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     CannotConnectException(MessageLoaderParms& msgParms); 
 #endif  
 };
@@ -255,6 +266,8 @@ public:
     ///
     SSLException(const String& message);
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     SSLException(MessageLoaderParms& msgParms); 
 #endif   
 };
@@ -266,6 +279,8 @@ public:
     ///
     DateTimeOutOfRangeException(const String& message);
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     DateTimeOutOfRangeException(MessageLoaderParms& msgParms);
 #endif     
 }; 
@@ -284,6 +299,8 @@ public:
 	
 // l10n	
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     CIMException(
 	CIMStatusCode code,
 	const MessageLoaderParms& msgParms);

@@ -25,15 +25,12 @@ createrepository:
 	@ cimmof "-I$(CIM_MOF_PATH)" "-n$(SAMPLEPROVIDERNS)" $(CIM_MOF_PATH)/CIM_Event$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading class definitions into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmof "-n$(SAMPLEPROVIDERNS)" SampleProviderSchema.mof
-	@ cimmof "-n$(SAMPLEPROVIDERNS)" RT_Indication.mof
 	@ cimmof "-n$(SAMPLEPROVIDERNS)" CWS_FilesAndDir.mof
 
 registerproviders:
 	@ $(ECHO) +++++ Registering providers for SampleProvider namespace  ...
 	@ cimmof "-n$(INTEROPNS)" InstanceProviderR.mof
 	@ cimmof "-n$(INTEROPNS)" MethodProviderR.mof
-	@ cimmof "-n$(INTEROPNS)" IndicationProviderR.mof
-	@ cimmof "-n$(INTEROPNS)" SimpleDisplayConsumerR.mof
 	@ cimmof "-n$(INTEROPNS)" CWS_FilesAndDirR.mof
 
 deregisterproviders:
@@ -42,8 +39,4 @@ deregisterproviders:
 	@ $(ECHO) +++++ Deregistering SampleMethodProvider ...
 	@ cimprovider -r -m SampleMethodProviderModule
 	@ $(ECHO) +++++ Deregistering SampleIndicationProvider ...
-	@ cimprovider -r -m SampleIndicationProviderModule
-	@ $(ECHO) +++++ Deregistering SampleIndicationConsumer ...
-	@ cimprovider -r -m SimpleDisplayConsumerModule
-	@ $(ECHO) +++++ Deregistering FilesandDirectoryModule ...
 	@ cimprovider -r -m FilesAndDirectoriesModule 

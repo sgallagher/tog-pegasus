@@ -23,15 +23,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Karl Schopmeyer(k.schopmeyer@opengroup.org)
-//              Sushma Fernandes, Hewlett Packard Company
-//                  (sushma_fernandes@hp.com)
-//              Roger Kumpf, Hewlett Packard Company (roger_kumpf@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_DateTime_h

@@ -27,9 +27,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:  Jenny Yu (jenny_yu@hp.com)
-//               Carol Ann Krug Graves, Hewlett-Packard Company
-//                 (carolann_graves@hp.com)
+// Modified By:  Jim Wunderlich (Jim_Wunderlich@prodigy.net)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +38,7 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-static char * verbose;
+Boolean verbose;
 
 String repositoryRoot;
 bool trace = false;
@@ -78,7 +76,7 @@ void CompareClasses(
 	CIMClass class1 = r1.getClass(namespaceName, classNames1[i]);
 	CIMClass class2 = r2.getClass(namespaceName, classNames2[i]);
 
-	if (trace)
+	if (verbose)
 	{
 	    cout << "testing class " << namespaceName.getString() << "/";
 	    cout << classNames1[i].getString() << "..." << endl;
@@ -127,7 +125,7 @@ void CompareInstances(
 	    CIMInstance inst1 = r1.getInstance(namespaceName, objectPaths1[i]);
 	    CIMInstance inst2 = r2.getInstance(namespaceName, objectPaths2[i]);
 
-	    if (trace)
+	    if (verbose)
 	    {
 		cout << "testing instance " << namespaceName.getString() << "/";
 		cout << objectPaths1[i].toString() << "..." << endl;
@@ -149,7 +147,7 @@ void CompareQualifiers(
 
     for (size_t i = 0; i < quals2.size(); i++)
     {
-	if (trace)
+	if (verbose)
 	{
 	    cout << "testing qualifier " << namespaceName.getString() << "/";
 	    cout << quals2[i].getName().getString() << "..." << endl;
@@ -194,9 +192,14 @@ void Compare(
 
 int main(int argc, char** argv)
 {
+
+    verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
+    cout << argv[0] << ":" << endl;
+
     //
     // Usage:
     //
+
 
     if (argc != 3)
     {
@@ -220,9 +223,9 @@ int main(int argc, char** argv)
     }
 
     if (!failures)
-	cout << "+++++ passed all tests" << endl;
+      cout << argv[0] << ": +++++ passed all tests" << endl;
     else
-	cerr << "There were " << failures << " failures" << endl;
+      cerr << argv[0] << ": There were " << failures << " failures" << endl;
 
     return 0;
 }

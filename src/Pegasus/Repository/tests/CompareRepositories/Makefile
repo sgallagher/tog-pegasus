@@ -72,7 +72,7 @@ endif
 
 ifdef PEGASUS_ENABLE_COMPAREREPOSITORIES
 tests:  repo_build run_test repo_clean
-	@ $(ECHO) +++++ Compare reposititory test: FINISHED with test
+	@ $(ECHO) +++++ Compare repository test: FINISHED with test
 
 
 
@@ -93,7 +93,7 @@ endif
 # in a local file then compare them. It might be an interesting test
 #
 # poststarttests: repo_Server_build run_test repo_clean
-# 	@ $(ECHO) +++++ Compare reposititory test: FINISHED with test
+# 	@ $(ECHO) +++++ Compare repository test: FINISHED with test
 #
 
 poststarttests:
@@ -116,7 +116,7 @@ run_test:
 #
 repo_build:
 	@ $(ECHO) 
-	@ $(ECHO) +++++ Compare Repositories test: NOW BUILDING XML reposititory
+	@ $(ECHO) +++++ Compare Repositories test: NOW BUILDING XML repository
 	@ $(ECHO) +++++     $(REPO_DIR)/$(REPO_XML)
 	@ $(ECHO)
 	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML
@@ -132,7 +132,7 @@ repo_build:
 #
 repo_Server_build:
 	@ $(ECHO) 
-	@ $(ECHO) +++++ Compare Repositories test: NOW BUILDING XML reposititory
+	@ $(ECHO) +++++ Compare Repositories test: NOW BUILDING XML repository
 	@ $(ECHO) +++++     $(REPO_DIR)/$(REPO_XML)
 	@ $(ECHO)
 	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus repositoryServer REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML

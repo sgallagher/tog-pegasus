@@ -18,9 +18,9 @@ VALID_PLATFORMS = \
 ifndef PEGASUS_PLATFORM
   ERROR = pegasus_undefined
 pegasus_undefined:
-        @ $(ECHO) PEGASUS_PLATFORM environment variable undefined. Please set to\
-            one of the following: $(VALID_PLATFORMS)
-        @ exit 1
+	@ $(ECHO) PEGASUS_PLATFORM environment variable undefined. Please set to\
+	one of the following: $(VALID_PLATFORMS)
+	@ exit 1
 endif
 
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)

@@ -1445,6 +1445,58 @@ class CIMDeleteSubscriptionRequestMessage : public CIMRequestMessage
     String userName;
 };
 
+class CIMDisableModuleRequestMessage : public CIMRequestMessage
+{
+   public:
+
+    CIMDisableModuleRequestMessage(
+        const String& messageId_,
+        const String& moduleName_,
+        QueueIdStack queueIds_,
+        const String& authType_ = String::EMPTY,
+        const String& userName_ = String::EMPTY)
+        :
+        CIMRequestMessage(
+            CIM_DISABLE_MODULE_REQUEST_MESSAGE,
+	    messageId_,
+	    queueIds_),
+        moduleName(moduleName_),
+	authType(authType_),
+	userName(userName_)
+    {
+    }
+
+    String moduleName;
+    String authType;
+    String userName;
+};
+
+class CIMEnableModuleRequestMessage : public CIMRequestMessage
+{
+   public:
+
+    CIMEnableModuleRequestMessage(
+        const String& messageId_,
+        const String& moduleName_,
+        QueueIdStack queueIds_,
+        const String& authType_ = String::EMPTY,
+        const String& userName_ = String::EMPTY)
+        :
+        CIMRequestMessage(
+            CIM_ENABLE_MODULE_REQUEST_MESSAGE,
+	    messageId_,
+	    queueIds_),
+        moduleName(moduleName_),
+	authType(authType_),
+	userName(userName_)
+    {
+    }
+
+    String moduleName;
+    String authType;
+    String userName;
+};
+
 class PEGASUS_COMMON_LINKAGE CIMGetClassResponseMessage
    : public CIMResponseMessage
 {
@@ -2068,6 +2120,46 @@ public:
     {
     }
 
+};
+
+class PEGASUS_COMMON_LINKAGE CIMDisableModuleResponseMessage
+   : public CIMResponseMessage
+{
+   public:
+
+      CIMDisableModuleResponseMessage(
+	 const String& messageId_,
+	 const CIMException& cimException_,
+	 const QueueIdStack& queueIds_,
+	 const Array<Uint16>& operationalStatus_)
+	 :
+	 CIMResponseMessage(CIM_DISABLE_MODULE_RESPONSE_MESSAGE,
+			    messageId_, cimException_, queueIds_),
+	 operationalStatus(operationalStatus_)
+      {
+      }
+
+      Array<Uint16> operationalStatus;
+};
+
+class PEGASUS_COMMON_LINKAGE CIMEnableModuleResponseMessage
+   : public CIMResponseMessage
+{
+   public:
+
+      CIMEnableModuleResponseMessage(
+	 const String& messageId_,
+	 const CIMException& cimException_,
+	 const QueueIdStack& queueIds_,
+	 const Array<Uint16>& operationalStatus_)
+	 :
+	 CIMResponseMessage(CIM_ENABLE_MODULE_RESPONSE_MESSAGE,
+			    messageId_, cimException_, queueIds_),
+	 operationalStatus(operationalStatus_)
+      {
+      }
+
+      Array<Uint16> operationalStatus;
 };
 
 PEGASUS_NAMESPACE_END

@@ -111,6 +111,9 @@ protected:
     void handleDeleteSubscriptionRequest(const Message * message) throw();
     void handleEnableIndicationsRequest(const Message * message) throw();
     void handleDisableIndicationsRequest(const Message * message) throw();
+    
+    void handleDisableModuleRequest(const Message * message) throw();
+    void handleEnableModuleRequest(const Message * message) throw();
 
 protected:
     ThreadPool _threadPool;

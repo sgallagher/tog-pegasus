@@ -31,6 +31,7 @@
 
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
+#include <Pegasus/Common/ModuleController.h>
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
@@ -41,9 +42,43 @@ class PEGASUS_PROVREGPROVIDER_LINKAGE ProviderRegistrationProvider :
     public CIMMethodProvider
 {
 public:
+
+      class callback_data
+      {
+         public:
+
+            Message *reply;
+            Semaphore client_sem;
+            ProviderRegistrationProvider & cimom_handle;
+
+            callback_data(ProviderRegistrationProvider *handle)
+               : reply(0), client_sem(0), cimom_handle(*handle)
+            {
+            }
+            ~callback_data()
+            {
+               delete reply;
+            }
+
+            Message *get_reply(void)
+            {
+               Message *ret = reply;
+               reply = NULL;
+               return ret;
+            }
+
+         private:
+            callback_data(void);
+      };
+
+
+    static void async_callback(Uint32 user_data, Message *reply, void *parm);
+
     ProviderRegistrationProvider(
         ProviderRegistrationManager* providerRegistrationManager);
     virtual ~ProviderRegistrationProvider(void);
+
+ProviderRegistrationProvider & operator=(const ProviderRegistrationProvider & handle);
 
     // CIMBaseProvider interface
     virtual void initialize(CIMOMHandle& cimom);
@@ -98,7 +133,20 @@ public:
         ResponseHandler<CIMValue> & handler);
 
 protected:
+
+/*
+    pegasus_internal_identity _id;
+    ModuleController * _controller;
+    ModuleController::client_handle *_client_handle;
+*/
+
     ProviderRegistrationManager* _providerRegistrationManager;
+
+    MessageQueueService * _getProviderManagerService();
+    Array<Uint16> _sendDisableMessageToProviderManager(
+	CIMDisableModuleRequestMessage * notify_req);
+    Array<Uint16> _sendEnableMessageToProviderManager(
+	CIMEnableModuleRequestMessage * notify_req);
 };
 
 PEGASUS_NAMESPACE_END

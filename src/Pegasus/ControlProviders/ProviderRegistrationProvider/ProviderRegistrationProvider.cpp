@@ -28,9 +28,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/PegasusVersion.h>
-
 #include "ProviderRegistrationProvider.h"
+
+#include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -163,6 +164,7 @@ static const Uint16 _PROVIDER_STOPPED   = 10;
 
 ProviderRegistrationProvider::ProviderRegistrationProvider(
     ProviderRegistrationManager * providerRegistrationManager)	
+    //:_id(peg_credential_types::PROVIDER)
 {
     _providerRegistrationManager = providerRegistrationManager;
 }
@@ -535,203 +537,300 @@ void ProviderRegistrationProvider::invokeMethod(
     Array<CIMParamValue> & outParameters,
     ResponseHandler<CIMValue> & handler)
 {
-// ATTN-YZ-20020411: Add code to send message to provider manager to 
-// execute the stop and start methods
+    String moduleName;
+    Boolean moduleFound = false;
 
-   throw CIMException (CIM_ERR_NOT_SUPPORTED);
-
-/* ATTN-YZ-P1-20020301: Modify this function because schema is changed
-    String className = objectReference.getClassName();
-	
-    // ensure the class existing in the specified namespace
-    if(!String::equalNoCase(className, _CLASS_PG_PROVIDER) &&
-       !String::equalNoCase(className, _CLASS_PROVIDER_CAPABILITIES) &&
-       !String::equalNoCase(className, _CLASS_PROVIDER_MODULE))
-    {
-	throw CIMException(CIM_ERR_INVALID_CLASS);
-    }
-
-    handler.processing();
-    Uint32 retValue;
-    String providerName;
-
-    // get provider name from reference
+    // get module name from reference
     Array<KeyBinding> keys = objectReference.getKeyBindings();
 
-    Uint32 i;
-    for(i=0; i<keys.size() ; i++)
+    for(Uint32 i=0; i<keys.size() ; i++)
     {
-	if(String::equal(keys[i].getName(), "Name"))
+	if(String::equalNoCase(keys[i].getName(), _PROPERTY_PROVIDERMODULE_NAME))
 	{
-	    providerName = keys[i].getValue();
+	    moduleName = keys[i].getValue();
+	    moduleFound = true;
 	}
     }
 
-    // if Name key not found
-    if(i > keys.size())
+    // if _PROPERTY_PROVIDERMODULE_NAME key not found
+    if( !moduleFound)
     {
-	// ATTN: may need diff exception
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
 		"key Name was not found");
     }
 
-    CIMReference newInstancereference("", "",
-	objectReference.getClassName(),
-	objectReference.getKeyBindings());
+    //
+    // get module status
+    //
+    Array<Uint16> _OperationalStatus = 
+	_providerRegistrationManager->getProviderModuleStatus( moduleName);
+
+    handler.processing();
+
+    Sint16 ret_value;
 
     if(String::equalNoCase(methodName, _STOP_PROVIDER))
     {
+	for (Uint32 i = 0; i<_OperationalStatus.size(); i++)
+	{
+	    // retValue equals 1 if module is already disabled
+	    if (_OperationalStatus[i] == _PROVIDER_STOPPED)
+	    {
+		ret_value = 1;
+		CIMValue retValue(ret_value);
+		handler.deliver(retValue);
+    		handler.complete();
+		return;
+	    }
+	}
 
-        Boolean force = false;
-        Uint32 timeoutValue = 0;
-        String forceStr = String::EMPTY;
-        String timeoutStr = String::EMPTY;
-
-        // Get the input parameter values
+        // 
+        // get provider manager service
         //
-        // ATTN: Currently the server only returns String values even
-        //       though the types of the parameters are not defined
-        //       as String type.
-        //
-        for (Uint32 i = 0; i < inParameters.size(); i++)
-        {
-            String parmName = inParameters[i].getParameter().getName();
-            if (String::equalNoCase(parmName, "force"))
-            {
-                //
-                // get the force parameter
-                //
-                inParameters[i].getValue().get(forceStr);
-                if (String::equalNoCase(forceStr, "TRUE"))
-                {
-                    force = true;
-                }
-            }
-            else
-            {
-                if (String::equalNoCase(parmName, "timeout"))
-                {
-                    //
-                    // get the timeout value
-                    //
-                    inParameters[i].getValue().get(timeoutStr);
+        MessageQueueService * _service = _getProviderManagerService();
 
-                    //
-                    // convert the timeout string to integer
-                    //
-                    if (timeoutStr != String::EMPTY)
-                    {
-                        char* tmp = timeoutStr.allocateCString();
-                        timeoutValue = strtol(tmp, (char **)0, 10);
-                        delete [] tmp;
-                    }
-                }
-                else
-                {
-                    throw PEGASUS_CIM_EXCEPTION( CIM_ERR_INVALID_PARAMETER,
-                                        "Input parameters are not valid.");
-                }
-            }
-        }
+	// create CIMDisableModuleRequestMessage
+	CIMDisableModuleRequestMessage * disable_req = 
+	    new CIMDisableModuleRequestMessage(
+		XmlWriter::getNextMessageId (),
+		moduleName,
+		QueueIdStack(_service->getQueueId()));
 
-	// change provider status to be stopping
-	// do not accept any new requests
-        // ATTN: Change this to send a message
-	//retValue = _cimom.getProviderManager()->stoppingProvider(providerName);
-	if ( retValue ) // return value is 1 -- provider not found
+  	Array<Uint16> _opStatus = 
+	    _sendDisableMessageToProviderManager(disable_req);
+
+	for (Uint32 i = 0; i<_opStatus.size(); i++)
 	{
-	    // ATTN: throw exception
-	   // throw();
+	    if (_opStatus[i] == _PROVIDER_STOPPED)
+	    {
+		// module was disabled successfully
+		ret_value = 0;
+		CIMValue retValue(ret_value);
+		handler.deliver(retValue);
+    		handler.complete();
+		return;
+	    }
 	}
 
-	// ATTN: need a way to find if there are any outstanding requests
-	// if there are outstanding requests, wait periodically until
-	// all requests are processed or timeout expires
-
-	// Uint32 requestCount = getOutstandingRequestCount(providerName);
-
-	Uint32 waitTime = 1000;                 // one second wait interval
-
-	// ATTN: for testing purpose, set requestCount = 3
-	Uint32 requestCount = 3;
-
-	while (requestCount > 0 && timeoutValue > 0)
-	{	
-
-	    // any outstanding requests given a grace period to complete;
-	    System::sleep(waitTime);
-
-	    // ATTN:
-	    // requestCount = getOutstandingRequestCount(providerName);
-
-	    // ATTN: for testing purpose
-	    requestCount--;
-
-	    timeoutValue = timeoutValue - waitTime;
-	}
-
-	// If no more requests or force stop option is specified, proceed
-	// to stop the provider
-	if (requestCount == 0 || force)
-	{
-	    // change provider status to be stopped
-            // ATTN: Change this to send a message
-	    //retValue = _cimom.getProviderManager()->providerStopped(providerName);
-
-	   // stop the provider
-           // ATTN: Change this to send a message
-	   //retValue = _cimom.getProviderManager()->stopProvider(providerName);
-	   // ATTN: Update repository, but if a provider can not set property
-	   // AutomaticallyStarted = FALSE, do not need update repository
-	   if(retValue == 0)
-	   {
-	        // update repository
-	        //_cimom.getRepository()->setProperty(objectReference.getNameSpace(),
-		//  newInstancereference, "OperationalStatus", _PROVIDER_STOPPED);
-	   }
-	}
-	else
-	{
-	    // if there are still outstanding requests after the grace period
-	    // and force stop option is not specified, change provider status to be OK
-            // ATTN: Change this to send a message
-	    //_cimom.getProviderManager()->startProvider(providerName);
-
-	    //ATTN:  inform the client that provider not stopped
-	    //throw ();
-	
-	}
+        // disable failed
+	ret_value = -1;
+	CIMValue retValue(ret_value);
+	handler.deliver(retValue);
+    	handler.complete();
+	return;
     }
     else if(String::equalNoCase(methodName, _START_PROVIDER))
     {
-        // ATTN: Send a message to the ProviderManager
-	//retValue = _cimom.getProviderManager()->startProvider(providerName);
-	if(retValue == 0)
+	for (Uint32 i = 0; i<_OperationalStatus.size(); i++)
 	{
-	    // update repository
-            // ATTN: Do we really need to do this?  If we do, should we do it
-            // through the ProviderRegistrationManager instead of directly
-            // accessing the repository?
-	    //_cimom.getRepository()->setProperty(objectReference.getNameSpace(),
-	    //    newInstancereference, "OperationalStatus", _PROVIDER_OK);
+	    // retValue equals 1 if module is already enabled
+	    if (_OperationalStatus[i] == _PROVIDER_OK)
+	    {
+		ret_value = 1;
+		CIMValue retValue(ret_value);
+		handler.deliver(retValue);
+    		handler.complete();
+		return;
+	    }
 	}
-	else
+
+        // 
+        // get provider manager service
+        //
+        MessageQueueService * _service = _getProviderManagerService();
+
+	// create CIMEnableModuleRequestMessage
+	CIMEnableModuleRequestMessage * enable_req = 
+	    new CIMEnableModuleRequestMessage(
+		XmlWriter::getNextMessageId (),
+		moduleName,
+		QueueIdStack(_service->getQueueId()));
+
+  	Array<Uint16> _opStatus;
+        _opStatus = _sendEnableMessageToProviderManager(enable_req);
+
+	for (Uint32 i = 0; i<_opStatus.size(); i++)
 	{
-		// ATTN: need new exception
-		// throw();		
+	    if (_opStatus[i] == _PROVIDER_OK)
+	    {
+		// module was enabled successfully
+		ret_value = 0;
+		CIMValue retValue(ret_value);
+		handler.deliver(retValue);
+    		handler.complete();
+		return;
+	    }
 	}
+
+        // enable failed
+	ret_value = -1;
+	CIMValue retValue(ret_value);
+	handler.deliver(retValue);
+    	handler.complete();
+	return;
     }
     else
     {
 	throw CIMException(CIM_ERR_METHOD_NOT_AVAILABLE);
     }
+}
 
-    CIMValue cimValue_output(retValue);
-	
-    handler.deliver(cimValue_output);
+// get provider manager service
+MessageQueueService * ProviderRegistrationProvider::_getProviderManagerService()
+{
+    MessageQueue * queue = MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
+    MessageQueueService * _service = dynamic_cast<MessageQueueService *>(queue);
 
-    handler.complete();
-*/
+    return(_service);    
+}
+
+ProviderRegistrationProvider & ProviderRegistrationProvider::operator=(const ProviderRegistrationProvider & handle)
+{
+    if(this == &handle)
+    {
+        return(*this);
+    }
+
+    return(*this);
+}
+
+void ProviderRegistrationProvider::async_callback(Uint32 user_data,
+    Message *reply,
+    void *parm)
+{
+   callback_data *cb_data = reinterpret_cast<callback_data *>(parm);
+   cb_data->reply = reply;
+   cb_data->client_sem.signal();
+}
+
+Array<Uint16> ProviderRegistrationProvider::_sendDisableMessageToProviderManager(
+        CIMDisableModuleRequestMessage * disable_req)
+{
+    pegasus_internal_identity _id = peg_credential_types::PROVIDER;
+    ModuleController * _controller;
+    ModuleController::client_handle *_client_handle;
+
+    _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
+    if(_client_handle == NULL)
+      ThrowUnitializedHandle();
+
+    MessageQueueService * _service = _getProviderManagerService();
+    Uint32 _queueId = _service->getQueueId();
+
+    callback_data *cb_data = new callback_data(this);
+
+    // create request envelope
+    AsyncLegacyOperationStart * asyncRequest =
+        new AsyncLegacyOperationStart (
+            _service->get_next_xid(),
+            NULL,
+            _queueId,
+            disable_req,
+            _queueId);
+
+    if( false  == _controller->ClientSendAsync(*_client_handle,
+                                               0,
+                                               _queueId,
+                                               asyncRequest,
+                                               ProviderRegistrationProvider::async_callback,
+                                               (void *)cb_data) )
+    {
+       delete asyncRequest;
+       delete cb_data;
+       throw CIMException(CIM_ERR_NOT_FOUND);
+
+    }
+
+    cb_data->client_sem.wait();
+    AsyncReply * asyncReply = static_cast<AsyncReply *>(cb_data->get_reply()) ;
+
+    CIMDisableModuleResponseMessage * response =
+	reinterpret_cast<CIMDisableModuleResponseMessage *>(
+             (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
+    {
+	CIMException e = response->cimException;
+
+        delete asyncRequest;
+        delete asyncReply;
+        delete response;
+        delete cb_data;
+
+        throw (e);
+    }
+
+    Array<Uint16> operationalStatus = response->operationalStatus; 
+
+    delete asyncRequest;
+    delete asyncReply;
+    delete response;
+    delete cb_data;
+
+    return(operationalStatus);
+}
+
+Array<Uint16> ProviderRegistrationProvider::_sendEnableMessageToProviderManager(
+        CIMEnableModuleRequestMessage * enable_req)
+{
+    pegasus_internal_identity _id = peg_credential_types::PROVIDER;
+    ModuleController * _controller;
+    ModuleController::client_handle *_client_handle;
+
+    _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
+    if(_client_handle == NULL)
+      ThrowUnitializedHandle();
+
+    MessageQueueService * _service = _getProviderManagerService();
+    Uint32 _queueId = _service->getQueueId();
+
+    callback_data *cb_data = new callback_data(this);
+
+    // create request envelope
+    AsyncLegacyOperationStart * asyncRequest =
+        new AsyncLegacyOperationStart (
+            _service->get_next_xid(),
+            NULL,
+            _queueId,
+            enable_req,
+            _queueId);
+
+    if( false  == _controller->ClientSendAsync(*_client_handle,
+                                               0,
+                                               _queueId,
+                                               asyncRequest,
+                                               ProviderRegistrationProvider::async_callback,
+                                               (void *)cb_data) )
+    {
+       delete asyncRequest;
+       delete cb_data;
+       throw CIMException(CIM_ERR_NOT_FOUND);
+
+    }
+
+    cb_data->client_sem.wait();
+    AsyncReply * asyncReply = static_cast<AsyncReply *>(cb_data->get_reply()) ;
+
+    CIMEnableModuleResponseMessage * response =
+	reinterpret_cast<CIMEnableModuleResponseMessage *>(
+             (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
+    {
+	CIMException e = response->cimException;
+        delete asyncRequest;
+        delete asyncReply;
+        delete response;
+        delete cb_data;
+	throw (e);
+    }
+
+    Array<Uint16> operationalStatus = response->operationalStatus; 
+
+    delete asyncRequest;
+    delete asyncReply;
+    delete response;
+    delete cb_data;
+    
+    return(operationalStatus);
 }
 
 PEGASUS_NAMESPACE_END

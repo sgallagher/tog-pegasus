@@ -475,6 +475,14 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 	service->handleDisableIndicationsRequest(message);
 
 	break;
+    case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
+        service->handleDisableModuleRequest(message);
+
+        break;
+    case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
+        service->handleEnableModuleRequest(message);
+
+        break;
     default:
 	// unsupported messages are ignored
 	break;
@@ -1786,6 +1794,59 @@ void ProviderManagerService::handleDisableIndicationsRequest(const Message * mes
     }
 	
     _enqueueResponse(handler.getRequest(), handler.getResponse());
+}
+
+//ATTN-YZ-P1-20020424: Need to be implemented
+void ProviderManagerService::handleDisableModuleRequest(const Message * message) throw()
+{
+cout << " I get the message" << endl;
+    CIMDisableModuleRequestMessage * request =
+	dynamic_cast<CIMDisableModuleRequestMessage *>(const_cast<Message *>(message));
+
+    PEGASUS_ASSERT(request != 0);
+
+    Array<Uint16> operationalStatus;
+
+    CIMDisableModuleResponseMessage * response =
+	new CIMDisableModuleResponseMessage(
+	request->messageId,
+	PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+	request->queueIds.copyAndPop(),
+	operationalStatus);
+
+    PEGASUS_ASSERT(response != 0);
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+cout << "before enqueueResponse" << endl;
+    _enqueueResponse(request, response);
+cout << "after enqueueResponse" << endl;
+}
+
+//ATTN-YZ-P1-20020424: Need to be implemented
+void ProviderManagerService::handleEnableModuleRequest(const Message * message) throw()
+{
+    CIMEnableModuleRequestMessage * request =
+	dynamic_cast<CIMEnableModuleRequestMessage *>(const_cast<Message *>(message));
+
+    PEGASUS_ASSERT(request != 0);
+
+    Array<Uint16> operationalStatus;
+
+    CIMEnableModuleResponseMessage * response =
+	new CIMEnableModuleResponseMessage(
+	request->messageId,
+	PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+	request->queueIds.copyAndPop(),
+	operationalStatus);
+
+    PEGASUS_ASSERT(response != 0);
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    _enqueueResponse(request, response);
 }
 
 PEGASUS_NAMESPACE_END

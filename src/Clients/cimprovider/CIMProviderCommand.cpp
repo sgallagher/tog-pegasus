@@ -143,6 +143,12 @@ static const char START_PROVIDER_SUCCESS []  =
 static const char STOP_PROVIDER_SUCCESS []  = 
                         "Provider module disabled successfully.";
 
+static const char PROVIDER_ALREADY_STOPPED []  = 
+                        "Provider module already disabled.";
+
+static const char PROVIDER_ALREADY_STARTED []  = 
+                        "Provider module already enabled.";
+
 static const char PROVIDER_NOT_REGISTERED[] =
 		"Specified provider was not registered.";
 
@@ -755,6 +761,7 @@ Uint32 CIMProviderCommand::execute (
             }
             catch (CIMClientException& e)
             {
+                errPrintWriter << e.getMessage() << endl;
                 return ( RC_ERROR );
             }
 
@@ -786,6 +793,7 @@ Uint32 CIMProviderCommand::execute (
             }
             catch (CIMClientException& e)
             {
+                errPrintWriter << e.getMessage() << endl;
                 return ( RC_ERROR );
             }
 
@@ -817,6 +825,7 @@ Uint32 CIMProviderCommand::execute (
             }
             catch (CIMClientException& e)
             {
+                errPrintWriter << e.getMessage() << endl;
                 return ( RC_ERROR );
             }
             break;
@@ -849,6 +858,7 @@ Uint32 CIMProviderCommand::execute (
             }
             catch (CIMClientException& e)
             {
+                errPrintWriter << e.getMessage() << endl;
                 return ( RC_ERROR );
             }
 
@@ -975,14 +985,27 @@ void CIMProviderCommand::_StartProvider
 	Array<CIMParamValue> inParams;
 	Array<CIMParamValue> outParams;
 
-	_client->invokeMethod(
+	CIMValue ret_value = _client->invokeMethod(
 		PEGASUS_NAMESPACENAME_INTEROP,
 		ref,
 		START_METHOD,
 		inParams,
 		outParams);
 
-	outPrintWriter << START_PROVIDER_SUCCESS << endl;
+	Sint16 retValue;
+	ret_value.get(retValue);
+	if (retValue == 1)
+	{
+   	    outPrintWriter << PROVIDER_ALREADY_STARTED << endl;
+	}
+	else if (retValue == 0)
+	{
+   	    outPrintWriter << START_PROVIDER_SUCCESS << endl;
+	}
+	else
+	{
+	    outPrintWriter << START_PROVIDER_FAILURE << endl;
+	}
     }
 
     catch (CIMClientException& e)
@@ -1029,14 +1052,27 @@ void CIMProviderCommand::_StopProvider
 	Array<CIMParamValue> inParams;
 	Array<CIMParamValue> outParams;
 
-	_client->invokeMethod(
+	CIMValue ret_value = _client->invokeMethod(
 		PEGASUS_NAMESPACENAME_INTEROP,
 		ref,
 		STOP_METHOD,
 		inParams,
 		outParams);
 
-   	outPrintWriter << STOP_PROVIDER_SUCCESS << endl;
+	Sint16 retValue;
+	ret_value.get(retValue);
+	if (retValue == 1)
+	{
+   	    outPrintWriter << PROVIDER_ALREADY_STOPPED << endl;
+	}
+	else if (retValue == 0)
+	{
+   	    outPrintWriter << STOP_PROVIDER_SUCCESS << endl;
+	}
+	else
+	{
+	    outPrintWriter << STOP_PROVIDER_FAILURE << endl;
+	}
     }
 
     catch (CIMClientException& e)

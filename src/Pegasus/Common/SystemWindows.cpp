@@ -57,6 +57,9 @@ void System::getCurrentTime(Uint32& seconds, Uint32& milliseconds)
     largeInt.QuadPart -= 0x19db1ded53e8000;
     seconds = long(largeInt.QuadPart / (10000 * 1000));
     milliseconds = long((largeInt.QuadPart % (10000 * 1000)) / 10);
+    // This is a real hack. Added the following line after timevalue was
+    // corrected and this apparently wrong. ks 7 apri 2002
+    milliseconds = milliseconds / 1000;
 }
 
 String System::getCurrentASCIITime()

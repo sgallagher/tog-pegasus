@@ -9,6 +9,7 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 LIBRARY = pegcommon
 
 SOURCES = \
+    Formatter.cpp \
     CIMInstanceRep.cpp \
     CIMInstance.cpp \
     Array.cpp \

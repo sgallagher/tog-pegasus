@@ -27,6 +27,7 @@ SOURCES = \
    CQLParser.cpp \
    CQLParserState.cpp \
    CQLSimplePredicate.cpp \
+   CQLSimplePredicateRep.cpp \
    CQLPredicate.cpp \
    CQLTerm.cpp \
    CQLTermRep.cpp \

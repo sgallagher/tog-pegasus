@@ -4,12 +4,14 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/CQL/Linkage.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/CQL/QueryContext.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_CQL_LINKAGE CQLExpression;
 class PEGASUS_CQL_LINKAGE CQLFactory;
+class PEGASUS_CQL_LINKAGE CQLSimplePredicateRep;
+class PEGASUS_CQL_LINKAGE QueryContext;
+
 	enum ExpressionOpType { LT, GT, EQ, LE, GE, NE, IS_NULL, IS_NOT_NULL, ISA, LIKE };
 
 /** 
@@ -17,7 +19,7 @@ class PEGASUS_CQL_LINKAGE CQLFactory;
 class CQLSimplePredicate
 {
   public:
-    CQLSimplePredicate(){}
+    CQLSimplePredicate():_rep(0){}
 
     CQLSimplePredicate(const CQLExpression& inExpression);
 
@@ -25,7 +27,9 @@ class CQLSimplePredicate
 
     CQLSimplePredicate(const CQLExpression& leftSideExpression, const CQLExpression& rightSideExpression, ExpressionOpType inOperator);
 
-    ~CQLSimplePredicate(){}
+     CQLSimplePredicate(const CQLSimplePredicate& inSimplePredicate);
+
+    ~CQLSimplePredicate();
 
     /**  
       CQLExpressions: 
@@ -69,11 +73,7 @@ class CQLSimplePredicate
 
     friend class CQLFactory;
   private:
-    CQLExpression *_leftSide;
-
-    CQLExpression *_rightSide;
-
-    ExpressionOpType _operator;
+    CQLSimplePredicateRep *_rep;
 
 };
 PEGASUS_NAMESPACE_END

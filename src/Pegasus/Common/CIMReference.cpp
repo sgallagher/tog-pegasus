@@ -591,7 +591,7 @@ void CIMReference::set(const String& objectName)
     gotHost = _parseHostElement(objectName, p, _host);
     gotNamespace = _parseNamespaceElement(objectName, p, _nameSpace);
 
-    if (gotHost and !gotNamespace)
+    if (gotHost && !gotNamespace)
     {
         throw IllformedObjectName(objectName);
     }

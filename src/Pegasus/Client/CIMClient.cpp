@@ -905,7 +905,12 @@ CIMValue CIMClient::invokeMethod(
     Array<CIMParamValue>& outParameters)
 {
     String messageId = XmlWriter::getNextMessageId();
-    
+
+    // ATTN-RK-P2-20020301: Does it make sense to have a nameSpace parameter
+    // when the namespace should already be included in the instanceName?
+    // ATTN-RK-P3-20020301: Do we need to make sure the caller didn't specify
+    // a host name in the instanceName?
+
     Message* request = new CIMInvokeMethodRequestMessage(
 	messageId,
 	nameSpace,

@@ -210,6 +210,8 @@ Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMOb
 	
 	return(Pair<String, String>(fileName, providerName));
 	*/
+	throw CIMException(CIM_ERR_FAILED, "Provider lookup offline.");
+	
 	return(Pair<String, String>("", ""));
 }
 

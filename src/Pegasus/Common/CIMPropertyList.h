@@ -43,13 +43,17 @@ class CIMPropertyListRep;
     properties in Pegasus.
 
     This class comprises an array of propertyNames and a flag indicating whether
-    the list is null. There are three possibilities which must be represented;
-    the property list is:
+    the list is null. There are three possibilities which must be represented by
+    the CIMPropertyList object because the CIMOperations that use propertyList
+    define functional differences based on these three conditions.
+    The property list is:
 
     <ul>
-	<li>Non-empty (and non-null)</li>
-	<li>Empty (and non-null)</li>
-	<li>Null</li>
+	<li>Non-empty (and non-null) - Operations where some properties are to be
+    returned</li>
+	<li>Empty (and non-null)- Operations where NO properties are to be
+    returned</li>
+	<li>Null - Operations where there is no propertyList filter.</li>
     </ul>
 
     To create a null property list use the default constructor. Otherwise 
@@ -65,14 +69,27 @@ class PEGASUS_COMMON_LINKAGE CIMPropertyList
 public:
 
     /** Default constructor (sets isNull to true).
+	    <pre>
+	    CIMPropertyList pl;
+	    assert(pl.isNull);
+	    </pre>
     */
     CIMPropertyList();
 
     /** Copy constructor.
+	    @param CIMPropertyList object to be copied.
     */
     CIMPropertyList(const CIMPropertyList& x);
 
     /** Constructor. Initializes propertyNames (sets isNull to false).
+	    @param Array of CIMNames with which the propertyList object is
+	    initialized.
+	    <pre>
+			Array<CIMName> n;
+			n.append("name");
+			n.append("type");
+			CIMPropertyList pl(n);
+	    </pre>
     */
     CIMPropertyList(const Array<CIMName>& propertyNames);
 
@@ -80,7 +97,18 @@ public:
     */
     ~CIMPropertyList();
 
-    /** Modifier for propertyNames (sets isNull to false).
+    /** Modifier for propertyNames (sets isNull to false) and
+	    sets the CIMName values in the input array into the
+	    propertyList object.
+	    @param Array of CIMNames
+	    <pre>
+			Array<CIMName> n;
+			n.append("name");
+			n.append("type");
+			CIMPropertyList pl;
+			pl.set(n);
+	        assert pl.size() = 2);
+	    </pre>
     */
     void set(const Array<CIMName>& propertyNames);
 
@@ -93,6 +121,13 @@ public:
     void clear();
 
     /** Returns true if the property list is null.
+	    @return Boolean true if the property list is Null either
+	    because it was created without input or because it
+	    was set Null with the clear() method.
+	    <pre>
+			CIMPropertyList pl;
+			assert(pl.isNull()); 	// Newly created object is Null
+	    </pre>
     */
     Boolean isNull() const;
 
@@ -101,10 +136,26 @@ public:
     Uint32 size() const;
 
     /** Get the property at the given index.
+	    @param index within the propertyList to be retrieved
+	    @return CIMName at the defined location.
+	    @exception out_of_index exception if the index is
+	    outside of the size of the propertyList.
+	<pre>
+		Array<CIMName> n;
+		n.append("name");
+		n.append("type");
+		CIMPropertyList pl;
+	    assert(pl[0] == CIMName("name"));
+	</pre>
     */
     const CIMName& operator[](Uint32 index) const;
 
-    /** Get an array of the property names
+    /** Get an array of the property names.
+	    @return Array of CIMName containing the property names
+	    from the propertyList object.
+	    <pre>
+			Array<CIMName> n = pl.getPropertyNameArray();
+	    </pre>
     */
     Array<CIMName> getPropertyNameArray() const;
 

@@ -70,6 +70,10 @@ public:
         operator).
         @param   scope - a CIMScope object.
         @return  the CIMScope object.
+	    <pre>
+	    CimScope s0;
+	    CIMScope s1(s0);
+	    </pre>
     */
     CIMScope & operator= (const CIMScope & scope);
 
@@ -78,11 +82,23 @@ public:
         @param   scope - a CIMScope object.
         @return  true if every value in the specified CIMScope object is 
                  included in the CIMScope object, false otherwise.
+	    <pre>
+		CIMScope s0;
+		CIMScope s2;
+		s0.addScope (CIMScope::INDICATION);
+	    s3 = s0;
+	    </pre>
     */
     Boolean hasScope (const CIMScope & scope) const;
 
     /** Adds the specified scope value to the CIMScope object.
         @param   scope - a scope value.
+	    <pre>
+		CIMScope s0;
+		s0.addScope (CIMScope::INDICATION);
+		if(s0.hasScope (CIMScope::INDICATION))
+			...				..
+	    </pre>
     */
     void addScope (const CIMScope & scope);
 
@@ -90,6 +106,12 @@ public:
         @param  scope - a CIMScope object.
         @return true if the two CIMScope objects are equal, 
                 false otherwise.
+		<pre>
+		CIMScope s0;
+		s0.addScope (CIMScope::CLASS + CIMScope::PARAMETER);
+		if(s0.hasScope (CIMScope::CLASS))
+			...				..
+		</pre>
     */
     Boolean equal (const CIMScope & scope) const;
 
@@ -97,6 +119,11 @@ public:
         @param  scope - a CIMScope object to add.
         @return A new CIMScope object that represents the combination of this
                 scope object with the specified scope object.
+	    <pre>
+	    CIMScope s0(CIMScope::CLASS);
+	    CIMScope s1(CIMScope::PARAMETER);
+	    CIMScope s3 = s0 + S1;
+	    </pre>
     */
     CIMScope operator+ (const CIMScope & scope) const;
 

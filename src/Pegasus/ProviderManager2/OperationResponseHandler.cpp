@@ -309,6 +309,15 @@ void GetInstanceResponseHandler::deliver(const CIMInstance & cimInstance)
         throw CIMException(CIM_ERR_FAILED, message);
     }
 
+    if(SimpleInstanceResponseHandler::size() != 0)
+    {
+        MessageLoaderParms message(
+            "Server.OperationResponseHandler.TOO_MANY_OBJECTS_DELIVERED",
+            "Too many objects delivered.");
+
+        throw CIMException(CIM_ERR_FAILED, message);
+    }
+
     #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     // The normalizer expects an object path embedded in instances even
     // though it is not required by this operation. Use the requested
@@ -325,6 +334,20 @@ void GetInstanceResponseHandler::deliver(const CIMInstance & cimInstance)
     #else
     SimpleInstanceResponseHandler::deliver(cimInstance);
     #endif
+}
+
+void GetInstanceResponseHandler::complete(void)
+{
+    if(SimpleInstanceResponseHandler::size() != 0)
+    {
+        MessageLoaderParms message(
+            "Server.OperationResponseHandler.TOO_FEW_OBJECTS_DELIVERED",
+            "Too few objects delivered.");
+
+        throw CIMException(CIM_ERR_FAILED, message);
+    }
+
+    SimpleInstanceResponseHandler::complete();
 }
 
 String GetInstanceResponseHandler::getClass(void) const
@@ -510,6 +533,20 @@ void CreateInstanceResponseHandler::deliver(const CIMObjectPath & cimObjectPath)
     }
 
     SimpleObjectPathResponseHandler::deliver(cimObjectPath);
+}
+
+void CreateInstanceResponseHandler::complete(void)
+{
+    if(SimpleObjectPathResponseHandler::size() != 0)
+    {
+        MessageLoaderParms message(
+            "Server.OperationResponseHandler.TOO_FEW_OBJECTS_DELIVERED",
+            "Too few objects delivered.");
+
+        throw CIMException(CIM_ERR_FAILED, message);
+    }
+
+    SimpleObjectPathResponseHandler::complete();
 }
 
 String CreateInstanceResponseHandler::getClass(void) const

@@ -121,7 +121,7 @@ private:
 
 };
 
-class GetInstanceResponseHandler : public OperationResponseHandler, public SimpleInstanceResponseHandler
+class PEGASUS_PPM_LINKAGE GetInstanceResponseHandler : public OperationResponseHandler, public SimpleInstanceResponseHandler
 {
 public:
     GetInstanceResponseHandler(
@@ -129,6 +129,7 @@ public:
         CIMGetInstanceResponseMessage * response);
 
     virtual void deliver(const CIMInstance & cimInstance);
+    virtual void complete(void);
 
 protected:
     virtual String getClass(void) const;
@@ -142,7 +143,7 @@ private:
 
 };
 
-class EnumerateInstancesResponseHandler : public OperationResponseHandler, public SimpleInstanceResponseHandler
+class PEGASUS_PPM_LINKAGE EnumerateInstancesResponseHandler : public OperationResponseHandler, public SimpleInstanceResponseHandler
 {
 public:
     EnumerateInstancesResponseHandler(
@@ -161,7 +162,7 @@ private:
 
 };
 
-class EnumerateInstanceNamesResponseHandler : public OperationResponseHandler, public SimpleObjectPathResponseHandler
+class PEGASUS_PPM_LINKAGE EnumerateInstanceNamesResponseHandler : public OperationResponseHandler, public SimpleObjectPathResponseHandler
 {
 public:
     EnumerateInstanceNamesResponseHandler(
@@ -180,7 +181,7 @@ private:
 
 };
 
-class CreateInstanceResponseHandler : public OperationResponseHandler, public SimpleObjectPathResponseHandler
+class PEGASUS_PPM_LINKAGE CreateInstanceResponseHandler : public OperationResponseHandler, public SimpleObjectPathResponseHandler
 {
 public:
     CreateInstanceResponseHandler(
@@ -188,6 +189,7 @@ public:
         CIMCreateInstanceResponseMessage * response);
 
     virtual void deliver(const CIMObjectPath & cimObjectPath);
+    virtual void complete(void);
 
 protected:
     virtual String getClass(void) const;
@@ -196,7 +198,7 @@ protected:
 
 };
 
-class ModifyInstanceResponseHandler : public OperationResponseHandler, public SimpleResponseHandler
+class PEGASUS_PPM_LINKAGE ModifyInstanceResponseHandler : public OperationResponseHandler, public SimpleResponseHandler
 {
 public:
     ModifyInstanceResponseHandler(
@@ -208,7 +210,7 @@ protected:
 
 };
 
-class DeleteInstanceResponseHandler : public OperationResponseHandler, public SimpleResponseHandler
+class PEGASUS_PPM_LINKAGE DeleteInstanceResponseHandler : public OperationResponseHandler, public SimpleResponseHandler
 {
 public:
     DeleteInstanceResponseHandler(
@@ -220,7 +222,7 @@ protected:
 
 };
 
-class GetPropertyResponseHandler : public OperationResponseHandler, public SimpleValueResponseHandler
+class PEGASUS_PPM_LINKAGE GetPropertyResponseHandler : public OperationResponseHandler, public SimpleValueResponseHandler
 {
 public:
     GetPropertyResponseHandler(
@@ -238,7 +240,7 @@ protected:
 
 };
 
-class SetPropertyResponseHandler : public OperationResponseHandler, public SimpleResponseHandler
+class PEGASUS_PPM_LINKAGE SetPropertyResponseHandler : public OperationResponseHandler, public SimpleResponseHandler
 {
 public:
     SetPropertyResponseHandler(
@@ -250,7 +252,7 @@ protected:
 
 };
 
-class ExecQueryResponseHandler : public OperationResponseHandler, public SimpleInstance2ObjectResponseHandler
+class PEGASUS_PPM_LINKAGE ExecQueryResponseHandler : public OperationResponseHandler, public SimpleInstance2ObjectResponseHandler
 {
 public:
     ExecQueryResponseHandler(
@@ -268,7 +270,7 @@ protected:
 
 };
 
-class AssociatorsResponseHandler : public OperationResponseHandler, public SimpleObjectResponseHandler
+class PEGASUS_PPM_LINKAGE AssociatorsResponseHandler : public OperationResponseHandler, public SimpleObjectResponseHandler
 {
 public:
     AssociatorsResponseHandler(
@@ -284,7 +286,7 @@ protected:
 
 };
 
-class AssociatorNamesResponseHandler : public OperationResponseHandler, public SimpleObjectPathResponseHandler
+class PEGASUS_PPM_LINKAGE AssociatorNamesResponseHandler : public OperationResponseHandler, public SimpleObjectPathResponseHandler
 {
 public:
     AssociatorNamesResponseHandler(
@@ -300,7 +302,7 @@ protected:
 
 };
 
-class ReferencesResponseHandler : public OperationResponseHandler, public SimpleObjectResponseHandler
+class PEGASUS_PPM_LINKAGE ReferencesResponseHandler : public OperationResponseHandler, public SimpleObjectResponseHandler
 {
 public:
     ReferencesResponseHandler(
@@ -316,7 +318,7 @@ protected:
 
 };
 
-class ReferenceNamesResponseHandler : public OperationResponseHandler, public SimpleObjectPathResponseHandler
+class PEGASUS_PPM_LINKAGE ReferenceNamesResponseHandler : public OperationResponseHandler, public SimpleObjectPathResponseHandler
 {
 public:
     ReferenceNamesResponseHandler(
@@ -332,7 +334,7 @@ protected:
 
 };
 
-class InvokeMethodResponseHandler : public OperationResponseHandler, public SimpleMethodResultResponseHandler
+class PEGASUS_PPM_LINKAGE InvokeMethodResponseHandler : public OperationResponseHandler, public SimpleMethodResultResponseHandler
 {
 public:
     InvokeMethodResponseHandler(
@@ -352,7 +354,7 @@ protected:
 
 typedef void (*PEGASUS_INDICATION_CALLBACK)(CIMProcessIndicationRequestMessage*);
 
-class EnableIndicationsResponseHandler : public OperationResponseHandler, public SimpleIndicationResponseHandler
+class PEGASUS_PPM_LINKAGE EnableIndicationsResponseHandler : public OperationResponseHandler, public SimpleIndicationResponseHandler
 {
 public:
     EnableIndicationsResponseHandler(

@@ -418,6 +418,7 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
 
     // get namespace and class name from message
 
+    /*
     ProviderName name(
         String::EMPTY,
         String::EMPTY,
@@ -429,6 +430,7 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
     name = findProvider(name);
 
     // find provider manager for provider interface
+    */
 
     try
     {

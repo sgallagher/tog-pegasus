@@ -93,6 +93,13 @@ int main(int argc, char** argv)
     CIMClient client;
     try
     {
+        if (opts.verboseTest)
+        {
+            cout << "Connecting to " << opts.location
+                 << " for User = " << opts.user 
+                 << " password = " << opts.password
+                 << endl;
+        }
         client.connect(opts.location, opts.user, opts.password);
     }    
     catch(CIMClientException& e)
@@ -206,7 +213,7 @@ int main(int argc, char** argv)
                 
             case ID_GetProperty :
                 {
-                    // KS rewrite all this more organized.
+                    // KS rewrite all this more organized.  The Get
                     if (argc != 4)
                     {
                         cout << "Usage: cli getproperty instancename propertyname" << endl;

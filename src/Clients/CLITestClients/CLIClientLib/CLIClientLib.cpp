@@ -460,7 +460,7 @@ void GetOptions(
         
         {"Password", "unknown", false, Option::STRING, 0, 0, "p",
                                         "Defines password for authentication" },
-        {"authenticate", "unknown", false, Option::BOOLEAN, 0, 0, "a",
+        {"authenticate", "false" , false, Option::BOOLEAN, 0, 0, "a",
                                         "Defines whether user authentication is used" },
         
         
@@ -477,7 +477,7 @@ void GetOptions(
         {"location", "localhost:5988", false, Option::STRING, 0, 0, "l",
                                         "specifies system and port" },
         
-        {"namespace", "root/cimv2", false, Option::STRING, 0, 0, "-n",
+        {"namespace", "root/cimv2", false, Option::STRING, 0, 0, "n",
                                         "specifies namespace to use for operation" },
         
         // KS change the output formats to use the enum options function
@@ -500,8 +500,13 @@ void GetOptions(
         {"propertyName", "unknown", false, Option::STRING, 0, 0, "-l",
                                         "If set does deep enum "},
         
-        {"version", "false", false, Option::BOOLEAN, 0, 0, "v",
+        {"version", "false", false, Option::BOOLEAN, 0, 0, "-v",
                                         "Displays software Version "},
+        
+        {"verbose", "false", false, Option::BOOLEAN, 0, 0, "v",
+                                        "Displays software Version "},
+        
+        
         {"summary", "false", false, Option::BOOLEAN, 0, 0, "-s",
                                         "Displays only summary count for enums "},
 
@@ -630,6 +635,10 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     }
     
     Boolean authenticate = (om.isTrue("authenticate"));
+    {
+        if (verboseTest)
+            cout << "authenticate = " << (authenticate? "true": "false") << endl;
+    }
                          
     // Don't get user and password if not authenticating.
     if (authenticate)
@@ -640,7 +649,7 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
                  cout << "User = " << opts.user << endl;
          }
          
-         if(om.lookupValue("password", opts.password))
+         if(om.lookupValue("Password", opts.password))
          {
              if (verboseTest)
                  cout << "Password = " << opts.password << endl;

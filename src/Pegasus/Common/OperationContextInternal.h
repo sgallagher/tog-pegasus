@@ -77,7 +77,7 @@ public:
 
     ProviderIdContainer(const OperationContext::Container & container);
     ProviderIdContainer(const CIMInstance & module, const CIMInstance & provider,
-        Boolean remoteNameSpace = false, const String & remoteInfo = String::EMPTY);
+        Boolean isRemoteNameSpace = false, const String & remoteInfo = String::EMPTY);
     virtual ~ProviderIdContainer(void);
 
     ProviderIdContainer & operator=(const ProviderIdContainer & container);

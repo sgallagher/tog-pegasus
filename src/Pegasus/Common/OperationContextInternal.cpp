@@ -117,7 +117,7 @@ ProviderIdContainer::ProviderIdContainer(const OperationContext::Container & con
 ProviderIdContainer::ProviderIdContainer(
     const CIMInstance & module,
     const CIMInstance & provider,
-    Boolean remoteNameSpace,
+    Boolean isRemoteNameSpace,
     const String & remoteInfo)
     : _module(module),
     _provider(provider),

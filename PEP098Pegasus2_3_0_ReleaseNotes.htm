@@ -1,0 +1,4301 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="en-us">
+<meta name="GENERATOR" content="Microsoft FrontPage 5.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>PEP</title>
+<link rel="stylesheet" href="http://www.opengroup.org/stylesheets/info1.css">
+</head>
+
+<body>
+
+<hr>
+
+<p align="center"><b><font size="4">Pegasus Enhancement Proposal (PEP)</font></b></p>
+<p><b>PEP #:</b> 098</p>
+<p><b>Title: </b>Release Notes Pegasus 2.3</p>
+<p><b>Version: </b>1.1</p>
+<p><b>Created:</b> 10 October 2003</p>
+<p><b>Authors: </b>Karl Schopmeyer</p>
+<p><b>Status:&nbsp; </b>Approved</p>
+<p>&nbsp;</p>
+<p><b>Version History:</b></p>
+<table border="1" cellspacing="1" bordercolordark="#666666"
+    bordercolorlight="#CCCCCC" width=100%
+    style='font-size=10.0pt;font-family:Arial'>
+  <tr>
+    <th bgcolor="#CAE6CA">Version</th>
+    <th bgcolor="#CAE6CA">Date</th>
+    <th bgcolor="#CAE6CA">Author</th>
+    <th bgcolor="#CAE6CA">Change Description</th>
+  </tr>
+  <tr>
+    <td align="center">1.0</td>
+    <td align="center">10 October 2003</td>
+    <td align="center">&nbsp;</td>
+    <td>Initial Submission</td>
+  </tr>
+  <tr>
+    <td align="center">1.1</td>
+    <td align="center">31 October 2003</td>
+    <td align="center">K. Schopmeyer</td>
+    <td>Update to integrate comments and complete table of PEPs</td>
+  </tr>
+  <tr>
+    <td align="center">1.2</td>
+    <td align="center">19 November 2003</td>
+    <td align="center">K. Schopmeyer</td>
+    <td>Update to reflect comments from review Nov 2003. Approved with comments</td>
+  </tr>
+ </table>
+<p>&nbsp;</p>
+<hr>
+<p><b>Abstract:</b> This document defines the release notes that support release 
+2.3.0 of the Pegasus platform</p>
+<hr>
+<p>&nbsp;</p>
+
+<h2><font color="#000000">Availability of the Release</font></h2>
+<p>The Pegasus 2.3 release is available as a source release in both ZIP and TAR 
+formats. The release can be downloaded from the OpenPegaus Web site at 
+www.openpegasus.org.<br>
+<br>
+In addition, the release is available through Pegasus CVS as the branch tag 
+RELEASE_2_3_0-branch. This defines the current released version of Pegasus 2.3 . 
+In addition, the following tags exist for the release. RELEASE_2_3_0-root which 
+defines the initial release point of Pegasus 2.3 and the point at which it 
+branched from the trunk.. Other tags may exist to mark release candidate 
+snapshots, etc. These will be announced on the web site and the Pegasus mailing 
+list.<br>
+<br>
+The instructions for acquiring the released code are on the WEB site. 
+Installation instructions are part of the readme in the root of the source tree.<br>
+<br>
+The OpenPegasus project is currently not providing binary releases. However, 
+binary releases may be available of selected ports and are documented on the 
+OpenPegasus web site.<br>
+<br>
+There may be point releases to the Pegasus 2.3 release and these will be 
+announced on the Pegasus web site.</p>
+<p>&nbsp;</p>
+<h2><font color="#000000">Functionality of This Release</font></h2>
+<p>The overall level of functionality in the Pegasus environment effective with 
+this release is as follows:</p>
+<p><b>CIM Server</b></p>
+<blockquote>
+<p><b>CIM Operations over HTTP</b></p>
+  <ol>
+    <li>&nbsp;&nbsp;&nbsp; Class Operations (getClass, deleteClass, modifyClass, enumerateClass, 
+    enuerateClassNames) - 
+    Operational</li>
+    <li>&nbsp;&nbsp;&nbsp; Qualifier Operations - Operational</li>
+    <li>&nbsp;&nbsp;&nbsp; Instance Operations (getInstance, deleteInstance, modifyInstance, enumerateInstance, 
+    enumerateInstanceNames, getProperty, setProperty) 
+    - Operational</li>
+    <li>&nbsp;&nbsp;&nbsp; Association Operations (references, referencenames, 
+    associators, associatornames - Operational </li>
+    <li>&nbsp;&nbsp;&nbsp; Methods- Operational</li>
+    <li>&nbsp;&nbsp;&nbsp; Query operation (Not Operational)</li>
+  </ol>
+<p><b>Indications</b> </p>
+<p>Process indications are operational in the Server.&nbsp; This includes 
+support for subscriptions, filters, and indication handlers, the provider API 
+for indications and the CIMXML indication handler. The Pegasus 
+sever can be used as an Indication client.&nbsp; The Client indication&nbsp; API support is complete but the interfaces are marked experimental for version 2.3 
+because this is the first version of Pegasus in which these APIs were available.  </p>
+<p><b>Query Language</b></p>
+<p>The query language today is based on WQL and is implemented and used for 
+filters.&nbsp; However, the executeQuery operation has not been implemented 
+pending the availability of a standard DMTF Query language.</p>
+<p><b>Class Repository</b></p>
+<p>XML based file/directory Class repository.</p>
+<p><b>Instance Repository</b></p>
+<p>XML based file/directory Instance repository.&nbsp; 
+The instance repository is used as the default repository unless a flag is set 
+disabling this repository for client operations.</p>
+<p><b>Security</b></p>
+  <ol>
+    <li>Basic Security (Note that Digest based security is not implemented)</li>
+    <li>SSL support - SSL is implemented in Pegasus using the OpenSSL libraries. 
+    Pegasus does not provide the OpenSSL libraries but SSL can be used on any 
+    platform supported by OpenSSL.</li>
+  </ol>
+<p><b>Platform Management Functions</b></p>
+  <ol>
+    <li>Configuration through the defined configuration parameters.</li>
+    <li>Daemon operation on all supported platforms</li>
+    <li>User management utilities</li>
+    <li>Provider management. The CIM Server provides dynamic registration of 
+    providers and automatic load and unload functionality.</li>
+  </ol>
+<p><b>SLP Discovery</b></p>
+<p>SLP support is enabled in the platform but is conditionally compiled with the 
+default to not compile it today pending further testing.</p>
+</blockquote>
+<p><b>&nbsp;Providers</b></p>
+<p>&nbsp;There are a number of standard providers available in Pegasus release. This 
+includes providers in the following categories:</p>
+<blockquote>
+<p><b>Internal Providers</b></p>
+<ul>
+  <li>__Namespace provider - Serves the __Namespace class to allow manipulation of 
+namespaces.</li>
+  <li>Subscription Classes Providers - These provide subscription, filter, and 
+  indication handler processing.</li>
+  <li>Provider registration Providers - This provide registration of providers 
+  using the PG_Provider classes.</li>
+  <li>ConfigProvider - Manages Pegasus configuraton information.</li>
+  <li>UserAuthProvider - Manages password, etc.</li>
+  <li>ShutdownProvider - Provides support for Pegasus shutdown.</li>
+  <li>Interop Provider - Supports many of the DMTF Interop Schema Classes 
+  including CIM_Namespace, CIM_ObjectManager, etc. (Note that this provider is 
+  part of the SLP work package so is not compiled as part of the default 
+  compile)</li>
+</ul>
+<p><b>Generic Providers</b></p>
+<p>Generic OperatingSystem provider. See the directory src/Providers/generic.</p>
+<p><b>Test/Sample Providers</b></p>
+<p>See the directories src/Providers/TestProviders and src/Sample 
+for more information about test and sample providers.</p>
+<p><b>Managed System Providers</b></p>
+<p>ComputerSystem, DNSAdmin, DNSService, Operating System, Process, Processor. 
+For more information on these providers see the documentation for each provider 
+in the directory src/Providers/ManagedSystem</p>
+<p><b>CIMOM Statistics Providers</b></p>
+<p>IBMStatisticalData - This is an early version of the work 
+that became CIM_StatisticalData. It is similar to CIM_StatisticalData and 
+provides the same data but the structure of the Classes is slightly different. </p>
+</blockquote>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Linux Specific Providers</b></p>
+<blockquote>
+<p>There are a number of providers in this category including DiskDrive, 
+CDROMDrive, Interrupt, IOPOrt, IPROute, NetworkAdapter, Operating System, PCI 
+Controller, Processor, ProviderData, ProviderSupport, SoftwareElement.&nbsp; For 
+more information about these providers see the documentation in the directory 
+src/Providers/linux</p>
+</blockquote>
+<p><b>CIM_Schema</b></p>
+<p>The default CIM_Schema loaded with the Pegasus 2.2 release is the DMTF CIM 
+2.7 Final release.&nbsp; In addition, Pegasus includes a number of local classes 
+defined for Pegasus.&nbsp; These are visible in the Schemas directory.</p>
+<p><b>Pegasus MOF Compiler</b></p>
+<p>Pegasus implements a MOF compiler that can operate either at the client 
+interface (cimmof) or directly interfacing with a CIM repository (cimmofl).</p>
+<p>The direct interface compiler is used primarily to provide an initial 
+class/instance repository. Note that use of cimmofl to manipulate instances in the repository bypasses 
+any provider that is registered to serve the instances and simply installs the 
+instances in the instance repository; this may result in corruption if providers 
+are using the repository.&nbsp; Use of cimmofl to manipulate instances served by 
+a registered providers is therefore discouraged. Use of cimmof rather that 
+cimmofl is encouraged.</p>
+<p><b>Client Tools</b></p>
+<p>&nbsp;&nbsp;&nbsp; <b>Pegasus CIM Server Adminstration</b></p>
+<ol>
+  <li>cimuser - Manage Pegasus CIM server Users</li>
+  <li>cimconfig - Manage the Pegasus CIM Server configuration parameters</li>
+  <li>cimauth - Manage the CIM Server authorization characteristics. Today this 
+  is authorizing users to namespaces.</li>
+  <li>cimprovider - Manage information about the providers.</li>
+</ol>
+<p>&nbsp;&nbsp;&nbsp; <b>Information client tools</b></p>
+<p><b>&nbsp;</b>&nbsp; These tools provide information on the objects managed by 
+the server.</p>
+<ol>
+  <li>tomof - output Classes and/or instance information in MOF or XML format.</li>
+  <li>dnsinfo - </li>
+  <li>ipinfo - Generates a set of standard information from the Network Schema.&nbsp; 
+  Information generated varies by system because of the level of provider 
+  support.</li>
+  <li>osinfo - Generate a set of standard information on the Operating System 
+  from CIM Classes. Note that the information generated is dependent on the 
+  information available from providers and differes from system to system</li>
+</ol>
+<p>&nbsp;<b>&nbsp;&nbsp;&nbsp; Test support Tools</b></p>
+<ol>
+  <li>Pegasus Unit tests (available through the &quot;tests&quot; option on the Pegasus 
+  make files&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </li>
+  <li>The Pegasus Test Suite (see the tests directory and the Pegasus/TestBuildMakeFile)</li>
+  <li>TestClient - Basic client for overall platform operation testing. </li>
+  <li>CGICLient - This client has not been completely update to version 2.2.</li>
+  <li>wbemexec - Test tool that sends/receives XML from XML input.</li>
+  <li>CLI - Command line interface for Client commands.</li>
+  <li>Benchmark Test - Introduced with Pegasus 2.3, a benchmark test environment 
+  is not provided which includes both a client and provider component. See src/clients/benchmarkTest 
+  for more information.</li>
+</ol>
+<p><b>Pegasus Interface APIs</b></p>
+<p>Details of the Pegasus public interfaces for release 2.3 is listed in PEP 96 
+available from the web site(www.openpegasus.org). This document is the 
+authorative source for the list of publicly supported Pegasus APIs.&nbsp;&nbsp; The Client and Provider API 
+were originally frozen at the&nbsp; Pegasus version 2.1 release. The interfaces 
+in the release of Pegasus 2.1 are forward compatible to release 2.3 (clients and 
+providers compiled to the Pegasus 2.1 or 2.2 interfaces should be compatible 
+with Pegasus 2.3 without compilation)&nbsp; but there 
+have been extensions and new interfaces added for release 2.3 &nbsp; The public interfaces includes the following major 
+functions</p>
+<ol>
+  <li>Client APIs</li>
+  <li>Provider APIs</li>
+  <li>CIM Objects</li>
+  <li>CIM Listener (experimental for Pegasus 2.3). These are compiled only if 
+  the PEGASUS_USE_EXPERIMENTAL_INTERFACES flag is set.</li>
+  <li>SLP Client (experimental for Pegasus 2.3). These are compiled only if the 
+  PEGASUS_USE_EXPERIMENTAL_INTERFACES flag is set.</li>
+</ol>
+<p>The functions are documented in their respective header files and HTML 
+documentation based on the information in the header files extracted with the 
+doc++ tool will be available on the OpenPegasus web site.</p>
+<p><b>WMI Mapper</b></p>
+<p>A version of of the Pegasus platform that specifically communicates with 
+Microsoft WMI implementations and interfaces with WMI object is provided as a 
+separately compilable code set in the CVS.</p>
+<h2>Supported Platforms</h2>
+<p>Each Pegasus release lists as supported platforms those hardware/software 
+platforms that have recognized ports for the Pegasus code base including a 
+maintainer for the platform that will be willing to regularly assure that the 
+port is maintained as the Pegasus code base is changed.&nbsp; Pegasus may be 
+operable on other platforms (ex. Windows 98) but without a group to provide the 
+role of test and maintenance, the Pegasus project cannot assure operation. The 
+supported platforms for current release are:</p>
+<table border="1" cellspacing="1" id="AutoNumber2" width="403">
+  <tr>
+    <td width="169" bgcolor="#99FF99"><b>Platform and OS</b></td>
+    <td width="231" bgcolor="#99FF99"><b>Compilers</b></td>
+  </tr>
+  <tr>
+    <td width="169">AIX 5.2</td>
+    <td width="231">VisualAge C++ Version 5.0.2.3</td>
+  </tr>
+  <tr>
+    <td width="169">HP-UX</td>
+    <td width="231">HP aC++ B3910B</td>
+  </tr>
+  <tr>
+    <td width="169">Linux Itanium</td>
+    <td width="231">gcc</td>
+  </tr>
+  <tr>
+    <td width="169">Linux IA-32</td>
+    <td width="231">gcc (versions 2.9x and 3.xx)</td>
+  </tr>
+  <tr>
+    <td width="169">Windows 2000</td>
+    <td width="231">Microsoft Visual C++ Ver 6 and Microsoft .Net compiler 
+    Version V7 and 7.1</td>
+  </tr>
+  <tr>
+    <td width="169">Windows XP</td>
+    <td width="231">Microsoft Visual C++ Ver. 6 and Microsoft .Net compiler 
+    Version V7 and 7.1</td>
+  </tr>
+  </table>
+<p>&nbsp;</p>
+<p>Further information regarding Pegasus support on IBM platforms can be found 
+at: 
+<a href="http://publib.boulder.ibm.com/eserver/v1r1/en_US/info/ciminf%20o/eicahkickoff.htm">http://publib.boulder.ibm.com/eserver/v1r1/en_US/info/ciminf o/eicahkickoff.htm</a>. 
+This site is expected to have information available starting in December.</p>
+<p>Further information regarding Pegasus support on HP platforms can be found 
+at: <a href="http://www.hp.com/large/infrastructure/management/wbem/">http://www.hp.com/large/infrastructure/management/wbem/</a>.</p>
+<h2>Conformance with DMTF Specifications</h2>
+<p>Pegasus tries to conform to the CIM specifications.&nbsp; It is a 
+major goal of the OpenPegasus project to both drive and utilize the 
+DMTF CIM/WBEM specifications.&nbsp; However, today there are a number of differences.&nbsp; As 
+of Pegasus 2.3, some of the differences include the following:</p>
+<p>1. Provider Registration - Pegasus supports registration through a set of 
+Provider registration classes&nbsp; similar to the CIM Classes defined as 
+experimental in the CIM 2.8 preliminary Schema release and does not support the Provider Qualifier. 
+Note that there are  differences that must still be worked out 
+between the Pegasus PG provider registration classes and the CIM classes as part of the 
+move to release of the CIM classes.</p>
+<p>2. Indications -Pegasus supports process indications but does not 
+include any specific support for lifecycle indications.</p>
+<p>3. Interop Schema - Today Pegasus provides alternatives to some of the classes in the Interop 
+Schema including CIM_StatisticalData.</p>
+<p>4. execQuery operaiton - Today Pegasus does not support the execQuery pending the availability of a 
+standard for the query language.</p>
+<p>5. Pegasus differs from some other implementations in the delivery of 
+instance and class qualifiers on some operations.</p>
+<p>6. Pegasus has not implemented the alias functions defined in the CIM 
+specification in the MOF compiler.</p>
+<h2>Changes in this Release</h2>
+<p>The development and release of each version of Pegasus is defined and 
+controlled through Pegasus PEP documents.&nbsp; PEP 57 is the controlling 
+document this release and lists the original set of changes proposed and the status of 
+each of those changes. Note that not all of the originally defined functionality 
+was completed for this release.</p>
+<p>In general, the changes implemented for this release were:</p>
+<ol>
+  <li>Introduction of platform globalization. </li>
+  <li>Introduction of a listener API</li>
+  <li>Introduction of SLP (still experimental and by default not compiled in the 
+  2.3.0 release)</li>
+  <li>Introduction of a new pluggable Provider Manager (still experimental and by default 
+  not compiled in the 2.3.0 release)</li>
+  <li>Introduction of extensive changes to the HTTP monitor (still experimental and 
+  not compiled in the 2.3.0 release)</li>
+  <li>Incorporation of a Java Client based on the SNIA code base.</li>
+  <li>Additional Indication Handlers (SNMP)</li>
+  <li>Improvements to indication handling.</li>
+</ol>
+<p>Note that there were a number of objectives that were not completely achieved 
+including:</p>
+<ol>
+  <li>SLP integration - This code is in place but is compiled only with a 
+  conditional compile flag. This code can be enabled by setting the environment 
+  variables PEGASUS_SLP_ENABLE and PEGASUS_SLP_CLASSES and recompiling Pegasus.</li>
+  <li>Pluggable provider manager - This was a major objective but because the 
+  code changes were extensive and released very late in the developement cycle 
+  of 2.3, both the old and the new provider managers are maintained in the 
+  release AND the old provider manager is defined as the default compile.&nbsp; 
+  To compile and run with the new pluggable provider manager functions the user 
+  must set a compile flag (ENABLE_PROVIDER_MANAGER2).&nbsp; NOTE: It is the intention of the Pegasus project to move to 
+  the new provider manager as soon as possible.</li>
+  <li>HTTP Monitor enhancements - As with the Pluggable Provider Manager, it was 
+  the intention to incorporate a number of enhancements to the HTTP monitor.&nbsp; 
+  Again because the time in the development phase when they were submitted, the 
+  project team elected to release 2.3 with the existing monitor as the default 
+  compile but with the code for both monitors. It is the intention to move to 
+  the new monitor as soon as possible and users are free to work with either 
+  implementation.&nbsp; To compile and run with the new monitor use the flag 
+  PEGASUS_MONITOR2.</li>
+</ol>
+<p>The set of PEPs defined for this release is summarized below along with the 
+final implementation status because not all of the PEPs originally defined for 
+this version were implemented:</p>
+<table border="1" cellspacing="1" width="100%" id="AutoNumber3" height="203">
+  <tr>
+    <td width="25%" bgcolor="#00CC99" height="18"><b>PEP #</b></td>
+    <td width="25%" bgcolor="#00CC99" height="18"><b>PEP Description</b></td>
+    <td width="25%" bgcolor="#00CC99" height="18"><b>Status</b></td>
+    <td width="25%" bgcolor="#00CC99" height="18"><b>Comments</b></td>
+  </tr>
+  <tr>
+    <td width="25%" height="18">56</td>
+    <td width="25%" height="18">Unicode Support in Infrastructure</td>
+    <td width="25%" height="18">Implemented</td>
+    <td width="25%" height="18"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="18">58</td>
+    <td width="25%" height="18">Unicode Support in Infrastructure</td>
+    <td width="25%" height="18">Implemented</td>
+    <td width="25%" height="18"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="18">68</td>
+    <td width="25%" height="18">Provider Manager Interface - Multiple provider 
+    support</td>
+    <td width="25%" height="18">Implemented - but requires compile flag to 
+    integrate.</td>
+    <td width="25%" height="18"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="18">84</td>
+    <td width="25%" height="18">Provider Manager Interface, Pluggable provider 
+    manager configuration</td>
+    <td width="25%" height="18">Implemented - see above.</td>
+    <td width="25%" height="18"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="18">86</td>
+    <td width="25%" height="18">Provider Manager Interface, pluggable provider 
+    manager.</td>
+    <td width="25%" height="18">Implemented - see above.</td>
+    <td width="25%" height="18"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="18">60</td>
+    <td width="25%" height="18">Secure connections between CIM Listener and CIM 
+    server</td>
+    <td width="25%" height="18">Implemented</td>
+    <td width="25%" height="18"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="18">62</td>
+    <td width="25%" height="18">SNMP Mapper Indication Handler</td>
+    <td width="25%" height="18">Implemented</td>
+    <td width="25%" height="18"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="18">67</td>
+    <td width="25%" height="18">Indication Consumer registration</td>
+    <td width="25%" height="18"></td>
+    <td width="25%" height="18"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="18">76</td>
+    <td width="25%" height="18">CIM Listener Client API, Libraries, SDK</td>
+    <td width="25%" height="18">Implemented - Experimental</td>
+    <td width="25%" height="18"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">75</td>
+    <td width="25%" height="14">Indication Subscription Performance Enhancements</td>
+    <td width="25%" height="14">Implemented</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">30</td>
+    <td width="25%" height="14">SLP support</td>
+    <td width="25%" height="14">Implemented - Optional compile</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">52</td>
+    <td width="25%" height="14">Interop Schema provider support</td>
+    <td width="25%" height="14">Implemented - Optional compile</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">80</td>
+    <td width="25%" height="14">Change to use CIM_Statistics rather than IBM 
+    Statistics class for Interop statistics</td>
+    <td width="25%" height="14">Delayed for future work</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">64</td>
+    <td width="25%" height="14">Java implementation of CIM Client and Listener 
+    Interface</td>
+    <td width="25%" height="14">Included in Pegasus based SNIA OpenCimom Java 
+    Classes.</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">65</td>
+    <td width="25%" height="14">Benchmark test utility</td>
+    <td width="25%" height="14">Implemented</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">74</td>
+    <td width="25%" height="14">SSL certificate verification callback 
+    enhancement</td>
+    <td width="25%" height="14">Implemented</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">78</td>
+    <td width="25%" height="14">WMI mapper changes on authentication process</td>
+    <td width="25%" height="14">Implemented</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">73</td>
+    <td width="25%" height="14">Support CIM Schema 2.8 preliminary</td>
+    <td width="25%" height="14">&nbsp;CIM 2.7 is the default tested schema but 
+    the code was added to support 2.8 preliminary specifically becasue of 
+    requirements from SNIA.</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">79</td>
+    <td width="25%" height="14">WMI Mapper - local connection enhancements</td>
+    <td width="25%" height="14"></td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">77</td>
+    <td width="25%" height="14">Default instance provider</td>
+    <td width="25%" height="14">Implemented</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">88</td>
+    <td width="25%" height="14">Monitor Optimization</td>
+    <td width="25%" height="14">Implemented but with compile flag. Default is 
+    old monitor</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">85</td>
+    <td width="25%" height="14">Configuration Property Table Enhancement</td>
+    <td width="25%" height="14">Implemented</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">90</td>
+    <td width="25%" height="14">Add IO trace diagnostics to CIMClient</td>
+    <td width="25%" height="14">Implemented</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">54</td>
+    <td width="25%" height="14">Statistical data change to use CIM classes</td>
+    <td width="25%" height="14">Deferred</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">81/82</td>
+    <td width="25%" height="14">Enhance operations performance</td>
+    <td width="25%" height="14">Deferred</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">71</td>
+    <td width="25%" height="14">Security Plugin Enablement</td>
+    <td width="25%" height="14">deferred</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">69</td>
+    <td width="25%" height="14">Kerberos Based Security</td>
+    <td width="25%" height="14">TBD</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">70</td>
+    <td width="25%" height="14">Kerberos Based Security proposal to DMTF</td>
+    <td width="25%" height="14">Deferred because of problems with Kerberos 
+    Specifications</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">72</td>
+    <td width="25%" height="14">Out of Process Providers</td>
+    <td width="25%" height="14">Deferred</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">30</td>
+    <td width="25%" height="14">SLP support</td>
+    <td width="25%" height="14">Implemente but not compiled by default</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">52</td>
+    <td width="25%" height="14">Interop Classes Support</td>
+    <td width="25%" height="14">Implemented but not compiled by default</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14">89</td>
+    <td width="25%" height="14">SLP Client Integration</td>
+    <td width="25%" height="14">Implemented but not compiled by default</td>
+    <td width="25%" height="14"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="14"></td>
+    <td width="25%" height="14"></td>
+    <td width="25%" height="14"></td>
+    <td width="25%" height="14"></td>
+  </tr>
+</table>
+<h2><font color="#000000">List of Bugs Corrected</font></h2>
+<p>The current bug list for Pegasus is openly available on the OpenPegasus web 
+site.&nbsp; As of the release of 2.3.0, the open bug list was as follows:</p>
+<p>&nbsp;</p>
+<p>138 bugs found.
+
+
+
+
+
+
+
+
+
+
+
+<!-- 1.0@bugzilla.org -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  </p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <table class="bz_buglist" cellspacing="0" cellpadding="4" width="1344">
+    <colgroup>
+      <col class="bz_id_column">
+      <col class="bz_severity_column">
+      <col class="bz_priority_column">
+      <col class="bz_platform_column">
+      <col class="bz_owner_column">
+      <col class="bz_status_column">
+      <col class="bz_resolution_column">
+      <col class="bz_summary_column">
+    </colgroup>
+
+    <tr align="left">
+      <th colspan="1" width="30">
+        <a href="file:///E:/DownloadsMay2002/buglist.cgi?short_desc_type=allwordssubstr&short_desc=&product=Pegasus+CLI+Commands&product=PegasusCIMOM&product=PegasusClient&product=PegasusCompiler&product=PegasusGeneral&product=PegasusJavaCIMClient&product=PegasusProvider&long_desc_type=allwordssubstr&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&status_whiteboard_type=allwordssubstr&status_whiteboard=&keywords_type=allwords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&bug_status=VERIFIED&emailtype1=notregexp&email1=&emailtype2=substring&email2=&bugidtype=exclude&bug_id=&votes=&changedin=&chfieldfrom=&chfieldto=Now&chfieldvalue=&newqueryname=&field0-0-0=noop&type0-0-0=noop&value0-0-0=&order=bugs.bug_id">ID</a>
+      </th>
+
+<th colspan="1" width="31">
+    <a href="file:///E:/DownloadsMay2002/buglist.cgi?short_desc_type=allwordssubstr&short_desc=&product=Pegasus+CLI+Commands&product=PegasusCIMOM&product=PegasusClient&product=PegasusCompiler&product=PegasusGeneral&product=PegasusJavaCIMClient&product=PegasusProvider&long_desc_type=allwordssubstr&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&status_whiteboard_type=allwordssubstr&status_whiteboard=&keywords_type=allwords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&bug_status=VERIFIED&emailtype1=notregexp&email1=&emailtype2=substring&email2=&bugidtype=exclude&bug_id=&votes=&changedin=&chfieldfrom=&chfieldto=Now&chfieldvalue=&newqueryname=&field0-0-0=noop&type0-0-0=noop&value0-0-0=&order=bugs.bug_severity,bugs.bug_id">Sev</a>
+  </th><th colspan="1" width="22">
+    <a href="file:///E:/DownloadsMay2002/buglist.cgi?short_desc_type=allwordssubstr&short_desc=&product=Pegasus+CLI+Commands&product=PegasusCIMOM&product=PegasusClient&product=PegasusCompiler&product=PegasusGeneral&product=PegasusJavaCIMClient&product=PegasusProvider&long_desc_type=allwordssubstr&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&status_whiteboard_type=allwordssubstr&status_whiteboard=&keywords_type=allwords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&bug_status=VERIFIED&emailtype1=notregexp&email1=&emailtype2=substring&email2=&bugidtype=exclude&bug_id=&votes=&changedin=&chfieldfrom=&chfieldto=Now&chfieldvalue=&newqueryname=&field0-0-0=noop&type0-0-0=noop&value0-0-0=&order=bugs.priority,bugs.bug_id">Pri</a>
+  </th><th colspan="1" width="27">
+    <a href="file:///E:/DownloadsMay2002/buglist.cgi?short_desc_type=allwordssubstr&short_desc=&product=Pegasus+CLI+Commands&product=PegasusCIMOM&product=PegasusClient&product=PegasusCompiler&product=PegasusGeneral&product=PegasusJavaCIMClient&product=PegasusProvider&long_desc_type=allwordssubstr&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&status_whiteboard_type=allwordssubstr&status_whiteboard=&keywords_type=allwords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&bug_status=VERIFIED&emailtype1=notregexp&email1=&emailtype2=substring&email2=&bugidtype=exclude&bug_id=&votes=&changedin=&chfieldfrom=&chfieldto=Now&chfieldvalue=&newqueryname=&field0-0-0=noop&type0-0-0=noop&value0-0-0=&order=bugs.rep_platform,bugs.bug_id">Plt</a>
+  </th><th colspan="1" width="113">
+    <a href="file:///E:/DownloadsMay2002/buglist.cgi?short_desc_type=allwordssubstr&short_desc=&product=Pegasus+CLI+Commands&product=PegasusCIMOM&product=PegasusClient&product=PegasusCompiler&product=PegasusGeneral&product=PegasusJavaCIMClient&product=PegasusProvider&long_desc_type=allwordssubstr&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&status_whiteboard_type=allwordssubstr&status_whiteboard=&keywords_type=allwords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&bug_status=VERIFIED&emailtype1=notregexp&email1=&emailtype2=substring&email2=&bugidtype=exclude&bug_id=&votes=&changedin=&chfieldfrom=&chfieldto=Now&chfieldvalue=&newqueryname=&field0-0-0=noop&type0-0-0=noop&value0-0-0=&order=bugs.bug_status,bugs.bug_id">State</a>
+  </th><th colspan="1" width="1">
+    <a href="file:///E:/DownloadsMay2002/buglist.cgi?short_desc_type=allwordssubstr&short_desc=&product=Pegasus+CLI+Commands&product=PegasusCIMOM&product=PegasusClient&product=PegasusCompiler&product=PegasusGeneral&product=PegasusJavaCIMClient&product=PegasusProvider&long_desc_type=allwordssubstr&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&status_whiteboard_type=allwordssubstr&status_whiteboard=&keywords_type=allwords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&bug_status=VERIFIED&emailtype1=notregexp&email1=&emailtype2=substring&email2=&bugidtype=exclude&bug_id=&votes=&changedin=&chfieldfrom=&chfieldto=Now&chfieldvalue=&newqueryname=&field0-0-0=noop&type0-0-0=noop&value0-0-0=&order=bugs.resolution,bugs.bug_id">Result</a>
+  </th><th colspan="1" width="957">
+    <a href="file:///E:/DownloadsMay2002/buglist.cgi?short_desc_type=allwordssubstr&short_desc=&product=Pegasus+CLI+Commands&product=PegasusCIMOM&product=PegasusClient&product=PegasusCompiler&product=PegasusGeneral&product=PegasusJavaCIMClient&product=PegasusProvider&long_desc_type=allwordssubstr&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&status_whiteboard_type=allwordssubstr&status_whiteboard=&keywords_type=allwords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&bug_status=VERIFIED&emailtype1=notregexp&email1=&emailtype2=substring&email2=&bugidtype=exclude&bug_id=&votes=&changedin=&chfieldfrom=&chfieldto=Now&chfieldvalue=&newqueryname=&field0-0-0=noop&type0-0-0=noop&value0-0-0=&order=bugs.short_desc,bugs.bug_id">Summary</a>
+  </th>
+
+
+    </tr>
+
+  <tr class="bz_minor bz_P4 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=3">3</a>
+    </td>
+
+    <td width="31"><nobr>min</nobr>
+    </td>
+    <td width="22"><nobr>P4</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Weak association qualifier check missed
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=42">42</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Windows OS provider doesn't fill in CSName and Name keys
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_enhancement bz_P5 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=68">68</a>
+    </td>
+
+    <td width="31"><nobr>enh</nobr>
+    </td>
+    <td width="22"><nobr>P5</nobr>
+    </td>
+    <td width="27"><nobr>HP</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">cimom allows providers to deliver invalid properties
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_enhancement bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=70">70</a>
+    </td>
+
+    <td width="31"><nobr>enh</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>HP</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Client API should support socks
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_minor bz_P4 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=71">71</a>
+    </td>
+
+    <td width="31"><nobr>min</nobr>
+    </td>
+    <td width="22"><nobr>P4</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Statistics MOF included in ManagedSystem Schema
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_enhancement bz_P5 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=85">85</a>
+    </td>
+
+    <td width="31"><nobr>enh</nobr>
+    </td>
+    <td width="22"><nobr>P5</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Need a way to manage currently executing requests
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_major bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=89">89</a>
+    </td>
+
+    <td width="31"><nobr>maj</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">HTTPConnection must return 413 response on oversized requ...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P1 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=90">90</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P1</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Deep Inheritance and Local Only Flags Do Not Work
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=120">120</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">CIMClassRep::addProperty() sets ClassOrigin incorrectly.
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=126">126</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">CIMDateTime::getDifference returns incorrect result for s...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=133">133</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>Oth</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Pegasus compiler converts Schema Qualifer decl to CLASS
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=141">141</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">ObjectPath MalformedObjectPath exceptions leak back throu...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=144">144</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>HP</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">cimserver writes on console even when started in daemon mode
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_enhancement bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=146">146</a>
+    </td>
+
+    <td width="31"><nobr>enh</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>HP</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">There is no way to do pre-build or post-build stuff with ...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=148">148</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">CGIClient.cpp changes '-' to '.'
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_trivial bz_P4 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=149">149</a>
+    </td>
+
+    <td width="31"><nobr>tri</nobr>
+    </td>
+    <td width="22"><nobr>P4</nobr>
+    </td>
+    <td width="27"><nobr>HP</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">src/Clients/ToMofClient/ToMofClient.cpp warning during build
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_trivial bz_P4 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=150">150</a>
+    </td>
+
+    <td width="31"><nobr>tri</nobr>
+    </td>
+    <td width="22"><nobr>P4</nobr>
+    </td>
+    <td width="27"><nobr>HP</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">warnings compiling src/Server/cimserver.cpp
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=168">168</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Incomplete CIMObjectPath wen calling providers
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=202">202</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>HP</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Porting changes for HP-UX
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=203">203</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Porting changes for IA64 Linux
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=206">206</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>HP</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Client requests time out with PERFINST enabled
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P4 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=210">210</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P4</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">MOF output for Reference values generates XML not mof
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=211">211</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">CIMObjectPath Legal Host name incomplete
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_major bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=212">212</a>
+    </td>
+
+    <td width="31"><nobr>maj</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Cimserver uses lots of cpu &quot;idle time&quot; when the cimserver...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P4 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=213">213</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P4</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Insufficient Code Coverage
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P4 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=217">217</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P4</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Error in CIMClass Create on some Linux Platforms
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=237">237</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Incorrect use of statistic macros
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P4 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=243">243</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P4</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Compiler misses MOF syntax error in value
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_enhancement bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=246">246</a>
+    </td>
+
+    <td width="31"><nobr>enh</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Security issues with CIMOMHandle
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=249">249</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">cimmof returns code of 0 on error
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=267">267</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">ComputerSystem provider does not set path in enumerateIns...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=279">279</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>HP</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">CIMDateTime::getDifference returns incorrect result on so...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=281">281</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">setQualifier throws CIM_ERR_ALREADY_EXISTS
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P5 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=296">296</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P5</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">pegasus/src/Pegasus/Server/tests accidently disabled Feb '02
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=298">298</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">dispatcher lookup optimization
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P4 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=306">306</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P4</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">cimconfig -s property=value -p allows you to set non-vali...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_critical bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=323">323</a>
+    </td>
+
+    <td width="31"><nobr>cri</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">TestClient Failure - Associations
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_minor bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=329">329</a>
+    </td>
+
+    <td width="31"><nobr>min</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">tomof client fails on call - cannot find repository
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_critical bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=338">338</a>
+    </td>
+
+    <td width="31"><nobr>cri</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Condition doesn't CloseHandle() on _condition
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_trivial bz_P5 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=347">347</a>
+    </td>
+
+    <td width="31"><nobr>tri</nobr>
+    </td>
+    <td width="22"><nobr>P5</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">typos throughout the code
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_critical bz_P1 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=348">348</a>
+    </td>
+
+    <td width="31"><nobr>cri</nobr>
+    </td>
+    <td width="22"><nobr>P1</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>REOP</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Association test SampleFamilyProvider fails intermittently
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_minor bz_P4 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=353">353</a>
+    </td>
+
+    <td width="31"><nobr>min</nobr>
+    </td>
+    <td width="22"><nobr>P4</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">cimserver silently creates new repositories
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=354">354</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Test EnumerateClasses fails when classes are in a differe...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P1 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=355">355</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P1</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">PropertyList parameter specified in the EnumerateInstance...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=357">357</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">pegasus/mak/library-windows.mak should be using variables
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=359">359</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">cimserver does not report cimserver_planned.conf errors
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=360">360</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Invalid XML return on what appears to be keepalive.
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_enhancement bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=364">364</a>
+    </td>
+
+    <td width="31"><nobr>enh</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>Oth</nobr>
+    </td>
+    <td width="113"><nobr>REOP</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">No method to recreate SSL certs, except reading the readm...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=365">365</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">MOF Compiler sets ToInstance Flavor when ToSubclass is sp...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P1 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=367">367</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P1</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">EnumerateInstance and EnumerateInstanceNames methods not ...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_minor bz_P5 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=371">371</a>
+    </td>
+
+    <td width="31"><nobr>min</nobr>
+    </td>
+    <td width="22"><nobr>P5</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">mu should build to $PEGASUS_HOME/bin
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=372">372</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Posix signals can interrupt blocking calls and cause them...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=373">373</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">&quot;Pegasus  CIM Server Demonstration&quot; cannot enumerate clas...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=376">376</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">SetProperty returns &quot;CIM_ERR_NOT_SUPPORTED&quot;
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_enhancement bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=377">377</a>
+    </td>
+
+    <td width="31"><nobr>enh</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Multireq not supported
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=378">378</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">GetClass returns CIM_ERR_NOT_SUPPORTED with invalid args
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P1 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=379">379</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P1</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">CreateInstances errors with property types real32 and real64
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P4 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=384">384</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P4</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">use of Tracer in ThreadPool test causes coredump when tra...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=390">390</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Compiler Errors in serveral Linux Providers
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_enhancement bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=393">393</a>
+    </td>
+
+    <td width="31"><nobr>enh</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Definition of cimconfig parameters
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_major bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=398">398</a>
+    </td>
+
+    <td width="31"><nobr>maj</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Infinite re-acking of CIM_STOPPED message during shutdown.
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=410">410</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Placement of the PEGASUS_HAS_PERFINST compile param
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_trivial bz_P5 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=416">416</a>
+    </td>
+
+    <td width="31"><nobr>tri</nobr>
+    </td>
+    <td width="22"><nobr>P5</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">TestMakefile for Linux uses 'kill -9' to terminate cimser...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=424">424</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">XMLParser removes whitespace
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=426">426</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">There is no inserter operation for Uint64 on the windows ...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P4 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=427">427</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P4</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Loading testrepository issues message stating loading CIM...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P1 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=428">428</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P1</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">xml parsing problem regarding REFERENCECLASS
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=439">439</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Corrupt newlines CVS repository
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=441">441</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">CIMOM Authentication on Windows XP
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_minor bz_P4 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=456">456</a>
+    </td>
+
+    <td width="31"><nobr>min</nobr>
+    </td>
+    <td width="22"><nobr>P4</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Adding TEST CASES to the String test bucket.
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P4 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=463">463</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P4</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">SampleFamilyProvider Shows Warnings in TestClient
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=473">473</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">System.cpp getSystemCreationClassName() returns empty
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=477">477</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>HP</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Coredump in Tracer
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_major bz_P1 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=482">482</a>
+    </td>
+
+    <td width="31"><nobr>maj</nobr>
+    </td>
+    <td width="22"><nobr>P1</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Gives internal server error( Error Code:500) while creati...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=485">485</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Message review/rewording
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_critical bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=490">490</a>
+    </td>
+
+    <td width="31"><nobr>cri</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">ProviderManager looks up instance provider for InvokeMethod
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=493">493</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Dispatcher's result aggregation selects arbitrary exception
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P5 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=512">512</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P5</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">File open error lost in Repository
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_trivial bz_P5 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=518">518</a>
+    </td>
+
+    <td width="31"><nobr>tri</nobr>
+    </td>
+    <td width="22"><nobr>P5</nobr>
+    </td>
+    <td width="27"><nobr>HP</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Remove DNSAdminDomain and NTPAdminDomain
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=533">533</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">mu does not build on Linux
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=535">535</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>ASSI</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">cimserver hangs when subjected to bursts of individual re...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=537">537</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">XmlReader accepts CLASSORIGIN=&quot;&quot;
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_enhancement bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=539">539</a>
+    </td>
+
+    <td width="31"><nobr>enh</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Pegasus DLLs on windows do not contain version numbers
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_major bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=544">544</a>
+    </td>
+
+    <td width="31"><nobr>maj</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">MOF compiler does not convert escape characters
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=548">548</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Redundant error message from WQLParser
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=556">556</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">wbem exec tests error
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_critical bz_P1 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=558">558</a>
+    </td>
+
+    <td width="31"><nobr>cri</nobr>
+    </td>
+    <td width="22"><nobr>P1</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>REOP</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">cimserver failure when running multiple client tests
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=562">562</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">tests/config.mak always outputs test passed even if failed
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P1 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=577">577</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P1</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">ComputerSystem_Linux Provider Generates File Error
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=581">581</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Microsoft Visual C++ .NET compile issues
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=590">590</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Unreachable error conditions in CIMOperationRequestDecoder
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P4 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=596">596</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P4</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">LocalizedProvider does not set path in enumerateInstances
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=597">597</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Sample Association Provider Cannot Register
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=600">600</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">MOF Output generates error for Override flavor on qualifiers
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=604">604</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">FamilyProvider Needed in repositoryServer Make
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=606">606</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Quesiton: use of cimobjectPath instead of CIMInstanceName...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=607">607</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Provider Interface Documentation (instance Provider)
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P4 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=611">611</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P4</nobr>
+    </td>
+    <td width="27"><nobr>PC</nobr>
+    </td>
+    <td width="113"><nobr>NEW</nobr>
+    </td>
+    <td width="1">
+    </td>
+    <td width="957">Malformed Object path exception should have more information
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=623">623</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="1"><nobr>NEW</nobr>
+    </td>
+    <td width="111">&nbsp;</td>
+    <td width="894">IndicationService should be stopped before other services...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="30">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=624">624</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="27"><nobr>All</nobr>
+    </td>
+    <td width="1"><nobr>NEW</nobr>
+    </td>
+    <td width="111">&nbsp;</td>
+    <td width="894">IndicationHandlerService sends incorrect response type
+    </td>
+
+  </tr>
+
+  
+    </table>
+
+
+  
+  <table class="bz_buglist" cellspacing="0" cellpadding="4" width="1344">
+    <colgroup>
+      <col class="bz_id_column">
+      <col class="bz_severity_column">
+      <col class="bz_priority_column">
+      <col class="bz_platform_column">
+      <col class="bz_status_column">
+      <col class="bz_resolution_column">
+      <col class="bz_summary_column">
+    </colgroup>
+
+    <tr align="left">
+      <th colspan="1" width="31">
+        <a href="file:///E:/DownloadsMay2002/buglist.cgi?short_desc_type=allwordssubstr&short_desc=&product=Pegasus+CLI+Commands&product=PegasusCIMOM&product=PegasusClient&product=PegasusCompiler&product=PegasusGeneral&product=PegasusJavaCIMClient&product=PegasusProvider&long_desc_type=allwordssubstr&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&status_whiteboard_type=allwordssubstr&status_whiteboard=&keywords_type=allwords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&bug_status=VERIFIED&emailtype1=notregexp&email1=&emailtype2=substring&email2=&bugidtype=exclude&bug_id=&votes=&changedin=&chfieldfrom=&chfieldto=Now&chfieldvalue=&newqueryname=&field0-0-0=noop&type0-0-0=noop&value0-0-0=&order=bugs.bug_id">ID</a>
+      </th>
+
+<th colspan="1" width="31">
+    <a href="file:///E:/DownloadsMay2002/buglist.cgi?short_desc_type=allwordssubstr&short_desc=&product=Pegasus+CLI+Commands&product=PegasusCIMOM&product=PegasusClient&product=PegasusCompiler&product=PegasusGeneral&product=PegasusJavaCIMClient&product=PegasusProvider&long_desc_type=allwordssubstr&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&status_whiteboard_type=allwordssubstr&status_whiteboard=&keywords_type=allwords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&bug_status=VERIFIED&emailtype1=notregexp&email1=&emailtype2=substring&email2=&bugidtype=exclude&bug_id=&votes=&changedin=&chfieldfrom=&chfieldto=Now&chfieldvalue=&newqueryname=&field0-0-0=noop&type0-0-0=noop&value0-0-0=&order=bugs.bug_severity,bugs.bug_id">Sev</a>
+  </th><th colspan="1" width="22">
+    <a href="file:///E:/DownloadsMay2002/buglist.cgi?short_desc_type=allwordssubstr&short_desc=&product=Pegasus+CLI+Commands&product=PegasusCIMOM&product=PegasusClient&product=PegasusCompiler&product=PegasusGeneral&product=PegasusJavaCIMClient&product=PegasusProvider&long_desc_type=allwordssubstr&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&status_whiteboard_type=allwordssubstr&status_whiteboard=&keywords_type=allwords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&bug_status=VERIFIED&emailtype1=notregexp&email1=&emailtype2=substring&email2=&bugidtype=exclude&bug_id=&votes=&changedin=&chfieldfrom=&chfieldto=Now&chfieldvalue=&newqueryname=&field0-0-0=noop&type0-0-0=noop&value0-0-0=&order=bugs.priority,bugs.bug_id">Pri</a>
+  </th><th colspan="1" width="28">
+    <a href="file:///E:/DownloadsMay2002/buglist.cgi?short_desc_type=allwordssubstr&short_desc=&product=Pegasus+CLI+Commands&product=PegasusCIMOM&product=PegasusClient&product=PegasusCompiler&product=PegasusGeneral&product=PegasusJavaCIMClient&product=PegasusProvider&long_desc_type=allwordssubstr&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&status_whiteboard_type=allwordssubstr&status_whiteboard=&keywords_type=allwords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&bug_status=VERIFIED&emailtype1=notregexp&email1=&emailtype2=substring&email2=&bugidtype=exclude&bug_id=&votes=&changedin=&chfieldfrom=&chfieldto=Now&chfieldvalue=&newqueryname=&field0-0-0=noop&type0-0-0=noop&value0-0-0=&order=bugs.rep_platform,bugs.bug_id">Plt</a>
+  </th><th colspan="1" width="112">
+    <a href="file:///E:/DownloadsMay2002/buglist.cgi?short_desc_type=allwordssubstr&short_desc=&product=Pegasus+CLI+Commands&product=PegasusCIMOM&product=PegasusClient&product=PegasusCompiler&product=PegasusGeneral&product=PegasusJavaCIMClient&product=PegasusProvider&long_desc_type=allwordssubstr&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&status_whiteboard_type=allwordssubstr&status_whiteboard=&keywords_type=allwords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&bug_status=VERIFIED&emailtype1=notregexp&email1=&emailtype2=substring&email2=&bugidtype=exclude&bug_id=&votes=&changedin=&chfieldfrom=&chfieldto=Now&chfieldvalue=&newqueryname=&field0-0-0=noop&type0-0-0=noop&value0-0-0=&order=bugs.bug_status,bugs.bug_id">State</a>
+  </th><th colspan="1" width="107">
+    <a href="file:///E:/DownloadsMay2002/buglist.cgi?short_desc_type=allwordssubstr&short_desc=&product=Pegasus+CLI+Commands&product=PegasusCIMOM&product=PegasusClient&product=PegasusCompiler&product=PegasusGeneral&product=PegasusJavaCIMClient&product=PegasusProvider&long_desc_type=allwordssubstr&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&status_whiteboard_type=allwordssubstr&status_whiteboard=&keywords_type=allwords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&bug_status=VERIFIED&emailtype1=notregexp&email1=&emailtype2=substring&email2=&bugidtype=exclude&bug_id=&votes=&changedin=&chfieldfrom=&chfieldto=Now&chfieldvalue=&newqueryname=&field0-0-0=noop&type0-0-0=noop&value0-0-0=&order=bugs.resolution,bugs.bug_id">Result</a>
+  </th><th colspan="1" width="957">
+    <a href="file:///E:/DownloadsMay2002/buglist.cgi?short_desc_type=allwordssubstr&short_desc=&product=Pegasus+CLI+Commands&product=PegasusCIMOM&product=PegasusClient&product=PegasusCompiler&product=PegasusGeneral&product=PegasusJavaCIMClient&product=PegasusProvider&long_desc_type=allwordssubstr&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&status_whiteboard_type=allwordssubstr&status_whiteboard=&keywords_type=allwords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&bug_status=VERIFIED&emailtype1=notregexp&email1=&emailtype2=substring&email2=&bugidtype=exclude&bug_id=&votes=&changedin=&chfieldfrom=&chfieldto=Now&chfieldvalue=&newqueryname=&field0-0-0=noop&type0-0-0=noop&value0-0-0=&order=bugs.short_desc,bugs.bug_id">Summary</a>
+  </th>
+
+
+    </tr>
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=625">625</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>All</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">IndicationService should call _terminate before handle_Ci...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=626">626</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>All</nobr>
+    </td>
+    <td width="112"><nobr>ASSI</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">IndicationService needs to handle provider enable notific...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=627">627</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>All</nobr>
+    </td>
+    <td width="112"><nobr>ASSI</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">IndicationService should not accept value of Other for On...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=628">628</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>All</nobr>
+    </td>
+    <td width="112"><nobr>ASSI</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">IndicationService should honor FailureTriggerTimeInterval
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=629">629</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>All</nobr>
+    </td>
+    <td width="112"><nobr>ASSI</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">IndicationService should send DisableIndications request ...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=631">631</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>All</nobr>
+    </td>
+    <td width="112"><nobr>ASSI</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">IndicationService should handle DateTimeOutOfRangeExcepti...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=632">632</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>All</nobr>
+    </td>
+    <td width="112"><nobr>ASSI</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">Eliminate all repository access by Indication Service  on...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_trivial bz_P5 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=639">639</a>
+    </td>
+
+    <td width="31"><nobr>tri</nobr>
+    </td>
+    <td width="22"><nobr>P5</nobr>
+    </td>
+    <td width="28"><nobr>All</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">Spelling Mistake in cimserver.passwd
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P3 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=645">645</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P3</nobr>
+    </td>
+    <td width="28"><nobr>PC</nobr>
+    </td>
+    <td width="112"><nobr>ASSI</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">For Linux Release-only Use rpath-link
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=647">647</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>All</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">Timing Window in Trace Code causes CIM Server fault
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_minor bz_P4 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=651">651</a>
+    </td>
+
+    <td width="31"><nobr>min</nobr>
+    </td>
+    <td width="22"><nobr>P4</nobr>
+    </td>
+    <td width="28"><nobr>Ita</nobr>
+    </td>
+    <td width="112"><nobr>ASSI</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">Remove unneccessary line from Linux IA64 from Platform_LI...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P4 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=653">653</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P4</nobr>
+    </td>
+    <td width="28"><nobr>All</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">Unreachable condition in HTTPConnection2::_handleReadEvent
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=666">666</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>All</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">Instance not found when using CIMOMHandle::getInstance()
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=667">667</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>PC</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">Inappropriate string match in getAssociatorNames()
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=671">671</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>PC</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">WQLSelectStatement is only valid on first call to evaluat...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=680">680</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>All</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">For M-POST request, CIMServer sends Incorrect  Extention ...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=682">682</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>PC</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">enableIndications called multiple times
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=745">745</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>IBM</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">Fixes needed for OS/400 Authentication (V2.3)
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=753">753</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>All</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">Remove deprecated interfaces
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P1 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=755">755</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P1</nobr>
+    </td>
+    <td width="28"><nobr>PC</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">CIMObjectPath to handle &quot;http://&quot;
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=764">764</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>Sun</nobr>
+    </td>
+    <td width="112"><nobr>ASSI</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">Solaris build using gcc broken
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=770">770</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>PC</nobr>
+    </td>
+    <td width="112"><nobr>ASSI</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">getInstance() calls using CIMClient class result in 'inva...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=777">777</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>PC</nobr>
+    </td>
+    <td width="112"><nobr>ASSI</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">Sample/familyprovider did not honor propertylist.
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=786">786</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>PC</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">CIMRepository
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=796">796</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>PC</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">cimmof error when tring to dynicall add a mof to the repo...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=811">811</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>PC</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">Allow any form for destination for an indication
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=812">812</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>PC</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">ProviderManager2 only routes to Default PM
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_major bz_P1 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=813">813</a>
+    </td>
+
+    <td width="31"><nobr>maj</nobr>
+    </td>
+    <td width="22"><nobr>P1</nobr>
+    </td>
+    <td width="28"><nobr>All</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">ThreadPool deadlock
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=828">828</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>PC</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">slpclient has unresolved externals
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=829">829</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>PC</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">Logger traces of xml written to standard log. Should prob...
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_minor bz_P5 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=846">846</a>
+    </td>
+
+    <td width="31"><nobr>min</nobr>
+    </td>
+    <td width="22"><nobr>P5</nobr>
+    </td>
+    <td width="28"><nobr>All</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">InstanceDecl test should test removeQualifier
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_blocker bz_P1 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=847">847</a>
+    </td>
+
+    <td width="31"><nobr>blo</nobr>
+    </td>
+    <td width="22"><nobr>P1</nobr>
+    </td>
+    <td width="28"><nobr>All</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">Request being sent to wrong provider - Client timeout
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=929">929</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>PC</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">openpegasus.org-wbem-2.2.spec fails due to SLP absence
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P1 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=933">933</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P1</nobr>
+    </td>
+    <td width="28"><nobr>All</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">Indication subscription memory leaks
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P1 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=934">934</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P1</nobr>
+    </td>
+    <td width="28"><nobr>All</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">Java Client, numeric keybindings changed to strings
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=942">942</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>All</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">Indication provider does not be disabled properly
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=943">943</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>PC</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">CIMON not verifying that the instance exist
+    </td>
+
+  </tr>
+
+  
+
+
+  
+
+  <tr class="bz_normal bz_P2 ">
+
+    <td width="31">
+      <a href="file:///E:/DownloadsMay2002/show_bug.cgi?id=946">946</a>
+    </td>
+
+    <td width="31"><nobr>nor</nobr>
+    </td>
+    <td width="22"><nobr>P2</nobr>
+    </td>
+    <td width="28"><nobr>All</nobr>
+    </td>
+    <td width="112"><nobr>NEW</nobr>
+    </td>
+    <td width="107">&nbsp;</td>
+    <td width="957">Double error text from cim opperation errors
+    </td>
+
+  </tr>
+
+  
+    </table>
+
+
+
+
+<p>&nbsp;</p>
+<h2>Documentation</h2>
+<p>The following documentation is available for the this Pegasus release:</p>
+<ul>
+  <li>Build and Installation - Readme in the Pegasus Root Directory</li>
+  <li>Operation - Readme in the Pegasus Root Directory</li>
+  <li>APIs - See the header files and the HTML documentation that is on the web 
+site.</li>
+  <li>Utilities - A combination of help generally available with the -h option for 
+the command and HTML documentation for most of the tools.</li>
+  <li>API usage documentation - The best API usage documentation is the existing 
+  utilities and test programs.&nbsp; In particular the Common/tests unit tests 
+  contain extensive examples of the use of the Common APIs.</li>
+</ul>
+<hr>
+<p><i><font size="2">Copyright (c)  2003 BMC Software; Hewlett-Packard  Development Company, L.P.; IBM Corp.; The Open Group</font><br>
+<br>
+<font size="1">Permission is hereby granted, free of charge, to any person 
+obtaining a copy&nbsp; of this software and associated documentation files (the 
+&quot;Software&quot;), to deal in the Software without restriction, including without 
+limitation the rights to use, copy, modify, merge, publish, distribute, 
+sublicense, and/or sell copies of the Software, and to permit persons to whom 
+the Software is furnished to do so, subject to the following conditions:</font><br>
+<font size="2"><br>
+</font>
+<font size="1">THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN ALL 
+COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED&nbsp; 
+&quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
+LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE 
+AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE 
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</font></i></p>
+<p>&nbsp;</p>
+
+</body>
+
+</html>

@@ -6,3 +6,7 @@ PROGRAM = stripcrs
 SOURCES = stripcrs.cpp
 
 include $(ROOT)/mak/program.mak
+
+tests:
+
+poststarttests:

@@ -2,7 +2,7 @@ ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
   CIMSERVER_START_SERVICE = 
   CIMSERVER_STOP_SERVICE = 
   SLEEP =
-  DIFF = mu compare
+  DIFF = stripcrs $(RESULTFILE) | mu compare
   REDIRECTERROR = 2>&1
 else
   CIMSERVER_START_SERVICE = cimserver -d

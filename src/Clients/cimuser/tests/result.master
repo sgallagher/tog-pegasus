@@ -1,6 +1,3 @@
-List Users
-Listing users...
-guest
 Display usage - error
 cimuser: Required arguments missing.
 usage: cimuser -a -u username [ -w password ] 

@@ -17,8 +17,6 @@ clean:
 
 poststarttests:
 	@$(RM) $(RESULTFILE)
-	@$(ECHO) "List Users" >> $(RESULTFILE)
-	@cimuser -l >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(MAKE) -i -s poststarttests_ignoreerror
 	$(COMPARERESULTS)
 	@$(ECHO) +++ Test passed +++

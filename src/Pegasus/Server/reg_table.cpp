@@ -190,6 +190,8 @@ class reg_table_rep : public Sharable
       
       void destroy_all(void);
 
+      void remove_by_router(const reg_table_record& rec);
+      
       reg_table_rep(void) ;
       ~reg_table_rep(void) ;
 
@@ -198,6 +200,8 @@ class reg_table_rep : public Sharable
       static const Uint32 MULTIPLE;
       static const Uint32 DESTROY;
       static const Uint32 EXTENDED;
+      static const Uint32 SERVICE;
+      
       
       reg_table_record * _find(const reg_table_record & rec, 
 			       Uint32 flags, 
@@ -226,7 +230,7 @@ const Uint32 reg_table_rep::REMOVE =       0x00000002;
 const Uint32 reg_table_rep::MULTIPLE =     0x00000004;
 const Uint32 reg_table_rep::DESTROY =      0x00000008;
 const Uint32 reg_table_rep::EXTENDED =     0x00000010;
-
+const Uint32 reg_table_rep::SERVICE  =     0x00000020;
 
 // insert optimized for simplicity, not speed 
 Boolean
@@ -297,7 +301,7 @@ reg_table_rep::release_extended(const reg_table_record &rec)
 
 
 void 
-reg_table_rep::release(const reg_table_record & rec, 
+reg_table_rep::release(const reg_table_record& rec, 
 		       Array<reg_table_record *> *results)
 {
    _find(rec, 
@@ -305,7 +309,7 @@ reg_table_rep::release(const reg_table_record & rec,
 }
 
 void 
-reg_table_rep::release_extended(const reg_table_record & rec, 
+reg_table_rep::release_extended(const reg_table_record& rec, 
 				Array<reg_table_record *> *results)
 {
    _find(rec, 
@@ -319,7 +323,7 @@ reg_table_rep::destroy(const reg_table_record & rec)
 }
 
 void 
-reg_table_rep::destroy_extended(const reg_table_record & rec)
+reg_table_rep::destroy_extended(const reg_table_record& rec)
 {
    _find(rec, (FIND | REMOVE | DESTROY | EXTENDED));
 }
@@ -329,6 +333,13 @@ reg_table_rep::destroy_all(void)
 {
    reg_table_record rec;
    _find(rec, (FIND | REMOVE | DESTROY | MULTIPLE ));
+}
+
+
+void 
+reg_table_rep::remove_by_router(const reg_table_record& rec)
+{
+   _find(rec, (FIND | REMOVE | DESTROY | MULTIPLE | SERVICE));
 }
 
 
@@ -432,9 +443,16 @@ reg_table_rep::_enumerate(const reg_table_record & rec,
 	       if(rec.flags != 0xffffffff)
 		  if(tmp->flags != rec.flags)
 		     continue;
+
 	       if(flags & EXTENDED)
 	       {
 		  if(false == _extended_match(rec, *tmp))
+		     continue;
+	       }
+	       
+	       if(flags & SERVICE)
+	       {
+		  if(rec.service != tmp->service)
 		     continue;
 	       }
 	       

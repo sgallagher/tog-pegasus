@@ -1,0 +1,50 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+    Description = "Sample Pegasus Round Trip Indication Provider";
+    Caption = "Sample Pegasus Round Trip Indication Provider";
+    Name = "RT_IndicationProviderModule";
+    Vendor = "Pegasus";
+    Version = "2.0.0";
+    InterfaceType = "C++Default";
+    InterfaceVersion = "2.2.0";
+    Location = "RT_IndicationProvider";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "RT_IndicationProviderModule";
+    Name = "RT_IndicationProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "RT_IndicationProviderModule";
+    ProviderName = "RT_IndicationProvider";
+    CapabilityID = "1";
+    ClassName = "RT_TestIndication";
+    Namespaces = { "root/SampleProvider", "root/cimv2" };
+    ProviderType = { 4, 5 };  // Indication & Method
+    SupportedProperties = NULL;
+    //  Note: these methods are not implemented in the subclass
+    SupportedMethods = {"SendTestIndication", 
+                        "SendTestIndicationNormal", 
+                        "SendTestIndicationMissingProperty", 
+                        "SendTestIndicationExtraProperty",
+                        "SendTestIndicationMatchingInstance",
+                        "SendTestIndicationUnmatchingNamespace",
+                        "SendTestIndicationUnmatchingClassName"};
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "RT_IndicationProviderModule";
+    ProviderName = "RT_IndicationProvider";
+    CapabilityID = "2";
+    ClassName = "RT_TestIndicationSubclass";
+    Namespaces = { "root/SampleProvider", "root/cimv2" };
+    ProviderType = { 4, 5 };  // Indication & Method
+    SupportedProperties = NULL;
+    SupportedMethods = {"SendTestIndicationSubclass"};
+};

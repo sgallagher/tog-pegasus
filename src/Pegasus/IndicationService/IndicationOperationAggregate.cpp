@@ -1,92 +1,133 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2004////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
+//             (carolann_graves@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
+//              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/OperationContextInternal.h>
+#include <Pegasus/Common/OperationContextInternal.h> 
 #include "IndicationOperationAggregate.h"
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-IndicationOperationAggregate::IndicationOperationAggregate(
-    CIMRequestMessage* origRequest,
-    const String &controlProviderName,
-    const Array<NamespaceClassList>& indicationSubclasses)
-:   _origRequest(origRequest),
-    _controlProviderName(controlProviderName),
-    _indicationSubclasses(indicationSubclasses),
-    _numberIssued(0)
-{
-}
+IndicationOperationAggregate::IndicationOperationAggregate (
+    CIMRequestMessage * origRequest,
+    const Array <CIMName> & indicationSubclasses)
+:   _origRequest (origRequest),
+    _indicationSubclasses (indicationSubclasses),
+    _numberIssued (0),
+    _magicNumber (_theMagicNumber)
+{}
 
-IndicationOperationAggregate::~IndicationOperationAggregate()
+IndicationOperationAggregate::~IndicationOperationAggregate ()
 {
-    delete _origRequest;
-
-    Uint32 numberRequests = _requestList.size();
+    _magicNumber = 0;
+    if (_origRequest)
+    {
+        delete _origRequest;
+    }
+    Uint32 numberRequests = getNumberRequests ();
     for (Uint32 i = 0; i < numberRequests; i++)
     {
-        delete _requestList[i];
+        //
+        //  Since deleteRequest also removes the element from the array, 
+        //  delete first element of the array each time
+        //
+        deleteRequest (0);
     }
-
-    Uint32 numberResponses = _responseList.size();
+    Uint32 numberResponses = getNumberResponses ();
     for (Uint32 j = 0; j < numberResponses; j++)
     {
-        delete _responseList[j];
+        //
+        //  Since deleteResponse also removes the element from the array, 
+        //  delete first element of the array each time
+        //
+        deleteResponse (0);
     }
 }
 
-CIMRequestMessage* IndicationOperationAggregate::getOrigRequest() const
+Boolean IndicationOperationAggregate::valid ()
+{
+    return (_magicNumber == _theMagicNumber) ? true: false;
+}
+
+CIMRequestMessage * IndicationOperationAggregate::getOrigRequest ()
 {
     return _origRequest;
 }
 
-MessageType IndicationOperationAggregate::getOrigType() const
+Uint32 IndicationOperationAggregate::getOrigType ()
 {
     if (_origRequest == 0)
     {
-        return DUMMY_MESSAGE;
+        return 0;
     }
     else
     {
-        return _origRequest->getType();
+        return _origRequest->getType ();
     }
 }
 
-Boolean IndicationOperationAggregate::requiresResponse() const
+String IndicationOperationAggregate::getOrigMessageId ()
 {
-    if ((getOrigType() == CIM_CREATE_INSTANCE_REQUEST_MESSAGE) ||
-        (getOrigType() == CIM_MODIFY_INSTANCE_REQUEST_MESSAGE) ||
-        (getOrigType() == CIM_DELETE_INSTANCE_REQUEST_MESSAGE))
+    if (_origRequest == 0)
+    {
+        return String::EMPTY;
+    }
+    else
+    {
+        return _origRequest->messageId;
+    }
+}
+
+Uint32 IndicationOperationAggregate::getOrigDest ()
+{
+    if (_origRequest == 0)
+    {
+        return 0;
+    }
+    else
+    {
+        return _origRequest->queueIds.top ();
+    }
+}
+
+Boolean IndicationOperationAggregate::requiresResponse ()
+{
+    if ((getOrigType () == CIM_CREATE_INSTANCE_REQUEST_MESSAGE) ||
+        (getOrigType () == CIM_MODIFY_INSTANCE_REQUEST_MESSAGE) ||
+        (getOrigType () == CIM_DELETE_INSTANCE_REQUEST_MESSAGE))
     {
         return true;
     }
@@ -96,120 +137,153 @@ Boolean IndicationOperationAggregate::requiresResponse() const
     }
 }
 
-Array<NamespaceClassList>&
-    IndicationOperationAggregate::getIndicationSubclasses()
+Array <CIMName> & IndicationOperationAggregate::getIndicationSubclasses ()
 {
     return _indicationSubclasses;
 }
 
-Uint32 IndicationOperationAggregate::getNumberIssued() const
+void IndicationOperationAggregate::setPath (const CIMObjectPath & path)
+{
+    _path = path;
+}
+
+CIMObjectPath & IndicationOperationAggregate::getPath ()
+{
+    return _path;
+}
+
+Uint32 IndicationOperationAggregate::getNumberIssued ()
 {
     return _numberIssued;
 }
 
-void IndicationOperationAggregate::setNumberIssued(Uint32 i)
+void IndicationOperationAggregate::setNumberIssued (Uint32 i)
 {
     _numberIssued = i;
 }
 
-Boolean IndicationOperationAggregate::appendResponse(
-    CIMResponseMessage* response)
+Boolean IndicationOperationAggregate::appendResponse (
+    CIMResponseMessage * response)
 {
     AutoMutex autoMut(_appendResponseMutex);
-    _responseList.append(response);
-    Boolean returnValue = (getNumberResponses() == getNumberIssued());
-
+    _responseList.append (response);
+    Boolean returnValue = (getNumberResponses () == getNumberIssued ());
+    
     return returnValue;
 }
 
-Uint32 IndicationOperationAggregate::getNumberResponses() const
+Uint32 IndicationOperationAggregate::getNumberResponses ()
 {
-    return _responseList.size();
+    return _responseList.size ();
 }
 
-CIMResponseMessage* IndicationOperationAggregate::getResponse(Uint32 pos) const
+CIMResponseMessage * IndicationOperationAggregate::getResponse (
+    const Uint32 & pos)
 {
-    return _responseList[pos];
+    return _responseList [pos];
 }
 
-void IndicationOperationAggregate::appendRequest(
-    CIMRequestMessage* request)
+void IndicationOperationAggregate::deleteResponse (
+    const Uint32 & pos)
+{
+    delete _responseList [pos];
+    _responseList.remove (pos);
+}
+
+void IndicationOperationAggregate::appendRequest (
+    CIMRequestMessage * request)
 {
     AutoMutex autoMut(_appendRequestMutex);
-    _requestList.append(request);
+    _requestList.append (request);
+    
 }
 
-Uint32 IndicationOperationAggregate::getNumberRequests() const
+Uint32 IndicationOperationAggregate::getNumberRequests ()
 {
-    return _requestList.size();
+    return _requestList.size ();
 }
 
-CIMRequestMessage* IndicationOperationAggregate::getRequest(Uint32 pos) const
+CIMRequestMessage * IndicationOperationAggregate::getRequest (
+    const Uint32 & pos)
 {
-    return _requestList[pos];
+    return _requestList [pos];
 }
 
-ProviderClassList IndicationOperationAggregate::findProvider(
-    const String& messageId) const
+void IndicationOperationAggregate::deleteRequest (
+    const Uint32 & pos)
+{
+    delete _requestList [pos];
+    _requestList.remove (pos);
+}
+
+ProviderClassList IndicationOperationAggregate::findProvider (
+    const String & messageId)
 {
     //
-    //  Look in the list of requests for the request with the message ID
+    //  Look in the list of requests for the request with the message ID 
     //  corresponding to the message ID in the response
     //
     ProviderClassList provider;
-    Uint32 numberRequests = getNumberRequests();
+    Uint32 numberRequests = getNumberRequests ();
     for (Uint32 i = 0; i < numberRequests; i++)
     {
-        if (getRequest(i)->messageId == messageId )
+        if (getRequest (i)->messageId == messageId )
         {
             //
             //  Get the provider and provider module from the matching request
             //
-            switch (getRequest(i)->getType())
+            switch (getRequest (i)->getType ())
             {
                 case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
                 {
-                    CIMCreateSubscriptionRequestMessage* request =
-                        (CIMCreateSubscriptionRequestMessage *) getRequest(i);
-                    ProviderIdContainer pidc = request->operationContext.get
-                        (ProviderIdContainer::NAME);
+                    CIMCreateSubscriptionRequestMessage * request =
+                        (CIMCreateSubscriptionRequestMessage *) getRequest (i);
+					ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME); 
                     provider.provider = pidc.getProvider();
                     provider.providerModule = pidc.getModule();
-                    NamespaceClassList nscl;
-                    nscl.nameSpace = request->nameSpace;
-                    nscl.classList = request->classNames;
-                    provider.classList.append(nscl);
-                    provider.controlProviderName = _controlProviderName;
-#ifdef PEGASUS_ENABLE_REMOTE_CMPI
-                    provider.isRemoteNameSpace = pidc.isRemoteNameSpace();
-                    provider.remoteInfo = pidc.getRemoteInfo();
-#endif
+                    provider.classList = request->classNames;
                     break;
                 }
-
+        
+                case CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE:
+                {
+                    CIMEnableIndicationsRequestMessage * request =
+                        (CIMEnableIndicationsRequestMessage *) getRequest (i);
+					ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME); 
+                    provider.provider = pidc.getProvider();
+                    provider.providerModule = pidc.getModule();
+                    break;
+                }
+        
                 case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
                 {
-                    CIMDeleteSubscriptionRequestMessage* request =
-                        (CIMDeleteSubscriptionRequestMessage *) getRequest(i);
-                    ProviderIdContainer pidc = request->operationContext.get
-                        (ProviderIdContainer::NAME);
+                    CIMDeleteSubscriptionRequestMessage * request =
+                        (CIMDeleteSubscriptionRequestMessage *) getRequest (i);
+					ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME); 
                     provider.provider = pidc.getProvider();
                     provider.providerModule = pidc.getModule();
-                    NamespaceClassList nscl;
-                    nscl.nameSpace = request->nameSpace;
-                    nscl.classList = request->classNames;
-                    provider.classList.append(nscl);
-                    provider.controlProviderName = _controlProviderName;
-#ifdef PEGASUS_ENABLE_REMOTE_CMPI
-                    provider.isRemoteNameSpace = pidc.isRemoteNameSpace();
-                    provider.remoteInfo = pidc.getRemoteInfo();
-#endif
+                    provider.classList = request->classNames;
                     break;
                 }
+        
+                case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
+                {
+                    CIMDisableIndicationsRequestMessage * request =
+                        (CIMDisableIndicationsRequestMessage *) getRequest (i);
+					ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME); 
+                    provider.provider = pidc.getProvider();
+                    provider.providerModule = pidc.getModule();
+                    break;
+                }
+        
                 default:
                 {
-                    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
-                    break;
+                    PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL2,
+                        "Unexpected request type " + String 
+                        (MessageTypeToString (getRequest (i)->getType ())) +
+                        " in findProvider");
+                    PEGASUS_ASSERT (false);
+                break;
                 }
             }
 
@@ -220,8 +294,10 @@ ProviderClassList IndicationOperationAggregate::findProvider(
     //
     //  No request found with message ID matching message ID from response
     //
-    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+    PEGASUS_ASSERT (false);
     return provider;
 }
+
+const Uint32 IndicationOperationAggregate::_theMagicNumber = 98765;
 
 PEGASUS_NAMESPACE_END

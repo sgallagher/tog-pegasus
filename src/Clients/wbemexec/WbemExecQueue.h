@@ -31,6 +31,7 @@
 #define Pegasus_WbemExecQueue_h
 
 #include <fstream>
+#include <iostream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/HTTPMessage.h>
@@ -40,11 +41,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class XmlParser;
-
 /** This class receives HTTP messages and prints out the messages.
 */
-class PEGASUS_CLIENT_LINKAGE WbemExecQueue : public MessageQueue
+class WbemExecQueue : public MessageQueue
 {
 public:
 
@@ -53,7 +52,7 @@ public:
     */
    WbemExecQueue(
         MessageQueue* encoderQueue,
-	ostream& os,
+	PEGASUS_STD(ostream&) os,
 	Boolean debugOutput,
         ClientAuthenticator* authenticator);
 

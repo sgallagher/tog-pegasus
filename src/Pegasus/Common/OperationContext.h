@@ -30,37 +30,47 @@
 #define Pegasus_OperationContext_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Exception.h>
+
+#include <Pegasus/Common/CIMInstance.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define CONTEXT_EMPTY                       0x00000000
-#define CONTEXT_IDENTITY                    0x00000001
-#define CONTEXT_AUTHENICATION               0x00000002
-#define CONTEXT_AUTHORIZATION               0x00000004
-#define CONTEXT_OTHER_SECURITY              0x00000008
-#define CONTEXT_LOCALE                      0x00000010
-#define CONTEXT_OPTIONS                     0x00000020
-#define CONTEXT_VENDOR                      0x00000040
-#define CONTEXT_UID_PRESENT                 0x00000080
-#define CONTEXT_UINT32_PRESENT              0x00000100
-#define CONTEXT_OTHER                       0x00000200
-#define CONTEXT_COPY_MEMORY                 0x00000400
-#define CONTEXT_DELETE_MEMORY               0x00000800
-#define CONTEXT_POINTER                     0x00001000
+static const Uint32 CONTEXT_EMPTY =                     0;
+static const Uint32 CONTEXT_IDENTITY =                  1;
+static const Uint32 CONTEXT_AUTHENICATION =             2;
+static const Uint32 CONTEXT_AUTHORIZATION =             3;
+static const Uint32 CONTEXT_OTHER_SECURITY =            4;
+static const Uint32 CONTEXT_LOCALE =                    5;
+static const Uint32 CONTEXT_OPTIONS =                   6;
+static const Uint32 CONTEXT_VENDOR =                    7;
+static const Uint32 CONTEXT_UID_PRESENT =               8;
+static const Uint32 CONTEXT_UINT32_PRESENT =            9;
+static const Uint32 CONTEXT_OTHER =                     10;
+static const Uint32 CONTEXT_COPY_MEMORY =               11;
+static const Uint32 CONTEXT_DELETE_MEMORY =             12;
+static const Uint32 CONTEXT_POINTER =                   13;
+static const Uint32 CONTEXT_PROVIDERID =                14;
 
-#define OPERATION_NONE                      0x00000000
-#define OPERATION_LOCAL_ONLY                0x00000001
-#define OPERATION_INCLUDE_QUALIFIERS        0x00000002
-#define OPERATION_INCLUDE_CLASS_ORIGIN      0x00000004
-#define OPERATION_DEEP_INHERITANCE          0x00000008
-#define OPERATION_PARTIAL_INSTANCE          0x00000010
-#define OPERATION_REMOTE_ONLY               0x00000020
-#define OPERATION_DELIVER                   0x00000040
-#define OPERATION_RESERVE                   0x00000080
-#define OPERATION_PROCESSING                0x00000100
-#define OPERATION_COMPLETE                  0x00000200
+static const Uint32 OPERATION_NONE =                    0x00000000;
+static const Uint32 OPERATION_LOCAL_ONLY =              0x00000001;
+static const Uint32 OPERATION_INCLUDE_QUALIFIERS =      0x00000002;
+static const Uint32 OPERATION_INCLUDE_CLASS_ORIGIN =    0x00000004;
+static const Uint32 OPERATION_DEEP_INHERITANCE =        0x00000008;
+static const Uint32 OPERATION_PARTIAL_INSTANCE =        0x00000010;
+static const Uint32 OPERATION_REMOTE_ONLY =             0x00000020;
+static const Uint32 OPERATION_DELIVER =                 0x00000040;
+static const Uint32 OPERATION_RESERVE =                 0x00000080;
+static const Uint32 OPERATION_PROCESSING =              0x00000100;
+static const Uint32 OPERATION_COMPLETE =                0x00000200;
 
+/**
+    This class represents a set of arbitrary information (stored in containers)
+    associated with a CIM operation request. As an example, each operation may
+    have an associated locale that can be represented as a container in the
+    context object.
+*/
 class PEGASUS_COMMON_LINKAGE OperationContext
 {
 public:
@@ -68,12 +78,14 @@ public:
     {
     public:
         ///
-        Container(const Uint32 key);
+        Container(const Uint32 key = CONTEXT_EMPTY);
 
         virtual ~Container(void);
 
         ///
         const Uint32 & getKey(void) const;
+
+        virtual Container * clone(void) const;
 
     protected:
         Uint32 _key;
@@ -90,11 +102,19 @@ public:
     ///
     virtual ~OperationContext(void);
 
-    ///
+    OperationContext & operator=(const OperationContext & context);
+
+    /**	
+        clear - Removes all containers in the current object.
+	
+        @param none
+	    @return none
+	    @exception none
+    */
     void clear(void);
 
     ///
-    const Container get(const Uint32 key) const;
+    const Container & get(const Uint32 key) const;
 
     ///
     void set(const Container & container);
@@ -106,7 +126,7 @@ public:
     void remove(const Uint32 key);
 
 protected:
-    Array<Container> _containers;
+    Array<Container *> _containers;
 
 };
 
@@ -118,8 +138,10 @@ inline const Uint32 & OperationContext::Container::getKey(void) const
 class PEGASUS_COMMON_LINKAGE IdentityContainer : public OperationContext::Container
 {
 public:
+    IdentityContainer(const OperationContext::Container & container);
     IdentityContainer(const String & userName);
-    virtual ~IdentityContainer(void);
+
+    virtual OperationContext::Container * clone(void) const;
 
     String getUserName(void) const;
 
@@ -131,13 +153,32 @@ protected:
 class PEGASUS_COMMON_LINKAGE LocaleContainer : public OperationContext::Container
 {
 public:
+    LocaleContainer(const OperationContext::Container & container);
     LocaleContainer(const String & languageId);
-    virtual ~LocaleContainer(void);
+
+    virtual OperationContext::Container * clone(void) const;
 
     String getLanguageId(void) const;
 
 protected:
     String _languageId;
+
+};
+
+class PEGASUS_COMMON_LINKAGE ProviderIdContainer : public OperationContext::Container
+{
+public:
+    ProviderIdContainer(const OperationContext::Container & container);
+    ProviderIdContainer(const CIMInstance & module, const CIMInstance & provider);
+
+    virtual OperationContext::Container * clone(void) const;
+
+    CIMInstance getModule(void) const;
+    CIMInstance getProvider(void) const;
+
+protected:
+    CIMInstance _module;
+    CIMInstance _provider;
 
 };
 

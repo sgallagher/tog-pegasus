@@ -2,6 +2,7 @@ include $(PEGASUS_ROOT)/mak/config.mak
 
 DIRS = \
     AnonymousPipe \
+    AutoPtr \
     Config \
     HashTable \
     Resolve \

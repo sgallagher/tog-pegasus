@@ -83,7 +83,7 @@ class clientRepositoryInterface
 
   virtual ~clientRepositoryInterface();
 
-  void init(_repositoryType type, String location);
+  void init(_repositoryType type, const String &location);
 
   Boolean ok() const { return _repository || _client; }
 

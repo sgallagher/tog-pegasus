@@ -56,7 +56,7 @@ clientRepositoryInterface::~clientRepositoryInterface()
 
 void
 clientRepositoryInterface::init(_repositoryType type, 
-                                String location)
+                                const String &location)
 {
   String message;
   // _ot = ot;

@@ -4997,27 +4997,27 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {0} is a string containing the (syntax of) property value
         *    Substitution {1} is a string containing the property name
         */
-        IndicationFormatter.IndicationFormatter._MSG_INVALID_SYNTAX_OF_FOR_PROPERTY:string {"PGS16200: The syntax of {0} is not valid for property {1}."}
+        Common.IndicationFormatter._MSG_INVALID_SYNTAX_OF_FOR_PROPERTY:string {"PGS16200: The syntax of {0} is not valid for property {1}."}
 
         /**
         * @note  PGS16201:
         *    Substitution {0} is a string containing the array index value
         *    Substitution {1} is a string containing the property name
         */
-        IndicationFormatter.IndicationFormatter._MSG_INDEX_IS_OUT_OF_BOUNDS:string {"PGS16201: The value of array index {0} for property {1} is out of bounds."}
+        Common.IndicationFormatter._MSG_INDEX_IS_OUT_OF_BOUNDS:string {"PGS16201: The value of array index {0} for property {1} is out of bounds."}
 
         /**
         * @note  PGS16202:
         *    Substitution {0} is a string containing the property type
         *    Substitution {1} is a string containing the property name
         */
-        IndicationFormatter.IndicationFormatter._MSG_INVALID_TYPE_OF_FOR_PROPERTY:string {"PGS16202: The type of {0} is not valid for property {1}."}
+        Common.IndicationFormatter._MSG_INVALID_TYPE_OF_FOR_PROPERTY:string {"PGS16202: The type of {0} is not valid for property {1}."}
 
         /**
         * @note  PGS16203:
         *    Substitution {0} is a string containing the property name
         */
-        IndicationFormatter.IndicationFormatter._MSG_PROPERTY_IS_NOT_AN_ARRAY_TYPE:string {"PGS16203: The property {0} is not an array type."}
+        Common.IndicationFormatter._MSG_PROPERTY_IS_NOT_AN_ARRAY_TYPE:string {"PGS16203: The property {0} is not an array type."}
 
         /**
         * @note  PGS16204:
@@ -5025,20 +5025,30 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {1} is a string containing the property name
         *    Substitution {2} is a string containing the property type
         */
-        IndicationFormatter.IndicationFormatter._MSG_MISS_MATCHED_TYPE_OF_FOR_PROPERTY:string {"PGS16204: The specified property type {0} in property {1} does not match the property type {2}."}
+        Common.IndicationFormatter._MSG_MISS_MATCHED_TYPE_OF_FOR_PROPERTY:string {"PGS16204: The specified property type {0} in property {1} does not match the property type {2}."}
 
         /**
         * @note  PGS16205:
         *    Substitution {0} is a string containing the property name
         *    Substitution {1} is a string containing the property name
         */
-        IndicationFormatter.IndicationFormatter._MSG_MISS_MATCHED_PROPERTY_NAME:string {"PGS16205: The property name {0} in {1} is not included in the select clause."}
+        Common.IndicationFormatter._MSG_MISS_MATCHED_PROPERTY_NAME:string {"PGS16205: The property name {0} in {1} is not included in the select clause."}
 
         /**
         * @note  PGS16206:
         *    Substitution {0} is a string containing the index
         */
-        IndicationFormatter.IndicationFormatter._MSG_INVALID_INDEX:string {"PGS16206: Invalid index string {0}."}
+        Common.IndicationFormatter._MSG_INVALID_INDEX:string {"PGS16206: Invalid index string {0}."}
+
+        /**
+        * @note  PGS16207:
+        */
+        Common.IndicationFormatter._MSG_BOOLEAN_TRUE:string {"PGS16207: true."}
+
+        /**
+        * @note  PGS16208:
+        */
+        Common.IndicationFormatter._MSG_BOOLEAN_FALSE:string {"PGS16208: false."}
 
         // ==========================================================
         // Messages for SystemLogListenerDestination
@@ -5057,13 +5067,13 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {0} is the name of the provider
         *    Substitution {1} is another message string
         */
-        ProviderManager.Default.DefaultProviderManager.ENABLE_INDICATIONS_FAILED":string {"PGS16400: Failed to enable indications for provider {0}: {1}."}
+        ProviderManager.Default.DefaultProviderManager.ENABLE_INDICATIONS_FAILED:string {"PGS16400: Failed to enable indications for provider {0}: {1}."}
 
         /**
         * @note  PGS16401
         *    Substitution {0} is the name of the provider
         */
-        ProviderManager.Default.DefaultProviderManager.ENABLE_INDICATIONS_FAILED_UNKNOWN":string {"PGS16401: Failed to enable indications for provider {0}."}
+        ProviderManager.Default.DefaultProviderManager.ENABLE_INDICATIONS_FAILED_UNKNOWN:string {"PGS16401: Failed to enable indications for provider {0}."}
 
         // ==========================================================
         // Messages for CMPIProviderManager
@@ -5075,13 +5085,13 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {0} is the name of the provider
         *    Substitution {1} is another message string
         */
-        ProviderManager.CMPI.CMPIProviderManager.ENABLE_INDICATIONS_FAILED":string {"PGS16500: Failed to enable indications for provider {0}: {1}."}
+        ProviderManager.CMPI.CMPIProviderManager.ENABLE_INDICATIONS_FAILED:string {"PGS16500: Failed to enable indications for provider {0}: {1}."}
 
         /**
         * @note  PGS16501
         *    Substitution {0} is the name of the provider
         */
-        ProviderManager.CMPI.CMPIProviderManager.ENABLE_INDICATIONS_FAILED_UNKNOWN":string {"PGS16501: Failed to enable indications for provider {0}."}
+        ProviderManager.CMPI.CMPIProviderManager.ENABLE_INDICATIONS_FAILED_UNKNOWN:string {"PGS16501: Failed to enable indications for provider {0}."}
 
 // ==============================================================================
 // END OF RESOURCE BUNDLE

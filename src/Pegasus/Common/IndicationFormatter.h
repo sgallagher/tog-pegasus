@@ -42,6 +42,12 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Constants.h>
 
+#ifdef PEGASUS_HAS_ICU
+#include <unicode/locid.h>
+#include <unicode/datefmt.h>
+#include <unicode/unistr.h>
+#endif
+
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -56,37 +62,21 @@ class PEGASUS_COMMON_LINKAGE IndicationFormatter
 public:
 
     /**
-        Constructs a default indication text message from the received 
-	indication instance. 
+        Based on subscription instance, gets the formatted indication text 
+	message from the received indication instance. 
 
-        @param   indication  the received indication instance
+        @param   subscription   the subscription instance
+        @param   indication     the received indication instance
+        @param   contentLangs   the Content-Languages in the 
+				subscription instance 
 
-        @return  String containing default indication text message 
+        @return  String containing the formatted indication text message 
     */
-    static String formatDefaultIndicationText(
-        const CIMInstance & indication);
+    static String getFormattedIndText(
+        const CIMInstance & subscription,
+        const CIMInstance & indication,
+	const ContentLanguages & contentLangs);
 
-    /**
-        Constructs a human readable indication text message from the
-	specified indication textFormat, textFormatParams, and
-	received indication instance.
-
-        @param   textFormat        the specified indication textFormat 
-        @param   textFormatParams  the indexed array containing the names
-				   of properties defined in the select
-				   clause of the associated
-				   CIM_IndicationFilter Query
-        @param   indication        the received indication instance 
-        @param   contentLangs      the Content-Languages in the 
-				   subscription instance 
-
-        @return  String containing a human readable indication text message 
-    */
-    static String formatIndicationText(
-	const String & textFormat,
-	const Array<String>& textFormatParams,
-	const CIMInstance & indication,
-        const ContentLanguages & contentLangs);
 
     /**
         Validates the syntax and the provided type for the property 
@@ -142,13 +132,15 @@ private:
 	@param  propertyName  the specified property name
 	@param  arrayIndexStr the specified index string of the array 
 	@param  indication    the received indication instance
+	@param  contentLangs  the Content Languages 
         @return String containing property value
     */
         
     static String _getIndPropertyValue(
         const String & propertyName,
 	const String & arrayIndexStr,
-        const CIMInstance & indication);
+        const CIMInstance & indication,
+	const ContentLanguages & contentLangs);
 
     /**
 	Retrieves the array values referenced by the specified
@@ -156,12 +148,14 @@ private:
 
 	@param  propertyValue the CIMValue 
 	@param  indexStr the array index
+	@param  contentLangs  the Content Languages 
 	@return String containing array values referenced by the specified
 		CIMValue
     */
     static String _getArrayValues(
 	const CIMValue & propertyValue,
-        const String & indexStr);
+        const String & indexStr,
+	const ContentLanguages & contentLangs);
 
     /**
         Validates the index string 
@@ -199,6 +193,106 @@ private:
 	const String & propertyParam,
 	const String & propertyTypeStr,
 	const Boolean & isArray);
+
+    /**
+        Converts the CIMValue of the boolean to be string "true" or "false" 
+
+        @param   booleanCIMValue   Boolean CIMValue to be converted 
+
+        @return  the string representing the boolean CIMValue
+     */
+    static String _getBooleanStr(
+	const CIMValue & booleanCIMValue);
+
+    /**
+        Converts the boolean value to be string "true" or "false" 
+
+        @param   booleanValue   Boolean value to be converted 
+
+        @return  the string representing the boolean value 
+     */
+    static String _getBooleanStr(
+	const Boolean & booleanValue);
+
+    /**
+        Constructs a default indication text message from the received 
+	indication instance. 
+
+        @param   indication     the received indication instance
+        @param   contentLangs   the Content-Languages in the 
+				subscription instance 
+
+        @return  String containing default indication text message 
+    */
+    static String _formatDefaultIndicationText(
+        const CIMInstance & indication,
+	const ContentLanguages & contentLangs);
+
+    /**
+        Constructs a human readable indication text message from the
+	specified indication textFormat, textFormatParams, and
+	received indication instance.
+
+        @param   textFormat        the specified indication textFormat 
+        @param   textFormatParams  the indexed array containing the names
+				   of properties defined in the select
+				   clause of the associated
+				   CIM_IndicationFilter Query
+        @param   indication        the received indication instance 
+        @param   contentLangs      the Content-Languages in the 
+				   subscription instance 
+
+        @return  String containing a human readable indication text message 
+    */
+    static String _formatIndicationText(
+	const String & textFormat,
+	const Array<String>& textFormatParams,
+	const CIMInstance & indication,
+        const ContentLanguages & contentLangs);
+
+#ifdef PEGASUS_HAS_ICU
+    /**
+        Determines if a property value can be localized. 
+        A property value can only be localized if the subscription
+	ContentLanguages includes no more than one language tag.
+
+        @param   contentLangs    the Content-Languages in the
+	                         subscription instance
+        @param   locale          locale to be set on return if return 
+				 value is true
+
+        @return  True, if valid locale returned
+		 False, Otherwise
+     */
+    static Boolean _canLocalize(
+	const ContentLanguages & contentLangs,
+	Locale & locale);
+
+    /**
+        Localizes the CIMTYPE_DATETIME property value 
+
+        @param   dateTimeValue  the value of datetime to be localized 
+        @param   locale         locale to be used in the localization
+
+        @return  the string representation of the datetime value 
+     */
+    static String _localizeDateTime(
+	const CIMDateTime & dateTimeValue,
+	const Locale & locale);
+
+    /**
+        Localizes the CIMTYPE_BOOLEAN property value
+
+        @param   booleanValue   the value of the boolean to be localized 
+        @param   locale         locale to be used in the localization
+
+        @return  the string representation of the boolean value 
+     */
+    static String _localizeBooleanStr(
+	const Boolean & booleanValue,
+	const Locale & locale);
+
+#endif
 
 };
 

@@ -3033,9 +3033,9 @@ Boolean IndicationService::_canCreate (
                 textFormatValue = instance.getProperty(
 		    textFormatPos).getValue();
 
-		// ATTN-YZ-20050214 Temporary comment out this section, 
+		// ATTN-YZ-20050218 add if defined(PEGASUS_OS_HPUX)
 		// until bugzilla 2754 is fixed 
-		/*
+#if defined(PEGASUS_OS_HPUX)
 	        // if the value of textFormat is not null
                 if (!(textFormatValue.isNull()) &&
 	            (textFormatValue.getType() == CIMTYPE_STRING) &&
@@ -3070,7 +3070,7 @@ Boolean IndicationService::_canCreate (
 	            IndicationFormatter::validateTextFormatParameters(
 		        propertyList, indicationClass, textFormatParams);
 		}
-		*/
+#endif
             }
 	}
     }

@@ -73,78 +73,12 @@ void SystemLogListenerDestination::handleIndication(
 
     String ident_name = "CIM Indication";
     String indicationText;
-    String textFormat = String::EMPTY;
-    CIMValue textFormatValue;
-    CIMValue textFormatParamsValue;
-
-    Array<String> textFormatParams = NULL;
 
     try
     {
-        // get TextFormat from subscription
-        Uint32 textFormatPos = 
-	    subscription.findProperty(_PROPERTY_TEXTFORMAT); 
-
-	// if the property TextFormat is not found, 
-	// indication is constructed with default format
-        if (textFormatPos == PEG_NOT_FOUND)
-        {
-            indicationText = IndicationFormatter::formatDefaultIndicationText
-			     (indication);
-        }
-        else
-        {
-            textFormatValue = subscription.getProperty(textFormatPos).
-		getValue();
-
-	    // if the value of textFormat is NULL, 
-	    // indication is constructed with default format
-            if (textFormatValue.isNull()) 
-            {
-                indicationText = 
-		    IndicationFormatter::formatDefaultIndicationText(indication);
-	    }
-	    else
-	    {
-                // get TextFormatParameters from subscription
-                Uint32 textFormatParamsPos = subscription.findProperty(
-		    _PROPERTY_TEXTFORMATPARAMETERS); 
-
-	        if (textFormatParamsPos != PEG_NOT_FOUND)
-	        {
-                    textFormatParamsValue = subscription.getProperty(
-	                textFormatParamsPos).getValue();
-                }
-
-		// constructs indication with specified format
-		if ((textFormatValue.getType() == CIMTYPE_STRING) &&
-		    !(textFormatValue.isArray()))
-                {
-		    textFormatValue.get(textFormat);
-		    if (!textFormatParamsValue.isNull())
-		    {
-			if ((textFormatParamsValue.getType() == 
-			     CIMTYPE_STRING) &&
-                            (textFormatParamsValue.isArray()))
-                        {
-		            textFormatParamsValue.get(textFormatParams);
-                        }
-		    }
-
-		    indicationText = IndicationFormatter::formatIndicationText
-				     (textFormat,
-				      textFormatParams,
-				      indication,
-				      contentLanguages);
-		}
-		else
-		{
-                    indicationText = 
-		        IndicationFormatter::formatDefaultIndicationText(
-			    indication);
-		}
-	    }
-        }
+	// gets formatted indication message
+	indicationText = IndicationFormatter::getFormattedIndText(
+	    subscription, indication, contentLanguages);
 
         // default severity
         Uint32 severity = Logger::INFORMATION;

@@ -246,7 +246,7 @@ void Logger::_putInternal(
            
             // Open the syslog.
             // Ignore the systemId and open the log as cimserver
-	    System::openlog(systemId);
+	    System::openlog(System::CIMSERVER);
 
             // Log the message
 	    System::syslog(logLevel,(const char*)localizedMsg.getCString());	    

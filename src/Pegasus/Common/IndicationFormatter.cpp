@@ -547,11 +547,95 @@ void IndicationFormatter::_isValidIndex (
     PEG_METHOD_EXIT();
 }
 
-String IndicationFormatter::formatDefaultIndicationText(
-    const CIMInstance & indication)
+String IndicationFormatter::getFormattedIndText(
+    const CIMInstance & subscription,
+    const CIMInstance & indication,
+    const ContentLanguages & contentLangs)
 {
     PEG_METHOD_ENTER (TRC_IND_FORMATTER, 
-        "IndicationFormatter::formatDefaultIndicationText");
+        "IndicationFormatter::getFormattedIndText");
+
+    String indicationText;
+    String textFormat = String::EMPTY;
+    CIMValue textFormatValue;
+    CIMValue textFormatParamsValue;
+
+    Array<String> textFormatParams = NULL;
+
+        // get TextFormat from subscription
+        Uint32 textFormatPos = 
+	    subscription.findProperty(_PROPERTY_TEXTFORMAT); 
+
+	// if the property TextFormat is not found, 
+	// indication is constructed with default format
+        if (textFormatPos == PEG_NOT_FOUND)
+        {
+            indicationText = _formatDefaultIndicationText(indication, 
+							 contentLangs);
+        }
+        else
+        {
+            textFormatValue = subscription.getProperty(textFormatPos).
+		getValue();
+
+	    // if the value of textFormat is NULL, 
+	    // indication is constructed with default format
+            if (textFormatValue.isNull()) 
+            {
+                indicationText = _formatDefaultIndicationText(indication, 
+							     contentLangs);
+	    }
+	    else
+	    {
+                // get TextFormatParameters from subscription
+                Uint32 textFormatParamsPos = subscription.findProperty(
+		    _PROPERTY_TEXTFORMATPARAMETERS); 
+
+	        if (textFormatParamsPos != PEG_NOT_FOUND)
+	        {
+                    textFormatParamsValue = subscription.getProperty(
+	                textFormatParamsPos).getValue();
+                }
+
+		// constructs indication with specified format
+		if ((textFormatValue.getType() == CIMTYPE_STRING) &&
+		    !(textFormatValue.isArray()))
+                {
+		    textFormatValue.get(textFormat);
+		    if (!textFormatParamsValue.isNull())
+		    {
+			if ((textFormatParamsValue.getType() == 
+			     CIMTYPE_STRING) &&
+                            (textFormatParamsValue.isArray()))
+                        {
+		            textFormatParamsValue.get(textFormatParams);
+                        }
+		    }
+
+		    indicationText = _formatIndicationText(textFormat,
+				                          textFormatParams,
+				                          indication,
+				                          contentLangs);
+		}
+		else
+		{
+                    indicationText = _formatDefaultIndicationText(indication, 
+				                                 contentLangs);
+		}
+	    }
+
+        }
+
+        PEG_METHOD_EXIT();
+	return (indicationText);
+}
+
+String IndicationFormatter::_formatDefaultIndicationText(
+    const CIMInstance & indication,
+    const ContentLanguages & contentLangs)
+{
+    PEG_METHOD_ENTER (TRC_IND_FORMATTER, 
+        "IndicationFormatter::_formatDefaultIndicationText");
 
     CIMInstance indicationInstance = indication.clone();
     String propertyName;
@@ -559,6 +643,13 @@ String IndicationFormatter::formatDefaultIndicationText(
     Uint32 propertyCount = indicationInstance.getPropertyCount(); 
 
     indicationStr.append("Indication (default format):");
+
+    Boolean canLocalize = false;
+
+#ifdef PEGASUS_HAS_ICU
+    Locale locale;
+    canLocalize = _canLocalize(contentLangs, locale);
+#endif
 
     for (Uint32 i=0; i < propertyCount; i++)
     {
@@ -571,15 +662,56 @@ String IndicationFormatter::formatDefaultIndicationText(
         indicationStr.append(propertyName);
         indicationStr.append(" = ");
 
+	CIMType type = propertyValue.getType();
+
         if (!valueIsNull)
         {
             if (isArray)
             {
-		indicationStr.append(_getArrayValues(propertyValue, ""));
+		indicationStr.append(_getArrayValues(propertyValue, "",
+		    contentLangs));
             }
             else // value is not an array
             {
-                indicationStr.append(propertyValue.toString());
+#ifdef PEGASUS_HAS_ICU
+		if (canLocalize)
+		{
+		    if (type == CIMTYPE_DATETIME)
+		    {
+			CIMDateTime dateTimeValue;
+			propertyValue.get(dateTimeValue);
+		        indicationStr.append(_localizeDateTime(dateTimeValue, 
+		    	    locale));
+		    }
+		    else if (type == CIMTYPE_BOOLEAN)
+		    {
+			Boolean booleanValue;
+			propertyValue.get(booleanValue);
+		        indicationStr.append(_localizeBooleanStr(booleanValue, 
+		    	    locale));
+		    }
+		}
+		else
+		{
+		    if (type == CIMTYPE_BOOLEAN)
+		    {
+                        indicationStr.append(_getBooleanStr(propertyValue));
+		    }
+		    else
+		    {
+                        indicationStr.append(propertyValue.toString());
+		    }
+		}
+#else
+		if (type == CIMTYPE_BOOLEAN)
+		{
+                    indicationStr.append(_getBooleanStr(propertyValue));
+		}
+		else
+		{
+                    indicationStr.append(propertyValue.toString());
+		}
+#endif
             }
         }
 	else
@@ -600,14 +732,14 @@ String IndicationFormatter::formatDefaultIndicationText(
     return (indicationStr);
 }
 
-String IndicationFormatter::formatIndicationText(
+String IndicationFormatter::_formatIndicationText(
     const String & textFormat,
     const Array<String>& textFormatParams,
     const CIMInstance & indication,
     const ContentLanguages & contentLangs)
 {
     PEG_METHOD_ENTER (TRC_IND_FORMATTER, 
-        "IndicationFormatter::formatIndicationText");
+        "IndicationFormatter::_formatIndicationText");
 
     String indicationText;
     String textStr;
@@ -714,7 +846,8 @@ String IndicationFormatter::formatIndicationText(
                 propertyValue = _getIndPropertyValue(
                     textFormatParams[propertyIndex],
 		    arrayIndexStr,
-                    indication);
+                    indication,
+		    contentLangs);
             }
 
             indicationText.append(propertyValue);
@@ -737,13 +870,21 @@ String IndicationFormatter::formatIndicationText(
 String IndicationFormatter::_getIndPropertyValue(
     const String & specifiedPropertyName,
     const String & arrayIndexStr,
-    const CIMInstance & indication)
+    const CIMInstance & indication,
+    const ContentLanguages & contentLangs)
 {
     PEG_METHOD_ENTER (TRC_IND_FORMATTER, 
         "IndicationFormatter::_getIndPropertyValue");
 
     CIMInstance indicationInstance = indication.clone();
     String propertyName;
+
+    Boolean canLocalize = false;
+
+#ifdef PEGASUS_HAS_ICU
+    Locale locale;
+    canLocalize = _canLocalize(contentLangs, locale);	
+#endif
 
     for (Uint32 i=0; i < indicationInstance.getPropertyCount(); i++)
     {
@@ -755,6 +896,7 @@ String IndicationFormatter::_getIndPropertyValue(
         {
             CIMValue propertyValue = property.getValue();
             Boolean valueIsNull = propertyValue.isNull();
+	    CIMType type = propertyValue.getType();
 
             if (!valueIsNull)
             {
@@ -763,12 +905,54 @@ String IndicationFormatter::_getIndPropertyValue(
                 if (isArray)
                 {
                     PEG_METHOD_EXIT();
-		    return (_getArrayValues(propertyValue, arrayIndexStr));
+		    return (_getArrayValues(propertyValue, arrayIndexStr,
+			                    contentLangs));
                 }
                 else // value is not an array
                 {
-                    PEG_METHOD_EXIT();
-                    return (propertyValue.toString());
+#ifdef PEGASUS_HAS_ICU
+		    if (canLocalize)
+		    {
+                        if (type == CIMTYPE_DATETIME)
+		        {
+			    CIMDateTime dateTimeValue;
+			    propertyValue.get(dateTimeValue);
+                            PEG_METHOD_EXIT();
+			    return(_localizeDateTime(dateTimeValue, locale));
+		        }
+                        else if (type == CIMTYPE_BOOLEAN)
+		        {
+			    Boolean booleanValue;
+			    propertyValue.get(booleanValue);
+                            PEG_METHOD_EXIT();
+			    return(_localizeBooleanStr(booleanValue, locale));
+		        }
+		    }
+		    else
+		    {
+			if (type == CIMTYPE_BOOLEAN)
+			{
+                            PEG_METHOD_EXIT();
+                            return (_getBooleanStr(propertyValue));
+			}
+			else
+			{
+                            PEG_METHOD_EXIT();
+                            return (propertyValue.toString());
+			}
+		    }
+#else
+		    if (type == CIMTYPE_BOOLEAN)
+		    {
+                        PEG_METHOD_EXIT();
+                        return (_getBooleanStr(propertyValue));
+		    }
+		    else
+		    {
+                        PEG_METHOD_EXIT();
+                        return (propertyValue.toString());
+		    }
+#endif
                 }
 
             }
@@ -789,7 +973,8 @@ String IndicationFormatter::_getIndPropertyValue(
 
 String IndicationFormatter::_getArrayValues(
     const CIMValue & propertyValue,
-    const String & arrayIndexStr)
+    const String & arrayIndexStr,
+    const ContentLanguages & contentLangs)
 {
     PEG_METHOD_ENTER (TRC_IND_FORMATTER,
 	"IndicationFormatter::_getArrayValues");
@@ -1169,21 +1354,33 @@ String IndicationFormatter::_getArrayValues(
 	    Array<Boolean> booleanValue;
 	    propertyValue.get(booleanValue);
 
+	    Boolean canLocalize = false;
+
+#ifdef PEGASUS_HAS_ICU
+	    Locale locale;
+	    canLocalize = _canLocalize(contentLangs, locale);
+#endif
+
 	    // Empty brackets (e.g. []), gets all values of the array 
 	    if (sizeOfArrayIndexStr == 0)
 	    {
                 arrayValues.append("[");
 		for (Uint32 i=0; i<arraySize; i++)
 		{
-		    if (booleanValue[i])
+#ifdef PEGASUS_HAS_ICU
+		    if (canLocalize)
 		    {
-		        arrayValues.append("TRUE");
+			arrayValues.append(_localizeBooleanStr(
+			    booleanValue[i], locale));
 		    }
 		    else
 		    {
-		        arrayValues.append("FALSE");
+			arrayValues.append(_getBooleanStr(booleanValue[i]));
 		    }
+#else
+		    arrayValues.append(_getBooleanStr(booleanValue[i]));
 
+#endif
 		    if ( i < arraySize-1)
 		    {
 			arrayValues.append(",");
@@ -1194,9 +1391,19 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
-	        sprintf(propertyValueBuffer, "%d", 
-		    booleanValue[arrayIndex]);
-	        arrayValues = propertyValueBuffer; 
+#ifdef PEGASUS_HAS_ICU
+                if (canLocalize)
+		{
+		    arrayValues = _localizeBooleanStr(
+			booleanValue[arrayIndex], locale);
+		}
+		else
+		{
+		    arrayValues = _getBooleanStr(booleanValue[arrayIndex]);
+		}
+#else
+		arrayValues = _getBooleanStr(booleanValue[arrayIndex]);
+#endif
 	    }
 	     
             break;
@@ -1265,13 +1472,32 @@ String IndicationFormatter::_getArrayValues(
 	    Array<CIMDateTime> propertyValueDateTime;
 	    propertyValue.get(propertyValueDateTime);
 
+            Boolean canLocalize = false;
+
+#ifdef PEGASUS_HAS_ICU
+	    Locale locale;
+	    canLocalize = _canLocalize(contentLangs, locale);
+#endif
+
 	    // Empty brackets (e.g. []), gets all values of the array 
 	    if (sizeOfArrayIndexStr == 0)
 	    {
                 arrayValues.append("[");
 		for (Uint32 i=0; i<arraySize; i++)
 		{
+#ifdef PEGASUS_HAS_ICU
+                    if (canLocalize)
+		    {
+			arrayValues.append(_localizeDateTime(
+			    propertyValueDateTime[i], locale));
+		    }
+		    else
+		    {
+		        arrayValues.append(propertyValueDateTime[i].toString());
+		    }
+#else
 		    arrayValues.append(propertyValueDateTime[i].toString());
+#endif
 
 		    if ( i < arraySize-1)
 		    {
@@ -1283,8 +1509,21 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
+#ifdef PEGASUS_HAS_ICU
+		if (canLocalize)
+		{
+		    arrayValues.append(_localizeDateTime(
+			propertyValueDateTime[arrayIndex], locale));
+		}
+		else
+		{
+		    arrayValues.append(propertyValueDateTime
+			[arrayIndex].toString());
+		}
+#else
 	        arrayValues.append(propertyValueDateTime
 		    [arrayIndex].toString()); 
+#endif
 	    }
 	     
             break;
@@ -1333,6 +1572,203 @@ String IndicationFormatter::_getArrayValues(
 
     PEG_METHOD_EXIT();
     return (arrayValues);
+}
+
+String IndicationFormatter::_getBooleanStr(
+    const CIMValue & booleanCIMValue)
+{
+
+    PEG_METHOD_ENTER (TRC_IND_FORMATTER,
+	"IndicationFormatter::_getBooleanStr");
+
+    Boolean propertyValueBoolean;
+    booleanCIMValue.get(propertyValueBoolean);
+
+    if (propertyValueBoolean)
+    {
+        PEG_METHOD_EXIT();
+        return ("true");
+    }
+    else
+    {
+        PEG_METHOD_EXIT();
+        return ("false");
+    }
+}
+
+String IndicationFormatter::_getBooleanStr(
+    const Boolean & booleanValue)
+{
+
+    PEG_METHOD_ENTER (TRC_IND_FORMATTER,
+	"IndicationFormatter::_getBooleanStr");
+
+    if (booleanValue)
+    {
+        PEG_METHOD_EXIT();
+        return ("true");
+    }
+    else
+    {
+        PEG_METHOD_EXIT();
+        return ("false");
+    }
+}
+
+Boolean IndicationFormatter::_canLocalize(
+    const ContentLanguages & contentLangs,
+    Locale & locale)
+{
+    PEG_METHOD_ENTER (TRC_IND_FORMATTER,
+	"IndicationFormatter::_canLocalize");
+
+    Array<ContentLanguageElement> elements;
+    contentLangs.getAllLanguageElements(elements);
+
+    // If the Content-Languages has multiple language tag, do not localize
+    if (elements.size() > 1)
+    {
+        // there is more then one language tags
+	PEG_METHOD_EXIT();
+	return (false);
+    }
+    else if (elements.size() == 1)
+    {
+        // get the locale
+        String language = elements[0].getLanguage();
+        String country = elements[0].getCountry();
+        String variant = elements[0].getVariant();
+
+        locale = Locale::Locale((const char *) language.getCString(),
+				(const char *) country.getCString(),
+				(const char *) variant.getCString());
+
+        // the locale is bogus state
+        if (locale.isBogus())
+        {
+	    PEG_METHOD_EXIT();
+	    return (false);
+        }
+        else
+        {
+	    PEG_METHOD_EXIT();
+	    return (true);
+        }
+    }
+    else
+    {
+	locale = Locale::getDefault();
+
+        PEG_METHOD_EXIT();
+        return (true);
+    }
+
+}
+
+String IndicationFormatter::_localizeDateTime(
+    const CIMDateTime & propertyValueDateTime,
+    const Locale & locale)
+{
+
+    PEG_METHOD_ENTER (TRC_IND_FORMATTER,
+	"IndicationFormatter::_localizeDateTime");
+
+    // Convert dateTimeValue to be microSeconds,
+    // the number of microseconds from the epoch starting
+    // 0/0/0000 (12 am Jan 1, 1BCE)
+    //
+
+    CIMDateTime dateTimeValue = propertyValueDateTime;
+    Uint64 dateTimeValueInMicroSecs =
+        dateTimeValue.toMicroSeconds();
+
+    // In ICU, as UTC milliseconds from the epoch starting 
+    // (1 January 1970 0:00 UTC)
+    CIMDateTime dt;
+    dt.set("19700101230000.000000+000");
+
+    // Convert dateTimeValue to be milliSeconds,
+    // the number of milliSeconds from the epoch starting 
+    // (1 January 1970 0:00 UTC)
+    UDate dateTimeValueInMilliSecs = 
+       (dateTimeValueInMicroSecs - dt.toMicroSeconds())/1000;
+
+    // Create a formatter for DATE and TIME with medium length
+    // such as Jan 12, 1952 3:30:32pm 
+    DateFormat *fmt;
+    fmt = DateFormat::createDateTimeInstance(DateFormat::MEDIUM, 
+        DateFormat::MEDIUM, locale);
+
+    // Format the Date and Time
+    UErrorCode status = U_ZERO_ERROR;
+    UnicodeString dateTimeUniStr;
+    fmt->format(dateTimeValueInMilliSecs, dateTimeUniStr, status);
+
+    if (U_FAILURE(status))
+    {
+        delete fmt;
+        PEG_METHOD_EXIT();
+        return (dateTimeValue.toString());
+    }
+            
+    // convert UnicodeString to char *
+    char dateTimeBuffer[256];
+    char *extractedStr = 0;
+
+    // Copy the contents of the string into dateTimeBuffer
+    Uint32 strLen = dateTimeUniStr.extract(0, sizeof(dateTimeBuffer), 
+					   dateTimeBuffer);
+
+    // There is not enough space in dateTimeBuffer
+    if (strLen > sizeof(dateTimeBuffer))
+    {
+	extractedStr = new char[strLen + 1];
+	strLen = dateTimeUniStr.extract(0, strLen + 1, extractedStr);
+    }
+    else
+    {
+	extractedStr = dateTimeBuffer;
+    }
+
+    String datetimeStr = extractedStr;
+
+    if (extractedStr != dateTimeBuffer)
+    {
+	delete extractedStr;
+    }
+
+    delete fmt;
+
+    PEG_METHOD_EXIT();
+    return (datetimeStr);
+}
+
+String IndicationFormatter::_localizeBooleanStr(
+    const Boolean & booleanValue,
+    const Locale & locale)
+{
+
+    PEG_METHOD_ENTER (TRC_IND_FORMATTER,
+	"IndicationFormatter::_localizeBooleanStr");
+
+    if (booleanValue)
+    {
+	MessageLoaderParms parms(
+	    "IndicationFormatter.IndicationFormatter._MSG_BOOLEAN_TRUE",
+	    "true");
+
+        PEG_METHOD_EXIT();
+        return (MessageLoader::getMessage(parms));
+    }
+    else
+    {
+	MessageLoaderParms parms(
+	    "IndicationFormatter.IndicationFormatter._MSG_BOOLEAN_FALSE",
+	    "false");
+
+        PEG_METHOD_EXIT();
+        return (MessageLoader::getMessage(parms));
+    }
 }
 
 PEGASUS_NAMESPACE_END

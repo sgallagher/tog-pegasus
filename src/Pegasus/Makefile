@@ -37,6 +37,14 @@ DIRS += \
     ControlProviders/InteropProvider/tests
 endif
 
+# temporary add ifeq ($(OS),HPUX) until Bug 2754 is fixed
+ifeq ($(OS),HPUX)
+  ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
+    DIRS += \
+        Handler/SystemLogListenerDestination
+  endif
+endif
+
 DIRS += \
         ProviderManager2 \
 	ProviderManager2/Default \

@@ -158,7 +158,9 @@ AIX_LIB_PRIORITY=-20
   endif
 endif
 
+# temporary add SOURCES +=, it will be moved to SOURCES when bug 2754 is fixed
 ifeq ($(OS),HPUX)
+  SOURCES += IndicationFormatter.cpp
   ifdef PEGASUS_HAS_SSL
     EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
   endif

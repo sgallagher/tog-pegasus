@@ -53,10 +53,18 @@ AuthenticationManager::AuthenticationManager()
 
     _httpAuthHandler = _getHttpAuthHandler();
 
+    //
+    // Build the Basic authentication challenge header 
+    // "hostname" + ":" + "portNo" using the hostname and port number
+    //
+
+    //
+    // get the local system name
+    //
     _realm.assign(System::getHostName());
 
     //
-    // get the configured authentication type
+    // get the configured port number
     //
     ConfigManager* configManager = ConfigManager::getInstance();
 
@@ -65,7 +73,6 @@ AuthenticationManager::AuthenticationManager()
     _realm.append(":"); 
     _realm.append(port); 
 
-    //_realm.append("hostname:5589"); //"hostname" + ":" + "portNo";
 }
 
 //
@@ -111,8 +118,8 @@ Boolean AuthenticationManager::performHttpAuthentication
     //
     // Check if the user is already authenticated
     //
-    if (authInfo->isAuthenticated() &&
-        String::equal(userName, authInfo->getAuthenticatedUser()))
+    if (authInfo->isAuthenticated() && (authInfo->isPrivileged() ||
+        String::equal(userName, authInfo->getAuthenticatedUser())))
     {
         return true;
     }
@@ -186,8 +193,8 @@ Boolean AuthenticationManager::performPegasusAuthentication
     //
     // Check if the user is already authenticated
     //
-    if (authInfo->isAuthenticated() &&
-        String::equal(userName, authInfo->getAuthenticatedUser()))
+    if (authInfo->isAuthenticated() && (authInfo->isPrivileged() ||
+        String::equal(userName, authInfo->getAuthenticatedUser())))
     {
         return true;
     }
@@ -206,6 +213,15 @@ Boolean AuthenticationManager::performPegasusAuthentication
     if (authenticated)
     {
         authInfo->setAuthStatus(AuthenticationInfo::AUTHENTICATED);
+
+        if ( String::equal(authType, "LocalPrivileged") )
+        {
+            authInfo->setPrivileged(true);
+        }
+        else
+        {
+            authInfo->setPrivileged(false);
+        }
     }
 
     return ( authenticated );

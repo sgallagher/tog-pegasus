@@ -28,13 +28,13 @@
 #include "PAMBasicAuthenticator.h"
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
-   #if defined(PEGASUS_OS_HPUX)
-   # include "PAMBasicAuthenticatorUnix.cpp"
-   #elif defined(PEGASUS_OS_LINUX)
-   # include "PAMBasicAuthenticatorUnix.cpp"
-   #else
-   # include "PAMBasicAuthenticatorStub.cpp"
-   #endif
+# if defined(PEGASUS_OS_HPUX)
+#  include "PAMBasicAuthenticatorUnix.cpp"
+# elif defined(PEGASUS_OS_LINUX)
+#  include "PAMBasicAuthenticatorUnix.cpp"
+# else
+#  include "PAMBasicAuthenticatorStub.cpp"
+# endif
 #else
 # include "PAMBasicAuthenticatorStub.cpp"
 #endif

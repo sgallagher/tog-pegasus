@@ -333,13 +333,13 @@ void ThreadPool::allocate_and_awaken(void *parm,
           "Initializing thread with work function and parameters: parm = %p",
           parm);
 
-      th->remove_tsd("work func");
+      th->delete_tsd("work func");
       th->put_tsd("work func", NULL,
 		  sizeof( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void *)),
 		  (void *)work);
-      th->remove_tsd("work parm");
+      th->delete_tsd("work parm");
       th->put_tsd("work parm", NULL, sizeof(void *), parm);
-      th->remove_tsd("blocking sem");
+      th->delete_tsd("blocking sem");
       if(blocking != 0 )
 	 th->put_tsd("blocking sem", NULL, sizeof(Semaphore *), blocking);
       
@@ -471,11 +471,11 @@ Uint32 ThreadPool::kill_dead_threads(void)
 	
 	       if(th != 0)
 	       {
-		  th->remove_tsd("work func");
+		  th->delete_tsd("work func");
 		  th->put_tsd("work func", NULL,
 			      sizeof( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void *)),
 			      (void *)&_undertaker);
-		  th->remove_tsd("work parm");
+		  th->delete_tsd("work parm");
 		  th->put_tsd("work parm", NULL, sizeof(void *), th);
 	
 		  // signal the thread's sleep semaphore to awaken it

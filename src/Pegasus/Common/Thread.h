@@ -288,9 +288,9 @@ class PEGASUS_COMMON_LINKAGE Thread
 	    delete tsd;
       }
 
+      // Note: Caller must delete the thread_data object returned (if not null)
       inline void *remove_tsd(const Sint8 *key) throw(IPCException)
       {
-         // ATTN-P2-RK-20020520: Does the caller delete this?
 	 return(_tsd.remove((const void *)key));
       }
       
@@ -300,20 +300,19 @@ class PEGASUS_COMMON_LINKAGE Thread
       }
       
       // create or re-initialize tsd associated with the key
-      // if the tsd already exists, return the existing buffer
-      thread_data *put_tsd(const Sint8 *key, void (*delete_func)(void *), Uint32 size, void *value) 
+      // if the tsd already exists, delete the existing buffer
+      void put_tsd(const Sint8 *key, void (*delete_func)(void *), Uint32 size, void *value) 
 	 throw(IPCException)
 
       {
 	 PEGASUS_ASSERT(key != NULL);
 	 thread_data *tsd ;
-         // ATTN-P2-RK-20020520: Does the caller delete this?
 	 tsd = _tsd.remove((const void *)key);  // may throw an IPC exception 
+	 delete tsd;
 	 thread_data *ntsd = new thread_data(key);
 	 ntsd->put_data(delete_func, size, value);
 	 try { _tsd.insert_first(ntsd); }
 	 catch(IPCException& e) { e = e; delete ntsd; throw; }
-	 return(tsd);
       }
       inline PEGASUS_THREAD_RETURN get_exit(void) { return _exit_code; }
       inline PEGASUS_THREAD_TYPE self(void) {return pegasus_thread_self(); }

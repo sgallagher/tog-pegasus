@@ -30,6 +30,7 @@
 
 #include <cassert>
 #include <Pegasus/Common/Monitor.h>
+#include <Pegasus/Common/TLS.h>
 #include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/OptionManager.h>
@@ -428,7 +429,9 @@ void GetOptions(
 		 {"debug", "false", false, Option::BOOLEAN, 0, 0, "d", 
 		              "Not Used "},
 		 {"slp", "false", false, Option::BOOLEAN, 0, 0, "slp", 
-		 		 		 "use SLP to find cim servers to test"}
+		 		 		 "use SLP to find cim servers to test"},
+		 {"ssl", "false", false, Option::BOOLEAN, 0, 0, "ssl", 
+		 		 		 "use SSL"}
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
 
@@ -561,6 +564,7 @@ int main(int argc, char** argv)
 		 }
     }
 #endif
+    Boolean useSSL =  (om.valueEquals("ssl", "true"))? true: false;
     
 
     cout << "Connection List size " << connectionList.size() << endl;
@@ -573,52 +577,63 @@ int main(int argc, char** argv)
     {
 
       try
-		 {
-		   Stopwatch elapsedTime;
-		   Monitor* monitor = new Monitor;
-		   HTTPConnector* connector = new HTTPConnector(monitor);
-		   CIMClient client(monitor, connector, 60 * 1000);
+      {
+	   Stopwatch elapsedTime;
+	   Monitor* monitor = new Monitor;
+	   //HTTPConnector* connector = new HTTPConnector(monitor);
 
-		   char * connection = connectionList[i].allocateCString();
-		   cout << "connecting to " << connection << endl;
-		   client.connect(connection);
-		   delete [] connection;
+	   HTTPConnector* connector;
+           if (useSSL)
+           {
+               String certpath("/home/markus/src/pegasus/server.pem");
+               SSLContext * sslcontext = new SSLContext(certpath);
+	       connector = new HTTPConnector(monitor, sslcontext);
+           }
+           else
+	       connector = new HTTPConnector(monitor);
 
-		   testStatus("Test NameSpace Operations");
+	   CIMClient client(monitor, connector, 60 * 1000);
 
-		   TestNameSpaceOperations(client, activeTest, verboseTest);
-		   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
+	   char * connection = connectionList[i].allocateCString();
+	   cout << "connecting to " << connection << endl;
+	   client.connect(connection);
+	   delete [] connection;
+
+	   testStatus("Test NameSpace Operations");
+
+	   TestNameSpaceOperations(client, activeTest, verboseTest);
+	   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
 		   
-		   testStatus("Test Qualifier Operations");
-		   elapsedTime.reset();
-		   TestQualifierOperations(client,activeTest,verboseTest);
-		   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
+	   testStatus("Test Qualifier Operations");
+	   elapsedTime.reset();
+	   TestQualifierOperations(client,activeTest,verboseTest);
+	   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
 
-		   testStatus("Test EnumerateClassNames");
-		   elapsedTime.reset();
-		   TestEnumerateClassNames(client,activeTest,verboseTest);
-		   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
+	   testStatus("Test EnumerateClassNames");
+	   elapsedTime.reset();
+	   TestEnumerateClassNames(client,activeTest,verboseTest);
+	   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
 
 
-		   testStatus("Test Class Operations");
-		   elapsedTime.reset();
-		   TestClassOperations(client,activeTest,verboseTest);
-		   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
-		   elapsedTime.printElapsed();
+	   testStatus("Test Class Operations");
+	   elapsedTime.reset();
+	   TestClassOperations(client,activeTest,verboseTest);
+	   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
+	   elapsedTime.printElapsed();
 
-		   testStatus("Test Instance Get Operations");
-		   elapsedTime.reset();
-		   TestInstanceGetOperations(client,activeTest,verboseTest);
-		   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
+	   testStatus("Test Instance Get Operations");
+	   elapsedTime.reset();
+	   TestInstanceGetOperations(client,activeTest,verboseTest);
+	   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
 
-		   testStatus("Test Instance Modification Operations");
-		   elapsedTime.reset();
-		   TestInstanceModifyOperations(client, activeTest, verboseTest);
-		   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
+	   testStatus("Test Instance Modification Operations");
+	   elapsedTime.reset();
+	   TestInstanceModifyOperations(client, activeTest, verboseTest);
+	   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
 
-		   testStatus("Test Associations");
+	   testStatus("Test Associations");
 		   
-		 }
+      }
       catch(Exception& e)
 		 {
 		   PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);

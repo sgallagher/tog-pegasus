@@ -39,7 +39,7 @@ typedef HashTable<Uint32, MessageQueue*, EqualFunc<Uint32>, HashFunc<Uint32> >
     QueueTable;
 
 static QueueTable _queueTable(128);
-static Mutex q_table_mut = Mutex();
+static Mutex q_table_mut ;
 
 Uint32 MessageQueue::getNextQueueId() throw(IPCException)
 {
@@ -49,7 +49,7 @@ Uint32 MessageQueue::getNextQueueId() throw(IPCException)
    // Lock mutex:
    //
 
-   static Mutex _id_mut = Mutex();
+   static Mutex _id_mut ;
    _id_mut.lock(pegasus_thread_self());
 
    // Assign next queue id. Handle wrap around and never assign zero as

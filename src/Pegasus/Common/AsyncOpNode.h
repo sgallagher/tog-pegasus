@@ -38,11 +38,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// ATTN usage of flags and state is inconsistent
-// << Wed Jan 16 17:41:57 2002 mdd >>
-// resolved mdd 
-
-
 #define ASYNC_OPFLAGS_UNKNOWN           0x00000000
 #define ASYNC_OPFLAGS_INTERVAL_REPEAT   0x00000010
 #define ASYNC_OPFLAGS_INDICATION        0x00000020

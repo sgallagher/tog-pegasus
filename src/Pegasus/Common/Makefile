@@ -92,7 +92,7 @@ SOURCES = \
     XmlParser.cpp \
     XmlReader.cpp \
     XmlWriter.cpp \
-    peg_authorization.cpp	
+    peg_authorization.cpp 
 
 ##
 ## Took these out again. They broke the NT build.

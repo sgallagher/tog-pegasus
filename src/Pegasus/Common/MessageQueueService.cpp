@@ -35,7 +35,7 @@ PEGASUS_NAMESPACE_BEGIN
 cimom *MessageQueueService::_meta_dispatcher = 0;
 AtomicInt MessageQueueService::_service_count = 0;
 AtomicInt MessageQueueService::_xid(1);
-Mutex MessageQueueService::_meta_dispatcher_mutex  = Mutex();
+Mutex MessageQueueService::_meta_dispatcher_mutex;
 
 
 MessageQueueService::MessageQueueService(const char *name, 

@@ -393,9 +393,9 @@ int ReadWriteSem::write_count()
 
 #ifndef PEGASUS_ATOMIC_INT_NATIVE
 
-AtomicInt::AtomicInt() {_rep._value = 0; _rep._mutex = Mutex(); }
+AtomicInt::AtomicInt() {_rep._value = 0;  }
 
-AtomicInt::AtomicInt(Uint32 initial) {_rep._value = initial;  _rep._mutex = Mutex() ; }
+AtomicInt::AtomicInt(Uint32 initial) {_rep._value = initial; }
 
 AtomicInt::~AtomicInt()
 {
@@ -404,7 +404,6 @@ AtomicInt::~AtomicInt()
 
 AtomicInt::AtomicInt(const AtomicInt& original)
 {
-    _rep._mutex = Mutex();
     _rep._value = original._rep._value;
 } 
 

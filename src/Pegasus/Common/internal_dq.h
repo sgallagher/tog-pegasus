@@ -29,10 +29,6 @@
 #ifndef PEG_INTERNAL_DQ_include
 #define PEG_INTERNAL_DQ_include
 
-// REVIEW: What uses this class?
-
-// REVIEW: Ask how this works (note to myself)?
-
 PEGASUS_NAMESPACE_BEGIN
 
 #define PEG_DQUEUE_FIRST 0
@@ -48,6 +44,7 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
       Boolean _isHead ;
       int _count;
 
+            
       // unlink this node from whichever list it is on
       inline void unlink( void  ) 
       { 
@@ -243,6 +240,8 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
       }
       inline virtual Uint32 count(void) { return _count ; }
 } ;
+
+
 
 
 template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq

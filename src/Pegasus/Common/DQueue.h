@@ -34,10 +34,17 @@ PEGASUS_NAMESPACE_BEGIN
 
 template<class L> class PEGASUS_COMMON_LINKAGE DQueue : public internal_dq
 {
+   public:
+      static void * operator new(size_t size);
+      static void operator delete(void *, size_t);
+            
    private: 
-
       Mutex *_mutex;
       AtomicInt *_actual_count;
+      DQueue *_dq_next;
+      static DQueue *_headOfFreeList;
+      static const int BLOCK_SIZE;
+      static Mutex _alloc_mut;
       
    public:
       typedef internal_dq Base;
@@ -322,8 +329,63 @@ template<class L> class PEGASUS_COMMON_LINKAGE DQueue : public internal_dq
 } ;
 
 
+DQueue<class L> * DQueue<L>::_headOfFreeList;
+const int DQueue<class L>::BLOCK_SIZE = 20;
+Mutex DQueue<class L>::_alloc_mut;
+
+
+void * DQueue<class L>::operator new(size_t size)
+{
+   if (size != sizeof(DQueue<L>))
+      return ::operator new(size);
+   
+   _alloc_mut.lock(pegasus_thread_self());
+   
+   DQueue<L> *p = _headOfFreeList;
+   if(p)
+      _headOfFreeList = p->_dq_next;
+   else
+   {
+      DQueue<L> * newBlock = 
+	 static_cast<DQueue<L> *>(::operator new(BLOCK_SIZE * sizeof(DQueue<L>)));
+      int i;
+      for( i = 1; i < BLOCK_SIZE - 1; ++i)
+	 newBlock[i]._dq_next = &newBlock[i];
+      newBlock[BLOCK_SIZE - 1]._dq_next = 0;
+      
+      p = newBlock;
+      _headOfFreeList = &newBlock[1];
+   }
+   _alloc_mut.unlock();
+   
+   return p;
+}
+
+void DQueue<class L>::operator delete(void *deadObject, size_t size)
+{
+   if(deadObject == 0)
+      return;
+   if(size != sizeof(DQueue<L>))
+   {
+      ::operator delete(deadObject);
+      return;
+   }
+   DQueue<L> *p = static_cast<DQueue<L> *>(deadObject);
+   _alloc_mut.lock(pegasus_thread_self());
+   p->_dq_next = _headOfFreeList;
+   _headOfFreeList = p;
+   _alloc_mut.unlock();
+}
+
+
+
 template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: public internal_dq
 {
+
+   public:
+      static void * operator new(size_t size);
+      static void operator delete(void *, size_t);
+      
    private: // asyncdqueue
 
       Mutex *_cond;
@@ -332,7 +394,12 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: public internal_dq
       AtomicInt *_actual_count;
       AtomicInt *_disallow;
       AtomicInt * _capacity;
+      AsyncDQueue *_dq_next;
 
+      static AsyncDQueue *_headOfFreeList;
+      static const int BLOCK_SIZE;
+      static Mutex _alloc_mut;
+      
       void _insert_prep(void) throw(IPCException)
       {
 	 if(_disallow->value() > 0)
@@ -821,6 +888,53 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: public internal_dq
       Uint32 count(void) { return _actual_count->value() ; }
 };
       
+AsyncDQueue<class L> * AsyncDQueue<L>::_headOfFreeList;
+const int AsyncDQueue<class L>::BLOCK_SIZE = 20;
+Mutex AsyncDQueue<class L>::_alloc_mut;
+
+void * AsyncDQueue<class L>::operator new(size_t size)
+{
+   if (size != sizeof(AsyncDQueue<L>))
+      return ::operator new(size);
+   
+   _alloc_mut.lock(pegasus_thread_self());
+   
+   AsyncDQueue<L> *p = _headOfFreeList;
+   if(p)
+      _headOfFreeList = p->_dq_next;
+   else
+   {
+      AsyncDQueue<L> * newBlock = 
+	 static_cast<AsyncDQueue<L> *>(::operator new(BLOCK_SIZE * sizeof(AsyncDQueue<L>)));
+      int i;
+      for( i = 1; i < BLOCK_SIZE - 1; ++i)
+	 newBlock[i]._dq_next = &newBlock[i];
+      newBlock[BLOCK_SIZE - 1]._dq_next = 0;
+      
+      p = newBlock;
+      _headOfFreeList = &newBlock[1];
+   }
+   _alloc_mut.unlock();
+   
+   return p;
+}
+
+void AsyncDQueue<class L>::operator delete(void *deadObject, size_t size)
+{
+   if(deadObject == 0)
+      return;
+   if(size != sizeof(AsyncDQueue<L>))
+   {
+      ::operator delete(deadObject);
+      return;
+   }
+   AsyncDQueue<L> *p = static_cast<AsyncDQueue<L> *>(deadObject);
+   _alloc_mut.lock(pegasus_thread_self());
+   p->_dq_next = _headOfFreeList;
+   _headOfFreeList = p;
+   _alloc_mut.unlock();
+}
+
 
 PEGASUS_NAMESPACE_END
 

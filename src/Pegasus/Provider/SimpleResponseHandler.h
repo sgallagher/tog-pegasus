@@ -35,48 +35,48 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-    template<class _T>
-    class PEGASUS_PROVIDER_LINKAGE SimpleResponseHandlerRep : public ResponseHandlerRep<_T>
+template<class T>
+class PEGASUS_PROVIDER_LINKAGE SimpleResponseHandlerRep : public ResponseHandlerRep<T>
+{
+public:
+    SimpleResponseHandlerRep(void)
     {
-    public:
-        SimpleResponseHandlerRep(void)
-        {
-        }
+    }
 
-        virtual ~SimpleResponseHandlerRep(void)
-        {
-        }
+    virtual ~SimpleResponseHandlerRep(void)
+    {
+    }
 
-        virtual void processing(void)
-        {
-        }
+    //virtual void processing(void)
+    //{
+    //}
 
-        virtual void complete(void)
-        {
-        }
+    //virtual void complete(void)
+    //{
+    //}
 
-        virtual void deliver(const _T & object)
-        {
-            _objects.append(object);
-        }
+    virtual void deliver(const T & object)
+    {
+        _objects.append(object);
+    }
 
-        virtual void deliver(const Array<_T> & objects)
-        {
-            for(Uint32 i = 0, n = objects.size(); i < n; i++)
-            {
-                deliver(objects[i]);
-            }
-        }
+    //virtual void deliver(const Array<T> & objects)
+    //{
+    //    for(Uint32 i = 0, n = objects.size(); i < n; i++)
+    //    {
+    //        deliver(objects[i]);
+    //    }
+    //}
 
-        const Array<_T> & getObjects(void) const
-        {
-            return(_objects);
-        }
+    const Array<T> & getObjects(void) const
+    {
+        return(_objects);
+    }
 
-    private:
-        Array<_T> _objects;
+private:
+    Array<T> _objects;
 
-    };
+};
 
 template<class T>
 class PEGASUS_PROVIDER_LINKAGE SimpleResponseHandler : public ResponseHandler<T>
@@ -105,7 +105,7 @@ public:
 };
 
 PEGASUS_TEMPLATE_SPECIALIZATION
-SimpleResponseHandler<void>::SimpleResponseHandler(void)
+    SimpleResponseHandler<void>::SimpleResponseHandler(void)
     : ResponseHandler<void>()
 {
 }

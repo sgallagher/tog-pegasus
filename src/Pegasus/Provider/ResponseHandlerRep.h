@@ -49,13 +49,18 @@ public:
     ResponseHandlerRep(void)
     {
     }
+
     virtual ~ResponseHandlerRep(void)
     {
     }
 
-    virtual void processing(void) = 0;
+    virtual void processing(void)
+    {
+    }
 
-    virtual void complete() = 0;
+    virtual void complete(void)
+    {
+    }
 
     virtual void deliver(const CIMObject & object)
     {
@@ -63,6 +68,10 @@ public:
 
     virtual void deliver(const Array<CIMObject> & objects)
     {
+        for(Uint32 i = 0, n = objects.size(); i < n; i++)
+        {
+            deliver(objects[i]);
+        }
     }
 
     virtual void deliver(const CIMClass & object)
@@ -71,6 +80,10 @@ public:
 
     virtual void deliver(const Array<CIMClass> & objects)
     {
+        for(Uint32 i = 0, n = objects.size(); i < n; i++)
+        {
+            deliver(objects[i]);
+        }
     }
 
     virtual void deliver(const CIMInstance & object)
@@ -79,6 +92,10 @@ public:
 
     virtual void deliver(const Array<CIMInstance> & objects)
     {
+        for(Uint32 i = 0, n = objects.size(); i < n; i++)
+        {
+            deliver(objects[i]);
+        }
     }
 
     virtual void deliver(const CIMIndication & object)
@@ -87,6 +104,10 @@ public:
 
     virtual void deliver(const Array<CIMIndication> & objects)
     {
+        for(Uint32 i = 0, n = objects.size(); i < n; i++)
+        {
+            deliver(objects[i]);
+        }
     }
 
     virtual void deliver(const CIMValue & object)
@@ -95,6 +116,10 @@ public:
 
     virtual void deliver(const Array<CIMValue> & objects)
     {
+        for(Uint32 i = 0, n = objects.size(); i < n; i++)
+        {
+            deliver(objects[i]);
+        }
     }
 
     virtual void deliver(const CIMObjectPath & object)
@@ -103,6 +128,10 @@ public:
 
     virtual void deliver(const Array<CIMObjectPath> & objects)
     {
+        for(Uint32 i = 0, n = objects.size(); i < n; i++)
+        {
+            deliver(objects[i]);
+        }
     }
 
 };

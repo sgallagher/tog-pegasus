@@ -145,7 +145,6 @@ public:
     */
     virtual void processing(void)
     {
-      if (_rep)  // Allow ResponseHandler<void> to use empty processing() method
         getRep()->processing();
     }
 
@@ -157,7 +156,6 @@ public:
     */
     virtual void complete(void)
     {
-      if (_rep)  // Allow ResponseHandler<void> to use empty complete() method
         getRep()->complete();
     }
 
@@ -180,7 +178,6 @@ protected:
     ResponseHandlerRep<T> * _rep;
 
 };
-
 
 template<class T>
 class PEGASUS_PROVIDER_LINKAGE ResponseHandler : public BaseResponseHandler<T>
@@ -214,12 +211,10 @@ public:
     {
         getRep()->deliver(object);
     }
+
     virtual void deliver(const Array<CIMObject> & objects)
     {
-        for(Uint32 i = 0, n = objects.size(); i < n; i++)
-        {
-            getRep()->deliver(objects[i]);
-        }
+        getRep()->deliver(objects);
     }
 
 protected:
@@ -241,6 +236,7 @@ public:
     ResponseHandler(void)
     {
     }
+
     ResponseHandler(const ResponseHandler & handler)
         : BaseResponseHandler<CIMClass>(handler)
     {
@@ -257,12 +253,10 @@ public:
     {
         getRep()->deliver(object);
     }
+
     virtual void deliver(const Array<CIMClass> & objects)
     {
-        for(Uint32 i = 0, n = objects.size(); i < n; i++)
-        {
-            getRep()->deliver(objects[i]);
-        }
+        getRep()->deliver(objects);
     }
 
 protected:
@@ -272,7 +266,6 @@ protected:
     }
 
 };
-
 
 //
 // template specialization for ResponseHandler<CIMInstance>
@@ -284,6 +277,7 @@ public:
     ResponseHandler(void)
     {
     }
+
     ResponseHandler(const ResponseHandler & handler)
         : BaseResponseHandler<CIMInstance>(handler)
     {
@@ -300,12 +294,10 @@ public:
     {
         getRep()->deliver(object);
     }
+
     virtual void deliver(const Array<CIMInstance> & objects)
     {
-        for(Uint32 i = 0, n = objects.size(); i < n; i++)
-        {
-            getRep()->deliver(objects[i]);
-        }
+        getRep()->deliver(objects);
     }
 
 protected:
@@ -315,7 +307,6 @@ protected:
     }
 
 };
-
 
 //
 // template specialization for ResponseHandler<CIMIndication>
@@ -327,6 +318,7 @@ public:
     ResponseHandler(void)
     {
     }
+
     ResponseHandler(const ResponseHandler & handler)
         : BaseResponseHandler<CIMIndication>(handler)
     {
@@ -343,12 +335,10 @@ public:
     {
         getRep()->deliver(object);
     }
+
     virtual void deliver(const Array<CIMIndication> & objects)
     {
-        for(Uint32 i = 0, n = objects.size(); i < n; i++)
-        {
-            getRep()->deliver(objects[i]);
-        }
+        getRep()->deliver(objects);
     }
 
 protected:
@@ -358,7 +348,6 @@ protected:
     }
 
 };
-
 
 //
 // template specialization for ResponseHandler<CIMValue>
@@ -370,6 +359,7 @@ public:
     ResponseHandler(void)
     {
     }
+
     ResponseHandler(const ResponseHandler & handler)
         : BaseResponseHandler<CIMValue>(handler)
     {
@@ -386,12 +376,10 @@ public:
     {
         getRep()->deliver(object);
     }
+
     virtual void deliver(const Array<CIMValue> & objects)
     {
-        for(Uint32 i = 0, n = objects.size(); i < n; i++)
-        {
-            getRep()->deliver(objects[i]);
-        }
+        getRep()->deliver(objects);
     }
 
 protected:
@@ -401,7 +389,6 @@ protected:
     }
 
 };
-
 
 //
 // template specialization for ResponseHandler<CIMObjectPath>
@@ -413,6 +400,7 @@ public:
     ResponseHandler(void)
     {
     }
+
     ResponseHandler(const ResponseHandler & handler)
         : BaseResponseHandler<CIMObjectPath>(handler)
     {
@@ -429,12 +417,10 @@ public:
     {
         getRep()->deliver(object);
     }
+
     virtual void deliver(const Array<CIMObjectPath> & objects)
     {
-        for(Uint32 i = 0, n = objects.size(); i < n; i++)
-        {
-            getRep()->deliver(objects[i]);
-        }
+        getRep()->deliver(objects);
     }
 
 protected:

@@ -612,7 +612,7 @@ void System::openlog(const String ident)
 {
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
 
-    openlog(ident, LOG_PID|LOG_CONS, LOG_DAEMON);
+    ::openlog(ident.getCString(), LOG_PID|LOG_CONS, LOG_DAEMON);
 
 #endif
 
@@ -635,7 +635,7 @@ void System::syslog(Uint32 severity, const char *data)
     if (severity & Logger::SEVERE) syslogLevel =      LOG_ERR;
     if (severity & Logger::FATAL) syslogLevel =       LOG_CRIT;
 
-    syslog(syslogLevel, "%s", data);
+    ::syslog(syslogLevel, "%s", data);
 
 #elif defined(PEGASUS_OS_OS400)
 
@@ -682,7 +682,7 @@ void System::closelog()
 {
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
 
-    closelog();
+    ::closelog();
 
 #endif
 

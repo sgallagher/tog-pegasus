@@ -123,11 +123,11 @@ public:
 
     /* Checks for correctness and sets the MicroSeconds value of CIMDateTimeRep
     */
-    Uint16 set_microSec(String & mS);
+    Uint16 set_microSec(const String & mS);
 
     /* Checks for correctness and sets the UTC offset of CIMDateTimeRep
     */
-    Boolean set_utcOffSet(String uOff);
+    Boolean set_utcOffSet(const String uOff);
 
     /*Changes the CIMDateTimeRep data member data[] .
     @param value - value to be inserted into data[]
@@ -173,7 +173,7 @@ void CIMDateTimeRep::copy(CIMDateTimeRep * cTR)
 used as the micro seconds value. If the format is correct it sets the
 micro seconds value
 */
-Uint16 CIMDateTimeRep::set_microSec(String & mS)
+Uint16 CIMDateTimeRep::set_microSec(const String & mS)
 {
     //  String fin_data = sum_data.append(mS.subString(21,4));   
     
@@ -250,7 +250,7 @@ void CIMDateTimeRep::set_year(const String & ye)
 /* set_utcOffSet checks the format of the string representing the UTC
 offset if it is correct it sets the data member CIMDateTimeRep::utcOffSet
 */
-Boolean CIMDateTimeRep::set_utcOffSet(String uOffSet)
+Boolean CIMDateTimeRep::set_utcOffSet(const String uOffSet)
 {
     if (uOffSet.size() != 4) {
         Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
@@ -403,8 +403,8 @@ CIMDateTime::CIMDateTime(const Uint64 microSec, Boolean interval)
     //Set of Strings that hold part parts of datetime    100,000,000
     String year, ye_mo, ye_mo_da, ye_mo_da_ho, ye_mo_da_ho_mn, ye_mo_da_ho_mn_se, final;
 
-    Uint64 day_sub1 = microSec/_ONE_DAY;
-    Uint64 days_in400 = 146097;
+    Uint32 day_sub1 = microSec/_ONE_DAY;
+    Uint32 days_in400 = 146097;
 
     if (!interval) {
         Uint32 blocks_400 = day_sub1/days_in400;  //calculates the number of 400 year blocks in number
@@ -473,51 +473,51 @@ CIMDateTime::CIMDateTime(const Uint64 microSec, Boolean interval)
         /* this block of if else statments figures out the number of months. When it subtracts
         days it is subtracting whole days. i.e. if 0 days for the year means Jan. 1
         */          
-        if (days_rem < (365+lp) && (days_rem >= (334+lp))) {
+        if (days_rem < Uint32(365+lp) && (days_rem >= Uint32(334+lp))) {
             ye_mo = year.append(String("12"));
             days_rem = days_rem - (334+lp);
         }
-        else if((days_rem < (334+lp)) && (days_rem >= (304+lp))){
+        else if((days_rem < Uint32(334+lp)) && (days_rem >= Uint32(304+lp))){
             ye_mo = year.append(String("11"));
             days_rem = days_rem - (304+lp);
         }
-        else if((days_rem < (304+lp)) && (days_rem >= (273+lp))){
+        else if((days_rem < Uint32(304+lp)) && (days_rem >= Uint32(273+lp))){
             ye_mo = year.append(String("10"));
             days_rem = days_rem - (273+lp);
         }
-        else if((days_rem < (273+lp)) && (days_rem >= (243+lp))){
+        else if((days_rem < Uint32(273+lp)) && (days_rem >= Uint32(243+lp))){
             ye_mo = year.append(String("09"));
             days_rem = days_rem - (243+lp);
         }
-        else if((days_rem < (243+lp)) && (days_rem >= (212+lp))){
+        else if((days_rem < Uint32(243+lp)) && (days_rem >= Uint32(212+lp))){
             ye_mo = year.append(String("08"));
             days_rem = days_rem - (212+lp);
         }
-        else if((days_rem < (212+lp)) && (days_rem >= (181+lp))){
+        else if((days_rem < Uint32(212+lp)) && (days_rem >= Uint32(181+lp))){
             ye_mo = year.append(String("07"));
             days_rem = days_rem - (181+lp);
         }
-        else if((days_rem < (181+lp)) && (days_rem >= (151+lp))){
+        else if((days_rem < Uint32(181+lp)) && (days_rem >= Uint32(151+lp))){
             ye_mo = year.append(String("06"));
             days_rem = days_rem - (151+lp);
         }
-        else if((days_rem < (151+lp)) && (days_rem >= (120+lp))){
+        else if((days_rem < Uint32(151+lp)) && (days_rem >= Uint32(120+lp))){
             ye_mo = year.append(String("05"));
             days_rem = days_rem - (120+lp);
         }
-        else if((days_rem < (120+lp)) && (days_rem >= (90+lp))){
+        else if((days_rem < Uint32(120+lp)) && (days_rem >= Uint32(90+lp))){
             ye_mo = year.append(String("04"));
             days_rem = days_rem - (90+lp);
         }
-        else if((days_rem < (90+lp)) && (days_rem >= (59+lp))){
+        else if((days_rem < Uint32(90+lp)) && (days_rem >= Uint32(59+lp))){
             ye_mo = year.append(String("03"));
             days_rem = days_rem - (59+lp);
         }
-        else if((days_rem < (59+lp)) && (days_rem >= 31)){
+        else if((days_rem < Uint32(59+lp)) && (days_rem >= 31)){
             ye_mo = year.append(String("02"));
             days_rem = days_rem - 31;
         }
-        else if((days_rem < 31) && (days_rem >= 00)){
+        else if(days_rem < 31){
             ye_mo = year.append(String("01"));
         }
         else{
@@ -733,7 +733,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
         ans = fieldcheck(buffer, _rep->month);
         if (ans == SOME_WILD_CARDS) {
             Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
-                "CIMDateTime - Format of the month field is incorrect");
+                "CIMDateTime - Format of the month field is incorrect.s");
            //cout << "one was returned form fieldcheck" << endl << endl;
             return false;           // month field has both wildcards and digits
         }
@@ -906,6 +906,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
       }
 
 
+
     // cout << "before getting seconds" << endl;                                     
 
     buffer = dateTimeStr.subString(12,2);
@@ -1073,11 +1074,9 @@ Uint64 CIMDateTime::_toMicroSeconds()
         Uint16 lp = 0;
         Uint64 day_rem;
 
-        Uint32 y_dd;
-      
 
            // (((count%4 == 0) && (count%100 != 0)) || (count%400 == 0)) is only true for leap years
-        for (int i=1; i<=yea_rem; i++) {
+        for (Uint32 i=1; i<=yea_rem; i++) {
             if (!(((count%4 == 0) && (count%100 != 0)) || (count%400 == 0))) {
                 count_r = count_r + 1;
                 count = count + 1;

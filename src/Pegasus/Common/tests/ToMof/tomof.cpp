@@ -41,7 +41,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 // #define IO
-static char * verbose;
+char * verbose;
 
 template<class T>
 void test01(const T& x)

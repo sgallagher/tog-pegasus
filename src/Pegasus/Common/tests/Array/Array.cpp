@@ -38,7 +38,7 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-static char * verbose;
+char * verbose;
 
 template<class T>
 void Print(const Array<T>& arr)

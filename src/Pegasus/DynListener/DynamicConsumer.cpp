@@ -368,6 +368,8 @@ Boolean DynamicConsumer::isIdle()
 
     return false;
 
+#if !defined(PEGASUS_OS_VMS) // Bugzilla 3091
+
     if (!isLoaded())
     {
         PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Consumer is not loaded.");
@@ -388,6 +390,8 @@ Boolean DynamicConsumer::isIdle()
 
     PEG_METHOD_EXIT();
     return false;
+
+#endif // PEGASUS_OS_VMS
 }
 
 /** This method is called when the consumer is initialized for the first time.

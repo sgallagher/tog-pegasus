@@ -55,6 +55,9 @@ class SSLCertificateInfo;
 // Pegasus-defined SSL certificate verification callback
 typedef Boolean (SSLCertificateVerifyFunction) (SSLCertificateInfo &certInfo);
 
+// index to the application-specific data in the SSL connection object
+static const int SSL_CALLBACK_INDEX = 0;
+
 /** This class provides information that is used during the SSL verification callback.
     We pass a pointer to this object to the SSL_set_ex_data function.  We can then use SSL_get_ex_data
     from within the callback and cast the void* back to this object.  In this case, we store a pointer 
@@ -68,9 +71,6 @@ class PEGASUS_COMMON_LINKAGE SSLCallbackInfo
 {
 public:
     
-	// index to the application-specific data in the SSL connection object
-    static const int SSL_CALLBACK_INDEX = 0;
-
     SSLCallbackInfo(SSLCertificateVerifyFunction* verifyCert);  
 
     ~SSLCallbackInfo(); 

@@ -168,7 +168,7 @@ int prepareForCallback(int preVerifyOk, X509_STORE_CTX *ctx)
     // get the verification callback info specific to each SSL connection
     //
     ssl = (SSL*) X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
-    SSLCallbackInfo* exData = (SSLCallbackInfo*) SSL_get_ex_data(ssl, SSLCallbackInfo::SSL_CALLBACK_INDEX);
+    SSLCallbackInfo* exData = (SSLCallbackInfo*) SSL_get_ex_data(ssl, SSL_CALLBACK_INDEX);
 
     //
     // If the SSLContext does not have an additional callback

@@ -32,8 +32,8 @@
 #define Pegasus_Provider_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Common/IPC.h>
+#include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/ProviderManager/ProviderModule.h>
 #include <Pegasus/ProviderManager/ProviderFacade.h>
 #include <Pegasus/Server/Linkage.h>

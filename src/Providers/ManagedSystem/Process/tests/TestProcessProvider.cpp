@@ -66,7 +66,7 @@
 // ==========================================================================
 
 #define NAMESPACE "root/cimv2"
-#define TIMEOUT   10000                    // timeout value in milliseconds
+#define TIMEOUT   60000                    // timeout value in milliseconds
 
 // ==========================================================================
 // Class names.  These values are the names of the classes that
@@ -822,6 +822,12 @@ int main()
   {
     errorExit(e);
   }
+
+  //
+  //  Set a timeout longer than the default to avoid operations such as 
+  //  enumerateInstances timing out on slower systems
+  //
+  c.setTimeout (TIMEOUT);
 
   int rc;
   if ((rc = testClass(CLASS_CIM_PROCESS)) != 0) return rc;

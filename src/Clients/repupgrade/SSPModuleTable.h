@@ -73,25 +73,43 @@ public:
     static const Uint32 NUM_MODULES;
 };
 
+//   
+//    Enables module processing. If there are any modules defined in the
+//    module table below, then the following must be uncommented.
 //
-//    When a new module needs to be added the following list must be 
-//    updated to define the shared library name of the new module 
-//    and its type.
+// #define ENABLE_MODULE_PROCESSING 
+
 //
-//    A sample module entry has been included below. Sample module is
-//    located under SSPModule/SampleSSPModule directory. 
+//    List of Special Process Modules.
 //
+//    A sample module entry "pegsamplesspmodule" has been included below. 
+//    Sample module is located under SSPModule/SampleSSPModule directory. 
+//    The sample module shows a sample implementation of the processClass 
+//    and processInstance methods. 
+//
+//    Steps for adding a module:
+//    1. Add an entry for the module in the structure below.
+//    2. Uncomment the ENABLE_MODULE_PROCESSING macro defined above.
+//
+//    NOTE: If no modules are defined the ENABLE_MODULE_PROCESSING macro
+//          define must be commented out.
+//    
+//
+#ifdef ENABLE_MODULE_PROCESSING
 static struct SSPModuleTable::SchemaSpecialProcessModuleTable 
     schemaProcessingModules[] =
 {
-    {"pegsamplesspmodule",   "a"}
+//    {"pegsamplesspmodule",   "a"},
 };
+#endif
 
 //
 // Contains the count of number of modules.
 //
+#ifdef ENABLE_MODULE_PROCESSING
 const Uint32 SSPModuleTable::NUM_MODULES =
           sizeof(schemaProcessingModules) / sizeof(schemaProcessingModules[0]);
+#endif
 
 PEGASUS_NAMESPACE_END
 

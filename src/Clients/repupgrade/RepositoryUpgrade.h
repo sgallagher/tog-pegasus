@@ -236,6 +236,11 @@ private:
     Boolean _newRepositoryPathSet;
 
     //
+    // Indicates whether the Special Processing modules have been initialized.
+    //
+    Boolean _modulesInitialized;
+
+    //
     // Instance of CIMRepository used to access classes and namespaces from
     // the old repository.
     //
@@ -286,6 +291,7 @@ private:
     //
     Uint32 qualifierCount;
 
+#ifdef ENABLE_MODULE_PROCESSING
     //
     // Contains handles to the Special Processing shared libraries.
     //
@@ -316,12 +322,6 @@ private:
     static const char* _ALL;
 
     //
-    // Contains the PEGASUS_HOME environment variable value used in
-    // locating the Special Processing shared libraries.
-    //
-    String _pegasusHome;
-
-    //
     //  Special Processing Module entry point.
     //
     typedef SchemaSpecialProcessModule  
@@ -331,6 +331,13 @@ private:
     //  Contains the handles to Special Processing Modules.
     //
     SchemaSpecialProcessModule* _sspModule[SSPModuleTable::NUM_MODULES];
+#endif
+
+    //
+    // Contains the PEGASUS_HOME environment variable value used in
+    // locating the Special Processing shared libraries.
+    //
+    String _pegasusHome;
 
     //
     // Compares the namespaces passed and returns namespaces that are present 
@@ -501,6 +508,7 @@ private:
           const CIMQualifierDecl& qualifier,
           const String&           message) throw (RepositoryUpgradeException);
 
+#ifdef ENABLE_MODULE_PROCESSING
     // 
     // Initializes the Special Processing Modules.
     //
@@ -564,6 +572,7 @@ private:
     //                                       library
     //
     SchemaSpecialProcessModule *  _createSSPModule(DynamicLibrary& library);
+#endif
 
     //
     //  Compares two version strings.

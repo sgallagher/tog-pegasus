@@ -54,7 +54,7 @@
 #include "RepositoryUpgrade.h"
 
 // Enables debug information.
-//#define REPUPGRADE_DEBUG 1
+// #define REPUPGRADE_DEBUG 1
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -236,6 +236,7 @@ const String RepositoryUpgrade::_FILE_EXTENSION
  */
 const String   RepositoryUpgrade::_VERSION_QUALIFIER_NAME = "VERSION";
 
+#ifdef ENABLE_MODULE_PROCESSING
 /**
    Defines that the Special Processing Module is interested in
    processing classes.
@@ -259,9 +260,10 @@ const char* RepositoryUpgrade::_QUALIFIER_ONLY = "q";
    processing all types (includes class, instance and qualifier).
 */
 const char* RepositoryUpgrade::_ALL = "a";
+#endif
 
 //
-// Make the directory paths fixed for HP-UX if PEGASUS_USE_RELEASE_DIRS is set.
+// Make the repository paths fixed for HPUX, if PEGASUS_USE_RELEASE_DIRS is set.
 // Also defines the directory path to store CIMXML file for a failed request.
 //
 #if defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_HPUX)
@@ -290,62 +292,42 @@ RepositoryUpgrade::RepositoryUpgrade ()
 
     instanceCount=0;
     qualifierCount=0;
+    _modulesInitialized=false;
 
     //
-    // Get environment variables:
+    // Get environment variable PEGASUS_HOME
     //
-#ifdef PEGASUS_OS_OS400
-
-  VFYPTRS_INCDCL;               // VFYPTRS local variables
-
-  // verify pointers
-  #pragma exception_handler (qsyvp_excp_hndlr,qsyvp_excp_comm_area,\
-    0,_C2_MH_ESCAPE)
-    for( int arg_index = 1; arg_index < argc; arg_index++ ){
-        VFYPTRS(vERIFY_SPP_NULL(argv[arg_index]));
-    }
-  #pragma disable_handler
-
-    // Convert the args to ASCII
-    for(Uint32 i = 0;i< argc;++i)
-    {
-        EtoA(argv[i]);
-    }
-
-    // Initialize Pegasus home to the shipped OS/400 directory.
-    _pegasusHome = OS400_DEFAULT_PEGASUS_HOME;
-#endif
-
-
-#ifndef PEGASUS_OS_TYPE_WINDOWS
-#ifdef PEGASUS_OS_OS400
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
 #pragma convert(37)
     const char* tmp = getenv("PEGASUS_HOME");
 #pragma convert(0)
-    char home[256] = {0};
-    if (tmp && strlen(tmp) < 256)
+    // Set pegasusHome to the env var,if it is set.  Otherwise,
+    // use the OS/400 default path.
+    if (tmp != NULL)
     {
-        strcpy(home, tmp);
-        EtoA(home);
-        _pegasusHome = home;
+        char home[256] = {0};
+        if (strlen(tmp) < 256)
+        {
+            strcpy(home, tmp);
+            EtoA(home);
+            _pegasusHome=home;
+        }
     }
+    else
+        _pegasusHome = OS400_DEFAULT_PEGASUS_HOME;
 #else
-  #if defined(PEGASUS_OS_AIX) && defined(PEGASUS_USE_RELEASE_DIRS)
-    _pegasusHome = AIX_RELEASE_PEGASUS_HOME;
-  #elif !defined(PEGASUS_USE_RELEASE_DIRS)
     const char* tmp = getenv("PEGASUS_HOME");
+#endif
 
     if (tmp)
     {
         _pegasusHome = tmp;
     }
-#ifdef REPUPGRADE_DEBUG
-   cout << "Pegasus HOME : " << _pegasusHome << endl;
-#endif
-  #endif
-#endif
 
     FileSystem::translateSlashes(_pegasusHome);
+
+#ifdef REPUPGRADE_DEBUG
+   cout << "Pegasus HOME : " << _pegasusHome << endl;
 #endif
 
     //
@@ -409,14 +391,22 @@ RepositoryUpgrade::RepositoryUpgrade ()
 
     setUsage (_usage);
 
+   _oldRepositoryPathSet = false;
+   _newRepositoryPathSet = false;
+
    // 
    // If the PEGASUS_USE_RELEASE_DIRS is set make the old and new
    // repository paths fixed.
    //
 #if defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_HPUX)
-        _oldRepositoryPath = OLD_REPOSITORY_PATH;
-        _newRepositoryPath = NEW_REPOSITORY_PATH;
+       _oldRepositoryPath = OLD_REPOSITORY_PATH;
+       _newRepositoryPath = NEW_REPOSITORY_PATH;
+       _oldRepositoryPathSet = true;
+       _newRepositoryPathSet = true;
 #endif
+
+   _oldRepository = 0;
+   _newRepository = 0;
     
 }
 
@@ -437,7 +427,12 @@ RepositoryUpgrade::~RepositoryUpgrade ()
         delete _newRepository;
     }
 
-    _cleanupSSPModule();
+#ifdef ENABLE_MODULE_PROCESSING
+    if (_modulesInitialized)
+    {
+        _cleanupSSPModule();
+    }
+#endif
 }
 
 /**
@@ -697,7 +692,6 @@ Uint32 RepositoryUpgrade::execute (
     ostream& errPrintWriter)
 {
 
-#if !(defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_HPUX)) 
     //
     // Check if the old and new repository paths exist.
     //
@@ -715,10 +709,9 @@ Uint32 RepositoryUpgrade::execute (
         cerr << localizeMessage (MSG_PATH,
                                  REPOSITORY_DOES_NOT_EXIST_KEY,
                                  REPOSITORY_DOES_NOT_EXIST,
-                                 _oldRepositoryPath ) << endl;
+                                 _newRepositoryPath ) << endl;
         return 1;
     }
-#endif
 
     //
     // Options HELP and VERSION
@@ -736,10 +729,14 @@ Uint32 RepositoryUpgrade::execute (
 
     try
     {
+#ifdef ENABLE_MODULE_PROCESSING
         //
         // Load the Special Processing Modules.
         //
         _initSSPModule();
+#endif
+
+        _modulesInitialized = true;
 
         //
         // Upgrade the Repository.
@@ -946,6 +943,8 @@ void RepositoryUpgrade::_addQualifiers (const CIMNamespaceName namespaceName)
         // to ignore the qualifier then skip the qualifier creation.
         //
         CIMQualifierDecl processedQual = qualifiers[j].clone();
+
+#ifdef ENABLE_MODULE_PROCESSING
         if (!_invokeModules (qualifiers[j], processedQual))
         {
 #ifdef REPUPGRADE_DEBUG
@@ -954,6 +953,7 @@ void RepositoryUpgrade::_addQualifiers (const CIMNamespaceName namespaceName)
 #endif
             continue;
         }
+#endif
 
         try
         {
@@ -972,7 +972,7 @@ void RepositoryUpgrade::_addQualifiers (const CIMNamespaceName namespaceName)
         {
             _logSetQualifierError (namespaceName,
                                            qualifiers[j],
-                                           e.getMessage());
+                                           (e.getMessage()+". "));
         }
         catch (...)
         {
@@ -1613,6 +1613,8 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
     // to ignore the class then skip the class creation.
     //
     CIMClass processedClass = oldClass.clone();
+
+#ifdef ENABLE_MODULE_PROCESSING
     if (!_invokeModules (oldClass, processedClass))
     {
 #ifdef REPUPGRADE_DEBUG
@@ -1622,6 +1624,7 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
     }
     else
     {
+#endif
         try
         {
 #ifdef REPUPGRADE_DEBUG
@@ -1656,21 +1659,21 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
                 {
                     _logCreateClassError (namespaceName, 
                                               oldClass,
-                                              ce.getMessage()); 
+                                              (ce.getMessage()+". ")); 
                 }
             }
             else
             {
                 _logCreateClassError (namespaceName, 
                                           oldClass,
-                                          ce.getMessage()); 
+                                          (ce.getMessage()+". ")); 
             }
         }
         catch (Exception& e)
         {
             _logCreateClassError (namespaceName, 
                                       oldClass, 
-                                      e.getMessage());
+                                      (e.getMessage()+". "));
         }
         catch (...)
         {
@@ -1678,7 +1681,9 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
                                       oldClass, 
                                       String::EMPTY);
         }
+#ifdef ENABLE_MODULE_PROCESSING
     }
+#endif
 
     return retCode;
 }
@@ -1700,10 +1705,6 @@ void RepositoryUpgrade::_addInstances(void)
             //
             Array<CIMName>                  oldClassNames;
 
-#ifdef REPUPGRADE_DEBUG
-            cout << "Processing namespace : " << oldNamespaces[i] << endl;
-#endif
-
             //
             // Gather class information for each namespace.
             //
@@ -1719,6 +1720,10 @@ void RepositoryUpgrade::_addInstances(void)
             {
                 for ( Uint32 ctr=0; ctr < oldClassNames.size(); ctr++)
                 {
+#ifdef REPUPGRADE_DEBUG
+            cout << "Processing namespace : " << oldNamespaces[i] 
+                 << "class name : " <<  oldClassNames[ctr] << endl;
+#endif
                     Array<CIMInstance>         instances;
                     Uint32                     n = 0;
                     Uint32                     ictr = 0;
@@ -1735,7 +1740,8 @@ void RepositoryUpgrade::_addInstances(void)
                         if (instances.size() > 0)
                         {
 #ifdef REPUPGRADE_DEBUG
-                            cout << "Found instances" << endl; 
+                            cout << "Found instances : " 
+                                 << instances.size() << endl; 
 #endif
                             for ( ictr=0; ictr<instances.size(); ictr++)
                             {
@@ -1748,6 +1754,7 @@ void RepositoryUpgrade::_addInstances(void)
                                 CIMInstance processedInstance = 
                                                instances[ictr].clone();
 
+#ifdef ENABLE_MODULE_PROCESSING
                                 if (!_invokeModules(instances[ictr], 
                                           processedInstance))
                                 {
@@ -1758,6 +1765,7 @@ void RepositoryUpgrade::_addInstances(void)
 #endif
                                     continue;
                                 }
+#endif
 
                                 //
                                 // Create the instance.
@@ -1779,7 +1787,6 @@ void RepositoryUpgrade::_addInstances(void)
                       {
                             if (ce.getCode() == CIM_ERR_ALREADY_EXISTS)
                             {
-                                // ATTN SF Do we need to log a message here?
 #ifdef REPUPGRADE_DEBUG
                                 cout << 
                                 "Instance already exists." << endl;
@@ -1787,23 +1794,32 @@ void RepositoryUpgrade::_addInstances(void)
                             }
                             else
                             {
-                                _logCreateInstanceError(oldNamespaces[i],
-                                                           instances[ictr],
-                                                           ce.getMessage()); 
+                                if (instances.size() > 0)
+                                {
+                                   _logCreateInstanceError(oldNamespaces[i],
+                                                        instances[ictr],
+                                                        (ce.getMessage()+". ")); 
+                                }
                             }
                         }
                         catch (Exception& e)
                         {
-                            _logCreateInstanceError(oldNamespaces[i],
+                            if (instances.size() > 0)
+                            {
+                                _logCreateInstanceError(oldNamespaces[i],
                                                         instances[ictr],
-                                                        e.getMessage()); 
+                                                        (e.getMessage()+". ")); 
+                            }
                         
                         }
                         catch (...)
                         {
-                            _logCreateInstanceError(oldNamespaces[i],
+                            if (instances.size() > 0)
+                            {
+                                _logCreateInstanceError(oldNamespaces[i],
                                                         instances[ictr],
                                                         String::EMPTY); 
+                            }
                         }
                    } 
               } 
@@ -1936,6 +1952,7 @@ void RepositoryUpgrade::_logCreateClassError(
     String errMsg = localizeMessage ( MSG_PATH,
                               REPOSITORY_UPGRADE_FAILURE_KEY,
                               REPOSITORY_UPGRADE_FAILURE) +
+                    message +
                     localizeMessage ( MSG_PATH, 
                               CLASS_CREATION_ERROR_KEY,
                               CLASS_CREATION_ERROR,
@@ -2044,18 +2061,26 @@ void RepositoryUpgrade::_logSetQualifierError(
     throw RepositoryUpgradeException (errMsg);
 }
 
+#ifdef ENABLE_MODULE_PROCESSING
 DynamicLibrary RepositoryUpgrade::_loadSSPModule(const String& moduleName)
 {
     String fileName;
 
+#if defined (PEGASUS_OS_TYPE_WINDOWS)
+    fileName = _pegasusHome + "/bin/" + 
+                  FileSystem::buildLibraryFileName(moduleName);   
+#else
     fileName = _pegasusHome + "/lib/" + 
                   FileSystem::buildLibraryFileName(moduleName);   
+#endif
 
     DynamicLibrary dl(fileName);
 
     if (!dl.load())
     {
+#ifdef REPUPGRADE_DEBUG
         cout << "Error is : " << strerror(errno) << endl;
+#endif
         String message =  localizeMessage ( MSG_PATH, 
                                             LIBRARY_LOAD_ERROR_KEY,
                                             LIBRARY_LOAD_ERROR,
@@ -2204,6 +2229,7 @@ Boolean RepositoryUpgrade::_invokeModules(CIMInstance& inputInstance,
 
     return createInstance;
 }
+#endif
 
 /**
     

@@ -18,5 +18,5 @@ endif
 SOURCES = \
 	SampleSSPModule.cpp 
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 include $(ROOT)/mak/install.mak

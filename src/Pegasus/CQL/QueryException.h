@@ -45,6 +45,10 @@ class PEGASUS_CQL_LINKAGE QueryException : public Exception
                 static const char KEY[];
 		QueryException(const String& msg):
 			Exception(MessageLoaderParms(KEY,MSG,msg)){}
+		QueryException(const ContentLanguages& langs, const String& msg):
+			Exception(msg) { setContentLanguages(langs); }
+		QueryException(const ContentLanguages& langs, const MessageLoaderParms& parms):
+                        Exception(parms) { setContentLanguages(langs); }
 		QueryException(MessageLoaderParms parms):
 			Exception(parms){}
 };
@@ -114,6 +118,12 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdParseException : public CQLParseException
 		CQLChainedIdParseException(MessageLoaderParms parms):
                         CQLParseException(parms){}
 };
+
+// Macros to convert non QueryExceptions to QueryExceptions
+
+#define PEGASUS_QUERY_EXCEPTION(LANGS, MESSAGE) QueryException( LANGS, MESSAGE )
+
+#define PEGASUS_QUERY_EXCEPTION_LANG(LANGS, PARMS) QueryException( LANGS, PARMS )
 
 PEGASUS_NAMESPACE_END
 

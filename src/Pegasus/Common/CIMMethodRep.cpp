@@ -1,0 +1,267 @@
+//BEGIN_LICENSE
+//
+// Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the "Software"),
+// to deal in the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following conditions:
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
+//
+//END_LICENSE
+//BEGIN_HISTORY
+//
+// Author:
+//
+// $Log: CIMMethodRep.cpp,v $
+// Revision 1.1  2001/02/18 18:39:06  mike
+// new
+//
+// Revision 1.2  2001/02/18 03:56:01  mike
+// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
+//
+// Revision 1.1  2001/02/16 02:07:06  mike
+// Renamed many classes and headers (using new CIM prefixes).
+//
+// Revision 1.3  2001/01/23 01:25:35  mike
+// Reworked resolve scheme.
+//
+// Revision 1.2  2001/01/22 00:45:47  mike
+// more work on resolve scheme
+//
+// Revision 1.1.1.1  2001/01/14 19:52:58  mike
+// Pegasus import
+//
+//
+//END_HISTORY
+
+#include <cassert>
+#include "CIMMethod.h"
+#include "Indentor.h"
+#include "CIMName.h"
+#include "CIMScope.h"
+#include "XmlWriter.h"
+
+PEGASUS_NAMESPACE_BEGIN
+
+CIMMethodRep::CIMMethodRep(
+    const String& name, 
+    CIMType type,
+    const String& classOrigin,
+    Boolean propagated) 
+    : _name(name), _type(type), 
+    _classOrigin(classOrigin), _propagated(propagated)
+{
+    if (!CIMName::legal(name))
+	throw IllegalName();
+
+    if (classOrigin.getLength() && !CIMName::legal(classOrigin))
+	throw IllegalName();
+
+    if (type == CIMType::NONE)
+	throw NullType();
+}
+
+CIMMethodRep::~CIMMethodRep()
+{
+
+}
+
+void CIMMethodRep::setName(const String& name) 
+{
+    if (!CIMName::legal(name))
+	throw IllegalName();
+
+    _name = name; 
+}
+
+void CIMMethodRep::setClassOrigin(const String& classOrigin)
+{
+    if (!CIMName::legal(classOrigin))
+	throw IllegalName();
+
+    _classOrigin = classOrigin; 
+}
+
+void CIMMethodRep::addParameter(const CIMParameter& x)
+{
+    if (!x)
+	throw UnitializedHandle();
+
+    if (findParameter(x.getName()) != Uint32(-1))
+	throw AlreadyExists();
+
+    _parameters.append(x);
+}
+
+Uint32 CIMMethodRep::findParameter(const String& name)
+{
+    for (Uint32 i = 0, n = _parameters.getSize(); i < n; i++)
+    {
+	if (CIMName::equal(_parameters[i].getName(), name))
+	    return i;
+    }
+
+    return Uint32(-1);
+}
+
+CIMParameter CIMMethodRep::getParameter(Uint32 pos)
+{
+    if (pos >= _parameters.getSize())
+	throw OutOfBounds();
+
+    return _parameters[pos];
+}
+
+Uint32 CIMMethodRep::getParameterCount() const
+{
+    return _parameters.getSize();
+}
+
+void CIMMethodRep::resolve(
+    DeclContext* declContext, 
+    const String& nameSpace,
+    const CIMConstMethod& inheritedMethod)
+{
+    // ATTN: Check to see if this method has same signature as
+    // inherited one.
+
+    // Check for type mismatch between return types.
+
+    assert (inheritedMethod);
+
+    // Validate the qualifiers of the method (according to
+    // superClass's method with the same name). This method
+    // will throw an exception if the validation fails.
+
+    _qualifiers.resolve(
+	declContext,
+	nameSpace,
+	CIMScope::METHOD,
+	false,
+	inheritedMethod._rep->_qualifiers);
+
+    // Validate each of the parameters:
+
+    for (size_t i = 0; i < _parameters.getSize(); i++)
+	_parameters[i].resolve(declContext, nameSpace);
+
+    _classOrigin = inheritedMethod.getClassOrigin();
+}
+
+void CIMMethodRep::resolve(
+    DeclContext* declContext,
+    const String& nameSpace)
+{
+    // Validate the qualifiers:
+
+    CIMQualifierList dummy;
+
+    _qualifiers.resolve(
+	declContext,
+	nameSpace,
+	CIMScope::METHOD,
+	false,
+	dummy);
+
+    // Validate each of the parameters:
+
+    for (size_t i = 0; i < _parameters.getSize(); i++)
+	_parameters[i].resolve(declContext, nameSpace);
+}
+
+static const char* _toString(Boolean x)
+{
+    return x ? "true" : "false";
+}
+
+void CIMMethodRep::toXml(Array<Sint8>& out) const
+{
+    out << "<METHOD";
+
+    out << " NAME=\"" << _name << "\"";
+
+    out << " TYPE=\"" << TypeToString(_type) << "\"";
+
+    if (_classOrigin.getLength())
+	out << " CLASSORIGIN=\"" << _classOrigin << "\"";
+
+    if (_propagated != false)
+	out << " PROPAGATED=\"" << _toString(_propagated) << "\"";
+
+    out << ">\n";
+
+    _qualifiers.toXml(out);
+
+    for (Uint32 i = 0, n = _parameters.getSize(); i < n; i++)
+	_parameters[i].toXml(out);
+
+    out << "</METHOD>\n";
+}
+
+void CIMMethodRep::print() const
+{
+    Array<Sint8> tmp;
+    toXml(tmp);
+    tmp.append('\0');
+    std::cout << tmp.getData() << std::endl;
+}
+
+CIMMethodRep::CIMMethodRep()
+{
+
+}
+
+CIMMethodRep::CIMMethodRep(const CIMMethodRep& x) : 
+    Sharable(),
+    _name(x._name),
+    _type(x._type),
+    _classOrigin(x._classOrigin),
+    _propagated(x._propagated)
+{
+    x._qualifiers.cloneTo(_qualifiers);
+
+    _parameters.reserve(x._parameters.getSize());
+
+    for (Uint32 i = 0, n = x._parameters.getSize(); i < n; i++)
+	_parameters.append(x._parameters[i].clone());
+}
+
+CIMMethodRep& CIMMethodRep::operator=(const CIMMethodRep& x) 
+{ 
+    return *this; 
+}
+
+Boolean CIMMethodRep::identical(const CIMMethodRep* x) const
+{
+    if (_name != x->_name)
+	return false;
+
+    if (_type != x->_type)
+	return false;
+
+    if (!_qualifiers.identical(x->_qualifiers))
+	return false;
+
+    if (_parameters.getSize() != x->_parameters.getSize())
+	return false;
+
+    for (Uint32 i = 0, n = _parameters.getSize(); i < n; i++)
+    {
+	if (!_parameters[i].identical(x->_parameters[i]))
+	    return false;
+    }
+
+    return true;
+}
+
+PEGASUS_NAMESPACE_END

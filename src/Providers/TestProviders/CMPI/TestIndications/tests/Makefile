@@ -4,10 +4,10 @@ include $(ROOT)/mak/config.mak
 include $(ROOT)/test/config.mak
 
 XMLSCRIPTS =  \
-	CreateFilter01 CreateHandler01 CreateSubscription01 
-#	DeleteSubscription01 DeleteFilter01 DeleteHandler01
+	CreateFilter01 CreateHandler01 CreateSubscription01 \
+	DeleteSubscription01 DeleteFilter01 DeleteHandler01
 
-LOGFILES =   SELECTFROMTestCMPIIndicationWHEREPropertyAPropertyAORPropertyBNothingANDss 
+LOGFILES =   TestCMPIIndication
 
 removeclasses:
 	@wbemexec $(WBEMEXECOPTIONS) DeleteSubscription01.xml
@@ -15,15 +15,28 @@ removeclasses:
 	@wbemexec $(WBEMEXECOPTIONS) DeleteHandler01.xml
 
 # I am redefining the poststarttests here.
-LOGREQUESTS = $(foreach i, $(LOGFILES), $i.log)
-LOGRESPONSES = $(LOGREQUESTS:.log=.loggood)
+LOGREQUESTS = $(foreach i, $(LOGFILES), $i.loggood)
+LOGRESPONSES = $(LOGREQUESTS:.loggood=.logresp)
 
-%.loggood: %.log
+%.logresp: %.loggood
+	@ $(ECHO) AAA
 	@ $(DIFF) $*.loggood $(TMP_DIR)/$*.log
 	@ $(RM) $(TMP_DIR)/$*.log
 	@ $(ECHO) +++ $* passed successfully +++
 
-include $(ROOT)/test/configend.mak
+clean:
+	$(RM) $(XMLRESPONSES)
+	$(RM) $(LOGRESPONSES)
 
+depend:
 
+tests:
+
+ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
+	@ ./change_hostname
+endif
+	
 poststarttests: $(LOGRESPONSES)
+
+general:
+

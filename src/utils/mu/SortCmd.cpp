@@ -37,6 +37,11 @@
 #include <fstream>
 #include "SortCmd.h"
 
+#ifdef OS_WINDOWS
+# include<io.h>
+# include<fcntl.h>
+#endif
+
 static int _compare(const void* px, const void* qx)
 {
     return ((string*)px)->compare(*((string*)qx));
@@ -71,7 +76,7 @@ int SortCmd(const vector<string>& args)
     }
 
     //
-    // Suck file into memory.
+    // Read file into memory.
     // 
 
     string path = args[1];
@@ -99,6 +104,10 @@ int SortCmd(const vector<string>& args)
     //
     // Write the results out to standard output:
     //
+
+#ifdef OS_WINDOWS
+    setmode(1, O_BINARY);
+#endif
 
     for (size_t i = 0; i < lines.size(); i++)
 	cout << lines[i] << '\n';

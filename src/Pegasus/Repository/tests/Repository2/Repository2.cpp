@@ -60,7 +60,6 @@ deepInheritance, PropertyList. It is included for the moment
 current client behavior pending architecture team decison.
 KS, 13 Sept 2003  Note that there is also a flag in 
 cimrepository.cpp. See CIMRepository and bugs */
-// comment this to disable filters. #define PEGASUS_ENABLE_INSTANCE_FILTER
 
 //
 //  Enable the filter test. (bug 2334, 1975, 1046) 
@@ -75,7 +74,8 @@ cimrepository.cpp. See CIMRepository and bugs */
 //  the next week or so with this functionalty. after that the ifdefs 
 //  shall be removed.
 //                                       JR Wunderlch April 5, 05 
-#define PEGASUS_ENABLE_INSTANCE_FILTER
+////     #define PEGASUS_ENABLE_INSTANCE_FILTER // enable filter test
+
 
 ////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////

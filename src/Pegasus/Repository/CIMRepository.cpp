@@ -108,7 +108,6 @@ PEGASUS_ENABLE_INSTANCE_FILTER to stop the filtering
 NOTE: We did not make these env variable params because
 the test suite must be changed also.*/
 
-// comment this to disable filters #define PEGASUS_ENABLE_INSTANCE_FILTER
 
 //
 //  Enable the filter test. (bug 2334, 1975, 1046) 
@@ -123,7 +122,7 @@ the test suite must be changed also.*/
 //  the next week or so with this functionalty. after that the ifdefs 
 //  shall be removed.
 //                                       JR Wunderlch April 5, 05 
-#define PEGASUS_ENABLE_INSTANCE_FILTER
+////     #define PEGASUS_ENABLE_INSTANCE_FILTER // enable filter test
 
 ////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////

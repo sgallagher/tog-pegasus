@@ -36,6 +36,7 @@
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/ProviderManager2/ProviderName.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>
+#include <Pegasus/Common/OperationContextInternal.h>
 
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Repository/CIMRepository.h>
@@ -126,7 +127,7 @@ protected:
     Message * handleEnableModuleRequest(const Message * message);
     Message * handleStopAllProvidersRequest(const Message * message);
 
-    ProviderName _resolveProviderName(const ProviderName & providerName);
+    ProviderName _resolveProviderName(const ProviderIdContainer & providerId);
 };
 
 PEGASUS_NAMESPACE_END

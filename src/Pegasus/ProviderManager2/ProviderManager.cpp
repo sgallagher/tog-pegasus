@@ -31,6 +31,7 @@
 
 #include "ProviderManager.h"
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Config/ConfigManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -40,34 +41,6 @@ ProviderManager::ProviderManager(void)
 
 ProviderManager::~ProviderManager(void)
 {
-}
-
-Message * ProviderManager::processMessage(Message * message)
-{
-    // subclasses should implement this method. if not implented, the base
-    // classes generates a generic failure.
-
-    return(message);
-}
-
-ProviderName ProviderManager::findProvider(const ProviderName & providerName)
-{
-    return(_registrar.findProvider(providerName));
-}
-
-ProviderName ProviderManager::findProvider(const String & destinationPath)
-{
-    return(_registrar.findConsumerProvider(destinationPath));
-}
-
-Boolean ProviderManager::insertProvider(const ProviderName & providerName)
-{
-    return(_registrar.insertProvider(providerName));
-}
-
-Boolean ProviderManager::removeProvider(const ProviderName & providerName)
-{
-    return(_registrar.removeProvider(providerName));
 }
 
 String ProviderManager::_resolvePhysicalName(String physicalName)

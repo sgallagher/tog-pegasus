@@ -41,6 +41,7 @@
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
+#include <Pegasus/Common/OperationContextInternal.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -127,7 +128,7 @@ protected:
     Message * handleEnableModuleRequest(const Message * message) throw();
     Message * handleStopAllProvidersRequest(const Message * message) throw();
 
-    ProviderName _resolveProviderName(const ProviderName & providerName);
+    ProviderName _resolveProviderName(const ProviderIdContainer & providerId);
 };
 
 PEGASUS_NAMESPACE_END

@@ -35,9 +35,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Message.h>
 
-#include <Pegasus/Config/ConfigManager.h>
-#include <Pegasus/ProviderManager2/ProviderRegistrar.h>
-
 #include <Pegasus/ProviderManager2/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -48,21 +45,13 @@ public:
     ProviderManager(void);
     virtual ~ProviderManager(void);
 
-    virtual Message * processMessage(Message * message);
+    virtual Message * processMessage(Message * message) = 0;
 
-    virtual ProviderName findProvider(const ProviderName & providerName);
-    virtual ProviderName findProvider(const String & destinationPath);
-    virtual Boolean insertProvider(const ProviderName & providerName);
-    virtual Boolean removeProvider(const ProviderName & providerName);
-    virtual void unload_idle_providers()=0;
+    virtual void unload_idle_providers() = 0;
     static String _resolvePhysicalName(String physicalName);
 
 protected:
     // ingredients for CIMOMHandle (binary message handler, repository, etc.)
-
-private:
-    ProviderRegistrar _registrar;
-
 };
 
 PEGASUS_NAMESPACE_END

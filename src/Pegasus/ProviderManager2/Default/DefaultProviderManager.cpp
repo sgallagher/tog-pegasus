@@ -29,7 +29,7 @@
 //                  (carolann_graves@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Karl Schopmeyer(k.schopmeyer@opengroup.org) - Fix associators.
-//                      Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,13 +46,11 @@
 #include <Pegasus/Common/QueryExpression.h>
 #include <Pegasus/ProviderManager2/QueryExpressionFactory.h>
 
-#include <Pegasus/Config/ConfigManager.h>
-
 #include <Pegasus/ProviderManager2/Default/Provider.h>
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 
-#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
+#include <Pegasus/ProviderManager2/ProviderType.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -263,12 +261,9 @@ Message * DefaultProviderManager::handleGetInstanceRequest(const Message * messa
             request->instanceName.getClassName(),
             request->instanceName.getKeyBindings());
 
-        ProviderName name(
-            objectPath,
-            ProviderType::INSTANCE);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -370,12 +365,9 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
             request->nameSpace,
             request->className);
 
-        ProviderName name(
-            objectPath,
-            ProviderType::INSTANCE);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         OpProviderHolder ph = providerManager.getProvider(name.getPhysicalName(),
@@ -478,13 +470,9 @@ Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Mess
             request->nameSpace,
             request->className);
 
-        // build an internal provider name from the request arguments
-        ProviderName name(
-            objectPath,
-            ProviderType::INSTANCE);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -583,12 +571,9 @@ Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * me
             request->newInstance.getPath().getClassName(),
             request->newInstance.getPath().getKeyBindings());
 
-        ProviderName name(
-            objectPath,
-            ProviderType::INSTANCE);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -687,12 +672,9 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
             request->modifiedInstance.getPath ().getClassName(),
             request->modifiedInstance.getPath ().getKeyBindings());
 
-        ProviderName name(
-            objectPath,
-            ProviderType::INSTANCE);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -795,12 +777,9 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
             request->instanceName.getClassName(),
             request->instanceName.getKeyBindings());
 
-        ProviderName name(
-            objectPath,
-            ProviderType::INSTANCE);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -897,12 +876,9 @@ Message * DefaultProviderManager::handleExecQueryRequest(const Message * message
             request->nameSpace,
             request->className);
 
-        ProviderName name(
-            objectPath,
-            ProviderType::QUERY);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -952,7 +928,6 @@ Message * DefaultProviderManager::handleExecQueryRequest(const Message * message
     }
     catch(Exception & e)
     {
-           cout<<"--- exception not a CIMInstanceQueryProvider"<<endl;
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Exception: " + e.getMessage());
 
@@ -1017,12 +992,9 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
             request->nameSpace,
             request->assocClass.getString());
 
-        ProviderName name(
-            assocPath,
-            ProviderType::ASSOCIATION);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1128,12 +1100,9 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
             request->nameSpace,
             request->assocClass.getString());
 
-        ProviderName name(
-            assocPath,
-            ProviderType::ASSOCIATION);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1235,12 +1204,9 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
             request->nameSpace,
             request->resultClass.getString());
 
-        ProviderName name(
-            resultPath,
-            ProviderType::ASSOCIATION);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1347,12 +1313,9 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
             request->nameSpace,
             request->resultClass.getString());
 
-        ProviderName name(
-            resultPath,
-            ProviderType::ASSOCIATION);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1451,12 +1414,9 @@ Message * DefaultProviderManager::handleGetPropertyRequest(const Message * messa
             request->instanceName.getClassName(),
             request->instanceName.getKeyBindings());
 
-        ProviderName name(
-            objectPath,
-            0);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1559,12 +1519,9 @@ Message * DefaultProviderManager::handleSetPropertyRequest(const Message * messa
             request->instanceName.getClassName(),
             request->instanceName.getKeyBindings());
 
-        ProviderName name(
-            objectPath,
-            0);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1670,13 +1627,9 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
             request->instanceName.getClassName(),
             request->instanceName.getKeyBindings());
 
-        ProviderName name(
-            objectPath,
-            ProviderType::METHOD,
-            request->methodName);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -2333,21 +2286,9 @@ Message * DefaultProviderManager::handleConsumeIndicationRequest(const Message *
 
     try
     {
-        ProviderName name(
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
-            0);
-
-        /*
-        ProviderName name(
-            String::EMPTY,
-            String::EMPTY,
-            objectPath.toString());
-
         // resolve provider name
-        name = _resolveProviderName(name);
-        */
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -2436,16 +2377,11 @@ Message *DefaultProviderManager::handleExportIndicationRequest(const Message *me
 
     try
     {
-       ProviderName name(
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
-            0);
+        // resolve provider name
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
-       // resolve provider name
-       name = _resolveProviderName(request->destinationPath);
-
-       // get cached or load new provider module
+        // get cached or load new provider module
         OpProviderHolder ph =
             providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
@@ -2522,10 +2458,7 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
     PEGASUS_ASSERT(request != 0);
 
     Array<Uint16> operationalStatus;
-    Boolean disableProviderOnly = request->disableProviderOnly;
     CIMException cimException;
-
-    ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
 
     try
     {
@@ -2533,56 +2466,14 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
         String moduleName;
         CIMInstance mInstance = request->providerModule;
         Uint32 pos = mInstance.findProperty(CIMName ("Name"));
-
-        if(pos != PEG_NOT_FOUND)
-        {
-                mInstance.getProperty(pos).getValue().get(moduleName);
-        }
+        PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
+        mInstance.getProperty(pos).getValue().get(moduleName);
 
         Boolean disableProviderOnly = request->disableProviderOnly;
 
         //
-        // get operational status
-        //
-        if (!disableProviderOnly)
-        {
-            Uint32 pos2 = mInstance.findProperty(CIMName ("OperationalStatus"));
-            if (pos2 != PEG_NOT_FOUND)
-            {
-                //
-                //  ATTN-CAKG-P2-20020821: Check for null status?
-                //
-                mInstance.getProperty(pos2).getValue().get(operationalStatus);
-            }
-
-            //
-            // update module status from OK to Stopping
-            //
-            for (Uint32 i=0, n = operationalStatus.size(); i < n; i++)
-            {
-                if (operationalStatus[i] == _MODULE_OK)
-                {
-                    operationalStatus.remove(i);
-                }
-            }
-
-            operationalStatus.append(_MODULE_STOPPING);
-
-            if(_providerRegistrationManager->setProviderModuleStatus
-                (moduleName, operationalStatus) == false)
-            {
-                //l10n
-                //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
-                throw PEGASUS_CIM_EXCEPTION_L(
-                    CIM_ERR_FAILED,
-                    MessageLoaderParms(
-                        "ProviderManager.ProviderManagerService."
-                            "SET_MODULE_STATUS_FAILED",
-                        "set module status failed."));
-            }
-        }
-
         // Unload providers
+        //
         Array<CIMInstance> _pInstances = request->providers;
         Array<Boolean> _indicationProviders = request->indicationProviders;
 
@@ -2600,33 +2491,11 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
             if (ret_value == 0)
             {
                 // disable failed since there are pending requests,
-                // update module status from Stopping to OK if
-                // disableProviderOnly is not true
-                if (!disableProviderOnly)
-                {
-                    for(Uint32 j=0, m = operationalStatus.size(); j < m; j++)
-                    {
-                        if (operationalStatus[j] == _MODULE_STOPPING)
-                        {
-                            operationalStatus.remove(j);
-                        }
-                    }
-
-                    operationalStatus.append(_MODULE_OK);
-
-                    if(_providerRegistrationManager->setProviderModuleStatus
-                        (moduleName, operationalStatus) == false)
-                    {
-                        throw PEGASUS_CIM_EXCEPTION_L(
-                            CIM_ERR_FAILED,
-                            MessageLoaderParms(
-                                "ProviderManager.ProviderManagerService."
-                                    "SET_MODULE_STATUS_FAILED",
-                                "set module status failed."));
-                    }
-                }
+                // stop trying to disable other providers in this module.
+                operationalStatus.append(_MODULE_OK);
+                break;
             }
-            else if (ret_value == 1)
+            else if (ret_value == 1)  // Success
             {
                 // if It is an indication provider
                 // remove the entry from the table since the
@@ -2639,32 +2508,6 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
             else
             {
                 // disable failed for other reason, throw exception
-                // update module status from Stopping to OK if
-                // disableProviderOnly is not true
-                if (!disableProviderOnly)
-                {
-                    for(Uint32 j=0, m = operationalStatus.size(); j < m; j++)
-                    {
-                        if (operationalStatus[j] == _MODULE_STOPPING)
-                        {
-                            operationalStatus.remove(j);
-                        }
-                    }
-
-                    operationalStatus.append(_MODULE_OK);
-
-                    if(_providerRegistrationManager->setProviderModuleStatus
-                        (moduleName, operationalStatus) == false)
-                    {
-                        throw PEGASUS_CIM_EXCEPTION_L(
-                            CIM_ERR_FAILED,
-                            MessageLoaderParms(
-                                "ProviderManager.ProviderManagerService."
-                                    "SET_MODULE_STATUS_FAILED",
-                                "set module status failed."));
-                    }
-                }
-
                 throw PEGASUS_CIM_EXCEPTION_L(
                     CIM_ERR_FAILED,
                     MessageLoaderParms(
@@ -2673,35 +2516,6 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
                         "Failed to disable the provider."));
             }
         }
-        // disable succeed
-        // update module status from Stopping to Stopped if
-        // disableProviderOnly is not true
-        if (!disableProviderOnly)
-        {
-            // update module status from Stopping to Stopped
-            for(Uint32 j=0, m = operationalStatus.size(); j < m; j++)
-            {
-                if (operationalStatus[j] == _MODULE_STOPPING)
-                {
-                    operationalStatus.remove(j);
-                    operationalStatus.append(_MODULE_STOPPED);
-                }
-            }
-
-            if(_providerRegistrationManager->setProviderModuleStatus
-               (moduleName, operationalStatus) == false)
-            {
-                //l10n
-                //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                //"set module status failed.");
-                throw PEGASUS_CIM_EXCEPTION_L(
-                      CIM_ERR_FAILED,
-                      MessageLoaderParms(
-                      "ProviderManager.ProviderManagerService."
-                       "SET_MODULE_STATUS_FAILED",
-                       "set module status failed."));
-            }
-       }
     }
     catch(CIMException & e)
     {
@@ -2728,12 +2542,26 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
                 "Unknown Error"));
     }
 
+    if (cimException.getCode() == CIM_ERR_SUCCESS)
+    {
+        // Status is set to OK if a provider was busy
+        if (operationalStatus.size() == 0)
+        {
+            operationalStatus.append(_MODULE_STOPPED);
+        }
+    }
+    else
+    {
+        // If exception occurs, module is not stopped
+        operationalStatus.append(_MODULE_OK);
+    }
+
     CIMDisableModuleResponseMessage * response =
         new CIMDisableModuleResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop(),
-        operationalStatus);
+            request->messageId,
+            CIMException(),
+            request->queueIds.copyAndPop(),
+            operationalStatus);
 
     // preserve message key
     response->setKey(request->getKey());
@@ -2748,9 +2576,6 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
 
 Message * DefaultProviderManager::handleEnableModuleRequest(const Message * message)
 {
-    // HACK
-    ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
-
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleEnableModuleRequest");
 
     CIMEnableModuleRequestMessage * request =
@@ -2758,62 +2583,15 @@ Message * DefaultProviderManager::handleEnableModuleRequest(const Message * mess
 
     PEGASUS_ASSERT(request != 0);
 
-    //
-    // get module status
-    //
-    CIMInstance mInstance = request->providerModule;
     Array<Uint16> operationalStatus;
-    Uint32 pos = mInstance.findProperty(CIMName ("OperationalStatus"));
-
-    if(pos != PEG_NOT_FOUND)
-    {
-        //
-        //  ATTN-CAKG-P2-20020821: Check for null status?
-        //
-        mInstance.getProperty(pos).getValue().get(operationalStatus);
-    }
-
-    // update module status from Stopped to OK
-    for(Uint32 i=0, n = operationalStatus.size(); i < n; i++)
-    {
-        if(operationalStatus[i] == _MODULE_STOPPED)
-        {
-            operationalStatus.remove(i);
-        }
-    }
-
     operationalStatus.append(_MODULE_OK);
-
-    //
-    // get module name
-    //
-    String moduleName;
-
-    Uint32 pos2 = mInstance.findProperty(CIMName ("Name"));
-
-    if(pos2 != PEG_NOT_FOUND)
-    {
-        mInstance.getProperty(pos2).getValue().get(moduleName);
-    }
-
-    if(_providerRegistrationManager->setProviderModuleStatus
-        (moduleName, operationalStatus) == false)
-    {
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-            "ProviderManager.DefaultProviderManager.SET_MODULE_STATUS_FAILED",
-            "set module status failed."));
-    }
 
     CIMEnableModuleResponseMessage * response =
         new CIMEnableModuleResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop(),
-        operationalStatus);
-
-    PEGASUS_ASSERT(response != 0);
+            request->messageId,
+            CIMException(),
+            request->queueIds.copyAndPop(),
+            operationalStatus);
 
     // preserve message key
     response->setKey(request->getKey());
@@ -2822,7 +2600,6 @@ Message * DefaultProviderManager::handleEnableModuleRequest(const Message * mess
     response->setHttpMethod (request->getHttpMethod ());
 
     PEG_METHOD_EXIT();
-
     return(response);
 }
 
@@ -2927,29 +2704,53 @@ String DefaultProviderManager::_generateKey (
     return tableKey;
 }
 
-ProviderName DefaultProviderManager::_resolveProviderName(const ProviderName & providerName)
+ProviderName DefaultProviderManager::_resolveProviderName(
+    const ProviderIdContainer & providerId)
 {
-    ProviderName temp = findProvider(providerName);
-    String physicalName = _resolvePhysicalName(temp.getPhysicalName());
-    temp.setPhysicalName(physicalName);
+    String providerName;
+    String fileName;
+    String interfaceName;
+    CIMValue genericValue;
 
-    return(temp);
-}
+    genericValue = providerId.getProvider().getProperty(
+        providerId.getProvider().findProperty("Name")).getValue();
+    genericValue.get(providerName);
 
-ProviderName DefaultProviderManager::_resolveProviderName(String & destinationPath)
-{
-    ProviderName temp = findProvider(destinationPath);
+    genericValue = providerId.getModule().getProperty(
+        providerId.getModule().findProperty("Location")).getValue();
+    genericValue.get(fileName);
+    fileName = _resolvePhysicalName(fileName);
 
-    String physicalName = _resolvePhysicalName(temp.getPhysicalName());
+    // ATTN: This attribute is probably not required
+    genericValue = providerId.getModule().getProperty(
+        providerId.getModule().findProperty("InterfaceType")).getValue();
+    genericValue.get(interfaceName);
 
-    temp.setPhysicalName(physicalName);
+    // Check if the provider module is blocked
+    Array<Uint16> operationalStatus;
+    Uint32 pos = providerId.getModule().findProperty(
+        CIMName("OperationalStatus"));
+    PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
+    providerId.getModule().getProperty(pos).getValue().get(operationalStatus);
 
-    return(temp);
+    for(Uint32 i = 0; i < operationalStatus.size(); i++)
+    {
+        if(operationalStatus[i] == _MODULE_STOPPED ||
+           operationalStatus[i] == _MODULE_STOPPING)
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,
+                MessageLoaderParms(
+                    "ProviderManager.ProviderManagerService.PROVIDER_BLOCKED",
+                    "provider blocked."));
+        }
+    }
+
+    return ProviderName(providerName, fileName, interfaceName, 0);
 }
 
 void DefaultProviderManager::unload_idle_providers()
 {
-   providerManager.unload_idle_providers();
+    providerManager.unload_idle_providers();
 }
 
 PEGASUS_NAMESPACE_END

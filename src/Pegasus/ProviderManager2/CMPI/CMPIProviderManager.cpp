@@ -58,8 +58,6 @@
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
 //#include <Pegasus/ProviderManager2/Default/OperationResponseHandler.h>
 
-#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
-
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
 #include <Pegasus/ProviderManager2/ProviderManagerzOS_inline.h>
 #endif
@@ -311,12 +309,9 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
             request->instanceName.getClassName(),
             request->instanceName.getKeyBindings());
 
-        ProviderName name(
-            objectPath,
-            ProviderType::INSTANCE);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph = providerManager.getProvider(name.getPhysicalName(),
@@ -403,12 +398,9 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
             request->nameSpace,
             request->className);
 
-        ProviderName name(
-            objectPath,
-            ProviderType::INSTANCE);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -500,13 +492,9 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
             request->nameSpace,
             request->className);
 
-       // build an internal provider name from the request arguments
-        ProviderName name(
-            objectPath,
-            ProviderType::INSTANCE);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -589,12 +577,9 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
             request->newInstance.getPath().getClassName(),
             request->newInstance.getPath().getKeyBindings());
 
-        ProviderName name(
-            objectPath,
-            ProviderType::INSTANCE);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -681,12 +666,9 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
             request->modifiedInstance.getPath ().getClassName(),
             request->modifiedInstance.getPath ().getKeyBindings());
 
-        ProviderName name(
-            objectPath,
-            ProviderType::INSTANCE);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -775,12 +757,9 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
             request->instanceName.getClassName(),
             request->instanceName.getKeyBindings());
 
-        ProviderName name(
-            objectPath,
-            ProviderType::INSTANCE);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -863,12 +842,9 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
             request->nameSpace,
             request->className);
 
-        ProviderName name(
-            objectPath,
-            ProviderType::QUERY);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -966,12 +942,9 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
             request->nameSpace,
             request->assocClass.getString());
 
-         ProviderName name(
-            assocPath,
-            ProviderType::ASSOCIATION);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1072,12 +1045,9 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
             request->nameSpace,
             request->assocClass.getString());
 
-      ProviderName name(
-            assocPath,
-            ProviderType::ASSOCIATION);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1174,12 +1144,9 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
             request->nameSpace,
             request->resultClass.getString());
 
-        ProviderName name(
-            resultPath,
-            ProviderType::ASSOCIATION);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1278,12 +1245,9 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
             request->nameSpace,
             request->resultClass.getString());
 
-        ProviderName name(
-            resultPath,
-            ProviderType::ASSOCIATION);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1371,13 +1335,9 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
             request->instanceName.getClassName(),
             request->instanceName.getKeyBindings());
 
-       ProviderName name(
-            objectPath,
-            ProviderType::METHOD,
-            request->methodName);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1841,9 +1801,6 @@ static const Uint16 _MODULE_STOPPED  = 10;
 
 Message * CMPIProviderManager::handleDisableModuleRequest(const Message * message)
 {
-    // HACK
-    ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
-
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleDisableModuleRequest");
 
     CIMDisableModuleRequestMessage * request =
@@ -1863,47 +1820,13 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
 
     Boolean disableProviderOnly = request->disableProviderOnly;
 
-    //
-    // get operational status
-    //
     Array<Uint16> operationalStatus;
+    // Assume success.
+    operationalStatus.append(_MODULE_STOPPED);
 
-    if(!disableProviderOnly)
-    {
-        Uint32 pos2 = mInstance.findProperty(CIMName ("OperationalStatus"));
-
-        if(pos2 != PEG_NOT_FOUND)
-        {
-            //
-            //  ATTN-CAKG-P2-20020821: Check for null status?
-            //
-            mInstance.getProperty(pos2).getValue().get(operationalStatus);
-        }
-
-        //
-        // update module status from OK to Stopping
-        //
-        for(Uint32 i=0, n = operationalStatus.size(); i < n; i++)
-        {
-            if(operationalStatus[i] == _MODULE_OK)
-            {
-                operationalStatus.remove(i);
-            }
-        }
-        operationalStatus.append(_MODULE_STOPPING);
-
-        if(_providerRegistrationManager->setProviderModuleStatus
-            (moduleName, operationalStatus) == false)
-        {
-            //l10n
-            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-                "ProviderManager.CMPIProviderManager.SET_MODULE_STATUS_FAILED",
-                "set module status failed."));
-        }
-    }
-
+    //
     // Unload providers
+    //
     Array<CIMInstance> _pInstances = request->providers;
     String physicalName=_resolvePhysicalName(request->providerModule.getProperty(
               request->providerModule.findProperty("Location")).getValue().toString());
@@ -1914,31 +1837,6 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
                                           request->providerModule.findProperty
                                           ("Name")).getValue ().toString (),
                                        physicalName);
-    }
-
-    if(!disableProviderOnly)
-    {
-        // update module status from Stopping to Stopped
-        for(Uint32 i=0, n = operationalStatus.size(); i < n; i++)
-        {
-            if(operationalStatus[i] == _MODULE_STOPPING)
-            {
-                operationalStatus.remove(i);
-            }
-        }
-
-        operationalStatus.append(_MODULE_STOPPED);
-
-        if(_providerRegistrationManager->setProviderModuleStatus
-            (moduleName, operationalStatus) == false)
-        {
-            //l10n
-            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-            //"set module status failed.");
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-                "ProviderManager.CMPIProviderManager.SET_MODULE_STATUS_FAILED",
-                "set module status failed."));
-        }
     }
 
     CIMDisableModuleResponseMessage * response =
@@ -1965,9 +1863,6 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
 
 Message * CMPIProviderManager::handleEnableModuleRequest(const Message * message)
 {
-    // HACK
-    ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
-
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleEnableModuleRequest");
 
     CIMEnableModuleRequestMessage * request =
@@ -1975,53 +1870,8 @@ Message * CMPIProviderManager::handleEnableModuleRequest(const Message * message
 
     PEGASUS_ASSERT(request != 0);
 
-    //
-    // get module status
-    //
-    CIMInstance mInstance = request->providerModule;
     Array<Uint16> operationalStatus;
-    Uint32 pos = mInstance.findProperty(CIMName ("OperationalStatus"));
-
-    if(pos != PEG_NOT_FOUND)
-    {
-        //
-        //  ATTN-CAKG-P2-20020821: Check for null status?
-        //
-        mInstance.getProperty(pos).getValue().get(operationalStatus);
-    }
-
-    // update module status from Stopped to OK
-    for(Uint32 i=0, n = operationalStatus.size(); i < n; i++)
-    {
-        if(operationalStatus[i] == _MODULE_STOPPED)
-        {
-            operationalStatus.remove(i);
-        }
-    }
-
     operationalStatus.append(_MODULE_OK);
-
-    //
-    // get module name
-    //
-    String moduleName;
-
-    Uint32 pos2 = mInstance.findProperty(CIMName ("Name"));
-
-    if(pos2 != PEG_NOT_FOUND)
-    {
-        mInstance.getProperty(pos2).getValue().get(moduleName);
-    }
-
-    if(_providerRegistrationManager->setProviderModuleStatus
-        (moduleName, operationalStatus) == false)
-    {
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-            "ProviderManager.CMPIProviderManager.SET_MODULE_STATUS_FAILED",
-            "set module status failed."));
-    }
 
     CIMEnableModuleResponseMessage * response =
         new CIMEnableModuleResponseMessage(
@@ -2084,15 +1934,48 @@ Message * CMPIProviderManager::handleUnsupportedRequest(const Message * message)
     return(0);
 }
 
-ProviderName CMPIProviderManager::_resolveProviderName(const ProviderName & providerName)
+ProviderName CMPIProviderManager::_resolveProviderName(
+    const ProviderIdContainer & providerId)
 {
-    ProviderName temp = findProvider(providerName);
+    String providerName;
+    String fileName;
+    String interfaceName;
+    CIMValue genericValue;
 
-    String physicalName=_resolvePhysicalName(temp.getPhysicalName());
+    genericValue = providerId.getProvider().getProperty(
+        providerId.getProvider().findProperty("Name")).getValue();
+    genericValue.get(providerName);
 
-    temp.setPhysicalName(physicalName);
+    genericValue = providerId.getModule().getProperty(
+        providerId.getModule().findProperty("Location")).getValue();
+    genericValue.get(fileName);
+    fileName = _resolvePhysicalName(fileName);
 
-    return(temp);
+    // ATTN: This attribute is probably not required
+    genericValue = providerId.getModule().getProperty(
+        providerId.getModule().findProperty("InterfaceType")).getValue();
+    genericValue.get(interfaceName);
+
+    // Check if the provider module is blocked
+    Array<Uint16> operationalStatus;
+    Uint32 pos = providerId.getModule().findProperty(
+        CIMName("OperationalStatus"));
+    PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
+    providerId.getModule().getProperty(pos).getValue().get(operationalStatus);
+
+    for(Uint32 i = 0; i < operationalStatus.size(); i++)
+    {
+        if(operationalStatus[i] == _MODULE_STOPPED ||
+           operationalStatus[i] == _MODULE_STOPPING)
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,
+                MessageLoaderParms(
+                    "ProviderManager.ProviderManagerService.PROVIDER_BLOCKED",
+                    "provider blocked."));
+        }
+    }
+
+    return ProviderName(providerName, fileName, interfaceName, 0);
 }
 
 PEGASUS_NAMESPACE_END

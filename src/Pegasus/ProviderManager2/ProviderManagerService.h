@@ -45,7 +45,10 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/MessageQueueService.h>
+#include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
 #include <Pegasus/ProviderManager2/SafeQueue.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>
@@ -92,18 +95,28 @@ private:
     //void handlePauseService() thorw();
     //void handleResumeService() thorw();
 
-    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleCimOperation(void * arg) throw();
+    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleCimOperation(
+        void * arg) throw();
 
-    ProviderManager *locateProviderManager(const Message *m, String &itf);
-    void handleCimRequest(AsyncOpNode *op, const Message * message);
+    void handleCimRequest(AsyncOpNode *op, Message* message);
+
+    ProviderManager* _lookupProviderManager(const String& interfaceType);
+
+    ProviderIdContainer _getProviderIdContainer(
+        const CIMRequestMessage* message);
+
+    void _updateProviderModuleStatus(
+        CIMInstance& providerModule,
+        Uint16 fromStatus,
+        Uint16 toStatus);
 
 private:
     SafeQueue<AsyncOpNode *> _incomingQueue;
     SafeQueue<AsyncOpNode *> _outgoingQueue;
 
-private:
     //Array<Pair<ProviderManager *, ProviderManagerModule> > _providerManagers;
 
+    ProviderRegistrationManager* _providerRegistrationManager;
 };
 
 PEGASUS_NAMESPACE_END

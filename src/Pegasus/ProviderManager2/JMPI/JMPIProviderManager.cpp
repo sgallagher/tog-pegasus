@@ -48,8 +48,6 @@
 #include <Pegasus/ProviderManager2/JMPI/JMPILocalProviderManager.h>
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
 
-#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
-
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -183,7 +181,7 @@ Message * JMPIProviderManager::processMessage(Message * request) throw()
 
         break; */
     default:
-        std::cout<<"*** Unsupported Request ??"<<request->getType()<<std::endl;
+        cout<<"*** Unsupported Request ??"<<request->getType()<<endl;
         asm("int $3");
         response = handleUnsupportedRequest(request);
 
@@ -282,12 +280,9 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
             request->instanceName.getClassName(),
             request->instanceName.getKeyBindings());
 
-        ProviderName name(
-            objectPath,
-            ProviderType::INSTANCE);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         JMPIProvider::OpProviderHolder ph = providerManager.getProvider(name.getPhysicalName(),
@@ -300,7 +295,7 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.getInstance: " + pr.getName());
 
-        DDD(std::cerr<<"--- JMPIProviderManager::getInstance"<<std::endl);
+        DDD(cerr<<"--- JMPIProviderManager::getInstance"<<endl);
 
         JvmVector *jv;
         JNIEnv *env=JMPIjvm::attachThread(&jv);
@@ -365,12 +360,9 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
             request->nameSpace,
             request->className);
 
-        ProviderName name(
-            objectPath,
-            ProviderType::INSTANCE);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         JMPIProvider::OpProviderHolder ph =
@@ -392,7 +384,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.enumerateInstances: " + pr.getName());
 
-        DDD(std::cerr<<"--- JMPIProviderManager::enumerateInstances"<<std::endl);
+        DDD(cerr<<"--- JMPIProviderManager::enumerateInstances"<<endl);
 
         
 	JvmVector *jv;
@@ -470,13 +462,9 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
             request->nameSpace,
             request->className);
 
-       // build an internal provider name from the request arguments
-        ProviderName name(
-            objectPath,
-            ProviderType::INSTANCE);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         JMPIProvider::OpProviderHolder ph =
@@ -494,7 +482,7 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.enumerateInstanceNames: " + pr.getName());
 
-        DDD(std::cerr<<"--- JMPIProviderManager::enumerateInstanceNames"<<std::endl);
+        DDD(cerr<<"--- JMPIProviderManager::enumerateInstanceNames"<<endl);
 
         
 	JvmVector *jv;
@@ -569,12 +557,9 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(const Message * messa
             request->newInstance.getPath().getClassName(),
             request->newInstance.getPath().getKeyBindings());
 
-        ProviderName name(
-            objectPath,
-            ProviderType::INSTANCE);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         JMPIProvider::OpProviderHolder ph =
@@ -595,7 +580,7 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(const Message * messa
             "Calling provider.createInstance: " +
             ph.GetProvider().getName());
 
-        DDD(std::cerr<<"--- JMPIProviderManager::createInstances"<<std::endl);
+        DDD(cerr<<"--- JMPIProviderManager::createInstances"<<endl);
         
 	JvmVector *jv;
         env=JMPIjvm::attachThread(&jv);
@@ -657,12 +642,9 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
             request->modifiedInstance.getPath ().getClassName(),
             request->modifiedInstance.getPath ().getKeyBindings());
 
-        ProviderName name(
-            objectPath,
-            ProviderType::INSTANCE);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         JMPIProvider::OpProviderHolder ph =
@@ -683,7 +665,7 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.modifyInstance: " + pr.getName());
 
-        DDD(std::cerr<<"--- JMPIProviderManager::modifyInstance"<<std::endl);
+        DDD(cerr<<"--- JMPIProviderManager::modifyInstance"<<endl);
 
 	JvmVector *jv;
         env=JMPIjvm::attachThread(&jv);
@@ -741,12 +723,9 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
             request->instanceName.getClassName(),
             request->instanceName.getKeyBindings());
 
-        ProviderName name(
-            objectPath,
-            ProviderType::INSTANCE);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         JMPIProvider::OpProviderHolder ph =
@@ -765,7 +744,7 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.deleteInstance: " + pr.getName());
 
-        DDD(std::cerr<<"--- JMPIProviderManager::modifyInstance"<<std::endl);
+        DDD(cerr<<"--- JMPIProviderManager::modifyInstance"<<endl);
 
 	JvmVector *jv;
         env=JMPIjvm::attachThread(&jv);
@@ -826,12 +805,9 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
             request->nameSpace,
             request->assocClass.getString());
 
-         ProviderName name(
-            assocPath,
-            ProviderType::ASSOCIATION);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         JMPIProvider::OpProviderHolder ph =
@@ -850,9 +826,9 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.associators: " + pr.getName());
 
-        DDD(std::cerr<<"--- JMPIProviderManager::associators"<<
+        DDD(cerr<<"--- JMPIProviderManager::associators"<<
 	               " role: >"<<request->role<<"< aCls "<<
-	   request->assocClass<<std::endl);
+	   request->assocClass<<endl);
 
 	JvmVector *jv;
         env=JMPIjvm::attachThread(&jv);
@@ -942,12 +918,9 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
             request->nameSpace,
             request->assocClass.getString());
       
-      ProviderName name(
-            assocPath,
-            ProviderType::ASSOCIATION);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         JMPIProvider::OpProviderHolder ph =
@@ -966,9 +939,9 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.associatorNames: " + pr.getName());
 
-        DDD(std::cerr<<"--- JMPIProviderManager::associatorNames"<<
+        DDD(cerr<<"--- JMPIProviderManager::associatorNames"<<
 	               " role: >"<<request->role<<"< aCls "<<
-	   request->assocClass<<std::endl);
+	   request->assocClass<<endl);
 
 	JvmVector *jv;
         env=JMPIjvm::attachThread(&jv);
@@ -1050,12 +1023,9 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
             request->nameSpace,
             request->resultClass.getString());
 
-        ProviderName name(
-            resultPath,
-            ProviderType::ASSOCIATION);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         JMPIProvider::OpProviderHolder ph =
@@ -1074,8 +1044,8 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.references: " + pr.getName());
 
-        DDD(std::cerr<<"--- JMPIProviderManager::references"<<" role: >"<<request->role<<"< aCls "<<
-	   request->resultClass<<std::endl);
+        DDD(cerr<<"--- JMPIProviderManager::references"<<" role: >"<<request->role<<"< aCls "<<
+	   request->resultClass<<endl);
 
 	JvmVector *jv;
         env=JMPIjvm::attachThread(&jv);
@@ -1162,12 +1132,9 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
             request->nameSpace,
             request->resultClass.getString());
 
-        ProviderName name(
-            resultPath,
-            ProviderType::ASSOCIATION);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         JMPIProvider::OpProviderHolder ph =
@@ -1186,8 +1153,8 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
             "Calling provider.referenceNames: " + pr.getName());
 
 	                 
-        DDD(std::cerr<<"--- JMPIProviderManager::referenceNames"<<" role: >"<<request->role<<"< aCls "<<
-	   request->resultClass<<std::endl);
+        DDD(cerr<<"--- JMPIProviderManager::referenceNames"<<" role: >"<<request->role<<"< aCls "<<
+	   request->resultClass<<endl);
 
 	JvmVector *jv;
         env=JMPIjvm::attachThread(&jv);
@@ -1259,12 +1226,9 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
             request->instanceName.getClassName(),
             request->instanceName.getKeyBindings());
 
-       ProviderName name(
-            objectPath,
-            ProviderType::METHOD);
-
         // resolve provider name
-        name = _resolveProviderName(name);
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
         JMPIProvider::OpProviderHolder ph =
@@ -1375,12 +1339,12 @@ String JMPIProviderManager::getFilter(CIMInstance &subscription)
    }
    catch (CIMException &e) {
       _repository->read_unlock ();
-      std::cout<<"??? JMPIProviderManager::getFilter"<<e.getCode()<<" "<<e.getMessage()<<" ???"<<std::endl;
+      cout<<"??? JMPIProviderManager::getFilter"<<e.getCode()<<" "<<e.getMessage()<<" ???"<<endl;
       abort();
   }
    catch (...) {
       _repository->read_unlock ();
-      std::cout<<"??? What Happend ???"<<std::endl;
+      cout<<"??? What Happend ???"<<endl;
       abort();
    }
 }
@@ -1451,7 +1415,7 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.createSubscriptionRequest: " + pr.getName());
 
-        DDD(std::cerr<<"--- JMPIProviderManager::createSubscriptionRequest"<<std::endl);
+        DDD(cerr<<"--- JMPIProviderManager::createSubscriptionRequest"<<endl);
 
         for(Uint32 i = 0, n = request->classNames.size(); i < n; i++) {
             CIMObjectPath className(
@@ -1558,7 +1522,7 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.deleteSubscriptionRequest: " + pr.getName());
 
-        DDD(std::cerr<<"--- JMPIProviderManager::deleteSubscriptionRequest"<<std::endl);
+        DDD(cerr<<"--- JMPIProviderManager::deleteSubscriptionRequest"<<endl);
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1621,7 +1585,7 @@ Message * JMPIProviderManager::handleEnableIndicationsRequest(const Message * me
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.EnableIndicationRequest: " + pr.getName());
 
-        DDD(std::cerr<<"--- JMPIProviderManager::enableIndicationRequest"<<std::endl);
+        DDD(cerr<<"--- JMPIProviderManager::enableIndicationRequest"<<endl);
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1678,7 +1642,7 @@ Message * JMPIProviderManager::handleDisableIndicationsRequest(const Message * m
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.DisableIndicationRequest: " + pr.getName());
 
-        DDD(std::cerr<<"--- JMPIProviderManager::disableIndicationRequest"<<std::endl);
+        DDD(cerr<<"--- JMPIProviderManager::disableIndicationRequest"<<endl);
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1704,9 +1668,6 @@ static const Uint16 _MODULE_STOPPED  = 10;
 
 Message * JMPIProviderManager::handleDisableModuleRequest(const Message * message) throw()
 {
-    // HACK
-    ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
-
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "JMPIProviderManager::handleDisableModuleRequest");
 
     CIMDisableModuleRequestMessage * request =
@@ -1726,47 +1687,13 @@ Message * JMPIProviderManager::handleDisableModuleRequest(const Message * messag
 
     Boolean disableProviderOnly = request->disableProviderOnly;
 
-    //
-    // get operational status
-    //
     Array<Uint16> operationalStatus;
+    // Assume success.
+    operationalStatus.append(_MODULE_STOPPED);
 
-    if(!disableProviderOnly)
-    {
-        Uint32 pos2 = mInstance.findProperty(CIMName ("OperationalStatus"));
-
-        if(pos2 != PEG_NOT_FOUND)
-        {
-            //
-            //  ATTN-CAKG-P2-20020821: Check for null status?
-            //
-            mInstance.getProperty(pos2).getValue().get(operationalStatus);
-        }
-
-        //
-        // update module status from OK to Stopping
-        //
-        for(Uint32 i=0, n = operationalStatus.size(); i < n; i++)
-        {
-            if(operationalStatus[i] == _MODULE_OK)
-            {
-                operationalStatus.remove(i);
-            }
-        }
-        operationalStatus.append(_MODULE_STOPPING);
-
-        if(_providerRegistrationManager->setProviderModuleStatus
-            (moduleName, operationalStatus) == false)
-        {
-            //l10n
-            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-                "ProviderManager.JMPIProviderManager.SET_MODULE_STATUS_FAILED",
-                "set module status failed."));
-        }
-    }
-
+    //
     // Unload providers
+    //
     Array<CIMInstance> _pInstances = request->providers;
 
     for(Uint32 i = 0, n = _pInstances.size(); i < n; i++)
@@ -1778,31 +1705,6 @@ Message * JMPIProviderManager::handleDisableModuleRequest(const Message * messag
 
         providerManager.unloadProvider(triad.first, triad.second);
         */
-    }
-
-    if(!disableProviderOnly)
-    {
-        // update module status from Stopping to Stopped
-        for(Uint32 i=0, n = operationalStatus.size(); i < n; i++)
-        {
-            if(operationalStatus[i] == _MODULE_STOPPING)
-            {
-                operationalStatus.remove(i);
-            }
-        }
-
-        operationalStatus.append(_MODULE_STOPPED);
-
-        if(_providerRegistrationManager->setProviderModuleStatus
-            (moduleName, operationalStatus) == false)
-        {
-            //l10n
-            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-            //"set module status failed.");
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-                "ProviderManager.JMPIProviderManager.SET_MODULE_STATUS_FAILED",
-                "set module status failed."));
-        }
     }
 
     CIMDisableModuleResponseMessage * response =
@@ -1829,9 +1731,6 @@ Message * JMPIProviderManager::handleDisableModuleRequest(const Message * messag
 
 Message * JMPIProviderManager::handleEnableModuleRequest(const Message * message) throw()
 {
-    // HACK
-    ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
-
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "JMPIProviderManager::handleEnableModuleRequest");
 
     CIMEnableModuleRequestMessage * request =
@@ -1839,53 +1738,8 @@ Message * JMPIProviderManager::handleEnableModuleRequest(const Message * message
 
     PEGASUS_ASSERT(request != 0);
 
-    //
-    // get module status
-    //
-    CIMInstance mInstance = request->providerModule;
     Array<Uint16> operationalStatus;
-    Uint32 pos = mInstance.findProperty(CIMName ("OperationalStatus"));
-
-    if(pos != PEG_NOT_FOUND)
-    {
-        //
-        //  ATTN-CAKG-P2-20020821: Check for null status?
-        //
-        mInstance.getProperty(pos).getValue().get(operationalStatus);
-    }
-
-    // update module status from Stopped to OK
-    for(Uint32 i=0, n = operationalStatus.size(); i < n; i++)
-    {
-        if(operationalStatus[i] == _MODULE_STOPPED)
-        {
-            operationalStatus.remove(i);
-        }
-    }
-
     operationalStatus.append(_MODULE_OK);
-
-    //
-    // get module name
-    //
-    String moduleName;
-
-    Uint32 pos2 = mInstance.findProperty(CIMName ("Name"));
-
-    if(pos2 != PEG_NOT_FOUND)
-    {
-        mInstance.getProperty(pos2).getValue().get(moduleName);
-    }
-
-    if(_providerRegistrationManager->setProviderModuleStatus
-        (moduleName, operationalStatus) == false)
-    {
-        //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-            "ProviderManager.JMPIProviderManager.SET_MODULE_STATUS_FAILED",
-            "set module status failed."));
-    }
 
     CIMEnableModuleResponseMessage * response =
         new CIMEnableModuleResponseMessage(
@@ -1948,11 +1802,48 @@ Message * JMPIProviderManager::handleUnsupportedRequest(const Message * message)
     return(0);
 }
 
-ProviderName JMPIProviderManager::_resolveProviderName(const ProviderName & providerName)
+ProviderName JMPIProviderManager::_resolveProviderName(
+    const ProviderIdContainer & providerId)
 {
-    ProviderName temp = findProvider(providerName);
+    String providerName;
+    String fileName;
+    String interfaceName;
+    CIMValue genericValue;
 
-    return(temp);
+    genericValue = providerId.getProvider().getProperty(
+        providerId.getProvider().findProperty("Name")).getValue();
+    genericValue.get(providerName);
+
+    genericValue = providerId.getModule().getProperty(
+        providerId.getModule().findProperty("Location")).getValue();
+    genericValue.get(fileName);
+    fileName = resolveFileName(fileName);
+
+    // ATTN: This attribute is probably not required
+    genericValue = providerId.getModule().getProperty(
+        providerId.getModule().findProperty("InterfaceType")).getValue();
+    genericValue.get(interfaceName);
+
+    // Check if the provider module is blocked
+    Array<Uint16> operationalStatus;
+    Uint32 pos = providerId.getModule().findProperty(
+        CIMName("OperationalStatus"));
+    PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
+    providerId.getModule().getProperty(pos).getValue().get(operationalStatus);
+
+    for(Uint32 i = 0; i < operationalStatus.size(); i++)
+    {
+        if(operationalStatus[i] == _MODULE_STOPPED ||
+           operationalStatus[i] == _MODULE_STOPPING)
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,
+                MessageLoaderParms(
+                    "ProviderManager.ProviderManagerService.PROVIDER_BLOCKED",
+                    "provider blocked."));
+        }
+    }
+
+    return ProviderName(providerName, fileName, interfaceName, 0);
 }
 
 String JMPIProviderManager::resolveFileName(String fileName)

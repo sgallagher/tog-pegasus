@@ -49,8 +49,14 @@
 
 #include <Pegasus/ProviderManager2/ProviderManagerModule.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>
+#include <Pegasus/ProviderManager2/ProviderType.h>
+#include <Pegasus/ProviderManager2/ProviderName.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+static const Uint16 _MODULE_OK       = 2;
+static const Uint16 _MODULE_STOPPING = 9;
+static const Uint16 _MODULE_STOPPED  = 10;
 
 // BEGIN TEMP SECTION
 class ProviderManagerContainer
@@ -172,7 +178,7 @@ ProviderManagerService::ProviderManagerService(
     providerManagerService=this;
     _repository=repository;
 
-    SetProviderRegistrationManager(providerRegistrationManager);
+    _providerRegistrationManager = providerRegistrationManager;
 
     // ATTN: this section is a temporary solution to populate the list of enabled
     // provider managers for a given distribution. it includes another temporary
@@ -383,60 +389,205 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
     return(PEGASUS_THREAD_RETURN(0));
 }
 
-void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * message)
+void ProviderManagerService::handleCimRequest(AsyncOpNode * op, Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleCimRequest");
 
-    // ATTN: ensure message is a request???
-    CIMMessage * request = dynamic_cast<CIMMessage *>(const_cast<Message *>(message));
+    CIMRequestMessage * request = dynamic_cast<CIMRequestMessage *>(message);
+    PEGASUS_ASSERT(request != 0);
 
     // get request from op node
     AsyncRequest * async = static_cast<AsyncRequest *>(op->_request.next(0));
-
-    PEGASUS_ASSERT((request != 0) && (async != 0));
+    PEGASUS_ASSERT(async != 0);
 
     Message * response = 0;
-    String ifc;
 
-    // get the responsible provider Manager
-    ProviderManager * pm = locateProviderManager(message,ifc);
-    if (pm) {
+    if ((dynamic_cast<CIMOperationRequestMessage*>(request) != 0) ||
+        (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE))
+    {
+        // Handle CIMOperationRequestMessage and
+        // CIMExportIndicationRequestMessage
+
+        // Add provider information to OperationContext for the ProviderManager
+        ProviderIdContainer pidc = _getProviderIdContainer(request);
+        request->operationContext.insert(pidc);
+
+        // Retrieve the provider interface type
+        String interfaceType;
+        CIMValue itValue = pidc.getModule().getProperty(
+            pidc.getModule().findProperty("InterfaceType")).getValue();
+        itValue.get(interfaceType);
+
+        // Forward the request to the appropriate ProviderManager
+        ProviderManager* pm = _lookupProviderManager(interfaceType);
         response = pm->processMessage(request);
     }
+    else if (dynamic_cast<CIMIndicationRequestMessage*>(request) != 0)
+    {
+        // Handle CIMIndicationRequestMessage
+        CIMIndicationRequestMessage* indReq =
+            dynamic_cast<CIMIndicationRequestMessage*>(request);
 
-    else for (Uint32 i = 0, n = _providerManagers.size(); i < n; i++) {
-              ProviderManagerContainer *pmc=_providerManagers[i];
-       switch (message->getType()) {
-       case CIM_ENABLE_MODULE_REQUEST_MESSAGE: {
-             CIMEnableModuleRequestMessage * request =
-                dynamic_cast<CIMEnableModuleRequestMessage*>(const_cast<Message*>(message));
-             if (request->providerModule.getProperty(request->providerModule.findProperty
-                 ("InterfaceType")).getValue().toString()==pmc->getInterfaceName())
-             response=pmc->getProviderManager()->processMessage(request);
-           }
-          break;
-       case CIM_DISABLE_MODULE_REQUEST_MESSAGE: {
-             CIMDisableModuleRequestMessage * request =
-                dynamic_cast<CIMDisableModuleRequestMessage*>(const_cast<Message*>(message));
-             if (request->providerModule.getProperty(request->providerModule.findProperty
-                 ("InterfaceType")).getValue().toString()==pmc->getInterfaceName())
-             response=pmc->getProviderManager()->processMessage(request);
-       }
-          break;
-       case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE: {
-          Message  *resp=pmc->getProviderManager()->processMessage(request);
-          if (resp) response=resp; }
-          break;
-       default:
-          CIMRequestMessage * req =
-              dynamic_cast<CIMRequestMessage *>(const_cast<Message *>(message));
-          CIMResponseMessage  *resp=new CIMResponseMessage(0,req->messageId,CIMException(),
-             req->queueIds.copyAndPop());
-          response=resp;
-          resp->synch_response(req);
-          OperationResponseHandler handler(req, resp);
-          handler.setStatus(CIM_ERR_FAILED, "Unknown messagetype.");
-       }
+        // Get the InterfaceType property from the provider module instance
+        String interfaceType;
+        CIMValue itValue = indReq->providerModule.getProperty(
+            indReq->providerModule.findProperty("InterfaceType")).getValue();
+        itValue.get(interfaceType);
+
+        // Forward the request to the appropriate ProviderManager
+        ProviderManager* pm = _lookupProviderManager(interfaceType);
+        response = pm->processMessage(request);
+    }
+    else if (request->getType() == CIM_ENABLE_MODULE_REQUEST_MESSAGE)
+    {
+        // Handle CIMEnableModuleRequestMessage
+        CIMEnableModuleRequestMessage * emReq =
+            dynamic_cast<CIMEnableModuleRequestMessage*>(request);
+
+        CIMInstance providerModule = emReq->providerModule;
+
+        try
+        {
+            // Get the InterfaceType property from the provider module instance
+            String interfaceType;
+            CIMValue itValue = emReq->providerModule.getProperty(
+                emReq->providerModule.findProperty("InterfaceType")).getValue();
+            itValue.get(interfaceType);
+
+            // Forward the request to the appropriate ProviderManager
+            // ATTN: Why is this sent to a provider manager at all?
+            ProviderManager* pm = _lookupProviderManager(interfaceType);
+            response = pm->processMessage(request);
+
+            // If successful, update provider module status to OK
+            // ATTN: Use CIMEnableModuleResponseMessage operationalStatus?
+            CIMEnableModuleResponseMessage * emResp =
+                dynamic_cast<CIMEnableModuleResponseMessage*>(response);
+            if (emResp->cimException.getCode() == CIM_ERR_SUCCESS)
+            {
+                _updateProviderModuleStatus(
+                    providerModule, _MODULE_STOPPED, _MODULE_OK);
+            }
+        }
+        catch (Exception& e)
+        {
+            // Get the OperationalStatus property from the provider module
+            Array<Uint16> operationalStatus;
+            CIMValue itValue = emReq->providerModule.getProperty(
+                emReq->providerModule.findProperty("OperationalStatus"))
+                    .getValue();
+            itValue.get(operationalStatus);
+
+            if (response != 0)
+            {
+                delete response;
+            }
+
+            response = new CIMEnableModuleResponseMessage(
+                request->messageId,
+                CIMException(CIM_ERR_FAILED, e.getMessage()),
+                request->queueIds.copyAndPop(),
+                operationalStatus);
+        }
+    }
+    else if (request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
+    {
+        // Handle CIMDisableModuleRequestMessage
+        CIMDisableModuleRequestMessage * dmReq =
+            dynamic_cast<CIMDisableModuleRequestMessage*>(request);
+
+        CIMInstance providerModule = dmReq->providerModule;
+        Boolean updateModuleStatus = !dmReq->disableProviderOnly;
+
+        try
+        {
+            // Get the InterfaceType property from the provider module instance
+            String interfaceType;
+            CIMValue itValue = dmReq->providerModule.getProperty(
+                dmReq->providerModule.findProperty("InterfaceType")).getValue();
+            itValue.get(interfaceType);
+
+            // Change module status from OK to STOPPING
+            if (updateModuleStatus)
+            {
+                _updateProviderModuleStatus(
+                    providerModule, _MODULE_OK, _MODULE_STOPPING);
+            }
+
+            // Forward the request to the appropriate ProviderManager
+            // ATTN: Why is this sent to a provider manager at all?
+            ProviderManager* pm = _lookupProviderManager(interfaceType);
+            response = pm->processMessage(request);
+
+            // Update provider module status based on success or failure
+            if (updateModuleStatus)
+            {
+                CIMDisableModuleResponseMessage * dmResp =
+                    dynamic_cast<CIMDisableModuleResponseMessage*>(response);
+                if (dmResp->cimException.getCode() != CIM_ERR_SUCCESS)
+                {
+                    // Disable operation failed.  Module not stopped.
+                    _updateProviderModuleStatus(
+                        providerModule, _MODULE_STOPPING, _MODULE_OK);
+                }
+                else
+                {
+                    // Disable may or may not have been successful,
+                    // depending on whether there are outstanding requests.
+                    // Use last operationalStatus entry.
+                    _updateProviderModuleStatus(
+                        providerModule, _MODULE_STOPPING,
+                        dmResp->operationalStatus[
+                            dmResp->operationalStatus.size()-1]);
+                }
+            }
+        }
+        catch (Exception& e)
+        {
+            // Get the OperationalStatus property from the provider module
+            Array<Uint16> operationalStatus;
+            CIMValue itValue = dmReq->providerModule.getProperty(
+                dmReq->providerModule.findProperty("OperationalStatus"))
+                    .getValue();
+            itValue.get(operationalStatus);
+
+            if (response != 0)
+            {
+                delete response;
+            }
+
+            response = new CIMDisableModuleResponseMessage(
+                request->messageId,
+                CIMException(CIM_ERR_FAILED, e.getMessage()),
+                request->queueIds.copyAndPop(),
+                operationalStatus);
+        }
+    }
+    else if (request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE)
+    {
+        // Handle CIMStopAllProvidersRequestMessage
+        // Send CIMStopAllProvidersRequestMessage to all ProviderManagers
+        for (Uint32 i = 0, n = _providerManagers.size(); i < n; i++)
+        {
+            ProviderManagerContainer* pmc=_providerManagers[i];
+            Message* resp = pmc->getProviderManager()->processMessage(request);
+            if (resp)
+            {
+                response = resp;
+            }
+        }
+    }
+    else
+    {
+        // ERROR: Unrecognized message type.
+        PEGASUS_ASSERT(0);
+        CIMResponseMessage* resp = new CIMResponseMessage(
+            0, request->messageId, CIMException(),
+            request->queueIds.copyAndPop());
+        resp->synch_response(request);
+        OperationResponseHandler handler(request, resp);
+        handler.setStatus(CIM_ERR_FAILED, "Unknown message type.");
+        response = resp;
     }
 
     // preserve message key
@@ -457,65 +608,30 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
     PEG_METHOD_EXIT();
 }
 
-ProviderManager* ProviderManagerService::locateProviderManager(const Message *message,
-             String & it)
+// ATTN: May need to add interfaceVersion parameter to further constrain lookup
+ProviderManager* ProviderManagerService::_lookupProviderManager(
+    const String& interfaceType)
 {
-    CIMNamespaceName nameSpace;
-    CIMName className;
-    CIMName method;
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "ProviderManagerService::_lookupProviderManager");
 
-    const CIMOperationRequestMessage * p =
-       dynamic_cast<const CIMOperationRequestMessage *>(message);
-
-    if (p) {
-       nameSpace=p->nameSpace;
-
-       if (p->providerType==ProviderType::ASSOCIATION)
-          className=((CIMAssociatorsRequestMessage*)p)->assocClass;
-       else className=p->className;
-
-       if (p->providerType==ProviderType::METHOD)
-          method=((CIMInvokeMethodRequestMessage*)p)->methodName;
-
-       ProviderName name(nameSpace,
-           className,
-           p->providerType,
-           method);
-
-       // find provider manager
-       name = ProviderRegistrar().findProvider(name,false);
-       it=name.getInterfaceName();
-    }
-
-    else {
-       const CIMIndicationRequestMessage * p =
-          dynamic_cast<const CIMIndicationRequestMessage *>(message);
-       if (p) {
-          CIMIndicationRequestMessage *m=(CIMIndicationRequestMessage*)message;
-          it=m->providerModule.getProperty (m->providerModule.findProperty
-                ("InterfaceType")).getValue ().toString ();
-       }
-
-       else switch (message->getType()) {
-       case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
-       case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
-       case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
-          return NULL;
-       default:
-          it="C++Default";
-       }
-    }
-
-    // find provider manager for provider interface
+    // find provider manager for specified provider interface type
     for(Uint32 i = 0, n = _providerManagers.size(); i < n; i++)
     {
-        if (String::equalNoCase(it,_providerManagers[i]->getInterfaceName())) {
-           ProviderManagerContainer *pmc=_providerManagers[i];
-           return pmc->getProviderManager();
+        if (interfaceType == _providerManagers[i]->getInterfaceName())
+        {
+            ProviderManagerContainer* pmc=_providerManagers[i];
+            PEG_METHOD_EXIT();
+            return pmc->getProviderManager();
         }
     }
-    ProviderManagerContainer *pmc=_providerManagers[0];
-    return pmc->getProviderManager();
+
+    // ProviderManager not found for the specified interface type
+    PEGASUS_ASSERT(0);
+    PEG_METHOD_EXIT();
+    return 0;
+    //ProviderManagerContainer *pmc=_providerManagers[0];
+    //return pmc->getProviderManager();
 }
 
 void ProviderManagerService::unload_idle_providers(void)
@@ -525,6 +641,236 @@ void ProviderManagerService::unload_idle_providers(void)
       ProviderManagerContainer *pmc=_providerManagers[i];
            pmc->getProviderManager()->unload_idle_providers();
     }
+}
+
+ProviderIdContainer ProviderManagerService::_getProviderIdContainer(
+    const CIMRequestMessage* message)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "ProviderManagerService::_getProviderIdContainer");
+
+    CIMInstance providerModule;
+    CIMInstance provider;
+
+    switch (message->getType())
+    {
+    case CIM_GET_CLASS_REQUEST_MESSAGE:
+    case CIM_DELETE_CLASS_REQUEST_MESSAGE:
+    case CIM_CREATE_CLASS_REQUEST_MESSAGE:
+    case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
+    case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
+    case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
+    case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
+    case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
+    case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
+    case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
+        // The ProviderManagerService does not support class operations
+        PEGASUS_ASSERT(0);
+        break;
+
+    case CIM_GET_INSTANCE_REQUEST_MESSAGE:
+    case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
+    case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
+    case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
+    case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+    case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
+    case CIM_GET_PROPERTY_REQUEST_MESSAGE:
+    case CIM_SET_PROPERTY_REQUEST_MESSAGE:
+    {
+        // Look up instance provider
+        const CIMOperationRequestMessage* request =
+            dynamic_cast<const CIMOperationRequestMessage*>(message);
+        _providerRegistrationManager->lookupInstanceProvider(
+            request->nameSpace, request->className, provider, providerModule);
+        break;
+    }
+
+    case CIM_EXEC_QUERY_REQUEST_MESSAGE:
+    {
+        // Look up instance query provider
+        const CIMOperationRequestMessage* request =
+            dynamic_cast<const CIMOperationRequestMessage*>(message);
+        Boolean hasNoQuery;
+        _providerRegistrationManager->lookupInstanceProvider(
+            request->nameSpace, request->className, provider, providerModule,
+            0, &hasNoQuery);
+        // We shouldn't have gotten this far if this isn't a query provider
+        PEGASUS_ASSERT(!hasNoQuery);
+        break;
+    }
+
+    case CIM_ASSOCIATORS_REQUEST_MESSAGE:
+    {
+        // Look up association provider
+        const CIMAssociatorsRequestMessage* request =
+            dynamic_cast<const CIMAssociatorsRequestMessage*>(message);
+        Array<CIMInstance> providerModules;
+        Array<CIMInstance> providers;
+        _providerRegistrationManager->lookupAssociationProvider(
+            request->nameSpace, request->assocClass, providers, providerModules);
+        providerModule = providerModules[0];
+        provider = providers[0];
+        break;
+    }
+
+    case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
+    {
+        // Look up association provider
+        const CIMAssociatorNamesRequestMessage* request =
+            dynamic_cast<const CIMAssociatorNamesRequestMessage*>(message);
+        Array<CIMInstance> providerModules;
+        Array<CIMInstance> providers;
+        _providerRegistrationManager->lookupAssociationProvider(
+            request->nameSpace, request->assocClass, providers, providerModules);
+        providerModule = providerModules[0];
+        provider = providers[0];
+        break;
+    }
+
+    case CIM_REFERENCES_REQUEST_MESSAGE:
+    {
+        // Look up association provider
+        const CIMReferencesRequestMessage* request =
+            dynamic_cast<const CIMReferencesRequestMessage*>(message);
+        Array<CIMInstance> providerModules;
+        Array<CIMInstance> providers;
+        _providerRegistrationManager->lookupAssociationProvider(
+            request->nameSpace, request->resultClass, providers, providerModules);
+        providerModule = providerModules[0];
+        provider = providers[0];
+        break;
+    }
+
+    case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
+    {
+        // Look up association provider
+        const CIMReferenceNamesRequestMessage* request =
+            dynamic_cast<const CIMReferenceNamesRequestMessage*>(message);
+        Array<CIMInstance> providerModules;
+        Array<CIMInstance> providers;
+        _providerRegistrationManager->lookupAssociationProvider(
+            request->nameSpace, request->resultClass, providers, providerModules);
+        providerModule = providerModules[0];
+        provider = providers[0];
+        break;
+    }
+
+    case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
+    {
+        // Look up method provider
+        const CIMInvokeMethodRequestMessage* request =
+            dynamic_cast<const CIMInvokeMethodRequestMessage*>(message);
+        _providerRegistrationManager->lookupMethodProvider(
+            request->nameSpace, request->className, request->methodName,
+            provider, providerModule);
+        break;
+    }
+
+    case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
+    {
+        const CIMExportIndicationRequestMessage* request =
+            dynamic_cast<const CIMExportIndicationRequestMessage*>(message);
+        _providerRegistrationManager->lookupIndicationConsumer(
+            request->destinationPath, provider, providerModule);
+        break;
+    }
+
+    case CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE:
+    case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
+    case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
+    case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
+    case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
+    {
+        // Provider information is already in the message
+        const CIMIndicationRequestMessage* request =
+            dynamic_cast<const CIMIndicationRequestMessage*>(message);
+        providerModule = request->providerModule;
+        provider = request->provider;
+        break;
+    }
+
+    case CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
+    case CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
+    case CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE:
+    case CIM_PROCESS_INDICATION_REQUEST_MESSAGE:
+    case CIM_HANDLE_INDICATION_REQUEST_MESSAGE:
+    case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE:
+    case CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE:
+        // These messages are not handled by the ProviderManagerService
+        PEGASUS_ASSERT(0);
+        break;
+
+    case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
+    case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
+    case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
+        // These messages are handled specially by the ProviderManagerService
+        PEGASUS_ASSERT(0);
+        break;
+    }
+
+    PEGASUS_ASSERT(!providerModule.isUninitialized());
+    PEGASUS_ASSERT(!provider.isUninitialized());
+
+    PEG_METHOD_EXIT();
+    return ProviderIdContainer(providerModule, provider);
+}
+
+// Updates the providerModule instance and the ProviderRegistrationManager
+void ProviderManagerService::_updateProviderModuleStatus(
+    CIMInstance& providerModule,
+    Uint16 fromStatus,
+    Uint16 toStatus)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "ProviderManagerService::_updateProviderModuleStatus");
+
+    Array<Uint16> operationalStatus;
+    String providerModuleName;
+
+    Uint32 pos = providerModule.findProperty(CIMName("Name"));
+    PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
+    providerModule.getProperty(pos).getValue().get(providerModuleName);
+
+    //
+    // get operational status
+    //
+    pos = providerModule.findProperty(CIMName("OperationalStatus"));
+    PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
+    CIMProperty operationalStatusProperty = providerModule.getProperty(pos);
+    CIMValue operationalStatusValue = operationalStatusProperty.getValue();
+
+    if (!operationalStatusValue.isNull())
+    {
+        operationalStatusValue.get(operationalStatus);
+    }
+
+    //
+    // update module status
+    //
+    for (Uint32 i = operationalStatus.size(); i > 0; i--)
+    {
+        if (operationalStatus[i-1] == fromStatus)
+        {
+            operationalStatus.remove(i-1);
+        }
+    }
+
+    operationalStatus.append(toStatus);
+
+    if (_providerRegistrationManager->setProviderModuleStatus(
+            providerModuleName, operationalStatus) == false)
+    {
+        throw PEGASUS_CIM_EXCEPTION_L(
+            CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "ProviderManager.ProviderManagerService."
+                    "SET_MODULE_STATUS_FAILED",
+                "set module status failed."));
+    }
+
+    operationalStatusProperty.setValue(CIMValue(operationalStatus));
+
+    PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

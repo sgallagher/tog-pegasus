@@ -47,6 +47,7 @@
 #include <Pegasus/Common/Triad.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/OperationContextInternal.h>
 
 #include <Pegasus/ProviderManager2/ProviderManager.h>
 #include <Pegasus/ProviderManager2/ProviderName.h>
@@ -113,8 +114,7 @@ protected:
     String _generateKey(const Provider & provider);
     String _generateKey(const String & providerName,const String & providerFileName);
 
-    ProviderName _resolveProviderName(const ProviderName & providerName);
-    ProviderName _resolveProviderName(String & destinationPath);
+    ProviderName _resolveProviderName(const ProviderIdContainer & providerId);
 
     void unload_idle_providers();
 

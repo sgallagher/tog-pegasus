@@ -308,6 +308,15 @@ TAG: Version_1_09.
     The array template implementation is still available for use within
     the Pegasus core, allowing implicit instantiation of additional array
     types used internally.
+    
+53. KS 28 May 2002 - Added heiarchial subclass search of subclasses to 
+    enumerateinstancenames and enumerateinstances.  There is a problem
+    however with trashing of the requests messages so there is a
+    flag LIMIT_ENUM_TO_ONE_LEVEL in CIMOperationDispatcher.cpp that
+    causes it to go through all the motions except to request instances
+    only for the current level.
+
+
 
 ========================================================================
 

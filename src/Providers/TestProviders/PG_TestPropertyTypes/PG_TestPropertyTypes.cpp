@@ -259,7 +259,7 @@ void PG_TestPropertyTypes::modifyInstance(
 	ResponseHandler<CIMInstance> & handler)
 {
 	// ATTN: This provider does not yet support partial modification
-	if (flags & OperationFlag::PARTIAL_INSTANCE)
+	if (!propertyList.isNull())
 	{
 	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 	}

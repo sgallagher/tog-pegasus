@@ -271,9 +271,13 @@ CMPIrc key2CMPIData(const String& v, CIMKeyBinding::Type t, CMPIData *data) {
    case CIMKeyBinding::NUMERIC: {
          const char *vp=v.getCString();
          #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-         data->value.sint64=strtoll(vp, NULL, 10);
+          data->value.sint64=strtoll(vp, NULL, 10);
+         #elif defined(PEGASUS_OS_HPUX)
+          data->value.sint64 = 0;
+          sscanf(vp, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
+                 &data->value.sint64);
          #else
-         data->value.sint64=atoll(vp);
+          data->value.sint64=atoll(vp);
          #endif
          data->type=CMPI_sint64;
          delete vp;

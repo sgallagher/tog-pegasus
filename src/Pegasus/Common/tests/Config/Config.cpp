@@ -37,11 +37,11 @@ PEGASUS_NAMESPACE_BEGIN
 PEGASUS_IMPORT extern int numDummyObjects;
 PEGASUS_NAMESPACE_END
 
-int main()
+int main(int argc, char** argv)
 {
     assert(numDummyObjects == 1);    
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

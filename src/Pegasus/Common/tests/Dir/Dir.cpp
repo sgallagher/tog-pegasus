@@ -34,6 +34,8 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+static char * verbose;
+
 void test01()
 {
     Array<String> names;
@@ -58,8 +60,9 @@ void test01()
     assert(String::equal(names[2], "c"));
 }
 
-int main()
+int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
     try
     {
 	test01();
@@ -76,7 +79,7 @@ int main()
     }
     catch (CannotOpenDirectory&)
     {
-	cout << "+++++ passed all tests" << endl;
+	cout << argv[0] << " +++++ passed all tests" << endl;
 	exit(0);
     }
 

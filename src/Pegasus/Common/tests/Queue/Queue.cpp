@@ -63,8 +63,11 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-int main()
+static char * verbose;
+
+int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
     try
     {
 	// Simple test with Uint32 Stack of push, pop, top, and tests.
@@ -108,10 +111,11 @@ int main()
 	assert(q2.size() == queueSize);
 	for (Uint32 i = 0; i < queueSize; i++)
 	    q2.dequeue();
-#if 0
-    	cout << "Queue fill and empty of " << queueSize << " integers in " << 
-		sw.getElapsed() << " Seconds" << endl;
-#endif
+	if(verbose)
+	{
+	    cout << "Queue fill and empty of " << queueSize << " integers in " << 
+		    sw.getElapsed() << " Seconds" << endl;
+	}
 	
 	// Performance test - Passing item through a queue.
 	{
@@ -126,14 +130,13 @@ int main()
 		 q3.enqueue(i);
 		 q3.dequeue();
 
-#if 0
-	   cout << "Queue transit. Queue size =  " << queueSize 
-	       << " integers. Transit of " << iterations << " in "
-		<< sw.getElapsed() << " Seconds" << endl;
-#endif
-
-	    
-	}
+	 if(verbose)
+	 {
+	     cout << "Queue transit. Queue size =  " << queueSize 
+		 << " integers. Transit of " << iterations << " in "
+		  << sw.getElapsed() << " Seconds" << endl;
+	 }
+      }
 	
     }
     catch (Exception& e)
@@ -142,7 +145,7 @@ int main()
 	exit(1);
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

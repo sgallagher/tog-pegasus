@@ -37,8 +37,11 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-int main()
+static char * verbose;
+
+int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
     String path;
     assert(FileSystem::getCurrentDirectory(path));
     // Need to add test to confirm that the directory
@@ -172,7 +175,7 @@ int main()
 	assert(!FileSystem::exists(FILE2));
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

@@ -31,6 +31,7 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+static char * verbose;
 
 void test(const String& instanceName)
 {
@@ -39,8 +40,9 @@ void test(const String& instanceName)
     assert(instanceName == reference.toString());
 }
 
-int main()
+int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
     try
     {
 	CIMReference reference;
@@ -57,7 +59,7 @@ int main()
 	exit(1);
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

@@ -36,8 +36,11 @@ PEGASUS_USING_STD;
 
 typedef Uint32 (*DynProc)();
 
+static char * verbose;
+
 int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
     if (argc != 2)
     {
 	cerr << "Usage: " << argv[0] << " library_path" << endl;
@@ -53,7 +56,7 @@ int main(int argc, char** argv)
     DynProc proc = DynProc(symbol);
     assert(proc() == 0xdeadbeef);
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

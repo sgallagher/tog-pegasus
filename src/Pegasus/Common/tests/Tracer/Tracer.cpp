@@ -576,13 +576,13 @@ Uint32 test22()
     return(compare(FILE4,"Test message for Level4 in test22."));
 }
 
-int main()
+int main(int argc, char** argv)
 {
 
 // Execute the tests only if trace calls are included
 
 #ifdef PEGASUS_REMOVE_TRACE
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
     return 0;
 #else
     System::removeFile(FILE1);
@@ -699,7 +699,7 @@ int main()
        cout << "Tracer test (test22) failed" << endl;
        exit(1);
     }
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
     System::removeFile(FILE1);
     System::removeFile(FILE2);
     System::removeFile(FILE3);

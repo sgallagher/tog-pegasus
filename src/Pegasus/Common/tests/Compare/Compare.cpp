@@ -33,8 +33,11 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-int main()
+static char * verbose;
+
+int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
     try
     {
 	assert(FileSystem::compareFiles("file1.dat", "file2.dat"));
@@ -46,7 +49,7 @@ int main()
 	exit(1);
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

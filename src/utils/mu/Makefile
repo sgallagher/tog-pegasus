@@ -89,7 +89,7 @@ ifeq ($(OS),hpux)
         INCLUDES = -I../../stdcxx/stream
       endif
     else
-      FLAGS += -DPEGASUS_PLATFORM_HPUX_PARISC_ACC +DPortable
+      FLAGS += -DPEGASUS_PLATFORM_HPUX_PARISC_ACC +DAportable
       INCLUDES = -I../../stdcxx/stream
     endif
     CXX = aCC

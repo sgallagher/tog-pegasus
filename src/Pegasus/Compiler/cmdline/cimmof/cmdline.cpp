@@ -74,7 +74,11 @@ help(ostream &os) {
      << endl;
 #else
   os << "Usage: cimmof [-h] [-E] [-w] [-R repository] [-I path] [-n namespace] [--xml] [--trace] -ffile" << endl;
-  os << "       cimmof [-h] [-E] [-w] [-R repository] [-I path] [-n namespace] [--xml] [--trace] mof_file1 mof_file2 ..." << endl;
+#ifndef PEGASUS_OS_OS400
+  os << "       cimmof [-h] [-E] [-w] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [mof_files...]" << endl;
+#else
+  os << "       cimmof [-h] [-E] [-w] [-R repository] [-I path] [-n namespace] [--xml] [--trace] mof_files..." << endl;
+#endif
   os << "  -h, --help -- show this help." << endl;
   os << "  -E -- syntax check only." << endl;
   os << "  -w -- suppress warnings." << endl;
@@ -308,12 +312,13 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
           "You must specify -R or set PEGASUS_HOME environment variable");
   }
 
-  // If no mof files to process, then throw error.
-  // (user needs to specify -f file, or give us a mof file on the command line)
+#ifdef PEGASUS_OS_OS400 
+  // Force a mof to be specified on OS/400
   if (cmdlinedata.get_filespec_list().size() == 0) {
     throw ArgumentErrorsException(
           "You must specify some MOF files to process.");
   }
+#endif
 
   return 0;
 }

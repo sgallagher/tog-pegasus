@@ -188,12 +188,12 @@ inline void _mofWriter_appendValue(Array<Sint8>& out, const String& x)
 
 inline void _mofWriter_appendValue(Array<Sint8>& out, const CIMDateTime& x)
 {
-    out << x.toString();  //ATTN: append() method?
+    _mofWriter_appendValue(out, x.toString());
 }
 
 inline void _mofWriter_appendValue(Array<Sint8>& out, const CIMObjectPath& x)
 {
-    XmlWriter::appendValueReferenceElement(out, x, true);
+    _mofWriter_appendValue(out, x.toString());
 }
 
 /** Array -
@@ -507,8 +507,7 @@ void MofWriter::appendValueReferenceElement(
     Array<Sint8>& out,
     const CIMObjectPath& reference)
 {
-    out << "MOF not implemented:\n";
-    XmlWriter::appendValueReferenceElement(out, reference, true);
+    _mofWriter_appendValue(out, reference);
 }
 
 //------------------------------------------------------------------------------

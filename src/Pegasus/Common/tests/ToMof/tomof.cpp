@@ -98,6 +98,7 @@ int main(int argc, char** argv)
     test01(Real64(55.5));
     test01(Uint64(123456789));
     test01(Sint64(-123456789));
+    test01(CIMObjectPath("MyClass.key1=20,key2=\"my name\""));
 
     Array<String> arr;
     arr.append("One");

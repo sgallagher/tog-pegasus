@@ -61,6 +61,8 @@
                          
 #define PEGASUS_HAS_MESSAGES  // turns on localized message loading
 
+#define PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 #define PEGASUS_OS_TYPE_UNIX
 
 #include <ifs.cleinc>

@@ -342,7 +342,7 @@ static CIMInstance _resolveInstance(
     const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
-    DEBUG_PRINT("_resolveInstance()");
+    DEBUG_PRINT("_resolveInstance(" << referenceInstance.getClassName().getString() << ")");
 
     DEBUG_PRINT("localOnly = " << (localOnly == true ? "true" : "false"));
     DEBUG_PRINT("includeQualifiers = " << (includeQualifiers == true ? "true" : "false"));
@@ -401,11 +401,10 @@ static CIMInstance _resolveInstance(
     {
         // ATTN: convert const property to non const
         CIMProperty referenceProperty = referenceInstance.getProperty(i).clone();
-        CIMProperty cimProperty = referenceInstance.getProperty(i).clone();
 
         DEBUG_PRINT("adding property - " << referenceProperty.getName().getString());
 
-        newInstance.addProperty(_resolveProperty(referenceProperty, cimProperty, includeQualifiers, includeClassOrigin));
+        newInstance.addProperty(_resolveProperty(referenceProperty, referenceProperty, includeQualifiers, includeClassOrigin));
     }
 
     // apply specified instance properties
@@ -418,7 +417,7 @@ static CIMInstance _resolveInstance(
             // throw invalid property
         }
 
-        CIMProperty referenceProperty = newInstance.getProperty(pos);
+        CIMProperty referenceProperty = newInstance.getProperty(pos).clone();
 
         // ATTN: temporarily remove property until a better way to update is implemented.
         newInstance.removeProperty(pos);
@@ -468,7 +467,7 @@ static CIMInstance _resolveIndication(
     const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
-    DEBUG_PRINT("_resolveIndication()");
+    DEBUG_PRINT("_resolveIndication(" << referenceIndication.getClassName().getString() << ")");
 
     CIMNamespaceName nameSpace = referenceIndication.getPath().getNameSpace();
     CIMName className = referenceIndication.getPath().getClassName();
@@ -487,7 +486,7 @@ static CIMMethod _resolveMethod(
     const CIMMethod & cimMethod,
     const Uint32 flags)
 {
-    DEBUG_PRINT("_resolveMethod()");
+    DEBUG_PRINT("_resolveMethod(" << referenceMethod.getName().getString() << ")");
 
     CIMMethod newMethod;
 
@@ -499,7 +498,7 @@ static CIMParameter _resolveParameter(
     const CIMParameter & cimParameter,
     const Uint32 flags)
 {
-    DEBUG_PRINT("_resolveParameter()");
+    DEBUG_PRINT("_resolveParameter(" << referenceParameter.getName().getString() << ")");
 
     CIMParameter newParameter;
 
@@ -517,7 +516,7 @@ CIMClass ObjectNormalizer::normalizeClass(
     const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
-    DEBUG_PRINT("ObjectNormalizer::resolveClass()");
+    DEBUG_PRINT("ObjectNormalizer::normalizeClass()");
 
     CIMNamespaceName nameSpace = cimClass.getPath().getNameSpace();
     CIMName className = cimClass.getPath().getClassName();
@@ -544,6 +543,8 @@ CIMInstance ObjectNormalizer::normalizeInstance(
     const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
+    DEBUG_PRINT("ObjectNormalizer::normalizeInstance()");
+
     Array<CIMInstance> cimInstances;
 
     cimInstances.append(cimInstance);
@@ -571,7 +572,7 @@ Array<CIMInstance> ObjectNormalizer::normalizeInstances(
     const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
-    DEBUG_PRINT("ObjectNormalizer::resolveInstances()");
+    DEBUG_PRINT("ObjectNormalizer::normalizeInstances()");
 
     // TODO: ensure array is not empty
     // TODO: ensure objects in the array are initialized
@@ -658,9 +659,12 @@ CIMIndication ObjectNormalizer::normalizeIndication(
     const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
+    DEBUG_PRINT("ObjectNormalizer::normalizeIndication()");
+
     CIMNamespaceName nameSpace = cimIndication.getPath().getNameSpace();
     CIMName className = cimIndication.getPath().getClassName();
 
+    // ATTN: get the complete instance and use this resolver to remove extraneous information.
     CIMClass referenceClass =
         _repository.getClass(
             nameSpace,

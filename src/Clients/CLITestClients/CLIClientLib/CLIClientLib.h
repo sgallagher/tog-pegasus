@@ -151,6 +151,8 @@ struct  OPTION_STRUCT
     String password;
     String propertyName;
     CIMPropertyList propertyList;
+    Boolean verboseTest;
+    Boolean summary;
 };
 
 typedef struct OPTION_STRUCT Options;

@@ -54,7 +54,7 @@ int main(int argc, char** argv)
     {
         String testHome = ".";
         GetOptions(om, argc, argv, testHome);
-         om.print();
+        //om.print();
     }
     catch (Exception& e)
     {
@@ -69,8 +69,9 @@ int main(int argc, char** argv)
     opts.className = "unknown";
     opts.outputFormat;
     opts.cimObjectPath = "";
-    opts.user = "wbemuser";
-    opts.password = "wbemuser";
+    opts.user = String::EMPTY;
+    opts.password = String::EMPTY;
+    opts.verboseTest = false;
     
     opts.localOnly = false;
     opts.deepInheritance = false;
@@ -78,11 +79,21 @@ int main(int argc, char** argv)
     opts.includeClassOrigin = false;
 
     CheckCommonOptionValues(om, argv, opts);
-
+    
+    /*cout << "argc = " << argc << endl;
+    for (Uint32 i = 0; i < argc; i++)
+    {
+        cout << "argv[" << i << "] = " << argv[i] << endl;
+    }*/
+    // if there is still an arg1, assume it is the command name.
+    if (argc > 1)
+    {
+        opts.cimCmd = argv[1];
+    }
     CIMClient client;
     try
     {
-        client.connect(opts.location);
+        client.connect(opts.location, opts.user, opts.password);
     }    
     catch(CIMClientException& e)
     {
@@ -99,51 +110,84 @@ int main(int argc, char** argv)
     {
         Uint32 i = 0;
         opts.cimCmd.toLower();
-
+        
         for( ; i < NUM_COMMANDS; i++ ) 
         {
             if (opts.cimCmd == CommandTable[i].CommandName)
             break;
         }
-                
                 // make sure command exist by checking value of i
         if ( i < NUM_COMMANDS)
         {
             switch(CommandTable[i].ID_Command)
             {
             case ID_EnumerateInstanceNames :
+                if (argc > 2)
+                {
+                    opts.className = argv[2];
+                }
                 enumerateInstanceNames(client, opts);
                 break;
 
             case ID_EnumerateInstances :
                 {
+                if (argc < 2)
+                {
+                    opts.className = argv[2];
+                }
                 enumerateInstances(client, opts);
                 }
                 break;
             case ID_GetInstance :
-                getInstance(client, opts);
+                {
+                    if (argc > 2)
+                    {
+                        opts.className = argv[2];
+                    }
+                    getInstance(client, opts);
+                }
                 break;
                 
             case ID_EnumerateClassNames :
-                enumerateClassNames(client, opts);
+                {
+                    if (argc > 2)
+                    {
+                        opts.className = argv[2];
+                    }
+                    enumerateClassNames(client, opts);
+                }
+                
                 break;
 
             case ID_EnumerateClasses :
                 {
-                enumerateClasses(client, opts);
+                    if (argc > 2)
+                    {
+                        opts.className = argv[2];
+                    }
+                    enumerateClasses(client, opts);
                 }
                 break;
 
             case ID_GetClass :
+                if (argc > 2)
+                {
+                    opts.className = argv[2];
+                }
                 getClass(client, opts);
                 break;
                 
             case ID_CreateInstance :
                 {
+                    cout << "Not Implemented" << endl;
                 }
                 break;
             case ID_DeleteInstance :
                 {
+                    if (argc > 2)
+                    {
+                        opts.className = argv[2];
+                    }
                     deleteInstance(client, opts);
                 }
                 break;
@@ -152,12 +196,29 @@ int main(int argc, char** argv)
                 break;
             case ID_DeleteClass :
                 {
+                    if (argc > 2)
+                    {
+                        opts.className = argv[2];
+                    }
                     deleteClass(client, opts);
                 }
                 break;
                 
             case ID_GetProperty :
                 {
+                    // KS rewrite all this more organized.
+                    if (argc != 4)
+                    {
+                        cout << "Usage: cli getproperty instancename propertyname" << endl;
+                    }
+                    if (argc > 2)
+                    {
+                        opts.instanceName = argv[2];
+                    }
+                    if (argc > 3)
+                    {
+                        opts.propertyName = argv[3];
+                    }
                     getProperty(client, opts);
                 }
                 break;
@@ -173,17 +234,26 @@ int main(int argc, char** argv)
                 break;
             case ID_GetQualifier :
                 {
+                    if (argc > 2)
+                    {
+                        opts.qualifierName = argv[2];
+                    }
                     getQualifier(client, opts);
                 }
                 break;
             case ID_DeleteQualifier :
                 {
+                    if (argc > 2)
+                    {
+                        opts.qualifierName = argv[2];
+                    }
                     deleteQualifier(client, opts);
                 }
                 
                 
                 
             case ID_Unknown :
+                cout << "Invalid Command. Must be first parm or --c parm" << endl;
                 break;
             }
         }

@@ -157,7 +157,7 @@ packages and tools. Currently Pegasus has the following dependencies:
 
 1.  GNUMAKE - To simplify the building of Pegasus across multiple platforms we 
     have standardized on a set of build tools including: GNUMAKE. We are using 
-    GNUMAKE 4.79.1 successfully both in Windows and Linux environments.
+    GNUMAKE 3.79.1 successfully both in Windows and Linux environments.
 
     GNUMAKE is available from
 

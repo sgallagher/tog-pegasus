@@ -41,7 +41,7 @@
 #include <Pegasus/Common/CIMScope.h>
 #include <Pegasus/Compiler/compilerCommonDefs.h>
 #include <iostream>
-#include <Pegasus/common/PegasusVersion.h>
+#include <Pegasus/Common/PegasusVersion.h>
 #include "valueFactory.h"
 #include "cimmofMessages.h"
 

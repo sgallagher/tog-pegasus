@@ -41,12 +41,15 @@ const String DEFAULT_NAMESPACE = "root/cimv2";
 
 // Character sequences used in help/usage output.
 
-static const char * usage = "This command executes single WBEM Operations.";
 
 String printPropertyList (CIMPropertyList)
 {
     return "TBD add code here to print property list";
 }
+
+static const char * version = "2.0";
+static const char * usage = "This command executes single WBEM Operations.";
+
 
 // Note that the following is one long string.
 static const char * usageDetails = "Using CLI examples:n \
@@ -825,7 +828,7 @@ void GetOptions(
                                         "This parameter defines a propertyNameList "},
         
         {"resultClass", "unknown", false, Option::STRING, 0, 0, "rc",
-                                        "This parameter defines a resultClass string for References, etc. "},
+                            "This parameter defines a resultClass string for References, etc. "},
         
         {"role", "unknown", false, Option::STRING, 0, 0, "role",
                                         "This parameter defines a role string for References, etc. "},
@@ -864,7 +867,7 @@ void GetOptions(
     om.checkRequiredOptions();
 
 }
-
+/*
 void printHelp(char* name, OptionManager& om)
 {
     String header = "Usage: cli <CIMOperationName> <CIMOperationParameters> <Options>";
@@ -878,19 +881,23 @@ void printHelp(char* name, OptionManager& om)
     {
         cout << CommandTable[i].CommandName << ", ";
     }
-}
+}  */
 
-/* PrintHelp - This is temporary until we expand the options manager to allow
+/* PrintHelpMsg - This is temporary until we expand the options manager to allow
    options help to be defined with the OptionRow entries and presented from
    those entries.
 */
 void printHelpMsg(const char* pgmName, const char* usage, const char* extraHelp, 
                 OptionManager& om)
 {
-    cout << endl << pgmName << endl;
-    cout << "Usage: " << pgmName << endl << usage << endl;
+    String header = "Usage: cli <CIMOperationName> <CIMOperationObject> <Options>";
+    String header2 = "  Execute the <CimOperationName> on the <CIMOperationObject> with <Options>"; 
+    
+    String optionsTrailer = "Options vary by command consistent with CIM Operations";
+    cout << endl << pgmName << " V"<< version << " " << header << endl <<header2 << endl;
     cout << endl;
-    om.printOptionsHelpTxt(usage, extraHelp);
+    cout << "The options for this command are:" << endl;
+    om.printOptionsHelpTxt(usage, optionsTrailer);
     //om.printHelp(const char* pgmName, OptionManager om);
     
     cout << "\nPossible CIMOperations are\n     name      (short Cut Name) Usage: \n";
@@ -950,17 +957,25 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
            cout << "role = " << opts.role << endl;
     }
     
-    if(om.lookupValue("resultClassName", opts.resultClassName))
+    if(om.lookupValue("resultClass", opts.resultClassName))
     {
        if (verboseTest)
            cout << "resultClassName = " << opts.resultClassName << endl;
+       try
+       {
+           opts.resultClass = opts.resultClassName;
+       }
+       catch(Exception& e)
+       {
+           cout << "Error in Result Class. Exception " << e.getMessage() << endl;
+           exit(1);
+       }
     }
+    cout <<"KSTEST resultClass Option = " << opts.resultClassName << endl;
     
     opts.deepInheritance = om.isTrue("deepInheritance");
     if (om.isTrue("deepInheritance")  & verboseTest)
-    {
         cout << "deepInteritance set" << endl;
-    }
     
     opts.localOnly = om.isTrue("localOnly");
     

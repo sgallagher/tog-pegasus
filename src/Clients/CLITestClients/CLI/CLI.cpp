@@ -388,7 +388,7 @@ int main(int argc, char** argv)
     catch(Exception& e)
     {
         PEGASUS_STD(cerr) << argv[0] << " Pegasus Exception: " << e.getMessage() 
-                <<  ". ClassName = " << opts.className << PEGASUS_STD(endl);
+                <<  ". Cmd = " << opts.cimCmd << " Object = " << opts.className << PEGASUS_STD(endl);
             exit(1);
     }
     

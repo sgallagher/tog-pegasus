@@ -41,6 +41,7 @@
 #  include <pointer.h>               /* _SYSPTR                        */
 #  include <qusec.h>                 /* Qus_EC_t                       */
 #  include <qleawi.h>                /* QleActBndPgm(),QleGetExp()     */
+#  include <qycmutiltyUtility.H>
 #  include <unistd.cleinc>
 #else
 # include <dlfcn.h>

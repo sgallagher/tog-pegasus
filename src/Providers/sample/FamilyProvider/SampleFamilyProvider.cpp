@@ -261,8 +261,8 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
         
         _referencedClass = class1;
 
-		XmlWriter::printClassElement(_referencedClass);
-		MofWriter::printClassElement(_referencedClass);
+		//XmlWriter::printClassElement(_referencedClass);
+		//MofWriter::printClassElement(_referencedClass);
 
         // Create the association class
         CIMClass a1("TST_LineageDynamic");
@@ -805,7 +805,7 @@ void SampleFamilyProvider::associators(
 	const CIMPropertyList & propertyList,
 	ObjectResponseHandler & handler)
 {
-	CDEBUG("Associators");
+	CDEBUG("Associators object= " << objectName.toString() << " associationClass= " << associationClass.getString() << " resultClass= " << resultClass.getString());
     // begin processing the request
     // Get the namespace and host names to create the CIMObjectPath
 
@@ -821,7 +821,6 @@ void SampleFamilyProvider::associators(
     if (associationClass == CIMName("TST_LineageDynamic"))
     {
         // Filter out the required objectpaths from the association list.
-        CDEBUG("AssocNames for TST_LineageDynamic");
         Array<CIMInstance> assocInstances;
         assocInstances = _filterReferenceNames(_instancesLineageDynamic,
                                                    objectName,
@@ -830,18 +829,11 @@ void SampleFamilyProvider::associators(
     
         for (Uint32 i = 0 ; i < assocInstances.size() ; i++)
         {
-            CDEBUG("Search assocInstances. " << i);
             Array<CIMObjectPath> resultPaths;
             resultPaths = _filterAssocInstanceToTargetPaths(assocInstances[i], localObjectName, resultClass, resultRole);
 
-            CDEBUG("rtn from _FilterAssocInst. count = " << resultPaths.size());
             for (Uint32 i = 0 ; i < resultPaths.size() ; i++)
             {
-                CDEBUG("resultPath found. = " << resultPaths[i].toString());
-                //CIMInstance instance;
-                //instance = SampleFamilyProvider::findInstanceForPath(resultPaths[i], host, nameSpace);
-                //CDEBUG("Delivering Instance.");
-                //handler.deliver(instance);
 
                 // instance index corresponds to reference index
                 for(Uint32 i = 0, n = _instances.size(); i < n; i++)
@@ -862,129 +854,8 @@ void SampleFamilyProvider::associators(
             }
         }
     }
-
-
-    /********************************************************
-    if (!(myClass == CIMName("tst_persondynamic")))
-		throw CIMException(CIM_ERR_NOT_FOUND);
-        
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-    CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		objectName.getClassName(),
-		objectName.getKeyBindings());
-    
-    handler.processing();
-    // Here make the decision between Lineage and LabeledLineage
-
-	// For all of the association objects.
-    // This is wrong.  Simply want to deliver something right now.
-    Array<CIMObjectPath> outputObjectPaths;
-    for(Uint32 i = 0, n = _instanceNamesLineageDynamic.size(); i < n; i++)
-	{
-        
-        CIMInstance instance = _instancesLineageDynamic[i];
-        //Array<CIMObjectPath> outputPaths
-        CDEBUG("Associators Assoc Class = " << associationClass.getString() << " Role = " << role);
-        if (associationClass.isNull() || instance.getClassName().equal(associationClass))
-        {
-            if (role != String::EMPTY)
-            {
-                Uint32 pos;
-                if ((pos = instance.findProperty(role)) == PEG_NOT_FOUND)
-                {
-                    throw CIMException(CIM_ERR_INVALID_PARAMETER);
-                }
-                else     // pos represents property
-                {
-                    // Does the reference point back to our instance path
-                    CIMProperty p = instance.getProperty(pos);
-                    if (p.getType() != CIMTYPE_REFERENCE)
-                    {
-                        throw CIMException(CIM_ERR_INVALID_PARAMETER);
-                    }
-                    CIMObjectPath path;
-                    p.getValue().get(path);
-                    //CIMValue v = p.getValue();
-                    //v.get(path);
-                    // Note that this may be hack to set host names.  Not sure
-                    // what is general solution to compare these objects.
-                    //path.setHost(host);
-                    //path.setNameSpace(nameSpace);
-                    
-                    if (path.identical(localReference))
-                    {
-                        // Get other reference properties and deliver them
-                        for (Uint32 j = 0; j < instance.getPropertyCount() ; j++)
-                        {
-                            CIMProperty p = instance.getProperty(j);
-                            if (p.getType() == CIMTYPE_REFERENCE && j != pos)
-                            {
-                                CIMValue v = p.getValue();
-                                CIMObjectPath path;
-                                v.get(path);
-                                outputObjectPaths.append(path);
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                for (Uint32 j = 0; j < instance.getPropertyCount() ; j++)
-                {
-                    CIMProperty p = instance.getProperty(j);
-                    if (p.getType() == CIMTYPE_REFERENCE)
-                    {
-                        CIMValue v = p.getValue();
-                        CIMObjectPath path;
-                        v.get(path);
-                        if (!path.identical(localReference))
-                        {
-                            outputObjectPaths.append(path);
-                        }
-                    }
-                }
-            }
-            // Now search the outputpaths found and deliver objects
-            CDEBUG("Found " << outputObjectPaths.size() << " objects to return");
-            for (Uint32 i = 0 ; i < outputObjectPaths.size(); i++)
-            {
-                // get instance and send it.
-                CIMObjectPath objectName = outputObjectPaths[i];
-                CIMName myClass = objectName.getClassName();
-                if (myClass == CIMName("tst_persondynamic"))
-                {
-                    CIMObjectPath localReference = CIMObjectPath(
-                        String(),
-                        String(),
-                        objectName.getClassName(),
-                        objectName.getKeyBindings());
-                    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-                    {
-                        // Deliver matching reference.
-                        if(localReference == _instances[i].buildPath(_referencedClass))
-                        {
-                            // add host and namespace and deliver object
-                            CIMObjectPath path = _instances[i].buildPath(_referencedClass);
-                            path.setHost(host);
-                            path.setNameSpace(nameSpace);
-                            _instances[i].setPath(path);
-                            CDEBUG("Deliver object with path= " << path.toString());
-                            handler.deliver(_instances[i]);
-                        }
-                    }
-    
-                }
-            }
-        }
-	}
-    
 	// complete processing the request
 	handler.complete();
-    ***************************************************/
 }
 
 

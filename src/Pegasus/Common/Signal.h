@@ -58,7 +58,6 @@ typedef struct {
 
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/DQueue.h>
-#include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Exception.h>
 
 // used locally as standard response to stop the failing thread normally
@@ -67,12 +66,6 @@ void sig_act(int s_n, siginfo_t * s_info, void * sig);
 void * segmentation_faulter(void * parm);
 
 PEGASUS_NAMESPACE_BEGIN
-
-#define PEGASUS_ARRAY_T Thread
-#include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
-
-typedef Array<Thread> ThreadArray;
 
 class PEGASUS_COMMON_LINKAGE SignalHandler
 {

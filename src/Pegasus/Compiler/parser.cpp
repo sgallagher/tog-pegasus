@@ -59,7 +59,12 @@ parser::pop_statebuff() {
 //-------------------------------------------------------------------
 int 
 parser::setInputBufferFromName(const String &filename) {
+#ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+  // 't' not supported on OS/400
+  FILE *f = fopen(_CString(filename),"r");
+#else
   FILE *f = fopen(_CString(filename),"rt");
+#endif
   if (f) {
     set_current_filename(filename);
     set_lineno(1);

@@ -171,6 +171,11 @@ applyDefaults(mofCompilerOptions &cmdlinedata) {
     if (peghome) {
       cmdlinedata.set_repository_name(peghome);
     } else {
+#if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
+      // Default to the shipped OS/400 CIM directory so that
+      // the user doesn't need to set PEGASUS_HOME
+      cmdlinedata.set_repository_name(OS400_DEFAULT_PEGASUS_HOME);
+#endif
     }
   } else {
     cmdlinedata.set_repository_name(DEFAULT_SERVER_AND_PORT);
@@ -198,6 +203,11 @@ applyDefaults(mofCompilerOptions &cmdlinedata) {
 int
 getType(const char *name)
 {
+#if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
+    // Only the local compiler is shipped on OS/400, and
+    // it is called QYCMMOF.  Force the local return code.
+    return 1;
+#else
   const char *pos;
   pos = strrchr(name, SEPCHAR);
   if (!pos)
@@ -218,6 +228,7 @@ getType(const char *name)
   pos++;
   if (*pos != 'l' && *pos != 'L') return 0;
   return 1;
+#endif
 }
 
 extern "C++" int processCmdline(int, char **, mofCompilerOptions &, ostream&);

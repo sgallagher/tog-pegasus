@@ -87,6 +87,11 @@ public:
 	return _qualifiers.getQualifier(pos);
     }
 
+    Boolean isTrueQualifer(String& name) const
+    {
+	return _qualifiers.isTrue(name);
+    }
+
     Uint32 getQualifierCount() const
     {
 	return _qualifiers.getCount();

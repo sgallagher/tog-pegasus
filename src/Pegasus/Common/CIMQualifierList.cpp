@@ -80,6 +80,22 @@ Uint32 CIMQualifierList::find(const String& name) const
 
     return PEG_NOT_FOUND;
 }
+Boolean CIMQualifierList::isTrue(const String& name) const
+{
+    Uint32 pos = find(name);
+
+    if (pos == PEG_NOT_FOUND)
+	return false;
+
+    Boolean flag;
+    const CIMValue& value = getQualifier(pos).getValue();
+
+    if (value.getType() != CIMType::BOOLEAN)
+	return false;
+
+    value.get(flag);
+    return flag;
+}
 
 Uint32 CIMQualifierList::findReverse(const String& name) const
 {

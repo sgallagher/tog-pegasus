@@ -26,6 +26,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+/* 
+	This program tests the CIM QualifierList functions. 
+*/
+ 
+#include <cassert>
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMQualifierList.h>
 #include <Pegasus/Common/CIMProperty.h>
@@ -57,6 +62,10 @@ int main(int argc, char** argv)
 	context->addQualifierDecl(NAMESPACE, CIMQualifierDecl("q2", 
 	    false, CIMScope::CLASS, CIMFlavor::TOSUBCLASS));
 
+	// ATTN: KS P1 29 Mar 2002 - Add Tests for Null Value
+
+	// ATTN: KS P1 29 Mar 2002 - Add tests for array values in Qualifier.
+
 	// Create qualifier list 1:
 
 	CIMQualifierList qualifiers0;
@@ -67,23 +76,89 @@ int main(int argc, char** argv)
 	    .add(CIMQualifier("Description", "CIMQualifier List 1"))
 	    .add(CIMQualifier("q1", false))
 	    .add(CIMQualifier("q2", false));
+	
+	// Run the find, get, etc tests.
+
+	assert(qualifiers1.getCount() == 4);
+	assert(qualifiers1.find("Abstract") == 0);
+	assert(qualifiers1.exists("Abstract"));
+	assert(qualifiers1.isTrue("Abstract"));
+
+	assert(qualifiers1.find("QualifierDoesNotExist") == PEG_NOT_FOUND);
+	assert(!qualifiers1.exists("QualifierDoesNotExist"));
 
 	qualifiers1.resolve(
 	    context, NAMESPACE, CIMScope::CLASS, false, qualifiers0, true);
 
-	// Create qualifier list 2:
+	// Qualifiers after the resolve.  Should have resolved against the
+	// declarations.
+	assert(qualifiers1.getCount() == 4);
+	assert(qualifiers1.find("Abstract") == 0);
+	assert(qualifiers1.exists("Abstract"));
+	assert(qualifiers1.isTrue("Abstract"));
+	assert(qualifiers1.exists("q1"));
+	assert(!qualifiers1.isTrue("q1"));
+
+	assert(qualifiers1.find("QualifierDoesNotExist") == PEG_NOT_FOUND);
+	assert(!qualifiers1.exists("QualifierDoesNotExist"));
+	if(verbose)
+	    qualifiers1.print();
+
+
+	// Add test for double add of a name
+	Boolean exceptionCaught = false;
+	try
+	{
+	    qualifiers1.add(CIMQualifier("Abstract", true));
+	}
+	catch (Exception& e)
+	{
+	    exceptionCaught = true;
+	}
+	assert(exceptionCaught);
+
+	// Test some of the basics again after the double insertion problem
+	assert(qualifiers1.getCount() == 4);
+	assert(qualifiers1.find("Abstract") == 0);
+	assert(qualifiers1.exists("Abstract"));
+	assert(qualifiers1.isTrue("Abstract"));
+
+	// Create qualifier list 2: Will be resolved against qualifiers1
 
 	CIMQualifierList qualifiers2;
 
 	qualifiers2
 	    .add(CIMQualifier("Description", "CIMQualifier List 1"))
-	    .add(CIMQualifier("q1", true, CIMFlavor::OVERRIDABLE));
+	    .add(CIMQualifier("q1", Boolean(true), CIMFlavor::OVERRIDABLE));
 
+	if(verbose)
+	    qualifiers2.print();
+
+	assert(qualifiers2.getCount() == 2);
+	assert(qualifiers2.exists("Description"));
+	assert(qualifiers2.exists("q1"));
+	assert(qualifiers2.isTrue("q1"));
+
+	// Resolve the qualifiers against the previous list qualifiers1
 	qualifiers2.resolve(
 	    context, NAMESPACE, CIMScope::CLASS, false, qualifiers1, true);
 
-        if(verbose)
-			qualifiers2.print();
+	if(verbose)
+	    qualifiers2.print();
+
+	// Post resolution
+	assert(qualifiers2.getCount() == 4);
+	assert(qualifiers2.exists("Description"));
+	assert(qualifiers2.exists("abstract"));
+	assert(qualifiers2.isTrue("abstract"));
+
+
+	assert(qualifiers2.exists("q1"));
+	assert(qualifiers2.isTrue("q1"));
+
+	assert(qualifiers2.exists("q2"));
+	assert(qualifiers2.isTrue("q2"));
+
     }
     catch (Exception& e)
     {

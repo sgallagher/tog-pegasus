@@ -40,7 +40,7 @@ class CIMClass;
 class CIMConstClass;
 class CIMInstanceRep;
 
-// REVIEW: document this class.
+// ATTN: KS P3 -document the CIMClass and CIMObjectRep  classes.
 
 class PEGASUS_COMMON_LINKAGE CIMClassRep : public CIMObjectRep
 {
@@ -55,6 +55,8 @@ public:
     Boolean isAssociation() const;
 
     Boolean isAbstract() const;
+
+    Boolean isTrueQualifier(const String& name) const;
 
     const String& getSuperClassName() const { return _superClassName; }
 

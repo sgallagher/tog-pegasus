@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By:	Karl Schopmeyer(k.schopmeyer@attglobal.net)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +32,7 @@
 #include "CIMName.h"
 #include "CIMQualifierNames.h"
 #include "XmlWriter.h"
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
@@ -73,6 +74,23 @@ Boolean CIMClassRep::isAssociation() const
 Boolean CIMClassRep::isAbstract() const
 {
     Uint32 pos = findQualifier(CIMQualifierNames::ABSTRACT);
+
+    if (pos == PEG_NOT_FOUND)
+	return false;
+
+    Boolean flag;
+    const CIMValue& value = getQualifier(pos).getValue();
+
+    if (value.getType() != CIMType::BOOLEAN)
+	return false;
+
+    value.get(flag);
+    return flag;
+}
+
+Boolean CIMClassRep::isTrueQualifier(const String& name) const
+{
+    Uint32 pos = findQualifier(name);
 
     if (pos == PEG_NOT_FOUND)
 	return false;
@@ -177,12 +195,18 @@ void CIMClassRep::resolve(
     DeclContext* context,
     const String& nameSpace)
 {
+	PEG_METHOD_ENTER(TRC_OBJECTRESOLUTION, "CIMClassRep::resolve()");
+
 #if 0
     if (_resolved)
 	throw ClassAlreadyResolved(_reference.getClassName());
 #endif
     if (!context)
 	throw NullPointer();
+
+	Tracer::trace(TRC_OBJECTRESOLUTION, Tracer::LEVEL3,
+		"CIMClassRep::resolve  class = %s, superclass = %i", _reference.getClassName()
+		, _superClassName);
 
     if (_superClassName.size())
 	{
@@ -207,6 +231,8 @@ void CIMClassRep::resolve(
 		if isAbstract() && !superclass.isAbstract()
 			throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_SUPERCLASS,_superClassName);
 		*/
+		/*if(superclass.isTrueQualifier("Terminal")
+			throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_SUPERCLASS,_superClassName);*/
 		//----------------------------------------------------------------------
 		// Iterate all the properties of *this* class. Resolve each one and
 		// set the class-origin:

@@ -22,7 +22,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By:	Karl Schopmeyer (k.schopemyer@opengroup.org)
+//				Mar 2002 - Add more tests for flavors
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +35,12 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-
+/* This program tests the CIMQualifier class and the CIMConstQualifier class
+ including the functions in the classes:
+ 
+ It creates qualifiers, tests the scope, value and flavor characteristics.
+ ATTN: P3 - KS March 2002 Add more tests for scope, etc.
+*/
 int main(int argc, char** argv)
 {
     // get the output display flag.

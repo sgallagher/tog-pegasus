@@ -34,6 +34,12 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Pair.h>
 
+
+/* ATTN: P2 KS 25 Mar 2002 - The function names are a mismash of local and taken
+   from the class and instance functions.  Thus, we have getCount but getQualifier
+   This causes confusion with the functions in class and instance which are specifically
+   getQualifier.  We should clean up so the names here remove the Qualifier portion.
+*/
 PEGASUS_NAMESPACE_BEGIN
 
 class DeclContext;
@@ -51,31 +57,69 @@ public:
     ///
     CIMQualifierList& add(const CIMQualifier& qualifier);
 
-    ///
+    /**	 getCount - Returns the count of qualifiers in the list
+	@return Zero origin count of qualifiers in the qualifier list.
+    */
     Uint32 getCount() const
     {
 	return _qualifiers.size(); 
     }
 
-    ///
+    /** getQualifer - Gets the qaulifier defined at the position provided
+	in the Qualifier list.
+	@param pos - The position in the qualifierlist containing the
+	qualifier.
+	@return CIMQualifier object.
+	@exception - Throws OutofBounds exception of pso not within the
+	qualifier list.
+	ATTN: P0 KS Mar 2002 Add the outofbounds exception.
+    */
     CIMQualifier& getQualifier(Uint32 pos);
 
-    ///
     const CIMQualifier& getQualifier(Uint32 pos) const
     {
 	return _qualifiers[pos]; 
     }
+
     /** removeQualifier - Removes the Qualifier defined by
-    the pos parameter
-    @exception Throws "OutOfBounds" if pos not within
-    range of current qualifiers.
+	the pos parameter
+	@exception Throws "OutOfBounds" if pos not within
+	range of current qualifiers.
     */
     void removeQualifier(Uint32 pos);
     
-    ///
+    /**	find - Searches for a qualifier with the specified `
+        input name if it exists in the class
+	@param name CIMName of the qualifier
+	to be found @return Position of the qualifier in the Class.
+	@return Returns index of the qualifier found or PEG_NOT_FOUND
+	if not found.
+    */
     Uint32 find(const String& name) const;
 
-    ///
+    /** exists - Returns true if the qualifier with the
+	specified name exists in the class
+	@param name String name of the qualifier object being tested.
+	@return True if the qualifier exits in the list.  Otherwise
+	false is returned.
+    */
+
+    Boolean exists(const String& name) const
+    {
+	return (((find(name)) == PEG_NOT_FOUND)? false : true);
+    }
+
+    /** isTrue - Determines if the qualifier defined by
+	the input parameter exists for the class, is Boolean, and
+	has a value of true.
+	This function is useful to quickly determine the state of a
+	qualifier.
+	@param String containing the qualifier  name.
+	@return Boolean True if the qualifier exists, 
+    */
+    Boolean isTrue(const String& name) const;
+
+    /// findReverse - See find
     Uint32 findReverse(const String& name) const;
     
     /** resolve - Resolves the qualifierList based on the information provided. The resolved

@@ -93,7 +93,7 @@ public:
 
     /**	Constructor - Creates a Class from inputs of a classname and
 	SuperClassName
-	@param className String representing name of the class being created
+	@param className CIMReference representing name of the class being created
 	@param superClassName String representing name of the SuperClass
 	ATTN: Define what makes up legal name.
 	@return Throws IllegalName if className argument illegal CIM identifier.
@@ -229,7 +229,21 @@ public:
 	return _rep->existsQualifier(name);
     }
 
-    /**	getQualifier - Gets the CIMQualifier object defined
+    /** isTrueQualifier - Determines if the qualifier defined by
+	the input parameter exists for the class, is Boolean, and
+	has a value of true.
+	This function is useful to quickly determine the state of a
+	qualifier.
+	@param String containing the qualifier  name.
+	@return Boolean True if the qualifier exists, 
+    */
+    Boolean isTrueQualifier(const String& name) const
+    {
+	_checkRep();
+	return _rep->isTrueQualifier(name);
+    }
+
+/**	getQualifier - Gets the CIMQualifier object defined
 	by the input parameter
 	@param pos defines the position of the qualifier in the class from the
 	findQualifier method
@@ -242,7 +256,9 @@ public:
 	return _rep->getQualifier(pos);
     }
 
-    /// getQualifier - ATTN:
+    /** getQualifier - Gets the qualifier defined by the input parameter
+		from the qualifier list for this CIMClass.
+	*/
     CIMConstQualifier getQualifier(Uint32 pos) const
     {
 	_checkRep();
@@ -662,6 +678,12 @@ public:
     {
 	_checkRep();
 	return _rep->getQualifier(pos);
+    }
+
+    Boolean isTrueQualifier(const String& name) const
+    {
+	_checkRep();
+	return _rep->isTrueQualifier(name);
     }
 
     Uint32 getQualifierCount() const

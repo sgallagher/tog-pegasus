@@ -32,11 +32,12 @@
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Server/CIMServer.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Protocol/Handler.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-// const char PEGASUS_VERSION[]  = "Pegasus CIM Server - Version 0.7";
+
 
 void GetEnvironmentVariables(
     const char* arg0,
@@ -65,9 +66,10 @@ void GetOptions(
     static struct OptionRow options[] =
     {
 	{"port", "8888", false, Option::WHOLE_NUMBER, 0, 0, "port"},
-	{"trace", "false", false, Option::BOOLEAN, 0, 0, "trace"},
+	{"trace", "false", false, Option::BOOLEAN, 0, 0, "t"},
 	{"version", "false", false, Option::BOOLEAN, 0, 0, "v"},
-	{"help", "false", false, Option::BOOLEAN, 0, 0, "h"}
+	{"help", "false", false, Option::BOOLEAN, 0, 0, "h"},
+	{"debug", "false", false, Option::BOOLEAN, 0, 0, "d"}
     };
     const Uint32 NUM_OPTIONS = sizeof(options) / sizeof(options[0]);
 
@@ -94,6 +96,7 @@ void PrintHelp(const char* arg0)
     cout << "    -port - specifies port number to listen on\n";
     cout << "    -v - prints out the version number\n";
     cout << "    -t - turns on trace mode\n";
+    cout << "    -d - turns on debug mode\n";
     cout << endl;
 }
 
@@ -154,6 +157,14 @@ int main(int argc, char** argv)
 	exit(0);
     }
 
+    // Check the trace options and set global variable
+    Boolean pegasusIOTrace; 
+    if (om.valueEquals("trace", "true"))
+    {
+         Handler::sethandlerTrace(true);
+	 pegasusIOTrace = true;
+	 cout << "Trace Set" << endl;
+    }
     // Grab the port otpion:
 
     String portOption;
@@ -172,7 +183,8 @@ int main(int argc, char** argv)
 	cout << PEGASUS_NAME << PEGASUS_VERSION <<
 	     " on port " << address << endl;
 	cout << "Built " << __DATE__ << " " << __TIME__ << endl;
-	cout <<"Started..." <<endl;
+	cout <<"Started..." 
+	     << (pegasusIOTrace ? " Tracing": " ") << endl;
 
 	server.bind(address);
 	delete [] address;

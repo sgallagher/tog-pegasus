@@ -114,7 +114,7 @@ int main(int argc, char** argv)
     opts.propertyListText = String::EMPTY;
     opts.propertyList.clear(); 
     opts.propertyName = String::EMPTY;
-    opts.methodName = "unknown";
+    opts.methodName = CIMName("unknown");
     opts.delay = 0;
     opts.trace = 0;
 
@@ -202,7 +202,7 @@ int main(int argc, char** argv)
             case ID_EnumerateInstanceNames :
                 if (argc > 2)
                 {
-                    opts.className = argv[2];
+                    opts.className = CIMName(argv[2]);
                     opts.inputObjectName = argv[2];
                 }
                 else
@@ -216,7 +216,7 @@ int main(int argc, char** argv)
             case ID_EnumerateAllInstanceNames :
                 if (argc > 2)
                 {
-                    opts.className = argv[2];
+                    opts.className = CIMName(argv[2]);
                     opts.inputObjectName = argv[2];
                 }
                 enumerateAllInstanceNames(client, opts);
@@ -226,7 +226,7 @@ int main(int argc, char** argv)
                 {
                     if (argc > 2)
                     {
-                        opts.className = argv[2];
+                        opts.className = CIMName(argv[2]);
                         opts.inputObjectName = argv[2];
                     }
                     else
@@ -275,12 +275,12 @@ int main(int argc, char** argv)
                 {
                     if (argc > 2)
                     {
-                        opts.className = argv[2];
+                        opts.className = CIMName(argv[2]);
                         opts.inputObjectName = argv[2];
                     }
                     
                     if (argc == 2)
-                        opts.className = "";
+                        opts.className = CIMName();
                     if (opts.classNameString != "")
                     {
                         opts.className = opts.classNameString;
@@ -294,7 +294,7 @@ int main(int argc, char** argv)
             case ID_GetClass :
                 if (argc > 2)
                 {
-                    opts.className = argv[2];
+                    opts.className = CIMName(argv[2]);
                     opts.inputObjectName = argv[2];
                 }
                 else
@@ -328,7 +328,7 @@ int main(int argc, char** argv)
             case ID_DeleteClass :
                 if (argc > 2)
                 {
-                    opts.className = argv[2];
+                    opts.className = CIMName(argv[2]);
                     opts.inputObjectName = argv[2];
                 }
                 else
@@ -461,7 +461,7 @@ int main(int argc, char** argv)
                     // Note that the following constants are fixed here.  We
                     // should be getting them from the environment to assure that
                     // others know that we are using them.
-                    opts.className = "__namespace";
+                    opts.className = CIMName("__namespace");
                     if (argc > 2)
                     {
                         opts.nameSpace = argv[2];

@@ -35,6 +35,7 @@
 #include <Pegasus/Client/CIMServerDiscovery.h>
 #include <Pegasus/Client/CIMServerDescription.h>
 #include <Pegasus/Client/WBEMSLPTemplate.h>
+#include <string.h> // for strdup
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -48,8 +49,21 @@ int main(int argc, char** argv)
 
       Array<Attribute> criteria;
       Attribute attr(PEG_WBEM_SLP_SERVICE_ID"="PEG_WBEM_SLP_SERVICE_ID_DEFAULT);
-      Array<CIMServerDescription> connections = disco.lookup();
-
+      Array<CIMServerDescription> connections ;
+	      SLPClientOptions* opts = (SLPClientOptions*)NULL; //new SLPClientOptions();
+      if(argc==2){
+	      // argv[1] should be a DA address
+	      opts = new SLPClientOptions();
+	      opts->target_address = strdup(argv[1]);
+	      opts->scopes=strdup("DEFAULT");
+	      opts->spi=strdup("");
+	      opts->use_directory_agent = false;
+      }
+      connections = disco.lookup(opts);
+      if((SLPClientOptions*)NULL!=opts){
+	      delete opts;
+      }
+	
       for (Uint32 i=0; i<connections.size(); i++)
         {
           PEGASUS_STD(cout) << "\n======================================================" << PEGASUS_STD(endl);

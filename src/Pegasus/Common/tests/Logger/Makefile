@@ -9,4 +9,6 @@ SOURCES = Logger.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
+	$(RM) logs/*
 	$(PROGRAM)
+	$(RM) logs/*

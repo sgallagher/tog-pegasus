@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Logger.cpp,v $
+// Revision 1.2  2001/03/23 01:00:46  mike
+// More logging capabilities.
+//
 // Revision 1.1  2001/03/23 00:56:33  mike
 // New regression test for Logger
 //
@@ -35,6 +38,9 @@
 
 using namespace Pegasus;
 using namespace std;
+
+// ATTN-B: Complete this test by reopening the log and making sure it
+// contains what we expect.
 
 int main()
 {

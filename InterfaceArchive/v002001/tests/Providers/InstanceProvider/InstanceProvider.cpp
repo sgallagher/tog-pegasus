@@ -84,7 +84,7 @@ void InstanceProvider::getInstance(
 	// (class name and keys only).
 	CIMObjectPath localReference = CIMObjectPath(
 		String(),
-		String(),
+		CIMNamespaceName(),
 		instanceReference.getClassName(),
 		instanceReference.getKeyBindings());
 
@@ -158,7 +158,7 @@ void InstanceProvider::modifyInstance(
 	// (class name and keys only).
 	CIMObjectPath localReference = CIMObjectPath(
 		String(),
-		String(),
+		CIMNamespaceName(),
 		instanceReference.getClassName(),
 		instanceReference.getKeyBindings());
 	
@@ -191,7 +191,7 @@ void InstanceProvider::createInstance(
 	// (class name and keys only).
 	CIMObjectPath localReference = CIMObjectPath(
 		String(),
-		String(),
+		CIMNamespaceName(),
 		instanceReference.getClassName(),
 		instanceReference.getKeyBindings());
 	
@@ -228,7 +228,7 @@ void InstanceProvider::deleteInstance(
 	// (class name and keys only).
 	CIMObjectPath localReference = CIMObjectPath(
 		String(),
-		String(),
+		CIMNamespaceName(),
 		instanceReference.getClassName(),
 		instanceReference.getKeyBindings());
 	

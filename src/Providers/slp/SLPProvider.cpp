@@ -140,17 +140,17 @@ void SLPProvider::populateData(void)
              CIMValue v1=p1.getValue();
              CIMName n1=p1.getName();
 
-	      if(String::equalNoCase(n1, "Name"))
+	      if (n1.equal("Name"))
 	      {
 	          instance1.addProperty(CIMProperty("template_url_syntax",v1.toString()));
 		  LONG_ATTRIBUTE_STRING.append("(template_url_syntax=").append(v1.toString()).append("),");
 	      }
-	      else if(String::equalNoCase(n1, "ElementName"))
+	      else if (n1.equal("ElementName"))
 	      {
 		  instance1.addProperty(CIMProperty("service_hi_name",v1.toString()));
 		  LONG_ATTRIBUTE_STRING.append("(service_hi_name=").append(v1.toString()).append("),");
 	      }
-              else if(String::equalNoCase(n1, "Description"))
+              else if (n1.equal("Description"))
               {
                   instance1.addProperty(CIMProperty("service_hi_description",v1.toString()));
 		  LONG_ATTRIBUTE_STRING= LONG_ATTRIBUTE_STRING + "(service_hi_description=" + v1.toString() + "),";
@@ -219,7 +219,7 @@ for (Uint32 i = 0; i < instanceNames_ObjMgrComm.size(); i++)
       CIMProperty p1=i1.getProperty(i);
       CIMName n1 = p1.getName();
       CIMValue v1= p1.getValue();
-      if (String::equalNoCase(n1,"CommunicationMechanism"))
+      if (n1.equal("CommunicationMechanism"))
       {
        
 	/* From the mof file, CIM_ObjectManagerCommunicationMechanism.CommunicationMechanism
@@ -237,12 +237,12 @@ for (Uint32 i = 0; i < instanceNames_ObjMgrComm.size(); i++)
 	 LONG_ATTRIBUTE_STRING.append("(OtherCommunicationMechanismDescription=").append(v1.toString()).append("),");
         }
       }
-      else if (String::equalNoCase(n1,"Version"))
+      else if (n1.equal("Version"))
       {  
           instance1.addProperty(CIMProperty("ProtocolVersion",v1.toString()));
 	  LONG_ATTRIBUTE_STRING.append("(ProtocolVersion=").append(v1.toString()).append("),");
       }
-      else if (String::equalNoCase(n1,"ProfilesSupported"))
+      else if (n1.equal("ProfilesSupported"))
       {  
         if (String::equalNoCase(v1.toString(),"Other"))
         {
@@ -251,13 +251,13 @@ for (Uint32 i = 0; i < instanceNames_ObjMgrComm.size(); i++)
 	  LONG_ATTRIBUTE_STRING.append("(OtherProfileDescription=").append(temppr.getValue().toString()).append("),");
         }
       }
-      else if (String::equalNoCase(n1,"MultipleOperationsSupported"))
+      else if (n1.equal("MultipleOperationsSupported"))
       {  
           instance1.addProperty(CIMProperty("MultipleOperationsSupported",v1.toString()));
 	  LONG_ATTRIBUTE_STRING.append("(MultipleOperationsSupported=").append(v1.toString()).append("),");
       }
      
-      else if (String::equalNoCase(n1,"AuthenticationMechanismsSupported"))
+      else if (n1.equal("AuthenticationMechanismsSupported"))
       {  
         instance1.addProperty(CIMProperty("AuthenticationMechanismsSupported",v1.toString())); 
 	LONG_ATTRIBUTE_STRING.append("(AuthenticationMechanismsSupported=").append(v1.toString()).append("),");
@@ -298,12 +298,12 @@ for (Uint32 i = 0; i < instanceNames_ObjMgrComm.size(); i++)
                  CIMProperty p1=i1.getProperty(i);
                  CIMValue v1=p1.getValue();
                  CIMName n1=p1.getName();
-                 if(String::equalNoCase(n1, "Name"))
+                 if (n1.equal("Name"))
                  {
                    instance1.addProperty(CIMProperty("Namespace",v1.toString()));
                    LONG_ATTRIBUTE_STRING.append("(Namespace=").append(v1.toString()).append("),");
                  }
-		 else if(String::equalNoCase(n1, "ClassInfo"))
+		 else if (n1.equal("ClassInfo"))
                  {
                    instance1.addProperty(CIMProperty("classinfo",v1.toString()));
                    LONG_ATTRIBUTE_STRING.append("(classinfo=").append(v1.toString()).append("),");
@@ -385,7 +385,7 @@ void SLPProvider::getInstance(
    // (class name and keys only).
      CIMObjectPath localReference = CIMObjectPath(
                                     String(),
-                                    String(),
+                                    CIMNamespaceName(),
                                     instanceReference.getClassName(),
                                     instanceReference.getKeyBindings());
    // begin processing the request
@@ -398,7 +398,7 @@ void SLPProvider::getInstance(
    {
        CIMObjectPath localReference_frominstanceNames = CIMObjectPath(
                                     String(),
-                                    String(),
+                                    CIMNamespaceName(),
                                     _instanceNames[i].getClassName(),
                                     _instanceNames[i].getKeyBindings());
 

@@ -68,7 +68,10 @@ PEGASUS_USING_STD;
 // Test tool to limit enumerations to a single level.  This is not production and is used only to
 // debug special problems in the requests that issue multiple provider operations.
 //#define LIMIT_ENUM_TO_ONE_LEVEL
-
+String _showBool(Boolean x)
+{
+    return(x? "true" : "false");
+}
 static DynamicRoutingTable _routing_table;
 
 // Variable to control whether we do search or simply single provider for reference and
@@ -659,9 +662,16 @@ Boolean _mergePropertyLists(const CIMClass& cl, const Boolean localOnly,
         return(false);
     }
 
+    // if there is a property list, simply use it as the base.
+    if (pl.size() != 0)
+    {
+       PEG_METHOD_EXIT();
+       return(false);
+    }
+
    // ATTN: Spec says property must be in this class. Do we need additional
    // test to assure that properties in list are in this class.  Or is this
-   // covered below?
+   // covered below? No.  Since this could be the class AND subclasses.
    // If list null and !localOnly, request is for all properties.  Do not
    // create a new list.
    if (listIsNull && !localOnly)
@@ -674,6 +684,7 @@ Boolean _mergePropertyLists(const CIMClass& cl, const Boolean localOnly,
    // properties and localOnly not important. Set flag to determine
    // !localOnly property count.
 
+   // Build property list from the class
    for (Uint32 i = 0; i < cl.getPropertyCount(); i++)
    {
         CIMConstProperty p = cl.getProperty(i);
@@ -3365,13 +3376,12 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     // Question if propertylist empty and deepInheritance = true --
     //     WHAT Return?
 
-    CDEBUG("CIMOP ei propertyList0= " <<
+    CDEBUG("CIMOP ei request propertyList= " <<
         _showPropertyList(request->propertyList));
-    Boolean rtn;
 
     // Create a propertyList that represents the combination
     // of the propertyList and the localOnly attribute.
-    rtn = _mergePropertyLists(cimClass,
+    Boolean rtn = _mergePropertyLists(cimClass,
                               request->localOnly,
                               request->propertyList,
                               localPropertyListArray);
@@ -3380,7 +3390,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         localPropertyListArray.size());
     for (Uint32 i = 0; i < localPropertyListArray.size() ; i++)
     {
-        CDEBUG("P= " << localPropertyListArray[i].getString());
+        CDEBUG("Property= " << localPropertyListArray[i].getString());
     }
 
     CDEBUG("CIMOP ei propertyList1= " <<
@@ -3393,7 +3403,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         CIMPropertyList pl(localPropertyListArray);
         request->propertyList = pl;
     }
-    CDEBUG("CIMOP ei propertyList2= " <<
+    CDEBUG("CIMOP ei merged propertyList= " <<
         _showPropertyList(request->propertyList));
 
     //
@@ -3543,7 +3553,10 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
             }
 
             CIMException checkClassException;
-            if (request->deepInheritance && !request->propertyList.isNull())
+            // If we have deep inheritance and the property list is empty
+            // we want to build a specific property list so that 
+            // it can be supplemented for subclasses.
+            if (request->deepInheritance && request->propertyList.isNull())
             {
                 cimClassLocal = _getClass(request->nameSpace, providerInfos[i].className,
                                                 checkClassException);

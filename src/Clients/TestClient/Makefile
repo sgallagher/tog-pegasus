@@ -1,4 +1,4 @@
-ROOT = ../../..
+ROOT = $(PEGASUS_ROOT)
 
 DIR = Clients/TestClient
 include $(ROOT)/mak/config.mak

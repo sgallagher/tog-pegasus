@@ -1040,25 +1040,21 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesResponseAggregation(
 	(CIMAssociatorNamesResponseMessage *) poA->getResponse(0);
 
     // Work backward and delete each response off the end of the array
+    //CDEBUG("AssociatorNames aggregating responses. Count =  " << poA->numberResponses());
     for(Uint32 i = poA->numberResponses() - 1; i > 0; i--)
     {
     	CIMAssociatorNamesResponseMessage *fromResponse = 
     	    (CIMAssociatorNamesResponseMessage *)poA->getResponse(i);
-    
+        //CDEBUG("AssociatorNames aggregation from " << i << "contains " << fromResponse->objectNames.size());
     	for (Uint32 j = 0; j < fromResponse->objectNames.size(); j++)
     	{
-    	    // Duplicate test goes here. 
-            // If the from response already contains the name, do not put it.
-            /* ATTN: KS 28 May 2002 - Temporarily disable the duplicate delete code.
-            if (!Contains( toResponse->instanceNames, fromResponse->instanceNames[j]))
-            {
-                toResponse->instanceNames.append(fromResponse->instanceNames[j]);
-            }
-            */
+    	    // Duplicate test goes here. Today we pass dupliats through
             toResponse->objectNames.append(fromResponse->objectNames[j]);
     	}
     	poA->deleteResponse(i);
+
     }
+    //CDEBUG("AssociatorNames aggregation. Returns responce count " << toResponse->objectNames.size());
     PEG_METHOD_EXIT();
 }
 
@@ -1225,7 +1221,7 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
         "CIMOperationRequestDispatcher::handleOperationResponseAggregation");
 
    Uint32 totalResponses = poA->numberResponses();
-
+   //CDEBUG("Aggregation of responses");
    PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, 
             Formatter::format(" Response Aggregation  type $1 responses $0",
                totalResponses,
@@ -1241,7 +1237,7 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
    if(totalResponses == 1)
    {
        SendForget(poA->getResponse(0));
-
+       //CDEBUG("Aggregation, Only one response");
        delete poA;
 
        PEG_METHOD_EXIT();
@@ -1251,6 +1247,7 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
     /* Determine if there any "good" responses. If all responses are error
        we return CIMException.
     */
+   //CDEBUG("Aggregation. Preparing for Errors test. Num responses = " << totalResponses);
    Uint32 errorCount = 0;
    for(Uint32 i = 0; i < totalResponses; i++)
    {
@@ -1258,13 +1255,10 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
        if (response->cimException.getCode() != CIM_ERR_SUCCESS)
 	   errorCount++;
    }
-
    PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
             Formatter::format("Post Processor $0 total responses $1 errors"
                               , totalResponses, errorCount));
-
-   //cout << "KSTEST error count = " << errorCount 
-   //     << " total Responses = " << totalResponses << endl;
+    //CDEBUG("Aggregation error count = " << errorCount << " total Responses = " << totalResponses );
    
    // If all responses are in error
    if(errorCount == totalResponses)
@@ -1305,15 +1299,13 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
    }
    /* Merge the responses into a single CIMEnumerateInstanceNamesResponse
    */
-    //cout << "KSTEST total Responses " << totalResponses 
-    //    << " total Good Responses " << poA->numberResponses()<< endl;
-    //CDEBUG("ResponseAggregator num responses = " << poA->numberResponses());
+    //CDEBUG("ResponseAggregator total Responses " << totalResponses << " total Good Responses " << poA->numberResponses());
     // If more than one response, go to proper aggregation function
     if(poA->numberResponses() > 1)
     {
     // Multiple responses. Merge them by appending the response components
     // to the first entry
-
+        CDEBUG("Aggregator. Calls appropriate aggration function");
         // Call the appropriate function for merging responses
         if (poA->getRequestType() == CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE)
         {
@@ -1322,6 +1314,14 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
         if (poA->getRequestType() == CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE)
         {
             handleEnumerateInstancesResponseAggregation(poA);
+        }
+        if (poA->getRequestType() == CIM_ASSOCIATORS_REQUEST_MESSAGE)
+        {
+            handleAssociatorsResponseAggregation(poA);
+        }
+        if (poA->getRequestType() == CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE)
+        {
+            handleAssociatorNamesResponseAggregation(poA);
         }
         if (poA->getRequestType() == CIM_REFERENCES_REQUEST_MESSAGE)
         {
@@ -3322,9 +3322,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
             request->getType(),
             request->messageId,
             request->queueIds.top());
-
-//////        poA->_dest = ;
-        
+       
         CIMName className = request->objectName.getClassName();
         CIMResponseMessage * response;
         //Array<CIMName> classNames;
@@ -3563,7 +3561,6 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
    {
        CIMException cimException =
            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "AssociatorNames");
-       /////////////////Array<CIMObjectPath> cimObjects;
 
        CIMAssociatorNamesResponseMessage* response =
            new CIMAssociatorNamesResponseMessage( request->messageId,
@@ -3601,8 +3598,9 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
    //  has no key bindings
    //
    // if this is a class request, simply go to the Repository
-
+   
    Boolean isClassRequest = (request->objectName.getKeyBindings ().size () == 0)? true: false;
+
  #define NEW_ASSOC_NAME_CODE
  #ifdef NEW_ASSOC_NAME_CODE
    // if is Class request get from repository
@@ -3662,15 +3660,11 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         OperationAggregate *poA = new OperationAggregate(
             new CIMAssociatorNamesRequestMessage(*request),
             request->getType(),
-            request->messageId);
+            request->messageId,
+            request->queueIds.top());
 
-        poA->_dest = request->queueIds.top();
-        
         CIMName className = request->objectName.getClassName();
         CIMResponseMessage * response;
-        //Array<CIMName> classNames;
-        //Array<String> serviceNames;
-        //Array<String> controlProviderNames;
 
         Array<ProviderInfo> pI;
 
@@ -3722,7 +3716,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                     requestCopy->objectName.setClassName(pI[i]._className);
                     //requestCopy->resultClass = request->resultClass;
                     //requestCopy->role = request->role;
-                    CDEBUG("Forward for aggreg " << pI[i].getClassName());
+                    CDEBUG("Forward association for aggregggregation " << pI[i].getClassName());
                     _forwardRequestForAggregation(poA->serviceNames[current],
                          poA->controlProviderNames[current], requestCopy, poA);
                 }

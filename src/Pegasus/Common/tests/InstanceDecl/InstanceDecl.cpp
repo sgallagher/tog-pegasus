@@ -160,8 +160,11 @@ void test01()
     assert(instance2.identical(instance1));
     assert(instance1.findQualifier(CIMName ("nuts")) == PEG_NOT_FOUND);
     assert(instance2.findQualifier(CIMName ("nuts")) == PEG_NOT_FOUND);
-    assert(instance1.getQualifierCount() != 4);
+    assert(instance1.getQualifierCount() != 4); 
+    assert(instance1.getQualifierCount() == 1);
+    assert(instance2.getQualifierCount() == 1);
 
+	// NOTE: This function not defined for instance KS 20 Sept 2003 instance1.removeQualifer(0);
 	// Confirm that the classcounter qualifier is in instance 2
 	// NOTE: This is dangerous coding and generates an exception
 	// out of bounds error if the qualifier	does not exist.
@@ -179,6 +182,7 @@ void test01()
     cinstance1 = instance1;
     assert(cinstance1.identical(instance1));
 
+	assert(cinstance1.getQualifierCount() == 1);
     ccq = cinstance1.getQualifier(cinstance1.findQualifier(CIMName ("classcounter")));
     assert(cinstance1.findProperty(CIMName ("message")) != PEG_NOT_FOUND);
     CIMConstProperty ccp = 
@@ -241,8 +245,7 @@ void test02()
 
     // ATTN: Should we be doing an instance qualifier add and test
 
-
-    CIMObjectPath instanceName
+	CIMObjectPath instanceName
 	= cimInstance.buildPath(CIMConstClass(cimClass));
 
     CIMObjectPath tmp("myclass.age=101,first=\"John\",last=\"Smith\"");

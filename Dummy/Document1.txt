@@ -24,3 +24,5 @@ Fixed one more bug
 
 checking CVS upgrade
 
+checking commit file tracking
+

@@ -68,6 +68,8 @@ PEGASUS_NAMESPACE_BEGIN
 // so that the dispatcher can receive a nak from the provider manager
 
 
+
+
 class PEGASUS_EXPORT AsyncOpNode
 {
    public:

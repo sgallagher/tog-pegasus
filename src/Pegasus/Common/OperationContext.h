@@ -64,7 +64,6 @@ PEGASUS_NAMESPACE_BEGIN
 #define OPERATION_COMPLETE                  0x00000200
 
 
-
 //void PEGASUS_EXPORT default_serialize(Sint8 *, Uint32 ) throw(BufferTooSmall, NotSupported);
 void PEGASUS_EXPORT default_delete(void * data) ;
 void PEGASUS_EXPORT stringize_uid(void *uid, Sint8 **dest, size_t *size) throw (NullPointer, BufferTooSmall);

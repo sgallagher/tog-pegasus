@@ -39,6 +39,25 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class PEGASUS_EXPORT message_mask 
+{
+   public:
+      static Uint32 type_legacy;
+      static Uint32 type_CIMClass;
+      static Uint32 type_CIMInstance;
+      static Uint32 type_CIMIndication;
+      static Uint32 type_CIMQualifier;
+      static Uint32 type_CIMSubscription;
+      static Uint32 type_socket;
+      static Uint32 type_connection;
+      static Uint32 type_http;
+      static Uint32 type_cimom;
+
+      static Uint32 type_request;
+      static Uint32 type_resply;
+      static Uint32 type_control;
+};
+
 class MessageQueue;
 
 /** The Message class and derived classes are used to pass messages between 
@@ -56,8 +75,9 @@ class PEGASUS_COMMON_LINKAGE Message
 {
 public:
 
-    Message(Uint32 type, Uint32 key = getNextKey()) 
-	: _type(type), _key(key), _next(0), _prev(0) { }
+    Message(Uint32 type, Uint32 key = getNextKey(), Uint32 mask = message_mask::type_legacy) 
+	: _type(type), _key(key), _mask(mask), _next(0), _prev(0) { }
+
 
     virtual ~Message(); 
 
@@ -82,13 +102,14 @@ public:
     virtual void print(PEGASUS_STD(ostream)& os) const;
 
 private:
-    Uint32 _type;
-    Uint32 _key;
-    Message* _next;
-    Message* _prev;
-    MessageQueue* _owner;
-    static Uint32 _nextKey;
-    friend class MessageQueue;
+      Uint32 _type;
+      Uint32 _key;
+      Uint32 _mask;
+      Message* _next;
+      Message* _prev;
+      MessageQueue* _owner;
+      static Uint32 _nextKey;
+      friend class MessageQueue;
 };
 
 

@@ -44,9 +44,15 @@ class PEGASUS_COMMON_LINKAGE MessageQueue
 {
 public:
 
-    /** Default constructor. */
+    /** This constructor places this object on a queue table which is
+	maintained by this class. Each message queue has a queue-id (which
+	may be obtained by calling getQueueId()). The queue-id may be passed
+	to lookupQueue() to obtain a pointer to the corresponding queue).
+    */
+    MessageQueue();
 
-    MessageQueue() : _count(0), _front(0), _back(0) { }
+    /** Removes this queue from the queue table. */
+    ~MessageQueue();
 
     /** Enques a message (places it at the back of the queue).
 	@param message pointer to message to be enqueued.
@@ -113,13 +119,27 @@ public:
     /** Returns the number of messages on the queue. */
     Uint32 getCount() const { return _count; }
 
+    /** Retrieve the queue id for this queue. */
+    Uint32 getQueueId() const { return _queueId; }
+
     /** Prints the contents of this queue by calling the print() method
 	of each message.
 	@param os stream onto which the output is placed.
     */
     void print(PEGASUS_STD(ostream)& os) const;
 
+    /** Lock this queue. */
+    virtual void lock();
+
+    /** Unlock this queue. */
+    virtual void unlock();
+
+    /** Lookup a message queue from a queue id. */
+    static MessageQueue* lookup(Uint32 queueId);
+
 private:
+
+    Uint32 _queueId;
     Uint32 _count;
     Message* _front;
     Message* _back;

@@ -26,11 +26,44 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/HashTable.h>
 #include "MessageQueue.h"
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+typedef HashTable<Uint32, MessageQueue*, EqualFunc<Uint32>, HashFunc<Uint32> >
+    QueueTable;
+
+static QueueTable _queueTable(128);
+
+static Uint32 _GetNextQueueId()
+{
+    static Uint32 _queueId = 1;
+
+    // Handle wrap-around!
+
+    if (_queueId == 0)
+	_queueId++;
+    
+    return _queueId++;
+}
+
+MessageQueue::MessageQueue() : _count(0), _front(0), _back(0)
+{
+    // ATTN-A: thread safety!
+
+    while (!_queueTable.insert(_queueId = _GetNextQueueId(), this))
+	;
+}
+
+MessageQueue::~MessageQueue()
+{
+    // ATTN-A: thread safety!
+
+    _queueTable.remove(_queueId);
+}
 
 void MessageQueue::enqueue(Message* message)
 {
@@ -136,6 +169,27 @@ Message* MessageQueue::find(Uint32 type, Uint32 key)
 	    return m;
     }
 
+    return 0;
+}
+
+void MessageQueue::lock()
+{
+
+}
+
+void MessageQueue::unlock()
+{
+
+}
+
+MessageQueue* MessageQueue::lookup(Uint32 queueId)
+{
+    MessageQueue* queue = 0;
+
+    if (_queueTable.lookup(queueId, queue))
+	return queue;
+
+    // Not found!
     return 0;
 }
 

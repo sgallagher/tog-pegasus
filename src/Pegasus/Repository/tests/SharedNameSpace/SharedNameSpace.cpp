@@ -94,7 +94,7 @@ void test()
         try {
 	   r.createNameSpace(arr1[1],nsa);
         }
-        catch (Exception &e) {
+        catch (const Exception &) {
            nsa1.insert("shareable","true");     // make shareable
 	   r.modifyNameSpace(arr1[0],nsa1);
 	   r.createNameSpace(arr1[1],nsa);      // try again
@@ -120,7 +120,7 @@ void test()
            nsa1.insert("shareable","false");
            r.modifyNameSpace(arr1[2],nsa1);     // try to namespace not shareable
         }
-        catch (Exception &e) {
+        catch (const Exception &) {
            failed=true;
         }
 	assert(failed == true);
@@ -128,7 +128,7 @@ void test()
         try {                                   // try to delete
            r.deleteNameSpace(arro[1]);
         }
-        catch (Exception &e) {
+        catch (const Exception &) {
            failed=true;
         }
 	assert(failed == true);

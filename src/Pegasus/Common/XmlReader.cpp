@@ -46,6 +46,7 @@
 #include "CIMObject.h"
 #include "CIMParamValue.h"
 #include "System.h"
+#include "XmlConstants.h"
 #ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
 #include "OS400ConvertChar.h"
 #endif
@@ -4195,8 +4196,9 @@ Boolean XmlReader::getValueObjectWithLocalPathElement(
       // throw XmlValidationError(parser.getLine(),
       //   "Expected LOCALINSTANCEPATH or LOCALCLASSPATH element");
 
-      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_LOCALINSTANCEPATH_OR_LOCALCLASSPATH_ELEMENT",
-				 "Expected LOCALINSTANCEPATH or LOCALCLASSPATH element");
+      //l10n updated
+      MessageLoaderParms mlParms("Common.XmlConstants.MISSING_ELEMENT_LOCALPATH",
+      														MISSING_ELEMENT_LOCALPATH);
       
       throw XmlValidationError(parser.getLine(), mlParms);
 

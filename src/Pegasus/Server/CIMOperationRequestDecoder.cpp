@@ -1019,8 +1019,12 @@ void CIMOperationRequestDecoder::handleMethodCall(
          if (!(XmlReader::getLocalInstancePathElement(parser, reference) ||
                XmlReader::getLocalClassPathElement(parser, reference)))
 	 {
-           // l10n TODO
-	   throw XmlValidationError(parser.getLine(), MISSING_ELEMENT_LOCALPATH);
+           // l10n TODO Done
+           MessageLoaderParms parms("Common.XmlConstants.MISSING_ELEMENT_LOCALPATH",
+           													 MISSING_ELEMENT_LOCALPATH);
+           throw XmlValidationError(parser.getLine(), parms);
+	   //throw XmlValidationError(parser.getLine(), MISSING_ELEMENT_LOCALPATH);
+	   
 	   // this throw is not updated with MLP because MISSING_ELEMENT_LOCALPATH
 	   // is a hardcoded variable, not a message
 	 }

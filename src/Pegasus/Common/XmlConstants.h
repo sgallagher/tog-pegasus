@@ -88,6 +88,10 @@ static const char XML_ELEMENT_LOCALINSTANCEPATH [] = "LOCALINSTANCEPATH";
  */
 static const char MISSING_ELEMENT_REQ [] = 
     "expected SIMPLEREQ or MULTIREQ element";
+    
+//l10n
+static const char MISSING_ELEMENT_REQ_KEY [] = 
+	"Common.XmlConstants.MISSING_ELEMENT_REQ";
 
 /**
  *
@@ -98,7 +102,9 @@ static const char MISSING_ELEMENT_REQ [] =
 static const char MISSING_ELEMENT_LOCALPATH [] = 
     "expected LOCALCLASSPATH or LOCALINSTANCEPATH element";
 
-
+//l10n
+static const char MISSING_ELEMENT_LOCALPATH_KEY [] =
+	"Common.XmlConstants.MISSING_ELEMENT_LOCALPATH_KEY";
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_XmlConstants_h */

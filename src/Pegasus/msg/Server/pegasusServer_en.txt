@@ -1474,18 +1474,6 @@ pegasusServer_en:table {
 	Server.CIMOperationRequestDecoder.EXPECTED_LOCALNAMESPACEPATH_ELEMENT:string {"CIMOP_EXPECTED_LOCALNAMESPACEPATH_ELEMENT: A <LOCALNAMESPACEPATH> element expected in the CIM request."}
 
         /**
-	* @note  CIMOP_EXPECTED_LOCALINSTANCEPATH_ELEMENT:
-	*    Do not translate the word '<LOCALINSTANCEPATH>' since it is an XML tag
- 	*/
-	Server.CIMOperationRequestDecoder.EXPECTED_LOCALINSTANCEPATH_ELEMENT:string {"CIMOP_EXPECTED_LOCALINSTANCEPATH_ELEMENT: A <LOCALINSTANCEPATH> element expected in the CIM request."}
-
-        /**
-	* @note  CIMOP_EXPECTED_LOCALCLASSPATH_ELEMENT:  
-	*    Do not translate the word '<LOCALCLASSPATH>' since it is an XML tag
- 	*/
-	Server.CIMOperationRequestDecoder.EXPECTED_LOCALCLASSPATH_ELEMENT:string {"CIMOP_EXPECTED_LOCALCLASSPATH_ELEMENT: A <LOCALCLASSPATH> element expected in the CIM request."}
-
-        /**
 	* @note  CIMOP_EXPECTED_IMETHODCALL_ELEMENT:  
 	*    Do not translate the word '<IMETHODCALL>' or '<METHODCALL>' since they are XML tags
  	*/
@@ -3134,4 +3122,19 @@ CIM server listening on HTTPS port {0}."}
         // ========================================================== 
         // End of messages from platform-specific source files
         // ==========================================================     
+        
+        /**
+        * @note MISSING_ELEMENT_REQ:
+        * Do not translate 'SIMPLEREQ'
+        * Do not translate 'MULTIREQ'
+        */
+        Common.XmlConstants.MISSING_ELEMENT_REQ:string {"Expected SIMPLEREQ or MULTIREQ element."}
+        
+        /**
+        * MISSING_ELEMENT_LOCALPATH:
+        * Do not translate LOCALCLASSPATH
+        * Do not translate LOCALINSTANCEPATH
+        */
+        Common.XmlConstants.MISSING_ELEMENT_LOCALPATH:string{"Expected LOCALCLASSPATH or LOCALINSTANCEPATH element."}
+        
 }

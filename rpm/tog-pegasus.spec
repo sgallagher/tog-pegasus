@@ -163,6 +163,7 @@ make --directory=$PEGASUS_ROOT -f Makefile.ReleaseTest stageTEST \
 %define PEGASUS_MANADMIN_DIR   %PEGASUS_MAN_DIR/man8
 %define PEGASUS_VARDATA_DIR    /var/opt/tog-pegasus
 %define PEGASUS_REPOSITORY_DIR      %PEGASUS_VARDATA_DIR/repository
+%define PEGASUS_PREV_REPOSITORY_DIR %PEGASUS_VARDATA_DIR/prev_repository
 %define PEGASUS_VARDATA_CACHE_DIR   %PEGASUS_VARDATA_DIR/cache
 %define PEGASUS_LOCAL_AUTH_DIR      %PEGASUS_VARDATA_CACHE_DIR/localauth
 %define PEGASUS_MOF_DIR            %PEGASUS_PROD_DIR/mof
@@ -635,19 +636,15 @@ then
   #
   # Save the current repository to prev_repository.
   #
-
-  REPOSITORY_LOC=%PEGASUS_REPOSITORY_DIR
-  PREV_REPOSITORY_LOC=%PEGASUS_REPOSITORY_DIR"/prev_repository"
-
-  if [[ -d $REPOSITORY_LOC ]]
+  if [[ -d %PEGASUS_REPOSITORY_DIR ]]
   then
-      if [[ -d $PREV_REPOSITORY_LOC ]]
+      if [[ -d %PEGASUS_PREV_REPOSITORY_DIR ]]
       then
-          rm -rf $PREV_REPOSITORY_LOC
+          rm -rf %PEGASUS_PREV_REPOSITORY_DIR
       fi
 
-      mv $REPOSITORY_LOC $PREV_REPOSITORY_LOC
-      mkdir $REPOSITORY_LOC
+      mv %PEGASUS_REPOSITORY_DIR %PEGASUS_PREV_REPOSITORY_DIR
+      mkdir %PEGASUS_REPOSITORY_DIR
   fi
 fi
 

@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -93,7 +93,7 @@ public:
         const CIMInstance & instanceObject,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
-        ResponseHandler<CIMInstance> & handler);
+        ResponseHandler<void> & handler);
 
     virtual void createInstance(
         const OperationContext & context,
@@ -104,7 +104,7 @@ public:
     virtual void deleteInstance(
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
-        ResponseHandler<CIMInstance> & handler);
+        ResponseHandler<void> & handler);
 
     // CIMClassProvider interface
     virtual void getClass(
@@ -130,18 +130,18 @@ public:
         const OperationContext & context,
         const CIMObjectPath & classReference,
         const CIMClass & classObject,
-        ResponseHandler<CIMClass> & handler);
+        ResponseHandler<void> & handler);
 
     virtual void createClass(
         const OperationContext & context,
         const CIMObjectPath & classReference,
         const CIMClass & classObject,
-        ResponseHandler<CIMClass> & handler);
+        ResponseHandler<void> & handler);
 
     virtual void deleteClass(
         const OperationContext & context,
         const CIMObjectPath & classReference,
-        ResponseHandler<CIMClass> & handler);
+        ResponseHandler<void> & handler);
 
     // CIMAssociationProvider interface
     virtual void associators(
@@ -240,7 +240,7 @@ public:
     virtual void handleIndication(
         const OperationContext & context,
         const CIMInstance & indication,
-        ResponseHandler<CIMInstance> & handler)
+        ResponseHandler<void> & handler)
     {
     }
 

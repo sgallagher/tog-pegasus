@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -183,7 +183,7 @@ void ProviderFacade::modifyInstance(
     const CIMInstance & instanceObject,
     const Uint32 flags,
     const CIMPropertyList & propertyList,
-    ResponseHandler<CIMInstance> & handler)
+    ResponseHandler<void> & handler)
 {
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
@@ -216,7 +216,7 @@ void ProviderFacade::createInstance(
 void ProviderFacade::deleteInstance(
     const OperationContext & context,
     const CIMObjectPath & instanceReference,
-    ResponseHandler<CIMInstance> & handler)
+    ResponseHandler<void> & handler)
 {
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
@@ -259,7 +259,7 @@ void ProviderFacade::modifyClass(
     const OperationContext & context,
     const CIMObjectPath & classReference,
     const CIMClass & classObject,
-    ResponseHandler<CIMClass> & handler)
+    ResponseHandler<void> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::modifyClass");
 }
@@ -268,7 +268,7 @@ void ProviderFacade::createClass(
     const OperationContext & context,
     const CIMObjectPath & classReference,
     const CIMClass & classObject,
-    ResponseHandler<CIMClass> & handler)
+    ResponseHandler<void> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::createClass");
 }
@@ -276,7 +276,7 @@ void ProviderFacade::createClass(
 void ProviderFacade::deleteClass(
     const OperationContext & context,
     const CIMObjectPath & classReference,
-    ResponseHandler<CIMClass> & handler)
+    ResponseHandler<void> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::deleteClass");
 }
@@ -453,7 +453,7 @@ void ProviderFacade::setProperty(
 
     propertyList.append(propertyName);
 
-    SimpleResponseHandler<CIMInstance> instanceHandler;
+    ResponseHandler<void> instanceHandler;
 
     modifyInstance(
         context,
@@ -477,8 +477,13 @@ void ProviderFacade::invokeMethod(
     CIMMethodProvider * provider = getInterface<CIMMethodProvider>(_provider);
 
     // forward request
-    provider->invokeMethod(context, objectReference, methodName,
-        inParameters, outParameters, handler);
+    provider->invokeMethod(
+        context,
+        objectReference,
+        methodName,
+        inParameters,
+        outParameters,
+        handler);
 }
 
 void ProviderFacade::executeQuery(

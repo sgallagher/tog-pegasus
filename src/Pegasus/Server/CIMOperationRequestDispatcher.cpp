@@ -1612,7 +1612,7 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
 				  providercontainer = new ProviderIdContainer(pmInstances[i],pInstances[i],isRemote,remoteInformation);
 			 else providercontainer = new ProviderIdContainer(pmInstances[i],pInstances[i]);
 #else
-			 providercontainer = new ProviderIdContainer(pmInstance,pInstance);
+			 providercontainer = new ProviderIdContainer(pmInstances[i],pInstances[i]);
 #endif
             (*providerIdContainer) = providercontainer ;
 		 }

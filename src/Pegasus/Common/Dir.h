@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,6 +30,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Amit K Arora, IBM (amita@in.ibm.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,15 +42,19 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/AutoPtr.h> 
+#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
  #include <io.h>
-typedef struct 
+typedef struct
 {
+#if _MSC_VER < 1300
     long file;
+#else
+    intptr_t file;
+#endif
     struct _finddata_t findData;
 } DirRep;
 #elif defined(PEGASUS_OS_TYPE_UNIX) || defined (PEGASUS_OS_VMS)
@@ -98,14 +104,14 @@ class PEGASUS_COMMON_LINKAGE Dir
 public:
 
     /** Starts this iterator class on the given path.
-	@param String path is the path to the target directory 
+	@param String path is the path to the target directory
 	@return
 	@exception throws CannotOpenDirectory if invalid directory.
 
 	<pre>
 	char* path = "."
 	try
-	{ 
+	{
 	   for (Dir dir(path); dir.more(); dir.next())
 	   {
 	       cout << "name: " << dir.getName() << endl;
@@ -124,7 +130,7 @@ public:
 
     /** Return true if there are more file names to iterator. */
     Boolean more() const { return _more; }
- 
+
     #if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
     /** Returns the file inode number. */
     const Uint32 getInode() const;

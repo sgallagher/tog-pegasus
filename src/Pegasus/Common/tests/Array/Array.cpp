@@ -37,6 +37,7 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+static char * verbose;
 
 template<class T>
 void Print(const Array<T>& arr)
@@ -54,7 +55,8 @@ void test01(STR*)
     assert(arr[0] == STR("Hello"));
     assert(arr[1] == STR("Hello"));
     assert(arr[2] == STR("Hello"));
-    Print(arr);
+    if(verbose)
+	Print(arr);
 }
 
 template<class STR>
@@ -167,8 +169,9 @@ void test05()
     assert(arr[3] == "four");
 }
 
-int main()
+int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
     try
     {
 	test01((Str*)0);
@@ -187,7 +190,7 @@ int main()
 	cerr << "Exception: " << e.getMessage() << endl;
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

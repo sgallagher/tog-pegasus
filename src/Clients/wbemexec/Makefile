@@ -1,5 +1,7 @@
 ROOT = ../../..
 
+PEGASUS_ZOS_PROGRAM_OBJECT = yes
+
 DIR = Clients/wbemexec
 
 include $(ROOT)/mak/config.mak

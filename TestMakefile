@@ -29,7 +29,7 @@ system = localhost
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
     CIMSERVER_START_SERVICE = cimserver -start
     CIMSERVER_STOP_SERVICE = cimserver -stop
-    SLEEP =
+    SLEEP = mu sleep 5
     REMOVE_PEGASUS_DIRECTORY = mu rmdirhier pegasus
     MUEXE = mu.exe
     MKDIR = $(MUEXE) mkdirhier
@@ -204,7 +204,6 @@ TestSubscriptions:
 
 TestCimmof:
 	$(MAKE) -f Testcimmof poststarttests
-
 
 RunTestClientLocal:
 	TestClient -local

@@ -553,6 +553,282 @@ void test05()
     assert(errorDetected);
 }
 
+// Test CIMKeyBinding operator==
+void test06()
+{
+    CIMKeyBinding kb1;
+    CIMKeyBinding kb2;
+
+    // Key bindings of different types are not equal
+    kb1 = CIMKeyBinding("a", "true", CIMKeyBinding::BOOLEAN);
+    kb2 = CIMKeyBinding("a", "true", CIMKeyBinding::STRING);
+    assert(!(kb1 == kb2));
+
+    // Key bindings with different names are not equal
+    kb1 = CIMKeyBinding("a", "true", CIMKeyBinding::BOOLEAN);
+    kb2 = CIMKeyBinding("b", "true", CIMKeyBinding::BOOLEAN);
+    assert(!(kb1 == kb2));
+
+    // Key bindings names are not case sensitive
+    kb1 = CIMKeyBinding("a", "true", CIMKeyBinding::BOOLEAN);
+    kb2 = CIMKeyBinding("A", "true", CIMKeyBinding::BOOLEAN);
+    assert(kb1 == kb2);
+
+    // Boolean key bindings are not case sensitive
+    kb1 = CIMKeyBinding("a", "true", CIMKeyBinding::BOOLEAN);
+    kb2 = CIMKeyBinding("a", "TrUe", CIMKeyBinding::BOOLEAN);
+    assert(kb1 == kb2);
+
+    // Boolean key bindings are not equal if they differ other than in case
+    kb1 = CIMKeyBinding("a", "true", CIMKeyBinding::BOOLEAN);
+    kb2 = CIMKeyBinding("a", "truee", CIMKeyBinding::BOOLEAN);
+    assert(!(kb1 == kb2));
+
+    // Numeric key binding comparisons are done based on integer values
+    kb1 = CIMKeyBinding("a", "14", CIMKeyBinding::NUMERIC);
+    kb2 = CIMKeyBinding("a", "14", CIMKeyBinding::NUMERIC);
+    assert(kb1 == kb2);
+
+    kb1 = CIMKeyBinding("a", "14", CIMKeyBinding::NUMERIC);
+    kb2 = CIMKeyBinding("a", "140", CIMKeyBinding::NUMERIC);
+    assert(!(kb1 == kb2));
+
+    kb1 = CIMKeyBinding("a", "+14", CIMKeyBinding::NUMERIC);
+    kb2 = CIMKeyBinding("a", "14", CIMKeyBinding::NUMERIC);
+    assert(kb1 == kb2);
+
+    kb1 = CIMKeyBinding("a", "0", CIMKeyBinding::NUMERIC);
+    kb2 = CIMKeyBinding("a", "-0", CIMKeyBinding::NUMERIC);
+    assert(kb1 == kb2);
+
+    // Hexadecimal format is also understood
+    kb1 = CIMKeyBinding("a", "14", CIMKeyBinding::NUMERIC);
+    kb2 = CIMKeyBinding("a", "0x0E", CIMKeyBinding::NUMERIC);
+    assert(kb1 == kb2);
+
+    kb1 = CIMKeyBinding("a", "0x0E", CIMKeyBinding::NUMERIC);
+    kb2 = CIMKeyBinding("a", "0x0e", CIMKeyBinding::NUMERIC);
+    assert(kb1 == kb2);
+
+    // Numeric key bindings are not equal if they differ other than in case
+    kb1 = CIMKeyBinding("a", "true", CIMKeyBinding::NUMERIC);
+    kb2 = CIMKeyBinding("a", "truee", CIMKeyBinding::NUMERIC);
+    assert(!(kb1 == kb2));
+
+    // String comparison is used if numeric key binding is not a valid integer
+    kb1 = CIMKeyBinding("a", "14a", CIMKeyBinding::NUMERIC);
+    kb2 = CIMKeyBinding("a", "14a", CIMKeyBinding::NUMERIC);
+    assert(kb1 == kb2);
+
+    kb1 = CIMKeyBinding("a", "14", CIMKeyBinding::NUMERIC);
+    kb2 = CIMKeyBinding("a", "14a", CIMKeyBinding::NUMERIC);
+    assert(!(kb1 == kb2));
+
+    // String key bindings are compared using a simple string comparison
+    kb1 = CIMKeyBinding("a", "My String", CIMKeyBinding::STRING);
+    kb2 = CIMKeyBinding("a", "My String", CIMKeyBinding::STRING);
+    assert(kb1 == kb2);
+
+    kb1 = CIMKeyBinding("a", "My String", CIMKeyBinding::STRING);
+    kb2 = CIMKeyBinding("a", "my string", CIMKeyBinding::STRING);
+    assert(!(kb1 == kb2));
+
+    // Reference key bindings are compared as CIMObjectPath objects
+    kb1 = CIMKeyBinding("a", "aClass.key1=true,key2=256",
+                        CIMKeyBinding::REFERENCE);
+    kb2 = CIMKeyBinding("a", "AClass.Key2=0x100,Key1=TRUE",
+                        CIMKeyBinding::REFERENCE);
+    assert(kb1 == kb2);
+
+    kb1 = CIMKeyBinding("a", "aClass.key1=\"true\"",
+                        CIMKeyBinding::REFERENCE);
+    kb2 = CIMKeyBinding("a", "AClass.Key1=\"TRUE\"",
+                        CIMKeyBinding::REFERENCE);
+    assert(!(kb1 == kb2));
+
+    kb1 = CIMKeyBinding("a", "a.ref=\"aClass.key1=true,key2=256\"",
+                        CIMKeyBinding::REFERENCE);
+    kb2 = CIMKeyBinding("a", "a.ref=\"AClass.Key2=0x100,Key1=TRUE\"",
+                        CIMKeyBinding::REFERENCE);
+    assert(kb1 == kb2);
+
+    kb1 = CIMKeyBinding("a", "//myHost/ns1/ns2:aClass.key1=1",
+                        CIMKeyBinding::REFERENCE);
+    kb2 = CIMKeyBinding("a", "//MyHost/NS1/NS2:AClass.key1=0x1",
+                        CIMKeyBinding::REFERENCE);
+    assert(kb1 == kb2);
+
+    kb1 = CIMKeyBinding("a", "//myHost/ns1/ns2:aClass.key1=1",
+                        CIMKeyBinding::REFERENCE);
+    kb2 = CIMKeyBinding("a", "ns1/ns2:aClass.key1=1",
+                        CIMKeyBinding::REFERENCE);
+    assert(!(kb1 == kb2));
+
+    kb1 = CIMKeyBinding("a", "ns1/ns2:aClass.key1=1",
+                        CIMKeyBinding::REFERENCE);
+    kb2 = CIMKeyBinding("a", "aClass.key1=1",
+                        CIMKeyBinding::REFERENCE);
+    assert(!(kb1 == kb2));
+
+    kb1 = CIMKeyBinding("a", "aClass.key1=1,key2=2",
+                        CIMKeyBinding::REFERENCE);
+    kb2 = CIMKeyBinding("a", "aClass.key1=1",
+                        CIMKeyBinding::REFERENCE);
+    assert(!(kb1 == kb2));
+
+    // String comparison is used if numeric key binding is not a valid integer
+    kb1 = CIMKeyBinding("a", "Bad Reference", CIMKeyBinding::REFERENCE);
+    kb2 = CIMKeyBinding("a", "Bad Reference", CIMKeyBinding::REFERENCE);
+    assert(kb1 == kb2);
+
+    kb1 = CIMKeyBinding("a", "Bad Reference", CIMKeyBinding::REFERENCE);
+    kb2 = CIMKeyBinding("a", "bad reference", CIMKeyBinding::REFERENCE);
+    assert(!(kb1 == kb2));
+}
+
+// Test hash code generation
+void test07()
+{
+    CIMObjectPath op1;
+    CIMObjectPath op2;
+
+    // Hostname case does not affect the hash code
+    op1 = CIMObjectPath("//myhost/ns1/ns2:aClass.key1=1");
+    op2 = CIMObjectPath("//MyHost/ns1/ns2:aClass.key1=1");
+    assert(op1.makeHashCode() == op2.makeHashCode());
+
+    // Namespace case does not affect the hash code
+    op1 = CIMObjectPath("//myhost/ns1/ns2:aClass.key1=1");
+    op2 = CIMObjectPath("//myhost/NS1/Ns2:aClass.key1=1");
+    assert(op1.makeHashCode() == op2.makeHashCode());
+
+    // Class name case does not affect the hash code
+    op1 = CIMObjectPath("//myhost/ns1/ns2:aClass.key1=1");
+    op2 = CIMObjectPath("//myhost/ns1/ns2:ACLASS.key1=1");
+    assert(op1.makeHashCode() == op2.makeHashCode());
+
+    //
+    // Equivalent key bindings generate the same hash code
+    //
+    Array<CIMKeyBinding> kba1;
+    Array<CIMKeyBinding> kba2;
+
+    // Key name case does not affect the hash code
+    kba1.clear();
+    kba2.clear();
+    kba1.append(CIMKeyBinding("key1", "1", CIMKeyBinding::NUMERIC));
+    kba2.append(CIMKeyBinding("KeY1", "1", CIMKeyBinding::NUMERIC));
+    op1.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba1);
+    op2.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba2);
+    assert(op1.makeHashCode() == op2.makeHashCode());
+
+    // Key binding order does not affect the hash code
+    kba1.clear();
+    kba2.clear();
+    kba1.append(CIMKeyBinding("key1", "1", CIMKeyBinding::NUMERIC));
+    kba1.append(CIMKeyBinding("key2", "2", CIMKeyBinding::NUMERIC));
+    kba2.append(CIMKeyBinding("key2", "2", CIMKeyBinding::NUMERIC));
+    kba2.append(CIMKeyBinding("key1", "1", CIMKeyBinding::NUMERIC));
+    op1.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba1);
+    op2.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba2);
+    assert(op1.makeHashCode() == op2.makeHashCode());
+
+    // Boolean key value case does not affect the hash code
+    kba1.clear();
+    kba2.clear();
+    kba1.append(CIMKeyBinding("key1", "true", CIMKeyBinding::BOOLEAN));
+    kba2.append(CIMKeyBinding("KeY1", "True", CIMKeyBinding::BOOLEAN));
+    op1.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba1);
+    op2.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba2);
+    assert(op1.makeHashCode() == op2.makeHashCode());
+
+    // Equivalent numeric key value forms do not affect the hash code
+    kba1.clear();
+    kba2.clear();
+    kba1.append(CIMKeyBinding("key1", "1023", CIMKeyBinding::NUMERIC));
+    kba2.append(CIMKeyBinding("KeY1", "0x3FF", CIMKeyBinding::NUMERIC));
+    op1.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba1);
+    op2.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba2);
+    assert(op1.makeHashCode() == op2.makeHashCode());
+
+    kba1.clear();
+    kba2.clear();
+    kba1.append(CIMKeyBinding("key1", "0", CIMKeyBinding::NUMERIC));
+    kba2.append(CIMKeyBinding("KeY1", "-0", CIMKeyBinding::NUMERIC));
+    op1.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba1);
+    op2.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba2);
+    assert(op1.makeHashCode() == op2.makeHashCode());
+
+    // Invalid numeric key value forms generate a consistent hash code
+    kba1.clear();
+    kba2.clear();
+    kba1.append(CIMKeyBinding("key1", "abc", CIMKeyBinding::NUMERIC));
+    kba2.append(CIMKeyBinding("KeY1", "abc", CIMKeyBinding::NUMERIC));
+    op1.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba1);
+    op2.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba2);
+    assert(op1.makeHashCode() == op2.makeHashCode());
+
+    // Equivalent reference key value forms do not affect the hash code
+    kba1.clear();
+    kba2.clear();
+    kba1.append(CIMKeyBinding("key1", "aClass.key1=true,key2=256",
+                CIMKeyBinding::REFERENCE));
+    kba2.append(CIMKeyBinding("KeY1", "AClass.Key2=0x100,Key1=TRUE",
+                CIMKeyBinding::REFERENCE));
+    op1.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba1);
+    op2.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba2);
+    assert(op1.makeHashCode() == op2.makeHashCode());
+
+    kba1.clear();
+    kba2.clear();
+    kba1.append(CIMKeyBinding("key2", "a.ref=\"aClass.key1=true,key2=256\"",
+                CIMKeyBinding::REFERENCE));
+    kba2.append(CIMKeyBinding("Key2", "A.ref=\"AClass.Key2=0x100,Key1=TRUE\"",
+                CIMKeyBinding::REFERENCE));
+    op1.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba1);
+    op2.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba2);
+    assert(op1.makeHashCode() == op2.makeHashCode());
+
+    kba1.clear();
+    kba2.clear();
+    kba1.append(CIMKeyBinding("key", "//myHost/ns1/ns2:aClass.key1=1",
+                CIMKeyBinding::REFERENCE));
+    kba2.append(CIMKeyBinding("Key", "//MyHost/NS1/NS2:AClass.key1=0x1",
+                CIMKeyBinding::REFERENCE));
+    op1.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba1);
+    op2.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba2);
+    assert(op1.makeHashCode() == op2.makeHashCode());
+
+    // Kitchen sink
+    kba1.clear();
+    kba2.clear();
+    kba1.append(CIMKeyBinding("bck", "true", CIMKeyBinding::BOOLEAN));
+    kba1.append(CIMKeyBinding("rk2", "a.ref=\"aClass.key1=true,key2=256\"",
+                CIMKeyBinding::REFERENCE));
+    kba1.append(CIMKeyBinding("neK1", "1023", CIMKeyBinding::NUMERIC));
+    kba1.append(CIMKeyBinding("SEk", "abc", CIMKeyBinding::STRING));
+    kba1.append(CIMKeyBinding("rk3", "//myHost/ns1/ns2:aClass.key1=1",
+                CIMKeyBinding::REFERENCE));
+    kba1.append(CIMKeyBinding("NEk2", "0", CIMKeyBinding::NUMERIC));
+    kba1.append(CIMKeyBinding("NiK", "abc", CIMKeyBinding::NUMERIC));
+    kba1.append(CIMKeyBinding("rK1", "aClass.key1=true,key2=256",
+                CIMKeyBinding::REFERENCE));
+    kba2.append(CIMKeyBinding("rk1", "AClass.Key2=0x100,Key1=TRUE",
+                CIMKeyBinding::REFERENCE));
+    kba2.append(CIMKeyBinding("nek2", "-0", CIMKeyBinding::NUMERIC));
+    kba2.append(CIMKeyBinding("BcK", "True", CIMKeyBinding::BOOLEAN));
+    kba2.append(CIMKeyBinding("rk2", "A.ref=\"AClass.Key2=0x100,Key1=TRUE\"",
+                CIMKeyBinding::REFERENCE));
+    kba2.append(CIMKeyBinding("Nek1", "0x3FF", CIMKeyBinding::NUMERIC));
+    kba2.append(CIMKeyBinding("Nik", "abc", CIMKeyBinding::NUMERIC));
+    kba2.append(CIMKeyBinding("Sek", "abc", CIMKeyBinding::STRING));
+    kba2.append(CIMKeyBinding("rk3", "//MyHost/NS1/NS2:AClass.key1=0x1",
+                CIMKeyBinding::REFERENCE));
+    op1.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba1);
+    op2.set("MyHOST", CIMNamespaceName("Ns1/NS2"), CIMName("Aclass"), kba2);
+    assert(op1.makeHashCode() == op2.makeHashCode());
+}
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
@@ -564,6 +840,8 @@ int main(int argc, char** argv)
 	test03();
 	test04();
 	test05();
+	test06();
+	test07();
 
         cout << argv[0] << " +++++ passed all tests" << endl;
     }

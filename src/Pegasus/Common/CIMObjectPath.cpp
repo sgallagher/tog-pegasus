@@ -315,10 +315,67 @@ Boolean CIMKeyBinding::equal(CIMValue value)
 
 Boolean operator==(const CIMKeyBinding& x, const CIMKeyBinding& y)
 {
-    return
-        x.getName().equal(y.getName()) &&
-        String::equal(x.getValue(), y.getValue()) &&
-        x.getType() == y.getType();
+    // Check that the names and types match
+    if (!(x.getName().equal(y.getName())) ||
+        !(x.getType() == y.getType()))
+    {
+        return false;
+    }
+
+    switch (x.getType())
+    {
+    case CIMKeyBinding::REFERENCE:
+        try
+        {
+            // References should be compared as CIMObjectPaths
+            return (CIMObjectPath(x.getValue()) == CIMObjectPath(y.getValue()));
+        }
+        catch (Exception&)
+        {
+            // If CIMObjectPath parsing fails, just compare strings
+            return (String::equal(x.getValue(), y.getValue()));
+        }
+        break;
+    case CIMKeyBinding::BOOLEAN:
+        // Case-insensitive comparison is sufficient for booleans
+        return (String::equalNoCase(x.getValue(), y.getValue()));
+        break;
+    case CIMKeyBinding::NUMERIC:
+        // Note: This comparison assumes XML syntax for integers
+        // First try comparing as unsigned integers
+        {
+            Uint64 xValue;
+            Uint64 yValue;
+            if (XmlReader::stringToUnsignedInteger(
+                    x.getValue().getCString(), xValue) &&
+                XmlReader::stringToUnsignedInteger(
+                    y.getValue().getCString(), yValue))
+            {
+                return (xValue == yValue);
+            }
+        }
+        // Next try comparing as signed integers
+        {
+            Sint64 xValue;
+            Sint64 yValue;
+            if (XmlReader::stringToSignedInteger(
+                    x.getValue().getCString(), xValue) &&
+                XmlReader::stringToSignedInteger(
+                    y.getValue().getCString(), yValue))
+            {
+                return (xValue == yValue);
+            }
+        }
+        // Note: Keys may not be real values, so don't try comparing as reals
+        // We couldn't parse the numbers, so just compare the strings
+        return (String::equal(x.getValue(), y.getValue()));
+        break;
+    default:  // CIMKeyBinding::STRING
+        return (String::equal(x.getValue(), y.getValue()));
+        break;
+    }
+
+    PEGASUS_UNREACHABLE(return false;)
 }
 
 
@@ -901,21 +958,87 @@ String CIMObjectPath::_toStringCanonical() const
 {
     CIMObjectPath ref = *this;
 
-    // ATTN-RK-P2-20020510: Need to make hostname and namespace lower case?
+    // Normalize hostname by changing to lower case
+    ref._rep->_host.toLower(); // ICU_TODO:  
 
-    String classNameLower = ref._rep->_className.getString ();
-    classNameLower.toLower(); // ICU_TODO:  
-    ref._rep->_className = classNameLower;
+    // Normalize namespace by changing to lower case
+    if (!ref._rep->_nameSpace.isNull())
+    {
+        String nameSpaceLower = ref._rep->_nameSpace.getString();
+        nameSpaceLower.toLower(); // ICU_TODO:  
+        ref._rep->_nameSpace = nameSpaceLower;
+    }
+
+    // Normalize class name by changing to lower case
+    if (!ref._rep->_className.isNull())
+    {
+        String classNameLower = ref._rep->_className.getString();
+        classNameLower.toLower(); // ICU_TODO:  
+        ref._rep->_className = classNameLower;
+    }
 
     for (Uint32 i = 0, n = ref._rep->_keyBindings.size(); i < n; i++)
     {
-        String keyBindingNameLower = 
-            ref._rep->_keyBindings[i]._rep->_name.getString ();
-        keyBindingNameLower.toLower();
-        ref._rep->_keyBindings[i]._rep->_name = keyBindingNameLower;
+        // Normalize key binding name by changing to lower case
+        if (!ref._rep->_keyBindings[i]._rep->_name.isNull())
+        {
+            String keyBindingNameLower = 
+                ref._rep->_keyBindings[i]._rep->_name.getString();
+            keyBindingNameLower.toLower(); // ICU_TODO:
+            ref._rep->_keyBindings[i]._rep->_name = keyBindingNameLower;
+        }
+
+        // Normalize the key value
+        switch (ref._rep->_keyBindings[i]._rep->_type)
+        {
+        case CIMKeyBinding::REFERENCE:
+            try
+            {
+                // Convert reference to CIMObjectPath and recurse
+                ref._rep->_keyBindings[i]._rep->_value =
+                    CIMObjectPath(ref._rep->_keyBindings[i]._rep->_value).
+                        _toStringCanonical();
+            }
+            catch (Exception&)
+            {
+                // Leave value unchanged if the CIMObjectPath parsing fails
+            }
+            break;
+        case CIMKeyBinding::BOOLEAN:
+            // Normalize the boolean string by changing to lower case
+            ref._rep->_keyBindings[i]._rep->_value.toLower(); // ICU_TODO:
+            break;
+        case CIMKeyBinding::NUMERIC:
+            // Normalize the numeric string by converting to integer and back
+            Uint64 uValue;
+            Sint64 sValue;
+            // First try converting to unsigned integer
+            if (XmlReader::stringToUnsignedInteger(
+                    ref._rep->_keyBindings[i]._rep->_value.getCString(),
+                        uValue))
+            {
+                char buffer[32];  // Should need 21 chars max
+                sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", uValue);
+                ref._rep->_keyBindings[i]._rep->_value = String(buffer);
+            }
+            // Next try converting to signed integer
+            else if (XmlReader::stringToSignedInteger(
+                         ref._rep->_keyBindings[i]._rep->_value.getCString(),
+                             sValue))
+            {
+                char buffer[32];  // Should need 21 chars max
+                sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", sValue);
+                ref._rep->_keyBindings[i]._rep->_value = String(buffer);
+            }
+            // Leave value unchanged if it cannot be converted to an integer
+            break;
+        default:  // CIMKeyBinding::STRING
+            // No normalization required for STRING
+            break;
+        }
     }
 
-    // ATTN-RK-20020826: Need to sort keys?
+    // Note: key bindings are sorted when set in the CIMObjectPath
 
     return ref.toString();
 }
@@ -923,7 +1046,7 @@ String CIMObjectPath::_toStringCanonical() const
 Boolean CIMObjectPath::identical(const CIMObjectPath& x) const
 {
     return
-        String::equal(_rep->_host, x._rep->_host) &&
+        String::equalNoCase(_rep->_host, x._rep->_host) &&
         _rep->_nameSpace.equal(x._rep->_nameSpace) &&
         _rep->_className.equal(x._rep->_className) &&
         _rep->_keyBindings == x._rep->_keyBindings;

@@ -119,35 +119,35 @@ void CIMName::clear()
 Boolean CIMName::legal(const String& name)
 {
     Uint32 length = name.size();
-    Char16 chkchr;
-    
+    Uint16 chkchr;
 
     if (length == 0)
         return false;
 
     chkchr = name[0];
 
-    if(!(  
-	(chkchr == 0x005F) ||
-	((chkchr >= 0x0041) && (chkchr <= 0x005A)) ||
-	((chkchr >= 0x0061) && (chkchr <= 0x007A)) ||
-	((chkchr >= 0x0080) && (chkchr <= 0xFFEF))))
+    // First character must be alphabetic or '_' if ASCII
+    if(!(
+         (chkchr == 0x005F) ||
+         ((chkchr >= 0x0041) && (chkchr <= 0x005A)) ||
+         ((chkchr >= 0x0061) && (chkchr <= 0x007A)) ||
+         ((chkchr >= 0x0080) && (chkchr <= 0xFFEF))))
     {
- 	return false;
+        return false;
     }
-    
-    
+
+    // Remaining characters must be alphanumeric or '_' if ASCII
     for(Uint32 i = 1; i < length; ++i)
     {
-	chkchr = name[i];
-	if(!(  
-	     (chkchr == 0x005F) ||
-	     ((chkchr >= 0x0041) && (chkchr <= 0x005A)) ||
-	     ((chkchr >= 0x0061) && (chkchr <= 0x007A)) ||
-	     ((chkchr >= 0x0080) && (chkchr <= 0xFFEF)) ||
-	     ((chkchr >= 0x0030) && (chkchr <= 0x0039))))
+        chkchr = name[i];
+        if(!(
+             (chkchr == 0x005F) ||
+             ((chkchr >= 0x0041) && (chkchr <= 0x005A)) ||
+             ((chkchr >= 0x0061) && (chkchr <= 0x007A)) ||
+             ((chkchr >= 0x0080) && (chkchr <= 0xFFEF)) ||
+             ((chkchr >= 0x0030) && (chkchr <= 0x0039))))
         {
- 	     return false;
+            return false;
         }
     }
 
@@ -248,64 +248,69 @@ void CIMNamespaceName::clear()
 
 Boolean CIMNamespaceName::legal(const String& name)
 {
-
-  Uint32 length = name.size();
-    Char16 chkchr;
-    
-
+    Uint32 length = name.size();
     if (length == 0)
-        return false;
-
-    chkchr = name[0];
-
-    if(!(  
-	(chkchr == 0x005F) ||
-	((chkchr >= 0x0041) && (chkchr <= 0x005A)) ||
-	((chkchr >= 0x0061) && (chkchr <= 0x007A)) ||
-	((chkchr >= 0x0080) && (chkchr <= 0xFFEF))))
     {
- 	return false;
-    }
-    
-    
-    for(Uint32 i = 1; i < length; ++i)
-    {
-	chkchr = name[i];
-	if(!(  
-	     (chkchr == 0x005F) ||
-	     ((chkchr >= 0x0041) && (chkchr <= 0x005A)) ||
-	     ((chkchr >= 0x0061) && (chkchr <= 0x007A)) ||
-	     ((chkchr >= 0x0080) && (chkchr <= 0xFFEF)) ||
-	     ((chkchr >= 0x0030) && (chkchr <= 0x0039))))
-        {
- 	     return false;
-        }
+        return true;  // ATTN: Should be "false"
     }
 
-    return true;
-// Alternate implementation
-#if 0
-    String temp;
+    Uint32 index = 0;
 
-    // check each namespace segment (delimited by '/') for correctness
-
-    for(Uint32 i = 0; i < name.size(); i += temp.size() + 1)
+    // Skip a leading '/' because the CIM specification is ambiguous
+    if (name[0] == '/')
     {
-        // isolate the segment beginning at i and ending at the first
-        // ocurrance of '/' after i or eos
+        index++;
+    }
 
-        temp = name.subString(i, name.subString(i).find('/'));
+    Boolean moreElements = true;
 
-        // check segment for correctness
+    // Check each namespace element (delimited by '/' characters)
+    while (moreElements)
+    {
+        moreElements = false;
 
-        if (!CIMName::legal(temp))
+        if (index == length)
         {
             return false;
         }
+
+        Uint16 chkchr = name[index++];
+
+        // First character must be alphabetic or '_' if ASCII
+        if(!(
+             (chkchr == 0x005F) ||
+             ((chkchr >= 0x0041) && (chkchr <= 0x005A)) ||
+             ((chkchr >= 0x0061) && (chkchr <= 0x007A)) ||
+             ((chkchr >= 0x0080) && (chkchr <= 0xFFEF))))
+        {
+            return false;
+        }
+
+        // Remaining characters must be alphanumeric or '_' if ASCII
+        while (index < length)
+        {
+            chkchr = name[index++];
+
+            // A '/' indicates another namespace element follows
+            if (chkchr == '/')
+            {
+                moreElements = true;
+                break;
+            }
+
+            if(!(
+                 (chkchr == 0x005F) ||
+                 ((chkchr >= 0x0041) && (chkchr <= 0x005A)) ||
+                 ((chkchr >= 0x0061) && (chkchr <= 0x007A)) ||
+                 ((chkchr >= 0x0080) && (chkchr <= 0xFFEF)) ||
+                 ((chkchr >= 0x0030) && (chkchr <= 0x0039))))
+            {
+                return false;
+            }
+        }
     }
 
     return true;
-#endif
 }
 
 Boolean CIMNamespaceName::equal(const CIMNamespaceName& name) const

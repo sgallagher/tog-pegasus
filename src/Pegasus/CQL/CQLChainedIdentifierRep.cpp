@@ -112,21 +112,11 @@ void CQLChainedIdentifierRep::parse(String & string){
 	Uint32 index;
 	String range;
 
-	/* remove any array ranges so we dont parse a false . */
-	if((index = string.find("[")) != PEG_NOT_FOUND){
-		range = string.subString(index);
-		string.remove(index);
-	}
-
 	index = string.reverseFind(delim);
 	if(index == PEG_NOT_FOUND){
-		/* append the range we may have removed */
-		string.append(range);
 		_subIdentifiers.append(CQLIdentifier(string));
 	}else{
-		/* append the range we may have removed */
 		String tmp = string.subString(index+1);
-		tmp.append(range);
 		_subIdentifiers.append(CQLIdentifier(tmp));
 
 		while(index != PEG_NOT_FOUND){

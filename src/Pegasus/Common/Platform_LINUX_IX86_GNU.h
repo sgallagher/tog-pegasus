@@ -73,7 +73,4 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/param.h> // For MAXHOSTNAMELEN
-#ifndef min
-#define min(a,b) (((a)<(b))?(a):(b))
-#endif
 #endif /* Pegasus_Platform_LINUX_IX86_GNU_h */

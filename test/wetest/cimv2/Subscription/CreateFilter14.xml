@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-  <MESSAGE ID="010003" PROTOCOLVERSION="1.0">
+  <MESSAGE ID="010014" PROTOCOLVERSION="1.0">
     <SIMPLEREQ>
       <IMETHODCALL NAME="CreateInstance">
         <LOCALNAMESPACEPATH>
@@ -19,15 +19,15 @@
               <VALUE> CIM_IndicationFilter </VALUE>
             </PROPERTY>
             <PROPERTY NAME="Name" TYPE="string"> 
-              <VALUE> Filter03 </VALUE>
+              <VALUE> Filter01 </VALUE>
             </PROPERTY>
             <PROPERTY NAME="Query" TYPE="string"> 
-              <VALUE> SELECT IndicationTime FROM CIM_ProcessIndication </VALUE>
+              <VALUE> SELECT * FROM CIM_ProcessIndication </VALUE>
             </PROPERTY>
             <PROPERTY NAME="QueryLanguage" TYPE="string"> 
-              <VALUE> WQL </VALUE>
+              <VALUE> unknownQueryLanguage </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="SourceNamespace" TYPE="string">
+            <PROPERTY NAME="SourceNamespace" TYPE="string"> 
               <VALUE> root/PG_InterOp </VALUE>
             </PROPERTY>
           </INSTANCE>

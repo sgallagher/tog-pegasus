@@ -40,7 +40,7 @@ XMLSCRIPTS = \
     DeleteHandler09 EnumerateSubscriptions04 \
     DeleteFilter01 \
     CreateFilter07 CreateFilter08 CreateFilter09 CreateFilter10 \
-    CreateFilter11 CreateFilter12 \
+    CreateFilter11 CreateFilter12 CreateFilter14 \
     CreateHandler04 CreateHandler05 CreateHandler06 CreateHandler07 \
     CreateHandler08 \
     CreateHandler10 CreateHandler11 CreateHandler12 CreateHandler13 \

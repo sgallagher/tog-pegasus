@@ -32,7 +32,7 @@ SELECT * FROM CIM_ProcessIndication WHERE IndicationTime IS NOT NULL
 </PROPERTY>
 <PROPERTY NAME="QueryLanguage" TYPE="string">
 <VALUE>
-WQL1
+WQL
 </VALUE>
 </PROPERTY>
 <PROPERTY NAME="SourceNamespace" TYPE="string">

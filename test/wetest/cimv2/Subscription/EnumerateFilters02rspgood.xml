@@ -64,7 +64,7 @@ SELECT * FROM CIM_ProcessIndication
 </PROPERTY>
 <PROPERTY NAME="QueryLanguage" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
-WQL1
+WQL
 </VALUE>
 </PROPERTY>
 <PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
@@ -134,7 +134,7 @@ SELECT IndicationTime, IndicationIdentifier, CorrelatedIndications FROM CIM_Proc
 </PROPERTY>
 <PROPERTY NAME="QueryLanguage" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
-WQL1
+WQL
 </VALUE>
 </PROPERTY>
 <PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
@@ -204,7 +204,7 @@ SELECT IndicationTime FROM CIM_ProcessIndication
 </PROPERTY>
 <PROPERTY NAME="QueryLanguage" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
-WQL1
+WQL
 </VALUE>
 </PROPERTY>
 <PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
@@ -274,7 +274,7 @@ SELECT IndicationTime, IndicationIdentifier FROM CIM_ProcessIndication WHERE Ind
 </PROPERTY>
 <PROPERTY NAME="QueryLanguage" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
-WQL1
+WQL
 </VALUE>
 </PROPERTY>
 <PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
@@ -344,7 +344,7 @@ SELECT * FROM CIM_ProcessIndication WHERE IndicationTime IS NOT NULL
 </PROPERTY>
 <PROPERTY NAME="QueryLanguage" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
-WQL1
+WQL
 </VALUE>
 </PROPERTY>
 <PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
@@ -414,7 +414,7 @@ SELECT * FROM CIM_AlertIndication WHERE AlertType = 5
 </PROPERTY>
 <PROPERTY NAME="QueryLanguage" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
 <VALUE>
-WQL1
+WQL
 </VALUE>
 </PROPERTY>
 <PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">

@@ -29,7 +29,7 @@
               </VALUE>
             </PROPERTY>
             <PROPERTY NAME="QueryLanguage" TYPE="string"> 
-              <VALUE> WQL1 </VALUE>
+              <VALUE> WQL </VALUE>
             </PROPERTY>
             <PROPERTY NAME="SourceNamespace" TYPE="string">
               <VALUE> root/PG_InterOp </VALUE>

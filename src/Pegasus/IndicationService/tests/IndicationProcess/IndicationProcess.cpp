@@ -71,7 +71,7 @@ CIMObjectPath CreateFilterInstance (CIMClient& client, const String query, const
     filterInstance.addProperty (CIMProperty(CIMName ("Query"),
 	String(query)));
     filterInstance.addProperty (CIMProperty(CIMName ("QueryLanguage"),
-        String("WQL1")));
+        String("WQL")));
     filterInstance.addProperty (CIMProperty(CIMName ("SourceNamespace"),
         String("root/SampleProvider")));
 

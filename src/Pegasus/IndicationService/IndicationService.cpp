@@ -2784,6 +2784,18 @@ Boolean IndicationService::_canCreate (
                 _MSG_PROPERTY);
 
             //
+            //  Validate the query language is supported
+            //
+            String queryLanguage;
+            instance.getProperty (instance.findProperty
+                (_PROPERTY_QUERYLANGUAGE)).getValue ().get (queryLanguage);
+            if (queryLanguage != "WQL")
+            {
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+                                            queryLanguage);
+            }
+
+            //
             //  Default value for Source Namespace is the namespace of the
             //  Filter registration
             //

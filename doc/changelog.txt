@@ -34,6 +34,8 @@ Version 0.98.0 - Work in progress
 
 9. (Mike Brasher) - Retrofited CIMOMHandle to be queue-based.
 
+10. (Mike Brasher) - Changed CIMOMHandle to carry repository pointer.
+
 ------------------------------------------------------------------------------
 --
 

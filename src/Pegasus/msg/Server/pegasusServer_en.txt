@@ -1,3 +1,22 @@
+// ==============================================================================
+// Developer's notes:
+//
+// 1)  The message key naming convention is:
+//           <directory-name>.<sourcecode-file-name>.KEY
+//
+//     This will allow us to tell which source code file is using a message.
+//     Please try to follow this naming convention.
+//
+// 2)  All the messages for a source code file are grouped together.  When adding 
+//     new messages for a source code file, please add those messages to the same 
+//     group as the other messages for that file.
+//
+// 3)  Place any platform-specific messages in the section at the end of this file.
+//
+// 4)  To compile this message bundle, run make messages (but refer to 
+//     pegasus/doc/Globalization_HOWTO.htm for details of how to set up ICU).
+// ==============================================================================
+
 en:table {
 
 	Common.CIMStatusCode.CIM_ERR_SUCCESS:string {"CIM_ERR_SUCCESS: successful"}
@@ -870,4 +889,48 @@ en:table {
 
 	Client.CIMOperationResponseDecoder.UNSUPPORTED_PROTOCOL:string {"The unsupported protocol version {0} was received, 1.0 was expected."}
 
+        // ==========================================================
+        // Start of platform-specific messages
+        // ==========================================================
+
+        // Start OS/400 messages
+
+	Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR:string {"An internal error occurred during CIMOMHandle processing."}
+
+	ProviderManager.CIMProviderOS400Helper.SWAP_ERROR:string {"An error occurred while changing the server user profile to user {0}."}
+
+	ProviderManager.CIMProviderOS400Helper.ILLEGAL_OP:string {"An illegal operation was attempted by provider {0}."}
+
+	ProviderManager.CIMProviderOS400Helper.ILLEGAL_RH_INTFC:string {"An internal error occurred during ResponseHandler processing.  An unsupported ResponseHandler interface was found."}
+
+	ProviderManager.CIMProviderOS400SystemState.USRSPC_ERROR:string {"An error occurred while using the user space YCMPROV400QTEMP *USRSPC.  Please refer to the QYCMCIMOM job log for details."}
+
+	ProviderManager.CIMProviderOS400SystemState.SRVPGM_AUTH_ERROR:string {"The user {0} is not authorized to provider service program {1}."}
+
+	ProviderManager.ResponseHandlerOS400UserState.RH_BAD_HANDLE:string {"An internal error occurred during ResponseHandler processing.  An invalid handle was found."}
+
+	ProviderManager.ResponseHandlerOS400UserState.RH_DELIVER_ERROR:string {"An internal error occurred during ResponseHandler processing.  An error occurred during delivery of objects."}
+
+	os400.shared.USERSPACE_ACCESS_ERROR:string {"An error occurred while accessing the user space YCMPROV400QTEMP *USRSPC.  The error code was {0}."}
+
+	Common.OS400SystemState.USERSPACE_CREATE_ERROR:string {"An error occurred while creating the user space YCMPROV400QTEMP *USRSPC.  The error code was {0}."}
+
+	Common.OS400SystemState.SERVER_PROFILE_ERROR:string {"An unknown error occurred while retrieving the user profile of the server."}
+
+	Common.OS400UserState.SRVPGM_NOT_FOUND:string {"The provider service program {0} was not found."}
+
+	Common.OS400UserState.SRVPGM_RESOLVE_ERROR:string {"An unknown error occurred while loading the provider service program {0}."}
+
+	Common.OS400UserState.SRVPGM_ACTIVATE_ERROR:string {"An error occurred while loading the provider service program {0}.  The error code was {1}."}
+
+	Common.OS400UserState.SRVPGM_EXPORT_ERROR:string {"An error occurred while starting the provider service program {0}.  The error code was {1}."}
+
+	Common.OS400UserState.SRVPGM_SYSTEM_STATE:string {"An error occurred while loading the provider service program {0}.  The provider service program has a domain of *SYSTEM."}
+
+
+        // End OS/400 messages
+
+        // ========================================================== 
+        // End of platform-specific messages
+        // ==========================================================     
 }
